@@ -1,0 +1,74 @@
+<style>
+    mark {
+        background: transparent;
+        color: #C82647;
+    }
+    .bordered {
+        border-bottom: 1px solid #dedede;
+        padding-bottom: 5px;
+    }
+</style>
+
+<div class="container">
+  <div class="gray-bg">
+    <div class="flex">
+      <div class="flag">
+        <%= word_root.root_number %>
+      </div>
+      <div class="trilateral-header">
+        <p><%= word_root.english_trilateral %>&nbsp<%= word_root.arabic_trilateral %></p>
+      </div>
+    </div>
+    <div class="mt-3 text-center">
+      <img src="<%= word_root.cover_url %>" class="img"/>
+    </div>
+    <div class="text-center defination-header">Defination</div>
+    <div class="defination-wraper">
+      <div class="text-center">
+        <% word_root.root_definitions.literal.each do |definition| %>
+          <p><%= definition.description %></p>
+        <% end %>
+      </div>
+      <% word_root.root_definitions.regular.each_with_index do |definition, index| %>
+        <div class="flex">
+          <div>
+            <div class="<%= 'burst-12' if definition.definition_type == 'regular' %>"><span><%= index + 1 %></span>
+            </div>
+          </div>
+          <p><%= definition.description %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="quranic-usage-header text-center">Quranic Usage</div>
+    <div>
+      <% last_translation = nil %>
+      <% word_root.root_examples.where.not(word_arabic: nil).each do |example| %>
+       <span class="example">
+           <span class="qpc-hafs">
+             <%= example.word_arabic %>
+           </span>
+
+           <% if example.word_translation && last_translation != example.word_translation  %>
+             <% last_translation = example.word_translation   %>
+            <span class="example-translation">
+              (<%= example.word_translation %>)
+            </span>
+          <% end %>
+       </span>
+      <% end %>
+    </div>
+
+    <% word_root.root_examples.where.not(segment_arabic: nil).each do |example| %>
+      <% if example.segment_arabic %>
+        <div class="qpc-hafs text-center mb-1">
+          <%= highlight(example.segment_arabic, example.word_arabic) %>
+        </div>
+
+        <div class="text-center bordered">
+          <%= example.segment_translation %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

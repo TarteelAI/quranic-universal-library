@@ -1,0 +1,383 @@
+<template>
+  <div class="row">
+    <div class="col-12" v-if="segmentsLoaded">
+      <div class="h3">
+        Current Ayah {{ currentVerseKey }}
+        <select @change="changeAyah">
+          <option
+              v-for="(num, index) in Array.from(
+              { length: versesCount },
+              (_, i) => i + 1
+            )"
+              :key="index"
+              :selected="num == currentVerseNumber"
+          >
+            {{ num }}
+          </option>
+        </select>
+      </div>
+
+
+      <div class="qpc-hafs d-flex flex-wrap words">
+        <span
+            :id="index + 1"
+            :class="[this.getWordCssClass(index)]"
+            v-for="(text, index) in wordsText"
+            :key="index"
+            title="Repeat word"
+            @click="showWordPopover"
+        >
+          {{ text }}
+        </span>
+      </div>
+
+      <div v-if="shouldShowSegment">
+        <h4>
+          <span class="me-auto">Segments</span>
+          <button @click="saveAyahSegment" :disabled="segmentLocked">Save Segments</button>
+        </h4>
+        <div class="table-wrapper" id="tableWrapper">
+          <table class="table table-hover">
+            <thead>
+            <td>Word</td>
+            <th>Text</th>
+            <td>Start</td>
+            <td>Ends</td>
+            <td>Actions</td>
+            </thead>
+            <tbody>
+            <tr
+                :id="[`word-${segment[0]}-${index}`]"
+                :class="[index + 1 == currentWord ? 'active word' : 'word']"
+                v-for="(segment, index) in verseSegment.segments"
+                :key="index"
+                :data-index="index"
+                :data-word="segment[0]"
+            >
+              <td>
+                <input
+                    type="number"
+                    min="1"
+                    :value="segment[0]"
+                    :data-index="index"
+                    :disabled="segmentLocked"
+                    @change="updateSegmentNumber"
+                />
+                <small class="form-text d-block">
+                  {{ segment[0] }}
+                </small>
+              </td>
+              <td>{{ segmentText(segment) }}</td>
+              <td>
+                <input
+                    type="number"
+                    min="0"
+                    :id="[`start-${segment[0]}-${index}`]"
+                    :value="segment[1]"
+                    :data-index="index"
+                    :disabled="segmentLocked"
+                    @change="updateSegmentStart"
+                />
+                <small class="form-text d-block">
+                  {{ segmentOriginalStart(index) }}
+                </small>
+              </td>
+              <td>
+                <input
+                    type="number"
+                    min="0"
+                    :value="segment[2]"
+                    :id="[`end-${segment[0]}-${index}`]"
+                    :data-index="index"
+                    :disabled="segmentLocked"
+                    @change="updateSegmentEnd"
+                />
+                <small class="form-text d-block">
+                  {{ segmentOriginalEnd(index) }}
+                </small>
+              </td>
+
+              <td :data-word="segment[0]" :data-index="index">
+                <button @click="insertSegment" class="btn btn-sm btn-info" :disabled="segmentLocked">Add</button>
+                <button @click="removeSegment" class="me-2 btn btn-sm btn-danger" :disabled="segmentLocked">Remove</button>
+
+                <button @click="playWord" class="btn btn-sm btn-secondary">
+                  {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
+                </button>
+                <button @click="loopWord" class="me-2 btn btn-sm btn-secondary">
+                  {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
+                </button>
+
+                <button @click="trackTime" class="btn btn-sm btn-warning" :disabled="segmentLocked">Track</button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import {mapState} from "vuex";
+
+export default {
+  name: "Player",
+  created() {
+    window.store = this.$store;
+
+    this.unwatch = this.$store.watch(
+        (state) => state.currentWord,
+        (newValue, _) => {
+          //const row = window[`word${newValue}`];
+          //if (row) row.scrollIntoView(false, { behavior: "instant" });
+        }
+    );
+
+    this.unwatchWord = this.$store.watch(
+        (state, getters) => state.wordLoopTime,
+
+        (newValue, _) => {
+          if (newValue >= 0) {
+            player.currentTime = newValue / 1000;
+          }
+        }
+    );
+
+    addEventListener('click', e => {
+      const target = e.target;
+
+      if (target.getAttribute('data-action') == 'repeat-group') {
+        this.insertRepeatGroupSegment(Number(target.dataset.word))
+
+        if(window.popover){
+          window.popover.dispose()
+          window.popover = null
+        }
+      }
+    }, false);
+  },
+  beforeDestroy() {
+    this.unwatch();
+  },
+  methods: {
+    getWordCssClass(index) {
+      let cssClasses = 'word';
+
+      if (index + 1 == this.currentWord) {
+        cssClasses += ' active'
+      }
+
+      if (this.repeatGroups.includes(index + 1)) {
+        cssClasses += ' bg-info'
+      }
+
+      return cssClasses;
+    },
+    insertRepeatGroupSegment(word) {
+      const lastRepeatWord = this.repeatGroups[this.repeatGroups.length - 1];
+
+      if (this.repeatGroups.includes(word) || lastRepeatWord > word) {
+        this.$store.commit("SET_ALERT", {
+          text: "Sorry can't add repeat group after this word, it already have a repeated group."
+        });
+        return
+      }
+
+      this.$store.commit("INSERT_REPEAT_SEG_AFTER", {word});
+    },
+    insertSegment(event) {
+      const target = event.target;
+      const {word, index} = target.parentElement.dataset;
+      this.$store.commit("INSERT_SEG_AFTER", {
+        word,
+        index: Number(index) + 1,
+      });
+    },
+    removeSegment(event) {
+      const target = event.target;
+      const {index} = target.parentElement.dataset;
+
+      if (confirm("Are you sure to remove this segment?")) {
+        this.$store.commit("REMOVE_SEGMENT", {
+          index: Number(index),
+        });
+      }
+    },
+    saveAyahSegment(event) {
+      if(this.segmentLocked){
+        this.$store.commit("SET_ALERT", { text: "Sorry segments are locked for this reciter." });
+      } else
+      this.$store.dispatch('SAVE_AYAH_SEGMENTS');
+    },
+    showWordPopover(event) {
+      const target = event.target;
+
+      if (target.hasPopover) {
+        target.hasPopover = false;
+      } else {
+        const content = `<button data-word=${target.id} data-action=repeat-group>Repeat segments</button>`
+        target.hasPopover = true;
+
+        let a = $(event.target).popover({
+          title: target.textContent,
+          content: content,
+          html: true,
+          sanitize: false
+        });
+      }
+    },
+    updateSegmentStart(event) {
+      const target = event.target;
+      const {index} = target.dataset;
+
+      this.$store.commit("TRACK_SEG_START", {
+        time: target.value,
+        index: index
+      });
+
+      // refresh
+      this.$store.state.showSegments = false
+      this.$store.state.showSegments = true
+    },
+    updateSegmentEnd(event) {
+      const target = event.target;
+      const {index} = target.dataset;
+
+      this.$store.commit("TRACK_SEG_END", {
+        time: target.value,
+        index: index
+      });
+
+      // refresh
+      this.$store.state.showSegments = false
+      this.$store.state.showSegments = true
+    },
+    segmentOriginalStart(index) {
+      const segment = this.verseOriginalSegment.segments[index];
+      if (segment) return segment[1];
+    },
+    segmentOriginalEnd(index) {
+      const segment = this.verseOriginalSegment.segments[index];
+      if (segment) return segment[2];
+    },
+    segmentText(segment) {
+      return this.wordsText[segment[0] - 1];
+    },
+    changeAyah(event) {
+      this.$store.commit("CHANGE_AYAH", {to: event.target.value});
+    },
+    loopWord(event) {
+      this.$store.commit("TOGGLE_LOOP_WORD", {
+        word: event.target.parentNode.parentNode.dataset.word,
+      });
+
+      if (player.paused)
+        player.play()
+    },
+    playWord(event) {
+      player.pause();
+    },
+    updateSegmentNumber(event) {
+      const target = event.target;
+      const {index} = target.dataset;
+
+      this.$store.commit("SET_SEG_WORD_NUMBER", {
+        word: target.value,
+        index: index,
+      });
+    },
+    trackTime(event) {
+      const target = event.target;
+      const {word, index} = target.parentElement.dataset;
+      const segStart = document.querySelector(`#start-${word}-${index}`);
+
+      if (segStart.value.length == 0 ) {
+        this.$store.commit("TRACK_SEG_START", {
+          time: player.currentTime * 1000,
+          index: index
+        });
+      } else {
+        this.$store.commit("TRACK_SEG_END", {
+          time: player.currentTime * 1000,
+          index: index
+        });
+
+        this.$store.commit("TRACK_SEG_START", {
+          time: player.currentTime * 1000,
+          index: Number(index) + 1
+        });
+      }
+    }
+  },
+  computed: {
+    ...mapState([
+      "currentVerseKey",
+      "wordsText",
+      "currentWord",
+      "loopingWord",
+      "playingWord",
+      "showSegment",
+      "verseSegment",
+      "verseOriginalSegment",
+      "showSegments",
+      "versesCount",
+      "currentVerseNumber",
+      "playing",
+      "repeatGroups",
+      "segmentLocked",
+      "audioType"
+    ]),
+    segmentsLoaded() {
+      return !!this.verseSegment;
+    },
+    shouldShowSegment() {
+      return this.showSegments && this.segmentsLoaded;
+    }
+  },
+};
+</script>
+
+<style scoped>
+.active {
+  color: #fff;
+  background-color: #198754;
+}
+
+.active .form-text {
+  color: #fff;
+}
+
+.word {
+  border: 1px dotted #198754;
+  padding: 0 3px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+.table-wrapper {
+  /*height: 100px !important;
+  overflow: scroll;
+  scroll-behavior: smooth;*/
+}
+
+tr {
+  scroll-behavior: smooth;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+}
+
+.words {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+}
+</style>

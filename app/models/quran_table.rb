@@ -1,0 +1,2 @@
+class QuranTable < QuranApiRecord
+end

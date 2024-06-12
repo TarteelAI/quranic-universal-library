@@ -1,0 +1,55 @@
+<div class="page-wrapper transliteration">
+  <h1 class="page-header">
+    <%= @resource ? @resource.name : 'Select Mushaf' %>
+  </h1>
+
+  <% if @access %>
+    <div class="callout alert alert-dismissible" role="alert">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 30px; margin-top: 10px">
+            <%= @access.admin_notes.to_s.html_safe %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <figure class="highlight">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Pages</th>
+        <th>Lines per page</th>
+        <th>Font</th>
+        <th>Qirat</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% Mushaf.find_each do |m| %>
+        <tr>
+          <td>
+            <%= link_to m.id, mushaf_layout_path(m.id) %>
+          </td>
+          <td><%= m.name %></td>
+          <td><%= m.pages_count %></td>
+          <td><%= m.lines_per_page %></td>
+          <td><%= m.default_font_name %></td>
+          <td><%= m.qirat_type&.name %></td>
+          <td>
+            <%= link_to 'Proofread', mushaf_layout_path(m.id, source_pdf: true), class: 'mr-2 btn btn-warning btn-sm' %>
+            <%= link_to 'Fix line align', mushaf_layout_path(m.id, page_alignment: true), class: 'btn btn-warning btn-sm' %>
+
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </figure>
+</div>
+
+

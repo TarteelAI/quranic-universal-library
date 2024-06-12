@@ -1,0 +1,130 @@
+<%
+  indopak_words = @verse.text_indopak.split(/\s+/)
+  uthmani_words = @verse.text_uthmani.split(/\s+/)
+  imlaei_words = @verse.text_imlaei.split(/\s+/)
+
+  word_index = 0
+%>
+<div class="row" id="editor-wrap">
+  <div class="callout alert alert-dismissible" role="alert">
+    <h2>﷽ </h2>
+    <h4>
+      Ayah: <%= @verse.verse_key %>
+      <span class="indopak"> سورہٴ <%= @verse.chapter.name_arabic %></span>.
+    </h4>
+  </div>
+
+  <div class="col-md-12">
+    <b>Text Indopak</b>
+    <p class="indopak" id="ayah_text"><%= @verse.text_indopak %> </p>
+  </div>
+
+  <div class="col-md-12">
+    <b>Text Imlaei</b>
+    <p class="madani" id="ayah_text"><%= @verse.text_imlaei %> </p>
+  </div>
+
+
+  <div class="col-md-12">
+    <b>KFQC HAfs</b>
+    <p class="madani" id="ayah_text"><%= @verse.text_qpc_hafs %> </p>
+  </div>
+
+  <div class="col-md-12">
+    <b>Text Uthmani</b>
+    <p class="madani" id="ayah_text"><%= @verse.text_uthmani %> </p>
+
+    <p>
+      <b>Text Uthmani with codes</b>
+
+      <% @verse.words.order("position ASC").each do |w| %>
+      <span class="v2p<%= w.page_number %> char-<%= w.char_type_name.to_s.downcase %>" style="font-size: 45px">
+        <%= w.code_v1 %>
+      </span>
+      <% end %>
+    </p>
+  </div>
+
+  <div class="col-md-12">
+    <%= form_with model: @verse, url: wbw_texts_path(verse_id: @verse.id), method: :post, html: {class: 'form', autocomplete: 'off'} do |form| %>
+      <div id="words">
+        <%= form.fields_for :wbw_texts, @wbw_texts do |w_form| %>
+          <%= w_form.hidden_field :word_id %>
+          <% word = w_form.object.word %>
+          <div class="well">
+            <p>
+              Word# <%= word.location %> (word type: <b><%= word.char_type_name %> </b>)
+              <% if word.char_type_name != 'word' %>
+                <span style="font-size: 50px"><%= word.text_uthmani %></span>
+              <% end %>
+            </p>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <%= w_form.text_field :text_uthmani, class: 'form-control madani soft-keyboard' %>
+
+                  <p class="help-block">
+                    Text Uthmani
+                    <br/>
+                    Expected:
+                    <span class="madani"><%= uthmani_words[word_index] if word.char_type_name == 'word' %></span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <%= w_form.text_field :text_qpc_hafs, class: 'form-control madani soft-keyboard' %>
+
+                  <p class="help-block">
+                    KFQC Uthmani
+                    <br/>
+                    Expected:
+                    <span class="madani"><%= uthmani_words[word_index] if word.char_type_name == 'word' %></span>
+                  </p>
+                </div>
+              </div>
+
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <%= w_form.text_field :text_imlaei, class: 'form-control madani soft-keyboard' %>
+                  <p class="help-block">
+                    Text Imlaei
+                    <br/>
+                    Expected:
+                    <span class="madani"><%= imlaei_words[word_index] if word.char_type_name == 'word' %></span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <%= w_form.text_field :text_indopak, class: 'form-control indopak soft-keyboard' %>
+                  <p class="help-block">
+                    Text Indopak.
+                    <br/>
+                    Expected: <span class="indopak"><%= indopak_words[word_index] if word.char_type_name == 'word' %></span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <% word_index += 1 %>
+        <% end %>
+      </div>
+
+      <div class="form-group">
+        <%= form.submit "Save ayah", class: 'btn btn-success', data: {disable_with: 'Please wait...'} %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+    $(function () {
+        initSoftKeyboard()
+    })
+</script>

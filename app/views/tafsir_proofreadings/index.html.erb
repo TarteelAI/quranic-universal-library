@@ -1,0 +1,94 @@
+<div class="page-wrapper transliteration">
+  <h1 class="page-header">
+    <%= @resource.name %>
+  </h1>
+
+  <p class="lead">
+    Use filters to find tafisrs you're looking for, click on <code>Edit</code> button to fix any issue in tafisr.
+  </p>
+
+  <div class="page-section">
+    <div class="filters row">
+      <div class="col-12">
+        <%= form_tag tafsir_proofreadings_path, method: :get, class: 'd-flex' do %>
+          <div class="form-group me-2">
+            <%= select_tag :resource_id, options_from_collection_for_select(@tafsir_list, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select', data: {placeholder: 'Select tafisr', controller: 'select2'} %>
+            <p class="form-text">Filter tafisr</p>
+          </div>
+
+          <div class="form-group me-2">
+            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by surah', controller: 'select2'} %>
+            <p class="form-text">Filter by Surah</p>
+          </div>
+
+          <div class="form-group me-2">
+            <%= select_tag :filter_verse, options_for_select(1..114, params[:filter_verse]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by surah', controller: 'select2'} %>
+            <p class="form-text">Filter by Ayah</p>
+          </div>
+
+          <div class="form-group me-2">
+            <%= text_field_tag :query, params[:query] , class: 'form-control', placeholder: 'Search' %>
+            <p class="form-text">Search tafsir content</p>
+          </div>
+
+          <div class="form-group">
+            <%= submit_tag 'Filter', class: 'btn btn-primary', data: {disable_with: 'Please wait..'} %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <figure class="highlight">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th><%= sort_order_link 'Id', :id, resource_id: @resource.id %></th>
+        <th>Resource</th>
+        <th>Ayah Group</th>
+        <th><%= sort_order_link 'From ayah', :group_verse_key_from, resource_id: @resource.id %></th>
+        <th><%= sort_order_link 'To ayah', :group_verse_key_to, resource_id: @resource.id %></th>
+        <th><%= sort_order_link 'Group ayah count', :group_verses_count, resource_id: @resource.id %></th>
+        <th>Actions</th>
+      </tr>
+
+      </thead>
+      <tbody>
+      <% @ayah_tafisrs.each do |tafisr| %>
+        <tr>
+          <td scope="row"><%= tafisr.id %></td>
+          <td>
+            <%= tafisr.resource_name %>
+          </td>
+          <td>
+            <%= tafisr.verse_key %>
+          </td>
+          <td>
+            <%= tafisr.group_verse_key_from %>
+          </td>
+          <td>
+            <%= tafisr.group_verse_key_to %>
+          </td>
+          <td>
+            <%= tafisr.group_verses_count %>
+          </td>
+          <td class="d-flex">
+            <%= link_to 'View draft', tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id, draft: true), class: 'btn btn-info me-1' %>
+            <%= link_to 'Edit', edit_tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-info me-1' %>
+            <%= link_to 'Show', tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-success' %>
+          </td>
+        </tr>
+      <% end %>
+      <tr>
+        <td colspan="4">
+          <%= pagy_bootstrap_nav(@pagy).html_safe %>
+        </td>
+
+        <td colspan="2">
+          <%= pagy_info(@pagy).html_safe %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </figure>
+</div>

@@ -1,0 +1,37 @@
+<div id=title>
+  Edit history for Surah <%= @info.chapter.name_simple %> <%= @info.language_name %> info
+</div>
+
+<div id=body>
+  <div class="modal-body">
+    <table class="table table-bordered">
+      <thead>
+      <th>Date</th>
+      <th>Event</th>
+      <th>User</th>
+
+      <th>Actions</th>
+      </thead>
+
+      <tbody>
+      <% @info.versions.unscope(:order).order('created_at DESC').each do |version| %>
+        <tr>
+          <td>
+            <%= version.created_at.strftime("%B %d, %Y at %I:%M %P") %>
+          </td>
+          <td>
+            <%= version.event %>
+          </td>
+          <td>
+            <%= whodunnit version %>
+          </td>
+
+          <td>
+            <%= link_to "View Changes", changes_surah_info_path(@info.chapter_id, version: version.id, resource_id: @resource.id, language: @info.language_id), target: '_blank' %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+.card-columns {
+  columns: 2;
+  column-count: 2;
+  gap: 1.25rem;
+  orphans: 1;
+  widows: 1;
+
+  .card {
+    height: 300px;
+    min-height: 300px;
+    margin-bottom: 1.25rem;
+    break-inside: avoid-column;
+    position: unset;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      background-color: rgba(0, 0, 0, .7);
+      color: #fff;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+
+

@@ -1,0 +1,167 @@
+<div class="page-wrapper mutashabihat" style="position: relative">
+  <h1 class="page-header d-flex align-items-center justify-content-between">
+    <span>
+      <%= @resource.name %>:
+
+      <% if params[:text].present? %>
+       For phrase <%= params[:text] %>
+      <% else %>
+        For ayah <%= params[:source_verse_key] || @phrase&.source_verse&.verse_key %>
+      <% end %>
+    </span>
+
+    <span>
+      <%= link_to 'Back', morphology_phrases_path, class: 'btn btn-success' %>
+    </span>
+  </h1>
+
+  <div data-controller="mutashabihat-builder">
+    <%= form_with url: new_morphology_phrase_path, method: :get do |f| %>
+      <%= f.hidden_field :phrase_id, value: @phrase&.id %>
+      <div class="page-section">
+        <figure class="highlight border my-2 p-2">
+          <h3>Source ayah/phrase</h3>
+          <%
+            ayah, range = @phrase_search.source_verse_and_range
+            range ||= [-1, -1]
+          %>
+
+          <div class="row" style="    position: sticky;
+            top: 0px;
+            z-index: 100;
+            background: #fff;">
+            <div class="col-md-6">
+              <div class="form-group">
+                <%= f.label :ayah_key, 'Selected ayah' %>
+                <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key), selected: ayah&.verse_key), { include_blank: true }, class: 'form-control', id: 'source_ayah', data: { placeholder: 'Select ayah', controller: 'select2' } %>
+                <p class="help-block">
+                  Ayah has more priority, if selected it'll ignore the phrase
+                </p>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-6">
+                  <div class="form-group">
+                    <%= f.label :word_from, 'Word from' %>
+                    <%= f.select :word_from, options_for_select(ayah.words.map do |w|
+                      ["#{w.position} - #{w.text_qpc_hafs} ", w.position]
+                    end, selected: range[0]), { include_blank: true }, class: 'form-control word-from', data: { placeholder: 'Select starting word', controller: 'select2' } %>
+                  </div>
+                </div>
+
+                <div class="col-6">
+                  <div class="form-group">
+                    <%= f.label :word_to, 'Word to' %>
+                    <%= f.select :word_to, options_for_select(ayah.words.map do |w|
+                      ["#{w.position} - #{w.text_qpc_hafs} ", w.position]
+                    end, selected: range[1]), { include_blank: true }, class: 'form-control word-to', data: { placeholder: 'Select ending word', controller: 'select2' } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="text"
+                 name="text"
+                 id="text"
+                 class="form-control quran-text qpc-hafs"
+                 value="<%= @phrase_search.phrase_text %>">
+          <div class="d-flex quran-text flex-wrap">
+            <div>
+              <%= ayah.verse_key %>
+            </div>
+
+            <% ayah.words.words.each do |w| %>
+              <div class="d-flex flex-column m-3 align-items-center">
+              <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0] && w.position <= range[1] %>">
+                <%= w.text_qpc_hafs %>
+              </span>
+              </div>
+            <% end %>
+          </div>
+        </figure>
+
+        <div class="filters row">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="form-group">
+                <div class="form-check form-switch">
+                  <%= check_box_tag :use_text_search, 1, params[:use_text_search].blank? || params[:use_text_search].to_i == 1, id: 'use_text_search', class: 'form-check-input' %>
+                  <%= label_tag :use_text_search, 'Use text search', class: 'form-check-label' %>
+                </div>
+
+                <div class="form-check form-switch">
+                  <%= check_box_tag :use_root_search, 1, params[:use_root_search].to_i == 1, id: 'use_root_search', class: 'form-check-input' %>
+                  <%= label_tag :use_root_search, 'Use root search', class: 'form-check-label' %>
+                </div>
+
+                <div class="form-check form-switch">
+                  <%= check_box_tag :use_lemma_search, 1, params[:use_lemma_search].to_i == 1, id: 'use_lemma_search', class: 'form-check-input' %>
+                  <%= label_tag :use_lemma_search, 'Use lemma search', class: 'form-check-label' %>
+                </div>
+
+                <div class="form-check form-switch">
+                  <%= check_box_tag :use_lcs_search, 1, params[:use_lcs_search].to_i == 1, id: 'use_lcs_search', class: 'form-check-input' %>
+                  <%= label_tag :use_lcs_search, 'Use LCS search', class: 'form-check-label' %>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <%= submit_tag 'Filter', class: 'btn btn-primary', data: { disable_with: 'Please wait..' } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <figure class="highlight border my-2 p-2">
+          <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active"
+                 data-bs-toggle="tab"
+                 data-bs-target="#tab-suggestions"
+                 role="tab" aria-selected="true">
+                Suggestions
+                <span class="badge bg-success"><%= @suggestions.keys.size %></span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link"
+                 data-bs-toggle="tab"
+                 data-bs-target="#tab-ayahs"
+                 role="tab" aria-selected="false">
+                Ayahs
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content p-3">
+            <div class="tab-pane fade active show" id="tab-suggestions" role="tabpanel" aria-labelledby="tab-suggestions">
+              <div id="suggestions">
+                <%= render 'add_ayah' %>
+
+                <div id=suggested-ayahs>
+                  <% @suggestions.each do |key, suggestion| %>
+                    <%= render 'ayah', options: suggestion %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-ayahs" role="tabpanel" aria-labelledby="tab-ayahs">
+              <% if @phrase&.persisted? %>
+                <%= turbo_frame_tag 'phrase-verses', src: morphology_phrase_path(@phrase.id, result_type: 'preview'), loading: "lazy", target: 'self' do
+                  'Loading please wait..'
+                end %>
+              <% else %>
+                WIP
+              <% end %>
+            </div>
+          </div>
+        </figure>
+      </div>
+    <% end %>
+  </div>
+</div>

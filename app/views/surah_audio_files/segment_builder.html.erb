@@ -1,0 +1,32 @@
+<%= javascript_include_tag "segments/index", defer: true %>
+<%= stylesheet_link_tag "segments/index", defer: true %>
+
+<div class="page-wrapper mt-0">
+  <h3 class="page-header d-flex m-0">
+    <small class="flex-grow-1">
+      Segment builder for <%= @recitation.name %>(<%= @recitation.id %>) - Surah <%= @audio_file.chapter.name_simple %>
+    </small>
+
+    <span>
+      <%= link_to 'Back to Index', surah_audio_files_path(recitation_id: @recitation.id), class: 'btn btn-success' %>
+      <%= link_to 'Previous Surah', segment_builder_surah_audio_file_path(@audio_file.chapter_id - 1, recitation_id: @recitation.id), class: 'btn btn-success' if @audio_file.chapter_id > 1 %>
+      <%= link_to 'Next Surah', segment_builder_surah_audio_file_path(@audio_file.chapter_id + 1, recitation_id: @recitation.id), class: 'btn btn-success' if @audio_file.chapter_id < 114 %>
+
+      <%= link_to '#_', class: 'btn btn-info', data: {controller: 'ajax-modal', url: builder_help_surah_audio_files_path} do %>
+        Help
+      <% end %>
+    </span>
+  </h3>
+
+  <div class="page-section">
+    <div id="app"
+         data-recitation="<%= @recitation.id %>"
+         data-segment-locked="<%= @recitation.segment_locked? %>"
+         data-chapter="<%= @audio_file.chapter_id %>"
+         data-verses-count="<%= @audio_file.chapter.verses_count %>"
+         data-verse="<%= params[:verse] %>"
+         data-audio-type="chapter">
+         <p>Loading</p>
+    </div>
+  </div>
+</div>

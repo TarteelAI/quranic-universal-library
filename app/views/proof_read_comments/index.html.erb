@@ -1,0 +1,41 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">
+    Proofreading comments for <%= @resource.name %>
+  </h4>
+</div>
+
+<div class="modal-body">
+  <div class="comments-list">
+  <% @comments.each do |comment| %>
+    <div class="media">
+      <p class="float-right"><small><%= comment.created_at.strftime "%B %d, %Y at %I:%M %P" %></small></p>
+      <div class="media-body">
+        
+        <h4 class="media-heading user_name"><%= comment.user.first_name.to_s.humanize %></h4>
+        <%= comment.text %>
+      </div>
+    </div>
+  <% end %>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <%= form_for @resource.proof_read_comments.build do |form| %>
+        <%= form.hidden_field :resource, value: @resource.class.to_s %>
+        <%= form.hidden_field :resource_id, value: @resource.id %>
+        
+        <div class="form-group">
+          <%= form.label :text, "Add comment" %>
+          <%= form.text_area :text, required: true, placeholder: 'Write your comment', cols: nil, rows: nil, class: 'form-control' %>
+        </div>
+        <%= form.submit "Add comment", class: 'btn btn-success' %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>

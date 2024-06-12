@@ -1,0 +1,18 @@
+<% id = "page-#{@record.page_number}-line-#{@record.line_number}" %>
+
+<%= turbo_stream.replace id do %>
+  <div id="<%= id %>">
+    <%= form_with model: @record, url: save_line_alignment_mushaf_layout_path(@mushaf, line: @record.line_number, page_number: @record.page_number), method: :put, html: { class: 'form-inline' } do |form| %>
+      <div class="d-flex my-2">
+        <a class="btn btn-sm">
+          <%= @record.line_number %>
+        </a>
+
+        <%= form.submit "C", title: 'Center aligned', class: "mx-2 btn btn-sm #{ @record.is_center_aligned? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
+        <%= form.submit "J", title: 'Justify line', class: "mx-2 btn btn-sm #{ @record.is_justified? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
+        <%= form.submit "B", title: 'Bismillah', class: "mx-2 btn btn-sm #{ @record.is_bismillah? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
+        <%= form.submit "N", title: 'Surah name', class: "mx-2 btn btn-sm #{ @record.is_surah_name? ? 'btn-success' : 'btn-dark'}", data: {controller: 'tooltip'} %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

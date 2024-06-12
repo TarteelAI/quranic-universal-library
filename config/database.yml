@@ -1,0 +1,32 @@
+quran_api_db_dev:
+  adapter: postgresql
+  encoding: unicode
+  database: quran_dev
+  schema_search_path: quran,"$user",public
+
+quran_api_db:
+  adapter: postgresql
+  encoding: unicode
+  schema_search_path: quran,"$user",public
+  database: <%= ENV['QURAN_API_DB_NAME'] %>
+  host: <%= ENV['QURAN_API_DB_HOST'] %>
+  port: <%= ENV['QURAN_API_DB_PORT'] %>
+  username: <%= ENV['QURAN_API_DB_USERNAME'] %>
+  password: <%= ENV['QURAN_API_DB_PASSWORD'] %>
+
+development:
+  adapter: postgresql
+  database: quran_community_tarteel
+
+test:
+  adapter: postgresql
+  database: quran_community_cms_test
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: <%= ENV['CMS_DB_NAME'] %>
+  host: <%= ENV['CMS_DB_HOST'] %>
+  port: <%= ENV['CMS_DB_PORT'] %>
+  username: <%= ENV['CMS_DB_USERNAME'] %>
+  password: <%= ENV['CMS_DB_PASSWORD'] %>

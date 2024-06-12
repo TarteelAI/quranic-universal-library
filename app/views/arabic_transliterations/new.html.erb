@@ -1,0 +1,123 @@
+<div class="row transliteration" id="editor-wrap">
+  <div class="callout alert alert-dismissible" role="alert">
+    <h2>﷽ </h2>
+    <h4>Things to consider before typing!!</h4>
+    <ul>
+      <li>
+        <b>Change the image if it don't have ayah you're looking for</b>
+        The image below should have <%= @verse.verse_number.ordinalize %> ayah of
+        <span class="indopak"> سورہٴ <%= @verse.chapter.name_arabic %></span>.
+        If you can't find <%= @verse.verse_key %> in this image, please change the image using
+        <code>Jump to page number</code> selector.
+
+        Page numbering in these images is very different from standard Quran layout. This image is our best guess.
+      </li>
+
+      <li>You can zoom, drag and drop the image to position the ayah you're typing in viewport.</li>
+
+      <li>
+        <b>Word by word transliteration</b> Image is show you ayah by ayah transliteration, but we're going to split
+        this into word by word transliteration.
+        There might be some places where you have to split the transliteration into multiple words.
+      </li>
+
+      <li>
+        <b>Soft Keyboard</b>
+        Typing Arabic is bit hard, you might not have an Arabic keyboard. No problem though, we've added inline soft
+        keyboard.
+      </li>
+      <li>Feel free to close this alert and start typing :) May Allah help us to complete this project.</li>
+    </ul>
+  </div>
+
+  <div class="col-lg-12">
+    <div class="form-group">
+      <%= select_tag :change_page, options_for_select(1..980, @predicted_page), class: 'form-control', data: { placeholder: 'Jump to page' } %>
+      <p class="help-block">Jump to page number</p>
+    </div>
+
+    <canvas></canvas>
+  </div>
+
+  <div class="col-lg-12">
+    <p class="indopak" id="ayah_text"><%= @verse.verse_key %>  <%= @verse.text_indopak %> </p>
+    <%= form_for @verse, url: arabic_transliterations_path(verse_id: @verse.id), method: :post, html: { class: 'form', dir: 'rtl', autocomplete: 'off' } do |form| %>
+      <div id="words row">
+        <%= form.fields_for :arabic_transliterations, @arabic_transliterations do |trans_form| %>
+          <%= trans_form.hidden_field :word_id %>
+          <%= trans_form.hidden_field :page_number, class: 'word-page' %>
+          <%= trans_form.hidden_field :position_x, class: 'pos-x' %>
+          <%= trans_form.hidden_field :position_y, class: 'pos-y' %>
+          <%= trans_form.hidden_field :zoom, class: 'zoom' %>
+
+          <div class="well">
+            <p>Word# <%= trans_form.object.location %></p>
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="form-group">
+                  <% ur = trans_form.object.ur_translation.presence || trans_form.object&.word&.ur_translation&.text %>
+                  <%= trans_form.text_field :ur_translation, value: ur, class: 'form-control' %>
+                  <p class="help-block">
+                    <span>
+                       <%= trans_form.object&.word&.en_translation&.text %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="form-group">
+                  <%= trans_form.text_field :indopak_text, class: 'form-control indopak' %>
+                  <p class="help-block">
+                    <span class="indopak">
+                       <%= trans_form.object.text_simple %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="form-group ">
+                  <%= trans_form.check_box :continuous %>
+                  <p class="help-block">
+                    ?Continuous
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="form-group">
+                  <%= trans_form.text_area :text, placeholder: trans_form.object.text_simple, autocomplete: false, class: 'form-control indopak transliteration' %>
+                  <p class="help-block">
+                    Word transliteration
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="form-group">
+        <%= form.submit "Save ayah", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+    $(function () {
+        $('select.form-control').chosen()
+        initSoftKeyboard()
+
+        window.pageZoomer = new Utility.ImageZoomer("http://static.quran.com/urdu_transliteration/<%=@predicted_page%>.jpg")
+
+        $("#change_page").on("change", jumpToPage)
+
+        function jumpToPage(e) {
+            var val = $(e.target).val()
+            $(".word-page").val(val)
+            pageZoomer.changeImage("http://static.quran.com/urdu_transliteration/" + val + ".jpg")
+        }
+    })
+</script>

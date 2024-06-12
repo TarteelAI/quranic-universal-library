@@ -1,0 +1,5 @@
+<% if params[:all] %>
+  $(".phrase-ayah").text("<%=  params[:toggle] == '1' ? 'Un approve' : 'Approve!'%>")
+<% else %>
+$('#<%= dom_id resource %>').text("<%= resource.approved? ? 'Un Approve!' : 'Approve!' %>");
+<% end %>

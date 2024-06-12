@@ -1,0 +1,28 @@
+<div class="mt-2">
+  <%
+    export_formats = [
+      ['Sqlite database', 'sqlite']
+    ]
+
+    if resource.translation?
+      export_formats.push(['Tarteel Nested array(old json)', 'json_nested_array'])
+      export_formats.push(['Tarteel Text chunks(new json)', 'json_text_chunks'])
+    elsif resource.tafsir?
+      export_formats.push(['Raw text files', 'raw_files'])
+      export_formats.push(['Json', 'tafsir_json'])
+    end
+  %>
+  <%= semantic_form_for resource, url: export_admin_resource_content_path(resource, export_type: 'raw_tafsir'), method: :put do |form| %>
+    <ul class="m-0 mb-1">
+      <% form.input(:export_file_name, label: 'File name') %>
+
+      <% if resource.translation? %>
+        <% form.input :include_footnote, as: :radio, label: 'Include footnotes?' %>
+      <% end %>
+
+      <% form.input(:export_format, as: :select, collection: export_formats, label: 'Select export format') %>
+    </ul>
+
+    <%= form.submit('Export', data: { disable_with: 'Please wait...' }) %>
+  <% end %>
+</div>

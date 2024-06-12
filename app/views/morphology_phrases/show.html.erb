@@ -1,0 +1,28 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+<% if params[:proofread] %>
+  <h1 class="page-header d-flex align-items-center justify-content-between">
+    <span>
+      Phrase highlighting for verse <%= @verse.verse_key %>
+    </span>
+
+    <div>
+      <% if previous_ayah = @verse.previous_ayah %>
+        <%= link_to 'Previous ayah', morphology_phrase_path(previous_ayah.id, proofread: true), class: 'btn btn-success' %>
+      <% end %>
+
+      <% if next_ayah = @verse.next_ayah %>
+        <%= link_to 'Next ayah', morphology_phrase_path(next_ayah.id, proofread: true), class: 'btn btn-success' %>
+      <% end %>
+
+      <%= link_to 'Back', morphology_phrases_path(proofread: true), class: 'btn btn-info' %>
+    </div>
+  </h1>
+
+  <%= render 'ayah_preview', mapping: {
+    verse: @verse,
+    phrase_verses: @verse.verse_phrases,
+  } %>
+<% else %>
+  <%= render 'suggestions' %>
+<% end %>

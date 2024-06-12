@@ -1,0 +1,7 @@
+<%= turbo_stream.update "page-preview" do %>
+  <%= render 'page_preview' %>
+<% end %>
+
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>

@@ -1,0 +1,9 @@
+<div class="text-center my-3 py-3">
+  <%= render 'shared/chapter_name', chapter: chapter %>
+</div>
+
+<div class="quran-text">
+  <%= render partial: "pdf_verse",
+             collection: verses, as: :verse
+  %>
+</div>

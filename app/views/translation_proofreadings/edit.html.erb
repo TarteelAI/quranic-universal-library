@@ -1,0 +1,55 @@
+<% lang = @resource.language_name.to_s.downcase %>
+
+<div class="row" id="editor-wrap">
+  <div class="col-12">
+    <h2>
+      <%= @resource.name %> - <%= @translation.verse.verse_key %>
+    </h2>
+  </div>
+
+  <% if @access %>
+    <div class="callout alert alert-dismissible" role="alert">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 30px; margin-top: 10px">
+            <%= @access.admin_notes.to_s.html_safe %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="col-md-12">
+    <%= form_with model: @translation, url: translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), method: :put, html: {class: 'form', autocomplete: 'off'} do |form| %>
+      <%= hidden_field_tag :resource_id, @resource.id %>
+
+      <div class="form-group">
+        <%= form.label :text, 'Translation', class: 'form-label' %>
+
+        <%= form.text_area :text, class: "form-control #{lang}" %>
+      </div>
+
+      <h3>Footnotes</h3>
+      <%= form.fields_for :foot_notes, @wbw_texts do |f_form| %>
+        <div class="form-group">
+          <%= f_form.hidden_field :id %>
+          <%= form.label :text, "#{f_form.object.id}", class: 'form-label' %>
+
+          <%= f_form.text_area :text, class: "form-control #{lang}" %>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= link_to 'Cancel', translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), class: 'btn btn-default' %>
+        <%= form.submit "Save translation", class: 'btn btn-success', data: {disable_with: 'Please wait...'} %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+<script>
+    $(function () {
+        autosize($('textarea'));
+    })
+</script>

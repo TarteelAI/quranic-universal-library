@@ -1,0 +1,11 @@
+<%= turbo_frame_tag 'add-ayah' do %>
+  <div class="form-group mb-2">
+    <%= label_tag 'add_ayah_key', 'Add ayah' %>
+    <%= select_tag 'add_ayah_key', options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key)), include_blank: true, class: 'form-control add-suggestion', data: {placeholder: 'Add ayah', controller: 'select2'} %>
+  </div>
+
+  <div class="form-group mb-3">
+    <%= label_tag 'Search ayah' %>
+    <%= search_field 'search', '', class: 'form-control search-suggestion', placeholder: 'search using ayah key' %>
+  </div>
+<% end %>

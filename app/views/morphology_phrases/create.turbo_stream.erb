@@ -1,0 +1,17 @@
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>
+
+<%= turbo_stream.replace dom_id(@phrase_verse.verse) do %>
+  <%= render 'ayah', options: {
+    ayah: @phrase_verse.verse,
+    matcher: 'saved',
+    matches: [[@phrase_verse.word_position_from, @phrase_verse.word_position_to]],
+    phrase_ayah_id: @phrase_verse.id,
+    skipped_words: @phrase_verse.missing_word_positions || []
+  } %>
+<% end %>
+
+<%= turbo_stream.replace 'phrase_id' do  %>
+  <input autocomplete="off" type="hidden" name="phrase_id" id="phrase_id" value="<%= @phrase_verse.phrase_id %>">
+<% end %>

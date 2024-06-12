@@ -1,0 +1,35 @@
+<% page_number = @mushaf_page.page_number %>
+<div class="page-wrapper">
+  <div class="mushaf-wrapper resize-container" data-controller="resizeable">
+    <div class="resizable" id="left-side">
+      <%
+        pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 1).to_i
+        pdf_url = @resource.get_source_pdf_url
+      %>
+
+      <% if pdf_url.present? %>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <% end %>
+
+      <div class="pdf-viewer"
+           data-controller="pdf-viewer"
+           data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
+           data-page-offset="<%= pdf_page_offset %>"
+           data-pdf-url="<%= pdf_url %>">
+        <div id="pdf-wrapper">
+          <div id="pdf-container">
+            <canvas id="pdf-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="handler"></div>
+    <div class="mushaf-layout resizable <%= @mushaf.default_font_name %>" id="right-side">
+     <%= render 'line_alignment' %>
+
+      <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+    </div>
+  </div>
+</div>
+

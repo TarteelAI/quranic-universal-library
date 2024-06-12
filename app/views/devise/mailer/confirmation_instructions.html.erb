@@ -1,0 +1,6 @@
+<p><%= t('.greeting', recipient: @resource.email, default: "السلام عليكم ورحمة الله وبركات #{@resource.name}!") %></p>
+
+<p><%= t('.instruction', default: 'You can confirm your account email through the link below:') %></p>
+
+<p><%= link_to t('.action', default: 'Confirm my account'),
+         confirmation_url(@resource, confirmation_token: @token, locale: I18n.locale) %></p>

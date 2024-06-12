@@ -1,0 +1,50 @@
+<%= render "shared/tajweed_images_styles" %>
+
+<a>
+  <% if tajweed_rules = false #WordTajweedPosition.where(location: word.word.location).first %>
+    <% tajweed_rules.positions.each do |part| %>
+      <% style = "width: #{part['width']}px; height: #{part['height']}px; margin-top: #{part['top']}px; margin-left: #{part['left']}px;" %>
+      <span class="part rl<%= part['rule'] %>" data-img-width=<%= part['imageWidth'] %> style="<%= style %>" group="<%= part['group'] %>" rule="<%= part['rule'] %>" audio="<%= part['audio'] %>"></span>
+    <% end %>
+  <% end %>
+
+  <img src="https://static.quran.com/<%= word.text %>"/>
+</a>
+
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+
+<script>
+  var rules = {
+   1: "Hamzat Wasl",
+   2: "Lam Shamsiyyah",
+   3: "Silent",
+   4: "Idgham - With Ghunnah",
+   5: "Idgham - Without Ghunnah",
+   6: "Ikhfa",
+   7: "Iqlab",
+   8: "Qalqalah",
+   9: "Ghunnah - 2 Vowels",
+   10: "Idgham - Mutajanisayn",
+   11: "Idgham - Mutaqaribayn",
+   12: "Idgham Shafawi - With Meem",
+   13: "Ikhfa' Shafawi - With Meem",
+   14: "Madd Normal - 2 Vowels",
+   15: "Madd Permissible - 2, 4, 6 Vowels",
+   16: "Madd Obligatory - 4, 5 Vowels",
+   17: "Madd Necessary - 6 Vowels"
+  }
+
+    tippy('.part', {
+        content(reference) {
+           return rules[reference.getAttribute('rule')];
+        },
+        allowHTML: true,
+    });
+
+  $(".part").each((i, part) => {
+      var imgWidth = part.parentNode.querySelector('img').width
+      var mr = Math.max(0, imgWidth - ( parseFloat(part.style.marginLeft) + part.offsetWidth))
+      part.style.marginRight=`${mr}px`;
+  })
+</script>

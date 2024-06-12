@@ -1,0 +1,72 @@
+<% content_for :title, 'Tarteel CMS - Download Quranic Content' %>
+<% content_for :head do %>
+  <meta name="description" content="Tarteel CMS provides a comprehensive library of Quranic content, including Quran script, translations, tafsir, mushaf layouts, and audio recitations. Download and enhance your knowledge of the Quran.">
+  <meta name="keywords" content="Quran data, Tarteel CMS, Quran indopak, Quran translations, tafsir, Mushaf layout, Quran audio, Islamic resources">
+  <meta name="author" content="Tarteel">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<% end %>
+
+<div class="page-wrapper">
+  <div class="download">
+    <div class="header">
+      Welcome to Tarteel CMS.
+    </div>
+
+    <% if @resources.present? %>
+      <div class="row">
+        <div class="col-md-12 welcome-message">
+          <p>
+            <%= @resources.first.group_heading %>
+          </p>
+        </div>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <% @resources.each do |resource| %>
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><%= resource.name %></h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  <%= resource.humanize_cardinality_type %>
+                </h6>
+                <p class="card-text">
+                  <%= resource.info.to_s.html_safe %>
+                </p>
+
+                <% if resource.tags.present? %>
+                  <p class="card-text">
+                    <% resource.get_tags.each do |tag| %>
+                      <span class="badge <%= resource_tag_class(tag.strip) %>">
+                        <%= tag %>
+                      </span>
+                    <% end %>
+                  </p>
+                <% end %>
+
+                <% resource.files.each do |file| %>
+                  <a href="<%= file.url %>" class="card-link" download="">
+                    <i class="fas fa-download"></i>
+                    <%= file.blob.content_type.split('/').last %>
+                  </a>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="row">
+        <div class="col-md-12 welcome-message">
+          <p>
+            Sorry no resources found.
+          </p>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+</div>

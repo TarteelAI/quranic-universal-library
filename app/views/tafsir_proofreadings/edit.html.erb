@@ -1,0 +1,51 @@
+<% lang = @resource.language_name.to_s.downcase %>
+
+<div class="page-wrapper " id="editor-wrap">
+  <h1 class="page-header d-flex align-items-center justify-content-between">
+    Purpose changes for <%= @resource.name %>
+    (<%= @tafisr.group_verse_key_from %> - <%= @tafisr.group_verse_key_to %>)
+  </h1>
+
+  <% if @access %>
+    <div class="callout alert alert-dismissible" role="alert">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 30px; margin-top: 10px">
+            <%= @access.admin_notes.to_s.html_safe %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-12">
+    <%= form_with model: @tafisr, url: tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off' } do |form| %>
+      <%= hidden_field_tag :resource_id, @resource.id %>
+
+      <div class="form-group mb-3">
+        <%= form.label :start_verse_id, 'Verse from', class: 'form-label' %>
+        <%= form.select :start_verse_id, options_for_select(Verse.order('id asc').pluck(:verse_key, :id), selected: @tafisr.start_verse_id), {}, class: 'form-control', data: { placeholder: 'Ayah from', controller: 'select2' } %>
+      </div>
+
+      <div class="form-group mb-3">
+        <%= form.label :end_verse_id, 'Verse to', class: 'form-label' %>
+        <%= form.select :end_verse_id, options_for_select(Verse.order('id asc').pluck(:verse_key, :id), selected: @tafisr.end_verse_id), {}, class: 'form-control', data: { placeholder: 'Ayah to', controller: 'select2' } %>
+      </div>
+
+      <div class="form-group mb-3">
+        <%= form.label :text, 'Tafsir Text', class: 'form-label' %>
+
+        <div id="tafsir_text" class="<%= lang %>">
+          <%= form.text_area :text, class: "form-control", id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
+        </div>
+      </div>
+
+      <div class="form-group mt-5" style="text-align: right">
+        <%= link_to 'Cancel', tafsir_proofreading_path(@tafisr.verse.id, resource_id: @resource.id), class: 'btn btn-default' %>
+        <%= form.submit 'Purpose changes', class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+  </div>
+</div>

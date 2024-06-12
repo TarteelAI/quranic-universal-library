@@ -1,0 +1,35 @@
+<% if params[:break_words] %>
+  <div class="arabic text_indopak verse"
+       data-verse="<%= verse.verse_key %>"
+  >
+    <%= render partial: 'word_group', collection: verse.words, as: :word %>
+  </div>
+<% else %>
+  <div class="arabic text_indopak verse"
+       data-verse="<%= verse.verse_key %>">
+    <%
+      continuous = false
+      tag_started = false
+    %>
+
+    <% verse.words.each do |w| %>
+      <% if w.arabic_transliteration&.continuous? %>
+        <% if !continuous %>
+          <% tag_started = true %>
+          <span class="group-wrapper">
+        <% end %>
+        <%= render 'word_group', word: w %>
+      <% else %>
+        <% if tag_started %>
+          <% tag_started = false %>
+          <%= render 'word_group', word: w %>
+          </span>
+        <% else %>
+          <%= render 'word_group', word: w %>
+        <% end %>
+      <% end %>
+
+      <% continuous = w.arabic_transliteration&.continuous? %>
+    <% end %>
+  </div>
+<% end %>

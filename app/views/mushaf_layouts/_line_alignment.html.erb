@@ -1,0 +1,29 @@
+<%
+  page_number = @mushaf_page.page_number
+%>
+
+<%= turbo_frame_tag 'lines-info' do %>
+  <div style="margin-right: 20px">
+    <h2>Lines</h2>
+    <% 1.upto(@mushaf.lines_per_page) do |line| %>
+      <div id="page-<%= page_number %>-line-<%= line %>">
+        <%
+          model = MushafLineAlignment.where(mushaf_id: @mushaf.id, page_number: page_number, line_number: line).first_or_initialize
+        %>
+
+        <%= form_with model: model, url: save_line_alignment_mushaf_layout_path(@mushaf, line: line, page_number: page_number), method: :put, html: { class: 'form-inline' } do |form| %>
+          <div class="d-flex my-2">
+            <a class="btn btn-sm">
+              <%= line %>
+            </a>
+
+            <%= form.submit "C", title: 'Center aligned', class: "mx-2 btn btn-sm #{ model.is_center_aligned? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
+            <%= form.submit "J", title: 'Justify line', class: "mx-2 btn btn-sm #{ model.is_justified? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
+            <%= form.submit "B", title: 'Bismillah', class: "mx-2 btn btn-sm #{ model.is_bismillah? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
+            <%= form.submit "N", title: 'Surah name', class: "mx-2 btn btn-sm #{ model.is_surah_name? ? 'btn-success' : 'btn-dark'}", data: {controller: 'tooltip'} %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,17 @@
+@import "shared/font_faces";
+@import "shared/content";
+
+.arabic{
+  direction: rtl;
+
+  &.uthmani{
+    font-family: 'UthmanicHafs1-Ver18';
+  }
+}
+
+.mce-content-body, .tafsir{
+  h2{
+    font-weight: 600;
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title><%= @chapter.name_simple %></title>
+  <style>
+    <%= inline_stylesheet_source('pdf').html_safe %>
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <%= yield %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

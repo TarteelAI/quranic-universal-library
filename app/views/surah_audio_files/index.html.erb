@@ -1,0 +1,79 @@
+<div class="page-wrapper">
+  <div class="page-section filters">
+    <div class="row">
+      <div class="col-lg-12">
+        <%= form_tag surah_audio_files_path, method: :get, class: 'd-flex' do %>
+          <div class="form-group me-2">
+            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { controller: 'select2' } %>
+            <p class="form-text">Filter by Surah</p>
+          </div>
+
+          <div class="form-group me-2">
+            <%= select_tag :id, options_for_select(Audio::Recitation.all.map do |a| [a.humanize, a.id] end, params[:id]), class: 'form-select', data: { controller: 'select2' } %>
+            <p class="form-text">Filter by Ayah progress</p>
+          </div>
+
+          <div class="form-group">
+            <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <h1 class="page-header">
+    <%=@recitation.id %> - <%= @recitation.name %>
+  </h1>
+
+
+  <% if @access %>
+    <div class="callout alert alert-dismissible" role="alert">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 30px; margin-top: 10px">
+            <%= @access.admin_notes.to_s.html_safe %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <table class="table table-hover">
+      <thead>
+      <tr>
+        <th><%= sort_order_link 'Surah', :chapter_id, recitation_id: @recitation.id %></th>
+        <th>Segment Progress</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @audio_files.each do |file| %>
+        <tr>
+          <th scope="row"><%= file.chapter_id %></th>
+
+          <td>
+            <% progress = file.segment_progress  %>
+             <div class="progress">
+              <div class="progress-bar progress-bar-success" 
+              role="progressbar" 
+              aria-valuenow="<%= progress %>"
+               aria-valuemin="0" aria-valuemax="100"
+               style="width: <%= progress %>%; min-width: 30px"
+               >
+                <%= progress %>%
+              </div>
+            </div>
+          </td>
+
+          <td class="d-flex">
+            <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success me-1' %>
+            <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success me-1' %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+</div>
+
+

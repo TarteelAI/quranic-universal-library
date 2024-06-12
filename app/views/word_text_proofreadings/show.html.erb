@@ -1,0 +1,202 @@
+<%= render 'shared/page_font', verses: [@verse] %>
+
+<style>
+  .quran-text{
+    font-size: 30px;
+  }
+</style>
+<div class="page-wrapper">
+  <h1 class="page-header">
+    Word by Word Script of Ayah <%= @verse.verse_key %>
+
+    <span class=" pull-right">
+      <%= link_to 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-success' if @verse.id > 1 %>
+      <%= link_to 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-success' if @verse.id < 6236 %>
+
+      <%= link_to 'Back to filter', word_text_proofreadings_path, class: 'btn btn-success' %>
+    </span>
+  </h1>
+
+  <div class="border p-3">
+    <div class="row">
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>QPC Nastaleeq</b>
+        <div class="qpc-nastaleeq quran-text" style="margin-top: 10px"><%= @verse.text_qpc_nastaleeq_hafs %> </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>Madinah Nastaleeq</b>
+        <div class="indopak-nastaleeq quran-text" style="margin-top: 10px"><%= @verse.text_qpc_nastaleeq %> </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>Indopak Nastaleeq</b>
+
+        <div class="indopak-nastaleeq quran-text" style="margin-top: 10px">
+          <%= @verse.text_indopak_nastaleeq %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>Indopak</b>
+
+        <div class="indopak quran-text"  style="margin-top: 10px">
+          <%= @verse.text_indopak %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>Uthmani</b>
+
+        <div class="me_quran quran-text"  style="margin-top: 10px">
+          <%= @verse.text_uthmani %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>Digital Khatt</b>
+
+        <div class="quran-text digitalkhatt"  style="margin-top: 10px">
+          <%= @verse.text_digital_khatt %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>KFQC Uthmani Hafs</b>
+        <div class="qpc-hafs quran-text" style="margin-top: 10px"><%= @verse.text_qpc_hafs %></div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>KFQC Uthmani Hafs(tajweed)</b>
+        <div class="qpc-hafs quran-text" style="margin-top: 10px"><%= @verse.text_uthmani_tajweed.to_s.html_safe %></div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>V4 Tajweed</b>
+        <div class="quran-text p<%= @verse.v2_page %>-v4-tajweed"
+             style="margin-top: 10px"
+             data-controller="tajweed-font"
+        >
+          <%= @verse.code_v2 %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>V1</b>
+        <div class="quran-text p<%= @verse.page_number %>-v1" style="margin-top: 10px"><%= @verse.code_v1 %></div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>V2</b>
+        <div class="quran-text p<%= @verse.v2_page %>-v2" style="margin-top: 10px"><%= @verse.code_v2 %></div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>Image</b>
+        <div style="margin-top: 10px" class="quran-text">
+          <img src=<%= @verse.image_url.gsub("//", "http://") %> />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-controller="mushaf-page" class="mushaf-wrapper">
+    <div style="width: 100%;margin: 0 5px;text-align: center;direction: ltr;font-size: 20px">
+      Font size: <input type="range" min="15" max="100" value="30" class="font-size-slider">
+    </div>
+
+    <table class="table table-hover table-bordered">
+      <thead>
+
+      <tr class="position-sticky bg-white border-bottom top-0">
+        <td>ID</td>
+        <td style="direction: rtl">IndoPak</td>
+        <td style="direction: rtl">Indopak Nastaleeq</td>
+        <td style="direction: rtl">Madinah Nastaleeq</td>
+        <td style="direction: rtl">QPC Nastaleeq</td>
+        <td style="direction: rtl">Uthmani</td>
+        <td style="direction: rtl">Digital Khatt</td>
+        <td style="direction: rtl">Imlaei</td>
+        <td style="direction: rtl">KFQC Hafs</td>
+        <td style="direction: rtl;">QC Hafs tajweed</td>
+        <td style="direction: rtl">V4 Tajweed</td>
+
+        <td style="direction: rtl">V1</td>
+        <td style="direction: rtl">V2</td>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @verse.words.order('position asc').each do |word| %>
+        <tr class="quran-text">
+          <td><%= link_to word.id, [:admin, word], target: '_blank' %></td>
+          <td class="indopak char">
+            <%= word.text_indopak %>
+          </td>
+
+          <td class="indopak-nastaleeq char">
+            <%= word.text_indopak_nastaleeq %>
+          </td>
+
+          <td class="indopak-nastaleeq char">
+            <%= word.text_qpc_nastaleeq %>
+          </td>
+
+          <td class="qpc-nastaleeq char">
+            <%= word.text_qpc_nastaleeq_hafs %>
+          </td>
+
+          <td class="me_quran char">
+            <%= word.text_uthmani %>
+          </td>
+
+          <td class="digitalkhatt char">
+            <%= word.text_digital_khatt %>
+          </td>
+
+          <td class="me_quran char">
+            <%= word.text_imlaei %>
+          </td>
+
+          <td class="qpc-hafs char">
+            <%= word.text_qpc_hafs %>
+          </td>
+
+          <td class="qpc-hafs char">
+            <%= word.text_uthmani_tajweed.to_s.html_safe %>
+          </td>
+
+          <td class="p<%= @verse.v2_page %>-v4-tajweed char">
+            <%= word.code_v2 %>
+          </td>
+
+          <td class="p<%= word.page_number %>-v1 char">
+            <%= word.code_v1 %>
+          </td>
+
+          <td class="p<%= word.v2_page %>-v2 char">
+            <%= word.code_v2 %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+   <span class=" pull-right">
+     <%= link_to 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-success' if @verse.id > 1 %>
+     <%= link_to 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-success' if @verse.id < 6236 %>
+
+     <%= link_to 'Back to filter', word_text_proofreadings_path, class: 'btn btn-success' %>
+    </span>
+  </div>
+</div>
+
+<script>
+    addEventListener('click', e => {
+        const node = e.target;
+        navigator.clipboard.writeText(node.textContent);
+        console.log(node.textContent, ' copied to clipboard')
+    }, false);
+</script>

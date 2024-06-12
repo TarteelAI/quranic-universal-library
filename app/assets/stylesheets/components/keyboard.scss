@@ -1,0 +1,21 @@
+.ui-keyboard-text, .transliteration .indopak {
+  font-family: al_qalam !important;
+}
+
+.ui-keyboard-preview {
+  font-size: 30px !important;
+  height: 60px !important;
+  font-family: al_qalam;
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.ui-keyboard-button {
+  height: 3em !important;
+  min-width: 3em !important;
+
+  span{
+    font-weight: bold !important;
+    font-size: 25px !important;
+  }
+}

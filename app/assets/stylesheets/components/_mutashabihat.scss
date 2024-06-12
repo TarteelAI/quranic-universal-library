@@ -1,0 +1,26 @@
+.mutashabihat{
+  [data-action='add']{
+    cursor: pointer;
+   &.active, &:hover{
+     color: white;
+     background: $success;
+   }
+
+    &.active:hover{
+      background: $danger !important;
+    }
+  }
+
+  [data-action='remove']{
+    cursor: pointer;
+
+    &.active, &:hover{
+      color: white;
+      background: $danger;
+    }
+
+    &.active:hover{
+      background: $info !important;
+    }
+  }
+}

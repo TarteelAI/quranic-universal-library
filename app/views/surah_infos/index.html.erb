@@ -1,0 +1,75 @@
+<div class="page-wrapper">
+  <h1 class="page-header">
+    <%= @resource.name %>
+  </h1>
+
+  <% if @access %>
+    <div class="callout alert alert-dismissible" role="alert">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 30px; margin-top: 10px">
+            <%= @access.admin_notes.to_s.html_safe %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="page-section">
+    <div class="filters row">
+      <div class="col-lg-12">
+        <%= form_tag surah_infos_path, method: :get, class: 'd-flex' do %>
+          <div class="form-group me-2">
+            <%= select_tag :language_id, options_from_collection_for_select(@available_languages, :id, :name, selected: @language.id), include_blank: false, class: 'form-select', data: {placeholder: 'Select language', controller: 'select2'} %>
+            <p class="form-text">Filter by language</p>
+          </div>
+
+          <div class="form-group me-2">
+            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by surah', controller: 'select2'} %>
+            <p class="form-text">Filter by Surah</p>
+          </div>
+
+          <div class="form-group">
+            <%= submit_tag 'Filter', class: 'btn btn-primary', data: {disable_with: 'Please wait..'} %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <figure class="highlight">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th><%= sort_order_link 'Surah', :chapter_id, resource_id: @resource.id %></th>
+        <th>Language</th>
+        <th>Short text</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @surah_infos.each do |info| %>
+        <tr>
+          <th scope="row"><%= info.chapter_id %></th>
+
+          <td>
+            <%= info.language.name %>
+          </td>
+
+          <td>
+            <%= info.short_text %>
+          </td>
+
+          <td class="d-flex">
+            <%= link_to 'Edit', edit_surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-info  me-1' %>
+            <%= link_to 'Show', surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-success' %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </figure>
+</div>
+
+

@@ -1,0 +1,31 @@
+<%
+  draft = Draft::Tafsir.where(tafsir_id: @tafisr.id).first
+%>
+
+<div class="page-wrapper">
+  <div class="resize-container" data-controller="resizeable">
+    <div class="resizable tafsir px-4" id="left-side">
+      <h2>
+        Current text
+        (<%= @tafisr.ayah_group_info %>)
+      </h2>
+
+      <div class="tafsir <%= @tafisr.language_name %>">
+        <%= @tafisr.text.html_safe %>
+      </div>
+    </div>
+
+    <div class="handler"></div>
+    <div class="resizable tafsir" id="right-side">
+      <% if draft %>
+        <h2>
+          Draft text(<%= draft.ayah_group_info %>)
+        </h2>
+
+        <div class="tafsir px-4 <%= @tafisr.language_name %>">
+          <%= draft.draft_text.html_safe %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

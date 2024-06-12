@@ -1,0 +1,66 @@
+<%
+  verse = mapping[:verse]
+  words = verse.words
+  ayah_phrases = mapping[:phrase_verses]
+  approved_phrases = ayah_phrases.approved.joins(:phrase).select do |p|
+    p.phrase.approved && p.phrase.review_status == 'new' && p.phrase.word_position_from && p.phrase.words_count >= 3
+  end
+
+  phrase_groups = {}
+
+  words.each do |w|
+    selected_phrase = approved_phrases.detect do |p|
+      if p.word_position_from && p.word_position_to
+        w.position >= p.word_position_from && w.position <= p.word_position_to
+      end
+    end
+
+    if selected_phrase
+      phrase_groups[selected_phrase.phrase] ||= []
+      phrase_groups[selected_phrase.phrase].push(w)
+    else
+      phrase_groups[w.id] = w
+    end
+  end
+%>
+
+<div class="border p-3 m-y">
+  <div>
+  <span class="badge bg-success">
+    <%= verse.verse_key %>
+  </span>
+
+    <div class="quran-text qpc-hafs d-flex flex-wrap">
+      <% phrase_groups.each do |key, group| %>
+        <% if key.is_a?(Morphology::Phrase) %>
+          <%
+            title = key.phrase_verses.approved.map &:text
+            title = title.join("<br/>").html_safe
+          %>
+          <div title="(<%= key.id %>: <%= key.source_verse.verse_key %>)<%= key.text_qpc_hafs %> <span class='badge badge-info'><%= key.occurrence %></span> <%= title %>"
+               class="mx-1 phrase d-inline-flex"
+               data-controller="tooltip"
+               style="color: <%= key.color %>">
+            <% group.each do |w| %>
+            <span>
+            <%= w.text_qpc_hafs %>
+           </span>
+            <% end %>
+          </div>
+        <% else %>
+           <span>
+            <%= group.text_qpc_hafs %>
+           </span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column align-items-end">
+    <span class="badge bg-success mt-3">
+      Phrases
+    </span>
+
+    <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by{|s| -s.score}, as: :phrase_verse %>
+  </div>
+</div>

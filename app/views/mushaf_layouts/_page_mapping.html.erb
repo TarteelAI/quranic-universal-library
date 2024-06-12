@@ -1,0 +1,70 @@
+<% progress = @mushaf.percentage_done %>
+
+<h3 class="p-3 text-center">
+  <p>
+    <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>
+  </p>
+
+  <div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: <%= progress %>%;" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100"><%= progress %>
+      %
+    </div>
+  </div>
+</h3>
+
+<%= turbo_frame_tag "page-mapping" do %>
+  <figure class="highlight">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th><%= sort_order_link 'Page', :page_number, mapping: true, mushaf_id: @resource.id, page_number: params[:page_number] %></th>
+        <th>Ayah Range</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% sort_order = params[:sort_order] || 'ASC' %>
+      <% @mushaf.mushaf_pages.order("page_number #{sort_order}").each do |page| %>
+        <tr>
+          <td scope="row"><%= page.page_number %></td>
+          <td>
+            <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
+              <%
+                first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
+                last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
+              %>
+
+              <div class="row">
+                <div class="col-2">
+                  <div class="form-group" id=<%= page.page_number %>-from>
+                    <%= form.text_field :first_verse_id, value: first_ayah_key, style: 'width: 70px', class: 'from form-control', placeholder: 'From', required: true %>
+                    <div class="form-text">
+                      <%= first_ayah_key %>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group" id=<%= page.page_number %>-to>
+                    <%= form.text_field :last_verse_id, value: last_ayah_key, style: 'width: 70px', class: 'to form-control', placeholder: 'To', required: true %>
+                    <div class="form-text">
+                      <%= last_ayah_key %>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <%= form.submit 'Save', id: 'submit', class: 'btn btn-outline-primary' %>
+                </div>
+              </div>
+            <% end %>
+          </td>
+
+          <td>
+            <%= link_to 'Update words', edit_mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
+            <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </figure>
+<% end %>

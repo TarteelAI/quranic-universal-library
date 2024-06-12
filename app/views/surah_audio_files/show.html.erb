@@ -1,0 +1,68 @@
+<div class="page-wrapper">
+  <h2 class="page-header d-flex">
+    <span class="flex-grow-1">
+      <%= @recitation.name %> For Surah <%= @audio_file.chapter.name_simple %>
+    </span>
+
+    <span>
+      <%= link_to 'Previous Surah', surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id - 1), class: 'btn btn-success' if @audio_file.chapter_id > 1 %>
+      <%= link_to 'Next Surah', surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id + 1), class: 'btn btn-success' if @audio_file.chapter_id < 114 %>
+
+      <%= link_to 'Back to Index', surah_audio_files_path(id: @recitation.id), class: 'btn btn-success' %>
+
+      <%= link_to segment_builder_surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id), class: 'btn btn-primary' do %>
+        <i class="fa fa-history"></i> Fix Segments
+      <% end %>
+    </span>
+  </h2>
+
+  <div class="page-section">
+    <h3>Segments</h3>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th><%= sort_order_link 'Verse', :verse_id, recitation_id: @recitation.id, chapter_id: params[:chapter_id] %></th>
+        <th>From</th>
+        <th>To</th>
+        <th>Duration</th>
+        <th>Words</th>
+        <th>Total Segments</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @audio_file.audio_segments.each do |segment| %>
+        <tr>
+          <th scope="row"><%= segment.verse_key %></th>
+
+          <td>
+            <%= segment.timestamp_from %>
+          </td>
+
+          <td>
+            <%= segment.timestamp_to %>
+          </td>
+
+          <td>
+            <%= segment.duration %>
+          </td>
+
+          <td>
+            <%= segment.verse.words.size %>
+          </td>
+
+          <td>
+            <%= segment.segments.size %>
+          </td>
+
+          <td class="d-flex">
+            <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id, verse: segment.verse.verse_number), class: 'btn btn-success me-1' %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+

@@ -1,0 +1,9 @@
+<span class="word-group">
+  <%= render partial: 'word', locals: { word: word } %>
+  <hr>
+  <small
+        class="transliteration word"
+        data-id="w<%= word.id %>">
+    <%= word.arabic_transliteration&.text || '۝' %>
+  </small>
+</span>

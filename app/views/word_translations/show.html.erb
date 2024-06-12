@@ -1,0 +1,46 @@
+<div class="page-wraper">
+  <h1 class="page-header">
+    <%= @language.name %> - Word by Word data of ayah: <%= @verse.verse_key %>
+
+    <span class=" pull-right">
+      <%= link_to 'Contribute', new_word_translation_path(ayah: @verse.id, language: params[:language]), class: 'btn btn-success' %>
+      <%= link_to 'Previous ayah', word_translation_path(@verse.id - 1, language: params[:language]), class: 'btn btn-success' %>
+      <%= link_to 'Next ayah', word_translation_path(@verse.id + 1, language: params[:language]), class: 'btn btn-success' %>
+      <%= link_to 'Back to filter', word_translations_path(language: params[:language]), class: 'btn btn-success' %>
+    </span>
+  </h1>
+
+  <div class="callout alert alert-dismissible" role="alert">
+    <h2>
+      Click on <code>Contribute</code> button and update data if you found any issue.
+    </h2>
+
+    <div class="row">
+      <b>Text Uthmani:</b>
+      <p class="madani"> <%= @verse.text_uthmani %></p>
+    </div>
+
+    <% @verse.translations.each do |trans| %>
+      <div class="row">
+        <b><%= trans.resource_name %>:</b> <br/>
+
+        <p class="<%= trans.language_name %> %>"> <%= trans.text.html_safe %></p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="lead">
+  <%
+    progress = @verse.word_translation_progress(@language.id)
+  %>
+
+  Proofreading progress
+  <div class="progress">
+    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">
+      <%= progress %>%
+    </div>
+  </div>
+</div>
+
+<%= render 'table' %>

@@ -1,0 +1,32 @@
+<div id=title>
+  Upload segments for <%= resource.name %>
+</div>
+
+<div id="body">
+  <%= form_with url: upload_segments_admin_audio_recitation_path(resource), method: :put do |form| %>
+    <div class="modal-body">
+      <% if resource.segment_locked? %>
+        <div class="alert alert-info">
+          Segments are locked for this recitation. Please unlock the segments and try again.
+        </div>
+      <% else %>
+        <div class="form-group mb-2">
+          <div class="form-check">
+            <%= form.check_box :remove_existing, class: 'form-check-input' %>
+            <%= form.label :remove_existing, 'Remove existing segments?', class: 'form-check-label' %>
+          </div>
+        </div>
+        <div class="form-group mb-2">
+          <%= form.label :file, 'Select timing db file' %>
+          <%= form.file_field :file, class: 'form-control' %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if !resource.segment_locked? %>
+      <div class="modal-footer">
+        <%= form.submit 'Upload', class: 'btn btn-success' %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

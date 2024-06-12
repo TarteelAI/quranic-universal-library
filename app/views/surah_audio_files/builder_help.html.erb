@@ -1,0 +1,61 @@
+<div id=title>
+  <span class="h1 f-bold text-success">
+    Help
+  </span>
+</div>
+<%
+  short_keys = {
+    'space': 'toggle Play / Pause',
+    'Right Arrow': 'Move player forward',
+    'left Arrow + c': 'Move player time back',
+    's': 'Decrease playback speed',
+    'f': 'Increase playback speed',
+    'n': 'Normal playback speed',
+    'z': 'Set segment start',
+    'x': 'Set Segment end',
+    'd': 'Go to next ayah',
+    'a': 'Go to previous ayah'
+  }
+%>
+<div id=body>
+  <style>
+      kbd {
+          display: inline-block;
+          padding: 3px 5px;
+          font: 11px "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+          line-height: 10px;
+          color: #444d56;
+          vertical-align: middle;
+          background-color: #fafbfc;
+          border: solid 1px #d1d5da;
+          border-bottom-color: #d1d5da;
+          border-radius: 6px;
+          box-shadow: inset 0 -1px 0 #d1d5da;
+      }
+  </style>
+  <div class="modal-body">
+    <p>
+      Select audio file and click on <strong>Load Audio Data</strong> button to load the player.
+      You can select file on your machine, or enter the file URL.
+    </p>
+
+    <p>Check <strong>Edit mode</strong> checkbox if want to prepare or fix segments</p>
+    <p>Check <strong>Auto Save</strong> checkbox if you want to automatically save the changes</p>
+    <p>Use short keys or buttons to set start and end time of each segments. Goood luck!</p>
+    <h3>Short keys</h3>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <tbody>
+        <% short_keys.each do |key, fun| %>
+          <tr>
+            <td>
+              <kbd><%= key %></kbd>
+            </td>
+            <td><%= fun %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,262 @@
+.mushaf-layout-form {
+  .verse {
+    display: flex;
+    flex: 1 1;
+    padding-left: 40px;
+    flex-wrap: wrap;
+  }
+
+  .word-group {
+    text-align: center;
+    margin: 5px 10px;
+    cursor: pointer;
+    padding: 10px;
+    border: 1px dotted rgba(248, 168, 46, .5);
+    webkit-background-clip: padding-box;
+    background-clip: padding-box;
+  }
+}
+
+.placeholder {
+  ul {
+    display: grid;
+    grid-column-gap: 12px;
+    moz-column-gap: 12px;
+    column-gap: 12px;
+    grid-row-gap: 12px;
+    row-gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    list-style: none;
+  }
+}
+
+.bidi-override {
+  unicode-bidi: bidi-override;
+}
+
+.mushaf-layout {
+  display: flex;
+  justify-content: center;
+
+  .word--missing {
+    color: #F04903;
+  }
+
+  .line--center {
+    text-align: center;
+    text-align-last: center;
+  }
+
+  .ayah, .ayah-container {
+    display: inline;
+
+    &.highlight {
+      border-bottom: 1px solid #FCB941;
+      background: transparent;
+    }
+  }
+
+  .char {
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    &:hover {
+      border-bottom: 1px solid #FCB941;
+    }
+  }
+
+  .char-pause {
+    color: #2CC990;
+  }
+
+  .char-number {
+    color: blue;
+  }
+
+  .page-wrapper {
+    font-size: 29.9px;
+    direction: rtl;
+    //width: 500px;
+    line-height: 1.85;
+    text-align: center;
+    display: flex;
+    align-content: center;
+    margin: auto;
+  }
+
+  .page {
+    text-align: justify;
+    text-align-last: justify;
+    border: 2px solid #0a0a0a;
+    padding: 10px;
+  }
+}
+
+.muhsaf-indopak, .muhsaf-me_quran {
+  .char-end {
+    font-family: UthmanicHafs1-Ver17;
+  }
+}
+
+.page {
+  text-align: justify;
+  text-align-last: justify;
+}
+
+/*#page-1,
+#page-2 {
+  text-align: center;
+  text-align-last: center;
+  word-spacing: 0;
+}
+
+  #page-255 #line-2,
+  #page-528 #line-9,
+  #page-534 #line-6,
+  #page-545 #line-6, v2
+  #page-586 #line-1,
+  #page-593 #line-2,
+  #page-594 #line-5,
+  #page-600 #line-10,
+  #page-602 #line-5,
+  #page-602 #line-15,
+  #page-603 #line-10,
+  #page-603 #line-15,
+  #page-604 #line-4,
+  #page-604 #line-9,
+  #page-604 #line-14,
+  #page-604 #line-15 {
+    text-align: center;
+    text-align-last: center;
+  }
+*/
+
+.mushaf {
+  .line--center {
+    text-align: center;
+    text-align-last: center;
+  }
+
+  .ayah, .ayah-container {
+    display: inline;
+  }
+
+  .ayah:hover {
+    border-bottom: 1px solid #FCB941;
+  }
+
+  .mushaf-layout {
+    display: flex;
+    justify-content: center;
+  }
+
+  .mushaf-layout .char a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .mushaf-layout .char a:hover {
+    border-bottom: 1px solid #FCB941;
+  }
+
+  .highlight {
+    border-bottom: 1px solid #FCB941;
+    background: transparent;
+  }
+
+  .char.highlight {
+    border-bottom: 1px solid black;
+    background: transparent;
+  }
+
+  .char-pause {
+    color: #2CC990;
+  }
+
+  .char-number, .char-end {
+    color: blue;
+  }
+
+  .page-wrapper {
+    font-size: 29.9px;
+    direction: rtl;
+    line-height: 1.85;
+    text-align: center;
+    display: flex;
+    align-content: center;
+    margin: auto;
+  }
+
+  .page {
+    text-align: justify;
+    text-align-last: justify;
+  }
+
+/*  #page-1,
+  #page-2 {
+    text-align: center;
+    text-align-last: center;
+    word-spacing: 0;
+  }*/
+}
+
+.muhsaf-v2 {
+  .page {
+    word-spacing: -0.25em;
+  }
+}
+
+.indopak-nastaleeq {
+  .char {
+    a {
+      unicode-bidi: unset;
+    }
+  }
+}
+
+#font-switcher{
+  select{
+    min-width: 200px;
+  }
+}
+
+.mushaf-img.img{
+  max-width: unset !important;
+}
+
+.surah-name{
+  //background: url("mushaf-theme/green/name.webp");
+  //width: 400px;
+  //height: 80px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px auto 0;
+}
+
+.line---bismillah .surah-name{
+  background: none;
+  width: unset;
+  height: unset;
+  margin: unset;
+}
+
+.line--surah-name.line---bismillah{
+  //background: url("mushaf-theme/green/name.webp");
+  //width: 400px;
+  //height: 80px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px auto 0;
+}
+
+.line---bismillah{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

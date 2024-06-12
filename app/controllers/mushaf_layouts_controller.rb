@@ -1,0 +1,137 @@
+class MushafLayoutsController < CommunityController
+  include ActiveStorage::SetCurrent
+
+  before_action :find_resource
+  before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
+  before_action :check_permission, only: [:update, :save_page_mapping, :save_line_alignment]
+  before_action :load_page_words, only: [:edit, :show]
+
+  def index
+    if @resource
+      @access = can_manage?(@resource)
+    end
+  end
+
+  def save_line_alignment
+    @record = MushafLineAlignment.where(
+      mushaf_id: @mushaf.id,
+      page_number: params[:page_number],
+      line_number: params[:line]
+    ).first_or_initialize
+
+    alignment = get_alignment(params[:commit])
+
+    if !['center', 'bismillah', 'surah_name'].include?(alignment) || @record.alignment == alignment
+      # We don't need to save justified lines, by default all lines are justified
+      # clicking same alignment should remove the data(there is no other way of clear the miss-click)
+      @record.clear! if @record.persisted?
+    else
+      @record.alignment = alignment if @record.alignment.blank?
+      @record.properties[alignment] = true
+
+      @record.save(validate: false)
+
+      if @record.is_surah_name?
+        @mushaf.update_surah_numbers_in_layout
+      end
+    end
+  end
+
+  def save_page_mapping
+    @mushaf_page.attributes = params_for_page_mapping
+    @mushaf_page.save(validate: false)
+
+    flash[:notice] = "Page #{@mushaf_page.page_number} is saved"
+  end
+
+  def show
+    @access = can_manage?(@resource)
+  end
+
+  def edit
+    @lines_per_page = @resource.resource.lines_per_page
+
+    first_verse = @mushaf_page.first_verse
+    last_verse = @mushaf_page.last_verse
+
+    @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
+  end
+
+  def update
+    MushafLayoutJob.perform_now(@resource.resource_id, page_number, layout_params.to_json)
+    load_mushaf_page
+    load_page_words
+    flash[:notice] = "Saved successfully, please verify the layout before moving to next page"
+  rescue Exception => e
+    File.open("data/mapping-#{@resource.resource_id}-#{page_number}.json", "wb") do |f|
+      f << "MushafLayoutJob.perform_now(#{@resource.resource_id}, #{page_number},#{layout_params.to_json.to_json})"
+    end
+  end
+
+  protected
+
+  def get_alignment(alignment)
+    {
+      c: 'center',
+      n: 'surah_name',
+      b: 'bismillah'
+    }[alignment.to_s.downcase.to_sym]
+  end
+
+  def layout_params
+    params.require(:layout).permit(words: {}).to_h
+  end
+
+  def load_page_words
+    @words = MushafWord.where(
+      mushaf_id: @resource.resource_id,
+      page_number: page_number
+    ).order('position_in_page ASC')
+
+    if @compared_mushaf
+      @compare_mushaf_words = MushafWord
+                                .where(
+                                  mushaf_id: @compared_mushaf.id,
+                                  page_number: page_number
+                                ).order('position_in_page ASC')
+    end
+  end
+
+  def page_number
+    (params[:page_number] || 1).to_i
+  end
+
+  def check_permission
+    if @resource.blank? || !can_manage?(@resource)
+      redirect_to mushaf_layout_path(@resource.id, mushaf_id: @resource.id, page_number: page_number), alert: "Sorry you don't have access to this resource"
+    end
+  end
+
+  def find_resource
+    if params[:id]
+      @mushaf = Mushaf.find(params[:id])
+      @resource = @mushaf.resource_content
+
+      if params[:compare].present?
+        @compared_mushaf = Mushaf.find(params[:compare])
+      end
+    end
+  end
+
+  def params_for_page_mapping
+    mapping = params.require('mushaf_page').permit(:first_verse_id, :last_verse_id)
+
+    mapping['first_verse_id'] = Utils::Quran.get_ayah_id_from_key(mapping['first_verse_id'])
+    mapping['last_verse_id'] = Utils::Quran.get_ayah_id_from_key(mapping['last_verse_id'])
+
+    mapping
+  end
+
+  def load_mushaf_page
+    @mushaf_page = MushafPage.where(mushaf_id: @mushaf.id, page_number: page_number).first_or_initialize
+
+    if @compared_mushaf
+      @compare_mushaf_page = MushafPage.where(mushaf_id: @compared_mushaf.id, page_number: page_number).first
+    end
+  end
+end

@@ -1,0 +1,38 @@
+<div class="row" id="editor-wrap">
+  <div class="col-12">
+    <h2>
+      <%= @resource.name %> - Surah <%= @info.chapter.name_simple %>
+    </h2>
+  </div>
+
+  <% if @access %>
+    <div class="callout alert alert-dismissible" role="alert">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 30px; margin-top: 10px">
+            <%= @access.admin_notes.to_s.html_safe %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="col-md-12">
+    <%= form_with model: @info, url: surah_info_path(@info.chapter_id, resource_id: @resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
+      <div class="form-group">
+        <%= form.label :short_text, class: 'form-label' %>
+        <%= form.text_area :short_text, class: 'form-control', row: 2 %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :text, 'Surah Info text', class: 'form-label' %>
+        <%= form.text_area :text, class: 'form-control', id: 'editor', required: true, autofocus: true, data: {controller: 'tinymce'} %>
+      </div>
+
+      <div class="form-group">
+        <%= link_to 'Cancel', surah_info_path(@info.chapter_id, language: @info.language_id, resource_id: @resource.id), class: 'btn btn-default' %>
+        <%= form.submit "Save Surah Info", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,121 @@
+.flag {
+  width: 80px;
+  height: 60px;
+  box-sizing: content-box;
+  padding-top: 30px;
+  position: relative;
+  background: #fbc22f;
+  color: #000;
+  font-size: 1.3rem;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.flag:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-bottom: 13px solid #f2ede9;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+}
+.trilateral-header {
+  background-color: #8b2419;
+  padding: 1rem;
+  width: 100%;
+  height: 35px;
+}
+.trilateral-header p {
+  color: #fff;
+  font-size: 1.5rem;
+  text-align: center;
+}
+.container {
+  margin: 0 auto;
+  max-width: 500px;
+  width: 100%;
+}
+.flex {
+  display: flex;
+}
+.mt-3 {
+  margin-top: 2rem;
+}
+.img {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+.text-center {
+  text-align: center;
+}
+.defination-header {
+  margin-top: 1rem;
+  background-color: #583e74;
+  padding: 0.5rem;
+  color: #fff;
+  font-size: 1.5rem;
+}
+.quranic-usage-header {
+  margin-top: 1rem;
+  background-color: #2e6843;
+  padding: 0.5rem;
+  color: #fff;
+  font-size: 1.5rem;
+}
+.gray-bg {
+  padding: 10px;
+  background-color: #f2ede9;
+}
+.defination-wraper {
+  padding-top: 1rem;
+}
+.defination-wraper p {
+  line-height: 1.4rem;
+  font-size: 1.2rem;
+  word-spacing: 0.4rem;
+}
+.burst-12 {
+  margin-right: 10px;
+  background: #f06b3f;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  text-align: center;
+}
+.burst-12:before,
+.burst-12:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background: #f06b3f;
+}
+.burst-12:before {
+  transform: rotate(30deg);
+}
+.burst-12:after {
+  transform: rotate(60deg);
+}
+.burst-12 span {
+  display: block;
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  color: white;
+  padding-top: 2px;
+}
+
+.search-result{
+  display: flex;
+  flex-wrap: nowrap;
+
+  span{
+    margin-right: 5px;
+  }
+}

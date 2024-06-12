@@ -1,0 +1,6 @@
+<%= semantic_form_for [:admin, NavigationSearchRecord.new] do |form| %>
+  <%= form.input(:searchable_record_id, as: :hidden, input_html: {value: resource.id}) %>
+  <%= form.input(:searchable_record_type, as: :hidden, input_html: {value: resource.class.to_s}) %>
+  <%= form.input(:text) %>
+  <%= form.actions(:submit) %>
+<% end %>

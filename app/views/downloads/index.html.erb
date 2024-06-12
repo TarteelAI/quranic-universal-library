@@ -1,0 +1,57 @@
+<% content_for :title, 'Tarteel CMS - Download Quranic Content' %>
+<% content_for :head do %>
+  <meta name="description" content="Tarteel CMS provides a comprehensive library of Quranic content, including Quran script, translations, tafsir, mushaf layouts, and audio recitations. Download and enhance your knowledge of the Quran.">
+  <meta name="keywords" content="Quran data, Tarteel CMS, Quran indopak, Quran translations, tafsir, Mushaf layout, Quran audio, Islamic resources">
+  <meta name="author" content="Tarteel">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<% end %>
+
+<div class="page-wrapper">
+  <div class="download">
+    <div class="header">
+      Welcome to Tarteel CMS.
+    </div>
+
+    <div class="row">
+      <div class="col-md-12 welcome-message">
+        <p>
+          Welcome to Tarteel CMS, the largest library of Quranic content available for download. Build amazing projects using these invaluable resources.
+        </p>
+      </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <% @resources.each do |resource| %>
+        <div class="col">
+          <%= link_to download_path(resource.resource_type, filter: true) do %>
+            <div class="grid-item">
+              <i class="fas <%= resource.icon %>"></i>
+
+              <h3>
+                <%= resource.group_name %>
+                <span class="badge bg-primary">
+                <%= resource.total_resources %>
+              </span>
+              </h3>
+              <p><%= resource.group_info %>.</p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .welcome-message p{
+      background: linear-gradient(311deg, var(--gradient-4), var(--gradient-3) 66%, var(--gradient-1), var(--gradient-2) 33%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      font-size: 2rem;
+  }
+</style>

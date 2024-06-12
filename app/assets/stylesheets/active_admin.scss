@@ -1,0 +1,57 @@
+@import "active_admin/mixins";
+@import "active_admin/base";
+@import "select2/dist/css/select2";
+
+@import "shared/font_faces";
+@import "shared/surah_names";
+@import "shared/tajweed";
+@import "shared/mushaf_page";
+@import "shared/diffy";
+@import "shared/content";
+@import "admin/theme";
+@import "admin/dict";
+@import "admin/bootstrap";
+@import "admin/active_admin_bootstrab_overrides";
+@import "libs/toastr";
+
+form#data-filters {
+  li {
+    margin-top: 20px;
+
+    label {
+      margin-right: 15px;
+    }
+
+    .select2-container {
+      min-width: 200px;
+
+      .select2-selection__clear {
+        padding-right: 10px;
+      }
+    }
+  }
+}
+
+.collapable{
+  &.collapsed span{
+    &:before{
+      content: '☝';
+    }
+  }
+
+   span{
+    &:before{
+      content: '☟';
+    }
+  }
+}
+
+input[type=search]{
+  width: calc(80% - 22px);
+  border: 1px solid #c9d0d6;
+  border-radius: 3px;
+  font-size: .95em;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  outline: none;
+  padding: 8px 10px 7px;
+}

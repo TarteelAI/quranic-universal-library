@@ -1,0 +1,36 @@
+<%
+  lines = group_words_lines(words)
+%>
+
+<div class="mushaf" data-controller="mushaf-page">
+  <div style="width: 100%;margin: 0 5px;text-align: center;direction: ltr;font-size: 20px">
+    Font size: <%= name %>(<span id=size>40</span>)<input type="range" min="15" max="100" value="40" class="font-size-slider">
+  </div>
+
+  <div class="page-wrapper flex">
+    <div class="page" id="page-<%= page %>">
+      <% lines.each do |line_number, verses| %>
+        <div class="line-container">
+          <div class="line" id=line-<%= line_number %>>
+            <% verses.each do |verse_id, words| %>
+              <div class="ayah-container">
+                <div class="ayah" data-ayah="<%= verse_id %>">
+                  <% words.each do |word| %>
+               <span class="char char-<%= word.char_type_name %> <%= 'word--missing' if word.word_id.nil? %>"
+                     id=word-<%= word.position_in_page %>
+                     data-word-id="<%= word.word_id %>"
+                     data-id="<%= word.id %>">
+                  <a>
+                    <%= word.text %>
+                  </a>
+               </span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

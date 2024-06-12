@@ -1,0 +1,30 @@
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+<div class="page-wrapper transliteration">
+  <h1 class="page-header d-flex align-items-center justify-content-between">
+    <span>
+      <%= @resource.name %>
+    </span>
+
+    <span>
+      <%= link_to new_morphology_phrase_path, class: 'btn btn-success', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) } do %>
+        New
+      <% end %>
+
+      <%= link_to 'View bookmarks', '#_', class: 'btn btn-info', data: {controller: 'phrase-ayah-bookmark'} %>
+
+      <% if params[:proofread] %>
+        <%= link_to 'Phrase view', morphology_phrases_path, class: 'btn btn-info' %>
+      <% else %>
+        <%= link_to 'Proofread view', morphology_phrases_path(proofread: true), class: 'btn btn-info' %>
+      <% end%>
+    </span>
+  </h1>
+
+  <% if params[:proofread] %>
+    <%= render 'proofread_list' %>
+  <% else %>
+    <%= render 'phrase_list' %>
+  <% end %>
+  
+</div>

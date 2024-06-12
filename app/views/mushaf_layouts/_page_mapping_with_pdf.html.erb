@@ -1,0 +1,33 @@
+<%
+  pdf_page_offset = (@resource.meta_value('source_pdf_page_offset') || 2).to_i
+  pdf_url = @resource.get_source_pdf_url
+%>
+
+<% if pdf_url.present? %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<% end %>
+
+<div class="page-wrapper">
+  <div class="resize-container" data-controller="resizeable">
+    <% if pdf_url.present? %>
+      <div class="resizable" id="left-side"
+           data-controller="pdf-viewer"
+           data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
+           data-page-offset="<%= pdf_page_offset %>"
+           data-pdf-url="<%= pdf_url %>">
+        <div id="pdf-wrapper">
+          <div id="pdf-container">
+            <canvas id="pdf-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="resizable w-0" id="left-size"></div>
+    <% end %>
+
+    <div class="handler"></div>
+    <div class="resizable" id="right-side">
+      <%= render 'page_mapping' %>
+    </div>
+  </div>
+</div>

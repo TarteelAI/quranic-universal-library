@@ -1,0 +1,6 @@
+<%= turbo_stream.prepend 'suggested-ayahs' do %>
+  <%= render 'ayah', options: {
+    ayah: Verse.find_by(verse_key: params[:add_ayah_key]),
+    matcher: 'manual'
+  } %>
+<% end %>

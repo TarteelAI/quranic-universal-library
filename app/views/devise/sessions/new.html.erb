@@ -1,0 +1,29 @@
+<div class="card devise-bs my-3">
+  <%= render 'shared/form_errors', object: resource %>
+
+  <div class="card-header">
+    <h4><%= t('.sign_in', default: 'Sign in') %></h4>
+  </div>
+
+  <div class="card-body" data-turbo="false">
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form' }) do |f| %>
+      <div class="form-group mb-2">
+        <%= f.label :email %>
+        <%= f.email_field :email, autofocus: true, class: 'form-control' %>
+      </div>
+      <div class="form-group mb-2">
+        <%= f.label :password %>
+        <%= f.password_field :password, autocomplete: 'off', class: 'form-control' %>
+      </div>
+      <% if devise_mapping.rememberable? %>
+        <div class="checkbox mb-2">
+          <%= f.label :remember_me do %>
+            <%= f.check_box :remember_me %> <%= t('.remember_me', default: 'Remember me') %>
+          <% end %>
+        </div>
+      <% end %>
+      <%= f.submit  t('.sign_in', default: 'Sign in'), class: 'btn btn-primary mt-2' %>
+    <% end %>
+  </div>
+</div>
+<%= render 'devise/shared/links' %>

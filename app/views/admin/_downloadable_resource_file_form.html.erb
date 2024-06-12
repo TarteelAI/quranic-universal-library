@@ -1,0 +1,7 @@
+<%= form_with model: resource, url: upload_file_admin_downloadable_resource_path(resource),
+             method: :post,
+             enctype: 'multipart/form-data' do |form| %>
+  <h3>Upload File</h3>
+  <%= form.file_field :files, required: true, multiple: true %>
+  <%= form.submit "Upload" %>
+<% end %>

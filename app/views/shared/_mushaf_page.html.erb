@@ -1,0 +1,195 @@
+<%
+  lines = group_words_lines(words)
+
+  use_images = mushaf.use_images?
+  tajweed_rules = false
+  mushaf_class = local_assigns[:mushaf_class]
+  page_class = local_assigns[:page_class]
+  params[:word] = params[:word].to_i
+
+  words_groups = {}
+
+  lines_mapping = {}
+  MushafLineAlignment.where(mushaf_id: mushaf.id, page_number: page).each do |line|
+    lines_mapping[line.line_number.to_s] = {
+      center: line.is_center_aligned?,
+      bismillah: line.is_bismillah?,
+      surah: line.is_surah_name?,
+      surah_number: line.get_surah_number
+    }
+  end
+
+  if params[:mushtabiat] == '1'
+    ayah_phrases = Morphology::PhraseVerse.approved.includes(:phrase).where(verse_id: words.pluck(:verse_id).uniq)
+    ayah_phrases = ayah_phrases.group_by(&:verse_id)
+
+    words.each do |w|
+      selected_phrase = ayah_phrases[w.verse_id]&.detect do |p|
+        w.position_in_verse >= p.word_position_from && w.position_in_verse <= p.word_position_to
+      end
+
+      if selected_phrase
+        words_groups[w.line_number] ||= {}
+        words_groups[w.line_number][w.id] = selected_phrase
+      end
+    end
+  end
+%>
+
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+
+<%= render 'shared/tajweed_images_styles' if use_images %>
+<%= render 'shared/page_font', pages: [page], words: nil %>
+
+<div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page">
+  <div class="mushaf-page-setting d-flex flex-column mb-4">
+    <div class="mr-2 d-flex">
+      <span>Name: <%= name %></span>
+      <span>
+        <label for="mushtabiat">Enable Mushtabiat</label>
+        <input type="checkbox" id="mushtabiat" <% if params[:mushtabiat] == '1'%>checked<% end %>>
+      </span>
+    </div>
+
+    <div>
+      Font size:(<span id=size></span>)
+      <input type="range" min="15" max="100" value="28" class="font-size-slider">
+    </div>
+
+    <div id=font-switcher>
+      <label for="font-switcher">
+        Change font
+      </label>
+
+      <%= select_tag :change_font, options_for_select(mushaf_font_options(mushaf)), class: '' %>
+    </div>
+  </div>
+
+  <div class="page-wrapper flex">
+    <div
+      <% if mushaf.font_code == 'v4-tajweed' %>
+      data-controller="tajweed-font"
+      <% end %>
+      class="page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>" id="page-<%= page %>"
+      >
+      <% 1.upto(mushaf.lines_per_page) do |line_number| %>
+        <%
+          line_mapping = lines_mapping[line_number.to_s] || {}
+          verses = lines[line_number] || []
+        %>
+        <% next if line_mapping.blank? && verses.blank? %>
+
+        <div class="line-container" data-line="<%= line_number %>">
+          <div class="line <%= 'line--center' if line_mapping[:center] %> <%= 'line--surah-name' if line_mapping[:surah] %> <%= 'line---bismillah' if line_mapping[:bismillah] %>" id=line-<%= line_number %>>
+            <% if line_mapping[:surah] && line_mapping[:surah_number] %>
+              <%= render 'shared/chapter_name', chapter: Chapter.find(line_mapping[:surah_number]) %>
+            <% end %>
+
+            <% if line_mapping[:bismillah] %>
+              <%= render 'shared/bismillah' %>
+            <% end %>
+
+            <% verses.each do |verse_id, words| %>
+              <%
+                current_group = nil
+                group_tag_started = false
+              %>
+
+              <div class="ayah-container">
+                <div class="ayah" data-ayah="<%= verse_id %>">
+                  <% words.each do |word| %>
+                    <% current_group = words_groups[word.line_number] && words_groups[word.line_number][word.id] %>
+
+                    <% if current_group %>
+                       <% if !group_tag_started %>
+                         <% group_tag_started = true %>
+                         <div class='d-inline-block mushtabiat' data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.color %>">
+                       <% end %>
+                      <% else %>
+                       <% if group_tag_started %>
+                         <% group_tag_started = false %>
+                        </div>
+                      <% end %>
+                    <% end %>
+
+                    <span class="char <%= word.css_class %> <%= 'bg-success' if params[:word] == word.word_id %> char-<%= word.char_type_name %> <%= 'word--missing' if word.word_id.nil? %>"
+                       id=word-<%= word.position_in_page %>
+                       data-word-id="<%= word.word_id %>"
+                       data-id="<%= word.id %>">
+                  <a href="<%= admin_mushaf_word_path(word.id) %>" target="_blank">
+                    <% if use_images %>
+                    <% if tajweed_rules %>
+    <% tajweed_rules.positions.each do |part| %>
+      <% style = "width: #{part['width']}px; height: #{part['height']}px; margin-top: #{part['top']}px; margin-left: #{part['left']}px;" %>
+                          <span class="part rl<%= part['rule'] %>" data-img-width=<%= part['imageWidth'] %> style="<%= style %>" group="<%= part['group'] %>" rule="<%= part['rule'] %>" audio="<%= part['audio'] %>"></span>
+    <% end %>
+  <% end %>
+                      <img src="<%= word.image_url %>"/>
+                    <% else %>
+                         <%= word.text.html_safe %>
+                      <% end %>
+                  </a>
+               </span>
+                  <% end %>
+
+                  <% if group_tag_started %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  var rules = {
+    1: "Hamzat Wasl",
+    2: "Lam Shamsiyyah",
+    3: "Silent",
+    4: "Idgham - With Ghunnah",
+    5: "Idgham - Without Ghunnah",
+    6: "Ikhfa",
+    7: "Iqlab",
+    8: "Qalqalah",
+    9: "Ghunnah - 2 Vowels",
+    10: "Idgham - Mutajanisayn",
+    11: "Idgham - Mutaqaribayn",
+    12: "Idgham Shafawi - With Meem",
+    13: "Ikhfa' Shafawi - With Meem",
+    14: "Madd Normal - 2 Vowels",
+    15: "Madd Permissible - 2, 4, 6 Vowels",
+    16: "Madd Obligatory - 4, 5 Vowels",
+    17: "Madd Necessary - 6 Vowels"
+  }
+
+  $(".part").each((i, part) => {
+    var imgWidth = part.parentNode.dataset.imageWith || part.parentNode.querySelector('img').width
+    var mL = parseFloat(part.style.marginLeft);
+    var width = part.offsetWidth;
+
+    var mr = Math.max(0, imgWidth - (mL + width))
+
+    if (false && mL < 0)
+      mr = imgWidth + mL - (width / 2);
+    else if (mL + width > imgWidth)
+      mr = 0;
+    else
+      mr = mr == 0 ? width : mr;
+
+    part.style.marginRight = `${mr}px`;
+  })
+
+  $(() => {
+    tippy('.part', {
+      content(reference) {
+        return rules[reference.getAttribute('rule')];
+      },
+      allowHTML: true,
+    });
+  })
+</script>

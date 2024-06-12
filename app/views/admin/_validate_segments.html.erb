@@ -1,0 +1,39 @@
+<div id=title>
+  Segment Issues(<%= @issues.size %>)
+</div>
+
+<div id="body">
+  <div class="modal-body">
+    <ol class="list-group list-group-numbered">
+      <% if @issues.size.zero? %>
+        <li class="list-group-item d-flex">
+          <div class="d-flex align-items-start w-100">
+            <div class="ml-2 mr-auto">
+              We're good alhumudAllah, no issue found.
+            </div>
+          </div>
+        </li>
+      <% else %>
+        <% @issues.each do |issue| %>
+          <li class="list-group-item d-flex">
+            <div class="d-flex justify-content-between align-items-start w-100">
+              <div style="width: 20px; height: 20px" class="<%= issue[:severity] %>"></div>
+              <div class="ml-2 mr-auto">
+                <%= issue[:text] %>
+              </div>
+
+              <% if issue[:key] %>
+                <% chapter, verse = issue[:key].split(':') %>
+                <% if resource.one_ayah? %>
+                  <%= link_to 'Debug', segment_builder_ayah_audio_file_path(resource.id, chapter_id: chapter, verse: verse), class: 'btn btn-danger text-white btn-sm', target: '_blank' %>
+                <% else %>
+                  <%= link_to 'Debug', segment_builder_surah_audio_file_path(chapter, recitation_id: resource.id, verse: verse), class: 'btn btn-danger text-white btn-sm', target: '_blank' %>
+                <% end %>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      <% end %>
+    </ol>
+  </div>
+</div>

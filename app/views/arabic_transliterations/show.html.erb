@@ -1,0 +1,135 @@
+<div class="page-wrapper transliteration">
+  <h1 class="page-header">
+    Arabic/Urdu Transliterations of <%= @verse.verse_key %>
+
+    <span class=" pull-right">
+      <%= link_to 'Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'btn btn-success' %>
+
+      <%= link_to 'Previous ayah', arabic_transliteration_path(@verse.id + 1), class: 'btn btn-success' %>
+      <%= link_to 'Next ayah', arabic_transliteration_path(@verse.id + 1), class: 'btn btn-success' %>
+
+      <%= link_to 'Back to filter', arabic_transliterations_path, class: 'btn btn-success' %>
+    </span>
+  </h1>
+
+  <div class="callout alert alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+    </button>
+    <h2>
+      Click on <code>Contribute</code> button and update transliteration if you found any issue.
+    </h2>
+    <div>
+    <ul>
+      <li>
+        <b>Text Madani:</b> <span class="indopak"> <%= @verse.text_uthmani %></span>
+      </li>
+
+      <li>
+        <b>Text Indopak:</b> <span class="indopak"> <%= @verse.text_indopak %></span>
+      </li>
+
+      <li>
+        <b>Transliteration:</b>
+
+        <span class="text-transliteration indopak">
+          <%
+            continuous = false
+            tag_started = false
+          %>
+
+          <% @verse.words.order('position asc').each do |w| %>
+             <% if w.arabic_transliteration&.continuous? %>
+                <% if !continuous %>
+                  <% tag_started = true %>
+                  <span>
+                <% end %>
+                <%= w.arabic_transliteration&.text %>
+             <% else %>
+                 <% if tag_started %>
+                    <% tag_started = false %>
+                   <%= w.arabic_transliteration&.text %>
+                   </span>
+                <% else %>
+                   <span><%= w.arabic_transliteration&.text %></span>
+                <% end %>
+             <% end %>
+
+            <% continuous = w.arabic_transliteration&.continuous? %>
+            <% end %>
+        </span>
+      </li>
+    </ul>
+    </div>
+  </div>
+
+  <div id="editor-wrap">
+    <div class="form-group">
+      <%= select_tag :change_page, options_for_select(1..980, @predicted_page), class: 'form-control', data: {placeholder: 'Jump to page'} %>
+      <p class="help-block">Jump to page number</p>
+    </div>
+
+    <canvas></canvas>
+  </div>
+
+  <div class="lead">
+    Transliteration progress
+  <div class="progress">
+    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= @verse.arabic_transliteration_progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= @verse.arabic_transliteration_progress %>%;">
+      <%= @verse.arabic_transliteration_progress %>%
+    </div>
+  </div>
+  </div>
+
+  <table class="table table-hover">
+    <thead class="position-sticky bg-white border-bottom top-0">
+    <tr>
+      <td>Word id</td>
+      <td>IndoPak text</td>
+      <td>Simple text</td>
+      <td>Uthmani text</td>
+      <td>Translitetation</td>
+      <td>Continous?</td>
+      <td>Proofreading</td>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% @verse.words.order('position asc').each do |word| %>
+      <tr>
+        <th scope="row"><%= word.position %></th>
+
+        <td class=""><%= word.arabic_transliteration&.indopak_text %></td>
+
+        <td class="arabic">
+          <%= word.text_imlaei_simple %>
+        </td>
+
+        <td class="arabic">
+          <%= word.text_uthmani %>
+        </td>
+
+        <td class="arabic">
+          <%= word.arabic_transliteration&.text %>
+        </td>
+
+        <td class="arabic">
+          <%= word.arabic_transliteration&.continuous? %>
+        </td>
+
+        <td>
+          <% if word.arabic_transliteration %>
+            <%= link_to '#_', remote: true, data: {url: proof_read_comments_path(resource_id: word.arabic_transliteration.id, resource: word.arabic_transliteration.class.to_s), toggle: "ajax-modal"} do %>
+              <i class="fa fa-comment"></i> Comments
+            <% end %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+    $('select.form-control').chosen()
+    window.pageZoomer = new Utility.ImageZoomer("http://static.quran.com/urdu_transliteration/<%=@predicted_page%>.jpg")
+</script>

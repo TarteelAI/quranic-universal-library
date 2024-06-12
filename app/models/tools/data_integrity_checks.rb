@@ -1,0 +1,805 @@
+class Tools::DataIntegrityChecks
+  def self.checks
+    [
+      :words_without_mushaf_words,
+      :mushaf_words_without_word,
+      :mushaf_words_with_missing_arabic_text,
+      :words_with_missing_arabic_text,
+      :mushaf_words_with_incorrect_position,
+      :words_with_missing_translations,
+      :ayah_with_missing_translations,
+      :duplicate_mushaf_words,
+      :mushaf_words_with_incorrect_char_type,
+      :chapter_with_missing_translated_names,
+      :ayah_with_missing_tafsirs,
+      :words_without_root,
+      :words_without_lemma,
+      :words_without_stem,
+      :words_with_duplicate_lemma,
+      :words_with_duplicate_stem,
+      :words_with_duplicate_root,
+      :compare_two_mushaf_words,
+      :mushaf_page_with_start_ayah,
+      :mushaf_page_with_bismillah,
+      :mushaf_page_with_ayah_spanning_into_multiple_pages,
+      :compare_translations,
+      :ayah_without_matching_ayahs
+    ]
+  end
+
+  def self.valid_check?(name)
+    respond_to? name
+  end
+
+  def self.ayah_without_matching_ayahs
+    {
+      name: "Ayahs with no related ayahs",
+      description: "List of ayahs that has no matching/related ayahs",
+      table_attrs: ['id', 'key', 'text'],
+      fields: [],
+      links_proc: {
+        id: ->(record, _) do
+          [record.id, "/admin/verses/#{record.id}"]
+        end,
+        key: ->(record, _) do
+          record.verse_key
+        end,
+        text: -> (record, _) do
+          "<div class='quran-text qpc-hafs'>#{record.text_qpc_hafs}</div>".html_safe
+        end
+      },
+      check: ->(params) do
+        # m = Morphology::MatchingVerse
+        # results = Verse.joins("left join #{m.table_name} on verses.id = #{m.table_name}.verse_id").where('verses.id is null')
+        # related ayah and verses are in two different db, join isn't possible
+        results = Verse.where.not(id: Morphology::MatchingVerse.pluck(:verse_id).uniq)
+
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.mushaf_page_with_ayah_spanning_into_multiple_pages
+    {
+      name: "Mushaf pages where ayahs doens't end of same page",
+      description: "List of mushaf pages where ayah doesn't end on the same page.",
+      table_attrs: ['page_number', 'first_word', 'last_word'],
+      paginate: false,
+      links_proc: {
+        page_number: -> (record, _) do
+          [record.page_number, "/admin/mushaf_pages/#{record.id}"]
+        end,
+        first_word: -> (record, _) do
+          [record.first_word.location, "/admin/mushaf_pages/#{record.id}?word=#{record.first_word.id}"]
+        end,
+        last_word: -> (record, _) do
+          [record.last_word.location, "/admin/mushaf_pages/#{record.id}?word=#{record.last_word.id}"]
+        end
+      },
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        mushaf_id = params.dig(:check, :mushaf_id)
+        result = []
+
+        if mushaf_id.present?
+          MushafPage.where(mushaf_id: mushaf_id).includes(:last_word, :first_word).each do |page|
+            if page.last_word.word? || page.first_word.position != 1
+              result << page
+            end
+          end
+        else
+          result = MushafPage.none
+        end
+
+        result
+      end
+    }
+  end
+
+  def self.mushaf_page_with_start_ayah
+    {
+      name: "Mushaf page with starting ayah",
+      description: "List of pages that has starting ayah of any surah.",
+      table_attrs: ['page_number', 'ayah'],
+      paginate: false,
+      links_proc: {
+        page_number: -> (record, _) do
+          [record[1].page_number, "/admin/mushaf_pages/#{record[1].id}"]
+        end,
+        ayah: -> (record, _) do
+          [record[0], "/admin/verses/#{record[0]}"]
+        end
+      },
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        mushaf_id = params.dig(:check, :mushaf_id)
+        result = []
+
+        if mushaf_id.present?
+          MushafPage.where(mushaf_id: mushaf_id).order('page_number ASC').each do |page|
+            mapping = page['verse_mapping']
+
+            mapping.each do |surah, range|
+              start, last = range.split('-').map(&:to_i)
+
+              if start == 1
+                result << ["#{surah}:#{start}", page]
+              end
+            end
+          end
+        else
+          result = MushafPage.none
+        end
+
+        result
+      end
+    }
+  end
+
+  def self.mushaf_page_with_bismillah
+    {
+      name: "Mushaf page with Bismillah",
+      description: "List of pages that has Bismillah.",
+      table_attrs: ['page_number', 'line_number', 'ayah'],
+      paginate: false,
+      links_proc: {
+        page_number: -> (record, _) do
+          [record[0].page_number, "/admin/mushaf_pages/#{record[0].id}"]
+        end,
+        ayah: -> (record, _) do
+          [record[2], "/admin/verses/#{record[2]}"]
+        end,
+        line_number: -> (record, _) do
+          record[1]
+        end
+      },
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        mushaf_id = params.dig(:check, :mushaf_id)
+
+        if mushaf_id.present?
+          lines_with_bismillah = MushafLineAlignment.where(mushaf_id: mushaf_id).order('page_number ASC').select(&:is_bismillah?)
+
+          lines_with_bismillah.map do |line|
+            page = MushafPage.includes(:first_word).where(mushaf_id: mushaf_id, page_number: line.page_number).first
+            [page, line.line_number, page.first_word.location]
+          end
+        else
+          MushafPage.none
+        end
+      end
+    }
+  end
+
+  def self.compare_translations
+    translations = ResourceContent.translations.one_verse.map do |a|
+      ["#{a.id} - #{a.name}", a.id.to_s]
+    end
+
+    {
+      name: "Compare two translation",
+      description: "Compare two translations, see text diff etc",
+      table_attrs: [:verse_key, :first_translation, :second_translation, :matched, :diff],
+      links_proc: {
+        verse_key: -> (record, _) do
+          [record.verse_key, "/admin/verses/#{record.verse_key}"]
+        end,
+        first_translation: -> (record, _) do
+          record.first_translation.to_s.html_safe
+        end,
+        second_translation: -> (record, _) do
+          record.second_translation.to_s.html_safe
+        end,
+        diff: -> (record, _) do
+          if record.first_translation != record.second_translation
+            if (text_diff = Diffy::SplitDiff.new(record.first_translation.to_s, record.second_translation.to_s, format: :html, allow_empty_diff: true) rescue nil)
+              "<div>
+  #{text_diff.left.html_safe}
+              </div><div>
+  #{text_diff.right.html_safe}
+              </div>".html_safe
+            end
+          end
+        end,
+        matched: -> (record) do
+          record.first_translation == record.second_translation
+        end
+      },
+      fields: [
+        {
+          type: :string,
+          name: :verse_key
+        },
+        {
+          type: :select,
+          name: :matched,
+          collection: [['Any', ''], ['Yes', '1'], ['No', '0']],
+        },
+        {
+          type: :select,
+          collection: translations,
+          name: :first_translation
+        },
+        {
+          type: :select,
+          collection: translations,
+          name: :second_translation
+        }
+      ],
+      check: ->(params) do
+        first_translation_id = params.dig(:check, :first_translation)
+        second_translation_id = params.dig(:check, :second_translation)
+        verse_key = params.dig(:check, :verse_key)
+        matched = params.dig(:check, :matched)
+
+        if first_translation_id && second_translation_id
+          translations = Translation
+                           .joins("INNER JOIN translations AS tr2 ON translations.verse_id = tr2.verse_id AND translations.resource_content_id = #{first_translation_id} AND tr2.resource_content_id = #{second_translation_id}")
+
+          if verse_key.present?
+            translations = translations.where("translations.verse_key = ?", verse_key)
+          end
+
+          if matched.present?
+            if matched == '1'
+              translations = translations.where("translations.text = tr2.text", verse_key)
+            elsif matched == '0'
+              translations = translations.where("translations.text <> tr2.text", verse_key)
+            end
+          end
+
+          result = translations.select(
+            :verse_key,
+            :id,
+            "translations.text AS first_translation",
+            "tr2.id AS second_translation_id",
+            "tr2.text AS second_translation"
+          )
+        else
+          result = Translation.none
+        end
+
+        paginate(result, params)
+      end
+    }
+  end
+
+  def self.compare_two_mushaf_words
+    {
+      name: "Compare layout difference of two Mushafs",
+      description: "Compare two mushaf words and get list of words that are not on same page/or line",
+      table_attrs: ['word_id', 'text', 'first_musahf_page', 'second_musahf_page', 'first_musahf_line', 'second_musahf_line'],
+      links_proc: {
+        word_id: -> (record, _) do
+          [record.word.location, "/admin/words/#{record.word_id}"]
+        end,
+        first_musahf_page: -> (record, _) do
+          [record.first_musahf_page, "/admin/mushaf_page_preview?page=#{record.first_musahf_page}&mushaf=#{record.first_musahf_id}&word=#{record.word_id}"]
+        end,
+        second_musahf_page: -> (record, _) do
+          [record.second_musahf_page, "/admin/mushaf_page_preview?page=#{record.second_musahf_page}&mushaf=#{record.second_musahf_id}&word=#{record.word_id}"]
+        end
+      },
+      fields: [
+        {
+          type: :select,
+          collection: [['Line number', 'line_number'], ['Page number', 'page_number']],
+          name: :compare_field
+        },
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :first_mushaf_id
+        },
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :second_mushaf_id
+        }
+      ],
+      check: ->(params) do
+        first_mushaf_id = params.dig(:check, :first_mushaf_id)
+        second_mushaf_id = params.dig(:check, :second_mushaf_id)
+        compare_attr = params.dig(:check, :compare_field).presence || 'page_number'
+
+        if first_mushaf_id && second_mushaf_id
+          matching_words = MushafWord
+                             .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf_id} AND mw2.mushaf_id = #{second_mushaf_id}")
+                             .where("mushaf_words.#{compare_attr} <> mw2.#{compare_attr}")
+
+          result = matching_words.select(
+            :word_id,
+            :text,
+            "mushaf_words.mushaf_id AS first_musahf_id",
+            "mw2.mushaf_id AS second_musahf_id",
+
+            "mushaf_words.page_number AS first_musahf_page",
+            "mushaf_words.line_number AS first_musahf_line",
+
+            "mw2.line_number AS second_musahf_line",
+            "mw2.page_number AS second_musahf_page"
+          )
+        else
+          result = MushafWord.none
+        end
+
+        paginate(result, params)
+      end
+    }
+  end
+
+  def self.mushaf_words_with_incorrect_position
+    {
+      name: "Mushaf Words with incorrect position in ayah",
+      description: "List of mushaf words with incorrect position",
+      table_attrs: ['id', 'mushaf_id', 'word_id', 'text', 'word_position', 'position_in_verse'],
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        query = "char_type_id NOT IN(#{1}, #{3})"
+        mushaf_id = params.dig(:check, :mushaf_id)
+
+        if mushaf_id.present?
+          query = "mushaf_words.mushaf_id = #{mushaf_id.to_i} AND (#{query})"
+        end
+
+        results = MushafWord.where(query)
+        paginate(results, params)
+
+        join_query = "join words on words.id = mushaf_words.word_id"
+        mushaf_id = params.dig(:check, :mushaf_id)
+
+        if mushaf_id.present?
+          join_query += " AND mushaf_words.mushaf_id = #{mushaf_id.to_i}"
+        end
+
+        results = MushafWord.joins(join_query).where('mushaf_words.position_in_verse != words.position')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.mushaf_words_with_incorrect_char_type
+    {
+      name: "Mushaf Words with incorrect char type",
+      description: "List of mushaf words non word char types. ",
+      table_attrs: ['id', 'mushaf_id', 'word_id', 'text', 'char_type_name'],
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        query = "char_type_id NOT IN(#{1}, #{3})"
+        mushaf_id = params.dig(:check, :mushaf_id)
+
+        if mushaf_id.present?
+          query = "mushaf_words.mushaf_id = #{mushaf_id.to_i} AND (#{query})"
+        end
+
+        results = MushafWord.where(query)
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.duplicate_mushaf_words
+    {
+      name: "Duplicate Mushaf Word entries",
+      description: "List of Mushaf Word with duplicate entries per Mushaf",
+      table_attrs: ['mushaf_id', 'word_id', 'count'],
+      paginate: false,
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        mushaf_id = params.dig(:check, :mushaf_id)
+        records = if mushaf_id.present?
+                    MushafWord.where(mushaf_id: mushaf_id.to_i)
+                  else
+                    MushafWord
+                  end
+
+        records.select('mushaf_id, word_id, count(*) as count').group(:mushaf_id, :word_id).having('count(*) > 1')
+      end
+    }
+  end
+
+  def self.words_with_missing_arabic_text
+    text_attrs = ["text_uthmani",
+                  "text_indopak",
+                  "text_imlaei_simple",
+                  "text_imlaei",
+                  "text_uthmani_simple",
+                  "text_uthmani_tajweed",
+                  "text_qpc_hafs",
+                  "text_indopak_nastaleeq",
+                  "text_qpc_nastaleeq"]
+
+    {
+      name: "Quran Words with missing Arabic",
+      description: "Quran Words with missing Arabic",
+      table_attrs: ['id', 'chapter_id', 'text_uthmani', 'char_type_name'],
+      fields: [
+        {
+          type: :select,
+          collection: text_attrs,
+          name: :script_type
+        }
+      ],
+      check: ->(params) do
+        script_type = params.dig(:check, :script_type)
+
+        query = if script_type.present?
+                  attr = script_type.to_s.strip
+
+                  "#{attr} IS NULL OR #{attr} = ''"
+                else
+                  text_attrs.map do |attr|
+                    "#{attr} IS NULL OR #{attr} = ''"
+                  end.join(' OR ')
+                end
+
+        results = Word.where(query)
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.mushaf_words_with_missing_arabic_text
+    {
+      name: "Mushaf Words record without text",
+      description: "List of Mushaf Words without text",
+      table_attrs: ['id', 'mushaf_id', 'word_id', 'text', 'char_type_name'],
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      check: ->(params) do
+        query = "text = '' OR text IS NULL"
+        mushaf_id = params.dig(:check, :mushaf_id)
+
+        if mushaf_id.present?
+          query = "mushaf_words.mushaf_id = #{mushaf_id.to_i} AND (#{query})"
+        end
+
+        results = MushafWord.where(query)
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_without_lemma
+    {
+      name: "Words without lemma",
+      description: "List of Words that don't have lemma",
+      table_attrs: ['id', 'location', 'text_uthmani'],
+      fields: [],
+      check: ->(params) do
+        sort_by = params[:sort_by].presence || 'id'
+        sort_order = params[:sort_order].presence || 'asc'
+        join_query = "left join word_lemmas on words.id = word_lemmas.word_id"
+
+        results = Word.words.joins(join_query).where('word_lemmas.id is null').order("#{sort_by} #{sort_order}")
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_with_duplicate_lemma
+    {
+      name: "Words with duplicate lemma",
+      description: "List of Words with multiple lemma",
+      table_attrs: ['word_id'],
+      links_proc: {
+        word_id: -> (record, _) do
+          [record.word_id, "/admin/word_lemmas?q%5Bword_id_eq%5D=#{record.word_id}"]
+        end
+      },
+      fields: [],
+      check: ->(params) do
+        sort_by = params[:sort_by].presence || 'id'
+        sort_order = params[:sort_order].presence || 'asc'
+
+        results = WordLemma.select('word_id, count(*) as count').group(:word_id).having('count(*) > 1')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_with_duplicate_stem
+    {
+      name: "Words with duplicate stem",
+      description: "List of Words with multiple stem",
+      table_attrs: ['word_id'],
+      links_proc: {
+        word_id: -> (record, _) do
+          [record.word_id, "/admin/word_stems?q%5Bword_id_eq%5D=#{record.word_id}"]
+        end
+      },
+      fields: [],
+      check: ->(params) do
+        sort_by = params[:sort_by].presence || 'id'
+        sort_order = params[:sort_order].presence || 'asc'
+
+        results = WordStem.select('word_id, count(*) as count').group(:word_id).having('count(*) > 1')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_with_duplicate_root
+    {
+      name: "Words with duplicate root words",
+      description: "List of Words with multiple root words",
+      table_attrs: ['word_id'],
+      links_proc: {
+        word_id: -> (record, _) do
+          [record.word_id, "/admin/word_roots?q%5Bword_id_eq%5D=#{record.word_id}"]
+        end
+      },
+      fields: [],
+      check: ->(params) do
+        sort_by = params[:sort_by].presence || 'id'
+        sort_order = params[:sort_order].presence || 'asc'
+
+        results = WordRoot.select('word_id, count(*) as count').group(:word_id).having('count(*) > 1')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_without_stem
+    {
+      name: "Words without stem",
+      description: "List of Words that don't have stem",
+      table_attrs: ['id', 'location', 'text_uthmani'],
+      fields: [],
+      check: ->(params) do
+        sort_by = params[:sort_by].presence || 'id'
+        sort_order = params[:sort_order].presence || 'asc'
+        join_query = "left join word_stems on words.id = word_stems.word_id"
+
+        results = Word.words.joins(join_query).where('word_stems.id is null').order("#{sort_by} #{sort_order}")
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_without_root
+    {
+      name: "Words without root word",
+      description: "List of Words that don't have root",
+      table_attrs: ['id', 'location', 'text_uthmani'],
+      fields: [],
+      check: ->(params) do
+        sort_by = params[:sort_by].presence || 'id'
+        sort_order = params[:sort_order].presence || 'asc'
+
+        join_query = "left join word_roots on words.id = word_roots.word_id"
+
+        results = Word.words.joins(join_query).where('word_roots.id is null').order("#{sort_by} #{sort_order}")
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_without_mushaf_words
+    {
+      name: "Words with no Mushaf Words record",
+      description: "List of Words that are not present in specific Mushaf Layout",
+      table_attrs: ['id', 'location', 'text_uthmani', 'page'],
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :mushaf_id
+        }
+      ],
+      links_proc: {
+        page: -> (record, params) do
+          mushaf_id = params.dig(:check, :mushaf_id)
+          page_words = MushafWord.where(mushaf_id: mushaf_id).where('word_id IN (?)', record.verse.words.pluck(:id))
+          page = page_words.first&.page_number
+          [page, "/mushaf_layouts/#{mushaf_id}/edit?page_number=#{page}"]
+        end
+      },
+      check: ->(params) do
+        join_query = "left join mushaf_words on words.id = mushaf_words.word_id"
+        mushaf_id = params.dig(:check, :mushaf_id)
+
+        if mushaf_id.present?
+          join_query += " AND mushaf_words.mushaf_id = #{mushaf_id.to_i}"
+        end
+
+        results = Word.joins(join_query).where('mushaf_words.id is null')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.mushaf_words_without_word
+    {
+      name: "Orphan Mushaf Words",
+      description: "List of Mushaf Words without associated words record",
+      table_attrs: ['id', 'word_id', 'text'],
+      check: ->(params) do
+        results = MushafWord.joins("left join words on words.id = mushaf_words.word_id").where('words.id is null')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.chapter_with_missing_translated_names
+    {
+      name: "Surah with missing translated names",
+      description: "List of surahs with missing translated names for specific language",
+      table_attrs: ['id', 'name_simple'],
+      fields: [
+        {
+          type: :select,
+          collection: TranslatedName.where(resource_type: 'Chapter').select("DISTINCT language_id, language_name").map do |tr|
+            [tr.language_name, tr.language_id]
+          end,
+          name: :language_id
+        }
+      ],
+      check: ->(params) do
+        join_query = "left join translated_names on chapters.id = translated_names.resource_id AND translated_names.resource_type = 'Chapter'"
+
+        language_id = params.dig(:check, :language_id)
+
+        if language_id.present?
+          join_query += " AND translated_names.language_id = #{language_id.to_i}"
+        end
+
+        results = Chapter.joins(join_query).where('chapters.id is null')
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_with_missing_translations
+    {
+      name: "Words with missing translation",
+      description: "List of words with missing translation for specific language",
+      table_attrs: ['id', 'location', 'text_uthmani'],
+      fields: [
+        {
+          type: :select,
+          collection: WordTranslation.select("DISTINCT language_id, language_name").map do |tr|
+            [tr.language_name, tr.language_id]
+          end,
+          name: :language_id
+        }
+      ],
+      check: ->(params) do
+        join_query = "left join word_translations on words.id = word_translations.word_id"
+
+        language_id = params.dig(:check, :language_id)
+
+        if language_id.present?
+          join_query += " AND word_translations.language_id = #{language_id.to_i}"
+        end
+
+        results = Word.joins(join_query).where("words.id is null OR word_translations.text = '' OR  word_translations.text IS NULL")
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.ayah_with_missing_translations
+    {
+      name: "Ayah with missing translation",
+      description: "List of ayahs with missing translation",
+      table_attrs: ['id', 'verse_key'],
+      fields: [
+        {
+          type: :select,
+          collection: ResourceContent.translations.one_verse.pluck(:name, :id),
+          name: :resource_content_id
+        }
+      ],
+      check: ->(params) do
+        join_query = "left join translations on verses.id = translations.verse_id"
+
+        resource_content_id = params.dig(:check, :resource_content_id)
+
+        if resource_content_id.present?
+          join_query += " AND translations.resource_content_id = #{resource_content_id.to_i}"
+        end
+
+        results = Verse.joins(join_query).where("verses.id is null OR translations.text = '' OR  translations.text IS NULL")
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.ayah_with_missing_tafsirs
+    {
+      name: "Ayah with missing tafsirs",
+      description: "List of ayahs with missing tafsirs",
+      table_attrs: ['id', 'verse_key'],
+      fields: [
+        {
+          type: :select,
+          collection: ResourceContent.tafsirs.one_verse.pluck(:name, :id),
+          name: :tafsir_id
+        }
+      ],
+      check: ->(params) do
+        join_query = "left join tafsirs on verses.id = tafsirs.verse_id"
+
+        resource_content_id = params.dig(:check, :tafsir_id)
+
+        if resource_content_id.present?
+          join_query += " AND tafsirs.resource_content_id = #{resource_content_id.to_i}"
+        end
+
+        results = Verse.joins(join_query).where("verses.id is null OR ( group_tafsir_id is NULL AND (tafsirs.text = '' OR  tafsirs.text IS NULL))")
+        paginate(results, params)
+      end
+    }
+  end
+
+  protected
+
+  def self.paginate(results, params)
+    page = (params[:page] || 0).to_i
+    per_page = (params[:per_page] || 20).to_i
+
+    results.page(page).per(per_page)
+  end
+end

@@ -1,0 +1,26 @@
+<div id=title>
+  Download segments for <%= resource.name %>
+</div>
+
+<div id="body">
+  <%= form_with url: download_segments_admin_audio_recitation_path(resource), method: :put, data: {turbo: false} do |form| %>
+    <div class="modal-body">
+      <div class="form-group mb-2">
+        <%= form.label :chapter_id, 'Select chapter', class: 'form-label' %>
+        <%= form.select :chapter_id, Chapter.order('id asc').map { |c| [c.humanize, c.id] }, { include_blank: 'Select chapter' }, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal', placeholder: 'select chapter' } %>
+        <div class="help-block">
+          If you don't select any chapter, system will export segments for all whole Quran for this recitation.
+        </div>
+      </div>
+
+      <div class="form-group mb-2">
+        <%= form.label :export_format, 'Select format', class: 'form-label' %>
+        <%= form.select :export_format, [['Sqlite db', 'db'], ['CSV', 'csv']], {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal', placeholder: 'select format' } %>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <%= form.submit 'Download', class: 'btn btn-success' %>
+    </div>
+  <% end %>
+</div>

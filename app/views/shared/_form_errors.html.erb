@@ -1,0 +1,18 @@
+<% if object && object.errors.any? %>
+  <div id="form-error-wrapper" class="alert alert-danger form-flash-message">
+    <% heading = local_assigns[:header] || "<i class='fal fal fa-exclamation-triangle'></i> Whoops! There was a small problem.".html_safe %>
+    <% message = local_assigns[:message] || "You'll need to fix the following fields:".html_safe %>
+
+    <h2><%= heading %></h2>
+    <p><%= message %></p>
+
+    <ul>
+      <% object.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% else %>
+  <div class="alert form-flash-message d-none" id=form-error-wrapper>
+  </div>
+<% end %>

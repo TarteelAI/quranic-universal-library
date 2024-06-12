@@ -1,0 +1,32 @@
+
+.resize-container {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  overflow: hidden;
+}
+
+.resizable {
+  border: 1px solid #ccc;
+  max-height: 950px;
+  overflow-y: auto;
+}
+
+.resize-heading {
+  position: sticky;
+  top: 0;
+  background: #dedede;
+  z-index: 100;
+}
+
+.handler {
+  width: 10px;
+  background-color: #333;
+  cursor: ew-resize;
+  user-drag: element; /* Enable dragging for the element */
+  user-select: none; /* Prevent text selection during dragging */
+}
+
+#pdf-container {
+  overflow: auto;
+  position: relative; /* Ensure proper positioning of pages */
+}

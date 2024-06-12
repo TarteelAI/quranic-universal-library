@@ -1,0 +1,5 @@
+<% if params[:text] || params[:ayah_key] %>
+  <%= render 'suggestions' %>
+<% else %>
+  <%= render 'form' %>
+<% end %>

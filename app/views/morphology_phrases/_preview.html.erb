@@ -1,0 +1,6 @@
+<%= turbo_frame_tag 'phrase-verses' do %>
+  <% verses = @phrase.verses_with_matched_phrases %>
+  <div id=verses>
+    <%= render partial: 'ayah_preview', collection: verses, as: :mapping %>
+  </div>
+<% end %>

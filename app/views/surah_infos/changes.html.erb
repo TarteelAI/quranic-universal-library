@@ -1,0 +1,32 @@
+<%
+  @version_object.paper_trail.next_version
+
+  text_diff = Diffy::SplitDiff.new(@version_object.text.to_s, @next.text.to_s, format: :html, allow_empty_diff: true) rescue nil
+  short_text_diff = Diffy::SplitDiff.new(@next.short_text.to_s, @version_object.short_text.to_s, format: :html, allow_empty_diff: false) rescue nil
+%>
+
+<div class="page-wrapper surah-info">
+  <h1 class="page-header">
+    Chapter info change history
+
+    <span class="pull-right">
+      <%= link_to changes_surah_info_path(@info.chapter_id, version: params[:version], resource_id: @resource.id, language: @info.language_id, diff: 'column') do %>
+        <i class="fa fa-columns"></i>
+      <% end %>
+
+      <%= link_to changes_surah_info_path(@info.chapter_id, version: params[:version], resource_id: @resource.id, language: @info.language_id, diff: 'rows') do %>
+        <i class="fa fa-bars"></i>
+      <% end %>
+    </span>
+  </h1>
+
+  <div class="row" style="font-size: 30px; margin-top: 10px">
+    <div class="col-md-12 section">
+      <% if params[:diff] == 'rows' %>
+        <%= render 'diff_row_view', text_diff: text_diff, short_text_diff: short_text_diff %>
+      <% else %>
+        <%= render 'diff_column_view', text_diff: text_diff, short_text_diff: short_text_diff %>
+      <% end %>
+    </div>
+  </div>
+</div>

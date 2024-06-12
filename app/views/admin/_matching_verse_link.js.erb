@@ -1,0 +1,5 @@
+<% if @matching_verse.persisted? %>
+$('#<%= dom_id resource %>').replaceWith("<%= j link_to('See matching ayah', admin_morphology_matching_verse_path(@matching_verse), target: '_blank') %>");
+<% else %>
+$('#<%= dom_id resource %>').replaceWith("<%= @matching_verse.errors.full_messages.first %>");
+<% end %>

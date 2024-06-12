@@ -1,0 +1,45 @@
+<%= form_with url: export_sqlite_db_admin_words_path, method: :put do |form| %>
+  <fieldset class="inputs">
+    <ol>
+      <li class="text input required">
+        <label for="file_name">File name</label>
+        <input type="text" name="file_name" id=file_name placeholder="file name" value="words">
+      </li>
+
+      <li class="searchable_select input optional">
+        <label for="file_name">Select translation language</label>
+        <select name=word_translation_language id=word_translation_language>
+          <option value="">Select one</option>
+          <% WordTranslation.select("DISTINCT language_id, language_name").each do |tr| %>
+            <option value="<%= tr.language_id %>"><%= tr.language_name %></option>
+          <% end %>
+        </select>
+
+        <div class="help-block">
+          Select word translation language if you want to include the translation in the exported database.
+        </div>
+      </li>
+
+      <li class="searchable_select input required">
+        <label for="mushaf_id">Select Mushaf Type</label>
+        <select name=mushaf_id id=mushaf_id>
+          <option value="">Select one</option>
+          <% Mushaf.where(enabled: true).each do |mushaf| %>
+            <option value="<%= mushaf.id %>"><%= mushaf.name %></option>
+          <% end %>
+        </select>
+
+        <div class="help-block">
+          Select the Mushaf type if you want to include Word Arabic in the exported database.
+        </div>
+      </li>
+
+      <li>
+        <label for="include_word_audio">Include word audio URLs?</label>
+        <input type="checkbox" name=include_word_audio id=include_word_audio>
+      </li>
+    </ol>
+  </fieldset>
+
+  <%= submit_tag 'Export!', data: { disable_with: 'Please wait...' } %>
+<% end %>

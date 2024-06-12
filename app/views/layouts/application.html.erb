@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title><%= content_for?(:title) ? yield(:title) : 'Quran Community' %></title>
+  <%= csrf_meta_tags %>
+
+  <%= yield :head %>
+  
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload", id: 'tinymce_custom_style' %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+</head>
+
+<body>
+  <%= render 'shared/nav' %>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <%= render 'shared/flash_notices' %>
+        <%= yield %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

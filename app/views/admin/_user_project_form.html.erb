@@ -1,0 +1,17 @@
+<% access = UserProject.new %>
+
+<%= form_for access, url: [:admin, access], method: :post do |form| %>
+  <%= form.hidden_field :user_id, value: resource.id %>
+
+  <div class="form-group mb-2">
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 2 %>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :resource_content_id, 'Select resource' %>
+    <%= form.select :resource_content_id, ResourceContent.all.map { |r| [r.humanize, r.id] }, {}, required: true, data: { controller: 'select2' } %>
+  </div>
+
+  <%= form.submit 'Save' %>
+<% end %>

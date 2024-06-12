@@ -1,0 +1,69 @@
+#site_title {
+  small {
+    color: #2CA4AB;
+    font-weight: bold;
+  }
+}
+
+.scrollable {
+  overflow: scroll;
+  td {
+    padding: 8px 12px 6px 12px;
+    vertical-align: top;
+    border-bottom: 1px solid #e8e8e8;
+  }
+}
+
+.sidebar_section {
+  .formtastic {
+    li {
+      padding: 0
+    }
+  }
+  form fieldset.inputs{
+    background:transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+table sup{
+  color: #2CA4AB;
+  cursor: pointer;
+}
+
+.footnote-dialog{
+  padding: 5px;
+}
+
+.success,
+.text-success {
+  color: #71ba51 !important;
+}
+
+.bg-success {
+  background: #71ba51 !important;
+}
+
+.btn.active{
+  background: #5E6469 !important;
+  color: #fff !important;
+}
+
+#verse-words .panel_contents{
+  overflow-x: auto;
+}
+
+.admin-actions{
+  h2{
+    margin: 5px 0;
+  }
+  .action{
+    margin: 10px 10px 0 0;
+    display: inline;
+  }
+}

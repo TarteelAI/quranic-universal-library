@@ -1,0 +1,103 @@
+$primary: #16a085 !default;
+$secondary: #6c757d !default;
+$success: #28a745 !default;
+$info: #17a2b8 !default;
+$warning: #ffc107 !default;
+$danger: #dc3545 !default;
+$light: #f8f9fa !default;
+$dark: #343a40 !default;
+
+$link-color: $primary !default;
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+$enable-print-styles: true;
+
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+$print-page-type: portrait; /* landscape or portrait */
+$print-page-size: letter; /* auto, letter */
+$print-page-margin: 1cm;
+
+@import "shared/font_faces";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "shared/mushaf_page";
+@import "shared/surah_names";
+
+@media print {
+  .verse {
+    break-inside: avoid;
+  }
+}
+
+@page {
+  size: $print-page-size $print-page-type;
+  margin: $print-page-margin;
+  padding: 0;
+  border: none;
+  border-collapse: collapse;
+}
+
+.text-center{
+  text-align: center;
+}
+
+.icon-surah{
+  font-size: 30px;
+}
+
+.word-group {
+  text-align: center;
+  float: right;
+  margin: 0px 10px 30px 10px;
+  cursor: pointer;
+  padding: 10px;
+  border: 1px dotted black;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+
+.word{
+  font-size: 30px;
+}
+
+.bismillah{
+  font-size: 40px;
+}
+
+.group-wrapper{
+  border-collapse: collapse;
+
+  .word-group{
+    margin-right: 0;
+    margin-left: 0;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .word-group:first-of-type{
+    border-left: 0;
+    margin-left: 0;
+    border-right: 1px dotted black;
+  }
+
+  .word-group:last-of-type{
+    border-right: 0;
+    margin-right: 0;
+    border-left: 1px dotted black;
+  }
+}
+
+.w{
+  font-size: 40px;
+  font-weight: bolder;
+}
+
+.transliteration{
+  font-family: indopak-nastaleeq;
+}

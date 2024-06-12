@@ -1,0 +1,174 @@
+$font-cdn: "https://static.qurancdn.com/fonts";
+$asset-version: "1";
+
+@import "indopak_font_faces";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap');
+
+@font-face {
+  font-family: "MehrNastaliq";
+  src: local("Mehr Nastaliq Web"),
+  url("lang/urdu/Mehr_Nastaliq_Webv.2.0.woff?v=#{$asset-version}"),
+  url("lang/urdu/Mehr_Nastaliq_Webv.2.0.ttf?v=#{$asset-version}") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "bismillah";
+  src: url('bismillah/bismillah.woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.bismillah{
+  font-family: bismillah;
+}
+
+@font-face {
+  font-family: 'me_quran';
+  src: url('me_quran_volt_newmet.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'digitalkhatt';
+  src: url('digitalkhatt.ebb352f2bd4564ae.otf') format("opentype");
+  font-style: normal;
+  font-display:block
+}
+
+@font-face {
+  font-family: 'indopak-nastaleeq';
+  src: url("nastaleeq/indopak-nastaleeq-waqf-lazim.woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'qpc-nastaleeq';
+  src: url('nastaleeq/KFGQPCNastaleeq-Regular.woff2');
+}
+
+.mushaf-qpc-nastaleeq{
+  font-family: qpc-nastaleeq !important;
+}
+
+.digitalkhatt{
+  font-family: digitalkhatt;
+  direction: rtl;
+  font-size: 30px;
+}
+
+@font-face {
+  font-family: "UthmanicHafs1-Ver17";
+  src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.17'),
+  url('UthmanicHafs1-Ver17.woff2') format('woff2'),
+  url('UthmanicHafs1-Ver17.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "UthmanicHafs1-Ver18";
+  src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.18'),
+  url('UthmanicHafs1Ver18.woff2') format('woff2'),
+  url('UthmanicHafs1Ver18.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'al_qalam';
+  src: url('AlQalamQuran.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+.mushaf-al_qalam{
+  font-family: al_qalam;
+}
+
+.qpc-hafs, .mushaf-kfqc-hafs {
+  font-family: 'UthmanicHafs1-Ver18' !important;
+  direction: rtl;
+  //unicode-bidi: bidi-override;
+  font-size: 30px;
+
+  //* {
+  //  unicode-bidi: bidi-override;
+  //}
+}
+
+.qalam{
+  font-family: al_qalam;
+  direction: rtl;
+}
+
+.urdu, [lang=ur] {
+  font-family: MehrNastaliq !important;
+  direction: rtl;
+  font-size: 30px;
+}
+.fa, [lang=fa], [lang=ar] {
+  font-family: 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  font-size: 30px;
+}
+.kashmiri,.ks, [lang=ks], [lang=ks] {
+  font-family: 'Noto Naskh Arabic', serif;
+  direction: rtl;
+}
+
+.me_quran, .madani{
+  font-family: me_quran;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.row td span.quran-text{
+  direction: rtl;
+}
+
+.indopak-nastaleeq, .indopak{
+  font-family: indopak-nastaleeq;
+  font-size: 30px;
+  direction: rtl;
+}
+
+.qpc-nastaleeq{
+  font-family: qpc-nastaleeq;
+  font-size: 30px;
+  direction: rtl;
+}
+
+@font-face {
+  font-family: quran_common_font;
+  src: url('quran-common/quran_common.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.tp0, .v3p0{
+  font-family: quran_common_font;
+}
+
+.quran-text{
+  direction: rtl;
+  text-align: right;
+
+  td span{
+    font-size: 30px;
+  }
+
+  a{
+    text-decoration: none;
+  }
+}
+
+.fs-lg{
+  font-size: 30px;
+}
+
+.ar.indopak{
+  font-family: indopak-nastaleeq;
+  direction: rtl;
+}
+

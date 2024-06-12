@@ -1,0 +1,7 @@
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>
+
+<%= turbo_stream.replace dom_id(@phrase_verse) do %>
+  <%= render 'phrase_verse', phrase_verse: @phrase_verse %>
+<% end %>

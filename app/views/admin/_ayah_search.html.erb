@@ -1,0 +1,53 @@
+<p>Search from Quran</p>
+
+<%= semantic_form_for admin_verses_path, method: :get do |form| %>
+  <ul class="mb-2">
+    <%= form.input(:query, as: :string, input_html: { name: 'query' }) %>
+  </ul>
+
+  <input type="submit" name="commit" value="Search" data-disable-with="Please wait.." class="pointer-hover">
+<% end %>
+
+<% if params[:query].present? %>
+  <%
+    search = Utils::QuranSearch.new()
+    result = search.search(params[:query])
+
+    verses = result['verses'] || []
+    navigation = result['navigation'] || []
+  %>
+
+  <div class="scrollable panel" data-controller="translation">
+    <h3>Results</h3>
+
+    <div class="panel_contents">
+      <table border="0" cellspacing="0" cellpadding="0">
+        <thead>
+        <tr>
+          <td>ID</td>
+          <td>Text</td>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% verses.each do |result| %>
+          <tr>
+            <td>
+              <%= link_to result['verse_key'], admin_verse_path(result['verse_key']), target: '_blank' %>
+            </td>
+
+            <td>
+              <div class="quran-text qpc-hafs search-result">
+                <% result['words'].each do |w| %>
+                  <span class="<%= 'highlight' if w['highlight'] %>"><%= w['text'] %></span>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+

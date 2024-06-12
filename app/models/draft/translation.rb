@@ -1,0 +1,93 @@
+# == Schema Information
+#
+# Table name: draft_translations
+#
+#  id                  :bigint           not null, primary key
+#  current_text        :text
+#  draft_text          :text
+#  imported            :boolean          default(FALSE)
+#  need_review         :boolean
+#  text_matched        :boolean
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  resource_content_id :integer
+#  user_id             :integer
+#  verse_id            :integer
+#
+# Indexes
+#
+#  index_draft_translations_on_need_review          (need_review)
+#  index_draft_translations_on_resource_content_id  (resource_content_id)
+#  index_draft_translations_on_text_matched         (text_matched)
+#  index_draft_translations_on_verse_id             (verse_id)
+#
+
+class Draft::Translation < ApplicationRecord
+  REGEXP_FOOTNOTE_ID = /foot_note=(?<id>\d+)/
+  belongs_to :resource_content
+  belongs_to :verse
+  belongs_to :user, optional: true
+  has_many :draft_foot_notes, class_name: 'Draft::FootNote', foreign_key: 'draft_translation_id'
+
+  def next_ayah_translation
+    if verse_id < 6235
+      Draft::Translation
+        .where(resource_content_id: resource_content_id)
+        .where("verse_id > ?", verse_id)
+        .order('verse_id DESC')
+        .last
+    end
+  end
+
+  def previous_ayah_translation
+    if verse_id > 1
+      Draft::Translation
+        .where(resource_content_id: resource_content_id)
+        .where("verse_id < ?", verse_id)
+        .order('verse_id DESC')
+        .first
+    end
+  end
+
+  def self.new_translations
+    ids = select('DISTINCT resource_content_id, imported')
+
+    ResourceContent.where(id: ids.map(&:resource_content_id))
+  end
+
+  def self.imported_translations
+    ids = where(imported: true).select('DISTINCT resource_content_id, imported')
+
+    ResourceContent.where(id: ids.map(&:resource_content_id))
+  end
+
+  def original_translation
+    Translation.where(verse_id: verse_id, resource_content_id: resource_content_id).first
+  end
+
+  def original_footnotes
+    original_translation&.foot_notes || []
+  end
+
+  def original_footnotes_ids
+    translation = original_translation
+
+    if translation
+      translation.text.scan(REGEXP_FOOTNOTE_ID).flatten.map(&:to_i)
+    else
+      []
+    end
+  end
+
+  def footnotes_ids
+    draft_foot_notes.pluck :id
+  end
+
+  def original_footnote_text(foot_note_id)
+    matched = original_footnotes.detect do |footnote|
+      footnote.id == foot_note_id
+    end
+
+    matched || original_footnotes.first
+  end
+end

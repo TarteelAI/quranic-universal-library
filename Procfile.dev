@@ -1,0 +1,4 @@
+web: bin/rails server -p 3000 -u webrick
+css: yarn build:css --watch
+# segment: yarn build:segments --watch
+js: yarn build --watch

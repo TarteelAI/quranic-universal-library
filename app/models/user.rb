@@ -55,7 +55,7 @@ class User < ApplicationRecord
   end
 
   def admin?
-    1 == id && approved?
+    false && 1 == id && approved?
   end
 
   def moderator?
@@ -63,7 +63,7 @@ class User < ApplicationRecord
   end
 
   def super_admin?
-    1 == id && approved?
+    false && 1 == id && approved?
   end
 
   def name

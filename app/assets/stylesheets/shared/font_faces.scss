@@ -1,4 +1,4 @@
-$font-cdn: "https://static.qurancdn.com/fonts";
+$font-cdn: "https://static-cdn.tarteel.ai/qul/fonts";
 $asset-version: "1";
 
 @import "indopak_font_faces";
@@ -7,8 +7,8 @@ $asset-version: "1";
 @font-face {
   font-family: "MehrNastaliq";
   src: local("Mehr Nastaliq Web"),
-  url("lang/urdu/Mehr_Nastaliq_Webv.2.0.woff?v=#{$asset-version}"),
-  url("lang/urdu/Mehr_Nastaliq_Webv.2.0.ttf?v=#{$asset-version}") format("truetype");
+  url("#{$font-cdn}/lang/urdu/Mehr_Nastaliq_Webv.2.0.woff?v=#{$asset-version}"),
+  url("#{$font-cdn}/lang/urdu/Mehr_Nastaliq_Webv.2.0.ttf?v=#{$asset-version}") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -16,7 +16,7 @@ $asset-version: "1";
 
 @font-face {
   font-family: "bismillah";
-  src: url('bismillah/bismillah.woff2');
+  src: url("#{$font-cdn}/bismillah/bismillah.woff2?v=#{$asset-version}");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -28,28 +28,28 @@ $asset-version: "1";
 
 @font-face {
   font-family: 'me_quran';
-  src: url('me_quran_volt_newmet.ttf') format('truetype');
+  src: url("#{$font-cdn}/me_quran_volt_newmet.ttf?v=#{$asset-version}") format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'digitalkhatt';
-  src: url('digitalkhatt.ebb352f2bd4564ae.otf') format("opentype");
+  src: url("#{$font-cdn}/digitalkhatt.ebb352f2bd4564ae.otf?v=#{$asset-version}") format("opentype");
   font-style: normal;
   font-display:block
 }
 
 @font-face {
   font-family: 'indopak-nastaleeq';
-  src: url("nastaleeq/indopak-nastaleeq-waqf-lazim.woff2");
+  src: url("#{$font-cdn}nastaleeq/indopak-nastaleeq-waqf-lazim.woff2?v=#{$asset-version}");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'qpc-nastaleeq';
-  src: url('nastaleeq/KFGQPCNastaleeq-Regular.woff2');
+  src: url("#{$font-cdn}nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
 }
 
 .mushaf-qpc-nastaleeq{
@@ -65,20 +65,20 @@ $asset-version: "1";
 @font-face {
   font-family: "UthmanicHafs1-Ver17";
   src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.17'),
-  url('UthmanicHafs1-Ver17.woff2') format('woff2'),
-  url('UthmanicHafs1-Ver17.ttf') format('truetype');
+  url("#{$font-cdn}/UthmanicHafs1-Ver17.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/UthmanicHafs1-Ver17.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
   font-family: "UthmanicHafs1-Ver18";
   src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.18'),
-  url('UthmanicHafs1Ver18.woff2') format('woff2'),
-  url('UthmanicHafs1Ver18.ttf') format('truetype');
+  url("#{$font-cdn}/UthmanicHafs1Ver18.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/UthmanicHafs1Ver18.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
   font-family: 'al_qalam';
-  src: url('AlQalamQuran.ttf') format('truetype');
+  src: url("#{$font-cdn}/AlQalamQuran.ttf?v=#{$asset-version}") format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -141,7 +141,7 @@ $asset-version: "1";
 
 @font-face {
   font-family: quran_common_font;
-  src: url('quran-common/quran_common.ttf');
+  src: url("#{$font-cdn}/quran-common/quran_common.ttf?v=#{$asset-version}");
   font-weight: normal;
   font-style: normal;
 }

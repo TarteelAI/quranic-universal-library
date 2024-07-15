@@ -43,8 +43,8 @@ class QuranEnc::UpdatesCheckerJob < ApplicationJob
 
     todo.description = "New update is available on QuranEcn for translation <strong>#{resource.name}</strong>(##{resource.id}).
                    \n  Key: #{version['key']} Last updated: #{Time.at version['last_update']}.
-                   \n <a href='https://quran-cms.tarteel.io/admin/resource_contents/#{resource.id}' target='_blank'>View resource in tools</a>
-                   \n <a href='https://quran-cms.tarteel.io/admin/translations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc/' target='_blank'>View resource translations in tools</a>
+                   \n <a href='https://qul.tarteel.io/admin/resource_contents/#{resource.id}' target='_blank'>View resource in tools</a>
+                   \n <a href='https://qul.tarteel.io/admin/translations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc/' target='_blank'>View resource translations in tools</a>
                    \n <a href='https://quranenc.com/en/browse/#{version['key']}/' target='_blank'>View translation on QuranEnc</a>"
 
     todo.save(validate: false)
@@ -91,8 +91,8 @@ class QuranEnc::UpdatesCheckerJob < ApplicationJob
     todo.description = "New translation is available on QuranEcn.
                    \n Name: <strong>#{resource.name}</strong>(##{resource.id}).
                    \n Key: #{version['key']}
-                   \n <a href='https://quran-cms.tarteel.io/admin/resource_contents/#{resource.id}' target='_blank'>View resource in tools</a>
-                   \n <a href='https://quran-cms.tarteel.io/admin/translations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc/' target='_blank'>View resource translations in tools</a>
+                   \n <a href='https://qul.tarteel.io/admin/resource_contents/#{resource.id}' target='_blank'>View resource in tools</a>
+                   \n <a href='https://qul.tarteel.io/admin/translations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc/' target='_blank'>View resource translations in tools</a>
                    \n <a href='https://quranenc.com/en/browse/#{version['key']}/' target='_blank'>View translation on QuranEnc</a>"
 
     todo.save

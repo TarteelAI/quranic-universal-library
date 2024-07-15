@@ -5,7 +5,7 @@ ruby '3.0.5'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem "rails", "~> 7.0.3"
-gem "nokogiri", '~> 1.14.3'
+gem "nokogiri", '~> 1.14.3', require: false
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.3.5"

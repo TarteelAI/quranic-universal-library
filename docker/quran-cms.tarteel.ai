@@ -8,8 +8,8 @@ server {
   passenger_ruby /usr/bin/ruby;
   passenger_app_env production;
 
-  access_log  /var/log/nginx/quran-cms.tarteel.ai/access.log;
-  error_log  /var/log/nginx/quran-cms.tarteel.ai/error.log;
+  access_log  /var/log/nginx/qul.tarteel.ai/access.log;
+  error_log  /var/log/nginx/qul.tarteel.ai/error.log;
 
   location / {
     passenger_max_request_queue_size 200;

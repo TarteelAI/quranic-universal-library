@@ -81,7 +81,7 @@ class GenerateSurahAudioFilesJob < ApplicationJob
                                          track: "#{chapter.chapter_number}/114",
                                          artist: meta.artist.presence || audio_file.audio_recitation.name,
                                          year: meta.year,
-                                         comment: 'https://quran-cms.tarteel.io/'
+                                         comment: 'https://qul.tarteel.io/'
                                        }).to_h
   end
 

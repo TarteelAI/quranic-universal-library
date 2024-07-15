@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 unless Rails.env.development?
-  redis_url = ENV['REDIS_TOGO_URL'] || 'localhost:6379'
+  redis_url = ENV['REDIS_URL'] || 'localhost:6379'
   ENV['REDIS_URL'] = redis_url
 end
 

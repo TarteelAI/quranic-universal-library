@@ -1,78 +1,80 @@
-# syntax = docker/dockerfile:1
+FROM phusion/passenger-customizable:2.5.0
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version and Gemfile
-# Build docker build -t quranic-universal-library .
-# Run docker run -it -p 3000:3000 quranic-universal-library
-ARG RUBY_VERSION=3.1.0
-FROM registry.docker.com/library/ruby:$RUBY_VERSION-slim as base
+# set correct environment variables
+ENV HOME /root
 
-# Rails app lives here
-WORKDIR /rails
+# use baseimage-docker's init process
+CMD ["/sbin/my_init"]
 
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+# customizing passenger-customizable image
+RUN /pd_build/ruby-3.0.*.sh
+RUN bash -lc 'rvm --default use ruby-3.0.5'
+RUN /pd_build/redis.sh
+
+ENV RAILS_ENV production
+ENV NODE_ENV production
+ENV RAILS_SERVE_STATIC_FILES true
+
+# redis
+ENV REDIS_TOGO_URL "redis://127.0.0.1:6379"
+RUN rm -f /etc/service/redis/down
+
+# nginx
+RUN rm /etc/service/nginx/down
+RUN rm /etc/nginx/sites-enabled/default
+ADD docker/qul.tarteel.ai /etc/nginx/sites-enabled/qul.tarteel.ai
+ADD docker/misc-env.conf /etc/nginx/main.d/misc-env.conf
+ADD docker/gzip.conf /etc/nginx/conf.d/gzip.conf
+
+# logrotate
+COPY docker/nginx.logrotate.conf /etc/logrotate.d/nginx
+RUN cp /etc/cron.daily/logrotate /etc/cron.hourly
+
+RUN apt-get update
+RUN apt-get install -y curl build-essential autoconf automake ffmpeg
+
+# setup yarn
+RUN /pd_build/nodejs.sh
+RUN corepack enable
+
+# setup gems
+WORKDIR /tmp
+ADD Gemfile Gemfile
+ADD Gemfile.lock Gemfile.lock
+RUN bundle install
+
+# setup the app
+RUN mkdir /home/app/qul
+ADD . /home/app/qul/
+
+WORKDIR /home/app/qul
+RUN mkdir -p tmp
+RUN mkdir -p log && touch log/production.log
+RUN chown -R app log
+RUN chown -R app public
+RUN chown app Gemfile
+RUN chown app Gemfile.lock
+RUN mkdir -p /var/log/nginx/qul.tarteel.ai
+
+# precompile assets
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+
+# pg_dump
+RUN apt-get install -y wget
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN apt-get --allow-releaseinfo-change update
+RUN apt-get install -y postgresql-client-14
 
 
-# Throw-away build stage to reduce size of final image
-FROM base as build
+# cleanup apt
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install packages needed to build gems and node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential curl git libpq-dev libvips node-gyp pkg-config libsqlite3-dev python-is-python3
+# write permissions to tmp
+RUN chown -R app tmp
 
-# Install JavaScript dependencies
-ARG NODE_VERSION=18.0.0
-ARG YARN_VERSION=1.22.17
-ENV PATH=/usr/local/node/bin:$PATH
-RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
-    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
-    npm install -g yarn@$YARN_VERSION && \
-    rm -rf /tmp/node-build-master
+# ... and to production.log
+RUN chown app log/production.log
 
-# Install application gems
-COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
-
-# Install node modules
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
-# Copy application code
-COPY . .
-
-# Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
-
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-#RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
-RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
-
-
-# Final stage for app image
-FROM base
-
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libvips postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Copy built artifacts: gems, application
-COPY --from=build /usr/local/bundle /usr/local/bundle
-COPY --from=build /rails /rails
-
-# Run and own only the runtime files as a non-root user for security
-#RUN useradd rails --create-home --shell /bin/bash && \
-#    chown -R rails:rails db log tmp
-#USER rails:rails
-
-# Entrypoint prepares the database.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
-
-# Start the server by default, this can be overwritten at runtime
+# expose port 3000
 EXPOSE 3000
-CMD ["./bin/rails", "server"]

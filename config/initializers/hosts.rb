@@ -3,7 +3,7 @@ env = Rails.env
 host = env.development? ? 'localhost:3000' : ENV.fetch('HOST', 'qul.tarteel.ai')
 
 Rails.application.configure do
-  hosts = [/.zeet-tarteel\.zeet\.app/, 'qul.tarteel.ai', 'localhost']
+  hosts = [/[a-z0-9-]*\.zeet-tarteel[a-z0-9-]*\.zeet\.app/, 'qul.tarteel.ai', 'localhost']
   config.hosts += hosts
   config.action_cable.allowed_request_origins = hosts
 

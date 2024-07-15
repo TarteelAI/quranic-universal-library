@@ -1,16 +1,24 @@
-<%= bootstrap_devise_error_messages! %>
-<div class="panel panel-default devise-bs">
-  <div class="panel-heading">
-    <h4><%= t('.resend_unlock_instructions', default: 'Resend unlock instructions') %></h4>
+<div class="card devise-bs my-3">
+  <%= render 'shared/form_errors', object: resource %>
+
+  <div class="card-header">
+    <h4>
+      <h4><%= t('.resend_unlock_instructions', default: 'Resend unlock instructions') %></h4>
+    </h4>
   </div>
-  <div class="panel-body">
+
+  <div class="card-body" data-turbo="false">
     <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, html: { role: "form" } }) do |f| %>
-      <div class="form-group">
+      <div class="form-group mb-2">
         <%= f.label :email %>
-        <%= f.email_field :email, autofocus: true, class: 'form-control' %>
+        <%= f.email_field :email, autofocus: true, class: 'form-control', required: true %>
       </div>
-      <%= f.submit t('.resend_unlock_instructions', default: 'Resend unlock instructions'), class: 'btn btn-primary'%>
+
+      <div class="form-group">
+        <%= f.submit t('.resend_unlock_instructions', default: 'Resend unlock instructions'), class: 'btn btn-primary mt-2' %>
+      </div>
     <% end %>
   </div>
 </div>
+
 <%= render 'devise/shared/links' %>

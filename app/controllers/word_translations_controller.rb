@@ -1,6 +1,5 @@
 class WordTranslationsController < CommunityController
   DEFAULT_LANGUAGE = 174 # Urdu
-
   before_action :check_permission, only: [:new, :edit, :update, :create]
 
   def index
@@ -97,8 +96,12 @@ class WordTranslationsController < CommunityController
   def check_permission
     resource = ResourceContent.translations.one_word.where(language: language).first
 
-    unless resource.present? && can_manage?(resource)
-      redirect_to word_translations_path(language: language.id), alert: "Sorry you don't have access to this resource"
+    if !can_manage?(resource)
+      if request.format.turbo_stream?
+        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
+      else
+        redirect_to word_translations_path(language: language.id), alert: "Sorry you don't have access to this resource"
+      end
     end
   end
 end

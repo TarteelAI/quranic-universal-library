@@ -4,14 +4,14 @@ module Export
                 :resource_content
     STORAGE_PATH = "#{Rails.root}/public/exported_databases"
 
-    def perform(resource_id, original_file_name, admin_user_id)
-      admin_user = AdminUser.find(admin_user_id)
+    def perform(resource_id, original_file_name, user_id)
+      user = User.find(user_id)
       @resource_content = ResourceContent.find(resource_id)
 
       setup(original_file_name)
       export_data
       compress
-      send_email("#{file_name}.zip", admin_user) if admin_user.present?
+      send_email("#{file_name}.zip", user) if user.present?
 
       # return the db file path
       "#{file_name}.zip"
@@ -61,9 +61,9 @@ module Export
       end
     end
 
-    def send_email(zip_path, admin_user)
+    def send_email(zip_path, user)
       DeveloperMailer.notify(
-        to: admin_user.email,
+        to: user.email,
         subject: "#{@resource_content.name} files export",
         message: "Please see the attached zip",
         file_path: zip_path

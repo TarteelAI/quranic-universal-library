@@ -12,8 +12,14 @@ ActiveAdmin.register_page 'Dashboard' do
       end
 
       column do
-        panel 'Export Word as SQLite DB' do
+        panel 'Export Quran words as SQLite DB' do
           render partial: 'admin/export_words_db'
+        end
+      end
+
+      column do
+        panel 'Export ayah audio file segments' do
+          render partial: 'admin/export_ayah_segments_db'
         end
       end
     end
@@ -45,9 +51,7 @@ ActiveAdmin.register_page 'Dashboard' do
           column('Modified at') { |v| v.created_at.to_s :long }
           column('User') do |v|
             if (user = GlobalID::Locator.locate(v.whodunnit))
-              link_to "#{user.email} (#{user.class})", [:admin, user]
-            elsif(admin=AdminUser.find_by(id: v.whodunnit))
-              link_to(admin.email, [:admin, admin])
+              link_to "#{user.name}(#{user.email})", [:admin, user]
             end
           end
         end

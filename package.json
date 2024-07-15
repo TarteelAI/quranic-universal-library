@@ -1,5 +1,5 @@
 {
-  "name": "QUL",
+  "name": "community",
   "private": "true",
   "dependencies": {
     "@hotwired/stimulus": "^3.0.1",

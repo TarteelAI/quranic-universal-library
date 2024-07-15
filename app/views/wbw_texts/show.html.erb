@@ -16,22 +16,24 @@
     <%
     page = @verse.page_number
    v2_page = @verse.v2_page
+  font_cdn = "https://static-cdn.tarteel.ai/qul/fonts"
+  asset_version = "1"
     %>
     @font-face {
         font-family: 'p<%= v2_page %>-v2';
         src: local(QCF200<%=v2_page%>),
-        url('<%= asset_url "quran_fonts/v2/woff2/p#{v2_page}.woff2" %>') format('woff2'),
-        url('<%= asset_url "quran_fonts/v2/woff/p#{v2_page}.woff" %>') format('woff'),
-        url('<%= asset_url "quran_fonts/v2/ttf/p#{v2_page}.ttf" %>') format('truetype');
+        url('<%= "#{font_cdn}/quran_fonts/v2/woff2/p#{v2_page}.woff2?v=#{asset_version}" %>') format('woff2'),
+        url('<%= "#{font_cdn}/quran_fonts/v2/woff/p#{v2_page}.woff?v=#{asset_version}" %>') format('woff'),
+        url('<%= "#{font_cdn}/quran_fonts/v2/ttf/p#{v2_page}.ttf?v=#{asset_version}" %>') format('truetype');
         font-display: swap;
     }
 
     @font-face {
         font-family: 'p<%= page %>-v1';
         src: local(QCF_P<%=page.to_s.rjust(3, '0')%>),
-        url('<%= asset_url "quran_fonts/v1/woff2/p#{page}.woff2"%>'),
-        url('<%= asset_url "quran_fonts/v1/woff/p#{page}.woff" %>') format('woff'),
-        url('<%= asset_url "quran_fonts/v1/ttf/p#{page}.ttf" %>') format('truetype');
+        url('<%= "#{font_cdn}quran_fonts/v1/woff2/p#{page}.woff2?v=#{asset_version}"%>'),
+        url('<%= "#{font_cdn}/quran_fonts/v1/woff/p#{page}.woff?v=#{asset_version}" %>') format('woff'),
+        url('<%= "#{font_cdn}quran_fonts/v1/ttf/p#{page}.ttf?v=#{asset_version}" %>') format('truetype');
         font-display: swap;
     }
 
@@ -46,7 +48,6 @@
         direction: rtl;
         font-size: 30px;
     }
-
   </style>
 
   <div class="callout alert alert-dismissible" role="alert">

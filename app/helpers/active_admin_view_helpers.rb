@@ -82,7 +82,7 @@ module ActiveAdminViewHelpers
                   td link_to index, version: version.index
                   td link_to index, "/admin/content_changes/#{version.id}"
                   td version.created_at
-                  td AdminUser.find_by_id(version.whodunnit).try(:email)
+                  td GlobalID::Locator.locate(version.whodunnit).try(:humanize)
                   td do
                     link_to 'Compare', url_for(compare: version.index)
                   end

@@ -201,7 +201,7 @@ class ExportPhrase
 
   def send_email(zip_folder_path)
     DeveloperMailer.notify(
-      to: AdminUser.find(1).email,
+      to: User.find(1).email,
       subject: "Mutashabihat exported data",
       message: "Please see the attached zip",
       file_path: zip_folder_path

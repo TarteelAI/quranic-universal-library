@@ -37,8 +37,14 @@
 #
 
 class User < ApplicationRecord
-  devise :database_authenticatable, :registerable, :lockable,
-         :rememberable, :trackable, :validatable, :recoverable
+  devise :database_authenticatable,
+         :registerable,
+         :lockable,
+         :rememberable,
+         :trackable,
+         :validatable,
+         :recoverable,
+         :confirmable
 
   validates :first_name, :last_name, presence: true
 
@@ -46,29 +52,29 @@ class User < ApplicationRecord
 
   after_create :send_welcome_email
 
-  def active_for_authentication?
-    if created_at > 1.day.ago
-      true
-    else
-      approved?
-    end
-  end
-
   def admin?
-    false && 1 == id && approved?
+    1 == id && approved?
   end
 
   def moderator?
     false
   end
 
+  def normal_user?
+    !admin? && !moderator?
+  end
+
   def super_admin?
-    false && 1 == id && approved?
+    1 == id && approved?
   end
 
   def name
     short_name = first_name.presence || last_name.presence || email
     short_name.to_s.humanize
+  end
+
+  def humanize_name
+    "#{name}(#{email})"
   end
 
   def send_welcome_email

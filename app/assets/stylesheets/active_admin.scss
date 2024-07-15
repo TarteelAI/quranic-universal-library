@@ -55,3 +55,15 @@ input[type=search]{
   outline: none;
   padding: 8px 10px 7px;
 }
+
+.download-form{
+  li{
+    display: flex;
+    flex-direction: column;
+
+    label{
+      margin-right: .5rem;
+      width: 100% !important;
+    }
+  }
+}

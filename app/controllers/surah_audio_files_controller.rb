@@ -1,10 +1,8 @@
 class SurahAudioFilesController < ApplicationController
   before_action :load_recitation, except: :builder_help
-
   def builder_help
     render layout: false
   end
-
   def index
     params[:sort_key] ||= 'chapter_id'
     params[:sort_order] ||= 'ASC'
@@ -29,7 +27,7 @@ class SurahAudioFilesController < ApplicationController
                     .where(
                       {
                         audio_recitation: @recitation.id,
-                        chapter_id: params[:chapter_id]
+                        chapter_id: chapter_id
                       }.compact_blank
                     )
 
@@ -84,19 +82,24 @@ class SurahAudioFilesController < ApplicationController
   protected
 
   def load_audio_file
-    if params[:verse_key].present?
-      params[:chapter_id] = params[:verse_key].split(':').first
-    end
-
     Audio::ChapterAudioFile
       .includes(:chapter)
-      .where(audio_recitation: @recitation.id, chapter_id: params[:chapter_id])
+      .where(audio_recitation: @recitation.id, chapter_id: chapter_id)
       .first
+  end
+
+  def chapter_id
+    if params[:verse_key].present?
+      return params[:verse_key].split(':').first
+    end
+
+    params[:chapter_id] || params[:id]
   end
 
   def load_recitation
     #TODO: fix this
     recitation_id = params[:recitation_id] || params[:id] || 7
     @recitation = Audio::Recitation.find(recitation_id)
+    @has_permission = can_manage?(@recitation.get_resource_content)
   end
 end

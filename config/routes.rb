@@ -10,10 +10,11 @@ Rails.application.routes.draw do
 
   root to: 'community#splash'
 
-  devise_for :users, controllers: {registrations: 'users/registrations'}
-  devise_for :admin_users, ActiveAdmin::Devise.config
+  devise_for :users, controllers: {
+    registrations: 'users/registrations'
+  }
 
-  authenticated :admin_user do
+  authenticated :user, ->(user) { user.super_admin? } do
     require 'sidekiq/web'
     mount Sidekiq::Web => '/sidekiq'
   end

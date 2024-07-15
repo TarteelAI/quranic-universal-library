@@ -27,34 +27,31 @@ class ExportMushafLayout
   end
 
   def export_words
-    Word.unscoped.order('word_index ASC').find_in_batches(batch_size: 10000) do |words_batch|
-      bulk_insert_words(words_batch)
-    end
+    words = []
+    page_size = 1000
+    i = 0
 
-=begin
-    Word.unscoped.order('word_index ASC').each do |word|
+    Word.unscoped.order('word_index ASC').find_each do |word|
       surah, ayah, word_number = word.location.split(':').map(&:to_i)
       text_uthmani = word.text_uthmani
-      text_indopak_nastaleeq = word.text_indopak_nastaleeq
+      text_indopak = word.text_qpc_nastaleeq_hafs
+      indopak_hanafi = word.text_indopak_nastaleeq
       code_v1 = word.code_v1
       text_digital_khatt = word.text_digital_khatt
       text_qpc_hafs = word.text_qpc_hafs
+      is_ayah_marker = word.ayah_mark?
 
-      export_word(
-        surah,
-        ayah,
-        word_number,
-        word.word_index,
-        text_uthmani,
-        text_indopak_nastaleeq,
-        code_v1,
-        text_digital_khatt,
-        text_qpc_hafs,
-        word.ayah_mark?
-      )
+      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt}', '#{text_qpc_hafs}', #{is_ayah_marker})")
+      i += 1
+
+      if i >= page_size
+        bulk_insert_words(words)
+        words = []
+        i = 0
+      end
     end
-  end
-=end
+
+    bulk_insert_words(words) if words.present?
   end
 
   def export_layouts
@@ -166,11 +163,11 @@ class ExportMushafLayout
 
             range_start = words.first.word_index
             range_end = words.last.word_index
-          elsif line_type =='surah_name'
+          elsif line_type == 'surah_name'
             range_start = alignment.get_surah_number
           end
 
-          is_centered = alignment&.is_center_aligned? || line_type =='surah_name' || line_type == 'basmallah'
+          is_centered = alignment&.is_center_aligned? || line_type == 'surah_name' || line_type == 'basmallah'
 
           layout_records << [
             page.page_number,
@@ -241,7 +238,7 @@ class ExportMushafLayout
         database: db
       })
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, indopak string, qpc_v1 string, dk string, qhc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk string, qhc_hafs string, is_ayah_marker boolean)"
 
     mushafs.each do |mushaf|
       db_name = get_mushaf_file_name(mushaf.id)
@@ -249,7 +246,7 @@ class ExportMushafLayout
     end
   end
 
-  def export_word(surah, ayah, word_number, word_index, text_uthmani, text_indopak_nastaleeq, code_v1, text_digital_khatt, text_qpc_hafs, is_ayah_number)
+  def export_word(surah, ayah, word_number, word_index, text_uthmani, text_indopak, indopak_hanafi, code_v1, text_digital_khatt, text_qpc_hafs, is_ayah_number)
     ExportedWord.connection.execute <<-SQL
     INSERT INTO words (
       surah_number,
@@ -257,6 +254,7 @@ class ExportMushafLayout
       word_number,
       word_number_all,
       uthmani,
+      nastaleeq,
       indopak,
       qpc_v1,
       dk,
@@ -268,7 +266,8 @@ class ExportMushafLayout
       #{word_number},
       #{word_index},
       '#{text_uthmani}',
-      '#{text_indopak_nastaleeq}',
+      '#{text_indopak}',
+      '#{indopak_hanafi}'
       '#{code_v1}',
       '#{text_digital_khatt}',
       '#{text_qpc_hafs}',
@@ -290,19 +289,7 @@ class ExportMushafLayout
     end
   end
 
-  def bulk_insert_words(words)
-    values = words.map do |word|
-      surah, ayah, word_number = word.location.split(':').map(&:to_i)
-      text_uthmani = word.text_uthmani
-      text_indopak_nastaleeq = word.text_qpc_nastaleeq_hafs #word.text_indopak_nastaleeq
-      code_v1 = word.code_v1
-      text_digital_khatt = word.text_digital_khatt
-      text_qpc_hafs = word.text_qpc_hafs
-      is_ayah_marker = word.ayah_mark?
-
-      "(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak_nastaleeq}', '#{code_v1}', '#{text_digital_khatt}', '#{text_qpc_hafs}', #{is_ayah_marker})"
-    end.join(", ")
-
+  def bulk_insert_words(values)
     ExportedWord.connection.execute <<-SQL
   INSERT INTO words (
     surah_number,
@@ -310,13 +297,14 @@ class ExportMushafLayout
     word_number,
     word_number_all,
     uthmani,
+    nastaleeq,
     indopak,
     qpc_v1,
     dk,
     qhc_hafs,
     is_ayah_marker
   ) VALUES
-    #{values}
+    #{values.join(',')}
     SQL
   end
 end

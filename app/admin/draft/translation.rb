@@ -39,10 +39,22 @@ ActiveAdmin.register Draft::Translation do
     end
   end
 
+  action_item :import, only: :show do
+    link_to import_admin_draft_translation_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+      'Approve and update'
+    end if !resource.imported?
+  end
+
   action_item :next_page, only: :show do
     if item = resource.next_ayah_translation
       link_to "Next(#{item.verse.verse_key})", "/admin/draft_translations/#{item.id}", class: 'btn'
     end
+  end
+
+  member_action :import, method: 'put' do
+    translation = resource.import!
+
+    redirect_to [:admin, translation], notice: 'Draft translation is approved and imported successfully'
   end
 
   index do
@@ -165,9 +177,11 @@ ActiveAdmin.register Draft::Translation do
             td do
               div class: 'd-flex-wrapped' do
                 span(link_to 'Filter', "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info')
+                if can?(:manage, :draft_content) || current_user.super_admin?
                 span(link_to 'Sync', import_draft_admin_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm mb-2 btn-success', data: {confirm: 'Are you sure to re sync this translations from QuranEnc?'})
                 span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger', data: {confirm: 'Are you sure to import this translations?'})
                 span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger', data: {confirm: 'Are you sure to remove draft translations?'})
+                end
               end
             end
           end

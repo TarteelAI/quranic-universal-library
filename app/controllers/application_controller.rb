@@ -5,9 +5,8 @@ class ApplicationController < ActionController::Base
   before_action :set_paper_trail_whodunnit
 
   protected
-
   def user_for_paper_trail
-    current_admin_user&.to_gid || current_user&.to_gid
+    current_user&.to_gid
   end
 
   def can_manage?(resource)

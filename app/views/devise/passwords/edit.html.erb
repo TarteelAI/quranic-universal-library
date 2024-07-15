@@ -9,14 +9,14 @@
     <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, role: 'form' }) do |f| %>
       <%= f.hidden_field :reset_password_token %>
 
-      <div class="form-group">
+      <div class="form-group mb-2">
         <%= f.label :password, t('.new_password', default: 'New password') %>
-        <%= f.password_field :password, autofocus: true, class: 'form-control' %>
+        <%= f.password_field :password, autofocus: true, class: 'form-control', required: true %>
       </div>
 
       <div class="form-group">
         <%= f.label :password_confirmation, t('.confirm_new_password', default: 'Confirm new password') %>
-        <%= f.password_field :password_confirmation, class: 'form-control' %>
+        <%= f.password_field :password_confirmation, class: 'form-control', required: true %>
       </div>
 
       <%= f.submit t('.change_my_password', default: 'Change my password'), class: 'btn btn-primary mt-2' %>

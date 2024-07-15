@@ -34,6 +34,7 @@
 #  text_uthmani_tajweed    :string
 #  v2_page                 :integer
 #  verse_key               :string
+#  word_index              :integer
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #  chapter_id              :integer
@@ -52,6 +53,7 @@
 #  index_words_on_topic_id      (topic_id)
 #  index_words_on_verse_id      (verse_id)
 #  index_words_on_verse_key     (verse_key)
+#  index_words_on_word_index    (word_index)
 #
 
 class Word < QuranApiRecord

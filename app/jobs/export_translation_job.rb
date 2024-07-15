@@ -16,7 +16,7 @@ class ExportTranslationJob < ApplicationJob
               :resource_content,
               :whitelisted_tags
 
-  def perform(resource_id, original_file_name, include_footnote = false, admin_in = nil)
+  def perform(resource_id, original_file_name, include_footnote = false, user_id = nil)
     @include_footnote = include_footnote
     @resource_content = ResourceContent.find(resource_id)
 
@@ -25,7 +25,7 @@ class ExportTranslationJob < ApplicationJob
     import_data_in_sqlite_db
     compress_sqlite_db_file
     upload_exported_file
-    send_email("#{file_name}.bz2", admin_in) if admin_in.present?
+    send_email("#{file_name}.bz2", user_id) if user_id.present?
 
     # return the db file path
     "#{file_name}.bz2"
@@ -33,9 +33,9 @@ class ExportTranslationJob < ApplicationJob
 
   protected
 
-  def send_email(zip_path, admin_id)
+  def send_email(zip_path, user_id)
     DeveloperMailer.notify(
-      to: AdminUser.find(admin_id).email,
+      to: User.find(user_id).email,
       subject: "#{@resource_content.name} sqlite export",
       message: "Please see the attached dump file",
       file_path: zip_path

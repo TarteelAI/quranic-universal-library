@@ -136,7 +136,7 @@ ActiveAdmin.register ResourceContent do
   end
 
   member_action :import_draft, method: 'put' do
-    if !current_admin_user.super_admin?
+    if !current_user.super_admin?
       return redirect_back fallback_location: "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}", alert: 'Sorry, you can not perform this action'
     end
 
@@ -160,14 +160,14 @@ ActiveAdmin.register ResourceContent do
     export_type = permitted[:export_format].to_s.strip
 
     if export_type == 'sqlite'
-      ExportTranslationJob.perform_later(resource.id, permitted[:export_file_name], permitted[:include_footnote] == 'true', current_admin_user.id)
+      ExportTranslationJob.perform_later(resource.id, permitted[:export_file_name], permitted[:include_footnote] == 'true', current_user.id)
     elsif export_type == 'raw_files'
-      Export::RawTrafsirJob.perform_later(resource.id, permitted[:export_file_name], current_admin_user.id)
+      Export::RawTrafsirJob.perform_later(resource.id, permitted[:export_file_name], current_user.id)
     elsif ['json_nested_array', 'json_text_chunks'].include?(export_type)
-      Export::TranslationJson.perform_later(resource.id, current_admin_user.id, export_type == 'json_nested_array')
+      Export::TranslationJson.perform_later(resource.id, current_user.id, export_type == 'json_nested_array')
     elsif export_type == 'tafsir_json'
       if resource.tafsir?
-        Export::TafsirJson.perform_later(resource.id, permitted[:export_file_name].to_s.strip, current_admin_user.id)
+        Export::TafsirJson.perform_later(resource.id, permitted[:export_file_name].to_s.strip, current_user.id)
       end
     else
       flash[:error] = "Invalid export type"
@@ -197,6 +197,14 @@ ActiveAdmin.register ResourceContent do
   end
 
   show do
+    permission = resource.resource_permission
+
+    if permission&.copyright_notice.present?
+      div class: 'alert alert-danger fs-lg' do
+        permission.copyright_notice
+      end
+    end
+
     attributes_table do
       row :id
       row :name
@@ -211,13 +219,18 @@ ActiveAdmin.register ResourceContent do
       row :author
       row :data_source
       row :mobile_translation_id
-      row :sqlite_db do
-        link_to 'Download', resource.sqlite_db.url if resource.sqlite_db&.url
+
+      if can?(:download, :restricted_content) || permission.blank? || permission&.share_permission_is_granted? || permission&.share_permission_is_unknown?
+        row :sqlite_db do
+          link_to 'Download', resource.sqlite_db.url if resource.sqlite_db&.url
+        end
       end
+
       row :sqlite_db_generated_at do
         time = resource.sqlite_db_generated_at
         time&.strftime('%B %d, %Y at %I:%M %P %Z')
       end
+
       row :created_at do
         time = resource.created_at
         time&.strftime('%B %d, %Y at %I:%M %P %Z')
@@ -226,13 +239,17 @@ ActiveAdmin.register ResourceContent do
         time = resource.updated_at
         time&.strftime('%B %d, %Y at %I:%M %P %Z')
       end
-      row :resource_permission do
-        if permission = resource.resource_permission
-          link_to "Permission to host: #{permission.permission_to_host} <br> Permission to share: #{permission.permission_to_host}".html_safe, [:admin, permission]
-        else
-          link_to 'Add', new_admin_resource_permission_path(resource_content_id: resource.id)
+
+      if can? :read, ResourcePermission
+        row :resource_permission do
+          if permission
+            link_to "Permission to host: #{permission.permission_to_host} <br> Permission to share: #{permission.permission_to_share}".html_safe, [:admin, permission]
+          else
+            link_to 'Add', new_admin_resource_permission_path(resource_content_id: resource.id)
+          end
         end
       end
+
       row :resource_info do
         div resource.resource_info.to_s.html_safe
       end

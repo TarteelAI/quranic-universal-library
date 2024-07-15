@@ -21,9 +21,9 @@ class TranslationProofreadingsController < CommunityController
                    .where(resource_content_id: @resource.id)
                    .find_by_verse_id(params[:id])
 
-    if @translation.update(translation_params)
+    if @translation.save_suggestions(translation_params, current_user)
       redirect_to translation_proofreading_path(@translation.verse.id, resource_id: @resource.id),
-                  notice: 'updated successfully'
+                  notice: 'Your suggestions are saved successfully'
     else
       render action: :edit, alert: @translation.errors.full_messages
     end
@@ -76,14 +76,17 @@ class TranslationProofreadingsController < CommunityController
 
   def find_resource
     @resource = ResourceContent.find(params[:resource_id])
+    @has_permission = can_manage?(@resource)
   end
 
   def check_permission
-    @access = can_manage?(@resource)
-
-    unless @access
-      url = translation_proofreading_path(params[:id], resource_id: @resource.id)
-      redirect_to url, alert: "Sorry you don't have access to this resource."
+    if !@has_permission
+      if request.format.turbo_stream?
+        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
+      else
+        url = translation_proofreading_path(params[:id], resource_id: @resource.id)
+        redirect_to url, alert: "Sorry you don't have access to this resource."
+      end
     end
   end
 end

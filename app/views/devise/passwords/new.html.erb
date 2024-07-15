@@ -2,11 +2,12 @@
   <div class="card-header">
     <h4><%= t('.forgot_your_password', default: 'Forgot your password?') %></h4>
   </div>
+
   <div class="card-body" data-turbo="false">
     <%= form_with(model: resource, as: resource_name, url: password_path(resource_name), html: { method: :post, local: false }) do |f| %>
       <div class="form-group">
         <%= f.label :email %>
-        <%= f.email_field :email, autofocus: true, class: 'form-control' %>
+        <%= f.email_field :email, autofocus: true, class: "form-control", required: true  %>
       </div>
 
       <%= f.submit t('.send_me_reset_password_instructions', default: 'Send me reset password instructions'), class: 'btn btn-primary mt-2' %>

@@ -151,11 +151,16 @@ class MorphologyPhrasesController < CommunityController
 
   def find_resource
     @resource = ResourceContent.where(sub_type: ResourceContent::SubType::Mutashabihat).first
+    @has_permission = can_manage?(@resource)
   end
 
   def check_permission
-    if @resource.blank? || !can_manage?(@resource)
-      redirect_to morphology_phrases_path, alert: "Sorry you don't have access to this resource"
+    if @resource.blank? || !@has_permission
+      if request.format.turbo_stream?
+        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
+      else
+        redirect_to morphology_phrases_path, alert: "Sorry you don't have access to this resource"
+      end
     end
   end
 end

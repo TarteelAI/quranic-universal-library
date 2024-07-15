@@ -1,5 +1,19 @@
 <% page_number = @mushaf_page.page_number %>
 
+<div class="callout alert alert-dismissible" role="alert">
+  <div class="row">
+    <div class="col-md-12">
+      <div style="font-size: 30px; margin-top: 10px">
+        <% if @access %>
+          <%= @access.admin_notes.to_s.html_safe %>
+        <% else %>
+          Please contact the admin to get access to fix mushaf layouts
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="page-wrapper">
   <h1 class="page-header d-flex">
     <div class="flex-grow-1">
@@ -9,32 +23,22 @@
     </div>
 
     <div>
-      <%= link_to 'Update pages', mushaf_layout_path(@mushaf.id, mapping: true), class: 'btn btn-info' %>
-      <%= link_to 'Update words', edit_mushaf_layout_path(@mushaf.id,page_number: page_number), class: 'btn btn-info' %>
+      <%= link_to 'Update pages', mushaf_layout_path(@mushaf.id, mapping: true), class: 'btn btn-info' if @access %>
+      <%= link_to 'Update words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-info' if @access %>
 
       <%= link_to 'Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-success' %>
-      <%= link_to 'Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1,  source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-success' %>
+      <%= link_to 'Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-success' %>
 
       <%= link_to 'Back to filter', mushaf_layouts_path, class: 'btn btn-primary' %>
     </div>
   </h1>
 
-  <% if @access %>
-    <div class="callout alert alert-dismissible" role="alert">
-      <div class="row">
-        <div class="col-md-12">
-          <div style="font-size: 30px; margin-top: 10px">
-            <%= @access.admin_notes.to_s.html_safe %>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-
   <% if params[:mapping] || @mushaf_page.blank? || @mushaf_page.first_verse_id.blank? || @mushaf_page.last_verse_id.blank? %>
     <%= render 'page_mapping_with_pdf' %>
   <% else %>
-    <%= render params[:page_alignment] == 'true' ? 'page_line_alignment' : 'preview' %>
+    <%= turbo_frame_tag "page-preview" do %>
+      <%= render params[:page_alignment] == 'true' ? 'page_line_alignment' : 'preview' %>
+    <% end %>
   <% end %>
 </div>
 

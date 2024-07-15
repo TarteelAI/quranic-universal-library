@@ -31,7 +31,6 @@ ActiveAdmin.register Recitation do
                       ajax: { resource: Reciter }
   filter :approved
 
-
   searchable_select_options(scope: Recitation,
                             text_attribute: :name,
                             filter: lambda do |term, scope|
@@ -62,6 +61,7 @@ ActiveAdmin.register Recitation do
       resource_content_id
       qirat_type_id
       style
+      segment_locked
     ]
   end
 
@@ -86,7 +86,7 @@ ActiveAdmin.register Recitation do
       row :qirat_type
       row :reciter_name
       row :recitation_style do |r|
-        link_to r.name, [:admin, r.recitation_style] if r.recitation_style
+        link_to r.recitation_style.name, [:admin, r.recitation_style] if r.recitation_style
       end
 
       row :resource_content do |r|
@@ -96,7 +96,7 @@ ActiveAdmin.register Recitation do
       end
 
       row :approved, &:approved?
-
+      row :segment_locked
       row :created_at
       row :updated_at
     end
@@ -117,6 +117,7 @@ ActiveAdmin.register Recitation do
       f.input :qirat_type_id,
               as: :searchable_select,
               ajax: { resource: QiratType }
+      f.input :segment_locked
     end
     f.actions
   end
@@ -125,5 +126,20 @@ ActiveAdmin.register Recitation do
     div do
       link_to 'View audio files', "/admin/audio_files?utf8=✓&q%5Brecitation_id_eq%5D=#{resource.id}"
     end
+  end
+
+  collection_action :export_sqlite_db, method: 'put' do
+    file_name = params[:file_name].presence || 'reciter-audio-timing.sqlite'
+    table_name = params[:file_name].presence || 'ayah_timing'
+    recitations_ids = params[:reciter_ids].split(',').compact_blank
+
+    Export::AyahRecitationSegmentsJob.perform_now(
+      file_name: file_name,
+      table_name: table_name,
+      user_id: current_user.id,
+      recitations_ids: recitations_ids
+    )
+
+    redirect_back(fallback_location: '/admin', notice: 'Recitation segments db will be shared via email.')
   end
 end

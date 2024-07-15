@@ -2,15 +2,15 @@
 #
 # Table name: important_notes
 #
-#  id            :bigint           not null, primary key
-#  label         :string
-#  text          :text
-#  title         :string
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  admin_user_id :integer
-#  verse_id      :integer
-#  word_id       :integer
+#  id         :bigint           not null, primary key
+#  label      :string
+#  text       :text
+#  title      :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  user_id    :integer
+#  verse_id   :integer
+#  word_id    :integer
 #
 
 class ImportantNote < ApplicationRecord
@@ -18,5 +18,5 @@ class ImportantNote < ApplicationRecord
 
   belongs_to :verse, optional: true
   belongs_to :word, optional: true
-  belongs_to :admin_user
+  belongs_to :user
 end

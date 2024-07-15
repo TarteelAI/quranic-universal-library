@@ -40,7 +40,21 @@
 ActiveAdmin.register User do
   menu parent: 'Account', priority: 1
 
-  permit_params :email, :first_name, :last_name, :password, :approved, on: :user
+  filter :email
+  filter :first_name
+  filter :locked_at
+  filter :approved
+  filter :confirmed_at
+
+  permit_params(
+    :email,
+    :first_name,
+    :last_name,
+    :password,
+    :approved,
+    :confirmed_at,
+    :locked_at,
+    on: :user)
 
   action_item :impersonate, only: :show do
     link_to impersonate_admin_user_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
@@ -82,6 +96,8 @@ ActiveAdmin.register User do
       f.input :email
       f.input :password, required: false
       f.input :approved
+      f.input :confirmed_at
+      f.input :locked_at
     end
     f.actions
   end

@@ -57,6 +57,19 @@ class Translation < QuranApiRecord
     where "translations.text ilike ?", "%#{query}%"
   end
 
+  def save_suggestions(params, user)
+    draft_translation = Draft::Translation.new
+    draft_translation.resource_content_id = resource_content_id
+    draft_translation.current_text = text
+    draft_translation.draft_text = params[:text]
+    draft_translation.text_matched = draft_translation.draft_text == text
+    draft_translation.verse = verse
+    draft_translation.need_review = true
+    draft_translation.user = user
+    draft_translation.save(validate: false)
+    draft_translation
+  end
+
   protected
 
   def touch_resource_content_timestamp

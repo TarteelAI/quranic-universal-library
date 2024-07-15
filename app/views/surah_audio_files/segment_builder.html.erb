@@ -21,7 +21,7 @@
   <div class="page-section">
     <div id="app"
          data-recitation="<%= @recitation.id %>"
-         data-segment-locked="<%= @recitation.segment_locked? %>"
+         data-segment-locked="<%= @recitation.segment_locked? || !@has_permission %>"
          data-chapter="<%= @audio_file.chapter_id %>"
          data-verses-count="<%= @audio_file.chapter.verses_count %>"
          data-verse="<%= params[:verse] %>"

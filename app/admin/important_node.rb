@@ -31,9 +31,7 @@ ActiveAdmin.register ImportantNote do
   show do
     attributes_table do
       row :id
-      row :admin_user do
-        resource.admin_user.to_s
-      end
+      row :user
       row :verse
       row :word
       row :title
@@ -71,7 +69,7 @@ ActiveAdmin.register ImportantNote do
     def create
       attributes = permitted_params['important_note']
       note = ImportantNote.new(attributes)
-      note.admin_user = current_admin_user
+      note.user = current_user
 
       if note.save
         redirect_to [:admin, note], notice: 'Note created successfully'

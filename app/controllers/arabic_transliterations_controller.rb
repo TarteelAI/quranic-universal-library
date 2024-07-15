@@ -118,6 +118,6 @@ class ArabicTransliterationsController < CommunityController
   end
 
   def check_permission
-    return redirect_to(root_path, notice: "Sorry this resource is locked now.")
+    # return redirect_to(root_path, notice: "Sorry this resource is locked now.")
   end
 end

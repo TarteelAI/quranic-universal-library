@@ -1,7 +1,7 @@
 server {
   client_max_body_size 20M;
   listen   3000;
-  server_name  *.tarteel.io *.tarteel.ai;
+  server_name qul.tarteel.ai;
   root   /home/app/qul/public;
   passenger_enabled on;
   passenger_user app;

@@ -1,4 +1,4 @@
-# Quranic Universal Library(QUL) - https://qul.tarteel.io/
+# Quranic Universal Library(QUL) - https://qul.tarteel.ai/
 
 Welcome to the Tarteel QUL! This project is a comprehensive Content Management System designed to manage Quranic data, including translations, tafsirs, Audio, Audio segments, Arabic scripts, Mushaf layouts, and much more.
 

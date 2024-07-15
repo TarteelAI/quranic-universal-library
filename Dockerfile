@@ -129,6 +129,11 @@ RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
 # precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN yarn build:segments
+
+#TODO: fix this, sprockets can't find the compiled assets.
+#Compiling twice seems to be working
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump
 RUN apt-get install -y wget
@@ -136,7 +141,6 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get install -y postgresql-client-14
-
 
 # cleanup apt
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

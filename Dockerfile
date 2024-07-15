@@ -56,6 +56,12 @@ RUN chown app Gemfile
 RUN chown app Gemfile.lock
 RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
+
+RUN echo "$SECRET_KEY_BASE ===================="
+RUN echo $RAILS_MASTER_KEY
+RUN echo "$RAILS_MASTER_KEY  ===================="
+RUN echo $RAILS_MASTER_KEY
+
 # precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
@@ -76,11 +82,6 @@ RUN chown -R app tmp
 # ... and to production.log
 RUN chown app log/production.log
 
-
-RUN echo "$SECRET_KEY_BASE"
-RUN echo $RAILS_MASTER_KEY
-RUN echo "$RAILS_MASTER_KEY"
-RUN echo $RAILS_MASTER_KEY
 
 # expose port 3000
 EXPOSE 3000

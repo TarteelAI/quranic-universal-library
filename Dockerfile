@@ -56,6 +56,10 @@ RUN chown app Gemfile
 RUN chown app Gemfile.lock
 RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
+ARG SECRET_KEY_BASE
+ARG RAILS_MASTER_KEY
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
+ENV RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
 
 RUN echo "$SECRET_KEY_BASE ===================="
 RUN echo $RAILS_MASTER_KEY

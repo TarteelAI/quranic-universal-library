@@ -22,7 +22,7 @@ class WordTranslation < QuranApiRecord
   include StripWhitespaces
   include Resourceable
 
-  has_paper_trail on: :update, ignore: [:created_at, :updated_at]
+  has_paper_trail ignore: [:created_at, :updated_at]
 
   belongs_to :word
   belongs_to :language

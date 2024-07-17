@@ -3,11 +3,13 @@ class Ability
 
   def initialize(user)
     return if user.nil?
+
     can :read, :all
+    can :read, ActiveAdmin::Page, name: "Dashboard"
+    cannot :read, User
+    can :manage, User, id: user.id
 
     if user.admin?
-      can :manage, AdminUser, id: user.id
-
       can :manage, NavigationSearchRecord
       can :manage, ResourceContent
       can :manage, Translation
@@ -19,6 +21,9 @@ class Ability
       can :manage, Reciter
       can :manage, Tafsir
       can :manage, Audio::Recitation
+      can :admin, :run_actions
+      can :download, :restricted_content
+      can :manage, :draft_content
     end
 
     if user.moderator?
@@ -27,6 +32,16 @@ class Ability
       can :manage, Morphology::Phrase
       can :manage, Morphology::PhraseVerse
       can :manage, Morphology::MatchingVerse
+    end
+
+    if user.normal_user?
+      cannot :read, ApiClient
+      cannot :read, AdminTodo
+      cannot :read, Feedback
+      cannot :read, DatabaseBackup
+      cannot :read, ResourcePermission
+      cannot :read, UserProject
+      cannot :read, ActiveAdmin::Comment
     end
 
     can :manage, :all if user.super_admin?

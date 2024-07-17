@@ -1,0 +1,15 @@
+<div class="col-12 my-3 border-bottom">
+  <div class=" d-flex justify-content-between">
+    <strong>
+      <%= comment.user.first_name.to_s.humanize %>
+    </strong>
+
+    <small class="text-faded">
+      <%= comment.created_at.strftime "%B %d, %Y at %I:%M %P" %>
+    </small>
+  </div>
+
+  <div>
+    <%= comment.text %>
+  </div>
+</div>

@@ -50,7 +50,7 @@ module QuranEnc
       ActiveAdmin::Comment.create(
         namespace: 'admin',
         resource: resource,
-        author_type: 'AdminUser',
+        author_type: 'User',
         author_id: 1,
         body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
       )
@@ -78,7 +78,7 @@ module QuranEnc
       ActiveAdmin::Comment.create(
         namespace: 'admin',
         resource: resource,
-        author_type: 'AdminUser',
+        author_type: 'User',
         author_id: 1,
         body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
       )

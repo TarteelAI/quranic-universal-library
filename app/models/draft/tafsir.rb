@@ -70,7 +70,7 @@ class Draft::Tafsir < ApplicationRecord
     tafsir.end_verse_id = end_verse_id
 
     tafsir.save(validate: false)
-    update_column reviewed: true, imported: true
+    update_columns(reviewed: true, imported: true)
     tafsir
   end
 

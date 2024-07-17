@@ -3,18 +3,6 @@
     <%= @resource ? @resource.name : 'Select Mushaf' %>
   </h1>
 
-  <% if @access %>
-    <div class="callout alert alert-dismissible" role="alert">
-      <div class="row">
-        <div class="col-md-12">
-          <div style="font-size: 30px; margin-top: 10px">
-            <%= @access.admin_notes.to_s.html_safe %>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-
   <figure class="highlight">
     <table class="table table-hover">
       <thead>

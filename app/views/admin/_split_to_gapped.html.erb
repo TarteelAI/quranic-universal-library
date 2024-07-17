@@ -1,0 +1,43 @@
+<%
+  ayah_recitations = resource.reciter.verse_recitations
+%>
+<div id=title>
+  Split <%= resource.name %> recitations to ayah by ayah
+</div>
+
+<div id="body">
+  <div class="modal-body" id=modal-body>
+    <% if ayah_recitations.present? %>
+      <div class="alert alert-info">
+        We have following ayah recitations for this reciter.
+
+        <ul>
+          <% ayah_recitations.each do |r| %>
+            <li>
+              <a href="<%= admin_recitation_path(r) %>" target="_blank"><%= r.name %></a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with url: split_to_gapped_admin_audio_recitation_path(resource), method: :put do |form| %>
+      <div class="alert alert-info">
+        System will generate ayah by ayah audio files and share with you via emails that you will have to upload
+        manually to storage
+      </div>
+
+      <div class="form-group">
+        <%= form.label :host, 'Email to share generated files' %>
+        <%= form.text_field :host, class: 'form-control', value: "https://audio-cdn.tarteel.ai/quran/#{resource.name.gsub(/\s+/, '')}" %>
+        <div class="form-text text-muted">
+          Please provide based CDN host for audio files
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= form.submit 'Split ayah recitation' %>
+      </div>
+    <% end %>
+  </div>
+</div>

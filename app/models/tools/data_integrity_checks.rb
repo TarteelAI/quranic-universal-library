@@ -652,7 +652,7 @@ class Tools::DataIntegrityChecks
         page: -> (record, params) do
           mushaf_id = params.dig(:check, :mushaf_id)
           page_words = MushafWord.where(mushaf_id: mushaf_id).where('word_id IN (?)', record.verse.words.pluck(:id))
-          page = page_words.first&.page_number
+          page = page_words.detect(&:page_number)&.page_number
           [page, "/mushaf_layouts/#{mushaf_id}/edit?page_number=#{page}"]
         end
       },

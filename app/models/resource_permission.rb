@@ -4,6 +4,7 @@
 #
 #  id                       :bigint           not null, primary key
 #  contact_info             :string
+#  copyright_notice         :string
 #  permission_to_host       :integer          default("unknown")
 #  permission_to_host_info  :text
 #  permission_to_share      :integer          default("unknown")

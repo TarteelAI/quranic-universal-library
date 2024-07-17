@@ -13,7 +13,7 @@ require 'sidekiq-status/web'
 Sidekiq::Extensions.enable_delay!
 
 Sidekiq.logger.level = Logger::INFO
-Sidekiq.default_worker_options = { backtrace: true }
+Sidekiq.default_worker_options = { 'backtrace' => true }
 
 Sidekiq.configure_server do |config|
   Sidekiq::Status.configure_server_middleware config

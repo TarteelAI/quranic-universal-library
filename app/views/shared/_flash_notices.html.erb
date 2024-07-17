@@ -1,7 +1,7 @@
 <div id="flash-messages">
   <div class="d-none"
        data-controller="flash-message"
-       data-flash-error="<%= flash[:alert] %>"
-       data-flash-notice="<%= flash[:notice]  %>">
+       data-flash-error="<%= flash[:alert] || flash.now[:alert] %>"
+       data-flash-notice="<%= flash[:notice] || flash.now[:notice] %>">
   </div>
 </div>

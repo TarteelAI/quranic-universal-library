@@ -1,18 +1,21 @@
-<%= bootstrap_devise_error_messages! %>
-<div class="panel panel-default devise-bs">
-  <div class="panel-heading">
+<div class="card devise-bs my-3">
+  <%= render 'shared/form_errors', object: resource %>
+
+  <div class="card-header">
     <h4><%= t('.resend_confirmation_instructions', default: 'Resend confirmation instructions') %></h4>
   </div>
-  <div class="panel-body" data-turbo="false">
+
+  <div class="card-body" data-turbo="false">
     <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, role: 'form' }) do |f| %>
       <div class="form-group">
         <%= f.label :email %>
-        <%= f.email_field :email, autofocus: true, class: "form-control"  %>
+        <%= f.email_field :email, autofocus: true, class: "form-control", required: true  %>
       </div>
 
-      <%= f.submit t('.resend_confirmation_instructions', default: 'Resend confirmation instructions'), class: 'btn btn-primary' %>
-    <% end %>
+      <div class="form-group">
+        <%= f.submit t('.resend_confirmation_instructions', default: 'Resend confirmation instructions'), class: 'btn btn-primary mt-2' %>
+      </div>
+  <% end %>
   </div>
 </div>
-
 <%= render 'devise/shared/links' %>

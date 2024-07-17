@@ -76,6 +76,7 @@ ActiveAdmin.register Word do
 
   filter :id
   filter :verse_key
+  filter :location
   filter :char_type
   filter :page_number
   filter :text_uthmani
@@ -468,7 +469,7 @@ ActiveAdmin.register Word do
 
     ExportWordsJob.perform_later(
       file_name: file_name,
-      admin_id: current_admin_user.id,
+      admin_id: current_user.id,
       mushaf_id: mushaf_id,
       language_id: language,
       word_fields: word_fields

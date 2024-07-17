@@ -52,7 +52,7 @@ class QuranEnc::UpdatesCheckerJob < ApplicationJob
     ActiveAdmin::Comment.create(
       namespace: 'admin',
       resource: todo,
-      author_type: 'AdminUser',
+      author_type: 'User',
       author_id: 1,
       body: "<a href='https://quranenc.com/en/browse/#{version['key']}/' target='_blank'>View translation on QuranEnc</a>"
     )
@@ -100,7 +100,7 @@ class QuranEnc::UpdatesCheckerJob < ApplicationJob
     ActiveAdmin::Comment.create(
       namespace: 'admin',
       resource: todo,
-      author_type: 'AdminUser',
+      author_type: 'User',
       author_id: 1,
       body: "<a href='https://quranenc.com/en/browse/#{key}/' target='_blank'>View translation on QuranEnc</a>"
     )

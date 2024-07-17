@@ -3,9 +3,7 @@ class ProofReadCommentsController < ApplicationController
   before_action :load_resource
 
   def create
-    @resource.proof_read_comments.create proof_read_comment_params
-
-    redirect_back fallback_location: root_path, notice: 'comment added successfully'
+    @comment = @resource.proof_read_comments.create proof_read_comment_params
   end
 
   def index

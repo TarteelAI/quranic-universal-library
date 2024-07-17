@@ -4,6 +4,7 @@
 #
 #  id                  :integer          not null, primary key
 #  reciter_name        :string
+#  segment_locked      :boolean          default(TRUE)
 #  style               :string
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -26,17 +27,17 @@ class Recitation < QuranApiRecord
   belongs_to :resource_content
 
   has_many :audio_files
-  delegate :approved?, to: :resource_content
+  delegate :approved?, to: :resource_content, allow_nil: true
 
   scope :approved, -> { joins(:resource_content).where('resource_contents.approved = ?', true) }
   scope :un_approved, -> { joins(:resource_content).where('resource_contents.approved = ?', false) }
 
-  def segment_locked?
-    false
-  end
-
   def one_ayah?
     true
+  end
+
+  def tarteel_key
+    resource_content.meta_value('tarteel_key')
   end
 
   def validate_segments_data(chapter_id: nil)

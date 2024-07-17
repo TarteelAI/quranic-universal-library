@@ -60,14 +60,18 @@ class TafsirProofreadingsController < CommunityController
       params[:resource_id] ||= 169
       @resource = ResourceContent.find(params[:resource_id])
     end
+
+    @has_permission = can_manage?(@resource)
   end
 
   def check_permission
-    @access = can_manage?(@resource)
-
-    unless @access
-      url = tafsir_proofreading_path(params[:id], resource_id: @resource.id)
-      redirect_to url, alert: "Sorry you don't have access to this resource."
+    if !@has_permission
+      if request.format.turbo_stream?
+        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
+      else
+        url = tafsir_proofreading_path(params[:id], resource_id: @resource.id)
+        redirect_to url, alert: "Sorry you don't have access to this resource."
+      end
     end
   end
 

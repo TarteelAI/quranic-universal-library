@@ -3,13 +3,10 @@ class MushafLayoutsController < CommunityController
 
   before_action :find_resource
   before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
-  before_action :check_permission, only: [:update, :save_page_mapping, :save_line_alignment]
+  before_action :check_permission, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_page_words, only: [:edit, :show]
 
   def index
-    if @resource
-      @access = can_manage?(@resource)
-    end
   end
 
   def save_line_alignment
@@ -111,6 +108,7 @@ class MushafLayoutsController < CommunityController
     if params[:id]
       @mushaf = Mushaf.find(params[:id])
       @resource = @mushaf.resource_content
+      @access = can_manage?(@resource)
 
       if params[:compare].present?
         @compared_mushaf = Mushaf.find(params[:compare])

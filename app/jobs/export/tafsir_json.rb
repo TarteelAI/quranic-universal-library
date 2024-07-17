@@ -7,14 +7,14 @@ module Export
 
     STORAGE_PATH = "#{Rails.root}/tmp/exported_databases"
 
-    def perform(resource_id, original_file_name, admin_user_id)
-      admin_user = AdminUser.find(admin_user_id)
+    def perform(resource_id, original_file_name, user_id)
+      user = User.find(user_id)
       @resource_content = ResourceContent.find(resource_id)
 
       setup(original_file_name)
       export_data
       compress
-      send_email("#{file_name}.bz2", admin_user) if admin_user.present?
+      send_email("#{file_name}.bz2", user) if user.present?
 
       # return the db file path
       "#{file_name}.bz2"

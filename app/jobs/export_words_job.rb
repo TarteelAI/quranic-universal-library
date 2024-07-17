@@ -2,7 +2,7 @@ class ExportWordsJob < ApplicationJob
   queue_as :default
   STORAGE_PATH = "#{Rails.root}/tmp/exported_databses"
 
-  def perform(file_name:, admin_id:, mushaf_id: nil, language_id: nil, word_fields: [])
+  def perform(file_name:, user_id:, mushaf_id: nil, language_id: nil, word_fields: [])
     require 'fileutils'
 
     file_name = file_name.chomp('.db')
@@ -16,7 +16,7 @@ class ExportWordsJob < ApplicationJob
     `bzip2 #{file_path}/#{file_name}.db`
 
     zip_path = "#{file_path}/#{file_name}.db.bz2"
-    send_email(admin_id, zip_path)
+    send_email(user_id, zip_path)
 
     # return the db file path
     zip_path
@@ -86,9 +86,9 @@ class ExportWordsJob < ApplicationJob
     end
   end
 
-  def send_email(admin_id, zip_path)
+  def send_email(user_id, zip_path)
     DeveloperMailer.notify(
-      to: AdminUser.find(admin_id).email,
+      to: User.find(user_id).email,
       subject: "Words dump file",
       message: "Please see the attached dump file",
       file_path: zip_path

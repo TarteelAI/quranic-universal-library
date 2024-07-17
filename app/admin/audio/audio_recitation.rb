@@ -84,6 +84,11 @@ ActiveAdmin.register Audio::Recitation do
     link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put
   end
 
+  action_item :split_to_gapped, only: :show do
+    link_to 'Generate Gapped recitation', '#_', id: 'validate-segments',
+            data: { controller: 'ajax-modal', url: split_to_gapped_admin_audio_recitation_path(resource) }
+  end
+
   action_item :validate_segments, only: :show do
     link_to 'Validate segments', '#_', id: 'validate-segments',
             data: { controller: 'ajax-modal', url: validate_segments_admin_audio_recitation_path(resource) }
@@ -112,6 +117,15 @@ ActiveAdmin.register Audio::Recitation do
   member_action :validate_segments, method: 'get' do
     @issues = resource.validate_segments_data
     render partial: 'admin/validate_segments'
+  end
+
+  member_action :split_to_gapped, method: ['get', 'put'] do
+    if request.get?
+      render partial: 'admin/split_to_gapped'
+    else
+      Export::SplitGapelessRecitationJob.perform_later(resource.id, params[:host].to_s.strip, current_user.id)
+      return redirect_to [:admin, resource], alert: "Ayah by ayah gapped recitation will be generated shortly."
+    end
   end
 
   member_action :upload_segments, method: ['get', 'put'] do

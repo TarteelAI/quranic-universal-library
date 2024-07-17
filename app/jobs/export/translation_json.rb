@@ -14,7 +14,7 @@ module Export
                 :resource_content
     STORAGE_PATH = "#{Rails.root}/public/exported_databases"
 
-    def perform(resource_id, admin_user_id, use_nested_array_format = false)
+    def perform(resource_id, user_id, use_nested_array_format = false)
       @resource_content = ResourceContent.find(resource_id)
       @resource_content.touch # Update version
 
@@ -28,9 +28,9 @@ module Export
 
       compress if Rails.env.production?
 
-      if admin_user_id.present? && Rails.env.production?
-        admin_user = AdminUser.find(admin_user_id)
-        send_email("#{file_name}.bz2", admin_user)
+      if user_id.present? && Rails.env.production?
+        user = User.find(user_id)
+        send_email("#{file_name}.bz2", user)
       end
 
       # return the db file path
@@ -218,9 +218,9 @@ module Export
       text.gsub(' ', ' ').strip
     end
 
-    def send_email(zip_path, admin_user)
+    def send_email(zip_path, user)
       DeveloperMailer.notify(
-        to: admin_user.email,
+        to: user.email,
         subject: "#{@resource_content.name} files export",
         message: "Please see the attached zip",
         file_path: zip_path

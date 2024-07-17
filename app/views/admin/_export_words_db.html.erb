@@ -1,5 +1,5 @@
 <%= form_with url: export_sqlite_db_admin_words_path, method: :put do |form| %>
-  <fieldset class="inputs">
+  <fieldset class="download-form">
     <ol>
       <li class="text input required">
         <label for="file_name">File name</label>
@@ -7,9 +7,9 @@
       </li>
 
       <li class="searchable_select input optional">
-        <label for="file_name">Select translation language</label>
+        <label for="file_name">Select language</label>
         <select name=word_translation_language id=word_translation_language>
-          <option value="">Select one</option>
+          <option value="">Don't include word translations</option>
           <% WordTranslation.select("DISTINCT language_id, language_name").each do |tr| %>
             <option value="<%= tr.language_id %>"><%= tr.language_name %></option>
           <% end %>
@@ -21,7 +21,7 @@
       </li>
 
       <li class="searchable_select input required">
-        <label for="mushaf_id">Select Mushaf Type</label>
+        <label for="mushaf_id" class="me-2">Select Mushaf</label>
         <select name=mushaf_id id=mushaf_id>
           <option value="">Select one</option>
           <% Mushaf.where(enabled: true).each do |mushaf| %>
@@ -35,8 +35,10 @@
       </li>
 
       <li>
-        <label for="include_word_audio">Include word audio URLs?</label>
-        <input type="checkbox" name=include_word_audio id=include_word_audio>
+        <label for="include_word_audio">
+          <input type="checkbox" name=include_word_audio id=include_word_audio>
+          Include word audio URLs?
+        </label>
       </li>
     </ol>
   </fieldset>

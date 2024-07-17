@@ -13,7 +13,7 @@
 
         <%= form_tag translation_proofreadings_path, method: :get, class: 'd-flex' do %>
           <div class="form-group me-2">
-            <%= select_tag :resource_id, options_from_collection_for_select(@ayah_translations, :id, :name, selected: @resource.id), include_blank: false, class: 'form-select', data: {placeholder: 'Select translation', controller: 'select2'} %>
+            <%= select_tag :resource_id, options_from_collection_for_select(@ayah_translations, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select', data: {placeholder: 'Select translation', controller: 'select2'} %>
             <p class="form-text">Filter by Surah</p>
           </div>
 

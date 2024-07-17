@@ -75,3 +75,6 @@ application.register("mutashabihat-builder", MutashabihatBuilderController)
 
 import PhraseAyahBookmarkController from "./phrase_ayah_bookmark_controller.js"
 application.register("phrase-ayah-bookmark", PhraseAyahBookmarkController)
+
+import RemoteFormController from "./remote_form_controller.js"
+application.register("remote-form", RemoteFormController)

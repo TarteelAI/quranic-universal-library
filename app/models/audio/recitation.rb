@@ -62,6 +62,10 @@ module Audio
       end
     end
 
+    def one_ayah?
+      false
+    end
+
     def export_segments(format, chapter_id=nil)
       GreenTechSegments::SegmentDbFile.export(self, format, chapter_id)
     end

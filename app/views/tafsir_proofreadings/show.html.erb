@@ -7,7 +7,7 @@
     (<%= @tafisr.group_verse_key_from %> - <%= @tafisr.group_verse_key_to %>)
 
     <span class="pull-right">
-      <%= link_to 'Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success' %>
+      <%= link_to 'Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success' if @has_permission%>
 
       <%= link_to 'Previous ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: "#{surah}:#{group_start_ayah.to_i - 1}"), class: 'btn btn-success' %>
       <%= link_to 'Next ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: "#{surah}:#{group_end_ayah.to_i + 1}"), class: 'btn btn-success' %>

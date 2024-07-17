@@ -28,7 +28,9 @@ ActiveAdmin.register ResourcePermission do
     contact_info
     permission_to_host_info
     permission_to_share_info
-    source_info]
+    source_info
+    copyright_notice
+]
   end
 
   form do |f|
@@ -41,6 +43,7 @@ ActiveAdmin.register ResourcePermission do
       f.input :permission_to_host_info
       f.input :permission_to_share_info
       f.input :source_info, as: :text
+      f.input :copyright_notice, as: :text
     end
 
     f.actions

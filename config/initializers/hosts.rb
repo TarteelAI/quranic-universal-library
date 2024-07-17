@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 env = Rails.env
-host = env.development? ? 'localhost:3000' : ENV.fetch('HOST', 'qul.tarteel.ai')
+host = env.development? ? 'localhost:3000' : 'qul.tarteel.ai'
 
 Rails.application.configure do
   hosts = [/[a-z0-9-]*\.zeet-tarteel[a-z0-9-]*\.zeet\.app/, 'qul.tarteel.ai', 'localhost']

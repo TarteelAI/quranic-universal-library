@@ -26,14 +26,7 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
     column :created_at
     column :user do |resource|
       if user = GlobalID::Locator.locate(resource.whodunnit)
-        link_to "#{user.try(:email)} (#{user.class})", [:admin, user]
-      else
-        begin
-          link_to AdminUser.find_by(id: resource.whodunnit).try(:email),
-                  [:admin, AdminUser.find_by(id: resource.whodunnit)]
-        rescue StandardError
-          'Unknown'
-        end
+        link_to "#{user.name}(#{user.email})", [:admin, user]
       end
     end
   end
@@ -70,9 +63,9 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
   member_action :toggle_review, method: 'put' do
     # TODO: track reviewed changes
     if resource.reviewed?
-      resource.update(reviewed_by_id: current_admin_user.id, reviewed: false)
+      resource.update(reviewed_by_id: current_user.id, reviewed: false)
     else
-      resource.update(reviewed_by_id: current_admin_user.id, reviewed: true)
+      resource.update(reviewed_by_id: current_user.id, reviewed: true)
     end
 
     redirect_to [:admin, resource], notice: 'Updated'
@@ -96,13 +89,6 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
         if user = GlobalID::Locator.locate(resource.whodunnit)
           begin
             link_to(user.try(:email), [:admin, user])
-          rescue StandardError
-            'Unknown'
-          end
-        else
-          begin
-            link_to AdminUser.find_by(id: resource.whodunnit).try(:email),
-                    [:admin, AdminUser.find_by(id: resource.whodunnit)]
           rescue StandardError
             'Unknown'
           end

@@ -78,6 +78,12 @@ class AudioFile < QuranApiRecord
     end.to_json
   end
 
+  def segment_data
+    segments.map do |s|
+      s.drop(1)
+    end.to_s.gsub(/\s+/, '')
+  end
+
   def set_segments(segments_list)
     # TODO: fix ayah by ayah segments, remove the segment index
     padded = segments_list.map do |s|

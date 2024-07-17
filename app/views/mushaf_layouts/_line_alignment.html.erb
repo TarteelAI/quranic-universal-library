@@ -17,10 +17,10 @@
               <%= line %>
             </a>
 
-            <%= form.submit "C", title: 'Center aligned', class: "mx-2 btn btn-sm #{ model.is_center_aligned? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
-            <%= form.submit "J", title: 'Justify line', class: "mx-2 btn btn-sm #{ model.is_justified? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
-            <%= form.submit "B", title: 'Bismillah', class: "mx-2 btn btn-sm #{ model.is_bismillah? ? 'btn-success' : 'btn-dark'}",  data: {controller: 'tooltip'} %>
-            <%= form.submit "N", title: 'Surah name', class: "mx-2 btn btn-sm #{ model.is_surah_name? ? 'btn-success' : 'btn-dark'}", data: {controller: 'tooltip'} %>
+            <%= form.submit "C", title: 'Center aligned', class: "mx-2 btn btn-sm #{ model.is_center_aligned? ? 'btn-success' : 'btn-dark'}", disabled: !@access,  data: {controller: 'tooltip'} %>
+            <%= form.submit "J", title: 'Justify line', class: "mx-2 btn btn-sm #{ model.is_justified? ? 'btn-success' : 'btn-dark'}",  disabled: !@access, data: {controller: 'tooltip'} %>
+            <%= form.submit "B", title: 'Bismillah', class: "mx-2 btn btn-sm #{ model.is_bismillah? ? 'btn-success' : 'btn-dark'}", disabled: !@access, data: {controller: 'tooltip'} %>
+            <%= form.submit "N", title: 'Surah name', class: "mx-2 btn btn-sm #{ model.is_surah_name? ? 'btn-success' : 'btn-dark'}", disabled: !@access, data: {controller: 'tooltip'} %>
           </div>
         <% end %>
       </div>

@@ -39,6 +39,34 @@ class Draft::Translation < ApplicationRecord
     end
   end
 
+  def import!
+    language = resource_content.language
+    translation = Translation.where(
+      verse_id: verse_id,
+      resource_content_id: resource_content.id
+    ).first_or_initialize
+
+    translation.text = draft_text.strip
+    translation.language_name = language.name
+    translation.language_id = language.id
+
+    translation.verse_key = verse.verse_key
+    translation.chapter_id = verse.chapter_id
+    translation.verse_number = verse.verse_number
+    translation.juz_number = verse.juz_number
+    translation.hizb_number = verse.hizb_number
+    translation.rub_el_hizb_number = verse.rub_el_hizb_number
+    translation.ruku_number = verse.ruku_number
+    translation.surah_ruku_number = verse.surah_ruku_number
+    translation.manzil_number = verse.manzil_number
+    translation.page_number = verse.page_number
+
+    translation.save(validate: false)
+    translation.get_resource_content.touch
+    update_columns(imported: true)
+    translation
+  end
+
   def previous_ayah_translation
     if verse_id > 1
       Draft::Translation

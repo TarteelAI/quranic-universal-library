@@ -50,6 +50,18 @@ class AdminUser < ApplicationRecord
     [1, 2].include? id
   end
 
+  def find_or_create_user_account
+    User.find_or_create_by(email: email) do |user|
+      fist, last = name.split(' ')
+      user.first_name = fist
+      user.last_name = last.presence || 'Missing'
+      user.approved = true
+      user.password = Devise.friendly_token.first(8)
+      user.skip_confirmation!
+      user.save!
+    end
+  end
+
   def admin?
     true
   end

@@ -1,6 +1,30 @@
-<p><%= t('.greeting', recipient: @resource.email, default: "السلام عليكم ورحمة الله وبركات #{@resource.name}!") %></p>
+<h1 style="font-size: 24px; color: #333;">
+  Assalamu Alaikum, <%= @resource.first_name %>
+</h1>
 
-<p><%= t('.instruction', default: 'You can confirm your account email through the link below:') %></p>
+<p style="font-size: 16px; color: #333;">
+  Thank you for signing up with the Quranic Universal Library (QUL)!
+  To complete your registration, please confirm your email address by clicking the link below:
+</p>
 
-<p><%= link_to t('.action', default: 'Confirm my account'),
-         confirmation_url(@resource, confirmation_token: @token, locale: I18n.locale) %></p>
+<p>
+  <%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token), style: "color: #ffffff; background-color: #57d798; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block; font-size: 16px;" %>
+</p>
+
+<p style="font-size: 16px; color: #333;">
+  The Quranic Universal Library (QUL) is an innovative content management system
+  designed to make accessing and managing Quranic content easy and efficient.
+  With QUL, you can:
+</p>
+
+<ul style="font-size: 16px; color: #333; padding-left: 20px;">
+  <li><strong>Download</strong>: Access a vast collection of Quranic resources.</li>
+  <li><strong>Contribute</strong>: Contribute by adding new resources or suggesting fixes for existing content.</li>
+</ul>
+
+<p style="font-size: 16px; color: #333;">
+  We are delighted to have you join our community and look forward to seeing your contributions in improving Quranic
+  content.
+</p>
+
+<p style="font-size: 16px; color: #333;">If you did not sign up for a QUL account, please disregard this email.</p>

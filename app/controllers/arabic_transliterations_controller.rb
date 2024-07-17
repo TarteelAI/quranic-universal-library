@@ -1,5 +1,4 @@
 class ArabicTransliterationsController < CommunityController
-  skip_before_action :authenticate_user!, only: :render_surah
   before_action :check_permission, only: [:new, :create, :edit]
 
   def show
@@ -118,6 +117,10 @@ class ArabicTransliterationsController < CommunityController
   end
 
   def check_permission
-    # return redirect_to(root_path, notice: "Sorry this resource is locked now.")
+    has_permission = can_manage?(ResourceContent.transliteration.one_word.for_language('ar'))
+
+    if !has_permission
+      return redirect_to(root_path, notice: "Sorry you don't have permission to access this page.")
+    end
   end
 end

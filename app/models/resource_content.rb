@@ -48,6 +48,7 @@
 
 class ResourceContent < QuranApiRecord
   scope :translations, -> { where sub_type: [SubType::Translation, SubType::Transliteration] }
+  scope :transliteration, -> { where sub_type: SubType::Transliteration }
   scope :media, -> { where sub_type: SubType::Video }
   scope :tafsirs, -> { where sub_type: SubType::Tafsir }
   scope :chapter_info, -> { where sub_type: SubType::Info }
@@ -60,7 +61,7 @@ class ResourceContent < QuranApiRecord
   scope :from_quranenc, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }
   scope :approved, -> { where approved: true }
-
+  scope :for_language, lambda {|lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
     where(id: ResourcePermission.where(permission_to_host: val).pluck(:resource_content_id))
   }

@@ -1,5 +1,5 @@
 {
-  "name": "community",
+  "name": "tarteel-qul",
   "private": "true",
   "dependencies": {
     "@hotwired/stimulus": "^3.0.1",

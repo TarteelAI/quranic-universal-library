@@ -31,7 +31,7 @@ export default class extends Controller {
 
     this.form.on("turbo:submit-start", this.disableFields.bind(this))
     this.form.on("turbo:submit-end", this.enableFields.bind(this))
-    
+
 
     this.form.on("turbo:submit-end", (event, xhr, s) => {
       let form = event.target;

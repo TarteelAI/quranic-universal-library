@@ -112,10 +112,6 @@ RUN apt-get install -y curl build-essential autoconf automake ffmpeg
 RUN /pd_build/nodejs.sh
 RUN corepack enable
 
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-
 # setup gems
 WORKDIR /tmp
 ADD Gemfile Gemfile
@@ -140,7 +136,7 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 RUN yarn build:segments
 
 #TODO: fix this, sprockets can't find the compiled assets.
-#Compiling twice seems to be working
+# Compiling twice seems to be working
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump

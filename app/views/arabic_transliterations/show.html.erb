@@ -13,11 +13,10 @@
   </h1>
 
   <div class="callout alert alert-dismissible" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
-    </button>
     <h2>
       Click on <code>Contribute</code> button and update transliteration if you found any issue.
     </h2>
+
     <div>
     <ul>
       <li>
@@ -62,7 +61,10 @@
     </div>
   </div>
 
-  <div id="editor-wrap">
+  <div id="editor-wrap"
+       data-host="https://static-cdn.tarteel.ai/qul/images/page/transliteration"
+       data-page="<%= @predicted_page %>"
+       data-controller="image-zoomer">
     <div class="form-group">
       <%= select_tag :change_page, options_for_select(1..980, @predicted_page), class: 'form-control', data: {placeholder: 'Jump to page'} %>
       <p class="help-block">Jump to page number</p>
@@ -128,7 +130,3 @@
     </tbody>
   </table>
 </div>
-
-<script>
-   // window.pageZoomer = new Utility.ImageZoomer("http://static.quran.com/urdu_transliteration/<%=@predicted_page%>.jpg")
-</script>

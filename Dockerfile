@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:2.5.0
+FROM phusion/passenger-customizable:3.0.6
 
 # set correct environment variables
 ENV HOME /root
@@ -7,8 +7,8 @@ ENV HOME /root
 CMD ["/sbin/my_init"]
 
 # customizing passenger-customizable image
-RUN /pd_build/ruby-3.0.*.sh
-RUN bash -lc 'rvm --default use ruby-3.0.5'
+RUN /pd_build/ruby-3.3.*.sh
+RUN bash -lc 'rvm --default use ruby-3.3.3'
 RUN /pd_build/redis.sh
 
 # set environment variables
@@ -91,6 +91,10 @@ ENV RAILS_SERVE_STATIC_FILES true
 ENV REDIS_URL "redis://127.0.0.1:6379"
 RUN rm -f /etc/service/redis/down
 
+# memcached
+RUN /pd_build/memcached.sh
+RUN rm -f /etc/service/memcached/down
+
 # nginx
 RUN rm /etc/service/nginx/down
 RUN rm /etc/nginx/sites-enabled/default
@@ -132,7 +136,7 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 RUN yarn build:segments
 
 #TODO: fix this, sprockets can't find the compiled assets.
-#Compiling twice seems to be working
+# Compiling twice seems to be working
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump

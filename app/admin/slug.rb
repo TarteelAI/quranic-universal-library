@@ -24,7 +24,7 @@
 #  index_slugs_on_language_priority    (language_priority)
 #
 ActiveAdmin.register Slug do
-  menu parent: 'Content'
+  menu parent: 'Settings'
   actions :all
 
   filter :locale

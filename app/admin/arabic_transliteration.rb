@@ -24,7 +24,7 @@
 #  index_arabic_transliterations_on_word_id   (word_id)
 #
 ActiveAdmin.register ArabicTransliteration do
-  menu parent: 'Content', priority: 1
+  menu parent: 'Content', priority: 10
   actions :all, except: :destroy
 
   ActiveAdminViewHelpers.versionate(self)

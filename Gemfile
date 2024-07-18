@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.5'
+ruby '3.3.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem "rails", "~> 7.0.3"
@@ -60,13 +60,11 @@ gem 'devise', '4.8.1'
 
 gem 'cancancan'
 
-# Generate embed code and get metadata of video etc
-# gem 'video_info'
+
 # metadata for audio file
 gem 'streamio-ffmpeg', '~> 3.0', require:  false
 gem 'wahwah', require: false
-
-# github.com/JeremyGeros/differ
+gem 'dalli'
 gem 'diffy'
 
 # For Slug generation
@@ -145,9 +143,6 @@ gem "sassc-rails", "~> 2.1"
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
 gem "ruby-lokalise-api", "~> 4.5.1", require: false
-#TODO: need to fix the build
-# gem "ruby-filemagic", "~> 0.7.3", require: false
-gem "kaitai-struct", "~> 0.10", require: false
 
 gem "kredis", "~> 1.3"
 gem "oj", "~> 3.14"
@@ -155,3 +150,6 @@ gem "aws-sdk-s3", "~> 1.130"
 gem "rubyzip", "~> 2.3", require: false
 gem "cld3", "~> 3.6", require: false
 gem "diff-lcs", "~> 1.5", require: false
+
+# NOTE:
+gem 'strscan', '~> 3.0.9'

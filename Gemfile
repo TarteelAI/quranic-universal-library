@@ -60,13 +60,11 @@ gem 'devise', '4.8.1'
 
 gem 'cancancan'
 
-# Generate embed code and get metadata of video etc
-# gem 'video_info'
+
 # metadata for audio file
 gem 'streamio-ffmpeg', '~> 3.0', require:  false
 gem 'wahwah', require: false
 gem 'dalli'
-# github.com/JeremyGeros/differ
 gem 'diffy'
 
 # For Slug generation
@@ -145,9 +143,6 @@ gem 'sassc-rails', '2.1.2'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
 gem "ruby-lokalise-api", "~> 4.5.1", require: false
-#TODO: need to fix the build
-# gem "ruby-filemagic", "~> 0.7.3", require: false
-gem "kaitai-struct", "~> 0.10", require: false
 
 gem "kredis", "~> 1.3"
 gem "oj", "~> 3.14"

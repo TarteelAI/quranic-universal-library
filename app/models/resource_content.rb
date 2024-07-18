@@ -142,6 +142,10 @@ class ResourceContent < QuranApiRecord
     cardinality_type == CardinalityType::OneVerse
   end
 
+  def has_footnote?
+    meta_value('has-footnote') == 'yes'
+  end
+
   def get_source_pdf_url
     url = meta_value('source-pdf-url')
 

@@ -1,4 +1,10 @@
-<div class="row transliteration" id="editor-wrap">
+<div class="row transliteration"
+     id="editor-wrap"
+     data-host="https://static-cdn.tarteel.ai/qul/images/page/transliteration"
+     data-page="<%= @predicted_page %>"
+     data-controller="image-zoomer"
+     style="position: relative;">
+>
   <div class="callout alert alert-dismissible" role="alert">
     <h2>﷽ </h2>
     <h4>Things to consider before typing!!</h4>
@@ -30,7 +36,7 @@
     </ul>
   </div>
 
-  <div class="col-lg-12">
+  <div class="col-lg-12" style="position: sticky;top:0px;z-index: 100;background: #fff">
     <div class="form-group">
       <%= select_tag :change_page, options_for_select(1..980, @predicted_page), class: 'form-control', data: { placeholder: 'Jump to page' } %>
       <p class="help-block">Jump to page number</p>
@@ -53,21 +59,9 @@
           <div class="well">
             <p>Word# <%= trans_form.object.location %></p>
             <div class="row">
-              <div class="col-lg-3">
+              <div class="col-lg-6">
                 <div class="form-group">
-                  <% ur = trans_form.object.ur_translation.presence || trans_form.object&.word&.ur_translation&.text %>
-                  <%= trans_form.text_field :ur_translation, value: ur, class: 'form-control' %>
-                  <p class="help-block">
-                    <span>
-                       <%= trans_form.object&.word&.en_translation&.text %>
-                    </span>
-                  </p>
-                </div>
-              </div>
-
-              <div class="col-lg-3">
-                <div class="form-group">
-                  <%= trans_form.text_field :indopak_text, class: 'form-control indopak' %>
+                  <%= trans_form.text_field :indopak_text, class: 'form-control indopak', disabled: true %>
                   <p class="help-block">
                     <span class="indopak">
                        <%= trans_form.object.text_simple %>

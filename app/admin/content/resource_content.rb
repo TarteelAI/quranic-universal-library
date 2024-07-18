@@ -64,9 +64,7 @@ ActiveAdmin.register ResourceContent do
     }
   end
 
-  ActiveAdminViewHelpers.render_translated_name_sidebar(self)
-
-  menu parent: 'Content', priority: 10
+  menu parent: 'Content', priority: 1
   actions :all, except: :destroy
 
   scope :with_footnotes
@@ -98,6 +96,8 @@ ActiveAdmin.register ResourceContent do
          ajax: { resource: Language }
   filter :tags_id, as: :searchable_select, multiple: true,
          ajax: { resource: Tag }
+
+  ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 
   action_item :approve, only: :show do
     link_to approve_admin_resource_content_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
@@ -201,7 +201,7 @@ ActiveAdmin.register ResourceContent do
 
     if permission&.copyright_notice.present?
       div class: 'alert alert-danger fs-lg' do
-        permission.copyright_notice
+        permission.copyright_notice.html_safe
       end
     end
 

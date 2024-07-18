@@ -16,7 +16,7 @@
 #  index_char_types_on_parent_id  (parent_id)
 #
 ActiveAdmin.register ApiClient do
-  menu parent: 'Api', priority: 10
+  menu parent: 'Settings', priority: 10
   actions :all, except: :destroy
 
   filter :name

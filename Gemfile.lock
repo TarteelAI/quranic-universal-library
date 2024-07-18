@@ -591,7 +591,7 @@ DEPENDENCIES
   rubocop-rspec
   ruby-lokalise-api (~> 4.5.1)
   rubyzip (~> 2.3)
-  sassc-rails (~> 2.1)
+  sassc-rails (= 2.1.2)
   sentry-rails
   sentry-ruby
   sentry-sidekiq

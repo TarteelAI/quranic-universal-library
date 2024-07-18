@@ -154,7 +154,7 @@ ActiveAdmin.setup do |config|
   # https://github.com/svenfuchs/i18n/blob/master/lib%2Fi18n%2Fbackend%2Fbase.rb#L52
   #
   config.localize_format = :long
-  
+
   # == Setting a Favicon
   #
   # config.favicon = 'favicon.ico'
@@ -223,6 +223,12 @@ ActiveAdmin.setup do |config|
   #       menu.add label: "My Great Website", url: "http://www.mygreatwebsite.com", html_options: { target: :blank }
   #     end
   #   end
+  config.namespace :admin do |admin|
+    admin.build_menu :utility_navigation do |menu|
+      menu.add label: 'Public site', url: '/', html_options: { target: :blank }
+      admin.add_logout_button_to_menu menu
+    end
+  end
 
   # == Download Links
   #
@@ -276,9 +282,9 @@ end
 module AdminPageLayoutOverride
   def build(*args)
     # This will be added at the beginning of <head>
-    #within head do
+    # within head do
     #  text_node("<style>:root {--primary-color: #{Rails.env.production? ? '#ff8b41' : '#505050'};}</style>".html_safe)
-    #end
+    # end
 
     # This will be added at the beginning of <body>
     # within body do

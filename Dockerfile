@@ -10,7 +10,8 @@ CMD ["/sbin/my_init"]
 RUN /pd_build/ruby-3.3.*.sh
 RUN bash -lc 'rvm --default use ruby-3.3.3'
 RUN /pd_build/redis.sh
-
+# Nodejs
+RUN /pd_build/nodejs.sh 18
 # set environment variables
 ARG SECRET_KEY_BASE
 ARG RAILS_MASTER_KEY

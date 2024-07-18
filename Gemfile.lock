@@ -499,7 +499,7 @@ GEM
       railties (>= 6.0.0)
     streamio-ffmpeg (3.0.2)
       multi_json (~> 1.8)
-    strscan (3.0.3)
+    strscan (3.0.9)
     thor (1.2.1)
     tilt (2.0.11)
     timeout (0.3.0)
@@ -605,6 +605,7 @@ DEPENDENCIES
   sqlite3
   stimulus-rails (>= 0.7.3)
   streamio-ffmpeg (~> 3.0)
+  strscan (~> 3.0.9)
   turbo-rails (>= 0.9.0)
   typhoeus
   tzinfo-data

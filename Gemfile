@@ -151,3 +151,5 @@ gem "rubyzip", "~> 2.3", require: false
 gem "cld3", "~> 3.6", require: false
 gem "diff-lcs", "~> 1.5", require: false
 
+# NOTE:
+gem 'strscan', '~> 3.0.9'

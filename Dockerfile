@@ -134,7 +134,6 @@ RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
 # precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
-RUN yarn build:segments
 
 #TODO: fix this, sprockets can't find the compiled assets.
 # Compiling twice seems to be working

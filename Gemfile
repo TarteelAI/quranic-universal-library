@@ -138,7 +138,7 @@ gem "cssbundling-rails", ">= 0.2.7"
 # Bundle and transpile JavaScript [https://github.com/rails/jsbundling-rails]
 gem "jsbundling-rails", ">= 0.2.2"
 
-gem "sassc-rails", "~> 2.1"
+gem 'sassc-rails', '2.1.2'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"

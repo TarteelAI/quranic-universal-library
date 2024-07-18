@@ -4,6 +4,16 @@ ActiveAdmin.register_page 'Dashboard' do
   menu priority: 1, label: 'Dashboard'
 
   content title: 'Dashboard' do
+    div "Welcome to the QUL Admin Dashboard! ", class: 'alert alert-info'
+
+    columns do
+      column do
+        panel 'Help' do
+          render partial: 'admin/help'
+        end
+      end
+    end
+
     columns do
       column do
         panel 'Actions' do
@@ -24,9 +34,11 @@ ActiveAdmin.register_page 'Dashboard' do
       end
     end
 
-    columns '<h1>Tools</h1>'.html_safe do
+    columns do
       column do
         panel 'Data Integrity checks' do
+          div "This section has various tools for checking data integrity, such as finding words that don't have translations for specific languages.", class: 'alert alert-info'
+
           div do
             Tools::DataIntegrityChecks.checks.each do |check_name|
               check = Tools::DataIntegrityChecks.send(check_name)
@@ -41,8 +53,8 @@ ActiveAdmin.register_page 'Dashboard' do
     end
 
     div class: 'blank_slate_container', id: 'dashboard_default_message' do
-      panel "Recent changes (Total #{PaperTrail::Version.count}) #{link_to 'View all changes',
-                                                                           '/admin/content_changes'}".html_safe do
+      heading = "Recent changes (Total #{PaperTrail::Version.count}) #{link_to 'View all changes', '/admin/content_changes'}".html_safe
+      panel heading do
         table_for PaperTrail::Version.order('id desc').limit(20) do
           # Use PaperTrail::Version if this throws an error
           column('ID') { |v| link_to v.id, "/admin/content_changes/#{v.id}" }

@@ -1,14 +1,21 @@
 Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
-  get 'community/splash'
+  unauthenticated do
+    root to: 'landing#home'
+  end
+
+  authenticated :user do
+    root to: 'community#tools', as: :authenticated_root
+  end
+
+  get 'tools', to: 'community#tools', as: :tools
   get 'community/chars_info', as: :chars_info
   get 'svg', to: 'community#svg_optimizer'
 
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"
 
-  root to: 'community#splash'
 
   devise_for :users, controllers: {
     registrations: 'users/registrations'

@@ -2,7 +2,7 @@ class CommunityController < ApplicationController
   before_action :authenticate_user!
   helper_method :current_language
 
-  def splash
+  def tools
   end
 
   def chars_info

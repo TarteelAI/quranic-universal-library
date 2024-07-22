@@ -1,0 +1,28 @@
+footer {
+  position: static;
+  width: 100vw;
+  bottom: 0;
+  padding: 5px 15px 5px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .left{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .right{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .spacer{
+    height: 50px;
+    width: 2px;
+    background-color: grey;
+  }
+}

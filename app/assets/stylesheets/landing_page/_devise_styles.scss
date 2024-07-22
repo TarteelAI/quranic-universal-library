@@ -1,0 +1,275 @@
+.device-container {
+  height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+  align-items: center;
+  justify-content: center;
+
+  .left {
+    position: relative;
+    background-color: #000;
+    border-radius: 30px;
+    height: 85vh;
+  }
+}
+
+
+
+.login_inner_container {
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.login_right_side {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 40vw;
+}
+.login_tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.login_tab {
+  color: #212121;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: -0.2px;
+  border-bottom: #000 solid 2px;
+  padding-bottom: 4px;
+}
+.login_tab:hover {
+  cursor: pointer;
+}
+.cAccount_tab {
+  color: rgba(0, 0, 0, 0.3);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: -0.2px;
+}
+.cAccount_tab:hover {
+  cursor: pointer;
+}
+.login_detail_text {
+  color: #000;
+  font-size: 12px;
+  font-weight: 400;
+}
+.login_detail_text span {
+  font-weight: 700;
+}
+.login_labels {
+  color: var(--neutral-gray-400919191, #919191);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: -0.4px;
+}
+.login_input {
+  border-radius: 5px;
+  min-width: 100%;
+}
+.inputs_container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+.checkbox_container {
+  display: flex;
+  gap: 4px;
+}
+
+.custom_checkbox_container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.custom_checkbox_container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/*  custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 20;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  border: solid black 2px;
+  background-color: #0000;
+}
+
+/* When the checkbox is checked, add a blue background */
+.custom_checkbox_container input:checked ~ .checkmark {
+  background-color: #000000;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+}
+
+/* Show the checkmark when checked */
+.custom_checkbox_container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.custom_checkbox_container .checkmark:after {
+  left: 6px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.remember_text {
+  color: var(--Black-B100, #171717);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+.fpassword_text {
+  color: #000;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  text-decoration: none;
+}
+.fpassword_text:hover {
+  cursor: pointer;
+  color: #969696;
+}
+.fpassword_container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.noAccount_text {
+  color: var(--neutral-gray-5006-e-6-e-6-e, #6e6e6e);
+  font-size: 10px;
+  font-weight: 500;
+}
+.noAccount_text a {
+  color: var(--neutral-black-000000, #000);
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration-line: underline;
+}
+.noAccount_text span:hover {
+  cursor: pointer;
+}
+.login_btn {
+  display: flex;
+  width: 188px;
+  height: 56px;
+  justify-content: center;
+  align-items: center;
+  gap: 19px;
+  border-radius: 50px;
+  background: #000;
+  color: white;
+}
+.login_btn:hover {
+  background-color: #212121;
+}
+.login_btn_container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login_policy {
+  color: #000;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 125%;
+}
+.login_policy a {
+  color: var(--Secondary-Dark, #005dcb);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 125%;
+  text-decoration-line: underline;
+}
+.login_policy span:hover {
+  cursor: pointer;
+}
+
+.login-page-inner-circle-text {
+  position: absolute;
+  top: 42%;
+  left: 42%;
+  display: flex;
+  justify-content: space-between;
+}
+.login-gul-text {
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  font-family: "Open Sauce Sans";
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  width: 50px;
+  line-height: 15px;
+  margin-top: 31px;
+}
+/* login page responsiveness */
+@media (max-width: 768px) {
+  .login_left_side {
+    display: none;
+  }
+  .login_right_side {
+    width: 80vw;
+  }
+  .footer_container {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .navbar_Text,
+  .github-link {
+    display: none;
+  }
+}
+/* landing page responsiveness */
+@media (max-width: 768px) {
+  .header-left-side {
+    display: none;
+  }
+  .header_rightside_container {
+    margin: 0px 20px 0px 20px;
+  }
+  .overview_detail_text {
+    font-size: 20px;
+  }
+  .overview_lowerpart {
+    flex-direction: column;
+  }
+  .overview_lowerRight_text {
+    margin-top: 20px;
+  }
+}

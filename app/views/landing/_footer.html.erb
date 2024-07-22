@@ -1,9 +1,13 @@
-<footer class="footer_container">
-  <!-- leftside -->
-  <div class="footer_left_container">
-    <div class="footer_left_text">Quranic Universal Library</div>
-    <div class="footer_miniborder"></div>
-    <div class="footer_icon">
+<footer>
+  <div class="left">
+    <div class="qul-tag">
+      <span><strong>Q</strong>uranic</span>
+      <span><strong>U</strong>niversal</span>
+      <span><strong>L</strong>ibrary</span>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="qul-tag">
       <svg
         width="37"
         height="16"
@@ -37,20 +41,21 @@
       </svg>
     </div>
   </div>
-  <!-- right side -->
-  <div class="footer_right_container">
-    <%= link_to 'Terms of use', 'https://www.tarteel.ai/terms', class: 'footer_right_text text-decoration-non' %>
-    <%= link_to 'Privacy Policy', 'https://www.tarteel.ai/privacy', class: 'footer_right_text text-decoration-non' %>
+
+  <div class="right">
+    <%= link_to 'Terms of use', 'https://www.tarteel.ai/terms', class: 'btn-link text-dark', target: '_blank' %>
+    <%= link_to 'Privacy Policy', 'https://www.tarteel.ai/privacy', class: 'btn-link text-dark', target: '_blank' %>
 
     <a
-      class="github-button"
+      class="btn-link text-dark github-button"
       href="https://github.com/TarteelAI/quranic-universal-library"
       data-color-scheme="no-preference: light; light: light; dark: dark;"
       data-size="large"
       data-show-count="true"
-      aria-label="Star QUL on Github"
       target="_blank"
-    >Star</a
-    >
+      aria-label="Star QUL on Github"
+      title="Star QUL on Github"
+    >Star us</a>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </div>
 </footer>

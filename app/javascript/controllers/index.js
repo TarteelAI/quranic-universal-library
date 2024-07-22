@@ -81,3 +81,6 @@ application.register("remote-form", RemoteFormController)
 
 import ImageZoomerController from "./image_zoomer_controller.js"
 application.register("image-zoomer", ImageZoomerController)
+
+import SplineViewerController  from "./spline_viewer_controller";
+application.register("spline-viewer", SplineViewerController);

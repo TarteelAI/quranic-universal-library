@@ -1,5 +1,5 @@
 class LandingController < ApplicationController
-  layout 'landing'
+  layout 'devise'
 
   def home
 

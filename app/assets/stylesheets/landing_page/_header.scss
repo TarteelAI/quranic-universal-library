@@ -1,0 +1,25 @@
+.header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 15px 5px 15px;
+  max-width: 100vw;
+  overflow: hidden;
+  margin-bottom: 30px;
+  z-index: 200;
+  position: sticky;
+  top: 0;
+  background: #fff;
+
+  .github-link {
+    display: flex;
+    gap: 5px;
+  }
+
+  .links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+}

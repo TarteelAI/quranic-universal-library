@@ -1,0 +1,125 @@
+.hero {
+  background-color: #000;
+  margin: 0px 15px 0px 15px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ebebeb;
+
+  .qul-tag {
+    color: $gray-200;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 16px;
+    margin-top: 31px;
+    line-height: 15px;
+  }
+
+  .hero-message {
+    // display: flex;
+    // gap: 94px;
+    width: 560px;
+    margin: 25px 0px 25px 0px;
+  }
+
+  .tagline{
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    font-family: "Sarina", cursive;
+    font-size: 70px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 64px;
+    letter-spacing: -0.163px;
+  }
+
+  .sub-tagline{
+    font-family: "Open Sauce Sans";
+    font-size: 70px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 64px;
+    letter-spacing: -0.163px;
+  }
+
+  .powered-by{
+    .text{
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .tartee-logo{
+
+    }
+  }
+
+  @media (max-width: 768px) {
+    .tagline-container{
+      text-align: center;
+    }
+    .tagline,
+    .sub-tagline {
+      font-size: 40px;
+    }
+  }
+}
+
+.overview{
+  margin: 40px 30px 40px 30px;
+  font-family: Inter;
+
+  .title{
+    color: #0c1210;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: Inter;
+  }
+
+  .detail{
+    color: #1c1919;
+    font-family: "Open Sauce Sans";
+    font-size: 40px;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: -0.24px;
+  }
+
+  .left{
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 24px;
+    line-height: normal;
+
+    small{
+      font-style: italic;
+    }
+  }
+
+  .right{
+    font-size: 20px;
+    line-height: normal;
+    opacity: .5;
+  }
+
+  strong{
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .detail{
+      font-size: 20px;
+    }
+
+      .left{
+        font-size: 16px;
+
+        a{
+          margin-bottom: 20px;
+          width: 100%;
+        }
+      }
+
+      strong{
+        font-size: 19px !important;
+      }
+  }
+}

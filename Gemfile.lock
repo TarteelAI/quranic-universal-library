@@ -110,7 +110,7 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     babosa (2.0.0)
     backport (1.2.0)
-    bcrypt (3.1.18)
+    bcrypt (3.1.20)
     benchmark (0.2.0)
     benchmark-ips (2.13.0)
     bindex (0.8.1)
@@ -133,7 +133,7 @@ GEM
     cssbundling-rails (1.1.1)
       railties (>= 6.0.0)
     dalli (3.2.8)
-    devise (4.8.1)
+    devise (4.9.4)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 4.1.0)
@@ -558,7 +558,7 @@ DEPENDENCIES
   cld3 (~> 3.6)
   cssbundling-rails (>= 0.2.7)
   dalli
-  devise (= 4.8.1)
+  devise (= 4.9.4)
   diff-lcs (~> 1.5)
   diffy
   engtagger

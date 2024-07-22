@@ -7,5 +7,5 @@ import "@rails/actiontext"
 import "./controllers"
 
 document.addEventListener("turbo:load", () =>{
-  $(".has-tooltip").tooltip()
+  //$(".has-tooltip").tooltip()
 })

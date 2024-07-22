@@ -1,0 +1,28 @@
+.device-container {
+  height: 100vh;
+  display: flex;
+  align-content: flex-start;
+  overflow-x: hidden;
+  //align-items: center;
+  //justify-content: center;
+
+  .left {
+    position: relative;
+    background-color: #000;
+    border-radius: 30px;
+    height: 85vh;
+    z-index: 1;
+    .qul-tag-wrapper{
+      left: 30%;
+      top: 40%;
+    }
+  }
+
+  .right{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    z-index: 100;
+  }
+}
+

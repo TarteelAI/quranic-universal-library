@@ -76,7 +76,7 @@ export default class extends Controller {
     if (!this.form.hasClass("was-validated"))
       this.form.addClass("was-validated");
 
-    if (event.currentTarget.checkValidity() === false) {
+    if (this.form[0].checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
       event.currentTarget.reportValidity();

@@ -11,7 +11,6 @@ export default class extends Controller {
 
     if (selectedText !== '') {
       var popoverContent = "Hello";
-      debugger
       $(s).popover({
         title: 'Selected Text',
         content: popoverContent,
@@ -25,7 +24,6 @@ export default class extends Controller {
 
   getSelectedNode() {
     var text = '';
-    debugger
     if (window.getSelection) {
       text = window.getSelection().toString();
     } else if (document.selection && document.selection.type !== 'Control') {

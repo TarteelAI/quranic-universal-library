@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_15_122022) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_22_075315) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -375,6 +375,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_15_122022) do
     t.text "synonyms"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.jsonb "approved_synonyms", default: []
   end
 
   create_table "user_projects", force: :cascade do |t|
@@ -411,6 +412,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_15_122022) do
     t.datetime "updated_at", precision: nil, null: false
     t.string "projects"
     t.text "about_me"
+    t.boolean "add_to_mailing_list", default: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

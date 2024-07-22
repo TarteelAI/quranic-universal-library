@@ -1,4 +1,39 @@
-<%= bootstrap_devise_error_messages! %>
+<%= render 'shared/flash_notices' %>
+
+<div class="row device-container px-3">
+  <%= render 'devise/shared/spline_animation' %>
+
+  <div class="col-md-6 col-12 right">
+    <div class="p-3">
+      <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link text-dark" data-bs-toggle="tab" href="#tab-login" role="tab" aria-selected="false">Login</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link text-dark active" data-bs-toggle="tab" href="#tab-signup" role="tab" aria-selected="true">Signup</a>
+        </li>
+      </ul>
+
+      <div class="tab-content p-3" data-turbo="false">
+        <div class="tab-pane fade"
+             id="tab-login"
+             role="tabpanel"
+             aria-labelledby="tab-login">
+          <%= render 'devise/sessions/form' %>
+        </div>
+
+        <div class="tab-pane active show"
+             id="tab-signup" role="tabpanel"
+             aria-labelledby="tab-signup">
+          <%= render 'form' %>
+        </div>
+      </div>
+
+      <%= render 'devise/shared/links' %>
+    </div>
+  </div>
+</div>
 
 <div class="card panel-default devise-bs my-3">
   <div class="card-header">
@@ -6,36 +41,5 @@
   </div>
 
   <div class="card-body" data-turbo="false">
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { role: 'form' }) do |f| %>
-      <div class="form-group mb-2">
-        <%= f.label :first_name %>
-        <%= f.text_field :first_name, autofocus: true, required: true, class: 'form-control' %>
-      </div>
-      <div class="form-group mb-2">
-        <%= f.label :last_name %>
-        <%= f.text_field :last_name, required: true, class: 'form-control' %>
-      </div>
-      <div class="form-group mb-2">
-        <%= f.label :email %>
-        <%= f.email_field :email, required: true, class: 'form-control' %>
-      </div>
-      <div class="form-group mb-2">
-        <%= f.label :about_me, "Tell us more about yourself" %>
-        <%= f.text_area :about_me, required: true, class: 'form-control' %>
-        <p class="help-block">
-          Please list down your skills, languages you're fluent in, how much time you can contribute each week etc.
-        </p>
-      </div>
-      <div class="form-group mb-2">
-        <%= f.label :password %>
-        <%= f.password_field :password, required: true, class: 'form-control' %>
-      </div>
-      <div class="form-group mb-2">
-        <%= f.label :password_confirmation %>
-        <%= f.password_field :password_confirmation, required: true, class: 'form-control' %>
-      </div>
-      <%= f.submit t('.sign_up', default: 'Sign up'), class: 'btn btn-primary mt-3' %>
-    <% end %>
   </div>
 </div>
-<%= render 'devise/shared/links' %>

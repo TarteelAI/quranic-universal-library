@@ -1,0 +1,44 @@
+.btn-link{
+  text-decoration: none;
+
+  &:hover{
+    text-decoration: underline;
+  }
+}
+
+.btn-dark-hover{
+  &:hover{
+    background-color: #fff;
+    color: #1c1919;
+    border: 1px solid #1c1919;
+
+  }
+}
+.flex-center{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mb-8 {
+  margin-bottom: 5rem !important;
+}
+
+.px-8{
+  padding-left: 5rem !important;
+  padding-right: 5rem !important;
+}
+
+@media (max-width: 768px) {
+  .p-md-0 {
+    padding: 0 !important;
+  }
+  .py-md-3 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .devise-links{
+    font-size: small;
+  }
+}

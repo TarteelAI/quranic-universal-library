@@ -25,20 +25,25 @@ export default class extends Controller {
   }
 
   adjustCanvasSize() {
+    const canvas = document.querySelector("spline-viewer").shadowRoot.querySelector("canvas");
+
     const {scale, scaleDesktop, scaleLargeDesktop, marginLeft} = this.element.dataset;
-    if(scale && scale == '1') {
+    if(scale && scale == '1' || !canvas) {
       return
     }
-    const canvas = document.querySelector("spline-viewer").shadowRoot.querySelector("canvas");
     const d = this.device;
+    let scaleMobile = 1.5;
 
     if (d.isDesktop()) {
       // Desktop
-      canvas.style.transform = `scale(${scale||scaleDesktop||2.5})`;
+      let desktopScale = parseFloat(scaleDesktop || scale || 2.5);
+      canvas.style.transform = `scale(${desktopScale})`;
       canvas.style.marginLeft = `${marginLeft||'-40px'}`;
     } else if (d.isLargeDesktop()) {
       // Large Desktop
-      canvas.style.transform = `scale(${scale||scaleLargeDesktop||3})`;
+      let largeScreeenScale = parseFloat(scaleLargeDesktop || scale || 2.5);
+
+      canvas.style.transform = `scale(${largeScreeenScale})`;
       canvas.style.marginLeft = `-60px`;
     }
   }

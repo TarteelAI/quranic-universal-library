@@ -5,7 +5,3 @@ import * as bootstrap from "bootstrap"
 import "trix"
 import "@rails/actiontext"
 import "./controllers"
-
-document.addEventListener("turbo:load", () =>{
-  //$(".has-tooltip").tooltip()
-})

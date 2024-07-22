@@ -56,7 +56,7 @@ gem "typhoeus", require:  false
 # gem 'grover'
 
 # authentication
-gem 'devise', '4.8.1'
+gem 'devise', '4.9.4'
 
 gem 'cancancan'
 

@@ -1,0 +1,22 @@
+<h2 class="mb-3">
+  Resend confirmation instructions
+</h2>
+
+<p>
+  Enter your <strong>email address</strong> below, and we'll send you a link to confirm your account.
+</p>
+
+<%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
+  <div class="form-floating mb-3">
+    <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
+    <%= f.label :email, required: true %>
+
+    <div class="invalid-feedback">
+      Please enter a valid email
+    </div>
+  </div>
+
+  <div class="text-center">
+    <%= f.submit 'Resend confirmation instructions', class: 'btn btn-dark btn-rounded mt-2 px-8' %>
+  </div>
+<% end %>

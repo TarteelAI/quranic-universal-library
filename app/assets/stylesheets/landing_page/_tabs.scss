@@ -1,0 +1,27 @@
+$nav-tabs-clean-link-height: 45px !default;
+
+.nav-tabs-clean {
+  height: $nav-tabs-clean-link-height;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+  .nav-item {
+    .nav-link {
+      border-radius: 0;
+      border: 0;
+      height: $nav-tabs-clean-link-height;
+
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid transparent;
+
+      &.active {
+        border-bottom: 1px solid $dark;
+        color: $dark;
+      }
+
+      &:hover {
+        color: $dark;
+      }
+    }
+  }
+}

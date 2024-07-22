@@ -1,12 +1,14 @@
 import {Controller} from "@hotwired/stimulus";
 
-import {Collapse} from "bootstrap";
+import {Tab} from "bootstrap";
 
 export default class extends Controller {
   connect() {
-    new Collapse(this.element, {toggle: true})
+    this.tip = new Tooltip(this.element, {html: true})
   }
 
   disconnect() {
+    this.tip.hide()
+    this.tip.dispose()
   }
 }

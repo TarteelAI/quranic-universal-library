@@ -34,7 +34,6 @@ export default class extends Controller {
 
     flashError && toastr.error(flashError);
     flashNotice && toastr.success(flashNotice);
-
     setTimeout(() => {
       this.element.remove();
     }, 1000);

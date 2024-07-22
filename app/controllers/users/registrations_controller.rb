@@ -12,12 +12,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
     devise_parameter_sanitizer.permit(
       :sign_up, keys: %i[
       password
-      password_confirmation
-      remember_me
+      add_to_mailing_list
       email
       first_name
       last_name
-      email
-      about_me])
+      email])
   end
 end

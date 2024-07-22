@@ -2,11 +2,12 @@
 #
 # Table name: synonyms
 #
-#  id         :bigint           not null, primary key
-#  synonyms   :text
-#  text       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                :bigint           not null, primary key
+#  approved_synonyms :jsonb
+#  synonyms          :text
+#  text              :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
 #
 
 class Synonym < ApplicationRecord

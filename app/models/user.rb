@@ -4,6 +4,7 @@
 #
 #  id                     :bigint           not null, primary key
 #  about_me               :text
+#  add_to_mailing_list    :boolean          default(FALSE)
 #  approved               :boolean          default(FALSE)
 #  confirmation_sent_at   :datetime
 #  confirmation_token     :string

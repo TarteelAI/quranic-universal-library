@@ -1,21 +1,23 @@
-<div class="card devise-bs my-3">
-  <%= render 'shared/form_errors', object: resource %>
+<%= render 'shared/flash_notices' %>
 
-  <div class="card-header">
-    <h4><%= t('.resend_confirmation_instructions', default: 'Resend confirmation instructions') %></h4>
-  </div>
-
-  <div class="card-body" data-turbo="false">
-    <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, role: 'form' }) do |f| %>
-      <div class="form-group">
-        <%= f.label :email %>
-        <%= f.email_field :email, autofocus: true, class: "form-control", required: true  %>
-      </div>
-
-      <div class="form-group">
-        <%= f.submit t('.resend_confirmation_instructions', default: 'Resend confirmation instructions'), class: 'btn btn-primary mt-2' %>
-      </div>
-  <% end %>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <%= render 'shared/form_errors', object: resource %>
+    </div>
   </div>
 </div>
-<%= render 'devise/shared/links' %>
+
+<div class="row device-container px-3">
+  <%= render 'devise/shared/spline_animation' %>
+
+  <div class="col-md-6 col-12 right">
+    <div class="tab-content p-3" data-turbo="false">
+      <%= render 'form' %>
+    </div>
+
+    <div class="p-3">
+      <%= render 'devise/shared/links' %>
+    </div>
+  </div>
+</div>

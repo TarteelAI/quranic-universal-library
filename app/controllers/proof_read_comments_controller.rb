@@ -1,5 +1,4 @@
-class ProofReadCommentsController < ApplicationController
-  before_action :authenticate_user!
+class ProofReadCommentsController < CommunityController
   before_action :load_resource
 
   def create

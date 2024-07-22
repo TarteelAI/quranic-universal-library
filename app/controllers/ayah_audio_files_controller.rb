@@ -1,4 +1,4 @@
-class AyahAudioFilesController < ApplicationController
+class AyahAudioFilesController < CommunityController
   before_action :load_recitation
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
   before_action :check_permission, only: %i[save_segments]

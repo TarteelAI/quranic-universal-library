@@ -1,4 +1,4 @@
-class SurahAudioFilesController < ApplicationController
+class SurahAudioFilesController < CommunityController
   before_action :load_recitation, except: :builder_help
   def builder_help
     render layout: false

@@ -1,4 +1,4 @@
-class WordConcordanceLabelsController < ApplicationController
+class WordConcordanceLabelsController < CommunityController
   def index
     verses = Verse
 

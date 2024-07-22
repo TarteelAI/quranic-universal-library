@@ -15,7 +15,7 @@
   class="ayah d-flex quran-text flex-column border p-3 mb-2 border-2 <%= 'border-success' if persisted %>">
   <div class="actions">
     <% if persisted %>
-      <%= link_to "/admin/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', class: 'has-tooltip' do %>
+      <%= link_to "/admin/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: {controller: 'tooltip'} do %>
       <span class="badge bg-success">
         <i class="fas fa-check"></i>
       </span>
@@ -31,18 +31,19 @@
       <%= ranges %>
     </span>
 
-    <a class="btn btn-sm btn-success has-tooltip" data-action="savePhrase" title="Save phrase">
+    <a class="btn btn-sm btn-success" data-action="savePhrase" title="Save phrase" data-controller="tooltip">
       <i class="fas fa-save"></i>
     </a>
 
- <a class="btn btn-sm btn-info has-tooltip" data-action="resetSelection" title="Reset selection">
+     <a class="btn btn-sm btn-info" data-action="resetSelection" title="Reset selection" data-controller="tooltip">
       <i class="fas fa-refresh"></i>
     </a>
 
-    <a class="btn btn-sm btn-danger has-tooltip" data-action="removePhrase" title="Remove phrase">
+    <a class="btn btn-sm btn-danger has-tooltip" data-action="removePhrase" title="Remove phrase" data-controller="tooltip">
       <i class="fas fa-trash"></i>
     </a>
-    <a class="btn btn-sm btn-outline-success has-tooltip" data-action="bookmark" title="Bookmark">
+
+    <a class="btn btn-sm btn-outline-success" data-action="bookmark" title="Bookmark" data-controller="tooltip">
       <i class="fas fa-bookmark"></i>
     </a>
   </div>
@@ -59,9 +60,10 @@
       <div class="d-flex flex-column m-3 align-items-center word <%= 'selected' if selected %>"
            data-position="<%= w.position %>"
       >
-        <i class="fa-solid fa-xmark p-1 rounded has-tooltip <%= 'active' if skipped %>"
+        <i class="fa-solid fa-xmark p-1 rounded <%= 'active' if skipped %>"
            data-action="remove"
            title="Exclude from phrase"
+           data-controller="tooltip"
         ></i>
         <span class="my-2 quran-text qpc-hafs <%= 'text-success' if selected %> <%= 'text-danger' if skipped%>">
           <%= w.text_qpc_hafs %>
@@ -71,8 +73,8 @@
         </span>
         <i data-action="add"
            title="Include in phrase"
-           class="fa-solid fa-plus p-1 rounded has-tooltip <%= 'active' if selected %>">
-
+           data-controller="tooltip"
+           class="fa-solid fa-plus p-1 rounded <%= 'active' if selected %>">
         </i>
       </div>
     <% end %>

@@ -69,8 +69,8 @@
           <label>
             <input type="checkbox" checked id="propagate-changes"> Propagate changes
           </label>
-          <button class="btn btn-danger mx-4 has-tooltip" id="decrement" title="Decrement line number by 1 for all words">-1</button>
-          <button class="btn btn-primary has-tooltip" id=increment title="Increment line number by 1 for all words">+1</button>
+          <button class="btn btn-danger mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
+          <button class="btn btn-primary" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
         </div>
 
         <%= form_with model: @mushaf, url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number) do |form| %>
@@ -94,8 +94,9 @@
                       title="Select page"
                       type="number"
                       min=0
+                      data-controller="tooltip"
                       max="<%= @lines_per_page %>"
-                      class="line-number-input has-tooltip"
+                      class="line-number-input"
                       data-verse="<%= verse.id %>"
                       data-key="<%= verse.verse_key %>"
                       data-position="<%= word_index += 1 %>"

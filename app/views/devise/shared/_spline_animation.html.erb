@@ -1,9 +1,14 @@
-<div class="col-md-6 col-12 left" data-controller="spline-viewer" data-scale="1.5" data-margin-left="-70px">
+<div id="spline"
+     class="col-md-6 col-12 left flex-center position-relative"
+     data-controller="spline-viewer"
+     data-desktop-scale="1.2"
+     data-mobile-scale="0.8"
+     data-data-margin-left="-70px">
   <script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
   <spline-viewer background="transparent" loading-anim-type="spinner-small-light"
                  url="https://prod.spline.design/hSyPwhy9Au9D17VK/scene.splinecode"></spline-viewer>
 
-  <div class="position-absolute d-flex justify-content-between qul-tag-wrapper">
+  <div class="position-absolute d-flex justify-content-between">
     <div>
       <svg width="32" height="32" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path fill-rule="evenodd" clip-rule="evenodd"

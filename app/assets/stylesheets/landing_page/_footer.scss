@@ -25,4 +25,10 @@ footer {
     width: 2px;
     background-color: grey;
   }
+
+  @media (max-width: 768px) {
+    .left{
+      margin-bottom: 20px;
+    }
+  }
 }

@@ -15,12 +15,13 @@
 #  resource_content_id :integer
 #
 class DownloadableResource < ApplicationRecord
+  belongs_to :language, optional: true
   belongs_to :resource_content, optional: true
-  has_many_attached :files
+  has_many :downloadable_files, dependent: :destroy
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran].freeze
+  RESOURCE_TYPES = %w[quran-script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran].freeze
 
   def get_tags
     tags.to_s.split(',').compact_blank
@@ -41,7 +42,7 @@ class DownloadableResource < ApplicationRecord
 
   def group_heading
     case resource_type
-    when 'script'
+    when 'quran-script'
       'Quran Script'
     when 'audio'
       'Audio'
@@ -72,7 +73,7 @@ class DownloadableResource < ApplicationRecord
 
   def icon
     case resource_type
-    when 'script'
+    when 'quran-script'
       'fa-book-open'
     when 'audio'
       'fa-headphones-alt'
@@ -105,7 +106,7 @@ class DownloadableResource < ApplicationRecord
 
   def group_name
     case resource_type
-    when 'script'
+    when 'quran-script'
       'Quran Script'
     when 'audio'
       'Audio'
@@ -149,7 +150,7 @@ class DownloadableResource < ApplicationRecord
     when 'similar-ayah'
       'Similar Ayah data'
     when 'surah-info'
-      'Surah Info in various languages.'
+      '<h2>Surah Information Pack</h2> <p>This comprehensive resource includes detailed descriptions of each surah, including when they were revealed, their core themes, and key topics. It provides invaluable insights into the context and significance of the surahs, helping you to gain a deeper appreciation of the Quranic text.</p>'
     when 'mushaf-layout'
       'Mushaf Layout data'
     when 'ayah-theme'
@@ -162,6 +163,6 @@ class DownloadableResource < ApplicationRecord
       'Morphology'
     when 'quran'
       'Quran data, surahs, ayahs, words, juz etc.'
-    end
+    end.html_safe
   end
 end

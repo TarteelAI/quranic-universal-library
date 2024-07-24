@@ -2,7 +2,22 @@
 
 ActiveAdmin.register DownloadableResource do
   menu parent: 'Settings', priority: 1
-  include ActiveStorage::SetCurrent
+  filter :name
+
+  filter :language, as: :searchable_select,
+         ajax: { resource: Language }
+
+  filter :resource_content, as: :searchable_select,
+         ajax: { resource: ResourceContent }
+  filter :published
+  filter :updated_at
+
+
+  filter :resource_type, as: :select, collection: DownloadableResource::RESOURCE_TYPES
+
+  controller do
+    include ActiveStorage::SetCurrent
+  end
 
   form do |f|
     f.inputs 'Downloadable resource detail' do
@@ -47,15 +62,19 @@ ActiveAdmin.register DownloadableResource do
       thead do
         th 'Id'
         th 'Name'
+        th 'Type'
+        th 'Download count'
         th 'Preview'
       end
 
       tbody do
-        resource.files.each do |file|
+        resource.downloadable_files.with_attached_file.each do |file|
           tr do
             td file.id
-            td file.blob.filename
-            td link_to 'View', file.url, target: '_blank'
+            td file.name
+            td file.file_type
+            td file.download_count
+            td link_to 'View', file.file.url, target: '_blank'
           end
         end
       end

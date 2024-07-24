@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_22_075315) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_23_133931) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -119,6 +119,19 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_22_075315) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.string "tag"
+  end
+
+  create_table "downloadable_files", force: :cascade do |t|
+    t.bigint "downloadable_resource_id", null: false
+    t.string "name"
+    t.integer "position", default: 1
+    t.integer "download_count", default: 0
+    t.string "file_type"
+    t.string "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["downloadable_resource_id"], name: "index_downloadable_files_on_downloadable_resource_id"
+    t.index ["token"], name: "index_downloadable_files_on_token"
   end
 
   create_table "downloadable_resources", force: :cascade do |t|
@@ -378,6 +391,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_22_075315) do
     t.jsonb "approved_synonyms", default: []
   end
 
+  create_table "user_downloads", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "downloadable_file_id", null: false
+    t.datetime "last_download_at"
+    t.integer "download_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["downloadable_file_id"], name: "index_user_downloads_on_downloadable_file_id"
+    t.index ["user_id"], name: "index_user_downloads_on_user_id"
+  end
+
   create_table "user_projects", force: :cascade do |t|
     t.integer "user_id"
     t.integer "resource_content_id"
@@ -475,4 +499,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_22_075315) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "downloadable_files", "downloadable_resources"
+  add_foreign_key "user_downloads", "downloadable_files"
+  add_foreign_key "user_downloads", "users"
 end

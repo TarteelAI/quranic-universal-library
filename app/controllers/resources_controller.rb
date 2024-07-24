@@ -1,4 +1,4 @@
-class DownloadsController < ApplicationController
+class ResourcesController < ApplicationController
   include ActiveStorage::SetCurrent
 
   def index

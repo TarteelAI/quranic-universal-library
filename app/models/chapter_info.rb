@@ -25,4 +25,8 @@ class ChapterInfo < QuranApiRecord
 
   belongs_to :chapter
   belongs_to :language
+
+  def surah_name
+    chapter.name_simple
+  end
 end

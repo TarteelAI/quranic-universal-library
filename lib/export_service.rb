@@ -25,6 +25,7 @@ class ExportService
     end
   end
 
+  #TODO: save this to resource content
   TRANSLATION_NAME_MAPPIMG = {
     920 => 'en-daryabadi',
     131 => 'en-khattab',

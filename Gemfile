@@ -59,7 +59,7 @@ gem "typhoeus", require:  false
 gem 'devise', '4.9.4'
 
 gem 'cancancan'
-
+gem 'csv', require: false
 
 # metadata for audio file
 gem 'streamio-ffmpeg', '~> 3.0', require:  false

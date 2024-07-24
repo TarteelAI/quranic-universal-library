@@ -4,28 +4,15 @@ import ScreenSize from "../utils/screen-size";
 export default class extends Controller {
   connect() {
     this.device = new ScreenSize();
-    this.updateViewer();
+   // this.adjustCanvasSize();
 
     window.addEventListener('resize', () => {
-      setTimeout(() => this.updateViewer(), 100);
+     // setTimeout(() => this.adjustCanvasSize(), 100);
     });
-  }
-
-  updateViewer() {
-   /* this.element.querySelectorAll("spline-viewer").forEach((oldViewer) => {
-      const newViewer = document.createElement("spline-viewer");
-      newViewer.setAttribute("background", "transparent");
-      newViewer.setAttribute("loading-anim-type", "spinner-small-light");
-      newViewer.setAttribute("url", "https://prod.spline.design/hSyPwhy9Au9D17VK/scene.splinecode");
-
-      oldViewer.replaceWith(newViewer);
-    });
-*/
-    setTimeout(()=>{this.adjustCanvasSize()}, 100);
   }
 
   adjustCanvasSize() {
-    const canvas = document.querySelector("spline-viewer").shadowRoot.querySelector("canvas");
+    const canvas = this.element.querySelector("canvas");
 
     const {scale, desktopScale, scaleLargeDesktop, mobileScale, marginLeft} = this.element.dataset;
     if(scale && scale === '1' || !canvas) {

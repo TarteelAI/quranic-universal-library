@@ -2,7 +2,7 @@ $nav-tabs-clean-link-height: 45px !default;
 
 .nav-tabs-clean {
   height: $nav-tabs-clean-link-height;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: none;
 
   .nav-item {
     .nav-link {

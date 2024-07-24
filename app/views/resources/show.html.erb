@@ -18,45 +18,47 @@
     <% if @resources.present? %>
       <div class="row">
         <div class="col-md-12 welcome-message">
-          <p>
-            <%= @resources.first.group_heading %>
-          </p>
+          <%= @resources.first.group_info %>
         </div>
-      </div>
 
-      <div class="row row-cols-1 row-cols-md-3 g-4">
-        <% @resources.each do |resource| %>
-          <div class="col">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"><%= resource.name %></h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  <%= resource.humanize_cardinality_type %>
-                </h6>
-                <p class="card-text">
-                  <%= resource.info.to_s.html_safe %>
-                </p>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          <% @resources.each do |resource| %>
+            <div class="col">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <%= resource.name %>
+                  </h5>
 
-                <% if resource.tags.present? %>
+                  <h6 class="card-subtitle mb-2 text-muted">
+                    <%= resource.humanize_cardinality_type %>
+                  </h6>
+
                   <p class="card-text">
-                    <% resource.get_tags.each do |tag| %>
+                    <%= resource.info.to_s.html_safe %>
+                  </p>
+
+                  <% if resource.tags.present? %>
+                    <p class="card-text">
+                      <% resource.get_tags.each do |tag| %>
                       <span class="badge <%= resource_tag_class(tag.strip) %>">
                         <%= tag %>
                       </span>
-                    <% end %>
-                  </p>
-                <% end %>
+                      <% end %>
+                    </p>
+                  <% end %>
 
-                <% resource.files.each do |file| %>
-                  <a href="<%= file.url %>" class="card-link" download="">
-                    <i class="fas fa-download"></i>
-                    <%= file.blob.content_type.split('/').last %>
-                  </a>
-                <% end %>
+                  <% resource.downloadable_files.each do |file| %>
+                    <a href="<%= file.file.url %>" class="card-link" download="">
+                      <i class="fas fa-download"></i>
+                      <%= file.file_type %>
+                    </a>
+                  <% end %>
+                </div>
               </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
     <% else %>
       <div class="row">
@@ -67,6 +69,5 @@
         </div>
       </div>
     <% end %>
-
   </div>
 </div>

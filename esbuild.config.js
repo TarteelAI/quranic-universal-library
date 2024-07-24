@@ -45,6 +45,8 @@ const generateMeta = process.argv.includes("--meta");
 if (watch || isDev) minify = false;
 if (watch || isDev) sourcemap = true;
 
+minify = false;
+
 const config = {
   absWorkingDir: path.join(process.cwd(), "app/javascript"),
   bundle: true,

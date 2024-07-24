@@ -27,7 +27,7 @@ Rails.application.routes.draw do
   end
 
   resources :morphology_phrases
-  resources :downloads
+  resources :resources
 
   resources :ayah_audio_files do
     member do

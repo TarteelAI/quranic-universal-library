@@ -1,11 +1,9 @@
 footer {
-  position: static;
-  width: 100vw;
-  bottom: 0;
-  padding: 5px 15px 5px 15px;
+  //padding: 5px 15px 5px 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 60px;
 
   .left{
     display: flex;
@@ -21,8 +19,14 @@ footer {
   }
 
   .spacer{
-    height: 50px;
-    width: 2px;
+    height: 30px;
+    width: 1px;
     background-color: grey;
+  }
+
+  @media (max-width: 768px) {
+    .left{
+      margin-bottom: 20px;
+    }
   }
 }

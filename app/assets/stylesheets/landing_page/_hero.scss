@@ -7,11 +7,10 @@
   justify-content: center;
   color: #ebebeb;
 
-  @media (max-width: $screen-sm) {
+  @media (max-width: 640px) {
     background-image: url("landingbackground.png");
     background-position: center;
     background-repeat: no-repeat;
-    background-clip: content-box;
     background-size: cover;
   }
 

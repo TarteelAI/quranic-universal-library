@@ -96,9 +96,6 @@ module Exporter
           base_path: base_path
         )
 
-        json = exporter.export_json
-        sqlite = exporter.export_sqlite
-
         downloadable_resource = DownloadableResource.where(
           resource_content: resource_content,
           resource_type: 'translation',
@@ -106,20 +103,25 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= resource_content.name
-        downloadable_resource.language = resource_content.language
+        downloadable_resource.language_id = resource_content.language_id
         #downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
         tags = [resource_content.language_name.humanize]
 
-        if resource_content.has_footnotes?
+        if resource_content.has_footnote?
           tags << 'With Footnotes'
         end
 
         downloadable_resource.tags =  tags.join(', ')
         downloadable_resource.save(validate: false)
 
+        json = exporter.export_json
         create_download_file(downloadable_resource, json, 'json')
-        create_download_file(downloadable_resource, sqlite, 'sqlite')
+
+        if resource_content.has_footnote?
+          json_with_footnotes = exporter.export_json_with_footnotes_tags
+          create_download_file(downloadable_resource, json_with_footnotes, 'footnote.json')
+        end
       end
     end
 

@@ -43,3 +43,12 @@ amazon_s3:
    upload:
      cache_control: "public, max-age=<%= 1.year.to_i %>"
 
+public_resource_exports:
+  service: S3
+  access_key_id: <%= ENV.fetch('AWS_ACCESS_KEY'){'missing'} %>
+  secret_access_key: <%= ENV.fetch('AWS_ACCESS_KEY_SECRET'){'missing'} %>
+  region: "us-east-2"
+  bucket: <%= ENV.fetch('AWS_BUCKET'){'missing'} %>
+  public: true
+  upload:
+    cache_control: "public, max-age=<%= 1.year.to_i %>"

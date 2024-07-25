@@ -7,7 +7,7 @@
   justify-content: center;
   color: #ebebeb;
 
-  @media (max-width: 640px) {
+  @media (max-width: $screen-sm) {
     background-image: url("landingbackground.png");
     background-position: center;
     background-repeat: no-repeat;
@@ -54,7 +54,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: $screen-md) {
     .tagline,
     .sub-tagline {
       font-size: 30px;
@@ -103,7 +103,7 @@
     font-weight: 600;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: $screen-md) {
     .detail {
       font-size: 20px;
     }

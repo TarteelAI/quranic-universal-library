@@ -5,10 +5,11 @@
     <div class="py-3 px-4">
       <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
         <li class="nav-item">
-          <a class="nav-link text-dark active" data-bs-toggle="tab" href="#tab-login" role="tab" aria-selected="true">Login</a>
+          <a class="nav-link text-dark active" href="<%= new_user_session_path %>">Login</a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link text-dark" data-bs-toggle="tab" href="#tab-signup" role="tab" aria-selected="false">Signup</a>
+          <a class="nav-link text-dark"  href="<%= new_user_registration_path %>">Signup</a>
         </li>
       </ul>
 
@@ -18,12 +19,6 @@
              role="tabpanel"
              aria-labelledby="tab-login">
           <%= render 'form' %>
-        </div>
-
-        <div class="tab-pane fade"
-             id="tab-signup" role="tabpanel"
-             aria-labelledby="tab-signup">
-          <%= render 'devise/registrations/form' %>
         </div>
       </div>
 

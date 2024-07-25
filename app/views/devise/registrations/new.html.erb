@@ -7,22 +7,15 @@
     <div class="py-3 px-4">
       <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
         <li class="nav-item">
-          <a class="nav-link text-dark" data-bs-toggle="tab" href="#tab-login" role="tab" aria-selected="false">Login</a>
+          <a class="nav-link text-dark" href="<%= new_user_session_path %>">Login</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link text-dark active" data-bs-toggle="tab" href="#tab-signup" role="tab" aria-selected="true">Signup</a>
+          <a class="nav-link text-dark active"  href="<%= new_user_registration_path %>" role="tab">Signup</a>
         </li>
       </ul>
 
       <div class="tab-content py-3" data-turbo="false">
-        <div class="tab-pane fade"
-             id="tab-login"
-             role="tabpanel"
-             aria-labelledby="tab-login">
-          <%= render 'devise/sessions/form' %>
-        </div>
-
         <div class="tab-pane active show"
              id="tab-signup" role="tabpanel"
              aria-labelledby="tab-signup">
@@ -32,14 +25,5 @@
 
       <%= render 'devise/shared/links' %>
     </div>
-  </div>
-</div>
-
-<div class="card panel-default devise-bs my-3">
-  <div class="card-header">
-    <h4><%= t('.sign_up', default: 'Sign up') %></h4>
-  </div>
-
-  <div class="card-body" data-turbo="false">
   </div>
 </div>

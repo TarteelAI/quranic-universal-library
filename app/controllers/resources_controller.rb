@@ -1,4 +1,4 @@
-class ResourcesController < ApplicationController
+class ResourcesController < CommunityController
   include ActiveStorage::SetCurrent
 
   def index

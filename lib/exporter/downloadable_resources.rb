@@ -1,17 +1,22 @@
+# Usage
+# s = Exporter::DownloadableResources.new
+# s.export_all # This will export all the resources
+# s.export_surah_info # export specific content
+
 module Exporter
   class DownloadableResources
     def export_all
       FileUtils.rmdir("tmp/export")
       DownloadableResource.find_each &:destroy
 
-      # export_surah_info # done
+      export_surah_info # done
       export_surah_recitation
       export_ayah_recitation
       export_wbw_quran_script
       export_ayah_quran_script
       export_wbw_recitation
-      # export_tafsirs # done
-      export_ayah_translations
+      export_tafsirs # done
+      export_ayah_translations # done
       export_ayah_transliteration
       export_word_translations
       export_word_transliteration
@@ -63,16 +68,16 @@ module Exporter
         sqlite = exporter.export_sqlite
 
         downloadable_resource = DownloadableResource.where(
-          resource_content: resource_content,
+          resource_content: content,
           resource_type: 'tafsir',
           cardinality_type: ResourceContent::CardinalityType::NVerse
         ).first_or_initialize
 
-        downloadable_resource.name ||= resource_content.name
-        downloadable_resource.language = resource_content.language
+        downloadable_resource.name ||= content.name
+        downloadable_resource.language = content.language
         #downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
-        downloadable_resource.tags =  resource_content.language_name.humanize
+        downloadable_resource.tags =  content.language_name.humanize
         downloadable_resource.save(validate: false)
 
         create_download_file(downloadable_resource, json, 'json')
@@ -102,13 +107,13 @@ module Exporter
           cardinality_type: ResourceContent::CardinalityType::OneVerse
         ).first_or_initialize
 
-        downloadable_resource.name ||= resource_content.name
-        downloadable_resource.language_id = resource_content.language_id
+        downloadable_resource.name ||= content.name
+        downloadable_resource.language_id = content.language_id
         #downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
-        tags = [resource_content.language_name.humanize]
+        tags = [content.language_name.humanize]
 
-        if resource_content.has_footnote?
+        if content.has_footnote?
           tags << 'With Footnotes'
         end
 
@@ -118,7 +123,7 @@ module Exporter
         json = exporter.export_json
         create_download_file(downloadable_resource, json, 'json')
 
-        if resource_content.has_footnote?
+        if content.has_footnote?
           json_with_footnotes = exporter.export_json_with_footnotes_tags
           create_download_file(downloadable_resource, json_with_footnotes, 'footnote.json')
         end
@@ -174,7 +179,7 @@ module Exporter
       end
 
       list.each do |resource_content|
-        exporter = Exporter::SurahInfo.new(
+        exporter = Exporter::ExportSurahInfo.new(
           language: resource_content.language,
           base_path: base_path
         )

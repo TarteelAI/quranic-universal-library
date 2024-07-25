@@ -56,6 +56,7 @@ class ResourceContent < QuranApiRecord
   scope :one_chapter, -> { where cardinality_type: CardinalityType::OneChapter }
   scope :one_word, -> { where cardinality_type: CardinalityType::OneWord }
   scope :quran_topics, -> { where sub_type: SubType::Topic }
+  scope :ayah_theme, -> { where sub_type: SubType::Theme }
   scope :recitations, -> { where sub_type: SubType::Audio }
   scope :general, -> { where sub_type: SubType::Data }
   scope :quran_script, -> { where sub_type: SubType::QuranText }
@@ -133,6 +134,7 @@ class ResourceContent < QuranApiRecord
     Data = 'data'
     QuranText = 'quran_text'
     Topic = 'topic'
+    Theme = 'theme'
   end
 
   def allow_publish_sharing?

@@ -1,5 +1,5 @@
 module Exporter
-  class ExportTopics < BaseExporter
+  class ExportAyahTheme < BaseExporter
     attr_accessor :resource_content
 
     def initialize(resource_content:, base_path:)
@@ -7,7 +7,7 @@ module Exporter
       @resource_content = resource_content
     end
 
-    def export_sqlite(table_name= 'topics')
+    def export_sqlite(table_name= 'themes')
       db_file_path = "#{@export_file_path}.db"
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
@@ -38,18 +38,12 @@ module Exporter
 
     def sqlite_db_columns
       {
-        topic_id: 'INTEGER PRIMARY KEY',
         name: 'TEXT',
-        arabic_name: 'TEXT',
-        parent_id: 'INTEGER',
-        thematic_parent_id: 'INTEGER',
-        ontology_parent_id: 'INTEGER',
-        description: 'TEXT',
-        wiki_link: 'TEXT',
-        thematic: 'INTEGER',
-        ontology: 'INTEGER',
-        ayahs: 'TEXT',
-        related_topics: 'TEXT'
+        surah_number: 'INTEGER',
+        ayah_from: 'INTEGER',
+        ayah_to: 'INTEGER',
+        keywords: 'TEXT',
+        total_ayahs: 'INTEGER',
       }
     end
 

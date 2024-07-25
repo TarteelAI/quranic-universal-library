@@ -55,7 +55,7 @@ class Topic < QuranApiRecord
   end
 
   def ayah_keys
-    verse_topics.includes(:verse).map do |vt|
+    verse_topics.map do |vt|
       vt.verse.verse_key
     end
   end

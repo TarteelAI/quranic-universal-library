@@ -16,6 +16,8 @@ module Exporter
       export_ayah_transliteration # done
       export_word_transliteration # done
       export_word_translations # done
+      export_quran_topics # done
+      export_ayah_themes
 
       export_surah_recitation
       export_ayah_recitation
@@ -25,8 +27,6 @@ module Exporter
       export_quran_metadata
       export_similar_ayah
       export_mutashabihat
-      export_ayah_themes
-      export_quran_topics
       export_grammar_data
     end
 
@@ -62,7 +62,30 @@ module Exporter
     end
 
     def export_ayah_themes
+      base_path = "tmp/export/ayah_themse"
+      FileUtils.mkdir_p(base_path)
 
+      resource = ResourceContent.where(name: 'Ayah theme').first
+
+      exporter = Exporter::ExportAyahTheme.new(
+        resource_content: resource,
+        base_path: base_path
+      )
+
+      downloadable_resource = DownloadableResource.where(
+        resource_content: resource,
+        resource_type: 'ayah-theme',
+        cardinality_type: ResourceContent::CardinalityType::OneVerse
+      ).first_or_initialize
+
+      downloadable_resource.name ||= resource.name
+      downloadable_resource.language = resource.language
+      downloadable_resource.published = true
+      downloadable_resource.tags = resource.language_name.humanize
+      downloadable_resource.save(validate: false)
+
+      sqlite = exporter.export_sqlite
+      create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_mutashabihat

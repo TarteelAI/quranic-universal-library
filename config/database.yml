@@ -1,7 +1,7 @@
 quran_api_db_dev:
   adapter: postgresql
   encoding: unicode
-  database: quran_dev_5
+  database: quran_dev
   schema_search_path: quran,"$user",public
 
 quran_api_db:
@@ -16,7 +16,7 @@ quran_api_db:
 
 development:
   adapter: postgresql
-  database: quran_community_tarteel_2
+  database: quran_community_tarteel
 
 test:
   adapter: postgresql

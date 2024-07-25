@@ -10,7 +10,7 @@ module Exporter
       export_wbw_quran_script
       export_ayah_quran_script
       export_wbw_recitation
-      export_tafsirs
+      # export_tafsirs # done
       export_ayah_translations
       export_ayah_transliteration
       export_word_translations
@@ -80,8 +80,47 @@ module Exporter
       end
     end
 
-    def export_ayah_translations
+    def export_ayah_translations(resource_content: nil)
+      base_path = "tmp/export/translations"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.translations.one_verse.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        exporter = Exporter::ExportTranslation.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: resource_content,
+          resource_type: 'translation',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
+
+        downloadable_resource.name ||= resource_content.name
+        downloadable_resource.language = resource_content.language
+        #downloadable_resource.info ||= resource_content.info
+        downloadable_resource.published = true
+        tags = [resource_content.language_name.humanize]
+
+        if resource_content.has_footnotes?
+          tags << 'With Footnotes'
+        end
+
+        downloadable_resource.tags =  tags.join(', ')
+        downloadable_resource.save(validate: false)
+
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
     def export_word_translations

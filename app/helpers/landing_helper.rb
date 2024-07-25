@@ -16,7 +16,7 @@ module LandingHelper
       Tool.new(
         title: 'Prepare Mushaf layout',
         description: 'Proofread and fix different layouts of Mushaf( 15 lines, 16 lines, v2, v1 etc)',
-        url: '/audio_segments',
+        url: '/mushaf_layouts',
         id: 'mushaf-layout',
         icon: 'layout.svg',
         cta_bg: 'rgba(71, 71, 61, 0.9)',

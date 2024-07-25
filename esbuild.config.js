@@ -46,6 +46,7 @@ if (watch || isDev) minify = false;
 if (watch || isDev) sourcemap = true;
 
 minify = false;
+sourcemap = true
 
 const config = {
   absWorkingDir: path.join(process.cwd(), "app/javascript"),

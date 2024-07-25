@@ -7,6 +7,14 @@
   justify-content: center;
   color: #ebebeb;
 
+  @media (max-width: 640px) {
+    background-image: url("landingbackground.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    background-size: cover;
+  }
+
   .qul-tag {
     color: $gray-300;
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -19,7 +27,7 @@
     margin: 25px 0px 25px 0px;
   }
 
-  .tagline{
+  .tagline {
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     font-family: "Sarina", cursive;
     font-size: 70px;
@@ -29,7 +37,7 @@
     letter-spacing: -0.163px;
   }
 
-  .sub-tagline{
+  .sub-tagline {
     font-family: "Open Sauce Sans";
     font-size: 70px;
     font-style: normal;
@@ -38,8 +46,8 @@
     letter-spacing: -0.163px;
   }
 
-  .powered-by{
-    .text{
+  .powered-by {
+    .text {
       font-size: 13px;
       font-weight: 700;
       color: rgba(255, 255, 255, 0.6);
@@ -55,18 +63,18 @@
   }
 }
 
-.overview{
+.overview {
   margin: 40px 30px 40px 30px;
   font-family: Inter;
 
-  .title{
+  .title {
     color: #0c1210;
     font-size: 20px;
     font-weight: 600;
     font-family: Inter;
   }
 
-  .detail{
+  .detail {
     color: #1c1919;
     font-family: "Open Sauce Sans";
     font-size: 40px;
@@ -75,42 +83,42 @@
     letter-spacing: -0.24px;
   }
 
-  .left{
+  .left {
     color: rgba(0, 0, 0, 0.7);
     font-size: 24px;
     line-height: normal;
 
-    small{
+    small {
       font-style: italic;
     }
   }
 
-  .right{
+  .right {
     font-size: 20px;
     line-height: normal;
     opacity: .5;
   }
 
-  strong{
+  strong {
     font-weight: 600;
   }
 
   @media (max-width: 768px) {
-    .detail{
+    .detail {
       font-size: 20px;
     }
 
-      .left{
-        font-size: 16px;
+    .left {
+      font-size: 16px;
 
-        a{
-          margin-bottom: 20px;
-          width: 100%;
-        }
+      a {
+        margin-bottom: 20px;
+        width: 100%;
       }
+    }
 
-      strong{
-        font-size: 19px !important;
-      }
+    strong {
+      font-size: 19px !important;
+    }
   }
 }

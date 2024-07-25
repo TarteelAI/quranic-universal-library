@@ -172,10 +172,10 @@ class ResourceContent < QuranApiRecord
 
   # Generate sqlite db file name
   def sqlite_file_name
-    export_name = translated_names.english&.first&.name
+    export_name = slug || translated_names.english&.first&.name
     export_name ||= name
 
-    export_name.to_s.downcase.gsub(/s+/, '-')
+    export_name.to_s.downcase.gsub(/\s+/, '-')
   end
 
   #

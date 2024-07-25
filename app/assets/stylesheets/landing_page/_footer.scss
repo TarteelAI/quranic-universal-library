@@ -24,7 +24,7 @@ footer {
     background-color: grey;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: $screen-md) {
     .left{
       margin-bottom: 20px;
     }

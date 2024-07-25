@@ -7,12 +7,16 @@ module Exporter
       @resource_content = resource_content
     end
 
-    def export_json
+    def export_json(ignore_footnotes: false)
       @json_data = {}
       json_file_path = "#{export_file_path}.json"
 
       records.find_each do |translation|
-        @json_data[translation.verse_key] = translation_text_with_footnotes(translation)
+        if ignore_footnotes
+          @json_data[translation.verse_key] =  translation.text
+        else
+          @json_data[translation.verse_key] = translation_text_with_footnotes(translation)
+        end
       end
 
       File.open(json_file_path, 'wb') do |file|

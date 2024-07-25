@@ -1,7 +1,8 @@
 # Usage
 # s = Exporter::DownloadableResources.new
 # s.export_all # This will export all the resources
-# s.export_surah_info # export specific content
+# s.export_surah_info # export surah info
+# s.export_ayah_transliteration
 
 module Exporter
   class DownloadableResources
@@ -17,9 +18,9 @@ module Exporter
       export_wbw_recitation
       export_tafsirs # done
       export_ayah_translations # done
-      export_ayah_transliteration
-      export_word_translations
+      export_ayah_transliteration # done
       export_word_transliteration
+      export_word_translations
       export_quran_metadata
       export_similar_ayah
       export_mutashabihat
@@ -75,9 +76,9 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language = content.language
-        #downloadable_resource.info ||= resource_content.info
+        # downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
-        downloadable_resource.tags =  content.language_name.humanize
+        downloadable_resource.tags = content.language_name.humanize
         downloadable_resource.save(validate: false)
 
         create_download_file(downloadable_resource, json, 'json')
@@ -102,14 +103,14 @@ module Exporter
         )
 
         downloadable_resource = DownloadableResource.where(
-          resource_content: resource_content,
+          resource_content: content,
           resource_type: 'translation',
           cardinality_type: ResourceContent::CardinalityType::OneVerse
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        #downloadable_resource.info ||= resource_content.info
+        # downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
         tags = [content.language_name.humanize]
 
@@ -117,7 +118,7 @@ module Exporter
           tags << 'With Footnotes'
         end
 
-        downloadable_resource.tags =  tags.join(', ')
+        downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
 
         json = exporter.export_json
@@ -130,16 +131,98 @@ module Exporter
       end
     end
 
-    def export_word_translations
+    def export_ayah_transliteration
+      base_path = "tmp/export/transliterations"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.transliteration.one_verse.approved
+
+      list.each do |content|
+        exporter = Exporter::ExportTranslation.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'translation',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.language_id = content.language_id
+        downloadable_resource.published = true
+        tags = [content.language_name.humanize]
+        downloadable_resource.tags = tags.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json(ignore_footnotes: true)
+        create_download_file(downloadable_resource, json, 'json')
+      end
     end
 
-    def export_ayah_transliteration
+    def export_word_translations
+      base_path = "tmp/export/word_transliterations"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.transliteration.one_word.approved
+
+      list.each do |content|
+        exporter = Exporter::ExportWordTranslation.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'translation',
+          cardinality_type: ResourceContent::CardinalityType::OneWord
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.language_id = content.language_id
+        downloadable_resource.published = true
+        tags = [content.language_name.humanize]
+        downloadable_resource.tags = tags.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
     def export_word_transliteration
+      base_path = "tmp/export/word_transliterations"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.transliteration.one_word.approved
+
+      list.each do |content|
+        exporter = Exporter::ExportWordTransliteration.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'transliteration',
+          cardinality_type: ResourceContent::CardinalityType::OneWord
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.language_id = content.language_id
+        downloadable_resource.published = true
+        tags = [content.language_name.humanize]
+        downloadable_resource.tags = tags.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
     def export_quran_metadata
@@ -168,8 +251,8 @@ module Exporter
 
     def export_surah_info(language: nil)
       list = ResourceContent
-        .chapter_info
-        .approved
+               .chapter_info
+               .approved
 
       base_path = "tmp/export/surah_info"
       FileUtils.mkdir_p(base_path)
@@ -208,6 +291,7 @@ module Exporter
     end
 
     protected
+
     def create_download_file(resource, file_path, file_type)
       file = DownloadableFile.where(
         downloadable_resource: resource,

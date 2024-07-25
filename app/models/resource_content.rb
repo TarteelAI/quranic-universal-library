@@ -47,7 +47,7 @@
 
 
 class ResourceContent < QuranApiRecord
-  scope :translations, -> { where sub_type: [SubType::Translation, SubType::Transliteration] }
+  scope :translations, -> { where sub_type: SubType::Translation }
   scope :transliteration, -> { where sub_type: SubType::Transliteration }
   scope :media, -> { where sub_type: SubType::Video }
   scope :tafsirs, -> { where sub_type: SubType::Tafsir }

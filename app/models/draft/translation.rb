@@ -16,9 +16,11 @@
 #
 # Indexes
 #
+#  index_draft_translations_on_imported             (imported)
 #  index_draft_translations_on_need_review          (need_review)
 #  index_draft_translations_on_resource_content_id  (resource_content_id)
 #  index_draft_translations_on_text_matched         (text_matched)
+#  index_draft_translations_on_user_id              (user_id)
 #  index_draft_translations_on_verse_id             (verse_id)
 #
 

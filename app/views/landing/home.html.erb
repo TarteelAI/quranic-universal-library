@@ -1,3 +1,5 @@
+<div class="container">
+
 <div class="hero row">
   <div class="col-md-6 col-12" data-controller="spline-viewer">
     <%= render 'landing/spline' %>
@@ -116,8 +118,8 @@
     </div>
   </div>
 </div>
-
-<div class="developer-tools pe-0">
+</div>
+<div class="developer-tools px-0">
   <h4>Developer Tools</h4>
   <div class="tools-container">
     <% developer_tools.each do |tool| %>
@@ -148,7 +150,7 @@
   <%= link_to 'VIEW ALL RESOURCES', tools_path, class: 'btn-link text-white' %>
 </div>
 
-<div class="developer-tools pe-0" style="background-color: #404040">
+<div class="developer-tools px-0" style="background-color: #404040">
   <h4>Developer Resources</h4>
   <div class="tools-container">
     <% developer_tools.each do |tool| %>

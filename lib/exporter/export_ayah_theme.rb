@@ -13,19 +13,9 @@ module Exporter
 
       records.each do |record|
         fields = [
-          record.id,
           record.name,
-          record.arabic_name,
-           record.parent_id,
-          record.thematic_parent_id,
-           record.ontology_parent_id,
-          record.description,
-          record.wikipedia_link,
-          record.thematic? ? 1 : 0,
-          record.ontology? ? 1 : 0,
-          record.ayah_keys.join(', '),
-          record.related_topics.pluck(:related_topic_id).join(',')
         ]
+
         statement.execute(fields)
       end
 

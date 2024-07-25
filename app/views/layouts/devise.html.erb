@@ -22,11 +22,13 @@
 </head>
 
 <body>
-<div class="container">
   <%= render 'shared/flash_notices' %>
+  <div class="container">
   <%= render 'landing/header' %>
-  <%= yield %>
+  </div>
+    <%= yield %>
+  <div class="container">
   <%= render 'landing/footer' %>
-</div>
+  </div>
 </body>
 </html>

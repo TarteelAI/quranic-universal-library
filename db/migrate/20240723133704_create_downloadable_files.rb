@@ -1,6 +1,8 @@
 class CreateDownloadableFiles < ActiveRecord::Migration[7.0]
   def change
-    add_column :downloadable_resources, :language_id, :integer
+    add_column :downloadable_resources, :language_id, :integer, if_not_exists: true
+    return if table_exists?(:downloadable_files)
+
     create_table :downloadable_files do |t|
       t.references :downloadable_resource, null: false, foreign_key: true
       t.string :name

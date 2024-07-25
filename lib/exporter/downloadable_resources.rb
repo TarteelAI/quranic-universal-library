@@ -17,7 +17,7 @@ module Exporter
       export_word_transliteration # done
       export_word_translations # done
       export_quran_topics # done
-      export_ayah_themes
+      export_ayah_themes # done
 
       export_surah_recitation
       export_ayah_recitation

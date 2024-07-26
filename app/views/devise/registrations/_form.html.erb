@@ -4,6 +4,8 @@
 </p>
 
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { role: 'form', class: 'inputs_container', data: { controller: 'remote-form' } }) do |f| %>
+  <%= render 'shared/form_errors', object: resource %>
+
   <div class="form-floating mb-3">
     <%= f.text_field :first_name, autofocus: true, required: true, class: 'form-control', placeholder: 'First name' %>
     <%= f.label :first_name, required: true %>

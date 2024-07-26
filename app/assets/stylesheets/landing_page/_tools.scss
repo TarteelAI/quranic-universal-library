@@ -26,8 +26,13 @@
       background-repeat: no-repeat;
       scroll-snap-align: center;
 
+      .info{
+
+      }
       @media (max-width: $screen-sm) {
         min-width: 256px !important;
+        gap: 12px;
+        height: 370px;
       }
 
       &:last-child {
@@ -53,13 +58,20 @@
           width: 200px;
           height: 200px;
         }
+
+        @media (max-width: $screen-sm) {
+          img{
+            width: 100px;
+            height: 100px;
+          }
+        }
       }
 
-      .info {
-        color: #fff;
-        opacity: 0.8;
+      .info-tip {
+       position: absolute;
+       left: 24px;
+        bottom: 20px;
       }
-
 
       .cta {
         padding: 4px 10px;

@@ -1,14 +1,13 @@
-<%= render 'shared/flash_notices' %>
+<div class="container-lg px-4">
+  <div class="row device-container px-3">
+    <%= render 'devise/shared/spline_animation' %>
 
-<div class="row device-container px-3">
-  <%= render 'devise/shared/spline_animation' %>
+    <div class="col-md-6 col-12 right">
+      <div class="py-3 px-md-4" data-turbo="false">
+        <%= render 'form' %>
 
-  <div class="col-md-6 col-12 right">
-    <div class="py-3 px-4" data-turbo="false">
-      <%= render 'form' %>
-
-      <%= render 'devise/shared/links' %>
+        <%= render 'devise/shared/links' %>
+      </div>
     </div>
   </div>
 </div>
-

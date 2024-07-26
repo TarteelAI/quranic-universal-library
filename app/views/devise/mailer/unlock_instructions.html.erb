@@ -4,4 +4,4 @@
 
 <p><%= t('.instruction', default: 'Click the link below to unlock your account:') %></p>
 
-<p><%= link_to t('.action', default: 'Unlock my account'), unlock_url(@resource, unlock_token: @resource.unlock_token, locale: I18n.locale) %></p>
+<p><%= link_to t('.action', default: 'Unlock my account'), unlock_url(@resource, unlock_token: @token, locale: I18n.locale) %></p>

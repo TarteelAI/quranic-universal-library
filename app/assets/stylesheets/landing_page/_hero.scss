@@ -1,6 +1,6 @@
 .hero {
   background-color: #000;
-  margin: 0px 15px 0px 15px;
+  //margin: 0px 15px 0px 15px;
   border-radius: 30px;
   display: flex;
   align-items: center;
@@ -25,9 +25,13 @@
   .hero-message {
     margin: 25px 0px 25px 0px;
     display: flex;
+    overflow: hidden;
 
     canvas{
       width: 50% !important;
+      width: 1500px;
+      height: 800px !important;
+      margin-top: -100px;
     }
   }
 

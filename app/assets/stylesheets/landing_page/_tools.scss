@@ -9,6 +9,7 @@
     overflow-x: auto;
     align-items: center;
     gap: 24px;
+    scroll-snap-type: x;
 
     .tool-card {
       position: relative;
@@ -23,6 +24,20 @@
       border-radius: 24px;
       background-position: center;
       background-repeat: no-repeat;
+      scroll-snap-align: center;
+
+      .info{
+
+      }
+      @media (max-width: $screen-sm) {
+        min-width: 256px !important;
+        gap: 12px;
+        height: 370px;
+      }
+
+      &:last-child {
+        margin-inline-end: 30px;
+      }
 
       &:before {
         content: '';
@@ -43,13 +58,20 @@
           width: 200px;
           height: 200px;
         }
+
+        @media (max-width: $screen-sm) {
+          img{
+            width: 100px;
+            height: 100px;
+          }
+        }
       }
 
-      .info {
-        color: #fff;
-        opacity: 0.8;
+      .info-tip {
+       position: absolute;
+       left: 24px;
+        bottom: 20px;
       }
-
 
       .cta {
         padding: 4px 10px;
@@ -66,6 +88,8 @@
   }
 
   @media (max-width: 768px) {
+    //margin: 40px 0px 40px 30px;
+
     .tool-card {
       min-width: 326px !important;
     }

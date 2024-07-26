@@ -11,8 +11,10 @@ module Exporter
       @json_data = {}
       json_file_path = "#{export_file_path}.json"
 
-      records.find_each do |translation|
-        @json_data[translation.resource.location] =  translation.text
+      records.find_each do |record|
+        if record.resource
+          @json_data[record.resource.location] = record.text
+        end
       end
 
       File.open(json_file_path, 'wb') do |file|
@@ -22,16 +24,17 @@ module Exporter
       json_file_path
     end
 
-    def export_sqlite(table_name= 'word_transliteration')
+    def export_sqlite(table_name = 'word_transliteration')
       db_file_path = "#{@export_file_path}.db"
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
-      records.each do |translation|
-        surah, ayah, word = translation.resource.location.split(':')
-        fields = [surah, ayah, word, translation.text]
-        statement.execute(fields)
+      records.each do |record|
+        if record.resource
+          surah, ayah, word = record.resource.location.split(':')
+          fields = [surah, ayah, word, record.text]
+          statement.execute(fields)
+        end
       end
-
       close_sqlite_table
 
       db_file_path

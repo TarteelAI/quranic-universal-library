@@ -2,7 +2,7 @@
 # s = Exporter::DownloadableResources.new
 # s.export_all # This will export all the resources
 # s.export_surah_info # export surah info
-# s.export_ayah_transliteration
+# s.export_quran_topics
 
 module Exporter
   class DownloadableResources
@@ -11,26 +11,50 @@ module Exporter
       DownloadableResource.find_each &:destroy
 
       export_surah_info # done
+      export_tafsirs # done
+      export_ayah_translations # done
+      export_ayah_transliteration # done
+      export_word_transliteration # done
+      export_word_translations # done
+      export_quran_topics # done
+      export_ayah_themes # done
+
       export_surah_recitation
       export_ayah_recitation
       export_wbw_quran_script
       export_ayah_quran_script
       export_wbw_recitation
-      export_tafsirs # done
-      export_ayah_translations # done
-      export_ayah_transliteration # done
-      export_word_transliteration
-      export_word_translations
       export_quran_metadata
       export_similar_ayah
       export_mutashabihat
-      export_ayah_themes
-      export_quran_topics
       export_grammar_data
     end
 
     def export_quran_topics
+      base_path = "tmp/export/quran_topics"
+      FileUtils.mkdir_p(base_path)
 
+      resource = ResourceContent.quran_topics.first
+
+      exporter = Exporter::ExportTopics.new(
+        resource_content: resource,
+        base_path: base_path
+      )
+
+      downloadable_resource = DownloadableResource.where(
+        resource_content: resource,
+        resource_type: 'ayah-topics',
+        cardinality_type: ResourceContent::CardinalityType::OneVerse
+      ).first_or_initialize
+
+      downloadable_resource.name ||= resource.name
+      downloadable_resource.language = resource.language
+      downloadable_resource.published = true
+      downloadable_resource.tags = resource.language_name.humanize
+      downloadable_resource.save(validate: false)
+
+      sqlite = exporter.export_sqlite
+      create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_grammar_data
@@ -38,7 +62,30 @@ module Exporter
     end
 
     def export_ayah_themes
+      base_path = "tmp/export/ayah_themse"
+      FileUtils.mkdir_p(base_path)
 
+      resource = ResourceContent.where(name: 'Ayah theme').first
+
+      exporter = Exporter::ExportAyahTheme.new(
+        resource_content: resource,
+        base_path: base_path
+      )
+
+      downloadable_resource = DownloadableResource.where(
+        resource_content: resource,
+        resource_type: 'ayah-theme',
+        cardinality_type: ResourceContent::CardinalityType::OneVerse
+      ).first_or_initialize
+
+      downloadable_resource.name ||= resource.name
+      downloadable_resource.language = resource.language
+      downloadable_resource.published = true
+      downloadable_resource.tags = resource.language_name.humanize
+      downloadable_resource.save(validate: false)
+
+      sqlite = exporter.export_sqlite
+      create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_mutashabihat
@@ -97,6 +144,8 @@ module Exporter
       end
 
       list.each do |content|
+        next if !content.allow_publish_sharing?
+
         exporter = Exporter::ExportTranslation.new(
           resource_content: content,
           base_path: base_path
@@ -145,7 +194,7 @@ module Exporter
 
         downloadable_resource = DownloadableResource.where(
           resource_content: content,
-          resource_type: 'translation',
+          resource_type: 'transliteration',
           cardinality_type: ResourceContent::CardinalityType::OneVerse
         ).first_or_initialize
 
@@ -165,9 +214,11 @@ module Exporter
       base_path = "tmp/export/word_transliterations"
       FileUtils.mkdir_p(base_path)
 
-      list = ResourceContent.transliteration.one_word.approved
+      list = ResourceContent.translations.one_word.approved.where('records_count > 0')
 
       list.each do |content|
+        next if !content.allow_publish_sharing?
+
         exporter = Exporter::ExportWordTranslation.new(
           resource_content: content,
           base_path: base_path

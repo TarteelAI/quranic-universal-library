@@ -62,6 +62,7 @@ ActiveAdmin.register Topic do
           end
         end
       end
+
       row :childen_count
       row :depth
 

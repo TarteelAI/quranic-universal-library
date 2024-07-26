@@ -54,6 +54,12 @@ class Topic < QuranApiRecord
     where(parent_id: nil)
   end
 
+  def ayah_keys
+    verse_topics.map do |vt|
+      vt.verse.verse_key
+    end
+  end
+
   # copied from https://github.com/amerine/acts_as_tree/blob/master/lib/acts_as_tree.rb#L175
   def self.tree_view(label_method = :name,  node = nil, level = -1)
     if node.nil?

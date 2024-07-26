@@ -1,47 +1,40 @@
-<%= render 'shared/flash_notices' %>
+<div class="container-lg px-4">
+  <div class="row device-container px-3">
+    <%= render 'devise/shared/spline_animation' %>
 
-<div class="container">
-  <div class="row">
-    <div class="col-12">
-      <%= render 'shared/form_errors', object: resource %>
-    </div>
-  </div>
-</div>
+    <div class="col-md-6 col-12 right">
+      <div class="py-3 px-md-4" data-turbo="false">
+        <h2 class="mb-3">
+          Change your password
+        </h2>
 
-<div class="row device-container px-3">
-  <%= render 'devise/shared/spline_animation' %>
+        <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
+          <%= f.hidden_field :reset_password_token %>
+          <%= render 'shared/form_errors', object: resource %>
 
-  <div class="col-md-6 col-12 right">
-    <div class="py-3 px-4" data-turbo="false">
-      <h2 class="mb-3">
-        Change your password
-      </h2>
+          <div class="form-floating mb-3">
+            <%= f.password_field :password, autofocus: true, required: true, class: 'form-control', placeholder: 'New password', minlength: 6 %>
+            <%= f.label :password, t('.new_password', default: 'New password'), required: true %>
 
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
-        <%= f.hidden_field :reset_password_token %>
-
-        <div class="form-floating mb-3">
-          <%= f.password_field :password, autofocus: true, required: true, class: 'form-control', placeholder: 'New password', minlength: 6 %>
-          <%= f.label :password, t('.new_password', default: 'New password'), required: true %>
-
-          <div class="invalid-feedback">
-            Password does not meet minimum security requirements.
+            <div class="invalid-feedback">
+              Password does not meet minimum security requirements.
+            </div>
           </div>
-        </div>
 
-        <div class="form-floating mb-3">
-          <%= f.password_field :password_confirmation, required: true, class: 'form-control', placeholder: 'Confirm your password', minlength: 6 %>
-          <%= f.label :password_confirmation, t('.confirm_new_password', default: 'Confirm new password'), required: true %>
+          <div class="form-floating mb-3">
+            <%= f.password_field :password_confirmation, required: true, class: 'form-control', placeholder: 'Confirm your password', minlength: 6 %>
+            <%= f.label :password_confirmation, t('.confirm_new_password', default: 'Confirm new password'), required: true %>
 
-          <div class="invalid-feedback">
-            Password does not meet minimum security requirements.
+            <div class="invalid-feedback">
+              Password does not meet minimum security requirements.
+            </div>
           </div>
-        </div>
 
-        <div class="text-center">
-          <%= f.submit 'Change my password', class: 'btn btn-dark btn-rounded mt-2 px-5' %>
-        </div>
-      <% end %>
+          <div class="text-center">
+            <%= f.submit 'Change my password', class: 'btn btn-dark btn-rounded mt-2 px-5' %>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

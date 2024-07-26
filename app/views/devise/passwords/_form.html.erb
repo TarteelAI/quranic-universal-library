@@ -6,6 +6,8 @@
 </p>
 
 <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { class: 'inputs_container', method: :post, data: { controller: 'remote-form' } }) do |f| %>
+  <%= render 'shared/form_errors', object: resource %>
+
   <div class="form-floating mb-3">
     <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
     <%= f.label :email, required: true %>

@@ -1,18 +1,18 @@
 .hero {
   background-color: #000;
-  margin: 0px 15px 0px 15px;
+  //margin: 0px 15px 0px 15px;
   border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ebebeb;
 
-  @media (max-width: 640px) {
+  /*@media (max-width: 640px) {
     background-image: url("landingbackground.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-  }
+  }*/
 
   .qul-tag {
     color: $gray-300;
@@ -24,6 +24,15 @@
 
   .hero-message {
     margin: 25px 0px 25px 0px;
+    display: flex;
+    overflow: hidden;
+
+    canvas{
+      width: 50% !important;
+      width: 1500px;
+      height: 800px !important;
+      margin-top: -100px;
+    }
   }
 
   .tagline {
@@ -53,11 +62,25 @@
     }
   }
 
+  .right-section{
+    z-index: 100;
+  }
+
   @media (max-width: $screen-md) {
     .tagline,
     .sub-tagline {
       font-size: 30px;
       line-height: normal;
+    }
+
+    .hero-message{
+      canvas{
+        width: 100% !important;
+        position: absolute;
+        left: 0;
+        top:0;
+        z-index: 1;
+      }
     }
   }
 }

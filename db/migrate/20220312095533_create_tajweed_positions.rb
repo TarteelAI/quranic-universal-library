@@ -1,4 +1,4 @@
-class TajweedPositions < ActiveRecord::Migration[7.0]
+class CreateTajweedPositions < ActiveRecord::Migration[7.0]
   def change
     create_table :word_tajweed_positions do |t|
       t.string :audio

@@ -15,6 +15,8 @@ module Exporter
         @json_data[translation.word.location] =  translation.text
       end
 
+      binding.pry if records.size == 0
+
       File.open(json_file_path, 'wb') do |file|
         file << JSON.generate(@json_data, { state: JsonNoEscapeHtmlState.new })
       end
@@ -52,6 +54,7 @@ module Exporter
       WordTranslation
         .where(resource_content_id: resource_content.id)
         .joins(:word)
+        .eager_load(:word)
         .order('words.word_index ASC')
     end
   end

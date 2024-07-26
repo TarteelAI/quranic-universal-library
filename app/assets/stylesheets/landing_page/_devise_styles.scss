@@ -4,6 +4,11 @@
   align-content: flex-start;
   overflow-x: hidden;
 
+  canvas{
+    width: 1500px;
+    height: 800px !important;
+  }
+
   .left {
     position: relative;
     background-color: #000;
@@ -14,11 +19,20 @@
 
     @media (max-width: $screen-sm) {
       height: 40vh;
-      background-image: url("landingbackground.png");
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
+      padding: 0!important;
+     // background-image: url("landingbackground.png");
+      //background-position: center;
+      //background-repeat: no-repeat;
+     // background-size: cover;
     }
+
+    .qul-tag-wrapper{
+      @media (max-width: $screen-sm) {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      }
   }
 
   .right{

@@ -2,6 +2,37 @@ module LandingHelper
   class Tool < OpenStruct
   end
 
+  def featured_resource_cards
+    recitations = ResourceContent.approved.recitations
+    with_segments = recitations.with_segments.count
+    total_recitations = recitations.count
+
+    total_layout = Mushaf.count
+    approved_layout = Mushaf.approved.count
+
+    [
+      Tool.new(
+        title: 'Recitations and segments data',
+        description: "Download high-quality audio files of Quranic recitations along with detailed timestamp data for ayah-by-ayah and surah-by-surah. Use the timestamp data to highlight words as the recitation plays.",
+        icon: 'timestamp.svg',
+        url: '/resources/recitations',
+        count: total_recitations,
+        id: 'card-recitations',
+        stats: "<div><div>#{total_recitations - with_segments} Unsegmented Audio</div><div>#{with_segments} Segmented Audio</div></div>"
+        ),
+      Tool.new(
+        title: "Mushaf layouts",
+        description: "Download Mushaf layout data to render Quran pages exactly like the printed Mushaf. The exact layout aids in memorizing the Quran, offering users a familiar experience similar to their favorite printed Mushaf.",
+        icon: 'layout.svg',
+        url: '/resources/mushaf-layouts',
+        count: total_layout,
+        id: 'card-mushaf-layouts',
+        #TODO: once all layout are approved, stats will looks weird. Fix the messaging
+        stats: "<div><div>#{approved_layout} Layouts —  Approved</div><div>#{total_layout - approved_layout} Layouts —  WIP</div></div>"
+        )
+    ]
+  end
+
   def developer_tools
     [
       Tool.new(

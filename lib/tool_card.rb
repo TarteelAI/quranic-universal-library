@@ -1,0 +1,2 @@
+class ToolCard < OpenStruct
+end

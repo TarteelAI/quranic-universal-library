@@ -8,7 +8,7 @@
 // </div>
 
 import { Controller } from "@hotwired/stimulus"
-import '@json-editor/json-editor';
+//import '@json-editor/json-editor';
 import {loadJavascript, loadStylesheet} from "../utils/script_loader";
 
 export default class extends Controller {

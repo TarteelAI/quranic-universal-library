@@ -2,96 +2,96 @@
   background-color: #000;
   padding: 40px 30px 40px 30px;
   color: #fff;
+}
 
-  .tools-container {
-    margin: 40px 0px 40px 0px;
+.tools-container {
+  margin: 40px 0px 40px 0px;
+  display: flex;
+  overflow-x: auto;
+  align-items: center;
+  gap: 24px;
+  scroll-snap-type: x;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  .tool-card {
+    position: relative;
+    overflow: hidden;
     display: flex;
-    overflow-x: auto;
-    align-items: center;
-    gap: 24px;
-    scroll-snap-type: x;
+    min-width: 400px;
+    height: 558px;
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    border-radius: 24px;
+    background-repeat: no-repeat !important;
+    scroll-snap-align: center;
 
-    .tool-card {
-      position: relative;
-      overflow: hidden;
+    @media (max-width: $screen-sm) {
+      min-width: 256px !important;
+      gap: 12px;
+      height: 370px;
+    }
+
+    @media (max-width: $screen-md) {
+      min-width: 326px !important;
+      gap: 15px;
+      height: 400px;
+    }
+
+    &:last-child {
+      margin-inline-end: 30px;
+    }
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .icon {
       display: flex;
-      min-width: 400px;
-      height: 558px;
-      padding: 24px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 32px;
-      border-radius: 24px;
-      background-position: center;
-      background-repeat: no-repeat;
-      scroll-snap-align: center;
+      justify-content: center;
+      width: 100%;
 
-      .info{
-
+      img {
+        width: 200px;
+        height: 200px;
       }
+
       @media (max-width: $screen-sm) {
-        min-width: 256px !important;
-        gap: 12px;
-        height: 370px;
-      }
-
-      &:last-child {
-        margin-inline-end: 30px;
-      }
-
-      &:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-      }
-
-      .icon {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-
-        img {
-          width: 200px;
-          height: 200px;
-        }
-
-        @media (max-width: $screen-sm) {
-          img{
-            width: 100px;
-            height: 100px;
-          }
-        }
-      }
-
-      .info-tip {
-       position: absolute;
-       left: 24px;
-        bottom: 20px;
-      }
-
-      .cta {
-        padding: 4px 10px;
-        border-radius: 100px;
-        text-decoration: none;
-        color: #fff;
-        border: 1px solid transparent;
-
-        &:hover {
-          border: 1px solid #fff;
+        img{
+          width: 100px;
+          height: 100px;
         }
       }
     }
-  }
 
-  @media (max-width: 768px) {
-    //margin: 40px 0px 40px 30px;
+    .info-tip {
+      position: absolute;
+      left: 24px;
+      bottom: 20px;
+    }
 
-    .tool-card {
-      min-width: 326px !important;
+    .cta {
+      padding: 4px 10px;
+      border-radius: 100px;
+      text-decoration: none;
+      color: #fff;
+      border: 1px solid transparent;
+
+      &:hover {
+        border: 1px solid #fff;
+      }
     }
   }
 }

@@ -53,8 +53,6 @@ ActiveAdmin.register Audio::ChapterAudioFile do
                                ajax: { resource: ResourceContent }
   filter :chapter_id, as: :searchable_select,
                       ajax: { resource: Chapter }
-  filter :recitation_style_id, as: :searchable_select,
-                               ajax: { resource: RecitationStyle }
   filter :format
   filter :active
 

@@ -23,4 +23,10 @@
 class UserDownload < ApplicationRecord
   belongs_to :user
   belongs_to :downloadable_file
+
+  def increment_download!
+    self.download_count = download_count.to_i + 1
+    self.last_download_at = DateTime.now
+    save(validate: false)
+  end
 end

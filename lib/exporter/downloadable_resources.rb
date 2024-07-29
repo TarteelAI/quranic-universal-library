@@ -2,26 +2,27 @@
 # s = Exporter::DownloadableResources.new
 # s.export_all # This will export all the resources
 # s.export_surah_info # export surah info
-# s.export_quran_topics
+# s.export_ayah_recitation(resource_content: ResourceContent.find(941))
+
+require 'zip'
 
 module Exporter
   class DownloadableResources
     def export_all
       FileUtils.rmdir("tmp/export")
-      DownloadableResource.find_each &:destroy
 
-      export_surah_info # done
-      export_tafsirs # done
-      export_ayah_translations # done
-      export_ayah_transliteration # done
-      export_word_transliteration # done
-      export_word_translations # done
-      export_quran_topics # done
-      export_ayah_themes # done
-
+      export_surah_info
+      export_tafsirs
+      export_ayah_translations
+      export_ayah_transliteration
+      export_word_transliteration
+      export_word_translations
+      export_quran_topics
+      export_ayah_themes
       export_surah_recitation
       export_ayah_recitation
       export_wbw_quran_script
+
       export_ayah_quran_script
       export_wbw_recitation
       export_quran_metadata
@@ -210,11 +211,15 @@ module Exporter
       end
     end
 
-    def export_word_translations
+    def export_word_translations(resource_content: nil)
       base_path = "tmp/export/word_transliterations"
       FileUtils.mkdir_p(base_path)
 
       list = ResourceContent.translations.one_word.approved.where('records_count > 0')
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
 
       list.each do |content|
         next if !content.allow_publish_sharing?
@@ -280,16 +285,123 @@ module Exporter
 
     end
 
-    def export_surah_recitation
+    def export_surah_recitation(resource_content: nil)
+      base_path = "tmp/export/surah_recitation"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.recitations.one_chapter.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        next if !content.allow_publish_sharing?
+        recitation = Audio::Recitation.where(resource_content_id: content.id).first
+
+        exporter = Exporter::ExportSurahRecitation.new(
+          recitation: recitation,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'recitation',
+          cardinality_type: ResourceContent::CardinalityType::OneChapter
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.published = true
+        tags = [recitation.recitation_style&.name, recitation.qirat_type&.name]
+
+        if content.has_segments?
+          tags << 'With segments'
+        end
+
+        if recitation.chapter_audio_files.size < 114
+          tags << 'Partial Recitation'
+        end
+
+        downloadable_resource.tags = tags.compact_blank.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
-    def export_ayah_recitation
+    def export_ayah_recitation(resource_content: nil)
+      base_path = "tmp/export/ayah_recitation"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.recitations.one_verse.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        next if !content.allow_publish_sharing?
+        recitation = Recitation.where(resource_content_id: content.id).first
+
+        exporter = Exporter::ExportAyahRecitation.new(
+          recitation: recitation,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'recitation',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.published = true
+        tags = [recitation.recitation_style&.name, recitation.qirat_type&.name]
+
+        if content.has_segments?
+          tags << 'With segments'
+        end
+
+        if recitation.audio_files.size < Verse.count
+          tags << 'Partial Recitation'
+        end
+
+        downloadable_resource.tags = tags.compact_blank.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
     def export_wbw_quran_script
+      base_path = "tmp/export/word_recitation"
+      FileUtils.mkdir_p(base_path)
 
+      content = ResourceContent.recitations.one_word.approved.first
+      exporter = Exporter::ExportWordRecitation.new(base_path: base_path)
+
+      downloadable_resource = DownloadableResource.where(
+        resource_content: content,
+        resource_type: 'recitation',
+        cardinality_type: ResourceContent::CardinalityType::OneWord
+      ).first_or_initialize
+
+      downloadable_resource.name ||= content.name
+      downloadable_resource.published = true
+      tags = ['Waseem Sharif']
+      downloadable_resource.tags = tags.compact_blank.join(', ')
+      downloadable_resource.save(validate: false)
+
+      json = exporter.export_json
+      sqlite = exporter.export_sqlite
+      create_download_file(downloadable_resource, json, 'json')
+      create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_ayah_quran_script
@@ -349,15 +461,28 @@ module Exporter
         file_type: file_type,
       ).first_or_initialize
 
-      `bzip2 #{file_path}`
+      if File.directory?(file_path)
+        zip_folder_path = "#{file_path}.zip"
+        Zip::File.open(zip_folder_path, Zip::File::CREATE) do |zipfile|
+          Dir[File.join(file_path, '**', '**')].each do |file|
+            relative_path = file.sub("#{file_path}/", '')
 
-      zipped = "#{file_path}.bz2"
+            zipfile.add(relative_path, file) unless File.directory?(file)
+          end
+        end
+
+        zipped = zip_folder_path
+      else
+        `bzip2 #{file_path}`
+        zipped = "#{file_path}.bz2"
+      end
 
       file.name ||= "#{resource.name}.#{file_type}"
       file.file.attach(
         io: File.open(zipped),
         filename: "#{file.name}.bz2"
       )
+
       file.save(validate: false)
     end
   end

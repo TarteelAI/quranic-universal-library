@@ -44,8 +44,6 @@
 #  index_resource_contents_on_sub_type               (sub_type)
 #
 
-
-
 class ResourceContent < QuranApiRecord
   scope :translations, -> { where sub_type: SubType::Translation }
   scope :transliteration, -> { where sub_type: SubType::Transliteration }
@@ -63,9 +61,9 @@ class ResourceContent < QuranApiRecord
   scope :from_quranenc, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
   scope :mukhtasar_tafisr, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }
-  scope :with_segments, -> {where("meta_data ->> 'has-segments' = 'yes'") }
+  scope :with_segments, -> { where("meta_data ->> 'has-segments' = 'yes'") }
   scope :approved, -> { where approved: true }
-  scope :for_language, lambda {|lang| where(language: Language.find_by_iso_code(lang)) }
+  scope :for_language, lambda { |lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
     where(id: ResourcePermission.where(permission_to_host: val).pluck(:resource_content_id))
   }
@@ -105,7 +103,7 @@ class ResourceContent < QuranApiRecord
               :export_format,
               :export_file_name
 
-  #TODO: replace uploader with ActiveStorage
+  # TODO: replace uploader with ActiveStorage
   mount_uploader :sqlite_db, DatabaseBackupUploader
   has_many_attached :source_files
 
@@ -155,6 +153,10 @@ class ResourceContent < QuranApiRecord
 
   def has_footnote?
     meta_value('has-footnote') == 'yes'
+  end
+
+  def has_segments?
+    meta_value('has-segments') == 'yes'
   end
 
   def get_source_pdf_url
@@ -349,7 +351,11 @@ class ResourceContent < QuranApiRecord
               MediaContent.where(resource_content_id: id).size
             elsif recitation?
               if chapter?
-                Audio::ChapterAudioFile.where(resource_content_id: id).size
+                if recitation = Audio::Recitation.where(resource_content_id: id).first
+                  Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).size
+                else
+                  0
+                end
               else
                 AudioFile.where(recitation_id: Recitation.where(resource_content_id: id).pluck(:id)).size
               end
@@ -363,7 +369,7 @@ class ResourceContent < QuranApiRecord
       generate_text_digest
       check_duplicate_tafsir_draft_text
       create_draft_tafsir_groups
-      #check_for_missing_draft_tafsirs
+      # check_for_missing_draft_tafsirs
     end
   end
 
@@ -403,7 +409,7 @@ class ResourceContent < QuranApiRecord
     end
   end
 
-  #TODO: refactor this, running 6000+ queries will fail on production
+  # TODO: refactor this, running 6000+ queries will fail on production
   def check_for_missing_draft_tafsirs
     tafsirs = Draft::Tafsir.where(resource_content_id: id)
     issues = []
@@ -501,6 +507,7 @@ class ResourceContent < QuranApiRecord
   def export_file_name
     ExportService.new(self).get_export_file_name
   end
+
   protected
 
   def generate_text_digest

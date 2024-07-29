@@ -10,7 +10,6 @@ Rails.application.routes.draw do
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"
 
-
   devise_for :users, controllers: {
     registrations: 'users/registrations'
   }
@@ -21,7 +20,9 @@ Rails.application.routes.draw do
   end
 
   resources :morphology_phrases
-  resources :resources
+  resources :resources do
+    get '/:token/download', action: 'download' , as: :download_file
+  end
 
   resources :ayah_audio_files do
     member do

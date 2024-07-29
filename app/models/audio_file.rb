@@ -46,6 +46,18 @@ class AudioFile < QuranApiRecord
 
   serialize :segments
 
+  def surah_number
+    chapter_id
+  end
+
+  def ayah_number
+    verse_number
+  end
+
+  def duration_sec
+    duration
+  end
+
   def audio_url
     if url.start_with?('http')
       url

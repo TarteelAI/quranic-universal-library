@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 ActiveAdmin.register DownloadableResource do
-  menu parent: 'Settings', priority: 1
+  menu parent: 'Downloads', priority: 1
   filter :name
 
   filter :language, as: :searchable_select,
@@ -14,6 +14,9 @@ ActiveAdmin.register DownloadableResource do
 
 
   filter :resource_type, as: :select, collection: DownloadableResource::RESOURCE_TYPES
+
+  searchable_select_options(scope: DownloadableResource,
+                            text_attribute: :name)
 
   controller do
     include ActiveStorage::SetCurrent
@@ -42,22 +45,7 @@ ActiveAdmin.register DownloadableResource do
     %i[name info position published resource_type tags files resource_content_id cardinality_type]
   end
 
-  member_action :upload_file, method: 'post' do
-    permitted = params.require(:downloadable_resource).permit files: []
-
-    permitted['files'].each do |attachment|
-      resource.files.attach(attachment)
-    end
-
-    redirect_to [:admin, resource], notice: 'File saved successfully'
-  end
-
-
   sidebar 'Downloadable files', only: :show do
-    div do
-      render 'admin/downloadable_resource_file_form'
-    end
-
     table do
       thead do
         th 'Id'
@@ -70,7 +58,7 @@ ActiveAdmin.register DownloadableResource do
       tbody do
         resource.downloadable_files.with_attached_file.each do |file|
           tr do
-            td file.id
+            td link_to(file.id, [:admin, file])
             td file.name
             td file.file_type
             td file.download_count

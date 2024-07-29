@@ -22,7 +22,7 @@ class DownloadableResource < ApplicationRecord
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[quran-script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layouts ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
+  RESOURCE_TYPES = %w[quran-script recitation translation tafsir mutashabihat similar-ayah surah-info mushaf-layouts ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
 
   def get_tags
     tags.to_s.split(',').compact_blank
@@ -45,8 +45,8 @@ class DownloadableResource < ApplicationRecord
     case resource_type
     when 'quran-script'
       'Quran Script'
-    when 'audio'
-      'Audio'
+    when 'recitation'
+      'Audio files and segments'
     when 'translation'
       'Translations'
     when 'tafsir'
@@ -76,7 +76,7 @@ class DownloadableResource < ApplicationRecord
     case resource_type
     when 'quran-script'
       'fa-book-open'
-    when 'audio'
+    when 'recitation'
       'fa-headphones-alt'
     when 'translation'
       'fa-language'
@@ -110,7 +110,7 @@ class DownloadableResource < ApplicationRecord
     when 'quran-script'
       'Quran Script'
     when 'audio'
-      'Audio'
+      'Audio files and segments'
     when 'translation'
       'Translation'
     when 'tafsir'
@@ -140,8 +140,8 @@ class DownloadableResource < ApplicationRecord
     case resource_type
     when 'script'
       'The Holy Quran in its original Arabic script'
-    when 'audio'
-      'Audio'
+    when 'recitation'
+      'Audio files and segments'
     when 'translation'
       'Translations of the Quran in various languages.'
     when 'tafsir'

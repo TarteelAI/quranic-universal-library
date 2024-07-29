@@ -45,6 +45,18 @@ module Audio
       Word.order('position ASC').where(verse_id: verse.id).pluck(:text_qpc_hafs)
     end
 
+    def surah_number
+      chapter_id
+    end
+
+    def ayah_number
+      verse_number
+    end
+
+    def duration_sec
+      duration
+    end
+
     def set_timing(from, to, verse)
       from = from.to_i
       to = to.to_i

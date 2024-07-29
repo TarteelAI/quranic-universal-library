@@ -3,8 +3,17 @@ class ResourcesController < CommunityController
 
   def index
     @resources = DownloadableResource
-      .published
-      .select('DISTINCT ON (resource_type) *, COUNT(*) OVER (PARTITION BY resource_type) AS total_resources')
+                   .published
+                   .select('DISTINCT ON (resource_type) *, COUNT(*) OVER (PARTITION BY resource_type) AS total_resources')
+  end
+
+  def download
+    if file = DownloadableFile.find_by(token: params[:token])
+      file.track_download(current_user)
+      redirect_to file.file.url
+    else
+      redirect_to resource_path(params[:resource_id]), alert: 'Sorry, this resource does not exist.'
+    end
   end
 
   def show

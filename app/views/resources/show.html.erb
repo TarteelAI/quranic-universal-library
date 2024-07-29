@@ -11,10 +11,6 @@
 
 <div class="page-wrapper">
   <div class="download">
-    <div class="header">
-      Welcome to Tarteel Quranic Universal Library.
-    </div>
-
     <% if @resources.present? %>
       <div class="row">
         <div class="col-md-12 welcome-message">
@@ -49,10 +45,10 @@
                   <% end %>
 
                   <% resource.downloadable_files.each do |file| %>
-                    <a href="<%= file.file.url %>" class="card-link" download="">
+                    <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'card-link' do %>
                       <i class="fas fa-download"></i>
                       <%= file.file_type %>
-                    </a>
+                    <% end %>
                   <% end %>
                 </div>
               </div>

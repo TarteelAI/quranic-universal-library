@@ -1,18 +1,8 @@
 module Exporter
   class ExportSurahInfo < BaseExporter
     def initialize(language:, base_path:)
+      super(base_path: base_path, name: "surah_info_#{language.iso_code}")
       @language = language
-      @base_path = base_path
-
-      FileUtils.mkdir_p(@base_path)
-      @export_file_name = "surah_info_#{language.iso_code}"
-      @export_file_path = File.join(@base_path, "#{@export_file_name}")
-    end
-
-    def export_all
-      export_csv
-      export_json
-      export_sqlite
     end
 
     def export_csv

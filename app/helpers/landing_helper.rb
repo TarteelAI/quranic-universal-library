@@ -12,7 +12,7 @@ module LandingHelper
         title: 'Recitations and segments data',
         description: "Download high-quality audio files of Quranic recitations along with detailed timestamp data for ayah-by-ayah and surah-by-surah. Use the timestamp data to highlight words as the recitation plays.",
         icon: 'timestamp.svg',
-        url: '/resources/recitations',
+        url: '/resources/recitation',
         count: total_recitations,
         type: 'card-recitations',
         stats: "<div><div>#{total_recitations - with_segments} Unsegmented Audio</div><div>#{with_segments} Segmented Audio</div></div>"
@@ -209,7 +209,7 @@ module LandingHelper
       ToolCard.new(
         title: 'Audio files and segments data',
         description: 'Download surah by surah, ayah by ayah and word by word audio files and segments data.',
-        url: '/surah_audio_files',
+        url: '/resources/recitation',
         type: 'segments',
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',

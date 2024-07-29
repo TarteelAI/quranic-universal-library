@@ -7,6 +7,14 @@ class Ability
     can :read, :all
     can :read, ActiveAdmin::Page, name: "Dashboard"
     cannot :read, User
+    cannot :read, DownloadableResource
+    cannot :read, DownloadableFile
+    cannot :read, UserDownload
+    cannot :read, Feedback
+    cannot :read, ImportantNote
+    cannot :read, AdminTodo
+    cannot :read, AdminUser
+
     can :manage, User, id: user.id
 
     if user.admin?

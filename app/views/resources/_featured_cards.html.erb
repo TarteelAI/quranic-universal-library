@@ -1,6 +1,6 @@
-<div class="d-flex align-items-center justify-content-center mt-5 flex-column flex-md-row gap-5">
-  <% featured_resource_cards.each do |card| %>
-    <div class="featured-resource-card <%= card.id %>">
+<div class="d-flex align-items-center justify-content-center mt-3 mt-md-5 flex-column flex-md-row gap-5">
+  <% featured_downlodable_resource_cards.each do |card| %>
+    <div class="featured-resource-card <%= card.type %>">
       <div class="p-4 h-100 d-flex flex-column justify-content-between">
         <h3>
           <%= link_to card.title, card.url, class: 'text-white btn-link' %>

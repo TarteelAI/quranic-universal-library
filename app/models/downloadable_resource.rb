@@ -22,7 +22,7 @@ class DownloadableResource < ApplicationRecord
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[quran-script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layouts ayah-theme ayah-topics transliteration morphology quran].freeze
+  RESOURCE_TYPES = %w[quran-script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layouts ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
 
   def get_tags
     tags.to_s.split(',').compact_blank
@@ -67,7 +67,7 @@ class DownloadableResource < ApplicationRecord
       'Transliteration'
     when 'morphology'
       'Morphology and Grammar data'
-    when 'quran'
+    when 'quran-metadata'
       'Quran metadata'
     end
   end
@@ -98,7 +98,7 @@ class DownloadableResource < ApplicationRecord
       'fa-language'
     when 'morphology'
       'fa-language'
-    when 'quran'
+    when 'quran-metadata'
       'fa-book'
     else
       'fa-file'
@@ -131,7 +131,7 @@ class DownloadableResource < ApplicationRecord
       'Transliteration'
     when 'morphology'
       'Morphology and Grammar data'
-    when 'quran'
+    when 'quran-metadata'
       'Quran metadata'
     end
   end
@@ -162,7 +162,7 @@ class DownloadableResource < ApplicationRecord
       'Transliteration'
     when 'morphology'
       'Morphology'
-    when 'quran'
+    when 'quran-metadata'
       'Quran data, surahs, ayahs, words, juz etc.'
     end.html_safe
   end

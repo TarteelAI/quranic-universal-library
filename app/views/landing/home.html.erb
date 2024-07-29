@@ -17,30 +17,3 @@
  <%= render 'landing/resources' %>
 </div>
 
-<style>
-    .tool-card.segments {
-        background: url("<%= image_url 'tools-cards/timestamp.webp' %>");
-    }
-
-    .tool-card.mushaf-layout, .tool-card.page-layout {
-        backdrop-filter: brightness(1.2);
-        background: linear-gradient(rgba(245, 222, 179, 0.3), rgba(0, 0, 0, 0.5)), url("<%= image_url 'tools-cards/mushaf-layout.webp' %>");
-    }
-
-    .tool-card.mutashabihat {
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("<%= image_url 'tools-cards/mutashabihat.webp' %>");
-    }
-
-    .tool-card.quranic-text {
-        background: url("<%= image_url 'tools-cards/quran.webp' %>");
-    }
-
-    .tool-card.translation {
-        background: url("<%= image_url 'tools-cards/translation.webp' %>");
-    }
-
-    .tool-card.tafsirs {
-        backdrop-filter: brightness(0.2) sepia(1) saturate(2) hue-rotate(180deg); /* Add bluish tint */
-        background: url("<%= image_url 'tools-cards/tafsirs.webp' %>");
-    }
-</style>

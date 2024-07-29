@@ -20,6 +20,14 @@
   .fw-light {
     font-weight: 400;
   }
+
+  @media (max-width: $screen-sm) {
+    font-size: 17px;
+
+    .fw-light {
+      font-size: 12px;
+    }
+  }
 }
 
 #resources {
@@ -33,6 +41,10 @@
     align-items: center;
     flex-shrink: 0;
     font-family: Inter;
+
+    @media (max-width: $screen-sm) {
+      width: 90% !important;
+    }
   }
 
   .search-icon {
@@ -43,6 +55,10 @@
   .search-hint {
     position: absolute;
     right: 20px;
+
+    @media (max-width: $screen-sm) {
+      display: none;
+    }
   }
 
   .search-input {
@@ -57,6 +73,11 @@
     &:focus {
       outline-color: $primary;
     }
+
+    @media (max-width: $screen-sm) {
+      height: 50px;
+      padding: 10px 10px 10px 50px;
+    }
   }
 
   .resources-list {
@@ -65,22 +86,20 @@
       border: 1px solid $green-500;
       padding: 3px 15px 3px 15px;
       border-radius: 1332px;
-      background-color: $green-100;
+      background-color: $green-200;
     }
 
     .featured-resource-card {
-      height: 558px;
-      width: 655px;
       border-radius: 24px;
       background-repeat: no-repeat;
       background-size: cover;
       background-position: center;
 
-      &.card-recitations{
+      &.card-recitations {
         background-image: url('resource-cards/audio.png');
       }
 
-      &.card-mushaf-layouts{
+      &.card-mushaf-layouts {
         background-image: url('resource-cards/mushaf-layout.png');
       }
     }
@@ -88,46 +107,25 @@
     .featured-count-badge {
       border-radius: 1332px;
       background-color: white;
-      color: #1FC16B;
+      color: $primary;
       font-weight: bold;
       padding: 2px 10px 2px 10px;
-      border: 1px solid #38A57E;
+      border: 1px solid $green-200;
     }
 
     .resource-card {
-      height: 558px;
-      width: 428px;
+      height: 550px;
+      width: 400px;
       border-radius: 24px;
-
-      background: url('resource-cards/mutashabihat-1.png');
+      position: relative;
     }
 
-    .full-card{
-      background: url('resource-cards/mutashahibat.png');
+    .full-card {
       width: 100%;
       height: 558px;
       border-radius: 24px;
-      background-repeat: no-repeat !important;
       background-size: cover;
       background-position: center;
-    }
-
-
-    @media (max-width: 640px) {
-      .download-page-feature-card1,
-      .download-page-feature-card2 {
-        max-width: 300px;
-      }
-
-      .resource-card {
-        min-width: 300px;
-      }
-    }
-  }
-
-  @media (max-width: 640px) {
-    #resource-message {
-      width: 100%;
     }
   }
 }

@@ -21,10 +21,11 @@ module Exporter
       export_ayah_themes
       export_surah_recitation
       export_ayah_recitation
+      export_wbw_recitation
+
       export_wbw_quran_script
 
       export_ayah_quran_script
-      export_wbw_recitation
       export_quran_metadata
       export_similar_ayah
       export_mutashabihat
@@ -380,6 +381,10 @@ module Exporter
     end
 
     def export_wbw_quran_script
+
+    end
+
+    def export_wbw_recitation
       base_path = "tmp/export/word_recitation"
       FileUtils.mkdir_p(base_path)
 
@@ -405,10 +410,6 @@ module Exporter
     end
 
     def export_ayah_quran_script
-
-    end
-
-    def export_wbw_recitation
 
     end
 

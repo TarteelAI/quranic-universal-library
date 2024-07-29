@@ -22,7 +22,7 @@ class DownloadableResource < ApplicationRecord
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[quran-script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran].freeze
+  RESOURCE_TYPES = %w[quran-script audio translation tafsir mutashabihat similar-ayah surah-info mushaf-layouts ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
 
   def get_tags
     tags.to_s.split(',').compact_blank
@@ -57,8 +57,8 @@ class DownloadableResource < ApplicationRecord
       'Similar Ayah'
     when 'surah-info'
       'Surah Info'
-    when 'mushaf-layout'
-      'Mushaf Layout'
+    when 'mushaf-layouts'
+      'Mushaf Layouts'
     when 'ayah-theme'
       'Ayah Theme'
     when 'ayah-topics'
@@ -67,7 +67,7 @@ class DownloadableResource < ApplicationRecord
       'Transliteration'
     when 'morphology'
       'Morphology and Grammar data'
-    when 'quran'
+    when 'quran-metadata'
       'Quran metadata'
     end
   end
@@ -88,7 +88,7 @@ class DownloadableResource < ApplicationRecord
       'fa-rectangle-list'
     when 'surah-info'
       'fa-book'
-    when 'mushaf-layout'
+    when 'mushaf-layouts'
       'fa-columns'
     when 'ayah-theme'
       'fa-book'
@@ -98,7 +98,7 @@ class DownloadableResource < ApplicationRecord
       'fa-language'
     when 'morphology'
       'fa-language'
-    when 'quran'
+    when 'quran-metadata'
       'fa-book'
     else
       'fa-file'
@@ -121,7 +121,7 @@ class DownloadableResource < ApplicationRecord
       'Similar Ayah'
     when 'surah-info'
       'Surah Info'
-    when 'mushaf-layout'
+    when 'mushaf-layouts'
       'Mushaf Layout'
     when 'ayah-theme'
       'Ayah Theme'
@@ -131,7 +131,7 @@ class DownloadableResource < ApplicationRecord
       'Transliteration'
     when 'morphology'
       'Morphology and Grammar data'
-    when 'quran'
+    when 'quran-metadata'
       'Quran metadata'
     end
   end
@@ -152,7 +152,7 @@ class DownloadableResource < ApplicationRecord
       'Similar Ayah data'
     when 'surah-info'
       '<h2>Surah Information Pack</h2> <p>This comprehensive resource includes detailed descriptions of each surah, including when they were revealed, their core themes, and key topics. It provides invaluable insights into the context and significance of the surahs, helping you to gain a deeper appreciation of the Quranic text.</p>'
-    when 'mushaf-layout'
+    when 'mushaf-layouts'
       'Mushaf Layout data'
     when 'ayah-theme'
       'Ayah Theme'
@@ -162,7 +162,7 @@ class DownloadableResource < ApplicationRecord
       'Transliteration'
     when 'morphology'
       'Morphology'
-    when 'quran'
+    when 'quran-metadata'
       'Quran data, surahs, ayahs, words, juz etc.'
     end.html_safe
   end

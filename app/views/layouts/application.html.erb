@@ -6,30 +6,30 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
     name="viewport"
     />
-  <title><%= content_for?(:title) ? yield(:title) : 'Quran Community' %></title>
+  <title><%= content_for?(:title) ? yield(:title) : 'Quranic Universal Library' %></title>
   <%= csrf_meta_tags %>
 
   <%= yield :head %>
   <script src="https://js.sentry-cdn.com/9c9baca096bbb40bba9c1e944694d76c.min.js" crossorigin="anonymous"></script>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sarina&display=swap" rel="stylesheet">
+
   <%= stylesheet_link_tag "bootstrap", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload", id: 'tinymce_custom_style' %>
   <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
-  <%= render 'shared/nav' %>
-
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-12">
-        <%= render 'shared/flash_notices' %>
-        <%= yield %>
-      </div>
-    </div>
-  </div>
+<%= render 'shared/flash_notices' %>
+<div class="container">
+  <%= render 'landing/header' %>
+</div>
+<%= yield %>
+<div class="container">
+  <%= render 'landing/footer' %>
+</div>
 </body>
 </html>

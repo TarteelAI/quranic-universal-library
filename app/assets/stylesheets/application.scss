@@ -1,9 +1,14 @@
 @import "shared/variables";
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/variables';
+
 @import 'libs/actiontext';
 @import "components/splash";
-@import "components/wraper";
-@import "components/keyboard";
+//@import "components/wraper";
+//@import "components/keyboard";
 @import "components/common";
+@import "components/resources";
 @import "shared/surah_names";
 @import "shared/mushaf_page";
 @import "shared/tajweed";
@@ -11,14 +16,7 @@
 @import "shared/diffy";
 @import "components/pdf_preview";
 @import "components/mutashabihat";
-@import "components/download";
-
 @import "select2/dist/css/select2";
 @import "libs/toastr";
-body{
-  font-family: Roboto, "Helvetica Neue",Helvetica,Arial,sans-serif !important;
-}
 
-.fs-xs{
-  font-size: 0.475em;
-}
+@import "landing_page";

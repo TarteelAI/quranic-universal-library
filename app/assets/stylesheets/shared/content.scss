@@ -87,7 +87,7 @@ body {
   transform: translate(41px, 92px);
 }*/
 
-.suggestion-popup{
+.suggestion-popup {
   position: fixed;
   right: 41px;
   bottom: 92px;
@@ -127,7 +127,7 @@ body {
       padding: calc(0.25px * var(--rem)) calc(0.75px * var(--rem));
       position: relative;
 
-      h1{
+      h1 {
         color: var(--base-content-secondary-default);
         font-size: calc(0.75px * var(--rem));
         font-weight: 400;
@@ -138,7 +138,8 @@ body {
         white-space: nowrap;
       }
     }
-    .search-wrapper{
+
+    .search-wrapper {
       background: white;
       border-radius: calc(0.375px * var(--rem));
       box-shadow: 0px 0px 0px 0.5px #878DA2, 0px 0px 2px 0.5px rgba(135, 141, 162, 0.5), 0px 1px 6px 0.5px rgba(135, 141, 162, 0.25);
@@ -162,8 +163,8 @@ body {
   }
 }
 
-.mushaf{
-  .mushtabiat{
-border: 0.9px dotted lightgray;
+.mushaf {
+  .mushtabiat {
+    border: 0.9px dotted lightgray;
   }
 }

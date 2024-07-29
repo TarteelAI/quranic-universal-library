@@ -29,6 +29,7 @@ class Mushaf < QuranApiRecord
   validates :pages_count, presence: true, numericality: { greater_than: 100 }
   after_create :attach_resource_content
   after_create :generate_pages
+  scope :approved, -> { where(enabled: true) }
 
   def percentage_done
     total = Word.count

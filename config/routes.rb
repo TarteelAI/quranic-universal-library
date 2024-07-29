@@ -1,13 +1,7 @@
 Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
-  unauthenticated do
-    root to: 'landing#home'
-  end
-
-  authenticated :user do
-    root to: 'community#tools', as: :authenticated_root
-  end
+  root to: 'landing#home'
 
   get 'tools', to: 'community#tools', as: :tools
   get 'community/chars_info', as: :chars_info

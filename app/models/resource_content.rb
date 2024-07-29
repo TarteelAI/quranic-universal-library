@@ -61,7 +61,9 @@ class ResourceContent < QuranApiRecord
   scope :general, -> { where sub_type: SubType::Data }
   scope :quran_script, -> { where sub_type: SubType::QuranText }
   scope :from_quranenc, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
+  scope :mukhtasar_tafisr, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }
+  scope :with_segments, -> {where("meta_data ->> 'has-segments' = 'yes'") }
   scope :approved, -> { where approved: true }
   scope :for_language, lambda {|lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|

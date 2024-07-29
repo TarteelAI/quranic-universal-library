@@ -1,0 +1,70 @@
+.tool-card-with-bg{
+  background-repeat: no-repeat !important;
+
+  img{
+    width: 200px;
+    height: 200px;
+  }
+
+  .icon {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  @media (max-width: $screen-sm) {
+    img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
+  &.segments {
+   background: url("tools-cards/timestamp.webp");
+  }
+  &.mushaf-layout, &.page-layout {
+    backdrop-filter: brightness(1.2);
+    background: linear-gradient(rgba(245, 222, 179, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mushaf-layout.webp");
+  }
+
+  &.mutashabihat {
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mutashabihat.webp");
+  }
+
+  &.quranic-text {
+    background: url("tools-cards/quran.webp");
+  }
+
+  &.translation {
+    background: url("tools-cards/translation.webp");
+  }
+
+  &.transliteration{
+    background: url("tools-cards/transliteration.webp");
+  }
+
+  &.tafsirs {
+    /*TODO: find a better background image*/
+    backdrop-filter: brightness(0.2) sepia(1) saturate(2) hue-rotate(180deg); /* Add bluish tint */
+    background: url("tools-cards/tafsirs.webp");
+  }
+
+  &.metadata{
+    background: linear-gradient(rgba(42, 122, 178, 0.8),rgba(188, 239, 214, 0.9)),url("tools-cards/metadata.webp");
+  }
+
+  &.surah-info{
+    background: linear-gradient(rgba(67, 27, 116, 0.8), rgba(92, 45, 138, 0.8)), url("tools-cards/surah-info.webp");
+  }
+
+  &.ayah-topics{
+    background: linear-gradient(rgba(95, 15, 64, 0.8),rgba(154, 3, 30, 0.9)),url("tools-cards/metadata.webp");
+  }
+  &.grammar-morphology{
+    background: linear-gradient(rgba(196, 73, 0, 0.8), rgba(67, 37, 52, 0.5)), url("tools-cards/grammar.webp");
+  }
+}
+
+
+
+

@@ -1,0 +1,65 @@
+<div class="resources-list pt-3 px-2 px-md-0 pt-md-5">
+  <div class="d-flex align-items-start align-items-md-center gap-3 flex-column flex-md-row justify-content-between">
+    <div class="d-flex align-items-center justify-content-center gap-3">
+      <h2>Available Resources</h2>
+      <!--<div class="count-badge">
+        15
+      </div>-->
+    </div>
+
+    <% if false %>
+      <div class="d-flex align-items-center justify-content-center gap-3">
+        <button class="btn border">
+          <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.3333 16.3889H13.6667V14.7222H10.3333V16.3889ZM4.5 6.38892V8.05558H19.5V6.38892H4.5ZM7 12.2222H17V10.5556H7V12.2222Z" fill="#525866"/>
+          </svg>
+          Filter
+        </button>
+
+        <div class="dropdown">
+          <button class="btn border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.1111 0.722168V10.7222H17.6111L14.2777 14.8888L10.9444 10.7222H13.4444V0.722168H15.1111ZM8.4444 12.3888V14.0555H0.944397V12.3888H8.4444ZM10.1111 6.5555V8.22217H0.944397V6.5555H10.1111ZM10.1111 0.722168V2.38883H0.944397V0.722168H10.1111Z" fill="#99A0AE"/>
+            </svg>
+            Sort by
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%= render 'featured_cards' %>
+
+  <div class="mt-3 mt-md-5 d-flex align-items-center justify-content-start justify-content-md-center gap-5 flex-wrap">
+    <% downlodable_resource_cards.each do |card| %>
+      <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>">
+        <div class="p-4 h-100 d-flex flex-column justify-content-between">
+          <h3>
+            <%= link_to card.title, card.url, class: 'text-white btn-link' %>
+          </h3>
+
+          <p class="text-white fw-bold">
+            <%= card.description %>
+          </p>
+
+          <div class="icon">
+            <%= image_tag "landing/#{card.icon}" %>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="text-white fw-bold">
+              <%= card.stats.to_s.html_safe %>
+            </div>
+
+            <div class="featured-count-badge">
+              <%= card.count %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -556,8 +556,9 @@ ActiveAdmin.register Verse do
                        :translations,
                        audio_files: :recitation
                      )
+
       if params[:id].to_s.include?(':')
-        collection.find_by(verse_key: params[:id])
+        collection.find_by(verse_key: params[:id]) || raise(ActiveRecord::RecordNotFound.new("Couldn't find Verse with 'verse_key'=#{params[:id]}"))
       else
         collection.find(params[:id])
       end

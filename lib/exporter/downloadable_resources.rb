@@ -24,12 +24,48 @@ module Exporter
       export_wbw_recitation
 
       export_wbw_quran_script
-
       export_ayah_quran_script
       export_quran_metadata
       export_similar_ayah
       export_mutashabihat
       export_grammar_data
+      export_mushaf_layouts
+    end
+
+    def export_mushaf_layouts(resource_content: nil)
+      base_path = "tmp/export/mushaf_layouts"
+      FileUtils.mkdir_p(base_path)
+
+      list = ResourceContent.mushaf_layout.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        exporter = Exporter::ExportMushafLayout.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'mushaf-layout',
+          cardinality_type: ResourceContent::CardinalityType::OnePage
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.published = true
+        tags = [] #['indopak', '13 lines', 'uthmani', 'Glyph font']
+        downloadable_resource.tags = tags.compact_blank.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, json, 'sqlite')
+      end
     end
 
     def export_quran_topics
@@ -381,7 +417,8 @@ module Exporter
     end
 
     def export_wbw_quran_script
-
+      base_path = "tmp/export/wbw_script"
+      FileUtils.mkdir_p(base_path)
     end
 
     def export_wbw_recitation

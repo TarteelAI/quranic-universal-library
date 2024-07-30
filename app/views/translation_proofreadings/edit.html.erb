@@ -20,7 +20,7 @@
   <% end %>
 
   <div class="col-md-12">
-    <%= form_with model: @translation, url: translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), method: :put, html: {class: 'form', autocomplete: 'off'} do |form| %>
+    <%= form_with model: @translation, url: translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), method: :put, html: { class: 'form', autocomplete: 'off' } do |form| %>
       <%= hidden_field_tag :resource_id, @resource.id %>
 
       <div class="form-group">
@@ -41,15 +41,8 @@
 
       <div class="form-group">
         <%= link_to 'Cancel', translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), class: 'btn btn-default' %>
-        <%= form.submit "Purpose changes", class: 'btn btn-success', data: {disable_with: 'Please wait...'} %>
+        <%= form.submit "Purpose changes", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>
   </div>
 </div>
-
-
-<script>
-    $(function () {
-        autosize($('textarea'));
-    })
-</script>

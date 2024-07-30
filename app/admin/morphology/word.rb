@@ -182,7 +182,7 @@ ActiveAdmin.register Morphology::Word do
                    )
 
       if params[:id].to_s.include?(':')
-        collection.find_by(location: params[:id])
+        collection.find_by(location: params[:id]) || raise(ActiveRecord::RecordNotFound.new("Couldn't find Word with 'location'=#{params[:id]}"))
       else
         collection.find(params[:id])
       end

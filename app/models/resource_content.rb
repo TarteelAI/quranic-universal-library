@@ -281,6 +281,10 @@ class ResourceContent < QuranApiRecord
     sub_type == SubType::Audio || resource_type_name == ResourceType::Audio
   end
 
+  def mushaf_layout?
+    sub_type == SubType::Layout
+  end
+
   def chapter?
     cardinality_type == CardinalityType::OneChapter
   end

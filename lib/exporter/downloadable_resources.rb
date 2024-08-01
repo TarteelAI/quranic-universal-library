@@ -60,11 +60,11 @@ module Exporter
         downloadable_resource.tags = tags.compact_blank.join(', ')
         downloadable_resource.save(validate: false)
 
-        json = exporter.export_json
+        #  json = exporter.export_json
         sqlite = exporter.export_sqlite
 
-        create_download_file(downloadable_resource, json, 'json')
-        create_download_file(downloadable_resource, json, 'sqlite')
+        # create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
       end
     end
 

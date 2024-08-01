@@ -3,6 +3,7 @@
 ActiveAdmin.register Stem do
   menu parent: 'Grammar'
   actions :all, except: :destroy
+  permit_params :text_madani, :text_clean, :uniq_words_count, :words_count
 
   filter :text_clean
   searchable_select_options(scope: Lemma,
@@ -78,9 +79,5 @@ ActiveAdmin.register Stem do
         end
       end
     end
-  end
-
-  permit_params do
-    %i[text_madani text_clean]
   end
 end

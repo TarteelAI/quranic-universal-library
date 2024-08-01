@@ -5,4 +5,7 @@ ActiveAdmin.register VerseStem do
   actions :all, except: :destroy
 
   filter :text_clean
+  filter :text_madani
+
+  permit_params :text_madani, :text_clean
 end

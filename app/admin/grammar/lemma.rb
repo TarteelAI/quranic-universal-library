@@ -3,6 +3,7 @@
 ActiveAdmin.register Lemma do
   menu parent: 'Grammar'
   actions :all, except: :destroy
+  permit_params :text_madani, :text_clean, :words_count, :uniq_words_count
 
   filter :text_clean
 
@@ -78,9 +79,5 @@ ActiveAdmin.register Lemma do
         end
       end
     end
-  end
-
-  permit_params do
-    %i[text_madani text_clean]
   end
 end

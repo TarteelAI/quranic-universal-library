@@ -44,12 +44,12 @@ qul_exports:
    upload:
      cache_control: "public, max-age=<%= 1.year.to_i %>"
 
-public_resource_exports:
+amazon_s3:
   service: S3
   access_key_id: <%= ENV.fetch('AWS_ACCESS_KEY'){'missing'} %>
   secret_access_key: <%= ENV.fetch('AWS_ACCESS_KEY_SECRET'){'missing'} %>
-  region: "us-east-2"
+  region: us-east-2
   bucket: <%= ENV.fetch('AWS_BUCKET'){'missing'} %>
-  public: true
+  public: <%= ENV.fetch('ALLOW_PUBLIC_EXPORT'){false}  %>
   upload:
     cache_control: "public, max-age=<%= 1.year.to_i %>"

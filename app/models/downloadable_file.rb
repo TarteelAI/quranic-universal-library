@@ -24,7 +24,7 @@
 class DownloadableFile < ApplicationRecord
   belongs_to :downloadable_resource
   has_many :user_downloads, dependent: :destroy
-  has_one_attached :file, service: Rails.env.development? ? :local : :public_resource_exports
+  has_one_attached :file, service: Rails.env.development? ? :local : :qul_exports
 
   after_create :generate_token
 

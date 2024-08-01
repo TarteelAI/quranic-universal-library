@@ -145,6 +145,7 @@ GEM
     digest (3.1.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (3.1.2)
     e2mmap (0.1.0)
     engtagger (0.3.1)
       lru_redux
@@ -563,6 +564,7 @@ DEPENDENCIES
   devise (= 4.9.4)
   diff-lcs (~> 1.5)
   diffy
+  dotenv
   engtagger
   fog-aws
   image_processing

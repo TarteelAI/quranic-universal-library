@@ -36,6 +36,7 @@ module Exporter
         end
         statement.execute(fields)
       end
+
       close_sqlite_table
 
       db_file_path

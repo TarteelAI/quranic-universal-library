@@ -12,14 +12,7 @@
     width: 100%;
   }
 
-  @media (max-width: $screen-sm) {
-    img {
-      width: 100px;
-      height: 100px;
-    }
-  }
-
-  &.segments {
+  &.segments, &.recitation {
    background: url("tools-cards/timestamp.webp");
   }
   &.mushaf-layout, &.page-layout {
@@ -62,6 +55,44 @@
   }
   &.grammar-morphology{
     background: linear-gradient(rgba(196, 73, 0, 0.8), rgba(67, 37, 52, 0.5)), url("tools-cards/grammar.webp");
+  }
+
+  &.pattern1{
+    background: url("svg/pattern-1.svg"), linear-gradient(rgba(99, 110, 114, 0.8), #0984e3);
+  }
+  &.pattern2{
+    background: url("svg/pattern-4.svg"), linear-gradient(#218c74, #84817a);
+  }
+  &.pattern3{
+    background: url("svg/pattern-3.svg"), linear-gradient(#d63031,rgba(154, 3, 30, 0.3));
+  }
+  &.pattern4{
+    background: url("svg/pattern-4.svg"), linear-gradient(#fd79a8, #0984e3);
+  }
+  &.pattern5{
+    background: url("svg/pattern-4.svg"), linear-gradient(#00b894, #0984e3);
+  }
+  &.pattern6{
+    background: url("svg/pattern-4.svg"), linear-gradient(#3ae374, #7158e2);
+  }
+  &.pattern7{
+    background: url("svg/pattern-4.svg"), linear-gradient(#fd79a8, #ff793f);
+  }
+  &.pattern8{
+    background: url("svg/pattern-4.svg"), linear-gradient(#ff9f1a, #ff3838);
+  }
+  &.pattern9{
+    background: url("svg/pattern-4.svg"), linear-gradient(#2c2c54, #cd6133);
+  }
+  &.pattern10{
+    background: url("svg/pattern-4.svg"), linear-gradient(#b33939, #34ace0);
+  }
+
+  @media (max-width: $screen-sm) {
+    img {
+      width: 100px;
+      height: 100px;
+    }
   }
 }
 

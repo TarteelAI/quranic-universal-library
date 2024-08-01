@@ -56,15 +56,15 @@ module Exporter
 
       segments.each do |row|
         begin
-        fields = segment_table_attributes.map do |attr|
-          encode(attr, row.send(attr))
-        end
-        segments_statement.execute(fields)
-        rescue Exception => e
-          binding.pry
-          raise e
+          fields = segment_table_attributes.map do |attr|
+            encode(attr, row.send(attr))
           end
+          segments_statement.execute(fields)
+        rescue Exception => e
+          raise e
+        end
       end
+
       close_sqlite_table
 
       db_file_path

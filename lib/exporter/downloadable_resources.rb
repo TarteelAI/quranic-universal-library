@@ -317,6 +317,8 @@ module Exporter
       list.each do |content|
         next if !content.allow_publish_sharing?
         recitation = Audio::Recitation.where(resource_content_id: content.id).first
+        next if recitation.blank?
+        recitation.name ||= content.name
 
         exporter = Exporter::ExportSurahRecitation.new(
           recitation: recitation,

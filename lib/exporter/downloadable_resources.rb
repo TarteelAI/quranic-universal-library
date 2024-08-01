@@ -486,7 +486,8 @@ module Exporter
       file.name ||= "#{resource.name}.#{file_type}"
       file.file.attach(
         io: File.open(zipped),
-        filename: "#{file.name}.bz2"
+        filename: "#{file.name}.bz2",
+        key: QulExportedFileKeyGenerator.generate_key(zipped, resource)
       )
 
       file.save(validate: false)

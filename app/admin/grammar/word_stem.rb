@@ -2,8 +2,8 @@
 
 ActiveAdmin.register WordStem do
   menu parent: 'Grammar'
+  permit_params :stem_id, :word_id
 
-  filter :text_clean
   filter :stem_id, as: :searchable_select,
          ajax: { resource: Stem }
 
@@ -27,10 +27,6 @@ ActiveAdmin.register WordStem do
     end
 
     f.actions
-  end
-
-  permit_params do
-    %i[word_id stem_id]
   end
 
   def scoped_collection

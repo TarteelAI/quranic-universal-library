@@ -83,6 +83,7 @@ group :development do
   # gem 'svg_optimizer'
   # gem 'htmlentities'
   gem 'benchmark-ips', require: false
+  gem 'dotenv'
 
   gem 'rubocop'
   gem 'rubocop-rails'

@@ -2,6 +2,7 @@
 
 ActiveAdmin.register WordLemma do
   menu parent: 'Grammar'
+  permit_params :word_id, :lemma_id
 
   filter :lemma_id, as: :searchable_select,
          ajax: { resource: Lemma }
@@ -16,10 +17,6 @@ ActiveAdmin.register WordLemma do
     end
 
     f.actions
-  end
-
-  permit_params do
-    %i[word_id lemma_id]
   end
 
   def scoped_collection

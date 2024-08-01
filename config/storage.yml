@@ -33,22 +33,23 @@ local:
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
 
-amazon_s3:
+qul_exports:
    service: S3
-   access_key_id: <%= ENV.fetch('AWS_ACCESS_KEY'){'missing'} %>
-   secret_access_key: <%= ENV.fetch('AWS_ACCESS_KEY_SECRET'){'missing'} %>
-   region: us-east-2
-   bucket: <%= ENV.fetch('AWS_BUCKET'){'missing'} %>
-   public: <%= ENV.fetch('ALLOW_PUBLIC_EXPORT'){true}  %>
+   access_key_id: <%= ENV.fetch('QUL_STORAGE_ACCESS_KEY'){'missing'} %>
+   secret_access_key: <%= ENV.fetch('QUL_STORAGE_ACCESS_KEY_SECRET'){'missing'} %>
+   region: <%= ENV.fetch('QUL_STORAGE_REGION'){'us-east-1'} %>
+   bucket: <%= ENV.fetch('QUL_STORAGE_BUCKET'){'missing'} %>
+   public: <%= ENV.fetch('QUL_STORAGE_PUBLIC_EXPORT'){true}  %>
+   endpoint: <%= ENV.fetch('QUL_STORAGE_ENDPOINT'){'missing'} %>
    upload:
      cache_control: "public, max-age=<%= 1.year.to_i %>"
 
-public_resource_exports:
+amazon_s3:
   service: S3
   access_key_id: <%= ENV.fetch('AWS_ACCESS_KEY'){'missing'} %>
   secret_access_key: <%= ENV.fetch('AWS_ACCESS_KEY_SECRET'){'missing'} %>
-  region: "us-east-2"
+  region: us-east-2
   bucket: <%= ENV.fetch('AWS_BUCKET'){'missing'} %>
-  public: true
+  public: <%= ENV.fetch('ALLOW_PUBLIC_EXPORT'){false}  %>
   upload:
     cache_control: "public, max-age=<%= 1.year.to_i %>"

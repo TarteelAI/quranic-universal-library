@@ -197,7 +197,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        # downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
         tags = [content.language_name.humanize]
 
@@ -208,12 +207,28 @@ module Exporter
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
 
-        json = exporter.export_json
-        create_download_file(downloadable_resource, json, 'json')
+        json = exporter.export_json(with_footnotes: false)
+        sqlite = exporter.export_sqlite(with_footnotes: false)
+
+        create_download_file(downloadable_resource, json, 'simple.json')
+        create_download_file(downloadable_resource, sqlite, 'simple.sqlite')
 
         if content.has_footnote?
           json_with_footnotes = exporter.export_json_with_footnotes_tags
-          create_download_file(downloadable_resource, json_with_footnotes, 'footnote.json')
+          json_with_inline_footnotes = exporter.export_json_with_inline_footnotes
+          json_with_footnotes_chunks = exporter.export_json_with_footnotes_chunks
+
+          #sqlite_with_footnotes = exporter.export_sqlite_with_footnotes_tags
+          #sqlite_with_footnotes_chunks = exporter.export_sqlite_with_footnotes_chunks
+          #sqlite_with_inline_footnotes = exporter.export_sqlite_with_inline_footnotes
+
+          create_download_file(downloadable_resource, json_with_footnotes, 'footnote-tags.json')
+          create_download_file(downloadable_resource, json_with_inline_footnotes, 'inline-footnote.json')
+          create_download_file(downloadable_resource, json_with_footnotes_chunks, 'footnote-chunk.json')
+
+          # create_download_file(downloadable_resource, sqlite_with_footnotes_chunks, 'footnote-chunk.sqlite')
+          #create_download_file(downloadable_resource, sqlite_with_footnotes, 'footnote.sqlite')
+          #create_download_file(downloadable_resource, sqlite_with_inline_footnotes, 'inline-footnote.sqlite')
         end
       end
     end
@@ -243,13 +258,16 @@ module Exporter
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
 
-        json = exporter.export_json(ignore_footnotes: true)
+        json = exporter.export_json(with_footnotes: false)
         create_download_file(downloadable_resource, json, 'json')
+
+        sqlite = exporter.export_sqlite(name: 'transliteration', with_footnotes: false)
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
       end
     end
 
     def export_word_translations(resource_content: nil)
-      base_path = "tmp/export/word_transliterations"
+      base_path = "tmp/export/word_translations"
       FileUtils.mkdir_p(base_path)
 
       list = ResourceContent.translations.one_word.approved.where('records_count > 0')
@@ -335,6 +353,8 @@ module Exporter
       list.each do |content|
         next if !content.allow_publish_sharing?
         recitation = Audio::Recitation.where(resource_content_id: content.id).first
+        next if recitation.blank?
+        recitation.name ||= content.name
 
         exporter = Exporter::ExportSurahRecitation.new(
           recitation: recitation,
@@ -495,10 +515,22 @@ module Exporter
 
     def create_download_file(resource, file_path, file_type)
       file = DownloadableFile.where(
-        downloadable_resource: resource,
+        downloadable_resource_id: resource.id,
         file_type: file_type,
       ).first_or_initialize
 
+      zipped = zip(file_path)
+      file.name ||= "#{resource.name}.#{file_type}"
+      file.file.attach(
+        io: File.open(zipped),
+        filename: "#{file.name}.bz2",
+        key: QulExportedFileKeyGenerator.generate_key(zipped, resource)
+      )
+
+      file.save(validate: false)
+    end
+
+    def zip(file_path)
       if File.directory?(file_path)
         zip_folder_path = "#{file_path}.zip"
         Zip::File.open(zip_folder_path, Zip::File::CREATE) do |zipfile|
@@ -509,19 +541,12 @@ module Exporter
           end
         end
 
-        zipped = zip_folder_path
+        zip_folder_path
       else
         `bzip2 #{file_path}`
-        zipped = "#{file_path}.bz2"
+
+        "#{file_path}.bz2"
       end
-
-      file.name ||= "#{resource.name}.#{file_type}"
-      file.file.attach(
-        io: File.open(zipped),
-        filename: "#{file.name}.bz2"
-      )
-
-      file.save(validate: false)
     end
   end
 end

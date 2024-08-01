@@ -146,7 +146,7 @@ class ExportTranslationJob < ApplicationJob
   end
 
   def sanitize_text(text)
-    sanitized = TAG_SANITIZER.sanitize(text.to_s.strip, tags: whitelisted_tags, attributes: []) #.gsub(/[\r\n]+/, "<br/>")
+    sanitized = TAG_SANITIZER.sanitize(text.to_s.strip, tags: whitelisted_tags, attributes: [])
 
     sanitized.gsub(SEE_MORE_REF_REGEXP) do
       "{#{Regexp.last_match(1)}}"

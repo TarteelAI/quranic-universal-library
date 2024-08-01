@@ -25,6 +25,8 @@ module HomeHelper
       'bg-success'
     when 'morphology'
       'bg-success'
+    when 'With Footnotes'
+      'bg-info'
     else
       'bg-success'
     end

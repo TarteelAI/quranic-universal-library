@@ -2,6 +2,7 @@
 
 ActiveAdmin.register WordRoot do
   menu parent: 'Grammar'
+  permit_params :word_id, :root_id
 
   filter :root_id, as: :searchable_select,
                    ajax: { resource: Root }

@@ -38,7 +38,7 @@
 #
 ActiveAdmin.register Translation do
   menu parent: 'Content'
-  actions :all, except: :destroy
+  actions :all, except: [:destroy, :new, :create]
 
   searchable_select_options(scope: Translation, text_attribute: :text)
 

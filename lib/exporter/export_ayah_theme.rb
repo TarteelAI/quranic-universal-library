@@ -12,8 +12,16 @@ module Exporter
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
       records.each do |record|
+        t_verses = record.verse_topics.order('verse_id ASC')
+
         fields = [
           record.name,
+          t_verses.first.verse.chapter_id,
+          t_verses.first.verse.verse_number,
+          t_verses.last.verse.verse_number,
+          record.keywords,
+          t_verses.size,
+          record.ayah_keys.join(',')
         ]
 
         statement.execute(fields)
@@ -34,6 +42,7 @@ module Exporter
         ayah_to: 'INTEGER',
         keywords: 'TEXT',
         total_ayahs: 'INTEGER',
+        ayah_keys: 'TEXT'
       }
     end
 

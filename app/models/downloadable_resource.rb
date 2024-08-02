@@ -22,7 +22,7 @@ class DownloadableResource < ApplicationRecord
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[quran-script recitation translation tafsir mutashabihat similar-ayah surah-info mushaf-layouts ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
+  RESOURCE_TYPES = %w[quran-script recitation translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
 
   def get_tags
     tags.to_s.split(',').compact_blank
@@ -57,7 +57,7 @@ class DownloadableResource < ApplicationRecord
       'Similar Ayah'
     when 'surah-info'
       'Surah Info'
-    when 'mushaf-layouts'
+    when 'mushaf-layout'
       'Mushaf Layouts'
     when 'ayah-theme'
       'Ayah Theme'
@@ -88,7 +88,7 @@ class DownloadableResource < ApplicationRecord
       'fa-rectangle-list'
     when 'surah-info'
       'fa-book'
-    when 'mushaf-layouts'
+    when 'mushaf-layout'
       'fa-columns'
     when 'ayah-theme'
       'fa-book'
@@ -121,7 +121,7 @@ class DownloadableResource < ApplicationRecord
       'Similar Ayah'
     when 'surah-info'
       'Surah Info'
-    when 'mushaf-layouts'
+    when 'mushaf-layout'
       'Mushaf Layout'
     when 'ayah-theme'
       'Ayah Theme'
@@ -153,7 +153,7 @@ class DownloadableResource < ApplicationRecord
     when 'surah-info'
       #  '<h2>Surah Information Pack</h2> <p>This comprehensive resource includes detailed descriptions of each surah, including when they were revealed, their core themes, and key topics. It provides invaluable insights into the context and significance of the surahs, helping you to gain a deeper appreciation of the Quranic text.</p>'
       'Surah Information'
-    when 'mushaf-layouts'
+    when 'mushaf-layout'
       'Mushaf Layout data'
     when 'ayah-theme'
       'Ayah Theme'

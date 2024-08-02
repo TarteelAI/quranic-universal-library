@@ -387,6 +387,8 @@ ActiveAdmin.register ResourceContent do
         else
           link_to 'Ayah recitations', "/admin/recitations?q%5Bresource_content_id_eq=#{resource.id}"
         end
+      elsif resource.mushaf_layout?
+        link_to 'Mushaf pages', "/admin/mushaf_pages?q%5Bmushaf_id_eq%5D=#{Mushaf.where(resource_content_id: resource.id).first&.id}"
       end
     end
   end

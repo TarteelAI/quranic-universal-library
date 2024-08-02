@@ -1,6 +1,6 @@
 class CreateQuranScripts < ActiveRecord::Migration[7.0]
   def up
-    Verse.connection.create_table :quran_scripts do |t|
+    Verse.connection.create_table :quran_scripts, if_not_exists: true do |t|
       t.string :text
       t.integer :resource_content_id, index: true
       t.string :occurrence_count

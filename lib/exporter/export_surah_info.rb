@@ -22,9 +22,10 @@ module Exporter
 
     def export_json
       json_file_path = "#{@export_file_path}.json"
+      json_data = {}
 
-      json_data = records.map do |row|
-        Hash[column_names.map { |attr, col| [col, row.send(attr)] }]
+      records.each do |row|
+        json_data[row.chapter_id] = Hash[column_names.map { |attr, col| [col, row.send(attr)] }]
       end
 
       File.open(json_file_path, 'w') do |f|

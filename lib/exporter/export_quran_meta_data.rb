@@ -91,7 +91,7 @@ module Exporter
       else
         json_data = {}
         Verse.order('verse_index asc').each do |verse|
-          json_data[chapter.id] = {
+          json_data[verse.id] = {
             id: verse.verse_index,
             surah_number: verse.chapter_id,
             ayah_number: verse.verse_number,

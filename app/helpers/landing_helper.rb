@@ -64,8 +64,16 @@ module LandingHelper
         type: 'quranic-text',
         icon: 'bismillah.svg',
         count: 15,
-        type: 'quranic-text',
         stats: "<div><div>Indopak</div><div>Uthmani, tajweed</div></div>"
+      ),
+      ToolCard.new(
+        title: "Quran metadata",
+        description: "Download Quran metadata, surah, ayah, juz, hizb, rub, manzil etc.",
+        url: '/resources/quran-metadata',
+        type: 'quranic-text',
+        icon: 'bismillah.svg',
+        count: ResourceContent.quran_metadata.count,
+        stats: "<div><div>Total resources</div></div>"
       ),
       #TODO: update bg and svg
       ToolCard.new(
@@ -94,14 +102,6 @@ module LandingHelper
         count: Topic.count,
         type: 'ayah-topics',
         stats: "<div><div>#{Topic.count} topics</div></div>"
-      ),
-      ToolCard.new(
-        title: "Quran metadata",
-        description: "Download Mushaf layout data to render Quran pages exactly like the printed Mushaf. The exact layout aids in memorizing the Quran, offering users a familiar experience similar to their favorite printed Mushaf.",
-        icon: 'layout.svg',
-        url: '/resources/quran-metadata',
-        count: Mushaf.approved.count,
-        type: 'metadata'
       ),
       ToolCard.new(
         title: "Quranic Grammar and Morphology",

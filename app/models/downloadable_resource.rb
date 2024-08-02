@@ -38,6 +38,8 @@ class DownloadableResource < ApplicationRecord
       'Multiple Ayahs'
     when ResourceContent::CardinalityType::OneChapter
       'Surah by Surah'
+    when ResourceContent::CardinalityType::OneJuz
+      'Juz list'
     end
   end
 

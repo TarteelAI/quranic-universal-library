@@ -3,8 +3,10 @@
 <div class="p-4" id=resources>
   <%
     patterns = (1..10).to_a
+    is_quran_script = @resources.first.resource_content&.quran_script?
+    @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
   %>
-  
+
   <div class="d-flex flex-column align-items-center align-items-md-start  position-relative mt-2 gap-5  overflow-hidden " id="hero">
     <div id="resource-bg">
     </div>
@@ -59,12 +61,7 @@
   </div>
 
   <div class="d-flex align-items-center justify-content-start mt-3 mt-md-5 flex-wrap gap-5 resources-list">
-    <%
-      if @resources.first.resource_content&.quran_script?
-        @preview_verse = Verse.find_by(verse_key: '73:4')
-      end
-    %>
-    <%= render 'shared/page_font', verses: [@preview_verse] %>
+    <%= render 'shared/page_font', verses: [@preview_verse] if is_quran_script %>
 
     <% @resources.each do |resource| %>
       <div class="resource-card tool-card-with-bg <%#= resource.resource_type %> pattern<%= patterns.sample %>">
@@ -84,26 +81,26 @@
             <% %>
           </p>
 
-          <% if resource.resource_content&.quran_script? %>
+          <% if is_quran_script %>
             <%= render 'quran_script_preview', resource: resource.resource_content, preview_verse: @preview_verse %>
           <% else %>
             <div class="icon">
               <i class="fa text-white <%= resource.icon %>" style="font-size: 5rem;"></i>
             </div>
-         <% end %>
+          <% end %>
 
           <div class="d-flex w-100 align-items-center flex-column justify-content-center mt-5">
             <div class="dropdown mb-2">
-              <a class="btn btn-primary  dropdown-toggle  w-100" href="#" role="button" id="dropdown-<%=resource.id%>" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="btn btn-primary  dropdown-toggle  w-100" href="#" role="button" id="dropdown-<%= resource.id %>" data-bs-toggle="dropdown" aria-expanded="false">
                 Select download format
               </a>
 
-              <ul class="dropdown-menu" aria-labelledby="dropdown-<%=resource.id%>">
+              <ul class="dropdown-menu" aria-labelledby="dropdown-<%= resource.id %>">
                 <% resource.downloadable_files.each do |file| %>
                   <li>
-                  <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item w-100', download: 'download' do %>
-                    Download <%= file.file_type %>
-                  <% end %>
+                    <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item w-100', download: 'download' do %>
+                      Download <%= file.file_type %>
+                    <% end %>
                   </li>
                 <% end %>
               </ul>
@@ -111,11 +108,11 @@
           </div>
 
           <div class="card-tex">
-              <% resource.get_tags.each do |tag| %>
+            <% resource.get_tags.each do |tag| %>
               <span class="badge <%= resource_tag_class(tag.strip) %>">
                 <%= tag %>
               </span>
-              <% end %>
+            <% end %>
           </div>
         </div>
       </div>

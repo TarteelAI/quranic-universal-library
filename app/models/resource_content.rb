@@ -58,6 +58,7 @@ class ResourceContent < QuranApiRecord
   scope :recitations, -> { where sub_type: SubType::Audio }
   scope :general, -> { where sub_type: SubType::Data }
   scope :quran_script, -> { where sub_type: SubType::QuranText }
+  scope :quran_metadata, -> { where sub_type: SubType::MetaData }
   scope :mushaf_layout, -> { where(sub_type: SubType::Layout) }
   scope :from_quranenc, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
   scope :mukhtasar_tafisr, -> { where("meta_data ->> 'mukhtasar' = 'yes'").or(where data_source_id: 14) }
@@ -114,6 +115,11 @@ class ResourceContent < QuranApiRecord
     NVerse = 'n_ayah'
     OneChapter = '1_chapter'
     OnePage = '1_page'
+    OneJuz  = '1_juz'
+    OneRub = '1_rub'
+    OneHizb = '1_hizb'
+    OneRuku = '1_ruku'
+    OneManzil = '1_manzil'
   end
 
   module ResourceType
@@ -138,6 +144,7 @@ class ResourceContent < QuranApiRecord
     Topic = 'topic'
     Theme = 'theme'
     Layout = 'layout'
+    MetaData = 'meta'
   end
 
   def allow_publish_sharing?

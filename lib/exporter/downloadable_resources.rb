@@ -16,7 +16,7 @@ module Exporter
       export_ayah_translations
       export_ayah_transliteration
       export_word_transliteration
-      export_word_translations
+      export_word_translations # exported
       export_quran_topics
       export_ayah_themes
       export_surah_recitation
@@ -33,7 +33,7 @@ module Exporter
     end
 
     def export_mushaf_layouts(resource_content: nil)
-      #TODO: add tags
+      # TODO: add tags
       base_path = "tmp/export/mushaf_layouts"
       FileUtils.mkdir_p(base_path)
 
@@ -70,7 +70,7 @@ module Exporter
     end
 
     def export_quran_topics
-      #TODO: add tags
+      # TODO: add tags
       base_path = "tmp/export/quran_topics"
       FileUtils.mkdir_p(base_path)
 
@@ -102,7 +102,7 @@ module Exporter
     end
 
     def export_ayah_themes
-      #TODO: add tags
+      # TODO: add tags
       base_path = "tmp/export/ayah_themse"
       FileUtils.mkdir_p(base_path)
 
@@ -138,7 +138,7 @@ module Exporter
     end
 
     def export_tafsirs(resource_content: nil)
-      #TODO: add tags
+      # TODO: add tags
       base_path = "tmp/export/tafsirs"
       FileUtils.mkdir_p(base_path)
 
@@ -221,17 +221,17 @@ module Exporter
           json_with_inline_footnotes = exporter.export_json_with_inline_footnotes
           json_with_footnotes_chunks = exporter.export_json_with_footnotes_chunks
 
-          #sqlite_with_footnotes = exporter.export_sqlite_with_footnotes_tags
-          #sqlite_with_footnotes_chunks = exporter.export_sqlite_with_footnotes_chunks
-          #sqlite_with_inline_footnotes = exporter.export_sqlite_with_inline_footnotes
+          # sqlite_with_footnotes = exporter.export_sqlite_with_footnotes_tags
+          # sqlite_with_footnotes_chunks = exporter.export_sqlite_with_footnotes_chunks
+          # sqlite_with_inline_footnotes = exporter.export_sqlite_with_inline_footnotes
 
           create_download_file(downloadable_resource, json_with_footnotes, 'footnote-tags.json')
           create_download_file(downloadable_resource, json_with_inline_footnotes, 'inline-footnote.json')
           create_download_file(downloadable_resource, json_with_footnotes_chunks, 'footnote-chunk.json')
 
           # create_download_file(downloadable_resource, sqlite_with_footnotes_chunks, 'footnote-chunk.sqlite')
-          #create_download_file(downloadable_resource, sqlite_with_footnotes, 'footnote.sqlite')
-          #create_download_file(downloadable_resource, sqlite_with_inline_footnotes, 'inline-footnote.sqlite')
+          # create_download_file(downloadable_resource, sqlite_with_footnotes, 'footnote.sqlite')
+          # create_download_file(downloadable_resource, sqlite_with_inline_footnotes, 'inline-footnote.sqlite')
         end
       end
     end
@@ -339,8 +339,40 @@ module Exporter
       end
     end
 
-    def export_quran_metadata
+    def export_quran_metadata(resource_content:nil)
+      base_path = "tmp/export/quran-metadata"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.quran_metadata
+
+      if resource_content
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |resource|
+        exporter = Exporter::ExportQuranMetaData.new(
+          resource_content: resource,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: resource,
+          resource_type: 'quran-metadata',
+          cardinality_type: resource.cardinality_type
+        ).first_or_initialize
+
+        downloadable_resource.name ||= resource.name
+        downloadable_resource.published = true
+        tags = ['Quran', 'Metadata', resource.name]
+
+        downloadable_resource.tags = tags.compact_blank.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
     def export_surah_recitation(resource_content: nil)
@@ -553,7 +585,6 @@ module Exporter
         create_download_file(downloadable_resource, sqlite, 'sqlite')
       end
     end
-
 
     def export_surah_info(language: nil)
       list = ResourceContent

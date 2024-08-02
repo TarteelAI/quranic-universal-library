@@ -98,6 +98,8 @@ module Exporter
     end
 
     def export_grammar_data
+      base_path = "tmp/export/grammar"
+      FileUtils.mkdir_p(base_path)
 
     end
 

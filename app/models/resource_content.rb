@@ -154,12 +154,20 @@ class ResourceContent < QuranApiRecord
     cardinality_type == CardinalityType::OneVerse
   end
 
+  def quran_script?
+    sub_type == SubType::QuranText
+  end
+
   def has_footnote?
     meta_value('has-footnote') == 'yes'
   end
 
   def has_segments?
     meta_value('has-segments') == 'yes'
+  end
+
+  def has_mushaf_layout?
+    meta_value('mushaf').present?
   end
 
   def get_source_pdf_url

@@ -27,6 +27,7 @@ module Exporter
     end
 
     def close_sqlite_table
+      sleep(5) # Let pg persist the data
       @db.close
       @db_statement.each &:close
     rescue SQLite3::Exception => e

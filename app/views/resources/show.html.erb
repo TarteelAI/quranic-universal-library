@@ -59,6 +59,13 @@
   </div>
 
   <div class="d-flex align-items-center justify-content-start mt-3 mt-md-5 flex-wrap gap-5 resources-list">
+    <%
+      if @resources.first.resource_content&.quran_script?
+        @preview_verse = Verse.find_by(verse_key: '73:4')
+      end
+    %>
+    <%= render 'shared/page_font', verses: [@preview_verse] %>
+
     <% @resources.each do |resource| %>
       <div class="resource-card tool-card-with-bg <%#= resource.resource_type %> pattern<%= patterns.sample %>">
         <div class="p-4 h-100 d-flex flex-column justify-content-between">
@@ -77,9 +84,13 @@
             <% %>
           </p>
 
-          <div class="icon">
-            <i class="fa text-white <%= resource.icon %>" style="font-size: 5rem;"></i>
-          </div>
+          <% if resource.resource_content&.quran_script? %>
+            <%= render 'quran_script_preview', resource: resource.resource_content, preview_verse: @preview_verse %>
+          <% else %>
+            <div class="icon">
+              <i class="fa text-white <%= resource.icon %>" style="font-size: 5rem;"></i>
+            </div>
+         <% end %>
 
           <div class="d-flex w-100 align-items-center flex-column justify-content-center mt-5">
             <div class="dropdown mb-2">

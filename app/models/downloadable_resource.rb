@@ -72,10 +72,14 @@ class DownloadableResource < ApplicationRecord
     end
   end
 
+  def sample_text
+
+  end
+
   def icon
     case resource_type
     when 'quran-script'
-      'fa-book-open'
+      'fa-font'
     when 'recitation'
       'fa-headphones-alt'
     when 'translation'
@@ -138,7 +142,7 @@ class DownloadableResource < ApplicationRecord
 
   def group_info
     case resource_type
-    when 'script'
+    when 'quran-script'
       'The Holy Quran in its original Arabic script'
     when 'recitation'
       'Audio files and segments'

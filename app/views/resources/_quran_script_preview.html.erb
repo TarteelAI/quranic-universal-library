@@ -1,0 +1,7 @@
+<%
+  text = preview_verse.send(resource.meta_value('text_type'))
+%>
+
+<div class="bg-primary p-1 rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
+  <%= text.html_safe %>
+</div>

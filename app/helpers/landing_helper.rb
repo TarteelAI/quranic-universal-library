@@ -21,7 +21,7 @@ module LandingHelper
         title: "Mushaf layouts",
         description: "Download Mushaf layout data to render Quran pages exactly like the printed Mushaf. The exact layout aids in memorizing the Quran, offering users a familiar experience similar to their favorite printed Mushaf.",
         icon: 'layout.svg',
-        url: '/resources/mushaf-layouts',
+        url: '/resources/mushaf-layout',
         count: total_layout,
         type: 'card-mushaf-layouts',
         # TODO: once all layout are approved, stats will looks weird. Fix the messaging

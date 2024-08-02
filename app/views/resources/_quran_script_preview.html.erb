@@ -5,8 +5,8 @@
 
 <div class="bg-primary p-1 rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
   <% if is_image %>
-   <div class="f-flex">
-     <% preview_verse.words.each do |w| %>
+   <div class="d-flex">
+     <% preview_verse.words.words.each do |w| %>
         <div class="word">
           <img src="<%= w.send(text_type) %>" alt="<%= w.send(text_type) %>" />
         </div>

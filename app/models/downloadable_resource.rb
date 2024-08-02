@@ -80,7 +80,7 @@ class DownloadableResource < ApplicationRecord
     when 'transliteration'
       'Transliteration'
     when 'morphology'
-      'Morphology and Grammar data'
+      'Quranic Morphology and Grammar data'
     when 'quran-metadata'
       'Quran metadata'
     end
@@ -157,7 +157,7 @@ class DownloadableResource < ApplicationRecord
   def group_info
     case resource_type
     when 'quran-script'
-      'The Holy Quran in its original Arabic script'
+      'Ayah by ayah and word by text of Quran'
     when 'recitation'
       'Audio files and segments'
     when 'translation'

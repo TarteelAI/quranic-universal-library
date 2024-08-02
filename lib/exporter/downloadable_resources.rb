@@ -2,7 +2,7 @@
 # s = Exporter::DownloadableResources.new
 # s.export_all # This will export all the resources
 # s.export_surah_info # export surah info
-# s.export_ayah_recitation(resource_content: ResourceContent.find(941))
+# s.export_mutashabihat (resource_content: ResourceContent.find(941))
 
 require 'zip'
 
@@ -14,7 +14,7 @@ module Exporter
       export_surah_info # exported
       export_tafsirs # exported
       export_ayah_translations
-      export_ayah_transliteration
+      export_ayah_transliteration #ex
       export_word_transliteration
       export_word_translations # exported
       export_quran_topics
@@ -24,12 +24,11 @@ module Exporter
       export_wbw_recitation # exported
       export_wbw_quran_script # exported
       export_ayah_quran_script
-      export_quran_metadata
-      export_mushaf_layouts
+      export_quran_metadata # exported
+      export_mushaf_layouts #exported
       export_similar_ayah
-      export_mutashabihat
-
-      export_grammar_data
+      export_mutashabihat #
+      export_quranic_morphology_data
     end
 
     def export_mushaf_layouts(resource_content: nil)
@@ -97,8 +96,36 @@ module Exporter
       create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
-    def export_grammar_data
+    def export_quranic_morphology_data(resource_content: nil)
+      base_path = "tmp/export/morphology"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.morphology.approved
+
+      if resource_content
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |resource|
+        exporter = Exporter::ExportQuranicMorphology.new(
+          resource_content: resource,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: resource,
+          resource_type: 'morphology',
+          cardinality_type: ResourceContent::CardinalityType::OneWord
+        ).first_or_initialize
+
+        downloadable_resource.name ||= resource.name
+        downloadable_resource.published = true
+        downloadable_resource.tags = ['Quranic Morphology', resource.name.split(/\s+/).last].compact_blank.join(',')
+        downloadable_resource.save(validate: false)
+
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
 
     def export_ayah_themes
@@ -122,7 +149,7 @@ module Exporter
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
       downloadable_resource.published = true
-      downloadable_resource.tags = resource.language_name.humanize
+      downloadable_resource.tags = [resource.language_name.humanize, 'Ayah Theme']
       downloadable_resource.save(validate: false)
 
       sqlite = exporter.export_sqlite

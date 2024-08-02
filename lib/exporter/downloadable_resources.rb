@@ -11,8 +11,8 @@ module Exporter
     def export_all
       FileUtils.rmdir("tmp/export")
 
-      export_surah_info
-      export_tafsirs
+      export_surah_info # exported
+      export_tafsirs # exported
       export_ayah_translations
       export_ayah_transliteration
       export_word_transliteration
@@ -22,17 +22,18 @@ module Exporter
       export_surah_recitation
       export_ayah_recitation
       export_wbw_recitation
-
       export_wbw_quran_script
       export_ayah_quran_script
+
       export_quran_metadata
       export_similar_ayah
       export_mutashabihat
       export_grammar_data
-      export_mushaf_layouts
+      export_mushaf_layouts # exported
     end
 
     def export_mushaf_layouts(resource_content: nil)
+      #TODO: add tags
       base_path = "tmp/export/mushaf_layouts"
       FileUtils.mkdir_p(base_path)
 
@@ -69,6 +70,7 @@ module Exporter
     end
 
     def export_quran_topics
+      #TODO: add tags
       base_path = "tmp/export/quran_topics"
       FileUtils.mkdir_p(base_path)
 
@@ -100,6 +102,7 @@ module Exporter
     end
 
     def export_ayah_themes
+      #TODO: add tags
       base_path = "tmp/export/ayah_themse"
       FileUtils.mkdir_p(base_path)
 
@@ -135,6 +138,7 @@ module Exporter
     end
 
     def export_tafsirs(resource_content: nil)
+      #TODO: add tags
       base_path = "tmp/export/tafsirs"
       FileUtils.mkdir_p(base_path)
 
@@ -161,7 +165,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language = content.language
-        # downloadable_resource.info ||= resource_content.info
         downloadable_resource.published = true
         downloadable_resource.tags = content.language_name.humanize
         downloadable_resource.save(validate: false)
@@ -254,7 +257,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
         downloadable_resource.published = true
-        tags = [content.language_name.humanize]
+        tags = [content.language_name.humanize, 'Transliteration']
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
 
@@ -293,7 +296,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
         downloadable_resource.published = true
-        tags = [content.language_name.humanize]
+        tags = [content.language_name.humanize, 'Translation']
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
 
@@ -325,7 +328,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
         downloadable_resource.published = true
-        tags = [content.language_name.humanize]
+        tags = [content.language_name.humanize, 'Transliteration']
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
 
@@ -369,14 +372,14 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.published = true
-        tags = [recitation.recitation_style&.name, recitation.qirat_type&.name]
+        tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
           tags << 'With segments'
         end
 
         if recitation.chapter_audio_files.size < 114
-          tags << 'Partial Recitation'
+          tags << 'Partial'
         end
 
         downloadable_resource.tags = tags.compact_blank.join(', ')
@@ -416,14 +419,14 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.published = true
-        tags = [recitation.recitation_style&.name, recitation.qirat_type&.name]
+        tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
           tags << 'With segments'
         end
 
         if recitation.audio_files.size < Verse.count
-          tags << 'Partial Recitation'
+          tags << 'Partial'
         end
 
         downloadable_resource.tags = tags.compact_blank.join(', ')
@@ -434,11 +437,6 @@ module Exporter
         create_download_file(downloadable_resource, json, 'json')
         create_download_file(downloadable_resource, sqlite, 'sqlite')
       end
-    end
-
-    def export_wbw_quran_script
-      base_path = "tmp/export/wbw_script"
-      FileUtils.mkdir_p(base_path)
     end
 
     def export_wbw_recitation
@@ -456,7 +454,7 @@ module Exporter
 
       downloadable_resource.name ||= content.name
       downloadable_resource.published = true
-      tags = ['Waseem Sharif']
+      tags = ['Recitation', 'Waseem Sharif']
       downloadable_resource.tags = tags.compact_blank.join(', ')
       downloadable_resource.save(validate: false)
 
@@ -466,9 +464,96 @@ module Exporter
       create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
-    def export_ayah_quran_script
+    def export_ayah_quran_script(resource_content: nil)
+      base_path = "tmp/export/ayah_script"
+      FileUtils.mkdir_p(base_path)
 
+      list = ResourceContent.quran_script.one_verse.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        next if !content.allow_publish_sharing?
+
+        exporter = Exporter::ExportQuranAyahScript.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'quran-script',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.published = true
+        tags = ['Quran text', 'Hafs']
+
+        if content.meta_value('font').present?
+          fonts = content.meta_value('font').split('or').map(&:strip)
+          tags += fonts
+        end
+
+        downloadable_resource.tags = tags.compact_blank.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
     end
+
+    def export_wbw_quran_script(resource_content: nil)
+      base_path = "tmp/export/wbw_script"
+      FileUtils.mkdir_p(base_path)
+
+      list = ResourceContent.quran_script.one_word.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        next if !content.allow_publish_sharing?
+
+        exporter = Exporter::ExportQuranWordScript.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'quran-script',
+          cardinality_type: ResourceContent::CardinalityType::OneWord
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.published = true
+        tags = ['Quran text', 'Hafs']
+
+        if content.has_mushaf_layout?
+          tags << 'Mushaf layout'
+        end
+
+        if content.meta_value('font').present?
+          fonts = content.meta_value('font').split('or').map(&:strip)
+          tags += fonts
+        end
+
+        downloadable_resource.tags = tags.compact_blank.join(', ')
+        downloadable_resource.save(validate: false)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
+    end
+
 
     def export_surah_info(language: nil)
       list = ResourceContent

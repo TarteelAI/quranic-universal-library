@@ -42,14 +42,14 @@ $asset-version: "1";
 
 @font-face {
   font-family: 'indopak-nastaleeq';
-  src: url("#{$font-cdn}nastaleeq/indopak-nastaleeq-waqf-lazim.woff2?v=#{$asset-version}");
+  src: url("#{$font-cdn}/nastaleeq/indopak-nastaleeq-waqf-lazim.woff2?v=#{$asset-version}");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'qpc-nastaleeq';
-  src: url("#{$font-cdn}nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
+  src: url("#{$font-cdn}/nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
 }
 
 .mushaf-qpc-nastaleeq{

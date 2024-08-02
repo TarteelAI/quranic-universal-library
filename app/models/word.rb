@@ -151,6 +151,21 @@ class Word < QuranApiRecord
     end
   end
 
+  def qa_tajweed_image
+    s,a,w=location.split(':')
+    "https://static.qurancdn.com/images/w/qa-color/#{s}/#{a}/#{w}.png"
+  end
+
+  def rq_tajweed_image
+    s,a,w=location.split(':')
+    "https://static.qurancdn.com/images/w/rq-color/#{s}/#{a}/#{w}.png"
+  end
+
+  def qa_black_image
+    s,a,w=location.split(':')
+    "https://static.qurancdn.com/images/w/qa-black/#{s}/#{a}/#{w}.png"
+  end
+
   def word?
     'word' == char_type_name
   end

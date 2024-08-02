@@ -18,5 +18,9 @@ class ResourcesController < CommunityController
 
   def show
     @resources = DownloadableResource.published.where(resource_type: params[:id])
+
+    if @resources.empty?
+      redirect_to resources_path, alert: 'Sorry, this resource does not exist.'
+    end
   end
 end

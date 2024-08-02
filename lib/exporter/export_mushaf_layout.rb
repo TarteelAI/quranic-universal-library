@@ -57,6 +57,7 @@ module Exporter
         if line_type == 'ayah'
           fields << range_start
           fields << range_end
+          fields << ''
         elsif line_type == 'surah_name'
           fields << ''
           fields << ''

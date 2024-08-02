@@ -116,11 +116,6 @@ class ExportPhrase
         ranges[p_verse.verse.verse_key].push([p_verse.word_position_from, p_verse.word_position_to])
       end
 
-      #ranges.each do |k, val|
-      #  ranges[k] = remove_subarrays(val.uniq)
-      #end
-
-      #binding.pry if ranges.values.flatten.include?(nil)
       mapping[phrase.id][:ayah] = ranges
     end
 

@@ -37,5 +37,11 @@ module Exporter
     def fix_file_name(name)
       name.downcase.to_param.parameterize.gsub(/[\s+_]/, '-')
     end
+
+    def write_json(file, data)
+      File.open(file, 'w') do |f|
+        f << JSON.generate(data, { state: JsonNoEscapeHtmlState.new }).gsub(/\s+/, '')
+      end
+    end
   end
 end

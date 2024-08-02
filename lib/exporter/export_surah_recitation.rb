@@ -11,29 +11,27 @@ module Exporter
       FileUtils.mkdir_p(@export_file_path)
       surah_json_file_path = "#{@export_file_path}/surah.json"
       segments_json_file_path = "#{@export_file_path}/segments.json"
+      surah_data = {}
 
-      surah_data = audio_files.map do |row|
-        Hash[surah_table_column_names.map { |attr, col| [col, row.send(attr)] }]
+      audio_files.map do |row|
+        surah_data[row.chapter_id] = Hash[surah_table_column_names.map { |attr, col| [col, row.send(attr)] }]
       end
 
       segments_data = {}
-      segments.each do |segment|
-        segments_data[segment.verse_key] = {
-          segments: segment.segments,
-          duration_sec: segment.duration,
-          duration_ms: segment.duration_ms,
-          timestamp_from: segment.timestamp_from,
-          timestamp_to: segment.timestamp_to
-        }
+      segments.each do |batch|
+        batch.each do |segment|
+          segments_data[segment.verse_key] = {
+            segments: segment.segments,
+            duration_sec: segment.duration,
+            duration_ms: segment.duration_ms,
+            timestamp_from: segment.timestamp_from,
+            timestamp_to: segment.timestamp_to
+          }
+        end
       end
 
-      File.open(surah_json_file_path, 'w') do |f|
-        f << JSON.generate(surah_data, { state: JsonNoEscapeHtmlState.new })
-      end
-
-      File.open(segments_json_file_path, 'w') do |f|
-        f << JSON.generate(segments_data, { state: JsonNoEscapeHtmlState.new })
-      end
+      write_json(surah_json_file_path, surah_data)
+      write_json(segments_json_file_path, segments_data)
 
       @export_file_path
     end
@@ -54,14 +52,12 @@ module Exporter
         surah_statement.execute(fields)
       end
 
-      segments.each do |row|
-        begin
+      segments.each do |batch|
+        batch.each do |row|
           fields = segment_table_attributes.map do |attr|
             encode(attr, row.send(attr))
           end
           segments_statement.execute(fields)
-        rescue Exception => e
-          raise e
         end
       end
 
@@ -77,7 +73,7 @@ module Exporter
     end
 
     def segments
-      Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id ASC')
+      Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id ASC').in_batches(of: 1000)
     end
 
     def surah_table_column_names

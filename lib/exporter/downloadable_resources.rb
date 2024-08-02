@@ -21,15 +21,15 @@ module Exporter
       export_ayah_themes
       export_surah_recitation
       export_ayah_recitation
-      export_wbw_recitation
-      export_wbw_quran_script
+      export_wbw_recitation # exported
+      export_wbw_quran_script # exported
       export_ayah_quran_script
-
       export_quran_metadata
+      export_mushaf_layouts
       export_similar_ayah
       export_mutashabihat
+
       export_grammar_data
-      export_mushaf_layouts # exported
     end
 
     def export_mushaf_layouts(resource_content: nil)
@@ -130,11 +130,68 @@ module Exporter
     end
 
     def export_mutashabihat
+      base_path = "tmp/export/mutashabihat"
+      FileUtils.mkdir_p(base_path)
 
+      resource = ResourceContent
+                   .where(
+                     sub_type: ResourceContent::SubType::Mutashabihat
+                   )
+                   .first
+
+      exporter = Exporter::ExportMutashabihat.new(
+        base_path: base_path,
+        min_phrase_length: 3
+      )
+
+      json = exporter.export_json
+
+      #sqlite = exporter.export_sqlite
+
+      downloadable_resource = DownloadableResource.where(
+        resource_content: resource,
+        resource_type: 'mutashabihat',
+        cardinality_type: ResourceContent::CardinalityType::OnePhrase
+      ).first_or_initialize
+
+      downloadable_resource.name ||= resource.name
+      downloadable_resource.language = resource.language
+      downloadable_resource.published = true
+      downloadable_resource.tags = 'Mutashabihat'
+      downloadable_resource.save(validate: false)
+
+      create_download_file(downloadable_resource, json, 'json')
+      #create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_similar_ayah
+      base_path = "tmp/export/matching_ayah"
+      FileUtils.mkdir_p(base_path)
 
+      resource = ResourceContent.where(name: 'Similar Ayah').first_or_create
+
+      exporter = Exporter::ExportMatchingAyah.new(
+        base_path: base_path,
+        min_match_score: 50
+      )
+
+      json = exporter.export_json
+      sqlite = exporter.export_sqlite
+
+      downloadable_resource = DownloadableResource.where(
+        resource_content: resource,
+        resource_type: 'similar-ayah',
+        cardinality_type: ResourceContent::CardinalityType::OneVerse
+      ).first_or_initialize
+
+      downloadable_resource.name ||= resource.name
+      downloadable_resource.language = resource.language
+      downloadable_resource.published = true
+      downloadable_resource.tags = 'Similar Ayah'
+      downloadable_resource.save(validate: false)
+
+      create_download_file(downloadable_resource, json, 'json')
+      create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_tafsirs(resource_content: nil)
@@ -339,7 +396,7 @@ module Exporter
       end
     end
 
-    def export_quran_metadata(resource_content:nil)
+    def export_quran_metadata(resource_content: nil)
       base_path = "tmp/export/quran-metadata"
       FileUtils.mkdir_p(base_path)
 

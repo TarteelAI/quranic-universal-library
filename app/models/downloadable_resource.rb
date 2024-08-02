@@ -101,7 +101,7 @@ class DownloadableResource < ApplicationRecord
     when 'tafsir'
       'fa-book'
     when 'mutashabihat'
-      'tags'
+      'fa-tags'
     when 'similar-ayah'
       'fa-rectangle-list'
     when 'surah-info'

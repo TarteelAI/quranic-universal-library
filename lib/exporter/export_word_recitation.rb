@@ -11,9 +11,12 @@ module Exporter
       json_file_path = "#{@export_file_path}.json"
 
       columns = table_column_names
+      json_data = {}
 
-      json_data = records.map do |row|
-        Hash[columns.map { |attr, col| [col, row.send(attr)] }]
+      records.each do |batch|
+        batch.each do |record|
+          json_data[record.location] = Hash[columns.map { |attr, col| [col, record.send(attr)] }]
+        end
       end
 
       File.open(json_file_path, 'w') do |f|
@@ -29,11 +32,13 @@ module Exporter
       table_attributes = table_column_names.keys
       statement = create_sqlite_table(db_file_path, 'words', table_columns)
 
-      records.each do |row|
-        fields = table_attributes.map do |attr|
-          encode(attr, row.send(attr))
+      records.each do |batch|
+        batch.each do |record|
+          fields = table_attributes.map do |attr|
+            encode(attr, record.send(attr))
+          end
+          statement.execute(fields)
         end
-        statement.execute(fields)
       end
       close_sqlite_table
 
@@ -43,7 +48,7 @@ module Exporter
     protected
 
     def records
-      Word.order('word_index ASC')
+      Word.unscoped.order('word_index asc').in_batches(of: 1000)
     end
 
     def table_column_names

@@ -112,6 +112,7 @@ class ResourceContent < QuranApiRecord
   module CardinalityType
     OneVerse = '1_ayah'
     OneWord = '1_word'
+    OnePhrase = '1_phrase' # or n_word maybe?
     NVerse = 'n_ayah'
     OneChapter = '1_chapter'
     OnePage = '1_page'

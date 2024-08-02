@@ -80,7 +80,7 @@ class DownloadableResource < ApplicationRecord
     when 'transliteration'
       'Transliteration'
     when 'morphology'
-      'Morphology and Grammar data'
+      'Quranic Morphology and Grammar data'
     when 'quran-metadata'
       'Quran metadata'
     end

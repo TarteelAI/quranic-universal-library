@@ -7,24 +7,26 @@ module Exporter
       @resource_content = resource_content
     end
 
-    def export_sqlite(table_name= 'themes')
+    def export_sqlite(table_name = 'themes')
       db_file_path = "#{@export_file_path}.db"
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
-      records.each do |record|
-        t_verses = record.verse_topics.order('verse_id ASC')
+      records.each do |batch|
+        batch.each do |verse|
+          t_verses = record.verse_topics.order('verse_id ASC')
 
-        fields = [
-          record.name,
-          t_verses.first.verse.chapter_id,
-          t_verses.first.verse.verse_number,
-          t_verses.last.verse.verse_number,
-          record.keywords,
-          t_verses.size,
-          record.ayah_keys.join(',')
-        ]
+          fields = [
+            record.name,
+            t_verses.first.verse.chapter_id,
+            t_verses.first.verse.verse_number,
+            t_verses.last.verse.verse_number,
+            record.keywords,
+            t_verses.size,
+            record.ayah_keys.join(',')
+          ]
 
-        statement.execute(fields)
+          statement.execute(fields)
+        end
       end
 
       close_sqlite_table
@@ -49,6 +51,7 @@ module Exporter
     def records
       Topic
         .eager_load(verse_topics: :verse)
+        .in_batches(of: 100)
     end
   end
 end

@@ -55,6 +55,7 @@ class ResourceContent < QuranApiRecord
   scope :one_word, -> { where cardinality_type: CardinalityType::OneWord }
   scope :quran_topics, -> { where sub_type: SubType::Topic }
   scope :ayah_theme, -> { where sub_type: SubType::Theme }
+  scope :morphology, -> { where sub_type: SubType::Morphology }
   scope :recitations, -> { where sub_type: SubType::Audio }
   scope :general, -> { where sub_type: SubType::Data }
   scope :quran_script, -> { where sub_type: SubType::QuranText }
@@ -116,7 +117,7 @@ class ResourceContent < QuranApiRecord
     NVerse = 'n_ayah'
     OneChapter = '1_chapter'
     OnePage = '1_page'
-    OneJuz  = '1_juz'
+    OneJuz = '1_juz'
     OneRub = '1_rub'
     OneHizb = '1_hizb'
     OneRuku = '1_ruku'
@@ -146,6 +147,7 @@ class ResourceContent < QuranApiRecord
     Theme = 'theme'
     Layout = 'layout'
     MetaData = 'meta'
+    Morphology = 'morphology'
   end
 
   def allow_publish_sharing?

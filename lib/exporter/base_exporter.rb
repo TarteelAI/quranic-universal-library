@@ -43,5 +43,11 @@ module Exporter
         f << JSON.generate(data, { state: JsonNoEscapeHtmlState.new }).gsub(/\s+/, '')
       end
     end
+
+    def todo
+      write_json "pending.json", "We'll publish this soon!"
+
+      "pending.json"
+    end
   end
 end

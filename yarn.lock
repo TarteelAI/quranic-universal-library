@@ -379,13 +379,6 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@json-editor/json-editor@^2.10.1":
-  version "2.11.0"
-  resolved "https://registry.npmjs.org/@json-editor/json-editor/-/json-editor-2.11.0.tgz"
-  integrity sha512-mDIQSVXAug2bEllR+8EGcP4Z/xJPkHiC0dNbYdl37ZoxJ18nESckCt/qS7MaTxNFJfkEUdOTn2kq+ovapaK3vw==
-  dependencies:
-    core-js "^3.27.2"
-
 "@linthtml/cli@^0.9.3":
   version "0.9.5"
   resolved "https://registry.yarnpkg.com/@linthtml/cli/-/cli-0.9.5.tgz#80cabd2dc17e123da79af0930126222343dfe66b"
@@ -1378,11 +1371,6 @@ copy-to-clipboard@^3.3.3:
   integrity sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==
   dependencies:
     toggle-selection "^1.0.6"
-
-core-js@^3.27.2:
-  version "3.33.1"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-3.33.1.tgz"
-  integrity sha512-qVSq3s+d4+GsqN0teRCJtM6tdEEXyWxjzbhVrCHmBS5ZTM0FS2MOS0D13dUXAWDUN6a+lHI/N1hF9Ytz6iLl9Q==
 
 cosmiconfig@7.0.0:
   version "7.0.0"
@@ -4317,10 +4305,10 @@ trim-newlines@^3.0.0:
   resolved "https://registry.yarnpkg.com/trim-newlines/-/trim-newlines-3.0.1.tgz#260a5d962d8b752425b32f3a7db0dcacd176c144"
   integrity sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==
 
-trix@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/trix/-/trix-1.3.1.tgz"
-  integrity sha512-BbH6mb6gk+AV4f2as38mP6Ucc1LE3OD6XxkZnAgPIduWXYtvg2mI3cZhIZSLqmMh9OITEpOBCCk88IVmyjU7bA==
+trix@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/trix/-/trix-1.3.2.tgz#9568c3bbda1085b9fcf2619ac41363011493d57f"
+  integrity sha512-nV8IL6eS/czlaOu9TVIEcblQuPHeuuFpeoO7jFKII5q1pMUXCUGalJtEstS70HSkBSfUXU2vGJUfYXvSItcRCA==
 
 tslib@^2.0.1, tslib@^2.1.0, tslib@^2.6.2:
   version "2.6.3"

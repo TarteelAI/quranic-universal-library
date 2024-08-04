@@ -35,7 +35,7 @@
 
   <div class="mt-3 mt-md-5 d-flex align-items-center justify-content-start justify-content-md-center gap-5 flex-wrap">
     <% downlodable_resource_cards.each do |card| %>
-      <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>">
+      <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
         <div class="p-4 h-100 d-flex flex-column justify-content-between">
           <h3>
             <%= link_to card.title, card.url, class: 'text-white btn-link' %>

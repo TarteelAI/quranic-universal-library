@@ -178,7 +178,7 @@ module LandingHelper
       ToolCard.new(
         title: 'Ayah translation in different languages',
         description: 'Tool for proofreading and suggesting fixes for ayah translations.',
-        url: '/ayah_audio_files',
+        url: '/translation_proofreadings',
         type: 'translation',
         icon: 'translation.svg',
         cta_bg: 'rgba(90, 77, 65, 0.9)',
@@ -186,12 +186,12 @@ module LandingHelper
       ),
       ToolCard.new(
         title: 'Quranic script and fonts',
-        description: 'Proofread tashkeel issues of Quran script for different fonts.',
+        description: 'Proofread tashkeel issues in Quran script for different fonts.',
         url: '/word_text_proofreadings',
         type: 'quranic-text',
         icon: 'open_book.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool enables you to proofread Quran script rendering in various fonts, examining it both ayah by ayah and word by word. Ensure that the script is accurately rendered and consistent across different fonts for a seamless reading experience.",
+        info_tip: "This tool enables you to proofread Quran script and rendering in various fonts, examining it both ayah by ayah and word by word. Ensure that the script is accurately rendered and consistent across different fonts.",
       )
     ]
   end
@@ -217,15 +217,15 @@ module LandingHelper
       ToolCard.new(
         title: 'Quranic script and fonts',
         description: 'Download Quran text and fonts, Madani, IndoPak etc.',
-        url: '/resources/quran-text',
+        url: '/resources/quran-script',
         type: 'quranic-text',
         icon: 'open_book.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
       ),
       ToolCard.new(
-        title: 'Prepare Mushaf layout',
-        description: 'Proofread and fix different layouts of Mushaf( 15 lines, 16 lines, v2, v1 etc)',
-        url: '/mushaf_layouts',
+        title: 'Download Mushaf layout',
+        description: 'Dowonlosd mushaf layout data( 15 lines, 16 lines, v2, v1 etc)',
+        url: '/resources/mushaf-layout',
         type: 'page-layout',
         icon: 'layout.svg',
         cta_bg: 'rgba(71, 71, 61, 0.9)'
@@ -233,7 +233,7 @@ module LandingHelper
       ToolCard.new(
         title: 'Mutashabihat ul Quran Data',
         description: 'Download Mutashabihat ul Quran data, featuring the similar or analogous phrases found throughout the Quran.',
-        url: '/morphology_phrases',
+        url: '/resources/mutashabihat',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
         cta_bg: 'rgba(56, 152, 173, 0.9)',
@@ -241,7 +241,7 @@ module LandingHelper
       ToolCard.new(
         title: 'Tafsirs',
         description: 'Download tafsir data in multiple languages, with ayah grouping information.',
-        url: '/resources/tafisr',
+        url: '/resources/tafsir',
         type: 'tafsirs',
         icon: 'book.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)'

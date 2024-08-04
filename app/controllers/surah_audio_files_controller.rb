@@ -1,8 +1,10 @@
 class SurahAudioFilesController < CommunityController
   before_action :load_recitation, except: :builder_help
+  before_action :authenticate_user!, only: [:save_segments]
   def builder_help
     render layout: false
   end
+
   def index
     params[:sort_key] ||= 'chapter_id'
     params[:sort_order] ||= 'ASC'

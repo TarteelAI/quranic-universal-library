@@ -10,6 +10,8 @@ class ApplicationController < ActionController::Base
   end
 
   def can_manage?(resource)
+    return false unless current_user
+
     if resource
       @access = if current_user.admin?
                   AdminProjectAccess.new
@@ -21,10 +23,6 @@ class ApplicationController < ActionController::Base
 
   def access_denied_for_admin_resource(exception)
     redirect_to admin_root_path, alert: exception.message
-  end
-
-  def require_admin_user
-
   end
 end
 

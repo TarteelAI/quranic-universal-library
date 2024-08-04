@@ -34,13 +34,13 @@ export default class extends Controller {
   changeFont(e){
     const font = e.target.value;
     const char = this.el.find('.char');
-    const txt = this.el.find('.text');
+    const txt = this.el.find('#text');
 
     char.removeClass();
     char.addClass(font).addClass('char')
 
     txt.removeClass()
-    txt.addClass(font).addClass('.text')
+    txt.addClass(font).addClass('text form-control')
   }
 
   copy() {

@@ -100,7 +100,7 @@
         <p class="qpc-hafs">
           <% @verse.wbw_texts.order("word_id ASC").each do |w| %>
           <span style="font-size: 30px;">
-            <%= w.text_qpc_hafs %>
+            <%= w.word.text_qpc_hafs %>
            </span>
           <% end %>
         </p>
@@ -108,7 +108,7 @@
         <b>Difference</b>
 
         <div class="qpc-hafs diffy" id="ayah_text" style="font-size: 30px;">
-          <%= diff_text(@verse.text_qpc_hafs.strip, @verse.wbw_texts.order("word_id ASC").pluck(:text_qpc_hafs).select(&:present?).map { |t| t.to_s.strip }.join(' ').strip) %>
+          <%= diff_text(@verse.text_qpc_hafs.strip, @verse.wbw_texts.order("word_id ASC").map{|w| w.word.text_qpc_hafs}.select(&:present?).map { |t| t.to_s.strip }.join(' ').strip) %>
         </div>
 
         <div>
@@ -170,7 +170,8 @@
   </thead>
 
   <tbody>
-  <% @verse.wbw_texts.order('word_id asc').each do |word| %>
+  <% @verse.wbw_texts.order('word_id asc').each do |w| %>
+    <% word = w.word %>
     <tr>
       <td class="indopak">
         <%= word.text_indopak %>

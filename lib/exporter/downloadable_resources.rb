@@ -11,23 +11,23 @@ module Exporter
     def export_all
       FileUtils.rmdir("tmp/export")
 
-      export_surah_info # exported
-      export_tafsirs # exported
+      export_surah_info
+      export_tafsirs
       export_ayah_translations
-      export_ayah_transliteration #ex
+      export_ayah_transliteration
       export_word_transliteration
-      export_word_translations # exported
+      export_word_translations
       export_quran_topics
       export_ayah_themes
       export_surah_recitation
       export_ayah_recitation
-      export_wbw_recitation # exported
-      export_wbw_quran_script # exported
+      export_wbw_recitation
+      export_wbw_quran_script
       export_ayah_quran_script
-      export_quran_metadata # exported
-      export_mushaf_layouts #exported
+      export_quran_metadata
+      export_mushaf_layouts
       export_similar_ayah
-      export_mutashabihat #
+      export_mutashabihat
       export_quranic_morphology_data
     end
 

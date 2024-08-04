@@ -1,5 +1,6 @@
 class ArabicTransliterationsController < CommunityController
-  before_action :check_permission, only: [:new, :create, :edit]
+  before_action :authenticate_user!, only: [:new, :create]
+  before_action :check_permission, only: [:new, :create]
 
   def show
     @verse = Verse.includes(words: :arabic_transliteration).find(params[:id])
@@ -10,6 +11,7 @@ class ArabicTransliterationsController < CommunityController
 
   def render_surah
     @chapter = Chapter.find(params[:surah_number])
+
     verses = @chapter
       .verses
       .eager_load(words: :arabic_transliteration)

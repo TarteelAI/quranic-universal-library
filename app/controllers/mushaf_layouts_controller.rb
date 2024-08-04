@@ -2,6 +2,7 @@ class MushafLayoutsController < CommunityController
   include ActiveStorage::SetCurrent
 
   before_action :find_resource
+  before_action :authenticate_user!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
   before_action :check_permission, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_page_words, only: [:edit, :show]

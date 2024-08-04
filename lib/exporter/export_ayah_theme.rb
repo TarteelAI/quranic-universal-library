@@ -12,17 +12,14 @@ module Exporter
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
       records.each do |batch|
-        batch.each do |verse|
-          t_verses = record.verse_topics.order('verse_id ASC')
-
+        batch.each do |record|
           fields = [
-            record.name,
-            t_verses.first.verse.chapter_id,
-            t_verses.first.verse.verse_number,
-            t_verses.last.verse.verse_number,
-            record.keywords,
-            t_verses.size,
-            record.ayah_keys.join(',')
+            record.theme,
+            record.chapter_id,
+            record.verse_id_from,
+            record.verse_id_to,
+            record.keywords.join(','),
+            record.verses_count
           ]
 
           statement.execute(fields)
@@ -38,19 +35,17 @@ module Exporter
 
     def sqlite_db_columns
       {
-        name: 'TEXT',
+        theme: 'TEXT',
         surah_number: 'INTEGER',
         ayah_from: 'INTEGER',
         ayah_to: 'INTEGER',
         keywords: 'TEXT',
-        total_ayahs: 'INTEGER',
-        ayah_keys: 'TEXT'
+        total_ayahs: 'INTEGER'
       }
     end
 
     def records
-      Topic
-        .eager_load(verse_topics: :verse)
+      AyahTheme
         .in_batches(of: 100)
     end
   end

@@ -1,6 +1,7 @@
 class TafsirProofreadingsController < CommunityController
   before_action :find_resource
-  before_action :check_permission, only: %i[edit update create]
+  before_action :authenticate_user!, only: %i[edit update]
+  before_action :check_permission, only: %i[edit update]
 
   def show
     @tafisr = find_tafsir(@resource)

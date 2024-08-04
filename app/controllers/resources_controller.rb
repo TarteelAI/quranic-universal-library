@@ -1,5 +1,6 @@
 class ResourcesController < CommunityController
   include ActiveStorage::SetCurrent
+  before_action :authenticate_user!, only: [:download]
 
   def index
     @resources = DownloadableResource

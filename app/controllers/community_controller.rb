@@ -1,5 +1,4 @@
 class CommunityController < ApplicationController
-  before_action :authenticate_user!
   helper_method :current_language
 
   def tools

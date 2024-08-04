@@ -98,8 +98,14 @@
               <ul class="dropdown-menu" aria-labelledby="dropdown-<%= resource.id %>">
                 <% resource.downloadable_files.each do |file| %>
                   <li>
-                    <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item w-100', download: 'download' do %>
-                      Download <%= file.file_type %>
+                    <% if user_signed_in? %>
+                      <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item w-100' do %>
+                        Download <%= file.file_type %>
+                      <% end %>
+                    <% else %>
+                      <%= link_to '#_', class: 'dropdown-item w-100', data: { controller: 'ajax-modal', url: new_user_session_path(return_to: resource_download_file_path(resource.resource_type, token: file.token), modal: true)} do %>
+                        Download <%= file.file_type %>
+                      <% end %>
                     <% end %>
                   </li>
                 <% end %>

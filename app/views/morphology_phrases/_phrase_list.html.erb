@@ -1,90 +1,89 @@
 <p class="lead">
-    Use filters to find phrases you're looking for, click on <code>Edit</code> button to update existing phrase.
-  </p>
+  Use filters to find phrases you're looking for, click on <code>Edit</code> button to update existing phrase.
+</p>
 
-  <div class="page-section">
-    <div class="filters row">
-      <div class="col-12">
-        <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex' do %>
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
+<div class="page-section">
+  <div class="filters row">
+    <div class="col-12">
+      <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex' do %>
+        <div class="form-group me-2">
+          <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+          <p class="form-text">Filter by Surah</p>
+        </div>
 
-          <div class="form-group me-2">
-            <%= select_tag :filter_verse, options_for_select(1..286, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by ayah', controller: 'select2' } %>
-            <p class="form-text">Filter by Ayah</p>
-          </div>
+        <div class="form-group me-2">
+          <%= select_tag :filter_verse, options_for_select(1..286, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by ayah', controller: 'select2' } %>
+          <p class="form-text">Filter by Ayah</p>
+        </div>
 
-          <div class="form-group me-2">
-            <%= text_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
-            <p class="form-text">Search content</p>
-          </div>
+        <div class="form-group me-2">
+          <%= text_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
+          <p class="form-text">Search content</p>
+        </div>
 
-          <div class="form-group d-flex align-items-center align-content-center">
-            <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
-            <%= link_to 'Clear', morphology_phrases_path %>
-          </div>
-        <% end %>
-      </div>
+        <div class="form-group d-flex align-items-center align-content-center">
+          <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
+          <%= link_to 'Clear', morphology_phrases_path %>
+        </div>
+      <% end %>
     </div>
   </div>
+</div>
 
-  <figure class="highlight">
-    <table class="table table-hover">
-      <thead>
+<figure class="highlight">
+  <table class="table table-hover">
+    <thead>
+    <tr>
+      <th><%= sort_order_link 'Id', :id %></th>
+      <th><%= sort_order_link 'Ayah', :source_verse_id %></th>
+      <th><%= sort_order_link 'Occurrence', :occurrence %></th>
+      <th><%= sort_order_link 'Verse count', :verses_count %></th>
+      <th><%= sort_order_link 'Words count', :words_count %></th>
+      <th><%= sort_order_link 'Approved', :approved %></th>
+      <th><%= sort_order_link 'Review', :review_status %></th>
+      <th>Text</th>
+      <th>Actions</th>
+    </tr>
+
+    </thead>
+    <tbody>
+    <% @phrases.each do |phrase| %>
       <tr>
-        <th><%= sort_order_link 'Id', :id %></th>
-        <th><%= sort_order_link 'Ayah', :source_verse_id %></th>
-        <th><%= sort_order_link 'Occurrence', :occurrence %></th>
-        <th><%= sort_order_link 'Verse count', :verses_count %></th>
-        <th><%= sort_order_link 'Words count', :words_count %></th>
-        <th><%= sort_order_link 'Approved', :approved %></th>
-        <th><%= sort_order_link 'Review', :review_status %></th>
-        <th>Text</th>
-        <th>Actions</th>
-      </tr>
-
-      </thead>
-      <tbody>
-      <% @phrases.each do |phrase| %>
-        <tr>
-          <td scope="row"><%= phrase.id %></td>
-          <td>
-            <%= phrase.source_verse&.verse_key %>
-          </td>
-          <td>
-            <%= phrase.occurrence %>
-          </td>
-          <td><%= phrase.verses_count %></td>
-          <td><%= phrase.words_count %></td>
-          <td>
-            <%= phrase.approved? %>
-          </td>
-          <td>
-            <%= phrase.review_status %>
-          </td>
-
-          <td class="qpc-hafs">
-            <%= phrase.text_qpc_hafs %>
-          </td>
-
-          <td class="d-flex">
-            <%#= link_to 'Edit', edit_morphology_phrase_path(phrase.id), class: 'btn btn-info' %>
-            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success mx-1' %>
-            <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' %>
-          </td>
-        </tr>
-      <% end %>
-      <tr>
-        <td colspan="4">
-          <%= pagy_bootstrap_nav(@pagy).html_safe %>
+        <td scope="row"><%= phrase.id %></td>
+        <td>
+          <%= phrase.source_verse&.verse_key %>
+        </td>
+        <td>
+          <%= phrase.occurrence %>
+        </td>
+        <td><%= phrase.verses_count %></td>
+        <td><%= phrase.words_count %></td>
+        <td>
+          <%= phrase.approved? %>
+        </td>
+        <td>
+          <%= phrase.review_status %>
         </td>
 
-        <td colspan="2">
-          <%= pagy_info(@pagy).html_safe %>
+        <td class="qpc-hafs">
+          <%= phrase.text_qpc_hafs %>
+        </td>
+
+        <td class="d-flex">
+          <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success mx-1' %>
+          <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
         </td>
       </tr>
-      </tbody>
-    </table>
-  </figure>
+    <% end %>
+    <tr>
+      <td colspan="4">
+        <%= pagy_bootstrap_nav(@pagy).html_safe %>
+      </td>
+
+      <td colspan="2">
+        <%= pagy_info(@pagy).html_safe %>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</figure>

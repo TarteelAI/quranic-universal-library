@@ -1,12 +1,17 @@
 class TranslationProofreadingsController < CommunityController
   before_action :find_resource
-  before_action :check_permission, only: %i[edit update create]
+  before_action :authenticate_user!, only: %i[edit update]
+  before_action :check_permission, only: %i[edit update]
 
   def show
     @translation = Translation
                    .includes(:verse, :foot_notes)
                    .where(resource_content_id: @resource.id)
                    .find_by_verse_id(params[:id])
+
+    if @translation.blank?
+      return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
+    end
   end
 
   def edit
@@ -14,6 +19,10 @@ class TranslationProofreadingsController < CommunityController
                    .includes(:verse, :foot_notes)
                    .where(resource_content_id: @resource.id)
                    .find_by_verse_id(params[:id])
+
+    if @translation.blank?
+      return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
+    end
   end
 
   def update
@@ -54,14 +63,6 @@ class TranslationProofreadingsController < CommunityController
     @pagy, @translations = pagy(translations.order("verses.verse_index #{order}"))
   end
 
-  def create
-    verse = Verse.find(params[:verse_id])
-
-    verse.attributes = arabic_transliterations_params
-    verse.save validate: false
-    redirect_to arabic_transliteration_path(verse), notice: 'Saved successfully'
-  end
-
   protected
 
   def translation_params
@@ -75,6 +76,8 @@ class TranslationProofreadingsController < CommunityController
   end
 
   def find_resource
+    params[:resource_id] ||= 131
+
     @resource = ResourceContent.find(params[:resource_id])
     @has_permission = can_manage?(@resource)
   end

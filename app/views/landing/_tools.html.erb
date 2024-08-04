@@ -9,7 +9,7 @@
         <%= tool.description %>
       </p>
 
-      <%#= link_to 'Learn more', tool.url, class: 'cta', style: "background: #{tool.cta_bg};" %>
+      <%= link_to 'Learn more', tool.url, class: 'cta', style: "background: #{tool.cta_bg};" %>
 
       <div class="icon">
         <%= image_tag "landing/#{tool.icon}" %>
@@ -27,4 +27,4 @@
   <% end %>
 </div>
 
-<%= link_to 'VIEW ALL RESOURCES', tools_path, class: 'btn-link text-white' %>
+<%= link_to 'VIEW ALL TOOLS', tools_path, class: 'btn-link text-white' %>

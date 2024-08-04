@@ -1,5 +1,6 @@
 class ProofReadCommentsController < CommunityController
   before_action :load_resource
+  before_action :authenticate_user!, only: [:create]
 
   def create
     @comment = @resource.proof_read_comments.create proof_read_comment_params
@@ -27,6 +28,7 @@ class ProofReadCommentsController < CommunityController
   def proof_read_comment_params
     params
       .require(:proof_read_comment)
-      .permit(:text).merge(user_id: current_user.id)
+      .permit(:text)
+      .merge(user_id: current_user&.id)
   end
 end

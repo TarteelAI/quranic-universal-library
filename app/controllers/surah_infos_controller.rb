@@ -1,5 +1,6 @@
 class SurahInfosController < CommunityController
   before_action :load_access
+  before_action :authenticate_user!, only: [:new, :edit, :update, :create]
   before_action :check_permission, only: [:new, :edit, :update, :create, :history, :changes]
 
   def index

@@ -1,5 +1,6 @@
 class WbwTextsController < CommunityController
   before_action :load_access
+
   before_action :check_permission, only: [:new, :create, :edit, :update]
 
   def index

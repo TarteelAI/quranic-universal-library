@@ -1,5 +1,6 @@
 class MorphologyPhrasesController < CommunityController
   before_action :find_resource
+  before_action :authenticate_user!, only: %i[new edit create update destroy]
   before_action :check_permission, only: %i[new edit create update destroy]
 
   def show

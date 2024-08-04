@@ -1,4 +1,5 @@
 class AyahAudioFilesController < CommunityController
+  before_action :authenticate_user!, only: %i[save_segments]
   before_action :load_recitation
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
   before_action :check_permission, only: %i[save_segments]
@@ -41,7 +42,7 @@ class AyahAudioFilesController < CommunityController
     verse = Verse.find_by(verse_key: params[:verse_key].to_s.strip)
     segments = params[:segments]
     audio = AudioFile.where(verse: verse, recitation_id: params[:id]).first
-    audio.set_segments(segments)
+    audio.set_segments(segments, current_user)
 
     render 'segments'
   end

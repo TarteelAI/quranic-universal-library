@@ -11,11 +11,11 @@ module Exporter
       @json_data = {}
       json_file_path = "#{export_file_path}.json"
 
-      records.find_each do |translation|
-        @json_data[translation.word.location] =  translation.text
+      records.each do |batch|
+        batch.each do |translation|
+          @json_data[translation.word.location] = translation.text
+        end
       end
-
-      binding.pry if records.size == 0
 
       File.open(json_file_path, 'wb') do |file|
         file << JSON.generate(@json_data, { state: JsonNoEscapeHtmlState.new })
@@ -24,14 +24,16 @@ module Exporter
       json_file_path
     end
 
-    def export_sqlite(table_name= 'word_translation')
+    def export_sqlite(table_name = 'word_translation')
       db_file_path = "#{@export_file_path}.db"
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
-      records.each do |translation|
-        surah, ayah, word = translation.word.location.split(':')
-        fields = [surah, ayah, word, translation.text]
-        statement.execute(fields)
+      records.each do |batch|
+        batch.each do |translation|
+          surah, ayah, word = translation.word.location.split(':')
+          fields = [surah, ayah, word, translation.text]
+          statement.execute(fields)
+        end
       end
 
       close_sqlite_table
@@ -56,6 +58,7 @@ module Exporter
         .joins(:word)
         .eager_load(:word)
         .order('words.word_index ASC')
+        .in_batches(of: 1000)
     end
   end
 end

@@ -22,11 +22,13 @@ module Exporter
         json_file_path = "#{export_file_path}-simple.json"
       end
 
-      records.each do |translation|
-        if with_footnotes
-          json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: false)
-        else
-          json_data[translation.verse_key] = translation_text_without_footnotes(translation)
+      records.each do |batch|
+        batch.each do |translation|
+          if with_footnotes
+            json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: false)
+          else
+            json_data[translation.verse_key] = translation_text_without_footnotes(translation)
+          end
         end
       end
 
@@ -42,42 +44,108 @@ module Exporter
       json_data = {}
       json_file_path = "#{export_file_path}-with-footnote-tags.json"
 
-      records.each do |translation|
-        json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: false)
+      records.each do |batch|
+        batch.each do |translation|
+          json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: false)
+        end
       end
 
-      File.open(json_file_path, 'wb') do |file|
-        file << JSON.generate(json_data, { state: JsonNoEscapeHtmlState.new })
-      end
+      write_json(json_file_path, json_data)
 
       json_file_path
+    end
+
+    def export_sqlite_with_footnotes_tags
+      db_file_path = "#{export_file_path}-with-footnote-tags.db"
+      statement = create_sqlite_table(db_file_path, "translation", translation_table_columns(with_footnotes: true))
+
+      records.each do |batch|
+        batch.each do |translation|
+          text = translation_text_with_footnotes(translation, chunks: false)
+          fields = [
+            translation.chapter_id,
+            translation.verse_number,
+            translation.verse_key,
+            JSON.generate(text[:t]),
+            JSON.generate(text[:f])
+          ]
+
+          statement.execute(fields)
+        end
+      end
+      close_sqlite_table
+
+      db_file_path
     end
 
     def export_json_with_footnotes_chunks
       json_data = {}
       json_file_path = "#{export_file_path}-chunks.json"
 
-      records.find_each do |translation|
-        json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: true)
+      records.each do |batch|
+        batch.each do |translation|
+          json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: true)
+        end
       end
 
-      File.open(json_file_path, 'wb') do |file|
-        file << JSON.generate(@json_data, { state: JsonNoEscapeHtmlState.new })
-      end
+      write_json(json_file_path, json_data)
 
       json_file_path
     end
 
-    def export_sqlite_with_inline_footnotes
+    def export_sqlite_with_footnotes_chunks
+      db_file_path = "#{export_file_path}-chunks.db"
+      statement = create_sqlite_table(db_file_path, "translation", translation_table_columns(with_footnotes: true))
 
+      records.each do |batch|
+        batch.each do |translation|
+          text = translation_text_with_footnotes(translation, chunks: true)
+          fields = [
+            translation.chapter_id,
+            translation.verse_number,
+            translation.verse_key,
+            JSON.generate(text[:t]),
+            JSON.generate(text[:f])
+          ]
+
+          statement.execute(fields)
+        end
+      end
+      close_sqlite_table
+
+      db_file_path
+    end
+
+    def export_sqlite_with_inline_footnotes
+      db_file_path = "#{export_file_path}-inline-footnotes.db"
+      statement = create_sqlite_table(db_file_path, "translation", translation_table_columns(with_footnotes: false))
+
+      records.each do |batch|
+        batch.each do |translation|
+          text = translation_text_with_inline_footnote(translation)
+
+          fields = [
+            translation.chapter_id,
+            translation.verse_number,
+            translation.verse_key,
+            JSON.generate(text[:t])
+          ]
+          statement.execute(fields)
+        end
+      end
+      close_sqlite_table
+
+      db_file_path
     end
 
     def export_json_with_inline_footnotes
       json_data = {}
       json_file_path = "#{export_file_path}-inline-footnotes.json"
 
-      records.map do |translation|
-        json_data[translation.verse_key] = translation_text_with_inline_footnote(translation)
+      records.each do |batch|
+        batch.each do |translation|
+          json_data[translation.verse_key] = translation_text_with_inline_footnote(translation)
+        end
       end
 
       File.open(json_file_path, 'wb') do |file|
@@ -96,21 +164,23 @@ module Exporter
 
       statement = create_sqlite_table(db_file_path, name, translation_table_columns(with_footnotes: with_footnotes))
 
-      records.each do |record|
-        text = with_footnotes ? translation_text_with_footnotes(record, chunks: false) : translation_text_without_footnotes(record)
+      records.each do |batch|
+        batch.each do |record|
+          text = with_footnotes ? translation_text_with_footnotes(record, chunks: false) : translation_text_without_footnotes(record)
 
-        fields = [
-          record.chapter_id,
-          record.verse_number,
-          record.verse_key,
-          text[:t]
-        ]
+          fields = [
+            record.chapter_id,
+            record.verse_number,
+            record.verse_key,
+            text[:t]
+          ]
 
-        if with_footnotes
-          fields << JSON.generate(text[:f])
+          if with_footnotes
+            fields << JSON.generate(text[:f])
+          end
+
+          statement.execute(fields)
         end
-
-        statement.execute(fields)
       end
 
       close_sqlite_table
@@ -140,10 +210,10 @@ module Exporter
         doc = Nokogiri::HTML::DocumentFragment.parse(text)
         # bridges translation
         if is_bridges_translation? && chunks
-          export_bridres_with_footnote(doc)
+          export_bridres_with_footnote(doc, translation)
         else
           if chunks
-            export_translation_chunks(doc)
+            export_translation_chunks(doc, translation)
           else
             export_simple_translation(doc, translation)
           end
@@ -151,10 +221,11 @@ module Exporter
       end
     end
 
-    def export_translation_chunks(doc)
+    def export_translation_chunks(doc, translation)
       footnotes_refs = {}
       footnotes = {}
       foot_note_counter = 1
+
       doc.children.each do |node|
         if node.name == 'text'
           next
@@ -238,7 +309,7 @@ module Exporter
       { t: doc.text }
     end
 
-    def export_bridres_with_footnote(doc)
+    def export_bridres_with_footnote(doc, translation)
       # i class s formatting
       # span class h (qirat)
       # sup or a.sup footnote
@@ -307,7 +378,10 @@ module Exporter
     end
 
     def records
-      Translation.where(resource_content_id: resource_content.id).order('verse_id ASC')
+      Translation
+        .where(resource_content_id: resource_content.id)
+        .order('verse_id ASC')
+        .in_batches(of: 1000)
     end
 
     def is_bridges_translation?

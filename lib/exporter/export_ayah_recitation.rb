@@ -2,8 +2,8 @@ module Exporter
   class ExportAyahRecitation < BaseExporter
     attr_accessor :recitation
 
-    def initialize(recitation:, base_path:)
-      super(base_path: base_path, name: "ayah_recitation_#{recitation.name.to_s}")
+    def initialize(recitation:, base_path:, resource_content:)
+      super(base_path: base_path, name: "ayah_recitation_#{resource_content.sqlite_file_name}")
       @recitation = recitation
     end
 
@@ -12,14 +12,14 @@ module Exporter
       json_file_path = "#{@export_file_path}.json"
 
       columns = table_column_names
+      json_data = {}
 
-      json_data = records.map do |row|
-        Hash[columns.map { |attr, col| [col, row.send(attr)] }]
+      records.each do |batch|
+        batch.each do |row|
+          json_data[row.verse_key] = Hash[columns.map { |attr, col| [col, row.send(attr)] }]
+        end
       end
-
-       File.open(json_file_path, 'w') do |f|
-        f << JSON.generate(json_data, { state: JsonNoEscapeHtmlState.new })
-       end
+      write_json(json_file_path, json_data)
 
       json_file_path
     end
@@ -30,11 +30,13 @@ module Exporter
       table_attributes = table_column_names.keys
       statement = create_sqlite_table(db_file_path, 'verses', table_columns)
 
-      records.each do |row|
-        fields = table_attributes.map do |attr|
-          encode(attr, row.send(attr))
+      records.each do |batch|
+        batch.each do |row|
+          fields = table_attributes.map do |attr|
+            encode(attr, row.send(attr))
+          end
+          statement.execute(fields)
         end
-        statement.execute(fields)
       end
 
       close_sqlite_table
@@ -45,7 +47,7 @@ module Exporter
     protected
 
     def records
-      AudioFile.where(recitation_id: recitation.id).order('verse_id ASC')
+      AudioFile.where(recitation_id: recitation.id).order('verse_id ASC').in_batches(of: 1000)
     end
 
     def table_column_names

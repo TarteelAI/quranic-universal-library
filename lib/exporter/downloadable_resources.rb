@@ -172,7 +172,6 @@ module Exporter
       )
 
       json = exporter.export_json
-
       #sqlite = exporter.export_sqlite
 
       downloadable_resource = DownloadableResource.where(
@@ -305,17 +304,17 @@ module Exporter
           json_with_inline_footnotes = exporter.export_json_with_inline_footnotes
           json_with_footnotes_chunks = exporter.export_json_with_footnotes_chunks
 
-          # sqlite_with_footnotes = exporter.export_sqlite_with_footnotes_tags
-          # sqlite_with_footnotes_chunks = exporter.export_sqlite_with_footnotes_chunks
-          # sqlite_with_inline_footnotes = exporter.export_sqlite_with_inline_footnotes
+          sqlite_with_footnotes = exporter.export_sqlite_with_footnotes_tags
+          sqlite_with_inline_footnotes = exporter.export_sqlite_with_inline_footnotes
+          sqlite_with_footnotes_chunks = exporter.export_sqlite_with_footnotes_chunks
 
-          create_download_file(downloadable_resource, json_with_footnotes, 'footnote-tags.json')
-          create_download_file(downloadable_resource, json_with_inline_footnotes, 'inline-footnote.json')
-          create_download_file(downloadable_resource, json_with_footnotes_chunks, 'footnote-chunk.json')
+          create_download_file(downloadable_resource, json_with_footnotes, 'translation-with-footnote-tags.json')
+          create_download_file(downloadable_resource, json_with_inline_footnotes, 'translation-with-inline-footnote.json')
+          create_download_file(downloadable_resource, json_with_footnotes_chunks, 'translation-text-chunk.json')
 
-          # create_download_file(downloadable_resource, sqlite_with_footnotes_chunks, 'footnote-chunk.sqlite')
-          # create_download_file(downloadable_resource, sqlite_with_footnotes, 'footnote.sqlite')
-          # create_download_file(downloadable_resource, sqlite_with_inline_footnotes, 'inline-footnote.sqlite')
+          create_download_file(downloadable_resource, sqlite_with_footnotes, 'translation-with-footnote-tags.sqlite')
+          create_download_file(downloadable_resource, sqlite_with_inline_footnotes, 'translation-with-inline-footnote.sqlite')
+          create_download_file(downloadable_resource, sqlite_with_footnotes_chunks, 'translation-text-chunk.sqlite')
         end
       end
     end
@@ -524,7 +523,8 @@ module Exporter
 
         exporter = Exporter::ExportAyahRecitation.new(
           recitation: recitation,
-          base_path: base_path
+          base_path: base_path,
+          resource_content: content
         )
 
         downloadable_resource = DownloadableResource.where(

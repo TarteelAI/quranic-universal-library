@@ -12,23 +12,25 @@ module Exporter
       @export_file_name = fix_file_name(name)
       @export_file_path = File.join(@base_path, "#{@export_file_name}")
       @db_statements = []
+      @dbs = []
     end
 
     def create_sqlite_table(db_file_path, table_name, columns)
-      @db ||= SQLite3::Database.new(db_file_path)
+      db = SQLite3::Database.new(db_file_path)
       column_names = columns.keys
       create_table_sql = "CREATE TABLE IF NOT EXISTS #{table_name} (#{columns.map { |name, type| "#{name} #{type}" }.join(', ')});"
       insert_sql = "INSERT INTO #{table_name} (#{column_names.join(', ')}) VALUES (#{column_names.map { '?' }.join(', ')});"
 
-      @db.execute(create_table_sql)
-      prepare_statement = @db.prepare(insert_sql)
+      db.execute(create_table_sql)
+      prepare_statement = db.prepare(insert_sql)
       @db_statements << prepare_statement
+      @dbs << db
       prepare_statement
     end
 
     def close_sqlite_table
       sleep(5) # Let pg persist the data
-      @db.close
+      @dbs.each &:close
       @db_statement.each &:close
     rescue SQLite3::Exception => e
       puts "Exception occurred #{e.message}"
@@ -40,7 +42,7 @@ module Exporter
 
     def write_json(file, data)
       File.open(file, 'w') do |f|
-        f << JSON.generate(data, { state: JsonNoEscapeHtmlState.new }).gsub(/\s+/, '')
+        f << JSON.generate(data, { state: JsonNoEscapeHtmlState.new })
       end
     end
 

@@ -8,18 +8,17 @@ module Exporter
     end
 
     def export_json
-      @json_data = {}
+      json_data = {}
       json_file_path = "#{export_file_path}.json"
 
-      records.find_each do |record|
-        if record.resource
-          @json_data[record.resource.location] = record.text
+      records.each do |batch|
+        batch.each do |record|
+          if record.resource
+            json_data[record.resource.location] = record.text
+          end
         end
       end
-
-      File.open(json_file_path, 'wb') do |file|
-        file << JSON.generate(@json_data, { state: JsonNoEscapeHtmlState.new })
-      end
+      write_json(json_file_path, json_data)
 
       json_file_path
     end
@@ -28,11 +27,13 @@ module Exporter
       db_file_path = "#{@export_file_path}.db"
       statement = create_sqlite_table(db_file_path, table_name, sqlite_db_columns)
 
-      records.each do |record|
-        if record.resource
-          surah, ayah, word = record.resource.location.split(':')
-          fields = [surah, ayah, word, record.text]
-          statement.execute(fields)
+      records.each do |batch|
+        batch.each do |record|
+          if record.resource
+            surah, ayah, word = record.resource.location.split(':')
+            fields = [surah, ayah, word, record.text]
+            statement.execute(fields)
+          end
         end
       end
       close_sqlite_table
@@ -52,7 +53,7 @@ module Exporter
     end
 
     def records
-      Transliteration.where(resource_type: 'Word', resource_content_id: resource_content.id)
+      Transliteration.where(resource_type: 'Word', resource_content_id: resource_content.id).in_batches(of: 1000)
     end
   end
 end

@@ -129,4 +129,8 @@ class Recitation < QuranApiRecord
   def humanize
     "#{reciter_name}(#{recitation_style&.name})"
   end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["audio_files", "qirat_type", "recitation_style", "reciter", "resource_content"]
+  end
 end

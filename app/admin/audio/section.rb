@@ -14,6 +14,8 @@ ActiveAdmin.register Audio::Section do
   permit_params :name
 
   actions :all, except: :destroy
+  filter :name
+
   searchable_select_options(scope: Audio::Section,
                             text_attribute: :name,
                             filter: lambda do |term, scope|

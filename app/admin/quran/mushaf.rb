@@ -27,6 +27,13 @@ ActiveAdmin.register Mushaf do
   menu parent: 'Quran', priority: 1
   actions :all, except: :destroy
 
+  filter :name
+  filter :enabled
+  filter :pages_count
+  filter :lines_per_page
+  filter :qirat_type_id, as: :searchable_select,
+         ajax: { resource: QiratType }
+
   permit_params do
     %i[name description lines_per_page is_default default_font_name enabled default_font_name qirat_type_id pages_count
        resource_content_id]

@@ -27,6 +27,10 @@ ActiveAdmin.register ArabicTransliteration do
   menu parent: 'Content', priority: 10
   actions :all, except: :destroy
 
+  filter :verse_id
+  filter :word_id
+  filter :text
+
   ActiveAdminViewHelpers.versionate(self)
 
   index do

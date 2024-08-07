@@ -177,6 +177,7 @@ module Audio
       issues
     end
 
+
     protected
 
     def update_related_resources

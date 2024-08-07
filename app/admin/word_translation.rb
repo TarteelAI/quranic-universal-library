@@ -25,8 +25,10 @@ ActiveAdmin.register WordTranslation do
 
   ActiveAdminViewHelpers.versionate(self)
 
-  filter :language
-  filter :word_id
+  filter :language_id, as: :searchable_select,
+         ajax: { resource: Language }
+  filter :word_id, as: :searchable_select,
+         ajax: { resource: Word }
 
   index do
     column :id do |resource|

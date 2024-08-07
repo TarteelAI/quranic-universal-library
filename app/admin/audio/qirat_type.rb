@@ -13,6 +13,8 @@
 ActiveAdmin.register QiratType do
   menu parent: 'Audio'
   actions :all, except: :destroy
+  filter :name
+
   permit_params do
     %i[name description]
   end

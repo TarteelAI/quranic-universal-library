@@ -44,6 +44,14 @@
 #  index_resource_contents_on_sub_type               (sub_type)
 #
 ActiveAdmin.register ResourceContent do
+  before_action do
+    ActiveStorage::Current.url_options = {
+      protocol: request.protocol,
+      host: request.host,
+      port: request.port
+    }
+  end
+
   searchable_select_options(
     scope: ResourceContent,
     text_attribute: :humanize,
@@ -55,14 +63,6 @@ ActiveAdmin.register ResourceContent do
         m: 'or'
       ).result
     end)
-
-  before_action do
-    ActiveStorage::Current.url_options = {
-      protocol: request.protocol,
-      host: request.host,
-      port: request.port
-    }
-  end
 
   menu parent: 'Content', priority: 1
   actions :all, except: :destroy
@@ -94,8 +94,8 @@ ActiveAdmin.register ResourceContent do
   }
   filter :language_id, as: :searchable_select,
          ajax: { resource: Language }
-  filter :tags_id, as: :searchable_select, multiple: true,
-         ajax: { resource: Tag }
+  #filter :tags_id, as: :searchable_select, multiple: true,
+  #       ajax: { resource: Tag }
 
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 

@@ -11,7 +11,7 @@
 #
 
 class Synonym < ApplicationRecord
-  scope :where_synonyms_contains, lambda { |synonym|
+  scope :where_synonyms_cont, lambda { |synonym|
     where('synonyms like ?', "%#{synonym}%")
   }
 
@@ -20,7 +20,7 @@ class Synonym < ApplicationRecord
   has_many :word_synonyms, class_name: 'WordSynonym'
 
   def self.ransackable_scopes(*)
-    %i[where_synonyms_contains]
+    %i[where_synonyms_cont]
   end
 
   def words

@@ -18,6 +18,7 @@
 ActiveAdmin.register CharType do
   menu parent: 'Settings', priority: 10
   actions :all, except: :destroy
+  filter :name
 
   permit_params do
     %i[name parent_id description]

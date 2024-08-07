@@ -31,7 +31,7 @@ ActiveAdmin.register Manzil do
   filter :last_verse_id, as: :searchable_select,
          data: { controller: 'select2' },
          ajax: { resource: Verse }
-  filter :chapter_contains, as: :searchable_select,
+  filter :chapter_cont, as: :searchable_select,
          data: { controller: 'select2' },
          ajax: { resource: Chapter }
 

@@ -82,4 +82,8 @@ class User < ApplicationRecord
       user: self
     ).deliver_later
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "email", "first_name", "last_name", "confirmation_sent_at", "confirmed_at", "created_at", "failed_attempts",  "locked_at", "remember_created_at", "reset_password_sent_at", "sign_in_count", "unconfirmed_email", "updated_at", "approved"]
+  end
 end

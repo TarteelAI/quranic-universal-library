@@ -13,6 +13,9 @@
 ActiveAdmin.register DataSource do
   menu parent: 'Content'
   actions :all, except: :destroy
+  filter :name
+  filter :url
+
   permit_params :name, :url, on: :data_source
   searchable_select_options(scope: DataSource, text_attribute: :name)
 

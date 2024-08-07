@@ -24,7 +24,6 @@ ActiveAdmin.register FootNote do
   actions :all, except: :destroy
   ActiveAdminViewHelpers.versionate(self)
 
-  filter :language
   filter :translation_id
   filter :language_id, as: :searchable_select,
          ajax: { resource: Language }

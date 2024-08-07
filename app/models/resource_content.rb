@@ -75,16 +75,31 @@ class ResourceContent < QuranApiRecord
     where(id: ResourcePermission.where(permission_to_share: val).pluck(:resource_content_id))
   }
 
-  scope :quran_enc_key_equals, lambda { |val|
+  scope :quran_enc_key_start, lambda {|val|
+    where("meta_data ->> 'quranenc-key' >= ?", "#{val}%")
+  }
+
+  scope :quran_enc_key_end, lambda {|val|
+    where("meta_data ->> 'quranenc-key' >= ?", "%#{val}")
+  }
+
+  scope :quran_enc_key_eq, lambda { |val|
     where("meta_data ->> 'quranenc-key' = ?", val)
   }
 
-  scope :quran_enc_key_contains, lambda { |val|
+  scope :quran_enc_key_cont, lambda { |val|
     where("meta_data ->> 'quranenc-key' ilike ?", "%#{val}%")
   }
 
   def self.ransackable_scopes(*)
-    %i[permission_to_host_eq permission_to_share_eq quran_enc_key_contains quran_enc_key_equals quran_enc_key_starts_with quran_enc_key_ends_with]
+    %i[
+    permission_to_host_eq
+    permission_to_share_eq
+    quran_enc_key_eq
+    quran_enc_key_cont
+    quran_enc_key_start
+    quran_enc_key_end
+  ]
   end
 
   belongs_to :author, optional: true

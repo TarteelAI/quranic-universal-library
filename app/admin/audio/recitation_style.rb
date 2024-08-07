@@ -20,6 +20,8 @@ ActiveAdmin.register RecitationStyle do
   actions :all, except: :destroy
   permit_params :name, :description, :arabic
 
+  filter :name
+
   searchable_select_options(scope: RecitationStyle,
                             text_attribute: :name,
                             filter: lambda do |term, scope|

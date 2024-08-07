@@ -24,12 +24,12 @@ class Manzil < QuranApiRecord
   belongs_to :first_verse, class_name: 'Verse'
   belongs_to :last_verse, class_name: 'Verse'
 
-  scope :chapter_contains, lambda {|chapter_id|
+  scope :chapter_cont, lambda {|chapter_id|
     verses = Verse.order('verse_index ASC').where(chapter_id: chapter_id).select(:id)
-    where('first_verse_id >= ? AND last_verse_id <= ?', verses.first.id, verses.last.id)
+    where('? >= first_verse_id AND ? <= last_verse_id', verses.first.id, verses.last.id)
   }
 
   def self.ransackable_scopes(*)
-    %i[chapter_contains]
+    %i[chapter_cont]
   end
 end

@@ -17,7 +17,7 @@ ActiveAdmin.register Token do
       if resource.verse?
         #link_to resource.record_type, admin_verse_path(resource.record_id)
       else
-        link_to resource.text_imlaei_simple, "/admin/words?q%5Btext_imlaei_simple_equals%5D=#{resource.text_imlaei_simple}&order=id_desc&commit=Filter"
+        link_to resource.text_imlaei_simple, "/admin/words?q%5Btext_imlaei_simple_eq%5D=#{resource.text_imlaei_simple}&order=id_desc&commit=Filter"
       end
     end
 

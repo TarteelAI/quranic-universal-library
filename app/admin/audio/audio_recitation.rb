@@ -1,40 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: audio_recitations
-#
-#  id                  :bigint           not null, primary key
-#  approved            :boolean
-#  arabic_name         :string
-#  description         :text
-#  files_count         :integer
-#  files_size          :integer
-#  format              :string
-#  home                :integer
-#  name                :string
-#  priority            :integer
-#  relative_path       :string
-#  segments_count      :integer
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  qirat_type_id       :integer
-#  recitation_style_id :integer
-#  reciter_id          :integer
-#  resource_content_id :integer
-#  section_id          :integer
-#
-# Indexes
-#
-#  index_audio_recitations_on_approved             (approved)
-#  index_audio_recitations_on_name                 (name)
-#  index_audio_recitations_on_priority             (priority)
-#  index_audio_recitations_on_recitation_style_id  (recitation_style_id)
-#  index_audio_recitations_on_reciter_id           (reciter_id)
-#  index_audio_recitations_on_relative_path        (relative_path)
-#  index_audio_recitations_on_resource_content_id  (resource_content_id)
-#  index_audio_recitations_on_section_id           (section_id)
-#
 ActiveAdmin.register Audio::Recitation do
   menu parent: 'Audio'
   actions :all, except: :destroy
@@ -66,19 +31,21 @@ ActiveAdmin.register Audio::Recitation do
          ajax: { resource: RecitationStyle }
   filter :section, as: :searchable_select,
          ajax: { resource: Audio::Section }
-  filter :reciter_id, as: :searchable_select,
+  filter :reciter, as: :searchable_select,
          ajax: { resource: Reciter }
   filter :segment_locked
 
-  searchable_select_options(scope: Audio::Recitation,
-                            text_attribute: :humanize,
-                            filter: lambda do |term, scope|
-                              scope.ransack(
-                                name_cont: term,
-                                id_eq: term,
-                                m: 'or'
-                              ).result
-                            end)
+  searchable_select_options(
+    scope: Audio::Recitation,
+    text_attribute: :humanize,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        name_cont: term,
+        id_eq: term,
+        m: 'or'
+      ).result
+    end
+  )
 
   action_item :refresh_meta, only: :show do
     link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put
@@ -100,12 +67,18 @@ ActiveAdmin.register Audio::Recitation do
 
   action_item :upload_segments, only: :show do
     link_to 'Upload segments', '#_',
-            data: { controller: 'ajax-modal', url: upload_segments_admin_audio_recitation_path(resource) }
+            data: {
+              controller: 'ajax-modal',
+              url: upload_segments_admin_audio_recitation_path(resource)
+            }
   end
 
   action_item :download_segments, only: :show do
     link_to 'Download segments', '#_',
-            data: { controller: 'ajax-modal', url: download_segments_admin_audio_recitation_path(resource) }
+            data: {
+              controller: 'ajax-modal',
+              url: download_segments_admin_audio_recitation_path(resource)
+            }
   end
 
   member_action :refresh_meta, method: 'put' do

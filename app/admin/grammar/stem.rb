@@ -6,19 +6,29 @@ ActiveAdmin.register Stem do
   permit_params :text_madani, :text_clean, :uniq_words_count, :words_count
 
   filter :text_clean
-  searchable_select_options(scope: Lemma,
-                            text_attribute: :text_clean,
-                            filter: lambda do |term, scope|
-                              scope.ransack(text_clean_cont: term).result
-                            end)
+  filter :text_clean
+  filter :words_count
+  filter :uniq_words_count
+
+  searchable_select_options(
+    scope: Lemma,
+    text_attribute: :text_clean,
+    filter: lambda do |term, scope|
+      scope.ransack(text_clean_cont: term).result
+    end
+  )
 
   index do
     id_column
     column :text_madani do |resource|
-      span class: 'qpc-hafs' do resource.text_madani end
+      span class: 'qpc-hafs' do
+        resource.text_madani
+      end
     end
     column :text_clean do |resource|
-      span class: 'qpc-hafs' do resource.text_clean end
+      span class: 'qpc-hafs' do
+        resource.text_clean
+      end
     end
     column :words_count
     column :uniq_words_count
@@ -29,10 +39,14 @@ ActiveAdmin.register Stem do
     attributes_table do
       row :id
       row :text_madani do |resource|
-        span class: 'qpc-hafs' do resource.text_madani end
+        span class: 'qpc-hafs' do
+          resource.text_madani
+        end
       end
       row :text_clean do |resource|
-        span class: 'qpc-hafs' do resource.text_clean end
+        span class: 'qpc-hafs' do
+          resource.text_clean
+        end
       end
       row :words_count
       row :uniq_words_count

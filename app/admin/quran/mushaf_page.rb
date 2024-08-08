@@ -1,33 +1,13 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: mushaf_pages
-#
-#  id             :bigint           not null, primary key
-#  page_number    :integer
-#  verse_mapping  :json
-#  verses_count   :integer
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  first_verse_id :integer
-#  first_word_id  :integer
-#  last_verse_id  :integer
-#  last_word_id   :integer
-#  mushaf_id      :integer
-#
-# Indexes
-#
-#  index_mushaf_pages_on_mushaf_id    (mushaf_id)
-#  index_mushaf_pages_on_page_number  (page_number)
-#
 ActiveAdmin.register MushafPage do
   menu parent: 'Quran', priority: 1
   actions :all, except: :destroy
-
+  includes :mushaf
   filter :page_number
-  filter :mushaf_id, as: :searchable_select,
-                     ajax: { resource: Mushaf }
+  filter :mushaf,
+         as: :searchable_select,
+         ajax: { resource: Mushaf }
 
   ActiveAdminViewHelpers.render_navigation_search_sidebar(self)
 
@@ -38,10 +18,6 @@ ActiveAdmin.register MushafPage do
   action_item :preview, only: :show do
     link_to 'Preview Page', "/admin/mushaf_page_preview?page=#{resource.page_number}&mushaf=#{resource.mushaf_id}",
             class: 'btn'
-  end
-
-  def scoped_collection
-    super.includes :mushaf
   end
 
   index do

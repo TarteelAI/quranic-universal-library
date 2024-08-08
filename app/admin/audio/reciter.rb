@@ -19,7 +19,11 @@ ActiveAdmin.register Reciter do
     scope: Reciter,
     text_attribute: :name,
     filter: lambda do |term, scope|
-      scope.ransack(name_cont: term).result
+      scope.ransack(
+        name_cont: term,
+        id_eq: term,
+        m: 'or'
+      ).result
     end
   )
 
@@ -88,6 +92,7 @@ ActiveAdmin.register Reciter do
         end
       end
     end
+
     panel 'Surah recitations' do
       table do
         thead do
@@ -117,7 +122,11 @@ ActiveAdmin.register Reciter do
       f.input :cover_image
       f.input :profile_picture
 
-      f.input :bio, input_html: {data: {controller: 'tinymce'}}
+      f.input :bio, input_html: {
+        data: {
+          controller: 'tinymce'
+        }
+      }
     end
 
     f.actions

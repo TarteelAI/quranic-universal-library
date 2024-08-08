@@ -1,48 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: resource_contents
-#
-#  id                     :integer          not null, primary key
-#  approved               :boolean
-#  author_name            :string
-#  cardinality_type       :string
-#  description            :text
-#  language_name          :string
-#  meta_data              :jsonb
-#  name                   :string
-#  priority               :integer
-#  resource_info          :text
-#  resource_type          :string
-#  resource_type_name     :string
-#  slug                   :string
-#  sqlite_db              :string
-#  sqlite_db_generated_at :datetime
-#  sub_type               :string
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  author_id              :integer
-#  data_source_id         :integer
-#  language_id            :integer
-#  mobile_translation_id  :integer
-#  resource_id            :string
-#
-# Indexes
-#
-#  index_resource_contents_on_approved               (approved)
-#  index_resource_contents_on_author_id              (author_id)
-#  index_resource_contents_on_cardinality_type       (cardinality_type)
-#  index_resource_contents_on_data_source_id         (data_source_id)
-#  index_resource_contents_on_language_id            (language_id)
-#  index_resource_contents_on_meta_data              (meta_data) USING gin
-#  index_resource_contents_on_mobile_translation_id  (mobile_translation_id)
-#  index_resource_contents_on_priority               (priority)
-#  index_resource_contents_on_resource_id            (resource_id)
-#  index_resource_contents_on_resource_type_name     (resource_type_name)
-#  index_resource_contents_on_slug                   (slug)
-#  index_resource_contents_on_sub_type               (sub_type)
-#
 ActiveAdmin.register ResourceContent do
   before_action do
     ActiveStorage::Current.url_options = {
@@ -75,7 +32,7 @@ ActiveAdmin.register ResourceContent do
   filter :approved
   filter :quran_enc_key, as: :string
   filter :slug, as: :string
-  filter :data_source_id, as: :searchable_select,
+  filter :data_source, as: :searchable_select,
          ajax: { resource: DataSource }
   filter :permission_to_host, as: :select, collection: lambda {
     ResourcePermission.permission_to_hosts.keys
@@ -92,7 +49,7 @@ ActiveAdmin.register ResourceContent do
   filter :sub_type, as: :select, collection: lambda {
     ResourceContent.collection_for_sub_type
   }
-  filter :language_id, as: :searchable_select,
+  filter :language, as: :searchable_select,
          ajax: { resource: Language }
 
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)

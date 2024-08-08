@@ -1,60 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: verses
-#
-#  id                     :integer          not null, primary key
-#  code_v1                :string
-#  code_v2                :string
-#  hizb_number            :integer
-#  image_url              :text
-#  image_width            :integer
-#  juz_number             :integer
-#  mushaf_pages_mapping   :jsonb
-#  page_number            :integer
-#  pause_words_count      :integer          default(0)
-#  qpc_uthmani_bazzi      :string
-#  qpc_uthmani_doori      :string
-#  text_qpc_hafs       :string
-#  qpc_uthmani_qaloon     :string
-#  qpc_uthmani_qumbul     :string
-#  qpc_uthmani_shouba     :string
-#  qpc_uthmani_soosi      :string
-#  qpc_uthmani_warsh      :string
-#  rub_el_hizb             :integer
-#  sajdah_number          :integer
-#  sajdah_type            :string
-#  text_imlaei            :string
-#  text_imlaei_simple     :string
-#  text_indopak           :string
-#  text_indopak_nastaleeq :string
-#  text_uthmani           :string
-#  text_uthmani_simple    :string
-#  text_uthmani_tajweed   :text
-#  v2_page                :integer
-#  verse_index            :integer
-#  verse_key              :string
-#  verse_number           :integer
-#  words_count            :integer
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  chapter_id             :integer
-#  verse_lemma_id         :integer
-#  verse_root_id          :integer
-#  verse_stem_id          :integer
-#
-# Indexes
-#
-#  index_verses_on_chapter_id      (chapter_id)
-#  index_verses_on_verse_index     (verse_index)
-#  index_verses_on_verse_key       (verse_key)
-#  index_verses_on_verse_lemma_id  (verse_lemma_id)
-#  index_verses_on_verse_number    (verse_number)
-#  index_verses_on_verse_root_id   (verse_root_id)
-#  index_verses_on_verse_stem_id   (verse_stem_id)
-#  index_verses_on_words_count     (words_count)
-#
 ActiveAdmin.register Verse do
   searchable_select_options(
     scope: Verse,
@@ -75,7 +20,7 @@ ActiveAdmin.register Verse do
   actions :all, except: %i[destroy new]
 
   filter :id
-  filter :chapter_id, as: :searchable_select,
+  filter :chapter, as: :searchable_select,
          data: { controller: 'select2' },
          ajax: { resource: Chapter }
   filter :verse_number

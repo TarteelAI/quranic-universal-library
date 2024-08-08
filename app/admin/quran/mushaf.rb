@@ -1,37 +1,21 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: mushafs
-#
-#  id                  :bigint           not null, primary key
-#  default_font_name   :string
-#  description         :text
-#  enabled             :boolean
-#  is_default          :boolean          default(FALSE)
-#  lines_per_page      :integer
-#  name                :string           not null
-#  pages_count         :integer
-#  qirat_type_id       :integer
-#  resource_content_id :integer
-#
-# Indexes
-#
-#  index_mushafs_on_enabled        (enabled)
-#  index_mushafs_on_is_default     (is_default)
-#  index_mushafs_on_qirat_type_id  (qirat_type_id)
-#
 ActiveAdmin.register Mushaf do
-  searchable_select_options(scope: Mushaf,
-                            text_attribute: :name)
   menu parent: 'Quran', priority: 1
+
+  searchable_select_options(
+    scope: Mushaf,
+    text_attribute: :name
+  )
+
   actions :all, except: :destroy
 
   filter :name
   filter :enabled
   filter :pages_count
   filter :lines_per_page
-  filter :qirat_type_id, as: :searchable_select,
+  filter :qirat_type,
+         as: :searchable_select,
          ajax: { resource: QiratType }
 
   permit_params do
@@ -95,7 +79,7 @@ ActiveAdmin.register Mushaf do
               ajax: { resource: QiratType }
 
       f.input :resource_content_id, as: :searchable_select,
-                                    ajax: { resource: ResourceContent }
+              ajax: { resource: ResourceContent }
     end
 
     f.actions

@@ -13,7 +13,10 @@
 ActiveAdmin.register Tag do
   menu parent: 'Settings'
 
-  searchable_select_options(scope: Tag, text_attribute: :name)
+  searchable_select_options(
+    scope: Tag,
+    text_attribute: :name
+  )
 
   filter :name
 

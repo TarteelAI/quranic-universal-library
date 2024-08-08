@@ -18,7 +18,6 @@ ActiveAdmin.register Morphology::WordSegment do
     filter: lambda do |term, scope|
       scope.ransack(
         location_cont: term,
-        m: 'or'
       ).result
     end
   )

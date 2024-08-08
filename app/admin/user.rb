@@ -11,6 +11,19 @@ ActiveAdmin.register User do
   filter :locked_at, if: proc { |context| context.current_user.super_admin? }
   filter :confirmed_at, if: proc { |context| context.current_user.super_admin? }
 
+  searchable_select_options(
+    scope: User,
+    text_attribute: :humanize_name,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        first_name_cont: term,
+        last_name_cont: term,
+        email_cont: term,
+        m: 'or'
+        ).result
+    end
+  )
+
   permit_params do
     permitted = %i[email first_name last_name password]
 

@@ -1,61 +1,31 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: translations
-#
-#  id                  :integer          not null, primary key
-#  hizb_number         :integer
-#  juz_number          :integer
-#  language_name       :string
-#  page_number         :integer
-#  priority            :integer
-#  resource_name       :string
-#  rub_el_hizb          :integer
-#  text                :text
-#  verse_key           :string
-#  verse_number        :integer
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  chapter_id          :integer
-#  language_id         :integer
-#  resource_content_id :integer
-#  verse_id            :integer
-#
-# Indexes
-#
-#  index_translations_on_chapter_id                   (chapter_id)
-#  index_translations_on_chapter_id_and_verse_number  (chapter_id,verse_number)
-#  index_translations_on_hizb_number                  (hizb_number)
-#  index_translations_on_juz_number                   (juz_number)
-#  index_translations_on_language_id                  (language_id)
-#  index_translations_on_page_number                  (page_number)
-#  index_translations_on_priority                     (priority)
-#  index_translations_on_resource_content_id          (resource_content_id)
-#  index_translations_on_rub_el_hizb                   (rub_el_hizb)
-#  index_translations_on_verse_id                     (verse_id)
-#  index_translations_on_verse_key                    (verse_key)
-#
 ActiveAdmin.register Translation do
   menu parent: 'Content'
   actions :all, except: [:destroy, :new, :create]
+  includes :language
 
-  searchable_select_options(scope: Translation, text_attribute: :text)
+  searchable_select_options(
+    scope: Translation,
+    text_attribute: :text
+  )
 
   ActiveAdminViewHelpers.versionate(self)
 
   filter :text
-  filter :language_id, as: :searchable_select,
-                       ajax: { resource: Language }
-  filter :resource_content, as: :searchable_select,
-                            ajax: { resource: ResourceContent }
-  filter :verse, as: :searchable_select,
-                 ajax: { resource: Verse }
+  filter :language,
+         as: :searchable_select,
+         ajax: { resource: Language }
+  filter :resource_content,
+         as: :searchable_select,
+         ajax: { resource: ResourceContent }
+  filter :verse,
+         as: :searchable_select,
+         ajax: { resource: Verse }
 
   index do
-    column :id do |resource|
-      link_to(resource.id, [:admin, resource])
-    end
+    id_column
+
     column :language, &:language_name
     column :verse_id do |resource|
       link_to resource.verse_key, admin_verse_path(resource.verse_id)
@@ -97,10 +67,6 @@ ActiveAdmin.register Translation do
     ActiveAdminViewHelpers.compare_panel(self, resource) if params[:compare]
 
     active_admin_comments
-  end
-
-  def scoped_collection
-    super.includes :language # prevents N+1 queries to your database
   end
 
   permit_params do

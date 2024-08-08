@@ -1,15 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: synonyms
-#
-#  id         :bigint           not null, primary key
-#  synonyms   :text
-#  text       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
 ActiveAdmin.register Synonym do
   menu parent: 'Settings'
 

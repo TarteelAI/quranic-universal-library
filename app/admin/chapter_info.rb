@@ -5,11 +5,13 @@ ActiveAdmin.register ChapterInfo do
   actions :all, except: :destroy
   ActiveAdminViewHelpers.versionate(self)
 
-  filter :chapter, as: :searchable_select,
-                   ajax: { resource: Chapter }
+  filter :chapter,
+         as: :searchable_select,
+         ajax: { resource: Chapter }
 
-  filter :language, as: :searchable_select,
-                    ajax: { resource: Language }
+  filter :language,
+         as: :searchable_select,
+         ajax: { resource: Language }
 
   filter :text
 

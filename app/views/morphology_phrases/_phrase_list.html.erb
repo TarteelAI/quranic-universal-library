@@ -30,7 +30,7 @@
   </div>
 </div>
 
-<figure class="highlight">
+<figure class="highlight mt-4">
   <table class="table table-hover">
     <thead>
     <tr>
@@ -41,7 +41,7 @@
       <th><%= sort_order_link 'Words count', :words_count %></th>
       <th><%= sort_order_link 'Approved', :approved %></th>
       <th><%= sort_order_link 'Review', :review_status %></th>
-      <th>Text</th>
+      <th class="text-end">Text</th>
       <th>Actions</th>
     </tr>
 
@@ -70,8 +70,8 @@
         </td>
 
         <td>
-          <div class="d-inline-flex gap-2">
-            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success w-full' %>
+          <div class="d-grid gap-2">
+            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
             <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
           </div>
         </td>

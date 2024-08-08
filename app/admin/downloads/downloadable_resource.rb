@@ -2,21 +2,20 @@
 
 ActiveAdmin.register DownloadableResource do
   menu parent: 'Downloads', priority: 1
-  filter :name
 
+  filter :name
   filter :language, as: :searchable_select,
          ajax: { resource: Language }
-
   filter :resource_content, as: :searchable_select,
          ajax: { resource: ResourceContent }
   filter :published
   filter :updated_at
-
-
   filter :resource_type, as: :select, collection: DownloadableResource::RESOURCE_TYPES
 
-  searchable_select_options(scope: DownloadableResource,
-                            text_attribute: :name)
+  searchable_select_options(
+    scope: DownloadableResource,
+    text_attribute: :name
+  )
 
   controller do
     include ActiveStorage::SetCurrent

@@ -1,8 +1,8 @@
 <%= semantic_form_for [:admin, TranslatedName.new] do |form| %>
-  <%= form.input(:resource_id, as: :hidden, input_html: {value: resource.id}) %>
-  <%= form.input(:resource_type, as: :hidden, input_html: {value: resource.class.to_s}) %>
-  <%= form.input(:name) %>
-  <%= form.input(:language, input_html: { 'data-controller' => 'select2'}) %>
+  <% form.input(:resource_id, as: :hidden, input_html: {value: resource.id}) %>
+  <% form.input(:resource_type, as: :hidden, input_html: {value: resource.class.to_s}) %>
+  <% form.input(:name) %>
+  <% form.input(:language, input_html: { 'data-controller' => 'select2'}) %>
   <%= form.actions(:submit) %>
 <% end %>
 

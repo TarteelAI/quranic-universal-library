@@ -3,11 +3,13 @@
 ActiveAdmin.register WordStem do
   menu parent: 'Grammar'
   permit_params :stem_id, :word_id
-
-  filter :stem_id, as: :searchable_select,
+  includes :word, :stem
+  filter :stem,
+         as: :searchable_select,
          ajax: { resource: Stem }
 
-  filter :word_id, as: :searchable_select,
+  filter :word,
+         as: :searchable_select,
          ajax: { resource: Word }
 
   show do
@@ -29,9 +31,6 @@ ActiveAdmin.register WordStem do
     f.actions
   end
 
-  def scoped_collection
-    super.includes :word, :stem
-  end
 
   index do
     id_column

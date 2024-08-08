@@ -1,44 +1,20 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: juzs
-#
-#  id             :integer          not null, primary key
-#  juz_number     :integer
-#  verse_mapping  :json
-#  verses_count   :integer
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  first_verse_id :integer
-#  last_verse_id  :integer
-#
-# Indexes
-#
-#  index_juzs_on_first_verse_id  (first_verse_id)
-#  index_juzs_on_juz_number      (juz_number)
-#  index_juzs_on_last_verse_id   (last_verse_id)
-#
 ActiveAdmin.register Hizb do
   menu parent: 'Quran'
   actions :all, except: :destroy
+  includes :first_verse, :last_verse
 
   ActiveAdminViewHelpers.render_navigation_search_sidebar(self)
 
   filter :hizb_number
-  filter :first_verse_id, as: :searchable_select,
-         data: { controller: 'select2' },
+  filter :first_verse, as: :searchable_select,
          ajax: { resource: Verse }
-  filter :last_verse_id, as: :searchable_select,
-         data: { controller: 'select2' },
+  filter :last_verse, as: :searchable_select,
          ajax: { resource: Verse }
-  filter :chapter_cont, as: :searchable_select,
-         data: { controller: 'select2' },
+  filter :chapter_cont,
+         as: :searchable_select,
          ajax: { resource: Chapter }
-
-  def scoped_collection
-    super.includes :first_verse, :last_verse
-  end
 
   index do
     id_column

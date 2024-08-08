@@ -3,12 +3,15 @@
 ActiveAdmin.register WordRoot do
   menu parent: 'Grammar'
   permit_params :word_id, :root_id
+  includes :word, :root
 
-  filter :root_id, as: :searchable_select,
-                   ajax: { resource: Root }
+  filter :root,
+         as: :searchable_select,
+         ajax: { resource: Root }
 
-  filter :word_id, as: :searchable_select,
-                   ajax: { resource: Word }
+  filter :word,
+         as: :searchable_select,
+         ajax: { resource: Word }
 
   show do
     attributes_table do
@@ -33,10 +36,6 @@ ActiveAdmin.register WordRoot do
 
   permit_params do
     %i[word_id root_id]
-  end
-
-  def scoped_collection
-    super.includes :word, :root
   end
 
   index do

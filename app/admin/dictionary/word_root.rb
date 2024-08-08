@@ -1,45 +1,27 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: dictionary_word_roots
-#
-#  id                 :bigint           not null, primary key
-#  arabic_trilateral  :string
-#  cover_url          :string
-#  description        :text
-#  english_trilateral :string
-#  frequency          :integer
-#  root_number        :integer
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  root_id            :integer
-#
-# Indexes
-#
-#  index_dictionary_word_roots_on_arabic_trilateral   (arabic_trilateral)
-#  index_dictionary_word_roots_on_english_trilateral  (english_trilateral)
-#  index_dictionary_word_roots_on_root_id             (root_id)
-#  index_dictionary_word_roots_on_root_number         (root_number)
-#
 ActiveAdmin.register Dictionary::WordRoot do
   menu parent: 'Dictionary'
 
-  searchable_select_options(scope: Dictionary::WordRoot,
-                            text_attribute: :arabic_trilateral,
-                            filter: lambda do |term, scope|
-                              scope.ransack(
-                                arabic_trilateral_cont: term,
-                                english_trilateral_cont: term,
-                                m: 'or'
-                              ).result
-                            end)
+  searchable_select_options(
+    scope: Dictionary::WordRoot,
+    text_attribute: :arabic_trilateral,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        arabic_trilateral_cont: term,
+        english_trilateral_cont: term,
+        m: 'or'
+      ).result
+    end
+  )
 
   filter :arabic_trilateral
   filter :english_trilateral
   filter :root_number
-  filter :root_id, as: :searchable_select, class: 'soft-keyboard',
-                   ajax: { resource: Root }
+  filter :root,
+         as: :searchable_select,
+         class: 'soft-keyboard',
+         ajax: { resource: Root }
 
   permit_params do
     %i[
@@ -125,7 +107,7 @@ ActiveAdmin.register Dictionary::WordRoot do
               td example.word_arabic, class: 'qpc-hafs', style: 'white-space: nowrap;'
               td example.word_translation, style: 'white-space: nowrap;'
               td highlight(example.segment_arabic, example.word_arabic), class: 'qpc-hafs',
-                                                                         style: 'white-space: nowrap;'
+                 style: 'white-space: nowrap;'
               td example.segment_translation, style: 'white-space: wrap;'
             end
           end

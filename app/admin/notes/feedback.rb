@@ -14,5 +14,5 @@
 #
 ActiveAdmin.register Feedback do
   menu parent: 'Notes'
-  actions :all, except: %i[new create edit update destroy]
+  actions :index, :show
 end

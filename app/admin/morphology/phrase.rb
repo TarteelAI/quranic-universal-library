@@ -15,6 +15,7 @@ ActiveAdmin.register Morphology::Phrase do
   action_item :export_csv, only: :index do
     link_to 'Export CSV', export_approved_admin_morphology_phrases_path(format: :json)
   end
+
   action_item :export_csv, only: :show do
     link_to 'Fix', "/morphology_phrases/#{resource.id}", target: '_blank'
   end

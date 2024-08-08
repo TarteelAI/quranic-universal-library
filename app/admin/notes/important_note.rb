@@ -7,11 +7,13 @@ ActiveAdmin.register ImportantNote do
   filter :label
   filter :user
 
-  filter :verse_id, as: :searchable_select,
-                    ajax: { resource: Verse }
+  filter :verse,
+         as: :searchable_select,
+         ajax: { resource: Verse }
 
-  filter :word_id, as: :searchable_select,
-                   ajax: { resource: Word }
+  filter :word,
+         as: :searchable_select,
+         ajax: { resource: Word }
 
   permit_params do
     %i[title text label chapter_id verse_id word_id]

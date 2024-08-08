@@ -16,23 +16,35 @@
 #
 ActiveAdmin.register Topic do
   menu parent: 'Content'
-  actions :all, except: :destroy
+  actions :all, except: [:destroy, :new, :create]
+
+  searchable_select_options(
+    scope: Topic,
+    text_attribute: :name,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        name_cont: term,
+        id_eq: term,
+        m: 'or'
+      ).result
+    end
+  )
 
   filter :name
-  filter :ontology
-  filter :thematic
+  filter :ontology, as: :boolean
+  filter :thematic, as: :boolean
+  includes :parent
 
-  ActiveAdminViewHelpers.render_translated_name_sidebar(self)
-  ActiveAdminViewHelpers.render_navigation_search_sidebar(self)
-
-  searchable_select_options(scope: Topic,
-                            text_attribute: :name,
-                            filter: lambda do |term, scope|
-                              scope.ransack(
-                                name_cont: term,
-                                m: 'or'
-                              ).result
-                            end)
+  index do
+    selectable_column
+    column :id
+    column :name
+    column :ontology
+    column :thematic
+    column :parent, sortable: :parent_id
+    column :children_count
+    actions
+  end
 
   show do
     attributes_table do
@@ -63,7 +75,7 @@ ActiveAdmin.register Topic do
         end
       end
 
-      row :childen_count
+      row :children_count
       row :depth
 
       row :verses do
@@ -80,28 +92,23 @@ ActiveAdmin.register Topic do
           end
         end
       end
-
-      if false
-        row :words do
-          div do
-            resource.words.each do |w|
-              div class: 'me_quran quran-text' do
-                link_to(w.location, [:admin, w]).html_safe + "  -  #{w.text_uthmani}"
-              end
-            end
-          end
-        end
-
-        row :verses do
-          div do
-            resource.verses.each do |v|
-              div class: 'me_quran quran-text' do
-                link_to(v.verse_key, [:admin, v]).html_safe + "  -  #{v.text_uthmani}"
-              end
-            end
-          end
-        end
-      end
     end
   end
+
+  form do |f|
+    f.inputs 'Topic detail' do
+      f.input :name
+      f.input :arabic_name
+      f.input :description
+      f.input :ontology
+      f.input :thematic
+      f.input :parent, as: :searchable_select, ajax: { resource: Topic }
+      f.input :ontology_parent, as: :searchable_select, ajax: { resource: Topic }
+      f.input :thematic_parent, as: :searchable_select, ajax: { resource: Topic }
+    end
+
+    f.actions
+  end
+
+  permit_params :name, :arabic_name, :description, :ontology, :thematic, :parent_id, :ontology_parent_id, :thematic_parent_id
 end

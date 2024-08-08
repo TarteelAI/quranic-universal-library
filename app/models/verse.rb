@@ -98,6 +98,10 @@ class Verse < QuranApiRecord
   accepts_nested_attributes_for :word_translations
   accepts_nested_attributes_for :wbw_texts
 
+  def to_s
+    verse_key
+  end
+
   def verse_phrases
     Morphology::PhraseVerse.includes(:phrase).where(verse_id: id)
   end

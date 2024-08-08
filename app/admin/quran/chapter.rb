@@ -22,15 +22,17 @@
 #  index_chapters_on_chapter_number  (chapter_number)
 #
 ActiveAdmin.register Chapter do
-  searchable_select_options(scope: Chapter,
-                            text_attribute: :humanize,
-                            filter: lambda do |term, scope|
-                              scope.order('id ASC').ransack(
-                                chapter_number_eq: term,
-                                name_cont: term,
-                                m: 'or'
-                              ).result
-                            end)
+  searchable_select_options(
+    scope: Chapter,
+    text_attribute: :humanize,
+    filter: lambda do |term, scope|
+      scope.order('id ASC').ransack(
+        chapter_number_eq: term,
+        name_cont: term,
+        m: 'or'
+      ).result
+    end
+  )
 
   menu parent: 'Quran', priority: 1
   actions :all, except: %i[destroy new]

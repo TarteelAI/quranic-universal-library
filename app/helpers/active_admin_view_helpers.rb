@@ -96,8 +96,10 @@ module ActiveAdminViewHelpers
 
     def render_navigation_search_sidebar(context)
       context.sidebar "Navigation Search Variations", only: :show do
-        div do
-          render 'admin/navigation_search_form'
+        if can?(:manage, NavigationSearchRecord)
+          div do
+            render 'admin/navigation_search_form'
+          end
         end
 
         table do
@@ -120,8 +122,10 @@ module ActiveAdminViewHelpers
 
     def render_translated_name_sidebar(context)
       context.sidebar "Translated names", only: :show do
-        div do
-          render 'admin/translated_names'
+        if can?(:manage, TranslatedName)
+          div do
+            render 'admin/translated_names'
+          end
         end
 
         table do
@@ -146,11 +150,13 @@ module ActiveAdminViewHelpers
 
     def render_slugs(context)
       context.sidebar 'Slugs', only: :show do
-        div do
-          semantic_form_for [:admin, Slug.new] do |form|
-            form.input(:chapter_id, as: :hidden, input_html: { value: resource.id }) +
-              form.inputs(:slug, :locale) +
-              form.actions(:submit)
+        if can?(:manage, Slug)
+          div do
+            semantic_form_for [:admin, Slug.new] do |form|
+              form.input(:chapter_id, as: :hidden, input_html: { value: resource.id }) +
+                form.inputs(:slug, :locale) +
+                form.actions(:submit)
+            end
           end
         end
 

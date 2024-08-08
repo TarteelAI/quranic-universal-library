@@ -5,7 +5,8 @@
       <%= form.hidden_field :resource_type, value: resource.class.to_s %>
 
       <%= form.select :tag_id, options_for_select(Tag.pluck(:name, :id)),
-                      {},
+                      {include_blank: 'Select a tag'},
+                      class: 'select2',
                      data: { controller: 'select2' } %>
     </ul>
 

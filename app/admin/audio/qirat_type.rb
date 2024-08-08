@@ -18,8 +18,11 @@ ActiveAdmin.register QiratType do
   permit_params do
     %i[name description]
   end
-  searchable_select_options(scope: QiratType,
-                            text_attribute: :name)
+
+  searchable_select_options(
+    scope: QiratType,
+    text_attribute: :name
+  )
 
   show do
     attributes_table do

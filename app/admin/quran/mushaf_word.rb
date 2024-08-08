@@ -1,39 +1,15 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: mushaf_words
-#
-#  id                :bigint           not null, primary key
-#  char_type_name    :string
-#  css_class         :string
-#  css_style         :string
-#  line_number       :integer
-#  page_number       :integer
-#  position_in_line  :integer
-#  position_in_page  :integer
-#  position_in_verse :integer
-#  text              :text
-#  char_type_id      :integer
-#  mushaf_id         :integer
-#  verse_id          :integer
-#  word_id           :integer
-#
-# Indexes
-#
-#  index_mushaf_words_on_mushaf_id_and_word_id  (mushaf_id,word_id)
-#  index_on_mushad_word_position                (mushaf_id,verse_id,position_in_verse)
-#  index_on_mushaf_word_position                (mushaf_id,verse_id,position_in_page)
-#
 ActiveAdmin.register MushafWord do
   menu parent: 'Quran'
   actions :all, except: %i[destroy new]
+  includes :word, :mushaf, :char_type
 
   filter :mushaf
   filter :char_type
   filter :word, as: :searchable_select,
          ajax: { resource: Word }
-  filter :verse_id, as: :searchable_select,
+  filter :verse, as: :searchable_select,
          ajax: { resource: Verse }
   filter :line_number
   filter :page_number
@@ -110,9 +86,5 @@ ActiveAdmin.register MushafWord do
       row :position_in_page
       row :position_in_verse
     end
-  end
-
-  def scoped_collection
-    super.includes :word, :mushaf, :char_type
   end
 end

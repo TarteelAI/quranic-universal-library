@@ -27,7 +27,7 @@ ActiveAdmin.register Recitation do
 
   filter :recitation_style, as: :searchable_select,
                             ajax: { resource: RecitationStyle }
-  filter :reciter_id, as: :searchable_select,
+  filter :reciter, as: :searchable_select,
                       ajax: { resource: Reciter }
   filter :approved
 

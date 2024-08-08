@@ -17,6 +17,8 @@
 ActiveAdmin.register Audio::RelatedRecitation do
   menu parent: 'Audio'
   actions :all, except: :destroy
+  includes :audio_recitation,
+           :related_audio_recitation
 
   filter :audio_recitation, as: :searchable_select,
                             ajax: { resource: Audio::Recitation }
@@ -32,7 +34,4 @@ ActiveAdmin.register Audio::RelatedRecitation do
     actions
   end
 
-  def scoped_collection
-    super.includes :audio_recitation, :related_audio_recitation
-  end
 end

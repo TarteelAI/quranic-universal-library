@@ -1,26 +1,20 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: reciters
-#
-#  id         :integer          not null, primary key
-#  name       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
 ActiveAdmin.register Radio::Station do
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 
   menu parent: 'Audio'
   filter :name
-  filter :parent_id, as: :searchable_select,
-         data: { controller: 'select2' },
-         ajax: { resource: Radio::Station }
+  filter :parent, as: :searchable_select,
+         ajax: {
+           resource: Radio::Station
+         }
 
   actions :all, except: :destroy
-  searchable_select_options(scope: Radio::Station,
-                            text_attribute: :name)
+  searchable_select_options(
+    scope: Radio::Station,
+    text_attribute: :name
+  )
 
   permit_params do
     %i[name description cover_image profile_picture parent_id]

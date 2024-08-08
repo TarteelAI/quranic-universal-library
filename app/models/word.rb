@@ -129,6 +129,9 @@ class Word < QuranApiRecord
         .where("word_lemmas.id IS NULL")
   end
 
+  def to_s
+    location
+  end
   def translation_for_language(lang)
     word_translations.where(language_id: lang.id).first
   end

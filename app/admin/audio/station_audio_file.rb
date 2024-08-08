@@ -12,19 +12,16 @@
 ActiveAdmin.register Radio::StationAudioFile do
   menu parent: 'Audio'
 
-  filter :radio_station_id, as: :searchable_select,
+  filter :radio_station, as: :searchable_select,
          ajax: { resource: Radio::Station }
-  filter :chapter_id, as: :searchable_select,
+  filter :chapter, as: :searchable_select,
          ajax: { resource: Chapter }
 
   actions :all, except: :destroy
+  includes :radio_station
 
   permit_params do
     %i[audio_file_id radio_station_id chapter_id]
-  end
-
-  def scoped_collection
-    super.includes :radio_station
   end
 
   index do

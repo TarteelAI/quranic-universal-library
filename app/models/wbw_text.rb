@@ -2,16 +2,17 @@
 #
 # Table name: wbw_texts
 #
-#  id           :bigint           not null, primary key
-#  approved     :boolean          default(FALSE)
-#  is_updated   :boolean          default(FALSE)
-#  text_imlaei  :string
-#  text_indopak :string
-#  text_uthmani :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  verse_id     :integer
-#  word_id      :integer
+#  id               :bigint           not null, primary key
+#  approved         :boolean          default(FALSE)
+#  is_updated       :boolean          default(FALSE)
+#  qpc_uthmani_hafs :string
+#  text_imlaei      :string
+#  text_indopak     :string
+#  text_uthmani     :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  verse_id         :integer
+#  word_id          :integer
 #
 # Indexes
 #

@@ -14,7 +14,7 @@ export default class extends Controller {
   connect() {
     let el = $(this.element);
 
-    let options = { allowClear: true };
+    let options = { allowClear: true, placeholder: 'Select' };
 
     if (el.data("multiple")) {
       options["multiple"] = true;
@@ -41,7 +41,6 @@ export default class extends Controller {
     // Weird, had to expose select2 to window before using it.
     // Debug and fix this
     window.select2 = select2();
-
     this.select = el.select2(options)
   }
 

@@ -22,11 +22,13 @@ ActiveAdmin.register RecitationStyle do
 
   filter :name
 
-  searchable_select_options(scope: RecitationStyle,
-                            text_attribute: :name,
-                            filter: lambda do |term, scope|
-                              scope.ransack(name_cont: term).result
-                            end)
+  searchable_select_options(
+    scope: RecitationStyle,
+    text_attribute: :name,
+    filter: lambda do |term, scope|
+      scope.ransack(name_cont: term).result
+    end
+  )
 
   show do
     attributes_table do

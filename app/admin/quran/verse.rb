@@ -56,15 +56,17 @@
 #  index_verses_on_words_count     (words_count)
 #
 ActiveAdmin.register Verse do
-  searchable_select_options(scope: Verse,
-                            text_attribute: :verse_key,
-                            filter: lambda do |term, scope|
-                              scope.ransack(
-                                verse_key_cont: term,
-                                id_eq: term,
-                                m: 'or'
-                              ).result.order('verse_index asc')
-                            end)
+  searchable_select_options(
+    scope: Verse,
+    text_attribute: :verse_key,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        verse_key_cont: term,
+        id_eq: term,
+        m: 'or'
+      ).result.order('verse_index asc')
+    end
+  )
   menu parent: 'Quran', priority: 2
 
   ActiveAdminViewHelpers.render_navigation_search_sidebar(self)
@@ -436,7 +438,7 @@ ActiveAdmin.register Verse do
         end
 
         tbody do
-          Morphology::PhraseVerse.includes(:phrase).where(verse_id: resource.id).where(phrase: {words_count: 4}).each_with_index do |pv, i|
+          Morphology::PhraseVerse.includes(:phrase).where(verse_id: resource.id).where(phrase: { words_count: 4 }).each_with_index do |pv, i|
             phrase = pv.phrase
 
             tr do

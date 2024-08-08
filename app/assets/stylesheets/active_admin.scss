@@ -14,20 +14,14 @@
 @import "admin/active_admin_bootstrab_overrides";
 @import "libs/toastr";
 
-form#data-filters {
-  li {
-    margin-top: 20px;
-
-    label {
-      margin-right: 15px;
-    }
-
-    .select2-container {
-      min-width: 200px;
-
-      .select2-selection__clear {
-        padding-right: 10px;
-      }
+.filter_form {
+  .searchable_select{
+    .select2-selection__clear {
+      padding-right: 10px;
+      background-image: none !important;
+      text-shadow: none !important;
+      box-shadow: none !important;
+      color: #000 !important;
     }
   }
 }

@@ -7,6 +7,7 @@ class Ability
     can :read, :all
     can :read, ActiveAdmin::Page, name: "Dashboard"
     cannot :read, User
+    cannot :impersonate, User
     cannot :read, DownloadableResource
     cannot :read, DownloadableFile
     cannot :read, UserDownload
@@ -15,7 +16,8 @@ class Ability
     cannot :read, AdminTodo
     cannot :read, AdminUser
 
-    can :manage, User, id: user.id
+    can :read, User, id: user.id
+    can :update, User, id: user.id
 
     if user.admin?
       can :manage, NavigationSearchRecord
@@ -32,6 +34,7 @@ class Ability
       can :admin, :run_actions
       can :download, :restricted_content
       can :manage, :draft_content
+      can :assign_project, User
     end
 
     if user.moderator?

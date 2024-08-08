@@ -94,18 +94,16 @@ ActiveAdmin.register ResourceContent do
   }
   filter :language_id, as: :searchable_select,
          ajax: { resource: Language }
-  #filter :tags_id, as: :searchable_select, multiple: true,
-  #       ajax: { resource: Tag }
 
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 
-  action_item :approve, only: :show do
+  action_item :approve, only: :show, if: -> { can? :manage, ResourceContent } do
     link_to approve_admin_resource_content_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
 
-  action_item :import_draft, only: :show do
+  action_item :import_draft, only: :show, if: -> { can? :manage, Draft::Translation } do
     if resource.sourced_from_quranenc?
       type = resource.tafsir? ? 'tafsir' : 'translation'
       link_to "Import Draft #{type}", import_draft_admin_resource_content_path(resource), method: :put,
@@ -114,6 +112,8 @@ ActiveAdmin.register ResourceContent do
   end
 
   member_action :upload_file, method: 'post' do
+    authorize! :upload_file, resource
+
     permitted = params.require(:resource_content).permit source_files: []
 
     permitted['source_files'].each do |attachment|
@@ -124,6 +124,7 @@ ActiveAdmin.register ResourceContent do
   end
 
   member_action :approve, method: 'put' do
+    authorize! :update, resource
     resource.toggle_approve!
 
     redirect_to [:admin, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
@@ -136,6 +137,8 @@ ActiveAdmin.register ResourceContent do
   end
 
   member_action :import_draft, method: 'put' do
+    authorize! :manage, resource
+
     if !current_user.super_admin?
       return redirect_back fallback_location: "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}", alert: 'Sorry, you can not perform this action'
     end
@@ -156,7 +159,16 @@ ActiveAdmin.register ResourceContent do
   end
 
   member_action :export, method: 'put' do
-    permitted = params.require(:resource_content).permit(:export_file_name, :include_footnote, :export_format).to_h
+    authorize! :export, resource
+
+    permitted = params
+                  .require(:resource_content)
+                  .permit(
+                    :export_file_name,
+                    :include_footnote,
+                    :export_format
+                  )
+                  .to_h
     export_type = permitted[:export_format].to_s.strip
 
     if export_type == 'sqlite'
@@ -339,8 +351,10 @@ ActiveAdmin.register ResourceContent do
   end
 
   sidebar 'Files for this resource', only: :show do
-    div do
-      render 'admin/upload_file_form'
+    if can?(:manage, ResourceContent)
+      div do
+        render 'admin/upload_file_form'
+      end
     end
 
     table do
@@ -393,13 +407,13 @@ ActiveAdmin.register ResourceContent do
     end
   end
 
-  sidebar 'Export data', only: :show, if: -> { resource.translation? || resource.tafsir? } do
+  sidebar 'Export data', only: :show, if: -> { can?(:export, resource) && (resource.translation? || resource.tafsir?) } do
     div do
       render 'admin/export_options'
     end
   end
 
-  sidebar 'Contribution access', only: :show do
+  sidebar 'Contribution access', only: :show, if: -> { can?(:manage, resource) } do
     table do
       thead do
         th 'id'
@@ -434,8 +448,10 @@ ActiveAdmin.register ResourceContent do
       end
     end
 
-    div do
-      render 'admin/add_tags_form'
+    if can?(:manage, Tag)
+      div do
+        render 'admin/add_tags_form'
+      end
     end
   end
 end

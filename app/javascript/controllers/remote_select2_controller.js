@@ -14,6 +14,7 @@ export default class extends Controller {
     let options = {
       multiple: el.data("multiple") || false,
       allowClear: true,
+      placeholder: el.data("placeholder") || "Select",
       tags: el.data("tags") || false // for adding items on the fly
     };
 

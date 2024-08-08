@@ -15,8 +15,13 @@ ActiveAdmin.register Reciter do
   menu parent: 'Audio'
   filter :name
   actions :all, except: :destroy
-  searchable_select_options(scope: Reciter,
-                            text_attribute: :name)
+  searchable_select_options(
+    scope: Reciter,
+    text_attribute: :name,
+    filter: lambda do |term, scope|
+      scope.ransack(name_cont: term).result
+    end
+  )
 
   permit_params do
     %i[name bio cover_image profile_picture]

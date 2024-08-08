@@ -53,15 +53,6 @@
     left: 20px;
   }
 
-  .search-hint {
-    position: absolute;
-    right: 20px;
-
-    @media (max-width: $screen-sm) {
-      display: none;
-    }
-  }
-
   .search-input {
     padding: 10px 60px 10px 50px;
     width: 485px;

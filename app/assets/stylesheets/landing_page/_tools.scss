@@ -10,7 +10,6 @@
   overflow-x: auto;
   align-items: center;
   gap: 24px;
-  scroll-snap-type: x;
 
   &::-webkit-scrollbar {
     display: none;
@@ -18,6 +17,11 @@
 
   -ms-overflow-style: none;
   scrollbar-width: none;
+
+  @media (max-width: $screen-md) {
+    scroll-snap-type: x;
+    scroll-snap-align: center;
+  }
 }
 
 .tool-card {

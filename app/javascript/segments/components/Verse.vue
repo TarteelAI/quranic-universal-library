@@ -98,17 +98,19 @@
               </td>
 
               <td :data-word="segment[0]" :data-index="index">
-                <button @click="insertSegment" class="btn btn-sm btn-info" :disabled="segmentLocked">Add</button>
-                <button @click="removeSegment" class="me-2 btn btn-sm btn-danger" :disabled="segmentLocked">Remove</button>
+                <div class="d-flex gap-1">
+                  <button @click="insertSegment" class="btn btn-sm btn-info" :disabled="segmentLocked">Add</button>
+                  <button @click="removeSegment" class="me-2 btn btn-sm btn-danger" :disabled="segmentLocked">Remove</button>
 
-                <button @click="playWord" class="btn btn-sm btn-secondary">
-                  {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
-                </button>
-                <button @click="loopWord" class="me-2 btn btn-sm btn-secondary">
-                  {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
-                </button>
+                  <button @click="playWord" class="btn btn-sm btn-secondary">
+                    {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
+                  </button>
+                  <button @click="loopWord" class="me-2 btn btn-sm btn-secondary">
+                    {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
+                  </button>
 
-                <button @click="trackTime" class="btn btn-sm btn-warning" :disabled="segmentLocked">Track</button>
+                  <button @click="trackTime" class="btn btn-sm btn-warning" :disabled="segmentLocked">Track</button>
+                </div>
               </td>
             </tr>
             </tbody>

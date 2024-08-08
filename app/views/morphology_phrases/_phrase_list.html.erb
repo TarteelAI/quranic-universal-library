@@ -5,7 +5,7 @@
 <div class="page-section">
   <div class="filters row">
     <div class="col-12">
-      <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex' do %>
+      <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex align-items-end' do %>
         <div class="form-group me-2">
           <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
           <p class="form-text">Filter by Surah</p>
@@ -21,7 +21,7 @@
           <p class="form-text">Search content</p>
         </div>
 
-        <div class="form-group d-flex align-items-center align-content-center">
+        <div class="form-group d-flex align-items-center align-content-center align-self-start">
           <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
           <%= link_to 'Clear', morphology_phrases_path %>
         </div>
@@ -30,7 +30,7 @@
   </div>
 </div>
 
-<figure class="highlight">
+<figure class="highlight mt-4">
   <table class="table table-hover">
     <thead>
     <tr>
@@ -41,7 +41,7 @@
       <th><%= sort_order_link 'Words count', :words_count %></th>
       <th><%= sort_order_link 'Approved', :approved %></th>
       <th><%= sort_order_link 'Review', :review_status %></th>
-      <th>Text</th>
+      <th class="text-end">Text</th>
       <th>Actions</th>
     </tr>
 
@@ -69,9 +69,11 @@
           <%= phrase.text_qpc_hafs %>
         </td>
 
-        <td class="d-flex">
-          <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success mx-1' %>
-          <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
+        <td>
+          <div class="d-grid gap-2">
+            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
+            <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
+          </div>
         </td>
       </tr>
     <% end %>

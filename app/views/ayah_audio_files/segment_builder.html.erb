@@ -2,13 +2,13 @@
 <%= stylesheet_link_tag "segments/index", defer: true %>
 
 <div class="page-wrapper mt-0">
-  <h3 class="page-header d-flex m-0">
+  <h3 class="page-header d-lg-flex m-0">
     <small class="flex-grow-1">
       Segment builder for <%= @recitation.humanize %>(<%= @recitation.id %>) -
       Surah <%= @chapter.name_simple %>
     </small>
 
-    <span>
+    <div class="d-flex mt-4 mt-lg-0 gap-2">
       <%= link_to 'Back to Index', ayah_audio_files_path(id: @recitation.id), class: 'btn btn-success' %>
       <%= link_to 'Previous Surah', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'btn btn-success' if @chapter.id > 1 %>
       <%= link_to 'Next Surah', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'btn btn-success' if @chapter.id < 114 %>
@@ -16,10 +16,10 @@
       <%= link_to '#_', class: 'btn btn-info', data: { controller: 'ajax-modal', url: builder_help_surah_audio_files_path } do %>
         Help
       <% end %>
-    </span>
+    </div>
   </h3>
 
-  <div class="page-section">
+  <div class="page-section mt-4">
     <div id="app"
          data-recitation="<%= @recitation.id %>"
          data-segment-locked="<%= @recitation.segment_locked? || !@has_permission %>"

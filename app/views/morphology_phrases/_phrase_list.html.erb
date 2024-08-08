@@ -69,9 +69,11 @@
           <%= phrase.text_qpc_hafs %>
         </td>
 
-        <td class="d-flex">
-          <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success mx-1' %>
-          <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
+        <td>
+          <div class="d-inline-flex gap-2">
+            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success w-full' %>
+            <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
+          </div>
         </td>
       </tr>
     <% end %>

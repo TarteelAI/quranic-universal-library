@@ -3,6 +3,10 @@
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
 
+  @media (max-width: $screen-md) {
+    grid-template-columns: 1fr;
+  }
+
   .card {
     height: 300px;
     min-height: 300px;

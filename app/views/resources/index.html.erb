@@ -1,6 +1,9 @@
 <div id="resources" data-controller="resource-search">
   <%= render 'hero' %>
   <%= render 'resources_list' %>
+  <div id="empty-results-message" class="d-none">
+    <p>No results found</p>
+  </div>
 </div>
 
 <%= render 'content_notice' %>

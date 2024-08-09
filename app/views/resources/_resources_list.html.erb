@@ -49,15 +49,17 @@
             <%= image_tag "landing/#{card.icon}" %>
           </div>
 
-          <div class="d-flex align-items-center justify-content-between">
-            <div class="text-white fw-bold">
-              <%= card.stats.to_s.html_safe %>
-            </div>
+          <% if card.count.to_i > 0 %>
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="text-white fw-bold">
+                <%= card.stats.to_s.html_safe %>
+              </div>
 
-            <div class="featured-count-badge">
-              <%= card.count %>
+              <div class="featured-count-badge">
+                <%= card.count %>
+              </div>
             </div>
-          </div>
+          <% end %>
         </div>
       </div>
     <% end %>

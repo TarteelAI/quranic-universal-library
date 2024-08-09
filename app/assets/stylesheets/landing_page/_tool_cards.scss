@@ -1,5 +1,6 @@
 .tool-card-with-bg{
   background-repeat: no-repeat !important;
+  background-size: cover;
 
   img{
     width: 200px;
@@ -18,79 +19,79 @@
   }
 
   &.segments, &.recitation {
-   background: url("tools-cards/timestamp.webp");
+   background-image: url("tools-cards/timestamp.webp");
   }
   &.mushaf-layout, &.page-layout {
     backdrop-filter: brightness(1.2);
-    background: linear-gradient(rgba(245, 222, 179, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mushaf-layout.webp");
+    background-image: linear-gradient(rgba(245, 222, 179, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mushaf-layout.webp");
   }
 
   &.mutashabihat {
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mutashabihat.webp");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mutashabihat.webp");
   }
 
   &.quranic-text {
-    background: url("tools-cards/quran.webp");
+    background-image: url("tools-cards/quran.webp");
   }
 
   &.translation {
-    background: url("tools-cards/translation.webp");
+    background-image: url("tools-cards/translation.webp");
   }
 
   &.transliteration{
-    background: url("tools-cards/transliteration.webp");
+    background-image: url("tools-cards/transliteration.webp");
   }
 
   &.tafsirs {
     /*TODO: find a better background image*/
     backdrop-filter: brightness(0.2) sepia(1) saturate(2) hue-rotate(180deg); /* Add bluish tint */
-    background: url("tools-cards/tafsirs.webp");
+    background-image: url("tools-cards/tafsirs.webp");
   }
 
   &.metadata{
-    background: linear-gradient(rgba(42, 122, 178, 0.8),rgba(188, 239, 214, 0.9)),url("tools-cards/metadata.webp");
+    background-image: linear-gradient(rgba(42, 122, 178, 0.8),rgba(188, 239, 214, 0.9)),url("tools-cards/metadata.webp");
   }
 
   &.surah-info{
-    background: linear-gradient(rgba(67, 27, 116, 0.8), rgba(92, 45, 138, 0.8)), url("tools-cards/surah-info.webp");
+    background-image: linear-gradient(rgba(67, 27, 116, 0.8), rgba(92, 45, 138, 0.8)), url("tools-cards/surah-info.webp");
   }
 
   &.ayah-topics{
-    background: linear-gradient(rgba(95, 15, 64, 0.8),rgba(154, 3, 30, 0.9)),url("tools-cards/metadata.webp");
+    background-image: linear-gradient(rgba(95, 15, 64, 0.8),rgba(154, 3, 30, 0.9)),url("tools-cards/metadata.webp");
   }
   &.grammar-morphology{
-    background: linear-gradient(rgba(196, 73, 0, 0.8), rgba(67, 37, 52, 0.5)), url("tools-cards/grammar.webp");
+    background-image: linear-gradient(rgba(196, 73, 0, 0.8), rgba(67, 37, 52, 0.5)), url("tools-cards/grammar.webp");
   }
 
   &.pattern1{
-    background: url("svg/pattern-1.svg"), linear-gradient(rgba(99, 110, 114, 0.8), #0984e3);
+    background-image: url("svg/pattern-1.svg"), linear-gradient(rgba(99, 110, 114, 0.8), #0984e3);
   }
   &.pattern2{
-    background: url("svg/pattern-4.svg"), linear-gradient(#218c74, #84817a);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#218c74, #84817a);
   }
   &.pattern3{
-    background: url("svg/pattern-3.svg"), linear-gradient(#d63031,rgba(154, 3, 30, 0.3));
+    background-image: url("svg/pattern-3.svg"), linear-gradient(#d63031,rgba(154, 3, 30, 0.3));
   }
   &.pattern4{
-    background: url("svg/pattern-4.svg"), linear-gradient(#fd79a8, #0984e3);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#fd79a8, #0984e3);
   }
   &.pattern5{
-    background: url("svg/pattern-4.svg"), linear-gradient(#00b894, #0984e3);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#00b894, #0984e3);
   }
   &.pattern6{
-    background: url("svg/pattern-4.svg"), linear-gradient(#3ae374, #7158e2);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#3ae374, #7158e2);
   }
   &.pattern7{
-    background: url("svg/pattern-4.svg"), linear-gradient(#fd79a8, #ff793f);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#fd79a8, #ff793f);
   }
   &.pattern8{
-    background: url("svg/pattern-4.svg"), linear-gradient(#ff9f1a, #ff3838);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#ff9f1a, #ff3838);
   }
   &.pattern9{
-    background: url("svg/pattern-4.svg"), linear-gradient(#2c2c54, #cd6133);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#2c2c54, #cd6133);
   }
   &.pattern10{
-    background: url("svg/pattern-4.svg"), linear-gradient(#b33939, #34ace0);
+    background-image: url("svg/pattern-4.svg"), linear-gradient(#b33939, #34ace0);
   }
 
   @media (max-width: $screen-md) {

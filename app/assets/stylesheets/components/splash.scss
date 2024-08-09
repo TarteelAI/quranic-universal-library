@@ -1,10 +1,10 @@
 .card-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.25rem;
 
-  @media (max-width: $screen-md) {
-    grid-template-columns: 1fr;
+  @media (min-width: $screen-md) {
+    grid-template-columns: 1fr 1fr;
   }
 
   .card {

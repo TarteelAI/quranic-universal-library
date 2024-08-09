@@ -10,8 +10,8 @@ module ArabicTransliterationsHelper
         filter_progress: params[:filter_progress]
     )
 
-    link_to url_for(link_params) do
-      "<i class='fa fa-sort-#{order} left'> </i> #{text}".html_safe
+    link_to url_for(link_params), class: "d-flex align-items-center gap-2" do
+      "<span><i class='fa fa-sort-#{order}'></i></span><span>#{text}</span>".html_safe
     end
   end
 end

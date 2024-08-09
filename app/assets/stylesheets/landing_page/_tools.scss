@@ -22,9 +22,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 
-  @media (max-width: $screen-md) {
-    scroll-snap-type: x mandatory;
-  }
+  scroll-snap-type: x mandatory;
 }
 
 .tool-card {

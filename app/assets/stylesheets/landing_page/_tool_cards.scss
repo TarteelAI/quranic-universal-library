@@ -93,7 +93,7 @@
     background: url("svg/pattern-4.svg"), linear-gradient(#b33939, #34ace0);
   }
 
-  @media (max-width: $screen-sm) {
+  @media (max-width: $screen-md) {
     img {
       width: 100px;
       height: 100px;

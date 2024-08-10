@@ -224,7 +224,7 @@ module LandingHelper
       ),
       ToolCard.new(
         title: 'Download Mushaf layout',
-        description: 'Dowonlosd mushaf layout data( 15 lines, 16 lines, v2, v1 etc)',
+        description: 'Download mushaf layout data( 15 lines, 16 lines, v2, v1 etc)',
         url: '/resources/mushaf-layout',
         type: 'page-layout',
         icon: 'layout.svg',

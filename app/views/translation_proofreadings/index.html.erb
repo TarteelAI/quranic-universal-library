@@ -65,9 +65,11 @@
             <td dir="<%= @resource.language&.direction %>">
               <%= translation.text.html_safe %>
             </td>
-            <td class="d-flex">
-              <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info  me-1' %>
-              <%= link_to 'Show', translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success' %>
+            <td>
+              <div class="d-flex gap-1">
+                <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info' %>
+                <%= link_to 'Show', translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success' %>
+              </div>
             </td>
           </tr>
         <% end %>

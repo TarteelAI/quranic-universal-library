@@ -56,8 +56,10 @@
             <%= segment.segments.size %>
           </td>
 
-          <td class="d-flex">
-            <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id, verse: segment.verse.verse_number), class: 'btn btn-success me-1' %>
+          <td>
+            <div class="d-flex gap-1">
+              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id, verse: segment.verse.verse_number), class: 'btn btn-success' %>
+            </div>
           </td>
         </tr>
       <% end %>

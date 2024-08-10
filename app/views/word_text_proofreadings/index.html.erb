@@ -1,7 +1,5 @@
 <div class="page-wrapper">
-  <h1 class="page-header">
-    Quran Word By Word Data Proofreading
-  </h1>
+  <h1 class="page-header">Quran Word By Word Data Proofreading</h1>
 
   <p class="lead">
     User filters to find ayah you're looking for, click on <code>Contribute</code> button to add start proofreading
@@ -61,7 +59,9 @@
           </td>
 
           <td>
-            <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'btn btn-success' %>
+            <div class="d-grid align-items-center">
+              <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'btn btn-success' %>
+            </div>
           </td>
         </tr>
       <% end %>

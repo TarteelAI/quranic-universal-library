@@ -45,8 +45,10 @@
             <%= file.segments.size %>
           </td>
 
-          <td class="d-flex">
-            <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id, verse: file.verse_number), class: 'btn btn-success me-1' %>
+          <td>
+            <div class="d-grid gap-1">
+              <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id, verse: file.verse_number), class: 'btn btn-success' %>
+            </div>
           </td>
         </tr>
       <% end %>

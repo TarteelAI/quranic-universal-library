@@ -30,6 +30,9 @@
         <a href="https://github.com/TarteelAI/quranic-universal-library" class="btn-link text-dark text-decoration-underline">Github</a>.
       </p>
     </div>
-    <%= link_to 'GET STARTED', user_signed_in? ? resources_path : new_user_session_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-block d-md-none', id: 'get-started' %>
+
+    <div class="d-grid col-12">
+      <%= link_to 'GET STARTED', user_signed_in? ? resources_path : new_user_session_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-block d-md-none', id: 'get-started' %>
+    </div>
   </div>
 </div>

@@ -8,7 +8,7 @@
     </div>
 
     <% if false %>
-      <div class="d-flex align-items-center justify-content-center gap-3">
+      <div class="d-flex align-items-center justify-content-center gap-3 gap-md-4">
         <button class="btn border">
           <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10.3333 16.3889H13.6667V14.7222H10.3333V16.3889ZM4.5 6.38892V8.05558H19.5V6.38892H4.5ZM7 12.2222H17V10.5556H7V12.2222Z" fill="#525866"/>
@@ -33,7 +33,7 @@
 
   <%= render 'featured_cards' %>
 
-  <div class="mt-4 d-flex align-items-center justify-content-start justify-content-md-center gap-4 flex-wrap">
+  <div class="mt-4 d-flex align-items-center justify-content-start justify-content-md-center gap-3 gap-md-4 flex-wrap">
     <% downlodable_resource_cards.each do |card| %>
       <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
         <div class="p-4 h-100 d-flex flex-column justify-content-between">

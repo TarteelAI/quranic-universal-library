@@ -14,7 +14,10 @@ ActiveAdmin.register RawData::Resource do
   menu parent: 'Raw data'
   actions :all, except: :destroy
 
-  searchable_select_options(scope: RawData::Resource, text_attribute: :name)
+  searchable_select_options(
+    scope: RawData::Resource,
+    text_attribute: :name
+  )
 
   filter :name
 

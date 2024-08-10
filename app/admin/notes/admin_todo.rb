@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: admin_todos
-#
-#  id          :bigint           not null, primary key
-#  description :string
-#  is_finished :boolean
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#
 ActiveAdmin.register AdminTodo do
   menu parent: 'Notes'
 
-  filter :resource_content_id, as: :searchable_select,
+  filter :resource_content,
+         as: :searchable_select,
          ajax: { resource: ResourceContent }
   filter :tags, as: :select, collection: AdminTodo::TAGS
   filter :is_finished

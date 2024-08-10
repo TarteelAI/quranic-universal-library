@@ -5,7 +5,7 @@
 #  id                  :integer          not null, primary key
 #  arabic_name         :string
 #  ayah_range          :string
-#  childen_count       :integer          default(0)
+#  children_count      :integer          default(0)
 #  depth               :integer          default(0)
 #  description         :text
 #  name                :string

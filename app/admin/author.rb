@@ -1,20 +1,13 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: authors
-#
-#  id         :integer          not null, primary key
-#  name       :string
-#  url        :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
 ActiveAdmin.register Author do
   menu parent: 'Settings'
   actions :all, except: :destroy
 
-  searchable_select_options(scope: Author, text_attribute: :name)
+  searchable_select_options(
+    scope: Author,
+    text_attribute: :name
+  )
 
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 

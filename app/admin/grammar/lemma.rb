@@ -3,22 +3,33 @@
 ActiveAdmin.register Lemma do
   menu parent: 'Grammar'
   actions :all, except: :destroy
+
   permit_params :text_madani, :text_clean, :words_count, :uniq_words_count
 
   filter :text_clean
+  filter :text_madani
+  filter :words_count
+  filter :uniq_words_count
 
-  searchable_select_options(scope: Lemma,
-                            text_attribute: :text_clean,
-                            filter: lambda do |term, scope|
-                              scope.ransack(text_clean_cont: term).result
-                            end)
+  searchable_select_options(
+    scope: Lemma,
+    text_attribute: :text_clean,
+    filter: lambda do |term, scope|
+      scope.ransack(text_clean_cont: term).result
+    end
+  )
+
   index do
     id_column
     column :text_madani do |resource|
-      span class: 'qpc-hafs' do resource.text_madani end
+      span class: 'qpc-hafs' do
+        resource.text_madani
+      end
     end
     column :text_clean do |resource|
-      span class: 'qpc-hafs' do resource.text_clean end
+      span class: 'qpc-hafs' do
+        resource.text_clean
+      end
     end
     column :words_count
     column :uniq_words_count
@@ -29,10 +40,14 @@ ActiveAdmin.register Lemma do
     attributes_table do
       row :id
       row :text_madani do |resource|
-        span class: 'qpc-hafs' do resource.text_madani end
+        span class: 'qpc-hafs' do
+          resource.text_madani
+        end
       end
       row :text_clean do
-        span class: 'qpc-hafs' do resource.text_clean end
+        span class: 'qpc-hafs' do
+          resource.text_clean
+        end
       end
       row :words_count
       row :uniq_words_count

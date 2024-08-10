@@ -11,8 +11,8 @@
 #  group_verses_count   :integer
 #  imported             :boolean          default(FALSE)
 #  md5                  :string
-#  need_review          :boolean
-#  reviewed             :boolean
+#  need_review          :boolean          default(FALSE)
+#  reviewed             :boolean          default(FALSE)
 #  text_matched         :boolean
 #  verse_key            :string
 #  created_at           :datetime         not null
@@ -30,7 +30,6 @@
 #  index_draft_tafsirs_on_need_review   (need_review)
 #  index_draft_tafsirs_on_tafsir_id     (tafsir_id)
 #  index_draft_tafsirs_on_text_matched  (text_matched)
-#  index_draft_tafsirs_on_user_id       (user_id)
 #  index_draft_tafsirs_on_verse_id      (verse_id)
 #  index_draft_tafsirs_on_verse_key     (verse_key)
 #

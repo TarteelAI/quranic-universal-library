@@ -1,36 +1,18 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: draft_translations
-#
-#  id                  :bigint           not null, primary key
-#  current_text        :text
-#  draft_text          :text
-#  need_review         :boolean
-#  text_matched        :boolean
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  resource_content_id :integer
-#  verse_id            :integer
-#
-# Indexes
-#
-#  index_draft_translations_on_need_review          (need_review)
-#  index_draft_translations_on_resource_content_id  (resource_content_id)
-#  index_draft_translations_on_text_matched         (text_matched)
-#  index_draft_translations_on_verse_id             (verse_id)
-#
 ActiveAdmin.register Draft::Tafsir do
   menu parent: 'Drafts'
 
-  filter :resource_content, as: :searchable_select,
+  filter :resource_content,
+         as: :searchable_select,
          ajax: { resource: ResourceContent }
 
-  filter :verse, as: :searchable_select,
+  filter :verse,
+         as: :searchable_select,
          ajax: { resource: Verse }
 
-  filter :group_tafsir_id, as: :searchable_select,
+  filter :group_tafsir,
+         as: :searchable_select,
          ajax: { resource: Verse }
 
   filter :text_matched

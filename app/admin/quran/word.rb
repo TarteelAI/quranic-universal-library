@@ -1,75 +1,18 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: words
-#
-#  id                     :integer          not null, primary key
-#  audio_url              :string
-#  char_type_name         :string
-#  class_name             :string
-#  code_dec               :integer
-#  code_dec_v3            :integer
-#  code_hex               :string
-#  code_hex_v3            :string
-#  code_v1                :string
-#  code_v2                :string
-#  en_transliteration     :string
-#  image_blob             :text
-#  image_url              :string
-#  line_number            :integer
-#  line_v2                :integer
-#  location               :string
-#  page_number            :integer
-#  pause_name             :string
-#  position               :integer
-#  qpc_uthmani_bazzi      :string
-#  qpc_uthmani_doori      :string
-#  text_qpc_hafs       :string
-#  qpc_uthmani_qaloon     :string
-#  qpc_uthmani_qumbul     :string
-#  qpc_uthmani_shouba     :string
-#  qpc_uthmani_soosi      :string
-#  qpc_uthmani_warsh      :string
-#  text_imlaei            :string
-#  text_imlaei_simple     :string
-#  text_indopak           :string
-#  text_indopak_nastaleeq :string
-#  text_uthmani           :string
-#  text_uthmani_simple    :string
-#  text_uthmani_tajweed   :string
-#  v2_page                :integer
-#  verse_key              :string
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  chapter_id             :integer
-#  char_type_id           :integer
-#  token_id               :integer
-#  topic_id               :integer
-#  verse_id               :integer
-#
-# Indexes
-#
-#  index_words_on_chapter_id    (chapter_id)
-#  index_words_on_char_type_id  (char_type_id)
-#  index_words_on_location      (location)
-#  index_words_on_position      (position)
-#  index_words_on_token_id      (token_id)
-#  index_words_on_topic_id      (topic_id)
-#  index_words_on_verse_id      (verse_id)
-#  index_words_on_verse_key     (verse_key)
-#
 ActiveAdmin.register Word do
   menu parent: 'Quran', priority: 3
-  searchable_select_options(scope: Word,
-                            text_attribute: :humanize,
-                            filter: lambda do |term, scope|
-                              scope.ransack(
-                                verse_key_cont: term,
-                                location_cont: term,
-                                m: 'or'
-                              ).result
-                            end)
+  searchable_select_options(
+    scope: Word,
+    text_attribute: :humanize,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        verse_key_cont: term,
+        location_cont: term,
+        m: 'or'
+      ).result
+    end
+  )
 
   actions :all, except: :destroy
   ActiveAdminViewHelpers.versionate(self)
@@ -87,7 +30,8 @@ ActiveAdmin.register Word do
   filter :word_index
 
   filter :code_hex
-  filter :verse_id, as: :searchable_select,
+  filter :verse,
+         as: :searchable_select,
          ajax: { resource: Verse }
 
   permit_params do

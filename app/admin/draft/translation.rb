@@ -1,26 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: draft_translations
-#
-#  id                  :bigint           not null, primary key
-#  current_text        :text
-#  draft_text          :text
-#  need_review         :boolean
-#  text_matched        :boolean
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  resource_content_id :integer
-#  verse_id            :integer
-#
-# Indexes
-#
-#  index_draft_translations_on_need_review          (need_review)
-#  index_draft_translations_on_resource_content_id  (resource_content_id)
-#  index_draft_translations_on_text_matched         (text_matched)
-#  index_draft_translations_on_verse_id             (verse_id)
-#
 ActiveAdmin.register Draft::Translation do
   menu parent: 'Drafts'
 

@@ -1,21 +1,9 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: audio_change_logs
-#
-#  id                  :bigint           not null, primary key
-#  date                :datetime
-#  mini_desc           :text
-#  rss_desc            :text
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  audio_recitation_id :integer
-#
 ActiveAdmin.register Audio::ChangeLog do
   menu parent: 'Audio'
   actions :all, except: :destroy
-
+  includes :audio_recitation
   filter :date
   filter :audio_recitation, as: :searchable_select,
                             ajax: { resource: Audio::Recitation }
@@ -29,7 +17,5 @@ ActiveAdmin.register Audio::ChangeLog do
     actions
   end
 
-  def scoped_collection
-    super.includes :audio_recitation
-  end
+  permit_params :audio_recitation_id, :date, :mini_desc
 end

@@ -1,15 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: data_sources
-#
-#  id         :integer          not null, primary key
-#  name       :string
-#  url        :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
 ActiveAdmin.register DataSource do
   menu parent: 'Content'
   actions :all, except: :destroy
@@ -17,7 +7,10 @@ ActiveAdmin.register DataSource do
   filter :url
 
   permit_params :name, :url, on: :data_source
-  searchable_select_options(scope: DataSource, text_attribute: :name)
+  searchable_select_options(
+    scope: DataSource,
+    text_attribute: :name
+  )
 
   show do
     attributes_table do

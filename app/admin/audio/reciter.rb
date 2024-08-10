@@ -15,8 +15,17 @@ ActiveAdmin.register Reciter do
   menu parent: 'Audio'
   filter :name
   actions :all, except: :destroy
-  searchable_select_options(scope: Reciter,
-                            text_attribute: :name)
+  searchable_select_options(
+    scope: Reciter,
+    text_attribute: :name,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        name_cont: term,
+        id_eq: term,
+        m: 'or'
+      ).result
+    end
+  )
 
   permit_params do
     %i[name bio cover_image profile_picture]
@@ -83,6 +92,7 @@ ActiveAdmin.register Reciter do
         end
       end
     end
+
     panel 'Surah recitations' do
       table do
         thead do
@@ -112,7 +122,11 @@ ActiveAdmin.register Reciter do
       f.input :cover_image
       f.input :profile_picture
 
-      f.input :bio, input_html: {data: {controller: 'tinymce'}}
+      f.input :bio, input_html: {
+        data: {
+          controller: 'tinymce'
+        }
+      }
     end
 
     f.actions

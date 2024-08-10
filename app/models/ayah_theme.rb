@@ -26,4 +26,5 @@
 #  index_ayah_themes_on_verse_number_to    (verse_number_to)
 #
 class AyahTheme < QuranApiRecord
+  belongs_to :chapter
 end

@@ -1,39 +1,24 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: word_translations
-#
-#  id                  :bigint           not null, primary key
-#  language_name       :string
-#  priority            :integer
-#  text                :string
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  language_id         :integer
-#  resource_content_id :integer
-#  word_id             :integer
-#
-# Indexes
-#
-#  index_word_translations_on_priority                 (priority)
-#  index_word_translations_on_word_id_and_language_id  (word_id,language_id)
-#
 ActiveAdmin.register WordTranslation do
   menu parent: 'Content'
   actions :all, except: :destroy
+  includes :language, :word
 
   ActiveAdminViewHelpers.versionate(self)
 
-  filter :language_id, as: :searchable_select,
+  filter :language,
+         as: :searchable_select,
          ajax: { resource: Language }
-  filter :word_id, as: :searchable_select,
+  filter :word,
+         as: :searchable_select,
          ajax: { resource: Word }
 
   index do
     column :id do |resource|
       link_to(resource.id, [:admin, resource])
     end
+
     column :language, &:language_name
     column :word
     column :text
@@ -56,10 +41,6 @@ ActiveAdmin.register WordTranslation do
     end
 
     ActiveAdminViewHelpers.diff_panel(self, resource) if params[:version]
-  end
-
-  def scoped_collection
-    super.includes :language # prevents N+1 queries to your database
   end
 
   permit_params do

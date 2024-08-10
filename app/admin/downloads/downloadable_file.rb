@@ -2,20 +2,17 @@
 
 ActiveAdmin.register DownloadableFile do
   menu parent: 'Downloads', priority: 1
+  includes :downloadable_resource
+
   filter :name
-
-  filter :downloadable_resource, as: :searchable_select,
+  filter :downloadable_resource,
+         as: :searchable_select,
          ajax: { resource: DownloadableResource }
-
   filter :published
   filter :file_type
   filter :download_count
   filter :created_at
   filter :updated_at
-
-  def scoped_collection
-    super.includes :downloadable_resource
-  end
 
   controller do
     include ActiveStorage::SetCurrent
@@ -66,7 +63,6 @@ ActiveAdmin.register DownloadableFile do
         end
       end
     end
-
 
     active_admin_comments
   end

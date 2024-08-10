@@ -1,8 +1,5 @@
-#site_title {
-  small {
-    color: #2CA4AB;
-    font-weight: bold;
-  }
+#site_title_image{
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(180deg);
 }
 
 .scrollable {

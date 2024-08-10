@@ -15,7 +15,8 @@ ActiveAdmin.register RawData::AyahRecord do
   actions :all, except: :destroy
 
   filter :resource
-  filter :verse_id, as: :searchable_select,
+  filter :verse,
+         as: :searchable_select,
          ajax: { resource: Verse }
 
   permit_params do

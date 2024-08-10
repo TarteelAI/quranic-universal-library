@@ -1,7 +1,7 @@
 ActiveAdmin.register Morphology::PhraseVerse do
   menu parent: 'Morphology'
 
-  filter :verse_id, as: :searchable_select,
+  filter :verse, as: :searchable_select,
          ajax: { resource: Verse }
   filter :matched_words_count
   filter :approved

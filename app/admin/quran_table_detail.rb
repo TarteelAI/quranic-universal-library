@@ -1,17 +1,8 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: quran_table_details
-#
-#  id         :bigint           not null, primary key
-#  enteries   :integer
-#  name       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
 ActiveAdmin.register QuranTableDetail do
   menu parent: 'Settings', priority: 1
+  filter :name
 
   show do
     attributes_table do

@@ -86,10 +86,10 @@
 }
 
 .overview {
-  margin: 40px 0px 40px 0px;
   font-family: Inter;
 
   .title {
+    display: inline-block;
     color: #0c1210;
     font-size: 20px;
     font-weight: 600;
@@ -104,12 +104,15 @@
     line-height: normal;
     letter-spacing: -0.24px;
     text-wrap: pretty;
+    max-width: 30em;
   }
 
   .left {
     color: rgba(0, 0, 0, 0.7);
     font-size: 24px;
     line-height: normal;
+    text-wrap: pretty;
+    max-width: 28em;
 
     small {
       font-style: italic;
@@ -120,6 +123,8 @@
     font-size: 20px;
     line-height: normal;
     opacity: .5;
+    text-wrap: pretty;
+    max-width: 28em;
 
     @media (max-width: $screen-md) {
       font-size: 16px;

@@ -1,6 +1,6 @@
-<div class="container-lg px-4" id="resources">
-  <div class="hero row">
-    <div class="col-12 hero-message px-3 py-0 pt-md-3 px-md-5 position-relative">
+<div class="container-lg" id="resources">
+  <div class="hero">
+    <div class="col-12 hero-message px-3 py-0 pt-md-3 px-lg-5 position-relative">
       <%= render 'landing/spline' %>
       <%= render 'landing/hero' %>
     </div>
@@ -9,10 +9,12 @@
   <%= render 'landing/overview' %>
 </div>
 
-<div class="developer-tools ps-4 pe-0" style="background-color: #404040">
- <%= render 'landing/resources' %>
+<div class="developer-tools py-5 mt-4" style="background-color: #404040">
+  <div class="developer-tools-inner-container">
+    <%= render 'landing/resources' %>
+  </div>
 </div>
 
-<div class="developer-tools ps-4 pe-0">
+<div class="developer-tools py-5">
   <%= render 'landing/tools' %>
 </div>

@@ -44,9 +44,11 @@
           <td>
             <%= verse.verse_phrases.size %>
           </td>
-          
-          <td class="d-flex">
-            <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success mx-1' %>
+
+          <td>
+            <div class="d-grid gap-1">
+              <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
+            </div>
           </td>
         </tr>
       <% end %>

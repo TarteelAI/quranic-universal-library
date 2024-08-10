@@ -3,6 +3,11 @@ footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+
+  > div {
+    width: 100%;
+  }
 
   .left{
     display: flex;
@@ -12,20 +17,21 @@ footer {
 
   .right{
     display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 20px;
+    justify-content: start;
+
+    > a {
+      width: max-content;
+    }
+
+    @media (min-width: $screen-md) {
+      justify-content: end;
+    }
   }
 
   .spacer{
     height: 30px;
     width: 1px;
     background-color: grey;
-  }
-
-  @media (max-width: $screen-md) {
-    .left{
-      margin-bottom: 20px;
-    }
   }
 }

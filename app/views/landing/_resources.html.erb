@@ -1,5 +1,7 @@
-<h4>Developer Resources</h4>
-<div class="tools-container">
+<div class="container-lg">
+  <h4>Developer Resources</h4>
+</div>
+<div class="tools-container mt-4 gap-3 gap-md-4">
   <% developer_resources.each do |tool| %>
     <div class="tool-card tool-card-with-bg <%= tool.type %>">
       <h5><%= tool.title %></h5>
@@ -27,4 +29,7 @@
   <% end %>
 </div>
 
-<%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'btn-link text-white' %>
+<div class="container-lg mt-4">
+  <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'btn-link text-white' %>
+</div>
+

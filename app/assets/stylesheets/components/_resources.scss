@@ -1,18 +1,26 @@
 #resource-bg {
   position: absolute;
   width: 100%;
-  height: 1400px;
-  top: -126px;
+  height: 100%;
   background: url('resource-header-bg.svg');
   mix-blend-mode: difference;
-  background-size: contain;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  top: 0;
+
+  @media (min-width: $screen-lg) {
+    height: 1400px;
+    top: -126px;
+    background-size: contain;
+    background-position: top;
+  }
 }
 
 #resource-message {
   color: #1C1919;
   text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   font-family: "Open Sauce Sans";
-  font-size: 48px;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
@@ -28,6 +36,14 @@
     .fw-light {
       font-size: 12px;
     }
+  }
+
+  @media (min-width: $screen-md) {
+    font-size: 32px;
+  }
+
+  @media (min-width: $screen-lg) {
+    font-size: 48px;
   }
 }
 
@@ -45,6 +61,7 @@
 
     @media (max-width: $screen-sm) {
       margin-top: 20px;
+      width: 100%;
     }
   }
 
@@ -98,11 +115,11 @@
 
     .featured-count-badge {
       border-radius: 1332px;
-      background-color: white;
-      color: $primary;
+      background-color: #E0FAEC;
+      color: #099a4d;
       font-weight: bold;
       padding: 2px 10px 2px 10px;
-      border: 1px solid $green-200;
+      border: 2px solid #56B599;
     }
 
     .resource-card {
@@ -122,3 +139,7 @@
   }
 }
 
+#empty-results-message {
+  font-size: 24px;
+  color: #656565;
+}

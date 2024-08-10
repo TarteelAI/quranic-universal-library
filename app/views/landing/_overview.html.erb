@@ -1,10 +1,10 @@
-<div class="overview">
+<div class="overview px-md-4 mt-4">
   <p class="title">OVERVIEW</p>
   <div class="detail">
       Islamic projects are built upon the same universal resources: the Quran, its translations, its tafsir, recitations of it, related content and data.
   </div>
 
-  <div class="row align-items-start justify-content-between mt-4 mt-md-5">
+  <div class="d-flex flex-column gap-md-4 flex-md-row align-items-start mt-4 mt-md-5">
     <div class="left col-md-5 col-12">
       <div class="mb-3">
         <p>
@@ -17,7 +17,7 @@
     </div>
 
     <div class="right col-md-7 col-12">
-     <p>
+      <p>
         To make it easier for everyone in the Islamic development ecosystem
         to build their own projects without redoing all of this work, we
         have open-sourced and made publicly available many of these
@@ -30,6 +30,9 @@
         <a href="https://github.com/TarteelAI/quranic-universal-library" class="btn-link text-dark text-decoration-underline">Github</a>.
       </p>
     </div>
-    <%= link_to 'GET STARTED', user_signed_in? ? resources_path : new_user_session_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-block d-md-none', id: 'get-started' %>
+
+    <div class="d-grid col-12">
+      <%= link_to 'GET STARTED', user_signed_in? ? resources_path : new_user_session_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-block d-md-none', id: 'get-started' %>
+    </div>
   </div>
 </div>

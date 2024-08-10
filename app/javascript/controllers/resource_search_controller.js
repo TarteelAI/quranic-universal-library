@@ -1,4 +1,4 @@
-import {Controller} from "@hotwired/stimulus";
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
   connect() {
@@ -10,25 +10,37 @@ export default class extends Controller {
 
   search(event) {
     const query = (event.target.value || '').toLowerCase();
+    const searchResults = this.el.find('[data-search]');
 
     if (query.length <= 1) {
-      this.el.find('[data-search]').removeClass('d-none');
+      searchResults.removeClass('d-none');
       return;
     }
 
-    this.el.find("[data-search]").each((index, el) => {
+    let hasResults = false;
+
+    searchResults.each((index, el) => {
       const resource = $(el);
       const name = resource.data('search').toLowerCase();
 
       if (name.includes(query)) {
         resource.removeClass('d-none');
+        hasResults = true;
       } else {
         resource.addClass('d-none');
       }
     });
+
+    if (!hasResults) {
+      // Display empty search results message
+      this.el.find('#empty-results-message').removeClass('d-none');
+    } else {
+      // Hide empty search results message
+      this.el.find('#empty-results-message').addClass('d-none');
+    }
   }
 
-  handleKeydown(event){
+  handleKeydown(event) {
     if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
       event.preventDefault();
       this.input.focus();

@@ -1,15 +1,19 @@
 .developer-tools {
   background-color: #000;
-  padding: 40px 30px 40px 30px;
   color: #fff;
+  position: relative;
 }
 
 .tools-container {
-  margin: 40px 0px 40px 0px;
+  padding: 0 0.75rem;
+
+  @media (min-width: $screen-lg) {
+    padding: 0 calc(0.75rem + (100vw - 1600px) / 2);
+  }
+
   display: flex;
   overflow-x: auto;
   align-items: center;
-  gap: 24px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -18,10 +22,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 
-  @media (max-width: $screen-md) {
-    scroll-snap-type: x;
-    scroll-snap-align: center;
-  }
+  scroll-snap-type: x mandatory;
 }
 
 .tool-card {
@@ -34,7 +35,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 32px;
-  border-radius: 24px;
+  border-radius: 45px;
   scroll-snap-align: center;
 
   @media (max-width: $screen-sm) {
@@ -49,9 +50,9 @@
     height: 400px;
   }
 
-  &:last-child {
-    margin-inline-end: 30px;
-  }
+  // &:last-child {
+  //   margin-inline-end: 30px;
+  // }
 
 
 

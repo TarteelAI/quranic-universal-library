@@ -9,7 +9,7 @@
   background-repeat: no-repeat;
   top: 0;
 
-  @media (min-width: $screen-md) {
+  @media (min-width: $screen-lg) {
     height: 1400px;
     top: -126px;
     background-size: contain;
@@ -21,7 +21,6 @@
   color: #1C1919;
   text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   font-family: "Open Sauce Sans";
-  font-size: 48px;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
@@ -37,6 +36,14 @@
     .fw-light {
       font-size: 12px;
     }
+  }
+
+  @media (min-width: $screen-md) {
+    font-size: 32px;
+  }
+
+  @media (min-width: $screen-lg) {
+    font-size: 48px;
   }
 }
 

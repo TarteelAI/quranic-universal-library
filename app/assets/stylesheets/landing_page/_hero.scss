@@ -31,8 +31,15 @@
       width: 50% !important;
       width: 1500px;
       height: 600px !important;
-      margin-top: -85px;
+
+      @media (max-width: $screen-lg) {
+        margin-top: -85px;
+      }
     }
+  }
+
+  .tagline-container {
+    text-wrap: balance;
   }
 
   .tagline {
@@ -47,6 +54,7 @@
 
   .sub-tagline {
     font-family: "Open Sauce Sans";
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     font-size: 70px;
     font-style: normal;
     font-weight: 400;
@@ -62,8 +70,12 @@
     }
   }
 
-  .right-section{
+  .right-section {
     z-index: 100;
+
+    @media (max-width: $screen-lg) {
+      width: 100%;
+    }
   }
 
   @media (max-width: $screen-md) {
@@ -72,13 +84,19 @@
       font-size: 30px;
       line-height: normal;
     }
+  }
+
+  @media (max-width: $screen-lg) {
+    .tagline-container {
+      max-width: 28em;
+    }
 
     .hero-message{
       canvas{
         width: 100% !important;
         position: absolute;
-        left: 0;
-        top:0;
+        left: 25vw;
+        top: 50px;
         z-index: 1;
       }
     }

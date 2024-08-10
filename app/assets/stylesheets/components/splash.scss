@@ -1,7 +1,6 @@
 .card-columns {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.25rem;
 
   @media (min-width: $screen-md) {
     grid-template-columns: 1fr 1fr;

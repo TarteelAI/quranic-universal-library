@@ -3,29 +3,35 @@
 </div>
 <div class="tools-container mt-4 mt-md-8 gap-3 gap-md-4">
   <% developer_tools.each do |tool| %>
-    <div class="tool-card tool-card-with-bg position-relative <%= tool.type %>">
-      <h5>
-        <%= tool.title %>
-      </h5>
-      <p class="info">
-        <%= tool.description %>
-      </p>
+    <a href="<%= tool.url %>">
+      <div class="tool-card tool-card-with-bg position-relative <%= tool.type %>">
+        <h5>
+          <%= tool.title %>
+        </h5>
+        <p class="info">
+          <%= tool.description %>
+        </p>
 
-      <%= link_to 'Learn more', tool.url, class: 'cta', style: "background: #{tool.cta_bg};" %>
+        <div class="cta" style="background: <%= tool.cta_bg %>;">
+          <span>
+            Learn more
+          </span>
+        </div>
 
-      <div class="icon">
-        <%= image_tag "landing/#{tool.icon}" %>
+        <div class="icon">
+          <%= image_tag "landing/#{tool.icon}" %>
+        </div>
+
+        <div class="info-tip">
+          <svg
+            title="<%= tool.info_tip %>"
+            data-controller="tooltip"
+            width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0.660217C5.376 0.660217 0 6.03622 0 12.6602C0 19.2842 5.376 24.6602 12 24.6602C18.624 24.6602 24 19.2842 24 12.6602C24 6.03622 18.624 0.660217 12 0.660217ZM13.2 18.6602H10.8V11.4602H13.2V18.6602ZM13.2 9.06022H10.8V6.66022H13.2V9.06022Z" fill="white"/>
+          </svg>
+        </div>
       </div>
-
-      <div class="info-tip">
-        <svg
-          title="<%= tool.info_tip %>"
-          data-controller="tooltip"
-          width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0.660217C5.376 0.660217 0 6.03622 0 12.6602C0 19.2842 5.376 24.6602 12 24.6602C18.624 24.6602 24 19.2842 24 12.6602C24 6.03622 18.624 0.660217 12 0.660217ZM13.2 18.6602H10.8V11.4602H13.2V18.6602ZM13.2 9.06022H10.8V6.66022H13.2V9.06022Z" fill="white"/>
-        </svg>
-      </div>
-    </div>
+    </a>
   <% end %>
 </div>
 

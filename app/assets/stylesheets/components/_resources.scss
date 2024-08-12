@@ -121,6 +121,11 @@
     }
 
     .featured-resource-card {
+      a {
+        text-decoration: none;
+        color: white;
+      }
+
       border-radius: 24px;
       background-repeat: no-repeat;
       background-size: cover;
@@ -148,6 +153,11 @@
       height: 550px;
       border-radius: 24px;
       position: relative;
+
+      a {
+        text-decoration: none;
+        color: white;
+      }
     }
 
     .full-card {

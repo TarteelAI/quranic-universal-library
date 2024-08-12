@@ -23,6 +23,12 @@
   scrollbar-width: none;
 
   scroll-snap-type: x mandatory;
+
+
+  a {
+    text-decoration: none;
+    color: white;
+  }
 }
 
 .tool-card {

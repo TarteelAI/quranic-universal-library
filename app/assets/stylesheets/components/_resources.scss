@@ -120,6 +120,25 @@
     }
 
     .featured-resource-card {
+      position: relative;
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.35);
+        z-index: 0;
+        border-radius: 23px;
+      }
+
+      .overlay ~ * {
+        position: relative;
+        z-index: 20;
+        color: white;
+      }
+
       a {
         text-decoration: none;
         color: white;

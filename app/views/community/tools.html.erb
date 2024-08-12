@@ -1,178 +1,162 @@
 <h2 class="page-header">Active projects</h2>
 
-<section class="mt-4">
-  <div class="row">
-    <div class="col-12">
-      <div class="card-columns gap-3 gap-md-4">
-        <div class="card" style='background-image: url("https://placehold.co/600x300/green/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Mutashabihat </h5>
-            <h3 class="card-title pt-2">Mutashabihat ul Quran</h3>
-            <p>
-              Contribute preparing matching ayah and phrases data in Quran
-            </p>
-
-            <%= link_to morphology_phrases_path, class: 'btn btn-success' do %>
-              Start
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style="background-image: url(<%= asset_path('peaks.png') %>);">
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Audio Segments </h5>
-            <h3 class="card-title pt-2">Surah audio segments</h3>
-            <p>
-              Tool for creating word by word and ayah by ayah segments of audio files.
-            </p>
-
-            <%= link_to surah_audio_files_path, class: 'btn btn-success' do %>
-              Start
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style="background-image: url(<%= asset_path('peaks.png') %>);">
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Audio Segments </h5>
-            <h3 class="card-title pt-2">Ayah audio segments</h3>
-            <p>
-              Tool for creating word by word segments of ayah audio files.
-            </p>
-
-            <%= link_to ayah_audio_files_path, class: 'btn btn-success' do %>
-              Start
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/711DB0/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Quran Word text </h5>
-            <h3 class="card-title pt-2">Quran word text proofreading</h3>
-            <p>
-              Proofread and report issues in Quran word by word text
-            </p>
-
-            <%= link_to word_text_proofreadings_path, class: 'btn btn-success' do %>
-              Start
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/0766AD/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Layout</h5>
-            <h3 class="card-title pt-2">Prepare Mushaf layout</h3>
-            <p>
-              Proofread and fix different layouts of Mushaf( 15 lines, 16 lines, v2, v1 etc)
-            </p>
-
-            <%= link_to mushaf_layouts_path(mushaf_id: 387), class: 'btn btn-success' do %>
-              Start
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/0766AD/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Surah Info </h5>
-            <h3 class="card-title pt-2">Surah Info Proofreading</h3>
-            <p>
-              Proofreading of Surah info in different language.
-            </p>
-
-            <%= link_to surah_infos_path(language: 38), class: 'btn btn-success' do %>
-              Contribute
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style="background-image: url(<%= asset_path('corpus.png') %>);">
-          <div class="card-body">
-            <h5 class="text-danger">
-              <i class="fa fa-book"></i> Word Concordance
-            </h5>
-            <h3 class="card-title pt-2">Concordance labeling of each word</h3>
-            <p>
-              Grammar, POS, Morphology data for each word of Quran.
-            </p>
-
-            <%= link_to word_concordance_labels_path, class: 'btn btn-success' do %>
-              Start
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/363062/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Translation </h5>
-            <h3 class="card-title pt-2">Proofread ayah translation</h3>
-            <p>
-              Proofread and fix ayah translations and footnotes.
-            </p>
-
-            <%= link_to translation_proofreadings_path(resource_id: 131), class: 'btn btn-success' do %>
-              Contribute
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/872341/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Tafsirs </h5>
-            <h3 class="card-title pt-2">Proofread ayah tafisrs</h3>
-            <p>
-              Proofread and fix tafsirs.
-            </p>
-
-            <%= link_to tafsir_proofreadings_path, class: 'btn btn-success' do %>
-              Contribute
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/orange/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Transliteration </h5>
-            <h3 class="card-title pt-2">Arabic/Urdu Transliteration</h3>
-            <p>
-              Transliteration of each word of Quran in Arabic/Urdu
-            </p>
-
-            <%= link_to arabic_transliterations_path, class: 'btn btn-success' do %>
-              Contribute
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/blue/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> WBW </h5>
-            <h3 class="card-title pt-2">Word by word Translation Proofreading</h3>
-            <p>
-              Proofread Word by Word translations in different languages
-            </p>
-
-            <%= link_to word_translations_path(language: 38), class: 'btn btn-success' do %>
-              Contribute to wbw Translation
-            <% end %>
-          </div>
-        </div>
-
-        <div class="card" style='background-image: url("https://placehold.co/600x300/F05941/white?text=Tarteel");'>
-          <div class="card-body">
-            <h5 class="text-danger"><i class="fa fa-book"></i> Chars </h5>
-            <h3 class="card-title pt-2">
-              See details of each letter in Arabic text
-            </h3>
-
-            <%= link_to chars_info_path, class: 'btn btn-success' do %>
-              Go
-            <% end %>
-          </div>
+<section class="mt-3">
+  <div class="card-container gap-4">
+    <a href="<%= morphology_phrases_path %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/363062/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Mutashabihat </h5>
+          <h3 class="card-title pt-2">Mutashabihat ul Quran</h3>
+          <p>
+            Contribute preparing matching ayah and phrases data in Quran
+          </p>
         </div>
       </div>
-    </div>
+    </a>
+
+    <a href="<%= surah_audio_files_path %>" class="tool-card tool-card-with-bg" style="background-image: url(<%= asset_path('peaks.png') %>);">
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Audio Segments </h5>
+          <h3 class="card-title pt-2">Surah audio segments</h3>
+          <p>
+            Tool for creating word by word and ayah by ayah segments of audio files.
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= ayah_audio_files_path %>" class="tool-card tool-card-with-bg" style="background-image: url(<%= asset_path('peaks.png') %>);">
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Audio Segments </h5>
+          <h3 class="card-title pt-2">Ayah audio segments</h3>
+          <p>
+            Tool for creating word by word segments of ayah audio files.
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= word_text_proofreadings_path %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/711DB0/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Quran Word text </h5>
+          <h3 class="card-title pt-2">Quran word text proofreading</h3>
+          <p>
+            Proofread and report issues in Quran word by word text
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= mushaf_layouts_path(mushaf_id: 387) %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/0766AD/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Layout</h5>
+          <h3 class="card-title pt-2">Prepare Mushaf layout</h3>
+          <p>
+            Proofread and fix different layouts of Mushaf( 15 lines, 16 lines, v2, v1 etc)
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= surah_infos_path(language: 38) %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/0766AD/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Surah Info </h5>
+          <h3 class="card-title pt-2">Surah Info Proofreading</h3>
+          <p>
+            Proofreading of Surah info in different language.
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= word_concordance_labels_path %>" class="tool-card tool-card-with-bg" style="background-image: url(<%= asset_path('corpus.png') %>);">
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5>
+            <i class="fa fa-book"></i> Word Concordance
+          </h5>
+          <h3 class="card-title pt-2">Concordance labeling of each word</h3>
+          <p>
+            Grammar, POS, Morphology data for each word of Quran.
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= translation_proofreadings_path(resource_id: 131) %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/872341/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Translation </h5>
+          <h3 class="card-title pt-2">Proofread ayah translation</h3>
+          <p>
+            Proofread and fix ayah translations and footnotes.
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= tafsir_proofreadings_path %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/872341/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Tafsirs </h5>
+          <h3 class="card-title pt-2">Proofread ayah tafisrs</h3>
+          <p>
+            Proofread and fix tafsirs.
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= arabic_transliterations_path %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/orange/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Transliteration </h5>
+          <h3 class="card-title pt-2">Arabic/Urdu Transliteration</h3>
+          <p>
+            Transliteration of each word of Quran in Arabic/Urdu
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= word_translations_path(language: 38) %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/blue/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> WBW </h5>
+          <h3 class="card-title pt-2">Word by word Translation Proofreading</h3>
+          <p>
+            Proofread Word by Word translations in different languages
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="<%= chars_info_path %>" class="tool-card tool-card-with-bg" style='background-image: url("https://placehold.co/600x600/F05941/white?text=Tarteel");'>
+      <div class="overlay"></div>
+      <div class="p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5><i class="fa fa-book"></i> Chars </h5>
+          <h3 class="card-title pt-2">
+            See details of each letter in Arabic text
+          </h3>
+        </div>
+      </div>
+    </a>
   </div>
 </section>

@@ -1,4 +1,4 @@
-<div class="d-flex align-items-center justify-content-center mt-4 flex-column flex-md-row gap-4">
+<div class="card-container-upper mt-4 gap-4">
   <% featured_downlodable_resource_cards.each do |card| %>
     <div class="featured-resource-card <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>" >
       <div class="p-4 h-100 d-flex flex-column justify-content-between">

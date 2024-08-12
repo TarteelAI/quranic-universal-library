@@ -55,68 +55,70 @@
     </div>
   </div>
 
-  <div class="d-flex align-items-center justify-content-center justify-content-xl-start gap-4 gap-lg-4 mt-3 mt-md-5 flex-wrap resources-list">
+  <div class="mt-3 mt-md-5 resources-list">
     <%= render 'shared/page_font', verses: [@preview_verse] if is_quran_script %>
 
-    <% @resources.each do |resource| %>
-      <div class="resource-card tool-card-with-bg pattern<%= patterns.sample %>" data-search="<%= resource.name.downcase %> <%= resource.resource_type.downcase %> <%= resource.tags.to_s.downcase %> <%= resource.humanize_cardinality_type.downcase %>">
-        <div class="p-4 h-100 d-flex flex-column justify-content-between">
-          <div class="text-white">
-            <h3 class="mb-0">
-              <%= resource.name %>
-            </h3>
+    <div class='card-container gap-4'>
+      <% @resources.each do |resource| %>
+        <div class="resource-card tool-card-with-bg pattern<%= patterns.sample %>" data-search="<%= resource.name.downcase %> <%= resource.resource_type.downcase %> <%= resource.tags.to_s.downcase %> <%= resource.humanize_cardinality_type.downcase %>">
+          <div class="p-4 h-100 d-flex flex-column justify-content-between">
+            <div class="text-white">
+              <h3 class="mb-0">
+                <%= resource.name %>
+              </h3>
 
-            <small class="label label-info">
-              <%= resource.humanize_cardinality_type %>
-            </small>
-          </div>
-
-          <p class="text-white fw-bold">
-            <%= resource.info %>
-            <% %>
-          </p>
-
-          <% if is_quran_script %>
-            <%= render 'quran_script_preview', resource: resource.resource_content, preview_verse: @preview_verse %>
-          <% else %>
-            <div class="icon">
-              <i class="fa text-white <%= resource.icon %>" style="font-size: 5rem;"></i>
+              <small class="label label-info">
+                <%= resource.humanize_cardinality_type %>
+              </small>
             </div>
-          <% end %>
 
-          <div class="d-flex w-100 align-items-center flex-column justify-content-center mt-5">
-            <div class="dropdown mb-2">
-              <a class="btn btn-primary  dropdown-toggle  w-100" href="#" role="button" id="dropdown-<%= resource.id %>" data-bs-toggle="dropdown" aria-expanded="false">
-                Select download format
-              </a>
+            <p class="text-white fw-bold">
+              <%= resource.info %>
+              <% %>
+            </p>
 
-              <ul class="dropdown-menu" aria-labelledby="dropdown-<%= resource.id %>">
-                <% resource.downloadable_files.each do |file| %>
-                  <li>
-                    <% if user_signed_in? %>
-                      <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item w-100' do %>
-                        Download <%= file.file_type %>
-                      <% end %>
-                    <% else %>
-                      <%= link_to '#_', class: 'dropdown-item w-100', data: { controller: 'ajax-modal', url: new_user_session_path(return_to: resource_download_file_path(resource.resource_type, token: file.token), modal: true)} do %>
-                        Download <%= file.file_type %>
-                      <% end %>
-                    <% end %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-          </div>
-
-          <div class="card-tex">
-            <% resource.get_tags.each do |tag| %>
-              <span class="badge <%= resource_tag_class(tag.strip) %>">
-                <%= tag %>
-              </span>
+            <% if is_quran_script %>
+              <%= render 'quran_script_preview', resource: resource.resource_content, preview_verse: @preview_verse %>
+            <% else %>
+              <div class="icon">
+                <i class="fa text-white <%= resource.icon %>" style="font-size: 5rem;"></i>
+              </div>
             <% end %>
+
+            <div class="d-flex w-100 align-items-center flex-column justify-content-center mt-5">
+              <div class="dropdown mb-2">
+                <a class="btn btn-primary  dropdown-toggle  w-100" href="#" role="button" id="dropdown-<%= resource.id %>" data-bs-toggle="dropdown" aria-expanded="false">
+                  Select download format
+                </a>
+
+                <ul class="dropdown-menu" aria-labelledby="dropdown-<%= resource.id %>">
+                  <% resource.downloadable_files.each do |file| %>
+                    <li>
+                      <% if user_signed_in? %>
+                        <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item w-100' do %>
+                          Download <%= file.file_type %>
+                        <% end %>
+                      <% else %>
+                        <%= link_to '#_', class: 'dropdown-item w-100', data: { controller: 'ajax-modal', url: new_user_session_path(return_to: resource_download_file_path(resource.resource_type, token: file.token), modal: true)} do %>
+                          Download <%= file.file_type %>
+                        <% end %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card-tex">
+              <% resource.get_tags.each do |tag| %>
+                <span class="badge <%= resource_tag_class(tag.strip) %>">
+                  <%= tag %>
+                </span>
+              <% end %>
+            </div>
           </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 </div>

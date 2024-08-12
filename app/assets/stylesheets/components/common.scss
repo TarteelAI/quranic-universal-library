@@ -11,21 +11,6 @@
   }
 }
 
-a.column-label {
-  text-decoration: none !important;
-}
-
-.column-label {
-
-  .fa-sort-up {
-    transform: translateY(9px);
-  }
-
-  .fa-sort-down {
-    transform: translateY(-6px);
-  }
-
-  .label-text {
-    width: max-content;
-  }
+.label-text {
+  width: max-content;
 }

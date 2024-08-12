@@ -107,11 +107,13 @@ $asset-version: "1";
   direction: rtl;
   font-size: 30px;
 }
-.fa, [lang=fa], [lang=ar] {
+
+div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
   font-family: 'Noto Naskh Arabic', serif;
   direction: rtl;
   font-size: 30px;
 }
+
 .kashmiri,.ks, [lang=ks], [lang=ks] {
   font-family: 'Noto Naskh Arabic', serif;
   direction: rtl;

@@ -2,7 +2,7 @@
 
 ActiveAdmin.register Root do
   menu parent: 'Grammar'
-  actions :all, except: :destroy
+  actions :index, :show
   permit_params :arabic_trilateral, :english_trilateral, :text_clean, :text_uthmani, :uniq_words_count, :value, :words_count
 
   searchable_select_options(

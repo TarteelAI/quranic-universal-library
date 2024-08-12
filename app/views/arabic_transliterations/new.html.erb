@@ -4,9 +4,12 @@
      data-page="<%= @predicted_page %>"
      data-controller="image-zoomer"
      style="position: relative;">
->
   <div class="callout alert alert-dismissible" role="alert">
-    <h2>﷽ </h2>
+    <h2>
+      ﷽
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </h2>
+
     <h4>Things to consider before typing!!</h4>
     <ul>
       <li>
@@ -59,32 +62,21 @@
           <div class="well">
             <p>Word# <%= trans_form.object.location %></p>
             <div class="row">
-              <div class="col-lg-6">
-                <div class="form-group">
-                  <%= trans_form.text_field :indopak_text, class: 'form-control indopak', disabled: true %>
-                  <p class="help-block">
-                    <span class="indopak">
-                       <%= trans_form.object.text_simple %>
-                    </span>
-                  </p>
-                </div>
-              </div>
-
               <div class="col-lg-3">
                 <div class="form-group ">
                   <%= trans_form.check_box :continuous %>
-                  <p class="help-block">
+                  <div class="help-block">
                     ?Continuous
-                  </p>
+                  </div>
                 </div>
               </div>
 
               <div class="col-lg-3">
                 <div class="form-group">
-                  <%= trans_form.text_area :text, placeholder: trans_form.object.text_simple, autocomplete: false, class: 'form-control indopak transliteration' %>
-                  <p class="help-block">
-                    Word transliteration
-                  </p>
+                  <%= trans_form.text_field :text, placeholder: trans_form.object.text_simple, autocomplete: false, class: 'form-control indopak' %>
+                  <div class="help-block">
+                     Transliteration
+                  </div>
                 </div>
               </div>
             </div>
@@ -98,20 +90,3 @@
     <% end %>
   </div>
 </div>
-
-<script>
-    /*$(function () {
-        $('select.form-control').chosen()
-        initSoftKeyboard()
-
-        window.pageZoomer = new Utility.ImageZoomer("http://static.quran.com/urdu_transliteration/<%=@predicted_page%>.jpg")
-
-        $("#change_page").on("change", jumpToPage)
-
-        function jumpToPage(e) {
-            var val = $(e.target).val()
-            $(".word-page").val(val)
-            pageZoomer.changeImage("http://static.quran.com/urdu_transliteration/" + val + ".jpg")
-        }
-    })*/
-</script>

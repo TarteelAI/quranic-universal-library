@@ -1,42 +1,12 @@
-.filters {
-  select {
-    min-width: 200px;
-  }
+.flex-between{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
 }
 
-#editor-wrap {
-  canvas {
-    width: 100%;
-    display: block;
-    margin: 1em auto;
-    background: #fff;
-    border: 1px solid #ccc;
-    height: 300px;
-  }
-
-  #ayah_text {
-    word-spacing: 2rem;
-    line-height: 2;
-    display: block;
-    width: 100%;
-  }
-
-  #words {
-    overflow-y: scroll;
-    max-height: 200px;
-
-    .well {
-      margin: 10px;
-    }
-
-    .form-control {
-      font-size: 30px;
-      min-height: 62px;
-      resize: none;
-    }
-  }
-
-  .btn, .help-block {
-    font-family: Roboto;
+.sidebar-item{
+  .selected{
+    background: #cacaca;
   }
 }

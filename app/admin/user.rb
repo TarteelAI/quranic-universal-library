@@ -28,7 +28,7 @@ ActiveAdmin.register User do
     permitted = %i[email first_name last_name password]
 
     if current_user.super_admin?
-      permitted << %i[approved confirmed_at locked_at]
+      permitted += %i[approved confirmed_at locked_at role]
     end
 
     permitted
@@ -68,6 +68,28 @@ ActiveAdmin.register User do
     actions
   end
 
+  show do
+    attributes_table do
+      row :id
+      row :first_name
+      row :last_name
+      row :email
+      row :created_at
+
+      if can?(:moderate, resource)
+        row :unconfirmed_email
+        row :confirmation_sent_at
+        row :confirmed_at
+        row :failed_attempts
+        row :locked_at
+        row :remember_created_at
+        row :reset_password_sent_at
+        row :sign_in_count
+        row :role
+      end
+    end
+  end
+
   form data: { turbo: false } do |f|
     f.inputs 'User Details' do
       f.input :first_name
@@ -79,6 +101,7 @@ ActiveAdmin.register User do
         f.input :approved
         f.input :confirmed_at, as: :datetime_picker
         f.input :locked_at, as: :datetime_picker
+        f.input :role, as: :select, collection: User.roles.keys, selected: resource.role
       end
     end
 

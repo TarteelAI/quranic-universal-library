@@ -53,21 +53,21 @@ class User < ApplicationRecord
 
   after_create :send_welcome_email
 
-  def admin?
-    1 == id && approved?
-  end
-
-  def moderator?
-    false
-  end
-
-  def normal_user?
-    !admin? && !moderator?
-  end
+  enum role: {
+    super_admin: 1,
+    admin: 2,
+    moderator: 3,
+    contributor: 4,
+    normal_user: 5
+  }, _prefix: 'is'
 
   def super_admin?
-    1 == id && approved?
+    1 == id || is_super_admin?
   end
+
+  #def role=(val)
+  #  super(val[/\d+/] ? val.to_i : val)
+  #end
 
   def name
     short_name = first_name.presence || last_name.presence || email
@@ -85,6 +85,6 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["id", "email", "first_name", "last_name", "confirmation_sent_at", "confirmed_at", "created_at", "failed_attempts",  "locked_at", "remember_created_at", "reset_password_sent_at", "sign_in_count", "unconfirmed_email", "updated_at", "approved"]
+    ["id", "email", "first_name", "last_name", "confirmation_sent_at", "confirmed_at", "created_at", "failed_attempts", "locked_at", "remember_created_at", "reset_password_sent_at", "sign_in_count", "unconfirmed_email", "updated_at", "approved"]
   end
 end

@@ -5,7 +5,7 @@
 
 @import 'libs/actiontext';
 @import "components/splash";
-//@import "components/wraper";
+@import "components/wraper";
 //@import "components/keyboard";
 @import "components/common";
 @import "components/resources";
@@ -16,6 +16,7 @@
 @import "shared/diffy";
 @import "components/pdf_preview";
 @import "components/mutashabihat";
+@import "components/transliteration";
 @import "select2/dist/css/select2";
 @import "libs/toastr";
 

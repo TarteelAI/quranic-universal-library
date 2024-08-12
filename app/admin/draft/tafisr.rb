@@ -157,36 +157,24 @@ ActiveAdmin.register Draft::Tafsir do
     div "Total: #{tafisrs.size}"
     div "Imported: #{imported.size}"
 
-    table do
-      thead do
-        th 'id'
-        th 'name'
-        th 'actions'
-      end
-
-      tbody do
-        tafisrs.each do |resource_content|
-          tr class: "#{'bg-success' if selected == resource_content.id}" do
-            td do
-              div do
-                span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
-                imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes') : ''
-              end
-            end
-
-            td "#{resource_content.name}(#{resource_content.language_name})"
-            td do
-              div class: 'd-flex-wrapped' do
-                span(link_to 'Filter', "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info')
-                span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
-
-                if current_user.super_admin? || can?(:manage, :draft_content)
-                  span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning', data: { confirm: 'Are you sure to import this tafsir?' })
-                  span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger', data: { confirm: 'Are you sure to remove draft tafsir?' })
-                end
-              end
-            end
+    div class: 'd-flex w-100 flex-column sidebar-item' do
+      tafisrs.each do |resource_content|
+        div class: "w-100 p-1 flex-between border-bottom mb-3 #{'selected' if selected == resource_content.id}"  do
+          div do
+            span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
+            imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
           end
+
+            div "#{resource_content.name}(#{resource_content.language_name})"
+            div class: 'd-flex my-2 flex-between gap-2' do
+              span(link_to 'Filter', "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
+
+              if can?(:manage, :draft_content)
+                span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
+                span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
+                span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })
+              end
+            end
         end
       end
     end

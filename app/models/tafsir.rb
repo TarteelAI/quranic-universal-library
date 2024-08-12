@@ -51,6 +51,7 @@ class Tafsir < QuranApiRecord
   include Resourceable
 
   belongs_to :verse
+  belongs_to :chapter
   belongs_to :language
 
   def save_suggestions(params, user)

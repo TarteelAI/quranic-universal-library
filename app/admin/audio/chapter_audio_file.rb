@@ -33,18 +33,20 @@ ActiveAdmin.register Audio::ChapterAudioFile do
             target: '_blank'
   end
 
-  action_item :validate_segments, only: :show do
+  action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_',
             data: { controller: 'ajax-modal', url: validate_segments_admin_audio_chapter_audio_file_path(resource) }
   end
 
-  action_item :refresh_meta, only: :show do
+  action_item :refresh_meta, only: :show,  if: -> { can? :manage, resource } do
     link_to 'Refresh Meta', refresh_meta_admin_audio_chapter_audio_file_path(resource), method: :put
   end
 
   member_action :validate_segments, method: 'get' do
+    authorize! :manage, resource
     audio_recitation = resource.audio_recitation
     @issues = audio_recitation.validate_segments_data(audio_file: resource)
+
     render partial: 'admin/validate_segments'
   end
 

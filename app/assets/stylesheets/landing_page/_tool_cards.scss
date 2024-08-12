@@ -31,7 +31,7 @@
   }
 
   &.quranic-text {
-    background-image: url("tools-cards/quran.webp");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url("tools-cards/quran.webp");
   }
 
   &.translation {
@@ -43,13 +43,12 @@
   }
 
   &.tafsirs {
-    /*TODO: find a better background image*/
-    backdrop-filter: brightness(0.2) sepia(1) saturate(2) hue-rotate(180deg); /* Add bluish tint */
-    background-image: url("tools-cards/tafsirs.webp");
+  //  backdrop-filter: brightness(0.2) sepia(1) saturate(2) hue-rotate(180deg); /* Add bluish tint */
+    background-image: linear-gradient(rgba(163, 136, 96, 0.8),rgba(130, 109, 77, 0.5)),url("tools-cards/tafsirs.webp");
   }
 
   &.metadata{
-    background-image: linear-gradient(rgba(42, 122, 178, 0.8),rgba(188, 239, 214, 0.9)),url("tools-cards/metadata.webp");
+    background-image: url("tools-cards/meta.webp");
   }
 
   &.surah-info{
@@ -57,7 +56,7 @@
   }
 
   &.ayah-topics{
-    background-image: linear-gradient(rgba(95, 15, 64, 0.8),rgba(154, 3, 30, 0.9)),url("tools-cards/metadata.webp");
+    background-image: url("tools-cards/meta.webp");
   }
   &.grammar-morphology{
     background-image: linear-gradient(rgba(196, 73, 0, 0.8), rgba(67, 37, 52, 0.5)), url("tools-cards/grammar.webp");

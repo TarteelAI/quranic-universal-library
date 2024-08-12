@@ -20,11 +20,13 @@ ActiveAdmin.register Morphology::MatchingVerse do
   filter :approved
   filter :created_at
 
-  action_item :export_csv, only: :index do
+  action_item :export_csv, only: :index, if: -> { can? :download_from_admin, nil } do
     link_to "Export CSV", export_approved_admin_morphology_matching_verses_path(format: :json)
   end
 
   collection_action :export_approved, method: :get do
+    authorize! :download_from_admin
+
     export_service = ExportMatchingAyah.new
     file = export_service.execute
 

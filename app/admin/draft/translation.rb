@@ -136,32 +136,21 @@ ActiveAdmin.register Draft::Translation do
     div "Total: #{translations.size}"
     div "Imported: #{imported.size}"
 
-    table do
-      thead do
-        th 'id'
-        th 'name'
-        th 'actions'
-      end
+    div class: 'd-flex w-100 flex-column sidebar-item' do
+      translations.each do |resource_content|
+        div class: "w-100 p-1 flex-between border-bottom mb-3 #{'selected' if selected == resource_content.id}"  do
+          div do
+            span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
+            imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
+          end
+          div "#{resource_content.name}(#{resource_content.language_name})"
 
-      tbody do
-        translations.each do |resource_content|
-          tr class: "#{'bg-success' if selected == resource_content.id}" do
-            td do
-              div do
-                span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
-                imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes') : ''
-              end
-            end
-            td resource_content.name
-            td do
-              div class: 'd-flex-wrapped' do
-                span(link_to 'Filter', "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info')
-                if can?(:manage, :draft_content) || current_user.super_admin?
-                span(link_to 'Sync', import_draft_admin_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm mb-2 btn-success', data: {confirm: 'Are you sure to re sync this translations from QuranEnc?'})
-                span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger', data: {confirm: 'Are you sure to import this translations?'})
-                span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger', data: {confirm: 'Are you sure to remove draft translations?'})
-                end
-              end
+          div class: 'd-flex my-2 flex-between gap-2' do
+            span(link_to 'Filter', "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info text-white')
+            if can?(:manage, :draft_content) || current_user.super_admin?
+              span(link_to 'Sync', import_draft_admin_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm mb-2 btn-success text-white', data: {confirm: 'Are you sure to re sync this translations from QuranEnc?'})
+              span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: {confirm: 'Are you sure to import this translations?'})
+              span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: {confirm: 'Are you sure to remove draft translations?'})
             end
           end
         end

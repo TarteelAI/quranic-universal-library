@@ -15,21 +15,25 @@ ActiveAdmin.register_page 'Dashboard' do
     end
 
     columns do
-      column do
-        panel 'Actions' do
-          render partial: 'admin/actions'
+      if can? :admin, :run_actions
+        column do
+          panel 'Actions' do
+            # render partial: 'admin/actions'
+          end
         end
       end
 
-      column do
-        panel 'Export Quran words as SQLite DB' do
-          render partial: 'admin/export_words_db'
+      if can? :admin, :export_words
+        column do
+          panel 'Export Quran words as SQLite DB' do
+            render partial: 'admin/export_words_db'
+          end
         end
-      end
 
-      column do
-        panel 'Export ayah audio file segments' do
-          render partial: 'admin/export_ayah_segments_db'
+        column do
+          panel 'Export ayah audio file segments' do
+            render partial: 'admin/export_ayah_segments_db'
+          end
         end
       end
     end

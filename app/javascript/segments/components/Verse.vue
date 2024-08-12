@@ -3,6 +3,7 @@
     <div class="col-12" v-if="segmentsLoaded">
       <div class="h3">
         Current Ayah {{ currentVerseKey }}
+
         <select @change="changeAyah">
           <option
               v-for="(num, index) in Array.from(
@@ -16,7 +17,6 @@
           </option>
         </select>
       </div>
-
 
       <div class="qpc-hafs d-flex flex-wrap words">
         <span
@@ -34,8 +34,15 @@
       <div v-if="shouldShowSegment">
         <h4>
           <span class="me-auto">Segments</span>
-          <button @click="saveAyahSegment" :disabled="segmentLocked">Save Segments</button>
+          <button
+              @click="saveAyahSegment"
+              :disabled="segmentLocked"
+              :class="{ 'd-none': segmentLocked }"
+          >
+            Save Segments
+          </button>
         </h4>
+
         <div class="table-wrapper" id="tableWrapper">
           <table class="table table-hover">
             <thead>
@@ -67,6 +74,7 @@
                   {{ segment[0] }}
                 </small>
               </td>
+
               <td>{{ segmentText(segment) }}</td>
               <td>
                 <input
@@ -99,17 +107,39 @@
 
               <td :data-word="segment[0]" :data-index="index">
                 <div class="d-flex gap-1">
-                  <button @click="insertSegment" class="btn btn-sm btn-info" :disabled="segmentLocked">Add</button>
-                  <button @click="removeSegment" class="me-2 btn btn-sm btn-danger" :disabled="segmentLocked">Remove</button>
+                  <button
+                      @click="insertSegment"
+                      class="btn btn-sm btn-info"
+                      :disabled="segmentLocked"
+                      :class="{ 'd-none': segmentLocked }"
+                  >
+                    Add
+                  </button>
+                  <button
+                      @click="removeSegment"
+                      class="me-2 btn btn-sm btn-danger"
+                      :disabled="segmentLocked"
+                      :class="{ 'd-none': segmentLocked }"
+                  >
+                    Remove
+                  </button>
 
                   <button @click="playWord" class="btn btn-sm btn-secondary">
                     {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
                   </button>
+
                   <button @click="loopWord" class="me-2 btn btn-sm btn-secondary">
                     {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
                   </button>
 
-                  <button @click="trackTime" class="btn btn-sm btn-warning" :disabled="segmentLocked">Track</button>
+                  <button
+                      @click="trackTime"
+                      class="btn btn-sm btn-warning"
+                      :disabled="segmentLocked"
+                      :class="{ 'd-none': segmentLocked }"
+                  >
+                    Track
+                  </button>
                 </div>
               </td>
             </tr>
@@ -215,6 +245,8 @@ export default {
     },
     showWordPopover(event) {
       const target = event.target;
+      if(this.segmentLocked)
+        return;
 
       if (target.hasPopover) {
         target.hasPopover = false;

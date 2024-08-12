@@ -140,3 +140,23 @@
     box-shadow: none;
   }
 }
+
+.sort-icons{
+  position: relative;
+
+  .fa-sort-up{
+    position: absolute;
+  }
+
+  .fa{
+    font-size: 20px;
+     &:not(.active){
+       color: #cacaca;
+     }
+  }
+}
+
+.sort-link{
+  cursor: pointer;
+  text-decoration: none;
+}

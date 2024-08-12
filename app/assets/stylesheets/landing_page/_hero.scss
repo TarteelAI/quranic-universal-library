@@ -31,8 +31,31 @@
       width: 50% !important;
       width: 1500px;
       height: 600px !important;
-      margin-top: -85px;
+      left: 0;
+      top:0;
+
+      @media (max-width: $screen-lg) {
+        margin-top: -85px;
+      }
     }
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+
+  .txt {
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .tagline-container {
+    text-wrap: balance;
   }
 
   .tagline {
@@ -47,6 +70,7 @@
 
   .sub-tagline {
     font-family: "Open Sauce Sans";
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     font-size: 70px;
     font-style: normal;
     font-weight: 400;
@@ -62,8 +86,12 @@
     }
   }
 
-  .right-section{
+  .right-section {
     z-index: 100;
+
+    @media (max-width: $screen-lg) {
+      width: 100%;
+    }
   }
 
   @media (max-width: $screen-md) {
@@ -72,14 +100,23 @@
       font-size: 30px;
       line-height: normal;
     }
+  }
+
+  @media (max-width: $screen-lg) {
+    .tagline-container {
+      max-width: 28em;
+    }
 
     .hero-message{
-      canvas{
+      canvas {
         width: 100% !important;
         position: absolute;
-        left: 0;
-        top:0;
+        top: 50px;
         z-index: 1;
+
+        @media (min-width: $screen-md) {
+          left: 25vw;
+        }
       }
     }
   }

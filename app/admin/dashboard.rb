@@ -18,7 +18,7 @@ ActiveAdmin.register_page 'Dashboard' do
       if can? :admin, :run_actions
         column do
           panel 'Actions' do
-            # render partial: 'admin/actions'
+            render partial: 'admin/actions'
           end
         end
       end

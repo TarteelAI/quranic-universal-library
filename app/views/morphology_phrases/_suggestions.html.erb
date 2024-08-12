@@ -19,17 +19,14 @@
     <%= form_with url: new_morphology_phrase_path, method: :get do |f| %>
       <%= f.hidden_field :phrase_id, value: @phrase&.id %>
       <div class="page-section">
-        <figure class="highlight border my-2 p-2">
+        <figure class="highlight border my-2 p-2" style="position: sticky;top: 0px;z-index: 100;background: #fff;">
           <h3>Source ayah/phrase</h3>
           <%
             ayah, range = @phrase_search.source_verse_and_range
             range ||= [-1, -1]
           %>
 
-          <div class="row" style="    position: sticky;
-            top: 0px;
-            z-index: 100;
-            background: #fff;">
+          <div class="row">
             <div class="col-md-6">
               <div class="form-group">
                 <%= f.label :ayah_key, 'Selected ayah' %>
@@ -75,9 +72,9 @@
 
             <% ayah.words.words.each do |w| %>
               <div class="d-flex flex-column m-3 align-items-center">
-              <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0] && w.position <= range[1] %>">
-                <%= w.text_qpc_hafs %>
-              </span>
+                <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0] && w.position <= range[1] %>">
+                  <%= w.text_qpc_hafs %>
+                </span>
               </div>
             <% end %>
           </div>
@@ -123,7 +120,7 @@
                  data-bs-target="#tab-suggestions"
                  role="tab" aria-selected="true">
                 Suggestions
-                <span class="badge bg-success"><%= @suggestions.keys.size %></span>
+                <span class="badge bg-success ms-1"><%= @suggestions.keys.size %></span>
               </a>
             </li>
 

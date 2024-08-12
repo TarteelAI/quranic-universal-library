@@ -47,25 +47,28 @@ ActiveAdmin.register Audio::Recitation do
     end
   )
 
-  action_item :refresh_meta, only: :show do
+  action_item :refresh_meta, only: :show, if: -> {can? :manage, resource} do
     link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put
   end
 
-  action_item :split_to_gapped, only: :show do
+  action_item :split_to_gapped, only: :show, if: -> {can? :manage, resource} do
     link_to 'Generate Gapped recitation', '#_', id: 'validate-segments',
             data: { controller: 'ajax-modal', url: split_to_gapped_admin_audio_recitation_path(resource) }
   end
 
-  action_item :validate_segments, only: :show do
+  action_item :validate_segments, only: :show, if: -> {can? :manage, resource} do
     link_to 'Validate segments', '#_', id: 'validate-segments',
-            data: { controller: 'ajax-modal', url: validate_segments_admin_audio_recitation_path(resource) }
+            data: {
+              controller: 'ajax-modal',
+              url: validate_segments_admin_audio_recitation_path(resource)
+            }
   end
 
   action_item :view_segments, only: :show do
     link_to 'View in segment tool', surah_audio_files_path(recitation_id: resource.id), target: '_blank', rel: 'noopener'
   end
 
-  action_item :upload_segments, only: :show do
+  action_item :upload_segments, only: :show, if: -> {can? :manage, resource} do
     link_to 'Upload segments', '#_',
             data: {
               controller: 'ajax-modal',
@@ -73,7 +76,7 @@ ActiveAdmin.register Audio::Recitation do
             }
   end
 
-  action_item :download_segments, only: :show do
+  action_item :download_segments, only: :show, if: -> {can? :manage, resource} do
     link_to 'Download segments', '#_',
             data: {
               controller: 'ajax-modal',
@@ -81,18 +84,23 @@ ActiveAdmin.register Audio::Recitation do
             }
   end
 
-  member_action :refresh_meta, method: 'put' do
+  member_action :refresh_meta, method: 'put', if: -> {can? :manage, resource} do
+    authorize! :manage, resource
     GenerateSurahAudioFilesJob.perform_later(resource.id, meta: true)
 
     redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
   end
 
   member_action :validate_segments, method: 'get' do
+    authorize! :manage, resource
+
     @issues = resource.validate_segments_data
     render partial: 'admin/validate_segments'
   end
 
   member_action :split_to_gapped, method: ['get', 'put'] do
+    authorize! :manage, resource
+
     if request.get?
       render partial: 'admin/split_to_gapped'
     else
@@ -102,6 +110,8 @@ ActiveAdmin.register Audio::Recitation do
   end
 
   member_action :upload_segments, method: ['get', 'put'] do
+    authorize! :manage, resource
+
     if request.put?
       if resource.segment_locked?
         return redirect_to [:admin, resource], alert: "Segments data is locked, please contact admins."
@@ -124,6 +134,8 @@ ActiveAdmin.register Audio::Recitation do
   end
 
   member_action :download_segments, method: ['get', 'put'] do
+    authorize! :manage, resource
+
     if request.put?
       format = params[:export_format].presence || 'csv'
       file = resource.export_segments(format, params[:chapter_id])

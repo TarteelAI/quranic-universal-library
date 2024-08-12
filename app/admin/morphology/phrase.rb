@@ -12,30 +12,32 @@ ActiveAdmin.register Morphology::Phrase do
          ajax: { resource: Verse }
   filter :created_at
 
-  action_item :export_csv, only: :index do
+  action_item :export_csv, only: :index, if: -> { can? :download_from_admin, nil } do
     link_to 'Export CSV', export_approved_admin_morphology_phrases_path(format: :json)
   end
 
-  action_item :export_csv, only: :show do
-    link_to 'Fix', "/morphology_phrases/#{resource.id}", target: '_blank'
+  action_item :fix, only: :show do
+    link_to 'View in Phrase tool', "/morphology_phrases/#{resource.id}", target: '_blank'
   end
 
   collection_action :export_approved, method: :get do
+    authorize! :download_from_admin
     export_service = ExportPhrase.new
     file = export_service.execute
 
     send_file file, filename: 'phrases.zip'
   end
 
-  action_item :approve, only: :show do
+  action_item :approve, only: :show, if: -> { can? :update, resource } do
     link_to approve_admin_morphology_phrase_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
 
   member_action :approve, method: 'put' do
-    resource.toggle_approve!
+    authorize! :update, resource
 
+    resource.toggle_approve!
     redirect_to [:admin, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
   end
 
@@ -44,6 +46,7 @@ ActiveAdmin.register Morphology::Phrase do
     column :text_simple do |resource|
       resource.text_qpc_hafs_simple
     end
+
     column :approved
     column :chapters_count
     column :verses_count
@@ -96,15 +99,17 @@ ActiveAdmin.register Morphology::Phrase do
     end
 
     panel 'Related Verses' do
-      div do
-        span do
-          link_to 'Approve all', approve_admin_morphology_phrase_verse_path(resource, all: true, toggle: '1'),
-                  method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
-        end
+      if (can? :update, Morphology::MatchingVerse)
+        div do
+          span do
+            link_to 'Approve all', approve_admin_morphology_phrase_verse_path(resource, all: true, toggle: '1'),
+                    method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
+          end
 
-        span do
-          link_to 'Disapprove all', approve_admin_morphology_phrase_verse_path(resource, all: true, toggle: '0'),
-                  method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
+          span do
+            link_to 'Disapprove all', approve_admin_morphology_phrase_verse_path(resource, all: true, toggle: '0'),
+                    method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
+          end
         end
       end
 
@@ -123,23 +128,29 @@ ActiveAdmin.register Morphology::Phrase do
             tr do
               td link_to v.id, [:admin, v]
               td link_to verse.verse_key, [:admin, verse]
-              td do
+              td  do
                 status_tag v.approved?
 
-                span do
-                  link_to approve_admin_morphology_phrase_verse_path(v), class: 'phrase-ayah', method: :put,
-                          data: { remote: true, confirm: 'Are you sure?' } do
-                    v.approved? ? 'Un Approve!' : 'Approve!'
-                  end
-                end
+                div class: 'd-flex flex-column' do
+                if(can? :update, Morphology::MatchingVerse)
+                    span class: 'my-2' do
+                      link_to approve_admin_morphology_phrase_verse_path(v),
+                              class: "btn #{v.approved? ? 'btn-danger' : 'btn-success'} btn-sm text-white",
+                              method: :put,
+                              data: { remote: true, confirm: 'Are you sure?' } do
+                        v.approved? ? 'Un Approve!' : 'Approve!'
+                      end
+                    end
 
-                if resource.source_verse_id && v.verse_id != resource.source_verse_id
-                  span class: 'ml-2', id: dom_id(v) do
-                    link_to create_matching_ayah_admin_morphology_phrase_verse_path(v), method: :put,
-                            class: 'btn btn-xs btn-info', data: { remote: true, confirm: 'Are you sure?' } do
-                      'Create Matching ayah'
+                    if resource.source_verse_id && v.verse_id != resource.source_verse_id
+                      span id: dom_id(v) do
+                        link_to create_matching_ayah_admin_morphology_phrase_verse_path(v), method: :put,
+                                class: 'btn btn-sm btn-info text-white', data: { remote: true, confirm: 'Are you sure?' } do
+                          'Create Matching ayah'
+                        end
                     end
                   end
+                end
                 end
               end
 

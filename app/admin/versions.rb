@@ -39,20 +39,22 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
     link_to 'Previous version', "/admin/content_changes/#{resource.previous.id}" if resource.previous
   end
 
-  action_item :revert, only: :show do
+  action_item :revert, only: :show, if: -> { can? :manage, resource } do
     link_to revert_admin_content_change_path(resource.id), method: :put, data: { confirm: 'Are you sure?' } do
       "Revert #{resource.item_type} to this version!"
     end
   end
 
   member_action :revert, method: 'put' do
+    authorize! :manage, resource
+
     item = resource.reify
     item.save
 
     redirect_to [:admin, item], notice: 'Reverted successfully!'
   end
 
-  action_item :toggle_review, only: :show do
+  action_item :toggle_review, only: :show, if: -> { can? :manage, resource } do
     confirm = resource.reviewed? ? "Are you sure to mark this as unreviewed?" : "Are you sure to mark this as reviewed?"
 
     link_to toggle_review_admin_content_change_path(resource.id), method: :put, data: { confirm: confirm } do
@@ -61,6 +63,8 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
   end
 
   member_action :toggle_review, method: 'put' do
+    authorize! :manage, resource
+
     # TODO: track reviewed changes
     if resource.reviewed?
       resource.update(reviewed_by_id: current_user.id, reviewed: false)

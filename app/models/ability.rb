@@ -19,7 +19,7 @@ class Ability
     can :read, User, id: user.id
     can :update, User, id: user.id
 
-    if user.admin?
+    if user.is_admin?
       can :manage, NavigationSearchRecord
       can :manage, ResourceContent
       can :manage, Translation
@@ -35,9 +35,11 @@ class Ability
       can :download, :restricted_content
       can :manage, :draft_content
       can :assign_project, User
+      can :moderate, User
+      can :download_from_admin
     end
 
-    if user.moderator?
+    if user.is_moderator?
       can :create, UserProject
       can :update, UserProject
       can :manage, Morphology::Phrase
@@ -45,7 +47,7 @@ class Ability
       can :manage, Morphology::MatchingVerse
     end
 
-    if user.normal_user?
+    if user.is_normal_user?
       cannot :read, ApiClient
       cannot :read, AdminTodo
       cannot :read, Feedback

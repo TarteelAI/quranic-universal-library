@@ -12,7 +12,7 @@ ActiveAdmin.register AudioFile do
          ajax: { resource: Chapter }
   filter :format
 
-  action_item :validate_segments, only: :show do
+  action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_', id: 'validate-segments',
             data: { controller: 'ajax-modal', url: validate_segments_admin_recitation_path(resource.recitation_id, chapter_id: resource.chapter_id) }
   end

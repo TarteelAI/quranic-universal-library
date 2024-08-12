@@ -1,23 +1,21 @@
-<% if can? :admin, :run_actions %>
-  <div class="admin-actions d-flex flex-wrap">
-    <%= form_tag admin_action_admin_database_backups_path(name: 'new_db_dump'), method: :put, class: 'action' do %>
-      <%= button_tag "Take new dump", data: { confirm: 'Are you sure?' } %>
-    <% end %>
+<div class="admin-actions d-flex flex-wrap">
+  <%= form_tag admin_action_admin_database_backups_path(name: 'new_db_dump'), method: :put, class: 'action' do %>
+    <%= button_tag "Take new dump", data: { confirm: 'Are you sure?' } %>
+  <% end %>
 
-    <%= form_tag admin_action_admin_database_backups_path(name: 'sync_quranenc'), method: :put, class: 'action' do %>
-      <%= button_tag "Fetch changes from QuranEnc", data: { confirm: 'Are you sure?' } %>
-    <% end %>
+  <%= form_tag admin_action_admin_database_backups_path(name: 'sync_quranenc'), method: :put, class: 'action' do %>
+    <%= button_tag "Fetch changes from QuranEnc", data: { confirm: 'Are you sure?' } %>
+  <% end %>
 
-    <%= form_tag admin_action_admin_database_backups_path(name: 'import_lokalise'), method: :put, class: 'action' do %>
-      <%= button_tag "Import Data from Lokalise", data: { confirm: 'Are you sure?' } %>
-    <% end %>
+  <%= form_tag admin_action_admin_database_backups_path(name: 'import_lokalise'), method: :put, class: 'action' do %>
+    <%= button_tag "Import Data from Lokalise", data: { confirm: 'Are you sure?' } %>
+  <% end %>
 
-    <% if Utils::System.sidekiq_stopped? %>
-      <%= form_tag admin_action_admin_database_backups_path(name: 'restart_sidekiq'), method: :put, class: 'action' do %>
-        <%= button_tag "Start Sidekiq", data: { confirm: 'Are you sure?' } %>
-      <% end %>
+  <% if Utils::System.sidekiq_stopped? %>
+    <%= form_tag admin_action_admin_database_backups_path(name: 'restart_sidekiq'), method: :put, class: 'action' do %>
+      <%= button_tag "Start Sidekiq", data: { confirm: 'Are you sure?' } %>
     <% end %>
+  <% end %>
 
-    <%= link_to 'View Sidekiq', '/sidekiq', class: 'button action', target: '_blank' %>
-  </div>
-<% end %>
+  <%= link_to 'View Sidekiq', '/sidekiq', class: 'button action', target: '_blank' %>
+</div>

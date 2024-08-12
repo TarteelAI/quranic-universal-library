@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     return false unless current_user
 
     if resource
-      @access = if current_user.admin?
+      @access = if current_user.is_admin?
                   AdminProjectAccess.new
                 else
                   current_user.user_projects.find_by(resource_content_id: resource.id)

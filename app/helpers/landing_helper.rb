@@ -70,7 +70,7 @@ module LandingHelper
         title: "Quran metadata",
         description: "Download Quran metadata, surah, ayah, juz, hizb, rub, manzil etc.",
         url: '/resources/quran-metadata',
-        type: 'quranic-text',
+        type: 'metadata',
         icon: 'bismillah.svg',
         count: ResourceContent.quran_metadata.count,
         stats: "<div><div>Total resources</div></div>"

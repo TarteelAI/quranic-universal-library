@@ -13,8 +13,8 @@
       <span class="<%= 'text-danger' if !phrase.approved?%>"><%= phrase.verses_count %>(<%= phrase.review_status %>)</span>
     <% end %>
 
-
-    <div class="ms-4">
+     <% if @has_permission %>
+       <div class="ms-4">
       <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put, html: { class: 'form-inline' } do |form| %>
         <div class="d-flex my-2">
           <div class="me-2">
@@ -31,11 +31,11 @@
           <span class="badge bg-danger"><%= not_approved_count %></span>
           </div>
           <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "me-2 btn btn-sm #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'btn-outline-danger' : 'btn-danger'}", data: { controller: 'tooltip' }) %>
-
           <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "btn btn-sm #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'btn-success' : 'btn-outline-success'}", data: { controller: 'tooltip'}) %>
         </div>
       <% end %>
     </div>
+     <% end %>
   </div>
 
   <div class="quran-text qpc-hafs">

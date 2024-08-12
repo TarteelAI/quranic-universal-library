@@ -43,10 +43,13 @@ export default class extends Controller {
   renderBookmarks(){
     this.bookmarks = JSON.parse(this.store.get('bookmarks') || "{}")
     const modalBody = $("#ajax-modal .modal-body")
-
+    modalBody.empty();
     Object.keys(this.bookmarks).forEach((key) => {
       modalBody.append(`<div class="row"><div class="col-12 border">${key}</div></div>`)
     })
+
+    if(Object.keys(this.bookmarks).length === 0 )
+      modalBody.append("You have not bookmarked any ayah.")
   }
 
   createModel(classes) {

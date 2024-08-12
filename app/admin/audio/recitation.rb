@@ -26,9 +26,9 @@ ActiveAdmin.register Recitation do
   actions :all, except: :destroy
 
   filter :recitation_style, as: :searchable_select,
-                            ajax: { resource: RecitationStyle }
+         ajax: { resource: RecitationStyle }
   filter :reciter, as: :searchable_select,
-                      ajax: { resource: Reciter }
+         ajax: { resource: Reciter }
   filter :approved
 
   searchable_select_options(scope: Recitation,
@@ -40,7 +40,7 @@ ActiveAdmin.register Recitation do
                               ).result
                             end)
 
-  action_item :validate_segments, only: :show do
+  action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_', id: 'validate-segments',
             data: { controller: 'ajax-modal', url: validate_segments_admin_recitation_path(resource) }
   end
@@ -50,6 +50,8 @@ ActiveAdmin.register Recitation do
   end
 
   member_action :validate_segments, method: 'get' do
+    authorize! :manage, resource
+
     @issues = resource.validate_segments_data(chapter_id: params[:chapter_id])
     render partial: 'admin/validate_segments'
   end

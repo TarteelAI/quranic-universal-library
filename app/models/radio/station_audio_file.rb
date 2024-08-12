@@ -16,4 +16,5 @@
 
 class Radio::StationAudioFile < QuranApiRecord
   belongs_to :radio_station, class_name: 'Radio::Station'
+  belongs_to :chapter, optional: true
 end

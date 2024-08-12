@@ -22,8 +22,7 @@ ActiveAdmin.register Topic do
   includes :parent
 
   index do
-    selectable_column
-    column :id
+    id_column
     column :name
     column :ontology
     column :thematic

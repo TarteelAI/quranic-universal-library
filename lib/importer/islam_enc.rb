@@ -340,7 +340,6 @@ module Importer
 
         group = last_ayah_group if group.blank?
         ayah_group = find_group(tafsir_groups, group.first)
-        binding.pry if ayah_group.blank?
 
         if ayah_range.blank?
           # some ayah ranges has the info, like reason for revelation etc.
@@ -359,7 +358,7 @@ module Importer
 
       tafsir_groups
     rescue Exception => e
-      binding.pry
+      Sentry.capture_exception(e)
     end
 
     def process_id_tafsir(file)
@@ -426,7 +425,6 @@ module Importer
 
         group = last_ayah_group if group.blank?
         ayah_group = find_group(tafsir_groups, group.first)
-        binding.pry if ayah_group.blank?
 
         if ayah_range.blank?
           # some ayah ranges has the info, like reason for revelation etc.
@@ -445,7 +443,7 @@ module Importer
 
       tafsir_groups
     rescue Exception => e
-      binding.pry
+      Sentry.capture_exception(e)
     end
 
     def process_ar_tafsir(file)
@@ -494,8 +492,6 @@ module Importer
 
         group = last_ayah_group if group.blank?
         ayah_group = find_group(tafsir_groups, group.first)
-
-        binding.pry if tafsir_groups[ayah_group].blank?
 
         if ayah_range.blank?
           # some ayah ranges has the info, like reason for revelation etc.
@@ -574,7 +570,6 @@ module Importer
 
         group = last_ayah_group if group.blank?
         ayah_group = find_group(tafsir_groups, group.first)
-        binding.pry if ayah_group.blank?
 
         if ayah_range.blank?
           # some ayah ranges has the info, like reason for revelation etc.
@@ -593,7 +588,6 @@ module Importer
 
       tafsir_groups
     rescue Exception => e
-      binding.pry
     end
 
     def process_tr_tafsir(file)
@@ -769,7 +763,6 @@ module Importer
 
       tafsir_groups
     rescue Exception => e
-      binding.pry
     end
 
     def import_groups(resource, groups, chapter, lang)

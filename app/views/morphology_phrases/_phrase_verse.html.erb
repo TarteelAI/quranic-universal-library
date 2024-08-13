@@ -13,7 +13,7 @@
       <span class="<%= 'text-danger' if !phrase.approved?%>"><%= phrase.verses_count %>(<%= phrase.review_status %>)</span>
     <% end %>
 
-     <% if @has_permission %>
+     <% if @access %>
        <div class="ms-4">
       <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put, html: { class: 'form-inline' } do |form| %>
         <div class="d-flex my-2">

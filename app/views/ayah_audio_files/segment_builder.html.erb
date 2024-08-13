@@ -22,7 +22,7 @@
   <div class="page-section mt-4">
     <div id="app"
          data-recitation="<%= @recitation.id %>"
-         data-segment-locked="<%= @recitation.segment_locked? || !@has_permission %>"
+         data-segment-locked="<%= @recitation.segment_locked? || !@access %>"
          data-chapter="<%= @chapter.id %>"
          data-verses-count="<%= @chapter.verses_count %>"
          data-verse="<%= params[:verse] %>"

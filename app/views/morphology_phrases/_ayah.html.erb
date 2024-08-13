@@ -31,7 +31,7 @@
       <%= ranges %>
     </span>
 
-    <% if @has_permission %>
+    <% if @access %>
       <a class="btn btn-sm btn-success" data-action="savePhrase" title="Save phrase" data-controller="tooltip">
         <i class="fas fa-save"></i>
       </a>
@@ -62,7 +62,7 @@
       <div class="d-flex flex-column m-3 align-items-center word <%= 'selected' if selected %>"
            data-position="<%= w.position %>"
       >
-        <% if @has_permission %>
+        <% if @access %>
           <i class="fa-solid fa-xmark p-1 rounded <%= 'active' if skipped %>"
              data-action="remove"
              title="Exclude from phrase"
@@ -76,7 +76,8 @@
         <span class="fs-xs">
           <%= w.position %>
         </span>
-        <% if @has_permission %>
+
+        <% if @access %>
           <i data-action="add"
              title="Include in phrase"
              data-controller="tooltip"

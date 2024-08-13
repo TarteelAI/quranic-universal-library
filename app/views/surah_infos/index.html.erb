@@ -3,17 +3,7 @@
     <%= @resource.name %>
   </h1>
 
-  <% if @access %>
-    <div class="callout alert alert-dismissible" role="alert">
-      <div class="row">
-        <div class="col-md-12">
-          <div style="font-size: 30px; margin-top: 10px">
-            <%= @access.admin_notes.to_s.html_safe %>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
+  <%= render 'shared/access_message' %>
 
   <div class="page-section">
     <div class="filters row">
@@ -31,6 +21,7 @@
 
           <div class="form-group">
             <%= submit_tag 'Filter', class: 'btn btn-primary', data: {disable_with: 'Please wait..'} %>
+            <%= link_to 'Clear', surah_infos_path, class: 'btn-link text-dark'  if has_filters?(:language_id, :filter_chapter) %>
           </div>
         <% end %>
       </div>

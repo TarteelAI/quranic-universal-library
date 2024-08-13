@@ -1,10 +1,10 @@
 class SurahInfosController < CommunityController
-  before_action :load_access
+  before_action :load_resource
   before_action :authenticate_user!, only: [:new, :edit, :update, :create]
-  before_action :check_permission, only: [:new, :edit, :update, :create, :history, :changes]
+  before_action :authorize_access!, only: [:new, :edit, :update, :create, :history, :changes]
 
   def index
-    @surah_infos = ChapterInfo.order("chapter_id ASC").where(language: language)
+    @surah_infos = ChapterInfo.order("chapter_id #{sort_order}").where(language: language)
 
     if params[:filter_chapter].present?
       @surah_infos = @surah_infos.where(chapter_id: params[:filter_chapter].to_i)
@@ -61,31 +61,20 @@ class SurahInfosController < CommunityController
     ]
   end
 
-  def check_permission
-    if @resource.blank? || @access.blank?
-      redirect_to surah_infos_path(language_id: @language.id), alert: "Sorry you don't have access to this resource"
-    end
+  def load_resource_access
+    @access = can_manage?(load_resource)
   end
 
-  def load_access
-    @resource = ResourceContent.chapter_info.where(language: language).first
-    @access = can_manage?(@resource)
+  def load_resource
+    @resource ||= ResourceContent.chapter_info.where(language: language).first
   end
 
   def language
-    if @language
-      @language
-    else
-      @available_languages = Language.where(id: ResourceContent.chapter_info.select(:language_id))
-      # default will be English
-      params[:language] = (params[:language].presence || params[:language_id].presence || resource_content&.language_id || 38).to_i
-      @language = Language.find(params[:language])
-    end
-  end
+    return @language if @language
 
-  def resource_content
-    if params[:resource_id]
-      ResourceContent.find_by(id: params[:resource_id])
-    end
+    @available_languages = Language.where(id: ResourceContent.chapter_info.select(:language_id))
+    # default will be English
+    params[:language] = (params[:language].presence || params[:language_id].presence || 38).to_i
+    @language = Language.find(params[:language])
   end
 end

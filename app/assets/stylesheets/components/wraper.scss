@@ -4,7 +4,7 @@
   border: 1px solid !important;
   border-left-width: 5px !important;
   border-radius: 3px;
-  border-left-color: $info !important;
+  border-left-color: $primary !important;
 
   h4 {
     color: #1b809e;
@@ -16,8 +16,14 @@
     margin-bottom: 0;
   }
 
-  &.callout-success{
-    border-left-color: $success !important;
+  &.callout-info{
+    border-left-color: $info !important;
+  }
+  &.callout-danger{
+    border-left-color: $danger !important;
+  }
+  &.callout-warning{
+    border-left-color: $warning !important;
   }
 }
 

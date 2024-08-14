@@ -25,10 +25,12 @@
 
 <body>
 <%= render 'shared/flash_notices' %>
-<div class="container-lg">
-  <%= render 'landing/header' %>
+  <div class="container-lg">
+    <%= render 'landing/header' %>
+  </div>
   <%= yield %>
-  <%= render 'landing/footer' %>
-</div>
+  <div class="container-lg">
+    <%= render 'landing/footer' %>
+  </div>
 </body>
 </html>

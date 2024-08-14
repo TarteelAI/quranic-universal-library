@@ -1,4 +1,4 @@
-<div class="page-wrapper mutashabihat" style="position: relative">
+<div class="page-wrapper container-lg mutashabihat" style="position: relative">
   <h1 class="page-header d-flex align-items-center justify-content-between">
     <span>
       <%= @resource.name %>:
@@ -19,7 +19,7 @@
     <%= form_with url: new_morphology_phrase_path, method: :get do |f| %>
       <%= f.hidden_field :phrase_id, value: @phrase&.id %>
       <div class="page-section">
-        <figure class="highlight border my-2 p-2" style="position: sticky;top: 0px;z-index: 100;background: #fff;">
+        <figure class="highlight mt-4 border my-2 p-2" style="position: sticky;top: 0px;z-index: 100;background: #fff;">
           <h3>Source ayah/phrase</h3>
           <%
             ayah, range = @phrase_search.source_verse_and_range
@@ -112,7 +112,7 @@
           </div>
         </div>
 
-        <figure class="highlight border my-2 p-2">
+        <figure class="highlight mt-4 border my-2 p-2">
           <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
             <li class="nav-item">
               <a class="nav-link active"

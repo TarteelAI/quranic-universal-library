@@ -1,7 +1,7 @@
 <% page_number = @mushaf_page.page_number %>
 
 <% if @compare_mushaf_words || params[:source_pdf] == 'true' %>
-  <div class="page-wrapper">
+  <div class="page-wrapper container-lg">
     <div class="mushaf-wrapper resize-container" data-controller="resizeable">
       <div class="resizable" id="left-side">
         <% if @compare_mushaf_words %>
@@ -39,7 +39,7 @@
     </div>
   </div>
 <% else %>
-  <div class="page-wrapper">
+  <div class="page-wrapper container-lg">
     <div class="mushaf-wrapper">
       <div class="mushaf-layout <%= @mushaf.default_font_name %>">
         <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>

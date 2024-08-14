@@ -1,7 +1,7 @@
 class TranslationProofreadingsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[edit update]
-  before_action :check_permission, only: %i[edit update]
+  before_action :authorize_access!, only: %i[edit update]
 
   def show
     @translation = Translation
@@ -76,20 +76,13 @@ class TranslationProofreadingsController < CommunityController
   end
 
   def find_resource
-    params[:resource_id] ||= 131
+    return  @resource if @resource
 
+    params[:resource_id] ||= 131
     @resource = ResourceContent.find(params[:resource_id])
-    @has_permission = can_manage?(@resource)
   end
 
-  def check_permission
-    if !@has_permission
-      if request.format.turbo_stream?
-        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
-      else
-        url = translation_proofreading_path(params[:id], resource_id: @resource.id)
-        redirect_to url, alert: "Sorry you don't have access to this resource."
-      end
-    end
+  def load_resource_access
+    @access =  can_manage?(find_resource)
   end
 end

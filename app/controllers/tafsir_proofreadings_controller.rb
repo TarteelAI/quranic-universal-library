@@ -1,7 +1,7 @@
 class TafsirProofreadingsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[edit update]
-  before_action :check_permission, only: %i[edit update]
+  before_action :authorize_access!, only: %i[edit update]
 
   def show
     @tafisr = find_tafsir(@resource)
@@ -55,25 +55,18 @@ class TafsirProofreadingsController < CommunityController
   end
 
   def find_resource
+    return @resource if @resource
+
     if params[:id]
       @resource = Tafsir.find(params[:id]).get_resource_content
     else
       params[:resource_id] ||= 169
       @resource = ResourceContent.find(params[:resource_id])
     end
-
-    @has_permission = can_manage?(@resource)
   end
 
-  def check_permission
-    if !@has_permission
-      if request.format.turbo_stream?
-        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
-      else
-        url = tafsir_proofreading_path(params[:id], resource_id: @resource.id)
-        redirect_to url, alert: "Sorry you don't have access to this resource."
-      end
-    end
+  def load_resource_access
+    @access = can_manage?(find_resource)
   end
 
   def filter_tafsirs(resource)

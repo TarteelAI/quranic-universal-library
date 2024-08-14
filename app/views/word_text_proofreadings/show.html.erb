@@ -1,17 +1,14 @@
 <%= render 'shared/page_font', verses: [@verse] %>
 
-<style>
-  .quran-text{
-    font-size: 30px;
-  }
-</style>
 <div class="page-wrapper">
-  <h1 class="page-header">
-    Word by Word Script of Ayah <%= @verse.verse_key %>
+  <h1 class="page-header flex-between">
+    <div>
+      Word by Word Script of Ayah <%= @verse.verse_key %>
+    </div>
 
-    <span class=" pull-right">
-      <%= link_to 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-success' if @verse.id > 1 %>
-      <%= link_to 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-success' if @verse.id < 6236 %>
+    <span>
+      <%= link_to 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark' if @verse.id > 1 %>
+      <%= link_to 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark' if @verse.id < 6236 %>
 
       <%= link_to 'Back to filter', word_text_proofreadings_path, class: 'btn btn-success' %>
     </span>

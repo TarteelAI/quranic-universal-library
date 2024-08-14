@@ -45,7 +45,7 @@ export default class extends Controller {
     const modalBody = $("#ajax-modal .modal-body")
     modalBody.empty();
     Object.keys(this.bookmarks).forEach((key) => {
-      modalBody.append(`<div class="row"><div class="col-12 border">${key}</div></div>`)
+      modalBody.append(`<div class="row"><div class="col-12 border p-2 mb-2">${key}</div></div>`)
     })
 
     if(Object.keys(this.bookmarks).length === 0 )

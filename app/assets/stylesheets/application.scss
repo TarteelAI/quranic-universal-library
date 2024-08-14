@@ -20,4 +20,13 @@
 @import "select2/dist/css/select2";
 @import "libs/toastr";
 
+.select2-container .select2-selection--single{
+  height: 38px !important;
+}
+.select2-selection__rendered{
+    line-height: 38px !important;
+}
+.select2-selection__clear, .select2-selection__arrow{
+  height: 38px !important;
+}
 @import "landing_page";

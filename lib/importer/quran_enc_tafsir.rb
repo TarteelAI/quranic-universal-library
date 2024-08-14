@@ -220,8 +220,6 @@ module Importer
             next
           end
 
-          binding.pry if data.length > 1
-
           data = data[0]
           content = data['tafsir']
           verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")

@@ -2,7 +2,7 @@ class AyahAudioFilesController < CommunityController
   before_action :authenticate_user!, only: %i[save_segments]
   before_action :load_recitation
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
-  before_action :check_permission, only: %i[save_segments]
+  before_action :authorize_access!, only: %i[save_segments]
 
   def index
     params[:sort_key] ||= 'chapter_id'
@@ -72,18 +72,10 @@ class AyahAudioFilesController < CommunityController
 
   def load_recitation
     params[:id] ||= 7
-
     @recitation = Recitation.find(params[:id])
-    @has_permission = can_manage?(@recitation.resource_content)
   end
 
-  def check_permission
-    if !@has_permission
-      if request.format.turbo_stream?
-        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
-      else
-        render json: { error: 'Permission Denied' }
-      end
-    end
+  def load_resource_access
+    @access = can_manage?(@recitation.resource_content)
   end
 end

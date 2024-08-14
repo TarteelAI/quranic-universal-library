@@ -1,7 +1,3 @@
-<p class="lead">
-  Use filters to find phrases you're looking for, click on <code>Edit</code> button to update existing phrase.
-</p>
-
 <div class="page-section">
   <div class="filters row">
     <div class="col-12">
@@ -17,13 +13,13 @@
         </div>
 
         <div class="form-group me-2">
-          <%= text_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
+          <%= search_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
           <p class="form-text">Search content</p>
         </div>
 
         <div class="form-group d-flex align-items-center align-content-center align-self-start">
           <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
-          <%= link_to 'Clear', morphology_phrases_path %>
+          <%= link_to 'Clear', morphology_phrases_path, class: 'btn-link text-dark'  if has_filters?(:filter_chapter, :filter_verse, :text) %>
         </div>
       <% end %>
     </div>
@@ -72,7 +68,7 @@
         <td>
           <div class="d-grid gap-2">
             <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
-            <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-primary' if user_signed_in? %>
+            <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
           </div>
         </td>
       </tr>

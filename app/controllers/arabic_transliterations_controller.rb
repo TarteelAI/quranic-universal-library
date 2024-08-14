@@ -1,6 +1,6 @@
 class ArabicTransliterationsController < CommunityController
   before_action :authenticate_user!, only: [:new, :create]
-  before_action :check_permission, only: [:new, :create]
+  before_action :authorize_access!, only: [:new, :create]
 
   def show
     @verse = Verse.includes(words: :arabic_transliteration).find(params[:id])
@@ -118,11 +118,7 @@ class ArabicTransliterationsController < CommunityController
     ]
   end
 
-  def check_permission
-    has_permission = can_manage?(ResourceContent.transliteration.one_word.for_language('ar'))
-
-    if !has_permission
-      return redirect_to(root_path, notice: "Sorry you don't have permission to access this page.")
-    end
+  def load_resource_access
+    @access ||= can_manage?(ResourceContent.transliteration.one_word.for_language('ar'))
   end
 end

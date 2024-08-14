@@ -1,5 +1,6 @@
 class CommunityController < ApplicationController
   helper_method :current_language
+  before_action :load_resource_access
 
   def tools
   end
@@ -10,8 +11,9 @@ class CommunityController < ApplicationController
 
   def svg_optimizer
   end
-  
+
   protected
+
   def language
     @language ||= load_language
   end
@@ -24,5 +26,20 @@ class CommunityController < ApplicationController
     params[:language] = lang.id
 
     lang
+  end
+
+  def load_resource_access
+  end
+
+  def authorize_access!
+    if !load_resource_access
+      if request.format.turbo_stream?
+        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
+      elsif request.format.json?
+        render json: { error: 'Permission Denied' }
+      else
+        return redirect_to(root_path, notice: "Sorry you don't have permission to access this page.")
+      end
+    end
   end
 end

@@ -4,7 +4,7 @@ class MushafLayoutsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
-  before_action :check_permission, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
+  before_action :authorize_access!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_page_words, only: [:edit, :show]
 
   def index
@@ -99,17 +99,22 @@ class MushafLayoutsController < CommunityController
     (params[:page_number] || 1).to_i
   end
 
-  def check_permission
+  def authorize_access!
     if @resource.blank? || !can_manage?(@resource)
       redirect_to mushaf_layout_path(@resource.id, mushaf_id: @resource.id, page_number: page_number), alert: "Sorry you don't have access to this resource"
     end
   end
 
+  def load_resource_access
+    @access = can_manage?(find_resource)
+  end
+
   def find_resource
+    return @resource if @resource
+
     if params[:id]
       @mushaf = Mushaf.find(params[:id])
       @resource = @mushaf.resource_content
-      @access = can_manage?(@resource)
 
       if params[:compare].present?
         @compared_mushaf = Mushaf.find(params[:compare])

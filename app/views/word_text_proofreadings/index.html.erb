@@ -1,23 +1,17 @@
 <div class="page-wrapper">
   <h1 class="page-header">Quran Word By Word Data Proofreading</h1>
 
-  <p class="lead">
-    User filters to find ayah you're looking for, click on <code>Contribute</code> button to add start proofreading
-    specific ayah
-  </p>
-
   <div class="page-section">
     <div class="filters row">
       <div class="col-lg-12">
         <%= form_tag word_text_proofreadings_path, method: :get, class: 'd-flex' do %>
-
           <div class="form-group me-2">
             <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by para', controller: 'select2' } %>
-            <p class="form-text">Filter by Para</p>
+            <p class="form-text">Filter by Para/Juz</p>
           </div>
           <div class="form-group me-2">
             <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
-            <p class="form-text">Filter by page</p>
+            <p class="form-text">Filter by page(1-604)</p>
           </div>
 
           <div class="form-group me-2">
@@ -32,6 +26,7 @@
 
           <div class="form-group">
             <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+            <%= link_to 'Clear', word_text_proofreadings_path, class: 'btn-link text-dark'  if has_filters?(:filter_juz, :filter_chapter, :filter_page, :filter_verse) %>
           </div>
         <% end %>
       </div>

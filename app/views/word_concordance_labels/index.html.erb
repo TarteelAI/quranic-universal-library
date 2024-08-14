@@ -3,17 +3,13 @@
     Quran Word By Word Data Concordance Labeling
   </h1>
 
-  <p class="lead">
-    User filters to find ayah you're looking for, click on <code>Show</code> to view labeling of all words of ayah.
-  </p>
-
   <div class="page-section">
     <div class="filters row">
       <div class="col-lg-12">
         <%= form_tag word_concordance_labels_path, method: :get, class: 'd-flex' do %>
           <div class="form-group me-2">
             <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by para' } %>
-            <p class="form-text">Filter by Para</p>
+            <p class="form-text">Filter by Para/Juz</p>
           </div>
 
           <div class="form-group me-2">
@@ -28,6 +24,7 @@
 
           <div class="form-group">
             <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+            <%= link_to 'Clear', word_concordance_labels_path, class: 'btn-link text-dark'  if has_filters?(:filter_verse, :filter_chapter, :filter_juz) %>
           </div>
         <% end %>
       </div>
@@ -38,7 +35,7 @@
     <table class="table table-hover">
       <thead>
       <tr>
-        <th><%= sort_order_link 'Ayah key', :id %></th>
+        <th><%= sort_order_link 'Ayah Id', :id %></th>
         <th>Key</th>
         <th>Text</th>
         <th>Actions</th>

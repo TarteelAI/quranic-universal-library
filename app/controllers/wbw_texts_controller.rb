@@ -1,7 +1,6 @@
 class WbwTextsController < CommunityController
-  before_action :load_access
-
-  before_action :check_permission, only: [:new, :create, :edit, :update]
+  before_action :load_resource
+  before_action :authorize_access!, only: [:new, :create, :edit, :update]
 
   def index
     verses = Verse
@@ -54,24 +53,21 @@ class WbwTextsController < CommunityController
 
   def wbw_translations_params
     params.require(:verse).permit wbw_texts_attributes: [
-        :word_id,
-        :text_imlaei,
-        :text_indopak,
-        :text_uthmani,
-        :text_qpc_hafs,
-        :user_id,
-        :id
+      :word_id,
+      :text_imlaei,
+      :text_indopak,
+      :text_uthmani,
+      :text_qpc_hafs,
+      :user_id,
+      :id
     ]
   end
 
-  def load_access
-    @resource = ResourceContent.find_by(id: 7) # wbw text
-    @access = can_manage?(@resource)
+  def load_resource
+    @resource ||= ResourceContent.find_by(id: 7)
   end
 
-  def check_permission
-    if @access.blank? || @resource.blank?
-      redirect_to root_path, alert: "Sorry you don't have access to this resource"
-    end
+  def load_resource_access
+    @access = can_manage?(@resource)
   end
 end

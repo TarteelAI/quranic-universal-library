@@ -9,11 +9,22 @@ class ApplicationController < ActionController::Base
     current_user&.to_gid
   end
 
+  def sort_order
+    s = params[:sort_order].presence || 'asc'
+
+    if ['asc', 'desc'].include?(s)
+      s
+    else
+      'asc'
+    end
+  end
+
+
   def can_manage?(resource)
     return false unless current_user
 
     if resource
-      @access = if current_user.is_admin?
+      @access = if current_user.is_super_admin?
                   AdminProjectAccess.new
                 else
                   current_user.user_projects.find_by(resource_content_id: resource.id)

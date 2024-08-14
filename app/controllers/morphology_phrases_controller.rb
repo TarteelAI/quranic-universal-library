@@ -1,7 +1,7 @@
 class MorphologyPhrasesController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[new edit create update destroy]
-  before_action :check_permission, only: %i[new edit create update destroy]
+  before_action :authorize_access!, only: %i[new edit create update destroy]
 
   def show
     if params[:proofread].present?
@@ -151,17 +151,10 @@ class MorphologyPhrasesController < CommunityController
   end
 
   def find_resource
-    @resource = ResourceContent.where(sub_type: ResourceContent::SubType::Mutashabihat).first
-    @has_permission = can_manage?(@resource)
+    @resource ||= ResourceContent.where(sub_type: ResourceContent::SubType::Mutashabihat).first
   end
 
-  def check_permission
-    if @resource.blank? || !@has_permission
-      if request.format.turbo_stream?
-        render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/permission_denied')
-      else
-        redirect_to morphology_phrases_path, alert: "Sorry you don't have access to this resource"
-      end
-    end
+  def load_resource_access
+    @access = can_manage?(find_resource)
   end
 end

@@ -41,3 +41,6 @@ application.register("flash-message", FlashMessageController)
 
 import PeityController from "./peity_controller.js"
 application.register("peity", PeityController)
+
+import AdminPageController from "./admin_page_controller.js"
+application.register("admin-page", AdminPageController)

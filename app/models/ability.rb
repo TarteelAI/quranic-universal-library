@@ -31,12 +31,12 @@ class Ability
       can :manage, Reciter
       can :manage, Tafsir
       can :manage, Audio::Recitation
-      can :admin, :run_actions
       can :download, :restricted_content
       can :manage, :draft_content
       can :assign_project, User
       can :moderate, User
-      can :download_from_admin
+      can :download, :from_admin
+      can :run_actions, :from_admin
     end
 
     if user.is_moderator?

@@ -14,7 +14,7 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  authenticated :user, ->(user) { user.super_admin? } do
+  authenticated :user, ->(user) { user.is_super_admin? || user.is_admin? } do
     require 'sidekiq/web'
     mount Sidekiq::Web => '/sidekiq'
   end

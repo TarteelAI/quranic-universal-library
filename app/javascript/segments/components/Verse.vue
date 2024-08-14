@@ -33,7 +33,7 @@
 
       <div v-if="shouldShowSegment">
         <h4>
-          <span class="2">Segments</span>
+          <span class="me-2">Segments</span>
           <button
               @click="saveAyahSegment"
               :disabled="segmentLocked"

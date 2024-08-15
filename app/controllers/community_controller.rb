@@ -5,6 +5,9 @@ class CommunityController < ApplicationController
   def tools
   end
 
+  def credits
+  end
+
   def chars_info
     require "unicode/name"
   end

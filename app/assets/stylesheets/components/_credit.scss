@@ -1,0 +1,34 @@
+.credits-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.credits-list li {
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  line-height: 1.5;
+  padding-bottom: 10px;
+}
+
+.credits-list li:last-child {
+  border-bottom: none;
+}
+
+.credits-list a {
+  text-decoration: none;
+  color: $gray-800;
+  font-weight: bold;
+}
+
+.credits-list a:hover {
+  text-decoration: underline;
+  color: $success;
+}
+
+.credits-description {
+  display: block;
+  color: #555;
+  font-style: italic;
+  margin-top: 5px;
+}

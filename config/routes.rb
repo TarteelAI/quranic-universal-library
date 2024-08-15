@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get 'tools', to: 'community#tools', as: :tools
   get 'community/chars_info', as: :chars_info
   get 'svg', to: 'community#svg_optimizer'
+  get 'credits', to: 'community#credits', as: :credits
 
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"

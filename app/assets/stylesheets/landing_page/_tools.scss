@@ -6,6 +6,7 @@
 
 .tools-container {
   padding: 0 0.75rem;
+  position: relative;
 
   @media (min-width: $screen-lg) {
     padding: 0 calc(0.75rem + (100vw - 1600px) / 2);
@@ -59,8 +60,6 @@
   // &:last-child {
   //   margin-inline-end: 30px;
   // }
-
-
 
   .info-tip {
     position: absolute !important;

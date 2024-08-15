@@ -15,10 +15,15 @@
 }
 
 .custom-breadcrumb {
-  display: flex;
   list-style: none;
   padding: 0;
   margin: 0;
+  text-align: center;
+
+  @media (min-width: $screen-md) {
+    display: flex;
+    text-align: start;
+  }
 
   .breadcrumb-link {
     color: #6c757d;

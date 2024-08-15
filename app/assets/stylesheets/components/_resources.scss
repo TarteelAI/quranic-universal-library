@@ -23,7 +23,6 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  max-width: 70%;
   text-align: center;
 
   .fw-light {
@@ -32,10 +31,6 @@
 
   @media (max-width: $screen-sm) {
     font-size: 17px;
-
-    .fw-light {
-      font-size: 12px;
-    }
   }
 
   @media (min-width: $screen-md) {
@@ -44,6 +39,7 @@
   }
 
   @media (min-width: $screen-lg) {
+    max-width: 70%;
     font-size: 48px;
   }
 }
@@ -61,6 +57,11 @@
     align-items: center;
     flex-shrink: 0;
     font-family: Inter;
+    width: 100%;
+
+    > div {
+      width: 100%;
+    }
 
     @media (max-width: $screen-sm) {
       margin-top: 20px;
@@ -71,11 +72,14 @@
   .search-icon {
     position: absolute;
     left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .search-input {
     padding: 10px 24px 10px 50px;
-    width: 485px;
+    width: 100%;
+    max-width: 485px;
     height: 80px;
     border-radius: 50px;
     border: 1px solid #979797;

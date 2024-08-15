@@ -11,7 +11,7 @@
 
   @media (min-width: $screen-lg) {
     height: 1400px;
-    top: -126px;
+    top: -90px;
     background-size: contain;
     background-position: top;
   }
@@ -24,6 +24,7 @@
   font-weight: 700;
   line-height: normal;
   max-width: 70%;
+  text-align: center;
 
   .fw-light {
     font-weight: 400;
@@ -39,6 +40,7 @@
 
   @media (min-width: $screen-md) {
     font-size: 32px;
+    text-align: left;
   }
 
   @media (min-width: $screen-lg) {
@@ -48,6 +50,8 @@
 
 #resources {
   #hero {
+    margin-top: -90px;
+    padding-top: 120px;
     border-bottom: 1px solid #CCC;
   }
 
@@ -70,7 +74,7 @@
   }
 
   .search-input {
-    padding: 10px 60px 10px 50px;
+    padding: 10px 24px 10px 50px;
     width: 485px;
     height: 80px;
     border-radius: 50px;
@@ -128,7 +132,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.35);
+        background-color: rgba(0, 0, 0, 0.3);
         z-index: 0;
         border-radius: 23px;
       }
@@ -142,6 +146,7 @@
       a {
         text-decoration: none;
         color: white;
+        text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
       }
 
       border-radius: 24px;
@@ -175,6 +180,11 @@
       a {
         text-decoration: none;
         color: white;
+      }
+
+      .dropdown-toggle,
+      .dropdown-item {
+        color: black;
       }
     }
 

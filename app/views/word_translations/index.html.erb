@@ -3,7 +3,7 @@
   word_translation_count = WordTranslation.where(language_id: current_language.id).size
   missing_words = words_count - word_translation_count
 %>
-<div class="page-wrapper">
+<div class="page-wrapper container-lg">
   <h1 class="page-header d-flex">
     <span class="me-auto">
       <%= current_language.name %> Word translation proofreading
@@ -54,7 +54,7 @@
     </div>
   </div>
 
-  <figure class="highlight">
+  <figure class="highlight mt-4">
     <table class="table table-hover">
       <thead>
       <tr>

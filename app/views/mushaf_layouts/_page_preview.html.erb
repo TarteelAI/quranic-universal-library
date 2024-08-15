@@ -1,5 +1,5 @@
 <% page_number = @mushaf_page.page_number %>
-<div class="page-wrapper">
+<div class="page-wrapper container-lg">
 <div class="mushaf-wrapper">
     <div class="mushaf-layout <%= @mushaf.default_font_name %>">
       <%= render 'shared/mushaf_page', words: @words, page: params[:page_number], mushaf: @mushaf, name: @resource.name %>

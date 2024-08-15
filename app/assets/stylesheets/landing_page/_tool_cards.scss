@@ -1,3 +1,22 @@
+.card-container {
+  display: grid;
+    grid-template-columns: 1fr;
+
+  @media (min-width: $screen-md) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (min-width: $screen-lg) {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
+}
+
+a.tool-card-with-bg {
+  text-decoration: none;
+  color: white;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
 .tool-card-with-bg{
   background-repeat: no-repeat !important;
   background-size: cover;
@@ -10,7 +29,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 0;
     border-radius: 23px;
   }

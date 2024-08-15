@@ -1,7 +1,7 @@
 <% surah, group_start_ayah = @tafisr.group_verse_key_from.split(':') %>
 <% _, group_end_ayah = @tafisr.group_verse_key_to.split(':') %>
 
-<div class="page-wrapper">
+<div class="page-wrapper container-lg">
   <h1 class="page-header">
     <%= @resource.name %>
     (<%= @tafisr.group_verse_key_from %> - <%= @tafisr.group_verse_key_to %>)

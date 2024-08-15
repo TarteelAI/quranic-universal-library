@@ -12,7 +12,7 @@ ActiveAdmin.register Morphology::Phrase do
          ajax: { resource: Verse }
   filter :created_at
 
-  action_item :export_csv, only: :index, if: -> { can? :download_from_admin, nil } do
+  action_item :export_csv, only: :index, if: -> { can? :download, :from_admin } do
     link_to 'Export CSV', export_approved_admin_morphology_phrases_path(format: :json)
   end
 
@@ -21,7 +21,7 @@ ActiveAdmin.register Morphology::Phrase do
   end
 
   collection_action :export_approved, method: :get do
-    authorize! :download_from_admin
+    authorize! :download, :from_admin
     export_service = ExportPhrase.new
     file = export_service.execute
 

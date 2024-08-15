@@ -30,4 +30,9 @@
 .select2-selection__clear, .select2-selection__arrow{
   height: 38px !important;
 }
+
+.select2-search__field:focus {
+  outline: none !important;
+}
+
 @import "landing_page";

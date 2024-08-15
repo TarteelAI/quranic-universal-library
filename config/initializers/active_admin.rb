@@ -282,13 +282,15 @@ end
 module AdminPageLayoutOverride
   def build(*args)
     # This will be added at the beginning of <head>
-    # within head do
+
+    #within head do
     #  text_node("<style>:root {--primary-color: #{Rails.env.production? ? '#ff8b41' : '#505050'};}</style>".html_safe)
-    # end
+    #end
 
     # This will be added at the beginning of <body>
-    # within body do
-    # end
+     within body do
+        text_node("<div id='admin-root' data-controller='admin-page' data-user-id='#{current_user&.id}'  data-user-role='#{current_user&.role}' data-action-key='#{controller_name}-#{action_name}'></div>".html_safe)
+     end
 
     super
   end

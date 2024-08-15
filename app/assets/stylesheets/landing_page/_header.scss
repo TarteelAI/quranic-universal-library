@@ -7,8 +7,11 @@
   z-index: 200;
   position: sticky;
   top: 0;
-  background: #fff;
   overflow: visible;
+
+  .btn-outline-dark {
+    background-color: white;
+  }
 
   .github-link {
     display: flex;

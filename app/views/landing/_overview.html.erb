@@ -13,7 +13,7 @@
         </p>
       </div>
 
-      <%= link_to 'GET STARTED', user_signed_in? ? resources_path : new_user_session_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-none d-md-inline-block', id: 'get-started' %>
+      <%= link_to 'GET STARTED', resources_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-none d-md-inline-block', id: 'get-started' %>
     </div>
 
     <div class="right col-md-7 col-12">
@@ -32,7 +32,7 @@
     </div>
 
     <div class="d-grid col-12">
-      <%= link_to 'GET STARTED', user_signed_in? ? resources_path : new_user_session_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-block d-md-none', id: 'get-started' %>
+      <%= link_to 'GET STARTED', resources_path, class: 'btn btn-dark btn-dark-hover btn-rounded py-3 px-8 fs-6 text-nowrap mt-3 d-block d-md-none', id: 'get-started' %>
     </div>
   </div>
 </div>

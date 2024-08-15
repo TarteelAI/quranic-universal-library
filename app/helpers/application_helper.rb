@@ -27,7 +27,7 @@ module ApplicationHelper
       {
         name: "Ayman Siddiqui",
         url: nil,
-        description: "For his amazing work on Indopak and tajweed fonts."
+        description: "For his amazing work on Indopak and tajweed fonts and script."
       },
       {
         name: "QuranWBW.com",
@@ -60,8 +60,13 @@ module ApplicationHelper
         description: "For serving as a gathering place for many great individuals to contribute Quran resources and discover each other."
       },
       {
+        name: 'Mustafa',
+        url: 'https://github.com/mustafa0x/',
+        description: 'For providing the dataset for the Quranic Arabic Corpus.'
+      },
+      {
         name: "EveryAyah.com",
-        url: "http://EveryAyah.com",
+        url: "http://everyayah.com",
         description: "For collecting and providing Quran recitations from a variety of famous reciters."
       },
       {
@@ -76,12 +81,12 @@ module ApplicationHelper
       },
       {
         name: "ReciteQuran.com",
-        url: "http://ReciteQuran.com",
+        url: "http://recitequran.com",
         description: "For providing wbw and tajweed recitations of Imam Wisam Sharieff, tajweed images and svgs."
       },
       {
         name: "Tanzil",
-        url: "https://www.notion.so/d2e29381a6de4fcdae1588162685e7e5?pvs=21",
+        url: "https://tanzil.net/",
         description: "For preparing and auditing the Quran text that underpins most digital Islamic projects and sourcing many translations."
       }
     ]

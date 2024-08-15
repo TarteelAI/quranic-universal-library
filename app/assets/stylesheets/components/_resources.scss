@@ -23,7 +23,6 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  max-width: 70%;
   text-align: center;
 
   .fw-light {
@@ -32,10 +31,6 @@
 
   @media (max-width: $screen-sm) {
     font-size: 17px;
-
-    .fw-light {
-      font-size: 12px;
-    }
   }
 
   @media (min-width: $screen-md) {
@@ -44,6 +39,7 @@
   }
 
   @media (min-width: $screen-lg) {
+    max-width: 70%;
     font-size: 48px;
   }
 }
@@ -71,6 +67,8 @@
   .search-icon {
     position: absolute;
     left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .search-input {

@@ -11,7 +11,7 @@
 
   @media (min-width: $screen-lg) {
     height: 1400px;
-    top: -126px;
+    top: -90px;
     background-size: contain;
     background-position: top;
   }
@@ -24,6 +24,7 @@
   font-weight: 700;
   line-height: normal;
   max-width: 70%;
+  text-align: center;
 
   .fw-light {
     font-weight: 400;
@@ -39,6 +40,7 @@
 
   @media (min-width: $screen-md) {
     font-size: 32px;
+    text-align: left;
   }
 
   @media (min-width: $screen-lg) {
@@ -48,6 +50,8 @@
 
 #resources {
   #hero {
+    margin-top: -90px;
+    padding-top: 120px;
     border-bottom: 1px solid #CCC;
   }
 

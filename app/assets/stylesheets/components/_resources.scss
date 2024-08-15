@@ -57,6 +57,11 @@
     align-items: center;
     flex-shrink: 0;
     font-family: Inter;
+    width: 100%;
+
+    > div {
+      width: 100%;
+    }
 
     @media (max-width: $screen-sm) {
       margin-top: 20px;
@@ -73,7 +78,8 @@
 
   .search-input {
     padding: 10px 24px 10px 50px;
-    width: 485px;
+    width: 100%;
+    max-width: 485px;
     height: 80px;
     border-radius: 50px;
     border: 1px solid #979797;

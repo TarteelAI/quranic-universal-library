@@ -71,11 +71,14 @@ class AyahAudioFilesController < CommunityController
   end
 
   def load_recitation
+    return @recitation if @recitation
+
     params[:id] ||= 7
     @recitation = Recitation.find(params[:id])
   end
 
   def load_resource_access
-    @access = can_manage?(@recitation.resource_content)
+    recitation = load_recitation
+    @access = can_manage?(recitation.resource_content)
   end
 end

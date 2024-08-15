@@ -149,7 +149,8 @@ module Exporter
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
       downloadable_resource.published = true
-      downloadable_resource.tags = [resource.language_name.humanize, 'Ayah Theme']
+      tags = [resource.language_name.humanize, 'Ayah Theme']
+      downloadable_resource.tags = tags.compact_blank.join(',')
       downloadable_resource.save(validate: false)
 
       sqlite = exporter.export_sqlite

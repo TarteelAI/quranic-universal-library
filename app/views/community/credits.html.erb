@@ -24,13 +24,43 @@
       serving the ummah for generations to come.
     </p>
 
-    <div class="mt-4 mt-md-5">
+    <p class="mt-5">
+      Within the limitations of our knowledge and respecting the privacy of those who desire it, we wish to specifically acknowledge the following individuals and groups for their contributions:
+    </p>
+
+    <div class="mt-5">
       <ul class="credits-list">
+
+        <%# Iterate over each contributor %>
         <% contributors.each do |contributor| %>
           <li>
-            <% if contributor[:url] %>
+            <%# Check if the contributor has multiple entities %>
+            <% if contributor[:multiple] %>
+              <%# Iterate over each entity within the contributor %>
+              <% contributor[:multiple].each_with_index do |entity, index| %>
+                <%# If the entity has a URL, show name as link %>
+                <% if entity[:url] %>
+                  <%= link_to entity[:name], entity[:url], target: '_blank', class: "btn-link text-dark text-decoration-underline" %>
+                <%# Else just display name %>
+                <% else %>
+                  <b><%= entity[:name] %></b>
+                <% end %>
+
+                <%# Add appropriate punctuation between entities %>
+                <% if index < contributor[:multiple].length - 1 %>
+                  <% if index == contributor[:multiple].length - 2 %>
+                  and
+                  <% else %>
+                  ,
+                  <% end %>
+                <% end %>
+              <% end %>
+
+            <%# Else if the entity has a URL, show name as link %>
+            <% elsif contributor[:url] %>
               <%= link_to contributor[:name], contributor[:url], target: '_blank', class: "btn-link text-dark text-decoration-underline" %>
-             <% else %>
+            <%# Else just display name %>
+            <% else %>
               <b><%= contributor[:name] %></b>
             <% end %>
 
@@ -39,6 +69,7 @@
         <% end %>
       </ul>
     </div>
+
     <div class="mt-3 mt-md-5 fs-5 fs-md-4">
       <p>QUL is more than just a resource library; it's a community-driven platform designed to streamline and enhance the creation of Quranic solutions.</p>
       <p class="pb-md-4">Explore <a href="/" class="btn-link text-dark text-decoration-underline">QUL</a> today and see how it can support your projects and contribute to the broader Islamic community!</p>

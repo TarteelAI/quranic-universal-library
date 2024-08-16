@@ -18,39 +18,39 @@
   </div>
 
   <div class="container-lg">
-    <div class="mt-3">
-      <h2 class="mb-3">
+    <div class="pt-4 pt-md-5">
+      <h2>
         Welcome to the QUL Tools Page
       </h2>
-      <div class="alert alert-secondary">
-         <div class="mb-1">
+      <div class="alert alert-secondary mt-3">
+         <p>
            This page provides a suite of tools designed to help you review, proofread, and improve the data in the
            Quranic Universal Library.
-         </div>
+         </p>
 
-        <div class="mb-1">
+        <p>
           Whether you’re fixing typos in translations, adjusting audio timings, designing a new Mushaf layout, testing a new font, or proofreading content, these tools empower you to ensure that your work is precise, accurate, and ready for use.
-        </div>
+        </p>
 
-        <div class="mb-1">
+        <p>
           Your contributions are crucial in maintaining the integrity and quality of the information we
           provide. Please use these tools thoughtfully, and refer to the guidelines provided for each tool to understand
           their specific functions and how best to utilize them.
-        </div>
+        </p>
 
-        <div>
+        <p>
           <strong>
-            To make changes
-            <a href="https://support.tarteel.ai/hc/en-us/requests/new" target="_blank" class="text-dark">Click here</a>
+            To make changes,
+            <a href="https://support.tarteel.ai/hc/en-us/requests/new" target="_blank" class="text-dark">click here</a>
            to request editing permissions.
           </strong>
-         </div>
+         </p>
       </div>
     </div>
   </div>
 
   <div class="mt-4 resources-list container-lg">
-    <div class='card-container gap-4 tools-container'>
+    <div class='card-container gap-4'>
       <% developer_tools.each do |tool| %>
         <a href="<%= tool.url %>">
           <div class="resource-card tool-card tool-card-with-bg position-relative pattern<%= patterns.sample %>">

@@ -1,6 +1,11 @@
 .card-container {
   display: grid;
-    grid-template-columns: 1fr;
+  grid-template-columns: 1fr;
+
+  > a {
+    color: white;
+    text-decoration: none;
+  }
 
   @media (min-width: $screen-md) {
     grid-template-columns: 1fr 1fr;

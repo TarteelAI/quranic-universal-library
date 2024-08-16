@@ -50,6 +50,8 @@ class DownloadableResource < ApplicationRecord
       'Ruku info'
     when ResourceContent::CardinalityType::OneHizb
       'Hizb info'
+    when ResourceContent::CardinalityType::OnePhrase
+      'Phrase'
     when '1_sajda'
       'Sajda info'
     end

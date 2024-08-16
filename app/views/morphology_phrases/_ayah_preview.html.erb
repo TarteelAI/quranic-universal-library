@@ -24,11 +24,11 @@
   end
 %>
 
-<div class="border p-3 m-y">
-  <div>
-  <span class="badge bg-success">
-    <%= verse.verse_key %>
-  </span>
+<div class="page-section">
+  <div class="d-flex flex-column align-items-end">
+    <div class="badge bg-success">
+      <%= verse.verse_key %>
+    </div>
 
     <div class="quran-text qpc-hafs d-flex flex-wrap">
       <% phrase_groups.each do |key, group| %>
@@ -59,6 +59,6 @@
       Phrases
     </span>
 
-    <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by{|s| -s.score}, as: :phrase_verse %>
+    <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by { |s| -s.score }, as: :phrase_verse %>
   </div>
 </div>

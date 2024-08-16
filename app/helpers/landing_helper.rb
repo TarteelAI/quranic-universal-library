@@ -1,5 +1,5 @@
 module LandingHelper
-  def featured_downlodable_resource_cards
+  def featured_downloadable_resource_cards
     recitations = ResourceContent.approved.recitations
     with_segments = recitations.with_segments.count
     total_recitations = recitations.count
@@ -30,7 +30,7 @@ module LandingHelper
     ]
   end
 
-  def downlodable_resource_cards
+  def downloadable_resource_cards
     translations = ResourceContent.approved.translations
     wbw_translation = translations.one_word.count
     ayah_translation = translations.one_verse.count

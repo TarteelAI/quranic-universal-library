@@ -34,7 +34,7 @@
   <%= render 'featured_cards' %>
 
   <div class="mt-4 card-container gap-4">
-    <% downlodable_resource_cards.each do |card| %>
+    <% downloadable_resource_cards.each do |card| %>
       <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
         <a href="<%= card.url %>">
           <div class="overlay"></div>

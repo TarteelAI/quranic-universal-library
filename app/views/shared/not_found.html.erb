@@ -3,10 +3,10 @@
   list = Verse.where('words_count < 30').order('random()').includes(:chapter).first(4)
   verse = list.sample
 
-  options = list.map do  |v|
+  options = list.map do |v|
     {
       id: v.id,
-     name: "Surah #{v.chapter.name_simple} : #{v.verse_number}"
+      name: "Surah #{v.chapter.name_simple} : #{v.verse_number}"
     }
   end
 
@@ -16,19 +16,16 @@
 
 <style>
     .not-found {
-        margin: 0;
-        padding: 0;
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
         color: #333;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
         text-align: center;
     }
 
-    .container {
+    .quiz-wrapper {
         max-width: 800px;
         padding: 20px;
         background-color: #fff;
@@ -75,27 +72,35 @@
         font-weight: bold;
     }
 
-    .shake{
+    .shake {
         animation: shake 0.5s;
     }
+
     @keyframes shake {
-        0% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        50% { transform: translateX(10px); }
-        75% { transform: translateX(-10px); }
-        100% { transform: translateX(0); }
+        0% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-10px);
+        }
+        50% {
+            transform: translateX(10px);
+        }
+        75% {
+            transform: translateX(-10px);
+        }
+        100% {
+            transform: translateX(0);
+        }
     }
 </style>
-
-<div class="not-found">
-
-  <div class="container">
+<div class="not-found overflow-auto py-5">
+  <div class="quiz-wrapper">
     <h3 class="my-3">Sorry, the page you are looking for does not exist.</h3>
-    <p>
+    <div>
       Let's turn this detour into a chance to learn more about the Quran!
-    </p>
-    <p>Recognize this verse? Guess the Surah name and Ayah number.</p>
-
+    </div>
+    <div>Guess the Surah name and Ayah number.</div>
     <div class="quiz">
       <div id="partial-ayah" class="qpc-hafs alert alert-info">
         <%= verse.text_qpc_hafs %>
@@ -111,11 +116,15 @@
 
       <div class="result" id="result">
         <div class="text-danger d-none" id="incorrect-message">
-          Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download <a class='text-danger' href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tatreel app here</a> to test and improve your memorization.
+          Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
+          <a class='text-danger' href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tatreel
+            app here</a> to test and improve your memorization.
         </div>
 
-        <div class="d-none text-success" id="correct-message" >
-          Correct! MashaAllah, you got it right. Download <a href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tarteel app</a> to memorize more.
+        <div class="d-none text-success" id="correct-message">
+          Correct! MashaAllah, you got it right. Download
+          <a href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tarteel app</a> to
+          memorize more.
         </div>
       </div>
     </div>

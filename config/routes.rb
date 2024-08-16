@@ -74,4 +74,7 @@ Rails.application.routes.draw do
       get :changes
     end
   end
+
+  match '/404', to: 'application#not_found', via: :all
+  match '*unmatched', to: 'application#not_found', via: :all
 end

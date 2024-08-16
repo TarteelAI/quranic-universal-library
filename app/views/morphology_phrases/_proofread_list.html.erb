@@ -1,66 +1,59 @@
-<p class="lead">
-    Use filters to find ayah you're looking for, click on <code>Preview</code> button to see phrase highlights.
-  </p>
-
-  <div class="page-section mt-4">
-    <div class="filters row">
-      <div class="col-12">
-        <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex' do %>
-          <%= hidden_field_tag :proofread, true%>
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
-
-          <div class="form-group me-2">
-            <%= select_tag :filter_verse, options_for_select(1..286, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by ayah', controller: 'select2' } %>
-            <p class="form-text">Filter by Ayah</p>
-          </div>
-
-
-          <div class="form-group d-flex align-items-center align-content-center">
-            <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
-            <%= link_to 'Clear', morphology_phrases_path(proofread: true) %>
-          </div>
-        <% end %>
-      </div>
+<div class="page-section mt-4 filters">
+  <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex align-items-end' do %>
+    <%= hidden_field_tag :proofread, true %>
+    <div class="form-group me-2">
+      <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+      <p class="form-text">Filter by Surah</p>
     </div>
-  </div>
 
-  <figure class="highlight mt-4">
-    <table class="table table-hover mt-4">
-      <thead class="position-sticky bg-white border-bottom top-0">
+    <div class="form-group me-2">
+      <%= select_tag :filter_verse, options_for_select(1..286, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by ayah', controller: 'select2' } %>
+      <p class="form-text">Filter by Ayah</p>
+    </div>
+
+    <div class="form-group d-flex align-items-center align-content-center align-self-start">
+      <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
+      <%= link_to 'Clear', morphology_phrases_path(proofread: true) if has_filters?(:filter_chapter, :filter_verse) %>
+    </div>
+  <% end %>
+</div>
+
+<div class="page-section mt-4">
+  <h2>Ayah phrases list</h2>
+  <table class="table table-hover mt-4">
+    <thead class="position-sticky bg-white border-bottom top-0">
+    <tr>
+      <th><%= sort_order_link 'Ayah Key', :verse_index, proofread: true %></th>
+      <th>Phrases</th>
+      <th>Actions</th>
+    </tr>
+
+    </thead>
+    <tbody>
+    <% @verses.each do |verse| %>
       <tr>
-        <th><%= sort_order_link 'Ayah Key', :verse_index, proofread: true %></th>
-        <th>Phrases</th>
-        <th>Actions</th>
-      </tr>
+        <td scope="row"><%= verse.verse_key %></td>
 
-      </thead>
-      <tbody>
-      <% @verses.each do |verse| %>
-        <tr>
-          <td scope="row"><%= verse.verse_key %></td>
-          <td>
-            <%= verse.verse_phrases.size %>
-          </td>
-
-          <td>
-            <div class="d-grid gap-1">
-              <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-      <tr>
-        <td colspan="4">
-          <%= pagy_bootstrap_nav(@pagy).html_safe %>
+        <td>
+          <%= verse.verse_phrases.size %>
         </td>
 
-        <td colspan="2">
-          <%= pagy_info(@pagy).html_safe %>
+        <td>
+          <div class="d-grid gap-1">
+            <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
+          </div>
         </td>
       </tr>
-      </tbody>
-    </table>
-  </figure>
+    <% end %>
+    <tr>
+      <td colspan="4">
+        <%= pagy_bootstrap_nav(@pagy).html_safe %>
+      </td>
+
+      <td colspan="2">
+        <%= pagy_info(@pagy).html_safe %>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

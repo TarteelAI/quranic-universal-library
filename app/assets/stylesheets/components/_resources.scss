@@ -8,6 +8,7 @@
   background-position: center;
   background-repeat: no-repeat;
   top: 0;
+  z-index: -10;
 
   @media (min-width: $screen-lg) {
     height: 1400px;

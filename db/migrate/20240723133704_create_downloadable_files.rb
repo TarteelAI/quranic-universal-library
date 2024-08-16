@@ -9,9 +9,14 @@ class CreateDownloadableFiles < ActiveRecord::Migration[7.0]
       t.integer :position, default: 1
       t.integer :download_count, default: 0
       t.string :file_type
+      t.boolean :published, default: true
       t.string :token, index: true # For download link
 
       t.timestamps
     end
   end
 end
+
+
+
+

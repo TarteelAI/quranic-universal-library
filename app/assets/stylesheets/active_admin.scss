@@ -15,48 +15,46 @@
 @import "libs/toastr";
 @import "components/common";
 
-.filter_form {
-  .searchable_select{
-    .select2-selection__clear {
-      padding-right: 10px;
-      background-image: none !important;
-      text-shadow: none !important;
-      box-shadow: none !important;
-      color: #000 !important;
-    }
+.searchable_select {
+  .select2-selection__clear {
+    padding-right: 10px;
+    background-image: none !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    color: #000 !important;
   }
 }
 
-.collapable{
-  &.collapsed span{
-    &:before{
+.collapable {
+  &.collapsed span {
+    &:before {
       content: '☝';
     }
   }
 
-   span{
-    &:before{
+  span {
+    &:before {
       content: '☟';
     }
   }
 }
 
-input[type=search]{
+input[type=search] {
   width: calc(80% - 22px);
   border: 1px solid #c9d0d6;
   border-radius: 3px;
   font-size: .95em;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   outline: none;
   padding: 8px 10px 7px;
 }
 
-.download-form{
-  li{
+.download-form {
+  li {
     display: flex;
     flex-direction: column;
 
-    label{
+    label {
       margin-right: .5rem;
       width: 100% !important;
     }

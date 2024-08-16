@@ -11,12 +11,12 @@
     </div>
   </div>
 
-  <div class="container-lg mt-4">
+  <div class="container-lg mt-4 credits-container">
     <h2>
       Credits
     </h2>
 
-    <p class="mt-4">
+    <p class="mt-4 fs-3">
       We extend our heartfelt gratitude to the various community projects and members whose contributions have been
       instrumental in shaping QUL. The majority of the resources currently available in QUL were created or curated by
       the community, not Tarteel. As you make use of QUL, please remember to keep all of these contributors in your
@@ -24,12 +24,12 @@
       serving the ummah for generations to come.
     </p>
 
-    <div class="mt-4">
+    <div class="mt-5">
       <ul class="credits-list">
         <% contributors.each do |contributor| %>
           <li>
             <% if contributor[:url] %>
-              <%= link_to contributor[:name], contributor[:url], target: '_blank' %>
+              <%= link_to contributor[:name], contributor[:url], target: '_blank', class: "btn-link text-dark text-decoration-underline" %>
              <% else %>
               <b><%= contributor[:name] %></b>
             <% end %>
@@ -38,6 +38,10 @@
           </li>
         <% end %>
       </ul>
+    </div>
+    <div class="mt-4 fs-4">
+      <p>QUL is more than just a resource library; it's a community-driven platform designed to streamline and enhance the creation of Quranic solutions.</p>
+      <p class="pb-md-4">Explore <a href="/" class="btn-link text-dark text-decoration-underline">QUL</a> today and see how it can support your projects and contribute to the broader Islamic community!</p>
     </div>
   </div>
 </div>

@@ -25,6 +25,11 @@ module ApplicationHelper
         description: "For previously hosting what is now the QUL app, providing the initial dataset, and contributing fixes to many resources."
       },
       {
+        name: "Dr. Amin Anane",
+        url: "https://github.com/aminanan",
+        description: "For developing and providing the DigitalKhatt fonts."
+      },
+      {
         name: "Ayman Siddiqui",
         url: nil,
         description: "For his amazing work on Indopak and tajweed fonts."
@@ -40,14 +45,24 @@ module ApplicationHelper
         description: "For generating the original word-by-word timestamps for various reciters."
       },
       {
+        name: "Dr. Kais Dukes",
+        url: "https://github.com/kaisdukes",
+        description: "For preparing the original digitized Quran morphology data."
+      },
+      {
         name: "GreenTech Foundation",
         url: "http://gtaf.org",
-        description: "For providing Bengali tafisr and word by word translation."
+        description: "For providing Bengali tafsir and word by word translations, contributing corrections to resources, and providing word by word timestamps of Quran recitations."
       },
       {
         name: "King Fahd Quran Printing Complex",
         url: "http://qurancomplex.gov.sa/",
         description: "For publishing many of the original images and fonts available in QUL, which are the same assets used to publish the physical mushaf."
+      },
+      {
+        name: "Mustafa Jibaly",
+        url: "https://github.com/mustafa0x",
+        description: "For improving and providing Quran morphology data."
       },
       {
         name: "Naveed Ahmad",

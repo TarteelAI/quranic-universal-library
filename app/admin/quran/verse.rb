@@ -21,7 +21,6 @@ ActiveAdmin.register Verse do
 
   filter :id
   filter :chapter, as: :searchable_select,
-         data: { controller: 'select2' },
          ajax: { resource: Chapter }
   filter :verse_number
   filter :verse_index

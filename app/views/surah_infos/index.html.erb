@@ -1,35 +1,34 @@
+<%= render 'tools/header',
+           name: 'Surah Information',
+           title: "Proofread Surah info for #{@resource.language_name&.humanize} language",
+           key: 'surah_info'
+%>
+
+<%= render 'shared/access_message' %>
+
 <div class="page-wrapper container-lg">
-  <h1 class="page-header">
-    <%= @resource.name %>
-  </h1>
-
-  <%= render 'shared/access_message' %>
-
-  <div class="page-section mt-4">
-    <div class="filters row">
-      <div class="col-lg-12">
-        <%= form_tag surah_infos_path, method: :get, class: 'd-flex' do %>
-          <div class="form-group me-2">
-            <%= select_tag :language_id, options_from_collection_for_select(@available_languages, :id, :name, selected: @language.id), include_blank: false, class: 'form-select', data: {placeholder: 'Select language', controller: 'select2'} %>
-            <p class="form-text">Filter by language</p>
-          </div>
-
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by surah', controller: 'select2'} %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
-
-          <div class="form-group">
-            <%= submit_tag 'Filter', class: 'btn btn-primary', data: {disable_with: 'Please wait..'} %>
-            <%= link_to 'Clear', surah_infos_path, class: 'btn-link text-dark'  if has_filters?(:language_id, :filter_chapter) %>
-          </div>
-        <% end %>
+  <div class="page-section filters">
+    <%= form_tag surah_infos_path, method: :get, class: 'd-flex' do %>
+      <div class="form-group me-2">
+        <%= select_tag :language_id, options_from_collection_for_select(@available_languages, :id, :name, selected: @language.id), include_blank: false, class: 'form-select', data: { placeholder: 'Select language', controller: 'select2' } %>
+        <p class="form-text">Filter by language</p>
       </div>
-    </div>
+
+      <div class="form-group me-2">
+        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+        <p class="form-text">Filter by Surah</p>
+      </div>
+
+      <div class="form-group">
+        <%= submit_tag 'Filter', class: 'btn btn-primary', data: { disable_with: 'Please wait..' } %>
+        <%= link_to 'Clear', surah_infos_path, class: 'btn-link text-dark' if has_filters?(:language_id, :filter_chapter) %>
+      </div>
+    <% end %>
   </div>
 
-  <figure class="highlight mt-4">
-    <table class="table table-hover mt-4">
+  <div class="page-section">
+    <h2>Surah list</h2>
+    <table class="table table-hover">
       <thead>
       <tr>
         <th><%= sort_order_link 'Surah', :chapter_id, resource_id: @resource.id %></th>
@@ -42,7 +41,7 @@
       <tbody>
       <% @surah_infos.each do |info| %>
         <tr>
-          <th scope="row"><%= info.chapter_id %></th>
+          <th scope="row"><%= info.chapter_id %> - <%= info.chapter.name_simple %></th>
 
           <td>
             <%= info.language.name %>
@@ -54,7 +53,7 @@
 
           <td>
             <div class="d-flex gap-1">
-              <%= link_to 'Edit', edit_surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-info' %>
+              <%= link_to 'Edit', edit_surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-info' if @access %>
               <%= link_to 'Show', surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-success' %>
             </div>
           </td>
@@ -62,7 +61,7 @@
       <% end %>
       </tbody>
     </table>
-  </figure>
+  </div>
 </div>
 
 

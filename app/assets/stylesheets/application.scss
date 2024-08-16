@@ -35,4 +35,12 @@
   outline: none !important;
 }
 
+.form-floating{
+  .select2-container{
+    padding: 17px 0 0 5px;
+  }
+  .select2-selection{
+    border: none;
+  }
+}
 @import "landing_page";

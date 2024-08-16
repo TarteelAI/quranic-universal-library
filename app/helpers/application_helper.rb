@@ -1,6 +1,15 @@
 module ApplicationHelper
   include Pagy::Frontend
 
+  def set_page_title(title, data_options = {})
+    content_for :title, title
+    options = data_options.map do |key, value|
+      "data-#{key}=#{value}"
+    end.join(' ')
+
+    "<div class='d-none' data-controller='page-title' data-title='#{title}' #{options}></div>".html_safe
+  end
+
   def has_filters?(*filters)
     filters.detect do |f|
       params[f].present?

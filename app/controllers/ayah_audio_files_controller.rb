@@ -5,9 +5,7 @@ class AyahAudioFilesController < CommunityController
   before_action :authorize_access!, only: %i[save_segments]
 
   def index
-    params[:sort_key] ||= 'chapter_id'
-    params[:sort_order] ||= 'ASC'
-
+    sort_key = params[:sort_key] || 'chapter_id'
     files = AudioFile.where(recitation_id: @recitation.id)
 
     if params[:filter_chapter].present?
@@ -18,7 +16,7 @@ class AyahAudioFilesController < CommunityController
       files = files.where(verse_number: params[:verse_number])
     end
 
-    @pagy, @audio_files = pagy(files.includes(:verse).order("#{params[:sort_key]} #{params[:sort_order].presence}"))
+    @pagy, @audio_files = pagy(files.includes(:verse).order("#{sort_key} #{sort_order}"))
   end
 
   def show

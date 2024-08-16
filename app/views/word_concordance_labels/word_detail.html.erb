@@ -1,15 +1,23 @@
-<h1 class="page-header d-flex">
-  <span class="flex-grow-1">Word <%= @word.location %></span>
-  <span>
-      <%= link_to 'Previous Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position - 1}"), class: 'btn btn-success' %>
-    <%= link_to 'Next Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position + 1}"), class: 'btn btn-success' %>
+<%
+  actions = []
+  actions << link_to('Previous Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position - 1}"), class: 'btn btn-dark')
+  actions << link_to('Next Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position + 1}"), class: 'btn btn-dark')
+  actions << link_to('Back to ayah', word_concordance_label_path(@verse.id), class: 'btn btn-info')
+%>
 
-    <%= link_to 'Back to ayah', word_concordance_label_path(@verse.id), class: 'btn btn-info' %>
-    </span>
-</h1>
+<%= render 'tools/header',
+           name: "Quran corpus tool",
+           title: "Word #{@word.location}",
+           key: 'corpus',
+           actions: actions
+%>
 
-<div class="row">
-  <div class="col-md-12 section">
+<div class="page-wrapper container-lg">
+  <div class="alert alert-dark">
+    This tools is work in progress
+  </div>
+
+  <div class="page-section">
     <div class="d-flex justify-content-between">
       <div>
         <b style="margin-right: 20px">Text: </b>
@@ -72,84 +80,88 @@
       <span class="qpc-hafs" id="ayah_text"><%= @word.grammar_concepts.map(&:arabic).join("<br>").html_safe %> </span>
     </div>
   </div>
+
+  <div class="page-section">
+    <h2>
+      Segments
+    </h2>
+
+    <table class="table table-hover table-bordered">
+      <thead>
+      <tr>
+        <td>Position</td>
+        <td>Text</td>
+        <td>POS</td>
+        <td>Tags</td>
+        <td>Root</td>
+        <td>Lemma</td>
+        <td>Actions</td>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @word.word_segments.each do |segment| %>
+        <tr>
+          <td><%= link_to segment.position, [:admin, segment], target: '_blank' %></td>
+
+          <td class="quran me_quran">
+            <%= segment.text_uthmani %>
+          </td>
+
+          <td>
+            <%= "#{segment.part_of_speech_key} - #{segment.part_of_speech_name}" %>
+          </td>
+
+          <td>
+            <%= segment.pos_tags %>
+          </td>
+
+          <td class="quran me_quran">
+            <%= segment.root_name %>
+          </td>
+
+          <td class="quran me_quran">
+            <%= segment.lemma_name %>
+          </td>
+
+          <td>
+            <%#= link_to 'Edit', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran btn btn-info btn-sm" %>
+            <%= link_to 'Show', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran btn btn-primary btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-section">
+    <h2>
+      Verb Forms
+    </h2>
+
+    <table class="table table-hover table-bordered">
+      <thead>
+      <tr>
+        <td>Name</td>
+        <td>Value</td>
+        <td>Action</td>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @word.verb_forms.each do |form| %>
+        <tr>
+          <td><%= form.name %></td>
+
+          <td class="quran me_quran">
+            <%= form.value %>
+          </td>
+
+          <td>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
-
-<h2>
-  Segments
-</h2>
-
-<table class="table table-hover mt-4 table-bordered">
-  <thead>
-  <tr>
-    <td>Position</td>
-    <td>Text</td>
-    <td>POS</td>
-    <td>Tags</td>
-    <td>Root</td>
-    <td>Lemma</td>
-    <td>Actions</td>
-  </tr>
-  </thead>
-
-  <tbody>
-  <% @word.word_segments.each do |segment| %>
-    <tr>
-      <td><%= link_to segment.position, [:admin, segment], target: '_blank' %></td>
-
-      <td class="quran me_quran">
-        <%= segment.text_uthmani %>
-      </td>
-
-      <td>
-        <%= "#{segment.part_of_speech_key} - #{segment.part_of_speech_name}" %>
-      </td>
-
-      <td>
-        <%= segment.pos_tags %>
-      </td>
-
-      <td class="quran me_quran">
-        <%= segment.root_name %>
-      </td>
-
-      <td class="quran me_quran">
-        <%= segment.lemma_name %>
-      </td>
-
-      <td>
-        <%= link_to 'Edit', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran btn btn-info btn-sm" %>
-        <%= link_to 'Show', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran btn btn-primary btn-sm" %>
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
-
-<h2>
-  Verb Forms
-</h2>
-
-<table class="table table-hover mt-4 table-bordered">
-  <thead>
-  <tr>
-    <td>Name</td>
-    <td>Value</td>
-    <td>Action</td>
-  </tr>
-  </thead>
-
-  <tbody>
-  <% @word.verb_forms.each do |form| %>
-    <tr>
-      <td><%= form.name %></td>
-
-      <td class="quran me_quran">
-        <%= form.value %>
-      </td>
-
-      <td>
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>

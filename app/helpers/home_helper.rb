@@ -43,9 +43,9 @@ module HomeHelper
   end
 
   def whodunnit(version)
-    if id = version.whodunnit
-      User.find_by_id(id)&.email
-    end
+    GlobalID::Locator.locate(version.whodunnit).name
+  rescue Exception => e
+
   end
 
   def content_tag_if(add_tag, tag_name, content)

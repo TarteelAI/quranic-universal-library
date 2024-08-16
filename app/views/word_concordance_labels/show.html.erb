@@ -1,74 +1,84 @@
+<%
+  actions = []
+  previous_ayah = @verse.previous_ayah
+  next_ayah = @verse.next_ayah
+
+  if previous_ayah
+    actions << link_to('Previous ayah', word_concordance_label_path(previous_ayah.id), class: 'btn btn-dark')
+  end
+  if next_ayah
+    actions << link_to('Next ayah', word_concordance_label_path(next_ayah.id), class: 'btn btn-dark')
+  end
+
+  actions << link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: "Quran corpus tool",
+           title: "Corpus tagging for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
+           key: 'corpus',
+           actions: actions
+%>
+
 <div class="page-wrapper container-lg">
-  <h1 class="page-header d-flex">
-    <span class="flex-grow-1">
-      List of words for <%= @verse.verse_key %>
-    </span>
-
-    <span>
-      <%= link_to 'Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-success' %>
-      <%= link_to 'Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-success' %>
-
-      <%= link_to 'Back to filter', word_concordance_labels_path, class: 'btn btn-info' %>
-    </span>
-  </h1>
-
-  <div class="callout alert alert-dismissible" role="alert">
-    <div class="row">
-      <div class="col-md-12 section">
-        <b>KFQC Uthmani Hafs</b>
-        <div class="qpc-hafs" id="ayah_text" style="font-size: 30px; margin-top: 10px"><%= @verse.text_qpc_hafs %> </div>
-      </div>
-    </div>
+  <div class="alert alert-dark">
+    This tools is work in progress
   </div>
-</div>
 
-<table class="table table-hover mt-4 table-bordered">
-  <thead>
-  <tr>
-    <td>ID</td>
-    <td style="direction: rtl">Text</td>
-    <td style="direction: rtl">Location</td>
-    <td style="direction: rtl">Segments</td>
-    <td>Actions</td>
-  </tr>
-  </thead>
+  <div class="page-section">
+    <div class="alert alert-dark" role="alert">
+      <div class="qpc-hafs" id="ayah_text" style="font-size: 30px; margin-top: 10px"><%= @verse.text_qpc_hafs %> </div>
+    </div>
 
-  <tbody>
-  <% @verse.morphology_words.includes(:word_segments, :word).order('words.position, morphology_word_segments.position').each do |word| %>
-    <tr>
-      <td><%= link_to word.id, [:admin, word], target: '_blank' %></td>
+    <h2>Words list</h2>
+    <table class="table table-hover table-bordered">
+      <thead>
+      <tr>
+        <td>ID</td>
+        <td style="direction: rtl">Text</td>
+        <td style="direction: rtl">Location</td>
+        <td style="direction: rtl">Segments</td>
+        <td>Actions</td>
+      </tr>
+      </thead>
 
-      <td class="qpc-hafs">
-        <%= word.text %>
-      </td>
+      <tbody>
+      <% @verse.morphology_words.includes(:word_segments, :word).order('words.position, morphology_word_segments.position').each do |word| %>
+        <tr>
+          <td>
+            <%= link_to(word.id, [:admin, word], target: '_blank') %>
+          </td>
 
-      <td>
-        <%= word.location %>
-      </td>
+          <td class="qpc-hafs">
+            <%= word.text %>
+          </td>
 
-      <td style="direction: rtl;">
-        <% word.word_segments.each do |segment| %>
-          <span>
-            <%= link_to segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: word.location, segment: segment.position), class: "me_quran btn btn-primary btn-sm" %>
-          </span>
-        <% end %>
-      </td>
+          <td>
+            <%= word.location %>
+          </td>
 
-      <td>
-        <%= link_to 'Show', word_detail_word_concordance_label_path(@verse.id, word: word.location), class: 'btn btn-success' %>
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
+          <td style="direction: rtl;">
+            <% word.word_segments.each do |segment| %>
+             <span>
+              <%= link_to(segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: word.location, segment: segment.position), class: "me_quran btn btn-primary btn-sm") %>
+             </span>
+            <% end %>
+          </td>
 
-<div>
-   <span class=" pull-right">
-      <%= link_to 'Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-success' %>
-     <%= link_to 'Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-success' %>
+          <td>
+            <%= link_to('Show', word_detail_word_concordance_label_path(@verse.id, word: word.location), class: 'btn btn-success') %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
 
-     <%= link_to 'Back to filter', word_concordance_labels_path, class: 'btn btn-success' %>
-    </span>
+  <div class="d-flex justify-content-end gap-2 mt-3">
+    <%= link_to('Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-dark') if previous_ayah %>
+    <%= link_to('Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-dark') if next_ayah %>
+    <%= link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-info') %>
+  </div>
 </div>
 
 

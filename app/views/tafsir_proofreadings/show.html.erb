@@ -1,32 +1,45 @@
-<% surah, group_start_ayah = @tafisr.group_verse_key_from.split(':') %>
-<% _, group_end_ayah = @tafisr.group_verse_key_to.split(':') %>
+<%
+  surah, group_start_ayah = @tafisr.group_verse_key_from.split(':').map(&:to_i)
+  _, group_end_ayah = @tafisr.group_verse_key_to.split(':').map(&:to_i)
+
+  actions = []
+  verse = if params[:verse_key].present?
+            Verse.find_by(verse_key: params[:verse_key].downcase)
+          end
+  verse ||= Verse.find_by(verse_key: "#{surah}:#{group_start_ayah}")
+  next_ayah = verse.next_ayah
+  previous_ayah = verse.previous_ayah
+
+  if @access
+    actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
+  end
+
+  if previous_ayah
+    actions << link_to('Previous ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark')
+  end
+
+  if next_ayah
+    actions << link_to('Next ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark')
+  end
+
+  actions << link_to('Back to filter', tafsir_proofreadings_path(resource_id: @resource.id), class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: "Ayah tafsir",
+           title: "#{@resource.name} <div style='font-size: 0.5em'>#{@tafisr.group_verse_key_from} - #{@tafisr.group_verse_key_to}</div>",
+           key: 'ayah_tafsir',
+           actions: actions
+%>
 
 <div class="page-wrapper container-lg">
-  <h1 class="page-header">
-    <%= @resource.name %>
-    (<%= @tafisr.group_verse_key_from %> - <%= @tafisr.group_verse_key_to %>)
-
-    <span class="pull-right">
-      <%= link_to 'Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success' if @access %>
-
-      <%= link_to 'Previous ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: "#{surah}:#{group_start_ayah.to_i - 1}"), class: 'btn btn-success' %>
-      <%= link_to 'Next ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: "#{surah}:#{group_end_ayah.to_i + 1}"), class: 'btn btn-success' %>
-      <%= link_to 'Back to filter', tafsir_proofreadings_path(resource_id: @resource.id), class: 'btn btn-success' %>
-      <%= link_to "https://beta.quran.com/#{@tafisr.verse_key}/tafsirs/#{@resource.id}", class: 'btn btn-primary', target: '_blank' do %>
-        <i class="fa fa-external-link"></i> Preview
-      <% end %>
-    </span>
-  </h1>
-
-  <% if params[:draft].present? %>
-    <%= render 'compare_draft' %>
-  <% else %>
-    <div class="row d-flex justify-content-between">
-      <div class="section">
-        <div style="font-size: 30px; margin-top: 10px; width: 50vw" class="tafsir <%= @tafisr.language_name %>">
-          <%= @tafisr.text.to_s.html_safe %>
-        </div>
+  <div class="page-section">
+    <% if params[:draft].present? %>
+      <%= render 'compare_draft' %>
+    <% else %>
+      <div style="font-size: 30px; margin-top: 10px;" class="tafsir <%= @tafisr.language_name %>">
+        <%= @tafisr.text.to_s.html_safe %>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>

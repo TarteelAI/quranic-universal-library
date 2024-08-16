@@ -23,12 +23,11 @@
 
     <div>
       <%= link_to 'Update pages', mushaf_layout_path(@mushaf.id, mapping: true), class: 'btn btn-info' %>
-      <%= link_to 'Update words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-info' %>
 
-      <%= link_to 'Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1), class: 'btn btn-success' %>
-      <%= link_to 'Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1), class: 'btn btn-success' %>
+      <%= link_to 'Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1), class: 'btn btn-dark' if page_number > 1%>
+      <%= link_to 'Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1), class: 'btn btn-dark' %>
 
-      <%= link_to 'Back to filter', mushaf_layouts_path, class: 'btn btn-primary' %>
+      <%= link_to 'Back to index', mushaf_layouts_path, class: 'btn btn-primary' %>
     </div>
   </h1>
 

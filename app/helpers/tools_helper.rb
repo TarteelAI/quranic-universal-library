@@ -84,7 +84,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Arabic/Urdu word by word transliteration',
         description: 'Transliteration of each word of Quran in Arabic and Urdu.',
-        url: word_concordance_labels_path,
+        url: arabic_transliterations_path,
         type: 'corpus',
         tags: ['Transliteration', 'Arabic', 'Word by word'],
         icon: 'qaf.svg',
@@ -94,7 +94,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Word by word translation',
         description: 'Proofread and suggest fixes for word by word translations in multiple languages.',
-        url: word_concordance_labels_path,
+        url: word_translations_path,
         type: 'corpus',
         tags: ['Translation', 'Word by word'],
         icon: 'timestamp.svg',

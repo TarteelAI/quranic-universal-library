@@ -1,125 +1,103 @@
-<div class="page-wrapper container-lg transliteration">
-  <h4 class="page-header flex-between">
-    <div>
-      Arabic/Urdu Transliterations of <%= @verse.verse_key %>
+<%
+  actions = []
+  prev_ayah = @verse.previous_ayah
+  next_ayah = @verse.next_ayah
+
+  if @access
+    actions << link_to('Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'btn btn-success')
+  end
+
+  if (prev_ayah)
+    actions << link_to('Previous ayah', arabic_transliteration_path(prev_ayah.id), class: 'btn btn-dark')
+  end
+
+  if (next_ayah)
+    actions << link_to('Next ayah', arabic_transliteration_path(next_ayah.id), class: 'btn btn-dark')
+  end
+
+  actions << link_to('Back to filter', arabic_transliterations_path, class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: "Arabic/Urdu Transliterations",
+           title: "Arabic/Urdu Transliterations - #{@verse.verse_key}",
+           key: 'arabic_transliteration',
+           actions: actions
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <div class="alert alert-info" role="alert">
+      <div class="indopak-nastaleeq quran-text mb-2">
+        <%= @verse.text_indopak_nastaleeq %>
+      </div>
+
+      <div class="indopak-nastaleeq quran-text mb-2 text-transliteration">
+        <%= render 'ayah_preview' %>
+      </div>
     </div>
 
-    <div>
-      <%= link_to 'Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'btn btn-success' %>
+    <div id="editor-wrap"
+         data-host="https://static-cdn.tarteel.ai/qul/images/page/transliteration"
+         data-page="<%= @predicted_page %>"
+         data-controller="image-zoomer">
+      <div class="form-group">
+        <%= select_tag :change_page, options_for_select(1..980, @predicted_page), class: 'form-control', data: { placeholder: 'Jump to page', controller: 'select2' } %>
+        <div class="help-block">Jump to page number</div>
+      </div>
 
-      <%= link_to 'Previous ayah', arabic_transliteration_path(@verse.id + 1), class: 'btn btn-info' %>
-      <%= link_to 'Next ayah', arabic_transliteration_path(@verse.id + 1), class: 'btn btn-info' %>
-
-      <%= link_to 'Back to filter', arabic_transliterations_path, class: 'btn btn-dark' %>
+      <canvas></canvas>
     </div>
-  </h4>
+  </div>
 
-  <div class="alert alert-info alert-dismissible" role="alert">
-    <h4 class="alert-heading">
-      Click on <span class="text-success">Contribute</span> button and update transliteration if you found any issue.
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </h4>
-
-    <div class="indopak-nastaleeq quran-text mb-2">
-      <%= @verse.text_indopak_nastaleeq %>
-    </div>
-
-    <div class="indopak-nastaleeq quran-text mb-2 text-transliteration">
-      <%
-        continuous = false
-        tag_started = false
-      %>
-
-      <% @verse.words.order('position asc').each do |w| %>
-        <% if w.arabic_transliteration&.continuous? %>
-          <% if !continuous %>
-            <% tag_started = true %>
-            <div class="word-group">
-          <% end %>
-
-          <span class="word">
-            <%= w.arabic_transliteration&.text %>
-          </span>
-        <% else %>
-          <% if tag_started %>
-            <% tag_started = false %>
-            <span class="word">
-              <%= w.arabic_transliteration&.text %>
-            </span>
-            </div>
-          <% else %>
-            <div class="word-group">
-              <span class="word">
-                <%= w.arabic_transliteration&.text %>
-              </span>
-            </div>
-          <% end %>
-        <% end %>
-
-        <% continuous = w.arabic_transliteration&.continuous? %>
-      <% end %>
-
-      <% if tag_started %>
+  <div class="page-section">
+    <div class="lead">
+      Transliteration progress
+      <div class="progress">
+        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= @verse.arabic_transliteration_progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= @verse.arabic_transliteration_progress %>%;">
+          <%= @verse.arabic_transliteration_progress %>%
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-section">
+    <h2>Words</h2>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
+      <tr>
+        <td>Word id</td>
+        <td>IndoPak</td>
+        <td>Translitetation</td>
+        <td>Continous?</td>
+        <td>Proofreading</td>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @verse.words.order('position asc').each do |word| %>
+        <tr>
+          <th scope="row"><%= word.position %></th>
+
+          <td class="quran-text indopak-nastaleeq"><%= word.arabic_transliteration&.indopak_text %></td>
+          <td class="quran-text indopak-nastaleeq">
+            <%= word.arabic_transliteration&.text %>
+          </td>
+
+          <td class="arabic">
+            <%= word.arabic_transliteration&.continuous? %>
+          </td>
+
+          <td>
+            <% if @access && word.arabic_transliteration %>
+              <%= link_to '#_', data: { url: proof_read_comments_path(resource_id: word.arabic_transliteration.id, resource: word.arabic_transliteration.class.to_s), controller: "ajax-modal" } do %>
+                <i class="fa fa-comment"></i> Comments
+              <% end %>
+            <% end %>
+          </td>
+        </tr>
       <% end %>
-    </div>
-</div>
-
-<div id="editor-wrap"
-     data-host="https://static-cdn.tarteel.ai/qul/images/page/transliteration"
-     data-page="<%= @predicted_page %>"
-     data-controller="image-zoomer">
-  <div class="form-group">
-    <%= select_tag :change_page, options_for_select(1..980, @predicted_page), class: 'form-control', data: { placeholder: 'Jump to page', controller: 'select2' } %>
-    <div class="help-block">Jump to page number</div>
+      </tbody>
+    </table>
   </div>
-
-  <canvas></canvas>
-</div>
-
-<div class="lead">
-  Transliteration progress
-  <div class="progress">
-    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= @verse.arabic_transliteration_progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= @verse.arabic_transliteration_progress %>%;">
-      <%= @verse.arabic_transliteration_progress %>%
-    </div>
-  </div>
-</div>
-
-<table class="table table-hover mt-4">
-  <thead class="position-sticky bg-white border-bottom top-0">
-  <tr>
-    <td>Word id</td>
-    <td>IndoPak</td>
-    <td>Translitetation</td>
-    <td>Continous?</td>
-    <td>Proofreading</td>
-  </tr>
-  </thead>
-
-  <tbody>
-  <% @verse.words.order('position asc').each do |word| %>
-    <tr>
-      <th scope="row"><%= word.position %></th>
-
-      <td class="quran-text indopak-nastaleeq"><%= word.arabic_transliteration&.indopak_text %></td>
-      <td class="quran-text indopak-nastaleeq">
-        <%= word.arabic_transliteration&.text %>
-      </td>
-
-      <td class="arabic">
-        <%= word.arabic_transliteration&.continuous? %>
-      </td>
-
-      <td>
-        <% if word.arabic_transliteration %>
-          <%= link_to '#_', data: { url: proof_read_comments_path(resource_id: word.arabic_transliteration.id, resource: word.arabic_transliteration.class.to_s), controller: "ajax-modal" } do %>
-            <i class="fa fa-comment"></i> Comments
-          <% end %>
-        <% end %>
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
 </div>

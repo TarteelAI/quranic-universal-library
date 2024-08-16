@@ -11,6 +11,7 @@
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #  resource_content_id :integer
+#  translation_id      :integer
 #  user_id             :integer
 #  verse_id            :integer
 #
@@ -19,6 +20,7 @@
 #  index_draft_translations_on_need_review          (need_review)
 #  index_draft_translations_on_resource_content_id  (resource_content_id)
 #  index_draft_translations_on_text_matched         (text_matched)
+#  index_draft_translations_on_translation_id       (translation_id)
 #  index_draft_translations_on_verse_id             (verse_id)
 #
 
@@ -27,7 +29,13 @@ class Draft::Translation < ApplicationRecord
   belongs_to :resource_content
   belongs_to :verse
   belongs_to :user, optional: true
-  has_many :draft_foot_notes, class_name: 'Draft::FootNote', foreign_key: 'draft_translation_id'
+  belongs_to :translation, optional: true
+  has_many :foot_notes, class_name: 'Draft::FootNote', foreign_key: 'draft_translation_id'
+  accepts_nested_attributes_for :foot_notes, allow_destroy: true
+
+  def text=(val)
+    self.draft_text = val
+  end
 
   def next_ayah_translation
     if verse_id < 6235
@@ -41,7 +49,7 @@ class Draft::Translation < ApplicationRecord
 
   def import!
     language = resource_content.language
-    translation = Translation.where(
+    translation = translation || Translation.where(
       verse_id: verse_id,
       resource_content_id: resource_content.id
     ).first_or_initialize
@@ -62,8 +70,17 @@ class Draft::Translation < ApplicationRecord
     translation.page_number = verse.page_number
 
     translation.save(validate: false)
+
+    foot_notes.each do |footnote|
+      translation_footnote = translation.foot_notes.where(id: footnote.foot_note_id).first_or_initialize
+      translation_footnote.text = footnote.draft_text
+      translation_footnote.translation = translation
+      translation_footnote.save(validate: false)
+    end
+
     translation.get_resource_content.touch
     update_columns(imported: true)
+
     translation
   end
 

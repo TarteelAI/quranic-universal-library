@@ -1,4 +1,5 @@
 class CommunityController < ApplicationController
+  DEFAULT_LANGUAGE = 164 # We're focusing on Urdu atm
   helper_method :current_language
   before_action :load_resource_access
 
@@ -6,6 +7,10 @@ class CommunityController < ApplicationController
   end
 
   def credits
+  end
+
+  def tool_help
+    render layout: false
   end
 
   def chars_info

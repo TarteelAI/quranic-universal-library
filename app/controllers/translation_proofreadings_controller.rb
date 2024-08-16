@@ -5,9 +5,9 @@ class TranslationProofreadingsController < CommunityController
 
   def show
     @translation = Translation
-                   .includes(:verse, :foot_notes)
-                   .where(resource_content_id: @resource.id)
-                   .find_by_verse_id(params[:id])
+                     .includes(:verse, :foot_notes)
+                     .where(resource_content_id: @resource.id)
+                     .find_by_verse_id(params[:id])
 
     if @translation.blank?
       return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
@@ -16,19 +16,21 @@ class TranslationProofreadingsController < CommunityController
 
   def edit
     @translation = Translation
-                   .includes(:verse, :foot_notes)
-                   .where(resource_content_id: @resource.id)
-                   .find_by_verse_id(params[:id])
+                     .includes(:verse, :foot_notes)
+                     .where(resource_content_id: @resource.id)
+                     .find_by_verse_id(params[:id])
 
     if @translation.blank?
-      return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
+      return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Translation not found"
     end
+
+    @draft_translation = @translation.build_draft
   end
 
   def update
     @translation = Translation
-                   .where(resource_content_id: @resource.id)
-                   .find_by_verse_id(params[:id])
+                     .where(resource_content_id: @resource.id)
+                     .find_by_verse_id(params[:id])
 
     if @translation.save_suggestions(translation_params, current_user)
       redirect_to translation_proofreading_path(@translation.verse.id, resource_id: @resource.id),
@@ -66,23 +68,25 @@ class TranslationProofreadingsController < CommunityController
   protected
 
   def translation_params
-    params.require(:translation).permit(
-      :text,
+    params.require(:draft_translation).permit(
+      :draft_text,
       foot_notes_attributes: %i[
         id
-        text
+        _destroy
+        draft_text
+        foot_note_id
       ]
     )
   end
 
   def find_resource
-    return  @resource if @resource
+    return @resource if @resource
 
     params[:resource_id] ||= 131
     @resource = ResourceContent.find(params[:resource_id])
   end
 
   def load_resource_access
-    @access =  can_manage?(find_resource)
+    @access = can_manage?(find_resource)
   end
 end

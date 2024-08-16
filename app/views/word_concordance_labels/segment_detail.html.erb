@@ -1,16 +1,23 @@
-<h1 class="page-header">
-  Segment <%= @word.location %>:<%= @segment.position %>
+<%
+  actions = []
+  actions << link_to('Previous Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position - 1), class: 'btn btn-dark')
+  actions << link_to('Next Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position + 1), class: 'btn btn-dark')
+  actions << link_to('Back to word', word_detail_word_concordance_label_path(@verse.id, word: @word.location), class: 'btn btn-info')
+%>
 
-  <span class=" pull-right">
-    <%= link_to 'Previous Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position - 1), class: 'btn btn-success' %>
-    <%= link_to 'Next Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position + 1), class: 'btn btn-success' %>
+<%= render 'tools/header',
+           name: "Quran corpus tool",
+           title: "Segment #{@word.location}:#{@segment.position}",
+           key: 'corpus',
+           actions: actions
+%>
 
-    <%= link_to 'Back to word', word_detail_word_concordance_label_path(@verse.id, word: @word.location), class: 'btn btn-info' %>
-    </span>
-</h1>
+<div class="page-wrapper container-lg">
+  <div class="alert alert-dark">
+    This tools is work in progress
+  </div>
 
-<div class="row">
-  <div class="col-md-12 section">
+  <div class="page-section">
     <div class="d-flex justify-content-between">
       <div>
         <b style="margin-right: 20px">Text: </b>

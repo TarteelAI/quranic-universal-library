@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_08_134403) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_16_013707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -157,7 +157,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_08_134403) do
     t.integer "true"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "foot_note_id"
     t.index ["draft_translation_id"], name: "index_draft_foot_notes_on_draft_translation_id"
+    t.index ["foot_note_id"], name: "index_draft_foot_notes_on_foot_note_id"
     t.index ["text_matched"], name: "index_draft_foot_notes_on_text_matched"
   end
 
@@ -201,9 +203,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_08_134403) do
     t.boolean "need_review"
     t.boolean "imported", default: false
     t.integer "user_id"
+    t.integer "translation_id"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_translations_on_text_matched"
+    t.index ["translation_id"], name: "index_draft_translations_on_translation_id"
     t.index ["verse_id"], name: "index_draft_translations_on_verse_id"
   end
 
@@ -438,6 +442,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_08_134403) do
     t.string "projects"
     t.text "about_me"
     t.boolean "add_to_mailing_list", default: false
+    t.integer "role", default: 5
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

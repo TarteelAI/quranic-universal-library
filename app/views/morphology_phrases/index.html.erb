@@ -1,24 +1,21 @@
+<%
+  actions = []
+
+  if @access
+    actions << link_to('New Phrase', new_morphology_phrase_path, class: 'btn btn-success', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) })
+    actions << link_to('View bookmarks', '#_', class: 'btn btn-info', data: { controller: 'phrase-ayah-bookmark' })
+  end
+
+  if params[:proofread]
+    actions << link_to('Phrase view', morphology_phrases_path, class: 'btn btn-info')
+  else
+    actions << link_to('Proofread view', morphology_phrases_path(proofread: true), class: 'btn btn-info')
+  end
+%>
+
+<%= render 'tools/header', name: 'Mutashabihat ul Quran', actions: actions, key: 'mutashabihat' %>
+
 <div class="page-wrapper container-lg transliteration">
-  <h1 class="page-header d-flex flex-column flex-md-row gap-2 align-items-center justify-content-between">
-    <span>
-      <%= @resource.name %>
-    </span>
-
-    <span>
-      <%= link_to new_morphology_phrase_path, class: 'btn btn-success', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) } do %>
-        New
-      <% end if @access %>
-
-      <%= link_to 'View bookmarks', '#_', class: 'btn btn-info', data: { controller: 'phrase-ayah-bookmark' } %>
-
-      <% if params[:proofread] %>
-        <%= link_to 'Phrase view', morphology_phrases_path, class: 'btn btn-info' %>
-      <% else %>
-        <%= link_to 'Proofread view', morphology_phrases_path(proofread: true), class: 'btn btn-info' %>
-      <% end%>
-    </span>
-  </h1>
-
   <% if params[:proofread] %>
     <%= render 'proofread_list' %>
   <% else %>

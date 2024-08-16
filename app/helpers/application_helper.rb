@@ -39,18 +39,13 @@ module ApplicationHelper
         description: "For developing and providing the DigitalKhatt fonts."
       },
       {
-        name: 'Fawaz Ahmed',
-        url: 'https://github.com/fawazahmed0',
-        description: 'For performing OCR on multiple translations.'
-      },
-      {
         name: "Ayman Siddiqui",
         url: nil,
         description: "For his amazing work on Indopak and tajweed fonts and script."
       },
       {
         name: "QuranWBW.com",
-        url: "http://quranwbw.com/",
+        url: "https://quranwbw.com/",
         description: "For providing word-by-word translations in multiple languages."
       },
       {
@@ -64,13 +59,31 @@ module ApplicationHelper
         description: "For preparing the original digitized Quran morphology data."
       },
       {
+        multiple: [
+          {
+            name: "EveryAyah.com",
+            url: "https://everyayah.com",
+          },
+          {
+            name: "QuranicAudio.com",
+            url: "https://quranicaudio.com/",
+          }
+        ],
+        description: "For collecting and providing Quran recitations from a variety of famous reciters."
+      },
+      {
+        name: 'Fawaz Ahmed',
+        url: 'https://github.com/fawazahmed0',
+        description: 'For performing OCR on multiple translations.'
+      },
+      {
         name: "GreenTech Foundation",
-        url: "http://gtaf.org",
+        url: "https://gtaf.org",
         description: "For providing Bengali tafsir and word by word translations, contributing corrections to resources, and providing word by word timestamps of Quran recitations."
       },
       {
         name: "King Fahd Quran Printing Complex",
-        url: "http://qurancomplex.gov.sa/",
+        url: "https://qurancomplex.gov.sa/",
         description: "For publishing many of the original images and fonts available in QUL, which are the same assets used to publish the physical mushaf."
       },
       {
@@ -85,28 +98,21 @@ module ApplicationHelper
       },
       {
         name: "Quran.com",
-        url: "http://quran.com",
+        url: "https://quran.com",
         description: "For serving as a gathering place for many great individuals to contribute Quran resources and discover each other."
       },
       {
-        name: "EveryAyah.com",
-        url: "http://everyayah.com",
-        description: "For collecting and providing Quran recitations from a variety of famous reciters."
-      },
-      {
-        name: "QuranicAudio.com",
-        url: "http://quranicaudio.com/",
-        description: "For collecting and providing Quran recitations from a variety of famous reciters."
-      },
-      {
-        name: "Sami Rifai",
-        url: nil,
-        description: "For providing wbw and tajweed recitations of Imam Wisam Sharieff, tajweed images and svgs."
-      },
-      {
-        name: "ReciteQuran.com",
-        url: "http://recitequran.com",
-        description: "For providing wbw and tajweed recitations of Imam Wisam Sharieff, tajweed images and svgs."
+        multiple: [
+          {
+            name: "Sami Rifai",
+            url: nil,
+          },
+          {
+            name: "ReciteQuran.com",
+            url: "https://recitequran.com",
+          }
+        ],
+        description: "For providing wbw and tajweed recitations of Imam Wisam Sharieff, tajweed images and SVGs."
       },
       {
         name: "Tanzil",

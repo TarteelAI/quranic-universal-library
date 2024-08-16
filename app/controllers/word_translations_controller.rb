@@ -1,5 +1,4 @@
 class WordTranslationsController < CommunityController
-  DEFAULT_LANGUAGE = 174 # Urdu
   before_action :authorize_access!, only: [:new, :edit, :update, :create]
 
   def index
@@ -22,13 +21,7 @@ class WordTranslationsController < CommunityController
       verses = verses.verses_with_missing_translations(language.id)
     end
 
-    order = if params[:sort_order] && params[:sort_order] == 'desc'
-              'desc'
-            else
-              'asc'
-            end
-
-    @pagy, @verses = pagy(verses.order("verse_index #{order}"))
+    @pagy, @verses = pagy(verses.order("verse_index #{sort_order}"))
   end
 
   def show

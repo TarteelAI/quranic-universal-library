@@ -1,25 +1,30 @@
+<%
+  actions = []
+
+  if @audio_file.chapter_id > 1
+  actions << link_to('Previous Surah', surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id - 1), class: 'btn btn-dark')
+  end
+
+  if @audio_file.chapter_id < 114
+    actions << link_to('Next Surah', surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id + 1), class: 'btn btn-dark')
+  end
+
+  actions << link_to('View Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id), class: 'btn btn-primary')
+  actions << link_to('Back to Index', surah_audio_files_path(id: @recitation.id), class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: 'Surah recitations',
+           title: "#{@recitation.humanize} - #{@audio_file.chapter.name_simple}",
+           key: 'surah_recitation',
+           actions: actions
+%>
+
 <div class="page-wrapper container-lg">
-  <h2 class="page-header d-flex">
-    <span class="flex-grow-1">
-      <%= @recitation.name %> For Surah <%= @audio_file.chapter.name_simple %>
-    </span>
-
-    <span>
-      <%= link_to 'Previous Surah', surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id - 1), class: 'btn btn-success' if @audio_file.chapter_id > 1 %>
-      <%= link_to 'Next Surah', surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id + 1), class: 'btn btn-success' if @audio_file.chapter_id < 114 %>
-
-      <%= link_to 'Back to Index', surah_audio_files_path(id: @recitation.id), class: 'btn btn-success' %>
-
-      <%= link_to segment_builder_surah_audio_file_path(@recitation.id, chapter_id: @audio_file.chapter_id), class: 'btn btn-primary' do %>
-        <i class="fa fa-history"></i> Fix Segments
-      <% end %>
-    </span>
-  </h2>
-
-  <div class="page-section mt-4">
-    <h3>Segments</h3>
-    <table class="table table-hover mt-4">
-      <thead>
+  <div class="page-section">
+    <h3>Segments list</h3>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
         <th><%= sort_order_link 'Verse', :verse_id, recitation_id: @recitation.id, chapter_id: params[:chapter_id] %></th>
         <th>From</th>

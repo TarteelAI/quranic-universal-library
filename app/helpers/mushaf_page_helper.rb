@@ -33,20 +33,6 @@ module MushafPageHelper
     end
   end
 
-  def group_words_lines_(words)
-    lines = {}
-
-    words.each do |w|
-      lines[w.line_number] ||= {
-        words: []
-      }
-
-      lines[w.line_number][:words] << w
-    end
-
-    lines
-  end
-
   def group_words_lines(words)
     lines = {}
 

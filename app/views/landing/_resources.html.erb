@@ -2,7 +2,7 @@
   <h4>Developer Resources</h4>
 </div>
 <div class="tools-container mt-4 gap-3 gap-md-4">
-  <% developer_resources.each do |tool| %>
+  <% featured_developer_resources.each do |tool| %>
     <a href="<%= tool.url %>">
       <div class="tool-card tool-card-with-bg <%= tool.type %>">
         <div class="overlay"></div>
@@ -20,7 +20,7 @@
         </div>
 
         <div class="icon">
-          <%= image_tag "landing/#{tool.icon}" %>
+          <%= image_tag "card-icon/#{tool.icon}" %>
         </div>
 
         <% if tool.info_tip %>

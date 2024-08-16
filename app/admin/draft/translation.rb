@@ -78,7 +78,9 @@ ActiveAdmin.register Draft::Translation do
       row :imported
 
       row :diff do
-        div Diffy::Diff.new(resource.current_text.to_s, resource.draft_text.to_s).to_s(:html).html_safe
+        div do
+          div Diffy::Diff.new(resource.current_text.to_s, resource.draft_text.to_s, include_plus_and_minus_in_html: true).to_s(:html).html_safe
+        end
       end
 
       row :verse do
@@ -109,7 +111,7 @@ ActiveAdmin.register Draft::Translation do
         end
 
         tbody do
-          resource.draft_foot_notes.each_with_index do |foot_note, index|
+          resource.foot_notes.each_with_index do |foot_note, index|
             tr do
               td link_to(foot_note.id, [:admin, foot_note])
 
@@ -121,7 +123,7 @@ ActiveAdmin.register Draft::Translation do
                 foot_note.current_text.to_s.html_safe
               end
 
-              td foot_note.text_matched?
+              td foot_note.text_matched? ? 'Yes' : 'No'
             end
           end
         end

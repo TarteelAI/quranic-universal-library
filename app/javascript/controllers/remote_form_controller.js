@@ -13,7 +13,6 @@ export default class extends Controller {
   connect() {
     this.autoClose = this.element.dataset.autoClose;
     this.disableHistoryOnSubmit = this.autoClose || this.element.dataset.disableHistory;
-
     this.form = $(this.element);
 
     this.form.attr("novalidate", "novalidate");

@@ -1,8 +1,13 @@
 class ApplicationController < ActionController::Base
   include Pagy::Backend
 
+  rescue_from ActionController::RoutingError, ::AbstractController::ActionNotFound, ActiveRecord::RecordNotFound, with: ->(exception) { render_error 404, exception }
+
   protect_from_forgery with: :exception
   before_action :set_paper_trail_whodunnit
+  def not_found
+    render 'shared/not_found'
+  end
 
   protected
   def user_for_paper_trail
@@ -35,10 +40,15 @@ class ApplicationController < ActionController::Base
   def access_denied_for_admin_resource(exception)
     redirect_to admin_root_path, alert: exception.message
   end
+
+  def render_error(_status, exception)
+    # raise exception if Rails.env.development?
+
+    render 'shared/not_found'
+  end
 end
 
 class AdminProjectAccess
   def admin_notes
-    "Be careful Mr Admin!!"
   end
 end

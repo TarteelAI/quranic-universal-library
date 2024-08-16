@@ -1,66 +1,42 @@
-<div class="page-wrapper container-lg surah-info">
-  <h1 class="page-header">
-    <%= @resource.name %> For Surah <%= @info.chapter.name_simple %>
+<%
+  actions = []
 
-    <span class=" pull-right">
-      <%= link_to 'Edit', edit_surah_info_path(@info.chapter_id, resource_id: @resource.id, language: @info.language_id), class: 'btn btn-success' %>
+  if @access
+    actions << link_to('Edit', edit_surah_info_path(@info.chapter_id, resource_id: @resource.id, language: @info.language_id), class: 'btn btn-success')
+    actions << link_to('Edit History', '#_', class: 'btn btn-info', data: { url: history_surah_info_path(@info.chapter_id, resource_id: @resource.id, language: @info.language_id), controller: "ajax-modal" })
+  end
 
-      <%= link_to 'Previous Surah', surah_info_path(@info.chapter_id - 1, resource_id: @resource.id, language: @info.language_id), class: 'btn btn-success' if @info.chapter_id > 1 %>
-      <%= link_to 'Next Surah', surah_info_path(@info.chapter_id + 1, resource_id: @resource.id, language: @info.language_id), class: 'btn btn-success' if @info.chapter_id < 114 %>
+  if @info.chapter_id > 1
+    actions << link_to('Previous Surah', surah_info_path(@info.chapter_id - 1, resource_id: @resource.id, language: @info.language_id), class: 'btn btn-dark')
+  end
 
-      <%= link_to 'Back to Index', surah_infos_path(language: @info.language_id), class: 'btn btn-info' %>
+  if @info.chapter_id < 114
+    actions << link_to('Next Surah', surah_info_path(@info.chapter_id + 1, resource_id: @resource.id, language: @info.language_id), class: 'btn btn-dark')
+  end
 
-      <% if @access %>
-        <%= link_to '#_', class: 'btn btn-primary', data: {url: history_surah_info_path(@info.chapter_id, resource_id: @resource.id, language: @info.language_id), controller: "ajax-modal"} do %>
-          <i class="fa fa-history"></i> Edit History
-       <% end %>
-      <% end %>
-    </span>
-  </h1>
+  actions << link_to('Back to Index', surah_infos_path(language: @info.language_id), class: 'btn btn-info')
+%>
 
-  <div class="callout alert alert-dismissible" role="alert">
-    <div class="row">
-      <div class="col-md-12">
-        <div id="ayah_text" style="font-size: 30px; margin-top: 10px">
-          <% if (source = @resource.data_source) %>
-            This info was fetch from
-            <%= source.name %> - <%= source.url %>
-          <% end %>
-        </div>
-      </div>
+<%= render 'tools/header',
+           name: 'Surah Information',
+           title: "#{@resource.name} For Surah #{@info.chapter.name_simple}",
+           key: 'surah_info',
+           actions: actions
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <h2>Short text</h2>
+    <div lang=<%= @language.iso_code %>>
+      <%= @info.short_text.presence || 'N/A' %>
     </div>
   </div>
 
-  <div class="page-section mt-4">
-    <h2 class="callout callout-success">Short text</h2>
-
-    <div class="row">
-      <div class="col-md-12 section">
-        <div id="ayah_text" style="font-size: 30px; margin-top: 10px" dir="<%= @language.direction %>">
-          <%= @info.short_text.presence || 'N/A' %>
-        </div>
-      </div>
-    </div>
-
-    <h2 class="my-3 callout callout-success">Full Surah info</h2>
-
-    <div class="row">
-      <div class="col-md-12 section">
-        <div id="ayah_text" style="font-size: 30px; margin-top: 10px" dir="<%= @language.direction %>" class="<%= @language.iso_code %>">
-          <%= @info.text.to_s.html_safe %>
-        </div>
-      </div>
+  <div class="page-section">
+    <h2>Full Surah info</h2>
+    <div lang=<%= @language.iso_code %>>
+      <%= @info.text.to_s.html_safe %>
     </div>
   </div>
 </div>
-
-<script>
-  $("[data-toggle='ajax-modal']").on("click", (event)=> {
-      event.preventDefault();
-      let target = $(event.currentTarget);
-      let url = target.data("url");
-
-      new AjaxModal().loadModal(url)
-  })
-</script>
 

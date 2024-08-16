@@ -87,3 +87,9 @@ application.register("image-zoomer", ImageZoomerController)
 
 import ResourceSearchController  from "./resource_search_controller";
 application.register("resource-search", ResourceSearchController);
+
+import TranslationFootnoteController from "./translation_footnote_controller";
+application.register("translation-footnote", TranslationFootnoteController);
+
+import PageTitleController from './page_title_controller';
+application.register("page-title", PageTitleController);

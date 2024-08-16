@@ -49,19 +49,37 @@ class Translation < QuranApiRecord
   belongs_to :verse
   belongs_to :language
   has_many :foot_notes
+  has_many :draft_translations, class_name: 'Draft::Translation'
 
-  accepts_nested_attributes_for :foot_notes
   after_update :touch_resource_content_timestamp
 
   def self.text_search(query)
     where "translations.text ilike ?", "%#{query}%"
   end
 
+  def build_draft
+    draft = draft_translations.build
+    draft.current_text = text
+    draft.draft_text = text
+    draft.verse = verse
+    draft.resource_content_id = resource_content_id
+
+    foot_notes.each do |foot_note|
+      draft.foot_notes.build(
+        current_text: foot_note.text,
+        draft_text: foot_note.text,
+        resource_content_id: resource_content_id,
+        foot_note: foot_note
+      )
+    end
+
+    draft
+  end
+
   def save_suggestions(params, user)
-    draft_translation = Draft::Translation.new
+    draft_translation = Draft::Translation.new(params)
     draft_translation.resource_content_id = resource_content_id
     draft_translation.current_text = text
-    draft_translation.draft_text = params[:text]
     draft_translation.text_matched = draft_translation.draft_text == text
     draft_translation.verse = verse
     draft_translation.need_review = true

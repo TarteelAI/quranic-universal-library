@@ -1,0 +1,214 @@
+<%= set_page_title 'Page not found' %>
+<%
+  list = Verse.where('words_count < 30').order('random()').includes(:chapter).first(4)
+  verse = list.sample
+
+  options = list.map do |v|
+    {
+      id: v.id,
+      name: "Surah #{v.chapter.name_simple} : #{v.verse_number}"
+    }
+  end
+
+  options.shuffle!
+%>
+<script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+
+<style>
+    .not-found {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .quiz-wrapper {
+        max-width: 800px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        position: relative;
+    }
+
+    h3 {
+        margin-bottom: 20px;
+        color: #e63946;
+    }
+
+    .quiz {
+        margin-top: 30px;
+        font-size: 1.1rem;
+    }
+
+    .options {
+        display: flex;
+        justify-content: left;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .option-button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+    }
+
+    .option-button:hover {
+        background-color: #0056b3;
+    }
+
+    .result {
+        margin-top: 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .shake {
+        animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+        0% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-10px);
+        }
+        50% {
+            transform: translateX(10px);
+        }
+        75% {
+            transform: translateX(-10px);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+</style>
+<div class="not-found overflow-auto py-5">
+  <div class="quiz-wrapper">
+    <h3 class="my-3">Sorry, the page you are looking for does not exist.</h3>
+    <div>
+      Let's turn this detour into a chance to learn more about the Quran!
+    </div>
+    <div>Guess the Surah name and Ayah number.</div>
+    <div class="quiz">
+      <div id="partial-ayah" class="qpc-hafs alert alert-info">
+        <%= verse.text_qpc_hafs %>
+      </div>
+
+      <div class="options gap-2" id="options">
+        <% options.each do |option| %>
+          <button class="option-button" onclick="checkAnswer(<%= option[:id] %>)">
+            <%= option[:name] %>
+          </button>
+        <% end %>
+      </div>
+
+      <div class="result" id="result">
+        <div class="text-danger d-none" id="incorrect-message">
+          Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
+          <a class='text-danger' href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tatreel
+            app here</a> to test and improve your memorization.
+        </div>
+
+        <div class="d-none text-success" id="correct-message">
+          Correct! MashaAllah, you got it right. Download
+          <a href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tarteel app</a> to
+          memorize more.
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-5">Go back to <a href="/">homepage</a>.</p>
+    <canvas id="my-canvas"></canvas>
+  </div>
+
+  <script>
+    const correctAyah = <%= verse.id %>;
+
+    function checkAnswer(id) {
+      if (id == correctAyah) {
+        document.querySelector('#incorrect-message').classList.add('d-none');
+        document.querySelector('#correct-message').classList.remove('d-none');
+        document.querySelector('#options').classList.add('d-none');
+        showConfetti();
+      } else {
+        document.querySelector('#correct-message').classList.add('d-none');
+        document.querySelector('#incorrect-message').classList.remove('d-none');
+        document.querySelector('#incorrect-message').classList.add('shake');
+
+        setTimeout(() => {
+          document.querySelector('#incorrect-message').classList.remove('shake');
+        }, 500)
+      }
+    }
+
+    function showConfetti() {
+      const count = 200,
+        defaults = {
+          origin: {y: 0.7},
+        };
+
+      function fire(particleRatio, opts) {
+        confetti(
+          Object.assign({}, defaults, opts, {
+            particleCount: Math.floor(count * particleRatio),
+          })
+        );
+      }
+
+      fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+      });
+
+      fire(0.2, {
+        spread: 60,
+      });
+
+      fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8,
+      });
+
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        scalar: 1.2,
+      });
+
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
+      });
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 300,
+          spread: 80,
+          origin: {y: 0.6},
+        })
+      }, 1000)
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 1000,
+          spread: 80,
+          origin: {y: 0.6},
+        })
+      }, 2000)
+    }
+  </script>
+</div>

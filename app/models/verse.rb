@@ -118,11 +118,11 @@ class Verse < QuranApiRecord
   end
 
   def next_ayah
-    Verse.where(chapter_id: chapter_id, verse_number: verse_number + 1).first
+    Verse.where(verse_index: verse_index + 1).first
   end
 
   def previous_ayah
-    Verse.where(chapter_id: chapter_id, verse_number: verse_number - 1).first
+    Verse.where(verse_index: verse_index - 1).first
   end
 
   def self.verses_with_no_arabic_translitration

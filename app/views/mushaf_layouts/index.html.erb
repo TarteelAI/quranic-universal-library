@@ -1,13 +1,17 @@
-<div class="page-wrapper container-lg transliteration">
-  <h1 class="page-header">
-    <%= @resource ? @resource.name : 'Select Mushaf' %>
-  </h1>
+<%= render 'tools/header',
+           name: 'Mushaf layouts',
+           key: 'mushaf_layout'
+%>
 
-  <figure class="highlight mt-4">
-    <table class="table table-hover mt-4">
-      <thead>
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <h2>Mushaf list</h2>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
-        <th>Id</th>
+        <th>
+          <%= sort_order_link 'Id', :id %>
+        </th>
         <th>Name</th>
         <th>Pages</th>
         <th>Lines per page</th>
@@ -18,7 +22,7 @@
       </thead>
 
       <tbody>
-      <% Mushaf.find_each do |m| %>
+      <% @mushafs.each do |m| %>
         <tr>
           <td>
             <%= link_to m.id, mushaf_layout_path(m.id) %>
@@ -29,15 +33,16 @@
           <td><%= m.default_font_name %></td>
           <td><%= m.qirat_type&.name %></td>
           <td>
-            <%= link_to 'Proofread', mushaf_layout_path(m.id, source_pdf: true), class: 'mr-2 btn btn-warning btn-sm' %>
-            <%= link_to 'Fix line align', mushaf_layout_path(m.id, page_alignment: true), class: 'btn btn-warning btn-sm' %>
-
+            <%= link_to 'Proofread', mushaf_layout_path(m.id, source_pdf: true), class: 'mr-2 btn btn-info btn-sm' %>
+            <% if can?(:manage, m) %>
+              <%= link_to 'Fix line align', mushaf_layout_path(m.id, page_alignment: true), class: 'btn btn-info btn-sm' %>
+            <% end %>
           </td>
         </tr>
       <% end %>
       </tbody>
     </table>
-  </figure>
+  </div>
 </div>
 
 

@@ -1,20 +1,25 @@
+<%
+  actions = []
+  if @verse.id > 1
+    actions << link_to('Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark')
+  end
+  if @verse.id < 6236
+    actions << link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark')
+  end
+  actions << link_to('Back to filter', word_text_proofreadings_path, class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: "Quran scripts",
+           title: "Proofread script amd fonts compatibility for #{@verse.chapter.name_simple} - #{@verse.verse_number}",
+           key: 'quran_script',
+           actions: actions
+%>
+
 <%= render 'shared/page_font', verses: [@verse] %>
 
 <div class="page-wrapper container-lg">
-  <h1 class="page-header flex-between">
-    <div>
-      Word by Word Script of Ayah <%= @verse.verse_key %>
-    </div>
-
-    <span>
-      <%= link_to 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark' if @verse.id > 1 %>
-      <%= link_to 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark' if @verse.id < 6236 %>
-
-      <%= link_to 'Back to filter', word_text_proofreadings_path, class: 'btn btn-success' %>
-    </span>
-  </h1>
-
-  <div class="border p-3">
+  <div class="page-section">
     <div class="row">
       <div class="col-md-12 section pb-3 border-bottom">
         <b>QPC Nastaleeq</b>
@@ -37,7 +42,7 @@
       <div class="col-md-12 section pb-3 border-bottom">
         <b>Indopak</b>
 
-        <div class="indopak quran-text"  style="margin-top: 10px">
+        <div class="indopak quran-text" style="margin-top: 10px">
           <%= @verse.text_indopak %>
         </div>
       </div>
@@ -45,7 +50,7 @@
       <div class="col-md-12 section pb-3 border-bottom">
         <b>Uthmani</b>
 
-        <div class="me_quran quran-text"  style="margin-top: 10px">
+        <div class="me_quran quran-text" style="margin-top: 10px">
           <%= @verse.text_uthmani %>
         </div>
       </div>
@@ -53,7 +58,7 @@
       <div class="col-md-12 section pb-3 border-bottom">
         <b>Digital Khatt</b>
 
-        <div class="quran-text digitalkhatt"  style="margin-top: 10px">
+        <div class="quran-text digitalkhatt" style="margin-top: 10px">
           <%= @verse.text_digital_khatt %>
         </div>
       </div>
@@ -91,20 +96,21 @@
       <div class="col-md-12 section pb-3 border-bottom">
         <b>Image</b>
         <div style="margin-top: 10px" class="quran-text">
-          <img src=<%= @verse.image_url.gsub("//", "http://") %> />
+          <img src=<%= @verse.image_url.gsub("//", "http://") %>/>
         </div>
       </div>
     </div>
   </div>
 
-  <div data-controller="mushaf-page" class="mushaf-wrapper">
+  <div data-controller="mushaf-page" class="mushaf-wrapper page-section mb-3">
+    <h2>Words</h2>
     <div style="width: 100%;margin: 0 5px;text-align: center;direction: ltr;font-size: 20px">
-      Font size: <input type="range" min="15" max="100" value="30" class="font-size-slider">
+      Font size:
+      <input type="range" min="15" max="100" value="30" class="font-size-slider">
     </div>
 
     <table class="table table-hover mt-4 table-bordered">
-      <thead>
-
+      <thead class="position-sticky bg-white border-bottom top-0">
       <tr class="position-sticky bg-white border-bottom top-0">
         <td>ID</td>
         <td style="direction: rtl">IndoPak</td>
@@ -122,11 +128,13 @@
         <td style="direction: rtl">V2</td>
       </tr>
       </thead>
-
       <tbody>
       <% @verse.words.order('position asc').each do |word| %>
         <tr class="quran-text">
-          <td><%= link_to word.id, [:admin, word], target: '_blank' %></td>
+          <td>
+            <%= link_to( word.id, [:admin, word], target: '_blank') %>
+          </td>
+
           <td class="indopak char">
             <%= word.text_indopak %>
           </td>
@@ -180,20 +188,16 @@
     </table>
   </div>
 
-  <div>
-   <span class=" pull-right">
-     <%= link_to 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-success' if @verse.id > 1 %>
-     <%= link_to 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-success' if @verse.id < 6236 %>
-
-     <%= link_to 'Back to filter', word_text_proofreadings_path, class: 'btn btn-success' %>
-    </span>
+  <div class="d-flex justify-content-end gap-2">
+     <%= link_to( 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark') if @verse.id > 1 %>
+     <%= link_to( 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < 6236 %>
+     <%= link_to( 'Back to filter', word_text_proofreadings_path, class: 'btn btn-info') %>
   </div>
 </div>
 
 <script>
-    addEventListener('click', e => {
-        const node = e.target;
-        navigator.clipboard.writeText(node.textContent);
-        console.log(node.textContent, ' copied to clipboard')
-    }, false);
+  addEventListener('click', e => {
+    const node = e.target;
+    navigator.clipboard.writeText(node.textContent);
+  }, false);
 </script>

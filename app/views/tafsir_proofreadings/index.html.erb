@@ -1,15 +1,11 @@
+<%= render 'tools/header',
+           name: "Ayah tafsir",
+           title: @resource.name,
+           key: 'ayah_tafsir'
+%>
+
 <div class="page-wrapper container-lg transliteration">
-  <h1 class="page-header">
-    <%= @resource.name %>
-  </h1>
-
-  <p class="lead">
-    Use filters to find tafisrs you're looking for, click on <code>Edit</code> button to fix any issue in tafisr.
-  </p>
-
-  <div class="page-section mt-4">
-    <div class="filters row">
-      <div class="col-12">
+  <div class="page-section filters">
         <%= form_tag tafsir_proofreadings_path, method: :get, class: 'd-flex' do %>
           <div class="form-group me-2">
             <%= select_tag :resource_id, options_from_collection_for_select(@tafsir_list, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select', data: {placeholder: 'Select tafisr', controller: 'select2'} %>
@@ -35,13 +31,12 @@
             <%= submit_tag 'Filter', class: 'btn btn-primary', data: {disable_with: 'Please wait..'} %>
           </div>
         <% end %>
-      </div>
-    </div>
   </div>
 
-  <figure class="highlight mt-4">
-    <table class="table table-hover mt-4">
-      <thead>
+  <div class="page-section mt-4">
+    <h2>Tafsir</h2>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
         <th><%= sort_order_link 'Id', :id, resource_id: @resource.id %></th>
         <th>Resource</th>
@@ -92,5 +87,5 @@
       </tr>
       </tbody>
     </table>
-  </figure>
+  </div>
 </div>

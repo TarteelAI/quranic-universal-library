@@ -1,42 +1,37 @@
-<div class="page-wrapper container-lg transliteration">
-  <h1 class="page-header">
-    Arabic/Urdu Transliterations
-  </h1>
+<%= render 'tools/header',
+           name: 'Arabic/Urdu Transliterations',
+           key: 'arabic_transliteration'
+%>
 
-  <p class="lead">
-    User filters to find ayah you're looking for, click on <code>Contribute</code> button to add transliteration for
-    specific ayah.
-  </p>
-
-  <div class="page-section mt-4">
-    <div class="filters row">
-      <div class="col-lg-12">
-        <%= form_tag arabic_transliterations_path, method: :get, class: 'd-flex' do %>
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah' } %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
-
-          <div class="form-group me-2">
-            <%= select_tag :filter_verse, options_for_select(1..114, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah' } %>
-            <p class="form-text">Filter by Ayah</p>
-          </div>
-
-          <div class="form-group me-2">
-            <%= select_tag :filter_progress, options_for_select([['Ayah with missing transliteration', 'missing'], ['Ayah with full transliteration', 'completed'], ['All ayah', 'all']], params[:filter_progress]), class: 'form-select', data: { placeholder: 'Filter by progress' } %>
-            <p class="form-text">Filter by Ayah progress</p>
-          </div>
-
-          <div class="form-group">
-            <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
-          </div>
-        <% end %>
+<div class="page-wrapper container-lg">
+  <div class="page-section filters">
+    <%= form_tag arabic_transliterations_path, method: :get, class: 'd-flex' do %>
+      <div class="form-group me-2">
+        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah' } %>
+        <p class="form-text">Filter by Surah</p>
       </div>
-    </div>
-  </div>
 
-  <figure class="highlight mt-4">
-    <table class="table table-hover mt-4">
+      <div class="form-group me-2">
+        <%= select_tag :filter_verse, options_for_select(1..114, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah' } %>
+        <p class="form-text">Filter by Ayah</p>
+      </div>
+
+      <div class="form-group me-2">
+        <%= select_tag :filter_progress, options_for_select([['Ayah with missing transliteration', 'missing'], ['Ayah with full transliteration', 'completed'], ['All ayah', 'all']], params[:filter_progress]), class: 'form-select', data: { placeholder: 'Filter by progress' } %>
+        <p class="form-text">Filter by Ayah progress</p>
+      </div>
+
+      <div class="form-group">
+        <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <h2>Ayah list</h2>
+    <table class="table table-hover">
       <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
         <th><%= sort_order_link 'Ayah key', :verse_key %></th>
@@ -77,7 +72,7 @@
       </tr>
       </tbody>
     </table>
-  </figure>
+  </div>
 </div>
 
 

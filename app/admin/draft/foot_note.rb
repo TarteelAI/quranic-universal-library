@@ -44,7 +44,7 @@ ActiveAdmin.register Draft::FootNote do
     end
   end
 
-  form do |f|
+  form data: {turbo: false} do |f|
     f.inputs 'Footnote detail' do
       f.input :draft_text
       f.input :draft_translation_id

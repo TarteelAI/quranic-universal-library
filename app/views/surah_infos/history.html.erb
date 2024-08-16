@@ -1,11 +1,11 @@
-<div id=title>
+<div id="title">
   Edit history for Surah <%= @info.chapter.name_simple %> <%= @info.language_name %> info
 </div>
 
-<div id=body>
+<div id="body">
   <div class="modal-body">
     <table class="table table-bordered">
-      <thead>
+      <thead class="position-sticky bg-white border-bottom top-0">
       <th>Date</th>
       <th>Event</th>
       <th>User</th>
@@ -19,9 +19,11 @@
           <td>
             <%= version.created_at.strftime("%B %d, %Y at %I:%M %P") %>
           </td>
+
           <td>
             <%= version.event %>
           </td>
+
           <td>
             <%= whodunnit version %>
           </td>

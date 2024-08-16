@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   root to: 'landing#home'
 
   get 'tools', to: 'community#tools', as: :tools
+  get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
   get 'svg', to: 'community#svg_optimizer'
   get 'credits', to: 'community#credits', as: :credits
@@ -73,4 +74,7 @@ Rails.application.routes.draw do
       get :changes
     end
   end
+
+  match '/404', to: 'application#not_found', via: :all
+  match '*unmatched', to: 'application#not_found', via: :all
 end

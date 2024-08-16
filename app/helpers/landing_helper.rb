@@ -137,7 +137,7 @@ module LandingHelper
     ]
   end
 
-  def developer_tools
+  def featured_developer_tools
     [
       ToolCard.new(
         title: 'Surah audio segments',
@@ -196,7 +196,7 @@ module LandingHelper
     ]
   end
 
-  def developer_resources
+  def featured_developer_resources
     [
       ToolCard.new(
         title: 'Download Quran Translation',

@@ -1,49 +1,54 @@
+<%
+  actions = []
+  verse = @translation.verse
+  previous_ayah = verse.previous_ayah
+  next_ayah = verse.next_ayah
+
+  if @access
+    actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+  end
+
+  if previous_ayah
+    actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  end
+  if next_ayah
+    actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  end
+
+  actions << link_to('Back to filter', translation_proofreadings_path(resource_id: @resource.id), class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: "Ayah translation",
+           title: "#{@resource.name} - #{@translation.verse.verse_key}",
+           key: 'ayah_translation',
+           actions: actions
+%>
+
 <div class="page-wrapper container-lg">
-  <h1 class="page-header">
-    <%= @resource.name %> - <%= @translation.verse.verse_key %>
+  <div class="page-section">
+    <h2>Translation for <%= verse.verse_key %></h2>
 
-    <span class=" pull-right">
-      <%= link_to 'Edit', edit_translation_proofreading_path(@translation.verse_id, resource_id: @resource.id), class: 'btn btn-success' if @access %>
+    <div id="ayah_text" style="font-size: 30px; margin-top: 10px"
+         class="<%= @translation.language_name %>"
+         data-controller="translation-footnote"
+    >
+      <%= @translation.text.to_s.html_safe %>
+    </div>
 
-      <%= link_to 'Previous ayah', translation_proofreading_path(@translation.verse.id - 1, resource_id: @resource.id), class: 'btn btn-success' %>
-      <%= link_to 'Next ayah', translation_proofreading_path(@translation.verse.id + 1, resource_id: @resource.id), class: 'btn btn-success' %>
-      <%= link_to 'Back to filter', translation_proofreadings_path(resource_id: @resource.id), class: 'btn btn-success' %>
-      <%= link_to "https://beta.quran.com/#{@translation.verse.verse_key}?translations=#{@resource.id}", class: 'btn btn-primary', target: '_blank' do %>
-        <i class="fa fa-external-link"></i> Preview
-      <% end %>
-    </span>
-  </h1>
-
-  <div class="callout alert alert-dismissible" role="alert">
-    <div class="row">
-      <div class="col-md-12 section">
-        <b>Translation</b>
-        <div id="ayah_text" style="font-size: 30px; margin-top: 10px" class="<%= @translation.language_name %>">
-          <%= @translation.text.to_s.html_safe %>
-        </div>
-      </div>
-
-      <div class="col-md-12 section">
-        <b>Foot notes</b>
-
+    <% if @translation.foot_notes.present? %>
+      <div class="mt-3">
+        <h2>Foot notes</h2>
         <% @translation.foot_notes.each do |foot_note| %>
           <div style="font-size: 30px;margin-top: 10px">
             <strong><%= foot_note.id %></strong>
-            <p class="<%= @translation.language_name %>">
-            <%= foot_note.text.to_s.html_safe %>
-            </p>
+            <div class="<%= @translation.language_name %>">
+              <%= foot_note.text.to_s.strip.html_safe %>
+            </div>
           </div>
         <% end %>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>
-
-<script>
-    $(function () {
-        $("sup").each( (i, dom) => {
-            $(dom).append(`(${dom.getAttribute('foot_note')})`)
-        })
-    })
-</script>
 

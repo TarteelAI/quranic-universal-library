@@ -20,96 +20,103 @@
   uniq_chars = chars.uniq
 %>
 
+<%= render 'tools/header',
+           name: "Unicode checker",
+           title: "Tool to show unicode value and names for character",
+           key: 'char'
+%>
+
 <div class="page-wrapper container-lg" data-controller="chars-info">
-  <h1 class="page-header">
-    Enter text below to see the detail of each character
-  </h1>
+  <div class="page-section">
 
-  <div class="row">
-    <div class="col-md-12">
-      <%= form_with url: chars_info_path, method: "get" do |form| %>
-        <div class="form-group mb-3">
-          <%= form.label :text, 'Enter text' %>
-          <%= form.text_area :text, value: params[:text], class: "form-control text" %>
-        </div>
+    <div class="row">
+      <div class="col-md-12">
+        <%= form_with url: chars_info_path, method: "get" do |form| %>
+          <div class="form-group mb-3">
+            <%= form.label :text, 'Enter text' %>
+            <%= form.text_area :text, value: params[:text], class: "form-control text" %>
+          </div>
 
-        <div class="form-group">
-          <%= form.label :script, 'Select font' %>
-          <% scripts_options = scripts.map do |s| [s, s] end %>
-          <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "form-control" %>
-        </div>
+          <div class="form-group">
+            <%= form.label :script, 'Select font' %>
+            <% scripts_options = scripts.map do |s|
+              [s, s]
+            end %>
+            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "form-control" %>
+          </div>
 
-        <div class="form-group d-flex mt-2">
-          <%= form.submit "Submit", class: "btn btn-success" %>
-        </div>
-      <% end %>
+          <div class="form-group d-flex mt-2">
+            <%= form.submit "Submit", class: "btn btn-success" %>
+          </div>
+        <% end %>
+      </div>
     </div>
-  </div>
 
-  <div class="row my-4 sticky">
-    <div class="col-12">
-      <div class="d-flex flex-column mb-4">
-        <div>
-          Font size:(<span id="font-size"></span>)
-          <input type="range" min="15" max="100" value="28" class="font-size-slider">
-        </div>
+    <div class="row my-4 sticky">
+      <div class="col-12">
+        <div class="d-flex flex-column mb-4">
+          <div>
+            Font size:(<span id="font-size"></span>)
+            <input type="range" min="15" max="100" value="28" class="font-size-slider">
+          </div>
 
-        <div id=font-switcher>
-          <label for="font-switcher">
-            Change font
-          </label>
+          <div id=font-switcher>
+            <label for="font-switcher">
+              Change font
+            </label>
 
-          <%= select_tag :change_font, options_for_select(all_quran_fonts, 'qpc-hafs') %>
+            <%= select_tag :change_font, options_for_select(all_quran_fonts, 'qpc-hafs') %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <% if uniq_chars.present? %>
-      <p class="char">
-        <%= text %>
-      </p>
-    <% end %>
-
-    <table class="table table-hover mt-4">
-      <thead>
-      <tr class="sticky">
-        <th>#</th>
-        <th style="width: 100px">Name</th>
-        <th>Char</th>
-        <th>Count</th>
-        <th>Decimal</th>
-        <th>HTML entity</th>
-        <th>Hexa</th>
-        <th>Link</th>
-      </tr>
-      </thead>
-      <tbody>
-      <% uniq_chars.each_with_index do |char, i| %>
-        <tr>
-          <%
-            hex = char.ord.to_s(16).rjust(4, '0')
-            decimal = char.ord
-          %>
-          <td><%= i + 1 %></td>
-          <td><%= Unicode::Name.of(char) %></td>
-          <td data-text="<%= char -%>"
-              title="Copy <%= char %>"
-              data-controller="tooltip copy-to-clipboard"
-              class="char"
-          >
-            <%= char %>
-          </td>
-          <td><%= chars.count char %></td>
-          <td><%= decimal %></td>
-          <td><%= "&##{decimal};" %></td>
-          <td><%= hex %></td>
-          <td><%= link_to hex, "https://www.compart.com/en/unicode/U+#{hex}", target: '_blank' %></td>
-        </tr>
+    <div class="section">
+      <% if uniq_chars.present? %>
+        <p class="char">
+          <%= text %>
+        </p>
       <% end %>
-      </tbody>
-    </table>
+
+      <table class="table table-hover">
+        <thead class="position-sticky bg-white border-bottom top-0">
+        <tr class="sticky">
+          <th>#</th>
+          <th style="width: 100px">Name</th>
+          <th>Char</th>
+          <th>Count</th>
+          <th>Decimal</th>
+          <th>HTML entity</th>
+          <th>Hexa</th>
+          <th>Link</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% uniq_chars.each_with_index do |char, i| %>
+          <tr>
+            <%
+              hex = char.ord.to_s(16).rjust(4, '0')
+              decimal = char.ord
+            %>
+            <td><%= i + 1 %></td>
+            <td><%= Unicode::Name.of(char) %></td>
+            <td data-text="<%= char -%>"
+                title="Copy <%= char %>"
+                data-controller="tooltip copy-to-clipboard"
+                class="char"
+            >
+              <%= char %>
+            </td>
+            <td><%= chars.count char %></td>
+            <td><%= decimal %></td>
+            <td><%= "&##{decimal};" %></td>
+            <td><%= hex %></td>
+            <td><%= link_to hex, "https://www.compart.com/en/unicode/U+#{hex}", target: '_blank' %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

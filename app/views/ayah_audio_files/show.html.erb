@@ -1,25 +1,29 @@
+<%
+  actions = []
+  if @chapter.id > 1
+    actions << link_to('Previous Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'btn btn-dark')
+  end
+
+  if @chapter.id < 114
+    actions << link_to('Next Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'btn btn-dark')
+  end
+
+  actions << link_to('View Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id), class: 'btn btn-primary')
+  actions << link_to('Back to Index', ayah_audio_files_path(id: @recitation.id), class: 'btn btn-success')
+%>
+
+<%= render 'tools/header',
+           name: 'Ayah recitations',
+           title: "#{@recitation.name} - Surah #{@chapter.name_simple}",
+           key: 'ayah_recitation',
+           actions: actions
+%>
+
 <div class="page-wrapper container-lg">
-  <h2 class="page-header d-flex align-items-center justify-content-between">
-    <div>
-      <%= @recitation.name %> For Surah <%= @chapter.name_simple %>
-    </div>
-
-    <div>
-      <%= link_to 'Previous Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'btn btn-success' if @chapter.id > 1 %>
-      <%= link_to 'Next Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'btn btn-success' if @chapter.id < 114 %>
-
-      <%= link_to 'Back to Index', ayah_audio_files_path(id: @recitation.id), class: 'btn btn-success' %>
-
-      <%= link_to segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id), class: 'btn btn-primary' do %>
-        Fix Segments
-      <% end %>
-    </div>
-  </h2>
-
-  <div class="page-section mt-4">
+  <div class="page-section">
     <h3>Segments</h3>
-    <table class="table table-hover mt-4">
-      <thead>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
         <th><%= sort_order_link 'Verse', :verse_number, id: @recitation.id %></th>
         <th>Duration</th>

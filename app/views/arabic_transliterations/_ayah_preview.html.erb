@@ -1,0 +1,37 @@
+<%
+  continuous = false
+  tag_started = false
+
+  tab_end = "</div>".html_safe
+%>
+
+<% @verse.words.order('position asc').each do |w| %>
+  <% if w.arabic_transliteration&.continuous? %>
+    <% if !continuous %>
+      <% tag_started = true %>
+      <div class="word-group">
+    <% end %>
+
+    <span class="word">
+      <%= w.arabic_transliteration&.text %>
+    </span>
+  <% else %>
+    <% if tag_started %>
+      <% tag_started = false %>
+      <span class="word">
+        <%= w.arabic_transliteration&.text %>
+      </span>
+      <%= tab_end %>
+    <% else %>
+      <div class="word-group">
+        <span class="word">
+          <%= w.arabic_transliteration&.text %>
+        </span>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% continuous = w.arabic_transliteration&.continuous? %>
+<% end %>
+
+<%= tab_end if tag_started %>

@@ -1,46 +1,66 @@
-<div class="page-wraper">
-  <h1 class="page-header">
-    <%= @language.name %> - Word by Word data of ayah: <%= @verse.verse_key %>
+<%
+  actions = []
+  next_ayah = @verse.next_ayah
+  previous_ayah = @verse.previous_ayah
 
-    <span class=" pull-right">
-      <%= link_to 'Contribute', new_word_translation_path(ayah: @verse.id, language: params[:language]), class: 'btn btn-success' %>
-      <%= link_to 'Previous ayah', word_translation_path(@verse.id - 1, language: params[:language]), class: 'btn btn-success' %>
-      <%= link_to 'Next ayah', word_translation_path(@verse.id + 1, language: params[:language]), class: 'btn btn-success' %>
-      <%= link_to 'Back to filter', word_translations_path(language: params[:language]), class: 'btn btn-success' %>
-    </span>
-  </h1>
+  if @access
+    actions << link_to('Contribute', new_word_translation_path(ayah: @verse.id, language: params[:language]), class: 'btn btn-success')
+  end
 
-  <div class="callout alert alert-dismissible" role="alert">
-    <h2>
-      Click on <code>Contribute</code> button and update data if you found any issue.
-    </h2>
+  if previous_ayah
+    actions << link_to('Previous ayah', word_translation_path(previous_ayah.id, language: params[:language]), class: 'btn btn-dark')
+  end
 
-    <div class="row">
-      <b>Text Uthmani:</b>
-      <p class="madani"> <%= @verse.text_uthmani %></p>
-    </div>
+  if next_ayah
+    actions << link_to('Next ayah', word_translation_path(next_ayah.id, language: params[:language]), class: 'btn btn-dark')
+  end
 
-    <% @verse.translations.each do |trans| %>
-      <div class="row">
-        <b><%= trans.resource_name %>:</b> <br/>
+  actions << link_to('Back to filter', word_translations_path(language: params[:language]), class: 'btn btn-info')
+%>
 
-        <p class="<%= trans.language_name %> %>"> <%= trans.text.html_safe %></p>
+<%= render 'tools/header',
+           name: "Word translation proofreading",
+           title: "#{@language.name} word-by-word translation for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
+           key: 'word_translation',
+           actions: actions
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <div class="alert alert-info" role="alert">
+      <div>
+        <b>Text Uthmani:</b>
+        <div class="qpc-hafs"> <%= @verse.text_qpc_hafs %></div>
       </div>
-    <% end %>
-  </div>
-</div>
 
-<div class="lead">
-  <%
-    progress = @verse.word_translation_progress(@language.id)
-  %>
+      <% @verse.translations.each do |trans| %>
+        <div>
+          <b><%= trans.resource_name %>:</b> <br/>
 
-  Proofreading progress
-  <div class="progress">
-    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">
-      <%= progress %>%
+          <div class="<%= trans.language_name %>">
+            <%= trans.text.html_safe %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="lead">
+      <%
+        progress = @verse.word_translation_progress(@language.id)
+      %>
+
+      Translation progress
+      <div class="progress">
+        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">
+          <%= progress %>%
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<%= render 'table' %>
+
+  <div class="page-section">
+    <h2>Word list with translation</h2>
+    <%= render 'table' %>
+  </div>
+</div>

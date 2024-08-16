@@ -61,10 +61,10 @@ a.tool-card-with-bg {
     width: 100%;
   }
 
-  &.segments, &.recitation {
+  &.segments, &.recitation, &.card-recitations {
    background-image: url("tools-cards/timestamp.webp");
   }
-  &.mushaf-layout, &.page-layout {
+  &.mushaf-layout, &.page-layout, &.card-mushaf-layouts {
     backdrop-filter: brightness(1.2);
     background-image: linear-gradient(rgba(245, 222, 179, 0.3), rgba(0, 0, 0, 0.5)), url("tools-cards/mushaf-layout.webp");
   }

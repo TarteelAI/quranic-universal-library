@@ -69,7 +69,7 @@ module ToolsHelper
         icon: 'open_book.svg',
         tags: ['Quran script', 'Fonts'],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool enables you to proofread Quran script and rendering in various fonts, examining it both ayah by ayah and word by word. Ensure that the script is accurately rendered and consistent across different fonts.",
+        info_tip: "This tool enables you to proofread Quran script( For Tashkeel issues and font compatibility), both ayah by ayah and word by word.",
         ),
       ToolCard.new(
         title: 'Surah Info in different languages',
@@ -79,17 +79,17 @@ module ToolsHelper
         icon: 'timestamp.svg',
         tags: ['Surah info'],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: ""
+        info_tip: "This tool allow you to proofread Surah info in different languages."
       ),
       ToolCard.new(
-        title: 'Arabic/Urdu word by word transliteration',
+        title: 'Arabic/Urdu syllable of Quran words',
         description: 'Transliteration of each word of Quran in Arabic and Urdu.',
         url: arabic_transliterations_path,
         type: 'corpus',
         tags: ['Transliteration', 'Arabic', 'Word by word'],
         icon: 'qaf.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: ""
+        info_tip: "This tool allow you to prepare Arabic transliterations(syllable)."
       ),
       ToolCard.new(
         title: 'Word by word translation',
@@ -99,7 +99,7 @@ module ToolsHelper
         tags: ['Translation', 'Word by word'],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: ""
+        info_tip: "This tool is used to proofread and fix word-by-word translations"
       ),
       ToolCard.new(
         title: 'Concordance labeling of each word',
@@ -109,7 +109,7 @@ module ToolsHelper
         tags: ['Corpus', 'Grammar', 'POS', 'Morphology'],
         icon: 'tags.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: ""
+        info_tip: "This tool is used to tag part of speech, grammar of each word of Quran."
       ),
       ToolCard.new(
         title: 'Text unicode value',
@@ -119,7 +119,7 @@ module ToolsHelper
         tags: ['Letter info'],
         icon: 'info.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: ""
+        info_tip: "This tool helps you detect unicode value of any character, and is being used to debug the font issues."
       )
     ]
   end

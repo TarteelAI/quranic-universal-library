@@ -70,7 +70,7 @@
 
     <div class='card-container gap-4'>
       <% @resources.each do |resource| %>
-        <div class="resource-card tool-card-with-bg pattern<%= patterns.sample %>" data-search="<%= resource.name.downcase %> <%= resource.resource_type.downcase %> <%= resource.tags.to_s.downcase %> <%= resource.humanize_cardinality_type.downcase %>">
+        <div class="resource-card tool-card-with-bg pattern<%= patterns.sample %>" data-search="<%= resource.to_s.downcase %> <%= resource.resource_type.to_s.downcase %> <%= resource.tags.to_s.downcase %> <%= resource.humanize_cardinality_type.to_s.downcase %>">
           <div class="p-4 h-100 d-flex flex-column justify-content-between">
             <div class="text-white">
               <h3 class="mb-0">

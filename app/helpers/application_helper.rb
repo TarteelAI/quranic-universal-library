@@ -39,6 +39,11 @@ module ApplicationHelper
         description: "For developing and providing the DigitalKhatt fonts."
       },
       {
+        name: 'Fawaz Ahmed',
+        url: 'https://github.com/fawazahmed0',
+        description: 'For performing OCR on multiple translations.'
+      },
+      {
         name: "Ayman Siddiqui",
         url: nil,
         description: "For his amazing work on Indopak and tajweed fonts and script."
@@ -82,11 +87,6 @@ module ApplicationHelper
         name: "Quran.com",
         url: "http://quran.com",
         description: "For serving as a gathering place for many great individuals to contribute Quran resources and discover each other."
-      },
-      {
-        name: 'Mustafa',
-        url: 'https://github.com/mustafa0x/',
-        description: 'For providing the dataset for the Quranic Arabic Corpus.'
       },
       {
         name: "EveryAyah.com",

@@ -26,12 +26,5 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 32px;
-  }
-
-  @media (max-width: 768px) {
-    .links {
-      gap:4px;
-    }
   }
 }

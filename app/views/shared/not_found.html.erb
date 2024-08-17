@@ -11,7 +11,10 @@
   end
 
   options.shuffle!
+  reg_ayah_number = /[١٢٣٤٥٦٧٨٩٠۩ۤ۞]+/
+  tarteel_link = 'https://tarteel.go.link/?adj_t=1foxrfdy&adj_engagement_type=fallback_click&adj_fallback=https%3A%2F%2Fwww.tarteel.ai&adj_redirect_macos=https%3A%2F%2Fwww.tarteel.ai'
 %>
+
 <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
 
 <style>
@@ -103,7 +106,7 @@
     <div>Guess the Surah name and Ayah number.</div>
     <div class="quiz">
       <div id="partial-ayah" class="qpc-hafs alert alert-info">
-        <%= verse.text_qpc_hafs %>
+        <%= verse.text_qpc_hafs.gsub(reg_ayah_number, '') %>
       </div>
 
       <div class="options gap-2" id="options">
@@ -117,13 +120,13 @@
       <div class="result" id="result">
         <div class="text-danger d-none" id="incorrect-message">
           Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
-          <a class='text-danger' href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tatreel
+          <a class='text-danger' href="<%= tarteel_link %>" target="_blank">Tatreel
             app here</a> to test and improve your memorization.
         </div>
 
         <div class="d-none text-success" id="correct-message">
           Correct! MashaAllah, you got it right. Download
-          <a href="https://tarteel.go.link/?adj_t=1d1pgcav&adj_engagement_type=qul" target="_blank">Tarteel app</a> to
+          <a href="<%= tarteel_link %>" target="_blank">Tarteel app</a> to
           memorize more.
         </div>
       </div>

@@ -173,6 +173,14 @@
       border-radius: 24px;
       position: relative;
 
+      @media (max-width: $screen-sm) {
+        min-height: 370px;
+      }
+
+      @media (max-width: $screen-md) {
+        min-height: 400px;
+      }
+
       a {
         text-decoration: none;
         color: white;

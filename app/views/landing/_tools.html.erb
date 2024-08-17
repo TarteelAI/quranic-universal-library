@@ -45,7 +45,7 @@
     <a href="<%= tool.url %>">
       <div class="resource-card tool-card tool-card-with-bg position-relative pattern<%= patterns.sample %>">
         <div class="overlay"></div>
-        <div class="p-3 h-100 d-flex flex-column justify-content-between">
+        <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between">
           <div>
             <h5>
               <%= tool.title %>
@@ -54,10 +54,10 @@
             <p class="info">
               <%= tool.description %>
             </p>
-          </div>
 
-          <div class="cta" style="background: <%= tool.cta_bg %>; width: 105px">
-            <span>Learn more</span>
+            <div class="cta" style="background: <%= tool.cta_bg %>; width: 105px">
+              <span>Learn more</span>
+            </div>
           </div>
 
           <div class="icon">

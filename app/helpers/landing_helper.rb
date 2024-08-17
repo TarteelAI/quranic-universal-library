@@ -24,7 +24,6 @@ module LandingHelper
         url: '/resources/mushaf-layout',
         count: total_layout,
         type: 'card-mushaf-layouts',
-        # TODO: once all layout are approved, stats will looks weird. Fix the messaging
         stats: "<div><div>#{approved_layout} Layouts —  Approved</div><div>#{total_layout - approved_layout} Layouts —  WIP</div></div>"
       )
     ]
@@ -56,7 +55,7 @@ module LandingHelper
         type: 'tafsirs',
         stats: "<div><div>#{tafisrs.mukhtasar_tafisr.count} Mukhtasar tafsirs</div><div>#{tafisrs.count - tafisrs.mukhtasar_tafisr.count} Detailed tafsirs</div></div>"
       ),
-      #TODO: use font/text svg and update stats
+      # TODO: use font/text svg and update stats
       ToolCard.new(
         title: "Quran script and fonts",
         description: "Download Quran text and fonts, Madani, IndoPak etc.",
@@ -75,7 +74,7 @@ module LandingHelper
         count: ResourceContent.quran_metadata.count,
         stats: "<div><div>Total resources</div></div>"
       ),
-      #TODO: update bg and svg
+      # TODO: update bg and svg
       ToolCard.new(
         title: "Transliteration",
         description: "Download transliteration data to read the Quranic text in Latin script.",
@@ -138,6 +137,7 @@ module LandingHelper
   end
 
   def featured_developer_tools
+=begin
     [
       ToolCard.new(
         title: 'Surah audio segments',
@@ -194,9 +194,13 @@ module LandingHelper
         info_tip: "This tool enables you to proofread Quran script and rendering in various fonts, examining it both ayah by ayah and word by word. Ensure that the script is accurately rendered and consistent across different fonts.",
       )
     ]
+=end
+
+    developer_tools.first(8)
   end
 
   def featured_developer_resources
+=begin
     [
       ToolCard.new(
         title: 'Download Quran Translation',
@@ -247,5 +251,7 @@ module LandingHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       )
     ]
+=end
+    featured_downloadable_resource_cards + downloadable_resource_cards.first(5)
   end
 end

@@ -6,7 +6,7 @@
   options = list.map do |v|
     {
       id: v.id,
-      name: "Surah #{v.chapter.name_simple} : #{v.verse_number}"
+      name: "Surah #{v.chapter.name_simple}: #{v.verse_number}"
     }
   end
 
@@ -19,18 +19,17 @@
 
 <style>
     .not-found {
-        font-family: Arial, sans-serif;
         background-color: #f4f4f4;
         color: #333;
         display: flex;
         justify-content: center;
         align-items: center;
         text-align: center;
+        min-height: calc(100% - 170px);
     }
 
     .quiz-wrapper {
         max-width: 800px;
-        padding: 20px;
         background-color: #fff;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
@@ -43,15 +42,10 @@
     }
 
     .quiz {
-        margin-top: 30px;
         font-size: 1.1rem;
     }
 
     .options {
-        display: flex;
-        justify-content: left;
-        margin-top: 20px;
-        flex-wrap: wrap;
     }
 
     .option-button {
@@ -97,43 +91,44 @@
         }
     }
 </style>
-<div class="not-found overflow-auto py-5">
-  <div class="quiz-wrapper">
-    <h3 class="my-3">Sorry, the page you are looking for does not exist.</h3>
-    <div>
-      Let's turn this detour into a chance to learn more about the Quran!
-    </div>
-    <div>Guess the Surah name and Ayah number.</div>
-    <div class="quiz">
-      <div id="partial-ayah" class="qpc-hafs alert alert-info">
-        <%= verse.text_qpc_hafs.gsub(reg_ayah_number, '') %>
+<div class="not-found overflow-auto py-4">
+  <div class="container-lg d-flex justify-content-center">
+    <div class="quiz-wrapper p-4">
+      <h3 class="my-3">Sorry, the page you are looking for does not exist.</h3>
+      <div>
+        Let's turn this detour into a chance to learn more about the Quran!
       </div>
-
-      <div class="options gap-2" id="options">
-        <% options.each do |option| %>
-          <button class="option-button" onclick="checkAnswer(<%= option[:id] %>)">
-            <%= option[:name] %>
-          </button>
-        <% end %>
-      </div>
-
-      <div class="result" id="result">
-        <div class="text-danger d-none" id="incorrect-message">
-          Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
-          <a class='text-danger' href="<%= tarteel_link %>" target="_blank">Tatreel
-            app here</a> to test and improve your memorization.
+      <div>Guess the Surah name and Ayah number.</div>
+      <div class="quiz mt-4">
+        <div id="partial-ayah" class="qpc-hafs alert alert-info">
+          <%= verse.text_qpc_hafs.gsub(reg_ayah_number, '') %>
         </div>
 
-        <div class="d-none text-success" id="correct-message">
-          Correct! MashaAllah, you got it right. Download
-          <a href="<%= tarteel_link %>" target="_blank">Tarteel app</a> to
-          memorize more.
+        <div class="d-grid d-md-flex justify-content-center options gap-2 mt-4" id="options">
+          <% options.each do |option| %>
+            <button class="option-button" onclick="checkAnswer(<%= option[:id] %>)">
+              <%= option[:name] %>
+            </button>
+          <% end %>
+        </div>
+
+        <div class="result" id="result">
+          <div class="text-danger d-none" id="incorrect-message">
+            Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
+            <a class='text-danger' href="<%= tarteel_link %>" target="_blank">Tatreel
+              app here</a> to test and improve your memorization.
+          </div>
+
+          <div class="d-none text-success" id="correct-message">
+            Correct! MashaAllah, you got it right. Download
+            <a href="<%= tarteel_link %>" target="_blank">Tarteel app</a> to
+            memorize more.
+          </div>
         </div>
       </div>
-    </div>
 
-    <p class="mt-5">Go back to <a href="/">homepage</a>.</p>
-    <canvas id="my-canvas"></canvas>
+      <p class="mt-4">Go back to <a href="/" class="text-dark">homepage</a>.</p>
+    </div>
   </div>
 
   <script>

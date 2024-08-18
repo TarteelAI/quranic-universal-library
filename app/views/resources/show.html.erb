@@ -33,7 +33,7 @@
   </div>
 
   <div class="container-lg">
-    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mt-4">
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mt-4 mt-md-5">
       <h2>
         <%= @resources.first.group_info %>
       </h2>
@@ -67,7 +67,7 @@
   </div>
 
 
-  <div class="mt-4 resources-list container-lg">
+  <div class="mt-3 resources-list container-lg">
     <%= render 'shared/page_font', verses: [@preview_verse] if is_quran_script %>
 
     <div class="card-container gap-4">

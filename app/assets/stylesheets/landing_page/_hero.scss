@@ -1,11 +1,11 @@
 .hero {
   background-color: #000;
-  //margin: 0px 15px 0px 15px;
   border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ebebeb;
+  overflow: hidden;
 
   /*@media (max-width: 640px) {
     background-image: url("landingbackground.png");
@@ -22,7 +22,6 @@
   }
 
   .hero-message {
-    margin: 25px 0px 25px 0px;
     display: flex;
     overflow: hidden;
 

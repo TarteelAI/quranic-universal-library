@@ -19,10 +19,13 @@
   padding: 0;
   margin: 0;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 
   @media (min-width: $screen-md) {
-    display: flex;
     text-align: start;
+    justify-content: start;
   }
 
   .breadcrumb-link {

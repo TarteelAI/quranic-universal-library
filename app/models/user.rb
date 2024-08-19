@@ -19,7 +19,6 @@
 #  last_sign_in_at        :datetime
 #  last_sign_in_ip        :inet
 #  locked_at              :datetime
-#  projects               :string
 #  remember_created_at    :datetime
 #  reset_password_sent_at :datetime
 #  reset_password_token   :string
@@ -55,11 +54,11 @@ class User < ApplicationRecord
   after_create :send_welcome_email
 
   enum role: {
-    super_admin: 1,
+    normal_user: 0,
+  super_admin: 1,
     admin: 2,
     moderator: 3,
     contributor: 4,
-    normal_user: 5
   }, _prefix: 'is'
 
   def super_admin?

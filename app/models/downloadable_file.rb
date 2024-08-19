@@ -7,6 +7,7 @@
 #  file_type                :string
 #  name                     :string
 #  position                 :integer          default(1)
+#  published                :boolean          default(TRUE)
 #  token                    :string
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null

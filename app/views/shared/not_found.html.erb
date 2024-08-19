@@ -1,15 +1,17 @@
 <%
   tarteel_link = 'https://tarteel.go.link/?adj_t=1foxrfdy&adj_engagement_type=fallback_click&adj_fallback=https%3A%2F%2Fwww.tarteel.ai&adj_redirect_macos=https%3A%2F%2Fwww.tarteel.ai'
 %>
-<div class="quiz-container overflow-auto py-5 px-3">
-  <div class="box">
-    <div>
-      <h3 class="text-danger">Sorry, the page you are looking for does not exist.</h3>
-      Let's turn this detour into a chance to learn more about the Quran!
-    </div>
 
-    <% activities = ['ayah_mastery', 'complete_the_ayah'] %>
-    <%= render "learning_activities/#{activities.sample}" %>
+<div class="quiz-container overflow-auto py-4">
+  <div class="container-lg d-flex justify-content-center">
+    <div class="box">
+      <div>
+        <h3 class="text-danger">Sorry, the page you are looking for does not exist.</h3>
+        Let's turn this detour into a chance to learn more about the Quran!
+      </div>
+
+      <% activities = ['ayah_mastery', 'complete_the_ayah'] %>
+      <%= render "learning_activities/#{activities.sample}" %>
 
       <div class="result my-5" id="quiz-result">
         <div class="text-danger d-none" id="incorrect-message">
@@ -26,10 +28,11 @@
         </div>
       </div>
 
-      <div class="more-activities my-2 d-none">
+      <div class="more-activities d-flex justify-content-center gap-2 mt-4 d-none">
         <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: '/ayah/1:1', css_class: 'modal-lg', use_turbo: true} %>
         <%= link_to 'Try another', url_for, class: 'btn btn-outline-dark me-3' %>
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
       </div>
+    </div>
   </div>
 </div>

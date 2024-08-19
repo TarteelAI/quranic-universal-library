@@ -9,7 +9,7 @@
   .box {
     max-width: 800px;
     min-height: 400px;
-    min-width: 600px;
+    //min-width: 600px;
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -17,8 +17,10 @@
     position: relative;
   }
 
-  .heading{
-
+  @media (max-width: $screen-sm) {
+    .more-activities{
+     flex-direction: column;
+    }
   }
 
   .quiz {

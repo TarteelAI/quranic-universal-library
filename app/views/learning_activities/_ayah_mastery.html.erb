@@ -10,7 +10,7 @@
     <%= data[:text] %>
   </div>
 
-  <div class="options gap-2 mb-3" id="options">
+  <div class="d-grid d-md-flex justify-content-center options gap-2 mt-4" id="options">
     <% data[:options].each do |option| %>
       <button class="btn btn-info option" data-correct="<%= option[:correct] %>">
         <%= option[:name] %>

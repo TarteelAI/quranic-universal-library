@@ -1,0 +1,111 @@
+.quiz-container {
+  background-color: #f4f4f4;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  .box {
+    max-width: 800px;
+    min-height: 400px;
+    //min-width: 600px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative;
+  }
+
+  @media (max-width: $screen-sm) {
+    .more-activities{
+     flex-direction: column;
+    }
+  }
+
+  .quiz {
+    margin-top: 30px;
+  }
+
+  .options {
+    display: flex;
+    justify-content: left;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .result {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+
+  .shake {
+    animation: shake 0.5s;
+  }
+
+  .word-box, .blank-box {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    border: 1px solid $success;
+    border-radius: 4px;
+    min-width: 50px;
+    min-height: 50px;
+    text-align: center;
+  }
+
+  .blank-box {
+    background-color: #f8f9fa;
+    border-color: $danger;
+    cursor: pointer;
+
+    &.correct{
+      border-color: $success;
+    }
+  }
+
+  .draggable-word {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    border: 1px solid $success;
+    background-color: $success;
+    color: white;
+    border-radius: 4px;
+    cursor: grab;
+  }
+
+  .sortable-ghost{
+    background: #fff;
+    border-style: dotted !important;
+    color: $success;
+    opacity: 0.7;
+  }
+
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-10px);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+    75% {
+      transform: translateX(-10px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+}
+
+
+
+
+
+
+
+

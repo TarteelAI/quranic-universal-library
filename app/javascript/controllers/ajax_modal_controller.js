@@ -31,9 +31,10 @@ export default class extends Controller {
     $(".round-card.popup").remove();
 
     let target = $(e.currentTarget);
-    let url = target.data("url");
-    let classes = target.data("class");
-    this.createModel(classes);
+    const url = target.data('url')
+    const {useTurbo, cssClass} = e.currentTarget.dataset;
+
+    this.createModel(cssClass);
     $("#ajax-modal").show()
 
     $("#ajax-modal").on("hidden.bs.modal", function (e) {
@@ -43,9 +44,17 @@ export default class extends Controller {
     });
 
     if (url) {
-      fetch(url).then(response => response.text()).then(content => {
-        const response = $("<div>").html(content);
-        this.setContent(response.find("#title").html(), response.find("#body").html())
+      const options = {
+        method: 'GET',
+      }
+
+      if (useTurbo) {
+        options.headers = {
+          Accept: "text/vnd.turbo-stream.html"
+        }
+      }
+      fetch(url, options).then(response => response.text()).then(content => {
+        this.setResponse(content, useTurbo)
       }).catch(err => {
         if (401 == err.status) {
           that.dialog.find(".modal-body").html(
@@ -65,6 +74,17 @@ export default class extends Controller {
     el.querySelector('#modal-body').innerHTML = body;
   }
 
+  setResponse(content, useTurbo) {
+    if (useTurbo) {
+      const el = $(this.modal._element);
+      el.find('#modal-content').html(content);
+      //Turbo.renderStreamMessage(content)
+    } else {
+      const response = $("<div>").html(content);
+      this.setContent(response.find("#title").html(), response.find("#body").html())
+    }
+  }
+
   createModel(classes) {
     if ($("#ajax-modal").length > 0) {
       $("#ajax-modal").remove();
@@ -73,8 +93,8 @@ export default class extends Controller {
 
     let modal = `<div class="modal fade" id="ajax-modal" aria-hidden="true" tabIndex="-1">
       <div class="modal-dialog modal-dialog-centered ${classes}">
-        <div class="modal-content">
-          <div class="modal-header">
+        <div class="modal-content" id="modal-content">
+          <div class="modal-header" id="modal-header">
             <h5 class="modal-title" id="title">Loading</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>

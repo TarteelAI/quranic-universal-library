@@ -21,10 +21,11 @@ QUL is implemented using Ruby on Rails, and Active Admin for implementing the ad
 This guide will help you set up the QUL project on your local machine. Follow the steps below to get started.
 
 ### Prerequisites
-- **Ruby**: Version 3.0.5
+- **Ruby**: Version 3.3.3
 - **Rails**: Version 7.0.3
 - **RVM or rbenv**: For managing Ruby versions
-- **PostgreSQL**: Version 14.3 or higher
+- **PostgreSQL**:  14.3 or higher
+- **Redis**: 7.0.0 or higher
 
 #### 1. Clone the repository
 ```bash
@@ -32,10 +33,10 @@ git clone git@github.com:TarteelAI/quranic-universal-library.git
 cd quranic-universal-library
 ```
 
-#### 2. Install Ruby
+#### 2. Install Ruby and setup environment
 ```bash
-rvm install 3.0.5
-rvm use 3.0.5
+rvm install 3.3.3
+rvm use 3.3.3
 rvm gemset create qul
 rvm gemset use qul
 ```
@@ -60,9 +61,9 @@ bundle install
 ```
 
 #### 5. Setup Database
-*This application connects to two databases:*
-- Quran Data Database(`quran_dev`): Holds Quran-related data.
-- User Management Database(`quran_community_tarteel`): This database store the users info, their permissions and stores all content changes.
+*QUL needs two databases:*
+- `quran_dev`: Database for storing Quranic data
+- `quran_community_tarteel`: This database store the users info, permissions and all user generated data.
 
 #### 6. Create Databases
 Create database for managing user content.
@@ -71,20 +72,26 @@ rails db:create
 rails db:migrate
 rails db:seed
 ```
-For Quran related data, you'll need to create the database manually then import the [dump file](https://quran-assets.tarteel.ai/cms/quran_data.sql.zip).
+For Quran related data, you'll need to create the database manually then import this [dump file](https://quran-assets.tarteel.ai/cms/quran_data.sql.zip).
 
-#### 7. Run the Application
+### 7. Run the pending migrations
+```ruby
+rails db:migrate
+```
+
+#### 8. Run the Application
 ```bash
 bin/dev
 ```
 
-You can now visit http://localhost:3000 in your browser to see the application. Visit http://localhost:3000/admin to access the admin panel.
+You can now visit http://localhost:3000 in your browser to see the application.
+Visit http://localhost:3000/admin to access the admin panel.
 
 #### Contributing
 
 We welcome contributions from the community! If you'd like to contribute to this project, please follow these steps:
 
-1. Fork the repository.
+1. Fork the repository and clone it.
 2. Create a new branch (git checkout -b feature-branch).
 3. Make your changes.
 4. Commit your changes (git commit -m 'Add some feature').

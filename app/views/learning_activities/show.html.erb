@@ -1,17 +1,11 @@
 <%
   tarteel_link = 'https://tarteel.go.link/?adj_t=1foxrfdy&adj_engagement_type=fallback_click&adj_fallback=https%3A%2F%2Fwww.tarteel.ai&adj_redirect_macos=https%3A%2F%2Fwww.tarteel.ai'
 %>
-
-<div class="quiz-container overflow-auto py-4">
-  <div class="container-lg d-flex justify-content-center">
-    <div class="box">
-      <div>
-        <h3 class="text-danger">Sorry, the page you are looking for does not exist.</h3>
-        Let's turn this detour into a chance to learn more about the Quran!
-      </div>
-
-      <% activities = ['ayah_mastery', 'complete_the_ayah'] %>
-      <%= render "learning_activities/#{activities.sample}" %>
+<div class="quiz-container overflow-auto py-5 px-3">
+  <div class="box">
+    <% if valid_activity?(params[:id]) %>
+      <%= set_page_title "#{params[:id].humanize} - Quranic quiz" %>
+      <%= render params[:id] %>
 
       <div class="result my-5" id="quiz-result">
         <div class="text-danger d-none" id="incorrect-message">
@@ -33,6 +27,27 @@
         <%= link_to 'Try another', url_for, class: 'btn btn-outline-dark me-3' %>
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
       </div>
-    </div>
+    <% else %>
+      <div class="alert alert-warning">
+        This activity does not exist, try one from list below instead?
+      </div>
+
+      <ol class="list-group text-start">
+        <% learning_activities.each do |activity| %>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">
+                <%= activity.title %>
+              </div>
+              <%= activity.description %>
+            </div>
+
+            <span>
+              <%= link_to 'Try', activity.url, class: 'btn btn-success' %>
+            </span>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
   </div>
 </div>

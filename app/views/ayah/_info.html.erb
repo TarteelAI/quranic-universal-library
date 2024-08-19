@@ -1,0 +1,36 @@
+<div class="modal-body" id="modal-body">
+  <ul class="nav nav-tabs nav-tabs-clean" id="ayahTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="ayah-tab" data-bs-toggle="tab" data-bs-target="#ayah" type="button" role="tab" aria-controls="ayah" aria-selected="true">Ayah</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="translations-tab" data-bs-toggle="tab" data-bs-target="#translations" type="button" role="tab" aria-controls="translations" aria-selected="false">Translations</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tafsirs-tab" data-bs-toggle="tab" data-bs-target="#tafsirs" type="button" role="tab" aria-controls="tafsirs" aria-selected="false">Tafsirs</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab" aria-controls="words" aria-selected="false">Words</button>
+    </li>
+  </ul>
+
+  <div class="tab-content p-4" id="ayahTabsContent">
+    <div class="tab-pane fade show active" id="ayah" role="tabpanel" aria-labelledby="ayah-tab">
+      <div class="qpc-hafs">
+        <%= @ayah.text_qpc_hafs %>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="translations" role="tabpanel" aria-labelledby="translations-tab">
+      <h4>WIP</h4>
+    </div>
+
+    <div class="tab-pane fade" id="tafsirs" role="tabpanel" aria-labelledby="tafsirs-tab">
+      <h4>WIP</h4>
+    </div>
+
+    <div class="tab-pane fade" id="words" role="tabpanel" aria-labelledby="words-tab">
+      <h4>WIP</h4>
+    </div>
+  </div>
+</div>

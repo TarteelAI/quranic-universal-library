@@ -1,0 +1,20 @@
+<%
+  data = generate_ayah_mastery_quiz
+  verse = data[:verse]
+%>
+
+<h2 class="heading my-3">Guess the Surah name and Ayah number.</h2>
+
+<div class="quiz" data-controller="activities--ayah-mastery" data-ayah="<%= verse.verse_key %>">
+  <div class="qpc-hafs alert alert-info mb-3">
+    <%= data[:text] %>
+  </div>
+
+  <div class="d-grid d-md-flex justify-content-center options gap-2 mt-4" id="options">
+    <% data[:options].each do |option| %>
+      <button class="btn btn-info option" data-correct="<%= option[:correct] %>">
+        <%= option[:name] %>
+      </button>
+    <% end %>
+  </div>
+</div>

@@ -61,6 +61,7 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :delete
   resources :proof_read_comments
   resources :word_translations, except: :delete
@@ -75,6 +76,7 @@ Rails.application.routes.draw do
     end
   end
 
+  get '/ayah/:key', to: 'ayah#show', as: :ayah
   match '/404', to: 'application#not_found', via: :all
   match '*unmatched', to: 'application#not_found', via: :all
 end

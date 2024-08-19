@@ -1,0 +1,23 @@
+<div class="modal-header" id="modal-header">
+  <div class="modal-title flex-between flex-grow-1">
+    <div class="d-flex flex-column">
+        <div>
+          <strong><%= @ayah.chapter.name_simple %></strong> <span class="badge bg-primary">Ayah <%= @ayah.verse_number %></span>
+        </div>
+
+        <div style="margin-top: -8px">
+          <small class="text-muted">
+            <%= @ayah.chapter.translated_names.english.first.name %>
+          </small>
+        </div>
+    </div>
+
+    <div>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key), class: 'btn btn-sm btn-dark' if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key), class: 'btn btn-sm btn-dark' if @ayah.next_ayah %>
+    </div>
+  </div>
+
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+

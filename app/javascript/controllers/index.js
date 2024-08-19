@@ -82,9 +82,6 @@ application.register("remote-form", RemoteFormController)
 import ImageZoomerController from "./image_zoomer_controller.js"
 application.register("image-zoomer", ImageZoomerController)
 
-//import SplineViewerController  from "./spline_viewer_controller";
-//application.register("spline-viewer", SplineViewerController);
-
 import ResourceSearchController  from "./resource_search_controller";
 application.register("resource-search", ResourceSearchController);
 
@@ -93,3 +90,11 @@ application.register("translation-footnote", TranslationFootnoteController);
 
 import PageTitleController from './page_title_controller';
 application.register("page-title", PageTitleController);
+
+import FillTheBlankController from './activities/fill_the_blanks_controller';
+application.register("activities--fill-in-blank", FillTheBlankController);
+
+import AyahMasteryController from './activities/ayah_mastery_controller';
+application.register("activities--ayah-mastery", AyahMasteryController);
+
+

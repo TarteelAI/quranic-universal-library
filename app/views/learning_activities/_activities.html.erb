@@ -1,0 +1,42 @@
+<%
+  patterns = (1..10).to_a
+  cta_bg = 'rgba(56, 165, 126, 0.9);'
+%>
+
+<div class="mt-4 resources-list container-lg">
+  <div class='card-container gap-4'>
+    <% learning_activities.each do |tool| %>
+      <a href="<%= tool.url %>">
+        <div class="resource-card tool-card tool-card-with-bg position-relative pattern<%= patterns.sample %>">
+          <div class="overlay"></div>
+          <div class="p-2 h-100 d-flex flex-column justify-content-between">
+            <div>
+              <h3>
+                <%= tool.title %>
+              </h3>
+              <p>
+                <%= tool.description %>
+              </p>
+            </div>
+
+            <div class="cta text-center" style="background: <%= tool.cta_bg || cta_bg %>; width: 105px">
+              <span>Let's go</span>
+            </div>
+
+            <div class="icon">
+              <%= image_tag "card-icon/#{tool.icon}" %>
+            </div>
+
+            <div>
+              <% tool.tags.each do |tag| %>
+                <span class="badge <%= resource_tag_class(tag.strip) %>">
+                  <%= tag %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </a>
+    <% end %>
+  </div>
+</div>

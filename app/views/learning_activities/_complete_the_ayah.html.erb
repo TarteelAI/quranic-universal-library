@@ -1,0 +1,36 @@
+<%
+  data = generate_complete_the_ayah_quiz
+  verse = data[:verse]
+  words = data[:words]
+  words_to_show = data[:words_to_show]
+  remaining_words = data[:remaining_words]
+%>
+
+<h2 class="heading my-3">
+  Click or drag and drop the missing words to compete the ayah.
+</h2>
+
+<div class="quiz" data-controller="activities--fill-in-blank" data-ayah="<%= verse.verse_key %>">
+  <div class="qpc-hafs  alert alert-info mb-3 d-flex flex-wrap">
+    <% words.each do |word| %>
+      <% if words_to_show.include?(word) %>
+        <span class="word-box qpc-hafs">
+          <%= word.text_qpc_hafs %>
+        </span>
+      <% else %>
+        <span class="blank-box"
+              data-word-id="<%= word.id %>">
+        </span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="options gap-2 mb-3" id="options">
+    <% remaining_words.each do |word| %>
+      <div class="draggable-word qpc-hafs"
+           data-word-id="<%= word.id %>">
+        <%= word.text_qpc_hafs %>
+      </div>
+    <% end %>
+  </div>
+</div>

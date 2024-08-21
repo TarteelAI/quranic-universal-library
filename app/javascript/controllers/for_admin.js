@@ -44,3 +44,6 @@ application.register("peity", PeityController)
 
 import AdminPageController from "./admin_page_controller.js"
 application.register("admin-page", AdminPageController)
+
+import TogglePasswordController from './toggle_password_controller';
+application.register("toggle-password", TogglePasswordController);

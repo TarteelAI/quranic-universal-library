@@ -20,7 +20,7 @@ ActiveAdmin.register User do
         last_name_cont: term,
         email_cont: term,
         m: 'or'
-        ).result
+      ).result
     end
   )
 
@@ -95,7 +95,12 @@ ActiveAdmin.register User do
       f.input :first_name
       f.input :last_name
       f.input :email
-      f.input :password, required: false
+
+      f.input :password, required: false, input_html: {
+        data: {
+          controller: 'toggle-password'
+        }
+      }
 
       if current_user.super_admin?
         f.input :approved

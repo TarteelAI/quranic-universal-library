@@ -3,6 +3,7 @@ user.first_name = "Admin"
 user.last_name = "User"
 user.confirmed_at = Date.today
 user.password  = "cms-password"
-user.confirmed_at = Date.today
 user.approved=true
+user.role = "super_admin"
+user.skip_confirmation!
 user.save

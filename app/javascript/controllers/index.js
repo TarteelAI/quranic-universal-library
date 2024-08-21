@@ -91,6 +91,9 @@ application.register("translation-footnote", TranslationFootnoteController);
 import PageTitleController from './page_title_controller';
 application.register("page-title", PageTitleController);
 
+import TogglePasswordController from './toggle_password_controller';
+application.register("toggle-password", TogglePasswordController);
+
 import FillTheBlankController from './activities/fill_the_blanks_controller';
 application.register("activities--fill-in-blank", FillTheBlankController);
 

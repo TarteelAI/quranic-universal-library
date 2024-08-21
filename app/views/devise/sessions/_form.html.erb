@@ -13,8 +13,8 @@
     </div>
   </div>
 
-  <div class="form-floating mb-3">
-    <%= f.password_field :password, class: 'form-control', placeholder: 'enter your password', required: true, minlength: 6 %>
+  <div class="form-floating mb-3 password">
+    <%= f.password_field :password, class: 'form-control', placeholder: 'enter your password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
     <%= f.label :password, required: true %>
 
     <div class="invalid-feedback">

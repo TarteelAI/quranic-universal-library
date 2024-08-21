@@ -15,11 +15,17 @@ body {
 @import "tool_cards";
 @import "resource_show";
 
-
 .qul-tag {
   font-family: Inter;
   font-size: 10px;
   display: flex;
   flex-direction: column;
   line-height: 1.1;
+}
+
+.toggle-password {
+  position: absolute;
+  cursor: pointer;
+  top: 18px;
+  right: 15px;
 }

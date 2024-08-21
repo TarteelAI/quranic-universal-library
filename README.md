@@ -60,40 +60,78 @@ gem install bundler
 bundle install
 ```
 
-#### 5. Setup Database
-*QUL needs two databases:*
-- `quran_dev`: Database for storing Quranic data
-- `quran_community_tarteel`: This database store the users info, permissions and all user generated data.
+#### 5. Database Configuration
+
+**The QUL project requires two databases:**
+
+1. **`quran_dev`**: This database holds all Quranic data, including translations, tafsirs, audio etc. It's accessed through `quran_api_db_dev` for the development environment.
+2. **`quran_community_tarteel`**: This database manages user accounts, permissions, and user changes.
 
 #### 6. Create Databases
-Create database for managing user content.
+Create the **`quran_community_tarteel`** database for managing user content.
 ```bash
 rails db:create
+```
+
+For **`quran_dev`** you can create it manually or change the database name to `quran_dev` for `development` group in database.yml file and run `rails db:create` again.
+
+#### 7. Load the data for **`quran_dev`** database
+The `quran_dev` database dump is available in both SQL and binary formats. Follow the appropriate instructions below to restore the database.
+
+#### Restoring from SQL Dump
+7.1 **Restore using SQL Dump:**
+Download the [SQL dump file](https://quran-assets.tarteel.ai/cms/qul-mini-dump/quran_dev.sql.zip) and restore it using
+```bash
+  psql quran_dev < "path to sql dump file"
+```
+
+7.2 **Restore using binary dump:**
+Download the [Binary dump file](https://quran-assets.tarteel.ai/cms/qul-mini-dump/quran_dev.dump.zip) and restore it using
+```bash
+pg_restore --host localhost --port 5432 --no-owner --no-privileges --no-tablespaces --no-acl --dbname quran_dev -v "path to binary dump file"
+```
+
+### 8. Run the migrations for **`quran_community_tarteel`** database
+```ruby
+rails db:migrate
 rails db:migrate
 rails db:seed
 ```
-For Quran related data, you'll need to create the database manually then import this [dump file](https://quran-assets.tarteel.ai/cms/quran_data.sql.zip).
 
-### 7. Run the pending migrations
-```ruby
-rails db:migrate
-```
-
-#### 8. Run the Application
+#### 9. Run the Application
 ```bash
 bin/dev
 ```
 
-You can now visit http://localhost:3000 in your browser to see the application.
-Visit http://localhost:3000/admin to access the admin panel.
+🌟Insha`Allah! Your application should be up and running at time point! 🌟
 
-#### Contributing
+You can now visit [http://localhost:3000](http://localhost:3000) in your browser to explore the app.
 
-We welcome contributions from the community! If you'd like to contribute to this project, please follow these steps:
+🔐 Head over to the admin panel at [http://localhost:3000/admin](http://localhost:3000/admin)
 
-1. Fork the repository and clone it.
-2. Create a new branch (git checkout -b feature-branch).
-3. Make your changes.
-4. Commit your changes (git commit -m 'Add some feature').
-5. Push to the branch (git push origin feature-branch).
-6. Open a pull request.
+### 10. Contributing to QUL
+We welcome contributions to enhance the QUL project! If you'd like to contribute, please follow these steps:
+
+10.1 **Fork the Repository:**
+Click on the "Fork" button at the top right of this page to create your own copy of the repository.
+
+10.2 **Clone Your Fork:**
+```bash
+   git clone https://github.com/your_username/qul.git
+```
+
+10.3. **Create a new feature branch:**
+  ```bash
+     git checkout -b making-qul
+  ```
+10.4 **Make Your Changes:**
+
+10.5 **Push Your Changes:**
+```bash
+git add .
+git commit -m "Add a brief description of your changes"
+git push origin your-feature-branch
+```
+10.6 **Create a Pull Request:**
+
+May Allah reward your efforts and make them beneficial for the community! 🤲

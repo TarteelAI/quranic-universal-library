@@ -27,6 +27,7 @@ class Ability
       can :manage, FootNote
       can :manage, Draft::Translation
       can :manage, Draft::Tafsir
+      can :manage, Draft::FootNote
 
       can :manage, Reciter
       can :manage, Tafsir
@@ -45,6 +46,14 @@ class Ability
       can :manage, Morphology::Phrase
       can :manage, Morphology::PhraseVerse
       can :manage, Morphology::MatchingVerse
+
+      can [:read, :update, :create], Draft::Translation
+      can [:read, :update, :create], Draft::Tafsir
+      can [:read, :update, :create], Draft::FootNote
+
+      cannot :destroy, Draft::Translation
+      cannot :destroy,  Draft::Tafsir
+      cannot :destroy, Draft::FootNote
     end
 
     if user.is_normal_user?

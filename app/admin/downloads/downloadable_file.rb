@@ -73,7 +73,6 @@ ActiveAdmin.register DownloadableFile do
       f.input :published
 
       f.input :position
-      f.input :tags, hint: 'Comma separated tags'
       f.input :cardinality_type, as: :searchable_select, collection: ResourceContent.collection_for_cardinality_type
       f.input :resource_type, as: :searchable_select, collection: DownloadableResource::RESOURCE_TYPES
       f.input :resource_content_id,
@@ -87,7 +86,7 @@ ActiveAdmin.register DownloadableFile do
   end
 
   permit_params do
-    %i[name info position published resource_type tags files resource_content_id cardinality_type]
+    %i[name info position published resource_type files resource_content_id cardinality_type]
   end
 
   member_action :upload_file, method: 'post' do

@@ -17,6 +17,12 @@
     background-color: black;
   }
 
+  .circle-button {
+    svg {
+      fill: white;
+    }
+  }
+
   .github-link {
     display: flex;
     gap: 5px;

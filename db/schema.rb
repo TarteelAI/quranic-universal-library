@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_16_013707) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_24_181741) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -147,6 +147,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_16_013707) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "language_id"
+    t.integer "files_count", default: 0
   end
 
   create_table "draft_foot_notes", force: :cascade do |t|

@@ -175,6 +175,11 @@ class ResourceContent < QuranApiRecord
     cardinality_type == CardinalityType::OneWord
   end
 
+  #TODO: remove these duplicated methods for cardinality check
+  def word?
+    cardinality_type == CardinalityType::OneWord
+  end
+
   def one_ayah?
     cardinality_type == CardinalityType::OneVerse
   end
@@ -324,10 +329,6 @@ class ResourceContent < QuranApiRecord
 
   def verse?
     cardinality_type == CardinalityType::OneVerse
-  end
-
-  def word?
-    cardinality_type == CardinalityType::OneWord
   end
 
   def tokens?

@@ -1,7 +1,11 @@
 class ApplicationController < ActionController::Base
   include Pagy::Backend
 
-  rescue_from ActionController::RoutingError, ::AbstractController::ActionNotFound, ActiveRecord::RecordNotFound, with: ->(exception) { render_error 404, exception }
+  rescue_from ActionController::UnknownFormat,
+              ActionController::RoutingError,
+              ::AbstractController::ActionNotFound,
+              ActiveRecord::RecordNotFound,
+              with: ->(exception) { render_error 404, exception }
 
   protect_from_forgery with: :exception
   before_action :set_paper_trail_whodunnit
@@ -44,7 +48,7 @@ class ApplicationController < ActionController::Base
   def render_error(_status, exception)
     # raise exception if Rails.env.development?
 
-    render 'shared/not_found'
+    render 'shared/not_found', formats: [:html], status: 404
   end
 end
 

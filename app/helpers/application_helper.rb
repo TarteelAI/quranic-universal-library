@@ -1,6 +1,10 @@
 module ApplicationHelper
   include Pagy::Frontend
 
+  def is_current_page?(controller:, action: nil)
+    controller_name == controller && (action.nil? || action_name == action)
+  end
+
   def set_page_title(title, data_options = {})
     content_for :title, title
     options = data_options.map do |key, value|

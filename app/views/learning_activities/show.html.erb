@@ -1,11 +1,12 @@
 <%
   tarteel_link = 'https://tarteel.go.link/?adj_t=1foxrfdy&adj_engagement_type=fallback_click&adj_fallback=https%3A%2F%2Fwww.tarteel.ai&adj_redirect_macos=https%3A%2F%2Fwww.tarteel.ai'
+  activity = (params[:activity] || params[:id]).presence.to_s.downcase
 %>
 <div class="quiz-container overflow-auto py-5 px-3">
   <div class="box">
-    <% if valid_activity?(params[:id]) %>
-      <%= set_page_title "#{params[:id].humanize} - Quranic quiz" %>
-      <%= render params[:id] %>
+    <% if valid_activity?(activity) %>
+      <%= set_page_title "#{activity.humanize} - Quranic quiz" %>
+      <%= render activity %>
 
       <div class="result my-5" id="quiz-result">
         <div class="text-danger d-none" id="incorrect-message">
@@ -24,7 +25,7 @@
 
       <div class="more-activities d-flex justify-content-center gap-2 mt-4 d-none">
         <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: '/ayah/1:1', css_class: 'modal-lg', use_turbo: true} %>
-        <%= link_to 'Try another', url_for, class: 'btn btn-outline-dark me-3' %>
+        <%= link_to 'Try another', learning_activity_path(activity), class: 'btn btn-outline-dark me-3' %>
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
       </div>
     <% else %>
@@ -33,17 +34,17 @@
       </div>
 
       <ol class="list-group text-start">
-        <% learning_activities.each do |activity| %>
+        <% learning_activities.each do |item| %>
           <li class="list-group-item d-flex justify-content-between align-items-start">
             <div class="ms-2 me-auto">
               <div class="fw-bold">
-                <%= activity.title %>
+                <%= item.title %>
               </div>
-              <%= activity.description %>
+              <%= item.description %>
             </div>
 
             <span>
-              <%= link_to 'Try', activity.url, class: 'btn btn-success' %>
+              <%= link_to 'Try', item.url, class: 'btn btn-success' %>
             </span>
           </li>
         <% end %>

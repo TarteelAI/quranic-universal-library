@@ -8,6 +8,8 @@ ActiveAdmin.register DownloadableResource do
          ajax: { resource: Language }
   filter :resource_content, as: :searchable_select,
          ajax: { resource: ResourceContent }
+
+  filter :files_count
   filter :published
   filter :updated_at
   filter :resource_type, as: :select, collection: DownloadableResource::RESOURCE_TYPES
@@ -16,6 +18,19 @@ ActiveAdmin.register DownloadableResource do
     scope: DownloadableResource,
     text_attribute: :name
   )
+
+  action_item :approve, only: :show, if: -> { can? :refresh_downloads, resource } do
+    link_to refresh_downloads_admin_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? this action will export files for this resource again.' } do
+      'Refresh downloads'
+    end
+  end
+
+  member_action :refresh_downloads, method: 'put', if: -> {can? :refresh_downloads, resource} do
+    authorize! :refresh_downloads, resource
+
+    AsyncResourceActionJob.perform_later(resource, :refresh_export!)
+    redirect_to [:admin, resource], notice: "Data will be exported in the background. Please check back later."
+  end
 
   controller do
     include ActiveStorage::SetCurrent

@@ -4,6 +4,7 @@
 #
 #  id                  :bigint           not null, primary key
 #  cardinality_type    :string
+#  files_count         :integer          default(0)
 #  info                :text
 #  name                :string
 #  position            :integer          default(1)
@@ -24,8 +25,51 @@ class DownloadableResource < ApplicationRecord
 
   RESOURCE_TYPES = %w[quran-script recitation translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
 
+  delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
+
   def get_tags
     tags.to_s.split(',').compact_blank
+  end
+
+  def run_export_action
+    update_columns(files_count: downloadable_files.count)
+  end
+
+  def refresh_export!
+    s = Exporter::DownloadableResources.new
+
+    case resource_type
+    when 'recitation'
+      if one_ayah?
+        s.export_ayah_recitation(resource_content: resource_content)
+      elsif one_word?
+        s.export_wbw_recitation
+      elsif chapter?
+        s.export_surah_recitation(resource_content: resource_content)
+      end
+    when 'translation'
+      if one_ayah?
+        s.export_ayah_translations(resource_content: resource_content)
+      elsif one_word?
+        s.export_word_translations(resource_content: resource_content)
+      end
+    when 'quran-script'
+      if one_ayah?
+        s.export_ayah_quran_script(resource_content: resource_content)
+      elsif one_word?
+        s.export_wbw_quran_script(resource_content: resource_content)
+      end
+    when 'tafsir'
+    when 'mutashabihat'
+    when 'similar-ayah'
+    when 'surah-info'
+    when 'mushaf-layout'
+    when 'ayah-theme'
+    when 'ayah-topics'
+    when 'transliteration'
+    when 'morphology'
+    when 'quran-metadata'
+    end
   end
 
   def humanize_cardinality_type
@@ -42,7 +86,7 @@ class DownloadableResource < ApplicationRecord
       'Juz info'
     when ResourceContent::CardinalityType::OnePage
       'Page by Page'
-    when  ResourceContent::CardinalityType::OneRub
+    when ResourceContent::CardinalityType::OneRub
       'Rub info'
     when ResourceContent::CardinalityType::OneManzil
       'Manzil info'

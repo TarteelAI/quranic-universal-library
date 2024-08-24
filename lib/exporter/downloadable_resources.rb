@@ -729,6 +729,7 @@ module Exporter
       )
 
       file.save(validate: false)
+      resource.run_export_action
     end
 
     def zip(file_path)

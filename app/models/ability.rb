@@ -38,6 +38,7 @@ class Ability
       can :moderate, User
       can :download, :from_admin
       can :run_actions, :from_admin
+      can :refresh_downloads, DownloadableResource
     end
 
     if user.is_moderator?

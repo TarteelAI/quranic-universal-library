@@ -32,7 +32,12 @@ class DownloadableResource < ApplicationRecord
   end
 
   def run_export_action
-    update_columns(files_count: downloadable_files.count)
+    attrs  = {
+      files_count: downloadable_files.count,
+      published: published.nil? ? true : published
+    }
+
+    update_columns(attrs)
   end
 
   def refresh_export!

@@ -55,7 +55,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        downloadable_resource.published = true
         tags = [] #['indopak', '13 lines', 'uthmani', 'Glyph font']
         downloadable_resource.tags = tags.compact_blank.join(', ')
         downloadable_resource.save(validate: false)
@@ -88,7 +87,6 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.published = true
       downloadable_resource.tags = resource.language_name.humanize
       downloadable_resource.save(validate: false)
 
@@ -119,7 +117,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= resource.name
-        downloadable_resource.published = true
         downloadable_resource.tags = ['Quranic Morphology', resource.name.split(/\s+/).last].compact_blank.join(',')
         downloadable_resource.save(validate: false)
 
@@ -148,7 +145,6 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.published = true
       tags = [resource.language_name.humanize, 'Ayah Theme']
       downloadable_resource.tags = tags.compact_blank.join(',')
       downloadable_resource.save(validate: false)
@@ -183,7 +179,6 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.published = true
       downloadable_resource.tags = 'Mutashabihat'
       downloadable_resource.save(validate: false)
 
@@ -213,7 +208,6 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.published = true
       downloadable_resource.tags = 'Similar Ayah'
       downloadable_resource.save(validate: false)
 
@@ -249,7 +243,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language = content.language
-        downloadable_resource.published = true
         downloadable_resource.tags = content.language_name.humanize
         downloadable_resource.save(validate: false)
 
@@ -284,7 +277,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        downloadable_resource.published = true
         tags = [content.language_name.humanize]
 
         if content.has_footnote?
@@ -340,7 +332,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        downloadable_resource.published = true
         tags = [content.language_name.humanize, 'Transliteration']
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
@@ -379,7 +370,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        downloadable_resource.published = true
         tags = [content.language_name.humanize, 'Translation']
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
@@ -411,7 +401,6 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        downloadable_resource.published = true
         tags = [content.language_name.humanize, 'Transliteration']
         downloadable_resource.tags = tags.join(', ')
         downloadable_resource.save(validate: false)
@@ -446,7 +435,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= resource.name
-        downloadable_resource.published = true
         tags = ['Quran', 'Metadata', resource.name]
 
         downloadable_resource.tags = tags.compact_blank.join(', ')
@@ -487,7 +475,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        downloadable_resource.published = true
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
@@ -535,7 +522,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        downloadable_resource.published = true
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
@@ -570,7 +556,6 @@ module Exporter
       ).first_or_initialize
 
       downloadable_resource.name ||= content.name
-      downloadable_resource.published = true
       tags = ['Recitation', 'Waseem Sharif']
       downloadable_resource.tags = tags.compact_blank.join(', ')
       downloadable_resource.save(validate: false)
@@ -606,7 +591,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        downloadable_resource.published = true
         tags = ['Quran text', 'Hafs']
 
         if content.meta_value('font').present?
@@ -649,7 +633,6 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        downloadable_resource.published = true
         tags = ['Quran text', 'Hafs']
 
         if content.has_mushaf_layout?
@@ -698,7 +681,6 @@ module Exporter
 
         downloadable_resource.name = "Surah Info - #{resource_content.language_name.humanize}"
         downloadable_resource.info = "Surah information in #{resource_content.language.name} language"
-        downloadable_resource.published = true
         downloadable_resource.tags = "Surah Info, #{resource_content.language.name}"
         downloadable_resource.save(validate: false)
 

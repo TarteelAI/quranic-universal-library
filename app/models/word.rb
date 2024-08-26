@@ -18,6 +18,8 @@
 #  line_number             :integer
 #  line_v2                 :integer
 #  location                :string
+#  meta_data               :jsonb
+#  metadata                :jsonb
 #  page_number             :integer
 #  pause_name              :string
 #  position                :integer
@@ -112,6 +114,9 @@ class Word < QuranApiRecord
   before_update :update_mushaf_word_text
 
   scope :words, -> { where char_type_id: 1 }
+  scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'"}
+  scope :with_hizb_marker, -> { where "meta_data ? 'hizb'"}
+  
   default_scope { order 'position asc' }
 
   def self.without_root
@@ -174,7 +179,13 @@ class Word < QuranApiRecord
   end
 
   def sajdah?
-    text_uthmani.include?('۩')
+    text_uthmani.include?('۩') || meta_data&.dig('sajdah')
+  end
+
+  def sajdah_number
+    if sajdah?
+      meta_data&.dig('sajdah') || verse.sajdah_number
+    end
   end
 
   def ayah_mark?
@@ -185,6 +196,20 @@ class Word < QuranApiRecord
     text_uthmani.include? '۞'
   end
 
+  def meta_data=(val)
+    json = Oj.load(val)
+
+    json.keys.each do |key|
+      formatted_key = format_meta_key(key)
+
+      if formatted_key != key
+        json[formatted_key] = json[key]
+        json.delete(key)
+      end
+    end
+
+    super json
+  end
   protected
 
   def update_mushaf_word_text

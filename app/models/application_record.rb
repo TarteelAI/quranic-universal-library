@@ -12,4 +12,8 @@ class ApplicationRecord < ActiveRecord::Base
   def self.ransackable_attributes(auth_object = nil)
     column_names
   end
+
+  def format_meta_key(key)
+    key.gsub(/[\s_]/, '-').gsub('--', '-').downcase
+  end
 end

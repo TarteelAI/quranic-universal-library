@@ -34,6 +34,9 @@ ActiveAdmin.register Word do
          as: :searchable_select,
          ajax: { resource: Verse }
 
+  scope :with_sajdah_marker, group: :special
+  scope :with_hizb_marker, group: :special
+
   permit_params do
     %i[
       verse_id
@@ -62,6 +65,7 @@ ActiveAdmin.register Word do
       text_qpc_nastaleeq
       text_qpc_nastaleeq_hafs
       text_digital_khatt
+      meta_data
     ]
   end
 
@@ -98,7 +102,10 @@ ActiveAdmin.register Word do
       f.input :v2_page
       f.input :line_number
       f.input :line_v2
+
+      f.input :meta_data, input_html: { data: { controller: 'json-editor', json: resource.meta_data } }
     end
+
     f.actions
   end
 
@@ -209,6 +216,17 @@ ActiveAdmin.register Word do
       end
 
       row :morphology_word
+
+      row :meta_data do
+        if resource.meta_data.present?
+          pre do
+            code do
+              JSON.pretty_generate(resource.meta_data)
+            end
+          end
+        end
+      end
+
       row :word_lemma, class: 'quran-text' do
         span do
           if lemma = resource.word_lemma

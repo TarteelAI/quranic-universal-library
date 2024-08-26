@@ -319,11 +319,12 @@ ActiveAdmin.register Word do
     end
     column :word_index
     column :verse do |resource|
-      link_to resource.verse_id, admin_verse_path(resource.verse_id)
+      link_to resource.verse_key, admin_verse_path(resource.verse_id)
     end
 
     column :char_type, &:char_type_name
     column :position
+    column :location
 
     #     column :pause_name do |resource|
     #       if resource.char_type_id == 4

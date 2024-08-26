@@ -115,6 +115,7 @@ class Word < QuranApiRecord
 
   scope :words, -> { where char_type_id: 1 }
   scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'"}
+  scope :with_optional_sajdah, -> { where("meta_data ->> 'sajdah-type' = 'optional'") }
 
   scope :with_sajdah_position_overline, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%overline%')}
   scope :with_sajdah_position_ayah_marker, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%ayah-marker%')}

@@ -35,6 +35,7 @@ ActiveAdmin.register Word do
          ajax: { resource: Verse }
 
   scope :with_sajdah_marker, group: :has_sajdah
+  scope :with_optional_sajdah, group: :has_sajdah
 
   scope :with_sajdah_position_overline, group: :sajdah_position
   scope :with_sajdah_position_ayah_marker, group: :sajdah_position

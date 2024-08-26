@@ -36,7 +36,7 @@ ActiveAdmin.register Word do
 
   scope :with_sajdah_marker, group: :has_sajdah
 
-  scope :with_sajdah_position_overlive, group: :sajdah_position
+  scope :with_sajdah_position_overline, group: :sajdah_position
   scope :with_sajdah_position_ayah_marker, group: :sajdah_position
   scope :with_sajdah_position_word_ends, group: :sajdah_position
 

@@ -34,8 +34,13 @@ ActiveAdmin.register Word do
          as: :searchable_select,
          ajax: { resource: Verse }
 
-  scope :with_sajdah_marker, group: :special
-  scope :with_hizb_marker, group: :special
+  scope :with_sajdah_marker, group: :has_sajdah
+
+  scope :with_sajdah_position_overlive, group: :sajdah_position
+  scope :with_sajdah_position_ayah_marker, group: :sajdah_position
+  scope :with_sajdah_position_word_ends, group: :sajdah_position
+
+  scope :with_hizb_marker, group: :has_hizb
 
   permit_params do
     %i[

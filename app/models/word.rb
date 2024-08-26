@@ -115,8 +115,13 @@ class Word < QuranApiRecord
 
   scope :words, -> { where char_type_id: 1 }
   scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'"}
+
+  scope :with_sajdah_position_overlive, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%overline%')}
+  scope :with_sajdah_position_ayah_marker, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%ayah-marker%')}
+  scope :with_sajdah_position_word_ends, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%word-end%')}
+
   scope :with_hizb_marker, -> { where "meta_data ? 'hizb'"}
-  
+
   default_scope { order 'position asc' }
 
   def self.without_root

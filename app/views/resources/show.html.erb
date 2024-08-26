@@ -84,9 +84,9 @@
               </small>
             </div>
 
-            <p class="text-white fw-bold">
-              <%= resource.info %>
-            </p>
+            <div class="text-white">
+              <%= resource.info.to_s.html_safe if resource.info %>
+            </div>
 
             <% if is_quran_script %>
               <%= render 'quran_script_preview', resource: resource.resource_content, preview_verse: @preview_verse %>

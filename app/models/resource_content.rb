@@ -641,10 +641,6 @@ class ResourceContent < QuranApiRecord
     connected_keys.sort_by { |key| key.split(':').last.to_i }
   end
 
-  def format_meta_key(key)
-    key.gsub(/[\s_]/, '-').gsub('--', '-').downcase
-  end
-
   def check_for_missing_tafsirs
     tafsirs = Tafsir.where(resource_content_id: id)
     issues = []

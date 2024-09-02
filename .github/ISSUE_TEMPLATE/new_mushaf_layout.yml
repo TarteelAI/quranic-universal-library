@@ -1,0 +1,50 @@
+name: "Mushaf Layout"
+description: "Use this template to request the inclusion of a new Mushaf layout in the QUL."
+title: "Mushaf Layout - {{ layout_name }}"
+labels: ["mushaf layout"]
+
+body:
+  - type: input
+    id: mushaf_pdf_url
+    attributes:
+      label: "Mushaf PDF URL"
+      description: "Please provide the URL to the PDF of the Mushaf layout you are submitting."
+      placeholder: "Enter the PDF URL"
+    validations:
+      required: true
+
+  - type: input
+    id: page_count
+    attributes:
+      label: "Number of Pages"
+      description: "How many pages does the Mushaf layout have?"
+      placeholder: "Enter the total number of pages"
+    validations:
+      required: true
+
+  - type: input
+    id: lines_per_page
+    attributes:
+      label: "Lines Per Page"
+      description: "How many lines does each page of the Mushaf layout have?"
+      placeholder: "Enter the number of lines per page"
+    validations:
+      required: true
+
+  - type: textarea
+    id: layout_info
+    attributes:
+      label: "Layout Information"
+      description: "Provide details about the layout, including any unique features or formatting styles."
+      placeholder: "Enter information about the layout"
+    validations:
+      required: true
+
+  - type: textarea
+    id: layout_rationale
+    attributes:
+      label: "Why Should We Add This Layout?"
+      description: "Explain why this layout should be added to the Quranic Universal Library. What makes it valuable or unique?"
+      placeholder: "Enter your reasoning"
+    validations:
+      required: true

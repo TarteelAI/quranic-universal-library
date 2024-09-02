@@ -1,0 +1,32 @@
+name: "Report Issue in Existing Mushaf Layout"
+description: "Use this template to report issues in an existing Mushaf layout within the Quranic Universal Library."
+title: "Issue in Layout: {{ layout_name }} - Page {{ page_number }}"
+labels: ["layout issue"]
+
+body:
+  - type: input
+    id: layout_name
+    attributes:
+      label: "Layout Name"
+      description: "Please provide the name of the Mushaf layout where you found the issue."
+      placeholder: "Enter the name of the layout"
+    validations:
+      required: true
+
+  - type: input
+    id: page_number
+    attributes:
+      label: "Page Number"
+      description: "Specify the page number where the issue is located."
+      placeholder: "Enter the page number"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_details
+    attributes:
+      label: "Details of the Issue"
+      description: "Describe the issue in detail. Include any specific problems or inaccuracies you have identified."
+      placeholder: "Enter the details of the issue"
+    validations:
+      required: true

@@ -1,9 +1,9 @@
 @font-face {
   font-family: "icon-surah";
-  src: url("surah_names/surah_names.eot");
-  src: url("surah_names/surah_names.eot?#iefix") format("embedded-opentype"),
-  url("surah_names/surah_names.woff2") format("woff2"),
-  url("surah_names/surah_names.woff") format("woff");
+  src: url("#{$font-cdn}/surah_names/surah_names.eot?v=#{$asset-version}");
+  src: url("#{$font-cdn}/surah_names/surah_names.eot?v=#{$asset-version}") format("embedded-opentype"),
+  url("#{$font-cdn}/surah_names/surah_names.woff2?v=#{$asset-version}") format("woff2"),
+  url("#{$font-cdn}/surah_names/surah_names.woff?v=#{$asset-version}") format("woff");
 }
 
 [class^="icon-surah"],

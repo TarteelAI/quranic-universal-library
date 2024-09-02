@@ -1,0 +1,89 @@
+name: "Report a translation issue"
+description: "Please use this for reporting translations issue. Jazak Allah Khairan for helping us improve the content on Quranic Universal Library."
+title: "{{ translation_name }} - Surah: {{ surah_number }}:{{ ayah_number }}"
+labels: ["content issue", "translation"]
+assignees:
+  - naveed-ahmad
+body:
+  - type: checkboxes
+    id: report_scope_acknowledgment
+    attributes:
+      label: "Acknowledgment"
+      description: "I acknowledge that this report is for typos, spelling mistakes, and factual issues only. Please do not use this form to suggest changes in wording preferences or subjective opinions."
+      options:
+        - label: "I acknowledge"
+          required: true
+
+  - type: input
+    id: translation_name
+    attributes:
+      label: "Translation Name"
+      description: "Please enter the name of the translation(i.e Dr. Mustafa Khattab, the Clear Quran)."
+    validations:
+      required: true
+
+  - type: input
+    id: surah_number
+    attributes:
+      label: "Surah name"
+      description: "Provide the Surah name(or surah number)."
+      placeholder: "Al-Fatihah or 1"
+    validations:
+      required: true
+
+  - type: input
+    id: ayah_number
+    attributes:
+      label: "Ayah Number"
+      description: "Provide the Ayah number."
+      placeholder: "Enter the Ayah number"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Detailed Description of the Issue"
+      description: "Describe the issue in detail. Is it a typo, spelling mistake, or something else?"
+      placeholder: "Enter the details of the issue"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_fix
+    attributes:
+      label: "Expected Fix"
+      description: "What should the corrected content be? Provide the correct translation or suggest a fix."
+      placeholder: "Enter the expected fix"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context, PDF URL of translation or screenshots that might be helpful in verifying and fixing the issue."
+      placeholder: "Enter additional context"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_location
+    attributes:
+      label: "Where did you see this issue?"
+      description: "Please specify whether you encountered this issue within QUL or another application."
+      multiple: false
+      options:
+        - "Found this issue in the QUL"
+        - "Found this issue in an Application"
+    validations:
+      required: true
+
+  - type: input
+    id: application_url
+    attributes:
+      label: "Application URL"
+      description: "If you encountered the issue in another application, please provide the URL of the application."
+      placeholder: "Enter the application URL"
+    validations:
+      required: true

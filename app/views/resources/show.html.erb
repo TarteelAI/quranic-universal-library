@@ -110,7 +110,7 @@
                           Download <%= file.file_type %>
                         <% end %>
                       <% else %>
-                        <%= link_to '#_', class: 'dropdown-item w-100', data: { controller: 'ajax-modal', url: new_user_session_path(return_to: resource_download_file_path(resource.resource_type, token: file.token), modal: true)} do %>
+                        <%= link_to '#_', class: 'dropdown-item w-100', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: resource_download_file_path(resource.resource_type, token: file.token), modal: true)} do %>
                           Download <%= file.file_type %>
                         <% end %>
                       <% end %>

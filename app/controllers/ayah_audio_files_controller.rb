@@ -1,8 +1,8 @@
 class AyahAudioFilesController < CommunityController
-  before_action :authenticate_user!, only: %i[save_segments]
   before_action :load_recitation
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
   before_action :authorize_access!, only: %i[save_segments]
+  before_action :authenticate_user!, only: %i[save_segments]
 
   def index
     sort_key = params[:sort_key] || 'chapter_id'
@@ -77,6 +77,7 @@ class AyahAudioFilesController < CommunityController
 
   def load_resource_access
     recitation = load_recitation
-    @access = can_manage?(recitation.resource_content)
+    @resource = recitation.resource_content
+    @access = can_manage?(@resource)
   end
 end

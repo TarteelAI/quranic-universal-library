@@ -38,16 +38,14 @@
       </h2>
 
       <div class="d-flex gap-1">
-        <% if false %>
         <%= link_to '#', class: 'btn btn-outline-info btn-xs', data: {controller: 'ajax-modal', url: tools_help_path(key), css_class: 'modal-lg'} do %>
           <i class="fa fa-info-circle"></i> Help
-        <% end %>
         <% end %>
 
         <%= actions.join('').html_safe %>
       </div>
     </div>
 
-    <%= render("tools/header_alert/#{key}") if false %>
+    <%= render("tools/header_alert/#{key}") if !@access %>
   </div>
 </div>

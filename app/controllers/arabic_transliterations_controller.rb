@@ -119,7 +119,7 @@ class ArabicTransliterationsController < CommunityController
   end
 
   def load_resource_access
-    resource = ResourceContent.transliteration.one_word.for_language('ar').first
-    @access ||= can_manage?(resource)
+    @resource = ResourceContent.transliteration.one_word.for_language('ar').first
+    @access = can_manage?(@resource)
   end
 end

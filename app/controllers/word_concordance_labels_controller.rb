@@ -54,4 +54,9 @@ class WordConcordanceLabelsController < CommunityController
   def update_segment
 
   end
+
+  def load_resource_access
+    @resource = ResourceContent.where(name: 'Corpus').first_or_create
+    @access = can_manage?(@resource)
+  end
 end

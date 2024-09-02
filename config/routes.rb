@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   end
 
   resources :morphology_phrases
+  resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
   end

@@ -1,0 +1,6 @@
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>
+
+<%= turbo_stream.remove 'btn-request-permission' %>
+

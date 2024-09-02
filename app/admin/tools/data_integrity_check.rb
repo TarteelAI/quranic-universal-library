@@ -22,7 +22,7 @@ ActiveAdmin.register_page 'Data Integrity Check' do
       if check
         if check[:fields].present?
           div do
-            render partial: 'admin/data_intergity_check_filters', locals: { check: check, check_name: check_name }
+            render partial: 'admin/data_integrity_check_filters', locals: { check: check, check_name: check_name }
           end
         end
 

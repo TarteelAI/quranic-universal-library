@@ -1,10 +1,10 @@
-<% if params[:modal] == 'true' %>
+<% if params[:modal] == 'true' || local_assigns[:modal] || session.delete(:use_modal) %>
   <div id="title">
     You need to sign in or sign up before continuing.
   </div>
 
   <div id="body">
-    <div class="modal-body">
+    <div class="modal-body" data-turbo="false">
       <%= render 'form' %>
 
       <%= render 'devise/shared/links' %>

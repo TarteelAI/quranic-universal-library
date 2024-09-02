@@ -1,0 +1,24 @@
+<div class="alert alert-secondary d-flex" role="alert">
+  <i class="fa fa-info-circle me-2 fa-2x"></i>
+  <div>
+    <p>
+      <strong>
+        Word by word translation tool
+      </strong>
+    </p>
+
+    <p>
+      The Word Translation Tool is designed to manage word-by-word translations of each word of the Quran.
+    </p>
+
+    <p>
+      If you'd like to contribute to improving <%= @resource.language.name %> word translation, simply click the Request Access button below to send a request to the admin.
+    </p>
+
+    <p id="btn-request-permission">
+      <%= link_to 'Request Access', '_', class: 'btn btn-dark',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg'} %>
+    </p>
+  </div>
+
+  <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>

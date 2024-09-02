@@ -30,12 +30,27 @@ ActiveAdmin.register_page 'Data Integrity Check' do
           # Results
           klass = check[:check]
           data = klass.call(params)
+          stats = {}
+
+          if data.is_a?(Hash)
+            stats = data.except(:collection)
+            data = data[:collection]
+          end
+
           attrs = check[:table_attrs]
           attrs_links = check[:links_proc] || {}
           sort_order = params[:sort_order].presence == 'asc' ? 'desc' : 'asc'
           sort_by = params[:sort_by].presence.to_s.downcase
           check_name = params[:check_name]
           per_page = params[:per_page].presence
+
+          if stats.present?
+            div do
+              stats.each do |k, v|
+                span "<strong>#{k.to_s.humanize}</strong>: #{v} |".html_safe
+            end
+            end
+          end
 
           table border: true do
             thead do

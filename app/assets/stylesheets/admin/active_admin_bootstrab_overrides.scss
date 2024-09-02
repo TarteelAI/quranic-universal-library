@@ -9,12 +9,12 @@
     }
   }
 }
+
 .d-flex{
   display: flex;
 }
 
 .btn{
-  //color: #fff !important;
   text-decoration: none !important;
 }
 .align-items-start {
@@ -39,4 +39,14 @@
 
 .bg-danger{
   background-color: rgba(220, 53, 69,1) !important;
+}
+
+.admin_mushaf_page_preview.active_admin{
+  #main_content_wrapper{
+    display: flex !important;
+
+    #main_content{
+      flex-grow: 1;
+    }
+  }
 }

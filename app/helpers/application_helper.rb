@@ -44,7 +44,7 @@ module ApplicationHelper
       },
       {
         name: "Ayman Siddiqui",
-        url: 'zoopernet.com',
+        url: 'https://zoopernet.com',
         description: "For his amazing work on Indopak and tajweed fonts and script."
       },
       {

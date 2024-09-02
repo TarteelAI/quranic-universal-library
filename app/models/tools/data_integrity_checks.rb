@@ -351,7 +351,15 @@ class Tools::DataIntegrityChecks
           result = MushafWord.none
         end
 
-        paginate(result, params)
+        pages_with_difference = result.map(&:first_musahf_page).uniq
+
+        {
+          collection:  paginate(result, params),
+          total_pages_with_difference: pages_with_difference.size,
+          different_pages: pages_with_difference.map do |p|
+            "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+          end.join(', ')
+        }
       end
     }
   end

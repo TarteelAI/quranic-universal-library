@@ -14,6 +14,11 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+  def authenticate_user_logged_in
+    session[:use_modal] = params.key?(:modal)
+    authenticate_user!
+  end
+
   def user_for_paper_trail
     current_user&.to_gid
   end
@@ -36,7 +41,8 @@ class ApplicationController < ActionController::Base
       @access = if current_user.is_super_admin?
                   AdminProjectAccess.new
                 else
-                  current_user.user_projects.find_by(resource_content_id: resource.id)
+                  access = current_user.user_projects.find_by(resource_content_id: resource.id)
+                  access if access&.approved?
                 end
     end
   end
@@ -50,6 +56,19 @@ class ApplicationController < ActionController::Base
 
     render 'shared/not_found', formats: [:html], status: 404
   end
+
+  def render_turbo_validations(resource, options = {})
+    if options[:now_flash]
+      flash.now[:alert] = 'Please fix the validation errors and try again.'
+    else
+      flash[:alert] = 'Please fix the validation errors and try again.'
+    end
+
+    render "shared/turbo_resource_actions/#{action_name}",
+           locals: { resource: resource },
+           status: :unprocessable_entity
+  end
+
 end
 
 class AdminProjectAccess

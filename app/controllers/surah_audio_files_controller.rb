@@ -1,6 +1,7 @@
 class SurahAudioFilesController < CommunityController
-  before_action :load_recitation, except: :builder_help
   before_action :authenticate_user!, only: [:save_segments]
+  before_action :authorize_access!, only: [:save_segments]
+
   def builder_help
     render layout: false
   end
@@ -98,10 +99,10 @@ class SurahAudioFilesController < CommunityController
     params[:chapter_id] || params[:id]
   end
 
-  def load_recitation
-    #TODO: fix this
+  def load_resource_access
     recitation_id = params[:recitation_id] || params[:id] || 7
     @recitation = Audio::Recitation.find(recitation_id)
-    @has_permission = can_manage?(@recitation.get_resource_content)
+    @resource = @recitation.get_resource_content
+    @access = can_manage?(@resource)
   end
 end

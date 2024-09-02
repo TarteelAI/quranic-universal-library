@@ -3,7 +3,7 @@
   is_image = ['qa_tajweed_image', 'qa_black_image', 'rq_tajweed_image'].include?(text_type)
 %>
 
-<div class="bg-primary p-1 rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
+<div class="bg-primary p-3 text-center rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
   <% if is_image %>
    <div class="d-flex">
      <% preview_verse.words.words.each do |w| %>

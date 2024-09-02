@@ -1,0 +1,91 @@
+<%
+  resource = @user_project.resource_content
+%>
+
+<div id=title>
+  Request permission for <%= resource.name %>
+</div>
+
+<div id=body>
+  <%= form_with model: @user_project, url: user_projects_path, data: { controller: 'remote-form', auto_close: true } do |form| %>
+    <div class="modal-body">
+      <%= render 'shared/form_errors', object: @user_project %>
+
+      <div class="row">
+        <div class="col-md-12">
+          <%= form.hidden_field :resource_content_id, value: resource.id %>
+
+          <div class="form-group mb-3">
+            <%= form.label :reason_for_request, 'Reason for Request', class: 'h5' %>
+            <%= form.text_area :reason_for_request, required: true, cols: nil, rows: nil, class: 'form-control' %>
+            <div class="text-muted">
+              Please provide a brief explanation of why you are requesting access to this resource. Additionally, share
+              some details about your background, expertise, and any relevant experience that supports your request.
+            </div>
+          </div>
+
+          <% if resource.recitation? %>
+            <%= form.hidden_field :language_proficiency, value: 'N/A' %>
+          <% else %>
+            <div class="form-group mb-3">
+              <%= form.label :language_proficiency, 'Language Proficiency', class: 'h5' %>
+              <%= form.text_area :language_proficiency, required: true, cols: nil, rows: nil, class: 'form-control' %>
+              <div class="text-muted">
+                Please describe your proficiency in language
+                <% if resource.language %>(e.g., <%= resource.language&.name %>)
+                <% end %> of this resource.
+              </div>
+            </div>
+          <% end %>
+
+          <div class="form-group mb-3">
+            <%= form.label :motivation_and_goals, 'Motivation and Goals', class: 'h5' %>
+            <%= form.text_area :motivation_and_goals, required: true, cols: nil, rows: nil, class: 'form-control' %>
+            <div class="text-muted">
+              What motivates you to contribute to the <%= resource.name %> in QUL? Please explain your reasons and
+              contribution goals.
+            </div>
+          </div>
+
+          <% if resource.translation? || resource.tafsir? || resource.chapter_info? %>
+            <div class="form-group mb-3">
+              <div class="custom-control custom-checkbox">
+                <%= form.check_box :review_process_acknowledgment, class: 'custom-control-input' %>
+                <%= form.label :review_process_acknowledgment, 'Review Process Acknowledgment', class: 'custom-control-label' %>
+              </div>
+              <div class="text-muted">
+                I acknowledge that I will only suggest fixes for typos, spelling mistakes, and factual issues. I will
+                not
+                use this permission to suggest changes in wording preferences or subjective opinions.
+              </div>
+
+              <div class="alert alert-dark mt-2">
+                We ask for this acknowledgment to ensure that the integrity of the
+                <% if resource.translation? %>
+                  translation
+                <% elsif resource.tafsir? %>
+                  tafsir
+                <% elsif resource.chapter_info? %>
+                  resource
+                <% end %>
+                is maintained. Our goal is
+                to address objective errors, such as typos and factual inaccuracies, rather than personal preferences or
+                subjective opinions. By agreeing, you help us stay true to the original text as intended by the authors.
+              </div>
+            </div>
+          <% else %>
+            <%= form.hidden_field :review_process_acknowledgment, value: '1' %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+
+      <div class="form-group mt-2" style="text-align: right">
+        <%= form.submit 'Submit', class: 'btn btn-success' %>
+      </div>
+    </div>
+  <% end %>
+</div>

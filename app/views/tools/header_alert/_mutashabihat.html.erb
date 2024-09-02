@@ -18,8 +18,8 @@
       to the admin. Once approved, you'll be able to start using the tool to contribute valuable content.
     </p>
 
-    <p>
-      <%= link_to 'Request Access to Mutashabihat ul Quran Tool', '_', class: 'btn btn-dark' %>
+    <p id="btn-request-permission">
+      <%= link_to 'Request Access to Mutashabihat ul Quran Tool', '_', class: 'btn btn-dark',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg'} %>
     </p>
   </div>
 

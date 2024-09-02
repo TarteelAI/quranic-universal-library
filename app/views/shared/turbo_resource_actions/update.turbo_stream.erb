@@ -1,0 +1,13 @@
+<% errors_html = render("shared/form_errors", object: resource) %>
+
+<%= turbo_stream.update 'form-error-wrapper' do %>
+  <%= errors_html %>
+<% end %>
+
+<%= turbo_stream.update 'modal-form-error-wrapper' do %>
+  <%= errors_html %>
+<% end %>
+
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>

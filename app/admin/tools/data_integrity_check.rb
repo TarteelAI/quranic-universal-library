@@ -11,13 +11,18 @@ ActiveAdmin.register_page 'Data Integrity Check' do
       check = Tools::DataIntegrityChecks.send(check_name)
       title = check[:name]
       description = check[:description]
+      instructions = check[:instructions]
     else
       title = 'Results'
       description = "Sorry <b>#{check_name}</b> is not a valid check".html_safe
+      instructions = []
     end
 
     panel title do
-      div description
+      div description, class: 'py-2'
+      if instructions.present?
+        div "<strong>Usage</strong> <div>#{instructions.join('<br>')}</div>".html_safe, class: 'alert alert-dark'
+      end
 
       if check
         if check[:fields].present?
@@ -56,7 +61,7 @@ ActiveAdmin.register_page 'Data Integrity Check' do
             thead do
               attrs.each do |attr|
                 th do
-                  link_to(attr, { per_page: per_page, check_name: check_name, sort_by: attr, sort_order: sort_by == attr.downcase ? sort_order : 'asc' })
+                  link_to(attr,  ({ per_page: per_page, check_name: check_name, sort_by: attr, sort_order: sort_by == attr.downcase ? sort_order : 'asc' }))
                 end
               end
             end

@@ -41,14 +41,18 @@ ActiveAdmin.register_page 'Dashboard' do
     columns do
       column do
         panel 'Data Integrity checks' do
-          div "This section has various tools for checking data integrity, such as finding words that don't have translations for specific languages.", class: 'alert alert-info'
+          div "This section includes various tools designed to ensure data integrity across the QUL resources. These tools help identify inconsistencies, missing data, and other potential issues within the dataset. Regularly running these checks helps us detect and resolve data issues effectively.", class: 'alert alert-info'
 
           div do
             Tools::DataIntegrityChecks.checks.each do |check_name|
               check = Tools::DataIntegrityChecks.send(check_name)
-              div class: 'fs-lg' do
-                span(check[:name])
-                span link_to('Go', "/admin/data_integrity_check?check_name=#{check_name}")
+              div class: 'fs-lg p-3 d-flex border-bottom' do
+                div do
+                  div(check[:name])
+                  small(check[:description])
+                end
+
+                span link_to('Go', "/admin/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
               end
             end
           end

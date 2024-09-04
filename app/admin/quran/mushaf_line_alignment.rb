@@ -2,7 +2,6 @@
 
 ActiveAdmin.register MushafLineAlignment do
   menu parent: 'Quran', priority: 1
-  actions :all, except: :destroy
   includes :mushaf
 
   filter :page_number

@@ -644,8 +644,12 @@ class Tools::DataIntegrityChecks
 
   def self.words_without_mushaf_words
     {
-      name: "Words with no Mushaf Words record",
-      description: "List of Words that are not present in specific Mushaf Layout",
+      name: "Missing Words in Mushaf Layout",
+      description: "This tool identifies words that are missing from a specific Mushaf layout. It helps ensure that the all Mushaf layout accurately reflects the complete Quran text",
+      instructions: [
+        "dsd",
+        "sd"
+      ],
       table_attrs: ['id', 'location', 'text_uthmani', 'page'],
       fields: [
         {
@@ -681,7 +685,7 @@ class Tools::DataIntegrityChecks
   def self.mushaf_words_without_word
     {
       name: "Orphan Mushaf Words",
-      description: "List of Mushaf Words without associated words record",
+      description: "This tool identifies Mushaf words that do not have associated word records in the dataset. It helps to ensure that all words in the Mushaf are properly linked to their corresponding Quran word.",
       table_attrs: ['id', 'word_id', 'text'],
       check: ->(params) do
         results = MushafWord.joins("left join words on words.id = mushaf_words.word_id").where('words.id is null')

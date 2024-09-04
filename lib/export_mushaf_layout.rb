@@ -1,6 +1,7 @@
 class ExportMushafLayout
   MUSHAF_IDS = [
     2, # v1
+    1, # v2
     5, # KFGQPC HAFS
     6, # Indopak 15 lines
     # 7, # Indopak 16 lines surah name and bismillah is one the same line for some pages
@@ -213,6 +214,7 @@ class ExportMushafLayout
 
   def get_mushaf_file_name(mushaf_id)
     mapping = {
+      "1": "qpc_v2_layout",
       "2": "qpc_v1_layout",
       "5": "qpc_hafs_15_lines_layout",
       "6": "indopak_15_lines_layout",

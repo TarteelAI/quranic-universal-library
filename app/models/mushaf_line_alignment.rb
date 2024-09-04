@@ -20,6 +20,10 @@
 class MushafLineAlignment < ApplicationRecord
   belongs_to :mushaf
 
+  def self.dummy
+    MushafLineAlignment.new
+  end
+
   def get_surah_number
     properties['surah_number'] if is_surah_name?
   end

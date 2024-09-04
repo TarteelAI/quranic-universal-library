@@ -51,18 +51,18 @@
     <div id="page-<%= page %>" data-controller="<%= 'tajweed-font' if mushaf.font_code == 'v4-tajweed' %>" class="page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
       <% 1.upto(mushaf.lines_per_page) do |line_number| %>
         <%
-          line_mapping = lines_mapping[line_number.to_s] || {}
+          line_mapping = lines_mapping[line_number.to_s] || MushafLineAlignment.dummy
           verses = lines[line_number] || []
         %>
         <% next if line_mapping.blank? && verses.blank? %>
 
         <div class="line-container" data-line="<%= line_number %>">
-          <div class="line <%= 'line--center' if line_mapping[:center] %> <%= 'line--surah-name' if line_mapping[:surah] %> <%= 'line---bismillah' if line_mapping[:bismillah] %>" id="line-<%= line_number %>">
-            <% if line_mapping[:surah] && line_mapping[:surah_number] %>
-              <%= render 'shared/chapter_name', chapter: Chapter.find(line_mapping[:surah_number]) %>
+          <div class="line <%= 'line--center' if line_mapping.is_center_aligned? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line---bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
+            <% if line_mapping.is_surah_name? %>
+              <%= render 'shared/chapter_name', chapter: Chapter.find(line_mapping.get_surah_number) %>
             <% end %>
 
-            <% if line_mapping[:bismillah] %>
+            <% if line_mapping.is_bismillah? %>
               <%= render 'shared/bismillah' %>
             <% end %>
 

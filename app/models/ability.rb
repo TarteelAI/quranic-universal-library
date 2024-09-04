@@ -28,6 +28,7 @@ class Ability
       can :manage, Draft::Translation
       can :manage, Draft::Tafsir
       can :manage, Draft::FootNote
+      can :manage, Faq
 
       can :manage, Reciter
       can :manage, Tafsir
@@ -48,6 +49,7 @@ class Ability
       can :manage, Morphology::PhraseVerse
       can :manage, Morphology::MatchingVerse
 
+      can [:read, :update, :create], Faq
       can [:read, :update, :create], Draft::Translation
       can [:read, :update, :create], Draft::Tafsir
       can [:read, :update, :create], Draft::FootNote
@@ -65,6 +67,7 @@ class Ability
       cannot :read, ResourcePermission
       cannot :read, UserProject
       cannot :read, ActiveAdmin::Comment
+      cannot :read, Faq
     end
 
     can :manage, :all if user.super_admin?

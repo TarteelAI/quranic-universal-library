@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_28_113324) do
+ActiveRecord::Schema[7.0].define(version: 2024_09_04_073505) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -216,6 +216,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_28_113324) do
   create_table "dummy", force: :cascade do |t|
   end
 
+  create_table "faqs", force: :cascade do |t|
+    t.string "question"
+    t.text "answer"
+    t.integer "position"
+    t.boolean "published", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["position", "published"], name: "index_faqs_on_position_and_published"
+  end
+
   create_table "feedbacks", force: :cascade do |t|
     t.string "name"
     t.string "email"
@@ -418,6 +428,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_28_113324) do
     t.text "admin_notes"
     t.boolean "approved", default: false
     t.text "request_message"
+    t.text "reason_for_request"
+    t.text "language_proficiency"
+    t.text "motivation_and_goals"
+    t.boolean "review_process_acknowledgment"
+    t.text "additional_notes"
   end
 
   create_table "users", force: :cascade do |t|

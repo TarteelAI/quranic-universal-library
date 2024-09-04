@@ -100,4 +100,7 @@ application.register("activities--fill-in-blank", FillTheBlankController);
 import AyahMasteryController from './activities/ayah_mastery_controller';
 application.register("activities--ayah-mastery", AyahMasteryController);
 
+import FaqController from './faq_controller';
+application.register("faq", FaqController);
+
 

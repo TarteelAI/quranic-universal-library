@@ -2,15 +2,20 @@
 #
 # Table name: user_projects
 #
-#  id                  :bigint           not null, primary key
-#  admin_notes         :text
-#  approved            :boolean          default(FALSE)
-#  description         :text
-#  request_message     :text
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  resource_content_id :integer
-#  user_id             :integer
+#  id                            :bigint           not null, primary key
+#  additional_notes              :text
+#  admin_notes                   :text
+#  approved                      :boolean          default(FALSE)
+#  description                   :text
+#  language_proficiency          :text
+#  motivation_and_goals          :text
+#  reason_for_request            :text
+#  request_message               :text
+#  review_process_acknowledgment :boolean
+#  created_at                    :datetime         not null
+#  updated_at                    :datetime         not null
+#  resource_content_id           :integer
+#  user_id                       :integer
 #
 
 class UserProject < ApplicationRecord

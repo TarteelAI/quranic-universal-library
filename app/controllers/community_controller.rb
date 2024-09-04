@@ -9,6 +9,10 @@ class CommunityController < ApplicationController
   def credits
   end
 
+  def faq
+    @items = Faq.published
+  end
+
   def tool_help
     render layout: false
   end

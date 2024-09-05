@@ -12,7 +12,7 @@ ActiveAdmin.register Hizb do
          ajax: { resource: Verse }
   filter :last_verse, as: :searchable_select,
          ajax: { resource: Verse }
-  filter :chapter_cont,
+  filter :chapter_id_cont,
          as: :searchable_select,
          ajax: { resource: Chapter }
 

@@ -1,0 +1,116 @@
+
+<%
+  if (params[:text].present?)
+    text = params[:text].to_s
+    chars = text.to_s.chars
+  elsif params[:script].present? && scripts.keys.include?(params[:script].strip.to_sym)
+    ayahs = Verse.order('id ASC').pluck(params[:script].strip)
+    text = ayahs[0]
+    chars = ayahs.join(' ').chars
+  else
+    chars = []
+  end
+
+  uniq_chars = chars.uniq
+%>
+
+<%= render 'tools/header',
+           name: "Unicode checker",
+           title: "Tool to show unicode value and names for character",
+           key: 'char'
+%>
+
+<div class="page-wrapper container-lg" data-controller="chars-info">
+  <div class="page-section">
+    <div class="row">
+      <div class="col-md-12">
+        <%= form_with url: chars_info_path, method: "get" do |form| %>
+          <div class="form-group mb-3">
+            <%= form.label :text, 'Enter text' %>
+            <%= form.text_area :text, value: params[:text], class: "form-control text" %>
+
+            <% if params[:name].present? %>
+              <div class="help-block">
+                <%= params[:name] %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :script, 'Select script' %>
+            <%
+              scripts_options = scripts.map do |key, name|
+                [name, key]
+              end
+            %>
+            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "form-control" %>
+          </div>
+
+          <div class="form-group d-flex mt-2">
+            <%= form.submit "Submit", class: "btn btn-success" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+   <%= render 'char_font_options' %>
+
+    <div class="section">
+      <% if uniq_chars.present? %>
+        <div class="char">
+          <%= text %>
+        </div>
+
+        <div>
+          Total Chars: <%= chars.length %> <br/>
+          Uniq Chars: <%= uniq_chars.length %>
+        </div>
+      <% end %>
+
+      <table class="table table-hover">
+        <thead class="position-sticky bg-white border-bottom top-0">
+        <tr class="sticky">
+          <th>#</th>
+          <th style="width: 100px">Name</th>
+          <th>Char</th>
+          <th>Count</th>
+          <th>Decimal</th>
+          <th>HTML entity</th>
+          <th>Hexa</th>
+          <th>Link</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% uniq_chars.each_with_index do |char, i| %>
+          <tr>
+            <%
+              hex = char.ord.to_s(16).rjust(4, '0')
+              decimal = char.ord
+            %>
+            <td><%= i + 1 %></td>
+            <td>
+              <% if params[:script].present? %>
+                <%= link_to Unicode::Name.of(char), chars_info_path(char: char, script: params[:script]), target: '_blank' %>
+              <% else %>
+                <%=  Unicode::Name.of(char) %>
+              <% end %>
+            </td>
+            <td data-text="<%= char -%>"
+                title="Copy <%= char %>"
+                data-controller="tooltip copy-to-clipboard"
+                class="char"
+            >
+              <%= char %>
+            </td>
+            <td><%= chars.count char %></td>
+            <td><%= decimal %></td>
+            <td><%= "&##{decimal};" %></td>
+            <td><%= hex %></td>
+            <td><%= link_to hex, "https://www.compart.com/en/unicode/U+#{hex}", target: '_blank' %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

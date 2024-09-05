@@ -31,6 +31,10 @@ class Mushaf < QuranApiRecord
   after_create :generate_pages
   scope :approved, -> { where(enabled: true) }
 
+  def using_glyphs?
+    [1, 2].include?(id)
+  end
+
   def percentage_done
     total = Word.count
     done = MushafWord.where(mushaf_id: id).count

@@ -19,17 +19,8 @@
 
 class RubElHizb < QuranApiRecord
   include NavigationSearchable
+  include HasVerseMapping
+
   has_many :verses, foreign_key: :rub_el_hizb_number
   has_many :chapters, through: :verses
-  belongs_to :first_verse, class_name: 'Verse'
-  belongs_to :last_verse, class_name: 'Verse'
-
-  scope :chapter_cont, lambda {|chapter_id|
-    verses = Verse.order('verse_index ASC').where(chapter_id: chapter_id).select(:id)
-    where('? >= first_verse_id AND ? <= last_verse_id', verses.first.id, verses.last.id)
-  }
-
-  def self.ransackable_scopes(*)
-    %i[chapter_cont]
-  end
 end

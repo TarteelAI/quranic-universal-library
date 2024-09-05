@@ -1,0 +1,18 @@
+<div class="row my-4 sticky">
+  <div class="col-12">
+    <div class="d-flex flex-column mb-4">
+      <div>
+        Font size:(<span id="font-size"></span>)
+        <input type="range" min="15" max="100" value="28" class="font-size-slider">
+      </div>
+
+      <div id=font-switcher>
+        <label for="font-switcher">
+          Change font
+        </label>
+
+        <%= select_tag :change_font, options_for_select(all_quran_fonts, params[:font] || 'qpc-hafs') %>
+      </div>
+    </div>
+  </div>
+</div>

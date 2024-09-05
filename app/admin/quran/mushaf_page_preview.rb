@@ -68,7 +68,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
                 link_to 'Stop comparison', "/admin/mushaf_page_preview?mushaf=#{current_mushaf}&page=#{page}"
               else
                 link_to 'Compare',
-                        "/admin/mushaf_page_preview?mushaf=#{current_mushaf}&compare=#{mushaf.id}&page=#{page}"
+                        "/admin/mushaf_page_preview?mushaf=#{current_mushaf}&compare=#{mushaf.id}&page=#{page}&word=#{params[:word]}"
               end
             end
           end

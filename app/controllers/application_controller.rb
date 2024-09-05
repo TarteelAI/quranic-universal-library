@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pagy::Backend
+  helper_method :pagy
 
   rescue_from ActionController::UnknownFormat,
               ActionController::RoutingError,

@@ -87,7 +87,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
         result = []
 
         if mushaf_id.present?
@@ -108,7 +108,7 @@ class Tools::DataIntegrityChecks
   def self.mushaf_page_with_start_ayah
     {
       name: "Mushaf page with starting ayah",
-      description: "List of pages that has starting ayah of any surah.",
+      description: "List of pages that has first ayah of any surah.",
       table_attrs: ['page_number', 'ayah'],
       paginate: false,
       links_proc: {
@@ -129,7 +129,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
         result = []
 
         if mushaf_id.present?
@@ -180,7 +180,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           lines_with_bismillah = MushafLineAlignment.where(mushaf_id: mushaf_id).order('page_number ASC').select(&:is_bismillah?)
@@ -252,10 +252,10 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        first_translation_id = params.dig(:check, :first_translation)
-        second_translation_id = params.dig(:check, :second_translation)
-        verse_key = params.dig(:check, :verse_key)
-        matched = params.dig(:check, :matched)
+        first_translation_id = params[:first_translation]
+        second_translation_id = params[:second_translation]
+        verse_key = params[:verse_key]
+        matched = params[:matched]
 
         if first_translation_id && second_translation_id
           translations = Translation

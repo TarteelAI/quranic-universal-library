@@ -24,7 +24,7 @@ ActiveAdmin.register_page 'Data Integrity Check' do
 
     panel title do
       div description, class: 'py-2'
-      div data[:error], class: 'alert alert-info' if data[:error].present?
+      div data[:error], class: 'alert alert-info' if data.is_a?(Hash) && data[:error].present?
 
       if instructions.present?
         div "<strong>Usage</strong> <div>#{instructions.join('<br>')}</div>".html_safe, class: 'alert alert-dark'

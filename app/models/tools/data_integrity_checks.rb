@@ -1,6 +1,11 @@
 class Tools::DataIntegrityChecks
   def self.checks
     [
+      :compare_two_mushaf_words,
+      :compare_mushaf_scripts,
+      :mushaf_page_with_start_ayah,
+      :mushaf_page_with_bismillah,
+      :mushaf_page_with_ayah_spanning_into_multiple_pages,
       :words_without_mushaf_words,
       :mushaf_words_without_word,
       :mushaf_words_with_missing_arabic_text,
@@ -18,10 +23,6 @@ class Tools::DataIntegrityChecks
       :words_with_duplicate_lemma,
       :words_with_duplicate_stem,
       :words_with_duplicate_root,
-      :compare_two_mushaf_words,
-      :mushaf_page_with_start_ayah,
-      :mushaf_page_with_bismillah,
-      :mushaf_page_with_ayah_spanning_into_multiple_pages,
       :compare_translations,
       :ayah_without_matching_ayahs
     ]
@@ -86,7 +87,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
         result = []
 
         if mushaf_id.present?
@@ -107,7 +108,7 @@ class Tools::DataIntegrityChecks
   def self.mushaf_page_with_start_ayah
     {
       name: "Mushaf page with starting ayah",
-      description: "List of pages that has starting ayah of any surah.",
+      description: "List of pages that has first ayah of any surah.",
       table_attrs: ['page_number', 'ayah'],
       paginate: false,
       links_proc: {
@@ -128,7 +129,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
         result = []
 
         if mushaf_id.present?
@@ -179,7 +180,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           lines_with_bismillah = MushafLineAlignment.where(mushaf_id: mushaf_id).order('page_number ASC').select(&:is_bismillah?)
@@ -251,10 +252,10 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        first_translation_id = params.dig(:check, :first_translation)
-        second_translation_id = params.dig(:check, :second_translation)
-        verse_key = params.dig(:check, :verse_key)
-        matched = params.dig(:check, :matched)
+        first_translation_id = params[:first_translation]
+        second_translation_id = params[:second_translation]
+        verse_key = params[:verse_key]
+        matched = params[:matched]
 
         if first_translation_id && second_translation_id
           translations = Translation
@@ -288,20 +289,131 @@ class Tools::DataIntegrityChecks
     }
   end
 
-  def self.compare_two_mushaf_words
+  def self.compare_mushaf_scripts
     {
-      name: "Compare layout difference of two Mushafs",
-      description: "Compare two mushaf words and get list of words that are not on same page/or line",
-      table_attrs: ['word_id', 'text', 'first_musahf_page', 'second_musahf_page', 'first_musahf_line', 'second_musahf_line'],
+      name: "Mushaf Script Comparison",
+      description: "This tool compares the script differences between two Mushafs. It helps identify variations in mushaf scripts.",
+      table_attrs: ['word_id', 'first_mushaf_text', 'second_mushaf_text', 'page_number'],
       links_proc: {
         word_id: -> (record, _) do
           [record.word.location, "/admin/words/#{record.word_id}"]
         end,
-        first_musahf_page: -> (record, _) do
-          [record.first_musahf_page, "/admin/mushaf_page_preview?page=#{record.first_musahf_page}&mushaf=#{record.first_musahf_id}&word=#{record.word_id}"]
+        first_mushaf_text: -> (record, params) do
+          text = record.first_mushaf_text
+          text += " - (#{record.first_mushaf_text.to_s.length})" if params[:compare_type] == 'length'
+
+          [
+            text,
+            "/admin/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{record.first_mushaf_id}&word=#{record.word_id}&compare=#{record.second_mushaf_id}",
+          ]
         end,
-        second_musahf_page: -> (record, _) do
-          [record.second_musahf_page, "/admin/mushaf_page_preview?page=#{record.second_musahf_page}&mushaf=#{record.second_musahf_id}&word=#{record.word_id}"]
+        second_mushaf_text: -> (record, params) do
+          text = record.second_mushaf_text
+          text += " - (#{record.second_mushaf_text.to_s.length})" if params[:compare_type] == 'length'
+
+          [
+            text,
+            "/admin/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{record.second_mushaf_id}&word=#{record.word_id}&compare=#{record.first_mushaf_id}"
+          ]
+        end,
+        page_number: -> (record, _) do
+          record.first_mushaf_page
+        end
+      },
+      fields: [
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :first_mushaf_id
+        },
+        {
+          type: :select,
+          collection: Mushaf.all.map do |a|
+            [a.name, a.id.to_s]
+          end,
+          name: :second_mushaf_id
+        },
+        {
+          type: :select,
+          collection: [['Compare Text', 'text'], ['Compare text length', 'length']],
+          name: :compare_type
+        }
+      ],
+      check: ->(params) do
+        first_mushaf_id = params[:first_mushaf_id]
+        second_mushaf_id = params[:second_mushaf_id]
+        compare_type = params[:compare_type] || 'text'
+
+        if first_mushaf_id && second_mushaf_id
+          first_mushaf = Mushaf.find(first_mushaf_id)
+          second_mushaf = Mushaf.find(second_mushaf_id)
+          condition = compare_type == 'text' ? "mushaf_words.text <> mw2.text" : "LENGTH(mushaf_words.text) <> LENGTH(mw2.text)"
+
+          if first_mushaf.using_glyphs? || second_mushaf.using_glyphs?
+            # Comparing v1 and v2 maybe, both mushaf should be using glyphs.
+            # If not return empty results with an error
+            # For glyphs, we'll compare the length of the text
+            if first_mushaf.using_glyphs? && second_mushaf.using_glyphs?
+              matching_words = MushafWord
+                                 .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf.id} AND mw2.mushaf_id = #{second_mushaf.id}")
+                                 .where(condition)
+            else
+              return {
+                error: "Both mushafs should be using glyphs for comparison",
+                collection: MushafWord.none.page(0)
+              }
+            end
+          else
+            # Compare text
+            matching_words = MushafWord
+                               .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf.id} AND mw2.mushaf_id = #{second_mushaf.id}")
+                               .where(condition)
+          end
+        else
+          matching_words = MushafWord.none
+        end
+
+        result = matching_words.select(
+          :word_id,
+          "mushaf_words.mushaf_id AS first_mushaf_id",
+          "mw2.mushaf_id AS second_mushaf_id",
+
+          "mushaf_words.page_number AS first_mushaf_page",
+
+          "mushaf_words.text AS first_mushaf_text",
+          "mw2.text AS second_mushaf_text",
+          "mw2.page_number AS second_mushaf_page"
+        )
+
+        pages_with_difference = result.map(&:first_mushaf_page).uniq.sort
+
+        {
+          collection: paginate(result, params),
+          total_pages_with_difference: pages_with_difference.size,
+          different_pages: pages_with_difference.map do |p|
+            "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+          end.join(', ')
+        }
+      end
+    }
+  end
+
+  def self.compare_two_mushaf_words
+    {
+      name: "Compare layout difference of two Mushafs",
+      description: "Compare two mushaf words and get list of words that are not on same page/or line",
+      table_attrs: ['word_id', 'text', 'first_mushaf_page', 'second_mushaf_page', 'first_mushaf_line', 'second_mushaf_line'],
+      links_proc: {
+        word_id: -> (record, _) do
+          [record.word.location, "/admin/words/#{record.word_id}"]
+        end,
+        first_mushaf_page: -> (record, _) do
+          [record.first_mushaf_page, "/admin/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{record.first_mushaf_id}&word=#{record.word_id}"]
+        end,
+        second_mushaf_page: -> (record, _) do
+          [record.second_mushaf_page, "/admin/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{record.second_mushaf_id}&word=#{record.word_id}"]
         end
       },
       fields: [
@@ -326,9 +438,9 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        first_mushaf_id = params.dig(:check, :first_mushaf_id)
-        second_mushaf_id = params.dig(:check, :second_mushaf_id)
-        compare_attr = params.dig(:check, :compare_field).presence || 'page_number'
+        first_mushaf_id = params[:first_mushaf_id]
+        second_mushaf_id = params[:second_mushaf_id]
+        compare_attr = params[:compare_field].presence || 'page_number'
 
         if first_mushaf_id && second_mushaf_id
           matching_words = MushafWord
@@ -338,23 +450,23 @@ class Tools::DataIntegrityChecks
           result = matching_words.select(
             :word_id,
             :text,
-            "mushaf_words.mushaf_id AS first_musahf_id",
-            "mw2.mushaf_id AS second_musahf_id",
+            "mushaf_words.mushaf_id AS first_mushaf_id",
+            "mw2.mushaf_id AS second_mushaf_id",
 
-            "mushaf_words.page_number AS first_musahf_page",
-            "mushaf_words.line_number AS first_musahf_line",
+            "mushaf_words.page_number AS first_mushaf_page",
+            "mushaf_words.line_number AS first_mushaf_line",
 
-            "mw2.line_number AS second_musahf_line",
-            "mw2.page_number AS second_musahf_page"
+            "mw2.line_number AS second_mushaf_line",
+            "mw2.page_number AS second_mushaf_page"
           )
         else
           result = MushafWord.none
         end
 
-        pages_with_difference = result.map(&:first_musahf_page).uniq
+        pages_with_difference = result.map(&:first_mushaf_page).uniq.sort
 
         {
-          collection:  paginate(result, params),
+          collection: paginate(result, params),
           total_pages_with_difference: pages_with_difference.size,
           different_pages: pages_with_difference.map do |p|
             "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
@@ -380,7 +492,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         query = "char_type_id NOT IN(#{1}, #{3})"
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           query = "mushaf_words.mushaf_id = #{mushaf_id.to_i} AND (#{query})"
@@ -390,7 +502,7 @@ class Tools::DataIntegrityChecks
         paginate(results, params)
 
         join_query = "join words on words.id = mushaf_words.word_id"
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           join_query += " AND mushaf_words.mushaf_id = #{mushaf_id.to_i}"
@@ -418,7 +530,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         query = "char_type_id NOT IN(#{1}, #{3})"
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           query = "mushaf_words.mushaf_id = #{mushaf_id.to_i} AND (#{query})"
@@ -446,7 +558,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
         records = if mushaf_id.present?
                     MushafWord.where(mushaf_id: mushaf_id.to_i)
                   else
@@ -481,7 +593,7 @@ class Tools::DataIntegrityChecks
         }
       ],
       check: ->(params) do
-        script_type = params.dig(:check, :script_type)
+        script_type = params[:script_type]
 
         query = if script_type.present?
                   attr = script_type.to_s.strip
@@ -515,7 +627,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         query = "text = '' OR text IS NULL"
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           query = "mushaf_words.mushaf_id = #{mushaf_id.to_i} AND (#{query})"
@@ -644,8 +756,12 @@ class Tools::DataIntegrityChecks
 
   def self.words_without_mushaf_words
     {
-      name: "Words with no Mushaf Words record",
-      description: "List of Words that are not present in specific Mushaf Layout",
+      name: "Missing Words in Mushaf Layout",
+      description: "This tool identifies words that are missing from a specific Mushaf layout. It helps ensure that the all Mushaf layout accurately reflects the complete Quran text",
+      instructions: [
+        "dsd",
+        "sd"
+      ],
       table_attrs: ['id', 'location', 'text_uthmani', 'page'],
       fields: [
         {
@@ -658,7 +774,7 @@ class Tools::DataIntegrityChecks
       ],
       links_proc: {
         page: -> (record, params) do
-          mushaf_id = params.dig(:check, :mushaf_id)
+          mushaf_id = params[:mushaf_id]
           page_words = MushafWord.where(mushaf_id: mushaf_id).where('word_id IN (?)', record.verse.words.pluck(:id))
           page = page_words.detect(&:page_number)&.page_number
           [page, "/mushaf_layouts/#{mushaf_id}/edit?page_number=#{page}"]
@@ -666,7 +782,7 @@ class Tools::DataIntegrityChecks
       },
       check: ->(params) do
         join_query = "left join mushaf_words on words.id = mushaf_words.word_id"
-        mushaf_id = params.dig(:check, :mushaf_id)
+        mushaf_id = params[:mushaf_id]
 
         if mushaf_id.present?
           join_query += " AND mushaf_words.mushaf_id = #{mushaf_id.to_i}"
@@ -681,7 +797,7 @@ class Tools::DataIntegrityChecks
   def self.mushaf_words_without_word
     {
       name: "Orphan Mushaf Words",
-      description: "List of Mushaf Words without associated words record",
+      description: "This tool identifies Mushaf words that do not have associated word records in the dataset. It helps to ensure that all words in the Mushaf are properly linked to their corresponding Quran word.",
       table_attrs: ['id', 'word_id', 'text'],
       check: ->(params) do
         results = MushafWord.joins("left join words on words.id = mushaf_words.word_id").where('words.id is null')
@@ -706,8 +822,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         join_query = "left join translated_names on chapters.id = translated_names.resource_id AND translated_names.resource_type = 'Chapter'"
-
-        language_id = params.dig(:check, :language_id)
+        language_id = params[:language_id]
 
         if language_id.present?
           join_query += " AND translated_names.language_id = #{language_id.to_i}"
@@ -735,8 +850,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         join_query = "left join word_translations on words.id = word_translations.word_id"
-
-        language_id = params.dig(:check, :language_id)
+        language_id = params[:language_id]
 
         if language_id.present?
           join_query += " AND word_translations.language_id = #{language_id.to_i}"
@@ -762,8 +876,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         join_query = "left join translations on verses.id = translations.verse_id"
-
-        resource_content_id = params.dig(:check, :resource_content_id)
+        resource_content_id = params[:resource_content_id]
 
         if resource_content_id.present?
           join_query += " AND translations.resource_content_id = #{resource_content_id.to_i}"
@@ -789,8 +902,7 @@ class Tools::DataIntegrityChecks
       ],
       check: ->(params) do
         join_query = "left join tafsirs on verses.id = tafsirs.verse_id"
-
-        resource_content_id = params.dig(:check, :tafsir_id)
+        resource_content_id = params[:tafsir_id]
 
         if resource_content_id.present?
           join_query += " AND tafsirs.resource_content_id = #{resource_content_id.to_i}"

@@ -11,13 +11,24 @@ ActiveAdmin.register_page 'Data Integrity Check' do
       check = Tools::DataIntegrityChecks.send(check_name)
       title = check[:name]
       description = check[:description]
+      instructions = check[:instructions]
+
+      klass = check[:check]
+      data = klass.call(params)
+      stats = {}
     else
       title = 'Results'
       description = "Sorry <b>#{check_name}</b> is not a valid check".html_safe
+      instructions = []
     end
 
     panel title do
-      div description
+      div description, class: 'py-2'
+      div data[:error], class: 'alert alert-info' if data.is_a?(Hash) && data[:error].present?
+
+      if instructions.present?
+        div "<strong>Usage</strong> <div>#{instructions.join('<br>')}</div>".html_safe, class: 'alert alert-dark'
+      end
 
       if check
         if check[:fields].present?
@@ -28,16 +39,12 @@ ActiveAdmin.register_page 'Data Integrity Check' do
 
         div do
           # Results
-          klass = check[:check]
-          data = klass.call(params)
-          stats = {}
-
           if data.is_a?(Hash)
             stats = data.except(:collection)
             data = data[:collection]
           end
 
-          attrs = check[:table_attrs]
+          table_columns = check[:table_attrs]
           attrs_links = check[:links_proc] || {}
           sort_order = params[:sort_order].presence == 'asc' ? 'desc' : 'asc'
           sort_by = params[:sort_by].presence.to_s.downcase
@@ -48,22 +55,28 @@ ActiveAdmin.register_page 'Data Integrity Check' do
             div do
               stats.each do |k, v|
                 span "<strong>#{k.to_s.humanize}</strong>: #{v} |".html_safe
-            end
+              end
             end
           end
 
           table border: true do
             thead do
-              attrs.each do |attr|
+              table_columns.each do |attr|
                 th do
-                  link_to(attr, { per_page: per_page, check_name: check_name, sort_by: attr, sort_order: sort_by == attr.downcase ? sort_order : 'asc' })
+                  link_attrs = params.except(:controller, :action, :commit).permit!.to_h
+                  link_to(attr, link_attrs.merge(
+                    { per_page: per_page,
+                      sort_by: attr,
+                      sort_order: sort_by == attr.downcase ? sort_order : 'asc'
+                    }
+                  ))
                 end
               end
             end
 
             tbody do
               tr do
-                td colspan: attrs.size do
+                td colspan: table_columns.size do
                   if check[:paginate] == false
                     "Total: #{data.count}"
                   else
@@ -74,7 +87,7 @@ ActiveAdmin.register_page 'Data Integrity Check' do
 
               data.each do |record|
                 tr do
-                  attrs.each do |attr|
+                  table_columns.each do |attr|
                     td do
                       if attrs_links[attr.to_sym]
                         text, url = attrs_links[attr.to_sym].call(record, params)

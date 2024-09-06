@@ -1,123 +1,19 @@
 <%
-  scripts = [
-    'text_qpc_hafs',
-    'text_uthmani',
-    'text_imlaei',
-    'text_indopak_nastaleeq'
-  ]
-
-  if (params[:text].present?)
-    text = params[:text].to_s
-    chars = text.to_s.chars
-  elsif scripts.include?(params[:script])
-    ayahs = Verse.order('id ASC').pluck(params[:script])
-    text = ayahs[0]
-    chars = ayahs.join(' ').chars
-  else
-    chars = []
-  end
-
-  uniq_chars = chars.uniq
+  scripts = {
+    text_qpc_hafs: 'QPC Hafs',
+    text_uthmani: 'Utmani(Me Quran)',
+    text_indopak_nastaleeq: 'Indopak Nastaleeq',
+    text_indopak: 'Inodpak(PDMS Saleem)',
+    text_imlaei: 'Imlaei(Simple script)',
+    text_imlaei_simple: 'Imlaei(Without tashkeel)',
+    text_uthmani_tajweed: 'QPC Hafs with tajweed',
+    text_qpc_nastaleeq: 'QPC Nastaleeq',
+    text_digital_khatt: 'Digitak Khatt'
+  }
 %>
 
-<%= render 'tools/header',
-           name: "Unicode checker",
-           title: "Tool to show unicode value and names for character",
-           key: 'char'
-%>
-
-<div class="page-wrapper container-lg" data-controller="chars-info">
-  <div class="page-section">
-
-    <div class="row">
-      <div class="col-md-12">
-        <%= form_with url: chars_info_path, method: "get" do |form| %>
-          <div class="form-group mb-3">
-            <%= form.label :text, 'Enter text' %>
-            <%= form.text_area :text, value: params[:text], class: "form-control text" %>
-          </div>
-
-          <div class="form-group">
-            <%= form.label :script, 'Select font' %>
-            <% scripts_options = scripts.map do |s|
-              [s, s]
-            end %>
-            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "form-control" %>
-          </div>
-
-          <div class="form-group d-flex mt-2">
-            <%= form.submit "Submit", class: "btn btn-success" %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="row my-4 sticky">
-      <div class="col-12">
-        <div class="d-flex flex-column mb-4">
-          <div>
-            Font size:(<span id="font-size"></span>)
-            <input type="range" min="15" max="100" value="28" class="font-size-slider">
-          </div>
-
-          <div id=font-switcher>
-            <label for="font-switcher">
-              Change font
-            </label>
-
-            <%= select_tag :change_font, options_for_select(all_quran_fonts, 'qpc-hafs') %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <% if uniq_chars.present? %>
-        <p class="char">
-          <%= text %>
-        </p>
-      <% end %>
-
-      <table class="table table-hover">
-        <thead class="position-sticky bg-white border-bottom top-0">
-        <tr class="sticky">
-          <th>#</th>
-          <th style="width: 100px">Name</th>
-          <th>Char</th>
-          <th>Count</th>
-          <th>Decimal</th>
-          <th>HTML entity</th>
-          <th>Hexa</th>
-          <th>Link</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% uniq_chars.each_with_index do |char, i| %>
-          <tr>
-            <%
-              hex = char.ord.to_s(16).rjust(4, '0')
-              decimal = char.ord
-            %>
-            <td><%= i + 1 %></td>
-            <td><%= Unicode::Name.of(char) %></td>
-            <td data-text="<%= char -%>"
-                title="Copy <%= char %>"
-                data-controller="tooltip copy-to-clipboard"
-                class="char"
-            >
-              <%= char %>
-            </td>
-            <td><%= chars.count char %></td>
-            <td><%= decimal %></td>
-            <td><%= "&##{decimal};" %></td>
-            <td><%= hex %></td>
-            <td><%= link_to hex, "https://www.compart.com/en/unicode/U+#{hex}", target: '_blank' %></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-
+<% if params[:script].present? && params[:char].present? && scripts[params[:script].to_sym] %>
+  <%= render 'chars_table', scripts: scripts %>
+<% else %>
+ <%= render 'char_info_form', scripts: scripts %>
+<% end %>

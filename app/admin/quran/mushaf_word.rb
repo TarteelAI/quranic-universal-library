@@ -66,8 +66,9 @@ ActiveAdmin.register MushafWord do
           if resource.mushaf.use_images?
             render 'shared/tajweed_image', word: resource
           else
-            div class: "quran-text " do
-              resource.text.to_s.html_safe
+            div do
+              div resource.text.to_s.html_safe, class: "quran-text "
+              div link_to('Chars', "/community/chars_info?text=#{resource.text}&name=#{[resource.mushaf.name, resource.word.location].join('-')}", target: '_blank', class: 'fs-sm')
             end
           end
         end

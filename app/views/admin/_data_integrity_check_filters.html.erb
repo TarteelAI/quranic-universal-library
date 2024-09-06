@@ -1,17 +1,22 @@
 <%
-  existing = params[:check] || {}
+  params_values = params
 %>
+
 <%= semantic_form_for :check, url: "/admin/data_integrity_check", html: { id: 'data-filters'}, method: :get do |form| %>
   <%= hidden_field_tag :check_name, check_name %>
 
   <% check[:fields].each do |field| %>
     <div>
       <% stimulus_controller = field[:type] == :select ? 'select2' : '' %>
-      <% field[:selected] = existing[field[:name]] if field[:type] == :select %>
-      <%= form.input field[:name], as: field[:type], input_html: { value: existing[field[:name]], data: { controller: stimulus_controller}} , **field.except(:name, :type) %>
+      <% field[:selected] = params_values[field[:name]] if field[:type] == :select %>
+      <%= form.input field[:name], as: field[:type], input_html: {
+        value: params_values[field[:name]],
+        name: field[:name],
+        data: { controller: stimulus_controller}
+      } , **field.except(:name, :type) %>
 
       <p class="help-block">
-        <%= field[:name] %>: <%= existing[field[:name]] %>
+        <%= field[:name].to_s.humanize %>: <%= params_values[field[:name]] %>
       </p>
     </div>
   <% end %>

@@ -1,0 +1,51 @@
+<%
+  char = params[:char].strip
+  words = Word.order('id ASC').where("#{params[:script].strip} ilike ?", "%#{char}%")
+  pagination, words = pagy(words, items: 500)
+%>
+<style>
+  .char span{
+      color: #00a650;
+  }
+</style>
+<div class="page-wrapper container-lg" data-controller="chars-info">
+  <div class="page-section">
+    <h2>List of words from <%= scripts[params[:script].to_sym] %> script that include <%= char %></h2>
+    <%= render 'char_font_options' %>
+
+    <div>
+      <table class="table table-hover text-center">
+        <thead class="position-sticky bg-white border-bottom top-0">
+        <tr>
+          <th>Location</th>
+          <th>Text</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% words.each do |word| %>
+          <tr>
+            <td><%= link_to word.location, admin_word_path(word) %></td>
+            <td>
+              <div class="char <%= params[:font] %>">
+                <%= highlight word.send(params[:script]), char, highlighter: '<span>\1</span>' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+
+        <tr>
+          <td>
+            <%= pagy_bootstrap_nav(pagination).html_safe %>
+          </td>
+
+          <td>
+            <%= pagy_info(pagination).html_safe %>
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

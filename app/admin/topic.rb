@@ -17,8 +17,16 @@ ActiveAdmin.register Topic do
   )
 
   filter :name
+  filter :depth
   filter :ontology, as: :boolean
   filter :thematic, as: :boolean
+  filter :chapter_id_cont,
+         as: :searchable_select,
+         ajax: { resource: Chapter }
+  filter :verse_id,
+         as: :searchable_select,
+         ajax: { resource: Verse }
+
   includes :parent
 
   index do

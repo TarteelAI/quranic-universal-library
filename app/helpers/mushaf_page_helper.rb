@@ -1,11 +1,13 @@
 module MushafPageHelper
   def all_quran_fonts
     [
-      ['indopak hahafi', 'mushaf-indopak-nastaleeq-hanafi-compressed'],
-      ['QPC Nastaleeq', 'mushaf-qpc-nastaleeq'],
-      ['al Qalam', 'mushaf-al_qalam'],
+      ['Indopak hahafi-compressed', 'mushaf-indopak-nastaleeq-hanafi-compressed'],
+      ['Indopak hahafi-normal', 'mushaf-indopak-nastaleeq-hanafi-normal'],
+      ['QPC Nastaleeq', 'qpc-nastaleeq'],
+      ['Al Qalam', 'mushaf-al_qalam'],
       ['QPC Hafs', 'qpc-hafs'],
-      ['Me Quran', 'me_quran']
+      ['Me Quran', 'me_quran'],
+      ['Digital Khatt', 'digitalkhatt']
     ]
   end
 
@@ -18,7 +20,7 @@ module MushafPageHelper
         ['Compact', 'indopak-nastaleeq-hanafi-compact'],
         ['Compressed', 'indopak-nastaleeq-hanafi-compressed'],
         ['QPC Nastaleeq', 'qpc-nastaleeq'],
-        ['al Qalam', 'al_qalam'],
+        ['al Qalam', 'al_qalam']
       ]
     elsif font.include?('madinah')
       [
@@ -27,6 +29,7 @@ module MushafPageHelper
         ['Compressed', 'indopak-nastaleeq-madinah-compressed'],
         ['QPC Nastaleeq', 'qpc-nastaleeq'],
         ['al Qalam', 'al_qalam'],
+        ['Digital Khatt', 'digitalkhatt']
       ]
     else
       []

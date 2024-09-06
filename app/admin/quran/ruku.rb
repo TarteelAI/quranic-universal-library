@@ -13,9 +13,9 @@ ActiveAdmin.register Ruku do
          ajax: { resource: Verse }
   filter :last_verse, as: :searchable_select,
          ajax: { resource: Verse }
-  filter :chapter_cont, as: :searchable_select,
+  filter :chapter_id_cont,
+         as: :searchable_select,
          ajax: { resource: Chapter }
-
 
   index do
     id_column

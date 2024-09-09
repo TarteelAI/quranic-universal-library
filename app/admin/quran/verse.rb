@@ -148,6 +148,13 @@ ActiveAdmin.register Verse do
         end
       end
 
+      row :text_qpc_hafs_colored, class: 'quran-text' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_qpc_hafs.to_s.html_safe, class: 'qpc-hafs-color')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
       row 'Uthmani Tajweed' do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs', 'data-controller': 'tajweed-highlight')

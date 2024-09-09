@@ -1,6 +1,12 @@
 <%
   text_type = resource.meta_value('text_type')
-  is_image = ['qa_tajweed_image', 'qa_black_image', 'rq_tajweed_image'].include?(text_type)
+  is_image = [
+    'qa_tajweed_image',
+    'qa_black_image',
+    'rq_tajweed_image',
+    'svg_tajweed',
+    'v4_tajweed_image'
+  ].include?(text_type)
 %>
 
 <div class="bg-primary p-3 text-center rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">

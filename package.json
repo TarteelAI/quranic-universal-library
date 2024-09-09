@@ -47,7 +47,8 @@
     "prettier": "^3.2.5",
     "sass-migrator": "^1.7.3",
     "size-limit": "^11.0.0",
-    "size-limit-node-esbuild": "^0.3.0"
+    "size-limit-node-esbuild": "^0.3.0",
+    "puppeteer": "23.3.0"
   },
   "scripts": {
     "lint": "eslint \"app/javascript/src/**/*.{js,jsx,vue}\"",

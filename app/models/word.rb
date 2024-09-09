@@ -95,7 +95,7 @@ class Word < QuranApiRecord
   has_one :stem, through: :word_stem
   has_one :word_root
   has_one :root, through: :word_root
-  #has_one :pause_mark
+  # has_one :pause_mark
   has_one :morphology_word, class_name: 'Morphology::Word'
 
   has_one :ur_translation, -> { where language_id: 174 }, class_name: 'WordTranslation'
@@ -114,20 +114,20 @@ class Word < QuranApiRecord
   before_update :update_mushaf_word_text
 
   scope :words, -> { where char_type_id: 1 }
-  scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'"}
+  scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'" }
   scope :with_optional_sajdah, -> { where("meta_data ->> 'sajdah-type' = 'optional'") }
 
-  scope :with_sajdah_position_overline, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%overline%')}
-  scope :with_sajdah_position_ayah_marker, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%ayah-marker%')}
-  scope :with_sajdah_position_word_ends, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%word-end%')}
+  scope :with_sajdah_position_overline, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%overline%') }
+  scope :with_sajdah_position_ayah_marker, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%ayah-marker%') }
+  scope :with_sajdah_position_word_ends, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%word-end%') }
 
-  scope :with_hizb_marker, -> { where "meta_data ? 'hizb'"}
+  scope :with_hizb_marker, -> { where "meta_data ? 'hizb'" }
 
   default_scope { order 'position asc' }
 
   def self.without_root
     Word.words.joins("LEFT JOIN word_roots ON words.id = word_roots.word_id")
-      .where("word_roots.id IS NULL")
+        .where("word_roots.id IS NULL")
   end
 
   def self.without_stem
@@ -143,6 +143,7 @@ class Word < QuranApiRecord
   def to_s
     location
   end
+
   def translation_for_language(lang)
     word_translations.where(language_id: lang.id).first
   end
@@ -165,19 +166,34 @@ class Word < QuranApiRecord
     end
   end
 
-  def qa_tajweed_image
-    s,a,w=location.split(':')
-    "https://static.qurancdn.com/images/w/qa-color/#{s}/#{a}/#{w}.png"
+  def qa_tajweed_image_url(format: 'png')
+    s, a, w = location.split(':')
+    "#{WORDS_CDN}/qa-color/#{s}/#{a}/#{w}.#{format}"
   end
 
-  def rq_tajweed_image
-    s,a,w=location.split(':')
-    "https://static.qurancdn.com/images/w/rq-color/#{s}/#{a}/#{w}.png"
+  def rq_tajweed_image_url(format: 'png')
+    s, a, w = location.split(':')
+    "#{WORDS_CDN}/rq-color/#{s}/#{a}/#{w}.#{format}"
   end
 
-  def qa_black_image
-    s,a,w=location.split(':')
-    "https://static.qurancdn.com/images/w/qa-black/#{s}/#{a}/#{w}.png"
+  def qa_black_image_url(format: 'png')
+    s, a, w = location.split(':')
+    "#{WORDS_CDN}/qa-black/#{s}/#{a}/#{w}.#{format}"
+  end
+
+  def tajweed_svg_url
+    s, a, w = location.split(':')
+    "#{WORDS_CDN}/svg-tajweed/#{s}/#{a}/#{w}.svg"
+  end
+
+  def corpus_image_url
+    s, a, w = location.split(':')
+    "#{WORDS_CDN}/corpus/#{s}/#{a}/#{w}.png"
+  end
+
+  def tajweed_v4_image_url(format: 'png')
+    s, a, w = location.split(':')
+    "#{WORDS_CDN}/v4-tajweed/#{s}/#{a}/#{w}.#{format}"
   end
 
   def word?
@@ -216,6 +232,7 @@ class Word < QuranApiRecord
 
     super json
   end
+
   protected
 
   def update_mushaf_word_text

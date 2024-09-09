@@ -78,6 +78,10 @@ $asset-version: "1";
 }
 
 @font-face {
+  font-family: KFGQPCHAFSColored-Bold;
+  src: url("#{$font-cdn}/KFGQPCHAFSColored-Bold.ttf?v=#{$asset-version}")
+}
+@font-face {
   font-family: 'al_qalam';
   src: url("#{$font-cdn}/AlQalamQuran.ttf?v=#{$asset-version}") format('truetype');
   font-weight: normal;
@@ -90,12 +94,13 @@ $asset-version: "1";
 .qpc-hafs, .mushaf-kfqc-hafs {
   font-family: 'UthmanicHafs1-Ver18' !important;
   direction: rtl;
-  //unicode-bidi: bidi-override;
   font-size: 30px;
+}
 
-  //* {
-  //  unicode-bidi: bidi-override;
-  //}
+.qpc-hafs-color{
+  font-family: 'KFGQPCHAFSColored-Bold' !important;
+  direction: rtl;
+  font-size: 30px;
 }
 
 .qalam{

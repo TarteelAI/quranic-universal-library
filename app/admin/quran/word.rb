@@ -166,10 +166,35 @@ ActiveAdmin.register Word do
         end
       end
 
+      row :text_qpc_hafs_colored, class: 'quran-text' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_qpc_hafs.to_s.html_safe, class: 'qpc-hafs-color')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
       row :text_digital_khatt, class: 'quran-text' do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_digital_khatt, class: 'digitalkhatt')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row :text_v4_tajweed, class: 'quran-text' do
+        div class: "p#{resource.v2_page}-v4-tajweed", 'data-controller': 'tajweed-font' do
+          resource.code_v2
+        end
+      end
+
+      row :v4_tajweed_image, class: 'quran-text' do
+        div do
+          image_tag resource.tajweed_v4_image_url
+        end
+      end
+
+      row :qa_tajweed_image, class: 'quran-text' do
+        div do
+          image_tag resource.qa_tajweed_image_url
         end
       end
 
@@ -180,9 +205,21 @@ ActiveAdmin.register Word do
         end
       end
 
-      row :text_v4_tajweed, class: 'quran-text' do
-        div class: "p#{resource.v2_page}-v4-tajweed", 'data-controller': 'tajweed-font' do
-          resource.code_v2
+      row :rq_tajweed_image, class: 'quran-text' do
+        div do
+          image_tag resource.rq_tajweed_image_url
+        end
+      end
+
+      row :tajweed_svg, class: 'quran-text' do
+        div do
+          image_tag resource.tajweed_svg_url
+        end
+      end
+
+      row :corpus_image, class: 'quran-text' do
+        div do
+          image_tag resource.corpus_image_url
         end
       end
 

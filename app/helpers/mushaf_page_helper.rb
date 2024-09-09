@@ -6,8 +6,9 @@ module MushafPageHelper
       ['QPC Nastaleeq', 'qpc-nastaleeq'],
       ['Al Qalam', 'mushaf-al_qalam'],
       ['QPC Hafs', 'qpc-hafs'],
+      ['QPC Hafs color', 'qpc-hafs-color'],
       ['Me Quran', 'me_quran'],
-      ['Digital Khatt', 'digitalkhatt']
+      ['Digital Khatt', 'digitalkhatt'],
     ]
   end
 
@@ -30,6 +31,11 @@ module MushafPageHelper
         ['QPC Nastaleeq', 'qpc-nastaleeq'],
         ['al Qalam', 'al_qalam'],
         ['Digital Khatt', 'digitalkhatt']
+      ]
+    elsif font.include? 'qpc-hafs'
+      [
+        ['QPC Hafs', 'qpc-hafs'],
+        ['QPC Hafs color', 'qpc-hafs-color']
       ]
     else
       []

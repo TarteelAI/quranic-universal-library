@@ -208,7 +208,7 @@ class Word < QuranApiRecord
 
   def tajweed_v4_image_url(format: 'png')
     s, a, w = location.split(':')
-    "#{WORDS_CDN}/v4-tajweed/#{s}/#{a}/#{w}.#{format}"
+    "#{WORDS_CDN}/v4-tajweed/#{s}/#{a}/#{w}.#{format}?s"
   end
 
   def word?

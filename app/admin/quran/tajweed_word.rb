@@ -1,6 +1,8 @@
 ActiveAdmin.register TajweedWord do
   menu parent: 'Quran', priority: 3
-
+  includes :word
+  includes :mushaf
+  
   searchable_select_options(
     scope: TajweedWord,
     text_attribute: :humanize,
@@ -21,7 +23,7 @@ ActiveAdmin.register TajweedWord do
       row :position
 
       row :text do
-        div resource.text.to_s.html_safe, class: 'qpc-hafs quran-text', style: 'font-size: 50px', data: {controller: 'tajweed-highlight'}
+        div resource.text.to_s.html_safe, class: 'qpc-hafs quran-text', style: 'font-size: 50px', data: { controller: 'tajweed-highlight' }
       end
 
       row :v4_tajweed_image, class: 'quran-text' do
@@ -31,11 +33,11 @@ ActiveAdmin.register TajweedWord do
       end
 
       row :uthmani_tajweed do
-        div resource.word.text_uthmani_tajweed.to_s.html_safe, class: 'qpc-hafs quran-text', style: 'font-size: 50px', data: {controller: 'tajweed-highlight'}
+        div resource.word.text_uthmani_tajweed.to_s.html_safe, class: 'qpc-hafs quran-text', style: 'font-size: 50px', data: { controller: 'tajweed-highlight' }
       end
 
-      row :rq_tajweed,  class: 'quran-text' do
-        s,a,w = resource.location.split(':')
+      row :rq_tajweed, class: 'quran-text' do
+        s, a, w = resource.location.split(':')
         link_to "https://recitequran.com/#{s}:#{a}/w#{w}", target: '_blank' do
           image_tag resource.word.rq_tajweed_image_url
         end
@@ -49,6 +51,18 @@ ActiveAdmin.register TajweedWord do
             th :char_index
             th :rule
             th :preview
+          end
+
+          tbody do
+            resource.letters.each do |letter|
+              tr do
+                td letter['index']
+                td TajweedRules.name(letter['r'])
+                td do
+                  div letter['c'], class: "qpc-hafs #{TajweedRules.name(letter['r'])}"
+                end
+              end
+            end
           end
         end
       end

@@ -34,6 +34,21 @@ ActiveAdmin.register Word do
          as: :searchable_select,
          ajax: { resource: Verse }
 
+  filter :letters_cont, as: :string, label: "Contains Letters"
+
+  filter :starts_with_eq, filters: [:eq], as: :string, label: "Starts with"
+  filter :ends_with_eq, filters: [:eq], as: :string, label: "Ends with"
+
+=begin
+  filter :starts_with, as: :string, label: "Starts With" do |scope, value|
+    QuranWordFinder.new(scope).find_by_starting_letter(value)
+  end
+
+  filter :ends_with, as: :string, label: "Ends With" do |scope, value|
+    QuranWordFinder.new(scope).find_by_ending_letter(value)
+  end
+=end
+
   scope :with_sajdah_marker, group: :has_sajdah
   scope :with_optional_sajdah, group: :has_sajdah
 
@@ -200,7 +215,7 @@ ActiveAdmin.register Word do
 
       row :text_uthmani_tajweed, class: 'quran-text' do
         div class: 'd-flex flex-column align-item-end' do
-          div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'qpc-hafs')
+          div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'qpc-hafs', data: {controller: 'tajweed-highlight'})
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani_tajweed}", target: '_blank', class: 'fs-sm')
         end
       end

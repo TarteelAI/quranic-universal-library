@@ -1,0 +1,42 @@
+<%
+  actions = []
+  next_word = @word.next_word
+  previous_word = @word.previous_word
+
+  if @access
+    actions << link_to('Contribute', edit_tajweed_word_path(@word.location), class: 'btn btn-success')
+  end
+
+  if previous_word
+    actions << link_to('Previous word', tajweed_word_path(previous_word.location), class: 'btn btn-dark')
+  end
+
+  if next_word
+    actions << link_to('Next word', tajweed_word_path(next_word.location), class: 'btn btn-dark')
+  end
+
+  actions << link_to('Back to filter', tajweed_words_path, class: 'btn btn-info')
+%>
+
+<%= render 'tools/header',
+           name: "Tajweed tool",
+           title: "Tajweed rules preview for #{@word.location}",
+           key: 'word_tajweed',
+           actions: actions
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <div class="alert alert-info" role="alert">
+      <div>
+        <b>Text Uthmani:</b>
+        <div class="qpc-hafs"> <%= @word.text_qpc_hafs %></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="page-section">
+    <h2>Word list with translation</h2>
+  </div>
+</div>

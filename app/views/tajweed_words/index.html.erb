@@ -1,0 +1,90 @@
+<%= render 'tools/header',
+           name: "Tajweed",
+           title: "Tajweed rules tool",
+           key: 'tajweed'
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section filters">
+    <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
+      <div class="form-group me-2">
+        <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by juz/para', controller: 'select2' } %>
+        <p class="form-text">Filter by Juz/Para</p>
+      </div>
+
+      <div class="form-group me-2">
+        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+        <p class="form-text">Filter by Surah</p>
+      </div>
+
+      <div class="form-group me-2">
+        <%= select_tag :filter_verse, options_for_select(1..256, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+        <p class="form-text">Filter by Ayah</p>
+      </div>
+
+      <div class="form-group">
+        <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2>Words</h2>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
+      <tr>
+        <th><%= sort_order_link 'Word index', :word_index %></th>
+        <th>Location</th>
+        <th>Text(old)</th>
+        <th>Text(new)</th>
+        <th>V4 Tajweed Img</th>
+        <th>RQ Tajweed Img</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @words.each do |word| %>
+        <tr>
+          <td>
+            <%= link_to word.word_index, tajweed_word_path(word.location) %>
+          </td>
+
+          <td>
+            <%= word.location %>
+          </td>
+
+          <td class="qpc-hafs" data-controller="tajweed-highlight">
+            <%= word.text_uthmani_tajweed.html_safe %>
+          </td>
+
+          <td class="qpc-hafs" data-controller="tajweed-highlight">
+            <%= word.text_uthmani_tajweed.html_safe %>
+          </td>
+
+          <td>
+            <%= image_tag word.tajweed_v4_image_url %>
+          </td>
+
+          <td>
+            <%= image_tag word.rq_tajweed_image_url %>
+          </td>
+
+          <td>
+            <div class="d-flex gap-1">
+              <%= link_to 'Show', tajweed_word_path(word.location), class: 'btn btn-success' %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      <tr>
+        <td colspan="7">
+          <%= pagy_bootstrap_nav(@pagy).html_safe %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+

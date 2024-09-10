@@ -122,8 +122,15 @@ class Word < QuranApiRecord
   scope :with_sajdah_position_word_ends, -> { where("meta_data ->> 'sajdah-position' LIKE ?", '%word-end%') }
 
   scope :with_hizb_marker, -> { where "meta_data ? 'hizb'" }
+  scope :starts_with_eq, lambda { |letters| QuranWordFinder.new(self).find_by_starting_letter(letters) }
+  scope :ends_with_eq, lambda { |letters| QuranWordFinder.new(self).find_by_ending_letter(letters) }
+  scope :letters_cont, lambda { |letters| QuranWordFinder.new(self).find_by_letters(letters) }
 
   default_scope { order 'position asc' }
+
+  def self.ransackable_scopes(*)
+    %i[letters_cont starts_with_eq ends_with_eq]
+  end
 
   def self.without_root
     Word.words.joins("LEFT JOIN word_roots ON words.id = word_roots.word_id")
@@ -138,6 +145,14 @@ class Word < QuranApiRecord
   def self.without_lemma
     Word.words.joins("LEFT JOIN word_lemmas ON words.id = word_lemmas.word_id")
         .where("word_lemmas.id IS NULL")
+  end
+
+  def next_word
+    Word.where(word_index: word_index + 1).first
+  end
+
+  def previous_word
+    Word.where(word_index: word_index - 1).first
   end
 
   def to_s

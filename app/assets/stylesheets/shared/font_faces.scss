@@ -81,11 +81,27 @@ $asset-version: "1";
   font-family: KFGQPCHAFSColored-Bold;
   src: url("#{$font-cdn}/KFGQPCHAFSColored-Bold.ttf?v=#{$asset-version}")
 }
+
 @font-face {
   font-family: 'al_qalam';
   src: url("#{$font-cdn}/AlQalamQuran.ttf?v=#{$asset-version}") format('truetype');
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
+  font-family: 'tajweed-rules';
+  src: url('QCF4_TAJWEED_RULES-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.tajwee-rule-icon{
+  font-family: tajweed-rules;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border-radius: 50%;
 }
 .mushaf-al_qalam{
   font-family: al_qalam;

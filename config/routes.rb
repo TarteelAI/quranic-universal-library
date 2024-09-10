@@ -22,6 +22,8 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
+  resources :tajweed_words, except: [:new, :destroy]
+
   resources :morphology_phrases
   resources :user_projects, except: [:index, :destroy]
   resources :resources do

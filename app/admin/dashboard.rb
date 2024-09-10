@@ -49,7 +49,7 @@ ActiveAdmin.register_page 'Dashboard' do
               div class: 'fs-lg p-3 d-flex border-bottom' do
                 div do
                   div(check[:name])
-                  small(check[:description])
+                  small(check[:description].to_s.html_safe)
                 end
 
                 span link_to('Go', "/admin/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'

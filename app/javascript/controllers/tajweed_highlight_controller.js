@@ -20,6 +20,7 @@ const TAJWEED_RULE_DESCRIPTION = {
     idgham_mutaqaribayn: "Idgham - Mutaqaribayn",
     ghunnah: "Ghunnah: 2 Vowels"
 }
+
 const TAJWEED_RULES = [
     "ham_wasl",
     "slnt",

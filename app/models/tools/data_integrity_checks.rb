@@ -24,12 +24,65 @@ class Tools::DataIntegrityChecks
       :words_with_duplicate_stem,
       :words_with_duplicate_root,
       :compare_translations,
-      :ayah_without_matching_ayahs
+      :ayah_without_matching_ayahs,
+      :tajweed_rule_qalqalah
     ]
   end
 
   def self.valid_check?(name)
     respond_to? name
+  end
+
+  def self.tajweed_rule_qalqalah
+    # https://bayanulquran-academy.com/qalqalah-in-tajweed/
+    {
+      name: "Tajweed Rule Qalqalah",
+      description: "List of words with Tajweed Rule Qalqalah. Qalqalah is the vibration of the sound in the throat that occurs when pronouncing certain letters. The word qalqalah means 'vibrating' or 'shaking'.<div class='alert alert-info'>Qalqalah occurs when one of the five Qalqalah letters (<span class='qpc-hafs'>ق, ط, ب, ج, د</span>) appears with a Sukoon <span class='qpc-hafs'>ْ</span></div>",
+      table_attrs: ['id', 'location', 'tajweed_image', 'tajweed_text'],
+      fields: [],
+      links_proc: {
+        id: ->(record, _) do
+          [record.id, "/admin/words/#{record.id}"]
+        end,
+        tajweed_image: ->(record, _) do
+          "<img src='#{record.qa_tajweed_image_url}' />".html_safe
+        end,
+        tajweed_text: -> (record, _) do
+          "<div class='quran-text qpc-hafs' data-controller='tajweed-highlight'>#{record.text_uthmani_tajweed.html_safe}</div>".html_safe
+        end
+      },
+      check: ->(params) do
+        results = Word.where("text_uthmani~ ?", '[قطبجد]ْ')
+
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_without_root
+    {
+      name: "Words without root",
+      description: "List of words that don't have root",
+      table_attrs: ['id', 'location', 'text_uthmani'],
+      fields: [],
+      check: ->(params) do
+        results = Word.without_root
+        paginate(results, params)
+      end
+    }
+  end
+
+  def self.words_without_stem
+    {
+      name: "Words without stem",
+      description: "List of words that don't have stem",
+      table_attrs: ['id', 'location', 'text_uthmani'],
+      fields: [],
+      check: ->(params) do
+        results = Word.without_stem
+        paginate(results, params)
+      end
+    }
   end
 
   def self.ayah_without_matching_ayahs

@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
   end
 
   def sort_order
-    s = params[:sort_order].presence || 'asc'
+    s = (params[:sort_order].presence || 'asc').downcase
 
     if ['asc', 'desc'].include?(s)
       s

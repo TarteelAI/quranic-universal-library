@@ -8,7 +8,13 @@ ActiveAdmin.register_page 'Data Integrity Check' do
     title, description, check = nil
 
     if Tools::DataIntegrityChecks.valid_check?(check_name)
-      check = Tools::DataIntegrityChecks.send(check_name)
+      checker_klass = Tools::DataIntegrityChecks
+    elsif Tools::TajweedRulesCheck.valid_check?(check_name)
+      checker_klass = Tools::TajweedRulesCheck
+    end
+
+    if checker_klass
+      check = checker_klass.send(check_name)
       title = check[:name]
       description = check[:description]
       instructions = check[:instructions]
@@ -23,7 +29,7 @@ ActiveAdmin.register_page 'Data Integrity Check' do
     end
 
     panel title do
-      div description, class: 'py-2'
+      div description.to_s.html_safe, class: 'py-2'
       div data[:error], class: 'alert alert-info' if data.is_a?(Hash) && data[:error].present?
 
       if instructions.present?

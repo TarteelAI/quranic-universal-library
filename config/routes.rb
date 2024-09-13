@@ -22,6 +22,9 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
+  resources :tajweed_words, except: [:new, :destroy]
+  get 'tajweed_rule/:rule', to: 'tajweed_words#rule_doc', as: :tajweed_rule
+
   resources :morphology_phrases
   resources :user_projects, except: [:index, :destroy]
   resources :resources do

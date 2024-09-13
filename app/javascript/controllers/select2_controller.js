@@ -9,6 +9,7 @@
 
 import { Controller } from "@hotwired/stimulus"
 import select2 from "select2";
+window.select2 = select2();
 
 export default class extends Controller {
   connect() {
@@ -40,7 +41,6 @@ export default class extends Controller {
 
     // Weird, had to expose select2 to window before using it.
     // Debug and fix this
-    window.select2 = select2();
     this.select = el.select2(options)
   }
 

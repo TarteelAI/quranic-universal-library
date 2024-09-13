@@ -13,6 +13,16 @@ ActiveAdmin.register UserProject do
     %i[user_id resource_content_id description admin_notes approved]
   end
 
+  controller do
+    def update
+      attributes = permitted_params['user_project']
+      resource.attributes = attributes
+      resource.save(validate: false)
+
+      redirect_to [:admin, resource], notice: 'Updated successfully'
+    end
+  end
+
   form do |f|
     f.inputs 'User project Details' do
       f.input :approved

@@ -181,8 +181,8 @@ class Word < QuranApiRecord
     end
   end
 
-  def qa_tajweed_image_url(format: 'png')
-    s, a, w = location.split(':')
+  def qa_tajweed_image_url(word_location=nil, format: 'png')
+    s, a, w = (word_location || location).split(':')
     "#{WORDS_CDN}/qa-color/#{s}/#{a}/#{w}.#{format}"
   end
 

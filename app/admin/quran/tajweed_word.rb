@@ -1,8 +1,12 @@
 ActiveAdmin.register TajweedWord do
   menu parent: 'Quran', priority: 3
-  includes :word
-  includes :mushaf
-  
+  includes :word, :mushaf
+
+  filter :text
+  filter :rule_eq, as: :select, collection: TajweedRules.rules
+  filter :word, as: :searchable_select,
+         ajax: { resource: Word }
+
   searchable_select_options(
     scope: TajweedWord,
     text_attribute: :humanize,
@@ -13,6 +17,22 @@ ActiveAdmin.register TajweedWord do
       ).result
     end
   )
+
+  controller do
+    def find_resource
+      collection = scoped_collection
+                     .includes(
+                       :word,
+                       :mushaf
+                     )
+
+      if params[:id].to_s.include?(':')
+        collection.find_by(location: params[:id]) || raise(ActiveRecord::RecordNotFound.new("Couldn't find TajweedWord with 'location'=#{params[:id]}"))
+      else
+        collection.find(params[:id])
+      end
+    end
+  end
 
   show do
     attributes_table do
@@ -43,6 +63,15 @@ ActiveAdmin.register TajweedWord do
         end
       end
 
+      row :context do
+        word = resource.word
+        previous_word = TajweedWord.where(word_id: word.previous_word.id).first  if word.previous_word
+        next_word = TajweedWord.where(word_id: word.next_word.id).first  if word.next_word
+
+        text = [previous_word, resource, next_word].compact_blank.map(&:text).join(' ').html_safe
+        div text, class: 'qpc-hafs quran-text', style: 'font-size: 50px', data: { controller: 'tajweed-highlight' }
+      end
+
       row :created_at
       row :updated_at
       row :rules do
@@ -56,7 +85,7 @@ ActiveAdmin.register TajweedWord do
           tbody do
             resource.letters.each do |letter|
               tr do
-                td letter['index']
+                td letter['i'] + 1
                 td TajweedRules.name(letter['r'])
                 td do
                   div letter['c'], class: "qpc-hafs #{TajweedRules.name(letter['r'])}"
@@ -71,5 +100,21 @@ ActiveAdmin.register TajweedWord do
     active_admin_comments
 
     ActiveAdminViewHelpers.diff_panel(self, resource) if params[:version]
+  end
+
+  index do
+    id_column
+    column :word
+    column :text do |resource|
+      div class: 'qpc-hafs', data: { controller: 'tajweed-highlight' } do
+        resource.text.to_s.html_safe
+      end
+    end
+
+    column :v4_image do |resource|
+      image_tag resource.word.tajweed_v4_image_url
+    end
+
+    actions
   end
 end

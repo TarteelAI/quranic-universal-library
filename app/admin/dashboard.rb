@@ -60,6 +60,29 @@ ActiveAdmin.register_page 'Dashboard' do
       end
     end
 
+    columns do
+      column do
+        panel 'Tajweed rules' do
+          div "This section includes tools to find words with a specific tajweed rule", class: 'alert alert-info'
+
+          div do
+            Tools::TajweedRulesCheck.checks.each do |check_name|
+              check = Tools::TajweedRulesCheck.send(check_name)
+
+              div class: 'fs-lg p-3 d-flex border-bottom' do
+                div do
+                  div(check[:name].to_s.html_safe)
+                  small(check[:description].to_s.html_safe)
+                end
+
+                span link_to('Go', "/admin/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
+              end
+            end
+          end
+        end
+      end
+    end
+
     div class: 'blank_slate_container', id: 'dashboard_default_message' do
       heading = "Recent changes (Total #{PaperTrail::Version.count}) #{link_to 'View all changes', '/admin/content_changes'}".html_safe
       panel heading do

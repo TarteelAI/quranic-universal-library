@@ -9,6 +9,8 @@ const TAJWEED_RULE_DESCRIPTION = {
     madda_permissible: "Permissible Prolongation: 2, 4, 6 Vowels",
     madda_necessary: "Necessary Prolongation: 6 Vowels",
     madda_obligatory: "Obligatory Prolongation: 4-5 Vowels",
+    madda_obligatory_monfasel: "Madd Al-Munfasil 2, 4, or 5 Vowels",
+    madda_obligatory_mottasel: "Madd Al-Muttasil ",
     qalaqah: "Qalaqah",
     ikhafa_shafawi: "Ikhafa' Shafawi - With Meem",
     ikhafa: "Ikhafa'",
@@ -23,22 +25,23 @@ const TAJWEED_RULE_DESCRIPTION = {
 
 const TAJWEED_RULES = [
     "ham_wasl",
-    "slnt",
-    "laam_shamsiyah",
-    "madda_normal",
-    "madda_permissible",
-    "madda_necessary",
-    "madda_obligatory",
-    "qalaqah",
-    "ikhafa_shafawi",
-    "ikhafa",
-    "iqlab",
-    "idgham_shafawi",
-    "idgham_ghunnah",
-    "idgham_wo_ghunnah",
-    "idgham_mutajanisayn",
-    "idgham_mutaqaribayn",
-    "ghunnah"
+  "laam_shamsiyah",
+  "madda_normal",
+  "madda_permissible",
+  "madda_necessary",
+  "idgham_wo_ghunnah",
+  "slnt",
+  "ghunnah",
+  "qalaqah",
+  "ikhafa",
+  "madda_obligatory_monfasel",
+  "madda_obligatory_mottasel",
+  "idgham_ghunnah",
+  "ikhafa_shafawi",
+  "idgham_shafawi",
+  "iqlab",
+  "idgham_mutajanisayn",
+  "idgham_mutaqaribayn"
 ]
 
 export default class extends Controller {

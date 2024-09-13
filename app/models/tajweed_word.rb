@@ -1,8 +1,23 @@
 class TajweedWord < QuranApiRecord
   belongs_to :mushaf
   belongs_to :word
+  scope :rule_eq, lambda { |rule|
+    where("EXISTS (SELECT 1 FROM jsonb_array_elements(letters) AS elem WHERE elem->>'r' = '#{rule}')")
+  }
 
   after_commit :update_word_text_if_letters_changed
+
+  def self.ransackable_scopes(*)
+    %i[rule_eq]
+  end
+
+  def update_letter_rule(letter_index, rule_id)
+    letter = letters[letter_index.to_i]
+    letter['r'] = rule_id
+    save
+
+    letter
+  end
 
   def humanize
     location

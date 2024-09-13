@@ -1,0 +1,37 @@
+<%
+  sample_words = []
+  rule = TajweedRules.documentation[(params[:rule].to_sym)]
+%>
+
+<%= render 'tools/header',
+           name: "Tajweed rule",
+           title: "Tajweed rule: <strong>#{rule[:name]}</strong>",
+           help: false
+%>
+
+<%#= render 'shared/page_font', verses: [@word.verse] %>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <%= rule[:description].to_s.html_safe %>
+
+    <h3>Color: <span class="tajwee-rule-icon"><%= rule[:font_code] %></span></h3>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2>Sample words</h2>
+
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
+      <tr>
+        <th>Location</th>
+        <th>Text</th>
+        <th>Play</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>

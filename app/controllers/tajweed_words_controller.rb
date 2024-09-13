@@ -1,10 +1,11 @@
 class TajweedWordsController < CommunityController
   before_action :find_resource
-  before_action :authenticate_user!, only: %i[edit update]
-  before_action :authorize_access!, only: %i[edit update]
+  before_action :authenticate_user!, only: %i[update]
+  before_action :authorize_access!, only: %i[update]
 
   def show
     @word = Word.find_by(location: params[:id])
+    @tajweed_word = TajweedWord.where(word_id: @word.id).first
   end
 
   def index
@@ -26,13 +27,22 @@ class TajweedWordsController < CommunityController
     @pagy, @words = pagy(words.order("#{params[:sort_key]} #{sort_order}"))
   end
 
-  def edit
+  def rule_doc
+
   end
 
   def update
+    @word = Word.find_by(location: params[:id])
+    @tajweed_word = TajweedWord.where(word_id: @word.id).first
+    p = rule_params
+    @letter = @tajweed_word.update_letter_rule(p[:letter_index], p[:rule])
   end
 
   protected
+
+  def rule_params
+    params.require(:tajweed_word).permit(:letter_index, :rule)
+  end
 
   def load_resource_access
     @access = can_manage?(find_resource)

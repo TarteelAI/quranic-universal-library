@@ -21,6 +21,7 @@
 @import "components/quiz";
 @import "select2/dist/css/select2";
 @import "libs/toastr";
+@import "landing_page";
 
 html,
 body {
@@ -49,4 +50,3 @@ body {
     border: none;
   }
 }
-@import "landing_page";

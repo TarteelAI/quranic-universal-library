@@ -1,0 +1,41 @@
+<div
+  class="alert alert-dark"
+  role="alert"
+  id="tajweed-preview"
+>
+  <div>
+    <b>Text Uthmani tajweed:</b>
+    <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
+      <%= @word.text_uthmani_tajweed.html_safe %>
+    </div>
+  </div>
+
+  <div>
+    <b>Quran academy tajweed:</b>
+    <div class="quran-text">
+      <%= image_tag @word.qa_tajweed_image_url %>
+    </div>
+  </div>
+
+  <div>
+    <b>V4 tajweed:</b>
+    <div class="p<%= @word.v2_page %>-v4-tajweed quran-text"
+         data-controller="tajweed-font">
+      <span style="font-size: 40px">
+        <%= @word.code_v2 %>
+      </span>
+    </div>
+  </div>
+
+  <div>
+    <b>New Tajweed Text:</b>
+    <div class="quran-text preview-<%= @tajweed_word.location.gsub(':', '-')%>"
+         style="font-size: 40px">
+      <div class="qpc-hafs"
+           style="font-size: inherit !important"
+           data-controller="tajweed-highlight">
+        <%= @tajweed_word.text.html_safe %>
+      </div>
+    </div>
+  </div>
+</div>

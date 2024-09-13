@@ -1,7 +1,9 @@
 <%
+  #TODO: use presenter, we're initialization lot of variables in the views.
   actions = []
   next_word = @word.next_word
   previous_word = @word.previous_word
+  ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
 
   if @access
     actions << link_to('Contribute', edit_tajweed_word_path(@word.location), class: 'btn btn-success')
@@ -16,6 +18,7 @@
   end
 
   actions << link_to('Back to filter', tajweed_words_path, class: 'btn btn-info')
+  rule_options = tajweed_rule_options_for_select
 %>
 
 <%= render 'tools/header',
@@ -25,18 +28,90 @@
            actions: actions
 %>
 
+<%= render 'shared/page_font', verses: [@word.verse] %>
+
 <div class="page-wrapper container-lg">
   <div class="page-section">
-    <div class="alert alert-info" role="alert">
-      <div>
-        <b>Text Uthmani:</b>
-        <div class="qpc-hafs"> <%= @word.text_qpc_hafs %></div>
-      </div>
-    </div>
+    <%= render 'word_preview' %>
   </div>
 
+  <div class="page-section mt-4">
+    <h2 class="position-sticky bg-white border px-2 py-3 d-flex align-items-center justify-content-between" style="z-index: 100; top:5px">
+      <span>
+        Letters with tajweed rules
+      </span>
 
-  <div class="page-section">
-    <h2>Word list with translation</h2>
+      <div class="preview-<%= @tajweed_word.location.gsub(':', '-') %>">
+        <div class="qpc-hafs"
+             data-controller="tajweed-highlight">
+          <%= @tajweed_word.text.html_safe %>
+        </div>
+      </div>
+    </h2>
+
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
+      <tr>
+        <th>Index</th>
+        <th>Letter</th>
+        <th>Rule</th>
+        <th>Select rule</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @tajweed_word.letters.each do |letter| %>
+        <%= render 'letter_row', letter: letter, rule_options: rule_options %>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2>
+      <%
+        verse = @word.verse
+        next_verse = verse.next_ayah
+        previous_verse = verse.previous_ayah
+      %>
+
+      <%= link_to tajweed_word_path("#{previous_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Preview ayah', data: { controller: 'tooltip' } do %>
+        <i class="fa fa-arrow-left"></i>
+      <% end if previous_verse %>
+
+      Ayah <%= @word.verse_key %>
+
+      <%= link_to tajweed_word_path("#{next_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Next ayah', data: { controller: 'tooltip' } do %>
+        <i class="fa fa-arrow-right"></i>
+      <% end if next_verse %>
+    </h2>
+
+
+    <h3>Ayah preview with new tajweed text</h3>
+    <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
+      <% ayah_tajweeed_words.each do |w| %>
+        <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
+          <div class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
+            <div class="qpc-hafs"
+                 data-controller="tajweed-highlight">
+              <%= w.text.html_safe %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <h3>V4 tajweed</h3>
+    <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
+      <% verse.words.each do |w| %>
+        <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
+          <div class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %>">
+            <div class="p<%= w.v2_page %>-v4-tajweed">
+              <%= w.code_v2 %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 </div>

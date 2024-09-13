@@ -1,6 +1,7 @@
 <%
   title = local_assigns[:title] || name
   actions = local_assigns[:actions] || []
+  tool_key = local_assigns[:key]
 %>
 
 <%= set_page_title name %>
@@ -38,14 +39,14 @@
       </h2>
 
       <div class="d-flex gap-1">
-        <%= link_to '#', class: 'btn btn-outline-info btn-xs', data: {controller: 'ajax-modal', url: tools_help_path(key), css_class: 'modal-lg'} do %>
+        <%= link_to '#', class: 'btn btn-outline-info btn-xs', data: {controller: 'ajax-modal', url: tools_help_path(tool_key), css_class: 'modal-lg'} do %>
           <i class="fa fa-info-circle"></i> Help
-        <% end %>
+        <% end if local_assigns[:help] != false %>
 
         <%= actions.join('').html_safe %>
       </div>
     </div>
 
-    <%= render("tools/header_alert/#{key}") if !@access %>
+    <%= render("tools/header_alert/#{tool_key}") if !@access %>
   </div>
 </div>

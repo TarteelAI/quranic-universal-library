@@ -63,11 +63,14 @@
           </td>
 
           <td>
-            <%= image_tag word.tajweed_v4_image_url %>
+            <%= image_tag word.tajweed_v4_image_url, style: 'max-height: 70px' %>
           </td>
 
           <td>
-            <%= image_tag word.rq_tajweed_image_url %>
+            <% s, a, w = word.location.split(':') %>
+            <%= link_to "https://recitequran.com/#{s}:#{a}/w#{w}", target: '_blank' do %>
+              <%= image_tag word.rq_tajweed_image_url, style: 'max-height: 70px' %>
+            <% end %>
           </td>
 
           <td>

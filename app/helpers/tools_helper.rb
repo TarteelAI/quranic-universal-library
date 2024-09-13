@@ -12,6 +12,16 @@ module ToolsHelper
         info_tip: "This tool allows you to create the digital Quran layout as it appears in printed Mushafs."
       ),
       ToolCard.new(
+        title: 'Tajweed Rules Annotation Tool',
+        description: 'Review and correct the Tajweed rules embedded in Quranic text',
+        url: tajweed_words_path,
+        type: 'tajweed-tool',
+        icon: 'tajweed.svg',
+        cta_bg: 'rgba(71, 71, 61, 0.9)',
+        tags: ['Tajweed'],
+        info_tip: "Use Tajweed Tools to locate words with specific Tajweed rules, receive suggestions for missing rules, add the missing or fix the incorrect one."
+      ),
+      ToolCard.new(
         title: 'Mutashabihat ul Quran',
         description: 'Contribute preparing matching ayah and phrases data in Quran.',
         url: '/morphology_phrases',

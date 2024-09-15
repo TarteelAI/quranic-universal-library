@@ -1,0 +1,32 @@
+#tajweed-page-sidebar {
+  #image-container {
+    overflow: auto;
+  }
+
+  #zoom-img {
+    transition: transform 0.3s ease;
+    max-width: 100%;
+  }
+}
+
+.ayah-tajweed-words {
+  .border-primary {
+    border-width: 3px !important;
+  }
+}
+
+.tajweed-rule-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+
+  &.ham_wasl{
+    background: #AAAAAA
+  }
+}
+
+.tajweed-new{
+  .ham_wasl{
+    color: #AAAAAA
+  }
+}

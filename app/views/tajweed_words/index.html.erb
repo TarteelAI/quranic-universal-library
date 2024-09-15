@@ -8,8 +8,8 @@
   <div class="page-section filters">
     <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
       <div class="form-group me-2">
-        <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by juz/para', controller: 'select2' } %>
-        <p class="form-text">Filter by Juz/Para</p>
+        <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
+        <p class="form-text">Filter by Page</p>
       </div>
 
       <div class="form-group me-2">
@@ -24,6 +24,7 @@
 
       <div class="form-group">
         <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        <%= link_to 'Clear', tajweed_words_path, class: 'btn-link text-dark' if has_filters?(:filter_page, :filter_chapter, :filter_verse) %>
       </div>
     <% end %>
   </div>

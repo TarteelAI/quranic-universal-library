@@ -5,10 +5,6 @@
   previous_word = @word.previous_word
   ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
 
-  if @access
-    actions << link_to('Contribute', edit_tajweed_word_path(@word.location), class: 'btn btn-success')
-  end
-
   if previous_word
     actions << link_to('Previous word', tajweed_word_path(previous_word.location), class: 'btn btn-dark')
   end
@@ -41,10 +37,20 @@
         Letters with tajweed rules
       </span>
 
-      <div class="preview-<%= @tajweed_word.location.gsub(':', '-') %>">
-        <div class="qpc-hafs"
-             data-controller="tajweed-highlight">
-          <%= @tajweed_word.text.html_safe %>
+      <div class="d-flex">
+        <button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-rules-sidebar" aria-controls="tajweed-rules-sidebar">
+          Tajweed Palette
+        </button>
+
+        <button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
+          Show Page
+        </button>
+
+        <div class="preview-<%= @tajweed_word.location.gsub(':', '-') %>">
+          <div class="qpc-hafs"
+               data-controller="tajweed-highlight">
+            <%= @tajweed_word.text.html_safe %>
+          </div>
         </div>
       </div>
     </h2>
@@ -86,7 +92,6 @@
       <% end if next_verse %>
     </h2>
 
-
     <h3>Ayah preview with new tajweed text</h3>
     <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
       <% ayah_tajweeed_words.each do |w| %>
@@ -112,6 +117,59 @@
           </div>
         <% end %>
       <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-start"
+     tabindex="-1" id="tajweed-rules-sidebar"
+     aria-labelledby="tajweed-paletee">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="tajweed-paletee">Tajweed Rule Palette</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body">
+    <div class="tajweed-palette">
+      <% documentation = TajweedRules.documentation %>
+      <% TajweedRules.rules.each do |key, rule_id| %>
+        <% rule = documentation[key.to_sym] %>
+        <div>
+          <div class="d-flex">
+            <span class="tajweed-rule-icon <%= key %>"></span>
+            <span class="ms-2">
+              <%= key %>
+            </span>
+          </div>
+
+          <div class="">
+             <%= rule[:info] %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-start"
+     tabindex="-1"
+     id="tajweed-page-sidebar"
+     aria-labelledby="tajweed-page"
+     style="width: 50%;"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="tajweed-page">Page <%= @word.page_number %></h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body">
+    <div class="p-4 text-center" data-controller="zoom-image">
+      <label for="zoom-slider" class="form-label">Zoom</label>
+      <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
+
+      <div id="image-container" class="mt-4 p-4">
+        <%= image_tag "https://quran.ksu.edu.sa/tajweed_png/#{@word.page_number}.png", id: "zoom-image" %>
+      </div>
     </div>
   </div>
 </div>

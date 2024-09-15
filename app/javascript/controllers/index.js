@@ -103,4 +103,5 @@ application.register("activities--ayah-mastery", AyahMasteryController);
 import FaqController from './faq_controller';
 application.register("faq", FaqController);
 
-
+import ZoomImageController from './zoom_image_controller';
+application.register("zoom-image", ZoomImageController);

@@ -89,17 +89,6 @@ $asset-version: "1";
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'tajweed-rules';
-  src: url('QCF4_TAJWEED_RULES-Regular.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
-
-.tajwee-rule-icon{
-  font-family: tajweed-rules;
-  font-size: 40px;
-}
 .mushaf-al_qalam{
   font-family: al_qalam;
 }

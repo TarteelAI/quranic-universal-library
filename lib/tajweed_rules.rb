@@ -71,9 +71,9 @@ class TajweedRules
       ham_wasl: {
         name: 'Hamzat Al Wasl',
         description: "Hamzat Al Wasl is represented by small (ص) on top of Alif and it is read when the verse is started by it. However, if it comes in the middle of verse at the start of a word or within a word, then it is silent. Also, if it comes after a Waqf (Pause) sign at the beginning of a word and you stop at that sign, then it is read.",
-        font_code: 'B',
         examples: ['1:1:2', '2:3:3'],
-        links: [""],
+        links: ["https://shaykhi.com/hamzaul-wasl/", "https://riwaqalquran.com/blog/hamzatul-wasl/"],
+        alias: ['connecting hamza'],
         index: 1
       },
       laam_shamsiyah: {
@@ -108,6 +108,7 @@ class TajweedRules
         links: [""],
         index: ''
       },
+
       madda_normal: {
         name: '',
         description: "",

@@ -11,8 +11,8 @@ class TajweedWordsController < CommunityController
   def index
     words = Word.unscoped
 
-    if params[:filter_juz].to_i > 0
-      words = words.where(juz_number: params[:filter_juz].to_i)
+    if params[:filter_page].to_i > 0
+      words = words.where(page_number: params[:filter_page].to_i)
     end
 
     if params[:filter_chapter].to_i > 0
@@ -20,7 +20,7 @@ class TajweedWordsController < CommunityController
     end
 
     if params[:filter_verse].to_i > 0
-      words = words.where(verse_number: params[:filter_verse].to_i)
+      words = words.where(verse_id: Verse.where(verse_number:  params[:filter_verse].to_i))
     end
 
     params[:sort_key] ||= 'word_index'

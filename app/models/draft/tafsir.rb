@@ -41,6 +41,13 @@ class Draft::Tafsir < ApplicationRecord
 
   def import!
     language = resource_content.language
+    group_verses = Verse.where("id >= ? AND id <= ?", start_verse_id, end_verse_id)
+
+    if !group_verses.pluck(:id).include?(verse_id)
+      verse = group_verses.first
+      verse_id = verse.id
+    end
+
     tafsir = Tafsir.where(
       verse_id: verse_id,
       resource_content_id: resource_content.id
@@ -54,6 +61,7 @@ class Draft::Tafsir < ApplicationRecord
     tafsir.verse_key = verse.verse_key
     tafsir.chapter_id = verse.chapter_id
     tafsir.verse_number = verse.verse_number
+
     tafsir.juz_number = verse.juz_number
     tafsir.hizb_number = verse.hizb_number
     tafsir.rub_el_hizb_number = verse.rub_el_hizb_number
@@ -64,8 +72,8 @@ class Draft::Tafsir < ApplicationRecord
 
     tafsir.group_verse_key_from = group_verse_key_from
     tafsir.group_verse_key_to = group_verse_key_to
-    tafsir.group_verses_count = Verse.where("id >= ? AND id <= ?", start_verse_id, end_verse_id).count
-    tafsir.group_tafsir_id = group_tafsir_id
+    tafsir.group_verses_count = group_verses.count
+    tafsir.group_tafsir_id = group_tafsir_id.presence || start_verse_id
     tafsir.start_verse_id = start_verse_id
     tafsir.end_verse_id = end_verse_id
 

@@ -131,6 +131,8 @@ ActiveAdmin.register Recitation do
   end
 
   collection_action :export_sqlite_db, method: 'put' do
+    authorize! :download, :from_admin
+
     file_name = params[:file_name].presence || 'reciter-audio-timing.sqlite'
     table_name = params[:file_name].presence || 'ayah_timing'
     recitations_ids = params[:reciter_ids].split(',').compact_blank

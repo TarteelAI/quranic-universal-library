@@ -154,3 +154,6 @@ cypress/artifacts/videos/
 dump.rdb
 /cypress/videos/
 /cypress/screenshots/
+
+scripts/img
+scripts/ttf

@@ -18,18 +18,24 @@
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
           <% end %>
 
-          <div class="pdf-viewer"
-               data-controller="pdf-viewer"
-               data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
-               data-page-offset="<%= pdf_page_offset %>"
-               data-pdf-url="<%= pdf_url %>">
-            <div id="pdf-wrapper">
-              <div id="pdf-container">
-                <canvas id="pdf-canvas"></canvas>
+          <% if pdf_url.present? %>
+            <div
+              data-controller="pdf-viewer"
+              data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
+              data-page-offset="<%= pdf_page_offset %>"
+              data-pdf-url="<%= pdf_url %>">
+              <div id="pdf-wrapper">
+                <div id="pdf-container">
+                  <canvas id="pdf-canvas"></canvas>
+                </div>
               </div>
             </div>
-          </div>
-        <% end %>
+          <% else %>
+            <div class="text-center text-faded pt-4">
+              PDF of this mushaf isn't available, please contact the admin to upload it.
+            </div>
+          <% end %>
+      <% end %>
       </div>
 
       <div class="handler"></div>

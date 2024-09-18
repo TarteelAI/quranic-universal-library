@@ -10,9 +10,11 @@ class ExportMushafLayout
     17, # Indopak 13 lines
     20, # Digital Khatt
   ]
+  attr_accessor :mushafs
 
-  def export
-    prepare_db_and_tables
+  def export(ids=MUSHAF_IDS, db_name="quran-data.sqlite")
+    @mushafs = Mushaf.where(id: ids).order('id ASC')
+    prepare_db_and_tables(db_name)
     export_words
     export_layout
     # add_db_indexes
@@ -208,10 +210,6 @@ class ExportMushafLayout
     SQL
   end
 
-  def mushafs
-    Mushaf.where(id: MUSHAF_IDS).order('id ASC')
-  end
-
   def get_mushaf_file_name(mushaf_id)
     mapping = {
       "1": "qpc_v2_layout",
@@ -229,8 +227,7 @@ class ExportMushafLayout
     mapping[mushaf_id.to_s.to_sym]
   end
 
-  def prepare_db_and_tables
-    db = "quran-data.sqlite"
+  def prepare_db_and_tables(db)
     ExportedWord.establish_connection(
       { adapter: 'sqlite3',
         database: db

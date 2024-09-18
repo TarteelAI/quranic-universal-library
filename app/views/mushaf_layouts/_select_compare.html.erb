@@ -1,0 +1,19 @@
+<div id=title>
+  Select mushaf to compare with <%= @resource.name %>
+</div>
+
+<div id=body>
+  <div class="modal-body">
+    <ul class="list-group">
+      <% Mushaf.where.not(id: @mushaf.id).each do |compare| %>
+        <li class="list-group-item">
+          <%= link_to compare.name, mushaf_layout_path(@mushaf.id, compare: compare.id, page_number: params[:page_number]) %>
+        </li>
+    <% end %>
+    </ul>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+  </div>
+</div>

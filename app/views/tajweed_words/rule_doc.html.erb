@@ -1,6 +1,7 @@
 <%
   sample_words = []
-  rule = TajweedRules.documentation[(params[:rule].to_sym)]
+  tajweed = TajweedRules.new('new')
+  rule = tajweed.documentation[(params[:rule].to_sym)]
 %>
 
 <%= render 'tools/header',
@@ -12,13 +13,27 @@
 <%#= render 'shared/page_font', verses: [@word.verse] %>
 
 <div class="page-wrapper container-lg">
-  <div class="page-section">
+  <div class="page-section page-section-card">
     <%= rule[:description].to_s.html_safe %>
 
-    <h3>Color: <span class="tajwee-rule-icon"><%= rule[:font_code] %></span></h3>
+    <h3 class="tajweed-new mt-2 mb-0">
+      Rule Color:
+      <span class="tajweed-rule-icon <%= params[:rule] %>"></span>
+      <span class="qpc-hafs <%= params[:rule] %>">بِسۡمِ ٱللَّهِ</span>
+    </h3>
+    <h3 class="tajweed-new mt-2 mb-0">
+      Rule Letters:
+      <span class="qpc-hafs"><%= rule[:rule_letters] %></span>
+    </h3>
   </div>
 
-  <div class="page-section mt-4">
+  <% if rule[:rule_tip] %>
+    <div class='alert alert-dark'>
+      <%= rule[:rule_tip] %>
+    </div>
+  <% end %>
+
+  <div class="page-section page-section-card mt-4">
     <h2>Sample words</h2>
 
     <table class="table table-hover">
@@ -26,12 +41,24 @@
       <tr>
         <th>Location</th>
         <th>Text</th>
-        <th>Play</th>
       </tr>
       </thead>
 
       <tbody>
       </tbody>
     </table>
+
+    <% if rule[:links].present? %>
+      <p>
+        For more detail about <%= rule[:name] %> please visit:
+        <u>
+          <% rule[:links].each do |link| %>
+            <li>
+              <%= link_to link, link, target: '_blank' %>
+            </li>
+          <% end %>
+        </u>
+      </p>
+    <% end %>
   </div>
 </div>

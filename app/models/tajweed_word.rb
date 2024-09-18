@@ -31,6 +31,7 @@ class TajweedWord < QuranApiRecord
     text = []
     current_rule = nil
     current_group = ""
+    tajweed = TajweedRules.new('new')
 
     letters.each do |l|
       if l['r'] == current_rule
@@ -38,7 +39,7 @@ class TajweedWord < QuranApiRecord
       else
         if current_group.present?
           if current_rule
-            text << "<#{tag} class=#{TajweedRules.name(current_rule)}>#{current_group}</#{tag}>"
+            text << "<#{tag} class=#{tajweed.name(current_rule)}>#{current_group}</#{tag}>"
           else
             text << current_group
           end
@@ -56,7 +57,7 @@ class TajweedWord < QuranApiRecord
     end
 
     if current_rule
-      text << "<#{tag} class=#{TajweedRules.name(current_rule)}>#{current_group}</#{tag}>"
+      text << "<#{tag} class=#{tajweed.name(current_rule)}>#{current_group}</#{tag}>"
     else
       text << current_group
     end

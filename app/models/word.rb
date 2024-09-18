@@ -88,6 +88,7 @@ class Word < QuranApiRecord
   has_many :word_synonyms
   has_many :synonyms, through: :word_synonyms
   has_many :mushaf_words
+  has_one :tajweed_word
 
   has_one :word_lemma
   has_one :lemma, through: :word_lemma

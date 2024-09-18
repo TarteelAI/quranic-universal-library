@@ -32,5 +32,4 @@ class QuranWaHaditParser
 
      doc.children.to_html
   end
-
 end

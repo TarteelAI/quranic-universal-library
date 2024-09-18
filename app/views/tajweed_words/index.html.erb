@@ -7,24 +7,54 @@
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
     <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
-      <div class="form-group me-2">
-        <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
-        <p class="form-text">Filter by Page</p>
-      </div>
+      <div class="row">
+        <div class="col-12 d-flex">
+          <div class="form-group me-2">
+            <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
+            <p class="form-text">Filter by Tajweed rule(old)</p>
+          </div>
 
-      <div class="form-group me-2">
-        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-        <p class="form-text">Filter by Surah</p>
-      </div>
+          <div class="form-group me-2">
+            <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
+            <p class="form-text">Filter by Tajweed rule(new)</p>
+          </div>
 
-      <div class="form-group me-2">
-        <%= select_tag :filter_verse, options_for_select(1..256, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-        <p class="form-text">Filter by Ayah</p>
-      </div>
+          <div class="form-group me-2">
+            <%= text_field_tag :filter_text, params[:filter_text], class: 'form-control' %>
+            <p class="form-text">Filter by text</p>
+          </div>
 
-      <div class="form-group">
-        <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
-        <%= link_to 'Clear', tajweed_words_path, class: 'btn-link text-dark' if has_filters?(:filter_page, :filter_chapter, :filter_verse) %>
+          <div class="form-group me-2">
+            <div class="d-flex">
+              <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2', style: 'width: 200px' %>
+              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end],  placeholder: 'Ends with', class: 'form-control me-2', style: 'width: 200px' %>
+              <label for="filter_word_boundary">
+                <%= check_box_tag :filter_word_boundary, '1', params[:filter_word_boundary] == '1' %>
+                Filter whole word
+              </label>
+            </div>
+            <p class="form-text">Filter by Regexp(Find word that start and ends with specific letter)</p>
+          </div>
+        </div>
+        <div class="col-12 d-flex">
+          <div class="form-group me-2">
+            <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
+            <p class="form-text">Filter by Page</p>
+          </div>
+          <div class="form-group me-2">
+            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+            <p class="form-text">Filter by Surah</p>
+          </div>
+          <div class="form-group me-2">
+            <%= select_tag :filter_verse, options_for_select(1..256, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
+            <p class="form-text">Filter by Ayah</p>
+          </div>
+
+          <div class="form-group ms-auto">
+            <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+            <%= link_to 'Clear', tajweed_words_path, class: 'btn-link text-dark' if has_filters?(:filter_page, :filter_chapter, :filter_verse, :filter_text, :filter_tajweed_rule) %>
+          </div>
+        </div>
       </div>
     <% end %>
   </div>
@@ -36,6 +66,8 @@
       <tr>
         <th><%= sort_order_link 'Word index', :word_index %></th>
         <th>Location</th>
+        <th>QPC Hafs</th>
+        <th>Digital Khatt</th>
         <th>Text(old)</th>
         <th>Text(new)</th>
         <th>V4 Tajweed Img</th>
@@ -51,30 +83,35 @@
             <%= link_to word.word_index, tajweed_word_path(word.location) %>
           </td>
 
-          <td>
+          <td class="text-left">
             <%= word.location %>
           </td>
-
+          <td class="qpc-hafs">
+            <%= word.text_qpc_hafs %>
+          </td>
+          <td class="digitalkhatt">
+            <%= word.text_digital_khatt %>
+          </td>
           <td class="qpc-hafs" data-controller="tajweed-highlight">
             <%= word.text_uthmani_tajweed.html_safe %>
           </td>
 
-          <td class="qpc-hafs" data-controller="tajweed-highlight">
-            <%= word.text_uthmani_tajweed.html_safe %>
+          <td class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
+            <%= word.tajweed_word.text.to_s.html_safe if word.tajweed_word %>
           </td>
 
-          <td>
+          <td style="text-align: right">
             <%= image_tag word.tajweed_v4_image_url, style: 'max-height: 70px' %>
           </td>
 
-          <td>
+          <td style="text-align: right">
             <% s, a, w = word.location.split(':') %>
             <%= link_to "https://recitequran.com/#{s}:#{a}/w#{w}", target: '_blank' do %>
               <%= image_tag word.rq_tajweed_image_url, style: 'max-height: 70px' %>
             <% end %>
           </td>
 
-          <td>
+          <td class="text-right">
             <div class="d-flex gap-1">
               <%= link_to 'Show', tajweed_word_path(word.location), class: 'btn btn-success' %>
             </div>
@@ -84,6 +121,7 @@
       <tr>
         <td colspan="7">
           <%= pagy_bootstrap_nav(@pagy).html_safe %>
+          <%= pagy_info(@pagy).html_safe %>
         </td>
       </tr>
       </tbody>

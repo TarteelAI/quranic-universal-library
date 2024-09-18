@@ -5,16 +5,20 @@ class QuranWordFinder
 
   def find_by_letters(letters)
     query =  "%#{letters}%"
+    query_simple =  "%#{letters.remove_dialectic}%"
 
     @scope.where(
       "text_uthmani LIKE :query OR text_imlaei LIKE :query OR text_qpc_hafs LIKE :query OR text_qpc_nastaleeq_hafs LIKE :query OR text_indopak LIKE :query",
       query: query
+    ).or(
+      @scope.where("text_uthmani_simple LIKE :simple_query OR text_imlaei_simple LIKE :simple_query", simple_query: query_simple)
     )
   end
 
   # Find words that start and end with specific letters in any of the text attributes
   def find_by_start_and_end(starting_letter, ending_letter)
     query = "^#{starting_letter}.*#{ending_letter}$"
+
     @scope.where(
       "text_uthmani ~ :query OR text_imlaei ~ :query OR text_qpc_hafs ~ :query OR text_qpc_nastaleeq_hafs ~ :query OR text_indopak ~ :query",
       query: query

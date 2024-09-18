@@ -1,8 +1,9 @@
 <%
-  rule_options = tajweed_rule_options_for_select
+  tajweed = TajweedRules.new('new')
+  rule_options = tajweed_rule_options_for_select(tajweed)
 %>
 <%= turbo_stream.replace "#{dom_id @tajweed_word, @letter['i']}" do %>
-  <%= render 'letter_row', letter: @letter, rule_options: rule_options %>
+  <%= render 'letter_row', letter: @letter, rule_options: rule_options, tajweed: tajweed %>
 <% end %>
 
 <%= turbo_stream.replace 'tajweed-preview' do %>

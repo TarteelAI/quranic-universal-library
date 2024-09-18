@@ -20,13 +20,13 @@
 
 .handler {
   width: 10px;
+  margin-right: 5px;
   background-color: #333;
   cursor: ew-resize;
-  user-drag: element; /* Enable dragging for the element */
-  user-select: none; /* Prevent text selection during dragging */
+  user-select: none;
 }
 
 #pdf-container {
   overflow: auto;
-  position: relative; /* Ensure proper positioning of pages */
+  position: relative;
 }

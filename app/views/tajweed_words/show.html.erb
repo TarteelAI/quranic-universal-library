@@ -1,5 +1,6 @@
 <%
   #TODO: use presenter, we're initialization lot of variables in the views.
+  tajweed = TajweedRules.new
   actions = []
   next_word = @word.next_word
   previous_word = @word.previous_word
@@ -14,7 +15,10 @@
   end
 
   actions << link_to('Back to filter', tajweed_words_path, class: 'btn btn-info')
-  rule_options = tajweed_rule_options_for_select
+  rule_options = tajweed_rule_options_for_select(tajweed)
+
+  auto_annotation = TajweedAnnotation::Service.new
+  auto_annotation.add_annotation_on_verse(@word.verse)
 %>
 
 <%= render 'tools/header',
@@ -67,7 +71,7 @@
 
       <tbody>
       <% @tajweed_word.letters.each do |letter| %>
-        <%= render 'letter_row', letter: letter, rule_options: rule_options %>
+        <%= render 'letter_row', letter: letter, rule_options: rule_options, tajweed: tajweed %>
       <% end %>
       </tbody>
     </table>
@@ -91,6 +95,11 @@
         <i class="fa fa-arrow-right"></i>
       <% end if next_verse %>
     </h2>
+
+    <h3>Auto tajweed annotation</h3>
+    <div class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
+      <%= auto_annotation.to_html.html_safe %>
+    </div>
 
     <h3>Ayah preview with new tajweed text</h3>
     <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
@@ -131,19 +140,19 @@
 
   <div class="offcanvas-body">
     <div class="tajweed-palette">
-      <% documentation = TajweedRules.documentation %>
-      <% TajweedRules.rules.each do |key, rule_id| %>
+      <% documentation = tajweed.documentation %>
+      <% tajweed.rules.each do |key, rule_id| %>
         <% rule = documentation[key.to_sym] %>
         <div>
           <div class="d-flex">
-            <span class="tajweed-rule-icon <%= key %>"></span>
+            <span class="tajweed-new tajweed-rule-icon <%= key %>"></span>
             <span class="ms-2">
               <%= key %>
             </span>
           </div>
 
           <div class="">
-             <%= rule[:info] %>
+            <%= rule[:info] %>
           </div>
         </div>
       <% end %>

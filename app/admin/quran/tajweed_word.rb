@@ -1,9 +1,11 @@
 ActiveAdmin.register TajweedWord do
+  tajweed = TajweedRules.new('new')
+
   menu parent: 'Quran', priority: 3
   includes :word, :mushaf
 
   filter :text
-  filter :rule_eq, as: :select, collection: TajweedRules.rules
+  filter :rule_eq, as: :select, collection: tajweed.rules
   filter :word, as: :searchable_select,
          ajax: { resource: Word }
 
@@ -86,9 +88,9 @@ ActiveAdmin.register TajweedWord do
             resource.letters.each do |letter|
               tr do
                 td letter['i'] + 1
-                td TajweedRules.name(letter['r'])
+                td tajweed.name(letter['r'])
                 td do
-                  div letter['c'], class: "qpc-hafs #{TajweedRules.name(letter['r'])}"
+                  div letter['c'], class: "qpc-hafs #{tajweed.name(letter['r'])}"
                 end
               end
             end

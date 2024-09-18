@@ -29,9 +29,9 @@
 
   <div>
     <b>New Tajweed Text:</b>
-    <div class="quran-text preview-<%= @tajweed_word.location.gsub(':', '-')%>"
+    <div class="quran-text preview-<%= @tajweed_word.location.gsub(':', '-') %>"
          style="font-size: 40px">
-      <div class="qpc-hafs"
+      <div class="qpc-hafs tajweed-new"
            style="font-size: inherit !important"
            data-controller="tajweed-highlight">
         <%= @tajweed_word.text.html_safe %>

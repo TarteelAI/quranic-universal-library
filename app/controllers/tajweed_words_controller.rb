@@ -10,21 +10,12 @@ class TajweedWordsController < CommunityController
 
   def index
     words = Word.unscoped
-
-    if params[:filter_page].to_i > 0
-      words = words.where(page_number: params[:filter_page].to_i)
-    end
-
-    if params[:filter_chapter].to_i > 0
-      words = words.where(chapter_id: params[:filter_chapter].to_i)
-    end
-
-    if params[:filter_verse].to_i > 0
-      words = words.where(verse_id: Verse.where(verse_number:  params[:filter_verse].to_i))
-    end
+    words = apply_surah_or_ayah_filter(words)
+    words = apply_text_search_filter(words)
+    words = apply_text_tajweed_rule_filter(words)
 
     params[:sort_key] ||= 'word_index'
-    @pagy, @words = pagy(words.order("#{params[:sort_key]} #{sort_order}"))
+    @pagy, @words = pagy(words.includes(:tajweed_word).order("#{params[:sort_key]} #{sort_order}"))
   end
 
   def rule_doc
@@ -50,5 +41,54 @@ class TajweedWordsController < CommunityController
 
   def find_resource
     @resource ||= ResourceContent.find(1140)
+  end
+
+  def apply_surah_or_ayah_filter(words)
+    if params[:filter_page].to_i > 0
+      words = words.where(page_number: params[:filter_page].to_i)
+    end
+
+    if params[:filter_chapter].to_i > 0
+      words = words.where(chapter_id: params[:filter_chapter].to_i)
+    end
+
+    if params[:filter_verse].to_i > 0
+      words = words.where(verse_id: Verse.where(verse_number: params[:filter_verse].to_i))
+    end
+
+    words
+  end
+
+  def apply_text_search_filter(words)
+    if params[:filter_text].present?
+      words = QuranWordFinder.new(words).find_by_letters(params[:filter_text].strip)
+    end
+
+    if params[:filter_regexp_start].present? || params[:filter_regexp_end].present?
+      finder = QuranWordFinder.new(words)
+
+      if params[:filter_regexp_start].present? && params[:filter_regexp_end].present?
+        if params[:filter_word_boundary] == '1'
+          words = finder.find_by_start_and_end(params[:filter_regexp_start].strip, params[:filter_regexp_end].strip)
+        else
+          words = finder.find_by_letter_range(params[:filter_regexp_start].strip, params[:filter_regexp_end].strip)
+        end
+      elsif params[:filter_regexp_start].present?
+        words = finder.find_by_starting_letter(params[:filter_regexp_start].strip)
+      else
+        words = finder.find_by_ending_letter(params[:filter_regexp_end].strip)
+      end
+    end
+
+    words
+  end
+
+  def apply_text_tajweed_rule_filter(words)
+    if params[:filter_tajweed_rule_old].present?
+      rule = params[:filter_tajweed_rule_old].downcase.strip
+      words = words.where("text_uthmani_tajweed LIKE ?", "%#{rule}%")
+    end
+
+    words
   end
 end

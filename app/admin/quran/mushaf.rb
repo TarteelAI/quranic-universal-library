@@ -84,4 +84,21 @@ ActiveAdmin.register Mushaf do
 
     f.actions
   end
+
+  collection_action :export_sqlite_db, method: 'put' do
+    authorize! :download, :from_admin
+
+    file_name = params[:file_name].presence || 'quran-data.sqlite'
+    mushaf_ids = params[:mushaf_ids].split(',').compact_blank
+
+    Export::MushafLayoutExportJob.perform_later(
+      file_name: file_name,
+      user_id: current_user.id,
+      mushaf_ids: mushaf_ids
+    )
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
+
+    redirect_back(fallback_location: '/admin', notice: 'Mushaf layouts db will be exported and shared with you on your email shortly')
+  end
 end

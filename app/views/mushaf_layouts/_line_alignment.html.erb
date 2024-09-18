@@ -3,8 +3,8 @@
 %>
 
 <%= turbo_frame_tag 'lines-info' do %>
-  <div style="margin-right: 20px">
-    <h2>Lines</h2>
+  <div class="text-center mx-3 my-3">
+    <h4>Line alignment</h4>
     <% 1.upto(@mushaf.lines_per_page) do |line| %>
       <div id="page-<%= page_number %>-line-<%= line %>">
         <%

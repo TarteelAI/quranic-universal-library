@@ -9,23 +9,28 @@
 
 <div class="page-wrapper container-lg">
   <div class="resize-container" data-controller="resizeable">
-    <% if pdf_url.present? %>
-      <div class="resizable" id="left-side"
-           data-controller="pdf-viewer"
-           data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
-           data-page-offset="<%= pdf_page_offset %>"
-           data-pdf-url="<%= pdf_url %>">
-        <div id="pdf-wrapper">
-          <div id="pdf-container">
-            <canvas id="pdf-canvas"></canvas>
+    <div class="resizable" id="left-side">
+      <% if pdf_url.present? %>
+        <div
+          data-controller="pdf-viewer"
+          data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
+          data-page-offset="<%= pdf_page_offset %>"
+          data-pdf-url="<%= pdf_url %>">
+          <div id="pdf-wrapper">
+            <div id="pdf-container">
+              <canvas id="pdf-canvas"></canvas>
+            </div>
           </div>
         </div>
-      </div>
-    <% else %>
-      <div class="resizable w-0" id="left-size"></div>
-    <% end %>
+      <% else %>
+        <div class="text-center text-faded pt-4">
+          PDF of this mushaf isn't available, please contact the admin to upload it.
+        </div>
+      <% end %>
+    </div>
 
     <div class="handler"></div>
+
     <div class="resizable" id="right-side">
       <%= render 'page_mapping' %>
     </div>

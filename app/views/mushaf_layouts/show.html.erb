@@ -1,14 +1,38 @@
 <%
   page_number = @mushaf_page.page_number
   actions = []
+  show_preview_btn = [
+    params[:page_alignment],
+    params[:mapping]
+  ].compact_blank.present?
+
+  more_action = []
 
   if @access
-    actions << link_to('Update pages', mushaf_layout_path(@mushaf.id, mapping: true), class: 'btn btn-success')
-    actions << link_to('Update words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-success')
+    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, mapping: true), class: 'dropdown-item')
+    more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item')
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item')
   end
+
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number + 1, source_pdf: true), class: 'dropdown-item')
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number + 1), class: 'dropdown-item')
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, compare_with: 'select')})
+
+  actions << "<div class='dropdown'>
+      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+        Actions
+      </button>
+      <ul class='dropdown-menu text-dark'>
+       #{more_action.map do |action|
+          "<li>#{action}</li>"
+        end.join('')
+      }
+    </ul>
+    </div>"
 
   actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark')
   actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark')
+
   actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
 %>
 

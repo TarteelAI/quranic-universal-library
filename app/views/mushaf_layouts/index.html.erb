@@ -1,6 +1,7 @@
 <%= render 'tools/header',
            name: 'Mushaf layouts',
-           key: 'mushaf_layouts'
+           key: 'mushaf_layouts',
+           help: 'mushaf_layout'
 %>
 
 <div class="page-wrapper container-lg">
@@ -33,10 +34,7 @@
           <td><%= m.default_font_name %></td>
           <td><%= m.qirat_type&.name %></td>
           <td>
-            <%= link_to 'Proofread', mushaf_layout_path(m.id, source_pdf: true), class: 'mr-2 btn btn-info btn-sm' %>
-            <% if can?(:manage, m) %>
-              <%= link_to 'Fix line align', mushaf_layout_path(m.id, page_alignment: true), class: 'btn btn-info btn-sm' %>
-            <% end %>
+            <%= link_to 'Show', mushaf_layout_path(m.id), class: 'btn btn-success btn-sm' %>
           </td>
         </tr>
       <% end %>

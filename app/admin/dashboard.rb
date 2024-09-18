@@ -22,8 +22,10 @@ ActiveAdmin.register_page 'Dashboard' do
           end
         end
       end
+    end
 
-      if can? :admin, :export_words
+    columns do
+      if can?(:download, :from_admin)
         column do
           panel 'Export Quran words as SQLite DB' do
             render partial: 'admin/export_words_db'
@@ -33,6 +35,12 @@ ActiveAdmin.register_page 'Dashboard' do
         column do
           panel 'Export ayah audio file segments' do
             render partial: 'admin/export_ayah_segments_db'
+          end
+        end
+
+        column do
+          panel 'Export Mushaf Layouts' do
+            render partial: 'admin/export_mushaf_layouts_db'
           end
         end
       end

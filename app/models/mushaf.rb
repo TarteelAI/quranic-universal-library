@@ -35,6 +35,10 @@ class Mushaf < QuranApiRecord
     [1, 2].include?(id)
   end
 
+  def humanize
+    "#{name} - Pages #{pages_count} - Lines #{lines_per_page}"
+  end
+
   def percentage_done
     total = Word.count
     done = MushafWord.where(mushaf_id: id).count

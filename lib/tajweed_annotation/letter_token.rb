@@ -2,34 +2,36 @@ module TajweedAnnotation
   class LetterToken
     attr_reader :letter,
                 :diacritics,
-                :position,
+                :token_position, # token(with diacritics marks) position
+                :char_position, # position within the word
                 :word,
                 :rules,
                 :text
 
-    def initialize(letter_with_diacritics, position, word)
+    def initialize(letter_with_diacritics, token_position, char_position, word)
       @text = letter_with_diacritics.join()
       @letter = letter_with_diacritics[0]
       @diacritics = letter_with_diacritics[1..-1]
-      @position = position
+      @token_position = token_position
+      @char_position = char_position
       @word = word
       @rules = {}
     end
 
     def mark_as_first_letter!
-      @token_position = 'first'
+      @token_token_position = 'first'
     end
 
     def mark_as_last_letter!
-      @token_position = 'last'
+      @token_token_position = 'last'
     end
 
     def first_letter?
-      @token_position == 'first'
+      @token_token_position == 'first'
     end
 
     def last_letter?
-      @token_position == 'last'
+      @token_token_position == 'last'
     end
 
     def process_rules
@@ -39,16 +41,22 @@ module TajweedAnnotation
         add_rule(:ham_wasl, 0)
       elsif apply_laam_shamsiyah?
         add_rule(:laam_shamsiyah, 0)
-      elsif apply_slient_rule?
-        add_rule(:slnt, 0)
-        add_rule(:slnt, 1)
       elsif apply_tanween_or_noon_sakin?
         apply_tanween_or_noon_sakin_rules
+      elsif apply_meem_sakin?
+        apply_meem_sakin_rules
+      elsif apply_slient_rule?
+        add_rule(:slnt, 0)
+        add_rule(:slnt, 1) if has_harkat?
       end
     end
 
     def apply_slient_rule?
       is_alif_sukun? || is_wow_sukun?
+    end
+
+    def has_harkat?
+      diacritics.present?
     end
 
     def apply_hamza_wasal?
@@ -59,8 +67,13 @@ module TajweedAnnotation
       has_tanween? || is_non_sukun?
     end
 
+    def apply_meem_sakin?
+      letter_meem? && !has_harkat?
+    end
+
     def apply_tanween_or_noon_sakin_rules
       # Izhaar, Idhghaam, Iqlaab or Ikhfa
+      # Izhaar: (ا,ح,خ,ع,غ,ه)+(نْ or ـًـٍـٌ)
       next_token = next_letter_token(skip_alif_sukun: false)
 
       if next_token.izhar_letter?
@@ -68,6 +81,16 @@ module TajweedAnnotation
         add_rule('izhar', 1) # SUKUN too
 
         next_token.add_rule('izhar', 0) # izhar letter
+      elsif next_token.ikhafa_letter?
+        add_rule('ikhafa', 0)
+      end
+    end
+
+    def apply_meem_sakin_rules
+      # ikhafa_shafawi
+      if apply_ikhafa_shafawi?
+        add_rule('ikhafa_shafawi', 0)
+        next_letter_token.add_rule('ikhafa_shafawi', 0)
       end
     end
 
@@ -77,12 +100,37 @@ module TajweedAnnotation
       end
     end
 
+    def apply_ikhafa_shafawi?
+      # Meem sakin then Letter ba
+      next_letter_token(skip_alif_sukun: true).letter_ba?
+    end
+
+    def ikhafa_letter?
+      # ت ث ج د ذ ز س ش ص ض ط ظ ف ق ك
+      [
+        letter_kaf?,
+        letter_qaf?,
+        letter_zah?,
+        letter_tah?,
+        letter_zaad?,
+        letter_sad?,
+        letter_sheen?,
+        letter_seen?,
+        letter_zeh?,
+        letter_zal?,
+        letter_dal?,
+        letter_jeem?,
+        letter_sah?,
+        letter_teh?,
+        letter_feh?].any?
+    end
+
     def is_non_sukun?
       letter.ord == 1606 && (diacritics.empty? || has_sukun?)
     end
 
     def is_alif_sukun?
-      letter.ord == 1575 && (diacritics.empty? || has_sukun?)
+      letter_alif? && (diacritics.empty? || has_sukun?)
     end
 
     def is_wow_sukun?
@@ -107,7 +155,7 @@ module TajweedAnnotation
 
     def next_letter_token(skip_alif_sukun: true)
       w = word
-      p = position
+      p = token_position
 
       if last_letter?
         w = word.next_word
@@ -128,7 +176,7 @@ module TajweedAnnotation
     end
 
     def previous_letter_token
-      word.letter_tokens[position - 1]
+      word.letter_tokens[token_position - 1]
     end
 
     def samshi_letter?
@@ -149,6 +197,80 @@ module TajweedAnnotation
     def letter_alif?
       letter == 'ا'
     end
+
+    def letter_ba?
+      letter == 'ب'
+    end
+
+    def letter_meem?
+      letter == 'م'
+    end
+
+    def letter_teh?
+      letter == 'ت'
+    end
+
+    def letter_sah?
+      # https://www.compart.com/en/unicode/U+062b
+      letter == 'ث'
+    end
+
+    def letter_jeem?
+      letter == 'ج'
+    end
+
+    def letter_dal?
+      letter == 'د'
+    end
+
+    def letter_zal?
+      # https://www.compart.com/en/unicode/U+0630
+      letter == 'ذ'
+    end
+
+    def letter_zeh?
+      letter == 'ز'
+    end
+
+    def letter_seen?
+      letter == 'س'
+    end
+
+    def letter_sheen?
+      letter == 'ش'
+    end
+
+    def letter_sad?
+      letter == 'ص'
+    end
+
+    def letter_zaad?
+      # https://www.compart.com/en/unicode/U+0636
+      letter == 'ض'
+    end
+
+    def letter_tah?
+      letter == 'ط'
+    end
+
+    def letter_zah?
+      letter == 'ظ'
+    end
+
+    def letter_feh?
+      letter == 'ف'
+    end
+
+    def letter_kaf?
+      letter == 'ك'
+    end
+
+    def letter_qaf?
+      letter == 'ق'
+    end
+
+
+
 
     def letter_hamza_wasal?
       letter.match?(/ٱ/) || letter.ord == 1649

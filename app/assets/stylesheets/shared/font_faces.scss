@@ -177,8 +177,14 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
   font-size: 30px;
 }
 
+.fs-auto{
+  font-size: inherit;
+}
+
 .ar.indopak{
   font-family: indopak-nastaleeq;
   direction: rtl;
 }
+
+
 

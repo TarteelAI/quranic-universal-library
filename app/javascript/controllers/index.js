@@ -108,3 +108,6 @@ application.register("lazy-load", LazyLoadController);
 
 import ZoomImageController from './zoom_image_controller';
 application.register("zoom-image", ZoomImageController);
+
+import TajweedAnnotatorController from './tajweed_annotator_controller';
+application.register("tajweed-annotator", TajweedAnnotatorController);

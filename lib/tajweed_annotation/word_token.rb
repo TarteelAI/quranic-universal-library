@@ -18,10 +18,11 @@ module TajweedAnnotation
 
       word_util = WordsUtil.new
       p = 0
+      char_position = 0
 
       tokens = word_util.split_chars_with_tashkeel(text)
       tokens.each_with_index do |chunk, token_index|
-        token = LetterToken.new(chunk, p, self)
+        token = LetterToken.new(chunk, p, char_position, self)
 
         if token_index == 0
           token.mark_as_first_letter!
@@ -31,6 +32,7 @@ module TajweedAnnotation
 
         @letter_tokens << token
         p += 1
+        char_position += chunk.length
       end
     end
 

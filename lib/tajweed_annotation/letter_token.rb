@@ -75,7 +75,6 @@ module TajweedAnnotation
       # Izhaar, Idhghaam, Iqlaab or Ikhfa
       # Izhaar: (ا,ح,خ,ع,غ,ه)+(نْ or ـًـٍـٌ)
       next_token = next_letter_token(skip_alif_sukun: false)
-      binding.pry
 
       if next_token.izhar_letter?
         add_rule('izhar', 0) # Base letter non

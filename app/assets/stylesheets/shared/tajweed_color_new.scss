@@ -3,20 +3,38 @@
   height: 20px;
   display: inline-block;
 
-  &.izhar{
+  &.izhar {
     background: deeppink;
   }
 
   &.ham_wasl, &.slnt, &.laam_shamsiyah {
     background: #AAAAAA;
   }
+
+  &.ikhafa_shafawi {
+    background: #D500B7;
+  }
+
+  &.ikhafa {
+    background: #9400A8;
+  }
 }
 
 .tajweed-new {
-  .izhar{
+  .izhar {
     // usually it's black text in tajweed mushaf but we want to highlight the rule
     color: deeppink;
   }
+
+  .ikhafa_shafawi {
+    color: #D500B7;
+
+    &:hover {
+      background-color: #F0A6E6;
+      color: #D500B7;
+    }
+  }
+
 
   .ham_wasl, .slnt, .laam_shamsiyah {
     color: #AAAAAA;
@@ -48,15 +66,6 @@
     &:hover {
       background-color: #F3A6A9;
       color: #DD0008;
-    }
-  }
-
-  .ikhafa_shafawi {
-    color: #D500B7;
-
-    &:hover {
-      background-color: #F0A6E6;
-      color: #D500B7;
     }
   }
 

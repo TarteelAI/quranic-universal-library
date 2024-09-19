@@ -1,0 +1,67 @@
+<%
+  tajweed_annotation = TajweedAnnotation::Service.new
+  tajweed_annotation.add_annotation_on_verse(@word.verse)
+  ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
+%>
+<div class="page-section mt-4">
+  <h2>
+    <%
+      verse = @word.verse
+      next_verse = verse.next_ayah
+      previous_verse = verse.previous_ayah
+    %>
+
+    <%= link_to tajweed_word_path("#{previous_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Preview ayah', data: { controller: 'tooltip' } do %>
+      <i class="fa fa-arrow-left"></i>
+    <% end if previous_verse %>
+
+    Ayah <%= @word.verse_key %>
+
+    <%= link_to tajweed_word_path("#{next_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Next ayah', data: { controller: 'tooltip' } do %>
+      <i class="fa fa-arrow-right"></i>
+    <% end if next_verse %>
+  </h2>
+
+  <h3>Auto tajweed annotation</h3>
+  <div class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
+    <%= tajweed_annotation.to_html.html_safe %>
+  </div>
+
+  <h3>Ayah preview with new tajweed text</h3>
+  <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
+    <% ayah_tajweeed_words.each do |w| %>
+      <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color: inherit' do %>
+        <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
+          <div class="qpc-hafs"
+               data-controller="tajweed-highlight">
+            <%= w.text.html_safe %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <h3>V4 tajweed</h3>
+  <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
+    <% verse.words.each do |w| %>
+      <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
+        <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %>">
+          <div class="p<%= w.v2_page %>-v4-tajweed">
+            <%= w.code_v2 %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <h3>QA Tajweed</h3>
+  <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
+    <% verse.words.each do |w| %>
+      <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
+        <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %>">
+          <img data-controller="lazy-load" data-src="<%= w.qa_tajweed_image_url %>"/>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

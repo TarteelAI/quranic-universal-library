@@ -35,7 +35,6 @@ module TajweedAnnotation
 
         tokens.each do |token|
           rules = token.rules
-
           token.text.chars.each_with_index do |c, i|
             letters << {
               c: c,
@@ -86,7 +85,12 @@ module TajweedAnnotation
           end
         end
 
-        words_html[w] << current_group
+        if current_rule.present?
+          words_html[w] << "<#{tag} class=#{tajweed.name(current_rule)}>#{current_group}</#{tag}>"
+        else
+          words_html[w] << current_group
+        end
+
         current_group = ""
 
         last_word = w
@@ -99,7 +103,7 @@ module TajweedAnnotation
       end
 
       words_html.map do |location, html|
-        "<span data-location='location'>#{html.join}</span> "
+        "<span data-location='#{location}'>#{html.join}</span> "
       end.join('')
     end
   end

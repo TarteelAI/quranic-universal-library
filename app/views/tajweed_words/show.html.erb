@@ -4,7 +4,6 @@
   actions = []
   next_word = @word.next_word
   previous_word = @word.previous_word
-  ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
 
   if previous_word
     actions << link_to('Previous word', tajweed_word_path(previous_word.location), class: 'btn btn-dark')
@@ -16,9 +15,6 @@
 
   actions << link_to('Back to filter', tajweed_words_path, class: 'btn btn-info')
   rule_options = tajweed_rule_options_for_select(tajweed)
-
-  auto_annotation = TajweedAnnotation::Service.new
-  auto_annotation.add_annotation_on_verse(@word.verse)
 %>
 
 <%= render 'tools/header',
@@ -30,7 +26,7 @@
 
 <%= render 'shared/page_font', verses: [@word.verse] %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper container-lg" data-controller="tajweed-annotator">
   <div class="page-section">
     <%= render 'word_preview' %>
   </div>
@@ -77,57 +73,7 @@
     </table>
   </div>
 
-  <div class="page-section mt-4">
-    <h2>
-      <%
-        verse = @word.verse
-        next_verse = verse.next_ayah
-        previous_verse = verse.previous_ayah
-      %>
-
-      <%= link_to tajweed_word_path("#{previous_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Preview ayah', data: { controller: 'tooltip' } do %>
-        <i class="fa fa-arrow-left"></i>
-      <% end if previous_verse %>
-
-      Ayah <%= @word.verse_key %>
-
-      <%= link_to tajweed_word_path("#{next_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Next ayah', data: { controller: 'tooltip' } do %>
-        <i class="fa fa-arrow-right"></i>
-      <% end if next_verse %>
-    </h2>
-
-    <h3>Auto tajweed annotation</h3>
-    <div class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
-      <%= auto_annotation.to_html.html_safe %>
-    </div>
-
-    <h3>Ayah preview with new tajweed text</h3>
-    <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
-      <% ayah_tajweeed_words.each do |w| %>
-        <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
-          <div class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
-            <div class="qpc-hafs"
-                 data-controller="tajweed-highlight">
-              <%= w.text.html_safe %>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-
-    <h3>V4 tajweed</h3>
-    <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
-      <% verse.words.each do |w| %>
-        <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
-          <div class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %>">
-            <div class="p<%= w.v2_page %>-v4-tajweed">
-              <%= w.code_v2 %>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-  </div>
+  <%= render 'ayah_preview' %>
 </div>
 
 <div class="offcanvas offcanvas-start"
@@ -143,16 +89,26 @@
       <% documentation = tajweed.documentation %>
       <% tajweed.rules.each do |key, rule_id| %>
         <% rule = documentation[key.to_sym] %>
-        <div>
+
+        <div class="py-2 border-bottom">
           <div class="d-flex">
             <span class="tajweed-new tajweed-rule-icon <%= key %>"></span>
             <span class="ms-2">
               <%= key %>
             </span>
+
+            <span class="ms-auto">
+              <%= link_to 'View detail', tajweed_rule_path(key), target: '_blank' %>
+            </span>
           </div>
 
-          <div class="">
-            <%= rule[:info] %>
+          <div class="flex-between">
+            <span>
+              Letters
+            </span>
+            <span class="qpc-hafs" style="font-size: 20px">
+               <%= rule[:rule_letters] %>
+            </span>
           </div>
         </div>
       <% end %>
@@ -177,7 +133,7 @@
       <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
 
       <div id="image-container" class="mt-4 p-4">
-        <%= image_tag "https://quran.ksu.edu.sa/tajweed_png/#{@word.page_number}.png", id: "zoom-image" %>
+        <img id="zoom-image" data-controller="lazy-load" data-src="https://quran.ksu.edu.sa/tajweed_png/<%= @word.page_number %>.png"} %>
       </div>
     </div>
   </div>

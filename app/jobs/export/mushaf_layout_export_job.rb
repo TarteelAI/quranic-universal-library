@@ -58,8 +58,7 @@ Best regards,
         resources = ResourceContent
                       .joins(:resource_tags)
                       .where(resource_tags: { tag_id: tag.id })
-
-        Mushaf.where(resource_content: resources)
+        Mushaf.where(resource_content_id: resources.pluck(:id))
       else
         Mushaf.where(id: mushaf_ids.map(&:to_i))
       end

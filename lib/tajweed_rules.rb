@@ -32,9 +32,12 @@ class TajweedRules
     "ham_wasl" => 1,
     "laam_shamsiyah" => 2,
     "slnt" => 7,
+    "ikhafa" => 10,
 
+    "ikhafa_shafawi" => 14,
+    "idgham_shafawi" => 15,
     "izhar" => 19,
-    "madd_al_tamkeen" => 20
+    "madd_al_tamkeen" => 20,
   }
 
   RULES_COLORS = {
@@ -57,6 +60,7 @@ class TajweedRules
     "17": "#A1A1A1",
     "18": "#AAAAAA",
     "19": "#AAAAAA",
+    "21": "#f7630c"
   }
 
   RULES_COLORS_NEW = {
@@ -175,7 +179,7 @@ class TajweedRules
         name: 'Normal Prolongation: 2 Vowels',
         description: "",
         examples: [''],
-        links: [""]
+        links: ["https://alphabet.quranacademy.org/en/lesson/tajweed/madd-rules/madd-rules"]
       },
 
       madda_permissible: {
@@ -214,13 +218,6 @@ class TajweedRules
         links: [""]
       },
 
-      ikhafa: {
-        name: 'Ikhafa',
-        description: "",
-        examples: [''],
-        links: [""]
-      },
-
       madda_obligatory_monfasel: {
         name: 'Madd Al-Munfasil 2, 4, or 5 Vowels',
         description: "",
@@ -241,19 +238,20 @@ class TajweedRules
         examples: [''],
         links: [""]
       },
-
       ikhafa_shafawi: {
         name: "Ikhafa' Shafawi - With Meem",
-        description: "",
-        examples: [''],
-        links: [""]
+        description: "“Ikhfaa Shafawi” in Tajweed involves concealing the sound of the letter Meem sakinah (م) when followed by the letter (ب), while maintaining the nasal sound (ghunnah) for approximately two seconds.",
+        examples: ['105:4:1'],
+        links: [
+          'https://kalimah-center.com/ikhfaa-shafawi/'
+        ]
       },
 
       idgham_shafawi: {
         name: 'Idgham Shafawi - With Meem',
         description: "",
         examples: [''],
-        links: [""]
+        links: ["https://alphabet.quranacademy.org/en/lesson/tajweed/mim-with-sukun"]
       },
 
       iqlab: {
@@ -276,14 +274,27 @@ class TajweedRules
         examples: [''],
         links: [""],
       },
+
+      ikhafa: {
+        name: 'Ikhfaa',
+        description: "",
+        examples: [],
+        rule_letters: "(ت,ث,ج,د,ذ,ز,س,ش,ص,ض,ط,ظ,ف,ق,ك) < (نْ or ـًـٍـٌ)",
+        links: [
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/nun-with-sukun-and-tanween/ikhfa"
+        ]
+      },
+
       izhar: {
         name: 'Izhar',
         description: "Izhhaar means ‘to make clear or distinct’. In the context of the recitation of the Qur’an, it means ‘pronouncing a letter without ġunnah, i.e. without a sound from the nasal cavity.",
-        rule_tip: "If a Noon Saakin or a Tanween is followed by any of these throat letters, the Noon Saakin or the Tanween is pronounced clearly without ġunnah",
-        examples: ['1:7:3', ''],
+        rule_tip: "If a Noon Saakin or a Tanween <span class='qpc-hafs fs-auto'>نْ or ـًـٍـٌ</span> is followed by any of throat letters <span class='fs-auto qpc-hafs'>ا,ح,خ,ع,غ,ه </span>, the Noon Saakin or the Tanween is pronounced clearly without ġunnah",
+        examples: ['1:7:3'],
+        rule_letters: "(ا,ح,خ,ع,غ,ه) < (نْ or ـًـٍـٌ)",
         links: [
           "https://mualim-alquran.com/en/iz%CC%A4haar-(noon-saakin-and-tanween)",
-          "https://www.quranmyway.com/al-ith-haaral-haliqe/"
+          "https://www.quranmyway.com/al-ith-haaral-haliqe/",
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/nun-with-sukun-and-tanween/izhar"
         ]
       },
       madd_al_tamkeen: {
@@ -308,10 +319,11 @@ class TajweedRules
       },
       noon_saakin_and_tanween: {
         name: 'Noon Saakin and Tanween',
+        description: "If you see Tanween OR Sakin Noon ( ْن and ً ٍ ٌ ) anywhere in Qur’an, there must be 4 rules related to pronunciation of noon. You will (1) pronounce (or show) the noon (Izhaar),  (2) you will hide the noon (ikhfaa), (3) you will skip the noon and connect letters before and after noon (idghaam), and finally (4) you will transform the noon sound into meem sound (Iqlab)",
         rules: [
           :izhar,
           :iqlab,
-          :ikhfaa,
+          :ikhafa,
           idgham: [:idgham_wo_ghunnah, :idgham_ghunnah],
         ],
         links: [
@@ -320,7 +332,7 @@ class TajweedRules
       },
       meem_kaakin: {
         name: 'Meem Saakin',
-        rules: [:idgham_shafawi, :izhar_shafawi, :iqlab_shafawi]
+        rules: [:idgham_shafawi, :izhar_shafawi, :iqlab_shafawi, :ikhafa_shafawi],
       },
       qalaqah: {
         name: 'Qalaqah'

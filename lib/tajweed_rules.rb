@@ -21,22 +21,35 @@ class TajweedRules
     "idgham_ghunnah" => 13,
     "ikhafa_shafawi" => 14,
     "idgham_shafawi" => 15,
-    "iqlab" => 15,
-    "idgham_mutajanisayn" => 16,
-    "idgham_mutaqaribayn" => 17,
-    "alif_al_tafreeq" => 18,
-    "izhar" => 19
+    "iqlab" => 16,
+    "idgham_mutajanisayn" => 17,
+    "idgham_mutaqaribayn" => 18,
+    "alif_al_tafreeq" => 19,
+    "izhar" => 20
   }
 
   TAJWEED_RULES_NEW = {
     "ham_wasl" => 1,
     "laam_shamsiyah" => 2,
-    "slnt" => 7,
-    "ikhafa" => 10,
 
+    "slnt" => 7,
+    "ghunnah" => 8,
+
+    "qalaqah" => 9,
+
+    # Non saakon or tanween rules
+    "ikhafa" => 10,
+    "iqlab" => 16,
+    "izhar" => 19,
+    "idgham_ghunnah" => 13,
+    "idgham_wo_ghunnah" => 6,
+
+    # Meem saakin rules
     "ikhafa_shafawi" => 14,
     "idgham_shafawi" => 15,
-    "izhar" => 19,
+    "izhar_shafawi" => 21,
+
+
     "madd_al_tamkeen" => 20,
   }
 
@@ -158,7 +171,7 @@ class TajweedRules
         name: 'Silent',
         description: "Represents letters that are not pronounced. Generally any letter without hakrat will be Silent. For instance, the silent <span class='qpc-hafs'>ل</span> in “اَلشَّمْس” (ash-shams) is never pronounced. Similarly, the Noon in “كَأَن لَّمْ” (ka’an lamma) is pronounced like “كَأَلَّمْ” (ka’allam).",
         examples: ['1:1:3'],
-        links: [""]
+        links: ["https://alphabet.quranacademy.org/en/lesson/tajweed/silent-letters"]
       },
       alif_al_tafreeq: {
         name: 'Alif Al Tafreeq (Al Jama’a)',
@@ -179,7 +192,10 @@ class TajweedRules
         name: 'Normal Prolongation: 2 Vowels',
         description: "",
         examples: [''],
-        links: ["https://alphabet.quranacademy.org/en/lesson/tajweed/madd-rules/madd-rules"]
+        links: [
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/small-letters-in-quran",
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/madd-rules/madd-rules"
+        ]
       },
 
       madda_permissible: {
@@ -197,25 +213,23 @@ class TajweedRules
         links: [""]
       },
 
-      idgham_wo_ghunnah: {
-        name: 'Idgham without ghunnah',
-        description: "",
-        examples: [''],
-        links: [""]
-      },
-
       ghunnah: {
         name: 'Ghunnah',
-        description: "",
+        description: "Ghunnah refers to the nasal sound made when pronouncing certain letters in the Quran. It occurs primarily with the letters ن  and م  when they have a shaddah (ّ) ",
+        rule_letters: "مّ OR نّ",
         examples: [''],
         links: [""]
       },
 
       qalaqah: {
         name: 'Qalaqah',
-        description: "",
+        description: "Qalqalah literally translates to 'echo' or 'reverberation'. Qalqalah refers to the echoing or shaking sound produced when certain letters are pronounced with Sukoon, which indicates no vowel sound.",
         examples: [''],
-        links: [""]
+        rule_tip: "Qalqalah rule apply when any of these letters <span class='qpc-hafs'>ق ط ب ج د</span> has Sukun <span class=qpc-hafs>ـْ</span>",
+        rule_letters: "ْق ْط ْب ْج ْد",
+        links: [
+          "https://bayanulquran-academy.com/qalqalah-in-tajweed/"
+        ]
       },
 
       madda_obligatory_monfasel: {
@@ -234,31 +248,64 @@ class TajweedRules
 
       idgham_ghunnah: {
         name: 'Idgham with Ghunnah',
-        description: "",
+        description: "Idgham is joining a non-vowel with a vowel so that the two letters become one letter of the second type. Idgham With Ghunna is the first type of Idgham, which is called Idgham with nasalization (Ghunnah). Ghunnah is a sound that comes out of our noses.",
         examples: [''],
-        links: [""]
+        rule_letters: "(ي، ن، م، و) < (نْ or ـًـٍـٌ)",
+        links: [
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/nun-with-sukun-and-tanween/idgham",
+          "https://riwaqalquran.com/blog/what-is-idgham-in-tajweed/",
+          "https://nooracademy.com/idghaam"
+        ]
       },
+
+      idgham_wo_ghunnah: {
+        name: 'Idgham without ghunnah',
+        description: "",
+        rule_letters: "(ل,ر) < (نْ or ـًـٍـٌ)",
+        examples: [''],
+        links: [
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/nun-with-sukun-and-tanween/idgham",
+          "https://riwaqalquran.com/blog/what-is-idgham-in-tajweed/",
+          "https://nooracademy.com/idghaam",
+          "https://kalimah-center.com/types-of-idgham/"
+        ]
+      },
+
       ikhafa_shafawi: {
         name: "Ikhafa' Shafawi - With Meem",
         description: "“Ikhfaa Shafawi” in Tajweed involves concealing the sound of the letter Meem sakinah (م) when followed by the letter (ب), while maintaining the nasal sound (ghunnah) for approximately two seconds.",
         examples: ['105:4:1'],
         links: [
-          'https://kalimah-center.com/ikhfaa-shafawi/'
+          'https://kalimah-center.com/ikhfaa-shafawi/',
+          "https://rtrjax.wixsite.com/easytajweed/copy-of-chapter-17-hurooful-muqatta"
         ]
       },
 
       idgham_shafawi: {
         name: 'Idgham Shafawi - With Meem',
-        description: "",
+        description: "If a Meem comes after Meem Sakin, then that Meem Sakin will merge with the following Meem, and you'll do Idghaam",
         examples: [''],
-        links: ["https://alphabet.quranacademy.org/en/lesson/tajweed/mim-with-sukun"]
+        links: [
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/mim-with-sukun",
+          "https://rtrjax.wixsite.com/easytajweed/copy-of-chapter-17-hurooful-muqatta"
+        ]
+      },
+      izhar_shafawi: {
+        name: 'Izhar Shafawi - With Meem',
+        description: "Any letter except Ba or Meem comes after Meem Sakin, Izhar Shafawi will be applied. These letters(26 of them) will be read clearly.",
+        examples: [''],
+        links: [
+          "https://alphabet.quranacademy.org/en/lesson/tajweed/mim-with-sukun",
+          "https://rtrjax.wixsite.com/easytajweed/copy-of-chapter-17-hurooful-muqatta"
+        ]
       },
 
       iqlab: {
         name: 'Iqlab',
-        description: "",
+        description: "Iqlab means to convert something into another. If the letter Baa comes after noon saakin or tanween, “noon sound” will be changed into Meem and recited with ghunnah. Simply, turning noon sound into a meem sound, and still pronouncing the letter “Baa”",
+        rule_letters: "(ب) < (نْ or ـًـٍـٌ)",
         examples: [''],
-        links: [""]
+        links: ["https://bayanulquran-academy.com/iqlab-in-tajweed"]
       },
 
       idgham_mutajanisayn: {
@@ -319,7 +366,7 @@ class TajweedRules
       },
       noon_saakin_and_tanween: {
         name: 'Noon Saakin and Tanween',
-        description: "If you see Tanween OR Sakin Noon ( ْن and ً ٍ ٌ ) anywhere in Qur’an, there must be 4 rules related to pronunciation of noon. You will (1) pronounce (or show) the noon (Izhaar),  (2) you will hide the noon (ikhfaa), (3) you will skip the noon and connect letters before and after noon (idghaam), and finally (4) you will transform the noon sound into meem sound (Iqlab)",
+        description: "If you see Tanween OR Sakin Noon, one of these four must applies. <ul><li>Izhaar: You will pronounce (or show) the noon</li>  <li>ikhfaa: you will hide the noon</li>, <li>idghaam: you will skip the noon and connect letters before and after noon</li><li>Iqlab: and finally you will transform the noon sound into meem sound</li></ul>",
         rules: [
           :izhar,
           :iqlab,
@@ -332,12 +379,9 @@ class TajweedRules
       },
       meem_kaakin: {
         name: 'Meem Saakin',
-        rules: [:idgham_shafawi, :izhar_shafawi, :iqlab_shafawi, :ikhafa_shafawi],
-      },
-      qalaqah: {
-        name: 'Qalaqah'
-      },
-      idhaar: {
+        description: "The rules of meem sakinah are called «shafawi» because the letter meem is pronounced by closing the lips. The word الشَّفَوِيُّ means «lips».",
+        rules: [:idgham_shafawi, :izhar_shafawi, :ikhafa_shafawi],
+        links: ['https://alphabet.quranacademy.org/en/lesson/tajweed/mim-with-sukun']
       },
       prolongation: {
       }

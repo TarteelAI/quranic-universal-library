@@ -5,13 +5,10 @@ class QuranWordFinder
 
   def find_by_letters(letters)
     query =  "%#{letters}%"
-    query_simple =  "%#{letters.remove_dialectic}%"
 
     @scope.where(
       "text_uthmani LIKE :query OR text_imlaei LIKE :query OR text_qpc_hafs LIKE :query OR text_qpc_nastaleeq_hafs LIKE :query OR text_indopak LIKE :query",
       query: query
-    ).or(
-      @scope.where("text_uthmani_simple LIKE :simple_query OR text_imlaei_simple LIKE :simple_query", simple_query: query_simple)
     )
   end
 

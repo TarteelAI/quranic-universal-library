@@ -8,12 +8,12 @@ export default class extends Controller {
 
     ayahWords.on("mouseenter", (event) => {
       const location = $(event.target).data("location");
-      $(`[data-location='${location}']`).css("background-color", "yellow");
+      $(`[data-location='${location}']`).addClass("border-highlighted");
     })
 
     ayahWords.on("mouseleave", (event) => {
       const location = $(event.target).data("location");
-      $(`[data-location='${location}']`).css("background-color", "inherit");
+      $(`[data-location='${location}']`).removeClass("border-highlighted");
     })
   }
 }

@@ -6,6 +6,7 @@
 <title>
   <%= content_for?(:title) ? yield(:title) : 'Quranic Universal Library' %>
 </title>
+<%= tag.meta name: "description", content: @description if @description.present? %>
 <%= csrf_meta_tags %>
 <script src="https://js.sentry-cdn.com/9c9baca096bbb40bba9c1e944694d76c.min.js" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">

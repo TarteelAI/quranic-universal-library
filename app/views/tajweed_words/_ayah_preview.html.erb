@@ -1,8 +1,11 @@
 <%
   tajweed_annotation = TajweedAnnotation::Service.new
   tajweed_annotation.add_annotation_on_verse(@word.verse)
+  tajweed_text = tajweed_annotation.to_html
+
   ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
 %>
+
 <div class="page-section mt-4">
   <h2>
     <%
@@ -22,9 +25,14 @@
     <% end if next_verse %>
   </h2>
 
-  <h3>Auto tajweed annotation</h3>
+  <h3>Auto tajweed annotation(With QPC Hafs script)</h3>
   <div class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
-    <%= tajweed_annotation.to_html.html_safe %>
+    <%= tajweed_text.html_safe %>
+  </div>
+
+  <h3>Auto tajweed annotation preview for DigitalKhatt font</h3>
+  <div class="digitalkhatt tajweed-new" data-controller="tajweed-highlight">
+    <%= tajweed_text.html_safe %>
   </div>
 
   <h3>Ayah preview with new tajweed text</h3>

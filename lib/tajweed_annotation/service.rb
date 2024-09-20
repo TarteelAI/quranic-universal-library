@@ -62,9 +62,9 @@ module TajweedAnnotation
       word_rules.each do |w, letters|
         words_html[w] = []
 
-        letters.each do |l|
+        letters.each_with_index do |l, _i|
           if l[:r] == current_rule
-            current_group << l[:c]
+            current_group << l[:c].to_s
           else
             if current_group.present?
               if current_rule

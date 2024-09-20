@@ -11,6 +11,8 @@
   </title>
   <%= csrf_meta_tags %>
 
+  <meta property="og:image" content="<%= asset_url('og.jpeg') %>">
+
   <%= yield :head %>
   <script src="https://js.sentry-cdn.com/9c9baca096bbb40bba9c1e944694d76c.min.js" crossorigin="anonymous"></script>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">

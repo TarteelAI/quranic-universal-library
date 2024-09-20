@@ -1,7 +1,7 @@
-<div class="container-lg">
+<div class="tools-container container-lg ms-md-4">
   <h4>Developer Resources</h4>
 </div>
-<div class="tools-container mt-4 gap-3 gap-md-4">
+<div class="tools-container mt-4 ms-md-4 gap-3 gap-md-4">
   <% featured_developer_resources.each do |card| %>
     <% if false %>
       <a href="<%= tool.url %>">
@@ -73,7 +73,7 @@
   <% end %>
 </div>
 
-<div class="container-lg mt-4">
+<div class="tools-container mt-4 ms-md-4">
   <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'btn-link text-white' %>
 </div>
 

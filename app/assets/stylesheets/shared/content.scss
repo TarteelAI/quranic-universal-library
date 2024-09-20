@@ -152,3 +152,12 @@ body {
     border: 0.9px dotted lightgray;
   }
 }
+
+.border-highlighted{
+    border: 1px solid #FF0000 !important;
+}
+
+[data-location]{
+  display: inline-block;
+  cursor: pointer;
+}

@@ -65,7 +65,7 @@ class WordsUtil
     current_group = []
 
     word.chars.each do |char|
-      if QPC_DIACRITIC_MARKS.include?(char)
+      if QPC_DIACRITIC_MARKS.include?(char) || char.ord == 32
         current_group << char
       else
         groups << current_group unless current_group.empty?

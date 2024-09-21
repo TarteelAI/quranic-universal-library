@@ -2,7 +2,7 @@
   patterns = (1..10).to_a
 %>
 <div class="tools-container ms-md-4">
-  <h4>Developer Tools</h4>
+  <h2>Developer Tools</h2>
 </div>
 
 <div class="tools-container mt-4 mt-md-8 ms-md-4 gap-3 gap-md-4">
@@ -20,10 +20,10 @@
             </p>
           </div>
 
-          <div class="cta" style="background: <%= tool.cta_bg %>;">
-          <span>
-            Learn more
-          </span>
+          <div class="cta">
+            <span>
+              Learn more
+            </span>
           </div>
 
           <div class="icon">
@@ -55,8 +55,8 @@
               <%= tool.description %>
             </p>
 
-            <div class="cta" style="background: <%= tool.cta_bg %>; width: 105px">
-              <span>Learn more</span>
+            <div class="cta">
+              <span>Learn More</span>
             </div>
           </div>
 
@@ -67,7 +67,7 @@
           <div class="d-flex justify-content-between">
             <div>
               <% tool.tags.each do |tag| %>
-                <span class="badge <%= resource_tag_class(tag.strip) %>">
+                <span class="tag">
                   <%= tag %>
                 </span>
               <% end %>
@@ -89,5 +89,7 @@
 </div>
 
 <div class="tools-container mt-4 mt-md-8 ms-md-4">
-  <%= link_to 'VIEW ALL TOOLS', tools_path, class: 'btn-link text-white' %>
+  <p>
+    <%= link_to 'VIEW ALL DEVELOPER TOOLS', tools_path, class: 'btn-link text-white' %>
+  </p>
 </div>

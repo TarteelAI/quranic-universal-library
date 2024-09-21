@@ -1,5 +1,5 @@
 <div class="tools-container container-lg ms-md-4">
-  <h4>Developer Resources</h4>
+  <h2>Developer Resources</h2>
 </div>
 <div class="tools-container mt-4 ms-md-4 gap-3 gap-md-4">
   <% featured_developer_resources.each do |card| %>
@@ -14,9 +14,9 @@
             </p>
           </div>
 
-          <div class="cta" style="background: <%= tool.cta_bg %>;">
+          <div class="cta"">
           <span>
-            Learn more
+            Learn More
           </span>
           </div>
 
@@ -74,6 +74,8 @@
 </div>
 
 <div class="tools-container mt-4 ms-md-4">
-  <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'btn-link text-white' %>
+  <p>
+    <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'btn-link text-white' %>
+  </p>
 </div>
 

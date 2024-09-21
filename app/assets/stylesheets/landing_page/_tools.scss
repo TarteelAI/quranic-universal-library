@@ -34,11 +34,27 @@
 
   scroll-snap-type: x mandatory;
 
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 300;
+  }
 
   a {
     text-decoration: none;
     color: white;
   }
+
+  p > a {
+    text-decoration: none;
+    color: white;
+    opacity: 0.7;
+    font-weight: 600; 
+  }
+}
+
+.tool-description {
+  font-weight: 500;
+  opacity: 0.7;
 }
 
 .tool-card {
@@ -66,6 +82,10 @@
     min-height: 400px;
   }
 
+  .info {
+    opacity: 0.7;
+  }
+
   // &:last-child {
   //   margin-inline-end: 30px;
   // }
@@ -82,9 +102,18 @@
     text-decoration: none;
     color: #fff;
     border: 1px solid transparent;
+    background-color: rgba(255, 255, 255, 0.3);
+    font-weight: 700;
+    width: fit-content;
 
     &:hover {
       border: 1px solid #fff;
     }
+  }
+
+  .tag {
+    color: #fff;
+    opacity: 0.7;
+    font-weight: 700;
   }
 }

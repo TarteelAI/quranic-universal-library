@@ -172,7 +172,7 @@
   }
 
   .left {
-    color: rgba(0, 0, 0, 0.7);
+    color: $gray-700;
     font-size: 24px;
     line-height: normal;
     text-wrap: pretty;
@@ -185,13 +185,19 @@
   .right {
     font-size: 20px;
     line-height: normal;
-    opacity: .5;
     text-wrap: pretty;
+    color: $gray-600;
 
     @media (max-width: $screen-md) {
       font-size: 16px;
       opacity: 1;
     }
+
+    .large-text {
+      font-size: 2rem;
+      color: black;
+    }
+
   }
 
   strong {

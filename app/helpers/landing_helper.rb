@@ -115,7 +115,6 @@ module LandingHelper
         url: '/resources/mutashabihat',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)'
       ),
       ToolCard.new(
         title: 'Similiar ayahs',
@@ -123,7 +122,6 @@ module LandingHelper
         url: '/resources/similar-ayah',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)'
       ),
       ToolCard.new(
         title: 'Ayah theme',
@@ -131,7 +129,6 @@ module LandingHelper
         url: '/resources/ayah-theme',
         type: 'mutashabihat',
         icon: 'layout.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)'
       )
     ]
   end
@@ -145,7 +142,6 @@ module LandingHelper
         url: '/surah_audio_files',
         type: 'segments',
         icon: 'timestamp.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "Surah Timestamp Editor is designed to help you prepare precise timestamp data for surah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
       ),
       ToolCard.new(
@@ -154,7 +150,6 @@ module LandingHelper
         url: '/mushaf_layouts',
         type: 'mushaf-layout',
         icon: 'layout.svg',
-        cta_bg: 'rgba(71, 71, 61, 0.9)',
         info_tip: "This feature allows you to view the digital Quran script as it appears in printed Mushafs. You can also customize and prepare layouts based on any printed Mushaf format."
       ),
       ToolCard.new(
@@ -163,7 +158,6 @@ module LandingHelper
         url: '/morphology_phrases',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)',
         info_tip: "This tool allows you to identify and compare verses and phrases that share similarities in meaning, context, or wording."
       ),
       ToolCard.new(
@@ -172,7 +166,6 @@ module LandingHelper
         url: '/ayah_audio_files',
         type: 'segments',
         icon: 'timestamp.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "Ayah Timestamp Editor is designed to help you prepare precise timestamp data for ayah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
       ),
       ToolCard.new(
@@ -181,7 +174,6 @@ module LandingHelper
         url: '/translation_proofreadings',
         type: 'translation',
         icon: 'translation.svg',
-        cta_bg: 'rgba(90, 77, 65, 0.9)',
         info_tip: "This tool helps you review and suggest fixes for Quran translations, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
       ),
       ToolCard.new(
@@ -190,7 +182,6 @@ module LandingHelper
         url: '/word_text_proofreadings',
         type: 'quranic-text',
         icon: 'open_book.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool enables you to proofread Quran script and rendering in various fonts, examining it both ayah by ayah and word by word. Ensure that the script is accurately rendered and consistent across different fonts.",
       )
     ]
@@ -208,7 +199,6 @@ module LandingHelper
         url: '/resources/translation',
         type: 'translation',
         icon: 'translation.svg',
-        cta_bg: 'rgba(90, 77, 65, 0.9)',
       ),
       ToolCard.new(
         title: 'Audio files and segments data',
@@ -216,7 +206,6 @@ module LandingHelper
         url: '/resources/recitation',
         type: 'segments',
         icon: 'timestamp.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
       ),
       ToolCard.new(
         title: 'Quranic script and fonts',
@@ -224,7 +213,6 @@ module LandingHelper
         url: '/resources/quran-script',
         type: 'quranic-text',
         icon: 'open_book.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
       ),
       ToolCard.new(
         title: 'Download Mushaf layout',
@@ -232,7 +220,6 @@ module LandingHelper
         url: '/resources/mushaf-layout',
         type: 'page-layout',
         icon: 'layout.svg',
-        cta_bg: 'rgba(71, 71, 61, 0.9)'
       ),
       ToolCard.new(
         title: 'Mutashabihat ul Quran Data',
@@ -240,7 +227,6 @@ module LandingHelper
         url: '/resources/mutashabihat',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)',
       ),
       ToolCard.new(
         title: 'Tafsirs',
@@ -248,7 +234,6 @@ module LandingHelper
         url: '/resources/tafsir',
         type: 'tafsirs',
         icon: 'book.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)'
       )
     ]
 =end

@@ -11,6 +11,8 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+        'sarina': ['Sarina', 'cursive'],
+        'inter': ['Inter', 'sans-serif'],
       },
     },
   },

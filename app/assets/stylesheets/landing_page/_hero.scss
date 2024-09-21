@@ -7,12 +7,31 @@
   color: #ebebeb;
   overflow: hidden;
 
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+    pointer-events: none;
+    z-index: 10;
+  }
+
   /*@media (max-width: 640px) {
     background-image: url("landingbackground.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
   }*/
+
+  .tarteel-logotype {
+    filter: invert(1);
+    width: 120px;
+  }
 
   .qul-tag {
     color: $gray-300;
@@ -48,22 +67,26 @@
     z-index: 10;
   }
 
+  .tagline-subtext {
+    color: $gray-500;
+    font-size: 1.5rem;
+    line-height: 1.3;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+
+    @media (max-width: $screen-md) {
+      color: #ebebeb;
+    }
+  }
+
   .txt {
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+    color: $gray-500;
+    font-weight: 700;
+    font-size: 0.8125rem;
   }
 
   .tagline-container {
     text-wrap: balance;
-  }
-
-  .tagline {
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    font-family: "Sarina", cursive;
-    font-size: 70px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 64px;
-    letter-spacing: -0.163px;
   }
 
   .sub-tagline {
@@ -72,8 +95,7 @@
     font-size: 70px;
     font-style: normal;
     font-weight: 400;
-    line-height: 64px;
-    letter-spacing: -0.163px;
+    line-height: 1.1;
   }
 
   .powered-by {
@@ -131,14 +153,22 @@
     font-family: Inter;
   }
 
+  .tagline {
+    font-family: "Sarina", cursive;
+    font-size: 3rem;
+    letter-spacing: -0.163px;
+  }
+
   .detail {
     color: #1c1919;
     font-family: "Open Sauce Sans";
     font-size: 40px;
     font-weight: 400;
-    line-height: normal;
-    letter-spacing: -0.24px;
     text-wrap: pretty;
+    max-width: 20ch;
+    h2 {
+      font-size: 2rem;
+    }
   }
 
   .left {

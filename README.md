@@ -1,8 +1,8 @@
 <p align="center">
   <a href="https://qul.tarteel.ai">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://repository-images.githubusercontent.com/813405111/c7e7447e-a3c4-4b15-9646-65b07b817817">
-      <img src="https://repository-images.githubusercontent.com/813405111/c7e7447e-a3c4-4b15-9646-65b07b817817">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TarteelAI/quranic-universal-library/blob/main/.github/images/qul-og.png?raw=true">
+      <img src="https://github.com/TarteelAI/quranic-universal-library/blob/main/.github/images/qul-og.png?raw=true">
     </picture>
     <h1 align="center">Quranic Universal Library (QUL)</h1>
   </a>

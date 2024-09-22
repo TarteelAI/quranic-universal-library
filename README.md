@@ -2,7 +2,7 @@
   <a href="https://qul.tarteel.ai">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://repository-images.githubusercontent.com/813405111/c7e7447e-a3c4-4b15-9646-65b07b817817">
-      <img src="https://repository-images.githubusercontent.com/813405111/c7e7447e-a3c4-4b15-9646-65b07b817817" height="256">
+      <img src="https://repository-images.githubusercontent.com/813405111/c7e7447e-a3c4-4b15-9646-65b07b817817">
     </picture>
     <h1 align="center">Quranic Universal Library (QUL)</h1>
   </a>

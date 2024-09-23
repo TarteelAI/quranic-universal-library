@@ -1,41 +1,43 @@
-<div class="container py-4">
-  <p class="font-semibold text-gray-900">OVERVIEW</p>
+<%= render 'layouts/grid' do %>
+  <div class="py-4 md:px-4 md:py-8">
+    <p class="font-semibold text-gray-900">OVERVIEW</p>
 
-  <div class="flex gap-8 mt-3">
-    <!-- Left column -->
-    <div class="max-w-prose">
-      <h2 class="text-5xl font-normal text-gray-900 max-w-[10ch]">
-        <span class="font-sarina text-5xl">Reigniting</span> <br/>the Islamic Golden Age.
-      </h2>
+    <div class="flex flex-col md:flex-row md:gap-8 lg:gap-16 mt-3">
+      <!-- Left column -->
+      <div class="max-w-prose text-pretty">
+        <h2 class="text-5xl font-normal text-gray-900 max-w-[10ch]">
+          <span class="font-sarina text-5xl">Reigniting</span> <br/>the Islamic Golden Age.
+        </h2>
 
-      <div class="mt-4">
-        <p class="text-lg md:text-xl font-thin">
-          <span class="font-semibold">QUL</span> <span class="font-medium">— Quranic Universal Library,</span> provides a comprehensive, centralized hub of essential digital Quran resources, allowing you to go from idea to impact much faster.
+        <div class="mt-4">
+          <p class="text-lg md:text-xl font-thin">
+            <span class="font-semibold">QUL</span> <span class="font-medium">— Quranic Universal Library,</span> provides a comprehensive, centralized hub of essential digital Quran resources, allowing you to go from idea to impact much faster.
+          </p>
+
+          <%= link_to 'GET STARTED', resources_path, class: 'hidden md:inline-block mt-4 px-8 py-3 bg-gray-900 text-white rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors', id: 'get-started' %>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="max-w-prose mt-4 text-gray-600 text-pretty">
+        <p class="text-2xl font-thin text-black">
+          Islamic projects are built upon the same universal resources: the Quran, its translations, its tafsir, recitations of it, and related content and data. 
         </p>
 
-        <%= link_to 'GET STARTED', resources_path, class: 'hidden md:inline-block mt-4 px-8 py-3 bg-gray-900 text-white rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors', id: 'get-started' %>
+        <p class="text-lg mt-4">
+          To save you time and effort when it comes to sourcing, formatting, and auditing all the Quranic resources you need for your project, we've curated and open-sourced them. We've also included the tools necessary to interact with and explore them.
+        </p>
+
+        <p class="text-lg mt-4">
+          QUL is primarily geared towards other Muslim developers. To contribute, visit the QUL repo on <a href="https://github.com/TarteelAI/quranic-universal-library" class="text-gray-900 underline hover:text-gray-700">Github</a>.
+          Special thanks to <%= link_to 'all those whose contributions made this project possible', credits_path, class: "text-gray-900 underline hover:text-gray-700" %>.
+        </p>
       </div>
     </div>
 
-    <!-- Right column -->
-    <div class="max-w-prose mt-4 text-gray-600">
-      <p class="text-2xl font-thin text-black">
-        Islamic projects are built upon the same universal resources: the Quran, its translations, its tafsir, recitations of it, and related content and data. 
-      </p>
-
-      <p class="mt-4">
-        To save you time and effort when it comes to sourcing, formatting, and auditing all the Quranic resources you need for your project, we've curated and open-sourced them. We've also included the tools necessary to interact with and explore them.
-      </p>
-
-      <p class="mt-4">
-        QUL is primarily geared towards other Muslim developers. To contribute, visit the QUL repo on <a href="https://github.com/TarteelAI/quranic-universal-library" class="text-gray-900 underline hover:text-gray-700">Github</a>.
-        Special thanks to <%= link_to 'all those whose contributions made this project possible', credits_path, class: "text-gray-900 underline hover:text-gray-700" %>.
-      </p>
+    <!-- Mobile 'GET STARTED' button -->
+    <div class="w-full md:hidden mt-4">
+      <%= link_to 'GET STARTED', resources_path, class: 'block w-full px-8 py-3 bg-gray-900 text-white text-center rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors', id: 'get-started' %>
     </div>
   </div>
-
-  <!-- Mobile 'GET STARTED' button -->
-  <div class="w-full md:hidden mt-4">
-    <%= link_to 'GET STARTED', resources_path, class: 'block w-full px-8 py-3 bg-gray-900 text-white text-center rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors', id: 'get-started' %>
-  </div>
-</div>
+<% end %>

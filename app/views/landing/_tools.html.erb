@@ -8,7 +8,7 @@
   </div>
 <% end %>
 
-<div class="tools-container tw-mt-10 tw-gap-3 md:tw-gap-4">
+<div class="sidescroll-container tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_tools.each do |tool| %>
     <% if false %>
       <a href="<%= tool.url %>">
@@ -46,36 +46,32 @@
       </a>
     <% end %>
 
-    <a href="<%= tool.url %>">
-      <div class="resource-card tool-card tool-card-with-bg position-relative pattern<%= patterns.sample %>">
-        <div class="overlay"></div>
-        <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
-          <!-- Title, Description, Learn More Button -->
-          <div class="tw-flex tw-flex-col tw-gap-4">
-            <div class="tw-flex tw-flex-col tw-gap-2">
-              <%= render 'card/card-title', title: tool.title %>
-              <%= render 'card/card-description', description: tool.description %>
-            </div>
-            <%= render 'card/learn-more-button' %>
+    <%= render 'card/card-container', url: tool.url, patterns: patterns do %>
+      <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
+        <!-- Title, Description, Learn More Button -->
+        <div class="tw-flex tw-flex-col tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-gap-2">
+            <%= render 'card/card-title', title: tool.title %>
+            <%= render 'card/card-description', description: tool.description %>
+          </div>
+          <%= render 'card/learn-more-button' %>
+        </div>
+
+        <div class="icon">
+          <%= image_tag "card-icon/#{tool.icon}" %>
+        </div>
+
+        <div class="tw-flex tw-justify-between">
+          <div>
+            <% tool.tags.each do |tag| %>
+              <%= render 'card/card-tag', tag: tag %>
+            <% end %>
           </div>
 
-          <div class="icon">
-            <%= image_tag "card-icon/#{tool.icon}" %>
-          </div>
-
-          <div class="tw-flex tw-justify-between">
-            <div>
-              <% tool.tags.each do |tag| %>
-                <%= render 'card/card-tag', tag: tag %>
-              <% end %>
-            </div>
-
-            <%= render 'card/info-tip', tip: tool.info_tip %>
-          
-          </div>
+          <%= render 'card/info-tip', tip: tool.info_tip %>
         </div>
       </div>
-    </a>
+    <% end %>
   <% end %>
 </div>
 

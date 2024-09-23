@@ -1,0 +1,7 @@
+<%# TODO: Tidy up type and patterns classes - could be handled better %>
+<a href="<%= url %>">
+  <div class="resource-card tool-card tool-card-with-bg tw-relative <%= local_assigns[:type] %> <%= "pattern#{local_assigns[:patterns]&.sample}" %>">
+    <div class="overlay"></div>
+    <%= yield %>
+  </div>
+</a>

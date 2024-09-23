@@ -1,14 +1,12 @@
-.hero {
-  .hero-message{
-    canvas {
-      width: 100% !important;
-      position: absolute;
-      top: 50px;
-      z-index: 1;
+.hero-spline{
+  canvas {
+    width: 100% !important;
+    position: absolute;
+    top: 50px;
+    z-index: 1;
 
-      @media (min-width: $screen-md) {
-        left: 25vw;
-      }
+    @media (min-width: $screen-md) {
+      left: 25vw;
     }
   }
 }

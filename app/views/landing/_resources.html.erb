@@ -4,7 +4,7 @@
   </div>
 <% end %>
 
-<div class="tools-container tw-mt-10 tw-gap-3 md:tw-gap-4">
+<div class="sidescroll-container tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_resources.each do |card| %>
     <% if false %>
       <a href="<%= tool.url %>">
@@ -41,33 +41,31 @@
       </a>
     <% end %>
 
-    <a href="<%= card.url %>">
-      <div class="resource-card tool-card tool-card-with-bg  <%= card.type %>">
-        <div class="overlay"></div>
-        <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
-          <div class="tw-flex tw-flex-col tw-gap-2">
-            <%= render 'card/card-title', title: card.title %>
-            <%= render 'card/card-description', description: card.description %>
-          </div>
 
-          <div class="icon">
-            <%= image_tag "card-icon/#{card.icon}" %>
-          </div>
+    <%= render 'card/card-container', url: card.url, type: card.type do %>
+      <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          <%= render 'card/card-title', title: card.title %>
+          <%= render 'card/card-description', description: card.description %>
+        </div>
 
-          <div class="tw-flex tw-items-center tw-justify-between">
-            <% if card.count.to_i > 0 %>
-              <div class="tw-text-white tw-font-bold">
-                <%= card.stats.to_s.html_safe %>
-              </div>
+        <div class="icon">
+          <%= image_tag "card-icon/#{card.icon}" %>
+        </div>
 
-              <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
-                <%= card.count %>
-              </div>
-            <% end %>
-          </div>
+        <div class="tw-flex tw-items-center tw-justify-between">
+          <% if card.count.to_i > 0 %>
+            <div class="tw-text-white tw-font-bold">
+              <%= card.stats.to_s.html_safe %>
+            </div>
+
+            <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
+              <%= card.count %>
+            </div>
+          <% end %>
         </div>
       </div>
-    </a>
+    <% end %>
   <% end %>
 </div>
 

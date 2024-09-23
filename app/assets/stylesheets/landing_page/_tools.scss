@@ -13,6 +13,27 @@
   position: relative;
 }
 
+.sidescroll-container {
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  align-items: center;
+  padding: 0 0.75rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  scroll-snap-type: x mandatory;
+
+  @media (min-width: $screen-lg) {
+    padding: 0 calc(0.75rem + (100vw - 1600px) / 2);
+  }
+}
+
 .tools-container {
   padding: 0 0.75rem;
   position: relative;
@@ -34,22 +55,22 @@
 
   scroll-snap-type: x mandatory;
 
-  h2 {
-    font-size: 2.5rem;
-    font-weight: 300;
-  }
+  // h2 {
+  //   font-size: 2.5rem;
+  //   font-weight: 300;
+  // }
 
-  a {
-    text-decoration: none;
-    color: white;
-  }
+  // a {
+  //   text-decoration: none;
+  //   color: white;
+  // }
 
-  p > a {
-    text-decoration: none;
-    color: white;
-    opacity: 0.7;
-    font-weight: 600; 
-  }
+  // p > a {
+  //   text-decoration: none;
+  //   color: white;
+  //   opacity: 0.7;
+  //   font-weight: 600; 
+  // }
 }
 
 .tool-description {

@@ -12,6 +12,7 @@
       height: 1.6rem;
       background-color: $primary;
       border-radius: 50%;
+      flex-shrink: 0;
       transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
 
       &:after, &:before {
@@ -32,8 +33,12 @@
     }
 
     .question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       color: $gray-700;
       text-decoration: none;
+      gap: 1rem;
 
       &:hover {
         color: $primary;

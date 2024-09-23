@@ -1,6 +1,26 @@
-# Quranic Universal Library(QUL) - https://qul.tarteel.ai/
+<p align="center">
+  <a href="https://qul.tarteel.ai">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/TarteelAI/quranic-universal-library/blob/main/.github/images/qul-og.png?raw=true">
+      <img src="https://github.com/TarteelAI/quranic-universal-library/blob/main/.github/images/qul-og.png?raw=true">
+    </picture>
+    <h1 align="center">Quranic Universal Library (QUL)</h1>
+  </a>
+</p>
 
-Welcome to the Tarteel QUL! This project is a comprehensive Content Management System designed to manage Quranic data, including translations, tafsirs, Audio, Audio segments, Arabic scripts, Mushaf layouts, and much more.
+<p align="center">
+  <a aria-label="Tarteel logo" href="https://tarteel.ai">
+    <picture>
+      <source height="24" media="(prefers-color-scheme: dark)" srcset="https://tarteel.ai/logo.svg">
+      <img height="24" src="https://tarteel.ai/logo.svg">
+    </picture>
+  </a>
+  <a aria-label="A project by Tarteel Shield" href="https://tarteel.ai"><img src='https://img.shields.io/badge/A%20PROJECT%20BY%20Tarteel-000000.svg?style=for-the-badge'></a>
+  <a aria-label="Follow on X formerly Twitter" href="https://x.com/intent/follow?screen_name=tarteelai"><img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/tarteelai?style=for-the-badge&logo=x"></a>
+  <a aria-label="Join the community on Discord" href="https://t.zip/discord?utm_source=github&utm_medium=readme&utm_campaign=qul"><img alt="Discord" src="https://img.shields.io/discord/934719200222642186?style=for-the-badge&logo=discord&label=Join%20our%20discord"></a>
+</p>
+
+Welcome to the Tarteel's QUL! This project is a comprehensive Content Management System designed to manage Quranic data, including translations, tafsirs, Audio, Audio segments, Arabic scripts, Mushaf layouts, and much more.
 
 QUL is implemented using Ruby on Rails, and Active Admin for implementing the admin interface.
 

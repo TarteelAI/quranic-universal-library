@@ -1,16 +1,20 @@
 <%
   patterns = (1..10).to_a
 %>
-<div class="tools-container ms-md-4">
-  <h2>Developer Tools</h2>
-</div>
 
-<div class="tools-container mt-4 mt-md-8 ms-md-4 gap-3 gap-md-4">
+<%= render 'layouts/grid' do %>
+  <div>
+    <h2 class="text-5xl text-white">Developer Tools</h2>
+  </div>
+<% end %>
+
+<div class="tools-container mt-10 gap-3 md:gap-4">
   <% featured_developer_tools.each do |tool| %>
     <% if false %>
       <a href="<%= tool.url %>">
         <div class="tool-card tool-card-with-bg position-relative <%= tool.type %>">
           <div class="overlay"></div>
+
           <div>
             <h5>
               <%= tool.title %>
@@ -45,42 +49,29 @@
     <a href="<%= tool.url %>">
       <div class="resource-card tool-card tool-card-with-bg position-relative pattern<%= patterns.sample %>">
         <div class="overlay"></div>
-        <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between">
-          <div>
-            <h5>
-              <%= tool.title %>
-            </h5>
-
-            <p class="info">
-              <%= tool.description %>
-            </p>
-
-            <div class="cta">
-              <span>Learn More</span>
+        <div class="p-3 gap-4 h-full flex flex-col justify-between">
+          <!-- Title, Description, Learn More Button -->
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+              <%= render 'card/card-title', title: tool.title %>
+              <%= render 'card/card-description', description: tool.description %>
             </div>
+            <%= render 'card/learn-more-button' %>
           </div>
 
           <div class="icon">
             <%= image_tag "card-icon/#{tool.icon}" %>
           </div>
 
-          <div class="d-flex justify-content-between">
+          <div class="flex justify-between">
             <div>
               <% tool.tags.each do |tag| %>
-                <span class="tag">
-                  <%= tag %>
-                </span>
+                <%= render 'card/card-tag', tag: tag %>
               <% end %>
             </div>
 
-            <div class="info-tip">
-              <svg
-                title="<%= tool.info_tip %>"
-                data-controller="tooltip"
-                width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0.660217C5.376 0.660217 0 6.03622 0 12.6602C0 19.2842 5.376 24.6602 12 24.6602C18.624 24.6602 24 19.2842 24 12.6602C24 6.03622 18.624 0.660217 12 0.660217ZM13.2 18.6602H10.8V11.4602H13.2V18.6602ZM13.2 9.06022H10.8V6.66022H13.2V9.06022Z" fill="white"/>
-              </svg>
-            </div>
+            <%= render 'card/info-tip', tip: tool.info_tip %>
+          
           </div>
         </div>
       </div>
@@ -88,8 +79,8 @@
   <% end %>
 </div>
 
-<div class="tools-container mt-4 mt-md-8 ms-md-4">
-  <p>
-    <%= link_to 'VIEW ALL DEVELOPER TOOLS', tools_path, class: 'btn-link text-white' %>
+<%= render 'layouts/grid' do %>
+  <p class="mt-10">
+    <%= link_to 'VIEW ALL DEVELOPER TOOLS', tools_path, class: 'text-white opacity-70 font-semibold' %>
   </p>
-</div>
+<% end %>

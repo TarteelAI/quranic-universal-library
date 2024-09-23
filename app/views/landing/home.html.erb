@@ -1,21 +1,20 @@
-<div class="container-lg" id="resources">
-  <div class="hero bg-black rounded-3xl text-white overflow-hidden relative">
-    <div class="w-full hero-message py-4 md:py-5">
-      <%= render 'landing/spline' %>
-      <div class="overlay d-md-none"></div>
+  <div class="tw-bg-black tw-rounded-3xl tw-text-white tw-overflow-hidden tw-relative tw-mx-16">
+    <div class="tw-w-full hero-spline tw-py-4 md:tw-py-5">
+      <%#= TODO: REINSTATE SPLINE %>
+      <%#= render 'landing/spline' %>
+      <div class="overlay md:tw-hidden"></div>
       <%= render 'landing/hero' %>
     </div>
   </div>
 
   <%= render 'landing/overview' %>
-</div>
 
-<div class="developer-tools py-5 mt-4">
+<div class="developer-tools tw-py-5 md:tw-py-16 tw-mt-4">
   <div class="developer-tools-inner-container">
     <%= render 'landing/resources' %>
   </div>
 </div>
 
-<div class="developer-tools py-5" style="background-color: #404040">
+<div class="developer-tools tw-py-5 md:tw-py-16 tw-bg-[#404040]">
   <%= render 'landing/tools' %>
 </div>

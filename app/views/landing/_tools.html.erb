@@ -4,11 +4,11 @@
 
 <%= render 'layouts/grid' do %>
   <div>
-    <h2 class="text-5xl text-white">Developer Tools</h2>
+    <h2 class="tw-text-5xl tw-text-white">Developer Tools</h2>
   </div>
 <% end %>
 
-<div class="tools-container mt-10 gap-3 md:gap-4">
+<div class="tools-container tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_tools.each do |tool| %>
     <% if false %>
       <a href="<%= tool.url %>">
@@ -49,10 +49,10 @@
     <a href="<%= tool.url %>">
       <div class="resource-card tool-card tool-card-with-bg position-relative pattern<%= patterns.sample %>">
         <div class="overlay"></div>
-        <div class="p-3 gap-4 h-full flex flex-col justify-between">
+        <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
           <!-- Title, Description, Learn More Button -->
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
+          <div class="tw-flex tw-flex-col tw-gap-4">
+            <div class="tw-flex tw-flex-col tw-gap-2">
               <%= render 'card/card-title', title: tool.title %>
               <%= render 'card/card-description', description: tool.description %>
             </div>
@@ -63,7 +63,7 @@
             <%= image_tag "card-icon/#{tool.icon}" %>
           </div>
 
-          <div class="flex justify-between">
+          <div class="tw-flex tw-justify-between">
             <div>
               <% tool.tags.each do |tag| %>
                 <%= render 'card/card-tag', tag: tag %>
@@ -80,7 +80,7 @@
 </div>
 
 <%= render 'layouts/grid' do %>
-  <p class="mt-10">
-    <%= link_to 'VIEW ALL DEVELOPER TOOLS', tools_path, class: 'text-white opacity-70 font-semibold' %>
+  <p class="tw-mt-10">
+    <%= link_to 'VIEW ALL DEVELOPER TOOLS', tools_path, class: 'tw-text-white tw-opacity-70 tw-font-semibold' %>
   </p>
 <% end %>

@@ -1,10 +1,10 @@
 <%= render 'layouts/grid' do %>
   <div>
-    <h2 class="text-5xl text-white">Developer Resources</h2>
+    <h2 class="tw-text-5xl tw-text-white">Developer Resources</h2>
   </div>
 <% end %>
 
-<div class="tools-container mt-10 gap-3 md:gap-4">
+<div class="tools-container tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_resources.each do |card| %>
     <% if false %>
       <a href="<%= tool.url %>">
@@ -44,8 +44,8 @@
     <a href="<%= card.url %>">
       <div class="resource-card tool-card tool-card-with-bg  <%= card.type %>">
         <div class="overlay"></div>
-        <div class="p-3 gap-4 h-full flex flex-col justify-between">
-          <div class="flex flex-col gap-2">
+        <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
+          <div class="tw-flex tw-flex-col tw-gap-2">
             <%= render 'card/card-title', title: card.title %>
             <%= render 'card/card-description', description: card.description %>
           </div>
@@ -54,13 +54,13 @@
             <%= image_tag "card-icon/#{card.icon}" %>
           </div>
 
-          <div class="flex items-center justify-between">
+          <div class="tw-flex tw-items-center tw-justify-between">
             <% if card.count.to_i > 0 %>
-              <div class="text-white font-bold">
+              <div class="tw-text-white tw-font-bold">
                 <%= card.stats.to_s.html_safe %>
               </div>
 
-              <div class="rounded-full bg-[#E0FAEC] text-[#099a4d] font-bold text-sm px-3 py-1 border-2 border-[#56B599]">
+              <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
                 <%= card.count %>
               </div>
             <% end %>
@@ -72,7 +72,7 @@
 </div>
 
 <%= render 'layouts/grid' do %>
-  <p class="mt-10">
-    <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'text-white opacity-70 font-semibold' %>
+  <p class="tw-mt-10">
+    <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'tw-text-white tw-opacity-70 tw-font-semibold' %>
   </p>
 <% end %>

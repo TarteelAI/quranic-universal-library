@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <%= render 'shared/meta_tags' %>
+  <head>
+    <meta charset="utf-8"/>
+    <%= render 'shared/meta_tags' %>
 
-  <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
-  <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
-</head>
+    <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
+  </head>
 
-<body class="font-inter">
-<%= render 'shared/flash_notices' %>
-<div class="container-lg">
-  <%= render 'landing/header' %>
-</div>
-<%= yield %>
-<div class="container-lg">
-  <%= render 'landing/footer' %>
-</div>
-</body>
+  <body class="tw-font-inter">
+    <%= render 'shared/flash_notices' %>
+    <%= render 'landing/header' %>
+    <%= yield %>
+    <div class="container-lg">
+      <%= render 'landing/footer' %>
+    </div>
+  </body>
 </html>

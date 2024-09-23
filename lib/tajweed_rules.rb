@@ -5,6 +5,7 @@ class TajweedRules
     @color_scheme = color_scheme
   end
 
+  # Rules and color based on: https://alquran.cloud/tajweed-guide
   TAJWEED_RULES = {
     "ham_wasl" => 1,
     "laam_shamsiyah" => 2,
@@ -21,13 +22,12 @@ class TajweedRules
     "idgham_ghunnah" => 13,
     "ikhafa_shafawi" => 14,
     "idgham_shafawi" => 15,
-    "iqlab" => 16,
-    "idgham_mutajanisayn" => 17,
-    "idgham_mutaqaribayn" => 18,
-    "alif_al_tafreeq" => 19,
-    "izhar" => 20
+    "idgham_mutajanisayn" => 16,
+    "idgham_mutaqaribayn" => 17,
+    "iqlab" => 18
   }
 
+  # Rules and color based on: https://easyquran.com/en/tajweed-rules/
   TAJWEED_RULES_NEW = {
     "ham_wasl" => 1,
     "laam_shamsiyah" => 2,
@@ -49,7 +49,6 @@ class TajweedRules
     "idgham_shafawi" => 15,
     "izhar_shafawi" => 21,
 
-
     "madd_al_tamkeen" => 20,
   }
 
@@ -68,10 +67,10 @@ class TajweedRules
     "12": "#2144C1",
     "13": "#169200",
     "14": "#D500B7",
-    "15": "#26BFFD",
+    "15": "#58B800",
     "16": "#A1A1A1",
     "17": "#A1A1A1",
-    "18": "#AAAAAA",
+    "18": "#26BFFD",
     "19": "#AAAAAA",
     "21": "#f7630c"
   }

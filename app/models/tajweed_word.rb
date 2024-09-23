@@ -1,6 +1,8 @@
 class TajweedWord < QuranApiRecord
   belongs_to :mushaf
   belongs_to :word
+  belongs_to :resource_content
+
   scope :rule_eq, lambda { |rule|
     where("EXISTS (SELECT 1 FROM jsonb_array_elements(letters) AS elem WHERE elem->>'r' = '#{rule}')")
   }
@@ -31,7 +33,7 @@ class TajweedWord < QuranApiRecord
     text = []
     current_rule = nil
     current_group = ""
-    tajweed = TajweedRules.new('new')
+    tajweed = TajweedRules.new
 
     letters.each do |l|
       if l['r'] == current_rule

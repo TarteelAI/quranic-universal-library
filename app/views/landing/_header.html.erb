@@ -1,5 +1,5 @@
 <%= render 'layouts/grid' do %>
-  <header class="header tw-py-2 md:tw-py-3 lg:tw-py-4 <%= 'credits-container container-lg' if is_current_page?(controller: "community", action: "credits") %>">
+  <header class="tw-relative tw-z-20 tw-flex tw-justify-between tw-items-center tw-w-full tw-py-2 md:tw-py-3 lg:tw-py-4 <%= 'credits-container container-lg' if is_current_page?(controller: "community", action: "credits") %>">
     <div class="qul-logo">
       <%= link_to root_path, class: 'text-dark' do %>
         <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,13 +15,13 @@
       <% end %>
     </div>
 
-    <div class="links gap-2 gap-md-4">
-      <%= link_to 'Resources', resources_path, class: 'btn-link text-dark d-none d-md-flex' %>
-      <%= link_to 'Tools', tools_path, class: 'btn-link text-dark d-none d-md-flex' %>
-      <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'btn-link text-dark d-none d-md-flex' %>
-      <%= link_to 'FAQ', faq_path, class: 'btn-link text-dark d-none d-md-flex' %>
+    <div class="tw-flex tw-gap-2 md:tw-gap-4 tw-items-center">
+      <%= link_to 'Resources', resources_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
+      <%= link_to 'Tools', tools_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
+      <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black tw-hidden md:tw-flex' %>
+      <%= link_to 'FAQ', faq_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
 
-      <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'btn-link text-dark d-flex align-items-center d-none d-md-flex', target: '_blank' do %>
+      <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black tw-hidden md:tw-flex tw-items-center', target: '_blank' do %>
         <span class="me-2">Github</span>
         <svg
           viewBox="0 0 16 16"
@@ -34,12 +34,11 @@
         </svg>
       <% end %>
 
-      <%= link_to 'Logout', destroy_user_session_path, class: 'btn-link text-dark d-none d-md-flex', data: { turbo_method: :delete } if user_signed_in? %>
+      <%= link_to 'Logout', destroy_user_session_path, class: 'tw-text-black tw-hidden md:tw-flex', data: { turbo_method: :delete } if user_signed_in? %>
 
-      <%= link_to 'Admin', '/admin', class: 'btn btn-outline-dark px-4 btn-rounded' %>
-
-      <a class="d-block d-md-none circle-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <%= link_to 'Admin', '/admin', class: 'inline-block tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2 tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300' %>
+      <a class="tw-inline-block md:tw-hidden" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+        <svg class="tw-fill-white" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="1" y="1" width="36" height="36" rx="18" stroke="#404040"/>
           <path d="M9 25.25H28.375V23.0971H9V25.25ZM9 19.8679H28.375V17.7155H9V19.8679ZM9 12.3334V14.4863H28.375V12.3334H9Z" fill="black"/>
         </svg>

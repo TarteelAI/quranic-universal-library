@@ -10,12 +10,8 @@
 
 <body>
 <%= render 'shared/flash_notices' %>
-  <% if controller_name == 'credits' %>
-    <%= render 'landing/header', locals: { variant: 'credits' } %>
-  <% else %>
-    <%= render 'landing/header' %>
-  <% end %>
-  <%= yield %>
-  <%= render 'landing/footer' %>
+<%= render 'landing/header' %>
+<%= yield %>
+<%= render 'landing/footer' %>
 </body>
 </html>

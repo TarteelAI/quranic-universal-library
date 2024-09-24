@@ -1,5 +1,5 @@
 <%= render 'layouts/grid' do %>
-  <footer class="w-full tw-items-center tw-py-8 md:tw-py-4 md:tw-justify-between tw-flex tw-flex-col md:tw-flex-row tw-gap-2 <%= 'credits-container' if is_current_page?(controller: "community", action: "credits") %>">
+  <footer class="<%= class_names('w-full tw-items-center tw-py-8 md:tw-py-4 md:tw-justify-between tw-flex tw-flex-col md:tw-flex-row tw-gap-2', { 'narrow-container container-lg': show_narrow_layout? }) %>">
     <div class="tw-flex tw-flex-col tw-gap-3 tw-justify-between">
       <div class="tw-flex tw-gap-3 tw-items-center">
         <div class="qul-tag">

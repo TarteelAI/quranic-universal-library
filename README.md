@@ -18,6 +18,8 @@
   <a aria-label="A project by Tarteel Shield" href="https://tarteel.ai"><img src='https://img.shields.io/badge/A%20PROJECT%20BY%20Tarteel-000000.svg?style=for-the-badge'></a>
   <a aria-label="Follow on X formerly Twitter" href="https://x.com/intent/follow?screen_name=tarteelai"><img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/tarteelai?style=for-the-badge&logo=x"></a>
   <a aria-label="Join the community on Discord" href="https://t.zip/discord?utm_source=github&utm_medium=readme&utm_campaign=qul"><img alt="Discord" src="https://img.shields.io/discord/934719200222642186?style=for-the-badge&logo=discord&label=Join%20our%20discord"></a>
+  <a aria-label="Github Repo Stars" href="https://github.com/tarteelai/quranic-universal-library"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/tarteelai/quranic-universal-library?style=for-the-badge&logo=github">
+</a>
 </p>
 
 Welcome to the Tarteel's QUL! This project is a comprehensive Content Management System designed to manage Quranic data, including translations, tafsirs, Audio, Audio segments, Arabic scripts, Mushaf layouts, and much more.

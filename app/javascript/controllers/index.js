@@ -79,9 +79,6 @@ application.register("phrase-ayah-bookmark", PhraseAyahBookmarkController)
 import RemoteFormController from "./remote_form_controller.js"
 application.register("remote-form", RemoteFormController)
 
-import ImageZoomerController from "./image_zoomer_controller.js"
-application.register("image-zoomer", ImageZoomerController)
-
 import ResourceSearchController  from "./resource_search_controller";
 application.register("resource-search", ResourceSearchController);
 

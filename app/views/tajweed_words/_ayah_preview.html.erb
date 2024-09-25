@@ -6,7 +6,7 @@
   ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
 %>
 
-<div class="page-section mt-4">
+<div class="page-section mt-4" data-controller="mushaf-page">
   <h2>
     <%
       verse = @word.verse
@@ -23,15 +23,19 @@
     <%= link_to tajweed_word_path("#{next_verse.verse_key}:1"), class: 'btn-link text-decoration-none', title: 'Next ayah', data: { controller: 'tooltip' } do %>
       <i class="fa fa-arrow-right"></i>
     <% end if next_verse %>
+
+    <span class="ms-4">
+      Font size: (<span id=size>30</span>)<input type="range" min="30" max="100" value="30" class="font-size-slider">
+    </span>
   </h2>
 
   <h3>Auto tajweed annotation(With QPC Hafs script)</h3>
-  <div class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
+  <div class="qpc-hafs tajweed-new char" data-controller="tajweed-highlight">
     <%= tajweed_text.html_safe %>
   </div>
 
   <h3>Auto tajweed annotation preview for DigitalKhatt font</h3>
-  <div class="digitalkhatt tajweed-new" data-controller="tajweed-highlight">
+  <div class="digitalkhatt tajweed-new char" data-controller="tajweed-highlight">
     <%= tajweed_text.html_safe %>
   </div>
 
@@ -40,7 +44,7 @@
     <% ayah_tajweeed_words.each do |w| %>
       <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color: inherit' do %>
         <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
-          <div class="qpc-hafs"
+          <div class="qpc-hafs char"
                data-controller="tajweed-highlight">
             <%= w.text.html_safe %>
           </div>
@@ -54,7 +58,7 @@
     <% verse.words.each do |w| %>
       <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>
         <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %>">
-          <div class="p<%= w.v2_page %>-v4-tajweed">
+          <div class="p<%= w.v2_page %>-v4-tajweed char">
             <%= w.code_v2 %>
           </div>
         </div>

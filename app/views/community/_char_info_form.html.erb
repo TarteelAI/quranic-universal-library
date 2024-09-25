@@ -92,7 +92,7 @@
               <% if params[:script].present? %>
                 <%= link_to Unicode::Name.of(char), chars_info_path(char: char, script: params[:script]), target: '_blank' %>
               <% else %>
-                <%=  Unicode::Name.of(char) %>
+                <%= Unicode::Name.of(char) %>
               <% end %>
             </td>
             <td data-text="<%= char -%>"

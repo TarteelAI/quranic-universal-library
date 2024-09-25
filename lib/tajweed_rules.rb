@@ -32,6 +32,10 @@ class TajweedRules
     "ham_wasl" => 1,
     "laam_shamsiyah" => 2,
 
+    "madda_normal" => 3,
+    "madda_permissible" => 4,
+    "madda_necessary" => 5,
+
     "slnt" => 7,
     "ghunnah" => 8,
 
@@ -39,6 +43,8 @@ class TajweedRules
 
     # Non saakon or tanween rules
     "ikhafa" => 10,
+    "madda_obligatory_mottasel" => 12,
+
     "iqlab" => 16,
     "izhar" => 19,
     "idgham_ghunnah" => 13,
@@ -50,6 +56,8 @@ class TajweedRules
     "izhar_shafawi" => 21,
 
     "madd_al_tamkeen" => 20,
+    "tafkheem" => 22,
+    "tarqeeq" => 23
   }
 
   RULES_COLORS = {
@@ -233,14 +241,14 @@ class TajweedRules
 
       madda_obligatory_monfasel: {
         name: 'Madd Al-Munfasil 2, 4, or 5 Vowels',
-        description: "",
+        description: "Occurs when a Madd letter is at the end of a word, followed by a Hamzah (ء) at the beginning of the next word.",
         examples: [''],
         links: [""]
       },
 
       madda_obligatory_mottasel: {
         name: 'Madd Al-Muttasil',
-        description: "",
+        description: "Occurs when a Madd letter is followed directly by a Hamzah (ء) in the same word. The elongation is typically 4–5 counts",
         examples: [''],
         links: [""]
       },
@@ -343,6 +351,24 @@ class TajweedRules
           "https://alphabet.quranacademy.org/en/lesson/tajweed/nun-with-sukun-and-tanween/izhar"
         ]
       },
+      tafkheem: {
+        name: 'tafkheem',
+        description: '',
+        examples: [],
+        links: [
+          'https://alphabet.quranacademy.org/en/lesson/tajweed/khuruful-istila',
+          'https://www.abouttajweed.com/tajweed-rules/53-tafkheem-and-tarqeeq/57-tafkheem-and-tarqeeq-part-1'
+        ]
+      },
+      tarqeeq: {
+        name: 'Tarqeeq',
+        description: '',
+        examples: [],
+        links: [
+          'https://alphabet.quranacademy.org/en/lesson/tajweed/khuruful-istila',
+          'https://www.abouttajweed.com/tajweed-rules/53-tafkheem-and-tarqeeq/57-tafkheem-and-tarqeeq-part-1'
+        ]
+      },
       madd_al_tamkeen: {
         name: "Al-Madd Al-Tamkeen",
         description: "Al-Madd Al-Tamkeen occurs when a yaa mushaddadah <span class='qpc-hafs'>ــيِّــ</span> with a kasr is followed by a yaa saakinah. This occurs only within a word, as words cannot start with a sukoon",
@@ -383,6 +409,11 @@ class TajweedRules
         links: ['https://alphabet.quranacademy.org/en/lesson/tajweed/mim-with-sukun']
       },
       prolongation: {
+        name: "Madd",
+        description: "Madd (مد) in Tajweed refers to the elongation or stretching of a vowel sound when reciting the Quran. There are different types of Madd rules based on how long the vowel sound is stretched and the conditions for elongation.",
+        rules: [
+
+        ]
       }
     }
   end

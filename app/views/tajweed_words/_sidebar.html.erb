@@ -16,11 +16,17 @@
   <div class="offcanvas-body">
     <div class="tajweed-palette">
       <% documentation = tajweed.documentation %>
-      <% tajweed.rules.each do |key, rule_id| %>
-        <% rule = documentation[key.to_sym] %>
+      <% tajweed.rules.each_with_index do |r, i| %>
+        <%
+          key = r[0]
+          rule = documentation[key.to_sym]
+        %>
 
         <div class="py-2 border-bottom">
           <div class="d-flex">
+            <span class="me-2">
+              <%= i + 1 %>
+            </span>
             <span class="tajweed-new tajweed-rule-icon <%= key %>"></span>
             <span class="ms-2">
               <%= key %>
@@ -73,7 +79,7 @@
         </div>
 
         <div id="image-container" class="mt-4 p-4">
-          <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= old_tajweed_img_host %>/<%= page_number %>.jpg" } %>
+          <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= old_tajweed_img_host %>/<%= page_number %>.jpg"/>
         </div>
       </div>
 
@@ -90,7 +96,7 @@
         </div>
 
         <div id="image-container" class="mt-4 p-4">
-          <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= new_tajweed_img_host %>/<%= page_number %>.jpg" } %>
+          <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= new_tajweed_img_host %>/<%= page_number %>.jpg" />
         </div>
       </div>
     </div>

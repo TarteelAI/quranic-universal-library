@@ -114,6 +114,7 @@ GEM
     bcrypt (3.1.20)
     benchmark (0.2.0)
     benchmark-ips (2.13.0)
+    bigdecimal (3.1.8)
     bindex (0.8.1)
     bootsnap (1.12.0)
       msgpack (~> 1.2)
@@ -448,13 +449,14 @@ GEM
       sprockets-rails
       tilt
     select2-rails (4.0.13)
-    sentry-rails (5.8.0)
+    sentry-rails (5.19.0)
       railties (>= 5.0)
-      sentry-ruby (~> 5.8.0)
-    sentry-ruby (5.8.0)
+      sentry-ruby (~> 5.19.0)
+    sentry-ruby (5.19.0)
+      bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
-    sentry-sidekiq (5.8.0)
-      sentry-ruby (~> 5.8.0)
+    sentry-sidekiq (5.19.0)
+      sentry-ruby (~> 5.19.0)
       sidekiq (>= 3.0)
     sidekiq (6.5.10)
       connection_pool (>= 2.2.5, < 3)
@@ -500,6 +502,7 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.4.4)
     ssrf_filter (1.1.2)
+    stackprof (0.2.26)
     stimulus-rails (1.0.4)
       railties (>= 6.0.0)
     streamio-ffmpeg (3.0.2)
@@ -598,9 +601,9 @@ DEPENDENCIES
   ruby-lokalise-api (~> 4.5.1)
   rubyzip (~> 2.3)
   sassc-rails (= 2.1.2)
-  sentry-rails
-  sentry-ruby
-  sentry-sidekiq
+  sentry-rails (~> 5.19)
+  sentry-ruby (~> 5.19.0)
+  sentry-sidekiq (~> 5.19)
   sidekiq
   sidekiq-scheduler
   sidekiq-status
@@ -609,6 +612,7 @@ DEPENDENCIES
   solargraph-rails
   sprockets-rails (>= 3.4.1)
   sqlite3
+  stackprof
   stimulus-rails (>= 0.7.3)
   streamio-ffmpeg (~> 3.0)
   strscan (~> 3.0.9)

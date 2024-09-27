@@ -107,7 +107,10 @@
                 </td>
 
                 <td :data-word="segment[0]" :data-index="index">
-                  <div class="d-flex gap-1">
+                  <div
+                      class="d-flex gap-1"
+                      :data-word="segment[0]" :data-index="index"
+                  >
                     <button
                       @click="insertSegment"
                       class="btn btn-sm btn-info"
@@ -333,6 +336,7 @@ export default {
       const target = event.target;
       const { word, index } = target.parentElement.dataset;
       const segStart = document.querySelector(`#start-${word}-${index}`);
+debugger
 
       if (segStart.value.length == 0) {
         this.$store.commit('TRACK_SEG_START', {

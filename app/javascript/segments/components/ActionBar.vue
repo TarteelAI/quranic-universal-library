@@ -29,7 +29,8 @@
                 id="toggle-hotkeys"
             />
             <label for="toggle-hotkeys"
-                   class="mx-2 has-tooltip"
+                   class="mx-2"
+                   data-controller="tooltip"
                    title="Toggle hotkeys">
               Hotkeys
             </label>
@@ -43,7 +44,7 @@
                 id="toggle-segments"
             />
             <label for="toggle-segments"
-                   class="mx-2 has-tooltip"
+                   class="mx-2"
                    title="Toggle segments table.">
               Segments
             </label>
@@ -57,7 +58,8 @@
                 id="toggle-scroll"
             />
             <label for="toggle-scroll"
-                   class="mx-2 has-tooltip"
+                   class="mx-2"
+                   data-controller="tooltip"
                    title="Autoscroll segments table to current word">
               Autoscroll
             </label>
@@ -102,27 +104,12 @@
             :checked="lockAyah"
             @change="toggleLockAyah"
             id="lock-ayah"
-            :disabled="segmentLocked"
         />
         <label for="lock-ayah"
-               class="mx-2 has-tooltip"
+               class="mx-2"
+               data-controller="tooltip"
                title="If checked, player will not play the next ayah when current ayah is finished.">
           Lock ayah
-        </label>
-        <input
-            v-if="lockAyah && audioType == 'chapter'"
-            type="checkbox"
-            :checked="stopPlayerOnAyahLock"
-            @change="toggleStopPlayerAyahOnLock"
-            id="stop-player-on-ayah-lock"
-            :disabled="segmentLocked"
-        />
-        <label
-            v-if="lockAyah && audioType == 'chapter'"
-            for="stop-player-on-ayah-lock"
-               class="mx-2 has-tooltip"
-               title="Checking this will stop player when ayah end time is reached.">
-          Stop player
         </label>
 
         <input
@@ -133,7 +120,8 @@
             :disabled="segmentLocked"
         />
         <label for="edit-mode"
-               class="mx-2 has-tooltip"
+               class="mx-2"
+               data-controller="tooltip"
                title="Edit mode will set the ayah timing when you click ayah start or end button. Clicking ayah end will also set start time of next ayah.">
           Edit Mode
         </label>
@@ -149,7 +137,8 @@
         <label
             v-if="editMode"
             for="auto-save"
-            class="mx-2 has-tooltip"
+            class="mx-2"
+            data-controller="tooltip"
             title="Auto save will automatically save ayah the segment timestamps.">
           Auto Save
         </label>
@@ -355,7 +344,6 @@ export default {
       "segmentLocked",
       "audioType",
       "lockAyah",
-      "stopPlayerOnAyahLock",
       "disableHotkeys",
       "showSegments",
       "autoScroll"
@@ -479,9 +467,6 @@ export default {
     },
     toggleLockAyah(event) {
       this.$store.commit("SET_AYAH_LOCK", {value: event.target.checked});
-    },
-    toggleStopPlayerAyahOnLock(event) {
-      this.$store.commit("SET_STOP_PLAYER_ON_AYAH_LOCK", {value: event.target.checked});
     }
   },
 };

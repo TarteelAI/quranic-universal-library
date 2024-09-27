@@ -73,9 +73,10 @@ gem 'babosa', require: false
 gem 'unicode-name', require: false
 
 # exception tracking
-gem "sentry-ruby"
-gem "sentry-rails"
-gem "sentry-sidekiq"
+gem "stackprof"
+gem "sentry-ruby", '~> 5.19.0'
+gem 'sentry-rails', '~> 5.19'
+gem 'sentry-sidekiq', '~> 5.19'
 
 group :development do
   # Gems we used for optimizing fonts. Might need them in future.

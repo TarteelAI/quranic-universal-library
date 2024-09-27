@@ -4,7 +4,11 @@
   display: inline-block;
 
   &.izhar {
-    background: deeppink;
+    background: darkgreen;
+  }
+
+  &.izhar_shafawi{
+    background: blue;
   }
 
   &.ham_wasl, &.slnt, &.laam_shamsiyah {
@@ -22,7 +26,6 @@
   &.qalaqah{
     background: #DD0008;
   }
-
 
   &.iqlab {
     background: #26BFFD;
@@ -43,12 +46,39 @@
   &.ghunnah{
     background: #FF7E1E;
   }
+
+  &.tafkheem{
+    background: darkred;
+  }
+  &.madda_obligatory_mottasel, &.madda_obligatory_monfasel {
+    background: #2144C1;
+  }
+
+  &.madda_normal {
+    background: #537FFF;
+  }
+
+  &.madda_permissible {
+    background: #4050FF;
+  }
+
+  &.madda_necessary {
+    background: darkblue;
+  }
 }
 
 .tajweed-new {
+  .tafkheem{
+    color: darkred;
+  }
+
   .izhar {
     // usually it's black text in tajweed mushaf but we want to highlight the rule
-    color: deeppink;
+    color: darkgreen;
+  }
+
+  .izhar_shafawi{
+     color: blue
   }
 
   .ikhafa_shafawi {
@@ -78,10 +108,10 @@
   }
 
   .madda_necessary {
-    color: #000EBC;
+    color: darkblue;
   }
 
-  .madda_obligatory {
+  .madda_obligatory, .madda_obligatory_mottasel, .madda_obligatory_monfasel {
     color: #2144C1;
   }
 

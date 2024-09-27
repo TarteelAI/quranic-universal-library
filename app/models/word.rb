@@ -19,7 +19,6 @@
 #  line_v2                 :integer
 #  location                :string
 #  meta_data               :jsonb
-#  metadata                :jsonb
 #  page_number             :integer
 #  pause_name              :string
 #  position                :integer

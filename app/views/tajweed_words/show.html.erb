@@ -43,7 +43,7 @@
         </button>
 
         <button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
-          Show Page
+           Tajweed page
         </button>
 
         <div class="preview-<%= @tajweed_word.location.gsub(':', '-') %>">
@@ -76,65 +76,4 @@
   <%= render 'ayah_preview' %>
 </div>
 
-<div class="offcanvas offcanvas-start"
-     tabindex="-1" id="tajweed-rules-sidebar"
-     aria-labelledby="tajweed-paletee">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="tajweed-paletee">Tajweed Rule Palette</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-
-  <div class="offcanvas-body">
-    <div class="tajweed-palette">
-      <% documentation = tajweed.documentation %>
-      <% tajweed.rules.each do |key, rule_id| %>
-        <% rule = documentation[key.to_sym] %>
-
-        <div class="py-2 border-bottom">
-          <div class="d-flex">
-            <span class="tajweed-new tajweed-rule-icon <%= key %>"></span>
-            <span class="ms-2">
-              <%= key %>
-            </span>
-
-            <span class="ms-auto">
-              <%= link_to 'View detail', tajweed_rule_path(key), target: '_blank' %>
-            </span>
-          </div>
-
-          <div class="flex-between">
-            <span>
-              Letters
-            </span>
-            <span class="qpc-hafs" style="font-size: 20px">
-               <%= rule[:rule_letters] %>
-            </span>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  </div>
-</div>
-
-<div class="offcanvas offcanvas-start"
-     tabindex="-1"
-     id="tajweed-page-sidebar"
-     aria-labelledby="tajweed-page"
-     style="width: 50%;"
->
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="tajweed-page">Page <%= @word.page_number %></h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-
-  <div class="offcanvas-body">
-    <div class="p-4 text-center" data-controller="zoom-image">
-      <label for="zoom-slider" class="form-label">Zoom</label>
-      <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-
-      <div id="image-container" class="mt-4 p-4">
-        <img id="zoom-image" data-controller="lazy-load" data-src="https://quran.ksu.edu.sa/tajweed_png/<%= @word.page_number %>.png"} %>
-      </div>
-    </div>
-  </div>
-</div>
+<%= render 'sidebar', tajweed: tajweed %>

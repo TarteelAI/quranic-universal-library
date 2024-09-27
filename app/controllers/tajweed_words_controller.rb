@@ -1,3 +1,5 @@
+require "unicode/name"
+
 class TajweedWordsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[update]

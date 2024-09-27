@@ -46,8 +46,7 @@ const store = createStore({
       playbackSpeed: 1,
       autoSave: false,
       editMode: false,
-      lockAyah: false,
-      stopPlayerOnAyahLock: false,
+      lockAyah: false, // stop playing next ayah
       segmentLocked: false,
       audioType: 'chapter', //or ayah
       compareSegment: false,
@@ -134,7 +133,7 @@ const store = createStore({
     },
     SET_AYAH_ENDED(state) {
       if(state.lockAyah){
-        if(!player.paused && state.stopPlayerOnAyahLock) player.pause()
+        if(!player?.paused) player?.pause()
       } else {
         this.dispatch("LOAD_AYAH", {
           verse: state.currentVerseNumber + 1,
@@ -217,7 +216,7 @@ const store = createStore({
       }
 
       if(state.lockAyah){
-        if(!player.paused && state.stopPlayerOnAyahLock) player.pause()
+        if(!player?.paused) player?.pause()
       } else {
         this.dispatch("LOAD_AYAH", {
           verse: state.currentVerseNumber + 1,
@@ -232,9 +231,6 @@ const store = createStore({
     },
     SET_AYAH_LOCK(state, payload) {
       state.lockAyah = payload.value;
-    },
-    SET_STOP_PLAYER_ON_AYAH_LOCK(state, payload){
-      state.stopPlayerOnAyahLock = payload.value;
     },
     TRACK_SEG_START(state, payload) {
       const {
@@ -349,8 +345,8 @@ const store = createStore({
     SAVE_AYAH_SEGMENTS({
                          state
                        }) {
-      const isPlaying = !player.paused
-      if (isPlaying) player.pause()
+      const isPlaying = !player?.paused
+      if (isPlaying) player?.pause()
       state.alert = "Saving segments";
 
       const {
@@ -613,7 +609,7 @@ const store = createStore({
 
       if (verse && verse != currentVerseNumber) {
         if(state.lockAyah){
-          if(!player.paused && state.stopPlayerOnAyahLock) player.pause()
+          if(!player?.paused) player?.pause()
         } else{
           state.currentVerseNumber = verse;
           this.dispatch("LOAD_AYAH", {verse});

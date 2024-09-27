@@ -27,7 +27,7 @@ Sentry.init do |config|
   config.sample_rate = 0.8
 
   # sample rate for tracing events (transactions)
-  config.traces_sample_rate = 0.02
+  config.traces_sample_rate = 0.2
 
   # enable profiling
   # this is relative to traces_sample_rate

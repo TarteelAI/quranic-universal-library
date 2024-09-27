@@ -6,6 +6,7 @@ class CreateTajweedWords < ActiveRecord::Migration[7.0]
       t.belongs_to :mushaf, null: false, foreign_key: true
       t.belongs_to :word, null: false, foreign_key: true
       t.belongs_to :verse, null: false, foreign_key: true
+      t.belongs_to :resource_content, null: false, foreign_key: true
 
       t.jsonb :letters, default: []
       t.string :text

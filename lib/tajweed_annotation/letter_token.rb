@@ -49,9 +49,53 @@ module TajweedAnnotation
         apply_meem_sakin_rules
       elsif apply_ghunnah_rule?
         apply_ghunnah_rule
+      elsif apply_tafkheem?
+        apply_tafkheem_rule
       elsif apply_slient_rule?
         add_rule(:slnt, 0)
         add_rule(:slnt, 1) if has_harkat? && !has_harkat?(SUPERSCRIPT_ALIF)
+      end
+
+      if apply_madda_rule?
+        apply_madda_rules
+      end
+      apply_letter_ra_rule
+    end
+
+    def apply_madda_rule?
+      apply_madda_normal? || madda_letter? || has_harkat?(ARABIC_MADDAH_ABOVE)
+    end
+
+    def apply_madda_normal?
+      has_harkat?(SUPERSCRIPT_ALIF) || has_harkat?(SMALL_YAH) || has_harkat?(SMALL_WOW)
+    end
+
+    def apply_madda_rules
+      next_token = next_letter_token(skip_alif_sukun: true)
+      previous_token = previous_letter_token
+
+      if has_harkat?(ARABIC_MADDAH_ABOVE)
+        add_rule('madda_necessary', 0)
+      elsif next_token&.has_harkat?(HAMZA) || next_token&.letter_hamza?
+        if next_token.word == word
+          next_token.add_rule('madda_obligatory_mottasel', 0)
+          next_token.add_rule('madda_obligatory_mottasel', 1)
+        elsif last_letter? && next_token.first_letter?
+          add_rule('madda_obligatory_monfasel', 0)
+          next_token.add_rule('madda_obligatory_monfasel', 0)
+        end
+      elsif [letter_alif?, letter_yeh?, letter_wa?].any?
+        if (letter_alif? && previous_token.has_harkat?(KASRA)) || (letter_wa? && previous_token.has_harkat?(DAMMA)) || (letter_yeh? && previous_token.has_harkat?(KASRA))
+          add_rule('madda_permissible', 0)
+        elsif next_token.has_shaddaa? || next_token.has_harkat?(SUKUN)
+          add_rule('madda_necessary', 0)
+        end
+      elsif has_harkat?(SUPERSCRIPT_ALIF)
+        add_rule(:madda_normal, diacritics.index(SUPERSCRIPT_ALIF) + 1)
+      elsif has_harkat?(SMALL_YAH)
+        add_rule(:madda_normal, diacritics.index(SMALL_YAH) + 1)
+      elsif has_harkat?(SMALL_WOW)
+        add_rule(:madda_normal, diacritics.index(SMALL_WOW) + 1)
       end
     end
 
@@ -121,7 +165,7 @@ module TajweedAnnotation
         add_rule('izhar', 0) # Base letter non
         add_rule('izhar', 1) # SUKUN too
 
-        next_token.add_rule('izhar', 0) # izhar letter
+        next_token.add_rule('izhar', 0) if next_token.word != word # izhar letter
       elsif next_token.ikhafa_letter?
         add_rule('ikhafa', 0)
         diacritics.each_with_index do |d, i|
@@ -139,6 +183,7 @@ module TajweedAnnotation
         add_rule('idgham_ghunnah', 0)
         add_rule('idgham_ghunnah', 1) if has_harkat?
         next_token.add_rule('idgham_ghunnah', 0)
+
         if next_token.has_harkat?
           next_token.diacritics.each_with_index do |d, i|
             next_token.add_rule('idgham_ghunnah', i + 1)
@@ -169,10 +214,13 @@ module TajweedAnnotation
       if next_token.letter_ba?
         # Meem sakin then Letter ba => ikhafa_shafawi
         add_rule('ikhafa_shafawi', 0)
-        next_token.add_rule('ikhafa_shafawi', 0)
 
-        next_token.diacritics.each_with_index do |d, i|
-          next_token.add_rule('ikhafa_shafawi', i + 1)
+        if next_token.word != word
+          next_token.add_rule('ikhafa_shafawi', 0)
+
+          next_token.diacritics.each_with_index do |d, i|
+            next_token.add_rule('ikhafa_shafawi', i + 1)
+          end
         end
       elsif next_token.letter_meem?
         # Meem sakin then Letter meem => idgham_shafawi
@@ -185,10 +233,8 @@ module TajweedAnnotation
       else
         # Meem sakin then other letter => izhar_shafawi
         add_rule('izhar_shafawi', 0)
-        next_token.add_rule('izhar_shafawi', 0)
-
-        next_token.diacritics.each_with_index do |d, i|
-          next_token.add_rule('izhar_shafawi', i + 1)
+        diacritics.each_with_index do |_, i|
+          add_rule('izhar_shafawi', i + 1)
         end
       end
     end
@@ -244,7 +290,7 @@ module TajweedAnnotation
     end
 
     def madda_letter?
-      letter.match?(/آ|أ|ؤ|ئ|ء|ى|و/)
+      [letter_yeh?, letter_wa?, letter_alif?].any? || letter.match?(/آ|أ|ؤ|ئ|ء|ى|و|ي/)
     end
 
     def izhar_letter?
@@ -265,6 +311,7 @@ module TajweedAnnotation
         p = -1 # we're adding + 1 below, this will make sure we get the first token of the next word
       end
 
+      return if w.blank?
       token = w.letter_tokens[p + 1]
 
       if token.blank? || (!skip_alif_sukun && token.is_alif_sukun?)
@@ -287,6 +334,30 @@ module TajweedAnnotation
       SHAMS_LETTERS.include?(letter)
     end
 
+    def apply_tafkheem?
+      if HEAVY_LETTERS.include?(letter)
+        has_harkat?(FATHA) || has_harkat?(DAMMA) || (has_harkat?(KASRA) && (letter_qaf? || HEAVY_LETTERS_ITBAQ.include?(letter)))
+      end
+    end
+
+    def apply_letter_ra_rule
+      # tafkheem or tarqeeq
+      if letter_ra?
+        if has_harkat?(FATHA)
+          add_rule(:tafkheem, 0)
+        elsif has_harkat?(KASRA)
+          add_rule(:tarqeeq, 0)
+        end
+      end
+    end
+
+    def apply_tafkheem_rule
+      add_rule(:tafkheem, 0)
+      diacritics.each_with_index do |_, i|
+        add_rule(:tafkheem, 1 + i)
+      end
+    end
+
     def has_tanween?(include_high_meem: false)
       tanween = diacritics.detect do |l|
         TANWEEN.include?(l)
@@ -305,6 +376,10 @@ module TajweedAnnotation
 
     def letter_alif?
       letter == 'ا'
+    end
+
+    def letter_hamza?
+      letter == HAMZA
     end
 
     def letter_ba?
@@ -410,18 +485,31 @@ module TajweedAnnotation
     SHAMS_LETTERS = ['ت', 'ث', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ل', 'ن'].freeze
     # Moon letter
     QAMAR_LETTERS = ['ا', 'ب', 'ج', 'ح', 'خ', 'ع', 'غ', 'ف', 'ق', 'ك', 'م', 'هـ', 'و', 'ي'].freeze
+    HEAVY_LETTERS = ['خ', 'ص', 'ض', 'غ', 'ط', 'ق', 'ظ'].freeze
+    HEAVY_LETTERS_ITBAQ = ['ص', 'ض', 'ط', 'ظ']
+
+    FATHA = "َ"
+    DAMMA = "ُ"
+    KASRA = "ِ"
+    HAMZA = "ء"
 
     SUKUN = "ْ" # https://www.compart.com/en/unicode/U+0652
     FATAHAN = "ً" # https://www.compart.com/en/unicode/U+064b
     KASARAN = "ٍ" # https://www.compart.com/en/unicode/U+064d
     DAMMATAN = "ٌ" # https://www.compart.com/en/unicode/U+064c
     ARABIC_INVERTED_DAMMA = "ٗ"
+    ARABIC_FATHA_WITH_TWO_DOTS = "ٞ"
+    ARABIC_SUBSCRIPT_ALIF = "ٖٖ"
+    ARABIC_MADDAH_ABOVE = "ٓ"
 
     # Izhar
-    THROAT_LETTERS = ['أ', 'ء', 'ه', 'ع', 'ح', 'غ', 'خ']
+    THROAT_LETTERS = ['أ', 'ء', 'ه', 'ع', 'ح', 'غ', 'خ'].freeze
 
-    TANWEEN = [FATAHAN, KASARAN, DAMMATAN, ARABIC_INVERTED_DAMMA]
+    TANWEEN = [FATAHAN, KASARAN, DAMMATAN, ARABIC_INVERTED_DAMMA, ARABIC_FATHA_WITH_TWO_DOTS, ARABIC_SUBSCRIPT_ALIF]
     SUPERSCRIPT_ALIF = 'ٰ' # https://www.compart.com/en/unicode/U+0670
+    SMALL_YAH = 'ۦ'
+    SMALL_WOW = 'ۥ'
+    SHADDA = 'ّ'
 
     protected
 

@@ -5,8 +5,15 @@
   </th>
 
   <td>
-    <div class="qpc-hafs <%= rule_name %> text-left ">
-      <%= letter['c'] %>
+    <div class="flex-between">
+      <%= link_to Unicode::Name.of(letter['c']), chars_info_path(char: letter['c'], script: 'text_uthmani'), target: '_blank', class: 'me-2', title: 'View all words with this char', data: {controller: 'tooltip'} %>
+
+      <div class="qpc-hafs <%= rule_name %> text-left"
+           title="Copy <%= letter['c'] %>"
+           data-text="<%= letter['c'] -%>"
+           data-controller="copy-to-clipboard">
+        <%= letter['c'] %>
+      </div>
     </div>
   </td>
 

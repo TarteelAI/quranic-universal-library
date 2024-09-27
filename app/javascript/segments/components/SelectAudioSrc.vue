@@ -107,8 +107,8 @@ export default {
       this.$store.commit("SET_ALERT", {text: "Loading audio"});
     },
     audioReady() {
-      if(this.audioType == 'ayah' && this.autoPlay){
-      //  player.play();
+      if(this.audioType == 'ayah' && this.autoPlay && !this.lockAyah){
+        player.play();
       }
 
       this.$store.commit("SET_ALERT", {text: null});
@@ -149,7 +149,8 @@ export default {
       "playBackSpeed",
       "audioType",
       "playing",
-      "autoPlay"
+      "autoPlay",
+      "lockAyah"
     ]),
   },
 };

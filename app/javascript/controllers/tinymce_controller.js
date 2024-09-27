@@ -83,10 +83,10 @@ export default class extends Controller {
 
           // Check if text is selected
           if (selectedText.length > 0) {
-            this.showPopup(selectedText, editor.selection);
+           // this.showPopup(selectedText, editor.selection);
           } else {
             // Hide the popup if no text is selected
-            this.hidePopup();
+           // this.hidePopup();
           }
         });
 

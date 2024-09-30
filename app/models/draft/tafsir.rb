@@ -79,6 +79,11 @@ class Draft::Tafsir < ApplicationRecord
 
     tafsir.save(validate: false)
     update_columns(reviewed: true, imported: true)
+
+    if ayah_group_changed?
+      split_ayah_grouping
+    end
+
     tafsir
   end
 

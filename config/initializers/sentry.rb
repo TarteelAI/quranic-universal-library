@@ -34,7 +34,7 @@ Sentry.init do |config|
     if transaction_name == 'Admin::MushafWordsController#show'
       0.01
     else
-      0.2
+      0.02
     end
   end
 

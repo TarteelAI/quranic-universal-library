@@ -4,3 +4,8 @@ class AddMoreFieldsToUsers < ActiveRecord::Migration[6.0]
     add_column :user_projects, :admin_notes, :text
   end
 end
+
+
+
+
+

@@ -313,6 +313,10 @@ GEM
     nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    nokogiri (1.16.7-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.7-x86_64-linux)
+      racc (~> 1.4)
     numerizer (0.1.1)
     numpy (0.4.0)
       pycall (>= 1.2.0.beta1)
@@ -508,6 +512,12 @@ GEM
     streamio-ffmpeg (3.0.2)
       multi_json (~> 1.8)
     strscan (3.0.9)
+    tailwindcss-rails (2.7.5)
+      railties (>= 7.0.0)
+    tailwindcss-rails (2.7.5-x86_64-darwin)
+      railties (>= 7.0.0)
+    tailwindcss-rails (2.7.5-x86_64-linux)
+      railties (>= 7.0.0)
     thor (1.3.1)
     tilt (2.0.11)
     timeout (0.4.1)
@@ -549,6 +559,8 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-darwin
+  x86_64-linux
 
 DEPENDENCIES
   activeadmin (~> 3.2.3)
@@ -616,6 +628,7 @@ DEPENDENCIES
   stimulus-rails (>= 0.7.3)
   streamio-ffmpeg (~> 3.0)
   strscan (~> 3.0.9)
+  tailwindcss-rails (~> 2.7)
   turbo-rails (>= 0.9.0)
   typhoeus
   tzinfo-data

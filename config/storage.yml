@@ -40,7 +40,7 @@ qul_exports:
    region: <%= ENV.fetch('QUL_STORAGE_REGION'){'us-east-1'} %>
    bucket: <%= ENV.fetch('QUL_STORAGE_BUCKET'){'missing'} %>
    public: <%= ENV.fetch('QUL_STORAGE_PUBLIC_EXPORT'){true}  %>
-   endpoint: <%= ENV.fetch('QUL_STORAGE_ENDPOINT'){'missing'} %>
+   endpoint: <%= ENV.fetch('QUL_STORAGE_ENDPOINT'){'https://fix.me'} %>
    upload:
      cache_control: "public, max-age=<%= 1.year.to_i %>"
 

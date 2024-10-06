@@ -33,7 +33,7 @@ class TajweedWord < QuranApiRecord
     text = []
     current_rule = nil
     current_group = ""
-    tajweed = TajweedRules.new
+    tajweed = TajweedRules.new('new')
 
     letters.each do |l|
       if l['r'] == current_rule
@@ -63,6 +63,8 @@ class TajweedWord < QuranApiRecord
     else
       text << current_group
     end
+
+    binding.pry
 
     text.join('')
   end

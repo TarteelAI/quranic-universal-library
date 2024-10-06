@@ -36,7 +36,7 @@
 class Draft::Tafsir < ApplicationRecord
   belongs_to :resource_content
   belongs_to :verse
-  belongs_to :group_tafsir, class_name: 'Verse', optional: true #TODO: rename to group_verse
+  belongs_to :group_tafsir, class_name: 'Verse', optional: true # TODO: rename to group_verse
   belongs_to :user, optional: true
 
   def import!
@@ -79,6 +79,11 @@ class Draft::Tafsir < ApplicationRecord
 
     tafsir.save(validate: false)
     update_columns(reviewed: true, imported: true)
+
+    if ayah_group_changed?
+      split_ayah_grouping
+    end
+
     tafsir
   end
 
@@ -87,7 +92,12 @@ class Draft::Tafsir < ApplicationRecord
   end
 
   def ayah_group_list
-    Verse.where(id: start_verse_id..end_verse_id).order('verse_index ASC').pluck(:verse_key)
+    Verse
+      .where(
+        id: start_verse_id..end_verse_id
+      )
+      .order('verse_index ASC')
+      .pluck(:verse_key)
   end
 
   def ayah_group_info
@@ -131,12 +141,19 @@ class Draft::Tafsir < ApplicationRecord
   end
 
   def update_ayah_grouping
+    if ayah_group_changed?
+      split_ayah_grouping
+    end
+
     group = ayah_group_list
     tafsir = Draft::Tafsir.for_verse(verse, resource_content)
+    group_verse_key = group.include?(verse.verse_key) ? verse.verse_key : group.first
+    group_verse = Verse.find_by(verse_key: group_verse_key)
 
     cols = {
       group_verses_count: group.size,
-      reviewed: true
+      verse_id: group_verse.id,
+      verse_key: group_verse.verse_key,
     }
 
     update_columns(cols)
@@ -150,7 +167,7 @@ class Draft::Tafsir < ApplicationRecord
         )
         .update_all(
           group_verses_count: group.size,
-          group_tafsir_id: verse_id,
+          group_tafsir_id: group_verse.id,
           group_verse_key_from: group_verse_key_from,
           group_verse_key_to: group_verse_key_to,
           start_verse_id: start_verse_id,
@@ -158,5 +175,51 @@ class Draft::Tafsir < ApplicationRecord
           reviewed: true
         )
     end
+  end
+
+  def ayah_group_changed?
+    end_verse_id_before_last_save != end_verse_id || start_verse_id_before_last_save != start_verse_id
+  end
+
+  def ayah_group_ids_before_update
+    (start_verse_id_before_last_save..end_verse_id_before_last_save).to_a
+  end
+
+  def ayah_group_ids
+    (start_verse_id..end_verse_id).to_a
+  end
+
+  def split_ayah_grouping
+    group_verse_ids = ayah_group_ids_before_update - ayah_group_ids
+    group_verses = Verse.unscoped.where(id: group_verse_ids).order('verse_index ASC')
+
+    draft_tafsir = Draft::Tafsir
+                     .where(
+                       resource_content_id: resource_content_id,
+                       verse_id: group_verses.map(&:id)
+                     ).first
+
+    if draft_tafsir.blank?
+      draft_tafsir = Draft::Tafsir
+                       .where(
+                         resource_content_id: resource_content_id,
+                         verse_id: group_verses.first.id
+                       ).first_or_initialize
+    end
+
+    draft_tafsir.group_verses_count = group_verses.count
+    draft_tafsir.group_tafsir_id = group_verses.first.id
+    draft_tafsir.group_verse_key_from = group_verses.first.verse_key
+    draft_tafsir.group_verse_key_to = group_verses.last.verse_key
+    draft_tafsir.start_verse_id = group_verses.first.id
+    draft_tafsir.end_verse_id = group_verses.last.id
+    draft_tafsir.draft_text = draft_text_before_last_save
+    draft_tafsir.current_text = current_text_before_last_save
+    draft_tafsir.comments = "Auto splitted last group was #{group_verse_key_from_before_last_save} - #{group_verse_key_to_before_last_save}"
+    draft_tafsir.need_review = true
+    draft_tafsir.text_matched = false
+    draft_tafsir.user = user
+
+    draft_tafsir.save(validate: false)
   end
 end

@@ -63,9 +63,7 @@ class TajweedWord < QuranApiRecord
     else
       text << current_group
     end
-
-    binding.pry
-
+    
     text.join('')
   end
 

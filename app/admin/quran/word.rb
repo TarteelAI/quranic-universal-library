@@ -228,7 +228,7 @@ ActiveAdmin.register Word do
 
       row :tajweed_svg, class: 'quran-text' do
         div do
-          image_tag resource.tajweed_svg_url
+          image_tag resource.tajweed_svg_url, style: 'max-width:100px'
         end
       end
 

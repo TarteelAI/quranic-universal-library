@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 module ArabicTransliterationsHelper
   def sort_order_link(text, sort_key, link_params = {})
     order = params[:sort_order] && params[:sort_order] == 'asc' ? 'desc' : 'asc'

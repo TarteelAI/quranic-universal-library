@@ -44,7 +44,7 @@
                   </div>
 
                   <% if doc[:screenshot] %>
-                    <div class="screenshot">
+                    <div class="screenshot my-2">
                       <%= doc_image_tag(doc[:screenshot]) %>
                     </div>
                   <% end %>
@@ -54,7 +54,7 @@
                       <div class="mt-3">
                         <p><%= section[:text].to_s.html_safe %></p>
                         <% if section[:screenshot] %>
-                          <div class="screenshot">
+                          <div class="screenshot my-2">
                             <%= doc_image_tag(section[:screenshot]) %>
                           </div>
                         <% end %>

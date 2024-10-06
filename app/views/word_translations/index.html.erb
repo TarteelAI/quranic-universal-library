@@ -72,7 +72,7 @@
 
           <td>
             <div class="d-flex gap-1">
-              <%= link_to 'Contribute', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'btn btn-info' %>
+              <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'btn btn-info' %>
               <%= link_to 'Show', word_translation_path(verse.id, language: current_language.id), class: 'btn btn-success' %>
             </div>
           </td>

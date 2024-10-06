@@ -160,6 +160,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import {playAyah} from "../helper/audio";
 
 export default {
   name: 'Player',
@@ -318,7 +319,7 @@ export default {
         word: event.target.parentNode.parentNode.dataset.word,
       });
 
-      if (player.paused) player.play();
+      if (player.paused) playAyah();
     },
     playWord(event) {
       player.pause();

@@ -67,8 +67,9 @@ const store = createStore({
       state.recitation = payload.recitation;
       state.compareSegment = !!payload.compareSegment
       state.audioType = payload.audioType || 'chapter';
-      state.segmentLocked = payload.segmentLocked == 'true'
-      state.segmentsUrl = payload.segmentsUrl || "surah_audio_files"
+      state.segmentLocked = payload.segmentLocked == 'true';
+      state.segmentsUrl = payload.segmentsUrl || "surah_audio_files";
+      state.autoPlay = payload.autoPlay == 'true';
     },
     SET_PLAYBACK_SPEED(state, payload) {
       state.playbackSpeed = payload.value;

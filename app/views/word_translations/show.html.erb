@@ -4,7 +4,7 @@
   previous_ayah = @verse.previous_ayah
 
   if @access
-    actions << link_to('Contribute', new_word_translation_path(ayah: @verse.id, language: params[:language]), class: 'btn btn-success')
+    actions << link_to('Edit', new_word_translation_path(ayah: @verse.id, language: params[:language]), class: 'btn btn-success')
   end
 
   if previous_ayah

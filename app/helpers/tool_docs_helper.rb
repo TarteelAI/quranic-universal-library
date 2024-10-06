@@ -19,8 +19,41 @@ module ToolDocsHelper
   end
 
   def doc_image_tag(path)
-    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}?dd=a"
+    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}"
     "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
+  end
+
+  def word_translation_help
+    [
+      "Word by Word Translations",
+      {
+        text: "This tool is designed to proofread and correct word-by-word translations. Please follow these steps to make adjustments to any translation"
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the word translation for a specific language',
+        text: "Use the available filters to find the desired translation. You can filter by <code>Language</code> <code>Surah</code> and <code>Ayah</code> to narrow down the results. Click <code>Show</code> to display the selected Ayah, where a list of words and their corresponding translations will appear.",
+        screenshot: 'word_translations.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the translation',
+        text: "Review the translation of each word carefully. If an update is needed, click the <code>Edit</code> button to fix the translation.",
+        screenshot: 'ayah-words-translation.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Update the translation',
+        text:  "The page will display the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its translation. Once you're satisfied with the update, click <code>Submit</code> to save the changes.",
+        screenshot: 'update-word-translation.png'
+      },
+      {
+        type: 'step',
+        title: 'Review change log and rollback',
+        text: "You can view the change log from the admin panel. To roll back any changes, please contact the admin",
+        screenshot: 'word-translation-change-log.png'
+      }
+    ]
   end
 
   def ayah_translation_help
@@ -39,7 +72,14 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 2: Read translation',
-        text: 'Click on <code>'
+        text: 'This page will show the ayah translation and footnotes(if any). Read the translation, if you find any issues, click the <code>Edit</code> button to fix the translation.',
+        screenshot: 'ayah-translation-detail.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Update the translation',
+        text: 'Update the translation and footnote text(if any). Click on the <code>Purpose changes</code> button to submit your changes for approval. Once approved, your changes will be reflected in the live translation.',
+        screenshot: 'update-ayah-translation.png'
       }
     ]
   end

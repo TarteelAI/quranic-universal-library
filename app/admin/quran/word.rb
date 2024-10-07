@@ -86,6 +86,7 @@ ActiveAdmin.register Word do
       text_qpc_nastaleeq
       text_qpc_nastaleeq_hafs
       text_digital_khatt
+      text_digital_khatt_v1
       meta_data
     ]
   end
@@ -104,6 +105,7 @@ ActiveAdmin.register Word do
       f.input :text_qpc_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_qpc_nastaleeq_hafs, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_digital_khatt, input_html: { class: 'quran-text digitalkhatt' }
+      f.input :text_digital_khatt_v1, input_html: { class: 'quran-text digitalkhatt' }
       f.input :text_imlaei, input_html: { class: 'quran-text me_quran' }
       f.input :text_imlaei_simple, input_html: { class: 'quran-text me_quran' }
       f.input :text_qpc_hafs, input_html: { class: 'quran-text qpc-hafs' }
@@ -192,6 +194,13 @@ ActiveAdmin.register Word do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_digital_khatt, class: 'digitalkhatt')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row :text_digital_khatt_v1, class: 'quran-text' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_digital_khatt_v1, class: 'digitalkhatt')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_v1}", target: '_blank', class: 'fs-sm')
         end
       end
 

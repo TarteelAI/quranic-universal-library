@@ -23,6 +23,7 @@
 #  pause_name              :string
 #  position                :integer
 #  text_digital_khatt      :string
+#  text_digital_khatt_v1   :string
 #  text_imlaei             :string
 #  text_imlaei_simple      :string
 #  text_indopak            :string

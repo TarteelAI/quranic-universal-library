@@ -1,17 +1,7 @@
 <%
   page_number = @mushaf_page.page_number
   pdf_page_offset = (@resource.meta_value('source_pdf_page_offset') || 2).to_i
-  pdf_url = @resource.meta_value('source_pdf_url')
-
-  if pdf_url.blank?
-    file = @resource.source_pdf_file
-    pdf_url = file&.blob&.url
-  end
 %>
-
-<% if pdf_url.present? %>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<% end %>
 
 <div class="page-wrapper container-lg">
   <h1 class="page-header d-flex">
@@ -44,27 +34,12 @@
   <% end %>
 
   <div class="resize-container" data-controller="resizeable">
-    <% if pdf_url.present? %>
-      <div class="resizable" id="left-side"
-           data-controller="pdf-viewer"
-           data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
-           data-page-offset="<%= pdf_page_offset %>"
-           data-pdf-url="<%= pdf_url %>">
-        <div id="pdf-wrapper">
-          <div id="pdf-container">
-            <canvas id="pdf-canvas"></canvas>
-          </div>
-        </div>
-      </div>
-    <% else %>
-      <div class="resizable w-0" id="left-side">
-        <div class="text-center text-faded pt-4">
-          PDF of this mushaf isn't available, please contact the admin to upload it.
-        </div>
-      </div>
-    <% end %>
+    <div class="resizable" id="left-side">
+      <%= render 'shared/pdf_or_archive_embed', jump_to_page: @mushaf_page.page_number.to_i + pdf_page_offset, page_offset: pdf_page_offset %>
+    </div>
 
     <div class="handler"></div>
+
     <div class="resizable" id="right-side" data-controller="mushaf-page-builder">
       <%= turbo_frame_tag "page-preview" do %>
         <%= render 'shared/page_font', pages: [@mushaf_page.page_number] %>

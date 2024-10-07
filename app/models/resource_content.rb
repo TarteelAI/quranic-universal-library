@@ -200,6 +200,10 @@ class ResourceContent < QuranApiRecord
     meta_value('mushaf').present?
   end
 
+  def get_archive_embed_url
+    meta_value('archive-embed-url')
+  end
+
   def get_source_pdf_url
     url = meta_value('source-pdf-url')
 

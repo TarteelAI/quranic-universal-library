@@ -1,14 +1,10 @@
 <% if @access && @access.admin_notes.present? %>
   <div class="container-lg">
-    <div class="callout alert alert-dismissible <%= 'callout-warning' if @access.blank? %>" role="alert">
+    <div class="callout alert alert-dismissible <%= 'callout-warning' %>" role="alert">
       <div class="row">
         <div class="col-md-12">
           <div style="font-size: 30px; margin-top: 10px">
-            <% if @access %>
-              <%= @access.admin_notes.to_s.html_safe %>
-            <% else %>
-              Please contact the administrator for permission to update this resource.
-            <% end %>
+            <%= @access.admin_notes.to_s.html_safe %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         </div>

@@ -1,33 +1,13 @@
 <%
   page_number = @mushaf_page.page_number
   pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 1).to_i
-  pdf_url = @resource.get_source_pdf_url
 %>
 
-<% if pdf_url.present? %>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<% end %>
 
 <div class="page-wrapper container-lg">
   <div class="mushaf-wrapper resize-container" data-controller="resizeable">
     <div class="resizable" id="left-side">
-      <% if pdf_url.present? %>
-        <div
-          data-controller="pdf-viewer"
-          data-page="<%= @mushaf_page.page_number.to_i + pdf_page_offset %>"
-          data-page-offset="<%= pdf_page_offset %>"
-          data-pdf-url="<%= pdf_url %>">
-          <div id="pdf-wrapper">
-            <div id="pdf-container">
-              <canvas id="pdf-canvas"></canvas>
-            </div>
-          </div>
-        </div>
-      <% else %>
-        <div class="text-center text-faded pt-4">
-          PDF of this mushaf isn't available, please contact the admin to upload it.
-        </div>
-      <% end %>
+      <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number, page_offset: pdf_page_offset %>
     </div>
 
     <div class="handler"></div>

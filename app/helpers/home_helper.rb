@@ -45,7 +45,6 @@ module HomeHelper
   def whodunnit(version)
     GlobalID::Locator.locate(version.whodunnit).name
   rescue Exception => e
-
   end
 
   def content_tag_if(add_tag, tag_name, content)
@@ -58,5 +57,9 @@ module HomeHelper
 
   def diff_text(text1, text2)
     Diffy::SplitDiff.new(text1, text2, format: :html).right.html_safe
+  end
+
+  def translation_view_types
+    ['ayah', 'page', 'page_with_pdf', 'page_with_arabic']
   end
 end

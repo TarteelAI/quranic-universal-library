@@ -1,0 +1,29 @@
+<%
+  archive_url = @resource.get_archive_embed_url
+  pdf_url = @resource.get_source_pdf_url
+  page_offset = local_assigns[:page_offset] || 0
+  jump_to_page = local_assigns[:jump_to_page] || 1
+%>
+
+<% if archive_url.present? %>
+  <div class="iframe-container" style="height: 100vh">
+    <iframe src="<%= archive_url %>" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
+  </div>
+<% elsif pdf_url.present? %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <div
+    data-controller="pdf-viewer"
+    data-pdf-url="<%= pdf_url %>"
+    data-page="<%= jump_to_page %>"
+    data-page-offset="<%= page_offset %>">
+    <div id="pdf-wrapper">
+      <div id="pdf-container">
+        <canvas id="pdf-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="text-center text-faded pt-4">
+    PDF of this resource isn't available, please contact the admin to upload it.
+  </div>
+<% end %>

@@ -1,11 +1,6 @@
 <%
   page_number = @mushaf_page.page_number
   actions = []
-  show_preview_btn = [
-    params[:page_alignment],
-    params[:mapping]
-  ].compact_blank.present?
-
   more_action = []
 
   if @access

@@ -169,6 +169,13 @@ ActiveAdmin.register Verse do
         end
       end
 
+      row 'Digital Khatt V1' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_digital_khatt_v1, class: 'quran-text digitalkhatt')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_v1}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
       row :v4_tajweed_code do
         div class: "quran-text p#{resource.v2_page}-v4-tajweed", 'data-controller': 'tajweed-font' do
           resource.code_v2
@@ -468,6 +475,7 @@ ActiveAdmin.register Verse do
       text_uthmani_simple
       text_qpc_hafs
       text_digital_khatt
+      text_digital_khatt_v1
       text_imlaei
       text_imlaei_simple
       code_v1
@@ -488,6 +496,7 @@ ActiveAdmin.register Verse do
       f.input :text_imlaei_simple, input_html: { class: 'quran-text me_quran' }
       f.input :text_qpc_hafs, input_html: { class: 'quran-text me_quran' }
       f.input :text_digital_khatt, input_html: { class: 'quran-text digitalkhatt' }
+      f.input :text_digital_khatt_v1, input_html: { class: 'quran-text digitalkhatt' }
       f.input :text_indopak, input_html: { class: 'quran-text pdms' }
       f.input :text_indopak_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_qpc_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }

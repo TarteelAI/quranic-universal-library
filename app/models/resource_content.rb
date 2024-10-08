@@ -200,6 +200,10 @@ class ResourceContent < QuranApiRecord
     meta_value('mushaf').present?
   end
 
+  def get_mushaf_id
+    meta_value('mushaf') || resource_id || Mushaf.where(resource_content_id: id).first&.id
+  end
+
   def get_archive_embed_url
     meta_value('archive-embed-url')
   end

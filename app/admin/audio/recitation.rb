@@ -137,12 +137,14 @@ ActiveAdmin.register Recitation do
     table_name = params[:file_name].presence || 'ayah_timing'
     recitations_ids = params[:reciter_ids].split(',').compact_blank
 
-    Export::AyahRecitationSegmentsJob.perform_now(
+    Export::AyahRecitationSegmentsJob.perform_later(
       file_name: file_name,
       table_name: table_name,
       user_id: current_user.id,
       recitations_ids: recitations_ids
     )
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     redirect_back(fallback_location: '/admin', notice: 'Recitation segments db will be shared via email.')
   end

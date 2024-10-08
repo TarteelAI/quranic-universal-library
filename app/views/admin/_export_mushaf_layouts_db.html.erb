@@ -11,7 +11,9 @@
         <select name="mushaf_ids" id=mushaf_ids multiple data-controller="select2">
           <option value="tarteel-mushafs">Mushaf included in Tarteel app</option>
           <% Mushaf.approved.find_each do |mushaf| %>
-            <option value="<%= mushaf.id %>"><%= mushaf.humanize %></option>
+            <option value="<%= mushaf.id %>">
+              <%= mushaf.humanize %>
+            </option>
           <% end %>
         </select>
       </li>

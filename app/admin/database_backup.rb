@@ -9,6 +9,9 @@ ActiveAdmin.register DatabaseBackup do
 
   collection_action :admin_action, method: 'put' do
     if can? :admin, :run_actions
+      # Restart sidekiq if it's not running
+      Utils::System.start_sidekiq
+
       case params[:name].to_s
       when 'new_db_dump'
         BackupJob.perform_later

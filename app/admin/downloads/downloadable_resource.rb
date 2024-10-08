@@ -27,6 +27,8 @@ ActiveAdmin.register DownloadableResource do
 
   member_action :refresh_downloads, method: 'put', if: -> {can? :refresh_downloads, resource} do
     authorize! :refresh_downloads, resource
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     AsyncResourceActionJob.perform_later(resource, :refresh_export!)
     redirect_to [:admin, resource], notice: "Data will be exported in the background. Please check back later."

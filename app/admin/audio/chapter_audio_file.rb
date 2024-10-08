@@ -122,6 +122,8 @@ ActiveAdmin.register Audio::ChapterAudioFile do
 
   member_action :refresh_meta, method: 'put' do
     GenerateSurahAudioFilesJob.perform_later(resource.id, meta: true, chapter: resource.chapter_id)
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
   end

@@ -504,6 +504,8 @@ ActiveAdmin.register Word do
       language_id: language,
       word_fields: word_fields
     )
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     redirect_back(fallback_location: '/admin', notice: 'Words dump will be prepared and sent to your email soon')
   end

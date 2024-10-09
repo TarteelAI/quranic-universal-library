@@ -6,7 +6,7 @@ class ExportService
   end
 
   def get_export_file_name
-    name = TRANSLATION_NAME_MAPPIMG[resource.id] || resource.sqlite_file_name
+    name = TRANSLATION_NAME_MAPPING[resource.id] || resource.sqlite_file_name
 
     name.gsub(/\s+/, '-').chomp('.json').strip
   end
@@ -14,7 +14,7 @@ class ExportService
   def export_translation_versions
     mapping = {}
 
-    TRANSLATION_NAME_MAPPIMG.each do |id, name|
+    TRANSLATION_NAME_MAPPING.each do |id, name|
       mapping[name] = {
         updatedAt: ResourceContent.where(id: id).first&.updated_at.to_i
       }
@@ -26,7 +26,7 @@ class ExportService
   end
 
   #TODO: save this to resource content
-  TRANSLATION_NAME_MAPPIMG = {
+  TRANSLATION_NAME_MAPPING = {
     920 => 'en-daryabadi',
     131 => 'en-khattab',
     95 => 'en-maududi',

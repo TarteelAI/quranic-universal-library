@@ -35,7 +35,8 @@ module Export
     end
 
     def get_file_name(original_file_name)
-      skip = [91, 908, 816]#saadi old, sirraj, id jalalin empty
+      skip = [91, 908, 816] #saadi old, sirraj, id jalalin empty
+
       mapping = {
         '14': 'ar-tafsir-ibn-kathir',
         '15': 'ar-tafsir-tabari',

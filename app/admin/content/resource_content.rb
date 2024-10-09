@@ -129,6 +129,7 @@ ActiveAdmin.register ResourceContent do
                   )
                   .to_h
     export_type = permitted[:export_format].to_s.strip
+    resource.touch # update version
 
     if export_type == 'sqlite'
       ExportTranslationJob.perform_later(resource.id, permitted[:export_file_name], permitted[:include_footnote] == 'true', current_user.id)

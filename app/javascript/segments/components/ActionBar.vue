@@ -246,6 +246,7 @@ import {mapState, mapGetters} from "vuex";
 import "@vueform/slider/themes/default.css";
 import Slider from "@vueform/slider";
 import hotkeys from "hotkeys-js";
+import {playAyah} from "../helper/audio";
 
 export default {
   name: "ActionBar",
@@ -430,8 +431,10 @@ export default {
       this.$store.commit("TOGGLE_SEGMENTS");
     },
     togglePlay() {
-      if (player.paused) player.play();
-      else player.pause();
+      if (player.paused)
+        playAyah();
+      else
+        player.pause();
     },
     markAyahStart() {
       if (this.editMode) {
@@ -448,7 +451,7 @@ export default {
       }
     },
     loopAyah() {
-      if (player.paused) player.play();
+      if (player.paused) playAyah();
       this.$store.commit("TOGGLE_LOOP_AYAH");
     },
     stepUp() {

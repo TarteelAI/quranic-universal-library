@@ -1,18 +1,57 @@
 <%
   actions = []
+  more_action = []
   verse = @translation.verse
-  previous_ayah = verse.previous_ayah
-  next_ayah = verse.next_ayah
+  view_type = params[:view_type].presence || 'ayah'
+
+  if !translation_view_types.include?(view_type)
+    view_type = 'ayah'
+  end
 
   if @access
     actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
   end
 
-  if previous_ayah
-    actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
-  end
-  if next_ayah
-    actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  more_action << link_to('Ayah view', translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'dropdown-item')
+  more_action << link_to('Page view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page'), class: 'dropdown-item')
+  more_action << link_to('Page with arabic view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'dropdown-item')
+
+  more_action << link_to('Proofreading view(With pdf)', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'dropdown-item')
+
+  actions << "<div class='dropdown'>
+      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+        Change view
+      </button>
+      <ul class='dropdown-menu text-dark'>
+       #{more_action.map do |action|
+    "<li>#{action}</li>"
+  end.join('')
+  }
+    </ul>
+    </div>"
+
+  if view_type == 'ayah'
+    previous_ayah = verse.previous_ayah
+    next_ayah = verse.next_ayah
+    if previous_ayah
+      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    end
+    if next_ayah
+      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    end
+  else
+    page = verse.page_number
+
+    if page > 1
+      previous_ayah = Verse.where(page_number: page - 1).order('verse_index ASC').first
+      actions << link_to('Previous page', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'btn btn-dark')
+    end
+
+    if page < 604
+      next_ayah = Verse.where(page_number: page + 1).order('verse_index ASC').first
+
+      actions << link_to('Next page', translation_proofreading_path(next_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'btn btn-dark')
+    end
   end
 
   actions << link_to('Back to filter', translation_proofreadings_path(resource_id: @resource.id), class: 'btn btn-info')
@@ -25,30 +64,11 @@
            actions: actions
 %>
 
+<%= render 'shared/access_message' %>
+
 <div class="page-wrapper container-lg">
   <div class="page-section">
-    <h2>Translation for <%= verse.verse_key %></h2>
-
-    <div id="ayah_text" style="font-size: 30px; margin-top: 10px"
-         class="<%= @translation.language_name %>"
-         data-controller="translation-footnote"
-    >
-      <%= @translation.text.to_s.html_safe %>
-    </div>
-
-    <% if @translation.foot_notes.present? %>
-      <div class="mt-3 mt-md-5">
-        <h2>Foot notes</h2>
-        <% @translation.foot_notes.each do |foot_note| %>
-          <div style="font-size: 30px;margin-top: 10px">
-            <strong><%= foot_note.id %></strong>
-            <div class="<%= @translation.language_name %>">
-              <%= foot_note.text.to_s.strip.html_safe %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
+    <%= render "#{view_type}_view", verse: verse %>
   </div>
 </div>
 

@@ -56,7 +56,7 @@ class Tafsir < QuranApiRecord
 
   def save_suggestions(params, user)
     draft_tafsir = Draft::Tafsir.new(tafsir_id: id)
-    grouping_ayah = Verse.where("id >= ? AND id <= ?", params[:start_verse_id],  params[:end_verse_id]).order('verse_number asc')
+    grouping_ayah = Verse.where("id >= ? AND id <= ?", params[:start_verse_id], params[:end_verse_id]).order('verse_number asc')
 
     draft_tafsir.resource_content_id = resource_content_id
     draft_tafsir.current_text = text
@@ -94,5 +94,15 @@ class Tafsir < QuranApiRecord
       .where(resource_content_id: resource.id)
       .where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: verse.id)
       .first
+  end
+
+  def start_verse_id=(val)
+    super(val)
+    self.group_verse_key_from = Verse.find(val).verse_key
+  end
+
+  def end_verse_id=(val)
+    super(val)
+    self.group_verse_key_to = Verse.find(val).verse_key
   end
 end

@@ -23,6 +23,7 @@
 #  pause_name              :string
 #  position                :integer
 #  text_digital_khatt      :string
+#  text_digital_khatt_v1   :string
 #  text_imlaei             :string
 #  text_imlaei_simple      :string
 #  text_indopak            :string
@@ -111,7 +112,7 @@ class Word < QuranApiRecord
   has_one :ur_transliteration, -> { where language_name: 'urdu' }, class_name: 'Transliteration', as: :resource
 
   has_one :arabic_transliteration
-  before_update :update_mushaf_word_text
+  after_update :update_mushaf_word_text
 
   scope :words, -> { where char_type_id: 1 }
   scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'" }
@@ -251,49 +252,68 @@ class Word < QuranApiRecord
   protected
 
   def update_mushaf_word_text
-    if text_qpc_nastaleeq_hafs_changed? # QPC text with their nastaleeq font
+    if saved_change_to_attribute?('text_qpc_nastaleeq_hafs') # QPC text with their nastaleeq font
       update_text_for_mushaf([14, 15], text_qpc_nastaleeq_hafs)
+      update_ayah_script('text_qpc_nastaleeq_hafs')
     end
 
-    if text_qpc_nastaleeq_changed? # QPC text with Quranwbw font
-      update_text_for_mushaf(13, text_qpc_hafs)
+    if saved_change_to_attribute?('text_qpc_nastaleeq') # QPC text with Quranwbw font
+      update_text_for_mushaf(13, text_qpc_nastaleeq)
+      update_ayah_script('text_qpc_nastaleeq')
     end
 
-    if text_indopak_nastaleeq_changed?
+    if saved_change_to_attribute?('text_indopak_nastaleeq')
       update_text_for_mushaf([6, 7, 8, 17], text_indopak_nastaleeq)
+      update_ayah_script('text_indopak_nastaleeq')
     end
 
-    if text_qpc_hafs_changed?
+    if saved_change_to_attribute?('text_qpc_hafs')
       update_text_for_mushaf(5, text_qpc_hafs)
+      update_ayah_script('text_qpc_hafs')
     end
 
-    if text_uthmani_changed? # me_quran
+    if saved_change_to_attribute?('text_uthmani') # me_quran
       update_text_for_mushaf(4, text_uthmani)
+      update_ayah_script('text_uthmani')
     end
 
-    if text_indopak_changed? # pdms font
+    if saved_change_to_attribute?('text_indopak') # pdms font
       update_text_for_mushaf(3, text_indopak)
+      update_ayah_script('text_indopak')
     end
 
-    if code_v1_changed?
+    if saved_change_to_attribute?('code_v1')
       update_text_for_mushaf(2, code_v1)
+      update_ayah_script('code_v1')
     end
 
-    if code_v2_changed?
-      update_text_for_mushaf(1, code_v2)
-      update_text_for_mushaf(19, code_v2) # v4 tajweed
+    if saved_change_to_attribute?('code_v2')
+      update_text_for_mushaf([1, 19], code_v2)
+      update_ayah_script('code_v2')
     end
 
-    if text_digital_khatt_changed?
-      update_text_for_mushaf(20, text_digital_khatt)
-    end
-
-    if text_uthmani_tajweed_changed?
+    if saved_change_to_attribute?('text_uthmani_tajweed')
       update_text_for_mushaf(16, text_uthmani_tajweed)
+      update_ayah_script('text_uthmani_tajweed')
+    end
+
+    if saved_change_to_attribute?('text_digital_khatt')
+      update_text_for_mushaf(20, text_digital_khatt)
+      update_ayah_script('text_digital_khatt')
+    end
+
+    if saved_change_to_attribute?('text_digital_khatt_v1')
+      update_text_for_mushaf(22, text_digital_khatt_v1)
+      update_ayah_script('text_digital_khatt_v1')
     end
   end
 
   def update_text_for_mushaf(mushaf_id, text)
     MushafWord.where(word_id: id, mushaf_id: mushaf_id).update_all text: text
+  end
+
+  def update_ayah_script(script_type)
+    script_text = verse.words.order('position ASC').reload.pluck(script_type).join(' ')
+    verse.update(script_type => script_text)
   end
 end

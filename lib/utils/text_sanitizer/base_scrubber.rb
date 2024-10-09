@@ -16,6 +16,7 @@ module Utils
         'reference',
         'green',
         'brown',
+        'gray',
         'info',
         'translation',
 

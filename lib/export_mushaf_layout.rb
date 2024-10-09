@@ -6,9 +6,10 @@ class ExportMushafLayout
     6, # Indopak 15 lines
     # 7, # Indopak 16 lines surah name and bismillah is one the same line for some pages
     # 8, # Indopak 14 lines Pak company has wrong line alignments data
-    16, # QPC Hafs with tajweed
+    # 16, # QPC Hafs with tajweed
     17, # Indopak 13 lines
-    20, # Digital Khatt
+    20, # Digital Khatt v2
+    22, # Digital Khatt v1
   ]
   attr_accessor :mushafs
 
@@ -41,10 +42,12 @@ class ExportMushafLayout
       indopak_hanafi = word.text_indopak_nastaleeq
       code_v1 = word.code_v1
       text_digital_khatt = word.text_digital_khatt
+      text_digital_khatt_v1 = word.text_digital_khatt_v1
+
       text_qpc_hafs = word.text_qpc_hafs
       is_ayah_marker = word.ayah_mark?
 
-      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt}', '#{text_qpc_hafs}', #{is_ayah_marker})")
+      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
       i += 1
 
       if i >= page_size
@@ -214,14 +217,25 @@ class ExportMushafLayout
     mapping = {
       "1": "qpc_v2_layout",
       "2": "qpc_v1_layout",
+      "3": "indopak_layout",
+
+      # 4-12 has same layout
+      "4": "qpc_hafs_15_lines_layout",
       "5": "qpc_hafs_15_lines_layout",
+      "10": "qpc_hafs_15_lines_layout",
+      "11": "qpc_hafs_15_lines_layout",
+      "12": "qpc_hafs_15_lines_layout",
+
       "6": "indopak_15_lines_layout",
       "7": "indopak_16_lines_layout",
       "8": "indopak_14_lines_layout",
       "14": "indopak_madani_15_lines_layout",
       "16": "qpc_hafs_tajweed_15_lines_layout",
       "17": "indopak_13_lines_layout",
-      "20": "digital_khatt_layout",
+      "19": "qpc_v4_layout",
+      "20": "digital_khatt_v2_layout",
+      "21": "qpc_tajweed_layout",
+      "22": "digital_khatt_v1_layout"
     }
 
     mapping[mushaf_id.to_s.to_sym]
@@ -237,7 +251,7 @@ class ExportMushafLayout
         database: db
       })
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk string, qhc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk string, dk_v1 string, qhc_hafs string, is_ayah_marker boolean)"
 
     mushafs.each do |mushaf|
       db_name = get_mushaf_file_name(mushaf.id)
@@ -289,6 +303,7 @@ class ExportMushafLayout
   end
 
   def bulk_insert_words(values)
+    # nastaleeq is indopak script printed in Madaniah and compatible with QPC font
     ExportedWord.connection.execute <<-SQL
   INSERT INTO words (
     surah_number,
@@ -296,10 +311,11 @@ class ExportMushafLayout
     word_number,
     word_number_all,
     uthmani,
-    nastaleeq,
+    nastaleeq, 
     indopak,
     qpc_v1,
     dk,
+    dk_v1, 
     qhc_hafs,
     is_ayah_marker
   ) VALUES

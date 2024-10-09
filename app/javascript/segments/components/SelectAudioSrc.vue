@@ -37,6 +37,7 @@
 
 <script>
 import {mapState} from "vuex";
+import {playAyah} from "../helper/audio";
 
 export default {
   name: "SelectAudioSrc",
@@ -108,7 +109,7 @@ export default {
     },
     audioReady() {
       if(this.audioType == 'ayah' && this.autoPlay && !this.lockAyah){
-        player.play();
+        playAyah()
       }
 
       this.$store.commit("SET_ALERT", {text: null});

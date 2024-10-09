@@ -99,6 +99,8 @@ ActiveAdmin.register ResourceContent do
     if !current_user.super_admin?
       return redirect_back fallback_location: "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}", alert: 'Sorry, you can not perform this action'
     end
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     if params[:approved]
       QuranEnc::ApproveDraftTranslationJob.perform_later(resource.id)
@@ -127,6 +129,7 @@ ActiveAdmin.register ResourceContent do
                   )
                   .to_h
     export_type = permitted[:export_format].to_s.strip
+    resource.touch # update version
 
     if export_type == 'sqlite'
       ExportTranslationJob.perform_later(resource.id, permitted[:export_file_name], permitted[:include_footnote] == 'true', current_user.id)
@@ -359,7 +362,7 @@ ActiveAdmin.register ResourceContent do
           link_to 'Ayah recitations', "/admin/recitations?q%5Bresource_content_id_eq=#{resource.id}"
         end
       elsif resource.mushaf_layout?
-        link_to 'Mushaf pages', "/admin/mushaf_pages?q%5Bmushaf_id_eq%5D=#{Mushaf.where(resource_content_id: resource.id).first&.id}"
+        link_to 'Mushaf pages', "/admin/mushaf_pages?q%5Bmushaf_id_eq%5D=#{resource.get_mushaf_id}"
       end
     end
   end

@@ -87,6 +87,8 @@ ActiveAdmin.register Audio::Recitation do
   member_action :refresh_meta, method: 'put', if: -> {can? :manage, resource} do
     authorize! :manage, resource
     GenerateSurahAudioFilesJob.perform_later(resource.id, meta: true)
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
   end
@@ -105,6 +107,9 @@ ActiveAdmin.register Audio::Recitation do
       render partial: 'admin/split_to_gapped'
     else
       Export::SplitGapelessRecitationJob.perform_later(resource.id, params[:host].to_s.strip, current_user.id)
+      # Restart sidekiq if it's not running
+      Utils::System.start_sidekiq
+
       return redirect_to [:admin, resource], alert: "Ayah by ayah gapped recitation will be generated shortly."
     end
   end

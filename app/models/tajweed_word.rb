@@ -1,3 +1,34 @@
+# == Schema Information
+#
+# Table name: tajweed_words
+#
+#  id                  :bigint           not null, primary key
+#  letters             :jsonb
+#  location            :string
+#  position            :integer
+#  text                :string
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  mushaf_id           :bigint           not null
+#  resource_content_id :integer
+#  verse_id            :bigint           not null
+#  word_id             :bigint           not null
+#
+# Indexes
+#
+#  index_tajweed_words_on_location             (location)
+#  index_tajweed_words_on_mushaf_id            (mushaf_id)
+#  index_tajweed_words_on_position             (position)
+#  index_tajweed_words_on_resource_content_id  (resource_content_id)
+#  index_tajweed_words_on_verse_id             (verse_id)
+#  index_tajweed_words_on_word_id              (word_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (mushaf_id => mushafs.id)
+#  fk_rails_...  (verse_id => verses.id)
+#  fk_rails_...  (word_id => words.id)
+#
 class TajweedWord < QuranApiRecord
   belongs_to :mushaf
   belongs_to :word
@@ -33,7 +64,7 @@ class TajweedWord < QuranApiRecord
     text = []
     current_rule = nil
     current_group = ""
-    tajweed = TajweedRules.new
+    tajweed = TajweedRules.new('new')
 
     letters.each do |l|
       if l['r'] == current_rule

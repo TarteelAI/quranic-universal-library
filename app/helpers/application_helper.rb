@@ -37,11 +37,6 @@ module ApplicationHelper
   def contributors
     [
       {
-        name: "Ahmed El-Helw",
-        url: "https://github.com/ahmedre",
-        description: "For previously hosting what is now the QUL app, providing the initial dataset, and contributing fixes to many resources."
-      },
-      {
         name: "Dr. Amin Anane",
         url: "https://github.com/aminanan",
         description: "For developing and providing the DigitalKhatt fonts."

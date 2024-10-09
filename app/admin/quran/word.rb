@@ -86,6 +86,7 @@ ActiveAdmin.register Word do
       text_qpc_nastaleeq
       text_qpc_nastaleeq_hafs
       text_digital_khatt
+      text_digital_khatt_v1
       meta_data
     ]
   end
@@ -104,6 +105,7 @@ ActiveAdmin.register Word do
       f.input :text_qpc_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_qpc_nastaleeq_hafs, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_digital_khatt, input_html: { class: 'quran-text digitalkhatt' }
+      f.input :text_digital_khatt_v1, input_html: { class: 'quran-text digitalkhatt' }
       f.input :text_imlaei, input_html: { class: 'quran-text me_quran' }
       f.input :text_imlaei_simple, input_html: { class: 'quran-text me_quran' }
       f.input :text_qpc_hafs, input_html: { class: 'quran-text qpc-hafs' }
@@ -195,6 +197,13 @@ ActiveAdmin.register Word do
         end
       end
 
+      row :text_digital_khatt_v1, class: 'quran-text' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_digital_khatt_v1, class: 'digitalkhatt')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_v1}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
       row :text_v4_tajweed, class: 'quran-text' do
         div class: "p#{resource.v2_page}-v4-tajweed", 'data-controller': 'tajweed-font' do
           resource.code_v2
@@ -228,7 +237,7 @@ ActiveAdmin.register Word do
 
       row :tajweed_svg, class: 'quran-text' do
         div do
-          image_tag resource.tajweed_svg_url
+          image_tag resource.tajweed_svg_url, style: 'max-width:100px'
         end
       end
 
@@ -495,6 +504,8 @@ ActiveAdmin.register Word do
       language_id: language,
       word_fields: word_fields
     )
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
 
     redirect_back(fallback_location: '/admin', notice: 'Words dump will be prepared and sent to your email soon')
   end

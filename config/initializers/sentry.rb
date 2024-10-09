@@ -26,8 +26,17 @@ Sentry.init do |config|
   # any events, and a value of 1.0 will send 100% of events.
   config.sample_rate = 0.8
 
-  # sample rate for tracing events (transactions)
-  config.traces_sample_rate = 0.2
+  config.traces_sampler = lambda do |sampling_context|
+    transaction_context = sampling_context[:transaction_context]
+    op = transaction_context[:op] # the operation name, e.g., 'http.server'
+    transaction_name = transaction_context[:name]
+
+    if transaction_name == 'Admin::MushafWordsController#show'
+      0.01
+    else
+      0.02
+    end
+  end
 
   # enable profiling
   # this is relative to traces_sample_rate

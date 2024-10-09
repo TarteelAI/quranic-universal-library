@@ -47,7 +47,7 @@ class ExportMushafLayout
       text_qpc_hafs = word.text_qpc_hafs
       is_ayah_marker = word.ayah_mark?
 
-      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt}', #{text_digital_khatt_v1}, '#{text_qpc_hafs}', #{is_ayah_marker})")
+      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
       i += 1
 
       if i >= page_size

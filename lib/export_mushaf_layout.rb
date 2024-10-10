@@ -61,8 +61,11 @@ class ExportMushafLayout
   end
 
   def export_layouts
+    exported_tables = []
     mushafs.each do |mushaf|
       table_name = get_mushaf_file_name(mushaf.id)
+      next if exported_tables.include?(table_name)
+      exported_tables << table_name
       ExportedLayout.table_name = table_name
 
       mushaf.mushaf_pages.order("page_number ASC").each do |page|
@@ -233,9 +236,9 @@ class ExportMushafLayout
       "16": "qpc_hafs_tajweed_15_lines_layout",
       "17": "indopak_13_lines_layout",
       "19": "qpc_v4_layout",
-      "20": "digital_khatt_v2_layout",
+      "20": "qpc_v2_layout",
       "21": "qpc_tajweed_layout",
-      "22": "digital_khatt_v1_layout"
+      "22": "qpc_v1_layout"
     }
 
     mapping[mushaf_id.to_s.to_sym]
@@ -251,7 +254,7 @@ class ExportMushafLayout
         database: db
       })
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk string, dk_v1 string, qhc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
 
     mushafs.each do |mushaf|
       db_name = get_mushaf_file_name(mushaf.id)
@@ -271,7 +274,7 @@ class ExportMushafLayout
       indopak,
       qpc_v1,
       dk,
-      qhc_hafs,
+      qpc_hafs,
       is_ayah_marker
     ) VALUES (
       #{surah},
@@ -316,7 +319,7 @@ class ExportMushafLayout
     qpc_v1,
     dk,
     dk_v1, 
-    qhc_hafs,
+    qpc_hafs,
     is_ayah_marker
   ) VALUES
     #{values.join(',')}

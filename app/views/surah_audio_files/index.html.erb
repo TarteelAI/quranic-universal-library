@@ -1,3 +1,9 @@
+<%
+  recitations = Audio::Recitation.all.map do |a|
+    [a.humanize, a.id]
+  end
+%>
+
 <%= render 'tools/header',
            name: 'Surah recitations',
            title: @recitation.humanize,
@@ -10,21 +16,18 @@
   <div class="page-section filters">
     <div class="row">
       <div class="col-lg-12">
-        <%= form_tag surah_audio_files_path, method: :get, class: 'd-flex' do %>
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(Chapter.order('id asc').map {|c| [c.humanize, c.id]}, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { controller: 'select2' } %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
+        <%= form_tag surah_audio_files_path, method: :get do %>
+          <div data-controller="chapter-verses-filter" class="d-flex">
+            <%= render 'shared/filters', verse: false %>
 
-          <div class="form-group me-2">
-            <%= select_tag :id, options_for_select(Audio::Recitation.all.map do |a|
-              [a.humanize, a.id]
-            end, params[:id]), class: 'form-select', data: { controller: 'select2' } %>
-            <p class="form-text">Filter by Ayah progress</p>
-          </div>
+            <div class="form-group me-2">
+              <%= select_tag :id, options_for_select(recitations, params[:id]), class: 'form-select', data: { controller: 'select2' } %>
+              <p class="form-text">Filter by Ayah progress</p>
+            </div>
 
-          <div class="form-group">
-            <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+            <div class="form-group">
+              <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+            </div>
           </div>
         <% end %>
       </div>

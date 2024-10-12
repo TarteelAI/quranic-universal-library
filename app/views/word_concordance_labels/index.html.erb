@@ -6,25 +6,14 @@
 
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
-    <%= form_tag word_concordance_labels_path, method: :get, class: 'd-flex' do %>
-      <div class="form-group me-2">
-        <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by para' } %>
-        <p class="form-text">Filter by Para/Juz</p>
-      </div>
+    <%= form_tag word_concordance_labels_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="d-flex">
+        <%= render 'shared/filters', juz: true %>
 
-      <div class="form-group me-2">
-        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah' } %>
-        <p class="form-text">Filter by Surah</p>
-      </div>
-
-      <div class="form-group me-2">
-        <%= select_tag :filter_verse, options_for_select(1..256, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah' } %>
-        <p class="form-text">Filter by Ayah</p>
-      </div>
-
-      <div class="form-group">
-        <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
-        <%= link_to 'Clear', word_concordance_labels_path, class: 'btn-link text-dark' if has_filters?(:filter_verse, :filter_chapter, :filter_juz) %>
+        <div class="form-group">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+          <%= link_to 'Clear', word_concordance_labels_path, class: 'btn-link text-dark' if has_filters?(:filter_verse, :filter_chapter, :filter_juz) %>
+        </div>
       </div>
     <% end %>
   </div>
@@ -60,7 +49,14 @@
 
       <tr>
         <td colspan="4">
-          <%= pagy_bootstrap_nav(@pagy).html_safe %>
+          <div class="d-flex align-items-center">
+            <div class="me-4">
+              <%= pagy_bootstrap_nav(@pagy).html_safe %>
+            </div>
+            <div>
+              <%= pagy_info(@pagy).html_safe %>
+            </div>
+          </div>
         </td>
       </tr>
       </tbody>

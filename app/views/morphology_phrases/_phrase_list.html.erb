@@ -1,23 +1,17 @@
 <div class="page-section mt-4 filters">
-  <%= form_tag morphology_phrases_path, method: :get, class: 'd-flex align-items-end' do %>
-    <div class="form-group me-2">
-      <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-      <p class="form-text">Filter by Surah</p>
-    </div>
+  <%= form_tag morphology_phrases_path, method: :get do %>
+    <div data-controller="chapter-verses-filter" class="d-flex align-items-end">
+      <%= render 'shared/filters' %>
 
-    <div class="form-group me-2">
-      <%= select_tag :filter_verse, options_for_select(1..286, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by ayah', controller: 'select2' } %>
-      <p class="form-text">Filter by Ayah</p>
-    </div>
+      <div class="form-group me-2">
+        <%= search_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
+        <p class="form-text">Search content</p>
+      </div>
 
-    <div class="form-group me-2">
-      <%= search_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
-      <p class="form-text">Search content</p>
-    </div>
-
-    <div class="form-group d-flex align-items-center align-content-center align-self-start">
-      <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
-      <%= link_to 'Clear', morphology_phrases_path, class: 'btn-link text-dark' if has_filters?(:filter_chapter, :filter_verse, :text) %>
+      <div class="form-group d-flex align-items-center align-content-center align-self-start">
+        <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
+        <%= link_to 'Clear', morphology_phrases_path, class: 'btn-link text-dark' if has_filters?(:filter_chapter, :filter_verse, :text) %>
+      </div>
     </div>
   <% end %>
 </div>

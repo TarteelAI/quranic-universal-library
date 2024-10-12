@@ -54,8 +54,8 @@ class TajweedWordsController < CommunityController
       words = words.where(chapter_id: params[:filter_chapter].to_i)
     end
 
-    if params[:filter_verse].to_i > 0
-      words = words.where(verse_id: Verse.where(verse_number: params[:filter_verse].to_i))
+    if params[:verse_number].to_i > 0
+      words = words.where(verse_id: Verse.where(verse_number: params[:verse_number].to_i))
     end
 
     words

@@ -48,8 +48,8 @@ class TranslationProofreadingsController < CommunityController
       translations = translations.where("verses.chapter_id": params[:filter_chapter].to_i)
     end
 
-    if params[:filter_verse].to_i > 0
-      translations = translations.where("verses.verse_number": params[:filter_verse].to_i)
+    if params[:verse_number].to_i > 0
+      translations = translations.where("verses.verse_number": params[:verse_number].to_i)
     end
 
     if params[:query].present?

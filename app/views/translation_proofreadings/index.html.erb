@@ -6,29 +6,23 @@
 
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
-    <%= form_tag translation_proofreadings_path, method: :get, class: 'd-flex' do %>
-      <div class="form-group me-2">
-        <%= select_tag :resource_id, options_from_collection_for_select(@ayah_translations, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select', data: { placeholder: 'Select translation', controller: 'select2' } %>
-        <p class="form-text">Select the translation</p>
-      </div>
+    <%= form_tag translation_proofreadings_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="d-flex">
+        <div class="form-group me-2">
+          <%= select_tag :resource_id, options_from_collection_for_select(@ayah_translations, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select', data: { placeholder: 'Select translation', controller: 'select2' } %>
+          <p class="form-text">Select the translation</p>
+        </div>
 
-      <div class="form-group me-2">
-        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-        <p class="form-text">Filter by Surah</p>
-      </div>
+        <%= render 'shared/filters' %>
 
-      <div class="form-group me-2">
-        <%= select_tag :filter_verse, options_for_select(1..114, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-        <p class="form-text">Filter by Ayah</p>
-      </div>
+        <div class="form-group me-2">
+          <%= text_field_tag :query, params[:query], class: 'form-control', placeholder: 'Search' %>
+          <p class="form-text">Search translation content</p>
+        </div>
 
-      <div class="form-group me-2">
-        <%= text_field_tag :query, params[:query], class: 'form-control', placeholder: 'Search' %>
-        <p class="form-text">Search translation content</p>
-      </div>
-
-      <div class="form-group">
-        <%= submit_tag 'Filter', class: 'btn btn-primary', data: { disable_with: 'Please wait..' } %>
+        <div class="form-group">
+          <%= submit_tag 'Filter', class: 'btn btn-primary', data: { disable_with: 'Please wait..' } %>
+        </div>
       </div>
     <% end %>
   </div>
@@ -68,7 +62,15 @@
       <% end %>
       <tr>
         <td colspan="4">
-          <%= pagy_bootstrap_nav(@pagy).html_safe %>
+          <div class="d-flex align-items-center">
+            <div class="me-4">
+              <%= pagy_bootstrap_nav(@pagy).html_safe %>
+            </div>
+
+            <div>
+              <%= pagy_info(@pagy).html_safe %>
+            </div>
+          </div>
         </td>
       </tr>
       </tbody>

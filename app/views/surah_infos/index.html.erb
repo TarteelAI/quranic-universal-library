@@ -8,20 +8,18 @@
 
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
-    <%= form_tag surah_infos_path, method: :get, class: 'd-flex' do %>
-      <div class="form-group me-2">
-        <%= select_tag :language_id, options_from_collection_for_select(@available_languages, :id, :name, selected: @language.id), include_blank: false, class: 'form-select', data: { placeholder: 'Select language', controller: 'select2' } %>
-        <p class="form-text">Filter by language</p>
-      </div>
+    <%= form_tag surah_infos_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="d-flex">
+        <div class="form-group me-2">
+          <%= select_tag :language_id, options_from_collection_for_select(@available_languages, :id, :name, selected: @language.id), include_blank: false, class: 'form-select', data: { placeholder: 'Select language', controller: 'select2' } %>
+          <p class="form-text">Filter by language</p>
+        </div>
 
-      <div class="form-group me-2">
-        <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-        <p class="form-text">Filter by Surah</p>
-      </div>
+        <%= render 'shared/filters', verse: false %>
 
-      <div class="form-group">
-        <%= submit_tag 'Filter', class: 'btn btn-primary', data: { disable_with: 'Please wait..' } %>
-        <%= link_to 'Clear', surah_infos_path, class: 'btn-link text-dark' if has_filters?(:language_id, :filter_chapter) %>
+        <div class="form-group">
+          <%= submit_tag 'Filter', class: 'btn btn-primary', data: { disable_with: 'Please wait..' } %>
+        </div>
       </div>
     <% end %>
   </div>

@@ -45,7 +45,7 @@ class TafsirProofreadingsController < CommunityController
   end
 
   def verse_number
-    params[:filter_verse].to_i if params[:filter_verse].present?
+    params[:verse_number].to_i if params[:verse_number].present?
   end
 
   def tafsir_params

@@ -27,6 +27,8 @@ class DownloadableResource < ApplicationRecord
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
 
+  validates :resource_content, uniqueness: { allow_nil: true }
+
   def get_tags
     tags.to_s.split(',').compact_blank
   end
@@ -73,6 +75,7 @@ class DownloadableResource < ApplicationRecord
     when 'surah-info'
       s.export_surah_info(language: resource_content.language)
     when 'mushaf-layout'
+      binding.pry
       s.export_mushaf_layouts(resource_content: resource_content)
     when 'ayah-theme'
       s.export_ayah_themes

@@ -27,7 +27,44 @@ module Exporter
       db_file_path
     end
 
+    def export_docs
+      require 'docx'
+      base_path = "#{@export_file_path}/pages"
+      FileUtils.mkdir_p(base_path)
+
+      pages.each do |page|
+        export_page_document(page, base_path)
+      end
+
+      base_path
+    end
+
     protected
+
+    def export_page_document(page, path)
+      file = "#{path}/#{page.page_number}.docx"
+      doc = Docx::Document.open("#{Rails.root}/lib/exporter/data/template.docx")
+
+      template_lines = doc.paragraphs
+      justified_line = template_lines[0]
+      centered_aligned_line = template_lines[1]
+
+      page.lines.each do |line|
+        last_line = doc.paragraphs.last
+
+        if line[:center_aligned]
+          new_line = centered_aligned_line.copy
+        else
+          new_line = justified_line.copy
+        end
+
+        new_line.text = line[:text]
+        new_line.insert_after(last_line)
+      end
+
+      template_lines.each &:remove!
+      doc.save(file)
+    end
 
     def export_page(page, statement, mushaf)
       lines = prepare_page_lines(page, mushaf)

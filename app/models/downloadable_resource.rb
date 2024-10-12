@@ -32,7 +32,7 @@ class DownloadableResource < ApplicationRecord
   end
 
   def run_export_action
-    attrs  = {
+    attrs = {
       files_count: downloadable_files.count,
       published: published.nil? ? true : published
     }
@@ -65,15 +65,29 @@ class DownloadableResource < ApplicationRecord
         s.export_wbw_quran_script(resource_content: resource_content)
       end
     when 'tafsir'
+      s.export_tafsirs(resource_content: resource_content)
     when 'mutashabihat'
+      s.export_mutashabihat
     when 'similar-ayah'
+      s.export_similar_ayah
     when 'surah-info'
+      s.export_surah_info(language: resource_content.language)
     when 'mushaf-layout'
+      s.export_mushaf_layouts(resource_content: resource_content)
     when 'ayah-theme'
+      s.export_ayah_themes
     when 'ayah-topics'
+      s.export_quran_topics
     when 'transliteration'
+      if one_ayah?
+        s.export_ayah_transliteration
+      elsif one_word?
+        s.export_word_transliteration
+      end
     when 'morphology'
+      s.export_quranic_morphology_data
     when 'quran-metadata'
+      s.export_quran_metadata(resource_content: resource_content)
     end
   end
 

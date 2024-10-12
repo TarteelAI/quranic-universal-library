@@ -9,20 +9,7 @@
     <div class="filters row">
       <div class="col-lg-12">
         <%= form_tag wbw_texts_path, method: :get, class: 'd-flex' do %>
-          <div class="form-group me-2">
-            <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by para', controller: 'select2'} %>
-            <p class="form-text">Filter by Para</p>
-          </div>
-
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(1..114, params[:filter_chapter]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by surah', controller: 'select2'} %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
-
-          <div class="form-group me-2">
-            <%= select_tag :filter_verse, options_for_select(1..256, params[:filter_verse]), include_blank: true, class: 'form-select', data: {placeholder: 'Filter by surah', controller: 'select2'} %>
-            <p class="form-text">Filter by Ayah</p>
-          </div>
+          <%= render 'shared/filters', juz: true %>
 
           <div class="form-check me-2">
             <%= check_box_tag :with_issues, class: 'form-check-input' %>
@@ -30,7 +17,7 @@
           </div>
 
           <div class="form-group">
-            <%= submit_tag 'Filter', class: 'btn btn-success', data: {disable_with: 'Please wait..'} %>
+            <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
           </div>
         <% end %>
       </div>

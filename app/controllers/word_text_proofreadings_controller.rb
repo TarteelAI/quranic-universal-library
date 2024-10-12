@@ -14,8 +14,8 @@ class WordTextProofreadingsController < CommunityController
       verses = verses.where(chapter_id: params[:filter_chapter].to_i)
     end
 
-    if params[:filter_verse].to_i > 0
-      verses = verses.where(verse_number: params[:filter_verse].to_i)
+    if params[:verse_number].to_i > 0
+      verses = verses.where(verse_number: params[:verse_number].to_i)
     end
 
     order = if params[:sort_order] && params[:sort_order] == 'desc'

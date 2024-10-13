@@ -80,15 +80,6 @@ module LandingHelper
       ),
 
       ToolCard.new(
-        title: 'Translations',
-        description: "Download ayah by ayah and word by word translation in different languages.",
-        icon: 'translation.svg',
-        url: '/resources/translation',
-        count: wbw_translation + ayah_translation,
-        type: 'translation',
-        stats: "<div><div>#{ayah_translation} Translations</div><div>#{wbw_translation} Word by word translations</div></div>"
-      ),
-      ToolCard.new(
         title: "Quran metadata",
         description: "Download Quran metadata, surah, ayah, juz, hizb, rub, manzil etc.",
         url: '/resources/quran-metadata',

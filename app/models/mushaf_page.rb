@@ -40,6 +40,24 @@ class MushafPage < QuranApiRecord
     ).order('position_in_page ASC, position_in_line ASC')
   end
 
+  def lines
+    grouped_by_line = words.group_by(&:line_number).sort_by { |line_number, _| line_number }
+
+    grouped_by_line.map do |line_number, words|
+      line_alignment = MushafLineAlignment.where(
+        mushaf_id: mushaf_id,
+        page_number: page_number,
+        line_number: line_number
+      ).first
+
+      {
+        line: line_number,
+        center_aligned: line_alignment&.is_center_aligned?,
+        text: words.map(&:text).join(' ')
+      }
+    end
+  end
+
   def first_ayah_key
     Utils::Quran.get_ayah_key_from_id(first_verse_id)
   end

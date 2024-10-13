@@ -59,7 +59,11 @@ module Exporter
         downloadable_resource.tags = tags.compact_blank.join(', ')
         downloadable_resource.save(validate: false)
 
-        #  json = exporter.export_json
+        if !content.name.include?('image')
+          docx = exporter.export_docs
+          create_download_file(downloadable_resource, docx, 'docx')
+        end
+
         sqlite = exporter.export_sqlite
 
         # create_download_file(downloadable_resource, json, 'json')

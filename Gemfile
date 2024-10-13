@@ -52,8 +52,7 @@ gem 'rails-html-sanitizer', '>= 1.4.2'
 gem 'pdf-reader', require:  false
 gem "typhoeus", require:  false
 
-# PDF export
-# gem 'grover'
+gem "docx", "~> 0.8.0", require: false
 
 # authentication
 gem 'devise', '4.9.4'
@@ -155,5 +154,4 @@ gem "diff-lcs", "~> 1.5", require: false
 
 # NOTE:
 gem 'strscan', '~> 3.0.9'
-
 gem "tailwindcss-rails", "~> 2.7"

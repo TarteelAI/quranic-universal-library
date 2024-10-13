@@ -5,6 +5,7 @@
 #  id                       :bigint           not null, primary key
 #  download_count           :integer          default(0)
 #  file_type                :string
+#  info                     :text
 #  name                     :string
 #  position                 :integer          default(1)
 #  published                :boolean          default(TRUE)

@@ -6,6 +6,7 @@
 #  cardinality_type    :string
 #  files_count         :integer          default(0)
 #  info                :text
+#  meta_data           :jsonb
 #  name                :string
 #  position            :integer          default(1)
 #  published           :boolean          default(FALSE)
@@ -17,13 +18,32 @@
 #  resource_content_id :integer
 #
 class DownloadableResource < ApplicationRecord
+  include HasMetaData
+
   belongs_to :language, optional: true
   belongs_to :resource_content, optional: true
+  has_many :downloadable_related_resources
+  has_many :related_resources, through: :downloadable_related_resources, class_name: 'DownloadableResource'
   has_many :downloadable_files, dependent: :destroy
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[quran-script recitation translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
+  RESOURCE_TYPES = %w[
+    quran-script
+    recitation
+    translation
+    tafsir
+    mutashabihat
+    similar-ayah
+    surah-info
+    mushaf-layout
+    ayah-theme
+    ayah-topics
+    transliteration
+    morphology
+    quran-metadata
+    fonts
+  ].freeze
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
 
@@ -183,6 +203,8 @@ class DownloadableResource < ApplicationRecord
       'fa-language'
     when 'quran-metadata'
       'fa-book'
+    when 'fonts'
+      'fa-font'
     else
       'fa-file'
     end
@@ -216,6 +238,8 @@ class DownloadableResource < ApplicationRecord
       'Morphology and Grammar data'
     when 'quran-metadata'
       'Quran metadata'
+    when 'fonts'
+      'Fonts'
     end
   end
 
@@ -234,7 +258,6 @@ class DownloadableResource < ApplicationRecord
     when 'similar-ayah'
       'Similar Ayah data'
     when 'surah-info'
-      #  '<h2>Surah Information Pack</h2> <p>This comprehensive resource includes detailed descriptions of each surah, including when they were revealed, their core themes, and key topics. It provides invaluable insights into the context and significance of the surahs, helping you to gain a deeper appreciation of the Quranic text.</p>'
       'Surah Information'
     when 'mushaf-layout'
       'Mushaf Layout data'
@@ -248,6 +271,8 @@ class DownloadableResource < ApplicationRecord
       'Morphology'
     when 'quran-metadata'
       'Quran data, surahs, ayahs, words, juz etc.'
+    when 'fonts'
+      "Quran fonts"
     end.html_safe
   end
 end

@@ -84,7 +84,9 @@ a.tool-card-with-bg {
   &.transliteration{
     background-image: url("tools-cards/transliteration.webp");
   }
-
+  &.fonts{
+    background-image: url("tools-cards/transliteration.webp");
+  }
   &.tafsirs {
   //  backdrop-filter: brightness(0.2) sepia(1) saturate(2) hue-rotate(180deg); /* Add bluish tint */
     background-image: linear-gradient(rgba(163, 136, 96, 0.8),rgba(130, 109, 77, 0.5)),url("tools-cards/tafsirs.webp");

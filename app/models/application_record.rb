@@ -14,6 +14,6 @@ class ApplicationRecord < ActiveRecord::Base
   end
 
   def format_meta_key(key)
-    key.gsub(/[\s_]/, '-').gsub('--', '-').downcase
+    key.to_s.gsub(/[\s_]/, '-').gsub('--', '-').downcase
   end
 end

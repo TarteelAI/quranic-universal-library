@@ -37,6 +37,16 @@ ActiveAdmin.register DownloadableFile do
       row :file_type
       row :token
       row :download_count
+      row :published
+      row :position
+      row :info
+      row :file do |file|
+        if file.file.attached?
+          link_to 'Download', rails_blob_path(file.file, disposition: 'attachment')
+        else
+          'No file attached'
+        end
+      end
 
       row :created_at
       row :updated_at
@@ -71,14 +81,15 @@ ActiveAdmin.register DownloadableFile do
     f.inputs 'Downloadable resource detail' do
       f.input :name
       f.input :published
-
       f.input :position
-      f.input :cardinality_type, as: :searchable_select, collection: ResourceContent.collection_for_cardinality_type
-      f.input :resource_type, as: :searchable_select, collection: DownloadableResource::RESOURCE_TYPES
-      f.input :resource_content_id,
-              as: :searchable_select,
-              ajax: { resource: ResourceContent }
 
+      f.input :downloadable_resource_id,
+              as: :searchable_select,
+              ajax: { resource: DownloadableResource }
+
+      f.input :file_type
+
+      f.input :file, as: :file
       f.input :info, input_html: { data: { controller: 'tinymce' } }
     end
 
@@ -86,7 +97,7 @@ ActiveAdmin.register DownloadableFile do
   end
 
   permit_params do
-    %i[name info position published resource_type files resource_content_id cardinality_type]
+    %i[name published position downloadable_resource_id file file_type info]
   end
 
   member_action :upload_file, method: 'post' do

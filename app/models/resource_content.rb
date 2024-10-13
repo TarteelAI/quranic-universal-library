@@ -45,6 +45,8 @@
 #
 
 class ResourceContent < QuranApiRecord
+  include HasMetaData
+
   scope :translations, -> { where sub_type: SubType::Translation }
   scope :transliteration, -> { where sub_type: SubType::Transliteration }
   scope :media, -> { where sub_type: SubType::Video }
@@ -65,6 +67,7 @@ class ResourceContent < QuranApiRecord
   scope :mukhtasar_tafisr, -> { where("meta_data ->> 'mukhtasar' = 'yes'").or(where data_source_id: 14) }
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }
   scope :with_segments, -> { where("meta_data ->> 'has-segments' = 'yes'") }
+  scope :fonts, -> { where sub_type: SubType::Font }
   scope :approved, -> { where approved: true }
   scope :for_language, lambda { |lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
@@ -137,6 +140,7 @@ class ResourceContent < QuranApiRecord
     OneHizb = '1_hizb'
     OneRuku = '1_ruku'
     OneManzil = '1_manzil'
+    Quran = 'quran'
   end
 
   module ResourceType
@@ -163,6 +167,7 @@ class ResourceContent < QuranApiRecord
     Layout = 'layout'
     MetaData = 'meta'
     Morphology = 'morphology'
+    Font = 'font'
   end
 
   def allow_publish_sharing?
@@ -255,40 +260,6 @@ class ResourceContent < QuranApiRecord
     key = format_meta_key(key)
 
     fetch_metadata[key]
-  end
-
-  def meta_data=(val)
-    json = Oj.load(val)
-
-    json.keys.each do |key|
-      formatted_key = format_meta_key(key)
-
-      if formatted_key != key
-        json[formatted_key] = json[key]
-        json.delete(key)
-      end
-    end
-
-    super json
-  end
-
-  def set_meta_value(key, val)
-    key = format_meta_key(key)
-
-    meta_data = fetch_metadata
-    meta_data[key] = val
-  end
-
-  def delete_meta_value(key)
-    key = format_meta_key(key)
-    meta_data = fetch_metadata
-
-    meta_data.delete(key)
-  end
-
-  def set_meta_value!(key, val)
-    set_meta_value(key, val)
-    save
   end
 
   def humanize
@@ -699,9 +670,5 @@ class ResourceContent < QuranApiRecord
         )
       end
     end
-  end
-
-  def fetch_metadata
-    meta_data || {}
   end
 end

@@ -67,6 +67,11 @@ module Exporter
           create_download_file(downloadable_resource, ttf, 'ttf')
         end
 
+        if content.meta_value('otf').present?
+          otf = exporter.export_otf
+          create_download_file(downloadable_resource, otf, 'otf')
+        end
+
         if content.meta_value('woff').present?
           woff = exporter.export_woff
           create_download_file(downloadable_resource, woff, 'woff')

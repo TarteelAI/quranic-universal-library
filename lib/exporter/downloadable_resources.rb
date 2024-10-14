@@ -29,10 +29,62 @@ module Exporter
       export_similar_ayah
       export_mutashabihat
       export_quranic_morphology_data
+      export_fonts
+    end
+
+    def export_fonts(resource_content: nil)
+      base_path = "tmp/export/fonts"
+      FileUtils.mkdir_p(base_path)
+
+      list = ResourceContent.fonts.approved
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        exporter = Exporter::ExportFont.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'fonts',
+          cardinality_type: content.cardinality_type
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+
+        if downloadable_resource.tags.blank?
+          downloadable_resource.tags = content.meta_value('tags') || ''
+        end
+
+        downloadable_resource.save(validate: false)
+
+        if content.meta_value('ttf').present?
+          ttf = exporter.export_ttf
+          create_download_file(downloadable_resource, ttf, 'ttf')
+        end
+
+        if content.meta_value('otf').present?
+          otf = exporter.export_otf
+          create_download_file(downloadable_resource, otf, 'otf')
+        end
+
+        if content.meta_value('woff').present?
+          woff = exporter.export_woff
+          create_download_file(downloadable_resource, woff, 'woff')
+        end
+
+        if content.meta_value('woff2').present?
+          woff2 = exporter.export_woff2
+          create_download_file(downloadable_resource, woff2, 'woff2')
+        end
+      end
     end
 
     def export_mushaf_layouts(resource_content: nil)
-      # TODO: add tags
       base_path = "tmp/export/mushaf_layouts"
       FileUtils.mkdir_p(base_path)
 

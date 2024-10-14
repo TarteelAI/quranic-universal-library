@@ -72,7 +72,7 @@ module LandingHelper
       ToolCard.new(
         title: "Quran Fonts",
         description: "Download a variety of Quran fonts, including handwritten glyph-based and standard fonts for Unicode text.",
-        url: '/resources/fonts',
+        url: '/resources/font',
         type: 'fonts',
         icon: 'quran.svg',
         count: ResourceContent.fonts.size,

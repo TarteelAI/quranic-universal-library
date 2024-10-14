@@ -50,7 +50,7 @@ module Exporter
 
         downloadable_resource = DownloadableResource.where(
           resource_content: content,
-          resource_type: 'fonts',
+          resource_type: 'font',
           cardinality_type: content.cardinality_type
         ).first_or_initialize
 

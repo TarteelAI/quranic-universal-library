@@ -42,7 +42,7 @@ class DownloadableResource < ApplicationRecord
     transliteration
     morphology
     quran-metadata
-    fonts
+    font
   ].freeze
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
@@ -206,7 +206,7 @@ class DownloadableResource < ApplicationRecord
       'fa-language'
     when 'quran-metadata'
       'fa-book'
-    when 'fonts'
+    when 'font'
       'fa-font'
     else
       'fa-file'
@@ -241,7 +241,7 @@ class DownloadableResource < ApplicationRecord
       'Morphology and Grammar data'
     when 'quran-metadata'
       'Quran metadata'
-    when 'fonts'
+    when 'font'
       'Fonts'
     end
   end
@@ -274,7 +274,7 @@ class DownloadableResource < ApplicationRecord
       'Morphology'
     when 'quran-metadata'
       'Quran data, surahs, ayahs, words, juz etc.'
-    when 'fonts'
+    when 'font'
       "Quran fonts"
     end.html_safe
   end

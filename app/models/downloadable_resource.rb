@@ -6,6 +6,7 @@
 #  cardinality_type    :string
 #  files_count         :integer          default(0)
 #  info                :text
+#  meta_data           :jsonb
 #  name                :string
 #  position            :integer          default(1)
 #  published           :boolean          default(FALSE)
@@ -17,22 +18,43 @@
 #  resource_content_id :integer
 #
 class DownloadableResource < ApplicationRecord
+  include HasMetaData
+
   belongs_to :language, optional: true
   belongs_to :resource_content, optional: true
+  has_many :downloadable_related_resources
+  has_many :related_resources, through: :downloadable_related_resources, class_name: 'DownloadableResource'
   has_many :downloadable_files, dependent: :destroy
 
   scope :published, -> { where published: true }
 
-  RESOURCE_TYPES = %w[quran-script recitation translation tafsir mutashabihat similar-ayah surah-info mushaf-layout ayah-theme ayah-topics transliteration morphology quran-metadata].freeze
+  RESOURCE_TYPES = %w[
+    quran-script
+    recitation
+    translation
+    tafsir
+    mutashabihat
+    similar-ayah
+    surah-info
+    mushaf-layout
+    ayah-theme
+    ayah-topics
+    transliteration
+    morphology
+    quran-metadata
+    font
+  ].freeze
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
+
+  validates :resource_content, uniqueness: { allow_nil: true }
 
   def get_tags
     tags.to_s.split(',').compact_blank
   end
 
   def run_export_action
-    attrs  = {
+    attrs = {
       files_count: downloadable_files.count,
       published: published.nil? ? true : published
     }
@@ -65,15 +87,30 @@ class DownloadableResource < ApplicationRecord
         s.export_wbw_quran_script(resource_content: resource_content)
       end
     when 'tafsir'
+      s.export_tafsirs(resource_content: resource_content)
     when 'mutashabihat'
+      s.export_mutashabihat
     when 'similar-ayah'
+      s.export_similar_ayah
     when 'surah-info'
+      s.export_surah_info(language: resource_content.language)
     when 'mushaf-layout'
+      binding.pry
+      s.export_mushaf_layouts(resource_content: resource_content)
     when 'ayah-theme'
+      s.export_ayah_themes
     when 'ayah-topics'
+      s.export_quran_topics
     when 'transliteration'
+      if one_ayah?
+        s.export_ayah_transliteration
+      elsif one_word?
+        s.export_word_transliteration
+      end
     when 'morphology'
+      s.export_quranic_morphology_data
     when 'quran-metadata'
+      s.export_quran_metadata(resource_content: resource_content)
     end
   end
 
@@ -169,6 +206,8 @@ class DownloadableResource < ApplicationRecord
       'fa-language'
     when 'quran-metadata'
       'fa-book'
+    when 'font'
+      'fa-font'
     else
       'fa-file'
     end
@@ -202,6 +241,8 @@ class DownloadableResource < ApplicationRecord
       'Morphology and Grammar data'
     when 'quran-metadata'
       'Quran metadata'
+    when 'font'
+      'Fonts'
     end
   end
 
@@ -220,7 +261,6 @@ class DownloadableResource < ApplicationRecord
     when 'similar-ayah'
       'Similar Ayah data'
     when 'surah-info'
-      #  '<h2>Surah Information Pack</h2> <p>This comprehensive resource includes detailed descriptions of each surah, including when they were revealed, their core themes, and key topics. It provides invaluable insights into the context and significance of the surahs, helping you to gain a deeper appreciation of the Quranic text.</p>'
       'Surah Information'
     when 'mushaf-layout'
       'Mushaf Layout data'
@@ -234,6 +274,8 @@ class DownloadableResource < ApplicationRecord
       'Morphology'
     when 'quran-metadata'
       'Quran data, surahs, ayahs, words, juz etc.'
+    when 'font'
+      "Quran fonts"
     end.html_safe
   end
 end

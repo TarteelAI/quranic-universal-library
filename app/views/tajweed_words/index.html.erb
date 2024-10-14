@@ -7,7 +7,7 @@
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
     <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
-      <div class="row">
+      <div class="row" data-controller="chapter-verses-filter">
         <div class="col-12 d-flex">
           <div class="form-group me-2">
             <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
@@ -27,7 +27,7 @@
           <div class="form-group me-2">
             <div class="d-flex">
               <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2', style: 'width: 200px' %>
-              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end],  placeholder: 'Ends with', class: 'form-control me-2', style: 'width: 200px' %>
+              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end], placeholder: 'Ends with', class: 'form-control me-2', style: 'width: 200px' %>
               <label for="filter_word_boundary">
                 <%= check_box_tag :filter_word_boundary, '1', params[:filter_word_boundary] == '1' %>
                 Filter whole word
@@ -36,19 +36,9 @@
             <p class="form-text">Filter by Regexp(Find word that start and ends with specific letter)</p>
           </div>
         </div>
+
         <div class="col-12 d-flex">
-          <div class="form-group me-2">
-            <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
-            <p class="form-text">Filter by Page</p>
-          </div>
-          <div class="form-group me-2">
-            <%= select_tag :filter_chapter, options_for_select(Chapter.order('id asc').map {|c| [c.humanize, c.id]}, params[:filter_chapter]), include_blank: true, class: 'form-select', data: { placeholder: 'filter by surah', controller: 'select2' } %>
-            <p class="form-text">Filter by Surah</p>
-          </div>
-          <div class="form-group me-2">
-            <%= select_tag :filter_verse, options_for_select(1..256, params[:filter_verse]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by surah', controller: 'select2' } %>
-            <p class="form-text">Filter by Ayah</p>
-          </div>
+          <%= render 'shared/filters', page: true %>
 
           <div class="form-group ms-auto">
             <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
@@ -120,8 +110,14 @@
       <% end %>
       <tr>
         <td colspan="7">
-          <%= pagy_bootstrap_nav(@pagy).html_safe %>
-          <%= pagy_info(@pagy).html_safe %>
+          <div class="d-flex align-items-center">
+            <div class="me-4">
+              <%= pagy_bootstrap_nav(@pagy).html_safe %>
+            </div>
+            <div>
+              <%= pagy_info(@pagy).html_safe %>
+            </div>
+          </div>
         </td>
       </tr>
       </tbody>

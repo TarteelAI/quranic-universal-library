@@ -79,8 +79,8 @@ class MorphologyPhrasesController < CommunityController
         list = list.where(chapter_id: params[:filter_chapter])
       end
 
-      if params[:filter_verse].present?
-        list = list.where(verse_number: params[:filter_verse])
+      if params[:verse_number].present?
+        list = list.where(verse_number: params[:verse_number])
       end
 
       params[:sort_key] ||= 'verse_index'
@@ -114,13 +114,13 @@ class MorphologyPhrasesController < CommunityController
       list = list.where(source_verse_id: chapter.verses.pluck(:id)) if chapter
     end
 
-    if params[:filter_verse].present?
+    if params[:verse_number].present?
       verses = if chapter
                  chapter.verses
                else
                  Verse
                end
-      verses = verses.where(verse_number: params[:filter_verse])
+      verses = verses.where(verse_number: params[:verse_number])
 
       list = list.where(source_verse_id: verses.pluck(:id))
     end

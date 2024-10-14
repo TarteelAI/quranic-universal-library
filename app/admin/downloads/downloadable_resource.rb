@@ -19,7 +19,7 @@ ActiveAdmin.register DownloadableResource do
     text_attribute: :name
   )
 
-  action_item :approve, only: :show, if: -> { can? :refresh_downloads, resource } do
+  action_item :refresh_downloads, only: :show, if: -> { can? :refresh_downloads, resource } do
     link_to refresh_downloads_admin_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? this action will export files for this resource again.' } do
       'Refresh downloads'
     end

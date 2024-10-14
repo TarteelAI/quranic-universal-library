@@ -310,6 +310,14 @@ class ResourceContent < QuranApiRecord
     cardinality_type == CardinalityType::OneVerse
   end
 
+  def quran?
+    cardinality_type == CardinalityType::Quran
+  end
+
+  def page?
+    cardinality_type == CardinalityType::OnePage
+  end
+
   def tokens?
     sub_type == SubType::QuranText
   end

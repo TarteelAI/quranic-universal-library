@@ -119,7 +119,7 @@ ActiveAdmin.register Recitation do
               ajax: { resource: QiratType }
       f.input :segment_locked
     end
-    
+
     f.actions
   end
 

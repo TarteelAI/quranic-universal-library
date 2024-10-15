@@ -6,11 +6,19 @@ ActiveAdmin.register Word do
     scope: Word,
     text_attribute: :humanize,
     filter: lambda do |term, scope|
-      scope.ransack(
-        verse_key_cont: term,
-        location_cont: term,
-        m: 'or'
-      ).result
+      if term.include?(':')
+        scope.ransack(
+          verse_key_cont: term,
+          location_cont: term,
+          m: 'or'
+        ).result.order('word_index asc')
+      else
+        scope.ransack(
+          location_eq: term,
+          word_index_eq: term,
+          m: 'or'
+        ).result.order('word_index asc')
+      end
     end
   )
 

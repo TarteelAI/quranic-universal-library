@@ -24,6 +24,7 @@
 ActiveAdmin.register Recitation do
   menu parent: 'Audio', priority: 1
   actions :all, except: :destroy
+  includes :reciter
 
   filter :recitation_style, as: :searchable_select,
          ajax: { resource: RecitationStyle }
@@ -32,7 +33,7 @@ ActiveAdmin.register Recitation do
   filter :approved
 
   searchable_select_options(scope: Recitation,
-                            text_attribute: :name,
+                            text_attribute: :reciter_name,
                             filter: lambda do |term, scope|
                               scope.ransack(
                                 id_eq: term,
@@ -64,11 +65,8 @@ ActiveAdmin.register Recitation do
       qirat_type_id
       style
       segment_locked
+      reciter_name
     ]
-  end
-
-  def scoped_collection
-    super.includes :reciter
   end
 
   index do
@@ -121,6 +119,7 @@ ActiveAdmin.register Recitation do
               ajax: { resource: QiratType }
       f.input :segment_locked
     end
+    
     f.actions
   end
 

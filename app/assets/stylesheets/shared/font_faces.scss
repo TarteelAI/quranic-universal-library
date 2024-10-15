@@ -36,7 +36,14 @@ $asset-version: "1";
 
 @font-face {
   font-family: 'digitalkhatt';
-  src: url("#{$font-cdn}/digitalkhatt.ebb352f2bd4564ae.otf?v=#{$asset-version}") format("opentype");
+  src: url("#{$font-cdn}/DigitalKhattQuranic.otf?v=#{$asset-version}") format("opentype");
+  font-style: normal;
+  font-display:block
+}
+
+@font-face {
+  font-family: 'digitalkhatt-v2';
+  src: url("#{$font-cdn}/DigitalKhattV2.otf?v=#{$asset-version}") format("opentype");
   font-style: normal;
   font-display:block
 }
@@ -59,6 +66,12 @@ $asset-version: "1";
 
 .digitalkhatt{
   font-family: digitalkhatt;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.digitalkhatt-v2{
+  font-family: digitalkhatt-v2;
   direction: rtl;
   font-size: 30px;
 }

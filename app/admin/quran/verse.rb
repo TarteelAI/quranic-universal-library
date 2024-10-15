@@ -5,11 +5,18 @@ ActiveAdmin.register Verse do
     scope: Verse,
     text_attribute: :verse_key,
     filter: lambda do |term, scope|
-      scope.ransack(
-        verse_key_cont: term,
-        id_eq: term,
-        m: 'or'
-      ).result.order('verse_index asc')
+      if term.include?(':')
+        scope.ransack(
+          verse_key_cont: term,
+          m: 'or'
+        ).result.order('verse_index asc')
+      else
+        scope.ransack(
+          verse_key_cont: term,
+          id_eq: term,
+          m: 'or'
+        ).result.order('verse_index asc')
+      end
     end
   )
   menu parent: 'Quran', priority: 2

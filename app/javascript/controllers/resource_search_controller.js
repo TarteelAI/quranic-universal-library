@@ -5,7 +5,18 @@ export default class extends Controller {
     this.el = $(this.element);
     this.input = this.el.find('#search-input');
     document.addEventListener('keydown', this.handleKeydown.bind(this));
-    this.input.on('DOMAttrModified input change keypress paste blur', this.search.bind(this));
+    this.input.on(
+      'DOMAttrModified input change keypress paste blur',
+      this.search.bind(this)
+    );
+  }
+
+  showEmptyResultsMessage() {
+    this.el.find('#empty-results-message').removeClass('tw-hidden');
+  }
+
+  hideEmptyResultsMessage() {
+    this.el.find('#empty-results-message').addClass('tw-hidden');
   }
 
   search(event) {
@@ -13,30 +24,29 @@ export default class extends Controller {
     const searchResults = this.el.find('[data-search]');
 
     if (query.length <= 1) {
-      searchResults.removeClass('d-none');
+      searchResults.removeClass('tw-hidden');
+      this.hideEmptyResultsMessage();
       return;
     }
 
     let hasResults = false;
 
-    searchResults.each((index, el) => {
+    searchResults.each((_, el) => {
       const resource = $(el);
       const name = resource.data('search').toLowerCase();
 
       if (name.includes(query)) {
-        resource.removeClass('d-none');
+        resource.removeClass('tw-hidden');
         hasResults = true;
       } else {
-        resource.addClass('d-none');
+        resource.addClass('tw-hidden');
       }
     });
 
     if (!hasResults) {
-      // Display empty search results message
-      this.el.find('#empty-results-message').removeClass('d-none');
+      this.showEmptyResultsMessage();
     } else {
-      // Hide empty search results message
-      this.el.find('#empty-results-message').addClass('d-none');
+      this.hideEmptyResultsMessage();
     }
   }
 

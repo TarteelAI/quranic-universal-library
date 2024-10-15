@@ -1,21 +1,21 @@
 <div id="resources" data-controller="resource-search">
   <%= render 'hero' %>
-
-  <div class="container-lg mt-3 pt-md-4">
-    <div class="alert alert-dark" role="alert">
-      <h4>
-        About This Page
-      </h4>
-    Below you will find a list of the categories of Quranic data available on QUL, for example translations, tafsirs, and surah information. Clicking on one of these resource categories will take you to a page where you can download the various resources belonging to that category in formats such as sqlite and json. For more granular options to find and download resources, visit the advanced admin panel. Resources included in QUL are intended for you to download and package with your own project; no API is available
-  </div>
+  <%= render 'layouts/grid' do %>
+    <div class="tw-grid-cols-subgrid tw-grid tw-mt-6">
+      <div class="tw-border tw-rounded-lg tw-p-4 tw-bg-gray-100 tw-h-fit tw-space-y-3">
+        <p class="tw-font-semibold">
+          About This Page
+        </p>
+        <p>
+          Below you will find a list of the categories of Quranic data available on QUL, for example translations, tafsirs, and surah information. Clicking on one of these resource categories will take you to a page where you can download the various resources belonging to that category in formats such as sqlite and json. For more granular options to find and download resources, visit the advanced admin panel. Resources included in QUL are intended for you to download and package with your own project; no API is available
+        </p>
+      </div>
+      <div class="tw-mt-8">
+        <%= render 'resources_list' %>
+      </div>
+    </div>
+    <div class="tw-mb-5 tw-mt-8">
+      <%= render 'content_notice' %>
+    </div>
+  <% end %>
 </div>
-
-  <%= render 'resources_list' %>
-
-  <div id="empty-results-message" class="container-lg d-none">
-    <p>No results found</p>
-  </div>
-</div>
-
-<%= render 'content_notice' %>
-

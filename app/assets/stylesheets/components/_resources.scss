@@ -46,12 +46,6 @@
 }
 
 #resources {
-  #hero {
-    margin-top: -90px;
-    padding-top: 110px;
-    border-bottom: 1px solid #CCC;
-  }
-
   .resources-list {
     .card-container-upper {
       display: grid;
@@ -155,9 +149,4 @@
       background-position: center;
     }
   }
-}
-
-#empty-results-message {
-  font-size: 24px;
-  color: #656565;
 }

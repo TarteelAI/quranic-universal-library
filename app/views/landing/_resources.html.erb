@@ -3,7 +3,6 @@
     <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white">Developer Resources</h2>
   </div>
 <% end %>
-
 <div class="sidescroll-container tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_resources.each do |card| %>
     <% if false %>
@@ -16,17 +15,14 @@
               <%= tool.description %>
             </p>
           </div>
-
           <div class="cta"">
-          <span>
-            Learn More
-          </span>
+            <span>
+              Learn More
+            </span>
           </div>
-
           <div class="icon">
             <%= image_tag "card-icon/#{tool.icon}" %>
           </div>
-
           <% if tool.info_tip %>
             <div class="info d-flex">
               <svg
@@ -40,25 +36,20 @@
         </div>
       </a>
     <% end %>
-
-
     <%= render 'card/card-container', url: card.url, type: card.type do %>
       <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
         <div class="tw-flex tw-flex-col tw-gap-2">
           <%= render 'card/card-title', title: card.title %>
           <%= render 'card/card-description', description: card.description %>
         </div>
-
         <div class="icon">
           <%= image_tag "card-icon/#{card.icon}" %>
         </div>
-
         <div class="tw-flex tw-items-center tw-justify-between">
           <% if card.count.to_i > 0 %>
             <div class="tw-text-white tw-font-bold">
               <%= card.stats.to_s.html_safe %>
             </div>
-
             <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
               <%= card.count %>
             </div>
@@ -68,7 +59,6 @@
     <% end %>
   <% end %>
 </div>
-
 <%= render 'layouts/grid' do %>
   <p class="tw-mt-10">
     <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'tw-text-white tw-opacity-70 tw-font-semibold hover:tw-opacity-100 hover:tw-text-white tw-transition-opacity tw-duration-300' %>

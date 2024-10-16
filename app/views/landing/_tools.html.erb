@@ -1,11 +1,9 @@
 <%
   patterns = (1..10).to_a
 %>
-<%= render 'layouts/grid' do %>
-  <div>
-    <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white">Developer Tools</h2>
-  </div>
-<% end %>
+<div class="sidescroll-container">
+  <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white">Developer Tools</h2>
+</div>
 <div class="sidescroll-container tw-grid tw-grid-flow-col tw-auto-cols-[400px] tw-overflow-auto tw-items-center tw-relative tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_tools.each do |tool| %>
     <% if false %>
@@ -64,8 +62,8 @@
     <% end %>
   <% end %>
 </div>
-<%= render 'layouts/grid' do %>
+<div class="sidescroll-container">
   <p class="tw-mt-10">
     <%= link_to 'VIEW ALL DEVELOPER TOOLS', tools_path, class: 'tw-text-white tw-opacity-70 tw-font-semibold hover:tw-opacity-100 hover:tw-text-white tw-transition-opacity tw-duration-300' %>
   </p>
-<% end %>
+</div>

@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <%= render 'shared/meta_tags' %>
-  <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload", id: 'tinymce_custom_style' %>
-  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
-</head>
-
-<body>
-<%= render 'shared/flash_notices' %>
-<%= render 'landing/header' %>
-<%= yield %>
-<%= render 'landing/footer' %>
-</body>
+  <head>
+    <%= render 'shared/meta_tags' %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload", id: 'tinymce_custom_style' %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  </head>
+  <body class="tw-font-inter">
+    <%= render 'shared/flash_notices' %>
+    <%= render 'landing/header' %>
+    <%= yield %>
+    <%= render 'landing/footer' %>
+  </body>
 </html>

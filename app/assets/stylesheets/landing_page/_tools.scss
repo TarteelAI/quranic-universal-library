@@ -8,10 +8,6 @@
 }
 
 .sidescroll-container {
-  position: relative;
-  display: flex;
-  overflow-x: auto;
-  align-items: center;
   padding: 0 0.75rem;
 
   &::-webkit-scrollbar {
@@ -76,7 +72,6 @@
   position: relative;
   overflow: hidden;
   display: flex;
-  min-width: 400px;
   height: 550px;
   padding: 24px;
   flex-direction: column;
@@ -86,13 +81,11 @@
   scroll-snap-align: center;
 
   @media (max-width: $screen-sm) {
-    min-width: 256px !important;
     gap: 12px;
     min-height: 370px;
   }
 
   @media (max-width: $screen-md) {
-    min-width: 326px !important;
     gap: 15px;
     min-height: 400px;
   }

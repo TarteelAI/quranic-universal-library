@@ -3,7 +3,7 @@
     <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white">Developer Resources</h2>
   </div>
 <% end %>
-<div class="sidescroll-container tw-mt-10 tw-gap-3 md:tw-gap-4">
+<div class="sidescroll-container tw-grid tw-grid-flow-col tw-auto-cols-[400px] tw-overflow-auto tw-items-center tw-relative tw-mt-10 tw-gap-3 md:tw-gap-4">
   <% featured_developer_resources.each do |card| %>
     <% if false %>
       <a href="<%= tool.url %>">
@@ -37,7 +37,7 @@
       </a>
     <% end %>
     <%= render 'card/card-container', url: card.url, type: card.type do %>
-      <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between">
+      <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
         <div class="tw-flex tw-flex-col tw-gap-2">
           <%= render 'card/card-title', title: card.title %>
           <%= render 'card/card-description', description: card.description %>

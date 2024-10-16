@@ -27,10 +27,10 @@
     <p>No results found</p>
   </div>
   <%= render 'featured_cards' %>
-  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4 tw-justify-center">
     <% downloadable_resource_cards.each do |card| %>
       <%= render 'card/card-container', url: card.url, type: card.type do %>
-        <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
+        <div class="tw-p-3 tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
           <div class="tw-flex tw-flex-col tw-gap-2">
             <%= render 'card/card-title', title: card.title %>
             <%= render 'card/card-description', description: card.description %>
@@ -40,7 +40,7 @@
           </div>
           <div class="tw-flex tw-items-center tw-justify-between">
             <% if card.count.to_i > 0 %>
-              <div class="tw-text-white tw-font-bold">
+              <div class="tw-text-white tw-font-bold tw-opacity-75">
                 <%= card.stats.to_s.html_safe %>
               </div>
               <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">

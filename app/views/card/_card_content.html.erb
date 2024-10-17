@@ -1,0 +1,52 @@
+<div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
+  <div class="tw-flex tw-flex-col tw-justify-between tw-h-full">
+    <!-- Title, Description -->
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <%= render 'card/card-title', title: card.name || card.title %>
+      <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+    </div>
+    <% if local_assigns[:show_learn_more] %>
+      <div class="tw-mt-8">
+        <%= render 'card/learn-more-button' %>
+      </div>
+    <% end %>
+    <% if local_assigns[:show_info] %>
+      <div class="tw-mt-8 text-white">
+        <%= card.info.to_s.html_safe if card.respond_to?(:info) %>
+      </div>
+    <% end %>
+    <!-- Center icon and download dropdown -->
+    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">
+      <% if local_assigns[:is_quran_script] %>
+        <%= render 'quran_script_preview', resource: card.resource_content, preview_verse: local_assigns[:preview_verse] %>
+      <% else %>
+        <div class="tw-flex tw-items-center tw-justify-center tw-w-full">
+          <% if card.respond_to?(:icon) && card.icon.present? %>
+            <% if card.icon.start_with?('fa-') %>
+              <i class="fa tw-text-white tw-text-[200px] md:tw-text-[100px] <%= card.icon %>"></i>
+            <% else %>
+              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon" %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+      <% if local_assigns[:show_download] %>
+        <div class="tw-flex tw-w-full tw-items-center tw-flex-col tw-justify-center tw-mt-8">
+          <%= render 'card/download_dropdown', resource: card %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <%= render 'card/card_footer', card: card, show_stats: local_assigns[:show_stats], show_tags: local_assigns[:show_tags] %>
+  <% if card.respond_to?(:get_tags) && card.get_tags.present? %>
+    <div class="tw-mt-4">
+      <% card.get_tags.each do |tag| %>
+        <div class="tw-inline-block tw-text-sm tw-font-semibold tw-py-1 tw-px-3 tw-rounded-full <%= resource_tag_class(tag.strip) %>">
+          <span class="tw-text-white tw-text-center">
+            <%= tag %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

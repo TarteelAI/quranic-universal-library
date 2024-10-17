@@ -53,13 +53,7 @@ a.tool-card-with-bg {
     width: auto;
     height: auto;
   }
-
-  .icon {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-
+  
   &.segments, &.recitation, &.card-recitations {
    background-image: url("tools-cards/timestamp.webp");
   }

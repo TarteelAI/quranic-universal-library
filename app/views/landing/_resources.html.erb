@@ -1,59 +1,12 @@
 <div class="sidescroll-container">
   <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white">Developer Resources</h2>
 </div>
-<div class="sidescroll-container tw-grid tw-grid-flow-col tw-auto-cols-[400px] tw-overflow-auto tw-items-center tw-relative tw-mt-10 tw-gap-3 md:tw-gap-4">
-  <% featured_developer_resources.each do |card| %>
-    <% if false %>
-      <a href="<%= tool.url %>">
-        <div class="tool-card tool-card-with-bg <%= tool.type %>">
-          <div class="overlay"></div>
-          <div>
-            <h5><%= tool.title %></h5>
-            <p class="info">
-              <%= tool.description %>
-            </p>
-          </div>
-          <div class="cta"">
-            <span>
-              Learn More
-            </span>
-          </div>
-          <div class="icon">
-            <%= image_tag "card-icon/#{tool.icon}" %>
-          </div>
-          <% if tool.info_tip %>
-            <div class="info d-flex">
-              <svg
-                title="<%= tool.info_tip %>"
-                data-controller="tooltip"
-                width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0.660217C5.376 0.660217 0 6.03622 0 12.6602C0 19.2842 5.376 24.6602 12 24.6602C18.624 24.6602 24 19.2842 24 12.6602C24 6.03622 18.624 0.660217 12 0.660217ZM13.2 18.6602H10.8V11.4602H13.2V18.6602ZM13.2 9.06022H10.8V6.66022H13.2V9.06022Z" fill="white"/>
-              </svg>
-            </div>
-          <% end %>
-        </div>
-      </a>
-    <% end %>
-    <%= render 'card/card-container', url: card.url, type: card.type do %>
-      <div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
-        <div class="tw-flex tw-flex-col tw-gap-2">
-          <%= render 'card/card-title', title: card.title %>
-          <%= render 'card/card-description', description: card.description %>
-        </div>
-        <div class="icon">
-          <%= image_tag "card-icon/#{card.icon}" %>
-        </div>
-        <div class="tw-flex tw-items-center tw-justify-between">
-          <% if card.count.to_i > 0 %>
-            <div class="tw-text-white tw-font-bold">
-              <%= card.stats.to_s.html_safe %>
-            </div>
-            <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
-              <%= card.count %>
-            </div>
-          <% end %>
-        </div>
-      </div>
+<div class="tw-mt-10">
+  <%= render 'card/card_sidescrolling_container' do %>
+    <% featured_developer_resources.each do |card| %>
+      <%= render 'card/card-container', url: card.url, type: card.type do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
     <% end %>
   <% end %>
 </div>

@@ -51,63 +51,18 @@
       <p>No results found</p>
     </div>
     <%= render 'shared/page_font', verses: [@preview_verse] if is_quran_script %>
-    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4 tw-justify-center tw-mb-10">
-      <% @resources.each do |resource| %>
-        <%= render 'card/card-container', patterns: patterns do %>
-          <div
-            class="tw-w-full tw-h-full tw-flex tw-justify-between tw-flex-col"
-            data-search="<%= resource.name.to_s.downcase %> <%= resource.resource_type.to_s.downcase %> <%= resource.tags.to_s.downcase %> <%= resource.humanize_cardinality_type.to_s.downcase %>"
-            id="<%= dom_id resource %>"
-          >
-            <div>
-              <!-- Title, Description -->
-              <div class="tw-flex tw-flex-col tw-gap-2">
-                <%= render 'card/card-title', title: resource.name %>
-                <%= render 'card/card-description', description: resource.humanize_cardinality_type %>
-              </div>
-              <div class="tw-gap-4 tw-h-full tw-w-full tw-flex tw-flex-col tw-justify-between tw-mt-8">
-                <div class="text-white">
-                  <%= resource.info.to_s.html_safe if resource.info %>
-                </div>
-                <% if is_quran_script %>
-                  <%= render 'quran_script_preview', resource: resource.resource_content, preview_verse: @preview_verse %>
-                <% else %>
-                  <div class="icon">
-                    <i class="fa text-white tw-text-[200px] md:tw-text-[100px] <%= resource.icon %>"></i>
-                  </div>
-                <% end %>
-                <div class="tw-flex tw-w-full tw-items-center tw-flex-col tw-justify-center">
-                  <div class="dropdown">
-                    <a class="btn btn-primary  dropdown-toggle  tw-w-full" href="#" role="button" id="dropdown-<%= resource.id %>" data-bs-toggle="dropdown" aria-expanded="false">
-                      Select download format
-                    </a>
-                    <ul class="dropdown-menu !tw-z-30" aria-labelledby="dropdown-<%= resource.id %>">
-                      <% resource.downloadable_files.each do |file| %>
-                        <li>
-                          <% if user_signed_in? %>
-                            <%= link_to resource_download_file_path(resource.resource_type, token: file.token), class: 'dropdown-item tw-w-full' do %>
-                              Download <%= file.file_type %>
-                            <% end %>
-                          <% else %>
-                            <%= link_to '#_', class: 'dropdown-item tw-w-full', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: resource_download_file_path(resource.resource_type, token: file.token), modal: true)} do %>
-                              Download <%= file.file_type %>
-                            <% end %>
-                          <% end %>
-                        </li>
-                      <% end %>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+    <div class="tw-mb-10 tw-mt-8">
+      <%= render 'card/card_grid' do %>
+        <% @resources.each do |resource| %>
+          <%= render 'card/card-container', patterns: patterns do %>
+            <div
+        class="tw-w-full tw-h-full tw-flex tw-justify-between tw-flex-col"
+        data-search="<%= resource.name.to_s.downcase %> <%= resource.resource_type.to_s.downcase %> <%= resource.tags.to_s.downcase %> <%= resource.humanize_cardinality_type.to_s.downcase %>"
+        id="<%= dom_id resource %>"
+      >
+              <%= render 'card/card_content', card: resource, show_info: true, is_quran_script: is_quran_script, preview_verse: @preview_verse, show_download: true %>
             </div>
-            <div>
-              <% resource.get_tags.each do |tag| %>
-                <span class="badge <%= resource_tag_class(tag.strip) %>">
-                  <%= tag %>
-                </span>
-              <% end %>
-            </div>
-          </div>
+          <% end %>
         <% end %>
       <% end %>
     </div>

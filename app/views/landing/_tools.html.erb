@@ -4,61 +4,12 @@
 <div class="sidescroll-container">
   <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white">Developer Tools</h2>
 </div>
-<div class="sidescroll-container tw-grid tw-grid-flow-col tw-auto-cols-[400px] tw-overflow-auto tw-items-center tw-relative tw-mt-10 tw-gap-3 md:tw-gap-4">
-  <% featured_developer_tools.each do |tool| %>
-    <% if false %>
-      <a href="<%= tool.url %>">
-        <div class="tool-card tool-card-with-bg position-relative <%= tool.type %>">
-          <div class="overlay"></div>
-          <div>
-            <h5>
-              <%= tool.title %>
-            </h5>
-            <p class="info">
-              <%= tool.description %>
-            </p>
-          </div>
-          <div class="cta">
-            <span>
-              Learn more
-            </span>
-          </div>
-          <div class="icon">
-            <%= image_tag "card-icon/#{tool.icon}" %>
-          </div>
-          <div class="info-tip">
-            <svg
-              title="<%= tool.info_tip %>"
-              data-controller="tooltip"
-              width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 0.660217C5.376 0.660217 0 6.03622 0 12.6602C0 19.2842 5.376 24.6602 12 24.6602C18.624 24.6602 24 19.2842 24 12.6602C24 6.03622 18.624 0.660217 12 0.660217ZM13.2 18.6602H10.8V11.4602H13.2V18.6602ZM13.2 9.06022H10.8V6.66022H13.2V9.06022Z" fill="white"/>
-            </svg>
-          </div>
-        </div>
-      </a>
-    <% end %>
-    <%= render 'card/card-container', url: tool.url, patterns: patterns do %>
-      <div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
-        <!-- Title, Description, Learn More Button -->
-        <div class="tw-flex tw-flex-col tw-gap-4">
-          <div class="tw-flex tw-flex-col tw-gap-2">
-            <%= render 'card/card-title', title: tool.title %>
-            <%= render 'card/card-description', description: tool.description %>
-          </div>
-          <%= render 'card/learn-more-button' %>
-        </div>
-        <div class="icon">
-          <%= image_tag "card-icon/#{tool.icon}" %>
-        </div>
-        <div class="tw-flex tw-justify-between">
-          <div>
-            <% tool.tags.each do |tag| %>
-              <%= render 'card/card-tag', tag: tag %>
-            <% end %>
-          </div>
-          <%= render 'card/info-tip', tip: tool.info_tip %>
-        </div>
-      </div>
+<div class="tw-mt-10">
+  <%= render 'card/card_sidescrolling_container' do %>
+    <% featured_developer_tools.each do |tool| %>
+      <%= render 'card/card-container', url: tool.url, patterns: patterns do %>
+        <%= render 'card/card_content', card: tool, show_learn_more: true, show_tags: true %>
+      <% end %>
     <% end %>
   <% end %>
 </div>

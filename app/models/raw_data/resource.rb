@@ -5,6 +5,7 @@
 #  id                  :bigint           not null, primary key
 #  content_css_class   :string
 #  description         :text
+#  key                 :string
 #  lang_iso            :string
 #  name                :string
 #  processed           :boolean          default(FALSE)
@@ -17,6 +18,7 @@
 #
 # Indexes
 #
+#  index_raw_data_resources_on_key       (key)
 #  index_raw_data_resources_on_sub_type  (sub_type)
 #
 class RawData::Resource < ApplicationRecord

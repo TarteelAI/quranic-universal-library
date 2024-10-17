@@ -121,29 +121,44 @@ module Export
       foot_note_counter = 1
       footnotes = {}
       translation_chunks = []
-      last_node_was_footnote = false
 
       doc.children.each do |node|
-        if foot_note_tags.include?(node.name) || hard_coded_footnotes.include?(node.text.strip)
-          last_node_was_footnote = true
-
+        if node.name == 'text'
+          translation_chunks << node.text
+        elsif foot_note_tags.include?(node.name) || hard_coded_footnotes.include?(node.text.strip)
           if hard_coded_footnotes.include?(node.text.strip)
-            translation_chunks << { f: node.text.strip }
+            translation_chunks << { type: 'f', text: node.text.strip }
           else
             id = node.attr('foot_note')
 
             if id.present? && (foot_note = FootNote.where(id: id).first).present?
-              foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
-              stripped = foot_note_text.tr(" ", '').strip
+              foot_note_text = format_footnote(foot_note.text)
 
-              translation_chunks << { f: foot_note_counter }
+              footnotes[foot_note_counter] = foot_note_text
+              translation_chunks << { type: 'f', text: foot_note_counter }
               foot_note_counter += 1
             end
           end
         elsif node.name == 'i'
-          translation_chunks << { i: node.text.strip }
+          translation_chunks << { type: 'i', text: node.text.strip }
         elsif node.name == 'span'
-          translation_chunks << { b: node.text.strip }
+
+          node.children.each do |child|
+            foot_note_id = child.attr('foot_note')
+
+            if child.name == 'text' && node.attr('class') == 'h' && child.text.present?
+              translation_chunks << { type: 'b', text: child.text }
+            elsif child.name == 'text'
+              translation_chunks << child.text
+            elsif foot_note_id.present? && (foot_note = FootNote.where(id: foot_note_id).first).present?
+              # qirat footnote
+              foot_note_text = format_footnote(foot_note.text)
+
+              footnotes[foot_note_counter] = foot_note_text
+              translation_chunks << { type: 'f', text: foot_note_counter }
+              foot_note_counter += 1
+            end
+          end
         end
       end
 
@@ -158,16 +173,18 @@ module Export
       footnotes_refs = {}
       footnotes = {}
 
-      if text.blank? || (!text.include?('<sup') && !translation.resource_content_id == 149)
+      if text.blank?
         result = {
-          t: [text.to_s.strip]
+          t: []
         }
       else
         doc = Nokogiri::HTML::DocumentFragment.parse(text)
+
         if translation.resource_content_id == 149
           result = export_bridres_with_footnote(doc)
         else
           foot_note_counter = 1
+
           doc.children.each do |node|
             if node.name == 'text'
               next
@@ -191,7 +208,7 @@ module Export
 
             if id.present?
               translation_chunks << {
-                f: footnotes_refs[id]
+                type: 'f', text: foot_note_counter
               }
             else
               translation_chunks << child.text if child.text.presence.present?
@@ -205,17 +222,14 @@ module Export
         end
       end
 
+      result.delete(:f) if result[:f].blank?
       result
     end
 
     def format_footnote(text)
       doc = Nokogiri::HTML::DocumentFragment.parse(text)
-
-      if (doc.children.size == 1 && doc.search('p').size == 1)
-        text = doc.text
-      end
-
-      text.gsub(' ', ' ').strip
+      text = doc.text
+      text.gsub(' ', ' ')
     end
 
     def send_email(zip_path, user)

@@ -1,10 +1,6 @@
 module ApplicationHelper
   include Pagy::Frontend
 
-  def show_narrow_layout?
-    request.path.in?(['/credits', '/faq'])
-  end
-
   def is_current_page?(controller:, action: nil)
     controller_name == controller && (action.nil? || action_name == action)
   end

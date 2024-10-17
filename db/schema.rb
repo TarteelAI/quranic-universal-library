@@ -27,12 +27,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
   create_table "active_admin_comments", id: :serial, force: :cascade do |t|
     t.string "namespace"
     t.text "body"
-    t.string "resource_id", null: false
     t.string "resource_type", null: false
+    t.integer "resource_id", null: false
     t.string "author_type"
     t.integer "author_id"
-    t.datetime "created_at", precision: nil
-    t.datetime "updated_at", precision: nil
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id"
     t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
     t.index ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id"
@@ -61,7 +61,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id"
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -69,10 +69,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
   create_table "admin_todos", force: :cascade do |t|
     t.string "description"
     t.boolean "is_finished"
+    t.string "tags"
+    t.integer "resource_content_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "resource_content_id"
-    t.string "tags"
     t.index ["resource_content_id"], name: "index_admin_todos_on_resource_content_id"
   end
 
@@ -108,6 +108,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.string "email"
     t.text "detail"
     t.string "subject"
+    t.string "url"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
@@ -116,9 +117,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.string "database_name"
     t.string "file"
     t.string "size"
+    t.string "tag"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.string "tag"
   end
 
   create_table "downloadable_files", force: :cascade do |t|
@@ -127,10 +128,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.integer "position", default: 1
     t.integer "download_count", default: 0
     t.string "file_type"
+    t.boolean "published", default: true
     t.string "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "published", default: true
     t.text "info"
     t.index ["downloadable_resource_id"], name: "index_downloadable_files_on_downloadable_resource_id"
     t.index ["token"], name: "index_downloadable_files_on_token"
@@ -180,7 +181,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.text "current_text"
     t.text "draft_text"
     t.boolean "imported", default: false
-    t.boolean "need_review", default: false
+    t.boolean "need_review"
     t.boolean "text_matched"
     t.integer "verse_id"
     t.string "verse_key"
@@ -194,11 +195,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "updated_at", null: false
     t.string "md5"
     t.string "comments"
-    t.boolean "reviewed", default: false
+    t.boolean "reviewed"
     t.integer "user_id"
     t.index ["need_review"], name: "index_draft_tafsirs_on_need_review"
     t.index ["tafsir_id"], name: "index_draft_tafsirs_on_tafsir_id"
     t.index ["text_matched"], name: "index_draft_tafsirs_on_text_matched"
+    t.index ["user_id"], name: "index_draft_tafsirs_on_user_id"
     t.index ["verse_id"], name: "index_draft_tafsirs_on_verse_id"
     t.index ["verse_key"], name: "index_draft_tafsirs_on_verse_key"
   end
@@ -209,20 +211,19 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.boolean "text_matched"
     t.integer "verse_id"
     t.integer "resource_content_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.boolean "need_review"
     t.boolean "imported", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "user_id"
     t.integer "translation_id"
+    t.index ["imported"], name: "index_draft_translations_on_imported"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_translations_on_text_matched"
     t.index ["translation_id"], name: "index_draft_translations_on_translation_id"
+    t.index ["user_id"], name: "index_draft_translations_on_user_id"
     t.index ["verse_id"], name: "index_draft_translations_on_verse_id"
-  end
-
-  create_table "dummy", force: :cascade do |t|
   end
 
   create_table "faqs", force: :cascade do |t|
@@ -235,16 +236,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.index ["position", "published"], name: "index_faqs_on_position_and_published"
   end
 
-  create_table "feedbacks", force: :cascade do |t|
-    t.string "name"
-    t.string "email"
-    t.string "url"
-    t.text "message"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "important_notes", force: :cascade do |t|
+    t.string "title"
     t.text "text"
     t.string "label"
     t.integer "user_id"
@@ -252,7 +245,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.integer "word_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "title"
   end
 
   create_table "morphology_matching_verses", force: :cascade do |t|
@@ -263,11 +255,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.integer "coverage"
     t.integer "score"
     t.jsonb "matched_word_positions", default: []
+    t.boolean "approved"
     t.integer "matched_verse_id"
     t.integer "matched_chapter_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "approved"
+    t.index ["approved"], name: "index_morphology_matching_verses_on_approved"
     t.index ["chapter_id"], name: "index_morphology_matching_verses_on_chapter_id"
     t.index ["coverage"], name: "index_morphology_matching_verses_on_coverage"
     t.index ["matched_chapter_id"], name: "index_morphology_matching_verses_on_matched_chapter_id"
@@ -283,14 +276,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.integer "verse_id"
     t.integer "word_position_from"
     t.integer "word_position_to"
+    t.integer "matched_words_count"
     t.jsonb "missing_word_positions", default: []
     t.jsonb "similar_words_position", default: []
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "matched_words_count"
     t.boolean "approved"
     t.string "review_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approved"], name: "index_morphology_phrase_verses_on_approved"
+    t.index ["matched_words_count"], name: "index_morphology_phrase_verses_on_matched_words_count"
     t.index ["phrase_id"], name: "index_morphology_phrase_verses_on_phrase_id"
+    t.index ["review_status"], name: "index_morphology_phrase_verses_on_review_status"
     t.index ["verse_id"], name: "index_morphology_phrase_verses_on_verse_id"
     t.index ["word_position_from"], name: "index_morphology_phrase_verses_on_word_position_from"
     t.index ["word_position_to"], name: "index_morphology_phrase_verses_on_word_position_to"
@@ -306,11 +302,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.integer "chapters_count"
     t.integer "verses_count"
     t.integer "occurrence"
+    t.string "review_status"
     t.boolean "approved", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "review_status"
     t.index ["approved"], name: "index_morphology_phrases_on_approved"
+    t.index ["review_status"], name: "index_morphology_phrases_on_review_status"
     t.index ["source_verse_id"], name: "index_morphology_phrases_on_source_verse_id"
     t.index ["word_position_from"], name: "index_morphology_phrases_on_word_position_from"
     t.index ["word_position_to"], name: "index_morphology_phrases_on_word_position_to"
@@ -351,16 +348,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.index ["user_id"], name: "index_proof_read_comments_on_user_id"
   end
 
-  create_table "qr_sync_histories", force: :cascade do |t|
-    t.datetime "timestamp"
-    t.integer "posts_count"
-    t.integer "comments_count"
-    t.text "notes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["timestamp"], name: "index_qr_sync_histories_on_timestamp"
-  end
-
   create_table "quran_table_details", force: :cascade do |t|
     t.string "name"
     t.integer "enteries"
@@ -383,6 +370,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
 
   create_table "raw_data_resources", force: :cascade do |t|
     t.string "name"
+    t.string "key"
     t.string "sub_type"
     t.integer "language_id"
     t.string "lang_iso"
@@ -393,6 +381,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.string "content_css_class"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_raw_data_resources_on_key"
     t.index ["sub_type"], name: "index_raw_data_resources_on_sub_type"
   end
 
@@ -436,12 +425,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "updated_at", null: false
     t.text "admin_notes"
     t.boolean "approved", default: false
-    t.text "request_message"
+    t.text "additional_notes"
     t.text "reason_for_request"
     t.text "language_proficiency"
     t.text "motivation_and_goals"
     t.boolean "review_process_acknowledgment"
-    t.text "additional_notes"
   end
 
   create_table "users", force: :cascade do |t|
@@ -467,7 +455,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "locked_at", precision: nil
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.string "projects"
     t.text "about_me"
     t.boolean "add_to_mailing_list", default: false
     t.integer "role", default: 0
@@ -486,6 +473,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "created_at", precision: nil
     t.boolean "reviewed", default: false
     t.integer "reviewed_by_id"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["reviewed"], name: "index_versions_on_reviewed"
   end
 
@@ -499,7 +487,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.boolean "approved", default: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.string "qpc_uthmani_hafs"
     t.index ["verse_id"], name: "index_wbw_texts_on_verse_id"
     t.index ["word_id"], name: "index_wbw_texts_on_word_id"
   end
@@ -529,6 +516,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["synonym_id", "word_id"], name: "index_word_synonyms_on_synonym_id_and_word_id"
+  end
+
+  create_table "word_tajweed_positions", force: :cascade do |t|
+    t.string "audio"
+    t.string "location"
+    t.jsonb "positions"
+    t.jsonb "style"
+    t.string "word_group"
+    t.string "rule"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

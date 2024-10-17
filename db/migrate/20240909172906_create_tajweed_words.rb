@@ -2,7 +2,7 @@ class CreateTajweedWords < ActiveRecord::Migration[7.0]
   def change
     c = Word.connection
 
-    c.create_table :tajweed_words do |t|
+    c.create_table :tajweed_words, if_not_exists: true do |t|
       t.belongs_to :mushaf, null: false, foreign_key: true
       t.belongs_to :word, null: false, foreign_key: true
       t.belongs_to :verse, null: false, foreign_key: true

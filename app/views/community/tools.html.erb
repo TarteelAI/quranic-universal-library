@@ -24,6 +24,7 @@
       <h2>
         Welcome to the QUL Tools Page
       </h2>
+
       <div class="alert alert-secondary mt-3">
          <p>
            This page provides a suite of tools designed to help you review, proofread, and improve the data in the
@@ -55,12 +56,14 @@
             <div class="overlay"></div>
             <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between w-100">
               <div>
-                <h3>
+                <h3 class="fw-bold mb-2">
                   <%= tool.title %>
                 </h3>
-                <p class="fw-bold">
+
+                <p class="text-white mb-2">
                   <%= tool.description %>
                 </p>
+
                 <div class="cta" style="background: <%= tool.cta_bg %>; width: 105px">
                   <span>Learn more</span>
                 </div>

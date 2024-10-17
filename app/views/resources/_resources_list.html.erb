@@ -34,17 +34,17 @@
   <%= render 'featured_cards' %>
 
   <div class="mt-4 card-container gap-4">
-    <% downloadable_resource_cards.each do |card| %>
+    <% downloadable_resource_cards.each do |type, card| %>
       <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
         <a href="<%= card.url %>">
           <div class="overlay"></div>
           <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between">
             <div>
-              <h3>
+              <h3 class="fw-bold mb-2">
                 <%= card.title %>
               </h3>
 
-              <p class="text-white fw-bold">
+              <p class="text-white">
                 <%= card.description %>
               </p>
             </div>

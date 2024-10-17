@@ -1,6 +1,6 @@
 <%# TODO: Tidy up type and patterns classes - could be handled better %>
 <% tag_name = local_assigns[:url].present? ? :a : :div %>
-<%= content_tag tag_name, class: "tw-w-full tw-max-w-[500px] tw-inline-block", href: (local_assigns[:url] if local_assigns[:url].present?) do %>
+<%= content_tag tag_name, class: "tw-w-full tw-inline-block", href: (local_assigns[:url] if local_assigns[:url].present?) do %>
   <div class="<%= class_names('resource-card tool-card tool-card-with-bg tw-px-8 tw-py-6 tw-relative', local_assigns[:type], "pattern#{local_assigns[:patterns]&.sample}") %>">
     <div class="overlay"></div>
     <%= yield %>

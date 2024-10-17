@@ -39,34 +39,14 @@
         To request editing permissions, click on the resource card and then click the <strong>Request Access</strong> button.
       </p>
     </div>
-    <div class="tw-mb-5 tw-mt-8">
-      <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4 tw-justify-center">
+    <div class="tw-mb-10 tw-mt-8">
+      <%= render 'card/card_grid' do %>
         <% developer_tools.each do |tool| %>
           <%= render 'card/card-container', url: tool.url, patterns: patterns do %>
-            <div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
-              <!-- Title, Description, Learn More Button -->
-              <div class="tw-flex tw-flex-col tw-gap-4">
-                <div class="tw-flex tw-flex-col tw-gap-2">
-                  <%= render 'card/card-title', title: tool.title %>
-                  <%= render 'card/card-description', description: tool.description %>
-                </div>
-                <%= render 'card/learn-more-button' %>
-              </div>
-              <div class="icon">
-                <%= image_tag "card-icon/#{tool.icon}" %>
-              </div>
-              <div class="tw-flex tw-justify-between">
-                <div>
-                  <% tool.tags.each do |tag| %>
-                    <%= render 'card/card-tag', tag: tag %>
-                  <% end %>
-                </div>
-                <%= render 'card/info-tip', tip: tool.info_tip %>
-              </div>
-            </div>
+            <%= render 'card/card_content', card: tool, show_learn_more: true, show_tags: true %>
           <% end %>
         <% end %>
-      </div>
+      <% end %>
     </div>
   <% end %>
 </div>

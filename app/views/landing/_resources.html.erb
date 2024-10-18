@@ -4,7 +4,7 @@
 <div class="tw-mt-10">
   <%= render 'card/card_sidescrolling_container' do %>
     <% featured_developer_resources.each do |card| %>
-      <%= render 'card/card-container', url: card.url, type: card.type do %>
+      <%= render 'card/card-container', card: card do %>
         <%= render 'card/card_content', card: card, show_stats: true %>
       <% end %>
     <% end %>

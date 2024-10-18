@@ -6,9 +6,9 @@
 </div>
 <div class="tw-mt-10">
   <%= render 'card/card_sidescrolling_container' do %>
-    <% featured_developer_tools.each do |tool| %>
-      <%= render 'card/card-container', url: tool.url, patterns: patterns do %>
-        <%= render 'card/card_content', card: tool, show_learn_more: true, show_tags: true %>
+    <% featured_developer_tools.each do |card| %>
+      <%= render 'card/card-container', card: card, patterns: patterns do %>
+        <%= render 'card/card_content', card: card, show_learn_more: true, show_tags: true %>
       <% end %>
     <% end %>
   <% end %>

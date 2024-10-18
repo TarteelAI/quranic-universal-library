@@ -1,7 +1,13 @@
-<%# TODO: Tidy up type and patterns classes - could be handled better %>
-<% tag_name = local_assigns[:url].present? ? :a : :div %>
-<%= content_tag tag_name, class: "tw-w-full tw-inline-block", href: (local_assigns[:url] if local_assigns[:url].present?) do %>
-  <div class="<%= class_names('resource-card tool-card tool-card-with-bg tw-px-8 tw-py-6 tw-relative', local_assigns[:type], "pattern#{local_assigns[:patterns]&.sample}") %>">
+<%
+  search_data = local_assigns[:search_data]
+  pattern = local_assigns[:patterns]&.sample
+  is_link = card.respond_to?(:url) && card.url.present?
+  tag_name = is_link ? :a : :div
+  href_attr = is_link ? { href: card.url } : {}
+  card_type = card.respond_to?(:type) ? card.type : ''
+%>
+<%= content_tag tag_name, class: "tw-w-full tw-inline-block", **href_attr, data: { search: search_data } do %>
+  <div class="<%= class_names('resource-card tool-card tool-card-with-bg tw-px-8 tw-py-6 tw-relative', card_type, "pattern#{pattern}") %>" data-search='<%= search_data %>'>
     <div class="overlay"></div>
     <%= yield %>
   </div>

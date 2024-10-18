@@ -2,7 +2,7 @@
   patterns = (1..10).to_a
 %>
 <div id="resources">
-  <div class="tw-pb-8 tw-pt-4 md:tw-pt-8 md:tw-pb-14 tw-overflow-hidden tw-relative tw-border-b" id="hero">
+  <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
     <div id="resource-bg">
     </div>
     <%= render 'layouts/grid' do %>
@@ -41,9 +41,9 @@
     </div>
     <div class="tw-mb-10 tw-mt-8">
       <%= render 'card/card_grid' do %>
-        <% developer_tools.each do |tool| %>
-          <%= render 'card/card-container', url: tool.url, patterns: patterns do %>
-            <%= render 'card/card_content', card: tool, show_learn_more: true, show_tags: true %>
+        <% developer_tools.each do |card| %>
+          <%= render 'card/card-container', card: card, patterns: patterns do %>
+            <%= render 'card/card_content', card: card, show_learn_more: true, show_tags: true %>
           <% end %>
         <% end %>
       <% end %>

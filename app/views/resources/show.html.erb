@@ -1,8 +1,11 @@
 <div id="resources" data-controller="resource-search">
   <%
     patterns = (1..10).to_a
-    is_quran_script = @resources.first.resource_content&.quran_script?
+    is_quran_script = false && @resources.first.resource_content&.quran_script?
     @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
+
+    group = @resources.first
+    group_card = downloadable_resource_cards[params[:id].tr('-', '_').to_sym]
   %>
 
   <div class="overflow-hidden position-relative pb-4" id="hero">
@@ -21,17 +24,28 @@
 
       <nav aria-label="breadcrumb">
         <ol class="custom-breadcrumb">
-          <li class="breadcrumb-link"><%= link_to 'Developer Resources', resources_path, class: 'btn-link text-dark' %></li>
-          <li class="breadcrumb-link active"><%= @resources.first.group_name %></li>
+          <li class="breadcrumb-link">
+            <%= link_to 'Developer Resources', resources_path, class: 'btn-link text-dark' %>
+          </li>
+
+          <li class="breadcrumb-link active">
+            <%= group.group_name %>
+          </li>
         </ol>
       </nav>
+    </div>
+  </div>
+
+  <div class="container-lg mt-3 pt-md-4">
+    <div class="alert alert-dark" role="alert">
+       <%= group_card.page_description.to_s.html_safe %>
     </div>
   </div>
 
   <div class="container-lg">
     <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mt-4 mt-md-5">
       <h2>
-        <%= @resources.first.group_info %>
+        <%= group.group_info %>
       </h2>
 
       <div class="d-flex align-items-center justify-content-center gap-3">

@@ -17,10 +17,13 @@
 #
 # Indexes
 #
-#  index_morphology_phrase_verses_on_phrase_id           (phrase_id)
-#  index_morphology_phrase_verses_on_verse_id            (verse_id)
-#  index_morphology_phrase_verses_on_word_position_from  (word_position_from)
-#  index_morphology_phrase_verses_on_word_position_to    (word_position_to)
+#  index_morphology_phrase_verses_on_approved             (approved)
+#  index_morphology_phrase_verses_on_matched_words_count  (matched_words_count)
+#  index_morphology_phrase_verses_on_phrase_id            (phrase_id)
+#  index_morphology_phrase_verses_on_review_status        (review_status)
+#  index_morphology_phrase_verses_on_verse_id             (verse_id)
+#  index_morphology_phrase_verses_on_word_position_from   (word_position_from)
+#  index_morphology_phrase_verses_on_word_position_to     (word_position_to)
 #
 class Morphology::PhraseVerse < ApplicationRecord
   belongs_to :phrase, class_name: 'Morphology::Phrase'

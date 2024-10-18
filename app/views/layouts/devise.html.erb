@@ -3,13 +3,11 @@
   <head>
     <meta charset="utf-8"/>
     <%= render 'shared/meta_tags' %>
-
-  <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
-  <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
-</head>
-
-  <body class="tw-font-inter">
+    <%= stylesheet_link_tag "landing", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
+  </head>
+  <body class="tw-font-inter tw-relative">
     <%= render 'shared/flash_notices' %>
     <%= render 'landing/header' %>
     <%= yield %>

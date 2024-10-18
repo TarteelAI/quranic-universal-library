@@ -10,7 +10,9 @@
   <body class="tw-font-inter tw-relative">
     <%= render 'shared/flash_notices' %>
     <%= render 'landing/header' %>
-    <%= yield %>
+    <div class="tw-mt-[70px] md:tw-mt-[75px]">
+      <%= yield %>
+    </div>
     <%= render 'landing/footer' %>
   </body>
 </html>

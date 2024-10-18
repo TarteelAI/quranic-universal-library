@@ -9,6 +9,11 @@ export default class extends Controller {
       'DOMAttrModified input change keypress paste blur',
       this.search.bind(this)
     );
+    this.searchResults = this.el.find('[data-search]');
+  }
+
+  disconnect() {
+    document.removeEventListener('keydown', this.handleKeydown.bind(this));
   }
 
   showEmptyResultsMessage() {
@@ -19,27 +24,30 @@ export default class extends Controller {
     this.el.find('#empty-results-message').addClass('tw-hidden');
   }
 
+  resetSearch() {
+    this.searchResults.removeClass('!tw-hidden');
+    this.hideEmptyResultsMessage();
+  }
+
   search(event) {
-    const query = (event.target.value || '').toLowerCase();
-    const searchResults = this.el.find('[data-search]');
+    const query = (event.target.value || '').trim().toLowerCase();
 
     if (query.length <= 1) {
-      searchResults.removeClass('tw-hidden');
-      this.hideEmptyResultsMessage();
+      this.resetSearch();
       return;
     }
 
     let hasResults = false;
 
-    searchResults.each((_, el) => {
+    this.searchResults.each((_, el) => {
       const resource = $(el);
       const name = resource.data('search').toLowerCase();
 
       if (name.includes(query)) {
-        resource.removeClass('tw-hidden');
+        resource.removeClass('!tw-hidden');
         hasResults = true;
       } else {
-        resource.addClass('tw-hidden');
+        resource.addClass('!tw-hidden');
       }
     });
 

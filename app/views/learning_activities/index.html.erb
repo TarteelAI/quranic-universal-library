@@ -1,6 +1,9 @@
 <%= set_page_title 'Quranic Quiz and learning activities' %>
-
 <div id="resources">
   <%= render 'header' %>
-  <%= render 'activities' %>
+  <div class="tw-pb-10">
+    <%= render 'layouts/grid' do %>
+      <%= render 'activities' %>
+    <% end %>
+  </div>
 </div>

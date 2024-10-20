@@ -1,5 +1,5 @@
 .sidescroll-container {
-  padding: 0 0.75rem;
+  padding: 0 1rem;
 
   &::-webkit-scrollbar {
     display: none;
@@ -11,7 +11,7 @@
   scroll-snap-type: x mandatory;
 
   @media (min-width: $screen-lg) {
-    padding: 0 calc(0.75rem + (100vw - 1600px) / 2);
+    padding: 0 calc(1rem + (100vw - 1600px) / 2);
   }
 }
 

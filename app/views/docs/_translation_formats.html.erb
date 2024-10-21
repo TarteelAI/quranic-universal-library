@@ -1,0 +1,11 @@
+<% faq = Faq.find(2) %>
+
+<div id="title">
+  <%= faq.question %>
+</div>
+
+<div id="body">
+  <div class="modal-body">
+    <%= faq.answer.to_s.html_safe %>
+  </div>
+</div>

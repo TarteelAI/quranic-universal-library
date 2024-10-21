@@ -40,17 +40,19 @@ module LandingHelper
 
     tafisrs = ResourceContent.tafsirs.approved
 
-    @downloadable_resource_cards = [
-      ToolCard.new(
+    @downloadable_resource_cards = {
+      translation: ToolCard.new(
         title: 'Translations',
         description: "Download ayah by ayah and word by word translation in different languages.",
+        page_description: "This page has Quran translations in multiple languages, available for both Ayah-by-Ayah and Word-by-Word formats. Translation are available in different structures and file formats, including JSON, CSV, and SQL. <a href='#' class='btn-link text-dark text-decoration-underline' data-controller='ajax-modal' data-url='/docs/translation_formats'>Click here</a> for more information about data structures.",
         icon: 'translation.svg',
         url: '/resources/translation',
         count: wbw_translation + ayah_translation,
         type: 'translation',
         stats: "<div><div>#{ayah_translation} Translations</div><div>#{wbw_translation} Word by word translations</div></div>"
       ),
-      ToolCard.new(
+
+      tafsir: ToolCard.new(
         title: "Tafsirs",
         description: "Download tafsir data in multiple languages, with ayah grouping information.",
         icon: 'open_book.svg',
@@ -59,7 +61,8 @@ module LandingHelper
         type: 'tafsirs',
         stats: "<div><div>#{tafisrs.mukhtasar_tafisr.count} Mukhtasar tafsirs</div><div>#{tafisrs.count - tafisrs.mukhtasar_tafisr.count} Detailed tafsirs</div></div>"
       ),
-      ToolCard.new(
+
+      quran_script: ToolCard.new(
         title: "Quran script: Unicode & Images",
         description: "Download the Quran script in Unicode text or image formats, including Madani, IndoPak, and Uthmani scripts.",
         url: '/resources/quran-script',
@@ -69,7 +72,7 @@ module LandingHelper
         stats: "<div><div>Indopak</div><div>Uthmani, tajweed</div></div>"
       ),
 
-      ToolCard.new(
+      font: ToolCard.new(
         title: "Quran Fonts",
         description: "Download a variety of Quran fonts, including handwritten glyph-based and standard fonts for Unicode text.",
         url: '/resources/font',
@@ -79,7 +82,7 @@ module LandingHelper
         stats: "<div><div>Indopak</div><div>Madani</div></div>"
       ),
 
-      ToolCard.new(
+      metadata: ToolCard.new(
         title: "Quran metadata",
         description: "Download Quran metadata, surah, ayah, juz, hizb, rub, manzil etc.",
         url: '/resources/quran-metadata',
@@ -88,8 +91,8 @@ module LandingHelper
         count: ResourceContent.quran_metadata.count,
         stats: "<div><div>Total resources</div></div>"
       ),
-      # TODO: update bg and svg
-      ToolCard.new(
+
+      transliteration: ToolCard.new(
         title: "Transliteration",
         description: "Download transliteration data to read the Quranic text in Latin script.",
         icon: 'transliteration.svg',
@@ -98,7 +101,8 @@ module LandingHelper
         type: 'transliteration',
         stats: "<div><div>1 Ayah by ayah</div><div>2 Word by word</div></div>"
       ),
-      ToolCard.new(
+
+      surah_info: ToolCard.new(
         title: "Surah information",
         description: "Detailed descriptions of all Surah, including when they were revealed, core themes, and key topics etc.",
         icon: 'layout.svg',
@@ -107,7 +111,8 @@ module LandingHelper
         type: 'surah-info',
         stats: "<div><div>In #{ResourceContent.chapter_info.count} Languages</div></div>"
       ),
-      ToolCard.new(
+
+      ayah_topics: ToolCard.new(
         title: "Topics and concepts in the Quran",
         description: "Key concepts/topics in the Quran and semantic relations between these concepts.",
         icon: 'layout.svg',
@@ -116,14 +121,16 @@ module LandingHelper
         type: 'ayah-topics',
         stats: "<div><div>#{Topic.count} topics</div></div>"
       ),
-      ToolCard.new(
+
+      morphology: ToolCard.new(
         title: "Quranic Grammar and Morphology",
         description: "Quranic Grammar(part of speech for each word), morphology, roots, lemmas and stems data.",
         icon: 'layout.svg',
         url: '/resources/morphology',
         type: 'grammar-morphology',
       ),
-      ToolCard.new(
+
+      mutashabihat: ToolCard.new(
         title: 'Mutashabihat ul Quran',
         description: 'Similarities in meaning, context, or wording among ayah phrases in the Quran.',
         url: '/resources/mutashabihat',
@@ -131,7 +138,8 @@ module LandingHelper
         icon: 'mutashabihat.svg',
         cta_bg: 'rgba(56, 152, 173, 0.9)'
       ),
-      ToolCard.new(
+
+      similar_ayah: ToolCard.new(
         title: 'Similiar ayahs',
         description: 'Download Ayahs from the Quran that share similarities in meaning, context, or wording. This data allows you to explore and access Ayahs that closely align with each other.',
         url: '/resources/similar-ayah',
@@ -139,7 +147,8 @@ module LandingHelper
         icon: 'mutashabihat.svg',
         cta_bg: 'rgba(56, 152, 173, 0.9)'
       ),
-      ToolCard.new(
+
+      ayah_theme: ToolCard.new(
         title: 'Ayah theme',
         description: 'Core themes and topics of each ayah in the Quran.',
         url: '/resources/ayah-theme',
@@ -147,7 +156,7 @@ module LandingHelper
         icon: 'layout.svg',
         cta_bg: 'rgba(56, 152, 173, 0.9)'
       )
-    ]
+    }
   end
 
   def featured_developer_tools
@@ -155,6 +164,6 @@ module LandingHelper
   end
 
   def featured_developer_resources
-    featured_downloadable_resource_cards + downloadable_resource_cards.first(5)
+    featured_downloadable_resource_cards + downloadable_resource_cards.values.first(5)
   end
 end

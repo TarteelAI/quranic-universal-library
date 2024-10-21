@@ -38,7 +38,7 @@
 
   <div class="container-lg mt-3 pt-md-4">
     <div class="alert alert-dark" role="alert">
-       <%= group_card.page_description.to_s.html_safe %>
+       <%= (group_card.page_description || group_card.description).to_s.html_safe %>
     </div>
   </div>
 

@@ -15,27 +15,7 @@
   }
 }
 
-.tool-card {
-  position: relative;
-  display: flex;
-  height: 550px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 32px;
-  border-radius: 45px;
-  scroll-snap-align: center;
-
-  @media (max-width: $screen-sm) {
-    gap: 12px;
-    min-height: 370px;
-  }
-
-  @media (max-width: $screen-md) {
-    gap: 15px;
-    min-height: 400px;
-  }
-
-  .info {
-    opacity: 0.7;
-  }
+.dropdown-toggle,
+.dropdown-item {
+  color: black;
 }

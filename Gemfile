@@ -155,3 +155,4 @@ gem "diff-lcs", "~> 1.5", require: false
 # NOTE:
 gem 'strscan', '~> 3.0.9'
 gem "tailwindcss-rails", "~> 2.7"
+gem "escompress", "~> 1.0"

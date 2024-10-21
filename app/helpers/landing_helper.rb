@@ -129,7 +129,6 @@ module LandingHelper
         url: '/resources/mutashabihat',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)'
       ),
       ToolCard.new(
         title: 'Similiar ayahs',
@@ -137,7 +136,6 @@ module LandingHelper
         url: '/resources/similar-ayah',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)'
       ),
       ToolCard.new(
         title: 'Ayah theme',
@@ -145,7 +143,6 @@ module LandingHelper
         url: '/resources/ayah-theme',
         type: 'mutashabihat',
         icon: 'layout.svg',
-        cta_bg: 'rgba(56, 152, 173, 0.9)'
       )
     ]
   end

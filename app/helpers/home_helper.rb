@@ -1,12 +1,13 @@
 module HomeHelper
   def resource_tag_class(tag)
+    # TODO: Change to Tailwind colours
     case tag
     when 'script'
       'bg-primary'
     when 'audio'
       'bg-secondary'
     when 'translation'
-      'bg-success'
+      'tw-bg-green-600'
     when 'tafsir'
       'bg-info'
     when 'mutashabihat'
@@ -22,13 +23,13 @@ module HomeHelper
     when 'ayah-topics'
       'bg-primary'
     when 'transliteration'
-      'bg-success'
+      'tw-bg-green-600'
     when 'morphology'
-      'bg-success'
+      'tw-bg-green-600'
     when 'With Footnotes'
       'bg-info'
     else
-      'bg-success'
+      'tw-bg-green-600'
     end
   end
   def inline_stylesheet_source(name)

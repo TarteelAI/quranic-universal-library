@@ -18,7 +18,7 @@ class ExportMushafLayout
     prepare_db_and_tables(db_name)
     export_words
     export_layout
-    # add_db_indexes
+    add_db_indexes
   end
 
   protected
@@ -293,16 +293,14 @@ class ExportMushafLayout
   end
 
   def add_db_indexes
-    ExportedWord.connection.execute "CREATE INDEX words_surah_number ON words(surah_number)"
-    ExportedWord.connection.execute "CREATE INDEX words_ayah_number ON words(ayah_number)"
-    ExportedWord.connection.execute "CREATE INDEX words_word_number ON words(word_number)"
-    ExportedWord.connection.execute "CREATE INDEX words_word_index ON words(word_number_all)"
+    ExportedWord.connection.execute "CREATE UNIQUE INDEX idx_words_word_number_all ON words(word_number_all)"
+    ExportedWord.connection.execute "CREATE INDEX idx_words_surah_ayah ON words(surah_number, ayah_number)"
 
-    mushafs.each do |mushaf|
-      tbl_name = get_mushaf_file_name(mushaf.id)
-      ExportedLayout.connection.execute "CREATE INDEX #{tbl_name}_page ON #{tbl_name}(page)"
-      ExportedLayout.connection.execute "CREATE INDEX #{tbl_name}_line ON #{tbl_name}(line)"
-    end
+    #mushafs.each do |mushaf|
+    #  tbl_name = get_mushaf_file_name(mushaf.id)
+    #  ExportedLayout.connection.execute "CREATE INDEX #{tbl_name}_page ON #{tbl_name}(page)"
+    #  ExportedLayout.connection.execute "CREATE INDEX #{tbl_name}_line ON #{tbl_name}(line)"
+    #end
   end
 
   def bulk_insert_words(values)

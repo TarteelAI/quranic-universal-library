@@ -82,7 +82,7 @@ module LandingHelper
         stats: "<div><div>Indopak</div><div>Madani</div></div>"
       ),
 
-      metadata: ToolCard.new(
+      quran_metadata: ToolCard.new(
         title: "Quran metadata",
         description: "Download Quran metadata, surah, ayah, juz, hizb, rub, manzil etc.",
         url: '/resources/quran-metadata',

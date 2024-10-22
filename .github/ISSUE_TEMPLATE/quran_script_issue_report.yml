@@ -26,6 +26,8 @@ body:
 
   - type: dropdown
     id: script_type
+    validations:
+      required: true
     attributes:
       label: "Script Type"
       description: "Select the Quranic script type where you noticed the issue."
@@ -37,8 +39,6 @@ body:
         - "QPC Hafs"
         - "IndoPak"
         - "Other"
-      validations:
-        required: true
 
   - type: textarea
     id: issue_description

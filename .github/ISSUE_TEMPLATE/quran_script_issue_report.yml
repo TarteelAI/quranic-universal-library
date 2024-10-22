@@ -1,5 +1,5 @@
 name: "Report a Quran Script or Font Rendering Issue"
-about: "Please use this form to report any issues with the Quranic script or font rendering. Jazak Allah Khairan for helping us maintain the accuracy of the Quranic Universal Library."
+description: "Please use this form to report any issues with the Quranic script or font rendering. Jazak Allah Khairan for helping us maintain the accuracy of the Quranic Universal Library."
 title: "Surah: {{ surah_number }}:{{ ayah_number }} - Script Type: {{ script_type }}"
 labels: ["content issue", "script"]
 assignees:

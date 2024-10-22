@@ -103,6 +103,10 @@ class Verse < QuranApiRecord
     verse_key
   end
 
+  def image_url(type: 'v1', format: 'png')
+    "#{AYAH_CDN}/#{type}/#{chapter_id}_#{verse_number}.#{format}"
+  end
+
   def verse_phrases
     Morphology::PhraseVerse.includes(:phrase).where(verse_id: id)
   end

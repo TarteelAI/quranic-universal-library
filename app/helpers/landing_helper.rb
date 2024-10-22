@@ -9,8 +9,8 @@ module LandingHelper
     total_layout = Mushaf.count
     approved_layout = Mushaf.approved.count
 
-    @featured_downloadable_resource_cards = [
-      ToolCard.new(
+    @featured_downloadable_resource_cards = {
+      recitation: ToolCard.new(
         title: 'Recitations and segments data',
         description: "Download high-quality audio files of Quranic recitations along with detailed timestamp data for ayah-by-ayah and surah-by-surah. Use the timestamp data to highlight words as the recitation plays.",
         icon: 'timestamp.svg',
@@ -19,7 +19,7 @@ module LandingHelper
         type: 'card-recitations',
         stats: "<div><div>#{total_recitations - with_segments} Unsegmented Audio</div><div>#{with_segments} Segmented Audio</div></div>"
       ),
-      ToolCard.new(
+      mushaf_layout: ToolCard.new(
         title: "Mushaf layouts",
         description: "Download Mushaf layout data to render Quran pages exactly like the printed Mushaf. The exact layout aids in memorizing the Quran, offering users a familiar experience similar to their favorite printed Mushaf.",
         icon: 'layout.svg',
@@ -28,7 +28,7 @@ module LandingHelper
         type: 'card-mushaf-layouts',
         stats: "<div><div>#{approved_layout} Layouts —  Approved</div><div>#{total_layout - approved_layout} Layouts —  WIP</div></div>"
       )
-    ]
+    }
   end
 
   def downloadable_resource_cards
@@ -44,7 +44,7 @@ module LandingHelper
       translation: ToolCard.new(
         title: 'Translations',
         description: "Download ayah by ayah and word by word translation in different languages.",
-        page_description: "This page has Quran translations in multiple languages, available for both Ayah-by-Ayah and Word-by-Word formats. Translation are available in different structures and file formats, including JSON, CSV, and SQL. <a href='#' class='btn-link text-dark text-decoration-underline' data-controller='ajax-modal' data-url='/docs/translation_formats'>Click here</a> for more information about data structures.",
+        page_description: "This page has Quran translations in multiple languages, available for both Ayah-by-Ayah and Word-by-Word formats. Translation are available in different structures and file formats, including JSON, CSV, and SQL. <a href='#' class='btn-link text-dark text-decoration-underline' data-controller='ajax-modal' data-url='/docs/translation_formats' data-css-class='modal-lg'>Click here</a> for more information about data structures.",
         icon: 'translation.svg',
         url: '/resources/translation',
         count: wbw_translation + ayah_translation,
@@ -164,6 +164,6 @@ module LandingHelper
   end
 
   def featured_developer_resources
-    featured_downloadable_resource_cards + downloadable_resource_cards.values.first(5)
+    featured_downloadable_resource_cards.values + downloadable_resource_cards.values.first(5)
   end
 end

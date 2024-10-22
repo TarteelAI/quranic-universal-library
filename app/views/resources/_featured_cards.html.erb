@@ -1,5 +1,5 @@
 <div class="card-container-upper mt-3 gap-4">
-  <% featured_downloadable_resource_cards.each do |card| %>
+  <% featured_downloadable_resource_cards.each do |key, card| %>
     <div class="featured-resource-card <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>" >
       <a href="<%= card.url %>">
         <div class="overlay"></div>

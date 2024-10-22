@@ -4,8 +4,12 @@
     is_quran_script = false && @resources.first.resource_content&.quran_script?
     @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
 
+    resources = downloadable_resource_cards
+    featured_resources = featured_downloadable_resource_cards
     group = @resources.first
-    group_card = downloadable_resource_cards[params[:id].tr('-', '_').to_sym]
+    group_key = params[:id].tr('-', '_').to_sym
+
+    group_card = resources[group_key] || featured_resources[group_key]
   %>
 
   <div class="overflow-hidden position-relative pb-4" id="hero">

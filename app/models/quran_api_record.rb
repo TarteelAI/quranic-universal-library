@@ -4,6 +4,8 @@ class QuranApiRecord < ApplicationRecord
 
   CDN_HOST = 'https://static.qurancdn.com'
   WORDS_CDN = 'https://static-cdn.tarteel.ai/qul/images/w'
+  AYAH_CDN = 'https://static-cdn.tarteel.ai/qul/images/ayah'
+
 
   def toggle_approve!
     update_attribute :approved, !self.approved?

@@ -436,12 +436,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "updated_at", null: false
     t.text "admin_notes"
     t.boolean "approved", default: false
-    t.text "request_message"
+    t.text "additional_notes"
     t.text "reason_for_request"
     t.text "language_proficiency"
     t.text "motivation_and_goals"
     t.boolean "review_process_acknowledgment"
-    t.text "additional_notes"
   end
 
   create_table "users", force: :cascade do |t|

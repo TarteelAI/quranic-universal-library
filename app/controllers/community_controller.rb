@@ -6,6 +6,10 @@ class CommunityController < ApplicationController
   def tools
   end
 
+  def docs
+    render layout: false
+  end
+
   def credits
   end
 

@@ -1,15 +1,15 @@
 <div class="card-container-upper mt-3 gap-4">
-  <% featured_downloadable_resource_cards.each do |card| %>
+  <% featured_downloadable_resource_cards.each do |key, card| %>
     <div class="featured-resource-card <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>" >
       <a href="<%= card.url %>">
         <div class="overlay"></div>
         <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between">
           <div>
-            <h3>
+            <h3 class="fw-bold mb-2">
               <%= card.title %>
             </h3>
 
-            <p class="text-white fw-bold">
+            <p class="text-white">
               <%= card.description %>
             </p>
           </div>

@@ -105,6 +105,10 @@ Download the [SQL dump file](https://quran-assets.tarteel.ai/cms/qul-mini-dump/q
 ```bash
   psql quran_dev < "path to sql dump file"
 ```
+If it didn't work try running the following command:
+```bash
+psql -U postgres -d quran_dev -f path/to/quran_dev.sql
+```
 
 7.2 **Restore using binary dump:**
 Download the [Binary dump file](https://quran-assets.tarteel.ai/cms/qul-mini-dump/quran_dev.dump.zip) and restore it using

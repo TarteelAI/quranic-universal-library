@@ -128,6 +128,7 @@ class Word < QuranApiRecord
   scope :letters_cont, lambda { |letters| QuranWordFinder.new(self).find_by_letters(letters) }
 
   default_scope { order 'position asc' }
+  alias_attribute :code_v4, :code_v2
 
   def self.ransackable_scopes(*)
     %i[letters_cont starts_with_eq ends_with_eq]

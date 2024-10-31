@@ -1,0 +1,22 @@
+<%= content_for :heading do %>
+  <%= render 'shared/page_font', verses: [@word.verse] %>
+<% end %>
+
+<%
+  font_family = get_quran_script_font_family(params[:script], @word.verse)
+  font_size = params[:font_size]
+%>
+
+<div id="content"
+     data-file-name="word/<%= params[:script] %>/<%=@word.location.gsub(':', '/') %>"
+     class="<%= font_family %>"
+     style="font-size: <%= font_size %>px; height: 100px">
+  <%= @word.send(params[:script]).to_s.html_safe %>
+</div>
+
+<style>
+  #content{
+      direction: rtl;
+      text-align: left;
+  }
+</style>

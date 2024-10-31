@@ -82,6 +82,12 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :exports do
+    get :word
+    get :ayah
+    get :mushaf_page
+  end
+
   get '/ayah/:key', to: 'ayah#show', as: :ayah
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all

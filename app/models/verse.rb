@@ -99,6 +99,8 @@ class Verse < QuranApiRecord
   accepts_nested_attributes_for :word_translations
   accepts_nested_attributes_for :wbw_texts
 
+  alias_attribute :code_v4, :code_v2
+
   def to_s
     verse_key
   end

@@ -1,0 +1,11 @@
+<div id="content"
+     data-file-name="mushaf/<%= @mushaf.id %>/<%= params[:page_number] %>"
+     >
+  <%= render 'shared/mushaf_page',
+             words: @words,
+             page: params[:page_number],
+             mushaf: @mushaf,
+             hide_controls: true
+  %>
+</div>
+

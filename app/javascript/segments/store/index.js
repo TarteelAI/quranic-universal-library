@@ -5,6 +5,7 @@ import {
 
 import {findSegment, findVerseSegment} from "../helper/findSegment";
 import LocalStore from "../../utils/LocalStore";
+import {playAyah} from "../helper/audio";
 
 const debug = process.env.NODE_ENV !== "production";
 
@@ -133,6 +134,13 @@ const store = createStore({
       state.playing = false;
     },
     SET_AYAH_ENDED(state) {
+      if(state.isLooingAyah){
+        state.currentTimestamp = 0;
+        state.currentWord = 1;
+        playAyah();
+        return
+      }
+
       if(state.lockAyah){
         if(!player?.paused) player?.pause()
       } else {
@@ -175,10 +183,6 @@ const store = createStore({
 
       if (state.isLooingAyah) {
         state.alert = `Loop is enabled`;
-
-        state.currentWord = 1;
-        player &&
-        (player.currentTime = state.verseSegment.timestamp_from / 1000);
       } else state.alert = `Loop is disabled`;
 
     },

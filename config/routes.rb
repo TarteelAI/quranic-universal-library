@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   root to: 'landing#home'
 
   get 'tools', to: 'community#tools', as: :tools
+  get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
   get 'svg', to: 'community#svg_optimizer'
@@ -79,6 +80,12 @@ Rails.application.routes.draw do
       get :history
       get :changes
     end
+  end
+
+  namespace :exports do
+    get :word
+    get :ayah
+    get :mushaf_page
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah

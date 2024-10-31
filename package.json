@@ -62,7 +62,8 @@
     "build:css:pdf": "sass ./app/assets/stylesheets/pdf.scss ./app/assets/builds/pdf.css --no-source-map --load-path=node_modules --load-path=app/assets/custom-plugins",
     "build:css:tinymce_custom": "sass ./app/assets/stylesheets/tinymce_custom.scss ./app/assets/builds/tinymce_custom.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:bootstrap": "sass ./app/assets/stylesheets/bootstrap.scss ./app/assets/builds/bootstrap.css --no-source-map --load-path=node_modules --style=compressed",
-    "build:css:landing": "sass ./app/assets/stylesheets/landing.scss ./app/assets/builds/landing.css --no-source-map --load-path=node_modules --style=compressed"
+    "build:css:landing": "sass ./app/assets/stylesheets/landing.scss ./app/assets/builds/landing.css --no-source-map --load-path=node_modules --style=compressed",
+    "build:css:export": "sass ./app/assets/stylesheets/export.scss ./app/assets/builds/export.css --no-source-map --load-path=node_modules --style=compressed"
   },
   "lint-staged": {
     "app/**/*.{js,jsx,json}": [

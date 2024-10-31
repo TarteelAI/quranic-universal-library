@@ -99,8 +99,14 @@ class Verse < QuranApiRecord
   accepts_nested_attributes_for :word_translations
   accepts_nested_attributes_for :wbw_texts
 
+  alias_attribute :code_v4, :code_v2
+
   def to_s
     verse_key
+  end
+
+  def image_url(type: 'v1', format: 'png')
+    "#{AYAH_CDN}/#{type}/#{chapter_id}_#{verse_number}.#{format}"
   end
 
   def verse_phrases

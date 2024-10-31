@@ -2,6 +2,7 @@
   lines = group_words_lines(words)
   use_images = mushaf.use_images?
   tajweed_rules = false
+  show_controls = !local_assigns[:hide_controls]
   mushaf_class = local_assigns[:mushaf_class]
   page_class = local_assigns[:page_class]
   params[:word] = params[:word].to_i
@@ -26,29 +27,33 @@
 <%= render 'shared/page_font', pages: [page], words: nil %>
 
 <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
-  <div class="mushaf-page-setting d-flex flex-column mb-4">
-    <div><span>Name: <%= name %></span></div>
+  <% if show_controls %>
+    <div class="mushaf-page-setting d-flex flex-column mb-4">
+      <div><span>Name: <%= name %></span></div>
 
-    <div class="d-none">
-      <label for="mushtabiat">Enable Mushtabiat</label>
-      <input type="checkbox" id="mushtabiat" <%= 'checked' if params[:mushtabiat] == '1' %> />
-    </div>
-
-    <div>
-      Font size: (<span id="size"></span>)
-      <input type="range" min="15" max="100" value="28" class="font-size-slider">
-    </div>
-
-    <% if(font_options = mushaf_font_options(mushaf)).present? %>
-      <div id="font-switcher">
-        <label for="font-switcher">Change font</label>
-        <%= select_tag :change_font, options_for_select(font_options), class: '' %>
+      <div class="d-none">
+        <label for="mushtabiat">Enable Mushtabiat</label>
+        <input type="checkbox" id="mushtabiat" <%= 'checked' if params[:mushtabiat] == '1' %> />
       </div>
-    <% end %>
-  </div>
+
+      <div>
+        Font size: (<span id="size"></span>)
+        <input type="range" min="15" max="100" value="28" class="font-size-slider">
+      </div>
+
+      <% if (font_options = mushaf_font_options(mushaf)).present? %>
+        <div id="font-switcher">
+          <label for="font-switcher">Change font</label>
+          <%= select_tag :change_font, options_for_select(font_options), class: '' %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <div class="page-wrapper container-lg flex">
-    <div id="page-<%= page %>" data-controller="<%= 'tajweed-font' if mushaf.font_code == 'v4-tajweed' %>" class="page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
+    <div id="page-<%= page %>"
+         data-controller="<%= 'tajweed-font' if mushaf.font_code == 'v4-tajweed' %>"
+         class="page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
       <% 1.upto(mushaf.lines_per_page) do |line_number| %>
         <%
           line_mapping = lines_mapping[line_number.to_s] || MushafLineAlignment.dummy

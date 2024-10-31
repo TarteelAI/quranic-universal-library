@@ -1,0 +1,50 @@
+name: "Report a Quran Script or Font Rendering Issue"
+description: "Please use this form to report any issues with the Quranic script or font rendering. Jazak Allah Khairan for helping us maintain the accuracy of the Quranic Universal Library."
+title: "Surah: {{ surah_number }}:{{ ayah_number }} - Script Type: {{ script_type }}"
+labels: ["content issue", "script"]
+assignees:
+  - naveed-ahmad
+
+body:
+  - type: input
+    id: surah_number
+    validations:
+      required: true
+    attributes:
+      label: "Surah Number"
+      description: "Provide the Surah number."
+      placeholder: "e.g., 1 for Al-Fatihah"
+
+  - type: input
+    id: ayah_number
+    attributes:
+      label: "Ayah Number"
+      description: "Provide the Ayah number."
+      placeholder: "e.g., 7"
+    validations:
+        required: true
+
+  - type: dropdown
+    id: script_type
+    validations:
+      required: true
+    attributes:
+      label: "Script Type"
+      description: "Select the Quranic script type where you noticed the issue."
+      multiple: false
+      options:
+        - "Mushaf al-Madina v1"
+        - "Mushaf al-Madina v2"
+        - "Digital Khatt"
+        - "QPC Hafs"
+        - "IndoPak"
+        - "Other"
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Detailed Description of the Issue"
+      description: "Describe the issue in detail. Is it wrong or missing Tashkeel, rendering issue, or something else?"
+      placeholder: "Enter the details of the issue"
+    validations:
+      required: true

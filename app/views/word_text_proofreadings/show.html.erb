@@ -104,7 +104,43 @@
       <div class="col-md-12 section pb-3 border-bottom">
         <b>Image</b>
         <div style="margin-top: 10px" class="quran-text">
-          <img src=<%= @verse.image_url.gsub("//", "http://") %>/>
+          <img data-src="<%= @verse.image_url %>" data-controller="lazy-load"/>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>WBW SVG</b>
+        <div style="margin-top: 10px" class="quran-text d-flex">
+          <% @verse.words.order('position asc').each do |word| %>
+            <img data-src="<%= word.tajweed_svg_url %>" data-controller="lazy-load" style="max-height: 100px"/>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>WBW Tajweed v4 Images</b>
+        <div style="margin-top: 10px" class="quran-text d-flex">
+          <% @verse.words.order('position asc').each do |word| %>
+            <img data-src="<%= word.tajweed_v4_image_url %>" data-controller="lazy-load" style="max-height: 100px"/>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>WBW Corpus Images</b>
+        <div style="margin-top: 10px" class="quran-text d-flex">
+          <% @verse.words.order('position asc').each do |word| %>
+            <img data-src="<%= word.corpus_image_url %>" data-controller="lazy-load" style="max-height: 100px; margin-right: 10px"/>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
+        <b>WBW Tajweed(OLD) Images</b>
+        <div style="margin-top: 10px" class="quran-text d-flex">
+          <% @verse.words.order('position asc').each do |word| %>
+            <img data-src="<%= word.rq_tajweed_image_url %>" data-controller="lazy-load" style="max-height: 100px;"/>
+          <% end %>
         </div>
       </div>
     </div>

@@ -128,6 +128,7 @@ class Word < QuranApiRecord
   scope :letters_cont, lambda { |letters| QuranWordFinder.new(self).find_by_letters(letters) }
 
   default_scope { order 'position asc' }
+  alias_attribute :code_v4, :code_v2
 
   def self.ransackable_scopes(*)
     %i[letters_cont starts_with_eq ends_with_eq]
@@ -184,32 +185,62 @@ class Word < QuranApiRecord
 
   def qa_tajweed_image_url(word_location=nil, format: 'png')
     s, a, w = (word_location || location).split(':')
-    "#{WORDS_CDN}/qa-color/#{s}/#{a}/#{w}.#{format}"
+
+    if ayah_mark?
+      "#{WORDS_CDN}/common/#{w}.png"
+    else
+      "#{WORDS_CDN}/qa-color/#{s}/#{a}/#{w}.#{format}"
+    end
   end
 
   def rq_tajweed_image_url(format: 'png')
     s, a, w = location.split(':')
-    "#{WORDS_CDN}/rq-color/#{s}/#{a}/#{w}.#{format}"
+
+    if ayah_mark?
+      "#{WORDS_CDN}/common/#{w}.png"
+    else
+      "#{WORDS_CDN}/rq-color/#{s}/#{a}/#{w}.#{format}"
+    end
   end
 
   def qa_black_image_url(format: 'png')
     s, a, w = location.split(':')
-    "#{WORDS_CDN}/qa-black/#{s}/#{a}/#{w}.#{format}"
+
+    if ayah_mark?
+      "#{WORDS_CDN}/common/#{w}.png"
+    else
+      "#{WORDS_CDN}/qa-black/#{s}/#{a}/#{w}.#{format}"
+    end
   end
 
   def tajweed_svg_url
     s, a, w = location.split(':')
-    "#{WORDS_CDN}/svg-tajweed/#{s}/#{a}/#{w}.svg"
+
+    if ayah_mark?
+      "#{WORDS_CDN}/common/#{w}.svg"
+    else
+      "#{WORDS_CDN}/svg-tajweed/#{s}/#{a}/#{w}.svg"
+    end
   end
 
   def corpus_image_url
     s, a, w = location.split(':')
-    "#{WORDS_CDN}/corpus/#{s}/#{a}/#{w}.png"
+
+    if ayah_mark?
+      "#{WORDS_CDN}/common/#{w}.png"
+    else
+      "#{WORDS_CDN}/corpus/#{s}/#{a}/#{w}.png"
+    end
   end
 
   def tajweed_v4_image_url(format: 'png')
     s, a, w = location.split(':')
-    "#{WORDS_CDN}/v4-tajweed/#{s}/#{a}/#{w}.#{format}?s"
+
+    if ayah_mark?
+      "#{WORDS_CDN}/common/#{w}.png"
+    else
+      "#{WORDS_CDN}/v4-tajweed/#{s}/#{a}/#{w}.#{format}"
+    end
   end
 
   def word?

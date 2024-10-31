@@ -10,7 +10,6 @@
 #  language_proficiency          :text
 #  motivation_and_goals          :text
 #  reason_for_request            :text
-#  request_message               :text
 #  review_process_acknowledgment :boolean
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null

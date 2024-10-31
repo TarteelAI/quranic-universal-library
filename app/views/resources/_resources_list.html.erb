@@ -27,7 +27,7 @@
     <p>No results found</p>
   </div>
   <%= render 'card/card_grid' do %>
-    <% downloadable_resource_cards.each do |card| %>
+    <% downloadable_resource_cards.each do |key, card| %>
       <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" do %>
         <%= render 'card/card_content', card: card, show_stats: true %>
       <% end %>

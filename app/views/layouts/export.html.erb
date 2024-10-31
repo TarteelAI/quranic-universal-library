@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <%= stylesheet_link_tag "export" %>
+
+  <style>
+      body, html {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          background: transparent;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-family: 'Arial', sans-serif;
+      }
+
+      #content {
+          background-color: transparent;
+          //padding: 20px;
+          box-sizing: border-box;
+          width: auto;
+          height: auto;
+          max-width: 800px;
+          line-height: normal;
+      }
+
+      #content h1, #content h2, #content h3 {
+          margin: 10px 0;
+      }
+
+      #content p {
+          margin: 10px 0;
+          line-height: 1.6;
+      }
+
+      #content * {
+          background: none;
+          background-color: transparent;
+      }
+
+      @media print {
+          body, html {
+              background: transparent;
+          }
+
+          #content {
+              margin: 0;
+              padding: 0;
+              background: transparent;
+          }
+      }
+  </style>
+
+  <%= content_for :heading %>
+</head>
+
+<body>
+  <%= yield %>
+</body>
+</html>

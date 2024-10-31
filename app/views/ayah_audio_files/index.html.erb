@@ -65,7 +65,7 @@
           <td>
             <div class="d-flex gap-1">
               <%= link_to 'Show', ayah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
-              <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
+              <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: file.chapter_id, verse: file.verse_number), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

@@ -1,7 +1,7 @@
 json.segments do
   @audio_files.each do |file|
     segments = (file&.segments || []).map do |s|
-      [s[1], s[2], s[3]]
+      s.length == 3 ? s : [s[1], s[2], s[3]]
     end
 
     json.set! file.verse.verse_key do

@@ -25,7 +25,13 @@
     <div class="col-6">
       <div class="form-group">
         <input type="file" class="form-control" ref="audioFile"/>
-        <div class="form-text text-muted">Or Select Audio file</div>
+        <div class="form-text text-muted">
+          Or Select Audio file
+
+          <span class="text-primary" v-if="fromFile">
+            Loaded
+          </span>
+        </div>
       </div>
     </div>
 
@@ -92,13 +98,12 @@ export default {
       const inputFile = this.$refs.audioFile.files[0];
       const audioUrl = this.$refs.audioUrl.value;
 
-      if (audioUrl.length > 0) {
-        this.$store.commit("SET_AUDIO_SOURCE", {url: audioUrl});
-      }
-      else if (inputFile) {
+      if (inputFile) {
         const url = URL.createObjectURL(inputFile);
-        this.$store.commit("SET_AUDIO_SOURCE", {url: url});
-      }  else {
+        this.$store.commit("SET_AUDIO_SOURCE", {url: url, fromFile:  true});
+      } else if (audioUrl.length > 0) {
+        this.$store.commit("SET_AUDIO_SOURCE", {url: audioUrl, fromFile: false});
+      } else {
         this.$store.commit("SET_ALERT", {
           text: "Please select Audio file or use QuranicAudio URL",
         });
@@ -108,7 +113,7 @@ export default {
       this.$store.commit("SET_ALERT", {text: "Loading audio"});
     },
     audioReady() {
-      if(this.audioType == 'ayah' && this.autoPlay && !this.lockAyah){
+      if (this.audioType == 'ayah' && this.autoPlay && !this.lockAyah) {
         playAyah()
       }
 
@@ -143,7 +148,7 @@ export default {
   },
   computed: {
     ...mapState([
-        "quranicAudioUrl",
+      "quranicAudioUrl",
       "audioSrc",
       "verseSegment",
       "currentVerseKey",
@@ -151,7 +156,8 @@ export default {
       "audioType",
       "playing",
       "autoPlay",
-      "lockAyah"
+      "lockAyah",
+      "fromFile",
     ]),
   },
 };

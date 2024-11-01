@@ -14,7 +14,7 @@ data/*
 /tmp/*
 !/log/.keep
 !/tmp/.keep
-
+fonts/*
 public/downloads/*
 
 # Ignore yarn files

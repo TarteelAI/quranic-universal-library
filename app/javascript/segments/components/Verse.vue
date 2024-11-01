@@ -32,17 +32,44 @@
       </div>
 
       <div v-if="shouldShowSegment">
-        <h4>
-          <span class="me-2">Segments</span>
-          <button
-            @click="saveAyahSegment"
-            :disabled="segmentLocked"
-            class="btn btn-xs btn-success"
-            :class="{ 'd-none': segmentLocked }"
-          >
-            Save Segments
-          </button>
+        <h4 class="d-flex justify-content-between mt-4">
+          <div>Segments</div>
+
+          <div>
+            <button
+                @click="showRawSegment"
+                :disabled="segmentLocked"
+                class="btn btn-sm btn-info me-2"
+            >
+              Show raw segments
+            </button>
+
+            <button
+                @click="toggleSegmentTiming"
+                :disabled="segmentLocked"
+                class="btn btn-sm btn-danger me-2"
+                :class="{ 'd-none': segmentLocked }"
+            >
+              {{this.verseSegment.segments[0].length > 1 ? 'Clear Segment' : 'Reload Segments'}}
+            </button>
+
+            <button
+                @click="saveAyahSegment"
+                :disabled="segmentLocked"
+                class="btn btn-sm btn-success"
+                :class="{ 'd-none': segmentLocked }"
+            >
+              Save Segments
+            </button>
+          </div>
         </h4>
+
+        <div v-if="rawSegmentVisible" class="mt-3">
+          <textarea
+              class="form-control"
+              @input="updateRawSegments"
+          >{{ JSON.stringify(rawSegments[currentVerseKey]) }}</textarea>
+        </div>
 
         <div class="table-wrapper" id="tableWrapper">
           <table class="table table-hover mt-4">
@@ -71,13 +98,13 @@
                     :disabled="segmentLocked"
                     @change="updateSegmentNumber"
                   />
-                  <small class="form-text d-block">
-                    {{ segment[0] }}
+                  <small class="form-text flex">
+                    <span>{{ segment[0] }} </span>
                   </small>
                 </td>
 
                 <td>{{ segmentText(segment) }}</td>
-                <td>
+                <td style="width: 200px">
                   <input
                     type="number"
                     min="0"
@@ -87,11 +114,18 @@
                     :disabled="segmentLocked"
                     @change="updateSegmentStart"
                   />
-                  <small class="form-text d-block">
-                    {{ segmentOriginalStart(index) }}
+                  <small class="form-text d-flex justify-content-between">
+                    <span>
+                      {{ segmentOriginalStart(index) }}
+                    </span>
+
+                    <span data-controller="tooltip" title="Suggested segment start">
+                      {{ rawSegmentStart(index) }}
+                    </span>
                   </small>
                 </td>
-                <td>
+
+                <td style="width: 200px">
                   <input
                     type="number"
                     min="0"
@@ -101,8 +135,14 @@
                     :disabled="segmentLocked"
                     @change="updateSegmentEnd"
                   />
-                  <small class="form-text d-block">
-                    {{ segmentOriginalEnd(index) }}
+                  <small class="form-text d-flex justify-content-between">
+                    <span>
+                      {{ segmentOriginalEnd(index) }}
+                    </span>
+
+                    <span data-controller="tooltip" title="Suggested segment end">
+                      {{rawSegmentEnd(index)}}
+                    </span>
                   </small>
                 </td>
 
@@ -163,7 +203,7 @@ import { mapState } from 'vuex';
 import {playAyah} from "../helper/audio";
 
 export default {
-  name: 'Player',
+  name: 'Verse',
   created() {
     window.store = this.$store;
 
@@ -213,6 +253,10 @@ export default {
         cssClasses += ' active';
       }
 
+      if(index + 1 === this.currentRawSegmentWord){
+        cssClasses += ' bg-warning';
+      }
+
       if (this.repeatGroups.includes(index + 1)) {
         cssClasses += ' bg-info';
       }
@@ -255,6 +299,16 @@ export default {
           text: 'Sorry segments are locked for this reciter.',
         });
       } else this.$store.dispatch('SAVE_AYAH_SEGMENTS');
+    },
+    toggleSegmentTiming(event){
+      if(this.verseSegment.segments[0].length == 1){
+        this.$store.commit('RELOAD_SEGMENTS');
+      } else{
+        this.$store.commit('CLEAR_SEGMENTS');
+      }
+    },
+    showRawSegment(event) {
+      this.$store.commit('SHOW_RAW_SEGMENT');
     },
     showWordPopover(event) {
       const target = event.target;
@@ -308,6 +362,14 @@ export default {
       const segment = this.verseOriginalSegment.segments[index];
       if (segment) return segment[2];
     },
+    rawSegmentStart(index) {
+      const segment = this.rawSegments[this.currentVerseKey];
+      if (segment) return segment[index][1];
+    },
+    rawSegmentEnd(index) {
+      const segment = this.rawSegments[this.currentVerseKey];
+      if (segment) return segment[index][2];
+    },
     segmentText(segment) {
       return this.wordsText[segment[0] - 1];
     },
@@ -333,11 +395,20 @@ export default {
         index: index,
       });
     },
+    updateRawSegments(event) {
+      try {
+        const segs = JSON.parse(event.target.value);
+
+        this.$store.commit('UPDATE_RAW_SEGMENTS', {
+          segments: segs,
+        });
+      } catch (error) {
+      }
+    },
     trackTime(event) {
       const target = event.target;
       const { word, index } = target.parentElement.dataset;
       const segStart = document.querySelector(`#start-${word}-${index}`);
-debugger
 
       if (segStart.value.length == 0) {
         this.$store.commit('TRACK_SEG_START', {
@@ -362,9 +433,9 @@ debugger
       'currentVerseKey',
       'wordsText',
       'currentWord',
+      'currentRawSegmentWord',
       'loopingWord',
       'playingWord',
-      'showSegment',
       'verseSegment',
       'verseOriginalSegment',
       'showSegments',
@@ -374,6 +445,8 @@ debugger
       'repeatGroups',
       'segmentLocked',
       'audioType',
+      'rawSegmentVisible',
+      'rawSegments'
     ]),
     segmentsLoaded() {
       return !!this.verseSegment;
@@ -393,6 +466,10 @@ debugger
 
 .active .form-text {
   color: #fff;
+}
+
+.active input{
+  color: #0a0a0a;
 }
 
 .word {

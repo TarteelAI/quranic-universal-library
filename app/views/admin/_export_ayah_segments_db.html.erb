@@ -3,20 +3,22 @@
     <ol>
       <li class="text input required">
         <label for="file_name">DB File name</label>
-        <input type="text" name="file_name" id=file_name placeholder="file name" value="reciter-audio-timing.sqlite">
+        <input type="text" name="file_name" id="file_name" placeholder="file name" value="reciter-audio-timing.sqlite">
       </li>
 
       <li class="text input required">
         <label for="file_name">Table name</label>
-        <input type="text" name="table_name" id=table_name placeholder="table name" value="ayah_timing">
+        <input type="text" name="table_name" id="table_name" placeholder="table name" value="ayah_timing">
       </li>
 
       <li class="searchable_select input optional">
         <label for="file_name">Select reciters</label>
         <select name="reciter_ids" id=reciter_ids multiple data-controller="select2">
           <option value="tarteel-reciters">All Tarteel reciters</option>
-          <% Recitation.find_each do |recitation| %>
-            <option value="<%= recitation.id %>"><%= recitation.humanize %></option>
+          <% Recitation.approved.find_each do |recitation| %>
+            <option value="<%= recitation.id %>">
+              <%= recitation.humanize %>
+            </option>
           <% end %>
         </select>
       </li>

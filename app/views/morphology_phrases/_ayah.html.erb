@@ -49,42 +49,45 @@
       </a>
     <% end %>
   </div>
-  <div class="words d-flex flex-wrap">
-    <% ayah.words.words.each do |w| %>
-      <%
-        range = ranges.detect do |r|
-          w.position >= r[0].to_i && w.position <= r[1].to_i
-        end || [-1, -1]
 
-        selected = w.position >= range[0] && w.position <= range[1]
-        skipped = skipped_words.include?(w.position)
-      %>
-      <div class="d-flex flex-column m-3 align-items-center word <%= 'selected' if selected %>"
-           data-position="<%= w.position %>"
-      >
-        <% if @access %>
-          <i class="fa-solid fa-xmark p-1 rounded <%= 'active' if skipped %>"
-             data-action="remove"
-             title="Exclude from phrase"
-             data-controller="tooltip"
-          ></i>
-        <% end %>
-        <span class="my-2 quran-text qpc-hafs <%= 'text-success' if selected %> <%= 'text-danger' if skipped %>">
+  <div class="words d-flex flex-wrap">
+    <% ayah.words.each do |w| %>
+      <% if w.ayah_mark? %>
+        <%
+          range = ranges.detect do |r|
+            w.position >= r[0].to_i && w.position <= r[1].to_i
+          end || [-1, -1]
+
+          selected = w.position >= range[0] && w.position <= range[1]
+          skipped = skipped_words.include?(w.position)
+        %>
+        <div class="d-flex flex-column m-3 align-items-center word <%= 'selected' if selected %>"
+             data-position="<%= w.position %>"
+        >
+          <% if @access %>
+            <i class="fa-solid fa-xmark p-1 rounded <%= 'active' if skipped %>"
+               data-action="remove"
+               title="Exclude from phrase"
+               data-controller="tooltip"
+            ></i>
+          <% end %>
+          <span class="my-2 quran-text qpc-hafs <%= 'text-success' if selected %> <%= 'text-danger' if skipped %>">
           <%= w.text_qpc_hafs %>
         </span>
 
-        <span class="fs-xs">
+          <span class="fs-xs">
           <%= w.position %>
         </span>
 
-        <% if @access %>
-          <i data-action="add"
-             title="Include in phrase"
-             data-controller="tooltip"
-             class="fa-solid fa-plus p-1 rounded <%= 'active' if selected %>">
-          </i>
-        <% end %>
-      </div>
+          <% if @access %>
+            <i data-action="add"
+               title="Include in phrase"
+               data-controller="tooltip"
+               class="fa-solid fa-plus p-1 rounded <%= 'active' if selected %>">
+            </i>
+          <% end %>
+        </div>
+      <% end %>
     <% end %>
   </div>
 </div>

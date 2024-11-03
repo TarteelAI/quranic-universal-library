@@ -6,7 +6,9 @@
 #  approved             :boolean          default(FALSE)
 #  chapters_count       :integer
 #  occurrence           :integer
+#  phrase_type          :integer
 #  review_status        :string
+#  source               :integer
 #  text_qpc_hafs        :string
 #  text_qpc_hafs_simple :string
 #  verses_count         :integer
@@ -20,7 +22,7 @@
 # Indexes
 #
 #  index_morphology_phrases_on_approved            (approved)
-#  index_morphology_phrases_on_review_status       (review_status)
+#  index_morphology_phrases_on_phrase_type         (phrase_type)
 #  index_morphology_phrases_on_source_verse_id     (source_verse_id)
 #  index_morphology_phrases_on_word_position_from  (word_position_from)
 #  index_morphology_phrases_on_word_position_to    (word_position_to)

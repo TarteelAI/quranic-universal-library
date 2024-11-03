@@ -127,7 +127,7 @@ class Recitation < QuranApiRecord
   end
 
   def humanize
-    "#{reciter_name}(#{recitation_style&.name})"
+    "#{id} - #{reciter_name}"
   end
 
   def self.ransackable_associations(auth_object = nil)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_01_123851) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -310,7 +310,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_13_230037) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "review_status"
+    t.integer "phrase_type"
+    t.integer "source"
     t.index ["approved"], name: "index_morphology_phrases_on_approved"
+    t.index ["phrase_type"], name: "index_morphology_phrases_on_phrase_type"
     t.index ["source_verse_id"], name: "index_morphology_phrases_on_source_verse_id"
     t.index ["word_position_from"], name: "index_morphology_phrases_on_word_position_from"
     t.index ["word_position_to"], name: "index_morphology_phrases_on_word_position_to"

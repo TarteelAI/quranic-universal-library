@@ -6,7 +6,7 @@
 %>
 
 <div class="page-wrapper container-lg" style="position: relative">
-  <div data-controller="mutashabihat-builder">
+  <div data-controller="mutashabihat-builder" class="mutashabihat">
     <%= form_with url: new_morphology_phrase_path, method: :get do |f| %>
       <%= f.hidden_field :phrase_id, value: @phrase&.id %>
       <div class="page-section mt-4">
@@ -61,12 +61,14 @@
               <%= ayah.verse_key %>
             </div>
 
-            <% ayah.words.words.each do |w| %>
-              <div class="d-flex flex-column m-3 align-items-center">
-                <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0] && w.position <= range[1] %>">
+            <% ayah.words.each do |w| %>
+              <% if !w.ayah_mark? %>
+                <div class="d-flex flex-column m-3 align-items-center">
+                <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0].to_f && w.position <= range[1].to_f %>">
                   <%= w.text_qpc_hafs %>
                 </span>
-              </div>
+                </div>
+              <% end %>
             <% end %>
           </div>
         </figure>
@@ -111,7 +113,9 @@
                  data-bs-target="#tab-suggestions"
                  role="tab" aria-selected="true">
                 Suggestions
-                <span class="badge bg-success ms-1"><%= @suggestions.keys.size %></span>
+                <span class="badge bg-success ms-1">
+                  <%= @suggestions.keys.size %>
+                </span>
               </a>
             </li>
 

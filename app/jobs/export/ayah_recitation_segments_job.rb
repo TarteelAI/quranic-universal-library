@@ -21,8 +21,10 @@ module Export
     def export_sqlite_db(file_name, table_name, recitations_ids)
       recitations = load_recitations(recitations_ids)
       db = SQLite3::Database.new(file_name)
+      table_name = table_name.gsub(/[^0-9a-z_]/i, '_').gsub('__', '_').first(40)
+
       columns = "label, reciter, surah_number, ayah_number, timings"
-      db.execute("CREATE TABLE #{table_name}(label STRING, reciter INTEGER,surah_number INTEGER,ayah_number INTEGER, timings TEXT)")
+      db.execute("CREATE TABLE #{table_name}(label STRING, reciter INTEGER, surah_number INTEGER, ayah_number INTEGER, timings TEXT)")
 
       recitations.each do |recitation|
         tarteel_key = recitation.tarteel_key

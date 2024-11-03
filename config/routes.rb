@@ -72,7 +72,6 @@ Rails.application.routes.draw do
   resources :proof_read_comments
   resources :word_translations, except: :delete
   resources :word_text_proofreadings, only: [:index, :show]
-  resources :wbw_texts, except: :delete
   resources :translation_proofreadings, except: :delete
   resources :tafsir_proofreadings, except: :delete
   resources :surah_infos, except: :delete do

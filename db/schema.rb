@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_01_123851) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_03_175538) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -489,40 +489,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_01_123851) do
     t.boolean "reviewed", default: false
     t.integer "reviewed_by_id"
     t.index ["reviewed"], name: "index_versions_on_reviewed"
-  end
-
-  create_table "wbw_texts", force: :cascade do |t|
-    t.integer "word_id"
-    t.integer "verse_id"
-    t.string "text_indopak"
-    t.string "text_uthmani"
-    t.string "text_imlaei"
-    t.boolean "is_updated", default: false
-    t.boolean "approved", default: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.string "qpc_uthmani_hafs"
-    t.index ["verse_id"], name: "index_wbw_texts_on_verse_id"
-    t.index ["word_id"], name: "index_wbw_texts_on_word_id"
-  end
-
-  create_table "wbw_translations", force: :cascade do |t|
-    t.integer "language_id"
-    t.string "text"
-    t.integer "user_id"
-    t.boolean "approved"
-    t.integer "word_id"
-    t.string "text_madani"
-    t.string "text_indopak"
-    t.integer "chapter_id"
-    t.integer "verse_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["approved"], name: "index_wbw_translations_on_approved"
-    t.index ["chapter_id"], name: "index_wbw_translations_on_chapter_id"
-    t.index ["user_id"], name: "index_wbw_translations_on_user_id"
-    t.index ["verse_id"], name: "index_wbw_translations_on_verse_id"
-    t.index ["word_id"], name: "index_wbw_translations_on_word_id"
   end
 
   create_table "word_synonyms", force: :cascade do |t|

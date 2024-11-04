@@ -87,7 +87,7 @@ module TajweedAnnotation
       elsif [letter_alif?, letter_yeh?, letter_wa?].any?
         if (letter_alif? && previous_token.has_harkat?(KASRA)) || (letter_wa? && previous_token.has_harkat?(DAMMA)) || (letter_yeh? && previous_token.has_harkat?(KASRA))
           add_rule('madda_permissible', 0)
-        elsif next_token.has_shaddaa? || next_token.has_harkat?(SUKUN)
+        elsif next_token&.has_shaddaa? || next_token&.has_harkat?(SUKUN)
           add_rule('madda_necessary', 0)
         end
       elsif has_harkat?(SUPERSCRIPT_ALIF)
@@ -316,7 +316,7 @@ module TajweedAnnotation
 
       if token.blank? || (!skip_alif_sukun && token.is_alif_sukun?)
         if token.last_letter?
-          token = w.next_word.letter_tokens[0]
+          token = w.next_word.letter_tokens[0] if w.next_word
         else
           token = w.letter_tokens[p + 2]
         end

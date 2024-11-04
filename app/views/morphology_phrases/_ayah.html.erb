@@ -52,7 +52,7 @@
 
   <div class="words d-flex flex-wrap">
     <% ayah.words.each do |w| %>
-      <% if w.ayah_mark? %>
+      <% if !w.ayah_mark? %>
         <%
           range = ranges.detect do |r|
             w.position >= r[0].to_i && w.position <= r[1].to_i

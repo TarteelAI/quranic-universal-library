@@ -42,6 +42,14 @@ class TajweedWord < QuranApiRecord
     %i[rule_eq]
   end
 
+  def has_tajweed_rule?
+    letter = letters.detect do|l|
+      l['r'].present?
+    end
+
+    !!letter
+  end
+
   def update_letter_rule(letter_index, rule_id)
     letter = letters[letter_index.to_i]
     letter['r'] = rule_id
@@ -65,6 +73,8 @@ class TajweedWord < QuranApiRecord
     tajweed = TajweedRules.new('new')
 
     letters.each do |l|
+      next if l['c'].blank?
+
       if l['r'] == current_rule
         current_group << l['c']
       else

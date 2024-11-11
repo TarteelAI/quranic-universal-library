@@ -82,12 +82,13 @@
           <td class="digitalkhatt">
             <%= word.text_digital_khatt %>
           </td>
+
           <td class="qpc-hafs" data-controller="tajweed-highlight">
             <%= word.text_uthmani_tajweed.html_safe %>
           </td>
 
           <td class="qpc-hafs tajweed-new" data-controller="tajweed-highlight">
-            <%= word.tajweed_word.text.to_s.html_safe if word.tajweed_word %>
+            <%= word.text_qpc_hafs_tajweed.to_s.html_safe %>
           </td>
 
           <td style="text-align: right">
@@ -108,6 +109,7 @@
           </td>
         </tr>
       <% end %>
+
       <tr>
         <td colspan="7">
           <div class="d-flex align-items-center">

@@ -28,7 +28,8 @@ ActiveAdmin.register Chapter do
     filter: lambda do |term, scope|
       scope.order('id ASC').ransack(
         chapter_number_eq: term,
-        name_cont: term,
+        name_simple_cont: term,
+        name_arabic_cont: term,
         m: 'or'
       ).result
     end

@@ -29,6 +29,7 @@
 #  text_indopak            :string
 #  text_indopak_nastaleeq  :string
 #  text_qpc_hafs           :string
+#  text_qpc_hafs_tajweed   :string
 #  text_qpc_nastaleeq      :string
 #  text_qpc_nastaleeq_hafs :string
 #  text_uthmani            :string
@@ -187,7 +188,7 @@ class Word < QuranApiRecord
     s, a, w = (word_location || location).split(':')
 
     if ayah_mark?
-      "#{WORDS_CDN}/common/#{w}.png"
+      "#{WORDS_CDN}/common/#{a}.png"
     else
       "#{WORDS_CDN}/qa-color/#{s}/#{a}/#{w}.#{format}"
     end
@@ -197,7 +198,7 @@ class Word < QuranApiRecord
     s, a, w = location.split(':')
 
     if ayah_mark?
-      "#{WORDS_CDN}/common/#{w}.png"
+      "#{WORDS_CDN}/common/#{a}.png"
     else
       "#{WORDS_CDN}/rq-color/#{s}/#{a}/#{w}.#{format}"
     end
@@ -207,7 +208,7 @@ class Word < QuranApiRecord
     s, a, w = location.split(':')
 
     if ayah_mark?
-      "#{WORDS_CDN}/common/#{w}.png"
+      "#{WORDS_CDN}/common/#{a}.png"
     else
       "#{WORDS_CDN}/qa-black/#{s}/#{a}/#{w}.#{format}"
     end
@@ -217,7 +218,7 @@ class Word < QuranApiRecord
     s, a, w = location.split(':')
 
     if ayah_mark?
-      "#{WORDS_CDN}/common/#{w}.svg"
+      "#{WORDS_CDN}/common/#{a}.svg"
     else
       "#{WORDS_CDN}/svg-tajweed/#{s}/#{a}/#{w}.svg"
     end
@@ -227,7 +228,7 @@ class Word < QuranApiRecord
     s, a, w = location.split(':')
 
     if ayah_mark?
-      "#{WORDS_CDN}/common/#{w}.png"
+      "#{WORDS_CDN}/common/#{a}.png"
     else
       "#{WORDS_CDN}/corpus/#{s}/#{a}/#{w}.png"
     end
@@ -237,7 +238,7 @@ class Word < QuranApiRecord
     s, a, w = location.split(':')
 
     if ayah_mark?
-      "#{WORDS_CDN}/common/#{w}.png"
+      "#{WORDS_CDN}/common/#{a}.png"
     else
       "#{WORDS_CDN}/v4-tajweed/#{s}/#{a}/#{w}.#{format}"
     end

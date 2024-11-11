@@ -91,6 +91,11 @@ class TajweedWordsController < CommunityController
       words = words.where("text_uthmani_tajweed LIKE ?", "%#{rule}%")
     end
 
+    if params[:filter_tajweed_rule_new].present?
+      rule = params[:filter_tajweed_rule_new].downcase.strip
+      words = words.where("text_qpc_hafs_tajweed LIKE ?", "%#{rule}%")
+    end
+
     words
   end
 end

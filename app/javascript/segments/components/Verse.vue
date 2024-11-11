@@ -464,12 +464,12 @@ export default {
   background-color: #198754;
 }
 
-.active .form-text {
-  color: #fff;
-}
-
 .active input{
   color: #0a0a0a;
+}
+
+.active .form-text {
+  color: #fff;
 }
 
 .word {

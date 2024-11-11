@@ -210,7 +210,6 @@ module TajweedAnnotation
       # ikhafa_shafawi, idgham_shafawi
 
       next_token = next_letter_token(skip_alif_sukun: true)
-      binding.pry if next_token.blank? && !word.last_word?
 
       if next_token&.letter_ba?
         # Meem sakin then Letter ba => ikhafa_shafawi

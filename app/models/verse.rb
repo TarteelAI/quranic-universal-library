@@ -26,6 +26,7 @@
 #  text_indopak            :string
 #  text_indopak_nastaleeq  :string
 #  text_qpc_hafs           :string
+#  text_qpc_hafs_tajweed   :string
 #  text_qpc_nastaleeq      :string
 #  text_qpc_nastaleeq_hafs :string
 #  text_uthmani            :string

@@ -44,6 +44,7 @@ class TajweedRules
     # Non saakon or tanween rules
     "ikhafa" => 10,
     "madda_obligatory_mottasel" => 12,
+    "madda_obligatory_monfasel" => 11,
 
     "iqlab" => 16,
     "izhar" => 19,

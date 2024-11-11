@@ -106,5 +106,61 @@ module TajweedAnnotation
         "<span data-location='#{location}'>#{html.join}</span> "
       end.join('')
     end
+
+    def anotated_words
+      last_word = nil
+      words_html = {}
+      current_rule = nil
+      current_group = ""
+      tajweed = TajweedRules.new('new')
+
+      word_rules.each do |w, letters|
+        words_html[w] = []
+
+        letters.each_with_index do |l, _i|
+          if l[:r] == current_rule
+            current_group << l[:c].to_s
+          else
+            if current_group.present?
+              if current_rule
+                words_html[w] << "<#{tag} class=#{tajweed.name(current_rule)}>#{current_group}</#{tag}>"
+              else
+                words_html[w] << current_group
+              end
+            end
+
+            if l[:r]
+              current_rule = l[:r]
+              current_group = l[:c]
+            else
+              words_html[w] << l[:c]
+              current_rule = nil
+              current_group = ""
+            end
+          end
+        end
+
+        if current_rule.present?
+          words_html[w] << "<#{tag} class=#{tajweed.name(current_rule)}>#{current_group}</#{tag}>"
+        else
+          words_html[w] << current_group
+        end
+
+        current_group = ""
+
+        last_word = w
+      end
+
+      if current_rule
+        words_html[last_word] << "<#{tag} class=#{tajweed.name(current_rule)}>#{current_group}</#{tag}>"
+      else
+        words_html[last_word] << current_group
+      end
+
+      words_html.map do |location, html|
+        "<span data-location='#{location}'>#{html.join}</span> "
+      end.join('')
+    end
+
   end
 end

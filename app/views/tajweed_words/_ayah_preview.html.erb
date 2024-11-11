@@ -3,7 +3,10 @@
   tajweed_annotation.add_annotation_on_verse(@word.verse)
   tajweed_text = tajweed_annotation.to_html
 
-  ayah_tajweeed_words = TajweedWord.where(verse_id: @word.verse_id).order('position asc')
+  ayah_tajweeed_words = TajweedWord.where(
+    verse_id: @word.verse_id,
+    mushaf_id: 23
+  ).order('position asc')
 %>
 
 <div class="page-section mt-4" data-controller="mushaf-page">
@@ -31,11 +34,6 @@
 
   <h3>Auto tajweed annotation(With QPC Hafs script)</h3>
   <div class="qpc-hafs tajweed-new char" data-controller="tajweed-highlight">
-    <%= tajweed_text.html_safe %>
-  </div>
-
-  <h3>Auto tajweed annotation preview for DigitalKhatt font</h3>
-  <div class="digitalkhatt tajweed-new char" data-controller="tajweed-highlight">
     <%= tajweed_text.html_safe %>
   </div>
 

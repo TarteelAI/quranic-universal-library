@@ -87,7 +87,7 @@ module TajweedAnnotation
       elsif [letter_alif?, letter_yeh?, letter_wa?].any?
         if (letter_alif? && previous_token.has_harkat?(KASRA)) || (letter_wa? && previous_token.has_harkat?(DAMMA)) || (letter_yeh? && previous_token.has_harkat?(KASRA))
           add_rule('madda_permissible', 0)
-        elsif next_token.has_shaddaa? || next_token.has_harkat?(SUKUN)
+        elsif next_token&.has_shaddaa? || next_token&.has_harkat?(SUKUN)
           add_rule('madda_necessary', 0)
         end
       elsif has_harkat?(SUPERSCRIPT_ALIF)
@@ -211,7 +211,7 @@ module TajweedAnnotation
 
       next_token = next_letter_token(skip_alif_sukun: true)
 
-      if next_token.letter_ba?
+      if next_token&.letter_ba?
         # Meem sakin then Letter ba => ikhafa_shafawi
         add_rule('ikhafa_shafawi', 0)
 
@@ -222,7 +222,7 @@ module TajweedAnnotation
             next_token.add_rule('ikhafa_shafawi', i + 1)
           end
         end
-      elsif next_token.letter_meem?
+      elsif next_token&.letter_meem?
         # Meem sakin then Letter meem => idgham_shafawi
         add_rule('idgham_shafawi', 0)
         next_letter_token.add_rule('idgham_shafawi', 0)
@@ -314,12 +314,12 @@ module TajweedAnnotation
       return if w.blank?
       token = w.letter_tokens[p + 1]
 
-      if token.blank? || (!skip_alif_sukun && token.is_alif_sukun?)
-        if token.last_letter?
-          token = w.next_word.letter_tokens[0]
-        else
-          token = w.letter_tokens[p + 2]
-        end
+      return if token.blank? || (!skip_alif_sukun && token.is_alif_sukun?)
+
+      if token.last_letter?
+        token = w.next_word.letter_tokens[0] if w.next_word
+      else
+        token = w.letter_tokens[p + 2]
       end
 
       token

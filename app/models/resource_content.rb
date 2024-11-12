@@ -61,6 +61,7 @@ class ResourceContent < QuranApiRecord
   scope :recitations, -> { where sub_type: SubType::Audio }
   scope :general, -> { where sub_type: SubType::Data }
   scope :quran_script, -> { where sub_type: SubType::QuranText }
+  scope :allow_image_export, -> { where("meta_data ->> 'export-images' = 'true'") }
   scope :quran_metadata, -> { where sub_type: SubType::MetaData }
   scope :mushaf_layout, -> { where(sub_type: SubType::Layout) }
   scope :from_quranenc, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }

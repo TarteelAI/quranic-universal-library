@@ -32,7 +32,7 @@
                    class="mx-2"
                    data-controller="tooltip"
                    title="Toggle hotkeys">
-              Hotkeys
+              Disable Hotkeys
             </label>
           </div>
 
@@ -207,6 +207,7 @@
       <span class="me-2">
         Speed:
         <select @change="updatePlaybackSpeed">
+          <option value="0.3">Slowest</option>
           <option value="0.5">Slower</option>
           <option value="0.75">Slow</option>
           <option value="1" selected>Normal</option>

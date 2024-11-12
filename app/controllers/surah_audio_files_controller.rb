@@ -56,9 +56,17 @@ class SurahAudioFilesController < CommunityController
   def save_segments
     audio_file = load_audio_file
     key = params[:verse_key].to_s.strip
-    segment = audio_file.audio_segments.where(audio_recitation: @recitation, verse_key: key).first_or_initialize
+    segment = audio_file.audio_segments.where(
+      audio_recitation: @recitation,
+      verse_key: key
+    ).first_or_initialize
 
     unless @recitation.segment_locked?
+      if segment.new_record?
+        segment.verse = Verse.find_by(verse_key: key)
+        segment.save
+      end
+
       if params['segments'].present?
         segment.update_segments(params['segments'])
       else

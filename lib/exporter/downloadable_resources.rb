@@ -710,6 +710,18 @@ module Exporter
       end
     end
 
+    def export_page_images(resource_content: nil)
+      #TODO
+    end
+
+    def export_ayah_images(resource_content: nil)
+      #TODO
+    end
+
+    def export_word_images(resource_content: nil)
+      #TODO
+    end
+
     def export_surah_info(language: nil)
       list = ResourceContent
                .chapter_info

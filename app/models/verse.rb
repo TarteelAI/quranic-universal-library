@@ -26,6 +26,7 @@
 #  text_indopak            :string
 #  text_indopak_nastaleeq  :string
 #  text_qpc_hafs           :string
+#  text_qpc_hafs_tajweed   :string
 #  text_qpc_nastaleeq      :string
 #  text_qpc_nastaleeq_hafs :string
 #  text_uthmani            :string
@@ -89,7 +90,6 @@ class Verse < QuranApiRecord
 
   has_many :arabic_transliterations
   has_many :word_translations, through: :words
-  has_many :wbw_texts
 
   # For eager loading
   has_one :audio_segment, class_name: 'Audio::Segment'
@@ -97,7 +97,6 @@ class Verse < QuranApiRecord
 
   accepts_nested_attributes_for :arabic_transliterations
   accepts_nested_attributes_for :word_translations
-  accepts_nested_attributes_for :wbw_texts
 
   alias_attribute :code_v4, :code_v2
 

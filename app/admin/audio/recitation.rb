@@ -66,12 +66,14 @@ ActiveAdmin.register Recitation do
       style
       segment_locked
       reciter_name
+      approved
     ]
   end
 
   index do
     id_column
     column :name
+    column :approved
     column :reciter
     column :recitation_style
     column :qirat_type
@@ -110,6 +112,7 @@ ActiveAdmin.register Recitation do
               ajax: { resource: ResourceContent }
 
       f.input :reciter_name
+      f.input :approved
 
       f.input :recitation_style_id,
               as: :searchable_select,
@@ -133,7 +136,7 @@ ActiveAdmin.register Recitation do
     authorize! :download, :from_admin
 
     file_name = params[:file_name].presence || 'reciter-audio-timing.sqlite'
-    table_name = params[:file_name].presence || 'ayah_timing'
+    table_name = params[:table_name].presence || 'ayah_timing'
     recitations_ids = params[:reciter_ids].split(',').compact_blank
 
     Export::AyahRecitationSegmentsJob.perform_later(

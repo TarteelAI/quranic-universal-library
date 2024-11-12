@@ -20,11 +20,13 @@ ActiveAdmin.register Morphology::MatchingVerse do
   filter :approved
   filter :created_at
 
+  includes :matched_verse, :verse
+
   action_item :export_csv, only: :index, if: -> { can? :download, :from_admin } do
-    link_to "Export CSV", export_approved_admin_morphology_matching_verses_path(format: :json)
+    link_to "Export CSV", export_csv_admin_morphology_matching_verses_path(format: :json), method: :post
   end
 
-  collection_action :export_approved, method: :get do
+  collection_action :export_csv, method: :post do
     authorize! :download, :from_admin
 
     export_service = ExportMatchingAyah.new
@@ -55,14 +57,14 @@ ActiveAdmin.register Morphology::MatchingVerse do
     column :verse, sortable: :verse_id do |r|
       link_to r.verse.verse_key, [:admin, r.verse]
     end
+    column :matched_verse, sortable: :matched_verse_id do |r|
+      link_to r.matched_verse.verse_key, [:admin, r.matched_verse]
+    end
     column :chapter, sortable: :chapter_id do |r|
       link_to r.chapter_id, admin_chapter_path(r.chapter_id)
     end
     column :matched_chapter, sortable: :matched_chapter_id do |r|
       link_to r.matched_chapter_id, admin_chapter_path(r.matched_chapter_id)
-    end
-    column :matched_verse, sortable: :matched_verse_id do |r|
-      link_to r.matched_verse.verse_key, [:admin, r.matched_verse]
     end
     column :score
     column :coverage

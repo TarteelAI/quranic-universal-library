@@ -19,13 +19,16 @@ const store = createStore({
       currentVerseNumber: 1,
       currentVerseKey: null,
       currentWord: 1,
+      currentRawSegmentWord: null,
       wordsText: [],
       verseSegment: null,
+      rawSegments: {},
       verseOriginalSegment: null,
       recitation: null,
       segments: {},
       originalSegments: {},
       audioSrc: null,
+      fromFile: false,
       quranicAudioUrl: null,
       alert: null,
       currentTimestamp: 0,
@@ -49,11 +52,12 @@ const store = createStore({
       editMode: false,
       lockAyah: false, // stop playing next ayah
       segmentLocked: false,
+      rawSegmentVisible: true, // show raw segments
       audioType: 'chapter', //or ayah
       compareSegment: false,
       segmentsUrl: 'surah_audio_files',
       autoPlay: false,
-      disableHotkeys: false,
+      disableHotkeys: true,
 
       repeatGroups: [] // only need for recitation 168
     };
@@ -70,7 +74,7 @@ const store = createStore({
       state.audioType = payload.audioType || 'chapter';
       state.segmentLocked = payload.segmentLocked == 'true';
       state.segmentsUrl = payload.segmentsUrl || "surah_audio_files";
-      state.autoPlay = payload.autoPlay == 'true';
+      state.autoPlay = payload.autoPlay === 'true';
     },
     SET_PLAYBACK_SPEED(state, payload) {
       state.playbackSpeed = payload.value;
@@ -92,6 +96,19 @@ const store = createStore({
       };
       state.originalSegments = JSON.parse(JSON.stringify(state.segments));
     },
+    CLEAR_SEGMENTS(state) {
+      state.verseSegment.segments = state.verseSegment.segments.map(segment => [segment[0]]);
+    },
+    RELOAD_SEGMENTS(state) {
+      state.verseSegment.segments = state.originalSegments[state.currentVerseKey].segments;
+    },
+    SHOW_RAW_SEGMENT(state) {
+      state.rawSegmentVisible = !state.rawSegmentVisible;
+    },
+    UPDATE_RAW_SEGMENTS(state, payload) {
+      state.rawSegments[state.currentVerseKey] = payload.segments;
+      state.currentRawSegmentWord = 1;
+    },
     SET_WORD(state, payload) {
       state.currentWord = Number(payload.word);
     },
@@ -108,7 +125,7 @@ const store = createStore({
 
         this.dispatch("LOAD_AYAH", {
           verse,
-          autoPlay: state.audioType == 'ayah'
+          autoPlay: state.autoPlay
         });
       }
     },
@@ -121,11 +138,12 @@ const store = createStore({
     TOGGLE_WAVEFORM(state) {
       state.showWaveform = !state.showWaveform;
     },
-    TOGGLE_HOTKEYS(state){
+    TOGGLE_HOTKEYS(state) {
       state.disableHotkeys = !state.disableHotkeys;
     },
     SET_AUDIO_SOURCE(state, payload) {
       state.audioSrc = payload.url;
+      state.fromFile = payload.fromFile;
     },
     SET_PLAYING(state, payload) {
       state.playing = payload.value;
@@ -134,15 +152,15 @@ const store = createStore({
       state.playing = false;
     },
     SET_AYAH_ENDED(state) {
-      if(state.isLooingAyah){
+      if (state.isLooingAyah) {
         state.currentTimestamp = 0;
         state.currentWord = 1;
         playAyah();
         return
       }
 
-      if(state.lockAyah){
-        if(!player?.paused) player?.pause()
+      if (state.lockAyah) {
+        if (!player?.paused) player?.pause()
       } else {
         this.dispatch("LOAD_AYAH", {
           verse: state.currentVerseNumber + 1,
@@ -151,17 +169,19 @@ const store = createStore({
       }
     },
     SEGMENT_START_CHANGED(state, payload) {
-      const val = Number(payload.value.toFixed());
+      if (!payload.value) return
 
+      const val = Number(payload.value.toFixed());
       state.verseSegment.timestamp_from = val;
       state.currentAyahTimeFrom = val;
       state.segmentChanged = true;
     },
     SEGMENT_END_CHANGED(state, payload) {
+      if (!payload.value) return
       const val = Number(payload.value.toFixed());
 
       state.verseSegment.timestamp_to = val;
-      state.currentAyahTimeTo =val;
+      state.currentAyahTimeTo = val;
       state.segmentChanged = true;
     },
     TOGGLE_LOOP_WORD(state, payload) {
@@ -220,8 +240,8 @@ const store = createStore({
         })
       }
 
-      if(state.lockAyah){
-        if(!player?.paused) player?.pause()
+      if (state.lockAyah) {
+        if (!player?.paused) player?.pause()
       } else {
         this.dispatch("LOAD_AYAH", {
           verse: state.currentVerseNumber + 1,
@@ -469,7 +489,7 @@ const store = createStore({
 
       state.currentWord = 1;
       state.verseSegment = segments[verseKey] || {
-        segments: []
+        segments: [],
       };
       state.repeatGroups = [];
       state.wordsText = segments[verseKey].words;
@@ -477,6 +497,7 @@ const store = createStore({
       state.verseOriginalSegment = originalSegments[verseKey];
       state.currentVerseNumber = verse;
       state.currentVerseKey = verseKey;
+      state.fromFile = false;
 
       if (audioType == 'ayah') {
         state.quranicAudioUrl = state.verseSegment.audioUrl;
@@ -548,6 +569,7 @@ const store = createStore({
         currentVerseKey,
         currentWord,
         segments,
+        rawSegments,
         chapter,
         isLooingAyah,
         isLooingWord,
@@ -555,22 +577,6 @@ const store = createStore({
         verseSegment,
         audioType
       } = state;
-
-      if (audioType == 'ayah') {
-        const {
-          word
-        } = findVerseSegment(
-          time,
-          segments[currentVerseKey],
-          currentWord
-        );
-        state.currentWord = word;
-        return;
-      }
-
-      if (!verseSegment || verseSegment.timestamp_from == undefined || verseSegment.timestamp_to == undefined) {
-        return
-      }
 
       if (isLooingWord) {
         const wordTiming = verseSegment.segments[currentWord];
@@ -584,6 +590,32 @@ const store = createStore({
         }
 
         return;
+      }
+
+      if (audioType == 'ayah') {
+        const {
+          word
+        } = findVerseSegment(
+          time,
+          segments[currentVerseKey],
+          currentWord
+        );
+        state.currentWord = word;
+
+        const rawAyahSegments = rawSegments[currentVerseKey];
+        if (rawAyahSegments && rawAyahSegments.length > 0) {
+          const rawSegment = findVerseSegment(
+            time,
+            {segments: rawAyahSegments}
+          );
+
+          state.currentRawSegmentWord = rawSegment.word;
+        }
+        return;
+      }
+
+      if (!verseSegment || verseSegment.timestamp_from == undefined || verseSegment.timestamp_to == undefined) {
+        return
       }
 
       const {
@@ -613,9 +645,9 @@ const store = createStore({
       }
 
       if (verse && verse != currentVerseNumber) {
-        if(state.lockAyah){
-          if(!player?.paused) player?.pause()
-        } else{
+        if (state.lockAyah) {
+          if (!player?.paused) player?.pause()
+        } else {
           state.currentVerseNumber = verse;
           this.dispatch("LOAD_AYAH", {verse});
         }

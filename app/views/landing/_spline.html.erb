@@ -1,7 +1,8 @@
-<canvas id="canvas3d" class=""></canvas>
-<script type="module">
-  import { Application } from 'https://static-cdn.tarteel.ai/qul/spline/runtime.js';
-  const canvas = document.getElementById('canvas3d');
-  const app = new Application(canvas);
-  app.load('https://static-cdn.tarteel.ai/qul/spline/scene.splinecode');
-</script>
+<script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
+<div class="tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center">
+  <spline-viewer
+    url="https://static-cdn.tarteel.ai/qul/spline/scene.splinecode"
+    width="1200"
+    height="1000"
+  ></spline-viewer>
+</div>

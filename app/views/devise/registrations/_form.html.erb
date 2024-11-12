@@ -1,43 +1,54 @@
-<h1 class="tw-text-3xl tw-font-bold">Salam! Let's get you started!</h1>
-<p class="tw-mt-8">
-  Sign up using your <span class="tw-font-bold">Email</span> credentials.
+<h2 class="mb-3">Welcome! Let’s get you started!</h2>
+<p>
+  Signup using your <strong>Email</strong> credentials.
 </p>
+
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { role: 'form', class: 'inputs_container', data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-  <div class="form-floating mb-3 tw-mt-6">
+
+  <div class="form-floating mb-3">
     <%= f.text_field :first_name, autofocus: true, required: true, class: 'form-control', placeholder: 'First name' %>
     <%= f.label :first_name, required: true %>
+
     <div class="invalid-feedback">
       First name is required
     </div>
   </div>
+
   <div class="form-floating mb-3">
     <%= f.text_field :last_name, required: true, class: 'form-control', placeholder: 'Last name' %>
     <%= f.label :last_name, required: true %>
+
     <div class="invalid-feedback">
       Last name is required
     </div>
   </div>
+
   <div class="form-floating mb-3">
     <%= f.email_field :email, required: true, class: 'form-control', placeholder: 'Email' %>
     <%= f.label :email, required: true %>
+
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
+
   <div class="form-floating mb-3 password">
     <%= f.password_field :password, class: 'form-control', placeholder: 'Password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
     <%= f.label :password, required: true %>
+
     <div class="invalid-feedback">
       Password does not meet minimum security requirements.
     </div>
   </div>
+
   <div class="checkbox mb-2">
     <%= f.label :add_to_mailing_list do %>
       <%= f.check_box :add_to_mailing_list %> I agree to signup for the Tarteel Mailing list.
     <% end %>
   </div>
-  <div class="text-center tw-mt-8">
+
+  <div class="text-center">
     <%= f.submit t('.sign_up', default: 'Sign up'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3' %>
   </div>
 <% end %>

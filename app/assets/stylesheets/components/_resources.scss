@@ -47,15 +47,6 @@
 
 #resources {
   .resources-list {
-    .card-container-upper {
-      display: grid;
-      grid-template-columns: 1fr;
-
-      @media (min-width: $screen-md) {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
     .card-container {
       display: grid;
         grid-template-columns: 1fr;

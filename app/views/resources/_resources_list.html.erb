@@ -26,6 +26,13 @@
   <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
     <p>No results found</p>
   </div>
+  <div class="tw-grid sm:tw-grid-cols-2 md:tw-grid-cols-2 tw-mt-3 tw-gap-4">
+    <% featured_downloadable_resource_cards.each do |key, card| %>
+      <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}", class: 'featured-resource-card' do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
+    <% end %>
+  </div>
   <%= render 'card/card_grid' do %>
     <% downloadable_resource_cards.each do |key, card| %>
       <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" do %>

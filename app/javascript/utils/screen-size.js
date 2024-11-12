@@ -13,9 +13,9 @@ export default class ScreenSize {
       this.screenSize = 'mobile';
     } else if (width >= 425 && width < 768) {
       this.screenSize = 'tablet';
-    } else if (width >= 768 && width <= 1440) {
+    } else if (width >= 768 && width <= 1680) {
       this.screenSize = 'desktop';
-    } else if (width > 1440) {
+    } else if (width > 1680) {
       this.screenSize = 'large desktop';
     }
   }

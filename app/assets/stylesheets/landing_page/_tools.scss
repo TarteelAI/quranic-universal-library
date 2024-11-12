@@ -10,8 +10,8 @@
 
   scroll-snap-type: x mandatory;
 
-  @media (min-width: $screen-lg) {
-    padding: 0 calc(1rem + (100vw - 1600px) / 2);
+  @media (min-width: $screen-xl) {
+    padding: 0 calc(1rem + (100vw - 1680px) / 2);
   }
 }
 

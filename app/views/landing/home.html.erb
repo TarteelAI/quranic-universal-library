@@ -1,10 +1,11 @@
 <div class="tw-flex tw-justify-center tw-flex-col tw-items-center tw-px-4 lg:tw-px-8 tw-mt-[60px] md:tw-mt-[75px]">
-  <div class="tw-bg-black tw-rounded-3xl tw-text-white tw-w-full tw-max-w-[1440px] tw-relative tw-overflow-hidden">
+  <div class="tw-bg-black tw-rounded-3xl tw-text-white tw-w-full tw-max-w-[1600px] tw-relative tw-overflow-hidden">
     <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-min-h-[600px]">
       <div class="tw-absolute tw-h-full tw-w-full lg:tw-w-1/2 tw-left-0">
+        <div class="lg:tw-hidden tw-absolute tw-bottom-0 tw-left-0 tw-right-0 tw-bg-gradient-to-t tw-from-black/70 tw-to-transparent tw-z-10 tw-h-2/3 md:tw-h-full"></div>
         <%= render 'landing/spline' %>
       </div>
-      <div class="tw-col-span-1"><!-- Empty column for spline background --></div>
+      <div class="tw-hidden lg:tw-block tw-col-span-1"><!-- Empty column for spline background --></div>
       <%= render 'landing/hero' %>
     </div>
   </div>

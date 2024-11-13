@@ -7,7 +7,6 @@ module ToolsHelper
         url: '/mushaf_layouts',
         type: 'mushaf-layout',
         icon: 'layout.svg',
-        cta_bg: 'rgba(71, 71, 61, 0.9)',
         tags: ['Mushaf layout'],
         info_tip: "This tool allows you to create the digital Quran layout as it appears in printed Mushafs."
       ),
@@ -17,7 +16,6 @@ module ToolsHelper
         url: tajweed_words_path,
         type: 'tajweed-tool',
         icon: 'tajweed.svg',
-        cta_bg: 'rgba(71, 71, 61, 0.9)',
         tags: ['Tajweed'],
         info_tip: "Use Tajweed Tools to locate words with specific Tajweed rules, receive suggestions for missing rules, add the missing or fix the incorrect one."
       ),

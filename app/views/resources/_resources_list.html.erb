@@ -1,12 +1,6 @@
-<div class="container-lg resources-list pt-2 pt-md-3">
-  <div class="d-flex align-items-start align-items-md-center gap-3 flex-column flex-md-row justify-content-between">
-    <div class="d-flex align-items-center justify-content-center gap-3">
-      <h2>Available Resources</h2>
-      <!--<div class="count-badge">
-        15
-      </div>-->
-    </div>
-
+<div class="resources-list">
+  <div class="tw-flex tw-items-start md:tw-items-center tw-gap-3 tw-flex-col md:tw-flex-row tw-justify-between">
+    <h2 class="tw-pb-3 tw-text-2xl md:tw-text-3xl tw-font-light">Available Resources</h2>
     <% if false %>
       <div class="d-flex align-items-center justify-content-center gap-3 gap-md-4">
         <button class="btn border">
@@ -15,7 +9,6 @@
           </svg>
           Filter
         </button>
-
         <div class="dropdown">
           <button class="btn border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,43 +23,21 @@
       </div>
     <% end %>
   </div>
-
-  <%= render 'featured_cards' %>
-
-  <div class="mt-4 card-container gap-4">
-    <% downloadable_resource_cards.each do |type, card| %>
-      <div class="resource-card tool-card-with-bg <%= 'full-card' if card.full_width %> <%= card.type %>" data-search="<%= card.type %> <%= card.title.downcase %> <%= card.description.to_s.downcase %>">
-        <a href="<%= card.url %>">
-          <div class="overlay"></div>
-          <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between">
-            <div>
-              <h3 class="fw-bold mb-2">
-                <%= card.title %>
-              </h3>
-
-              <p class="text-white">
-                <%= card.description %>
-              </p>
-            </div>
-
-            <div class="icon">
-              <%= image_tag "card-icon/#{card.icon}" %>
-            </div>
-
-              <div class="d-flex align-items-center justify-content-between">
-                <% if card.count.to_i > 0 %>
-                  <div class="text-white fw-bold">
-                    <%= card.stats.to_s.html_safe %>
-                  </div>
-
-                  <div class="featured-count-badge">
-                    <%= card.count %>
-                  </div>
-                <% end %>
-              </div>
-          </div>
-        </a>
-      </div>
+  <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
+    <p>No results found</p>
+  </div>
+  <div class="tw-grid sm:tw-grid-cols-2 md:tw-grid-cols-2 tw-mt-3 tw-gap-4">
+    <% featured_downloadable_resource_cards.each do |key, card| %>
+      <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}", class: 'featured-resource-card' do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
     <% end %>
   </div>
+  <%= render 'card/card_grid' do %>
+    <% downloadable_resource_cards.each do |key, card| %>
+      <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
+    <% end %>
+  <% end %>
 </div>

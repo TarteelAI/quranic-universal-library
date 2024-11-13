@@ -1,21 +1,19 @@
-<div class="container-lg" id="resources">
-  <div class="hero">
-    <div class="col-12 hero-message p-4 p-md-5 position-relative">
-      <%= render 'landing/spline' %>
-      <div class="overlay d-md-none"></div>
+<div class="tw-flex tw-justify-center tw-flex-col tw-items-center tw-px-4 lg:tw-px-8 tw-mt-[60px] md:tw-mt-[75px]">
+  <div class="tw-bg-black tw-rounded-3xl tw-text-white tw-w-full tw-max-w-[1600px] tw-relative tw-overflow-hidden">
+    <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-min-h-[500px] md:tw-min-h-[600px]">
+      <div class="tw-absolute tw-h-full tw-w-full lg:tw-w-1/2 tw-left-0">
+        <div class="lg:tw-hidden tw-absolute tw-bottom-0 tw-left-0 tw-right-0 tw-bg-gradient-to-t tw-from-black/70 tw-to-transparent tw-z-10 tw-h-2/3 md:tw-h-full"></div>
+        <%= render 'landing/spline' %>
+      </div>
+      <div class="tw-hidden lg:tw-block tw-col-span-1"><!-- Empty column for spline background --></div>
       <%= render 'landing/hero' %>
     </div>
   </div>
-
-  <%= render 'landing/overview' %>
 </div>
-
-<div class="developer-tools py-5 mt-4" style="background-color: #404040">
-  <div class="developer-tools-inner-container">
-    <%= render 'landing/resources' %>
-  </div>
+<%= render 'landing/overview' %>
+<div class="tw-bg-black tw-text-white tw-py-10 md:tw-py-16 tw-mt-4">
+  <%= render 'landing/resources' %>
 </div>
-
-<div class="developer-tools py-5">
+<div class="tw-text-white tw-py-10 md:tw-py-16 tw-bg-[#404040]">
   <%= render 'landing/tools' %>
 </div>

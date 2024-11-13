@@ -1,79 +1,17 @@
-<div class="container-lg">
-  <h4>Developer Resources</h4>
+<div class="sidescroll-container">
+  <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white tw-font-title">Developer Resources</h2>
 </div>
-<div class="tools-container mt-4 gap-3 gap-md-4">
-  <% featured_developer_resources.each do |card| %>
-    <% if false %>
-      <a href="<%= tool.url %>">
-        <div class="tool-card tool-card-with-bg <%= tool.type %>">
-          <div class="overlay"></div>
-          <div>
-            <h5><%= tool.title %></h5>
-            <p class="info">
-              <%= tool.description %>
-            </p>
-          </div>
-
-          <div class="cta" style="background: <%= tool.cta_bg %>;">
-          <span>
-            Learn more
-          </span>
-          </div>
-
-          <div class="icon">
-            <%= image_tag "card-icon/#{tool.icon}" %>
-          </div>
-
-          <% if tool.info_tip %>
-            <div class="info d-flex">
-              <svg
-                title="<%= tool.info_tip %>"
-                data-controller="tooltip"
-                width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0.660217C5.376 0.660217 0 6.03622 0 12.6602C0 19.2842 5.376 24.6602 12 24.6602C18.624 24.6602 24 19.2842 24 12.6602C24 6.03622 18.624 0.660217 12 0.660217ZM13.2 18.6602H10.8V11.4602H13.2V18.6602ZM13.2 9.06022H10.8V6.66022H13.2V9.06022Z" fill="white"/>
-              </svg>
-            </div>
-          <% end %>
-        </div>
-      </a>
+<div class="tw-mt-10">
+  <%= render 'card/card_sidescrolling_container' do %>
+    <% featured_developer_resources.each do |card| %>
+      <%= render 'card/card-container', card: card do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
     <% end %>
-
-    <a href="<%= card.url %>">
-      <div class="resource-card tool-card tool-card-with-bg  <%= card.type %>">
-        <div class="overlay"></div>
-        <div class="p-3 gap-4 h-100 d-flex flex-column justify-content-between">
-          <div>
-            <h5>
-              <%= card.title %>
-            </h5>
-
-            <p class="info">
-              <%= card.description %>
-            </p>
-          </div>
-
-          <div class="icon">
-            <%= image_tag "card-icon/#{card.icon}" %>
-          </div>
-
-          <div class="d-flex align-items-center justify-content-between">
-            <% if card.count.to_i > 0 %>
-              <div class="text-white fw-bold">
-                <%= card.stats.to_s.html_safe %>
-              </div>
-
-              <div class="featured-count-badge">
-                <%= card.count %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </a>
   <% end %>
 </div>
-
-<div class="container-lg mt-4">
-  <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'btn-link text-white' %>
+<div class="sidescroll-container">
+  <p class="tw-mt-10">
+    <%= link_to 'VIEW ALL DEVELOPER RESOURCES', resources_path, class: 'tw-text-white tw-opacity-70 tw-font-semibold hover:tw-opacity-100 hover:tw-text-white tw-transition-opacity tw-duration-300' %>
+  </p>
 </div>
-

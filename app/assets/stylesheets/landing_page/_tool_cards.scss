@@ -36,12 +36,11 @@ a.tool-card-with-bg {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 0;
-    border-radius: 23px;
+    border-radius: inherit;
   }
 
   .overlay ~ * {
     position: relative;
-    z-index: 20;
     color: white;
   }
 
@@ -54,13 +53,7 @@ a.tool-card-with-bg {
     width: auto;
     height: auto;
   }
-
-  .icon {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-
+  
   &.segments, &.recitation, &.card-recitations {
    background-image: url("tools-cards/timestamp.webp");
   }

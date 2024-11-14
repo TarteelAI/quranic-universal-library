@@ -119,7 +119,7 @@ class ResourceContent < QuranApiRecord
   has_one :resource_permission
   has_many :user_projects
 
-  after_update :update_related_content
+  after_commit :run_create_and_update_hooks, on: %i[create update]
 
   attr_reader :include_footnote,
               :export_format,
@@ -246,9 +246,7 @@ class ResourceContent < QuranApiRecord
     export_name.to_s.downcase.to_param.parameterize.gsub(/[\s+_]/, '-')
   end
 
-  #
   # Check if we've added links to referenced ayah in the footnotes manually
-  #
   def has_referenced_ayah_in_footnotes?
     !!meta_value('ref-ayah-in-footnotes')
   end
@@ -535,6 +533,11 @@ class ResourceContent < QuranApiRecord
 
   def export_file_name
     ExportService.new(self).get_export_file_name
+  end
+
+  def run_create_and_update_hooks
+    update_related_content
+    data_source&.update_resource_count
   end
 
   protected

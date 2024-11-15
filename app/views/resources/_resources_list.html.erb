@@ -4,7 +4,7 @@
       <h2 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
         Available Resources
       </h2>
-      <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-2 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center">
+      <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center">
         <%= featured_downloadable_resource_cards.length + downloadable_resource_cards.length %>
       </div>
     </div>
@@ -43,30 +43,36 @@
   <table class="tw-w-full tw-mt-16">
     <thead>
       <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
-        <th class="tw-py-2 tw-px-8 tw-font-normal">Resource Name</th>
-        <th class="tw-py-2 tw-px-8 tw-font-normal">Description</th>
-        <th class="tw-py-2 tw-px-8 tw-font-normal">Count</th>
+        <th class="tw-py-3 tw-px-4 md:tw-px-8 tw-font-normal">Resource</th>
+        <th class="tw-py-3 tw-px-4 md:tw-px-8 tw-font-normal tw-hidden sm:tw-table-cell">Description</th>
+        <th class="tw-py-3 tw-px-4 md:tw-px-8 tw-font-normal tw-w-20">Count</th>
       </tr>
     </thead>
     <tbody>
       <% downloadable_resource_cards.each do |key, card| %>
         <tr class="tw-border-b hover:tw-bg-gray-50">
-          <td class="tw-py-3 tw-px-8 tw-text-sm">
-            <%= link_to card.title, card.url, class: 'hover:tw-text-black tw-block' %>
-            <span class="tw-text-gray-500">
-              <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
-            </span>
+          <td class="tw-py-3 tw-px-4 md:tw-px-8 tw-text-sm tw-text-pretty">
+            <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
+              <div><%= card.title %></div>
+              <span class="tw-text-gray-500 tw-text-xs">
+                <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
+              </span>
+              <div class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
+                <%= card.description %>
+              </div>
+            <% end %>
           </td>
-          <td class="tw-py-3 tw-px-8 tw-text-sm">
+          <td class="tw-py-3 tw-px-4 md:tw-px-8 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">
             <%= link_to card.description, card.url, class: 'hover:tw-text-black tw-block' %>
           </td>
-          <td class="tw-text-center">
+          <td class="tw-text-center tw-px-4 md:tw-px-8">
             <% if card.respond_to?(:count) && card.count.present? %>
-              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3.5 tw-py-1 tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center' %>
+              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-xs md:tw-text-sm tw-px-2 md:tw-px-3 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[30px] md:tw-min-w-[35px] tw-text-center' %>
             <% end %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+</div>
 </div>

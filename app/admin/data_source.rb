@@ -33,6 +33,7 @@ ActiveAdmin.register DataSource do
             td 'Name'
             td 'Language'
             td 'Cardinality'
+            td 'Approved?'
           end
 
           tbody do
@@ -42,6 +43,7 @@ ActiveAdmin.register DataSource do
                 td resource_content.name
                 td resource_content.language_name
                 td resource_content.cardinality_type
+                td resource_content.approved?
               end
             end
           end

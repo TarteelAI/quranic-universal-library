@@ -7,7 +7,7 @@ const path = require('path');
 // text_uthmani_tajweed, text_qpc_nastaleeq, text_indopak_nastaleeq,
 // text_digital_khatt, text_uthmani
 const scriptType = 'code_v4';
-const exportType = 'ayah'; // Possible values: word, mushaf_page, ayah
+const exportType = 'mushaf_page'; // Possible values: word, mushaf_page, ayah
 const mushafId= 19;
 const exportQuality = 100;
 const exportFormat = "png";
@@ -28,7 +28,7 @@ const exportWords = async (browser) => {
 };
 
 const exportAyahs = async (browser) => {
-  for (let ayah = 6208; ayah <= 6236; ayah++) {
+  for (let ayah = 1; ayah <= 6236; ayah++) {
     const url = `${host}/ayah?ayah=${ayah}&script=${scriptType}`;
     await captureScreenshot(browser, url, 'ayah');
   }

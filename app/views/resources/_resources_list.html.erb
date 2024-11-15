@@ -1,6 +1,13 @@
 <div class="resources-list">
   <div class="tw-flex tw-items-start md:tw-items-center tw-gap-3 tw-flex-col md:tw-flex-row tw-justify-between">
-    <h2 class="tw-pb-3 tw-text-2xl md:tw-text-3xl tw-font-light">Available Resources</h2>
+    <div class="tw-flex tw-gap-6 tw-items-center">
+      <h2 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
+        Available Resources
+      </h2>
+      <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-2 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center">
+        <%= featured_downloadable_resource_cards.length + downloadable_resource_cards.length %>
+      </div>
+    </div>
     <% if false %>
       <div class="d-flex align-items-center justify-content-center gap-3 gap-md-4">
         <button class="btn border">
@@ -26,18 +33,40 @@
   <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
     <p>No results found</p>
   </div>
-  <div class="tw-grid sm:tw-grid-cols-2 md:tw-grid-cols-2 tw-mt-3 tw-gap-4">
+  <div class="tw-pt-3 tw-grid sm:tw-grid-cols-2 md:tw-grid-cols-2 tw-mt-3 tw-gap-4">
     <% featured_downloadable_resource_cards.each do |key, card| %>
       <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}", class: 'featured-resource-card' do %>
         <%= render 'card/card_content', card: card, show_stats: true %>
       <% end %>
     <% end %>
   </div>
-  <%= render 'card/card_grid' do %>
-    <% downloadable_resource_cards.each do |key, card| %>
-      <%= render 'card/card-container', card: card, search_data: "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" do %>
-        <%= render 'card/card_content', card: card, show_stats: true %>
+  <table class="tw-w-full tw-mt-16">
+    <thead>
+      <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
+        <th class="tw-py-2 tw-px-8 tw-font-normal">Resource Name</th>
+        <th class="tw-py-2 tw-px-8 tw-font-normal">Description</th>
+        <th class="tw-py-2 tw-px-8 tw-font-normal">Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% downloadable_resource_cards.each do |key, card| %>
+        <tr class="tw-border-b hover:tw-bg-gray-50">
+          <td class="tw-py-3 tw-px-8 tw-text-sm">
+            <%= link_to card.title, card.url, class: 'hover:tw-text-black tw-block' %>
+            <span class="tw-text-gray-500">
+              <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
+            </span>
+          </td>
+          <td class="tw-py-3 tw-px-8 tw-text-sm">
+            <%= link_to card.description, card.url, class: 'hover:tw-text-black tw-block' %>
+          </td>
+          <td class="tw-text-center">
+            <% if card.respond_to?(:count) && card.count.present? %>
+              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3.5 tw-py-1 tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center' %>
+            <% end %>
+          </td>
+        </tr>
       <% end %>
-    <% end %>
-  <% end %>
+    </tbody>
+  </table>
 </div>

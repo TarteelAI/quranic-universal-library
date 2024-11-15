@@ -2,20 +2,27 @@
   <%= render 'hero' %>
   <%= render 'layouts/grid' do %>
     <div class="tw-grid-cols-subgrid tw-grid tw-mt-6">
-      <div class="tw-border tw-rounded-lg tw-p-4 tw-bg-gray-100 tw-h-fit tw-space-y-3">
-        <p class="tw-font-semibold">
-          About This Page
-        </p>
-        <p>
+      <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-3">
+        <h2 class="tw-font-semibold tw-w-full md:tw-w-1/2 tw-text-3xl tw-font-title">
+          About QUL Resources
+        </h2>
+        <p class="tw-w-full md:tw-w-1/2">
           Below you will find a list of the categories of Quranic data available on QUL, for example translations, tafsirs, and surah information. Clicking on one of these resource categories will take you to a page where you can download the various resources belonging to that category in formats such as sqlite and json. For more granular options to find and download resources, visit the advanced admin panel. Resources included in QUL are intended for you to download and package with your own project; no API is available
         </p>
       </div>
-      <div class="tw-mt-8">
-        <%= render 'resources_list' %>
+      <div class="tw-text-black tw-bg-red-100 tw-p-4 tw-rounded-lg tw-text-sm tw-mt-8">
+        <p>
+          The information on this page comes from external sources and may contain errors. While we aim for accuracy, we cannot guarantee all content is complete or correct. No translation of the Qur'an can fully capture its deeper meanings, and translations may have limitations based on the translator’s understanding. Please use these translations as references, not definitive interpretations. If you find any issues with the resources provided, <a href="mailto:support@tarteel.ai" class="tw-font-semibold tw-underline hover:tw-text-black">please report them to us</a>. Your feedback is valuable in helping us improve the quality and accuracy of the Quranic content.
+        </p>
       </div>
-    </div>
-    <div class="tw-mb-10 tw-mt-8">
-      <%= render 'content_notice' %>
-    </div>
-  <% end %>
+      <div>
+        <div class="tw-mt-8">
+          <%= render 'resources_list' %>
+        </div>
+      </div>
+      <div class="tw-mb-10 tw-mt-8">
+        <%= render 'content_notice' %>
+      </div>
+    <% end %>
+  </div>
 </div>

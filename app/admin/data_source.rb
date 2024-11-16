@@ -23,22 +23,25 @@ ActiveAdmin.register DataSource do
     end
 
     panel 'Resources from this source' do
-      resource.grouped_resources_on_type.each do |resource_type, records|
-        strong do
-          "#{resource_type.humanize} - #{records.size}"
+      table do
+        thead do
+          td 'ID'
+          td 'Name'
+          td 'Language'
+          td 'Cardinality'
+          td 'Approved?'
         end
-        table do
-          thead do
-            td 'ID'
-            td 'Name'
-            td 'Language'
-            td 'Cardinality'
-            td 'Approved?'
-          end
 
-          tbody do
+        tbody do
+          resource.grouped_resources_on_type.each_with_index do |(resource_type, records), index|
+            tr class: "group-header", 'data-target': "group-#{index}" do
+              td colspan: 5do
+                h3 "#{resource_type.humanize} - #{records.size}"
+              end
+            end
+
             records.each do |resource_content|
-              tr do
+              tr class: "group-rows group-#{index}" do
                 td link_to(resource_content.id, [:admin, resource_content])
                 td resource_content.name
                 td resource_content.language_name

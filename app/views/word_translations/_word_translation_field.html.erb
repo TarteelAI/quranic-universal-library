@@ -1,0 +1,53 @@
+<%
+  is_english = language.english?
+  language_class = "#{language.iso_code} #{language.name.downcase}"
+  word_translation = form.object
+  word = word_translation.word
+%>
+
+<%= form.hidden_field :word_id %>
+<%= form.hidden_field :language_id, value: language.id %>
+
+<div class="card mb-5 p-3">
+  <h5 class="card-title text-right" dir="rtl">
+    <strong class="ms-2">
+      <%= word.location %>
+    </strong>
+    <strong class="qpc-hafs" dir="rtl">
+      <%= word.text_qpc_hafs %>
+    </strong>
+  </h5>
+
+  <div
+    class="card-body word-translation"
+    data-word="<%= word.location %>"
+  >
+    <div class="row">
+      <div class="col-6">
+        <div class="form-group">
+          <%= form.text_field :text,
+                              class: "form-control #{@language.name.downcase}",
+                              placeholder: "Enter #{@language.name} translation of #{word.location}" %>
+          <div class="help-block d-flex align-items-center justify-content-between">
+            <small>Enter word by word translation for <%= word.location %></small>
+            <div class="me-5">
+              <strong>Current translation:</strong> <%= word_translation.text %>
+            </div>
+
+            <% unless is_english %>
+              <div>
+                <strong>English translation:</strong> <%= word.en_translation&.text %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if word_translation.persisted? %>
+        <div class="col-6">
+          <%= render 'word_group_info', word_translation: word_translation, language: language, word: word %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

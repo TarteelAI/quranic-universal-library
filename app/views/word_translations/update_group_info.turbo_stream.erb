@@ -1,0 +1,9 @@
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>
+
+<% @wbw_translations.each do |word_translation| %>
+  <%= turbo_stream.update dom_id(word_translation.word, :group) do %>
+    <%= render 'word_group_info', word_translation: word_translation, language: @language, word: word_translation.word %>
+  <% end %>
+<% end %>

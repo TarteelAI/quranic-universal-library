@@ -124,7 +124,7 @@ module LandingHelper
 
       morphology: ToolCard.new(
         title: "Quranic Grammar and Morphology",
-        description: "Quranic Grammar(part of speech for each word), morphology, roots, lemmas and stems data.",
+        description: "Quranic Grammar (part of speech for each word), morphology, roots, lemmas and stems data.",
         icon: 'layout.svg',
         url: '/resources/morphology',
         type: 'grammar-morphology',

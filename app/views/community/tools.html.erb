@@ -19,25 +19,27 @@
     <% end %>
   </div>
   <%= render 'layouts/grid' do %>
-    <div class="tw-border tw-rounded-lg tw-p-4 tw-bg-gray-100 tw-h-fit tw-space-y-3 tw-mt-6">
-      <p class="tw-font-semibold">
-        About This Page
-      </p>
-      <p>
-        This page provides a suite of tools designed to help you review, proofread, and improve the data in the
-        Quranic Universal Library.
-      </p>
-      <p>
-        Whether you're fixing typos in translations, adjusting audio timings, designing a new Mushaf layout, testing a new font, or proofreading content, these tools empower you to ensure that your work is precise, accurate, and ready for use.
-      </p>
-      <p>
-        Your contributions are crucial in maintaining the integrity and quality of the information we
-        provide. Please use these tools thoughtfully, and refer to the guidelines provided for each tool to understand
-        their specific functions and how best to utilize them.
-      </p>
-      <p>
-        To request editing permissions, click on the resource card and then click the <strong>Request Access</strong> button.
-      </p>
+    <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-3 tw-mt-6">
+      <h2 class="tw-font-semibold tw-w-full md:tw-w-1/2 tw-text-3xl tw-font-title">
+        About QUL Tools
+      </h2>
+      <div class="tw-w-full md:tw-w-1/2 tw-space-y-4">
+        <p>
+          This page provides a suite of tools designed to help you review, proofread, and improve the data in the
+          Quranic Universal Library.
+        </p>
+        <p>
+          Whether you're fixing typos in translations, adjusting audio timings, designing a new Mushaf layout, testing a new font, or proofreading content, these tools empower you to ensure that your work is precise, accurate, and ready for use.
+        </p>
+        <p>
+          Your contributions are crucial in maintaining the integrity and quality of the information we
+          provide. Please use these tools thoughtfully, and refer to the guidelines provided for each tool to understand
+          their specific functions and how best to utilize them.
+        </p>
+        <p>
+          To request editing permissions, click on the resource card and then click the <strong>Request Access</strong> button.
+        </p>
+      </div>
     </div>
     <div class="tw-mb-10 tw-mt-8">
       <table class="tw-w-full">
@@ -51,33 +53,37 @@
         </thead>
         <tbody>
           <% developer_tools.each do |card| %>
-            <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
-              <tr class="tw-border-b hover:tw-bg-gray-50">
-                <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
-                  <div><%= card.title %></div>
-                  <div class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
+            <tr class="tw-border-b hover:tw-bg-gray-50">
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
+                <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
+                  <span><%= card.title %></span>
+                  <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
                     <%= card.description %>
-                  </div>
-                </td>
-                <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">
+                  </span>
+                <% end %>
+              </td>
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">
+                <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
                   <%= card.description %>
-                </td>
-                <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-table-cell tw-text-gray-500">
+                <% end %>
+              </td>
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-table-cell tw-text-gray-500">
+                <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
                   <%= card.info_tip if card.respond_to?(:info_tip) %>
-                </td>
-                <td class="tw-py-3 tw-px-4">
-                  <% if card.respond_to?(:tags) && card.tags.present? %>
-                    <div class="tw-flex tw-flex-wrap tw-gap-1">
-                      <% card.tags.each do |tag| %>
-                        <span class="tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
-                          <%= tag %>
-                        </span>
-                      <% end %>
-                    </div>
+                <% end %>
+              </td>
+              <td class="tw-py-3 tw-px-4">
+                <% if card.respond_to?(:tags) && card.tags.present? %>
+                  <%= link_to card.url, class: 'tw-flex tw-flex-wrap tw-gap-1 hover:tw-text-black tw-block' do %>
+                    <% card.tags.each do |tag| %>
+                      <span class="tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
+                        <%= tag %>
+                      </span>
+                    <% end %>
                   <% end %>
-                </td>
-              </tr>
-            <% end %>
+                <% end %>
+              </td>
+            </tr>
           <% end %>
         </tbody>
       </table>

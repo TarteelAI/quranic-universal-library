@@ -1,25 +1,26 @@
 <%= render 'layouts/grid' do %>
-  <div class="px-4">
-    <div class="row device-container">
-      <%= render 'devise/shared/spline_animation' %>
-      <div class="col-md-6 col-12 right">
-        <div class="py-3 px-md-4">
-          <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="<%= new_user_session_path %>">Login</a>
+  <div class="tw-mx-auto tw-px-4 tw-pb-10">
+    <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6 md:tw-gap-8">
+      <div class="tw-w-full tw-bg-black tw-rounded-3xl tw-overflow-hidden tw-h-[30vh] md:tw-h-[80vh] tw-flex tw-items-center tw-justify-center">
+        <%= render 'devise/shared/spline_animation' %>
+      </div>
+      <div class="tw-w-full">
+        <div class="tw-py-3 md:tw-px-4">
+          <ul class="tw-relative tw-flex tw-gap-4 tw-border-b tw-border-gray-200 tw-pb-2" role="tablist">
+            <li>
+              <a class="tw-text-gray-400 tw-font-semibold hover:tw-text-black" href="<%= new_user_session_path %>">Login</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark active" href="<%= new_user_registration_path %>" role="tab">Signup</a>
+            <li>
+              <a class="tw-font-semibold hover:tw-text-black" href="<%= new_user_registration_path %>">Create Account</a>
+              <span class="tw-block tw-h-[2px] tw-w-[13ch] tw-bg-black tw-absolute -tw-bottom-[1px] tw-start-[5.5ch]"></span>
             </li>
           </ul>
-          <div class="tab-content py-3" data-turbo="false">
-            <div class="tab-pane active show"
-               id="tab-signup" role="tabpanel"
-               aria-labelledby="tab-signup">
-              <%= render 'form' %>
-            </div>
+          <div class="md:tw-py-3" data-turbo="false">
+            <%= render 'form' %>
           </div>
-          <%= render 'devise/shared/links' %>
+          <div class="tw-mb-4 tw-text-center">
+            <%= render 'devise/shared/links' %>
+          </div>
         </div>
       </div>
     </div>

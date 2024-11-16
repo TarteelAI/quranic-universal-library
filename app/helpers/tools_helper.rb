@@ -34,7 +34,7 @@ module ToolsHelper
         description: 'Tool for creating word by word timestamp data of surah audio files.',
         url: '/surah_audio_files',
         type: 'segments',
-        tags: ['Audio', 'Surah by surah', 'Timestamp'],
+        tags: ['Audio', 'Surah by Surah', 'Timestamp'],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "Surah Timestamp Editor is designed to help you prepare precise timestamp data for surah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
@@ -44,7 +44,7 @@ module ToolsHelper
         description: 'Tool for creating word by word segments of ayah by ayah audio files.',
         url: '/ayah_audio_files',
         type: 'segments',
-        tags: ['Audio', 'ayah by ayah', 'Timestamp'],
+        tags: ['Audio', 'Ayah by Ayah', 'Timestamp'],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "Ayah Timestamp Editor is designed to help you prepare precise timestamp data for ayah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
@@ -54,7 +54,7 @@ module ToolsHelper
         description: 'Tool for proofreading and suggesting the fixes for ayah translations.',
         url: translation_proofreadings_path,
         type: 'translation',
-        tags: ['translation'],
+        tags: ['Translation'],
         icon: 'translation.svg',
         cta_bg: 'rgba(90, 77, 65, 0.9)',
         info_tip: "This tool helps you review and suggest fixes for Quran translations, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
@@ -64,7 +64,7 @@ module ToolsHelper
         description: 'Tool for proofreading and suggesting the fixes for ayah tafisrs.',
         url: tafsir_proofreadings_path,
         type: 'tafsir',
-        tags: ['tafsir'],
+        tags: ['Tafsir'],
         icon: 'translation.svg',
         cta_bg: 'rgba(90, 77, 65, 0.9)',
         info_tip: "This tool helps you review and suggest fixes for Quran tafsirs, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
@@ -75,7 +75,7 @@ module ToolsHelper
         url: '/word_text_proofreadings',
         type: 'quranic-text',
         icon: 'open_book.svg',
-        tags: ['Quran script', 'Fonts'],
+        tags: ['Quran Script', 'Fonts'],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool enables you to proofread Quran script( For Tashkeel issues and font compatibility), both ayah by ayah and word by word.",
         ),
@@ -104,7 +104,7 @@ module ToolsHelper
         description: 'Proofread and suggest fixes for word by word translations in multiple languages.',
         url: word_translations_path,
         type: 'corpus',
-        tags: ['Translation', 'Word by word'],
+        tags: ['Translation', 'Word by Word'],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool is used to proofread and fix word-by-word translations"
@@ -124,7 +124,7 @@ module ToolsHelper
         description: 'See details of each letter in Arabic text of Quran.',
         url: chars_info_path,
         type: 'corpus',
-        tags: ['Letter info'],
+        tags: ['Letter Info'],
         icon: 'info.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool helps you detect unicode value of any character, and is being used to debug the font issues."

@@ -2,35 +2,29 @@
   <% if controller_name != 'sessions' && controller_name != 'registrations' %>
     <p class="mt-2">
       Already have an account?
-
       <%= link_to t('.sign_in', default: 'Sign in'), new_session_path(resource_name), class: 'text-dark' %>
     </p>
-
     <p class="mt-2">
       Don’t have an account?
       <%= link_to 'Create Account', new_user_registration_path, class: 'text-dark' %>
     </p>
   <% end %>
-
   <% if controller_name != 'passwords' && controller_name != 'sessions' && controller_name != 'registrations' %>
     <p class="mt-2">
       Forgot your password?
       <%= link_to "Let's reset it", new_password_path(resource_name), class: 'text-dark' %>
     </p>
   <% end %>
-
   <% if devise_mapping.confirmable? && controller_name != 'confirmations' %>
     <p class="mt-2">
       Didn't receive confirmation instructions?
-      <%= link_to 'Try again', new_user_confirmation_path, class: 'text-dark' %>
+      <span class="tw-inline-block tw-font-semibold"><%= link_to 'Try again', new_user_confirmation_path, class: 'text-dark' %></span>
     </p>
   <% end %>
-
   <% if resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>
     <p class="mt-2">
       Account is locked?
-      <%= link_to "Get unlock instructions?", new_unlock_path(resource_name), class: 'text-dark' %>
+      <span class="tw-inline-block tw-font-semibold"><%= link_to "Get unlock instructions?", new_unlock_path(resource_name), class: 'text-dark' %></span>
     </p>
   <% end %>
 </div>
-

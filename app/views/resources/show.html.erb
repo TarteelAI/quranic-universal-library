@@ -84,7 +84,7 @@
         </thead>
         <tbody>
           <% @resources.each do |card| %>
-            <tr class="tw-border-b hover:tw-bg-gray-50" id="<%= dom_id card %>">
+            <tr class="tw-border-b hover:tw-bg-gray-50" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
               <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px]">
                 <p class="tw-font-semibold tw-block"><%= card.name %></p>
                 <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden">

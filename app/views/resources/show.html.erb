@@ -86,7 +86,7 @@
           <% @resources.each do |card| %>
             <tr class="tw-border-b hover:tw-bg-gray-50" id="<%= dom_id card %>">
               <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px]">
-                <div><%= card.name %></div>
+                <p class="tw-font-semibold tw-block"><%= card.name %></p>
                 <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden">
                   <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
                   <div class="tw-flex tw-flex-wrap tw-gap-1 tw-mt-1">

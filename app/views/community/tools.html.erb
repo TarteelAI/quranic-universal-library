@@ -41,6 +41,14 @@
         </p>
       </div>
     </div>
+    <div class="tw-flex tw-gap-6 tw-items-center tw-mt-10">
+      <h2 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
+        Available Tools
+      </h2>
+      <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center">
+        <%= developer_tools.length %>
+      </div>
+    </div>
     <div class="tw-mb-10 tw-mt-8">
       <table class="tw-w-full">
         <thead>
@@ -56,7 +64,7 @@
             <tr class="tw-border-b hover:tw-bg-gray-50">
               <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
                 <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
-                  <span><%= card.title %></span>
+                  <span class="tw-font-semibold tw-block"><%= card.title %></span>
                   <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
                     <%= card.description %>
                   </span>
@@ -76,7 +84,7 @@
                 <% if card.respond_to?(:tags) && card.tags.present? %>
                   <%= link_to card.url, class: 'tw-flex tw-flex-wrap tw-gap-1 hover:tw-text-black tw-block' do %>
                     <% card.tags.each do |tag| %>
-                      <span class="tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
+                      <span class="tw-w-max tw-block tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
                         <%= tag %>
                       </span>
                     <% end %>

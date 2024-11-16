@@ -7,7 +7,7 @@ module ToolsHelper
         url: '/mushaf_layouts',
         type: 'mushaf-layout',
         icon: 'layout.svg',
-        tags: ['Mushaf layout'],
+        tags: ['Mushaf Layout'],
         info_tip: "This tool allows you to create the digital Quran layout as it appears in printed Mushafs."
       ),
       ToolCard.new(

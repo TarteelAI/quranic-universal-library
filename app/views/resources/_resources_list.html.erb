@@ -53,13 +53,13 @@
         <tr class="tw-border-b hover:tw-bg-gray-50">
           <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
             <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
-              <div><%= card.title %></div>
+              <span class="tw-font-semibold tw-block"><%= card.title %></span>
               <span class="tw-text-gray-500 tw-text-xs">
                 <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
               </span>
-              <div class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
+              <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
                 <%= card.description %>
-              </div>
+              </span>
             <% end %>
           </td>
           <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">

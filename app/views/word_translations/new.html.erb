@@ -31,7 +31,8 @@
             <% end %>
           </div>
 
-          <div class="form-group d-flex justify-content-end mt-3">
+          <div class="form-group d-flex justify-content-end align-items-center mt-3">
+            <%= link_to 'Cancel', word_translation_path(@verse.id, language: @language.id), class: 'me-3' %>
             <%= form.submit 'Save translations',
                             class: 'btn btn-success',
                             data: { disable_with: 'Please wait...' } %>

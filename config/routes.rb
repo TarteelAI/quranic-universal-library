@@ -70,10 +70,14 @@ Rails.application.routes.draw do
   resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :delete
   resources :proof_read_comments
-  resources :word_translations, except: :delete
   resources :word_text_proofreadings, only: [:index, :show]
   resources :translation_proofreadings, except: :delete
   resources :tafsir_proofreadings, except: :delete
+  resources :word_translations, except: :delete do
+    member do
+      match :group_info, via: [:get, :post]
+    end
+  end
   resources :surah_infos, except: :delete do
     member do
       get :history

@@ -3,6 +3,7 @@
 # Table name: data_sources
 #
 #  id             :integer          not null, primary key
+#  description    :text
 #  name           :string
 #  resource_count :integer          default(0)
 #  url            :string

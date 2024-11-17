@@ -32,22 +32,21 @@ class WordTranslationsController < CommunityController
   end
 
   def new
-    @verse = Verse
+    verses = Verse
                .includes(:chapter, :translations)
                .where(translations: { resource_content_id: eager_load_translations })
-               .find(params[:ayah])
 
-    @wbw_translations = []
+    @verse = if params[:ayah].include?(':')
+               verses.find_by(verse_key: params[:ayah])
+             else
+               verses.find_by(id: params[:ayah])
+             end
 
-    @verse.words.order('position asc').each_with_index do |word, i|
-      next if word.char_type_name == 'end'
-      wbw_translation = @verse
-                          .word_translations
-                          .where(language_id: language.id)
-                          .find_or_initialize_by(word_id: word.id)
-
-      @wbw_translations << wbw_translation
+    if @verse.blank?
+      return redirect_back fallback_location: word_translations_path(language: language.id), alert: 'Verse not found'
     end
+
+    prepare_wbw_translations
   end
 
   def create
@@ -57,14 +56,45 @@ class WordTranslationsController < CommunityController
     redirect_to word_translation_path(@verse, language: language.id)
   end
 
+  def group_info
+    @word_translation = WordTranslation.where(
+      word_id: params[:word_id],
+      language_id: language.id
+    ).first_or_initialize
+    @verse = @word_translation.word&.verse
+
+    if request.post?
+      if @word_translation.create_or_update_group_translation(group_translation_params)
+        flash[:notice] = 'Group info updated'
+        prepare_wbw_translations
+        render 'update_group_info'
+      else
+        render_turbo_validations(@word_translation, {action: :update})
+      end
+    end
+  end
+
   protected
+
+  def group_translation_params
+    params
+      .require(:word_translation)
+      .permit(
+        :word_range_from,
+        :word_range_to,
+        :group_word_id,
+        :group_text
+      )
+  end
 
   def wbw_translations_params
     params.require(:verse).permit word_translations_attributes: [
       :id,
       :word_id,
       :language_id,
-      :text
+      :text,
+      :group_text,
+      :group_word_id
     ]
   end
 
@@ -92,5 +122,19 @@ class WordTranslationsController < CommunityController
 
   def load_resource_access
     @access = can_manage?(load_resource)
+  end
+
+  def prepare_wbw_translations
+    @wbw_translations = []
+
+    @verse.words.order('position asc').each_with_index do |word, i|
+      next if word.char_type_name == 'end'
+      wbw_translation = @verse
+                          .word_translations
+                          .where(language_id: language.id)
+                          .find_or_initialize_by(word_id: word.id)
+
+      @wbw_translations << wbw_translation
+    end
   end
 end

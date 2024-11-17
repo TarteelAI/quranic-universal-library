@@ -1,12 +1,12 @@
 <%= render 'tools/header',
            name: "Word translation proofreading",
            title: "#{@language.name} word-by-word translation for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
-           key: 'word_translation'
-%>
+           key: 'word_translation' %>
 
 <div class="page-wrapper container-lg">
   <div class="page-section">
     <div class="row" id="editor-wrap">
+
       <div class="col-md-12">
         <b>Text Uthmani</b>
         <div class="qpc-hafs" id="ayah_text">
@@ -23,42 +23,18 @@
         <% end %>
       </div>
 
-      <div class="col-md-12">
+      <div class="col-md-12" data-controller="word-translation">
         <%= form_for @verse, url: word_translations_path(verse_id: @verse.id, language: @language.id), method: :post, html: { class: 'form', autocomplete: 'off' } do |form| %>
-          <div id=words>
+          <div id="words">
             <%= form.fields_for :word_translations, @wbw_translations do |trans_form| %>
-              <% word = trans_form.object.word %>
-              <%= trans_form.hidden_field :word_id %>
-              <%= trans_form.hidden_field :language_id, value: @language.id %>
-
-              <div class="card mb-5 p-3">
-                <h5 class="card-title text-right" dir="rtl">
-                  <strong><%= word.location %>:</strong>
-                  <strong class="qpc-hafs" dir="rtl">
-                    <%= word.text_qpc_hafs %>
-                  </strong>
-                </h5>
-
-                <div class="card-body">
-                  <div class="form-group">
-                    <%= trans_form.text_field :text, class: "form-control #{@language.name.downcase}", placeholder: "Enter #{@language.name} translation of #{word.location}" %>
-                    <div class="help-block d-flex">
-                      <div class="me-5">
-                        <strong>Current translation:</strong> <%= trans_form.object.text %>
-                      </div>
-
-                      <div>
-                        <strong>English translation</strong> <%= word.en_translation&.text %>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+             <%= render 'word_translation_field', form: trans_form, language: current_language %>
             <% end %>
           </div>
 
-          <div class="form-group d-flex justify-content-end">
-            <%= form.submit 'Submit', class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+          <div class="form-group d-flex justify-content-end mt-3">
+            <%= form.submit 'Save translations',
+                            class: 'btn btn-success',
+                            data: { disable_with: 'Please wait...' } %>
           </div>
         <% end %>
       </div>

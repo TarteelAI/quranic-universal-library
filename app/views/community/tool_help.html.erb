@@ -18,7 +18,7 @@
         </div>
       <% else %>
         <% docs[1..].each_with_index do |doc, i| %>
-          <div class="section">
+          <div class="section mb-2">
             <% if doc[:type] == 'heading' %>
               <h3>
                 <%= doc[:text].to_s.html_safe %>

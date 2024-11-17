@@ -1,10 +1,27 @@
+<%
+  is_english = current_language.english?
+  has_group_translation = true
+  language_class = "#{current_language.iso_code} #{current_language.name.downcase}"
+%>
+
 <table class="table table-hover mt-4">
   <thead class="position-sticky bg-white border-bottom top-0">
   <tr>
     <th>Word#</th>
-    <th>IndoPak text</th>
-    <th>En translation</th>
-    <th><%= current_language.name %> Translation</th>
+    <th>Text Uthmani</th>
+    <% if !is_english %>
+      <th>En translation</th>
+    <% end %>
+
+    <th>
+      <%= current_language.name %> Translation
+    </th>
+
+    <% if has_group_translation %>
+      <th>
+        Group Translation
+      </th>
+    <% end %>
   </tr>
   </thead>
 
@@ -16,20 +33,30 @@
       <th scope="row"><%= word.position %></th>
 
       <td>
-        <span class="indopak">
-        <%= word.text_indopak %>
+        <span class="qpc-hafs">
+        <%= word.text_qpc_hafs %>
         </span>
       </td>
 
-      <td>
-        <%= word.en_translation&.text %>
-      </td>
+      <% if !is_english %>
+        <td>
+          <%= word.en_translation&.text %>
+        </td>
+      <% end %>
 
       <td>
-        <span class="<%= current_language.iso_code %> <%= current_language.name.downcase %>">
+        <span class="<%= language_class %>">
           <%= translation&.text %>
         </span>
       </td>
+
+      <% if has_group_translation %>
+        <td>
+          <span class="<%= language_class %>">
+           <%= translation&.group_text %>
+          </span>
+        </td>
+      <% end %>
     </tr>
   <% end %>
   </tbody>

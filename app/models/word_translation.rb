@@ -83,7 +83,7 @@ class WordTranslation < QuranApiRecord
       if primary_in_group?
         group_text
       else
-        '*'
+        "*(#{group_word.position})"
       end
     else
       ''

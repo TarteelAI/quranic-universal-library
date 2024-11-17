@@ -1,7 +1,8 @@
 <%
   is_english = current_language.english?
-  has_group_translation = true
   language_class = "#{current_language.iso_code} #{current_language.name.downcase}"
+  word_translations = WordTranslation.where(language: current_language, word: @verse.words).includes(:word).order('words.position ASC')
+  has_group_translation = word_translations.where.not(group_word_id: nil).exists?
 %>
 
 <table class="table table-hover mt-4">
@@ -26,11 +27,15 @@
   </thead>
 
   <tbody>
-  <% @verse.words.order('position ASC').each do |word| %>
-    <% translation = word.translation_for_language(current_language) %>
+  <% word_translations.each do |translation| %>
+    <%
+      word = translation.word
+    %>
 
     <tr class="<%= 'bg-danger text-white' if translation.blank? %>">
-      <th scope="row"><%= word.position %></th>
+      <th scope="row">
+        <%= translation.word.position %>
+      </th>
 
       <td>
         <span class="qpc-hafs">
@@ -53,7 +58,7 @@
       <% if has_group_translation %>
         <td>
           <span class="<%= language_class %>">
-           <%= translation&.group_text %>
+           <%= translation.get_group_text %>
           </span>
         </td>
       <% end %>

@@ -52,7 +52,12 @@
                   <% if doc[:sections] %>
                     <% doc[:sections].each do |section| %>
                       <div class="mt-3">
-                        <p><%= section[:text].to_s.html_safe %></p>
+                        <% if section[:text] %>
+                          <div class="<%= 'alert alert-dark' if 'info' == section[:type] %> <%= section[:css_class] %>">
+                            <%= section[:text].to_s.html_safe %>
+                          </div>
+                        <% end %>
+
                         <% if section[:screenshot] %>
                           <div class="screenshot my-2">
                             <%= doc_image_tag(section[:screenshot]) %>
@@ -63,7 +68,7 @@
                   <% end %>
                 </div>
               </div>
-            <% elsif doc[:type] == 'demo'%>
+            <% elsif doc[:type] == 'demo' %>
               <div class="step">
                 <h4 class="step-title flex-between" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
                   <%= doc[:title].to_s.html_safe %>

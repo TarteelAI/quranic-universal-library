@@ -1,23 +1,19 @@
-<h2 class="mb-3">
+<h1 class="tw-text-2xl tw-font-semibold">
   Forgot your password?
-</h2>
-<p>
+</h1>
+<p class="tw-mt-6">
   No worries! Just enter your <strong>email address</strong> below, and we'll send you a link to reset your password.
 </p>
-
 <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { class: 'inputs_container', method: :post, data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-
-  <div class="form-floating mb-3">
+  <div class="form-floating tw-mt-3">
     <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
     <%= f.label :email, required: true %>
-
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
-
-  <div class="text-center">
-    <%= f.submit 'Send me reset password instructions', class: 'btn btn-dark btn-rounded mt-2 p-3' %>
+  <div class="tw-text-center tw-mt-8">
+    <%= f.submit 'Send me reset password instructions', class: 'tw-px-8 tw-py-3 tw-bg-black tw-text-white tw-rounded-full' %>
   </div>
 <% end %>

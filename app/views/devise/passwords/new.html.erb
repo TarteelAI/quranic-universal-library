@@ -1,13 +1,18 @@
 <%= render 'layouts/grid' do %>
-  <div class="px-4">
-    <div class="row device-container px-3">
-      <%= render 'devise/shared/spline_animation' %>
-      <div class="col-md-6 col-12 right">
-        <div class="py-3 px-md-4" data-turbo="false">
+  <div class="tw-mx-auto tw-px-4 tw-pb-10">
+    <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6 md:tw-gap-8">
+      <div class="tw-w-full tw-bg-black tw-rounded-3xl tw-overflow-hidden tw-h-[30vh] md:tw-h-[80vh] tw-flex tw-items-center tw-justify-center">
+        <%= render 'devise/shared/spline_animation' %>
+      </div>
+      <div class="tw-w-full">
+        <div class="md:tw-py-3" data-turbo="false">
           <%= render 'form' %>
+        </div>
+        <div class="tw-mb-4 tw-text-center">
           <%= render 'devise/shared/links' %>
         </div>
       </div>
     </div>
   </div>
+</div>
 <% end %>

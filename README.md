@@ -142,7 +142,7 @@ Click on the "Fork" button at the top right of this page to create your own copy
 
 10.2 **Clone Your Fork:**
 ```bash
-   git clone https://github.com/your_username/qul.git
+   git clone https://github.com/your_username/quranic-universal-library.git
 ```
 
 10.3. **Create a new feature branch:**

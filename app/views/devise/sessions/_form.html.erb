@@ -17,15 +17,15 @@
       Password does not meet minimum security requirements.
     </div>
   </div>
-  <div class="tw-mt-3 tw-flex tw-gap-3 tw-flex-row tw-justify-between tw-items-center">
+  <div class="tw-mt-3 tw-flex tw-gap-3 lg:tw-gap-4 tw-flex-row tw-justify-between tw-items-center tw-flex-wrap">
     <div class="tw-ms-1 tw-flex tw-items-center">
       <%= f.label :remember_me, class: "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer" do %>
         <%= f.check_box :remember_me, class: "tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-primary-600 focus:tw-ring-primary-500" %>
         <span class="tw-text-gray-700">Remember me</span>
       <% end %>
     </div>
-    <div>
-      <%= link_to 'Forgot your password?', new_user_password_path, class: 'text-dark btn-link' %>
+    <div class="tw-w-full md:tw-w-fit">
+      <%= link_to 'Forgot your password?', new_user_password_path, class: 'hover:tw-text-black hover:tw-underline' %>
     </div>
   </div>
   <div class="text-center tw-mt-8">

@@ -10,7 +10,6 @@
 
   group_card = resources[group_key] || featured_resources[group_key]
 %>
-
 <div id="resources" data-controller="resource-search">
   <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
     <div id="resource-bg">
@@ -38,25 +37,26 @@
       </div>
     <% end %>
   </div>
-
   <%= render 'layouts/grid' do %>
-    <div class="tw-border tw-rounded-lg tw-p-4 tw-bg-gray-100 tw-h-fit tw-space-y-3 tw-mt-6">
+    <div class="tw-border tw-rounded-lg tw-p-4 tw-bg-gray-100 tw-h-fit tw-space-y-3 tw-mt-5">
       <%= (group_card.page_description || group_card.description).to_s.html_safe %>
     </div>
   <% end %>
-
   <%= render 'layouts/grid' do %>
     <div>
       <div class="tw-flex tw-flex-col md:tw-flex-row tw-items-center tw-justify-between tw-mt-4 md:tw-mt-5">
-        <h1 class="tw-text-2xl md:tw-text-3xl tw-w-fit tw-grow">
-          <%= @resources.first.group_info %>
-        </h1>
-
+        <div class="tw-flex tw-gap-6 tw-items-center tw-w-fit tw-grow">
+          <h1 class="tw-text-2xl md:tw-text-3xl tw-leading-none">
+            <%= @resources.first.group_info %>
+          </h1>
+          <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center tw-me-4">
+            <%= @resources.length %>
+          </div>
+        </div>
         <div class="tw-flex tw-items-center tw-justify-end tw-gap-3 tw-w-full md:tw-w-1/3 tw-mt-5 md:tw-mt-0">
           <div class="tw-w-full">
             <%= render partial: 'shared/search_input' %>
           </div>
-
           <% if false %>
             <button class="tw-btn tw-border tw-flex tw-items-center tw-gap-2">
               <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -68,23 +68,49 @@
         </div>
       </div>
     </div>
-
     <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
       <p>No results found</p>
     </div>
-
     <%= render 'shared/page_font', verses: [@preview_verse] if is_quran_script %>
-
     <div class="tw-mb-10 tw-mt-8">
-      <%= render 'card/card_grid' do %>
-        <% @resources.each do |card| %>
-          <%= render 'card/card-container', card: card, search_data: "#{card.name.to_s.downcase} #{card.resource_type.to_s.downcase} #{card.tags.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase}", patterns: patterns do %>
-            <div class="tw-w-full tw-h-full tw-flex tw-justify-between tw-flex-col" id="<%= dom_id card %>">
-              <%= render 'card/card_content', card: card, show_info: true, is_quran_script: is_quran_script, preview_verse: @preview_verse, show_download: true %>
-            </div>
+      <table class="tw-w-full">
+        <thead>
+          <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
+            <th class="tw-py-3 tw-px-4 tw-font-normal">Name</th>
+            <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max">Category</th>
+            <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell">Tags</th>
+            <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20">Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @resources.each do |card| %>
+            <tr class="tw-border-b hover:tw-bg-gray-50" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px]">
+                <p class="tw-font-semibold tw-block"><%= card.name %></p>
+                <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden">
+                  <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+                  <div class="tw-flex tw-flex-wrap tw-gap-1 tw-mt-1">
+                    <% card.get_tags.each do |tag| %>
+                      <%= render 'card/card-tag', tag: tag %>
+                    <% end %>
+                  </div>
+                </div>
+              </td>
+              <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max">
+                <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+              </td>
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-2 tw-text-pretty">
+                <% card.get_tags.each do |tag| %>
+                  <%= render 'card/card-tag', tag: tag %>
+                <% end %>
+              </td>
+              <td class="tw-text-center tw-px-4">
+                <%= render 'card/download_dropdown', resource: card %>
+              </td>
+            </tr>
           <% end %>
-        <% end %>
-      <% end %>
+        </tbody>
+      </table>
     </div>
   <% end %>
 </div>

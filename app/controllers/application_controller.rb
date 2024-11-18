@@ -65,7 +65,8 @@ class ApplicationController < ActionController::Base
       flash[:alert] = 'Please fix the validation errors and try again.'
     end
 
-    render "shared/turbo_resource_actions/#{action_name}",
+    action = options[:action] || action_name
+    render "shared/turbo_resource_actions/#{action}",
            locals: { resource: resource },
            status: :unprocessable_entity
   end

@@ -24,7 +24,7 @@
   @include section-background;
   margin-bottom: 20px;
 
-  > h3 {
+  > h3, .heading {
     @include section-header;
 
     .header_action {

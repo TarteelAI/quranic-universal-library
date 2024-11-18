@@ -1,54 +1,44 @@
-<h2 class="mb-3">Welcome! Let’s get you started!</h2>
-<p>
+<h1 class="tw-text-2xl tw-font-semibold tw-mt-4">Welcome! Let’s get you started!</h1>
+<p class="tw-mt-6">
   Signup using your <strong>Email</strong> credentials.
 </p>
-
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { role: 'form', class: 'inputs_container', data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-
-  <div class="form-floating mb-3">
+  <div class="form-floating tw-mt-3">
     <%= f.text_field :first_name, autofocus: true, required: true, class: 'form-control', placeholder: 'First name' %>
     <%= f.label :first_name, required: true %>
-
     <div class="invalid-feedback">
       First name is required
     </div>
   </div>
-
-  <div class="form-floating mb-3">
+  <div class="form-floating tw-mt-3">
     <%= f.text_field :last_name, required: true, class: 'form-control', placeholder: 'Last name' %>
     <%= f.label :last_name, required: true %>
-
     <div class="invalid-feedback">
       Last name is required
     </div>
   </div>
-
-  <div class="form-floating mb-3">
+  <div class="form-floating tw-mt-3">
     <%= f.email_field :email, required: true, class: 'form-control', placeholder: 'Email' %>
     <%= f.label :email, required: true %>
-
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
-
-  <div class="form-floating mb-3 password">
+  <div class="form-floating tw-mt-3 password">
     <%= f.password_field :password, class: 'form-control', placeholder: 'Password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
     <%= f.label :password, required: true %>
-
     <div class="invalid-feedback">
       Password does not meet minimum security requirements.
     </div>
   </div>
-
-  <div class="checkbox mb-2">
-    <%= f.label :add_to_mailing_list do %>
-      <%= f.check_box :add_to_mailing_list %> I agree to signup for the Tarteel Mailing list.
+  <div class="tw-mt-3 tw-flex tw-items-center">
+    <%= f.label :add_to_mailing_list, class: "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer" do %>
+      <%= f.check_box :add_to_mailing_list, class: "tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-primary-600 focus:tw-ring-primary-500" %>
+      <span class="tw-text-gray-700">I agree to signup for the Tarteel Mailing list.</span>
     <% end %>
   </div>
-
-  <div class="text-center">
+  <div class="text-center tw-mt-8">
     <%= f.submit t('.sign_up', default: 'Sign up'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3' %>
   </div>
 <% end %>

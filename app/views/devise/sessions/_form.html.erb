@@ -1,40 +1,34 @@
-<h2 class="mb-3">Salam! Let’s get you logged in.</h2>
-<p>
+<h1 class="tw-text-2xl tw-font-semibold tw-mt-4">Salam! Let’s get you logged in.</h1>
+<p class="tw-mt-6">
   Login using your <strong>Email</strong> credentials.
 </p>
-
 <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form', class: 'inputs_container', data: { controller: 'remote-form' } }) do |f| %>
-  <div class="form-floating mb-3">
+  <div class="form-floating tw-mt-3">
     <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
     <%= f.label :email, required: true %>
-
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
-
-  <div class="form-floating mb-3 password">
+  <div class="form-floating tw-mt-3 password">
     <%= f.password_field :password, class: 'form-control', placeholder: 'enter your password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
     <%= f.label :password, required: true %>
-
     <div class="invalid-feedback">
       Password does not meet minimum security requirements.
     </div>
   </div>
-
-  <div class="d-flex justify-content-between flex-column flex-md-row">
-    <div class="checkbox mb-2">
-      <%= f.label :remember_me do %>
-        <%= f.check_box :remember_me %> Remember me
+  <div class="tw-mt-3 tw-flex tw-gap-3 tw-flex-row tw-justify-between tw-items-center">
+    <div class="tw-ms-1 tw-flex tw-items-center">
+      <%= f.label :remember_me, class: "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer" do %>
+        <%= f.check_box :remember_me, class: "tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-primary-600 focus:tw-ring-primary-500" %>
+        <span class="tw-text-gray-700">Remember me</span>
       <% end %>
     </div>
-
     <div>
       <%= link_to 'Forgot your password?', new_user_password_path, class: 'text-dark btn-link' %>
     </div>
   </div>
-
-  <div class="text-center">
+  <div class="text-center tw-mt-8">
     <%= f.submit t('.sign_in', default: 'Sign in'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3' %>
   </div>
 <% end %>

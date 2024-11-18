@@ -44,8 +44,26 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 3: Update the translation',
-        text:  "The page will display the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its translation. Once you're satisfied with the update, click <code>Submit</code> to save the changes.",
+        text: "The page will display the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its translation. Once you're satisfied with the update, click <code>Save translations</code> to save the changes.",
         screenshot: 'update-word-translation.png'
+      },
+      {
+        type: 'info',
+        text: "Some phrases convey better meanings when translated as a whole. <br/>For example, <span class='qpc-hafs'>مِنۢ بَيۡنِ أَيۡدِيهِمۡ</span> means <strong>before them</strong>. A literal, word-by-word translation would be <strong>from</strong>, <strong>between</strong>, <strong>their hands</strong>, which may not convey the intended meaning clearly. In such cases, we can provide group translations for better understanding.",
+      },
+      {
+        type: 'step',
+        title: 'Step 3.1: Update the group translation',
+        sections: [
+          {
+            text: "If you find a group of words that should be translated together, you can group them. To do this, click the <code>Create Group translation</code> button(Or <code>Edit Group translation</code> if you need to change an existing group) to open the group translation modal.",
+            screenshot: 'create-group.png'
+          },
+          {
+            text: "Select the word range and primary word of the range that'll have the translation. Click on <code>Save group translation</code> to save the changes.",
+            screenshot: 'save-group-translation.png'
+          }
+        ]
       },
       {
         type: 'step',

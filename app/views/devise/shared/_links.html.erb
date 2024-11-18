@@ -5,14 +5,14 @@
       <%= link_to t('.sign_in', default: 'Sign in'), new_session_path(resource_name), class: 'tw-font-semibold tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
     </p>
     <p class="tw-mt-2">
-      Don't have an account?
+      Don’t have an account?
       <%= link_to 'Create Account', new_user_registration_path, class: 'tw-font-semibold tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
     </p>
   <% end %>
   <% if controller_name != 'passwords' && controller_name != 'sessions' && controller_name != 'registrations' %>
     <p class="tw-mt-2">
       Forgot your password?
-      <%= link_to "Let's reset it", new_password_path(resource_name), class: 'tw-font-semibold tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
+      <%= link_to "Let’s reset it", new_password_path(resource_name), class: 'tw-font-semibold tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
     </p>
   <% end %>
   <% if devise_mapping.confirmable? && controller_name != 'confirmations' %>

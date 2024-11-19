@@ -102,6 +102,42 @@ module ToolDocsHelper
     ]
   end
 
+  def ayah_tafsir_help
+    [
+      "Ayah Tafsir tool help",
+      {
+        text: "This tool is used to proofread and fix ayah tafsirs. Please follow these steps to suggest fix for any tafsir:"
+      },
+
+      {
+        type: 'step',
+        title: 'Step 1: Find the tafsir',
+        text: "User filters to find the tafisr you're looking for, use <code>Surah</code> and <code>Ayah</code> dropdown to find tafisr for specific ayah. Click <code>Show</code> to open tafsir page.",
+        screenshot: 'find-tafsir.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the tafsir',
+        text: 'This page will show the ayah tafsir. If you find any issues, click the <code>Edit</code> button to suggest the fix.',
+        screenshot: 'read-tafsir.png'
+      },
+      {
+        type: 'info',
+        text: "Tafsir often applies to a group of Ayahs. This tool allows you to edit Tafsir content and adjust the Ayah range it applies to."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Fix the tafsir and ayah range',
+        text: "Edit Tafsir content and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Tafsir in HTML format. Use the 'Verse From' and 'Verse To' dropdowns to adjust the Ayah range. Click <code>Propose changes</code> to submit your edits.",
+        screenshot: 'update-tafsir.png'
+      },
+      {
+        type: 'info',
+        text: "Your changes will be reviewed and, once approved, the Tafsir will be updated."
+      }
+    ]
+  end
+
   def mushaf_layout_help
     [
       "Mushaf Layout",
@@ -178,6 +214,162 @@ module ToolDocsHelper
         type: 'demo',
         title: "Demo",
         text: "TODO: Add a demo video here"
+      }
+    ]
+  end
+
+  def tajweed_help
+    [
+      "Tajweed annotations tool",
+      {
+        text: "This tool is designed fix the tajweed annotations for each word in the Ayah."
+      },
+      {
+        type: 'info',
+        text: "We provide two variations of the Tajweed-annotated script: one based on the Recite Quran project and the other on the Dar Al Maarifah <a href='https://easyquran.com/en/' target='_blank'>Tajweed Mushaf</a>. This tool enables you to switch between the two Tajweed schemes, compare them, and correct any missing or incorrect Tajweed rules."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the word and select tajweed script type',
+        text: "Use the filters to find the words, you can filter by <code>Surah</code> and <code>Ayah</code> or use text search to find the words. You can also filter the words that have a specific tajweed rule using <code>Filter by tajweed rule</code> dropdown. Table below will show the words of filtered ayahs with tajweed annotations. Click on <code>Show</code> button to open the word.",
+        screenshot: 'tajweed-filter.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Review and fix the tajweed annotations',
+        sections: [
+          {
+            text: "The first section on Tajweed word page will show the available tajweed script, both text and images. You can use this to compare tajweed scripts while fixing the missing rules",
+            screenshot: "tajweed-word-detail.png"
+          },
+          {
+            text: "The next section show the preview of the word and list of letters with associated tajweed rule. You can change the tajweed rule for each letter using the dropdown. Click <code>Save</code> to save the changes. This will automatically update the word preview.",
+            screenshot: "tajweed-letters.png"
+          },
+          {
+            text: "Click on <code>Tajweed Page</code> button to view the Tajweed mushaf page for the selected word. You can use this to compare the tajweed rules with the actual Mushaf page.",
+            screenshot: 'tajweed-pages.png'
+          },
+          {
+            text: "Click the <code>Tajweed Palette</code> button to open the Tajweed Rule Palette. This will display a list of all Tajweed rules, including the rule name, associated letters, and the assigned color for each rule. Use this if you're unsure about the tajweed rule for a specific letter.",
+            screenshot: "tajweed-palette.png"
+          },
+          {
+            text: "Click the <code>View Detail</code> button to see a detailed explanation of the Tajweed rule. This includes sample words for the selected rule and links to additional resources for further reading.",
+            screenshot: "rule-docs.png"
+          }
+        ],
+        screenshot: 'tajweed-word.png'
+      },
+      {
+        type: 'step',
+        title: 'Preview full ayah',
+        text: "The last section on the page will show the full ayah with tajweed colors. You can click on any word to quickly jump between all words of current ayah.",
+        screenshot: 'tajweed-ayah.png'
+      }
+    ]
+  end
+
+  def quran_script_help
+    [
+      'Quran script and fonts tool',
+      {
+        text: "This tool allows you to check the compatibility of different Quranic scripts (e.g., Madani, IndoPak, etc.) with various fonts. Here's how to use the tool effectively:"
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the ayah you want to check',
+        text: "Use the filters to find the ayah you're looking for. Click on <code>Show</code> button to open the ayah.",
+        screenshot: 'quran-script-filters.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Proofread and compare all scripts',
+        text: "The ayah page will show all available script of selected ayah, scroll down to see word by word script. <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose'>Open an issue</a> on GitHub if you find any issues with the script or font.",
+        screenshot: 'ayah-scripts.png'
+      },
+      {
+        type: 'step',
+        title: "Navigate to other ayahs",
+        text: "Use <code>Next</code> or <code>Previous</code> button to navigate to other ayahs.",
+      }
+    ]
+  end
+
+  def surah_info_help
+    [
+      "Surah info tool",
+      {
+        text: "This tool is used to proofread and fix Surah information in different languages. Please follow these steps to suggest a fix:"
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the Surah information',
+        text: "Use the filters to find the Surah information you're looking for. Click on <code>Show</code> button to open the Surah information page.",
+        screenshot: 'find-surah-info.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the Surah information',
+        text: "This page will show the Surah information of selected Surah. If you find any issues, click the <code>Edit</code> button to suggest the fix. Use <code>Previous</code> and <code>Next</code> buttons to navigate between Surahs.",
+        screenshot: 'read-surah-info.png'
+      },
+      {
+        type: 'info',
+        text: "Each Surah has both a short and a long surah info. The short version is often used in the Surah list or for SEO (e.g., meta description tags), while the long version provides detailed Surah information and can contain HTML for formatting."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Fix the Surah information',
+        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save surah info</code> to submit your changes.",
+        screenshot: 'update-surah-info.png'
+      }
+    ]
+  end
+
+  def char_help
+    [
+      "Character tool",
+      {
+        text: "This tools is used to detect unicode code point and char name of all letters of given Arabic string."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Enter the text',
+        text: 'Simply enter the text in the input field and click on the <code>Submit</code> button. The tool will display the unicode code point and char name of each letter in the input text.',
+        screenshot: 'char-info.png'
+      },
+      {
+        type: 'step',
+        title: "View character set for a specific script",
+        text: "You can view the character set for a specific script by selecting the script from the dropdown. The tool will display the unicode code point, occurrence count, and char name of each letter in the selected script. For example the letter ب is occurred 11491 times in the King Fahad Hafs script.",
+      }
+    ]
+  end
+
+  def arabic_transliteration_help
+    [
+      "Quran word syllable tool",
+      {
+        text: "This tool is used to proofread and correct word-by-word Arabic transliterations. Please follow these steps to make adjustments to any transliteration:"
+      },
+      {
+        type: 'step',
+        title: 'Ayah the ayah',
+        text: "Use the filters to find the ayah you're looks for. Click on <code>Show</code> button to open the ayah.",
+        screenshot: 'arabic-transliteration.png'
+      },
+      {
+        type: 'step',
+        title: 'Review ayah words and transliteration of each word',
+        text: "The ayah page will show all words of selected ayah along with their transliteration. Scroll down to see the source image that we're using as reference to digitize the transliteration. You can zoom, or scroll the the page to view the ayah within the image. If you find any issues, click the <code>Contribute</code> button to fix the transliteration.",
+        screenshot: 'arabic-transliteration-show.png'
+      },
+      {
+        type: 'step',
+        title: "Fix the transliteration",
+        text: "This page will show the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its transliteration. Once you're satisfied with the update, click <code>Save transliteration</code> to save the changes.",
+        screenshot: "fix-arabic-transliteration.png"
       }
     ]
   end

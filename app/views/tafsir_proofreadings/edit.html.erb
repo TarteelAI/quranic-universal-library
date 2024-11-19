@@ -35,7 +35,7 @@
       </div>
 
       <div class="form-group mt-5" style="text-align: right">
-        <%= link_to 'Cancel', tafsir_proofreading_path(@tafisr.verse.id, resource_id: @resource.id), class: 'btn btn-default' %>
+        <%= link_to 'Cancel', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-default' %>
         <%= form.submit 'Purpose changes', class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>

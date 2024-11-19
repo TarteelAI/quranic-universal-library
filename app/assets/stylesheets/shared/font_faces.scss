@@ -23,6 +23,24 @@ $asset-version: "3";
   font-display: swap;
 }
 
+@font-face {
+  font-family: "qpc-dotted";
+  src: local("KFGQPC Alphabet Dotted"),
+  url("#{$font-cdn}/KFGQPCDotFont.otf?v=#{$asset-version}");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "qpc-outline";
+  src: local("KFGQPC Alphabet Outlined"),
+  url("#{$font-cdn}/Outlinedv001.otf?v=#{$asset-version}");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 .bismillah{
   font-family: bismillah;
 }
@@ -108,6 +126,18 @@ $asset-version: "3";
 
 .qpc-hafs, .mushaf-kfqc-hafs {
   font-family: 'UthmanicHafs1-Ver18' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-dotted{
+    font-family: 'qpc-dotted';
+    direction: rtl;
+    font-size: 30px;
+}
+
+.qpc-outline{
+  font-family: 'qpc-outline';
   direction: rtl;
   font-size: 30px;
 }
@@ -198,6 +228,4 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
   font-family: indopak-nastaleeq;
   direction: rtl;
 }
-
-
 

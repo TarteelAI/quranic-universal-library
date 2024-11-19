@@ -93,6 +93,8 @@
                     <span class="char <%= word.css_class %> <%= 'bg-success' if params[:word] == word.word_id %> char-<%= word.char_type_name %> <%= 'word--missing' if word.word_id.nil? %>"
                           id="word-<%= word.position_in_page %>"
                           data-word-id="<%= word.word_id %>"
+                          data-location="<%= word.word.location %>"
+                          data-ayah="<%= word.word.verse_key %>"
                           data-id="<%= word.id %>">
                       <a href="<%= admin_mushaf_word_path(word.id) %>" target="_blank">
                         <% if use_images %>

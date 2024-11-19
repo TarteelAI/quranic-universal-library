@@ -1,0 +1,9 @@
+<div class="qpc-hafs d-flex flex-row flex-wrap gap-2">
+  <% @tafisr.ayahs.each do |ayah| %>
+    <div>
+      <%= ayah.text_qpc_hafs %>
+    </div>
+  <% end %>
+</div>
+
+<%= render 'ayah_view' %>

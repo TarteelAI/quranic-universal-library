@@ -178,6 +178,10 @@ class DownloadableResource < ApplicationRecord
 
   end
 
+  def humanize
+    "#{name} - #{resource_type}"
+  end
+
   def icon
     case resource_type
     when 'quran-script'

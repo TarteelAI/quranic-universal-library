@@ -42,38 +42,40 @@ class Draft::Tafsir < ApplicationRecord
   def import!
     language = resource_content.language
     group_verses = Verse.where("id >= ? AND id <= ?", start_verse_id, end_verse_id)
+    primary_verse = verse
 
     if !group_verses.pluck(:id).include?(verse_id)
-      verse = group_verses.first
-      verse_id = verse.id
+      primary_verse = group_verses.first
     end
 
     tafsir = Tafsir.where(
-      verse_id: verse_id,
+      verse_id: primary_verse.id,
       resource_content_id: resource_content.id
     ).first_or_initialize
+
+    tafsir.verse = primary_verse
+    tafsir.group_tafsir_id = primary_verse.id
 
     tafsir.text = draft_text.strip
     tafsir.language_id = language.id
     tafsir.language_name = language.name.downcase
     tafsir.resource_name = resource_content.name if tafsir.resource_name.blank?
 
-    tafsir.verse_key = verse.verse_key
-    tafsir.chapter_id = verse.chapter_id
-    tafsir.verse_number = verse.verse_number
+    tafsir.verse_key = primary_verse.verse_key
+    tafsir.chapter_id = primary_verse.chapter_id
+    tafsir.verse_number = primary_verse.verse_number
 
-    tafsir.juz_number = verse.juz_number
-    tafsir.hizb_number = verse.hizb_number
-    tafsir.rub_el_hizb_number = verse.rub_el_hizb_number
-    tafsir.ruku_number = verse.ruku_number
-    tafsir.surah_ruku_number = verse.surah_ruku_number
-    tafsir.manzil_number = verse.manzil_number
-    tafsir.page_number = verse.page_number
+    tafsir.juz_number = primary_verse.juz_number
+    tafsir.hizb_number = primary_verse.hizb_number
+    tafsir.rub_el_hizb_number = primary_verse.rub_el_hizb_number
+    tafsir.ruku_number = primary_verse.ruku_number
+    tafsir.surah_ruku_number = primary_verse.surah_ruku_number
+    tafsir.manzil_number = primary_verse.manzil_number
+    tafsir.page_number = primary_verse.page_number
 
     tafsir.group_verse_key_from = group_verse_key_from
     tafsir.group_verse_key_to = group_verse_key_to
     tafsir.group_verses_count = group_verses.count
-    tafsir.group_tafsir_id = group_tafsir_id.presence || start_verse_id
     tafsir.start_verse_id = start_verse_id
     tafsir.end_verse_id = end_verse_id
 
@@ -182,6 +184,8 @@ class Draft::Tafsir < ApplicationRecord
   end
 
   def ayah_group_ids_before_update
+    return [] if end_verse_id_before_last_save.blank? || start_verse_id_before_last_save.blank?
+
     (start_verse_id_before_last_save..end_verse_id_before_last_save).to_a
   end
 
@@ -191,6 +195,7 @@ class Draft::Tafsir < ApplicationRecord
 
   def split_ayah_grouping
     group_verse_ids = ayah_group_ids_before_update - ayah_group_ids
+    return if group_verse_ids.blank?
     group_verses = Verse.unscoped.where(id: group_verse_ids).order('verse_index ASC')
 
     draft_tafsir = Draft::Tafsir

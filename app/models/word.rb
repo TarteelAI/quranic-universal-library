@@ -74,7 +74,8 @@ class Word < QuranApiRecord
     13 => 'text_indopak_nastaleeq',
     14 => 'text_qpc_nastaleeq_hafs',
     15 => 'text_indopak_nastaleeq',
-    16 => 'text_indopak_nastaleeq'
+    16 => 'text_indopak_nastaleeq',
+    21 => 'text_qpc_hafs_tajweed'
   }
 
   has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
@@ -327,6 +328,11 @@ class Word < QuranApiRecord
     if saved_change_to_attribute?('text_uthmani_tajweed')
       update_text_for_mushaf(16, text_uthmani_tajweed)
       update_ayah_script('text_uthmani_tajweed')
+    end
+
+    if saved_change_to_attribute?('text_qpc_hafs_tajweed')
+      update_text_for_mushaf(21, text_qpc_hafs_tajweed)
+      update_ayah_script('text_qpc_hafs_tajweed')
     end
 
     if saved_change_to_attribute?('text_digital_khatt')

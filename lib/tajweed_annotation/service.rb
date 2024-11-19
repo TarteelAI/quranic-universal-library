@@ -2,7 +2,8 @@
 # s.add_annotation_on_verse(Verse.find_by(verse_key: '112:4'))
 module TajweedAnnotation
   class Service
-    attr_accessor :words, :word_rules
+    attr_accessor :words,
+                  :word_rules
 
     def add_annotation_on_verse(verse)
       @words = []
@@ -52,7 +53,7 @@ module TajweedAnnotation
       @word_rules
     end
 
-    def to_html(tag = 'r')
+    def annotate_words_text(tag = 'r')
       last_word = nil
       words_html = {}
       current_rule = nil
@@ -102,7 +103,11 @@ module TajweedAnnotation
         words_html[last_word] << current_group
       end
 
-      words_html.map do |location, html|
+      words_html
+    end
+
+    def to_html(tag = 'r')
+      annotate_words_text(tag).map do |location, html|
         "<span data-location='#{location}'>#{html.join}</span> "
       end.join('')
     end
@@ -161,6 +166,5 @@ module TajweedAnnotation
         "<span data-location='#{location}'>#{html.join}</span> "
       end.join('')
     end
-
   end
 end

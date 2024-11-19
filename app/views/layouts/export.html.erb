@@ -55,12 +55,40 @@
               background: transparent;
           }
       }
+
+      .mushaf_page.tracing-mushaf {
+          border: 1px solid #e5e7eb;
+      }
+
+      .tracing-mushaf{
+          color: #90878F !important;
+
+          * {
+              color: #90878F !important;
+          }
+
+          .line:not(.line--surah-name):not(.line--bismillah) {
+              border-bottom: 1px solid #e5e7eb;
+          }
+          .line-container:last-child{
+              .line{
+                  border-bottom: none;
+              }
+          }
+      }
+
+      .qpc-dotted *{
+          font-family: qpc-dotted !important;
+      }
+      .qpc-outline *{
+          font-family: qpc-outline !important;
+      }
   </style>
 
   <%= content_for :heading %>
 </head>
 
-<body>
+<body class="<%= params[:font] %>">
   <%= yield %>
 </body>
 </html>

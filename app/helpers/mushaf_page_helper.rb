@@ -7,6 +7,8 @@ module MushafPageHelper
       ['Al Qalam', 'mushaf-al_qalam'],
       ['QPC Hafs', 'qpc-hafs'],
       ['QPC Hafs color', 'qpc-hafs-color'],
+      ['QPC Dotted', 'qpc-dotted'],
+      ['QPC Outline', 'qpc-outline'],
       ['Me Quran', 'me_quran'],
       ['Digital Khatt', 'digitalkhatt'],
     ]
@@ -45,7 +47,7 @@ module MushafPageHelper
   def group_words_lines(words)
     lines = {}
 
-    words.each do |w|
+    words.includes(:word).each do |w|
       lines[w.line_number] ||= {}
       lines[w.line_number][w.verse_id] ||= []
 

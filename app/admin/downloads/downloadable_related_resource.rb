@@ -24,8 +24,19 @@ ActiveAdmin.register DownloadableRelatedResource do
   show do
     attributes_table do
       row :id
-      row :downloadable_resource
-      row :related_resource
+      row :downloadable_resource do
+        link_to(
+          resource.downloadable_resource.humanize,
+          [:admin, resource.downloadable_resource]
+        ) if resource.downloadable_resource
+      end
+      row :related_resource do
+        link_to(
+          resource.related_resource.humanize,
+          [:admin, resource.related_resource]
+        ) if resource.related_resource
+      end
+
       row :created_at
       row :updated_at
     end

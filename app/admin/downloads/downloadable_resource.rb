@@ -16,7 +16,13 @@ ActiveAdmin.register DownloadableResource do
 
   searchable_select_options(
     scope: DownloadableResource,
-    text_attribute: :name
+    text_attribute: :humanize,
+    filter: lambda do |term, scope|
+      scope.ransack(
+        name_cont: term,
+        m: 'or'
+      ).result
+    end
   )
 
   action_item :refresh_downloads, only: :show, if: -> { can? :refresh_downloads, resource } do

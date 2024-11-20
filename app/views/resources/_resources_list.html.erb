@@ -13,87 +13,9 @@
         <%= render partial: 'shared/search_input' %>
       </div>
     </div>
-    <% if false %>
-      <div class="d-flex align-items-center justify-content-center gap-3 gap-md-4">
-        <button class="btn border">
-          <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10.3333 16.3889H13.6667V14.7222H10.3333V16.3889ZM4.5 6.38892V8.05558H19.5V6.38892H4.5ZM7 12.2222H17V10.5556H7V12.2222Z" fill="#525866"/>
-          </svg>
-          Filter
-        </button>
-        <div class="dropdown">
-          <button class="btn border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15.1111 0.722168V10.7222H17.6111L14.2777 14.8888L10.9444 10.7222H13.4444V0.722168H15.1111ZM8.4444 12.3888V14.0555H0.944397V12.3888H8.4444ZM10.1111 6.5555V8.22217H0.944397V6.5555H10.1111ZM10.1111 0.722168V2.38883H0.944397V0.722168H10.1111Z" fill="#99A0AE"/>
-            </svg>
-            Sort by
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-          </ul>
-        </div>
-      </div>
-    <% end %>
   </div>
   <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
     <p>No results found</p>
   </div>
-  <table class="tw-w-full tw-mt-8">
-    <thead>
-      <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
-        <th class="tw-py-3 tw-px-4 tw-font-normal">Resource</th>
-        <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden sm:tw-table-cell">Description</th>
-        <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20">Count</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% featured_downloadable_resource_cards.each do |key, card| %>
-        <tr class="tw-border-b hover:tw-bg-gray-50" data-search="<%= "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>">
-          <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
-            <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
-              <span class="tw-font-semibold tw-block"><%= card.title %></span>
-              <span class="tw-text-gray-500 tw-text-xs">
-                <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
-              </span>
-              <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
-                <%= card.description %>
-              </span>
-            <% end %>
-          </td>
-          <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">
-            <%= link_to card.description, card.url, class: 'hover:tw-text-black tw-block' %>
-          </td>
-          <td class="tw-text-center tw-px-4">
-            <% if card.respond_to?(:count) && card.count.present? %>
-              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-xs md:tw-text-sm tw-px-2 md:tw-px-3 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[30px] md:tw-min-w-[35px] tw-text-center' %>
-            <% end %>
-          </td>
-        </tr>
-      <% end %>
-      <% downloadable_resource_cards.each do |key, card| %>
-        <tr class="tw-border-b hover:tw-bg-gray-50" data-search="<%= "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>">
-          <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
-            <%= link_to card.url, class: 'hover:tw-text-black tw-block' do %>
-              <span class="tw-font-semibold tw-block"><%= card.title %></span>
-              <span class="tw-text-gray-500 tw-text-xs">
-                <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
-              </span>
-              <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
-                <%= card.description %>
-              </span>
-            <% end %>
-          </td>
-          <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">
-            <%= link_to card.description, card.url, class: 'hover:tw-text-black tw-block' %>
-          </td>
-          <td class="tw-text-center tw-px-4">
-            <% if card.respond_to?(:count) && card.count.present? %>
-              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-xs md:tw-text-sm tw-px-2 md:tw-px-3 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[30px] md:tw-min-w-[35px] tw-text-center' %>
-            <% end %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+  <%= render 'resources/resources_table', resources: featured_downloadable_resource_cards.merge(downloadable_resource_cards) %>
 </div>

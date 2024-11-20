@@ -99,7 +99,7 @@ module LandingHelper
         url: '/resources/transliteration',
         count: ResourceContent.transliteration.approved.count,
         type: 'transliteration',
-        stats: "<div><div>1 Ayah by ayah</div><div>2 Word by word</div></div>"
+        stats: "<div><div>1 Ayah by Ayah</div><div>2 Word by Word</div></div>"
       ),
 
       surah_info: ToolCard.new(

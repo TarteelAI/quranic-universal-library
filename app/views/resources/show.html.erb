@@ -78,7 +78,9 @@
           <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
             <th class="tw-py-3 tw-min-w-48 tw-px-4 tw-font-normal tw-align-top">Name</th>
             <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max tw-align-top">Category</th>
-            <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-align-top">Tags</th>
+            <% if @resources.any? { |card| card.get_tags.present? } %>
+              <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-align-top">Tags</th>
+            <% end %>
             <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20 tw-hidden md:tw-table-cell tw-align-top">Download</th>
           </tr>
         </thead>
@@ -104,13 +106,15 @@
               <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
                 <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
               </td>
-              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-1 tw-text-pretty tw-align-top">
-                <% if card.get_tags.present? %>
-                  <% card.get_tags.each do |tag| %>
-                    <%= render 'card/card-tag', tag: tag %>
+              <% if @resources.any? { |card| card.get_tags.present? } %>
+                <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-1 tw-text-pretty tw-align-top">
+                  <% if card.get_tags.present? %>
+                    <% card.get_tags.each do |tag| %>
+                      <%= render 'card/card-tag', tag: tag %>
+                    <% end %>
                   <% end %>
-                <% end %>
-              </td>
+                </td>
+              <% end %>
               <td class="tw-text-center tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
                 <%= render 'card/download_dropdown', resource: card %>
               </td>

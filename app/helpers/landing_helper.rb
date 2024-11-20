@@ -34,6 +34,13 @@ module LandingHelper
   def downloadable_resource_cards
     return @downloadable_resource_cards if @downloadable_resource_cards
 
+    recitations = ResourceContent.approved.recitations
+    with_segments = recitations.with_segments.count
+    total_recitations = recitations.count
+
+    total_layout = Mushaf.count
+    approved_layout = Mushaf.approved.count
+
     translations = ResourceContent.approved.translations
     wbw_translation = translations.one_word.count
     ayah_translation = translations.one_verse.count
@@ -41,11 +48,32 @@ module LandingHelper
     tafisrs = ResourceContent.tafsirs.approved
 
     @downloadable_resource_cards = {
+      recitation: ToolCard.new(
+        title: 'Recitations and segments data',
+        description: "Download high-quality audio files of Quranic recitations along with detailed timestamp data for ayah-by-ayah and surah-by-surah. Use the timestamp data to highlight words as the recitation plays.",
+        icon: 'timestamp.svg',
+        list_icon: 'volume.svg',
+        url: '/resources/recitation',
+        count: total_recitations,
+        type: 'card-recitations',
+        stats: "<div><div>#{total_recitations - with_segments} Unsegmented Audio</div><div>#{with_segments} Segmented Audio</div></div>"
+      ),
+      mushaf_layout: ToolCard.new(
+        title: "Mushaf layouts",
+        description: "Download Mushaf layout data to render Quran pages exactly like the printed Mushaf. The exact layout aids in memorizing the Quran, offering users a familiar experience similar to their favorite printed Mushaf.",
+        icon: 'layout.svg',
+        list_icon: 'layout.svg',
+        url: '/resources/mushaf-layout',
+        count: total_layout,
+        type: 'card-mushaf-layouts',
+        stats: "<div><div>#{approved_layout} Layouts —  Approved</div><div>#{total_layout - approved_layout} Layouts —  WIP</div></div>"
+      ),
       translation: ToolCard.new(
         title: 'Translations',
         description: "Download ayah by ayah and word by word translation in different languages.",
         page_description: "This page has Quran translations in multiple languages, available for both Ayah-by-Ayah and Word-by-Word formats. Translation are available in different structures and file formats, including JSON, CSV, and SQL. <a href='#' class='btn-link text-dark text-decoration-underline' data-controller='ajax-modal' data-url='/docs/translation_formats' data-css-class='modal-lg'>Click here</a> for more information about data structures.",
         icon: 'translation.svg',
+        list_icon: 'page.svg',
         url: '/resources/translation',
         count: wbw_translation + ayah_translation,
         type: 'translation',
@@ -56,6 +84,7 @@ module LandingHelper
         title: "Tafsirs",
         description: "Download tafsir data in multiple languages, with ayah grouping information.",
         icon: 'open_book.svg',
+        list_icon: 'tafsir.svg',
         url: '/resources/tafsir',
         count: tafisrs.count,
         type: 'tafsirs',
@@ -68,6 +97,7 @@ module LandingHelper
         url: '/resources/quran-script',
         type: 'quranic-text',
         icon: 'bismillah.svg',
+        list_icon: 'font.svg',
         count: 15,
         stats: "<div><div>Indopak</div><div>Uthmani, tajweed</div></div>"
       ),
@@ -78,6 +108,7 @@ module LandingHelper
         url: '/resources/font',
         type: 'fonts',
         icon: 'quran.svg',
+        list_icon: 'font.svg',
         count: ResourceContent.fonts.size,
         stats: "<div><div>Indopak</div><div>Madani</div></div>"
       ),
@@ -88,6 +119,7 @@ module LandingHelper
         url: '/resources/quran-metadata',
         type: 'metadata',
         icon: 'bismillah.svg',
+        list_icon: 'page.svg',
         count: ResourceContent.quran_metadata.count,
         stats: "<div><div>Total resources</div></div>"
       ),
@@ -96,6 +128,7 @@ module LandingHelper
         title: "Transliteration",
         description: "Download transliteration data to read the Quranic text in Latin script.",
         icon: 'transliteration.svg',
+        list_icon: 'translate.svg',
         url: '/resources/transliteration',
         count: ResourceContent.transliteration.approved.count,
         type: 'transliteration',
@@ -106,6 +139,7 @@ module LandingHelper
         title: "Surah information",
         description: "Detailed descriptions of all Surah, including when they were revealed, core themes, and key topics etc.",
         icon: 'layout.svg',
+        list_icon: 'page.svg',
         url: '/resources/surah-info',
         count: ResourceContent.chapter_info.count,
         type: 'surah-info',
@@ -116,6 +150,7 @@ module LandingHelper
         title: "Topics and concepts in the Quran",
         description: "Key concepts/topics in the Quran and semantic relations between these concepts.",
         icon: 'layout.svg',
+        list_icon: 'topic.svg',
         url: '/resources/ayah-topics',
         count: Topic.count,
         type: 'ayah-topics',
@@ -136,6 +171,7 @@ module LandingHelper
         url: '/resources/mutashabihat',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
+        list_icon: 'mutashabihat.svg',
       ),
 
       similar_ayah: ToolCard.new(
@@ -144,6 +180,7 @@ module LandingHelper
         url: '/resources/similar-ayah',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
+        list_icon: 'similar.svg',
       ),
 
       ayah_theme: ToolCard.new(
@@ -152,6 +189,7 @@ module LandingHelper
         url: '/resources/ayah-theme',
         type: 'mutashabihat',
         icon: 'layout.svg',
+        list_icon: 'topic.svg'
       )
     }
   end

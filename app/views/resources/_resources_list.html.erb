@@ -1,21 +1,46 @@
-<div class="resources-list">
-  <div class="tw-flex tw-items-start md:tw-items-center tw-gap-4 tw-flex-col lg:tw-flex-row tw-justify-between">
-    <div class="tw-flex tw-gap-6 tw-items-center">
-      <h2 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
-        Available Resources
-      </h2>
-      <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center">
-        <%= featured_downloadable_resource_cards.length + downloadable_resource_cards.length %>
+<%
+  view_type = params[:view] == 'grid' ? 'grid' : 'list'
+
+  active_view_class = 'tw-flex tw-gap-2 tw-rounded tw-bg-[#476CFF]/10 tw-text-[#476CFF] tw-font-bold tw-text-sm tw-px-3 tw-py-2 hover:tw-text-[#476CFF]'
+  inactive_view_class = 'tw-flex tw-gap-2 tw-rounded tw-font-bold tw-text-sm tw-px-3 tw-py-2 tw-border hover:tw-text-black'
+%>
+
+<%= turbo_frame_tag 'resources' do %>
+  <div class="resources-list">
+    <div class="tw-flex tw-items-start md:tw-items-center tw-gap-4 tw-flex-col lg:tw-flex-row tw-justify-between">
+      <div class="tw-flex tw-gap-6 tw-items-center">
+        <h2 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
+          Available Resources
+        </h2>
+        <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-px-3.5 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[35px] tw-text-center">
+          <%= downloadable_resource_cards.keys.length %>
+        </div>
+      </div>
+
+      <div class="tw-flex tw-items-center tw-justify-end tw-gap-3 tw-w-full lg:tw-w-1/3 tw-mt-5 md:tw-mt-0">
+        <div class="tw-w-full">
+          <%= render partial: 'shared/search_input' %>
+        </div>
+      </div>
+
+      <div class="tw-flex tw-gap-3 tw-items-center">
+        View:
+        <%= link_to resources_path(view: 'list'), class: "#{view_type == 'list' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
+          <%= inline_svg_tag('svgs/list.svg') %>
+          List
+        <% end %>
+
+        <%= link_to resources_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
+          <%= inline_svg_tag('svgs/grid.svg') %>
+          Grid
+        <% end %>
       </div>
     </div>
-    <div class="tw-flex tw-items-center tw-justify-end tw-gap-3 tw-w-full lg:tw-w-1/3 tw-mt-5 md:tw-mt-0">
-      <div class="tw-w-full">
-        <%= render partial: 'shared/search_input' %>
-      </div>
+
+    <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
+      <p>No results found</p>
     </div>
+
+    <%= render "resources/resources_view/#{view_type}" %>
   </div>
-  <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
-    <p>No results found</p>
-  </div>
-  <%= render 'resources/resources_table', resources: featured_downloadable_resource_cards.merge(downloadable_resource_cards) %>
-</div>
+<% end %>

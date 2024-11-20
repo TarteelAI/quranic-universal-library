@@ -1,0 +1,7 @@
+<%= render 'layouts/grid' do %>
+<% downloadable_resource_cards.each do |_key, card| %>
+  <%= render 'card/card-container', card: card do %>
+    <%= render 'card/card_content', card: card, show_stats: true %>
+  <% end %>
+<% end %>
+<% end %>

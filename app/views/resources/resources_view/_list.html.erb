@@ -1,0 +1,54 @@
+<table class="tw-w-full tw-mt-8">
+  <thead>
+  <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-flex">
+      Resource
+      <%= inline_svg_tag "svgs/sort.svg" %>
+    </th>
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden sm:tw-table-cell">Description</th>
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-flex">
+      Count
+      <%= inline_svg_tag "svgs/sort.svg" %>
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+  <% downloadable_resource_cards.each do |key, card| %>
+    <tr class="tw-border-b hover:tw-bg-gray-50"
+        data-search="<%= "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>">
+      <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty">
+        <%= link_to card.url, class: 'hover:tw-text-black tw-block', data:{turbo_frame: '_top'} do %>
+          <div class="tw-block tw-flex tw-gap-2">
+            <div>
+              <%= inline_svg_tag "svgs/#{card.list_icon || 'layout.svg'}" %>
+            </div>
+
+            <div>
+              <span class="tw-block tw-font-semibold">
+               <%= card.title %>
+              </span>
+              <span class="tw-text-gray-500 tw-text-xs">
+                <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
+               </span>
+
+              <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
+                <%= card.description %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </td>
+
+      <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty">
+        <%= link_to card.description, card.url, class: 'hover:tw-text-black tw-block' %>
+      </td>
+
+      <td class="tw-text-center tw-px-4">
+        <% if card.respond_to?(:count) && card.count.present? %>
+          <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-xs md:tw-text-sm tw-px-2 md:tw-px-3 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[30px] md:tw-min-w-[35px] tw-text-center' %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

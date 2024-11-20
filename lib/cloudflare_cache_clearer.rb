@@ -13,6 +13,9 @@ client.clear_cache(urls: ["list", "of", "urls"])
 
 =end
 
+client = CloudflareCacheClearer.new
+client.clear_cache(urls: ["https://static-cdn.tarteel.ai/qul/help-screenshots/tajweed-pages.png"])
+
 class CloudflareCacheClearer
   BASE_URL = "https://api.cloudflare.com/client/v4"
 

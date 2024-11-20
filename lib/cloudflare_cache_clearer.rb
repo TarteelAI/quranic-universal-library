@@ -10,7 +10,6 @@ client = CloudflareCacheClearer.new(
   zone_id: "zone_id"
 )
 client.clear_cache(urls: ["list", "of", "urls"])
-
 =end
 
 client = CloudflareCacheClearer.new

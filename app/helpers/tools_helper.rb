@@ -94,13 +94,13 @@ module ToolsHelper
         description: 'Transliteration of each word of Quran in Arabic and Urdu.',
         url: arabic_transliterations_path,
         type: 'corpus',
-        tags: ['Transliteration', 'Arabic', 'Word by word'],
+        tags: ['Transliteration', 'Arabic', 'Word by Word'],
         icon: 'qaf.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool allow you to prepare Arabic transliterations(syllable)."
       ),
       ToolCard.new(
-        title: 'Word by word translation',
+        title: 'Word by Word translation',
         description: 'Proofread and suggest fixes for word by word translations in multiple languages.',
         url: word_translations_path,
         type: 'corpus',

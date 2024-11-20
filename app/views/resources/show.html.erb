@@ -76,35 +76,42 @@
       <table class="tw-w-full">
         <thead>
           <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
-            <th class="tw-py-3 tw-px-4 tw-font-normal">Name</th>
-            <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max">Category</th>
-            <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell">Tags</th>
-            <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20">Download</th>
+            <th class="tw-py-3 tw-min-w-48 tw-px-4 tw-font-normal tw-align-top">Name</th>
+            <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max tw-align-top">Category</th>
+            <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-align-top">Tags</th>
+            <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20 tw-hidden md:tw-table-cell tw-align-top">Download</th>
           </tr>
         </thead>
         <tbody>
           <% @resources.each do |card| %>
-            <tr class="tw-border-b hover:tw-bg-gray-50" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
-              <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px]">
+            <tr class="tw-border-b" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
                 <p class="tw-font-semibold tw-block"><%= card.name %></p>
-                <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden">
+                <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden tw-flex tw-flex-col tw-gap-1 tw-space-y-1">
                   <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
-                  <div class="tw-flex tw-flex-wrap tw-gap-1 tw-mt-1">
-                    <% card.get_tags.each do |tag| %>
-                      <%= render 'card/card-tag', tag: tag %>
-                    <% end %>
+                  <% if card.get_tags.present? %>
+                    <div class="tw-flex tw-flex-wrap tw-gap-1 tw-pb-1">
+                      <% card.get_tags.each do |tag| %>
+                        <%= render 'card/card-tag', tag: tag %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  <div>
+                    <%= render 'card/download_dropdown', resource: card %>
                   </div>
                 </div>
               </td>
-              <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max">
+              <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
                 <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
               </td>
-              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-2 tw-text-pretty">
-                <% card.get_tags.each do |tag| %>
-                  <%= render 'card/card-tag', tag: tag %>
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-1 tw-text-pretty tw-align-top">
+                <% if card.get_tags.present? %>
+                  <% card.get_tags.each do |tag| %>
+                    <%= render 'card/card-tag', tag: tag %>
+                  <% end %>
                 <% end %>
               </td>
-              <td class="tw-text-center tw-px-4">
+              <td class="tw-text-center tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
                 <%= render 'card/download_dropdown', resource: card %>
               </td>
             </tr>

@@ -111,3 +111,6 @@ application.register("tajweed-annotator", TajweedAnnotatorController);
 
 import ChapterVersesFilterController from './chapter_verses_filter_controller';
 application.register("chapter-verses-filter", ChapterVersesFilterController);
+
+import DraggableScrollController from './draggable_scroll_controller';
+application.register('draggable-scroll', DraggableScrollController);

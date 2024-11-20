@@ -1,5 +1,8 @@
 .sidescroll-container {
   padding: 0 1rem;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 
   &::-webkit-scrollbar {
     display: none;
@@ -9,6 +12,10 @@
   scrollbar-width: none;
 
   scroll-snap-type: x mandatory;
+  
+  &:active {
+    cursor: grabbing;
+  }
 
   @media (min-width: $screen-xl) {
     padding: 0 calc(1rem + (100vw - 1680px) / 2);

@@ -1,5 +1,5 @@
 .sidescroll-container {
-  padding: 0 1rem;
+  padding: 0 max(1rem, calc((100vw - 1680px) / 2 + 1rem));
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
@@ -15,10 +15,6 @@
   
   &:active {
     cursor: grabbing;
-  }
-
-  @media (min-width: $screen-xl) {
-    padding: 0 calc(1rem + (100vw - 1680px) / 2);
   }
 }
 

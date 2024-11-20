@@ -32,13 +32,8 @@
     </span>
   </h2>
 
-  <h3>Auto tajweed annotation(With QPC Hafs script)</h3>
-  <div class="qpc-hafs tajweed-new char" data-controller="tajweed-highlight">
-    <%= tajweed_text.html_safe %>
-  </div>
-
-  <h3>Ayah preview with new tajweed text</h3>
-  <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
+  <h3 class="my-3">Ayah preview</h3>
+  <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words tajweed-new">
     <% ayah_tajweeed_words.each do |w| %>
       <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color: inherit' do %>
         <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
@@ -49,6 +44,13 @@
         </div>
       <% end %>
     <% end %>
+  </div>
+
+  <h3>
+    Auto tajweed annotation<br>
+    <small>This text is auto-annotated and may contain errors or missing rules. Fixing Tajweed for any word will not update the preview below.</small>  </h3>
+  <div class="qpc-hafs tajweed-new char" data-controller="tajweed-highlight">
+    <%= tajweed_text.html_safe %>
   </div>
 
   <h3>V4 tajweed</h3>
@@ -64,7 +66,7 @@
     <% end %>
   </div>
 
-  <h3>QA Tajweed</h3>
+  <h3>QuranAcademy Tajweed images</h3>
   <div class="d-flex flex-wrap gap-1 quran-text ayah-tajweed-words">
     <% verse.words.each do |w| %>
       <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color:inherit;' do %>

@@ -82,7 +82,11 @@ class Tafsir < QuranApiRecord
   end
 
   def ayah_group_list
-    Verse.where(id: start_verse_id..end_verse_id).order('verse_index ASC').pluck(:verse_key)
+    ayahs.pluck(:verse_key)
+  end
+
+  def ayahs
+    Verse.where(id: start_verse_id..end_verse_id).order('verse_index ASC')
   end
 
   def self.text_search(query)

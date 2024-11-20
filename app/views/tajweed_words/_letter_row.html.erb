@@ -25,9 +25,11 @@
     <% if @access %>
       <%= form_with model: @tajweed_word, url: tajweed_word_path(@tajweed_word.location), data: { controller: 'tajweed-word-form' } do |f| %>
         <%= f.hidden_field :letter_index, value: letter['i'] %>
-        <%= f.select :rule, options_for_select(rule_options, selected: letter['r']), { include_blank: 'Select rule' }, id: "l-#{@tajweed_word.id}-#{letter['i']}", data: { controller: 'select2', placeholder: 'Select rule' } %>
+        <div class="d-flex justify-content-between">
+          <%= f.select :rule, options_for_select(rule_options, selected: letter['r']), { include_blank: 'Select rule' }, id: "l-#{@tajweed_word.id}-#{letter['i']}", data: { controller: 'select2', placeholder: 'Select rule' } %>
 
-        <%= f.submit 'Save' %>
+          <%= f.submit 'Save', class: 'btn btn-success btn-sm' %>
+        </div>
       <% end %>
     <% end %>
   </td>

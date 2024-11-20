@@ -75,6 +75,7 @@ ActiveAdmin.register Word do
       text_uthmani
       text_uthmani_simple
       text_uthmani_tajweed
+      text_qpc_hafs_tajweed
       text_indopak
       code_v1
       code_v2
@@ -118,6 +119,7 @@ ActiveAdmin.register Word do
       f.input :text_imlaei_simple, input_html: { class: 'quran-text me_quran' }
       f.input :text_qpc_hafs, input_html: { class: 'quran-text qpc-hafs' }
       f.input :text_uthmani_tajweed, input_html: { class: 'quran-text me_quran' }
+      f.input :text_qpc_hafs_tajweed, input_html: { class: 'quran-text qpc-hafs' }
 
       f.input :code_v1, input_html: { class: 'quran-text' }
       f.input :code_v2, input_html: { class: 'quran-text' }
@@ -234,6 +236,14 @@ ActiveAdmin.register Word do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'qpc-hafs', data: {controller: 'tajweed-highlight'})
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani_tajweed}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row 'KFQC Hafs Tajweed(New)', class: 'quran-text' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_qpc_hafs_tajweed.to_s.html_safe, class: 'qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
+
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs_tajweed}", target: '_blank', class: 'fs-sm')
         end
       end
 

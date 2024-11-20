@@ -3,6 +3,7 @@
   _, group_end_ayah = @tafisr.group_verse_key_to.split(':').map(&:to_i)
 
   actions = []
+  more_action = []
   verse = if params[:verse_key].present?
             Verse.find_by(verse_key: params[:verse_key].downcase)
           end
@@ -10,9 +11,29 @@
   next_ayah = verse.next_ayah
   previous_ayah = verse.previous_ayah
 
+  view_type = params[:view_type].presence || 'ayah'
+  if !tafisr_view_types.include?(view_type)
+    view_type = 'ayah'
+  end
+  more_action << link_to('Tafsir view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'dropdown-item')
+  more_action << link_to('Tafsir with arabic view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'dropdown-item')
+  more_action << link_to('Proofreading view(With pdf)', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'dropdown-item')
+
   if @access
     actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
   end
+
+  actions << "<div class='dropdown'>
+      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+        Change view
+      </button>
+      <ul class='dropdown-menu text-dark'>
+       #{more_action.map do |action|
+    "<li>#{action}</li>"
+  end.join('')
+  }
+    </ul>
+    </div>"
 
   if previous_ayah
     actions << link_to('Previous ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark')
@@ -34,12 +55,6 @@
 
 <div class="page-wrapper container-lg">
   <div class="page-section">
-    <% if params[:draft].present? %>
-      <%= render 'compare_draft' %>
-    <% else %>
-      <div style="font-size: 30px; margin-top: 10px;" class="tafsir <%= @tafisr.language_name %>">
-        <%= @tafisr.text.to_s.html_safe %>
-      </div>
-    <% end %>
+    <%= render "#{view_type}_view", verse: verse %>
   </div>
 </div>

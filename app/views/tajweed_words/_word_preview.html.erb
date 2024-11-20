@@ -4,9 +4,16 @@
   id="tajweed-preview"
 >
   <div>
-    <b>Text Uthmani tajweed:</b>
+    <b>Text Uthmani tajweed(ReciteQuran):</b>
     <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
       <%= @word.text_uthmani_tajweed.html_safe %>
+    </div>
+  </div>
+
+  <div>
+    <b>Text QPC tajweed(Dar al Maarifah):</b>
+    <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
+      <%= @word.text_qpc_hafs_tajweed.to_s.html_safe %>
     </div>
   </div>
 
@@ -24,18 +31,6 @@
       <span style="font-size: 40px">
         <%= @word.code_v2 %>
       </span>
-    </div>
-  </div>
-
-  <div>
-    <b>New Tajweed Text:</b>
-    <div class="quran-text preview-<%= @tajweed_word.location.gsub(':', '-') %>"
-         style="font-size: 40px">
-      <div class="qpc-hafs tajweed-new"
-           style="font-size: inherit !important"
-           data-controller="tajweed-highlight">
-        <%= @tajweed_word.text.html_safe %>
-      </div>
     </div>
   </div>
 </div>

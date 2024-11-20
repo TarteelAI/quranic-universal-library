@@ -162,10 +162,24 @@ ActiveAdmin.register Verse do
         end
       end
 
-      row 'Uthmani Tajweed' do
+      row 'Uthmani Tajweed(ReciteQuran)' do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs', 'data-controller': 'tajweed-highlight')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani_tajweed}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row 'KFQC Hafs Tajweed(New)' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_qpc_hafs_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
+
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs_tajweed}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row :v4_tajweed_code do
+        div class: "quran-text p#{resource.v2_page}-v4-tajweed", 'data-controller': 'tajweed-font' do
+          resource.code_v2
         end
       end
 
@@ -183,12 +197,6 @@ ActiveAdmin.register Verse do
         end
       end
 
-      row :v4_tajweed_code do
-        div class: "quran-text p#{resource.v2_page}-v4-tajweed", 'data-controller': 'tajweed-font' do
-          resource.code_v2
-        end
-      end
-
       row :v1_code do
         div class: "quran-text p#{resource.page_number}-v1" do
           resource.code_v1
@@ -203,7 +211,7 @@ ActiveAdmin.register Verse do
 
       row :image do
         div class: 'quran-text' do
-          image_tag resource.image_url
+          image_tag resource.image_url, class: 'w-100'
         end
       end
 
@@ -223,6 +231,7 @@ ActiveAdmin.register Verse do
           td 'Code V2'
           td 'Code V4'
           td 'Uth tadjweed'
+          td 'QPC Tajweed'
           td 'Uthmani'
           td 'Uth-Simple'
           td 'KFQC Hafs'
@@ -254,8 +263,12 @@ ActiveAdmin.register Verse do
                 w.code_v2
               end
 
-              td class: "p#{w.v2_page}-v4-tajweed" do
+              td do
                 div(w.text_uthmani_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs', 'data-controller': 'tajweed-highlight')
+              end
+
+              td do
+                div(w.text_qpc_hafs_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
               end
 
               td class: 'me_quran' do

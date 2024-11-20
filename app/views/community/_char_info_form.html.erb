@@ -11,7 +11,8 @@
     chars = []
   end
 
-  uniq_chars = chars.uniq
+  uniq_chars = chars.uniq.compact_blank
+  char_set = uniq_chars.sort.join(' ').strip
 %>
 
 <%= render 'tools/header',
@@ -64,6 +65,14 @@
         <div>
           Total Chars: <%= chars.length %> <br/>
           Uniq Chars: <%= uniq_chars.length %>
+        </div>
+
+          <div data-text="<%= char_set -%>"
+              title="Copy <%= char_set %>"
+              data-controller="tooltip copy-to-clipboard"
+              class="char"
+          >
+          <%= char_set  %>
         </div>
       <% end %>
 

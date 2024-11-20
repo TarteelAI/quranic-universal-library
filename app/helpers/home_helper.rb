@@ -63,4 +63,8 @@ module HomeHelper
   def translation_view_types
     ['ayah', 'page', 'page_with_pdf', 'page_with_arabic']
   end
+
+  def tafisr_view_types
+    ['ayah', 'page_with_pdf', 'page_with_arabic']
+  end
 end

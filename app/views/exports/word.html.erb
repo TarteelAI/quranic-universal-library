@@ -9,7 +9,7 @@
 
 <div id="content"
      data-file-name="word/<%= params[:script] %>/<%=@word.location.gsub(':', '/') %>"
-     class="<%= font_family %>"
+     class="<%= font_family %> <%= params[:css_class] %>"
      style="font-size: <%= font_size %>px; height: 100px">
   <%= @word.send(params[:script]).to_s.html_safe %>
 </div>

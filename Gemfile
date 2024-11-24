@@ -9,7 +9,7 @@ gem "nokogiri", '~> 1.16.5', require: false
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.3.5"
-gem 'sqlite3', require: false
+gem 'sqlite3', '~> 1.4'
 
 # Use the Puma app server [https://github.com/puma/puma]
 gem "puma", ">= 5.6.4"
@@ -156,3 +156,5 @@ gem "diff-lcs", "~> 1.5", require: false
 gem 'strscan', '~> 3.0.9'
 gem "tailwindcss-rails", "~> 2.7"
 gem "escompress", "~> 1.0"
+
+gem "inline_svg", "~> 1.10"

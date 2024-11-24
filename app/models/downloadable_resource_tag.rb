@@ -14,4 +14,10 @@
 #  index_downloadable_resource_tags_on_name  (name)
 #
 class DownloadableResourceTag < ApplicationRecord
+  has_many :downloadable_resource_taggings
+  has_many :downloadable_resources, through: :downloadable_resource_taggings
+
+  def to_s
+    name
+  end
 end

@@ -9,9 +9,9 @@
         <%= render 'card/learn-more-button' %>
       </div>
     <% end %>
-    <% if local_assigns[:show_info] %>
+    <% if local_assigns[:show_info] && card.info.present? %>
       <div class="tw-mt-8 text-white">
-        <%= card.info.to_s.html_safe if card.respond_to?(:info) %>
+        <%= card.info.to_s.html_safe %>
       </div>
     <% end %>
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">

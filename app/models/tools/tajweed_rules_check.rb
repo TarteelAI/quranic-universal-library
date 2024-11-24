@@ -42,7 +42,7 @@ module Tools
           iqlaab_words = Word.unscoped.joins("JOIN words w2 ON words.word_index + 1 = w2.word_index")
                              .where("words.text_uthmani ~* ?", noon_saakin_tanween_regex)
                              .where("w2.text_uthmani ~* ?", ba_regex)
-                           .select("words.id, words.location, words.text_uthmani_tajweed, w2.id as next_word_id, w2.location as next_word_location, w2.text_uthmani_tajweed as next_word_tajweed")
+                           .select("words.id, words.location, words.text_uthmani_tajweed, words.char_type_name, w2.id as next_word_id, w2.location as next_word_location, w2.text_uthmani_tajweed as next_word_tajweed")
 
 
           paginate(iqlaab_words, params)

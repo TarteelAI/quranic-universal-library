@@ -1,5 +1,17 @@
-<div class="tw-inline-block tw-text-sm tw-font-semibold tw-py-1 tw-px-3 tw-rounded-full <%= resource_tag_class(tag.strip) %>">
+<!--<div class="tw-inline-block tw-text-sm tw-font-semibold tw-py-1 tw-px-3 tw-rounded-full <%#= resource_tag_class(tag.strip) %>">
   <span class="tw-text-white tw-text-center">
-    <%= tag %>
+    <%#= tag %>
   </span>
 </div>
+blue
+red
+green
+orange
+-->
+
+
+<% color = tag.color_class || 'blue' %>
+<span class="tw-bg-<%= color %>-100 tw-text-<%= color %>-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer">
+  <%= tag.name %>
+</span>
+

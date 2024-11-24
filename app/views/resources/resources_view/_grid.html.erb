@@ -1,7 +1,11 @@
-<%= render 'layouts/grid' do %>
-<% downloadable_resource_cards.each do |_key, card| %>
-  <%= render 'card/card-container', card: card do %>
-    <%= render 'card/card_content', card: card, show_stats: true %>
-  <% end %>
-<% end %>
-<% end %>
+<div class="tw-col-span-12 lg:tw-col-start-2 lg:tw-col-span-12">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4" >
+    <% downloadable_resource_cards.each do |_key, card| %>
+      <%= render 'card/card-container', card: card, data: { turbo_frame: '_top' } do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+

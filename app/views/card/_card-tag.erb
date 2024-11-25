@@ -1,5 +1,19 @@
-<div class="tw-inline-block tw-text-sm tw-font-semibold tw-py-1 tw-px-3 tw-rounded-full <%= resource_tag_class(tag.strip) %>">
-  <span class="tw-text-white tw-text-center">
-    <%= tag %>
+<%
+  if tag.is_a?(String)
+    color = resource_tag_class(tag)
+    text = tag
+  else
+    color = tag.color_class.presence || 'blue'
+    text = tag.name
+  end
+%>
+
+<% if tag.try(:description).present? %>
+  <%= link_to text, docs_path(tag.slug), class: "tw-bg-#{color}-100 tw-text-#{color}-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer", data: { controller: 'ajax-modal', url: docs_path(tag.slug), css_class: 'modal-lg' } %>
+<% else %>
+  <span class="tw-bg-<%= color %>-100 tw-text-<%= color %>-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer">
+    <%= text %>
   </span>
-</div>
+<% end %>
+
+

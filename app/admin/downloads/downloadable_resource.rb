@@ -44,13 +44,38 @@ ActiveAdmin.register DownloadableResource do
     include ActiveStorage::SetCurrent
   end
 
+  show do
+    attributes_table do
+      row :id
+      row :name
+      row :resource_content
+      row :resource_type
+      row :language
+      row :download_count
+      row :published
+      row :position
+      row :info
+      row :meta_data
+      row :tags do
+        resource.downloadable_resource_tags.each do |t|
+          link_to t.name, [:admin, t]
+        end
+      end
+
+      row :created_at
+      row :updated_at
+    end
+  end
+
   form do |f|
     f.inputs 'Downloadable resource detail' do
+      #f.semantic_errors f.object.errors
+
       f.input :name
       f.input :published
 
       f.input :position
-      f.input :tags, hint: 'Comma separated tags'
+
       f.input :cardinality_type, as: :searchable_select, collection: ResourceContent.collection_for_cardinality_type
       f.input :resource_type, as: :searchable_select, collection: DownloadableResource::RESOURCE_TYPES
       f.input :resource_content_id,
@@ -58,13 +83,30 @@ ActiveAdmin.register DownloadableResource do
               ajax: { resource: ResourceContent }
 
       f.input :info, input_html: { data: { controller: 'tinymce' } }
+      f.inputs "Select Tags" do
+        f.has_many :downloadable_resource_taggings, allow_destroy: true do |tag_form|
+          tag_form.input :id, as: :hidden
+          tag_form.input :downloadable_resource_tag_id,
+                         as: :select,
+                         collection: DownloadableResourceTag.pluck(:name, :id)
+        end
+      end
     end
 
     f.actions
   end
 
   permit_params do
-    %i[name info position published resource_type tags files resource_content_id cardinality_type]
+    [
+      :name,
+      :info,
+      :position,
+      :published,
+      :resource_type,
+      :resource_content_id,
+      :cardinality_type,
+      downloadable_resource_taggings_attributes: [:id, :downloadable_resource_tag_id, :_destroy]
+    ]
   end
 
   sidebar 'Downloadable files', only: :show do

@@ -4,6 +4,15 @@ class CommunityController < ApplicationController
   before_action :load_resource_access
 
   def tools
+    @tools = view_context.developer_tools
+
+    sort_by = params[:sort_key]
+    sort_order = params[:sort_order].to_s == 'desc' ? 'desc' : 'asc'
+
+    if sort_by.present? && ['name'].include?(sort_by)
+      @tools = @tools.sort_by { |resource| resource[sort_by.to_sym] }
+      @tools.reverse! if sort_order == 'desc'
+    end
   end
 
   def docs

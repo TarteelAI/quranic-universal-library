@@ -5,10 +5,12 @@ export default class extends Controller {
     this.el = $(this.element);
     this.input = this.el.find('#search-input');
     document.addEventListener('keydown', this.handleKeydown.bind(this));
+
     this.input.on(
       'DOMAttrModified input change keypress paste blur',
       this.search.bind(this)
     );
+
     this.searchResults = this.el.find('[data-search]');
   }
 

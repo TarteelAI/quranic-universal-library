@@ -26,6 +26,11 @@ class DownloadableResource < ApplicationRecord
   has_many :related_resources, through: :downloadable_related_resources, class_name: 'DownloadableResource'
   has_many :downloadable_files, dependent: :destroy
 
+  has_many :downloadable_resource_taggings
+  has_many :downloadable_resource_tags, through: :downloadable_resource_taggings
+
+  accepts_nested_attributes_for :downloadable_resource_taggings, allow_destroy: true
+
   scope :published, -> { where published: true }
 
   RESOURCE_TYPES = %w[
@@ -50,7 +55,7 @@ class DownloadableResource < ApplicationRecord
   validates :resource_content, uniqueness: { allow_nil: true }
 
   def get_tags
-    tags.to_s.split(',').compact_blank
+    downloadable_resource_tags
   end
 
   def run_export_action

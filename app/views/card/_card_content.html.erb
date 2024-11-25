@@ -1,6 +1,5 @@
 <div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
   <div class="tw-flex tw-flex-col tw-justify-between tw-h-full">
-    <!-- Title, Description -->
     <div class="tw-flex tw-flex-col tw-gap-2">
       <%= render 'card/card-title', title: card.name || card.title %>
       <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
@@ -10,9 +9,9 @@
         <%= render 'card/learn-more-button' %>
       </div>
     <% end %>
-    <% if local_assigns[:show_info] %>
+    <% if local_assigns[:show_info] && card.info.present? %>
       <div class="tw-mt-8 text-white">
-        <%= card.info.to_s.html_safe if card.respond_to?(:info) %>
+        <%= card.info.to_s.html_safe %>
       </div>
     <% end %>
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">

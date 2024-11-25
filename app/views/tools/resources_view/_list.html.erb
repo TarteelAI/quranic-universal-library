@@ -1,0 +1,64 @@
+<table class="tw-w-full">
+  <thead>
+  <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-min-w-48">
+      <%= sort_order_link 'Tool', :name, {}, data: { turbo_action: 'advance' } %>
+    </th>
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden sm:tw-table-cell">Description</th>
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell">Additional Info</th>
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-48 tw-hidden md:tw-table-cell">Tags</th>
+  </tr>
+  </thead>
+  <tbody>
+
+  <% @tools.each do |card| %>
+    <tr class="tw-border-b hover:tw-bg-gray-50"
+        data-search="<%= "#{card.title.downcase} #{card.description.to_s.downcase} #{card.tags.join(' ').downcase}" %>">
+      <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-align-top">
+        <%= link_to card.url, class: 'hover:tw-text-black tw-block tw-space-y-1.5', data: { turbo_frame: '_top' } do %>
+          <span class="tw-font-semibold tw-leading-normal tw-block">
+            <%= card.title %>
+          </span>
+          <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden tw-leading-normal tw-block">
+            <%= card.description %>
+          </span>
+
+          <% if card.tags.present? %>
+            <div class="tw--ms-1 tw-flex tw-flex-wrap tw-gap-1 md:tw-hidden">
+              <% card.tags.each do |tag| %>
+                <span class="tw-w-max tw-block tw-rounded-full tw-bg-red-100 tw-text-red-600 tw-text-xs tw-px-2 tw-py-1">
+                  <%= tag %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </td>
+
+      <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty tw-align-top">
+        <%= link_to card.url, class: 'hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
+          <%= card.description %>
+        <% end %>
+      </td>
+
+      <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-table-cell tw-text-gray-500 tw-align-top">
+        <%= link_to card.url, class: 'hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
+          <%= card.info_tip if card.respond_to?(:info_tip) %>
+        <% end %>
+      </td>
+
+      <td class="tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
+        <% if card.tags.present? %>
+          <%= link_to card.url, class: 'tw-flex tw-flex-wrap tw-gap-1 hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
+            <% card.tags.each do |tag| %>
+              <span class="tw-w-max tw-block tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
+                <%= tag %>
+              </span>
+            <% end %>
+          <% end %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

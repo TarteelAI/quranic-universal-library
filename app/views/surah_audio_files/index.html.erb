@@ -21,8 +21,8 @@
             <%= render 'shared/filters', verse: false %>
 
             <div class="form-group me-2">
-              <%= select_tag :id, options_for_select(recitations, params[:id]), class: 'form-select', data: { controller: 'select2' } %>
-              <p class="form-text">Filter by Ayah progress</p>
+              <%= select_tag :recitation_id, options_for_select(recitations, params[:recitation_id]), class: 'form-select', data: { controller: 'select2' } %>
+              <p class="form-text">Filter by recitation</p>
             </div>
 
             <div class="form-group">

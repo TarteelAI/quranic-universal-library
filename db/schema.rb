@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_17_193235) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_23_201708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -141,6 +141,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_17_193235) do
     t.integer "related_resource_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "downloadable_resource_taggings", force: :cascade do |t|
+    t.integer "downloadable_resource_id", null: false
+    t.integer "downloadable_resource_tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["downloadable_resource_id", "downloadable_resource_tag_id"], name: "index_downloadable_resource_tag"
   end
 
   create_table "downloadable_resource_tags", force: :cascade do |t|

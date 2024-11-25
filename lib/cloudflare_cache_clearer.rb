@@ -10,8 +10,8 @@ client = CloudflareCacheClearer.new(
   zone_id: "zone_id"
 )
 client.clear_cache(urls: ["list", "of", "urls"])
-
 =end
+
 
 class CloudflareCacheClearer
   BASE_URL = "https://api.cloudflare.com/client/v4"

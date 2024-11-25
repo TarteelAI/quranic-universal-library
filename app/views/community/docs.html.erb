@@ -1,1 +1,5 @@
-<%= render partial: "docs/#{params[:key]}" %>
+<% if tag = DownloadableResourceTag.find_by(slug: params[:key]) %>
+  <%= render partial: "docs/tag", locals: { tag: tag } %>
+<% else %>
+  <%= render partial: "docs/#{params[:key]}" %>
+<% end %>

@@ -1,0 +1,13 @@
+<div class="tw-col-span-12 lg:tw-col-start-2 lg:tw-col-span-12 tw-mt-8">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4" >
+    <% @resources.each do |card| %>
+      <% search_term = "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>
+
+      <%= render 'card/card-container', card: card, data: { turbo_frame: '_top', search: search_term } do %>
+        <%= render 'card/card_content', card: card, show_stats: true %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+

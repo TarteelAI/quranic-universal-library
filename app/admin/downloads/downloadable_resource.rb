@@ -75,17 +75,6 @@ ActiveAdmin.register DownloadableResource do
       f.input :published
 
       f.input :position
-      # f.input :tags, hint: 'Comma separated tags'
-      #f.has_many :downloadable_resource_tags, hint: 'Comma separated tags'
-
-      f.inputs "Tags" do
-        f.has_many :downloadable_resource_taggings, allow_destroy: true do |tag_form|
-          tag_form.input :id, as: :hidden
-          tag_form.input :downloadable_resource_tag_id,
-                  as: :select,
-                  collection: DownloadableResourceTag.pluck(:name, :id)
-        end
-      end
 
       f.input :cardinality_type, as: :searchable_select, collection: ResourceContent.collection_for_cardinality_type
       f.input :resource_type, as: :searchable_select, collection: DownloadableResource::RESOURCE_TYPES
@@ -94,6 +83,14 @@ ActiveAdmin.register DownloadableResource do
               ajax: { resource: ResourceContent }
 
       f.input :info, input_html: { data: { controller: 'tinymce' } }
+      f.inputs "Select Tags" do
+        f.has_many :downloadable_resource_taggings, allow_destroy: true do |tag_form|
+          tag_form.input :id, as: :hidden
+          tag_form.input :downloadable_resource_tag_id,
+                         as: :select,
+                         collection: DownloadableResourceTag.pluck(:name, :id)
+        end
+      end
     end
 
     f.actions

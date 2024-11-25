@@ -40,7 +40,6 @@ export default class extends Controller {
     }
 
     let hasResults = false;
-    debugger
 
     this.searchResults.each((_, el) => {
       const resource = $(el);

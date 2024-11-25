@@ -84,59 +84,61 @@
     <div class="tw-mb-10 tw-mt-8">
       <table class="tw-w-full">
         <thead>
-          <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
-            <th class="tw-py-3 tw-min-w-48 tw-px-4 tw-font-normal tw-align-top">Name</th>
-            <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max tw-align-top">Category</th>
-            <% if @resources.any? { |card| card.get_tags.present? } %>
-              <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-align-top">Tags</th>
-            <% end %>
-            <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20 tw-hidden md:tw-table-cell tw-align-top">Download</th>
-          </tr>
+        <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
+          <th class="tw-py-3 tw-min-w-48 tw-px-4 tw-font-normal tw-align-top">
+            <%= sort_order_link 'Name', :name, {}, data: { turbo_action: 'advance' } %>
+          </th>
+          <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max tw-align-top">Category</th>
+          <% if @resources.any? { |card| card.get_tags.present? } %>
+            <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-align-top">Tags</th>
+          <% end %>
+          <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20 tw-hidden md:tw-table-cell tw-align-top">Download</th>
+        </tr>
         </thead>
         <tbody>
-          <% @resources.each do |card| %>
-            <tr class="tw-border-b" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
-              <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
-                <p class="tw-font-semibold tw-block">
-                  <%= card.name %>
-                </p>
+        <% @resources.each do |card| %>
+          <tr class="tw-border-b" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
+            <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
+              <p class="tw-font-semibold tw-block">
+                <%= card.name %>
+              </p>
 
-                <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden tw-flex tw-flex-col tw-gap-1 tw-space-y-1">
-                  <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
-
-                  <% if card.get_tags.present? %>
-                    <div class="tw-flex tw-flex-wrap tw-gap-1 tw-pb-1">
-                      <% card.get_tags.each do |tag| %>
-                        <%= render 'card/card-tag', tag: tag %>
-                      <% end %>
-                    </div>
-                  <% end %>
-
-                  <div>
-                    <%= render 'card/download_dropdown', resource: card %>
-                  </div>
-                </div>
-              </td>
-
-              <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
+              <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden tw-flex tw-flex-col tw-gap-1 tw-space-y-1">
                 <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
-              </td>
 
-              <% if @resources.any? { |card| card.get_tags.present? } %>
-                <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-1 tw-text-pretty tw-align-top">
-                  <% if card.get_tags.present? %>
+                <% if card.get_tags.present? %>
+                  <div class="tw-flex tw-flex-wrap tw-gap-1 tw-pb-1">
                     <% card.get_tags.each do |tag| %>
                       <%= render 'card/card-tag', tag: tag %>
                     <% end %>
-                  <% end %>
-                </td>
-              <% end %>
+                  </div>
+                <% end %>
 
-              <td class="tw-text-center tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
-                <%= render 'card/download_dropdown', resource: card %>
+                <div>
+                  <%= render 'card/download_dropdown', resource: card %>
+                </div>
+              </div>
+            </td>
+
+            <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
+              <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+            </td>
+
+            <% if @resources.any? { |card| card.get_tags.present? } %>
+              <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-1 tw-text-pretty tw-align-top">
+                <% if card.get_tags.present? %>
+                  <% card.get_tags.each do |tag| %>
+                    <%= render 'card/card-tag', tag: tag %>
+                  <% end %>
+                <% end %>
               </td>
-            </tr>
-          <% end %>
+            <% end %>
+
+            <td class="tw-text-center tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
+              <%= render 'card/download_dropdown', resource: card %>
+            </td>
+          </tr>
+        <% end %>
         </tbody>
       </table>
     </div>

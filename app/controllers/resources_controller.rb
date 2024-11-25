@@ -3,9 +3,19 @@ class ResourcesController < CommunityController
   before_action :authenticate_user!, only: [:download]
 
   def index
-    @resources = DownloadableResource
-                   .published
-                   .select('DISTINCT ON (resource_type) *, COUNT(*) OVER (PARTITION BY resource_type) AS total_resources')
+    #@resources = DownloadableResource
+    #                 .published
+    #                 .select('DISTINCT ON (resource_type) *, COUNT(*) OVER (PARTITION BY resource_type) AS total_resources')
+
+    @resources = view_context.downloadable_resource_cards.values
+
+    sort_by = params[:sort_key]
+    sort_order = params[:sort_order]
+
+    if sort_by.present? && ['name', 'count'].include?(sort_by)
+      @resources = @resources.sort_by { |resource| resource[sort_by.to_sym] }
+      @resources.reverse! if sort_order == 'desc'
+    end
   end
 
   def download
@@ -22,6 +32,13 @@ class ResourcesController < CommunityController
                    .published
                    .includes(:downloadable_resource_tags)
                    .where(resource_type: params[:id])
+
+    sort_by = params[:sort_key]
+    sort_order = params[:sort_order].to_s == 'desc' ? 'desc' : 'asc'
+
+    if sort_by.present? && ['name'].include?(sort_by)
+      @resources = @resources.order("name #{sort_order}")
+    end
 
     if @resources.empty?
       redirect_to resources_path, alert: 'Sorry, this resource does not exist.'

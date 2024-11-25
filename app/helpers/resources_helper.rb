@@ -1,4 +1,4 @@
-module LandingHelper
+module ResourcesHelper
   def featured_downloadable_resource_cards
     return @featured_downloadable_resource_cards if @featured_downloadable_resource_cards
 
@@ -98,7 +98,7 @@ module LandingHelper
         type: 'quranic-text',
         icon: 'bismillah.svg',
         list_icon: 'font.svg',
-        count: 15,
+        count: ResourceContent.quran_script.approved.count,
         stats: "<div><div>Indopak</div><div>Uthmani, tajweed</div></div>"
       ),
 
@@ -109,7 +109,7 @@ module LandingHelper
         type: 'fonts',
         icon: 'quran.svg',
         list_icon: 'font.svg',
-        count: ResourceContent.fonts.size,
+        count: ResourceContent.fonts.approved.size,
         stats: "<div><div>Indopak</div><div>Madani</div></div>"
       ),
 
@@ -163,6 +163,7 @@ module LandingHelper
         icon: 'layout.svg',
         url: '/resources/morphology',
         type: 'grammar-morphology',
+        count: WordCorpus.count
       ),
 
       mutashabihat: ToolCard.new(
@@ -172,6 +173,7 @@ module LandingHelper
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
         list_icon: 'mutashabihat.svg',
+        count: Morphology::Phrase.approved.count
       ),
 
       similar_ayah: ToolCard.new(
@@ -181,6 +183,7 @@ module LandingHelper
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
         list_icon: 'similar.svg',
+        count: Morphology::MatchingVerse.approved.count
       ),
 
       ayah_theme: ToolCard.new(
@@ -189,7 +192,8 @@ module LandingHelper
         url: '/resources/ayah-theme',
         type: 'mutashabihat',
         icon: 'layout.svg',
-        list_icon: 'topic.svg'
+        list_icon: 'topic.svg',
+        count: AyahTheme.count
       )
     }
   end

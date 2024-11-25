@@ -41,13 +41,12 @@ class ExportMushafLayout
       text_indopak = word.text_qpc_nastaleeq_hafs
       indopak_hanafi = word.text_indopak_nastaleeq
       code_v1 = word.code_v1
-      text_digital_khatt = word.text_digital_khatt
+      text_digital_khatt_v2 = word.text_digital_khatt
       text_digital_khatt_v1 = word.text_digital_khatt_v1
-
       text_qpc_hafs = word.text_qpc_hafs
       is_ayah_marker = word.ayah_mark?
 
-      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
+      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt_v2}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
       i += 1
 
       if i >= page_size
@@ -61,11 +60,12 @@ class ExportMushafLayout
   end
 
   def export_layouts
-    exported_tables = []
+    exported_tables = {}
+
     mushafs.each do |mushaf|
       table_name = get_mushaf_file_name(mushaf.id)
-      next if exported_tables.include?(table_name)
-      exported_tables << table_name
+      next if exported_tables[table_name]
+      exported_tables[table_name] = true
       ExportedLayout.table_name = table_name
 
       mushaf.mushaf_pages.order("page_number ASC").each do |page|
@@ -254,42 +254,16 @@ class ExportMushafLayout
         database: db
       })
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk_v2 string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
+    layout_created = {}
 
     mushafs.each do |mushaf|
       db_name = get_mushaf_file_name(mushaf.id)
+      next if layout_created[db_name]
+
+      layout_created[db_name] = true
       ExportedLayout.connection.execute "CREATE TABLE #{db_name}(page integer, line integer, type text, is_centered boolean, range_start integer, range_end integer)"
     end
-  end
-
-  def export_word(surah, ayah, word_number, word_index, text_uthmani, text_indopak, indopak_hanafi, code_v1, text_digital_khatt, text_qpc_hafs, is_ayah_number)
-    ExportedWord.connection.execute <<-SQL
-    INSERT INTO words (
-      surah_number,
-      ayah_number,
-      word_number,
-      word_number_all,
-      uthmani,
-      nastaleeq,
-      indopak,
-      qpc_v1,
-      dk,
-      qpc_hafs,
-      is_ayah_marker
-    ) VALUES (
-      #{surah},
-      #{ayah},
-      #{word_number},
-      #{word_index},
-      '#{text_uthmani}',
-      '#{text_indopak}',
-      '#{indopak_hanafi}'
-      '#{code_v1}',
-      '#{text_digital_khatt}',
-      '#{text_qpc_hafs}',
-      #{is_ayah_number}
-    )
-    SQL
   end
 
   def add_db_indexes
@@ -315,7 +289,7 @@ class ExportMushafLayout
     nastaleeq, 
     indopak,
     qpc_v1,
-    dk,
+    dk_v2,
     dk_v1, 
     qpc_hafs,
     is_ayah_marker

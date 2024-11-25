@@ -11,6 +11,3 @@ class CreateDownloadableResourceTags < ActiveRecord::Migration[7.0]
     end
   end
 end
-
-# ActiveRecord::Migration.add_column :downloadable_resource_tags, :color_class, :string
-# ActiveRecord::Migration.add_column :downloadable_resource_tags, :resources_count, :integer

@@ -1,15 +1,15 @@
 <%
-  patterns = (1..10).to_a
-  is_quran_script = @resources.first.resource_content&.quran_script?
-  @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
-
   resources = downloadable_resource_cards
   featured_resources = featured_downloadable_resource_cards
   group = @resources.first
   group_key = params[:id].tr('-', '_').to_sym
 
+  is_quran_script = group.resource_content&.quran_script?
+  @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
+
   group_card = resources[group_key] || featured_resources[group_key]
 %>
+
 <div id="resources" data-controller="resource-search">
   <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
     <div id="resource-bg">
@@ -63,6 +63,7 @@
           <div class="tw-w-full">
             <%= render partial: 'shared/search_input' %>
           </div>
+
           <% if false %>
             <button class="tw-border tw-flex tw-items-center tw-gap-2">
               <svg width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +98,8 @@
         </thead>
         <tbody>
         <% @resources.each do |card| %>
-          <tr class="tw-border-b" id="<%= dom_id card %>" data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
+          <tr class="tw-border-b" id="<%= dom_id card %>"
+              data-search="<%= "#{card.name.downcase} #{card.respond_to?(:description) ? card.description.to_s.downcase : ''} #{card.humanize_cardinality_type.to_s.downcase} #{card.get_tags.join(' ').downcase}" %>">
             <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
               <p class="tw-font-semibold tw-block">
                 <%= card.name %>

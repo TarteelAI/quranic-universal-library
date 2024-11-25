@@ -1,37 +1,10 @@
 module HomeHelper
+  TAG_COLORS = ['red', 'green', 'blue', 'orange'].freeze
+
   def resource_tag_class(tag)
-    # TODO: Change to Tailwind colours
-    case tag
-    when 'script'
-      'bg-primary'
-    when 'audio'
-      'bg-secondary'
-    when 'translation'
-      'tw-bg-green-600'
-    when 'tafsir'
-      'bg-info'
-    when 'mutashabihat'
-      'bg-warning'
-    when 'similar-ayah'
-      'bg-info'
-    when 'surah-info'
-      'bg-light'
-    when 'mushaf-layout'
-      'bg-dark'
-    when 'ayah-theme'
-      'bg-primary'
-    when 'ayah-topics'
-      'bg-primary'
-    when 'transliteration'
-      'tw-bg-green-600'
-    when 'morphology'
-      'tw-bg-green-600'
-    when 'With Footnotes'
-      'bg-info'
-    else
-      'tw-bg-green-600'
-    end
+    TAG_COLORS[string_to_bucket(tag, TAG_COLORS.size) - 1]
   end
+
   def inline_stylesheet_source(name)
     asset_name = "#{name}.css"
 
@@ -66,5 +39,11 @@ module HomeHelper
 
   def tafisr_view_types
     ['ayah', 'page_with_pdf', 'page_with_arabic']
+  end
+
+  # Return the bucket number for the given input string
+  def string_to_bucket(input, max=5)
+    hash = input.bytes.sum + input.length
+    (hash % max) + 1
   end
 end

@@ -1,7 +1,5 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
 <svg width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff">
-<g id="SVGRepo_bgCarrier" stroke-whiteidth="0"/>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <defs> <style> .cls-1 { fill: white; fill-rule: evenodd; } </style> </defs> <path id="stats3" class="cls-1" d="M1008,456a12,12,0,1,1,12-12A12,12,0,0,1,1008,456Zm0-22a10,10,0,1,0,10,10A10,10,0,0,0,1008,434Zm4,15a0.991,0.991,0,0,1-.99-1v-4.99a0.99,0.99,0,1,1,1.98,0V448A0.991,0.991,0,0,1,1012,449Zm-4,0a1,1,0,0,1-1-1v-8a1,1,0,0,1,2,0v8A1,1,0,0,1,1008,449Zm-4,0a0.991,0.991,0,0,1-.99-1v-2.989a0.99,0.99,0,1,1,1.98,0V448A0.991,0.991,0,0,1,1004,449Z" transform="translate(-996 -432)"/> </g>
-</svg>
+<g> <defs> <style> .cls-1 { fill: white; fill-rule: evenodd; } </style> </defs> <path id="stats3" class="cls-1" d="M1008,456a12,12,0,1,1,12-12A12,12,0,0,1,1008,456Zm0-22a10,10,0,1,0,10,10A10,10,0,0,0,1008,434Zm4,15a0.991,0.991,0,0,1-.99-1v-4.99a0.99,0.99,0,1,1,1.98,0V448A0.991,0.991,0,0,1,1012,449Zm-4,0a1,1,0,0,1-1-1v-8a1,1,0,0,1,2,0v8A1,1,0,0,1,1008,449Zm-4,0a0.991,0.991,0,0,1-.99-1v-2.989a0.99,0.99,0,1,1,1.98,0V448A0.991,0.991,0,0,1,1004,449Z" transform="translate(-996 -432)"/> </g>
+</svg>

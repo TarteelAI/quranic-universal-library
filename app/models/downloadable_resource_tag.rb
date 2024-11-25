@@ -16,8 +16,16 @@
 class DownloadableResourceTag < ApplicationRecord
   has_many :downloadable_resource_taggings
   has_many :downloadable_resources, through: :downloadable_resource_taggings
+  before_save :generate_slug
 
   def to_s
     name
+  end
+
+  protected
+  def generate_slug
+    if slug.blank?
+      self.slug = name.parameterize
+    end
   end
 end

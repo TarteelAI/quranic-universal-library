@@ -3,11 +3,11 @@
     border-bottom: 1px solid $gray-500;
 
     &.active .question-icon {
-      transform: translateY(-50%) rotate(45deg)
+      transform: rotate(45deg);
     }
 
     .question-icon {
-      transform: translateY(-50%);
+      position: relative;
       width: 1.6rem;
       height: 1.6rem;
       background-color: $primary;
@@ -47,6 +47,7 @@
 
     .answer-wrapper{
       display: none;
+      padding-bottom: 1rem;
     }
   }
 }

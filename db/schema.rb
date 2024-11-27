@@ -153,7 +153,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_23_201708) do
 
   create_table "downloadable_resource_tags", force: :cascade do |t|
     t.string "name"
-    t.string "glossary"
+    t.string "glossary_term"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

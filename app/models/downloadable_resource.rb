@@ -54,8 +54,24 @@ class DownloadableResource < ApplicationRecord
 
   validates :resource_content, uniqueness: { allow_nil: true }
 
+  def description
+    info
+  end
+
+  def quran_script?
+    resource_type == ResourceContent::SubType::QuranText
+  end
+
+  def font?
+    resource_type == ResourceContent::SubType::Font
+  end
+
   def get_tags
     downloadable_resource_tags
+  end
+
+  def tag_names
+    downloadable_resource_tags.pluck(:name)
   end
 
   def run_export_action
@@ -100,7 +116,6 @@ class DownloadableResource < ApplicationRecord
     when 'surah-info'
       s.export_surah_info(language: resource_content.language)
     when 'mushaf-layout'
-      binding.pry
       s.export_mushaf_layouts(resource_content: resource_content)
     when 'ayah-theme'
       s.export_ayah_themes

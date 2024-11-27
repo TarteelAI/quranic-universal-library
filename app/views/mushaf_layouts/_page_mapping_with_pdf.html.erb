@@ -5,7 +5,7 @@
 
 <div class="page-wrapper container-lg">
   <div class="resize-container" data-controller="resizeable">
-    <div class="resizable" id="left-side">
+    <div class="resizable" id="left-side" data-turbo-permanent="true">
       <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number, page_offset: pdf_page_offset %>
     </div>
 

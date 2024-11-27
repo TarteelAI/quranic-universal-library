@@ -194,6 +194,10 @@ class ResourceContent < QuranApiRecord
     sub_type == SubType::QuranText
   end
 
+  def font?
+    sub_type == SubType::Font
+  end
+
   def has_footnote?
     meta_value('has-footnote') == 'yes'
   end

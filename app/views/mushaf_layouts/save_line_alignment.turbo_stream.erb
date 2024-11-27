@@ -16,3 +16,7 @@
     <% end %>
   </div>
 <% end %>
+
+<%= turbo_stream.replace dom_id(@mushaf_page.mushaf, "page_#{@mushaf_page.page_number}") do %>
+  <%= render 'shared/mushaf_page', words: @words, page: @mushaf_page.page_number, mushaf: @mushaf_page.mushaf, name: @resource.name %>
+<% end %>

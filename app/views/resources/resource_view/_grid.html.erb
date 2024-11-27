@@ -1,0 +1,21 @@
+<%
+  patterns = (1..10).to_a
+
+  group = @resources.first
+  is_quran_script = group&.quran_script? || group&.font?
+%>
+
+<div class="tw-col-span-12 lg:tw-col-start-2 lg:tw-col-span-12 tw-mt-8">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mt-4" >
+    <% @resources.each do |card| %>
+      <%
+        search_term = "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}"
+      %>
+      <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
+        <%= render 'card/card_content', card: card, show_info: true, is_quran_script: is_quran_script, preview_verse: @preview_verse, text_type: 'text_qpc_hafs', show_download: true, show_tags: true %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+

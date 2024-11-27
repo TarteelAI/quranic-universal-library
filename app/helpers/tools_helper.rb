@@ -7,7 +7,7 @@ module ToolsHelper
         url: '/mushaf_layouts',
         type: 'mushaf-layout',
         icon: 'layout.svg',
-        tags: ['Mushaf Layout'],
+        tags: [['Mushaf Layout', 'mushaf-layout']],
         info_tip: "This tool allows you to create the digital Quran layout as it appears in printed Mushafs."
       ),
       ToolCard.new(
@@ -16,7 +16,7 @@ module ToolsHelper
         url: tajweed_words_path,
         type: 'tajweed-tool',
         icon: 'tajweed.svg',
-        tags: ['Tajweed'],
+        tags: [['Tajweed', 'tajweed']],
         info_tip: "Use Tajweed Tools to locate words with specific Tajweed rules, receive suggestions for missing rules, add the missing or fix the incorrect one."
       ),
       ToolCard.new(
@@ -26,7 +26,7 @@ module ToolsHelper
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
         cta_bg: 'rgba(56, 152, 173, 0.9)',
-        tags: ['Mutashabihat'],
+        tags: [['Mutashabihat', 'mutashabihat']],
         info_tip: "This tool allows you to identify and compare verses and phrases that share similarities in meaning, context, or wording."
       ),
       ToolCard.new(
@@ -34,7 +34,7 @@ module ToolsHelper
         description: 'Tool for creating word by word timestamp data of surah audio files.',
         url: '/surah_audio_files',
         type: 'segments',
-        tags: ['Audio', 'Surah by Surah', 'Timestamp'],
+        tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah'], ['Timestamp', 'timestamp']],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "Surah Timestamp Editor is designed to help you prepare precise timestamp data for surah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
@@ -44,7 +44,7 @@ module ToolsHelper
         description: 'Tool for creating word by word segments of ayah by ayah audio files.',
         url: '/ayah_audio_files',
         type: 'segments',
-        tags: ['Audio', 'Ayah by Ayah', 'Timestamp'],
+        tags: [['Recitation', 'recitation'], ['Ayah by Ayah', 'ayah-by-ayah'], ['Timestamp', 'timestamp']],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "Ayah Timestamp Editor is designed to help you prepare precise timestamp data for ayah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
@@ -54,7 +54,7 @@ module ToolsHelper
         description: 'Tool for proofreading and suggesting the fixes for ayah translations.',
         url: translation_proofreadings_path,
         type: 'translation',
-        tags: ['Translation'],
+        tags: [['Translation', 'translation']],
         icon: 'translation.svg',
         cta_bg: 'rgba(90, 77, 65, 0.9)',
         info_tip: "This tool helps you review and suggest fixes for Quran translations, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
@@ -64,7 +64,7 @@ module ToolsHelper
         description: 'Tool for proofreading and suggesting the fixes for ayah tafisrs.',
         url: tafsir_proofreadings_path,
         type: 'tafsir',
-        tags: ['Tafsir'],
+        tags: [['Tafsir', 'tafsir']],
         icon: 'translation.svg',
         cta_bg: 'rgba(90, 77, 65, 0.9)',
         info_tip: "This tool helps you review and suggest fixes for Quran tafsirs, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
@@ -75,7 +75,7 @@ module ToolsHelper
         url: '/word_text_proofreadings',
         type: 'quranic-text',
         icon: 'open_book.svg',
-        tags: ['Quran Script', 'Fonts'],
+        tags: [['Quran Script', 'quran-script'], ['Fonts', 'fonts']],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool enables you to proofread Quran script( For Tashkeel issues and font compatibility), both ayah by ayah and word by word.",
         ),
@@ -85,7 +85,7 @@ module ToolsHelper
         url: surah_infos_path,
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: ['Surah info'],
+        tags: [['Surah info', 'surah-info']],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool allow you to proofread Surah info in different languages."
       ),
@@ -94,7 +94,7 @@ module ToolsHelper
         description: 'Transliteration of each word of Quran in Arabic and Urdu.',
         url: arabic_transliterations_path,
         type: 'corpus',
-        tags: ['Transliteration', 'Arabic', 'Word by Word'],
+        tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
         icon: 'qaf.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool allow you to prepare Arabic transliterations(syllable)."
@@ -104,7 +104,7 @@ module ToolsHelper
         description: 'Proofread and suggest fixes for word by word translations in multiple languages.',
         url: word_translations_path,
         type: 'corpus',
-        tags: ['Translation', 'Word by Word'],
+        tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
         icon: 'timestamp.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool is used to proofread and fix word-by-word translations"
@@ -114,7 +114,7 @@ module ToolsHelper
         description: 'Help us fix grammar, part of speech, and morphology data for each word of Quran.',
         url: word_concordance_labels_path,
         type: 'corpus',
-        tags: ['Corpus', 'Grammar', 'POS', 'Morphology'],
+        tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['POS', 'part-of-speech'], ['Morphology', 'quranic-morphology']],
         icon: 'tags.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool is used to tag part of speech, grammar of each word of Quran."

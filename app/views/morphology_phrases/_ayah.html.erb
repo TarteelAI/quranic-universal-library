@@ -51,7 +51,7 @@
   </div>
 
   <div class="words d-flex flex-wrap">
-    <% ayah.words.each do |w| %>
+    <% ayah.words.order('position asc').each do |w| %>
       <% if !w.ayah_mark? %>
         <%
           range = ranges.detect do |r|

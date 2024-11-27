@@ -23,10 +23,11 @@
   end
 %>
 
-<%= render 'shared/tajweed_images_styles' if use_images %>
-<%= render 'shared/page_font', pages: [page], words: nil %>
+<%= turbo_frame_tag dom_id(mushaf, "page_#{page}") do %>
+  <%= render 'shared/tajweed_images_styles' if use_images %>
+  <%= render 'shared/page_font', pages: [page], words: nil %>
 
-<div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
+  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
   <% if show_controls %>
     <div class="mushaf-page-setting d-flex flex-column mb-4">
       <div><span>Name: <%= name %></span></div>
@@ -123,3 +124,4 @@
       </div>
 </div>
 </div>
+<% end %>

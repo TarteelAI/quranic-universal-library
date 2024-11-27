@@ -4,16 +4,19 @@
       <%= render 'card/card-title', title: card.name || card.title %>
       <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
     </div>
+
     <% if local_assigns[:show_learn_more] %>
       <div class="tw-mt-8">
         <%= render 'card/learn-more-button' %>
       </div>
     <% end %>
+
     <% if local_assigns[:show_info] && card.info.present? %>
       <div class="tw-mt-8 text-white">
         <%= card.info.to_s.html_safe %>
       </div>
     <% end %>
+
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">
       <% if local_assigns[:is_quran_script] %>
         <%= render 'quran_script_preview', resource: card.resource_content, preview_verse: local_assigns[:preview_verse] %>
@@ -28,6 +31,7 @@
           <% end %>
         </div>
       <% end %>
+
       <% if local_assigns[:show_download] %>
         <div class="tw-flex tw-w-full tw-items-center tw-flex-col tw-justify-center tw-mt-8">
           <%= render 'card/download_dropdown', resource: card %>
@@ -35,5 +39,6 @@
       <% end %>
     </div>
   </div>
+
   <%= render 'card/card_footer', card: card, show_stats: local_assigns[:show_stats], show_tags: local_assigns[:show_tags], show_activity_cta: local_assigns[:show_activity_cta] %>
 </div>

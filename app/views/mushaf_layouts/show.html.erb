@@ -9,15 +9,15 @@
     more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item')
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number + 1, source_pdf: true), class: 'dropdown-item')
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number + 1), class: 'dropdown-item')
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item')
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item')
   more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, compare_with: 'select')})
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
         Actions
       </button>
-      <ul class='dropdown-menu text-dark'>
+      <ul class='dropdown-menu text-dark' data-turbo=false>
        #{more_action.map do |action|
           "<li>#{action}</li>"
         end.join('')

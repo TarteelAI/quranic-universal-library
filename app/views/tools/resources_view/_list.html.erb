@@ -49,11 +49,19 @@
 
       <td class="tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
         <% if card.tags.present? %>
-          <%= link_to card.url, class: 'tw-flex tw-flex-wrap tw-gap-1 hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
+          <div class="tw-flex tw-flex-wrap tw-gap-2">
             <% card.tags.each do |tag| %>
+              <%= render 'card/card-tag', tag: tag %>
+            <% end %>
+          </div>
+
+           <% if false %>
+            <%= link_to card.url, class: 'tw-flex tw-flex-wrap tw-gap-1 hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
+              <% card.tags.each do |tag| %>
               <span class="tw-w-max tw-block tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
                 <%= tag %>
               </span>
+              <% end %>
             <% end %>
           <% end %>
         <% end %>

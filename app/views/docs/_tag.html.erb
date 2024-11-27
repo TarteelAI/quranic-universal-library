@@ -5,5 +5,9 @@
 <div id="body">
   <div class="modal-body">
     <%= tag.description.to_s.html_safe %>
+
+    <% if tag.glossary_term.present? %>
+      <%= link_to "Click here", "https://www.tarteel.ai/glossary/#{tag.glossary_term}" %> to read more about <%= tag.name %> in <%= link_to 'Tarteel glossary', 'https://www.tarteel.ai/glossary' %>.
+    <% end %>
   </div>
 </div>

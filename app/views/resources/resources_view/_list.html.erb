@@ -25,10 +25,10 @@
                   <span class="tw-block tw-font-semibold">
                     <%= card.title %>
                   </span>
-                  <span class="tw-text-gray-500 tw-text-xs">
+                  <span class="tw-block tw-text-gray-500 tw-text-xs">
                     <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
                   </span>
-                  <span class="tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
+                  <span class="tw-block tw-text-gray-500 tw-text-xs tw-mt-1 sm:tw-hidden">
                     <%= card.description %>
                   </span>
                 </div>

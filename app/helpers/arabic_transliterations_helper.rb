@@ -16,7 +16,7 @@ module ArabicTransliterationsHelper
     link_options[:class] = "d-flex sort-link #{link_options[:class]}"
 
     link_to url_for(url_params), link_options do
-      "<span class='label-text tw-me-1'>#{text}</span> <span class='sort-icons'>#{icon_asc} #{icon_desc}</span>".html_safe
+      "<span class='label-text tw-me-2'>#{text}</span> <span class='sort-icons'>#{icon_asc} #{icon_desc}</span>".html_safe
     end
   end
 end

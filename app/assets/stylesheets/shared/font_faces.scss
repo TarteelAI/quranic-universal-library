@@ -68,7 +68,7 @@ $asset-version: "3";
 
 @font-face {
   font-family: digitalkhatt-indopak;
-  src: url("#{$font-cdn}/DigitalKhattIndoPak.otf?v=#{$asset-version}")
+  src: url("#{$font-cdn}/DigitalKhattIndoPak.otf?v=#{$asset-version}");
   font-style: normal;
   font-display: block;
 }

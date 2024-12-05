@@ -72,6 +72,14 @@
       </div>
 
       <div class="col-md-12 section pb-3 border-bottom">
+        <b>Digital Khatt Indopak</b>
+
+        <div class="quran-text digitalkhatt-indopak" style="margin-top: 10px">
+          <%= @verse.text_digital_khatt_indopak %>
+        </div>
+      </div>
+
+      <div class="col-md-12 section pb-3 border-bottom">
         <b>KFQC Uthmani Hafs</b>
         <div class="qpc-hafs quran-text" style="margin-top: 10px"><%= @verse.text_qpc_hafs %></div>
       </div>
@@ -164,6 +172,7 @@
         <td style="direction: rtl">Uthmani</td>
         <td style="direction: rtl">Digital Khatt</td>
         <td style="direction: rtl">Digital Khatt v1</td>
+        <td>Digitak Khatt indopak</td>
         <td style="direction: rtl">Imlaei</td>
         <td style="direction: rtl">KFQC Hafs</td>
         <td style="direction: rtl;">QC Hafs tajweed</td>
@@ -206,6 +215,10 @@
 
           <td class="digitalkhatt char">
             <%= word.text_digital_khatt_v1 %>
+          </td>
+
+          <td class="digitalkhatt-indopak char">
+            <%= word.text_digital_khatt_indopak %>
           </td>
 
           <td class="me_quran char">

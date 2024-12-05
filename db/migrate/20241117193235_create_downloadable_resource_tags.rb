@@ -6,6 +6,7 @@ class CreateDownloadableResourceTags < ActiveRecord::Migration[7.0]
       t.text :description
       t.string :color_class, default: 'blue'
       t.integer :resources_count
+      t.string :slug, index: true
 
       t.timestamps
     end

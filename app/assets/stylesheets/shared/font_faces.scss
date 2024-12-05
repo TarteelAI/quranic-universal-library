@@ -41,7 +41,7 @@ $asset-version: "3";
   font-display: swap;
 }
 
-.bismillah{
+.bismillah {
   font-family: bismillah;
 }
 
@@ -56,14 +56,21 @@ $asset-version: "3";
   font-family: 'digitalkhatt';
   src: url("#{$font-cdn}/DigitalKhattQuranic.otf?v=#{$asset-version}") format("opentype");
   font-style: normal;
-  font-display:block
+  font-display: block
 }
 
 @font-face {
   font-family: 'digitalkhatt-v2';
   src: url("#{$font-cdn}/DigitalKhattV2.otf?v=#{$asset-version}") format("opentype");
   font-style: normal;
-  font-display:block
+  font-display: block
+}
+
+@font-face {
+  font-family: digitalkhatt-indopak;
+  src: url("#{$font-cdn}/DigitalKhattIndoPak.otf?v=#{$asset-version}")
+  font-style: normal;
+  font-display: block;
 }
 
 @font-face {
@@ -78,18 +85,24 @@ $asset-version: "3";
   src: url("#{$font-cdn}/nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
 }
 
-.mushaf-qpc-nastaleeq{
+.mushaf-qpc-nastaleeq {
   font-family: qpc-nastaleeq !important;
 }
 
-.digitalkhatt{
+.digitalkhatt {
   font-family: digitalkhatt;
   direction: rtl;
   font-size: 30px;
 }
 
-.digitalkhatt-v2{
+.digitalkhatt-v2 {
   font-family: digitalkhatt-v2;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.digitalkhatt-indopak {
+  font-family: digitalkhatt-indopak;
   direction: rtl;
   font-size: 30px;
 }
@@ -120,7 +133,7 @@ $asset-version: "3";
   font-style: normal;
 }
 
-.mushaf-al_qalam{
+.mushaf-al_qalam {
   font-family: al_qalam;
 }
 
@@ -130,25 +143,25 @@ $asset-version: "3";
   font-size: 30px;
 }
 
-.qpc-dotted{
-    font-family: 'qpc-dotted';
-    direction: rtl;
-    font-size: 30px;
+.qpc-dotted {
+  font-family: 'qpc-dotted';
+  direction: rtl;
+  font-size: 30px;
 }
 
-.qpc-outline{
+.qpc-outline {
   font-family: 'qpc-outline';
   direction: rtl;
   font-size: 30px;
 }
 
-.qpc-hafs-color{
+.qpc-hafs-color {
   font-family: 'KFGQPCHAFSColored-Bold' !important;
   direction: rtl;
   font-size: 30px;
 }
 
-.qalam{
+.qalam {
   font-family: al_qalam;
   direction: rtl;
 }
@@ -165,28 +178,28 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
   font-size: 30px;
 }
 
-.kashmiri,.ks, [lang=ks], [lang=ks] {
+.kashmiri, .ks, [lang=ks], [lang=ks] {
   font-family: 'Noto Naskh Arabic', serif;
   direction: rtl;
 }
 
-.me_quran, .madani{
+.me_quran, .madani {
   font-family: me_quran;
   direction: rtl;
   font-size: 30px;
 }
 
-.row td span.quran-text{
+.row td span.quran-text {
   direction: rtl;
 }
 
-.indopak-nastaleeq, .indopak{
+.indopak-nastaleeq, .indopak {
   font-family: indopak-nastaleeq;
   font-size: 30px;
   direction: rtl;
 }
 
-.qpc-nastaleeq{
+.qpc-nastaleeq {
   font-family: qpc-nastaleeq;
   font-size: 30px;
   direction: rtl;
@@ -199,32 +212,32 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
   font-style: normal;
 }
 
-.tp0, .v3p0{
+.tp0, .v3p0 {
   font-family: quran_common_font;
 }
 
-.quran-text{
+.quran-text {
   direction: rtl;
   text-align: right;
 
-  td span{
+  td span {
     font-size: 30px;
   }
 
-  a{
+  a {
     text-decoration: none;
   }
 }
 
-.fs-lg{
+.fs-lg {
   font-size: 30px;
 }
 
-.fs-auto{
+.fs-auto {
   font-size: inherit;
 }
 
-.ar.indopak{
+.ar.indopak {
   font-family: indopak-nastaleeq;
   direction: rtl;
 }

@@ -344,6 +344,11 @@ class Word < QuranApiRecord
       update_text_for_mushaf(22, text_digital_khatt_v1)
       update_ayah_script('text_digital_khatt_v1')
     end
+
+    if saved_change_to_attribute?('text_digital_khatt_indopak')
+      update_text_for_mushaf(24, text_digital_khatt_indopak)
+      update_ayah_script('text_digital_khatt_indopak')
+    end
   end
 
   def update_text_for_mushaf(mushaf_id, text)

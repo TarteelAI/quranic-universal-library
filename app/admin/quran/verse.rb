@@ -123,6 +123,13 @@ ActiveAdmin.register Verse do
         end
       end
 
+      row 'DigitalKhatt indopak' do
+        div class: 'd-flex flex-column align-item-end' do
+          div(resource.text_digital_khatt_indopak.to_s.html_safe, class: 'quran-text digitalkhatt-indopak')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_indopak}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
       row 'Imlaei script' do
         div class: 'quran-text me_quran' do
           resource.text_imlaei
@@ -496,6 +503,7 @@ ActiveAdmin.register Verse do
       text_qpc_hafs
       text_digital_khatt
       text_digital_khatt_v1
+      text_digital_khatt_indopak
       text_imlaei
       text_imlaei_simple
       code_v1
@@ -517,10 +525,12 @@ ActiveAdmin.register Verse do
       f.input :text_qpc_hafs, input_html: { class: 'quran-text me_quran' }
       f.input :text_digital_khatt, input_html: { class: 'quran-text digitalkhatt' }
       f.input :text_digital_khatt_v1, input_html: { class: 'quran-text digitalkhatt' }
+
       f.input :text_indopak, input_html: { class: 'quran-text pdms' }
       f.input :text_indopak_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_qpc_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_qpc_nastaleeq_hafs, input_html: { class: 'quran-text qpc-nastaleeq' }
+      f.input :text_digital_khatt_indopak, input_html: { class: 'quran-text digitalkhatt-indopak' }
 
       f.input :code_v1, input_html: { class: 'quran-text' }
       f.input :code_v2, input_html: { class: 'quran-text' }

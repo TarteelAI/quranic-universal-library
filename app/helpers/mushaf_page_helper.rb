@@ -11,6 +11,7 @@ module MushafPageHelper
       ['QPC Outline', 'qpc-outline'],
       ['Me Quran', 'me_quran'],
       ['Digital Khatt', 'digitalkhatt'],
+      ['Digital Khatt Indopak', 'digitalkhatt-indopak'],
     ]
   end
 

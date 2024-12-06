@@ -3,11 +3,13 @@
   words = Word.order('id ASC').where("#{params[:script].strip} ilike ?", "%#{char}%")
   pagination, words = pagy(words, items: 500)
 %>
+
 <style>
     .char span {
         color: #00a650;
     }
 </style>
+
 <div class="page-wrapper container-lg" data-controller="chars-info">
   <div class="page-section">
     <h2>List of words from <%= scripts[params[:script].to_sym] %> script that include <%= char %></h2>

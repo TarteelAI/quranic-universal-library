@@ -135,6 +135,7 @@ RUN cp /etc/cron.daily/logrotate /etc/cron.hourly
 
 RUN apt-get update
 RUN apt-get install -y curl build-essential autoconf automake ffmpeg
+RUN apt-get install libhunspell-dev
 
 # setup yarn
 RUN /pd_build/nodejs.sh

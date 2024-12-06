@@ -158,3 +158,6 @@ gem "tailwindcss-rails", "~> 2.7"
 gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
+
+gem "add", "~> 0.3.2"
+gem "ffi-hunspell", require: false

@@ -4,10 +4,31 @@
 
 <div id="body">
   <div class="modal-body">
-    <%= tag.description.to_s.html_safe %>
+    <div class="prose max-w-none">
+      <%= tag.description.to_s.html_safe %>
 
-    <% if tag.glossary_term.present? %>
-      <%= link_to "Click here", "https://www.tarteel.ai/glossary/#{tag.glossary_term}" %> to read more about <%= tag.name %> in <%= link_to 'Tarteel glossary', 'https://www.tarteel.ai/glossary' %>.
-    <% end %>
+      <% if tag.glossary_term.present? %>
+        <div class="tw-d-block">
+          <%= link_to "Click here", "https://www.tarteel.ai/glossary/#{tag.glossary_term}", class: 'tw-underline hover:tw-no-underline' %> to read more
+          about <%= tag.name %> on <%= link_to 'Tarteel glossary', 'https://www.tarteel.ai/glossary', class: 'tw-underline hover:tw-no-underline'  %> page.
+        </div>
+      <% end %>
+
+      <% if tag.downloadable_resources.any? %>
+        <div class="tw-mt-4">
+          <h3 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
+            Resources for <%= tag.name %>:
+          </h3>
+
+          <ul class="tw-ml-6 tw-mt-4 tw-list-disc tw-space-y-2">
+            <% tag.downloadable_resources.each do |resource| %>
+              <li class="tw-text-gray-700 hover:tw-text-black tw-transition">
+                <%= link_to resource.name, detail_resources_path(resource.resource_type, resource.id), class: "tw-text-blue-600 hover:tw-text-blue-800 tw-underline" %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

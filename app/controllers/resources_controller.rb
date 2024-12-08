@@ -18,6 +18,14 @@ class ResourcesController < CommunityController
     end
   end
 
+  def detail
+    @resource = DownloadableResource
+                   .published
+                   .includes(:downloadable_resource_tags)
+                   .find(params[:id])
+
+  end
+
   def download
     if file = DownloadableFile.find_by(token: params[:token])
       file.track_download(current_user)

@@ -23,7 +23,7 @@
           <ul class="tw-ml-6 tw-mt-4 tw-list-disc tw-space-y-2">
             <% tag.downloadable_resources.each do |resource| %>
               <li class="tw-text-gray-700 hover:tw-text-black tw-transition">
-                <%= link_to resource.name, resource.name, target: "_blank", rel: "noopener", class: 'tw-font-semibold tw-underline hover:tw-no-underline' %>
+                <%= link_to resource.name, detail_resources_path(resource.resource_type, resource.id), class: "tw-text-blue-600 hover:tw-text-blue-800 tw-underline" %>
               </li>
             <% end %>
           </ul>

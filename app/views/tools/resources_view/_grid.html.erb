@@ -7,11 +7,13 @@
     <% @tools.each do |card| %>
       <% search_term = "#{card.title.downcase} #{card.description.to_s.downcase} #{card.tags.join(' ').downcase}"  %>
 
-      <%= render 'card/card-container',
-                 card: card,
-                 patterns: patterns,
-                 data: { turbo_frame: '_top', search: search_term } do %>
-        <%= render 'card/card_content', card: card, show_learn_more: true, show_tags: true %>
+      <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
+        <%= render 'card/card_content',
+                   card: card,
+                   show_learn_more: true,
+                   show_tags: true,
+                   tool: true
+        %>
       <% end %>
     <% end %>
   </div>

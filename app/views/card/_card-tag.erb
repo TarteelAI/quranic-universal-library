@@ -13,7 +13,7 @@
   end
 %>
 
-<% if slug.present? || tag.try(:description).present? %>
+<% if !local_assigns[:tool] && (slug.present? || tag.try(:description).present?) %>
   <%= link_to text, docs_path(slug), class: "tw-bg-#{color}-100 tw-text-#{color}-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer hover:tw-text-#{color}-600", data: { controller: 'ajax-modal', url: docs_path(slug), css_class: 'modal-lg' } %>
 <% else %>
   <span class="tw-bg-<%= color %>-100 tw-text-<%= color %>-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer">

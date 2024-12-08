@@ -40,5 +40,11 @@
     </div>
   </div>
 
-  <%= render 'card/card_footer', card: card, show_stats: local_assigns[:show_stats], show_tags: local_assigns[:show_tags], show_activity_cta: local_assigns[:show_activity_cta] %>
+  <%= render 'card/card_footer',
+             card: card,
+             show_stats: local_assigns[:show_stats],
+             show_tags: local_assigns[:show_tags],
+             tool: local_assigns[:tool],
+             show_activity_cta: local_assigns[:show_activity_cta]
+  %>
 </div>

@@ -14,7 +14,7 @@
   <% elsif show_tags %>
     <div class="tw-flex tw-flex-wrap tw-gap-2">
       <% tags.each do |tag| %>
-        <%= render 'card/card-tag', tag: tag %>
+        <%= render 'card/card-tag', tag: tag, tool: local_assigns[:tool] %>
       <% end %>
     </div>
   <% end %>

@@ -191,6 +191,8 @@ class DownloadableResource < ApplicationRecord
       'Quranic Morphology and Grammar data'
     when 'quran-metadata'
       'Quran metadata'
+    when 'font'
+      'Fonts'
     end
   end
 
@@ -301,5 +303,9 @@ class DownloadableResource < ApplicationRecord
     when 'font'
       "Quran fonts"
     end.html_safe
+  end
+
+  def mushaf_layout?
+    resource_type == 'mushaf-layout'
   end
 end

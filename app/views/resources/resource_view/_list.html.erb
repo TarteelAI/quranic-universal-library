@@ -12,22 +12,23 @@
   </tr>
   </thead>
   <tbody>
+
   <% @resources.each do |card| %>
+    <% tags = card.get_tags %>
+
     <tr class="tw-border-b" id="<%= dom_id card %>"
         data-search="<%= "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}" %>">
       <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
         <p class="tw-font-semibold tw-block">
-          <%= card.name %>
+          <%= link_to card.name, detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top' } %>
         </p>
 
         <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden tw-flex tw-flex-col tw-gap-1 tw-space-y-1">
           <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
 
-          <% if card.get_tags.present? %>
+          <% if tags.present? %>
             <div class="tw-flex tw-flex-wrap tw-gap-1 tw-pb-1">
-              <% card.get_tags.each do |tag| %>
-                <%= render 'card/card-tag', tag: tag %>
-              <% end %>
+              <%= render 'card/card-tag', as: :tag, collection: tags %>
             </div>
           <% end %>
 

@@ -1,0 +1,37 @@
+<%
+  text_type = resource.meta_value('text_type') || resource.meta_value('script')
+  preview_text = resource.meta_value('text')
+  font_face = resource.meta_value('font-face')
+
+  is_image = [
+    'qa_tajweed_image',
+    'qa_black_image',
+    'rq_tajweed_image',
+    'svg_tajweed',
+    'v4_tajweed_image'
+  ].include?(text_type)
+%>
+
+<% if font_face.present? && preview_text.present? %>
+  <div class="bg-primary p-3 text-center rounded quran-text <%= font_face %>">
+    <div>
+      <%= preview_text.to_s.html_safe %>
+    </div>
+  </div>
+<% else %>
+  <div class="bg-primary p-3 text-center rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
+    <% if is_image %>
+      <div class="d-flex">
+        <% preview_verse.words.words.each do |w| %>
+          <div class="word">
+            <img src="<%= w.send(text_type) %>" alt="<%= w.send(text_type) %>" />
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div>
+        <%= preview_verse.send(text_type).html_safe %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

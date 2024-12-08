@@ -30,6 +30,9 @@ Rails.application.routes.draw do
   resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
+    collection do
+      get '/:type/:id', action: 'detail' , as: :detail
+    end
   end
 
   resources :ayah_audio_files do

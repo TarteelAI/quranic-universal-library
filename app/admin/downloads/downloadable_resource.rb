@@ -65,6 +65,54 @@ ActiveAdmin.register DownloadableResource do
       row :created_at
       row :updated_at
     end
+
+    panel 'Downloadable files' do
+      table do
+        thead do
+          th 'Id'
+          th 'Name'
+          th 'Type'
+          th 'Download count'
+          th 'Actions'
+        end
+
+        tbody do
+          resource.downloadable_files.with_attached_file.each do |file|
+            tr do
+              td link_to(file.id, [:admin, file])
+              td file.name
+              td file.file_type
+              td file.download_count
+              td link_to 'View', file.file.url, target: '_blank'
+            end
+          end
+        end
+      end
+    end
+
+    panel 'Related resources' do
+      table do
+        thead do
+          th 'Id'
+          th 'Name'
+          th 'Type'
+          th 'Actions'
+        end
+
+        tbody do
+          resource.related_resources.each do |r|
+            tr do
+              td link_to(r.id, [:admin, r])
+              td r.name
+              td r.resource_type
+              td link_to 'View', [:admin, r], target: '_blank'
+            end
+          end
+        end
+      end
+    end
+
+    active_admin_comments
   end
 
   form do |f|
@@ -107,29 +155,5 @@ ActiveAdmin.register DownloadableResource do
       :cardinality_type,
       downloadable_resource_taggings_attributes: [:id, :downloadable_resource_tag_id, :_destroy]
     ]
-  end
-
-  sidebar 'Downloadable files', only: :show do
-    table do
-      thead do
-        th 'Id'
-        th 'Name'
-        th 'Type'
-        th 'Download count'
-        th 'Preview'
-      end
-
-      tbody do
-        resource.downloadable_files.with_attached_file.each do |file|
-          tr do
-            td link_to(file.id, [:admin, file])
-            td file.name
-            td file.file_type
-            td file.download_count
-            td link_to 'View', file.file.url, target: '_blank'
-          end
-        end
-      end
-    end
   end
 end

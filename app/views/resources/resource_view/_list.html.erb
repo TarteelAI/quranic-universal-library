@@ -23,6 +23,15 @@
           <%= link_to card.name, detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top' } %>
         </p>
 
+        <% if card.related_resources.present? %>
+          <div>
+            <small>
+              View
+              <%= link_to pluralize(card.related_resources.size, 'related resource'), detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top', controller: 'ajax-modal', url: detail_resources_path(card.resource_type, card.id, related: true) } %>
+            </small>
+          </div>
+        <% end %>
+
         <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden tw-flex tw-flex-col tw-gap-1 tw-space-y-1">
           <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
 

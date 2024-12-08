@@ -2,7 +2,7 @@
   resource_content = resource.resource_content
   mushaf = Mushaf.where(resource_content_id: resource_content.id).first
   page = params[:page] || 1
-  words = MushafWord.where(page_number: page, mushaf: mushaf)
+  words = MushafWord.where(page_number: page, mushaf: mushaf).order('position_in_page ASC')
 %>
 
 <script>

@@ -21,9 +21,10 @@ class ResourcesController < CommunityController
   def detail
     @resource = DownloadableResource
                    .published
-                   .includes(:downloadable_resource_tags)
+                   .includes(:downloadable_resource_tags, :related_resources)
                    .find(params[:id])
 
+    render layout: false if request.xhr? && params[:related]
   end
 
   def download
@@ -38,7 +39,7 @@ class ResourcesController < CommunityController
   def show
     @resources = DownloadableResource
                    .published
-                   .includes(:downloadable_resource_tags)
+                   .includes(:downloadable_resource_tags, :related_resources)
                    .where(resource_type: params[:id])
 
     sort_by = params[:sort_key]

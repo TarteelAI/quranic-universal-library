@@ -89,7 +89,7 @@ ActiveAdmin.register_page 'Dashboard' do
           end
         end
       end
-    end
+    end if false
 
     div class: 'blank_slate_container', id: 'dashboard_default_message' do
       heading = "Recent changes (Total #{PaperTrail::Version.count}) #{link_to 'View all changes', '/admin/content_changes'}".html_safe

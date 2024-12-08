@@ -10,6 +10,17 @@
 }
 
 @layer components {
+    .tw-link-button{
+       @apply tw-font-semibold tw-underline hover:tw-text-black
+    }
+
+    .tw-btn {
+        @apply tw-font-semibold tw-py-2 tw-px-4 tw-rounded focus:tw-outline-none focus:tw-ring-2;
+    }
+
+    .tw-btn-success {
+        @apply tw-bg-green-500 tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:tw-text-white;
+    }
 }
 
 /*

@@ -415,7 +415,8 @@ module Importer
       uzbek_mansour: [],
       uzbek_sadiq: [],
       yoruba_mikail: [],
-      spanish_garcia: [],
+      spanish_garcia: [/\[\d+\]/, /\[\d+\]/],
+      tamil_omar: [/\*+/, /\*+/],
       lithuanian_rwwad: [/\[\d+\]/, /\[\d+\]/],
       telugu_muhammad: [/\([a-z]\)/, /\([a-z]\)/],
       chichewa_betala: [/\[\d+\]/, /\[\d+\]/],
@@ -529,6 +530,8 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'tamil_omar',
+      'spanish_garcia',
       'kyrgyz_hakimov',
       'lingala_zakaria',#some footnotes has issues 4/163
       'punjabi_arif',

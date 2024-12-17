@@ -5,6 +5,8 @@
 #  id                  :bigint           not null, primary key
 #  current_text        :text
 #  draft_text          :text
+#  footnotes_count     :integer          default(0)
+#  has_footnote        :boolean          default(FALSE)
 #  imported            :boolean          default(FALSE)
 #  need_review         :boolean
 #  text_matched        :boolean
@@ -26,12 +28,18 @@
 
 class Draft::Translation < ApplicationRecord
   REGEXP_FOOTNOTE_ID = /foot_note=(?<id>\d+)/
+
   belongs_to :resource_content
   belongs_to :verse
   belongs_to :user, optional: true
   belongs_to :translation, optional: true
+
   has_many :foot_notes, class_name: 'Draft::FootNote', foreign_key: 'draft_translation_id'
+
   accepts_nested_attributes_for :foot_notes, allow_destroy: true
+
+  scope :with_footnotes, -> { where "footnotes_count > 0" }
+  scope :without_footnotes, -> { where "footnotes_count = 0" }
 
   def text=(val)
     self.draft_text = val
@@ -44,6 +52,16 @@ class Draft::Translation < ApplicationRecord
         .where("verse_id > ?", verse_id)
         .order('verse_id DESC')
         .last
+    end
+  end
+
+  def previous_ayah_translation
+    if verse_id > 1
+      Draft::Translation
+        .where(resource_content_id: resource_content_id)
+        .where("verse_id < ?", verse_id)
+        .order('verse_id DESC')
+        .first
     end
   end
 
@@ -84,16 +102,6 @@ class Draft::Translation < ApplicationRecord
     translation
   end
 
-  def previous_ayah_translation
-    if verse_id > 1
-      Draft::Translation
-        .where(resource_content_id: resource_content_id)
-        .where("verse_id < ?", verse_id)
-        .order('verse_id DESC')
-        .first
-    end
-  end
-
   def self.new_translations
     ids = select('DISTINCT resource_content_id, imported')
 
@@ -125,7 +133,7 @@ class Draft::Translation < ApplicationRecord
   end
 
   def footnotes_ids
-    draft_foot_notes.pluck :id
+    foot_notes.pluck :id
   end
 
   def original_footnote_text(foot_note_id)

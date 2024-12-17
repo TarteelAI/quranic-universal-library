@@ -11,6 +11,7 @@ ActiveAdmin.register Draft::Translation do
   filter :need_review
   filter :imported
   filter :draft_text
+  filter :footnotes_count
 
   action_item :previous_page, only: :show  do
     if item = resource.previous_ayah_translation

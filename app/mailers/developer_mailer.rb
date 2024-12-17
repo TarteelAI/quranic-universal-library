@@ -6,6 +6,8 @@ class DeveloperMailer < ApplicationMailer
       attachments[File.basename(file_path)] = open(file_path).read
     end
 
-    mail from: ENV.fetch('MAILER_SENDER', 'cms@tarteel.ai'), to: to, subject: subject
+    mail from: ENV.fetch('MAILER_SENDER', 'no-reply@tarteel.ai'),
+         to: to,
+         subject: subject
   end
 end

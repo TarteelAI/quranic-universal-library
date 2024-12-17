@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_04_163350) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_17_121851) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -235,6 +235,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_04_163350) do
     t.boolean "imported", default: false
     t.integer "user_id"
     t.integer "translation_id"
+    t.boolean "has_footnote", default: false
+    t.integer "footnotes_count", default: 0
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_translations_on_text_matched"

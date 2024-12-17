@@ -25,8 +25,8 @@ module QuranEnc
     end
 
     def remove_draft_translations(resource)
-      Draft::Translation.includes(:draft_foot_notes).where(resource_content_id: resource.id).find_each do |draft|
-        draft.draft_foot_notes.delete_all
+      Draft::Translation.includes(:foot_notes).where(resource_content_id: resource.id).find_each do |draft|
+        draft.foot_notes.delete_all
         draft.delete
       end
     end
@@ -89,8 +89,14 @@ module QuranEnc
     def import_translations(resource)
       language = resource.language
 
-      Draft::Translation.includes(:verse,
-                                  :draft_foot_notes).where(resource_content_id: resource.id).find_each do |draft|
+      list = Draft::Translation
+               .includes(
+                 :verse,
+                 :foot_notes
+               )
+               .where(resource_content_id: resource.id)
+
+      list.find_each do |draft|
         verse = draft.verse
         translation = Translation.where(verse_id: draft.verse_id, resource_content_id: resource.id).first_or_initialize
         translation.foot_notes.delete_all if translation.persisted?
@@ -118,12 +124,12 @@ module QuranEnc
     end
 
     def import_footnotes(draft_translation, translation, language)
-      return if draft_translation.draft_foot_notes.size.zero?
+      return if draft_translation.foot_notes.size.zero?
 
-      resource = draft_translation.draft_foot_notes.first.resource_content
+      resource = draft_translation.foot_notes.first.resource_content
       text = translation.text
 
-      draft_translation.draft_foot_notes.each do |draft_footnote|
+      draft_translation.foot_notes.each do |draft_footnote|
         imported_foot_note = FootNote.create(
           text: draft_footnote.draft_text,
           translation: translation,
@@ -187,7 +193,7 @@ module QuranEnc
       end
 
       # Delete old tafisr items that are not part of newly imported tafsir
-      #Tafsir.where(
+      # Tafsir.where(
       #  resource_content_id: resource.id
       #).where.not(id: imported_ids).delete_all
     end

@@ -40,13 +40,14 @@ class ExportMushafLayout
       text_uthmani = word.text_uthmani
       text_indopak = word.text_qpc_nastaleeq_hafs
       indopak_hanafi = word.text_indopak_nastaleeq
+      dk_indopak = word.text_digital_khatt_indopak
       code_v1 = word.code_v1
       text_digital_khatt_v2 = word.text_digital_khatt
       text_digital_khatt_v1 = word.text_digital_khatt_v1
       text_qpc_hafs = word.text_qpc_hafs
       is_ayah_marker = word.ayah_mark?
 
-      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{code_v1}', '#{text_digital_khatt_v2}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
+      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{dk_indopak}', '#{code_v1}', '#{text_digital_khatt_v2}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
       i += 1
 
       if i >= page_size
@@ -254,7 +255,7 @@ class ExportMushafLayout
         database: db
       })
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, qpc_v1 string, dk_v2 string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, dk_indopak string, qpc_v1 string, dk_v2 string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
     layout_created = {}
 
     mushafs.each do |mushaf|
@@ -288,6 +289,7 @@ class ExportMushafLayout
     uthmani,
     nastaleeq, 
     indopak,
+    dk_indopak,
     qpc_v1,
     dk_v2,
     dk_v1, 

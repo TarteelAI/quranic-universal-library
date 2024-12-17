@@ -3,6 +3,8 @@
 # Table name: translations
 #
 #  id                  :integer          not null, primary key
+#  footnotes_count     :integer          default(0)
+#  has_footnote        :boolean          default(FALSE)
 #  hizb_number         :integer
 #  juz_number          :integer
 #  language_name       :string
@@ -52,6 +54,9 @@ class Translation < QuranApiRecord
   has_many :draft_translations, class_name: 'Draft::Translation'
 
   after_update :touch_resource_content_timestamp
+
+  scope :with_footnotes, -> { where "footnotes_count > 0" }
+  scope :without_footnotes, -> { where "footnotes_count = 0" }
 
   def self.text_search(query)
     where "translations.text ilike ?", "%#{query}%"

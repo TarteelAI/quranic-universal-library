@@ -93,6 +93,10 @@ class Translation < QuranApiRecord
     draft_translation
   end
 
+  def update_footnote_count
+    update_column :footnotes_count, foot_notes.count
+  end
+
   protected
 
   def touch_resource_content_timestamp

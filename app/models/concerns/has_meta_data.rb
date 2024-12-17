@@ -1,5 +1,10 @@
 module HasMetaData
   extend ActiveSupport::Concern
+  def meta_value(key)
+    key = format_meta_key(key)
+
+    fetch_metadata[key]
+  end
 
   def meta_data=(val)
     json = if val.is_a? String

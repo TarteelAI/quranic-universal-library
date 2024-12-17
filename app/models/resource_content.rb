@@ -259,12 +259,6 @@ class ResourceContent < QuranApiRecord
     meta_value('quranenc-key').to_s
   end
 
-  def meta_value(key)
-    key = format_meta_key(key)
-
-    fetch_metadata[key]
-  end
-
   def humanize
     "#{id}-#{name} - #{language_name}(#{sub_type})"
   end

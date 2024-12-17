@@ -26,6 +26,12 @@ class Draft::FootNote < ApplicationRecord
   belongs_to :foot_note, optional: true
   before_save :set_current_text
 
+  after_commit :update_translation_footnote_count, on: [:create, :destroy]
+
+  def update_translation_footnote_count
+    draft_translation.update_footnote_count
+  end
+
   def language_name
     resource_content.try :language_name
   end

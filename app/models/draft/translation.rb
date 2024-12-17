@@ -143,4 +143,8 @@ class Draft::Translation < ApplicationRecord
 
     matched || original_footnotes.first
   end
+
+  def update_footnote_count
+    update_column :footnotes_count, foot_notes.count
+  end
 end

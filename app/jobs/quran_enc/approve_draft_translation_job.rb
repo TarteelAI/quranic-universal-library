@@ -98,7 +98,11 @@ module QuranEnc
 
       list.find_each do |draft|
         verse = draft.verse
-        translation = Translation.where(verse_id: draft.verse_id, resource_content_id: resource.id).first_or_initialize
+        translation = Translation.where(
+          verse_id: draft.verse_id,
+          resource_content_id: resource.id
+        ).first_or_initialize
+
         translation.foot_notes.delete_all if translation.persisted?
 
         translation.text = draft.draft_text.strip
@@ -118,15 +122,16 @@ module QuranEnc
         translation.page_number = verse.page_number
         translation.save(validate: false)
 
-        import_footnotes(draft, translation, language)
+        import_footnotes(draft, translation, language, resource)
         draft.update_column(:imported, true)
       end
     end
 
-    def import_footnotes(draft_translation, translation, language)
-      return if draft_translation.foot_notes.size.zero?
+    def import_footnotes(draft_translation, translation, language, translation_resource)
+      return if draft_translation.foot_notes.blank?
 
-      resource = draft_translation.foot_notes.first.resource_content
+      footnote_resource_id = draft_translation.foot_notes.first.resource_content&.id
+      footnote_resource_id ||= translation_resource.meta_value('related-footnote-resource-id')
       text = translation.text
 
       draft_translation.foot_notes.each do |draft_footnote|
@@ -135,7 +140,7 @@ module QuranEnc
           translation: translation,
           language: language,
           language_name: language.name.downcase,
-          resource_content_id: resource.id
+          resource_content_id: footnote_resource_id
         )
 
         text = text.sub "foot_note=#{draft_footnote.id}>", "foot_note=#{imported_foot_note.id}>"

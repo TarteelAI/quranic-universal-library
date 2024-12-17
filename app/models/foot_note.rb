@@ -23,4 +23,10 @@ class FootNote < QuranApiRecord
 
   belongs_to :translation
   belongs_to :language
+
+  after_commit :update_translation_footnote_count, on: [:create, :destroy]
+
+  def update_translation_footnote_count
+    translation.update_footnote_count
+  end
 end

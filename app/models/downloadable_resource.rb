@@ -31,7 +31,10 @@ class DownloadableResource < ApplicationRecord
 
   accepts_nested_attributes_for :downloadable_resource_taggings, allow_destroy: true
 
+  validates :name, :cardinality_type, :resource_type, :resource_content, presence: true
+
   scope :published, -> { where published: true }
+  scope :quran_script, -> { where resource_type: 'quran-script' }
 
   RESOURCE_TYPES = %w[
     quran-script
@@ -51,7 +54,6 @@ class DownloadableResource < ApplicationRecord
   ].freeze
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
-
   validates :resource_content, uniqueness: { allow_nil: true }
 
   def description

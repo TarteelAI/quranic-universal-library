@@ -31,7 +31,7 @@ ActiveAdmin.register DownloadableResource do
     end
   end
 
-  member_action :refresh_downloads, method: 'put', if: -> {can? :refresh_downloads, resource} do
+  member_action :refresh_downloads, method: 'put', if: -> { can? :refresh_downloads, resource } do
     authorize! :refresh_downloads, resource
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
@@ -115,9 +115,17 @@ ActiveAdmin.register DownloadableResource do
     active_admin_comments
   end
 
-  form do |f|
+  form data: { turbo: false } do |f|
     f.inputs 'Downloadable resource detail' do
-      #f.semantic_errors f.object.errors
+      if f.object.errors.any?
+        div class: 'alert alert-danger' do
+          ul do
+            f.object.errors.full_messages.each do |e|
+              li e
+            end
+          end
+        end
+      end
 
       f.input :name
       f.input :published

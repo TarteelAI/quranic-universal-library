@@ -1,8 +1,12 @@
-<h1 class="tw-text-2xl tw-font-semibold tw-mt-4">Salam! Let’s get you logged in.</h1>
+<h1 class="tw-text-2xl tw-font-semibold tw-mt-4">
+  Salam! Let’s get you logged in.
+</h1>
+
 <p class="tw-mt-6">
   Login using your <strong>Email</strong> credentials.
 </p>
-<%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form', class: 'inputs_container', data: { controller: 'remote-form' } }) do |f| %>
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form', class: 'inputs_container ', data: { controller: 'remote-form', auto_close: true } }) do |f| %>
   <div class="form-floating tw-mt-3">
     <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
     <%= f.label :email, required: true %>

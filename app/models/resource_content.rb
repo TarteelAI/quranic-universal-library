@@ -114,10 +114,11 @@ class ResourceContent < QuranApiRecord
   has_many :translated_names, as: :resource
   has_many :resource_tags, as: :resource
   has_many :tags, through: :resource_tags
+  has_many :downloadable_resources
+  has_many :user_projects
 
   has_one :en_translation_name, -> { where language_id: 38 }, as: :resource, class_name: 'TranslatedName'
   has_one :resource_permission
-  has_many :user_projects
 
   after_commit :run_create_and_update_hooks, on: %i[create update]
 
@@ -160,9 +161,9 @@ class ResourceContent < QuranApiRecord
     Info = 'info'
     FootNote = 'footnote'
     Video = 'video'
-    Audio = 'audio'
+    Audio = 'recitation'
     Data = 'data'
-    QuranText = 'quran_text'
+    QuranText = 'quran-script'
     Topic = 'topic'
     Theme = 'theme'
     Layout = 'layout'

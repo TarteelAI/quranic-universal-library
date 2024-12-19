@@ -98,11 +98,11 @@
             <div class="tw-mt-3 tw-flex gap-3 tw-flex-wrap">
               <% @resource.downloadable_files.each do |file| %>
                 <% if user_signed_in? %>
-                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), class: 'tw-btn tw-btn-success' do %>
+                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-btn tw-btn-success' do %>
                     Download <%= file.file_type %>
                   <% end %>
                 <% else %>
-                  <%= link_to '#_', class: 'tw-btn tw-btn-success', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: resource_download_file_path(@resource.resource_type, token: file.token), modal: true) } do %>
+                  <%= link_to '#_', class: 'tw-btn tw-btn-success', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
                     Download <%= file.file_type %>
                   <% end %>
                 <% end %>

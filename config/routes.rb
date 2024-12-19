@@ -15,7 +15,8 @@ Rails.application.routes.draw do
   get 'foot_notes/:id', to: "foot_notes#show"
 
   devise_for :users, controllers: {
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    sessions: 'users/sessions'
   }
 
   authenticated :user, ->(user) { user.is_super_admin? || user.is_admin? } do

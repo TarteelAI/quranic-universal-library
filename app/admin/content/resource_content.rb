@@ -249,6 +249,26 @@ ActiveAdmin.register ResourceContent do
       end
     end
 
+    panel "Downloadable resources (#{resource.downloadable_resources.size})" do
+      table do
+        thead do
+          td 'ID'
+          td 'Name'
+          td 'Published'
+        end
+
+        tbody do
+          resource.downloadable_resources.each do |r|
+            tr do
+              td link_to(r.id, [:admin, r])
+              td r.name
+              td r.published?
+            end
+          end
+        end
+      end
+    end
+
     active_admin_comments
   end
 

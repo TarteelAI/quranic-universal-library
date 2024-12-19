@@ -98,7 +98,7 @@ module ResourcesHelper
         type: 'quranic-text',
         icon: 'bismillah.svg',
         list_icon: 'font.svg',
-        count: ResourceContent.quran_script.approved.count,
+        count: DownloadableResource.quran_script.published.count,
         stats: "<div><div>Indopak</div><div>Uthmani, tajweed</div></div>"
       ),
 

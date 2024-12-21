@@ -75,6 +75,16 @@ class ResourceContent < QuranApiRecord
     where(id: ResourcePermission.where(permission_to_host: val).pluck(:resource_content_id))
   }
 
+  scope :without_downloadable_resources, -> {
+    # left_joins(:downloadable_resources)
+    #  .where(downloadable_resources: { id: nil })
+    where.not(id: DownloadableResource.pluck(:resource_content_id))
+  }
+  scope :with_downloadable_resources, -> {
+    #joins(:downloadable_resources).distinct
+    where(id: DownloadableResource.pluck(:resource_content_id))
+  }
+
   scope :permission_to_share_eq, lambda { |val|
     where(id: ResourcePermission.where(permission_to_share: val).pluck(:resource_content_id))
   }

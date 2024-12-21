@@ -28,6 +28,9 @@ ActiveAdmin.register ResourceContent do
   scope :from_quranenc
   scope :approved
 
+  scope :without_downloadable_resources, group: 'downloadable'
+  scope :with_downloadable_resources, group: 'downloadable'
+
   filter :name
   filter :approved
   filter :quran_enc_key, as: :string

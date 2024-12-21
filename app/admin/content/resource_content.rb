@@ -136,10 +136,10 @@ ActiveAdmin.register ResourceContent do
     elsif export_type == 'raw_files'
       Export::RawTrafsirJob.perform_later(resource.id, permitted[:export_file_name], current_user.id)
     elsif ['json_nested_array', 'json_text_chunks'].include?(export_type)
-      Export::TranslationJson.perform_later(resource.id, current_user.id, export_type == 'json_nested_array')
+      Export::TranslationJob.perform_later(resource.id, current_user.id, export_type == 'json_nested_array')
     elsif export_type == 'tafsir_json'
       if resource.tafsir?
-        Export::TafsirJson.perform_later(resource.id, permitted[:export_file_name].to_s.strip, current_user.id)
+        Export::TafsirJob.perform_later(resource.id, permitted[:export_file_name].to_s.strip, current_user.id)
       end
     else
       flash[:error] = "Invalid export type"

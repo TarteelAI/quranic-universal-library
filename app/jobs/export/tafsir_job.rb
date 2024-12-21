@@ -1,11 +1,11 @@
 module Export
-  class TafsirJson < ApplicationJob
+  class TafsirJob < ApplicationJob
     sidekiq_options retry: 2, backtrace: true
 
     attr_reader :file_name,
                 :resource_content
 
-    STORAGE_PATH = "#{Rails.root}/tmp/exported_databases"
+    STORAGE_PATH = "#{Rails.root}/tmp/exported_databases/tafsir"
 
     def perform(resource_id, original_file_name, user_id)
       user = User.find(user_id)

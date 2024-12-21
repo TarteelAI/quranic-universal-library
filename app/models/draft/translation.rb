@@ -6,7 +6,6 @@
 #  current_text        :text
 #  draft_text          :text
 #  footnotes_count     :integer          default(0)
-#  has_footnote        :boolean          default(FALSE)
 #  imported            :boolean          default(FALSE)
 #  need_review         :boolean
 #  text_matched        :boolean
@@ -19,6 +18,7 @@
 #
 # Indexes
 #
+#  index_draft_translations_on_footnotes_count      (footnotes_count)
 #  index_draft_translations_on_need_review          (need_review)
 #  index_draft_translations_on_resource_content_id  (resource_content_id)
 #  index_draft_translations_on_text_matched         (text_matched)

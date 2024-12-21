@@ -43,6 +43,7 @@ ActiveAdmin.register Draft::Translation do
     column :need_review
     column :verse_id
     column :imported
+    column :footnotes_count
     column :draft_text, sortable: :draft_text do |resource|
       resource.draft_text.to_s.first(50)
     end
@@ -77,6 +78,7 @@ ActiveAdmin.register Draft::Translation do
 
       row :text_matched
       row :imported
+      row :footnotes_count
 
       row :diff do
         div do

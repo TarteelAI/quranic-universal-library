@@ -101,14 +101,6 @@ module Importer
                            tag: 'missing-footnote-mapping',
                            text: verse.verse_key
                          })
-
-            # AdminTodo.where(
-            #   resource_content_id: resource.id,
-            #   tags: 'import-issue',
-            #   is_finished: false,
-            #   description: "#{quran_enc_key} has footnotes(see translation for ayah #{verse.verse_key}), fix the importer(foot note regexp is not configured)"
-            # ).first_or_create
-
             log_message "!!!!!!!====== Wrong mapping for #{quran_enc_key}. This translation does have footnotes. See #{verse.verse_key}======!!!"
           end
 
@@ -257,13 +249,6 @@ module Importer
                          text: verse.verse_key
                        })
 
-          # AdminTodo.where(
-          #   is_finished: false,
-          #   tags: 'import-issue',
-          #   resource_content_id: resource.id,
-          #   description: "Footnote REGEXP is missing for #{quran_enc_key} and #{verse.verse_key} has footnote"
-          # ).first_or_create
-
           puts "====FOOTNOTE REGEXP is missing for #{quran_enc_key} and #{verse.verse_key} has footnote"
         end
 
@@ -284,7 +269,7 @@ module Importer
 
                             parts
                           else
-                            [footnotes_texts.to_s.strip]
+                            [footnotes_texts.to_s.strip.gsub(footnote_text_reg, '')]
                           end
 
         footnote_ids.each_with_index do |node, i|
@@ -386,6 +371,7 @@ module Importer
     ].freeze
 
     REGEXP_FOOTNOTES = {
+      ikirundi_gehiti: [/\[\d+\]/, /\[\d+\]/],
       albanian_nahi: [/\[\d+\]/, /\[\d+\]/],
       indonesian_sabiq: [/\*+\(\d+\)/, /\*+\d+\)./],
       portuguese_nasr: [/\(\d+\)/, /\(\d+\)./],
@@ -422,10 +408,13 @@ module Importer
       chichewa_betala: [/\[\d+\]/, /\[\d+\]/],
       punjabi_arif: [/\d+/, /\d+/],
       lingala_zakaria: [/\(\d+\)/, /\d+/],
-      kyrgyz_hakimov: [/\*+/, /\*+/]
+      kyrgyz_hakimov: [/\*+/, /\*+/],
+      moore_rwwad: [/\[\d+\]/, /\[\d+\]/],
     }.freeze
 
     TRANSLATIONS_MAPPING = {
+      ikirundi_gehiti: {language: 136, name: 'Ikirundi gehiti', id: 945},
+      moore_rwwad: {language: 194, name: 'Moore rwwad', id: 1173},
       chinese_suliman: { language: 185, name: 'Muhammad Sulaiman', id: 853 },
       albanian_nahi: { language: 187, name: 'Hasan Efendi Nahi', id: 88 },
       amharic_sadiq: { language: 6, name: 'Sadiq and Sani', id: 87 },
@@ -530,6 +519,8 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'ikirundi_gehiti',
+      'moore_rwwad',
       'tamil_omar',
       'spanish_garcia',
       'kyrgyz_hakimov',

@@ -157,9 +157,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_121851) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "slug"
-    t.string "css_class"
-    t.string "color_class"
     t.index ["name"], name: "index_downloadable_resource_tags_on_name"
   end
 
@@ -235,8 +232,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_17_121851) do
     t.boolean "imported", default: false
     t.integer "user_id"
     t.integer "translation_id"
-    t.boolean "has_footnote", default: false
     t.integer "footnotes_count", default: 0
+    t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_translations_on_text_matched"

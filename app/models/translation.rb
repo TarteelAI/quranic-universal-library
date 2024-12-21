@@ -4,7 +4,6 @@
 #
 #  id                  :integer          not null, primary key
 #  footnotes_count     :integer          default(0)
-#  has_footnote        :boolean          default(FALSE)
 #  hizb_number         :integer
 #  juz_number          :integer
 #  language_name       :string
@@ -29,6 +28,7 @@
 #
 #  index_translations_on_chapter_id                   (chapter_id)
 #  index_translations_on_chapter_id_and_verse_number  (chapter_id,verse_number)
+#  index_translations_on_footnotes_count              (footnotes_count)
 #  index_translations_on_hizb_number                  (hizb_number)
 #  index_translations_on_juz_number                   (juz_number)
 #  index_translations_on_language_id                  (language_id)

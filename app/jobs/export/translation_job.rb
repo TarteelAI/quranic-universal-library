@@ -9,10 +9,10 @@ end
 =end
 
 module Export
-  class TranslationJson < ApplicationJob
+  class TranslationJob < ApplicationJob
     attr_reader :file_name,
                 :resource_content
-    STORAGE_PATH = "#{Rails.root}/public/exported_databases"
+    STORAGE_PATH = "#{Rails.root}/public/exported_databases/translations"
 
     def perform(resource_id, user_id, use_nested_array_format = false)
       @resource_content = ResourceContent.find(resource_id)
@@ -190,25 +190,27 @@ module Export
               next
             end
 
-            id = node.attr('foot_note')
-            if id.present? && (foot_note = FootNote.where(id: id).first).present?
+            footnote_id = node.attr('foot_note')
+
+            if footnote_id.present? && (foot_note = FootNote.where(id: footnote_id).first).present?
               # Some footnote also has html tags tags, strip those tags
               foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
               stripped = foot_note_text.tr(" ", '').strip
 
               footnotes[foot_note_counter] = stripped
-              footnotes_refs[id] = foot_note_counter
+              footnotes_refs[footnote_id] = foot_note_counter
               foot_note_counter += 1
             end
           end
 
           translation_chunks = []
           doc.children.each do |child|
-            id = child.attr('foot_note')
+            footnote_id = child.attr('foot_note')
 
-            if id.present?
+            if footnote_id.present?
               translation_chunks << {
-                type: 'f', text: foot_note_counter
+                type: 'f',
+                text: footnotes_refs[footnote_id]
               }
             else
               translation_chunks << child.text if child.text.presence.present?

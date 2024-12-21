@@ -3,12 +3,9 @@
 # Table name: downloadable_resource_tags
 #
 #  id            :bigint           not null, primary key
-#  color_class   :string
-#  css_class     :string
 #  description   :text
 #  glossary_term :string
 #  name          :string
-#  slug          :string
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #

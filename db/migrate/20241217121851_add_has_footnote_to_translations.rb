@@ -6,6 +6,6 @@ class AddHasFootnoteToTranslations < ActiveRecord::Migration[7.0]
 
     c = Translation.connection
     c.add_column :translations, :footnotes_count, :integer, default: 0, if_not_exists: true
-    c.add_index :draft_translations, :footnotes_count
+    c.add_index :translations, :footnotes_count
   end
 end

@@ -392,7 +392,7 @@ module Importer
       french_rashid: [/\[\d+\]/, /\[\d+\]/],
       romanian_assoc: [/\(\d+\)/, /\(\d+\)/],
       somali_yacob: [/\d+/, /\d+/],
-      macedonian_group: [/\[\d+\]/, /\(\d+:\d+\)/],
+      macedonian_group: [/\[\d+\]/, /\[\d+\]/],
       swahili_barawani: [], # No footnotes number
       dagbani_ghatubo: [/\[\d+\]/, /\[\d+\]/],
       yaw_silika: [/\[\d+\]/, /\(\d+:\d+\)/],

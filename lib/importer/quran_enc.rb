@@ -371,6 +371,7 @@ module Importer
     ].freeze
 
     REGEXP_FOOTNOTES = {
+      pashto_rwwad: [/\[\d+\]/, /\[\d+\]/],
       ikirundi_gehiti: [/\[\d+\]/, /\[\d+\]/],
       albanian_nahi: [/\[\d+\]/, /\[\d+\]/],
       indonesian_sabiq: [/\*+\(\d+\)/, /\*+\d+\)./],
@@ -391,7 +392,7 @@ module Importer
       french_rashid: [/\[\d+\]/, /\[\d+\]/],
       romanian_assoc: [/\(\d+\)/, /\(\d+\)/],
       somali_yacob: [/\d+/, /\d+/],
-      macedonian_group: [/\d+/, /\d+/],
+      macedonian_group: [/\[\d+\]/, /\(\d+:\d+\)/],
       swahili_barawani: [], # No footnotes number
       dagbani_ghatubo: [/\[\d+\]/, /\[\d+\]/],
       yaw_silika: [/\[\d+\]/, /\(\d+:\d+\)/],
@@ -410,9 +411,13 @@ module Importer
       lingala_zakaria: [/\(\d+\)/, /\d+/],
       kyrgyz_hakimov: [/\*+/, /\*+/],
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      kannada_hamza: [/\[\d+\]/, /\[\d+\]/]
     }.freeze
 
     TRANSLATIONS_MAPPING = {
+      dutch_center: {language: 118, name: 'Dutch Islamic Center', id: 942},
+      pashto_rwwad: {language: 132, name: 'Rowwad Translation Center', id: 943},
+      kannada_hamza: {language: 85, name: 'Muhammad Hamza Battur', id: 944},
       ikirundi_gehiti: {language: 136, name: 'Ikirundi gehiti', id: 945},
       moore_rwwad: {language: 194, name: 'Moore rwwad', id: 1173},
       chinese_suliman: { language: 185, name: 'Muhammad Sulaiman', id: 853 },
@@ -519,6 +524,9 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'dutch_center',
+      'pashto_rwwad',
+      'kannada_hamza',
       'ikirundi_gehiti',
       'moore_rwwad',
       'tamil_omar',

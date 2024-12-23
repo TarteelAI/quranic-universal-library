@@ -23,6 +23,8 @@ ActiveAdmin.register Translation do
   filter :verse,
          as: :searchable_select,
          ajax: { resource: Verse }
+  filter :created_at
+  filter :updated_at
 
   index do
     id_column
@@ -34,6 +36,7 @@ ActiveAdmin.register Translation do
     column :text, sortable: :text do |resource|
       resource.text.first(100)
     end
+    :updated_at
 
     actions
   end

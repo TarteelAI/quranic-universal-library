@@ -29,7 +29,7 @@ module Export
       recitations.each do |recitation|
         tarteel_key = recitation.tarteel_key
         segments_data = recitation.audio_files.order("verse_id ASC").map do |file|
-          [tarteel_key, recitation.id, file.chapter_id, file.verse_number, file.segment_data.to_s]
+          [tarteel_key, recitation.id, file.chapter_id, file.verse_number, "[#{file.segment_data.to_s}]"]
         end
         placeholders = segments_data.map { "(?, ?, ?, ?, ?)" }.join(", ")
         db.execute("INSERT INTO #{table_name} (#{columns}) VALUES #{placeholders}", segments_data.flatten)

@@ -54,20 +54,8 @@ module Audio
 
     after_update :update_related_resources
 
-    def import_segments_db(file_path, recitation_id, async: true, remove_existing: false)
-      if async
-        GreenTechSegments::SegmentDbFile.delay.import(file_path, recitation_id, remove_existing)
-      else
-        GreenTechSegments::SegmentDbFile.import(file_path, recitation_id, remove_existing)
-      end
-    end
-
     def one_ayah?
       false
-    end
-
-    def export_segments(format, chapter_id=nil)
-      GreenTechSegments::SegmentDbFile.export(self, format, chapter_id)
     end
 
     def generate_audio_files

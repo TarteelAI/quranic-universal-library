@@ -36,6 +36,12 @@ class Recitation < QuranApiRecord
     true
   end
 
+  def export_segments(format, chapter_id=nil)
+    service = GappedAudioSegment.new(self)
+
+    service.export(format, chapter_id)
+  end
+
   def tarteel_key
     resource_content.meta_value('tarteel_key')
   end

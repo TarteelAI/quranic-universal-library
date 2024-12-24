@@ -3,7 +3,8 @@
 ActiveAdmin.register Audio::Recitation do
   menu parent: 'Audio'
   actions :all, except: :destroy
-
+  includes :reciter, :qirat_type
+  
   permit_params :name,
                 :arabic_name,
                 :description,
@@ -47,16 +48,16 @@ ActiveAdmin.register Audio::Recitation do
     end
   )
 
-  action_item :refresh_meta, only: :show, if: -> {can? :manage, resource} do
+  action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
     link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put
   end
 
-  action_item :split_to_gapped, only: :show, if: -> {can? :manage, resource} do
+  action_item :split_to_gapped, only: :show, if: -> { can? :manage, resource } do
     link_to 'Generate Gapped recitation', '#_', id: 'validate-segments',
             data: { controller: 'ajax-modal', url: split_to_gapped_admin_audio_recitation_path(resource) }
   end
 
-  action_item :validate_segments, only: :show, if: -> {can? :manage, resource} do
+  action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_', id: 'validate-segments',
             data: {
               controller: 'ajax-modal',
@@ -68,7 +69,7 @@ ActiveAdmin.register Audio::Recitation do
     link_to 'View in segment tool', surah_audio_files_path(recitation_id: resource.id), target: '_blank', rel: 'noopener'
   end
 
-  action_item :upload_segments, only: :show, if: -> {can? :manage, resource} do
+  action_item :upload_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Upload segments', '#_',
             data: {
               controller: 'ajax-modal',
@@ -76,7 +77,7 @@ ActiveAdmin.register Audio::Recitation do
             }
   end
 
-  action_item :download_segments, only: :show, if: -> {can? :manage, resource} do
+  action_item :download_segments, only: :show, if: -> { can? :download, :from_admin } do
     link_to 'Download segments', '#_',
             data: {
               controller: 'ajax-modal',
@@ -84,7 +85,7 @@ ActiveAdmin.register Audio::Recitation do
             }
   end
 
-  member_action :refresh_meta, method: 'put', if: -> {can? :manage, resource} do
+  member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
     authorize! :manage, resource
     GenerateSurahAudioFilesJob.perform_later(resource.id, meta: true)
     # Restart sidekiq if it's not running
@@ -125,12 +126,16 @@ ActiveAdmin.register Audio::Recitation do
       file = params[:file].path
       ext = File.extname(file)
       file_path = "#{Rails.root}/public/segments_data/#{resource.id}#{ext}"
+      remove_existing = params[:remove_existing] == '1'
 
       FileUtils.mkdir_p("#{Rails.root}/public/segments_data")
       FileUtils.mv(file, file_path)
 
-      remove_existing = params[:remove_existing] == '1'
-      resource.import_segments_db(file_path, resource.id, remove_existing: remove_existing, async: true)
+      AudioSegment::SurahBySurah.delay.import(
+        recitation_id: resource.id,
+        file_path: file_path,
+        remove_existing: remove_existing
+      )
 
       redirect_to [:admin, resource], notice: 'Segment data will be imported shortly.'
     else
@@ -139,20 +144,23 @@ ActiveAdmin.register Audio::Recitation do
   end
 
   member_action :download_segments, method: ['get', 'put'] do
-    authorize! :manage, resource
+    authorize! :download, :from_admin
 
     if request.put?
       format = params[:export_format].presence || 'csv'
-      file = resource.export_segments(format, params[:chapter_id])
 
-      send_file file, filename: "segments-#{resource.id}.#{format}"
+      exporter = AudioSegment::SurahBySurah.new(resource)
+      begin
+        file = exporter.export(format, params[:chapter_id])
+
+        send_file file, filename: "segments-#{resource.id}.#{format}"
+      rescue => e
+        flash[:error] = e.message
+        redirect_to [:admin, resource]
+      end
     else
       render partial: 'admin/download_segments'
     end
-  end
-
-  def scoped_collection
-    super.includes :reciter, :qirat_type
   end
 
   index do
@@ -162,7 +170,6 @@ ActiveAdmin.register Audio::Recitation do
     column :qirat_type, sortable: :qirat_type_id
     column :priority
     column :relative_path
-    column :home
     column :approved
     column :files_count
     column :segments_count

@@ -1,18 +1,20 @@
 require 'csv'
 require 'sqlite3'
 
-module GreenTechSegments
+module Utils
   class CsvToSqlite3
+    attr_reader :cvs_file
+
     def initialize(cvs_file)
       @cvs_file = cvs_file
     end
 
-    def convert(db_file_path)
-      csv_data = CSV.read(@cvs_file, headers: true)
+    def convert(table_name='timings')
+      db_file_path = "tmp/#{Time.now.to_i}/db.db"
+      csv_data = CSV.read(cvs_file, headers: true)
 
       columns = csv_data.headers
       db = SQLite3::Database.new(db_file_path)
-      table_name = 'timings'
 
       create_table_sql = "CREATE TABLE IF NOT EXISTS #{table_name} (#{columns.map { |c| "#{c} TEXT" }.join(', ')});"
       db.execute(create_table_sql)

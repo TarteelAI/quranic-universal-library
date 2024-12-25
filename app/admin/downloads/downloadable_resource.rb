@@ -31,6 +31,12 @@ ActiveAdmin.register DownloadableResource do
     end
   end
 
+  action_item :notify_users, only: :show, if: -> { can? :notify_users, resource } do
+    link_to notify_users_admin_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? This action will send an email to all users who has downloaded this resource.' } do
+      'Notify users'
+    end
+  end
+
   member_action :refresh_downloads, method: 'put', if: -> { can? :refresh_downloads, resource } do
     authorize! :refresh_downloads, resource
     # Restart sidekiq if it's not running
@@ -38,6 +44,15 @@ ActiveAdmin.register DownloadableResource do
 
     AsyncResourceActionJob.perform_later(resource, :refresh_export!)
     redirect_to [:admin, resource], notice: "Data will be exported in the background. Please check back later."
+  end
+
+  member_action :notify_users, method: 'put', if: -> { can? :notify_users, resource } do
+    authorize! :notify_users, resource
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
+
+    resource.notify_users
+    redirect_to [:admin, resource], notice: "System will send email to all users who has downloaded this resource."
   end
 
   controller do

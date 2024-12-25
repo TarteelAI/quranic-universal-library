@@ -310,4 +310,14 @@ class DownloadableResource < ApplicationRecord
   def mushaf_layout?
     resource_type == 'mushaf-layout'
   end
+
+  def notify_users
+    dowloads = UserDownload
+                 .where(downloadable_file_id: downloadable_files.pluck(:id))
+                 .includes(:user)
+
+    dowloads.each do |user_download|
+      DownloadableResourceMailer.new_update(self, user_download.user).deliver_later
+    end
+  end
 end

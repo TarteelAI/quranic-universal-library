@@ -108,8 +108,7 @@ const extractWordPositions = async (page, highlight) => {
       const y = Math.round(rect.top + window.pageYOffset);
       const w = Math.round(rect.width);
       const h = Math.round(rect.height);
-
-      positions[element.dataset.position] = { x, y, w, h };
+      positions[element.dataset.location] = { x, y, w, h };
 
       if(highlight){
       element.style.border = "1px solid red";

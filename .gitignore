@@ -21,7 +21,7 @@ public/downloads/*
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
-
+lib/tasks/private_scripts.rake
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
 !/tmp/pids/

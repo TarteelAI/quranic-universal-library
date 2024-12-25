@@ -1,6 +1,6 @@
 namespace :dump do
   desc "Create mini dump"
-  task create: :environment do
+  task create_mini_dump: :environment do
     if !Rails.env.development?
       raise "This task can only be run in development environment"
     end

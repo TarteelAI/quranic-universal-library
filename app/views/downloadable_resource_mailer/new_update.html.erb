@@ -1,0 +1,19 @@
+<p>
+  <strong> As-Salaam-Alaikum, <%= @user.name %></strong>
+</p>
+
+<p>
+  We hope you are doing well. We wanted to inform you that the <strong><%= @resource.name %></strong> you downloaded from QUL(Quranic
+  Universal Library) has been updated with the latest content and improvements.
+</p>
+
+<p>
+  To ensure you have the most up-to-date version, please visit the link below to download the updated resource:
+</p>
+<p>
+  <%= link_to 'Download the Updated Resource', detail_resources_url(@resource.resource_type, @resource.id), class: 'cta-button' %>
+</p>
+<p>
+  We appreciate your involvement in our community, and we are committed to continuously improving the resources we
+  provide. If you have any questions or need further assistance, feel free to reach out.
+</p>

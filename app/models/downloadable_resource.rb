@@ -85,7 +85,7 @@ class DownloadableResource < ApplicationRecord
     update_columns(attrs)
   end
 
-  def refresh_export!
+  def refresh_export!(send_update_email=true)
     s = Exporter::DownloadableResources.new
 
     case resource_type
@@ -134,6 +134,8 @@ class DownloadableResource < ApplicationRecord
     when 'quran-metadata'
       s.export_quran_metadata(resource_content: resource_content)
     end
+
+    notify_users if send_update_email
   end
 
   def humanize_cardinality_type
@@ -309,5 +311,19 @@ class DownloadableResource < ApplicationRecord
 
   def mushaf_layout?
     resource_type == 'mushaf-layout'
+  end
+
+  def notify_users
+    downloads = UserDownload
+                 .where(downloadable_file_id: downloadable_files.pluck(:id))
+                 .includes(:user)
+
+    notified = {}
+    downloads.each do |user_download|
+      next if notified[user_download.user_id]
+      notified[user_download.user_id] = true
+
+      DownloadableResourceMailer.new_update(self, user_download.user).deliver_later
+    end
   end
 end

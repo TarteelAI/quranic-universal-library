@@ -26,18 +26,38 @@ ActiveAdmin.register DownloadableResource do
   )
 
   action_item :refresh_downloads, only: :show, if: -> { can? :refresh_downloads, resource } do
-    link_to refresh_downloads_admin_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? this action will export files for this resource again.' } do
-      'Refresh downloads'
+    link_to 'Refresh downloads', '#_',
+            data: { controller: 'ajax-modal', url: refresh_downloads_admin_downloadable_resource_path(resource) }
+  end
+
+  action_item :notify_users, only: :show, if: -> { can? :notify_users, resource } do
+    link_to notify_users_admin_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? This action will send an email to all users who has downloaded this resource.' } do
+      'Notify users'
     end
   end
 
-  member_action :refresh_downloads, method: 'put', if: -> { can? :refresh_downloads, resource } do
+  member_action :refresh_downloads, method: ['get', 'put'], if: -> { can? :refresh_downloads, resource } do
     authorize! :refresh_downloads, resource
+
+    if request.get?
+      render partial: 'admin/confirm_refresh_downloadable_resource'
+    else
+      # Restart sidekiq if it's not running
+      Utils::System.start_sidekiq
+      notify = params[:notify_users] == '1'
+      AsyncResourceActionJob.perform_later(resource, :refresh_export!, send_update_email: notify)
+
+      redirect_to [:admin, resource], notice: "Data will be exported in the background. Please check back later."
+    end
+  end
+
+  member_action :notify_users, method: 'put', if: -> { can? :notify_users, resource } do
+    authorize! :notify_users, resource
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
-    AsyncResourceActionJob.perform_later(resource, :refresh_export!)
-    redirect_to [:admin, resource], notice: "Data will be exported in the background. Please check back later."
+    resource.notify_users
+    redirect_to [:admin, resource], notice: "System will send email to all users who has downloaded this resource."
   end
 
   controller do

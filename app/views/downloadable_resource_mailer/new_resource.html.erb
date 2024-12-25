@@ -1,0 +1,15 @@
+<p>
+  <strong> As-Salaam-Alaikum, <%= @user.name %></strong>
+</p>
+
+<p>
+  We’re excited to let you know that a new resource (<%= @resource.name %>) has been added to QUL! You can access it using the link below:
+</p>
+
+<p>
+  <%= link_to 'Download', detail_resources_url(@resource.resource_type, @resource.id), class: 'cta-button' %>
+</p>
+
+<p>
+  Feel free to explore and make the most of this new content.
+</p>

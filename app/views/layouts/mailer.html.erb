@@ -1,55 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= @subject || 'Quranic Universal Library (QUL)' %>
+  </title>
+  <style>
+      body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+      }
+
+      .email-wrapper {
+          width: 100%;
+          background-color: #f4f4f4;
+          padding: 20px 0;
+      }
+
+      .email-container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: #ffffff;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .email-header img {
+          width: 100%;
+          display: block;
+      }
+
+      .email-body {
+          padding: 20px;
+          line-height: 1.8;
+          color: #333333;
+      }
+
+      .email-body p {
+          margin: 0 0 15px;
+      }
+
+      .email-body a {
+          color: #46ac7a;
+          text-decoration: none;
+      }
+
+      .email-footer {
+          background: #f9f9f9;
+          text-align: center;
+          padding: 20px;
+          font-size: 14px;
+          color: #666666;
+      }
+
+      .email-footer a {
+          color: #46ac7a;
+          text-decoration: none;
+      }
+
+      .email-body a.cta-button {
+          display: inline-block;
+          background: #46ac7a;
+          color: #ffffff;
+          text-decoration: none;
+          padding: 12px 25px;
+          border-radius: 5px;
+          margin: 20px 0;
+          font-size: 16px;
+          font-weight: bold;
+          transition: background 0.3s ease;
+      }
+
+      .email-body a.cta-button:hover {
+          background: #3a8e63;
+      }
+
+      .email-footer img {
+          max-height: 50px;
+          margin-bottom: 10px;
+      }
+
+      @media (max-width: 600px) {
+          .email-body {
+              font-size: 14px;
+          }
+
+          .cta-button {
+              padding: 10px 15px;
+              font-size: 14px;
+          }
+      }
+  </style>
 </head>
 
-<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;">
-<div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-  <div style="text-align: center; margin-bottom: 20px;">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 39 24" width="100" height="60px">
-      <linearGradient id="logo_svg__a" x1="24.122" x2="17.648" y1="-6.927" y2="18.674" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#35f787"></stop>
-        <stop offset="0.323" stop-color="#3cff8b"></stop>
-        <stop offset="0.599" stop-color="#62d6f4"></stop>
-        <stop offset="0.948" stop-color="#00a3ff"></stop>
-      </linearGradient>
-      <radialGradient id="logo_svg__b" cx="0" cy="0" r="1" gradientTransform="matrix(-25.84742 16.58228 -25.1253 -39.16373 31.656 7.414)" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#8ff087"></stop>
-        <stop offset="1" stop-color="#83ee41" stop-opacity="0"></stop>
-      </radialGradient>
-      <radialGradient id="logo_svg__c" cx="0" cy="0" r="1" gradientTransform="matrix(25.41938 10.43478 -11.7804 28.69733 10.708 .003)" gradientUnits="userSpaceOnUse">
-        <stop offset="0.005" stop-color="#75f3ac"></stop>
-        <stop offset="1" stop-color="#41eeba" stop-opacity="0"></stop>
-      </radialGradient>
-      <radialGradient id="logo_svg__d" cx="0" cy="0" r="1" gradientTransform="matrix(-21.1947 17.3761 -28.709 -35.01815 32.901 6.627)" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#6aff52"></stop>
-        <stop offset="1" stop-color="#00fff0" stop-opacity="0"></stop>
-      </radialGradient>
-      <g fill-rule="evenodd" clip-rule="evenodd">
-        <path fill="#fff" d="M25.882 7.551c-1.19 1.19-1.775 1.776-2.517 1.776-.741 0-1.327-.595-2.517-1.776l-5.775-5.775C13.883.596 13.287 0 12.555 0s-1.326.595-2.517 1.776L2.331 9.483C1.151 10.673.555 11.268.555 12s.596 1.327 1.776 2.517l7.707 7.707c1.19 1.19 1.776 1.776 2.517 1.776.742 0 1.327-.595 2.518-1.776l5.775-5.775c1.19-1.19 1.776-1.776 2.517-1.776.732 0 1.327.595 2.517 1.776l1.747 1.746c1.19 1.19 1.775 1.776 2.517 1.776.741 0 1.327-.595 2.517-1.776l3.678-3.678c1.19-1.19 1.775-1.776 1.775-2.517s-.595-1.327-1.775-2.517l-3.678-3.678c-1.19-1.19-1.776-1.776-2.517-1.776-.742 0-1.327.595-2.517 1.776z"></path>
-        <path fill="url(#logo_svg__a)" d="M25.882 7.551c-1.19 1.19-1.775 1.776-2.517 1.776-.741 0-1.327-.595-2.517-1.776l-5.775-5.775C13.883.596 13.287 0 12.555 0s-1.326.595-2.517 1.776L2.331 9.483C1.151 10.673.555 11.268.555 12s.596 1.327 1.776 2.517l7.707 7.707c1.19 1.19 1.776 1.776 2.517 1.776.742 0 1.327-.595 2.518-1.776l5.775-5.775c1.19-1.19 1.776-1.776 2.517-1.776.732 0 1.327.595 2.517 1.776l1.747 1.746c1.19 1.19 1.775 1.776 2.517 1.776.741 0 1.327-.595 2.517-1.776l3.678-3.678c1.19-1.19 1.775-1.776 1.775-2.517s-.595-1.327-1.775-2.517l-3.678-3.678c-1.19-1.19-1.776-1.776-2.517-1.776-.742 0-1.327.595-2.517 1.776z"></path>
-        <g fill-opacity="0.8">
-          <path fill="url(#logo_svg__b)" d="M25.882 7.551c-1.19 1.19-1.775 1.776-2.517 1.776-.741 0-1.327-.595-2.517-1.776l-5.775-5.775C13.883.596 13.287 0 12.555 0s-1.326.595-2.517 1.776L2.331 9.483C1.151 10.673.555 11.268.555 12s.596 1.327 1.776 2.517l7.707 7.707c1.19 1.19 1.776 1.776 2.517 1.776.742 0 1.327-.595 2.518-1.776l5.775-5.775c1.19-1.19 1.776-1.776 2.517-1.776.732 0 1.327.595 2.517 1.776l1.747 1.746c1.19 1.19 1.775 1.776 2.517 1.776.741 0 1.327-.595 2.517-1.776l3.678-3.678c1.19-1.19 1.775-1.776 1.775-2.517s-.595-1.327-1.775-2.517l-3.678-3.678c-1.19-1.19-1.776-1.776-2.517-1.776-.742 0-1.327.595-2.517 1.776z"></path>
-          <path fill="url(#logo_svg__c)" d="M25.882 7.551c-1.19 1.19-1.775 1.776-2.517 1.776-.741 0-1.327-.595-2.517-1.776l-5.775-5.775C13.883.596 13.287 0 12.555 0s-1.326.595-2.517 1.776L2.331 9.483C1.151 10.673.555 11.268.555 12s.596 1.327 1.776 2.517l7.707 7.707c1.19 1.19 1.776 1.776 2.517 1.776.742 0 1.327-.595 2.518-1.776l5.775-5.775c1.19-1.19 1.776-1.776 2.517-1.776.732 0 1.327.595 2.517 1.776l1.747 1.746c1.19 1.19 1.775 1.776 2.517 1.776.741 0 1.327-.595 2.517-1.776l3.678-3.678c1.19-1.19 1.775-1.776 1.775-2.517s-.595-1.327-1.775-2.517l-3.678-3.678c-1.19-1.19-1.776-1.776-2.517-1.776-.742 0-1.327.595-2.517 1.776z"></path>
-          <path fill="url(#logo_svg__d)" d="M25.882 7.551c-1.19 1.19-1.775 1.776-2.517 1.776-.741 0-1.327-.595-2.517-1.776l-5.775-5.775C13.883.596 13.287 0 12.555 0s-1.326.595-2.517 1.776L2.331 9.483C1.151 10.673.555 11.268.555 12s.596 1.327 1.776 2.517l7.707 7.707c1.19 1.19 1.776 1.776 2.517 1.776.742 0 1.327-.595 2.518-1.776l5.775-5.775c1.19-1.19 1.776-1.776 2.517-1.776.732 0 1.327.595 2.517 1.776l1.747 1.746c1.19 1.19 1.775 1.776 2.517 1.776.741 0 1.327-.595 2.517-1.776l3.678-3.678c1.19-1.19 1.775-1.776 1.775-2.517s-.595-1.327-1.775-2.517l-3.678-3.678c-1.19-1.19-1.776-1.776-2.517-1.776-.742 0-1.327.595-2.517 1.776z"></path>
-        </g>
-      </g>
-    </svg>
-    <svg xmlns="http://www.w3.org/2000/svg" width="100px" height="30px" fill="none">
-      <clipPath id="logotype_svg__a">
-        <path d="M0 0h100v13H0z"></path>
-      </clipPath>
-      <g fill="#000" clip-path="url(#logotype_svg__a)">
-        <path d="M12.5 2.693H7.74V13H4.804V2.693H.06V0h12.5zM15.526 10.818 14.468 13H11.31l6.36-13h3.29l6.566 13H24.34l-1.102-2.182zM19.36 3.08l-2.57 5.122h5.184zM32.506 9.317V13h-2.938V0h8.27c2.938 0 4.847 1.873 4.847 4.643a4.623 4.623 0 0 1-.482 2.296 4.34 4.34 0 0 1-1.53 1.712l2.203 4.365h-3.408l-1.88-3.684zm5.288-2.693c1.043 0 1.689-.743 1.689-2.012.03-.248.009-.5-.063-.737s-.193-.457-.355-.64a1.616 1.616 0 0 0-.578-.42 1.542 1.542 0 0 0-.693-.122h-5.288v3.93zM56.625 2.693h-4.818V13h-2.938V2.693h-4.76V0h12.516zM61.736 5.014h7.535v2.678h-7.535v2.615h8.93V13H58.74V0h11.927v2.693h-8.93zM77.012 5.014h7.55v2.678h-7.55v2.615h8.931V13H74.016V0h11.927v2.693h-8.93zM100 13H89.307V0h2.937v10.307h7.697z"></path>
-      </g>
-    </svg>
-  </div>
+<body>
+<div class="email-wrapper">
+  <div class="email-container">
+    <div class="email-header">
+      <%= image_tag("email-header.jpg", alt: 'QUL') %>
+    </div>
 
-  <%= yield %>
+    <div class="email-body">
+      <%= yield %>
+    </div>
 
-  <div style="margin-top: 20px;">
-    <p>The Tarteel Team</p>
+    <div class="email-footer">
+      <img src="https://www.tarteel.ai/logo.svg" alt="Tarteel Logo">
+      <p>
+        <strong>QUL</strong> – Empowering Muslim Developers with Tools and Resources.<br>
+        A project by <a href="https://www.tarteel.ai" target="_blank">Tarteel</a>.
+      </p>
+    </div>
   </div>
 </div>
 </body>

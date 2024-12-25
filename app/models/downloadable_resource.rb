@@ -85,7 +85,7 @@ class DownloadableResource < ApplicationRecord
     update_columns(attrs)
   end
 
-  def refresh_export!(send_update_email: true)
+  def refresh_export!(send_update_email=true)
     s = Exporter::DownloadableResources.new
 
     case resource_type
@@ -314,11 +314,15 @@ class DownloadableResource < ApplicationRecord
   end
 
   def notify_users
-    dowloads = UserDownload
+    downloads = UserDownload
                  .where(downloadable_file_id: downloadable_files.pluck(:id))
                  .includes(:user)
 
-    dowloads.each do |user_download|
+    notified = {}
+    downloads.each do |user_download|
+      next if notified[user_download.user_id]
+      notified[user_download.user_id] = true
+
       DownloadableResourceMailer.new_update(self, user_download.user).deliver_later
     end
   end

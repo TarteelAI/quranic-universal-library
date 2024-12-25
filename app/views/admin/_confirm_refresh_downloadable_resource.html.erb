@@ -1,0 +1,25 @@
+<div id=title>
+ Confirm refreshing the exported files for <%= resource.name %>
+</div>
+
+<div id="body">
+  <div class="modal-body" id=modal-body>
+    <div class="alert alert-info">
+     This will refresh the exported files for <%= resource.name %>, the old files will be replaced with the new ones.
+    </div>
+
+    <%= form_with url: refresh_downloads_admin_downloadable_resource_path(resource), method: :put do |form| %>
+      <div class="form-group">
+        <%= form.check_box :notify_users %>
+        <%= form.label :notify_users, 'Notify users about the new version via email' %>
+        <div class="form-text text-muted">
+          If check, system will send send an email to all users who have downloaded this resource in the past.
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <%= form.submit 'Submit' %>
+      </div>
+    <% end %>
+  </div>
+</div>

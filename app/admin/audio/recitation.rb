@@ -22,15 +22,14 @@
 #  index_recitations_on_resource_content_id  (resource_content_id)
 #
 ActiveAdmin.register Recitation do
-  menu parent: 'Audio', priority: 1
+  menu parent: 'Audio', priority: 1, label: 'Gapped Recitations(ayah by ayah)'
   actions :all, except: :destroy
-  includes :reciter
+  includes :reciter, :resource_content
 
   filter :recitation_style, as: :searchable_select,
          ajax: { resource: RecitationStyle }
   filter :reciter, as: :searchable_select,
          ajax: { resource: Reciter }
-  filter :approved
 
   searchable_select_options(scope: Recitation,
                             text_attribute: :reciter_name,
@@ -50,6 +49,14 @@ ActiveAdmin.register Recitation do
     link_to 'View in segment tool', ayah_audio_files_path(id: resource.id), target: '_blank', rel: 'noopener'
   end
 
+  action_item :download_segments, only: :show, if: -> {can? :download, :from_admin} do
+    link_to 'Download segments', '#_',
+            data: {
+              controller: 'ajax-modal',
+              url: download_segments_admin_recitation_path(resource)
+            }
+  end
+
   member_action :validate_segments, method: 'get' do
     authorize! :manage, resource
 
@@ -66,15 +73,14 @@ ActiveAdmin.register Recitation do
       style
       segment_locked
       reciter_name
-      approved
     ]
   end
 
   index do
     id_column
     column :name
-    column :approved
-    column :reciter
+    column :approved?, sortable: 'resource_contents.approved'
+    column :reciter, sortable: 'reciters.name'
     column :recitation_style
     column :qirat_type
 
@@ -97,7 +103,7 @@ ActiveAdmin.register Recitation do
         end
       end
 
-      row :approved, &:approved?
+      row :approved
       row :segment_locked
       row :created_at
       row :updated_at
@@ -112,7 +118,6 @@ ActiveAdmin.register Recitation do
               ajax: { resource: ResourceContent }
 
       f.input :reciter_name
-      f.input :approved
 
       f.input :recitation_style_id,
               as: :searchable_select,
@@ -132,6 +137,20 @@ ActiveAdmin.register Recitation do
     end
   end
 
+  member_action :download_segments, method: ['get', 'put'] do
+    authorize! :download, :from_admin
+
+    if request.put?
+      format = params[:export_format].presence || 'csv'
+      file = resource.export_segments(format, params[:chapter_id])
+
+      send_file file, filename: "segments-#{resource.id}.#{format}"
+    else
+      render partial: 'admin/download_gapped_segments'
+    end
+  end
+
+  # Export multiple recitation segments to sqlite db
   collection_action :export_sqlite_db, method: 'put' do
     authorize! :download, :from_admin
 

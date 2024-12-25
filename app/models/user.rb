@@ -56,7 +56,7 @@ class User < ApplicationRecord
 
   enum role: {
     normal_user: 0,
-  super_admin: 1,
+    super_admin: 1,
     admin: 2,
     moderator: 3,
     contributor: 4,

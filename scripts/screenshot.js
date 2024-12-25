@@ -8,15 +8,15 @@ const path = require('path');
 // text_digital_khatt, text_uthmani
 const scriptType = 'code_v4';
 const exportType = 'mushaf_page'; // Possible values: word, mushaf_page, ayah
-const mushafId= 19;
+const mushafId= 6;
+const totalPages=610;
 const exportQuality = 100;
 const exportFormat = "png";
+const exportWordPositions = exportType === 'mushaf_page';
 const host = "http://localhost:3000/exports";
 
-// Load data for ayahs and words
 const ayahData = JSON.parse(fs.readFileSync("ayah_words.json", 'utf-8'));
 
-// Main export functions
 const exportWords = async (browser) => {
   for (let ayah = 1; ayah <= 6236; ayah++) {
     const { key, words } = ayahData[ayah] || {};
@@ -35,19 +35,18 @@ const exportAyahs = async (browser) => {
 };
 
 const exportMushafPage = async (browser) => {
-  for (let page = 1; page <= 604; page++) {
+  for (let page = 1; page <= totalPages; page++) {
     const url = `${host}/mushaf_page?page_number=${page}&mushaf_id=${mushafId}}`;
     await captureScreenshot(browser, url, 'mushaf_page');
   }
 };
 
-// Screenshot helper
 const captureScreenshot = async (browser, url, type) => {
   const page = await browser.newPage();
   await page.setViewport({
-    width: 1920,
-    height: 1080,
-    deviceScaleFactor: 2, // Increase scale factor for higher resolution
+    width: 900,
+    height: 1437,
+    deviceScaleFactor: 1, // Increase scale factor for higher resolution
   });
 
   try {
@@ -60,15 +59,22 @@ const captureScreenshot = async (browser, url, type) => {
       return content ? content.getAttribute('data-file-name') : `screenshot_${type}_${Date.now()}`;
     });
 
+    if(exportWordPositions){
+      const postionsData = await extractWordPositions(page, false);
+      const postionExportPath = path.join(__dirname, `exported_data/`, `${filename}.json`);
+      fs.mkdirSync(path.dirname(postionExportPath), { recursive: true });
+      fs.writeFileSync(postionExportPath, JSON.stringify(postionsData));
+    }
+
     const elementHandle = await page.$('#content');
     if (elementHandle) {
       const boundingBox = await elementHandle.boundingBox();
       const options = {
         clip: {
-          x: boundingBox.x,
-          y: boundingBox.y,
-          width: Math.ceil(boundingBox.width),
-          height: Math.ceil(boundingBox.height),
+          x: boundingBox.x - 5,
+          y: boundingBox.y - 5,
+          width: Math.ceil(boundingBox.width) + 5,
+          height: Math.ceil(boundingBox.height) + 5,
         },
         omitBackground: true,
         type: exportFormat
@@ -90,7 +96,44 @@ const captureScreenshot = async (browser, url, type) => {
   }
 };
 
-// Main function
+const extractWordPositions = async (page, highlight) => {
+  const positionsData = await page.evaluate((highlight) => {
+    const positions = {};
+
+    const elements = document.querySelectorAll('[data-position]');
+
+    elements.forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      const x = Math.round(rect.left + window.pageXOffset);
+      const y = Math.round(rect.top + window.pageYOffset);
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+
+      positions[element.dataset.position] = { x, y, w, h };
+
+      if(highlight){
+      element.style.border = "1px solid red";
+      element.style.position = "relative";
+
+      const text = document.createElement("span");
+      text.textContent = `${x},${y}-${w}x${h}`;
+      text.style.position = "absolute";
+      text.style.left = "0";
+      text.style.top = "0";
+      text.style.color = "black";
+      text.style.fontSize = "10px";
+      text.style.padding = "2px";
+      text.style.zIndex = "1000";
+      element.appendChild(text);
+      }
+    });
+
+    return positions;
+  }, highlight);
+
+  return positionsData;
+};
+
 (async () => {
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 

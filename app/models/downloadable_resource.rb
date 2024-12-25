@@ -85,7 +85,7 @@ class DownloadableResource < ApplicationRecord
     update_columns(attrs)
   end
 
-  def refresh_export!
+  def refresh_export!(send_update_email: true)
     s = Exporter::DownloadableResources.new
 
     case resource_type
@@ -134,6 +134,8 @@ class DownloadableResource < ApplicationRecord
     when 'quran-metadata'
       s.export_quran_metadata(resource_content: resource_content)
     end
+
+    notify_users if send_update_email
   end
 
   def humanize_cardinality_type

@@ -11,6 +11,7 @@ ActiveAdmin.register Morphology::Phrase do
   filter :source_verse, as: :searchable_select,
          ajax: { resource: Verse }
   filter :created_at
+  filter :updated_at
 
   action_item :export_csv, only: :index, if: -> { can? :download, :from_admin } do
     link_to 'Export CSV', export_approved_admin_morphology_phrases_path(format: :json)
@@ -52,6 +53,8 @@ ActiveAdmin.register Morphology::Phrase do
     column :verses_count
     column :occurrence
     column :words_count
+    column :created_at
+    column :updated_at
   end
 
   show do

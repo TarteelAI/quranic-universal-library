@@ -12,7 +12,6 @@ Rails.application.configure do
       enable_starttls_auto: true
     }
   else
-    config.action_mailer.delivery_method = :smtp
     config.action_mailer.delivery_method = :letter_opener
   end
 end

@@ -8,14 +8,14 @@
 
 <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form', class: 'inputs_container ', data: { controller: 'remote-form', auto_close: true } }) do |f| %>
   <div class="form-floating tw-mt-3">
-    <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
+    <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email', data: {cy: 'email'} %>
     <%= f.label :email, required: true %>
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
   <div class="form-floating tw-mt-3 password">
-    <%= f.password_field :password, class: 'form-control', placeholder: 'enter your password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
+    <%= f.password_field :password, class: 'form-control', placeholder: 'enter your password', required: true, minlength: 6, data: {controller: 'toggle-password', cy: 'password' } %>
     <%= f.label :password, required: true %>
     <div class="invalid-feedback">
       Password does not meet minimum security requirements.
@@ -33,6 +33,6 @@
     </div>
   </div>
   <div class="text-center tw-mt-8">
-    <%= f.submit t('.sign_in', default: 'Sign in'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3' %>
+    <%= f.submit t('.sign_in', default: 'Sign in'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3', data: {cy: 'submit'} %>
   </div>
 <% end %>

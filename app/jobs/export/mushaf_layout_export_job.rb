@@ -2,7 +2,7 @@ module Export
   class MushafLayoutExportJob < ApplicationJob
     STORAGE_PATH = "#{Rails.root}/tmp/exported_mushaf_layouts"
 
-    def perform(file_name:,  user_id:, mushaf_ids: [])
+    def perform(file_name:, user_id:, mushaf_ids: [])
       require 'sqlite3'
       @mushaf_ids = mushaf_ids
 
@@ -45,25 +45,56 @@ module Export
     end
 
     def email_body(user)
-      email_body = <<-EMAIL
-Assalamu Alaikum #{user.name},<br><br>
-
-Mushaf layouts data is exported and attached with this email.<br><br>
-
+      <<-EMAIL
+<p>Assalamu Alaikum #{user.name},</p>
+<p>
+Mushaf layouts data is exported and attached with this email.</p>
       #{
         if user.id == 1
-          "<h3>Validation:</h3>" +
-            "<ul>" +
-            @export_stats.map { |key, value| "<li><strong>#{key.to_s.humanize}:</strong> #{value}</li>" }.join +
-            "</ul><br>"
+          render_layout_export_stats
         end
       }
+<p>
+Best regards,
+</p>
+      EMAIL
+    end
 
-If you have any questions or need further assistance, feel free to reach out.<br><br>
+    def render_layout_export_stats
+      "<div style='font-family: Arial, sans-serif; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;'>
+       <h3>Export stats</h3>
+      #{render_stats(@export_stats)}
+</div>".html_safe
+    end
 
-Best regards,<br>
-EMAIL
-
+    def render_stats(hash, indent = 0)
+      output = ""
+      hash.each do |key, value|
+        if value.is_a?(Hash)
+          output += "<div style='margin-left: #{indent}px; padding: 5px; border-left: 2px solid #ddd;'>"
+          output += "<strong style='color: #007BFF;'>#{key}:</strong>"
+          output += render_stats(value, indent + 10)
+          output += "</div>"
+        elsif value.is_a?(Array)
+          output += "<div style='margin-left: #{indent}px; padding: 5px; border-left: 2px solid #ddd;'>"
+          output += "<strong style='color: #007BFF;'>#{key}:</strong>"
+          output += "<ul style='margin: 0; padding-left: 15px;'>"
+          value.each do |item|
+            if item.is_a?(String) || item.is_a?(Numeric)
+              output += "<li style='color: #28a745;'>#{item}</li>"
+            else
+              output += "<li>#{render_stats({ item: item }, indent + 10)}</li>"
+            end
+          end
+          output += "</ul></div>"
+        else
+          color = (key.to_s == 'issues') ? '#dc3545' : '#28a745'
+          output += "<div style='margin-left: #{indent}px; padding: 5px;'>"
+          output += "<strong style='color: #007BFF;'>#{key}:</strong> "
+          output += "<span style='color: #{color};'>#{value}</span></div>"
+        end
+      end
+      output
     end
 
     def load_mushafs(mushaf_ids)

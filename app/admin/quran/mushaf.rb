@@ -45,6 +45,7 @@ ActiveAdmin.register Mushaf do
       row :is_default
       row :lines_per_page
       row :pages_count
+      row :lines_count
       row :pdf_url
       row :created_at
       row :updated_at

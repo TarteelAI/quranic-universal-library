@@ -1,5 +1,5 @@
 <%
-  pdf_page_offset = (@resource.meta_value('source_pdf_page_offset') || 2).to_i
+  pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 2).to_i
   page_number =  @mushaf_page.page_number.to_i + pdf_page_offset
 %>
 

@@ -35,7 +35,7 @@ class Mushaf < QuranApiRecord
     [1, 2].include?(id)
   end
 
-  def total_lines
+  def lines_count
     mushaf_pages.sum(:lines_count)
   end
 

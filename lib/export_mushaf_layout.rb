@@ -277,6 +277,8 @@ class ExportMushafLayout
 
     layout_stats = stats[:exported_layouts][table_name] || {}
     stats[:exported_layouts][table_name] = {
+      mushaf_id: mushaf.id,
+      mushaf_name: mushaf.name,
       surah_name_lines: ExportedLayout.where(type: 'surah_name').count + layout_stats[:surah_name_lines].to_i,
       basmallah_lines: ExportedLayout.where(type: 'basmallah').count + layout_stats[:basmallah_lines].to_i,
       ayah_lines: ExportedLayout.where(type: 'ayah').count + layout_stats[:ayah_lines].to_i,
@@ -295,16 +297,16 @@ class ExportMushafLayout
 
     # Some page could have fewer lines, like last page.
     # TODO: fix the line count validation
-    if layout_stats[:total_lines] != mushaf.total_lines
-      layout_stats[:issues].push("Total lines count is not equal to mushaf lines count")
+    if layout_stats[:total_lines] != mushaf.lines_count
+      layout_stats[:issues].push("Total lines count is not equal to mushaf lines count. Should have #{mushaf.lines_count} lines")
     end
 
     if layout_stats[:exported_words_count] != Word.count
-      layout_stats[:issues].push("Exported words count is not equal to total words count")
+      layout_stats[:issues].push("Exported words count is not equal to total words count. Should have #{Word.count} words")
     end
 
     if layout_stats[:exported_page_count] != mushaf.pages_count
-      layout_stats[:issues].push("Exported page should be equal to mushaf page count")
+      layout_stats[:issues].push("Exported page should be equal to mushaf page count. Should have #{mushaf.pages_count} words")
     end
 
     if layout_stats[:basmallah_lines] != 112

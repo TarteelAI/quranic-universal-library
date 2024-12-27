@@ -35,6 +35,10 @@ class Mushaf < QuranApiRecord
     [1, 2].include?(id)
   end
 
+  def total_lines
+    mushaf_pages.sum(:lines_count)
+  end
+
   def humanize
     "#{name} - Pages #{pages_count} - Lines #{lines_per_page}"
   end
@@ -141,9 +145,9 @@ class Mushaf < QuranApiRecord
 
   def update_surah_numbers_in_layout
     surah = 1
-    pages = MushafLineAlignment.where(mushaf_id: id).pluck(:page_number).uniq.map(&:to_i).sort
+    pages = MushafLineAlignment.where(mushaf_id: id).pluck(:page_number).uniq.sort
     pages.each do |page_number|
-      lines = MushafLineAlignment.where(mushaf_id: id, page_number: page_number).order(Arel.sql("CAST(line_number AS numeric) ASC"))
+      lines = MushafLineAlignment.where(mushaf_id: id, page_number: page_number).order('line_number ASC')
 
       lines.each do |line|
         if line.is_surah_name?

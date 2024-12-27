@@ -4,6 +4,8 @@ module Export
 
     def perform(file_name:,  user_id:, mushaf_ids: [])
       require 'sqlite3'
+      @mushaf_ids = mushaf_ids
+
       file_path = prepare_file_paths(file_name)
       export_sqlite_db(file_path, mushaf_ids)
       send_email(file_path, user_id)
@@ -20,8 +22,10 @@ module Export
 
     def export_sqlite_db(file_name, mushaf_ids)
       mushafs = load_mushafs(mushaf_ids)
+      export_service = ExportMushafLayout.new
+      export_service.export(mushafs.pluck(:id), file_name)
 
-      ExportMushafLayout.new.export(mushafs.pluck(:id), file_name)
+      @export_stats = export_service.export_stats
     end
 
     def send_email(file_path, user_id)
@@ -41,15 +45,25 @@ module Export
     end
 
     def email_body(user)
-      <<-EMAIL
-Assalamu Alaikum #{user.name},
+      email_body = <<-EMAIL
+Assalamu Alaikum #{user.name},<br><br>
 
-Mushaf layouts data is exported and attached with this email.
+Mushaf layouts data is exported and attached with this email.<br><br>
 
-If you have any questions or need further assistance, feel free to reach out.
+      #{
+        if user.id == 1
+          "<h3>Validation:</h3>" +
+            "<ul>" +
+            @export_stats.map { |key, value| "<li><strong>#{key.to_s.humanize}:</strong> #{value}</li>" }.join +
+            "</ul><br>"
+        end
+      }
 
-Best regards,
-      EMAIL
+If you have any questions or need further assistance, feel free to reach out.<br><br>
+
+Best regards,<br>
+EMAIL
+
     end
 
     def load_mushafs(mushaf_ids)

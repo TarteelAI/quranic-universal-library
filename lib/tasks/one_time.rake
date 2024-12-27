@@ -1,4 +1,22 @@
 namespace :one_time do
+  task update_lines_count: :environment do
+    MushafPage.find_each do |page|
+      page.update_lines_count
+    end
+  end
+
+  task remove_space_before_footnote: :environment do
+    PaperTrail.enabled = false
+    translations = "130,120,151,153,149,31,97,125,106,134,56,101,139,136,141,122,95,33,20,945,115,771,203,904,54,786,782,213,220,76,85,774,83"
+    # 23893
+    # translations = Translation.where("text LIKE '% <%'").pluck(:resource_content_id).uniq
+
+    Translation.where("text LIKE '% <%'").find_each do |t|
+      t.text = t.text.gsub(/\s</, '<')
+      t.save
+    end
+  end
+
   task update_footnote_count: :environment do
     draft_translations = Draft::Translation.joins(:foot_notes).distinct
     draft_translations.each do |t|
@@ -14,7 +32,9 @@ namespace :one_time do
 
   task create_resource_tags: :environment do
     DownloadableResource.find_each do |resource|
-      tags = resource.tags.to_s.split(',').map do |t| t.strip.humanize end
+      tags = resource.tags.to_s.split(',').map do |t|
+        t.strip.humanize
+      end
       tags.each do |name|
         tag = DownloadableResourceTag.where(name: name).first_or_create
 
@@ -73,10 +93,8 @@ namespace :one_time do
 
     pages = MushafLineAlignment
               .where(mushaf_id: mushaf_v2.id, alignment: 'surah_name')
-              .order(Arel.sql("CAST(page_number AS INTEGER) ASC"))
-              .order(Arel.sql("CAST(line_number AS INTEGER) ASC"))
-
-    s  = 1
+              .order('page_number ASC, line_number ASC')
+    s = 1
 
     pages.map do |p|
       p.get_surah_number

@@ -3,6 +3,7 @@
 # Table name: mushaf_pages
 #
 #  id             :bigint           not null, primary key
+#  lines_count    :integer
 #  page_number    :integer
 #  verse_mapping  :json
 #  verses_count   :integer
@@ -16,6 +17,7 @@
 #
 # Indexes
 #
+#  index_mushaf_pages_on_lines_count  (lines_count)
 #  index_mushaf_pages_on_mushaf_id    (mushaf_id)
 #  index_mushaf_pages_on_page_number  (page_number)
 #
@@ -38,6 +40,25 @@ class MushafPage < QuranApiRecord
       mushaf_id: mushaf_id,
       page_number: page_number
     ).order('position_in_page ASC, position_in_line ASC')
+  end
+
+  def update_lines_count
+    last_word = MushafWord.unscoped.where(
+      mushaf_id: mushaf_id,
+      page_number: page_number
+    ).order('line_number DESC').first
+
+    last_line = MushafLineAlignment
+                  .where(
+                    mushaf_id: mushaf_id,
+                    page_number: page_number
+                  )
+                  .order('line_number DESC').first
+
+    if last_word
+      line = [last_line&.line_number.to_i, last_word.line_number].max
+      update_column :lines_count, line
+    end
   end
 
   def lines
@@ -67,7 +88,7 @@ class MushafPage < QuranApiRecord
   end
 
   def fix_verse_mapping
-    #TODO: add verse_mapping_with_range column
+    # TODO: add verse_mapping_with_range column
     page_verses = Verse.order("verse_index ASC").where("verse_index >= #{first_verse_id} AND verse_index <= #{last_verse_id}")
     map = {}
 

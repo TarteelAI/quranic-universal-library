@@ -19,6 +19,7 @@
 #
 class MushafLineAlignment < ApplicationRecord
   belongs_to :mushaf
+  after_commit :update_page_lines_count
 
   def self.dummy
     MushafLineAlignment.new
@@ -48,5 +49,12 @@ class MushafLineAlignment < ApplicationRecord
     self.alignment = nil
     self.properties = {}
     self.destroy
+  end
+
+  def update_page_lines_count
+    MushafPage.find_by(
+      mushaf_id: mushaf_id,
+      page_number: page_number
+    )&.update_lines_count
   end
 end

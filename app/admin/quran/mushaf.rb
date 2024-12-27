@@ -52,7 +52,24 @@ ActiveAdmin.register Mushaf do
 
     active_admin_comments
 
-    panel 'Preview any page of this Mushaf' do
+    panel 'Lines per page' do
+      pages = resource.mushaf_pages.order('page_number ASC')
+      div 'data-controller': 'peity', 'data-chart': 'line' do
+        pages.pluck(:lines_count).join(',')
+      end
+
+      h3 "Pages that don't have #{resource.lines_per_page} lines (total #{resource.mushaf_pages.where('lines_count != ?', resource.lines_per_page).count})"
+      div do
+        pages.where('lines_count != ?', resource.lines_per_page).each do |page|
+          span class: 'btn btn-info m-1' do
+            span link_to(page.page_number, "/admin/mushaf_page_preview?page=#{page.page_number}&mushaf=#{resource.id}", class: 'text-white')
+            span page.lines_count, class: 'badge text-bg-secondary bg-success'
+          end
+        end
+      end
+    end
+
+    panel 'Page preview' do
       div class: 'placeholder' do
         h4 'Select page'
 

@@ -5,6 +5,7 @@ ActiveAdmin.register MushafPage do
   actions :all, except: :destroy
   includes :mushaf
   filter :page_number
+  filter :lines_count
   filter :mushaf,
          as: :searchable_select,
          ajax: { resource: Mushaf }
@@ -12,7 +13,7 @@ ActiveAdmin.register MushafPage do
   ActiveAdminViewHelpers.render_navigation_search_sidebar(self)
 
   permit_params do
-    %i[page_number verses_count first_verse_id last_verse_id mushaf_id]
+    %i[page_number verses_count first_verse_id last_verse_id mushaf_id lines_count]
   end
 
   action_item :preview, only: :show do
@@ -26,6 +27,7 @@ ActiveAdmin.register MushafPage do
     column :mushaf
     column :verses_count
     column :page_number
+    column :lines_count
     column :verses, &:verse_mapping
 
     actions
@@ -40,6 +42,7 @@ ActiveAdmin.register MushafPage do
       f.input :page_number
       f.input :verse_mapping
       f.input :verses_count
+      f.input :lines_count
       f.input :first_verse_id
       f.input :first_verse_id,
               as: :searchable_select,
@@ -58,6 +61,7 @@ ActiveAdmin.register MushafPage do
     attributes_table do
       row :id
       row :page_number
+      row :lines_count
       row :verse_mapping
       row :mushaf
 

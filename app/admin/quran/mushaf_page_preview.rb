@@ -3,21 +3,34 @@
 ActiveAdmin.register_page 'Mushaf Page Preview' do
   action_item :previous_page, group: :page do
     page = params[:page].to_i
+    mushaf_id = params[:mushaf] || 2
     page = page > 1 ? page - 1 : 1
-    mushaf = params[:mushaf] || 2
 
-    link_to 'Previous page', "/admin/mushaf_page_preview?page=#{page}&mushaf=#{mushaf}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
+    link_to 'Previous page', "/admin/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
             class: 'btn'
   end
 
   action_item :next_page, group: :page do
     page = params[:page].to_i
-    page = page < 604 ? page + 1 : 604
-    mushaf = params[:mushaf] || 2
+    mushaf_id = params[:mushaf] || 2
+    mushaf = Mushaf.find(mushaf_id)
 
-    link_to 'Next page', "/admin/mushaf_page_preview?page=#{page}&mushaf=#{mushaf}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
+    page = page < mushaf.pages_count ? page + 1 : mushaf.pages_count
+
+    link_to 'Next page', "/admin/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
             class: 'btn'
   end
+
+  action_item :fix_page do
+    page = params[:page].to_i
+    mushaf_id = params[:mushaf] || 2
+
+
+    link_to 'Fix page', "/mushaf_layouts/#{mushaf_id}?page_number=#{page}",
+            class: 'btn'
+  end
+
+
 
   sidebar 'Mushaf Layouts' do
     page = params[:page].to_i

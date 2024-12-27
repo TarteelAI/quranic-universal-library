@@ -333,7 +333,8 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
-        tags = [content.language_name.humanize]
+        tags = []
+        tags << content.language_name.humanize if content.language_name.present?
 
         if content.has_footnote?
           tags << 'With Footnotes'

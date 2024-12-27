@@ -45,6 +45,11 @@ class Draft::Translation < ApplicationRecord
     self.draft_text = val
   end
 
+  def draft_text=(val)
+    formatted = Text::Formatter.new(val).format
+    super formatted
+  end
+
   def next_ayah_translation
     if verse_id < 6235
       Draft::Translation

@@ -411,7 +411,8 @@ module Importer
       lingala_zakaria: [/\(\d+\)/, /\d+/],
       kyrgyz_hakimov: [/\*+/, /\*+/],
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],
-      kannada_hamza: [/\[\d+\]/, /\[\d+\]/]
+      kannada_hamza: [/\[\d+\]/, /\[\d+\]/],
+      albanian_rwwad: [/\[\d+\]/, /\[\d+\]/]
     }.freeze
 
     TRANSLATIONS_MAPPING = {
@@ -524,6 +525,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'albanian_rwwad',
       'dutch_center',
       'pashto_rwwad',
       'kannada_hamza',

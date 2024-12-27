@@ -56,6 +56,14 @@ class DownloadableResource < ApplicationRecord
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
   validates :resource_content, uniqueness: { allow_nil: true }
 
+  def language_id=(val)
+    if self.language_name.blank?
+      self.language_name = Language.find_by(id: val)&.name.downcase
+    end
+
+    super(val)
+  end
+
   def description
     info
   end

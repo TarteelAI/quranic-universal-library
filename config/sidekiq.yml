@@ -7,8 +7,9 @@ staging:
   :concurrency: 1
 
 :queues:
-  - [default, 1]
+  - [default, 5]
   - [mailers, 1]
+  - [active_storage_purge, 1]
 
 :schedule:
   daily_backup:

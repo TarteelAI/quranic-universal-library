@@ -1,9 +1,10 @@
 import SIGNUP from "../Pages/signupPage";
-let namespace = Cypress.env('namespace');
+let namespace = Cypress.env("namespace");
 let tag = new Date().getTime();
+let signup;
 
 describe("Signup", () => {
-  it("Signup process for user.", () => {
+  it("Signup process for new user.", () => {
     let signup = new SIGNUP();
     cy.visit("/");
     // signup.validateLandingPage();
@@ -13,9 +14,23 @@ describe("Signup", () => {
     signup.signUpForm(`${namespace}.${tag}@inbox.testmail.app`);
   });
 
-  it("Signup confirmation & Login for users", () => {
-    let signup = new SIGNUP();
-    cy.wait(3000);
+  it("Signup confirmation & Login for new users", () => {
+    signup = new SIGNUP();
+    signup.waitFor(3000);
     signup.validateSignupConfirmation(tag, namespace);
   });
+
+  it("Forgot Password scenario for user.", () => {
+    let forgotpassword = new SIGNUP();
+    cy.visit("/");
+    forgotpassword.goToAdminPanel();
+    forgotpassword.toostMessage("You need to sign in or sign up before continuing.");
+    forgotpassword.forgotPassword(signup.EMAILADDRESS);
+  });
+
+  it("Reset Password scenario for user.", () => {
+    let forgotpassword = new SIGNUP();
+    forgotpassword.validateResetPassword(tag, namespace);
+  });
+
 });

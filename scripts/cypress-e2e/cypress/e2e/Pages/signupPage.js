@@ -1,6 +1,6 @@
 class SIGNUP {
   constructor() {
-    this.USEREMAIL = null;
+    this.EMAILADDRESS = null;
     this.USERNAME = null;
   }
 
@@ -72,6 +72,10 @@ class SIGNUP {
       });
   }
 
+  waitFor(loadingTime) {
+    cy.wait(loadingTime);
+  }
+
   createNewUser() {
     cy.intercept("GET", "**/users/sign_up").as("signUp");
     cy.get('[href="/users/sign_up"]')
@@ -82,17 +86,6 @@ class SIGNUP {
           expect(interception.response.statusCode).to.eq(200);
         });
       });
-  }
-
-  EmailSetup(apikey, namespace) {
-    cy.request("POST", "https://api.testmail.app/api/json", {
-      apikey: apikey,
-      namespace: namespace,
-      inbox: `test-${new Date().getTime()}`, // Generate a unique email
-    }).then((response) => {
-      const emailAddress = response.body.emailAddress;
-      cy.wrap(emailAddress).as("randomEmail"); // Store it for later use
-    });
   }
 
   signUpForm(emailAddress) {
@@ -109,56 +102,137 @@ class SIGNUP {
   }
 
   extractConfirmationLink = (text) => {
-    const regex = /https:\/\/qul\.tarteel\.ai\/users\/confirmation\?confirmation_token=[\w-]+/g; 
+    const regex =
+      /https:\/\/qul\.tarteel\.ai\/users\/confirmation\?confirmation_token=[\w-]+/g;
     const match = text.match(regex);
-    return match ? match[0] : null; 
+    return match ? match[0] : null;
+  };
+
+  extractResetPasswordLink = (text) => {
+    const regex = /Change my password\n\[(https:\/\/qul\.tarteel\.ai\/users\/password\/edit\?locale=en&reset_password_token=[\w-]+)\]/;
+    const match = text.match(regex);
+    return match ? match[1] : null;
   };
 
   validateSignupConfirmation(tag, namespace) {
     cy.request({
-        method: "GET",
-        url: Cypress.env("api_url"),
-        failOnStatusCode: false,
-        qs: {
-          apikey: Cypress.env("apikey"),
-          namespace: Cypress.env("namespace"),
-          inbox: `${namespace}.${tag}@inbox.testmail.app`,
-          tag: tag,
-          livequery: true,
-        },
-      }).then((response) => {
-        cy.log(response.body);
-        expect(response.status).to.eq(200);
-        let email = response.body.emails.find((email) =>
-          email.subject.includes("Confirmation instructions")
-        );
-        if (email) {
-          cy.log("Email Subject: Confirmation instructions");
-          let emailText = email.text;
-          cy.log(`Email Text: ${emailText}`);
-          const confirmationLink = this.extractConfirmationLink(emailText);
-          cy.log(`Confirmation Link: ${confirmationLink}`);
-          expect(confirmationLink).to.not.be.null;
-          if (confirmationLink) {
-            cy.visit(confirmationLink);
-            this.toostMessage(
-              "Your email address has been successfully confirmed."
-            );
-            this.signIn(`${namespace}.${tag}@inbox.testmail.app`, "TestPassword123");
-            this.toostMessage("Signed in successfully.");
-          } else {
-            cy.log("Confirmation link not found.");
-          }
+      method: "GET",
+      url: Cypress.env("api_url"),
+      failOnStatusCode: false,
+      qs: {
+        apikey: Cypress.env("apikey"),
+        namespace: Cypress.env("namespace"),
+        inbox: `${namespace}.${tag}@inbox.testmail.app`,
+        tag: tag,
+        livequery: true,
+      },
+    }).then((response) => {
+      cy.log(response.body);
+      expect(response.status).to.eq(200);
+      let email = response.body.emails.find((email) =>
+        email.subject.includes("Confirmation instructions")
+      );
+      if (email) {
+        cy.log("Email Subject: Confirmation instructions");
+        let emailText = email.text;
+        this.EMAILADDRESS = email.to;
+        cy.log(`Email Text: ${emailText}`);
+        const confirmationLink = this.extractConfirmationLink(emailText);
+        cy.log(`Confirmation Link: ${confirmationLink}`);
+        expect(confirmationLink).to.not.be.null;
+        if (confirmationLink) {
+          cy.visit(confirmationLink);
+          this.toostMessage(
+            "Your email address has been successfully confirmed."
+          );
+          this.signIn(
+            `${namespace}.${tag}@inbox.testmail.app`,
+            "TestPassword123"
+          );
+          this.toostMessage("Signed in successfully.");
         } else {
-          cy.log("Email with subject 'Confirmation instructions' not found.");
+          cy.log("Confirmation link not found.");
         }
-      });
-    }
+      } else {
+        cy.log("Email with subject 'Confirmation instructions' not found.");
+      }
+    });
+  }
+
+  validateResetPassword(tag, namespace) {
+    cy.request({
+      method: "GET",
+      url: Cypress.env("api_url"),
+      failOnStatusCode: false,
+      qs: {
+        apikey: Cypress.env("apikey"),
+        namespace: Cypress.env("namespace"),
+        inbox: `${namespace}.${tag}@inbox.testmail.app`,
+        tag: tag,
+        livequery: true,
+      },
+    }).then((response) => {
+      cy.log(response.body);
+      expect(response.status).to.eq(200);
+      let email = response.body.emails.find((email) =>
+        email.subject.includes("Reset password instructions")
+      );
+      if (email) {
+        cy.log("Email Subject: Reset password instructions");
+        let emailText = email.text;
+        this.EMAILADDRESS = email.to;
+        cy.log(`Email Text: ${emailText}`);
+        const confirmationLink = this.extractResetPasswordLink(emailText);
+        cy.log(`Reset Password Link: ${confirmationLink}`);
+        expect(confirmationLink).to.not.be.null;
+        if (confirmationLink) {
+          cy.visit(confirmationLink);
+          this.resetPassword("changePassword", "changePassword");
+          this.toostMessage("Your password has been changed successfully. You are now signed in.")
+          this.validateSignInSuccess();
+        } else {
+          cy.log("Reset password instructions link not found.");
+        }
+      } else {
+        cy.log("Email with subject 'Reset password instructions' not found.");
+      }
+    });
+  }
 
   signIn(email, password) {
     cy.get("input#user_email").type(email);
     cy.get("input#user_password").type(password);
     cy.get('[name="commit"]').click();
+  }
+
+  validateSignInSuccess() {
+    cy.get('[href="/users/sign_out"]').should("contain.text", "Logout");
+  }
+
+  forgotPassword(email) {
+    cy.intercept("POST", "**/users/password").as("forgotPassword");
+    cy.get('a[href="/users/password/new"]').click();
+    cy.get('[name="user[email]"]').type(email);
+    cy.get('input[value="Send me reset password instructions"]')
+      .click()
+      .then(() => {
+        cy.wait("@forgotPassword").then((interception) => {
+          expect(interception.response.statusCode).to.eq(302);
+        });
+        this.toostMessage(
+          "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
+        );
+        cy.get('input[value="Send me reset password instructions"]').should(
+          "not.exist"
+        );
+        cy.get('[value="Sign in"]').should("be.visible");
+      });
+  }
+
+  resetPassword(email, password) {
+    cy.get('input[name="user[password]"]').type(email);
+    cy.get("input#user_password_confirmation").type(password);
+    cy.get('[value="Change my password"]').click();
   }
 }
 

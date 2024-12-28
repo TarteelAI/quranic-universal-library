@@ -3,7 +3,7 @@ let namespace = Cypress.env("namespace");
 let tag = new Date().getTime();
 let signup;
 
-describe("Signup", () => {
+describe("Signup & Forgot Password Scenarios.", () => {
   it("Signup process for new user.", () => {
     let signup = new SIGNUP();
     cy.visit("/");

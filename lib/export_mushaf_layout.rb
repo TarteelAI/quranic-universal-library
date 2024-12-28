@@ -295,10 +295,9 @@ class ExportMushafLayout
       layout_stats[:issues].push("Surah name lines count is not 114")
     end
 
-    # Some page could have fewer lines, like last page.
-    # TODO: fix the line count validation
     if layout_stats[:total_lines] != mushaf.lines_count
-      layout_stats[:issues].push("Total lines count is not equal to mushaf lines count. Should have #{mushaf.lines_count} lines")
+      possible_buggy_pages = ExportedLayout.group(:page).having('COUNT(line) != ?', mushaf.lines_per_page).pluck(:page).join(", ")
+      layout_stats[:issues].push("Total lines count is not equal to mushaf lines count. Should have #{mushaf.lines_count} lines. Please review these pages #{possible_buggy_pages}")
     end
 
     if layout_stats[:exported_words_count] != Word.count

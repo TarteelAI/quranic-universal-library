@@ -53,6 +53,11 @@ module Tools
               [a.name, a.id.to_s]
             end,
             name: :second_mushaf_id
+          },
+          {
+            type: :select,
+            collection: [['First word', 'first'], ['Last word', 'last'], ['Both first and last word', 'both']],
+            name: :compare_field
           }
         ],
         links_proc: {
@@ -76,11 +81,20 @@ module Tools
         check: ->(params) do
           first_mushaf_id = params[:first_mushaf_id]
           second_mushaf_id = params[:second_mushaf_id]
+          compare_filed = params[:compare_field] || 'both'
 
           if first_mushaf_id && second_mushaf_id
+            conditions = {
+              'first' => "mushaf_pages.first_word_id <> mp2.first_word_id",
+              'last'  => "mushaf_pages.last_word_id <> mp2.last_word_id",
+              'both'  => "mushaf_pages.first_word_id <> mp2.first_word_id OR mushaf_pages.last_word_id <> mp2.last_word_id"
+            }
+            condition = conditions[compare_filed] || conditions['both']
+
             pages = MushafPage
                       .joins("INNER JOIN mushaf_pages AS mp2 ON mushaf_pages.page_number = mp2.page_number AND mushaf_pages.mushaf_id = #{first_mushaf_id} AND mp2.mushaf_id = #{second_mushaf_id}")
-                      .where("mushaf_pages.first_word_id <> mp2.first_word_id OR mushaf_pages.last_word_id <> mp2.last_word_id")
+                      .where(condition)
+
             result = pages.select(
               "mushaf_pages.page_number",
               "mushaf_pages.mushaf_id AS first_mushaf_id",

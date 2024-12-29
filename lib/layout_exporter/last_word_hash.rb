@@ -20,6 +20,7 @@ module LayoutExporter
       pages.each do |page|
         s, a, w = page.last_word.location.split(':').map(&:to_i)
 
+        # Index start from zero, so have to offset by 1
         offset = if page.last_word.word?
                    1
                  else

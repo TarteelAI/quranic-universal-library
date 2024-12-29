@@ -1,8 +1,14 @@
+=begin
+Usage
+s=LayoutExporter::AyahMetadata.new mushaf_id: 1
+s.export
+=end
+
 module LayoutExporter
   class AyahMetadata < Base
     def export
       folder = get_mushaf_file_name
-      export_path = "tmp/ayah-metadata"
+      export_path = "tmp/layout-data/ayah-metadata"
       FileUtils.mkdir_p export_path
 
       fractions = []
@@ -55,9 +61,10 @@ module LayoutExporter
     end
 
     def ayah_text(verse)
-      verse.tarteel_simple
-      #@ayah_data = Oj.load(File.read('data/quran-simple-clean.json'))
-      #@ayah_data[verse.chapter_id.to_s][verse.verse_number.to_s]
+      QuranScript::ByVerse.where(
+        verse_id: verse.id,
+        resource_content_id: 1199
+      ).first.text
     end
   end
 end

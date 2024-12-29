@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_27_164608) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_28_080711) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -157,6 +157,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_27_164608) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug"
+    t.string "color_class"
+    t.integer "resources_count"
     t.index ["name"], name: "index_downloadable_resource_tags_on_name"
   end
 
@@ -341,12 +344,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_27_164608) do
 
   create_table "mushaf_line_alignments", force: :cascade do |t|
     t.integer "mushaf_id"
-    t.string "page_number"
-    t.string "line_number"
     t.string "alignment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "properties", default: {}
+    t.integer "page_number"
+    t.integer "line_number"
     t.index ["line_number"], name: "index_mushaf_line_alignments_on_line_number"
     t.index ["mushaf_id"], name: "index_mushaf_line_alignments_on_mushaf_id"
     t.index ["page_number"], name: "index_mushaf_line_alignments_on_page_number"

@@ -1,8 +1,14 @@
+=begin
+Usage
+s=LayoutExporter::PageLookup.new mushaf_id: 1
+s.export
+=end
+
 module LayoutExporter
   class PageLookup < Base
-    def export(rub: false, manzil: false)
+    def export
       folder = get_mushaf_file_name
-      export_path = "tmppage_lookup"
+      export_path = "tmp/layout-data/page-lookup"
       FileUtils.mkdir_p export_path
       page_lookup = {}
 

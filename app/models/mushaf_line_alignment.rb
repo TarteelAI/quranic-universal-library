@@ -4,8 +4,8 @@
 #
 #  id          :bigint           not null, primary key
 #  alignment   :string
-#  line_number :string
-#  page_number :string
+#  line_number :integer
+#  page_number :integer
 #  properties  :jsonb
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null

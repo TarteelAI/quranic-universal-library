@@ -1,8 +1,14 @@
+=begin
+Usage
+s=LayoutExporter::PageIndicesLookup.new mushaf_id: 2
+s.export
+=end
+
 module LayoutExporter
   class PageIndicesLookup < Base
     def export(rub: false, manzil: false)
       folder = get_mushaf_file_name
-      export_path = "tmp/page-indices-lookup"
+      export_path = "tmp/layout-data/page-indices-lookup"
       FileUtils.mkdir_p export_path
       pages = []
 

@@ -3,6 +3,7 @@ module Tools
     def self.checks
       [
         :compare_two_mushaf_words,
+        :compare_mushaf_page_last_and_first_word,
         :compare_mushaf_scripts,
         :mushaf_page_with_start_ayah,
         :mushaf_page_with_bismillah,
@@ -32,6 +33,82 @@ module Tools
     def self.valid_check?(name)
       respond_to? name
     end
+
+    def self.compare_mushaf_page_last_and_first_word
+      {
+        name: "Compare Mushaf Page Last and First Word",
+        description: "Compare last and first word of two mushaf pages",
+        table_attrs: ['id', 'first_mushaf_first_word', 'second_mushaf_first_word', 'first_mushaf_last_word', 'second_mushaf_last_word'],
+        fields: [
+          {
+            type: :select,
+            collection: Mushaf.all.map do |a|
+              [a.name, a.id.to_s]
+            end,
+            name: :first_mushaf_id
+          },
+          {
+            type: :select,
+            collection: Mushaf.all.map do |a|
+              [a.name, a.id.to_s]
+            end,
+            name: :second_mushaf_id
+          }
+        ],
+        links_proc: {
+          first_mushaf_first_word: -> (record, _) do
+            w = Word.find(record.first_mushaf_first_word_id)
+            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.first_mushaf_id}&compare=#{record.second_mushaf_id}&word=#{w.id}"]
+          end,
+          first_mushaf_last_word: -> (record, _) do
+            w = Word.find(record.first_mushaf_last_word_id)
+            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.first_mushaf_id}&compare=#{record.second_mushaf_id}&word=#{w.id}"]
+          end,
+          second_mushaf_first_word: -> (record, _) do
+            w = Word.find(record.second_mushaf_first_word_id)
+            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.second_mushaf_id}&compare=#{record.first_mushaf_id}&word=#{w.id}"]
+          end,
+          second_mushaf_last_word: -> (record, _) do
+            w = Word.find(record.second_mushaf_last_word_id)
+            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.second_mushaf_id}&compare=#{record.first_mushaf_id}&word=#{w.id}"]
+          end,
+        },
+        check: ->(params) do
+          first_mushaf_id = params[:first_mushaf_id]
+          second_mushaf_id = params[:second_mushaf_id]
+
+          if first_mushaf_id && second_mushaf_id
+            pages = MushafPage
+                      .joins("INNER JOIN mushaf_pages AS mp2 ON mushaf_pages.page_number = mp2.page_number AND mushaf_pages.mushaf_id = #{first_mushaf_id} AND mp2.mushaf_id = #{second_mushaf_id}")
+                      .where("mushaf_pages.first_word_id <> mp2.first_word_id OR mushaf_pages.last_word_id <> mp2.last_word_id")
+            result = pages.select(
+              "mushaf_pages.page_number",
+              "mushaf_pages.mushaf_id AS first_mushaf_id",
+              "mp2.mushaf_id AS second_mushaf_id",
+
+              "mushaf_pages.first_word_id AS first_mushaf_first_word_id",
+              "mushaf_pages.last_word_id AS first_mushaf_last_word_id",
+
+              "mp2.first_word_id AS second_mushaf_first_word_id",
+              "mp2.last_word_id AS second_mushaf_last_word_id"
+            )
+
+            pages_with_difference = result.map(&:page_number).uniq.sort
+
+            {
+              collection: paginate(result, params),
+              total_pages_with_difference: pages_with_difference.size,
+              different_pages: pages_with_difference.map do |p|
+                "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+              end.join(', ')
+            }
+          else
+            paginate MushafPage.none, params
+          end
+        end
+      }
+    end
+
     def self.words_without_root
       {
         name: "Words without root",
@@ -489,7 +566,12 @@ module Tools
             result = MushafWord.none
           end
 
-          pages_with_difference = result.map(&:first_mushaf_page).uniq.sort
+          pages_with_difference = []
+          result.each do |r|
+            pages_with_difference << r.first_mushaf_page
+            pages_with_difference << r.second_mushaf_page
+          end
+          pages_with_difference = pages_with_difference.uniq.sort
 
           {
             collection: paginate(result, params),

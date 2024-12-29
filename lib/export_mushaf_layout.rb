@@ -311,5 +311,9 @@ class ExportMushafLayout
     if layout_stats[:basmallah_lines] != 112
       layout_stats[:issues].push("Basmallah lines count is not 112")
     end
+
+    if layout_stats[:issues].blank?
+      layout_stats[:issues].push "Alhamdulillah no issues found."
+    end
   end
 end

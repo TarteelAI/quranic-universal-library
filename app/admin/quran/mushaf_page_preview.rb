@@ -102,7 +102,8 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
       words = MushafWord
                 .where(
                   mushaf_id: mushaf_id,
-                  page_number: page)
+                  page_number: page
+                )
                 .order('position_in_page ASC, position_in_line ASC')
 
       columns do

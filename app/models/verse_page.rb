@@ -17,4 +17,5 @@
 class VersePage < QuranApiRecord
   belongs_to :verse
   belongs_to :mushaf
+  belongs_to :page, class_name: 'MushafPage'
 end

@@ -12,6 +12,7 @@ module Tools
         :mushaf_words_without_word,
         :mushaf_words_with_missing_arabic_text,
         :words_with_missing_arabic_text,
+        :ayah_with_different_mushaf_page,
         :mushaf_words_with_incorrect_position,
         :words_with_missing_translations,
         :ayah_with_missing_translations,
@@ -32,6 +33,69 @@ module Tools
 
     def self.valid_check?(name)
       respond_to? name
+    end
+
+    def self.ayah_with_different_mushaf_page
+      {
+        name: "Ayah on different Mushaf Page",
+        description: "Get list of ayahs that are not on same page in two mushafs",
+        table_attrs: ['ayah', 'first_mushaf_page', 'second_mushaf_page'],
+        fields: [
+          {
+            type: :select,
+            collection: Mushaf.all.map do |a|
+              [a.name, a.id.to_s]
+            end,
+            name: :first_mushaf_id
+          },
+          {
+            type: :select,
+            collection: Mushaf.all.map do |a|
+              [a.name, a.id.to_s]
+            end,
+            name: :second_mushaf_id
+          }
+        ],
+        links_proc: {
+          ayah: -> (record, _) do
+            [record.verse_key, "/admin/verses/#{record.verse_key}"]
+          end,
+          first_mushaf_page: -> (record, params) do
+            [record.first_mushaf_page, "/admin/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{params[:first_mushaf_id]}&compare=#{params[:second_mushaf_id]}"]
+          end,
+          second_mushaf_page: -> (record, params) do
+            [record.second_mushaf_page, "/admin/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{params[:second_mushaf_id]}&compare=#{params[:first_mushaf_id]}"]
+          end
+        },
+        check: ->(params) do
+          first_mushaf_id = params[:first_mushaf_id]
+          second_mushaf_id = params[:second_mushaf_id]
+
+          if first_mushaf_id && second_mushaf_id
+            result = Verse
+                       .select("verse_key, CAST(mushaf_pages_mapping->>'1' AS INTEGER) AS first_mushaf_page, CAST(mushaf_pages_mapping->>'2' AS INTEGER) AS second_mushaf_page")
+                       .where("CAST(mushaf_pages_mapping->>'1' AS INTEGER) <> CAST(mushaf_pages_mapping->>'2' AS INTEGER)")
+
+            pages_with_difference = []
+            result.map do |ayah|
+              pages_with_difference << ayah.first_mushaf_page
+              pages_with_difference << ayah.second_mushaf_page
+            end
+
+            pages_with_difference = pages_with_difference.uniq.sort
+
+            {
+              collection: paginate(result, params),
+              total_pages_with_difference: pages_with_difference.size,
+              different_pages: pages_with_difference.map do |p|
+                "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+              end.join(', ')
+            }
+          else
+            paginate Verse.none, params
+          end
+        end
+      }
     end
 
     def self.compare_mushaf_page_last_and_first_word
@@ -86,8 +150,8 @@ module Tools
           if first_mushaf_id && second_mushaf_id
             conditions = {
               'first' => "mushaf_pages.first_word_id <> mp2.first_word_id",
-              'last'  => "mushaf_pages.last_word_id <> mp2.last_word_id",
-              'both'  => "mushaf_pages.first_word_id <> mp2.first_word_id OR mushaf_pages.last_word_id <> mp2.last_word_id"
+              'last' => "mushaf_pages.last_word_id <> mp2.last_word_id",
+              'both' => "mushaf_pages.first_word_id <> mp2.first_word_id OR mushaf_pages.last_word_id <> mp2.last_word_id"
             }
             condition = conditions[compare_filed] || conditions['both']
 

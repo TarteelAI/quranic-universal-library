@@ -77,7 +77,7 @@ gem "sentry-ruby", '~> 5.19.0'
 gem 'sentry-rails', '~> 5.19'
 gem 'sentry-sidekiq', '~> 5.19'
 
-group :development do
+group :development, :test do
   # Gems we used for optimizing fonts. Might need them in future.
   # gem 'convert_font'
   # gem 'svg_optimizer'
@@ -103,6 +103,20 @@ group :development do
   # gem "rack-mini-profiler", ">= 2.3.3"
   # preview email on development
   gem "letter_opener"
+  gem 'letter_opener_web', '~> 2.0'
+
+  gem 'rspec-core'
+  gem 'rspec-expectations'
+  gem 'rspec-mocks'
+  gem 'rspec-rails', '~> 6.1.3'
+  gem 'rspec-support'
+
+  gem 'cypress-on-rails', '~> 1.0'
+  gem 'factory_trace'
+  gem 'factory_bot_rails'
+  gem 'simplecov', require: false
+  gem 'rspec_profiling', '~> 0.0.5'
+  gem 'faker'
 end
 
 gem 'carrierwave', '~> 2.2.6'

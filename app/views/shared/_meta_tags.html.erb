@@ -30,12 +30,14 @@
 <%= stylesheet_link_tag "bootstrap", "data-turbo-track": "reload" %>
 
 <script>
-  Sentry.onLoad(function() {
-    Sentry.init({
-      sampleRate: 0.5,
-      environment: "<%= Rails.env %>"
-    });
-  });
+    if (!window.Cypress) {
+        Sentry.onLoad(function () {
+            Sentry.init({
+                sampleRate: 0.5,
+                environment: "<%= Rails.env %>"
+            });
+        });
+    }
 </script>
 
 <!-- Google tag (gtag.js) -->

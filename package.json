@@ -12,6 +12,12 @@
     "@vueform/slider": "^2.0.8",
     "bootstrap": "5.1.3",
     "chokidar": "^3.6.0",
+    "@4tw/cypress-drag-drop": "^2.2.5",
+    "@cypress/code-coverage": "^3.12.11",
+    "cypress": "^13.6.3",
+    "cypress-commands": "^3.0.0",
+    "cypress-plugin-stripe-elements": "^1.0.2",
+    "cypress-wait-until": "^2.0.1",
     "copy-to-clipboard": "^3.3.3",
     "esbuild": "0.21.2",
     "esbuild-plugin-vue3": "^0.4.0",
@@ -63,7 +69,11 @@
     "build:css:tinymce_custom": "sass ./app/assets/stylesheets/tinymce_custom.scss ./app/assets/builds/tinymce_custom.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:bootstrap": "sass ./app/assets/stylesheets/bootstrap.scss ./app/assets/builds/bootstrap.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:landing": "sass ./app/assets/stylesheets/landing.scss ./app/assets/builds/landing.css --no-source-map --load-path=node_modules --style=compressed",
-    "build:css:export": "sass ./app/assets/stylesheets/export.scss ./app/assets/builds/export.css --no-source-map --load-path=node_modules --style=compressed"
+    "build:css:export": "sass ./app/assets/stylesheets/export.scss ./app/assets/builds/export.css --no-source-map --load-path=node_modules --style=compressed",
+    "cy:run": "cypress run --e2e --project ./spec --record --key 7fddb908-78bf-49c2-aa33-9c92d53c707d",
+    "cy:open": "cypress open --project ./spec",
+    "cy:clear": "cypress cache clear",
+    "cy:install": "cypress install"
   },
   "lint-staged": {
     "app/**/*.{js,jsx,json}": [

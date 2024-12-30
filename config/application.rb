@@ -22,6 +22,8 @@ module Qul
 
     config.assets.css_compressor = :escompress
 
+    config.factory_bot.definition_file_paths = ["spec/factories"] if defined?(FactoryBotRails)
+
     ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
       html_tag.html_safe
     end

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Audio Comparison Tool</title>
+    <script type="module">
+      import WaveSurfer from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/wavesurfer.esm.min.js';
+      import Timeline from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/timeline.esm.min.js';
+      import Regions from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/regions.esm.min.js';
+      import Hover from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/hover.esm.min.js';
+      import Zoom from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/zoom.esm.min.js';
+     // import Spectrogram from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/spectrogram.esm.js'
+
+      // Wait for the DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        // Initialize WaveSurfer instances for both audio files
+        const wavesurfer1 = WaveSurfer.create({
+          container: '#waveform1',
+          waveColor: 'blue',
+          progressColor: 'purple',
+          scrollParent: true,
+          dragToSeek: true,
+          plugins: [
+            Timeline.create(),
+            Regions.create(),
+            Hover.create(),
+            Zoom.create()
+          ]
+        });
+
+        const wavesurfer2 = WaveSurfer.create({
+          container: '#waveform2',
+          waveColor: 'green',
+          progressColor: 'orange',
+          scrollParent: true,
+          dragToSeek: true,
+          plugins: [
+            Timeline.create(),
+            Regions.create(),
+            Hover.create(),
+            Zoom.create()
+          ]
+        });
+/*
+        wavesurfer1.registerPlugin(
+          Spectrogram.create({
+            labels: true,
+            height: 100,
+            splitChannels: true,
+            scale: 'linear', // or 'linear'
+            frequencyMax: 8000,
+            frequencyMin: 0,
+            fftSamples: 1024,
+            labelsBackground: 'rgba(0, 0, 0, 0.1)',
+          }),
+        )
+        wavesurfer2.registerPlugin(
+          Spectrogram.create({
+            labels: true,
+            height: 100,
+            splitChannels: true,
+            scale: 'mel', // or 'linear'
+            frequencyMax: 8000,
+            frequencyMin: 0,
+            fftSamples: 1024,
+            labelsBackground: 'rgba(0, 0, 0, 0.1)',
+          }),
+        )*/
+
+        // Zoom Control
+        document.getElementById('zoom').addEventListener('input', (e) => {
+          const zoomLevel = Number(e.target.value);
+          wavesurfer1.zoom(zoomLevel);
+          wavesurfer2.zoom(zoomLevel);
+        });
+
+        // Audio properties extraction
+        async function extractAudioProperties(file, statsId) {
+          const audioContext = new AudioContext();
+          const arrayBuffer = await file.arrayBuffer();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+          const duration = audioBuffer.duration.toFixed(2) + ' seconds';
+          const sampleRate = audioBuffer.sampleRate + ' Hz';
+          const channels = audioBuffer.numberOfChannels;
+
+          let encoding = 'Unknown'; // Encoding detection placeholder
+
+          // Display stats
+          document.getElementById(statsId).innerHTML = `
+                    Duration: ${duration}<br>
+                    Sample Rate: ${sampleRate}<br>
+                    Channels: ${channels}<br>
+                    Encoding: ${encoding}
+                `;
+        }
+
+        // Handle file selection clicks
+        document.getElementById('drop1').addEventListener('click', () => {
+          document.getElementById('audio1').click();
+        });
+
+        document.getElementById('drop2').addEventListener('click', () => {
+          document.getElementById('audio2').click();
+        });
+
+        // Load audio file
+        function loadAudio(waveInstance, file, statsId) {
+          const url = URL.createObjectURL(file);
+          waveInstance.loadAudio(url);
+          //waveInstance.media.src = url;
+
+          // Wait for the audio to be ready before extracting properties
+          waveInstance.on('ready', () => {
+            extractAudioProperties(file, statsId);
+          });
+        }
+
+        // Handle file changes
+        document.getElementById('audio1').addEventListener('change', (e) => {
+          loadAudio(wavesurfer1, e.target.files[0], 'stats1');
+        });
+
+        document.getElementById('audio2').addEventListener('change', (e) => {
+          loadAudio(wavesurfer2, e.target.files[0], 'stats2');
+        });
+
+        const playPause = (wavesurfer, audioNumber) => {
+          if (wavesurfer.media.readyState >= 2) {
+            wavesurfer.playPause();
+          } else {
+            console.log(`Audio ${audioNumber} is not ready yet.`);
+          }
+        }
+        // Play buttons for each audio file
+        document.getElementById('play1').addEventListener('click', () => {
+          playPause(wavesurfer1, 1);
+        });
+
+        document.getElementById('play2').addEventListener('click', () => {
+          playPause(wavesurfer2, 2);
+        });
+
+        // Play both audios simultaneously
+        document.getElementById('playBoth').addEventListener('click', () => {
+          playPause(wavesurfer1, 1);
+            playPause(wavesurfer2, 2);
+        });
+      });
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen">
+<div class="container mx-auto py-10">
+    <h1 class="text-3xl font-bold text-center mb-8">Audio Comparison Tool</h1>
+    <p class="text-center mb-8 text-gray-700">Upload or link two audio files to compare their waveforms, and stats.</p>
+
+    <!-- Two Column Design -->
+    <div class="grid grid-cols-2 gap-8">
+        <!-- Audio File 1 -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Audio File 1</h2>
+            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer"
+                 id="drop1">
+                <p class="text-gray-700 mb-2">Drop file here or click to upload</p>
+                <input type="file" id="audio1" accept="audio/*" class="hidden">
+            </div>
+            <p class="my-4 text-center text-gray-500">Or provide a URL:</p>
+            <input type="url" id="url1" placeholder="Enter audio URL"
+                   class="w-full border border-gray-300 rounded-lg p-2">
+            <div id="info1" class="mt-4 text-sm text-gray-700"></div>
+        </div>
+
+        <!-- Audio File 2 -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Audio File 2</h2>
+            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer"
+                 id="drop2">
+                <p class="text-gray-700 mb-2">Drop file here or click to upload</p>
+                <input type="file" id="audio2" accept="audio/*" class="hidden">
+            </div>
+            <p class="my-4 text-center text-gray-500">Or provide a URL:</p>
+            <input type="url" id="url2" placeholder="Enter audio URL"
+                   class="w-full border border-gray-300 rounded-lg p-2">
+            <div id="info2" class="mt-4 text-sm text-gray-700"></div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="mt-8 grid grid-cols-2 gap-8">
+        <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
+            <h3 class="text-lg font-semibold mb-2">Audio File 1 Stats</h3>
+            <div id="stats1" class="text-sm text-gray-700">No data loaded</div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
+            <h3 class="text-lg font-semibold mb-2">Audio File 2 Stats</h3>
+            <div id="stats2" class="text-sm text-gray-700">No data loaded</div>
+        </div>
+    </div>
+
+    <!-- Waveform Section -->
+    <div class="mt-10">
+        <h3 class="text-xl font-semibold text-center mb-6">Waveforms</h3>
+        <div class="grid grid-cols-1 gap-6">
+            <div id="waveform1" class="w-full h-32 bg-gray-200 rounded-lg"></div>
+            <div id="waveform2" class="w-full h-32 bg-gray-200 rounded-lg"></div>
+        </div>
+
+        <!-- Zoom Control -->
+        <div class="mt-6 text-center">
+            <label for="zoom" class="mr-4">Zoom:</label>
+            <input id="zoom" type="range" min="10" max="500" value="100" class="w-1/2" step="5">
+        </div>
+
+        <!-- Play Controls -->
+        <div class="mt-6 text-center">
+            <button id="play1" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Play First</button>
+            <button id="play2" class="px-4 py-2 bg-green-500 text-white rounded-lg">Play Second</button>
+            <button id="playBoth" class="px-4 py-2 bg-purple-500 text-white rounded-lg">Play Both</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

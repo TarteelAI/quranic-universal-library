@@ -1,3 +1,7 @@
 <% if resource.mushaf_layout? %>
   <%= render 'resources/previews/mushaf_layout', resource: resource %>
 <% end %>
+
+<% if resource.quran_script? %>
+  <%= render 'resources/previews/quran_script', resource: resource %>
+<% end %>

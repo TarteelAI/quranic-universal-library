@@ -213,6 +213,10 @@ class ResourceContent < QuranApiRecord
     meta_value('has-footnote') == 'yes'
   end
 
+  def glyphs_based?
+    ['code_v1', 'code_v2', 'code_v4'].include?(meta_value('text-type'))
+  end
+
   def has_segments?
     meta_value('has-segments') == 'yes'
   end

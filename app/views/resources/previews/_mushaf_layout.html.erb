@@ -13,19 +13,17 @@
   }
 </script>
 
-<% if resource_content.mushaf_layout? %>
-  <div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
-    <div class="tw-mb-4">
-      <%= label_tag :page, 'Jump to page', class: 'tw-me-2' %>
-      <%= select_tag :page, options_for_select((1..mushaf.pages_count).to_a, page), onchange: "jumpToPage(this.value)", style: 'min-width:200px', data: { controller: 'select2' } %>
-    </div>
-
-    <%= render 'shared/mushaf_page',
-               words: words,
-               page: page,
-               mushaf: mushaf,
-               name: resource_content.name,
-               hide_controls: true
-    %>
+<div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
+  <div class="tw-mb-4">
+    <%= label_tag :page, 'Jump to page', class: 'tw-me-2' %>
+    <%= select_tag :page, options_for_select((1..mushaf.pages_count).to_a, page), onchange: "jumpToPage(this.value)", style: 'min-width:200px', data: { controller: 'select2' } %>
   </div>
-<% end %>
+
+  <%= render 'shared/mushaf_page',
+             words: words,
+             page: page,
+             mushaf: mushaf,
+             name: resource_content.name,
+             hide_controls: true
+  %>
+</div>

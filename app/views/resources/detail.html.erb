@@ -19,12 +19,8 @@
   </div>
 <% else %>
   <%
-    is_quran_script = @resource.resource_content&.quran_script? || @resource.resource_content&.font?
-    @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
     tags = @resource.get_tags
   %>
-
-  <%= render 'shared/page_font', verses: [@preview_verse] if is_quran_script %>
 
   <div id="resources" data-controller="resource-search">
     <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
@@ -63,37 +59,35 @@
 
     <div class="tw-container tw-mx-auto tw-p-6 tw-space-y-8">
       <header class="tw-text-center">
-        <h1 class="tw-text-3xl tw-font-bold tw-text-gray-800">
+        <h1 class="tw-text-3xl tw-font-bold tw-text-gray-800 tw-mb-4">
           <%= @resource.name %>
         </h1>
 
         <span class="tw-bg-gray-100 tw-text-gray-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer ">
-        <%= @resource.humanize_cardinality_type %>
-      </span>
+          <%= @resource.humanize_cardinality_type %>
+        </span>
       </header>
 
       <%= render 'layouts/grid' do %>
         <div class="tw-grid-cols-subgrid tw-grid">
-          <div class="tw-flex tw-flex-col md:tw-flex-row">
-            <% if tags.present? %>
-              <section>
-                <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Tags</h2>
-                <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
-                  <%= render partial: 'card/card-tag', as: :tag, collection: tags %>
-                </div>
-              </section>
-            <% end %>
+          <% if @resource.description.present? %>
+            <section class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-shadow-sm tw-w-full tw-mb-5">
+              <p class="tw-text-gray-700">
+                <%= @resource.description.to_s.html_safe %>
+              </p>
+            </section>
+          <% end %>
 
-            <% if @resource.description.present? %>
-              <section class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-shadow-sm tw-w-full tw-mb-5">
-                <p class="tw-text-gray-700">
-                  <%= @resource.description.to_s.html_safe %>
-                </p>
-              </section>
-            <% end %>
-          </div>
+          <% if tags.present? %>
+            <section class="tw-mb-4">
+              <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Tags</h2>
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
+                <%= render partial: 'card/card-tag', as: :tag, collection: tags %>
+              </div>
+            </section>
+          <% end %>
 
-          <section>
+          <section class="tw-mb-4">
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>
             <div class="tw-mt-3 tw-flex gap-3 tw-flex-wrap">
               <% @resource.downloadable_files.each do |file| %>
@@ -110,25 +104,32 @@
             </div>
           </section>
 
-          <div class="tw-mt-8 tw-mb-10">
-            <%= render 'preview', resource: @resource %>
-          </div>
-        </div>
-      <% end %>
+          <% if @resource.previewable? %>
+            <section class="tw-mb-4">
+              <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
+                Resource Preview
+              </h2>
 
-      <% if @resource.related_resources.present? %>
-        <section>
-          <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
-            Related Resources
-          </h2>
-          <ul class="tw-list-disc tw-ml-6 tw-space-y-2 tw-mt-3">
-            <% @resource.related_resources.each do |related| %>
-              <li>
-                <%= link_to related.name, detail_resources_path(related.resource_type, related.id), class: "tw-text-blue-600 hover:tw-text-blue-800 tw-underline" %>
-              </li>
-            <% end %>
-          </ul>
-        </section>
+              <%= render 'preview', resource: @resource %>
+            </section>
+          <% end %>
+
+          <% if @resource.related_resources.present? %>
+            <section class="tw-mt-4">
+              <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
+                Related Resources
+              </h2>
+
+              <ul class="tw-list-disc tw-ml-6 tw-space-y-2 tw-mt-3">
+                <% @resource.related_resources.each do |related| %>
+                  <li>
+                    <%= link_to related.name, detail_resources_path(related.resource_type, related.id), class: "tw-text-blue-600 hover:tw-text-blue-800 tw-underline" %>
+                  </li>
+                <% end %>
+              </ul>
+            </section>
+          <% end %>
+        </div>
       <% end %>
     </div>
   </div>

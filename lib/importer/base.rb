@@ -38,7 +38,7 @@ module Importer
       mechanize_agent.get(url)
     end
 
-    def get_json(url, params={})
+    def get_json(url, params = {})
       response = with_rescue_retry([RestClient::Exceptions::ReadTimeout, RestClient::NotFound], retries: 3, raise_exception_on_limit: true) do
         rest_agent.get(url, params: params)
       end
@@ -50,6 +50,7 @@ module Importer
     end
 
     protected
+
     def log_message(message)
       puts message
     end
@@ -57,7 +58,7 @@ module Importer
     def mechanize_agent
       strong_memoize :mechanize_agent do
         require 'mechanize'
-        a=Mechanize.new
+        a = Mechanize.new
         a.verify_mode = OpenSSL::SSL::VERIFY_NONE
         a
       end
@@ -79,7 +80,7 @@ module Importer
                text.scrub
              end
 
-      text.to_s.strip
+      text.sub(/^[\s\u00A0]+|[\s\u00A0]+$/, '').strip
     end
 
     def split_paragraphs(text)

@@ -3,13 +3,16 @@ require 'sqlite3'
 
 module Exporter
   class BaseExporter
-    attr_accessor :base_path, :export_file_path
+    attr_accessor :base_path,
+                  :export_file_path,
+                  :resource_content
 
-    def initialize(base_path:, name:)
+    def initialize(base_path:, name: nil, resource_content: nil)
       @base_path = base_path
 
       FileUtils.mkdir_p(@base_path)
-      @export_file_name = fix_file_name(name)
+      @resource_content = resource_content
+      @export_file_name = fix_file_name(name || resource_content.sqlite_file_name)
       @export_file_path = File.join(@base_path, "#{@export_file_name}")
       @db_statements = []
       @dbs = []

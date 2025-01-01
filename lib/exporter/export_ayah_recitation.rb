@@ -3,7 +3,12 @@ module Exporter
     attr_accessor :recitation
 
     def initialize(recitation:, base_path:, resource_content:)
-      super(base_path: base_path, name: "ayah_recitation_#{resource_content.sqlite_file_name}")
+      super(
+        base_path: base_path,
+        name: "ayah_recitation_#{resource_content.sqlite_file_name}",
+        resource_content: resource_content
+      )
+
       @recitation = recitation
     end
 

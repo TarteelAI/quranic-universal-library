@@ -79,5 +79,4 @@ ActiveAdmin.register DownloadableResourceTag do
 
     f.actions
   end
-
 end

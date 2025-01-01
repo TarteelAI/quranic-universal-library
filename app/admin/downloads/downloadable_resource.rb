@@ -163,8 +163,10 @@ ActiveAdmin.register DownloadableResource do
         f.has_many :downloadable_resource_taggings, allow_destroy: true do |tag_form|
           tag_form.input :id, as: :hidden
           tag_form.input :downloadable_resource_tag_id,
-                         as: :select,
-                         collection: DownloadableResourceTag.pluck(:name, :id)
+                  as: :select,
+                  collection: DownloadableResourceTag.pluck(:name, :id),
+                  input_html: { data: { controller: 'select2' } }
+
         end
       end
     end

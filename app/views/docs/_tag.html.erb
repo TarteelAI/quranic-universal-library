@@ -3,7 +3,39 @@
 </div>
 
 <div id="body">
-  <div class="modal-body">
+  <div class="modal-body docs">
+    <style>
+        .docs a{
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        .docs pre {
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .docs code {
+            font-family: "Courier New", monospace;
+            background-color: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .docs .example {
+            background-color: #eafaf1;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #b3e0b3;
+        }
+        .docs .note {
+            background-color: #fef6e4;
+            border-left: 4px solid #f39c12;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+
     <div class="prose max-w-none">
       <%= tag.description.to_s.html_safe %>
 

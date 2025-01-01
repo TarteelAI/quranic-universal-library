@@ -39,6 +39,28 @@ ActiveAdmin.register DownloadableResourceTag do
       row :updated_at
     end
 
+    panel 'Resources' do
+      table do
+        thead do
+          th 'Id'
+          th 'Name'
+          th 'Type'
+          th 'Actions'
+        end
+
+        tbody do
+          resource.downloadable_resources.each do |r|
+            tr do
+              td link_to(r.id, [:admin, r])
+              td r.name
+              td r.resource_type
+              td link_to 'View', [:admin, r], target: '_blank'
+            end
+          end
+        end
+      end
+    end
+
     active_admin_comments
   end
 

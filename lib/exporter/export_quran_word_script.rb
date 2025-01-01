@@ -1,8 +1,10 @@
 module Exporter
   class ExportQuranWordScript < BaseExporter
     def initialize(resource_content:, base_path:)
-      super(base_path: base_path, name: resource_content.sqlite_file_name)
+      super(base_path: base_path, resource_content: resource_content)
       @resource_content = resource_content
+
+      @page_type = resource_content.meta_value('text_type') == 'code_v1' ? 'page_number' : 'v2_page'
     end
 
     def export_sqlite
@@ -52,15 +54,36 @@ module Exporter
     end
 
     def export_word(word, statement, text_attribute)
-      statement.execute([word.word_index, word.location, word.send(text_attribute)])
+      s, a, w = word.location.split(':')
+      data = [
+        w,
+        word.location,
+        s,
+        a,
+        word.send(text_attribute)
+      ]
+
+      if resource_content.glyphs_based?
+        data << word.send(@page_type)
+      end
+
+      statement.execute(data)
     end
 
     def words_table_columns
-      {
+      columns = {
         word_index: 'INTEGER',
         word_key: 'TEXT',
+        surah: 'INTEGER',
+        ayah: 'INTEGER',
         text: 'TEXT'
       }
+
+      if resource_content.glyphs_based?
+        columns[:page_number] = 'INTEGER'
+      end
+
+      columns
     end
   end
 end

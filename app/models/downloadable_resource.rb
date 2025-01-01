@@ -60,6 +60,17 @@ class DownloadableResource < ApplicationRecord
     super(val)
   end
 
+  def tags=(val)
+    names = val.split(',').map(&:strip).reject(&:empty?)
+    names.each do |tag_name|
+      tag = DownloadableResourceTag.where('LOWER(name) = ?', tag_name.downcase).first_or_create(name: tag_name)
+      downloadable_resource_taggings
+        .where(
+          downloadable_resource_tag_id: tag.id
+        ).first_or_create
+    end
+  end
+
   def description
     info
   end
@@ -89,7 +100,7 @@ class DownloadableResource < ApplicationRecord
     update_columns(attrs)
   end
 
-  def refresh_export!(send_update_email=true)
+  def refresh_export!(send_update_email = true)
     s = Exporter::DownloadableResources.new
 
     case resource_type
@@ -317,10 +328,18 @@ class DownloadableResource < ApplicationRecord
     resource_type == 'mushaf-layout'
   end
 
+  def quran_script?
+    resource_type == 'quran-script'
+  end
+
+  def previewable?
+    mushaf_layout? || quran_script?
+  end
+
   def notify_users
     downloads = UserDownload
-                 .where(downloadable_file_id: downloadable_files.pluck(:id))
-                 .includes(:user)
+                  .where(downloadable_file_id: downloadable_files.pluck(:id))
+                  .includes(:user)
 
     notified = {}
     downloads.each do |user_download|

@@ -207,8 +207,12 @@ module Importer
     end
 
     def create_translation(verse, text, resource)
-      draft_text = strip_ayah_number_from_start(text.strip, verse, resource)
-      current_text = Translation.where(verse_id: verse.id, resource_content_id: resource.id).first&.text.to_s
+      draft_text = strip_ayah_number_from_start(text, resource)
+
+      current_text = Translation.where(
+        verse_id: verse.id,
+        resource_content_id: resource.id
+      ).first&.text.to_s
 
       draft = Draft::Translation.where(
         verse: verse,
@@ -221,9 +225,10 @@ module Importer
       draft
     end
 
-    def create_foot_note(translation, resource, text, current_footnote)
+    def create_foot_note(translation, resource, text, current_footnote, translation_resource)
       current_text = current_footnote&.text
-      text = fix_encoding(text).sub(REGEXP_STRIP_TEXT[:general], '').strip
+      text = strip_ayah_number_from_start(text, translation_resource)
+      text = fix_encoding(text).strip
       draft_text = simple_format(text)
 
       Draft::FootNote.create(
@@ -274,7 +279,14 @@ module Importer
 
         footnote_ids.each_with_index do |node, i|
           current_footnote = translation.original_footnote_text(current_footnote_ids[i])
-          footnote = create_foot_note(translation, footnote_resource, footnotes_texts[i].to_s, current_footnote)
+
+          footnote = create_foot_note(
+            translation,
+            footnote_resource,
+            footnotes_texts[i].to_s,
+            current_footnote,
+            resource
+          )
 
           translation_text.sub!(node.to_s, "<sup foot_note=#{footnote.id}>#{i + 1}</sup>")
         end
@@ -292,7 +304,13 @@ module Importer
           footnotes_texts = footnotes_texts.join(' ')
           current_footnote = translation.original_footnote_text(current_footnote_ids[0])
 
-          footnote = create_foot_note(translation, footnote_resource, footnotes_texts, current_footnote)
+          footnote = create_foot_note(
+            translation,
+            footnote_resource,
+            footnotes_texts,
+            current_footnote,
+            resource
+          )
           translation_text = "#{translation_text} <sup foot_note=#{footnote.id}>1</sup>"
         end
 
@@ -307,7 +325,7 @@ module Importer
     end
 
     def swahili_barawani(verse, resource, footnote_resource, quran_enc_key, data)
-      # this translation has footnote, but there is no footnote markers in translaiton.
+      # this translation has footnote, but there is no footnote markers in translation.
       # add footnote at end of ayah
       create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data, report_foonote_issues: false)
     end
@@ -337,18 +355,18 @@ module Importer
     end
 
     def remove_footnote_tag(text)
-      text.to_s.gsub(REGEXP_REMOVE_FOOTNOTE, '')
+      text.to_s.gsub(REGEXP_REMOVE_FOOTNOTE, '').strip
     end
 
-    # Most translation of Quranenc has ayah number at the beginning of text
-    def strip_ayah_number_from_start(text, verse, resource)
-      reg = if REGEXP_STRIP_TEXT[resource.quran_enc_key.to_sym]
-              Regexp.new format(REGEXP_STRIP_TEXT[resource.quran_enc_key.to_sym], ayah_num: verse.verse_number)
-            else
-              REGEXP_STRIP_TEXT[:general]
-            end
+    def strip_ayah_number_from_start(text, resource)
+      # Trim non breaking space and other spaces from start and end
+      text = text.sub(/^[\s\u00A0]+|[\s\u00A0]+$/, '').strip
+      if reg = REGEXP_STRIP_TEXT[resource.quran_enc_key.to_sym]
+        text = text.sub(reg, '').strip
+      end
 
-      fix_encoding(text.sub(reg, '').strip)
+      cleaned = text.sub(REGEXP_STRIP_TEXT[:general], '')
+      fix_encoding(cleaned)
     end
 
     def data_source
@@ -357,10 +375,14 @@ module Importer
       end
     end
 
+    # Most translation of QuranEnc has ayah number at the beginning of text
+    # These regexps are used remove those number
     REGEXP_STRIP_TEXT = {
-      spanish_mokhtasar: '^(\d*,)?\d+.(\s)?', # 2:3-4
+      spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
+      english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
       #TODO: refactor general regexp
-      general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
+      #general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
+      general: /(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
     }.freeze
 
     TRANSLATIONS_WITH_CUSTOM_PARSER = %w[

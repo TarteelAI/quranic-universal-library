@@ -1,8 +1,11 @@
 <%
-  text_type = resource.meta_value('text_type') || resource.meta_value('script')
-  preview_text = resource.meta_value('text')
-  font_face = resource.meta_value('font-face')
+  resource_content = resource.resource_content
+  text_type = resource_content.meta_value('text-type') || resource_content.meta_value('script')
 
+  key = params[:ayah] || '73:4'
+  ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
+  script_class = get_quran_script_font_family(text_type, ayah)
+  by_word = resource_content.word?
   is_image = [
     'qa_tajweed_image',
     'qa_black_image',
@@ -12,26 +15,51 @@
   ].include?(text_type)
 %>
 
-<% if font_face.present? && preview_text.present? %>
-  <div class="bg-primary p-3 text-center rounded quran-text <%= font_face %>">
-    <div>
-      <%= preview_text.to_s.html_safe %>
-    </div>
+<%= render 'shared/page_font', verses: [ayah] %>
+
+<script>
+  function jumpToAyah(selectAyah) {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("ayah", selectAyah);
+    Turbo.visit(currentUrl.toString());
+  }
+</script>
+
+<div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
+  <div class="tw-mb-4">
+    <%= label_tag :ayah, 'Jump to ayah', class: 'tw-me-2' %>
+    <%= select_tag :ayah, options_for_select(Verse.pluck(:verse_key), ayah.verse_key), onchange: "jumpToAyah(this.value)", style: 'min-width:200px', data: { controller: 'select2' } %>
   </div>
+</div>
+
+<% if by_word %>
+  Preview of words from Surah <%= ayah.chapter.name_simple %>, Ayah <%= ayah.verse_number %>
 <% else %>
-  <div class="bg-primary p-3 text-center rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
+  Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
+<% end %>
+
+<div class="border p-3 text-center rounded quran-text <%= script_class %>">
+  <% if by_word %>
+    <div class="tw-flex tw-flex-wrap gap-2">
+      <% ayah.words.each_with_index do |word, index| %>
+        <span class="px-4 py-2 border word">
+          <% if is_image %>
+            <img src="<%= word.send("#{text_type}_url") %>" alt="<%= word.location %>"/>
+          <% else %>
+            <%= word.send(text_type) %>
+          <% end %>
+        </span>
+      <% end %>
+    </div>
+  <% else %>
     <% if is_image %>
-      <div class="d-flex">
-        <% preview_verse.words.words.each do |w| %>
-          <div class="word">
-            <img src="<%= w.send(text_type) %>" alt="<%= w.send(text_type) %>" />
-          </div>
-        <% end %>
+      <div>
+        <img src="<%= ayah.send("#{text_type}_url") %>" alt="<%= ayah.verse_key %>"/>
       </div>
     <% else %>
       <div>
-        <%= preview_verse.send(text_type).html_safe %>
+        <%= ayah.send(text_type).html_safe %>
       </div>
     <% end %>
-  </div>
-<% end %>
+  <% end %>
+</div>

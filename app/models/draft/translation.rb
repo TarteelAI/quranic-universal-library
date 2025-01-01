@@ -7,6 +7,7 @@
 #  draft_text          :text
 #  footnotes_count     :integer          default(0)
 #  imported            :boolean          default(FALSE)
+#  meta_data           :jsonb
 #  need_review         :boolean
 #  text_matched        :boolean
 #  created_at          :datetime         not null
@@ -28,6 +29,7 @@
 
 class Draft::Translation < ApplicationRecord
   REGEXP_FOOTNOTE_ID = /foot_note=(?<id>\d+)/
+  include HasMetaData
 
   belongs_to :resource_content
   belongs_to :verse

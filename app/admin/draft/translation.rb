@@ -13,6 +13,8 @@ ActiveAdmin.register Draft::Translation do
   filter :draft_text
   filter :footnotes_count
 
+  includes :verse
+
   action_item :previous_page, only: :show  do
     if item = resource.previous_ayah_translation
       link_to("Previous(#{item.verse.verse_key})", "/admin/draft_translations/#{item.id}", class: 'btn') if item
@@ -41,7 +43,9 @@ ActiveAdmin.register Draft::Translation do
     id_column
     column :text_matched
     column :need_review
-    column :verse_id
+    column :verse_id do |resource|
+      link_to(resource.verse.verse_key, [:admin, resource.verse])
+    end
     column :imported
     column :footnotes_count
     column :draft_text, sortable: :draft_text do |resource|
@@ -102,6 +106,16 @@ ActiveAdmin.register Draft::Translation do
       end
       row :created_at
       row :updated_at
+
+      row :meta_data do
+        if resource.meta_data.present?
+          pre do
+            code do
+              JSON.pretty_generate(resource.meta_data)
+            end
+          end
+        end
+      end
     end
 
     panel 'Footnotes' do

@@ -30,8 +30,12 @@ class AdminTodo < ApplicationRecord
   protected
 
   def notify_admin
-    if(reciever = ENV['ADMIN_USER_EMAIL']).present?
-      DeveloperMailer.notify(to: reciever, subject: 'Quran CMS: QuranENC Sync issue', message: description).deliver_later
+    if(recipient = ENV['ADMIN_USER_EMAIL']).present?
+      DeveloperMailer.notify(
+        to: recipient,
+        subject: 'QUL: QuranENC Sync issue',
+        message: description
+      ).deliver_later
     end
   end
 end

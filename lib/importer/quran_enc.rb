@@ -263,7 +263,7 @@ module Importer
         current_footnote_ids = translation.original_footnotes_ids
 
         footnote_ids = if footnote_id_reg
-                         translation_text.scan(footnote_id_reg)
+                         data['translation'].scan(footnote_id_reg)
                        else
                          []
                        end
@@ -294,11 +294,11 @@ module Importer
         # Add footnote text at the end
         if footnote_ids.blank?
           if report_foonote_issues
-          need_to_review = true
-          @issues.push({
-                         tag: 'wrong-footnote-mapping',
-                         text: verse.verse_key
-                       })
+            need_to_review = true
+            @issues.push({
+                           tag: 'wrong-footnote-mapping',
+                           text: verse.verse_key
+                         })
           end
 
           footnotes_texts = footnotes_texts.join(' ')
@@ -317,6 +317,7 @@ module Importer
         translation.draft_text = translation_text.sub(/\d+[.]/, '').strip
       end
 
+      translation.set_meta_value('source_data', data)
       translation.need_review = need_to_review
       translation.text_matched = remove_footnote_tag(translation.current_text) == remove_footnote_tag(translation.draft_text)
 
@@ -378,11 +379,12 @@ module Importer
     # Most translation of QuranEnc has ayah number at the beginning of text
     # These regexps are used remove those number
     REGEXP_STRIP_TEXT = {
+      lingala_zakaria: /^\d+|\d+$/,
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
-      #TODO: refactor general regexp
-      #general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
-      general: /(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
+      # TODO: refactor general regexp
+      # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
+      general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
     }.freeze
 
     TRANSLATIONS_WITH_CUSTOM_PARSER = %w[
@@ -434,15 +436,16 @@ module Importer
       kyrgyz_hakimov: [/\*+/, /\*+/],
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],
       kannada_hamza: [/\[\d+\]/, /\[\d+\]/],
-      albanian_rwwad: [/\[\d+\]/, /\[\d+\]/]
+      albanian_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      dutch_center: [/\[\d+\]/, /\[\d+\]/]
     }.freeze
 
     TRANSLATIONS_MAPPING = {
-      dutch_center: {language: 118, name: 'Dutch Islamic Center', id: 942},
-      pashto_rwwad: {language: 132, name: 'Rowwad Translation Center', id: 943},
-      kannada_hamza: {language: 85, name: 'Muhammad Hamza Battur', id: 944},
-      ikirundi_gehiti: {language: 136, name: 'Ikirundi gehiti', id: 945},
-      moore_rwwad: {language: 194, name: 'Moore rwwad', id: 1173},
+      dutch_center: { language: 118, name: 'Dutch Islamic Center', id: 942 },
+      pashto_rwwad: { language: 132, name: 'Rowwad Translation Center', id: 943 },
+      kannada_hamza: { language: 85, name: 'Muhammad Hamza Battur', id: 944 },
+      ikirundi_gehiti: { language: 136, name: 'Ikirundi gehiti', id: 945 },
+      moore_rwwad: { language: 194, name: 'Moore rwwad', id: 1173 },
       chinese_suliman: { language: 185, name: 'Muhammad Sulaiman', id: 853 },
       albanian_nahi: { language: 187, name: 'Hasan Efendi Nahi', id: 88 },
       amharic_sadiq: { language: 6, name: 'Sadiq and Sani', id: 87 },
@@ -478,7 +481,6 @@ module Importer
       spanish_montada_latin: { language: 40, name: 'Noor International Center' },
       tajik_khawaja: { language: 160, name: 'Khawaja Mirof & Khawaja Mir', id: 139 },
       tamil_baqavi: { language: 158, name: 'Abdul Hameed Baqavi', id: 133 },
-
       uyghur_saleh: { language: 172, name: 'Shaykh Muhammad Saleh', id: 76 },
       kurdish_bamoki: { language: 89, name: 'Muhammad Saleh Bamoki', id: 143 },
       azeri_musayev: { language: 13, name: 'Khan Mosaiv', id: 75 },
@@ -493,7 +495,7 @@ module Importer
       tagalog_rwwad: { language: 164, name: 'Dar Al-Salam Center', id: 211 },
 
       # only first 6 surah are available
-      georgian_rwwad: { language: 78, name: 'Ruwwad Center' },
+      georgian_rwwad: { language: 78, name: 'Ruwwad Center', id: 212 },
       # disable this, has some missing ayah(3:154)
       albanian_rwwad: { language: 187, name: 'Ruwwad Center', id: 216 },
 
@@ -531,7 +533,7 @@ module Importer
       ankobambara_dayyan: { language: 19, name: 'Baba Mamady Jani', id: 796 },
 
       chichewa_betala: { id: 797, language: 123, name: 'Khaled Ibrahim Betala' },
-      dagbani_ghatubo: {  id: 927, language: 191, name: 'Muhammad Baba Gutubu' },
+      dagbani_ghatubo: { id: 927, language: 191, name: 'Muhammad Baba Gutubu' },
       yaw_silika: { language: 192, name: 'Abdul Hamid Silika', id: 799 },
       fulani_rwwad: { id: 800, language: 44, name: 'Rowad Translation Center' },
       asante_harun: { language: 170, name: 'Rowad Translation Center', id: 801 },
@@ -556,7 +558,7 @@ module Importer
       'tamil_omar',
       'spanish_garcia',
       'kyrgyz_hakimov',
-      'lingala_zakaria',#some footnotes has issues 4/163
+      'lingala_zakaria', # some footnotes has issues 4/163
       'punjabi_arif',
       'lithuanian_rwwad',
       'chichewa_betala',

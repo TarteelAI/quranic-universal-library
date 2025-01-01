@@ -11,7 +11,7 @@ module QuranScriptHelper
       'qpc-hafs'
     when 'text_uthmani_tajweed'
       'tajweed-new qpc-hafs'
-    when 'text_qpc_nastaleeq'
+    when 'text_qpc_nastaleeq', 'text_qpc_nastaleeq_hafs'
       'qpc-nastaleeq'
     when 'text_indopak_nastaleeq'
       'indopak-nastaleeq'
@@ -21,6 +21,8 @@ module QuranScriptHelper
       'digitalkhatt'
     when 'text_uthmani'
       'me_quran'
+    when 'text_indopak'
+      'indopak'
     end
   end
 end

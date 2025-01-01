@@ -4,7 +4,7 @@
 
   key = params[:ayah] || '73:4'
   ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
-  script_class = get_quran_script_font_family(text_type, ayah)
+  script_class = get_quran_script_font_family(text_type, ayah) || 'qpc-hafs'
   by_word = resource_content.word?
   is_image = [
     'qa_tajweed_image',
@@ -38,7 +38,7 @@
   Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
 <% end %>
 
-<div class="border p-3 text-center rounded quran-text <%= script_class %>">
+<div class="border p-3 text-center rounded quran-text <%= script_class %>" data-controller="tajweed-highlight">
   <% if by_word %>
     <div class="tw-flex tw-flex-wrap gap-2">
       <% ayah.words.each_with_index do |word, index| %>
@@ -46,7 +46,7 @@
           <% if is_image %>
             <img src="<%= word.send("#{text_type}_url") %>" alt="<%= word.location %>"/>
           <% else %>
-            <%= word.send(text_type) %>
+            <%= word.send(text_type).html_safe %>
           <% end %>
         </span>
       <% end %>

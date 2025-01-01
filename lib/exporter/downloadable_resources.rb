@@ -107,7 +107,7 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        tags = [] #['indopak', '13 lines', 'uthmani', 'Glyph font']
+        tags = []
         downloadable_resource.tags = tags.compact_blank.join(', ')
         downloadable_resource.save(validate: false)
 
@@ -143,7 +143,6 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.tags = resource.language_name.humanize
       downloadable_resource.save(validate: false)
 
       sqlite = exporter.export_sqlite

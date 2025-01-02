@@ -21,13 +21,7 @@ module Utils
     REG_CX = /сҳ/im
     REG_B = /ь/im
 
-    attr_reader :text
-
-    def initialize(text)
-      @text = text
-    end
-
-    def to_latin
+    def to_latin(text)
       cyril = text.gsub(REG_CX, "с'ҳ").gsub(REG_B, '').split('')
       latin = []
 

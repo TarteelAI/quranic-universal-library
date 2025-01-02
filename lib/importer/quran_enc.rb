@@ -122,6 +122,19 @@ module Importer
 
       resource.save
 
+      after_import(resource)
+    end
+
+    def report_new_translations
+      document = get_html('https://quranenc.com/en/home#transes')
+      translations = document.search("a[@href^='https://quranenc.com/en/browse/']").map do |link|
+        link.attr('href').split('/').last
+      end.reject { |t| t.include?('arabic') }
+
+      translations - TRANSLATIONS_MAPPING.keys.map(&:to_s)
+    end
+
+    def after_import(resource)
       if @issues.present?
         issues_group = @issues.group_by do |issue|
           issue[:tag]
@@ -140,21 +153,49 @@ module Importer
           )
         end
       end
-    end
 
-    def report_new_translations
-      document = get_html('https://quranenc.com/en/home#transes')
-      translations = document.search("a[@href^='https://quranenc.com/en/browse/']").map do |link|
-        link.attr('href').split('/').last
-      end.reject { |t| t.include?('arabic') }
+      if resource.id == 127
+        # This is Ubzek translation, we've a Latin version of this translation
+        # update the latin version too
 
-      translations - TRANSLATIONS_MAPPING.keys.map(&:to_s)
+        latin = ResourceContent.find(55)
+        latin_footnote = ResourceContent.find(195)
+        converter = Utils::CyrillicToLatin.new
+        Draft::FootNote.where(resource_content_id: latin_footnote.id).delete_all
+
+        Draft::Translation.where(resource_content_id: resource.id).each do |translation|
+          data = translation.meta_value('source_data')
+          draft_translation = create_translation_with_footnote(
+            translation.verse,
+            latin,
+            latin_footnote,
+            'uzbek_sadiq_latin',
+            data,
+            report_foonote_issues: false
+          )
+
+          text = converter.to_latin(draft_translation.draft_text)
+
+          draft_translation.update_columns(
+            draft_text: text,
+            text_matched: remove_footnote_tag(text) == remove_footnote_tag(draft_translation.current_text)
+          )
+
+          draft_translation.foot_notes.each do |foot_note|
+            text = converter.to_latin(foot_note.draft_text)
+            foot_note.update_columns(
+              draft_text: text,
+              text_matched: text == foot_note.current_text
+            )
+          end
+        end
+      end
     end
 
     protected
 
     def import_verse(verse, resource, footnote_resource, _language, quran_enc_key, data)
-      translation = if TRANSLATIONS_WITH_CUSTOM_PARSER.include?(quran_enc_key.to_s)
+      translation = if respond_to?("parse_#{quran_enc_key}", true)
                       send("parse_#{quran_enc_key}", verse, resource, footnote_resource, quran_enc_key, data)
                     else
                       create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
@@ -274,7 +315,7 @@ module Importer
 
                             parts
                           else
-                            [footnotes_texts.to_s.strip.gsub(footnote_text_reg, '')]
+                            [footnotes_texts.to_s.strip]
                           end
 
         footnote_ids.each_with_index do |node, i|
@@ -327,12 +368,23 @@ module Importer
 
     def swahili_barawani(verse, resource, footnote_resource, quran_enc_key, data)
       # this translation has footnote, but there is no footnote markers in translation.
-      # add footnote at end of ayah
       create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data, report_foonote_issues: false)
     end
 
     def parse_pashto_zakaria(verse, resource, footnote_resource, quran_enc_key, data)
       data['translation'] = data['translation'].sub(/\d+-\d+/, '')
+
+      create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
+    end
+
+    def parse_marathi_ansari(verse, resource, footnote_resource, quran_enc_key, data)
+      data['translation'] = data['translation'].sub(/^\p{Devanagari}+./, '').strip
+
+      create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
+    end
+
+    def gujarati_omari(verse, resource, footnote_resource, quran_enc_key, data)
+      data['translation'] = data['translation'].sub(/^[૦-૯]+/, '').strip
 
       create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
     end
@@ -346,8 +398,8 @@ module Importer
     end
 
     def parse_bengali_zakaria(verse, resource, footnote_resource, quran_enc_key, data)
-      # footnote numbers are in Bengali
-      # First ayah of each surah has surah info in the footnotes, ignore this footnote
+      data['translation'] = data['translation'].sub(/^[\u09E6-\u09EF]+/, '')
+      create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
     end
 
     def parse_uyghur_saleh(verse, resource, _footnote_resource, _quran_enc_key, data)
@@ -379,22 +431,19 @@ module Importer
     # Most translation of QuranEnc has ayah number at the beginning of text
     # These regexps are used remove those number
     REGEXP_STRIP_TEXT = {
+      amharic_sadiq:  /^\{\d+\}/,
       lingala_zakaria: /^\d+|\d+$/,
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
+      ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
       # TODO: refactor general regexp
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
       general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
     }.freeze
 
-    TRANSLATIONS_WITH_CUSTOM_PARSER = %w[
-      uyghur_saleh
-      pashto_zakaria
-      kurdish_salahuddin
-      bengali_zakaria
-    ].freeze
-
     REGEXP_FOOTNOTES = {
+      amharic_sadiq: [/\{\d+\}/, /\{\d+\}/],
+      oromo_ababor: [/\{\d+\}/, /\{\d+\}/],
       pashto_rwwad: [/\[\d+\]/, /\[\d+\]/],
       ikirundi_gehiti: [/\[\d+\]/, /\[\d+\]/],
       albanian_nahi: [/\[\d+\]/, /\[\d+\]/],
@@ -425,7 +474,7 @@ module Importer
       vietnamese_rwwad: [/\(\d+\)/, /\(\d+\)/],
       uzbek_mansour: [],
       uzbek_sadiq: [],
-      yoruba_mikail: [],
+      yoruba_mikail: [/\[\d+\]/, /\d+.\s+/],
       spanish_garcia: [/\[\d+\]/, /\[\d+\]/],
       tamil_omar: [/\*+/, /\*+/],
       lithuanian_rwwad: [/\[\d+\]/, /\[\d+\]/],
@@ -437,10 +486,27 @@ module Importer
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],
       kannada_hamza: [/\[\d+\]/, /\[\d+\]/],
       albanian_rwwad: [/\[\d+\]/, /\[\d+\]/],
-      dutch_center: [/\[\d+\]/, /\[\d+\]/]
+      dutch_center: [/\[\d+\]/, /\[\d+\]/],
+      english_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      marathi_ansari: [/[\u0966-\u096F]+/, /\([\u0966-\u096F]+\)/],
+      gujarati_omari: [/\[\d+\]/, /\[\d+\]/],
+      malayalam_kunhi: [/\(\d+\)/, /\d+\s+/],
+      tajik_arifi: [/\[\d+\]/, /\[\d+\]/],
+      serbian_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      tagalog_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      fulani_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      bengali_zakaria: [/\[\u09E6-\u09EF+\]/, /\[\u09E6-\u09EF+\]/],
+      italian_rwwad: [/\[\d+\]/, /\[\d+\]-\s?/],
+      assamese_rafeeq: [/\[\d+\]/, /\[\d+\]/],
+      uzbek_sadiq_latin: [/\[\d+\]/, /\[\d+\]/],
+      swahili_abubakr: [/\[\d+\]/, /\[\d+\]/],
+      japanese_saeedsato: [/\[\d+\]/, /\[\d+\]/],
+      bosnian_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      ukrainian_yakubovych: [/\[[IVXLCDM]+\]/, /\[[IVXLCDM]+\]/]
     }.freeze
 
     TRANSLATIONS_MAPPING = {
+      uzbek_sadiq_latin: { id: 55 },
       dutch_center: { language: 118, name: 'Dutch Islamic Center', id: 942 },
       pashto_rwwad: { language: 132, name: 'Rowwad Translation Center', id: 943 },
       kannada_hamza: { language: 85, name: 'Muhammad Hamza Battur', id: 944 },
@@ -470,7 +536,7 @@ module Importer
       turkish_shahin: { language: 167, name: 'Muslim Shahin', id: 124 },
       urdu_junagarhi: { language: 174, name: 'Maulana Muhammad Junagarhi', id: 54 },
       uzbek_mansour: { language: 175, name: 'Alauddin Mansour', id: 101 },
-      uzbek_sadiq: { language: 175, name: 'Muhammad Sodik Muhammad Yusuf', id: 55 },
+      uzbek_sadiq: { language: 175, name: 'Muhammad Sodik Muhammad Yusuf', id: 127 },
       yoruba_mikail: { language: 183, name: 'Shaykh Abu Rahimah Mikael Aykyuni', id: 125 },
       french_hameedullah: { language: 49, name: 'Muhammad Hamidullah', id: 31 },
       nepali_central: { language: 116, name: 'Ahl Al-Hadith Central Society of Nepal', id: 108 },
@@ -549,6 +615,22 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'bosnian_rwwad',
+      'japanese_saeedsato',
+      'swahili_abubakr',
+      'ukrainian_yakubovych',
+      'amharic_sadiq',
+      'uzbek_sadiq_latin',
+      'italian_rwwad',
+      'fulani_rwwad',
+      'tagalog_rwwad',
+      'serbian_rwwad',
+      'tajik_arifi',
+      'malayalam_kunhi',
+      'gujarati_omari',
+      'marathi_ansari',
+      'english_rwwad',
+      'oromo_ababor',
       'albanian_rwwad',
       'dutch_center',
       'pashto_rwwad',

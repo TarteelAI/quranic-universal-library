@@ -255,15 +255,17 @@ module Importer
         resource_content_id: resource.id
       ).first&.text.to_s
 
-      draft = Draft::Translation.where(
+      translation = Draft::Translation.where(
         verse: verse,
         resource_content: resource
       ).first_or_initialize
 
-      draft.draft_text = simple_format(draft_text)
-      draft.current_text = current_text
+      translation.draft_text = simple_format(draft_text)
+      translation.current_text = current_text
+      translation.text_matched = current_text == draft_text
+      translation.imported = false
 
-      draft
+      translation
     end
 
     def create_foot_note(translation, resource, text, current_footnote, translation_resource)
@@ -361,6 +363,7 @@ module Importer
       translation.set_meta_value('source_data', data)
       translation.need_review = need_to_review
       translation.text_matched = remove_footnote_tag(translation.current_text) == remove_footnote_tag(translation.draft_text)
+      translation.imported = false
 
       translation.save
       translation
@@ -404,7 +407,9 @@ module Importer
 
     def parse_uyghur_saleh(verse, resource, _footnote_resource, _quran_enc_key, data)
       text = data['translation'].sub(/\[\d+\]/, '')
-      create_translation(verse, text, resource)
+      translation = create_translation(verse, text, resource)
+      translation.set_meta_value('source_data', data)
+      translation.save(validate: false)
     end
 
     def remove_footnote_tag(text)

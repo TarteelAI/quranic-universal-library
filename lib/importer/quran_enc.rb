@@ -260,7 +260,7 @@ module Importer
         resource_content: resource
       ).first_or_initialize
 
-      translation.draft_text = simple_format(draft_text)
+      translation.draft_text = draft_text.gsub(/\r?\n+r?/, ' ').strip #simple_format(draft_text)
       translation.current_text = current_text
       translation.text_matched = current_text == draft_text
       translation.imported = false

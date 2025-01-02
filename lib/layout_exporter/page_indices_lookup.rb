@@ -6,7 +6,7 @@ s.export
 
 module LayoutExporter
   class PageIndicesLookup < Base
-    def export(rub: false, manzil: false)
+    def export(hizb: false, manzil: false)
       folder = get_mushaf_file_name
       export_path = "tmp/layout-data/page-indices-lookup"
       FileUtils.mkdir_p export_path
@@ -18,8 +18,8 @@ module LayoutExporter
 
         page_mapping = {
           juz: first_ayah.juz_number,
-          hizb: first_ayah.hizb_number,
-          rub: rub && first_ayah.rub_el_hizb_number,
+          hizb: hizb && first_ayah.hizb_number,
+          rub:  first_ayah.rub_el_hizb_number,
           manzil: manzil && first_ayah.manzil_number,
           start: {
             surah: first_ayah.chapter_id,

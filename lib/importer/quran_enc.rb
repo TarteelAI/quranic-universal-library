@@ -594,7 +594,7 @@ module Importer
       dari_badkhashani: { language: 190, name: 'Mawlawi Muhammad Anwar Badkhashani', id: 785 },
       somali_yacob: { language: 150, name: 'Abdullah Hassan Yacoub', id: 786 }, # عبدالله حسن يعقوب
       macedonian_group: { language: 105, name: 'Macedonian scholars', id: 788 },
-      swahili_barawani: { language: 157, name: 'Muhsen Alberwany', id: 793 },
+      swahili_barawani: { language: 157, name: 'Muhsen Alberwany', id: 49 },
       ankobambara_foudi: { language: 19, name: 'Suliman Kanti', id: 795 },
       ankobambara_dayyan: { language: 19, name: 'Baba Mamady Jani', id: 796 },
 

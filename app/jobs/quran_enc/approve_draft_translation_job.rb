@@ -29,6 +29,10 @@ module QuranEnc
         draft.foot_notes.delete_all
         draft.delete
       end
+
+      AdminTodo
+        .where(resource_content_id: resource.id)
+        .delete_all
     end
 
     def approve_draft_tafsirs(resource)
@@ -84,6 +88,10 @@ module QuranEnc
       )
 
       PaperTrail.enabled = true
+
+      AdminTodo
+        .where(resource_content_id: resource.id)
+        .update_all(is_finished: true)
     end
 
     def import_translations(resource)

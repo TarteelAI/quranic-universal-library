@@ -436,6 +436,7 @@ module Importer
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
       ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
+      indonesian_affairs: /\*?\d+\)/,
       # TODO: refactor general regexp
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
       general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
@@ -452,7 +453,7 @@ module Importer
       tajik_khawaja: [/\(\d+\)/, /\d+[.]/],
       spanish_montada_eu: [/\[\d+\]/, /\[\d+\]/],
       indonesian_complex: [/\d+/, /\d+[.\s]/],
-      indonesian_affairs: [/\d+\)/, /\*\d+\)/],
+      indonesian_affairs: [/\d+\)/, /\*?\d+\)/],
       french_montada: [/\[\d+\]/, /\[\d+\]/],
       english_hilali_khan: [/\[\d+\]/, /\[\d+\]/],
       english_saheeh: [/\[\d+\]/, /\[\d+\]-/],

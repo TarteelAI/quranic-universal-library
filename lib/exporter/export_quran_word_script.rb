@@ -31,12 +31,23 @@ module Exporter
       text_attribute = @resource_content.meta_value('text_type')
 
       words.each do |batch|
-        batch.each do |w|
-          json_data[w.location] = {
-            word_index: w.word_index,
-            location: w.location,
-            text: w.send(text_attribute)
+        batch.each do |word|
+          s, a, w = word.location.split(':')
+
+          data = {
+            word_index: word.word_index,
+            surah: 2,
+            ayah: a,
+            word: w,
+            location: word.location,
+            text: word.send(text_attribute)
           }
+
+          if resource_content.glyphs_based?
+            data[:page_number] = word.send(@page_type)
+          end
+
+          json_data[w.location] = data
         end
       end
 
@@ -60,6 +71,7 @@ module Exporter
         word.location,
         s,
         a,
+        w,
         word.send(text_attribute)
       ]
 
@@ -76,6 +88,7 @@ module Exporter
         word_key: 'TEXT',
         surah: 'INTEGER',
         ayah: 'INTEGER',
+        word: 'INTEGER',
         text: 'TEXT'
       }
 

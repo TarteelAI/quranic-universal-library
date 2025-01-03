@@ -443,13 +443,14 @@ module Importer
       ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
       indonesian_affairs: /^\*?\d+\)/,
       bengali_zakaria: /^\[\p{N}+\]/,
+      hausa_gummi: /^\*/,
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
       general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
     }.freeze
 
     REGEXP_FOOTNOTES = {
       amharic_sadiq: [/\{\d+\}/, /\{\d+\}/],
-      oromo_ababor: [/\{\d+\}/, /\{\d+\}/],
+      oromo_ababor: [/\{\d+\}/, /\{?\d+\}?-?/],
       pashto_rwwad: [/\[\d+\]/, /\[\d+\]/],
       ikirundi_gehiti: [/\[\d+\]/, /\[\d+\]/],
       albanian_nahi: [/\[\d+\]/, /\[\d+\]/],

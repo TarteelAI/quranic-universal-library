@@ -442,7 +442,7 @@ module Importer
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
       ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
       indonesian_affairs: /^\*?\d+\)/,
-      # TODO: refactor general regexp
+      bengali_zakaria: /^\[\p{N}+\]/,
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
       general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
     }.freeze
@@ -501,7 +501,7 @@ module Importer
       serbian_rwwad: [/\[\d+\]/, /\[\d+\]/],
       tagalog_rwwad: [/\[\d+\]/, /\[\d+\]/],
       fulani_rwwad: [/\[\d+\]/, /\[\d+\]/],
-      bengali_zakaria: [/\[\u09E6-\u09EF+\]/, /\[\u09E6-\u09EF+\]/],
+      bengali_zakaria: [/\[\p{N}+\]/, /\[\p{N}+\]/],
       italian_rwwad: [/\[\d+\]/, /\[\d+\]-\s?/],
       assamese_rafeeq: [/\[\d+\]/, /\[\d+\]/],
       uzbek_sadiq_latin: [/\[\d+\]/, /\[\d+\]/],

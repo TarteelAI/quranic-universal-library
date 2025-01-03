@@ -56,7 +56,7 @@ module Exporter
     def export_word(word, statement, text_attribute)
       s, a, w = word.location.split(':')
       data = [
-        w,
+        word.word_index,
         word.location,
         s,
         a,

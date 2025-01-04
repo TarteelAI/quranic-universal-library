@@ -437,7 +437,7 @@ module Importer
     # These regexps are used remove those number
     REGEXP_STRIP_TEXT = {
       amharic_sadiq:  /^\{\d+\}/,
-      lingala_zakaria: /^\d+|\d+$/,
+      lingala_zakaria: /^\d+[\.\s]?|\d+$/,
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
       ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
@@ -445,7 +445,7 @@ module Importer
       bengali_zakaria: /^\[\p{N}+\]/,
       hausa_gummi: /^\*/,
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
-      general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
+      general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s]*)+/
     }.freeze
 
     REGEXP_FOOTNOTES = {

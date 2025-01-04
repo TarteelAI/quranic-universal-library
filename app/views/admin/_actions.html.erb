@@ -1,6 +1,6 @@
 <div class="admin-actions d-flex flex-wrap">
   <%= form_tag admin_action_admin_database_backups_path(name: 'new_db_dump'), method: :put, class: 'action' do %>
-    <%= button_tag "Take new dump", data: { confirm: 'Are you sure?' } %>
+    <%= button_tag "Backup database", data: { confirm: 'Are you sure?' } %>
   <% end %>
 
   <%= form_tag admin_action_admin_database_backups_path(name: 'sync_quranenc'), method: :put, class: 'action' do %>

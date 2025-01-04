@@ -104,6 +104,8 @@ class DownloadableResource < ApplicationRecord
     s = Exporter::DownloadableResources.new
 
     case resource_type
+    when 'mushaf-layout'
+      s.export_mushaf_layouts(resource_content: resource_content)
     when 'recitation'
       if one_ayah?
         s.export_ayah_recitation(resource_content: resource_content)

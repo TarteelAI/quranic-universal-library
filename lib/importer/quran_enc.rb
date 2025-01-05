@@ -444,6 +444,7 @@ module Importer
       indonesian_affairs: /^\*?\d+\)/,
       bengali_zakaria: /^\[\p{N}+\]/,
       hausa_gummi: /^\*/,
+      punjabi_arif: /^[\d\p{M}\s]*/,
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
       general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s]*)+/
     }.freeze

@@ -63,7 +63,9 @@ class TajweedWord < QuranApiRecord
   end
 
   def update_word_text!
-    update_column(:text, prepare_text_from_rule)
+    tajweed_text = prepare_text_from_rule
+    update_column(:text, tajweed_text)
+    word.update(text_qpc_hafs_tajweed: tajweed_text)
   end
 
   def prepare_text_from_rule(tag = 'r')

@@ -35,10 +35,9 @@ namespace :tajweed do
     end
 
     resource = ResourceContent.quran_script.where(name: "QPC Tajweed New").first_or_create
-    resource.sub_type = 'quran_text'
+    resource.sub_type = 'quran-script'
     resource.cardinality_type = '1_word'
     resource.set_meta_value('font', 'qpc-hafs')
-    resource.set_meta_value('text_type', 'text_qpc_hafs_tajweed')
     resource.set_meta_value('text_type', 'text_qpc_hafs_tajweed')
     resource.save
 
@@ -186,7 +185,7 @@ namespace :tajweed do
 
   task create_new_tajweed_data: :environment do
     tajweed_annotation = TajweedAnnotation::Service.new
-    mushaf = Mushaf.where(name: "QPC Tajweed New(Auto annotation)").first_or_create
+    mushaf = Mushaf.where(name: "Tajweed New(Auto annotation)").first_or_create
     mushaf.pages_count = 604
     mushaf.qirat_type_id = 1
     mushaf.lines_per_page = 15
@@ -198,14 +197,14 @@ namespace :tajweed do
       words.each do |location, letters|
         w = Word.find_by(location: location)
         tajweed_word = TajweedWord.where(
-          mushaf_id: mushaf.id,
           word_id: w.id,
           verse_id: v.id
         ).first_or_initialize
         tajweed_word.letters = letters
         tajweed_word.location = location
         tajweed_word.position = w.position
-        # tajweed_word.resource_content = mushaf.resource_content
+        tajweed_word.mushaf_id = mushaf.id
+
         begin
           tajweed_word.save(validate: false)
         rescue Exception => e

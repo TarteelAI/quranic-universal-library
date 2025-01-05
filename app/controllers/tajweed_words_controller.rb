@@ -86,10 +86,10 @@ class TajweedWordsController < CommunityController
   end
 
   def apply_text_tajweed_rule_filter(words)
-    if params[:filter_tajweed_rule_old].present?
-      rule = params[:filter_tajweed_rule_old].downcase.strip
-      words = words.where("text_uthmani_tajweed LIKE ?", "%#{rule}%")
-    end
+    #if params[:filter_tajweed_rule_old].present?
+    #  rule = params[:filter_tajweed_rule_old].downcase.strip
+    #  words = words.where("text_uthmani_tajweed LIKE ?", "%#{rule}%")
+    #end
 
     if params[:filter_tajweed_rule_new].present?
       rule = params[:filter_tajweed_rule_new].downcase.strip

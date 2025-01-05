@@ -13,7 +13,8 @@ ActiveAdmin.register Draft::Translation do
   filter :draft_text
   filter :footnotes_count
 
-  includes :verse
+  includes :verse,
+           :resource_content
 
   action_item :previous_page, only: :show do
     if item = resource.previous_ayah_translation
@@ -79,10 +80,12 @@ ActiveAdmin.register Draft::Translation do
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
         resource.draft_text.to_s.html_safe
       end
-
       row :text_matched
       row :imported
       row :footnotes_count
+      row :resouce_name do
+        resource.resource_content.name
+      end
 
       row :diff do
         div do

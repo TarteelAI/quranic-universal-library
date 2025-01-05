@@ -9,14 +9,15 @@
     <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
       <div class="row" data-controller="chapter-verses-filter">
         <div class="col-12 d-flex">
-          <div class="form-group me-2">
-            <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
-            <p class="form-text">Filter by Tajweed rule(old)</p>
-          </div>
-
+          <% if false %>
+            <div class="form-group me-2">
+              <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
+              <p class="form-text">Filter by Tajweed rule(old)</p>
+            </div>
+          <% end %>
           <div class="form-group me-2">
             <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
-            <p class="form-text">Filter by Tajweed rule(new)</p>
+            <p class="form-text">Filter by Tajweed rule</p>
           </div>
 
           <div class="form-group me-2">

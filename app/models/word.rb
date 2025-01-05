@@ -33,6 +33,7 @@
 #  text_qpc_hafs_tajweed      :string
 #  text_qpc_nastaleeq         :string
 #  text_qpc_nastaleeq_hafs    :string
+#  text_qpc_tajweed           :string
 #  text_uthmani               :string
 #  text_uthmani_simple        :string
 #  text_uthmani_tajweed       :string

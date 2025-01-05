@@ -54,6 +54,8 @@ ActiveAdmin.register ResourceContent do
   }
   filter :language, as: :searchable_select,
          ajax: { resource: Language }
+  filter :created_at
+  filter :updated_at
 
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 
@@ -107,17 +109,24 @@ ActiveAdmin.register ResourceContent do
 
     if params[:approved]
       QuranEnc::ApproveDraftTranslationJob.perform_later(resource.id)
-
-      redirect_to [:admin, resource], notice: "This #{resource.tafsir? ? 'tafsir' : 'translation'} will be imported shortly!"
+      flash[:notice] = "#{resource.name} will be imported shortly!"
     elsif params[:remove_draft]
       QuranEnc::ApproveDraftTranslationJob.perform_later(resource.id, remove_draft: true)
-
-      redirect_to [:admin, resource], notice: 'Draft translations are removed successfully'
+      flash[:notice] = "#{resource.name} will be removed shortly!"
     else
       QuranEnc::ImportDraftTranslationJob.perform_later(resource.id)
-
-      redirect_to [:admin, resource], notice: "System will re-sync this translation from QuranEnc shortly."
+      flash[:notice] = "#{resource.name} will be synced shortly!"
     end
+
+    url = if resource.tafsir?
+            "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.translation?
+            "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          else
+            [:admin, resource]
+          end
+
+    redirect_to url
   end
 
   member_action :export, method: 'put' do

@@ -244,6 +244,10 @@ class ResourceContent < QuranApiRecord
     url
   end
 
+  def get_proofrading_image_url
+    meta_value('image-url')
+  end
+
   def source_pdf_file
     source_files.includes(:blob).where(
       blob: { content_type: 'application/pdf' }

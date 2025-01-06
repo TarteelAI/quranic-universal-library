@@ -20,6 +20,20 @@ class ExportMushafLayout
     20, # Digital Khatt v2
     22, # Digital Khatt v1
   ]
+
+  CUSTOM_TEXT = {
+    # Sajdah marker is with the ayah marker for ayah: 38:24
+    # https://qul.tarteel.ai/admin/mushaf_page_preview?mushaf=2&compare=22&page=454&word=27496
+    code_v1: {
+      '38:24:32': 'ﯩ',
+      '38:24:33': 'ﯪﯫ',
+    },
+    text_digital_khatt_v1: {
+      '38:24:32': 'وَأَنَابَ',
+      '38:24:33': '۩۝٢٤'
+    }
+  }
+
   attr_accessor :mushafs,
                 :stats
 
@@ -51,14 +65,15 @@ class ExportMushafLayout
 
     Word.unscoped.order('word_index ASC').find_each do |word|
       surah, ayah, word_number = word.location.split(':').map(&:to_i)
-      text_uthmani = word.text_uthmani
-      text_indopak = word.text_qpc_nastaleeq_hafs
-      indopak_hanafi = word.text_indopak_nastaleeq
-      dk_indopak = word.text_digital_khatt_indopak
-      code_v1 = word.code_v1
-      text_digital_khatt_v2 = word.text_digital_khatt
-      text_digital_khatt_v1 = word.text_digital_khatt_v1
-      text_qpc_hafs = word.text_qpc_hafs
+      text_uthmani = get_word_text(word, 'text_uthmani')
+      text_indopak = get_word_text(word, 'text_qpc_nastaleeq_hafs')
+      indopak_hanafi = get_word_text(word, 'text_indopak_nastaleeq')
+      dk_indopak = get_word_text(word, 'text_digital_khatt_indopak')
+      code_v1 = get_word_text(word, 'code_v1')
+      text_digital_khatt_v2 = get_word_text(word, 'text_digital_khatt')
+      text_digital_khatt_v1 = get_word_text(word, 'text_digital_khatt_v1')
+      text_qpc_hafs = get_word_text(word, 'text_qpc_hafs')
+
       is_ayah_marker = word.ayah_mark?
 
       script_texts = [text_uthmani, text_indopak, indopak_hanafi, dk_indopak, code_v1, text_digital_khatt_v2, text_digital_khatt_v1, text_qpc_hafs]
@@ -262,6 +277,12 @@ class ExportMushafLayout
   ) VALUES
     #{values.join(',')}
     SQL
+  end
+
+  def get_word_text(word, script)
+    custom = CUSTOM_TEXT[script] || {}
+
+    custom[word.location.to_sym] || word.send(script)
   end
 
   def prepare_layout_stats(mushaf, table_name)

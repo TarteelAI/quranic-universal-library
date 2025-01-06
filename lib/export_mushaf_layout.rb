@@ -20,20 +20,6 @@ class ExportMushafLayout
     20, # Digital Khatt v2
     22, # Digital Khatt v1
   ]
-
-  CUSTOM_TEXT = {
-    # Sajdah marker is with the ayah marker for ayah: 38:24
-    # https://qul.tarteel.ai/admin/mushaf_page_preview?mushaf=2&compare=22&page=454&word=27496
-    code_v1: {
-      '38:24:32': 'ﯩ',
-      '38:24:33': 'ﯪﯫ',
-    },
-    text_digital_khatt_v1: {
-      '38:24:32': 'وَأَنَابَ',
-      '38:24:33': '۩۝٢٤'
-    }
-  }
-
   attr_accessor :mushafs,
                 :stats
 
@@ -279,8 +265,20 @@ class ExportMushafLayout
     SQL
   end
 
+  CUSTOM_TEXT = {
+    # Sajdah marker is with the ayah marker for ayah: 38:24
+    # https://qul.tarteel.ai/admin/mushaf_page_preview?mushaf=2&compare=22&page=454&word=27496
+    code_v1: {
+      '38:24:32': 'ﯩ',
+      '38:24:33': 'ﯪﯫ',
+    },
+    text_digital_khatt_v1: {
+      '38:24:32': 'وَأَنَابَ',
+      '38:24:33': '۩۝٢٤'
+    }
+  }
   def get_word_text(word, script)
-    custom = CUSTOM_TEXT[script] || {}
+    custom = CUSTOM_TEXT[script.to_sym] || {}
 
     custom[word.location.to_sym] || word.send(script)
   end

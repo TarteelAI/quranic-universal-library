@@ -46,6 +46,7 @@ class QuranWordFinder
       query: query
     )
   end
+
   protected
   def base_scope
     Word.unscoped

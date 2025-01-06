@@ -32,10 +32,6 @@ class ArabicTransliteration < QuranApiRecord
   def name
     text
   end
-  
-  def get_word
-    
-  end
 
   def text_simple
     word&.text_uthmani_simple

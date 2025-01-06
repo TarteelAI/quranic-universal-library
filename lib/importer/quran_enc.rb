@@ -135,6 +135,7 @@ module Importer
     end
 
     def after_import(resource)
+      resource.set_meta_value('synced-at', DateTime.now)
       if @issues.present?
         issues_group = @issues.group_by do |issue|
           issue[:tag]
@@ -190,6 +191,8 @@ module Importer
           end
         end
       end
+
+      resource.save
     end
 
     protected
@@ -488,7 +491,7 @@ module Importer
       lithuanian_rwwad: [/\[\d+\]/, /\[\d+\]/],
       telugu_muhammad: [/\([a-z]\)/, /\([a-z]\)/],
       chichewa_betala: [/\[\d+\]/, /\[\d+\]/],
-      punjabi_arif: [/\d+[਼\s]]?/, /\d+[਼\s]?]]/],
+      punjabi_arif: [/\d+[਼\s]*/, /\d+[਼\s]*/],
       lingala_zakaria: [/\(\d+\)/, /\d+/],
       kyrgyz_hakimov: [/\*+/, /\*+/],
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],

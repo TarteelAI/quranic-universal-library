@@ -48,6 +48,9 @@ ActiveAdmin.register Draft::Translation do
       link_to(resource.verse.verse_key, [:admin, resource.verse])
     end
     column :imported
+    column :resource do |resource|
+      link_to(resource.resource_content.name, [:admin, resource.resource_content])
+    end
     column :footnotes_count
     column :draft_text, sortable: :draft_text do |resource|
       resource.draft_text.to_s.first(50)
@@ -156,19 +159,25 @@ ActiveAdmin.register Draft::Translation do
   sidebar 'Draft translations', only: :index do
     translations = Draft::Translation.new_translations
     selected = params.dig(:q, :resource_content_id_eq).to_i
+
+    translations = translations.sort_by do |t|
+      t.id == selected ? 0 : 1
+    end
+
     imported = Draft::Translation.imported_translations.pluck(:id)
     div "Total: #{translations.size}"
     div "Imported: #{imported.size}"
 
     div class: 'd-flex w-100 flex-column sidebar-item' do
       translations.each do |resource_content|
-        div class: "w-100 p-1 flex-between border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
-          div do
+        div class: "w-100 p-1 border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
+          div class: 'flex-between' do
             span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
             imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
           end
 
           div "#{resource_content.name}(#{resource_content.language_name})"
+          div "Synced: #{resource_content.meta_value('synced-at')} Updated: #{resource_content.updated_at}"
 
           div class: 'd-flex my-2 flex-between gap-2' do
             span(link_to 'Filter', "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info text-white')

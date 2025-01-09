@@ -53,7 +53,8 @@ ActiveAdmin.register Audio::Recitation do
   end
 
   action_item :split_to_gapped, only: :show, if: -> { can? :manage, resource } do
-    link_to 'Generate Gapped recitation', '#_', id: 'validate-segments',
+    link_to 'Generate Gapped recitation', '#_',
+            id: 'validate-segments',
             data: { controller: 'ajax-modal', url: split_to_gapped_admin_audio_recitation_path(resource) }
   end
 
@@ -107,7 +108,20 @@ ActiveAdmin.register Audio::Recitation do
     if request.get?
       render partial: 'admin/split_to_gapped'
     else
-      Export::SplitGapelessRecitationJob.perform_later(resource.id, params[:host].to_s.strip, current_user.id)
+      surah = params[:surah]
+      ayah_from = params[:ayah_from]
+      ayah_to = params[:ayah_to]
+
+      Export::SplitGapelessRecitationJob.perform_later(
+        recitation_id: resource.id,
+        surah: surah,
+        ayah_from: ayah_from,
+        ayah_to: ayah_to,
+        user_id: current_user.id,
+        host: params[:host],
+        create_ayah_recitation: params[:create_ayah_recitation] == '1'
+      )
+
       # Restart sidekiq if it's not running
       Utils::System.start_sidekiq
 

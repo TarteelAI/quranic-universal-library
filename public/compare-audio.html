@@ -14,6 +14,33 @@
 
       // Wait for the DOM to be fully loaded
       document.addEventListener('DOMContentLoaded', () => {
+        const loadFile = (file, input) => {
+        }
+
+        const registerDropzone =  (dropZone, audioId) => {
+          const audioField = dropZone.querySelector('input[type="file"]');
+          dropZone.addEventListener('click', () => {
+            audioField.click();
+          });
+
+          dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('highlight');
+          });
+
+          dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('highlight');
+          });
+
+          dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('highlight');
+            const files = e.dataTransfer.files;
+
+            loadAudio(audioId == 1 ? wavesurfer1 : wavesurfer2, files[0], `stats${audioId}`);
+          });
+        }
+
         // Initialize WaveSurfer instances for both audio files
         const wavesurfer1 = WaveSurfer.create({
           container: '#waveform1',
@@ -85,11 +112,14 @@
           const duration = audioBuffer.duration.toFixed(2) + ' seconds';
           const sampleRate = audioBuffer.sampleRate + ' Hz';
           const channels = audioBuffer.numberOfChannels;
+          const fileName = file.name;
 
           let encoding = 'Unknown'; // Encoding detection placeholder
 
           // Display stats
           document.getElementById(statsId).innerHTML = `
+                    <h3>File Information</h3>
+                    Name: ${fileName}</br>
                     Duration: ${duration}<br>
                     Sample Rate: ${sampleRate}<br>
                     Channels: ${channels}<br>
@@ -97,14 +127,11 @@
                 `;
         }
 
-        // Handle file selection clicks
-        document.getElementById('drop1').addEventListener('click', () => {
-          document.getElementById('audio1').click();
-        });
+        const drop1 = document.getElementById('drop1')
+        const drop2 = document.getElementById('drop2')
 
-        document.getElementById('drop2').addEventListener('click', () => {
-          document.getElementById('audio2').click();
-        });
+        registerDropzone(drop1, 1);
+        registerDropzone(drop2, 2);
 
         // Load audio file
         function loadAudio(waveInstance, file, statsId) {
@@ -150,6 +177,22 @@
         });
       });
     </script>
+
+    <style>
+        .drop-zone {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            margin: 20px;
+            cursor: pointer;
+            background-color: #e9f5ff;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        .drop-zone.highlight {
+            background-color: #6cf65c;
+            border-color: #327f29;
+        }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
@@ -162,7 +205,7 @@
         <!-- Audio File 1 -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-4">Audio File 1</h2>
-            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer"
+            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer drop-zone"
                  id="drop1">
                 <p class="text-gray-700 mb-2">Drop file here or click to upload</p>
                 <input type="file" id="audio1" accept="audio/*" class="hidden">
@@ -176,7 +219,7 @@
         <!-- Audio File 2 -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-4">Audio File 2</h2>
-            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer"
+            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer drop-zone"
                  id="drop2">
                 <p class="text-gray-700 mb-2">Drop file here or click to upload</p>
                 <input type="file" id="audio2" accept="audio/*" class="hidden">

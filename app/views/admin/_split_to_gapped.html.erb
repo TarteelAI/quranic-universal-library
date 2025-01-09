@@ -1,6 +1,7 @@
 <%
-  ayah_recitations = resource.reciter.verse_recitations
+  ayah_recitations = resource.reciter&.verse_recitations || []
 %>
+
 <div id=title>
   Split <%= resource.name %> recitations to ayah by ayah
 </div>
@@ -28,7 +29,7 @@
       </div>
 
       <div class="form-group">
-        <%= form.label :host, 'Email to share generated files' %>
+        <%= form.label :host, 'Audio host' %>
         <%= form.text_field :host, class: 'form-control', value: "https://audio-cdn.tarteel.ai/quran/#{resource.name.gsub(/\s+/, '')}" %>
         <div class="form-text text-muted">
           Please provide based CDN host for audio files
@@ -36,7 +37,30 @@
       </div>
 
       <div class="form-group">
-        <%= form.submit 'Split ayah recitation' %>
+        <%= form.label :surah, 'Split specific surah' %>
+        <%= form.text_field :surah, class: 'form-control' %>
+        <div class="form-text text-muted">
+          Enter surah number if you want to only split specific surah
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :ayah_from, 'Split specific surah' %>
+        <%= form.text_field :ayah_from, class: 'form-control' %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :ayah_to, 'Split specific surah' %>
+        <%= form.text_field :ayah_to, class: 'form-control' %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :create_ayah_recitation, 'Create ayah recitation' %>
+        <%= form.check_box :create_ayah_recitation %>
+      </div>
+
+      <div class="form-group">
+        <%= form.submit 'Split recitation' %>
       </div>
     <% end %>
   </div>

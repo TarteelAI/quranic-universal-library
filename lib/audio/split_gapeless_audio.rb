@@ -4,14 +4,26 @@ module Audio
 
     def initialize(recitation_id, base_path = nil)
       @recitation = Audio::Recitation.find(recitation_id)
-      @base_path = base_path || "data/audio/#{recitation_id}/mp3"
+      @base_path = base_path || "tmp/audio/#{recitation_id}/mp3"
       FileUtils.mkdir_p @base_path
+      FileUtils.mkdir_p "#{@base_path}/surah"
+      FileUtils.mkdir_p "#{@base_path}/ayah-by-ayah"
     end
 
-    def split_surah(chapter_id)
-      Audio::Segment.where(chapter_id: chapter_id, audio_recitation: @recitation)
-                    .order('verse_number ASC')
-                    .each do |segment|
+    def split_surah(chapter_id, ayah_from: nil, ayah_to: nil)
+      segments = Audio::Segment
+                   .where(
+                     chapter_id: chapter_id,
+                     audio_recitation: @recitation
+                   ).order('verse_number ASC')
+
+      if ayah_from.present? && ayah_to.present?
+        segments = segments.where(
+          verse_number: ayah_from..ayah_to
+        )
+      end
+
+      segments.each do |segment|
         from = segment.timestamp_from / 1000.0
         to = segment.timestamp_to / 1000.0
 
@@ -34,7 +46,7 @@ module Audio
     end
 
     def surah_audio_file(chapter_id)
-      "#{@base_path}/#{chapter_id}.mp3"
+      "#{@base_path}/surah/#{chapter_id}.mp3"
     end
 
     def split_ayah(from, to, input, output)

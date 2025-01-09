@@ -17,10 +17,15 @@ module Audio
     end
 
     def split_ayah(verse)
-      gapless_segments = load_ayah_segment(verse)
+      gapped_segments = load_ayah_segment(verse)
 
-      audio_file = AudioFile.where(verse: verse, recitation_id: @ayah_recitation.id).first_or_initialize
-      audio_file.set_segments(gapless_segments)
+      audio_file = AudioFile
+                     .where(
+                       verse: verse,
+                       recitation_id: @ayah_recitation.id
+                     ).first_or_initialize
+
+      audio_file.set_segments(gapped_segments)
       audio_file.save
     end
 

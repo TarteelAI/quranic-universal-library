@@ -5,7 +5,14 @@ ActiveAdmin.register Mushaf do
 
   searchable_select_options(
     scope: Mushaf,
-    text_attribute: :name
+    text_attribute: :humanize,
+    filter: lambda do |term, scope|
+      scope.order('id ASC').ransack(
+        id_eq: term,
+        name_cont: term,
+        m: 'or'
+      ).result
+    end
   )
 
   actions :all, except: :destroy

@@ -40,7 +40,7 @@ class Mushaf < QuranApiRecord
   end
 
   def humanize
-    "#{name} - Pages #{pages_count} - Lines #{lines_per_page}"
+    "#{id}- #{name} - Pages #{pages_count} - Lines #{lines_per_page}"
   end
 
   def percentage_done

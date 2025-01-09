@@ -6,7 +6,7 @@ class QuranEnc::ImportDraftTranslationJob < ApplicationJob
 
     if resource.tafsir?
       importer = Importer::QuranEncTafsir.new
-      importer.import_abridge_tafsir resource.quran_enc_key
+      importer.import resource.quran_enc_key
     else
       importer = Importer::QuranEnc.new
       importer.import resource.quran_enc_key

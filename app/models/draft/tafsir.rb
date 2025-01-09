@@ -34,6 +34,8 @@
 #  index_draft_tafsirs_on_verse_key     (verse_key)
 #
 class Draft::Tafsir < ApplicationRecord
+  include HasMetaData
+
   belongs_to :resource_content
   belongs_to :verse
   belongs_to :group_tafsir, class_name: 'Verse', optional: true # TODO: rename to group_verse

@@ -287,6 +287,7 @@ class ExportMushafLayout
     page_count = mushaf.mushaf_pages.count
     exported_words_count = 0
     exported_page_count = ExportedLayout.connection.execute("SELECT COUNT(DISTINCT page) FROM #{table_name}").first[0]
+    lines_count_per_page = ExportedLayout.select(:page, 'COUNT(line) as lines').group(:page)
 
     ExportedLayout.where(type: 'ayah').each do |line|
       next if line.range_start.nil? || line.range_end.nil?
@@ -309,6 +310,13 @@ class ExportMushafLayout
 
     stats[:exported_layouts][table_name][:issues] ||= []
     layout_stats = stats[:exported_layouts][table_name]
+
+    lines_count_per_page.each do |page|
+      mushaf_page = mushaf.mushaf_pages.find_by(page_number: page.page)
+      if page.lines != mushaf_page.lines_count
+        layout_stats[:issues].push("Page #{page.page} has #{page.lines} lines. Should have #{mushaf_page.lines_count} lines");
+      end
+    end
 
     if layout_stats[:surah_name_lines] != 114
       layout_stats[:issues].push("Surah name lines count is not 114")

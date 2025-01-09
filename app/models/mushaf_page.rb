@@ -43,22 +43,22 @@ class MushafPage < QuranApiRecord
   end
 
   def update_lines_count
-    last_word = MushafWord.unscoped.where(
+    words = MushafWord.unscoped.where(
       mushaf_id: mushaf_id,
       page_number: page_number
-    ).order('line_number DESC').first
+    )
 
-    last_line = MushafLineAlignment
-                  .where(
-                    mushaf_id: mushaf_id,
-                    page_number: page_number
-                  )
-                  .order('line_number DESC').first
+    line_alignments = MushafLineAlignment
+                        .where(
+                          mushaf_id: mushaf_id,
+                          page_number: page_number
+                        )
+                        .order('line_number DESC')
 
-    if last_word
-      line = [last_line&.line_number.to_i, last_word.line_number].max
-      update_column :lines_count, line
-    end
+    word_lines = words.pluck(:line_number).uniq
+    word_lines += line_alignments.pluck(:line_number)
+
+    update_column :lines_count, word_lines.uniq.size
   end
 
   def lines

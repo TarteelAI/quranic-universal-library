@@ -18,18 +18,38 @@ module Importer
 
     def get_change_log_for_key(quranenc_key)
       get_change_log.detect do |version|
-        version['key'] == quranenc_key
+        version[:key] == quranenc_key
       end
     end
 
     def get_change_log
       strong_memoize :quranenc_change_log do
         begin
-          response = with_rescue_retry([RestClient::Exceptions::ReadTimeout], retries: 3, raise_exception_on_limit: true) do
-            RestClient.get(QURANENC_CHANGE_LOG_API)
+          page = with_rescue_retry([RestClient::Exceptions::ReadTimeout], retries: 3, raise_exception_on_limit: true) do
+            get_html("https://quranenc.com/en")
           end
 
-          JSON.parse response.body
+          links = page.search('.toggle.woww .toggle-content a')
+
+          keys = links.map do |link|
+            url = link['href']
+            url.split('/browse/')[1]
+          end
+
+          keys.compact_blank.uniq.map do |key|
+            link = page.link_with(href: /browse\/#{key}/)
+            parent = link.node.parent
+            last_updated = parent.search('.label-light').text.strip
+            match = last_updated.match(/(\d{4}-\d{2}-\d{2}) - V([\d.]+)/)
+            name = parent.search('label').text.strip
+
+            {
+              key: key,
+              name: name,
+              last_update: match[1].to_datetime,
+              version: match[2]
+            }
+          end
         rescue JSON::ParserError => e
           []
         end
@@ -253,17 +273,19 @@ module Importer
     def create_translation(verse, text, resource)
       draft_text = strip_ayah_number_from_start(text, resource)
 
-      current_text = Translation.where(
+      current_translation = Translation.where(
         verse_id: verse.id,
         resource_content_id: resource.id
-      ).first&.text.to_s
+      ).first
 
       translation = Draft::Translation.where(
         verse: verse,
         resource_content: resource
       ).first_or_initialize
+      current_text = current_translation&.text
 
-      translation.draft_text = draft_text.gsub(/\r?\n+r?/, ' ').strip #simple_format(draft_text)
+      translation.translation_id = current_translation&.id
+      translation.draft_text = draft_text.gsub(/\r?\n+r?/, ' ').strip # simple_format(draft_text)
       translation.current_text = current_text
       translation.text_matched = current_text == draft_text
       translation.imported = false
@@ -439,7 +461,7 @@ module Importer
     # Most translation of QuranEnc has ayah number at the beginning of text
     # These regexps are used remove those number
     REGEXP_STRIP_TEXT = {
-      amharic_sadiq:  /^\{\d+\}/,
+      amharic_sadiq: /^\{\d+\}/,
       lingala_zakaria: /^\d+[\.\s]?|\d+$/,
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,

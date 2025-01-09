@@ -147,6 +147,29 @@ ActiveAdmin.register Draft::Tafsir do
       row :diff do
         div Diffy::Diff.new(resource.current_text.to_s, resource.draft_text.to_s).to_s(:html).html_safe
       end
+
+      row :quran_enc_link do
+        resource_content = resource.resource_content
+        verse = resource.verse
+        div do
+          link_to('View on QuranEnc',
+                  "https://quranenc.com/en/browse/#{resource_content.quran_enc_key}/#{verse.verse_key.sub(':', '/')}",
+                  target: '_blank',
+                  rel: 'noopener')
+        end
+      end
+
+      row :meta_data do
+        if resource.meta_data.present?
+          div do
+            pre do
+              code do
+                JSON.pretty_generate(resource.meta_data)
+              end
+            end
+          end
+        end
+      end
     end
   end
 
@@ -157,6 +180,10 @@ ActiveAdmin.register Draft::Tafsir do
     div "Total: #{tafisrs.size}"
     div "Imported: #{imported.size}"
 
+    tafisrs = tafisrs.sort_by do |t|
+      t.id == selected ? 0 : 1
+    end
+
     div class: 'd-flex w-100 flex-column sidebar-item' do
       tafisrs.each do |resource_content|
         div class: "w-100 p-1 flex-between border-bottom mb-3 #{'selected' if selected == resource_content.id}"  do
@@ -165,8 +192,10 @@ ActiveAdmin.register Draft::Tafsir do
             imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
           end
 
-            div "#{resource_content.name}(#{resource_content.language_name})"
-            div class: 'd-flex my-2 flex-between gap-2' do
+          div "#{resource_content.name}(#{resource_content.language_name})"
+          div "Synced: #{resource_content.meta_value('synced-at')} Updated: #{resource_content.updated_at}"
+
+          div class: 'd-flex my-2 flex-between gap-2' do
               span(link_to 'Filter', "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
 
               if can?(:manage, :draft_content)

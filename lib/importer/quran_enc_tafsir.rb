@@ -10,13 +10,13 @@ module Importer
       tabary: {
         '008000': 'arabic qpc-hafs green', # Lime green
         '950000': 'red', # Burgundy, usually name of sahabi, surah
-        '006d98': 'blue', #teal blue, usually quote (qala)
+        '006d98': 'blue', # teal blue, usually quote (qala)
         '947721': 'arabic qpc-hafs brown',
         '707070': 'reference'
       },
       katheer: {
         '008000': 'arabic qpc-hafs',
-        '006d98': 'blue', #teal blue
+        '006d98': 'blue', # teal blue
         '950000': 'red',
         '707070': 'reference brown'
       },
@@ -44,14 +44,11 @@ module Importer
     }
 
     TAFSIR_MAPPING = {
-      moyassar: 16,
-      saadi: 91,
-      baghawy: 94,
-      katheer: 14,
-      tabary: 15
-    }
-
-    ABRIDGE_TAFSIR_MAPPING = {
+      arabic_moyassar: { id: 16, key: 'moyassar' },
+      saadi: { id: 91 },
+      baghawy: { id: 94 },
+      katheer: { id: 14 },
+      tabary: { id: 15 },
       russian_mokhtasar: {
         id: 178,
         language: 138,
@@ -161,6 +158,48 @@ module Importer
         name: 'Khmer Abridged Explanation of the Quran',
         author: 'Tafsir Center of Quranic Studies'
       },
+      uzbek_mokhtasar: {
+        id: 1275,
+        name: 'Uzbek mokhtasar',
+        language: ''
+      },
+      uyghur_mokhtasar: {
+        id: 1274,
+      },
+      thai_mokhtasar: {
+
+      },
+      telugu_mokhtasar: {
+
+      },
+      tamil_mokhtasar: {
+
+      },
+      serbian_mokhtasar: {
+
+      },
+      sinhalese_mokhtasar: {
+
+      },
+      pashto_mokhtasar: {
+
+      },
+      kyrgyz_mokhtasar: {
+
+      },
+      kurdish_mokhtasar: {
+
+      },
+      hindi_mokhtasar: {
+
+      },
+      fulani_mokhtasar: {
+
+      },
+      azeri_mokhtasar: {
+
+      },
+
       arabic_seraj: {
         id: 908,
         language: 9,
@@ -171,12 +210,12 @@ module Importer
     }
 
     def import_all_abridge
-      ABRIDGE_TAFSIR_MAPPING.keys.each do |key|
-        import_abridge_tafsir(key)
+      TAFSIR_MAPPING.keys.each do |key|
+        import(key)
       end
     end
 
-    def import_abridge_tafsir(quran_enc_key)
+    def import(quran_enc_key)
       resource = find_or_create_resource(quran_enc_key)
 
       Verse.unscoped.order('id ASC').find_each do |verse|
@@ -193,11 +232,13 @@ module Importer
         end
       end
 
+      resource.set_meta_value('synced-at', DateTime.now)
       resource.run_draft_import_hooks
+      resource.save
     end
 
     def download(quran_enc_key)
-      resource = ResourceContent.find(TAFSIR_MAPPING[quran_enc_key.to_sym])
+      resource = find_or_create_resource(quran_enc_key)
       raise "Resource Content is not configured for #{quran_enc_key}" if resource.blank?
 
       FileUtils.mkdir_p("data/quranenc-tafsirs/#{quran_enc_key}")
@@ -208,7 +249,7 @@ module Importer
     end
 
     def import(quran_enc_key, use_cached_data: false)
-      resource = ResourceContent.find(TAFSIR_MAPPING[quran_enc_key.to_sym])
+      resource = find_or_create_resource(quran_enc_key)
 
       if use_cached_data
         source_path = "data/quranenc-tafsirs/#{quran_enc_key}"
@@ -252,7 +293,7 @@ module Importer
     protected
 
     def find_or_create_resource(quran_enc_key)
-      mapping = ABRIDGE_TAFSIR_MAPPING[quran_enc_key.to_sym]
+      mapping = TAFSIR_MAPPING[quran_enc_key.to_sym]
       raise "mapping not found for tafsir #{quran_enc_key}. Please add the mapping and try again" if mapping.nil?
 
       resource = if mapping[:id]
@@ -305,11 +346,12 @@ module Importer
                           .where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: verse.id)
                           .first
 
+      draft_tafsir.set_meta_value('source_data', { text: content })
       draft_tafsir.tafsir_id = existing_tafsir&.id
       draft_tafsir.current_text = existing_tafsir&.text
       draft_tafsir.draft_text = text
       draft_tafsir.text_matched = existing_tafsir&.text == text
-
+      draft_tafsir.imported = false
       draft_tafsir.verse_key = verse.verse_key
 
       draft_tafsir.group_verse_key_from = verse.verse_key
@@ -323,6 +365,7 @@ module Importer
     end
 
     def sanitize_text(text, quran_enc_key)
+      binding.pry if @DEBUG.nil?
       color_mapping = COLOR_MAPPING[quran_enc_key.to_sym]
       text = text.gsub(STRIP_TEXT_REG, '').strip
       SANITIZER.sanitize(text, color_mapping: color_mapping).html

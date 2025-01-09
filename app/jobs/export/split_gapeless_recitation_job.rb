@@ -1,14 +1,21 @@
 module Export
   class SplitGapelessRecitationJob < ApplicationJob
+    sidekiq_options retry: 0, backtrace: true
     STORAGE_PATH = "#{Rails.root}/tmp/gapped_audio"
 
-    def perform(audio_recitation_id, host, user_id)
-      base_path = prepare_file_paths
+    def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, create_ayah_recitation: false)
+      base_path = prepare_file_paths(recitation_id)
 
-      create_ayah_recitation_audio_files(audio_recitation_id, host)
-      split_audio_files(base_path, audio_recitation_id)
+      create_ayah_recitation_audio_files(recitation_id, host) if create_ayah_recitation
+      split_audio_files(
+        base_path,
+        recitation_id,
+        surah: surah,
+        ayah_from: ayah_from,
+        ayah_to: ayah_to
+      )
 
-      send_email(file_path, user_id)
+      send_email(base_path, user_id, recitation_id)
     end
 
     protected
@@ -34,23 +41,37 @@ module Export
         audio_file.save(validate: false)
       end
 
-      segment_split = Audio::SplitGapelessSegment.new(audio_recitation_id, ayah_recitation.id)
+      segment_split = Audio::SplitGapelessSegment.new(
+        audio_recitation_id,
+        ayah_recitation.id
+      )
 
       1.upto(114).each do |chapter_id|
         segment_split.split_surah(chapter_id)
       end
     end
 
-    def split_audio_files(base_path, audio_recitation_id)
-      audio_split = Audio::SplitGapelessAudio.new(audio_recitation_id, base_path)
+    def split_audio_files(base_path, audio_recitation_id, surah: , ayah_from:, ayah_to:)
+      audio_split = Audio::SplitGapelessAudio.new(
+        audio_recitation_id,
+        base_path
+      )
 
-      1.upto(114).each do |chapter|
-        audio_split.split_surah(chapter)
+      if surah.present?
+        audio_split.split_surah(
+          surah.to_i,
+          ayah_from: ayah_from,
+          ayah_to: ayah_to
+        )
+      else
+        1.upto(114).each do |chapter|
+          audio_split.split_surah(chapter)
+        end
       end
     end
 
-    def prepare_file_paths
-      file_path = "#{STORAGE_PATH}/#{Time.now.to_i}/audio_files"
+    def prepare_file_paths(recitation_id)
+      file_path = "#{STORAGE_PATH}/#{recitation_id}"
       FileUtils::mkdir_p file_path
 
       file_path
@@ -73,17 +94,18 @@ module Export
       db.close
     end
 
-    def send_email(file_path, user_id)
+    def send_email(file_path, user_id, recitation_id)
+      recitation = Audio::Recitation.find(recitation_id)
       user = User.find(user_id)
 
       # zip the file
-      `bzip2 #{file_path}`
+      `bzip2 #{file_path}/ayah-by-ayah`
 
-      zip_path = "#{file_path}.bz2"
+      zip_path = "#{file_path}/ayah-by-ayah.bz2"
 
       DeveloperMailer.notify(
         to: user.email,
-        subject: "Ayah recitation segments dump file",
+        subject: "#{recitation.name} audio files",
         message: email_body(user),
         file_path: zip_path
       ).deliver_now

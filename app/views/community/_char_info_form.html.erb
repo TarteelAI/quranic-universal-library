@@ -1,4 +1,3 @@
-
 <%
   if (params[:text].present?)
     text = params[:text].to_s
@@ -54,7 +53,7 @@
       </div>
     </div>
 
-   <%= render 'char_font_options' %>
+    <%= render 'char_font_options' %>
 
     <div class="section">
       <% if uniq_chars.present? %>
@@ -67,12 +66,12 @@
           Uniq Chars: <%= uniq_chars.length %>
         </div>
 
-          <div data-text="<%= char_set -%>"
-              title="Copy <%= char_set %>"
-              data-controller="tooltip copy-to-clipboard"
-              class="char"
-          >
-          <%= char_set  %>
+        <div data-text="<%= char_set -%>"
+             title="Copy <%= char_set %>"
+             data-controller="tooltip copy-to-clipboard"
+             class="char"
+        >
+          <%= char_set %>
         </div>
       <% end %>
 
@@ -85,8 +84,8 @@
           <th>Count</th>
           <th>Decimal</th>
           <th>HTML entity</th>
-          <th>Hexa</th>
-          <th>Link</th>
+          <th>Decomposition</th>
+          <th>Hex</th>
         </tr>
         </thead>
         <tbody>
@@ -95,11 +94,12 @@
             <%
               hex = char.ord.to_s(16).rjust(4, '0')
               decimal = char.ord
+              decomposition = char.unicode_normalize(:nfd)
             %>
             <td><%= i + 1 %></td>
             <td>
               <% if params[:script].present? %>
-                <%= link_to Unicode::Name.of(char), chars_info_path(char: char, script: params[:script]), target: '_blank' %>
+                <%= link_to Unicode::Name.of(char) || 'UNDEF', chars_info_path(char: char, script: params[:script]), target: '_blank' %>
               <% else %>
                 <%= Unicode::Name.of(char) %>
               <% end %>
@@ -114,7 +114,22 @@
             <td><%= chars.count char %></td>
             <td><%= decimal %></td>
             <td><%= "&##{decimal};" %></td>
-            <td><%= hex %></td>
+            <td>
+              <% if decomposition.size > 1 %>
+                <span class="char">
+                (<%= decomposition.chars.join(" - ") %>)
+                </span>
+
+                <span class="ml-2"
+                      data-text="<%= decomposition -%>"
+                      title="Copy <%= decomposition %>"
+                      data-controller="tooltip copy-to-clipboard"
+                      class="char"
+                >
+                  Copy <%= decomposition %>
+                </span>
+              <% end %>
+            </td>
             <td><%= link_to hex, "https://www.compart.com/en/unicode/U+#{hex}", target: '_blank' %></td>
           </tr>
         <% end %>

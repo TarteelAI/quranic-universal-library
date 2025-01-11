@@ -31,16 +31,16 @@ class SIGNUP {
 
   validateLandingPage() {
     cy.get(".qul-logo").should("be.visible");
-    cy.get('a[href="/resources"]').should("contain.text", "Resources");
-    cy.get('a[href="/tools"]').should("contain.text", "Tools");
-    cy.get('a[href="https://discord.gg/HAcGh8mfmj"]').should(
+    cy.get('a[href="/resources"]').first().should("contain.text", "Resources");
+    cy.get('a[href="/tools"]').first().should("contain.text", "Tools");
+    cy.get('a[href="https://discord.gg/HAcGh8mfmj"]').first().should(
       "contain.text",
       "Community"
     );
-    cy.get('a[href="/faq"]').should("contain.text", "FAQ");
+    cy.get('a[href="/faq"]').first().should("contain.text", "FAQ");
     cy.get(
       'a[href="https://github.com/TarteelAI/quranic-universal-library"]'
-    ).should("contain.text", "Sign In");
+    ).first().should("contain.text", "Github");
   }
 
   goToAdminPanel() {

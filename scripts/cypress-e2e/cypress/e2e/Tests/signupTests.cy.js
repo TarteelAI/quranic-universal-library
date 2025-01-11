@@ -7,7 +7,7 @@ describe("Signup & Forgot Password Scenarios.", () => {
   it("Signup process for new user.", () => {
     let signup = new SIGNUP();
     cy.visit("/");
-    // signup.validateLandingPage();
+    signup.validateLandingPage();
     signup.goToAdminPanel();
     signup.toostMessage("You need to sign in or sign up before continuing.");
     signup.createNewUser();

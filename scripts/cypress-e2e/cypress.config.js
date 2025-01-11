@@ -7,7 +7,7 @@ module.exports = defineConfig({
   requestTimeout: 180000,
   responseTimeout: 180000,
   failOnStatusCode: false,
-  defaultCommandTimeout: 60000,
+  defaultCommandTimeout: 10000,
   watchForFileChanges: false,
   chromeWebSecurity: false,
   failOnNonZeroExit: false,

@@ -13,12 +13,14 @@ describe('Resources Page Tests', () => {
         signup.validateSignInSuccess();
     })
 
-    it('Resources page test suite', () => {
+    it.only('Resources page test suite', () => {
         let resources = new RESOURCES();
         cy.visit('/');
         resources.validateLandingPage();
         resources.clickResourcesTab();
         resources.clickLogo();
         resources.clickGetStartedButton();
+        resources.verifyAvailableResources();
+        resources.verifyResourcesNames();
     })
   })

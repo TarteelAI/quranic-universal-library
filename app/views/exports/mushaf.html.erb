@@ -1,0 +1,29 @@
+<style>
+  #content{
+      border: 1px solid;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+</style>
+
+<div id="content"
+     class="<%= params[:css_class] %>"
+     data-file-name="mushaf/<%= @mushaf.id %>/<%= params[:page_number] %>"
+>
+  <% 1.upto(@mushaf.pages_count) do |page| %>
+    <% words = MushafWord.where(
+      mushaf_id: @mushaf,
+      page_number: page
+    ).order('position_in_page ASC')
+    %>
+
+    <%= render 'shared/mushaf_page',
+               words: words,
+               page: page,
+               mushaf: @mushaf,
+               hide_controls: true
+    %>
+  <% end %>
+</div>
+

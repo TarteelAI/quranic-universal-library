@@ -93,6 +93,7 @@ Rails.application.routes.draw do
     get :word
     get :ayah
     get :mushaf_page
+    get :mushaf
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah

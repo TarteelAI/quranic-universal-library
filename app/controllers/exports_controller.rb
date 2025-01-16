@@ -27,6 +27,10 @@ class ExportsController < ApplicationController
     ).order('position_in_page ASC')
   end
 
+  def mushaf
+    @mushaf = Mushaf.find(params[:mushaf_id])
+  end
+
   protected
 
   def set_defaults

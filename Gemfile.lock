@@ -83,6 +83,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    add (0.3.2)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
@@ -191,6 +192,8 @@ GEM
     faraday_middleware (1.2.0)
       faraday (~> 1.0)
     ffi (1.16.3)
+    ffi-hunspell (0.6.1)
+      ffi (~> 1.0)
     fog-aws (3.14.0)
       fog-core (~> 2.1)
       fog-json (~> 1.1)
@@ -578,6 +581,7 @@ DEPENDENCIES
   activeadmin (~> 3.2.3)
   activeadmin-searchable_select (>= 1.8.0)
   activerecord-import
+  add (~> 0.3.2)
   addressable
   annotate
   aws-sdk-s3 (~> 1.130)
@@ -597,6 +601,7 @@ DEPENDENCIES
   dotenv
   engtagger
   escompress (~> 1.0)
+  ffi-hunspell
   fog-aws
   image_processing
   inline_svg (~> 1.10)

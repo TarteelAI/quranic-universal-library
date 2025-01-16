@@ -342,7 +342,11 @@ class ResourceContent < QuranApiRecord
     if tafsir?
       Draft::Tafsir.where(resource_content_id: id)
     else
-      Draft::Translation.where(resource_content_id: id)
+      if one_word?
+        Draft::WordTranslation.where(resource_content_id: id)
+      else
+        Draft::Translation.where(resource_content_id: id)
+      end
     end
   end
 

@@ -1,6 +1,6 @@
 =begin
 Usage
-s=LayoutExporter::PageIndicesLookup.new mushaf_id: 2
+s=LayoutExporter::PageIndicesLookup.new mushaf_id: 6
 s.export
 =end
 

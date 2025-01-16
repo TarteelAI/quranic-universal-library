@@ -1,29 +1,44 @@
-function calculateLineWidthRatios() {
-  let pages = document.querySelectorAll('.page');
+function calculateLineWidthRatios(onlyCenterLine = true, pageWidth) {
+  let pages = document.querySelectorAll(".page");
   let results = {};
 
-  pages.forEach(page => {
-    let pageNumber = page.id.replace("page-", ""); // Extract page number
-    let totalWidth = page.getBoundingClientRect().width; // 90% of total width
+  pages.forEach((page) => {
+    let pageNumber = parseInt(page.id.replace("page-", ""), 10);
+    let totalWidth = pageWidth || page.getBoundingClientRect().width;
+    let maxWidth = 1;
 
-    let lines = page.querySelectorAll('.line.line--center');
-    let pageRatios = {};
+    // Use 90% width for pages 1 and 2, otherwise 100%
+    if (pageNumber === 1 || pageNumber === 2) {
+      totalWidth *= 0.9;
+      maxWidth = 0.9;
+    }
 
-    lines.forEach(line => {
-      let lineNumber = line.parentElement.dataset.line; // Get line number
+    let lines;
+
+    if(onlyCenterLine){
+       lines = page.querySelectorAll(".line.line--center");
+    } else{
+      lines = page.querySelectorAll(".line");
+    }
+    let lineRatios = {};
+
+    lines.forEach((line) => {
+      let lineNumber = line.parentElement.dataset.line;
       let lineWidth = 0;
-      let ayahs = line.querySelectorAll('.ayah-container');
+      let ayahs = line.querySelectorAll(".ayah-container");
 
-      ayahs.forEach(ayah => {
+      ayahs.forEach((ayah) => {
         lineWidth += ayah.getBoundingClientRect().width;
       });
 
-      let ratio = lineWidth / totalWidth; // Use 90% of total width
-      pageRatios[lineNumber] = parseFloat(ratio.toFixed(2));
+      let ratio = lineWidth / totalWidth;
+
+      // Ensure ratio does not exceed 1
+      lineRatios[lineNumber] = Math.min(parseFloat(ratio.toFixed(2)), maxWidth);
     });
 
-    if (Object.keys(pageRatios).length > 0) {
-      results[pageNumber] = pageRatios;
+    if (Object.keys(lineRatios).length > 0) {
+      results[pageNumber] = lineRatios;
     }
   });
 
@@ -31,5 +46,5 @@ function calculateLineWidthRatios() {
   return results;
 }
 
-results = calculateLineWidthRatios();
-JSON.stringify(results)
+let results = calculateLineWidthRatios();
+console.log(JSON.stringify(results));

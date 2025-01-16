@@ -11,6 +11,7 @@
 #  group_verses_count   :integer
 #  imported             :boolean          default(FALSE)
 #  md5                  :string
+#  meta_data            :jsonb
 #  need_review          :boolean          default(FALSE)
 #  reviewed             :boolean          default(FALSE)
 #  text_matched         :boolean

@@ -101,9 +101,10 @@ ActiveAdmin.register ResourceContent do
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
 
-    if !current_user.super_admin?
-      return redirect_back fallback_location: "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}", alert: 'Sorry, you can not perform this action'
-    end
+    #if !current_user.super_admin?
+    #  return redirect_back fallback_location: "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}", alert: 'Sorry, you can not perform this action'
+    #end
+
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
@@ -121,7 +122,11 @@ ActiveAdmin.register ResourceContent do
     url = if resource.tafsir?
             "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
           elsif resource.translation?
-            "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+            if resource.one_word?
+              "/admin/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+            else
+              "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+            end
           else
             [:admin, resource]
           end
@@ -253,7 +258,11 @@ ActiveAdmin.register ResourceContent do
           if resource.tafsir?
             link_to("View draft tafsirs (#{resource.draft_translations.size} records)", "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}")
           else
-            link_to("View draft translations (#{resource.draft_translations.size} records)", "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
+            if resource.one_word?
+              link_to("View draft translations (#{resource.draft_translations.size} records)", "/admin/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
+            else
+              link_to("View draft translations (#{resource.draft_translations.size} records)", "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
+            end
           end
         else
           'No draft translation imported.'

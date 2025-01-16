@@ -10,7 +10,15 @@ module QuranEnc
       resource = ResourceContent.find(id)
 
       if remove_draft
-        resource.tafsir? ? remove_draft_tafsirs(resource) : remove_draft_translations(resource)
+        if resource.tafsir?
+          remove_draft_tafsirs(resource)
+        else
+          if resource.one_word?
+            remove_draft_word_translations(resource)
+          else
+            remove_draft_translations(resource)
+          end
+        end
       else
         resource.tafsir? ? approve_draft_tafsirs(resource) : approve_draft_translations(resource)
       end
@@ -29,6 +37,14 @@ module QuranEnc
         draft.foot_notes.delete_all
         draft.delete
       end
+
+      AdminTodo
+        .where(resource_content_id: resource.id)
+        .delete_all
+    end
+
+    def remove_draft_word_translations(resource)
+      Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
 
       AdminTodo
         .where(resource_content_id: resource.id)
@@ -63,8 +79,12 @@ module QuranEnc
     end
 
     def approve_draft_translations(resource)
-      PaperTrail.enabled = false
-      import_translations(resource)
+      #PaperTrail.enabled = false
+      if resource.one_word?
+        import_word_translations(resource)
+      else
+        import_translations(resource)
+      end
 
       resource.set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))
 
@@ -87,7 +107,7 @@ module QuranEnc
         body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
       )
 
-      PaperTrail.enabled = true
+      #PaperTrail.enabled = true
 
       AdminTodo
         .where(resource_content_id: resource.id)
@@ -131,6 +151,33 @@ module QuranEnc
         translation.save(validate: false)
 
         import_footnotes(draft, translation, language, resource)
+        draft.update_column(:imported, true)
+      end
+    end
+
+    def import_word_translations(resource)
+      #TODO: handle group words translation
+      language = resource.language
+
+      list = Draft::WordTranslation
+               .includes(
+                 :word,
+               )
+               .where(resource_content_id: resource.id)
+
+      list.find_each do |draft|
+        word = draft.word
+        translation = WordTranslation.where(
+          word_id: word.id,
+          resource_content_id: resource.id
+        ).first_or_initialize
+
+        translation.text = draft.draft_text.strip
+        translation.language_id = language.id
+        translation.language_name = language.name.downcase
+        translation.priority = resource.priority || 5
+        translation.save(validate: false)
+
         draft.update_column(:imported, true)
       end
     end

@@ -1,6 +1,6 @@
 =begin
 Usage
-s=LayoutExporter::AyahMetadata.new mushaf_id: 1
+s=LayoutExporter::AyahMetadata.new mushaf_id: 6
 s.export
 =end
 
@@ -15,7 +15,7 @@ module LayoutExporter
       chapter_fractions = []
       last_chapter = 1
 
-      MushafPage.where(mushaf_id: mushaf.id).order('page_number asc').each do |page|
+      pages.each do |page|
         page_letters_count = page_text_length(page)
 
         page_verses(page).each do |v|
@@ -27,12 +27,14 @@ module LayoutExporter
 
           text = ayah_text(v)
           ayah_letters_count = text.length
-          words_lettes_length = text.gsub(/\s+/, '').length
+          words_letters_length = text.gsub(/\s+/, '').length
           fraction = ayah_letters_count.to_f / page_letters_count.to_f
 
-          chapter_fractions << [words_lettes_length, ayah_letters_count, fraction]
+          chapter_fractions << [words_letters_length, ayah_letters_count, fraction]
         end
       end
+
+
       fractions << chapter_fractions
 
       File.open("#{export_path}/#{folder}.json", "wb") do |f|
@@ -61,10 +63,19 @@ module LayoutExporter
     end
 
     def ayah_text(verse)
-      QuranScript::ByVerse.where(
-        verse_id: verse.id,
-        resource_content_id: 1199
-      ).first.text
+      QuranScript::ByVerse
+        .where(
+          verse_id: verse.id,
+          resource_content_id: 1200
+        )
+        .first
+        .text
+    end
+
+    def pages
+      MushafPage
+        .where(mushaf_id: mushaf.id)
+        .order('page_number asc')
     end
   end
 end

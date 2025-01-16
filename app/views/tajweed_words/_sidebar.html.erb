@@ -1,6 +1,5 @@
 <%
   page_number = @word.page_number
-  old_tajweed_img_host = "https://static-cdn.tarteel.ai/qul/images/page/daralmarfiah-tajweed-old"
   new_tajweed_img_host = "https://static-cdn.tarteel.ai/qul/images/page/daralmarfiah-tajweed"
 %>
 
@@ -66,23 +65,6 @@
 
   <div class="offcanvas-body">
     <div class="text-center d-flex">
-      <div class="p-4 text-center"
-           data-controller="zoom-image"
-           data-page="<%= page_number %>"
-           data-host="<%= old_tajweed_img_host %>"
-      >
-        <label for="zoom-slider" class="form-label">Old Tajweed page</label>
-        <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-        <div class="d-flex justify-content-between">
-          <button class="btn btn-info" id="previous-page">Previous Page</button>
-          <button class="btn btn-info" id="next-page">Next page</button>
-        </div>
-
-        <div id="image-container" class="mt-4 p-4">
-          <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= old_tajweed_img_host %>/<%= page_number %>.jpg"/>
-        </div>
-      </div>
-
       <div class="p-4 text-center zoomable"
            data-controller="zoom-image"
            data-page="<%= page_number %>"

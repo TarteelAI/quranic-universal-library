@@ -11,6 +11,8 @@ module Utils
       ALLOWED_CLASS_VALUES = [
         'arabic',
         'qpc-hafs',
+        'indopak-nastaleeq',
+
         'blue',
         'red',
         'reference',

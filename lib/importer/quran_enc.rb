@@ -41,7 +41,7 @@ module Importer
             parent = link.node.parent
             last_updated = parent.search('.label-light').text.strip
             match = last_updated.match(/(\d{4}-\d{2}-\d{2}) - V([\d.]+)/)
-            name = parent.search('label').text.strip
+            name = parent.parent.search('label').text.strip
 
             {
               key: key,

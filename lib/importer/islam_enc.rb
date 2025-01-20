@@ -16,9 +16,9 @@ i.import 'tr'
 # fa: 38:17, 18:34-26, 18:37, 18:48, 38:49, 6:37, 29:23-27, 72:15-17, 72:18
 #
 
-DEBUG = true
 module Importer
   class IslamEnc < Base
+    DEBUG = true
     SANITIZER = Utils::TextSanitizer::TafsirSanitizer.new
     MAPPING = {
       ur: 906,
@@ -65,7 +65,7 @@ module Importer
 
           Draft::Tafsir
             .where(resource_content_id: resource.id)
-            .where(verse_id:  (first_ayah.id .. last_ayah.id))
+            .where(verse_id: (first_ayah.id..last_ayah.id))
             .update_all(
               group_verse_key_from: first_ayah.verse_key,
               group_verse_key_to: last_ayah.verse_key,
@@ -75,8 +75,8 @@ module Importer
               group_tafsir_id: first_ayah.id
             )
 
-          text =  Draft::Tafsir
-                    .where(resource_content_id: resource.id, verse_id: last_ayah.id).first.draft_text
+          text = Draft::Tafsir
+                   .where(resource_content_id: resource.id, verse_id: last_ayah.id).first.draft_text
 
           Draft::Tafsir
             .where(resource_content_id: resource.id, verse_id: first_ayah.id).update(draft_text: text)
@@ -89,7 +89,10 @@ module Importer
       resource = if MAPPING[lang.to_sym]
                    ResourceContent.find(MAPPING[lang.to_sym])
                  else
-                   ResourceContent.tafsirs.where(language_id: language.id, name: 'Tafsir As-Saadi').first_or_initialize
+                   ResourceContent.tafsirs.where(
+                     language_id: language.id,
+                     name: 'Tafsir As-Saadi'
+                   ).first_or_initialize
                  end
 
       resource.cardinality_type = ResourceContent::CardinalityType::NVerse
@@ -114,7 +117,6 @@ module Importer
         end
       end
 
-      Draft::Tafsir.where(resource_content_id: resource.id).where.not(id: new_tafsir_ids.flatten.uniq).delete_all
       resource.run_draft_import_hooks
     end
 
@@ -172,7 +174,7 @@ module Importer
           "c2" => 22154,
           "c3" => 116,
           "c6" => 14334,
-          "c5" => 5435, #group count
+          "c5" => 5435, # group count
           "c4" => 16674
         },
         "ru" => {
@@ -292,7 +294,7 @@ module Importer
       tafsir_groups = {}
       container.search(".alert.alert-warning").each do |group_dom|
         ayah_group_parent = group_dom.parent
-        group = group_dom.text.strip.scan(/\d+/).map(&:to_i)
+        group = parse_ayah_group(group_dom)
 
         group_dom.remove
         ayah_group_parent.search('.hafs').each do |a|
@@ -377,7 +379,7 @@ module Importer
       tafsir_groups = {}
       container.search(".alert.alert-warning").each do |group_dom|
         ayah_group_parent = group_dom.parent
-        group = group_dom.text.strip.scan(/\d+/).map(&:to_i)
+        group = parse_ayah_group(group_dom)
 
         group_dom.remove
         ayah_group_parent.search('.hafs').each do |a|
@@ -529,7 +531,7 @@ module Importer
       tafsir_groups = {}
       container.search(".alert.alert-warning").each do |group_dom|
         ayah_group_parent = group_dom.parent
-        group = group_dom.text.strip.scan(/\d+/).map(&:to_i)
+        group = parse_ayah_group(group_dom)
 
         group_dom.remove
         ayah_group_parent.search('.hafs').each do |a|
@@ -607,7 +609,7 @@ module Importer
 
       container.search(".alert.alert-warning").each do |group_dom|
         ayah_group_parent = group_dom.parent
-        group = group_dom.text.strip.scan(/\d+/).map(&:to_i)
+        group = parse_ayah_group(group_dom)
 
         group_dom.remove
         ayah_group_parent.search('.hafs').each do |a|
@@ -693,21 +695,23 @@ module Importer
         c2: 'green',
         c3: 'brown',
         c6: 'blue',
-        c5: 'brown' #group count
+        c5: 'brown' # group count
       }
 
       docs = Nokogiri::HTML::DocumentFragment.parse(File.read(file))
       container = docs.search(".container .col").first
 
       tafsir_groups = {}
+
       container.search(".alert.alert-warning").each do |group_dom|
         ayah_group_parent = group_dom.parent
-        group = group_dom.text.strip.scan(/\d+/).map(&:to_i)
-
+        group = parse_ayah_group(group_dom)
         group_dom.remove
+
         ayah_group_parent.search('.hafs').each do |a|
           a.parent.remove
         end
+
         group_translation = ayah_group_parent.children.to_s.strip
         ayah_group_parent.remove
 
@@ -744,25 +748,25 @@ module Importer
 
         ayah_group = find_group(tafsir_groups, group.first)
 
-        parsed_text = parsed_text.gsub! 'e', 'ﷺ'
+        #parsed_text = parsed_text.gsub! 'e', 'ﷺ'
 
         if ayah_range.blank?
           # some ayah ranges has the info, like reason for revelation etc.
           # make it part of the text
           tafsir_groups[ayah_group][:texts].push parsed_text
         else
+          binding.pry if tafsir_groups[ayah_group].blank?
           tafsir_groups[ayah_group][:texts].push parsed_text
         end
 
         last_ayah_group = ayah_group
       end
 
-      # File.open("debugg.html", "wb") do |f|
-      #   f.puts docs.to_s
-      # end
+      File.open("debugg.html", "wb") do |f|
+         f.puts docs.to_s
+       end
 
       tafsir_groups
-    rescue Exception => e
     end
 
     def import_groups(resource, groups, chapter, lang)
@@ -781,7 +785,7 @@ module Importer
     def find_group(tafsir_groups, ayah)
       ayah = ayah.to_i
 
-      tafsir_groups.keys.detect do |group|
+      ayah_group = tafsir_groups.keys.detect do |group|
         if group.length == 1
           group.include?(ayah.to_i)
         else
@@ -789,6 +793,8 @@ module Importer
           ayah >= first && ayah <= last
         end
       end
+
+      ayah_group
     end
 
     def sanitize_text(text, class_mapping)
@@ -816,6 +822,12 @@ module Importer
       end
 
       docs.to_s
+    end
+
+    def parse_ayah_group(group_dom)
+      group = group_dom.text.strip.scan(/\d+/).map(&:to_i)
+      group = group - [0] # Some ayah group has weird 0 value []0-29] for Urdu for example
+      group
     end
   end
 end

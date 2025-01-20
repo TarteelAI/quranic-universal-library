@@ -23,11 +23,11 @@ class MushafLayoutsController < CommunityController
 
     if !['center', 'bismillah', 'surah_name'].include?(alignment) || @record.alignment == alignment
       # We don't need to save justified lines, by default all lines are justified
-      # clicking same alignment should remove the data(there is no other way of clear the miss-click)
+      # clicking the same alignment should remove the data(there is no other way of clear the miss-click)
       @record.clear! if @record.persisted?
     else
       @record.alignment = alignment if @record.alignment.blank?
-      @record.properties[alignment] = true
+      @record.set_meta_value(alignment, true)
 
       @record.save(validate: false)
 

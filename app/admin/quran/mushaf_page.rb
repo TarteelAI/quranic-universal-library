@@ -40,7 +40,6 @@ ActiveAdmin.register MushafPage do
               ajax: { resource: Mushaf }
 
       f.input :page_number
-      f.input :verse_mapping
       f.input :verses_count
       f.input :lines_count
       f.input :first_verse_id
@@ -50,6 +49,8 @@ ActiveAdmin.register MushafPage do
       f.input :last_verse_id,
               as: :searchable_select,
               ajax: { resource: Verse }
+
+      f.input :verse_mapping, input_html: { data: { controller: 'json-editor', json: resource.verse_mapping } }
     end
 
     f.actions

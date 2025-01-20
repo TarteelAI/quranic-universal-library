@@ -33,7 +33,6 @@
 #  text_qpc_hafs_tajweed      :string
 #  text_qpc_nastaleeq         :string
 #  text_qpc_nastaleeq_hafs    :string
-#  text_qpc_tajweed           :string
 #  text_uthmani               :string
 #  text_uthmani_simple        :string
 #  text_uthmani_tajweed       :string
@@ -63,6 +62,7 @@
 
 class Word < QuranApiRecord
   include StripWhitespaces
+  include HasMetaData
 
   MUSHAF_TO_TEXT_ATTR_MAPPING = {
     1 => 'code_v2',
@@ -88,10 +88,13 @@ class Word < QuranApiRecord
   belongs_to :token, optional: true
 
   has_many :word_translations
+  has_one :word_translation
+
   has_many :transliterations, as: :resource
   has_many :word_synonyms
   has_many :synonyms, through: :word_synonyms
   has_many :mushaf_words
+  has_one :mushaf_word
   has_one :tajweed_word
 
   has_one :word_lemma
@@ -267,21 +270,6 @@ class Word < QuranApiRecord
 
   def hizb?
     text_uthmani.include? '۞'
-  end
-
-  def meta_data=(val)
-    json = Oj.load(val)
-
-    json.keys.each do |key|
-      formatted_key = format_meta_key(key)
-
-      if formatted_key != key
-        json[formatted_key] = json[key]
-        json.delete(key)
-      end
-    end
-
-    super json
   end
 
   protected

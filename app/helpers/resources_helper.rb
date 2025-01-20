@@ -2,7 +2,7 @@ module ResourcesHelper
   def featured_downloadable_resource_cards
     return @featured_downloadable_resource_cards if @featured_downloadable_resource_cards
 
-    recitations = ResourceContent.approved.recitations
+    recitations = DownloadableResource.recitations.published.recitations
     with_segments = recitations.with_segments.count
     total_recitations = recitations.count
 

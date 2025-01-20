@@ -35,6 +35,8 @@ class DownloadableResource < ApplicationRecord
 
   scope :published, -> { where published: true }
   scope :quran_script, -> { where resource_type: 'quran-script' }
+  scope :recitations, -> { where resource_type: 'recitation' }
+  scope :with_segments, -> { where("meta_data ->> 'has-segments' = 'yes'") }
 
   RESOURCE_TYPES = %w[
     quran-script
@@ -334,8 +336,12 @@ class DownloadableResource < ApplicationRecord
     resource_type == 'quran-script'
   end
 
+  def recitation?
+    resource_type == 'recitation'
+  end
+
   def previewable?
-    mushaf_layout? || quran_script?
+    mushaf_layout? || quran_script? || recitation?
   end
 
   def notify_users

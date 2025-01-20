@@ -51,25 +51,6 @@ module LearningActivityHelper
     verse ||= Verse.where('words_count > 6 AND words_count < 40').includes(:words).order("RANDOM()").first
     words = verse.words.select(&:word?)
 
-    words_to_show = words.sample((verse.words_count * 0.6).round)
-    remaining_words = words - words_to_show
-
-    {
-      verse: verse,
-      words: words,
-      words_to_show: words_to_show,
-      remaining_words: remaining_words.shuffle
-    }
-  end
-
-  def generate_complete_the_ayah_quiz
-    if params[:key]
-      verse = Verse.find_by(verse_key: params[:key].strip)
-    end
-
-    verse ||= Verse.where('words_count > 6 AND words_count < 40').includes(:words).order("RANDOM()").first
-    words = verse.words.select(&:word?)
-
     total_words = words.size
     blanks_to_create = (total_words * 0.4).round
 

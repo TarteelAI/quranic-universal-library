@@ -84,16 +84,30 @@
       </div>
 
       <div class="me-auto">
-        <button class="btn btn-primary btn-sm" @click="stepUp">Forward</button>
-        <button class="btn btn-primary mx-1 btn-sm" @click="stepBack">Backward
+        <button
+            class="btn btn-primary btn-sm"
+            @click="stepForward"
+            data-controller="tooltip"
+            :title="`Forward ${stepDuration} seconds`"
+        >
+          Forward
+        </button>
+        <button
+            class="btn btn-primary mx-1 btn-sm"
+            @click="stepBackword"
+            data-controller="tooltip"
+            :title="`Backword ${stepDuration} seconds`"
+        >
+          Backward
         </button>
         <br/>
         <div class="mt-1">
           <input
               type="number"
-              v-model="stepDuration"
               placeholder="step duration"
               class="form-control-xs"
+              :value="stepDuration"
+              @change="updateStepDuration"
           />
         </div>
       </div>
@@ -179,9 +193,14 @@
                   :disabled="segmentLocked"
                   @change="currentAyahTimeFromChanged"
               />
-              <small class="form-text d-block" v-if="!!verseOriginalSegment">{{
+              <small
+                  class="form-text d-block"
+                  v-if="!!verseOriginalSegment"
+              >
+                {{
                   verseOriginalSegment.timestamp_from
-                }}</small>
+                }}
+              </small>
             </div>
 
             <div>
@@ -189,9 +208,9 @@
                   type="number"
                   placeholder="to"
                   ref="ayahTimeToInput"
+                  class="form-control-xs"
                   :disabled="segmentLocked"
                   :value="currentAyahTimeTo"
-                  class="form-control-xs"
                   @change="currentAyahTimeToChanged"
               />
               <small class="form-text d-block" v-if="!!verseOriginalSegment">{{
@@ -256,8 +275,9 @@ export default {
   },
   mounted() {
     hotkeys.filter = function (event) {
-      return true;
+      return !(event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA');
     }
+
     hotkeys("space, left, right, z, x, s, f, n, a, d", (event, handler) => {
       if (this.disableHotkeys)
         return
@@ -266,10 +286,10 @@ export default {
           this.togglePlay();
           break;
         case "left":
-          this.stepBack();
+          this.stepBackword();
           break;
         case "right":
-          this.stepUp();
+          this.stepForward();
           break;
         case "z":
           this.markAyahStart();
@@ -307,8 +327,8 @@ export default {
   },
   data() {
     return {
-      stepDuration: 10,
       sliderRange: [0, 0],
+      sliderLoaded: false,
       sliderOptions: {
         pips: {
           mode: "range",
@@ -318,9 +338,6 @@ export default {
     };
   },
   watch: {
-    stepDuration(value, oldValue) {
-      this.$store.commit("SET_STEP_DURATION", {value: value});
-    },
     sliderRange(value, oldValue) {
       if (this.sliderLoaded) {
         this.updateCurrentAyahTime(value);
@@ -352,9 +369,7 @@ export default {
     ]),
 
     disablePlay() {
-      if (!!this.audioSrc) return false;
-
-      return true;
+      return !this.audioSrc;
     },
     sliderMaxRange() {
       this.sliderRange = [this.currentAyahTimeFrom, this.currentAyahTimeTo];
@@ -387,6 +402,10 @@ export default {
     currentAyahTimeFromChanged(event) {
       const value = Number(event.target.value);
       this.$store.commit("SEGMENT_START_CHANGED", {value: value});
+    },
+    updateStepDuration(event){
+      const value = Number(event.target.value);
+      this.$store.commit("SET_STEP_DURATION", {value: value});
     },
     updateCurrentAyahTime(value) {
       if (this.$refs.ayahTimeFromInput) {
@@ -455,13 +474,13 @@ export default {
       if (player.paused) playAyah();
       this.$store.commit("TOGGLE_LOOP_AYAH");
     },
-    stepUp() {
-      player.currentTime += this.stepDuration / 1000;
-      this.$store.commit("SET_ALERT", {text: `Forward ${this.stepDuration / 1000} seconds`});
+    stepForward() {
+      player.currentTime += this.stepDuration * 1000;
+      this.$store.commit("SET_ALERT", {text: `Forward ${this.stepDuration} seconds`});
     },
-    stepBack() {
-      player.currentTime -= this.stepDuration / 1000;
-      this.$store.commit("SET_ALERT", {text: `Backward ${this.stepDuration / 1000} seconds`});
+    stepBackword() {
+      player.currentTime -= this.stepDuration * 1000;
+      this.$store.commit("SET_ALERT", {text: `Backward ${this.stepDuration} seconds`});
     },
     changeAutoSave(event) {
       this.$store.commit("SET_AUTO_SAVE", {value: event.target.checked});

@@ -1,0 +1,7 @@
+json.pagination do
+  json.current_page  pagination.page
+  json.next_page     pagination.next
+  json.per_page      pagination.items
+  json.total_pages   pagination.pages
+  json.total_count   pagination.count
+end

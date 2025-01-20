@@ -96,6 +96,24 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :chapters, only: [:index, :show]
+      resources :verses, only: [:show] do
+        collection do
+          get 'by_chapter/:chapter_number', to: 'verses#by_chapter', as: 'by_chapter'
+          get 'by_juz/:juz_number', to: 'verses#by_juz', as: 'by_juz'
+          get 'by_hizb/:hizb_number', to: 'verses#by_hizb', as: 'by_hizb'
+        end
+      end
+
+      namespace :audio do
+        resources :verse_recitations, only: [:index, :show]
+        resources :chapter_recitations, only: [:index, :show]
+      end
+    end
+  end
+
   get '/ayah/:key', to: 'ayah#show', as: :ayah
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all

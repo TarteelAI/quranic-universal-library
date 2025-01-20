@@ -38,4 +38,8 @@ class Language < QuranApiRecord
   def self.default
     Language.find_by(iso_code: :en)
   end
+
+  def self.find_with_id_or_iso_code(id)
+    Language.where(id: id).or(Language.where(iso_code: id)).first
+  end
 end

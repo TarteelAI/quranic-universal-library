@@ -34,7 +34,7 @@ const store = createStore({
       currentTimestamp: 0,
       currentAyahTimeFrom: 0,
       currentAyahTimeTo: 0,
-      stepDuration: 2,
+      stepDuration: 1,
       segmentChanged: false,
       isLooingAyah: false,
       isLooingWord: false,

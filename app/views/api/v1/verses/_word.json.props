@@ -1,0 +1,9 @@
+mw = word.mushaf_word
+
+json.extract! word, :id, :location, *extra_fields
+json.extract! mw, :text, :line_number, :page_number
+
+
+json.translation do
+  json.extract! word.word_translation, :text, :language_name, :language_id
+end

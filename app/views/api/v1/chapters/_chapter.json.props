@@ -1,0 +1,15 @@
+json.extract! chapter,
+              :id,
+              :bismillah_pre,
+              :revelation_order,
+              :revelation_place,
+              :name_complex,
+              :name_arabic,
+              :name_simple,
+              :verses_count
+
+json.translated_name do
+  json.extract! chapter.translated_name,
+                :language_name,
+                :name
+end

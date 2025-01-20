@@ -3,6 +3,9 @@
 ActiveAdmin.register Audio::ChapterAudioFile do
   menu parent: 'Audio'
   actions :all, except: :destroy
+  includes :chapter,
+           :audio_recitation
+
   searchable_select_options(
     scope: Audio::ChapterAudioFile,
     text_attribute: :humanize,
@@ -79,10 +82,11 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       row :format
       row :audio_url
       row :timing_percentiles
-      row :metadata
+      row :meta_data
       row :created_at
       row :updated_at
     end
+
     active_admin_comments
 
     panel 'Segments timing' do
@@ -126,9 +130,5 @@ ActiveAdmin.register Audio::ChapterAudioFile do
     Utils::System.start_sidekiq
 
     redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
-  end
-
-  def scoped_collection
-    super.includes :chapter, :audio_recitation
   end
 end

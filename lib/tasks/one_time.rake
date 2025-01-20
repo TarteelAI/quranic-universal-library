@@ -1,5 +1,10 @@
 namespace :one_time do
   task update_lines_count: :environment do
+    MushafLineAlignment.find_each do |line|
+      line.meta_data = line.meta_data
+      line.save
+    end
+
     MushafPage.find_each do |page|
       page.update_lines_count
     end
@@ -105,7 +110,7 @@ namespace :one_time do
     end
 
     pages.each do |p|
-      p.properties['surah_number'] = s
+      p.set_meta_value('surah_number', s)
       s += 1
       p.save
     end

@@ -147,6 +147,8 @@ gem "ruby-lokalise-api", "~> 4.5.1", require: false
 
 gem "kredis", "~> 1.3"
 gem "oj", "~> 3.14"
+gem 'props_template'
+
 gem "aws-sdk-s3", "~> 1.130"
 gem "rubyzip", "~> 2.3", require: false
 gem "cld3", "~> 3.6", require: false

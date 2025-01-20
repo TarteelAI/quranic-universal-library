@@ -1,0 +1,7 @@
+json.extract! verse, :id, :verse_key, *extra_fields
+
+if words
+  json.words do
+     json.array! verse.words, partial: ['word', locals: {extra_fields: word_fields}, as: 'word']
+  end
+end

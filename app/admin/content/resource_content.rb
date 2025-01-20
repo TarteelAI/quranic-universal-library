@@ -19,10 +19,12 @@ ActiveAdmin.register ResourceContent do
         resource_id_eq: term,
         m: 'or'
       ).result
-    end)
+    end
+  )
 
   menu parent: 'Content', priority: 1
   actions :all, except: :destroy
+  includes :language
 
   scope :with_footnotes
   scope :from_quranenc
@@ -336,10 +338,6 @@ ActiveAdmin.register ResourceContent do
       :meta_data,
       tag_ids: []
     ]
-  end
-
-  def scoped_collection
-    super.includes :language
   end
 
   sidebar 'Files for this resource', only: :show do

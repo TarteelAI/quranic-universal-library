@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_01_05_000133) do
+ActiveRecord::Schema[7.0].define(version: 2025_01_16_160316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -216,6 +216,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_05_000133) do
     t.string "comments"
     t.boolean "reviewed", default: false
     t.integer "user_id"
+    t.jsonb "meta_data", default: {}
     t.index ["need_review"], name: "index_draft_tafsirs_on_need_review"
     t.index ["tafsir_id"], name: "index_draft_tafsirs_on_tafsir_id"
     t.index ["text_matched"], name: "index_draft_tafsirs_on_text_matched"
@@ -243,6 +244,39 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_05_000133) do
     t.index ["text_matched"], name: "index_draft_translations_on_text_matched"
     t.index ["translation_id"], name: "index_draft_translations_on_translation_id"
     t.index ["verse_id"], name: "index_draft_translations_on_verse_id"
+  end
+
+  create_table "draft_word_translations", force: :cascade do |t|
+    t.string "draft_text"
+    t.string "current_text"
+    t.string "draft_group_text"
+    t.string "current_group_text"
+    t.integer "current_group_word_id"
+    t.integer "draft_group_word_id"
+    t.integer "word_id"
+    t.integer "verse_id"
+    t.integer "word_translation_id"
+    t.integer "language_id"
+    t.integer "resource_content_id"
+    t.integer "user_id"
+    t.boolean "text_matched", default: false
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.string "location"
+    t.integer "word_group_size", default: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["current_group_word_id"], name: "index_draft_word_translations_on_current_group_word_id"
+    t.index ["draft_group_word_id"], name: "index_draft_word_translations_on_draft_group_word_id"
+    t.index ["imported"], name: "index_draft_word_translations_on_imported"
+    t.index ["language_id"], name: "index_draft_word_translations_on_language_id"
+    t.index ["location"], name: "index_draft_word_translations_on_location"
+    t.index ["resource_content_id"], name: "index_draft_word_translations_on_resource_content_id"
+    t.index ["text_matched"], name: "index_draft_word_translations_on_text_matched"
+    t.index ["verse_id"], name: "index_draft_word_translations_on_verse_id"
+    t.index ["word_group_size"], name: "index_draft_word_translations_on_word_group_size"
+    t.index ["word_id"], name: "index_draft_word_translations_on_word_id"
+    t.index ["word_translation_id"], name: "index_draft_word_translations_on_word_translation_id"
   end
 
   create_table "dummy", force: :cascade do |t|
@@ -348,7 +382,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_05_000133) do
     t.string "alignment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "properties", default: {}
+    t.jsonb "meta_data", default: {}
     t.integer "page_number"
     t.integer "line_number"
     t.index ["line_number"], name: "index_mushaf_line_alignments_on_line_number"

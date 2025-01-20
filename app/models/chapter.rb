@@ -25,10 +25,11 @@
 
 class Chapter < QuranApiRecord
   include NavigationSearchable
+  include Slugable
   has_many :verses, inverse_of: :chapter
   has_many :translated_names, as: :resource
+  has_one :translated_name, as: :resource # for eager load
   has_many :chapter_infos
-  has_many :slugs
   has_one :default_slug, -> { where is_default: true}, class_name: 'Slug'
 
   serialize :pages

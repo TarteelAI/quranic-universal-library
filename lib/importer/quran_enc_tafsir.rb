@@ -159,45 +159,45 @@ module Importer
         author: 'Tafsir Center of Quranic Studies'
       },
       uzbek_mokhtasar: {
-        id: 1275,
+        id: 1283,
         name: 'Uzbek mokhtasar',
         language: ''
       },
       uyghur_mokhtasar: {
-        id: 1274,
+        id: 1282,
       },
       thai_mokhtasar: {
-
+        id: 1281
       },
       telugu_mokhtasar: {
-
+        id: 1280
       },
       tamil_mokhtasar: {
-
+        id: 1279
       },
       serbian_mokhtasar: {
-
+        id: 1278
       },
       sinhalese_mokhtasar: {
-
+        id: 1277
       },
       pashto_mokhtasar: {
-
+        id: 1276
       },
       kyrgyz_mokhtasar: {
-
+        id: 1275
       },
       kurdish_mokhtasar: {
-
+        id: 1274
       },
       hindi_mokhtasar: {
-
+        id: 1273
       },
       fulani_mokhtasar: {
-
+        id: 1272
       },
       azeri_mokhtasar: {
-
+        id: 1271
       },
 
       arabic_seraj: {

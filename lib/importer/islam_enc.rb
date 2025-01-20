@@ -23,7 +23,7 @@ module Importer
     MAPPING = {
       ur: 906,
       tr: 907,
-      fa: 909,
+      fa: 909, # persian_saadi
       id: 910,
       ru: 911,
       ar: 912

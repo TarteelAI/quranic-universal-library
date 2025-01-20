@@ -632,19 +632,33 @@ module Importer
       ankobambara_dayyan: { language: 19, name: 'Baba Mamady Jani', id: 796 },
 
       chichewa_betala: { id: 797, language: 123, name: 'Khaled Ibrahim Betala' },
-      dagbani_ghatubo: { id: 927, language: 191, name: 'Muhammad Baba Gutubu' },
+      dagbani_ghatubo: { id: 1270, language: 191, name: 'Muhammad Baba Gutubu' },
       yaw_silika: { language: 192, name: 'Abdul Hamid Silika', id: 799 },
       fulani_rwwad: { id: 800, language: 44, name: 'Rowad Translation Center' },
       asante_harun: { language: 170, name: 'Rowad Translation Center', id: 801 },
-      kurdish_salahuddin: { language: 89, name: 'Salahuddin Abdulkarim' }, # This one has embeded Arabic
+      kurdish_salahuddin: { id: 1263, language: 89, name: 'Salahuddin Abdulkarim' }, # This one has embeded Arabic
       uzbek_rwwad: { language: 175, name: 'Rowwad Translation Center', id: 868 },
-      korean_rwwad: { language: 86, name: 'Rowad Translation Center' },
-      kurmanji_ismail: { language: 89, name: 'Dr. Ismail Sigerey' },
+      korean_rwwad: { id: 1260, language: 86, name: 'Rowad Translation Center' },
+      kurmanji_ismail: { id: 1264, language: 89, name: 'Dr. Ismail Sigerey' },
       lithuanian_rwwad: { id: 904, language: 99 },
       kyrgyz_hakimov: { id: 858 },
       punjabi_arif: { id: 857 },
       lingala_zakaria: { id: 855, name: 'Zakariya Muhammed Balingongo' },
-      afar_hamza: { id: 854, name: 'Shaikh Mahmud Abdulkader Hamza' }
+      afar_hamza: { id: 854, name: 'Shaikh Mahmud Abdulkader Hamza' },
+      greek_rwwad: {id: 1252},
+      amharic_zain: {id: 1269},
+      luhya_center: {id: 1268},
+      malagasy_rwwad: {id: 1267},
+      kannada_bashir: {id: 1266},
+      pashto_sarfaraz: {id: 1265},
+      khmer_rwwad: {id: 1261},
+      korean_rwwad: {id: 1260},
+      chinese_mayolong: {id: 1259},
+      maguindanao_rwwad: {id: 1258},
+      iranun_sarro: {id: 1257},
+      bisayan_rwwad: {id: 1256},
+      croatian_rwwad: {id: 1255},
+
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [

@@ -35,6 +35,8 @@ ActiveAdmin.register Audio::Recitation do
   filter :reciter, as: :searchable_select,
          ajax: { resource: Reciter }
   filter :segment_locked
+  filter :files_count
+  filter :segments_count
 
   searchable_select_options(
     scope: Audio::Recitation,

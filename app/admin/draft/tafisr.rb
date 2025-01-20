@@ -133,13 +133,13 @@ ActiveAdmin.register Draft::Tafsir do
       row :text do
         div class: 'row', style: "display: flex !important" do
           div class: 'col-6', style: "border-right: 1px dotted #000;" do
-            h4 "Draft text"
-            div resource.draft_text.to_s.html_safe, class: "tafsir #{language_name}"
+            h4 "New text"
+            div resource.draft_text.to_s.html_safe, class: "tafsir p-2 #{language_name}"
           end
 
           div class: 'col-6' do
             h4 "Current text"
-            div resource.current_text.to_s.html_safe, class: "tafsir #{language_name}"
+            div resource.current_text.to_s.html_safe, class: "tafsir p-2 #{language_name}"
           end
         end
       end

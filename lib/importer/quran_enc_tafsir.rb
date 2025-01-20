@@ -45,7 +45,7 @@ module Importer
 
     TAFSIR_MAPPING = {
       arabic_moyassar: { id: 16, key: 'moyassar' },
-      saadi: { id: 91 },
+      # saadi: { id: 91 }, Using https://saadi.islamenc.com now
       baghawy: { id: 94 },
       katheer: { id: 14 },
       tabary: { id: 15 },
@@ -198,14 +198,6 @@ module Importer
       },
       azeri_mokhtasar: {
         id: 1271
-      },
-
-      arabic_seraj: {
-        id: 908,
-        language: 9,
-        name: 'Asseraj fi Bayan Gharib AlQuran',
-        author: 'Muhammad Al-Khudairi',
-        native: 'محمد الخضيري'
       }
     }
 
@@ -305,32 +297,29 @@ module Importer
       force_update = true
 
       if resource.new_record? || force_update
-        language = Language.find(mapping[:language])
+        language = resource.language || Language.find(mapping[:language])
         data_source = DataSource.find_or_create_by(name: 'Quranenc', url: 'https://quranenc.com')
 
         author_name = mapping[:author]
-        author = Author.where(name: author_name).first_or_create
+        author = Author.where(name: author_name).first_or_create if author_name.present?
 
         resource.set_meta_value('source', 'quranenc')
         resource.set_meta_value('quranenc-key', quran_enc_key)
         resource.data_source = data_source
         resource.language = language
         resource.language_name = language.name.downcase
-        resource.author_name = author.name
-        resource.name = mapping[:name]
+        resource.author_name = author&.name
+        resource.name = resource.name || mapping[:name]
         resource.resource_info = resource.resource_info.presence || mapping[:info]
-        resource.approved = false
       end
 
-      resource.cardinality_type = ResourceContent::CardinalityType::OneVerse
+      resource.cardinality_type = ResourceContent::CardinalityType::NVerse
       resource.resource_type = ResourceContent::ResourceType::Content
       resource.sub_type = ResourceContent::SubType::Tafsir
       resource.save(validate: false)
 
       resource
     end
-
-    def import_arabic_seraj(content, verse, resource) end
 
     def import_tafsir(content, verse, resource, quran_enc_key)
       text = sanitize_text(content, quran_enc_key)
@@ -365,7 +354,6 @@ module Importer
     end
 
     def sanitize_text(text, quran_enc_key)
-      binding.pry if @DEBUG.nil?
       color_mapping = COLOR_MAPPING[quran_enc_key.to_sym]
       text = text.gsub(STRIP_TEXT_REG, '').strip
       SANITIZER.sanitize(text, color_mapping: color_mapping).html
@@ -416,6 +404,10 @@ module Importer
     end
 
     def fetch_tafsir(key, verse)
+      return fetch_mokhtasar_tafsir(key, verse) if key.to_s.include?('mokhtasar')
+
+      key = TAFSIR_MAPPING[key.to_sym][:key] || key
+
       url = "https://quranenc.com/ar/ajax/tafsir/#{key}/#{verse.chapter_id}/#{verse.verse_number}"
       json = get_json(url)
 
@@ -423,6 +415,13 @@ module Importer
     rescue RestClient::NotFound
       log_message "#{key} Tafsir is missing for ayah #{verse.verse_key}. #{url}"
       {}
+    end
+
+    def fetch_mokhtasar_tafsir(key, verse)
+      url = "https://quranenc.com/api/v1/translation/aya/#{key}/#{verse.chapter_id}/#{verse.verse_number}"
+      json = get_json(url)
+
+      json['result']['translation']
     end
   end
 end

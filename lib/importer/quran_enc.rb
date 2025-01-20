@@ -437,6 +437,11 @@ module Importer
       translation.save(validate: false)
     end
 
+    def parse_arabic_seraj(verse, resource, _footnote_resource, _quran_enc_key, data)
+      raise "PENDING"
+    end
+
+
     def remove_footnote_tag(text)
       text.to_s.gsub(REGEXP_REMOVE_FOOTNOTE, '').strip
     end
@@ -652,13 +657,18 @@ module Importer
       kannada_bashir: {id: 1266},
       pashto_sarfaraz: {id: 1265},
       khmer_rwwad: {id: 1261},
-      korean_rwwad: {id: 1260},
       chinese_mayolong: {id: 1259},
       maguindanao_rwwad: {id: 1258},
       iranun_sarro: {id: 1257},
       bisayan_rwwad: {id: 1256},
       croatian_rwwad: {id: 1255},
-
+      arabic_seraj: {
+        id: 908,
+        language: 9,
+        name: 'Asseraj fi Bayan Gharib AlQuran',
+        author: 'Muhammad Al-Khudairi',
+        native: 'محمد الخضيري'
+      }
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [

@@ -39,7 +39,7 @@ module Importer
     end
 
     def get_json(url, params = {})
-      response = with_rescue_retry([RestClient::Exceptions::ReadTimeout, RestClient::NotFound], retries: 3, raise_exception_on_limit: true) do
+      response = with_rescue_retry([RestClient::Exceptions::ReadTimeout, RestClient::NotFound, Zlib::DataError], retries: 3, raise_exception_on_limit: true) do
         rest_agent.get(url, params: params)
       end
 

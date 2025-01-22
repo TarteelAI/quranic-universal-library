@@ -1,11 +1,10 @@
 # i = Importer::QuranAcademy.new
 # i.import(913)
-# i.import(914)
-# resource = ResourceContent.find(913)
-# resource.run_draft_import_hooks
+
+
 module Importer
-  class QuranAcademy < Base # quranacademy.org
-    # QDC to Quran Academy resource mapping
+  class QuranAcademy < Base
+    # quranacademy.org resource ids
     RESOURCE_MAPPING = {
       45 => 3,   # Elmir Kuliyev translation
       79 => 4,   # Abu Adel translation

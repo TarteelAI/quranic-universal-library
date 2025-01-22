@@ -413,6 +413,8 @@ class ResourceContent < QuranApiRecord
   end
 
   def run_draft_import_hooks
+    set_meta_value('synced-at', DateTime.now)
+
     if tafsir?
       generate_text_digest
       check_duplicate_tafsir_draft_text

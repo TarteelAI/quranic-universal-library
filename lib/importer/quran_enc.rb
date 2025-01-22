@@ -476,7 +476,7 @@ module Importer
       hausa_gummi: /^\*/,
       punjabi_arif: /^[\d\p{M}\s]*/,
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
-      general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s]*)+/
+      general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s-]*)+/
     }.freeze
 
     REGEXP_FOOTNOTES = {

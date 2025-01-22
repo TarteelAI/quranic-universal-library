@@ -110,16 +110,25 @@ module Utils
       end
 
       def detect_content_lang(text)
-        if detector = lang_detector
-          lang = detector.find_top_n_most_freq_langs(text.to_s.remove_dialectic, 1).map do |part|
-            part.language.to_s
-          end.first
+        text = text.gsub(/[\p{P}\p{S}]/, '')
+        detectors = lang_detector
+        lang = nil
 
-          lang || detector.find_top_n_most_freq_langs(text.to_s.strip, 1).map do |part|
+        detectors.each do |detector|
+          break if lang
+          lang = accept_language?(detector.find_top_n_most_freq_langs(text.to_s.remove_dialectic, 1).map do |part|
             part.language.to_s
-          end.first
+          end.first)
+
+          lang ||= accept_language?(detector.find_top_n_most_freq_langs(text.to_s.strip, 1).map do |part|
+            part.language.to_s
+          end.first)
+
+          lang ||= accept_language?(detector.find_language(text.to_s.strip)&.language)
         end
-      rescue Exceptiuon => e
+
+        lang || resource_language
+      rescue Exception => e
         puts e.message
       end
 
@@ -132,8 +141,24 @@ module Utils
             return false
           end
 
-          CLD3::NNetLanguageIdentifier.new
+          [
+            CLD3::NNetLanguageIdentifier.new,
+            CLD3::NNetLanguageIdentifier.new(10, 100),
+          ]
         end
+      end
+
+      def accept_language?(lang)
+        return false if lang.blank?
+
+        language_mapping = {
+          'ar' => ['ar', 'en'],
+          'en' => ['en', 'ar'],
+          'ur' => ['en', 'ar', 'ur']
+        }
+
+        accepted_language = language_mapping[resource_language] || []
+        lang if (accepted_language.blank? || accepted_language.include?(lang))
       end
     end
   end

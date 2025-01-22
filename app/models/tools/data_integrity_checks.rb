@@ -407,7 +407,7 @@ module Tools
               end
             end
           end,
-          matched: -> (record) do
+          matched: -> (record, _) do
             record.first_translation == record.second_translation
           end
         },

@@ -1,45 +1,50 @@
 # qortobi: https://quran.ksu.edu.sa/tafseer/qortobi-saadi/sura2-aya1.html
 
 module Importer
-  class QuranEncTafsir < Base
+  class QuranEncTafsir < QuranEnc
     STRIP_TEXT_REG = /^[\[\(]*(\d+[\s-]*[\d]*)[\]\)\s.-]*/
     COLORS_TO_CSS_CLASS_MAPPING = {}
     SANITIZER = Utils::TextSanitizer::TafsirSanitizer.new
 
     COLOR_MAPPING = {
-      tabary: {
+      15 => {
+        # tabary
         '008000': 'arabic qpc-hafs green', # Lime green
         '950000': 'red', # Burgundy, usually name of sahabi, surah
         '006d98': 'blue', # teal blue, usually quote (qala)
         '947721': 'arabic qpc-hafs brown',
         '707070': 'reference'
       },
-      katheer: {
+      14 => {
+        # katheer
         '008000': 'arabic qpc-hafs',
         '006d98': 'blue', # teal blue
         '950000': 'red',
         '707070': 'reference brown'
       },
-      baghawy: {
+      94 => {
+        # baghawy
         '008000': 'green', # reference if there is number in text, otherwise arabic
         '950000': 'arabic qpc-hafs',
         '947721': 'arabic qpc-hafs',
         '006d98': 'blue',
         "707070": 'reference'
       },
-      saadi: {
+      91 => {
+        # saadi
         '006d98': 'blue',
         '947721': 'arabic qpc-hafs brown',
         '950000': 'red',
         '707070': 'arabic qpc-hafs',
         '008000': 'arabic qpc-hafs green'
       },
-      moyassar: {
+      16 => {
+        # moyassar
         "006d98": 'blue',
         "6c6c00": 'brown',
         '950000': 'red',
         '008000': 'green',
-        "947721": 'arabic qpc-hafs brown'
+        '947721': 'arabic qpc-hafs brown'
       }
     }
 
@@ -201,32 +206,23 @@ module Importer
       }
     }
 
-    def import_all_abridge
+    attr_reader :resource_content
+
+    def import_all
       TAFSIR_MAPPING.keys.each do |key|
         import(key)
       end
     end
 
     def import(quran_enc_key)
-      resource = find_or_create_resource(quran_enc_key)
+      @resource_content = find_or_create_resource(quran_enc_key)
 
-      Verse.unscoped.order('id ASC').find_each do |verse|
-        url = "https://quranenc.com/api/v1/translation/aya/#{quran_enc_key}/#{verse.chapter_id}/#{verse.verse_number}"
-
-        data = get_json(url)['result']
-        content = data['translation']
-        verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")
-
-        if respond_to?("import_#{quran_enc_key}")
-          send("import_#{quran_enc_key}", content, verse, resource)
-        else
-          import_tafsir(content, verse, resource, quran_enc_key)
-        end
+      Verse.order('id ASC').each do |verse|
+        content = fetch_tafsir(quran_enc_key, verse)
+        import_tafsir(verse, content) if content.present?
       end
 
-      resource.set_meta_value('synced-at', DateTime.now)
-      resource.run_draft_import_hooks
-      resource.save
+      resource_content.run_draft_import_hooks
     end
 
     def download(quran_enc_key)
@@ -238,48 +234,6 @@ module Importer
       1.upto(114).each do |c|
         download_chapter(c, quran_enc_key)
       end
-    end
-
-    def import(quran_enc_key, use_cached_data: false)
-      resource = find_or_create_resource(quran_enc_key)
-
-      if use_cached_data
-        source_path = "data/quranenc-tafsirs/#{quran_enc_key}"
-
-        Dir["#{source_path}/*.json"].each do |file|
-          data = Oj.load(File.read(file))
-          if data.blank?
-            # grouping
-            next
-          end
-
-          data = data[0]
-          content = data['tafsir']
-          verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")
-
-          if verse.blank?
-            next
-          end
-
-          import_tafsir(content, verse, resource, quran_enc_key)
-        end
-      else
-        Verse.order('id ASC').each do |v|
-          puts v.verse_key
-
-          data = fetch_tafsir(quran_enc_key, v)
-
-          if data.present? && data[0]['tafsir'].present?
-            data = data[0]
-            content = data['tafsir']
-            verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")
-
-            import_tafsir(content, v, resource, quran_enc_key) if verse
-          end
-        end
-      end
-
-      resource.run_draft_import_hooks
     end
 
     protected
@@ -321,42 +275,17 @@ module Importer
       resource
     end
 
-    def import_tafsir(content, verse, resource, quran_enc_key)
-      text = sanitize_text(content, quran_enc_key)
-
-      draft_tafsir = Draft::Tafsir
-                       .where(
-                         resource_content_id: resource.id,
-                         verse_id: verse.id
-                       ).first_or_initialize
-
-      existing_tafsir = Tafsir
-                          .where(resource_content_id: resource.id)
-                          .where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: verse.id)
-                          .first
-
-      draft_tafsir.set_meta_value('source_data', { text: content })
-      draft_tafsir.tafsir_id = existing_tafsir&.id
-      draft_tafsir.current_text = existing_tafsir&.text
-      draft_tafsir.draft_text = text
-      draft_tafsir.text_matched = existing_tafsir&.text == text
-      draft_tafsir.imported = false
-      draft_tafsir.verse_key = verse.verse_key
-
-      draft_tafsir.group_verse_key_from = verse.verse_key
-      draft_tafsir.group_verse_key_to = verse.verse_key
-      draft_tafsir.group_verses_count = 1
-      draft_tafsir.start_verse_id = verse.id
-      draft_tafsir.end_verse_id = verse.id
-      draft_tafsir.group_tafsir_id = verse.id
-
-      draft_tafsir.save(validate: false)
-    end
-
-    def sanitize_text(text, quran_enc_key)
-      color_mapping = COLOR_MAPPING[quran_enc_key.to_sym]
-      text = text.gsub(STRIP_TEXT_REG, '').strip
-      SANITIZER.sanitize(text, color_mapping: color_mapping).html
+    def sanitize_text(text)
+      if color_mapping = COLOR_MAPPING[resource_content.id]
+        text = text.gsub(STRIP_TEXT_REG, '').strip
+        SANITIZER.sanitize(
+          text,
+          color_mapping: color_mapping,
+          resource_language: resource_content.language.iso_code
+        ).html
+      else
+        strip_ayah_number_from_start(text, resource_content)
+      end
     end
 
     def download_chapter(chapter_id, quran_enc_key)
@@ -365,7 +294,7 @@ module Importer
 
         File.open("data/quranenc-tafsirs/#{quran_enc_key}/#{v.verse_key}.json", "wb") do |file|
           text = fetch_tafsir(quran_enc_key, v)
-          file.puts text.to_json
+          file.puts(text.to_json) if text.present?
 
           puts v.verse_key
         end
@@ -411,10 +340,11 @@ module Importer
       url = "https://quranenc.com/ar/ajax/tafsir/#{key}/#{verse.chapter_id}/#{verse.verse_number}"
       json = get_json(url)
 
-      json['tafsir']
+      content = json['tafsir'][0]
+      content['tafsir']
     rescue RestClient::NotFound
       log_message "#{key} Tafsir is missing for ayah #{verse.verse_key}. #{url}"
-      {}
+      nil
     end
 
     def fetch_mokhtasar_tafsir(key, verse)
@@ -422,6 +352,40 @@ module Importer
       json = get_json(url)
 
       json['result']['translation']
+    rescue RestClient::NotFound
+      log_message "#{key} Tafsir is missing for ayah #{verse.verse_key}. #{url}"
+      nil
+    rescue Exception => e
+      nil
+    end
+
+    def import_tafsir(verse, text)
+      draft_tafsir = Draft::Tafsir
+                       .where(
+                         resource_content_id: resource_content.id,
+                         verse_id: verse.id
+                       ).first_or_initialize
+
+      draft_tafsir.set_meta_value('source_data', { text: text })
+      existing_tafsir = Tafsir.for_verse(verse, resource_content)
+
+      draft_tafsir.tafsir_id = existing_tafsir&.id
+      draft_tafsir.current_text = existing_tafsir&.text
+      draft_tafsir.draft_text = sanitize_text(text)
+      draft_tafsir.text_matched = existing_tafsir&.text == text
+
+      draft_tafsir.verse_key = verse.verse_key
+
+      draft_tafsir.group_verse_key_from = verse.verse_key
+      draft_tafsir.group_verse_key_to = verse.verse_key
+      draft_tafsir.group_verses_count = 1
+      draft_tafsir.start_verse_id = verse.id
+      draft_tafsir.end_verse_id = verse.id
+      draft_tafsir.group_tafsir_id = verse.id
+
+      draft_tafsir.save(validate: false)
+
+      puts "#{verse.verse_key} - #{draft_tafsir.id}"
     end
   end
 end

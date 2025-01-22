@@ -217,7 +217,7 @@ module Importer
     def import(quran_enc_key)
       @resource_content = find_or_create_resource(quran_enc_key)
       Draft::Tafsir.where(resource_content_id: @resource_content.id, imported: true).delete_all
-      
+
       Verse.order('id ASC').each do |verse|
         content = fetch_tafsir(quran_enc_key, verse)
         import_tafsir(verse, content) if content.present?

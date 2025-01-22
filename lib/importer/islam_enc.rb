@@ -1,20 +1,12 @@
 =begin
 i=Importer::IslamEnc.new
-i.import 'ur', 7
+i.import 'ur', 1
 i.import 'ru'
 i.import 'id'
 i.import 'ar'
 i.import 'fa'
 i.import 'tr'
 =end
-
-# urdu: 50, 18, 2, 72:15
-# tr: 2:142, (38:17, 38:48, 49)
-# 72:15,25,27
-#
-# urdu: 50, 18, 2, 72:15
-# fa: 38:17, 18:34-26, 18:37, 18:48, 38:49, 6:37, 29:23-27, 72:15-17, 72:18
-#
 
 module Importer
   class IslamEnc < Base
@@ -86,6 +78,7 @@ module Importer
 
     def import(lang, chapter_number = nil)
       language = Language.find_by(iso_code: lang)
+
       resource = if MAPPING[lang.to_sym]
                    ResourceContent.find(MAPPING[lang.to_sym])
                  else
@@ -615,6 +608,7 @@ module Importer
         ayah_group_parent.search('.hafs').each do |a|
           a.parent.remove
         end
+
         group_translation = ayah_group_parent.children.to_s.strip
         ayah_group_parent.remove
 
@@ -717,6 +711,7 @@ module Importer
 
         if group_translation.present?
           group_translation.gsub! 'e', 'ﷺ'
+          group_translation.gsub! 'o', "علیہ السلام"
           group_translation = fix_ayah_text sanitize_text("<p class=translation>#{group_translation}</p>", css_class_mapping)
         end
 
@@ -737,6 +732,8 @@ module Importer
       container.search("div").each do |div|
         ayah_range = div.search(".c5").text.strip
         text = div.to_s
+        text.gsub! 'e', 'ﷺ'
+        text.gsub! 'o', " علیہ السلام "
         parsed_text = sanitize_text(text, css_class_mapping)
         parsed_text = fix_ayah_text(parsed_text)
 
@@ -748,14 +745,11 @@ module Importer
 
         ayah_group = find_group(tafsir_groups, group.first)
 
-        #parsed_text = parsed_text.gsub! 'e', 'ﷺ'
-
         if ayah_range.blank?
           # some ayah ranges has the info, like reason for revelation etc.
           # make it part of the text
           tafsir_groups[ayah_group][:texts].push parsed_text
         else
-          binding.pry if tafsir_groups[ayah_group].blank?
           tafsir_groups[ayah_group][:texts].push parsed_text
         end
 

@@ -33,6 +33,18 @@ ActiveAdmin.register Draft::Tafsir do
     redirect_to [:admin, tafsir], notice: 'Draft Tafsir is approved and imported successfully'
   end
 
+  action_item :previous, only: :show do
+    if item = resource.previous_ayah_tafsir
+      link_to("Previous(#{item.start_verse.verse_key})", "/admin/draft_tafsirs/#{item.id}", class: 'btn') if item
+    end
+  end
+
+  action_item :next, only: :show do
+    if item = resource.next_ayah_tafsir
+      link_to "Next(#{item.start_verse.verse_key})", "/admin/draft_tafsirs/#{item.id}", class: 'btn'
+    end
+  end
+
   index do
     id_column
     column :text_matched

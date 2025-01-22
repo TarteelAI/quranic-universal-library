@@ -41,6 +41,8 @@ class Draft::Tafsir < ApplicationRecord
   belongs_to :verse
   belongs_to :group_tafsir, class_name: 'Verse', optional: true # TODO: rename to group_verse
   belongs_to :user, optional: true
+  belongs_to :start_verse, class_name: 'Verse'
+  belongs_to :end_verse, class_name: 'Verse'
 
   def import!
     language = resource_content.language
@@ -229,5 +231,25 @@ class Draft::Tafsir < ApplicationRecord
     draft_tafsir.user = user
 
     draft_tafsir.save(validate: false)
+  end
+
+  def next_ayah_tafsir
+    if end_verse_id < 6235
+      Draft::Tafsir
+        .where(resource_content_id: resource_content_id)
+        .where("start_verse_id > ?", end_verse_id)
+        .order('verse_id DESC')
+        .last
+    end
+  end
+
+  def previous_ayah_tafsir
+    if start_verse_id > 1
+      Draft::Tafsir
+        .where(resource_content_id: resource_content_id)
+        .where("end_verse_id < ?", start_verse_id)
+        .order('verse_id DESC')
+        .first
+    end
   end
 end

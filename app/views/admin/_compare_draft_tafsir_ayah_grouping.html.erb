@@ -1,0 +1,46 @@
+<div id=title>
+  <%= @resource.name %>(<%= @resource.id %>) Tafsir Grouping Comparison
+</div>
+
+<div id="body">
+  <div class="modal-body">
+    <div class="container mt-4" data-controller="filter-ayah">
+      <h2>Tafsir Grouping Comparison</h2>
+
+      <input type="search" id="search-input" class="form-control mb-3" placeholder="Search Ayah (Verse Key)">
+
+      <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+        <tr>
+          <th>Verse Key</th>
+          <th>Tafsir Group From</th>
+          <th>Tafsir Group To</th>
+          <th>Tafsir Group Count</th>
+          <th>Draft Group From</th>
+          <th>Draft Group To</th>
+          <th>Draft Group Count</th>
+        </tr>
+        </thead>
+
+        <tbody id="ayahs">
+        <% @comparison.each do |verse_key, groups| %>
+          <% current_from, current_to, current_count = groups[:current] || ["Missing", "Missing", "Missing"] %>
+          <% draft_from, draft_to, draft_count = groups[:draft] || ["Missing", "Missing", "Missing"] %>
+
+          <% mismatch = (groups[:current] != groups[:draft]) || groups[:current].nil? || groups[:draft].nil? %>
+
+          <tr class="<%= mismatch ? 'bg-danger' : '' %>" data-ayah="<%= verse_key %>">
+            <td><%= verse_key %></td>
+            <td><%= current_from %></td>
+            <td><%= current_to %></td>
+            <td><%= current_count %></td>
+            <td><%= draft_from %></td>
+            <td><%= draft_to %></td>
+            <td><%= draft_count %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

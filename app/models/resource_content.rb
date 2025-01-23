@@ -475,6 +475,38 @@ class ResourceContent < QuranApiRecord
     issues
   end
 
+  # def compare_draft_tafsir_ayah_grouping
+  #   tafsir_groupings = Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
+  #   draft_tafsir_groupings = Draft::Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
+  #
+  #   # Convert to hash for easy lookup
+  #   draft_tafsir_map = draft_tafsir_groupings.to_h { |d| [d[0], d[1..]] }
+  #
+  #   [tafsir_groupings, draft_tafsir_groupings, draft_tafsir_map]
+  # end
+
+    def compare_draft_tafsir_ayah_grouping
+      tafsir_groupings = Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
+      draft_tafsir_groupings = Draft::Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
+      all_ayahs = Verse.order('verse_index ASc').pluck(:verse_key)
+
+      ayah_groupings = {}
+      all_ayahs.each do |ayah|
+        ayah_groupings[ayah] = { current: nil, draft: nil }
+      end
+
+      tafsir_groupings.each do |verse_key, group_from, group_to, group_count|
+        ayah_groupings[verse_key][:current] = [group_from, group_to, group_count]
+      end
+
+      draft_tafsir_groupings.each do |verse_key, group_from, group_to, group_count|
+        ayah_groupings[verse_key][:draft] = [group_from, group_to, group_count]
+      end
+
+      ayah_groupings
+    end
+
+
   def create_draft_tafsir_groups
     draft_tafsirs = Draft::Tafsir.where(resource_content_id: id)
 

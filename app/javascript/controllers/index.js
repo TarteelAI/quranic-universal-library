@@ -114,3 +114,6 @@ application.register("chapter-verses-filter", ChapterVersesFilterController);
 
 import DraggableScrollController from './draggable_scroll_controller';
 application.register('draggable-scroll', DraggableScrollController);
+
+import FilterAyahController from './filter_ayah_controller';
+application.register("filter-ayah", FilterAyahController);

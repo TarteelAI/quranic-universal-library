@@ -116,7 +116,7 @@ ActiveAdmin.register Draft::Tafsir do
         if resource.group_tafsir
           div do
             span link_to(resource.group_tafsir.verse_key, [:admin, resource.group_tafsir]), class: 'mr-4'
-            span link_to('View group tafsir', [:admin, resource.main_group_tafsir])
+            span(link_to('View group tafsir', [:admin, resource.main_group_tafsir])) if resource.main_group_tafsir
           end
         end
       end
@@ -212,6 +212,8 @@ ActiveAdmin.register Draft::Tafsir do
 
               if can?(:manage, :draft_content)
                 span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
+                span(link_to 'Compare grouping', compare_ayah_grouping_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_admin_resource_content_path(resource_content) })
+
                 span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
                 span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })
               end

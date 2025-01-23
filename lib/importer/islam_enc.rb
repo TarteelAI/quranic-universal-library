@@ -1,11 +1,14 @@
 =begin
 i=Importer::IslamEnc.new
-i.import 'ur', 1
-i.import 'ru'
-i.import 'id'
-i.import 'ar'
-i.import 'fa'
-i.import 'tr'
+i.import_draft 'ur'
+i.import_draft 'ar'
+
+i.import_draft 'tr'
+i.import_draft 'ru'
+
+i.import_draft 'id'
+i.import_draft 'fa'
+
 =end
 
 module Importer
@@ -94,6 +97,7 @@ module Importer
       resource.save(validate: false)
 
       new_tafsir_ids = []
+
       if chapter_number
         chapter = Chapter.find(chapter_number)
         groups = send("process_#{lang}_tafsir", "data/islam_enc/#{lang}/#{chapter_number}.html")
@@ -119,7 +123,6 @@ module Importer
       end
     end
 
-    # Tafsir al-saadi
     def download(language)
       FileUtils.mkdir_p("data/islam_enc/#{language}")
 
@@ -214,8 +217,7 @@ module Importer
     end
 
     def export_draft(lang)
-      language = Language.find_by(iso_code: lang)
-      resource = ResourceContent.tafsirs.where(language: language, name: 'Tafsir As-Saadi').first
+      resource = ResourceContent.find(MAPPING[lang.to_sym])
 
       json = {}
 
@@ -227,28 +229,29 @@ module Importer
           group_verses_count: t.group_verses_count,
           group_tafsir_id: t.group_tafsir_id,
           start_verse_id: t.start_verse_id,
-          end_verse_id: t.end_verse_id
+          end_verse_id: t.end_verse_id,
+          tafsir_id: t.tafsir_id,
+          meta_data: t.meta_data
         }
       end
 
-      File.open("data/exported_files/saadi-#{lang}.json", 'wb') do |file|
+      File.open("data/islam_enc/saadi-exported/saadi-#{lang}.json", 'wb') do |file|
         file << JSON.generate(json, { state: JsonNoEscapeHtmlState.new })
       end
     end
 
     def import_draft(lang)
-      language = Language.find_by(iso_code: lang)
-      resource = ResourceContent.tafsirs.where(language: language, name: 'Tafsir As-Saadi').first_or_initialize
-      resource.cardinality_type = ResourceContent::CardinalityType::NVerse
-      resource.resource_type = 'content'
-      resource.language_name = language.name.downcase
-      resource.save(validate: false)
-
-      data = JSON.parse(File.read("saadi-#{lang}.json"))
+      resource = ResourceContent.find(MAPPING[lang.to_sym])
+      data = get_json("https://quran-assets.tarteel.ai/qul-data/saadi-exported/saadi-#{lang}.json")
+      #data = JSON.parse(File.read("saadi-#{lang}.json"))
 
       data.keys.each do |key|
         verse = Verse.find_by(verse_key: key)
-        draft = Draft::Tafsir.where(resource_content_id: resource.id, verse_id: verse.id).first_or_initialize
+        draft = Draft::Tafsir.where(
+          resource_content_id: resource.id,
+          verse_id: verse.id
+        ).first_or_initialize
+
         draft.attributes = data[key]
 
         existing_tafsir = Tafsir
@@ -258,13 +261,15 @@ module Importer
 
         draft.tafsir_id = existing_tafsir&.id
         draft.current_text = existing_tafsir&.text
-        draft.text_matched = existing_tafsir&.text == data[key]
+        draft.text_matched = existing_tafsir&.text == draft.draft_text
         draft.verse_key = verse.verse_key
+        draft.need_review = !draft.text_matched || (existing_tafsir && (existing_tafsir.start_verse_id != draft.start_verse_id || existing_tafsir.end_verse_id != draft.end_verse_id))
         draft.imported = false
         draft.save
         puts draft.id
       end
 
+      puts "DONE, running after import hooks"
       resource.run_draft_import_hooks
     end
 
@@ -426,6 +431,7 @@ module Importer
           # make it part of the text
           tafsir_groups[ayah_group][:texts].push parsed_text
         else
+          binding.pry if tafsir_groups[ayah_group].blank?
           tafsir_groups[ayah_group][:texts].push parsed_text
         end
 
@@ -438,6 +444,7 @@ module Importer
 
       tafsir_groups
     rescue Exception => e
+      binding.pry
       Sentry.capture_exception(e)
     end
 
@@ -493,6 +500,7 @@ module Importer
           # make it part of the text
           tafsir_groups[ayah_group][:texts].push parsed_text
         else
+          binding.pry if tafsir_groups[ayah_group].blank?
           tafsir_groups[ayah_group][:texts].push parsed_text
         end
 
@@ -506,7 +514,7 @@ module Importer
       tafsir_groups
     rescue Exception => e
       puts e.message
-      puts e.backtrace
+      binding.pry
     end
 
     def process_fa_tafsir(file)
@@ -765,11 +773,14 @@ module Importer
 
     def import_groups(resource, groups, chapter, lang)
       ids = []
+
       groups.keys.each do |group|
         verses = chapter.verses.where(verse_number: group).order('verse_number asc')
 
         text = groups[group][:texts].join('')
         tafsir = create_draft_tafsir(text, verses.first, resource, verses)
+
+        puts "#{resource.name} #{verses.first.verse_key} - #{tafsir.id}"
         ids.push(tafsir.id)
       end
 

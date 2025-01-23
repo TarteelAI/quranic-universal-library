@@ -50,7 +50,7 @@ module Importer
 
     TAFSIR_MAPPING = {
       moyassar: { id: 16 },
-      # saadi: { id: 91 }, Using https://saadi.islamenc.com now
+      # Arabic saadi: { id: 91 }, Using https://saadi.islamenc.com now
       baghawy: { id: 94 },
       katheer: { id: 14 },
       tabary: { id: 15 },

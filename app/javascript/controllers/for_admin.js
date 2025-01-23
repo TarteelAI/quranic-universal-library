@@ -47,3 +47,6 @@ application.register("admin-page", AdminPageController)
 
 import TogglePasswordController from './toggle_password_controller';
 application.register("toggle-password", TogglePasswordController);
+
+import FilterAyahController from './filter_ayah_controller';
+application.register("filter-ayah", FilterAyahController);

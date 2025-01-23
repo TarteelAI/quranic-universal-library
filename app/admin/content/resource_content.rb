@@ -98,6 +98,12 @@ ActiveAdmin.register ResourceContent do
     render partial: 'admin/validate_draft_tafsir'
   end
 
+  member_action :compare_ayah_grouping, method: 'get' do
+    @resource = resource
+    @comparison = resource.compare_draft_tafsir_ayah_grouping
+    render partial: 'admin/compare_draft_tafsir_ayah_grouping'
+  end
+
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
 

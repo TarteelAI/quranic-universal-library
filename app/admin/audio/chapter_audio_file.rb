@@ -79,7 +79,17 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       row :format
       row :audio_url
       row :timing_percentiles
-      row :metadata
+      row :meta_data do
+        if resource.meta_data.present?
+          div do
+            pre do
+              code do
+                JSON.pretty_generate(resource.meta_data)
+              end
+            end
+          end
+        end
+      end
       row :created_at
       row :updated_at
     end

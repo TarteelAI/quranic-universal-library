@@ -34,6 +34,7 @@ ActiveAdmin.register Audio::Recitation do
          ajax: { resource: Audio::Section }
   filter :reciter, as: :searchable_select,
          ajax: { resource: Reciter }
+  filter :approved
   filter :segment_locked
   filter :files_count
   filter :segments_count
@@ -221,7 +222,12 @@ ActiveAdmin.register Audio::Recitation do
       row :updated_at
     end
 
-    panel "Surah recitations: (#{resource.files_count} files) " do
+    audio_files =  resource
+                     .chapter_audio_files
+                     .with_segments_counts
+                     .includes(:chapter)
+
+    panel "Audio files: (#{resource.files_count} files) " do
       if resource.files_count.to_i < 114
         missing = (1..114).to_a - resource.chapter_audio_files.pluck(:chapter_id)
 
@@ -233,15 +239,17 @@ ActiveAdmin.register Audio::Recitation do
           td 'ID'
           td 'Surah number'
           td 'URL'
+          td 'Ayahs count'
           td 'Semgnets'
         end
 
         tbody do
-          resource.chapter_audio_files.with_segments_counts.order('chapter_id ASC').each do |r|
-            tr do
+          audio_files.order('chapter_id ASC').each do |r|
+            tr class: "#{'bg-warning' if r.has_missing_segments?}" do
               td link_to(r.id, [:admin, r])
               td r.chapter_id
               td r.audio_url
+              td r.chapter.verses_count
               td r.segments_count
             end
           end

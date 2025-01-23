@@ -17,6 +17,7 @@ ActiveAdmin.register ResourceContent do
         name_cont: term,
         language_name_cont: term,
         resource_id_eq: term,
+        id_eq: term,
         m: 'or'
       ).result
     end)

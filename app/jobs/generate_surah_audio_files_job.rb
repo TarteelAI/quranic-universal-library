@@ -19,7 +19,8 @@ class GenerateSurahAudioFilesJob < ApplicationJob
     end
 
     recitation.update(
-      files_size: recitation.chapter_audio_files.reload.sum(:file_size)
+      files_size: recitation.chapter_audio_files.reload.sum(:file_size),
+      files_count: recitation.chapter_audio_files.count
     )
 
     clean_up
@@ -64,14 +65,14 @@ class GenerateSurahAudioFilesJob < ApplicationJob
       duration: duration,
       duration_ms: duration * 1000,
       mime_type: MIME::Types.type_for(file).first.content_type,
-      metadata: prepare_audio_meta_data(audio_file: audio_file, meta: meta, file: file)
+      meta_data: prepare_audio_meta_data(audio_file: audio_file, meta: meta, file: file)
     }
 
     audio_file.save(validate: false)
   end
 
   def prepare_audio_meta_data(audio_file:, meta:, file:)
-    existing_meta = audio_file.metadata || {}
+    existing_meta = audio_file.meta_data || {}
     chapter = audio_file.chapter
 
     existing_meta.with_defaults_values({
@@ -80,9 +81,11 @@ class GenerateSurahAudioFilesJob < ApplicationJob
                                          title: meta.title.presence || chapter.name_simple,
                                          track: "#{chapter.chapter_number}/114",
                                          artist: meta.artist.presence || audio_file.audio_recitation.name,
-                                         year: meta.year,
-                                         comment: 'https://qul.tarteel.ai/'
-                                       }).to_h
+                                         year: meta.year
+                                       })
+
+    existing_meta[:comment] = 'https://qul.tarteel.ai/'
+    existing_meta.to_h
   end
 
   def calculate_duration(url:)

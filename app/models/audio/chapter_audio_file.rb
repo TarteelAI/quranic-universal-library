@@ -35,13 +35,20 @@ module Audio
   class ChapterAudioFile < QuranApiRecord
     include StripWhitespaces
     include Resourceable
+    include HasMetaData
 
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :chapter
     has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: 'audio_file_id'
 
     def self.with_segments_counts
-      left_outer_joins(:audio_segments).select('audio_chapter_audio_files.*, COUNT(audio_segments.id) AS segments_count').group('audio_chapter_audio_files.id')
+      left_outer_joins(:audio_segments)
+        .select('audio_chapter_audio_files.*, COUNT(audio_segments.id) AS segments_count')
+        .group('audio_chapter_audio_files.id')
+    end
+
+    def has_missing_segments?
+      chapter.verses_count != segments_count.to_i
     end
 
     def humanize

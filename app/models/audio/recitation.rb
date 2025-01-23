@@ -59,7 +59,7 @@ module Audio
     end
 
     def generate_audio_files
-      GenerateSurahAudioFilesJob.perform_now(id)
+      GenerateSurahAudioFilesJob.perform_now(id, meta: true)
     end
 
     def create_audio_files
@@ -68,7 +68,7 @@ module Audio
                        .where(chapter_id: chapter_number)
                        .first_or_initialize
 
-        audio_file.audio_url = "https://download.quranicaudio.com/#{relative_path}/#{chapter_number}.mp3"
+        audio_file.audio_url ||= "https://download.quranicaudio.com/#{relative_path}/#{chapter_number}.mp3"
         audio_file.save
       end
     end

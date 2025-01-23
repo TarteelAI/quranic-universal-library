@@ -55,12 +55,8 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-
-        if downloadable_resource.tags.blank?
-          downloadable_resource.tags = content.meta_value('tags') || ''
-        end
-
-        downloadable_resource.save(validate: false)
+        tags = [content.meta_value('tags').to_s]
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         if content.meta_value('ttf').present?
           ttf = exporter.export_ttf
@@ -107,15 +103,13 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        tags = []
-        downloadable_resource.tags = tags.compact_blank.join(', ')
-        downloadable_resource.save(validate: false)
+        tags = [content.meta_value('tags')]
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         if !content.name.include?('image')
           docx = exporter.export_docs
           create_download_file(downloadable_resource, docx, 'docx')
         end
-
         sqlite = exporter.export_sqlite
 
         # create_download_file(downloadable_resource, json, 'json')
@@ -172,8 +166,8 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= resource.name
-        downloadable_resource.tags = ['Quranic Morphology', resource.name.split(/\s+/).last].compact_blank.join(',')
-        downloadable_resource.save(validate: false)
+        tags = ['Quranic Morphology', resource.name.split(/\s+/).last]
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         sqlite = exporter.export_sqlite
         create_download_file(downloadable_resource, sqlite, 'sqlite')
@@ -201,8 +195,7 @@ module Exporter
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
       tags = [resource.language_name.humanize, 'Ayah Theme']
-      downloadable_resource.tags = tags.compact_blank.join(',')
-      downloadable_resource.save(validate: false)
+      downloadable_resource = set_tags(downloadable_resource, tags)
 
       sqlite = exporter.export_sqlite
       create_download_file(downloadable_resource, sqlite, 'sqlite')
@@ -224,7 +217,7 @@ module Exporter
       )
 
       json = exporter.export_json
-      #sqlite = exporter.export_sqlite
+      # sqlite = exporter.export_sqlite
 
       downloadable_resource = DownloadableResource.where(
         resource_content: resource,
@@ -234,11 +227,10 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.tags = 'Mutashabihat'
-      downloadable_resource.save(validate: false)
+      downloadable_resource = set_tags(downloadable_resource, ['Mutashabihat'])
 
       create_download_file(downloadable_resource, json, 'json')
-      #create_download_file(downloadable_resource, sqlite, 'sqlite')
+      # create_download_file(downloadable_resource, sqlite, 'sqlite')
     end
 
     def export_similar_ayah
@@ -263,8 +255,7 @@ module Exporter
 
       downloadable_resource.name ||= resource.name
       downloadable_resource.language = resource.language
-      downloadable_resource.tags = 'Similar Ayah'
-      downloadable_resource.save(validate: false)
+      downloadable_resource = set_tags(downloadable_resource, ['Similar Ayah'])
 
       create_download_file(downloadable_resource, json, 'json')
       create_download_file(downloadable_resource, sqlite, 'sqlite')
@@ -298,8 +289,7 @@ module Exporter
 
         downloadable_resource.name ||= content.name
         downloadable_resource.language = content.language
-        downloadable_resource.tags = content.language_name.humanize
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, [content.language_name.humanize])
 
         create_download_file(downloadable_resource, json, 'json')
         create_download_file(downloadable_resource, sqlite, 'sqlite')
@@ -338,9 +328,7 @@ module Exporter
         if content.has_footnote?
           tags << 'With Footnotes'
         end
-
-        downloadable_resource.tags = tags.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json(with_footnotes: false)
         sqlite = exporter.export_sqlite(with_footnotes: false)
@@ -389,8 +377,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
         tags = [content.language_name.humanize, 'Transliteration']
-        downloadable_resource.tags = tags.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json(with_footnotes: false)
         create_download_file(downloadable_resource, json, 'json')
@@ -427,8 +414,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
         tags = [content.language_name.humanize, 'Translation']
-        downloadable_resource.tags = tags.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -458,8 +444,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.language_id = content.language_id
         tags = [content.language_name.humanize, 'Transliteration']
-        downloadable_resource.tags = tags.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -492,9 +477,7 @@ module Exporter
 
         downloadable_resource.name ||= resource.name
         tags = ['Quran', 'Metadata', resource.name]
-
-        downloadable_resource.tags = tags.compact_blank.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -541,8 +524,7 @@ module Exporter
           tags << 'Partial'
         end
 
-        downloadable_resource.tags = tags.compact_blank.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -588,8 +570,7 @@ module Exporter
           tags << 'Partial'
         end
 
-        downloadable_resource.tags = tags.compact_blank.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -613,8 +594,7 @@ module Exporter
 
       downloadable_resource.name ||= content.name
       tags = ['Recitation', 'Waseem Sharif']
-      downloadable_resource.tags = tags.compact_blank.join(', ')
-      downloadable_resource.save(validate: false)
+      downloadable_resource = set_tags(downloadable_resource, tags)
 
       json = exporter.export_json
       sqlite = exporter.export_sqlite
@@ -654,8 +634,7 @@ module Exporter
           tags += fonts
         end
 
-        downloadable_resource.tags = tags.compact_blank.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -700,8 +679,7 @@ module Exporter
           tags += fonts
         end
 
-        downloadable_resource.tags = tags.compact_blank.join(', ')
-        downloadable_resource.save(validate: false)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -711,15 +689,15 @@ module Exporter
     end
 
     def export_page_images(resource_content: nil)
-      #TODO
+      # TODO
     end
 
     def export_ayah_images(resource_content: nil)
-      #TODO
+      # TODO
     end
 
     def export_word_images(resource_content: nil)
-      #TODO
+      # TODO
     end
 
     def export_surah_info(language: nil)
@@ -749,8 +727,8 @@ module Exporter
 
         downloadable_resource.name = "Surah Info - #{resource_content.language_name.humanize}"
         downloadable_resource.info = "Surah information in #{resource_content.language.name} language"
-        downloadable_resource.tags = "Surah Info, #{resource_content.language.name}"
-        downloadable_resource.save(validate: false)
+        downloadable_resource.save
+        downloadable_resource = set_tags(downloadable_resource, "Surah Info, #{resource_content.language.name}")
 
         csv = exporter.export_csv
         json = exporter.export_json
@@ -799,6 +777,17 @@ module Exporter
 
         "#{file_path}.bz2"
       end
+    end
+
+    def set_tags(download_resource, tags)
+      download_resource.save(validate: false) if download_resource.new_record?
+
+      tags = tags.join(',') if tags.is_?(Array)
+      if tags.present?
+        download_resource.tags = tags
+      end
+
+      download_resource.save(validate: false)
     end
   end
 end

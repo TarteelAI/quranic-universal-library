@@ -788,6 +788,7 @@ module Exporter
       end
 
       download_resource.save(validate: false)
+      download_resource
     end
   end
 end

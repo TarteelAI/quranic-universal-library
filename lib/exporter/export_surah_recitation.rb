@@ -57,6 +57,7 @@ module Exporter
           fields = segment_table_attributes.map do |attr|
             encode(attr, row.send(attr))
           end
+
           segments_statement.execute(fields)
         end
       end
@@ -89,17 +90,6 @@ module Exporter
         surah_number: 'INTEGER',
         audio_url: 'TEXT',
         duration: 'INTEGER'
-      }
-    end
-
-    def segments_db_column_names
-      {
-        chapter_id: 'surah_number',
-        verse_number: 'ayah_number',
-        duration: 'duration_sec',
-        timestamp_from: 'timestamp_from',
-        timestamp_to: 'timestamp_to',
-        segments: 'segments'
       }
     end
 

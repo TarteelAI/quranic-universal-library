@@ -12,6 +12,7 @@ ActiveAdmin.register DownloadableResource do
   filter :files_count
   filter :published
   filter :updated_at
+  filter :cardinality_type, as: :select, collection: ResourceContent.collection_for_cardinality_type
   filter :resource_type, as: :select, collection: DownloadableResource::RESOURCE_TYPES
 
   searchable_select_options(

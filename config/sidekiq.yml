@@ -1,7 +1,7 @@
 :concurrency: 4
 
 production:
-  :concurrency: 2
+  :concurrency: 3
 
 staging:
   :concurrency: 1

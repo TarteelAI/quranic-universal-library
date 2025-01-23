@@ -1,7 +1,7 @@
 module Importer
   class Base
     include Utils::StrongMemoize
-    SANITIZER = Text::Sanitizer.new
+    TAFSIR_SANITIZER = Utils::TextSanitizer::TafsirSanitizer.new
     FULL_SANITIZER = Rails::Html::FullSanitizer.new
 
     def create_draft_tafsir(text, verse, resource, grouping_ayah)

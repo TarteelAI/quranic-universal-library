@@ -11,7 +11,6 @@ module Importer
       913 => 7,  # Russian Tafsir ibne kathir
       914 => 103 # Turkish Tafsir ibne kathir
     }
-    SANITIZER = Utils::TextSanitizer::TafsirSanitizer.new
 
     def import(id)
       resource = ResourceContent.find(id)
@@ -40,7 +39,7 @@ module Importer
 
     def sanitize_text(text)
       text = clean_up(text.strip)
-      SANITIZER.sanitize(text, class_mapping: CSS_CLASSES_MAPPING).html
+      TAFSIR_SANITIZER.sanitize(text, class_mapping: CSS_CLASSES_MAPPING).html
     end
 
     def import_chapter(chapter, resource)

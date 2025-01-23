@@ -14,7 +14,7 @@ i.import_draft 'fa'
 module Importer
   class IslamEnc < Base
     DEBUG = true
-    SANITIZER = Utils::TextSanitizer::TafsirSanitizer.new
+
     MAPPING = {
       ur: 906,
       tr: 907,
@@ -803,7 +803,7 @@ module Importer
     end
 
     def sanitize_text(text, class_mapping)
-      SANITIZER.sanitize(text, class_mapping: class_mapping, split_text: false).html
+      TAFSIR_SANITIZER.sanitize(text, class_mapping: class_mapping, split_text: false).html
     end
 
     def fix_ayah_text(text)

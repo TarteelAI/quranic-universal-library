@@ -740,5 +740,3 @@ module Importer
     ].freeze
   end
 end
-
-

@@ -4,7 +4,6 @@ module Importer
   class QuranEncTafsir < QuranEnc
     STRIP_TEXT_REG = /^[\[\(]*(\d+[\s-]*[\d]*)[\]\)\s.-]*/
     COLORS_TO_CSS_CLASS_MAPPING = {}
-    SANITIZER = Utils::TextSanitizer::TafsirSanitizer.new
 
     COLOR_MAPPING = {
       15 => {
@@ -279,7 +278,7 @@ module Importer
     def sanitize_text(text)
       if color_mapping = COLOR_MAPPING[resource_content.id]
         text = text.gsub(STRIP_TEXT_REG, '').strip
-        SANITIZER.sanitize(
+        TAFSIR_SANITIZER.sanitize(
           text,
           color_mapping: color_mapping,
           resource_language: resource_content.language.iso_code

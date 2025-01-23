@@ -48,7 +48,7 @@ class Draft::Translation < ApplicationRecord
   end
 
   def draft_text=(val)
-    formatted = Text::Formatter.new(val).format
+    formatted = TextUtils::Formatter.new(val).format
     super formatted
   end
 

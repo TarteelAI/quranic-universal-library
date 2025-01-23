@@ -782,7 +782,7 @@ module Exporter
     def set_tags(download_resource, tags)
       download_resource.save(validate: false) if download_resource.new_record?
 
-      tags = tags.join(',') if tags.is_?(Array)
+      tags = tags.join(',') if tags.is_a?(Array)
       if tags.present?
         download_resource.tags = tags
       end

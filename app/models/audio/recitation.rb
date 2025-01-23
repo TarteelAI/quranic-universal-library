@@ -169,7 +169,7 @@ module Audio
     protected
 
     def update_related_resources
-      if resource_content.nil?
+      if get_resource_content.nil?
         resource = build_resource_content
         resource.name = name
         resource.description = description

@@ -10,8 +10,8 @@
 }
 
 @layer components {
-    .tw-link-button{
-       @apply tw-font-semibold tw-underline hover:tw-text-black
+    .tw-link-button {
+        @apply tw-font-semibold tw-underline hover:tw-text-black
     }
 
     .tw-btn {
@@ -20,6 +20,71 @@
 
     .tw-btn-success {
         @apply tw-bg-green-500 tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:tw-text-white;
+    }
+
+    .tw-docs {
+        @apply tw-text-gray-900 tw-leading-relaxed;
+    }
+
+    /* Headings */
+    .tw-docs h1 {
+        @apply tw-text-3xl tw-font-bold tw-text-blue-600 tw-mb-4;
+    }
+
+    .tw-docs h2 {
+        @apply tw-text-2xl tw-font-semibold tw-text-gray-700 tw-mt-6 tw-mb-2;
+    }
+
+    .tw-docs h3 {
+        @apply tw-text-xl tw-font-semibold tw-mt-4;
+    }
+
+    .tw-docs p {
+        @apply tw-mb-4;
+    }
+
+    .tw-docs ul {
+        @apply tw-list-disc tw-pl-6 tw-space-y-2;
+    }
+
+    .tw-docs pre {
+        @apply tw-p-4 tw-rounded-md tw-overflow-x-auto;
+        background-color: #ecf0f1; 
+        font-size: 1.1em;
+        color: #2c3e50; 
+    }
+
+    .tw-docs code {
+        @apply tw-px-1 tw-rounded tw-bg-gray-200;
+        background-color: #ecf0f1; 
+        font-family: "Courier New", monospace;
+        color: #2c3e50;
+    }
+
+    .tw-docs .example {
+        @apply tw-p-4 tw-rounded-lg tw-mt-3 tw-mb-3;
+        background-color: #eafaf1; 
+        border: 1px solid #b3e0b3;
+    }
+    .tw-docs .example h3 {
+        @apply tw-mt-0;
+    }
+
+    .tw-docs .note {
+        @apply tw-p-4 tw-mt-3 tw-mb-3;
+        background-color: #fef6e4; 
+        border-left: 4px solid #f39c12;
+    }
+
+    /* Highlight Text */
+    .tw-docs .hlt {
+        @apply tw-font-bold;
+        color: #ff6347; 
+    }
+
+    /* Links */
+    .tw-docs a {
+        @apply tw-underline tw-font-bold;
     }
 }
 
@@ -30,3 +95,5 @@
   }
 }
 */
+
+

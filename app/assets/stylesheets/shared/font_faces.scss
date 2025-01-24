@@ -1,5 +1,5 @@
 $font-cdn: "https://static-cdn.tarteel.ai/qul/fonts";
-$asset-version: "3.1";
+$asset-version: "3.2";
 
 @import "indopak_font_faces";
 @import "surah_names";
@@ -83,6 +83,21 @@ $asset-version: "3.1";
 @font-face {
   font-family: 'qpc-nastaleeq';
   src: url("#{$font-cdn}/nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
+}
+
+@font-face {
+  font-family: 'pdms-saleem';
+  src: url("#{$font-cdn}/pdms-saleem-quranfont.ttf?v=#{$asset-version}");
+}
+
+.pdms-saleem{
+  font-family: pdms-saleem;
+  font-size: 30px;
+}
+
+.me-quran{
+  font-family: me_quran;
+  font-size: 30px;
 }
 
 .mushaf-qpc-nastaleeq {

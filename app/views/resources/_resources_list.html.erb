@@ -4,8 +4,9 @@
   active_view_class = 'tw-flex tw-gap-2 tw-rounded tw-bg-[#476CFF]/10 tw-text-[#476CFF] tw-font-bold tw-text-sm tw-px-3 tw-py-2 hover:tw-text-[#476CFF] tw-items-center'
   inactive_view_class = 'tw-flex tw-gap-2 tw-rounded tw-font-bold tw-text-sm tw-px-3 tw-py-2 tw-border hover:tw-text-black tw-items-center'
 %>
+
 <%= turbo_frame_tag 'resources' do %>
-  <div class="resources-list">
+  <div class="resources-lists" data-controller="resource-search">
     <div class="tw-flex tw-items-start md:tw-items-center tw-gap-4 tw-flex-col lg:tw-flex-row tw-justify-between">
       <div class="tw-flex tw-gap-6 tw-items-center">
         <h2 class="tw-text-2xl md:tw-text-3xl tw-font-light tw-leading-none">
@@ -21,21 +22,25 @@
           <%= render partial: 'shared/search_input' %>
         </div>
       </div>
+
       <div class="tw-flex tw-gap-3 tw-items-center">
         View:
-        <%= link_to resources_path(view: 'list'), class: "#{view_type == 'list' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
+        <%= link_to resources_path(view: 'list'), class: "#{view_type == 'list' ? active_view_class : inactive_view_class }", data: { turbo_frame: 'resources' } do %>
           <%= inline_svg_tag('svgs/list.svg') %>
           List
         <% end %>
-        <%= link_to resources_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
+
+        <%= link_to resources_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class }", data: { turbo_frame: 'resources' } do %>
           <%= inline_svg_tag('svgs/grid.svg') %>
           Grid
         <% end %>
       </div>
     </div>
+
     <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
       <p>No results found</p>
     </div>
+
     <%= render "resources/resources_view/#{view_type}" %>
   </div>
 <% end %>

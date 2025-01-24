@@ -8,15 +8,15 @@
   <div class="page-section filters">
     <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
       <div class="row" data-controller="chapter-verses-filter">
-        <div class="col-12 d-flex">
+        <div class="tw-flex tw-flex-col sm:tw-flex-row tw-flex-wrap tw-space-y-4 sm:tw-space-y-0">
           <% if false %>
             <div class="form-group me-2">
-              <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
+              <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select tw-w-[100%]', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
               <p class="form-text">Filter by Tajweed rule(old)</p>
             </div>
           <% end %>
           <div class="form-group me-2">
-            <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
+            <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select tw-w-[100%]', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
             <p class="form-text">Filter by Tajweed rule</p>
           </div>
 
@@ -26,19 +26,19 @@
           </div>
 
           <div class="form-group me-2">
-            <div class="d-flex">
-              <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2', style: 'width: 200px' %>
-              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end], placeholder: 'Ends with', class: 'form-control me-2', style: 'width: 200px' %>
+            <div class="tw-flex tw-space-y-4 sm:tw-space-y-0 tw-flex-col sm:tw-flex-row">
+              <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2 tw-w-[100%] sm:tw-w-auto'%>
+              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end], placeholder: 'Ends with', class: 'form-control me-2 tw-w-[100%] sm:tw-w-auto'%>
               <label for="filter_word_boundary">
                 <%= check_box_tag :filter_word_boundary, '1', params[:filter_word_boundary] == '1' %>
                 Filter whole word
               </label>
             </div>
-            <p class="form-text">Filter by Regexp(Find word that start and ends with specific letter)</p>
+            <p class="form-text tw-mb-4 sm:tw-mb-0">Filter by Regexp(Find word that start and ends with specific letter)</p>
           </div>
         </div>
 
-        <div class="col-12 d-flex">
+        <div class="tw-flex tw-space-y-4 sm:tw-space-y-0 tw-flex-col sm:tw-flex-row tw-w-[100%]">
           <%= render 'shared/filters', page: true %>
 
           <div class="form-group ms-auto">
@@ -52,6 +52,7 @@
 
   <div class="page-section mt-4">
     <h2>Words</h2>
+    <div class= "tw-overflow-x-auto">
     <table class="table table-hover">
       <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
@@ -126,6 +127,7 @@
       </tbody>
     </table>
   </div>
+</div>
 </div>
 
 

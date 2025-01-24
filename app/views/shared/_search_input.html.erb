@@ -1,6 +1,10 @@
 <% variant ||= 'default' %>
 <div class="tw-relative">
-  <input type="search" placeholder="Quick Search..." class="tw-rounded-full  tw-w-full <%= variant == 'large' ? 'tw-py-6 tw-ps-16' : 'tw-py-4 tw-ps-14' %>" id="search-input">
+  <input type="search"
+         placeholder="Quick Search..."
+         class="tw-rounded-full  tw-w-full <%= variant == 'large' ? 'tw-py-6 tw-ps-16' : 'tw-py-4 tw-ps-14' %>"
+         id="search-input"
+    />
   <div class="tw-absolute <%= variant == 'large' ? 'tw-start-6 tw-top-[1.65rem]' : 'tw-start-5 tw-top-[1.15rem]' %>">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M23.3 21.3702L16.6486 14.7177C17.7205 13.2447 18.2971 11.4694 18.2954 9.64768C18.2954 4.87945 14.4159 1 9.64768 1C4.87945 1 1 4.87945 1 9.64768C1 14.4159 4.87945 18.2954 9.64768 18.2954C11.4694 18.2971 13.2447 17.7205 14.7177 16.6486L21.3702 23.3L23.3 21.3702ZM9.64768 15.5642C8.47736 15.5643 7.3333 15.2173 6.36017 14.5672C5.38704 13.9171 4.62856 12.9929 4.18065 11.9117C3.73274 10.8305 3.61552 9.64076 3.84381 8.49293C4.0721 7.34509 4.63565 6.29073 5.46319 5.46319C6.29073 4.63565 7.34509 4.0721 8.49293 3.84381C9.64076 3.61552 10.8305 3.73274 11.9117 4.18065C12.9929 4.62856 13.9171 5.38704 14.5672 6.36017C15.2173 7.3333 15.5643 8.47736 15.5642 9.64768C15.5623 11.2163 14.9384 12.7201 13.8292 13.8292C12.7201 14.9384 11.2163 15.5623 9.64768 15.5642Z" fill="black"/>

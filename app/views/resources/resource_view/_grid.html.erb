@@ -11,8 +11,15 @@
       <%
         search_term = "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}"
       %>
+
       <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
-        <%= render 'card/card_content', card: card, show_info: true, is_quran_script: is_quran_script, preview_verse: @preview_verse, text_type: 'text_qpc_hafs', show_download: true, show_tags: true %>
+        <%= render 'card/card_content', card: card,
+                   show_info: false,
+                   is_quran_script: is_quran_script,
+                   preview_verse: @preview_verse,
+                   text_type: 'text_qpc_hafs',
+                   show_download: true,
+                   show_tags: true %>
       <% end %>
     <% end %>
   </div>

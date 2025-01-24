@@ -36,6 +36,8 @@ module.exports = {
     'tw-text-green-600',
     'tw-text-yellow-600',
     'tw-hidden',
-    'tw-link-button'
+    'tw-link-button',
+    'tw-docs',
+    'tw-docs *'
   ]
 };

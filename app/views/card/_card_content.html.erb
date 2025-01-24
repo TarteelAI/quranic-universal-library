@@ -19,7 +19,10 @@
 
     <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">
       <% if local_assigns[:is_quran_script] %>
-        <%= render 'quran_script_preview', resource: card.resource_content, preview_verse: local_assigns[:preview_verse] %>
+        <%= render 'quran_script_preview',
+                   resource: card.resource_content,
+                   preview_verse: local_assigns[:preview_verse]
+        %>
       <% else %>
         <div class="tw-flex tw-items-center tw-justify-center tw-w-full">
           <% if card.respond_to?(:icon) && card.icon.present? %>

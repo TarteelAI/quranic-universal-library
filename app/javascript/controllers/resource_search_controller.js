@@ -10,8 +10,6 @@ export default class extends Controller {
       'DOMAttrModified input change keypress paste blur',
       this.search.bind(this)
     );
-
-    this.searchResults = this.el.find('[data-search]');
   }
 
   disconnect() {
@@ -27,13 +25,12 @@ export default class extends Controller {
   }
 
   resetSearch() {
-    this.searchResults.removeClass('!tw-hidden');
+    this.searchItems().removeClass('!tw-hidden');
     this.hideEmptyResultsMessage();
   }
 
   search(event) {
     const query = (event.target.value || '').trim().toLowerCase();
-
     if (query.length <= 1) {
       this.resetSearch();
       return;
@@ -41,7 +38,7 @@ export default class extends Controller {
 
     let hasResults = false;
 
-    this.searchResults.each((_, el) => {
+    this.searchItems().each((_, el) => {
       const resource = $(el);
       const name = resource.data('search').toLowerCase();
 
@@ -58,6 +55,10 @@ export default class extends Controller {
     } else {
       this.hideEmptyResultsMessage();
     }
+  }
+
+  searchItems (){
+    return this.el.find('[data-search]')
   }
 
   handleKeydown(event) {

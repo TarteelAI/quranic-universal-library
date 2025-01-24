@@ -19,12 +19,12 @@
     </div>
   </div>
 <% else %>
-  <div class="bg-primary p-3 text-center rounded quran-text <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
+  <div class="bg-white px-3 py-2 text-center rounded quran-text text-dark <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
     <% if is_image %>
       <div class="d-flex">
         <% preview_verse.words.words.each do |w| %>
           <div class="word">
-            <img src="<%= w.send(text_type) %>" alt="<%= w.send(text_type) %>" />
+            <img src="<%= w.send("#{text_type}_url") %>" />
           </div>
         <% end %>
       </div>

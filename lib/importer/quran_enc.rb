@@ -156,6 +156,7 @@ module Importer
 
     def after_import(resource)
       resource.set_meta_value('synced-at', DateTime.now)
+
       if @issues.present?
         issues_group = @issues.group_by do |issue|
           issue[:tag]

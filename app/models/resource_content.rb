@@ -496,11 +496,11 @@ class ResourceContent < QuranApiRecord
     def compare_draft_tafsir_ayah_grouping
       tafsir_groupings = Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
       draft_tafsir_groupings = Draft::Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
-      all_ayahs = Verse.order('verse_index ASc').pluck(:verse_key)
+      all_ayahs = Verse.order('verse_index ASc').pluck(:id,:verse_key)
 
       ayah_groupings = {}
       all_ayahs.each do |ayah|
-        ayah_groupings[ayah] = { current: nil, draft: nil }
+        ayah_groupings[ayah[1]] = { id: ayah[0], current: nil, draft: nil }
       end
 
       tafsir_groupings.each do |verse_key, group_from, group_to, group_count|

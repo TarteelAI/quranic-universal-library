@@ -15,11 +15,15 @@ ActiveAdmin.register Draft::Tafsir do
          as: :searchable_select,
          ajax: { resource: Verse }
 
+  filter :verse_key, as: :string, label: "Ayah (Verse Key)"
+
   filter :text_matched
   filter :need_review
   filter :reviewed
   filter :imported
   filter :group_verses_count
+
+  includes :resource_content
 
   action_item :import, only: :show do
     link_to import_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
@@ -50,6 +54,7 @@ ActiveAdmin.register Draft::Tafsir do
     column :text_matched
     column :need_review
     column :reviewed
+    column :resource_content
     column :from, sortable: :start_verse_id do |resource|
       span resource.group_verse_key_from, class: "status_tag #{'yes' if resource.verse_key == resource.group_verse_key_from}"
     end
@@ -68,7 +73,8 @@ ActiveAdmin.register Draft::Tafsir do
       resource.group_verses_count
     end
 
-    actions
+    column :created_at
+    column :updated_at
   end
 
   form do |f|
@@ -212,7 +218,7 @@ ActiveAdmin.register Draft::Tafsir do
 
               if can?(:manage, :draft_content)
                 span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
-                span(link_to 'Compare grouping', compare_ayah_grouping_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_admin_resource_content_path(resource_content) })
+                span(link_to 'Compare grouping', compare_ayah_grouping_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_admin_resource_content_path(resource_content), css_class: 'modal-lg' })
 
                 span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
                 span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })

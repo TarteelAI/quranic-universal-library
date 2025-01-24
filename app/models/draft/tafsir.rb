@@ -36,13 +36,24 @@
 #
 class Draft::Tafsir < ApplicationRecord
   include HasMetaData
-
   belongs_to :resource_content
   belongs_to :verse
   belongs_to :group_tafsir, class_name: 'Verse', optional: true # TODO: rename to group_verse
   belongs_to :user, optional: true
   belongs_to :start_verse, class_name: 'Verse'
   belongs_to :end_verse, class_name: 'Verse'
+
+  scope :verse_key_cont, lambda { |ayah|
+    ayah = Verse.find_by(verse_key: ayah) if ayah.is_a?(String)
+    where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: ayah.id)
+  }
+  scope :verse_key_eq, ->(ayah) { verse_key_cont(ayah) }
+  scope :verse_key_start, ->(ayah) { where("start_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
+  scope :verse_key_end, ->(ayah) { where("end_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
+
+  def self.ransackable_scopes(auth_object = nil)
+    %i[verse_key_cont verse_key_eq verse_key_start verse_key_end]
+  end
 
   def import!
     language = resource_content.language

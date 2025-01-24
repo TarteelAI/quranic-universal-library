@@ -226,6 +226,7 @@ module Importer
                     end
 
       translation.save(validate: false)
+      translation
     rescue Exception => e
       log_message "===== #{verse.verse_key} ERROR: #{e.message}"
       raise e
@@ -431,17 +432,15 @@ module Importer
       create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
     end
 
-    def parse_uyghur_saleh(verse, resource, _footnote_resource, _quran_enc_key, data)
+    def parse_uyghur_saleh(verse, resource, footnote_resource, quran_enc_key, data)
       text = data['translation'].sub(/\[\d+\]/, '')
-      translation = create_translation(verse, text, resource)
-      translation.set_meta_value('source_data', data)
-      translation.save(validate: false)
+      data['translation'] = text
+      create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
     end
 
     def parse_arabic_seraj(verse, resource, _footnote_resource, _quran_enc_key, data)
       raise "PENDING"
     end
-
 
     def remove_footnote_tag(text)
       text.to_s.gsub(REGEXP_REMOVE_FOOTNOTE, '').strip
@@ -541,7 +540,8 @@ module Importer
       swahili_abubakr: [/\[\d+\]/, /\[\d+\]/],
       japanese_saeedsato: [/\[\d+\]/, /\[\d+\]/],
       bosnian_rwwad: [/\[\d+\]/, /\[\d+\]/],
-      ukrainian_yakubovych: [/\[[IVXLCDM]+\]/, /\[[IVXLCDM]+\]/]
+      ukrainian_yakubovych: [/\[[IVXLCDM]+\]/, /\[[IVXLCDM]+\]/],
+      russian_aboadel: [/\[\d+\]/, /\[\d+\]/],
     }.freeze
 
     TRANSLATIONS_MAPPING = {
@@ -639,7 +639,7 @@ module Importer
 
       chichewa_betala: { id: 797, language: 123, name: 'Khaled Ibrahim Betala' },
       dagbani_ghatubo: { id: 1270, language: 191, name: 'Muhammad Baba Gutubu' },
-      yaw_silika: { language: 192, name: 'Abdul Hamid Silika', id: 799 },
+      yaw_silika: { language: 192, name: 'Abdul Hamid Silika', id: 798 },
       fulani_rwwad: { id: 800, language: 44, name: 'Rowad Translation Center' },
       asante_harun: { language: 170, name: 'Rowad Translation Center', id: 801 },
       kurdish_salahuddin: { id: 1263, language: 89, name: 'Salahuddin Abdulkarim' }, # This one has embeded Arabic
@@ -669,10 +669,12 @@ module Importer
         name: 'Asseraj fi Bayan Gharib AlQuran',
         author: 'Muhammad Al-Khudairi',
         native: 'محمد الخضيري'
-      }
+      },
+      russian_aboadel: {id: 1254}
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'russian_aboadel',
       'bosnian_rwwad',
       'japanese_saeedsato',
       'swahili_abubakr',

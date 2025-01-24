@@ -1,43 +1,82 @@
-<div id=title>
+<div id="title">
   <%= @resource.name %>(<%= @resource.id %>) Tafsir Grouping Comparison
 </div>
 
 <div id="body">
   <div class="modal-body">
-    <div class="container mt-4" data-controller="filter-ayah">
-      <h2>Tafsir Grouping Comparison</h2>
-
+    <div class="mt-4" data-controller="filter-ayah">
       <input type="search" id="search-input" class="form-control mb-3" placeholder="Search Ayah (Verse Key)">
 
       <table class="table table-bordered table-hover">
         <thead class="table-dark">
         <tr>
-          <th>Verse Key</th>
-          <th>Tafsir Group From</th>
-          <th>Tafsir Group To</th>
-          <th>Tafsir Group Count</th>
-          <th>Draft Group From</th>
-          <th>Draft Group To</th>
-          <th>Draft Group Count</th>
+          <th data-action="click->filter-ayah#sortColumn">Verse Key</th>
+          <th class="bg-primary text-white">Tafsir Group From</th>
+          <th class="bg-primary text-white">Tafsir Group To</th>
+          <th class="bg-primary text-white">Tafsir Group Count</th>
+          <th class="bg-success text-white">Draft Group From</th>
+          <th class="bg-success text-white">Draft Group To</th>
+          <th class="bg-success text-white">Draft Group Count</th>
         </tr>
         </thead>
 
         <tbody id="ayahs">
+        <% previous_group = nil %>
         <% @comparison.each do |verse_key, groups| %>
-          <% current_from, current_to, current_count = groups[:current] || ["Missing", "Missing", "Missing"] %>
-          <% draft_from, draft_to, draft_count = groups[:draft] || ["Missing", "Missing", "Missing"] %>
+          <% current_from, current_to, current_count = groups[:current] || [] %>
+          <% draft_from, draft_to, draft_count = groups[:draft] || [] %>
 
           <% mismatch = (groups[:current] != groups[:draft]) || groups[:current].nil? || groups[:draft].nil? %>
+          <% is_first_in_group = previous_group != current_from %>
+          <% previous_group = current_from %>
 
-          <tr class="<%= mismatch ? 'bg-danger' : '' %>" data-ayah="<%= verse_key %>">
-            <td><%= verse_key %></td>
-            <td><%= current_from %></td>
-            <td><%= current_to %></td>
-            <td><%= current_count %></td>
-            <td><%= draft_from %></td>
-            <td><%= draft_to %></td>
-            <td><%= draft_count %></td>
-          </tr>
+          <% if is_first_in_group %>
+            <tr class="group-header" data-toggle="collapse" data-target=".group-<%= verse_key.gsub(':', '-') %>">
+              <td class="<%= mismatch ? 'bg-danger text-white' : '' %>"><strong><%= verse_key %></strong></td>
+              <td class="bg-primary text-white">
+                <%= current_from %>
+              </td>
+              <td class="bg-primary text-white">
+                <%= current_to %>
+              </td>
+              <td class="bg-primary text-white">
+                <%= current_count %>
+              </td>
+              <td class="bg-success text-white">
+                <%= draft_from %>
+              </td>
+              <td class="bg-success text-white">
+                <%= draft_to %>
+              </td>
+              <td class="bg-success text-white">
+                <%= draft_count %>
+              </td>
+            </tr>
+          <% else %>
+            <tr class="collapse group-<%= current_from.to_s.gsub(':', '-') %>">
+              <td class="<%= mismatch ? 'bg-danger text-white' : '' %>">
+                <%= verse_key %>
+              </td>
+              <td class="bg-primary text-white">
+                <%= current_from %>
+              </td>
+              <td class="bg-primary text-white">
+                <%= current_to %>
+              </td>
+              <td class="bg-primary text-white">
+                <%= current_count %>
+              </td>
+              <td class="bg-success text-white">
+                <%= draft_from %>
+              </td>
+              <td class="bg-success text-white">
+                <%= draft_to %>
+              </td>
+              <td class="bg-success text-white">
+                <%= draft_count %>
+              </td>
+            </tr>
+          <% end %>
         <% end %>
         </tbody>
       </table>

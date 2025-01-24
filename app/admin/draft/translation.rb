@@ -49,7 +49,7 @@ ActiveAdmin.register Draft::Translation do
     end
     column :imported
     column :resource do |resource|
-      link_to(resource.resource_content.name, [:admin, resource.resource_content])
+      link_to(resource.resource_content.name, [:admin, resource.resource_content]) if resource.resource_content
     end
     column :footnotes_count
     column :draft_text, sortable: :draft_text do |resource|

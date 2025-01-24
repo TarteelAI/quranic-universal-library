@@ -56,10 +56,6 @@ class DownloadableResource < ApplicationRecord
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
   validates :resource_content, uniqueness: { allow_nil: true }
 
-  def language_id=(val)
-    super(val)
-  end
-
   def tags=(val)
     names = val.split(',').map(&:strip).reject(&:empty?)
     names.each do |tag_name|

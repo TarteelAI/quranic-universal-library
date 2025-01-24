@@ -105,6 +105,14 @@ class ResourceContent < QuranApiRecord
     where("meta_data ->> 'quranenc-key' ilike ?", "%#{val}%")
   }
 
+  def language_id=(val)
+    if lang = Language.find_by(id: val)
+      self.language_name = lang.name.downcase
+    end
+
+    super(val)
+  end
+
   def self.ransackable_scopes(*)
     %i[
     permission_to_host_eq

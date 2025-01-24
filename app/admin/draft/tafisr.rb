@@ -192,42 +192,67 @@ ActiveAdmin.register Draft::Tafsir do
   end
 
   sidebar 'Draft tafsirs', only: :index do
-    tafisrs = Draft::Tafsir.new_tafsirs
-    imported = Draft::Tafsir.imported.pluck(:id)
+    tafsirs = Draft::Tafsir.all_tafsirs
     selected = params.dig(:q, :resource_content_id_eq).to_i
-    div "Total: #{tafisrs.size}"
-    div "Imported: #{imported.size}"
 
-    tafisrs = tafisrs.sort_by do |t|
-      t.id == selected ? 0 : 1
+    tafsirs = tafsirs.sort_by { |t| t[:resource] && t[:resource].id == selected ? 0 : 1 }
+    imported = tafsirs.select do |t|
+      t[:total_count] == t[:imported_count]
     end
 
+    div "Total Resources: #{tafsirs.size}"
+    div "Imported: #{imported.size}"
+
     div class: 'd-flex w-100 flex-column sidebar-item' do
-      tafisrs.each do |resource_content|
-        div class: "w-100 p-1 flex-between border-bottom mb-3 #{'selected' if selected == resource_content.id}"  do
-          div do
-            span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
-            imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
+      tafsirs.each do |t|
+        resource_content = t[:resource]
+        next if resource_content.nil?
+
+        is_fully_imported = t[:total_count] > 0 && t[:total_count] == t[:imported_count]
+
+        div class: "w-100 p-2 border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
+          div class: 'flex-between' do
+            span link_to(resource_content.id, [:admin, resource_content], target: '_blank')
+            span('Imported', class: 'status_tag yes ms-2') if is_fully_imported
           end
 
-          div "#{resource_content.name}(#{resource_content.language_name})"
-          div "Synced: #{resource_content.meta_value('synced-at')} Updated: #{resource_content.updated_at}"
+          div "#{resource_content.name} (#{resource_content.language_name})"
+          div "Synced: #{resource_content.meta_value('synced-at')} | Updated: #{resource_content.updated_at}"
+
+          # Display stats per resource
+          div class: 'small text-muted' do
+            span "Total: #{t[:total_count]}, "
+            span "Matched: #{t[:matched_count]}, "
+            span "Not Matched: #{t[:not_matched_count]}, "
+            span "Imported: #{t[:imported_count]}, "
+            span "Not Imported: #{t[:not_imported_count]}, "
+            span "Need Review: #{t[:need_review_count]}"
+          end
 
           div class: 'd-flex my-2 flex-between gap-2' do
-              span(link_to 'Filter', "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
+            span(link_to 'Filter', "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
 
-              if can?(:manage, :draft_content)
-                span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
-                span(link_to 'Compare grouping', compare_ayah_grouping_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_admin_resource_content_path(resource_content), css_class: 'modal-lg' })
+            issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
-                span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
-                span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })
+            if can?(:manage, :draft_content)
+              span(link_to 'Sync', import_draft_admin_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm btn-success text-white', data: { confirm: 'Are you sure to re-sync this tafsir from the source?' })
+
+              if issue_count.positive?
+                span(link_to "Issues #{issue_count}", "/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
               end
+
+              span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
+              span(link_to 'Compare grouping', compare_ayah_grouping_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_admin_resource_content_path(resource_content), css_class: 'modal-lg' })
+
+              span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
+              span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })
             end
+          end
         end
       end
     end
   end
+
 
   controller do
     def update

@@ -5,8 +5,8 @@
 #  id          :bigint           not null, primary key
 #  alignment   :string
 #  line_number :integer
+#  meta_data   :jsonb
 #  page_number :integer
-#  properties  :jsonb
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  mushaf_id   :integer

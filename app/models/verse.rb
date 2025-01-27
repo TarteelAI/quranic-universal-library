@@ -65,6 +65,7 @@
 class Verse < QuranApiRecord
   include NavigationSearchable
   include StripWhitespaces
+  include QuranSearchable
 
   has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
 
@@ -100,6 +101,24 @@ class Verse < QuranApiRecord
   accepts_nested_attributes_for :word_translations
 
   alias_attribute :code_v4, :code_v2
+
+=begin
+  settings index: { number_of_shards: 1 } do
+    mappings dynamic: false do
+      indexes :id, type: :keyword
+      indexes :verse_key, type: :keyword
+      indexes :text_uthmani, type: :text, analyzer: :quran_analyzer
+      indexes :text_qpc_hafs, type: :text, analyzer: :qpc_hafs_analyzer
+      indexes :text_qpc_hafs, type: :text, analyzer: :qpc_hafs_analyzer
+
+      indexes :words, type: :nested do
+        indexes :id, type: :keyword
+        indexes :text, type: :text, analyzer: :quran_analyzer
+        indexes :transliteration, type: :text, analyzer: :transliteration_analyzer
+      end
+    end
+  end
+=end
 
   def to_s
     verse_key

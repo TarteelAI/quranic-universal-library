@@ -6,14 +6,21 @@ ActiveAdmin.register Synonym do
   permit_params :text, :synonyms
 
   filter :text
+  filter :text_simple
+  filter :text_uthmani
+  filter :words_count
+  filter :approved
   filter :where_synonyms_cont, label: :synonyms, as: :string
+  filter :en_transliterations_cont, label: :en_transliterations, as: :string
 
   index do
     id_column
     column :text, class: 'quran-text qpc-hafs'
-    column :approved_synonyms do |resource|
-      div resource.approved_synonyms.join(', '), class: 'quran-text fs-lg'
-    end
+    column :text_simple, class: 'quran-text qpc-hafs'
+    column :text_uthmani, class: 'quran-text qpc-hafs'
+    column :words_count
+    column :approved
+
     column :created_at
     actions
   end
@@ -21,14 +28,15 @@ ActiveAdmin.register Synonym do
   show do
     attributes_table do
       row :id
+      row :approved
       row :text
-      row :approved_synonyms do |resource|
-        div resource.approved_synonyms.join(', '), class: 'quran-text qpc-hafs'
-      end
-
+      row :text_simple
+      row :text_uthmani
+      row :words_count
       row :synonyms do |resource|
         div resource.synonyms.join(', '), class: 'quran-text qpc-hafs'
       end
+      row :en_transliterations
 
       row :created_at
       row :updated_at

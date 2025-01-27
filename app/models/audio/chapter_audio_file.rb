@@ -12,7 +12,7 @@
 #  file_name           :string
 #  file_size           :float
 #  format              :string
-#  metadata            :jsonb
+#  meta_data           :jsonb
 #  mime_type           :string
 #  stream_count        :integer
 #  timing_percentiles  :string           is an Array

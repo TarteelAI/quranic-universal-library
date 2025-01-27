@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_01_13_120827) do
+ActiveRecord::Schema[7.0].define(version: 2025_01_26_165853) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -382,7 +382,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_13_120827) do
     t.string "alignment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "properties", default: {}
+    t.jsonb "meta_data", default: {}
     t.integer "page_number"
     t.integer "line_number"
     t.index ["line_number"], name: "index_mushaf_line_alignments_on_line_number"
@@ -475,6 +475,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_13_120827) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.jsonb "approved_synonyms", default: []
+    t.jsonb "en_transliterations", default: []
   end
 
   create_table "user_downloads", force: :cascade do |t|

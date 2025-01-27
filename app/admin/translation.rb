@@ -36,7 +36,8 @@ ActiveAdmin.register Translation do
     column :text, sortable: :text do |resource|
       resource.text.first(100)
     end
-    :updated_at
+
+    column :updated_at
 
     actions
   end

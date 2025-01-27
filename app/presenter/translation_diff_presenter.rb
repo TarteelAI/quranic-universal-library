@@ -23,6 +23,7 @@ class TranslationDiffPresenter < BasePresenter
       current_translation = "#{current_translation[:t].join('')}"
     else
       current_translation = current_translation.to_json
+      exported_translation = exported_translation.to_json
     end
 
     diff = Diffy::Diff.new(exported_translation.to_s, current_translation.to_s).to_s(:html).html_safe

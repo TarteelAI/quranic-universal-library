@@ -34,6 +34,7 @@
     "trix": "^2.1.4",
     "utf8": "^3.0.0",
     "vue": "^3.2.24",
+    "vue-toastification": "^1.7.14",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

@@ -15,10 +15,14 @@ class TranslationDiffPresenter < BasePresenter
     @export_service ||= Exporter::ExportTranslationChunk.new
 
     current_translation = @export_service.export(translation)
+    current_translation.delete(:f) if current_translation[:f].blank?
+
     exported_translation = get_ayah_translation(@exported_translations, translation.verse_key)
 
     if exported_translation.is_a?(String)
       current_translation = "#{current_translation[:t].join('')}"
+    else
+      current_translation = current_translation.to_json
     end
 
     diff = Diffy::Diff.new(exported_translation.to_s, current_translation.to_s).to_s(:html).html_safe

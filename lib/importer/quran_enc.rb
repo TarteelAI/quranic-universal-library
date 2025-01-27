@@ -333,7 +333,7 @@ module Importer
         current_footnote_ids = translation.original_footnotes_ids
 
         footnote_ids = if footnote_id_reg
-                         data['translation'].scan(footnote_id_reg)
+                         translation_text.scan(footnote_id_reg)
                        else
                          []
                        end
@@ -518,7 +518,7 @@ module Importer
       lithuanian_rwwad: [/\[\d+\]/, /\[\d+\]/],
       telugu_muhammad: [/\([a-z]\)/, /\([a-z]\)/],
       chichewa_betala: [/\[\d+\]/, /\[\d+\]/],
-      punjabi_arif: [/\d+[਼\s]*/, /\d+[਼\s]*/],
+      punjabi_arif: [/\d+[਼\s]*/, /\d+[਼\s]+/],
       lingala_zakaria: [/\(\d+\)/, /\d+/],
       kyrgyz_hakimov: [/\*+/, /\*+/],
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],

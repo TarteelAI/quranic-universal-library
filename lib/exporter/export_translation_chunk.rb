@@ -35,7 +35,7 @@ module Exporter
         end
 
         id = node.attr('foot_note')
-        if id.present? && (foot_note = FootNote.where(id: id).first).present?
+        if id.present? && (foot_note = fetch_footnote(id)).present?
           # Some footnote also has html tags tags, strip those tags
           foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
           stripped = foot_note_text.tr(" ", '').strip
@@ -84,7 +84,7 @@ module Exporter
           else
             id = node.attr('foot_note')
 
-            if id.present? && (foot_note = FootNote.where(id: id).first).present?
+            if id.present? && (foot_note = fetch_footnote(id)).present?
               translation_chunks << { f: foot_note_counter }
               foot_note_counter += 1
             end
@@ -104,6 +104,19 @@ module Exporter
 
     def is_bridges_translation?(translation)
       149 == translation.resource_content_id
+    end
+
+    def fetch_footnote(id)
+      @footnotes ||= {}
+      return @footnotes[id.to_i] if @footnotes[id.to_i].present?
+
+      if footnote = FootNote.where(id: id).first
+        FootNote.where(resource_content_id: footnote.resource_content_id).each do |fn|
+          @footnotes[fn.id] = fn
+        end
+
+        @footnotes[id.to_i] || footnote
+      end
     end
   end
 end

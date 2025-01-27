@@ -88,6 +88,7 @@ Rails.application.routes.draw do
       get :changes
     end
   end
+  resources :translation_diffs, only: [:index, :show]
 
   namespace :exports do
     get :word

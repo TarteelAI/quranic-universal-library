@@ -49,6 +49,7 @@ module Exporter
       translation_chunks = []
       doc.children.each do |child|
         id = child.attr('foot_note')
+        next if fetch_footnote(id).blank?
 
         if id.present?
           translation_chunks << {
@@ -109,14 +110,15 @@ module Exporter
 
     def fetch_footnote(id)
       @footnotes ||= {}
-      return @footnotes[id.to_i] if @footnotes[id.to_i].present?
+      return @footnotes[id.to_i] if @footnotes[id.to_i] && @footnotes[id.to_i].text.present?
 
       if footnote = FootNote.where(id: id).first
         FootNote.where(resource_content_id: footnote.resource_content_id).each do |fn|
           @footnotes[fn.id] = fn
         end
 
-        @footnotes[id.to_i] || footnote
+        fn = (@footnotes[id.to_i] || footnote)
+        fn if fn && fn.text.present?
       end
     end
   end

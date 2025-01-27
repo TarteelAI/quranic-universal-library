@@ -89,6 +89,7 @@ module Export
 
     def export_data
       json = {}
+      s = Exporter::ExportTranslationChunk.new
 
       Chapter.order('chapter_number ASC').each do |chapter|
         chapter.verses.order('verse_number ASC').each do |verse|
@@ -97,7 +98,10 @@ module Export
             verse_id: verse.id
           ).first
 
-          json[verse.verse_key] = translation_text_with_footnotes(translation)
+          data = s.export(translation)
+          data.delete(:f) if data[:f].blank?
+
+          json[verse.verse_key] = data
         end
       end
 
@@ -108,130 +112,6 @@ module Export
 
     def compress
       `bzip2 #{file_name}`
-    end
-
-    def export_bridres_with_footnote(doc)
-      # i class s formatting
-      # span class h (qirat)
-      # sup or a.sup footnote
-
-      hard_coded_footnotes = ['sg', 'pl', 'dl']
-      foot_note_tags = ['sup', 'a']
-
-      foot_note_counter = 1
-      footnotes = {}
-      translation_chunks = []
-
-      doc.children.each do |node|
-        if node.name == 'text'
-          translation_chunks << node.text
-        elsif foot_note_tags.include?(node.name) || hard_coded_footnotes.include?(node.text.strip)
-          if hard_coded_footnotes.include?(node.text.strip)
-            translation_chunks << { type: 'f', text: node.text.strip }
-          else
-            id = node.attr('foot_note')
-
-            if id.present? && (foot_note = FootNote.where(id: id).first).present?
-              foot_note_text = format_footnote(foot_note.text)
-
-              footnotes[foot_note_counter] = foot_note_text
-              translation_chunks << { type: 'f', text: foot_note_counter }
-              foot_note_counter += 1
-            end
-          end
-        elsif node.name == 'i'
-          translation_chunks << { type: 'i', text: node.text.strip }
-        elsif node.name == 'span'
-
-          node.children.each do |child|
-            foot_note_id = child.attr('foot_note')
-
-            if child.name == 'text' && node.attr('class') == 'h' && child.text.present?
-              translation_chunks << { type: 'b', text: child.text }
-            elsif child.name == 'text'
-              translation_chunks << child.text
-            elsif foot_note_id.present? && (foot_note = FootNote.where(id: foot_note_id).first).present?
-              # qirat footnote
-              foot_note_text = format_footnote(foot_note.text)
-
-              footnotes[foot_note_counter] = foot_note_text
-              translation_chunks << { type: 'f', text: foot_note_counter }
-              foot_note_counter += 1
-            end
-          end
-        end
-      end
-
-      {
-        t: translation_chunks,
-        f: footnotes
-      }
-    end
-
-    def translation_text_with_footnotes(translation)
-      text = translation&.text
-      footnotes_refs = {}
-      footnotes = {}
-
-      if text.blank?
-        result = {
-          t: []
-        }
-      else
-        doc = Nokogiri::HTML::DocumentFragment.parse(text)
-
-        if translation.resource_content_id == 149
-          result = export_bridres_with_footnote(doc)
-        else
-          foot_note_counter = 1
-
-          doc.children.each do |node|
-            if node.name == 'text'
-              next
-            end
-
-            footnote_id = node.attr('foot_note')
-
-            if footnote_id.present? && (foot_note = FootNote.where(id: footnote_id).first).present?
-              # Some footnote also has html tags tags, strip those tags
-              foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
-              stripped = foot_note_text.tr(" ", '').strip
-
-              footnotes[foot_note_counter] = stripped
-              footnotes_refs[footnote_id] = foot_note_counter
-              foot_note_counter += 1
-            end
-          end
-
-          translation_chunks = []
-          doc.children.each do |child|
-            footnote_id = child.attr('foot_note')
-
-            if footnote_id.present?
-              translation_chunks << {
-                type: 'f',
-                text: footnotes_refs[footnote_id]
-              }
-            else
-              translation_chunks << child.text if child.text.presence.present?
-            end
-          end
-
-          result = {
-            t: translation_chunks,
-            f: footnotes
-          }
-        end
-      end
-
-      result.delete(:f) if result[:f].blank?
-      result
-    end
-
-    def format_footnote(text)
-      doc = Nokogiri::HTML::DocumentFragment.parse(text)
-      text = doc.text
-      text.gsub(' ', ' ')
     end
 
     def send_email(zip_path, user)

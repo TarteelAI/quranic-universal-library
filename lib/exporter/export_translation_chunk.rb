@@ -49,13 +49,14 @@ module Exporter
       translation_chunks = []
       doc.children.each do |child|
         id = child.attr('foot_note')
-        next if fetch_footnote(id).blank?
 
         if id.present?
-          translation_chunks << {
-            type: 'f',
-            text: footnotes_refs[id]
-          }
+          if fetch_footnote(id).present?
+            translation_chunks << {
+              type: 'f',
+              text: footnotes_refs[id]
+            }
+          end
         else
           translation_chunks << child.text if child.text.presence.present?
         end
@@ -110,6 +111,7 @@ module Exporter
 
     def fetch_footnote(id)
       @footnotes ||= {}
+
       return @footnotes[id.to_i] if @footnotes[id.to_i] && @footnotes[id.to_i].text.present?
 
       if footnote = FootNote.where(id: id).first

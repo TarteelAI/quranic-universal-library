@@ -6,8 +6,15 @@ class TranslationDiffPresenter < BasePresenter
   end
 
   def current_translations
-    #last_exported_at = Time.at(exported_version)
-    Translation.where(resource_content_id: resource.id).order('verse_id ASC')#.where("updated_at >= ?", last_exported_at)
+    records = Translation
+                .where(resource_content_id: resource.id)
+                .order('verse_id ASC')
+
+    if params[:chapter]
+      records = records.where(chapter_id: params[:chapter])
+    end
+
+    records
   end
 
   def generate_diff(translation)

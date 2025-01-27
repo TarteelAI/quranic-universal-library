@@ -1,8 +1,7 @@
 module MushafPageHelper
   def all_quran_fonts
     [
-      ['Indopak hahafi-compressed', 'mushaf-indopak-nastaleeq-hanafi-compressed'],
-      ['Indopak hahafi-normal', 'mushaf-indopak-nastaleeq-hanafi-normal'],
+      ['Indopak nastaleeq', 'indopak-nastaleeq'],
       ['QPC Nastaleeq', 'qpc-nastaleeq'],
       ['Al Qalam', 'mushaf-al_qalam'],
       ['QPC Hafs', 'qpc-hafs'],
@@ -12,6 +11,7 @@ module MushafPageHelper
       ['Me Quran', 'me_quran'],
       ['Digital Khatt', 'digitalkhatt'],
       ['Digital Khatt Indopak', 'digitalkhatt-indopak'],
+      ['Urdu', 'urdu'],
     ]
   end
 

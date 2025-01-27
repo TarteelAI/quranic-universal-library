@@ -32,7 +32,7 @@
       </tr>
       </thead>
 
-      <tbody>
+      <tbody lang="<%= @presenter.resource.language&.iso_code %>">
       <% @presenter.current_translations.each do |translation| %>
         <%
           exported, current_translation, diff = @presenter.generate_diff(translation)

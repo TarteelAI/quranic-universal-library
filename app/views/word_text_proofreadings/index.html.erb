@@ -7,7 +7,7 @@
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
     <%= form_tag word_text_proofreadings_path, method: :get do %>
-      <div data-controller="chapter-verses-filter" class="d-flex">
+      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
         <%= render 'shared/filters', juz: true, page: true %>
 
         <div class="form-group">
@@ -20,6 +20,7 @@
 
   <div class="page-section mt-4">
     <h2>Ayah list</h2>
+    <div class="tw-overflow-x-auto">
     <table class="table table-hover">
       <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
@@ -61,5 +62,6 @@
       </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </div>

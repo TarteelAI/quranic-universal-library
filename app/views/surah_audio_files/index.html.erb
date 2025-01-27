@@ -17,11 +17,11 @@
     <div class="row">
       <div class="col-lg-12">
         <%= form_tag surah_audio_files_path, method: :get do %>
-          <div data-controller="chapter-verses-filter" class="d-flex">
+          <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
             <%= render 'shared/filters', verse: false %>
 
             <div class="form-group me-2">
-              <%= select_tag :recitation_id, options_for_select(recitations, params[:recitation_id]), class: 'form-select', data: { controller: 'select2' } %>
+              <%= select_tag :recitation_id, options_for_select(recitations, params[:recitation_id]), class: 'form-select tw-w-[85vw] sm:tw-w-auto', data: { controller: 'select2' } %>
               <p class="form-text">Filter by recitation</p>
             </div>
 
@@ -36,6 +36,7 @@
 
   <div class="page-section mt-4">
     <h2>Surah list</h2>
+    <div class="tw-overflow-x-auto">
     <table class="table table-hover">
       <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
@@ -76,6 +77,7 @@
       <% end %>
       </tbody>
     </table>
+    </div>
   </div>
 </div>
 

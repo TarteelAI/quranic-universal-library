@@ -13,11 +13,11 @@
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
     <%= form_tag word_translations_path, method: :get do %>
-      <div data-controller="chapter-verses-filter" class="d-flex">
+      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
         <%= hidden_field_tag :language, current_language.id %>
 
         <div class="form-group me-2">
-          <%= select_tag :language, options_from_collection_for_select(@word_translation_languages, :id, :name, selected: current_language.id), include_blank: false, class: 'form-select', data: { placeholder: 'Select language', controller: 'select2' } %>
+          <%= select_tag :language, options_from_collection_for_select(@word_translation_languages, :id, :name, selected: current_language.id), include_blank: false, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { placeholder: 'Select language', controller: 'select2' } %>
           <p class="form-text">Select language</p>
         </div>
 
@@ -32,6 +32,7 @@
 
   <div class="page-section mt-4">
     <h2>Ayahs</h2>
+    <div class="tw-overflow-x-auto">
     <table class="table table-hover">
       <thead class="position-sticky bg-white border-bottom top-0">
       <tr>
@@ -81,6 +82,7 @@
       </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </div>
 

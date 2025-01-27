@@ -1,10 +1,10 @@
 <div class="page-section mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
-    <div data-controller="chapter-verses-filter" class="d-flex align-items-end">
+    <div data-controller="chapter-verses-filter" class="d-flex align-items-end tw-flex-wrap">
       <%= render 'shared/filters' %>
 
       <div class="form-group me-2">
-        <%= search_field_tag :text, params[:text], class: 'form-control', placeholder: 'Search' %>
+        <%= search_field_tag :text, params[:text], class: 'form-control tw-w-[85vw] sm:tw-w-auto', placeholder: 'Search' %>
         <p class="form-text">Search content</p>
       </div>
 
@@ -18,6 +18,7 @@
 
 <div class="page-section mt-4">
   <h2>Phrase list</h2>
+  <div class="tw-overflow-x-auto">
   <table class="table table-hover mt-4">
     <thead class="position-sticky bg-white border-bottom top-0">
     <tr>
@@ -75,4 +76,5 @@
     </tr>
     </tbody>
   </table>
+  </div>
 </div>

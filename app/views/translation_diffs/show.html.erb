@@ -1,0 +1,65 @@
+<%= render 'tools/header',
+           name: "#{@presenter.resource.name} translation diffs",
+           help: false
+%>
+
+<style>
+    .diff{overflow:auto;}
+    .diff ul{background:#fff;overflow:auto;}
+    .diff del, .diff ins{display:block;text-decoration:none;}
+    .diff li.ins{background:#dfd; color:#080}
+    .diff li.del{background:#fee; color:#b00}
+    .diff li{background:#ffc; display:inline-block; margin-right: 15px}
+    .diff del, .diff ins, .diff span{white-space:pre-wrap;}
+    .diff del strong{font-weight:normal;background:#fcc;}
+    .diff ins strong{font-weight:normal;background:#9f9;}
+    .ml-2{margin-left: 5px}
+    .sticky{position: sticky;top:5px;background: #fff;z-index:10;}
+    .ltr{direction: ltr;}
+    td{cursor: pointer;}
+</style>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section mt-4">
+    <h2>Ayah diff</h2>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
+      <tr>
+        <th>Key</th>
+        <th>Exported translation</th>
+        <th>New translation</th>
+        <th>Diff</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @presenter.current_translations.each do |translation| %>
+        <%
+          exported, current_translation, diff = @presenter.generate_diff(translation)
+        %>
+
+        <% if diff.include?('li') %>
+          <tr>
+            <td scope="row">
+              <%= translation.verse_key %>
+            </td>
+
+            <td>
+              <%= exported.to_s.html_safe %>
+            </td>
+
+            <td>
+              <%= current_translation.to_s.html_safe %>
+            </td>
+
+            <td>
+              <%= diff.to_s.html_safe %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+

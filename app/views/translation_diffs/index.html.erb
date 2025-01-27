@@ -1,0 +1,58 @@
+<%= render 'tools/header',
+           name: 'Compare translation diffs',
+           help: false
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section mt-4">
+    <h2>Exported translations</h2>
+    <table class="table table-hover">
+      <thead class="position-sticky bg-white border-bottom top-0">
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Key</th>
+        <th>Current version
+        <th>Exported version</th>
+        <th>Require new export?</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @presenter.exported_translations.each do |translation| %>
+        <%
+          latest_version = translation.updated_at.to_i
+          exported_version = @presenter.exported_version(translation)
+        %>
+        <tr>
+          <th scope="row"><%= link_to translation.id, translation_diff_path(translation.id, version: @presenter.exported_version(translation)) %></th>
+
+          <td>
+            <%= translation.name %>
+          </td>
+          <td>
+            <%= @presenter.translation_key(translation) %>
+          </td>
+
+          <td>
+            <%= latest_version %>
+          </td>
+
+          <td>
+            <%= exported_version %>
+          </td>
+
+          <td>
+            <%= exported_version && exported_version.to_i < latest_version %>
+          </td>
+
+          <td>
+            <%= link_to 'View diff', translation_diff_path(translation.id, version: @presenter.exported_version(translation)), class: 'btn btn-info' %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+

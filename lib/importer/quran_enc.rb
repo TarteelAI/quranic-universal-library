@@ -273,7 +273,8 @@ module Importer
     end
 
     def create_translation(verse, text, resource)
-      draft_text = strip_ayah_number_from_start(text, resource)
+      draft_text = clean_up_text(text, resource)
+      draft_text = replace_text(draft_text, resource)
 
       current_translation = Translation.where(
         verse_id: verse.id,
@@ -297,8 +298,8 @@ module Importer
 
     def create_foot_note(translation, resource, text, current_footnote, translation_resource)
       current_text = current_footnote&.text
-      text = strip_ayah_number_from_start(text, translation_resource)
-      text = fix_encoding(text).strip
+      text = clean_up_text(text, translation_resource)
+      text = replace_text(text, translation_resource)
       draft_text = simple_format(text)
 
       Draft::FootNote.create(
@@ -333,7 +334,8 @@ module Importer
         current_footnote_ids = translation.original_footnotes_ids
 
         footnote_ids = if footnote_id_reg
-                         translation_text.scan(footnote_id_reg)
+                         #translation_text.scan(footnote_id_reg)
+                         data['translation'].scan(footnote_id_reg)
                        else
                          []
                        end
@@ -446,7 +448,7 @@ module Importer
       text.to_s.gsub(REGEXP_REMOVE_FOOTNOTE, '').strip
     end
 
-    def strip_ayah_number_from_start(text, resource)
+    def clean_up_text(text, resource)
       # Trim non breaking space and other spaces from start and end
       text = text.sub(/^[\s\u00A0]+|[\s\u00A0]+$/, '').strip
       if reg = REGEXP_STRIP_TEXT[resource.quran_enc_key.to_sym]
@@ -454,7 +456,18 @@ module Importer
       end
 
       cleaned = text.sub(REGEXP_STRIP_TEXT[:general], '')
+
       fix_encoding(cleaned)
+    end
+
+    def replace_text(text, resource)
+      if replacement = TEXT_REPLACEMENT[resource.quran_enc_key.to_sym]
+        replacement.each do |from, to|
+          text.gsub!(from.to_s, to.to_s)
+        end
+      end
+
+      text
     end
 
     def data_source
@@ -478,6 +491,13 @@ module Importer
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
       general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s-]*)+/
     }.freeze
+
+    TEXT_REPLACEMENT = {
+      urdu_junagarhi: {
+        "ﻇ": "ظ", # Replace za initial form with letter za
+        "ﻻ": "لا", # Decomposed the ligature
+      }
+    }
 
     REGEXP_FOOTNOTES = {
       amharic_sadiq: [/\{\d+\}/, /\{\d+\}/],

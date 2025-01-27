@@ -52,7 +52,8 @@ module Exporter
 
         if id.present?
           translation_chunks << {
-            f: footnotes_refs[id]
+            type: 'f',
+            text: footnotes_refs[id]
           }
         else
           translation_chunks << child.text if child.text.presence.present?

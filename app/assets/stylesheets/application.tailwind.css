@@ -69,23 +69,45 @@
     .tw-docs .example h3 {
         @apply tw-mt-0;
     }
-
     .tw-docs .note {
         @apply tw-p-4 tw-mt-3 tw-mb-3;
         background-color: #fef6e4; 
         border-left: 4px solid #f39c12;
     }
 
-    /* Highlight Text */
     .tw-docs .hlt {
         @apply tw-font-bold;
         color: #ff6347; 
     }
 
-    /* Links */
     .tw-docs a {
         @apply tw-underline tw-font-bold;
     }
+}
+
+.resize-handler {
+    width: 8px;
+    background-color: #e2e8f0;
+    cursor: ew-resize;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resize-handler:hover{
+    width: 16px;
+}
+
+.resize-handler::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background-color: #4a5568;
+    border-radius: 50%;
+    box-shadow:
+            0 -8px 0 #4a5568,
+            0 8px 0 #4a5568;
 }
 
 /*

@@ -3,8 +3,8 @@
 %>
 
 <div class="page-wrapper container-lg">
-  <div class="resize-container" data-controller="resizeable">
-    <div class="resizable tafsir px-4" id="left-side">
+  <%= render SplitScreenComponent.new do |component| %>
+    <%= component.with_left do %>
       <h2>
         Current text
         (<%= @tafisr.ayah_group_info %>)
@@ -13,10 +13,8 @@
       <div class="tafsir <%= @tafisr.language_name %>">
         <%= @tafisr.text.html_safe %>
       </div>
-    </div>
-
-    <div class="handler"></div>
-    <div class="resizable tafsir" id="right-side">
+    <% end %>
+    <%= component.with_right do %>
       <% if draft %>
         <h2>
           Draft text(<%= draft.ayah_group_info %>)
@@ -26,6 +24,6 @@
           <%= draft.draft_text.html_safe %>
         </div>
       <% end %>
-    </div>
-  </div>
+    <% end %>
+  <% end %>
 </div>

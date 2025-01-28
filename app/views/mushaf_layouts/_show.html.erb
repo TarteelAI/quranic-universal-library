@@ -14,13 +14,13 @@
       <%= page_number %>
 
       <span>
-        <%= link_to 'Previous Page', "#{page_number - 1}", class: 'btn btn-success' %>
-        <%= link_to 'Next page', "#{page_number + 1}", class: 'btn btn-success' %>
+        <%= link_to 'Previous Page', "#{page_number - 1}", class: 'btn btn-success', data: {turbo_frame: 'mushaf-page'} %>
+        <%= link_to 'Next page', "#{page_number + 1}", class: 'btn btn-success', data: {turbo_frame: 'mushaf-page'} %>
       </span>
     </h1>
   <% end %>
 
-  <div style="display: flex;justify-content: space-around;" class="mushaf-wrapper">
+  <div class="mushaf-wrapper d-flex justify-content-around">
     <div class="mushaf-layout p<%= page_number %>">
       <%= render 'shared/mushaf_page',
                  words: words,

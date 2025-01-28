@@ -5,41 +5,43 @@
   page_url = @resource.get_proofrading_image_url
 %>
 
-<% if archive_url.present? %>
-  <div class="iframe-container" style="height: 100vh">
-    <iframe src="<%= archive_url %>" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
-  </div>
-<% elsif pdf_url.present? %>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <div
-    data-controller="pdf-viewer"
-    data-pdf-url="<%= pdf_url %>"
-    data-page="<%= jump_to_page %>">
-    <div id="pdf-wrapper">
-      <div id="pdf-container">
-        <canvas id="pdf-canvas"></canvas>
+<div data-turbo-permenant="true">
+  <% if archive_url.present? %>
+    <div class="iframe-container" style="height: 100vh">
+      <iframe src="<%= archive_url %>" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
+    </div>
+  <% elsif pdf_url.present? %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <div
+      data-controller="pdf-viewer"
+      data-pdf-url="<%= pdf_url %>"
+      data-page="<%= jump_to_page %>">
+      <div id="pdf-wrapper">
+        <div id="pdf-container">
+          <canvas id="pdf-canvas"></canvas>
+        </div>
       </div>
     </div>
-  </div>
-<% elsif page_url.present? %>
-  <div class="p-4 text-center zoomable"
-       data-controller="zoom-image"
-       data-page="<%= jump_to_page %>"
-       data-host="<%= page_url %>"
-  >
-    <label for="zoom-slider" class="form-label">Tajweed page</label>
-    <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-    <div class="d-flex justify-content-between">
-      <button class="btn btn-info" id="previous-page">Previous Page</button>
-      <button class="btn btn-info" id="next-page">Next page</button>
-    </div>
+  <% elsif page_url.present? %>
+    <div class="p-4 text-center zoomable"
+         data-controller="zoom-image"
+         data-page="<%= jump_to_page %>"
+         data-host="<%= page_url %>"
+    >
+      <label for="zoom-slider" class="form-label">Tajweed page</label>
+      <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-info" id="previous-page">Previous Page</button>
+        <button class="btn btn-info" id="next-page">Next page</button>
+      </div>
 
-    <div id="image-container" class="mt-4 p-4">
-      <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= page_url %>/<%= jump_to_page %>.jpg" />
+      <div id="image-container" class="mt-4 p-4">
+        <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= page_url %>/<%= jump_to_page %>.jpg"/>
+      </div>
     </div>
-  </div>
-<% else %>
-  <div class="text-center text-faded pt-4">
-    PDF of this resource isn't available, please contact the admin to upload it.
-  </div>
-<% end %>
+  <% else %>
+    <div class="text-center text-faded pt-4">
+      PDF of this resource isn't available, please contact the admin to upload it.
+    </div>
+  <% end %>
+</div>

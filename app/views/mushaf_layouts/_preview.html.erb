@@ -1,36 +1,38 @@
 <% page_number = @mushaf_page.page_number %>
 
-<% if @compare_mushaf_words || params[:source_pdf] == 'true' %>
-  <div class="page-wrapper container-lg">
-    <div class="mushaf-wrapper resize-container" data-controller="resizeable">
-      <div class="resizable" id="left-side">
-        <% if @compare_mushaf_words %>
-          <div class="mushaf-layout <%= @compared_mushaf.default_font_name %>">
-            <%= render 'shared/mushaf_page', words: @compare_mushaf_words, page: page_number, mushaf: @compared_mushaf, name: @compared_mushaf.name, page_class: 'bg-warning-50' %>
-          </div>
-        <% else %>
-          <%
-            pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 1).to_i
-            pdf_page_number = @mushaf_page.page_number.to_i + pdf_page_offset
-          %>
+<%= turbo_frame_tag "mushaf-page" do %>
+  <% if @compare_mushaf_words || params[:source_pdf] == 'true' %>
+    <div class="page-wrapper container-lg">
+      <%= render SplitScreenComponent.new do |component| %>
+        <%= component.with_left do %>
+          <% if @compare_mushaf_words %>
+            <div class="mushaf-layout <%= @compared_mushaf.default_font_name %>">
+              <%= render 'shared/mushaf_page', words: @compare_mushaf_words, page: page_number, mushaf: @compared_mushaf, name: @compared_mushaf.name, page_class: 'bg-warning-50' %>
+            </div>
+          <% else %>
+            <%
+              pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 1).to_i
+              pdf_page_number = @mushaf_page.page_number.to_i + pdf_page_offset
+            %>
 
-          <%= render 'shared/pdf_or_archive_embed', jump_to_page: pdf_page_number, page_offset: pdf_page_offset %>
+            <%= render 'shared/pdf_or_archive_embed', jump_to_page: pdf_page_number, page_offset: pdf_page_offset %>
+          <% end %>
         <% end %>
-      </div>
 
-      <div class="handler"></div>
-
-      <div class="mushaf-layout resizable <%= @mushaf.default_font_name %>" id="right-side">
-        <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+        <%= component.with_right do %>
+          <div class="mushaf-layout <%= @mushaf.default_font_name %>">
+            <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="page-wrapper container-lg page-section">
+      <div class="mushaf-wrapper">
+        <div class="mushaf-layout <%= @mushaf.default_font_name %>">
+          <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+        </div>
       </div>
     </div>
-  </div>
-<% else %>
-  <div class="page-wrapper container-lg">
-    <div class="mushaf-wrapper">
-      <div class="mushaf-layout <%= @mushaf.default_font_name %>">
-        <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
-      </div>
-    </div>
-  </div>
+  <% end %>
 <% end %>

@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error(_status, exception)
-    # raise exception if Rails.env.development?
+    raise exception if Rails.env.development?
 
     render 'shared/not_found', formats: [:html], status: 404
   end

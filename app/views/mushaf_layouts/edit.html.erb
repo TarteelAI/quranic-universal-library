@@ -12,7 +12,8 @@
 
   more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item')
   more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item')
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare_with: 'select')})
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'compare_mushaf') })
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page')})
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -43,15 +44,12 @@
 <%= render 'shared/access_message' %>
 
 <div class="page-wrapper container-lg">
-  <div class="resize-container" data-controller="resizeable">
-    <div class="resizable" id="left-side">
+  <%= render SplitScreenComponent.new do |component| %>
+    <%= component.with_left do %>
       <%= render 'shared/pdf_or_archive_embed', jump_to_page: @mushaf_page.page_number.to_i + pdf_page_offset, page_offset: pdf_page_offset %>
-    </div>
-
-    <div class="handler"></div>
-
-    <div class="resizable" id="right-side" data-controller="mushaf-page-builder">
-      <%= turbo_frame_tag "page-preview" do %>
+    <% end %>
+    <%= component.with_right do %>
+      <%= turbo_frame_tag "mushaf-page" do %>
         <%= render 'shared/page_font', pages: [@mushaf_page.page_number] %>
         <div class="text-center mb-3 border-bottom p-2 resize-heading">
           <label>
@@ -110,7 +108,7 @@
             <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
           </div>
         <% end %>
-        </div>
       <% end %>
-      </div>
+    <% end %>
+  <% end %>
 </div>

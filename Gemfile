@@ -158,3 +158,5 @@ gem "tailwindcss-rails", "~> 2.7"
 gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
+
+gem "view_component", "~> 3.21"

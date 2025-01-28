@@ -4,14 +4,15 @@
   more_action = []
 
   if @access
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, mapping: true), class: 'dropdown-item')
-    more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item')
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item')
+    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, mapping: true), class: 'dropdown-item', data: {turbo_frame: 'mushaf-page'})
+    more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: {turbo_frame: 'mushaf-page'})
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item', data: {turbo_frame: 'mushaf-page'})
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item')
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item')
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, compare_with: 'select')})
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item', data: {turbo_frame: 'mushaf-page'})
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: {turbo_frame: 'mushaf-page'})
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'compare_mushaf')})
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page')})
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -25,8 +26,8 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark')
-  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark')
+  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark', data: {turbo_frame: 'mushaf-page'})
+  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark', data: {turbo_frame: 'mushaf-page'})
 
   actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
 %>
@@ -41,14 +42,10 @@
 <%= render 'shared/access_message' %>
 
 <div class="page-wrapper container-lg">
-  <div class="page-section">
     <% if params[:mapping] || @mushaf_page.blank? || @mushaf_page.first_verse_id.blank? || @mushaf_page.last_verse_id.blank? %>
       <%= render 'page_mapping_with_pdf' %>
     <% else %>
-      <%= turbo_frame_tag "page-preview" do %>
         <%= render params[:page_alignment] == 'true' ? 'page_line_alignment' : 'preview' %>
-      <% end %>
     <% end %>
-  </div>
 </div>
 

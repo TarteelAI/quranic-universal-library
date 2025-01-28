@@ -12,8 +12,13 @@
   <tbody>
 
   <% @tools.each do |card| %>
+    <% search_term = [
+      card.title, card.description.to_s,
+      card.tags.join(' ').to_s
+    ] %>
     <tr class="tw-border-b hover:tw-bg-gray-50"
-        data-search="<%= "#{card.title.downcase} #{card.description.to_s.downcase} #{card.tags.join(' ').downcase}" %>">
+        data-search="<%= search_term.join(' ').downcase %>">
+
       <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-align-top">
         <%= link_to card.url, class: 'hover:tw-text-black tw-block tw-space-y-1.5', data: { turbo_frame: '_top' } do %>
           <span class="tw-font-semibold tw-leading-normal tw-block">
@@ -24,11 +29,9 @@
           </span>
 
           <% if card.tags.present? %>
-            <div class="tw--ms-1 tw-flex tw-flex-wrap tw-gap-1 md:tw-hidden">
+            <div class="tw-flex tw-flex-wrap tw-gap-1 tw-mt-2 md:tw-hidden">
               <% card.tags.each do |tag| %>
-                <span class="tw-w-max tw-block tw-rounded-full tw-bg-red-100 tw-text-red-600 tw-text-xs tw-px-2 tw-py-1">
-                  <%= tag %>
-                </span>
+                <%= render 'card/card-tag', tag: tag %>
               <% end %>
             </div>
           <% end %>
@@ -47,23 +50,13 @@
         <% end %>
       </td>
 
-      <td class="tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top">
+      <td class="tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top tw-mt-3">
         <% if card.tags.present? %>
           <div class="tw-flex tw-flex-wrap tw-gap-2">
             <% card.tags.each do |tag| %>
               <%= render 'card/card-tag', tag: tag %>
             <% end %>
           </div>
-
-           <% if false %>
-            <%= link_to card.url, class: 'tw-flex tw-flex-wrap tw-gap-1 hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
-              <% card.tags.each do |tag| %>
-              <span class="tw-w-max tw-block tw-rounded-full tw-bg-gray-100 tw-text-gray-600 tw-text-xs tw-px-2 tw-py-1">
-                <%= tag %>
-              </span>
-              <% end %>
-            <% end %>
-          <% end %>
         <% end %>
       </td>
     </tr>

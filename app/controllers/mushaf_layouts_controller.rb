@@ -27,7 +27,7 @@ class MushafLayoutsController < CommunityController
       @record.clear! if @record.persisted?
     else
       @record.alignment = alignment if @record.alignment.blank?
-      @record.properties[alignment] = true
+      @record.set_meta_value(alignment, true)
 
       @record.save(validate: false)
 
@@ -38,7 +38,7 @@ class MushafLayoutsController < CommunityController
   end
 
   def save_page_mapping
-    @mushaf_page.attributes = params_for_page_mapping
+    @mushaf_page.meta_data = params_for_page_mapping
     @mushaf_page.save(validate: false)
     flash[:notice] = "Page #{@mushaf_page.page_number} is saved"
   end
@@ -46,8 +46,10 @@ class MushafLayoutsController < CommunityController
   def show
     @access = can_manage?(@resource)
 
-    if params[:compare_with] == 'select'
+    if params[:view_type] == 'compare_mushaf'
       render partial: 'select_compare', layout: false
+    elsif params[:view_type] == 'select_page'
+      render partial: 'select_page', layout: false
     end
   end
 

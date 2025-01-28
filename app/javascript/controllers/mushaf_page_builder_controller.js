@@ -2,24 +2,6 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
-    /*$(".mushaf-pages").on("ajax:success", (event, response, status) => {
-      var form = $(event.target)
-      var page = response.page;
-
-      form.find("#submit").val(response.message);
-      form.find(`#${page}-from .help-block`).html(response.from)
-      form.find(`#${page}-to .help-block`).html(response.to)
-
-      var nextPageFrom = $(`#${page + 1}-from .from`);
-      var nextPageTo = $(`#${page + 1}-from .to`);
-
-      if (nextPageFrom.val().length == 0)
-        nextPageFrom.val(response.next.from)
-
-      if (!nextPageTo.val())
-        nextPageTo.val(response.next.to)
-    })*/
-
     this.el = $(this.element);
     this.el.find("#decrement").on("click", this.decrementPage.bind(this));
     this.el.find("#increment").on("click", this.incrementPage.bind(this));

@@ -32,7 +32,7 @@
   actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
   actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
-  actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
+  actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info', data: {turbo_frame: '_top'})
 %>
 
 <%= turbo_frame_tag :page do %>

@@ -54,7 +54,7 @@
       <%= component.with_right do %>
         <%= turbo_frame_tag "mushaf-page" do %>
           <div data-page="<%= page_number %>"
-               data-controller="update-mushaf-page">
+               data-controller="update-mushaf-page mushaf-page-builder">
             <%= render 'shared/page_font', pages: [page_number] %>
 
             <div class="text-center mb-3 border-bottom p-2 resize-heading">

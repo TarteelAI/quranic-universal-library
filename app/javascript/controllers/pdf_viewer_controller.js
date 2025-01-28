@@ -4,42 +4,49 @@ import { loadJavascript } from '../utils/script_loader';
 
 export default class extends Controller {
   connect() {
-    this.isInitialized = false;
-    loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js").then(this.initPdfViewer.bind(this));
+    if(!this.element.dataset.initialized){
+      loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js").then(this.initPdfViewer.bind(this));
+    }
   }
 
   initPdfViewer() {
-    if(this.isInitialized) return;
-    this.isInitialized = true;
+    this.element.dataset.initialized = true
+
     const { pdfUrl, page, pageOffset } = this.element.dataset;
 
-    // Add controls to the DOM
     $(this.element).prepend(this.controlHtml(pageOffset));
 
-    // Initialize the PDF viewer
     const pdfViewer = new PDFViewer(pdfUrl, this.element, parseInt(page || 1), parseInt(pageOffset || 0));
     pdfViewer.init();
 
-    // Attach event listeners for controls
     this.attachEventListeners(pdfViewer);
   }
 
   controlHtml(offset) {
     return `
-      <div id="controls" class="text-center mb-3 border-bottom p-2 resize-heading">
-        <button id="prevBtn" disabled>Previous</button>
-        <button id="nextBtn" disabled>Next</button>
-
-        <button id="zoomInBtn" disabled>+</button>
-        <button id="zoomOutBtn" disabled>-</button>
-
+      <div id="controls" class="d-flex justify-content-between mb-3 border-bottom p-2 resize-heading">
+        <div class="d-flex justify-content-between">
+          <div class="me-2">
+            <button id="prevBtn" class="btn btn-info btn-xs" disabled>Previous</button>
+            <button id="nextBtn" class="btn btn-info btn-xs" disabled>Next</button>
+          </div>
+         
+         <div>
+           <button id="zoomInBtn" class="btn btn-primary btn-xs" disabled>+</button>
+          <button id="zoomOutBtn" class="btn btn-primary btn-xs" disabled>-</button>  
+         </div> 
+        </div>
+        
+        <div>
         <select id="pageDropdown" disabled>
           <option value="1">Page 1</option>
         </select>
-        <small>offset(${offset})</small>
+        <small>offset(${offset||0})</small>
         <label>
           <input type="checkbox" checked id="pdf-fit-viewport"> Fit parent
         </label>
+</div>
+        
       </div>
     `;
   }

@@ -3,45 +3,110 @@
   pdf_url = @resource.get_source_pdf_url
   jump_to_page = local_assigns[:jump_to_page] || 1
   page_url = @resource.get_proofrading_image_url
+
+  views = []
+  views << :archive if archive_url.present?
+  views << :pdf if pdf_url.present?
+  views << :image if page_url.present?
+  default_view = views.first
 %>
 
-<div data-turbo-permenant="true">
-  <% if archive_url.present? %>
-    <div class="iframe-container" style="height: 100vh">
-      <iframe src="<%= archive_url %>" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
-    </div>
-  <% elsif pdf_url.present? %>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <div
-      data-controller="pdf-viewer"
-      data-pdf-url="<%= pdf_url %>"
-      data-page="<%= jump_to_page %>">
-      <div id="pdf-wrapper">
-        <div id="pdf-container">
-          <canvas id="pdf-canvas"></canvas>
+<div id="proofreading-view-switcher" data-turbo-permanent>
+  <div data-controller="proofreading-view-switcher">
+    <% if views.size > 1 %>
+      <div class="source-buttons btn-group mb-3" role="group">
+        <% if archive_url.present? %>
+          <button type="button"
+                  class="btn btn-outline-primary view-switcher-button <%= 'active' if default_view == :archive %>"
+                  data-action="click->view-switcher#showView"
+                  data-view-switcher-view-param="archive">
+            Archive View
+          </button>
+        <% end %>
+
+        <% if pdf_url.present? %>
+          <button type="button"
+                  class="btn btn-outline-primary view-switcher-button <%= 'active' if default_view == :pdf %>"
+                  data-action="click->view-switcher#showView"
+                  data-view-switcher-view-param="pdf">
+            PDF View
+          </button>
+        <% end %>
+        <% if page_url.present? %>
+          <button type="button"
+                  class="btn btn-outline-primary view-switcher-button <%= 'active' if default_view == :image %>"
+                  data-action="click->view-switcher#showView"
+                  data-view-switcher-view-param="image">
+            Image View
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if archive_url.present? %>
+      <div class="view-container <%= 'active' if default_view == :archive %>"
+           data-view-switcher-target="view"
+           data-view-type="archive">
+        <div class="iframe-container">
+          <iframe
+            data-controller="lazy-load"
+            data-url="<%= archive_url %>"
+            frameborder="0"
+            webkitallowfullscreen="true"
+            mozallowfullscreen="true"
+            allowfullscreen>
+          </iframe>
         </div>
       </div>
-    </div>
-  <% elsif page_url.present? %>
-    <div class="p-4 text-center zoomable"
-         data-controller="zoom-image"
-         data-page="<%= jump_to_page %>"
-         data-host="<%= page_url %>"
-    >
-      <label for="zoom-slider" class="form-label">Tajweed page</label>
-      <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-      <div class="d-flex justify-content-between">
-        <button class="btn btn-info" id="previous-page">Previous Page</button>
-        <button class="btn btn-info" id="next-page">Next page</button>
-      </div>
+    <% end %>
 
-      <div id="image-container" class="mt-4 p-4">
-        <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= page_url %>/<%= jump_to_page %>.jpg"/>
+    <% if pdf_url.present? %>
+      <div class="view-container <%= 'active' if default_view == :pdf %>"
+           data-view-switcher-target="view"
+           data-view-type="pdf">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <div data-controller="pdf-viewer"
+             data-pdf-url="<%= pdf_url %>"
+             data-page="<%= jump_to_page %>">
+          <div id="pdf-wrapper">
+            <div id="pdf-container">
+              <canvas id="pdf-canvas"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  <% else %>
-    <div class="text-center text-faded pt-4">
-      PDF of this resource isn't available, please contact the admin to upload it.
-    </div>
-  <% end %>
+    <% end %>
+
+    <% if page_url.present? %>
+      <div class="proofreading-container <%= 'active' if default_view == :image %>"
+           data-view-switcher-target="view"
+           data-view-type="image">
+        <div class="p-4 text-center zoomable"
+             data-controller="zoom-image"
+             data-page="<%= jump_to_page %>"
+             data-host="<%= page_url %>">
+          <label for="zoom-slider" class="form-label">
+            Page <span id="page"><%= jump_to_page %></span>
+          </label>
+          <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
+          <div class="d-flex justify-content-between mb-3">
+            <button class="btn btn-info" id="previous-page">Previous Page</button>
+            <button class="btn btn-info" id="next-page">Next page</button>
+          </div>
+          <div id="image-container" class="mt-4 p-4">
+            <img id="zoom-image"
+                 data-controller="lazy-load"
+                 width="100%"
+                 data-src="<%= page_url %>/<%= jump_to_page %>.jpg"/>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <% if views.empty? %>
+      <div class="text-center text-faded pt-4">
+        PDF of this resource isn't available, please contact the admin to upload it.
+      </div>
+    <% end %>
+  </div>
 </div>

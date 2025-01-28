@@ -117,3 +117,9 @@ application.register('draggable-scroll', DraggableScrollController);
 
 import FilterAyahController from './filter_ayah_controller';
 application.register("filter-ayah", FilterAyahController);
+
+import ProofreadingViewSwitcher from './proofreading_view_switcher_controller';
+application.register("proofreading-view-switcher", ProofreadingViewSwitcher);
+
+import UpdateMushafPageController from './update_mushaf_page_controller';
+application.register("update-mushaf-page", UpdateMushafPageController);

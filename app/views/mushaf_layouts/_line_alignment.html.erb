@@ -4,7 +4,7 @@
 
 <%= turbo_frame_tag 'lines-info' do %>
   <div class="text-center mx-3 my-3">
-    <h4>Line alignment</h4>
+    <h4>Line alignment(page: <%= page_number %>)</h4>
     <% 1.upto(@mushaf.lines_per_page) do |line| %>
       <div id="page-<%= page_number %>-line-<%= line %>">
         <%

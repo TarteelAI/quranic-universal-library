@@ -13,7 +13,10 @@
 
       <%= component.with_right do %>
         <%= turbo_frame_tag "mushaf-page" do %>
-          <div class="d-flex justify-content-between <%= @mushaf.default_font_name %>">
+          <div
+            data-page="<%= page_number %>"
+            data-controller="update-mushaf-page"
+            class="d-flex justify-content-between <%= @mushaf.default_font_name %>">
             <%= render 'line_alignment' %>
 
             <div class="page-section p-3">

@@ -6,9 +6,7 @@
 <div class="page-wrapper container-lg">
   <%= render SplitScreenComponent.new do |component| %>
     <%= component.with_left do %>
-      <div data-turbo-permanent="true">
-        <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number, page_offset: pdf_page_offset %>
-      </div>
+      <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number, page_offset: pdf_page_offset %>
     <% end %>
 
     <%= component.with_right do %>

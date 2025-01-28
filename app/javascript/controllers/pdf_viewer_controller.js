@@ -4,10 +4,13 @@ import { loadJavascript } from '../utils/script_loader';
 
 export default class extends Controller {
   connect() {
+    this.isInitialized = false;
     loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js").then(this.initPdfViewer.bind(this));
   }
 
   initPdfViewer() {
+    if(this.isInitialized) return;
+    this.isInitialized = true;
     const { pdfUrl, page, pageOffset } = this.element.dataset;
 
     // Add controls to the DOM

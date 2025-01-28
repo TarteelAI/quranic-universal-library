@@ -22,6 +22,13 @@ class MushafLineAlignment < ApplicationRecord
   belongs_to :mushaf
   after_commit :update_page_lines_count
 
+  LineAlignments = [
+    'center',
+    'bismillah',
+    'surah_name',
+    'justified'
+  ]
+
   def self.dummy
     MushafLineAlignment.new
   end

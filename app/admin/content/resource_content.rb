@@ -32,6 +32,10 @@ ActiveAdmin.register ResourceContent do
   scope :without_downloadable_resources, group: 'downloadable'
   scope :with_downloadable_resources, group: 'downloadable'
 
+  includes :language,
+           :author,
+           :data_source
+
   filter :name
   filter :approved
   filter :quran_enc_key, as: :string
@@ -352,10 +356,6 @@ ActiveAdmin.register ResourceContent do
       :meta_data,
       tag_ids: []
     ]
-  end
-
-  def scoped_collection
-    super.includes :language
   end
 
   sidebar 'Files for this resource', only: :show do

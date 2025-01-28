@@ -30,11 +30,9 @@ export default class extends Controller {
   previousPage(event) {
     this.changePage(this.currentPage - 1)
   }
-
   nextPage(event) {
     this.changePage(this.currentPage + 1)
   }
-
   jumpToPage(event) {
     const page = event.target.value;
     this.changePage(page)
@@ -43,6 +41,7 @@ export default class extends Controller {
   changePage(pageNumber) {
     const img = this.element.querySelector('#zoom-image')
     this.currentPage = Number(pageNumber);
+    this.el.find("#page").text(pageNumber);
 
     if(pageNumber <= 1){
       this.btnPrevious.addClass('d-none')
@@ -50,11 +49,13 @@ export default class extends Controller {
       this.btnPrevious.removeClass('d-none')
     }
 
+    /*
+    TODO: adjust this for max pages
     if(pageNumber >= 114){
       this.btnNext.addClass('d-none')
     } else {
       this.btnNext.removeClass('d-none')
-    }
+    }*/
 
     img.src = this.buildUrl(pageNumber)
   }

@@ -1,13 +1,12 @@
 <div class="page-wrapper container-lg">
-  <div class="resize-container" data-controller="resizeable">
-    <div class="resizable" id="left-side">
+  <%= render SplitScreenComponent.new do |component| %>
+    <%= component.with_left do %>
       <%= render 'shared/pdf_or_archive_embed' %>
-    </div>
-
-    <div class="handler"></div>
-
-    <div class="resizable" id="right-side">
+    <% end %>
+    <%= component.with_right do %>
       <%= render 'page_view', verse: verse %>
-    </div>
-  </div>
+    <% end %>
+  <% end %>
 </div>
+
+

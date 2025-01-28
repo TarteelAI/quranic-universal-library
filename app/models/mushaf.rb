@@ -151,7 +151,7 @@ class Mushaf < QuranApiRecord
 
       lines.each do |line|
         if line.is_surah_name?
-          line.properties['surah_number'] = surah
+          line.set_meta_value('surah_number', surah)
           surah += 1
           line.save
         end

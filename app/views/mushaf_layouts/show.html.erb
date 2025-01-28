@@ -3,14 +3,17 @@
   actions = []
   more_action = []
 
+  turbo_page_options = { turbo_frame: 'page', turbo_method: 'get', turbo_action: "replace" }
+  turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
+
   if @access
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, mapping: true), class: 'dropdown-item', data: { turbo_frame: 'page', turbo_method: 'get' })
-    more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: { turbo_frame: 'page', turbo_method: 'get' })
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item', data: { turbo_frame: 'page', turbo_method: 'get' })
+    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, mapping: true), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item', data: { turbo_frame: 'page', turbo_method: 'get' })
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: { turbo_frame: 'page', turbo_method: 'get' })
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
   more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'compare_mushaf') })
   more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page') })
 
@@ -26,13 +29,13 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark', data: { turbo_frame: 'mushaf-page', turbo_method: 'get' })
-  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark', data: { turbo_frame: 'mushaf-page', turbo_method: 'get' })
+  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
   actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
 %>
 
-<%= turbo_frame_tag :page, data: {page: page_number} do %>
+<%= turbo_frame_tag :page, data: { page: page_number } do %>
   <%= render 'tools/header',
              name: 'Mushaf layouts',
              title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",

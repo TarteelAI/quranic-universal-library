@@ -8,7 +8,7 @@
 %>
 
 <%= content_tag tag_name, class: "tw-w-full tw-inline-block", **href_attr, data: data_attrs  do %>
-  <div class="tw-relative tw-rounded-[45px] tw-h-[450px] md:tw-h-[550px] tool-card-with-bg tw-px-8 tw-py-6 tw-relative <%= "#{card_type} pattern#{pattern}" %>">
+  <div class="tw-relative tw-rounded-[45px] tw-h-[auto] md:tw-h-[550px] tool-card-with-bg tw-px-8 tw-py-6 tw-relative <%= "#{card_type} pattern#{pattern}" %>">
     <div class="overlay"></div>
     <%= yield %>
   </div>

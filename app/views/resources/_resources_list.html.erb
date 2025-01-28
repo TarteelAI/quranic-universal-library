@@ -40,7 +40,8 @@
     <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
       <p>No results found</p>
     </div>
-
-    <%= render "resources/resources_view/#{view_type}" %>
-  </div>
+    <div class="tw-w-full">
+        <%= render "resources/resources_view/#{view_type}" %>
+    </div>
+    </div>
 <% end %>

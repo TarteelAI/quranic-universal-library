@@ -4,10 +4,12 @@
       <%= left %>
     </div>
 
-    <div id="resize-handler" class="resize-handler"></div>
+    <% if right.present? %>
+      <div id="resize-handler" class="resize-handler"></div>
 
-    <div id="right-side" class="tw-bg-gray-50 tw-overflow-auto">
-      <%= right %>
-    </div>
+      <div id="right-side" class="tw-bg-gray-50 tw-overflow-auto">
+        <%= right %>
+      </div>
+    <% end %>
   </div>
 </div>

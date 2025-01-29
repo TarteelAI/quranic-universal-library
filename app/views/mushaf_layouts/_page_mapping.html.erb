@@ -1,6 +1,7 @@
 <% progress = @mushaf.percentage_done %>
 
 <%= turbo_frame_tag "mushaf-page" do %>
+
   <h3 class="p-3 text-center">
     <p>
       <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>

@@ -3,19 +3,28 @@
   actions = []
   more_action = []
 
-  turbo_page_options = { turbo_frame: 'page', turbo_method: 'get', turbo_action: "replace" }
-  turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
+  turbo_page_options = {
+    turbo_frame: 'page',
+    turbo_method: 'get',
+    turbo_action: "replace"
+  }
+
+  turbo_mushaf_page_options = {
+    turbo_frame: 'mushaf-page',
+    turbo_method: 'get',
+    turbo_action: "replace"
+  }
 
   if @access
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, mapping: true), class: 'dropdown-item', data: turbo_page_options)
     more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
   more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'compare_mushaf') })
-  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page') })
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'select_compare') })
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page', previous_view_type: params[:view_type]) })
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -29,8 +38,8 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
   actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info', data: {turbo_frame: '_top'})
 %>
@@ -46,10 +55,10 @@
   <%= render 'shared/access_message' %>
 
   <div class="page-wrapper container-lg">
-    <% if params[:mapping] || @mushaf_page.blank? || @mushaf_page.first_verse_id.blank? || @mushaf_page.last_verse_id.blank? %>
-      <%= render 'page_mapping_with_pdf' %>
+    <% if valid_mushaf_view_type?(params[:view_type]) %>
+      <%= render "#{params[:view_type]}_view" %>
     <% else %>
-      <%= render params[:page_alignment] == 'true' ? 'page_line_alignment' : 'preview' %>
+      <%= render 'page_preview' %>
     <% end %>
   </div>
 <% end %>

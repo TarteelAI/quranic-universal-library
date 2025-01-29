@@ -38,7 +38,7 @@ class MushafLayoutsController < CommunityController
   end
 
   def save_page_mapping
-    @mushaf_page.meta_data = params_for_page_mapping
+    @mushaf_page.attributes = params_for_page_mapping
     @mushaf_page.save(validate: false)
     flash[:notice] = "Page #{@mushaf_page.page_number} is saved"
   end
@@ -46,7 +46,7 @@ class MushafLayoutsController < CommunityController
   def show
     @access = can_manage?(@resource)
 
-    if params[:view_type] == 'compare_mushaf'
+    if params[:view_type] == 'select_compare'
       render partial: 'select_compare', layout: false
     elsif params[:view_type] == 'select_page'
       render partial: 'select_page', layout: false

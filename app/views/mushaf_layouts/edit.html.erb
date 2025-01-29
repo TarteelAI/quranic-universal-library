@@ -9,14 +9,14 @@
   turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
 
   if @access
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, mapping: true), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
   more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'compare_mushaf') })
-  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page') })
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: @compared_mushaf&.id, edit: true) })
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -30,8 +30,8 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
   actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
 %>
@@ -51,6 +51,7 @@
       <%= component.with_left do %>
         <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset, page_offset: pdf_page_offset %>
       <% end %>
+
       <%= component.with_right do %>
         <%= turbo_frame_tag "mushaf-page" do %>
           <div data-page="<%= page_number %>"

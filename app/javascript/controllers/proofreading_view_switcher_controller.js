@@ -1,17 +1,17 @@
-import { Controller } from "@hotwired/stimulus"
+import {Controller} from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["view"]
+  connect() {
+    this.el = $(this.element);
+    this.el.find("[data-view]").on("click", this.showView.bind(this));
+  }
 
   showView(event) {
-    const viewType = event.params.view
-    this.viewTargets.forEach(view => {
-      view.classList.toggle('active', view.dataset.viewType === viewType)
-    })
+    const viewType = event.currentTarget.dataset.view;
+    this.el.find("[data-view]").removeClass("active");
+    this.el.find("[data-view-type]").removeClass("active");
 
-    const buttons = this.element.querySelectorAll('.view-switcher-button')
-    buttons.forEach(button => {
-      button.classList.toggle('active', button.dataset.viewSwitcherViewParam === viewType)
-    })
+    this.el.find(`[data-view=${viewType}]`).addClass("active");
+    this.el.find(`[data-view-type=${viewType}]`).addClass("active");
   }
 }

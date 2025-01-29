@@ -57,5 +57,9 @@ module MushafPageHelper
 
     lines
   end
+
+  def valid_mushaf_view_type?(type)
+    ['page_mapping', 'line_alignment', 'proofreading', 'compare'].include?(type)
+  end
 end
 

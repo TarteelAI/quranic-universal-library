@@ -29,13 +29,15 @@
   &.active {
     display: block;
   }
+ }
 
+#proofreading-view-switcher{
   .source-buttons {
     padding: 10px 0;
     background: white;
     z-index: 100;
   }
- }
+}
 
 .iframe-container {
   height: 100%;

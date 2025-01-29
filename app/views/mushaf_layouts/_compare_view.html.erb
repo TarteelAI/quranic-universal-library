@@ -1,0 +1,28 @@
+<% page_number = @mushaf_page.page_number %>
+
+<%= turbo_frame_tag "mushaf-page" do %>
+  <div data-page="<%= page_number %>"
+       data-controller="update-mushaf-page">
+    <div class="page-wrapper container-lg">
+      <%= render SplitScreenComponent.new do |component| %>
+        <%= component.with_left do %>
+          <div class="mushaf-layout <%= @mushaf.default_font_name %>">
+            <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+          </div>
+        <% end %>
+
+        <%= component.with_right do %>
+          <% if @compare_mushaf_words %>
+            <div class="mushaf-layout <%= @compared_mushaf.default_font_name %>">
+              <%= render 'shared/mushaf_page', words: @compare_mushaf_words, page: page_number, mushaf: @compared_mushaf, name: @compared_mushaf.name, page_class: 'bg-warning-50' %>
+            </div>
+          <% else %>
+            <div class="text-center text-faded pt-4">
+              Please select mushaf to compare
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

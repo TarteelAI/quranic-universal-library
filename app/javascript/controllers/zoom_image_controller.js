@@ -49,14 +49,6 @@ export default class extends Controller {
       this.btnPrevious.removeClass('d-none')
     }
 
-    /*
-    TODO: adjust this for max pages
-    if(pageNumber >= 114){
-      this.btnNext.addClass('d-none')
-    } else {
-      this.btnNext.removeClass('d-none')
-    }*/
-
     img.src = this.buildUrl(pageNumber)
   }
 

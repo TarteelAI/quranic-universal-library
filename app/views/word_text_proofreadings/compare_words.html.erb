@@ -1,0 +1,141 @@
+<%= render 'tools/header',
+           name: "Quran scripts",
+           title: "Waqf signs",
+           key: 'quran_script'
+%>
+
+
+<% if params[:char].blank? %>
+  <%
+    css = "tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg tw-shadow-sm tw-text-gray-700 tw-hover:bg-gray-100 tw-transition"
+    qpc_hafs = "ء أ ؤ إ ئ ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٖ ٗ ٞ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۚ ۛ ۜ ۞ ۠ ۡ ۢ ۤ ۥ ۦ ۧ ۨ ۩ ۪ ۬ ۭ".split('').compact_blank
+    dk_v1 = "͏ ء ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٜ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۙ ۚ ۛ ۜ ۝ ۞ ۟ ۠ ۢ ۣ ۥ ۦ ۧ ۨ ۩ ۬ ۭ ࣰ ࣱ ࣲ ࣳ".split('').compact_blank
+    dk_v2 = "͏ ء ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٜ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۚ ۛ ۜ ۝ ۞ ۟ ۠ ۢ ۣ ۥ ۦ ۧ ۨ ۩ ۬ ۭ ࣰ ࣱ ࣲ ࣳ".split('').compact_blank
+  %>
+  <div class="page-wrapper container-lg" data-controller="chars-info">
+    <div class="page-section">
+      <div>
+        <h3>QPC Hafs char list</h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
+          <% qpc_hafs.each do |char| %>
+            <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_qpc_hafs') %>"
+               class="qpc-hafs <%= css %>">
+              <%= char %>
+            </a>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <h3>Digital Khatt v2 char list</h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
+          <% dk_v2.each do |char| %>
+            <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_digital_khatt') %>"
+               class="digitalkhatt-v2 <%= css %> ">
+              <%= char %>
+            </a>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <h3>Digital Khatt v1 char list</h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
+          <% dk_v1.each do |char| %>
+            <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_digital_khatt_v1') %>"
+               class="digitalkhatt <%= css %>">
+              <%= char %>
+            </a>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <% issues_count = 0 %>
+  <%= render 'shared/page_font', verses: Verse.where(id: @words.pluck(:verse_id).uniq) %>
+
+  <div class="page-wrapper container-lg">
+    <div data-controller="mushaf-page" class="page-section mb-3 mt-4 tw-w-full" style="position: relative;">
+      <h2>Words</h2>
+      <div>
+        Font size:
+        <input type="range" min="15" max="100" value="30" class="font-size-slider">
+      </div>
+
+      <table class="table table-hover mt-4 table-bordered">
+        <thead class="tw-bg-white tw-shadow-md tw-sticky tw-top-0">
+        <tr>
+          <td>ID</td>
+          <td>QPC Hafs</td>
+          <td>Uthmani</td>
+          <td>QPC V2</td>
+          <td>QPC V1</td>
+          <td>Digital Khatt v2</td>
+          <td>Digital Khatt v1</td>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @words.order('word_index asc').each do |word| %>
+           <%
+             if(!word.text_uthmani.include?(@char) || word.text_digital_khatt != word.text_digital_khatt_v1)
+               issues_count += 1
+               bg_color = 'tw-bg-red-100'
+             else
+                 bg_color = ''
+             end
+           %>
+          <tr class="quran-text <%= bg_color %>">
+            <td>
+              <%= link_to(word.location, [:admin, word], target: '_blank') %>
+            </td>
+
+            <td class="qpc-hafs char">
+              <%= word.text_qpc_hafs %>
+            </td>
+            <td class="me-quran char">
+              <%= word.text_uthmani %>
+            </td>
+
+            <td class="p<%= word.page_number %>-v2 char">
+              <%= word.code_v2 %>
+            </td>
+
+            <td class="p<%= word.v2_page %>-v1 char">
+              <%= word.code_v1 %>
+            </td>
+
+            <td class="digitalkhatt-v2 char">
+              <%= word.text_digital_khatt %>
+            </td>
+
+            <td class="digitalkhatt-v2 char">
+              <%= word.text_digital_khatt_v1 %>
+            </td>
+          </tr>
+        <% end %>
+
+        <tr>
+          <td colspan="4">
+            <div class="d-flex align-items-center">
+              <div class="me-4">
+                <%= pagy_bootstrap_nav(@pagy).html_safe %>
+              </div>
+              <div>
+                <%= pagy_info(@pagy).html_safe %>
+              </div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <% if issues_count > 0 %>
+        <div class="alert alert-danger">
+          <%= issues_count %> issues found
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

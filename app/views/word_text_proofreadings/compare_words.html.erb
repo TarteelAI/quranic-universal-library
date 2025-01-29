@@ -134,8 +134,8 @@
       <% if review_words.size > 0 %>
         <div class="alert alert-danger">
           <%= review_words.size %> issues found.
-          <%= review_words.each do |w| %>
-            <span class="<% css %>"><%= w %></span>
+          <% review_words.each do |w| %>
+            <span class="<%= css %>"><%= w %></span>
           <% end %>
         </div>
       <% end %>

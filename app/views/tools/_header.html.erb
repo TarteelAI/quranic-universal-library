@@ -41,6 +41,7 @@
         <%= actions.join('').html_safe %>
       </div>
     </div>
+
     <%= render("tools/header_alert/#{tool_key}") if tool_key && !@access %>
   </div>
 </div>

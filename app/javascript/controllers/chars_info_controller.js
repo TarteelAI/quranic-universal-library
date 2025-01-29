@@ -27,6 +27,10 @@ export default class extends Controller {
         el.find('.char').css('font-size', `${fontSize}px`)
         el.find('#font-size').html(`${fontSize}px`)
     })
+
+    el.find('#toggle-issues').on('click', (event) => {
+      el.find('.toggle').toggleClass('tw-hidden')
+    })
   }
 
   disconnect() {}

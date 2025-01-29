@@ -52,7 +52,7 @@
     </div>
   </div>
 <% else %>
-  <% issues_count = 0 %>
+  <% review_words = [] %>
   <%= render 'shared/page_font', verses: Verse.where(id: @words.pluck(:verse_id).uniq) %>
 
   <div class="page-wrapper container-lg">
@@ -80,7 +80,7 @@
         <% @words.order('word_index asc').each do |word| %>
            <%
              if(!word.text_uthmani.include?(@char) || word.text_digital_khatt != word.text_digital_khatt_v1)
-               issues_count += 1
+               review_words << word.location
                bg_color = 'tw-bg-red-100'
              else
                  bg_color = ''
@@ -131,9 +131,12 @@
         </tbody>
       </table>
 
-      <% if issues_count > 0 %>
+      <% if review_words.size > 0 %>
         <div class="alert alert-danger">
-          <%= issues_count %> issues found
+          <%= review_words.size %> issues found.
+          <%= review_words.each do |w| %>
+            <span class="<% css %>"><%= w %></span>
+          <% end %>
         </div>
       <% end %>
     </div>

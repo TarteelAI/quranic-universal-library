@@ -10,7 +10,7 @@
         <%= render 'shared/filters' %>
 
         <div class="form-group me-2">
-          <%= select_tag :filter_progress, options_for_select([['Ayah with missing transliteration', 'missing'], ['Ayah with full transliteration', 'completed'], ['All ayah', 'all']], params[:filter_progress] || 'all'), class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { placeholder: 'Filter by progress' } %>
+          <%= select_tag :filter_progress, options_for_select([['Ayah with missing transliteration', 'missing'], ['Ayah with full transliteration', 'completed'], ['All ayah', 'all']], params[:filter_progress] || 'all'), class: 'form-select tw-w-[85vw] sm:tw-w-[200px] tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]', data: { placeholder: 'Filter by progress' } %>
           <p class="form-text">Filter by Ayah progress</p>
         </div>
 

@@ -1,7 +1,7 @@
 <div class="page-section mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
     <%= hidden_field_tag :proofread, true %>
-    <div data-controller="chapter-verses-filter" class="d-flex align-items-end">
+    <div data-controller="chapter-verses-filter" class="d-flex align-items-end tw-flex-wrap">
       <%= render 'shared/filters' %>
 
       <div class="form-group d-flex align-items-center align-content-center align-self-start">

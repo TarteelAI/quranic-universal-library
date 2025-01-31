@@ -16,19 +16,19 @@
             </div>
           <% end %>
           <div class="form-group me-2">
-            <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select tw-w-[100%]', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
+            <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select tw-w-[100%] tw-border-gray-400 tw-rounded-[5px]', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
             <p class="form-text">Filter by Tajweed rule</p>
           </div>
 
           <div class="form-group me-2">
-            <%= text_field_tag :filter_text, params[:filter_text], class: 'form-control' %>
+            <%= text_field_tag :filter_text, params[:filter_text], class: 'form-control tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]' %>
             <p class="form-text">Filter by text</p>
           </div>
 
           <div class="form-group me-2">
             <div class="tw-flex tw-space-y-4 sm:tw-space-y-0 tw-flex-col sm:tw-flex-row">
-              <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2 tw-w-[100%] sm:tw-w-auto'%>
-              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end], placeholder: 'Ends with', class: 'form-control me-2 tw-w-[100%] sm:tw-w-auto'%>
+              <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2  tw-w-[100%] sm:tw-w-auto tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]'%>
+              <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end], placeholder: 'Ends with', class: 'form-control me-2 tw-w-[100%] sm:tw-w-auto tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]'%>
               <label for="filter_word_boundary">
                 <%= check_box_tag :filter_word_boundary, '1', params[:filter_word_boundary] == '1' %>
                 Filter whole word
@@ -59,11 +59,11 @@
         <th><%= sort_order_link 'Word index', :word_index %></th>
         <th>Location</th>
         <th>QPC Hafs</th>
-        <th>Digital Khatt</th>
+        <th class="tw-truncate tw-whitespace-nowrap">Digital Khatt</th>
         <th>Text(old)</th>
         <th>Text(new)</th>
-        <th>V4 Tajweed Img</th>
-        <th>RQ Tajweed Img</th>
+        <th class="tw-truncate tw-whitespace-nowrap">V4 Tajweed Img</th>
+        <th class="tw-truncate tw-whitespace-nowrap">RQ Tajweed Img</th>
         <th>Actions</th>
       </tr>
       </thead>

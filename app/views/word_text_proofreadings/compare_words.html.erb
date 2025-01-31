@@ -103,7 +103,11 @@
 
           <tr class="quran-text <%= td_class %>">
             <td class="<%= v1_cols_bg %> <%= td_class %>">
-              <%= link_to(word.location, [:admin, word], target: '_blank') %>
+              <div data-controller="copy-to-clipboard" data-text="'<%= word.location %>'">
+                <%= word.location %>
+              </div>
+
+              <%= link_to('View ', [:admin, word], target: '_blank') %>
             </td>
 
             <td class="qpc-hafs char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">

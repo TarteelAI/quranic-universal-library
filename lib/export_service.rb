@@ -197,6 +197,6 @@ class ExportService
     106 => 'ce-magomed',
     26 => 'cs-czech',
     926 => 'ks-koshur',
-    927 => 'da-baba-gutubu'
+    1270 => 'da-baba-gutubu'
   }
 end

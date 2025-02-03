@@ -12,11 +12,11 @@ module Export
   class TranslationJob < ApplicationJob
     attr_reader :file_name,
                 :resource_content
-    STORAGE_PATH = "#{Rails.root}/public/exported_databases/translations"
+    STORAGE_PATH = "#{Rails.root}/public/exported_translations"
 
     def perform(resource_id, user_id, use_nested_array_format = false)
       @resource_content = ResourceContent.find(resource_id)
-      @resource_content.touch # Update version
+      @resource_content.touch
 
       setup
 

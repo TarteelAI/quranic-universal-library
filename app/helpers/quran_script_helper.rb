@@ -19,6 +19,8 @@ module QuranScriptHelper
       'digitalkhatt-v2'
     when 'text_digital_khatt_v1'
       'digitalkhatt'
+    when 'text_digital_khatt_indopak'
+      'digitalkhatt-indopak'
     when 'text_uthmani'
       'me_quran'
     when 'text_indopak'

@@ -35,6 +35,11 @@ gem 'addressable', require: false
 # Use Redis adapter to run Action Cable in production
 gem "redis", "~> 4.0"
 
+# Gemfile
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
+gem 'elasticsearch-dsl'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

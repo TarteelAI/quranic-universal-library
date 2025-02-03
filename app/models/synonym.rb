@@ -2,17 +2,21 @@
 #
 # Table name: synonyms
 #
-#  id                :bigint           not null, primary key
-#  approved_synonyms :jsonb
-#  synonyms          :text
-#  text              :string
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
+#  id                  :bigint           not null, primary key
+#  approved_synonyms   :jsonb
+#  en_transliterations :jsonb
+#  synonyms            :text
+#  text                :string
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #
 
 class Synonym < ApplicationRecord
   scope :where_synonyms_cont, lambda { |synonym|
     where('synonyms like ?', "%#{synonym}%")
+  }
+  scope :en_transliterations_cont, lambda { |synonym|
+    where("en_transliterations @> ?", [synonym].to_json)
   }
 
   serialize :synonyms, Array
@@ -20,7 +24,7 @@ class Synonym < ApplicationRecord
   has_many :word_synonyms, class_name: 'WordSynonym'
 
   def self.ransackable_scopes(*)
-    %i[where_synonyms_cont]
+    %i[where_synonyms_cont en_transliterations_cont]
   end
 
   def words

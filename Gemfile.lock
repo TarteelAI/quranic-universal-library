@@ -155,6 +155,20 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     dotenv (3.1.2)
     e2mmap (0.1.0)
+    elastic-transport (8.3.5)
+      faraday (< 3)
+      multi_json
+    elasticsearch (8.17.1)
+      elastic-transport (~> 8.3)
+      elasticsearch-api (= 8.17.1)
+    elasticsearch-api (8.17.1)
+      multi_json
+    elasticsearch-dsl (0.1.10)
+    elasticsearch-model (8.0.0)
+      activesupport (> 3)
+      elasticsearch (~> 8)
+      hashie
+    elasticsearch-rails (8.0.0)
     engtagger (0.3.1)
       lru_redux
     erubi (1.13.0)
@@ -219,6 +233,7 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
     hashery (2.1.2)
+    hashie (5.0.0)
     http-accept (1.7.0)
     http-cookie (1.0.5)
       domain_name (~> 0.5)
@@ -599,6 +614,9 @@ DEPENDENCIES
   diffy
   docx (~> 0.8.0)
   dotenv
+  elasticsearch-dsl
+  elasticsearch-model
+  elasticsearch-rails
   engtagger
   escompress (~> 1.0)
   fog-aws

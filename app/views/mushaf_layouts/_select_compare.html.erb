@@ -7,7 +7,7 @@
     <ul class="list-group">
       <% Mushaf.where.not(id: @mushaf.id).each do |compare| %>
         <li class="list-group-item">
-          <%= link_to compare.name, mushaf_layout_path(@mushaf.id, compare: compare.id, page_number: params[:page_number]) %>
+          <%= link_to compare.name, mushaf_layout_path(@mushaf.id, compare: compare.id, page_number: params[:page_number], view_type: 'compare') %>
         </li>
     <% end %>
     </ul>

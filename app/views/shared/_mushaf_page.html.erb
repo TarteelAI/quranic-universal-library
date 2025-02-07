@@ -69,7 +69,7 @@
           <div class="line-container" data-line="<%= line_number %>">
             <div class="line <%= 'line--center' if line_mapping.is_center_aligned? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line---bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
               <% if line_mapping.is_surah_name? %>
-                <%= render 'shared/chapter_name', chapter: Chapter.find(line_mapping.get_surah_number) %>
+                <%= render 'shared/chapter_name', chapter: Chapter.find_by(id: line_mapping.get_surah_number) %>
               <% end %>
 
               <% if line_mapping.is_bismillah? %>

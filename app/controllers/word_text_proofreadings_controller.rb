@@ -1,4 +1,10 @@
 class WordTextProofreadingsController < CommunityController
+  ALLOWED_SCRIPTS = [
+    'text_qpc_hafs',
+    'text_uthmani',
+    'text_digital_khatt',
+    'text_digital_khatt_v1'
+  ]
   def index
     verses = Verse
 
@@ -29,5 +35,28 @@ class WordTextProofreadingsController < CommunityController
 
   def show
     @verse = Verse.find_by_id_or_key(params[:id])
+  end
+
+  def compare_words
+    @char = params[:char]
+
+    if @char.present?
+      pattern = "%#{@char}%"
+      order = if params[:sort_order] && params[:sort_order] == 'desc'
+                'desc'
+              else
+                'asc'
+              end
+
+      script = params[:script].to_s
+      if !ALLOWED_SCRIPTS.include?(script)
+        script = 'text_qpc_hafs'
+      end
+
+      words = Word.unscoped
+                  .where("#{script} like ?", pattern)
+                  .order("word_index #{order}")
+      @pagy, @words = pagy(words, items: 500)
+    end
   end
 end

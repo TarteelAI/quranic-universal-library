@@ -23,6 +23,7 @@
 #
 #  index_morphology_phrases_on_approved            (approved)
 #  index_morphology_phrases_on_phrase_type         (phrase_type)
+#  index_morphology_phrases_on_review_status       (review_status)
 #  index_morphology_phrases_on_source_verse_id     (source_verse_id)
 #  index_morphology_phrases_on_word_position_from  (word_position_from)
 #  index_morphology_phrases_on_word_position_to    (word_position_to)

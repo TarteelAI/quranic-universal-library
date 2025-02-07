@@ -1,0 +1,166 @@
+<%= render 'tools/header',
+           name: "Quran scripts comparison",
+           key: 'quran_scripts_comparison'
+%>
+
+<% if params[:char].blank? %>
+  <%
+    css = "tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg tw-shadow-sm tw-text-gray-700 tw-hover:bg-gray-100 tw-transition"
+    qpc_hafs = "ء أ ؤ إ ئ ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٖ ٗ ٞ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۚ ۛ ۜ ۞ ۠ ۡ ۢ ۤ ۥ ۦ ۧ ۨ ۩ ۪ ۬ ۭ".split('').compact_blank
+    dk_v1 = "͏ ء ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٜ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۙ ۚ ۛ ۜ ۝ ۞ ۟ ۠ ۢ ۣ ۥ ۦ ۧ ۨ ۩ ۬ ۭ ࣰ ࣱ ࣲ ࣳ".split('').compact_blank
+    dk_v2 = "͏ ء ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٜ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۚ ۛ ۜ ۝ ۞ ۟ ۠ ۢ ۣ ۥ ۦ ۧ ۨ ۩ ۬ ۭ ࣰ ࣱ ࣲ ࣳ".split('').compact_blank
+  %>
+  <div class="page-wrapper container-lg" data-controller="chars-info">
+    <div class="page-section">
+      <div>
+        <h3>QPC Hafs char list</h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
+          <% qpc_hafs.each do |char| %>
+            <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_qpc_hafs') %>"
+               class="qpc-hafs <%= css %>">
+              <%= char %>
+            </a>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <h3>Digital Khatt v2 char list</h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
+          <% dk_v2.each do |char| %>
+            <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_digital_khatt') %>"
+               class="digitalkhatt-v2 <%= css %> ">
+              <%= char %>
+            </a>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <h3>Digital Khatt v1 char list</h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
+          <% dk_v1.each do |char| %>
+            <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_digital_khatt_v1') %>"
+               class="digitalkhatt <%= css %>">
+              <%= char %>
+            </a>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <%
+    review_words = []
+    v1_cols_bg = "tw-border tw-border-gray-300 tw-bg-gray-200"
+    v2_cols_bg = "tw-border tw-border-gray-300 tw-bg-gray-50"
+  %>
+
+  <%= render 'shared/page_font', verses: Verse.where(id: @words.pluck(:verse_id).uniq) %>
+
+  <div class="page-wrapper container-lg">
+    <div data-controller="chars-info" class="page-section mb-3 mt-4 tw-w-full" style="position: relative;">
+      <h2 class="tw-text-2xl tw-flex tw-justify-between tw-items-center">
+        <span>
+          Words containing <span class="qpc-hafs"><%= @char %></span>
+        </span>
+        <span>
+          <button class="btn btn-primary" id="toggle-issues">
+            Toggle matched words
+          </button>
+        </span>
+      </h2>
+
+      <div>
+        Font size:
+        <input type="range" min="15" max="100" value="30" class="font-size-slider">
+      </div>
+
+      <table class="tw-w-full">
+        <thead class="tw-bg-white tw-shadow-md tw-sticky tw-top-0">
+        <tr class="tw-hover:tw-bg-gray-100 tw-border tw-border-gray-300">
+          <th class="tw-px-3 tw-py-2">ID</th>
+          <th class="tw-px-3 tw-py-2 <%= v2_cols_bg %>">QPC Hafs</th>
+          <th class="tw-px-3 tw-py-2 <%= v2_cols_bg %>">QPC V2</th>
+          <th class="tw-px-3 tw-py-2 <%= v2_cols_bg %>">Digital Khatt v2</th>
+
+          <th class="tw-px-3 tw-py-2 <%= v1_cols_bg %>">Uthmani</th>
+          <th class="tw-px-3 tw-py-2 <%= v1_cols_bg %>">QPC V1</th>
+          <th class="tw-px-3 tw-py-2 <%= v1_cols_bg %>">Digital Khatt v1</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @words.order('word_index asc').each do |word| %>
+          <%
+            if (!word.text_uthmani.include?(@char) || word.text_digital_khatt != word.text_digital_khatt_v1)
+              review_words << word.location
+              td_class = 'tw-bg-red-100 tw-px-3 tw-py-2'
+            else
+              td_class = 'toggle tw-px-3 tw-py-2'
+            end
+          %>
+
+          <tr class="quran-text <%= td_class %>">
+            <td class="<%= v1_cols_bg %> <%= td_class %>">
+              <div data-controller="copy-to-clipboard" data-text="'<%= word.location %>'">
+                <%= word.location %>
+              </div>
+
+              <%= link_to('View ', [:admin, word], target: '_blank') %>
+            </td>
+
+            <td class="qpc-hafs char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+              <%= word.text_qpc_hafs %>
+            </td>
+            <td class="p<%= word.v2_page %>-v2 char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+              <%= word.code_v2 %>
+            </td>
+            <td class="digitalkhatt-v2 char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+              <%= word.text_digital_khatt %>
+            </td>
+
+            <td class="me-quran char <%= v1_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+              <%= word.text_uthmani %>
+            </td>
+            <td class="p<%= word.page_number %>-v1 char <%= v1_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+              <%= word.code_v1 %>
+            </td>
+            <td class="digitalkhatt-v2 char <%= v1_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+              <%= word.text_digital_khatt_v1 %>
+            </td>
+          </tr>
+        <% end %>
+
+        <tr class="tw-w-full">
+          <td colspan="7">
+            <div class="d-flex align-items-center">
+              <div class="me-4">
+                <%= pagy_bootstrap_nav(@pagy).html_safe %>
+              </div>
+              <div>
+                <%= pagy_info(@pagy).html_safe %>
+              </div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <% if review_words.size > 0 %>
+        <div class="alert alert-danger tw-mt-4">
+          <%= review_words.size %> issues found.
+          <div class="tw-flex tw-gap-2 tw-flex-wrap">
+            <% review_words.each do |w| %>
+            <span class="tw-px-4 tw-py-2 tw-border tw-border-red-300 tw-rounded-lg tw-shadow-sm tw-text-gray-700 tw-hover:bg-gray-100 tw-transition"
+                  data-text="'<%= w %>'"
+                  data-controller="copy-to-clipboard">
+              <%= w %>
+            </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

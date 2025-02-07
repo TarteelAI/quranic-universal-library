@@ -22,7 +22,7 @@ ActiveAdmin.register RawData::Resource do
   filter :name
 
   permit_params do
-    %i[name content_css_class lang_iso sub_type processed records_count]
+    %i[name content_css_class lang_iso sub_type processed records_count resource_content_id]
   end
 
   index do
@@ -52,4 +52,20 @@ ActiveAdmin.register RawData::Resource do
 
     active_admin_comments
   end
+
+  form do |f|
+    f.inputs 'Resource detail' do
+      f.input :name
+      f.input :content_css_class
+
+      f.input :resource_content_id,
+              as: :searchable_select,
+              ajax: { resource: ResourceContent }
+
+      f.input :meta_data, input_html: { data: { controller: 'json-editor', json: resource.meta_data } }
+    end
+
+    f.actions
+  end
+
 end

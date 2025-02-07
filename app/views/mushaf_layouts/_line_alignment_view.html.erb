@@ -1,0 +1,30 @@
+<%
+  page_number = @mushaf_page.page_number
+  pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 1).to_i
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="mushaf-wrapper">
+    <%= render SplitScreenComponent.new do |component| %>
+      <%= component.with_left do %>
+        <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset %>
+      <% end %>
+
+      <%= component.with_right do %>
+        <%= turbo_frame_tag "mushaf-page" do %>
+          <div
+            data-page="<%= page_number %>"
+            data-controller="update-mushaf-page"
+            class="d-flex justify-content-between <%= @mushaf.default_font_name %>">
+            <%= render 'line_alignment' %>
+
+            <div class="page-section p-3">
+              <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+

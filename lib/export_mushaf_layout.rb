@@ -13,9 +13,8 @@ class ExportMushafLayout
     1, # v2
     5, # KFGQPC HAFS
     6, # Indopak 15 lines
-    # 7, # Indopak 16 lines surah name and bismillah is one the same line for some pages
+    # 7, # Indopak 16 lines surah name and bismillah is on the same line for some pages
     # 8, # Indopak 14 lines Pak company has wrong line alignments data
-    # 16, # QPC Hafs with tajweed
     17, # Indopak 13 lines
     20, # Digital Khatt v2
     22, # Digital Khatt v1
@@ -30,6 +29,7 @@ class ExportMushafLayout
 
   def export(ids = MUSHAF_IDS, db_name = "quran-data.sqlite")
     @mushafs = Mushaf.where(id: ids).order('id ASC')
+
     prepare_db_and_tables(db_name)
     export_words
     export_layouts
@@ -49,7 +49,7 @@ class ExportMushafLayout
     stats[:words_count] = 0
     stats[:issues] = []
 
-    Word.unscoped.order('word_index ASC').find_each do |word|
+    Word.unscoped.order('word_index ASC').each do |word|
       surah, ayah, word_number = word.location.split(':').map(&:to_i)
       text_uthmani = get_word_text(word, 'text_uthmani')
       text_indopak = get_word_text(word, 'text_qpc_nastaleeq_hafs')

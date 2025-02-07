@@ -76,7 +76,17 @@ ActiveAdmin.register DownloadableResource do
       row :published
       row :position
       row :info
-      row :meta_data
+      row :meta_data do
+        if resource.meta_data.present?
+          div do
+            pre do
+              code do
+                JSON.pretty_generate(resource.meta_data)
+              end
+            end
+          end
+        end
+      end
       row :tags do
         resource.downloadable_resource_tags.each do |t|
           link_to t.name, [:admin, t]

@@ -1,0 +1,24 @@
+<div id=title>
+  <h5 class="modal-title">Select page <%= @resource.name %></h5>
+</div>
+
+<div id=body>
+  <div class="modal-body">
+    <div class="tw-bg-white tw-rounded-lg tw-p-4">
+      <div class="tw-grid tw-grid-cols-10 tw-gap-2 tw-overflow-y-auto tw-max-h-[70vh]">
+        <% 1.upto(@mushaf.pages_count) do |page| %>
+          <% if params[:edit] %>
+            <%= link_to page.to_s, mushaf_layout_path(@mushaf.id, page_number: page, compare: params[:compare], view_type: params[:previous_view_type]),
+                        class: "tw-px-3 tw-py-1.5 tw-bg-gray-50 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-text-center tw-transition-colors tw-duration-200 tw-text-sm"
+            %>
+          <% else %>
+            <%= link_to page.to_s, edit_mushaf_layout_path(@mushaf.id, page_number: page),
+                        class: "tw-px-3 tw-py-1.5 tw-bg-gray-50 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-text-center tw-transition-colors tw-duration-200 tw-text-sm"
+            %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+

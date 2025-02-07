@@ -74,11 +74,13 @@
         <div class="table-wrapper" id="tableWrapper">
           <table class="table table-hover mt-4">
             <thead>
+            <tr>
               <td>Word</td>
-              <th>Text</th>
+              <td>Text</td>
               <td>Start</td>
               <td>Ends</td>
               <td>Actions</td>
+            </tr>
             </thead>
             <tbody>
               <tr

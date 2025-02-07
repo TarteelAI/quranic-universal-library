@@ -50,14 +50,27 @@ ActiveAdmin.register RawData::AyahRecord do
         div resource.text_cleaned.to_s.html_safe, class: resource.content_css_class.to_s
       end
 
-      row :text do |resource|
-        div resource.text.to_s
-      end
-
       row :created_at
       row :updated_at
     end
 
     active_admin_comments
+  end
+
+  form do |f|
+    f.inputs 'Ayah content detail' do
+      f.input :verse_id,
+              as: :searchable_select,
+              ajax: { resource: Verse }
+
+      f.input :resource_id,
+              as: :searchable_select,
+              ajax: { resource: RawData::Resource }
+
+      f.input :text
+      f.input :text_cleaned, input_html: { data: { controller: 'tinymce' } }
+    end
+
+    f.actions
   end
 end

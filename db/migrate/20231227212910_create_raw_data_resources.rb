@@ -1,6 +1,7 @@
 class CreateRawDataResources < ActiveRecord::Migration[7.0]
   def change
-    create_table :raw_data_resources do |t|
+    c = Verse.connection
+    c.create_table :raw_data_resources do |t|
       t.string :name
       t.string :key, index: true
       t.string :sub_type, index: true
@@ -11,6 +12,7 @@ class CreateRawDataResources < ActiveRecord::Migration[7.0]
       t.integer :resource_content_id
       t.boolean :processed, default: false
       t.string :content_css_class
+      t.jsonb :meta_data, default: {}
 
       t.timestamps
     end

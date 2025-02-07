@@ -1,3 +1,6 @@
+<%
+  selected_font = get_quran_script_font_family(params[:script], Verse.first)
+%>
 <div class="row my-4 sticky">
   <div class="col-12">
     <div class="d-flex flex-column mb-4">
@@ -11,7 +14,8 @@
           Change font
         </label>
 
-        <%= select_tag :change_font, options_for_select(all_quran_fonts, params[:font] || 'qpc-hafs'),class: "tw-w-[100%]"%>
+
+        <%= select_tag :change_font, options_for_select(all_quran_fonts, selected_font),class: "tw-w-[100%] tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]"%>
       </div>
     </div>
   </div>

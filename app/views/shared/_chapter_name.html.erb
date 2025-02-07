@@ -1,4 +1,8 @@
 <div class="surah-name">
-  <span class="icon-surah icon-surah-surah"></span>
-  <span class="icon-surah icon-surah<%= chapter.id %>"></span>
+  <% if chapter %>
+    <span class="icon-surah icon-surah-surah"></span>
+    <span class="icon-surah icon-surah<%= chapter.id %>"></span>
+  <% else %>
+    Chapter not found
+  <% end %>
 </div>

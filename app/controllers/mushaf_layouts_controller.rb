@@ -27,7 +27,7 @@ class MushafLayoutsController < CommunityController
       @record.clear! if @record.persisted?
     else
       @record.alignment = alignment if @record.alignment.blank?
-      @record.properties[alignment] = true
+      @record.set_meta_value(alignment, true)
 
       @record.save(validate: false)
 
@@ -46,8 +46,10 @@ class MushafLayoutsController < CommunityController
   def show
     @access = can_manage?(@resource)
 
-    if params[:compare_with] == 'select'
+    if params[:view_type] == 'select_compare'
       render partial: 'select_compare', layout: false
+    elsif params[:view_type] == 'select_page'
+      render partial: 'select_page', layout: false
     end
   end
 
@@ -60,7 +62,6 @@ class MushafLayoutsController < CommunityController
     if first_verse.nil? || last_verse.nil?
       return redirect_to mushaf_layout_path(@mushaf.id, page_number: page_number, mapping: true), alert: "Please fix the ayah range for #{page_number} before editing the layout"
     end
-
     @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
   end
 

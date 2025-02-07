@@ -12,7 +12,6 @@
 #  meta_data              :jsonb
 #  name                   :string
 #  priority               :integer
-#  records_count          :integer          default(0)
 #  resource_info          :text
 #  resource_type          :string
 #  resource_type_name     :string
@@ -254,6 +253,10 @@ class ResourceContent < QuranApiRecord
 
   def get_proofrading_image_url
     meta_value('image-url')
+  end
+
+  def get_proofrading_image_type
+    meta_value('image-format') || 'jpg'
   end
 
   def source_pdf_file

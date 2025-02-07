@@ -1,24 +1,28 @@
 <%
-  page_number = @mushaf_page.page_number
+  page_number = @mushaf_page.page_number.to_i
+
   pdf_page_offset = (@resource.meta_value('source_pdf_page_offset') || 2).to_i
 
   actions = []
   more_action = []
+  turbo_page_options = { turbo_frame: 'page', turbo_method: 'get', turbo_action: "replace" }
+  turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
 
   if @access
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, mapping: true), class: 'dropdown-item')
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, page_alignment: true), class: 'dropdown-item')
+    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, source_pdf: true), class: 'dropdown-item')
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item')
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: {controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare_with: 'select')})
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: @compared_mushaf&.id, edit: true) })
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
         Actions
       </button>
-      <ul class='dropdown-menu text-dark' data-turbo=false>
+      <ul class='dropdown-menu text-dark'>
        #{more_action.map do |action|
     "<li>#{action}</li>"
   end.join('')
@@ -26,91 +30,95 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark')
-  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, source_pdf: params[:source_pdf], page_alignment: params[:page_alignment], mushtabiat: params[:mushtabiat]), class: 'btn btn-dark')
+  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
   actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
 %>
 
+<%= turbo_frame_tag :page do %>
+  <%= render 'tools/header',
+             name: 'Mushaf layouts',
+             title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
+             key: 'mushaf_layout',
+             actions: actions
+  %>
 
-<%= render 'tools/header',
-           name: 'Mushaf layouts',
-           title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
-           key: 'mushaf_layout',
-           actions: actions
-%>
+  <%= render 'shared/access_message' %>
 
-<%= render 'shared/access_message' %>
+  <div class="page-wrapper container-lg">
+    <%= render SplitScreenComponent.new do |component| %>
+      <%= component.with_left do %>
+        <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset, page_offset: pdf_page_offset %>
+      <% end %>
 
-<div class="page-wrapper container-lg">
-  <div class="resize-container" data-controller="resizeable">
-    <div class="resizable" id="left-side">
-      <%= render 'shared/pdf_or_archive_embed', jump_to_page: @mushaf_page.page_number.to_i + pdf_page_offset, page_offset: pdf_page_offset %>
-    </div>
+      <%= component.with_right do %>
+        <%= turbo_frame_tag "mushaf-page" do %>
+          <div data-page="<%= page_number %>"
+               data-controller="update-mushaf-page mushaf-page-builder">
+            <%= render 'shared/page_font', pages: [page_number] %>
 
-    <div class="handler"></div>
+            <div class="text-center mb-3 border-bottom p-2 resize-heading">
+              <label>
+                <input type="checkbox" checked id="propagate-changes">
+                Propagate changes (page: <%= page_number %>)
+              </label>
+              <button class="btn btn-danger mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
+              <button class="btn btn-primary" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
+            </div>
 
-    <div class="resizable" id="right-side" data-controller="mushaf-page-builder">
-      <%= turbo_frame_tag "page-preview" do %>
-        <%= render 'shared/page_font', pages: [@mushaf_page.page_number] %>
-        <div class="text-center mb-3 border-bottom p-2 resize-heading">
-          <label>
-            <input type="checkbox" checked id="propagate-changes"> Propagate changes
-          </label>
-          <button class="btn btn-danger mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
-          <button class="btn btn-primary" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
-        </div>
+            <%= form_with model: @mushaf, url: mushaf_layout_path(@mushaf.id, page_number: page_number) do |form| %>
+              <div class="mushaf-layout-form indopak">
+                <% word_index = 1 %>
+                <% @verses.each do |verse| %>
+                  <div class="verse" data-verse="<%= verse.id %>">
+                    <span class="word-group"> <%= verse.verse_key %></span>
+                    <% verse.words.order('position ASC').each_with_index do |word, i| %>
+                      <% word_position = @words.detect do |w|
+                        w.word_id == word.id
+                      end %>
 
-        <%= form_with model: @mushaf, url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number) do |form| %>
-          <div class="mushaf-layout-form indopak">
-            <% word_index = 1 %>
-            <% @verses.each do |verse| %>
-              <div class="verse" data-verse="<%= verse.id %>">
-                <span class="word-group"> <%= verse.verse_key %></span>
-                <% verse.words.order('position ASC').each_with_index do |word, i| %>
-                  <% word_position = @words.detect do |w|
-                    w.word_id == word.id
-                  end %>
-
-                  <div class="word word-group" data-word="<%= word.id %>">
-                    <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %>
+                      <div class="word word-group" data-word="<%= word.id %>">
+                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %>
                       <%= @mushaf_page.mushaf.default_font_name %>">
-                      <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
-                    </div>
+                          <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
+                        </div>
 
-                    <input
-                      title="Select page"
-                      type="number"
-                      min=0
-                      data-controller="tooltip"
-                      max="<%= @lines_per_page %>"
-                      class="line-number-input"
-                      data-verse="<%= verse.id %>"
-                      data-key="<%= verse.verse_key %>"
-                      data-position="<%= word_index += 1 %>"
-                      data-word-position="<%= i %>"
-                      value="<%= word_position&.line_number.to_i %>"
-                      style="min-width: 100px; font-size: 20px; font-weight: bold;"
-                      name="layout[words][<%= word.id %>][line_number]"
-                      required
-                      />
-                    <div class="fs-xs form-text">
-                      <%= word.location %>
-                    </div>
+                        <input
+                          title="Select page"
+                          type="number"
+                          min=0
+                          data-controller="tooltip"
+                          max="<%= @lines_per_page %>"
+                          class="line-number-input"
+                          data-verse="<%= verse.id %>"
+                          data-key="<%= verse.verse_key %>"
+                          data-position="<%= word_index += 1 %>"
+                          data-word-position="<%= i %>"
+                          value="<%= word_position&.line_number.to_i %>"
+                          style="min-width: 100px; font-size: 20px; font-weight: bold;"
+                          name="layout[words][<%= word.id %>][line_number]"
+                          required
+                          />
+                        <div class="fs-xs form-text">
+                          <%= word.location %>
+                        </div>
+                      </div>
+
+                    <% end %>
+                    <button class="remove-ayah btn btn-default has-tooltip" title="Remove this ayah from page">X</button>
                   </div>
-
                 <% end %>
-                <button class="remove-ayah btn btn-default has-tooltip" title="Remove this ayah from page">X</button>
+              </div>
+
+              <div class="d-flex justify-content-center p-4">
+                <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-default', style: 'margin-right: 50px' %>
+                <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
               </div>
             <% end %>
           </div>
-
-          <div class="d-flex justify-content-center p-4">
-            <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number), class: 'btn btn-default', style: 'margin-right: 50px' %>
-            <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
-          </div>
         <% end %>
-        </div>
       <% end %>
-      </div>
-</div>
+    <% end %>
+  </div>
+<% end %>

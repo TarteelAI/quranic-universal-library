@@ -1,7 +1,8 @@
 module Exporter
   class ExportTranslationChunk
     def export(translation)
-      text = translation.text.to_s
+      text = translation&.text.to_s
+
       if text.blank?
         return {
           t: []

@@ -31,7 +31,7 @@ class LocalStore {
   }
 
   transformKey(key) {
-    return `community-${key}`;
+    return `qul-${key}`;
   }
 
   getStore() {

@@ -3,7 +3,7 @@
 # Table name: downloadable_resource_tags
 #
 #  id              :bigint           not null, primary key
-#  color_class     :string
+#  color_class     :string           default("blue")
 #  description     :text
 #  glossary_term   :string
 #  name            :string
@@ -15,6 +15,7 @@
 # Indexes
 #
 #  index_downloadable_resource_tags_on_name  (name)
+#  index_downloadable_resource_tags_on_slug  (slug)
 #
 class DownloadableResourceTag < ApplicationRecord
   has_many :downloadable_resource_taggings

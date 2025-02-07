@@ -5,6 +5,7 @@
 #  id                  :bigint           not null, primary key
 #  content_css_class   :string
 #  description         :text
+#  key                 :string
 #  lang_iso            :string
 #  name                :string
 #  processed           :boolean          default(FALSE)
@@ -17,13 +18,12 @@
 #
 # Indexes
 #
+#  index_raw_data_resources_on_key       (key)
 #  index_raw_data_resources_on_sub_type  (sub_type)
 #
 class RawData::Resource < ApplicationRecord
-  has_many :ayah_records
+  includes HasMetaData
 
-  def content_css_class=(val)
-    super val
-    ayah_records.update_all(content_css_class: val)
-  end
+  has_many :ayah_records
+  belongs_to :resource_content
 end

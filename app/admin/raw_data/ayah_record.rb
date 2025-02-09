@@ -14,7 +14,9 @@ ActiveAdmin.register RawData::AyahRecord do
   menu parent: 'Raw data'
   actions :all, except: :destroy
 
-  filter :resource
+  filter :resource,
+         as: :searchable_select,
+         ajax: { resource: RawData::Resource }
   filter :verse,
          as: :searchable_select,
          ajax: { resource: Verse }

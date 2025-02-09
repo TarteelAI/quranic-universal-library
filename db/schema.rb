@@ -127,10 +127,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_16_160316) do
     t.integer "position", default: 1
     t.integer "download_count", default: 0
     t.string "file_type"
+    t.boolean "published", default: true
     t.string "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "published", default: true
     t.text "info"
     t.index ["downloadable_resource_id"], name: "index_downloadable_files_on_downloadable_resource_id"
     t.index ["token"], name: "index_downloadable_files_on_token"
@@ -155,12 +155,13 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_16_160316) do
     t.string "name"
     t.string "glossary_term"
     t.text "description"
+    t.string "color_class", default: "blue"
+    t.integer "resources_count"
+    t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "slug"
-    t.string "color_class"
-    t.integer "resources_count"
     t.index ["name"], name: "index_downloadable_resource_tags_on_name"
+    t.index ["slug"], name: "index_downloadable_resource_tags_on_slug"
   end
 
   create_table "downloadable_resources", force: :cascade do |t|
@@ -244,39 +245,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_16_160316) do
     t.index ["text_matched"], name: "index_draft_translations_on_text_matched"
     t.index ["translation_id"], name: "index_draft_translations_on_translation_id"
     t.index ["verse_id"], name: "index_draft_translations_on_verse_id"
-  end
-
-  create_table "draft_word_translations", force: :cascade do |t|
-    t.string "draft_text"
-    t.string "current_text"
-    t.string "draft_group_text"
-    t.string "current_group_text"
-    t.integer "current_group_word_id"
-    t.integer "draft_group_word_id"
-    t.integer "word_id"
-    t.integer "verse_id"
-    t.integer "word_translation_id"
-    t.integer "language_id"
-    t.integer "resource_content_id"
-    t.integer "user_id"
-    t.boolean "text_matched", default: false
-    t.boolean "imported", default: false
-    t.jsonb "meta_data", default: {}
-    t.string "location"
-    t.integer "word_group_size", default: 1
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["current_group_word_id"], name: "index_draft_word_translations_on_current_group_word_id"
-    t.index ["draft_group_word_id"], name: "index_draft_word_translations_on_draft_group_word_id"
-    t.index ["imported"], name: "index_draft_word_translations_on_imported"
-    t.index ["language_id"], name: "index_draft_word_translations_on_language_id"
-    t.index ["location"], name: "index_draft_word_translations_on_location"
-    t.index ["resource_content_id"], name: "index_draft_word_translations_on_resource_content_id"
-    t.index ["text_matched"], name: "index_draft_word_translations_on_text_matched"
-    t.index ["verse_id"], name: "index_draft_word_translations_on_verse_id"
-    t.index ["word_group_size"], name: "index_draft_word_translations_on_word_group_size"
-    t.index ["word_id"], name: "index_draft_word_translations_on_word_id"
-    t.index ["word_translation_id"], name: "index_draft_word_translations_on_word_translation_id"
   end
 
   create_table "dummy", force: :cascade do |t|
@@ -379,12 +347,12 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_16_160316) do
 
   create_table "mushaf_line_alignments", force: :cascade do |t|
     t.integer "mushaf_id"
+    t.string "page_number"
+    t.string "line_number"
     t.string "alignment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "meta_data", default: {}
-    t.integer "page_number"
-    t.integer "line_number"
     t.index ["line_number"], name: "index_mushaf_line_alignments_on_line_number"
     t.index ["mushaf_id"], name: "index_mushaf_line_alignments_on_mushaf_id"
     t.index ["page_number"], name: "index_mushaf_line_alignments_on_page_number"
@@ -474,7 +442,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_16_160316) do
     t.text "synonyms"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.jsonb "approved_synonyms", default: []
   end
 
   create_table "user_downloads", force: :cascade do |t|

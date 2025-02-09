@@ -51,5 +51,26 @@ ActiveAdmin.register RawData::Resource do
     end
 
     active_admin_comments
+
+    panel "Resource data: (#{resource.records_count}) " do
+      table do
+        thead do
+          td 'Id'
+          td 'Ayah'
+          td 'Text'
+        end
+
+        tbody do
+          resource.ayah_records.includes(:verse).order('verse_id ASC').each do |r|
+            tr do
+              td link_to(r.id, [:admin, r])
+              td r.verse.verse_key
+              td truncate(r.text, length: 100)
+            end
+          end
+        end
+      end
+    end
+
   end
 end

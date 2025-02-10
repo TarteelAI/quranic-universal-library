@@ -32,7 +32,7 @@ ActiveAdmin.register Tafsir do
   index do
     id_column
     column :language
-    column :archived
+    column :archived, sortable: :archived
     column :verse_id do |resource|
       link_to resource.verse_id, admin_verse_path(resource.verse_id)
     end

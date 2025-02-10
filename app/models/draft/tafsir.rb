@@ -38,7 +38,7 @@ class Draft::Tafsir < ApplicationRecord
   include HasMetaData
   belongs_to :resource_content
   belongs_to :verse
-  belongs_to :tafsir, optional: true
+  belongs_to :tafsir, optional: true, class_name: 'Tafsir'
   belongs_to :group_tafsir, class_name: 'Verse', optional: true # TODO: rename to group_verse
   belongs_to :user, optional: true
   belongs_to :start_verse, class_name: 'Verse'

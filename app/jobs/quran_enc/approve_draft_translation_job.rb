@@ -212,16 +212,16 @@ module QuranEnc
         next if draft.draft_text.blank? || imported_ayahs[draft.verse_key]
 
         verse = draft.verse
-        tafsir = Tafsir.where(
-          verse_id: draft.verse_id,
-          resource_content_id: resource.id
-        ).first_or_initialize
+        tafsir = Tafsir.for_verse(verse, resource) || Tafsir.new
 
+        tafsir.resource_content_id = resource.id
         tafsir.text = draft.draft_text.strip
         tafsir.language_id = language.id
         tafsir.language_name = language.name.downcase
         tafsir.resource_name = resource.name if tafsir.resource_name.blank?
 
+        tafsir.archived = false
+        tafsir.verse = verse
         tafsir.verse_key = verse.verse_key
         tafsir.chapter_id = verse.chapter_id
         tafsir.verse_number = verse.verse_number
@@ -251,8 +251,7 @@ module QuranEnc
         draft.update_column(:imported, true)
       end
 
-      # Delete old tafisr items that are not part of newly imported tafsir
-
+      # Archive previous tafsir itmes that are not updated with this bulk import
       Tafsir
         .where(
           resource_content_id: resource.id

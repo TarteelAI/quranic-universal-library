@@ -31,10 +31,12 @@ ActiveAdmin.register Draft::Tafsir do
     end if !resource.imported?
   end
 
-  member_action :import, method: 'put' do
-    tafsir = resource.import!
+  action_item :clone, only: :show do
+    link_to "Clone(#{resource.verse_key})", clone_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure to clone?' }
+  end
 
-    redirect_to [:admin, tafsir], notice: 'Draft Tafsir is approved and imported successfully'
+  action_item :reprocess, only: :show do
+    link_to "Sanitize text", reprocess_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' }
   end
 
   action_item :previous, only: :show do
@@ -47,6 +49,23 @@ ActiveAdmin.register Draft::Tafsir do
     if item = resource.next_ayah_tafsir
       link_to "Next(#{item.start_verse.verse_key})", "/admin/draft_tafsirs/#{item.id}", class: 'btn'
     end
+  end
+
+  member_action :import, method: 'put' do
+    tafsir = resource.import!
+
+    redirect_to [:admin, tafsir], notice: 'Draft Tafsir is approved and imported successfully'
+  end
+
+  member_action :clone, method: 'put' do
+    tafsir = resource.clone!
+
+    redirect_to [:admin, tafsir], notice: 'Cloned successfully'
+  end
+
+  member_action :reprocess, method: 'put' do
+    resource.reprocess_text!
+    redirect_to [:admin, resource], notice: 'Text formatting is reprocessed'
   end
 
   index do
@@ -94,6 +113,8 @@ ActiveAdmin.register Draft::Tafsir do
       f.input :group_tafsir_id,
               as: :searchable_select,
               ajax: { resource: Verse }
+
+      f.input :current_text, input_html: { data: { controller: 'tinymce' } }
     end
 
     f.actions
@@ -101,6 +122,7 @@ ActiveAdmin.register Draft::Tafsir do
 
   show do
     language_name = resource.resource_content.language_name
+    tafsir = resource.tafsir || resource.original_tafsir
 
     attributes_table do
       row :id
@@ -108,8 +130,6 @@ ActiveAdmin.register Draft::Tafsir do
       row :user
 
       row :tafsir do
-        tafsir = resource.original_tafsir
-
         if tafsir
           link_to tafsir.id, [:admin, tafsir]
         end
@@ -149,17 +169,7 @@ ActiveAdmin.register Draft::Tafsir do
       end
 
       row :text do
-        div class: 'row', style: "display: flex !important" do
-          div class: 'col-6', style: "border-right: 1px dotted #000;" do
-            h4 "New text"
-            div resource.draft_text.to_s.html_safe, class: "tafsir p-2 #{language_name}"
-          end
-
-          div class: 'col-6' do
-            h4 "Current text"
-            div resource.current_text.to_s.html_safe, class: "tafsir p-2 #{language_name}"
-          end
-        end
+        render "admin/tafisr_compare", language_name: language_name, tafsir: tafsir
       end
 
       row :diff do
@@ -252,7 +262,6 @@ ActiveAdmin.register Draft::Tafsir do
       end
     end
   end
-
 
   controller do
     def update

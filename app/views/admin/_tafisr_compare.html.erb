@@ -1,0 +1,23 @@
+<%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+
+<%= render SplitScreenComponent.new do |split| %>
+  <%  split.with_left do %>
+    <h2 class="tw-bg-gray-200 tw-p2">
+      New Text (<%= resource.group_verse_key_from %> - <%= resource.group_verse_key_to %>)
+    </h2>
+
+    <div class="afsir p-2 <%= language_name %>">
+      <%= resource.draft_text.to_s.html_safe %>
+    </div>
+  <% end %>
+
+  <%  split.with_right do %>
+    <h2 class="tw-bg-gray-200 tw-p2 tm-mb-4">
+      Current Text (<%= resource.group_verse_key_from %> - <%= resource.group_verse_key_to %>)
+    </h2>
+
+    <div class="afsir p-2 <%= language_name %>">
+      <%= resource.current_text.to_s.html_safe %>
+    </div>
+  <% end %>
+<% end %>

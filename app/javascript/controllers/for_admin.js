@@ -50,3 +50,6 @@ application.register("toggle-password", TogglePasswordController);
 
 import FilterAyahController from './filter_ayah_controller';
 application.register("filter-ayah", FilterAyahController);
+
+import ResizeableController from "./resizeable_controller.js"
+application.register("resizeable", ResizeableController)

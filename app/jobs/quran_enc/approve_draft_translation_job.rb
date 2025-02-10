@@ -52,6 +52,7 @@ module QuranEnc
     end
 
     def approve_draft_tafsirs(resource)
+      PaperTrail.enabled = false
       import_tafsirs(resource)
 
       resource.set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))
@@ -78,7 +79,8 @@ module QuranEnc
     end
 
     def approve_draft_translations(resource)
-      # PaperTrail.enabled = false
+      PaperTrail.enabled = false
+
       if resource.one_word?
         import_word_translations(resource)
       else
@@ -106,7 +108,7 @@ module QuranEnc
         body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
       )
 
-      # PaperTrail.enabled = true
+      PaperTrail.enabled = true
 
       AdminTodo
         .where(resource_content_id: resource.id)
@@ -204,6 +206,8 @@ module QuranEnc
     end
 
     def import_tafsirs(resource)
+      Draft::Tafsir.where(resource_content_id: resource.id).update_all(imported: false)
+
       language = resource.language
       imported_ids = []
       imported_ayahs = {}

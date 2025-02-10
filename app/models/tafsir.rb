@@ -3,6 +3,7 @@
 # Table name: tafsirs
 #
 #  id                   :integer          not null, primary key
+#  archived             :boolean          default(FALSE)
 #  group_verse_key_from :string
 #  group_verse_key_to   :string
 #  group_verses_count   :integer

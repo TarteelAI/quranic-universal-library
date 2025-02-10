@@ -18,7 +18,6 @@
 #
 # Indexes
 #
-#  index_morphology_matching_verses_on_approved             (approved)
 #  index_morphology_matching_verses_on_chapter_id           (chapter_id)
 #  index_morphology_matching_verses_on_coverage             (coverage)
 #  index_morphology_matching_verses_on_matched_chapter_id   (matched_chapter_id)

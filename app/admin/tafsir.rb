@@ -21,7 +21,7 @@ ActiveAdmin.register Tafsir do
   filter :group_verse_key_from
   filter :group_verse_key_to
   filter :text
-  column :archived
+  filter :archived
   filter :verse,
          as: :searchable_select,
          ajax: { resource: Verse }

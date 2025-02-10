@@ -2,17 +2,16 @@
 #
 # Table name: tajweed_words
 #
-#  id                  :bigint           not null, primary key
-#  letters             :jsonb
-#  location            :string
-#  position            :integer
-#  text                :string
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  mushaf_id           :bigint           not null
-#  resource_content_id :integer
-#  verse_id            :bigint           not null
-#  word_id             :bigint           not null
+#  id         :bigint           not null, primary key
+#  letters    :jsonb
+#  location   :string
+#  position   :integer
+#  text       :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  mushaf_id  :bigint           not null
+#  verse_id   :bigint           not null
+#  word_id    :bigint           not null
 #
 # Indexes
 #

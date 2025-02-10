@@ -2,7 +2,10 @@
 
 module Importer
   class QuranEncTafsir < QuranEnc
-    STRIP_TEXT_REG = /^[\[\(]*(\d+[\s-]*[\d]*)[\]\)\s.-]*/
+    REGEXP_STRIP_TEXT = {
+      general: /^[\[\(]*(\d+[\s-]*[\d]*)[\]\)\s.-]*/
+    }
+
     COLORS_TO_CSS_CLASS_MAPPING = {}
 
     COLOR_MAPPING = {
@@ -215,7 +218,7 @@ module Importer
 
     def import(quran_enc_key)
       @resource_content = find_or_create_resource(quran_enc_key)
-      Draft::Tafsir.where(resource_content_id: @resource_content.id, imported: true).delete_all
+      Draft::Tafsir.where(resource_content_id: @resource_content.id).delete_all
 
       Verse.order('id ASC').each do |verse|
         content = fetch_tafsir(quran_enc_key, verse)
@@ -277,14 +280,14 @@ module Importer
 
     def sanitize_text(text)
       if color_mapping = COLOR_MAPPING[resource_content.id]
-        text = text.gsub(STRIP_TEXT_REG, '').strip
+        text = text.gsub(REGEXP_STRIP_TEXT[:general], '').strip
         TAFSIR_SANITIZER.sanitize(
           text,
           color_mapping: color_mapping,
           resource_language: resource_content.language.iso_code
         ).html
       else
-        strip_ayah_number_from_start(text, resource_content)
+        clean_up_text(text, resource_content)
       end
     end
 

@@ -8,34 +8,8 @@ module Exporter
     end
 
     def export_json
-      @json_data = {}
       json_file_path = "#{export_file_path}.json"
-
-      Verse.find_each do |verse|
-        if @json_data[verse.verse_key]
-          next
-        end
-
-        @json_data[verse.verse_key] = {}
-
-        tafsir = Tafsir.for_verse(verse, resource_content)
-
-        if (tafsir)
-          group = tafsir.ayah_group_list
-
-          @json_data[tafsir.verse_key] = {
-            text: format_text(tafsir.text)
-          }
-
-          if group.length > 1
-            @json_data[verse.verse_key][:ayah_keys] = group
-
-            group.each do |key|
-              @json_data[key] = tafsir.verse_key if @json_data[key].blank?
-            end
-          end
-        end
-      end
+      export_data
 
       File.open(json_file_path, 'wb') do |file|
         file << JSON.generate(@json_data, { state: JsonNoEscapeHtmlState.new })
@@ -45,9 +19,7 @@ module Exporter
     end
 
     def export_sqlite
-      if @json_data.blank?
-        export_json
-      end
+      export_data
 
       db_file_path = "#{@export_file_path}.db"
       statement = create_sqlite_table(db_file_path, 'tafsir', sqlite_db_columns)
@@ -71,6 +43,37 @@ module Exporter
     end
 
     protected
+    def export_data
+      return @json_data if @json_data.present?
+
+      @json_data = {}
+      Verse.find_each do |verse|
+        if @json_data[verse.verse_key]
+          next
+        end
+
+        @json_data[verse.verse_key] = {}
+
+        tafsir = Tafsir.where(archived: false).for_verse(verse, resource_content)
+
+        if (tafsir)
+          group = tafsir.ayah_group_list
+
+          @json_data[tafsir.verse_key] = {
+            text: format_text(tafsir.text)
+          }
+
+          if group.length > 1
+            @json_data[verse.verse_key][:ayah_keys] = group
+
+            group.each do |key|
+              @json_data[key] = tafsir.verse_key if @json_data[key].blank?
+            end
+          end
+        end
+      end
+      @json_data
+    end
 
     def format_text(text)
       # NOTE: we need to fix the source data to have proper html tags

@@ -78,7 +78,7 @@ module QuranEnc
     end
 
     def approve_draft_translations(resource)
-      #PaperTrail.enabled = false
+      # PaperTrail.enabled = false
       if resource.one_word?
         import_word_translations(resource)
       else
@@ -106,7 +106,7 @@ module QuranEnc
         body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
       )
 
-      #PaperTrail.enabled = true
+      # PaperTrail.enabled = true
 
       AdminTodo
         .where(resource_content_id: resource.id)
@@ -155,7 +155,7 @@ module QuranEnc
     end
 
     def import_word_translations(resource)
-      #TODO: handle group words translation
+      # TODO: handle group words translation
       language = resource.language
 
       list = Draft::WordTranslation
@@ -252,9 +252,13 @@ module QuranEnc
       end
 
       # Delete old tafisr items that are not part of newly imported tafsir
-      # Tafsir.where(
-      #  resource_content_id: resource.id
-      #).where.not(id: imported_ids).delete_all
+
+      Tafsir
+        .where(
+          resource_content_id: resource.id
+        ).where
+        .not(id: imported_ids)
+        .update_all(archived: true)
     end
   end
 end

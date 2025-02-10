@@ -119,7 +119,7 @@ module Export
 
         json[verse.verse_key] = {}
 
-        tafsir = Tafsir.for_verse(verse, resource_content)
+        tafsir = Tafsir.where(archived: false).for_verse(verse, resource_content)
 
         if (tafsir)
           group = tafsir.ayah_group_list

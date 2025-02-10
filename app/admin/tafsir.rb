@@ -6,7 +6,7 @@ ActiveAdmin.register Tafsir do
   ActiveAdminViewHelpers.versionate(self)
 
   permit_params do
-    %i[text verse_id language_name language_id resource_content_id resource_name start_verse_id end_verse_id group_tafsir_id]
+    %i[text archived verse_id language_name language_id resource_content_id resource_name start_verse_id end_verse_id group_tafsir_id]
   end
 
   filter :language,
@@ -21,6 +21,7 @@ ActiveAdmin.register Tafsir do
   filter :group_verse_key_from
   filter :group_verse_key_to
   filter :text
+  column :archived
   filter :verse,
          as: :searchable_select,
          ajax: { resource: Verse }
@@ -31,6 +32,7 @@ ActiveAdmin.register Tafsir do
   index do
     id_column
     column :language
+    column :archived
     column :verse_id do |resource|
       link_to resource.verse_id, admin_verse_path(resource.verse_id)
     end
@@ -51,6 +53,7 @@ ActiveAdmin.register Tafsir do
     attributes_table do
       row :id
       row :verse
+      row :archived
       row :language
       row :language_name
       row :verse_key
@@ -81,7 +84,7 @@ ActiveAdmin.register Tafsir do
   form do |f|
     f.inputs 'Tafisr Detail' do
       f.input :text, input_html: { data: { controller: 'tinymce' } }
-
+      f.input :archived
       f.input :verse_id,
               as: :searchable_select,
               ajax: { resource: Verse }

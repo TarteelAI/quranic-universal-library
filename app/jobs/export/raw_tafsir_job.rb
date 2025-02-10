@@ -37,6 +37,7 @@ module Export
 
         chapter.verses.each do |verse|
           tafsir = Tafsir.where(
+            archived: false,
             resource_content_id: resource_content.id,
             verse_id: verse.id
           ).first

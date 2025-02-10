@@ -39,6 +39,7 @@ class Draft::Tafsir < ApplicationRecord
   include HasMetaData
   belongs_to :resource_content
   belongs_to :verse
+  belongs_to :tafsir, optional: true
   belongs_to :group_tafsir, class_name: 'Verse', optional: true # TODO: rename to group_verse
   belongs_to :user, optional: true
   belongs_to :start_verse, class_name: 'Verse'
@@ -104,6 +105,25 @@ class Draft::Tafsir < ApplicationRecord
     end
 
     tafsir
+  end
+
+  def clone!
+    cloned = self.dup
+    cloned.id = nil
+    cloned.comments = "Cloned from #{id}"
+    cloned.save(validate: false)
+
+    cloned
+  end
+
+  def reprocess_text!
+    sanitizer = Utils::TextSanitizer::TafsirSanitizer.new
+    text =  sanitizer.sanitize(
+      draft_text,
+      resource_language: resource_content.language.iso_code
+    ).html
+
+    update_columns(draft_text: text)
   end
 
   def ayah_group_info

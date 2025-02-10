@@ -52,7 +52,6 @@ module QuranEnc
     end
 
     def approve_draft_tafsirs(resource)
-      PaperTrail.enabled = false
       import_tafsirs(resource)
 
       resource.set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))

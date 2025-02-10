@@ -750,6 +750,7 @@ module Exporter
 
       zipped = zip(file_path)
       file.name ||= "#{resource.name}.#{file_type}"
+
       file.file.attach(
         io: File.open(zipped),
         filename: "#{file.name}.bz2",
@@ -762,7 +763,7 @@ module Exporter
 
     def zip(file_path)
       if File.directory?(file_path)
-        zip_folder_path = "#{file_path}.zip"
+        zip_folder_path = "#{file_path}.tar"
         Zip::File.open(zip_folder_path, Zip::File::CREATE) do |zipfile|
           Dir[File.join(file_path, '**', '**')].each do |file|
             relative_path = file.sub("#{file_path}/", '')

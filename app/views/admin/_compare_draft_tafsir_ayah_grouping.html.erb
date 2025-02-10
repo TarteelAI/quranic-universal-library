@@ -21,18 +21,31 @@
         </thead>
 
         <tbody id="ayahs">
-        <% previous_group = nil %>
+        <%
+          previous_group = nil
+        %>
         <% @comparison.each do |verse_key, groups| %>
-          <% current_from, current_to, current_count = groups[:current] || [] %>
-          <% draft_from, draft_to, draft_count = groups[:draft] || [] %>
+          <%
+            current_from, current_to, current_count = groups[:current] || []
+            draft_from, draft_to, draft_count = groups[:draft] || []
 
-          <% mismatch = (groups[:current] != groups[:draft]) || groups[:current].nil? || groups[:draft].nil? %>
-          <% is_first_in_group = previous_group != current_from %>
-          <% previous_group = current_from %>
+            mismatch = (groups[:current] != groups[:draft]) || groups[:current].nil? || groups[:draft].nil?
+            is_first_in_group = previous_group != current_from
+            previous_group = current_from
+            next if [current_from, current_to, current_count, draft_from, draft_to, draft_count].all?(&:nil?)
+          %>
 
           <% if is_first_in_group %>
-            <tr class="group-header" data-toggle="collapse" data-target=".group-<%= verse_key.gsub(':', '-') %>">
-              <td class="<%= mismatch ? 'bg-danger text-white' : '' %>"><strong><%= verse_key %></strong></td>
+            <tr class="group-header"
+                data-toggle="collapse"
+                data-target=".group-<%= verse_key.gsub(':', '-') %>"
+            >
+              <td class="<%= mismatch ? 'bg-danger text-white' : '' %>">
+                <%= link_to "/admin/draft_tafsirs?q%5Bresource_content_id_eq=#{@resource.id}&q%5Bverse_key_cont=#{verse_key}&order=id_desc", target: '_blank' do %>
+                  <strong><%= verse_key %></strong>
+                <% end %>
+              </td>
+
               <td class="bg-primary text-white">
                 <%= current_from %>
               </td>
@@ -55,11 +68,15 @@
           <% else %>
             <tr class="collapse group-<%= current_from.to_s.gsub(':', '-') %>">
               <td class="<%= mismatch ? 'bg-danger text-white' : '' %>">
-                <%= verse_key %>
+                <%= link_to "/admin/draft_tafsirs?q=resource_content_id_eq=#{@resource.id}&q%5Bverse_key_cont=#{verse_key}&order=id_desc", target: '_blank' do %>
+                  <strong><%= verse_key %></strong>
+                <% end %>
               </td>
+
               <td class="bg-primary text-white">
                 <%= current_from %>
               </td>
+
               <td class="bg-primary text-white">
                 <%= current_to %>
               </td>

@@ -470,15 +470,20 @@ class ResourceContent < QuranApiRecord
     end
   end
 
-  # TODO: refactor this, running 6000+ queries will fail on production
   def check_for_missing_draft_tafsirs
     tafsirs = Draft::Tafsir.where(resource_content_id: id)
+                           .pluck(:start_verse_id, :end_verse_id, :draft_text)
+
+    tafsir_lookup = Hash.new { |h, k| h[k] = [] }
+    tafsirs.each do |start_id, end_id, draft_text|
+      (start_id..end_id).each { |verse_id| tafsir_lookup[verse_id] << draft_text }
+    end
+
     issues = []
 
     Verse.find_each do |verse|
-      tafsir = tafsirs.where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: verse.id)
-
-      if tafsir.blank? || tafsir.first.draft_text.blank?
+      tafsirs_for_ayah = tafsir_lookup[verse.id]
+      if tafsirs_for_ayah.empty? || tafsirs_for_ayah.all?(&:blank?)
         issues.push(text: "#{name}: Tafsir is missing for #{verse.verse_key}")
       end
     end

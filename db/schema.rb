@@ -128,10 +128,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_13_120827) do
     t.integer "position", default: 1
     t.integer "download_count", default: 0
     t.string "file_type"
-    t.boolean "published", default: true
     t.string "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "published", default: true
     t.text "info"
     t.index ["downloadable_resource_id"], name: "index_downloadable_files_on_downloadable_resource_id"
     t.index ["token"], name: "index_downloadable_files_on_token"
@@ -156,13 +156,12 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_13_120827) do
     t.string "name"
     t.string "glossary_term"
     t.text "description"
-    t.string "color_class", default: "blue"
-    t.integer "resources_count"
-    t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug"
+    t.string "color_class"
+    t.integer "resources_count"
     t.index ["name"], name: "index_downloadable_resource_tags_on_name"
-    t.index ["slug"], name: "index_downloadable_resource_tags_on_slug"
   end
 
   create_table "downloadable_resources", force: :cascade do |t|
@@ -384,6 +383,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_13_120827) do
     t.string "alignment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "properties", default: {}
+    t.integer "page_number"
+    t.integer "line_number"
     t.jsonb "meta_data", default: {}
     t.index ["line_number"], name: "index_mushaf_line_alignments_on_line_number"
     t.index ["mushaf_id"], name: "index_mushaf_line_alignments_on_mushaf_id"

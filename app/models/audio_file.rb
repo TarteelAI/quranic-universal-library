@@ -97,6 +97,12 @@ class AudioFile < QuranApiRecord
     end.to_s.gsub(/\s+/, '')
   end
 
+  def get_segments
+    segments.map do |s|
+      s.drop(1)
+    end
+  end
+
   def set_segments(segments_list, user=nil)
     #TODO: generate activity if data is changed and assign user to it
     # TODO: fix ayah by ayah segments, remove the segment index

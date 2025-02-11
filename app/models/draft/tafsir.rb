@@ -106,7 +106,7 @@ class Draft::Tafsir < ApplicationRecord
     tafsir
   end
 
-  def clone!
+  def clone_tafsir
     cloned = self.dup
     cloned.id = nil
     cloned.comments = "Cloned from #{id}"

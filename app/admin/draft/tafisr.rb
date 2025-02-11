@@ -28,15 +28,19 @@ ActiveAdmin.register Draft::Tafsir do
   action_item :import, only: :show do
     link_to import_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       'Approve and update'
-    end if !resource.imported?
+    end if !resource.imported? && can?(:manage, :draft_content)
   end
 
-  action_item :clone, only: :show do
-    link_to "Clone(#{resource.verse_key})", clone_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure to clone?' }
+  action_item :clone_item, only: :show do
+    if can?(:manage, :draft_content)
+      link_to "Clone(#{resource.verse_key})", clone_item_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure to clone?' }
+    end
   end
 
   action_item :reprocess, only: :show do
-    link_to "Sanitize text", reprocess_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' }
+    if can?(:manage, :draft_content)
+      link_to "Sanitize text", reprocess_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' }
+    end
   end
 
   action_item :previous, only: :show do
@@ -57,8 +61,8 @@ ActiveAdmin.register Draft::Tafsir do
     redirect_to [:admin, tafsir], notice: 'Draft Tafsir is approved and imported successfully'
   end
 
-  member_action :clone, method: 'put' do
-    tafsir = resource.clone!
+  member_action :clone_item, method: 'put' do
+    tafsir = resource.clone_tafsir
 
     redirect_to [:admin, tafsir], notice: 'Cloned successfully'
   end

@@ -4,18 +4,18 @@ ActiveAdmin.register_page 'Dashboard' do
   menu priority: 1, label: 'Dashboard'
 
   content title: 'Dashboard' do
-    div "Welcome to the QUL Admin Dashboard! ", class: 'alert alert-info'
+    div "Welcome to the QUL Admin Dashboard!. This admin panel provides tools to browse, validate, and manage Quranic data. It also allows admins to run reports and oversee content updates efficiently. ", class: 'alert alert-info'
 
-    columns do
-      column do
-        panel 'Help' do
-          render partial: 'admin/help'
+    if can? :run_actions, :from_admin
+      columns do
+        column do
+          panel 'Help' do
+            render partial: 'admin/help'
+          end
         end
       end
-    end
 
-    columns do
-      if can? :run_actions, :from_admin
+      columns do
         column do
           panel 'Actions' do
             render partial: 'admin/actions'

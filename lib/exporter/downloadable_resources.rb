@@ -753,7 +753,7 @@ module Exporter
 
       file.file.attach(
         io: File.open(zipped),
-        filename: "#{file.name}.bz2",
+        filename: File.basename(zipped),
         key: QulExportedFileKeyGenerator.generate_key(zipped, resource)
       )
 

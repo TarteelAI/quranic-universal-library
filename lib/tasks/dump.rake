@@ -17,14 +17,14 @@ namespace :dump do
       Morphology::Word.where(verse_id: v.id).delete_all
       AyahTheme.where("verse_id_from >= ?", v.id).delete_all
     end
-    Morphology::DerivedWord.delete_all
+    Morphology::DerivedWord.where(verse_id: verse_ids).delete_all
 
     Audio::ChangeLog.delete_all
-    AudioFile.where("verse_id IN(?)", verse_ids).delete_all
+    AudioFile.where(verse_id: verse_ids).delete_all
     ChapterInfo.where.not(language_id: 38).delete_all
 
-    ArabicTransliteration.where("verse_id IN(?)", verse_ids).delete_all
-    VerseTopic.where("verse_id IN(?)", verse_ids).delete_all
+    ArabicTransliteration.where(verse_id: verse_ids).delete_all
+    VerseTopic.where(verse_id: verse_ids).delete_all
 
     WordStem.joins(:word).where(word: { verse_id: verse_ids }).delete_all
     WordLemma.joins(:word).where(word: { verse_id: verse_ids }).delete_all
@@ -37,11 +37,7 @@ namespace :dump do
 
     NavigationSearchRecord.delete_all
     WordTranslation.joins(:word).where(word: { verse_id: verse_ids }).delete_all
-    Word.where("verse_id IN(?)", verse_ids).delete_all
-
-    Word.joins("LEFT JOIN verses ON verses.id = words.verse_id")
-        .where(verses: { id: nil })
-        .delete_all
+    Word.where(verse_id: verse_ids).delete_all
 
     Chapter.find_each do |chapter|
       chapter.slugs.where.not(locale: 'en').delete_all
@@ -56,7 +52,7 @@ namespace :dump do
     DataSource.update_all(name: 'Demo', url: 'Demo')
 
     # Create SQL dump
-    `pg_dump quran_dev > dumps/quran_dev.sql`
+    `pg_dump quran_dev > dumps/min_quran_dev.sql`
 
     # Create binary dump
     `pg_dump -b -E UTF-8 -f dumps/quran_dev.dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean quran_dev`

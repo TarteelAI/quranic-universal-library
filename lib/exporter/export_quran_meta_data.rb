@@ -8,14 +8,18 @@ module Exporter
     end
 
     def export_json
-      send "export_#{resource_content.name.downcase}", format: 'json'
+      send "export_#{resource_type}", format: 'json'
     end
 
     def export_sqlite
-      send "export_#{resource_content.name.downcase}", format: 'sqlite'
+      send "export_#{resource_type}", format: 'sqlite'
     end
 
     protected
+    def resource_type
+      name = resource_content.name.gsub(/\s+/, '')
+      name.downcase.gsub('name', '').strip
+    end
 
     def export_surah(format:)
       file_path = "#{@export_file_path}.#{format}"
@@ -25,10 +29,10 @@ module Exporter
           id: 'INTEGER PRIMARY KEY',
           name: 'TEXT',
           name_simple: 'TEXT',
+          name_arabic: 'TEXt',
           revelation_order: 'INTEGER',
           revelation_place: 'TEXT',
-          verses_count: 'INTEGER',
-          pages_range: 'TEXT'
+          verses_count: 'INTEGER'
         }
 
         statement = create_sqlite_table(file_path, 'chapters', columns)
@@ -38,10 +42,11 @@ module Exporter
                               chapter.id,
                               chapter.name,
                               chapter.name_simple,
+                              chapter.name_arabic,
                               chapter.revelation_order,
                               chapter.revelation_place,
-                              chapter.verses_count,
-                              chapter.pages.join('-')])
+                              chapter.verses_count
+                            ])
         end
       else
         json_data = {}
@@ -50,10 +55,10 @@ module Exporter
             id: chapter.id,
             name: chapter.name,
             name_simple: chapter.name_simple,
+            name_arabic: chapter.name_arabic,
             revelation_order: chapter.revelation_order,
             revelation_place: chapter.revelation_place,
-            verses_count: chapter.verses_count,
-            pages_range: chapter.pages.join('-')
+            verses_count: chapter.verses_count
           }
         end
 

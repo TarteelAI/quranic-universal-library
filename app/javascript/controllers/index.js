@@ -123,3 +123,6 @@ application.register("proofreading-view-switcher", ProofreadingViewSwitcher);
 
 import UpdateMushafPageController from './update_mushaf_page_controller';
 application.register("update-mushaf-page", UpdateMushafPageController);
+
+import RunableWidgetController from './runable_widget_controller';
+application.register("runable-widget", RunableWidgetController);

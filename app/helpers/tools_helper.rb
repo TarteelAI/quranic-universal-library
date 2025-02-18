@@ -60,8 +60,8 @@ module ToolsHelper
         info_tip: "This tool helps you review and suggest fixes for Quran translations, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
       ),
       ToolCard.new(
-        title: 'Ayah tafisrs in different languages',
-        description: 'Tool for proofreading and suggesting the fixes for ayah tafisrs.',
+        title: 'Ayah tafsirs in different languages',
+        description: 'Tool for proofreading and suggesting the fixes for ayah tafsirs.',
         url: tafsir_proofreadings_path,
         type: 'tafsir',
         tags: [['Tafsir', 'tafsir']],

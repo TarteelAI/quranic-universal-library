@@ -24,7 +24,7 @@ class Recitation < QuranApiRecord
   belongs_to :reciter
   belongs_to :recitation_style
   belongs_to :qirat_type, optional: true
-  belongs_to :resource_content
+  belongs_to :resource_content, optional: true
 
   has_many :audio_files
   delegate :approved?, to: :resource_content, allow_nil: true

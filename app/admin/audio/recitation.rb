@@ -103,7 +103,9 @@ ActiveAdmin.register Recitation do
         end
       end
 
-      row :approved
+      row :approved do
+        resource.approved?
+      end
       row :segment_locked
       row :created_at
       row :updated_at

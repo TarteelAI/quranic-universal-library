@@ -212,7 +212,9 @@ ActiveAdmin.register Audio::Recitation do
       row :home
       row :description
       row :file_size
-      row :approved
+      row :approved do
+        resource.approved?
+      end
       row :priority
       row :qirat_type
       row :segments_count
@@ -249,7 +251,7 @@ ActiveAdmin.register Audio::Recitation do
               td link_to(r.id, [:admin, r])
               td r.chapter_id
               td r.audio_url
-              td r.chapter.verses_count
+              td r.chapter&.verses_count
               td r.segments_count
             end
           end

@@ -2,7 +2,6 @@
 
 ActiveAdmin.register Audio::ChapterAudioFile do
   menu parent: 'Audio'
-  actions :all, except: :destroy
   searchable_select_options(
     scope: Audio::ChapterAudioFile,
     text_attribute: :humanize,
@@ -28,9 +27,9 @@ ActiveAdmin.register Audio::ChapterAudioFile do
   filter :active
 
   action_item :debug_segment, only: :show do
-    link_to 'View in segment tool',
+    link_to('View in segment tool',
             segment_builder_surah_audio_file_path(resource.chapter_id, recitation_id: resource.audio_recitation_id),
-            target: '_blank'
+            target: '_blank') if resource.chapter_id
   end
 
   action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do

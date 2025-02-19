@@ -39,7 +39,7 @@ module Exporter
         if id.present? && (foot_note = fetch_footnote(id)).present?
           # Some footnote also has html tags tags, strip those tags
           foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
-          stripped = foot_note_text.tr(" ", '').strip
+          stripped = foot_note_text.tr(" ", ' ')
 
           footnotes[foot_note_counter] = stripped
           footnotes_refs[id] = foot_note_counter
@@ -59,7 +59,7 @@ module Exporter
             }
           end
         else
-          translation_chunks << child.text if child.text.presence.present?
+          translation_chunks << child.text.gsub(" ", " ") if child.text.presence.present?
         end
       end
 

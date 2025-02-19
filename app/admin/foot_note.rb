@@ -6,6 +6,7 @@ ActiveAdmin.register FootNote do
   ActiveAdminViewHelpers.versionate(self)
 
   filter :translation_id
+  filter :text
   filter :language,
          as: :searchable_select,
          ajax: { resource: Language }

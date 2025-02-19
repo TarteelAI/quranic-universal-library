@@ -3,6 +3,7 @@
 # Table name: audio_files
 #
 #  id                 :integer          not null, primary key
+#  audio_url          :string
 #  duration           :integer
 #  format             :string
 #  hizb_number        :integer
@@ -47,6 +48,13 @@ class AudioFile < QuranApiRecord
 
   serialize :segments
 
+  def segments=(val)
+    if val.is_a?(String)
+      val = JSON.parse(val.strip)
+    end
+
+    super(val)
+  end
   def surah_number
     chapter_id
   end
@@ -60,6 +68,8 @@ class AudioFile < QuranApiRecord
   end
 
   def audio_url
+    return read_attribute(:audio_url) if read_attribute(:audio_url).present?
+
     if url.start_with?('http')
       url
     elsif url.include?('//')

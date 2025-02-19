@@ -68,6 +68,28 @@ ActiveAdmin.register Translation do
       row :updated_at
     end
 
+    panel 'Footnotes' do
+      table do
+        thead do
+          td :id
+          td :text
+          td :created_at
+          td :updated_at
+        end
+
+        tbody do
+          resource.foot_notes.each do |foot_note|
+            tr do
+              td link_to foot_note.id, admin_foot_note_path(foot_note)
+              td foot_note.text
+              td foot_note.created_at
+              td foot_note.updated_at
+            end
+          end
+        end
+      end
+    end
+
     ActiveAdminViewHelpers.diff_panel(self, resource) if params[:version]
     ActiveAdminViewHelpers.compare_panel(self, resource) if params[:compare]
 

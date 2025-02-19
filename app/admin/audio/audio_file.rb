@@ -3,6 +3,7 @@
 ActiveAdmin.register AudioFile do
   menu parent: 'Audio'
   actions :all, except: :destroy
+  includes :verse
 
   filter :recitation, as: :searchable_select,
                       ajax: { resource: Recitation }
@@ -39,6 +40,7 @@ ActiveAdmin.register AudioFile do
       row :verse
       row :chapter
       row :url
+      row :audio_url
       row :duration
       row :recitation
       row :segments do
@@ -53,21 +55,14 @@ ActiveAdmin.register AudioFile do
     end
   end
 
-  sidebar 'Audio URL', only: :show do
-    div(link_to 'View', resource.audio_url)
-  end
-
   permit_params do
     %i[
       verse_id
       url
+      audio_url
       duration
       segments
       recitation_id
     ]
-  end
-
-  def scoped_collection
-    super.includes :verse
   end
 end

@@ -12,7 +12,7 @@
 #  file_name           :string
 #  file_size           :float
 #  format              :string
-#  metadata            :jsonb
+#  meta_data           :jsonb
 #  mime_type           :string
 #  stream_count        :integer
 #  timing_percentiles  :string           is an Array
@@ -48,7 +48,7 @@ module Audio
     end
 
     def has_missing_segments?
-      chapter.verses_count != segments_count.to_i
+      chapter && chapter.verses_count != segments_count.to_i
     end
 
     def humanize

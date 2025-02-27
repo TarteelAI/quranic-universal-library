@@ -336,13 +336,13 @@ ActiveAdmin.register Verse do
             verse.audio_files.each do |file|
               tr do
                 td link_to(file.id, admin_audio_file_path(file))
-                td file.recitation.reciter_name
-                td file.recitation.style
+                td file.recitation&.reciter_name
+                td file.recitation&.style
                 td file.duration
                 td do
                   if file.url
                     (link_to('play', '#_', class: 'play') +
-                      audio_tag('', data: { url: "https://audio.qurancdn.com/#{file.url}" }, controls: true,
+                      audio_tag('', data: { url: file.audio_url }, controls: true,
                                 class: 'audio'))
                   end
                 end

@@ -2,8 +2,16 @@
   Upload segments for <%= resource.name %>
 </div>
 
+<%
+  url = if resource.one_ayah?
+          upload_segments_admin_recitation_path(resource)
+        else
+          upload_segments_admin_audio_recitation_path(resource)
+        end
+%>
+
 <div id="body">
-  <%= form_with url: upload_segments_admin_audio_recitation_path(resource), method: :put do |form| %>
+  <%= form_with url: url, method: :put do |form| %>
     <div class="modal-body">
       <% if resource.segment_locked? %>
         <div class="alert alert-info">

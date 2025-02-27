@@ -51,6 +51,8 @@ ActiveAdmin.register Chapter do
   filter :revelation_order
   filter :revelation_place
   filter :name_complex
+  filter :name_simple
+  filter :name_arabic
 
   show do
     attributes_table do

@@ -57,6 +57,42 @@ ActiveAdmin.register Recitation do
             }
   end
 
+  action_item :upload_segments, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Upload segments', '#_',
+            data: {
+              controller: 'ajax-modal',
+              url: upload_segments_admin_recitation_path(resource)
+            }
+  end
+
+  member_action :upload_segments, method: ['get', 'put'] do
+    authorize! :manage, resource
+
+    if request.put?
+      if resource.segment_locked?
+        return redirect_to [:admin, resource], alert: "Segments data is locked, please contact admins."
+      end
+
+      file = params[:file].path
+      ext = File.extname(file)
+      file_path = "#{Rails.root}/public/segments_data/#{resource.id}#{ext}"
+      remove_existing = params[:remove_existing] == '1'
+
+      FileUtils.mkdir_p("#{Rails.root}/public/segments_data")
+      FileUtils.mv(file, file_path)
+
+      AudioSegment::AyahByAyah.delay.import(
+        recitation_id: resource.id,
+        file_path: file_path,
+        remove_existing: remove_existing
+      )
+
+      redirect_to [:admin, resource], notice: 'Segment data will be imported shortly.'
+    else
+      render partial: 'admin/upload_segments'
+    end
+  end
+
   member_action :validate_segments, method: 'get' do
     authorize! :manage, resource
 

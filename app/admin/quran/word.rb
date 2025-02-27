@@ -35,6 +35,8 @@ ActiveAdmin.register Word do
   filter :text_imlaei_simple
   filter :text_qpc_nastaleeq_hafs
   filter :text_qpc_hafs
+  filter :text_digital_khatt_indopak
+
   filter :word_index
 
   filter :code_hex

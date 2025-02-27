@@ -1,6 +1,6 @@
 <%
   char = params[:char].strip
-  words = Word.order('id ASC').where("#{params[:script].strip} ilike ?", "%#{char}%")
+  words = Word.order('word_index ASC').where("#{params[:script].strip} ilike ?", "%#{char}%")
   pagination, words = pagy(words, items: 500)
 %>
 

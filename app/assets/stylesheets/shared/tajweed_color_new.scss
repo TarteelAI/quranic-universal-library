@@ -24,7 +24,7 @@
   }
 
   &.qalaqah{
-    background: #DD0008;
+    background: #009EE6;
   }
 
   &.iqlab {
@@ -48,10 +48,11 @@
   }
 
   &.tafkheem{
-    background: darkred;
+    background: #006994;
   }
+
   &.madda_obligatory_mottasel, &.madda_obligatory_monfasel {
-    background: #2144C1;
+    background: #F2007F;
   }
 
   &.madda_normal {
@@ -59,7 +60,7 @@
   }
 
   &.madda_permissible {
-    background: #4050FF;
+    background: #F38E02;
   }
 
   &.madda_necessary {
@@ -69,7 +70,7 @@
 
 .tajweed-new {
   .tafkheem{
-    color: #036B90;
+    color: #006994;
   }
 
   .izhar {
@@ -104,7 +105,7 @@
   }
 
   .madda_permissible {
-    color: #E9892F;
+    color: #F38E02;
   }
 
   .madda_necessary {
@@ -112,15 +113,15 @@
   }
 
   .madda_obligatory, .madda_obligatory_mottasel, .madda_obligatory_monfasel {
-    color: #2144C1;
+    color: #F2007F;
   }
 
   .qalaqah {
-    color: #DD0008;
+    color: #009EE6;
 
     &:hover {
-      background-color: #F3A6A9;
-      color: #DD0008;
+      background-color: #B3DEF4;
+      color: #009EE6;
     }
   }
 

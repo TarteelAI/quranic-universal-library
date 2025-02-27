@@ -1,5 +1,5 @@
 =begin
-i = Importer::EQuranLibrary.new
+i = Importer::EQuranLibrary.new('bayanulquran')
 keys = Importer::EQuranLibrary::TAFSIRS.keys
 keys.each do |key|
   i.download key.to_s
@@ -10,7 +10,6 @@ module Importer
     TAFSIRS = {
       ibnekaseer: {
         id: '',
-        skip: true,
         name: 'Tafseer Ibn-e-Kaseer',
         native: 'تفسیر ابنِ کثیر',
         author: 'مولانا محمد جوناگڑہی',
@@ -61,7 +60,7 @@ module Importer
         author: 'مولانا شبیر احمد عثمانی'
       },
       bayanulquran: {
-        id: '',
+        id: 159,
         name: 'Bayan-ul-Quran',
         native: 'تفسیر بیان القرآن',
         author: 'ڈاکٹر اسرار احمد'
@@ -293,8 +292,22 @@ module Importer
       }
     }
 
-    def download(key)
-      return if TAFSIRS[key.to_sym][:skip]
+    attr_reader :resource_content, :key
+
+    def initialize(key)
+      @key = key
+
+      if TAFSIRS[key.to_sym][:id]
+        @resource_content = ResourceContent.find(TAFSIRS[key.to_sym][:id])
+      else
+        raise "Resource ID is missing for #{key}"
+      end
+    end
+
+    def download
+      mapping = TAFSIRS[key.to_sym]
+      return if mapping.blank? || mapping[:id].blank?
+
       FileUtils.mkdir_p("data/equranlibrary/#{key}")
 
       1.upto(114).each do |c|
@@ -302,7 +315,73 @@ module Importer
       end
     end
 
+    def split_paragraphs(text)
+      return [] if text.blank?
+
+      text.to_str.split(/\r\n?+/).select do |para|
+        para.presence.present?
+      end
+    end
+
+    def simple_format(text)
+      paragraphs = split_paragraphs(text)
+      paragraphs.map! { |paragraph|
+        "<p>#{paragraph.strip.gsub(/\r\n?/, "<br />").gsub(/\n\n?+/, '')}</p>"
+      }.join('').html_safe
+    end
+
+    def import
+      Verse.unscoped.order('verse_index asc').each do |verse|
+        puts "Importing #{verse.verse_key}"
+
+        import_verse(verse)
+      end
+
+      resource_content.run_draft_import_hooks
+    end
+
     protected
+
+    def import_verse(verse)
+      html = File.read("data/equranlibrary/#{key}/#{verse.verse_key}.html")
+      docs = Nokogiri.parse(html)
+
+      translation_text = docs.search(".columns .translation")[1].text
+      tafsir_text = docs.search(".columns .translation")[2]&.text
+
+      if tafsir_text.present?
+        parse = QuranWaHaditParser.new(tafsir_text, /\n/,{
+          arabic: 'indopak'
+        })
+
+        text = parse.parse
+
+        draft_tafsir = Draft::Tafsir
+                         .where(
+                           resource_content_id: resource_content.id,
+                           verse_id: verse.id
+                         ).first_or_initialize
+
+        existing_tafsir = Tafsir.for_verse(verse, resource_content)
+        draft_tafsir.set_meta_value('source_data', { text: tafsir_text })
+
+        draft_tafsir.tafsir_id = existing_tafsir&.id
+        draft_tafsir.current_text = existing_tafsir&.text
+        draft_tafsir.draft_text = text
+        draft_tafsir.text_matched = existing_tafsir&.text == text
+
+        draft_tafsir.verse_key = verse.verse_key
+
+        draft_tafsir.group_verse_key_from = verse.verse_key
+        draft_tafsir.group_verse_key_to = verse.verse_key
+        draft_tafsir.group_verses_count = 1
+        draft_tafsir.start_verse_id = verse.id
+        draft_tafsir.end_verse_id = verse.id
+        draft_tafsir.group_tafsir_id = verse.id
+
+        draft_tafsir.save(validate: false)
+      end
+    end
 
     def download_chapter(chapter_id, key)
       Verse.where(chapter_id: chapter_id).order('verse_number asc').each do |v|

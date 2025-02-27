@@ -13,15 +13,16 @@ gem 'sqlite3', '~> 1.4'
 
 # Use the Puma app server [https://github.com/puma/puma]
 gem "puma", ">= 5.6.4"
+
 gem 'pandas', require: false
+gem 'ffi-hunspell', require: false
+gem 'engtagger', require: false
 
 # Use Uglifier as compressor for JavaScript assets
-gem 'engtagger'
 gem 'uglifier', '>= 1.3.0'
 
 # Markdown parser
 gem 'redcarpet', require: false
-
 gem 'activerecord-import', require: false
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]

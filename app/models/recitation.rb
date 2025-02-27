@@ -3,8 +3,10 @@
 # Table name: recitations
 #
 #  id                  :integer          not null, primary key
+#  files_count         :integer
 #  reciter_name        :string
 #  segment_locked      :boolean          default(TRUE)
+#  segments_count      :integer
 #  style               :string
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -36,8 +38,8 @@ class Recitation < QuranApiRecord
     true
   end
 
-  def export_segments(format, chapter_id=nil)
-    service = GappedAudioSegment.new(self)
+  def export_segments(format, chapter_id = nil)
+    service = AudioSegment::AyahByAyah.new(self)
 
     service.export(format, chapter_id)
   end
@@ -138,5 +140,24 @@ class Recitation < QuranApiRecord
 
   def self.ransackable_associations(auth_object = nil)
     ["audio_files", "qirat_type", "recitation_style", "reciter", "resource_content"]
+  end
+
+  def update_audio_stats
+    files = AudioFile.includes(:verse).where(recitation: self)
+
+    files.each do |file|
+      words = file.verse.words_count
+      segments = (file.segments || []).count
+
+      file.update_columns(
+        words_count: words,
+        segments_count: segments
+      )
+    end
+
+    update(
+      files_count: files.count,
+      segments_count: files.sum(:segments_count)
+    )
   end
 end

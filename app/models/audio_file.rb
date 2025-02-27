@@ -3,7 +3,6 @@
 # Table name: audio_files
 #
 #  id                 :integer          not null, primary key
-#  audio_url          :string
 #  duration           :integer
 #  format             :string
 #  hizb_number        :integer
@@ -15,10 +14,12 @@
 #  rub_el_hizb_number :integer
 #  ruku_number        :integer
 #  segments           :text
+#  segments_count     :integer
 #  surah_ruku_number  :integer
 #  url                :text
 #  verse_key          :string
 #  verse_number       :integer
+#  words_count        :integer
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  chapter_id         :integer
@@ -47,6 +48,8 @@ class AudioFile < QuranApiRecord
   belongs_to :recitation
 
   serialize :segments
+
+  scope :missing_segments, -> { where "segments_count < words_count" }
 
   def segments=(val)
     if val.is_a?(String)
@@ -84,15 +87,11 @@ class AudioFile < QuranApiRecord
   end
 
   def segment_progress
-    if total_segments.zero?
+    if segments_count.zero?
       0
     else
-      (verse.words_count / total_segments.to_f) * 100
+      (verse.words_count / segments_count.to_f) * 100
     end
-  end
-
-  def total_segments
-    segments.count
   end
 
   def print_segments
@@ -102,14 +101,16 @@ class AudioFile < QuranApiRecord
   end
 
   def segment_data
-    segments.map do |s|
-      s.drop(1)
-    end.to_s.gsub(/\s+/, '')
+    get_segments.to_s.gsub(/\s+/, '')
   end
 
   def get_segments
     segments.map do |s|
-      s.drop(1)
+      if s.size == 4
+        s.drop(1)
+      else
+        s
+      end
     end
   end
 

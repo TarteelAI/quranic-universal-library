@@ -191,6 +191,8 @@ GEM
     faraday_middleware (1.2.0)
       faraday (~> 1.0)
     ffi (1.16.3)
+    ffi-hunspell (0.6.1)
+      ffi (~> 1.0)
     fog-aws (3.14.0)
       fog-core (~> 2.1)
       fog-json (~> 1.1)
@@ -601,6 +603,7 @@ DEPENDENCIES
   dotenv
   engtagger
   escompress (~> 1.0)
+  ffi-hunspell
   fog-aws
   image_processing
   inline_svg (~> 1.10)

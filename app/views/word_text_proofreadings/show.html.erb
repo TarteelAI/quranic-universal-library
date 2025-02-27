@@ -156,100 +156,107 @@
     </div>
   </div>
 
-  <div data-controller="mushaf-page" class="mushaf-wrapper page-section mb-3 mt-4 tw-w-full tw-overflow-auto">
+  <div data-controller="mushaf-page" class="mushaf-wrapper page-section mb-3 mt-4">
     <h2>Words</h2>
     <div style="width: 100%;margin: 0 5px;text-align: center;direction: ltr;font-size: 20px">
       Font size:
       <input type="range" min="15" max="100" value="30" class="font-size-slider">
     </div>
 
-    <table class="table table-hover mt-4 table-bordered">
-      <thead class="position-sticky bg-white border-bottom top-0">
-      <tr class="position-sticky bg-white border-bottom top-0">
-        <td>ID</td>
-        <td style="direction: rtl">IndoPak</td>
-        <td style="direction: rtl">Indopak Nastaleeq</td>
-        <td style="direction: rtl">Madinah Nastaleeq</td>
-        <td style="direction: rtl">QPC Nastaleeq</td>
-        <td style="direction: rtl">Uthmani</td>
-        <td style="direction: rtl">Digital Khatt</td>
-        <td style="direction: rtl">Digital Khatt v1</td>
-        <td>Digitak Khatt indopak</td>
-        <td style="direction: rtl">Imlaei</td>
-        <td style="direction: rtl">KFQC Hafs</td>
-        <td style="direction: rtl;">QC Hafs tajweed</td>
-        <td style="direction: rtl">V4 Tajweed</td>
+    <div style="max-height: 500px;overflow-y: auto;">
+      <table class="table table-hover mt-4 table-bordered position-relative">
+        <thead class="position-sticky bg-white border-bottom top-0">
+        <tr class="bg-white border-bottom">
+          <td>ID</td>
+          <td style="direction: rtl">IndoPak</td>
+          <td style="direction: rtl">Indopak Nastaleeq</td>
+          <td style="direction: rtl">Madinah Nastaleeq</td>
+          <td style="direction: rtl">QPC Nastaleeq</td>
+          <td>Digitak Khatt indopak</td>
 
-        <td style="direction: rtl">V1</td>
-        <td style="direction: rtl">V2</td>
-      </tr>
-      </thead>
-      <tbody>
-      <% @verse.words.order('position asc').each do |word| %>
-        <tr class="quran-text">
-          <td>
-            <%= link_to( word.id, [:admin, word], target: '_blank') %>
-          </td>
+          <td style="direction: rtl">Uthmani</td>
+          <td style="direction: rtl">Digital Khatt v1</td>
+          <td style="direction: rtl">V1</td>
 
-          <td class="indopak char">
-            <%= word.text_indopak %>
-          </td>
+          <td style="direction: rtl">Digital Khatt v2</td>
+          <td style="direction: rtl">Imlaei</td>
+          <td style="direction: rtl">KFQC Hafs</td>
+          <td style="direction: rtl;">QC Hafs tajweed</td>
+          <td style="direction: rtl">V4 Tajweed</td>
 
-          <td class="indopak-nastaleeq char">
-            <%= word.text_indopak_nastaleeq %>
-          </td>
-
-          <td class="indopak-nastaleeq char">
-            <%= word.text_qpc_nastaleeq %>
-          </td>
-
-          <td class="qpc-nastaleeq char">
-            <%= word.text_qpc_nastaleeq_hafs %>
-          </td>
-
-          <td class="me_quran char">
-            <%= word.text_uthmani %>
-          </td>
-
-          <td class="digitalkhatt char">
-            <%= word.text_digital_khatt %>
-          </td>
-
-          <td class="digitalkhatt char">
-            <%= word.text_digital_khatt_v1 %>
-          </td>
-
-          <td class="digitalkhatt-indopak char">
-            <%= word.text_digital_khatt_indopak %>
-          </td>
-
-          <td class="me_quran char">
-            <%= word.text_imlaei %>
-          </td>
-
-          <td class="qpc-hafs char">
-            <%= word.text_qpc_hafs %>
-          </td>
-
-          <td class="qpc-hafs char">
-            <%= word.text_uthmani_tajweed.to_s.html_safe %>
-          </td>
-
-          <td class="p<%= @verse.v2_page %>-v4-tajweed char">
-            <%= word.code_v2 %>
-          </td>
-
-          <td class="p<%= word.page_number %>-v1 char">
-            <%= word.code_v1 %>
-          </td>
-
-          <td class="p<%= word.v2_page %>-v2 char">
-            <%= word.code_v2 %>
-          </td>
+          <td style="direction: rtl">V2</td>
         </tr>
-      <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+        <% @verse.words.order('position asc').each do |word| %>
+          <tr class="quran-text">
+            <td>
+              <%= link_to( word.location, [:admin, word], target: '_blank') %>
+            </td>
+
+            <td class="indopak char">
+              <%= word.text_indopak %>
+            </td>
+
+            <td class="indopak-nastaleeq char">
+              <%= word.text_indopak_nastaleeq %>
+            </td>
+
+            <td class="indopak-nastaleeq char">
+              <%= word.text_qpc_nastaleeq %>
+            </td>
+
+            <td class="qpc-nastaleeq char">
+              <%= word.text_qpc_nastaleeq_hafs %>
+            </td>
+
+            <td class="digitalkhatt-indopak char">
+              <%= word.text_digital_khatt_indopak %>
+            </td>
+            <td class="me_quran char">
+              <%= word.text_uthmani %>
+            </td>
+            <td class="digitalkhatt char">
+              <%= word.text_digital_khatt_v1 %>
+            </td>
+
+            <td class="p<%= word.page_number %>-v1 char">
+              <%= word.code_v1 %>
+            </td>
+
+            <td class="digitalkhatt char">
+              <%= word.text_digital_khatt %>
+            </td>
+
+
+
+
+            <td class="me_quran char">
+              <%= word.text_imlaei %>
+            </td>
+
+            <td class="qpc-hafs char">
+              <%= word.text_qpc_hafs %>
+            </td>
+
+            <td class="qpc-hafs char">
+              <%= word.text_uthmani_tajweed.to_s.html_safe %>
+            </td>
+
+            <td class="p<%= @verse.v2_page %>-v4-tajweed char">
+              <%= word.code_v2 %>
+            </td>
+
+
+            <td class="p<%= word.v2_page %>-v2 char">
+              <%= word.code_v2 %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 
   <div class="d-flex justify-content-end gap-2">

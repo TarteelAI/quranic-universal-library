@@ -3,9 +3,15 @@ require 'nokogiri'
 class QuranWaHaditParser
   # Regular expression to match Arabic diacritics
   ARABIC_DIACRITICS_REGEX = /[\u064B-\u0652\u0670]/.freeze
+  attr_reader :language_classes, :para_delimiter
+  DEFAULT_LANGUAGE_CLASSES = {
+    arabic: 'indokpak arabic',
+  }
 
-  def initialize(raw_text)
+  def initialize(raw_text, para_delimiter, language_classes = DEFAULT_LANGUAGE_CLASSES)
     @raw_text = raw_text.to_s.strip
+    @language_classes = language_classes
+    @para_delimiter = para_delimiter || /\r\n+/
   end
 
   def clean_html(input_html)
@@ -91,8 +97,7 @@ class QuranWaHaditParser
     doc = Nokogiri::HTML::DocumentFragment.parse("")
 
     # Split the text into paragraphs using one or more "\r\n" as the delimiter
-    paragraphs = @raw_text.split(/\r\n+/)
-
+    paragraphs = @raw_text.split(para_delimiter)
 
     paragraphs.each do |para_text|
       para_text.strip!
@@ -108,13 +113,13 @@ class QuranWaHaditParser
         # For a single-language paragraph, set the content and language class on the <p> tag.
         segment_text, lang = segments.first
         p_node.content = segment_text
-        p_node["class"] = lang
+        p_node["class"] = get_language_class(lang)
       else
         # For mixed-language paragraphs, wrap each segment in a <span> with its language class.
         segments.each do |segment_text, lang|
           span_node = Nokogiri::XML::Node.new("span", doc)
           span_node.content = segment_text
-          span_node["class"] = lang
+          span_node["class"] = get_language_class(lang)
           p_node.add_child(span_node)
           # Optionally, add a space between segments
           p_node.add_child(Nokogiri::XML::Text.new(" ", doc))
@@ -126,6 +131,11 @@ class QuranWaHaditParser
 
     # Return the generated HTML as a string.
     doc.to_html
+  end
+
+
+  def get_language_class(lang)
+    language_classes[lang.to_sym] || lang
   end
 end
 

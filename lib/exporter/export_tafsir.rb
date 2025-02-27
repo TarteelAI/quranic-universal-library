@@ -46,34 +46,35 @@ module Exporter
     def export_data
       return @json_data if @json_data.present?
 
-      @json_data = {}
-      Verse.find_each do |verse|
-        if @json_data[verse.verse_key]
+      Verse.order('verse_index ASC').find_each do |verse|
+        if @json_data[verse.verse_key].present?
           next
         end
 
         @json_data[verse.verse_key] = {}
-
         tafsir = Tafsir.where(archived: false).for_verse(verse, resource_content)
 
         if (tafsir)
           group = tafsir.ayah_group_list
+          first_ayah = group.first
 
-          @json_data[tafsir.verse_key] = {
-            text: format_text(tafsir.text)
+          @json_data[first_ayah] = {
+            text: tafsir.text.to_s.strip
           }
 
           if group.length > 1
-            @json_data[verse.verse_key][:ayah_keys] = group
+            @json_data[first_ayah][:ayah_keys] = group
 
             group.each do |key|
-              @json_data[key] = tafsir.verse_key if @json_data[key].blank?
+              @json_data[key] = first_ayah if @json_data[key].blank?
             end
           end
         end
       end
+
       @json_data
     end
+
 
     def format_text(text)
       # NOTE: we need to fix the source data to have proper html tags

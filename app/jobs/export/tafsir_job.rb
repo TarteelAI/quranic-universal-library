@@ -10,11 +10,15 @@ module Export
     def perform(resource_id, original_file_name, user_id)
       user = User.find(user_id)
       @resource_content = ResourceContent.find(resource_id)
+      @issues = []
 
       setup(original_file_name)
       export_data
-      compress
-      send_email("#{file_name}.bz2", user) if user.present?
+
+      if Rails.env.production?
+        compress
+        send_email("#{file_name}.bz2", user) if user.present?
+      end
 
       # return the db file path
       "#{file_name}.bz2"
@@ -30,12 +34,13 @@ module Export
       file_path = "#{STORAGE_PATH}/#{timestamp.to_i}"
       file_path = STORAGE_PATH if Rails.env.development?
       FileUtils::mkdir_p file_path
+      FileUtils::mkdir_p "#{STORAGE_PATH}/issues"
 
       @file_name = "#{file_path}/#{name}-#{resource_content.updated_at.to_i}.json"
     end
 
     def get_file_name(original_file_name)
-      skip = [91, 908, 816] #saadi old, sirraj, id jalalin empty
+      skip = [91, 908, 816] # saadi old, sirraj, id jalalin empty
 
       mapping = {
         '14': 'ar-tafsir-ibn-kathir',
@@ -57,7 +62,7 @@ module Export
         '165': 'bn-tafsir-ahsanul-bayaan',
         '166': 'bn-tafsir-zakaria',
         '180': 'bn-tafsir-mukhtasar',
-        '381': 'bn-tafsir-fathul-majid', #need review
+        '381': 'bn-tafsir-fathul-majid', # need review
 
         '160': 'ur-tafsir-ibn-kathir',
         '906': 'ur-tafsir-saadi',
@@ -110,36 +115,66 @@ module Export
     end
 
     def export_data
-      json = {}
+      json = HashWithIndifferentAccess.new
 
-      Verse.find_each do |verse|
-        if json[verse.verse_key]
+      Verse.order('verse_index ASC').find_each do |verse|
+        if json[verse.verse_key].present?
           next
         end
 
         json[verse.verse_key] = {}
-
         tafsir = Tafsir.where(archived: false).for_verse(verse, resource_content)
 
         if (tafsir)
           group = tafsir.ayah_group_list
+          first_ayah = group.first
 
-          json[tafsir.verse_key] = {
-            text: format_text(tafsir.text)
+          json[first_ayah] = {
+            text: tafsir.text.to_s.strip
           }
 
           if group.length > 1
-            json[verse.verse_key][:ayah_keys] = group
+            json[first_ayah][:ayah_keys] = group
 
             group.each do |key|
-              json[key] = tafsir.verse_key if json[key].blank?
+              json[key] = first_ayah if json[key].blank?
             end
           end
         end
       end
 
+      validate_data(json)
       File.open(file_name, 'wb') do |file|
         file << JSON.generate(json, { state: JsonNoEscapeHtmlState.new })
+      end
+
+      if @issues.size > 0
+        File.open("#{STORAGE_PATH}/issues/#{File.basename(file_name)}.json", 'wb') do |file|
+          file << JSON.generate(@issues)
+        end
+      end
+    end
+
+    def validate_data(data)
+      Verse.order('verse_index ASC').find_each do |verse|
+        ayah_text = data[verse.verse_key]
+
+        if ayah_text.blank?
+          @issues << "Missing text for #{verse.verse_key}"
+        else
+          if ayah_text.is_a?(String)
+            # Should be part of group and group ayah should have text
+            group = data[ayah_text]['ayah_keys'] || []
+
+            if !group.include?(verse.verse_key)
+              @issues << "Group #{ayah_text} is missing ayah #{verse.verse_key}"
+            end
+          else
+            if ayah_text['text'].blank?
+              @issues << "Text is missing for #{verse.verse_key}"
+            end
+          end
+        end
       end
     end
 

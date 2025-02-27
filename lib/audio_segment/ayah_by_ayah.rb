@@ -1,9 +1,53 @@
 module AudioSegment
+  class TimingTable < ActiveRecord::Base
+    self.table_name = 'timings'
+  end
+
   class AyahByAyah
     attr_reader :recitation
 
     def initialize(recitation)
       @recitation = recitation
+    end
+
+    def self.import(args)
+      recitation_id = args[:recitation_id]
+      file_path = args[:file_path]
+      remove_existing = args[:remove_existing]
+
+      segment = AudioSegment::AyahByAyah.new(Recitation.find(recitation_id))
+
+      segment.import(
+        file_path: file_path,
+        remove_existing: remove_existing
+      )
+    end
+
+    def import(file_path:, remove_existing: false)
+      db_file = file_path
+      AudioFile.where(recitation_id: recitation.id).delete_all if remove_existing
+
+      if File.extname(file_path) == '.csv'
+        csv_to_db = Utils::CsvToSqlite3.new(file_path)
+        db_file = csv_to_db.convert(db_file)
+      end
+
+      TimingTable.establish_connection({
+                                         adapter: 'sqlite3',
+                                         database: db_file
+                                       })
+
+      Verse.unscoped.order('verse_index ASC').find_each do |verse|
+        verse_segment = TimingTable.where(
+          sura: verse.chapter_id,
+          ayah: verse.verse_number
+        ).first
+        next if verse_segment.blank?
+
+        import_verse_segments(verse, verse_segment)
+      end
+
+      update_audio_stats
     end
 
     def export(format, chapter_id = nil)
@@ -25,11 +69,33 @@ module AudioSegment
       file_path
     end
 
-    def import(remove_existing: false)
-      # TODO: implement this
+    protected
+    def update_audio_stats
+      recitation.update_audio_stats
     end
 
-    protected
+    def import_verse_segments(verse, verse_segment)
+      audio_file = AudioFile.where(
+        recitation_id: recitation.id,
+        verse_id: verse.id
+      ).first_or_initialize
+
+      audio_file.chapter_id = verse.chapter_id
+      audio_file.hizb_number = verse.hizb_number
+      audio_file.juz_number = verse.juz_number
+      audio_file.manzil_number = verse.manzil_number
+      audio_file.verse_number = verse.verse_number
+      audio_file.page_number  = verse.page_number
+      audio_file.rub_el_hizb_number = verse.rub_el_hizb_number
+      audio_file.ruku_number = verse.ruku_number
+      audio_file.verse_key = verse.verse_key
+
+      audio_file.url = verse_segment.audio_url
+      audio_file.format = audio_file.format || 'mp3'
+      audio_file.is_enabled = true
+      audio_file.segments = JSON.parse(verse_segment.words)
+      audio_file.save(validate: false)
+    end
 
     def export_sqlite_db(audio_files, file_path)
       db = SQLite3::Database.new(file_path)

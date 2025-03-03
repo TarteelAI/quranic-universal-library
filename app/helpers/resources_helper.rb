@@ -1,36 +1,4 @@
 module ResourcesHelper
-  def featured_downloadable_resource_cards
-    return @featured_downloadable_resource_cards if @featured_downloadable_resource_cards
-
-    recitations = ResourceContent.approved.recitations
-    with_segments = recitations.with_segments.count
-    total_recitations = recitations.count
-
-    total_layout = Mushaf.count
-    approved_layout = Mushaf.approved.count
-
-    @featured_downloadable_resource_cards = {
-      recitation: ToolCard.new(
-        title: 'Recitations and segments data',
-        description: "Download high-quality audio files of Quranic recitations along with detailed timestamp data for ayah-by-ayah and surah-by-surah. Use the timestamp data to highlight words as the recitation plays.",
-        icon: 'timestamp.svg',
-        url: '/resources/recitation',
-        count: total_recitations,
-        type: 'card-recitations',
-        stats: "<div><div>#{total_recitations - with_segments} Unsegmented Audio</div><div>#{with_segments} Segmented Audio</div></div>"
-      ),
-      mushaf_layout: ToolCard.new(
-        title: "Mushaf layouts",
-        description: "Download Mushaf layout data to render Quran pages exactly like the printed Mushaf. The exact layout aids in memorizing the Quran, offering users a familiar experience similar to their favorite printed Mushaf.",
-        icon: 'layout.svg',
-        url: '/resources/mushaf-layout',
-        count: total_layout,
-        type: 'card-mushaf-layouts',
-        stats: "<div><div>#{approved_layout} Layouts —  Approved</div><div>#{total_layout - approved_layout} Layouts —  WIP</div></div>"
-      )
-    }
-  end
-
   def downloadable_resource_cards
     return @downloadable_resource_cards if @downloadable_resource_cards
 
@@ -203,6 +171,6 @@ module ResourcesHelper
   end
 
   def featured_developer_resources
-    featured_downloadable_resource_cards.values + downloadable_resource_cards.values.first(5)
+    downloadable_resource_cards.values
   end
 end

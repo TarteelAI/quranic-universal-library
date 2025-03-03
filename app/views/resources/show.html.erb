@@ -1,13 +1,12 @@
 <%
   resources = downloadable_resource_cards
-  featured_resources = featured_downloadable_resource_cards
   group = @resources.first
   group_key = params[:id].tr('-', '_').to_sym
 
   is_quran_script = group.resource_content&.quran_script? || group.resource_content&.font?
   @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
 
-  group_card = resources[group_key] || featured_resources[group_key]
+  group_card = resources[group_key]
 
   view_type = params[:view] == 'grid' ? 'grid' : 'list'
 

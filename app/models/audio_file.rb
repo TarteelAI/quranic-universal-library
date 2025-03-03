@@ -49,7 +49,7 @@ class AudioFile < QuranApiRecord
 
   serialize :segments
 
-  scope :missing_segments, -> { where "segments_count < words_count" }
+  scope :missing_segments, -> { where(segments_count: 0) }
 
   def segments=(val)
     if val.is_a?(String)
@@ -58,6 +58,7 @@ class AudioFile < QuranApiRecord
 
     super(val)
   end
+
   def surah_number
     chapter_id
   end

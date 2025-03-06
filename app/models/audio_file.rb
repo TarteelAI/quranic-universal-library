@@ -3,12 +3,15 @@
 # Table name: audio_files
 #
 #  id                 :integer          not null, primary key
+#  bit_rate           :integer
 #  duration           :integer
+#  duration_ms        :integer
 #  format             :string
 #  hizb_number        :integer
 #  is_enabled         :boolean
 #  juz_number         :integer
 #  manzil_number      :integer
+#  meta_data          :jsonb
 #  mime_type          :string
 #  page_number        :integer
 #  rub_el_hizb_number :integer
@@ -88,7 +91,7 @@ class AudioFile < QuranApiRecord
   end
 
   def segment_progress
-    if segments_count.zero?
+    if segments_count.to_i.zero?
       0
     else
       (verse.words_count / segments_count.to_f) * 100
@@ -106,13 +109,17 @@ class AudioFile < QuranApiRecord
   end
 
   def get_segments
+    return [] if segments.blank?
+
     segments.map do |s|
+      next if s.size < 2
+
       if s.size == 4
         s.drop(1)
       else
         s
       end
-    end
+    end.compact_blank
   end
 
   def set_segments(segments_list, user=nil)
@@ -125,5 +132,27 @@ class AudioFile < QuranApiRecord
     end
 
     update segments: padded.compact_blank
+  end
+
+  def find_repeated_segments
+    segment_list = get_segments.map do |s| s[0] end
+
+    ranges = []
+    seen = {}
+
+    segment_list.each_with_index do |num, i|
+      prev_index = seen[num]
+
+      if prev_index
+        length = i - prev_index
+        if segment_list[prev_index, length] == segment_list[i, length]
+          ranges << [segment_list[i], segment_list[i + length - 1]]
+        end
+      end
+
+      seen[num] = i
+    end
+
+    ranges.uniq
   end
 end

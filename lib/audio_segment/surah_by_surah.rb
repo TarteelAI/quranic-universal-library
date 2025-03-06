@@ -1,6 +1,6 @@
 module AudioSegment
   class TimingTable < ActiveRecord::Base
-    self.table_name = 'timing'
+    self.table_name = 'timings'
   end
 
   class SurahBySurah
@@ -36,11 +36,15 @@ module AudioSegment
       file_path
     end
 
-    def self.import(recitation_id:, file_path:, remove_existing: false)
+    def self.import(args)
+      recitation_id = args[:recitation_id]
+      file_path = args[:file_path]
+      remove_existing = args[:remove_existing]
       segment = AudioSegment::SurahBySurah.new(Audio::Recitation.find(recitation_id))
 
       segment.import(
-        file_path: file_path, remove_existing: remove_existing
+        file_path: file_path,
+        remove_existing: remove_existing
       )
     end
 
@@ -50,7 +54,7 @@ module AudioSegment
 
       if File.extname(file_path) == '.csv'
         csv_to_db = Utils::CsvToSqlite3.new(file_path)
-        db_file = csv_to_db.convert(db_file)
+        db_file = csv_to_db.convert("timings")
       end
 
       TimingTable.establish_connection({
@@ -61,11 +65,11 @@ module AudioSegment
       fix_timing_table_columns(TimingTable)
 
       Verse.unscoped.order('verse_index ASC').find_each do |verse|
-        verse_segment = db.where(
+        verse_segment = TimingTable.where(
           sura: verse.chapter_id,
           ayah: verse.verse_number
         ).first
-        next if verse_data.blank?
+        next if verse_segment.blank? || verse_segment.words.blank?
 
         next_verse_segment = TimingTable.where(
           sura: verse.chapter_id,
@@ -137,6 +141,19 @@ module AudioSegment
       closest_segment
     end
 
+    def track_repetition
+      segments = Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id asc')
+
+      segments.each do |segment|
+        repetition = segment.find_repeated_segments
+
+        segment.update(
+          has_repetition: repetition.present?,
+          repeated_segments: repetition.to_s
+        )
+      end
+    end
+
     protected
 
     def import_verse_segments(verse, verse_segment, next_verse_segment)
@@ -175,15 +192,15 @@ module AudioSegment
       end
 
       if columns.include? 'time'
-        db.execute("ALTER TABLE #{table_name} RENAME COLUMN time TO start_time")
+        connection.execute("ALTER TABLE #{table_name} RENAME COLUMN time TO start_time")
       end
 
       if columns.include? 'timeend'
-        db.execute("ALTER TABLE #{table_name} RENAME COLUMN timeend TO end_time")
+        connection.execute("ALTER TABLE #{table_name} RENAME COLUMN timeend TO end_time")
       end
 
       if columns.include? 'wordtiming'
-        db.execute("ALTER TABLE #{table_name} RENAME COLUMN wordtiming TO words")
+        connection.execute("ALTER TABLE #{table_name} RENAME COLUMN wordtiming TO words")
       end
     end
 

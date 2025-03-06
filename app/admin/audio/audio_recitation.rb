@@ -114,6 +114,7 @@ ActiveAdmin.register Audio::Recitation do
       surah = params[:surah]
       ayah_from = params[:ayah_from]
       ayah_to = params[:ayah_to]
+      ayah_recitation_id = params[:ayah_recitation_id]
 
       Export::SplitGapelessRecitationJob.perform_later(
         recitation_id: resource.id,
@@ -122,7 +123,8 @@ ActiveAdmin.register Audio::Recitation do
         ayah_to: ayah_to,
         user_id: current_user.id,
         host: params[:host],
-        create_ayah_recitation: params[:create_ayah_recitation] == '1'
+        ayah_recitation_id: ayah_recitation_id,
+        create_ayah_recitation: ayah_recitation_id.blank? && params[:create_ayah_recitation] == '1'
       )
 
       # Restart sidekiq if it's not running

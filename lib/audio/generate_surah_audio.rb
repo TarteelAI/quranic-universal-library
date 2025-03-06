@@ -1,7 +1,5 @@
-require 'wahwah'
-
 module Audio
-  class GenerateGapelessAudio
+  class GenerateSurahAudio
     attr_reader :recitation,
                 :resource_content,
                 :base_url,

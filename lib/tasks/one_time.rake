@@ -1,4 +1,83 @@
 namespace :one_time do
+  task import_segments: :environment do
+    recitation = Recitation.where(id: 42).first_or_create(reciter_name: 'Test')
+
+    def load_segments(verse)
+      file = "/Volumes/Development/tarteel/quran-segment-align/timestamps/alnafes/#{verse.chapter_id.to_s.rjust(3, '0')}#{verse.verse_number.to_s.rjust(3, '0')}.json"
+      if File.exist?(file)
+        data = Oj.load File.read(file)
+
+        i =  0
+        data.map do |a|
+          i += 1
+          start = if i == 1
+                    0
+                  else
+                    a['start'].to_f * 1000.0
+                  end
+
+          [i, start, a['end'].to_f * 1000.0]
+        end
+      else
+        []
+      end
+    end
+
+    Verse.order('verse_index asc').find_each do |v|
+      audio_file = AudioFile.where(
+        recitation_id: recitation.id,
+        verse_id: v.id
+      ).first_or_initialize
+      audio_file.chapter_id = v.chapter_id
+      audio_file.hizb_number = v.hizb_number
+      audio_file.juz_number = v.juz_number
+      audio_file.manzil_number = v.manzil_number
+      audio_file.verse_number = v.verse_number
+      audio_file.page_number  = v.page_number
+      audio_file.rub_el_hizb_number = v.rub_el_hizb_number
+      audio_file.ruku_number = v.ruku_number
+      audio_file.verse_key = v.verse_key
+
+      audio_file.format = 'mp3'
+      audio_file.is_enabled = true
+      url = "http://audio-cdn.tarteel.ai/quran/alnafes/#{v.chapter_id.to_s.rjust(3, '0')}#{v.verse_number.to_s.rjust(3, '0')}.mp3"
+      audio_file.url = url
+      audio_file.segments = load_segments(v)
+      audio_file.save(validate: false)
+    end
+
+    Recitation.find_each do |r|
+      r.update_audio_stats
+    end
+
+  end
+
+  task generate_align_text: :environment do
+    FileUtils.mkdir_p "dataset/text"
+
+    Dir["/Volumes/Development/tarteel/quran-segment-align/dataset/audio/Alnafes_wav/*.wav"].each do |file|
+      name = File.basename(file, ".wav")
+      FileUtils.rm(file) if name[3..5] == '000'
+    end
+
+    missing = []
+    exist = []
+    Verse.find_each do |v|
+      if File.exist?("/Volumes/Development/tarteel/quran-segment-align/dataset/audio/Alnafes_wav/#{v.chapter_id.to_s.rjust(3, '0')}#{v.verse_number.to_s.rjust(3, '0')}.wav")
+        exist << v.verse_key
+      else
+        missing << v.verse_key
+      end
+    end
+
+    Verse.find_each do |v|
+      name = "#{v.chapter_id.to_s.rjust(3, '0')}#{v.verse_number.to_s.rjust(3, '0')}"
+      File.open("dataset/text/#{name}.txt", "wb") do |f|
+        f.puts v.text_uthmani
+      end
+    end
+  end
+
   task update_lines_count: :environment do
     MushafPage.find_each do |page|
       page.update_lines_count

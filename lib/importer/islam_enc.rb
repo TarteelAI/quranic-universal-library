@@ -431,7 +431,6 @@ module Importer
           # make it part of the text
           tafsir_groups[ayah_group][:texts].push parsed_text
         else
-          binding.pry if tafsir_groups[ayah_group].blank?
           tafsir_groups[ayah_group][:texts].push parsed_text
         end
 
@@ -444,7 +443,6 @@ module Importer
 
       tafsir_groups
     rescue Exception => e
-      binding.pry
       Sentry.capture_exception(e)
     end
 
@@ -500,7 +498,6 @@ module Importer
           # make it part of the text
           tafsir_groups[ayah_group][:texts].push parsed_text
         else
-          binding.pry if tafsir_groups[ayah_group].blank?
           tafsir_groups[ayah_group][:texts].push parsed_text
         end
 
@@ -514,7 +511,6 @@ module Importer
       tafsir_groups
     rescue Exception => e
       puts e.message
-      binding.pry
     end
 
     def process_fa_tafsir(file)

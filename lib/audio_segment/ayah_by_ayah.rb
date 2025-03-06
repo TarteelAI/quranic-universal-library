@@ -69,6 +69,21 @@ module AudioSegment
       file_path
     end
 
+    def track_repetition
+      audio_files = AudioFile.where(recitation_id: recitation.id).order('verse_id asc')
+
+      audio_files.each do |audio_file|
+        next if audio_file.segments.blank?
+
+        repetition = audio_file.find_repeated_segments
+
+        audio_file.update_columns(
+          has_repetition: repetition.present?,
+          repeated_segments: repetition.to_s
+        )
+      end
+    end
+
     protected
     def update_audio_stats
       recitation.update_audio_stats

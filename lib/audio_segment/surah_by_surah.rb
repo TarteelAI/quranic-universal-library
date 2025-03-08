@@ -141,8 +141,12 @@ module AudioSegment
       closest_segment
     end
 
-    def track_repetition
+
+    def track_repetition(chapter_id: nil)
       segments = Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id asc')
+      if chapter_id
+        segments = segments.where(chapter_id: chapter_id)
+      end
 
       segments.each do |segment|
         repetition = segment.find_repeated_segments

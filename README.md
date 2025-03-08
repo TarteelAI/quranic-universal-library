@@ -27,7 +27,7 @@ QUL is implemented using Ruby on Rails, and Active Admin for implementing the ad
 
 ## Features
 - Translations and Tafsirs Management: Easily add, proofread, fix issues, and export different formats.
-- Audio Management: Easily add both ayah by ayah and gapless aduio, manage audio segments, and export segments data.
+- Audio Management: Easily add both ayah by ayah and gapless audio, manage audio segments, and export segments data.
 - Arabic Scripts: Preview different Arabic scripts, both ayah by ayah and word by word.
 - Mushaf Layouts: Manage different Mushaf layouts, preview them, and export them.
 - User Management: Manage users, their roles, and permissions.

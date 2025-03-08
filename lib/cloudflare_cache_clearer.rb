@@ -6,12 +6,14 @@ require 'json'
 # Usage
 
 client = CloudflareCacheClearer.new(
-  api_token: "api token",
-  zone_id: "zone_id"
-)
-client.clear_cache(urls: ["list", "of", "urls"])
-=end
 
+)
+Verse.order('verse_index asc').each do |v|
+url ="https://audio-cdn.tarteel.ai/quran/alnufais/#{v.chapter_id.to_s.rjust(3,'0')}#{v.verse_number.to_s.rjust(3,'0')}.mp3"
+puts url
+client.clear_cache(urls: ["https://audio-cdn.tarteel.ai/quran/alnufais/026139.mp3"])
+end
+=end
 
 class CloudflareCacheClearer
   BASE_URL = "https://api.cloudflare.com/client/v4"

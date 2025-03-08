@@ -3,57 +3,79 @@ module Export
     sidekiq_options retry: 0, backtrace: true
     STORAGE_PATH = "#{Rails.root}/tmp/gapped_audio"
 
-    def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, create_ayah_recitation: false)
+    def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, ayah_recitation_id: nil, create_ayah_recitation: false)
       base_path = prepare_file_paths(recitation_id)
+      surah_recitation = Audio::Recitation.find(recitation_id)
 
-      create_ayah_recitation_audio_files(recitation_id, host) if create_ayah_recitation
+      ayah_recitation =
+        create_ayah_recitation_audio_files(surah_recitation, ayah_recitation_id, host) if create_ayah_recitation || ayah_recitation_id
+
       split_audio_files(
         base_path,
-        recitation_id,
+        surah_recitation,
         surah: surah,
         ayah_from: ayah_from,
         ayah_to: ayah_to
       )
 
+      create_ayah_segments(surah_recitation, ayah_recitation, surah)
+      detect_repeated_segments(ayah_recitation, surah)
+
       send_email(base_path, user_id, recitation_id)
     end
 
     protected
-    def create_ayah_recitation_audio_files(audio_recitation_id, host)
-      audio_recitation = Audio::Recitation.find(audio_recitation_id)
-      resource_content = ResourceContent.recitations.one_verse.new
-      resource_content.name = audio_recitation.name
-      resource_content.save(validate: false)
 
-      ayah_recitation = Recitation.new(
-        reciter_name: audio_recitation.name,
-        reciter_id: audio_recitation.reciter_id,
-        qirat_type_id: audio_recitation.qirat_type_id
-      )
-      ayah_recitation.resource_content_id = resource_content.id
-      ayah_recitation.save(validate: false)
+    def create_ayah_recitation_audio_files(audio_recitation, ayah_recitation_id, host)
+      ayah_recitation = find_or_create_ayah_recitation(ayah_recitation_id, audio_recitation)
+      create_audio_files(ayah_recitation, host)
+
+      ayah_recitation
+    end
+
+    def find_or_create_ayah_recitation(ayah_recitation_id, audio_recitation)
+      if ayah_recitation_id.blank?
+        resource_content = ResourceContent.recitations.one_verse.new
+        resource_content.name = audio_recitation.name
+        resource_content.save(validate: false)
+
+        ayah_recitation = Recitation.new(
+          reciter_name: audio_recitation.name,
+          reciter_id: audio_recitation.reciter_id,
+          qirat_type_id: audio_recitation.qirat_type_id
+        )
+        ayah_recitation.resource_content_id = resource_content.id
+        ayah_recitation.save(validate: false)
+      else
+        ayah_recitation = Recitation.find(ayah_recitation_id)
+      end
+
+      ayah_recitation
+    end
+
+    def create_audio_files(ayah_recitation, host)
+      return if AudioFile.where(recitation_id: ayah_recitation.id).count >= Verse.count
 
       Verse.unscoped.order('verse_index asc').each do |verse|
         audio_file = AudioFile.where(verse: verse, recitation_id: ayah_recitation.id).first_or_initialize
         chapter_id = verse.chapter_id
         verse_number = verse.verse_number
+        audio_file.chapter_id = chapter_id
+        audio_file.verse_number = verse_number
+        audio_file.verse_key = verse.verse_key
+
         audio_file.url = "#{host}/#{chapter_id.to_s.rjust(3, '0')}#{verse_number.to_s.rjust(3, '0')}.mp3"
         audio_file.save(validate: false)
       end
-
-      segment_split = Audio::SplitGapelessSegment.new(
-        audio_recitation_id,
-        ayah_recitation.id
-      )
-
-      1.upto(114).each do |chapter_id|
-        segment_split.split_surah(chapter_id)
-      end
     end
 
-    def split_audio_files(base_path, audio_recitation_id, surah: , ayah_from:, ayah_to:)
+    def detect_repeated_segments(ayah_recitation, chapter_id)
+      AudioSegment::AyahByAyah.new(ayah_recitation).track_repetition(chapter_id: chapter_id)
+    end
+
+    def split_audio_files(base_path, audio_recitation, surah:, ayah_from:, ayah_to:)
       audio_split = Audio::SplitGapelessAudio.new(
-        audio_recitation_id,
+        audio_recitation.id,
         base_path
       )
 
@@ -66,6 +88,21 @@ module Export
       else
         1.upto(114).each do |chapter|
           audio_split.split_surah(chapter)
+        end
+      end
+    end
+
+    def create_ayah_segments(surah_recitation, ayah_recitation, chapter_id)
+      segment_split = Audio::SplitGapelessSegment.new(
+        surah_recitation.id,
+        ayah_recitation.id
+      )
+
+      if chapter_id
+        segment_split.split_surah(chapter_id)
+      else
+        1.upto(114).each do |chapter_id|
+          segment_split.split_surah(chapter_id)
         end
       end
     end

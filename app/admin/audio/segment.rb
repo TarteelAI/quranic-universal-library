@@ -3,6 +3,8 @@
 ActiveAdmin.register Audio::Segment do
   menu parent: 'Audio'
   actions :all, except: :destroy
+  includes :chapter,
+           :verse
 
   permit_params :verse_id,
                 :duration,
@@ -24,11 +26,13 @@ ActiveAdmin.register Audio::Segment do
 
   filter :chapter_id, as: :searchable_select,
                       ajax: { resource: Chapter }
+  filter :has_repetition
 
   index do
     id_column
-    column :chapter
+    column :chapter, sortable: :chapter_id
     column :verse_number
+    column :verse_key, sortable: :verse_id
     column :timestamp_from
     column :timestamp_to
 
@@ -45,30 +49,23 @@ ActiveAdmin.register Audio::Segment do
       row :id
       row :chapter_audio_file
       row :audio_recitation
+      row :chapter
+      row :verse
       row :verse_key
       row :timestamp_from
       row :timestamp_to
       row :duration
       row :duration_ms
+      row :has_repetition
+      row :repeated_segments
+
       row :segments do
         div do
-          resource.segments.each do |segment|
-            div "#{segment.join(', ')} - #{segment[2] - segment[1]}"
-          end
-        end
-      end
-
-      row :relative_segments do
-        div do
-          resource.relative_segments.each do |segment|
-            div "#{segment.join(', ')} - #{segment[2] - segment[1]}"
+          resource.get_segments.each do |s|
+            div "#{s.join(', ')}  (#{s[2].to_i - s[1].to_i} ms)"
           end
         end
       end
     end
-  end
-
-  def scoped_collection
-    super.includes :chapter
   end
 end

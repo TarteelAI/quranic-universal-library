@@ -12,6 +12,11 @@ ActiveAdmin.register AudioFile do
   filter :chapter, as: :searchable_select,
          ajax: { resource: Chapter }
   filter :format
+  filter :duration
+  filter :file_size
+  filter :segments_count
+  filter :words_count
+  filter :has_repetition
 
   scope :missing_segments
 
@@ -33,6 +38,7 @@ ActiveAdmin.register AudioFile do
     column :words_count
     column :segments_count
     column :duration
+    column :file_size
     column :url
     column :format
     actions
@@ -47,13 +53,29 @@ ActiveAdmin.register AudioFile do
       row :url
       row :audio_url
       row :duration
+      row :file_size
+      row :format
+      row :mime_type
+      row :bit_rate
       row :recitation
       row :words_count
       row :segments_count
+      row :has_repetition
+      row :repeated_segments
+
       row :segments do
         div do
-          resource.segments.each do |segment|
+          resource.get_segments.each do |segment|
             div segment.join(', ')
+          end
+        end
+      end
+      row :meta_data do
+        if resource.meta_data.present?
+          pre do
+            code do
+              JSON.pretty_generate(resource.meta_data)
+            end
           end
         end
       end

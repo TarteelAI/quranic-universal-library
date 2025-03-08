@@ -95,5 +95,39 @@ module Audio
 
       save(validate: false)
     end
+
+    def get_segments
+      segments.map do |s|
+        next if s.size < 2
+
+        if s.size == 4
+          s.drop(1)
+        else
+          s
+        end
+      end.compact_blank
+    end
+
+    def find_repeated_segments
+      segment_list = get_segments.map do |s| s[0] end
+
+      ranges = []
+      seen = {}
+
+      segment_list.each_with_index do |num, i|
+        prev_index = seen[num]
+
+        if prev_index
+          length = i - prev_index
+          if segment_list[prev_index, length] == segment_list[i, length]
+            ranges << [segment_list[i], segment_list[i + length - 1]]
+          end
+        end
+
+        seen[num] = i
+      end
+
+      ranges.uniq
+    end
   end
 end

@@ -10,7 +10,9 @@ module Utils
     end
 
     def convert(table_name='timings')
-      db_file_path = "tmp/#{Time.now.to_i}/db.db"
+      dir = "tmp/csv-to-db/#{Time.now.to_i}"
+      FileUtils.mkdir_p(dir)
+      db_file_path = "#{dir}/db.db"
       csv_data = CSV.read(cvs_file, headers: true)
 
       columns = csv_data.headers

@@ -50,9 +50,12 @@ ActiveAdmin.register Audio::Recitation do
       ).result
     end
   )
+  action_item :generate_audio, only: :show, if: -> { can?(:manage, resource) && resource.missing_audio_files? } do
+    link_to 'Generate Audio files', refresh_meta_admin_audio_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
+  end
 
   action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put
+    link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put, data: {confirm: 'Are you sure to update metadata of audio files?'}
   end
 
   action_item :split_to_gapped, only: :show, if: -> { can? :manage, resource } do
@@ -91,12 +94,19 @@ ActiveAdmin.register Audio::Recitation do
 
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
     authorize! :manage, resource
-    GenerateSurahAudioFilesJob.perform_later(resource.id, meta: true)
+    notice = if params[:audio]
+               Audio::GenerateAudioFilesJob.perform_later(resource)
+               'Audio files will be generated in a few sec.'
+             else
+               Audio::UpdateMetaDataJob.perform_later(resource)
+               'Meta data will be refreshed in a few sec.'
+             end
+
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
-
-    redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
+    redirect_to [:admin, resource], notice: notice
   end
+
 
   member_action :validate_segments, method: 'get' do
     authorize! :manage, resource
@@ -114,6 +124,7 @@ ActiveAdmin.register Audio::Recitation do
       surah = params[:surah]
       ayah_from = params[:ayah_from]
       ayah_to = params[:ayah_to]
+      ayah_recitation_id = params[:ayah_recitation_id]
 
       Export::SplitGapelessRecitationJob.perform_later(
         recitation_id: resource.id,
@@ -122,7 +133,8 @@ ActiveAdmin.register Audio::Recitation do
         ayah_to: ayah_to,
         user_id: current_user.id,
         host: params[:host],
-        create_ayah_recitation: params[:create_ayah_recitation] == '1'
+        ayah_recitation_id: ayah_recitation_id,
+        create_ayah_recitation: ayah_recitation_id.blank? && params[:create_ayah_recitation] == '1'
       )
 
       # Restart sidekiq if it's not running

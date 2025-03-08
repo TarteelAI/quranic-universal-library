@@ -2,6 +2,9 @@
 
 ActiveAdmin.register Audio::ChapterAudioFile do
   menu parent: 'Audio'
+  includes :chapter,
+           :audio_recitation
+
   searchable_select_options(
     scope: Audio::ChapterAudioFile,
     text_attribute: :humanize,
@@ -13,9 +16,6 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       ).result
     end
   )
-
-  permit_params :chapter_id,
-                :resource_content_id
 
   filter :audio_recitation, as: :searchable_select,
          ajax: { resource: Audio::Recitation }
@@ -130,14 +130,39 @@ ActiveAdmin.register Audio::ChapterAudioFile do
   end
 
   member_action :refresh_meta, method: 'put' do
-    GenerateSurahAudioFilesJob.perform_later(resource.id, meta: true, chapter: resource.chapter_id)
+    Audio::UpdateMetaDataJob.perform_later(resource.audio_recitation, chapter_id: resource.chapter_id)
+
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
     redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
   end
 
-  def scoped_collection
-    super.includes :chapter, :audio_recitation
+  form do |f|
+    f.inputs 'Chapter audio file details' do
+      f.input :audio_recitation_id
+      f.input :chapter_id
+      f.input :duration
+      f.input :file_size
+      f.input :format
+      f.input :mime_type
+      f.input :bit_rate
+      f.input :file_name
+    end
+
+    f.actions
+  end
+
+  permit_params do
+    %i[
+      audio_recitation_id
+      chapter_id
+      duration
+      file_size
+      format
+      mime_type
+      bit_rate
+      file_name
+    ]
   end
 end

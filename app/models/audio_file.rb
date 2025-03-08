@@ -54,6 +54,10 @@ class AudioFile < QuranApiRecord
 
   scope :missing_segments, -> { where(segments_count: 0) }
 
+  def has_audio_meta_data?
+    [duration, bit_rate, file_size, mime_type].all?(&:present?)
+  end
+
   def audio_format
     read_attribute('format') || url.split('.').last || 'mp3'
   end

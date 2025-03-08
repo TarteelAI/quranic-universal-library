@@ -54,6 +54,10 @@ class AudioFile < QuranApiRecord
 
   scope :missing_segments, -> { where(segments_count: 0) }
 
+  def audio_format
+    read_attribute('format') || url.split('.').last || 'mp3'
+  end
+
   def segments=(val)
     if val.is_a?(String)
       val = JSON.parse(val.strip)
@@ -122,8 +126,8 @@ class AudioFile < QuranApiRecord
     end.compact_blank
   end
 
-  def set_segments(segments_list, user=nil)
-    #TODO: generate activity if data is changed and assign user to it
+  def set_segments(segments_list, user = nil)
+    # TODO: generate activity if data is changed and assign user to it
     # TODO: fix ayah by ayah segments, remove the segment index
     padded = segments_list.map do |s|
       if s.length == 3
@@ -135,7 +139,9 @@ class AudioFile < QuranApiRecord
   end
 
   def find_repeated_segments
-    segment_list = get_segments.map do |s| s[0] end
+    segment_list = get_segments.map do |s|
+      s[0]
+    end
 
     ranges = []
     seen = {}

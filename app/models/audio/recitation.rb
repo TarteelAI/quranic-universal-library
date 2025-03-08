@@ -54,23 +54,16 @@ module Audio
 
     after_update :update_related_resources
 
+    def missing_audio_files?
+      chapter_audio_files.size < 114
+    end
+
     def one_ayah?
       false
     end
 
-    def generate_audio_files
-      GenerateSurahAudioFilesJob.perform_now(id, meta: true)
-    end
-
-    def create_audio_files
-      1.upto(114) do |chapter_number|
-        audio_file = chapter_audio_files
-                       .where(chapter_id: chapter_number)
-                       .first_or_initialize
-
-        audio_file.audio_url ||= "https://download.quranicaudio.com/#{relative_path}/#{chapter_number}.mp3"
-        audio_file.save
-      end
+    def audio_format
+      read_attribute('format') || 'mp3'
     end
 
     def humanize
@@ -165,6 +158,16 @@ module Audio
       issues
     end
 
+    def update_audio_stats
+      chapter_audio_files.update_all(
+        resource_content_id: get_resource_content.id
+      )
+
+      update(
+        files_size: chapter_audio_files.reload.sum(:file_size),
+        files_count: chapter_audio_files.count
+      )
+    end
 
     protected
 

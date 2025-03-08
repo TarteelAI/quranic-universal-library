@@ -23,10 +23,11 @@
 #  index_recitations_on_resource_content_id  (resource_content_id)
 #
 class Recitation < QuranApiRecord
+  include Resourceable
+
   belongs_to :reciter
   belongs_to :recitation_style
   belongs_to :qirat_type, optional: true
-  belongs_to :resource_content, optional: true
 
   has_many :audio_files
   delegate :approved?, to: :resource_content, allow_nil: true
@@ -38,10 +39,18 @@ class Recitation < QuranApiRecord
     true
   end
 
-  def export_segments(format, chapter_id = nil)
+  def missing_audio_files?
+    audio_files.size < 6236
+  end
+
+  def audio_format
+    read_attribute('format') || 'mp3'
+  end
+
+  def export_segments(export_type, chapter_id = nil)
     service = AudioSegment::AyahByAyah.new(self)
 
-    service.export(format, chapter_id)
+    service.export(export_type, chapter_id)
   end
 
   def tarteel_key

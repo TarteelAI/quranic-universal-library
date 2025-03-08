@@ -69,8 +69,12 @@ module AudioSegment
       file_path
     end
 
-    def track_repetition
+    def track_repetition(chapter_id: nil)
       audio_files = AudioFile.where(recitation_id: recitation.id).order('verse_id asc')
+
+      if chapter_id
+        audio_files = audio_files.where(chapter_id: chapter_id)
+      end
 
       audio_files.each do |audio_file|
         next if audio_file.segments.blank?
@@ -105,8 +109,8 @@ module AudioSegment
       audio_file.ruku_number = verse.ruku_number
       audio_file.verse_key = verse.verse_key
 
-      audio_file.url = verse_segment.audio_url
-      audio_file.format = audio_file.format || 'mp3'
+      audio_file.url ||= verse_segment.audio_url
+      audio_file.format ||= recitation.audio_format
       audio_file.is_enabled = true
       audio_file.segments = JSON.parse(verse_segment.words)
       audio_file.save(validate: false)

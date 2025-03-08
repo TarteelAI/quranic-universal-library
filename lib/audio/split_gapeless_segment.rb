@@ -2,6 +2,7 @@ module Audio
   class SplitGapelessSegment
     include Utils::StrongMemoize
 
+    attr_reader :ayah_recitation, :recitation
     def initialize(surah_recitation_id, ayah_recitation_id)
       @recitation = Audio::Recitation.find(surah_recitation_id)
       @ayah_recitation = Recitation.find(ayah_recitation_id)
@@ -21,7 +22,7 @@ module Audio
       audio_file = AudioFile
                      .where(
                        verse: verse,
-                       recitation_id: @ayah_recitation.id
+                       recitation_id: ayah_recitation.id
                      ).first_or_initialize
 
       audio_file.set_segments(gapped_segments)

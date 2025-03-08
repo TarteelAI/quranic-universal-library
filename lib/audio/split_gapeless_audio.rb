@@ -26,12 +26,16 @@ module Audio
       segments.each do |segment|
         from = segment.timestamp_from / 1000.0
         to = segment.timestamp_to / 1000.0
+        ayah_path = ayah_audio_path(chapter_id, segment.verse_number)
+        next if File.exist?(ayah_path)
+
+        puts "Splitting #{chapter_id}:#{segment.verse_number} timing range is  #{from} - #{to}"
 
         split_ayah(
           from,
           to,
           load_surah_audio(chapter_id),
-          ayah_audio_path(chapter_id, segment.verse_number)
+          ayah_path
         )
       end
     end
@@ -54,8 +58,8 @@ module Audio
     end
 
     def ayah_audio_path(chapter_id, verse_number)
-      FileUtils.mkdir_p "#{@base_path}/ayah-by-ayah/#{chapter_id}"
-      "#{@base_path}/ayah-by-ayah/#{chapter_id}/#{chapter_id.to_s.rjust(3, '0')}#{verse_number.to_s.rjust(3, '0')}.mp3"
+      FileUtils.mkdir_p "#{@base_path}/ayah-by-ayah"
+      "#{@base_path}/ayah-by-ayah/#{chapter_id.to_s.rjust(3, '0')}#{verse_number.to_s.rjust(3, '0')}.mp3"
     end
 
     def download_audio_file(chapter_id, path)
@@ -65,6 +69,8 @@ module Audio
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
+
+      puts "Downloading #{file_url} to #{path}"
 
       response = http.get(file_url)
       File.open(path, "wb") do |file|

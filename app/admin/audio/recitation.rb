@@ -45,11 +45,19 @@ ActiveAdmin.register Recitation do
             data: { controller: 'ajax-modal', url: validate_segments_admin_recitation_path(resource) }
   end
 
+  action_item :generate_audio, only: :show, if: -> { can?(:manage, resource) && resource.missing_audio_files? } do
+    link_to 'Generate Audio files', refresh_meta_admin_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
+  end
+
+  action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Refresh Meta', refresh_meta_admin_recitation_path(resource), method: :put, data: { confirm: "Are you sure to update metadata of audio files?" }
+  end
+
   action_item :view_segments, only: :show do
     link_to 'View in segment tool', ayah_audio_files_path(id: resource.id), target: '_blank', rel: 'noopener'
   end
 
-  action_item :download_segments, only: :show, if: -> {can? :download, :from_admin} do
+  action_item :download_segments, only: :show, if: -> { can? :download, :from_admin } do
     link_to 'Download segments', '#_',
             data: {
               controller: 'ajax-modal',
@@ -63,6 +71,21 @@ ActiveAdmin.register Recitation do
               controller: 'ajax-modal',
               url: upload_segments_admin_recitation_path(resource)
             }
+  end
+
+  member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
+    authorize! :manage, resource
+    notice = if params[:audio]
+               Audio::GenerateAudioFilesJob.perform_later(resource)
+               'Audio files will be generated in a few sec.'
+             else
+               Audio::UpdateMetaDataJob.perform_later(resource)
+               'Meta data will be refreshed in a few sec.'
+             end
+
+    # Restart sidekiq if it's not running
+    Utils::System.start_sidekiq
+    redirect_to [:admin, resource], notice: notice
   end
 
   member_action :upload_segments, method: ['get', 'put'] do
@@ -102,6 +125,8 @@ ActiveAdmin.register Recitation do
 
   permit_params do
     %i[
+      name
+      relative_path
       reciter_id
       recitation_style_id
       resource_content_id
@@ -115,6 +140,7 @@ ActiveAdmin.register Recitation do
   index do
     id_column
     column :name
+    column :relative_path
     column :approved?, sortable: 'resource_contents.approved'
     column :reciter, sortable: 'reciters.name'
     column :recitation_style
@@ -126,6 +152,8 @@ ActiveAdmin.register Recitation do
   show do
     attributes_table do
       row :id
+      row :name
+      row :relative_path
       row :reciter
       row :qirat_type
       row :reciter_name
@@ -150,12 +178,14 @@ ActiveAdmin.register Recitation do
 
   form do |f|
     f.inputs 'Recitation Details' do
+      f.input :name
+      f.input :relative_path
       f.input :reciter
+      f.input :reciter_name
+
       f.input :resource_content,
               as: :searchable_select,
               ajax: { resource: ResourceContent }
-
-      f.input :reciter_name
 
       f.input :recitation_style_id,
               as: :searchable_select,

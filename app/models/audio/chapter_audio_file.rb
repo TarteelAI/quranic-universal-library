@@ -41,6 +41,10 @@ module Audio
     belongs_to :chapter
     has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: 'audio_file_id'
 
+    def audio_format
+      read_attribute('format') || url.split('.').last || 'mp3'
+    end
+
     def self.with_segments_counts
       left_outer_joins(:audio_segments)
         .select('audio_chapter_audio_files.*, COUNT(audio_segments.id) AS segments_count')
@@ -84,8 +88,7 @@ module Audio
       end
 
       self.timing_percentiles = percentiles
-      #TODOL: add segments_count col
-      #self.segments_count = audio_segments.count
+      self.segments_count = audio_segments.count
       self.save(validate: false)
     end
 

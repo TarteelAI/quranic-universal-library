@@ -6,9 +6,15 @@ module Export
     def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, divide_audio:, ayah_recitation_id: nil, create_ayah_recitation: false)
       base_path = prepare_file_paths(recitation_id)
       surah_recitation = Audio::Recitation.find(recitation_id)
+      ayah_recitation = find_or_create_ayah_recitation(ayah_recitation_id, surah_recitation)
 
-      ayah_recitation =
-        create_ayah_recitation_audio_files(surah_recitation, ayah_recitation_id, host) if create_ayah_recitation || ayah_recitation_id
+      if create_ayah_recitation
+        create_audio_files(ayah_recitation, host)
+      end
+
+      surah = surah.present? ? surah.to_i : nil
+      create_ayah_segments(surah_recitation, ayah_recitation, surah)
+      detect_repeated_segments(ayah_recitation, surah)
 
       if divide_audio
         split_audio_files(
@@ -18,22 +24,11 @@ module Export
           ayah_from: ayah_from,
           ayah_to: ayah_to
         )
+        send_email(base_path, user_id, recitation_id)
       end
-
-      create_ayah_segments(surah_recitation, ayah_recitation, surah)
-      detect_repeated_segments(ayah_recitation, surah)
-
-      send_email(base_path, user_id, recitation_id)
     end
 
     protected
-
-    def create_ayah_recitation_audio_files(audio_recitation, ayah_recitation_id, host)
-      ayah_recitation = find_or_create_ayah_recitation(ayah_recitation_id, audio_recitation)
-      create_audio_files(ayah_recitation, host)
-
-      ayah_recitation
-    end
 
     def find_or_create_ayah_recitation(ayah_recitation_id, audio_recitation)
       if ayah_recitation_id.blank?
@@ -100,7 +95,7 @@ module Export
         ayah_recitation.id
       )
 
-      if chapter_id
+      if chapter_id.present?
         segment_split.split_surah(chapter_id)
       else
         1.upto(114).each do |chapter_id|

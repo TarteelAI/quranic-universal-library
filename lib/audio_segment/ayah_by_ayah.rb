@@ -6,7 +6,7 @@ module AudioSegment
   class AyahByAyah
     attr_reader :recitation
 
-    def initialize(recitation)
+    def initialize(recitation:)
       @recitation = recitation
     end
 

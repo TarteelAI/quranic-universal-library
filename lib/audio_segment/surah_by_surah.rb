@@ -6,7 +6,7 @@ module AudioSegment
   class SurahBySurah
     attr_reader :recitation
 
-    def initialize(recitation)
+    def initialize(recitation:)
       @recitation = recitation
     end
 
@@ -144,6 +144,7 @@ module AudioSegment
 
     def track_repetition(chapter_id: nil)
       segments = Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id asc')
+
       if chapter_id
         segments = segments.where(chapter_id: chapter_id)
       end

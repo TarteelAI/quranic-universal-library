@@ -125,12 +125,14 @@ ActiveAdmin.register Audio::Recitation do
       ayah_from = params[:ayah_from]
       ayah_to = params[:ayah_to]
       ayah_recitation_id = params[:ayah_recitation_id]
+      divide_audio = params[:divide_audio] == '1'
 
       Export::SplitGapelessRecitationJob.perform_later(
         recitation_id: resource.id,
         surah: surah,
         ayah_from: ayah_from,
         ayah_to: ayah_to,
+        divide_audio: divide_audio,
         user_id: current_user.id,
         host: params[:host],
         ayah_recitation_id: ayah_recitation_id,

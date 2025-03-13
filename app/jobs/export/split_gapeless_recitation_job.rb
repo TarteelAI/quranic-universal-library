@@ -3,20 +3,22 @@ module Export
     sidekiq_options retry: 0, backtrace: true
     STORAGE_PATH = "#{Rails.root}/tmp/gapped_audio"
 
-    def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, ayah_recitation_id: nil, create_ayah_recitation: false)
+    def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, divide_audio:, ayah_recitation_id: nil, create_ayah_recitation: false)
       base_path = prepare_file_paths(recitation_id)
       surah_recitation = Audio::Recitation.find(recitation_id)
 
       ayah_recitation =
         create_ayah_recitation_audio_files(surah_recitation, ayah_recitation_id, host) if create_ayah_recitation || ayah_recitation_id
 
-      split_audio_files(
-        base_path,
-        surah_recitation,
-        surah: surah,
-        ayah_from: ayah_from,
-        ayah_to: ayah_to
-      )
+      if divide_audio
+        split_audio_files(
+          base_path,
+          surah_recitation,
+          surah: surah,
+          ayah_from: ayah_from,
+          ayah_to: ayah_to
+        )
+      end
 
       create_ayah_segments(surah_recitation, ayah_recitation, surah)
       detect_repeated_segments(ayah_recitation, surah)

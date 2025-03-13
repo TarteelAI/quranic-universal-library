@@ -9,7 +9,7 @@
 <div id="body">
   <div class="modal-body" id=modal-body>
     <% if ayah_recitations.present? %>
-      <div class="alert alert-info">
+      <div class="alert alert-danger">
         We have following ayah recitations for this reciter.
 
         <ul>
@@ -24,8 +24,18 @@
 
     <%= form_with url: split_to_gapped_admin_audio_recitation_path(resource), method: :put do |form| %>
       <div class="alert alert-info">
-        System will generate ayah by ayah audio files and share with you via emails that you will have to upload
-        manually to storage
+        This feature allows you to convert Surah segments into individual ayahs and,
+        if enabled, divide the audio files to ayah by ayah as well.
+        The generated audio files will be shared with you via email for manual upload to storage.
+      </div>
+
+      <div class="form-group">
+        <%= form.label :divide_audio, 'Divide Audio File' %>
+        <%= form.check_box :divide_audio %>
+
+        <div class="form-text text-muted">
+          If checked, system will divide the audio file to ayah by ayah for selected surah.
+        </div>
       </div>
 
       <div class="form-group">
@@ -58,6 +68,7 @@
         <%= form.label :ayah_recitation_id, 'Enter ayah recitation ID' %>
         <%= form.number_field :ayah_recitation_id %>
       </div>
+
       OR
       <div class="form-group">
         <%= form.label :create_ayah_recitation, 'Create new ayah recitation' %>

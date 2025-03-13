@@ -23,16 +23,16 @@
 #  index_recitations_on_resource_content_id  (resource_content_id)
 #
 class Recitation < QuranApiRecord
-  include Resourceable
-
   belongs_to :reciter
   belongs_to :recitation_style
   belongs_to :qirat_type, optional: true
+  belongs_to :resource_content, optional: true
 
   has_many :audio_files
   delegate :approved?, to: :resource_content, allow_nil: true
+  alias get_resource_content resource_content
 
-  scope :approved, -> { joins(:resource_content).where('resource_contents.approved = ?', true) }
+  scope :approved, -> { joins(:resource_content).where("resource_contents.approved = ?", true) }
   scope :un_approved, -> { joins(:resource_content).where('resource_contents.approved = ?', false) }
 
   def one_ayah?

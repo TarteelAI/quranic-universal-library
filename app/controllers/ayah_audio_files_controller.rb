@@ -1,5 +1,5 @@
 class AyahAudioFilesController < CommunityController
-  before_action :load_recitation
+  before_action :load_resource_access
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
   before_action :authorize_access!, only: %i[save_segments]
   before_action :authenticate_user!, only: %i[save_segments]

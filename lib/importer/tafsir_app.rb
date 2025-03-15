@@ -26,9 +26,15 @@ module Importer
       'qurtubi' => 90,
       'baghawi' => 94,
       'muyassar' => 16,
-      #'saadi' => 912, # probably won't use tafsir app for Saadi
       'almuyassar-ghareeb' => ''
     }
+
+    def self.import_tafsirs(keys)
+      keys.each do |key|
+        importer = Importer::TafsirApp.new
+        importer.import(key)
+      end
+    end
 
     def import(key)
       raise "Mapping is missing for #{key}" if TAFISR_MAPPING[key.to_s].blank?
@@ -47,6 +53,8 @@ module Importer
           verses_imported[id] = true
         end
       end
+
+      resource_content.run_draft_import_hooks
     end
 
     protected

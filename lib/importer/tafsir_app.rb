@@ -1,6 +1,6 @@
 # Usage
 # importer = Importer::TafsirApp.new
-# importer.import('ibn-katheer')
+# importer.import('tabari')
 module Importer
   class TafsirApp < Base
     # TODO: https://tafsir.app/aliraab-almuyassar/2/37
@@ -34,6 +34,8 @@ module Importer
       raise "Mapping is missing for #{key}" if TAFISR_MAPPING[key.to_s].blank?
 
       resource_content = ResourceContent.find(TAFISR_MAPPING[key.to_s])
+      Draft::Tafsir.where(resource_content_id: resource_content.id).delete_all
+
       verses_imported = {}
 
       Verse.order('verse_index ASC').find_each do |verse|
@@ -86,7 +88,7 @@ module Importer
       url = "https://tafsir.app/get.php?src=#{key}&s=#{verse.chapter_id}&a=#{verse.verse_number}&ver=1"
       data = get_json(url)
 
-      data['count'] = 1 if data['count'].blank?
+      data['count'] = 0 if data['count'].blank?
       data['ayahs_start'] = verse.verse_number if data['ayahs_start'].blank?
 
       data
@@ -97,7 +99,7 @@ module Importer
 
     def find_ayah_group(verse, start_ayah, count)
       Verse.where(
-        chapter_id: verse.chapter_id, verse_number: start_ayah..(start_ayah + count - 1)
+        chapter_id: verse.chapter_id, verse_number: start_ayah..(start_ayah + count)
       ).order('verse_index ASC')
     end
 

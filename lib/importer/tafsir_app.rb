@@ -1,6 +1,7 @@
 # Usage
 # importer = Importer::TafsirApp.new
 # importer.import('tabari')
+# Importer::TafsirApp.delay.import_tafsirs(['tabari', 'ibn-katheer', 'qurtubi', 'baghawi', 'muyassar'])
 module Importer
   class TafsirApp < Base
     # TODO: https://tafsir.app/aliraab-almuyassar/2/37

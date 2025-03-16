@@ -3,7 +3,7 @@ require 'sqlite3'
 module AudioSegment
   class Tarteel
     STORAGE_PATH = "#{Rails.root}/tmp/exported_segments"
-    DB_COLUMNS = ['label', 'reciter', 'surah_number', 'ayah_number', 'timings'].join(',')
+    DB_COLUMNS = ['reciter', 'surah_number', 'ayah_number', 'timings'].join(',')
 
     attr_reader :issues,
                 :file_path,
@@ -45,12 +45,12 @@ module AudioSegment
     def export_recitation(recitation, db)
       data = get_segments_data(recitation)
 
-      placeholders = data.map { "(?, ?, ?, ?, ?)" }.join(", ")
+      placeholders = data.map { "(?, ?, ?, ?)" }.join(", ")
       db.execute("INSERT INTO #{table_name} (#{DB_COLUMNS}) VALUES #{placeholders}", data.flatten)
     end
 
     def get_segments_data(recitation)
-      tarteel_key = recitation.tarteel_key
+      #tarteel_key = recitation.tarteel_key
       audio_files = recitation.audio_files.order("verse_id ASC")
 
       audio_files.map do |file|
@@ -67,7 +67,6 @@ module AudioSegment
         end
 
         [
-          tarteel_key,
           recitation.id,
           file.chapter_id,
           file.verse_number,
@@ -78,7 +77,8 @@ module AudioSegment
 
     def prepare_db
       db = SQLite3::Database.new(file_path)
-      db.execute("CREATE TABLE #{table_name}(label STRING, reciter INTEGER, surah_number INTEGER, ayah_number INTEGER, timings TEXT)")
+      db.execute("CREATE TABLE #{table_name}(reciter INTEGER, surah_number INTEGER, ayah_number INTEGER, timings TEXT)")
+      db.execute("CREATE INDEX IF NOT EXISTS idx_reciter_surah_ayah ON #{table_name} (reciter, surah_number, ayah_number)")
 
       db
     end

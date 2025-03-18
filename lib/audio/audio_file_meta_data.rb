@@ -72,7 +72,7 @@ module Audio
       end
 
       audio_files.find_each do |audio_file|
-        next if file.has_audio_meta_data?
+        next if audio_file.has_audio_meta_data?
         url = audio_file.audio_url
 
         if meta_response = fetch_meta_data(url)

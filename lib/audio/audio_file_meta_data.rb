@@ -39,7 +39,7 @@ module Audio
         url = audio_file.audio_url
         audio_file.update_segment_percentile
 
-        if meta_response = fetch_meta_data(url)
+        if meta_response = fetch_audio_file_meta_data(url)
           file = meta_response[:file]
 
           meta = WahWah.open(file)
@@ -51,7 +51,7 @@ module Audio
             duration: duration.round(2),
             duration_ms: (duration * 1000).to_i,
             mime_type: MIME::Types.type_for(file).first.content_type,
-            meta_data: prepare_ayah_meta_data(
+            meta_data: prepare_surah_audio_meta_data(
               audio_file: audio_file,
               meta: meta
             )
@@ -75,7 +75,7 @@ module Audio
         next if audio_file.has_audio_meta_data?
         url = audio_file.audio_url
 
-        if meta_response = fetch_meta_data(url)
+        if meta_response = fetch_audio_file_meta_data(url)
           file = meta_response[:file]
 
           meta = WahWah.open(file)
@@ -119,17 +119,16 @@ module Audio
       existing_meta.to_h
     end
 
-    def prepare_ayah_meta_data(audio_file:, meta:)
+    def prepare_surah_audio_meta_data(audio_file:, meta:)
       meta_data = audio_file.meta_data || {}
       chapter = audio_file.chapter
-      verse = audio_file.verse
 
       meta_data.with_defaults_values(
         {
           album: "#{recitation.name} Quran recitation",
           genre: "Quran",
-          title: "#{chapter.name_simple} #{verse.verse_number}",
-          track: "#{chapter.verses_count}/#{verse.verse_number}",
+          title: chapter.name_simple,
+          track: "114/#{chapter.id}",
           artist: recitation.name,
           year: meta.year
         }
@@ -150,7 +149,7 @@ module Audio
       nil
     end
 
-    def fetch_meta_data(url)
+    def fetch_audio_file_meta_data(url)
       request = fetch_bytes(url, 2.megabyte)
       body = request.body
 

@@ -85,14 +85,12 @@ module Audio
                 .chapter_audio_files
                 .where(chapter_id: chapter_number)
                 .first_or_initialize
-
       url = audio.audio_url
 
       if url.blank?
         name = chapter_number.to_s.rjust 3, '0'
         url = "#{base_url}/#{relative_path}/#{name}.#{recitation.audio_format}"
       end
-
       audio.audio_url = url
 
       audio

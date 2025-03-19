@@ -1,33 +1,58 @@
 # Usage
 # importer = Importer::TafsirApp.new
-# importer.import('tabari')
 # Importer::TafsirApp.delay.import_tafsirs(['tabari', 'ibn-katheer', 'qurtubi', 'baghawi', 'muyassar'])
 module Importer
   class TafsirApp < Base
-    # TODO: https://tafsir.app/aliraab-almuyassar/2/37
-    # https://tafsir.app/iraab-daas/2/33
-    # https://tafsir.app/aljadwal/2/33
-    # https://tafsir.app/aldur-almasoon/2/33
-    # https://tafsir.app/lubab/2/33
-    # https://tafsir.app/qiraat-almawsoah/2/33
-    # https://tafsir.app/alnashir/2/33
-    # https://tafsir.app/iraab-aldarweesh/2/33
-
     TAFISR_MAPPING = {
-      'aliraab-almuyassar' => '',
-      'iraab-daas' => '',
-      'aljadwal' => '',
-      'aldur-almasoon' => '',
-      'lubab' => '',
-      'qiraat-almawsoah' => '',
-      'alnashir' => '',
-      'iraab-aldarweesh' => '',
+      'aliraab-almuyassar' => 1477,
+      'iraab-daas' => 1478,
+      'aljadwal' => 1479,
+      'aldur-almasoon' => 1480,
+      'lubab' => 1481,
+      'qiraat-almawsoah' => 1482,
+      'alnashir' => 1483,
+      'iraab-aldarweesh' => 1484,
       'ibn-katheer' => 14,
       'tabari' => 15,
       'qurtubi' => 90,
+      'ibn-aashoor' => 92, #TODO: fix poetry see 2:3
       'baghawi' => 94,
       'muyassar' => 16,
-      'almuyassar-ghareeb' => ''
+      'almuyassar-ghareeb' => '',
+      'aysar-altafasir' => 1475,
+      'tadabbur-wa-amal' => 1476,
+      'ibn-uthaymeen' => 1485,
+      'jalalayn' => 1486,
+      'albaydawee' => 1487,
+      'iejee' => 1488,
+      'alnasafi' => 1489,
+      'alwajeez' => 1490,
+      'zimneen' => 1491,
+      'mathoor' => 1492,
+      'ibn-abi-hatim' => 1493,
+      'aldur-almanthoor' => 1494,
+      'fath-albayan' => 1495,
+      'fath-alqadeer' => 1496,
+      'altasheel' => 1497,
+      'alaloosi' => 1498,
+      'alrazi' => 1499, # Fix page sep see 2:3
+      'adwaa-albayan' => 1500,
+      'nathm-aldurar' => 1501,
+      'ibn-atiyah' => 1502,
+      'albahr-almuheet' => 1503,
+      'albaseet' => 1504,
+      'abu-alsuod' => 1505,
+      'kashaf' => 1506,
+      'zad-almaseer' => 1507,
+      'almawirdee' => 1508,
+      'ibn-alqayyim' => 1509,
+      #'ibn-taymiyyah' => 1510 # Need to OCR this
+      'samaani' => 1511,
+      'makki' => 1512,
+      'mahasin-altaweel' => 1513,
+      'althaalabi' => 1514,
+      'samarqandi' => 1515,
+      'althalabi' => 1516
     }
 
     def self.import_tafsirs(keys)

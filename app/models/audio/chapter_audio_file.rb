@@ -46,7 +46,7 @@ module Audio
     end
 
     def audio_format
-      read_attribute('format') || url.split('.').last || 'mp3'
+      read_attribute('format') || audio_url.split('.').last || 'mp3'
     end
 
     def self.with_segments_counts

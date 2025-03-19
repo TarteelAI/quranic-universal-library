@@ -24,6 +24,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
   filter :chapter, as: :searchable_select,
          ajax: { resource: Chapter }
   filter :format
+  filter :audio_url
   filter :active
 
   action_item :debug_segment, only: :show do

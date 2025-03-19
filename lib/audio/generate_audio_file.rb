@@ -87,9 +87,12 @@ module Audio
                 .first_or_initialize
 
       url = audio.audio_url
+
       if url.blank?
-        url = "#{base_url}/#{relative_path}/#{chapter_number}.#{recitation.audio_format}"
+        name = chapter_number.to_s.rjust 3, '0'
+        url = "#{base_url}/#{relative_path}/#{name}.#{recitation.audio_format}"
       end
+
       audio.audio_url = url
 
       audio

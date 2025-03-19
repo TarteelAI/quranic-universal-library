@@ -18,7 +18,7 @@ module Importer
       'ibn-aashoor' => 92, #TODO: fix poetry see 2:3
       'baghawi' => 94,
       'muyassar' => 16,
-      'almuyassar-ghareeb' => '',
+      'almuyassar-ghareeb' => 1517,
       'aysar-altafasir' => 1475,
       'tadabbur-wa-amal' => 1476,
       'ibn-uthaymeen' => 1485,

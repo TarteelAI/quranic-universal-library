@@ -21,7 +21,7 @@ module Exporter
       name.downcase.gsub('name', '').strip
     end
 
-    def export_surah(format:)
+    def export_surahs(format:)
       file_path = "#{@export_file_path}.#{format}"
 
       if format == 'sqlite'

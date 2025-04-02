@@ -12,18 +12,25 @@ const findSegment = (timestamp, segments, currentVerse, chapter, currentWord, ve
 
 const findVerseSegment = (timestamp, verseSegments, currentWord) => {
   const segments = verseSegments.segments || [];
+  let target = {};
 
-  let target = {
-  };
+  // Binary search for the segment that contains the timestamp
+  let left = 0;
+  let right = segments.length - 1;
 
-  for (let segment of segments) {
-    const from = segment[1];
-    const to = segment[2];
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const from = segments[mid][1];
+    const to = segments[mid][2];
 
     if (timestamp >= from && timestamp <= to) {
       // found the word
-      target.word = segment[0];
+      target.word = segments[mid][0];
       break;
+    } else if (timestamp < from) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
     }
   }
 

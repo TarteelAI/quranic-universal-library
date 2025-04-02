@@ -68,7 +68,10 @@
           <textarea
               class="form-control"
               @input="updateRawSegments"
-          >{{ JSON.stringify(rawSegments[currentVerseKey]) }}</textarea>
+          ></textarea>
+        </div>
+        <div class="small" v-if="rawSegments[currentVerseNumber]">
+          {{ JSON.stringify(rawSegments[currentVerseNumber]) }}
         </div>
 
         <div class="table-wrapper" id="tableWrapper">
@@ -365,7 +368,7 @@ export default {
       if (segment) return segment[2];
     },
     rawSegmentStart(index) {
-      const segment = this.rawSegments[this.currentVerseKey];
+      const segment = this.rawSegments[this.currentVerseNumber];
       if (segment) return segment[index][1];
     },
     rawSegmentEnd(index) {
@@ -399,12 +402,15 @@ export default {
     },
     updateRawSegments(event) {
       try {
-        const segs = JSON.parse(event.target.value);
-
+        const data =  event.target.value
+            .replace(/(\d+):/g, '"$1":')
+            .replace(/\s+/g, '');
+        const segs = JSON.parse(data);
         this.$store.commit('UPDATE_RAW_SEGMENTS', {
           segments: segs,
         });
       } catch (error) {
+        console.error(error)
       }
     },
     trackTime(event) {

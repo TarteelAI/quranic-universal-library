@@ -106,7 +106,12 @@ const store = createStore({
       state.rawSegmentVisible = !state.rawSegmentVisible;
     },
     UPDATE_RAW_SEGMENTS(state, payload) {
-      state.rawSegments[state.currentVerseKey] = payload.segments;
+      if (state.audioType == 'ayah') {
+        state.rawSegments[state.currentVerseKey] = payload.segments;
+      } else {
+        state.rawSegments = payload.segments;
+      }
+
       state.currentRawSegmentWord = 1;
     },
     SET_WORD(state, payload) {
@@ -592,6 +597,16 @@ const store = createStore({
         return;
       }
 
+      const rawAyahSegments = rawSegments[currentVerseKey];
+      if (rawAyahSegments && rawAyahSegments.length > 0) {
+        const rawSegment = findVerseSegment(
+          time,
+          {segments: rawAyahSegments}
+        );
+
+        state.currentRawSegmentWord = rawSegment.word;
+      }
+
       if (audioType == 'ayah') {
         const {
           word
@@ -601,16 +616,6 @@ const store = createStore({
           currentWord
         );
         state.currentWord = word;
-
-        const rawAyahSegments = rawSegments[currentVerseKey];
-        if (rawAyahSegments && rawAyahSegments.length > 0) {
-          const rawSegment = findVerseSegment(
-            time,
-            {segments: rawAyahSegments}
-          );
-
-          state.currentRawSegmentWord = rawSegment.word;
-        }
         return;
       }
 

@@ -39,7 +39,10 @@ module Importer
 
     def sanitize_text(text)
       text = clean_up(text.strip)
-      TAFSIR_SANITIZER.sanitize(text, class_mapping: CSS_CLASSES_MAPPING).html
+
+      TAFSIR_SANITIZER
+        .sanitize(text, class_mapping: CSS_CLASSES_MAPPING)
+        .html
     end
 
     def import_chapter(chapter, resource)
@@ -48,7 +51,7 @@ module Importer
 
       chapter_data.each do |ayah_data|
         verse = Verse.find(ayah_data['ayahId'])
-        text = sanitize_text ayah_data['text'].strip
+        text = sanitize_text(ayah_data['text'])
 
         if resource.tafsir?
           import_tafsir(verse, resource, text)

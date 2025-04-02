@@ -1,6 +1,8 @@
 # Usage
 # importer = Importer::TafsirApp.new
 # Importer::TafsirApp.delay.import_tafsirs(['tabari', 'ibn-katheer', 'qurtubi', 'baghawi', 'muyassar'])
+
+#
 module Importer
   class TafsirApp < Base
     TAFISR_MAPPING = {
@@ -94,7 +96,7 @@ module Importer
 
       group_verses = find_ayah_group(verse, tafsir_json['ayahs_start'], tafsir_json['count'])
       source_text = tafsir_json['data']
-      text = parse_tafsir(source_text)
+      text = sanitize_text(source_text)
       draft_tafsir.set_meta_value('source_data', { text: source_text })
       existing_tafsir = Tafsir.for_verse(verse, resource_content)
 
@@ -137,7 +139,8 @@ module Importer
       ).order('verse_index ASC')
     end
 
-    def parse_tafsir(text)
+    def sanitize_text(text)
+      text = simple_format(text)
       html = ""
 
       text.split("\n").each do |line|
@@ -155,6 +158,37 @@ module Importer
       end
 
       "<div class=ar lang=ar>#{html}</div>"
+    end
+
+    def prep_data_mathoor(text)
+      # Wrap Ayah references
+      text = text.gsub(/(\[[ء-ْ ]{1,11}: [\d٠-٩، -]+\])/, '<span class="ayah-ref">\1</span>')
+
+      # Wrap ayah text
+      text.gsub(/([«{﴿][\s\S]*?[﴾}»])/, '<span class="qpc-hafs">\1</span>')
+    end
+
+    def simple_format(text)
+      poetry_wrap = '<p class="poetry">\1</p>'
+
+      text = text.gsub(/\(p-([\d٠-٩]+)\)/, '<p class="page-num">صفحة \1</p>')
+
+      # Replace section separators
+      text.gsub!(/\n([⁕* ]+)\n/, '<p class="sep">\1</p>')
+
+      # Wrap Ayah references in a span with a specific class
+      text.gsub!(/(\[[ء-ْ ]{1,11}: [\d٠-٩، -]+\])/, '<span class="ayah-tag">\1</span>')
+
+
+      # Wrap poetry lines marked by '؎' inside paragraph tags
+      text.gsub!(/؎ ?(.*?)(?=]])/, poetry_wrap)
+      text.gsub!(/؎ ?(.*)\n*/, poetry_wrap)
+
+      # Bold lines that start with '* ' followed by Arabic text
+      text.gsub!(/(^|\n)(\* [ء-ي].*)/, '\1<b>\2</b>')
+
+      # Highlight phrases
+      text.gsub(/([«{﴿][\s\S]*?[﴾}»])/, '<span class="hlt">\1</span>')
     end
   end
 end

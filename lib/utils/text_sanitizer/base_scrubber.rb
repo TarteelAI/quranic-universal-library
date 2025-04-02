@@ -12,10 +12,9 @@ module Utils
         'arabic',
         'qpc-hafs',
         'indopak-nastaleeq',
-
         'blue',
         'red',
-        'reference',
+        'reference', 'ayah-ref', 'hlt',
         'green',
         'brown',
         'gray',

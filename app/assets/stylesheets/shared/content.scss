@@ -60,7 +60,7 @@ body {
   }
 
   .arabic, .quot {
-    color: #009900;
+    color: #57D798;
   }
 
   h3 {
@@ -72,6 +72,22 @@ body {
     text-align: left;
     font-size: small;
     margin: 20px 0px;
+  }
+
+  .poetry{
+    color: #e76c47;
+    margin: 12px 0;
+    text-align: center;
+  }
+
+  .hlt{
+    color: #57D798;
+  }
+
+  .sep {
+    color: #e3120a;
+    font-size: 1.2rem;
+    line-height: 1.8;
   }
 }
 

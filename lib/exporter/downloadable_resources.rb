@@ -728,7 +728,7 @@ module Exporter
         downloadable_resource.name = "Surah Info - #{resource_content.language_name.humanize}"
         downloadable_resource.info = "Surah information in #{resource_content.language.name} language"
         downloadable_resource.save
-        downloadable_resource = set_tags(downloadable_resource, "Surah Info, #{resource_content.language.name}")
+        downloadable_resource = set_tags(downloadable_resource, ["Surah Info", resource_content.language.name])
 
         csv = exporter.export_csv
         json = exporter.export_json
@@ -783,9 +783,11 @@ module Exporter
     def set_tags(download_resource, tags)
       download_resource.save(validate: false) if download_resource.new_record?
 
-      tags = tags.join(',') if tags.is_a?(Array)
       if tags.present?
-        download_resource.tags = tags
+        existing_tags = download_resource.tag_names
+        tags += existing_tags
+
+        download_resource.tags = tags.join(',')
       end
 
       download_resource.save(validate: false)

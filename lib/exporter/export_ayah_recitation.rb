@@ -16,14 +16,21 @@ module Exporter
       FileUtils.mkdir_p(@export_file_path)
       json_file_path = "#{@export_file_path}.json"
 
-      columns = table_column_names
       json_data = {}
 
       records.each do |batch|
         batch.each do |row|
-          json_data[row.verse_key] = Hash[columns.map { |attr, col| [col, row.send(attr)] }]
+          key = row.verse_key || "#{row.chapter_id}:#{row.verse_number}"
+          json_data[key] = {
+            surah_number: row.chapter_id,
+            ayah_number: row.verse_number,
+            audio_url: row.audio_url,
+            duration: row.duration,
+            segments: row.get_segments
+          }
         end
       end
+
       write_json(json_file_path, json_data)
 
       json_file_path

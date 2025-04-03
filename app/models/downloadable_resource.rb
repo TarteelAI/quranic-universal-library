@@ -57,7 +57,7 @@ class DownloadableResource < ApplicationRecord
   validates :resource_content, uniqueness: { allow_nil: true }
 
   def tags=(val)
-    names = val.split(',').map(&:strip).reject(&:empty?)
+    names = val.split(',').map(&:strip).reject(&:empty?).uniq
     names.each do |tag_name|
       tag = DownloadableResourceTag.where('LOWER(name) = ?', tag_name.downcase).first_or_create(name: tag_name)
       downloadable_resource_taggings

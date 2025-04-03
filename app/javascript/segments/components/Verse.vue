@@ -369,7 +369,7 @@ export default {
     },
     rawSegmentStart(index) {
       const segment = this.rawSegments[this.currentVerseNumber];
-      if (segment) return segment[index][1];
+      if (segment && segment[index]) return segment[index][1];
     },
     rawSegmentEnd(index) {
       const segment = this.rawSegments[this.currentVerseKey];

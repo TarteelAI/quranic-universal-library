@@ -111,8 +111,6 @@ const store = createStore({
       } else {
         state.rawSegments = payload.segments;
       }
-
-      state.currentRawSegmentWord = 1;
     },
     SET_WORD(state, payload) {
       state.currentWord = Number(payload.word);
@@ -597,7 +595,8 @@ const store = createStore({
         return;
       }
 
-      const rawAyahSegments = rawSegments[currentVerseKey];
+      const rawSegmentKey = audioType == 'ayah' ? currentVerseKey : currentVerseNumber;
+      const rawAyahSegments = rawSegments[rawSegmentKey];
       if (rawAyahSegments && rawAyahSegments.length > 0) {
         const rawSegment = findVerseSegment(
           time,

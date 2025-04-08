@@ -1,6 +1,6 @@
 # Usage
 # importer = Importer::TafsirApp.new
-# Importer::TafsirApp.delay.import_tafsirs(['tabari', 'ibn-katheer', 'qurtubi', 'baghawi', 'muyassar'])
+# Importer::TafsirApp.delay.import_tafsirs(['alaloosi'])
 
 #
 module Importer

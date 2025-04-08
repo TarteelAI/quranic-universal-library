@@ -46,6 +46,8 @@ module Exporter
     def export_data
       return @json_data if @json_data.present?
 
+      @json_data = {}
+
       Verse.order('verse_index ASC').find_each do |verse|
         if @json_data[verse.verse_key].present?
           next

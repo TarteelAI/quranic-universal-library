@@ -259,7 +259,7 @@ export default {
       }
 
       if(index + 1 === this.currentRawSegmentWord){
-        cssClasses += ' bg-warning';
+        cssClasses += ' text-danger';
       }
 
       if (this.repeatGroups.includes(index + 1)) {
@@ -372,8 +372,8 @@ export default {
       if (segment && segment[index]) return segment[index][1];
     },
     rawSegmentEnd(index) {
-      const segment = this.rawSegments[this.currentVerseKey];
-      if (segment) return segment[index][2];
+      const segment = this.rawSegments[this.currentVerseNumber];
+      if (segment && segment[index]) return segment[index][2];
     },
     segmentText(segment) {
       return this.wordsText[segment[0] - 1];

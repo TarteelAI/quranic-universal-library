@@ -67,12 +67,18 @@ module QuranEnc
 
       issues = resource.run_after_import_hooks
 
+      body = if issues.present?
+               "Imported latest changes. Found  #{issues.size} issues after imports: #{issues.first(3).join(', ')}. \n <a href='/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
+             else
+               "Imported latest changes."
+             end
+
       ActiveAdmin::Comment.create(
         namespace: 'admin',
         resource: resource,
         author_type: 'User',
         author_id: 1,
-        body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
+        body: body
       )
 
       PaperTrail.enabled = true
@@ -99,13 +105,18 @@ module QuranEnc
       resource.save(validate: false)
 
       issues = resource.run_after_import_hooks
+      body = if issues.present?
+               "Imported latest changes. Found  #{issues.size} issues after imports: #{issues.first(3).join(', ')}. \n <a href='/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
+             else
+               "Imported latest changes."
+             end
 
       ActiveAdmin::Comment.create(
         namespace: 'admin',
         resource: resource,
         author_type: 'User',
         author_id: 1,
-        body: "Imported latest changes. Issues found after imports: #{issues.presence || 'NONE'}"
+        body: body
       )
 
       PaperTrail.enabled = true

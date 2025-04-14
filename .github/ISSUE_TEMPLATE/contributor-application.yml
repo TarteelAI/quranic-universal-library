@@ -29,7 +29,6 @@ body:
     id: agreement
     attributes:
       label: Contributor Agreement
-      description: Please confirm the following:
       options:
         - label: I understand that this is a volunteer-based project and my contributions will be used under an open-source license.
           required: true

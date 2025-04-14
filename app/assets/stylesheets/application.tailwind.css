@@ -66,9 +66,11 @@
         background-color: #eafaf1; 
         border: 1px solid #b3e0b3;
     }
+
     .tw-docs .example h3 {
         @apply tw-mt-0;
     }
+
     .tw-docs .note {
         @apply tw-p-4 tw-mt-3 tw-mb-3;
         background-color: #fef6e4; 
@@ -110,12 +112,21 @@
             0 8px 0 #4a5568;
 }
 
-/*
-@layer components {
-  .btn-primary {
-    @apply py-2 px-4 bg-blue-200;
-  }
+.contributor-card {
+    transition: all 0.3s ease;
 }
-*/
+
+.contributor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.contributor-logo {
+    transition: all 0.3s ease;
+}
+
+.contributor-logo:hover .logo {
+    transform: scale(1.05);
+}
 
 

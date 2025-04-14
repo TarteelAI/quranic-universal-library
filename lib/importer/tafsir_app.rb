@@ -17,7 +17,7 @@ module Importer
       'ibn-katheer' => 14,
       'tabari' => 15,
       'qurtubi' => 90,
-      'ibn-aashoor' => 92, #TODO: fix poetry see 2:3
+      'ibn-aashoor' => 92, # TODO: fix poetry see 2:3
       'baghawi' => 94,
       'muyassar' => 16,
       'almuyassar-ghareeb' => 1517,
@@ -96,28 +96,33 @@ module Importer
 
       group_verses = find_ayah_group(verse, tafsir_json['ayahs_start'], tafsir_json['count'])
       source_text = tafsir_json['data']
-      text = sanitize_text(source_text)
-      draft_tafsir.set_meta_value('source_data', { text: source_text })
-      existing_tafsir = Tafsir.for_verse(verse, resource_content)
 
-      draft_tafsir.tafsir_id = existing_tafsir&.id
-      draft_tafsir.current_text = existing_tafsir&.text
-      draft_tafsir.draft_text = text
-      draft_tafsir.text_matched = existing_tafsir&.text == text
+      if source_text.present?
+        text = sanitize_text(source_text)
+        draft_tafsir.set_meta_value('source_data', { text: source_text })
+        existing_tafsir = Tafsir.for_verse(verse, resource_content)
 
-      draft_tafsir.verse_key = verse.verse_key
+        draft_tafsir.tafsir_id = existing_tafsir&.id
+        draft_tafsir.current_text = existing_tafsir&.text
+        draft_tafsir.draft_text = text
+        draft_tafsir.text_matched = existing_tafsir&.text == text
 
-      draft_tafsir.group_verse_key_from = group_verses.first.verse_key
-      draft_tafsir.group_verse_key_to = group_verses.last.verse_key
-      draft_tafsir.group_verses_count = group_verses.size
-      draft_tafsir.start_verse_id = group_verses.first.id
-      draft_tafsir.end_verse_id = group_verses.last.id
-      draft_tafsir.group_tafsir_id = verse.id
+        draft_tafsir.verse_key = verse.verse_key
 
-      draft_tafsir.save(validate: false)
+        draft_tafsir.group_verse_key_from = group_verses.first.verse_key
+        draft_tafsir.group_verse_key_to = group_verses.last.verse_key
+        draft_tafsir.group_verses_count = group_verses.size
+        draft_tafsir.start_verse_id = group_verses.first.id
+        draft_tafsir.end_verse_id = group_verses.last.id
+        draft_tafsir.group_tafsir_id = verse.id
 
-      puts "#{verse.verse_key} - #{draft_tafsir.id}"
-      draft_tafsir
+        draft_tafsir.save(validate: false)
+
+        puts "#{verse.verse_key} - #{draft_tafsir.id}"
+        draft_tafsir
+      else
+        log_message "Tafsir is missing for ayah #{verse.verse_key}"
+      end
     end
 
     def fetch_tafsir(key, verse)
@@ -178,7 +183,6 @@ module Importer
 
       # Wrap Ayah references in a span with a specific class
       text.gsub!(/(\[[ء-ْ ]{1,11}: [\d٠-٩، -]+\])/, '<span class="ayah-tag">\1</span>')
-
 
       # Wrap poetry lines marked by '؎' inside paragraph tags
       text.gsub!(/؎ ?(.*?)(?=]])/, poetry_wrap)

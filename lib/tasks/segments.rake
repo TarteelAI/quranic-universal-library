@@ -195,8 +195,6 @@ namespace :segments do
 
       result = []
       ayah_groups.each do |(surah, ayah), words|
-        #sorted_words = words.sort_by { |w| w[:word_number] }
-
         adjusted_words = []
         previous_end = nil
 

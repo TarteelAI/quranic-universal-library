@@ -3,10 +3,13 @@
 # Table name: audio_files
 #
 #  id                 :integer          not null, primary key
-#  bit_rate           :integer
-#  duration           :integer
+#  audio_url          :string
+#  bit_rate           :float
+#  duration           :float
 #  duration_ms        :integer
+#  file_size          :integer
 #  format             :string
+#  has_repetition     :boolean          default(FALSE)
 #  hizb_number        :integer
 #  is_enabled         :boolean
 #  juz_number         :integer
@@ -14,10 +17,11 @@
 #  meta_data          :jsonb
 #  mime_type          :string
 #  page_number        :integer
+#  repeated_segments  :string
 #  rub_el_hizb_number :integer
 #  ruku_number        :integer
 #  segments           :text
-#  segments_count     :integer
+#  segments_count     :integer          default(0)
 #  surah_ruku_number  :integer
 #  url                :text
 #  verse_key          :string
@@ -33,6 +37,7 @@
 #
 #  index_audio_files_on_chapter_id                   (chapter_id)
 #  index_audio_files_on_chapter_id_and_verse_number  (chapter_id,verse_number)
+#  index_audio_files_on_has_repetition               (has_repetition)
 #  index_audio_files_on_hizb_number                  (hizb_number)
 #  index_audio_files_on_is_enabled                   (is_enabled)
 #  index_audio_files_on_juz_number                   (juz_number)

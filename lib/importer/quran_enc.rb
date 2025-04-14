@@ -117,7 +117,7 @@ module Importer
           verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")
 
           if !has_footnotes && data['footnotes'].present?
-            @issues.push({
+            .push({
                            tag: 'missing-footnote-mapping',
                            text: verse.verse_key
                          })
@@ -152,68 +152,6 @@ module Importer
       end.reject { |t| t.include?('arabic') }
 
       translations - TRANSLATIONS_MAPPING.keys.map(&:to_s)
-    end
-
-    def after_import(resource)
-      resource.set_meta_value('synced-at', DateTime.now)
-
-      if @issues.present?
-        issues_group = @issues.group_by do |issue|
-          issue[:tag]
-        end
-
-        issues_group.keys.each do |issue_tag|
-          issue_description = issues_group[issue_tag].map do |issue|
-            issue[:text]
-          end
-
-          AdminTodo.create(
-            is_finished: false,
-            tags: issue_tag,
-            resource_content_id: resource.id,
-            description: "#{quran_enc_key} parse issues in #{resource.name}(#{resource.id}). <div>#{issue_tag}</div>\n#{issue_description.uniq.join(', ')}"
-          )
-        end
-      end
-
-      if resource.id == 127
-        # This is Ubzek translation, we've a Latin version of this translation
-        # update the latin version too
-
-        latin = ResourceContent.find(55)
-        latin_footnote = ResourceContent.find(195)
-        converter = Utils::CyrillicToLatin.new
-        Draft::FootNote.where(resource_content_id: latin_footnote.id).delete_all
-
-        Draft::Translation.where(resource_content_id: resource.id).each do |translation|
-          data = translation.meta_value('source_data')
-          draft_translation = create_translation_with_footnote(
-            translation.verse,
-            latin,
-            latin_footnote,
-            'uzbek_sadiq_latin',
-            data,
-            report_foonote_issues: false
-          )
-
-          text = converter.to_latin(draft_translation.draft_text)
-
-          draft_translation.update_columns(
-            draft_text: text,
-            text_matched: remove_footnote_tag(text) == remove_footnote_tag(draft_translation.current_text)
-          )
-
-          draft_translation.foot_notes.each do |foot_note|
-            text = converter.to_latin(foot_note.draft_text)
-            foot_note.update_columns(
-              draft_text: text,
-              text_matched: text == foot_note.current_text
-            )
-          end
-        end
-      end
-
-      resource.save
     end
 
     protected
@@ -320,12 +258,9 @@ module Importer
       if data['footnotes'].present?
         if report_foonote_issues && (footnote_id_reg.nil? || footnote_text_reg.nil?)
           need_to_review = true
-          @issues.push({
-                         tag: 'missing-footnote-mapping',
-                         text: verse.verse_key
-                       })
 
-          puts "====FOOTNOTE REGEXP is missing for #{quran_enc_key} and #{verse.verse_key} has footnote"
+          log_issue({tag: 'missing-footnote-mapping', text: verse.verse_key })
+          log_message "====FOOTNOTE REGEXP is missing for #{quran_enc_key} and #{verse.verse_key} has footnote"
         end
 
         translation.save(validate: false)
@@ -367,10 +302,7 @@ module Importer
         if footnote_ids.blank?
           if report_foonote_issues
             need_to_review = true
-            @issues.push({
-                           tag: 'wrong-footnote-mapping',
-                           text: verse.verse_key
-                         })
+            log_issue({ tag: 'wrong-footnote-mapping', text: verse.verse_key })
           end
 
           footnotes_texts = footnotes_texts.join(' ')

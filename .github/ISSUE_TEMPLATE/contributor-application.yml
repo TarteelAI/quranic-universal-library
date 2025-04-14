@@ -1,0 +1,35 @@
+name: 🙋 New Contributor Application
+description: If you'd like to contribute to QUL, please fill out this form.
+labels: [contributor-request]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Your Name
+    validations:
+      required: true
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Info
+      description: How can we reach you? Email, GitHub, or any other preferred method.
+    validations:
+      required: true
+
+  - type: textarea
+    id: contribution
+    attributes:
+      label: How would you like to contribute?
+      description: Tell us a little about how you’d like to help — code, content review, translation, proofreading, etc.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: agreement
+    attributes:
+      label: Contributor Agreement
+      description: Please confirm the following:
+      options:
+        - label: I understand that this is a volunteer-based project and my contributions will be used under an open-source license.
+          required: true

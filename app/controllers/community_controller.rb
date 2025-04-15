@@ -4,7 +4,7 @@ class CommunityController < ApplicationController
   before_action :load_resource_access
 
   def contributors
-    @contributors = Contributor.all
+    @contributors = Contributor.published
   end
 
   def tools

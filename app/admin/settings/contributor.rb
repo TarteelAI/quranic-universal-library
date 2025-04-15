@@ -10,6 +10,7 @@ ActiveAdmin.register Contributor do
       row :id
       row :name
       row :url
+      row :published
       row :description do
         resource.description.to_s.html_safe
       end
@@ -51,6 +52,7 @@ ActiveAdmin.register Contributor do
     f.inputs do
       f.input :name, required: true
       f.input :url
+      f.input :published
       f.input :description, input_html: { data: { controller: 'tinymce' } }
       f.input :logo, as: :file, hint: f.object.logo.attached? ? image_tag(f.object.logo) : content_tag(:span, 'No logo attached')
     end
@@ -63,6 +65,7 @@ ActiveAdmin.register Contributor do
     name
     url
     description
+    published
    ]
   end
 end

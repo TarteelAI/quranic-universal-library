@@ -10,8 +10,9 @@
 #  updated_at  :datetime         not null
 #
 class Contributor < ApplicationRecord
-  has_one_attached :logo, service: Rails.env.development? ? :local : :qul_exports
+  scope :published, -> { where(published: true) }
 
+  has_one_attached :logo, service: Rails.env.development? ? :local : :qul_exports
 
   def attach_logo(io:, filename:)
     key = "contributors/#{SecureRandom.base36(5)}/#{filename}"

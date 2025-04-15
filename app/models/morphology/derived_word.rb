@@ -28,6 +28,7 @@
 
 class Morphology::DerivedWord < QuranApiRecord
   belongs_to :verse
+  belongs_to :word
   belongs_to :morphology_word, class_name: 'Morphology::Word', foreign_key: :word_id
   belongs_to :derived_word, class_name: 'Morphology::Word', optional: true
   belongs_to :word_verb_from, optional: true, class_name: 'Morphology::WordVerbForm'

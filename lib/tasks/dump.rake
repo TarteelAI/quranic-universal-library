@@ -10,14 +10,22 @@ namespace :dump do
     verse_ids = verses.pluck(:id)
     Audio::Segment.where("verse_id IN(?)", verse_ids).delete_all
     Translation.where("verse_number > 20").delete_all
+    Tafsir.where("verse_number > 20").delete_all
+    FootNote.left_outer_joins(:translation).where(translation: { id: nil }).delete_all
 
     verses.each do |v|
       Morphology::WordVerbForm.joins(:word).where(morphology_words: { verse_id: v.id }).delete_all
       Morphology::WordSegment.joins(:word).where(morphology_words: { verse_id: v.id }).delete_all
       Morphology::Word.where(verse_id: v.id).delete_all
+      Morphology::DerivedWord.where(verse_id: v.id).delete_all
       AyahTheme.where("verse_id_from >= ?", v.id).delete_all
+      TajweedWord.where("verse_id >= ?", v.id).delete_all
+      MushafWord.where("verse_id >= ?", v.id).delete_all
     end
-    Morphology::DerivedWord.where(verse_id: verse_ids).delete_all
+
+    Morphology::PhraseVerse.where(verse_id: verse_ids).delete_all
+    Morphology::Phrase.where(source_verse_id: verse_ids).delete_all
+    Morphology::DerivedWord.left_outer_joins(:word).where(word: { id: nil }).delete_all
 
     Audio::ChangeLog.delete_all
     AudioFile.where(verse_id: verse_ids).delete_all
@@ -35,9 +43,12 @@ namespace :dump do
       t.destroy rescue nil
     end
 
+    # MushafPage.where.not(mushaf_id: [2, 3, 6]).delete_all
+    # Mushaf.where.not(id: [2, 3, 6]).delete_all
+
     NavigationSearchRecord.delete_all
     WordTranslation.joins(:word).where(word: { verse_id: verse_ids }).delete_all
-    Word.where(verse_id: verse_ids).delete_all
+    Word.where(verse_id: verse_ids).destroy_all
 
     Chapter.find_each do |chapter|
       chapter.slugs.where.not(locale: 'en').delete_all
@@ -52,13 +63,17 @@ namespace :dump do
     DataSource.update_all(name: 'Demo', url: 'Demo')
 
     # Create SQL dump
-    `pg_dump quran_dev > dumps/min_quran_dev.sql`
+    `pg_dump quran_dev > dumps/mini_quran_dev.sql`
 
     # Create binary dump
     `pg_dump -b -E UTF-8 -f dumps/quran_dev.dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean quran_dev`
   end
 
   task remove_old_tables: :environment do
+    if !Rails.env.development?
+      raise "This task can only be run in development environment"
+    end
+
     views = [
       'text_font',
       'text_lemma',
@@ -77,13 +92,12 @@ namespace :dump do
     tables = [
       'image',
       'word_translation',
-      'word_corpus',
       'word_lemma',
       'word_root',
       'word_font',
+      'text',
       'ayah',
       'surah',
-      'text',
       'root',
       'stem',
       'word_stem',

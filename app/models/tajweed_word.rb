@@ -30,6 +30,7 @@
 class TajweedWord < QuranApiRecord
   belongs_to :mushaf
   belongs_to :word
+  belongs_to :verse
   belongs_to :resource_content
 
   scope :rule_eq, lambda { |rule|

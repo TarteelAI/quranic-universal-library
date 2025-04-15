@@ -1,13 +1,45 @@
 namespace :one_time do
+  task preview_tafsir_app: :Environment do
+    data = Oj.load File.read("data/tafsir-app-sample.json")
+
+    def export(data)
+      res = "<html>
+<head>
+    <meta charset='utf-8'>
+    <style>
+        .poetry{
+            text-align: center;
+            color: orange;
+        }
+        .ar{
+            direction: rtl;
+        } .hlt{
+            color: red;
+        }.ayah-tag{color:blue}
+    </style>
+</head>
+<body>
+<div class=ar land=ar>
+  #{simple_format data['data']}
+</div>
+</body>
+</html>
+"
+      File.open("data/res.html", "wb") do |f|
+        f.puts res
+      end
+    end
+  end
+
   task import_segments: :environment do
     recitation = Recitation.where(id: 42).first_or_create(reciter_name: 'Test')
 
     def load_segments(verse)
-      file = "/Volumes/Development/tarteel/quran-segment-align/timestamps/alnafes/#{verse.chapter_id.to_s.rjust(3, '0')}#{verse.verse_number.to_s.rjust(3, '0')}.json"
+      file = "../quran-segment-align/timestamps/alnafes/#{verse.chapter_id.to_s.rjust(3, '0')}#{verse.verse_number.to_s.rjust(3, '0')}.json"
       if File.exist?(file)
         data = Oj.load File.read(file)
 
-        i =  0
+        i = 0
         data.map do |a|
           i += 1
           start = if i == 1
@@ -33,7 +65,7 @@ namespace :one_time do
       audio_file.juz_number = v.juz_number
       audio_file.manzil_number = v.manzil_number
       audio_file.verse_number = v.verse_number
-      audio_file.page_number  = v.page_number
+      audio_file.page_number = v.page_number
       audio_file.rub_el_hizb_number = v.rub_el_hizb_number
       audio_file.ruku_number = v.ruku_number
       audio_file.verse_key = v.verse_key
@@ -49,13 +81,12 @@ namespace :one_time do
     Recitation.find_each do |r|
       r.update_audio_stats
     end
-
   end
 
   task generate_align_text: :environment do
     FileUtils.mkdir_p "dataset/text"
 
-    Dir["/Volumes/Development/tarteel/quran-segment-align/dataset/audio/Alnafes_wav/*.wav"].each do |file|
+    Dir["../quran-segment-align/dataset/audio/Alnafes_wav/*.wav"].each do |file|
       name = File.basename(file, ".wav")
       FileUtils.rm(file) if name[3..5] == '000'
     end
@@ -63,7 +94,7 @@ namespace :one_time do
     missing = []
     exist = []
     Verse.find_each do |v|
-      if File.exist?("/Volumes/Development/tarteel/quran-segment-align/dataset/audio/Alnafes_wav/#{v.chapter_id.to_s.rjust(3, '0')}#{v.verse_number.to_s.rjust(3, '0')}.wav")
+      if File.exist?("../quran-segment-align/dataset/audio/Alnafes_wav/#{v.chapter_id.to_s.rjust(3, '0')}#{v.verse_number.to_s.rjust(3, '0')}.wav")
         exist << v.verse_key
       else
         missing << v.verse_key
@@ -86,9 +117,6 @@ namespace :one_time do
 
   task remove_space_before_footnote: :environment do
     PaperTrail.enabled = false
-    translations = "130,120,151,153,149,31,97,125,106,134,56,101,139,136,141,122,95,33,20,945,115,771,203,904,54,786,782,213,220,76,85,774,83"
-    # 23893
-    # translations = Translation.where("text LIKE '% <%'").pluck(:resource_content_id).uniq
 
     Translation.where("text LIKE '% <%'").find_each do |t|
       t.text = t.text.gsub(/\s</, '<')

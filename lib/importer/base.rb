@@ -59,7 +59,7 @@ module Importer
 
 
     def run_after_import_hooks(resource)
-      resource.set_meta_value('synced-at', DateTime.now)
+      resource_content.run_draft_import_hooks
 
       if @issues.present?
         issues_group = @issues.group_by do |issue|

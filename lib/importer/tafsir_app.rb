@@ -82,7 +82,7 @@ module Importer
         end
       end
 
-      resource_content.run_draft_import_hooks
+      run_after_import_hooks(resource_content)
     end
 
     protected

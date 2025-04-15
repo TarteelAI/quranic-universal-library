@@ -142,7 +142,7 @@ module Importer
 
       resource.save
 
-      after_import(resource)
+      run_after_import_hooks(resource)
     end
 
     def report_new_translations

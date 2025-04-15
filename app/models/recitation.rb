@@ -4,9 +4,11 @@
 #
 #  id                  :integer          not null, primary key
 #  files_count         :integer
+#  name                :string
 #  reciter_name        :string
+#  relative_path       :string
 #  segment_locked      :boolean          default(TRUE)
-#  segments_count      :integer
+#  segments_count      :integer          default(0)
 #  style               :string
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null

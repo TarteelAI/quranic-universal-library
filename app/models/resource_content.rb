@@ -190,6 +190,10 @@ class ResourceContent < QuranApiRecord
     Font = 'font'
   end
 
+  def source_slug
+    meta_value('tafsirapp-key') || meta_value('quranenc-key')
+  end
+
   def allow_publish_sharing?
     permission = resource_permission
 

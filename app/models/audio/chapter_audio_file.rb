@@ -12,8 +12,9 @@
 #  file_name           :string
 #  file_size           :float
 #  format              :string
-#  meta_data           :jsonb
+#  metadata            :jsonb
 #  mime_type           :string
+#  segments_count      :integer          default(0)
 #  stream_count        :integer
 #  timing_percentiles  :string           is an Array
 #  total_files         :integer

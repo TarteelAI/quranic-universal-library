@@ -32,7 +32,8 @@ module Exporter
           name_arabic: 'TEXt',
           revelation_order: 'INTEGER',
           revelation_place: 'TEXT',
-          verses_count: 'INTEGER'
+          verses_count: 'INTEGER',
+          bismillah_pre: 'INTEGER'
         }
 
         statement = create_sqlite_table(file_path, 'chapters', columns)
@@ -45,7 +46,8 @@ module Exporter
                               chapter.name_arabic,
                               chapter.revelation_order,
                               chapter.revelation_place,
-                              chapter.verses_count
+                              chapter.verses_count,
+                              chapter.bismillah_pre ? 1 :0
                             ])
         end
       else
@@ -58,7 +60,8 @@ module Exporter
             name_arabic: chapter.name_arabic,
             revelation_order: chapter.revelation_order,
             revelation_place: chapter.revelation_place,
-            verses_count: chapter.verses_count
+            verses_count: chapter.verses_count,
+            bismillah_pre: chapter.bismillah_pre
           }
         end
 

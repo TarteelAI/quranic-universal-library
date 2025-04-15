@@ -6,9 +6,11 @@
 #  id                       :bigint           not null, primary key
 #  duration                 :integer
 #  duration_ms              :integer
+#  has_repetition           :boolean          default(FALSE)
 #  percentile               :float
 #  relative_segments        :jsonb
 #  relative_silent_duration :integer
+#  repeated_segments        :string
 #  segments                 :jsonb
 #  silent_duration          :integer
 #  timestamp_from           :integer
@@ -29,6 +31,7 @@
 #  index_audio_segments_on_audio_file_id_and_verse_number  (audio_file_id,verse_number) UNIQUE
 #  index_audio_segments_on_audio_recitation_id             (audio_recitation_id)
 #  index_audio_segments_on_chapter_id                      (chapter_id)
+#  index_audio_segments_on_has_repetition                  (has_repetition)
 #  index_audio_segments_on_verse_id                        (verse_id)
 #  index_audio_segments_on_verse_number                    (verse_number)
 #  index_on_audio_segments_median_time                     (audio_recitation_id,chapter_id,verse_id,timestamp_median)

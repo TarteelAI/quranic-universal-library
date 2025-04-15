@@ -16,6 +16,7 @@ class Ability
     cannot :read, AdminTodo
     cannot :read, AdminUser
     cannot :notify_users, DownloadableResource
+    cannot :read, Contributor
 
     can :read, User, id: user.id
     can :update, User, id: user.id

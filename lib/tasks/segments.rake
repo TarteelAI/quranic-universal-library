@@ -1,19 +1,10 @@
 namespace :segments do
+  # With translations 39,
+
   task prepare_audio: :environment do
     require 'thread'
     MAX_CONCURRENT_DOWNLOADS = 10
     MAX_CONCURRENT_ENCODES = 5
-
-    recitation = Audio::Recitation.find(168)
-    base_path = "tmp/audio/#{recitation.id}"
-    surah_audio_path = "#{base_path}/surah/mp3"
-    surah_audio_wav_path = "#{base_path}/surah/wav"
-
-    FileUtils.mkdir_p("#{base_path}/vs_logs")
-    FileUtils.mkdir_p("#{base_path}/results")
-
-    FileUtils.mkdir_p(surah_audio_path)
-    FileUtils.mkdir_p(surah_audio_wav_path)
 
     def download_audio(url, destination_file)
       if File.exist?(destination_file)
@@ -44,35 +35,67 @@ namespace :segments do
       `ffmpeg -i #{mp3_path} -ac 1 -ar 16000 -c:a pcm_s16le #{wav_path}`
     end
 
-    queue = Queue.new
-    threads = []
+    def parse_chapter_ids(chapter_ids)
+      chapter_ids = chapter_ids
+                      .split(',')
+                      .flat_map do |range|
+        range = range.split('..').map(&:to_i)
+        range << range.first if range.length == 1
+        puts "Range: #{range}"
+        Range.new(*range).to_a
+      end
 
-    recitation.chapter_audio_files.order('chapter_id ASC').each do |audio_file|
-      queue << audio_file
+      chapter_ids.uniq
     end
 
-    5.times do
-      # Use 5 threads to download and encode audio in parallel
-      threads << Thread.new do
-        while !queue.empty?
-          audio_file = queue.pop(true) rescue nil
-          next unless audio_file
+    recitations = Audio::Recitation.all
+    chapter_range = parse_chapter_ids("1,93..114")
 
-          file_url = audio_file.audio_url
-          mp3_path = "#{surah_audio_path}/#{audio_file.chapter_id}.mp3"
-          wav_path = "#{surah_audio_wav_path}/#{audio_file.chapter_id}.wav"
+    recitations.each do |recitation|
+      base_path = "tmp/audio/#{recitation.id}"
+      surah_audio_path = "#{base_path}/surah/mp3"
+      surah_audio_wav_path = "#{base_path}/surah/wav"
 
-          puts "Downloading: #{file_url}"
-          download_audio(file_url, mp3_path)
+      FileUtils.mkdir_p("#{base_path}/vs_logs")
+      FileUtils.mkdir_p("#{base_path}/results")
 
-          puts "Encoding: #{mp3_path}"
-          encode_to_wave(mp3_path, wav_path)
+      FileUtils.mkdir_p(surah_audio_path)
+      FileUtils.mkdir_p(surah_audio_wav_path)
+
+      queue = Queue.new
+      threads = []
+      audio_files = recitation
+                      .chapter_audio_files
+                      .order('chapter_id ASC')
+                      .where(chapter_id: chapter_range)
+
+      audio_files.each do |audio_file|
+        queue << audio_file
+      end
+
+      5.times do
+        # Use 5 threads to download and encode audio in parallel
+        threads << Thread.new do
+          while !queue.empty?
+            audio_file = queue.pop(true) rescue nil
+            next unless audio_file
+
+            file_url = audio_file.audio_url
+            mp3_path = "#{surah_audio_path}/#{audio_file.chapter_id}.mp3"
+            wav_path = "#{surah_audio_wav_path}/#{audio_file.chapter_id}.wav"
+
+            puts "Downloading: #{file_url}"
+            download_audio(file_url, mp3_path)
+
+            puts "Encoding: #{mp3_path}"
+            encode_to_wave(mp3_path, wav_path)
+          end
         end
       end
-    end
 
-    threads.each(&:join)
-    puts "All audio files are downloaded and encoded to wav, see #{surah_audio_wav_path}"
+      threads.each(&:join)
+      puts "All audio files are downloaded and encoded to wav, see #{surah_audio_wav_path}"
+    end
   end
 
   task prepare_segments: :environment do
@@ -125,7 +148,7 @@ namespace :segments do
 
     def merge_ayah_segments(ayah_segments)
       surah = ayah_segments[:surah]
-      ayah  = ayah_segments[:ayah]
+      ayah = ayah_segments[:ayah]
       words = ayah_segments[:words]
 
       words_timing = []
@@ -195,8 +218,6 @@ namespace :segments do
 
       result = []
       ayah_groups.each do |(surah, ayah), words|
-        #sorted_words = words.sort_by { |w| w[:word_number] }
-
         adjusted_words = []
         previous_end = nil
 

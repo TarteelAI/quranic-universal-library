@@ -17,7 +17,7 @@ ActiveAdmin.register DatabaseBackup do
         BackupJob.perform_later
         redirect_to admin_database_backups_path, notice: 'New backup will be started soon'
       when 'sync_quranenc'
-        QuranEnc::UpdatesCheckerJob.perform_later
+        DraftContent::CheckContentChangesJob.perform_later
         redirect_to admin_dashboard_path, notice: 'Sync will starts soon.'
       when 'restart_sidekiq'
         Utils::System.start_sidekiq

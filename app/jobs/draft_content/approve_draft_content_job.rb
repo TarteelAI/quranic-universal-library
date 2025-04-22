@@ -1,87 +1,37 @@
 # frozen_string_literal: true
+# DraftContent::ApproveDraftContentJob.perform_now(926)
 
-# QuranEnc::ApproveDraftTranslationJob.perform_now(926)
-
-module QuranEnc
-  class ApproveDraftTranslationJob < ApplicationJob
+module DraftContent
+  class ApproveDraftContentJob < ApplicationJob
     sidekiq_options retry: 1, backtrace: true
 
-    def perform(id, remove_draft: false)
+    def perform(id)
       resource = ResourceContent.find(id)
+      PaperTrail.enabled = false
 
-      if remove_draft
-        if resource.tafsir?
-          remove_draft_tafsirs(resource)
-        else
-          if resource.one_word?
-            remove_draft_word_translations(resource)
-          else
-            remove_draft_translations(resource)
-          end
-        end
+      if resource.tafsir?
+        approve_draft_tafsirs(resource)
+      elsif resource.translation?
+        approve_draft_translations(resource)
       else
-        resource.tafsir? ? approve_draft_tafsirs(resource) : approve_draft_translations(resource)
+        PaperTrail.enabled = true
+
+        raise "Unknown resource type: #{resource.resource_type}"
       end
+
+      PaperTrail.enabled = true
+      AdminTodo
+        .where(resource_content_id: resource.id)
+        .update_all(is_finished: true)
     end
 
     protected
 
-    def remove_draft_tafsirs(resource)
-      Draft::Tafsir.where(resource_content_id: resource.id).find_each do |draft|
-        draft.delete
-      end
-    end
-
-    def remove_draft_translations(resource)
-      Draft::Translation.includes(:foot_notes).where(resource_content_id: resource.id).find_each do |draft|
-        draft.foot_notes.delete_all
-        draft.delete
-      end
-
-      AdminTodo
-        .where(resource_content_id: resource.id)
-        .delete_all
-    end
-
-    def remove_draft_word_translations(resource)
-      Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
-
-      AdminTodo
-        .where(resource_content_id: resource.id)
-        .delete_all
-    end
-
     def approve_draft_tafsirs(resource)
-      PaperTrail.enabled = false
       import_tafsirs(resource)
 
-      resource.set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))
-      if resource.quran_enc_key.present?
-        resource.set_meta_value('quranenc-imported-version', resource.delete_meta_value('draft-quranenc-import-version'))
-        resource.set_meta_value('quranenc-imported-timestamp',
-                                resource.delete_meta_value('draft-quranenc-import-timestamp'))
-        resource.set_meta_value('quranenc-imported-date', resource.delete_meta_value('draft-quranenc-import-date'))
-      end
-
-      resource.save(validate: false)
-
       issues = resource.run_after_import_hooks
-
-      body = if issues.present?
-               "Imported latest changes. Found  #{issues.size} issues after imports: #{issues.first(3).join(', ')}. \n <a href='/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
-             else
-               "Imported latest changes."
-             end
-
-      ActiveAdmin::Comment.create(
-        namespace: 'admin',
-        resource: resource,
-        author_type: 'User',
-        author_id: 1,
-        body: body
-      )
-
-      PaperTrail.enabled = true
+      report_issues(resource, issues)
     end
 
     def approve_draft_translations(resource)
@@ -93,37 +43,8 @@ module QuranEnc
         import_translations(resource)
       end
 
-      resource.set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))
-
-      if resource.quran_enc_key.present?
-        resource.set_meta_value('quranenc-imported-version', resource.delete_meta_value('draft-quranenc-import-version'))
-        resource.set_meta_value('quranenc-imported-timestamp',
-                                resource.delete_meta_value('draft-quranenc-import-timestamp'))
-        resource.set_meta_value('quranenc-imported-date', resource.delete_meta_value('draft-quranenc-import-date'))
-      end
-
-      resource.save(validate: false)
-
       issues = resource.run_after_import_hooks
-      body = if issues.present?
-               "Imported latest changes. Found  #{issues.size} issues after imports: #{issues.first(3).join(', ')}. \n <a href='/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
-             else
-               "Imported latest changes."
-             end
-
-      ActiveAdmin::Comment.create(
-        namespace: 'admin',
-        resource: resource,
-        author_type: 'User',
-        author_id: 1,
-        body: body
-      )
-
-      PaperTrail.enabled = true
-
-      AdminTodo
-        .where(resource_content_id: resource.id)
-        .update_all(is_finished: true)
+      report_issues(resource, issues)
     end
 
     def import_translations(resource)
@@ -217,13 +138,15 @@ module QuranEnc
     end
 
     def import_tafsirs(resource)
-      Draft::Tafsir.where(resource_content_id: resource.id).update_all(imported: false)
+      tafsirs =  Draft::Tafsir
+                   .where(resource_content_id: resource.id)
+      tafsirs.update_all(imported: false)
 
       language = resource.language
       imported_ids = []
       imported_ayahs = {}
 
-      Draft::Tafsir.includes(:verse).where(resource_content_id: resource.id).find_each do |draft|
+      tafsirs.includes(:verse).find_each(batch_size: 500) do |draft|
         next if draft.draft_text.blank? || imported_ayahs[draft.verse_key]
 
         verse = draft.verse
@@ -266,13 +189,30 @@ module QuranEnc
         draft.update_column(:imported, true)
       end
 
-      # Archive previous tafsir itmes that are not updated with this bulk import
+      # Archive previous tafsir items that are not updated with this bulk import
       Tafsir
         .where(
           resource_content_id: resource.id
         ).where
         .not(id: imported_ids)
         .update_all(archived: true)
+    end
+
+    def report_issues(resource, issues)
+      body = if issues.present?
+               summary = issues.first(3).join(', ')
+               "Imported latest changes. Found  #{issues.size} issues after imports: #{summary}. \n <a href='/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
+             else
+               "Imported latest changes."
+             end
+
+      ActiveAdmin::Comment.create(
+        namespace: 'admin',
+        resource: resource,
+        author_type: 'User',
+        author_id: 1,
+        body: body
+      )
     end
   end
 end

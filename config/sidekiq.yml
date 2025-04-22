@@ -18,6 +18,6 @@ staging:
     description: "Daily database backup job"
 
   quran_enc_update_checker:
-    class: QuranEnc::UpdatesCheckerJob
+    class: DraftContent::CheckContentChangesJob
     cron: "0 6 * * 0"
-    description: "Weekly job to check for translation and tafsir updated from QuranEnc"
+    description: "Weekly job to check for translation and tafsir changes from sources"

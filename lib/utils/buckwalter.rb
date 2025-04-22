@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Utils::Buckwalter.new.to_arabic("bi+")
 module Utils
   class Buckwalter
     # Using this mapping for Arabic to English root transformation

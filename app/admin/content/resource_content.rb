@@ -71,7 +71,7 @@ ActiveAdmin.register ResourceContent do
   end
 
   action_item :import_draft, only: :show, if: -> { can? :manage, Draft::Translation } do
-    if resource.sourced_from_quranenc?
+    if resource.syncable?
       type = resource.tafsir? ? 'tafsir' : 'translation'
       link_to "Import Draft #{type}", import_draft_admin_resource_content_path(resource), method: :put,
               data: { confirm: "Are you sure to import #{type} for this resource from QuranEnc?" }
@@ -112,21 +112,17 @@ ActiveAdmin.register ResourceContent do
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
 
-    #if !current_user.super_admin?
-    #  return redirect_back fallback_location: "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}", alert: 'Sorry, you can not perform this action'
-    #end
-
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
     if params[:approved]
-      QuranEnc::ApproveDraftTranslationJob.perform_later(resource.id)
+      DraftContent::ApproveDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be imported shortly!"
     elsif params[:remove_draft]
-      QuranEnc::ApproveDraftTranslationJob.perform_later(resource.id, remove_draft: true)
+      DraftContent::RemoveDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be removed shortly!"
     else
-      QuranEnc::ImportDraftTranslationJob.perform_later(resource.id)
+      DraftContent::ImportDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be synced shortly!"
     end
 

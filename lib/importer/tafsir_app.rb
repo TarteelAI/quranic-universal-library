@@ -1,5 +1,6 @@
 # Usage
 # importer = Importer::TafsirApp.new
+# importer.import('ayah-morph')
 # Importer::TafsirApp.delay.import_tafsirs(['alaloosi'])
 
 #
@@ -54,8 +55,10 @@ module Importer
       'mahasin-altaweel' => 1513,
       'althaalabi' => 1514,
       'samarqandi' => 1515,
-      'althalabi' => 1516
+      'althalabi' => 1516,
+      'ayah-morph' => 1518
     }
+
 
     def self.import_tafsirs(keys)
       keys.each do |key|
@@ -162,7 +165,19 @@ module Importer
         end
       end
 
-      "<div class=ar lang=ar>#{html}</div>"
+      doc = Nokogiri::HTML.fragment(html)
+
+      doc.css('a[href^="/quran-roots/"]').each do |a_tag|
+        if a_tag['href'] =~ %r{^/quran-roots/(.+)}
+          root_text = $1
+          # Create a new <root> element with the extracted text
+          new_node = Nokogiri::XML::Node.new('root', doc)
+          new_node.content = root_text
+          a_tag.replace(new_node)
+        end
+      end
+
+      "<div class=ar lang=ar>#{doc.to_html}</div>"
     end
 
     def prep_data_mathoor(text)

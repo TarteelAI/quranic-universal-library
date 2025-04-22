@@ -1,5 +1,17 @@
 namespace :segments do
   # With translations 39,
+  def parse_chapter_ids(chapter_ids)
+    chapter_ids = chapter_ids
+                    .split(',')
+                    .flat_map do |range|
+      range = range.split('..').map(&:to_i)
+      range << range.first if range.length == 1
+      puts "Range: #{range}"
+      Range.new(*range).to_a
+    end
+
+    chapter_ids.uniq
+  end
 
   task prepare_audio: :environment do
     require 'thread'
@@ -35,21 +47,8 @@ namespace :segments do
       `ffmpeg -i #{mp3_path} -ac 1 -ar 16000 -c:a pcm_s16le #{wav_path}`
     end
 
-    def parse_chapter_ids(chapter_ids)
-      chapter_ids = chapter_ids
-                      .split(',')
-                      .flat_map do |range|
-        range = range.split('..').map(&:to_i)
-        range << range.first if range.length == 1
-        puts "Range: #{range}"
-        Range.new(*range).to_a
-      end
-
-      chapter_ids.uniq
-    end
-
-    recitations = Audio::Recitation.all
-    chapter_range = parse_chapter_ids("1,93..114")
+    recitations = Audio::Recitation.where.not(id: 171)
+    chapter_ids = parse_chapter_ids("1,93..114")
 
     recitations.each do |recitation|
       base_path = "tmp/audio/#{recitation.id}"
@@ -67,7 +66,7 @@ namespace :segments do
       audio_files = recitation
                       .chapter_audio_files
                       .order('chapter_id ASC')
-                      .where(chapter_id: chapter_range)
+                      .where(chapter_id: chapter_ids)
 
       audio_files.each do |audio_file|
         queue << audio_file
@@ -98,18 +97,42 @@ namespace :segments do
     end
   end
 
-  task prepare_segments: :environment do
+  task generate_segments: :environment do
+    recitations = Audio::Recitation.where.not(id: 171)
+    chapter_ids = parse_chapter_ids("1,93..114")
+
+    base_path = Rails.root.join("tmp/audio/vs_logs")
+    FileUtils.mkdir_p(base_path)
+
+    Dir.chdir('../voice-server') do
+      recitations.each do |recitation|
+        chapter_ids.each do |chapter_id|
+          surah_index = chapter_id.to_s.rjust(4, '0')
+          reciter_index = recitation.id.to_s.rjust(4, '0')
+          session_prefix = "#{surah_index}#{reciter_index}"
+          segment_session = Dir.glob("#{base_path}/#{session_prefix}-*/time-machine.json")
+
+          if segment_session.present?
+            puts "Skipping Reciter #{recitation.id}, Surah #{chapter_id} — already processed."
+            next
+          end
+
+          puts "Generating segments for Reciter #{recitation.id}, Surah #{chapter_id}"
+          system("pnpm generate:surahSegments from=#{chapter_id} to=#{chapter_id} reciter=#{recitation.id}")
+        end
+      end
+    end
+  end
+
+  task parse_segments: :environment do
     require 'sqlite3'
     require 'json'
     require 'fileutils'
 
-    recitation = Audio::Recitation.find(168)
-    base_path = "tmp/audio/#{recitation.id}"
-
     MUSHAF_TRANSLATOR_INDEX = Oj.load(File.read("lib/data/mushaf-translator-index.json"))
 
-    def create_db(base_path, db_name)
-      db = SQLite3::Database.new "#{base_path}/#{db_name}.db"
+    def create_db(base_path)
+      db = SQLite3::Database.new "#{base_path}/segments.db"
       db.execute <<-SQL
     CREATE TABLE IF NOT EXISTS timings (
       sura TEXT,
@@ -192,7 +215,6 @@ namespace :segments do
           word_number = position['wordNumber']
           start_time = entry['startTime']
           end_time = entry['endTime']
-
         when 'FAILURE'
           mistake = entry['mistakeWithPositions']
           if mistake.blank? || mistake['positions'].blank?
@@ -246,27 +268,29 @@ namespace :segments do
       result
     end
 
-    def process_segments(file_path)
-      file_data = File.read(file_path)
-      segments = JSON.parse(file_data)
+    base_path = "tmp/audio"
 
-      segments.each do |segment|
-        data = merge_ayah_segments(segment)
-        ayah_number = data["ayah"].to_i
-        words = data['words']
-        insert_segment(db, surah_number, ayah_number, words)
-      end
-    end
-
-    export_path = "#{base_path}/results"
-    FileUtils.mkdir_p(export_path)
-    FileUtils.mkdir_p("#{export_path}/json")
-
-    db = create_db(export_path, 'segments')
+    reciter_databases = {}
 
     Dir.glob("#{base_path}/vs_logs/**/time-machine.json") do |file_path|
+      session_id = file_path[%r{vs_logs/([^/]+)/}, 1]
+
+      #surah = session_id[0..3].to_i
+      reciter_id = session_id[4..7].to_i
+
+      export_path = "#{base_path}/results/#{reciter_id}"
+      FileUtils.mkdir_p("#{export_path}/json")
+
+      reciter_databases[reciter_id] ||= create_db(export_path)
+      db = reciter_databases[reciter_id]
+
       segments = process_surah_time_machine(file_path)
       json_data = {}
+      if segments.blank?
+        puts "No segments found for #{file_path}"
+        FileUtils.rm(file_path)
+        next
+      end
       surah = segments[0][:surah]
 
       segments.each do |segment|
@@ -283,6 +307,429 @@ namespace :segments do
       File.open("#{export_path}/json/#{surah}.json", 'w') do |f|
         f.puts json_data.to_json
       end
+    end
+  end
+
+  task prepare_stats: :environment do
+    recitations = Audio::Recitation.where.not(id: 171)
+    db_file = "#{Rails.root}/tmp/audio/stats.db"
+    File.delete(db_file) if File.exist?(db_file)
+
+    class Stats < ActiveRecord::Base
+      db_file = "#{Rails.root}/tmp/audio/stats.db"
+
+      self.abstract_class = true
+      self.establish_connection(adapter: 'sqlite3', database: db_file)
+    end
+
+    class DetectionStat < Stats
+      self.table_name = 'detection_stats'
+    end
+
+    class Failure < Stats
+      self.table_name = 'failures'
+    end
+
+    class ReciterName < Stats
+      self.table_name = 'reciters'
+    end
+
+    Stats.connection.create_table :reciters do |t|
+      t.string :name
+    end
+
+    Stats.connection.create_table :detection_stats do |t|
+      t.integer :surah
+      t.integer :reciter
+      t.string :detection_type
+      t.integer :count
+    end
+    Stats.connection.create_table :failures do |t|
+      t.integer :surah
+      t.integer :ayah
+      t.integer :word
+      t.string :word_key
+      t.string :text
+      t.integer :reciter
+      t.string :failure_type
+      t.string :received_transcript
+      t.string :expected_transcript
+      t.integer :start_time
+      t.integer :end_time
+    end
+
+    # Add reciter data
+    recitations.each do |recitation|
+      ReciterName.where(id: recitation.id).first_or_create(name: recitation.name)
+    end
+
+    # Parse the logs
+    base_path = Rails.root.join("tmp/audio/vs_logs/*/time-machine.json")
+    parsed_files = {}
+
+    Dir.glob(base_path) do |file_path|
+      filename = File.basename(File.dirname(file_path))
+      next unless filename.match?(/^\d{8}-/)
+
+      surah = filename[0..3].to_i
+      reciter = filename[4..7].to_i
+
+      # next if parsed_files["#{surah}#{reciter}"]
+      # parsed_files["#{surah}#{reciter}"] = true
+
+      type_counts = Hash.new(0)
+
+      data = JSON.parse(File.read(file_path))
+
+      data.each do |entry|
+        type = entry["type"]
+        type_counts[type] += 1
+
+        mistake = entry["mistakeWithPositions"]
+
+        if mistake && type != 'FAILURE'
+          type_counts['FAILURE'] += 1
+        end
+
+        next if mistake.blank?
+
+        word_info = entry["position"] || entry.dig("sessionRange")
+        word_key = if word_info
+                     ayah = word_info["ayahNumber"] || word_info["startAyahNumber"]
+                     word_num = word_info["wordNumber"] || word_info["wordIndex"]
+                     "#{surah}:#{ayah}:#{word_num}"
+                   else
+                     "unknown"
+                   end
+
+        Failure.create!(
+          surah: surah,
+          ayah: ayah,
+          word: word_num,
+          reciter: reciter,
+          word_key: word_key,
+          text: entry['word'],
+          failure_type: mistake["mistakeType"],
+          received_transcript: mistake["receivedTranscript"],
+          expected_transcript: mistake["expectedTranscript"],
+          start_time: entry["startTime"],
+          end_time: entry["endTime"]
+        )
+      end
+
+      type_counts.each do |type, count|
+        DetectionStat.create!(
+          surah: surah,
+          reciter: reciter,
+          detection_type: type,
+          count: count
+        )
+      end
+    end
+
+    puts "Log parsing is finished. See #{db_file}"
+  end
+
+  task generate_report: :environment do
+    db_file = Rails.root.join('tmp/audio/stats.db')
+    output_file = Rails.root.join('tmp/audio/report.html')
+
+    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: db_file)
+
+    class DetectionStat < ActiveRecord::Base
+      self.table_name = 'detection_stats'
+    end
+
+    class Failure < ActiveRecord::Base
+    end
+
+    detection_chart_data = {
+      labels: DetectionStat.group(:detection_type).pluck(:detection_type),
+      values: DetectionStat.group(:detection_type).sum(:count).values
+    }
+
+    mistake_type_chart_data = {
+      labels: Failure.group(:failure_type).pluck(:failure_type),
+      values: Failure.group(:failure_type).count.values
+    }
+
+    top_mistake_words_data = Failure
+                               .group(:word_key)
+                               .order('count_all DESC')
+                               .limit(10)
+                               .count
+                               .to_a
+                               .transpose
+
+    top_mistake_words_data = {
+      labels: top_mistake_words_data[0] || [],
+      values: top_mistake_words_data[1] || []
+    }
+
+    reciter_mistake_ratio_data = Failure
+                                   .group(:reciter)
+                                   .count
+                                   .map do |reciter, mistakes|
+      total = DetectionStat.where(reciter: reciter).sum(:count).to_f
+      [reciter.to_s, total.positive? ? ((mistakes / total) * 100).round(2) : 0]
+    end.transpose
+
+    reciter_mistake_ratio_data = {
+      labels: reciter_mistake_ratio_data[0],
+      values: reciter_mistake_ratio_data[1]
+    }
+
+    surah_mistake_ratio_data = Failure
+                                 .group(:surah)
+                                 .count
+                                 .map do |surah, mistakes|
+      total = DetectionStat.where(surah: surah).sum(:count).to_f
+      [surah.to_s, total.positive? ? ((mistakes / total) * 100).round(2) : 0]
+    end.transpose
+
+    surah_mistake_ratio_data = {
+      labels: surah_mistake_ratio_data[0],
+      values: surah_mistake_ratio_data[1]
+    }
+
+=begin
+    # Top expected → received pairs
+    top_expected = Failure
+                     .group(:expected_transcript, :received_transcript)
+                     .count
+                     .group_by { |(expected, _), _| expected }
+                     .transform_values do |arr|
+      arr.map { |(expected, received), count| [received, count] }.to_h
+    end
+
+    top_expected = top_expected
+                     .sort_by { |_, v| -v.values.sum }
+                     .take(50).to_h
+=end
+
+    top_expected = Failure
+                     .group(:expected_transcript, :received_transcript, :failure_type)
+                     .count
+                     .group_by { |(expected, _, _), _| expected }
+                     .transform_values do |arr|
+      arr.each_with_object({}) do |((_, received, type), count), hash|
+        hash[received] = { count: count, type: type }
+      end
+    end
+
+    top_expected = top_expected
+                     .sort_by { |_, v| -v.values.sum { |data| data[:count] } }
+                     .take(50)
+                     .to_h
+
+    # Render HTML
+    template = <<~HTML
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8" />
+              <title>Audio Stats Report</title>
+              <style>
+                body { font-family: sans-serif; padding: 20px; }
+                .chart-grid {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 20px;
+                }
+                .chart-container {
+                  flex: 1 1 calc(50% - 20px);
+                  max-width: calc(50% - 20px);
+                }
+                canvas {
+                  width: 100% !important;
+                  height: 300px !important;
+                }
+                .section {
+                  margin-bottom: 40px;
+                }
+   .badge {
+      background: #e74c3c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+    .badge.missing { background: #f1c40f; }
+    .badge.extra { background: #3498db; }
+    .badge.wrong { background: #9b59b6; }
+    .details { display: none; margin: 5px 0 10px 20px; }
+              </style>
+            </head>
+            <body>
+              <h1>Recitation Segment Analysis</h1>
+
+              <div class="section">
+                <h2>Detection Type Distribution</h2>
+                <div class="chart-grid">
+                  <div class="chart-container">
+                    <canvas id="detectionTypeChart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h2>Mistake Type Distribution</h2>
+                <div class="chart-grid">
+                  <div class="chart-container">
+                    <canvas id="mistakeTypeChart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h2>Top Words with Most Mistakes</h2>
+                <div class="chart-grid">
+                  <div class="chart-container">
+                    <canvas id="topMistakeWordsChart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h2>Mistake Ratio per Surah</h2>
+                <div class="chart-grid">
+                  <div class="chart-container">
+                    <canvas id="surahMistakeRatioChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="section">
+        <h2>Mistake Ratio per Reciter</h2>
+        <div class="chart-grid">
+          <div class="chart-container">
+            <canvas id="reciterMistakeRatioChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+        <div class="section">
+  <h2>Top Expected vs Received Mistakes</h2>
+ 
+  <% top_expected.each_with_index do |(expected, variations), i| %>
+    <div>
+      <strong><%= i + 1 %>. "<%= expected %>"</strong>
+      <ul>
+        <% variations.group_by { |_, v| v[:type] }.each_with_index do |(type, items), j| %>
+          <% total_count = items.sum { |_, v| v[:count] } %>
+          <% css_class = ["missing", "extra", "wrong"].include?(type) ? type : "unknown" %>
+          <li>
+            <%= type.capitalize %>
+            <span class="badge <%= css_class %> mistake-counter"><%= total_count %></span>
+            <div class="details">
+              <ul>
+                <% items.sort_by { |_, v| -v[:count] }.each do |received, v| %>
+                  <li>Received as: "<%= received %>" (<%= v[:count] %> times)</li>
+                <% end %>
+              </ul>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                const detectionTypeData = <%= detection_chart_data.to_json.html_safe %>;
+                const mistakeTypeData = <%= mistake_type_chart_data.to_json.html_safe %>;
+                const topMistakeWordsData = <%= top_mistake_words_data.to_json.html_safe %>;
+                const surahMistakeRatioData = <%= surah_mistake_ratio_data.to_json.html_safe %>;
+                const reciterMistakeRatioData = <%= reciter_mistake_ratio_data.to_json.html_safe %>;
+
+                document.querySelectorAll('.mistake-counter').forEach((el) => {
+                  el.addEventListener('click', (event) => {
+                    const details = el.nextElementSibling;
+                    if (details) {
+                      details.style.display = details.style.display === 'block' ? 'none' : 'block';
+                    }
+                  })
+                })
+ 
+                new Chart(document.getElementById('detectionTypeChart'), {
+                  type: 'bar',
+                  data: {
+                    labels: detectionTypeData.labels,
+                    datasets: [{
+                      label: 'Count',
+                      data: detectionTypeData.values,
+                      backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                  }
+                });
+
+                new Chart(document.getElementById('mistakeTypeChart'), {
+                  type: 'bar',
+                  data: {
+                    labels: mistakeTypeData.labels,
+                    datasets: [{
+                      label: 'Count',
+                      data: mistakeTypeData.values,
+                      backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                    }]
+                  }
+                });
+
+                new Chart(document.getElementById('topMistakeWordsChart'), {
+                  type: 'bar',
+                  data: {
+                    labels: topMistakeWordsData.labels,
+                    datasets: [{
+                      label: 'Mistake Count',
+                      data: topMistakeWordsData.values,
+                      backgroundColor: 'rgba(153, 102, 255, 0.6)'
+                    }]
+                  }
+                });
+
+                new Chart(document.getElementById('surahMistakeRatioChart'), {
+                  type: 'bar',
+                  data: {
+                    labels: surahMistakeRatioData.labels,
+                    datasets: [{
+                      label: 'Mistake Ratio (%)',
+                      data: surahMistakeRatioData.values,
+                      backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                    }]
+                  }
+                });
+                
+
+      new Chart(document.getElementById('reciterMistakeRatioChart'), {
+        type: 'bar',
+        data: {
+          labels: reciterMistakeRatioData.labels,
+          datasets: [{
+            label: 'Mistake Ratio (%)',
+            data: reciterMistakeRatioData.values,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+          }]
+        }
+      });
+              </script>
+            </body>
+            </html>
+    HTML
+
+    result = ERB.new(template, trim_mode: '-').result(binding)
+    File.write(output_file, result)
+    puts "✅ Report generated at: #{output_file}"
+  end
+
+  task cleanup_audio: :environment do
+    recitations = Audio::Recitation.all
+    recitations.each do |recitation|
+      base_path = "tmp/audio/#{recitation.id}"
+      FileUtils.rm_rf("#{base_path}/surah/mp3")
+
+      puts "Cleaned up audio files for Reciter #{recitation.id}"
     end
   end
 end

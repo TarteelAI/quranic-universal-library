@@ -294,6 +294,10 @@ class ResourceContent < QuranApiRecord
     meta_value('quranenc-key').to_s
   end
 
+  def tafsir_app_key
+    meta_value('tafsirapp-key')
+  end
+
   def humanize
     "#{id}-#{name} - #{language_name}(#{sub_type})"
   end
@@ -374,6 +378,14 @@ class ResourceContent < QuranApiRecord
     meta_value('source') == 'quranenc' || quran_enc_key.present?
   end
 
+  def sourced_from_tafsir_app?
+    tafsir_app_key.present?
+  end
+
+  def syncable?
+    sourced_from_quranenc? || sourced_from_tafsir_app?
+  end
+
   class << self
     def collection_for_resource_type
       ResourceContent::ResourceType.constants.map do |c|
@@ -442,36 +454,19 @@ class ResourceContent < QuranApiRecord
   def run_after_import_hooks
     update_records_count
 
+    set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))
+    if quran_enc_key.present?
+      resource.set_meta_value('quranenc-imported-version', delete_meta_value('draft-quranenc-import-version'))
+      resource.set_meta_value('quranenc-imported-timestamp', delete_meta_value('draft-quranenc-import-timestamp'))
+      delete_meta_value('draft-quranenc-import-date')
+    end
+    save(validate: false)
+
     if translation?
       language.update_translations_count
-      issues = check_for_missing_translation
-
-      if issues.blank?
-        puts "Looks good!"
-      else
-        AdminTodo.create(
-          resource_content_id: id,
-          tags: 'translation-issue',
-          is_finished: false,
-          description: issues.join("\n")
-        )
-
-        puts issues
-      end
-
-      issues.join(', ')
+      check_for_missing_translation
     elsif tafsir?
-      issues = check_for_missing_tafsirs
-      puts issues
-
-      if issues.present?
-        AdminTodo.create(
-          resource_content_id: id,
-          tags: 'tafsir-issue',
-          is_finished: false,
-          description: issues.join("\n")
-        )
-      end
+      check_for_missing_tafsirs
     end
   end
 

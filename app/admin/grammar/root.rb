@@ -91,4 +91,16 @@ ActiveAdmin.register Root do
       end
     end
   end
+
+  controller do
+    def find_resource
+      collection = scoped_collection
+
+      if params[:id].to_s.match?(/\A\d+\z/)
+        collection.find(params[:id])
+      else
+        collection.find_by(value: params[:id].to_s.chars.join(' '))
+      end
+    end
+  end
 end

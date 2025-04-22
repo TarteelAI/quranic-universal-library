@@ -400,9 +400,33 @@ ActiveAdmin.register Word do
       end
     end
 
-    active_admin_comments
-
     ActiveAdminViewHelpers.diff_panel(self, resource) if params[:version]
+
+    panel "Morphology" do
+      h2 "Morphology segments of: #{resource.text_uthmani}"
+
+      table do
+        thead do
+          th 'Id'
+          th 'text'
+          th 'POS'
+        end
+
+        tbody do
+          resource.morphology_word_segments.each do |segment|
+            tr do
+              td link_to(segment.id, [:admin, segment])
+              td do
+                div segment.text_uthmani, class: 'qpc-hafs'
+              end
+              td segment.part_of_speech_key
+            end
+          end
+        end
+      end
+    end
+
+    active_admin_comments
   end
 
   index do
@@ -549,7 +573,9 @@ ActiveAdmin.register Word do
                        :word_translations,
                        :word_stem,
                        :word_root,
-                       :word_lemma
+                       :word_lemma,
+                       :morphology_word_segments,
+                       :derived_words
                      )
 
       if params[:id].to_s.include?(':')

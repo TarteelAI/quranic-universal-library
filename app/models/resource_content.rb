@@ -174,6 +174,7 @@ class ResourceContent < QuranApiRecord
     Mutashabihat = 'mutashabihat'
     Translation = 'translation'
     Tafsir = 'tafsir'
+    Book = 'book'
     Transliteration = 'transliteration'
     Image = 'image'
     Info = 'info'
@@ -188,6 +189,10 @@ class ResourceContent < QuranApiRecord
     MetaData = 'meta'
     Morphology = 'morphology'
     Font = 'font'
+  end
+
+  def get_language_name
+    language_name.presence || language&.name
   end
 
   def source_slug

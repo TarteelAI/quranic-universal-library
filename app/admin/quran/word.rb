@@ -30,6 +30,8 @@ ActiveAdmin.register Word do
   filter :location
   filter :char_type
   filter :page_number
+  filter :position
+  filter :sequence_number
   filter :text_uthmani
   filter :text_uthmani_simple
   filter :text_imlaei_simple
@@ -73,6 +75,7 @@ ActiveAdmin.register Word do
       verse_id
       word_index
       position
+      sequence_number
       location
       text_uthmani
       text_uthmani_simple
@@ -108,6 +111,7 @@ ActiveAdmin.register Word do
       f.input :verse_id
       f.input :word_index
       f.input :position
+      f.input :sequence_number
       f.input :location
 
       f.input :text_uthmani, input_html: { class: 'quran-text me_quran' }
@@ -156,6 +160,7 @@ ActiveAdmin.register Word do
       row :verse
       row :verse_key
       row :position
+      row :sequence_number
       row :location
       row :line_number
       row :line_v2

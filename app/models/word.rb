@@ -22,6 +22,7 @@
 #  page_number                :integer
 #  pause_name                 :string
 #  position                   :integer
+#  sequence_number            :integer
 #  text_digital_khatt         :string
 #  text_digital_khatt_indopak :string
 #  text_digital_khatt_v1      :string
@@ -49,15 +50,16 @@
 #
 # Indexes
 #
-#  index_words_on_chapter_id    (chapter_id)
-#  index_words_on_char_type_id  (char_type_id)
-#  index_words_on_location      (location)
-#  index_words_on_position      (position)
-#  index_words_on_token_id      (token_id)
-#  index_words_on_topic_id      (topic_id)
-#  index_words_on_verse_id      (verse_id)
-#  index_words_on_verse_key     (verse_key)
-#  index_words_on_word_index    (word_index)
+#  index_words_on_chapter_id       (chapter_id)
+#  index_words_on_char_type_id     (char_type_id)
+#  index_words_on_location         (location)
+#  index_words_on_position         (position)
+#  index_words_on_sequence_number  (sequence_number) UNIQUE
+#  index_words_on_token_id         (token_id)
+#  index_words_on_topic_id         (topic_id)
+#  index_words_on_verse_id         (verse_id)
+#  index_words_on_verse_key        (verse_key)
+#  index_words_on_word_index       (word_index)
 #
 
 class Word < QuranApiRecord

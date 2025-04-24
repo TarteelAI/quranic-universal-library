@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_04_12_083249) do
+ActiveRecord::Schema[7.0].define(version: 2025_04_24_095514) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -118,6 +118,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_12_083249) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "published", default: true
   end
 
   create_table "database_backups", force: :cascade do |t|
@@ -185,6 +186,31 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_12_083249) do
     t.integer "language_id"
     t.integer "files_count", default: 0
     t.jsonb "meta_data", default: {}
+  end
+
+  create_table "draft_contents", force: :cascade do |t|
+    t.string "text"
+    t.string "location"
+    t.integer "chapter_id"
+    t.integer "verse_id"
+    t.integer "word_id"
+    t.text "draft_text"
+    t.text "current_text"
+    t.boolean "imported"
+    t.boolean "need_review"
+    t.boolean "text_matched"
+    t.integer "resource_content_id"
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chapter_id"], name: "index_draft_contents_on_chapter_id"
+    t.index ["imported"], name: "index_draft_contents_on_imported"
+    t.index ["location"], name: "index_draft_contents_on_location"
+    t.index ["need_review"], name: "index_draft_contents_on_need_review"
+    t.index ["resource_content_id"], name: "index_draft_contents_on_resource_content_id"
+    t.index ["text_matched"], name: "index_draft_contents_on_text_matched"
+    t.index ["verse_id"], name: "index_draft_contents_on_verse_id"
+    t.index ["word_id"], name: "index_draft_contents_on_word_id"
   end
 
   create_table "draft_foot_notes", force: :cascade do |t|

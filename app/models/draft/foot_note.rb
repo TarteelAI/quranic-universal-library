@@ -33,7 +33,7 @@ class Draft::FootNote < ApplicationRecord
   end
 
   def language_name
-    resource_content.try :language_name
+    resource_content.try(:language_name)
   end
 
   protected

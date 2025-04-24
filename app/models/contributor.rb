@@ -5,6 +5,7 @@
 #  id          :bigint           not null, primary key
 #  description :text
 #  name        :string
+#  published   :boolean          default(TRUE)
 #  url         :string
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null

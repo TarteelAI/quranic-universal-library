@@ -56,10 +56,10 @@ module Importer
       'althaalabi' => 1514,
       'samarqandi' => 1515,
       'althalabi' => 1516,
-      'ayah-morph' => 1518
+      'ayah-morph' => 1518,
+      'iraab-graphs' => 1550,
     }
-
-
+    
     def self.import_tafsirs(keys)
       keys.each do |key|
         importer = Importer::TafsirApp.new
@@ -101,7 +101,12 @@ module Importer
       source_text = tafsir_json['data']
 
       if source_text.present?
-        text = sanitize_text(source_text)
+        if resource_content.tafsir_app_key == 'iraab-graphs'
+          text = source_text
+        else
+          text = sanitize_text(source_text)
+        end
+
         draft_tafsir.set_meta_value('source_data', { text: source_text })
         existing_tafsir = Tafsir.for_verse(verse, resource_content)
 

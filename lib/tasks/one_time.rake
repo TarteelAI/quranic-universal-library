@@ -1,4 +1,14 @@
 namespace :one_time do
+  task add_sequence_number_to_words: :environment do
+    sequence_number = 1
+    Word.unscoped.order('word_index ASC').each do |word|
+      if word.word?
+        word.update_column :sequence_number, sequence_number
+        sequence_number+= 1
+      end
+    end
+  end
+
   task preview_tafsir_app: :Environment do
     data = Oj.load File.read("data/tafsir-app-sample.json")
 

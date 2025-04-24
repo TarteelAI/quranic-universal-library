@@ -16,4 +16,6 @@
 class ResourceTag < QuranApiRecord
   belongs_to :tag
   belongs_to :resource, polymorphic: true
+
+  validates :tag_id, uniqueness: {scope: :resource_id, message: 'Tag already exists for this resource'}
 end

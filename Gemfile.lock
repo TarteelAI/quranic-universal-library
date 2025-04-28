@@ -364,7 +364,7 @@ GEM
     pycall (1.5.1)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (2.2.9)
+    rack (2.2.13)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-protection (2.2.3)

@@ -122,6 +122,8 @@ $asset-version: "3.2";
   font-size: 30px;
 }
 
+/*
+TODO: remove v17 and 18 in the next PR
 @font-face {
   font-family: "UthmanicHafs1-Ver17";
   src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.17'),
@@ -134,7 +136,7 @@ $asset-version: "3.2";
   src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.18'),
   url("#{$font-cdn}/UthmanicHafs1Ver18.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/UthmanicHafs1Ver18.ttf?v=#{$asset-version}") format('truetype');
-}
+}*/
 
 @font-face {
   font-family: "UthmanicHafs_V22";
@@ -160,7 +162,7 @@ $asset-version: "3.2";
 }
 
 .qpc-hafs, .mushaf-kfqc-hafs {
-  font-family: 'UthmanicHafs1-Ver18' !important;
+  font-family: 'UthmanicHafs_V22' !important;
   direction: rtl;
   font-size: 30px;
 }
@@ -194,7 +196,7 @@ $asset-version: "3.2";
   font-size: 30px;
 }
 
-div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
+.fa, [lang=fa], [lang=ar] {
   font-family: 'Noto Naskh Arabic', serif;
   direction: rtl;
   font-size: 30px;
@@ -236,6 +238,15 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
 
 .tp0, .v3p0 {
   font-family: quran_common_font;
+}
+
+.arabic, [lang=ar]{
+  direction: rtl;
+  text-align: right;
+}
+
+.uthmani {
+  font-family: UthmanicHafs_V22;
 }
 
 .quran-text {

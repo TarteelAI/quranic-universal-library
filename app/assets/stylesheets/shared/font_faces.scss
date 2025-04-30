@@ -137,6 +137,13 @@ $asset-version: "3.2";
 }
 
 @font-face {
+  font-family: "UthmanicHafs_V22";
+  src: local('KFGQPCHAFSUthmanicScript-Regula'),
+  url("#{$font-cdn}/UthmanicHafs_V22.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/UthmanicHafs_V22.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
   font-family: KFGQPCHAFSColored-Bold;
   src: url("#{$font-cdn}/KFGQPCHAFSColored-Bold.ttf?v=#{$asset-version}")
 }

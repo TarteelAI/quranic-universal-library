@@ -56,11 +56,11 @@ class Morphology::PhraseVerse < ApplicationRecord
     if approved?
       s += 1
       s += (word_position_to - word_position_from) if 'new' == review_status
-      s += (phrase.approved? ? 7 : 0)
+      s += (phrase&.approved? ? 7 : 0)
     end
 
     s += ('new' == review_status ? 10 : 1)
-    s += (phrase.approved? ? 7 : 0)
+    s += (phrase&.approved? ? 7 : 0)
 
     s
   end

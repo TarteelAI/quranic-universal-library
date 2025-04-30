@@ -59,7 +59,7 @@ module Importer
       'ayah-morph' => 1518,
       'iraab-graphs' => 1550,
     }
-    
+
     def self.import_tafsirs(keys)
       keys.each do |key|
         importer = Importer::TafsirApp.new
@@ -79,9 +79,13 @@ module Importer
         next if verses_imported[verse.id].present?
 
         result = fetch_tafsir(key, verse)
-        tafsir = import_tafsir(verse, result, resource_content)
-        tafsir.ayah_group_ids.each do |id|
-          verses_imported[id] = true
+
+        if tafsir = import_tafsir(verse, result, resource_content)
+          tafsir.ayah_group_ids.each do |id|
+            verses_imported[id] = true
+          end
+        else
+          log_issue({tag: 'missing-tafsir', text: verse.verse_key })
         end
       end
 

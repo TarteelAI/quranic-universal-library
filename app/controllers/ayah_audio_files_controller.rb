@@ -60,9 +60,10 @@ class AyahAudioFilesController < CommunityController
                     )
 
     @chapter = Chapter.find(params[:chapter_id]) if params[:chapter_id]
+    sort_by = params[:sort_key]
 
-    if params[:sort_key].present?
-      @audio_files = audio_files.order("audio_files.#{params[:sort_key]} #{params[:sort_order]}")
+    if sort_by.present? && ['id', 'verse_number', 'chapter_id'].include?(sort_by)
+      @audio_files = audio_files.order("audio_files.#{sort_by} #{sort_order}")
     else
       @audio_files = audio_files.order('audio_files.verse_number ASC')
     end

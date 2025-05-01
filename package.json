@@ -6,7 +6,7 @@
     "@hotwired/turbo-rails": "^7.1.0",
     "@meforma/vue-toaster": "^1.3.0",
     "@popperjs/core": "^2.11.0",
-    "@rails/actiontext": "^6.1.4-1",
+    "@rails/actiontext": "^8.0.200",
     "@splinetool/loader": "^1.9.0",
     "@syncfusion/ej2-layouts": "^22.1.37",
     "@vueform/slider": "^2.0.8",
@@ -33,7 +33,7 @@
     "svg-points": "^6.0.1",
     "three": "^0.166.1",
     "toastr": "^2.1.4",
-    "trix": "^2.1.4",
+    "trix": "^2.1.13",
     "utf8": "^3.0.0",
     "vue": "^3.2.24",
     "vuex": "^4.0.2"

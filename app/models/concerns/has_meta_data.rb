@@ -8,7 +8,7 @@ module HasMetaData
 
   def meta_data=(val)
     json = if val.is_a? String
-             Oj.load(val)
+             Oj.safe_load(val)
            else
              val
            end

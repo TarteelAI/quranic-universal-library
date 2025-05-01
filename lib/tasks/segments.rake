@@ -98,7 +98,7 @@ namespace :segments do
   end
 
   task generate_segments: :environment do
-    recitations = Audio::Recitation.where.not(id: 171)
+    recitations = Audio::Recitation.where(id: 167)
     chapter_ids = parse_chapter_ids("1,93..114")
 
     base_path = Rails.root.join("tmp/audio/vs_logs")
@@ -118,7 +118,7 @@ namespace :segments do
           end
 
           puts "Generating segments for Reciter #{recitation.id}, Surah #{chapter_id}"
-          system("pnpm generate:surahSegments from=#{chapter_id} to=#{chapter_id} reciter=#{recitation.id}")
+          system("pnpm generate:surahSegments --from #{chapter_id} --to #{chapter_id} --reciter #{recitation.id}")
         end
       end
     end

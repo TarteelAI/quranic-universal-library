@@ -17,7 +17,7 @@ class TajweedWordsController < CommunityController
     words = apply_text_tajweed_rule_filter(words)
 
     params[:sort_key] ||= 'word_index'
-    @pagy, @words = pagy(words.includes(:tajweed_word).order("#{params[:sort_key]} #{sort_order}"))
+    @pagy, @words = pagy(words.includes(:tajweed_word).order("#{sort_key} #{sort_order}"))
   end
 
   def rule_doc
@@ -97,5 +97,15 @@ class TajweedWordsController < CommunityController
     end
 
     words
+  end
+
+  def sort_key
+    sort_by = params[:sort_key].presence || 'word_index'
+
+    if ['word_index', 'location'].include?(sort_by)
+      sort_by
+    else
+      "word_index"
+    end
   end
 end

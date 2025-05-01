@@ -74,6 +74,6 @@ class TranslationDiffPresenter < BasePresenter
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
 
-    Oj.load(http.get(url).body)
+    Oj.safe_load(http.get(url).body)
   end
 end

@@ -273,7 +273,7 @@ class Word < QuranApiRecord
   end
 
   def meta_data=(val)
-    json = Oj.load(val)
+    json = Oj.safe_load(val)
 
     json.keys.each do |key|
       formatted_key = format_meta_key(key)

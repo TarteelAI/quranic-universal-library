@@ -5,7 +5,6 @@ class AyahAudioFilesController < CommunityController
   before_action :authenticate_user!, only: %i[save_segments]
 
   def index
-    sort_key = params[:sort_key] || 'chapter_id'
     files = AudioFile.where(recitation_id: @recitation.id)
 
     if params[:filter_chapter].present?
@@ -46,6 +45,15 @@ class AyahAudioFilesController < CommunityController
   end
 
   protected
+  def sort_key
+    sort_by = params[:sort_key].presence || 'verse_number'
+
+    if ['id', 'verse_number', 'chapter_id'].include?(sort_by)
+      sort_by
+    else
+      'verse_number'
+    end
+  end
 
   def load_audio_files
     if ['show', 'segment_builder'].include?(action_name) && params[:chapter_id].blank?
@@ -60,13 +68,8 @@ class AyahAudioFilesController < CommunityController
                     )
 
     @chapter = Chapter.find(params[:chapter_id]) if params[:chapter_id]
-    sort_by = params[:sort_key]
 
-    if sort_by.present? && ['id', 'verse_number', 'chapter_id'].include?(sort_by)
-      @audio_files = audio_files.order("audio_files.#{sort_by} #{sort_order}")
-    else
-      @audio_files = audio_files.order('audio_files.verse_number ASC')
-    end
+    @audio_files = audio_files.order("audio_files.#{sort_key} #{sort_order}")
   end
 
   def load_recitation

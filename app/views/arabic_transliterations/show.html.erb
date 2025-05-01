@@ -104,14 +104,6 @@
           <td class="arabic">
             <%= word.arabic_transliteration&.continuous? %>
           </td>
-
-          <td>
-            <% if @access && word.arabic_transliteration %>
-              <%= link_to '#_', data: { url: proof_read_comments_path(resource_id: word.arabic_transliteration.id, resource: word.arabic_transliteration.class.to_s), controller: "ajax-modal" } do %>
-                <i class="fa fa-comment"></i> Comments
-              <% end %>
-            <% end %>
-          </td>
         </tr>
       <% end %>
       </tbody>

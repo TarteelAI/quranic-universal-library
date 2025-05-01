@@ -74,7 +74,6 @@ Rails.application.routes.draw do
 
   resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :delete
-  resources :proof_read_comments
   resources :word_text_proofreadings, only: [:index, :show] do
     collection do
       get :compare_words

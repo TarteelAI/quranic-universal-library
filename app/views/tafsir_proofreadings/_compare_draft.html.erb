@@ -21,7 +21,7 @@
         </h2>
 
         <div class="tafsir px-4 <%= @tafisr.language_name %>">
-          <%= draft.draft_text.html_safe %>
+          <%= safe_html draft.draft_text %>
         </div>
       <% end %>
     <% end %>

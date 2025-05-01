@@ -1,6 +1,7 @@
 <%
   char = params[:char].strip
-  words = Word.order('word_index ASC').where("#{params[:script].strip} ilike ?", "%#{char}%")
+  script = params[:script].to_s.downcase.strip
+  words = Word.order('word_index ASC').where("#{script} ilike ?", "%#{char}%")
   pagination, words = pagy(words, items: 500)
 %>
 
@@ -12,7 +13,7 @@
 
 <div class="page-wrapper container-lg" data-controller="chars-info">
   <div class="page-section">
-    <h2>List of words from <%= scripts[params[:script].to_sym] %> script that include <%= char %></h2>
+    <h2>List of words from <%= scripts[script.to_sym] %> script that include <%= char %></h2>
     <%= render 'char_font_options' %>
 
     <div>
@@ -30,10 +31,10 @@
             <td><%= link_to word.location, admin_word_path(word) %></td>
             <td>
               <div class="char <%= params[:font] %>" data-controller="tajweed-highlight">
-                <% if params[:script].include?('tajweed') %>
-                  <%= word.send(params[:script]).to_s.html_safe %>
+                <% if script.include?('tajweed') %>
+                  <%= safe_html word.read_attribute(script) %>
                 <% else %>
-                  <%= highlight word.send(params[:script]).to_s.html_safe, char, highlighter: '<span>\1</span>' %>
+                  <%= highlight safe_html(word.read_attribute(script)), char, highlighter: '<span>\1</span>' %>
                 <% end %>
               </div>
             </td>

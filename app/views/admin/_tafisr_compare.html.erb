@@ -7,7 +7,7 @@
     </h2>
 
     <div class="afsir p-2 <%= language_name %>">
-      <%= resource.draft_text.to_s.html_safe %>
+      <%= safe_html resource.draft_text %>
     </div>
   <% end %>
 
@@ -17,7 +17,7 @@
     </h2>
 
     <div class="afsir p-2 <%= language_name %>">
-      <%= resource.current_text.to_s.html_safe %>
+      <%= safe_html resource.current_text %>
     </div>
   <% end %>
 <% end %>

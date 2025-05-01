@@ -6,7 +6,7 @@
 <div class="tw-flex tw-items-center tw-justify-between">
   <% if local_assigns[:show_stats] && card.respond_to?(:count) && card.count.to_i > 0 %>
     <div class="tw-text-white tw-font-bold tw-opacity-70">
-      <%= card.stats.to_s.html_safe if card.respond_to?(:stats) %>
+      <%= safe_html(card.stats) if card.respond_to?(:stats) %>
     </div>
     <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
       <%= card.count %>

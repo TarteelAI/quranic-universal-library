@@ -13,7 +13,7 @@
 
     <% if local_assigns[:show_info] && card.info.present? %>
       <div class="tw-mt-8 text-white">
-        <%= card.info.to_s.html_safe %>
+        <%= safe_html card.info %>
       </div>
     <% end %>
 

@@ -122,6 +122,6 @@ module ApplicationHelper
   end
 
   def safe_html(html)
-    html.html_safe
+    html.to_s.html_safe
   end
 end

@@ -6,6 +6,6 @@
 
 <div id="body">
   <div class="modal-body">
-    <%= faq.answer.to_s.html_safe %>
+    <%= safe_html faq.answer %>
   </div>
 </div>

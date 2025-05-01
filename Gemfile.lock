@@ -128,6 +128,7 @@ GEM
       marcel (~> 1.0.0)
       mini_mime (>= 0.1.3)
       ssrf_filter (~> 1.0)
+    chartkick (5.1.5)
     chronic_duration (0.10.6)
       numerizer (~> 0.1.1)
     cld3 (3.6.0)
@@ -217,6 +218,8 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    groupdate (6.5.1)
+      activesupport (>= 7)
     has_scope (0.8.2)
       actionpack (>= 5.2)
       activesupport (>= 5.2)
@@ -592,6 +595,7 @@ DEPENDENCIES
   bootsnap (>= 1.4.4)
   cancancan
   carrierwave (~> 2.2.6)
+  chartkick
   cld3 (~> 3.6)
   cssbundling-rails (>= 0.2.7)
   csv
@@ -605,6 +609,7 @@ DEPENDENCIES
   escompress (~> 1.0)
   ffi-hunspell
   fog-aws
+  groupdate
   image_processing
   inline_svg (~> 1.10)
   jbuilder (~> 2.11)

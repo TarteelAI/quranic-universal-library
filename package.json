@@ -11,6 +11,8 @@
     "@syncfusion/ej2-layouts": "^22.1.37",
     "@vueform/slider": "^2.0.8",
     "bootstrap": "5.1.3",
+    "chart.js": "^4.4.9",
+    "chartkick": "^5.0.1",
     "chokidar": "^3.6.0",
     "copy-to-clipboard": "^3.3.3",
     "esbuild": "0.21.2",

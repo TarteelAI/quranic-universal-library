@@ -53,3 +53,6 @@ application.register("filter-ayah", FilterAyahController);
 
 import ResizeableController from "./resizeable_controller.js"
 application.register("resizeable", ResizeableController)
+
+import EventTrackerController from "./event_tracker_controller"
+application.register("event-tracker", EventTrackerController);

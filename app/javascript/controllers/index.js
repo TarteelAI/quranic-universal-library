@@ -126,3 +126,6 @@ application.register("update-mushaf-page", UpdateMushafPageController);
 
 import RunableWidgetController from './runable_widget_controller';
 application.register("runable-widget", RunableWidgetController);
+
+import EventTrackerController from "./event_tracker_controller"
+application.register("event-tracker", EventTrackerController);

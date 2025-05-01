@@ -67,6 +67,9 @@ gem 'wahwah', require: false
 gem 'dalli'
 gem 'diffy'
 
+gem "chartkick"
+gem "groupdate"
+
 # For Slug generation
 gem 'babosa', require: false
 

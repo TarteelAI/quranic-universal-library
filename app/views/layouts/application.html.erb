@@ -7,7 +7,8 @@
     <%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload", id: 'tinymce_custom_style' %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
-  <body class="tw-font-inter">
+
+  <body class="tw-font-inter" data-controller="event-tracker">
     <%= render 'shared/flash_notices' %>
     <%= render 'landing/header' %>
     <%= yield %>

@@ -51,6 +51,7 @@ class User < ApplicationRecord
   validates :first_name, :last_name, presence: true
 
   has_many :user_projects
+  has_many :user_downloads
 
   after_create :send_welcome_email
 

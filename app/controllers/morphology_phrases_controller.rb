@@ -83,9 +83,7 @@ class MorphologyPhrasesController < CommunityController
         list = list.where(verse_number: params[:verse_number])
       end
 
-      params[:sort_key] ||= 'verse_index'
-      params[:sort_order] ||= 'ASC'
-      list = list.order("#{params[:sort_key]} #{params[:sort_order].presence}")
+      list = list.order("#{sort_key} #{sort_order}")
 
       @pagy, @verses = pagy(list)
     else
@@ -104,6 +102,15 @@ class MorphologyPhrasesController < CommunityController
   end
 
   protected
+  def sort_key
+    sort_by = params[:sort_key].presence || 'verse_index'
+
+    if ['id', 'occurrence', 'verses_count', 'words_count', 'approved', 'review_status'].include?(sort_by)
+      sort_by
+    else
+      'verse_index'
+    end
+  end
 
   def load_phrases
     list = Morphology::Phrase.includes(:source_verse)
@@ -130,9 +137,7 @@ class MorphologyPhrasesController < CommunityController
       list = list.or(list.where("text_qpc_hafs_simple like ?", "%#{params[:text].strip}%"))
     end
 
-    params[:sort_key] ||= 'id'
-    params[:sort_order] ||= 'ASC'
-    list = list.order("#{params[:sort_key]} #{params[:sort_order].presence}")
+    list = list.order("#{sort_key} #{sort_order}")
 
     @pagy, @phrases = pagy(list)
   end

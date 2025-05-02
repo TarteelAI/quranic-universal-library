@@ -83,15 +83,7 @@ class TafsirProofreadingsController < CommunityController
       tafsirs = tafsirs.text_search(params[:query])
     end
 
-    if params[:sort_key].present?
-      sort_by = params[:sort_key].strip
-      sort_order = params[:sort_order].to_s.presence || 'ASC'
-      tafsirs = tafsirs.order("#{sort_by} #{sort_order}")
-    else
-      tafsirs = tafsirs.order('verse_id ASC')
-    end
-
-    tafsirs
+    tafsirs.order("#{sort_key} #{sort_order}")
   end
 
   def find_tafsir(resource)
@@ -99,6 +91,16 @@ class TafsirProofreadingsController < CommunityController
       filter_tafsirs(resource).first
     else
       Tafsir.where(resource_content_id: resource.id).find(params[:id])
+    end
+  end
+
+  def sort_key
+    sort_by = params[:sort_key].to_s.presence || 'id'
+
+    if ['id', 'group_verse_key_from', 'group_verses_count', 'group_verse_key_to'].include?(sort_by)
+      sort_by
+    else
+      'verse_id'
     end
   end
 end

@@ -26,7 +26,7 @@
         </thead>
 
         <tbody>
-        <% words.each do |word| %>
+          <% words.each do |word| %>
           <tr>
             <td><%= link_to word.location, admin_word_path(word) %></td>
             <td>
@@ -41,7 +41,7 @@
           </tr>
         <% end %>
 
-        <tr>
+          <tr>
           <td>
             <%= pagy_bootstrap_nav(pagination).html_safe %>
           </td>

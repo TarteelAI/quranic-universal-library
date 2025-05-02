@@ -3,6 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.3.3'
 
+gem 'concurrent-ruby', '1.3.4'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem "rails", "~> 7.0.8.4"
 gem "nokogiri", '~> 1.18.8', require: false
@@ -156,11 +157,9 @@ gem "rubyzip", "~> 2.3", require: false
 gem "cld3", "~> 3.6", require: false
 gem "diff-lcs", "~> 1.5", require: false
 
-# NOTE:
 gem 'strscan', '~> 3.0.9'
 gem "tailwindcss-rails", "~> 2.7"
 gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
-
 gem "view_component", "~> 3.21"

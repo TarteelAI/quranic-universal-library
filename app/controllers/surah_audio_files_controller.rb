@@ -7,10 +7,9 @@ class SurahAudioFilesController < CommunityController
   end
 
   def index
-    params[:sort_key] ||= 'chapter_id'
-    params[:sort_order] ||= 'ASC'
-
-    files = Audio::ChapterAudioFile.where.not(chapter_id: nil).where(audio_recitation: @recitation)
+    files = Audio::ChapterAudioFile
+              .where.not(chapter_id: nil)
+              .where(audio_recitation: @recitation)
 
     if params[:filter_chapter].present?
       files = files.where(chapter_id: params[:filter_chapter])
@@ -21,7 +20,7 @@ class SurahAudioFilesController < CommunityController
                  .joins('left OUTER JOIN audio_segments on audio_segments.audio_file_id = audio_chapter_audio_files.id')
                  .group('audio_chapter_audio_files.id, chapters.id')
 
-    @audio_files = files.order("#{params[:sort_key]} #{params[:sort_order].presence}")
+    @audio_files = files.order("#{sort_key} #{sort_order}")
   end
 
   def show
@@ -34,11 +33,8 @@ class SurahAudioFilesController < CommunityController
                       }.compact_blank
                     )
 
-    if params[:sort_key].present?
-      @audio_file = audio_files.order("audio_segments.#{params[:sort_key]} #{params[:sort_order]}").first
-    else
-      @audio_file = audio_files.order('audio_segments.verse_id ASC').first
-    end
+
+    @audio_file = audio_files.order("audio_segments.#{sort_key} #{sort_order}").first
   end
 
   def segment_builder
@@ -91,6 +87,15 @@ class SurahAudioFilesController < CommunityController
   end
 
   protected
+  def sort_key
+    sort_by = params[:sort_key].presence || 'chapter_id'
+
+    if ['chapter_id', 'verse_id'].include?(sort_by)
+      sort_by
+    else
+      'chapter_id'
+    end
+  end
 
   def load_audio_file
     Audio::ChapterAudioFile

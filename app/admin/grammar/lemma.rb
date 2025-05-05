@@ -4,12 +4,13 @@ ActiveAdmin.register Lemma do
   menu parent: 'Grammar'
   actions :all, except: :destroy
 
-  permit_params :text_madani, :text_clean, :words_count, :uniq_words_count
+  permit_params :text_madani, :text_clean, :words_count, :uniq_words_count, :en_translations
 
   filter :text_clean
   filter :text_madani
   filter :words_count
   filter :uniq_words_count
+  filter :en_translations
 
   searchable_select_options(
     scope: Lemma,
@@ -33,6 +34,9 @@ ActiveAdmin.register Lemma do
     end
     column :words_count
     column :uniq_words_count
+    column :en_translations do |resource|
+      resource.en_translations.present? ? resource.en_translations.join(', ') : status_tag('None')
+    end
     actions
   end
 
@@ -44,13 +48,24 @@ ActiveAdmin.register Lemma do
           resource.text_madani
         end
       end
-      row :text_clean do
+      row :text_clean do |resource|
         span class: 'qpc-hafs' do
           resource.text_clean
         end
       end
       row :words_count
       row :uniq_words_count
+      row :en_translations do |resource|
+        if resource.en_translations.present?
+          ul do
+            resource.en_translations.each do |t|
+              li t
+            end
+          end
+        else
+          status_tag 'None'
+        end
+      end
       row :created_at
       row :updated_at
     end

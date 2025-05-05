@@ -3,6 +3,7 @@
 # Table name: lemmas
 #
 #  id               :integer          not null, primary key
+#  en_translations  :jsonb            not null
 #  text_clean       :string
 #  text_madani      :string
 #  uniq_words_count :integer

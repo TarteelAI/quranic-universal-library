@@ -355,7 +355,7 @@ module ToolDocsHelper
       },
       {
         type: 'step',
-        title: 'Ayah the ayah',
+        title: 'Ayah by ayah',
         text: "Use the filters to find the ayah you're looks for. Click on <code>Show</code> button to open the ayah.",
         screenshot: 'arabic-transliteration.png'
       },

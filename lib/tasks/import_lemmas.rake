@@ -41,11 +41,10 @@ namespace :import do
     puts "   Not found in DB     : #{not_found_count}"
 
     if unmatched_keys.any?
-      puts "\n Unmatched entries (showing first 10):"
-      unmatched_keys.first(10).each do |u|
+      puts "\n Unmatched entries:"
+      unmatched_keys.each do |u|
         puts " - Line ##{u[:index]}: Buckwalter='#{u[:buckwalter]}', Clean='#{u[:clean]}'"
       end
-      puts " ...and #{unmatched_keys.size - 10} more" if unmatched_keys.size > 10
     end
 
     puts "\n Import task complete!"

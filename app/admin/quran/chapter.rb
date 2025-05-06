@@ -39,7 +39,16 @@ ActiveAdmin.register Chapter do
   actions :all, except: %i[destroy new]
 
   permit_params do
-    %i[name_simple name_arabic name_complex bismillah_pre revelation_order]
+    %i[
+      name_simple
+      name_arabic
+      name_complex
+      bismillah_pre
+      revelation_order
+      v1_chapter_glyph_code
+      v4_chapter_glyph_code
+      color_header_chapter_glyph_code
+   ]
   end
 
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
@@ -66,6 +75,24 @@ ActiveAdmin.register Chapter do
       row :name_arabic
       row :pages
       row :verses_count
+    end
+
+    panel 'Chapter names font preview' do
+      attributes_table_for chapter do
+        row :v1_chapter_glyph_code do
+          div "#{chapter.v1_chapter_glyph_code} surah-icon", class: 'surah-name-v1-icon'
+        end
+        row :v2_chapter_glyph_code do
+          div chapter.v2_chapter_glyph_code, class: 'surah-name-v2-icon'
+        end
+        row :v4_chapter_glyph_code do
+          div "#{chapter.v4_chapter_glyph_code} surah-icon", class: 'surah-name-v4-icon'
+        end
+
+        row :color_header_chapter_glyph_code do
+          div chapter.color_header_chapter_glyph_code, class: 'surah-header-icon'
+        end
+      end
     end
   end
 

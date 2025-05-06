@@ -147,7 +147,7 @@ class DownloadableResource < ApplicationRecord
     when 'quran-metadata'
       s.export_quran_metadata(resource_content: resource_content)
     when 'font'
-      s.export_fonts(resource_content: r.resource_content)
+      s.export_fonts(resource_content: resource_content)
     end
 
     notify_users if send_update_email

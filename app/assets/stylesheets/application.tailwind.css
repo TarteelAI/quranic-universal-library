@@ -10,6 +10,10 @@
 }
 
 @layer components {
+    .active-tab {
+      @apply border-b-2 border-blue-600 text-blue-600;
+    }
+
     .tw-link-button {
         @apply tw-font-semibold tw-underline hover:tw-text-black
     }

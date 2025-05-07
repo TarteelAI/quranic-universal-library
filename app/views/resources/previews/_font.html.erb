@@ -1,0 +1,160 @@
+<script src="https://cdn.jsdelivr.net/npm/opentype.js/dist/opentype.min.js"></script>
+<%
+  resource_content = resource.resource_content
+  sample_text = resource_content.meta_value('text')
+  font_face = resource_content.meta_value('font-face')
+  font_path = resource_content.meta_value('ttf')
+  font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_path}.ttf"
+%>
+
+<div class="tw-mt-5">
+  <ul class="nav nav-tabs" id="font-docs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-docs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-docs-pane"
+              type="button"
+              role="tab"
+              aria-controls="tab-docs-pane"
+              aria-selected="true">
+        Documentation
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-glyphs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-glyphs-pane"
+              type="button" role="tab"
+              aria-controls="tab-glyphs-pane"
+              aria-selected="false">
+        Glyph Preview
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content">
+    <div class="tab-pane fade show active"
+         id="tab-docs-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="0">
+
+      <div class="tw-space-y-6">
+        <h2 class="tw-text-xl tw-font-semibold">How to Use This Font</h2>
+        <div class="tw-bg-yellow-100 tw-border tw-border-yellow-300 tw-text-yellow-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+          ⚠️This documentation covers usage on <strong>web platforms only</strong>. For environments like React Native,
+          Android, or iOS, you'll need to handle font integration using platform-specific methods.
+        </div>
+        <p>You can use this font in your web application by declaring a
+          <code class="bg-gray-200 px-1 rounded text-sm"> @font-face </code> rule in your CSS and applying it to your
+          elements.</p>
+
+        <h3 class="tw-text-lg tw-font-medium tw-mb-2">1. Define @font-face in CSS</h3>
+        <pre class="tw-rounded-lg tw-overflow-x-auto tw-text-sm">
+        <code>
+@font-face {
+  font-family: '<%= font_face %>';
+  src: url('<%= font_url %>');
+}</code>
+      </pre>
+
+        <h3 class="text-lg font-medium mb-2">2. Use It in HTML</h3>
+        <pre class="tw-rounded-lg tw-overflow-x-auto tw-text-sm">
+        <code>
+&lt;div style="font-family: '<%= font_face %>';"&gt;
+          <%= sample_text %>
+          &lt;/div&gt;
+      </code>
+      </pre>
+
+        <h2 class="tw-text-xl tw-font-semibold">Live Preview</h2>
+        <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here..."></textarea>
+        <div class="tw-text-gray-400 tw-text-sm !tw-mt-0">
+          Type your text to see a live preview rendered using this font
+        </div>
+
+        <div
+          id="sample-text"
+          class="tw-p-4 tw-rounded tw-bg-white tw-shadow tw-text-2xl tw-border">
+          <%= sample_text %>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade"
+         id="tab-glyphs-pane"
+         role="tabpanel"
+         aria-labelledby="tab-glyphs" tabindex="0">
+      <div id="glyphs-panel">
+        <input
+          type="text"
+          id="glyph-search"
+          placeholder="Search glyphs by Unicode (e.g., 0627 for Alif)..."
+          class="tw-w-full tw-p-2 tw-mb-4 tw-border tw-border-gray-300 tw-rounded-lg"
+          />
+        <div id="glyphs"
+             class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 md:tw-grid-cols-6 lg:tw-grid-cols-8 tw-gap-4">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+      @font-face {
+          font-family: '<%= font_face %>';
+          src: url('<%= font_url %>');
+      }
+
+      #glyphs div, #sample-text {
+          font-family: '<%= font_face %>';
+      }
+  </style>
+
+  <script>
+    const glyphSearchInput = document.getElementById('glyph-search');
+    const glyphsContainer = document.getElementById('glyphs');
+
+    document.getElementById('sample-text-input').addEventListener('input', function () {
+      document.getElementById('sample-text').textContent = this.value;
+    });
+
+    opentype.load('<%= font_url %>', function (err, font) {
+      if (err) {
+        console.error('Could not load font:', err);
+        return;
+      }
+
+      function renderGlyphs(query = '') {
+        glyphsContainer.innerHTML = '';
+        debugger
+        Object.values(font.glyphs.glyphs).forEach(glyph => {
+          if (!glyph.unicode) return;
+
+          const unicodeHex = glyph.unicode.toString(16).toUpperCase();
+          if (!unicodeHex.includes(query.toUpperCase())) return;
+
+          const glyphChar = String.fromCharCode(glyph.unicode);
+          const el = document.createElement('div');
+          el.className = 'tw-text-center tw-p-2 tw-border tw-border-gray-300 tw-rounded';
+          el.style.fontFamily = '<%= font_face %>';
+          el.innerHTML = `
+          <div class="tw-text-3xl tw-mb-2" dir="rtl">${glyphChar}</div>
+          <div class="tw-text-xs tw-text-gray-500">U+${unicodeHex}</div>
+        `;
+          glyphsContainer.appendChild(el);
+        });
+      }
+
+      let debounceTimer;
+      glyphSearchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          renderGlyphs(glyphSearchInput.value.trim());
+        }, 200);
+      });
+
+      renderGlyphs();
+    });
+  </script>
+</div>

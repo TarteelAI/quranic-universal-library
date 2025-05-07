@@ -1,0 +1,23 @@
+<div id=title>
+  Resource related to <%= @resource.name %>
+</div>
+
+<div id=body>
+  <div class="modal-body">
+    <div class="alert alert-info">
+      These are additional files or assets required for this resource to work properly. e.g for a Quran script resource
+      you may need a specific font to render the text correctly.
+    </div>
+
+    <ul class="space-y-2">
+      <% @resource.related_resources.each do |r| %>
+        <li class="flex items-center gap-2 text-sm text-gray-800">
+         -> <a href="<%= detail_resources_path(r.resource_type, r.id) %>" data-turbo-frame="_top">
+            <%= r.name %>
+            (<%= r.resource_type %>)
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

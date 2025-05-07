@@ -2,7 +2,7 @@
   patterns = (1..10).to_a
 
   group = @resources.first
-  is_quran_script = group&.quran_script? || group&.font?
+  is_quran_script = group&.quran_script?
 %>
 
 <div class="tw-col-span-12 lg:tw-col-start-2 lg:tw-col-span-12 tw-mt-8">
@@ -13,13 +13,16 @@
       %>
 
       <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
-        <%= render 'card/card_content', card: card,
+        <%= render 'card/card_content',
+                   card: card,
+                   title: link_to(card.name, detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top' }),
                    show_info: false,
                    is_quran_script: is_quran_script,
                    preview_verse: @preview_verse,
                    text_type: 'text_qpc_hafs',
                    show_download: true,
-                   show_tags: true %>
+                   show_tags: true
+        %>
       <% end %>
     <% end %>
   </div>

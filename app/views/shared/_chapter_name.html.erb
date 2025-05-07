@@ -2,9 +2,12 @@
   <div class="quran-icon surah-header">header</div>
 
   <% if chapter %>
-    <span class="surah-name-v4-icon surah-icon position-absolute">
-      surah<%= chapter.chapter_number.to_s.rjust(3, '0') %> surah-icon
-    </span>
+    <div class="surah-icon position-absolute">
+       <span class="surah-name-v4-icon me-2">
+         surah<%= chapter.chapter_number.to_s.rjust(3, '0') %>
+       </span>
+      <span class="surah-name-v4-icon">surah-icon</span>
+    </div>
   <% else %>
     Chapter not found
   <% end %>

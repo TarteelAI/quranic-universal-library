@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     get '/:token/download', action: 'download' , as: :download_file
     collection do
       get '/:type/:id', action: 'detail' , as: :detail
+      get '/:type/:id/related_resources', action: 'related_resources' , as: :related
     end
   end
 

@@ -27,7 +27,7 @@
           <div>
             <small>
               View
-              <%= link_to pluralize(card.related_resources.size, 'related resource'), detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top', controller: 'ajax-modal', url: detail_resources_path(card.resource_type, card.id, related: true) } %>
+              <%= link_to pluralize(card.related_resources.size, 'related resource'),  related_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top', controller: 'ajax-modal', css_class: 'modal-lg', url: related_resources_path(card.resource_type, card.id) } %>
             </small>
           </div>
         <% end %>

@@ -228,6 +228,13 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
 }
 
 @font-face {
+  font-family: juz-font;
+  src: url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: quran_common_font;
   src: url("#{$font-cdn}/quran-common/quran_common.ttf?v=#{$asset-version}");
   font-weight: normal;

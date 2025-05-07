@@ -77,6 +77,11 @@ module Exporter
           woff2 = exporter.export_woff2
           create_download_file(downloadable_resource, woff2, 'woff2')
         end
+
+        if content.meta_value('svg').present?
+          svg = exporter.export_svg
+          create_download_file(downloadable_resource, svg, 'svg')
+        end
       end
     end
 

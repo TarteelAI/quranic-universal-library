@@ -1,10 +1,13 @@
 module Exporter
   class ExportFont < BaseExporter
+    attr_reader :font_version
     def initialize(resource_content:, base_path:)
       super(
         base_path: base_path,
         resource_content: resource_content
       )
+
+      @font_version = 'v1.0.0'
     end
 
     def export_ttf
@@ -73,6 +76,28 @@ module Exporter
       end
     end
 
+    def export_svg
+      font_file_path = resource_content.meta_value('svg')
+      font_path = resource_content.meta_value('font_path')
+      base_path = "#{@base_path}/#{font_path}/svg"
+      FileUtils.mkdir_p(base_path)
+
+      if font_path.present?
+        if resource_content.page?
+          1.upto(604) do |page|
+            download_font("#{font_file_path}/p#{page}.svg", "#{base_path}/p#{page}.svg")
+          end
+
+          base_path
+        else
+          export_path = "#{base_path}/#{font_file_path}.svg"
+          download_font("#{font_file_path}.svg", export_path)
+
+          export_path
+        end
+      end
+    end
+
     def export_otf
       font_file_path = resource_content.meta_value('otf')
       font_path = resource_content.meta_value('font_path')
@@ -100,7 +125,7 @@ module Exporter
     def download_font(src_path, destination_path)
       return if File.exist?(destination_path)
 
-      src_path = "https://static-cdn.tarteel.ai/qul/fonts/#{src_path}"
+      src_path = "https://static-cdn.tarteel.ai/qul/fonts/#{src_path}?v=#{font_version}"
       Utils::Downloader.download(src_path, destination_path)
     end
   end

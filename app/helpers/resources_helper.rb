@@ -72,7 +72,7 @@ module ResourcesHelper
 
       font: ToolCard.new(
         title: "Quran Fonts",
-        description: "Download a variety of Quran fonts, including handwritten glyph-based and standard fonts for Unicode text.",
+        description: "Download Quran-related fonts, including glyph-based, Unicode, and translation fonts. Also includes specialized fonts for Surah names and headings.",
         url: '/resources/font',
         type: 'fonts',
         icon: 'quran.svg',

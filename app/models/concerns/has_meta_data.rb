@@ -2,7 +2,6 @@ module HasMetaData
   extend ActiveSupport::Concern
   def meta_value(key)
     key = format_meta_key(key)
-
     fetch_metadata[key]
   end
 

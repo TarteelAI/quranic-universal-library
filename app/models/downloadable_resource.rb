@@ -333,7 +333,7 @@ class DownloadableResource < ApplicationRecord
   end
 
   def previewable?
-    mushaf_layout? || quran_script?
+    mushaf_layout? || quran_script? || font?
   end
 
   def notify_users

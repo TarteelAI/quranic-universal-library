@@ -1,0 +1,18 @@
+<div id=title>
+  Related resources
+</div>
+
+<div id=body>
+  <div class="modal-body">
+    <% @resource.related_resources.each do |r| %>
+      <div class="tw-flex tw-items-center tw-justify-between tw-py-2 tw-border-b tw-border-gray-200">
+        <div class="tw-flex tw-items-center">
+          <a href="<%= detail_resources_path(r.resource_type, r.id) %>" data-turbo-frame="_top">
+            <%= r.name %>
+            (<%= r.resource_type %>)
+          </a>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

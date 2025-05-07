@@ -82,6 +82,10 @@ module Exporter
           svg = exporter.export_svg
           create_download_file(downloadable_resource, svg, 'svg')
         end
+
+        if ligature_file = exporter.export_ligatures
+          create_download_file(downloadable_resource, ligature_file, 'json')
+        end
       end
     end
 

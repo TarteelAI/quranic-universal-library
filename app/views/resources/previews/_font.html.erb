@@ -103,7 +103,9 @@
           </ol>
 
         <h2 class="tw-text-xl tw-font-semibold">Live Preview of this font</h2>
-        <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here..."></textarea>
+        <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here...">
+          <%= params[:text].presence || sample_text %>
+        </textarea>
         <div class="tw-text-gray-400 tw-text-sm !tw-mt-0">
           Type your text to see a live preview rendered using this font
         </div>

@@ -124,7 +124,9 @@ module Exporter
       ligatures = resource_content.meta_value('ligatures')
 
       if ligatures.present?
+        font_path = resource_content.meta_value('font_path')
         base_path = "#{@base_path}/#{font_path}"
+
         FileUtils.mkdir_p(base_path)
         ligatures_data = Oj.load(ligatures) rescue ligatures
         write_json("#{base_path}/ligatures.json", ligatures_data)

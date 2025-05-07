@@ -4,6 +4,12 @@
   sample_text = resource_content.meta_value('text')
   font_face = resource_content.meta_value('font-face')
   font_path = resource_content.meta_value('ttf')
+  ligatures = resource_content.meta_value('ligatures')
+
+  if ligatures.present?
+    ligatures = Oj.load(ligatures)
+  end
+
   font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_path}.ttf"
 %>
 
@@ -21,6 +27,19 @@
         Documentation
       </button>
     </li>
+    <% if ligatures.present? %>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="tab-ligatures"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-ligatures-pane"
+                type="button" role="tab"
+                aria-controls="tab-ligatures-pane"
+                aria-selected="false">
+          Ligatures
+        </button>
+      </li>
+    <% end %>
     <li class="nav-item" role="presentation">
       <button class="nav-link"
               id="tab-glyphs"
@@ -43,47 +62,52 @@
       <div class="tw-space-y-6">
         <h2 class="tw-text-xl tw-font-semibold">How to Use This Font</h2>
         <div class="tw-bg-yellow-100 tw-border tw-border-yellow-300 tw-text-yellow-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
-            ⚠️ <strong>This documentation covers usage on web platforms only.</strong><br>
-            For environments like React Native, Android, or iOS, you'll need to handle font integration using platform-specific methods.
-          </div>
+          ⚠️ <strong>This documentation covers usage on web platforms only.</strong><br>
+          For environments like React Native, Android, or iOS, you'll need to handle font integration using
+          platform-specific methods.
+        </div>
 
         <p class="tw-text-base tw-text-gray-800">
-          You can use this font in your application by downloading the font file—available in multiple formats such as <strong>TTF</strong>, <strong>WOFF</strong>, and <strong>WOFF2</strong>. You may choose the format that best fits your platform or include multiple formats for broader compatibility.
+          You can use this font in your application by downloading the font file—available in multiple formats such as
+          <strong>TTF</strong>, <strong>WOFF</strong>, and <strong>WOFF2</strong>. You may choose the format that best
+          fits your platform or include multiple formats for broader compatibility.
           <br><br>
-          Some fonts—such as those used for Surah names or Juz titles—depend on special characters or ligatures to render correctly. Ligature files for these fonts are available on this page.
+          Some fonts—such as those used for Surah names or Juz titles—depend on special characters or ligatures to
+          render correctly. Ligature files for these fonts are available on this page.
           Standard Quran fonts require a separate <strong>Quran script</strong>, which you can download from the
           <a href="https://qul.tarteel.ai/resources/quran-script" class="tw-underline tw-text-blue-600 hover:tw-text-blue-800">
             Quran Scripts
           </a> page.
 
           <br>
-          The next step is to declare the font using <code>@font-face</code> in your CSS file and apply it to your elements.
+          The next step is to declare the font using <code>@font-face</code> in your CSS file and apply it to your
+          elements.
         </p>
 
         <h3 class="text-lg font-medium mb-2">Steps to Integrate</h3>
-          <ol class="tw-list-decimal tw-list-inside tw-space-y-2">
-            <li>
-              <strong>Download the font and scripts/ligatures</strong>
-            </li>
+        <ol class="tw-list-decimal tw-list-inside tw-space-y-2">
+          <li>
+            <strong>Download the font and scripts/ligatures</strong>
+          </li>
 
-            <li>
-              <strong>Define a <code>@font-face</code> Rule in Your CSS</strong>
-              <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-overflow-auto tw-text-sm"><code>
+          <li>
+            <strong>Define a <code>@font-face</code> Rule in Your CSS</strong>
+            <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-overflow-auto tw-text-sm"><code>
 @font-face {
   font-family: '<%= font_face %>';
   src: url('<%= font_url %>');
   font-display: swap;
 }
       </code></pre>
-            </li>
+          </li>
 
-            <li>
-              <strong>Use the <code>@font-face</code> in your html</strong>
-              <p class="mb-2">You can use the font by:</p>
-              <ul class="list-disc list-inside mb-4">
-                <li>Applying it directly via <code>style</code> or CSS:</li>
-              </ul>
-              <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4">
+          <li>
+            <strong>Use the <code>@font-face</code> in your html</strong>
+            <p class="mb-2">You can use the font by:</p>
+            <ul class="list-disc list-inside mb-4">
+              <li>Applying it directly via <code>style</code> or CSS:</li>
+            </ul>
+            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4">
 <code><code>
 &lt;div style="font-family: '<%= font_face %>';"&gt;
   <%= sample_text %>
@@ -91,17 +115,16 @@
       </code></code>
 </pre>
 
-              <ul class="list-disc list-inside mb-4">
-                <li>Or using a CSS class:</li>
-              </ul>
-              <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4"><code>.my-text {
+            <ul class="list-disc list-inside mb-4">
+              <li>Or using a CSS class:</li>
+            </ul>
+            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4"><code>.my-text {
   font-family: <%= font_face %>;
 }
-&lt;p class="my-text"&gt;<%=sample_text %>&lt;/p&gt;</code>
+&lt;p class="my-text"&gt;<%= sample_text %>&lt;/p&gt;</code>
 </pre>
-            </li>
-          </ol>
-
+          </li>
+        </ol>
         <h2 class="tw-text-xl tw-font-semibold">Live Preview of this font</h2>
         <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here...">
           <%= params[:text].presence || sample_text %>
@@ -133,6 +156,49 @@
       </div>
     </div>
 
+    <% if ligatures.present? %>
+      <div class="tab-pane fade"
+           id="tab-ligatures-pane"
+           role="tabpanel"
+           aria-labelledby="tab-ligatures" tabindex="0">
+        <div class="page-wrapper">
+          <div class="page-section">
+            <h2>Ligatures</h2>
+            <div class="tw-overflow-x-auto">
+              <table class="table table-hover">
+                <thead class="position-sticky bg-white border-bottom top-0">
+                <tr>
+                  <th>
+                    #
+                  </th>
+                  <th>Ligature</th>
+                  <th>Description</th>
+                  <th>Preview</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                  <% i = 0 %>
+                  <% ligatures.each do |key, val| %>
+                   <tr>
+                     <td><%= i+=1 %></td>
+                     <td>val</td>
+                     <td><%= key %></td>
+                     <td>
+                       <div class="ligature-preview">
+                         <%= val %>
+                       </div>
+                     </td>
+                   </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <div class="tab-pane fade"
          id="tab-glyphs-pane"
          role="tabpanel"
@@ -157,7 +223,7 @@
           src: url('<%= font_url %>');
       }
 
-      #glyphs div, #sample-text {
+      #glyphs div, #sample-text, .ligature-preview {
           font-family: '<%= font_face %>';
       }
   </style>
@@ -174,7 +240,7 @@
     const fontSizeSlider = document.getElementById("font-size-slider");
     const fontSizeValue = document.getElementById("font-size-value");
 
-    fontSizeSlider.addEventListener("input", function() {
+    fontSizeSlider.addEventListener("input", function () {
       const fontSize = fontSizeSlider.value + "px";
       sampleText.style.fontSize = fontSize;
       fontSizeValue.textContent = fontSize;

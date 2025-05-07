@@ -40,8 +40,8 @@
   font-size:130px !important;
 }
 
-.surah-name-v4-icon, .surah-name-v1-icon, .surah-header-icon, .surah-name-v2-icon{
-  font-size:30px;
+.surah-icon{
+  font-size: 50px;
   text-align: right;
   direction: rtl;
   font-weight: normal;
@@ -69,6 +69,12 @@
 
 .surah-header-icon{
   font-size: 130px !important;
+}
+
+.surah-header{
+  font-size: 70px;
+  margin-top: -30px;
+  margin-bottom: -30px;
 }
 
 /*

@@ -22,6 +22,12 @@ $asset-version: "3.2";
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: quran-icon;
+  src: url("#{$font-cdn}/common/quran-common.woff2?v=#{$asset-version}"),
+  url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}") format("woff"),
+  url("#{$font-cdn}/common/quran-common.ttf?v=#{$asset-version}") format("truetype");
+}
 
 @font-face {
   font-family: "qpc-dotted";
@@ -39,6 +45,10 @@ $asset-version: "3.2";
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+.quran-icon{
+  font-family: quran-icon;
 }
 
 .bismillah {

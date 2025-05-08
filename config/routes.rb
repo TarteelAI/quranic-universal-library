@@ -102,6 +102,15 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
+  namespace :api do
+    get 'resources', to: 'resources#index'
+    get 'resources/recitations', to: 'resources#recitations'
+    get 'resources/translations', to: 'resources#translations'
+    get 'resources/tafsirs', to: 'resources#tafsirs'
+    get 'resources/scripts', to: 'resources#scripts'
+    get 'resources/mushafs', to: 'resources#mushafs'
+  end
+
   get '/ayah/:key', to: 'ayah#show', as: :ayah
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all

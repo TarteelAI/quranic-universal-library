@@ -8,21 +8,43 @@ namespace :grammar do
     mushaf.save
 
     qpc_hafs = Mushaf.find(5)
+    JOINING_LETTERS = %w[ب ت ث ج ح خ س ش ص ض ط ظ ع غ ف ق ك ل م ن هـ ي]
+    TASHKEEL_REGEX = /[\u0610-\u061A\u064B-\u065F\u0670]/
 
     def uthmani_to_qpc_hafs(uthmani)
       uthmani.gsub("ْ", "ۡ").gsub("۟", "ْ")
     end
 
+    def get_last_letter(text)
+      letters_only = text.gsub(TASHKEEL_REGEX, '')
+      letters_only[-1]
+    end
+
+    def add_zero_width_joiner(text)
+      last_letter = get_last_letter(text)
+      if JOINING_LETTERS.include?(last_letter)
+        "#{text}&zwj;"
+      else
+        text
+      end
+    end
+
     def build_word_text(mushaf_word)
       puts mushaf_word.word_id
       segments = Morphology::WordSegment.where(word_id: mushaf_word.word_id).order('position ASC')
+      segment_size = segments.size
+      current_segment = 0
 
       texts = segments.map do |segment|
         next if segment.text_uthmani.blank?
         text = uthmani_to_qpc_hafs(segment.text_uthmani)
+        current_segment += 1
 
         if segment.part_of_speech_key.present?
-          "<span class='#{segment.get_segment_color}'>#{text}</span>"
+          if current_segment < segment_size
+          text = add_zero_width_joiner(text)
+          end
+          "<span class='#{segment.part_of_speech_key.downcase} #{segment.get_segment_color}'>#{text}</span>"
         else
           text
         end

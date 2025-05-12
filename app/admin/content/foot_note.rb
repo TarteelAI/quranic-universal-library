@@ -3,6 +3,7 @@
 ActiveAdmin.register FootNote do
   menu parent: 'Content'
   actions :all, except: :destroy
+  includes :translation, :language
   ActiveAdminViewHelpers.versionate(self)
 
   filter :translation_id
@@ -25,7 +26,7 @@ ActiveAdmin.register FootNote do
       end
       row :text do
         div class: resource.language_name do
-          resource.text.html_safe
+          safe_html resource.text
         end
       end
       row :created_at
@@ -53,6 +54,16 @@ ActiveAdmin.register FootNote do
               ajax: { resource: ResourceContent }
     end
     f.actions
+  end
+
+  index do
+    id_column
+    column :translation
+    column :language
+    column :text do |r|
+      truncate r.text, length: 100
+    end
+    actions
   end
 
   permit_params do

@@ -38,7 +38,7 @@
           <b><%= trans.resource_name %>:</b> <br/>
 
           <div class="<%= trans.language_name %>">
-            <%= trans.text.html_safe %>
+            <%= safe_html trans.text %>
           </div>
         </div>
       <% end %>

@@ -395,7 +395,7 @@ ActiveAdmin.register Word do
                   if mushaf.use_images?
                     image_tag mushaf_word.image_url
                   else
-                    mushaf_word.text.html_safe
+                    safe_html mushaf_word.text
                   end
                 end
               end

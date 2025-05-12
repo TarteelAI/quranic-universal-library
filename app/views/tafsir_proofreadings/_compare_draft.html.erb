@@ -11,7 +11,7 @@
       </h2>
 
       <div class="tafsir <%= @tafisr.language_name %>">
-        <%= @tafisr.text.html_safe %>
+        <%= safe_html @tafisr.text %>
       </div>
     <% end %>
     <%= component.with_right do %>

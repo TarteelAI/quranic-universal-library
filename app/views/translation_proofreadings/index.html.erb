@@ -51,7 +51,7 @@
             <%= translation.resource_name %>
           </td>
           <td dir="<%= @resource.language&.direction %>">
-            <%= translation.text.html_safe %>
+            <%= safe_html translation.text %>
           </td>
           <td>
             <div class="d-flex gap-1">

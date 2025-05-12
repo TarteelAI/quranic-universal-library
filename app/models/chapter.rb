@@ -16,6 +16,7 @@
 #  rub_el_hizbs_count              :integer
 #  rukus_count                     :integer
 #  v1_chapter_glyph_code           :string
+#  v2_chapter_glyph_code           :string
 #  v4_chapter_glyph_code           :string
 #  verses_count                    :integer
 #  created_at                      :datetime         not null

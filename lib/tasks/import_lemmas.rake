@@ -1,53 +1,45 @@
 namespace :import do
   desc "Import English translations from lemmas.txt into Lemma.en_translations (jsonb array)"
   task import_lemma_translations: :environment do
-    file_path = Rails.root.join('lib', 'data', 'lemmas.txt')
+    file_path = Rails.root.join('tmp', 'lemmas.txt')
+    Utils::Downloader.download("https://static-cdn.tarteel.ai/qul/data/lemmas.txt", file_path)
     entries   = File.readlines(file_path, chomp: true).reject(&:blank?)
 
     found_count      = 0
-    not_found_count  = 0
-    duplicate_count  = 0
+    missing  = []
+    duplicate  = []
     unmatched_keys   = []
-
-    puts "\nStarting import of English translations...\n\n"
+    buck = Utils::Buckwalter.new
 
     entries.each_with_index do |line, idx|
-      buckwalter, eng = line.split("\t", 2).map(&:strip)
-      next unless buckwalter.present? && eng.present?
+      buckwalter, translations = line.split("\t", 2).map(&:strip)
+      next if buckwalter.blank? || translations.blank?
 
       arabic = convert_buckwalter_to_arabic(buckwalter)
+      arabic2= buck.to_arabic(buckwalter)
       clean  = remove_diacritics(arabic)
+      clean2= remove_diacritics(arabic2)
 
-      lemma = Lemma.find_by(text_clean: clean)
+      lemma = Lemma.where(text_clean: [clean, clean2]).or(Lemma.where(text_madani: [arabic, arabic2])).first
+
       if lemma
         existing = lemma.en_translations || []
-        if existing.include?(eng)
-          duplicate_count += 1
+
+        if existing.include?(translations)
+          duplicate << buckwalter
         else
-          existing << eng
+          existing << translations
           lemma.update!(en_translations: existing)
           found_count += 1
         end
       else
-        not_found_count += 1
-        unmatched_keys << { index: idx + 1, buckwalter: buckwalter, clean: clean }
+        missing << buckwalter
       end
     end
 
-    puts "\n Import Summary:"
-    puts "   Total entries       : #{entries.size}"
-    puts "   Successfully added  : #{found_count}"
-    puts "   Duplicates skipped  : #{duplicate_count}"
-    puts "   Not found in DB     : #{not_found_count}"
-
-    if unmatched_keys.any?
-      puts "\n Unmatched entries:"
-      unmatched_keys.each do |u|
-        puts " - Line ##{u[:index]}: Buckwalter='#{u[:buckwalter]}', Clean='#{u[:clean]}'"
-      end
-    end
-
-    puts "\n Import task complete!"
+    puts "Import Summary:"
+    puts "Total entries       : #{entries.size}"
+    puts "Successfully added  : #{found_count}"
   end
 
   def convert_buckwalter_to_arabic(bw)

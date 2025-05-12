@@ -8,7 +8,6 @@ class MushafLayoutsController < CommunityController
   before_action :load_page_words, only: [:edit, :show, :save_line_alignment]
 
   def index
-    sort_key = params[:sort_key] || 'id'
     @mushafs = Mushaf.order("#{sort_key} #{sort_order}")
   end
 
@@ -146,6 +145,16 @@ class MushafLayoutsController < CommunityController
 
     if @compared_mushaf
       @compare_mushaf_page = MushafPage.where(mushaf_id: @compared_mushaf.id, page_number: page_number).first
+    end
+  end
+
+  def sort_key
+    sortby = params[:sort_keyby] || 'id'
+
+    if ['id', 'name'].include?(sortby)
+      sortby
+    else
+      'id'
     end
   end
 end

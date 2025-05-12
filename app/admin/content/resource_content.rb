@@ -197,7 +197,7 @@ ActiveAdmin.register ResourceContent do
 
     if permission&.copyright_notice.present?
       div class: 'alert alert-danger fs-lg' do
-        permission.copyright_notice.html_safe
+        safe_html permission.copyright_notice
       end
     end
 

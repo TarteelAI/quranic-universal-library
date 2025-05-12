@@ -32,7 +32,7 @@ ActiveAdmin.register DownloadableResourceTag do
       row :slug
       row :glossary_term
       row :description do
-        resource.description.to_s.html_safe
+        safe_html resource.description
       end
       row :color_class
       row :created_at

@@ -84,12 +84,12 @@ ActiveAdmin.register Draft::WordTranslation do
       row :resource_content
       row :current_text, class: language_name, 'data-controller': 'translation' do
         div do
-          span resource.current_text.to_s.html_safe
+          span safe_html(resource.current_text)
           span(link_to 'View', [:admin, resource.word_translation]) if resource.word_translation
         end
       end
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
-        resource.draft_text.to_s.html_safe
+        safe_html resource.draft_text
       end
       row :english_translation do
         WordTranslation.find_by(

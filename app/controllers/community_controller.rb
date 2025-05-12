@@ -20,7 +20,7 @@ class CommunityController < ApplicationController
   end
 
   def docs
-    render layout: false
+    render layout: false if request.xhr?
   end
 
   def credits

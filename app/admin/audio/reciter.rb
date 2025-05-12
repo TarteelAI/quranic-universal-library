@@ -48,7 +48,7 @@ ActiveAdmin.register Reciter do
 
       row :bio do |resource|
         div do
-          resource.bio.to_s.html_safe
+          safe_html resource.bio
         end
       end
 

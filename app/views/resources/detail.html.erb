@@ -52,9 +52,9 @@
       <div class="tw-grid-cols-subgrid tw-grid">
         <% if @resource.description.present? %>
           <section class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-shadow-sm tw-w-full tw-mb-5">
-            <p class="tw-text-gray-700">
-              <%= @resource.description.to_s.html_safe %>
-            </p>
+            <div class="tw-text-gray-700">
+              <%= safe_html @resource.description %>
+            </div>
           </section>
         <% end %>
 

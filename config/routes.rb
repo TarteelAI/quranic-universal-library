@@ -3,6 +3,12 @@ Rails.application.routes.draw do
 
   root to: 'landing#home'
 
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :chapters, only: [:index, :show]
+    end
+  end
+
   get 'tools', to: 'community#tools', as: :tools
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
@@ -32,12 +38,14 @@ Rails.application.routes.draw do
   resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
+
     member do
       get :copyright
     end
+
     collection do
-      get '/:type/:id', action: 'detail' , as: :detail
-      get '/:type/:id/related_resources', action: 'related_resources' , as: :related
+      get '/:type/:id', action: 'detail', as: :detail
+      get '/:type/:id/related_resources', action: 'related_resources', as: :related
     end
   end
 

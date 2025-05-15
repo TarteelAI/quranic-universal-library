@@ -1,8 +1,7 @@
 class BasePresenter
-  attr_reader :context
+  attr_reader :params
 
-  def initialize(context)
-    @context = context
+  def initialize(params)
+    @params = params
   end
-  delegate :params, :h, to: :context
 end

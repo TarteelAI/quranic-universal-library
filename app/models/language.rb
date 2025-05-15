@@ -31,6 +31,10 @@ class Language < QuranApiRecord
     'en' == iso_code
   end
 
+  def self.find_with_id_or_iso_code(id)
+    Language.where(id: id).or(Language.where(iso_code: id)).first
+  end
+
   def get_translations_count
     ResourceContent.translations.one_verse.where(language_id: id).size
   end

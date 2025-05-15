@@ -1,5 +1,11 @@
 <%
   tags = @resource.get_tags
+  copyright_notice = nil
+
+  if @resource.restrict_download?
+    permission = @resource.resource_content.resource_permission
+    copyright_notice = permission.copyright_notice
+  end
 %>
 
 <div id="resources" data-controller="resource-search">
@@ -68,20 +74,26 @@
         <% end %>
 
         <section class="tw-mb-4">
-          <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>
-          <div class="tw-mt-3 tw-flex gap-3 tw-flex-wrap">
-            <% @resource.downloadable_files.each do |file| %>
-              <% if user_signed_in? %>
-                <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-btn tw-btn-success' do %>
-                  Download <%= file.file_type %>
-                <% end %>
-              <% else %>
-                <%= link_to '#_', class: 'tw-btn tw-btn-success', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
-                  Download <%= file.file_type %>
+          <% if copyright_notice.present? %>
+            <div class="tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-p-4 tw-rounded-lg tw-text-base">
+              <%= copyright_notice.html_safe %>
+            </div>
+          <% else %>
+            <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>
+            <div class="tw-mt-3 tw-flex gap-3 tw-flex-wrap">
+              <% @resource.downloadable_files.each do |file| %>
+                <% if user_signed_in? %>
+                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-btn tw-btn-success' do %>
+                    Download <%= file.file_type %>
+                  <% end %>
+                <% else %>
+                  <%= link_to '#_', class: 'tw-btn tw-btn-success', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
+                    Download <%= file.file_type %>
+                  <% end %>
                 <% end %>
               <% end %>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
         </section>
 
         <% if @resource.previewable? %>

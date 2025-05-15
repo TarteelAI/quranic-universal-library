@@ -117,30 +117,35 @@ module Exporter
       end
     end
 
-    def export_quran_topics
-      # TODO: add tags
-      base_path = "tmp/export/quran_topics"
+    def export_quran_topics(resource_content: nil)
+      base_path = Rails.root.join("tmp", "export", "quran_topics")
       FileUtils.mkdir_p(base_path)
 
-      resource = ResourceContent.quran_topics.first
+      list = ResourceContent.quran_topics.approved
+      list = list.where(id: resource_content.id) if resource_content
 
-      exporter = Exporter::ExportTopics.new(
-        resource_content: resource,
-        base_path: base_path
-      )
+      list.find_each do |resource|
+        puts "Exporting #{resource.name} (ID=#{resource.id})..."
 
-      downloadable_resource = DownloadableResource.where(
-        resource_content: resource,
-        resource_type: 'ayah-topics',
-        cardinality_type: ResourceContent::CardinalityType::OneVerse
-      ).first_or_initialize
+        exporter = Exporter::ExportTopics.new(
+          resource_content: resource,
+          base_path:        base_path
+        )
 
-      downloadable_resource.name ||= resource.name
-      downloadable_resource.language = resource.language
-      downloadable_resource.save(validate: false)
+        dr = DownloadableResource.where(
+          resource_content: resource,
+          resource_type:    'ayah-topics',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
 
-      sqlite = exporter.export_sqlite
-      create_download_file(downloadable_resource, sqlite, 'sqlite')
+        dr.name      ||= resource.name
+        dr.language   = resource.language
+        dr.published  = true
+        dr.save(validate: false)
+
+        sqlite_path = exporter.export_sqlite
+        create_download_file(dr, sqlite_path, 'sqlite')
+      end
     end
 
     def export_quranic_morphology_data(resource_content: nil)

@@ -1,0 +1,25 @@
+json.extract! chapter,
+              :id,
+              :bismillah_pre,
+              :revelation_order,
+              :revelation_place,
+              :name_complex,
+              :name_arabic,
+              :name_simple,
+              :verses_count,
+              :hizbs_count,
+              :rukus_count,
+              :pages
+
+json.font_glyphs do
+  json.header_glyph chapter.color_header_chapter_glyph_code
+  json.v1 chapter.v1_chapter_glyph_code
+  json.v2 chapter.v2_chapter_glyph_code
+  json.v4 chapter.v4_chapter_glyph_code
+end
+
+json.translated_name do
+  json.extract! chapter.translated_name,
+                :language_name,
+                :name
+end

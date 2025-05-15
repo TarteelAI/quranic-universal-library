@@ -356,6 +356,10 @@ GEM
     pg (1.3.5)
     pretender (0.4.0)
       actionpack (>= 5.2)
+    props_template (0.37.0)
+      actionview (>= 7.0, < 9.0)
+      activesupport (>= 7.0, < 9.0)
+      oj (~> 3.9)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -626,6 +630,7 @@ DEPENDENCIES
   pdf-reader
   pg (~> 1.3.5)
   pretender
+  props_template
   pry-rails
   puma (>= 5.6.4)
   rack-cors

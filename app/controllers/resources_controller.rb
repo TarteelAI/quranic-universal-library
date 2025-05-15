@@ -32,6 +32,16 @@ class ResourcesController < CommunityController
                   .find(params[:id])
   end
 
+  def copyright
+    @resource = DownloadableResource
+                  .published
+                  .find(params[:id])
+
+    if request.xhr?
+      render layout: false
+    end
+  end
+
   def download
     if file = DownloadableFile.find_by(token: params[:token])
       file.track_download(current_user)

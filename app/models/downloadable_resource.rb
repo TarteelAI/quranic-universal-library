@@ -349,4 +349,8 @@ class DownloadableResource < ApplicationRecord
       DownloadableResourceMailer.new_update(self, user_download.user).deliver_later
     end
   end
+
+  def restrict_download?
+    !! meta_value('copyright')
+  end
 end

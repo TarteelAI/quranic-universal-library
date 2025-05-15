@@ -32,6 +32,9 @@ Rails.application.routes.draw do
   resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
+    member do
+      get :copyright
+    end
     collection do
       get '/:type/:id', action: 'detail' , as: :detail
       get '/:type/:id/related_resources', action: 'related_resources' , as: :related

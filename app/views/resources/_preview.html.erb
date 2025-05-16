@@ -5,3 +5,7 @@
 <% if resource.quran_script? %>
   <%= render 'resources/previews/quran_script', resource: resource %>
 <% end %>
+
+<% if resource.translation_preview? %>
+  <%= render 'resources/previews/translation', resource: resource %>
+<% end %>

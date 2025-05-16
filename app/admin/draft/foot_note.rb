@@ -28,10 +28,10 @@ ActiveAdmin.register Draft::FootNote do
       row :draft_translation
       row :resource_content
       row :draft_text do
-        resource.draft_text.to_s.html_safe
+        safe_html  resource.draft_text
       end
       row :current_text do
-        resource.current_text.to_s.html_safe
+        safe_html resource.current_text
       end
       row :text_matched
 

@@ -109,7 +109,7 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
         attributes_table_for current do
           current.attributes.each do |key, _val|
             row key do
-              current.send(key).to_s.html_safe
+              safe_html current.read_attribute(key)
             end
           end
         end

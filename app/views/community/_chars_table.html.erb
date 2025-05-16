@@ -43,11 +43,11 @@
 
           <tr>
           <td>
-            <%= pagy_bootstrap_nav(pagination).html_safe %>
+            <%= safe_html pagy_bootstrap_nav(pagination) %>
           </td>
 
           <td>
-            <%= pagy_info(pagination).html_safe %>
+            <%= safe_html pagy_info(pagination) %>
           </td>
         </tr>
         </tbody>

@@ -1,5 +1,5 @@
 $font-cdn: "https://static-cdn.tarteel.ai/qul/fonts";
-$asset-version: "3.2";
+$asset-version: "3.3";
 
 @import "indopak_font_faces";
 @import "surah_names";
@@ -22,6 +22,12 @@ $asset-version: "3.2";
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: quran-icon;
+  src: url("#{$font-cdn}/common/quran-common.woff2?v=#{$asset-version}"),
+  url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}") format("woff"),
+  url("#{$font-cdn}/common/quran-common.ttf?v=#{$asset-version}") format("truetype");
+}
 
 @font-face {
   font-family: "qpc-dotted";
@@ -39,6 +45,10 @@ $asset-version: "3.2";
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+.quran-icon{
+  font-family: quran-icon;
 }
 
 .bismillah {
@@ -160,7 +170,7 @@ $asset-version: "3.2";
 }
 
 .qpc-hafs, .mushaf-kfqc-hafs {
-  font-family: 'UthmanicHafs1-Ver18' !important;
+  font-family: 'UthmanicHafs_V22' !important;
   direction: rtl;
   font-size: 30px;
 }
@@ -225,6 +235,13 @@ div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
   font-family: qpc-nastaleeq;
   font-size: 30px;
   direction: rtl;
+}
+
+@font-face {
+  font-family: juz-font;
+  src: url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}");
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face {

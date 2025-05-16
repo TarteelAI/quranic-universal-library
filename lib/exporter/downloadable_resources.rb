@@ -77,6 +77,15 @@ module Exporter
           woff2 = exporter.export_woff2
           create_download_file(downloadable_resource, woff2, 'woff2')
         end
+
+        if content.meta_value('svg').present?
+          svg = exporter.export_svg
+          create_download_file(downloadable_resource, svg, 'svg')
+        end
+
+        if ligature_file = exporter.export_ligatures
+          create_download_file(downloadable_resource, ligature_file, 'json', 'ligatures')
+        end
       end
     end
 
@@ -742,14 +751,14 @@ module Exporter
 
     protected
 
-    def create_download_file(resource, file_path, file_type)
+    def create_download_file(resource, file_path, file_type, file_name=nil)
       file = DownloadableFile.where(
         downloadable_resource_id: resource.id,
         file_type: file_type,
       ).first_or_initialize
 
       zipped = zip(file_path)
-      file.name ||= "#{resource.name}.#{file_type}"
+      file.name ||= file_name || "#{resource.name}.#{file_type}"
 
       file.file.attach(
         io: File.open(zipped),

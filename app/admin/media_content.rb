@@ -16,7 +16,7 @@ ActiveAdmin.register MediaContent do
       row :created_at
       row :updated_at
       row :embed_text do |resource|
-        div resource.embed_text.to_s.html_safe
+        div safe_html(resource.embed_text)
       end
     end
   end

@@ -15,7 +15,7 @@
           </div>
 
           <div class="my-2">
-            <%= ayah_translation.text.html_safe %>
+            <%= safe_html ayah_translation.text %>
             <span class="border bg-primary">
             <%= ayah_translation.verse_key %>
           </span>

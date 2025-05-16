@@ -39,7 +39,7 @@
         <div data-location='<%=w.location%>' class="border border-solid p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
           <div class="qpc-hafs char"
                data-controller="tajweed-highlight">
-            <%= w.text.html_safe %>
+            <%= safe_html w.text %>
           </div>
         </div>
       <% end %>
@@ -50,7 +50,7 @@
     Auto tajweed annotation<br>
     <small>This text is auto-annotated and may contain errors or missing rules. Fixing Tajweed for any word will not update the preview below.</small>  </h3>
   <div class="qpc-hafs tajweed-new char" data-controller="tajweed-highlight">
-    <%= tajweed_text.html_safe %>
+    <%= safe_html tajweed_text %>
   </div>
 
   <h3>V4 tajweed</h3>

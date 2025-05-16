@@ -9,3 +9,7 @@
 <% if resource.translation_preview? %>
   <%= render 'resources/previews/translation', resource: resource %>
 <% end %>
+
+<% if resource.font? %>
+  <%= render 'resources/previews/font', resource: resource %>
+<% end %>

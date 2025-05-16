@@ -49,7 +49,7 @@
         <div class="preview-<%= @tajweed_word.location.gsub(':', '-') %>">
           <div class="qpc-hafs"
                data-controller="tajweed-highlight">
-            <%= @tajweed_word.text.html_safe %>
+            <%= safe_html @tajweed_word.text %>
           </div>
         </div>
       </div>

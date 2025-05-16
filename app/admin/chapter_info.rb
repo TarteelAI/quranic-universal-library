@@ -46,7 +46,7 @@ ActiveAdmin.register ChapterInfo do
 
       row :text do |resource|
         div class: resource.language_name do
-          resource.text.to_s.html_safe
+          safe_html resource.text
         end
       end
       row :short_text

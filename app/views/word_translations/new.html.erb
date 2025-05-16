@@ -18,7 +18,7 @@
         <% @verse.translations.each do |trans| %>
           <b><%= trans.resource_name %></b>
           <div class="<%= trans.language_name %>" id="ayah_text">
-            <%= trans.text.html_safe %>
+            <%= safe_html trans.text %>
           </div>
         <% end %>
       </div>

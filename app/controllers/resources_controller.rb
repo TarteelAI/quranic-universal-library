@@ -23,8 +23,23 @@ class ResourcesController < CommunityController
                    .published
                    .includes(:downloadable_resource_tags, :related_resources)
                    .find(params[:id])
+  end
 
-    render layout: false if request.xhr? && params[:related]
+  def related_resources
+    @resource = DownloadableResource
+                  .published
+                  .includes(:downloadable_resource_tags, :related_resources)
+                  .find(params[:id])
+  end
+
+  def copyright
+    @resource = DownloadableResource
+                  .published
+                  .find(params[:id])
+
+    if request.xhr?
+      render layout: false
+    end
   end
 
   def download

@@ -170,6 +170,7 @@ ActiveAdmin.register DownloadableResource do
               ajax: { resource: ResourceContent }
 
       f.input :info, input_html: { data: { controller: 'tinymce' } }
+      f.input :meta_data, input_html: { data: { controller: 'json-editor', json: resource.meta_data } }
       f.inputs "Select Tags" do
         f.has_many :downloadable_resource_taggings, allow_destroy: true do |tag_form|
           tag_form.input :id, as: :hidden
@@ -194,6 +195,7 @@ ActiveAdmin.register DownloadableResource do
       :resource_type,
       :resource_content_id,
       :cardinality_type,
+      :meta_data,
       downloadable_resource_taggings_attributes: [:id, :downloadable_resource_tag_id, :_destroy]
     ]
   end

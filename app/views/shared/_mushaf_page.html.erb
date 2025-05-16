@@ -111,7 +111,7 @@
                           <% end %>
                           <img src="<%= word.image_url %>"/>
                         <% else %>
-                          <%= word.text.html_safe %>
+                          <%= safe_html word.text %>
                         <% end %>
                       </a>
                     </span>

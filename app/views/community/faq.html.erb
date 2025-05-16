@@ -34,12 +34,12 @@
         <div class="item">
           <a href="#_" class="question py-4">
               <span class="tw-text-xl">
-                <%= faq.question.html_safe %>
+                <%= safe_html faq.question %>
               </span>
             <span class="question-icon"></span>
           </a>
           <div class="answer-wrapper">
-            <%= faq.answer.html_safe %>
+            <%= safe_html faq.answer %>
           </div>
         </div>
       <% end %>

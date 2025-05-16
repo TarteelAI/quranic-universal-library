@@ -21,16 +21,16 @@
           <div class="section mb-2">
             <% if doc[:type] == 'heading' %>
               <h3>
-                <%= doc[:text].to_s.html_safe %>
+                <%= safe_html doc[:text] %>
               </h3>
             <% elsif doc[:type] == 'info' %>
               <div class="alert alert-dark">
-                <%= doc[:text].to_s.html_safe %>
+                <%= safe_html doc[:text] %>
               </div>
             <% elsif doc[:type] == 'step' %>
               <div class="step">
                 <h4 class="step-title flex-between" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
-                  <%= doc[:title].to_s.html_safe %>
+                  <%= safe_html doc[:title] %>
 
                   <div>
                     <span class="collapsed-reveal"><i class="fa fa-chevron-down"></i></span>
@@ -40,7 +40,7 @@
 
                 <div id="step-<%= i %>" class="collapse">
                   <div>
-                    <%= doc[:text].to_s.html_safe %>
+                    <%= safe_html doc[:text] %>
                   </div>
 
                   <% if doc[:screenshot] %>
@@ -54,7 +54,7 @@
                       <div class="mt-3">
                         <% if section[:text] %>
                           <div class="<%= 'alert alert-dark' if 'info' == section[:type] %> <%= section[:css_class] %>">
-                            <%= section[:text].to_s.html_safe %>
+                            <%= safe_html section[:text] %>
                           </div>
                         <% end %>
 
@@ -71,7 +71,7 @@
             <% elsif doc[:type] == 'demo' %>
               <div class="step">
                 <h4 class="step-title flex-between" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
-                  <%= doc[:title].to_s.html_safe %>
+                  <%= safe_html doc[:title] %>
 
                   <div>
                     <span class="collapsed-reveal"><i class="fa fa-chevron-down"></i></span>
@@ -81,13 +81,13 @@
 
                 <div id="step-<%= i %>" class="collapse">
                   <div>
-                    <%= doc[:text].html_safe %>
+                    <%= safe_html doc[:text] %>
                   </div>
                 </div>
               </div>
             <% else %>
               <p class="<%= doc[:type] %>">
-                <%= doc[:text].to_s.html_safe %>
+                <%= safe_html doc[:text] %>
               </p>
             <% end %>
           </div>

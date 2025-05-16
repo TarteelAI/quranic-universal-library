@@ -369,7 +369,7 @@ ActiveAdmin.register Verse do
                 td "#{trans.language_name}-#{trans.get_resource_content.name}"
                 td do
                   div class: "#{trans.language_name} translation" do
-                    trans.text.html_safe
+                    safe_html trans.text
                   end
                 end
               end

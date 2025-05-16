@@ -62,7 +62,7 @@ ActiveAdmin.register Morphology::Word do
       row :case_reason
       row :location
       row :description do
-        div resource.description.to_s.html_safe
+        div safe_html(resource.description)
       end
     end
 

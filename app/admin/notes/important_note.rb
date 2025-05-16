@@ -39,7 +39,7 @@ ActiveAdmin.register ImportantNote do
       row :title
       row :text do |resource|
         div do
-          resource.text.to_s.html_safe
+          safe_html(resource.text)
         end
       end
       row :created_at

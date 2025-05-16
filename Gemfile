@@ -148,6 +148,8 @@ gem 'sassc-rails', '2.1.2'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
+gem 'props_template'
+
 gem "ruby-lokalise-api", "~> 4.5.1", require: false
 
 gem "kredis", "~> 1.3"

@@ -152,7 +152,7 @@ TODO: Set Pronoun color based on pronoun type.
     end
 =end
 
-    color = POS_TAG_COLORS[pos_tag]
+    POS_TAG_COLORS[pos_tag]
   end
 
   def is_prefix?

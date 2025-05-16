@@ -60,7 +60,7 @@ ActiveAdmin.register Translation do
 
       row :text do |resource|
         div class: resource.language_name.to_s.downcase, 'data-controller': 'translation' do
-          resource.text.html_safe
+          safe_html resource.text
         end
       end
 

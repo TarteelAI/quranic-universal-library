@@ -37,7 +37,7 @@ ActiveAdmin.register Radio::Station do
 
       row :description do |resource|
         div do
-          resource.description.to_s.html_safe
+          safe_html resource.description
         end
       end
 

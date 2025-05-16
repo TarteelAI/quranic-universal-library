@@ -79,12 +79,12 @@ ActiveAdmin.register Draft::Translation do
       row :resource_content
       row :current_text, class: language_name, 'data-controller': 'translation' do
         div do
-          span resource.current_text.to_s.html_safe
+          span safe_html(resource.current_text)
           span(link_to 'View', [:admin, resource.translation]) if resource.translation
         end
       end
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
-        resource.draft_text.to_s.html_safe
+        safe_html resource.draft_text
       end
       row :text_matched
       row :imported
@@ -144,11 +144,11 @@ ActiveAdmin.register Draft::Translation do
               td link_to(foot_note.id, [:admin, foot_note])
 
               td class: language_name do
-                foot_note.draft_text.to_s.html_safe
+                safe_html foot_note.draft_text
               end
 
               td class: language_name do
-                foot_note.current_text.to_s.html_safe
+                safe_html foot_note.current_text
               end
 
               td foot_note.text_matched? ? 'Yes' : 'No'

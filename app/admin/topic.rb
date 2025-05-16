@@ -46,7 +46,7 @@ ActiveAdmin.register Topic do
       row :arabic_name
 
       row :description do
-        resource.description.to_s.html_safe
+        safe_html resource.description
       end
 
       row :ontology

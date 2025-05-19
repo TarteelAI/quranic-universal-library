@@ -332,8 +332,13 @@ class DownloadableResource < ApplicationRecord
     resource_type == 'quran-script'
   end
 
+  def translation_preview?
+    resource_type == 'translation'
+  end
+
+
   def previewable?
-    mushaf_layout? || quran_script? || font?
+    mushaf_layout? || quran_script? || font? || translation_preview?
   end
 
   def notify_users

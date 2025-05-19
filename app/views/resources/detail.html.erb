@@ -96,11 +96,7 @@
           <% end %>
         </section>
 
-        <% if @resource.previewable? %>
-          <section class="tw-mb-4">
-            <%= render 'preview', resource: @resource %>
-          </section>
-        <% end %>
+        <%= render 'preview', resource: @resource %>
 
         <% if @resource.related_resources.present? %>
           <section class="tw-mt-4">

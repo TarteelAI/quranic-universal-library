@@ -1,0 +1,14 @@
+<%
+  key = params[:verse_key] || '1:1'
+  verse = Verse.find_by(verse_key: key)
+
+  tafsir = Tafsir.for_verse(verse, resource.resource_content)
+%>
+
+<h2 class="tw-text-center">
+
+</h2>
+
+<div class="<%= tafsir.language_name.to_s.downcase %>">
+  <%== tafsir.text %>
+</div>

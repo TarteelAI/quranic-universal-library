@@ -1,15 +1,4 @@
-<% if resource.mushaf_layout? %>
-  <%= render 'resources/previews/mushaf_layout', resource: resource %>
-<% end %>
-
-<% if resource.quran_script? %>
-  <%= render 'resources/previews/quran_script', resource: resource %>
-<% end %>
-
-<% if resource.translation_preview? %>
-  <%= render 'resources/previews/translation', resource: resource %>
-<% end %>
-
-<% if resource.font? %>
-  <%= render 'resources/previews/font', resource: resource %>
-<% end %>
+<section class="tw-mb-4">
+  <% resource_type =  resource.resource_type.gsub('-', '_')%>
+  <%= render "resources/previews/#{resource_type}", resource: resource %>
+</section>

@@ -5,6 +5,8 @@
     .where(word: ayah.words, resource_content_id: resource.resource_content_id)
     .includes(:word)
     .order('words.position ASC')
+
+  language_name = word_translations.first&.language_name.to_s.downcase
 %>
 
 <div class="tw-mt-5">
@@ -79,7 +81,7 @@
                   <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
                     <%= wt.word.text_qpc_hafs %>
                   </div>
-                  <div class="tw-text-sm tw-text-gray-600">
+                  <div class="tw-text-sm tw-text-gray-600 <%= language_name %>">
                     <%= wt.text %>
                   </div>
                 </div>

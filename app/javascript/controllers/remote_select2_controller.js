@@ -22,7 +22,7 @@ export default class extends Controller {
       options["dropdownParent"] = $(el.data("parent"));
     }
 
-    const url = el.data("ajaxUrl");
+    const url = el.data("url");
     const that = this;
 
     if (url) {

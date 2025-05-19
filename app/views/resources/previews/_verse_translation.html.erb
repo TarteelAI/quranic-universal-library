@@ -1,0 +1,186 @@
+<%
+  key = params[:ayah] || '73:4'
+  ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
+  translation = Translation.find_by(
+    resource_content_id: resource.resource_content_id,
+    verse_id: ayah.id
+  )
+%>
+
+<div class="tw-mt-5">
+  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-docs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-preview-pane"
+              type="button"
+              role="tab"
+              aria-controls="tab-preview-pane"
+              aria-selected="true">
+        Translation Preview
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-help"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-help-pane"
+              type="button" role="tab"
+              aria-controls="tab-help-pane"
+              aria-selected="false">
+        Help
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+    <div class="tab-pane show active"
+         id="tab-preview-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="0">
+      <div class="tw-space-y-6">
+        <h2 class="tw-text-xl tw-font-semibold">
+          <%= resource.name %> translation for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+        </h2>
+
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+          <div class="tw-flex tw-items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+            <%= select_tag :ayah,
+                           [],
+                           onchange: "jumpToAyah(this.value)",
+                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           style: 'min-width: 220px',
+                           data: { controller: 'remote-select2', url: '/api/v1/verses.json' } %>
+          </div>
+
+          <div class="tw-flex tw-gap-2">
+            <% if ayah.previous_ayah %>
+              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                ← Previous
+              <% end %>
+            <% end %>
+
+            <% if ayah.next_ayah %>
+              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                Next →
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+          <% if translation&.text.present? %>
+            <div class="<%= translation.language_name.to_s.downcase %> tw-text-base tw-leading-relaxed tw-space-y-4">
+              <%= translation.text.html_safe %>
+            </div>
+
+            <% if translation.foot_notes.any? %>
+              <div class="tw-mt-8">
+                <h5 class="tw-font-semibold tw-text-sm tw-text-gray-600 mb-2">Footnotes</h5>
+                <ul class="tw-space-y-3 tw-text-sm tw-text-gray-700">
+                  <% translation.foot_notes.each_with_index do |footnote, index| %>
+                    <li class="tw-bg-gray-50 tw-p-4 tw-rounded-lg">
+                      <span class="tw-font-semibold text-gray-500">[<%= index + 1 %>]</span>
+                      <%= footnote.text.html_safe %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="tw-text-gray-500 tw-italic">Translation is not available for this ayah.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane"
+         id="tab-help-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="1">
+      <div class="tw-space-y-6">
+        <div class="">
+          <h2 class="tw-text-2xl tw-font-bold tw-mb-2">Export formats for translations</h2>
+          <p class="tw-mb-2">
+            Translations are available in both <strong>JSON</strong> and <strong>SQLite database</strong> formats.
+            Some translation has footnotes as well, footnotes are embedded in the translation text using
+            <code>sup</code> HTML tag.
+            To support a wide range of applications — including websites, mobile apps, and desktop tools, we provide
+            multiple export formats for translations.
+          </p>
+
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-2">Available export formats:</h3>
+
+          <h4 class="tw-text-lg tw-font-semibold">1. Nested Array Structure</h4>
+          <p>
+            Translations are grouped by Surah.
+            Each Surah is an array containing translations for each Ayah in order.
+            This format export translations as simple text, no formatting, no footnotes.
+          </p>
+          <pre><code class="tw-text-sm">[
+  ["translation of 1:1", "translation of 1:2"], ...
+  ["translation of 2:1", "translation of 2:2"]
+]</code></pre>
+
+          <h4 class="tw-text-lg tw-font-semibold tw-mt-6">2. Key-Value Structure</h4>
+          <p>
+            Each translation is stored with the Ayah reference (e.g. <code>1:1</code>) as the key and the translated
+            text as the value.
+            This format also exports translations as simple text, no formatting, no footnotes etc.
+          </p>
+          <pre><code class="tw-text-sm">{
+  "1:1": "translation of 1:1",
+  "1:2": "translation of 1:2",
+  ...
+  "114:6": "translation of 114:6"
+}</code></pre>
+
+          <h3 class="tw-text-xl tw-font-semibold tw-mt-10">Translations with Footnotes</h3>
+          <p>Translations with <strong>footnotes</strong> are available in three more formats:</p>
+
+          <h4 class="tw-text-lg tw-font-semibold tw-mt-6">1. Footnotes as Tags Format</h4>
+          <p>Footnotes are embedded using a <code>&lt;sup&gt;</code> tag with a <code>foot_note</code> attribute.
+            Footnote contents are stored separately under <code>f</code> key.
+          </p>
+          <pre><code class="tw-text-sm">{
+  "88:17": {
+    "t": "Do the disbelievers not see how rain clouds are formed &lt;sup foot_note=\"77646\"&gt;1&lt;/sup&gt;",
+    "f": {
+      "77646": "The word ibl can mean 'camel' as well as 'rain cloud'..."
+    }
+  }
+}</code></pre>
+
+          <h4 class="tw-text-lg tw-font-semibold tw-mt-6">2. Inline Footnote Format</h4>
+          <p>Footnotes are inserted directly using double square brackets e.g(<code>[[this is footnote]]</code>)</p>
+          <pre><code class="tw-text-sm">{
+  "88:17": "Do the disbelievers not see how rain clouds are formed [[The word ibl can mean 'camel' as well as 'rain cloud'...]]"
+}</code></pre>
+
+          <h4 class="tw-text-lg tw-font-semibold tw-mt-6">3. Text Chunks Format</h4>
+          <p>
+            Translation is divided into chunks — each chunk could be a simple text or an object. Object can be either
+            footnote for formatting tags.
+            This format is useful for applications that need to display translations with precise control over
+            formatting.
+            Here is an example of Bridges` translation for Surah An-Nas , Ayah 6:
+          </p>
+          <p>
+            Above translation will be exported in chunks as:
+          </p>
+          <pre><code>&lt;i class="s"&gt;(from the whisperers)&lt;/i&gt;among the race of unseen beings&lt;sup foot_note="81506"&gt;1&lt;/sup&gt;and mankind.”</code></pre>
+          <pre><code class="tw-text-sm">
+      [
+      {"type":"i","text":"(from the whisperers)"}, // first chunk, should be formatted as italic
+      "among the race of unseen beings", //second chunk in simple text
+      {"type":"f","f":"81506","text":"1"}, // third chunk is a footnote,
+      "and mankind.”"
+      ]</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

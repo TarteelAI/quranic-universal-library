@@ -45,12 +45,12 @@
             </td>
 
             <td>
-              <%= exported.to_s.html_safe %>
+              <%= safe_html exported %>
             </td>
 
             <td>
               <div>
-                <%= current_translation.to_s.html_safe %>
+                <%= safe_html current_translation %>
               </div>
 
               <div class="tw-ms-1">
@@ -59,7 +59,7 @@
             </td>
 
             <td>
-              <%= diff.to_s.html_safe %>
+              <%= safe_html diff %>
             </td>
           </tr>
         <% end %>

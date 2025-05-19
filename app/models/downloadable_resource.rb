@@ -79,6 +79,10 @@ class DownloadableResource < ApplicationRecord
     resource_type == ResourceContent::SubType::Font
   end
 
+  def surah_info?
+    resource_type == 'surah-info'
+  end
+
   def get_tags
     downloadable_resource_tags
   end
@@ -330,15 +334,6 @@ class DownloadableResource < ApplicationRecord
 
   def quran_script?
     resource_type == 'quran-script'
-  end
-
-  def translation_preview?
-    resource_type == 'translation'
-  end
-
-
-  def previewable?
-    mushaf_layout? || quran_script? || font? || translation_preview?
   end
 
   def notify_users

@@ -1,4 +1,4 @@
 <div style="font-size: 30px; margin-top: 10px;"
      class="tafsir <%= @tafisr.language_name %>">
-  <%= @tafisr.text.to_s.html_safe %>
+  <%= safe_html @tafisr.text %>
 </div>

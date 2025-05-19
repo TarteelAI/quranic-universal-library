@@ -1,45 +1,20 @@
-<%
-  dr      = resource
-  rc      = dr.resource_content
-  key     = params[:ayah] || '73:4'
-  ayah    = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
-  translation = Translation.find_by(
-    resource_content_id: rc.id,
-    verse_id: ayah.id
-  )
-%>
+<% if resource.one_word? %>
+  <%= render 'resources/previews/word_translation',  resource: resource %>
+<% else %>
+  <%= render 'resources/previews/verse_translation', resource: resource %>
+<% end %>
 
-<script>
-    function jumpToAyah(selectAyah) {
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set("ayah", selectAyah);
-        Turbo.visit(currentUrl.toString());
-    }
-</script>
 
-<div class="tw-flex tw-justify-center tw-flex-col tw-items-center mb-4">
-  <div class="tw-mb-4">
-    <%= label_tag :ayah, 'Jump to ayah', class: 'tw-me-2' %>
-    <%= select_tag :ayah,
-                   options_for_select(Verse.pluck(:verse_key), ayah.verse_key),
-                   onchange: "jumpToAyah(this.value)",
-                   style: 'min-width:200px',
-                   data: { controller: 'select2' } %>
-  </div>
-</div>
 
-<div class="tw-mb-3">
-  <h4 class="tw-text-lg tw-font-semibold">
-    Preview of translation from Surah <%= ayah.chapter.name_simple %>, Ayah <%= ayah.verse_number %>
-  </h4>
-</div>
 
-<div class="border p-3 rounded max-w-2xl mx-auto tw-bg-white border c    text-center rounded quran-text ">
-  <% if translation&.text.present? %>
-    <p class="tw-text-base tw-leading-relaxed">
-      <%= translation.text.html_safe %>
-    </p>
-  <% else %>
-    <p class="tw-text-gray-500">Translation not available</p>
-  <% end %>
-</div>
+
+
+
+
+
+
+
+
+
+
+

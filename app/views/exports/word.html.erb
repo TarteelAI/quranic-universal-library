@@ -11,7 +11,7 @@
      data-file-name="word/<%= params[:script] %>/<%=@word.location.gsub(':', '/') %>"
      class="<%= font_family %> <%= params[:css_class] %>"
      style="font-size: <%= font_size %>px; height: 100px">
-  <%= @word.read_attribute(params[:script]).to_s.html_safe %>
+  <%= safe_html @word.read_attribute(params[:script]) %>
 </div>
 
 <style>

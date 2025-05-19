@@ -6,14 +6,14 @@
   <div>
     <b>Text Uthmani tajweed(ReciteQuran):</b>
     <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
-      <%= @word.text_uthmani_tajweed.html_safe %>
+      <%= safe_html @word.text_uthmani_tajweed %>
     </div>
   </div>
 
   <div>
     <b>Text QPC tajweed(Dar al Maarifah):</b>
     <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
-      <%= @word.text_qpc_hafs_tajweed.to_s.html_safe %>
+      <%= safe_html @word.text_qpc_hafs_tajweed %>
     </div>
   </div>
 

@@ -2,18 +2,18 @@
   <% if text_diff %>
     <div class="col-md-12">
       <h2>New Text</h2>
-      <%= text_diff.left.to_s.html_safe %>
+      <%= safe_html text_diff.left %>
     </div>
 
     <div class="col-md-12">
       <h2>Old Text</h2>
-      <%= text_diff.right.to_s.html_safe %>
+      <%= safe_html text_diff.right %>
     </div>
 
   <% else %>
     <div class="col-md-12">
       <h2>This was first version</h2>
-      <%= @version_object.text.to_s.html_safe %>
+      <%= safe_html @version_object.text %>
     </div>
   <% end %>
 </div>
@@ -23,12 +23,12 @@
     <div class="col-md-12">
       <h2>New Short Text</h2>
 
-      <%= short_text_diff.left.to_s.html_safe %>
+      <%= safe_html short_text_diff.left %>
     </div>
 
     <div class="col-md-12">
       <h2>Old Short Text</h2>
-      <%= raw short_text_diff.right.to_s.html_safe %>
+      <%= safe_html short_text_diff.right %>
     </div>
   <% end %>
 </div>

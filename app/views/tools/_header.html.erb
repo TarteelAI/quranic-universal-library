@@ -30,7 +30,7 @@
   <div class="mt-4 mt-md-5">
     <div class="mb-3 flex-between justify-content-between">
       <h2 class="tw-text-2xl md:tw-text-3xl tw-leading-none tw-text-pretty">
-        <%= title.to_s.html_safe %>
+        <%= safe_html title %>
       </h2>
       <div class="d-flex gap-1">
         <% if local_assigns[:help] != false %>
@@ -38,7 +38,7 @@
             <i class="fa fa-info-circle"></i> Help
           <% end %>
         <% end %>
-        <%= actions.join('').html_safe %>
+        <%= safe_html actions.join('') %>
       </div>
     </div>
 

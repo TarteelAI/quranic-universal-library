@@ -11,7 +11,7 @@
      data-file-name="ayah/<%= params[:script] %>/<%=@verse.chapter_id %>/<%=@verse.verse_number %>"
      class="<%=font_family %> <%= params[:css_class] %>"
      style="font-size: <%=font_size %>px;line-height: normal!important;">
-  <%= @verse.read_attribute(params[:script]).to_s.html_safe %>
+  <%= safe_html @verse.read_attribute(params[:script]) %>
 </div>
 
 <style>

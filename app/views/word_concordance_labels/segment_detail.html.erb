@@ -83,7 +83,9 @@
 
     <div>
       <b style="margin-right: 20px">Grammar Desc English: </b>
-      <span><%= @segment.grammar_term_desc_english.to_s.html_safe %> </span>
+      <span>
+        <%= safe_html @segment.grammar_term_desc_english.to_s %>
+      </span>
     </div>
   </div>
 </div>

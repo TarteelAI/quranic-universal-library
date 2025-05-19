@@ -1,5 +1,8 @@
 <%
-  chapter_id = params[:chapter_id] || 1
+  chapter_id = params[:surah] || 1
+  chapters = Chapter.order("chapter_number ASC").select(:name_simple, :chapter_number).map do |chapter|
+    [chapter.humanize, chapter.chapter_number]
+  end
   info = ChapterInfo.where(chapter_id: chapter_id, resource_content_id: resource.resource_content_id).first
 %>
 
@@ -15,16 +18,92 @@
     }
 </style>
 
-<h2>
-  Surah Info preview
-</h2>
+<div class="tw-mt-5">
+  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-docs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-preview-pane"
+              type="button"
+              role="tab"
+              aria-controls="tab-preview-pane"
+              aria-selected="true">
+        Surah Info Preview
+      </button>
+    </li>
 
-<div class="info <%= info.language_name.to_s.downcase %>">
-  <p class="strong">
-    <%== info.short_text %>
-  </p>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-help"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-help-pane"
+              type="button" role="tab"
+              aria-controls="tab-help-pane"
+              aria-selected="false">
+        Help
+      </button>
+    </li>
+  </ul>
 
-  <div>
-    <%== info.text %>
+  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+    <div class="tab-pane show active"
+         id="tab-preview-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="0">
+      <div class="tw-space-y-6">
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+          <div class="tw-flex tw-items-center">
+            <%= label_tag :surah, 'Jump to Surah', class: 'tw-me-2 tw-font-medium' %>
+            <%= select_tag :surah,
+                           options_for_select(chapters, chapter_id),
+                           onchange: "jumpToSurah(this.value)",
+                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           style: 'min-width: 220px',
+                           data: { controller: 'select2' } %>
+          </div>
+
+          <div class="tw-flex tw-gap-2">
+            <% if false && surah.previous_ayah %>
+              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                ← Previous
+              <% end %>
+            <% end %>
+
+            <% if false && ayah.next_ayah %>
+              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                Next →
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+          <div class="info <%= info.language_name.to_s.downcase %>">
+            <p class="strong">
+              <%== info.short_text %>
+            </p>
+
+            <div>
+              <%== info.text %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane"
+         id="tab-help-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="1">
+      <div class="tw-space-y-6">
+
+      </div>
+    </div>
   </div>
 </div>
+
+
+
+
+

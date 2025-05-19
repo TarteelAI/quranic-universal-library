@@ -2,3 +2,16 @@
   <% resource_type =  resource.resource_type.gsub('-', '_')%>
   <%= render "resources/previews/#{resource_type}", resource: resource %>
 </section>
+
+<script>
+  function jumpToAyah(selectAyah) {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("ayah", selectAyah);
+    Turbo.visit(currentUrl.toString());
+  }
+  function jumpToSurah(selectSurah) {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("surah", selectSurah);
+    Turbo.visit(currentUrl.toString());
+  }
+</script>

@@ -4,14 +4,6 @@
   <%= render 'resources/previews/verse_translation', resource: resource %>
 <% end %>
 
-<script>
-  function jumpToAyah(selectAyah) {
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("ayah", selectAyah);
-    Turbo.visit(currentUrl.toString());
-  }
-</script>
-
 
 
 

@@ -47,7 +47,7 @@ export default class extends Controller {
             if (401 == err.status) {
                 that.dialog.find(".modal-body").html(
                     `<div class='col text-center p-5'> <h2>${err.responseText}</h2>
-              <p><a href="/users/sign_in?return_to=${location.pathname}" class="btn btn-primary">Login</a></p></div>`
+              <p><a href="/users/sign_in?user_return_to=${location.pathname}" class="btn btn-primary">Login</a></p></div>`
                 );
             }
         })

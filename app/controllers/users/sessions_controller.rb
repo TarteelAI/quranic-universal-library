@@ -4,6 +4,6 @@ class Users::SessionsController < Devise::SessionsController
   protected
 
   def store_return_url
-    session[:user_return_to] = params[:user_return_to] || params[:return_to]
+    session["user_return_to"] = params[:user_return_to] || session["user_return_to"]
   end
 end

@@ -751,11 +751,11 @@ module Exporter
 
     protected
 
-    def create_download_file(resource, file_path, file_type, file_name=nil)
+    def create_download_file(resource, file_path, file_type, file_name = nil)
       file = DownloadableFile.where(
         downloadable_resource_id: resource.id,
         file_type: file_type,
-      ).first_or_initialize
+        ).first_or_initialize
 
       zipped = zip(file_path)
       file.name ||= file_name || "#{resource.name}.#{file_type}"
@@ -771,22 +771,22 @@ module Exporter
     end
 
     def zip(file_path)
-      if File.directory?(file_path)
-        zip_folder_path = "#{file_path}.tar"
-        Zip::File.open(zip_folder_path, Zip::File::CREATE) do |zipfile|
+      zip_path = "#{file_path}.zip"
+      File.delete(zip_path) if File.exist?(zip_path)
+
+      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+        if File.directory?(file_path)
           Dir[File.join(file_path, '**', '**')].each do |file|
-            relative_path = file.sub("#{file_path}/", '')
-
-            zipfile.add(relative_path, file) unless File.directory?(file)
+            next if File.directory?(file)
+            entry_name = file.sub("#{file_path}/", '')
+            zipfile.add(entry_name, file)
           end
+        else
+          zipfile.add(File.basename(file_path), file_path)
         end
-
-        zip_folder_path
-      else
-        `bzip2 #{file_path}`
-
-        "#{file_path}.bz2"
       end
+
+      zip_path
     end
 
     def set_tags(download_resource, tags)

@@ -74,7 +74,7 @@
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <% if translation&.text.present? %>
             <div class="<%= translation.language_name.to_s.downcase %> tw-text-base tw-leading-relaxed tw-space-y-4">
-              <%= translation.text.html_safe %>
+              <%= safe_html translation.text %>
             </div>
 
             <% if translation.foot_notes.any? %>
@@ -84,7 +84,7 @@
                   <% translation.foot_notes.each_with_index do |footnote, index| %>
                     <li class="tw-bg-gray-50 tw-p-4 tw-rounded-lg">
                       <span class="tw-font-semibold text-gray-500">[<%= index + 1 %>]</span>
-                      <%= footnote.text.html_safe %>
+                      <%= safe_html footnote.text %>
                     </li>
                   <% end %>
                 </ul>

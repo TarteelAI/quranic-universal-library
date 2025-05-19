@@ -35,7 +35,7 @@
   <div class="page-section mt-4">
     <h2>Full Surah info</h2>
     <div lang=<%= @language.iso_code %>>
-      <%= @info.text.to_s.html_safe %>
+      <%= safe_html @info.text %>
     </div>
   </div>
 </div>

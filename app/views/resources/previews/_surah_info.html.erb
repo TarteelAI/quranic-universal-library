@@ -81,11 +81,11 @@
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <div class="info <%= info.language_name.to_s.downcase %>">
             <p class="strong">
-              <%== info.short_text %>
+              <%= safe_html info.short_text %>
             </p>
 
             <div>
-              <%== info.text %>
+              <%= safe_html info.text %>
             </div>
           </div>
         </div>

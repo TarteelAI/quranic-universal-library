@@ -8,7 +8,7 @@
      class="<%= @translation.language_name %>"
      data-controller="translation-footnote"
 >
-  <%= @translation.text.to_s.html_safe %>
+  <%= safe_html @translation.text %>
 </div>
 
 <% if @translation.foot_notes.present? %>
@@ -18,7 +18,7 @@
       <div style="font-size: 30px;margin-top: 10px">
         <strong><%= foot_note.id %></strong>
         <div class="<%= @translation.language_name %>">
-          <%= foot_note.text.to_s.strip.html_safe %>
+          <%= safe_html foot_note.text %>
         </div>
       </div>
     <% end %>

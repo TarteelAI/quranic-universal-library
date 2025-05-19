@@ -52,10 +52,10 @@
         <td colspan="4">
           <div class="d-flex align-items-center">
             <div class="me-4">
-              <%= pagy_bootstrap_nav(@pagy).html_safe %>
+              <%= safe_html pagy_bootstrap_nav(@pagy) %>
             </div>
             <div>
-              <%= pagy_info(@pagy).html_safe %>
+              <%= safe_html pagy_info(@pagy) %>
             </div>
           </div>
         </td>

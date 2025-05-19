@@ -40,9 +40,9 @@
       <% ayah.words.each_with_index do |word, index| %>
         <span class="px-4 py-2 border word">
           <% if is_image %>
-            <img src="<%= word.send("#{text_type}_url") %>" alt="<%= word.location %>"/>
+            <img src="<%= word.read_attribute("#{text_type}_url") %>" alt="<%= word.location %>"/>
           <% else %>
-            <%= word.send(text_type).html_safe %>
+            <%= safe_html word.read_attribute(text_type) %>
           <% end %>
         </span>
       <% end %>
@@ -54,7 +54,7 @@
       </div>
     <% else %>
       <div>
-        <%= ayah.send(text_type).html_safe %>
+        <%= safe_html ayah.read_attribute(text_type) %>
       </div>
     <% end %>
   <% end %>

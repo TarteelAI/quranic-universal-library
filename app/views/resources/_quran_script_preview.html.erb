@@ -15,7 +15,7 @@
 <% if font_face.present? && preview_text.present? %>
   <div class="bg-primary p-3 text-center rounded quran-text <%= font_face %>">
     <div>
-      <%= preview_text.to_s.html_safe %>
+      <%= safe_html preview_text %>
     </div>
   </div>
 <% else %>
@@ -30,7 +30,7 @@
       </div>
     <% else %>
       <div>
-        <%= preview_verse.send(text_type).html_safe %>
+        <%= safe_html preview_verse.read_attribute(text_type) %>
       </div>
     <% end %>
   </div>

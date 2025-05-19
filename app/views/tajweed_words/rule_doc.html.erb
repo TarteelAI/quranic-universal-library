@@ -14,7 +14,7 @@
 
 <div class="page-wrapper container-lg">
   <div class="page-section page-section-card">
-    <%= rule[:description].to_s.html_safe %>
+    <%= safe_html rule[:description] %>
 
     <h3 class="tajweed-new mt-2 mb-0">
       Rule Color:
@@ -24,14 +24,14 @@
     <h3 class="tajweed-new mt-2 mb-0">
       Rule Letters:
       <div class="qpc-hafs">
-        <%= rule[:rule_letters].to_s.html_safe %>
+        <%= safe_html rule[:rule_letters] %>
       </div>
     </h3>
   </div>
 
   <% if rule[:rule_tip] %>
     <div class='alert alert-dark'>
-      <%= rule[:rule_tip].to_s.html_safe %>
+      <%= safe_html rule[:rule_tip] %>
     </div>
   <% end %>
 

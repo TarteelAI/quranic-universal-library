@@ -47,7 +47,7 @@
 
     <div>
       <p>
-        <%= @word.description.to_s.html_safe %>
+        <%= safe_html @word.description %>
       </p>
     </div>
 

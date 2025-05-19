@@ -76,7 +76,7 @@
         <section class="tw-mb-4">
           <% if copyright_notice.present? %>
             <div class="tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-p-4 tw-rounded-lg tw-text-base">
-              <%= copyright_notice.html_safe %>
+              <%= safe_html copyright_notice %>
             </div>
           <% else %>
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>

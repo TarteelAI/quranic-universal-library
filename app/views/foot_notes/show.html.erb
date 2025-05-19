@@ -5,11 +5,11 @@
 <div id="body">
   <div class="modal-body <%= @foot_note.language_name %>">
   <div>
-    <%= @foot_note.try(:draft_text).to_s.html_safe %>
+    <%= safe_html @foot_note.try(:draft_text) %>
   </div>
 
   <div>
-    <%= @foot_note.try(:text).to_s.html_safe %>
+    <%= safe_html @foot_note.try(:text) %>
   </div>
   </div>
 </div>

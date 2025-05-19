@@ -15,7 +15,7 @@
 
     <% if notice.present? %>
       <div class="tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-p-4 tw-rounded-lg tw-text-base">
-        <%= notice.html_safe %>
+        <%= safe_html notice %>
       </div>
     <% else %>
       <div class="tw-bg-yellow-50 tw-border tw-border-yellow-300 tw-text-yellow-800 tw-p-4 tw-rounded-lg tw-text-base">

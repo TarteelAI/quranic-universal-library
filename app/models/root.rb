@@ -25,7 +25,6 @@
 #
 
 class Root < QuranApiRecord
-  has_many :word_roots
-  has_many :words, through: :word_roots
+  has_many :words
   has_many :verses, through: :words
 end

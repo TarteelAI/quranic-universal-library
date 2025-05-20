@@ -1,50 +1,37 @@
 namespace :db do
-  desc "Migrate WordLemmas and WordStems to words.lemma_id and words.stem_id"
+  desc "Migrate WordLemma and WordStem associations into words"
   task migrate_lemmas_and_stems: :environment do
-    # For Lemma
-    lemma_updated_count = 0
-    lemma_skipped = []
+    lemma_updated = 0
+    lemma_skipped = 0
 
-    WordLemma.eager_load(:word).find_each do |word_lemma|
-      word = word_lemma.word
-      lemma = Lemma.find_by(id: word_lemma.lemma_id)
+    WordLemma.includes(:word).find_each do |wl|
+      w = wl.word
+      next unless w && w.lemma_id.nil?
 
-      if word.nil? || word.lemma_id.present?
-        lemma_skipped << word_lemma.id
-        next
-      end
-
-      if lemma
-        word.update_column(:lemma_id, lemma.id)
-        lemma_updated_count += 1
+      if (lem = Lemma.find_by(id: wl.lemma_id))
+        w.update_column(:lemma_id, lem.id)
+        lemma_updated += 1
+      else
+        lemma_skipped += 1
       end
     end
 
-    puts "Lemma migration complete! #{lemma_updated_count} words updated with lemma_id."
-    puts "Skipped WordLemma IDs: #{lemma_skipped.join(', ')}" unless lemma_skipped.empty?
+    stem_updated = 0
+    stem_skipped = 0
 
-    # For Lemma
-    stem_updated_count = 0
-    stem_skipped = []
+    WordStem.includes(:word).find_each do |ws|
+      w = ws.word
+      next unless w && w.stem_id.nil?
 
-    WordStem.eager_load(:word).find_each do |word_stem|
-      word = word_stem.word
-      stem = Stem.find_by(id: word_stem.stem_id)
-
-      if word.nil? || word.stem_id.present?
-        stem_skipped << word_stem.id
-        next
-      end
-
-      if stem
-        word.update_column(:stem_id, stem.id)
-        stem_updated_count += 1
+      if (st = Stem.find_by(id: ws.stem_id))
+        w.update_column(:stem_id, st.id)
+        stem_updated += 1
+      else
+        stem_skipped += 1
       end
     end
 
-    puts "Stem migration complete! #{stem_updated_count} words updated with stem_id."
-    puts "Skipped WordStem IDs: #{stem_skipped.join(', ')}" unless stem_skipped.empty?
-
-    puts "All migrations completed."
+    puts "Lemma updated: #{lemma_updated}, skipped: #{lemma_skipped}"
+    puts "Stem  updated: #{stem_updated}, skipped: #{stem_skipped}"
   end
 end

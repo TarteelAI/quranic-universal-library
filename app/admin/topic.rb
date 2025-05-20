@@ -26,6 +26,9 @@ ActiveAdmin.register Topic do
   filter :verse_id,
          as: :searchable_select,
          ajax: { resource: Verse }
+  filter :resource_content,
+         as: :searchable_select,
+         ajax: { resource: ResourceContent }
 
   includes :parent
 

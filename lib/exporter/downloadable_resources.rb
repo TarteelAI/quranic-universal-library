@@ -140,7 +140,7 @@ module Exporter
 
         dr.name      ||= resource.name
         dr.language   = resource.language
-        dr.published  = true
+        dr.published = true if dr.published.nil?
         dr.save(validate: false)
 
         sqlite_path = exporter.export_sqlite

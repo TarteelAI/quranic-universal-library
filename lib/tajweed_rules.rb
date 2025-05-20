@@ -1,6 +1,5 @@
 class TajweedRules
   attr_accessor :color_scheme
-
   def initialize(color_scheme = 'old')
     @color_scheme = color_scheme
   end

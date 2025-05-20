@@ -1,8 +1,8 @@
 require 'fileutils'
 
-ttf = "/Volumes/Development/static/fonts/quran/hafs/v4-color/ttf/*.ttf"
-woff = "/Volumes/Development/static/fonts/quran/hafs/v4-color/woff/*.woff"
-woff2 = "/Volumes/Development/static/fonts/quran/hafs/v4-color/woff2/*.woff2"
+ttf = "fonts/quran/hafs/v4-color/ttf/*.ttf"
+woff = "fonts/quran/hafs/v4-color/woff/*.woff"
+woff2 = "fonts/quran/hafs/v4-color/woff2/*.woff2"
 
 def rename(path, name_pattern)
   files = Dir[path]

@@ -80,15 +80,15 @@ body {
     text-align: center;
   }
 
-  .hlt{
-    color: #57D798;
-  }
-
   .sep {
     color: #e3120a;
     font-size: 1.2rem;
     line-height: 1.8;
   }
+}
+
+.hlt, .h{
+  color: #57D798;
 }
 
 .suggestion-popup {

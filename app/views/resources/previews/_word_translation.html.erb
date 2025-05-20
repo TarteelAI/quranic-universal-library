@@ -51,7 +51,7 @@
           <div class="tw-flex tw-items-center">
             <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
             <%= select_tag :ayah,
-                           [],
+                           options_for_select([[ayah.verse_key, ayah.verse_key]], ayah.verse_key),
                            onchange: "jumpToAyah(this.value)",
                            class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
                            style: 'min-width: 220px',

@@ -103,11 +103,12 @@ module Audio
       segments.map do |s|
         next if s.size < 2
 
-        if s.size == 4
+        timing = if s.size == 4
           s.drop(1)
         else
           s
         end
+        timing.map(&:to_i)
       end.compact_blank
     end
 

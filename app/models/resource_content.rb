@@ -430,6 +430,8 @@ class ResourceContent < QuranApiRecord
               Token.where(resource_content_id: id).size
             elsif video?
               MediaContent.where(resource_content_id: id).size
+            elsif topic?
+              Topic.where(resource_content_id: id).size
             elsif recitation?
               if chapter?
                 if recitation = Audio::Recitation.where(resource_content_id: id).first

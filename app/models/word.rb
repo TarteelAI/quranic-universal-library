@@ -44,7 +44,9 @@
 #  updated_at                 :datetime         not null
 #  chapter_id                 :integer
 #  char_type_id               :integer
+#  lemma_id                   :integer
 #  root_id                    :integer
+#  stem_id                    :integer
 #  token_id                   :integer
 #  topic_id                   :integer
 #  verse_id                   :integer
@@ -53,10 +55,12 @@
 #
 #  index_words_on_chapter_id       (chapter_id)
 #  index_words_on_char_type_id     (char_type_id)
+#  index_words_on_lemma_id         (lemma_id)
 #  index_words_on_location         (location)
 #  index_words_on_position         (position)
 #  index_words_on_root_id          (root_id)
 #  index_words_on_sequence_number  (sequence_number) UNIQUE
+#  index_words_on_stem_id          (stem_id)
 #  index_words_on_token_id         (token_id)
 #  index_words_on_topic_id         (topic_id)
 #  index_words_on_verse_id         (verse_id)

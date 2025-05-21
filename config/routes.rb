@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get 'readers/show'
   ActiveAdmin.routes(self)
 
   root to: 'landing#home'

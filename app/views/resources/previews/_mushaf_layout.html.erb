@@ -1,33 +1,103 @@
 <%
   resource_content = resource.resource_content
   mushaf = Mushaf.where(resource_content_id: resource_content.id).first
-  page = params[:page] || 1
+  page = (params[:page] || 1).to_i.abs
+  if page < 0 || page > mushaf.pages_count
+    page = 1
+  end
+
   words = MushafWord.where(page_number: page, mushaf: mushaf).order('position_in_page ASC')
+
+  tag = DownloadableResourceTag.find_by(slug: 'mushaf-layout')
 %>
 
-<script>
-  function jumpToPage(selectedPage) {
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("page", selectedPage);
-    Turbo.visit(currentUrl.toString());
-  }
-</script>
+<div class="tw-mt-5">
+  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-docs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-preview-pane"
+              type="button"
+              role="tab"
+              aria-controls="tab-preview-pane"
+              aria-selected="true">
+        Mushaf Page Preview
+      </button>
+    </li>
 
-<h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
-  Mushaf Page Preview
-</h2>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-help"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-help-pane"
+              type="button" role="tab"
+              aria-controls="tab-help-pane"
+              aria-selected="false">
+        Help
+      </button>
+    </li>
+  </ul>
 
-<div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
-  <div class="tw-mb-4">
-    <%= label_tag :page, 'Jump to page', class: 'tw-me-2' %>
-    <%= select_tag :page, options_for_select((1..mushaf.pages_count).to_a, page), onchange: "jumpToPage(this.value)", style: 'min-width:200px', data: { controller: 'select2' } %>
+  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+    <div class="tab-pane show active"
+         id="tab-preview-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="0">
+      <div class="tw-space-y-6">
+        <h2 class="tw-text-xl tw-font-semibold">
+          <%= resource.name %> Page <%= page %>
+        </h2>
+
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+          <div class="tw-flex tw-items-center">
+            <%= label_tag :page, 'Jump to page', class: 'tw-me-2 tw-font-medium' %>
+            <%= select_tag :page,
+                           options_for_select((1..mushaf.pages_count).to_a, page),
+                           onchange: "jumpToPage(this.value)",
+                           class: 'tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm',
+                           style: 'min-width:200px',
+                           data: { controller: 'select2' }
+            %>
+          </div>
+
+          <div class="tw-flex tw-gap-2">
+            <% if page > 1 %>
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                ← Previous Page
+              <% end %>
+            <% end %>
+
+            <% if page < mushaf.pages_count %>
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                Next Page →
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+          <div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
+          <%= render 'shared/mushaf_page',
+                     words: words,
+                     page: page,
+                     mushaf: mushaf,
+                     name: resource_content.name,
+                     hide_controls: true
+          %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane"
+         id="tab-help-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="1">
+      <div class="tw-space-y-6 tw-docs">
+        <%= safe_html tag.description if tag %>
+      </div>
+    </div>
   </div>
-
-  <%= render 'shared/mushaf_page',
-             words: words,
-             page: page,
-             mushaf: mushaf,
-             name: resource_content.name,
-             hide_controls: true
-  %>
 </div>
+

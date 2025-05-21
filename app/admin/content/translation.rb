@@ -81,7 +81,7 @@ ActiveAdmin.register Translation do
           resource.foot_notes.each do |foot_note|
             tr do
               td link_to foot_note.id, admin_foot_note_path(foot_note)
-              td foot_note.text
+              td safe_html(foot_note.text)
               td foot_note.created_at
               td foot_note.updated_at
             end

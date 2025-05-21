@@ -4,14 +4,19 @@
 </section>
 
 <script>
-  function jumpToAyah(selectAyah) {
+  function jumpTo(key, val){
     const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("ayah", selectAyah);
+    currentUrl.searchParams.set(key, val);
     Turbo.visit(currentUrl.toString());
   }
+
+  function jumpToAyah(selectAyah) {
+    jumpTo('ayah', selectAyah);
+  }
   function jumpToSurah(selectSurah) {
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("surah", selectSurah);
-    Turbo.visit(currentUrl.toString());
+    jumpTo('surah', selectSurah);
+  }
+  function jumpToPage(selectedPage) {
+    jumpTo('page', selectedPage);
   }
 </script>

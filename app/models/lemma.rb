@@ -13,7 +13,6 @@
 #
 
 class Lemma < QuranApiRecord
-  has_many :word_lemmas
-  has_many :words, through: :word_lemmas
+  has_many :words
   has_many :verses, through: :words
 end

@@ -1,31 +1,31 @@
 namespace :import do
   task arabic_topics: :environment do
-    arabic = Language.find_by!(iso_code: 'ar')
+    arabic = Language.find_by(iso_code: 'ar')
 
     resource = ResourceContent.where(name: "Arabic Topics").first_or_create!
     resource.update!(
       resource_type_name: 'content',
-      sub_type:         ResourceContent::SubType::Topic,
+      sub_type: ResourceContent::SubType::Topic,
       cardinality_type: ResourceContent::CardinalityType::NVerse,
-      language:         arabic
+      language: arabic
     )
     resource.translated_names.where(language: arabic).first_or_create!(
       name: 'موسوعة موضوعات القرآن الكريم'
     )
 
-    file        = Rails.root.join("data", "arabic-topics.json")
+    file = Rails.root.join("data", "arabic-topics.json")
     topics_data = JSON.parse(File.read(file))
 
     topics_data.each_with_index do |entry|
       main_name = entry["main_topic"]
       main_topic = Topic.find_or_initialize_by(
         resource_content_id: resource.id,
-        name:                main_name
+        name: main_name
       )
       main_topic.save(validate: false)
 
       verse_ids = Array(entry["ayah_ids"])
-      children  = Array(entry["children"])
+      children = Array(entry["children"])
 
       if children.one? && children.first["name"] == main_name
         verse_ids += Array(children.first["ayah_ids"])
@@ -46,8 +46,8 @@ namespace :import do
         child_name = child["name"]
         child_topic = Topic.find_or_initialize_by(
           resource_content_id: resource.id,
-          name:                child_name,
-          parent_id:           main_topic.id
+          name: child_name,
+          parent_id: main_topic.id
         )
         child_topic.save!
 

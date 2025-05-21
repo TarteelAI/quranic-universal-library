@@ -128,6 +128,15 @@ module ToolsHelper
         icon: 'info.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool helps you detect unicode value of any character, and is being used to debug the font issues."
+      ),
+      ToolCard.new(
+        title: 'Ayah Reader',
+        description: 'Select and compare specific Ayahs with translation side by side.',
+        url: ayah_reader_path,
+        type: 'ayah-reader',
+        icon: 'reader.svg',
+        tags: [['Reader', 'reader'], ['Ayah', 'ayah'], ['Translation', 'translation']],
+        info_tip: 'This tool helps you compare selected Ayahs along with translation for deeper understanding.'
       )
     ]
   end

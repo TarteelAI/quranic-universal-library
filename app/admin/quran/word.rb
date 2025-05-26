@@ -329,17 +329,17 @@ ActiveAdmin.register Word do
         end
       end
 
-      row :word_lemma, class: 'quran-text' do
+      row :lemma, class: 'quran-text' do
         span do
-          if lemma = resource.word_lemma
+          if lemma = resource.lemma
             link_to(lemma.to_s, [:admin, lemma], class: 'me_quran')
           end
         end
       end
 
-      row :word_stem, class: 'quran-text' do
+      row :stem, class: 'quran-text' do
         span do
-          if stem = resource.word_stem
+          if stem = resource.stem
             link_to(stem.to_s, [:admin, stem], class: 'me_quran')
           end
         end
@@ -347,8 +347,8 @@ ActiveAdmin.register Word do
 
       row :root, class: 'quran-text' do
         span do
-          if root = resource.word_root
-            link_to(root.root.value, [:admin, root], class: 'me_quran')
+          if root = resource.root
+            link_to(root.value, [:admin, root], class: 'me_quran')
           end
         end
       end
@@ -576,11 +576,11 @@ ActiveAdmin.register Word do
                        :verse,
                        :char_type,
                        :word_translations,
-                       :word_stem,
-                       :word_root,
-                       :word_lemma,
                        :morphology_word_segments,
-                       :derived_words
+                       :derived_words,
+                       :root,
+                       :lemma,
+                       :stem
                      )
 
       if params[:id].to_s.include?(':')

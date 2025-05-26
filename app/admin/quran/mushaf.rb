@@ -60,7 +60,7 @@ ActiveAdmin.register Mushaf do
 
     active_admin_comments
 
-    panel 'Lines per page' do
+    panel 'Debugging info' do
       pages = resource.mushaf_pages.order('page_number ASC')
       div 'data-controller': 'peity', 'data-chart': 'line' do
         pages.pluck(:lines_count).join(',')
@@ -72,6 +72,21 @@ ActiveAdmin.register Mushaf do
           span class: 'btn btn-info m-1' do
             span link_to(page.page_number, "/admin/mushaf_page_preview?page=#{page.page_number}&mushaf=#{resource.id}", class: 'text-white')
             span page.lines_count, class: 'badge text-bg-secondary bg-success'
+          end
+        end
+      end
+
+      h3 "Pages where Surah begins"
+      div do
+        alignments_with_surah = MushafLineAlignment
+                                  .where(mushaf: resource)
+                                  .with_surah_names
+                                  .order('page_number ASC, line_number ASC')
+
+        alignments_with_surah.each do |alignment|
+          span class: 'btn btn-info m-1', title: alignment.chapter&.name_simple, data: {controller: 'tooltip'} do
+            span link_to(alignment.page_number, "/admin/mushaf_page_preview?page=#{alignment.page_number}&mushaf=#{resource.id}", class: 'text-white')
+            span alignment.get_surah_number, class: 'badge text-bg-secondary bg-success'
           end
         end
       end

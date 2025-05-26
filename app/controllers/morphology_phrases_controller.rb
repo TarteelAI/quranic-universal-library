@@ -103,12 +103,12 @@ class MorphologyPhrasesController < CommunityController
 
   protected
   def sort_key
-    sort_by = params[:sort_key].presence || 'verse_index'
+    sort_by = params[:sort_key].presence || 'source_verse_id'
 
     if ['id', 'occurrence', 'verses_count', 'words_count', 'approved', 'review_status'].include?(sort_by)
       sort_by
     else
-      'verse_index'
+      'source_verse_id'
     end
   end
 

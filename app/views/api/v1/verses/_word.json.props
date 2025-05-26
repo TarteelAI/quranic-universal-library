@@ -1,0 +1,8 @@
+json.id word.word_index
+json.location word.location
+json.text word.text
+json.position word.position
+json.line_number word.line_number
+json.page_number word.page_number
+
+

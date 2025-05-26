@@ -5,8 +5,13 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :chapters, only: [:index, :show]
-      resources :verses, only: [:index, :show]
+      resources :chapters, only: [:index, :show] do
+        member do
+          get 'verses', to: 'verses#index', filter: 'by_chapter'
+        end
+      end
+
+      get '/verses/select2', to: 'verses#select2'
     end
   end
 

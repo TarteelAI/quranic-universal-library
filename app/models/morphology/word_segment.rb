@@ -25,6 +25,7 @@
 #  segment_type              :string
 #  special_type              :string
 #  state_type                :string
+#  text_qpc_hafs             :string
 #  text_uthmani              :string
 #  verb_form                 :string
 #  voice_type                :string
@@ -61,6 +62,7 @@
 #  index_morphology_word_segments_on_segment_type         (segment_type)
 #  index_morphology_word_segments_on_special_type         (special_type)
 #  index_morphology_word_segments_on_state_type           (state_type)
+#  index_morphology_word_segments_on_text_qpc_hafs        (text_qpc_hafs)
 #  index_morphology_word_segments_on_topic_id             (topic_id)
 #  index_morphology_word_segments_on_voice_type           (voice_type)
 #  index_morphology_word_segments_on_word_id              (word_id)

@@ -10,7 +10,6 @@
 #  imported              :boolean          default(FALSE)
 #  location              :string
 #  meta_data             :jsonb
-#  need_review           :boolean          default(TRUE)
 #  text_matched          :boolean          default(FALSE)
 #  word_group_size       :integer          default(1)
 #  created_at            :datetime         not null
@@ -31,7 +30,6 @@
 #  index_draft_word_translations_on_imported               (imported)
 #  index_draft_word_translations_on_language_id            (language_id)
 #  index_draft_word_translations_on_location               (location)
-#  index_draft_word_translations_on_need_review            (need_review)
 #  index_draft_word_translations_on_resource_content_id    (resource_content_id)
 #  index_draft_word_translations_on_text_matched           (text_matched)
 #  index_draft_word_translations_on_verse_id               (verse_id)

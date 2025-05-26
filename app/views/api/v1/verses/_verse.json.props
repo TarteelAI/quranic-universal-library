@@ -1,0 +1,9 @@
+json.verse do
+  json.extract! verse, :id, :verse_key, *@presenter.verse_fields
+
+  if @presenter.render_words?
+    json.words do
+      json.array! verse.words, partial: 'word'
+    end
+  end
+end

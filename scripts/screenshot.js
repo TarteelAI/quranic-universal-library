@@ -6,18 +6,18 @@ const path = require('path');
 // possible values: code_v1, code_v2, code_v4, text_qpc_hafs
 // text_uthmani_tajweed, text_qpc_nastaleeq, text_indopak_nastaleeq,
 // text_digital_khatt, text_uthmani
-const scriptType = 'code_v4';
+const scriptType = 'code_v1';
 const exportType = 'mushaf_page'; // Possible values: word, mushaf_page, ayah
-const mushafId= 6;
-const totalPages=610;
+const mushafId= 2;
+const totalPages= 604;
 const exportQuality = 100;
 const exportFormat = "png";
-const exportWordPositions = exportType === 'mushaf_page';
+const exportWordPositions = false; //exportType === 'mushaf_page';
 const host = "http://localhost:3000/exports";
 
-const ayahData = JSON.parse(fs.readFileSync("ayah_words.json", 'utf-8'));
-
 const exportWords = async (browser) => {
+  const ayahData = JSON.parse(fs.readFileSync("ayah_words.json", 'utf-8'));
+
   for (let ayah = 1; ayah <= 6236; ayah++) {
     const { key, words } = ayahData[ayah] || {};
     for (let word = 1; word <= words; word++) {
@@ -44,9 +44,9 @@ const exportMushafPage = async (browser) => {
 const captureScreenshot = async (browser, url, type) => {
   const page = await browser.newPage();
   await page.setViewport({
-    width: 900,
+    width: 1000,
     height: 1437,
-    deviceScaleFactor: 1, // Increase scale factor for higher resolution
+    deviceScaleFactor: 2, // Increase scale factor for higher resolution
   });
 
   try {

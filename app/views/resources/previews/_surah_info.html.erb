@@ -1,5 +1,9 @@
 <%
-  chapter_id = params[:surah] || 1
+  chapter_id = (params[:surah] || 1).to_i
+  if chapter_id < 0 || chapter_id > 114
+    chapter_id = 1
+  end
+
   chapters = Chapter.order("chapter_number ASC").select(:name_simple, :chapter_number).map do |chapter|
     [chapter.humanize, chapter.chapter_number]
   end
@@ -64,14 +68,14 @@
           </div>
 
           <div class="tw-flex tw-gap-2">
-            <% if false && surah.previous_ayah %>
-              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+            <% if chapter_id > 1 %>
+              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id - 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
                 ← Previous
               <% end %>
             <% end %>
 
-            <% if false && ayah.next_ayah %>
-              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+            <% if chapter_id < 114 %>
+              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id + 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
                 Next →
               <% end %>
             <% end %>
@@ -97,7 +101,12 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
       <div class="tw-space-y-6">
-
+        <p>
+          The <strong>Surah Information</strong> resource provides detailed information for each Surah. It includes key themes and topics, reasons for revelation, summaries, and other contextual insights to help readers better understand the message of the Surah.
+        </p>
+        <p>
+          Surah Information is available in multiple languages and can be downloaded in <code>SQLite</code>, <code>CSV</code>, and <code>JSON</code> formats. Some languages include both a short summary and a longer, detailed version. The detailed version may use HTML tags for formatting the text.
+        </p>
       </div>
     </div>
   </div>

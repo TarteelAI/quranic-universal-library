@@ -63,7 +63,7 @@ module Audio
     end
 
     def audio_format
-      read_attribute('format') || 'mp3'
+      read_attribute('format').presence || 'mp3'
     end
 
     def humanize

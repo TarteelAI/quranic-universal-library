@@ -3,8 +3,6 @@ module Exporter
     def initialize(resource_content:, base_path:)
       super(base_path: base_path, resource_content: resource_content)
       @resource_content = resource_content
-
-      @page_type = resource_content.meta_value('text_type') == 'code_v1' ? 'page_number' : 'v2_page'
     end
 
     def export_sqlite
@@ -35,19 +33,15 @@ module Exporter
           s, a, w = word.location.split(':')
 
           data = {
-            word_index: word.word_index,
-            surah: 2,
+            id: word.word_index,
+            surah: s,
             ayah: a,
             word: w,
             location: word.location,
             text: word.send(text_attribute)
           }
 
-          if resource_content.glyphs_based?
-            data[:page_number] = word.send(@page_type)
-          end
-
-          json_data[w.location] = data
+          json_data[word.location] = data
         end
       end
 
@@ -75,28 +69,18 @@ module Exporter
         word.send(text_attribute)
       ]
 
-      if resource_content.glyphs_based?
-        data << word.send(@page_type)
-      end
-
       statement.execute(data)
     end
 
     def words_table_columns
-      columns = {
-        word_index: 'INTEGER',
-        word_key: 'TEXT',
+      {
+        id: 'INTEGER',
+        location: 'TEXT',
         surah: 'INTEGER',
         ayah: 'INTEGER',
         word: 'INTEGER',
         text: 'TEXT'
       }
-
-      if resource_content.glyphs_based?
-        columns[:page_number] = 'INTEGER'
-      end
-
-      columns
     end
   end
 end

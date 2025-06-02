@@ -21,36 +21,41 @@ namespace :bridges do
 
       processed = text.gsub(/<a\s+([^>]+)>(.*?)<\/a>/i) do
         attrs, content = Regexp.last_match(1), Regexp.last_match(2)
-        href = attrs[/href\s*=\s*['"](__FN\d+__|sg|pl|dl)\s*['"]/i, 1]&.strip
-        cls  = attrs[/class\s*=\s*['"]([^'"]+)['"]/i, 1]
+        href = attrs[/href\s*=\s*['"](__FN\d+__|sg|pl|dl)['"]/, 1]&.strip
+        cls  = attrs[/class\s*=\s*['"]([^'"]+)['"]/, 1]
 
         if href&.match?(/sg|pl|dl/i) && cls&.include?('superscript')
-          %Q(<sup foot_note="#{href.downcase}">#{content}</sup>)
+          %Q(<sup>#{content}</sup>)
         elsif cls&.include?('fn_qiraat') && href
           fn_id    = href.delete("_")
           counter += 1
           fn_text  = surah_fns["__#{fn_id}__"]
           full_text = %Q(<span class="qiraat-footnote">Qira’at: #{fn_text}</span>)
-          aya_fns << {placeholder: "__FN_PLACEHOLDER_#{counter}__", original_id: fn_id, text: full_text, type: "qirat"}
+          aya_fns << { placeholder: "__FN_PLACEHOLDER_#{counter}__", original_id: fn_id, text: full_text, type: "qirat" }
           %Q(<span class="h">#{content}<sup foot_note="__FN_PLACEHOLDER_#{counter}__">#{counter}</sup></span>)
         elsif href&.start_with?('__FN') && cls&.include?('fn_regular')
           fn_id    = href.delete("_")
           counter += 1
           regular_text = surah_fns["__#{fn_id}__"]
-          aya_fns << {placeholder: "__FN_PLACEHOLDER_#{counter}__", original_id: fn_id, text: regular_text, type: "regular"}
+          aya_fns << { placeholder: "__FN_PLACEHOLDER_#{counter}__", original_id: fn_id, text: regular_text, type: "regular" }
           %Q(#{content}<sup foot_note="__FN_PLACEHOLDER_#{counter}__">#{counter}</sup>)
         else
           content
         end
       end
 
+      # Clean up spacing around tags and punctuation
       cleaned = processed
                   .gsub(/<\/span>\s+/, '</span>')
-                  .gsub(/<sup foot_note="/, '<sup foot_note="')
-                  .gsub(/<sup/, '<sup')
-                  .gsub(/<sup (foot_note)/, '<sup \1')
-                  .gsub(/<sup (foot_note=[^>]+)>\s+/, '<sup \1>')
-                  .gsub(/<\/sup>\s+/, '</sup>')
+                  .gsub(/\s+(<span)/, ' \1')
+                  .gsub(/(\d)(<\/sup>)(?=\w)/, '\1\2 ')
+                  .gsub(/(\w)(<sup foot_note="\d+">\d+<\/sup>)(?=\w)/, '\1\2 ')
+                  .gsub(/(\w)(<sup foot_note="pl">pl<\/sup>)/, '\1 \2')
+                  .gsub(/(\w)(<sup foot_note="sg">sg<\/sup>)/, '\1 \2')
+                  .gsub(/(\w)(<sup foot_note="dl">dl<\/sup>)/, '\1 \2')
+                  .gsub(/(\d)<sup foot_note=/, '\1 <sup foot_note=')
+                  .gsub(/<\/sup><\/span>(?=[\w,])/, '</sup></span> ')
+                  .gsub(/\s+,/, ',')
 
       [cleaned, aya_fns]
     end
@@ -84,7 +89,7 @@ namespace :bridges do
                 "sura"           => surah_id.to_s,
                 "aya"            => verse_number.to_s,
                 "arabic_text"    => ayah["arabic"].to_s,
-                "resource_text"  => source_text,
+                "resource_text"  => ayah["text"].to_s,
                 "footnotes"      => fns.each_with_object({}) { |fn, h| h[fn[:placeholder]] = fn[:text] }
               }
             }

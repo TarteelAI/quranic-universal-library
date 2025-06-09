@@ -101,9 +101,9 @@ module AudioSegment
         percentiles = []
         0.upto(100) do |i|
           timestamp = (i.to_f / 100) * total_duration
-          segment = find_closest_segment(chapter.id, timestamp)
-
-          percentiles.push segment.verse_key
+          if segment = find_closest_segment(chapter.id, timestamp)
+            percentiles.push segment.verse_key
+          end
         end
 
         audio_file.timing_percentiles = percentiles
@@ -127,6 +127,8 @@ module AudioSegment
                            .order('verse_number ASC')
 
       closest_segment = chapter_segments[0]
+      return if closest_segment.blank?
+
       closest_diff = (closest_segment.timestamp_median - time).abs
 
       chapter_segments.each do |segment|
@@ -140,7 +142,6 @@ module AudioSegment
 
       closest_segment
     end
-
 
     def track_repetition(chapter_id: nil)
       segments = Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id asc')
@@ -168,11 +169,7 @@ module AudioSegment
         audio_file_id: find_or_create_audio_file(verse).id
       ).first_or_initialize
 
-      words = verse_segment.words
-      segments = words.split(',').map do |time|
-        time.split(':').map &:to_i
-      end
-
+      segments = Oj.load(verse_segment.words.to_s)
       from = verse_segment.start_time
 
       if verse_segment.respond_to?('end_time')

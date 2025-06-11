@@ -18,26 +18,26 @@ ActiveAdmin.register Draft::Translation do
 
   action_item :previous_page, only: :show do
     if item = resource.previous_ayah_translation
-      link_to("Previous(#{item.verse.verse_key})", "/admin/draft_translations/#{item.id}", class: 'btn') if item
+      link_to("Previous(#{item.verse.verse_key})", "/cms/draft_translations/#{item.id}", class: 'btn') if item
     end
   end
 
   action_item :import, only: :show do
-    link_to import_admin_draft_translation_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to import_cms_draft_translation_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       'Approve and update'
     end if !resource.imported?
   end
 
   action_item :next_page, only: :show do
     if item = resource.next_ayah_translation
-      link_to "Next(#{item.verse.verse_key})", "/admin/draft_translations/#{item.id}", class: 'btn'
+      link_to "Next(#{item.verse.verse_key})", "/cms/draft_translations/#{item.id}", class: 'btn'
     end
   end
 
   member_action :import, method: 'put' do
     translation = resource.import!
 
-    redirect_to [:admin, translation], notice: 'Draft translation is approved and imported successfully'
+    redirect_to [:cms, translation], notice: 'Draft translation is approved and imported successfully'
   end
 
   index do
@@ -45,11 +45,11 @@ ActiveAdmin.register Draft::Translation do
     column :text_matched
     column :need_review
     column :verse_id do |resource|
-      link_to(resource.verse.verse_key, [:admin, resource.verse])
+      link_to(resource.verse.verse_key, [:cms, resource.verse])
     end
     column :imported
     column :resource do |resource|
-      link_to(resource.resource_content.name, [:admin, resource.resource_content]) if resource.resource_content
+      link_to(resource.resource_content.name, [:cms, resource.resource_content]) if resource.resource_content
     end
     column :footnotes_count
     column :draft_text, sortable: :draft_text do |resource|
@@ -80,7 +80,7 @@ ActiveAdmin.register Draft::Translation do
       row :current_text, class: language_name, 'data-controller': 'translation' do
         div do
           span safe_html(resource.current_text)
-          span(link_to 'View', [:admin, resource.translation]) if resource.translation
+          span(link_to 'View', [:cms, resource.translation]) if resource.translation
         end
       end
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
@@ -100,7 +100,7 @@ ActiveAdmin.register Draft::Translation do
       end
 
       row :verse do
-        link_to(resource.verse.verse_key, [:admin, resource.verse])
+        link_to(resource.verse.verse_key, [:cms, resource.verse])
       end
 
       row :quran_enc_link do
@@ -141,7 +141,7 @@ ActiveAdmin.register Draft::Translation do
         tbody do
           resource.foot_notes.each_with_index do |foot_note, index|
             tr do
-              td link_to(foot_note.id, [:admin, foot_note])
+              td link_to(foot_note.id, [:cms, foot_note])
 
               td class: language_name do
                 safe_html foot_note.draft_text
@@ -180,7 +180,7 @@ ActiveAdmin.register Draft::Translation do
 
         div class: "w-100 p-2 border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
           div class: 'flex-between' do
-            span link_to(resource_content.id, [:admin, resource_content], target: '_blank')
+            span link_to(resource_content.id, [:cms, resource_content], target: '_blank')
             span('Imported', class: 'status_tag yes ms-2') if is_fully_imported
           end
 
@@ -198,19 +198,19 @@ ActiveAdmin.register Draft::Translation do
           end
 
           div class: 'd-flex my-2 flex-between gap-2' do
-            span(link_to 'Filter', "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
+            span(link_to 'Filter', "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
 
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
             if can?(:manage, :draft_content) || current_user.super_admin?
-              span(link_to 'Sync', import_draft_admin_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm btn-success text-white', data: { confirm: 'Are you sure to re-sync this translation from QuranEnc?' })
-              span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to import this translation?' })
+              span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm btn-success text-white', data: { confirm: 'Are you sure to re-sync this translation from QuranEnc?' })
+              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to import this translation?' })
 
               if issue_count.positive?
-                span(link_to "Issues #{issue_count}", "/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
+                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
               end
 
-              span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft translations?' })
+              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft translations?' })
             end
           end
         end

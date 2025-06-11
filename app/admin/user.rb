@@ -35,7 +35,7 @@ ActiveAdmin.register User do
   end
 
   action_item :impersonate, only: :show, if: -> { can?(:impersonate, resource) } do
-    link_to impersonate_admin_user_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to impersonate_cms_user_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       'Impersonate'
     end
   end
@@ -48,7 +48,7 @@ ActiveAdmin.register User do
       ]
     }
 
-    link_to 'History', admin_content_changes_path({ q: filter })
+    link_to 'History', cms_content_changes_path({ q: filter })
   end
 
   member_action :impersonate, method: 'put' do
@@ -128,8 +128,8 @@ ActiveAdmin.register User do
         resource.user_projects.each do |project|
           tr do
             resource = project.get_resource_content
-            td link_to project.id, [:admin, project]
-            td { link_to(resource.name, [:admin, resource]) if resource }
+            td link_to project.id, [:cms, project]
+            td { link_to(resource.name, [:cms, resource]) if resource }
           end
         end
       end
@@ -142,7 +142,7 @@ ActiveAdmin.register User do
       attributes.delete(:password) if attributes[:password].blank?
 
       if resource.update(attributes)
-        redirect_to [:admin, resource], notice: 'Updated successfully'
+        redirect_to [:cms, resource], notice: 'Updated successfully'
       else
         render action: :edit
       end

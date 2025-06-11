@@ -28,11 +28,11 @@ ActiveAdmin.register DownloadableResource do
 
   action_item :refresh_downloads, only: :show, if: -> { can? :refresh_downloads, resource } do
     link_to 'Refresh downloads', '#_',
-            data: { controller: 'ajax-modal', url: refresh_downloads_admin_downloadable_resource_path(resource) }
+            data: { controller: 'ajax-modal', url: refresh_downloads_cms_downloadable_resource_path(resource) }
   end
 
   action_item :notify_users, only: :show, if: -> { can? :notify_users, resource } do
-    link_to notify_users_admin_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? This action will send an email to all users who has downloaded this resource.' } do
+    link_to notify_users_cms_downloadable_resource_path(resource), method: :put, data: { confirm: 'Are you sure? This action will send an email to all users who has downloaded this resource.' } do
       'Notify users'
     end
   end
@@ -48,7 +48,7 @@ ActiveAdmin.register DownloadableResource do
       notify = params[:notify_users] == '1'
       AsyncResourceActionJob.perform_later(resource, :refresh_export!, send_update_email: notify)
 
-      redirect_to [:admin, resource], notice: "Data will be exported in the background. Please check back later."
+      redirect_to [:cms, resource], notice: "Data will be exported in the background. Please check back later."
     end
   end
 
@@ -58,7 +58,7 @@ ActiveAdmin.register DownloadableResource do
     Utils::System.start_sidekiq
 
     resource.notify_users
-    redirect_to [:admin, resource], notice: "System will send email to all users who has downloaded this resource."
+    redirect_to [:cms, resource], notice: "System will send email to all users who has downloaded this resource."
   end
 
   controller do
@@ -89,7 +89,7 @@ ActiveAdmin.register DownloadableResource do
       end
       row :tags do
         resource.downloadable_resource_tags.each do |t|
-          link_to t.name, [:admin, t]
+          link_to t.name, [:cms, t]
         end
       end
 
@@ -110,7 +110,7 @@ ActiveAdmin.register DownloadableResource do
         tbody do
           resource.downloadable_files.with_attached_file.each do |file|
             tr do
-              td link_to(file.id, [:admin, file])
+              td link_to(file.id, [:cms, file])
               td file.name
               td file.file_type
               td file.download_count
@@ -133,10 +133,10 @@ ActiveAdmin.register DownloadableResource do
         tbody do
           resource.related_resources.each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.name
               td r.resource_type
-              td link_to 'View', [:admin, r], target: '_blank'
+              td link_to 'View', [:cms, r], target: '_blank'
             end
           end
         end

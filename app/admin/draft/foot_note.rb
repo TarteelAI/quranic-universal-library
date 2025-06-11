@@ -11,7 +11,7 @@ ActiveAdmin.register Draft::FootNote do
   index do
     id_column
     column :translation do |resource|
-      link_to resource.draft_translation_id, admin_draft_translation_path(resource.draft_translation_id)
+      link_to resource.draft_translation_id, cms_draft_translation_path(resource.draft_translation_id)
     end
 
     column :text_matched

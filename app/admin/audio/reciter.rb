@@ -83,7 +83,7 @@ ActiveAdmin.register Reciter do
         tbody do
           resource.verse_recitations.includes(:recitation_style, :qirat_type).each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.name
               td r.recitation_style&.name
               td r.qirat_type&.name
@@ -105,7 +105,7 @@ ActiveAdmin.register Reciter do
         tbody do
           resource.audio_recitations.includes(:recitation_style, :qirat_type).each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.name
               td r.recitation_style&.name
               td r.qirat_type&.name

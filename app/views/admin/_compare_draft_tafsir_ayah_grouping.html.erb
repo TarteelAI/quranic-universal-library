@@ -41,7 +41,7 @@
                 data-target=".group-<%= verse_key.gsub(':', '-') %>"
             >
               <td class="<%= mismatch ? 'bg-danger text-white' : '' %>">
-                <%= link_to "/admin/draft_tafsirs?q%5Bresource_content_id_eq=#{@resource.id}&q%5Bverse_key_cont=#{verse_key}&order=id_desc", target: '_blank' do %>
+                <%= link_to "/cms/draft_tafsirs?q%5Bresource_content_id_eq=#{@resource.id}&q%5Bverse_key_cont=#{verse_key}&order=id_desc", target: '_blank' do %>
                   <strong><%= verse_key %></strong>
                 <% end %>
               </td>
@@ -68,7 +68,7 @@
           <% else %>
             <tr class="collapse group-<%= current_from.to_s.gsub(':', '-') %>">
               <td class="<%= mismatch ? 'bg-danger text-white' : '' %>">
-                <%= link_to "/admin/draft_tafsirs?q=resource_content_id_eq=#{@resource.id}&q%5Bverse_key_cont=#{verse_key}&order=id_desc", target: '_blank' do %>
+                <%= link_to "/cms/draft_tafsirs?q=resource_content_id_eq=#{@resource.id}&q%5Bverse_key_cont=#{verse_key}&order=id_desc", target: '_blank' do %>
                   <strong><%= verse_key %></strong>
                 <% end %>
               </td>

@@ -45,7 +45,7 @@ ActiveAdmin.register Verse do
   index do
     id_column
     column :chapter do |verse|
-      link_to verse.chapter_id, admin_chapter_path(verse.chapter_id)
+      link_to verse.chapter_id, cms_chapter_path(verse.chapter_id)
     end
     column :verse_number
     column :verse_key
@@ -62,7 +62,7 @@ ActiveAdmin.register Verse do
     attributes_table do
       row :id
       row :chapter do
-        link_to resource.chapter_id, admin_chapter_path(resource.chapter_id)
+        link_to resource.chapter_id, cms_chapter_path(resource.chapter_id)
       end
       row :verse_number
       row :verse_index
@@ -77,15 +77,15 @@ ActiveAdmin.register Verse do
       row :mushaf_juzs_mapping
 
       row :verse_lemma do
-        link_to_if resource.verse_lemma, resource.verse_lemma&.text_madani, [:admin, resource.verse_lemma]
+        link_to_if resource.verse_lemma, resource.verse_lemma&.text_madani, [:cms, resource.verse_lemma]
       end
 
       row :verse_stem do
-        link_to_if resource.verse_stem, resource.verse_stem&.text_madani, [:admin, resource.verse_stem]
+        link_to_if resource.verse_stem, resource.verse_stem&.text_madani, [:cms, resource.verse_stem]
       end
 
       row :verse_root do
-        link_to_if resource.verse_root, resource.verse_root&.value, [:admin, resource.verse_root]
+        link_to_if resource.verse_root, resource.verse_root&.value, [:cms, resource.verse_root]
       end
 
       row 'Indopak' do
@@ -254,7 +254,7 @@ ActiveAdmin.register Verse do
         tbody class: 'quran-text' do
           verse.words.order('position ASC').each do |w|
             tr do
-              td link_to(w.id, admin_word_path(w))
+              td link_to(w.id, cms_word_path(w))
               td w.word_index
               td w.position
 
@@ -335,7 +335,7 @@ ActiveAdmin.register Verse do
           tbody do
             verse.audio_files.each do |file|
               tr do
-                td link_to(file.id, admin_audio_file_path(file))
+                td link_to(file.id, cms_audio_file_path(file))
                 td file.recitation&.reciter_name
                 td file.recitation&.style
                 td file.duration
@@ -365,7 +365,7 @@ ActiveAdmin.register Verse do
           tbody do
             verse.translations.order('language_id DESC').each do |trans|
               tr do
-                td link_to(trans.id, admin_translation_path(trans))
+                td link_to(trans.id, cms_translation_path(trans))
                 td "#{trans.language_name}-#{trans.get_resource_content.name}"
                 td do
                   div class: "#{trans.language_name} translation" do
@@ -395,8 +395,8 @@ ActiveAdmin.register Verse do
             positions = matching.matched_word_positions.map(&:to_i)
 
             tr do
-              td "#{i + 1} - #{link_to matching_verse.id, [:admin, matching]}".html_safe
-              td link_to(matching_verse.verse_key, [:admin, matching_verse])
+              td "#{i + 1} - #{link_to matching_verse.id, [:cms, matching]}".html_safe
+              td link_to(matching_verse.verse_key, [:cms, matching_verse])
               td matching.score
 
               td class: 'quran-text qpc-hafs' do
@@ -428,7 +428,7 @@ ActiveAdmin.register Verse do
 
             tr do
               td i + 1
-              td link_to(phrase.id, [:admin, phrase])
+              td link_to(phrase.id, [:cms, phrase])
               td phrase.source_verse.verse_key
               td pv.word_position_from
               td pv.word_position_to
@@ -459,7 +459,7 @@ ActiveAdmin.register Verse do
       tbody do
         resource.media_contents.each do |c|
           tr do
-            td link_to(c.id, [:admin, c])
+            td link_to(c.id, [:cms, c])
             td c.language_name
             td c.get_resource_content.author_name
           end
@@ -481,7 +481,7 @@ ActiveAdmin.register Verse do
         resource.tafsirs.each do |c|
           resource_content = c.get_resource_content
           tr do
-            td link_to(c.id, [:admin, c])
+            td link_to(c.id, [:cms, c])
             td "#{resource_content.id} - #{resource_content.name}"
             td c.language_name
             td c.get_resource_content.author_name

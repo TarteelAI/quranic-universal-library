@@ -65,7 +65,7 @@ ActiveAdmin.register ResourceContent do
   ActiveAdminViewHelpers.render_translated_name_sidebar(self)
 
   action_item :approve, only: :show, if: -> { can? :manage, ResourceContent } do
-    link_to approve_admin_resource_content_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to approve_cms_resource_content_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
@@ -73,7 +73,7 @@ ActiveAdmin.register ResourceContent do
   action_item :import_draft, only: :show, if: -> { can? :manage, Draft::Translation } do
     if resource.syncable?
       type = resource.tafsir? ? 'tafsir' : 'translation'
-      link_to "Import Draft #{type}", import_draft_admin_resource_content_path(resource), method: :put,
+      link_to "Import Draft #{type}", import_draft_cms_resource_content_path(resource), method: :put,
               data: { confirm: "Are you sure to import #{type} for this resource from QuranEnc?" }
     end
   end
@@ -87,14 +87,14 @@ ActiveAdmin.register ResourceContent do
       resource.source_files.attach(attachment)
     end
 
-    redirect_to [:admin, resource], notice: 'File saved successfully'
+    redirect_to [:cms, resource], notice: 'File saved successfully'
   end
 
   member_action :approve, method: 'put' do
     authorize! :update, resource
     resource.toggle_approve!
 
-    redirect_to [:admin, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
+    redirect_to [:cms, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
   end
 
   member_action :validate_draft, method: 'get' do
@@ -127,15 +127,15 @@ ActiveAdmin.register ResourceContent do
     end
 
     url = if resource.tafsir?
-            "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
+            "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
           elsif resource.translation?
             if resource.one_word?
-              "/admin/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+              "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
             else
-              "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+              "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
             end
           else
-            [:admin, resource]
+            [:cms, resource]
           end
 
     redirect_to url
@@ -167,10 +167,10 @@ ActiveAdmin.register ResourceContent do
       end
     else
       flash[:error] = "Invalid export type"
-      return redirect_to [:admin, resource]
+      return redirect_to [:cms, resource]
     end
 
-    redirect_to [:admin, resource], notice: "#{resource.name} will be exported and sent to you via email. You can also download the export from this page after few minutes."
+    redirect_to [:cms, resource], notice: "#{resource.name} will be exported and sent to you via email. You can also download the export from this page after few minutes."
   end
 
   index do
@@ -184,7 +184,7 @@ ActiveAdmin.register ResourceContent do
     column :records_count
 
     column :language do |resource|
-      link_to resource.language_name, admin_language_path(resource.language_id) if resource.language_id
+      link_to resource.language_name, cms_language_path(resource.language_id) if resource.language_id
     end
     column :created_at
     column :updated_at
@@ -239,9 +239,9 @@ ActiveAdmin.register ResourceContent do
       if can? :read, ResourcePermission
         row :resource_permission do
           if permission
-            link_to "Permission to host: #{permission.permission_to_host} <br> Permission to share: #{permission.permission_to_share}".html_safe, [:admin, permission]
+            link_to "Permission to host: #{permission.permission_to_host} <br> Permission to share: #{permission.permission_to_share}".html_safe, [:cms, permission]
           else
-            link_to 'Add', new_admin_resource_permission_path(resource_content_id: resource.id)
+            link_to 'Add', new_cms_resource_permission_path(resource_content_id: resource.id)
           end
         end
       end
@@ -263,12 +263,12 @@ ActiveAdmin.register ResourceContent do
       row :draft_translations do
         if resource.has_draft_translation?
           if resource.tafsir?
-            link_to("View draft tafsirs (#{resource.draft_translations.size} records)", "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}")
+            link_to("View draft tafsirs (#{resource.draft_translations.size} records)", "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}")
           else
             if resource.one_word?
-              link_to("View draft translations (#{resource.draft_translations.size} records)", "/admin/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
+              link_to("View draft translations (#{resource.draft_translations.size} records)", "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
             else
-              link_to("View draft translations (#{resource.draft_translations.size} records)", "/admin/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
+              link_to("View draft translations (#{resource.draft_translations.size} records)", "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
             end
           end
         else
@@ -288,7 +288,7 @@ ActiveAdmin.register ResourceContent do
         tbody do
           resource.downloadable_resources.each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.name
               td r.published?
             end
@@ -383,30 +383,30 @@ ActiveAdmin.register ResourceContent do
   sidebar 'Data for this resource', only: :show do
     div do
       if resource.translation?
-        link_to 'Translations', "/admin/translations?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.tafsir?
-        link_to 'Tafsir', "/admin/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.transliteration?
-        link_to 'transliteration', "/admin/transliterations?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'transliteration', "/cms/transliterations?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.chapter_info?
-        link_to 'Chapter info', "/admin/chapter_infos?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Chapter info', "/cms/chapter_infos?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.tokens?
-        link_to 'Quran Text', "/admin/tokens?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Quran Text', "/cms/tokens?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.video?
-        link_to 'Media content', "/admin/media_contents?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Media content', "/cms/media_contents?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.foot_note?
-        link_to 'Footnotes', "/admin/foot_notes?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Footnotes', "/cms/foot_notes?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.topic?
-        link_to 'Topics', "/admin/topics"
+        link_to 'Topics', "/cms/topics"
       elsif resource.recitation?
         if resource.chapter?
           link_to 'Surah recitations',
-                  "/admin/audio_chapter_audio_files?q%5Bresource_content_id_eq=#{resource.id}"
+                  "/cms/audio_chapter_audio_files?q%5Bresource_content_id_eq=#{resource.id}"
         else
-          link_to 'Ayah recitations', "/admin/recitations?q%5Bresource_content_id_eq=#{resource.id}"
+          link_to 'Ayah recitations', "/cms/recitations?q%5Bresource_content_id_eq=#{resource.id}"
         end
       elsif resource.mushaf_layout?
-        link_to 'Mushaf pages', "/admin/mushaf_pages?q%5Bmushaf_id_eq%5D=#{resource.get_mushaf_id}"
+        link_to 'Mushaf pages', "/cms/mushaf_pages?q%5Bmushaf_id_eq%5D=#{resource.get_mushaf_id}"
       end
     end
   end
@@ -427,8 +427,8 @@ ActiveAdmin.register ResourceContent do
       tbody do
         resource.user_projects.includes(:user).each do |project|
           tr do
-            td link_to(project.id, [:admin, project])
-            td link_to(project.user.name, [:admin, project.user])
+            td link_to(project.id, [:cms, project])
+            td link_to(project.user.name, [:cms, project.user])
           end
         end
       end
@@ -445,7 +445,7 @@ ActiveAdmin.register ResourceContent do
       tbody do
         resource.tags.each do |tag|
           tr do
-            td link_to(tag.id, [:admin, tag])
+            td link_to(tag.id, [:cms, tag])
             td tag.name
           end
         end

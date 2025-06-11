@@ -80,7 +80,7 @@ module ActiveAdminViewHelpers
                 version = resource.versions[index]
                 tr do
                   td link_to index, version: version.index
-                  td link_to index, "/admin/content_changes/#{version.id}"
+                  td link_to index, "/cms/content_changes/#{version.id}"
                   td version.created_at
                   td GlobalID::Locator.locate(version.whodunnit).try(:humanize)
                   td do

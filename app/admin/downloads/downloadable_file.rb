@@ -65,7 +65,7 @@ ActiveAdmin.register DownloadableFile do
           resource.user_downloads.includes(:user).each_with_index do |download, i|
             tr do
               td i + 1
-              td link_to(download.user.name, [:admin, download.user])
+              td link_to(download.user.name, [:cms, download.user])
               td download.last_download_at
               td download.download_count
             end
@@ -107,6 +107,6 @@ ActiveAdmin.register DownloadableFile do
       resource.files.attach(attachment)
     end
 
-    redirect_to [:admin, resource], notice: 'File saved successfully'
+    redirect_to [:cms, resource], notice: 'File saved successfully'
   end
 end

@@ -52,7 +52,7 @@ ActiveAdmin.register Language do
         tbody do
           ResourceContent.where(language: resource).each do |resource_content|
             tr do
-              td link_to(resource_content.id, [:admin, resource_content])
+              td link_to(resource_content.id, [:cms, resource_content])
               td resource_content.sub_type
               td resource_content.name
             end

@@ -102,7 +102,7 @@
                             data-ayah="<%= word.word.verse_key %>"
                             data-position="<%= word.position_in_verse %>"
                             data-id="<%= word.id %>">
-                      <a href="<%= admin_mushaf_word_path(word.id) %>" target="_blank">
+                      <a href="<%= cms_mushaf_word_path(word.id) %>" target="_blank">
                         <% if use_images %>
                           <% if tajweed_rules %>
                             <% tajweed_rules.positions.each do |part| %>

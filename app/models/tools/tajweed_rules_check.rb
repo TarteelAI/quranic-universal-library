@@ -17,7 +17,7 @@ module Tools
          fields: [],
         links_proc: {
           id: ->(record, _) do
-            [record.id, "/admin/words/#{record.id}"]
+            [record.id, "/cms/words/#{record.id}"]
           end,
           tajweed_image: ->(record, _) do
             "<img src='#{record.qa_tajweed_image_url}' />".html_safe
@@ -59,7 +59,7 @@ module Tools
         fields: [],
         links_proc: {
           id: ->(record, _) do
-            [record.id, "/admin/words/#{record.id}"]
+            [record.id, "/cms/words/#{record.id}"]
           end,
           tajweed_image: ->(record, _) do
             "<img src='#{record.qa_tajweed_image_url}' />".html_safe
@@ -84,7 +84,7 @@ module Tools
         fields: [],
         links_proc: {
           id: ->(record, _) do
-            [record.id, "/admin/words/#{record.id}"]
+            [record.id, "/cms/words/#{record.id}"]
           end,
           tajweed_image: ->(record, _) do
             "<img src='#{record.qa_tajweed_image_url}' />".html_safe
@@ -120,7 +120,7 @@ The six throat letters in Arabic are: <span class='qpc-hafs'> ء (Hamzah), ه (H
         fields: [],
         links_proc: {
           id: ->(record, _) do
-            [record.id, "/admin/words/#{record.id}"]
+            [record.id, "/cms/words/#{record.id}"]
           end,
           tajweed_image: ->(record, _) do
             "<img src='#{record.qa_tajweed_image_url}' />".html_safe

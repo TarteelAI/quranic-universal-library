@@ -35,11 +35,11 @@ ActiveAdmin.register Audio::ChapterAudioFile do
 
   action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_',
-            data: { controller: 'ajax-modal', url: validate_segments_admin_audio_chapter_audio_file_path(resource) }
+            data: { controller: 'ajax-modal', url: validate_segments_cms_audio_chapter_audio_file_path(resource) }
   end
 
   action_item :refresh_meta, only: :show,  if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_admin_audio_chapter_audio_file_path(resource), method: :put
+    link_to 'Refresh Meta', refresh_meta_cms_audio_chapter_audio_file_path(resource), method: :put
   end
 
   member_action :validate_segments, method: 'get' do
@@ -110,7 +110,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
         tbody do
           Audio::Segment.where(audio_file: resource).order('verse_number ASC').each do |segment|
             tr do
-              td link_to(segment.id, [:admin, segment])
+              td link_to(segment.id, [:cms, segment])
               td segment.verse_key
               td segment.duration
               td segment.timestamp_from
@@ -136,7 +136,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
-    redirect_to [:admin, resource], notice: 'Meta data will be refreshed in a few sec.'
+    redirect_to [:cms, resource], notice: 'Meta data will be refreshed in a few sec.'
   end
 
   form do |f|

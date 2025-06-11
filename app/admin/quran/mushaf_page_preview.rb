@@ -6,7 +6,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
     mushaf_id = params[:mushaf] || 2
     page = page > 1 ? page - 1 : 1
 
-    link_to 'Previous page', "/admin/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
+    link_to 'Previous page', "/cms/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
             class: 'btn'
   end
 
@@ -17,7 +17,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
 
     page = page < mushaf.pages_count ? page + 1 : mushaf.pages_count
 
-    link_to 'Next page', "/admin/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
+    link_to 'Next page', "/cms/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
             class: 'btn'
   end
 
@@ -46,7 +46,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
         Mushaf.find_each do |mushaf|
           tr do
             td do
-              link_to mushaf.name, "/admin/mushaf_page_preview?mushaf=#{mushaf.id}&page=#{page}",
+              link_to mushaf.name, "/cms/mushaf_page_preview?mushaf=#{mushaf.id}&page=#{page}",
                       class: "#{'text-success' if mushaf.id == params['mushaf'].to_i}"
             end
 
@@ -78,10 +78,10 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
 
             td do
               if compare_with == mushaf.id
-                link_to 'Stop comparison', "/admin/mushaf_page_preview?mushaf=#{current_mushaf}&page=#{page}"
+                link_to 'Stop comparison', "/cms/mushaf_page_preview?mushaf=#{current_mushaf}&page=#{page}"
               else
                 link_to 'Compare',
-                        "/admin/mushaf_page_preview?mushaf=#{current_mushaf}&compare=#{mushaf.id}&page=#{page}&word=#{params[:word]}"
+                        "/cms/mushaf_page_preview?mushaf=#{current_mushaf}&compare=#{mushaf.id}&page=#{page}&word=#{params[:word]}"
               end
             end
           end
@@ -121,7 +121,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
 
                   ul do
                     1.upto mushaf.pages_count do |p|
-                      li link_to("Page #{p}", "/admin/mushaf_page_preview?page=#{p}&mushaf=#{mushaf_id}")
+                      li link_to("Page #{p}", "/cms/mushaf_page_preview?page=#{p}&mushaf=#{mushaf_id}")
                     end
                   end
                 end

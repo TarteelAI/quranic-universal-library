@@ -1,11 +1,12 @@
 namespace :bridges do
   desc "Import Bridges’ translations into Draft::Translation"
   task import: :environment do
-    file = Rails.root.join("data/bridges_quran.json")
+    Utils::Downloader.download("...url here...", Rails.root.join("tms/bridges_quran.json"))
+    file = Rails.root.join("tms/bridges_quran.json")
     raw  = JSON.parse(File.read(file))
 
-    resource          = ResourceContent.find_by!(name: "Fadel Soliman, Bridges’ translation")
-    footnote_resource = ResourceContent.find_by!(name: "Bridges’ translation footnotes")
+    resource          = ResourceContent.find(149)
+    footnote_resource = ResourceContent.find(150)
 
     Draft::Translation.where(resource_content_id: resource.id).delete_all
     Draft::FootNote.where(resource_content_id: footnote_resource.id).delete_all

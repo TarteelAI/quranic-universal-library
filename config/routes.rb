@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   get 'credits', to: 'community#credits', as: :credits
   get 'faq', to: 'community#faq', as: :faq
   get 'contributors', to: 'community#contributors', as: :contributors
-  get '/reader', to: 'readers#show', as: :ayah_reader
+  get '/compare_ayah', to: 'verses#compare', as: :compare_ayah
   
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"

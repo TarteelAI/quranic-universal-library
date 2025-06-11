@@ -203,11 +203,39 @@ namespace :segments do
       ayah_segments
     end
 
-    def process_surah_time_machine(segments_file)
+    def normalize(text)
+      text.remove_dialectic.tr('ًٌٍَُِّْـ', '')
+    end
+
+    def process_surah_time_machine(segments_file, surah_id)
       entries = Oj.load(File.read(segments_file))
       ayah_groups = Hash.new { |h, k| h[k] = [] }
+      first_two_ayah_words = []
+      words = Word
+                .unscoped
+                .where(
+                  verse_id: Verse.where(chapter_id: surah_id, verse_number: [1, 2])
+                )
+                .includes(:verse)
+                .order('word_index ASC')
+
+      words.each do |word|
+        first_two_ayah_words << {
+            text_qpc_hafs: normalize(word.text_qpc_hafs),
+            text_imlaei: normalize(word.text_imlaei),
+            text_imlaei_simple: normalize(word.text_imlaei_simple),
+            text_uthmani: normalize(word.text_uthmani),
+            surah: word.chapter_id,
+            ayah: word.verse.verse_number,
+            word_number: word.position,
+            matched: false
+          }
+      end
 
       entries.each do |entry|
+        start_time = entry['startTime']
+        end_time = entry['endTime']
+
         case entry['type']
         when 'POSITION'
           position = entry['position']
@@ -216,8 +244,6 @@ namespace :segments do
           surah = position['surahNumber']
           ayah = position['ayahNumber']
           word_number = position['wordNumber']
-          start_time = entry['startTime']
-          end_time = entry['endTime']
         when 'FAILURE'
           mistake = entry['mistakeWithPositions']
           if mistake.blank? || mistake['positions'].blank?
@@ -228,8 +254,30 @@ namespace :segments do
           surah = position_data['surahNumber']
           ayah = position_data['ayahNumber']
           word_number = position_data['wordIndex'].to_i + 1
-          start_time = entry['startTime']
-          end_time = entry['endTime']
+        when 'IDENTIFYING'
+          text = entry['word']&.strip
+          next if text.blank?
+
+          text = normalize(text)
+
+          matched_word = first_two_ayah_words.find do |w|
+            !w[:matched] &&
+              [
+                w[:text_qpc_hafs],
+                w[:text_imlaei],
+                w[:text_imlaei_simple],
+                w[:text_uthmani]
+              ].include?(text)
+          end
+
+          if matched_word
+            surah = matched_word[:surah]
+            ayah = matched_word[:ayah]
+            word_number = matched_word[:word_number]
+            matched_word[:matched] = true
+          else
+            next
+          end
         else
           next
         end
@@ -278,7 +326,7 @@ namespace :segments do
     Dir.glob("#{base_path}/vs_logs/**/time-machine.json") do |file_path|
       session_id = file_path[%r{vs_logs/([^/]+)/}, 1]
 
-      # surah = session_id[0..3].to_i
+      surah_id = session_id[4..7].to_i
       reciter_id = session_id[0..3].to_i
 
       export_path = "#{base_path}/results/#{reciter_id}"
@@ -287,7 +335,7 @@ namespace :segments do
       reciter_databases[reciter_id] ||= create_db(export_path)
       db = reciter_databases[reciter_id]
 
-      segments = process_surah_time_machine(file_path)
+      segments = process_surah_time_machine(file_path, surah_id)
       json_data = {}
       if segments.blank?
         puts "No segments found for #{file_path}"

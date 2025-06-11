@@ -39,6 +39,11 @@ module ToolDocsHelper
           type: 'step',
           title: 'Step 2: Select translation(optional)',
           text: "If you want to compare translations too, select the desired translation from the dropdown.",
+        },
+        {
+          type: 'step',
+          title: 'Step 3: View the Ayahs',
+          text: "Click the <code>Show Ayahs</code> button to view the selected Ayahs. The tool will display the Ayahs in the same order that you've selected. Tool will also highight the common words between the Ayahs.",
         }
     ]
   end

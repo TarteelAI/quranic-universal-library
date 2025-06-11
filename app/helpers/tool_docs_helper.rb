@@ -14,13 +14,38 @@ module ToolDocsHelper
       'surah_recitation',
       'surah_recitation_segment_builder',
       'tajweed',
-      'word_translation'
+      'word_translation',
+      'compare_ayah'
     ]
   end
 
   def doc_image_tag(path)
     url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}"
     "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
+  end
+
+  def compare_ayah_help
+    [
+        "Compare Ayah tool",
+        {
+          text: "This tool is designed to view and compare multiple Ayahs. Follow these steps to use the tool effectively:"
+        },
+        {
+          type: 'step',
+          title: 'Step 1: Select ayahs to compare',
+          text: 'Enter comma-separated Ayah keys (e.g., <code>1:1, 27:30</code> will show the 1st Ayah of Surah Al-Fatiha and the 30th Ayah of Surah An-Naml) in the "Select Ayah" field.',
+        },
+        {
+          type: 'step',
+          title: 'Step 2: Select translation(optional)',
+          text: "If you want to compare translations too, select the desired translation from the dropdown.",
+        },
+        {
+          type: 'step',
+          title: 'Step 3: View the Ayahs',
+          text: "Click the <code>Show Ayahs</code> button to view the selected Ayahs. The tool will display the Ayahs in the same order that you've selected. Tool will also highight the common words between the Ayahs.",
+        }
+    ]
   end
 
   def word_translation_help

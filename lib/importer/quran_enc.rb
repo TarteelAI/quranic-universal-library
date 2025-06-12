@@ -117,10 +117,10 @@ module Importer
           verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")
 
           if !has_footnotes && data['footnotes'].present?
-            .push({
-                           tag: 'missing-footnote-mapping',
-                           text: verse.verse_key
-                         })
+            log_issue({
+                        tag: 'missing-footnote-mapping',
+                        text: verse.verse_key
+                      })
             log_message "!!!!!!!====== Wrong mapping for #{quran_enc_key}. This translation does have footnotes. See #{verse.verse_key}======!!!"
           end
 
@@ -604,6 +604,7 @@ module Importer
       lingala_zakaria: { id: 855, name: 'Zakariya Muhammed Balingongo' },
       afar_hamza: { id: 854, name: 'Shaikh Mahmud Abdulkader Hamza' },
       greek_rwwad: {id: 1252},
+      romanian_project: {id: 1253},
       amharic_zain: {id: 1269},
       luhya_center: {id: 1268},
       malagasy_rwwad: {id: 1267},
@@ -615,6 +616,8 @@ module Importer
       iranun_sarro: {id: 1257},
       bisayan_rwwad: {id: 1256},
       croatian_rwwad: {id: 1255},
+      swahili_rwwad: {id: 1557},
+      german_rwwad: {id: 1556},
       arabic_seraj: {
         id: 908,
         language: 9,

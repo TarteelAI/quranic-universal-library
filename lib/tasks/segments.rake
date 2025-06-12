@@ -486,7 +486,6 @@ namespace :segments do
     puts "Log parsing is finished. See #{DB_FILE}"
   end
 
-
   task generate_report: :environment do
     db_file = Rails.root.join('/Volumes/Data/qul-segments//stats.db')
     output_file = Rails.root.join('/Volumes/Data/qul-segments/report.html')

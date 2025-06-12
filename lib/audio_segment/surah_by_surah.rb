@@ -170,13 +170,16 @@ module AudioSegment
       ).first_or_initialize
 
       segments = Oj.load(verse_segment.words.to_s)
-      from = verse_segment.start_time
+      from = verse_segment.start_time.to_i
+      to = verse_segment.end_time.presence
 
-      if verse_segment.respond_to?('end_time')
-        to = verse_segment.end_time.presence
+      to ||= next_verse_segment ? next_verse_segment.start_time.to_i - 1 : (segments.last[2]).abs
+
+      if next_verse_segment
+        next_ayah_start = next_verse_segment.start_time.to_i
+
+        to = [to, next_ayah_start + 2000].min
       end
-
-      to ||= next_verse_segment ? next_verse_segment.start_time - 1 : (segments.last[2]).abs
 
       segment.set_timing(from, to, verse)
       segment.update_segments(segments)

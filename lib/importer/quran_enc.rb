@@ -250,7 +250,7 @@ module Importer
     end
 
     def create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data, report_foonote_issues: true)
-      footnote_id_reg, footnote_text_reg = REGEXP_FOOTNOTES[quran_enc_key.to_sym]
+      footnote_id_reg, footnote_text_reg = REGEXP_FOOTNOTES[quran_enc_key.to_sym] || [/\[\d+\]/, /\[\d+\]/]
       need_to_review = false
 
       translation = create_translation(verse, data['translation'], resource)
@@ -494,6 +494,8 @@ module Importer
       bosnian_rwwad: [/\[\d+\]/, /\[\d+\]/],
       ukrainian_yakubovych: [/\[[IVXLCDM]+\]/, /\[[IVXLCDM]+\]/],
       russian_aboadel: [/\[\d+\]/, /\[\d+\]/],
+      romanian_project: [/\[\d+\]/, /\[\d+\]/],
+      swahili_rwwad: [/\[\d+\]/, /\[\d+\]/]
     }.freeze
 
     TRANSLATIONS_MAPPING = {
@@ -629,6 +631,8 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'swahili_rwwad',
+      'romanian_project',
       'russian_aboadel',
       'bosnian_rwwad',
       'japanese_saeedsato',

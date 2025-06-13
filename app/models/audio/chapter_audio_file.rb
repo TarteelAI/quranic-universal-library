@@ -42,6 +42,10 @@ module Audio
     belongs_to :chapter
     has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: 'audio_file_id'
 
+    def one_ayah?
+      false
+    end
+
     def has_audio_meta_data?
       [duration, bit_rate, file_size, mime_type].all?(&:present?)
     end

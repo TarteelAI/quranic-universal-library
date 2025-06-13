@@ -178,7 +178,7 @@ module AudioSegment
       if next_verse_segment
         next_ayah_start = next_verse_segment.start_time.to_i
 
-        to = [to, next_ayah_start + 2000].min
+        to = [to.to_i, next_ayah_start + 2000].min
       end
 
       segment.set_timing(from, to, verse)

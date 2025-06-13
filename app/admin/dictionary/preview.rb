@@ -12,7 +12,7 @@ ActiveAdmin.register_page 'Preview' do
       ul do
         Dictionary::WordRoot.find_each do |word|
           li do
-            link_to word.id, "/admin/preview?id=#{word.id}"
+            link_to word.id, "/cms/preview?id=#{word.id}"
           end
         end
       end

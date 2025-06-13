@@ -23,11 +23,11 @@ ActiveAdmin.register ChapterInfo do
     id_column
 
     column :language do |resource|
-      link_to resource.language_name, admin_language_path(resource.language_id) if resource.language_id
+      link_to resource.language_name, cms_language_path(resource.language_id) if resource.language_id
     end
 
     column :chapter do |resource|
-      link_to resource.chapter_id, admin_chapter_path(resource.chapter_id)
+      link_to resource.chapter_id, cms_chapter_path(resource.chapter_id)
     end
 
     actions
@@ -37,7 +37,7 @@ ActiveAdmin.register ChapterInfo do
     attributes_table do
       row :id
       row :chapter do |object|
-        link_to object.chapter_id, admin_chapter_path(object.chapter)
+        link_to object.chapter_id, cms_chapter_path(object.chapter)
       end
       row :language
       row :resource_content do |object|

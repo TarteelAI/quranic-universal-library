@@ -98,7 +98,7 @@ ActiveAdmin.register Chapter do
 
   index do
     column :chapter_number do |chapter|
-      link_to chapter.id, admin_chapter_path(chapter)
+      link_to chapter.id, cms_chapter_path(chapter)
     end
     column :bismillah_pre
     column :revelation_order

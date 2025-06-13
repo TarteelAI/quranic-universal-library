@@ -16,7 +16,7 @@ ActiveAdmin.register WordTranslation do
 
   index do
     column :id do |resource|
-      link_to(resource.id, [:admin, resource])
+      link_to(resource.id, [:cms, resource])
     end
 
     column :language, &:language_name

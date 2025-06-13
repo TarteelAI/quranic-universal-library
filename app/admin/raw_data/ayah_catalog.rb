@@ -22,7 +22,7 @@ ActiveAdmin.register_page 'Ayah data preview' do
             end
 
     if verse&.previous_ayah
-      link_to("Previous(#{verse.previous_ayah.verse_key})", "/admin/ayah_data_preview?id=#{verse&.previous_ayah.id}", class: 'btn')
+      link_to("Previous(#{verse.previous_ayah.verse_key})", "/cms/ayah_data_preview?id=#{verse&.previous_ayah.id}", class: 'btn')
     end
   end
 
@@ -36,7 +36,7 @@ ActiveAdmin.register_page 'Ayah data preview' do
             end
 
     if verse&.next_ayah
-      link_to("Next(#{verse.next_ayah.verse_key})", "/admin/ayah_data_preview?id=#{verse.next_ayah.id}", class: 'btn')
+      link_to("Next(#{verse.next_ayah.verse_key})", "/cms/ayah_data_preview?id=#{verse.next_ayah.id}", class: 'btn')
     end
   end
 
@@ -58,7 +58,7 @@ ActiveAdmin.register_page 'Ayah data preview' do
       catalog.each do |content|
         panel "<div data-bs-toggle='collapse' data-bs-target='#content-#{content.id}' class='d-flex collapable scrollable'>#{content.resource&.name} <span class='ms-auto'></span></div>".html_safe do
           div do
-            link_to "View record", [:admin, content]
+            link_to "View record", [:cms, content]
           end
 
           div id: "content-#{content.id}", class: "collapse show #{content.content_css_class.to_s}", 'aria-labelledby': "content-#{content.id}" do

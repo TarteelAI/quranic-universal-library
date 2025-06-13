@@ -8,7 +8,7 @@
      This will refresh the exported files for <%= resource.name %>, the old files will be replaced with the new ones.
     </div>
 
-    <%= form_with url: refresh_downloads_admin_downloadable_resource_path(resource), method: :put do |form| %>
+    <%= form_with url: refresh_downloads_cms_downloadable_resource_path(resource), method: :put do |form| %>
       <div class="form-group">
         <%= form.check_box :notify_users %>
         <%= form.label :notify_users, 'Notify users about the new version via email' %>

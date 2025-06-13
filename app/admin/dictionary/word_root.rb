@@ -63,7 +63,7 @@ ActiveAdmin.register Dictionary::WordRoot do
       row :root do
         root = resource.root
 
-        link_to(root.value, "/admin/roots/#{root.id}") if root
+        link_to(root.value, "/cms/roots/#{root.id}") if root
       end
 
       row :created_at
@@ -81,7 +81,7 @@ ActiveAdmin.register Dictionary::WordRoot do
         tbody style: 'font-size: 30px' do
           resource.root_definitions.each do |defination|
             tr do
-              td link_to(defination.id, [:admin, defination])
+              td link_to(defination.id, [:cms, defination])
               td defination.definition_type
               td defination.description
             end
@@ -103,7 +103,7 @@ ActiveAdmin.register Dictionary::WordRoot do
         tbody do
           resource.root_examples.each do |example|
             tr style: 'font-size: 30px' do
-              td link_to(example.id, [:admin, example])
+              td link_to(example.id, [:cms, example])
               td example.word_arabic, class: 'qpc-hafs', style: 'white-space: nowrap;'
               td example.word_translation, style: 'white-space: nowrap;'
               td highlight(example.segment_arabic, example.word_arabic), class: 'qpc-hafs',

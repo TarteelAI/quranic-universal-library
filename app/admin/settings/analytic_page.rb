@@ -36,7 +36,7 @@ ActiveAdmin.register_page 'Analytics' do
 
           table_for top_users do
             column 'User Name' do |user|
-              link_to user.first_name, admin_user_path(user.id)
+              link_to user.first_name, cms_user_path(user.id)
             end
 
             column 'Total Downloads' do |user|

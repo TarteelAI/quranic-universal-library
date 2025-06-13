@@ -46,7 +46,7 @@ ActiveAdmin.register Author do
         tbody do
           resource.resource_contents.each do |resource_content|
             tr do
-              td link_to(resource_content.id, [:admin, resource_content])
+              td link_to(resource_content.id, [:cms, resource_content])
               td resource_content.sub_type
               td resource_content.name
               td resource_content.approved?

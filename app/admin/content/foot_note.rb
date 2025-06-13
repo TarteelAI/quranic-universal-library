@@ -22,7 +22,7 @@ ActiveAdmin.register FootNote do
       row :language
       row :resource_content do |foot_note|
         resource_content = foot_note.get_resource_content
-        link_to(resource_content.name, [:admin, resource_content]) if resource_content
+        link_to(resource_content.name, [:cms, resource_content]) if resource_content
       end
       row :text do
         div class: resource.language_name do

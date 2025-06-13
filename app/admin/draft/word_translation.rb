@@ -21,26 +21,26 @@ ActiveAdmin.register Draft::WordTranslation do
 
   action_item :previous_word, only: :show do
     if item = resource.previous_word_translation
-      link_to("Previous(#{item.location})", "/admin/draft_word_translations/#{item.id}", class: 'btn')
+      link_to("Previous(#{item.location})", "/cms/draft_word_translations/#{item.id}", class: 'btn')
     end
   end
 
   action_item :import, only: :show do
-    link_to import_admin_draft_word_translation_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to import_cms_draft_word_translation_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       'Approve and update'
     end if !resource.imported?
   end
 
   action_item :next_word, only: :show do
     if item = resource.next_word_translation
-      link_to "Next(#{item.location})", "/admin/draft_word_translations/#{item.id}", class: 'btn'
+      link_to "Next(#{item.location})", "/cms/draft_word_translations/#{item.id}", class: 'btn'
     end
   end
 
   member_action :import, method: 'put' do
     translation = resource.import!
 
-    redirect_to [:admin, translation], notice: 'Draft word translation is approved and imported successfully'
+    redirect_to [:cms, translation], notice: 'Draft word translation is approved and imported successfully'
   end
 
   index do
@@ -48,14 +48,14 @@ ActiveAdmin.register Draft::WordTranslation do
     column :text_matched
     column :need_review
     column :verse_id do |resource|
-      link_to(resource.verse.verse_key, [:admin, resource.verse])
+      link_to(resource.verse.verse_key, [:cms, resource.verse])
     end
     column :word_id, sortable: :location do |resource|
-      link_to(resource.location, [:admin, resource.word])
+      link_to(resource.location, [:cms, resource.word])
     end
     column :imported
     column :resource do |resource|
-      link_to(resource.resource_content.name, [:admin, resource.resource_content])
+      link_to(resource.resource_content.name, [:cms, resource.resource_content])
     end
     column :arabic do |resource|
       div resource.word.text_qpc_hafs, class: 'qpc-hafs'
@@ -85,7 +85,7 @@ ActiveAdmin.register Draft::WordTranslation do
       row :current_text, class: language_name, 'data-controller': 'translation' do
         div do
           span safe_html(resource.current_text)
-          span(link_to 'View', [:admin, resource.word_translation]) if resource.word_translation
+          span(link_to 'View', [:cms, resource.word_translation]) if resource.word_translation
         end
       end
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
@@ -107,10 +107,10 @@ ActiveAdmin.register Draft::WordTranslation do
       end
 
       row :verse do
-        link_to(resource.verse.verse_key, [:admin, resource.verse])
+        link_to(resource.verse.verse_key, [:cms, resource.verse])
       end
       row :word do
-        link_to(resource.word.location, [:admin, resource.word])
+        link_to(resource.word.location, [:cms, resource.word])
       end
 
       row :created_at
@@ -146,7 +146,7 @@ ActiveAdmin.register Draft::WordTranslation do
       translations.each do |resource_content|
         div class: "w-100 p-1 border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
           div class: 'flex-between' do
-            span link_to(resource_content.id, [:admin, resource_content], target: 'blank')
+            span link_to(resource_content.id, [:cms, resource_content], target: 'blank')
             imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
           end
 
@@ -154,15 +154,15 @@ ActiveAdmin.register Draft::WordTranslation do
           div "Synced: #{resource_content.meta_value('synced-at')} Updated: #{resource_content.updated_at}"
 
           div class: 'd-flex my-2 flex-between gap-2' do
-            span(link_to 'Filter', "/admin/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info text-white')
+            span(link_to 'Filter', "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'mb-2 btn btn-sm btn-info text-white')
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
             if can?(:manage, :draft_content) || current_user.super_admin?
-              span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to import this translations?' })
+              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to import this translations?' })
               if issue_count > 0
-                span(link_to "Issues #{issue_count}", "/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
+                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
               end
-              span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft translations?' })
+              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft translations?' })
             end
           end
         end

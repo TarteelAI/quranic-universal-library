@@ -15,7 +15,7 @@
   class="ayah d-flex quran-text flex-column border p-3 mb-2 border-2 <%= 'border-success' if persisted %>">
   <div class="actions">
     <% if persisted %>
-      <%= link_to "/admin/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>
+      <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>
         <span class="badge bg-success">
           <i class="fas fa-check"></i>
         </span>

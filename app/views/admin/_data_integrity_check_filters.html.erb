@@ -2,7 +2,7 @@
   params_values = params
 %>
 
-<%= semantic_form_for :check, url: "/admin/data_integrity_check", html: { id: 'data-filters'}, method: :get do |form| %>
+<%= semantic_form_for :check, url: "/cms/data_integrity_check", html: { id: 'data-filters'}, method: :get do |form| %>
   <%= hidden_field_tag :check_name, check_name %>
 
   <% check[:fields].each do |field| %>

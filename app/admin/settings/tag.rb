@@ -54,7 +54,7 @@ ActiveAdmin.register Tag do
         tbody do
           resource.resources.each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.sub_type
               td r.language_name
               td r.name

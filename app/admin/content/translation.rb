@@ -31,7 +31,7 @@ ActiveAdmin.register Translation do
 
     column :language, &:language_name
     column :verse_id do |resource|
-      link_to resource.verse_key, admin_verse_path(resource.verse_id)
+      link_to resource.verse_key, cms_verse_path(resource.verse_id)
     end
     column :text, sortable: :text do |resource|
       resource.text.first(100)
@@ -46,11 +46,11 @@ ActiveAdmin.register Translation do
     attributes_table do
       row :id
       row :verse do |resource|
-        link_to resource.verse.verse_key, admin_verse_path(resource.verse)
+        link_to resource.verse.verse_key, cms_verse_path(resource.verse)
       end
       row :resource_content do
         r = resource.get_resource_content
-        link_to(r.name, [:admin, r])
+        link_to(r.name, [:cms, r])
       end
       row :language
       row :priority
@@ -80,7 +80,7 @@ ActiveAdmin.register Translation do
         tbody do
           resource.foot_notes.each do |foot_note|
             tr do
-              td link_to foot_note.id, admin_foot_note_path(foot_note)
+              td link_to foot_note.id, cms_foot_note_path(foot_note)
               td safe_html(foot_note.text)
               td foot_note.created_at
               td foot_note.updated_at

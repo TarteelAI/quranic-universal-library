@@ -13,6 +13,10 @@ class BasePresenter
 
   protected
 
+  def mushaf_id
+    params[:mushaf] || 5
+  end
+
   def invalid_chapter(value)
     raise_invalid_id_error(value, "Chapter", "1-114")
   end

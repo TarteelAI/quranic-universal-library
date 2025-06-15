@@ -2,9 +2,13 @@ module V1
   class VersePresenter < BasePresenter
     def verses
       filters = {
-        filter: params[:filter_by].to_s.strip.downcase,
-        words: render_words?
+        filter: params[:filter].to_s.strip.downcase,
+        filter_id: params[:id],
+        words: render_words?,
+        mushaf_id: mushaf_id,
+        translations: ayah_translation_ids
       }
+
       if render_word_translation?
         filters[:word_translation_language] = word_translation_language
       end
@@ -26,25 +30,25 @@ module V1
       list
     end
 
+    def render_translations?
+      ayah_translation_ids.present?
+    end
+
     def render_words?
       lookahead.selects?(:words)
     end
 
     def render_word_translation?
-      lookahead.selects?(:word_translation)
+      lookahead.selects?(:word_translation_language) && word_translation_language
     end
 
     def word_translation_language
-      lang = params[:word_translation_language].presence || 'en'
+      lang = params[:word_translation_language].presence
       word_translations = ResourceContent.translations.one_word.approved
       language = Language
                    .where(iso_code: lang, id: word_translations.pluck(:language_id))
                    .first
-      if language
-        language.id
-      else
-        38 # english
-      end
+      language&.id
     end
 
     def verse_fields
@@ -56,9 +60,18 @@ module V1
     end
 
     protected
-
     def finder
       VerseFinder.new(locale: api_locale)
+    end
+
+    def ayah_translation_ids
+      if params[:translations].present?
+        # Allow max 10 translation
+        # TODO: add translation access rules etc
+        params[:translations].split(',').map(&:to_i).first(10)
+      else
+        []
+      end
     end
 
     def filter(list)

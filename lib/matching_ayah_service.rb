@@ -169,9 +169,9 @@ class MatchingAyahService
   protected
 
   def word_matched?(w, w2, use_root: false)
-    (w.word_lemma && w.word_lemma.lemma_id == w2.word_lemma&.lemma_id) ||
-      (w.word_stem && w.word_stem.stem_id == w2.word_stem&.stem_id) ||
-      (use_root && w.word_root && w.word_root.root_id == w2.word_root&.root_id)
+    (w.lemma_id && w.lemma_id == w2.lemma_id) ||
+      (w.stem_id && w.stem_id == w2.stem_id) ||
+      (use_root && w.root_id && w.root_id == w2.root_id)
   end
 
   def tokenize_into_words(v)

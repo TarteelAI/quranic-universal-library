@@ -1,5 +1,58 @@
 module V1
   class VersePresenter < BasePresenter
+    VERSE_FIELDS = [
+      'text_uthmani',
+      'text_indopak',
+      'text_imlaei_simple',
+      'juz_number',
+      'hizb_number',
+      'rub_el_hizb_number',
+      'sajdah_type',
+      'sajdah_number',
+      'image_url',
+      'text_imlaei',
+      'text_uthmani_simple',
+      'text_uthmani_tajweed',
+      'code_v1',
+      'code_v2',
+      'v2_page',
+      'text_qpc_hafs',
+      'words_count',
+      'text_indopak_nastaleeq',
+      'text_qpc_nastaleeq',
+      'ruku_number',
+      'surah_ruku_number',
+      'manzil_number',
+      'text_qpc_nastaleeq_hafs',
+      'text_digital_khatt',
+      'text_digital_khatt_v1',
+      'text_qpc_hafs_tajweed',
+      'text_digital_khatt_indopak'
+    ].freeze
+
+    WORD_FIELDS = [
+      'text_uthmani',
+      'text_indopak',
+      'text_imlaei_simple',
+      'audio_url',
+      'image_url',
+      'location',
+      'text_imlaei',
+      'text_uthmani_simple',
+      'text_uthmani_tajweed',
+      'en_transliteration',
+      'code_v1',
+      'code_v2',
+      'text_qpc_hafs',
+      'text_indopak_nastaleeq',
+      'text_qpc_nastaleeq',
+      'text_qpc_nastaleeq_hafs',
+      'text_digital_khatt',
+      'text_digital_khatt_v1',
+      'text_qpc_hafs_tajweed',
+      'text_digital_khatt_indopak'
+    ]
+
     def verses
       filters = {
         filter: params[:filter].to_s.strip.downcase,
@@ -52,11 +105,17 @@ module V1
     end
 
     def verse_fields
-      []
+      fields = params[:fields].to_s.strip
+      return [] if fields.empty?
+
+      fields.split(',') & VERSE_FIELDS
     end
 
     def word_fields
-      []
+      fields = params[:word_fields].to_s.strip
+      return [] if fields.empty?
+
+      fields.split(',') & WORD_FIELDS
     end
 
     protected

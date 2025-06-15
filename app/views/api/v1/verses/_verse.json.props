@@ -9,7 +9,7 @@ word_locals = {
 verse_fields = @presenter.verse_fields
 
 json.verse do
-  json.extract! verse, :id, :verse_key, *verse_fields
+  json.extract! verse, :id, :verse_key, :page_number, *verse_fields
 
   if include_words
     json.words do

@@ -42,7 +42,7 @@ ActiveAdmin.register DataSource do
 
             records.each do |resource_content|
               tr class: "group-rows group-#{index}" do
-                td link_to(resource_content.id, [:admin, resource_content])
+                td link_to(resource_content.id, [:cms, resource_content])
                 td resource_content.name
                 td resource_content.language_name
                 td resource_content.cardinality_type

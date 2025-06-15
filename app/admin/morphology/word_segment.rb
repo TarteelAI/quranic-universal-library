@@ -45,7 +45,7 @@ ActiveAdmin.register Morphology::WordSegment do
     selectable_column
     id_column
     column :word_id do |resource|
-      link_to resource.word.location, [:admin, resource.word]
+      link_to resource.word.location, [:cms, resource.word]
     end
     column :position
 

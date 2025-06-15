@@ -27,7 +27,7 @@ ActiveAdmin.register Draft::Content do
     column :need_review
     column :imported
     column :resource do |resource|
-      link_to(resource.resource_content.name, [:admin, resource.resource_content])
+      link_to(resource.resource_content.name, [:cms, resource.resource_content])
     end
     column :draft_text, sortable: :draft_text do |resource|
       resource.draft_text.to_s.first(50)

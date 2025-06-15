@@ -58,13 +58,13 @@ module Tools
         ],
         links_proc: {
           ayah: -> (record, _) do
-            [record.verse_key, "/admin/verses/#{record.verse_key}"]
+            [record.verse_key, "/cms/verses/#{record.verse_key}"]
           end,
           first_mushaf_page: -> (record, params) do
-            [record.first_mushaf_page, "/admin/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{params[:first_mushaf_id]}&compare=#{params[:second_mushaf_id]}"]
+            [record.first_mushaf_page, "/cms/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{params[:first_mushaf_id]}&compare=#{params[:second_mushaf_id]}"]
           end,
           second_mushaf_page: -> (record, params) do
-            [record.second_mushaf_page, "/admin/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{params[:second_mushaf_id]}&compare=#{params[:first_mushaf_id]}"]
+            [record.second_mushaf_page, "/cms/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{params[:second_mushaf_id]}&compare=#{params[:first_mushaf_id]}"]
           end
         },
         check: ->(params) do
@@ -88,7 +88,7 @@ module Tools
               collection: paginate(result, params),
               total_pages_with_difference: pages_with_difference.size,
               different_pages: pages_with_difference.map do |p|
-                "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+                "<a href='/cms/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
               end.join(', ')
             }
           else
@@ -127,19 +127,19 @@ module Tools
         links_proc: {
           first_mushaf_first_word: -> (record, _) do
             w = Word.find(record.first_mushaf_first_word_id)
-            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.first_mushaf_id}&compare=#{record.second_mushaf_id}&word=#{w.id}"]
+            [w.humanize, "/cms/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.first_mushaf_id}&compare=#{record.second_mushaf_id}&word=#{w.id}"]
           end,
           first_mushaf_last_word: -> (record, _) do
             w = Word.find(record.first_mushaf_last_word_id)
-            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.first_mushaf_id}&compare=#{record.second_mushaf_id}&word=#{w.id}"]
+            [w.humanize, "/cms/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.first_mushaf_id}&compare=#{record.second_mushaf_id}&word=#{w.id}"]
           end,
           second_mushaf_first_word: -> (record, _) do
             w = Word.find(record.second_mushaf_first_word_id)
-            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.second_mushaf_id}&compare=#{record.first_mushaf_id}&word=#{w.id}"]
+            [w.humanize, "/cms/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.second_mushaf_id}&compare=#{record.first_mushaf_id}&word=#{w.id}"]
           end,
           second_mushaf_last_word: -> (record, _) do
             w = Word.find(record.second_mushaf_last_word_id)
-            [w.humanize, "/admin/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.second_mushaf_id}&compare=#{record.first_mushaf_id}&word=#{w.id}"]
+            [w.humanize, "/cms/mushaf_page_preview?page=#{record.page_number}&mushaf=#{record.second_mushaf_id}&compare=#{record.first_mushaf_id}&word=#{w.id}"]
           end,
         },
         check: ->(params) do
@@ -177,7 +177,7 @@ module Tools
               collection: paginate(result, params),
               total_pages_with_difference: pages_with_difference.size,
               different_pages: pages_with_difference.map do |p|
-                "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+                "<a href='/cms/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
               end.join(', ')
             }
           else
@@ -221,7 +221,7 @@ module Tools
         fields: [],
         links_proc: {
           id: ->(record, _) do
-            [record.id, "/admin/verses/#{record.id}"]
+            [record.id, "/cms/verses/#{record.id}"]
           end,
           key: ->(record, _) do
             record.verse_key
@@ -249,13 +249,13 @@ module Tools
         paginate: false,
         links_proc: {
           page_number: -> (record, _) do
-            [record.page_number, "/admin/mushaf_pages/#{record.id}"]
+            [record.page_number, "/cms/mushaf_pages/#{record.id}"]
           end,
           first_word: -> (record, _) do
-            [record.first_word.location, "/admin/mushaf_pages/#{record.id}?word=#{record.first_word.id}"]
+            [record.first_word.location, "/cms/mushaf_pages/#{record.id}?word=#{record.first_word.id}"]
           end,
           last_word: -> (record, _) do
-            [record.last_word.location, "/admin/mushaf_pages/#{record.id}?word=#{record.last_word.id}"]
+            [record.last_word.location, "/cms/mushaf_pages/#{record.id}?word=#{record.last_word.id}"]
           end
         },
         fields: [
@@ -294,10 +294,10 @@ module Tools
         paginate: false,
         links_proc: {
           page_number: -> (record, _) do
-            [record[1].page_number, "/admin/mushaf_pages/#{record[1].id}"]
+            [record[1].page_number, "/cms/mushaf_pages/#{record[1].id}"]
           end,
           ayah: -> (record, _) do
-            [record[0], "/admin/verses/#{record[0]}"]
+            [record[0], "/cms/verses/#{record[0]}"]
           end
         },
         fields: [
@@ -342,10 +342,10 @@ module Tools
         paginate: false,
         links_proc: {
           page_number: -> (record, _) do
-            [record[0].page_number, "/admin/mushaf_pages/#{record[0].id}"]
+            [record[0].page_number, "/cms/mushaf_pages/#{record[0].id}"]
           end,
           ayah: -> (record, _) do
-            [record[2], "/admin/verses/#{record[2]}"]
+            [record[2], "/cms/verses/#{record[2]}"]
           end,
           line_number: -> (record, _) do
             record[1]
@@ -388,7 +388,7 @@ module Tools
         table_attrs: [:verse_key, :first_translation, :second_translation, :matched, :diff],
         links_proc: {
           verse_key: -> (record, _) do
-            [record.verse_key, "/admin/verses/#{record.verse_key}"]
+            [record.verse_key, "/cms/verses/#{record.verse_key}"]
           end,
           first_translation: -> (record, _) do
             record.first_translation.to_s.html_safe
@@ -477,7 +477,7 @@ module Tools
         table_attrs: ['word_id', 'first_mushaf_text', 'second_mushaf_text', 'page_number'],
         links_proc: {
           word_id: -> (record, _) do
-            [record.word.location, "/admin/words/#{record.word_id}"]
+            [record.word.location, "/cms/words/#{record.word_id}"]
           end,
           first_mushaf_text: -> (record, params) do
             text = record.first_mushaf_text
@@ -485,7 +485,7 @@ module Tools
 
             [
               text,
-              "/admin/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{record.first_mushaf_id}&word=#{record.word_id}&compare=#{record.second_mushaf_id}",
+              "/cms/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{record.first_mushaf_id}&word=#{record.word_id}&compare=#{record.second_mushaf_id}",
             ]
           end,
           second_mushaf_text: -> (record, params) do
@@ -494,7 +494,7 @@ module Tools
 
             [
               text,
-              "/admin/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{record.second_mushaf_id}&word=#{record.word_id}&compare=#{record.first_mushaf_id}"
+              "/cms/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{record.second_mushaf_id}&word=#{record.word_id}&compare=#{record.first_mushaf_id}"
             ]
           end,
           page_number: -> (record, _) do
@@ -574,7 +574,7 @@ module Tools
             collection: paginate(result, params),
             total_pages_with_difference: pages_with_difference.size,
             different_pages: pages_with_difference.map do |p|
-              "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+              "<a href='/cms/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
             end.join(', ')
           }
         end
@@ -588,13 +588,13 @@ module Tools
         table_attrs: ['word_id', 'text', 'first_mushaf_page', 'second_mushaf_page', 'first_mushaf_line', 'second_mushaf_line'],
         links_proc: {
           word_id: -> (record, _) do
-            [record.word.location, "/admin/words/#{record.word_id}"]
+            [record.word.location, "/cms/words/#{record.word_id}"]
           end,
           first_mushaf_page: -> (record, _) do
-            [record.first_mushaf_page, "/admin/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{record.first_mushaf_id}&word=#{record.word_id}"]
+            [record.first_mushaf_page, "/cms/mushaf_page_preview?page=#{record.first_mushaf_page}&mushaf=#{record.first_mushaf_id}&word=#{record.word_id}"]
           end,
           second_mushaf_page: -> (record, _) do
-            [record.second_mushaf_page, "/admin/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{record.second_mushaf_id}&word=#{record.word_id}"]
+            [record.second_mushaf_page, "/cms/mushaf_page_preview?page=#{record.second_mushaf_page}&mushaf=#{record.second_mushaf_id}&word=#{record.word_id}"]
           end
         },
         fields: [
@@ -655,7 +655,7 @@ module Tools
             collection: paginate(result, params),
             total_pages_with_difference: pages_with_difference.size,
             different_pages: pages_with_difference.map do |p|
-              "<a href='/admin/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
+              "<a href='/cms/mushaf_page_preview?mushaf=#{first_mushaf_id}&compare=#{second_mushaf_id}&page=#{p}'>#{p}</a>"
             end.join(', ')
           }
         end
@@ -849,7 +849,7 @@ module Tools
         table_attrs: ['word_id'],
         links_proc: {
           word_id: -> (record, _) do
-            [record.word_id, "/admin/word_lemmas?q%5Bword_id_eq%5D=#{record.word_id}"]
+            [record.word_id, "/cms/word_lemmas?q%5Bword_id_eq%5D=#{record.word_id}"]
           end
         },
         fields: [],
@@ -870,7 +870,7 @@ module Tools
         table_attrs: ['word_id'],
         links_proc: {
           word_id: -> (record, _) do
-            [record.word_id, "/admin/word_stems?q%5Bword_id_eq%5D=#{record.word_id}"]
+            [record.word_id, "/cms/word_stems?q%5Bword_id_eq%5D=#{record.word_id}"]
           end
         },
         fields: [],
@@ -891,7 +891,7 @@ module Tools
         table_attrs: ['word_id'],
         links_proc: {
           word_id: -> (record, _) do
-            [record.word_id, "/admin/word_roots?q%5Bword_id_eq%5D=#{record.word_id}"]
+            [record.word_id, "/cms/word_roots?q%5Bword_id_eq%5D=#{record.word_id}"]
           end
         },
         fields: [],

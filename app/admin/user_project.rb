@@ -19,7 +19,7 @@ ActiveAdmin.register UserProject do
       resource.attributes = attributes
       resource.save(validate: false)
 
-      redirect_to [:admin, resource], notice: 'Updated successfully'
+      redirect_to [:cms, resource], notice: 'Updated successfully'
     end
   end
 

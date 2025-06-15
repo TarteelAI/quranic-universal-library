@@ -42,7 +42,7 @@
       <% @verse.morphology_words.includes(:word_segments, :word).order('words.position, morphology_word_segments.position').each do |word| %>
         <tr>
           <td>
-            <%= link_to(word.id, [:admin, word], target: '_blank') %>
+            <%= link_to(word.id, [:cms, word], target: '_blank') %>
           </td>
 
           <td class="qpc-hafs">

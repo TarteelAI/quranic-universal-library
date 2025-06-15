@@ -60,7 +60,7 @@
         <td>
           <div class="d-grid gap-2">
             <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
-            <%= link_to 'Admin', [:admin, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
+            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
           </div>
         </td>
       </tr>

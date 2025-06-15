@@ -80,7 +80,7 @@ module ActiveAdminViewHelpers
                 version = resource.versions[index]
                 tr do
                   td link_to index, version: version.index
-                  td link_to index, "/admin/content_changes/#{version.id}"
+                  td link_to index, "/cms/content_changes/#{version.id}"
                   td version.created_at
                   td GlobalID::Locator.locate(version.whodunnit).try(:humanize)
                   td do
@@ -111,7 +111,7 @@ module ActiveAdminViewHelpers
           tbody do
             resource.navigation_search_records.each do |record|
               tr do
-                td link_to(record.id, [:admin, record])
+                td link_to(record.id, [:cms, record])
                 td record.text
               end
             end
@@ -138,7 +138,7 @@ module ActiveAdminViewHelpers
           tbody do
             resource.translated_names.each do |translated_name|
               tr do
-                td link_to(translated_name.id, [:admin, translated_name])
+                td link_to(translated_name.id, [:cms, translated_name])
                 td translated_name.language_name
                 td translated_name.name
               end
@@ -152,7 +152,7 @@ module ActiveAdminViewHelpers
       context.sidebar 'Slugs', only: :show do
         if can?(:manage, Slug)
           div do
-            semantic_form_for [:admin, Slug.new] do |form|
+            semantic_form_for [:cms, Slug.new] do |form|
               form.input(:chapter_id, as: :hidden, input_html: { value: resource.id }) +
                 form.inputs(:slug, :locale) +
                 form.actions(:submit)

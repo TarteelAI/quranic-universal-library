@@ -70,7 +70,7 @@ ActiveAdmin.register Mushaf do
       div do
         pages.where('lines_count != ?', resource.lines_per_page).each do |page|
           span class: 'btn btn-info m-1' do
-            span link_to(page.page_number, "/admin/mushaf_page_preview?page=#{page.page_number}&mushaf=#{resource.id}", class: 'text-white')
+            span link_to(page.page_number, "/cms/mushaf_page_preview?page=#{page.page_number}&mushaf=#{resource.id}", class: 'text-white')
             span page.lines_count, class: 'badge text-bg-secondary bg-success'
           end
         end
@@ -85,7 +85,7 @@ ActiveAdmin.register Mushaf do
 
         alignments_with_surah.each do |alignment|
           span class: 'btn btn-info m-1', title: alignment.chapter&.name_simple, data: {controller: 'tooltip'} do
-            span link_to(alignment.page_number, "/admin/mushaf_page_preview?page=#{alignment.page_number}&mushaf=#{resource.id}", class: 'text-white')
+            span link_to(alignment.page_number, "/cms/mushaf_page_preview?page=#{alignment.page_number}&mushaf=#{resource.id}", class: 'text-white')
             span alignment.get_surah_number, class: 'badge text-bg-secondary bg-success'
           end
         end
@@ -98,7 +98,7 @@ ActiveAdmin.register Mushaf do
 
         ul do
           1.upto resource.pages_count do |p|
-            li link_to("Page #{p}", "/admin/mushaf_page_preview?page=#{p}&mushaf=#{resource.id}")
+            li link_to("Page #{p}", "/cms/mushaf_page_preview?page=#{p}&mushaf=#{resource.id}")
           end
         end
       end
@@ -139,6 +139,6 @@ ActiveAdmin.register Mushaf do
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
-    redirect_back(fallback_location: '/admin', notice: 'Mushaf layouts db will be exported and shared with you on your email shortly')
+    redirect_back(fallback_location: '/cms', notice: 'Mushaf layouts db will be exported and shared with you on your email shortly')
   end
 end

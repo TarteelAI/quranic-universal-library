@@ -3,7 +3,7 @@
 </div>
 
 <div id="body">
-  <%= form_with url: download_segments_admin_recitation_path(resource), method: :put, data: {turbo: false} do |form| %>
+  <%= form_with url: download_segments_cms_recitation_path(resource), method: :put, data: {turbo: false} do |form| %>
     <div class="modal-body">
       <div class="form-group mb-2">
         <%= form.label :chapter_id, 'Select chapter', class: 'form-label' %>

@@ -59,7 +59,7 @@ ActiveAdmin.register Dictionary::RootExample do
   index do
     id_column
     column :word_root do |item|
-      link_to(item.word_root.arabic_trilateral, [:admin, item.word_root])
+      link_to(item.word_root.arabic_trilateral, [:cms, item.word_root])
     end
 
     column :word_arabic

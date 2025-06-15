@@ -4,7 +4,8 @@ ActiveAdmin.register_page 'Dashboard' do
   menu priority: 1, label: 'Dashboard'
 
   content title: 'Dashboard' do
-    div "Welcome to the QUL Admin Dashboard!. This admin panel provides tools to browse, validate, and manage Quranic data. It also allows admins to run reports and oversee content updates efficiently. ", class: 'alert alert-info'
+    readonly_msg = "You currently have read-only access to browse the data." if current_user.is_normal_user?
+    div "Welcome to the QUL CMS Dashboard! This content management system provides tools to browse, validate, and manage Quranic data. It also allows authorized users to run reports and moderate content updates efficiently. #{readonly_msg}", class: 'alert alert-info'
 
     if can? :run_actions, :from_admin
       columns do
@@ -60,7 +61,7 @@ ActiveAdmin.register_page 'Dashboard' do
                   small(check[:description].to_s.html_safe)
                 end
 
-                span link_to('Go', "/admin/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
+                span link_to('Go', "/cms/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
               end
             end
           end
@@ -83,7 +84,7 @@ ActiveAdmin.register_page 'Dashboard' do
                   small(check[:description].to_s.html_safe)
                 end
 
-                span link_to('Go', "/admin/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
+                span link_to('Go', "/cms/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
               end
             end
           end
@@ -92,17 +93,17 @@ ActiveAdmin.register_page 'Dashboard' do
     end if false
 
     div class: 'blank_slate_container', id: 'dashboard_default_message' do
-      heading = "Recent changes (Total #{PaperTrail::Version.count}) #{link_to 'View all changes', '/admin/content_changes'}".html_safe
+      heading = "Recent changes (Total #{PaperTrail::Version.count}) #{link_to 'View all changes', '/cms/content_changes'}".html_safe
       panel heading do
         table_for PaperTrail::Version.order('id desc').limit(20) do
           # Use PaperTrail::Version if this throws an error
-          column('ID') { |v| link_to v.id, "/admin/content_changes/#{v.id}" }
+          column('ID') { |v| link_to v.id, "/cms/content_changes/#{v.id}" }
           column('Item', &:item_type)
           column('Event', &:event)
           column('Modified at') { |v| v.created_at.to_s :long }
           column('User') do |v|
             if (user = GlobalID::Locator.locate(v.whodunnit))
-              link_to "#{user.name}(#{user.email})", [:admin, user]
+              link_to "#{user.name}(#{user.email})", [:cms, user]
             end
           end
         end

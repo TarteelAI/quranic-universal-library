@@ -1,10 +1,52 @@
 namespace :one_time do
+  task find_missing_images: :environment do
+    require 'net/http'
+    require 'uri'
+
+    CDN_BASE = "https://static-cdn.tarteel.ai/qul/images"
+
+    Word.find_each do |word|
+      surah, ayah, word_number = word.location.split(':')
+      next if Dir.exist?("scripts/img/available/#{surah}/#{ayah}/#{word_number}")
+
+      puts "checking #{word.location}"
+
+      if word.ayah_mark?
+        url = URI("#{CDN_BASE}/common/#{ayah}.svg")
+      else
+        svg_path = "w/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg"
+        url = URI("#{CDN_BASE}/#{svg_path}")
+      end
+
+      response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |http|
+        http.head(url.request_uri)
+      end
+
+      if response.code == "404"
+        puts "Missing SVG: #{word.location}"
+
+        if !word.ayah_mark?
+          begin
+          source = "scripts/img/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg"
+          FileUtils.mkdir_p("scripts/img/svg-missing/#{surah}/#{ayah}")
+          missing_path = "scripts/img/svg-missing/#{surah}/#{ayah}/#{word_number}.svg"
+          FileUtils.cp source, missing_path
+          rescue Errno::ENOENT => e
+            puts "Error copying file for #{word.location}: #{e.message}"
+            end
+        end
+      else
+        FileUtils.mkdir_p("scripts/img/available/#{surah}/#{ayah}/#{word_number}")
+      end
+    end
+  end
+
   task add_sequence_number_to_words: :environment do
     sequence_number = 1
     Word.unscoped.order('word_index ASC').each do |word|
       if word.word?
         word.update_column :sequence_number, sequence_number
-        sequence_number+= 1
+        sequence_number += 1
       end
     end
   end

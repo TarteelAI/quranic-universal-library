@@ -41,7 +41,7 @@ ActiveAdmin.register QuranTableDetail do
             enteries.each do |entry|
               tr do
                 td do
-                  link_to 'Show', "/admin/quran_table_details/#{resource.id}?record_id=#{entry.id}", target: '_blank'
+                  link_to 'Show', "/cms/quran_table_details/#{resource.id}?record_id=#{entry.id}", target: '_blank'
                 end
 
                 fields.each do |column|

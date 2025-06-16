@@ -27,7 +27,7 @@ ActiveAdmin.register Morphology::Word do
   index do
     id_column
     column :word do |resource|
-      link_to(resource.word_id, "/admin/words/#{resource.word_id}")
+      link_to(resource.word_id, "/cms/words/#{resource.word_id}")
     end
     column :location
     actions
@@ -51,7 +51,7 @@ ActiveAdmin.register Morphology::Word do
     attributes_table do
       row :id
       row :word do
-        link_to(resource.word.text_qpc_hafs, "/admin/words/#{resource.word_id}", class: 'qpc-hafs')
+        link_to(resource.word.text_qpc_hafs, "/cms/words/#{resource.word_id}", class: 'qpc-hafs')
       end
       row :grammar_pattern
       row :grammar_base_pattern
@@ -83,7 +83,7 @@ ActiveAdmin.register Morphology::Word do
         tbody do
           resource.word_segments.each do |segment|
             tr do
-              td link_to segment.id, [:admin, segment]
+              td link_to segment.id, [:cms, segment]
               td segment.position
               td "#{segment.part_of_speech_key} - #{segment.part_of_speech_name}"
               td segment.pos_tags
@@ -110,7 +110,7 @@ ActiveAdmin.register Morphology::Word do
             tr do
               td derived.id
               td "#{derived.word_verb_from_id}-#{derived.form_name}", class: 'quran me_quran'
-              td link_to(derived.verse_id, "/admin/verses/#{derived.verse_id}", target: '_blank', rel: 'noopener')
+              td link_to(derived.verse_id, "/cms/verses/#{derived.verse_id}", target: '_blank', rel: 'noopener')
               td derived.en_transliteration
             end
           end

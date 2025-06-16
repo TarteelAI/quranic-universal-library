@@ -34,7 +34,7 @@ ActiveAdmin.register Tafsir do
     column :language
     column :archived, sortable: :archived
     column :verse_id do |resource|
-      link_to resource.verse_id, admin_verse_path(resource.verse_id)
+      link_to resource.verse_id, cms_verse_path(resource.verse_id)
     end
     column :verse_key
     column :group do |resource|
@@ -45,7 +45,7 @@ ActiveAdmin.register Tafsir do
     end
     column :name do |resource|
       resource_content = resource.get_resource_content
-      link_to resource_content.name, [:admin, resource_content]
+      link_to resource_content.name, [:cms, resource_content]
     end
   end
 
@@ -59,14 +59,14 @@ ActiveAdmin.register Tafsir do
       row :verse_key
       row :resource_content do
         r = resource.get_resource_content
-        link_to r.name, [:admin, r]
+        link_to r.name, [:cms, r]
       end
       row :resource_name
       row :group_verse_key_from
       row :group_verse_key_to
       row :group_tafsir_id do
         link_to "#{resource.group_verse_key_from}-#{resource.group_verse_key_to}",
-                "/admin/tafsirs/#{resource.group_tafsir_id}"
+                "/cms/tafsirs/#{resource.group_tafsir_id}"
       end
       row :group_verses_count
 

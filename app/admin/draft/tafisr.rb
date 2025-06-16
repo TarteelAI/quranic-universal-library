@@ -26,50 +26,50 @@ ActiveAdmin.register Draft::Tafsir do
   includes :resource_content
 
   action_item :import, only: :show do
-    link_to import_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to import_cms_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       'Approve and update'
     end if !resource.imported? && can?(:manage, :draft_content)
   end
 
   action_item :clone_item, only: :show do
     if can?(:manage, :draft_content)
-      link_to "Clone(#{resource.verse_key})", clone_item_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure to clone?' }
+      link_to "Clone(#{resource.verse_key})", clone_item_cms_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure to clone?' }
     end
   end
 
   action_item :reprocess, only: :show do
     if can?(:manage, :draft_content)
-      link_to "Sanitize text", reprocess_admin_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' }
+      link_to "Sanitize text", reprocess_cms_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' }
     end
   end
 
   action_item :previous, only: :show do
     if item = resource.previous_ayah_tafsir
-      link_to("Previous(#{item.start_verse.verse_key})", "/admin/draft_tafsirs/#{item.id}", class: 'btn') if item
+      link_to("Previous(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}", class: 'btn') if item
     end
   end
 
   action_item :next, only: :show do
     if item = resource.next_ayah_tafsir
-      link_to "Next(#{item.start_verse.verse_key})", "/admin/draft_tafsirs/#{item.id}", class: 'btn'
+      link_to "Next(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}", class: 'btn'
     end
   end
 
   member_action :import, method: 'put' do
     tafsir = resource.import!
 
-    redirect_to [:admin, tafsir], notice: 'Draft Tafsir is approved and imported successfully'
+    redirect_to [:cms, tafsir], notice: 'Draft Tafsir is approved and imported successfully'
   end
 
   member_action :clone_item, method: 'put' do
     tafsir = resource.clone_tafsir
 
-    redirect_to [:admin, tafsir], notice: 'Cloned successfully'
+    redirect_to [:cms, tafsir], notice: 'Cloned successfully'
   end
 
   member_action :reprocess, method: 'put' do
     resource.reprocess_text!
-    redirect_to [:admin, resource], notice: 'Text formatting is reprocessed'
+    redirect_to [:cms, resource], notice: 'Text formatting is reprocessed'
   end
 
   index do
@@ -86,7 +86,7 @@ ActiveAdmin.register Draft::Tafsir do
     end
 
     column :verse, sortable: :verse_id do |resource|
-      link_to resource.verse.verse_key, [:admin, resource.verse] if resource.verse
+      link_to resource.verse.verse_key, [:cms, resource.verse] if resource.verse
     end
     column :imported
     column :text do |resource|
@@ -135,7 +135,7 @@ ActiveAdmin.register Draft::Tafsir do
 
       row :tafsir do
         if tafsir
-          link_to tafsir.id, [:admin, tafsir]
+          link_to tafsir.id, [:cms, tafsir]
         end
       end
 
@@ -145,8 +145,8 @@ ActiveAdmin.register Draft::Tafsir do
       row :group_tafsir do |resource|
         if resource.group_tafsir
           div do
-            span link_to(resource.group_tafsir.verse_key, [:admin, resource.group_tafsir]), class: 'mr-4'
-            span(link_to('View group tafsir', [:admin, resource.main_group_tafsir])) if resource.main_group_tafsir
+            span link_to(resource.group_tafsir.verse_key, [:cms, resource.group_tafsir]), class: 'mr-4'
+            span(link_to('View group tafsir', [:cms, resource.main_group_tafsir])) if resource.main_group_tafsir
           end
         end
       end
@@ -164,7 +164,7 @@ ActiveAdmin.register Draft::Tafsir do
 
       row :verse do
         div do
-          link_to(resource.verse.verse_key, [:admin, resource.verse])
+          link_to(resource.verse.verse_key, [:cms, resource.verse])
 
           div class: 'arabic qpc-hafs' do
             resource.verse.text_qpc_hafs
@@ -226,7 +226,7 @@ ActiveAdmin.register Draft::Tafsir do
 
         div class: "w-100 p-2 border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
           div class: 'flex-between' do
-            span link_to(resource_content.id, [:admin, resource_content], target: '_blank')
+            span link_to(resource_content.id, [:cms, resource_content], target: '_blank')
             span('Imported', class: 'status_tag yes ms-2') if is_fully_imported
           end
 
@@ -244,22 +244,22 @@ ActiveAdmin.register Draft::Tafsir do
           end
 
           div class: 'd-flex my-2 flex-between gap-2' do
-            span(link_to 'Filter', "/admin/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
+            span(link_to 'Filter', "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
 
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
             if can?(:manage, :draft_content)
-              span(link_to 'Sync', import_draft_admin_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm btn-success text-white', data: { confirm: 'Are you sure to re-sync this tafsir from the source?' })
+              span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'btn btn-sm btn-success text-white', data: { confirm: 'Are you sure to re-sync this tafsir from the source?' })
 
               if issue_count.positive?
-                span(link_to "Issues #{issue_count}", "/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
+                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
               end
 
-              span(link_to 'Validate', validate_draft_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_admin_resource_content_path(resource_content) })
-              span(link_to 'Compare grouping', compare_ayah_grouping_admin_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_admin_resource_content_path(resource_content), css_class: 'modal-lg' })
+              span(link_to 'Validate', validate_draft_cms_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: validate_draft_cms_resource_content_path(resource_content) })
+              span(link_to 'Compare grouping', compare_ayah_grouping_cms_resource_content_path(resource_content), class: 'btn btn-sm btn-success text-white', data: { controller: 'ajax-modal', url: compare_ayah_grouping_cms_resource_content_path(resource_content), css_class: 'modal-lg' })
 
-              span(link_to 'Approve', import_draft_admin_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
-              span(link_to 'Delete', import_draft_admin_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })
+              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this tafsir?' })
+              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft tafsir?' })
             end
           end
         end

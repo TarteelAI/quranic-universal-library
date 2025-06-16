@@ -81,7 +81,7 @@ ActiveAdmin.register MushafWord do
       row :line_number
       row :page_number do
         link_to resource.page_number,
-                "/admin/mushaf_page_preview?mushaf=#{resource.mushaf_id}&page=#{resource.page_number}&word=#{resource.word_id}"
+                "/cms/mushaf_page_preview?mushaf=#{resource.mushaf_id}&page=#{resource.page_number}&word=#{resource.word_id}"
       end
       row :position_in_line
       row :position_in_page

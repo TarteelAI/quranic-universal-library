@@ -17,7 +17,7 @@ ActiveAdmin.register MushafPage do
   end
 
   action_item :preview, only: :show do
-    link_to 'Preview Page', "/admin/mushaf_page_preview?page=#{resource.page_number}&mushaf=#{resource.mushaf_id}",
+    link_to 'Preview Page', "/cms/mushaf_page_preview?page=#{resource.page_number}&mushaf=#{resource.mushaf_id}",
             class: 'btn'
   end
 
@@ -67,25 +67,25 @@ ActiveAdmin.register MushafPage do
 
       row :first_verse do |r|
         if r.first_verse
-          link_to r.first_verse.verse_key, [:admin, r.first_verse]
+          link_to r.first_verse.verse_key, [:cms, r.first_verse]
         end
       end
 
       row :last_verse do |r|
         if r.last_verse
-          link_to r.last_verse.verse_key, [:admin, r.last_verse]
+          link_to r.last_verse.verse_key, [:cms, r.last_verse]
         end
       end
 
       row :first_word do |r|
         if r.first_word
-          link_to "#{r.first_word.location}(#{r.first_word.text_uthmani_simple})", [:admin, r.first_word]
+          link_to "#{r.first_word.location}(#{r.first_word.text_uthmani_simple})", [:cms, r.first_word]
         end
       end
 
       row :last_word do |r|
         if r.last_word
-          link_to "#{r.last_word.location}(#{r.last_word.text_uthmani_simple})", [:admin, r.last_word]
+          link_to "#{r.last_word.location}(#{r.last_word.text_uthmani_simple})", [:cms, r.last_word]
         end
       end
 

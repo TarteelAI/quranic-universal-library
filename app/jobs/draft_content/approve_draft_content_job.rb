@@ -201,13 +201,13 @@ module DraftContent
     def report_issues(resource, issues)
       body = if issues.present?
                summary = issues.first(3).join(', ')
-               "Imported latest changes. Found  #{issues.size} issues after imports: #{summary}. \n <a href='/admin/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
+               "Imported latest changes. Found  #{issues.size} issues after imports: #{summary}. \n <a href='/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc'>See more in the admin todo</a>."
              else
                "Imported latest changes."
              end
 
       ActiveAdmin::Comment.create(
-        namespace: 'admin',
+        namespace: 'cms',
         resource: resource,
         author_type: 'User',
         author_id: 1,

@@ -74,7 +74,7 @@ ActiveAdmin.register ImportantNote do
       note.user = current_user
 
       if note.save
-        redirect_to [:admin, note], notice: 'Note created successfully'
+        redirect_to [:cms, note], notice: 'Note created successfully'
       else
         render action: :new
       end

@@ -9,7 +9,7 @@ ActiveAdmin.register Morphology::PhraseVerse do
   filter :created_at
 
   action_item :approve, only: :show do
-    link_to approve_admin_morphology_phrase_verse_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to approve_cms_morphology_phrase_verse_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
@@ -30,7 +30,7 @@ ActiveAdmin.register Morphology::PhraseVerse do
     if request.xhr?
       render partial: 'admin/update_morphology_resource_approval'
     else
-      redirect_to [:admin, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
+      redirect_to [:cms, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
     end
   end
 
@@ -41,7 +41,7 @@ ActiveAdmin.register Morphology::PhraseVerse do
       row :review_status
       row :verse
       row :phrase do
-        link_to resource.phrase.text_qpc_hafs, [:admin, resource.phrase], class: 'qpc-hafs'
+        link_to resource.phrase.text_qpc_hafs, [:cms, resource.phrase], class: 'qpc-hafs'
       end
       row :text do
         span resource.text, class: 'qpc-hafs'

@@ -35,7 +35,7 @@
         <% end %>
 
         <%= link_to 'Logout', destroy_user_session_path, class: 'tw-text-black tw-hidden md:tw-flex', data: { turbo_method: :delete } if user_signed_in? %>
-        <%= link_to 'Admin', '/admin', class: 'tw-inline-block tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2 tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300', data: generate_event_data('clicked-admin', 'navigation') %>
+        <%= link_to 'CMS', '/cms', class: 'tw-inline-block tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2 tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300', data: generate_event_data('clicked-admin', 'navigation') %>
 
         <a class="tw-inline-block md:tw-hidden" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
           <svg class="tw-fill-white" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">

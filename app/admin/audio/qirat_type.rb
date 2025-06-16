@@ -44,7 +44,7 @@ ActiveAdmin.register QiratType do
         tbody do
           resource.mushafs.each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
 
               td r.name
             end
@@ -64,7 +64,7 @@ ActiveAdmin.register QiratType do
         tbody do
           resource.verse_recitations.includes(:recitation_style).each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.name
               td r.recitation_style&.name
             end
@@ -84,7 +84,7 @@ ActiveAdmin.register QiratType do
         tbody do
           resource.audio_recitations.includes(:recitation_style).each do |r|
             tr do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.name
               td r.recitation_style&.name
             end

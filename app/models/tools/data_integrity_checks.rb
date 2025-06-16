@@ -391,10 +391,10 @@ module Tools
             [record.verse_key, "/cms/verses/#{record.verse_key}"]
           end,
           first_translation: -> (record, _) do
-            record.first_translation.to_s.html_safe
+            "#{record.first_translation.to_s.html_safe} (<a href='/cms/translations/#{record.id}' target=_blank>#{record.id}</a>)".html_safe
           end,
           second_translation: -> (record, _) do
-            record.second_translation.to_s.html_safe
+            "#{record.second_translation.to_s.html_safe} (<a href='/cms/translations/#{record.second_translation_id}' target=_blank>#{record.second_translation_id}</a>)".html_safe
           end,
           diff: -> (record, _) do
             if record.first_translation != record.second_translation
@@ -455,8 +455,8 @@ module Tools
             end
 
             result = translations.select(
-              :verse_key,
               :id,
+              :verse_key,
               "translations.text AS first_translation",
               "tr2.id AS second_translation_id",
               "tr2.text AS second_translation"

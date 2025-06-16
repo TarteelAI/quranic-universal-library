@@ -1,4 +1,4 @@
-verses = @presenter.verses
+verses = @presenter.select2
 pagination = @presenter.pagination
 
 json.results do

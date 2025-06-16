@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Redirect old admin paths to new CMS paths
+  get '/admin', to: redirect('/cms', status: 301)
+  get '/admin/*path', to: redirect(status: 301) { |params, _req| "/cms/#{params[:path]}" }
+
   ActiveAdmin.routes(self)
 
   root to: 'landing#home'
@@ -121,10 +125,6 @@ Rails.application.routes.draw do
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah
-
-  # Redirect old admin paths to new CMS paths
-  get '/admin/*path', to: redirect('/cms/%{path}')
-
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all
 end

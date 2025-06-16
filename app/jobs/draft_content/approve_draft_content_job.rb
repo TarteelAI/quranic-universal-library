@@ -207,7 +207,7 @@ module DraftContent
              end
 
       ActiveAdmin::Comment.create(
-        namespace: 'admin',
+        namespace: 'cms',
         resource: resource,
         author_type: 'User',
         author_id: 1,

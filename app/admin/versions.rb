@@ -65,7 +65,6 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
   member_action :toggle_review, method: 'put' do
     authorize! :manage, resource
 
-    # TODO: track reviewed changes
     if resource.reviewed?
       resource.update(reviewed_by_id: current_user.id, reviewed: false)
     else

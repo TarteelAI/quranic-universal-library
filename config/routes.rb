@@ -121,6 +121,10 @@ Rails.application.routes.draw do
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah
+
+  # Redirect old admin paths to new CMS paths
+  get '/admin/*path', to: redirect('/cms/%{path}')
+
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all
 end

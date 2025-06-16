@@ -50,7 +50,7 @@ module DraftContent
       todo.save(validate: false)
 
       ActiveAdmin::Comment.create(
-        namespace: 'admin',
+        namespace: 'cms',
         resource: todo,
         author_type: 'User',
         author_id: 1,
@@ -99,7 +99,7 @@ module DraftContent
       todo.save
 
       ActiveAdmin::Comment.create(
-        namespace: 'admin',
+        namespace: 'cms',
         resource: todo,
         author_type: 'User',
         author_id: 1,

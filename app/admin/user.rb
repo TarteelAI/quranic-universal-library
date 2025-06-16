@@ -41,14 +41,7 @@ ActiveAdmin.register User do
   end
 
   action_item :view_history, only: :show do
-    filter = {
-      whodunnit_in: [
-        resource.id,
-        "gid://quran-com-community/User/#{resource.id}"
-      ]
-    }
-
-    link_to 'History', cms_content_changes_path({ q: filter })
+    link_to 'History', "/cms/content_changes?q%5Bwhodunnit_cont%5D=User%2F#{resource.id}&order=id_desc"
   end
 
   member_action :impersonate, method: 'put' do

@@ -20,6 +20,10 @@
   <div class="modal-body">
     <% phrase_verses.each_with_index do |phrase_verse, index| %>
       <div class="quran-text qpc-hafs">
+        <div class="badge bg-success">
+          <%= phrase_verse.verse.verse_key %>
+        </div>
+
         <% phrase_verse.verse.words.each do |word| %>
             <span <%= phrase_style if phrase_verse.highlight_word?(word) %>>
               <%= word.text_qpc_hafs %>

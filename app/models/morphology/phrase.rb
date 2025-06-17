@@ -51,10 +51,12 @@ class Morphology::Phrase < ApplicationRecord
   after_commit :update_verses_stats, on: [:create, :update]
 
   def update_verses_stats
+    verses = phrase_verses.approved.map(&:verse)
+
     attrs = {
-      occurrence: phrase_verses.pluck(:verse_id).size,
-      chapters_count: chapters.keys.size,
-      verses_count: phrase_verses.pluck(:verse_id).uniq.size,
+      occurrence: phrase_verses.approved.size,
+      chapters_count: verses.pluck(:chapter_id).uniq.size,
+      verses_count: verses.uniq.size,
     }
 
     if word_position_to && word_position_from

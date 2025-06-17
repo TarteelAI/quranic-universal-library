@@ -40,7 +40,7 @@
           <div title="(<%= key.id %>: <%= key.source_verse.verse_key %>)<%= key.text_qpc_hafs %> <span class='badge badge-info'><%= key.occurrence %></span> <%= title %>"
                class="mx-1 phrase d-inline-flex"
                data-controller="tooltip"
-               style="color: <%= key.color %>">
+               style="color: <%= key.get_color %>">
             <% group.each do |w| %>
               <span><%= w.text_qpc_hafs %></span>
             <% end %>

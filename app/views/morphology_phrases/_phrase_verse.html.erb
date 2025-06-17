@@ -8,7 +8,7 @@
 <div id="<%= dom_id phrase_verse %>" class="d-flex align-items-center" style="flex-direction: row-reverse;">
   <div class="d-flex">
     <%= link_to "/cms/morphology_phrases/#{phrase.id}", target: :_blank, class: 'ms-2' do %>
-      <span style="display:inline-block;width: 20px; height: 20px; background: <%= phrase.color %>"></span>
+      <span style="display:inline-block;width: 20px; height: 20px; background: <%= phrase.get_color %>"></span>
       <span class="<%= 'text-danger' if !phrase.approved? %>"><%= phrase.verses_count %>(<%= phrase.review_status %>
         )</span>
     <% end %>

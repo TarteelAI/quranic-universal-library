@@ -25,6 +25,12 @@ class MorphologyPhrasesController < CommunityController
     end
   end
 
+  def phrase_verses
+    @phrase = Morphology::Phrase.find(params[:id])
+
+    render layout: false if request.xhr?
+  end
+
   def create
     builder = PhraseBuilderService.new(phrase_params)
     @phrase_verse = builder.run
@@ -102,13 +108,22 @@ class MorphologyPhrasesController < CommunityController
   end
 
   protected
+
   def sort_key
     sort_by = params[:sort_key].presence || 'source_verse_id'
 
-    if ['id', 'occurrence', 'verses_count', 'words_count', 'approved', 'review_status'].include?(sort_by)
-      sort_by
+    if params[:proofread].present?
+      if ['id', 'verse_index'].include?(sort_by)
+        sort_by
+      else
+        'verse_index'
+      end
     else
-      'source_verse_id'
+      if ['id', 'occurrence', 'verses_count', 'words_count', 'approved', 'review_status'].include?(sort_by)
+        sort_by
+      else
+        'source_verse_id'
+      end
     end
   end
 

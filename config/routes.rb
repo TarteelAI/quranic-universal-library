@@ -45,7 +45,11 @@ Rails.application.routes.draw do
   resources :tajweed_words, except: [:new, :destroy]
   get 'tajweed_rule/:rule', to: 'tajweed_words#rule_doc', as: :tajweed_rule
 
-  resources :morphology_phrases
+  resources :morphology_phrases do
+    member do
+      get :phrase_verses
+    end
+  end
   resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file

@@ -89,7 +89,7 @@
 
                       <% if current_group && !group_tag_started %>
                         <% group_tag_started = true %>
-                        <div class="d-inline-block mushtabiat" data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.color %>">
+                        <div class="d-inline-block mushtabiat" data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.get_color %>">
                       <% elsif !current_group && group_tag_started %>
                         <% group_tag_started = false %>
                         </div>

@@ -1,0 +1,11 @@
+<div id=title>
+  Exported json format for <%= resource.id %>
+</div>
+<%
+  exported_data = Exporter::ExportTranslationChunk.new.export(resource)
+%>
+<div id="body">
+  <div class="modal-body">
+    <%= JSON.pretty_generate(exported_data) %>
+  </div>
+</div>

@@ -31,10 +31,12 @@ module V1
 
     protected
     def by_chapter(id)
+      from, to = Utils::Quran.get_surah_ayah_range(id.to_i)
+      range_from, range_to = get_ayah_range_to_load(from, to)
+
       Verse
-        .joins(:chapter)
-        .where(chapters: { id: id.to_i })
         .order('verse_index ASC')
+        .where('verses.verse_index >= ? AND verses.verse_index <= ?', range_from, range_to)
     end
   end
 end

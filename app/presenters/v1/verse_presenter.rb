@@ -69,8 +69,7 @@ module V1
       list = finder.verses(
         **filters
       )
-
-      @pagination, list = pagy(list)
+      @pagination = finder.pagination
 
       list
     end
@@ -120,7 +119,11 @@ module V1
 
     protected
     def finder
-      VerseFinder.new(locale: api_locale)
+      @finder ||= VerseFinder.new(
+        locale: api_locale,
+        current_page: current_page,
+        per_page: per_page,
+      )
     end
 
     def ayah_translation_ids

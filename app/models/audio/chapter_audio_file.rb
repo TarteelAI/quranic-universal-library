@@ -12,7 +12,7 @@
 #  file_name           :string
 #  file_size           :float
 #  format              :string
-#  metadata            :jsonb
+#  meta_data           :jsonb
 #  mime_type           :string
 #  segments_count      :integer          default(0)
 #  stream_count        :integer

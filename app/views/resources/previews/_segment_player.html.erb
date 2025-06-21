@@ -1,0 +1,58 @@
+<%
+  resource = resource.resource_content
+  recitation = resource.one_ayah? ? Recitation.find_by(resource_content_id: resource.id) : Audio::Recitation.find_by(resource_content_id: resource.id)
+%>
+
+<div
+  data-controller="<%= resource.one_ayah? ? 'ayah-segment-player' : 'surah-segment-player' %>"
+  id="audio-player"
+  data-recitaiton="<%= recitation.id %>"
+  data-verse-key="<%= ayah.verse_key %>"
+>
+
+<div id="current-ayah"
+     class="tw-flex tw-flex-wrap qpc-hafs tw-mb-4 tw-gap-1"
+>
+  <% ayah.words.each do |word| %>
+    <div data-location="<%= word.location %>">
+      <%= word.text_qpc_hafs %>
+    </div>
+  <% end %>
+</div>
+
+<div
+  class="tw-fixed tw-bottom-4 tw-left-[50%] tw-w-[90%] tw-md:tw-w-[60%] tw-lg:tw-w-[40%] tw--translate-x-1/2 tw-bg-white/90 tw-backdrop-blur-sm tw-rounded-xl tw-shadow-2xl tw-border tw-border-gray-100 tw-h-14 tw-z-[100]"
+>
+  <div class="tw-max-w-3xl tw-mx-auto tw-px-4 tw-py-2 tw-h-full tw-relative">
+    <div class="tw-flex tw-items-center tw-h-full tw-gap-4">
+      <span id="current-time"
+            class="tw-text-sm tw-text-gray-600 tw-whitespace-nowrap tw-font-medium tw-md:tw-min-w-[75px] tw-text-right">
+        0:00
+      </span>
+
+      <button
+        id="play-button"
+        class="tw-p-2 tw-bg-primary-100 tw-rounded-full tw-shadow-sm hover:tw-shadow-md hover:tw-bg-primary-200 tw-transition-all tw-flex-shrink-0">
+        <i class="fas fa-play tw-text-secondary tw-w-6 tw-h-6"></i>
+      </button>
+
+      <div class="tw-flex-1 tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+        <div class="tw-flex-1">
+          <div
+            id="progress-bar"
+            class="tw-h-2 tw-bg-gray-200 tw-rounded-full tw-relative tw-cursor-pointer">
+            <div
+              id="progress"
+              class="tw-h-full tw-bg-blue-300 tw-rounded-full tw-transition-all tw-duration-50 tw-w-0"></div>
+          </div>
+        </div>
+
+        <span id="total-duration"
+              class="tw-text-sm tw-text-gray-600 tw-whitespace-nowrap tw-font-medium tw-md:tw-min-w-[75px] tw-text-right">
+          0:00
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

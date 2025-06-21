@@ -11,13 +11,14 @@ module Api
       protected
 
       def set_cache_headers
-        if action_name != 'random'
-          expires_in 7.day, public: true
-          # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
-          headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
-        end
+        if Rails.env.production?
+          if action_name != 'random'
+            expires_in 7.day, public: true
+            headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+          end
 
-        headers['Access-Control-Allow-Origin'] = '*'
+          headers['Access-Control-Allow-Origin'] = '*'
+        end
       end
 
       def render_json(data, status: :ok)

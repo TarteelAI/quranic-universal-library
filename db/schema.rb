@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_21_002442) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -272,6 +272,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
     t.integer "translation_id"
     t.integer "footnotes_count", default: 0
     t.jsonb "meta_data", default: {}
+    t.integer "current_footnotes_count", default: 0
     t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
@@ -295,6 +296,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
     t.integer "user_id"
     t.boolean "text_matched", default: false
     t.boolean "imported", default: false
+    t.boolean "need_review", default: true
     t.jsonb "meta_data", default: {}
     t.string "location"
     t.integer "word_group_size", default: 1
@@ -305,6 +307,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
     t.index ["imported"], name: "index_draft_word_translations_on_imported"
     t.index ["language_id"], name: "index_draft_word_translations_on_language_id"
     t.index ["location"], name: "index_draft_word_translations_on_location"
+    t.index ["need_review"], name: "index_draft_word_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_word_translations_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_word_translations_on_text_matched"
     t.index ["verse_id"], name: "index_draft_word_translations_on_verse_id"
@@ -416,9 +419,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
     t.string "alignment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "meta_data", default: {}
+    t.jsonb "properties", default: {}
     t.integer "page_number"
     t.integer "line_number"
+    t.jsonb "meta_data", default: {}
     t.index ["line_number"], name: "index_mushaf_line_alignments_on_line_number"
     t.index ["mushaf_id"], name: "index_mushaf_line_alignments_on_mushaf_id"
     t.index ["page_number"], name: "index_mushaf_line_alignments_on_page_number"
@@ -457,9 +461,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
 
   create_table "quran_table_details", force: :cascade do |t|
     t.string "name"
-    t.integer "enteries"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.integer "records_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "raw_data_ayah_records", force: :cascade do |t|
@@ -509,11 +513,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_09_093155) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.jsonb "approved_synonyms", default: []
-    t.jsonb "en_transliterations", default: []
-    t.string "text_simple"
-    t.string "text_uthmani"
-    t.integer "words_count", default: 0
-    t.boolean "approved", default: false
   end
 
   create_table "user_downloads", force: :cascade do |t|

@@ -1,8 +1,8 @@
 namespace :bridges do
   desc "Import Bridges’ translations into Draft::Translation"
   task import: :environment do
-    Utils::Downloader.download("...url here...", Rails.root.join("tms/bridges_quran.json"))
-    file = Rails.root.join("tms/bridges_quran.json")
+    Utils::Downloader.download("URL", Rails.root.join("tms/bridges_quran-updated2.json"))
+    file = Rails.root.join("tms/bridges_quran-updated2.json")
     raw  = JSON.parse(File.read(file))
 
     resource          = ResourceContent.find(149)
@@ -15,6 +15,21 @@ namespace :bridges do
     ActiveRecord::Base.connection.reset_pk_sequence!(Draft::FootNote.table_name)
 
     created_count = 0
+
+    def fix_formatting(text)
+      text.gsub!(%r{<span class="h">(.*?)<sup(.*?)</sup>(.*?)</span>}) do
+        before = $1.strip
+        sup = "<sup#{$2}</sup>"
+        after = $3.strip
+        result = []
+        result << "<span class=h>#{before}</span>" unless before.empty?
+        result << sup
+        result << "<span class=h>#{after}</span>" unless after.empty?
+        result.join(' ')
+      end
+
+      text
+    end
 
     def process_text(text, surah_fns)
       counter = 0
@@ -31,9 +46,14 @@ namespace :bridges do
           fn_id    = href.delete("_")
           counter += 1
           fn_text  = surah_fns["__#{fn_id}__"]
-          full_text = %Q(<span class="qiraat-footnote">Qira’at: #{fn_text}</span>)
-          aya_fns << { placeholder: "__FN_PLACEHOLDER_#{counter}__", original_id: fn_id, text: full_text, type: "qirat" }
-          %Q(<span class="h">#{content}<sup foot_note="__FN_PLACEHOLDER_#{counter}__">#{counter}</sup></span>)
+          full_text = %Q(<span class="qiraat">Qira’at:</span> #{fn_text})
+          aya_fns << {
+            placeholder: "__FN_PLACEHOLDER_#{counter}__",
+            original_id: fn_id,
+            text: full_text,
+            type: "qirat"
+          }
+          %Q(<span class="h">#{content}<sup foot_note=__FN_PLACEHOLDER_#{counter}__>#{counter}</sup></span>)
         elsif href&.start_with?('__FN') && cls&.include?('fn_regular')
           fn_id    = href.delete("_")
           counter += 1
@@ -76,14 +96,16 @@ namespace :bridges do
           processed_text, fns = process_text(ayah["text"].to_s, surah_fns)
 
           original = Translation.find_by(resource_content_id: resource.id, verse_id: verse.id)
-          source_text = original&.text || ''
+
+          need_review = original.text != processed_text
 
           dt = Draft::Translation.create!(
             verse_id:            verse.id,
             resource_content_id: resource.id,
+            translation: original,
             draft_text:          processed_text,
-            current_text:        source_text,
-            text_matched:        (source_text == processed_text),
+            current_text:        original.text,
+            text_matched:        (original.text == processed_text),
             imported:            false,
             meta_data: {
               "source-data" => {
@@ -91,23 +113,34 @@ namespace :bridges do
                 "aya"            => verse_number.to_s,
                 "arabic_text"    => ayah["arabic"].to_s,
                 "resource_text"  => ayah["text"].to_s,
-                "footnotes"      => fns.each_with_object({}) { |fn, h| h[fn[:placeholder]] = fn[:text] }
+                "footnotes"      => fns
               }
             }
           )
 
-          fns.each do |fn|
+          footnotes = original.foot_notes.order('ID ASC')
+          need_review ||= footnotes.size != fns.size
+
+          fns.each_with_index do |fn, idx|
+            original_footnote = footnotes[idx]
+            need_review ||= original_footnote&.text != fn[:text]
+
             foot = Draft::FootNote.create!(
               draft_translation_id: dt.id,
               resource_content_id:  footnote_resource.id,
               draft_text:           fn[:text],
-              current_text:         fn[:text],
-              text_matched:         true,
-              foot_note_id:         fn[:original_id].to_i
+              current_text:         original_footnote&.text,
+              text_matched:         original_footnote&.text == fn[:text],
+              foot_note_id:         original_footnote&.id,
             )
-            dt.draft_text = dt.draft_text.gsub(fn[:placeholder], foot.id.to_s)
+
+            processed_text = processed_text.gsub(fn[:placeholder], foot.id.to_s)
           end
 
+          dt.draft_text = fix_formatting(processed_text)
+          dt.footnotes_count = dt.foot_notes.count
+          dt.current_footnotes_count = dt.foot_notes.size
+          dt.need_review = need_review
           dt.save!
           created_count += 1
         end

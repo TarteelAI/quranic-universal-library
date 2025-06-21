@@ -25,11 +25,14 @@ ActiveAdmin.register Draft::FootNote do
   show do
     attributes_table do
       row :id
-      row :draft_translation
       row :resource_content
+      row :draft_translation
+      row :footnote
+
       row :draft_text do
         safe_html  resource.draft_text
       end
+
       row :current_text do
         safe_html resource.current_text
       end

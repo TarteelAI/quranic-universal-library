@@ -26,6 +26,11 @@ ActiveAdmin.register Translation do
   filter :created_at
   filter :updated_at
 
+  action_item :view_export_data, only: :show, if: -> { can? :manage, resource } do
+    link_to 'View export data', '#_',
+            data: { controller: 'ajax-modal', url: view_export_data_cms_translation_path(resource) }
+  end
+
   index do
     id_column
 
@@ -94,6 +99,10 @@ ActiveAdmin.register Translation do
     ActiveAdminViewHelpers.compare_panel(self, resource) if params[:compare]
 
     active_admin_comments
+  end
+
+  member_action :view_export_data, method: :get do
+    render partial: 'admin/translation/export_data'
   end
 
   permit_params do

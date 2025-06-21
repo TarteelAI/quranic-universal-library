@@ -131,7 +131,7 @@ module DraftContent
           resource_content_id: footnote_resource_id
         )
 
-        text = text.sub "foot_note=#{draft_footnote.id}>", "foot_note=#{imported_foot_note.id}>"
+        text = text.sub(/foot_note=(['"]?)#{draft_footnote.id}\1/, "foot_note=#{imported_foot_note.id}")
       end
 
       translation.update_column :text, text.strip

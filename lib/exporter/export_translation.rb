@@ -221,7 +221,7 @@ module Exporter
       end
     end
 
-    def export_translation_chunks(doc, translation)
+    def export_translation_chunks(doc)
       footnotes_refs = {}
       footnotes = {}
       foot_note_counter = 1

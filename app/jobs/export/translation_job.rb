@@ -1,10 +1,6 @@
 =begin
 ExportService::TRANSLATION_NAME_MAPPIMG.keys.each do |id|
-  Export::TranslationJson.perform_later(id, 1)
-end
-
-ResourceContent.translations.approved.with_footnotes.each do |r|
-  Export::TranslationJson.perform_later(r.id, 1)
+  Export::TranslationJob.perform_now(id, 1)
 end
 =end
 
@@ -89,7 +85,7 @@ module Export
 
     def export_data
       json = {}
-      s = Exporter::ExportTranslationChunk.new
+      s = Exporter::AyahTranslation.new
 
       Chapter.order('chapter_number ASC').each do |chapter|
         chapter.verses.order('verse_number ASC').each do |verse|
@@ -98,7 +94,7 @@ module Export
             verse_id: verse.id
           ).first
 
-          data = s.export(translation)
+          data = s.export_chunks(translation)
           data.delete(:f) if data[:f].blank?
 
           json[verse.verse_key] = data

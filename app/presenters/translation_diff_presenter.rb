@@ -19,9 +19,9 @@ class TranslationDiffPresenter < BasePresenter
 
   def generate_diff(translation)
     @exported_translations ||= load_exported_translations
-    @export_service ||= Exporter::ExportTranslationChunk.new
+    export_service ||= Exporter::AyahTranslation.new
 
-    current_translation = @export_service.export(translation)
+    current_translation = export_service.export_chunks(translation)
     current_translation.delete(:f) if current_translation[:f].blank?
 
     exported_translation = get_ayah_translation(@exported_translations, translation.verse_key)

@@ -1,12 +1,12 @@
 module Exporter
-  class ExportTranslationChunk
+  class AyahTranslation
     HARD_CODED_FOOTNOTES = {
       'sg' => 'singular',
       'pl' => 'plural',
       'dl' => 'dual'
     }
 
-    def export(translation)
+    def export_inline_footnote(translation)
       text = translation&.text.to_s
 
       if text.blank?
@@ -15,67 +15,40 @@ module Exporter
         }
       end
 
-      translation_text_with_footnotes(translation)
+      doc = Nokogiri::HTML::DocumentFragment.parse(text)
+
+      doc.search("a sup, sup").each do |node|
+        t = node.text.strip.presence.to_s
+        footnote_id = node.attr('foot_note')
+
+        if footnote = HARD_CODED_FOOTNOTES[t]
+          node.content = "[[#{footnote}]]"
+        elsif footnote_id && (text = get_footnote_text(footnote_id))
+          node.content = "[[#{text}]]"
+        else
+          node.remove
+        end
+      end
+
+      { t: doc.text }
+    end
+
+    def export_chunks(translation)
+      text = translation&.text.to_s
+
+      if text.blank?
+        return {
+          t: []
+        }
+      end
+
+      doc = Nokogiri::HTML::DocumentFragment.parse(text)
+      export_translation_chunks(doc)
     end
 
     protected
 
-    def translation_text_with_footnotes(translation)
-      text = translation.text.to_s
-
-      doc = Nokogiri::HTML::DocumentFragment.parse(text)
-      if is_bridges_translation?(translation)
-        export_translation_chunks_(doc)
-      else
-        export_translation_chunks(doc)
-      end
-    end
-
     def export_translation_chunks(doc)
-      footnotes_refs = {}
-      footnotes = {}
-      foot_note_counter = 1
-
-      doc.children.each do |node|
-        if node.name == 'text'
-          next
-        end
-
-        id = node.attr('foot_note')
-        if id.present? && (foot_note = fetch_footnote(id)).present?
-          # Some footnote also has html tags tags, strip those tags
-          foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
-          stripped = foot_note_text.tr(" ", ' ')
-
-          footnotes[foot_note_counter] = stripped
-          footnotes_refs[id] = foot_note_counter
-          foot_note_counter += 1
-        end
-      end
-
-      translation_chunks = []
-      doc.children.each do |child|
-        id = child.attr('foot_note')
-
-        if id.present?
-          if fetch_footnote(id).present?
-            translation_chunks << {
-              type: 'f',
-              text: footnotes_refs[id]
-            }
-          end
-        else
-          translation_chunks << child.text.gsub(" ", " ") if child.text.presence.present?
-        end
-      end
-
-      {
-        t: translation_chunks,
-        f: footnotes
-      }
-    end
-
-    def export_translation_chunks_(doc)
       footnotes_refs = {}
       footnotes = {}
       foot_note_counter = 1
@@ -135,35 +108,13 @@ module Exporter
         end
       end
 
-      if footnotes.present?
-        {
-          t: translation_chunks,
-          f: footnotes
-        }
-      else
-        {
-          t: translation_chunks
-        }
-      end
-    end
+      result = {
+        t: translation_chunks,
+        f: footnotes
+      }
+      result.delete(:f) if result[:f].blank?
 
-    def is_bridges_translation?(translation)
-      149 == translation.resource_content_id
-    end
-
-    def fetch_footnote(id)
-      @footnotes ||= {}
-
-      return @footnotes[id.to_i] if @footnotes[id.to_i] && @footnotes[id.to_i].text.present?
-
-      if footnote = FootNote.where(id: id).first
-        FootNote.where(resource_content_id: footnote.resource_content_id).each do |fn|
-          @footnotes[fn.id] = fn
-        end
-
-        fn = (@footnotes[id.to_i] || footnote)
-        fn if fn && fn.text.present?
-      end
+      result
     end
 
     def get_footnote_text(id)

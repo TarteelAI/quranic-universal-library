@@ -209,11 +209,12 @@ class Verse < QuranApiRecord
     target_verse = find(verse_id)
 
     Verse
-      .joins(words: %i[word_lemma word_stem word_root])
-      .where('word_roots.root_id IN (:roots) OR word_stems.stem_id IN (:stems) OR word_lemmas.lemma_id IN (:lemmas)',
+      .joins(words: %i[lemma stem root])
+      .where('roots.id IN (:roots) OR stems.id IN (:stems) OR lemmas.lemma_id IN (:lemmas)',
              roots: target_verse.roots.pluck(:id),
              stems: target_verse.stems.pluck(:id),
-             lemmas: target_verse.words.pluck(:id))
+             lemmas: target_verse.words.pluck(:id)
+      )
       .where.not(id: verse_id)
       .distinct
       .select('verses.*, COUNT(words.id) AS word_match_count')

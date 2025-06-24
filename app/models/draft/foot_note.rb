@@ -23,7 +23,7 @@
 class Draft::FootNote < ApplicationRecord
   belongs_to :draft_translation, class_name: 'Draft::Translation'
   belongs_to :resource_content, optional: true
-  belongs_to :foot_note, optional: true
+  belongs_to :footnote, optional: true, class_name: '::FootNote', foreign_key: 'foot_note_id'
   before_save :set_current_text
 
   after_commit :update_translation_footnote_count, on: [:create, :destroy]
@@ -38,8 +38,9 @@ class Draft::FootNote < ApplicationRecord
 
   protected
   def set_current_text
-    footnote = foot_note || FootNote.find_by(id: foot_note_id)
-    self.current_text ||= footnote&.text
-    self.text_matched = current_text == draft_text
+    ft = footnote || FootNote.find_by(id: foot_note_id)
+
+    self.current_text ||= ft&.text
+    self.text_matched = ft&.text == draft_text
   end
 end

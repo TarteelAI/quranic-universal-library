@@ -12,9 +12,13 @@ ActiveAdmin.register Draft::Translation do
   filter :imported
   filter :draft_text
   filter :footnotes_count
+  filter :current_footnotes_count
 
   includes :verse,
            :resource_content
+
+  scope :with_footnotes, group: :footnotes
+  scope :with_mismatch_footnote, group: :footnotes
 
   action_item :previous_page, only: :show do
     if item = resource.previous_ayah_translation
@@ -52,6 +56,7 @@ ActiveAdmin.register Draft::Translation do
       link_to(resource.resource_content.name, [:cms, resource.resource_content]) if resource.resource_content
     end
     column :footnotes_count
+    column :current_footnotes_count
     column :draft_text, sortable: :draft_text do |resource|
       resource.draft_text.to_s.first(50)
     end
@@ -77,21 +82,21 @@ ActiveAdmin.register Draft::Translation do
     attributes_table do
       row :id
       row :resource_content
+      row :translation
+
       row :current_text, class: language_name, 'data-controller': 'translation' do
         div do
           span safe_html(resource.current_text)
-          span(link_to 'View', [:cms, resource.translation]) if resource.translation
         end
       end
+
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
         safe_html resource.draft_text
       end
+
       row :text_matched
       row :imported
       row :footnotes_count
-      row :resouce_name do
-        resource.resource_content.name
-      end
 
       row :diff do
         div do

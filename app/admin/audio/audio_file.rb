@@ -25,7 +25,7 @@ ActiveAdmin.register AudioFile do
             data: { controller: 'ajax-modal', url: validate_segments_cms_recitation_path(resource.recitation_id, chapter_id: resource.chapter_id) }
   end
 
-  action_item :view_segments, only: :show do
+  action_item :view_segment_tool, only: :show do
     link_to 'View in segment tool', segment_builder_ayah_audio_file_path(resource.recitation_id, chapter_id: resource.chapter_id, verse: resource.verse_number), target: '_blank', rel: 'noopener'
   end
 

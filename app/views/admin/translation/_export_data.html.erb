@@ -1,0 +1,20 @@
+<div id=title>
+  Exported json format for <%= resource.id %>
+</div>
+<%
+  service = Exporter::AyahTranslation.new
+%>
+
+<div id="body">
+  <div class="modal-body">
+    <h2>Chunks format</h2>
+    <div>
+      <%= JSON.pretty_generate(service.export_chunks(resource)) %>
+    </div>
+
+    <h2 class="my-3">Inline footnotes format</h2>
+    <div>
+      <%= service.export_inline_footnote(resource) %>
+    </div>
+  </div>
+</div>

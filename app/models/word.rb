@@ -94,6 +94,8 @@ class Word < QuranApiRecord
   belongs_to :topic, optional: true
   belongs_to :token, optional: true
   belongs_to :root, optional: true
+  belongs_to :lemma, optional: true
+  belongs_to :stem, optional: true
 
   has_many :word_translations
   has_many :transliterations, as: :resource
@@ -107,11 +109,7 @@ class Word < QuranApiRecord
   # for eager loading
   has_one :mushaf_word
   has_one :word_translation
-
-  has_one :word_lemma
-  has_one :lemma, through: :word_lemma
-  has_one :word_stem
-  has_one :stem, through: :word_stem
+ 
   # has_one :pause_mark
   has_one :morphology_word, class_name: 'Morphology::Word'
 
@@ -151,18 +149,18 @@ class Word < QuranApiRecord
   end
 
   def self.without_root
-    Word.words.joins("LEFT JOIN word_roots ON words.id = word_roots.word_id")
-        .where("word_roots.id IS NULL")
+    Word.words.joins("LEFT JOIN roots ON words.root_id = roots.id")
+        .where("words.root_id IS NULL OR roots.id IS NULL")
   end
 
   def self.without_stem
-    Word.words.joins("LEFT JOIN word_stems ON words.id = word_stems.word_id")
-        .where("word_stems.id IS NULL")
+    Word.words.joins("LEFT JOIN stems ON words.stem_id = stems.id")
+        .where("words.stem_id IS NULL OR stems.id IS NULL")
   end
 
   def self.without_lemma
-    Word.words.joins("LEFT JOIN word_lemmas ON words.id = word_lemmas.word_id")
-        .where("word_lemmas.id IS NULL")
+    Word.words.joins("LEFT JOIN lemmas ON words.lemma_id = lemmas.id")
+        .where("words.lemma_id IS NULL OR lemmas.id IS NULL")
   end
 
   def next_word

@@ -1,16 +1,13 @@
 module Exporter
   class ExportTranslation < BaseExporter
-    attr_accessor :resource_content
+    attr_accessor :resource_content,
+                  :export_service
     TAG_SANITIZER = Rails::Html::WhiteListSanitizer.new
-    BRIDGRES_FOOTNOTE_MAPPING = {
-      sg: 'Singular',
-      pl: 'Plural',
-      dl: 'Dual'
-    }
 
     def initialize(resource_content:, base_path:)
       super(base_path: base_path, name: resource_content.sqlite_file_name)
       @resource_content = resource_content
+      @export_service = Exporter::AyahTranslation.new
     end
 
     def export_json(with_footnotes: false)
@@ -39,14 +36,14 @@ module Exporter
       json_file_path
     end
 
-    # Export translations with html tags(sup) for footnotes
+    # Export translations in html format(keep the formatting tags)
     def export_json_with_footnotes_tags
       json_data = {}
       json_file_path = "#{export_file_path}-with-footnote-tags.json"
 
       records.each do |batch|
         batch.each do |translation|
-          json_data[translation.verse_key] = translation_text_with_footnotes(translation, chunks: false)
+          json_data[translation.verse_key] = export_simple_translation(translation)
         end
       end
 
@@ -62,6 +59,7 @@ module Exporter
       records.each do |batch|
         batch.each do |translation|
           text = translation_text_with_footnotes(translation, chunks: false)
+
           fields = [
             translation.chapter_id,
             translation.verse_number,
@@ -191,78 +189,17 @@ module Exporter
     protected
 
     def translation_text_with_footnotes(translation, chunks: false)
-      text = translation.text.to_s
-
-      # brides translation have hard coded footnotes, and needs a custom export
-      if text.blank?
-        if chunks
-          {
-            t: [text.to_s.strip],
-            f: []
-          }
-        else
-          {
-            t: text.to_s.strip,
-            f: []
-          }
-        end
+      if chunks
+        export_service.export_chunks(translation)
       else
-        doc = Nokogiri::HTML::DocumentFragment.parse(text)
-        # bridges translation
-        if is_bridges_translation? && chunks
-          export_bridres_with_footnote(doc, translation)
-        else
-          if chunks
-            export_translation_chunks(doc, translation)
-          else
-            export_simple_translation(doc, translation)
-          end
-        end
+        export_simple_translation(translation)
       end
     end
 
-    def export_translation_chunks(doc, translation)
-      footnotes_refs = {}
-      footnotes = {}
-      foot_note_counter = 1
+    def export_simple_translation(translation)
+      return {t: ''} if translation.text.blank?
 
-      doc.children.each do |node|
-        if node.name == 'text'
-          next
-        end
-
-        id = node.attr('foot_note')
-        if id.present? && (foot_note = FootNote.where(id: id).first).present?
-          # Some footnote also has html tags tags, strip those tags
-          foot_note_text = Nokogiri::HTML::DocumentFragment.parse(foot_note.text).text
-          stripped = foot_note_text.tr(" ", '').strip
-
-          footnotes[foot_note_counter] = stripped
-          footnotes_refs[id] = foot_note_counter
-          foot_note_counter += 1
-        end
-      end
-
-      translation_chunks = []
-      doc.children.each do |child|
-        id = child.attr('foot_note')
-
-        if id.present?
-          translation_chunks << {
-            f: footnotes_refs[id]
-          }
-        else
-          translation_chunks << child.text if child.text.presence.present?
-        end
-      end
-
-      {
-        t: translation_chunks,
-        f: footnotes
-      }
-    end
-
-    def export_simple_translation(doc, translation)
+      doc = Nokogiri::HTML::DocumentFragment.parse(translation.text)
       footnotes = {}
       translation.foot_notes.each do |foot_note|
         footnotes[foot_note.id] = foot_note.text
@@ -286,27 +223,7 @@ module Exporter
     end
 
     def translation_text_with_inline_footnote(translation)
-      text = translation.text.to_s
-
-      doc = Nokogiri::HTML::DocumentFragment.parse(text)
-
-      doc.search("a sup, sup").each do |node|
-        t = node.text.strip.to_sym
-        footnote_id = node.attr('foot_note')
-
-        if footnote = BRIDGRES_FOOTNOTE_MAPPING[t]
-          node.content = "[[#{footnote}]]"
-        elsif footnote_id.present?
-          footnote = FootNote.find_by_id(footnote_id)
-          if footnote.present?
-            node.content = "[[#{footnote.text}]]"
-          else
-            node.remove
-          end
-        end
-      end
-
-      { t: doc.text }
+      export_service.export_inline_footnote(translation)
     end
 
     def export_bridres_with_footnote(doc, translation)
@@ -382,10 +299,6 @@ module Exporter
         .where(resource_content_id: resource_content.id)
         .order('verse_id ASC')
         .in_batches(of: 1000)
-    end
-
-    def is_bridges_translation?
-      149 == resource_content.id
     end
   end
 end

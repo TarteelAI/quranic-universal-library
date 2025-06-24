@@ -3,6 +3,8 @@
 # Table name: recitations
 #
 #  id                  :integer          not null, primary key
+#  approved            :boolean          default(TRUE)
+#  description         :text
 #  files_count         :integer
 #  name                :string
 #  reciter_name        :string
@@ -31,11 +33,10 @@ class Recitation < QuranApiRecord
   belongs_to :resource_content, optional: true
 
   has_many :audio_files
-  delegate :approved?, to: :resource_content, allow_nil: true
   alias get_resource_content resource_content
 
-  scope :approved, -> { joins(:resource_content).where("resource_contents.approved = ?", true) }
-  scope :un_approved, -> { joins(:resource_content).where('resource_contents.approved = ?', false) }
+  scope :approved, -> { where(approved: true) }
+  scope :un_approved, -> { where(approved: false) }
 
   def one_ayah?
     true

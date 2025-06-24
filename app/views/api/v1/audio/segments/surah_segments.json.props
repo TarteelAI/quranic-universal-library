@@ -1,0 +1,27 @@
+segments   = @presenter.surah_segments
+audio      = @presenter.surah_audio
+pagination = @presenter.pagination
+
+json.audio do
+  json.url        audio.audio_url
+  json.duration   audio.duration
+  json.audio_size audio.file_size
+end
+
+json.segments do
+  segments.each do |segment|
+    json.set! segment.verse_key do
+      json.time_from segment.timestamp_from
+      json.time_to   segment.timestamp_to
+      json.duration  segment.duration
+      json.segments  segment.segments
+    end
+  end
+end
+
+json.pagination do
+  json.next_page     pagination.next
+  json.previous_page pagination.prev
+  json.total_pages   pagination.pages
+  json.total_count   pagination.count
+end

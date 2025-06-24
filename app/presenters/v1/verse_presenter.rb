@@ -66,6 +66,13 @@ module V1
         filters[:word_translation_language] = word_translation_language
       end
 
+      if lookahead.selects?(:from)
+        filters[:range] = [
+          params[:from].to_i,
+          (params[:to] || params[:from].to_i + per_page).to_i
+        ]
+      end
+
       list = finder.verses(
         **filters
       )

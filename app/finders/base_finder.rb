@@ -6,7 +6,7 @@ class BaseFinder
               :current_page,
               :pagination
 
-  def initialize(locale:, current_page: 1, per_page: 20)
+  def initialize(locale: nil, current_page: 1, per_page: 20)
     @locale = locale
     @current_page = current_page
     @per_page = per_page

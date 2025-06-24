@@ -2,20 +2,21 @@
 #
 # Table name: draft_translations
 #
-#  id                  :bigint           not null, primary key
-#  current_text        :text
-#  draft_text          :text
-#  footnotes_count     :integer          default(0)
-#  imported            :boolean          default(FALSE)
-#  meta_data           :jsonb
-#  need_review         :boolean
-#  text_matched        :boolean
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  resource_content_id :integer
-#  translation_id      :integer
-#  user_id             :integer
-#  verse_id            :integer
+#  id                      :bigint           not null, primary key
+#  current_footnotes_count :integer          default(0)
+#  current_text            :text
+#  draft_text              :text
+#  footnotes_count         :integer          default(0)
+#  imported                :boolean          default(FALSE)
+#  meta_data               :jsonb
+#  need_review             :boolean
+#  text_matched            :boolean
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  resource_content_id     :integer
+#  translation_id          :integer
+#  user_id                 :integer
+#  verse_id                :integer
 #
 # Indexes
 #

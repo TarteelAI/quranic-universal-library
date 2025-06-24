@@ -17,3 +17,15 @@
     cursor: not-allowed;
   }
 }
+
+#current-ayah{
+  position: relative;
+}
+.highlight-span {
+  position: absolute;
+  background-color: rgba(34, 197, 94, 0.6);
+  border-radius: 0.25rem;
+  transition: all 0.25s ease;
+  pointer-events: none;
+  z-index: 0;
+}

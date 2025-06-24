@@ -2,8 +2,20 @@
 
 module Utils
   class Quran
+    def self.get_surah_ayah_range(surah)
+      if surah == 114
+        [FIRST_AYAH[surah - 1], 6236]
+      else
+        [FIRST_AYAH[surah - 1], FIRST_AYAH[surah] - 1]
+      end
+    end
+
     def self.uniq_words_count
-      Word.unscoped.words.group(:text_imlaei).having("COUNT(*) > 0").select('COUNT(*) as count, text_imlaei, unnest((array_agg("id"))[2:])')
+      Word.unscoped
+          .words
+          .group(:text_imlaei)
+          .having("COUNT(*) > 0")
+          .select('COUNT(*) as count, text_imlaei, unnest((array_agg("id"))[2:])')
     end
 
     def self.first_ayah_of_surah?(verse_id)
@@ -66,11 +78,11 @@ module Utils
     end
 
     def self.get_ayah_id(surah, ayah)
-      abs_ayahs[surah - 1] + ayah if valid_ayah?(surah, ayah)
+      abs_ayahs[surah - 1] + ayah
     end
 
     def self.get_ayah_key(surah, ayah)
-      "#{surah}:#{ayah}" if valid_ayah?(surah, ayah)
+      "#{surah}:#{ayah}"
     end
 
     def self.get_muhsaf_page(ayah_id)

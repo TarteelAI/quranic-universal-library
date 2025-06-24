@@ -66,11 +66,17 @@ module V1
         filters[:word_translation_language] = word_translation_language
       end
 
+      if lookahead.selects?(:from)
+        filters[:range] = [
+          params[:from].to_i,
+          (params[:to] || params[:from].to_i + per_page).to_i
+        ]
+      end
+
       list = finder.verses(
         **filters
       )
-
-      @pagination, list = pagy(list)
+      @pagination = finder.pagination
 
       list
     end
@@ -120,7 +126,11 @@ module V1
 
     protected
     def finder
-      VerseFinder.new(locale: api_locale)
+      @finder ||= VerseFinder.new(
+        locale: api_locale,
+        current_page: current_page,
+        per_page: per_page,
+      )
     end
 
     def ayah_translation_ids

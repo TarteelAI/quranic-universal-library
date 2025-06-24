@@ -15,6 +15,13 @@ Rails.application.routes.draw do
         end
       end
 
+      namespace :audio do
+        get 'surah_recitations', to: 'recitations#surah_recitations'
+        get 'ayah_recitations', to: 'recitations#ayah_recitations'
+        get 'surah_segments/:recitation_id', to: 'segments#surah_segments'
+        get 'ayah_segments/:recitation_id', to: 'segments#ayah_segments'
+      end
+
       get '/verses/select2', to: 'verses#select2'
     end
   end

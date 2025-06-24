@@ -13,6 +13,14 @@ class BasePresenter
 
   protected
 
+  def current_page
+    params[:page].to_i.abs.positive? ? params[:page].to_i : 1
+  end
+
+  def per_page
+    10
+  end
+
   def mushaf_id
     params[:mushaf] || 5
   end

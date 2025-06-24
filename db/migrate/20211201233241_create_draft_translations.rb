@@ -8,6 +8,7 @@ class CreateDraftTranslations < ActiveRecord::Migration[6.1]
       t.integer :resource_content_id, index: true
       t.boolean :need_review, index: true
       t.boolean :imported, default: false, index: true
+      t.integer :current_footnotes_count, default: 0
 
       t.timestamps
     end

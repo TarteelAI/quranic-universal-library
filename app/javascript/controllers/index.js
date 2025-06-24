@@ -129,3 +129,11 @@ application.register("runable-widget", RunableWidgetController);
 
 import EventTrackerController from "./event_tracker_controller"
 application.register("event-tracker", EventTrackerController);
+
+
+import SurahSegmentPlayerController from "./surah_segment_player_controller"
+import AyahSegmentPlayerController from "./ayah_segment_player_controller"
+
+application.register("ayah-segment-player", AyahSegmentPlayerController);
+application.register("surah-segment-player", SurahSegmentPlayerController);
+

@@ -19,6 +19,7 @@
     "esbuild-plugin-vue3": "^0.4.0",
     "esbuild-rails": "^1.0.7",
     "hotkeys-js": "^3.8.7",
+    "howler": "^2.2.4",
     "jquery": "3.7.1",
     "jquery-ui": "^1.13.2",
     "jquery-ujs": "^1.2.3",

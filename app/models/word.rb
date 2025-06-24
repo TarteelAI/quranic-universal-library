@@ -149,18 +149,18 @@ class Word < QuranApiRecord
   end
 
   def self.without_root
-    Word.words.joins("LEFT JOIN word_roots ON words.id = word_roots.word_id")
-        .where("word_roots.id IS NULL")
+    Word.words.joins("LEFT JOIN roots ON words.root_id = roots.id")
+        .where("words.root_id IS NULL OR roots.id IS NULL")
   end
 
   def self.without_stem
-    Word.words.joins("LEFT JOIN word_stems ON words.id = word_stems.word_id")
-        .where("word_stems.id IS NULL")
+    Word.words.joins("LEFT JOIN stems ON words.stem_id = stems.id")
+        .where("words.stem_id IS NULL OR stems.id IS NULL")
   end
 
   def self.without_lemma
-    Word.words.joins("LEFT JOIN word_lemmas ON words.id = word_lemmas.word_id")
-        .where("word_lemmas.id IS NULL")
+    Word.words.joins("LEFT JOIN lemmas ON words.lemma_id = lemmas.id")
+        .where("words.lemma_id IS NULL OR lemmas.id IS NULL")
   end
 
   def next_word

@@ -23,9 +23,6 @@ module Tools
         :words_without_root,
         :words_without_lemma,
         :words_without_stem,
-        :words_with_duplicate_lemma,
-        :words_with_duplicate_stem,
-        :words_with_duplicate_root,
         :compare_translations,
         :ayah_without_matching_ayahs
       ]
@@ -834,72 +831,8 @@ module Tools
         check: ->(params) do
           sort_by = params[:sort_by].presence || 'id'
           sort_order = params[:sort_order].presence || 'asc'
-          join_query = "left join word_lemmas on words.id = word_lemmas.word_id"
 
-          results = Word.words.joins(join_query).where('word_lemmas.id is null').order("#{sort_by} #{sort_order}")
-          paginate(results, params)
-        end
-      }
-    end
-
-    def self.words_with_duplicate_lemma
-      {
-        name: "Words with duplicate lemma",
-        description: "List of Words with multiple lemma",
-        table_attrs: ['word_id'],
-        links_proc: {
-          word_id: -> (record, _) do
-            [record.word_id, "/cms/word_lemmas?q%5Bword_id_eq%5D=#{record.word_id}"]
-          end
-        },
-        fields: [],
-        check: ->(params) do
-          sort_by = params[:sort_by].presence || 'id'
-          sort_order = params[:sort_order].presence || 'asc'
-
-          results = WordLemma.select('word_id, count(*) as count').group(:word_id).having('count(*) > 1')
-          paginate(results, params)
-        end
-      }
-    end
-
-    def self.words_with_duplicate_stem
-      {
-        name: "Words with duplicate stem",
-        description: "List of Words with multiple stem",
-        table_attrs: ['word_id'],
-        links_proc: {
-          word_id: -> (record, _) do
-            [record.word_id, "/cms/word_stems?q%5Bword_id_eq%5D=#{record.word_id}"]
-          end
-        },
-        fields: [],
-        check: ->(params) do
-          sort_by = params[:sort_by].presence || 'id'
-          sort_order = params[:sort_order].presence || 'asc'
-
-          results = WordStem.select('word_id, count(*) as count').group(:word_id).having('count(*) > 1')
-          paginate(results, params)
-        end
-      }
-    end
-
-    def self.words_with_duplicate_root
-      {
-        name: "Words with duplicate root words",
-        description: "List of Words with multiple root words",
-        table_attrs: ['word_id'],
-        links_proc: {
-          word_id: -> (record, _) do
-            [record.word_id, "/cms/word_roots?q%5Bword_id_eq%5D=#{record.word_id}"]
-          end
-        },
-        fields: [],
-        check: ->(params) do
-          sort_by = params[:sort_by].presence || 'id'
-          sort_order = params[:sort_order].presence || 'asc'
-
-          results = WordRoot.select('word_id, count(*) as count').group(:word_id).having('count(*) > 1')
+          results = Word.without_lemma.order("#{sort_by} #{sort_order}")
           paginate(results, params)
         end
       }
@@ -914,9 +847,8 @@ module Tools
         check: ->(params) do
           sort_by = params[:sort_by].presence || 'id'
           sort_order = params[:sort_order].presence || 'asc'
-          join_query = "left join word_stems on words.id = word_stems.word_id"
 
-          results = Word.words.joins(join_query).where('word_stems.id is null').order("#{sort_by} #{sort_order}")
+          results = Word.without_stem.order("#{sort_by} #{sort_order}")
           paginate(results, params)
         end
       }
@@ -932,9 +864,7 @@ module Tools
           sort_by = params[:sort_by].presence || 'id'
           sort_order = params[:sort_order].presence || 'asc'
 
-          join_query = "left join word_roots on words.id = word_roots.word_id"
-
-          results = Word.words.joins(join_query).where('word_roots.id is null').order("#{sort_by} #{sort_order}")
+          results = Word.without_root.order("#{sort_by} #{sort_order}")
           paginate(results, params)
         end
       }

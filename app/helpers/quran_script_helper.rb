@@ -27,4 +27,15 @@ module QuranScriptHelper
       'indopak'
     end
   end
+
+  def find_common_verses_words(verses)
+    word_sets = verses.map do |v|
+      v.words.map do |w|
+        w.text_qpc_hafs.split(' ').map(&:remove_dialectic)
+      end
+    end
+
+    common = word_sets.flatten.group_by(&:itself).select { |_w, list| list.size > 1 }.keys
+    common.to_set
+  end
 end

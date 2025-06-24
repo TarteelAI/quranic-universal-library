@@ -68,7 +68,7 @@ ActiveAdmin.register Radio::Station do
         tbody do
           resource.sub_stations.each do |s|
             tr do
-              td link_to(s.id, [:admin, s])
+              td link_to(s.id, [:cms, s])
               td s.name
             end
           end

@@ -271,7 +271,6 @@ module Exporter
     end
 
     def export_tafsirs(resource_content: nil)
-      # TODO: add tags
       base_path = "tmp/export/tafsirs"
       FileUtils.mkdir_p(base_path)
 

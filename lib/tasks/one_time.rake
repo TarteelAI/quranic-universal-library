@@ -1,10 +1,212 @@
 namespace :one_time do
+  task import_rtf_transliteration: :environment do
+    CDN = "PATH_TO_CDN"
+    Utils::Downloader.download("#{CDN}/data/transliterations/en-transliteration-tarteel.json", "data/transliterations/en-transliteration-tarteel.json")
+
+    tarteel_data = Oj.load( File.read("data/transliterations/en-transliteration-tarteel.json")).flatten
+    tanzil_data =  File.read("data/transliterations/en.transliteration-tanzil.txt").split("\n")
+
+    en = Language.where(iso_code: 'en').first
+    tarteel_resource = ResourceContent.one_verse.where(name: 'English Transliteration(RTF)').first_or_create
+    tarteel_resource.language = en
+    tarteel_resource.language_name = en.name.downcase
+    tarteel_resource.save
+
+    tanzil_resource = ResourceContent.one_verse.where(name: 'Tanzil Transliteration').first_or_create
+    tanzil_resource.language = en
+    tanzil_resource.language_name = en.name.downcase
+    tanzil_resource.save
+
+    Verse.find_each do |verse|
+      tarteel = Translation.where(
+        verse_id: verse.id,
+        resource_content_id: tarteel_resource.id
+      ).first_or_initialize
+
+      tarteel.text = tarteel_data[verse.verse_index - 1].strip
+      tarteel.language = en
+      tarteel.resource_name = tarteel_resource.name
+      tarteel.verse_key = verse.verse_key
+      tarteel.chapter_id = verse.chapter_id
+      tarteel.verse_number = verse.verse_number
+      tarteel.juz_number = verse.juz_number
+      tarteel.hizb_number = verse.hizb_number
+      tarteel.language_name = 'english'
+      tarteel.language = en
+
+      tarteel.save
+    end
+    tarteel_resource.reload.run_after_import_hooks
+
+    Verse.find_each do |verse|
+      tarteel = Translation.where(
+        verse_id: verse.id,
+        resource_content_id: tanzil_resource.id
+      ).first_or_initialize
+
+      tarteel.text = tanzil_data[verse.verse_index - 1].split('|').last.strip
+      tarteel.language = en
+      tarteel.resource_name = tanzil_resource.name
+      tarteel.verse_key = verse.verse_key
+      tarteel.chapter_id = verse.chapter_id
+      tarteel.verse_number = verse.verse_number
+      tarteel.juz_number = verse.juz_number
+      tarteel.hizb_number = verse.hizb_number
+      tarteel.language_name = 'english'
+      tarteel.language = en
+
+      tarteel.save
+    end
+  end
+
+  task import_transliteration: :environment do
+    CDN = "PATH_TO_CDN"
+    # Turkish transliteration
+    FileUtils.mkdir_p "data/transliterations"
+    Utils::Downloader.download("#{CDN}/data/transliterations/tajweed_transliteration.json", "data/transliterations/tajweed_transliteration2.json")
+    Utils::Downloader.download("#{CDN}/data/transliterations/tr.transliteration.json", "data/transliterations/tr2.transliteration.json")
+    PaperTrail.enabled = false
+
+    turkish = Language.where(iso_code: 'tr').first
+    resource = ResourceContent.one_verse.where(name: 'Turkish Transliteration').first_or_create
+    resource.language = turkish
+    resource.language_name = turkish.name.downcase
+    resource.save
+
+    tr_data = Oj.load File.read("data/transliterations/tr2.transliteration.json")
+
+    tr_data.each do |row|
+      verse = Verse.find_by(chapter_id: row['sura'], verse_number: row['aya'])
+      text = row['text'].strip
+
+      tr = Translation.where(
+        verse_id: verse.id,
+        resource_content_id: resource.id
+      ).first_or_initialize
+
+      tr.text = text
+      tr.resource_name = resource.name
+      tr.verse_key = verse.verse_key
+      tr.chapter_id = verse.chapter_id
+      tr.verse_number = verse.verse_number
+      tr.juz_number = verse.juz_number
+      tr.hizb_number = verse.hizb_number
+      tr.language_name = 'turkish'
+      tr.language = turkish
+      tr.save
+    end
+    resource.run_after_import_hooks
+
+    # Tajweed transliteration
+    en = Language.where(iso_code: 'en').first
+    en_resource = ResourceContent.one_verse.where(name: 'English Transliteration(Tajweed)').first_or_create
+    en_resource.language = en
+    en_resource.language_name = en.name.downcase
+    en_resource.save
+
+    tajweed_data = Oj.load File.read("data/transliterations/tajweed_transliteration2.json")
+
+    tajweed_data.each do |row|
+      verse = Verse.find_by(chapter_id: row['sura'], verse_number: row['aya'])
+      text = row['text'].strip
+
+      tr = Translation.where(
+        verse_id: verse.id,
+        resource_content_id: en_resource.id
+      ).first_or_initialize
+
+      tr.text = text
+      tr.resource_name = en_resource.name
+      tr.verse_key = verse.verse_key
+      tr.chapter_id = verse.chapter_id
+      tr.verse_number = verse.verse_number
+      tr.juz_number = verse.juz_number
+      tr.hizb_number = verse.hizb_number
+      tr.language_name = 'english'
+      tr.language = en
+      tr.save
+    end
+    en_resource.run_after_import_hooks
+
+
+    # RTF
+    rtf_resource = ResourceContent.one_verse.where(name: 'English Transliteration(RTF)').first_or_create
+    rtf_resource.language = en
+    rtf_resource.language_name = en.name.downcase
+    rtf_resource.save
+
+    rtf_data = Oj.load File.read("data/transliterations/en.transliteration.json")
+
+    rtf_data.each do |row|
+      verse = Verse.find_by(chapter_id: row['sura'], verse_number: row['aya'])
+      text = row['text'].strip
+
+      tr = Translation.where(
+        verse_id: verse.id,
+        resource_content_id: rtf_resource.id
+      ).first_or_initialize
+
+      tr.text = text
+      tr.resource_name = rtf_resource.name
+      tr.verse_key = verse.verse_key
+      tr.chapter_id = verse.chapter_id
+      tr.verse_number = verse.verse_number
+      tr.juz_number = verse.juz_number
+      tr.hizb_number = verse.hizb_number
+      tr.language_name = 'english'
+      tr.language = en
+      tr.save
+    end
+  end
+
+  task find_missing_images: :environment do
+    require 'net/http'
+    require 'uri'
+
+    CDN_BASE = "PATH_TO_CDN"
+
+    Word.find_each do |word|
+      surah, ayah, word_number = word.location.split(':')
+      next if Dir.exist?("scripts/img/available/#{surah}/#{ayah}/#{word_number}")
+
+      puts "checking #{word.location}"
+
+      if word.ayah_mark?
+        url = URI("#{CDN_BASE}/common/#{ayah}.svg")
+      else
+        svg_path = "w/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg"
+        url = URI("#{CDN_BASE}/#{svg_path}")
+      end
+
+      response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |http|
+        http.head(url.request_uri)
+      end
+
+      if response.code == "404"
+        puts "Missing SVG: #{word.location}"
+
+        if !word.ayah_mark?
+          begin
+            source = "scripts/img/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg"
+            FileUtils.mkdir_p("scripts/img/svg-missing/#{surah}/#{ayah}")
+            missing_path = "scripts/img/svg-missing/#{surah}/#{ayah}/#{word_number}.svg"
+            FileUtils.cp source, missing_path
+          rescue Errno::ENOENT => e
+            puts "Error copying file for #{word.location}: #{e.message}"
+          end
+        end
+      else
+        FileUtils.mkdir_p("scripts/img/available/#{surah}/#{ayah}/#{word_number}")
+      end
+    end
+  end
+
   task add_sequence_number_to_words: :environment do
     sequence_number = 1
     Word.unscoped.order('word_index ASC').each do |word|
       if word.word?
         word.update_column :sequence_number, sequence_number
-        sequence_number+= 1
+        sequence_number += 1
       end
     end
   end

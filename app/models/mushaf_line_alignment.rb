@@ -7,7 +7,6 @@
 #  line_number :integer
 #  meta_data   :jsonb
 #  page_number :integer
-#  properties  :jsonb
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  mushaf_id   :integer
@@ -21,6 +20,9 @@
 class MushafLineAlignment < ApplicationRecord
   include HasMetaData
   belongs_to :mushaf
+
+  scope :with_surah_names, -> { where alignment: 'surah_name' }
+
   after_commit :update_page_lines_count
 
   LineAlignments = [
@@ -32,6 +34,12 @@ class MushafLineAlignment < ApplicationRecord
 
   def self.dummy
     MushafLineAlignment.new
+  end
+
+  def chapter
+    if is_surah_name?
+      Chapter.find_by(id: get_surah_number)
+    end
   end
 
   def get_surah_number

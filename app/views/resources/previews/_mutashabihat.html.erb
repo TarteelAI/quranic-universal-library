@@ -1,0 +1,289 @@
+<%
+  key = params[:ayah] || '2:112'
+  ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
+
+  ayah_phrases = Morphology::PhraseVerse.approved.includes(:phrase).where(verse: ayah).where(phrase: {approved: true}).order('matched_words_count ASC')
+
+  if ayah_phrases.present?
+    word_phrases = {}
+
+    ayah.words.words.each do |word|
+      selectd = ayah_phrases.detect do |p|
+        p.highlight_word?(word)
+      end
+
+      word_phrases[word.id] = selectd&.phrase
+    end
+  end
+%>
+
+<div class="tw-mt-5">
+  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-docs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-preview-pane"
+              type="button"
+              role="tab"
+              aria-controls="tab-preview-pane"
+              aria-selected="true">
+        Mutashabihat Preview
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-help"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-help-pane"
+              type="button" role="tab"
+              aria-controls="tab-help-pane"
+              aria-selected="false">
+        Help
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content tw-p-2 tw-mt-3" id="docs-tab-content">
+    <div class="tab-pane show active"
+         id="tab-preview-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="0">
+      <div class="tw-space-y-6">
+        <h2 class="tw-text-xl tw-font-semibold">
+          <%= resource.name %> Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+        </h2>
+
+        <div class="tw-space-y-6">
+          Select ayah to see list of shared phrases in that ayah.
+        </div>
+
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+          <div class="tw-flex tw-items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+            <%= select_tag :ayah,
+                           [],
+                           onchange: "jumpToAyah(this.value)",
+                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           style: 'min-width: 220px',
+                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+          </div>
+
+          <div class="tw-flex tw-gap-2">
+            <% if ayah.previous_ayah %>
+              <%= link_to detail_resources_path('mutashabihat', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                ← Previous
+              <% end %>
+            <% end %>
+
+            <% if ayah.next_ayah %>
+              <%= link_to detail_resources_path('mutashabihat', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                Next →
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+          <% if ayah_phrases.present? %>
+            <div class="quran-text qpc-hafs d-flex flex-wrap">
+              <% ayah.words.each do |word| %>
+                <div style="<%= "color: #{word_phrases[word.id].get_color}" if word_phrases[word.id]%>">
+                  <%= word.text_qpc_hafs %>
+                </div>
+              <% end %>
+            </div>
+
+            <h3 class="tw-mt-4 tw-font-semibold tw-text-lg">
+              Phrases in <%= ayah.verse_key %>
+            </h3>
+
+            <% ayah_phrases.each_with_index do |ayah_phrase, index| %>
+              <% phrase = ayah_phrase.phrase %>
+
+              <div
+                class="quran-text qpc-hafs tw-mb-1"
+                style="color: <%= phrase.get_color %>"
+              >
+                <%= phrase.text_qpc_hafs %>
+              </div>
+
+              <small class="text-muted d-block tw-mb-2">
+                This phrase is repeated
+                <%= pluralize phrase.occurrence, 'time' %> in
+                <%= pluralize phrase.verses_count, 'ayah' %> across
+                <%= pluralize phrase.chapters_count, 'surah' %>.
+                <a
+                  href="<%= phrase_verses_morphology_phrase_path(phrase) %>"
+                  class="tw-ml-1 tw-underline"
+                  data-controller="ajax-modal"
+                  data-css-class="modal-lg"
+                  data-url="<%= phrase_verses_morphology_phrase_path(phrase, modal: true) %>"
+                >View all</a>
+              </small>
+
+              <% unless index == ayah_phrases.size - 1 %>
+                <hr class="tw-mb-2 tw-mt-2 tw-border-gray-300"/>
+              <% end %>
+            <% end %>
+          <% else %>
+            No shared phrase found for <%= ayah.verse_key %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane"
+         id="tab-help-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs"
+         tabindex="1"
+    >
+      <div class="tw-mt-2 tw-mb-4">
+        <p>
+          Mutashabihat helps identify and explore similar phrases across Ayahs in the Quran. These similar phrases
+          often reflect similarities in <strong>meaning</strong>, <strong>context</strong>, or
+          <strong>wording</strong>, providing deeper insights into thematic connections and Quranic expression.
+        </p>
+
+        <p>
+          For those memorizing the Quran, this data is especially valuable. Many Ayahs in the Quran share nearly
+          identical openings, endings, or similar phrases, which can be confusing during memorization and revision.
+          Showing similar phrases across Ayahs can help learners compare them more effectively and avoid confusion
+          during memorization.
+          Mutashabihat not only reduces mistakes but also strengthens long-term retention by reinforcing subtle
+          differences and patterns.
+        </p>
+      </div>
+
+      <div class="tw-space-y-6">
+        <div class="tw-bg-yellow-100 tw-border tw-border-yellow-300 tw-text-yellow-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+          <p> ⚠️ You need Word by Word Quran script to render and highlight phrases.
+            <a href="/resources/quran-script" class="tw-text-yellow-700 tw-underline hover:tw-text-yellow-900">
+              Download it here
+            </a>
+          </p>
+        </div>
+
+        <h3 class="tw-font-semibold tw-mt-6 tw-mb-2">
+          Mutashabihat data format
+        </h3>
+
+        <div class="tw-list-inside tw-space-y-2">
+          <div class="mb-2">
+            <p>
+              The ZIP file contains two JSON files:
+            </p>
+
+            <ul class="tw-list-disc tw-list-inside tw-mb-4">
+              <li><code>phrases.json</code>: A list of all shared phrases</li>
+              <li><code>phrase_verses.json</code>: A mapping of each Ayah to the phrase IDs</li>
+            </ul>
+
+            <h4 class="tw-font-semibold tw-mt-2">phrases.json format and sample data</h4>
+            <pre class="tw-bg-gray-100 tw-rounded tw-p-2 tw-overflow-auto tw-text-sm">
+<code>"50": {
+  "surahs": 32,
+  "ayahs": 70,
+  "count": 71,
+  "source": {
+    "key": "2:23",
+    "from": 15,
+    "to": 17
+  },
+  "ayah": {
+    "19:48": [
+      [4, 6]
+    ],
+    "2:23": [
+      [15, 17]
+    ]
+  }
+}</code>
+</pre>
+            <ul class="list-disc list-inside mb-4">
+              <li><strong>key</strong> key is the phrase ID (50 is this case)</li>
+              <li><strong>surahs</strong>: Number of Surahs where this phrase appears</li>
+              <li><strong>ayahs</strong>: Number of Ayahs containing this phrase</li>
+              <li><strong>count</strong>: Total number of times the phrase occurs</li>
+              <li><strong>source</strong>: The original Ayah and word range where this phrase is defined</li>
+              <li><strong>ayah</strong>:
+                List of Ayahs containing this phrase, key in this object is the ayah key
+                in <code>surah:ayah</code> format and value is word range in ayah, these words should be highlighted
+                while showing this phrase.
+              </li>
+            </ul>
+
+            <h4 class="tw-font-semibold tw-mt-2">phrase_verses.json format and sample data</h4>
+            <pre class="tw-bg-gray-100 tw-rounded tw-p-2 tw-overflow-auto tw-text-sm">
+<code>
+  "2:23": [50, 16379]
+</code>
+</pre>
+            <ul class="list-disc list-inside mb-4">
+              <li><strong>Key</strong>: Ayah key in the <code>surah:ayah</code> format</li>
+              <li><strong>Value</strong>: List of phrase IDs that appear in this Ayah</li>
+            </ul>
+          </div>
+        </div>
+
+        <h4 class="tw-font-semibold tw-mt-6 tw-mb-2">️How to Highlight Shared Phrases</h4>
+        <p class="mb-2">To highlight phrases in a given Ayah:</p>
+
+        <ol class="list-decimal list-inside mb-4">
+          <li>Use <code>phrase_verses.json</code> to get phrase IDs for the Ayah</li>
+          <li>Look up each phrase ID in <code>phrases.json</code></li>
+          <li>Get the word ranges for the current Ayah (e.g., <code>[4,6]</code> means words 4 to 6)</li>
+          <li>Apply styling (e.g., background color) to those word indices in the Ayah</li>
+        </ol>
+
+        <h4 class="tw-font-semibold tw-mt-6 tw-mb-2">️Example Rendering Logic (pseudo code)</h4>
+
+        <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto text-sm mb-4"><code>// Required: Load phrases.json, phrase_verses.json, and Quran words data
+
+const phraseVerses = /* loaded from phrase_verses.json */;
+const phrases = /* loaded from phrases.json */;
+const quranWords = /* word-level Quran script, e.g., { "2:23": ["word1", "word2", ...] } */;
+
+function getPhraseColor(phraseId) {
+  // generate phrase color
+}
+
+function renderAyahWithPhrases(ayahKey) {
+  const words = quranWords[ayahKey];
+  const phraseIds = phraseVerses[ayahKey] || [];
+  const highlights = [];
+
+  phraseIds.forEach((phraseId) => {
+    const phrase = phrases[phraseId];
+    const ranges = phrase.ayah[ayahKey] || [];
+
+    ranges.forEach(([start, end]) => {
+      for (let i = start - 1; i &lt;= end - 1; i++) {
+        highlights[i] = getPhraseColor(phraseId);
+      }
+    });
+  });
+
+  // Render each word with optional highlight
+  return words
+    .map((word, i) => {
+      const color = highlights[i];
+      return color
+        ? `&lt;span style="background-color: ${color}; padding: 0 4px;"&gt;${word}&lt;/span&gt;`
+        : word;
+    })
+    .join(" ");
+}
+
+const html = renderAyahWithPhrases("2:23");
+document.getElementById("ayah").innerHTML = html;
+</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

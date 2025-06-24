@@ -1,6 +1,9 @@
 module Api
   module V1
     class VersesController < ApiController
+      def select2
+      end
+
       def index
       end
 

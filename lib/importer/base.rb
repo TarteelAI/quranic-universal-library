@@ -59,7 +59,7 @@ module Importer
 
 
     def run_after_import_hooks(resource)
-      resource_content.run_draft_import_hooks
+      resource.run_draft_import_hooks
 
       if @issues.present?
         issues_group = @issues.group_by do |issue|
@@ -117,7 +117,7 @@ module Importer
         end
       end
 
-      resource.save
+      resource.save(validate: false)
     end
 
 

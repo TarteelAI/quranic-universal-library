@@ -15,23 +15,23 @@ ActiveAdmin.register DatabaseBackup do
       case params[:name].to_s
       when 'new_db_dump'
         BackupJob.perform_later
-        redirect_to admin_database_backups_path, notice: 'New backup will be started soon'
+        redirect_to cms_database_backups_path, notice: 'New backup will be started soon'
       when 'sync_quranenc'
         DraftContent::CheckContentChangesJob.perform_later
-        redirect_to admin_dashboard_path, notice: 'Sync will starts soon.'
+        redirect_to cms_dashboard_path, notice: 'Sync will starts soon.'
       when 'restart_sidekiq'
         Utils::System.start_sidekiq
 
-        redirect_to admin_dashboard_path, notice:  Utils::System.sidekiq_stopped? ? 'Sorry sidekiq failed to start' : 'Sidekiq started successfully.'
+        redirect_to cms_dashboard_path, notice:  Utils::System.sidekiq_stopped? ? 'Sorry sidekiq failed to start' : 'Sidekiq started successfully.'
       when 'import_lokalise'
         LokaliseJob.perform_later(action: :import)
       when 'export_lokalise'
         LokaliseJob.perform_later(action: :export)
       else
-        redirect_to admin_dashboard_path, error: 'Invalid operation.'
+        redirect_to cms_dashboard_path, error: 'Invalid operation.'
       end
     else
-      redirect_to admin_dashboard_path, error: 'You are not allowed to perform this action.'
+      redirect_to cms_dashboard_path, error: 'You are not allowed to perform this action.'
     end
   end
 

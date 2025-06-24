@@ -15,4 +15,8 @@
 class Lemma < QuranApiRecord
   has_many :words
   has_many :verses, through: :words
+
+  def to_s
+    text_madani
+  end
 end

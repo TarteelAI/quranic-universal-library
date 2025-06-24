@@ -2,20 +2,21 @@
 #
 # Table name: draft_translations
 #
-#  id                  :bigint           not null, primary key
-#  current_text        :text
-#  draft_text          :text
-#  footnotes_count     :integer          default(0)
-#  imported            :boolean          default(FALSE)
-#  meta_data           :jsonb
-#  need_review         :boolean
-#  text_matched        :boolean
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  resource_content_id :integer
-#  translation_id      :integer
-#  user_id             :integer
-#  verse_id            :integer
+#  id                      :bigint           not null, primary key
+#  current_footnotes_count :integer          default(0)
+#  current_text            :text
+#  draft_text              :text
+#  footnotes_count         :integer          default(0)
+#  imported                :boolean          default(FALSE)
+#  meta_data               :jsonb
+#  need_review             :boolean
+#  text_matched            :boolean
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  resource_content_id     :integer
+#  translation_id          :integer
+#  user_id                 :integer
+#  verse_id                :integer
 #
 # Indexes
 #
@@ -34,7 +35,7 @@ class Draft::Translation < ApplicationRecord
   belongs_to :resource_content
   belongs_to :verse
   belongs_to :user, optional: true
-  belongs_to :translation, optional: true
+  belongs_to :translation, optional: true, class_name: '::Translation'
 
   has_many :foot_notes, class_name: 'Draft::FootNote', foreign_key: 'draft_translation_id'
 
@@ -42,6 +43,7 @@ class Draft::Translation < ApplicationRecord
 
   scope :with_footnotes, -> { where "footnotes_count > 0" }
   scope :without_footnotes, -> { where "footnotes_count = 0" }
+  scope :with_mismatch_footnote, -> { where "footnotes_count != current_footnotes_count" }
 
   def text=(val)
     self.draft_text = val
@@ -144,9 +146,9 @@ class Draft::Translation < ApplicationRecord
   end
 
   def original_footnotes_ids
-    translation = original_translation
+    t = original_translation
 
-    if translation
+    if t
       translation.text.scan(REGEXP_FOOTNOTE_ID).flatten.map(&:to_i)
     else
       []

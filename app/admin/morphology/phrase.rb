@@ -14,7 +14,7 @@ ActiveAdmin.register Morphology::Phrase do
   filter :updated_at
 
   action_item :export_csv, only: :index, if: -> { can? :download, :from_admin } do
-    link_to 'Export CSV', export_approved_admin_morphology_phrases_path(format: :json)
+    link_to 'Export CSV', export_approved_cms_morphology_phrases_path(format: :json)
   end
 
   action_item :fix, only: :show do
@@ -30,7 +30,7 @@ ActiveAdmin.register Morphology::Phrase do
   end
 
   action_item :approve, only: :show, if: -> { can? :update, resource } do
-    link_to approve_admin_morphology_phrase_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to approve_cms_morphology_phrase_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
@@ -39,7 +39,7 @@ ActiveAdmin.register Morphology::Phrase do
     authorize! :update, resource
 
     resource.toggle_approve!
-    redirect_to [:admin, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
+    redirect_to [:cms, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
   end
 
   index do
@@ -69,7 +69,7 @@ ActiveAdmin.register Morphology::Phrase do
         div resource.text_qpc_hafs, class: 'quran-text qpc-hafs'
       end
       row :source_verse do
-        div link_to(resource.source_verse.verse_key, [:admin, resource.source_verse]) if resource.source_verse
+        div link_to(resource.source_verse.verse_key, [:cms, resource.source_verse]) if resource.source_verse
       end
       row :word_position_from
       row :word_position_to
@@ -105,12 +105,12 @@ ActiveAdmin.register Morphology::Phrase do
       if (can? :update, Morphology::MatchingVerse)
         div do
           span do
-            link_to 'Approve all', approve_admin_morphology_phrase_verse_path(resource, all: true, toggle: '1'),
+            link_to 'Approve all', approve_cms_morphology_phrase_verse_path(resource, all: true, toggle: '1'),
                     method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
           end
 
           span do
-            link_to 'Disapprove all', approve_admin_morphology_phrase_verse_path(resource, all: true, toggle: '0'),
+            link_to 'Disapprove all', approve_cms_morphology_phrase_verse_path(resource, all: true, toggle: '0'),
                     method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
           end
         end
@@ -129,15 +129,15 @@ ActiveAdmin.register Morphology::Phrase do
             verse = verses[v.verse_id]
 
             tr do
-              td link_to v.id, [:admin, v]
-              td link_to verse.verse_key, [:admin, verse]
+              td link_to v.id, [:cms, v]
+              td link_to verse.verse_key, [:cms, verse]
               td  do
                 status_tag v.approved?
 
                 div class: 'd-flex flex-column' do
                 if(can? :update, Morphology::MatchingVerse)
                     span class: 'my-2' do
-                      link_to approve_admin_morphology_phrase_verse_path(v),
+                      link_to approve_cms_morphology_phrase_verse_path(v),
                               class: "btn #{v.approved? ? 'btn-danger' : 'btn-success'} btn-sm text-white",
                               method: :put,
                               data: { remote: true, confirm: 'Are you sure?' } do
@@ -147,7 +147,7 @@ ActiveAdmin.register Morphology::Phrase do
 
                     if resource.source_verse_id && v.verse_id != resource.source_verse_id
                       span id: dom_id(v) do
-                        link_to create_matching_ayah_admin_morphology_phrase_verse_path(v), method: :put,
+                        link_to create_matching_ayah_cms_morphology_phrase_verse_path(v), method: :put,
                                 class: 'btn btn-sm btn-info text-white', data: { remote: true, confirm: 'Are you sure?' } do
                           'Create Matching ayah'
                         end
@@ -186,7 +186,7 @@ ActiveAdmin.register Morphology::Phrase do
         tbody do
           resource.similar_phrases.each do |phrase|
             tr do
-              td link_to(phrase.id, [:admin, phrase])
+              td link_to(phrase.id, [:cms, phrase])
               td phrase.review_status
               td phrase.approved? ? 'Yes' : 'No'
               td phrase.occurrence

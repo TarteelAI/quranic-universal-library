@@ -43,7 +43,7 @@ module Audio
           file = meta_response[:file]
 
           meta = WahWah.open(file)
-          duration = meta.duration || calculate_duration(file)
+          duration = (meta.duration || calculate_duration(file)).to_f
 
           audio_file.attributes = {
             file_size: meta_response[:size].to_i,
@@ -79,7 +79,7 @@ module Audio
           file = meta_response[:file]
 
           meta = WahWah.open(file)
-          duration = meta.duration || calculate_duration(file)
+          duration = (meta.duration || calculate_duration(file)).to_f
 
           audio_file.attributes = {
             file_size: meta_response[:size].to_i,

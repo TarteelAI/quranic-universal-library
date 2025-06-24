@@ -181,6 +181,8 @@ class DownloadableResource < ApplicationRecord
       'Hizb info'
     when ResourceContent::CardinalityType::OnePhrase
       'Phrase'
+    when ResourceContent::CardinalityType::Quran
+      'Quran'
     when '1_sajda'
       'Sajda info'
     end

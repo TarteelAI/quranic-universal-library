@@ -1,0 +1,15 @@
+verses = @presenter.select2
+pagination = @presenter.pagination
+
+json.results do
+  json.array! verses do |item|
+    json.id item.verse_key
+    json.name item.verse_key
+    json.text item.verse_key
+  end
+end
+
+json.pagination do
+  json.more !!pagination.next
+end
+

@@ -13,6 +13,7 @@ module LayoutExporter
         "2": "qpc_v1",
         "6": "indopak_15_lines",
         "17": "indopak_13_lines",
+        "19": "qpc_v4"
       }
 
       mapping[@mushaf.id.to_s.to_sym]

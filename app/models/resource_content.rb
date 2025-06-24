@@ -463,9 +463,8 @@ class ResourceContent < QuranApiRecord
 
     set_meta_value('last-import-at', Time.zone.now.strftime('%B %d, %Y at %I:%M %P'))
     if quran_enc_key.present?
-      resource.set_meta_value('quranenc-imported-version', delete_meta_value('draft-quranenc-import-version'))
-      resource.set_meta_value('quranenc-imported-timestamp', delete_meta_value('draft-quranenc-import-timestamp'))
-      delete_meta_value('draft-quranenc-import-date')
+      set_meta_value('quranenc-imported-version', delete_meta_value('draft-quranenc-import-version'))
+      set_meta_value('quranenc-imported-timestamp', delete_meta_value('draft-quranenc-import-timestamp'))
     end
     save(validate: false)
 

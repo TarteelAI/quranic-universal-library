@@ -8,6 +8,7 @@ namespace :grammar do
     mushaf.save
 
     qpc_hafs = Mushaf.find(5)
+
     JOINING_LETTERS = %w[ب ت ث ج ح خ س ش ص ض ط ظ ع غ ف ق ك ل م ن هـ ي]
     TASHKEEL_REGEX = /[\u0610-\u061A\u064B-\u065F\u0670]/
 
@@ -42,7 +43,7 @@ namespace :grammar do
 
         if segment.part_of_speech_key.present?
           if current_segment < segment_size
-          text = add_zero_width_joiner(text)
+            text = add_zero_width_joiner(text)
           end
           "<span class='#{segment.part_of_speech_key.downcase} #{segment.get_segment_color}'>#{text}</span>"
         else

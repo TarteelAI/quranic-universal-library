@@ -29,6 +29,21 @@
 #  index_morphology_phrases_on_words_count         (words_count)
 #
 class Morphology::Phrase < ApplicationRecord
+  PHRASE_COLORS = [
+    '#0498CC',
+    '#7695E5',
+    '#9D85FF',
+    '#B337FF',
+    '#DC65E7',
+    '#D47A27',
+    '#A1B623',
+    '#26B190',
+    '#6288C0',
+    '#B085C7',
+    '#8373E2',
+    '#C081BA',
+  ]
+
   has_many :phrase_verses, dependent: :delete_all
   belongs_to :source_verse, class_name: 'Verse', optional: true
 
@@ -36,10 +51,12 @@ class Morphology::Phrase < ApplicationRecord
   after_commit :update_verses_stats, on: [:create, :update]
 
   def update_verses_stats
+    verses = phrase_verses.approved.map(&:verse)
+
     attrs = {
-      occurrence: phrase_verses.pluck(:verse_id).size,
-      chapters_count: chapters.keys.size,
-      verses_count: phrase_verses.pluck(:verse_id).uniq.size,
+      occurrence: phrase_verses.approved.size,
+      chapters_count: verses.pluck(:chapter_id).uniq.size,
+      verses_count: verses.uniq.size,
     }
 
     if word_position_to && word_position_from
@@ -51,25 +68,11 @@ class Morphology::Phrase < ApplicationRecord
     update_columns(attrs)
   end
 
-  def color
+  def get_color
     return @color if @color
-    red = rand(256)
-    green = rand(256)
-    blue = rand(256)
 
-    # Calculate the luminance (brightness) of the color
-    luminance = 0.299 * red + 0.587 * green + 0.114 * blue
-
-    # Ensure sufficient contrast with white background
-    while luminance > 200
-      red = rand(256)
-      green = rand(256)
-      blue = rand(256)
-      luminance = 0.299 * red + 0.587 * green + 0.114 * blue
-    end
-
-    # Convert RGB values to hexadecimal
-    @color = "#%02X%02X%02X" % [red, green, blue]
+    color_index = djb2_hash(id.to_s)
+    PHRASE_COLORS[ color_index % PHRASE_COLORS.size ]
   end
 
   def similar_phrases
@@ -128,5 +131,14 @@ class Morphology::Phrase < ApplicationRecord
     Morphology::Phrase.where(occurrence: [nil,0]).each do |p|
       p.update_verses_stats
     end
+  end
+
+  protected
+  def djb2_hash(str)
+    hash = 5381
+    str.each_byte do |byte|
+      hash = ((hash * 33) ^ byte)
+    end
+    hash & 0xffffffff
   end
 end

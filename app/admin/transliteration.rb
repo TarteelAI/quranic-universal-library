@@ -33,7 +33,7 @@ ActiveAdmin.register Transliteration do
     id_column
 
     column :language do |resource|
-      link_to resource.language_name, admin_language_path(resource.language_id)
+      link_to resource.language_name, cms_language_path(resource.language_id)
     end
 
     column :resource_type

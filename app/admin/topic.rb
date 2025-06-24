@@ -66,7 +66,7 @@ ActiveAdmin.register Topic do
       row :related_topics do
         div do
           resource.related_topics.includes(:related_topic).each do |rt|
-            span link_to(rt.related_topic.name, [:admin, rt.related_topic])
+            span link_to(rt.related_topic.name, [:cms, rt.related_topic])
           end
         end
       end
@@ -78,7 +78,7 @@ ActiveAdmin.register Topic do
         div do
           resource.verse_topics.includes(verse: :words).each do |verse_topic|
             div class: 'qpc-hafs quran-text' do
-              link_to([:admin, verse_topic.verse]) do
+              link_to([:cms, verse_topic.verse]) do
                 span verse_topic.verse.verse_key, title: "(tematic: #{verse_topic.thematic?}, ontology: #{verse_topic.ontology?})"
                 verse_topic.verse.words.each do |w|
                   span w.text_qpc_hafs, class: "#{'text-success' if verse_topic.topic_words.include?(w.position)}"

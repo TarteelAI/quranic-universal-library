@@ -191,7 +191,7 @@
         <% @verse.words.order('position asc').each do |word| %>
           <tr class="quran-text">
             <td>
-              <%= link_to( word.location, [:admin, word], target: '_blank') %>
+              <%= link_to( word.location, [:cms, word], target: '_blank') %>
             </td>
 
             <td class="indopak char">

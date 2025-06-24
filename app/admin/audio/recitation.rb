@@ -42,15 +42,15 @@ ActiveAdmin.register Recitation do
 
   action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_', id: 'validate-segments',
-            data: { controller: 'ajax-modal', url: validate_segments_admin_recitation_path(resource) }
+            data: { controller: 'ajax-modal', url: validate_segments_cms_recitation_path(resource) }
   end
 
   action_item :generate_audio, only: :show, if: -> { can?(:manage, resource) && resource.missing_audio_files? } do
-    link_to 'Generate Audio files', refresh_meta_admin_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
+    link_to 'Generate Audio files', refresh_meta_cms_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
   end
 
   action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_admin_recitation_path(resource), method: :put, data: { confirm: "Are you sure to update metadata of audio files?" }
+    link_to 'Refresh Meta', refresh_meta_cms_recitation_path(resource), method: :put, data: { confirm: "Are you sure to update metadata of audio files?" }
   end
 
   action_item :view_segments, only: :show do
@@ -61,7 +61,7 @@ ActiveAdmin.register Recitation do
     link_to 'Download segments', '#_',
             data: {
               controller: 'ajax-modal',
-              url: download_segments_admin_recitation_path(resource)
+              url: download_segments_cms_recitation_path(resource)
             }
   end
 
@@ -69,7 +69,7 @@ ActiveAdmin.register Recitation do
     link_to 'Upload segments', '#_',
             data: {
               controller: 'ajax-modal',
-              url: upload_segments_admin_recitation_path(resource)
+              url: upload_segments_cms_recitation_path(resource)
             }
   end
 
@@ -85,7 +85,7 @@ ActiveAdmin.register Recitation do
 
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
-    redirect_to [:admin, resource], notice: notice
+    redirect_to [:cms, resource], notice: notice
   end
 
   member_action :upload_segments, method: ['get', 'put'] do
@@ -93,7 +93,7 @@ ActiveAdmin.register Recitation do
 
     if request.put?
       if resource.segment_locked?
-        return redirect_to [:admin, resource], alert: "Segments data is locked, please contact admins."
+        return redirect_to [:cms, resource], alert: "Segments data is locked, please contact admins."
       end
 
       file = params[:file].path
@@ -110,7 +110,7 @@ ActiveAdmin.register Recitation do
         remove_existing: remove_existing
       )
 
-      redirect_to [:admin, resource], notice: 'Segment data will be imported shortly.'
+      redirect_to [:cms, resource], notice: 'Segment data will be imported shortly.'
     else
       render partial: 'admin/upload_segments'
     end
@@ -158,12 +158,12 @@ ActiveAdmin.register Recitation do
       row :qirat_type
       row :reciter_name
       row :recitation_style do |r|
-        link_to r.recitation_style.name, [:admin, r.recitation_style] if r.recitation_style
+        link_to r.recitation_style.name, [:cms, r.recitation_style] if r.recitation_style
       end
 
       row :resource_content do |r|
         if r.resource_content
-          link_to "#{r.resource_content.id}-#{r.resource_content.name}", [:admin, r.resource_content]
+          link_to "#{r.resource_content.id}-#{r.resource_content.name}", [:cms, r.resource_content]
         end
       end
 
@@ -201,7 +201,7 @@ ActiveAdmin.register Recitation do
 
   sidebar 'Audio files', only: :show do
     div do
-      link_to 'View audio files', "/admin/audio_files?utf8=✓&q%5Brecitation_id_eq%5D=#{resource.id}"
+      link_to 'View audio files', "/cms/audio_files?utf8=✓&q%5Brecitation_id_eq%5D=#{resource.id}"
     end
   end
 
@@ -235,6 +235,6 @@ ActiveAdmin.register Recitation do
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
-    redirect_back(fallback_location: '/admin', notice: 'Recitation segments db will be shared via email.')
+    redirect_back(fallback_location: '/cms', notice: 'Recitation segments db will be shared via email.')
   end
 end

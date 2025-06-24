@@ -88,13 +88,13 @@ ActiveAdmin.register Lemma do
         tbody do
           verses.each do |verse|
             tr do
-              td link_to(verse.verse_key, admin_verse_path(verse))
+              td link_to(verse.verse_key, cms_verse_path(verse))
               td class: 'quran-text qpc-hafs' do
                 verse.words.map do |word|
                   if words_ids.include?(word.id)
-                    "<a class=text-success href='/admin/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
+                    "<a class=text-success href='/cms/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
                   else
-                    "<a href='/admin/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
+                    "<a href='/cms/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
                   end
                 end.join(' ').html_safe
               end

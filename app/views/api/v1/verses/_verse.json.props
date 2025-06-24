@@ -1,0 +1,25 @@
+include_translations = @presenter.render_translations?
+include_words = @presenter.render_words?
+
+word_locals = {
+  fields: @presenter.word_fields,
+  translation: @presenter.render_word_translation?
+}
+
+verse_fields = @presenter.verse_fields
+
+json.verse do
+  json.extract! verse, :id, :verse_key, :page_number, *verse_fields
+
+  if include_words
+    json.words do
+      json.array! verse.words, partial: ['word', locals: word_locals]
+    end
+  end
+
+  if include_translations
+   json.translations do
+     json.array! verse.translations, partial: 'translation'
+   end
+  end
+end

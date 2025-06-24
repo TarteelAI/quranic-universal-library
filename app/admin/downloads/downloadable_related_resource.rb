@@ -27,13 +27,13 @@ ActiveAdmin.register DownloadableRelatedResource do
       row :downloadable_resource do
         link_to(
           resource.downloadable_resource.humanize,
-          [:admin, resource.downloadable_resource]
+          [:cms, resource.downloadable_resource]
         ) if resource.downloadable_resource
       end
       row :related_resource do
         link_to(
           resource.related_resource.humanize,
-          [:admin, resource.related_resource]
+          [:cms, resource.related_resource]
         ) if resource.related_resource
       end
 

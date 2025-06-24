@@ -1,15 +1,14 @@
 verses = @presenter.verses
 pagination = @presenter.pagination
 
-json.results do
-  json.array! verses do |item|
-    json.id item.verse_key
-    json.name item.verse_key
-    json.text item.verse_key
-  end
+json.verses do
+  json.array! verses, partial: 'verse'
 end
 
 json.pagination do
-  json.more !!pagination.next
+  json.next_page pagination.next
+  json.previous_page pagination.prev
+  json.total_pages pagination.pages
+  json.total_count pagination.count
 end
 

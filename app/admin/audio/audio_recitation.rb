@@ -51,24 +51,24 @@ ActiveAdmin.register Audio::Recitation do
     end
   )
   action_item :generate_audio, only: :show, if: -> { can?(:manage, resource) && resource.missing_audio_files? } do
-    link_to 'Generate Audio files', refresh_meta_admin_audio_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
+    link_to 'Generate Audio files', refresh_meta_cms_audio_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
   end
 
   action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_admin_audio_recitation_path(resource), method: :put, data: {confirm: 'Are you sure to update metadata of audio files?'}
+    link_to 'Refresh Meta', refresh_meta_cms_audio_recitation_path(resource), method: :put, data: {confirm: 'Are you sure to update metadata of audio files?'}
   end
 
   action_item :split_to_gapped, only: :show, if: -> { can? :manage, resource } do
     link_to 'Generate Gapped recitation', '#_',
             id: 'validate-segments',
-            data: { controller: 'ajax-modal', url: split_to_gapped_admin_audio_recitation_path(resource) }
+            data: { controller: 'ajax-modal', url: split_to_gapped_cms_audio_recitation_path(resource) }
   end
 
   action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_', id: 'validate-segments',
             data: {
               controller: 'ajax-modal',
-              url: validate_segments_admin_audio_recitation_path(resource)
+              url: validate_segments_cms_audio_recitation_path(resource)
             }
   end
 
@@ -80,7 +80,7 @@ ActiveAdmin.register Audio::Recitation do
     link_to 'Upload segments', '#_',
             data: {
               controller: 'ajax-modal',
-              url: upload_segments_admin_audio_recitation_path(resource)
+              url: upload_segments_cms_audio_recitation_path(resource)
             }
   end
 
@@ -88,7 +88,7 @@ ActiveAdmin.register Audio::Recitation do
     link_to 'Download segments', '#_',
             data: {
               controller: 'ajax-modal',
-              url: download_segments_admin_audio_recitation_path(resource)
+              url: download_segments_cms_audio_recitation_path(resource)
             }
   end
 
@@ -104,7 +104,7 @@ ActiveAdmin.register Audio::Recitation do
 
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
-    redirect_to [:admin, resource], notice: notice
+    redirect_to [:cms, resource], notice: notice
   end
 
 
@@ -142,7 +142,7 @@ ActiveAdmin.register Audio::Recitation do
       # Restart sidekiq if it's not running
       Utils::System.start_sidekiq
 
-      return redirect_to [:admin, resource], alert: "Ayah by ayah gapped recitation will be generated shortly."
+      return redirect_to [:cms, resource], alert: "Ayah by ayah gapped recitation will be generated shortly."
     end
   end
 
@@ -151,7 +151,7 @@ ActiveAdmin.register Audio::Recitation do
 
     if request.put?
       if resource.segment_locked?
-        return redirect_to [:admin, resource], alert: "Segments data is locked, please contact admins."
+        return redirect_to [:cms, resource], alert: "Segments data is locked, please contact admins."
       end
 
       file = params[:file].path
@@ -168,7 +168,7 @@ ActiveAdmin.register Audio::Recitation do
         remove_existing: remove_existing
       )
 
-      redirect_to [:admin, resource], notice: 'Segment data will be imported shortly.'
+      redirect_to [:cms, resource], notice: 'Segment data will be imported shortly.'
     else
       render partial: 'admin/upload_segments'
     end
@@ -187,7 +187,7 @@ ActiveAdmin.register Audio::Recitation do
         send_file file, filename: "segments-#{resource.id}.#{format}"
       rescue => e
         flash[:error] = e.message
-        redirect_to [:admin, resource]
+        redirect_to [:cms, resource]
       end
     else
       render partial: 'admin/download_segments'
@@ -262,7 +262,7 @@ ActiveAdmin.register Audio::Recitation do
         tbody do
           audio_files.order('chapter_id ASC').each do |r|
             tr class: "#{'bg-warning' if r.has_missing_segments?}" do
-              td link_to(r.id, [:admin, r])
+              td link_to(r.id, [:cms, r])
               td r.chapter_id
               td r.audio_url
               td r.chapter&.verses_count
@@ -315,7 +315,7 @@ ActiveAdmin.register Audio::Recitation do
       tbody do
         resource.audio_change_logs.each do |log|
           tr do
-            td link_to(log.id, [:admin, log])
+            td link_to(log.id, [:cms, log])
             td log.mini_desc
           end
         end
@@ -336,7 +336,7 @@ ActiveAdmin.register Audio::Recitation do
             related = recitation.related_audio_recitation
             td do
               if related
-                link_to(related.id, [:admin, related])
+                link_to(related.id, [:cms, related])
               else
                 "Missing - #{recitation.id}"
               end

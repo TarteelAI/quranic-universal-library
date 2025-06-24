@@ -17,7 +17,8 @@ class ExportMushafLayout
     # 8, # Indopak 14 lines Pak company has wrong line alignments data
     17, # Indopak 13 lines
     20, # Digital Khatt v2
-    22, # Digital Khatt v1
+    22, # Digital Khatt v1,
+    19, # V4 1441h print
   ]
   attr_accessor :mushafs,
                 :stats

@@ -106,6 +106,10 @@ class Word < QuranApiRecord
   has_many :morphology_word_segments, class_name: 'Morphology::WordSegment'
   has_one :tajweed_word
 
+  # for eager loading
+  has_one :mushaf_word
+  has_one :word_translation
+ 
   # has_one :pause_mark
   has_one :morphology_word, class_name: 'Morphology::Word'
 

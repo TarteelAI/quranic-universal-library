@@ -1,0 +1,18 @@
+mushaf_word = word.mushaf_word
+
+json.id word.word_index
+json.location word.location
+json.text mushaf_word.text
+json.position word.position
+json.line_number mushaf_word.line_number
+json.page_number mushaf_word.page_number
+
+if fields.present?
+ json.extract! word, *fields
+end
+
+if translation
+ json.translation do
+  json.extract! word.word_translation, :text
+ end
+end

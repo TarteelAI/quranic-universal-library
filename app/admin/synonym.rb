@@ -47,7 +47,7 @@ ActiveAdmin.register Synonym do
                 td word.id
                 td word.location
                 td link_to(word.text_uthmani_simple,
-                           "/admin/words?utf8=%E2%9C%93&q%5Btext_uthmani_simple_eq%5D=#{word.text_uthmani_simple}")
+                           "/cms/words?utf8=%E2%9C%93&q%5Btext_uthmani_simple_eq%5D=#{word.text_uthmani_simple}")
               end
             end
           end

@@ -23,7 +23,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
   includes :matched_verse, :verse
 
   action_item :export_csv, only: :index, if: -> { can? :download, :from_admin } do
-    link_to "Export CSV", export_csv_admin_morphology_matching_verses_path(format: :json), method: :post
+    link_to "Export CSV", export_csv_cms_morphology_matching_verses_path(format: :json), method: :post
   end
 
   collection_action :export_csv, method: :post do
@@ -36,7 +36,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
   end
 
   action_item :approve, only: :show do
-    link_to approve_admin_morphology_matching_verse_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
+    link_to approve_cms_morphology_matching_verse_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
@@ -47,7 +47,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
     if request.xhr?
       render partial: 'admin/update_morphology_resource_approval'
     else
-      redirect_to [:admin, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
+      redirect_to [:cms, resource], notice: resource.approved? ? 'Approved successfully' : 'Un approved successfully'
     end
   end
 
@@ -55,16 +55,16 @@ ActiveAdmin.register Morphology::MatchingVerse do
     id_column
     column :approved
     column :verse, sortable: :verse_id do |r|
-      link_to r.verse.verse_key, [:admin, r.verse]
+      link_to r.verse.verse_key, [:cms, r.verse]
     end
     column :matched_verse, sortable: :matched_verse_id do |r|
-      link_to r.matched_verse.verse_key, [:admin, r.matched_verse]
+      link_to r.matched_verse.verse_key, [:cms, r.matched_verse]
     end
     column :chapter, sortable: :chapter_id do |r|
-      link_to r.chapter_id, admin_chapter_path(r.chapter_id)
+      link_to r.chapter_id, cms_chapter_path(r.chapter_id)
     end
     column :matched_chapter, sortable: :matched_chapter_id do |r|
-      link_to r.matched_chapter_id, admin_chapter_path(r.matched_chapter_id)
+      link_to r.matched_chapter_id, cms_chapter_path(r.matched_chapter_id)
     end
     column :score
     column :coverage
@@ -78,19 +78,19 @@ ActiveAdmin.register Morphology::MatchingVerse do
       row :approved
       row :chapter do
         c = resource.chapter
-        link_to(c.name, [:admin, c])
+        link_to(c.name, [:cms, c])
       end
 
       row :matched_chapter do
         c = resource.matched_chapter
-        link_to(c.name, [:admin, c])
+        link_to(c.name, [:cms, c])
       end
 
       row :verse do
         c = resource.verse
 
         div class: 'd-flex' do
-          span link_to(c.verse_key, [:admin, c])
+          span link_to(c.verse_key, [:cms, c])
           span c.text_qpc_hafs, class: 'quran-text qpc-hafs'
         end
       end
@@ -100,7 +100,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
           c = resource.matched_verse
           positions = resource.matched_word_positions.map(&:to_i)
 
-          span link_to(c.verse_key, [:admin, c])
+          span link_to(c.verse_key, [:cms, c])
 
           span do
           c.words.map do |w|
@@ -141,8 +141,8 @@ ActiveAdmin.register Morphology::MatchingVerse do
               positions = matching.matched_word_positions.map(&:to_i)
 
               tr do
-                td "#{i + 1} - #{link_to matching_verse.id, [:admin, matching]}".html_safe
-                td link_to(matching_verse.verse_key, [:admin, matching_verse])
+                td "#{i + 1} - #{link_to matching_verse.id, [:cms, matching]}".html_safe
+                td link_to(matching_verse.verse_key, [:cms, matching_verse])
                 td matching.score
                 td matching.coverage
 
@@ -150,7 +150,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
                   status_tag matching.approved?
 
                   span do
-                    link_to approve_admin_morphology_matching_verse_path(matching), method: :put, id: dom_id(matching), data: { remote: true, confirm: 'Are you sure?' } do
+                    link_to approve_cms_morphology_matching_verse_path(matching), method: :put, id: dom_id(matching), data: { remote: true, confirm: 'Are you sure?' } do
                       matching.approved? ? 'Un Approve!' : 'Approve!'
                     end
                   end

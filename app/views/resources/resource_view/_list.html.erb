@@ -48,7 +48,7 @@
       </td>
 
       <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
-        <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+        <%= render 'card/card-description', description: card.humanize_cardinality_type %>
       </td>
 
       <% if @resources.any? { |card| card.get_tags.present? } %>

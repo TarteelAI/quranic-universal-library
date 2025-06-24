@@ -12,7 +12,7 @@
 #  file_name           :string
 #  file_size           :float
 #  format              :string
-#  meta_data           :jsonb
+#  metadata            :jsonb
 #  mime_type           :string
 #  segments_count      :integer          default(0)
 #  stream_count        :integer
@@ -41,6 +41,10 @@ module Audio
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :chapter
     has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: 'audio_file_id'
+
+    def one_ayah?
+      false
+    end
 
     def has_audio_meta_data?
       [duration, bit_rate, file_size, mime_type].all?(&:present?)

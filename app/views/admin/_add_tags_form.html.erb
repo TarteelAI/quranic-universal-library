@@ -1,5 +1,5 @@
 <div class="mt-2">
-  <%= semantic_form_for ResourceTag.new, url: admin_resource_tags_path, method: :post do |form| %>
+  <%= semantic_form_for ResourceTag.new, url: cms_resource_tags_path, method: :post do |form| %>
     <ul class="m-0 mb-1">
       <%= form.hidden_field :resource_id, value: resource.id %>
       <%= form.hidden_field :resource_type, value: resource.class.to_s %>

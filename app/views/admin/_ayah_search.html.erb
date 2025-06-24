@@ -1,6 +1,6 @@
 <p>Search from Quran</p>
 
-<%= semantic_form_for admin_verses_path, method: :get do |form| %>
+<%= semantic_form_for cms_verses_path, method: :get do |form| %>
   <ul class="mb-2">
     <%= form.input(:query, as: :string, input_html: { name: 'query' }) %>
   </ul>
@@ -33,7 +33,7 @@
         <% verses.each do |result| %>
           <tr>
             <td>
-              <%= link_to result['verse_key'], admin_verse_path(result['verse_key']), target: '_blank' %>
+              <%= link_to result['verse_key'], cms_verse_path(result['verse_key']), target: '_blank' %>
             </td>
 
             <td>

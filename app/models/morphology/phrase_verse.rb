@@ -42,6 +42,10 @@ class Morphology::PhraseVerse < ApplicationRecord
     matching
   end
 
+  def highlight_word?(word)
+    word.position >= word_position_from && word.position <= word_position_to
+  end
+
   def text
     if word_position_from && word_position_to
       verse

@@ -1,6 +1,6 @@
 <% access = UserProject.new %>
 
-<%= form_for access, url: [:admin, access], method: :post do |form| %>
+<%= form_for access, url: [:cms, access], method: :post do |form| %>
   <%= form.hidden_field :user_id, value: resource.id %>
 
   <div class="form-group mb-2">

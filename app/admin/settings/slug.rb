@@ -37,7 +37,7 @@ ActiveAdmin.register Slug do
       chapter = Chapter.find(p[:chapter_id])
       chapter.add_slug(p[:slug], p[:locale])
 
-      redirect_to [:admin, chapter], notice: 'Slug created'
+      redirect_to [:cms, chapter], notice: 'Slug created'
     end
   end
 end

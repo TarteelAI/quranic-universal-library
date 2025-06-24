@@ -1,12 +1,21 @@
 Rails.application.routes.draw do
+  # Redirect old admin paths to new CMS paths
+  get '/admin', to: redirect('/cms', status: 301)
+  get '/admin/*path', to: redirect(status: 301) { |params, _req| "/cms/#{params[:path]}" }
+
   ActiveAdmin.routes(self)
 
   root to: 'landing#home'
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :chapters, only: [:index, :show]
-      resources :verses, only: [:index, :show]
+      resources :chapters, only: [:index, :show] do
+        member do
+          get 'verses', to: 'verses#index', filter: 'by_chapter'
+        end
+      end
+
+      get '/verses/select2', to: 'verses#select2'
     end
   end
 
@@ -18,7 +27,8 @@ Rails.application.routes.draw do
   get 'credits', to: 'community#credits', as: :credits
   get 'faq', to: 'community#faq', as: :faq
   get 'contributors', to: 'community#contributors', as: :contributors
-
+  get '/compare_ayah', to: 'verses#compare', as: :compare_ayah
+  
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"
 
@@ -35,7 +45,11 @@ Rails.application.routes.draw do
   resources :tajweed_words, except: [:new, :destroy]
   get 'tajweed_rule/:rule', to: 'tajweed_words#rule_doc', as: :tajweed_rule
 
-  resources :morphology_phrases
+  resources :morphology_phrases do
+    member do
+      get :phrase_verses
+    end
+  end
   resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file

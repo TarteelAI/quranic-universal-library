@@ -98,7 +98,7 @@
       <tbody>
       <% @word.word_segments.each do |segment| %>
         <tr>
-          <td><%= link_to segment.position, [:admin, segment], target: '_blank' %></td>
+          <td><%= link_to segment.position, [:cms, segment], target: '_blank' %></td>
 
           <td class="quran me_quran">
             <%= segment.text_uthmani %>

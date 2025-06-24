@@ -11,7 +11,7 @@ module V1
 
     protected
     def eager_load_best_names(chapters)
-      language = Language.find_with_id_or_iso_code(api_locale)
+      language = Language.find_with_id_or_iso_code(locale)
       default_lang = Language.default
 
       if language.nil? || language.english?

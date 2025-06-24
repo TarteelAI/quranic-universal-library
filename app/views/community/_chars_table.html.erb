@@ -28,7 +28,7 @@
         <tbody>
           <% words.each do |word| %>
           <tr>
-            <td><%= link_to word.location, admin_word_path(word) %></td>
+            <td><%= link_to word.location, cms_word_path(word) %></td>
             <td>
               <div class="char <%= params[:font] %>" data-controller="tajweed-highlight">
                 <% if script.include?('tajweed') %>

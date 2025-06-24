@@ -26,12 +26,17 @@ ActiveAdmin.register Translation do
   filter :created_at
   filter :updated_at
 
+  action_item :view_export_data, only: :show, if: -> { can? :manage, resource } do
+    link_to 'View export data', '#_',
+            data: { controller: 'ajax-modal', url: view_export_data_cms_translation_path(resource) }
+  end
+
   index do
     id_column
 
     column :language, &:language_name
     column :verse_id do |resource|
-      link_to resource.verse_key, admin_verse_path(resource.verse_id)
+      link_to resource.verse_key, cms_verse_path(resource.verse_id)
     end
     column :text, sortable: :text do |resource|
       resource.text.first(100)
@@ -46,11 +51,11 @@ ActiveAdmin.register Translation do
     attributes_table do
       row :id
       row :verse do |resource|
-        link_to resource.verse.verse_key, admin_verse_path(resource.verse)
+        link_to resource.verse.verse_key, cms_verse_path(resource.verse)
       end
       row :resource_content do
         r = resource.get_resource_content
-        link_to(r.name, [:admin, r])
+        link_to(r.name, [:cms, r])
       end
       row :language
       row :priority
@@ -80,8 +85,8 @@ ActiveAdmin.register Translation do
         tbody do
           resource.foot_notes.each do |foot_note|
             tr do
-              td link_to foot_note.id, admin_foot_note_path(foot_note)
-              td foot_note.text
+              td link_to foot_note.id, cms_foot_note_path(foot_note)
+              td safe_html(foot_note.text)
               td foot_note.created_at
               td foot_note.updated_at
             end
@@ -94,6 +99,10 @@ ActiveAdmin.register Translation do
     ActiveAdminViewHelpers.compare_panel(self, resource) if params[:compare]
 
     active_admin_comments
+  end
+
+  member_action :view_export_data, method: :get do
+    render partial: 'admin/translation/export_data'
   end
 
   permit_params do

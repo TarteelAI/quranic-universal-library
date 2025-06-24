@@ -15,14 +15,14 @@
         <ul>
           <% ayah_recitations.each do |r| %>
             <li>
-              <a href="<%= admin_recitation_path(r) %>" target="_blank"><%= r.name %></a>
+              <a href="<%= cms_recitation_path(r) %>" target="_blank"><%= r.name %></a>
             </li>
           <% end %>
         </ul>
       </div>
     <% end %>
 
-    <%= form_with url: split_to_gapped_admin_audio_recitation_path(resource), method: :put do |form| %>
+    <%= form_with url: split_to_gapped_cms_audio_recitation_path(resource), method: :put do |form| %>
       <div class="alert alert-info">
         This feature allows you to convert Surah segments into individual ayahs and,
         if enabled, divide the audio files to ayah by ayah as well.

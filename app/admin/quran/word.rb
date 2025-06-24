@@ -167,11 +167,11 @@ ActiveAdmin.register Word do
       row :char_type
 
       row :page_number, 'V1 Page' do
-        link_to resource.page_number, "/admin/page?page#{resource.page_number}"
+        link_to resource.page_number, "/cms/page?page#{resource.page_number}"
       end
 
       row :v2_page, 'V2 Page' do
-        link_to resource.v2_page, "/admin/page?page#{resource.v2_page}"
+        link_to resource.v2_page, "/cms/page?page#{resource.v2_page}"
       end
 
       row :text_uthmani, class: 'quran-text' do
@@ -329,26 +329,26 @@ ActiveAdmin.register Word do
         end
       end
 
-      row :word_lemma, class: 'quran-text' do
+      row :lemma, class: 'quran-text' do
         span do
-          if lemma = resource.word_lemma
-            link_to(lemma.to_s, [:admin, lemma], class: 'me_quran')
+          if lemma = resource.lemma
+            link_to(lemma.to_s, [:cms, lemma], class: 'me_quran')
           end
         end
       end
 
-      row :word_stem, class: 'quran-text' do
+      row :stem, class: 'quran-text' do
         span do
-          if stem = resource.word_stem
-            link_to(stem.to_s, [:admin, stem], class: 'me_quran')
+          if stem = resource.stem
+            link_to(stem.to_s, [:cms, stem], class: 'me_quran')
           end
         end
       end
 
       row :root, class: 'quran-text' do
         span do
-          if root = resource.word_root
-            link_to(root.root.value, [:admin, root], class: 'me_quran')
+          if root = resource.root
+            link_to(root.value, [:cms, root], class: 'me_quran')
           end
         end
       end
@@ -356,7 +356,7 @@ ActiveAdmin.register Word do
       row :synonyms do
         resource.synonyms.each do |s|
           span do
-            link_to s.text, [:admin, s], class: 'ml-2'
+            link_to s.text, [:cms, s], class: 'ml-2'
           end
         end
         nil
@@ -382,11 +382,11 @@ ActiveAdmin.register Word do
               mushaf = mushaf_word.mushaf
 
               tr do
-                td link_to(mushaf_word.id, [:admin, mushaf_word])
-                td link_to(mushaf.name, [:admin, mushaf])
+                td link_to(mushaf_word.id, [:cms, mushaf_word])
+                td link_to(mushaf.name, [:cms, mushaf])
                 td mushaf_word.line_number
                 td link_to(mushaf_word.page_number,
-                           "/admin/mushaf_page_preview?mushaf=#{mushaf_word.mushaf_id}&page=#{mushaf_word.page_number}&word=#{mushaf_word.word_id}")
+                           "/cms/mushaf_page_preview?mushaf=#{mushaf_word.mushaf_id}&page=#{mushaf_word.page_number}&word=#{mushaf_word.word_id}")
                 td mushaf_word.position_in_page
                 td mushaf_word.position_in_line
                 td mushaf_word.position_in_verse
@@ -420,7 +420,7 @@ ActiveAdmin.register Word do
         tbody do
           resource.morphology_word_segments.each do |segment|
             tr do
-              td link_to(segment.id, [:admin, segment])
+              td link_to(segment.id, [:cms, segment])
               td do
                 div segment.text_uthmani, class: 'qpc-hafs'
               end
@@ -436,11 +436,11 @@ ActiveAdmin.register Word do
 
   index do
     column :id do |resource|
-      link_to resource.id, admin_word_path(resource)
+      link_to resource.id, cms_word_path(resource)
     end
     column :word_index
     column :verse do |resource|
-      link_to resource.verse_key, admin_verse_path(resource.verse_id)
+      link_to resource.verse_key, cms_verse_path(resource.verse_id)
     end
 
     column :char_type, &:char_type_name
@@ -510,8 +510,8 @@ ActiveAdmin.register Word do
       tbody do
         word.transliterations.each do |trans|
           tr do
-            td link_to(trans.id, [:admin, trans])
-            td link_to(trans.language_name, admin_language_path(trans.language_id)) if trans.language_id
+            td link_to(trans.id, [:cms, trans])
+            td link_to(trans.language_name, cms_language_path(trans.language_id)) if trans.language_id
             td trans.text
           end
         end
@@ -530,8 +530,8 @@ ActiveAdmin.register Word do
       tbody do
         word.word_translations.each do |trans|
           tr do
-            td link_to(trans.id, [:admin, trans])
-            td link_to(trans.language_name, admin_language_path(trans.language_id)) if trans.language_id
+            td link_to(trans.id, [:cms, trans])
+            td link_to(trans.language_name, cms_language_path(trans.language_id)) if trans.language_id
             td trans.text
           end
         end
@@ -546,7 +546,7 @@ ActiveAdmin.register Word do
     include_word_audio = params[:include_word_audio].to_s == 'on'
 
     if mushaf_id.blank? && language.blank?
-      return redirect_back(fallback_location: '/admin',
+      return redirect_back(fallback_location: '/cms',
                            error: 'Please select Mushaf or Translation language( or both ) to export to database.')
     end
 
@@ -566,7 +566,7 @@ ActiveAdmin.register Word do
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
-    redirect_back(fallback_location: '/admin', notice: 'Words dump will be prepared and sent to your email soon')
+    redirect_back(fallback_location: '/cms', notice: 'Words dump will be prepared and sent to your email soon')
   end
 
   controller do
@@ -576,11 +576,11 @@ ActiveAdmin.register Word do
                        :verse,
                        :char_type,
                        :word_translations,
-                       :word_stem,
-                       :word_root,
-                       :word_lemma,
                        :morphology_word_segments,
-                       :derived_words
+                       :derived_words,
+                       :root,
+                       :lemma,
+                       :stem
                      )
 
       if params[:id].to_s.include?(':')

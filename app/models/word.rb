@@ -94,6 +94,8 @@ class Word < QuranApiRecord
   belongs_to :topic, optional: true
   belongs_to :token, optional: true
   belongs_to :root, optional: true
+  belongs_to :lemma, optional: true
+  belongs_to :stem, optional: true
 
   has_many :word_translations
   has_many :transliterations, as: :resource
@@ -107,11 +109,7 @@ class Word < QuranApiRecord
   # for eager loading
   has_one :mushaf_word
   has_one :word_translation
-
-  has_one :word_lemma
-  has_one :lemma, through: :word_lemma
-  has_one :word_stem
-  has_one :stem, through: :word_stem
+ 
   # has_one :pause_mark
   has_one :morphology_word, class_name: 'Morphology::Word'
 

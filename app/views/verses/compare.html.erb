@@ -29,10 +29,15 @@
             </div>
 
             <div class="form-group me-2">
-              <%= f.select :resource,
-                           options_for_select(ResourceContent.translations.one_verse.pluck(:name, :id), params[:resource]),
+              <%= f.select :resource_ids,
+                           options_for_select(ResourceContent.translations.one_verse.pluck(:name, :id), params[:resource_ids]),
                            { prompt: 'Select Translation' },
-                           class: 'form-control', data: {controller: 'select2', placeholder: 'Select Translation'} %>
+                           multiple: true,
+                           class: 'form-control', data: {
+                  controller: 'select2',
+                  multiple: true,
+                  placeholder: 'Select Translation'
+                } %>
               <p class="form-text">Select translation</p>
             </div>
 
@@ -67,9 +72,16 @@
           </div>
 
           <% if @show_translation %>
-            <div class="translation-text mt-3">
-              <%= verse.translation&.text %>
-            </div>
+            <% verse.translations.sort_by { |tr| @translation_ids.index(tr.resource_content_id.to_s) || Float::INFINITY }.each do |tr| %>
+              <div class="translation-text mt-3">
+                <h3 class="tw-mb-2 tw-font-semibold">
+                  (<%= tr.resource_content_id %>)
+                  <%= tr.resource_name %>
+                </h3>
+
+                <%= safe_html tr.text %>
+              </div>
+            <% end %>
           <% end %>
         </div>
       </div>

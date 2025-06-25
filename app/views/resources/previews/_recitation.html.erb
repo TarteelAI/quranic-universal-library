@@ -79,6 +79,81 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
       <div class="tw-space-y-6">
+        <div class="tw-max-w-4xl tw-mx-auto tw-p-6 tw-bg-white tw-shadow-md tw-rounded-md tw-font-sans tw-text-gray-800">
+
+          <p class="tw-text-2xl tw-font-semibold tw-mb-6">
+            QUL supports two types of Quranic recitations audio data:
+          </p>
+
+          <section class="tw-mb-4">
+            <h2 class="tw-font-semibold tw-mb-4">1. Surah-by-Surah (Gapless)</h2>
+            <ul class="tw-list-disc tw-list-inside tw-space-y-1">
+              <li>Contains <strong>114 audio files</strong>, one per surah.</li>
+              <li>Each audio file plays the entire surah continuously without gaps.</li>
+              <li>Often referred to as <em>gapless</em> audio.</li>
+            </ul>
+          </section>
+
+          <section class="tw-mb-4">
+            <h2 class="tw-font-semibold tw-mb-4">2. Ayah-by-Ayah (Gapped)</h2>
+            <ul class="tw-list-disc tw-list-inside tw-space-y-1">
+              <li>Contains <strong>6,236 audio files</strong>, one for each ayah (verse) in the Quran.</li>
+              <li>Each audio file corresponds to a single ayah.</li>
+              <li>Also called <em>gapped</em> audio due to discrete audio segments for each ayah.</li>
+              <li>Useful for playing single ayah without loading the full surah audio.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Ayah-by-Ayah Segments Data Format</h2>
+
+            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+  "surah": &lt;surah_number&gt;,
+  "ayah": &lt;ayah_number&gt;,
+   "audio_url": "audio file url",
+  "segments": [
+    [ &lt;segment_index&gt;, &lt;start_time_ms&gt;, &lt;end_time_ms&gt; ],
+    ...
+  ]
+}</code></pre>
+
+          </section>
+
+          <section>
+            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Surah-by-Surah Segments Data Format</h2>
+
+            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+              "surah:ayah": {
+  "duration_sec": &lt;duration in seconds&gt;,
+   "timestamp_from": "start time of this ayah within audio file",
+  "timestamp_to": "end time of ayah",
+  "segments": [
+    [ &lt;segment_index&gt;, &lt;start_time_ms&gt;, &lt;end_time_ms&gt; ],
+    ...
+  ]}
+}</code></pre>
+          </section>
+
+          <section>
+            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Sample data for surah segment</h2>
+
+            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+  "1:1": {
+    "segments": [
+      [1, 361, 1051],
+      [2, 1051, 1622],
+      [3, 1662, 2763],
+      [4, 2803, 4385]
+    ],
+    "duration_sec": 4,
+    "duration_ms": 4224,
+    "timestamp_from": 361,
+    "timestamp_to": 4585
+  }
+}</code></pre>
+          </section>
+        </div>
+
       </div>
     </div>
   </div>

@@ -110,6 +110,9 @@ group :development do
   gem "letter_opener"
 end
 
+# read excel files
+gem 'roo', '~> 2.9'
+
 gem 'carrierwave', '~> 2.2.6'
 gem 'fog-aws'
 

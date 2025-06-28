@@ -50,9 +50,7 @@ ActiveAdmin.register Translation do
   show do
     attributes_table do
       row :id
-      row :verse do |resource|
-        link_to resource.verse.verse_key, cms_verse_path(resource.verse)
-      end
+
       row :resource_content do
         r = resource.get_resource_content
         link_to(r.name, [:cms, r])
@@ -62,7 +60,14 @@ ActiveAdmin.register Translation do
       row :resource_name
       row :page_number
       row :rub_el_hizb
-
+      row :verse do |resource|
+        div do
+          link_to resource.verse.verse_key, cms_verse_path(resource.verse)
+        end
+        div class: 'qpc-hafs' do
+          resource.verse.text_qpc_hafs
+        end
+      end
       row :text do |resource|
         div class: resource.language_name.to_s.downcase, 'data-controller': 'translation' do
           safe_html resource.text

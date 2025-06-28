@@ -11,7 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2025_06_24_203019) do
-
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -273,7 +272,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_24_203019) do
     t.integer "translation_id"
     t.integer "footnotes_count", default: 0
     t.jsonb "meta_data", default: {}
-    t.integer "current_footnotes_count", default: 0
     t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
@@ -462,9 +460,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_24_203019) do
 
   create_table "quran_table_details", force: :cascade do |t|
     t.string "name"
-    t.integer "records_count"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer "enteries"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "raw_data_ayah_records", force: :cascade do |t|

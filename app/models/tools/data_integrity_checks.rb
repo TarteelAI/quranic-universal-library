@@ -420,6 +420,11 @@ module Tools
           },
           {
             type: :select,
+            name: :exact_compare,
+            collection: [['Yes', '1'], ['No', '0']],
+          },
+          {
+            type: :select,
             collection: translations,
             name: :first_translation
           },
@@ -434,6 +439,7 @@ module Tools
           second_translation_id = params[:second_translation]
           verse_key = params[:verse_key]
           matched = params[:matched]
+          exact_compare = params[:exact_compare] == '1'
 
           if first_translation_id && second_translation_id
             translations = Translation
@@ -445,9 +451,17 @@ module Tools
 
             if matched.present?
               if matched == '1'
-                translations = translations.where("translations.text = tr2.text", verse_key)
+                if exact_compare
+                  translations = translations.where("translations.text = tr2.text", verse_key)
+                else
+                  translations = translations.where("LOWER(translations.text) = LOWER(tr2.text)", verse_key)
+                end
               elsif matched == '0'
-                translations = translations.where("translations.text <> tr2.text", verse_key)
+                if exact_compare
+                  translations = translations.where("translations.text <> tr2.text", verse_key)
+                else
+                  translations = translations.where("LOWER(translations.text) <> LOWER(tr2.text)", verse_key)
+                end
               end
             end
 

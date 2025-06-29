@@ -16,7 +16,7 @@
 @import "libs/toastr";
 @import "components/common";
 
-.searchable_select {
+.searchable_select, .select2-container {
   .select2-selection__clear {
     padding-right: 10px;
     background-image: none !important;
@@ -24,6 +24,10 @@
     box-shadow: none !important;
     color: #000 !important;
   }
+}
+
+.select2-container{
+ min-width: 100px;
 }
 
 .collapable {

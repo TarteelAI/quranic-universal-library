@@ -321,6 +321,7 @@ module Exporter
 
       list.each do |content|
         next if !content.allow_publish_sharing?
+        next if content.is_transliteration?
 
         exporter = Exporter::ExportTranslation.new(
           resource_content: content,

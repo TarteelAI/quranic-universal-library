@@ -393,9 +393,19 @@ module Tools
           second_translation: -> (record, _) do
             "#{record.second_translation.to_s.html_safe} (<a href='/cms/translations/#{record.second_translation_id}' target=_blank>#{record.second_translation_id}</a>)".html_safe
           end,
-          diff: -> (record, _) do
+          diff: -> (record, params) do
+            exact_compare = params[:exact_compare] == '1'
+
             if record.first_translation != record.second_translation
-              if (text_diff = Diffy::SplitDiff.new(record.first_translation.to_s, record.second_translation.to_s, format: :html, allow_empty_diff: true) rescue nil)
+              first = record.first_translation.to_s
+              second = record.second_translation.to_s
+
+              if !exact_compare
+                first = first.downcase
+                second = second.downcase
+              end
+
+              if (text_diff = Diffy::SplitDiff.new(first, second, format: :html, allow_empty_diff: true) rescue nil)
                 "<div>
   #{text_diff.left.html_safe}
               </div><div>
@@ -404,8 +414,14 @@ module Tools
               end
             end
           end,
-          matched: -> (record, _) do
-            record.first_translation == record.second_translation
+          matched: -> (record, params) do
+            exact_compare = params[:exact_compare] == '1'
+
+            if exact_compare
+              record.first_translation == record.second_translation
+            else
+              record.first_translation.downcase == record.second_translation.downcase
+            end
           end
         },
         fields: [

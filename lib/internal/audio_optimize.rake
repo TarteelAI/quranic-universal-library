@@ -1,6 +1,77 @@
 namespace :audio_optimize do
+  task optimize_mp3: :environment do
+    require 'open3'
+
+    def analyze_loudness(file)
+      command = [
+        'ffmpeg',
+        '-i', file,
+        '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json',
+        '-f', 'null', '-'
+      ]
+
+      stdout, stderr, _ = Open3.capture3(*command)
+      json_str = stderr[/\{[\s\S]*?\}/]
+      JSON.parse(json_str)
+    end
+
+    def normalize_audio(file, output_file, analysis)
+      command = [
+        'ffmpeg',
+        '-i', file,
+        '-af', [
+          "loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=#{analysis["input_i"]}",
+          "measured_TP=#{analysis["input_tp"]}",
+          "measured_LRA=#{analysis["input_lra"]}",
+          "measured_thresh=#{analysis["input_thresh"]}",
+          "offset=#{analysis["target_offset"]}:linear=true:print_format=summary"
+        ].join(':'),
+        '-c:a', 'libmp3lame',
+        '-b:a', '128k',
+        '-vn',
+        '-map_metadata', '-1',
+        '-map_chapters', '-1',
+        '-metadata', 'comment=qul.tarteel.ai',
+        output_file
+      ]
+
+      system(*command)
+    end
+
+    def optimize(file, output_file)
+      target_volume = -16
+
+      result = system(*[
+        'ffmpeg',
+        '-i', file,
+        '-af', "loudnorm=I=#{target_volume}:TP=-1.5:LRA=11",
+        '-c:a', 'libmp3lame',
+        '-b:a', '128k',
+        '-vn', # remove video/cover art
+        '-map_metadata', '-1', # strip all existing metadata
+        '-map_chapters', '-1', # remove chapters
+        '-metadata', 'comment=qul.tarteel.ai', # add custom comment
+        output_file
+      ])
+    end
+
+    base_path = "/Volumes/Data/qul-segments/audio/saddiq_minshawi_mujawwad/mp3"
+    optimized_path = "/Volumes/Data/qul-segments/audio/saddiq_minshawi_mujawwad/optimized"
+    FileUtils.mkdir_p(optimized_path)
+
+    (1..114).each do |num|
+      next if num != 9
+
+      file_path = num.to_s.rjust(3, 0)
+      file = "#{base_path}/#{file_path}.mp3"
+      optimized = "#{optimized_path}/#{file_path}.mp3"
+
+      analysis = analyze_loudness(file)
+      normalize_audio(file, optimized, analysis)
+    end
+  end
+
   task run: :environment do
-    #base_path = "/Volumes/Development/community-data/segments-data/mishari-streaming"
     base_path = "../community-data/segments-data/Sheikh-Yasser-Al-Dosari/"
 
     def normalize_volume(file, output_path)
@@ -12,9 +83,7 @@ namespace :audio_optimize do
       max_volume = max_volume.to_f
       mean_volume = mean_volume.to_f
       target_volume = -11.8
-      adjustment = target_volume - mean_volume
       output_file = "/tmp/#{File.basename(file)}"
-      #result = system(*['ffmpeg', '-i', file, '-af', "volume=#{adjustment}dB", '-c:v', 'copy', output_file])
       result = system(*['ffmpeg', '-i', file, '-af', "loudnorm=I=#{target_volume}:TP=-1.5:LRA=11dB", '-c:v', 'copy', output_file])
 
       raise "Error normalizing audio volume of #{file}" unless result
@@ -33,7 +102,7 @@ namespace :audio_optimize do
 
       normalize_volume(input, fixed_volume)
 
-      #96 kbps is recommended when streaming is important.
+      # 96 kbps is recommended when streaming is important.
       # https://scribbleghost.net/2022/12/29/convert-audio-to-opus-with-ffmpeg/
       `ffmpeg -y -i #{fixed_volume} -map 0:a:0 -b:a 96k #{mp3}.mp3`
 
@@ -56,9 +125,7 @@ namespace :audio_optimize do
       max_volume = max_volume.to_f
       mean_volume = mean_volume.to_f
       target_volume = -11.8
-      adjustment = target_volume - mean_volume
       output_file = "/tmp/#{File.basename(file)}"
-      #result = system(*['ffmpeg', '-i', file, '-af', "volume=#{adjustment}dB", '-c:v', 'copy', output_file])
       result = system(*['ffmpeg', '-i', file, '-af', "loudnorm=I=#{target_volume}:TP=-1.5:LRA=11dB", '-c:v', 'copy', output_file])
 
       raise "Error normalizing audio volume of #{file}" unless result
@@ -106,57 +173,6 @@ namespace :audio_optimize do
 
       timing_file = prepare_timing_file "#{surah_path}/normalized", timing_base_path, surah
       merge_surah_audio(timing_file, "#{result_base_path}/#{surah}.mp3")
-    end
-  end
-
-  task import_segments: :environment do
-    def parse(id, segments, audio_length)
-      chapter = Chapter.find id
-      audio_recitation_id = 175
-
-      audio_file = Audio::ChapterAudioFile.where(
-        audio_recitation_id: audio_recitation_id,
-        chapter: chapter
-      ).first_or_create
-
-      previous = 0
-      segments.each_with_index do |v, i|
-        verse = chapter.verses.find_by(verse_number: i+1)
-        last = segments[i+1] || audio_length
-        start = v
-
-        segment = Audio::Segment.where(verse: verse, audio_recitation_id: audio_recitation_id).first_or_initialize
-        segment.set_timing(start, last, verse)
-        segment.audio_file = audio_file
-        segment.save
-      end
-    end
-
-    def fetch_segments(i)
-      url = "https://www.wordofallah.com/index.php?param=asynch.surah&do=surah&surah=#{i}&qari=0&0.2393245676960707"
-
-      response = with_rescue_retry([RestClient::Exceptions::ReadTimeout], retries: 3, raise_exception_on_limit: true) do
-        RestClient.get(url)
-      end
-
-      data = JSON.parse response.body
-      data.last.values.map(&:to_i)
-    end
-
-    def calculate_duration(i)
-      base_path = "/Volumes/Development/qdc/community-data/segments-data/streaming_audio"
-      result_base_path = "#{base_path}/result"
-
-      audio_url = "#{result_base_path}/#{i}.mp3"
-      result = `ffmpeg -i #{audio_url} 2>&1 | egrep "Duration"`
-      matched = result.match(/Duration:\s(?<h>(\d+)):(?<m>(\d+)):(?<s>(\d+))/)
-      duration = (matched[:h].to_i * 3600) + (matched[:m].to_i * 60) + matched[:s].to_i
-
-      duration * 1000
-    end
-
-    1.upto(78) do |i|
-      parse i, fetch_segments(i), calculate_duration(i)
     end
   end
 end

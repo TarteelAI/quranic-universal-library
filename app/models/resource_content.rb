@@ -48,7 +48,9 @@ class ResourceContent < QuranApiRecord
   include HasMetaData
 
   scope :translations, -> { where sub_type: SubType::Translation }
-  scope :transliteration, -> { where sub_type: SubType::Transliteration }
+  scope :transliteration, -> {
+    where(sub_type: SubType::Transliteration).or(where("meta_data ->> 'transliteration' = 'yes'"))
+  }
   scope :media, -> { where sub_type: SubType::Video }
   scope :tafsirs, -> { where sub_type: SubType::Tafsir }
   scope :chapter_info, -> { where sub_type: SubType::Info }
@@ -313,6 +315,13 @@ class ResourceContent < QuranApiRecord
 
   def transliteration?
     sub_type == SubType::Transliteration
+  end
+
+  def is_transliteration?
+    # We don't have tools for updating transliteration yet
+    # Some translations are saved as transliteration to use translations tools etc
+    # This method is used to check if the resource is actually transliteration
+    transliteration? || meta_value('transliteration') == 'yes'
   end
 
   def translation?

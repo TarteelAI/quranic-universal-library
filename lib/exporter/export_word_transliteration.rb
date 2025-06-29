@@ -53,7 +53,9 @@ module Exporter
     end
 
     def records
-      Transliteration.where(resource_type: 'Word', resource_content_id: resource_content.id).in_batches(of: 1000)
+      Transliteration
+        .where(resource_type: 'Word', resource_content_id: resource_content.id)
+        .in_batches(of: 1000)
     end
   end
 end

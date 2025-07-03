@@ -204,7 +204,7 @@ namespace :segments do
     end
 
     def normalize(text)
-      text.remove_dialectic.tr('ًٌٍَُِّْـ', '')
+      text.remove_diacritics.tr('ًٌٍَُِّْـ', '')
     end
 
     def process_surah_time_machine(segments_file, surah_id)

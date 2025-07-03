@@ -90,7 +90,7 @@ class WordsUtil
   def clean_words(list)
     words = list.map do |w|
       w.sub(WAQF_REG, '')
-       .remove_dialectic(replace_hamza: false)
+       .remove_diacritics(replace_hamza: false)
        .strip
     end
 

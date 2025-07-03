@@ -41,9 +41,9 @@ class PhraseBuilderService
       @phrase = Morphology::Phrase.find(@params[:phrase_id])
     else
       text = @params[:phrase_text].to_s.strip
-      @phrase = Morphology::Phrase.where("text_qpc_hafs_simple = :simple OR text_qpc_hafs = :text", simple: text.remove_dialectic, text: text).first
+      @phrase = Morphology::Phrase.where("text_qpc_hafs_simple = :simple OR text_qpc_hafs = :text", simple: text.remove_diacritics, text: text).first
       @phrase ||= Morphology::Phrase.new(
-        text_qpc_hafs_simple: text.remove_dialectic,
+        text_qpc_hafs_simple: text.remove_diacritics,
         text_qpc_hafs: text
       )
     end
@@ -61,7 +61,7 @@ class PhraseBuilderService
                    .where(position: @phrase.word_position_from..@phrase.word_position_to)
                    .order('position ASC')
 
-    @phrase.text_qpc_hafs_simple = words.map(&:text_qpc_hafs).join(' ').remove_dialectic
+    @phrase.text_qpc_hafs_simple = words.map(&:text_qpc_hafs).join(' ').remove_diacritics
     @phrase.text_qpc_hafs = words.map(&:text_qpc_hafs).join(' ')
     @phrase.save(validate: false)
 

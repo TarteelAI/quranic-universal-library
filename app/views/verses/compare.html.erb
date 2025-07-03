@@ -61,7 +61,7 @@
               </span>
               <span>
                 <% verse.words.each do |word| %>
-                  <% if common_words.include?(word.text_qpc_hafs.remove_dialectic) %>
+                  <% if common_words.include?(word.text_qpc_hafs.remove_diacritics) %>
                     <span class="tw-text-green-600"><%= word.text_qpc_hafs %></span>
                   <% else %>
                     <%= word.text_qpc_hafs %>

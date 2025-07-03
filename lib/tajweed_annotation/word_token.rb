@@ -54,7 +54,7 @@ module TajweedAnnotation
 
     def is_allah_word?
       # TODO: use regexp
-      word_text = word.text_uthmani_simple.remove_dialectic
+      word_text = word.text_uthmani_simple.remove_diacritics
       ["للَّه","لله", "الله"].detect do |c|
         word_text.include?(c)
       end

@@ -31,7 +31,7 @@ module QuranScriptHelper
   def find_common_verses_words(verses)
     word_sets = verses.map do |v|
       v.words.map do |w|
-        w.text_qpc_hafs.split(' ').map(&:remove_dialectic)
+        w.text_qpc_hafs.split(' ').map(&:remove_diacritics)
       end
     end
 

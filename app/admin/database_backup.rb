@@ -27,6 +27,12 @@ ActiveAdmin.register DatabaseBackup do
         LokaliseJob.perform_later(action: :import)
       when 'export_lokalise'
         LokaliseJob.perform_later(action: :export)
+      when 'clear_cdn_cache'
+        urls = params[:urls].to_s.split(',').map(&:strip).reject(&:empty?)
+        cache_service = CloudflareCacheClearer.new
+        result = cache_service.clear_cache(urls: urls)
+
+        redirect_to cms_dashboard_path, notice: result.to_s
       else
         redirect_to cms_dashboard_path, error: 'Invalid operation.'
       end

@@ -71,6 +71,19 @@
           </div>
         </div>
 
+        <div class="card mb-2 shadow-sm">
+          <div class="card-body">
+            <div class="display-5 tw-leading-normal">
+              <div class="badge bg-secondary text-white">
+                <%= ayah.verse_key %>
+              </div>
+              <div class="qpc-hafs quran-text">
+                <%= ayah.text_qpc_hafs %>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <% if translation&.text.present? %>
             <div class="<%= translation.language_name.to_s.downcase %> tw-text-base tw-leading-relaxed tw-space-y-4">
@@ -162,15 +175,17 @@
 
           <h4 class="tw-text-lg tw-font-semibold tw-mt-6">3. Text Chunks Format</h4>
           <p>
-            Translation is divided into chunks — each chunk could be a simple text or an object. Object can be either
-            footnote for formatting tags.
-            This format is useful for applications that need to display translations with precise control over
-            formatting.
+            In chunks export format, text is divided into chunks. Each chunk could be a simple text or an object. Object
+            can be either
+            footnote or a formatting tag.
+            This format is useful for applications can't directly render the HTML tags.
             Here is an example of Bridges` translation for Surah An-Nas , Ayah 6:
           </p>
+
           <p>
             Above translation will be exported in chunks as:
           </p>
+
           <pre><code>&lt;i class="s"&gt;(from the whisperers)&lt;/i&gt;among the race of unseen beings&lt;sup foot_note="81506"&gt;1&lt;/sup&gt;and mankind.”</code></pre>
           <pre><code class="tw-text-sm">
       [

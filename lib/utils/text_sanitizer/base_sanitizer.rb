@@ -116,7 +116,7 @@ module Utils
 
         detectors.each do |detector|
           break if lang
-          lang = accept_language?(detector.find_top_n_most_freq_langs(text.to_s.remove_dialectic, 1).map do |part|
+          lang = accept_language?(detector.find_top_n_most_freq_langs(text.to_s.remove_diacritics, 1).map do |part|
             part.language.to_s
           end.first)
 

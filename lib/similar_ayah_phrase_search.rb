@@ -39,9 +39,9 @@ class SimilarAyahPhraseSearch
 
     text = text.strip
 
-    p = Morphology::Phrase.where("text_qpc_hafs_simple = :simple OR text_qpc_hafs = :text", simple: text.remove_dialectic, text: text).first
+    p = Morphology::Phrase.where("text_qpc_hafs_simple = :simple OR text_qpc_hafs = :text", simple: text.remove_diacritics, text: text).first
     p || Morphology::Phrase.new(
-      text_qpc_hafs_simple: text.remove_dialectic,
+      text_qpc_hafs_simple: text.remove_diacritics,
       text_qpc_hafs: text
     )
   end
@@ -58,7 +58,7 @@ class SimilarAyahPhraseSearch
       phrase_text = @source_verse.words.where(position: (source_range[0]..source_range[1])).pluck(:text_qpc_hafs).join(' ')
     else
       if @source_verse = find_source_verse_using_lemma(phrase_text) || find_verse_using_text(phrase_text)
-        matches = find_phrase_matches(@source_verse.text_qpc_hafs.remove_dialectic, phrase_text.remove_dialectic)
+        matches = find_phrase_matches(@source_verse.text_qpc_hafs.remove_diacritics, phrase_text.remove_diacritics)
 
         @source_range = matches[0]
       end
@@ -70,7 +70,7 @@ class SimilarAyahPhraseSearch
 
     phrase_text = phrase_text.to_s.strip.gsub("*", "%").gsub('"', '')
     @phrase_text = phrase_text
-    @phrase_simple = phrase_text.remove_dialectic(replace_hamza: false)
+    @phrase_simple = phrase_text.remove_diacritics(replace_hamza: false)
 
     search(
       text_search: text_search,
@@ -97,13 +97,13 @@ class SimilarAyahPhraseSearch
     OR verses.text_indopak like :tashkeel_match
     OR verses.text_imlaei like :tashkeel_match
     OR verses.text_qpc_hafs like :tashkeel_match",
-                              match_simple_no_tashkeel: "%#{phrase_simple.remove_dialectic}%",
+                              match_simple_no_tashkeel: "%#{phrase_simple.remove_diacritics}%",
                               match_simple: "%#{phrase_simple}%",
                               tashkeel_match: "%#{@phrase_text.strip}%"
                        ).order('verse_index asc')
 
       mathced_ayah.each do |ayah|
-        match_indexes = find_phrase_matches(ayah.text_qpc_hafs.remove_dialectic, @phrase_text.remove_dialectic)[0]
+        match_indexes = find_phrase_matches(ayah.text_qpc_hafs.remove_diacritics, @phrase_text.remove_diacritics)[0]
 
         if match_indexes
           @result[ayah.verse_key] ||= {
@@ -203,7 +203,7 @@ class SimilarAyahPhraseSearch
     end
 
     verses.each do |ayah|
-      range = find_phrase_matches(ayah.text_qpc_hafs.remove_dialectic, phrase_text.remove_dialectic)[0]
+      range = find_phrase_matches(ayah.text_qpc_hafs.remove_diacritics, phrase_text.remove_diacritics)[0]
       range ||= find_phrase_matches(ayah.verse_root.value, root_text)[0]
 
       @result[ayah.verse_key] ||= {
@@ -277,7 +277,7 @@ class SimilarAyahPhraseSearch
     end
 
     verses.each do |ayah|
-      matches = find_phrase_matches(ayah.text_qpc_hafs.remove_dialectic, phrase_text.remove_dialectic)[0]
+      matches = find_phrase_matches(ayah.text_qpc_hafs.remove_diacritics, phrase_text.remove_diacritics)[0]
       matches ||= find_phrase_matches(ayah.verse_lemma.text_clean, lemma_text)[0]
 
       #words = ayah.words.joins(:word_lemma).where(word_lemmas: { lemma_id: ids }).pluck :position
@@ -307,7 +307,7 @@ class SimilarAyahPhraseSearch
   def add_lcs_matches
     require 'diff/lcs'
 
-    p = phrase_text.remove_dialectic(replace_hamza: false).gsub('%', '')
+    p = phrase_text.remove_diacritics(replace_hamza: false).gsub('%', '')
     Verse.find_each do |v|
       score = calculate_lcs_similarity_ratio(phrase_text.gsub('%', ''), v.text_qpc_hafs)
 
@@ -493,25 +493,25 @@ class SimilarAyahPhraseSearch
     text = @word_utils.remove_waqf(text)
 
     text.split(/\s/).map do |w|
-      word = Word.eager_load(eager_load).where("words.text_uthmani = :tashkeel OR text_indopak = :tashkeel OR text_qpc_hafs = :tashkeel OR text_indopak_nastaleeq = :tashkeel OR  text_imlaei = :tashkeel OR text_uthmani_simple = :simple OR text_imlaei_simple = :simple", tashkeel: w, simple: w.remove_dialectic).first
-      word ||= Word.eager_load(eager_load).where("words.text_uthmani ilike :tashkeel OR text_indopak ilike :tashkeel OR text_qpc_hafs ilike :tashkeel OR text_indopak_nastaleeq ilike :tashkeel OR  text_imlaei ilike :tashkeel OR text_uthmani_simple ilike :simple OR  text_imlaei_simple ilike :simple", tashkeel: "%#{w}", simple: "%#{w.remove_dialectic}").first
+      word = Word.eager_load(eager_load).where("words.text_uthmani = :tashkeel OR text_indopak = :tashkeel OR text_qpc_hafs = :tashkeel OR text_indopak_nastaleeq = :tashkeel OR  text_imlaei = :tashkeel OR text_uthmani_simple = :simple OR text_imlaei_simple = :simple", tashkeel: w, simple: w.remove_diacritics).first
+      word ||= Word.eager_load(eager_load).where("words.text_uthmani ilike :tashkeel OR text_indopak ilike :tashkeel OR text_qpc_hafs ilike :tashkeel OR text_indopak_nastaleeq ilike :tashkeel OR  text_imlaei ilike :tashkeel OR text_uthmani_simple ilike :simple OR  text_imlaei_simple ilike :simple", tashkeel: "%#{w}", simple: "%#{w.remove_diacritics}").first
 
       word || Word.eager_load(eager_load).where(
         "REPLACE(words.text_uthmani, 'ـ', '') ilike :tashkeel OR REPLACE(text_indopak, 'ـ', '') ilike :tashkeel OR REPLACE(text_qpc_hafs, 'ـ', '') ilike :tashkeel OR REPLACE(text_indopak_nastaleeq, 'ـ', '') ilike :tashkeel OR REPLACE(text_imlaei, 'ـ', '') ilike :tashkeel OR REPLACE(text_uthmani_simple, 'ـ', '') ilike :simple OR REPLACE(text_imlaei_simple, 'ـ', '') ilike :simple",
         tashkeel: "%#{w}%",
-        simple: "%#{w.remove_dialectic}%"
+        simple: "%#{w.remove_diacritics}%"
       ).first
     end
   end
 
   def find_verse_using_text(text)
     w = text
-    verse = Verse.where("text_uthmani = :tashkeel OR text_indopak = :tashkeel OR text_qpc_hafs = :tashkeel OR text_indopak_nastaleeq = :tashkeel OR  text_imlaei = :tashkeel OR text_uthmani_simple = :simple OR text_imlaei_simple = :simple", tashkeel: w, simple: w.remove_dialectic).first
-    verse ||= Verse.where("text_uthmani ilike :tashkeel OR text_indopak ilike :tashkeel OR text_qpc_hafs ilike :tashkeel OR text_indopak_nastaleeq ilike :tashkeel OR  text_imlaei ilike :tashkeel OR text_uthmani_simple ilike :simple OR  text_imlaei_simple ilike :simple", tashkeel: "%#{w}", simple: "%#{w.remove_dialectic}").first
+    verse = Verse.where("text_uthmani = :tashkeel OR text_indopak = :tashkeel OR text_qpc_hafs = :tashkeel OR text_indopak_nastaleeq = :tashkeel OR  text_imlaei = :tashkeel OR text_uthmani_simple = :simple OR text_imlaei_simple = :simple", tashkeel: w, simple: w.remove_diacritics).first
+    verse ||= Verse.where("text_uthmani ilike :tashkeel OR text_indopak ilike :tashkeel OR text_qpc_hafs ilike :tashkeel OR text_indopak_nastaleeq ilike :tashkeel OR  text_imlaei ilike :tashkeel OR text_uthmani_simple ilike :simple OR  text_imlaei_simple ilike :simple", tashkeel: "%#{w}", simple: "%#{w.remove_diacritics}").first
     verse || Verse.where(
       "REPLACE(text_uthmani, 'ـ', '') ilike :tashkeel OR REPLACE(text_indopak, 'ـ', '') ilike :tashkeel OR REPLACE(text_qpc_hafs, 'ـ', '') ilike :tashkeel OR REPLACE(text_indopak_nastaleeq, 'ـ', '') ilike :tashkeel OR REPLACE(text_imlaei, 'ـ', '') ilike :tashkeel OR REPLACE(text_uthmani_simple, 'ـ', '') ilike :simple OR REPLACE(text_imlaei_simple, 'ـ', '') ilike :simple",
       tashkeel: "%#{w}%",
-      simple: "%#{w.remove_dialectic}%"
+      simple: "%#{w.remove_diacritics}%"
     ).first
   end
 

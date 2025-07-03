@@ -1,4 +1,5 @@
-<div class="admin-actions d-flex flex-wrap">
+<div class="admin-actions">
+  <div class="d-flex flex-wrap">
   <%= form_tag admin_action_cms_database_backups_path(name: 'new_db_dump'), method: :put, class: 'action' do %>
     <%= button_tag "Backup database", data: { confirm: 'Are you sure?' } %>
   <% end %>
@@ -18,4 +19,14 @@
   <% end %>
 
   <%= link_to 'View Sidekiq', '/sidekiq', class: 'button action', target: '_blank' %>
+  </div>
+
+  <div class="mt-2">
+    <%= form_tag admin_action_cms_database_backups_path(name: 'clear_cdn_cache'), method: :put, class: 'action' do %>
+      <p>Enter comma-separated URLs of assets</p>
+      <%= text_area_tag "urls" %>
+      <br>
+      <%= button_tag "Clear Cache", data: { confirm: 'Are you sure?' } %>
+    <% end %>
+  </div>
 </div>

@@ -134,7 +134,7 @@ module ToolsHelper
         description: 'Compare ayahs',
         url: compare_ayah_path,
         type: 'ayah-reader',
-        icon: 'reader.svg',
+        icon: 'compare.svg',
         tags: [],
         info_tip: 'Compare multiple Ayahs, with optional translations to find differences or similarities in the script.',
       )

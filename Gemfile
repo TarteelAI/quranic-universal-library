@@ -10,7 +10,8 @@ gem "nokogiri", '~> 1.18.8', require: false
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.3.5"
-gem 'sqlite3', '~> 1.4'
+gem 'sqlite3', '~> 2.7.1'
+
 
 # Use the Puma app server [https://github.com/puma/puma]
 gem "puma", ">= 5.6.4"

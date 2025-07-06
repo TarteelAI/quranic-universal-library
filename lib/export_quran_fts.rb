@@ -18,18 +18,6 @@ class ExportQuranFts
     insert_surahs(db)
     insert_ayahs(db)
     optimize_table(db)
-
-    #"SELECT * FROM docs WHERE docs MATCH '"lin* app*"';"
-    # SELECT * FROM docs WHERE docs MATCH 'sqlite NEAR/2 acid NEAR/2 relational';
-    # SELECT * FROM email WHERE email MATCH 'fts5' ORDER BY rank;
-    # SELECT * FROM ft WHERE ft MATCH 'b : (uvw AND xyz)';
-    # prefix index, for speeding up prefix search
-    # hello*
-    # CREATE VIRTUAL TABLE ft USING fts5(a, b, prefix=2, prefix=3);
-    # test different tokenizer
-    # trigram, porter,ascii, unicode61, icu
-    # porter tokenerizer has stemming
-    # CREATE VIRTUAL TABLE ft USING fts5(x, tokenize = 'porter unicode61 remove_diacritics 1');
     db.close
     puts "FTS export complete: #{DB_PATH}"
   end
@@ -41,18 +29,19 @@ class ExportQuranFts
       CREATE VIRTUAL TABLE surah_index USING fts5(
         term,
         key UNINDEXED,
-        tokenize = 'porter unicode61 remove_diacritics 1'
+        tokenize = 'unicode61 remove_diacritics 1'
       );
 
       CREATE VIRTUAL TABLE ayah_index USING fts5(
         term,
         key UNINDEXED,
-        tokenize = 'porter unicode61 remove_diacritics 1'
+        tokenize = 'trigram'
       );
     SQL
   end
 
   protected
+
   def insert_surahs(db)
     Chapter.find_each do |chapter|
       terms = [
@@ -90,13 +79,14 @@ class ExportQuranFts
       )
 
       terms = [
-        remove_diacritics(verse.text_uthmani),
-        verse.text_uthmani_simple,
-        remove_diacritics(verse.text_imlaei),
-        verse.text_imlaei_simple,
-        normalize_words(verse.verse_stem&.text_madani),
-        normalize_words(verse.verse_lemma&.text_madani),
-        normalize_words(verse.verse_root&.value),
+        normalize_arabic(verse.text_uthmani),
+        normalize_arabic(verse.text_uthmani_simple),
+        normalize_arabic(verse.text_imlaei),
+        normalize_arabic(verse.text_qpc_hafs.gsub(/[٠١٢٣٤٥٦٧٨٩]/, '')),
+        normalize_arabic(verse.text_imlaei_simple),
+        normalize_arabic(verse.verse_stem&.text_madani),
+        normalize_arabic(verse.verse_lemma&.text_madani),
+        normalize_arabic(verse.verse_root&.value),
       ].compact_blank
 
       transliterations.each do |tr|
@@ -123,12 +113,33 @@ class ExportQuranFts
   EXTRA_CHARS = ['', '', '', '', '‏', ',', '‏', '​', '', '‏', "\u200f"]
   WAQF_REG = Regexp.new((HAFS_WAQF_WITH_SIGNS + INDOPAK_WAQF + EXTRA_CHARS).join('|'))
 
+  TASHKEEL_MATCHERS = [
+    [/[آٱأإ]/, 'ا'],
+    [/[ٰ]/, 'ا'],
+    [/[ؤئ]/, 'ء'],
+    [/ة/, 'ه'],
+    [/ى/, 'ي'],
+    [/[ًٌٍَُِّْـ]/, ''],
+    [/۪/, ''],
+    [/۫/, ''],
+    [/[،؛؟؞.!]/, '']
+  ]
+
+  def normalize_arabic(text)
+    return if text.blank?
+
+    TASHKEEL_MATCHERS.each do |pattern, replacement|
+      text = text.gsub(pattern, replacement)
+    end
+
+    remove_diacritics(text)
+  end
+
   def remove_diacritics(text)
     return if text.to_s.presence.blank?
 
     text = text.to_s.remove_diacritics
     text.gsub(WAQF_REG, '')
-        .gsub(160.chr("UTF-8"), '')
         .strip
   end
 

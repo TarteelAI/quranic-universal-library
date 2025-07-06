@@ -121,7 +121,7 @@ ActiveAdmin.register ResourceContent do
     elsif params[:remove_draft]
       DraftContent::RemoveDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be removed shortly!"
-    else
+    elsif resource.syncable?
       DraftContent::ImportDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be synced shortly!"
     end

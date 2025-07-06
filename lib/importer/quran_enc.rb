@@ -471,7 +471,7 @@ module Importer
       telugu_muhammad: [/\([a-z]\)/, /\([a-z]\)/],
       chichewa_betala: [/\[\d+\]/, /\[\d+\]/],
       punjabi_arif: [/\d+[਼\s]*/, /\d+[਼\s]+/],
-      lingala_zakaria: [/\(\d+\)/, /\d+/],
+      lingala_zakaria: [/\[\d+\]/, /\[\d+\]/],
       kyrgyz_hakimov: [/\*+/, /\*+/],
       moore_rwwad: [/\[\d+\]/, /\[\d+\]/],
       kannada_hamza: [/\[\d+\]/, /\[\d+\]/],

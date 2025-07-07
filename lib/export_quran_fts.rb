@@ -58,6 +58,11 @@ class ExportQuranFts
         if term.include?('al ') || term.include?('an ')
           terms << term.sub(/^(al|an) /, '\1').strip
         end
+
+        # An nas => Al nas
+        if term.include?('an ')
+          terms << term.sub(/^(an) /, 'al ').strip
+        end
       end
 
       terms = terms.map { |term| normalize(term) }
@@ -74,7 +79,7 @@ class ExportQuranFts
   def insert_ayahs(db)
     Verse.includes(:verse_root, :verse_stem, :verse_lemma).find_each do |verse|
       transliterations = Translation.where(
-        resource_content_id: [1561, 57, 1566],
+        resource_content_id: [1561, 57], #1566
         verse_id: verse.id
       )
 
@@ -83,7 +88,7 @@ class ExportQuranFts
         normalize_arabic(verse.text_uthmani_simple),
         normalize_arabic(verse.text_imlaei),
         normalize_arabic(verse.text_qpc_hafs.gsub(/[٠١٢٣٤٥٦٧٨٩]/, '')),
-        normalize_arabic(verse.text_imlaei_simple),
+        verse.text_imlaei_simple,
         normalize_arabic(verse.verse_stem&.text_madani),
         normalize_arabic(verse.verse_lemma&.text_madani),
         normalize_arabic(verse.verse_root&.value),
@@ -139,8 +144,8 @@ class ExportQuranFts
     return if text.to_s.presence.blank?
 
     text = text.to_s.remove_diacritics
-    text.gsub(WAQF_REG, '')
-        .strip
+    # Strip non breaking spaces and extra whitespace
+    text.gsub(WAQF_REG, '').gsub(/\u00A0/, '').strip
   end
 
   def normalize(text)
@@ -150,10 +155,5 @@ class ExportQuranFts
     text = t unless t.include?('?')
     text.gsub(/[-]|['’]|\b(suresi|surasi|surat|surah|sura|chapter|سورہ|سورت|سورة)\b/, ' ')
         .gsub(/\s+/, ' ').strip
-  end
-
-  def normalize_words(text)
-    return if text.to_s.presence.blank?
-    remove_diacritics(text)
   end
 end

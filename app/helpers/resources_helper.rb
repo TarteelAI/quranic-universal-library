@@ -12,6 +12,7 @@ module ResourcesHelper
     translations = ResourceContent.approved.translations
     wbw_translation = translations.one_word.count
     ayah_translation = translations.one_verse.count
+    transliteration_count = ResourceContent.transliteration.approved.count
 
     tafisrs = ResourceContent.tafsirs.approved
 
@@ -98,9 +99,9 @@ module ResourcesHelper
         icon: 'transliteration.svg',
         list_icon: 'translate.svg',
         url: '/resources/transliteration',
-        count: ResourceContent.transliteration.approved.count,
+        count: transliteration_count,
         type: 'transliteration',
-        stats: "<div><div>1 Ayah by Ayah</div><div>2 Word by Word</div></div>"
+        stats: "<div><div>#{transliteration_count - 1} Ayah by Ayah</div><div>1 Word by Word</div></div>"
       ),
 
       surah_info: ToolCard.new(

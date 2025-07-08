@@ -1,10 +1,19 @@
 <%
   key = params[:ayah] || '73:4'
   ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
-  transliteration = Translation.find_by(
-    resource_content_id: resource.resource_content_id,
-    verse_id: ayah.id
-  )%>
+
+  if resource.one_word?
+    transliterations = Transliteration
+      .joins("INNER JOIN words ON words.id = transliterations.resource_id AND transliterations.resource_type = 'Word'")
+      .where(resource: ayah.words, resource_content_id: resource.resource_content_id)
+      .order('words.position ASC')
+  else
+    transliteration = Translation.find_by(
+      resource_content_id: resource.resource_content_id,
+      verse_id: ayah.id
+    )
+  end
+%>
 
 <div class="tw-mt-5">
   <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
@@ -48,7 +57,7 @@
           <div class="tw-flex tw-items-center">
             <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
             <%= select_tag :ayah,
-                           [],
+                           [ayah.verse_key],
                            onchange: "jumpToAyah(this.value)",
                            class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
                            style: 'min-width: 220px',
@@ -70,24 +79,42 @@
           </div>
         </div>
 
-        <div class="card mb-2 shadow-sm">
-          <div class="card-body">
-            <div class="qpc-hafs quran-text">
-              <div class="badge bg-secondary text-white text-left">
-                <%= ayah.verse_key %>
+        <% if !resource.one_word? %>
+          <div class="card mb-2 shadow-sm">
+            <div class="card-body">
+              <div class="qpc-hafs quran-text">
+                <div class="badge bg-secondary text-white text-left">
+                  <%= ayah.verse_key %>
+                </div>
+                <%= ayah.text_qpc_hafs %>
               </div>
-              <%= ayah.text_qpc_hafs %>
             </div>
           </div>
-        </div>
+        <% end %>
 
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
-          <% if transliteration&.text.present? %>
-            <div class="<%= transliteration.language_name.to_s.downcase %> tw-text-base tw-leading-relaxed tw-space-y-4">
-              <%= safe_html transliteration.text %>
+          <% if resource.one_word? %>
+            <div class="tw-flex tw-flex-wrap tw-gap-3 tw-justify-start quran-text">
+              <% transliterations.each do |wt| %>
+                <div class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
+                  <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
+                    <%= wt.resource.text_qpc_hafs %>
+                  </div>
+
+                  <div class="tw-text-sm tw-text-gray-600">
+                    <%= wt.text %>
+                  </div>
+                </div>
+              <% end %>
             </div>
           <% else %>
-            <p class="tw-text-gray-500 tw-italic">Transliteration is not available for this ayah.</p>
+            <% if transliteration&.text.present? %>
+              <div class="<%= transliteration.language_name.to_s.downcase %> tw-text-base tw-leading-relaxed tw-space-y-4">
+                <%= safe_html transliteration.text %>
+              </div>
+            <% else %>
+              <p class="tw-text-gray-500 tw-italic">Transliteration is not available for this ayah.</p>
+            <% end %>
           <% end %>
         </div>
       </div>
@@ -98,7 +125,48 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
       <div class="tw-space-y-6">
+        <div class="tw-p-6 tw-bg-white tw-rounded-2xl tw-shadow-md tw-space-y-6 tw-text-gray-800">
+          <p>
+            QUL has multiple transliterations of the Quran in various languages. These are available in two formats:
+          </p>
 
+          <div class="tw-space-y-4">
+            <div>
+              <h3 class="tw-text-lg tw-font-semibold">JSON</h3>
+              <ul class="tw-list-disc tw-pl-6 tw-space-y-1">
+                <li>Organized by <code class="tw-bg-gray-100 tw-px-1 tw-rounded">ayah_key</code> in the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">"surah:ayah"</code> format.</li>
+                <li>Example:</li>
+              </ul>
+              <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-text-sm tw-overflow-x-auto">
+{
+  "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
+}
+      </pre>
+              <p class="tw-mt-2">
+                The transliteration string may include <strong>HTML tags</strong> (e.g., <code class="tw-bg-gray-100 tw-px-1 tw-rounded">&lt;u&gt;</code>, <code class="tw-bg-gray-100 tw-px-1 tw-rounded">&lt;b&gt;</code>) for styling and emphasis.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="tw-text-lg tw-font-semibold">SQLite</h3>
+              <p>Provides transliteration in a structured relational format with the following columns:</p>
+              <ul class="tw-list-disc tw-pl-6 tw-space-y-1">
+                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">sura</code> (integer)</li>
+                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">ayah</code> (integer)</li>
+                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">ayah_key</code> (string, e.g., <code>"1:1"</code>)</li>
+                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">text</code> (HTML-formatted transliteration)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="tw-text-xl tw-font-semibold">Notes</h2>
+            <ul class="tw-list-disc tw-pl-6 tw-space-y-1">
+              <li>Transliterations may be <strong>word-by-word</strong> or <strong>ayah-by-ayah</strong>.</li>
+              <li>HTML tags in the text allow flexible rendering (e.g., vowel highlighting or emphasis).</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -377,7 +377,7 @@ module Exporter
       list = ResourceContent.transliteration.one_verse.approved
 
       list.each do |content|
-        exporter = Exporter::ExportTranslation.new(
+        exporter = Exporter::ExportTransliteration.new(
           resource_content: content,
           base_path: base_path
         )
@@ -393,10 +393,10 @@ module Exporter
         tags = [content.language_name.humanize, 'Transliteration']
         downloadable_resource = set_tags(downloadable_resource, tags)
 
-        json = exporter.export_json(with_footnotes: false)
+        json = exporter.export_json
         create_download_file(downloadable_resource, json, 'json')
 
-        sqlite = exporter.export_sqlite(name: 'transliteration', with_footnotes: false)
+        sqlite = exporter.export_sqlite
         create_download_file(downloadable_resource, sqlite, 'sqlite')
       end
     end

@@ -57,7 +57,7 @@ module Importer
       'samarqandi' => 1515,
       'althalabi' => 1516,
       'ayah-morph' => 1518,
-      'iraab-graphs' => 1550,
+      'iraab-graphs' => 1573,
     }
 
     def self.import_tafsirs(keys)

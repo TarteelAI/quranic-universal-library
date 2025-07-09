@@ -3,7 +3,7 @@
   ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
   resource_content = resource.resource_content
   resource_type = resource_content.meta_value('morphology-resource-type')
-  partial_name = "#{resource_content.one_word? ? 'word' : 'ayah'}_#{resource_type}"
+  partial_name = "#{resource_content.one_word? ? 'word' : 'ayah'}_#{resource_type}".downcase
 %>
 
 <div class="tw-mt-5">

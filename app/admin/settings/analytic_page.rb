@@ -64,7 +64,7 @@ ActiveAdmin.register_page 'Analytics' do
 
           table_for top_downloaded_resources do
             column 'Resource Name' do |resource|
-              link_to resource.name, admin_downloadable_resource_path(resource.resource_id)
+              link_to resource.name, cms_downloadable_resource_path(resource.resource_id)
             end
 
             column 'Download Count' do |resource|

@@ -57,6 +57,13 @@ Rails.application.routes.draw do
       get :phrase_verses
     end
   end
+
+  namespace :morphology do
+    get 'roots/:id', to: 'roots#show', as: :root
+    get 'lemmas/:id', to: 'lemmas#show', as: :lemma
+    get 'stems/:id', to: 'stems#show', as: :stem
+  end
+
   resources :user_projects, except: [:index, :destroy]
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file

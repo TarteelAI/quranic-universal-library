@@ -1,0 +1,21 @@
+<%
+  words = ayah.words.includes(:stem).order('words.position ASC')
+%>
+
+<div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+  <div class="tw-flex tw-flex-wrap tw-gap-3 tw-justify-start quran-text">
+    <% words.each do |word| %>
+      <div class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem] qpc-hafs">
+        <div class="tw-text-lg tw-text-gray-800 tw-mb-2 tw-p-2">
+          <%= word.text_qpc_hafs %>
+        </div>
+
+        <div class="tw-text-sm tw-text-gray-600 ">
+          <% if word.stem %>
+            <%= link_to word.stem.text_clean, morphology_stem_path(word.stem.text_clean), data: {controller: 'ajax-modal', css_class: 'modal-lg', url: morphology_stem_path(word.stem.text_clean)} %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -176,7 +176,7 @@ module Exporter
         downloadable_resource = DownloadableResource.where(
           resource_content: resource,
           resource_type: 'morphology',
-          cardinality_type: ResourceContent::CardinalityType::OneWord
+          cardinality_type: resource.cardinality_type
         ).first_or_initialize
 
         downloadable_resource.name ||= resource.name

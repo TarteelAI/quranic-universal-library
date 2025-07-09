@@ -19,4 +19,11 @@ class Lemma < QuranApiRecord
   def to_s
     text_madani
   end
+
+  def update_stats
+    update_columns(
+      words_count: words.count,
+      uniq_words_count: words.map(&:text_imlaei_simple).uniq.count
+    )
+  end
 end

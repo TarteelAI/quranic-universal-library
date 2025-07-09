@@ -1,0 +1,58 @@
+<%
+  translations = root.english_translations
+  grouped_words = Word.unscoped
+                      .joins(:word_translation)
+                      .where(root: root, word_translations: { language_id: 38 })
+                      .select(
+                        'words.text_qpc_hafs',
+                        'ARRAY_AGG(DISTINCT word_translations.text) AS translations',
+                        'COUNT(*) AS count'
+                      )
+                      .group('words.text_qpc_hafs')
+                      .order('count DESC')
+%>
+
+
+<div id="title" class="d-none">
+  Root <%= root.arabic_trilateral %> detail
+</div>
+
+<div id="body">
+  <div class="modal-body tw-docs">
+    <p class="prose max-w-none">
+      Root <span class="tw-font-bold"><%= root.arabic_trilateral %></span>(<%= root.english_trilateral.chars.join(' ') %>) has
+      <span class="tw-font-semibold"><%= root.uniq_words_count %></span> unique word forms and appears
+      <span class="tw-font-semibold"><%= root.words_count %></span> times in the Quran.
+    </p>
+
+    <% if translations.present? %>
+    <p class="prose max-w-none">
+      <strong>English gloss</strong>
+      <%= translations.join(', ') %>
+    </p>
+    <% end %>
+
+    <div class="tw-overflow-x-auto tw-max-h-[500px] tw-border tw-rounded-lg tw-shadow-sm">
+      <table class="tw-min-w-full tw-table-auto tw-text-sm tw-text-left tw-border-collapse">
+        <thead class="tw-bg-gray-100 tw-sticky tw-top-0 tw-z-10">
+        <tr>
+          <th class="tw-px-4 tw-py-2 tw-border-b">Word</th>
+          <th class="tw-px-4 tw-py-2 tw-border-b">Translation</th>
+          <th class="tw-px-4 tw-py-2 tw-border-b">Occurrences</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% grouped_words.each do |word| %>
+          <tr class="tw-hover:bg-gray-50">
+            <td class="tw-px-4 tw-py-2 tw-border-b tw-whitespace-nowrap qpc-hafs quran-text tw-leading-normal">
+              <%= word.text_qpc_hafs %>
+            </td>
+            <td class="tw-px-4 tw-py-2 tw-border-b"><%= word.translations.uniq.join(', ') %></td>
+            <td class="tw-px-4 tw-py-2 tw-border-b"><%= word.count %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

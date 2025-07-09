@@ -31,4 +31,17 @@ class Root < QuranApiRecord
   def to_s
     text_uthmani
   end
+
+  def english_translations
+    Oj.load(en_translations.to_s) || []
+  rescue Exception => e
+    []
+  end
+
+  def update_stats
+    update_columns(
+      words_count: words.count,
+      uniq_words_count: words.map(&:text_imlaei_simple).uniq.count
+    )
+  end
 end

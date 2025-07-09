@@ -1,0 +1,106 @@
+<div class="tw-p-6 tw-bg-white tw-rounded tw-shadow-md tw-max-w-4xl tw-mx-auto tw-font-sans tw-text-gray-800 tw-space-y-8">
+  <p class="tw-leading-normal">
+    A <strong>stem</strong> is the intermediate form of a word between the <em>lemma</em> and its inflected surface form. It typically reflects the base pattern of a word before it’s conjugated or declined. Stemming is used in linguistic processing to group words with similar forms.
+  </p>
+
+  <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+    <p class="tw-font-semibold tw-text-blue-800">ℹ️ Note:</p>
+    <p class="tw-leading-normal">
+      While a <strong>lemma</strong> is a dictionary entry (e.g., <span class="tw-font-mono">رَحِمَ</span>), a <strong>stem</strong> may be a simplified, reduced form (e.g., <span class="tw-font-mono">رَحْم</span>) used for grouping variants. It may not always correspond to a valid Arabic word.
+    </p>
+
+    <p class="tw-leading-normal">
+      Stemming is useful for grouping words in search, clustering, or analyzing morphological variation without needing the full lemma or root system.
+    </p>
+  </div>
+
+  <div class="tw-bg-gray-50 tw-border-l-4 tw-border-gray-300 tw-p-4">
+    <p class="tw-font-semibold tw-mb-2">🔎 Example:</p>
+    <ul class="tw-list-disc tw-pl-5 tw-space-y-1">
+      <li>
+        Lemma: <span class="tw-font-mono tw-bg-gray-100 tw-px-1">رَحِمَ</span> – to have mercy
+      </li>
+      <li>
+        Stem: <span class="tw-font-mono tw-bg-gray-100 tw-px-1">رَحْم</span>
+      </li>
+      <li>Related forms:
+        <ul class="tw-list-disc tw-pl-5 tw-mt-1 tw-space-y-1">
+          <li><span class="qpc-hafs tw-font-bold">رَحْمَة</span> (raḥmah) – mercy</li>
+          <li><span class="qpc-hafs tw-font-bold">يَرْحَمُ</span> (yarḥamu) – he shows mercy</li>
+          <li><span class="qpc-hafs tw-font-bold">الرَّحِيم</span> (Ar-Raḥīm) – the Merciful</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <p class="tw-leading-normal">
+      QUL exports stem data in the <code class="tw-font-mono">stems</code> and <code class="tw-font-mono">word_stems</code> tables of the SQLite dataset.
+    </p>
+
+    <div class="tw-mt-4">
+      <h4 class="tw-font-semibold tw-mb-2">Table: <code class="tw-font-mono">stems</code></h4>
+      <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm">
+        <thead class="tw-bg-gray-100 tw-text-gray-700">
+        <tr>
+          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
+          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
+          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="tw-border-b tw-border-gray-200">
+          <td class="tw-px-4 tw-py-2">id</td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">Unique identifier for the stem</td>
+        </tr>
+        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
+          <td class="tw-px-4 tw-py-2">text</td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">Stem text with tashkeel</td>
+        </tr>
+        <tr class="tw-border-b tw-border-gray-200">
+          <td class="tw-px-4 tw-py-2">text_clean</td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">Stem text without tashkeel</td>
+        </tr>
+        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
+          <td class="tw-px-4 tw-py-2">words_count</td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">Total occurrences of all derived words for stem</td>
+        </tr>
+        <tr class="tw-border-b tw-border-gray-200">
+          <td class="tw-px-4 tw-py-2">uniq_words_count</td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">Count of unique word forms derived from this stem</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tw-mt-6">
+      <h4 class="tw-font-semibold tw-mb-2">Table: <code class="tw-font-mono">word_stems</code></h4>
+      <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm">
+        <thead class="tw-bg-gray-100 tw-text-gray-700">
+        <tr>
+          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
+          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
+          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="tw-border-b tw-border-gray-200">
+          <td class="tw-px-4 tw-py-2">stem_id</td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">Foreign key to <code class="tw-font-mono">stems.id</code></td>
+        </tr>
+        <tr class="tw-border-b tw-border-gray-200">
+          <td class="tw-px-4 tw-py-2">location</td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">Word location (e.g. <code>1:1:2</code>)</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

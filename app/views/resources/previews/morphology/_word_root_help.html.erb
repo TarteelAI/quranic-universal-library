@@ -1,0 +1,131 @@
+<div class="tw-p-6 tw-bg-white tw-rounded tw-shadow-md tw-max-w-4xl tw-mx-auto tw-font-sans tw-text-gray-800 tw-space-y-8">
+  <section>
+    <p class="tw-leading-relaxed">
+      In Arabic, a <strong>root</strong> is a core set of three consonants (a trilateral root) from which many semantically related words are derived.
+      Root-based analysis helps group related words together, revealing patterns and deeper meanings in Quranic vocabulary.
+    </p>
+
+    <div class="tw-bg-gray-50 tw-border-l-4 tw-border-gray-300 tw-p-4 tw-mt-4 tw-rounded">
+      <p class="tw-font-semibold tw-text-gray-800 tw-mb-2">Example:</p>
+      <div class="tw-space-y-3">
+        <div>
+          <span class="tw-font-semibold">Root:</span>
+          <span class="tw-font-mono tw-bg-gray-100 tw-px-2 tw-py-0.5 tw-rounded">ر ح م</span>
+          <span class="tw-text-sm text-gray-600">(r-ḥ-m)</span>
+        </div>
+
+        <div>
+          <span class="tw-font-semibold">Derived words include:</span>
+          <ul class="tw-list-disc tw-pl-6 tw-mt-2 tw-space-y-1">
+            <li>
+              <span class="qpc-hafs tw-text-lg tw-mr-2">الرَّحْمَـٰن</span>
+              <span>(Ar-Raḥmān) – The Most Merciful</span>
+            </li>
+            <li>
+              <span class="qpc-hafs tw-text-lg tw-mr-2">الرَّحِيم</span>
+              <span>(Ar-Raḥīm) – Especially Merciful</span>
+            </li>
+            <li>
+              <span class="qpc-hafs tw-text-lg tw-mr-2">رَحْمَة</span>
+              <span>(raḥmah) – Mercy</span>
+            </li>
+            <li>
+              <span class="qpc-hafs tw-text-lg tw-mr-2">يَرْحَم</span>
+              <span>(yarḥam) – He has mercy</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+      You can explore roots and see list of derived words etc by clicking on root in the Word Root preview section.
+    </div>
+  </section>
+
+  <section>
+    <p>
+      QUL exports root data as a SQLite database with two tables.
+      <code class="tw-font-mono tw-bg-gray-100 tw-px-1">roots</code> and
+      <code class="tw-font-mono tw-bg-gray-100 tw-px-1">word_roots</code>.
+    </p>
+  </section>
+
+  <section>
+    <h3 class="tw-text-xl tw-font-semibold">Table: <code class="tw-font-mono">roots</code></h3>
+    <p>This table contains metadata for each trilateral root.</p>
+    <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm tw-mt-3">
+      <thead class="tw-bg-gray-100 tw-text-gray-700">
+      <tr>
+        <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
+        <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
+        <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="tw-border-b tw-border-gray-200">
+        <td class="tw-px-4 tw-py-2">id</td>
+        <td class="tw-px-4 tw-py-2">INTEGER</td>
+        <td class="tw-px-4 tw-py-2">Unique identifier for the root</td>
+      </tr>
+      <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
+        <td class="tw-px-4 tw-py-2">arabic_trilateral</td>
+        <td class="tw-px-4 tw-py-2">TEXT</td>
+        <td class="tw-px-4 tw-py-2">Arabic trilateral root letters</td>
+      </tr>
+      <tr class="tw-border-b tw-border-gray-200">
+        <td class="tw-px-4 tw-py-2">english_trilateral</td>
+        <td class="tw-px-4 tw-py-2">TEXT</td>
+        <td class="tw-px-4 tw-py-2">Transliteration of the root in English</td>
+      </tr>
+      <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
+        <td class="tw-px-4 tw-py-2">words_count</td>
+        <td class="tw-px-4 tw-py-2">INTEGER</td>
+        <td class="tw-px-4 tw-py-2">Total occurrences of all derived words in the Quran</td>
+      </tr>
+      <tr class="tw-border-b tw-border-gray-200">
+        <td class="tw-px-4 tw-py-2">uniq_words_count</td>
+        <td class="tw-px-4 tw-py-2">INTEGER</td>
+        <td class="tw-px-4 tw-py-2">Count of unique word forms derived from this root</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h3 class="tw-text-xl tw-font-semibold">Table: <code class="tw-font-mono">word_roots</code></h3>
+    <p>This table maps each word in the Quran to its corresponding root.</p>
+    <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm tw-mt-3">
+      <thead class="tw-bg-gray-100 tw-text-gray-700">
+      <tr>
+        <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
+        <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
+        <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="tw-border-b tw-border-gray-200">
+        <td class="tw-px-4 tw-py-2">root_id</td>
+        <td class="tw-px-4 tw-py-2">INTEGER</td>
+        <td class="tw-px-4 tw-py-2">Foreign key to the <code class="tw-font-mono">roots.id</code> field</td>
+      </tr>
+      <tr class="tw-border-b tw-border-gray-200">
+        <td class="tw-px-4 tw-py-2">word_location</td>
+        <td class="tw-px-4 tw-py-2">TEXT</td>
+        <td class="tw-px-4 tw-py-2">Word reference (e.g. <code>2:3:5</code> for Surah 2, Ayah 3, Word 5)</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="tw-bg-yellow-100 tw-border tw-border-yellow-300 tw-text-yellow-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+      ⚠️ You need the Word-by-Word Quran script to fetch the Word text based on their location. Word script can be downloaded from the
+      <a href="/resources/quran-script" class="tw-text-yellow-700 tw-underline hover:tw-text-yellow-900">
+        Quran script resource page
+      </a>
+    </div>
+  </section>
+</div>

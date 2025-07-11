@@ -19,22 +19,11 @@
   @font-face {
       font-family: 'p<%= i %>-v1';
       src: local(QCF_P<%=i.to_s.rjust(3, '0')%>),
-      url('<%= "#{font_cdn}/quran_fonts/v1/woff2/p#{i}.woff2?v=#{asset_version}"%>'),
-      url('<%= "#{font_cdn}/quran_fonts/v1/woff/p#{i}.woff?v=#{asset_version}" %>') format('woff'),
-      url('<%= "#{font_cdn}/quran_fonts/v1/ttf/p#{i}.ttf?v=#{asset_version}" %>') format('truetype');
+      url('<%= "#{font_cdn}/quran_fonts/v1-optimized/woff2/p#{i}.woff2?v=#{asset_version}"%>'),
+      url('<%= "#{font_cdn}/quran_fonts/v1-optimized/woff/p#{i}.woff?v=#{asset_version}" %>') format('woff'),
+      url('<%= "#{font_cdn}/quran_fonts/v1-optimized/ttf/p#{i}.ttf?v=#{asset_version}" %>') format('truetype');
       font-display: swap;
   }
-
-  <% if false %>
-    <% p = i.to_s.rjust(3, '0')  %>
-  @font-face {
-      font-family: 'p<%= i %>-v1';
-      src: local(QCF_P<%=i.to_s.rjust(3, '0')%>),
-      url('<%= "#{font_cdn}/quran_fonts/v1-5.10/ttf/QCF_P#{p}.ttf?v=#{asset_version}" %>') format('truetype');
-      font-display: swap;
-  }
-  <% end %>
-
 
   @font-face {
       font-family: 'p<%= i %>-v4-tajweed';

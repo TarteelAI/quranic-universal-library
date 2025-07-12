@@ -1,6 +1,6 @@
 # Usage
 # importer = Importer::TafsirApp.new
-# importer.import('ayah-morph')
+# importer.import('iraab-graphs')
 # Importer::TafsirApp.delay.import_tafsirs(['alaloosi'])
 
 #

@@ -45,3 +45,4 @@ class Root < QuranApiRecord
     )
   end
 end
+

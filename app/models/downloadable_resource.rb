@@ -306,7 +306,7 @@ class DownloadableResource < ApplicationRecord
     when 'translation'
       'Ayah translations in various languages'
     when 'tafsir'
-      'Exegesis and interpretations of the Quran in various languages'
+      'Tafsirs in various languages'
     when 'mutashabihat'
       'Mutashabihat ul Quran data'
     when 'similar-ayah'

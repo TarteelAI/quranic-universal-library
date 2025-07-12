@@ -68,10 +68,38 @@
           </div>
         </div>
 
-        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
-          <div class="<%= tafsir.language_name.to_s.downcase %>">
-            <%== tafsir.text %>
+        <% if tafsir %>
+          <% verses = tafsir.ayahs %>
+
+          <div class="card mb-2 shadow-sm">
+          <div class="card-body">
+            <div class="qpc-hafs quran-text">
+              <% verses.each do |verse| %>
+                <%= verse.text_qpc_hafs %>
+              <% end %>
+            </div>
           </div>
+        </div>
+        <% end %>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+          <% if tafsir %>
+            <% verses = tafsir.ayahs %>
+
+            <% if tafsir.group_verses_count > 1 %>
+              <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
+                <p class="tw-leading-normal">
+                  You are reading tafsir of <%= verses.size %> ayahs: <%= verses.first.verse_key %> to <%= verses.last.verse_key %>.
+                </p>
+              </div>
+            <% end %>
+
+            <div class="<%= tafsir.language_name.to_s.downcase %>">
+              <%= safe_html tafsir.text %>
+            </div>
+          <% else %>
+            <p class="tw-text-gray-500 tw-italic">Tafisr is not available for this ayah.</p>
+          <% end %>
         </div>
       </div>
     </div>
@@ -81,7 +109,65 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
       <div class="tw-space-y-6">
+        <div class="tw-space-y-6 tw-text-gray-800 tw-text-base tw-leading-relaxed">
+          <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900">📖 Tafsir Resource</h2>
 
+          <p>
+            QUL supports exporting tafsir content in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+            Tafsir text may include <code>&lt;html&gt;</code> tags for formatting such as <code>&lt;b&gt;</code>,
+            <code>&lt;i&gt;</code>, etc.
+          </p>
+
+          <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+            <p class="tw-font-semibold">Note:</p>
+            <p class="tw-leading-normal">
+              Tafsir content may span multiple ayahs. QUL exports both the tafsir text and the ayahs it applies to.
+            </p>
+          </div>
+
+          <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-p-4 tw-text-sm tw-font-mono tw-overflow-auto">
+            <p class="tw-font-semibold tw-mb-2">Example JSON Format:</p>
+            <pre class="tw-whitespace-pre-wrap">{
+  "2:3": {
+    "text": "tafisr text.",
+    "ayah_keys": ["2:3", "2:4"]
+  },
+  "2:4": "2:3"
+}</pre>
+          </div>
+
+          <ul class="tw-list-disc tw-pl-6 tw-space-y-2">
+            <li>Keys in the JSON are <code>"ayah_key"</code> in <code>"surah:ayah"</code>, e.g. <code>"2:3"</code> means
+              3rd ayah of Surah Al-Baqarah.
+            </li>
+            <li>The value of ayah key can either be:
+              <ul class="tw-list-disc tw-pl-6">
+                <li>
+                  <strong>an object</strong> — this is the main tafsir group. It includes:
+                  <ul class="tw-list-disc tw-pl-6">
+                    <li><code>text</code>: the tafsir content (can include HTML)</li>
+                    <li><code>ayah_keys</code>: an array of ayah keys this tafsir applies to</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>a string</strong> — this indicates the tafsir is part of a group. The string points to the
+                  <code>ayah_key</code> where the tafsir text can be found.
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <h3 class="tw-text-xl tw-font-semibold">SQLite exports includes the following columns</h3>
+          <ul class="tw-list-disc tw-pl-6 tw-space-y-2">
+            <li><code>ayah_key</code>: the ayah for which this record applies.</li>
+            <li><code>group_ayah_key</code>: the ayah key that contains the main tafsir text (used for shared tafsir).
+            </li>
+            <li><code>from_ayah</code> / <code>to_ayah</code>: start and end ayah keys for convenience (optional).</li>
+            <li><code>ayah_keys</code>: comma-separated list of all ayah keys that this tafsir covers.</li>
+            <li><code>text</code>: tafsir text. If blank, use the <code>text</code> from the <code>group_ayah_key</code>.
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

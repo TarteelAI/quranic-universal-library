@@ -102,7 +102,7 @@ module Importer
                        ).first_or_initialize
 
       group_verses = find_ayah_group(verse, tafsir_json['ayahs_start'], tafsir_json['count'])
-      source_text = tafsir_json['data']
+      source_text = tafsir_json['data'].to_s.strip
 
       if source_text.present?
         if resource_content.tafsir_app_key == 'iraab-graphs'

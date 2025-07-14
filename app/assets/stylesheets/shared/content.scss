@@ -21,10 +21,6 @@ body {
     font-size: larger;
   }
 
-  .qpc-hafs {
-    font-size: 20px !important;
-  }
-
   .translation, .arabic {
     margin-left: 5px;
     margin-right: 5px;
@@ -86,9 +82,8 @@ body {
 
   .sep {
     color: #e3120a;
-    font-size: 1.2rem;
-    line-height: 1.8;
     text-align: center;
+    margin: 12px 0;
   }
 }
 

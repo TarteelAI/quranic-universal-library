@@ -118,7 +118,7 @@ ActiveAdmin.register Draft::Tafsir do
               as: :searchable_select,
               ajax: { resource: Verse }
 
-      f.input :current_text, input_html: { data: { controller: 'tinymce' } }
+      f.input :draft_text, input_html: { data: { controller: 'tinymce' } }
     end
 
     f.actions
@@ -181,13 +181,12 @@ ActiveAdmin.register Draft::Tafsir do
       end
 
       row :quran_enc_link do
-        resource_content = resource.resource_content
-        verse = resource.verse
-        div do
-          link_to('View on QuranEnc',
-                  "https://quranenc.com/en/browse/#{resource_content.quran_enc_key}/#{verse.verse_key.sub(':', '/')}",
-                  target: '_blank',
-                  rel: 'noopener')
+        if source_path = resource.source_link
+          div do
+            link_to('View Source', source_path,
+                    target: '_blank',
+                    rel: 'noopener')
+          end
         end
       end
 

@@ -9,7 +9,7 @@ module Exporter
 
     def export_sqlite
       db_file_path = "#{@export_file_path}.db"
-      statement = create_sqlite_table(db_file_path, 'surah_infos', sqlite_db_columns)
+      statement = create_sqlite_table(db_file_path, 'similar_ayahs', sqlite_db_columns)
 
       Verse.find_each do |v|
         matching = v.get_matching_verses

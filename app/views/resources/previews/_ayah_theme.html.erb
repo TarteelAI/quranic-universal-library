@@ -1,0 +1,156 @@
+<%
+  key = params[:ayah] || '73:4'
+  ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
+  theme = AyahTheme.for_verse(ayah)
+%>
+
+<div class="tw-mt-5">
+  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-docs"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-preview-pane"
+              type="button"
+              role="tab"
+              aria-controls="tab-preview-pane"
+              aria-selected="true">
+        Theme Preview
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-help"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-help-pane"
+              type="button" role="tab"
+              aria-controls="tab-help-pane"
+              aria-selected="false">
+        Help
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+    <div class="tab-pane show active"
+         id="tab-preview-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="0">
+      <div class="tw-space-y-6">
+        <h2 class="tw-text-xl tw-font-semibold">
+          <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+        </h2>
+
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+          <div class="tw-flex tw-items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+            <%= select_tag :ayah,
+                           [],
+                           onchange: "jumpToAyah(this.value)",
+                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           style: 'min-width: 220px',
+                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+          </div>
+
+          <div class="tw-flex tw-gap-2">
+            <% if ayah.previous_ayah %>
+              <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                ← Previous
+              <% end %>
+            <% end %>
+
+            <% if ayah.next_ayah %>
+              <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                Next →
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <% if theme %>
+          <% verses = theme.ayahs %>
+
+          <div class="card mb-2 shadow-sm">
+            <div class="card-body">
+              <div class="qpc-hafs quran-text">
+                <% verses.each do |verse| %>
+                  <%= verse.text_qpc_hafs %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+          <% if theme %>
+            <% verses = theme.ayahs %>
+
+            <% if verses.size > 1 %>
+              <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
+                <p class="tw-leading-normal">
+                  This theme is for group of <%= verses.size %> ayahs from <%= verses.first.verse_key %> to <%= verses.last.verse_key %>.
+                </p>
+              </div>
+            <% end %>
+
+            <div class="tafsir">
+              <%= safe_html theme.theme %>
+            </div>
+
+            <div class="tw-flex tw-gap-2 tw-mt-4">
+              <% theme.keywords.each do |keyword| %>
+                <span class="tw-bg-blue-100 tw-text-blue-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full">
+                  <%= keyword %>
+                </span>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="tw-text-gray-500 tw-italic">Tafisr is not available for this ayah.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane"
+         id="tab-help-pane"
+         role="tabpanel"
+         aria-labelledby="tab-docs" tabindex="1">
+      <div class="tw-space-y-6">
+        <div class="tw-space-y-6 tw-text-gray-800 tw-text-base tw-leading-relaxed">
+          <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900">Ayah themes</h2>
+
+          <p>
+            The Ayah Theme resource in QUL provides a concise thematic summary for a verse or group of verses in the Qur’an.
+            It helps readers quickly grasp the central message or topic covered in a passage.
+          </p>
+
+          <div class="tw-bg-gray-50 tw-border-l-4 tw-border-gray-300 tw-p-4">
+            <p class="tw-font-semibold tw-mb-2">Example:</p>
+            <h3>For Surah 1:1 to 1:7, the theme is:</h3>
+            <p class="tw-mb-2">Supplication to Allah for guidance taught by Allah Himself</p>
+          </div>
+
+
+          <h3 class="tw-text-xl tw-font-semibold">
+            QUL export ayah themes data as a Sqlite database with following columns
+          </h3>
+
+          <ul class="tw-list-disc tw-pl-6 tw-space-y-2">
+            <li><code>theme</code>: A short description summarizing the main idea or subject of the ayah group.</li>
+            <li><code>surah_number</code>: The surah number to which the ayahs belong.
+            </li>
+            <li><code>ayah_from</code> / <code>to_ayah</code>: The starting ayah number of the theme group (inclusive).</li>
+            <li><code>ayah_to</code>: The ending ayah number of the theme group (inclusive).</li>
+            <li><code>keywords</code>:
+              Comma-separated keywords or concepts related to the theme.
+            </li>
+            <li><code>total_ayahs</code>:
+              The total number of ayahs covered by this theme
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<%
+  key = params[:ayah] || '73:4'
+  ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
+%>
+
+<div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+    <div class="tw-flex tw-items-center">
+      <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+      <%= select_tag :ayah,
+                     [],
+                     onchange: "jumpToAyah(this.value)",
+                     class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                     style: 'min-width: 220px',
+                     data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+    </div>
+
+    <div class="tw-flex tw-gap-2">
+      <% if ayah.previous_ayah %>
+        <%= link_to detail_resources_path('quran-metadata', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+          ← Previous
+        <% end %>
+      <% end %>
+
+      <% if ayah.next_ayah %>
+        <%= link_to detail_resources_path('quran-metadata', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+          Next →
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow">
+  <div class="card mb-2 shadow-sm">
+    <div class="card-body">
+      <div class="qpc-hafs quran-text">
+        <div class="badge bg-secondary text-white text-left">
+          <%= ayah.verse_key %>
+        </div>
+        <%= ayah.text_qpc_hafs %>
+      </div>
+    </div>
+  </div>
+</div>

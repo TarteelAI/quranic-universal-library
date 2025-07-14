@@ -22,4 +22,7 @@ class Juz < QuranApiRecord
   include HasVerseMapping
   has_many :verses, foreign_key: :juz_number
   has_many :chapters, through: :verses
+
+  belongs_to :first_verse, class_name: 'Verse'
+  belongs_to :last_verse, class_name: 'Verse'
 end

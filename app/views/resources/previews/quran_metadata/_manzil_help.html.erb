@@ -1,0 +1,72 @@
+<div class="tw-space-y-6 tw-text-gray-800">
+  <div>
+    <h3 class="tw-text-xl tw-font-semibold">Export Formats</h3>
+    <p class="tw-mt-2">
+      Manzil data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+    </p>
+  </div>
+
+  <div>
+    <h3 class="tw-text-lg tw-font-semibold">JSON Format</h3>
+    <p class="tw-mt-2">Here is an example of the JSON structure for the first Manzil:</p>
+
+    <pre class="tw-bg-gray-100 tw-p-4 tw-rounded-md tw-text-sm tw-whitespace-pre-wrap">
+{
+  "1": {
+    "manzil_number": 1,
+    "verses_count": 669,
+    "first_verse_key": "1:1",
+    "last_verse_key": "4:176",
+    "verse_mapping": {
+      "1": "1-7",
+      "2": "1-286",
+      "3": "1-200",
+      "4": "1-176"
+    }
+  }
+}
+    </pre>
+
+    <div class="tw-overflow-x-auto tw-bg-gray-50 tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-mt-4">
+      <table class="tw-min-w-full tw-text-sm tw-text-left">
+        <thead class="tw-bg-gray-100 tw-uppercase tw-text-xs tw-font-semibold">
+        <tr>
+          <th class="tw-px-4 tw-py-2">Field</th>
+          <th class="tw-px-4 tw-py-2">Type</th>
+          <th class="tw-px-4 tw-py-2">Description</th>
+        </tr>
+        </thead>
+        <tbody class="tw-divide-y tw-divide-gray-200">
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>manzil_number</code></td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">The manzil number (1 to 7).</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>verses_count</code></td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">Total number of verses in the manzil.</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>first_verse_key</code></td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">The key of the first verse in the manzil (e.g. <code>1:1</code>).</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>last_verse_key</code></td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">The key of the last verse in the hizb (e.g. <code>4:176</code>).</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>verse_mapping</code></td>
+          <td class="tw-px-4 tw-py-2">OBJECT</td>
+          <td class="tw-px-4 tw-py-2">
+            A mapping of surah numbers to ayah ranges within this manzil.
+            For example, <code>"2": "1-286"</code> indicates that all ayahs of Surah Al-Baqarah(1 to 286) are in this manzil.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

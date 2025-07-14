@@ -1,0 +1,57 @@
+<%
+  id = (params[:ruku].presence || 1).to_i.abs
+  ruku = Ruku.find_by(ruku_number: id) || Ruku.first
+  verses = ruku.verses
+%>
+
+<div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+  <div class="tw-flex tw-items-center">
+    <%= label_tag :ruku, 'Jump to Ruku', class: 'tw-me-2 tw-font-medium' %>
+    <%= select_tag :ruku,
+                   options_for_select((1..558).to_a, ruku.ruku_number),
+                   onchange: "jumpToRuku(this.value)",
+                   class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                   style: 'min-width: 220px',
+                   data: { controller: 'select2' } %>
+  </div>
+
+  <div class="tw-flex tw-gap-2">
+    <% if ruku.ruku_number > 1 %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number - 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+        ← Previous
+      <% end %>
+    <% end %>
+
+    <% if ruku.ruku_number < 30 %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number + 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+        Next →
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow">
+  <div class="tw-mb-4">
+    <h1 class="tw-text-3xl tw-font-bold">Ruku <%= ruku.ruku_number %></h1>
+    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Total Ayahs:
+      <strong>
+        <%= ruku.verses_count %>
+      </strong></p>
+  </div>
+
+  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4 tw-mb-4">
+    <h2 class="tw-text-lg tw-font-semibold tw-mb-2">Ayah Range</h2>
+    <p><strong>From:</strong> <%= ruku.first_verse.chapter.name_simple %>, Ayah <%= ruku.first_verse.verse_number %></p>
+    <p><strong>To:</strong> <%= ruku.last_verse.chapter.name_simple %>, Ayah <%= ruku.last_verse.verse_number %></p>
+  </div>
+
+  <div class="card mb-2 shadow-sm">
+    <div class="card-body">
+      <div class="qpc-hafs quran-text">
+        <% verses.each do |verse| %>
+          <%= verse.text_qpc_hafs %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="tw-space-y-6">
+
+  <h2 class="tw-text-xl tw-font-bold">Ayah Resource</h2>
+
+  <p class="tw-text-sm tw-text-gray-700">
+    This resource provides <strong>metadata</strong> about each ayah in the Quran.
+    If you are looking to download a specific ayah by ayah Quranic script, refer to the <a href='/esources/quran-script' class="tw-underline">Quran Script</a> resource instead.
+  </p>
+
+  <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Sample JSON</h3>
+  <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-sm tw-font-mono tw-whitespace-pre overflow-x-auto">
+    {
+    "1": {
+    "id": 1,
+    "surah_number": 1,
+    "ayah_number": 1,
+    "verse_key": "1:1",
+    "words_count": 4,
+    "text": "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ ١"
+    }
+    }
+  </div>
+
+  <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Field Descriptions</h3>
+  <div class="tw-overflow-x-auto">
+    <table class="tw-min-w-full tw-text-sm tw-text-left tw-border tw-border-gray-200 tw-rounded-lg">
+      <thead class="tw-bg-gray-100 tw-text-xs tw-uppercase tw-font-semibold">
+      <tr>
+        <th class="tw-px-4 tw-py-2">Field</th>
+        <th class="tw-px-4 tw-py-2">Type</th>
+        <th class="tw-px-4 tw-py-2">Description</th>
+      </tr>
+      </thead>
+      <tbody class="tw-divide-y tw-divide-gray-200">
+      <tr>
+        <td class="tw-px-4 tw-py-2">id</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Unique internal ID for the ayah</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">surah_number</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Surah number to which the ayah belongs</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">ayah_number</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Ayah number within the Surah</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">verse_key</td>
+        <td class="tw-px-4 tw-py-2">String</td>
+        <td class="tw-px-4 tw-py-2">Reference in the format <code>surah:ayah</code> (e.g., <code>1:1</code>)</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">words_count</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Number of words in this ayah</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">text</td>
+        <td class="tw-px-4 tw-py-2">String</td>
+        <td class="tw-px-4 tw-py-2">Plain Unicode text of the ayah</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

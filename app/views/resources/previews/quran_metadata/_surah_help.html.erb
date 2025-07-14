@@ -1,0 +1,76 @@
+<div class="tw-space-y-6">
+  <h2 class="tw-text-xl tw-font-bold">Surah Resource</h2>
+
+  <p class="tw-text-sm tw-text-gray-700">
+    QUL exports metadata for each Surah of the Quran in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+  </p>
+
+  <pre class="tw-bg-gray-100 tw-p-4 tw-rounded-md tw-text-sm tw-whitespace-pre-wrap">
+    {
+    "1": {
+    "id": 1,
+    "name": "Al-Fātiĥah",
+    "name_simple": "Al-Fatihah",
+    "name_arabic": "الفاتحة",
+    "revelation_order": 5,
+    "revelation_place": "makkah",
+    "verses_count": 7,
+    "bismillah_pre": false
+    }
+    }
+  </pre>
+
+  <div class="tw-overflow-x-auto">
+    <table class="tw-min-w-full tw-text-sm tw-text-left tw-border tw-border-gray-200 tw-rounded-lg">
+      <thead class="tw-bg-gray-100 tw-text-xs tw-uppercase tw-font-semibold">
+      <tr>
+        <th class="tw-px-4 tw-py-2">Field</th>
+        <th class="tw-px-4 tw-py-2">Type</th>
+        <th class="tw-px-4 tw-py-2">Description</th>
+      </tr>
+      </thead>
+      <tbody class="tw-divide-y tw-divide-gray-200">
+      <tr>
+        <td class="tw-px-4 tw-py-2">id</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Surah number (1–114)</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">name</td>
+        <td class="tw-px-4 tw-py-2">String</td>
+        <td class="tw-px-4 tw-py-2">Transliterated Surah name with diacritic</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">name_simple</td>
+        <td class="tw-px-4 tw-py-2">String</td>
+        <td class="tw-px-4 tw-py-2">Transliterated name of the Surah (e.g., <code>Al-Fatihah</code>)</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">name_arabic</td>
+        <td class="tw-px-4 tw-py-2">String</td>
+        <td class="tw-px-4 tw-py-2">Arabic name of the Surah (e.g., <code style="direction: rtl">الفاتحة</code>)</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">revelation_order</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Order in which the Surah was revealed historically</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">revelation_place</td>
+        <td class="tw-px-4 tw-py-2">String</td>
+        <td class="tw-px-4 tw-py-2"><code>makkah</code> or <code>madinah</code> – based on location of revelation</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">verses_count</td>
+        <td class="tw-px-4 tw-py-2">Integer</td>
+        <td class="tw-px-4 tw-py-2">Total number of verses in the Surah</td>
+      </tr>
+      <tr>
+        <td class="tw-px-4 tw-py-2">bismillah_pre</td>
+        <td class="tw-px-4 tw-py-2">Boolean</td>
+        <td class="tw-px-4 tw-py-2"><code>true</code> if the Surah starts with <em>Bismillah</em> and it should be recited; <code>false</code> otherwise</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

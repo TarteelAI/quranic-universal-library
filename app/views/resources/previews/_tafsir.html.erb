@@ -72,14 +72,14 @@
           <% verses = tafsir.ayahs %>
 
           <div class="card mb-2 shadow-sm">
-          <div class="card-body">
-            <div class="qpc-hafs quran-text">
-              <% verses.each do |verse| %>
-                <%= verse.text_qpc_hafs %>
-              <% end %>
+            <div class="card-body">
+              <div class="qpc-hafs quran-text">
+                <% verses.each do |verse| %>
+                  <%= verse.text_qpc_hafs %>
+                <% end %>
+              </div>
             </div>
           </div>
-        </div>
         <% end %>
 
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
@@ -89,7 +89,8 @@
             <% if tafsir.group_verses_count > 1 %>
               <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
                 <p class="tw-leading-normal">
-                  You are reading tafsir of <%= verses.size %> ayahs: <%= verses.first.verse_key %> to <%= verses.last.verse_key %>.
+                  You are reading tafsir of <%= verses.size %> ayahs: <%= verses.first.verse_key %>
+                  to <%= verses.last.verse_key %>.
                 </p>
               </div>
             <% end %>

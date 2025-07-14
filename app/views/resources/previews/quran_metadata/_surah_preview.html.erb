@@ -1,0 +1,41 @@
+<div class="tw-space-y-6 tw-text-gray-800 tw-text-base tw-leading-relaxed">
+  <h1 class="tw-text-2xl tw-font-bold tw-mb-4">Surahs</h1>
+
+  <div class="tw-overflow-x-auto tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200">
+    <table class="tw-min-w-full tw-text-sm tw-text-left">
+      <thead class="tw-bg-gray-100 tw-uppercase tw-text-xs tw-font-semibold">
+      <tr>
+        <th class="tw-px-4 tw-py-2">ID</th>
+        <th class="tw-px-4 tw-py-2">Name</th>
+        <th class="tw-px-4 tw-py-2">Simple Name</th>
+        <th class="tw-px-4 tw-py-2">Arabic Name</th>
+        <th class="tw-px-4 tw-py-2">Revelation Order</th>
+        <th class="tw-px-4 tw-py-2">Revelation Place</th>
+        <th class="tw-px-4 tw-py-2">Verse Count</th>
+        <th class="tw-px-4 tw-py-2">Bismillah?</th>
+      </tr>
+      </thead>
+
+      <tbody class="tw-divide-y tw-divide-gray-200">
+      <% Chapter.order('id ASC').each do |chapter| %>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><%= chapter.id %></td>
+          <td class="tw-px-4 tw-py-2"><%= chapter.name %></td>
+          <td class="tw-px-4 tw-py-2"><%= chapter.name_simple %></td>
+          <td class="tw-px-4 tw-py-2"><%= chapter.name_arabic %></td>
+          <td class="tw-px-4 tw-py-2"><%= chapter.revelation_order %></td>
+          <td class="tw-px-4 tw-py-2"><%= chapter.revelation_place.capitalize %></td>
+          <td class="tw-px-4 tw-py-2"><%= chapter.verses_count %></td>
+          <td class="tw-px-4 tw-py-2">
+            <% if chapter.bismillah_pre? %>
+              ✅
+            <% else %>
+              ❌
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="tw-space-y-6 tw-text-gray-800">
+  <div>
+    <h3 class="tw-text-xl tw-font-semibold">Export Formats</h3>
+    <p class="tw-mt-2">
+      Juz data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+    </p>
+  </div>
+
+  <div>
+    <h3 class="tw-text-lg tw-font-semibold">JSON Format</h3>
+    <p class="tw-mt-2">Here is an example of the JSON structure for the first juz:</p>
+    <pre class="tw-bg-gray-100 tw-p-4 tw-rounded-md tw-text-sm tw-whitespace-pre-wrap">
+{
+  "1": {
+    "juz_number": 1,
+    "verses_count": 148,
+    "first_verse_key": "1:1",
+    "last_verse_key": "2:141",
+    "verse_mapping": {
+      "1": "1-7",
+      "2": "1-141"
+    }
+  }
+}
+    </pre>
+
+    <div class="tw-overflow-x-auto tw-bg-gray-50 tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-mt-4">
+      <table class="tw-min-w-full tw-text-sm tw-text-left">
+        <thead class="tw-bg-gray-100 tw-uppercase tw-text-xs tw-font-semibold">
+        <tr>
+          <th class="tw-px-4 tw-py-2">Field</th>
+          <th class="tw-px-4 tw-py-2">Type</th>
+          <th class="tw-px-4 tw-py-2">Description</th>
+        </tr>
+        </thead>
+        <tbody class="tw-divide-y tw-divide-gray-200">
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>juz_number</code></td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">The juz number (1 to 30).</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>verses_count</code></td>
+          <td class="tw-px-4 tw-py-2">INTEGER</td>
+          <td class="tw-px-4 tw-py-2">Total number of verses in the juz.</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>first_verse_key</code></td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">The key of the first verse in the juz (e.g. <code>1:1</code>).</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>last_verse_key</code></td>
+          <td class="tw-px-4 tw-py-2">TEXT</td>
+          <td class="tw-px-4 tw-py-2">The key of the last verse in the juz (e.g. <code>2:141</code>).</td>
+        </tr>
+        <tr>
+          <td class="tw-px-4 tw-py-2"><code>verse_mapping</code></td>
+          <td class="tw-px-4 tw-py-2">OBJECT</td>
+          <td class="tw-px-4 tw-py-2">
+            A mapping of surah numbers to ayah ranges within this juz.
+            For example, <code>"2": "1-141"</code> means Surah 2 contributes ayahs 1 to 141 to this juz.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

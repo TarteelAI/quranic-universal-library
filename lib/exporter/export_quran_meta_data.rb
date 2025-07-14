@@ -41,7 +41,7 @@ module Exporter
         Chapter.order('id asc').each do |chapter|
           statement.execute([
                               chapter.id,
-                              chapter.name,
+                              chapter.name_complex,
                               chapter.name_simple,
                               chapter.name_arabic,
                               chapter.revelation_order,
@@ -55,7 +55,7 @@ module Exporter
         Chapter.order('id asc').each do |chapter|
           json_data[chapter.id] = {
             id: chapter.id,
-            name: chapter.name,
+            name: chapter.name_complex,
             name_simple: chapter.name_simple,
             name_arabic: chapter.name_arabic,
             revelation_order: chapter.revelation_order,
@@ -82,6 +82,7 @@ module Exporter
           surah_number: 'INTEGER',
           ayah_number: 'INTEGER',
           verse_key: 'TEXT',
+          words_count: 'INTEGER',
           text: 'TEXT'
         }
 
@@ -93,6 +94,7 @@ module Exporter
                               verse.chapter_id,
                               verse.verse_number,
                               verse.verse_key,
+                              verse.words_count,
                               verse.text_qpc_hafs
                             ])
         end
@@ -104,6 +106,7 @@ module Exporter
             surah_number: verse.chapter_id,
             ayah_number: verse.verse_number,
             verse_key: verse.verse_key,
+            words_count: verse.words_count,
             text: verse.text_qpc_hafs
           }
         end

@@ -52,6 +52,14 @@ class Draft::Tafsir < ApplicationRecord
   scope :verse_key_start, ->(ayah) { where("start_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
   scope :verse_key_end, ->(ayah) { where("end_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
 
+  def source_link
+    if resource_content.sourced_from_tafsir_app?
+      "https://tafsir.app/#{resource_content.tafsir_app_key}/#{verse.verse_key.sub(':', '/')}"
+    elsif resource_content.sourced_from_quranenc?
+      "https://quranenc.com/en/browse/#{resource_content.quran_enc_key}/#{verse.verse_key.sub(':', '/')}"
+    end
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     %i[verse_key_cont verse_key_eq verse_key_start verse_key_end]
   end

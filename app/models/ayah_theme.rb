@@ -27,4 +27,17 @@
 #
 class AyahTheme < QuranApiRecord
   belongs_to :chapter
+  belongs_to :verse_from, class_name: 'Verse', foreign_key: 'verse_id_from'
+  belongs_to :verse_to, class_name: 'Verse', foreign_key: 'verse_id_from'
+
+  def self.for_verse(verse)
+    AyahTheme
+      .where(":ayah >= verse_id_from AND :ayah <= verse_id_to ", ayah: verse.id)
+      .first
+  end
+
+  def ayahs
+    Verse.where(id: verse_id_from..verse_id_to).order('verse_index ASC')
+  end
 end
+

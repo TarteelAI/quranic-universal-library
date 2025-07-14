@@ -198,19 +198,21 @@ $asset-version: "3.3";
   direction: rtl;
 }
 
-.urdu, [lang=ur] {
+.urdu, .ur, [lang=ur] {
   font-family: MehrNastaliq !important;
   direction: rtl;
   font-size: 30px;
+  line-height: normal;
 }
 
-div.fa, p.fa, span.fa, [lang=fa], [lang=ar] {
+.ar, .fa, [lang=fa], [lang=ar] {
   font-family: 'Noto Naskh Arabic', serif;
   direction: rtl;
   font-size: 30px;
+  line-height: normal;
 }
 
-.kashmiri, .ks, [lang=ks], [lang=ks] {
+.kashmiri, .ks, [lang=ks] {
   font-family: 'Noto Naskh Arabic', serif;
   direction: rtl;
 }

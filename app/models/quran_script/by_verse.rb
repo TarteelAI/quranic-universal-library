@@ -26,6 +26,6 @@
 class QuranScript::ByVerse < QuranApiRecord
   belongs_to :resource_content
   belongs_to :chapter
-  belongs_to :verse
+  belongs_to :verse, optional: true
   belongs_to :qirat, class_name: 'QiratType'
 end

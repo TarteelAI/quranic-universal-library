@@ -407,9 +407,18 @@ ActiveAdmin.register ResourceContent do
         end
       elsif resource.mushaf_layout?
         link_to 'Mushaf pages', "/cms/mushaf_pages?q%5Bmushaf_id_eq%5D=#{resource.get_mushaf_id}"
+      elsif resource.uloom_quran?
+        safe_join([
+                    link_to('UloomQuran – By Verse',   "/cms/uloom_quran_by_verses?q%5Bresource_content_id_eq%5D=#{resource.id}"),
+                    tag(:br),
+                    link_to('UloomQuran – By Word',    "/cms/uloom_quran_by_words?q%5Bresource_content_id_eq%5D=#{resource.id}"),
+                    tag(:br),
+                    link_to('UloomQuran – By Chapter', "/cms/uloom_quran_by_chapters?q%5Bresource_content_id_eq%5D=#{resource.id}")
+                  ])
       end
     end
   end
+
 
   sidebar 'Export data', only: :show, if: -> { can?(:export, resource) && (resource.translation? || resource.tafsir?) } do
     div do

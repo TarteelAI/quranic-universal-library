@@ -6,6 +6,7 @@
 #  id                     :integer          not null, primary key
 #  approved               :boolean
 #  author_name            :string
+#  book_name              :string
 #  cardinality_type       :string
 #  description            :text
 #  language_name          :string
@@ -71,6 +72,7 @@ class ResourceContent < QuranApiRecord
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }
   scope :with_segments, -> { where("meta_data ->> 'has-segments' = 'yes'") }
   scope :fonts, -> { where sub_type: SubType::Font }
+  scope :uloom_quran, -> { where sub_type: SubType::UloomQuran }
   scope :approved, -> { where approved: true }
   scope :for_language, lambda { |lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
@@ -191,6 +193,7 @@ class ResourceContent < QuranApiRecord
     MetaData = 'meta'
     Morphology = 'morphology'
     Font = 'font'
+    UloomQuran = 'uloom-quran'
   end
 
   def get_language_name
@@ -222,6 +225,10 @@ class ResourceContent < QuranApiRecord
 
   def quran_script?
     sub_type == SubType::QuranText
+  end
+
+  def uloom_quran?
+    sub_type == SubType::UloomQuran
   end
 
   def font?

@@ -157,36 +157,64 @@ module Importer
     end
 
     def sanitize_text(text)
-      text = simple_format(text)
-      html = ""
+      @footnotes = []
+      text = text.gsub(/\[\[(.+?)\]\]/) do
+        @footnotes << Regexp.last_match(1)
+        %(<sup foot_note="#{@footnotes.size}">#{@footnotes.size}</sup>)
+      end
 
-      text.split("\n").each do |line|
+      formatted = simple_format(text)
+      html = ''
+      formatted.split("\n").each do |line|
         line.strip!
         next if line.empty?
-
-        line.gsub!(/﴿(.*?)﴾/, '<span class="qpc-hafs">﴿\1﴾</span>')
-
-        if line.start_with?('*')
-          line.sub!('*', '').strip!
-          html << "<h3>#{line}</h3>"
-        else
-          html << "<p>#{line}</p>"
-        end
+        html << if line.start_with?('*')
+                  "<h3>#{line.sub('*', '').strip}</h3>"
+                else
+                  "<p>#{line}</p>"
+                end
       end
 
       doc = Nokogiri::HTML.fragment(html)
 
-      doc.css('a[href^="/quran-roots/"]').each do |a_tag|
-        if a_tag['href'] =~ %r{^/quran-roots/(.+)}
-          root_text = $1
-          # Create a new <root> element with the extracted text
-          new_node = Nokogiri::XML::Node.new('root', doc)
-          new_node.content = root_text
-          a_tag.replace(new_node)
+      # Merge nested .hlt and .qpc-hafs spans into a single span with both classes
+      doc.css('span.hlt > span.qpc-hafs').each do |qpc_span|
+        merged = Nokogiri::XML::Node.new('span', doc)
+        merged['class'] = 'qpc-hafs hlt'
+        merged.content   = qpc_span.text
+        qpc_span.parent.replace(merged)
+      end
+
+      # Also annotate any lone .hlt spans containing Qur’anic quote punctuation with qpc-hafs
+      doc.css('span.hlt').each do |n|
+        if n.text =~ /\A[«{﴿][\s\S]*?[﴾}»]\z/
+          n['class'] = 'qpc-hafs hlt'
         end
       end
 
-      "<div class=ar lang=ar>#{doc.to_html}</div>"
+      # Convert Quran-root links into <root> elements
+      doc.css('a[href^="/quran-roots/"]').each do |a|
+        if a['href'] =~ %r{^/quran-roots/(.+)}
+          r = Nokogiri::XML::Node.new('root', doc)
+          r.content = $1
+          a.replace(r)
+        end
+      end
+
+      # Append footnotes list if any
+      if @footnotes.any?
+        ol = Nokogiri::XML::Node.new('ol', doc)
+        ol['class'] = 'footnotes'
+        @footnotes.each_with_index do |fn, i|
+          li = Nokogiri::XML::Node.new('li', doc)
+          li['id']      = "footnote-#{i+1}"
+          li.content    = "#{i+1}. #{fn}"
+          ol.add_child(li)
+        end
+        doc.add_child(ol)
+      end
+
+      "<div class=\"ar\" lang=\"ar\">#{doc.to_html}</div>"
     end
 
     def prep_data_mathoor(text)

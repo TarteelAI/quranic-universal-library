@@ -58,6 +58,7 @@ module Importer
       'althalabi' => 1516,
       'ayah-morph' => 1518,
       'iraab-graphs' => 1573,
+      'wahidi-asbab' => 1574,
     }
 
     def self.import_tafsirs(keys)

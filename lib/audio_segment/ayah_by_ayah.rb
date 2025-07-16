@@ -112,7 +112,7 @@ module AudioSegment
       audio_file.url ||= verse_segment.audio_url
       audio_file.format ||= recitation.audio_format
       audio_file.is_enabled = true
-      audio_file.segments = JSON.parse(verse_segment.words)
+      audio_file.set_segments(JSON.parse(verse_segment.words))
       audio_file.save(validate: false)
     end
 

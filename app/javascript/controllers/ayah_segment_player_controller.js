@@ -80,16 +80,7 @@ export default class extends SegmentPlayer {
   }
 
   updateVerse(time) {
-    const segments = this.segmentsData[this.currentVerseKey];
-    if (segments && time >= segments.time_from && time <= segments.time_to) {
-      return
-    }
-
-    const key = this.findAyahKeyAtTime(time);
-
-    if (!key) return;
-    this.currentVerseKey = key;
-    this.jumpToVerse(key);
+    // Don't need to check for ayah by ayah
   }
 
   findSegmentAtTime(time) {

@@ -104,7 +104,7 @@ module Audio
           )
         end
 
-        words_count = segment.verse.actual_words.size
+        words_count = segment.verse.words_count
         segments_count = segment.segments.size
         missing_words = words_count - segments_count
 

@@ -111,8 +111,8 @@ class Recitation < QuranApiRecord
       end
 
       segments.each_with_index do |word_segment, index|
-        from = word_segment[2]
-        to = word_segment[3]
+        from = word_segment[1]
+        to = word_segment[2]
 
         if to.blank? || from.blank?
           issues.push({

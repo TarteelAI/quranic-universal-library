@@ -83,7 +83,14 @@ ActiveAdmin.register Draft::Translation do
       row :id
       row :resource_content
       row :translation
-
+      row :verse do |resource|
+        div do
+          link_to resource.verse.verse_key, cms_verse_path(resource.verse)
+        end
+        div class: 'qpc-hafs' do
+          resource.verse.text_qpc_hafs
+        end
+      end
       row :current_text, class: language_name, 'data-controller': 'translation' do
         div do
           span safe_html(resource.current_text)

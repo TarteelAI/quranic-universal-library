@@ -74,7 +74,10 @@ module Exporter
     end
 
     def segments
-      Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id ASC').in_batches(of: 1000)
+      Audio::Segment
+        .where(audio_recitation_id: recitation.id)
+        .order('verse_id ASC')
+        .in_batches(of: 1000)
     end
 
     def surah_table_column_names

@@ -1,4 +1,11 @@
 namespace :one_time do
+  task fix_segments: :environment do
+    AudioFile.find_each do |f|
+      if f.segments.present?
+        f.set_segments(f.get_segments)
+      end
+    end
+  end
 
   task import_transliteration: :environment do
     CDN = "PATH_TO_CDN"

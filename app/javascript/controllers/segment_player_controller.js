@@ -36,6 +36,9 @@ export default class extends Controller {
     this.totalTime = this.element.querySelector('#total-duration');
 
     this.loadingIndicator = this.createLoadingIndicator();
+    this.ayahContainer = this.element.querySelector("#current-ayah");
+    this.highlightBg = this.ayahContainer.querySelector("#word-highlight");
+
     this.bindEvents();
 
     await this.loadVerses(verseKey).then(() => {
@@ -46,6 +49,11 @@ export default class extends Controller {
   disconnect() {
     if (this.playerId)
       cancelAnimationFrame(this.playerId);
+
+    if (this.player) {
+      this.player.unload();
+      this.player = null;
+    }
   }
 
   createLoadingIndicator() {
@@ -170,22 +178,21 @@ export default class extends Controller {
     const segment = this.findSegmentAtTime(time);
     if (!segment) return;
 
-    const container = this.element.querySelector("#current-ayah");
     const location = `${this.currentVerseKey}:${segment[0]}`;
-    const word = container.querySelector(`[data-location="${location}"]`);
+    const word = this.ayahContainer.querySelector(`[data-location="${location}"]`);
     if (!word) return;
 
-    const highlight = container.querySelector("#word-highlight");
-    const containerRect = container.getBoundingClientRect();
+    const containerRect = this.ayahContainer.getBoundingClientRect();
     const wordRect = word.getBoundingClientRect();
 
-    const top = wordRect.top - containerRect.top + container.scrollTop;
-    const left = wordRect.left - containerRect.left + container.scrollLeft;
+    const top = wordRect.top - containerRect.top + this.ayahContainer.scrollTop;
+    const left = wordRect.left - containerRect.left + this.ayahContainer.scrollLeft;
 
-    highlight.style.top = `${top}px`;
-    highlight.style.left = `${left}px`;
-    highlight.style.width = `${wordRect.width}px`;
-    highlight.style.height = `${wordRect.height}px`;
+    this.highlightBg.style.display = 'block';
+    this.highlightBg.style.top = `${top}px`;
+    this.highlightBg.style.left = `${left}px`;
+    this.highlightBg.style.width = `${wordRect.width}px`;
+    this.highlightBg.style.height = `${wordRect.height}px`;
   }
 
   onpause() {
@@ -228,6 +235,7 @@ export default class extends Controller {
       div.dataset.location = word.location;
       container.appendChild(div);
     });
+    this.highlightBg.style.display = "none";
   }
 
 

@@ -2,11 +2,11 @@
 #
 # Table name: quran_table_details
 #
-#  id            :bigint           not null, primary key
-#  name          :string
-#  records_count :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
+#  id         :bigint           not null, primary key
+#  enteries   :integer
+#  name       :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 
 class QuranTableDetail < ApplicationRecord

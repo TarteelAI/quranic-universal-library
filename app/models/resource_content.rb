@@ -6,7 +6,6 @@
 #  id                     :integer          not null, primary key
 #  approved               :boolean
 #  author_name            :string
-#  book_name              :string
 #  cardinality_type       :string
 #  description            :text
 #  language_name          :string

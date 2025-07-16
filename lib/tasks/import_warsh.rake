@@ -1,12 +1,11 @@
 namespace :quran_script do
-############### import_warsh_by_verse #################
-  desc "Import Uthmanic Warsh V21 into quran_script_by_verses"
-  task import_warsh: :environment do
+  desc "Import Warsh ayah by ayah script"
+  task import_warsh_ayah: :environment do
     rc = ResourceContent.find_or_create_by!(
-      slug:     "quran-script-warsh-v21",
+      slug:     "warsh-script",
       language: Language.find_by!(iso_code: "ar")
     ) do |r|
-      r.name             = "Quran Script (Uthmanic Warsh V21)"
+      r.name             = "Quran Script(Warsh)"
       r.sub_type         = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneVerse
     end
@@ -17,14 +16,14 @@ namespace :quran_script do
       qirat_id:            warsh.id
     ).delete_all
 
-    path  = Rails.root.join("data", "quran complex", "UthmanicWarsh V21.docx.txt")
+    path  = Rails.root.join("tmp",  "UthmanicWarshV21.docx.txt")
     whole = File.read(path, encoding: "utf-8")
     total = 0
 
     whole.split(/^سُورَةُ/).reject(&:blank?).each_with_index do |chunk, i|
       chapter_id = i + 1
       lines      = chunk.lines.map(&:strip).reject { |l|
-        l.blank? || l.include?("بِسْمِ") || l =~ /^_{2,}$/
+        l.blank? || l.include?("بِسْمِ اِ۬للَّهِ اِ۬لرَّحْمَٰنِ") || l =~ /^_{2,}$/
       }
       lines.shift
       text = lines.join(" ")
@@ -38,7 +37,6 @@ namespace :quran_script do
           resource_content_id: rc.id,
           qirat_id:            warsh.id,
           chapter_id:          chapter_id,
-          verse_id:            verse.id,
           verse_number:        verse_num,
           text:                frag.strip,
           key:                 "#{chapter_id}:#{verse_num}"
@@ -63,7 +61,14 @@ namespace :quran_script do
 ######################### import_warsh_by_words #################################
   desc "Import Uthmanic Warsh V21 into quran_script_by_words"
   task import_warsh_by_words: :environment do
-    rc    = ResourceContent.find_by!(slug: "quran-script-warsh-v21")
+    rc = ResourceContent.find_or_create_by!(
+      slug:     "warsh-script-wbw",
+      language: Language.find_by!(iso_code: "ar")
+    ) do |r|
+      r.name             = "Quran Script(Warsh) WBW"
+      r.sub_type         = ResourceContent::SubType::QuranText
+      r.cardinality_type = ResourceContent::CardinalityType::OneWord
+    end
     warsh = QiratType.find_by!(name: "Warsh")
 
     QuranScript::ByWord.where(
@@ -71,7 +76,7 @@ namespace :quran_script do
       qirat_id:            warsh.id
     ).delete_all
 
-    path       = Rails.root.join("data", "quran complex", "UthmanicWarsh V21.docx.txt")
+    path  = Rails.root.join("tmp",  "UthmanicWarshV21.docx.txt")
     whole      = File.read(path, encoding: "utf-8")
     total_words = 0
 

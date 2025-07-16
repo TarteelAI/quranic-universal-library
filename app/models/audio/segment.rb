@@ -76,19 +76,23 @@ module Audio
       self.chapter_id = verse.chapter_id
     end
 
-    def update_segments(list)
-      list = list.map do |s|
-        s.map &:to_i
-      end
+    def set_segments(segments_list, user = nil)
+      words = verse.words_count
 
-      if verse
-        list = list.select do |s|
-          s[0] <= verse.words_count
+      list = segments_list.map do |s|
+        s = s.map(&:to_i)
+
+        if s.size == 3 && s[0] <= words
+          s
         end
       end
 
-      self.segments = list
-      save(validate: false)
+      list = list.compact_blank
+
+      update(
+        segments: list,
+        segments_count: list.size
+      )
     end
 
     def update_time_and_offset_segments(from, to, key)
@@ -112,7 +116,9 @@ module Audio
     end
 
     def find_repeated_segments
-      segment_list = get_segments.map do |s| s[0] end
+      segment_list = get_segments.map do |s|
+        s[0]
+      end
 
       ranges = []
       seen = {}

@@ -182,7 +182,7 @@ module AudioSegment
       end
 
       segment.set_timing(from, to, verse)
-      segment.update_segments(segments)
+      segment.set_segments(segments)
 
       segment
     end
@@ -272,7 +272,7 @@ module AudioSegment
         data["#{segment.chapter_id}:#{segment.verse_number}"] = {
           from: segment.timestamp_from,
           to: segment.timestamp_to,
-          words: segment.segments.to_s
+          words: segment.segments
         }
       end
 

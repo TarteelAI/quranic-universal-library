@@ -136,15 +136,20 @@ class AudioFile < QuranApiRecord
   end
 
   def set_segments(segments_list, user = nil)
-    # TODO: generate activity if data is changed and assign user to it
-    # TODO: fix ayah by ayah segments, remove the segment index
-    padded = segments_list.map do |s|
-      if s.length == 3
-        [s[0].to_i - 1, s[0].to_i, s[1].to_i, s[2].to_i]
+    words = verse.words_count
+    list = segments_list.map do |s|
+      s = s.map(&:to_i).first(3)
+      if s.size == 3 && s[0] <= words
+        s
       end
     end
 
-    update segments: padded.compact_blank
+    list = list.compact_blank
+
+    update(
+      segments: list,
+      segments_count: list.size
+    )
   end
 
   def find_repeated_segments

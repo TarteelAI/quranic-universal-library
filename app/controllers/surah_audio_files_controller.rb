@@ -64,7 +64,7 @@ class SurahAudioFilesController < CommunityController
       end
 
       if params['segments'].present?
-        segment.update_segments(params['segments'])
+        segment.set_segments(params['segments'], current_user)
       else
         segment.update_time_and_offset_segments(
           params[:from],

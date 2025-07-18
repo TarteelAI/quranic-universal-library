@@ -1,4 +1,7 @@
+require 'json'
+
 namespace :quran_script do
+################################ BY VERSES ##############################
   desc "Import Warsh ayah by ayah script"
   task import_warsh_ayah: :environment do
     rc = ResourceContent.find_or_create_by!(
@@ -9,6 +12,7 @@ namespace :quran_script do
       r.sub_type         = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneVerse
     end
+
     warsh = QiratType.find_or_create_by!(name: "Warsh")
 
     QuranScript::ByVerse.where(
@@ -16,59 +20,57 @@ namespace :quran_script do
       qirat_id:            warsh.id
     ).delete_all
 
-    path  = Rails.root.join("tmp",  "UthmanicWarshV21.docx.txt")
-    whole = File.read(path, encoding: "utf-8")
+    path = Rails.root.join("tmp", "UthmanicWarshV21.json")
+    file = File.read(path, encoding: "utf-8")
+    data = JSON.parse(file)
     total = 0
+    imported_verses = {}
 
-    whole.split(/^سُورَةُ/).reject(&:blank?).each_with_index do |chunk, i|
-      chapter_id = i + 1
-      lines      = chunk.lines.map(&:strip).reject { |l|
-        l.blank? || l.include?("بِسْمِ اِ۬للَّهِ اِ۬لرَّحْمَٰنِ") || l =~ /^_{2,}$/
-      }
-      lines.shift
-      text = lines.join(" ")
+    data["pages"].each do |page|
+      page["surahs"].each do |surah|
+        chapter_id = surah["chapter"]
+        imported_verses[chapter_id] ||= []
 
-      text.scan(/(.+?)[\s ]+([\u0660-\u0669]+)/) do |frag, num|
-        verse_num = num.chars.map { |c| c.ord - 0x0660 }.join.to_i
-        verse     = Verse.find_by(chapter_id: chapter_id, verse_number: verse_num)
-        next unless verse
+        surah["verses"].each do |verse|
+          verse_key = verse["verse_key"]
+          _, verse_number = verse_key.split(":").map(&:to_i)
 
-        QuranScript::ByVerse.create!(
-          resource_content_id: rc.id,
-          qirat_id:            warsh.id,
-          chapter_id:          chapter_id,
-          verse_number:        verse_num,
-          text:                frag.strip,
-          key:                 "#{chapter_id}:#{verse_num}"
-        )
-        total += 1
-      end
+          QuranScript::ByVerse.create!(
+            resource_content_id: rc.id,
+            qirat_id:            warsh.id,
+            chapter_id:          chapter_id,
+            verse_number:        verse_number,
+            text:                verse["text"].strip,
+            key:                 verse_key
+          )
 
-      expected = Verse.where(chapter_id: chapter_id).pluck(:verse_number)
-      imported = QuranScript::ByVerse.where(
-        resource_content_id: rc.id,
-        qirat_id:            warsh.id,
-        chapter_id:          chapter_id
-      ).pluck(:verse_number)
-      (expected - imported).each do |v|
-        Rails.logger.warn "skipped verse #{chapter_id}:#{v}"
+          total += 1
+          imported_verses[chapter_id] << verse_number
+        end
       end
     end
 
-    puts "Imported verses: #{total}"
-  end
+    (1..114).each do |chapter_id|
+      expected = QuranScript::ByVerse.where(chapter_id: chapter_id).pluck(:verse_number).uniq.sort
+      imported = imported_verses[chapter_id] || []
+      missing = expected - imported
+      missing.each { |v| puts "WARNING: Missing verse #{chapter_id}:#{v}" }
+    end
 
-######################### import_warsh_by_words #################################
+    puts "Imported #{total} verses"
+  end
+################################ BY WORDS ##############################
   desc "Import Uthmanic Warsh V21 into quran_script_by_words"
   task import_warsh_by_words: :environment do
     rc = ResourceContent.find_or_create_by!(
-      slug:     "warsh-script-wbw",
+      slug: "warsh-script-wbw",
       language: Language.find_by!(iso_code: "ar")
     ) do |r|
       r.name             = "Quran Script(Warsh) WBW"
       r.sub_type         = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneWord
     end
+
     warsh = QiratType.find_by!(name: "Warsh")
 
     QuranScript::ByWord.where(
@@ -76,46 +78,49 @@ namespace :quran_script do
       qirat_id:            warsh.id
     ).delete_all
 
-    path  = Rails.root.join("tmp",  "UthmanicWarshV21.docx.txt")
-    whole      = File.read(path, encoding: "utf-8")
+    path = Rails.root.join("tmp", "UthmanicWarshV21.json")
+    file = File.read(path, encoding: "utf-8")
+    data = JSON.parse(file)
     total_words = 0
 
-    whole.split(/^سُورَةُ/).reject(&:blank?).each_with_index do |chunk, i|
-      chapter_id = i + 1
-      lines      = chunk.lines.map(&:strip).reject { |l|
-        l.blank? || l.include?("بِسْمِ") || l =~ /^_{2,}$/
-      }
-      lines.shift
-      text = lines.join(" ")
+    verse_key_map = QuranScript::ByVerse.pluck(:key, :id).to_h
 
-      text.scan(/(.+?)[\s ]+([\u0660-\u0669]+)/) do |verse_text, num|
-        verse_num = num.chars.map { |c| c.ord - 0x0660 }.join.to_i
-        verse     = Verse.find_by(chapter_id: chapter_id, verse_number: verse_num)
-        next unless verse
+    data["pages"].each do |page|
+      page["surahs"].each do |surah|
+        chapter_id = surah["chapter"]
 
-        tokens     = verse_text.strip.split(/[[:space:]\u00A0]+/)
-        words_db   = Word.where(verse_id: verse.id).order(:position).to_a
+        surah["verses"].each do |verse|
+          verse_key = verse["verse_key"]
 
-        tokens.each_with_index do |tok, idx|
-          w = words_db[idx]
-          next unless w
+          unless verse_key_map.key?(verse_key)
+            puts "WARNING: Verse not found #{verse_key}"
+            next
+          end
 
-          QuranScript::ByWord.create!(
-            resource_content_id: rc.id,
-            qirat_id:            warsh.id,
-            chapter_id:          chapter_id,
-            verse_id:            verse.id,
-            verse_number:        verse_num,
-            word_id:             w.id,
-            word_number:         idx + 1,
-            text:                tok.strip,
-            key:                 "#{chapter_id}:#{verse_num}:#{idx + 1}"
-          )
-          total_words += 1
+          verse_id = verse_key_map[verse_key]
+          _, verse_number = verse_key.split(":").map(&:to_i)
+
+          verse["words"].each do |word_data|
+            word_key = word_data["key"]
+            word_text = word_data["text"].strip
+            _, _, word_position = word_key.split(":").map(&:to_i)
+
+            QuranScript::ByWord.create!(
+              resource_content_id: rc.id,
+              qirat_id:            warsh.id,
+              chapter_id:          chapter_id,
+              verse_id:            verse_id,
+              verse_number:        verse_number,
+              word_number:         word_position,
+              text:                word_text,
+              key:                 word_key
+            )
+            total_words += 1
+          end
         end
       end
     end
 
-    puts "Imported words: #{total_words}"
+    puts "Imported #{total_words} words"
   end
 end

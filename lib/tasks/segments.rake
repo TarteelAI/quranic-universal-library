@@ -104,7 +104,7 @@ namespace :segments do
     recitations = Audio::Recitation.where(id: 167)
     chapter_ids = parse_chapter_ids("1,93..114")
 
-    base_path = "/Volumes/Data/qul-segments/audio/vs_logs" # Rails.root.join("tmp/audio/vs_logs")
+    base_path = "/Volumes/Data/qul-segments/audio/vs_logs"
     FileUtils.mkdir_p(base_path)
 
     Dir.chdir('../voice-server') do
@@ -210,7 +210,9 @@ namespace :segments do
     def process_surah_time_machine(segments_file, surah_id)
       entries = Oj.load(File.read(segments_file))
       ayah_groups = Hash.new { |h, k| h[k] = [] }
-      first_two_ayah_words = []
+      ayah_words = []
+      last_word_index = 0
+      
       words = Word
                 .unscoped
                 .where(
@@ -220,7 +222,7 @@ namespace :segments do
                 .order('word_index ASC')
 
       words.each do |word|
-        first_two_ayah_words << {
+        ayah_words << {
             text_qpc_hafs: normalize(word.text_qpc_hafs),
             text_imlaei: normalize(word.text_imlaei),
             text_imlaei_simple: normalize(word.text_imlaei_simple),
@@ -260,7 +262,7 @@ namespace :segments do
 
           text = normalize(text)
 
-          matched_word = first_two_ayah_words.find do |w|
+          matched_word = ayah_words.find do |w|
             !w[:matched] &&
               [
                 w[:text_qpc_hafs],
@@ -319,15 +321,21 @@ namespace :segments do
       result
     end
 
-    # base_path = "tmp/audio"
-    base_path = "/Volumes/Data/qul-segments"
+    base_path = "/Volumes/Data/qul-segments/15-july"
     reciter_databases = {}
 
     Dir.glob("#{base_path}/vs_logs/**/time-machine.json") do |file_path|
+      puts "Processing #{file_path}"
+
+      filename = File.basename(File.dirname(file_path))
+      next unless filename.match?(/^\d{8}-/)
+      content = File.read(file_path)
+      next if content.blank?
+
       session_id = file_path[%r{vs_logs/([^/]+)/}, 1]
 
-      surah_id = session_id[4..7].to_i
       reciter_id = session_id[0..3].to_i
+      surah_id = session_id[4..7].to_i
 
       export_path = "#{base_path}/results/#{reciter_id}"
       FileUtils.mkdir_p("#{export_path}/json")
@@ -337,13 +345,15 @@ namespace :segments do
 
       segments = process_surah_time_machine(file_path, surah_id)
       json_data = {}
+      
       if segments.blank?
         puts "No segments found for #{file_path}"
         FileUtils.rm(file_path)
         next
       end
+      
       surah = segments[0][:surah]
-
+      binding.pry if @debug.nil?
       segments.each do |segment|
         segment = merge_ayah_segments(segment)
 
@@ -362,13 +372,27 @@ namespace :segments do
   end
 
   task prepare_stats: :environment do
-    recitations = Audio::Recitation.where(id: 178)
-    DB_FILE =  "/Volumes/Data/qul-segments/stats.db"
-    #File.delete(@db_file) if File.exist?(@db_file)
+    require 'sqlite3'
+    base_path = "/Volumes/Data/qul-segments/15-july"
+    logs_path = "#{base_path}/vs_logs/**/time-machine.json"
+
+    DB_FILE =  "#{base_path}/segments_stats.db"
+    recitation_ids = []
+
+    Dir.glob(logs_path) do |file_path|
+      session_id = file_path[%r{vs_logs/([^/]+)/}, 1]
+      reciter_id = session_id[0..3].to_i
+      recitation_ids << reciter_id
+    end
+
+    recitations = Audio::Recitation.where(id: recitation_ids)
 
     class Stats < ActiveRecord::Base
       self.abstract_class = true
-      self.establish_connection(adapter: 'sqlite3', database: DB_FILE)
+      self.establish_connection(
+        adapter: 'sqlite3',
+        database: DB_FILE
+      )
     end
 
     class DetectionStat < Stats
@@ -416,26 +440,25 @@ namespace :segments do
 
     # Add reciter data
     recitations.each do |recitation|
-      ReciterName.where(id: recitation.id).first_or_create(name: recitation.name)
+      ReciterName
+        .where(id: recitation.id)
+        .first_or_create(
+          name: recitation.name
+        )
     end
 
-    # Parse the logs
-    base_path = Rails.root.join("/Volumes/Data/qul-segments//vs_logs/*/time-machine.json")
-    parsed_files = {}
-
-    Dir.glob(base_path) do |file_path|
+    Dir.glob(logs_path) do |file_path|
+      puts "Processing #{file_path}"
       filename = File.basename(File.dirname(file_path))
       next unless filename.match?(/^\d{8}-/)
+      content = File.read(file_path)
+      next if content.blank?
 
       reciter = filename[0..3].to_i
       surah = filename[4..7].to_i
 
-      # next if parsed_files["#{surah}#{reciter}"]
-      # parsed_files["#{surah}#{reciter}"] = true
-
       type_counts = Hash.new(0)
-
-      data = JSON.parse(File.read(file_path))
+      data = JSON.parse(content)
 
       data.each do |entry|
         type = entry["type"]
@@ -487,10 +510,12 @@ namespace :segments do
   end
 
   task generate_report: :environment do
-    db_file = Rails.root.join('/Volumes/Data/qul-segments//stats.db')
-    output_file = Rails.root.join('/Volumes/Data/qul-segments/report.html')
+    require 'sqlite3'
+    base_path = "/Volumes/Data/qul-segments/15-july"
+    DB_FILE =  "#{base_path}/segments_stats.db"
+    output_file = "#{base_path}/report.html"
 
-    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: db_file)
+    ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: DB_FILE)
 
     class DetectionStat < ActiveRecord::Base
       self.table_name = 'detection_stats'

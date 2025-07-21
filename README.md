@@ -83,10 +83,10 @@ bundle install
 
 #### 5. Database Configuration
 
-**The QUL project requires two databases:**
+**QUL requires two databases:**
 
 1. **`quran_dev`**: This database holds all Quranic data, including translations, tafsirs, audio etc. It's accessed through `quran_api_db_dev` for the development environment.
-2. **`quran_community_tarteel`**: This database manages user accounts, permissions, and user changes.
+2. **`quran_community_tarteel`**: This database hold data about user accounts, permissions, and user generated content and change log about translations.
 
 #### 6. Create Databases
 Create the **`quran_community_tarteel`** database for managing user content.
@@ -98,6 +98,14 @@ For **`quran_dev`** you can create it manually or change the database name to `q
 
 #### 7. Load the data for **`quran_dev`** database
 The `quran_dev` database dump is available in both SQL and binary formats. Follow the appropriate instructions below to restore the database.
+
+>  **Mini Database Dump for Development**
+> 
+> The database backup provided below contains a limited subset of data, specifically selected for local development and testing. It is not a full production database and is intended solely for development and contribution purposes.
+> 
+> We **do not provide or share** the full database backup. This mini dump contains all the essential data required to run QUL locally or contribute new features. If you're working on a feature that need more data, please open an issue.
+> If you're looking for specific resource, please visit our [Resources page](https://qul.tarteel.ai/resources/) to download it.
+
 
 #### Restoring from SQL Dump
 7.1 **Restore using SQL Dump:**

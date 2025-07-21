@@ -117,7 +117,7 @@ class Segments::DashboardController < ApplicationController
   end
 
   def upload_db(uploaded_file)
-    save_path = Rails.root.join("db", "segments_database.db")
+    save_path = Rails.root.join("tmp", "segments_database.db")
 
     File.open(save_path, "wb") do |file|
       file.write(uploaded_file.read)

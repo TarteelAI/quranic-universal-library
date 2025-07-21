@@ -8,8 +8,11 @@ class Segments::DashboardController < ApplicationController
       uploaded_file = params[:file]
 
       if uploaded_file.present?
-        save_path = upload_db(uploaded_file)
-        redirect_to segments_dashboard_path, notice: "DB uploaded successfully to #{save_path}."
+        if (save_path = upload_db(uploaded_file))
+          redirect_to segments_dashboard_path, notice: "DB uploaded successfully to #{save_path}."
+        else
+          redirect_to segments_setup_db_path, alert: "Failed to upload the database. Please ensure the file is a valid zip containing a .db file."
+        end
       else
         redirect_to segments_setup_db_path, alert: "Please select a file."
       end
@@ -95,7 +98,7 @@ class Segments::DashboardController < ApplicationController
   end
 
   def check_segments_database
-    models = segment_modals
+    models = segment_models
     missing_models = models.reject { |model| model.table_exists? }
 
     if missing_models.any?
@@ -106,7 +109,7 @@ class Segments::DashboardController < ApplicationController
     redirect_to segments_setup_db_path, alert: "Segments database is missing" and return
   end
 
-  def segment_modals
+  def segment_models
     [
       SegmentStats::DetectionStat,
       SegmentStats::FailureStat,
@@ -117,13 +120,37 @@ class Segments::DashboardController < ApplicationController
   end
 
   def upload_db(uploaded_file)
-    save_path = Rails.root.join("tmp", "segments_database.db")
+    require "zip"
+    tmp_dir = Rails.root.join("tmp")
+    db_output_path = tmp_dir.join("segments_database.db")
+    zip_temp_path = tmp_dir.join("segments_upload.zip")
 
-    File.open(save_path, "wb") do |file|
-      file.write(uploaded_file.read)
+    File.open(zip_temp_path, "wb") { |f| f.write(uploaded_file.read) }
+
+    db_file = nil
+    Zip::File.open(zip_temp_path) do |zip_file|
+      zip_file.each do |entry|
+        if entry.name.ends_with?(".db")
+          entry.extract(db_output_path) { true }
+          db_file = db_output_path
+          break
+        end
+      end
     end
 
-    segment_modals.each(&:reset_column_information)
-    save_path
+    File.delete(zip_temp_path) if File.exist?(zip_temp_path)
+
+    if db_file.present?
+      SegmentStats::Base.establish_connection(
+        adapter: 'sqlite3',
+        database: db_file.to_s
+      )
+
+      segment_models.each(&:reset_column_information)
+    end
+
+    db_file
+  rescue StandardError => e
+    # Do nothing
   end
 end

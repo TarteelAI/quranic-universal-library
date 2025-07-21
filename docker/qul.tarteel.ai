@@ -1,5 +1,5 @@
 server {
-  client_max_body_size 20M;
+  client_max_body_size 100M;
   listen   3000;
   server_name qul.tarteel.ai;
   root   /home/app/qul/public;

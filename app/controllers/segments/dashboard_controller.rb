@@ -102,6 +102,8 @@ class Segments::DashboardController < ApplicationController
       missing_names = missing_models.map { |m| m.table_name }
       redirect_to segments_setup_db_path, alert: "Missing tables in segments DB: #{missing_names.join(', ')}. Please upload a valid DB." and return
     end
+  rescue SQLite3::CantOpenException => e
+    redirect_to segments_setup_db_path, alert: "Segments database is missing" and return
   end
 
   def segment_modals

@@ -1,0 +1,20 @@
+<%= render 'segments/header' %>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section mt-4" data-turbo="false">
+    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
+      Upload Database File
+    </h1>
+
+    <%= form_with url: segments_setup_db_path, method: 'post', html: { multipart: true } do |f| %>
+      <div class="tw-mb-4">
+        <%= f.label :file, "Select File", class: "tw-block tw-text-gray-700 tw-font-medium tw-mb-2" %>
+        <%= f.file_field :file, class: "tw-w-full tw-border tw-rounded tw-px-3 tw-py-2 tw-text-gray-800" %>
+      </div>
+
+      <div>
+        <%= f.submit "Upload", class: "tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded hover:tw-bg-blue-700" %>
+      </div>
+    <% end %>
+  </div>
+</div>

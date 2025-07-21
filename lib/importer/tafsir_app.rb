@@ -58,7 +58,7 @@ module Importer
       'althalabi' => 1516,
       'ayah-morph' => 1518,
       'iraab-graphs' => 1573,
-      'wahidi-asbab' => 1574,
+      'wahidi-asbab' => 1575,
     }
 
     def self.import_tafsirs(keys)
@@ -94,6 +94,7 @@ module Importer
     end
 
     protected
+
 
     def import_tafsir(verse, tafsir_json, resource_content)
       draft_tafsir = Draft::Tafsir

@@ -1,0 +1,30 @@
+<%= render 'layouts/qul_head' %>
+
+<div class="container-lg tw-mb-4" data-turbo="false">
+  <div class="page-section mt-4 tw-flex tw-gap-4">
+    <%= link_to segments_dashboard_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Dashboard</span>
+    <% end %>
+
+    <%= link_to segments_failures_path, class: "tw-bg-red-100 tw-text-red-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-red-200 hover:tw-text-black" do %>
+      <i class="fas fa-times-circle"></i>
+      <span>Failures</span>
+    <% end %>
+
+    <%= link_to segments_detections_path, class: "tw-bg-blue-100 tw-text-blue-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-blue-200 hover:tw-text-black" do %>
+      <i class="fas fa-check-circle"></i>
+      <span>Detections</span>
+    <% end %>
+
+    <%= link_to "segments_path", class: "tw-bg-green-100 tw-text-green-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-green-200 hover:tw-text-black" do %>
+      <i class="fas fa-stream"></i>
+      <span>Timeline</span>
+    <% end %>
+
+    <%= link_to segments_setup_db_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>
+      <i class="fas fa-upload"></i>
+      <span>Upload DB</span>
+    <% end %>
+  </div>
+</div>

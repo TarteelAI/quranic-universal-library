@@ -78,7 +78,7 @@ module ToolsHelper
         tags: [['Quran Script', 'quran-script'], ['Fonts', 'fonts']],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool enables you to proofread Quran script( For Tashkeel issues and font compatibility), both ayah by ayah and word by word.",
-        ),
+      ),
       ToolCard.new(
         title: 'Surah Info in different languages',
         description: 'Proofread and suggest fixes for Surah information in different languages.',
@@ -137,6 +137,15 @@ module ToolsHelper
         icon: 'compare.svg',
         tags: [],
         info_tip: 'Compare multiple Ayahs, with optional translations to find differences or similarities in the script.',
+      ),
+      ToolCard.new(
+        title: 'Audio Segmentations',
+        description: 'Audio segmentations for Quranic recitations.',
+        url: segments_dashboard_path,
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [],
+        info_tip: 'Tool to statistics and manage audio segmentations for Quranic recitations.',
       )
     ]
   end

@@ -16,6 +16,8 @@ class AddMetaDataToAudioFiles < ActiveRecord::Migration[7.0]
 
     c.add_column :audio_segments, :repeated_segments, :string
     c.add_column :audio_segments, :has_repetition, :boolean, default: false
+    c.add_column :audio_segments, :segments_count, :integer, default: 0
+
     c.add_index :audio_segments, :has_repetition
     c.add_index :audio_files, :has_repetition
   end

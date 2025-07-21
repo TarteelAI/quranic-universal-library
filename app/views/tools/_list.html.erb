@@ -27,15 +27,18 @@
           <%= inline_svg_tag('svgs/list.svg') %>
           List
         <% end %>
+
         <%= link_to tools_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
           <%= inline_svg_tag('svgs/grid.svg') %>
           Grid
         <% end %>
       </div>
     </div>
+
     <div id="empty-results-message" class="tw-hidden tw-mt-4 tw-text-2xl tw-text-gray-500">
       <p>No results found</p>
     </div>
+
     <div class="tw-w-full tw-mt-8">
       <%= render "tools/resources_view/#{view_type}" %>
     </div>

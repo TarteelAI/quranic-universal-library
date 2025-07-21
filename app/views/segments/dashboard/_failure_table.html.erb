@@ -1,0 +1,140 @@
+<%
+  chapters = Chapter.order('id asc').map do |c|
+    [
+      c.humanize,
+      c.id,
+      data: {
+        verses: c.verses_count
+      }
+    ]
+  end
+
+  chapter = Chapter.find_by(id: params[:filter_chapter].to_i) if params[:filter_chapter].present?
+
+  verses_range = (1 .. chapter&.verses_count || 286)
+  reciters = SegmentStats::ReciterName.all
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section filters">
+    <%= form_tag segments_failures_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
+        <div class="form-group me-2">
+          <%= select_tag :surah, options_for_select(chapters, params[:surah]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
+          <p class="form-text">Filter by Surah</p>
+        </div>
+
+        <div class="form-group me-2">
+          <%= select_tag :reciter, options_for_select(reciters.pluck(:name, :id), params[:reciter]), class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
+          <p class="form-text">Filter reciter</p>
+        </div>
+
+        <div class="form-group">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2 class="tw-text-2xl tw-my-2">
+      Failures
+
+    </h2>
+    <div class="tw-overflow-x-auto">
+      <table class="table table-hover">
+        <thead class="tw-position-sticky tw-bg-white border-bottom top-0">
+        <tr class="tw-bg-gray-100 tw-text-left">
+          <th class="tw-p-2 tw-border-b">Surah</th>
+          <th class="tw-p-2 tw-border-b">Ayah</th>
+          <th class="tw-p-2 tw-border-b">Word</th>
+          <th class="tw-p-2 tw-border-b">Start Time</th>
+          <th class="tw-p-2 tw-border-b">End Time</th>
+          <th class="tw-p-2 tw-border-b">Reciter</th>
+          <th class="tw-p-2 tw-border-b">Failure Type</th>
+          <th>
+            Received transcript
+          </th>
+          <th>
+            Expected
+          </th>
+
+          <th>
+            Actions
+          </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @failures.each do |failure| %>
+          <tr class="tw-border-b hover:tw-bg-gray-50">
+            <td class="tw-p-2"><%= failure.surah_number %></td>
+            <td class="tw-p-2"><%= failure.ayah_number %></td>
+            <td class="tw-p-2"><%= failure.word_number %></td>
+            <td class="tw-p-2"><%= failure.start_time %></td>
+            <td class="tw-p-2"><%= failure.end_time %></td>
+            <td class="tw-p-2"><%= failure.reciter_id || "N/A" %></td>
+            <td class="tw-p-2"><%= failure.failure_type %></td>
+            <td class="tw-p-2">
+              <span class="qpc-hafs">
+                <%= failure.received_transcript %>
+              </span>
+            </td>
+            <td class="tw-p-2">
+                            <span class="qpc-hafs">
+              <%= failure.expected_transcript %>
+                            </span>
+            </td>
+            <td>
+              <%= link_to 'logs', segments_logs_path(reciter: failure.reciter_id, surah: failure.surah_number ) %>
+            </td>
+          </tr>
+        <% end %>
+
+        <% [].each do |file| %>
+          <tr>
+            <th scope="row"><%= file.id %></th>
+            <th scope="row"><%= file.chapter_id %></th>
+            <th scope="row"><%= file.verse_number %></th>
+
+            <td>
+              <% progress = file.segment_progress %>
+
+              <div class="progress">
+                <div class="progress-bar progress-bar-success"
+                     role="progressbar"
+                     aria-valuenow="<%= progress %>"
+                     aria-valuemin="0" aria-valuemax="100"
+                     style="width: <%= progress %>%; min-width: 30px">
+                  <%= progress %>%
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <div class="d-flex gap-1">
+                <%= link_to 'Show', ayah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
+                <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: file.chapter_id, verse: file.verse_number), class: 'btn btn-success' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+
+        <tr>
+          <td colspan="5">
+            <div class="d-flex align-items-center">
+              <div class="me-4">
+                <%= safe_html pagy_bootstrap_nav(@pagy) %>
+              </div>
+
+              <div>
+                <%= safe_html pagy_info(@pagy) %>
+              </div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

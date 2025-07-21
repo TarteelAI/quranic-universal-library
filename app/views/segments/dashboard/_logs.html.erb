@@ -1,0 +1,27 @@
+<div class="page-wrapper container-lg">
+  <div class="page-section mt-4">
+    <h2>Logs</h2>
+
+    <div class="tw-overflow-x-auto">
+      <table class="table table-hover">
+        <thead class="position-sticky bg-white border-bottom top-0">
+        <tr class="tw-bg-gray-100 tw-text-left">
+          <th class="tw-p-2 tw-border-b">Time</th>
+          <th class="tw-p-2 tw-border-b">Surah</th>
+          <th class="tw-p-2 tw-border-b">Log</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @logs.each do |log| %>
+          <tr class="tw-border-b hover:tw-bg-gray-50">
+            <td class="tw-p-2"><%= Time.at log.timestamp %></td>
+            <td class="tw-p-2"><%= log.surah_number %></td>
+            <td class="tw-p-2"><%= log.log %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

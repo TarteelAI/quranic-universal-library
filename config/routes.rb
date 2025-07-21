@@ -142,6 +142,14 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
+  namespace :segments do
+    get '/', to: 'dashboard#show', as: :dashboard
+    get '/failures', to: 'dashboard#failures', as: :failures
+    get '/detections', to: 'dashboard#detections', as: :detections
+    get '/logs', to: 'dashboard#logs', as: :logs
+    match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
+  end
+
   get '/ayah/:key', to: 'ayah#show', as: :ayah
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all

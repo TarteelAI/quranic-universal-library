@@ -1,0 +1,93 @@
+<div class="page-wrapper container-lg">
+  <div class="page-section mt-4" data-turbo="false">
+    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">Detection Statistics Dashboard</h1>
+
+    <%= form_with url: segments_dashboard_path, method: :get, class: "tw-flex tw-gap-4 tw-mb-6" do %>
+      <div>
+        <label class="tw-block tw-text-sm tw-font-semibold">Reciter:</label>
+        <select name="reciter_id" class="tw-border tw-rounded tw-px-2 tw-py-1">
+          <option value="">All</option>
+          <% @reciters.each do |reciter| %>
+            <option value="<%= reciter.id %>" <%= 'selected' if @selected_reciter == reciter.id %>><%= reciter.name %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div>
+        <label class="tw-block tw-text-sm tw-font-semibold">Surah:</label>
+        <select name="surah" class="tw-border tw-rounded tw-px-2 tw-py-1">
+          <option value="">All</option>
+          <% @surahs.each do |s| %>
+            <option value="<%= s %>" <%= 'selected' if @selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="tw-flex tw-items-end">
+        <button type="submit" class="btn btn-info">Filter</button>
+      </div>
+    <% end %>
+
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-8">
+      <div>
+        <h2 class="tw-font-bold tw-mb-2">Detection Type Count</h2>
+        <canvas id="detectionChart" height="250"></canvas>
+      </div>
+
+      <div>
+        <h2 class="tw-font-bold tw-mb-2">Mistake Type Distribution</h2>
+        <canvas id="mistakeChart" height="250"></canvas>
+      </div>
+
+      <div>
+        <h2 class="tw-font-bold tw-mb-2">Reciters Stats</h2>
+        <canvas id="recitersChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const detectionData = {
+    labels: <%= raw @detection_counts.keys.map(&:humanize).to_json %>,
+    datasets: [{
+      label: 'Count',
+      data: <%= raw @detection_counts.values.to_json %>,
+      backgroundColor: 'rgba(37, 99, 235, 0.6)'
+    }]
+  };
+
+  const mistakeData = {
+    labels: <%= raw @mistake_types.keys.map(&:humanize).to_json %>,
+    datasets: [{
+      label: 'Mistakes',
+      data: <%= raw @mistake_types.values.to_json %>,
+      backgroundColor: 'rgba(220, 38, 38, 0.6)'
+    }]
+  };
+
+  new Chart(document.getElementById('detectionChart'), {
+    type: 'bar',
+    data: detectionData,
+    options: {
+      responsive: true,
+      plugins: {legend: {display: false}},
+      scales: {
+        y: {beginAtZero: true}
+      }
+    }
+  });
+
+  new Chart(document.getElementById('mistakeChart'), {
+    type: 'bar',
+    data: mistakeData,
+    options: {
+      responsive: true,
+      plugins: {legend: {display: false}},
+      scales: {
+        y: {beginAtZero: true}
+      }
+    }
+  });
+</script>

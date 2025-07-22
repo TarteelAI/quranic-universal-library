@@ -1,15 +1,41 @@
 import { Controller } from "@hotwired/stimulus";
-import copyToClipboard from "copy-to-clipboard";
 
 export default class extends Controller {
   connect() {
     this.el = $(this.element);
 
-    this.el.on('click', '.question',  (event) => {
+    this.el.on('click', '.question-wrapper', (event) => {
       event.preventDefault();
-      const target = $(event.target);
-      target.closest('.item').toggleClass('active');
-      target.closest('.item').find('.answer-wrapper').slideToggle(300);
+      const item = $(event.target).closest('.item');
+      const isActive = item.hasClass('active');
+
+      item.toggleClass('active');
+      item.find('.answer-wrapper').slideToggle(300);
+
+      if (!isActive) {
+        const id = item.attr('id');
+        if (id) {
+          history.replaceState(null, null, `#${id}`);
+        }
+      }
     });
+
+    this.focusCurrentQuestion();
+  }
+
+  focusCurrentQuestion() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith("#faq-")) {
+      const targetItem = $(hash);
+      if (targetItem.length) {
+        const answer = targetItem.find('.answer-wrapper');
+
+        setTimeout(() => {
+          targetItem[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetItem.addClass('active');
+          answer.slideDown(300);
+        }, 100);
+      }
+    }
   }
 }

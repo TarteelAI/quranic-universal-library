@@ -48,6 +48,10 @@
     .answer-wrapper{
       display: none;
       padding-bottom: 1rem;
+
+      a{
+        text-decoration: underline;
+      }
     }
   }
 }

@@ -15,15 +15,23 @@
       <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="text-dark">GitHub
         page</a>.
     </p>
+
     <div class="mt-3 mt-md-4 faq" data-controller="faq">
       <% @items.each do |faq| %>
-        <div class="item">
-          <a href="#_" class="question py-4">
-              <span class="tw-text-xl">
-                <%= safe_html faq.question %>
-              </span>
-            <span class="question-icon"></span>
-          </a>
+        <div class="item tw-cursor-pointer" id="faq-<%= faq.id %>">
+          <div class="py-4 d-flex question-wrapper align-items-center">
+            <span class="me-1">
+              <a href="#faq-<%= faq.id %>">🔗</a>
+            </span>
+
+            <a href="#faq-<%= faq.id %>" class="question flex-grow-1">
+            <span class="tw-text-xl">
+              <%= safe_html faq.question %>
+            </span>
+              <span class="question-icon"></span>
+            </a>
+          </div>
+
           <div class="answer-wrapper">
             <%= safe_html faq.answer %>
           </div>

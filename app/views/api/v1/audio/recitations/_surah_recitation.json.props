@@ -1,0 +1,26 @@
+include_audio_files = local_assigns[:include_audio_files] || false
+
+ json.extract! surah_recitation,
+    :id,
+    :name,
+    :relative_path,
+    :files_size,
+    :files_count,
+    :segments_count
+
+ json.has_segments surah_recitation.segments_count == 6236
+ json.style surah_recitation.recitation_style&.name
+ json.qirat surah_recitation.qirat_type&.name
+
+ if include_audio_files
+  json.audio_files do
+    surah_recitation.chapter_audio_files.order('chapter_id ASC').each do |audio_file|
+       json.set! audio_file.chapter_id.to_s, {
+            file_size: audio_file.file_size,
+            duration: audio_file.duration,
+            audio_url: audio_file.audio_url,
+            segments_count: audio_file.segments_count
+          }
+    end
+  end
+ end

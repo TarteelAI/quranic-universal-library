@@ -1,0 +1,8 @@
+recitation = @presenter.surah_recitation
+
+json.recitation do
+  json.partial! partial: 'surah_recitation', locals: {
+    surah_recitation: recitation,
+    include_audio_files: true
+  }
+end

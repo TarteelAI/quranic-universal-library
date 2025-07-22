@@ -1,10 +1,5 @@
 recitations = @presenter.ayah_recitations
 
 json.recitations do
-   json.array! recitations do |recitation|
-    json.extract! recitation, :id, :name, :relative_path, :description
-    json.has_segments recitation.segments_count == 6236
-    json.style recitation.recitation_style&.name
-    json.qirat recitation.qirat_type&.name
-  end
+  json.array! recitations, partial: 'ayah_recitation'
 end

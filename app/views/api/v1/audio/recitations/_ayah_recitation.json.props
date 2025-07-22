@@ -1,0 +1,19 @@
+include_audio_files = local_assigns[:include_audio_files] || false
+
+json.extract! ayah_recitation, :id, :name, :relative_path, :segments_count
+json.has_segments ayah_recitation.segments_count > 0
+json.style ayah_recitation.recitation_style&.name
+json.qirat ayah_recitation.qirat_type&.name
+
+if include_audio_files
+  json.audio_files do
+    ayah_recitation.audio_files.order('verse_id ASC').each do |audio_file|
+       json.set! audio_file.verse_key.to_s, {
+            file_size: audio_file.file_size,
+            duration: audio_file.duration,
+            audio_url: audio_file.audio_url,
+            segments_count: audio_file.segments_count
+          }
+    end
+  end
+ end

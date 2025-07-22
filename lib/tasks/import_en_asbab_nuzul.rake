@@ -1,8 +1,8 @@
-require 'json'
-
 namespace :import_asbab do
   desc "Import Asbab Al-Nuzul Tafsir from JSON data"
-  task english: :environment do
+  task import_english: :environment do
+     require 'json'
+
     resource = ResourceContent.find_or_create_by!(
       name: "Wahidi Asbāb‑us‑Nuzūl",
       language: Language.find_by!(iso_code: 'en'),

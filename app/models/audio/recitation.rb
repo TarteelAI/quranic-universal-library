@@ -69,7 +69,11 @@ module Audio
     end
 
     def humanize
-      "#{id} - #{name}"
+      style = recitation_style&.name
+      _name = "#{id} - #{name}"
+      _name += " (#{style})" if style.present?
+
+      _name
     end
 
     def validate_segments_data(audio_file: nil)

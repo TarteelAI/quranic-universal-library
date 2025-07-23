@@ -1,5 +1,136 @@
+<%
+  chapters = Chapter.order('id asc').map do |c|
+    [
+      c.humanize,
+      c.id
+    ]
+  end
+  reciters = SegmentStats::ReciterName.all
+%>
+
 <div class="page-wrapper container-lg">
-  <div class="page-section">
-    Segments timeline is not available yet.
+  <div class="page-section filters">
+    <%= form_tag segments_timeline_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
+        <div class="form-group me-2">
+          <%= select_tag :surah, options_for_select(chapters, @selected_surah), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
+          <p class="form-text">Filter by Surah</p>
+        </div>
+
+        <div class="form-group me-2">
+          <%= select_tag :reciter_id, options_for_select(reciters.pluck(:name, :id), @selected_reciter), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
+          <p class="form-text">Filter reciter</p>
+        </div>
+
+        <div class="form-group">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        </div>
+      </div>
+    <% end %>
   </div>
+
+  <% if @selected_reciter > 0 && @selected_surah > 0 %>
+    <div class="page-section tw-mt-4">
+
+      <h2 class="tw-text-xl tw-font-bold tw-mb-4">
+        Word-by-Word Timeline – <%= @reciter.name %>, Surah <%= @selected_surah %>
+      </h2>
+
+      <div class="tw-space-y-4">
+        <% @ayahs.each do |ayah| %>
+          <%
+            ayah_position = @ayah_positions[ayah.verse_number]
+
+            if ayah_position.nil?
+              if ayah.verse_number == 1
+                ayah_start_time = 0
+                ayah_end_time = @ayah_positions[ayah.verse_number + 1]&.first&.start_time
+              end
+            else
+              ayah_start_time = ayah_position.first.start_time
+              ayah_end_time = ayah_position.last.end_time
+            end
+          %>
+
+          <div>
+            <h3 class="tw-font-semibold tw-mb-2">
+              Ayah <%= ayah.verse_key %>
+              <span class="tw-text-gray-500 tw-text-sm">
+                (<%= ayah_start_time %> - <%= ayah_end_time %>)
+              </span>
+
+              <button
+                data-start="<%= ayah_start_time.to_i %>"
+                data-end="<%= ayah_end_time.to_i %>"
+                class="tw-bg-blue-500 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm"
+                onclick="playSegment(this)"
+              > Play
+              </button>
+              <%= link_to 'logs', segments_logs_path(reciter: @selected_reciter, surah: @selected_surah), class: 'tw-bg-blue-500 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm', target: '_blank' %>
+            </h3>
+
+            <div class="tw-flex tw-gap-1 tw-flex-wrap qpc-hafs">
+              <% ayah.words.each do |word| %>
+                <% key = word.location %>
+
+                <% if failure = @failures[key] %>
+                  <% color = "tw-bg-red-500" %>
+                  <% start_time = failure.start_time %>
+                  <% end_time = failure.end_time %>
+                <% elsif position = @word_positions[key] %>
+                  <% color = "tw-bg-green-500" %>
+                  <% start_time = position.start_time %>
+                  <% end_time = position.end_time %>
+                <% else %>
+                  <% color = "tw-bg-gray-300" %>
+                  <% start_time = nil %>
+                  <% end_time = nil %>
+                <% end %>
+
+                <button
+                  class="tw-px-2 tw-py-1 tw-rounded tw-text-sm <%= color %>"
+                  data-start="<%= start_time %>"
+                  data-end="<%= end_time %>"
+                  onclick="playSegment(this)"
+                  <% if failure %>
+                  data-controller="tooltip"
+                  title="<div><strong><%= failure.failure_type %></strong><div>Expected: <span class=qpc-hafs><%= failure.expected_transcript %></span></div><div>Received: <span class=qpc-hafs><%= failure.received_transcript %></span></div></span>"
+                  <% end %>
+                  <%= "disabled" unless start_time && end_time %>
+                  >
+                  <%= word.text_qpc_hafs %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <audio id="player" src="<%= @reciter.audio_url(@selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
+
+    <script>
+      function playSegment(el) {
+        const start = parseFloat(el.dataset.start) / 1000;
+        const end = parseFloat(el.dataset.end) / 1000;
+        const player = document.getElementById('player');
+
+        player.currentTime = start;
+        player.play();
+
+        const stopAt = () => {
+          if (player.currentTime >= end) {
+            player.pause();
+            player.removeEventListener('timeupdate', stopAt);
+          }
+        };
+
+        player.addEventListener('timeupdate', stopAt);
+      }
+    </script>
+  <% else %>
+    <div class="page-section">
+      Please select a Surah and Reciter to view the timeline.
+    </div>
+  <% end %>
 </div>

@@ -40,7 +40,6 @@ class Segments::DashboardController < ApplicationController
     @selected_reciter = selected_reciter.to_i
     @selected_surah = selected_surah.to_i
 
-
     @reciter_stats = SegmentStats::ReciterName.all.map do |reciter|
       {
         name: reciter.name,
@@ -73,7 +72,19 @@ class Segments::DashboardController < ApplicationController
   end
 
   def timeline
+    selected_reciter = params[:reciter_id]
+    selected_surah = params[:surah]
 
+    if selected_surah.present? && selected_reciter.present?
+      @reciter = SegmentStats::ReciterName.find(selected_reciter)
+      @failures = SegmentStats::FailureStat.where(reciter_id: @reciter.id, surah_number: selected_surah).index_by(&:word_key)
+      @ayah_positions = SegmentStats::PositionStat.where(reciter_id: @reciter.id, surah_number: selected_surah).order(:ayah_number).group_by(&:ayah_number)
+      @word_positions = SegmentStats::PositionStat.where(reciter_id: @reciter.id, surah_number: selected_surah).order(:ayah_number).index_by(&:word_key)
+      @ayahs = Verse.where(chapter_id: selected_surah).order(:verse_number)
+    end
+
+    @selected_reciter = selected_reciter.to_i
+    @selected_surah = selected_surah.to_i
   end
 
   def detections
@@ -142,6 +153,20 @@ class Segments::DashboardController < ApplicationController
     end
 
     @pagy, @failures = pagy(@failures)
+  end
+
+  def ayah_report
+    @ayah_failures = SegmentStats::FailureStat
+                       .joins(:reciter)
+                       .select(
+                         'surah_number',
+                         'ayah_number',
+                         'GROUP_CONCAT(DISTINCT reciters.id) AS reciters',
+                         'GROUP_CONCAT(DISTINCT failure_type) AS failure_types',
+                         'COUNT(*) AS total_failures'
+                       )
+                       .group(:surah_number, :ayah_number)
+                       .order(:surah_number, :ayah_number)
   end
 
   protected

@@ -146,7 +146,16 @@ module ToolsHelper
         icon: 'timestamp.svg',
         tags: [],
         info_tip: 'Tool to statistics and manage audio segmentations for Quranic recitations.',
-      )
+      ),
+      ToolCard.new(
+        title: 'Compare audio',
+        description: 'Compare audio recitations',
+        url: '/compare-audio',
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [],
+        info_tip: 'This tool is used to compare two audio recitations through waveform visualizations, helping identify differences and similarities between them.',
+        )
     ]
   end
 end

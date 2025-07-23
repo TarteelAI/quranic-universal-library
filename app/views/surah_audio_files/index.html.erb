@@ -69,8 +69,8 @@
 
           <td>
             <div class="d-flex gap-1">
-              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
-              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
+              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-nowrap' %>
+              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-nowrap' %>
             </div>
           </td>
         </tr>

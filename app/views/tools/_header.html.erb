@@ -29,19 +29,20 @@
 <div class="container-lg">
   <div class="mt-4 mt-md-5">
     <div class="mb-3 flex-between justify-content-between">
-      <h2 class="tw-text-2xl md:tw-text-3xl tw-leading-none tw-text-pretty">
-        <%= safe_html title %>
-      </h2>
-      <div class="d-flex gap-1">
-        <% if local_assigns[:help] != false %>
-          <%= link_to '#', class: 'btn btn-outline-info btn-xs', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
-            <i class="fa fa-info-circle"></i> Help
+        <h2 class="tw-text-2xl md:tw-text-3xl tw-leading-none tw-text-pretty">
+          <%= safe_html title %>
+        </h2>
+        <div class="d-flex gap-1 tw-mt-3 tw-mt-md-0">
+          <% if local_assigns[:help] != false %>
+            <%= link_to '#', class: 'btn btn-outline-info btn-xs', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
+              <i class="fa fa-info-circle"></i> Help
+            <% end %>
           <% end %>
-        <% end %>
-        <%= safe_html actions.join('') %>
+          <%= safe_html actions.join('') %>
+        </div>
       </div>
-    </div>
 
-    <%= render("tools/header_alert/#{tool_key}") if tool_key && !@access %>
+      <%= render("tools/header_alert/#{tool_key}") if tool_key && !@access %>
+    </div>
   </div>
 </div>

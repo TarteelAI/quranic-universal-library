@@ -151,6 +151,8 @@ Rails.application.routes.draw do
     get '/failures', to: 'dashboard#failures', as: :failures
     get '/detections', to: 'dashboard#detections', as: :detections
     get '/logs', to: 'dashboard#logs', as: :logs
+    get '/reciters', to: 'dashboard#reciters', as: :reciters
+    get '/timeline', to: 'dashboard#timeline', as: :timeline
     match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
   end
 

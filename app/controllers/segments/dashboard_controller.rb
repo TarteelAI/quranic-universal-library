@@ -39,6 +39,41 @@ class Segments::DashboardController < ApplicationController
 
     @selected_reciter = selected_reciter.to_i
     @selected_surah = selected_surah.to_i
+
+
+    @reciter_stats = SegmentStats::ReciterName.all.map do |reciter|
+      {
+        name: reciter.name,
+        positions: SegmentStats::PositionStat.where(reciter_id: reciter.id).count,
+        failures: SegmentStats::FailureStat.where(reciter_id: reciter.id).count
+      }
+    end
+  end
+
+  def reciters
+    @selected_surah = params[:surah]
+
+    @reciter_stats = SegmentStats::ReciterName.all.map do |reciter|
+      positions = SegmentStats::PositionStat.where(reciter_id: reciter.id)
+      failures = SegmentStats::FailureStat.where(reciter_id: reciter.id)
+
+      if @selected_surah.present?
+        positions = positions.where(surah_number: @selected_surah.to_i)
+        failures = failures.where(surah_number: @selected_surah.to_i)
+      end
+
+      {
+        name: reciter.name,
+        positions: positions.count,
+        failures: failures.count
+      }
+    end
+
+    @surahs = SegmentStats::DetectionStat.distinct.pluck(:surah_number).sort
+  end
+
+  def timeline
+
   end
 
   def detections
@@ -69,21 +104,41 @@ class Segments::DashboardController < ApplicationController
       flash[:alert] = "Please provide reciter and surah to view logs."
       @logs = []
     else
-      logs = SegmentStats::Log
+      logs = SegmentStats::SegmentLog
       logs = logs.where(surah_number: params[:surah])
       @logs = logs.where(reciter_id: params[:reciter])
     end
   end
 
   def failures
-    @failures = SegmentStats::FailureStat
+    selected_reciter = params[:reciter_id]
+    selected_surah = params[:surah]
+    @expected_text = params[:expected_text].to_s.strip
+    @received_text = params[:received_text].to_s.strip
+    @failure_type = params[:failure_type].to_s.strip
 
-    if params[:surah].present?
-      @failures = @failures.where(surah_number: params[:surah])
+    @failures = SegmentStats::FailureStat
+    @selected_reciter = selected_reciter.to_i
+    @selected_surah = selected_surah.to_i
+
+    if selected_surah.present?
+      @failures = @failures.where(surah_number: @selected_surah)
     end
 
-    if params[:reciter].present?
-      @failures = @failures.where(reciter_id: params[:reciter])
+    if selected_reciter.present?
+      @failures = @failures.where(reciter_id: @selected_reciter)
+    end
+
+    if @expected_text.present?
+      @failures = @failures.where("expected_transcript LIKE ?", "%#{@expected_text}%")
+    end
+
+    if @received_text.present?
+      @failures = @failures.where("received_transcript LIKE ?", "%#{@received_text}%")
+    end
+
+    if @failure_type.present?
+      @failures = @failures.where(failure_type: @failure_type)
     end
 
     @pagy, @failures = pagy(@failures)
@@ -148,6 +203,8 @@ class Segments::DashboardController < ApplicationController
 
       segment_models.each(&:reset_column_information)
     end
+
+    binding.pry
 
     db_file
   rescue StandardError => e

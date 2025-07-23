@@ -1,0 +1,42 @@
+<div class="page-wrapper container-lg mt-4">
+  <div class="page-section filters">
+    <%= form_with url: segments_reciters_path, method: :get, class: "tw-flex tw-gap-4 tw-mb-6" do %>
+      <div>
+        <label class="tw-block tw-text-sm tw-font-semibold">Surah:</label>
+        <select name="surah" class="tw-border tw-rounded tw-px-2 tw-py-1">
+          <option value="">All</option>
+          <% @surahs.each do |s| %>
+            <option value="<%= s %>" <%= 'selected' if @selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="tw-flex tw-items-end">
+        <button type="submit" class="btn btn-info">Filter</button>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h1 class="tw-text-xl tw-font-bold tw-mb-4">Reciters Summary</h1>
+
+    <table class="tw-w-full tw-border-collapse tw-rounded-md tw-shadow-sm">
+      <thead>
+      <tr class="tw-bg-gray-100 tw-text-left">
+        <th class="tw-p-2 tw-border-b">Reciter</th>
+        <th class="tw-p-2 tw-border-b">Positions</th>
+        <th class="tw-p-2 tw-border-b">Failures</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @reciter_stats.each do |reciter| %>
+        <tr class="tw-border-b hover:tw-bg-gray-50">
+          <td class="tw-p-2"><%= reciter[:name] %></td>
+          <td class="tw-p-2"><%= reciter[:positions] %></td>
+          <td class="tw-p-2"><%= reciter[:failures] %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

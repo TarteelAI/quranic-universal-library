@@ -38,10 +38,12 @@
         <h2 class="tw-font-bold tw-mb-2">Mistake Type Distribution</h2>
         <canvas id="mistakeChart" height="250"></canvas>
       </div>
+    </div>
 
-      <div>
-        <h2 class="tw-font-bold tw-mb-2">Reciters Stats</h2>
-        <canvas id="recitersChart" height="250"></canvas>
+    <div class="tw-mt-8">
+      <h2 class="tw-font-bold tw-mb-2">Reciters Stats</h2>
+      <div class="tw-w-full">
+        <canvas id="recitersChart" height="100"></canvas>
       </div>
     </div>
   </div>
@@ -90,4 +92,36 @@
       }
     }
   });
+
+  const reciterStats = <%= raw @reciter_stats.to_json %>;
+
+  const reciterChartData = {
+    labels: reciterStats.map(r => r.name),
+    datasets: [
+      {
+        label: 'Positions',
+        data: reciterStats.map(r => r.positions),
+        backgroundColor: 'rgba(34, 197, 94, 0.6)' // green
+      },
+      {
+        label: 'Failures',
+        data: reciterStats.map(r => r.failures),
+        backgroundColor: 'rgba(239, 68, 68, 0.6)' // red
+      }
+    ]
+  };
+
+  new Chart(document.getElementById('recitersChart'), {
+    type: 'bar',
+    data: reciterChartData,
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
 </script>
+

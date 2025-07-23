@@ -3,6 +3,25 @@
 
 <script>
 import { mapState } from 'vuex'
+import toastr from "toastr";
+toastr.options = {
+  closeButton: true,
+  debug: false,
+  newestOnTop: true,
+  progressBar: true,
+  positionClass: "toast-top-right",
+  preventDuplicates: true,
+  onclick: null,
+  showDuration: 300,
+  hideDuration: 100,
+  timeOut: 1000,
+  extendedTimeOut: 0,
+  showEasing: "swing",
+  hideEasing: "linear",
+  showMethod: "fadeIn",
+  hideMethod: "fadeOut",
+  tapToDismiss: true
+};
 
 export default {
   name: 'Alert',
@@ -12,9 +31,9 @@ export default {
 
         (text, _) => {
           if(text){
-            this.$toast.info(text);
+            toastr.info(text);
           } else{
-            this.$toast.clear()
+            toastr.clear();
           }
         },
     );

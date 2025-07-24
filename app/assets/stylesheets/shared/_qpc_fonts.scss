@@ -27,14 +27,14 @@
 }
 
 @font-face {
-  font-family: "quran-script-sousi";
+  font-family: "qpc-sousi";
   src: local('KFGQPCSousiUthmanicScript-Regul'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v20.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v20.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
-  font-family: "quran-script-warsh";
+  font-family: "qpc-warsh";
   src: local('KFGQPCWarshUthmanicScript-Regul'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v21.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v21.ttf?v=#{$asset-version}") format('truetype');

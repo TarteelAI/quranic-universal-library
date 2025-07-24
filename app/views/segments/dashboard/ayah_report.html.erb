@@ -1,24 +1,2 @@
-<h1 class="tw-text-xl tw-font-bold tw-mb-4">Per-Ayah Mistake Report</h1>
-
-<table class="tw-w-full tw-border-collapse tw-shadow-sm tw-rounded-md">
-  <thead>
-  <tr class="tw-bg-gray-100 tw-text-left">
-    <th class="tw-p-2 tw-border-b">Surah</th>
-    <th class="tw-p-2 tw-border-b">Ayah</th>
-    <th class="tw-p-2 tw-border-b">Total Mistakes</th>
-    <th class="tw-p-2 tw-border-b">Reciters</th>
-    <th class="tw-p-2 tw-border-b">Failure Types</th>
-  </tr>
-  </thead>
-  <tbody>
-  <% @ayah_failures.each do |f| %>
-    <tr class="tw-border-b hover:tw-bg-gray-50">
-      <td class="tw-p-2"><%= f.surah_number %></td>
-      <td class="tw-p-2"><%= f.ayah_number %></td>
-      <td class="tw-p-2"><%= f.total_failures %></td>
-      <td class="tw-p-2"><%= f.reciters %></td>
-      <td class="tw-p-2"><%= f.failure_types %></td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
+<%= render 'segments/header' %>
+<%= render 'ayah_report' %>

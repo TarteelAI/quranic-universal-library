@@ -122,7 +122,7 @@ class Segments::DashboardController < ApplicationController
   end
 
   def failures
-    selected_reciter = params[:reciter_id]
+    selected_reciter = params[:reciter]
     selected_surah = params[:surah]
     @expected_text = params[:expected_text].to_s.strip
     @received_text = params[:received_text].to_s.strip
@@ -156,8 +156,17 @@ class Segments::DashboardController < ApplicationController
   end
 
   def ayah_report
-    @ayah_failures = SegmentStats::FailureStat
-                       .joins(:reciter)
+    @surahs = SegmentStats::DetectionStat.distinct.pluck(:surah_number).sort
+    @selected_surah = params[:surah]
+
+    ayah_failures = SegmentStats::FailureStat
+                      .joins(:reciter)
+
+    if @selected_surah.present?
+      ayah_failures = ayah_failures.where(surah_number: @selected_surah)
+    end
+
+    @ayah_failures = ayah_failures
                        .select(
                          'surah_number',
                          'ayah_number',

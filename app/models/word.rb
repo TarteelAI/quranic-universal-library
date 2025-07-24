@@ -163,6 +163,14 @@ class Word < QuranApiRecord
         .where("words.lemma_id IS NULL OR lemmas.id IS NULL")
   end
 
+  def first_word?
+    position == 1
+  end
+
+  def last_word?
+    position == verse.words_count
+  end
+
   def next_word
     Word.where(word_index: word_index + 1).first
   end

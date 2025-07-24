@@ -133,6 +133,14 @@ class Verse < QuranApiRecord
     Verse.where(verse_index: verse_index - 1).first
   end
 
+  def first_ayah?
+    verse_number == 1
+  end
+
+  def last_ayah?
+    verse_number == chapter.verses_count
+  end
+
   def self.verses_with_no_arabic_translitration
     Verse
       .select('verses.*, count(words.*) as missing_transliteration_count')

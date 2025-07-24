@@ -29,9 +29,9 @@
     <% end %>
   </div>
 
-  <% if @selected_reciter > 0 && @selected_surah > 0 %>
-    <div class="page-section tw-mt-4">
+  <div class="page-section tw-mt-4">
 
+    <% if @selected_reciter > 0 && @selected_surah > 0 %>
       <h2 class="tw-text-xl tw-font-bold tw-mb-4">
         Word-by-Word Timeline – <%= @reciter.name %>, Surah <%= @selected_surah %>
       </h2>
@@ -62,11 +62,12 @@
               <button
                 data-start="<%= ayah_start_time.to_i %>"
                 data-end="<%= ayah_end_time.to_i %>"
-                class="tw-bg-blue-500 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm"
+                class="tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
                 onclick="playSegment(this)"
               > Play
               </button>
-              <%= link_to 'logs', segments_logs_path(reciter: @selected_reciter, surah: @selected_surah), class: 'tw-bg-blue-500 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm', target: '_blank' %>
+              <%= link_to 'logs', segments_logs_path(reciter: @selected_reciter, surah: @selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
+              <%= link_to 'Segment', "/surah_audio_files/#{@selected_reciter}/segment_builder?chapter_id=#{@selected_surah}&verse=#{ayah.verse_number}", class: 'tw-bg-green-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-green-500 hover:tw-text-white', target: '_blank' %>
             </h3>
 
             <div class="tw-flex tw-gap-1 tw-flex-wrap qpc-hafs">
@@ -105,32 +106,30 @@
           </div>
         <% end %>
       </div>
-    </div>
 
-    <audio id="player" src="<%= @reciter.audio_url(@selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
+      <audio id="player" src="<%= @reciter.audio_url(@selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
 
-    <script>
-      function playSegment(el) {
-        const start = parseFloat(el.dataset.start) / 1000;
-        const end = parseFloat(el.dataset.end) / 1000;
-        const player = document.getElementById('player');
+      <script>
+        function playSegment(el) {
+          const start = parseFloat(el.dataset.start) / 1000;
+          const end = parseFloat(el.dataset.end) / 1000;
+          const player = document.getElementById('player');
 
-        player.currentTime = start;
-        player.play();
+          player.currentTime = start;
+          player.play();
 
-        const stopAt = () => {
-          if (player.currentTime >= end) {
-            player.pause();
-            player.removeEventListener('timeupdate', stopAt);
-          }
-        };
+          const stopAt = () => {
+            if (player.currentTime >= end) {
+              player.pause();
+              player.removeEventListener('timeupdate', stopAt);
+            }
+          };
 
-        player.addEventListener('timeupdate', stopAt);
-      }
-    </script>
-  <% else %>
-    <div class="page-section">
+          player.addEventListener('timeupdate', stopAt);
+        }
+      </script>
+    <% else %>
       Please select a Surah and Reciter to view the timeline.
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>

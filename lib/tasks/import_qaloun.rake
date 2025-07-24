@@ -1,23 +1,16 @@
-require 'json'
-
 namespace :quran_script do
   desc "Import Qaloun Data ayah by ayah script"
   task import_qaloon_ayah: :environment do
     rc = ResourceContent.find_or_create_by!(
-      slug:     "qaloon-script",
+      slug: "qpc-qaloon-script-ayah",
       language: Language.find_by!(iso_code: "ar")
     ) do |r|
-      r.name             = "Quran Script(Qaloon)"
-      r.sub_type         = ResourceContent::SubType::QuranText
+      r.name = "Quran Script(Qaloon) - Ayah by Ayah"
+      r.sub_type = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneVerse
     end
 
     qaloon = QiratType.find_or_create_by!(name: "Qaloon")
-
-    QuranScript::ByVerse.where(
-      resource_content_id: rc.id,
-      qirat_id:            qaloon.id
-    ).delete_all
 
     path = Rails.root.join("tmp", "UthmanicQaloonV21.json")
     file = File.read(path, encoding: "utf-8")
@@ -36,11 +29,11 @@ namespace :quran_script do
 
           QuranScript::ByVerse.create!(
             resource_content_id: rc.id,
-            qirat_id:            qaloon.id,
-            chapter_id:          chapter_id,
-            verse_number:        verse_number,
-            text:                verse["text"].strip,
-            key:                 verse_key
+            qirat_id: qaloon.id,
+            chapter_id: chapter_id,
+            verse_number: verse_number,
+            text: verse["text"].strip,
+            key: verse_key
           )
 
           total += 1
@@ -59,31 +52,25 @@ namespace :quran_script do
     puts "Imported #{total} verses"
   end
 
-######################## BY WORDS ##########################
   desc "Import Uthmanic Qaloon V21 into quran_script_by_words"
   task import_qaloon_by_words: :environment do
     rc = ResourceContent.find_or_create_by!(
-      slug: "qaloon-script-wbw",
+      slug: "qpc-qaloon-script-wbw",
       language: Language.find_by!(iso_code: "ar")
     ) do |r|
-      r.name             = "Quran Script(Qaloon) WBW"
-      r.sub_type         = ResourceContent::SubType::QuranText
+      r.name = "Quran Script(Qaloon) - Word by Word"
+      r.sub_type = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneWord
     end
 
     qaloon = QiratType.find_by!(name: "Qaloon")
-
-    QuranScript::ByWord.where(
-      resource_content_id: rc.id,
-      qirat_id:            qaloon.id
-    ).delete_all
 
     path = Rails.root.join("tmp", "UthmanicQaloonV21.json")
     file = File.read(path, encoding: "utf-8")
     data = JSON.parse(file)
     total_words = 0
 
-    verse_key_map = QuranScript::ByVerse.pluck(:key, :id).to_h
+    verse_key_map = QuranScript::ByVerse.where(qirat: qaloon).pluck(:key, :id).to_h
 
     data["pages"].each do |page|
       page["surahs"].each do |surah|
@@ -107,13 +94,12 @@ namespace :quran_script do
 
             QuranScript::ByWord.create!(
               resource_content_id: rc.id,
-              qirat_id:            qaloon.id,
-              chapter_id:          chapter_id,
-              verse_id:            verse_id,
-              verse_number:        verse_number,
-              word_number:         word_position,
-              text:                word_text,
-              key:                 word_key
+              qirat_id: qaloon.id,
+              chapter_id: chapter_id,
+              verse_number: verse_number,
+              word_number: word_position,
+              text: word_text,
+              key: word_key
             )
             total_words += 1
           end

@@ -1,24 +1,16 @@
-require 'json'
-
 namespace :quran_script do
-################################ BY VERSES ##############################
   desc "Import Warsh ayah by ayah script"
   task import_warsh_ayah: :environment do
     rc = ResourceContent.find_or_create_by!(
-      slug:     "warsh-script",
+      slug:     "qpc-warsh-script-ayah",
       language: Language.find_by!(iso_code: "ar")
     ) do |r|
-      r.name             = "Quran Script(Warsh)"
+      r.name             = "Quran Script(Warsh) - Ayah by Ayah"
       r.sub_type         = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneVerse
     end
 
     warsh = QiratType.find_or_create_by!(name: "Warsh")
-
-    QuranScript::ByVerse.where(
-      resource_content_id: rc.id,
-      qirat_id:            warsh.id
-    ).delete_all
 
     path = Rails.root.join("tmp", "UthmanicWarshV21.json")
     file = File.read(path, encoding: "utf-8")
@@ -59,31 +51,26 @@ namespace :quran_script do
 
     puts "Imported #{total} verses"
   end
-################################ BY WORDS ##############################
+
   desc "Import Uthmanic Warsh V21 into quran_script_by_words"
   task import_warsh_by_words: :environment do
     rc = ResourceContent.find_or_create_by!(
-      slug: "warsh-script-wbw",
+      slug: "qpc-warsh-script-wbw",
       language: Language.find_by!(iso_code: "ar")
     ) do |r|
-      r.name             = "Quran Script(Warsh) WBW"
+      r.name             = "Quran Script(Warsh) - Word by Word"
       r.sub_type         = ResourceContent::SubType::QuranText
       r.cardinality_type = ResourceContent::CardinalityType::OneWord
     end
 
     warsh = QiratType.find_by!(name: "Warsh")
 
-    QuranScript::ByWord.where(
-      resource_content_id: rc.id,
-      qirat_id:            warsh.id
-    ).delete_all
-
     path = Rails.root.join("tmp", "UthmanicWarshV21.json")
     file = File.read(path, encoding: "utf-8")
     data = JSON.parse(file)
     total_words = 0
 
-    verse_key_map = QuranScript::ByVerse.pluck(:key, :id).to_h
+    verse_key_map = QuranScript::ByVerse.where(qirat: warsh).pluck(:key, :id).to_h
 
     data["pages"].each do |page|
       page["surahs"].each do |surah|
@@ -109,7 +96,6 @@ namespace :quran_script do
               resource_content_id: rc.id,
               qirat_id:            warsh.id,
               chapter_id:          chapter_id,
-              verse_id:            verse_id,
               verse_number:        verse_number,
               word_number:         word_position,
               text:                word_text,

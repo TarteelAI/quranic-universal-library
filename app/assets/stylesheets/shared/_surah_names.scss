@@ -1,0 +1,75 @@
+@font-face {
+  font-family: 'surah-name-v4';
+  src:  url("#{$font-cdn}/surah-names/v4/surah-name-v4.woff2?v=#{$asset-version}");
+  src:  url("#{$font-cdn}/surah-names/v4/surah-name-v4.eot?v=#{$asset-version}") format('embedded-opentype'),
+  url("#{$font-cdn}/surah-names/v4/surah-name-v4.ttf?v=#{$asset-version}") format('truetype'),
+  url("#{$font-cdn}/surah-names/v4/surah-name-v4.woff?v=#{$asset-version}") format('woff');
+}
+@font-face {
+  font-family: 'surah-name-v1';
+  src:  url("#{$font-cdn}/surah-names/v1/surah-name-v1.woff2?v=#{$asset-version}");
+  src:  url("#{$font-cdn}/surah-names/v1/surah-name-v1.eot?v=#{$asset-version}") format('embedded-opentype'),
+  url("#{$font-cdn}/surah-names/v1/surah-name-v1.ttf?v=#{$asset-version}") format('truetype'),
+  url("#{$font-cdn}/surah-names/v1/surah-name-v1.woff?v=#{$asset-version}") format('woff'),
+  url("#{$font-cdn}/surah-names/v1/surah-name-v1.svg?v=#{$asset-version}") format('svg');
+}
+@font-face {
+  font-family: 'surah-name-v2';
+  src:  url("#{$font-cdn}/surah-names/v2/surah-name-v2.woff2?v=#{$asset-version}");
+  src:  url("#{$font-cdn}/surah-names/v2/surah-name-v2.eot?v=#{$asset-version}") format('embedded-opentype'),
+  url("#{$font-cdn}/surah-names/v2/surah-name-v2.ttf?v=#{$asset-version}") format('truetype'),
+  url("#{$font-cdn}/surah-names/v2/surah-name-v2.woff?v=#{$asset-version}") format('woff'),
+  url("#{$font-cdn}/surah-names/v2/surah-name-v2.svg?v=#{$asset-version}") format('svg');
+}
+@font-face{
+  font-family: 'surah-header';
+  src:  url("#{$font-cdn}/surah-names/surah-header/QCF_SurahHeader_COLOR-Regular.woff2?v=#{$asset-version}");
+  src:  url("#{$font-cdn}/surah-names/surah-header/QCF_SurahHeader_COLOR-Regular.ttf?v=#{$asset-version}");
+}
+
+.surah-name-v4-icon {
+  font-family: 'surah-name-v4' !important;
+}
+.surah-name-v2-icon {
+  font-family: 'surah-name-v2' !important;
+}
+.surah-name-v1-icon {
+  font-family: 'surah-name-v1' !important;
+}
+.surah-header-icon{
+  font-family: 'surah-header' !important;
+  font-size:130px !important;
+}
+
+.surah-icon{
+  font-size: 50px;
+  text-align: right;
+  direction: rtl;
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  letter-spacing: 0;
+  -webkit-font-feature-settings: 'liga';
+  -moz-font-feature-settings: 'liga=1';
+  -moz-font-feature-settings: 'liga';
+  -ms-font-feature-settings: 'liga' 1;
+  font-feature-settings: 'liga';
+  -webkit-font-variant-ligatures: discretionary-ligatures;
+  font-variant-ligatures: discretionary-ligatures;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.surah-header{
+  font-size: 70px;
+  margin-top: -30px;
+  margin-bottom: -30px;
+}

@@ -3,6 +3,8 @@ $asset-version: "3.3";
 
 @import "indopak_font_faces";
 @import "surah_names";
+@import "qpc_fonts";
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap');
 
 @font-face {
@@ -22,6 +24,7 @@ $asset-version: "3.3";
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: quran-icon;
   src: url("#{$font-cdn}/common/quran-common.woff2?v=#{$asset-version}"),
@@ -47,28 +50,6 @@ $asset-version: "3.3";
   font-display: swap;
 }
 
-.quran-icon{
-  font-family: quran-icon;
-}
-
-.bismillah {
-  font-family: bismillah;
-}
-
-@font-face {
-  font-family: 'me_quran';
-  src: url("#{$font-cdn}/me_quran_volt_newmet.ttf?v=#{$asset-version}") format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'digitalkhatt';
-  src: url("#{$font-cdn}/DigitalKhattQuranic.otf?v=#{$asset-version}") format("opentype");
-  font-style: normal;
-  font-display: block
-}
-
 @font-face {
   font-family: 'digitalkhatt-v2';
   src: url("#{$font-cdn}/DigitalKhattV2.otf?v=#{$asset-version}") format("opentype");
@@ -92,12 +73,61 @@ $asset-version: "3.3";
 
 @font-face {
   font-family: 'qpc-nastaleeq';
-  src: url("#{$font-cdn}/nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
+  src: local('KFGQPCNastaleeq-Regular'),
+  url("#{$font-cdn}/nastaleeq/KFGQPCNastaleeq-Regular.woff2?v=#{$asset-version}");
 }
 
 @font-face {
   font-family: 'pdms-saleem';
   src: url("#{$font-cdn}/pdms-saleem-quranfont.ttf?v=#{$asset-version}");
+}
+
+@font-face {
+  font-family: 'me_quran';
+  src: url("#{$font-cdn}/me_quran_volt_newmet.ttf?v=#{$asset-version}") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'digitalkhatt';
+  src: url("#{$font-cdn}/DigitalKhattQuranic.otf?v=#{$asset-version}") format("opentype");
+  font-style: normal;
+  font-display: block
+}
+
+@font-face {
+  font-family: juz-font;
+  src: url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: quran_common_font;
+  src: url("#{$font-cdn}/quran-common/quran_common.ttf?v=#{$asset-version}");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: KFGQPCHAFSColored-Bold;
+  src: url("#{$font-cdn}/KFGQPCHAFSColored-Bold.ttf?v=#{$asset-version}")
+}
+
+@font-face {
+  font-family: 'al_qalam';
+  src: url("#{$font-cdn}/AlQalamQuran.ttf?v=#{$asset-version}") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.quran-icon{
+  font-family: quran-icon;
+}
+
+.bismillah {
+  font-family: bismillah;
 }
 
 .pdms-saleem{
@@ -132,47 +162,8 @@ $asset-version: "3.3";
   font-size: 30px;
 }
 
-@font-face {
-  font-family: "UthmanicHafs1-Ver17";
-  src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.17'),
-  url("#{$font-cdn}/UthmanicHafs1-Ver17.woff2?v=#{$asset-version}") format('woff2'),
-  url("#{$font-cdn}/UthmanicHafs1-Ver17.ttf?v=#{$asset-version}") format('truetype');
-}
-
-@font-face {
-  font-family: "UthmanicHafs1-Ver18";
-  src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.18'),
-  url("#{$font-cdn}/UthmanicHafs1Ver18.woff2?v=#{$asset-version}") format('woff2'),
-  url("#{$font-cdn}/UthmanicHafs1Ver18.ttf?v=#{$asset-version}") format('truetype');
-}
-
-@font-face {
-  font-family: "UthmanicHafs_V22";
-  src: local('KFGQPCHAFSUthmanicScript-Regula'),
-  url("#{$font-cdn}/UthmanicHafs_V22.woff2?v=#{$asset-version}") format('woff2'),
-  url("#{$font-cdn}/UthmanicHafs_V22.ttf?v=#{$asset-version}") format('truetype');
-}
-
-@font-face {
-  font-family: KFGQPCHAFSColored-Bold;
-  src: url("#{$font-cdn}/KFGQPCHAFSColored-Bold.ttf?v=#{$asset-version}")
-}
-
-@font-face {
-  font-family: 'al_qalam';
-  src: url("#{$font-cdn}/AlQalamQuran.ttf?v=#{$asset-version}") format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 .mushaf-al_qalam {
   font-family: al_qalam;
-}
-
-.qpc-hafs, .mushaf-kfqc-hafs {
-  font-family: 'UthmanicHafs_V22' !important;
-  direction: rtl;
-  font-size: 30px;
 }
 
 .qpc-dotted {
@@ -237,20 +228,6 @@ $asset-version: "3.3";
   font-family: qpc-nastaleeq;
   font-size: 30px;
   direction: rtl;
-}
-
-@font-face {
-  font-family: juz-font;
-  src: url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: quran_common_font;
-  src: url("#{$font-cdn}/quran-common/quran_common.ttf?v=#{$asset-version}");
-  font-weight: normal;
-  font-style: normal;
 }
 
 .tp0, .v3p0 {

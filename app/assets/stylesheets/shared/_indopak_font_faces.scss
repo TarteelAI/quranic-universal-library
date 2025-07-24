@@ -6,14 +6,6 @@
   font-style: normal;
 }
 
-.mushaf-indopak-nastaleeq-hanafi-normal{
-  font-family: indopak-nastaleeq-hanafi-normal !important;
-
-  .char a{
-    unicode-bidi: unset !important;
-  }
-}
-
 //hanafi compact
 @font-face {
   font-family: 'indopak-nastaleeq-hanafi-compact';
@@ -22,13 +14,6 @@
   font-style: normal;
 }
 
-.mushaf-indopak-nastaleeq-hanafi-compact{
-  font-family: indopak-nastaleeq-hanafi-compact !important;
-
-  .char a{
-    unicode-bidi: unset !important;
-  }
-}
 
 //hanafi compressed
 @font-face {
@@ -38,27 +23,12 @@
   font-style: normal;
 }
 
-.mushaf-indopak-nastaleeq-hanafi-compressed{
-  font-family: indopak-nastaleeq-hanafi-compressed!important;
-
-  .char a{
-    unicode-bidi: unset !important;
-  }
-}
-
 //madani normal
 @font-face {
   font-family: 'indopak-nastaleeq-madinah-normal';
   src: url("#{$font-cdn}/nastaleeq/Madinah/normal-v4.2.2/with-waqf-lazmi/font.woff2?v=#{$asset-version}");
   font-weight: normal;
   font-style: normal;
-}
-.mushaf-indopak-nastaleeq-madinah-normal{
-  font-family: indopak-nastaleeq-madinah-normal !important;
-
-  .char a{
-    unicode-bidi: unset !important;
-  }
 }
 
 //madani compact
@@ -67,13 +37,6 @@
   src: url("#{$font-cdn}/nastaleeq/Madinah/compact-v4.2.2/with-waqf-lazmi/font.woff2?v=#{$asset-version}");
   font-weight: normal;
   font-style: normal;
-}
-.mushaf-indopak-nastaleeq-madinah-compact{
-  font-family: indopak-nastaleeq-madinah-compact !important;
-
-  .char a{
-    unicode-bidi: unset !important;
-  }
 }
 
 //madani compressed
@@ -84,6 +47,46 @@
   font-style: normal;
 }
 
+.mushaf-indopak-nastaleeq-hanafi-normal{
+  font-family: indopak-nastaleeq-hanafi-normal !important;
+
+  .char a{
+    unicode-bidi: unset !important;
+  }
+}
+
+.mushaf-indopak-nastaleeq-hanafi-compact{
+  font-family: indopak-nastaleeq-hanafi-compact !important;
+
+  .char a{
+    unicode-bidi: unset !important;
+  }
+}
+
+.mushaf-indopak-nastaleeq-hanafi-compressed{
+  font-family: indopak-nastaleeq-hanafi-compressed!important;
+
+  .char a{
+    unicode-bidi: unset !important;
+  }
+}
+
+.mushaf-indopak-nastaleeq-madinah-normal{
+  font-family: indopak-nastaleeq-madinah-normal !important;
+
+  .char a{
+    unicode-bidi: unset !important;
+  }
+}
+
+.mushaf-indopak-nastaleeq-madinah-compact{
+  font-family: indopak-nastaleeq-madinah-compact !important;
+
+  .char a{
+    unicode-bidi: unset !important;
+  }
+}
+
 .mushaf-indopak-nastaleeq-madinah-compressed{
   font-family: indopak-nastaleeq-madinah-compressed !important;
 
@@ -91,12 +94,5 @@
     unicode-bidi: unset !important;
   }
 }
-
-
-
-
-
-
-
 
 

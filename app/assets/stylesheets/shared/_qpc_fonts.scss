@@ -1,0 +1,96 @@
+@font-face {
+  font-family: "qpc-hafs";
+  src: local('KFGQPCHAFSUthmanicScript-Regula'),
+  url("#{$font-cdn}/UthmanicHafs_V22.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/UthmanicHafs_V22.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "qpc-douri";
+  src: local('KFGQPCDouriUthmanicScript-Regul'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-douri-v20.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-douri-v20.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "qpc-qaloun";
+  src: local('KFGQPCQalounUthmanicScript-Regu'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-qaloun-v21.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-qaloun-v21.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "qpc-shuba";
+  src: local('KFGQPCShubaUthmanicScript-Regul'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-shuba-v20.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-shuba-v20.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "quran-script-sousi";
+  src: local('KFGQPCSousiUthmanicScript-Regul'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v20.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v20.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "quran-script-warsh";
+  src: local('KFGQPCWarshUthmanicScript-Regul'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v21.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v21.ttf?v=#{$asset-version}") format('truetype');
+}
+
+.qpc-hafs, .mushaf-kfqc-hafs {
+  font-family: 'qpc-hafs' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-douri{
+    font-family: "qpc-douri" !important;
+    direction: rtl;
+    font-size: 30px;
+}
+
+.qpc-qaloun{
+  font-family: "qpc-qaloun" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-shuba{
+  font-family: "qpc-shuba" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-sousi{
+  font-family: "qpc-sousi" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-warsh{
+  font-family: "qpc-warsh" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+/*
+@font-face {
+  font-family: "UthmanicHafs1-Ver17";
+  src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.17'),
+  url("#{$font-cdn}/UthmanicHafs1-Ver17.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/UthmanicHafs1-Ver17.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "UthmanicHafs1-Ver18";
+  src: local('KFGQPC HAFS Uthmanic Script Regular. Version 0.18'),
+  url("#{$font-cdn}/UthmanicHafs1Ver18.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/UthmanicHafs1Ver18.ttf?v=#{$asset-version}") format('truetype');
+}
+*/
+
+
+

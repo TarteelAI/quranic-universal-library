@@ -1,5 +1,5 @@
 module V1
-  class VersePresenter < BasePresenter
+  class VersePresenter < ApplicationPresenter
     VERSE_FIELDS = [
       'text_uthmani',
       'text_indopak',

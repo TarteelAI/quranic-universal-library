@@ -1,4 +1,4 @@
-class BasePresenter
+class ApplicationPresenter
   MAX_RECORDS_PER_PAGE = 50
 
   include Pagy::Backend

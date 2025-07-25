@@ -1,5 +1,5 @@
 module V1
-  class ChapterPresenter < BasePresenter
+  class ChapterPresenter < ApplicationPresenter
     def chapters
       finder.chapters
     end

@@ -1,3 +1,2 @@
-class SegmentStats::SegmentLog < SegmentStats::Base
-  self.table_name = 'logs'
+class Segments::SegmentLog < Base
 end

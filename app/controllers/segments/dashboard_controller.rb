@@ -1,4 +1,5 @@
 class Segments::DashboardController < ApplicationController
+  before_action :init_presenter
   before_action :authenticate_user!
   before_action :authorize_access!
   before_action :check_segments_database, except: :setup_db
@@ -200,11 +201,12 @@ class Segments::DashboardController < ApplicationController
 
   def segment_models
     [
-      SegmentStats::DetectionStat,
-      SegmentStats::FailureStat,
-      SegmentStats::SegmentLog,
-      SegmentStats::PositionStat,
-      SegmentStats::ReciterName
+      Segments::Detection,
+      Segments::Failure,
+      Segments::SegmentLog,
+      Segments::Position,
+      Segments::Reciter,
+      Segments::StateMachineLog,
     ]
   end
 
@@ -230,7 +232,7 @@ class Segments::DashboardController < ApplicationController
     File.delete(zip_temp_path) if File.exist?(zip_temp_path)
 
     if db_file.present?
-      SegmentStats::Base.establish_connection(
+      Segments::Base.establish_connection(
         adapter: 'sqlite3',
         database: db_file.to_s
       )
@@ -238,10 +240,12 @@ class Segments::DashboardController < ApplicationController
       segment_models.each(&:reset_column_information)
     end
 
-    binding.pry
-
     db_file
   rescue StandardError => e
     # Do nothing
+  end
+
+  def init_presenter
+    @presenter = Segments::DashboardPresenter.new(self)
   end
 end

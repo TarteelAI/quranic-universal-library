@@ -167,11 +167,11 @@ ActiveAdmin.register Word do
       row :char_type
 
       row :page_number, 'V1 Page' do
-        link_to resource.page_number, "/cms/page?page#{resource.page_number}"
+        link_to resource.page_number, "/cms/mushaf_page_preview?page=#{resource.page_number}&mushaf=2&word=#{resource.id}"
       end
 
       row :v2_page, 'V2 Page' do
-        link_to resource.v2_page, "/cms/page?page#{resource.v2_page}"
+        link_to resource.v2_page, "/cms/mushaf_page_preview?page=#{resource.v2_page}&mushaf=1&word=#{resource.id}"
       end
 
       row :text_uthmani, class: 'quran-text' do

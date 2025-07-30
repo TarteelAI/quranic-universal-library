@@ -77,24 +77,22 @@ module Importer
       verses_imported = {}
 
       Verse.order('verse_index ASC').find_each do |verse|
-        next if verses_imported[verse.id].present?
+        next if verses_imported[verse.id]
 
         result = fetch_tafsir(key, verse)
 
         if tafsir = import_tafsir(verse, result, resource_content)
-          tafsir.ayah_group_ids.each do |id|
-            verses_imported[id] = true
-          end
+          tafsir.ayah_group_ids.each { |id| verses_imported[id] = true }
         else
-          log_issue({tag: 'missing-tafsir', text: verse.verse_key })
+          log_issue({ tag: 'missing-tafsir', text: verse.verse_key })
         end
       end
 
-      run_after_import_hooks(resource_content)
+      # Pass source_key and imported_keys for verification
+      run_after_import_hooks(resource_content, source_key: key, imported_keys: verses_imported)
     end
 
     protected
-
 
     def import_tafsir(verse, tafsir_json, resource_content)
       draft_tafsir = Draft::Tafsir
@@ -107,28 +105,27 @@ module Importer
       source_text = tafsir_json['data'].to_s.strip
 
       if source_text.present?
-        if resource_content.tafsir_app_key == 'iraab-graphs'
-          text = source_text
-        else
-          text = sanitize_text(source_text)
-        end
+        text = if resource_content.tafsir_app_key == 'iraab-graphs'
+                 source_text
+               else
+                 sanitize_text(source_text)
+               end
 
         draft_tafsir.set_meta_value('source_data', { text: source_text })
         existing_tafsir = Tafsir.for_verse(verse, resource_content)
 
-        draft_tafsir.tafsir_id = existing_tafsir&.id
-        draft_tafsir.current_text = existing_tafsir&.text
-        draft_tafsir.draft_text = text
-        draft_tafsir.text_matched = existing_tafsir&.text == text
+        draft_tafsir.tafsir_id         = existing_tafsir&.id
+        draft_tafsir.current_text      = existing_tafsir&.text
+        draft_tafsir.draft_text        = text
+        draft_tafsir.text_matched      = existing_tafsir&.text == text
 
-        draft_tafsir.verse_key = verse.verse_key
-
+        draft_tafsir.verse_key           = verse.verse_key
         draft_tafsir.group_verse_key_from = group_verses.first.verse_key
-        draft_tafsir.group_verse_key_to = group_verses.last.verse_key
-        draft_tafsir.group_verses_count = group_verses.size
-        draft_tafsir.start_verse_id = group_verses.first.id
-        draft_tafsir.end_verse_id = group_verses.last.id
-        draft_tafsir.group_tafsir_id = verse.id
+        draft_tafsir.group_verse_key_to   = group_verses.last.verse_key
+        draft_tafsir.group_verses_count   = group_verses.size
+        draft_tafsir.start_verse_id       = group_verses.first.id
+        draft_tafsir.end_verse_id         = group_verses.last.id
+        draft_tafsir.group_tafsir_id      = verse.id
 
         draft_tafsir.save(validate: false)
 
@@ -136,6 +133,7 @@ module Importer
         draft_tafsir
       else
         log_message "Tafsir is missing for ayah #{verse.verse_key}"
+        nil
       end
     end
 
@@ -143,8 +141,8 @@ module Importer
       url = "https://tafsir.app/get.php?src=#{key}&s=#{verse.chapter_id}&a=#{verse.verse_number}&ver=1"
       data = get_json(url)
 
-      data['count'] = 0 if data['count'].blank?
-      data['ayahs_start'] = verse.verse_number if data['ayahs_start'].blank?
+      data['count']     ||= 0
+      data['ayahs_start'] ||= verse.verse_number
 
       data
     rescue RestClient::NotFound
@@ -154,7 +152,8 @@ module Importer
 
     def find_ayah_group(verse, start_ayah, count)
       Verse.where(
-        chapter_id: verse.chapter_id, verse_number: start_ayah..(start_ayah + count)
+        chapter_id: verse.chapter_id,
+        verse_number: start_ayah..(start_ayah + count)
       ).order('verse_index ASC')
     end
 
@@ -180,10 +179,8 @@ module Importer
 
       doc.css('a[href^="/quran-roots/"]').each do |a_tag|
         if a_tag['href'] =~ %r{^/quran-roots/(.+)}
-          root_text = $1
-          # Create a new <root> element with the extracted text
           new_node = Nokogiri::XML::Node.new('root', doc)
-          new_node.content = root_text
+          new_node.content = $1
           a_tag.replace(new_node)
         end
       end

@@ -116,13 +116,13 @@ ActiveAdmin.register ResourceContent do
     Utils::System.start_sidekiq
 
     if params[:approved]
-      DraftContent::ApproveDraftContentJob.perform_later(resource.id)
+      DraftContent::ApproveDraftDataJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be imported shortly!"
     elsif params[:remove_draft]
       DraftContent::RemoveDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be removed shortly!"
     elsif resource.syncable?
-      DraftContent::ImportDraftContentJob.perform_later(resource.id)
+      DraftContent::ImportDraftDataJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be synced shortly!"
     end
 
@@ -139,6 +139,24 @@ ActiveAdmin.register ResourceContent do
           end
 
     redirect_to url
+  end
+
+  member_action :import_draft_content, method: 'put' do
+    authorize! :manage, resource
+    Utils::System.start_sidekiq
+
+    if params[:approved]
+      DraftContent::ApproveDraftContentJob.perform_later(resource.id)
+      flash[:notice] = "#{resource.name} drafts will be imported shortly!"
+    elsif params[:remove_draft]
+      Draft::Content.where(resource_content_id: resource.id).delete_all
+      flash[:notice] = "#{resource.name} drafts will be removed shortly!"
+    elsif resource.syncable?
+      DraftContent::ImportDraftContentJob.perform_later(resource.id)
+      flash[:notice] = "#{resource.name} will be synced shortly!"
+    end
+
+    redirect_to "/cms/draft_contents?q%5Bresource_content_id_eq%5D=#{resource.id}"
   end
 
   member_action :export, method: 'put' do

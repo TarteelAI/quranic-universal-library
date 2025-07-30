@@ -20,6 +20,20 @@ ActiveAdmin.register Draft::Content do
 
   includes :resource_content
 
+  action_item :approve, only: :show do
+    if !resource.imported? && can?(:manage, :draft_content)
+      link_to approve_cms_draft_content_path(resource), method: :put,
+              data: { confirm: 'Are you sure?' } do
+        'Approve and update'
+      end
+    end
+  end
+
+  member_action :approve, method: :put do
+    resource.import!
+    redirect_to [:cms, resource], notice: 'Draft content has been approved and imported'
+  end
+
   index do
     id_column
     column :location
@@ -32,11 +46,9 @@ ActiveAdmin.register Draft::Content do
     column :draft_text, sortable: :draft_text do |resource|
       resource.draft_text.to_s.first(50)
     end
-
     column :current_text, sortable: :current_text do |resource|
       resource.current_text.to_s.first(50)
     end
-
     actions
   end
 
@@ -45,9 +57,7 @@ ActiveAdmin.register Draft::Content do
     selected = params.dig(:q, :resource_content_id_eq).to_i
 
     drafts = drafts.sort_by { |t| t[:resource] && t[:resource].id == selected ? 0 : 1 }
-    imported = drafts.select do |t|
-      t[:total_count] == t[:imported_count]
-    end
+    imported = drafts.select { |t| t[:total_count] == t[:imported_count] }
 
     div "Total Resources: #{drafts.size}"
     div "Imported: #{imported.size}"
@@ -68,7 +78,6 @@ ActiveAdmin.register Draft::Content do
           div "#{resource_content.name} (#{resource_content.language_name})"
           div "Synced: #{resource_content.meta_value('synced-at')} | Updated: #{resource_content.updated_at}"
 
-          # Display stats per resource
           div class: 'small text-muted' do
             span "Total: #{t[:total_count]}, "
             span "Matched: #{t[:matched_count]}, "
@@ -88,8 +97,15 @@ ActiveAdmin.register Draft::Content do
                 span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
               end
 
-              #span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-sm btn-warning text-white', data: { confirm: 'Are you sure to import this resource?' })
-              #span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-sm btn-danger text-white', data: { confirm: 'Are you sure to remove draft resource?' })
+              span(link_to 'Approve', import_draft_content_cms_resource_content_path(resource_content, approved: true),
+                           method: 'put',
+                           class: 'btn btn-sm btn-warning text-white',
+                           data: { confirm: 'Are you sure to import this resource?' })
+
+              # span(link_to 'Delete', import_draft_content_cms_resource_content_path(resource_content, remove_draft: true),
+              #              method: 'put',
+              #              class: 'btn btn-sm btn-danger text-white',
+              #              data: { confirm: 'Are you sure to remove draft resource?' })
             end
           end
         end
@@ -100,15 +116,28 @@ ActiveAdmin.register Draft::Content do
   form do |f|
     f.inputs 'Resource detail' do
       f.input :draft_text
+
+      if f.object.resource_content&.sub_type == ResourceContent::SubType::Tafsir
+        f.input :meta_data, as: :json,
+                input_html: {
+                  value: f.object.meta_data.to_json,
+                  'data-schema': {
+                    type: 'object',
+                    properties: {
+                      group_verses: {
+                        type: 'array',
+                        items: { type: 'string' }
+                      }
+                    }
+                  }.to_json
+                }
+      end
     end
 
     f.actions
   end
 
   show do
-    language = resource.resource_content.language
-    language_name = language&.name.to_s.downcase
-
     attributes_table do
       row :id
       row :location
@@ -116,36 +145,34 @@ ActiveAdmin.register Draft::Content do
       row :verse
       row :word
       row :resource_content
-      row :current_text, class: language_name, 'data-controller': 'translation' do
-        div do
-          span resource.current_text.to_s.html_safe
-        end
+      row :current_text do
+        resource.current_text.to_s.html_safe
       end
       row :draft_text do
-        div(class: language_name, 'data-controller': 'translation', 'data-draft': true, lang: language&.iso_code) do
-          resource.draft_text.to_s.html_safe
-        end
+        resource.draft_text.to_s.html_safe
       end
       row :text_matched
       row :imported
-
       row :diff do
-        div do
-          div Diffy::Diff.new(resource.current_text.to_s, resource.draft_text.to_s, include_plus_and_minus_in_html: true).to_s(:html).html_safe
-        end
+        Diffy::Diff.new(resource.current_text.to_s, resource.draft_text.to_s,
+                        include_plus_and_minus_in_html: true)
+                   .to_s(:html).html_safe
       end
-
+      row :group_verses do
+        if resource.meta_data.present? && resource.meta_data['group_verses']
+          ul do
+            resource.meta_data['group_verses'].each do |verse_key|
+              li verse_key
+            end
+          end
+        end
+      end if resource.resource_content&.sub_type == ResourceContent::SubType::Tafsir
       row :created_at
       row :updated_at
-
       row :meta_data do
         if resource.meta_data.present?
-          div do
-            pre do
-              code do
-                JSON.pretty_generate(resource.meta_data)
-              end
-            end
+          pre do
+            code JSON.pretty_generate(resource.meta_data)
           end
         end
       end
@@ -155,6 +182,7 @@ ActiveAdmin.register Draft::Content do
   permit_params do
     %i[
       draft_text
+      meta_data
     ]
   end
 end

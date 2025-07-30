@@ -1,5 +1,5 @@
 module Segments
-  class Position < Base
+  class Log < Base
     belongs_to :reciter, class_name: 'Segments::Reciter'
   end
 end

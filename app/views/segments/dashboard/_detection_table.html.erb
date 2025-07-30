@@ -5,8 +5,8 @@
         <label class="tw-block tw-text-sm tw-font-semibold">Reciter:</label>
         <select name="reciter_id" class="tw-border tw-rounded tw-px-2 tw-py-1">
           <option value="">All</option>
-          <% @reciters.each do |reciter| %>
-            <option value="<%= reciter.id %>" <%= 'selected' if @selected_reciter == reciter.id %>><%= reciter.name %></option>
+          <% @presenter.reciters.each do |reciter| %>
+            <option value="<%= reciter.id %>" <%= 'selected' if @presenter.selected_reciter == reciter.id %>><%= reciter.name %></option>
           <% end %>
         </select>
       </div>
@@ -15,8 +15,8 @@
         <label class="tw-block tw-text-sm tw-font-semibold">Surah:</label>
         <select name="surah" class="tw-border tw-rounded tw-px-2 tw-py-1">
           <option value="">All</option>
-          <% @surahs.each do |s| %>
-            <option value="<%= s %>" <%= 'selected' if @selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
+          <% @presenter.segmented_surah.each do |s| %>
+            <option value="<%= s %>" <%= 'selected' if @presenter.selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
           <% end %>
         </select>
       </div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_11_104903) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_29_085206) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -272,6 +272,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_104903) do
     t.integer "translation_id"
     t.integer "footnotes_count", default: 0
     t.jsonb "meta_data", default: {}
+    t.integer "current_footnotes_count", default: 0
     t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
@@ -504,6 +505,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_11_104903) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "copyright_notice"
+  end
+
+  create_table "segments_database", force: :cascade do |t|
+    t.string "name"
   end
 
   create_table "synonyms", force: :cascade do |t|

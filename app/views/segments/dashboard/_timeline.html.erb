@@ -1,24 +1,14 @@
-<%
-  chapters = Chapter.order('id asc').map do |c|
-    [
-      c.humanize,
-      c.id
-    ]
-  end
-  reciters = SegmentStats::ReciterName.all
-%>
-
 <div class="page-wrapper container-lg">
   <div class="page-section filters">
     <%= form_tag segments_timeline_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
         <div class="form-group me-2">
-          <%= select_tag :surah, options_for_select(chapters, @selected_surah), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
+          <%= select_tag :surah, options_for_select(@presenter.chapter_options, @presenter.selected_surah), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
           <p class="form-text">Filter by Surah</p>
         </div>
 
         <div class="form-group me-2">
-          <%= select_tag :reciter_id, options_for_select(reciters.pluck(:name, :id), @selected_reciter), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
+          <%= select_tag :reciter, options_for_select(@presenter.reciters.pluck(:name, :id), @presenter.selected_reciter), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
           <p class="form-text">Filter reciter</p>
         </div>
 
@@ -30,26 +20,35 @@
   </div>
 
   <div class="page-section tw-mt-4">
+    <% if @presenter.selected_reciter.present? && @presenter.selected_surah.present? %>
+      <%
+        data = @presenter.timeline_data
+        reciter = data[:reciter]
+        ayahs = data[:ayahs]
+        ayah_positions = data[:ayah_positions]
+        word_positions = data[:word_positions]
+        failures = data[:failures]
+      %>
 
-    <% if @selected_reciter > 0 && @selected_surah > 0 %>
       <h2 class="tw-text-xl tw-font-bold tw-mb-4">
-        Word-by-Word Timeline – <%= @reciter.name %>, Surah <%= @selected_surah %>
+        Word-by-Word Timeline – <%= reciter.name %>, Surah <%= @presenter.selected_surah %>
       </h2>
 
       <div class="tw-space-y-4">
-        <% @ayahs.each do |ayah| %>
+        <% ayahs.each do |ayah| %>
           <%
-            ayah_position = @ayah_positions[ayah.verse_number]
+            ayah_position = ayah_positions[ayah.verse_number]
 
             if ayah_position.nil?
               if ayah.verse_number == 1
                 ayah_start_time = 0
-                ayah_end_time = @ayah_positions[ayah.verse_number + 1]&.first&.start_time
+                ayah_end_time = ayah_positions[ayah.verse_number + 1]&.first&.start_time
               end
             else
               ayah_start_time = ayah_position.first.start_time
               ayah_end_time = ayah_position.last.end_time
             end
+            binding.pry if ayah.verse_key == '2:7'
           %>
 
           <div>
@@ -66,19 +65,19 @@
                 onclick="playSegment(this)"
               > Play
               </button>
-              <%= link_to 'logs', segments_logs_path(reciter: @selected_reciter, surah: @selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
-              <%= link_to 'Segment', "/surah_audio_files/#{@selected_reciter}/segment_builder?chapter_id=#{@selected_surah}&verse=#{ayah.verse_number}", class: 'tw-bg-green-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-green-500 hover:tw-text-white', target: '_blank' %>
+              <%= link_to 'logs', segments_logs_path(reciter: reciter.id, surah: @presenter.selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
+              <%= link_to 'Segment', "/surah_audio_files/#{reciter.id}/segment_builder?chapter_id=#{@presenter.selected_surah}&verse=#{ayah.verse_number}", class: 'tw-bg-green-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-green-500 hover:tw-text-white', target: '_blank' %>
             </h3>
 
             <div class="tw-flex tw-gap-1 tw-flex-wrap qpc-hafs">
               <% ayah.words.each do |word| %>
                 <% key = word.location %>
 
-                <% if failure = @failures[key] %>
+                <% if failure = failures[key] %>
                   <% color = "tw-bg-red-500" %>
                   <% start_time = failure.start_time %>
                   <% end_time = failure.end_time %>
-                <% elsif position = @word_positions[key] %>
+                <% elsif position = word_positions[key] %>
                   <% color = "tw-bg-green-500" %>
                   <% start_time = position.start_time %>
                   <% end_time = position.end_time %>
@@ -107,7 +106,7 @@
         <% end %>
       </div>
 
-      <audio id="player" src="<%= @reciter.audio_url(@selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
+      <audio id="player" src="<%= reciter.audio_url(@presenter.selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
 
       <script>
         function playSegment(el) {

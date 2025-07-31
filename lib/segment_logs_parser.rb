@@ -1,6 +1,11 @@
 require 'sqlite3'
 require 'fileutils'
+=begin
+a = SegmentLogsParser.new
+a.prepare_recitation_dbs
 
+a.update_fixed_failures
+=end
 class SegmentLogsParser
   attr_reader :base_path,
               :segments_logs_path,
@@ -19,8 +24,6 @@ class SegmentLogsParser
     @base_path = "/Volumes/Data/qul-segments/15-july"
     @segments_logs_path = "#{@base_path}/vs_logs/**/time-machine.json"
     @db_file = "#{@base_path}/segments_database.db"
-
-    setup_db
   end
 
   def validate_log_files
@@ -61,6 +64,7 @@ class SegmentLogsParser
   end
 
   def seed_segments_tables
+    setup_db
     seed_raw_logs
 
     Dir.glob(segments_logs_path) do |file_path|
@@ -97,6 +101,8 @@ class SegmentLogsParser
       db = RECITER_SEGMENTS_DB[reciter_id]
 
       segments = process_surah_segments(data, surah_number)
+      segments = validate_segments_issues(segments, surah_number)
+
       json_data = {}
 
       if segments.blank?
@@ -106,29 +112,11 @@ class SegmentLogsParser
 
       segments.each do |segment|
         words = segment[:words]
-        surah = segment[:surah]
         ayah_number = segment[:ayah]
         start_time = segment[:start_time]
         end_time = segment[:end_time]
-
-        begin
-          if verse = Verse.find_by(chapter_id: surah_number, verse_number: ayah_number)
-            ayah_words = Word.words.where(verse: verse).order(:position).pluck(:text_uthmani)
-
-            # TODO: fix 69:1-2
-            if words.size <= ayah_words.size
-              words = adjust_zero_duration_words(words, ayah_words)
-            end
-
-            json_data[ayah_number] = words
-            insert_segment(db, surah_number, ayah_number, start_time, end_time, words)
-          else
-            puts "Verse not found for Surah #{surah_number}, Ayah #{ayah_number}"
-            next
-          end
-        rescue Exception => e
-          binding.pry if @debug.nil?
-        end
+        json_data[ayah_number] = words
+        insert_segment(db, surah_number, ayah_number, start_time, end_time, words)
       end
 
       File.open("#{export_path}/json/#{surah_number}.json", 'w') do |f|
@@ -138,7 +126,84 @@ class SegmentLogsParser
   end
 
   def update_fixed_failures
+    Segments::Base.establish_connection(
+      adapter: 'sqlite3',
+      database: db_file.to_s
+    )
+    segment_models = (Segments::Database.new).send(:segment_models)
+    segment_models.each(&:reset_column_information)
+    db_cache = {}
+    base_results_path = File.join(base_path, 'results')
 
+    Segments::Failure.where(reciter_id: 10).find_each do |failure|
+      reciter_id = failure.reciter_id
+      surah_number = failure.surah_number
+      ayah_number = failure.ayah_number
+      word_number = failure.word_number
+      failure_text = failure.text
+
+      if surah_number.blank? || ayah_number.blank? || word_number.blank?
+        if failure.mistake_positions.present?
+          surah_number, ayah_number, word_number = failure.mistake_positions.split(',').first.split(':').map(&:to_i)
+        else
+          next if surah_number.blank? || ayah_number.blank?
+        end
+      end
+
+      if word_number.nil? && failure_text.present?
+        word_number = detect_word_number_from_text(surah_number, ayah_number, failure_text)
+        next unless word_number
+      end
+
+      next unless word_number
+
+      db_path = File.join(base_results_path, reciter_id.to_s, 'segments.db')
+      next unless File.exist?(db_path)
+      db = db_cache[reciter_id] ||= SQLite3::Database.new(db_path)
+
+      row = db.get_first_row("SELECT words FROM timings WHERE sura = ? AND ayah = ?", surah_number.to_s, ayah_number.to_s)
+      next unless row && row[0]
+      words = JSON.parse(row[0]) rescue nil
+      next unless words.is_a?(Array)
+
+      # words is an array of [word_number, start_time, end_time] arrays
+      found = words.find { |w| w[0].to_i == word_number.to_i }
+      if found
+        failure.update_columns(
+          corrected: true,
+          corrected_ayah_number: ayah_number,
+          corrected_word_number: word_number
+        )
+      end
+    end
+  end
+
+  def detect_word_number_from_text(surah_number, ayah_number, text)
+    return nil if text.blank?
+
+    ayah_words = get_ayah_words(surah_number, ayah_number)
+    return nil if ayah_words.empty?
+
+    normalized_text = normalize(text)
+    best_match = nil
+    min_distance = Float::INFINITY
+
+    ayah_words.each do |word_data|
+      word_data[:texts].each do |word_text|
+        distance = levenshtein_distance(normalized_text, word_text)
+
+        # Prioritize exact matches
+        if distance == 0
+          return word_data[:word_number]
+        elsif distance < min_distance
+          min_distance = distance
+          best_match = word_data[:word_number]
+        end
+      end
+    end
+
+    # Return best match if it's close enough (distance <= 2), otherwise nil
+    min_distance <= 2 ? best_match : nil
   end
 
   protected
@@ -151,17 +216,40 @@ class SegmentLogsParser
     statement.close
   end
 
+  def merge_ayah_segments(words)
+    words_timing = []
+
+    words.each_with_index do |current_word, _i|
+      if words_timing.empty?
+        words_timing << current_word
+      else
+        last_word = words_timing.last
+
+        if current_word[:word_number] == last_word[:word_number] # same word
+          words_timing[-1] = {
+            word_number: current_word[:word_number],
+            start_time: last_word[:start_time],
+            end_time: current_word[:end_time]
+          }
+        else
+          words_timing << current_word
+        end
+      end
+    end
+
+    words_timing
+  end
+
   def process_surah_segments(entries, surah_number)
     ayah_groups = Hash.new { |h, k| h[k] = [] }
     current_ayah = 1
     current_word = 1
-    last_end_time = nil
+    first_ayah_found = false
     @ayah_words_cache = {}
 
     entries.each do |entry|
       start_time = entry['startTime']
       end_time = entry['endTime']
-      word_text = entry['word']
 
       ayah = case entry['type']
              when 'POSITION'
@@ -172,83 +260,87 @@ class SegmentLogsParser
                next
              end
 
-      if ayah != current_ayah
+      if !first_ayah_found
+        current_ayah = 1
+        first_ayah_found = true
+        start_time = [0, start_time].min
+      else
         current_ayah = ayah
-        current_word = 1
       end
 
       word_number = case entry['type']
                     when 'POSITION'
                       entry.dig('position', 'wordNumber').to_i
                     when 'FAILURE'
-                      find_word_number(entry, surah_number, ayah, current_word)
+                      detect_failure_word(entry, surah_number, current_ayah, current_word)
                     else
                       next
                     end
 
-      word_number = translate_word(surah_number, ayah, word_number)
+      word_number = translate_word(surah_number, current_ayah, word_number)
 
-      if word_number > current_word
-        (current_word..word_number - 1).each do |skipped_num|
-          ayah_groups[[surah_number, current_ayah]] << {
-            word_number: skipped_num,
-            start_time: last_end_time || start_time,
-            end_time: last_end_time || start_time,
-            skipped: true
-          }
-        end
-        current_word = word_number
-      end
-
-      # Add current word
-      ayah_groups[[surah_number, ayah]] << {
+      ayah_groups[[surah_number, current_ayah]] << {
         word_number: word_number,
         start_time: start_time,
-        end_time: end_time,
-        skipped: false
+        end_time: end_time
       }
-
-      current_word = word_number + 1
-      last_end_time = end_time
     end
 
-    # Process groups and adjust times
-    result = []
+    surah_segments = []
     ayah_groups.each do |(surah, ayah), words|
-      # Remove duplicates and sort by word number
-      words.uniq! { |w| w[:word_number] }
-      words.sort_by! { |w| w[:word_number] }
+      words.sort_by! { |w| w[:start_time] }
 
       adjusted_words = []
-      previous_end = nil
 
-      words.each do |word|
-        adjusted_start = previous_end || word[:start_time]
-        adjusted_end = word[:skipped] ? adjusted_start : word[:end_time]
+      words.each_with_index do |word, i|
+        adjusted_start = word[:start_time]
+        next_word = words[i + 1]
+        adjusted_end = next_word ? [next_word[:start_time] - 200, word[:end_time]].max : word[:end_time]
 
         adjusted_words << {
           word_number: word[:word_number],
           start_time: adjusted_start,
-          end_time: adjusted_end,
-          skipped: word[:skipped]
+          end_time: adjusted_end
         }
-
-        previous_end = adjusted_end
       end
 
-      next if adjusted_words.empty?
+      adjusted_words = merge_ayah_segments(adjusted_words)
 
-      result << {
+      surah_segments << {
         surah: surah,
         ayah: ayah,
-        start_time: adjusted_words.first[:start_time],
-        end_time: adjusted_words.last[:end_time],
         words: adjusted_words.map { |w| [w[:word_number], w[:start_time], w[:end_time]] }
       }
     end
 
-    result.sort_by! { |a| [a[:surah], a[:ayah]] }
-    result
+    surah_segments
+  end
+
+  def validate_segments_issues(segments, surah_number)
+    fixed_segments = {}
+
+    segments.each_with_index do |segment, index|
+      ayah = segment[:ayah]
+      words = segment[:words]
+      next_segment = segments[index + 1]
+
+      if verse = Verse.find_by(chapter_id: surah_number, verse_number: ayah)
+        ayah_words = Word.words.where(verse: verse).order(:position).pluck(:text_uthmani)
+
+        if words.size <= ayah_words.size
+          words = adjust_zero_duration_words(words, ayah_words)
+          words = fix_segment_for_missing_words(words, ayah_words)
+        end
+
+        segment[:start_time] = words.first[1]
+        segment[:end_time] = words.last[2]
+        fixed_segments[verse.verse_number] = segment
+      end
+
+      binding.pry if surah_number == 1 && ayah == 7
+    end
+
+    fixed_segments.values
   end
 
   def translate_word(surah, ayah, word)
@@ -320,35 +412,32 @@ class SegmentLogsParser
     text.tr('ًٌٍَُِّْـ', '')
   end
 
-  def find_word_number(entry, surah_number, ayah, current_word)
+  def detect_failure_word(entry, surah_number, ayah, last_word)
     mistake = entry['mistakeWithPositions']
-    return nil if mistake.nil? || mistake['positions'].nil?
+    received_text = normalize(entry['word'].to_s)
+    expected_text = normalize(mistake['expectedTranscript'].to_s)
+
+    return nil if (mistake['positions'].nil? && (received_text.blank? && expected_text.blank?))
 
     position_data = mistake['positions'].first
-    return nil if position_data.nil?
+    expected_word_number = position_data['wordIndex'].to_i + 1
 
-    expected_word_index = position_data['wordIndex'].to_i
-    expected_word_number = expected_word_index + 1
-    received_text = entry['word']
-
-    return nil if received_text.nil? || received_text.empty?
-
-    # Get words for the ayah
     ayah_words = get_ayah_words(surah_number, ayah)
-    return expected_word_number if ayah_words.empty?
-
-    normalized_received = normalize(received_text)
 
     # Find best match using Levenshtein distance
     best_match = nil
     min_distance = Float::INFINITY
-    search_radius = 3 # Words around expected position to check
+    search_radius = 1 # Words around expected position to check
 
     # Calculate search range
-    start_index = [0, expected_word_index - search_radius].max
-    end_index = [ayah_words.length - 1, expected_word_index + search_radius].min
+    start_index = [0, expected_word_number - search_radius].max
+    end_index = [ayah_words.length - 1, expected_word_number + search_radius].min
 
     (start_index..end_index).each do |idx|
+      p = entry['mistakeWithPositions']['positions'][0]
+      binding.pry if p && p['ayahNumber'] == 7 && p['wordIndex'] == 2
+
+      idx = [0, idx -1].max
       word_data = ayah_words[idx]
 
       texts = word_data[:texts]
@@ -356,9 +445,12 @@ class SegmentLogsParser
       distance = Float::INFINITY
 
       texts.each do |word_text|
-        distance = levenshtein_distance(normalized_received, word_text)
-        if distance == 0
-          word_data[:word_number]
+        distance = levenshtein_distance(received_text, word_text)
+        expected_text_distance = levenshtein_distance(expected_text, word_text)
+
+        if distance == 0 || expected_text_distance == 0
+          puts "found 000"
+          return word_data[:word_number]
         end
 
         if distance < least_distance
@@ -385,19 +477,17 @@ class SegmentLogsParser
 
     return @ayah_words_cache[key] if @ayah_words_cache[key]
 
-    words = Word.unscoped
-                .joins(:verse)
-                .where(verses: { chapter_id: surah_id, verse_number: ayah_number })
-                .order('words.position ASC')
+    verse = Verse.find_by(verse_key: key)
+    words = verse.words.words # skip ayah marker
 
     @ayah_words_cache[key] = words.map do |word|
       {
         texts: [
           normalize(word.text_imlaei_simple),
           normalize(word.text_imlaei),
-        # normalize(word.text_uthmani_simple),
+          normalize(word.text_uthmani_simple),
         # normalize(word.text_uthmani),
-        ],
+        ].uniq,
         word_number: word.position
       }
     end
@@ -422,6 +512,8 @@ class SegmentLogsParser
 
   def seed_raw_logs
     segments_logs_path = "#{base_path}/logs/*.log"
+    batch_size = 1000
+    log_entries = []
 
     Dir.glob(segments_logs_path).each do |file_path|
       puts "Processing #{file_path}"
@@ -434,23 +526,39 @@ class SegmentLogsParser
 
       content.each do |line|
         match = line.match(/^\[(.*?)\]\s*(.*)/)
-        time = match[1]
-        time = Time.iso8601(time)
+        next unless match
 
-        if (log = match[2].to_s.strip).present?
-          Segments::Log.insert_all(
-            [
-              {
-                surah_number: surah_number,
-                reciter_id: reciter_id,
-                timestamp: time.to_i,
-                log: log
-              }
-            ]
-          )
+        time = match[1]
+        log = match[2].to_s.strip
+        next if log.blank?
+
+        begin
+          timestamp = Time.iso8601(time).to_i
+        rescue ArgumentError
+          puts "Invalid timestamp format in #{file_path}: #{time}"
+          next
+        end
+
+        log_entries << {
+          surah_number: surah_number,
+          reciter_id: reciter_id,
+          timestamp: timestamp,
+          log: log
+        }
+
+        # Bulk insert when batch size is reached
+        if log_entries.size >= batch_size
+          Segments::Log.insert_all(log_entries)
+          log_entries.clear
         end
       end
     end
+
+    if log_entries.any?
+      Segments::Log.insert_all(log_entries)
+    end
+
+    puts "Processed #{Dir.glob(segments_logs_path).count} log files"
   end
 
   def seed_segments(content, reciter_id, surah_number)
@@ -633,34 +741,42 @@ class SegmentLogsParser
     fixed_words = words.map(&:dup)
 
     (0...fixed_words.size - 1).each do |i|
-      current = fixed_words[i]
-      nxt = fixed_words[i + 1]
+      current_word = fixed_words[i]
+      next_word = fixed_words[i + 1]
 
-      if current[2] == nxt[1] && current[1] == current[2]
-        total_time = nxt[2] - current[1]
+      if current_word[2] == next_word[1] && current_word[1] == current_word[2]
+        total_time = next_word[2] - current_word[1]
 
         word1 = ayah_words[i]
         word2 = ayah_words[i + 1]
 
-        score1 = calculate_word_text_score(word1)
-        score2 = calculate_word_text_score(word2)
-        score_sum = score1 + score2
+        duration1, duration2 = divide_segment_time(total_time, word1, word2)
 
-        next if score_sum.zero?
-
-        duration1 = (score1.to_f / score_sum * total_time).round
-        duration2 = total_time - duration1
-
-        current[1] = current[1]
-        current[2] = current[1] + duration1
-        nxt[1] = current[2]
-        nxt[2] = nxt[1] + duration2
-
-        break # only fix one pair
+        if duration1 && duration2
+          current_word[2] = current_word[1] + duration1
+          next_word[1] = current_word[2]
+          next_word[2] = next_word[1] + duration2
+        end
       end
     end
 
     fixed_words
+  end
+
+  def fix_segment_for_missing_words(segments, ayah_words)
+
+  end
+
+  def divide_segment_time(total_duration, first_word_text, second_word_text)
+    score1 = calculate_word_text_score(first_word_text)
+    score2 = calculate_word_text_score(second_word_text)
+    total_score = score1 + score2
+    return if total_score == 0
+
+    duration1 = (score1.to_f / total_score * total_duration).round
+    duration2 = total_duration - duration1
+
+    [duration1, duration2]
   end
 
   def calculate_complexity_score(text)

@@ -61,6 +61,10 @@
           </th>
 
           <th>
+            Corrected?
+          </th>
+
+          <th>
             Actions
           </th>
         </tr>
@@ -87,7 +91,20 @@
               </span>
             </td>
             <td>
-              <%= link_to 'logs', segments_logs_path(reciter: failure.reciter_id, surah: failure.surah_number ) %>
+              <% if failure.corrected? %>
+                <span
+                  class="badge bg-success"
+                  data-controller="tooltip"
+                  title="Corrected word <%= failure.surah_number %>:<%= failure.corrected_ayah_number %>:<%=failure.corrected_word_number %>"
+                >
+                  Yes
+                </span>
+              <% else %>
+                <span class="badge bg-success">No</span>
+              <% end %>
+            </td>
+            <td>
+              <%= link_to 'logs', segments_logs_path(reciter: failure.reciter_id, surah: failure.surah_number) %>
             </td>
           </tr>
         <% end %>

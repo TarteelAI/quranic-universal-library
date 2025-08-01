@@ -74,3 +74,9 @@ body {
 [class^="tw-btn"]:hover {
 //  color: inherit;
 }
+
+@media (max-width : 640px){
+  .tools-table-overflow{
+    overflow-x: auto;
+  }
+}

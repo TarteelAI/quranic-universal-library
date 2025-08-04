@@ -37,7 +37,6 @@ Rails.application.routes.draw do
   get 'svg', to: 'community#svg_optimizer'
   get 'credits', to: 'community#credits', as: :credits
   get 'faq', to: 'community#faq', as: :faq
-  get 'contributors', to: 'community#contributors', as: :contributors
   get '/compare_ayah', to: 'verses#compare', as: :compare_ayah
   
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"

@@ -1,13 +1,15 @@
-class BasePresenter
+class ApplicationPresenter
   MAX_RECORDS_PER_PAGE = 50
 
   include Pagy::Backend
   attr_reader :params,
               :pagination,
-              :lookahead
+              :lookahead,
+              :context
 
-  def initialize(params)
-    @params = params
+  def initialize(context)
+    @context = context
+    @params = context.params
     @lookahead = Api::ParamLookahead.new(params)
   end
 

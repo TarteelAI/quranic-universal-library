@@ -1,4 +1,4 @@
-class TranslationDiffPresenter < BasePresenter
+class TranslationDiffPresenter < ApplicationPresenter
   attr_reader :exported_translations
 
   def exported_translations

@@ -1,4 +1,4 @@
-class SegmentStats::Base < ActiveRecord::Base
+class Segments::Base < ActiveRecord::Base
   self.abstract_class = true
   self.establish_connection(
     adapter: 'sqlite3',

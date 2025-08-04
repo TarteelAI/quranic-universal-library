@@ -55,6 +55,9 @@
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
                 (<%= ayah_start_time %> - <%= ayah_end_time %>)
+                <% if ayah_position.nil? %>
+                 <span class="tw-text-red-500">estimated</span>
+                <% end %>
               </span>
 
               <button

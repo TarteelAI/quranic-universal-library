@@ -84,7 +84,8 @@ module Segments
         {
           name: reciter.name,
           positions: positions.count,
-          failures: failures.count
+          failures: failures.count,
+          corrected_failures: failures.where(corrected: true).count,
         }
       end
     end
@@ -116,6 +117,13 @@ module Segments
 
       if failure_type.present?
         list = list.where(failure_type: failure_type)
+      end
+
+      correction_status = params[:correction_status].to_s.strip
+      if correction_status == 'corrected'
+        list = list.where(corrected: true)
+      elsif correction_status == 'pending'
+        list = list.where(corrected: false)
       end
 
       list

@@ -26,6 +26,7 @@
         <th class="tw-p-2 tw-border-b">Reciter</th>
         <th class="tw-p-2 tw-border-b">Positions</th>
         <th class="tw-p-2 tw-border-b">Failures</th>
+        <th class="tw-p-2 tw-border-b">Corrected</th>
       </tr>
       </thead>
       <tbody>
@@ -34,6 +35,8 @@
           <td class="tw-p-2"><%= reciter[:name] %></td>
           <td class="tw-p-2"><%= reciter[:positions] %></td>
           <td class="tw-p-2"><%= reciter[:failures] %></td>
+          <td class="tw-p-2">
+          <%= reciter[:corrected_failures] %>
         </tr>
       <% end %>
       </tbody>

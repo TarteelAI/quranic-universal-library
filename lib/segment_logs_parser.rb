@@ -4,7 +4,9 @@ require 'fileutils'
 a = SegmentLogsParser.new
 a.prepare_recitation_dbs
 
+a.seed_segments_tables
 a.update_fixed_failures
+
 =end
 class SegmentLogsParser
   attr_reader :base_path,
@@ -91,7 +93,6 @@ class SegmentLogsParser
 
       filename = File.basename(File.dirname(file_path))
       reciter_id, surah_number = parse_reciter_and_surah(filename)
-      next if reciter_id != 10
 
       puts "Processing #{file_path}"
       export_path = "#{base_path}/results/#{reciter_id}"
@@ -135,27 +136,32 @@ class SegmentLogsParser
     db_cache = {}
     base_results_path = File.join(base_path, 'results')
 
-    Segments::Failure.where(reciter_id: 10).find_each do |failure|
+    Segments::Failure.update_all(
+      corrected: false,
+      corrected_ayah_number: nil,
+      corrected_word_number: nil
+    )
+
+    Segments::Failure.find_each do |failure|
       reciter_id = failure.reciter_id
       surah_number = failure.surah_number
       ayah_number = failure.ayah_number
       word_number = failure.word_number
       failure_text = failure.text
 
-      if surah_number.blank? || ayah_number.blank? || word_number.blank?
+      if surah_number.blank? || ayah_number.blank?
         if failure.mistake_positions.present?
-          surah_number, ayah_number, word_number = failure.mistake_positions.split(',').first.split(':').map(&:to_i)
+          surah_number, ayah_number, _word_number = failure.mistake_positions.split(',').first.split(':').map(&:to_i)
+
+          if word_number.nil? && ayah_number && failure_text.present?
+            word_number = detect_word_number_from_text(surah_number, ayah_number, failure_text)
+          end
         else
           next if surah_number.blank? || ayah_number.blank?
         end
       end
 
-      if word_number.nil? && failure_text.present?
-        word_number = detect_word_number_from_text(surah_number, ayah_number, failure_text)
-        next unless word_number
-      end
-
-      next unless word_number
+      next if word_number.blank?
 
       db_path = File.join(base_results_path, reciter_id.to_s, 'segments.db')
       next unless File.exist?(db_path)
@@ -163,11 +169,11 @@ class SegmentLogsParser
 
       row = db.get_first_row("SELECT words FROM timings WHERE sura = ? AND ayah = ?", surah_number.to_s, ayah_number.to_s)
       next unless row && row[0]
-      words = JSON.parse(row[0]) rescue nil
-      next unless words.is_a?(Array)
+      words = JSON.parse(row[0])
 
       # words is an array of [word_number, start_time, end_time] arrays
       found = words.find { |w| w[0].to_i == word_number.to_i }
+
       if found
         failure.update_columns(
           corrected: true,
@@ -179,12 +185,9 @@ class SegmentLogsParser
   end
 
   def detect_word_number_from_text(surah_number, ayah_number, text)
-    return nil if text.blank?
-
     ayah_words = get_ayah_words(surah_number, ayah_number)
-    return nil if ayah_words.empty?
-
     normalized_text = normalize(text)
+
     best_match = nil
     min_distance = Float::INFINITY
 
@@ -263,6 +266,7 @@ class SegmentLogsParser
       if !first_ayah_found
         current_ayah = 1
         first_ayah_found = true
+        current_word = 1
         start_time = [0, start_time].min
       else
         current_ayah = ayah
@@ -327,17 +331,23 @@ class SegmentLogsParser
       if verse = Verse.find_by(chapter_id: surah_number, verse_number: ayah)
         ayah_words = Word.words.where(verse: verse).order(:position).pluck(:text_uthmani)
 
-        if words.size <= ayah_words.size
+        if words.size.zero? && ayah_words.size == 1
+          # Single word ayah
+          if verse.first_ayah? && next_segment
+            next_segment_first_word = next_segment[:words].first
+            words = [[1, 0, next_segment_first_word[1] - 200]]
+          end
+        elsif words.size <= ayah_words.size
           words = adjust_zero_duration_words(words, ayah_words)
           words = fix_segment_for_missing_words(words, ayah_words)
         end
 
         segment[:start_time] = words.first[1]
         segment[:end_time] = words.last[2]
+        segment[:words] = words
+
         fixed_segments[verse.verse_number] = segment
       end
-
-      binding.pry if surah_number == 1 && ayah == 7
     end
 
     fixed_segments.values
@@ -435,7 +445,6 @@ class SegmentLogsParser
 
     (start_index..end_index).each do |idx|
       p = entry['mistakeWithPositions']['positions'][0]
-      binding.pry if p && p['ayahNumber'] == 7 && p['wordIndex'] == 2
 
       idx = [0, idx -1].max
       word_data = ayah_words[idx]
@@ -764,7 +773,32 @@ class SegmentLogsParser
   end
 
   def fix_segment_for_missing_words(segments, ayah_words)
+    missed_segments = []
 
+    ayah_words.each_with_index do |word, index|
+      if segments[index].blank?
+        missed_segments << index
+      end
+    end
+
+    missed_segments.each do |index|
+      previous_segment = segments[index - 1]
+      word_number, start_time, end_time = previous_segment
+      total_duration = end_time - start_time
+
+      duration1, duration2 = divide_segment_time(total_duration, ayah_words[index - 1], ayah_words[index])
+      next unless duration1 && duration2
+
+      previous_segment[2] = start_time + duration1
+      segments[index - 1] = previous_segment
+      segments[index] = [
+        word_number + 1,
+        previous_segment[2],
+        previous_segment[2] + duration2
+      ]
+    end
+
+    segments
   end
 
   def divide_segment_time(total_duration, first_word_text, second_word_text)
@@ -777,24 +811,6 @@ class SegmentLogsParser
     duration2 = total_duration - duration1
 
     [duration1, duration2]
-  end
-
-  def calculate_complexity_score(text)
-    return 1 if text.nil? || text.empty?
-
-    # Base score: word length (normalized without diacritics)
-    normalized = text.tr('ًٌٍَُِّْـ', '')
-    score = normalized.length * 2
-
-    # Bonus for special characters that indicate longer pronunciation
-    score += 5 if normalized.include?('ا') # Alif (long vowel)
-    score += 5 if normalized.include?('و') # Waw (long vowel)
-    score += 5 if normalized.include?('ي') # Ya (long vowel)
-    score += 8 if normalized.include?('ّ') # Shaddah (doubled consonant)
-    score += 10 if normalized.include?('آ') # Maddah (extended alif)
-    score += 10 if normalized.include?('ى') # Alif maqsura
-
-    score
   end
 
   def calculate_word_text_score(word)

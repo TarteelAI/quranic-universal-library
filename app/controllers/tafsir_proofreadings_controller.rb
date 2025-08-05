@@ -2,7 +2,7 @@ class TafsirProofreadingsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]
-
+  before_action :init_presenter
   def show
     @tafisr = find_tafsir(@resource)
   end
@@ -102,5 +102,9 @@ class TafsirProofreadingsController < CommunityController
     else
       'verse_id'
     end
+  end
+
+  def init_presenter
+    @presenter = TafsirProofreadingsPresenter.new(self)
   end
 end

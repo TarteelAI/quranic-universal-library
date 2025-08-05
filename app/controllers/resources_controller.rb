@@ -1,7 +1,8 @@
 class ResourcesController < CommunityController
   include ActiveStorage::SetCurrent
   before_action :authenticate_user!, only: [:download]
-
+  before_action :set_resource, only: [:detail]
+  before_action :init_presenter
   def index
     #@resources = DownloadableResource
     #                 .published
@@ -67,5 +68,13 @@ class ResourcesController < CommunityController
     if @resources.empty?
       redirect_to resources_path, alert: 'Sorry, this resource does not exist.'
     end
+  end
+
+  def set_resource
+    @resource = DownloadableResource.published.find(params[:id])
+  end
+
+  def init_presenter
+    @presenter = ResourcesPresenter.new(params, @resource)
   end
 end

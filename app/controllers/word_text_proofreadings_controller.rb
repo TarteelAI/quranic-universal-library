@@ -1,4 +1,6 @@
 class WordTextProofreadingsController < CommunityController
+  before_action :init_presenter
+
   ALLOWED_SCRIPTS = [
     'text_qpc_hafs',
     'text_uthmani',
@@ -58,5 +60,9 @@ class WordTextProofreadingsController < CommunityController
                   .order("word_index #{order}")
       @pagy, @words = pagy(words, items: 500)
     end
+  end
+
+  def init_presenter
+    @presenter = WordTextProofreadingsPresenter.new(self)
   end
 end

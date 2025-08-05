@@ -13,6 +13,62 @@ class ApplicationPresenter
     @lookahead = Api::ParamLookahead.new(params)
   end
 
+  def meta_tags
+    {
+      title: meta_title,
+      description: meta_description,
+      keywords: meta_keywords,
+      og: {
+        site_name: 'Quranic Universal Library',
+        type: 'website',
+        title: og_title,
+        description: og_description,
+        image: og_image
+      },
+      twitter: {
+        title: twitter_title,
+        description: twitter_description,
+        image: twitter_image
+      }
+    }
+  end
+
+  def meta_title
+    'Quranic Universal Library'
+  end
+
+  def meta_description
+    'A comprehensive collection of Quranic digital resources'
+  end
+
+  def meta_keywords
+    'quran, islamic tools, muslim developers, quran api, quranic library'
+  end
+
+  def og_title
+    meta_title
+  end
+
+  def og_description
+    meta_description
+  end
+
+  def og_image
+    'https://static-cdn.tarteel.ai/qul/og.jpeg'
+  end
+
+  def twitter_title
+    meta_title
+  end
+
+  def twitter_description
+    meta_description
+  end
+
+  def twitter_image
+    og_image
+  end
+
   protected
 
   def current_page

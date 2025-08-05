@@ -6,7 +6,7 @@ class MushafLayoutsController < CommunityController
   before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
   before_action :authorize_access!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_page_words, only: [:edit, :show, :save_line_alignment]
-
+  before_action :init_presenter
   def index
     @mushafs = Mushaf.order("#{sort_key} #{sort_order}")
   end
@@ -156,5 +156,14 @@ class MushafLayoutsController < CommunityController
     else
       'id'
     end
+  end
+
+  def init_presenter
+    @presenter = MushafLayoutPresenter.new(
+      self,
+      mushaf: @mushaf,
+      action_name: action_name,
+      page_number: page_number
+    )
   end
 end

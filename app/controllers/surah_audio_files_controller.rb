@@ -1,7 +1,7 @@
 class SurahAudioFilesController < CommunityController
   before_action :authenticate_user!, only: [:save_segments]
   before_action :authorize_access!, only: [:save_segments]
-
+  before_action :init_presenter
   def builder_help
     render layout: false
   end
@@ -117,5 +117,9 @@ class SurahAudioFilesController < CommunityController
     @recitation = Audio::Recitation.find(recitation_id)
     @resource = @recitation.get_resource_content
     @access = can_manage?(@resource)
+  end
+
+  def init_presenter
+    @presenter = SurahAudioFilesPresenter.new(self)
   end
 end

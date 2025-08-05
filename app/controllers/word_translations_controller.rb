@@ -1,6 +1,6 @@
 class WordTranslationsController < CommunityController
   before_action :authorize_access!, only: [:new, :edit, :update, :create]
-
+  before_action :init_presenter
   def index
     @word_translation_languages = Language.where(id: ResourceContent.translations.one_word.select('language_id'))
 
@@ -136,5 +136,9 @@ class WordTranslationsController < CommunityController
 
       @wbw_translations << wbw_translation
     end
+  end
+
+  def init_presenter
+    @presenter = WordTranslationsPresenter.new(self)
   end
 end

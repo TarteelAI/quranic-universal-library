@@ -2,7 +2,7 @@ class TranslationProofreadingsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]
-
+  # before_action :init_presenter
   def show
     @translation = Translation
                      .includes(:verse, :foot_notes)
@@ -12,6 +12,7 @@ class TranslationProofreadingsController < CommunityController
     if @translation.blank?
       return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
     end
+    init_presenter
   end
 
   def edit
@@ -23,7 +24,7 @@ class TranslationProofreadingsController < CommunityController
     if @translation.blank?
       return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Translation not found"
     end
-
+    init_presenter
     @draft_translation = @translation.build_draft
   end
 
@@ -38,6 +39,8 @@ class TranslationProofreadingsController < CommunityController
     else
       render action: :edit, alert: @translation.errors.full_messages
     end
+
+    init_presenter
   end
 
   def index
@@ -61,7 +64,7 @@ class TranslationProofreadingsController < CommunityController
             else
               'asc'
             end
-
+    init_presenter
     @pagy, @translations = pagy(translations.order("verses.verse_index #{order}"))
   end
 
@@ -88,5 +91,14 @@ class TranslationProofreadingsController < CommunityController
 
   def load_resource_access
     @access = can_manage?(find_resource)
+  end
+
+  def init_presenter
+    @presenter = TranslationProofreadingsPresenter.new(
+      self,
+      resource: @resource,
+      action_name: action_name,
+      translation: @translation
+    )
   end
 end

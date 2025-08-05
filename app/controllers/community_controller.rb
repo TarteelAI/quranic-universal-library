@@ -2,6 +2,7 @@ class CommunityController < ApplicationController
   DEFAULT_LANGUAGE = 174 # We're focusing on Urdu atm
   helper_method :current_language
   before_action :load_resource_access
+  before_action :init_presenter
 
   def contributors
     @contributors = Contributor.published
@@ -36,6 +37,7 @@ class CommunityController < ApplicationController
 
   def chars_info
     require "unicode/name"
+    @presenter = CharInfoPresenter.new(self)
   end
 
   def svg_optimizer
@@ -70,5 +72,9 @@ class CommunityController < ApplicationController
         return redirect_to(root_path, notice: "Sorry you don't have permission to access this page.")
       end
     end
+  end
+
+  def init_presenter
+    @presenter = CommunityPresenter.new(self)
   end
 end

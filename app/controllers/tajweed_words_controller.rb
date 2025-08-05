@@ -4,7 +4,7 @@ class TajweedWordsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[update]
   before_action :authorize_access!, only: %i[update]
-
+  before_action :init_presenter
   def show
     @word = Word.find_by(location: params[:id])
     @tajweed_word = TajweedWord.where(word_id: @word.id).first
@@ -107,5 +107,9 @@ class TajweedWordsController < CommunityController
     else
       "word_index"
     end
+  end
+
+  def init_presenter
+    @presenter = TajweedWordsPresenter.new(self)
   end
 end

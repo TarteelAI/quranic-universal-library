@@ -70,11 +70,31 @@ class ResourcesController < CommunityController
     end
   end
 
+  protected
+
   def set_resource
     @resource = DownloadableResource.published.find(params[:id])
   end
 
   def init_presenter
-    @presenter = ResourcesPresenter.new(params, @resource)
+    @presenter =
+      case
+      when mushaf_layout_context?
+        MushafLayoutResourcesPresenter.new(params, @resource)
+      when translation_context?
+        TranslationResourcePresenter.new(params, @resource)
+      else
+        ResourcesPresenter.new(params, @resource)
+      end
+  end
+
+  def mushaf_layout_context?
+    (@resource&.resource_type == 'mushaf_layout') ||
+      (params[:id] == 'mushaf-layout')
+  end
+
+  def translation_context?
+    (@resource&.resource_type == 'translation') ||
+      (params[:id] == 'translation' && action_name == 'show')
   end
 end

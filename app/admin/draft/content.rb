@@ -41,7 +41,7 @@ ActiveAdmin.register Draft::Content do
     column :need_review
     column :imported
     column :resource do |resource|
-      link_to(resource.resource_content.name, [:cms, resource.resource_content])
+      link_to resource.resource_content.name, [:cms, resource.resource_content]
     end
     column :draft_text, sortable: :draft_text do |resource|
       resource.draft_text.to_s.first(50)
@@ -55,8 +55,7 @@ ActiveAdmin.register Draft::Content do
   sidebar 'Draft resources', only: :index do
     drafts = Draft::Content.draft_resources
     selected = params.dig(:q, :resource_content_id_eq).to_i
-
-    drafts = drafts.sort_by { |t| t[:resource] && t[:resource].id == selected ? 0 : 1 }
+    drafts = drafts.sort_by { |t| t[:resource]&.id == selected ? 0 : 1 }
     imported = drafts.select { |t| t[:total_count] == t[:imported_count] }
 
     div "Total Resources: #{drafts.size}"
@@ -65,9 +64,9 @@ ActiveAdmin.register Draft::Content do
     div class: 'd-flex w-100 flex-column sidebar-item' do
       drafts.each do |t|
         resource_content = t[:resource]
-        next if resource_content.nil?
+        next unless resource_content
 
-        is_fully_imported = t[:total_count] > 0 && t[:total_count] == t[:imported_count]
+        is_fully_imported = t[:total_count].positive? && t[:total_count] == t[:imported_count]
 
         div class: "w-100 p-2 border-bottom mb-3 #{'selected' if selected == resource_content.id}" do
           div class: 'flex-between' do
@@ -88,24 +87,16 @@ ActiveAdmin.register Draft::Content do
           end
 
           div class: 'd-flex my-2 flex-between gap-2' do
-            span(link_to 'Filter', "/cms/draft_contents?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
-
+            span link_to('Filter', "/cms/draft_contents?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-sm btn-info text-white')
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
-
             if can?(:manage, :draft_content)
               if issue_count.positive?
-                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
+                span link_to("Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-sm btn-warning text-white')
               end
-
-              span(link_to 'Approve', import_draft_content_cms_resource_content_path(resource_content, approved: true),
-                           method: 'put',
+              span link_to('Approve', import_draft_content_cms_resource_content_path(resource_content, approved: true),
+                           method: :put,
                            class: 'btn btn-sm btn-warning text-white',
                            data: { confirm: 'Are you sure to import this resource?' })
-
-              # span(link_to 'Delete', import_draft_content_cms_resource_content_path(resource_content, remove_draft: true),
-              #              method: 'put',
-              #              class: 'btn btn-sm btn-danger text-white',
-              #              data: { confirm: 'Are you sure to remove draft resource?' })
             end
           end
         end
@@ -116,24 +107,7 @@ ActiveAdmin.register Draft::Content do
   form do |f|
     f.inputs 'Resource detail' do
       f.input :draft_text
-
-      if f.object.resource_content&.sub_type == ResourceContent::SubType::Tafsir
-        f.input :meta_data, as: :json,
-                input_html: {
-                  value: f.object.meta_data.to_json,
-                  'data-schema': {
-                    type: 'object',
-                    properties: {
-                      group_verses: {
-                        type: 'array',
-                        items: { type: 'string' }
-                      }
-                    }
-                  }.to_json
-                }
-      end
     end
-
     f.actions
   end
 
@@ -158,31 +132,12 @@ ActiveAdmin.register Draft::Content do
                         include_plus_and_minus_in_html: true)
                    .to_s(:html).html_safe
       end
-      row :group_verses do
-        if resource.meta_data.present? && resource.meta_data['group_verses']
-          ul do
-            resource.meta_data['group_verses'].each do |verse_key|
-              li verse_key
-            end
-          end
-        end
-      end if resource.resource_content&.sub_type == ResourceContent::SubType::Tafsir
       row :created_at
       row :updated_at
-      row :meta_data do
-        if resource.meta_data.present?
-          pre do
-            code JSON.pretty_generate(resource.meta_data)
-          end
-        end
-      end
     end
   end
 
   permit_params do
-    %i[
-      draft_text
-      meta_data
-    ]
+    [:draft_text]
   end
 end

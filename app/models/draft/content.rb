@@ -69,9 +69,13 @@ class Draft::Content < ApplicationRecord
   def import!
     case
     when resource_content.tafsir?
-      DraftContent::ApproveDraftTafsirJob.perform_now(resource_content_id, id)
+      DraftContent::ApproveDraftTafsirJob.perform_now(resource_content_id, id, use_draft_content: true)
     when resource_content.translation?
-      DraftContent::ApproveDraftTranslationJob.perform_now(resource_content_id, id)
+      if resource_content.one_word?
+        DraftContent::ApproveDraftWordTranslationJob.perform_now(resource_content_id, id, use_draft_content: true)
+      else
+        DraftContent::ApproveDraftTranslationJob.perform_now(resource_content_id, id, use_draft_content: true)
+      end
     when resource_content.uloom_quran?
       DraftContent::ApproveDraftUloomQuranJob.perform_now(resource_content_id, id)
     else

@@ -111,15 +111,29 @@ ActiveAdmin.register ResourceContent do
 
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
-
-    # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
     if params[:approved]
-      DraftContent::ApproveDraftDataJob.perform_later(resource.id)
+      if resource.tafsir?
+        DraftContent::ApproveDraftTafsirJob.perform_later(resource.id)
+      elsif resource.translation?
+        if resource.one_word?
+          DraftContent::ApproveDraftWordTranslationJob.perform_later(resource.id)
+        else
+          DraftContent::ApproveDraftTranslationJob.perform_later(resource.id)
+        end
+      end
       flash[:notice] = "#{resource.name} will be imported shortly!"
     elsif params[:remove_draft]
-      DraftContent::RemoveDraftContentJob.perform_later(resource.id)
+      if resource.tafsir?
+        Draft::Tafsir.where(resource_content_id: resource.id).delete_all
+      elsif resource.translation?
+        if resource.one_word?
+          Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
+        else
+          Draft::Translation.where(resource_content_id: resource.id).delete_all
+        end
+      end
       flash[:notice] = "#{resource.name} will be removed shortly!"
     elsif resource.syncable?
       DraftContent::ImportDraftDataJob.perform_later(resource.id)
@@ -146,7 +160,17 @@ ActiveAdmin.register ResourceContent do
     Utils::System.start_sidekiq
 
     if params[:approved]
-      DraftContent::ApproveDraftContentJob.perform_later(resource.id)
+      if resource.tafsir?
+        DraftContent::ApproveDraftTafsirJob.perform_later(resource.id, nil, use_draft_content: true)
+      elsif resource.translation?
+        if resource.one_word?
+          DraftContent::ApproveDraftWordTranslationJob.perform_later(resource.id, nil, use_draft_content: true)
+        else
+          DraftContent::ApproveDraftTranslationJob.perform_later(resource.id, nil, use_draft_content: true)
+        end
+      elsif resource.uloom_quran?
+        DraftContent::ApproveDraftUloomQuranJob.perform_later(resource.id)
+      end
       flash[:notice] = "#{resource.name} drafts will be imported shortly!"
     elsif params[:remove_draft]
       Draft::Content.where(resource_content_id: resource.id).delete_all

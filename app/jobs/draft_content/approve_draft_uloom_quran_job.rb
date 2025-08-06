@@ -1,85 +1,85 @@
-# This job import (subtype: UloomQuran) data from Draft::Content table Into UloomQuran table
+# frozen_string_literal: true
 
 module DraftContent
-  class ApproveDraftUloomQuranJob < ApplicationJob
-    sidekiq_options retry: 1, backtrace: true
-
-    def perform(resource_content_id, draft_id = nil)
-      resource = ResourceContent.find(resource_content_id)
-      PaperTrail.enabled = false
-      raise "Invalid resource type" unless resource.uloom_quran?
-
-      draft_id ? import_single(resource, draft_id) : import_all(resource)
-
-      issues = resource.run_after_import_hooks
-      report_issues(resource, issues)
-      mark_todos_as_finished(resource)
-      PaperTrail.enabled = true
-    end
-
+  class ApproveDraftUloomQuranJob < ApproveDraftContentJob
     private
 
-    def import_single(resource, draft_id)
-      draft = Draft::Content.find(draft_id)
+    def import_data
+      if @draft_id
+        draft = Draft::Content.find(@draft_id)
+        import_single(draft)
+      else
+        import_all
+      end
+    end
+
+    def import_single(draft)
       start_loc, end_loc = draft.location.to_s.split('-')
       from_val = extract_number(start_loc)
-      to_val   = extract_number(end_loc || start_loc)
+      to_val = extract_number(end_loc || start_loc)
 
       attrs = {
-        resource_content_id: resource.id,
-        language_id:         resource.language_id,
-        language_name:       resource.language_name.downcase,
-        chapter_id:          draft.chapter_id,
-        meta_data:           draft.meta_data,
-        text:                draft.draft_text.to_s.strip
+        resource_content_id: @resource.id,
+        language_id: @resource.language_id,
+        language_name: @resource.language_name&.downcase || '',
+        chapter_id: draft.chapter_id,
+        meta_data: draft.meta_data,
+        text: draft.draft_text.to_s.strip
       }
 
       if draft.word_id
-        # by-word
-        record = UloomQuranByWord.find_or_initialize_by(resource_content_id: resource.id, id: draft.id)
-        record.assign_attributes(attrs.merge(
+        import_by_word(attrs.merge(
           verse_id: draft.verse_id,
-          word_id:  draft.word_id,
-          from:     from_val,
-          to:       to_val
+          word_id: draft.word_id,
+          from: from_val,
+          to: to_val
         ))
       elsif draft.verse_id
-        # by-verse
-        record = UloomQuranByVerse.find_or_initialize_by(resource_content_id: resource.id, id: draft.id)
-        record.assign_attributes(attrs.merge(
+        import_by_verse(attrs.merge(
           verse_id: draft.verse_id,
-          from:     from_val,
-          to:       to_val
+          from: from_val,
+          to: to_val
         ))
       else
-        # by-chapter
-        record = UloomQuranByChapter.find_or_initialize_by(resource_content_id: resource.id, chapter_id: draft.chapter_id)
-        record.assign_attributes(attrs)
+        import_by_chapter(attrs)
       end
-
-      record.save!(validate: false)
       draft.update_column(:imported, true)
     end
 
-    def import_all(resource)
-      Draft::Content.where(resource_content_id: resource.id, imported: false)
-                    .find_each(batch_size: 500) do |draft|
-        import_single(resource, draft.id)
-      end
+    def import_all
+      Draft::Content.where(resource_content_id: @resource.id, imported: false)
+                    .find_each(batch_size: 500) { |draft| import_single(draft) }
+    end
+
+    def import_by_word(attrs)
+      record = UloomQuranByWord.find_or_initialize_by(
+        resource_content_id: attrs[:resource_content_id],
+        id: @draft_id
+      )
+      record.assign_attributes(attrs)
+      record.save!(validate: false)
+    end
+
+    def import_by_verse(attrs)
+      record = UloomQuranByVerse.find_or_initialize_by(
+        resource_content_id: attrs[:resource_content_id],
+        id: @draft_id
+      )
+      record.assign_attributes(attrs)
+      record.save!(validate: false)
+    end
+
+    def import_by_chapter(attrs)
+      record = UloomQuranByChapter.find_or_initialize_by(
+        resource_content_id: attrs[:resource_content_id],
+        chapter_id: attrs[:chapter_id]
+      )
+      record.assign_attributes(attrs)
+      record.save!(validate: false)
     end
 
     def extract_number(loc_str)
       loc_str.to_s.scan(/\d+/).last.to_i
-    end
-
-    def report_issues(resource, issues)
-      body = issues.present? ? "Imported with #{issues.size} issues" : "Imported UloomQuran successfully"
-      ActiveAdmin::Comment.create(namespace: 'cms', resource: resource, author_id: 1,
-                                  author_type: 'User', body: body)
-    end
-
-    def mark_todos_as_finished(resource)
-      AdminTodo.where(resource_content_id: resource.id).update_all(is_finished: true)
     end
   end
 end

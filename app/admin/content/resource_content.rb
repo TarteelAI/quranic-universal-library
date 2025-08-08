@@ -168,8 +168,8 @@ ActiveAdmin.register ResourceContent do
         else
           DraftContent::ApproveDraftTranslationJob.perform_later(resource.id, nil, use_draft_content: true)
         end
-      elsif resource.uloom_quran?
-        DraftContent::ApproveDraftUloomQuranJob.perform_later(resource.id)
+      elsif resource.uloom_content?
+        DraftContent::ApproveDraftUloomContentJob.perform_later(resource.id)
       end
       flash[:notice] = "#{resource.name} drafts will be imported shortly!"
     elsif params[:remove_draft]

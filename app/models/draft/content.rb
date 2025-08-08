@@ -76,8 +76,8 @@ class Draft::Content < ApplicationRecord
       else
         DraftContent::ApproveDraftTranslationJob.perform_now(resource_content_id, id, use_draft_content: true)
       end
-    when resource_content.uloom_quran?
-      DraftContent::ApproveDraftUloomQuranJob.perform_now(resource_content_id, id)
+    when resource_content.uloom_content?
+      DraftContent::ApproveDraftUloomContentJob.perform_now(resource_content_id, id)
     else
       raise StandardError, "Cannot import Draft::Content ##{id}: unsupported subtype '#{resource_content.sub_type}'"
     end

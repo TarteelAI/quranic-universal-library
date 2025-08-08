@@ -7,13 +7,13 @@
 #  location            :string
 #  location_range      :string
 #  meta_data           :jsonb            not null
-#  text                :text             not null
+#  text                :text
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
-#  chapter_id          :bigint           not null
-#  resource_content_id :bigint           not null
-#  verse_id            :bigint
-#  word_id             :bigint
+#  chapter_id          :integer
+#  resource_content_id :integer
+#  verse_id            :integer
+#  word_id             :integer
 #
 # Indexes
 #

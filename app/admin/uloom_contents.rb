@@ -2,7 +2,7 @@ ActiveAdmin.register UloomContent do
   menu parent: 'Content'
   actions :all, except: [:destroy]
 
-  includes :chapter, :verse, :word, :resource_content
+  includes :resource_content
 
   permit_params :text,
                 :cardinality_type,
@@ -32,9 +32,6 @@ ActiveAdmin.register UloomContent do
 
   index do
     id_column
-    column :chapter
-    column :verse
-    column :word
     column :resource_content
     column :cardinality_type
     column :location

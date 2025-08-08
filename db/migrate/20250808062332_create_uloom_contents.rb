@@ -1,17 +1,17 @@
 class CreateUloomContents < ActiveRecord::Migration[7.0]
   def change
-    create_table :uloom_contents do |t|
-      t.text     :text,                null: false, index: true
-      t.string   :cardinality_type,    index: true
+    c = ActiveRecord::Base.connection
+    c.create_table :uloom_contents do |t|
+      t.text    :text,                index: true
+      t.string  :cardinality_type,    index: true
+      t.integer :chapter_id,          index: true
+      t.integer :verse_id,            index: true
+      t.integer :word_id,             index: true
+      t.integer :resource_content_id, index: true
+      t.string  :location,            index: true
+      t.string  :location_range,      index: true
 
-      t.references :chapter,          null: false, index: true
-      t.references :verse,                         index: true
-      t.references :word,                          index: true
-      t.references :resource_content, null: false, index: true
-
-      t.string   :location,           index: true
-      t.string   :location_range,     index: true
-      t.jsonb    :meta_data, default: {}, null: false
+      t.jsonb   :meta_data,           default: {}, null: false
 
       t.timestamps
     end

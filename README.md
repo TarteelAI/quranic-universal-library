@@ -109,7 +109,7 @@ The `quran_dev` database dump is available in both SQL and binary formats. Follo
 
 #### Restoring from SQL Dump
 7.1 **Restore using SQL Dump:**
-Download the [SQL dump file](https://static-cdn.tarteel.ai/qul/mini-dumps/quran_dev.sql.zip) and restore it using
+Download the [SQL dump file](https://static-cdn.tarteel.ai/qul/mini-dumps/mini_quran_dev.sql.zip) and restore it using
 ```bash
   psql quran_dev < "path to sql dump file"
 ```
@@ -119,7 +119,7 @@ psql -U postgres -d quran_dev -f path/to/quran_dev.sql
 ```
 
 7.2 **Restore using binary dump:**
-Download the [Binary dump file](https://static-cdn.tarteel.ai/qul/mini-dumps/quran_dev.dump.zip) and restore it using
+Download the [Binary dump file](https://static-cdn.tarteel.ai/qul/mini-dumps/mini_quran_dev.dump.zip) and restore it using
 ```bash
 pg_restore --host localhost --port 5432 --no-owner --no-privileges --no-tablespaces --no-acl --dbname quran_dev -v "path to binary dump file"
 ```

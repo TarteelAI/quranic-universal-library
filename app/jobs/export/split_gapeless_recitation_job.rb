@@ -24,7 +24,7 @@ module Export
           ayah_from: ayah_from,
           ayah_to: ayah_to
         )
-        send_email(base_path, user_id, recitation_id)
+        #send_email(base_path, user_id, recitation_id)
       end
     end
 

@@ -12,6 +12,7 @@
 #  relative_silent_duration :integer
 #  repeated_segments        :string
 #  segments                 :jsonb
+#  segments_count           :integer          default(0)
 #  silent_duration          :integer
 #  timestamp_from           :integer
 #  timestamp_median         :integer

@@ -36,7 +36,7 @@
 
   <div class="page-section mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Surah list</h2>
-    <div class="tw-overflow-x-auto">
+    <div class="tools-table-overflow">
     <table class="table table-hover">
       <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
       <tr>
@@ -69,8 +69,8 @@
 
           <td>
             <div class="d-flex gap-1">
-              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
-              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
+              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
+              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
             </div>
           </td>
         </tr>

@@ -3,10 +3,6 @@ class CommunityController < ApplicationController
   helper_method :current_language
   before_action :load_resource_access
 
-  def contributors
-    @contributors = Contributor.published
-  end
-
   def tools
     @tools = view_context.developer_tools
 
@@ -24,6 +20,7 @@ class CommunityController < ApplicationController
   end
 
   def credits
+    @contributors = Contributor.published
   end
 
   def faq

@@ -1,72 +1,95 @@
 namespace :dump do
-  desc "Create mini dump"
   task create_mini_dump: :environment do
-    if !Rails.env.development?
-      raise "This task can only be run in development environment"
-    end
+    abort("This task can only be run in development environment") unless Rails.env.development?
 
     PaperTrail.enabled = false
+
     verses = Verse.where("verse_number > 20")
     verse_ids = verses.pluck(:id)
-    Audio::Segment.where("verse_id IN(?)", verse_ids).delete_all
-    Translation.where("verse_number > 20").delete_all
-    Tafsir.where("verse_number > 20").delete_all
+    word_ids = Word.where(verse_id: verse_ids).pluck(:id)
+
+    puts "Pruning Deleting translations, tafsirs, footnotes etc"
+    # Clear Quran
+    FootNote.where(resource_content_id: 132).delete_all
+    Translation.where(resource_content_id: 131).delete_all
+    Translation.where(verse_number: 21..).delete_all
+    Tafsir.where(verse_number: 21..).delete_all
     FootNote.left_outer_joins(:translation).where(translation: { id: nil }).delete_all
+    Transliteration.where(resource_type: 'Verse', resource_id: verse_ids).delete_all
+    Transliteration.where(resource_type: 'Word', resource_id: word_ids).delete_all
 
-    verses.each do |v|
-      Morphology::WordVerbForm.joins(:word).where(morphology_words: { verse_id: v.id }).delete_all
-      Morphology::WordSegment.joins(:word).where(morphology_words: { verse_id: v.id }).delete_all
-      Morphology::Word.where(verse_id: v.id).delete_all
-      Morphology::DerivedWord.where(verse_id: v.id).delete_all
-      AyahTheme.where("verse_id_from >= ?", v.id).delete_all
-      TajweedWord.where("verse_id >= ?", v.id).delete_all
-      MushafWord.where("verse_id >= ?", v.id).delete_all
-    end
-
+    puts "Pruning Deleting morphology data"
+    Morphology::WordSegment.update_all(topic_id: nil, root_id: nil)
+    Morphology::WordVerbForm.joins(:word).where(morphology_words: { verse_id: verse_ids }).delete_all
+    Morphology::WordSegment.joins(:word).where(morphology_words: { verse_id: verse_ids }).delete_all
+    Morphology::WordSegment.where(root_id: Root.where("id > 500")).delete_all
+    Morphology::Word.where(verse_id: verse_ids).delete_all
+    Morphology::DerivedWord.where(verse_id: verse_ids).delete_all
+    Morphology::DerivedWord.left_outer_joins(:word).where(word: { id: nil }).delete_all
     Morphology::PhraseVerse.where(verse_id: verse_ids).delete_all
     Morphology::Phrase.where(source_verse_id: verse_ids).delete_all
-    Morphology::DerivedWord.left_outer_joins(:word).where(word: { id: nil }).delete_all
 
+    puts "Pruning grammar data"
+    TajweedWord.delete_all
+    Mushaf.where.not(id: [1,2,5,6]).delete_all
+    AyahTheme.where(verse_id_from: verse_ids).delete_all
+    TajweedWord.where(verse_id: verse_ids).delete_all
+    WordCorpus.where(word_id: word_ids).delete_all
+
+    Stem.where("id > 500").delete_all
+    Lemma.where("id > 500").delete_all
+    Root.where("id > 500").delete_all
+
+    VerseRoot.where.not(id: verses.pluck(:verse_root_id)).delete_all
+    VerseStem.where.not(id: verses.pluck(:verse_stem_id)).delete_all
+    VerseLemma.where.not(id: verses.pluck(:verse_lemma_id)).delete_all
+
+    puts "Pruning audio data"
+    Audio::Segment.where(verse_id: verse_ids).delete_all
     Audio::ChangeLog.delete_all
     AudioFile.where(verse_id: verse_ids).delete_all
     ChapterInfo.where.not(language_id: 38).delete_all
+    Audio::ChapterAudioFile.where("chapter_id > 10").delete_all
 
+    puts "Pruning Pruning topics"
+    keep_ids = Topic.limit(50).pluck(:id)
+    Topic.where.not(id: keep_ids).delete_all
     ArabicTransliteration.where(verse_id: verse_ids).delete_all
     VerseTopic.where(verse_id: verse_ids).delete_all
 
-    WordStem.joins(:word).where(word: { verse_id: verse_ids }).delete_all
-    WordLemma.joins(:word).where(word: { verse_id: verse_ids }).delete_all
-    WordRoot.joins(:word).where(word: { verse_id: verse_ids }).delete_all
-
-    t = Topic.first(50)
-    Topic.where.not(id: t.pluck(:id)).each do |t|
-      t.destroy rescue nil
-    end
-
-    # MushafPage.where.not(mushaf_id: [2, 3, 6]).delete_all
-    # Mushaf.where.not(id: [2, 3, 6]).delete_all
+    puts "Pruning mushaf data"
+    mushafs_to_keep = [1,2,5,6]
+    MushafPage.where.not(mushaf_id: mushafs_to_keep).delete_all
+    MushafWord.where.not(mushaf_id: mushafs_to_keep).delete_all
+    MushafWord.where(verse_id: verse_ids).delete_all
+    MushafWord.where(verse_id: verse_ids).delete_all
+    MushafWord.where.not(mushaf_id: mushafs_to_keep).delete_all
 
     NavigationSearchRecord.delete_all
-    WordTranslation.joins(:word).where(word: { verse_id: verse_ids }).delete_all
-    Word.where(verse_id: verse_ids).destroy_all
+    WordTranslation.where(word_id: word_ids).delete_all
+    Word.where(id: word_ids).delete_all
 
     Chapter.find_each do |chapter|
       chapter.slugs.where.not(locale: 'en').delete_all
       chapter.translated_names.where.not(language_id: 38).delete_all
     end
 
-    Audio::ChapterAudioFile.where("chapter_id > 10").delete_all
-
     ApiClient.delete_all
+    ResourceContent.update_all(meta_data: {})
     ApiClientRequestStat.delete_all
+    ResourceTag.delete_all
+    Tag.delete_all
 
-    DataSource.update_all(name: 'Demo', url: 'Demo')
+    DataSource.update_all(name: 'Demo', url: 'Demo', description: 'Demo data source for QUL')
+    verses.delete_all
 
-    # Create SQL dump
-    `pg_dump quran_dev > dumps/mini_quran_dev.sql`
+    puts "Creating SQL dump"
+    system("pg_dump quran_dev > dumps/mini_quran_dev.sql")
 
-    # Create binary dump
-    `pg_dump -b -E UTF-8 -f dumps/quran_dev.dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean quran_dev`
+    puts "Creating binary dump"
+    system("pg_dump -b -E UTF-8 -f dumps/mini_quran_dev.dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean quran_dev")
+
+    puts "Mini dump created successfully."
   end
 
   task remove_old_tables: :environment do
@@ -135,7 +158,7 @@ namespace :dump do
 
     tables.each do |t|
       begin
-        connection.drop_table(t, cascade: true)
+        connection.execute("DROP TABLE IF EXISTS #{t} CASCADE")
       rescue Exception => e
         puts "========= failed to remove table #{t}"
         puts e.message

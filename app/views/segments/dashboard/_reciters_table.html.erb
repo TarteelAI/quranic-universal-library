@@ -5,8 +5,8 @@
         <label class="tw-block tw-text-sm tw-font-semibold">Surah:</label>
         <select name="surah" class="tw-border tw-rounded tw-px-2 tw-py-1">
           <option value="">All</option>
-          <% @surahs.each do |s| %>
-            <option value="<%= s %>" <%= 'selected' if @selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
+          <% @presenter.segmented_surah.each do |s| %>
+            <option value="<%= s %>" <%= 'selected' if @presenter.selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
           <% end %>
         </select>
       </div>
@@ -26,14 +26,17 @@
         <th class="tw-p-2 tw-border-b">Reciter</th>
         <th class="tw-p-2 tw-border-b">Positions</th>
         <th class="tw-p-2 tw-border-b">Failures</th>
+        <th class="tw-p-2 tw-border-b">Corrected</th>
       </tr>
       </thead>
       <tbody>
-      <% @reciter_stats.each do |reciter| %>
+      <% @presenter.reciter_stats.each do |reciter| %>
         <tr class="tw-border-b hover:tw-bg-gray-50">
           <td class="tw-p-2"><%= reciter[:name] %></td>
           <td class="tw-p-2"><%= reciter[:positions] %></td>
           <td class="tw-p-2"><%= reciter[:failures] %></td>
+          <td class="tw-p-2">
+          <%= reciter[:corrected_failures] %>
         </tr>
       <% end %>
       </tbody>

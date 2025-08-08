@@ -107,6 +107,32 @@ namespace :one_time do
     end
   end
 
+  task find_missing_svg: :environment do
+    missing = []
+    related = {}
+    Word.find_each do |word|
+      surah, ayah, word_number = word.location.split(':')
+      next  if word.ayah_mark?
+      next if File.exist?("scripts/img/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg")
+
+      puts "#{word.location} is missing"
+      missing << word.location
+    end
+
+    Word.where(location: missing).each do |word|
+      similar = Word.where(text_qpc_hafs: word.text_qpc_hafs)
+
+      found = similar.detect do |w|
+        surah, ayah, word_number = w.location.split(':')
+        w if File.exist?("scripts/img/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg")
+      end
+
+      if found
+        related[word.location] = found.location
+      end
+    end
+  end
+
   task find_missing_images: :environment do
     require 'net/http'
     require 'uri'
@@ -145,16 +171,6 @@ namespace :one_time do
         end
       else
         FileUtils.mkdir_p("scripts/img/available/#{surah}/#{ayah}/#{word_number}")
-      end
-    end
-  end
-
-  task add_sequence_number_to_words: :environment do
-    sequence_number = 1
-    Word.unscoped.order('word_index ASC').each do |word|
-      if word.word?
-        word.update_column :sequence_number, sequence_number
-        sequence_number += 1
       end
     end
   end

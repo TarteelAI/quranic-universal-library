@@ -1,6 +1,6 @@
 module V1
   module Audio
-    class SegmentPresenter < BasePresenter
+    class SegmentPresenter < ApplicationPresenter
       def surah_audio
         ::Audio::ChapterAudioFile.where(
           audio_recitation_id: recitation_id,

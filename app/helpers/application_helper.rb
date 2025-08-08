@@ -76,11 +76,6 @@ module ApplicationHelper
         description: 'For performing OCR on multiple translations.'
       },
       {
-        name: "GreenTech Foundation",
-        url: "https://gtaf.org",
-        description: "For providing Bengali tafsir and word by word translations, contributing corrections to resources, and providing word by word timestamps of Quran recitations."
-      },
-      {
         name: "King Fahd Quran Printing Complex",
         url: "https://qurancomplex.gov.sa/",
         description: "For publishing many of the original images and fonts available in QUL, which are the same assets used to publish the physical mushaf."

@@ -35,17 +35,22 @@ class Draft::Content < ApplicationRecord
   belongs_to :chapter
   belongs_to :resource_content
 
-  def self.draft_resources
-    counts = Draft::Content
-               .group(:resource_content_id)
-               .select("resource_content_id,
-             COUNT(*) AS total_count,
-             COUNT(CASE WHEN text_matched = true THEN 1 END) AS matched_count,
-             COUNT(CASE WHEN text_matched = false THEN 1 END) AS not_matched_count,
-             COUNT(CASE WHEN imported = true THEN 1 END) AS imported_count,
-             COUNT(CASE WHEN imported = false THEN 1 END) AS not_imported_count,
-             COUNT(CASE WHEN need_review = true THEN 1 END) AS need_review_count")
+  scope :unimported,    -> { where(imported: false) }
+  scope :matched,       -> { where(text_matched: true) }
+  scope :unmatched,     -> { where(text_matched: false) }
+  scope :review_needed, -> { where(need_review: true) }
 
+  def self.draft_resources
+    counts = group(:resource_content_id)
+               .select(
+                 "resource_content_id,
+                COUNT(*) AS total_count,
+                COUNT(CASE WHEN text_matched THEN 1 END) AS matched_count,
+                COUNT(CASE WHEN NOT text_matched THEN 1 END) AS not_matched_count,
+                COUNT(CASE WHEN imported THEN 1 END) AS imported_count,
+                COUNT(CASE WHEN NOT imported THEN 1 END) AS not_imported_count,
+                COUNT(CASE WHEN need_review THEN 1 END) AS need_review_count"
+               )
     resources = ResourceContent.where(id: counts.map(&:resource_content_id)).index_by(&:id)
 
     counts.map do |record|
@@ -59,5 +64,25 @@ class Draft::Content < ApplicationRecord
         need_review_count: record.need_review_count.to_i
       }
     end
+  end
+
+  def import!
+    case
+    when resource_content.tafsir?
+      DraftContent::ApproveDraftTafsirJob.perform_now(resource_content_id, id, use_draft_content: true)
+    when resource_content.translation?
+      if resource_content.one_word?
+        DraftContent::ApproveDraftWordTranslationJob.perform_now(resource_content_id, id, use_draft_content: true)
+      else
+        DraftContent::ApproveDraftTranslationJob.perform_now(resource_content_id, id, use_draft_content: true)
+      end
+    when resource_content.uloom_content?
+      DraftContent::ApproveDraftUloomContentJob.perform_now(resource_content_id, id)
+    else
+      raise StandardError, "Cannot import Draft::Content ##{id}: unsupported subtype '#{resource_content.sub_type}'"
+    end
+
+    update_column(:imported, true)
+    self
   end
 end

@@ -5,7 +5,7 @@ class Segments::DashboardController < ApplicationController
   before_action :check_segments_database, except: :setup_db
 
   def setup_db
-    @db = ::Segments::Database.new(segment_db_params)
+    find_or_initialize_db
 
     if request.post?
       @db.active = true
@@ -86,6 +86,18 @@ class Segments::DashboardController < ApplicationController
       {}
     else
       params.require(:segments_database).permit(:db_file, :name)
+    end
+  end
+
+  def find_or_initialize_db
+    if request.get?
+      @db = ::Segments::Database.new
+    else
+      if params[:id]
+        @db = ::Segments::Database.find(params[:id])
+      else
+        @db = ::Segments::Database.new(segment_db_params)
+      end
     end
   end
 end

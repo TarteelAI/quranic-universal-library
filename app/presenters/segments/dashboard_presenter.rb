@@ -65,7 +65,7 @@ module Segments
     end
 
     def segment_databases
-
+      ::Segments::Database.order('id DESC')
     end
 
     def reciters

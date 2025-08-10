@@ -3,16 +3,34 @@
 <div class="page-wrapper container-lg">
   <div class="page-section mt-4" data-turbo="false">
     <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
-      Upload Database File
-    </h1>
-
-    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
       Uploaded databases
     </h1>
-    <div>
-      <% @presenter.segmented_surah %>
+
+    <div class="tw-space-y-4">
+      <% @presenter.segment_databases.each do |db| %>
+        <div class="tw-flex tw-items-center tw-justify-between tw-p-4 tw-bg-white tw-rounded-lg tw-shadow">
+          <div>
+            <h3 class="tw-text-lg tw-font-semibold"><%= db.name %></h3>
+            <div class="tw-text-sm tw-text-gray-500">
+              Status:
+              <span class="<%= db.active ? 'tw-text-green-600' : 'tw-text-red-600' %>">
+                <%= db.active ? 'Active' : 'Inactive' %>
+              </span>
+            </div>
+          </div>
+
+          <%= button_to "Use",
+                        segments_setup_db_path(id: db.id),
+                        method: :post,
+                        class: "tw-px-4 tw-py-2 tw-bg-blue-600 tw-hover:bg-blue-700 tw-text-white tw-text-sm tw-font-medium tw-rounded-lg tw-shadow"
+          %>
+        </div>
+      <% end %>
     </div>
 
+    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
+      Upload Database File
+    </h1>
     <%= form_with model: @db, url: segments_setup_db_path, method: 'post', html: { multipart: true } do |f| %>
       <div class="form-group tw-my-2">
         <%= f.label :name, class: "tw-block tw-text-gray-700 tw-font-medium" %>

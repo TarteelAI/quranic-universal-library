@@ -58,8 +58,12 @@ export default {
         (state, getters) => state.currentAyahTimeFrom,
 
         (newValue, _) => {
-          // Only seek for individual ayah audio, not for complete surah audio
-          if (newValue >= 0 && this.$store.state.audioType === 'ayah') {
+          const shouldSeek = newValue >= 0 && (
+            this.$store.state.audioType === 'ayah' || 
+            this.$store.state.isManualAyahChange
+          );
+          
+          if (shouldSeek) {
             player.currentTime = newValue / 1000;
           }
         },

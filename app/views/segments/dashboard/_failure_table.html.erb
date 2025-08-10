@@ -80,13 +80,51 @@
         <tbody>
         <% failures.each do |failure| %>
           <tr class="tw-border-b hover:tw-bg-gray-50">
-            <td class="tw-p-2"><%= failure.surah_number %></td>
-            <td class="tw-p-2"><%= failure.ayah_number %></td>
-            <td class="tw-p-2"><%= failure.word_number %></td>
-            <td class="tw-p-2"><%= failure.start_time %></td>
-            <td class="tw-p-2"><%= failure.end_time %></td>
+            <td class="tw-p-2">
+              <%= failure.surah_number %>
+            </td>
+
+            <td class="tw-p-2">
+              <%= failure.ayah_number %>
+              <% if failure.corrected_ayah_number && failure.corrected_ayah_number != failure.ayah_number %>
+                <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                  <%= failure.corrected_ayah_number %>
+                 </span>
+              <% end %>
+            </td>
+            <td class="tw-p-2">
+              <%= failure.word_number %>
+              <% if failure.corrected_word_number && failure.corrected_word_number != failure.word_number %>
+                <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                  <%= failure.corrected_word_number %>
+                 </span>
+              <% end %>
+            </td>
+            <td class="tw-p-2">
+              <%= failure.start_time %>
+
+              <% if failure.corrected_start_time %>
+                <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                  <%= failure.corrected_start_time %>
+                 </span>
+              <% end %>
+            </td>
+
+            <td class="tw-p-2">
+              <%= failure.end_time %>
+
+              <% if failure.corrected_end_time %>
+                <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                  <%= failure.corrected_end_time %>
+                 </span>
+              <% end %>
+            </td>
             <td class="tw-p-2"><%= failure.reciter_id || "N/A" %></td>
-            <td class="tw-p-2"><%= failure.failure_type %></td>
+            <td class="tw-p-2">
+              <div data-controller="tooltip" title="<%= failure.mistake_positions %>">
+                <%= failure.failure_type %>
+              </div>
+            </td>
             <td class="tw-p-2">
               <span class="qpc-hafs">
                 <%= failure.received_transcript %>
@@ -94,7 +132,7 @@
             </td>
             <td class="tw-p-2">
               <span class="qpc-hafs">
-                <%= failure.expected_transcript %>
+                <%= failure.expected_transcript.presence || failure.text %>
               </span>
             </td>
             <td>
@@ -102,7 +140,7 @@
                 <span
                   class="badge bg-success"
                   data-controller="tooltip"
-                  title="Corrected word <%= failure.surah_number %>:<%= failure.corrected_ayah_number %>:<%=failure.corrected_word_number %>"
+                  title="Corrected word <%= failure.surah_number %>:<%= failure.corrected_ayah_number %>:<%= failure.corrected_word_number %>"
                 >
                   Yes
                 </span>
@@ -111,7 +149,8 @@
               <% end %>
             </td>
             <td>
-              <%= link_to 'logs', segments_logs_path(reciter: failure.reciter_id, surah: failure.surah_number) %>
+              <%= link_to 'logs', segments_logs_path(reciter: failure.reciter_id, surah: failure.surah_number), target: '_blank' %>
+              <%= link_to '<i class="fas fa-stream"></i>'.html_safe, segments_timeline_path(reciter: failure.reciter_id, surah: failure.surah_number, ayah: failure.ayah_number), target: '_blank' %>
             </td>
           </tr>
         <% end %>

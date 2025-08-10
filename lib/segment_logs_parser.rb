@@ -2,12 +2,20 @@ require 'sqlite3'
 require 'fileutils'
 =begin
 a = SegmentLogsParser.new
+
+# Validate the logs, remove duplicate etc
+a.validate_log_files
+
+# parse and fill in segments table
+a.seed_segments_tables
+
+# auto correct and export segment db for all reciter
 a.prepare_recitation_dbs
 
-a.seed_segments_tables
+# update stats of fixed segments
 a.update_fixed_failures
-
 =end
+
 class SegmentLogsParser
   attr_reader :base_path,
               :segments_logs_path,
@@ -23,7 +31,7 @@ class SegmentLogsParser
   }
 
   def initialize
-    @base_path = "/Volumes/Data/qul-segments/15-july"
+    @base_path = "/Volumes/Data/qul-segments/aug-6"
     @segments_logs_path = "#{@base_path}/vs_logs/**/time-machine.json"
     @db_file = "#{@base_path}/segments_database.db"
   end
@@ -102,7 +110,8 @@ class SegmentLogsParser
       db = RECITER_SEGMENTS_DB[reciter_id]
 
       segments = process_surah_segments(data, surah_number)
-      segments = validate_segments_issues(segments, surah_number)
+
+      segments = auto_fix_segments_issues(segments, surah_number)
 
       json_data = {}
 
@@ -131,6 +140,7 @@ class SegmentLogsParser
       adapter: 'sqlite3',
       database: db_file.to_s
     )
+
     segment_models = (Segments::Database.new).send(:segment_models)
     segment_models.each(&:reset_column_information)
     db_cache = {}
@@ -142,26 +152,39 @@ class SegmentLogsParser
       corrected_word_number: nil
     )
 
-    Segments::Failure.find_each do |failure|
+    seed_adjusted_segment_positions
+    seed_missed_segments
+
+    Segments::Failure.where.not(failure_type: 'MISSED_WORD').find_each do |failure|
       reciter_id = failure.reciter_id
       surah_number = failure.surah_number
+
       ayah_number = failure.ayah_number
       word_number = failure.word_number
       failure_text = failure.text
+      expected_text = failure.expected_transcript
+      failed_words = [failure.word_number].compact_blank
 
       if surah_number.blank? || ayah_number.blank?
         if failure.mistake_positions.present?
           surah_number, ayah_number, _word_number = failure.mistake_positions.split(',').first.split(':').map(&:to_i)
 
-          if word_number.nil? && ayah_number && failure_text.present?
+          if word_number.nil? && ayah_number && (failure_text.present? || expected_text)
             word_number = detect_word_number_from_text(surah_number, ayah_number, failure_text)
+            word_number ||= detect_word_number_from_text(surah_number, ayah_number, expected_text)
+
+            if word_number
+              failed_words = [word_number]
+            end
+
+            if word_number.nil? && _word_number.present?
+              failed_words = detect_merged_word_numbers(surah_number, ayah_number, _word_number, failure_text)
+            end
           end
-        else
-          next if surah_number.blank? || ayah_number.blank?
         end
       end
 
-      next if word_number.blank?
+      next if failed_words.blank?
 
       db_path = File.join(base_results_path, reciter_id.to_s, 'segments.db')
       next unless File.exist?(db_path)
@@ -169,19 +192,56 @@ class SegmentLogsParser
 
       row = db.get_first_row("SELECT words FROM timings WHERE sura = ? AND ayah = ?", surah_number.to_s, ayah_number.to_s)
       next unless row && row[0]
-      words = JSON.parse(row[0])
 
-      # words is an array of [word_number, start_time, end_time] arrays
-      found = words.find { |w| w[0].to_i == word_number.to_i }
+      segments = JSON.parse(row[0])
+      word_number = failed_words[0]
+      found = segments.find { |w| w[0].to_i == word_number.to_i }
 
       if found
         failure.update_columns(
           corrected: true,
           corrected_ayah_number: ayah_number,
-          corrected_word_number: word_number
+          corrected_word_number: word_number,
+          corrected_start_time: found[1].to_i,
+          corrected_end_time: found[2].to_i
         )
       end
     end
+
+    Segments::Failure.where(failure_type: 'MISSED_WORD', corrected: [nil, false]).find_each do |failure|
+      reciter_id = failure.reciter_id
+      surah_number = failure.surah_number
+      ayah_number = failure.ayah_number
+      word_number = failure.word_number
+
+      db_path = File.join(base_results_path, reciter_id.to_s, 'segments.db')
+      next unless File.exist?(db_path)
+
+      db = @db_cache ||= {}
+      db[reciter_id] ||= SQLite3::Database.new(db_path)
+      reciter_db = db[reciter_id]
+
+      row = reciter_db.get_first_row("SELECT words FROM timings WHERE sura = ? AND ayah = ?", surah_number.to_s, ayah_number.to_s)
+      next unless row && row[0]
+
+      segments = JSON.parse(row[0])
+
+      found = segments.find { |segment| segment[0].to_i == word_number.to_i }
+
+      if found
+        failure.update_columns(
+          corrected: true,
+          corrected_ayah_number: ayah_number,
+          corrected_word_number: word_number,
+          corrected_start_time: found[1].to_i,
+          corrected_end_time: found[2].to_i
+        )
+      end
+    end
+  end
+
+  def update_failure_word_numbers
+
   end
 
   def detect_word_number_from_text(surah_number, ayah_number, text)
@@ -209,7 +269,142 @@ class SegmentLogsParser
     min_distance <= 2 ? best_match : nil
   end
 
+  def detect_merged_word_numbers(surah_number, ayah_number, start_word_number, text)
+    ayah_words = get_ayah_words(surah_number, ayah_number)
+    normalized_target = normalize(text)
+
+    max_words_to_try = 5 # Try up to 5-word combinations
+    best_match = []
+    min_distance = Float::INFINITY
+
+    (2..max_words_to_try).each do |count|
+      words_group = ayah_words[start_word_number - 1, count]
+      break if words_group.size < count
+
+      combinations = words_group.map { |w| w[:texts] }.inject(&:product)
+      combinations = combinations.map { |combo| combo.flatten.join } unless words_group.size == 1
+
+      combinations.each do |merged_text|
+        normalized_merged = normalize(merged_text)
+        distance = levenshtein_distance(normalized_target, normalized_merged)
+
+        if distance < min_distance
+          min_distance = distance
+          best_match = (start_word_number...(start_word_number + count)).to_a
+        end
+
+        return best_match if distance == 0
+      end
+    end
+
+    min_distance <= 3 ? best_match : []
+  end
+
   protected
+
+  def seed_missed_segments
+    reciter_surah_set = Segments::Failure.pluck(:reciter_id, :surah_number).uniq
+    reciter_surah_set.each do |entry|
+      reciter = entry[0]
+      surah = entry[1]
+      existing_words = {}
+
+      existing_positions = Segments::Position.where(
+        reciter_id: reciter,
+        surah_number: surah
+      )
+      # This surah is not segmented, skip it
+      next if existing_positions.blank?
+
+      existing_positions.each do |pos|
+        existing_words["#{pos.surah_number}:#{pos.ayah_number}:#{pos.word_number}"] = true
+      end
+
+      existing_failures = Segments::Failure.where(
+        reciter_id: reciter,
+        surah_number: surah
+      )
+
+      existing_failures.each do |failure|
+        if failure.word_number.blank?
+          possible_word = failure.mistake_positions.to_s.split(',').first
+          existing_words[possible_word] ||= true
+        else
+          existing_words["#{failure.surah_number}:#{failure.ayah_number}:#{failure.word_number}"] ||= true
+        end
+      end
+
+      missed_words = Word
+                       .words
+                       .where(chapter_id: surah)
+                       .where.not(location: existing_words.keys)
+
+      if missed_words.present?
+        Segments::Failure.insert_all(
+          missed_words.map do |entry|
+            s, a, w = entry.location.split(':')
+
+            {
+              surah_number: s,
+              ayah_number: a,
+              word_number: w,
+              word_key: entry.location,
+              reciter_id: reciter,
+              failure_type: "MISSED_WORD",
+              start_time: nil,
+              end_time: nil,
+              mistake_positions: nil,
+              text: entry.text_qpc_hafs,
+              received_transcript: nil,
+              expected_transcript: nil
+            }
+          end
+        )
+      end
+    end
+  end
+
+  def seed_adjusted_segment_positions
+    base_results_path = File.join(base_path, 'results')
+
+    reciter_surah_map = Segments::Position
+                          .distinct
+                          .pluck(:reciter_id, :surah_number)
+                          .group_by(&:first)
+                          .transform_values do |pairs|
+      pairs.map(&:last).uniq
+    end
+
+    reciter_surah_map.each do |reciter_id, surahs|
+      db_path = File.join(base_results_path, reciter_id.to_s, 'segments.db')
+      next unless File.exist?(db_path)
+      db = SQLite3::Database.new(db_path)
+
+      surahs.each do |surah_number|
+        chapter = Chapter.find(surah_number)
+        1.upto(chapter.verses_count) do |ayah_number|
+          row = db.get_first_row("SELECT words FROM timings WHERE sura = ? AND ayah = ?", surah_number.to_s, ayah_number.to_s)
+          next unless row && row[0]
+          ayah_segments = JSON.parse(row[0])
+          ayah_segments.each do |segment|
+            position = Segments::Position.where(
+              reciter_id: reciter_id,
+              surah_number: surah_number,
+              ayah_number: ayah_number,
+              word_number: segment[0].to_i
+            ).first
+
+            if position
+              position.update_columns(
+                corrected_start_time: segment[1].to_i,
+                corrected_end_time: segment[2].to_i
+              )
+            end
+          end
+        end
+      end
+    end
+  end
 
   def insert_segment(db, surah_number, ayah_number, start_time, end_time, words)
     words = JSON.dump(words)
@@ -262,6 +457,58 @@ class SegmentLogsParser
              else
                next
              end
+
+=begin
+TODO: fix missed words 00020043 (501760)
+http://localhost:3000/segments/logs?reciter=2&surah=43
+http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
+{
+    "type": "POSITION",
+    "startTime": 501760,
+    "endTime": 502320,
+    "word": "وَلَوْلَا",
+    "confidence": -0.14044350385665894,
+    "speakerTag": 0,
+    "position": {
+      "ayahNumber": 33,
+      "surahNumber": 43,
+      "wordNumber": 1,
+      "exactPosition": 63665
+    },
+    "startingIdentificationIndex": 0,
+    "sessionRange": {
+      "startSurahNumber": 43,
+      "startAyahNumber": 1,
+      "endSurahNumber": 43,
+      "endAyahNumber": 33
+    },
+    "mistakeWithPositions": null,
+    "isTranscriptFinal": false
+  },
+  {
+    "type": "POSITION",
+    "startTime": 504320,
+    "endTime": 504360,
+    "word": "أَ",
+    "confidence": -0.0007187459850683808,
+    "speakerTag": 0,
+    "position": {
+      "ayahNumber": 33,
+      "surahNumber": 43,
+      "wordNumber": 1,
+      "exactPosition": 63665
+    },
+    "startingIdentificationIndex": 0,
+    "sessionRange": {
+      "startSurahNumber": 43,
+      "startAyahNumber": 1,
+      "endSurahNumber": 43,
+      "endAyahNumber": 33
+    },
+    "mistakeWithPositions": null,
+    "isTranscriptFinal": false
+  }
+=end
 
       if !first_ayah_found
         current_ayah = 1
@@ -320,7 +567,7 @@ class SegmentLogsParser
     surah_segments
   end
 
-  def validate_segments_issues(segments, surah_number)
+  def auto_fix_segments_issues(segments, surah_number)
     fixed_segments = {}
 
     segments.each_with_index do |segment, index|
@@ -330,6 +577,7 @@ class SegmentLogsParser
 
       if verse = Verse.find_by(chapter_id: surah_number, verse_number: ayah)
         ayah_words = Word.words.where(verse: verse).order(:position).pluck(:text_uthmani)
+        next if words.size == ayah_words.size
 
         if words.size.zero? && ayah_words.size == 1
           # Single word ayah
@@ -419,7 +667,7 @@ class SegmentLogsParser
 
   def normalize(text)
     return '' if text.nil?
-    text.tr('ًٌٍَُِّْـ', '')
+    text.tr('ًٌٍَُِّْـٰ', '')
   end
 
   def detect_failure_word(entry, surah_number, ayah, last_word)
@@ -583,7 +831,7 @@ class SegmentLogsParser
       word_info = entry["position"]
       ayah_number = word_info&.[]("ayahNumber")
       word_number = word_info&.[]("wordNumber")
-      word_key = (ayah_number && word_number) ? "#{surah_number}:#{ayah_number}:#{word_number}" : "unknown"
+      word_key = (ayah_number && word_number) ? "#{surah_number}:#{ayah_number}:#{word_number}" : ""
 
       if type == 'FAILURE'
         type_counts['FAILURE'] += 1
@@ -699,6 +947,8 @@ class SegmentLogsParser
       t.boolean :corrected, default: false
       t.integer :corrected_ayah_number
       t.integer :corrected_word_number
+      t.integer :corrected_start_time
+      t.integer :corrected_end_time
     end
 
     connection.create_table :segments_positions do |t|
@@ -709,6 +959,8 @@ class SegmentLogsParser
       t.integer :reciter_id
       t.integer :start_time
       t.integer :end_time
+      t.integer :corrected_start_time
+      t.integer :corrected_end_time
     end
 
     connection.create_table :segments_detections do |t|
@@ -773,6 +1025,13 @@ class SegmentLogsParser
   end
 
   def fix_segment_for_missing_words(segments, ayah_words)
+    #TODO: use detect_merged_word_numbers to fix merged words timing
+    # http://localhost:3000/segments/timeline?ayah=31&reciter=2&surah=41
+    # received: رَحِيمْرَحِيمْ
+    # expected: رَّحِيمٍ
+    #
+    # We should be able to auto fix missing word, time between two words
+    # http://localhost:3000/segments/timeline?ayah=19&reciter=2&surah=41
     missed_segments = []
 
     ayah_words.each_with_index do |word, index|

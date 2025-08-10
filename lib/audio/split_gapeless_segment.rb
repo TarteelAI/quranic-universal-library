@@ -5,7 +5,7 @@ module Audio
     attr_reader :ayah_recitation, :recitation
     def initialize(surah_recitation_id, ayah_recitation_id)
       @recitation = Audio::Recitation.find(surah_recitation_id)
-      @ayah_recitation = Recitation.find(ayah_recitation_id)
+      @ayah_recitation = ::Recitation.find(ayah_recitation_id)
     end
 
     def split_surah(chapter_id)

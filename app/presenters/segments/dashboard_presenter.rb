@@ -18,7 +18,15 @@ module Segments
     def timeline_data
       if selected_surah.present? && selected_reciter.present?
         reciter = ::Segments::Reciter.find(selected_reciter)
-        failures = filter_failures.index_by(&:word_key)
+
+        failures = filter_failures.index_by do |f|
+          if f.word_key.blank?
+            f.mistake_positions.to_s.split(',').first
+          else
+            f.word_key
+          end
+        end
+
         ayah_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).group_by(&:ayah_number)
         word_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).index_by(&:word_key)
         ayahs = Verse.where(chapter_id: selected_surah).order(:verse_number)
@@ -56,6 +64,10 @@ module Segments
       @surahs ||= ::Segments::Detection.distinct.pluck(:surah_number).sort
     end
 
+    def segment_databases
+
+    end
+
     def reciters
       ::Segments::Reciter.all
     end
@@ -81,11 +93,17 @@ module Segments
           failures = failures.where(surah_number: s)
         end
 
+        corrections = failures.where(corrected: true).count
+
         {
+          id: reciter.id,
           name: reciter.name,
           positions: positions.count,
           failures: failures.count,
-          corrected_failures: failures.where(corrected: true).count,
+          corrected_failures: corrections,
+          pending_failures: failures.count - corrections,
+          pending_percentage: ((failures.count - corrections) / failures.count.to_f * 100).round(2),
+          corrected_percentage: (corrections / failures.count.to_f * 100).round(2),
         }
       end
     end

@@ -137,3 +137,6 @@ import AyahSegmentPlayerController from "./ayah_segment_player_controller"
 application.register("ayah-segment-player", AyahSegmentPlayerController);
 application.register("surah-segment-player", SurahSegmentPlayerController);
 
+import SegmentsTimelineController from './segments/timeline_controller';
+application.register("segments--timeline", SegmentsTimelineController);
+

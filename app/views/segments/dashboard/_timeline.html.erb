@@ -19,7 +19,7 @@
     <% end %>
   </div>
 
-  <div class="page-section tw-mt-4">
+  <div class="page-section tw-mt-4" data-controller="segments--timeline" data-ayah="<%= params[:ayah] %>">
     <% if @presenter.selected_reciter.present? && @presenter.selected_surah.present? %>
       <%
         data = @presenter.timeline_data
@@ -50,7 +50,9 @@
             end
           %>
 
-          <div>
+          <div
+            data-ayah="<%= ayah.verse_number %>"
+          >
             <h3 class="tw-font-semibold tw-mb-2">
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
@@ -63,8 +65,7 @@
               <button
                 data-start="<%= ayah_start_time.to_i %>"
                 data-end="<%= ayah_end_time.to_i %>"
-                class="tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
-                onclick="playSegment(this)"
+                class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
               > Play
               </button>
               <%= link_to 'logs', segments_logs_path(reciter: reciter.id, surah: @presenter.selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
@@ -73,30 +74,47 @@
 
             <div class="tw-flex tw-gap-1 tw-flex-wrap qpc-hafs">
               <% ayah.words.each do |word| %>
-                <% key = word.location %>
+                <%
+                  #TODO: move this to presenter
+                  key = word.location
+                  failure = failures[key]
+                  correction = []
 
-                <% if failure = failures[key] %>
-                  <% color = "tw-bg-red-500" %>
-                  <% start_time = failure.start_time %>
-                  <% end_time = failure.end_time %>
-                <% elsif position = word_positions[key] %>
-                  <% color = "tw-bg-green-500" %>
-                  <% start_time = position.start_time %>
-                  <% end_time = position.end_time %>
-                <% else %>
-                  <% color = "tw-bg-gray-300" %>
-                  <% start_time = nil %>
-                  <% end_time = nil %>
-                <% end %>
+                  if position = word_positions[key]
+                    correction = [position.corrected_start_time, position.corrected_end_time]
+                    color = "tw-bg-green-500"
+                    start_time = position.start_time
+                    end_time = position.end_time
+                  elsif failure
+                    color = "tw-bg-red-500"
+
+                    start_time = failure.start_time
+                    end_time = failure.end_time
+                    correction = [failure.corrected_start_time, failure.corrected_end_time]
+
+                    if failure.corrected?
+                      color << " tw-border-2 tw-border-green-300"
+
+                      start_time ||= failure.corrected_start_time
+                      end_time ||= failure.corrected_end_time
+                    end
+                  else
+                    color = "tw-bg-gray-300"
+                    start_time = nil
+                    end_time = nil
+                  end
+                %>
 
                 <button
-                  class="tw-px-2 tw-py-1 tw-rounded tw-text-sm <%= color %>"
+                  class="play-segment tw-px-2 tw-py-1 tw-rounded tw-text-sm <%= color %>"
                   data-start="<%= start_time %>"
                   data-end="<%= end_time %>"
-                  onclick="playSegment(this)"
-                  <% if failure %>
                   data-controller="tooltip"
-                  title="<div><strong><%= failure.failure_type %></strong><div>Expected: <span class=qpc-hafs><%= failure.expected_transcript %></span></div><div>Received: <span class=qpc-hafs><%= failure.received_transcript %></span></div></span>"
+
+                  <% if failure %>
+                  title="<div><strong><%= failure.failure_type %></strong><div>Expected: <span class=qpc-hafs><%= failure.expected_transcript %></span></div><div>Received: <span class=qpc-hafs><%= failure.received_transcript %></span></div><div>Time: <%= start_time %> .. <%= end_time %> </div><div>Corrected time: <%= correction.join('...') %></div></div>"
+                  <% else %>
+                  title="<div><div>Time: <%= start_time %> .. <%= end_time %> </div><div>Corrected Time: <%= correction.join('...') %> </div></div>"
                   <% end %>
                   <%= "disabled" unless start_time && end_time %>
                   >
@@ -109,26 +127,6 @@
       </div>
 
       <audio id="player" src="<%= reciter.audio_url(@presenter.selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
-
-      <script>
-        function playSegment(el) {
-          const start = parseFloat(el.dataset.start) / 1000;
-          const end = parseFloat(el.dataset.end) / 1000;
-          const player = document.getElementById('player');
-
-          player.currentTime = start;
-          player.play();
-
-          const stopAt = () => {
-            if (player.currentTime >= end) {
-              player.pause();
-              player.removeEventListener('timeupdate', stopAt);
-            }
-          };
-
-          player.addEventListener('timeupdate', stopAt);
-        }
-      </script>
     <% else %>
       Please select a Surah and Reciter to view the timeline.
     <% end %>

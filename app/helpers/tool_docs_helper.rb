@@ -398,4 +398,117 @@ module ToolDocsHelper
       }
     ]
   end
+
+  def surah_recitation_segment_builder_help
+    [
+      "Surah Recitation Segments",
+
+      {
+        text: "The Surah Recitation Segments tool is used to create or edit timestamp data for each word in a Surah's audio file. This data allows us to highlight the currently playing word during audio playback, enabling accurate follow-along experiences."
+      },
+
+      {
+        text: "Only contributors with edit permissions can create or modify recitation segments. Please contact the admin or open an issue on GitHub if you encounter permission issues or suspect incorrect timing data.",
+        type: "info"
+      },
+
+      {
+        type: "heading",
+        text: "Please follow these steps to create or fix Surah recitation segments:"
+      },
+
+      {
+        type: "step",
+        title: "Step 1: Select the Surah and reciter",
+        sections: [
+          {
+            text: "From the Surah Recitation Segments index page, select the reciter you want to work on, then choose the Surah. Click the <code>Filter</code> button to see list of Surahs for the selected reciter. Click the <code>Fix segment</code> button to open the segment editor.",
+            screenshot: "surah-segments-select-surah.png"
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 2: Choose the audio source",
+        sections: [
+          {
+            text: "Once the segment editor is open, select the audio source. You can either enter an audio file URL or choose a local audio file from your computer. The URL field will be pre-filled with the existing audio file, but you can change it if needed.",
+            screenshot: "surah-segment-builder.png"
+          },
+          {
+            type: "info",
+            text: "You might select a local audio file if the current CDN audio has issues and you have a fixed version locally that is not yet uploaded to the CDN."
+          },
+          {
+            text: "After selecting the audio source, click the <code>Load Audio Data</code> button to load the audio into the editor."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 3: Add Ayah timing (if missing)",
+        sections: [
+          {
+            text: "If Ayah timing is missing, check the <code>Update Ayah timing</code> checkbox in the editor. This will allow you to set start and end times for each Ayah.",
+            screenshot: "surah-segment-builder-ayah-timing.png"
+          },
+          {
+            text: "Click the <code>Start</code> button when the Ayah begins to set its start time. Click the <code>End</code> button when the Ayah ends — this will set the current Ayah's end time and the start time for the next Ayah automatically."
+          },
+          {
+            type: "info",
+            text: "If <code>Auto Save</code> is checked, the system will automatically save the Ayah timing after each end time is set."
+          },
+          {
+            text: "Once all Ayah timings are set, you can proceed to update word timings."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 4: Track and set word timestamps",
+        text: "Click <code>Play</code> to start the audio. When a word is being recited, click its <code>Track</code> button to set the start time. The next time you click <code>Track</code> (for the same or next word), it will set the end time for the current word and automatically set the start time for the next word. Continue this process until all words in the Ayah have timings. You can also drag the time handles in the waveform to fine-tune timings.",
+        screenshot: "surah-segments-track-timing.png"
+      },
+
+      {
+        type: "info",
+        text: "Because the <code>Track</code> button sets both the end time of the current word and the start time of the next word, you don’t need to set times manually for every single field unless corrections are needed."
+      },
+
+      {
+        type: "step",
+        title: "Step 5: Review and fix mistakes",
+        sections: [
+          {
+            text: "After tracking all words in the Ayah, play it back to ensure the highlighted words match the audio exactly.",
+          },
+          {
+            text: "If any word timing is off, you can manually adjust it by editing the time fields or moving the waveform markers."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 6: Save your work",
+        text: "Click the <code>Save Segments</code> button to store your changes. The system will save all word timings for the current Ayah. Remember to save after each Ayah before moving to the next one."
+      },
+
+      {
+        type: "step",
+        title: "Step 7: Repeat for remaining Ayahs",
+        text: "Continue tracking and saving word timings for each Ayah until the entire Surah is completed."
+      },
+
+      {
+        type: "demo",
+        title: "Demo",
+        text: "Demo video will be available here soon"
+      }
+    ]
+  end
 end

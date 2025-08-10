@@ -32,6 +32,13 @@
       Upload Database File
     </h1>
 
+    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
+      Uploaded databases
+    </h1>
+    <div>
+      <% @presenter.segmented_surah %>
+    </div>
+
     <%= form_with model: @db, url: segments_setup_db_path, method: 'post', html: { multipart: true } do |f| %>
       <div class="form-group tw-my-2">
         <%= f.label :name, class: "tw-block tw-text-gray-700 tw-font-medium" %>

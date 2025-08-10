@@ -10,7 +10,7 @@ module Api::V1
       protected
 
       def init_presenter
-        @presenter = ::V1::Audio::RecitationPresenter.new(params)
+        @presenter = ::V1::Audio::RecitationPresenter.new(self)
       end
     end
   end

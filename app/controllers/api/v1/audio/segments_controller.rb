@@ -6,7 +6,7 @@ module Api::V1
 
       protected
       def init_presenter
-        @presenter = ::V1::Audio::SegmentPresenter.new(params)
+        @presenter = ::V1::Audio::SegmentPresenter.new(self)
       end
     end
   end

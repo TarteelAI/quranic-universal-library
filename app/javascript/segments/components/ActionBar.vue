@@ -122,8 +122,8 @@
         <label for="edit-mode"
                class="mx-2"
                data-controller="tooltip"
-               title="Edit mode will set the ayah timing when you click ayah start or end button. Clicking ayah end will also set start time of next ayah.">
-          Edit Mode
+               title="Check this if you need to update the ayah timing when you click ayah start or end button. Clicking ayah end will also set start time of next ayah.">
+          Update Ayah timing
         </label>
 
         <input

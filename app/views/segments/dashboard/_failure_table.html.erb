@@ -150,7 +150,7 @@
             </td>
             <td>
               <%= link_to 'logs', segments_logs_path(reciter: failure.reciter_id, surah: failure.surah_number), target: '_blank' %>
-              <%= link_to '<i class="fas fa-stream"></i>'.html_safe, segments_timeline_path(reciter: failure.reciter_id, surah: failure.surah_number, ayah: failure.ayah_number), target: '_blank' %>
+              <%= link_to '<i class="fas fa-stream"></i>'.html_safe, segments_timeline_path(reciter: failure.reciter_id, surah: failure.surah_number, ayah: failure.ayah_number || failure.corrected_ayah_number), target: '_blank' %>
             </td>
           </tr>
         <% end %>

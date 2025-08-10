@@ -90,7 +90,7 @@ class Verse < QuranApiRecord
   has_many :phrase_verses, class_name: 'Morphology::PhraseVerse'
 
   has_many :arabic_transliterations
-  has_many :word_translations, through: :words
+  has_many :word_translations, through: :words, source: 'word_translation'
 
   # For eager loading
   has_one :audio_segment, class_name: 'Audio::Segment'

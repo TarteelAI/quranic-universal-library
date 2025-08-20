@@ -110,7 +110,7 @@
                   <%= verse.text_qpc_hafs %>
                 </div>
                 
-                <% if verse.translation %>
+                <% if verse.translation&.text.present? %>
                   <div class="tw-text-gray-700 tw-italic">
                     <%= verse.translation.text %>
                   </div>

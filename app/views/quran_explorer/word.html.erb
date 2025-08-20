@@ -213,7 +213,7 @@
           <h3 class="tw-text-lg tw-font-bold tw-text-gray-900 tw-mb-4">Root</h3>
           <div class="tw-text-center">
             <div class="tw-text-3xl tw-text-gray-900 tw-mb-2" dir="rtl">
-              <%= @word.root.value %>
+              <%= @word.root.text_uthmani %>
             </div>
             <div class="tw-text-sm tw-text-gray-600">
               <%= @word.root.description if @word.root.respond_to?(:description) %>
@@ -227,7 +227,7 @@
           <h3 class="tw-text-lg tw-font-bold tw-text-gray-900 tw-mb-4">Lemma</h3>
           <div class="tw-text-center">
             <div class="tw-text-3xl tw-text-gray-900 tw-mb-2" dir="rtl">
-              <%= @word.lemma.text_uthmani %>
+              <%= @word.lemma.text_madani %>
             </div>
             <div class="tw-text-sm tw-text-gray-600">
               <%= @word.lemma.description if @word.lemma.respond_to?(:description) %>
@@ -241,7 +241,7 @@
           <h3 class="tw-text-lg tw-font-bold tw-text-gray-900 tw-mb-4">Stem</h3>
           <div class="tw-text-center">
             <div class="tw-text-3xl tw-text-gray-900 tw-mb-2" dir="rtl">
-              <%= @word.stem.text_uthmani %>
+              <%= @word.stem.text_madani %>
             </div>
             <div class="tw-text-sm tw-text-gray-600">
               <%= @word.stem.description if @word.stem.respond_to?(:description) %>

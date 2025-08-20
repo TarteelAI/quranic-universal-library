@@ -12,10 +12,13 @@ class QuranExplorerController < ApplicationController
     @verses = @chapter.verses.includes(:translations, :audio_files).limit(10)
     @stats = {
       verses_count: @chapter.verses_count,
-      words_count: @chapter.verses.sum(:words_count),
+      words_count: @chapter.verses.sum(:words_count) || 0,
       pages: @chapter.pages,
       rukus_count: @chapter.rukus_count
     }
+  rescue => e
+    Rails.logger.error "Error loading surah #{@chapter.id}: #{e.message}"
+    @stats = { verses_count: 0, words_count: 0, pages: 'N/A', rukus_count: 'N/A' }
   end
 
   def ayah

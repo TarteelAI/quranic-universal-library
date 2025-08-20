@@ -94,7 +94,7 @@
                 <%= word.text_uthmani %>
               </div>
               
-              <% if word.en_translation %>
+              <% if word.en_translation&.text.present? %>
                 <div class="tw-text-sm tw-text-gray-700 tw-mb-2">
                   <%= word.en_translation.text %>
                 </div>
@@ -103,7 +103,7 @@
               <div class="tw-text-xs tw-text-gray-500">
                 Position <%= word.position %>
                 <% if word.root %>
-                  • Root: <%= word.root.value %>
+                  • Root: <%= word.root.text_uthmani %>
                 <% end %>
               </div>
             </div>

@@ -15,6 +15,24 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :verses, only: [:index] do
+        collection do
+          get 'select2'
+        end
+      end
+
+      resources :translations, only: [:index, :show]
+      resources :tafsirs, only: [:index, :show]
+      resources :topics, only: [:index, :show]
+      resources :ayah_themes, only: [:index, :show]
+      resources :resources, only: [:index, :show]
+
+      namespace :morphology do
+        resources :roots, only: [:index, :show]
+        resources :stems, only: [:index, :show]
+        resources :lemmas, only: [:index, :show]
+      end
+
       namespace :audio do
         get 'surah_recitations', to: 'recitations#surah_recitations'
         get 'surah_recitations/:id', to: 'recitations#surah_recitation_detail'

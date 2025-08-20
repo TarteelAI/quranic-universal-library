@@ -130,6 +130,7 @@ module V1
         locale: api_locale,
         current_page: current_page,
         per_page: per_page,
+        context: context
       )
     end
 

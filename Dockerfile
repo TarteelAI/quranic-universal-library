@@ -160,11 +160,11 @@ RUN chown app Gemfile.lock
 RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
 # precompile assets
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN SECRET_KEY_BASE=$(ruby -e "require 'securerandom'; puts SecureRandom.hex(64)") ./bin/rails assets:precompile
 
 #TODO: fix this, sprockets can't find the compiled assets.
 # Compiling twice seems to be working
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN SECRET_KEY_BASE=$(ruby -e "require 'securerandom'; puts SecureRandom.hex(64)") ./bin/rails assets:precompile
 
 # pg_dump
 RUN apt-get install -y wget

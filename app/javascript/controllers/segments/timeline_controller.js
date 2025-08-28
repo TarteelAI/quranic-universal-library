@@ -2,6 +2,8 @@ import {Controller} from "@hotwired/stimulus";
 
 export default class extends Controller {
   connect() {
+    this.isPlaying = false
+    this.playingSegment = null;
     this.el = $(this.element);
     this.player = this.element.querySelector('#player');
 
@@ -20,12 +22,25 @@ export default class extends Controller {
     const start = parseFloat(el.dataset.start) / 1000;
     const end = parseFloat(el.dataset.end) / 1000;
 
+    if(this.isPlaying){
+      this.player.pause();
+      if(this.playingSegment == el){
+        this.isPlaying  = false
+        this.playingSegment = null;
+        return;
+      }
+    }
+
+    this.playingSegment = el;
     this.player.currentTime = start;
+    this.isPlaying  = true
     this.player.play();
 
     const updatePlayerProgress = () => {
       if (this.player.currentTime >= end) {
         this.player.pause();
+        this.isPlaying  = false
+        this.playingSegment = null;
         this.player.removeEventListener('timeupdate', updatePlayerProgress);
       }
     };

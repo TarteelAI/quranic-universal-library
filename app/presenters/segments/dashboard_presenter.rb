@@ -94,6 +94,7 @@ module Segments
         end
 
         corrections = failures.where(corrected: true).count
+        missing_words = failures.where(failure_type: 'MISSED_WORD')
 
         {
           id: reciter.id,
@@ -104,6 +105,10 @@ module Segments
           pending_failures: failures.count - corrections,
           pending_percentage: ((failures.count - corrections) / failures.count.to_f * 100).round(2),
           corrected_percentage: (corrections / failures.count.to_f * 100).round(2),
+          missing_words: missing_words.size,
+          missing_words_percentage: (missing_words.size / failures.count.to_f * 100).round(2),
+          corrected_missing_words: missing_words.where(corrected: true).size,
+          corrected_missing_words_percentage: (missing_words.where(corrected: true).size / missing_words.size.to_f * 100).round(2)
         }
       end
     end

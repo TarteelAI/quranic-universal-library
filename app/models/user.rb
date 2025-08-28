@@ -45,8 +45,8 @@ class User < ApplicationRecord
          :rememberable,
          :trackable,
          :validatable,
-         :recoverable,
-         :confirmable
+         :recoverable
+         #:confirmable skip for now
 
   validates :first_name, :last_name, presence: true
 
@@ -66,10 +66,6 @@ class User < ApplicationRecord
   def super_admin?
     1 == id || is_super_admin?
   end
-
-  #def role=(val)
-  #  super(val[/\d+/] ? val.to_i : val)
-  #end
 
   def name
     short_name = first_name.presence || last_name.presence || email

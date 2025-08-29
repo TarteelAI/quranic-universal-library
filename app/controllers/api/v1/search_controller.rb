@@ -5,6 +5,7 @@ class Api::V1::SearchController < ApplicationController
   before_action :authenticate_api_client
   before_action :validate_search_params, only: [:general_search, :morphology_search, :semantic_search, :script_search]
   before_action :set_pagination_params
+  after_action :set_rate_limit_headers
 
   # General search across verses, translations, and words
   def general_search
@@ -441,5 +442,13 @@ class Api::V1::SearchController < ApplicationController
       has_next_page: @page < (total.to_f / @per_page).ceil,
       has_prev_page: @page > 1
     }
+  end
+
+  def set_rate_limit_headers
+    return unless @api_client
+
+    response.set_header('X-RateLimit-Limit', @api_client.request_quota || 'unlimited')
+    response.set_header('X-RateLimit-Remaining', @api_client.remaining_quota.to_s)
+    response.set_header('X-RateLimit-Reset', @api_client.current_period_ends_at&.to_i || 0)
   end
 end

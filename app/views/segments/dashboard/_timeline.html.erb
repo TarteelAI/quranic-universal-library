@@ -83,6 +83,11 @@
                   if position = word_positions[key]
                     correction = [position.corrected_start_time, position.corrected_end_time]
                     color = "tw-bg-green-500"
+
+                    if failure&.corrected?
+                      color = "tw-bg-red-500 tw-border-2 tw-border-green-300"
+                    end
+
                     start_time = position.start_time
                     end_time = position.end_time
                   elsif failure

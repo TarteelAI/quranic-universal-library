@@ -28,6 +28,8 @@
         <th class="tw-p-2 tw-border-b">Failures</th>
         <th class="tw-p-2 tw-border-b">Corrected</th>
         <th class="tw-p-2 tw-border-b">Pending</th>
+        <th class="tw-p-2 tw-border-b">Missed Words</th>
+        <th class="tw-p-2 tw-border-b">Fixed missed Words</th>
       </tr>
       </thead>
       <tbody>
@@ -35,9 +37,11 @@
         <tr class="tw-border-b hover:tw-bg-gray-50">
           <td class="tw-p-2"><%= reciter[:name] %></td>
           <td class="tw-p-2"><%= reciter[:positions] %></td>
+
           <td class="tw-p-2">
             <%= link_to reciter[:failures], segments_failures_path(reciter: reciter[:id]) %>
           </td>
+
           <td class="tw-p-2">
             <%= link_to reciter[:corrected_failures], segments_failures_path(reciter: reciter[:id], correction_status: 'corrected') %>
 
@@ -48,9 +52,24 @@
 
           <td class="tw-p-2">
             <%= link_to reciter[:pending_failures], segments_failures_path(reciter: reciter[:id], correction_status: 'pending') %>
-
             <span class="tw-ml-2 tw-inline-block tw-bg-red-100 tw-text-red-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
              <%= number_to_percentage(reciter[:pending_percentage], precision: 1) %>
+            </span>
+          </td>
+
+          <td class="tw-p-2">
+            <%= link_to reciter[:missing_words], segments_failures_path(reciter: reciter[:id], failure_type: 'MISSED_WORD') %>
+
+            <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+             <%= number_to_percentage(reciter[:missing_words_percentage], precision: 1) %>
+            </span>
+          </td>
+
+          <td class="tw-p-2">
+            <%= link_to reciter[:corrected_missing_words], segments_failures_path(reciter: reciter[:id], failure_type: 'MISSED_WORD',  correction_status: 'corrected') %>
+
+            <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+             <%= number_to_percentage(reciter[:corrected_missing_words_percentage], precision: 1) %>
             </span>
           </td>
         </tr>

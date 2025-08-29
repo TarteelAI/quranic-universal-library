@@ -8,6 +8,7 @@ a.validate_log_files
 
 # parse and fill in segments table
 a.seed_segments_tables
+a.seed_raw_logs
 
 # auto correct and export segment db for all reciter
 a.prepare_recitation_dbs
@@ -34,6 +35,8 @@ class SegmentLogsParser
     @base_path = "/Volumes/Data/qul-segments/aug-6"
     @segments_logs_path = "#{@base_path}/vs_logs/**/time-machine.json"
     @db_file = "#{@base_path}/segments_database.db"
+    @reciter = 2
+    @surah = [2,3]
   end
 
   def validate_log_files
@@ -75,9 +78,15 @@ class SegmentLogsParser
 
   def seed_segments_tables
     setup_db
-    seed_raw_logs
 
-    Dir.glob(segments_logs_path) do |file_path|
+    files = filter_log_files(
+      segments_logs_path,
+      reciter: @reciter,
+      surah_range: @surah,
+      is_state_machine: true
+    )
+
+    files.each do |file_path|
       puts "Processing #{file_path}"
 
       filename = File.basename(File.dirname(file_path))
@@ -93,8 +102,66 @@ class SegmentLogsParser
     seed_recitations
   end
 
+  def seed_raw_logs
+    segments_logs_path = "#{base_path}/logs/*.log"
+    batch_size = 1000
+    log_entries = []
+    files = filter_log_files(segments_logs_path, reciter: @reciter, surah_range: @surah)
+    files.each do |file_path|
+      puts "Processing #{file_path}"
+
+      content = File.readlines(file_path)
+      next if content.blank?
+
+      filename = File.basename(file_path)
+      reciter_id, surah_number = parse_reciter_and_surah(filename)
+
+      content.each do |line|
+        match = line.match(/^\[(.*?)\]\s*(.*)/)
+        next unless match
+
+        time = match[1]
+        log = match[2].to_s.strip
+        next if log.blank?
+
+        begin
+          timestamp = Time.iso8601(time).to_i
+        rescue ArgumentError
+          puts "Invalid timestamp format in #{file_path}: #{time}"
+          next
+        end
+
+        log_entries << {
+          surah_number: surah_number,
+          reciter_id: reciter_id,
+          timestamp: timestamp,
+          log: log
+        }
+
+        # Bulk insert when batch size is reached
+        if log_entries.size >= batch_size
+          Segments::Log.insert_all(log_entries)
+          log_entries.clear
+        end
+      end
+    end
+
+    if log_entries.any?
+      Segments::Log.insert_all(log_entries)
+    end
+
+    puts "Processed #{files.size} log files"
+  end
+
   def prepare_recitation_dbs
-    Dir.glob(segments_logs_path) do |file_path|
+    files = filter_log_files(
+      segments_logs_path,
+      reciter: @reciter,
+      surah_range: @surah,
+      is_state_machine: true
+    )
+
+    files.each do |file_path|
       content = File.read(file_path)
       next if content.blank?
       data = JSON.parse(content)
@@ -110,10 +177,7 @@ class SegmentLogsParser
       db = RECITER_SEGMENTS_DB[reciter_id]
 
       segments = process_surah_segments(data, surah_number)
-
-      segments = auto_fix_segments_issues(segments, surah_number)
-
-      json_data = {}
+      segments = auto_fix_segments_issues(segments, surah_number, reciter_id)
 
       if segments.blank?
         puts "No segments found for #{file_path}"
@@ -125,14 +189,11 @@ class SegmentLogsParser
         ayah_number = segment[:ayah]
         start_time = segment[:start_time]
         end_time = segment[:end_time]
-        json_data[ayah_number] = words
         insert_segment(db, surah_number, ayah_number, start_time, end_time, words)
       end
-
-      File.open("#{export_path}/json/#{surah_number}.json", 'w') do |f|
-        f.puts json_data.to_json
-      end
     end
+
+    seed_missed_segments
   end
 
   def update_fixed_failures
@@ -153,7 +214,6 @@ class SegmentLogsParser
     )
 
     seed_adjusted_segment_positions
-    seed_missed_segments
 
     Segments::Failure.where.not(failure_type: 'MISSED_WORD').find_each do |failure|
       reciter_id = failure.reciter_id
@@ -164,6 +224,8 @@ class SegmentLogsParser
       failure_text = failure.text
       expected_text = failure.expected_transcript
       failed_words = [failure.word_number].compact_blank
+
+      binding.pry if failure.id == 43
 
       if surah_number.blank? || ayah_number.blank?
         if failure.mistake_positions.present?
@@ -238,6 +300,44 @@ class SegmentLogsParser
         )
       end
     end
+
+    ayah_level_failures = Segments::Failure
+                            .select(:id, :reciter_id, :surah_number, :ayah_number)
+                            .where(corrected: [false, nil])
+                            .distinct
+
+    db_cache = {}
+    binding.pry
+    ayah_level_failures.find_each do |failure|
+      reciter_id = failure.reciter_id
+      surah_number = failure.surah_number
+      ayah_number = failure.ayah_number
+
+      db_path = File.join(base_results_path, reciter_id.to_s, 'segments.db')
+      next unless File.exist?(db_path)
+
+      db_cache[reciter_id] ||= SQLite3::Database.new(db_path)
+      reciter_db = db_cache[reciter_id]
+
+      row = reciter_db.get_first_row(
+        "SELECT words FROM timings WHERE sura = ? AND ayah = ?",
+        [surah_number.to_s, ayah_number.to_s]
+      )
+      next unless row
+
+      Segments::Position.where(reciter: reciter_id, surah_number: surah_number, ayah_number: ayah_number)
+      ayah_words = Word.words
+                       .where(verse_key: "#{surah_number}:#{ayah_number}")
+                       .pluck(:position)
+      words_data = JSON.parse(row[0]) rescue []
+      word_numbers = words_data.map { |w| w[0] }.compact
+
+      word_numbers - ayah_words
+
+      if found_all
+        failure.update!(corrected: true)
+      end
+    end
   end
 
   def update_failure_word_numbers
@@ -304,6 +404,7 @@ class SegmentLogsParser
 
   def seed_missed_segments
     reciter_surah_set = Segments::Failure.pluck(:reciter_id, :surah_number).uniq
+
     reciter_surah_set.each do |entry|
       reciter = entry[0]
       surah = entry[1]
@@ -360,6 +461,7 @@ class SegmentLogsParser
             }
           end
         )
+
       end
     end
   end
@@ -458,58 +560,6 @@ class SegmentLogsParser
                next
              end
 
-=begin
-TODO: fix missed words 00020043 (501760)
-http://localhost:3000/segments/logs?reciter=2&surah=43
-http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
-{
-    "type": "POSITION",
-    "startTime": 501760,
-    "endTime": 502320,
-    "word": "وَلَوْلَا",
-    "confidence": -0.14044350385665894,
-    "speakerTag": 0,
-    "position": {
-      "ayahNumber": 33,
-      "surahNumber": 43,
-      "wordNumber": 1,
-      "exactPosition": 63665
-    },
-    "startingIdentificationIndex": 0,
-    "sessionRange": {
-      "startSurahNumber": 43,
-      "startAyahNumber": 1,
-      "endSurahNumber": 43,
-      "endAyahNumber": 33
-    },
-    "mistakeWithPositions": null,
-    "isTranscriptFinal": false
-  },
-  {
-    "type": "POSITION",
-    "startTime": 504320,
-    "endTime": 504360,
-    "word": "أَ",
-    "confidence": -0.0007187459850683808,
-    "speakerTag": 0,
-    "position": {
-      "ayahNumber": 33,
-      "surahNumber": 43,
-      "wordNumber": 1,
-      "exactPosition": 63665
-    },
-    "startingIdentificationIndex": 0,
-    "sessionRange": {
-      "startSurahNumber": 43,
-      "startAyahNumber": 1,
-      "endSurahNumber": 43,
-      "endAyahNumber": 33
-    },
-    "mistakeWithPositions": null,
-    "isTranscriptFinal": false
-  }
-=end
-
       if !first_ayah_found
         current_ayah = 1
         first_ayah_found = true
@@ -521,14 +571,13 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
 
       word_number = case entry['type']
                     when 'POSITION'
-                      entry.dig('position', 'wordNumber').to_i
+                      word = entry.dig('position', 'wordNumber').to_i
+                      translate_word(surah_number, current_ayah, word)
                     when 'FAILURE'
-                      detect_failure_word(entry, surah_number, current_ayah, current_word)
+                      detect_failure_word(entry, surah_number, current_ayah)
                     else
                       next
                     end
-
-      word_number = translate_word(surah_number, current_ayah, word_number)
 
       ayah_groups[[surah_number, current_ayah]] << {
         word_number: word_number,
@@ -567,17 +616,17 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     surah_segments
   end
 
-  def auto_fix_segments_issues(segments, surah_number)
+  def auto_fix_segments_issues(segments, surah_number, reciter_id)
     fixed_segments = {}
 
     segments.each_with_index do |segment, index|
-      ayah = segment[:ayah]
-      words = segment[:words]
+      ayah = segment[:ayah].to_i
+      words = segment[:words].clone
       next_segment = segments[index + 1]
+      fixed_segments[ayah] = segment
 
       if verse = Verse.find_by(chapter_id: surah_number, verse_number: ayah)
         ayah_words = Word.words.where(verse: verse).order(:position).pluck(:text_uthmani)
-        next if words.size == ayah_words.size
 
         if words.size.zero? && ayah_words.size == 1
           # Single word ayah
@@ -587,13 +636,18 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
           end
         elsif words.size <= ayah_words.size
           words = adjust_zero_duration_words(words, ayah_words)
-          words = fix_segment_for_missing_words(words, ayah_words)
+        end
+
+        begin
+        words = fix_segment_for_missing_words_from_failures(words, ayah_words, verse, reciter_id)
+        words = fix_segment_for_missing_words(words, ayah_words, verse)
+        rescue Exception => e
+          binding.pry
         end
 
         segment[:start_time] = words.first[1]
         segment[:end_time] = words.last[2]
         segment[:words] = words
-
         fixed_segments[verse.verse_number] = segment
       end
     end
@@ -670,7 +724,7 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     text.tr('ًٌٍَُِّْـٰ', '')
   end
 
-  def detect_failure_word(entry, surah_number, ayah, last_word)
+  def detect_failure_word(entry, surah_number, ayah)
     mistake = entry['mistakeWithPositions']
     received_text = normalize(entry['word'].to_s)
     expected_text = normalize(mistake['expectedTranscript'].to_s)
@@ -706,7 +760,6 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
         expected_text_distance = levenshtein_distance(expected_text, word_text)
 
         if distance == 0 || expected_text_distance == 0
-          puts "found 000"
           return word_data[:word_number]
         end
 
@@ -767,57 +820,6 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     db
   end
 
-  def seed_raw_logs
-    segments_logs_path = "#{base_path}/logs/*.log"
-    batch_size = 1000
-    log_entries = []
-
-    Dir.glob(segments_logs_path).each do |file_path|
-      puts "Processing #{file_path}"
-
-      content = File.readlines(file_path)
-      next if content.blank?
-
-      filename = File.basename(file_path)
-      reciter_id, surah_number = parse_reciter_and_surah(filename)
-
-      content.each do |line|
-        match = line.match(/^\[(.*?)\]\s*(.*)/)
-        next unless match
-
-        time = match[1]
-        log = match[2].to_s.strip
-        next if log.blank?
-
-        begin
-          timestamp = Time.iso8601(time).to_i
-        rescue ArgumentError
-          puts "Invalid timestamp format in #{file_path}: #{time}"
-          next
-        end
-
-        log_entries << {
-          surah_number: surah_number,
-          reciter_id: reciter_id,
-          timestamp: timestamp,
-          log: log
-        }
-
-        # Bulk insert when batch size is reached
-        if log_entries.size >= batch_size
-          Segments::Log.insert_all(log_entries)
-          log_entries.clear
-        end
-      end
-    end
-
-    if log_entries.any?
-      Segments::Log.insert_all(log_entries)
-    end
-
-    puts "Processed #{Dir.glob(segments_logs_path).count} log files"
-  end
-
   def seed_segments(content, reciter_id, surah_number)
     type_counts = Hash.new(0)
     data = JSON.parse(content)
@@ -836,8 +838,14 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
       if type == 'FAILURE'
         type_counts['FAILURE'] += 1
         mistake_positions = (mistake["positions"] || []).map do |pos|
+          ayah_number ||= pos['ayahNumber']
+          word_number ||= pos['wordIndex'] + 1
           "#{surah_number}:#{pos['ayahNumber']}:#{pos['wordIndex'] + 1}"
         end.join(',')
+
+        if word_key.blank?
+          word_key = (ayah_number && word_number) ? "#{surah_number}:#{ayah_number}:#{word_number}" : ""
+        end
 
         Segments::Failure.insert_all(
           [{
@@ -858,6 +866,8 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
       end
 
       if ayah_number && word_number && entry["startTime"] && entry["endTime"]
+        word_number = translate_word(surah_number, ayah_number, word_number)
+
         Segments::Position.insert_all(
           [{
              surah_number: surah_number,
@@ -891,7 +901,7 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     reciter_id = filename[0..3].to_i
     surah_number = filename[4..7].to_i
 
-    [reciter_id, surah_number]
+    [reciter_id, surah_number].map(&:to_i)
   end
 
   def seed_recitations
@@ -989,7 +999,9 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     return @recitations if @recitations.present?
 
     recitation_ids = []
-    Dir.glob(segments_logs_path) do |file_path|
+    files = filter_log_files(segments_logs_path, reciter: @reciter, surah_range: @surah)
+
+    files.each do |file_path|
       session_id = file_path[%r{vs_logs/([^/]+)/}, 1]
       reciter_id = session_id[0..3].to_i
       recitation_ids << reciter_id
@@ -1024,40 +1036,158 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     fixed_words
   end
 
-  def fix_segment_for_missing_words(segments, ayah_words)
-    #TODO: use detect_merged_word_numbers to fix merged words timing
-    # http://localhost:3000/segments/timeline?ayah=31&reciter=2&surah=41
-    # received: رَحِيمْرَحِيمْ
-    # expected: رَّحِيمٍ
-    #
-    # We should be able to auto fix missing word, time between two words
-    # http://localhost:3000/segments/timeline?ayah=19&reciter=2&surah=41
-    missed_segments = []
+  def fix_segment_for_missing_words(ayah_segments, ayah_words, verse)
+    missed = find_missing_segment_indexes(ayah_segments, ayah_words)
+    missed_segments = missed[:missing]
 
-    ayah_words.each_with_index do |word, index|
-      if segments[index].blank?
-        missed_segments << index
+    missed_segments.each do |missed_word_number|
+      if missed_word_number == 1
+        if ayah_words.size == 1 && ayah_segments.size == 1
+          ayah_segments[0][0] = 1
+        else
+          next_segment = ayah_segments[0]
+          word_number, start_time, end_time = next_segment
+          total_duration = end_time - start_time
+
+          duration1, duration2 = divide_segment_time(
+            total_duration,
+            ayah_words[0],
+            ayah_words[1]
+          )
+
+          ayah_segments[0] = next_segment
+          new_segment = [
+            missed_word_number,
+            start_time,
+            start_time + duration1
+          ]
+
+          ayah_segments.insert(0, new_segment)
+          ayah_segments[1][1] = start_time + duration1
+        end
+      else
+        previous_segment = ayah_segments.reverse.detect do |a|
+          a[0] == missed_word_number - 1
+        end
+
+        previous_word_index = ayah_segments.index(previous_segment)
+
+        word_number, start_time, end_time = previous_segment
+        total_duration = end_time - start_time
+
+        duration1, duration2 = divide_segment_time(
+          total_duration,
+          ayah_words[missed_word_number - 1],
+          ayah_words[missed_word_number]
+        )
+        next unless duration1 && duration2
+
+        # update previous segment’s end time
+        previous_segment[2] = start_time + duration1
+        ayah_segments[missed_word_number - 1] = previous_segment
+
+        # insert new segment *after* previous one
+        new_segment = [
+          word_number + 1, # next word number
+          previous_segment[2], # starts where previous ended
+          previous_segment[2] + duration2
+        ]
+
+        # if last segment is missing we need to insert it at the end
+        if missed_word_number == ayah_segments.size + 1
+          ayah_segments << new_segment
+        else
+          ayah_segments.insert(previous_word_index, new_segment)
+        end
       end
     end
 
-    missed_segments.each do |index|
-      previous_segment = segments[index - 1]
-      word_number, start_time, end_time = previous_segment
-      total_duration = end_time - start_time
+    ayah_segments
+  end
 
-      duration1, duration2 = divide_segment_time(total_duration, ayah_words[index - 1], ayah_words[index])
-      next unless duration1 && duration2
-
-      previous_segment[2] = start_time + duration1
-      segments[index - 1] = previous_segment
-      segments[index] = [
-        word_number + 1,
-        previous_segment[2],
-        previous_segment[2] + duration2
-      ]
+  def fix_segment_for_missing_words_from_failures(ayah_segments, ayah_words, verse, reciter_id)
+    missed = find_missing_segment_indexes(ayah_segments, ayah_words)
+    missed_segments = missed[:missing]
+    if missed_segments.empty?
+      return ayah_segments
     end
 
-    segments
+    missed_segments.each do |missed_word_number|
+      failures = Segments::Failure.where(
+        reciter_id: reciter_id,
+        surah_number: verse.chapter_id,
+        ayah_number: verse.verse_number
+      )
+
+      if failures.present?
+        failures.each do |failure|
+          possible_words = detect_merged_word_numbers(verse.chapter_id, verse.verse_number, missed_word_number - 1, failure.text)
+          position = Segments::Position.where(
+            reciter_id: reciter_id,
+            surah_number: verse.chapter_id,
+            ayah_number: verse.verse_number,
+            word_number: missed_word_number - 1
+          )
+
+          if possible_words.include?(missed_word_number)
+            ayah_segments.push(
+              [
+                missed_word_number,
+                [position.first.end_time, failure.start_time].max,
+                failure.end_time
+              ]
+            )
+            failure.update_columns(corrected: true)
+          end
+        end
+      end
+    end
+
+    ayah_segments
+  end
+
+  def find_missing_segment_indexes(segments, ayah_words)
+    words = segments.map { |w, *_| w }
+    return {
+      missing: [],
+      by_run: []
+    } if words.empty?
+
+    runs = []
+    current = [words.first]
+    found = {}
+    words.each_cons(2) do |prev, nxt|
+      found[nxt] = true
+      found[prev] = true
+
+      if nxt < prev
+        runs << current
+        current = [nxt]
+      else
+        current << nxt
+      end
+    end
+    runs << current
+
+    by_run = runs.each_with_index.map do |run, idx|
+      uniq = run.uniq
+      missing = (uniq.min..uniq.max).to_a - uniq
+      { run_index: idx, start_word: uniq.min, end_word: uniq.max, missing: missing }
+    end.reject { |r| r[:missing].empty? }
+
+    all_missing = by_run.flat_map { |r| r[:missing] }.uniq.sort
+
+    # Find missing using ayah words
+    ayah_words.each_with_index do |word, index|
+      if found[index + 1].blank? && all_missing.exclude?(index + 1)
+        all_missing << index + 1
+      end
+    end
+
+    {
+      missing: all_missing.sort,
+      by_run: by_run
+    }
   end
 
   def divide_segment_time(total_duration, first_word_text, second_word_text)
@@ -1080,5 +1210,22 @@ http://localhost:3000/segments/timeline?ayah=33&reciter=2&surah=43
     end
 
     base_score + diacritic_score
+  end
+
+  def filter_log_files(logs_path, reciter:, surah_range: [], is_state_machine: false)
+    files = []
+
+    Dir.glob(logs_path).each do |file_path|
+      if is_state_machine
+        filename = File.basename(File.dirname(file_path))
+      else
+        filename = File.basename(file_path)
+      end
+
+      reciter_id, surah_number = parse_reciter_and_surah(filename)
+      files << file_path if reciter_id == reciter && (surah_range.blank? || surah_range.include?(surah_number))
+    end
+
+    files
   end
 end

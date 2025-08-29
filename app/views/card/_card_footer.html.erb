@@ -3,29 +3,30 @@
     tags = show_tags ? card.try(:get_tags) || card.try(:tags) : []
 %>
 
-<div class="tw-flex tw-items-center tw-justify-between">
-  <% if local_assigns[:show_stats] && card.respond_to?(:count) && card.count.to_i > 0 %>
-    <div class="tw-text-white tw-font-bold tw-opacity-70">
-      <%= safe_html(card.stats) if card.respond_to?(:stats) %>
-    </div>
-    <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
-      <%= card.count %>
-    </div>
-  <% elsif show_tags %>
-    <div class="tw-flex tw-flex-wrap tw-gap-2">
-      <% tags.each do |tag| %>
-        <%= render 'card/card-tag', tag: tag, tool: local_assigns[:tool] %>
-      <% end %>
+<div class="tw-flex tw-flex-col tw-justify-between tw-h-full">
+  <div class="tw-flex tw-items-center tw-justify-between">
+    <% if local_assigns[:show_stats] && card.respond_to?(:count) && card.count.to_i > 0 %>
+      <div class="tw-text-white tw-font-bold tw-opacity-70">
+        <%= safe_html(card.stats) if card.respond_to?(:stats) %>
+      </div>
+      <div class="tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-sm tw-px-3 tw-py-1 tw-border-2 tw-border-[#56B599]">
+        <%= card.count %>
+      </div>
+    <% elsif show_tags %>
+      <div class="tw-flex tw-flex-wrap tw-gap-2">
+        <% tags.each do |tag| %>
+          <%= render 'card/card-tag', tag: tag, tool: local_assigns[:tool] %>
+        <% end %>
+      </div>
+    <% end %>
+    <%= render 'card/info-tip', tip: card.info_tip if card.respond_to?(:info_tip) && card.info_tip.present? %>
+  </div>
+
+  <% if local_assigns[:show_activity_cta] %>
+    <div class="tw-mt-4">
+      <button onclick="window.location.href=this.closest('[data-card-url]').dataset.cardUrl" class="tw-w-full tw-text-center tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-py-2 tw-px-4 tw-font-semibold tw-rounded-lg tw-transition-colors tw-duration-200 tw-cursor-pointer">
+        Let's go
+      </button>
     </div>
   <% end %>
-
-  <%= render 'card/info-tip', tip: card.info_tip if card.respond_to?(:info_tip) && card.info_tip.present? %>
 </div>
-
-<% if local_assigns[:show_activity_cta] %>
-  <div class="tw-flex tw-items-center tw-justify-center tw-w-full tw-mt-8">
-    <div class="tw-text-center tw-bg-green-600 tw-text-white tw-py-2 tw-px-4 tw-w-full tw-font-semibold tw-rounded-lg">
-      <span>Let's go</span>
-    </div>
-  </div>
-<% end %>

@@ -1,15 +1,13 @@
 <%
   pattern = local_assigns[:patterns]&.sample
-  is_link = card.respond_to?(:url) && card.url.present?
-  tag_name = is_link ? :a : :div
-  href_attr = is_link ? { href: card.url } : {}
   card_type = card.respond_to?(:type) ? card.type : ''
   data_attrs = local_assigns[:data] || {}
+  url = card.respond_to?(:url) && card.url.present? ? card.url : nil
 %>
 
-<%= content_tag tag_name, class: "tw-w-full tw-inline-block", **href_attr, data: data_attrs  do %>
+<div class="tw-w-full tw-inline-block" data-card-url="<%= url %>">
   <div class="tw-relative tw-rounded-[45px] tw-h-[550px] tool-card-with-bg tw-px-8 tw-py-6 tw-relative <%= "#{card_type} pattern#{pattern}" %>">
     <div class="overlay"></div>
     <%= yield %>
   </div>
-<% end %>
+</div>

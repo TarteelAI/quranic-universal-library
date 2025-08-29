@@ -97,6 +97,9 @@ application.register("activities--fill-in-blank", FillTheBlankController);
 import AyahMasteryController from './activities/ayah_mastery_controller';
 application.register("activities--ayah-mastery", AyahMasteryController);
 
+import WordMatchController from './activities/word_match_controller';
+application.register("activities--word-match", WordMatchController);
+
 import FaqController from './faq_controller';
 application.register("faq", FaqController);
 

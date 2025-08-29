@@ -30,7 +30,7 @@ class BatchAudioSegmentParser
   end
 
   def seed_waveform_silences(reciter, surah)
-    silences = Oj.load File.read("tools/waveform-ayah-segments/silences/#{surah}_silences.json")
+    silences = Oj.load(File.read("tools/waveform-ayah-segments/silences/#{surah}_silences.json"))
     ayah_segments = Segments::AyahBoundary
                       .where(reciter_id: reciter, surah_number: surah)
                       .order('ayah_number asc')
@@ -45,29 +45,34 @@ class BatchAudioSegmentParser
         gap_end_time: nil
       }
 
-      # Find the silence gap that occurs before this ayah's start time
+      # Find all silences that end before this ayah starts
       preceding_silences = silences.select do |silence|
-        silence['end_time_ms'] <= ayah.start_time
+        silence['end_time_ms'] < ayah.start_time
       end
 
       if preceding_silences.any?
         # Get the silence that ends closest to the ayah start time
         closest_silence = preceding_silences.max_by { |silence| silence['end_time_ms'] }
 
-        # Check if this silence is reasonably close to the ayah start (within reasonable range)
-        # This prevents using silences that are too far away
-        time_gap = ayah.start_time - closest_silence['end_time_ms']
-
-        if time_gap >= 10
+        # For non-first ayahs, ensure the gap doesn't overlap with previous ayah
+        if index > 0
+          previous_ayah = ayah_segments[index - 1]
+          # Only use if silence starts after previous ayah ends
+          if closest_silence['start_time_ms'] >= previous_ayah.end_time
+            ayah_data[:gap_start_time] = closest_silence['start_time_ms']
+            ayah_data[:gap_end_time] = closest_silence['end_time_ms']
+          end
+        else
+          # For first ayah, just use the closest silence before it
           ayah_data[:gap_start_time] = closest_silence['start_time_ms']
           ayah_data[:gap_end_time] = closest_silence['end_time_ms']
         end
       end
 
-      # For the first ayah, also check if there's a silence at the very beginning
-      if index == 0
+      # Special case for first ayah - check for silence at the very beginning
+      if index == 0 && ayah_data[:gap_start_time].nil?
         initial_silence = silences.find { |silence| silence['start_time_ms'] == 0 }
-        if initial_silence
+        if initial_silence && initial_silence['end_time_ms'] < ayah.start_time
           ayah_data[:gap_start_time] = initial_silence['start_time_ms']
           ayah_data[:gap_end_time] = initial_silence['end_time_ms']
         end

@@ -19,37 +19,76 @@ export default class extends ActivityController {
   }
 
   disconnect() {
+    super.disconnect();
+    // Remove event listeners added in bindEvents
+    if (this._leftSelectBtns) {
+      this._leftSelectBtns.forEach((btn) => {
+        btn.removeEventListener('click', this._handleLeftClick);
+      });
+    }
+    if (this._rightSelectBtns) {
+      this._rightSelectBtns.forEach((btn) => {
+        btn.removeEventListener('click', this._handleRightClick);
+      });
+    }
+    if (this._rightDragItems) {
+      this._rightDragItems.forEach((item) => {
+        item.removeEventListener('dragstart', this._handleRightDragStart);
+      });
+    }
+    if (this._leftDragItems) {
+      this._leftDragItems.forEach((item) => {
+        item.removeEventListener('dragover', this._handleLeftDragOver);
+        item.removeEventListener('drop', this._handleLeftDrop);
+      });
+    }
   }
 
   bindEvents() {
-    this.leftList.querySelectorAll('.select-left').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const item = e.currentTarget.closest('[data-id]');
-        this.handleLeftSelect(item);
-      })
+    // Store references for cleanup
+    this._leftSelectBtns = Array.from(this.leftList.querySelectorAll('.select-left'));
+    this._rightSelectBtns = Array.from(this.rightList.querySelectorAll('.select-right'));
+    this._rightDragItems = Array.from(this.rightList.querySelectorAll('[data-id]'));
+    this._leftDragItems = Array.from(this.leftList.querySelectorAll('[data-id]'));
+
+    // Define handler functions as instance properties for removal
+    this._handleLeftClick = (e) => {
+      const item = e.currentTarget.closest('[data-id]');
+      this.handleLeftSelect(item);
+    };
+    this._handleRightClick = (e) => {
+      const item = e.currentTarget.closest('[data-id]');
+      this.handleRightSelect(item);
+    };
+    this._handleRightDragStart = (e) => {
+      const item = e.currentTarget;
+      e.dataTransfer.setData('text/plain', item.dataset.id);
+    };
+    this._handleLeftDragOver = (e) => {
+      e.preventDefault();
+    };
+    this._handleLeftDrop = (e) => {
+      e.preventDefault();
+      const item = e.currentTarget;
+      const rightId = e.dataTransfer.getData('text/plain');
+      this.checkPair(item, this.rightList.querySelector(`[data-id='${rightId}']`));
+    };
+
+    this._leftSelectBtns.forEach(btn => {
+      btn.addEventListener('click', this._handleLeftClick);
     });
 
-    this.rightList.querySelectorAll('.select-right').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const item = e.currentTarget.closest('[data-id]');
-        this.handleRightSelect(item);
-      })
+    this._rightSelectBtns.forEach(btn => {
+      btn.addEventListener('click', this._handleRightClick);
     });
 
-    // Drag and drop support
-    this.rightList.querySelectorAll('[data-id]').forEach(item => {
-      item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', item.dataset.id);
-      })
+    this._rightDragItems.forEach(item => {
+      item.addEventListener('dragstart', this._handleRightDragStart);
     });
 
-    this.leftList.querySelectorAll('[data-id]').forEach(item => {
-      item.addEventListener('dragover', (e) => e.preventDefault());
-      item.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const rightId = e.dataTransfer.getData('text/plain');
-        this.checkPair(item, this.rightList.querySelector(`[data-id='${rightId}']`));
-      })
+    this._leftDragItems.forEach(item => {
+      item.addEventListener('dragover', this._handleLeftDragOver);
+      item.addEventListener('drop', this._handleLeftDrop);
     });
   }
 

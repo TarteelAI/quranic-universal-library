@@ -28,6 +28,7 @@
         ayah_positions = data[:ayah_positions]
         word_positions = data[:word_positions]
         failures = data[:failures]
+        ayah_boundaries = data[:ayah_boundaries]
       %>
 
       <h2 class="tw-text-xl tw-font-bold tw-mb-4">
@@ -38,15 +39,18 @@
         <% ayahs.each do |ayah| %>
           <%
             ayah_position = ayah_positions[ayah.verse_number]
+            ayah_boundary = ayah_boundaries[ayah.verse_number]
 
-            if ayah_position.nil?
+            if ayah_boundary.nil?
               if ayah.verse_number == 1
                 ayah_start_time = 0
                 ayah_end_time = ayah_positions[ayah.verse_number + 1]&.first&.start_time
               end
             else
-              ayah_start_time = ayah_position.first.start_time
-              ayah_end_time = ayah_position.last.end_time
+              ayah_start_time = ayah_boundary.start_time
+              ayah_end_time = ayah_boundary.end_time
+              gap_start_time = ayah_boundary.gap_start_time
+              gap_end_time = ayah_boundary.gap_end_time
             end
           %>
 
@@ -57,6 +61,7 @@
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
                 (<%= ayah_start_time %> - <%= ayah_end_time %>)
+                (<%= [[ayah_start_time.to_i, gap_end_time + 100].min, gap_start_time, gap_end_time].join(' - ') %>)
                 <% if ayah_position.nil? %>
                  <span class="tw-text-red-500">estimated</span>
                 <% end %>
@@ -67,6 +72,12 @@
                 data-end="<%= ayah_end_time.to_i %>"
                 class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
               > Play
+              </button>
+              <button
+                data-start="<%= [ayah_start_time.to_i, gap_end_time].min  %>"
+                data-end="<%= ayah_end_time.to_i %>"
+                class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
+              > Play Gap
               </button>
               <%= link_to 'logs', segments_logs_path(reciter: reciter.id, surah: @presenter.selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
               <%= link_to 'Segment', "/surah_audio_files/#{reciter.id}/segment_builder?chapter_id=#{@presenter.selected_surah}&verse=#{ayah.verse_number}", class: 'tw-bg-green-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-green-500 hover:tw-text-white', target: '_blank' %>

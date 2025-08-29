@@ -29,6 +29,7 @@ module Segments
 
         ayah_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).group_by(&:ayah_number)
         word_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).index_by(&:word_key)
+        ayah_boundaries = ::Segments::AyahBoundary.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).index_by(&:ayah_number)
         ayahs = Verse.where(chapter_id: selected_surah).order(:verse_number)
 
         {
@@ -36,7 +37,8 @@ module Segments
           failures: failures,
           ayah_positions: ayah_positions,
           word_positions: word_positions,
-          ayahs: ayahs
+          ayahs: ayahs,
+          ayah_boundaries: ayah_boundaries
         }
       end
     end

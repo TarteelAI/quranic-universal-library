@@ -135,7 +135,7 @@ class Verse < QuranApiRecord
       '50:1',
       '68:1'
   ].include?(verse_key)
-  end 
+  end
 
   def to_s
     verse_key

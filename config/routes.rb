@@ -27,6 +27,15 @@ Rails.application.routes.draw do
       end
 
       get '/verses/select2', to: 'verses#select2'
+      
+      # Advanced search endpoints
+      namespace :search do
+        get '/', to: 'search#general_search', as: :general
+        get '/morphology', to: 'search#morphology_search', as: :morphology
+        get '/semantic', to: 'search#semantic_search', as: :semantic
+        get '/script', to: 'search#script_search', as: :script
+        get '/autocomplete', to: 'search#autocomplete', as: :autocomplete
+      end
     end
   end
 

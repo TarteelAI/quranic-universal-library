@@ -45,6 +45,22 @@
 class Translation < QuranApiRecord
   include StripWhitespaces
   include Resourceable
+  include Searchable
+
+  # Searchkick configuration for translation search
+  searchkick callbacks: :async,
+             index_name: -> { "quran_translations_#{Rails.env}" },
+             text_start: [:text],
+             settings: {
+               analysis: {
+                 analyzer: {
+                   multilingual_analyzer: {
+                     tokenizer: 'standard',
+                     filter: ['lowercase', 'stop']
+                   }
+                 }
+               }
+             }
 
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
 
@@ -105,5 +121,56 @@ class Translation < QuranApiRecord
 
   def attributes_to_strip
     [:language_name, :text, :verse_key]
+  end
+
+  # Elasticsearch search data configuration
+  def search_data
+    {
+      id: id,
+      verse_id: verse_id,
+      verse_key: verse_key,
+      chapter_id: chapter_id,
+      verse_number: verse_number,
+      text: text,
+      language_id: language_id,
+      language_name: language&.name,
+      resource_content_id: resource_content_id,
+      resource_name: resource_name,
+      priority: priority,
+      juz_number: juz_number,
+      hizb_number: hizb_number,
+      ruku_number: ruku_number,
+      manzil_number: manzil_number,
+      footnotes_count: footnotes_count,
+      verse_data: {
+        text_uthmani: verse&.text_uthmani,
+        text_qpc_hafs: verse&.text_qpc_hafs
+      }
+    }
+  end
+
+  # Search field configuration
+  def self.search_fields
+    [
+      'text^10',
+      'verse_data.text_uthmani^5',
+      'verse_data.text_qpc_hafs^5',
+      'resource_name^2'
+    ]
+  end
+
+  def self.highlight_fields
+    {
+      text: { fragment_size: 200 },
+      'verse_data.text_uthmani' => {},
+      'verse_data.text_qpc_hafs' => {}
+    }
+  end
+
+  def self.boost_fields
+    {
+      priority: :log,
+      footnotes_count: { factor: 0.1 }
+    }
   end
 end

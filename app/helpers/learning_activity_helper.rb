@@ -16,12 +16,19 @@ module LearningActivityHelper
         icon: 'list.svg',
         url: learning_activity_path('ayah_mastery'),
         tags: ['Quran Learning', 'Hafiz Training', 'Ayah Guessing']
+      ),
+      ToolCard.new(
+        title: 'Word Match',
+        description: 'Match Arabic words with their correct English/Urdu translations by dragging or tapping.',
+        icon: 'list.svg',
+        url: learning_activity_path('word_match'),
+        tags: ['Vocabulary', 'Word Matching']
       )
     ]
   end
 
   def valid_activity?(name)
-    ['complete_the_ayah', 'ayah_mastery'].include?(name)
+    ['complete_the_ayah', 'ayah_mastery', 'word_match'].include?(name)
   end
 
   def generate_ayah_mastery_quiz
@@ -40,6 +47,37 @@ module LearningActivityHelper
       verse: verse,
       text: verse.text_qpc_hafs.gsub(REGEXP_STRIP_AYAH_NUMBERS, ''),
       options: options.shuffle
+    }
+  end
+
+  # Build data for Word Match activity: a list of arabic words and their translations
+  # Prefer English; if not available, fallback to Urdu
+  def generate_word_match_quiz
+    # Fetch random verses with moderate length to avoid very small stopwords-only sets
+    verses = Verse.where('words_count BETWEEN 4 AND 12').order('RANDOM()').limit(5)
+    words = Word.where(verse_id: verses.map(&:id), char_type_id: 1).includes(:en_translation, :ur_translation).sample(5)
+
+    # Fallback in case previous query is sparse
+    if words.size < 5
+      words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+    end
+
+    pairs = words.map do |w|
+      translation = w.en_translation&.text.presence || w.ur_translation&.text.presence || w.word_translation&.text.presence || ''
+      {
+        id: w.id,
+        arabic: w.text_qpc_hafs,
+        translation: translation
+      }
+    end
+
+    # Ensure we only include pairs with a translation
+    pairs = pairs.select { |p| p[:translation].present? }
+
+    {
+      pairs: pairs,
+      left_words: pairs.map { |p| { id: p[:id], text: p[:arabic] } },
+      right_translations: pairs.map { |p| { id: p[:id], text: p[:translation] } }.shuffle
     }
   end
 

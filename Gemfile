@@ -166,3 +166,7 @@ gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
 gem "view_component", "~> 3.21"
+
+# Advanced Search System
+gem 'elasticsearch-rails', '~> 7.0'
+gem 'elasticsearch-model', '~> 7.0'

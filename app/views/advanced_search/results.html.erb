@@ -1,0 +1,147 @@
+<turbo-frame id="search_results">
+  <div class="search-results-container">
+    
+    <% if @search_result %>
+      
+      <!-- Search Summary -->
+      <div class="search-summary bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-lg font-semibold text-blue-900">
+              Search Results for "<%= @search_result[:query] %>"
+            </h3>
+            <p class="text-blue-700 mt-1">
+              <span class="font-medium"><%= @search_result[:total_count] %></span> results found
+              <span class="text-sm">(<%= @search_result[:type].humanize %> search)</span>
+            </p>
+          </div>
+          
+          <% if @search_result[:breakdown] %>
+            <div class="text-right text-sm text-blue-600">
+              <div>Breakdown:</div>
+              <% @search_result[:breakdown].each do |type, count| %>
+                <div><%= type.humanize %>: <%= count %></div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Error Display -->
+      <% if @search_result[:error] %>
+        <div class="error-message bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-red-800 font-medium">Search Error:</span>
+            <span class="text-red-700 ml-2"><%= @search_result[:error] %></span>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Verses Results -->
+      <% if @search_result[:verses]&.any? %>
+        <div class="verses-results mb-8">
+          <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Verses (<%= @search_result[:verses].size %>)
+          </h4>
+          
+          <div class="space-y-4">
+            <% @search_result[:verses].each do |verse| %>
+              <div class="verse-item bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                
+                <!-- Verse Header -->
+                <div class="verse-header flex justify-between items-center mb-3">
+                  <h5 class="text-lg font-medium text-gray-900">
+                    <%= link_to verse.verse_key, verse_path(verse.verse_key), 
+                               class: "text-blue-600 hover:text-blue-800", target: "_blank" %>
+                  </h5>
+                  <span class="text-sm text-gray-500">
+                    Chapter <%= verse.chapter_id %>, Verse <%= verse.verse_number %>
+                  </span>
+                </div>
+
+                <!-- Arabic Text -->
+                <div class="arabic-text mb-4">
+                  <div class="text-xl leading-relaxed text-right font-arabic" dir="rtl">
+                    <%= highlight_search_terms(verse.text_qpc_hafs, @search_result[:query]) %>
+                  </div>
+                </div>
+
+                <!-- Translations -->
+                <% if verse.translations&.any? %>
+                  <div class="translations">
+                    <h6 class="text-sm font-medium text-gray-700 mb-2">Translations:</h6>
+                    <% verse.translations.limit(2).each do |translation| %>
+                      <div class="translation-item mb-2 pl-4 border-l-2 border-gray-200">
+                        <p class="text-gray-800">
+                          <%= highlight_search_terms(translation.text, @search_result[:query]) %>
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                          <%= translation.language_name %> - <%= translation.resource_name %>
+                        </p>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Morphology Results -->
+      <% if @search_result[:morphology_words]&.any? %>
+        <div class="morphology-results mb-8">
+          <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+            </svg>
+            Morphology Words (<%= @search_result[:morphology_words].size %>)
+          </h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <% @search_result[:morphology_words].each do |morph_word| %>
+              <div class="morphology-item bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <span class="font-arabic text-lg"><%= morph_word.word.text_qpc_hafs %></span>
+                  <span class="text-sm text-gray-500"><%= morph_word.location %></span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2"><%= morph_word.description %></p>
+                <% if morph_word.grammar_concepts.any? %>
+                  <div class="flex flex-wrap gap-1">
+                    <% morph_word.grammar_concepts.each do |concept| %>
+                      <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                        <%= concept.name %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- No Results -->
+      <% if @search_result[:total_count] == 0 && !@search_result[:error] %>
+        <div class="no-results text-center py-12">
+          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <h3 class="text-xl font-medium text-gray-900 mb-2">No results found</h3>
+          <p class="text-gray-600">
+            Try adjusting your search query or using different search types.
+          </p>
+        </div>
+      <% end %>
+
+    <% end %>
+    
+  </div>
+</turbo-frame>

@@ -119,4 +119,82 @@ module ApplicationHelper
   def safe_html(html)
     html.to_s.html_safe
   end
+
+  # Highlight search terms in text
+  def highlight_search_terms(text, query)
+    return text if query.blank? || text.blank?
+    
+    # Split query into individual terms
+    terms = query.strip.split(/\s+/)
+    highlighted_text = text
+    
+    terms.each do |term|
+      next if term.length < 2
+      
+      # Use case-insensitive highlighting
+      highlighted_text = highlighted_text.gsub(
+        /#{Regexp.escape(term)}/i,
+        '<mark class="bg-yellow-200 px-1 rounded">\0</mark>'
+      )
+    end
+    
+    highlighted_text.html_safe
+  end
+
+  # Format verse reference for display
+  def format_verse_reference(verse)
+    "#{verse.chapter.name_simple} #{verse.verse_number} (#{verse.verse_key})"
+  end
+
+  # Get chapter name by ID
+  def chapter_name(chapter_id)
+    @chapters_cache ||= Chapter.pluck(:id, :name_simple).to_h
+    @chapters_cache[chapter_id] || "Chapter #{chapter_id}"
+  end
+
+  # Format search type for display
+  def format_search_type(type)
+    case type.to_s
+    when 'combined'
+      'Combined Search'
+    when 'text'
+      'Text Search'
+    when 'morphology'
+      'Morphology Search'
+    when 'semantic'
+      'Semantic Search'
+    when 'root'
+      'Root Search'
+    when 'lemma'
+      'Lemma Search'
+    when 'stem'
+      'Stem Search'
+    when 'pattern'
+      'Pattern Search'
+    when 'script_specific'
+      'Script-Specific Search'
+    else
+      type.to_s.humanize
+    end
+  end
+
+  # Format Arabic script name for display
+  def format_script_name(script)
+    case script.to_s
+    when 'qpc_hafs'
+      'QPC Hafs'
+    when 'uthmani'
+      'Uthmani'
+    when 'imlaei'
+      'Imlaei'
+    when 'indopak'
+      'Indo-Pak'
+    when 'qpc_nastaleeq'
+      'QPC Nastaleeq'
+    when 'uthmani_simple'
+      'Uthmani Simple'
+    else
+      script.to_s.humanize
+    end
+  end
 end

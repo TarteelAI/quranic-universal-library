@@ -26,6 +26,14 @@ Rails.application.routes.draw do
         get 'ayah_segments/:recitation_id', to: 'segments#ayah_segments'
       end
 
+      # Advanced Search API
+      namespace :search do
+        post 'advanced', to: 'search#advanced_search'
+        get 'morphology_categories', to: 'search#morphology_categories'
+        get 'arabic_scripts', to: 'search#arabic_scripts'
+        get 'suggestions', to: 'search#suggestions'
+      end
+
       get '/verses/select2', to: 'verses#select2'
     end
   end
@@ -38,6 +46,10 @@ Rails.application.routes.draw do
   get 'credits', to: 'community#credits', as: :credits
   get 'faq', to: 'community#faq', as: :faq
   get '/compare_ayah', to: 'verses#compare', as: :compare_ayah
+  
+  # Advanced Search Routes
+  get 'advanced_search', to: 'advanced_search#index', as: :advanced_search
+  get 'search', to: 'advanced_search#search', as: :search
   
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"

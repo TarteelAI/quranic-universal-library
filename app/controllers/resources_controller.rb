@@ -3,6 +3,7 @@ class ResourcesController < CommunityController
   before_action :authenticate_user!, only: [:download]
   before_action :set_resource, only: [:detail]
   before_action :init_presenter
+
   def index
     #@resources = DownloadableResource
     #                 .published
@@ -21,9 +22,9 @@ class ResourcesController < CommunityController
 
   def detail
     @resource = DownloadableResource
-                   .published
-                   .includes(:downloadable_resource_tags, :related_resources)
-                   .find(params[:id])
+                  .published
+                  .includes(:downloadable_resource_tags, :related_resources)
+                  .find(params[:id])
   end
 
   def related_resources
@@ -77,24 +78,21 @@ class ResourcesController < CommunityController
   end
 
   def init_presenter
-    @presenter =
-      case
-      when mushaf_layout_context?
-        MushafLayoutResourcesPresenter.new(params, @resource)
-      when translation_context?
-        TranslationResourcePresenter.new(params, @resource)
-      else
-        ResourcesPresenter.new(params, @resource)
-      end
-  end
+    presenter_mapper = {
+      mushaf_layout: MushafLayoutResourcesPresenter,
+      translation: TranslationResourcePresenter,
+      transliteration: TranslationResourcePresenter,
+      tafsir: TafsirResourcePresenter
+    }
 
-  def mushaf_layout_context?
-    (@resource&.resource_type == 'mushaf_layout') ||
-      (params[:id] == 'mushaf-layout')
-  end
+    if action_name == 'show'
+      resource_key = params[:id]
+    elsif action_name == 'detail'
+      resource_key = params[:type]
+    end
+    resource_key =resource_key.to_s.tr('-', '_').to_sym
+    presenter_class = presenter_mapper[resource_key] || ResourcePresenter
 
-  def translation_context?
-    (@resource&.resource_type == 'translation') ||
-      (params[:id] == 'translation' && action_name == 'show')
+    @presenter = presenter_class.new(self)
   end
 end

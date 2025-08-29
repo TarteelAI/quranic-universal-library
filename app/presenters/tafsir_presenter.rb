@@ -1,13 +1,4 @@
-class TranslationProofreadingsPresenter < BasePresenter
-  attr_reader :resource, :translation, :action_name
-
-  def initialize(view_context, resource: nil, action_name:, translation: nil)
-    super(view_context)
-    @resource = resource
-    @action_name = action_name
-    @translation = translation
-  end
-
+class TafsirPresenter < ResourcesPresenter
   def page_title
     case action_name
     when 'index'
@@ -37,7 +28,7 @@ class TranslationProofreadingsPresenter < BasePresenter
     when 'index'
       "Collaborate to improve Quran translations. Spot and fix typos, clarity issues, or OCR errors in translated ayahs across multiple languages."
     when 'show'
-      clean_translation_text || default_description
+       default_description
     when 'edit'
       "Edit translation for Ayah #{verse_key} in #{resource_name}. Submit suggestions for improvements."
     else
@@ -62,16 +53,6 @@ class TranslationProofreadingsPresenter < BasePresenter
 
   def resource_name
     @resource&.name || "Translation"
-  end
-
-  def clean_translation_text
-    return unless @translation&.text
-
-    text = ActionController::Base.helpers.strip_tags(@translation.text)
-    text.gsub!(/\s+/, ' ')
-    text.gsub!(/[\n\r\t]/, ' ')
-    text.strip!
-    text.truncate(300)
   end
 
   def default_description

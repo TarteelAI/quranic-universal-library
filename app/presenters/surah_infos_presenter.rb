@@ -1,6 +1,6 @@
 class SurahInfosPresenter < BasePresenter
   def meta_title
-    "Surah Information - Quran Chapter Insights"
+    "Surah Information tool"
   end
 
   def meta_description

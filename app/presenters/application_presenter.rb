@@ -5,7 +5,8 @@ class ApplicationPresenter
   attr_reader :params,
               :pagination,
               :lookahead,
-              :context
+              :context,
+              :resource
 
   def initialize(context)
     @context = context
@@ -13,23 +14,32 @@ class ApplicationPresenter
     @lookahead = Api::ParamLookahead.new(params)
   end
 
+  def action_name
+    context.action_name
+  end
+
+  def index?
+    action_name == 'index'
+  end
+
+  def show?
+    action_name == 'show'
+  end
+
+  def set_resource(resource)
+    @resource = resource
+  end
+
+  def page_number
+    params[:page] || '1'
+  end
+
   def meta_tags
     {
       title: meta_title,
       description: meta_description,
       keywords: meta_keywords,
-      og: {
-        site_name: 'Quranic Universal Library',
-        type: 'website',
-        title: og_title,
-        description: og_description,
-        image: og_image
-      },
-      twitter: {
-        title: twitter_title,
-        description: twitter_description,
-        image: twitter_image
-      }
+      image: og_image
     }
   end
 
@@ -45,28 +55,8 @@ class ApplicationPresenter
     'quran, islamic tools, muslim developers, quran api, quranic library'
   end
 
-  def og_title
-    meta_title
-  end
-
-  def og_description
-    meta_description
-  end
-
   def og_image
     'https://static-cdn.tarteel.ai/qul/og.jpeg'
-  end
-
-  def twitter_title
-    meta_title
-  end
-
-  def twitter_description
-    meta_description
-  end
-
-  def twitter_image
-    og_image
   end
 
   protected

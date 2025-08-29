@@ -4,6 +4,7 @@ class TranslationProofreadingsController < CommunityController
   before_action :authorize_access!, only: %i[edit update]
   # before_action :init_presenter
   def show
+    #TODO: use presenter to load the translation
     @translation = Translation
                      .includes(:verse, :foot_notes)
                      .where(resource_content_id: @resource.id)
@@ -12,7 +13,6 @@ class TranslationProofreadingsController < CommunityController
     if @translation.blank?
       return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
     end
-    init_presenter
   end
 
   def edit
@@ -24,7 +24,6 @@ class TranslationProofreadingsController < CommunityController
     if @translation.blank?
       return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Translation not found"
     end
-    init_presenter
     @draft_translation = @translation.build_draft
   end
 
@@ -39,8 +38,6 @@ class TranslationProofreadingsController < CommunityController
     else
       render action: :edit, alert: @translation.errors.full_messages
     end
-
-    init_presenter
   end
 
   def index
@@ -64,7 +61,7 @@ class TranslationProofreadingsController < CommunityController
             else
               'asc'
             end
-    init_presenter
+
     @pagy, @translations = pagy(translations.order("verses.verse_index #{order}"))
   end
 
@@ -87,6 +84,7 @@ class TranslationProofreadingsController < CommunityController
 
     params[:resource_id] ||= 131
     @resource = ResourceContent.find(params[:resource_id])
+    @presenter.set_resource(@resource)
   end
 
   def load_resource_access
@@ -94,11 +92,6 @@ class TranslationProofreadingsController < CommunityController
   end
 
   def init_presenter
-    @presenter = TranslationProofreadingsPresenter.new(
-      self,
-      resource: @resource,
-      action_name: action_name,
-      translation: @translation
-    )
+    @presenter = TranslationPresenter.new(self)
   end
 end

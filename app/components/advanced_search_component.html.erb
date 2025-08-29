@@ -2,7 +2,7 @@
   <div class="search-form bg-white rounded-lg shadow-lg p-6">
     <h2 class="text-2xl font-bold mb-6 text-gray-800">Advanced Quran Search</h2>
     
-    <%= form_with url: advanced_search_path, method: :get, local: true, 
+    <%= form_with url: search_path, method: :get, local: true, 
                   class: "space-y-6", data: { turbo_frame: "search_results" } do |form| %>
       
       <!-- Main Search Query -->

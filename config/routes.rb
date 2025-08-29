@@ -27,11 +27,13 @@ Rails.application.routes.draw do
       end
 
       # Advanced Search API
-      namespace :search do
-        post 'advanced', to: 'search#advanced_search'
-        get 'morphology_categories', to: 'search#morphology_categories'
-        get 'arabic_scripts', to: 'search#arabic_scripts'
-        get 'suggestions', to: 'search#suggestions'
+      resources :search, only: [] do
+        collection do
+          post :advanced
+          get :morphology_categories
+          get :arabic_scripts
+          get :suggestions
+        end
       end
 
       get '/verses/select2', to: 'verses#select2'

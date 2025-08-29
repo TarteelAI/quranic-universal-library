@@ -1,8 +1,8 @@
 class Api::V1::SearchController < Api::V1::ApiController
-  before_action :validate_search_params, only: [:advanced_search]
+  before_action :validate_search_params, only: [:advanced]
 
   # POST /api/v1/search/advanced
-  def advanced_search
+  def advanced
     search_service = Search::AdvancedSearchService.new(search_params[:query], search_options)
     result = search_service.search
 

@@ -1,0 +1,75 @@
+<% content_for :title, "Advanced Quran Search" %>
+
+<div class="advanced-search-page">
+  <div class="container mx-auto px-4 py-8">
+    
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">Advanced Quran Search</h1>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        Search the Quran using advanced filters including morphology, semantics, roots, lemmas, and more.
+        Explore the rich linguistic structure of the Quranic text.
+      </p>
+    </div>
+
+    <!-- Search Interface -->
+    <%= render AdvancedSearchComponent.new(search_params: params) %>
+
+    <!-- Search Help Section -->
+    <div class="mt-12 bg-gray-50 rounded-lg p-6">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Search Types Guide</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <div class="search-help-item">
+          <h4 class="font-medium text-gray-800 mb-2">🔍 Text Search</h4>
+          <p class="text-sm text-gray-600">
+            Search for exact words or phrases in Arabic text and translations.
+            Example: "الله" or "mercy"
+          </p>
+        </div>
+
+        <div class="search-help-item">
+          <h4 class="font-medium text-gray-800 mb-2">📝 Morphology Search</h4>
+          <p class="text-sm text-gray-600">
+            Find verses by grammatical categories like nouns, verbs, particles.
+            Example: "noun" to find all noun occurrences
+          </p>
+        </div>
+
+        <div class="search-help-item">
+          <h4 class="font-medium text-gray-800 mb-2">🌳 Root Search</h4>
+          <p class="text-sm text-gray-600">
+            Search by Arabic root words (three-letter combinations).
+            Example: "كتب" to find all words derived from this root
+          </p>
+        </div>
+
+        <div class="search-help-item">
+          <h4 class="font-medium text-gray-800 mb-2">🎯 Semantic Search</h4>
+          <p class="text-sm text-gray-600">
+            Find verses by meaning rather than exact words.
+            Example: "mercy" finds verses about forgiveness
+          </p>
+        </div>
+
+        <div class="search-help-item">
+          <h4 class="font-medium text-gray-800 mb-2">🔧 Pattern Search</h4>
+          <p class="text-sm text-gray-600">
+            Use regular expressions for complex patterns.
+            Example: ".*الله.*" for verses containing Allah
+          </p>
+        </div>
+
+        <div class="search-help-item">
+          <h4 class="font-medium text-gray-800 mb-2">📜 Script-Specific</h4>
+          <p class="text-sm text-gray-600">
+            Search in different Arabic script styles (Hafs, Uthmani, etc.).
+            Useful for specific text variants
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

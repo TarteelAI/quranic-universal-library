@@ -1,9 +1,10 @@
 class TranslationResourcePresenter < ResourcePresenter
   def meta_title
     if action_name == 'detail'
-      "#{resource.name} translation for Surah #{load_surah.name_simple} — Ayah #{verse_number}"
+      ayah = load_ayah(fallback_key: '73:4').id
+      "#{resource.name} translation for Surah #{ayah.chapter.name_simple} — Ayah #{ayah.verse_number}"
     else
-      "Quran Translations"
+      "Download Quran Translations"
     end
   end
 

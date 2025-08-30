@@ -70,6 +70,26 @@
             Regions.create()
           ]
         });
+
+        // Add time update listeners for both waveforms
+        wavesurfer1.on('timeupdate', (currentTime) => {
+          updateTimeDisplay('time1', currentTime);
+        });
+
+        wavesurfer2.on('timeupdate', (currentTime) => {
+          updateTimeDisplay('time2', currentTime);
+        });
+
+        // Function to update time display
+        function updateTimeDisplay(elementId, currentTime) {
+          const seconds = Math.floor(currentTime);
+          const milliseconds = Math.floor((currentTime % 1) * 1000);
+          const timeElement = document.getElementById(elementId);
+          if (timeElement) {
+            timeElement.textContent = `${seconds}s ${milliseconds}ms`;
+          }
+        }
+
 /*
         wavesurfer1.registerPlugin(
           Spectrogram.create({
@@ -127,6 +147,35 @@
                 `;
         }
 
+        // Function to load audio from URL
+        async function loadAudioFromURL(waveInstance, url, statsId) {
+          try {
+            // Show loading state
+            document.getElementById(statsId).innerHTML = '<p>Loading audio from URL...</p>';
+            
+            // Load the audio directly from URL
+            await waveInstance.load(url);
+            
+            // Extract properties from the loaded audio
+            const audioElement = waveInstance.media;
+            if (audioElement) {
+              const duration = audioElement.duration ? audioElement.duration.toFixed(2) + ' seconds' : 'Unknown';
+              const fileName = url.split('/').pop() || 'Audio from URL';
+              
+              document.getElementById(statsId).innerHTML = `
+                <h3>File Information</h3>
+                Name: ${fileName}</br>
+                Duration: ${duration}<br>
+                Source: URL<br>
+                URL: ${url}
+              `;
+            }
+          } catch (error) {
+            console.error('Error loading audio from URL:', error);
+            document.getElementById(statsId).innerHTML = `<p style="color: red;">Error loading audio: ${error.message}</p>`;
+          }
+        }
+
         const drop1 = document.getElementById('drop1')
         const drop2 = document.getElementById('drop2')
 
@@ -152,6 +201,40 @@
 
         document.getElementById('audio2').addEventListener('change', (e) => {
           loadAudio(wavesurfer2, e.target.files[0], 'stats2');
+        });
+
+        // Handle URL input changes
+        document.getElementById('url1').addEventListener('change', (e) => {
+          const url = e.target.value.trim();
+          if (url) {
+            loadAudioFromURL(wavesurfer1, url, 'stats1');
+          }
+        });
+
+        document.getElementById('url2').addEventListener('change', (e) => {
+          const url = e.target.value.trim();
+          if (url) {
+            loadAudioFromURL(wavesurfer2, url, 'stats2');
+          }
+        });
+
+        // Add Enter key support for URL inputs
+        document.getElementById('url1').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            const url = e.target.value.trim();
+            if (url) {
+              loadAudioFromURL(wavesurfer1, url, 'stats1');
+            }
+          }
+        });
+
+        document.getElementById('url2').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            const url = e.target.value.trim();
+            if (url) {
+              loadAudioFromURL(wavesurfer2, url, 'stats2');
+            }
+          }
         });
 
         const playPause = (wavesurfer, audioNumber) => {
@@ -192,6 +275,18 @@
             background-color: #6cf65c;
             border-color: #327f29;
         }
+        .time-display {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -211,7 +306,7 @@
                 <input type="file" id="audio1" accept="audio/*" class="hidden">
             </div>
             <p class="my-4 text-center text-gray-500">Or provide a URL:</p>
-            <input type="url" id="url1" placeholder="Enter audio URL"
+            <input type="url" id="url1" placeholder="Enter audio URL and press Enter"
                    class="w-full border border-gray-300 rounded-lg p-2">
             <div id="info1" class="mt-4 text-sm text-gray-700"></div>
         </div>
@@ -219,13 +314,13 @@
         <!-- Audio File 2 -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-4">Audio File 2</h2>
-            <div class="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer drop-zone"
+            <div class="border-2 border-dashed border-green-500 rounded-lg p-6 text-center cursor-pointer drop-zone"
                  id="drop2">
                 <p class="text-gray-700 mb-2">Drop file here or click to upload</p>
                 <input type="file" id="audio2" accept="audio/*" class="hidden">
             </div>
             <p class="my-4 text-center text-gray-500">Or provide a URL:</p>
-            <input type="url" id="url2" placeholder="Enter audio URL"
+            <input type="url" id="url2" placeholder="Enter audio URL and press Enter"
                    class="w-full border border-gray-300 rounded-lg p-2">
             <div id="info2" class="mt-4 text-sm text-gray-700"></div>
         </div>
@@ -247,8 +342,14 @@
     <div class="mt-10">
         <h3 class="text-xl font-semibold text-center mb-6">Waveforms</h3>
         <div class="grid grid-cols-1 gap-6">
-            <div id="waveform1" class="w-full h-32 bg-gray-200 rounded-lg"></div>
-            <div id="waveform2" class="w-full h-32 bg-gray-200 rounded-lg"></div>
+            <div class="relative">
+                <div id="waveform1" class="w-full h-32 bg-gray-200 rounded-lg"></div>
+                <div id="time1" class="time-display">0s 0ms</div>
+            </div>
+            <div class="relative">
+                <div id="waveform2" class="w-full h-32 bg-gray-200 rounded-lg"></div>
+                <div id="time2" class="time-display">0s 0ms</div>
+            </div>
         </div>
 
         <!-- Zoom Control -->

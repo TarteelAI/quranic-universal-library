@@ -70,6 +70,21 @@
 
 class Word < QuranApiRecord
   include StripWhitespaces
+  include Searchable
+
+  # Searchkick configuration for morphological search
+  searchkick callbacks: :async,
+             index_name: -> { "quran_words_#{Rails.env}" },
+             settings: {
+               analysis: {
+                 analyzer: {
+                   arabic_word_analyzer: {
+                     tokenizer: 'keyword',
+                     filter: ['lowercase', 'arabic_normalization']
+                   }
+                 }
+               }
+             }
 
   MUSHAF_TO_TEXT_ATTR_MAPPING = {
     1 => 'code_v2',
@@ -378,5 +393,73 @@ class Word < QuranApiRecord
   def update_ayah_script(script_type)
     script_text = verse.words.order('position ASC').reload.pluck(script_type).join(' ')
     verse.update(script_type => script_text)
+  end
+
+  # Elasticsearch search data configuration
+  def search_data
+    {
+      id: id,
+      verse_id: verse_id,
+      verse_key: verse_key,
+      chapter_id: chapter_id,
+      position: position,
+      text_uthmani: text_uthmani,
+      text_uthmani_simple: text_uthmani_simple,
+      text_qpc_hafs: text_qpc_hafs,
+      text_indopak: text_indopak,
+      text_imlaei: text_imlaei,
+      char_type_name: char_type_name,
+      root_name: root&.value,
+      lemma_name: lemma&.text_clean,
+      stem_name: stem&.text_clean,
+      word_translations: word_translations.includes(:language).map do |translation|
+        {
+          text: translation.text,
+          language_id: translation.language_id,
+          language_name: translation.language&.name
+        }
+      end,
+      morphology_segments: morphology_word_segments.map do |segment|
+        {
+          part_of_speech_key: segment.part_of_speech_key,
+          pos_tags: segment.pos_tags,
+          grammar_role: segment.grammar_role,
+          grammar_sub_role: segment.grammar_sub_role,
+          verb_form: segment.verb_form
+        }
+      end
+    }
+  end
+
+  # Search field configuration for morphological search
+  def self.search_fields
+    [
+      'text_uthmani^10',
+      'text_qpc_hafs^10',
+      'text_indopak^8',
+      'root_name^6',
+      'lemma_name^5',
+      'stem_name^4',
+      'word_translations.text^3'
+    ]
+  end
+
+  def self.morphology_search_fields
+    [
+      'morphology_segments.part_of_speech_key',
+      'morphology_segments.pos_tags', 
+      'morphology_segments.grammar_role',
+      'morphology_segments.verb_form',
+      'root_name',
+      'lemma_name'
+    ]
+  end
+
+  def self.highlight_fields
+    {
+      text_uthmani: {},
+      text_qpc_hafs: {},
+      'word_translations.text' => {}
+    }
   end
 end

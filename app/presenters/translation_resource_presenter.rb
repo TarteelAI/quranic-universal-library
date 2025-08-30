@@ -32,7 +32,7 @@ class TranslationResourcePresenter < ResourcePresenter
     )
 
     if translation
-      clean_for_meta_description translation.text
+      clean_meta_description translation.text
     end
   end
 end

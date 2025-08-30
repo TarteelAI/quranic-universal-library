@@ -26,8 +26,8 @@ class TafsirResourcePresenter < ResourcePresenter
   private
 
   def tafsir_text
-    text = Tafsir.for_verse(load_ayah(fallback_key: '73:4'), resource.resource_content)&.text
+    tafsir = Tafsir.for_verse(load_ayah(fallback_key: '73:4'), resource.resource_content)
 
-    text.truncate(160, separator: ' ') if text
+    clean_meta_description(tafsir.text) if tafsir
   end
 end

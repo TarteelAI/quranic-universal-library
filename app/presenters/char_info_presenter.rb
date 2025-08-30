@@ -1,4 +1,4 @@
-class CharInfoPresenter < BasePresenter
+class CharInfoPresenter < ApplicationPresenter
   def meta_title
     "Quranic Characters Info Tool"
   end

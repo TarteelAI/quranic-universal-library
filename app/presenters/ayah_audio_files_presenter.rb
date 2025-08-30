@@ -1,4 +1,4 @@
-class AyahAudioFilesPresenter < BasePresenter
+class AyahAudioFilesPresenter < ApplicationPresenter
   def meta_title
     "Ayah Audio Segments"
   end

@@ -1,4 +1,4 @@
-class MorphologyPhrasesPresenter < BasePresenter
+class MorphologyPhrasesPresenter < ApplicationPresenter
   def meta_title
     "Mutashabihat ul Quran"
   end

@@ -1,4 +1,4 @@
-class WordTextProofreadingsPresenter < BasePresenter
+class WordTextProofreadingsPresenter < ApplicationPresenter
   def meta_title
     "Quranic Script & Fonts Proofreading Tool"
   end

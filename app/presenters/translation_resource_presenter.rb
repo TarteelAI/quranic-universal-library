@@ -1,4 +1,4 @@
-class TranslationResourcePresenter < ApplicationPresenter
+class TranslationResourcePresenter < ResourcePresenter
   def meta_title
     if action_name == 'detail'
       "#{resource.name} translation for Surah #{load_surah.name_simple} — Ayah #{verse_number}"
@@ -25,9 +25,13 @@ class TranslationResourcePresenter < ApplicationPresenter
   private
 
   def translation_text
-    Translation.find_by(
+    translation = Translation.find_by(
       resource_content_id: resource.resource_content_id,
-      verse_id: load_ayah.id
-    )&.text
+      verse_id: load_ayah(fallback_key: '73:4').id
+    )
+
+    if translation
+      clean_for_meta_description translation.text
+    end
   end
 end

@@ -1,7 +1,8 @@
-class TafsirResourcePresenter < ResourcesPresenter
+class TafsirResourcePresenter < ResourcePresenter
   def meta_title
     if action_name == 'detail'
-      "#{resource.name} tafsir for Surah #{load_surah.name_simple} — Ayah #{verse_number}"
+      ayah = load_ayah(fallback_key: '73:4')
+      "#{resource.name} tafsir for Surah #{ayah.chapter.name_simple} — Ayah #{ayah.verse_number}"
     else
       super
     end
@@ -25,7 +26,7 @@ class TafsirResourcePresenter < ResourcesPresenter
   private
 
   def tafsir_text
-    text = Tafsir.for_verse(load_ayah, resource.resource_content)&.text
+    text = Tafsir.for_verse(load_ayah(fallback_key: '73:4'), resource.resource_content)&.text
 
     text.truncate(160, separator: ' ') if text
   end

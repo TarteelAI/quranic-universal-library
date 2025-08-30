@@ -1,4 +1,4 @@
-class WordTranslationsPresenter < BasePresenter
+class WordTranslationsPresenter < ApplicationPresenter
   def meta_title
     "Word by Word Translation Editor"
   end

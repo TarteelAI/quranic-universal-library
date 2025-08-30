@@ -1,4 +1,4 @@
-class TafsirProofreadingsPresenter < BasePresenter
+class TafsirProofreadingsPresenter < ApplicationPresenter
   def meta_title
     "Ayah Tafsir Proofreading"
   end

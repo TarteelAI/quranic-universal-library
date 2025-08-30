@@ -1,4 +1,4 @@
-class SurahInfosPresenter < BasePresenter
+class SurahInfosPresenter < ApplicationPresenter
   def meta_title
     "Surah Information tool"
   end

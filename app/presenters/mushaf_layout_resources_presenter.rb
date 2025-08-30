@@ -1,4 +1,4 @@
-class MushafLayoutResourcesPresenter < ApplicationPresenter
+class MushafLayoutResourcesPresenter < ResourcePresenter
   def initialize(params, resource = nil)
     super(params)
     @resource = resource

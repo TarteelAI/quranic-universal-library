@@ -1,36 +1,36 @@
-class TafsirPresenter < ResourcesPresenter
+class TafsirPresenter < ResourcePresenter
   def page_title
     case action_name
     when 'index'
-      "Ayah Translation Proofreading"
+      "Ayah tafsir proofreading"
     when 'show'
       "#{resource_name} - #{verse_key}"
     when 'edit'
       "Edit: #{verse_key} - #{resource_name}"
     else
-      "Ayah Translation Proofreading"
+      "Ayah tafsir proofreading"
     end
   end
 
   def meta_title
     case action_name
     when 'index'
-      "Translation Proofreading Tool"
+      "Tafsir proofreading Tool"
     when 'show', 'edit'
       "#{resource_name} - #{verse_key}"
     else
-      "Translation Proofreading Tool"
+      "Tafsir proofreading Tool"
     end
   end
 
   def meta_description
     case action_name
     when 'index'
-      "Collaborate to improve Quran translations. Spot and fix typos, clarity issues, or OCR errors in translated ayahs across multiple languages."
+      "Collaborate to improve Quran Tafsir. Spot and fix typos, clarity issues, or OCR errors in translated ayahs across multiple languages."
     when 'show'
-       default_description
+      default_description
     when 'edit'
-      "Edit translation for Ayah #{verse_key} in #{resource_name}. Submit suggestions for improvements."
+      "Edit Tafsir for Ayah #{verse_key} in #{resource_name}. Submit suggestions for improvements."
     else
       default_description
     end
@@ -39,9 +39,9 @@ class TafsirPresenter < ResourcesPresenter
   def meta_keywords
     case action_name
     when 'index'
-      'Quran translation, proofreading, translation improvement, OCR correction, multilingual review'
+      'Quran Tafsir, proofreading'
     else
-      "Quran translation, #{verse_key}, #{resource_name}, proofreading, translation review"
+      "Quran Tafsir, #{verse_key}, #{resource_name}, proofreading, Tafsir review"
     end
   end
 
@@ -52,7 +52,7 @@ class TafsirPresenter < ResourcesPresenter
   end
 
   def resource_name
-    @resource&.name || "Translation"
+    @resource&.name || "Tafsir"
   end
 
   def default_description

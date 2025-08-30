@@ -2,7 +2,7 @@ class TranslationProofreadingsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]
-  # before_action :init_presenter
+
   def show
     #TODO: use presenter to load the translation
     @translation = Translation

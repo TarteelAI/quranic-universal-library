@@ -1,4 +1,4 @@
-class SurahAudioFilesPresenter < BasePresenter
+class SurahAudioFilesPresenter < ApplicationPresenter
   def meta_title
     "Surah Audio Segments Editor"
   end

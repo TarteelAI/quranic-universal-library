@@ -1,4 +1,4 @@
-class TajweedWordsPresenter < BasePresenter
+class TajweedWordsPresenter < ApplicationPresenter
   def meta_title
     "Tajweed Rules Annotation Tool"
   end

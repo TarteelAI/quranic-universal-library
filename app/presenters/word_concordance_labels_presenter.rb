@@ -1,4 +1,4 @@
-class WordConcordanceLabelsPresenter < BasePresenter
+class WordConcordanceLabelsPresenter < ApplicationPresenter
   def meta_title
     "Quran Word Concordance Tool"
   end

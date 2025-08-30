@@ -1,4 +1,4 @@
-class ResourcesPresenter < ApplicationPresenter
+class ResourcePresenter < ApplicationPresenter
   include ResourcesHelper
 
   def meta_title
@@ -82,8 +82,8 @@ class ResourcesPresenter < ApplicationPresenter
     end
   end
 
-  def load_ayah
-    key = params[:ayah] || '1:1'
+  def load_ayah(fallback_key: '1:1')
+    key = params[:ayah] || fallback_key
     Verse.includes(:chapter).find_by_id_or_key(key)
   end
 

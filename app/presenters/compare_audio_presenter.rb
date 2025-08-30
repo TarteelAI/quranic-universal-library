@@ -1,4 +1,4 @@
-class CompareAudioPresenter < BasePresenter
+class CompareAudioPresenter < ApplicationPresenter
   def meta_title
     "Compare Quran Audio Recitations"
   end

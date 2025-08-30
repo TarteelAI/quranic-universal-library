@@ -1,4 +1,4 @@
-class TranslationPresenter < ResourcesPresenter
+class TranslationPresenter < ResourcePresenter
   def page_title
     case action_name
     when 'index'

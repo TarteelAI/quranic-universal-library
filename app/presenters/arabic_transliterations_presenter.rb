@@ -1,4 +1,4 @@
-class ArabicTransliterationsPresenter < BasePresenter
+class ArabicTransliterationsPresenter < ApplicationPresenter
   def meta_title
     "Quran Word Syllable Transliteration"
   end

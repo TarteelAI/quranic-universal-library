@@ -1,14 +1,9 @@
 class ResourcesController < CommunityController
   include ActiveStorage::SetCurrent
   before_action :authenticate_user!, only: [:download]
-  before_action :set_resource, only: [:detail]
   before_action :init_presenter
 
   def index
-    #@resources = DownloadableResource
-    #                 .published
-    #                 .select('DISTINCT ON (resource_type) *, COUNT(*) OVER (PARTITION BY resource_type) AS total_resources')
-
     @resources = view_context.downloadable_resource_cards.values
 
     sort_by = params[:sort_key]
@@ -25,6 +20,8 @@ class ResourcesController < CommunityController
                   .published
                   .includes(:downloadable_resource_tags, :related_resources)
                   .find(params[:id])
+
+    @presenter.set_resource(@resource)
   end
 
   def related_resources
@@ -32,6 +29,7 @@ class ResourcesController < CommunityController
                   .published
                   .includes(:downloadable_resource_tags, :related_resources)
                   .find(params[:id])
+    @presenter.set_resource(@resource)
   end
 
   def copyright
@@ -65,6 +63,7 @@ class ResourcesController < CommunityController
     if sort_by.present? && ['name'].include?(sort_by)
       @resources = @resources.order("name #{sort_order}")
     end
+    @presenter.set_resource(@resources.first)
 
     if @resources.empty?
       redirect_to resources_path, alert: 'Sorry, this resource does not exist.'

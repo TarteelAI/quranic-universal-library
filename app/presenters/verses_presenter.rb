@@ -1,4 +1,4 @@
-class VersesPresenter < BasePresenter
+class VersesPresenter < ApplicationPresenter
   def meta_title
     "Compare Ayah"
   end

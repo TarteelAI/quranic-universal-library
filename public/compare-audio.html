@@ -41,6 +41,9 @@
           });
         }
 
+        const audio1Regions = Regions.create()
+        const audio2Regions = Regions.create()
+
         // Initialize WaveSurfer instances for both audio files
         const wavesurfer1 = WaveSurfer.create({
           container: '#waveform1',
@@ -50,10 +53,10 @@
           dragToSeek: true,
           plugins: [
             Timeline.create(),
-            Regions.create(),
             Hover.create(),
             Zoom.create(),
-            Regions.create()          ]
+            audio1Regions
+               ]
         });
 
         const wavesurfer2 = WaveSurfer.create({
@@ -64,10 +67,9 @@
           dragToSeek: true,
           plugins: [
             Timeline.create(),
-            Regions.create(),
             Hover.create(),
             Zoom.create(),
-            Regions.create()
+            audio2Regions
           ]
         });
 
@@ -89,6 +91,157 @@
             timeElement.textContent = `${seconds}s ${milliseconds}ms`;
           }
         }
+
+        // Region management variables
+        let selectedRegion1 = null;
+        let selectedRegion2 = null;
+        let isPlayingRegion1 = false;
+        let isPlayingRegion2 = false;
+
+        // Function to create a region
+        function createRegion(wavesurfer, color, id, regionsPlugin) {
+          const region = regionsPlugin.addRegion({
+            start: 0,
+            end: 10,
+            color: color,
+            drag: true,
+            resize: true,
+            id: id
+          });
+
+          // Store region reference
+          if (id === 'region1') {
+            selectedRegion1 = region;
+          } else {
+            selectedRegion2 = region;
+          }
+
+          // Update region info display
+          updateRegionInfo(id, region.start, region.end);
+
+          return region;
+        }
+
+        // Function to update region info display
+        function updateRegionInfo(regionId, start, end) {
+          const infoElement = document.getElementById(`${regionId}Info`);
+          if (infoElement) {
+            const duration = (end - start).toFixed(2);
+            infoElement.innerHTML = `
+              <strong>Region:</strong> ${start.toFixed(2)}s - ${end.toFixed(2)}s (Duration: ${duration}s)
+            `;
+          }
+        }
+
+        // Function to play selected region
+        function playRegion(wavesurfer, region, regionId) {
+          if (!region) {
+            alert('Please select a region first by dragging on the waveform');
+            return;
+          }
+
+          // Stop current playback
+          wavesurfer.pause();
+          
+          // Set the region bounds
+          const start = region.start;
+          const end = region.end;
+          
+          // Seek to start of region
+          wavesurfer.setTime(start);
+          
+          // Play the region
+          wavesurfer.play();
+          
+          // Set flag
+          if (regionId === 'region1') {
+            isPlayingRegion1 = true;
+          } else {
+            isPlayingRegion2 = true;
+          }
+
+          // Stop at end of region
+          const checkEnd = () => {
+            if (wavesurfer.getCurrentTime() >= end) {
+              wavesurfer.pause();
+              if (regionId === 'region1') {
+                isPlayingRegion1 = false;
+              } else {
+                isPlayingRegion2 = false;
+              }
+            } else if (isPlayingRegion1 || isPlayingRegion2) {
+              requestAnimationFrame(checkEnd);
+            }
+          };
+          
+          requestAnimationFrame(checkEnd);
+        }
+
+        // Function to clear region
+        function clearRegion(wavesurfer, regionId) {
+          if (regionId === 'region1' && selectedRegion1) {
+            wavesurfer.plugins.regions.removeRegion(selectedRegion1);
+            selectedRegion1 = null;
+            document.getElementById('region1Info').innerHTML = '<em>No region selected</em>';
+          } else if (regionId === 'region2' && selectedRegion2) {
+            wavesurfer.plugins.regions.removeRegion(selectedRegion2);
+            selectedRegion2 = null;
+            document.getElementById('region2Info').innerHTML = '<em>No region selected</em>';
+          }
+        }
+
+        // Add region creation on double-click
+        wavesurfer1.on('dblclick', (e) => {
+          const time = wavesurfer1.getCurrentTime();
+          if (selectedRegion1) {
+            audio1Regions.removeRegion(selectedRegion1);
+          }
+          createRegion(wavesurfer1, 'rgba(255, 0, 0, 0.3)', 'region1', audio1Regions);
+          selectedRegion1.start = Math.max(0, time - 5);
+          selectedRegion1.end = Math.min(wavesurfer1.getDuration(), time + 5);
+          updateRegionInfo('region1', selectedRegion1.start, selectedRegion1.end);
+        });
+
+        wavesurfer2.on('dblclick', (e) => {
+          const time = wavesurfer2.getCurrentTime();
+          if (selectedRegion2) {
+            audio1Regions.removeRegion(selectedRegion2);
+          }
+          createRegion(wavesurfer2, 'rgba(255, 0, 0, 0.3)', 'region2', audio1Regions);
+          selectedRegion2.start = Math.max(0, time - 5);
+          selectedRegion2.end = Math.min(wavesurfer2.getDuration(), time + 5);
+          updateRegionInfo('region2', selectedRegion2.start, selectedRegion2.end);
+        });
+
+        // Add region update listeners
+        wavesurfer1.on('region-updated', (region) => {
+          if (region.id === 'region1') {
+            updateRegionInfo('region1', region.start, region.end);
+          }
+        });
+
+        wavesurfer2.on('region-updated', (region) => {
+          if (region.id === 'region2') {
+            updateRegionInfo('region2', region.start, region.end);
+          }
+        });
+
+        // Add region click listeners for selection
+        wavesurfer1.on('region-clicked', (region) => {
+          if (selectedRegion1 && selectedRegion1 !== region) {
+            selectedRegion1.color = 'rgba(255, 0, 0, 0.3)';
+          }
+          region.color = 'rgba(255, 255, 0, 0.5)';
+          selectedRegion1 = region;
+        });
+
+        wavesurfer2.on('region-clicked', (region) => {
+          if (selectedRegion2 && selectedRegion2 !== region) {
+            selectedRegion2.color = 'rgba(255, 0, 0, 0.3)';
+          }
+          region.color = 'rgba(255, 255, 0, 0.5)';
+          selectedRegion2 = region;
+        });
 
 /*
         wavesurfer1.registerPlugin(
@@ -244,6 +397,16 @@
             console.log(`Audio ${audioNumber} is not ready yet.`);
           }
         }
+
+        // Function to play selected region
+        function playSelectedRegion(audioNumber) {
+          if (audioNumber === 1) {
+            playRegion(wavesurfer1, selectedRegion1, 'region1');
+          } else {
+            playRegion(wavesurfer2, selectedRegion2, 'region2');
+          }
+        }
+
         // Play buttons for each audio file
         document.getElementById('play1').addEventListener('click', () => {
           playPause(wavesurfer1, 1);
@@ -257,6 +420,23 @@
         document.getElementById('playBoth').addEventListener('click', () => {
           playPause(wavesurfer1, 1);
             playPause(wavesurfer2, 2);
+        });
+
+        // Region control buttons
+        document.getElementById('playRegion1').addEventListener('click', () => {
+          playSelectedRegion(1);
+        });
+
+        document.getElementById('playRegion2').addEventListener('click', () => {
+          playSelectedRegion(2);
+        });
+
+        document.getElementById('clearRegion1').addEventListener('click', () => {
+          clearRegion(wavesurfer1, 'region1');
+        });
+
+        document.getElementById('clearRegion2').addEventListener('click', () => {
+          clearRegion(wavesurfer2, 'region2');
         });
       });
     </script>
@@ -331,16 +511,45 @@
         <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
             <h3 class="text-lg font-semibold mb-2">Audio File 1 Stats</h3>
             <div id="stats1" class="text-sm text-gray-700">No data loaded</div>
+            <div class="mt-3 pt-3 border-t border-gray-300">
+                <h4 class="font-medium text-gray-600 mb-2">Region Selection</h4>
+                <div id="region1Info" class="text-sm text-gray-700 mb-2"><em>No region selected</em></div>
+                <div class="flex gap-2">
+                    <button id="playRegion1" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">Play Region</button>
+                    <button id="clearRegion1" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Clear Region</button>
+                </div>
+            </div>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
             <h3 class="text-lg font-semibold mb-2">Audio File 2 Stats</h3>
             <div id="stats2" class="text-sm text-gray-700">No data loaded</div>
+            <div class="mt-3 pt-3 border-t border-gray-300">
+                <h4 class="font-medium text-gray-600 mb-2">Region Selection</h4>
+                <div id="region2Info" class="text-sm text-gray-700 mb-2"><em>No region selected</em></div>
+                <div class="flex gap-2">
+                    <button id="playRegion2" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Play Region</button>
+                    <button id="clearRegion2" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Clear Region</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Waveform Section -->
     <div class="mt-10">
         <h3 class="text-xl font-semibold text-center mb-6">Waveforms</h3>
+        
+        <!-- Region Selection Instructions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h4 class="font-semibold text-blue-800 mb-2">🎯 Region Selection Instructions:</h4>
+            <ul class="text-sm text-blue-700 space-y-1">
+                <li>• <strong>Double-click</strong> anywhere on a waveform to create a region (10-second default)</li>
+                <li>• <strong>Drag</strong> the region edges to resize</li>
+                <li>• <strong>Drag</strong> the region to move it</li>
+                <li>• <strong>Click</strong> a region to select it (highlighted in yellow)</li>
+                <li>• Use the <strong>Play Region</strong> button to play only the selected portion</li>
+            </ul>
+        </div>
+        
         <div class="grid grid-cols-1 gap-6">
             <div class="relative">
                 <div id="waveform1" class="w-full h-32 bg-gray-200 rounded-lg"></div>

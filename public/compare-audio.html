@@ -97,6 +97,10 @@
         let selectedRegion2 = null;
         let isPlayingRegion1 = false;
         let isPlayingRegion2 = false;
+        let isAnalyzing1 = false;
+        let isAnalyzing2 = false;
+        let abortController1 = null;
+        let abortController2 = null;
 
         // Function to create a region
         function createRegion(wavesurfer, color, id, regionsPlugin) {
@@ -178,13 +182,13 @@
         }
 
         // Function to clear region
-        function clearRegion(wavesurfer, regionId) {
+        function clearRegion(wavesurfer, regionId, regionsPlugin) {
           if (regionId === 'region1' && selectedRegion1) {
-            wavesurfer.plugins.regions.removeRegion(selectedRegion1);
+            //regionsPlugin.removeRegion(selectedRegion1);
             selectedRegion1 = null;
             document.getElementById('region1Info').innerHTML = '<em>No region selected</em>';
           } else if (regionId === 'region2' && selectedRegion2) {
-            wavesurfer.plugins.regions.removeRegion(selectedRegion2);
+           // regionsPlugin.removeRegion(selectedRegion2);
             selectedRegion2 = null;
             document.getElementById('region2Info').innerHTML = '<em>No region selected</em>';
           }
@@ -193,13 +197,35 @@
         // Function to detect and highlight silences
         async function detectSilences(wavesurfer, regionsPlugin, audioNumber) {
           try {
-            // Get the audio buffer data
-            const audioContext = new AudioContext();
             const audioElement = wavesurfer.media;
             
             if (!audioElement.src) {
               alert('Please load an audio file first');
               return;
+            }
+
+            // Check if already analyzing
+            if ((audioNumber === 1 && isAnalyzing1) || (audioNumber === 2 && isAnalyzing2)) {
+              alert('Analysis already in progress. Please wait or cancel the current analysis.');
+              return;
+            }
+
+            // Check file duration and warn about very long files
+            const duration = wavesurfer.getDuration();
+          
+        
+            if (duration > 1800) { // 30 minutes
+              const proceed = confirm(`⚠️ WARNING: This audio file is ${Math.round(duration / 60)} minutes long. Analysis will be very slow and may cause browser issues. Consider using a shorter file or splitting it. Continue anyway?`);
+              if (!proceed) return;
+            }
+
+            // Set analyzing state
+            if (audioNumber === 1) {
+              isAnalyzing1 = true;
+              abortController1 = new AbortController();
+            } else {
+              isAnalyzing2 = true;
+              abortController2 = new AbortController();
             }
 
             // Get sensitivity values from UI
@@ -217,6 +243,22 @@
               }
             });
 
+            // Show progress indicator with cancel button
+            const silenceInfoElement = document.getElementById(`silenceInfo${audioNumber}`);
+            silenceInfoElement.innerHTML = `
+              <div class="text-blue-600 mb-2">🔄 Analyzing audio... Please wait</div>
+              <button id="cancelAnalysis${audioNumber}" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Cancel Analysis</button>
+            `;
+
+            // Add cancel button listener
+            document.getElementById(`cancelAnalysis${audioNumber}`).addEventListener('click', () => {
+              if (audioNumber === 1 && abortController1) {
+                abortController1.abort();
+              } else if (audioNumber === 2 && abortController2) {
+                abortController2.abort();
+              }
+            });
+
             // Create a temporary audio context to analyze the file
             const tempContext = new AudioContext();
             const response = await fetch(audioElement.src);
@@ -225,95 +267,193 @@
             
             const channelData = audioBuffer.getChannelData(0); // Use first channel
             const sampleRate = audioBuffer.sampleRate;
-            const duration = audioBuffer.duration;
+            const audioDuration = audioBuffer.duration;
             
-            // Parameters for silence detection
-            const windowSize = Math.floor(sampleRate * 0.01); // 10ms window
+            // Adaptive parameters based on file length
+            let windowSize, chunkSize, samplingStep;
+            if (audioDuration > 1800) { // Very long files (>30 min)
+              windowSize = Math.floor(sampleRate * 0.1); // 100ms window
+              chunkSize = Math.floor(sampleRate * 30); // 30 seconds at a time
+              samplingStep = Math.max(1, Math.floor(windowSize / 50)); // Sample every 50th sample
+            } else if (audioDuration > 600) { // Long files (>10 min)
+              windowSize = Math.floor(sampleRate * 0.05); // 50ms window
+              chunkSize = Math.floor(sampleRate * 15); // 15 seconds at a time
+              samplingStep = Math.max(1, Math.floor(windowSize / 75)); // Sample every 75th sample
+            } else { // Normal files
+              windowSize = Math.floor(sampleRate * 0.05); // 50ms window
+              chunkSize = Math.floor(sampleRate * 10); // 10 seconds at a time
+              samplingStep = Math.max(1, Math.floor(windowSize / 100)); // Sample every 100th sample
+            }
+            
+            const totalChunks = Math.ceil(channelData.length / chunkSize);
             
             const silences = [];
             let inSilence = false;
             let silenceStart = 0;
             
-            // Analyze audio in windows
-            for (let i = 0; i < channelData.length; i += windowSize) {
-              const windowEnd = Math.min(i + windowSize, channelData.length);
-              let maxAmplitude = 0;
+            // Process audio in chunks to avoid blocking the UI
+            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+              // Check for cancellation
+              if ((audioNumber === 1 && abortController1?.signal.aborted) || 
+                  (audioNumber === 2 && abortController2?.signal.aborted)) {
+                silenceInfoElement.innerHTML = '<div class="text-orange-600">⏹️ Analysis cancelled</div>';
+                tempContext.close();
+                return;
+              }
+
+              const chunkStart = chunkIndex * chunkSize;
+              const chunkEnd = Math.min(chunkStart + chunkSize, channelData.length);
               
-              // Find max amplitude in this window
-              for (let j = i; j < windowEnd; j++) {
-                maxAmplitude = Math.max(maxAmplitude, Math.abs(channelData[j]));
+              // Update progress every few chunks
+              if (chunkIndex % 5 === 0) {
+                const progress = Math.round((chunkIndex / totalChunks) * 100);
+                const timeElapsed = Math.round((chunkIndex / totalChunks) * audioDuration);
+                silenceInfoElement.innerHTML = `
+                  <div class="text-blue-600 mb-2">🔄 Analyzing audio... ${progress}% (${timeElapsed}s / ${Math.round(audioDuration)}s)</div>
+                  <button id="cancelAnalysis${audioNumber}" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Cancel Analysis</button>
+                `;
+                
+                // Re-add cancel button listener
+                document.getElementById(`cancelAnalysis${audioNumber}`).addEventListener('click', () => {
+                  if (audioNumber === 1 && abortController1) {
+                    abortController1.abort();
+                  } else if (audioNumber === 2 && abortController2) {
+                    abortController2.abort();
+                  }
+                });
+                
+                // Allow UI to update
+                await new Promise(resolve => setTimeout(resolve, 10));
               }
               
-              const currentTime = i / sampleRate;
-              
-              if (maxAmplitude < silenceThreshold && !inSilence) {
-                // Start of silence
-                inSilence = true;
-                silenceStart = currentTime;
-              } else if (maxAmplitude >= silenceThreshold && inSilence) {
-                // End of silence
-                const silenceEnd = currentTime;
-                const silenceDuration = silenceEnd - silenceStart;
+              // Analyze this chunk
+              for (let i = chunkStart; i < chunkEnd; i += windowSize) {
+                const windowEnd = Math.min(i + windowSize, chunkEnd);
+                let maxAmplitude = 0;
                 
-                if (silenceDuration >= minSilenceDuration) {
-                  silences.push({
-                    start: silenceStart,
-                    end: silenceEnd,
-                    duration: silenceDuration
-                  });
+                // Find max amplitude in this window (optimized sampling)
+                for (let j = i; j < windowEnd; j += samplingStep) {
+                  maxAmplitude = Math.max(maxAmplitude, Math.abs(channelData[j]));
                 }
-                inSilence = false;
+                
+                const currentTime = i / sampleRate;
+                
+                if (maxAmplitude < silenceThreshold && !inSilence) {
+                  // Start of silence
+                  inSilence = true;
+                  silenceStart = currentTime;
+                } else if (maxAmplitude >= silenceThreshold && inSilence) {
+                  // End of silence
+                  const silenceEnd = currentTime;
+                  const silenceDuration = silenceEnd - silenceStart;
+                  
+                  if (silenceDuration >= minSilenceDuration) {
+                    silences.push({
+                      start: silenceStart,
+                      end: silenceEnd,
+                      duration: silenceDuration
+                    });
+                  }
+                  inSilence = false;
+                }
               }
             }
             
             // Handle case where audio ends in silence
             if (inSilence) {
-              const silenceDuration = duration - silenceStart;
+              const silenceDuration = audioDuration - silenceStart;
               if (silenceDuration >= minSilenceDuration) {
                 silences.push({
                   start: silenceStart,
-                  end: duration,
+                  end: audioDuration,
                   duration: silenceDuration
                 });
               }
             }
             
-            // Create regions for detected silences
-            silences.forEach((silence, index) => {
-              const region = regionsPlugin.addRegion({
-                start: silence.start,
-                end: silence.end,
-                color: 'rgba(0, 0, 255, 0.3)', // Blue for silences
-                id: `silence_${audioNumber}_${index}`,
-                drag: false,
-                resize: false
+            // Limit the number of regions to prevent performance issues
+            const maxRegions = audioDuration > 1800 ? 50 : audioDuration > 600 ? 75 : 100;
+            const sortedSilences = silences.sort((a, b) => b.duration - a.duration); // Sort by duration
+            const displaySilences = sortedSilences.slice(0, maxRegions);
+            
+            // Create regions for detected silences (in batches to avoid blocking)
+            const batchSize = audioDuration > 1800 ? 5 : 10;
+            for (let i = 0; i < displaySilences.length; i += batchSize) {
+              // Check for cancellation
+              if ((audioNumber === 1 && abortController1?.signal.aborted) || 
+                  (audioNumber === 2 && abortController2?.signal.aborted)) {
+                silenceInfoElement.innerHTML = '<div class="text-orange-600">⏹️ Analysis cancelled</div>';
+                tempContext.close();
+                return;
+              }
+
+              const batch = displaySilences.slice(i, i + batchSize);
+              
+              batch.forEach((silence, batchIndex) => {
+                const globalIndex = i + batchIndex;
+                const region = regionsPlugin.addRegion({
+                  start: silence.start,
+                  end: silence.end,
+                  color: 'rgba(0, 0, 255, 0.3)', // Blue for silences
+                  id: `silence_${audioNumber}_${globalIndex}`,
+                  drag: false,
+                  resize: false
+                });
+                
+                // Add tooltip with silence info
+                region.element.title = `Silence: ${silence.duration.toFixed(2)}s (${silence.start.toFixed(2)}s - ${silence.end.toFixed(2)}s)`;
               });
               
-              // Add tooltip with silence info
-              region.element.title = `Silence: ${silence.duration.toFixed(2)}s (${silence.start.toFixed(2)}s - ${silence.end.toFixed(2)}s)`;
-            });
-            
-            // Update silence info display
-            const silenceInfoElement = document.getElementById(`silenceInfo${audioNumber}`);
-            if (silenceInfoElement) {
-              if (silences.length > 0) {
-                const totalSilence = silences.reduce((sum, s) => sum + s.duration, 0);
-                const silencePercentage = ((totalSilence / duration) * 100).toFixed(1);
-                silenceInfoElement.innerHTML = `
-                  <strong>Detected ${silences.length} silence(s):</strong><br>
-                  Total silence: ${totalSilence.toFixed(2)}s (${silencePercentage}%)<br>
-                  <small class="text-gray-600">Blue regions highlight detected silences</small>
-                `;
-              } else {
-                silenceInfoElement.innerHTML = '<em>No significant silences detected</em>';
+              // Allow UI to update between batches
+              if (i + batchSize < displaySilences.length) {
+                await new Promise(resolve => setTimeout(resolve, 10));
               }
             }
             
+            // Update silence info display
+            if (displaySilences.length > 0) {
+              const totalSilence = displaySilences.reduce((sum, s) => sum + s.duration, 0);
+              const silencePercentage = ((totalSilence / audioDuration) * 100).toFixed(1);
+              
+              let infoText = `<strong>Detected ${displaySilences.length} silence(s):</strong><br>`;
+              infoText += `Total silence: ${totalSilence.toFixed(2)}s (${silencePercentage}%)<br>`;
+              
+              if (silences.length > maxRegions) {
+                infoText += `<small class="text-orange-600">Showing top ${maxRegions} longest silences (${silences.length - maxRegions} more detected)</small><br>`;
+              }
+              
+              infoText += `<small class="text-gray-600">Blue regions highlight detected silences</small>`;
+              
+              silenceInfoElement.innerHTML = infoText;
+            } else {
+              silenceInfoElement.innerHTML = '<em>No significant silences detected</em>';
+            }
+            
+            // Clean up
             tempContext.close();
+            
+            // Reset analyzing state
+            if (audioNumber === 1) {
+              isAnalyzing1 = false;
+              abortController1 = null;
+            } else {
+              isAnalyzing2 = false;
+              abortController2 = null;
+            }
             
           } catch (error) {
             console.error('Error detecting silences:', error);
-            alert(`Error detecting silences: ${error.message}`);
+            const silenceInfoElement = document.getElementById(`silenceInfo${audioNumber}`);
+            silenceInfoElement.innerHTML = `<div class="text-red-600">❌ Error: ${error.message}</div>`;
+            
+            // Reset analyzing state on error
+            if (audioNumber === 1) {
+              isAnalyzing1 = false;
+              abortController1 = null;
+            } else {
+              isAnalyzing2 = false;
+              abortController2 = null;
+            }
           }
         }
 
@@ -321,7 +461,7 @@
         wavesurfer1.on('dblclick', (e) => {
           const time = wavesurfer1.getCurrentTime();
           if (selectedRegion1) {
-            audio1Regions.removeRegion(selectedRegion1);
+           // audio1Regions.removeRegion(selectedRegion1);
           }
           createRegion(wavesurfer1, 'rgba(255, 0, 0, 0.3)', 'region1', audio1Regions);
           selectedRegion1.start = Math.max(0, time - 5);
@@ -332,9 +472,9 @@
         wavesurfer2.on('dblclick', (e) => {
           const time = wavesurfer2.getCurrentTime();
           if (selectedRegion2) {
-            audio1Regions.removeRegion(selectedRegion2);
+            //audio1Regions.removeRegion(selectedRegion2);
           }
-          createRegion(wavesurfer2, 'rgba(255, 0, 0, 0.3)', 'region2', audio1Regions);
+          createRegion(wavesurfer2, 'rgba(255, 0, 0, 0.3)', 'region2', audio2Regions);
           selectedRegion2.start = Math.max(0, time - 5);
           selectedRegion2.end = Math.min(wavesurfer2.getDuration(), time + 5);
           updateRegionInfo('region2', selectedRegion2.start, selectedRegion2.end);
@@ -559,11 +699,11 @@
         });
 
         document.getElementById('clearRegion1').addEventListener('click', () => {
-          clearRegion(wavesurfer1, 'region1');
+          clearRegion(wavesurfer1, 'region1', audio1Regions);
         });
 
         document.getElementById('clearRegion2').addEventListener('click', () => {
-          clearRegion(wavesurfer2, 'region2');
+          clearRegion(wavesurfer2, 'region2', audio2Regions);
         });
 
         // Silence detection buttons

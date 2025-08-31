@@ -10,14 +10,9 @@
       import Regions from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/regions.esm.min.js';
       import Hover from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/hover.esm.min.js';
       import Zoom from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/zoom.esm.min.js';
-     // import Spectrogram from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/spectrogram.esm.js'
 
-      // Wait for the DOM to be fully loaded
       document.addEventListener('DOMContentLoaded', () => {
-        const loadFile = (file, input) => {
-        }
-
-        const registerDropzone =  (dropZone, audioId) => {
+        const registerDropzone = (dropZone, audioId) => {
           const audioField = dropZone.querySelector('input[type="file"]');
           dropZone.addEventListener('click', () => {
             audioField.click();
@@ -44,7 +39,6 @@
         const audio1Regions = Regions.create()
         const audio2Regions = Regions.create()
 
-        // Initialize WaveSurfer instances for both audio files
         const wavesurfer1 = WaveSurfer.create({
           container: '#waveform1',
           waveColor: 'blue',
@@ -56,7 +50,7 @@
             Hover.create(),
             Zoom.create(),
             audio1Regions
-               ]
+          ]
         });
 
         const wavesurfer2 = WaveSurfer.create({
@@ -73,7 +67,6 @@
           ]
         });
 
-        // Add time update listeners for both waveforms
         wavesurfer1.on('timeupdate', (currentTime) => {
           updateTimeDisplay('time1', currentTime);
         });
@@ -82,7 +75,6 @@
           updateTimeDisplay('time2', currentTime);
         });
 
-        // Function to update time display
         function updateTimeDisplay(elementId, currentTime) {
           const seconds = Math.floor(currentTime);
           const milliseconds = Math.floor((currentTime % 1) * 1000);
@@ -92,7 +84,6 @@
           }
         }
 
-        // Region management variables
         let selectedRegion1 = null;
         let selectedRegion2 = null;
         let isPlayingRegion1 = false;
@@ -102,33 +93,40 @@
         let abortController1 = null;
         let abortController2 = null;
 
-        // Function to create a region
-        function createRegion(wavesurfer, color, id, regionsPlugin) {
+        function createRegion(audioNumber, color, id, regionsPlugin, start, end, dragable ) {
           const region = regionsPlugin.addRegion({
-            start: 0,
-            end: 10,
+            start: start,
+            end: end,
             color: color,
-            drag: true,
-            resize: true,
+            drag: dragable,
+            resize: dragable,
             id: id
           });
 
-          // Store region reference
-          if (id === 'region1') {
+          if (audioNumber === 1) {
             selectedRegion1 = region;
           } else {
             selectedRegion2 = region;
           }
 
-          // Update region info display
-          updateRegionInfo(id, region.start, region.end);
+          region.on('click', (e) => {
+            updateRegionInfo(audioNumber, region.start, region.end);
+
+            if (audioNumber === 1) {
+              selectedRegion1 = region;
+            } else {
+              selectedRegion2 = region;
+            }
+          });
+
+          updateRegionInfo(audioNumber, region.start, region.end);
 
           return region;
         }
 
-        // Function to update region info display
         function updateRegionInfo(regionId, start, end) {
-          const infoElement = document.getElementById(`${regionId}Info`);
+          const infoElement = document.getElementById(`region${regionId}Info`);
+
           if (infoElement) {
             const duration = (end - start).toFixed(2);
             infoElement.innerHTML = `
@@ -137,34 +135,26 @@
           }
         }
 
-        // Function to play selected region
         function playRegion(wavesurfer, region, regionId) {
           if (!region) {
             alert('Please select a region first by dragging on the waveform');
             return;
           }
 
-          // Stop current playback
           wavesurfer.pause();
-          
-          // Set the region bounds
+
           const start = region.start;
           const end = region.end;
-          
-          // Seek to start of region
+
           wavesurfer.setTime(start);
-          
-          // Play the region
           wavesurfer.play();
-          
-          // Set flag
+
           if (regionId === 'region1') {
             isPlayingRegion1 = true;
           } else {
             isPlayingRegion2 = true;
           }
 
-          // Stop at end of region
           const checkEnd = () => {
             if (wavesurfer.getCurrentTime() >= end) {
               wavesurfer.pause();
@@ -177,28 +167,26 @@
               requestAnimationFrame(checkEnd);
             }
           };
-          
+
           requestAnimationFrame(checkEnd);
         }
 
-        // Function to clear region
-        function clearRegion(wavesurfer, regionId, regionsPlugin) {
-          if (regionId === 'region1' && selectedRegion1) {
-            //regionsPlugin.removeRegion(selectedRegion1);
+        function clearRegion(audioNumber, regionId, regions) {
+          regions.forEach(region => region.remove)
+
+          if (audioNumber === 1) {
             selectedRegion1 = null;
             document.getElementById('region1Info').innerHTML = '<em>No region selected</em>';
-          } else if (regionId === 'region2' && selectedRegion2) {
-           // regionsPlugin.removeRegion(selectedRegion2);
+          } else if (audioNumber === 2) {
             selectedRegion2 = null;
             document.getElementById('region2Info').innerHTML = '<em>No region selected</em>';
           }
         }
 
-        // Function to detect and highlight silences
         async function detectSilences(wavesurfer, regionsPlugin, audioNumber) {
           try {
             const audioElement = wavesurfer.media;
-            
+
             if (!audioElement.src) {
               alert('Please load an audio file first');
               return;
@@ -212,8 +200,7 @@
 
             // Check file duration and warn about very long files
             const duration = wavesurfer.getDuration();
-          
-        
+
             if (duration > 1800) { // 30 minutes
               const proceed = confirm(`⚠️ WARNING: This audio file is ${Math.round(duration / 60)} minutes long. Analysis will be very slow and may cause browser issues. Consider using a shorter file or splitting it. Continue anyway?`);
               if (!proceed) return;
@@ -231,15 +218,15 @@
             // Get sensitivity values from UI
             const thresholdSlider = document.getElementById(`silenceThreshold${audioNumber}`);
             const durationSlider = document.getElementById(`minSilenceDuration${audioNumber}`);
-            
+
             const silenceThreshold = thresholdSlider ? parseFloat(thresholdSlider.value) / 100 : 0.01;
             const minSilenceDuration = durationSlider ? parseFloat(durationSlider.value) : 0.1;
-            
+
             // Clear existing silence regions
             const existingRegions = regionsPlugin.getRegions();
             existingRegions.forEach(region => {
               if (region.id && region.id.startsWith(`silence_${audioNumber}`)) {
-                regionsPlugin.removeRegion(region);
+                region.remove()
               }
             });
 
@@ -264,11 +251,11 @@
             const response = await fetch(audioElement.src);
             const arrayBuffer = await response.arrayBuffer();
             const audioBuffer = await tempContext.decodeAudioData(arrayBuffer);
-            
+
             const channelData = audioBuffer.getChannelData(0); // Use first channel
             const sampleRate = audioBuffer.sampleRate;
             const audioDuration = audioBuffer.duration;
-            
+
             // Adaptive parameters based on file length
             let windowSize, chunkSize, samplingStep;
             if (audioDuration > 1800) { // Very long files (>30 min)
@@ -284,18 +271,18 @@
               chunkSize = Math.floor(sampleRate * 10); // 10 seconds at a time
               samplingStep = Math.max(1, Math.floor(windowSize / 100)); // Sample every 100th sample
             }
-            
+
             const totalChunks = Math.ceil(channelData.length / chunkSize);
-            
+
             const silences = [];
             let inSilence = false;
             let silenceStart = 0;
-            
+
             // Process audio in chunks to avoid blocking the UI
             for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
               // Check for cancellation
-              if ((audioNumber === 1 && abortController1?.signal.aborted) || 
-                  (audioNumber === 2 && abortController2?.signal.aborted)) {
+              if ((audioNumber === 1 && abortController1?.signal.aborted) ||
+                (audioNumber === 2 && abortController2?.signal.aborted)) {
                 silenceInfoElement.innerHTML = '<div class="text-orange-600">⏹️ Analysis cancelled</div>';
                 tempContext.close();
                 return;
@@ -303,7 +290,7 @@
 
               const chunkStart = chunkIndex * chunkSize;
               const chunkEnd = Math.min(chunkStart + chunkSize, channelData.length);
-              
+
               // Update progress every few chunks
               if (chunkIndex % 5 === 0) {
                 const progress = Math.round((chunkIndex / totalChunks) * 100);
@@ -312,7 +299,7 @@
                   <div class="text-blue-600 mb-2">🔄 Analyzing audio... ${progress}% (${timeElapsed}s / ${Math.round(audioDuration)}s)</div>
                   <button id="cancelAnalysis${audioNumber}" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Cancel Analysis</button>
                 `;
-                
+
                 // Re-add cancel button listener
                 document.getElementById(`cancelAnalysis${audioNumber}`).addEventListener('click', () => {
                   if (audioNumber === 1 && abortController1) {
@@ -321,23 +308,23 @@
                     abortController2.abort();
                   }
                 });
-                
+
                 // Allow UI to update
                 await new Promise(resolve => setTimeout(resolve, 10));
               }
-              
+
               // Analyze this chunk
               for (let i = chunkStart; i < chunkEnd; i += windowSize) {
                 const windowEnd = Math.min(i + windowSize, chunkEnd);
                 let maxAmplitude = 0;
-                
+
                 // Find max amplitude in this window (optimized sampling)
                 for (let j = i; j < windowEnd; j += samplingStep) {
                   maxAmplitude = Math.max(maxAmplitude, Math.abs(channelData[j]));
                 }
-                
+
                 const currentTime = i / sampleRate;
-                
+
                 if (maxAmplitude < silenceThreshold && !inSilence) {
                   // Start of silence
                   inSilence = true;
@@ -346,7 +333,7 @@
                   // End of silence
                   const silenceEnd = currentTime;
                   const silenceDuration = silenceEnd - silenceStart;
-                  
+
                   if (silenceDuration >= minSilenceDuration) {
                     silences.push({
                       start: silenceStart,
@@ -358,7 +345,7 @@
                 }
               }
             }
-            
+
             // Handle case where audio ends in silence
             if (inSilence) {
               const silenceDuration = audioDuration - silenceStart;
@@ -370,68 +357,70 @@
                 });
               }
             }
-            
+
             // Limit the number of regions to prevent performance issues
-            const maxRegions = audioDuration > 1800 ? 50 : audioDuration > 600 ? 75 : 100;
+            const maxRegions = audioDuration > 1800 ? 100 : audioDuration > 600 ? 150 : 100;
             const sortedSilences = silences.sort((a, b) => b.duration - a.duration); // Sort by duration
             const displaySilences = sortedSilences.slice(0, maxRegions);
-            
+
             // Create regions for detected silences (in batches to avoid blocking)
             const batchSize = audioDuration > 1800 ? 5 : 10;
             for (let i = 0; i < displaySilences.length; i += batchSize) {
               // Check for cancellation
-              if ((audioNumber === 1 && abortController1?.signal.aborted) || 
-                  (audioNumber === 2 && abortController2?.signal.aborted)) {
+              if ((audioNumber === 1 && abortController1?.signal.aborted) ||
+                (audioNumber === 2 && abortController2?.signal.aborted)) {
                 silenceInfoElement.innerHTML = '<div class="text-orange-600">⏹️ Analysis cancelled</div>';
                 tempContext.close();
                 return;
               }
 
               const batch = displaySilences.slice(i, i + batchSize);
-              
+
               batch.forEach((silence, batchIndex) => {
                 const globalIndex = i + batchIndex;
-                const region = regionsPlugin.addRegion({
-                  start: silence.start,
-                  end: silence.end,
-                  color: 'rgba(0, 0, 255, 0.3)', // Blue for silences
-                  id: `silence_${audioNumber}_${globalIndex}`,
-                  drag: false,
-                  resize: false
-                });
-                
+
+                const region = createRegion(
+                    audioNumber,
+                  'rgba(0, 0, 255, 0.3)', // Blue for silences,
+                  `silence_${audioNumber}_${globalIndex}`,
+                  regionsPlugin,
+                  silence.start,
+                  silence.end,
+                  true
+                )
+
                 // Add tooltip with silence info
                 region.element.title = `Silence: ${silence.duration.toFixed(2)}s (${silence.start.toFixed(2)}s - ${silence.end.toFixed(2)}s)`;
               });
-              
+
               // Allow UI to update between batches
               if (i + batchSize < displaySilences.length) {
                 await new Promise(resolve => setTimeout(resolve, 10));
               }
             }
-            
+
             // Update silence info display
             if (displaySilences.length > 0) {
               const totalSilence = displaySilences.reduce((sum, s) => sum + s.duration, 0);
               const silencePercentage = ((totalSilence / audioDuration) * 100).toFixed(1);
-              
+
               let infoText = `<strong>Detected ${displaySilences.length} silence(s):</strong><br>`;
               infoText += `Total silence: ${totalSilence.toFixed(2)}s (${silencePercentage}%)<br>`;
-              
+
               if (silences.length > maxRegions) {
                 infoText += `<small class="text-orange-600">Showing top ${maxRegions} longest silences (${silences.length - maxRegions} more detected)</small><br>`;
               }
-              
+
               infoText += `<small class="text-gray-600">Blue regions highlight detected silences</small>`;
-              
+
               silenceInfoElement.innerHTML = infoText;
             } else {
               silenceInfoElement.innerHTML = '<em>No significant silences detected</em>';
             }
-            
+
             // Clean up
             tempContext.close();
-            
+
             // Reset analyzing state
             if (audioNumber === 1) {
               isAnalyzing1 = false;
@@ -440,12 +429,12 @@
               isAnalyzing2 = false;
               abortController2 = null;
             }
-            
+
           } catch (error) {
             console.error('Error detecting silences:', error);
             const silenceInfoElement = document.getElementById(`silenceInfo${audioNumber}`);
             silenceInfoElement.innerHTML = `<div class="text-red-600">❌ Error: ${error.message}</div>`;
-            
+
             // Reset analyzing state on error
             if (audioNumber === 1) {
               isAnalyzing1 = false;
@@ -460,46 +449,30 @@
         // Add region creation on double-click
         wavesurfer1.on('dblclick', (e) => {
           const time = wavesurfer1.getCurrentTime();
-          if (selectedRegion1) {
-           // audio1Regions.removeRegion(selectedRegion1);
-          }
-          createRegion(wavesurfer1, 'rgba(255, 0, 0, 0.3)', 'region1', audio1Regions);
-          selectedRegion1.start = Math.max(0, time - 5);
-          selectedRegion1.end = Math.min(wavesurfer1.getDuration(), time + 5);
-          updateRegionInfo('region1', selectedRegion1.start, selectedRegion1.end);
+          createRegion(1, 'rgba(255, 0, 0, 0.3)', 'region1', audio1Regions, time, time + 10, true);
         });
 
         wavesurfer2.on('dblclick', (e) => {
           const time = wavesurfer2.getCurrentTime();
-          if (selectedRegion2) {
-            //audio1Regions.removeRegion(selectedRegion2);
-          }
-          createRegion(wavesurfer2, 'rgba(255, 0, 0, 0.3)', 'region2', audio2Regions);
-          selectedRegion2.start = Math.max(0, time - 5);
-          selectedRegion2.end = Math.min(wavesurfer2.getDuration(), time + 5);
-          updateRegionInfo('region2', selectedRegion2.start, selectedRegion2.end);
+          createRegion(2, 'rgba(255, 0, 0, 0.3)', 'region2', audio2Regions, time, time + 10, true);
         });
 
         // Add region update listeners
         wavesurfer1.on('region-updated', (region) => {
-          if (region.id === 'region1') {
-            updateRegionInfo('region1', region.start, region.end);
-          }
+          updateRegionInfo(1, region.start, region.end);
         });
 
         wavesurfer2.on('region-updated', (region) => {
-          if (region.id === 'region2') {
-            updateRegionInfo('region2', region.start, region.end);
-          }
+          updateRegionInfo(2, region.start, region.end);
         });
 
-        // Add region click listeners for selection
         wavesurfer1.on('region-clicked', (region) => {
           if (selectedRegion1 && selectedRegion1 !== region) {
             selectedRegion1.color = 'rgba(255, 0, 0, 0.3)';
           }
           region.color = 'rgba(255, 255, 0, 0.5)';
           selectedRegion1 = region;
+          updateRegionInfo(1, region.start, region.end);
         });
 
         wavesurfer2.on('region-clicked', (region) => {
@@ -508,33 +481,8 @@
           }
           region.color = 'rgba(255, 255, 0, 0.5)';
           selectedRegion2 = region;
+          updateRegionInfo(2, region.start, region.end);
         });
-
-/*
-        wavesurfer1.registerPlugin(
-          Spectrogram.create({
-            labels: true,
-            height: 100,
-            splitChannels: true,
-            scale: 'linear', // or 'linear'
-            frequencyMax: 8000,
-            frequencyMin: 0,
-            fftSamples: 1024,
-            labelsBackground: 'rgba(0, 0, 0, 0.1)',
-          }),
-        )
-        wavesurfer2.registerPlugin(
-          Spectrogram.create({
-            labels: true,
-            height: 100,
-            splitChannels: true,
-            scale: 'mel', // or 'linear'
-            frequencyMax: 8000,
-            frequencyMin: 0,
-            fftSamples: 1024,
-            labelsBackground: 'rgba(0, 0, 0, 0.1)',
-          }),
-        )*/
 
         // Zoom Control
         document.getElementById('zoom').addEventListener('input', (e) => {
@@ -572,16 +520,16 @@
           try {
             // Show loading state
             document.getElementById(statsId).innerHTML = '<p>Loading audio from URL...</p>';
-            
+
             // Load the audio directly from URL
             await waveInstance.load(url);
-            
+
             // Extract properties from the loaded audio
             const audioElement = waveInstance.media;
             if (audioElement) {
               const duration = audioElement.duration ? audioElement.duration.toFixed(2) + ' seconds' : 'Unknown';
               const fileName = url.split('/').pop() || 'Audio from URL';
-              
+
               document.getElementById(statsId).innerHTML = `
                 <h3>File Information</h3>
                 Name: ${fileName}</br>
@@ -686,7 +634,7 @@
         // Play both audios simultaneously
         document.getElementById('playBoth').addEventListener('click', () => {
           playPause(wavesurfer1, 1);
-            playPause(wavesurfer2, 2);
+          playPause(wavesurfer2, 2);
         });
 
         // Region control buttons
@@ -699,11 +647,11 @@
         });
 
         document.getElementById('clearRegion1').addEventListener('click', () => {
-          clearRegion(wavesurfer1, 'region1', audio1Regions);
+          clearRegion(1,'region1', audio1Regions);
         });
 
         document.getElementById('clearRegion2').addEventListener('click', () => {
-          clearRegion(wavesurfer2, 'region2', audio2Regions);
+          clearRegion(2, 'region2', audio2Regions);
         });
 
         // Silence detection buttons
@@ -744,10 +692,12 @@
             border-radius: 10px;
             transition: background-color 0.3s;
         }
+
         .drop-zone.highlight {
             background-color: #6cf65c;
             border-color: #327f29;
         }
+
         .time-display {
             background: rgba(0, 0, 0, 0.8);
             color: white;
@@ -760,7 +710,7 @@
             right: 10px;
             z-index: 10;
         }
-        
+
         /* Custom range input styling */
         input[type="range"] {
             -webkit-appearance: none;
@@ -768,13 +718,13 @@
             background: transparent;
             cursor: pointer;
         }
-        
+
         input[type="range"]::-webkit-slider-track {
             background: #e5e7eb;
             height: 6px;
             border-radius: 3px;
         }
-        
+
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -784,13 +734,13 @@
             border-radius: 50%;
             cursor: pointer;
         }
-        
+
         input[type="range"]::-moz-range-track {
             background: #e5e7eb;
             height: 6px;
             border-radius: 3px;
         }
-        
+
         input[type="range"]::-moz-range-thumb {
             background: #8b5cf6;
             height: 16px;
@@ -847,20 +797,29 @@
                 <h4 class="font-medium text-gray-600 mb-2">Region Selection</h4>
                 <div id="region1Info" class="text-sm text-gray-700 mb-2"><em>No region selected</em></div>
                 <div class="flex gap-2 mb-3">
-                    <button id="playRegion1" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">Play Region</button>
-                    <button id="clearRegion1" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Clear Region</button>
+                    <button id="playRegion1" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
+                        Play Region
+                    </button>
+                    <button id="clearRegion1" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                        Clear Region
+                    </button>
                 </div>
                 <div class="pt-2 border-t border-gray-200">
                     <h5 class="font-medium text-gray-600 mb-2">Silence Detection</h5>
                     <div class="mb-2">
                         <label class="text-xs text-gray-600">Threshold: <span id="thresholdValue1">1</span>%</label>
-                        <input type="range" id="silenceThreshold1" min="1" max="20" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="silenceThreshold1" min="1" max="20" value="1"
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     </div>
                     <div class="mb-2">
                         <label class="text-xs text-gray-600">Min Duration: <span id="durationValue1">0.1</span>s</label>
-                        <input type="range" id="minSilenceDuration1" min="0.05" max="1.0" step="0.05" value="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="minSilenceDuration1" min="0.05" max="1.0" step="0.05" value="0.1"
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     </div>
-                    <button id="detectSilence1" class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 mb-2">Detect Silences</button>
+                    <button id="detectSilence1"
+                            class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 mb-2">Detect
+                        Silences
+                    </button>
                     <div id="silenceInfo1" class="text-sm text-gray-700"><em>Click to detect silences</em></div>
                 </div>
             </div>
@@ -872,20 +831,29 @@
                 <h4 class="font-medium text-gray-600 mb-2">Region Selection</h4>
                 <div id="region2Info" class="text-sm text-gray-700 mb-2"><em>No region selected</em></div>
                 <div class="flex gap-2 mb-3">
-                    <button id="playRegion2" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Play Region</button>
-                    <button id="clearRegion2" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Clear Region</button>
+                    <button id="playRegion2"
+                            class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Play Region
+                    </button>
+                    <button id="clearRegion2" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                        Clear Region
+                    </button>
                 </div>
                 <div class="pt-2 border-t border-gray-200">
                     <h5 class="font-medium text-gray-600 mb-2">Silence Detection</h5>
                     <div class="mb-2">
                         <label class="text-xs text-gray-600">Threshold: <span id="thresholdValue2">1</span>%</label>
-                        <input type="range" id="silenceThreshold2" min="1" max="20" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="silenceThreshold2" min="1" max="20" value="1"
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     </div>
                     <div class="mb-2">
                         <label class="text-xs text-gray-600">Min Duration: <span id="durationValue2">0.1</span>s</label>
-                        <input type="range" id="minSilenceDuration2" min="0.05" max="1.0" step="0.05" value="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="minSilenceDuration2" min="0.05" max="1.0" step="0.05" value="0.1"
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     </div>
-                    <button id="detectSilence2" class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 mb-2">Detect Silences</button>
+                    <button id="detectSilence2"
+                            class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 mb-2">Detect
+                        Silences
+                    </button>
                     <div id="silenceInfo2" class="text-sm text-gray-700"><em>Click to detect silences</em></div>
                 </div>
             </div>
@@ -895,7 +863,7 @@
     <!-- Waveform Section -->
     <div class="mt-10">
         <h3 class="text-xl font-semibold text-center mb-6">Waveforms</h3>
-        
+
         <!-- Region Selection Instructions -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <h4 class="font-semibold text-blue-800 mb-2">🎯 Region Selection Instructions:</h4>
@@ -907,7 +875,7 @@
                 <li>• Use the <strong>Play Region</strong> button to play only the selected portion</li>
             </ul>
         </div>
-        
+
         <div class="grid grid-cols-1 gap-6">
             <div class="relative">
                 <div id="waveform1" class="w-full h-32 bg-gray-200 rounded-lg"></div>

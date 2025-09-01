@@ -119,7 +119,21 @@ export default class extends ActivityController {
     }
   }
 
-  onSuccess() {
+    resetActivity() {
+        this.blankBoxes.forEach((blank) => {
+            blank.innerHTML = '';
+            blank.classList.remove('filled');
+            blank.dataset.filledId = '';
+        });
+
+        this.remainingWords.forEach((word) => {
+            word.classList.remove('d-none');
+            this.options.appendChild(word);
+        });
+    }
+
+
+    onSuccess() {
     super.onSuccess();
 
     this.blankBoxes.forEach((blank) => {

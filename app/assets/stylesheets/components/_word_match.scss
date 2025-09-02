@@ -1,0 +1,25 @@
+.word-match {
+  #match-svg {
+    pointer-events: none;
+  }
+
+  .anchor-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.5);
+      background-color: #000 !important;
+      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  .progress.progress-thin {
+    height: 10px;
+  }
+}
+
+

@@ -46,9 +46,13 @@ class User < ApplicationRecord
          :trackable,
          :validatable,
          :recoverable
-         #:confirmable skip for now
+         :confirmable
 
-  validates :first_name, :last_name, presence: true
+  validates :first_name,
+            :last_name,
+            presence: true,
+            length: { maximum: 50 },
+            format: { with: /\A[\p{L}\p{M}'\- ]+\z/u, message: 'contains invalid characters' }
 
   has_many :user_projects
   has_many :user_downloads

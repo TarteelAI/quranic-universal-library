@@ -22,7 +22,6 @@ class UserProject < ApplicationRecord
   belongs_to :user
 
   validates :reason_for_request, :language_proficiency, :motivation_and_goals, presence: true
-
   validates :review_process_acknowledgment, presence: {message: 'Please check the review process acknowledge'}
 
   def get_resource_content

@@ -47,7 +47,7 @@ class ResourcePresenter < ApplicationPresenter
       script_type = resource.resource_content.meta_value('text-type')
       if script_type
         text = load_ayah.send(script_type)
-        clean_for_meta_description("#{resource.name}(#{load_ayah.verse_key}) - #{text}")
+        clean_meta_description("#{resource.name}(#{load_ayah.verse_key}) - #{text}")
       else
         "#{resource.name} #{verse} - Download Quran Text in different scripts and formats"
       end
@@ -57,7 +57,7 @@ class ResourcePresenter < ApplicationPresenter
       "#{resource.name} - Download Quran Metadata"
     when :surah_info
       if info = ChapterInfo.where(resource_content_id: resource.resource_content_id, chapter_id: verse.chapter_id).first
-        clean_for_meta_description(info.text)
+        clean_meta_description(info.text)
       else
         "#{resource.name} - Download Quran Surah Information"
       end
@@ -73,7 +73,7 @@ class ResourcePresenter < ApplicationPresenter
     when :ayah_theme
       theme = AyahTheme.for_verse(load_ayah)
       if theme
-        clean_for_meta_description("#{resource.name}(#{verse.verse_key}) - #{theme.theme}")
+        clean_meta_description("#{resource.name}(#{verse.verse_key}) - #{theme.theme}")
       else
         "#{resource.name} - Download Quran Ayah Theme Data"
       end
@@ -99,19 +99,29 @@ class ResourcePresenter < ApplicationPresenter
     end
   end
 
-  def clean_for_meta_description(text, max_length = 160)
+  def clean_meta_description(text, max_length = 160)
     return "" if text.nil?
 
-    cleaned = text.gsub(/<\/?[^>]*>/, "")
-    cleaned = cleaned.gsub(/[\r\n]+/, " ").gsub(/\s+/, " ").strip
+    # 1. Remove all HTML tags (including attributes)
+    cleaned = text.gsub(/<[^>]*>/, "")
 
+    # 2. Decode HTML entities (requires CGI)
+    require "cgi"
+    cleaned = CGI.unescapeHTML(cleaned)
+
+    # 3. Normalize whitespace and line breaks
+    cleaned = cleaned.gsub(/[\r\n]+/, "\n")
+
+    # 4. If already short enough, return
     return cleaned if cleaned.length <= max_length
 
+    # 5. Prefer sentence end before limit
     truncated = cleaned[0...max_length]
     if truncated =~ /(.*?[.!?])[^.!?]*$/
       return $1.strip
     end
 
+    # 6. Otherwise cut at the last space
     truncated = truncated.rpartition(" ").first
     truncated.strip + "…"
   end

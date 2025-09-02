@@ -276,6 +276,16 @@
   const minZoom = 0.5;
   const maxZoom = 50;
 
+  // Simple HTML escape to prevent XSS
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // Load data from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   const surahNumber = urlParams.get("surah");
@@ -302,8 +312,8 @@
         document.body.innerHTML = `
                         <div class='container'>
                             <h2>❌ Error loading data</h2>
-                            <p>Could not load: ${dataPath}</p>
-                            <p>Error: ${error.message}</p>
+                            <p>Could not load: ${escapeHtml(dataPath)}</p>
+                            <p>Error: ${escapeHtml(error.message)}</p>
                         </div>
                     `;
       });

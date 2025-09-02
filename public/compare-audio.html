@@ -8,6 +8,17 @@
       import WaveSurfer from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/wavesurfer.esm.min.js';
       import Timeline from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/timeline.esm.min.js';
       import Regions from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/regions.esm.min.js';
+
+      // Escapes HTML special characters in a string to prevent XSS.
+      function escapeHTML(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+          .replace(/`/g, '&#96;');
+      }
       import Hover from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/hover.esm.min.js';
       import Zoom from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/zoom.esm.min.js';
 
@@ -536,7 +547,7 @@
                 Name: ${fileName}</br>
                 Duration: ${duration}<br>
                 Source: URL<br>
-                URL: ${url}
+                URL: ${escapeHTML(url)}
               `;
             }
           } catch (error) {

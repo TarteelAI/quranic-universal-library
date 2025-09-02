@@ -1,5 +1,5 @@
 <div class="page-wrapper container-lg">
-  <div class="page-section filters">
+  <div class="page-section filters" style="position: relative">
     <%= form_tag segments_timeline_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
         <div class="form-group me-2">
@@ -29,17 +29,112 @@
         word_positions = data[:word_positions]
         failures = data[:failures]
         ayah_boundaries = data[:ayah_boundaries]
+
+        # Prepare ayah timing data for JavaScript
+        ayah_timing_data = {}
+        ayahs.each do |ayah|
+          ayah_boundary = ayah_boundaries[ayah.verse_number]
+          if ayah_boundary
+            ayah_timing_data[ayah.verse_number] = {
+              start_time: ayah_boundary.start_time,
+              end_time: ayah_boundary.end_time
+            }
+          end
+        end
       %>
+
+      <script type="application/json" id="ayah-timing-data">
+        <%= raw ayah_timing_data.to_json %>
+      </script>
+
+      <style>
+          #audio-drop-zone.drag-over {
+              @apply tw-border-blue-500 tw-bg-blue-100 tw-border-solid;
+          }
+
+          #audio-drop-zone.drag-over svg {
+              @apply tw-text-blue-500;
+          }
+
+          #audio-drop-zone.drag-over .tw-text-gray-600 {
+              @apply tw-text-blue-700;
+          }
+
+          /* Fallback for browsers that don't support Tailwind's @apply */
+          #audio-drop-zone.drag-over {
+              border-color: #3b82f6 !important;
+              background-color: #dbeafe !important;
+              border-style: solid !important;
+          }
+
+          #audio-drop-zone.drag-over svg {
+              color: #3b82f6 !important;
+          }
+      </style>
 
       <h2 class="tw-text-xl tw-font-bold tw-mb-4">
         Word-by-Word Timeline – <%= reciter.name %>, Surah <%= @presenter.selected_surah %>
       </h2>
+
+      <!-- Audio File Upload Section -->
+      <div class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-mb-4">
+        <h3 class="tw-text-lg tw-font-semibold tw-mb-3 tw-text-gray-700">Audio Source</h3>
+
+        <!-- Drag and Drop Zone -->
+        <div id="audio-drop-zone" class="tw-border-2 tw-border-dashed tw-border-gray-300 tw-rounded-lg tw-p-6 tw-mb-4 tw-text-center tw-transition-colors hover:tw-border-blue-400 hover:tw-bg-blue-50 tw-cursor-pointer">
+          <div class="tw-flex tw-flex-col tw-items-center tw-space-y-2">
+            <svg class="tw-w-12 tw-h-12 tw-text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l6-3v13M9 6c0 2.667-1.333 4-4 4s-4-1.333-4-4 1.333-4 4-4 4 1.333 4 4zm8 0c0 2.667-1.333 4-4 4s-4-1.333-4-4 1.333-4 4-4 4 1.333 4 4z"></path>
+            </svg>
+            <div class="tw-text-gray-600">
+              <span class="tw-font-medium">Drop your audio file here</span> or <span class="tw-text-blue-500 tw-font-medium">click to browse</span>
+            </div>
+            <div class="tw-text-xs tw-text-gray-500">
+              Supports MP3, WAV, M4A, OGG and other audio formats
+            </div>
+          </div>
+        </div>
+
+        <div class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-3 tw-items-start sm:tw-items-center">
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <label for="audio-file-input" class="tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-cursor-pointer tw-text-sm tw-font-medium tw-transition-colors">
+              Choose Local File
+              <input
+                type="file"
+                id="audio-file-input"
+                accept="audio/*"
+                class="tw-hidden"
+                />
+            </label>
+
+            <button
+              id="reset-audio-button"
+              class="tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-font-medium tw-transition-colors"
+              style="display: none;"
+            >
+              Reset to Original
+            </button>
+          </div>
+
+          <div class="tw-flex tw-flex-col tw-gap-1">
+            <div id="selected-file-name" class="tw-text-sm tw-text-gray-600 tw-font-medium" style="display: none;"></div>
+            <div class="tw-text-xs tw-text-gray-500">
+              Original: <%= reciter.audio_url(@presenter.selected_surah).split('/').last %>
+            </div>
+          </div>
+        </div>
+
+        <div class="tw-mt-2 tw-text-xs tw-text-gray-500">
+          Upload a local audio file to test timing synchronization with different audio sources.
+        </div>
+      </div>
 
       <div class="tw-space-y-4">
         <% ayahs.each do |ayah| %>
           <%
             ayah_position = ayah_positions[ayah.verse_number]
             ayah_boundary = ayah_boundaries[ayah.verse_number]
+            next_ayah_boundary = ayah_boundaries[ayah.verse_number + 1]
 
             if ayah_boundary.nil?
               if ayah.verse_number == 1
@@ -49,8 +144,10 @@
             else
               ayah_start_time = ayah_boundary.start_time
               ayah_end_time = ayah_boundary.end_time
-              gap_start_time = ayah_boundary.gap_start_time
-              gap_end_time = ayah_boundary.gap_end_time
+
+              gap_start_time = ayah_boundary.gap_before_start_time
+              gap_end_time = ayah_boundary.gap_before_end_time
+              next_ayah_start_gap = next_ayah_boundary&.gap_before_start_time
             end
           %>
 
@@ -61,7 +158,8 @@
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
                 (<%= ayah_start_time %> - <%= ayah_end_time %>)
-                (<%= [[ayah_start_time.to_i, gap_end_time + 100].min, gap_start_time, gap_end_time].join(' - ') %>)
+                (<%= [[ayah_start_time.to_i, gap_end_time + 100].min, [next_ayah_start_gap.to_i - 100, ayah_end_time].max].join(' - ') if gap_end_time &&  gap_start_time %>)
+
                 <% if ayah_position.nil? %>
                  <span class="tw-text-red-500">estimated</span>
                 <% end %>
@@ -70,20 +168,25 @@
               <button
                 data-start="<%= ayah_start_time.to_i %>"
                 data-end="<%= ayah_end_time.to_i %>"
+                data-play-ayah="<%= ayah.verse_number %>"
                 class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
               > Play
               </button>
-              <button
-                data-start="<%= [ayah_start_time.to_i, gap_end_time].min  %>"
-                data-end="<%= ayah_end_time.to_i %>"
-                class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
-              > Play Gap
-              </button>
+              <% if gap_end_time %>
+                <button
+                  data-start="<%= [ayah_start_time.to_i, gap_end_time].min  %>"
+                  data-end="<%= [next_ayah_start_gap.to_i - 100, ayah_end_time].max %>"
+                  data-play-ayah="<%= ayah.verse_number %>"
+                  class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
+                > Play Gap
+                </button>
+              <% end %>
+
               <%= link_to 'logs', segments_logs_path(reciter: reciter.id, surah: @presenter.selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
               <%= link_to 'Segment', "/surah_audio_files/#{reciter.id}/segment_builder?chapter_id=#{@presenter.selected_surah}&verse=#{ayah.verse_number}", class: 'tw-bg-green-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-green-500 hover:tw-text-white', target: '_blank' %>
             </h3>
 
-            <div class="tw-flex tw-gap-1 tw-flex-wrap qpc-hafs">
+            <div class="tw-flex tw-gap-1 tw-flex-wrap qpc-hafs words">
               <% ayah.words.each do |word| %>
                 <%
                   #TODO: move this to presenter
@@ -142,7 +245,27 @@
         <% end %>
       </div>
 
-      <audio id="player" src="<%= reciter.audio_url(@presenter.selected_surah) %>" controls class="tw-mt-6 tw-w-full"></audio>
+      <audio id="player" src="<%= reciter.audio_url(@presenter.selected_surah) %>" controls class="tw-mt-6 tw-w-full"
+             style="position: sticky; bottom: 0"
+      ></audio>
+
+      <div class="tw-mt-4 tw-flex tw-items-center tw-gap-2">
+        <label for="jump-to-input" class="tw-text-sm tw-font-medium tw-text-gray-700">Jump to (ms):</label>
+        <input
+          type="number"
+          id="jump-to-input"
+          class="tw-px-3 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm tw-w-24"
+          placeholder="0"
+          min="0"
+          step="100"
+          />
+        <button
+          id="jump-to-button"
+          class="tw-px-3 tw-py-1 tw-bg-blue-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-600"
+        >
+          Jump
+        </button>
+      </div>
     <% else %>
       Please select a Surah and Reciter to view the timeline.
     <% end %>

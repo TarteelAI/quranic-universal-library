@@ -3,10 +3,12 @@ require 'fileutils'
 
 =begin
 p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/aug-6/vs_logs", reset_db: false)
-p.process_reciter(2, i)
+1.upto(5) do |i|
+p.process_reciter(2, 2)
+end
 
-1.upto(10) do |i|
-p.seed_waveform_silences(2, i)
+1.upto(5) do |i|
+  p.seed_waveform_silences(2, 2)
 end
 
 p.seed_reciters
@@ -30,7 +32,7 @@ class BatchAudioSegmentParser
   end
 
   def seed_waveform_silences(reciter, surah)
-    silences = Oj.load(File.read("tools/waveform-ayah-segments/silences/#{surah}_silences.json"))
+    silences = Oj.load(File.read("tools/waveform-ayah-segments/output/#{surah}_silences.json"))
     ayah_segments = Segments::AyahBoundary
                       .where(reciter_id: reciter, surah_number: surah)
                       .order('ayah_number asc')
@@ -47,40 +49,40 @@ class BatchAudioSegmentParser
 
       # Find all silences that end before this ayah starts
       preceding_silences = silences.select do |silence|
-        silence['end_time_ms'] < ayah.start_time
+        (silence['end_time'] - 10) < ayah.start_time
       end
 
       if preceding_silences.any?
         # Get the silence that ends closest to the ayah start time
-        closest_silence = preceding_silences.max_by { |silence| silence['end_time_ms'] }
+        closest_silence = preceding_silences.max_by { |silence| silence['end_time'] }
 
         # For non-first ayahs, ensure the gap doesn't overlap with previous ayah
         if index > 0
           previous_ayah = ayah_segments[index - 1]
           # Only use if silence starts after previous ayah ends
-          if closest_silence['start_time_ms'] >= previous_ayah.end_time
-            ayah_data[:gap_start_time] = closest_silence['start_time_ms']
-            ayah_data[:gap_end_time] = closest_silence['end_time_ms']
+          if closest_silence['start_time'] >= previous_ayah.end_time
+            ayah_data[:gap_start_time] = closest_silence['start_time']
+            ayah_data[:gap_end_time] = closest_silence['end_time']
           end
         else
           # For first ayah, just use the closest silence before it
-          ayah_data[:gap_start_time] = closest_silence['start_time_ms']
-          ayah_data[:gap_end_time] = closest_silence['end_time_ms']
+          ayah_data[:gap_start_time] = closest_silence['start_time']
+          ayah_data[:gap_end_time] = closest_silence['end_time']
         end
       end
 
       # Special case for first ayah - check for silence at the very beginning
       if index == 0 && ayah_data[:gap_start_time].nil?
-        initial_silence = silences.find { |silence| silence['start_time_ms'] == 0 }
-        if initial_silence && initial_silence['end_time_ms'] < ayah.start_time
-          ayah_data[:gap_start_time] = initial_silence['start_time_ms']
-          ayah_data[:gap_end_time] = initial_silence['end_time_ms']
+        initial_silence = silences.find { |silence| silence['start_time'] == 0 }
+        if initial_silence && initial_silence['end_time'] < ayah.start_time
+          ayah_data[:gap_start_time] = initial_silence['start_time']
+          ayah_data[:gap_end_time] = initial_silence['end_time']
         end
       end
 
       ayah.update_columns(
-        gap_start_time: ayah_data[:gap_start_time],
-        gap_end_time: ayah_data[:gap_end_time]
+        gap_before_start_time: ayah_data[:gap_start_time],
+        gap_before_end_time: ayah_data[:gap_end_time]
       )
       result << ayah_data
     end
@@ -504,11 +506,11 @@ class BatchAudioSegmentParser
       t.integer :start_time
       t.integer :end_time
 
-      t.integer :waveform_start_time
-      t.integer :waveform_end_time
+      t.integer :gap_before_start_time
+      t.integer :gap_before_end_time
 
-      t.integer :gap_start_time
-      t.integer :gap_end_time
+      t.integer :gap_after_start_time
+      t.integer :gap_after_end_time
 
       t.integer :corrected_start_time
       t.integer :corrected_end_time

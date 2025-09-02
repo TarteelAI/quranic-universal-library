@@ -12,8 +12,14 @@
 
     &:hover {
       transform: scale(1.5);
-      background-color: #000 !important;
-      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+      background-color: $success !important;
+      box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15);
+    }
+
+    &.active {
+      background-color: $success !important;
+      box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15);
+      transform: scale(1.5);
     }
   }
 

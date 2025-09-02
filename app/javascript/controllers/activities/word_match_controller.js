@@ -51,9 +51,16 @@ export default class extends ActivityController {
       if (!this.draggingFrom) {
         // Start
         this.draggingFrom = dot;
+        // mark active
+        this._clearActiveDot();
+        dot.classList.add('active');
         const start = this.getCenterRelativeTo(dot, this.matchArea);
         this.ensureGhostLine();
         this.updateGhostLine(start.x, start.y, start.x, start.y);
+        // color ghost line like success
+        if (this.ghostLine) {
+          this.ghostLine.setAttribute('stroke', '#198754');
+        }
         // Begin following mouse for preview
         this._handleMouseMove = (evt) => {
           if (!this.draggingFrom || !this.ghostLine) return;
@@ -82,6 +89,7 @@ export default class extends ActivityController {
         window.removeEventListener('mousemove', this._handleMouseMove);
         this._handleMouseMove = null;
         this.draggingFrom = null;
+        this._clearActiveDot();
       }
     };
 
@@ -100,6 +108,11 @@ export default class extends ActivityController {
       dot.addEventListener('mouseenter', this._handleDotEnter);
       dot.addEventListener('mouseleave', this._handleDotLeave);
     });
+  }
+
+  _clearActiveDot() {
+    const dot = this.element.querySelector('.anchor-dot.active');
+    if (dot) dot.classList.remove('active');
   }
 
   checkPair(leftItem, rightItem) {

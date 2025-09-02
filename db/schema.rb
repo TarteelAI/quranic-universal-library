@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_29_085206) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_08_062332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -116,9 +116,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_29_085206) do
     t.string "name"
     t.string "url"
     t.text "description"
-    t.boolean "published", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "published", default: true
   end
 
   create_table "database_backups", force: :cascade do |t|
@@ -272,7 +272,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_29_085206) do
     t.integer "translation_id"
     t.integer "footnotes_count", default: 0
     t.jsonb "meta_data", default: {}
-    t.integer "current_footnotes_count", default: 0
     t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
@@ -507,8 +506,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_29_085206) do
     t.string "copyright_notice"
   end
 
-  create_table "segments_database", force: :cascade do |t|
+  create_table "segments_databases", force: :cascade do |t|
     t.string "name"
+    t.boolean "active", default: false
   end
 
   create_table "synonyms", force: :cascade do |t|
@@ -517,6 +517,28 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_29_085206) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.jsonb "approved_synonyms", default: []
+  end
+
+  create_table "uloom_contents", force: :cascade do |t|
+    t.text "text"
+    t.string "cardinality_type"
+    t.integer "chapter_id"
+    t.integer "verse_id"
+    t.integer "word_id"
+    t.integer "resource_content_id"
+    t.string "location"
+    t.string "location_range"
+    t.jsonb "meta_data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cardinality_type"], name: "index_uloom_contents_on_cardinality_type"
+    t.index ["chapter_id"], name: "index_uloom_contents_on_chapter_id"
+    t.index ["location"], name: "index_uloom_contents_on_location"
+    t.index ["location_range"], name: "index_uloom_contents_on_location_range"
+    t.index ["resource_content_id"], name: "index_uloom_contents_on_resource_content_id"
+    t.index ["text"], name: "index_uloom_contents_on_text"
+    t.index ["verse_id"], name: "index_uloom_contents_on_verse_id"
+    t.index ["word_id"], name: "index_uloom_contents_on_word_id"
   end
 
   create_table "user_downloads", force: :cascade do |t|

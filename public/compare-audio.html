@@ -77,8 +77,9 @@
 
         function updateTimeDisplay(elementId, currentTime) {
           const seconds = Math.floor(currentTime);
-          const milliseconds = Math.floor((currentTime % 1) * 1000);
+          const milliseconds = Math.floor(currentTime * 1000);
           const timeElement = document.getElementById(elementId);
+
           if (timeElement) {
             timeElement.textContent = `${seconds}s ${milliseconds}ms`;
           }
@@ -171,8 +172,8 @@
           requestAnimationFrame(checkEnd);
         }
 
-        function clearRegion(audioNumber, regionId, regions) {
-          regions.forEach(region => region.remove)
+        function clearRegion(audioNumber, regionId, regionPlugin) {
+          regionPlugin.regions.forEach(region => region.remove)
 
           if (audioNumber === 1) {
             selectedRegion1 = null;
@@ -679,6 +680,58 @@
         document.getElementById('minSilenceDuration2').addEventListener('input', (e) => {
           document.getElementById('durationValue2').textContent = e.target.value;
         });
+
+        // Jump to functionality
+        function jumpToTime(wavesurfer, audioNumber) {
+          const inputId = `jumpTo${audioNumber}`;
+          const input = document.getElementById(inputId);
+          
+          if (!input || !wavesurfer) return;
+          
+          const milliseconds = parseInt(input.value);
+          if (isNaN(milliseconds) || milliseconds < 0) {
+            console.warn('Invalid time value:', input.value);
+            return;
+          }
+          
+          const seconds = milliseconds / 1000;
+          wavesurfer.setTime(seconds);
+          
+          console.debug(`Jumped Audio ${audioNumber} to ${milliseconds}ms (${seconds}s)`);
+        }
+
+        // Jump to button event listeners
+        document.getElementById('jumpButton1').addEventListener('click', () => {
+          jumpToTime(wavesurfer1, 1);
+        });
+
+        document.getElementById('jumpButton2').addEventListener('click', () => {
+          jumpToTime(wavesurfer2, 2);
+        });
+
+        // Jump to input field event listeners (Enter key)
+        document.getElementById('jumpTo1').addEventListener('keypress', (event) => {
+          if (event.key === 'Enter') {
+            jumpToTime(wavesurfer1, 1);
+          }
+        });
+
+        document.getElementById('jumpTo2').addEventListener('keypress', (event) => {
+          if (event.key === 'Enter') {
+            jumpToTime(wavesurfer2, 2);
+          }
+        });
+
+        // Show current time when jump-to inputs are focused
+        document.getElementById('jumpTo1').addEventListener('focus', () => {
+          const currentTime = Math.floor(wavesurfer1.getCurrentTime() * 1000);
+          document.getElementById('jumpTo1').placeholder = currentTime.toString();
+        });
+
+        document.getElementById('jumpTo2').addEventListener('focus', () => {
+          const currentTime = Math.floor(wavesurfer2.getCurrentTime() * 1000);
+          document.getElementById('jumpTo2').placeholder = currentTime.toString();
+        });
       });
     </script>
 
@@ -716,7 +769,25 @@
             -webkit-appearance: none;
             appearance: none;
             background: transparent;
-            cursor: pointer;
+        }
+
+        /* Jump to input styling */
+        #jumpTo1, #jumpTo2 {
+            transition: border-color 0.2s ease;
+        }
+
+        #jumpTo1:focus, #jumpTo2:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        #jumpButton1, #jumpButton2 {
+            transition: all 0.2s ease;
+        }
+
+        #jumpButton1:hover, #jumpButton2:hover {
+            transform: translateY(-1px);
         }
 
         input[type="range"]::-webkit-slider-track {
@@ -808,7 +879,7 @@
                     <h5 class="font-medium text-gray-600 mb-2">Silence Detection</h5>
                     <div class="mb-2">
                         <label class="text-xs text-gray-600">Threshold: <span id="thresholdValue1">1</span>%</label>
-                        <input type="range" id="silenceThreshold1" min="1" max="20" value="1"
+                        <input type="range" id="silenceThreshold1" min="1" max="10" value="1"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     </div>
                     <div class="mb-2">
@@ -842,7 +913,7 @@
                     <h5 class="font-medium text-gray-600 mb-2">Silence Detection</h5>
                     <div class="mb-2">
                         <label class="text-xs text-gray-600">Threshold: <span id="thresholdValue2">1</span>%</label>
-                        <input type="range" id="silenceThreshold2" min="1" max="20" value="1"
+                        <input type="range" id="silenceThreshold2" min="1" max="10" value="1"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     </div>
                     <div class="mb-2">
@@ -898,6 +969,46 @@
             <button id="play1" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Play First</button>
             <button id="play2" class="px-4 py-2 bg-green-500 text-white rounded-lg">Play Second</button>
             <button id="playBoth" class="px-4 py-2 bg-purple-500 text-white rounded-lg">Play Both</button>
+        </div>
+
+        <!-- Jump to Controls -->
+        <div class="mt-6 text-center">
+            <div class="flex justify-center items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <label for="jumpTo1" class="text-sm font-medium text-gray-700">Jump to (ms) - Audio 1:</label>
+                    <input 
+                        type="number" 
+                        id="jumpTo1" 
+                        class="px-3 py-1 border border-gray-300 rounded text-sm w-24"
+                        placeholder="0"
+                        min="0"
+                        step="100"
+                    />
+                    <button 
+                        id="jumpButton1"
+                        class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                    >
+                        Jump
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="jumpTo2" class="text-sm font-medium text-gray-700">Jump to (ms) - Audio 2:</label>
+                    <input 
+                        type="number" 
+                        id="jumpTo2" 
+                        class="px-3 py-1 border border-gray-300 rounded text-sm w-24"
+                        placeholder="0"
+                        min="0"
+                        step="100"
+                    />
+                    <button 
+                        id="jumpButton2"
+                        class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+                    >
+                        Jump
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

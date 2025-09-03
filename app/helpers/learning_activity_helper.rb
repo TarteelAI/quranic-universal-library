@@ -32,8 +32,20 @@ module LearningActivityHelper
   end
 
   def generate_ayah_mastery_quiz
-    list = Verse.where('words_count < 30').order('random()').includes(:chapter).first(4)
-    verse = list.sample
+    # If specific ayah is filtered, use it as the correct answer
+    if @filtered_ayah
+      verse = @filtered_ayah
+      # Get 3 other similar verses for options
+      list = Verse.where('words_count < 30')
+                  .where.not(id: verse.id)
+                  .includes(:chapter)
+                  .order('random()')
+                  .first(3)
+      list << verse
+    else
+      list = Verse.where('words_count < 30').order('random()').includes(:chapter).first(4)
+      verse = list.sample
+    end
 
     options = list.map do |v|
       {
@@ -53,13 +65,26 @@ module LearningActivityHelper
   # Build data for Word Match activity: a list of arabic words and their translations
   # Prefer English; if not available, fallback to Urdu
   def generate_word_match_quiz
-    # Fetch random verses with moderate length to avoid very small stopwords-only sets
-    verses = Verse.where('words_count BETWEEN 4 AND 12').order('RANDOM()').limit(5)
-    words = Word.where(verse_id: verses.map(&:id), char_type_id: 1).includes(:en_translation, :ur_translation).sample(5)
+    if @filtered_ayah
+      # Use words only from the specified ayah
+      words = Word.where(verse_id: @filtered_ayah.id, char_type_id: 1)
+                  .includes(:en_translation, :ur_translation)
 
-    # Fallback in case previous query is sparse
-    if words.size < 5
-      words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+      # If the ayah doesn't have enough words or translations, fallback to random
+      if words.count < 3
+        words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+      else
+        words = words.limit(words.count > 5 ? 5 : words.count)
+      end
+    else
+      # Fetch random verses with moderate length to avoid very small stopwords-only sets
+      verses = Verse.where('words_count BETWEEN 4 AND 12').order('RANDOM()').limit(5)
+      words = Word.where(verse_id: verses.map(&:id), char_type_id: 1).includes(:en_translation, :ur_translation).sample(5)
+
+      # Fallback in case previous query is sparse
+      if words.size < 5
+        words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+      end
     end
 
     pairs = words.map do |w|
@@ -81,27 +106,17 @@ module LearningActivityHelper
     }
   end
 
-  def generate_complete_the_ayah_quiz
-    if params[:key]
-      verse = Verse.find_by(verse_key: params[:key].strip)
-    end
 
-    verse ||= Verse.where('words_count > 6 AND words_count < 40').includes(:words).order("RANDOM()").first
-    words = verse.words.select(&:word?)
-
-    words_to_show = words.sample((verse.words_count * 0.6).round)
-    remaining_words = words - words_to_show
-
-    {
-      verse: verse,
-      words: words,
-      words_to_show: words_to_show,
-      remaining_words: remaining_words.shuffle
-    }
-  end
 
   def generate_complete_the_ayah_quiz
-    if params[:key]
+    # Use filtered ayah if available, otherwise use params[:key] or random verse
+    if @filtered_ayah
+      verse = @filtered_ayah
+      # If filtered ayah is too short, fallback to random verse
+      if verse.words_count < 4
+        verse = Verse.where('words_count > 6 AND words_count < 40').includes(:words).order("RANDOM()").first
+      end
+    elsif params[:key]
       verse = Verse.find_by(verse_key: params[:key].strip)
     end
 

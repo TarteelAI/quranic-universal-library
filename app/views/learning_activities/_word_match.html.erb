@@ -1,5 +1,12 @@
 <%
-  data = generate_word_match_quiz
+  lang = params[:lang] || 'en'
+  if params[:new] == 'true'
+    session.delete(:word_match_word_ids)
+  end
+  word_ids = session[:word_match_word_ids]
+  data = generate_word_match_quiz(lang, word_ids)
+  session[:word_match_word_ids] = data[:word_ids]
+
   pairs = data[:pairs]
   left_words = data[:left_words]
   right_translations = data[:right_translations]
@@ -11,13 +18,13 @@
     <span>Click a black dot to start a line and connect it to the matching dot.</span>
   </div>
   <div class="d-flex flex-column flex-md-row gap-5 position-relative" id="match-area">
-    
+
     <!-- Arabic Column -->
     <div class="flex-fill">
-      <h3 class="mb-3 text-primary text-center tw-text-xl">Arabic</h5>
+      <h3 class="mb-3 text-primary text-center tw-text-xl">Arabic</h3>
       <div class="list-group border rounded shadow-sm" id="left-column">
         <% left_words.each do |w| %>
-          <div class="list-group-item d-flex align-items-center justify-content-between qpc-hafs rounded-2 mb-2 border-0 shadow-sm"
+          <div class="list-group-item d-flex align-items-center justify-content-between qpc-hafs rounded-2 mb-2 border-0 shadow-sm" style="min-height: 60px;"
                data-id="<%= w[:id] %>">
             <div class="d-flex align-items-center">
               <span class="anchor-dot ms-3 bg-secondary rounded-circle" data-side="left"></span>
@@ -34,7 +41,7 @@
       <h5 class="mb-3 text-success text-center tw-text-xl">Translations</h5>
       <div class="list-group border rounded shadow-sm" id="right-column">
         <% right_translations.each do |t| %>
-          <div class="list-group-item d-flex align-items-center justify-content-between rounded-2 mb-2 border-0 shadow-sm"
+          <div class="list-group-item d-flex align-items-center justify-content-between rounded-2 mb-2 border-0 shadow-sm" style="min-height: 60px;"
                data-id="<%= t[:id] %>">
             <div class="d-flex align-items-center">
               <span class="anchor-dot me-3 bg-secondary rounded-circle" data-side="right"></span>

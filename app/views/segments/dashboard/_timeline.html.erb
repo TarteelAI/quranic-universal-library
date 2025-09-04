@@ -32,12 +32,15 @@
 
         # Prepare ayah timing data for JavaScript
         ayah_timing_data = {}
+
         ayahs.each do |ayah|
           ayah_boundary = ayah_boundaries[ayah.verse_number]
+
           if ayah_boundary
             ayah_timing_data[ayah.verse_number] = {
               start_time: ayah_boundary.start_time,
-              end_time: ayah_boundary.end_time
+              end_time: ayah_boundary.end_time,
+              words: ayah_boundary.words_data
             }
           end
         end
@@ -48,6 +51,9 @@
       </script>
 
       <style>
+         .currently-playing{
+            background: #fbbf24 !important; /* Tailwind yellow-400 */
+         }
           #audio-drop-zone.drag-over {
               @apply tw-border-blue-500 tw-bg-blue-100 tw-border-solid;
           }
@@ -226,7 +232,7 @@
                   data-start="<%= start_time %>"
                   data-end="<%= end_time %>"
                   data-controller="tooltip"
-
+                  data-position="<%= word.position %>"
                   <% if failure %>
                   title="<div><strong><%= failure.failure_type %></strong><div>Expected: <span class=qpc-hafs><%= failure.expected_transcript %></span></div><div>Received: <span class=qpc-hafs><%= failure.received_transcript %></span></div><div>Time: <%= start_time %> .. <%= end_time %> </div><div>Corrected time: <%= correction.join('...') %></div></div>"
                   <% else %>

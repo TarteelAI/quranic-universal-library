@@ -110,14 +110,13 @@ class AudioSegmentParser
 
   def stats
     data = load_data
-    total_entries = data.size
-    position_entries = data.count { |entry| entry['type'] == 'POSITION' }
-    failure_entries = data.count { |entry| entry['type'] == 'FAILURE' }
+    position_entries = data.select { |entry| entry['type'] == 'POSITION' }
+    failure_entries = data.select { |entry| entry['type'] == 'FAILURE' }
 
     {
-      total_entries: total_entries,
-      positions: position_entries,
-      failures: failure_entries,
+      total_entries: data.size,
+      positions: position_entries.size,
+      failures: failure_entries.size,
     }
   end
 
@@ -134,8 +133,8 @@ class AudioSegmentParser
     folder_name = File.basename(File.dirname(file_path))
 
     # First 4 digits = reciter ID, last 4 digits = surah number
-    reciter_id = folder_name[0..3].to_i
-    surah_number = folder_name[4..7].to_i
+    reciter_id = folder_name[0..2].to_i
+    surah_number = folder_name[3..5].to_i
 
     [reciter_id, surah_number]
   end

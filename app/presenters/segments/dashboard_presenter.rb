@@ -27,18 +27,31 @@ module Segments
           end
         end
 
-        ayah_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).group_by(&:ayah_number)
-        word_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).index_by(&:word_key)
-        ayah_boundaries = ::Segments::AyahBoundary.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number).index_by(&:ayah_number)
+        ayah_positions = ::Segments::Position.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number)
+        word_positions = ayah_positions.index_by(&:word_key)
+        ayah_boundaries = ::Segments::AyahBoundary.where(reciter_id: reciter.id, surah_number: selected_surah).order(:ayah_number)
         ayahs = Verse.where(chapter_id: selected_surah).order(:verse_number)
+        grouped_ayah_positions = ayah_positions.group_by(&:ayah_number)
+
+        ayah_boundaries.each do |boundary|
+          words_data = grouped_ayah_positions[boundary.ayah_number]&.map do |pos|
+            [
+              pos.word_number,
+              pos.start_time,
+              pos.end_time,
+            ]
+          end
+
+          boundary.set_words_data(words_data)
+        end
 
         {
           reciter: reciter,
           failures: failures,
-          ayah_positions: ayah_positions,
+          ayah_positions: grouped_ayah_positions,
           word_positions: word_positions,
           ayahs: ayahs,
-          ayah_boundaries: ayah_boundaries
+          ayah_boundaries: ayah_boundaries.index_by(&:ayah_number)
         }
       end
     end

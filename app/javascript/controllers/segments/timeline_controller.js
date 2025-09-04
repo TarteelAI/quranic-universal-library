@@ -7,6 +7,7 @@ export default class extends Controller {
     this.currentlyPlayingWord = null;
     this.ayahWords = new Map(); // Store ayah number -> array of word elements
     this.currentAyahWords = null; // Store current ayah words for highlighting
+    this.currentAyahTiming = null; // Store current ayah timing data
     this.ayahTimingData = null; // Store ayah timing data
     this.segmentEndTime = null;
     this.segmentUpdateListener = null; // Store reference to segment-specific listener
@@ -350,6 +351,7 @@ export default class extends Controller {
       if (ayahElement) {
         const ayahNumber = ayahElement.dataset.ayah;
         this.currentAyahWords = this.ayahWords.get(ayahNumber);
+        this.currentAyahTiming = this.ayahTimingData[ayahNumber];
         console.debug('Set current ayah words for highlighting:', ayahNumber);
       }
     } else {
@@ -380,6 +382,7 @@ export default class extends Controller {
     for (const [ayahNumber, timing] of Object.entries(this.ayahTimingData)) {
       if (currentTime >= timing.start_time && currentTime <= timing.end_time) {
         this.currentAyahWords = this.ayahWords.get(ayahNumber);
+        this.currentAyahTiming = timing; // Store the timing data for this ayah
         console.debug(`Found current ayah: ${ayahNumber} at time ${currentTime}`);
         break;
       }
@@ -387,29 +390,50 @@ export default class extends Controller {
   }
 
   updateWordHighlight() {
-    if (!this.currentAyahWords || !this.isPlaying) return;
+    if (!this.currentAyahWords || !this.currentAyahTiming || !this.isPlaying) return;
 
     const currentTime = this.player.currentTime * 1000;
     console.debug("Current time:", currentTime);
 
-    const wordToHighlight = this.currentAyahWords.find(word => {
-      const wordStart = parseFloat(word.dataset.start);
-      const wordEnd = parseFloat(word.dataset.end);
-
-      // Skip words with invalid timing data
-      if (isNaN(wordStart) || isNaN(wordEnd)) {
-        return false;
+    const wordIndex = this.binarySearchWord(currentTime);
+    
+    if (wordIndex !== -1) {
+      const wordToHighlight = this.currentAyahWords[wordIndex];
+      if (wordToHighlight !== this.currentlyPlayingWord) {
+        this.clearWordHighlight();
+        this.highlightWord(wordToHighlight);
       }
-
-      return currentTime >= wordStart && currentTime < wordEnd;
-    });
-
-    if (wordToHighlight && wordToHighlight !== this.currentlyPlayingWord) {
-      this.clearWordHighlight();
-      this.highlightWord(wordToHighlight);
-    } else if (!wordToHighlight) {
+    } else {
       console.debug("No word to highlight at", currentTime);
     }
+  }
+
+  binarySearchWord(currentTime) {
+    const words = this.currentAyahTiming.words;
+    let left = 0;
+    let right = words.length - 1;
+    let result = -1;
+
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const wordTiming = words[mid];
+      const wordStart = wordTiming[1]; // start_time
+      const wordEnd = wordTiming[2];   // end_time
+
+      if (currentTime >= wordStart && currentTime < wordEnd) {
+        // Found the word that should be highlighted
+        result = mid;
+        break;
+      } else if (currentTime < wordStart) {
+        // Current time is before this word, search left half
+        right = mid - 1;
+      } else {
+        // Current time is after this word, search right half
+        left = mid + 1;
+      }
+    }
+
+    return result;
   }
 
   highlightWord(wordElement) {
@@ -426,9 +450,10 @@ export default class extends Controller {
       this.currentlyPlayingWord = null;
     }
 
-    // Only clear currentAyahWords if we're not in a full ayah segment play
+    // Only clear currentAyahWords and currentAyahTiming if we're not in a full ayah segment play
     if (!this.isSegmentPlay || !this.isFullAyahPlay) {
       this.currentAyahWords = null;
+      this.currentAyahTiming = null;
     }
   }
 

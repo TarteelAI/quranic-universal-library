@@ -2,13 +2,18 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/aug-6/vs_logs", reset_db: false)
-1.upto(5) do |i|
-p.process_reciter(2, 2)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: false)
+p.validate_log_files
+
+1.upto(114) do |i|
+  next if i == 3
+
+  p.process_reciter(reciter: 12, surah: i)
 end
 
-1.upto(5) do |i|
-  p.seed_waveform_silences(2, 2)
+43.upto(114) do |i|
+  next if i == 3
+  p.seed_waveform_silences(reciter: 12, surah: i)
 end
 
 p.seed_reciters
@@ -31,8 +36,51 @@ class BatchAudioSegmentParser
     puts "Batch processing completed!"
   end
 
-  def seed_waveform_silences(reciter, surah)
-    silences = Oj.load(File.read("tools/waveform-ayah-segments/output/#{surah}_silences.json"))
+  def validate_log_files
+    seen = Hash.new { |h, k| h[k] = [] }
+    files = filter_segments_files
+
+    files.each do |file_path|
+      folder = File.dirname(file_path)
+      filename = File.basename(folder)
+
+      if filename =~ /^(\d{3})(\d{3})(dd|ff)-/
+        reciter_id, surah_number = parse_reciter_and_surah_id(filename)
+        key = "#{reciter_id}-#{surah_number}"
+
+        if File.zero?(file_path) || File.read(file_path).strip.empty?
+          puts "Removing empty folder: #{folder}"
+          FileUtils.rm_rf(folder)
+          next
+        end
+
+        seen[key] << file_path
+      else
+        puts "Invalid format: #{file_path}"
+      end
+    end
+
+    puts "Duplicate entries:"
+    seen.each do |key, files|
+      if files.size > 1
+        puts "Reciter/Surah #{key} has duplicates:"
+        files.each do |path|
+          size_kb = (File.size(path).to_f / 1024).round(2)
+          puts "  #{path} - #{size_kb} KB"
+
+          if size_kb.zero?
+            puts "  Removing empty file: #{path}"
+            FileUtils.rm(path)
+          end
+        end
+      end
+    end
+
+    "Validation complete. Check the output for any issues."
+  end
+
+  def seed_waveform_silences(reciter:, surah:)
+    silences = Oj.load(File.read("tools/waveform-ayah-segments/result/#{reciter}/#{surah}_silences.json"))
     ayah_segments = Segments::AyahBoundary
                       .where(reciter_id: reciter, surah_number: surah)
                       .order('ayah_number asc')
@@ -87,7 +135,8 @@ class BatchAudioSegmentParser
       result << ayah_data
     end
 
-    File.open("tools/waveform-ayah-segments/audio/#{surah}_silence_comparison.json", "wb") do |file|
+    FileUtils.mkdir_p("tools/waveform-ayah-segments/result/#{reciter}_plot_data") unless Dir.exist?("tools/waveform-ayah-segments/result/#{reciter}_plot_data")
+    File.open("tools/waveform-ayah-segments/result/#{reciter}_plot_data/#{surah}.json", "wb") do |file|
       file.puts Oj.dump(result, mode: :compat)
     end
   end
@@ -112,9 +161,9 @@ class BatchAudioSegmentParser
     end
   end
 
-  def process_reciter(reciter_id, surah_id = nil)
-    puts "Processing files for reciter ID: #{reciter_id}"
-    files = filter_segments_files(reciter_id, surah_id)
+  def process_reciter(reciter: , surah: nil)
+    puts "Processing files for reciter ID: #{reciter}"
+    files = filter_segments_files(reciter, surah)
 
     files.each do |file_path|
       process_file(file_path)
@@ -131,7 +180,7 @@ class BatchAudioSegmentParser
 
     files.select do |file_path|
       folder_name = File.basename(File.dirname(file_path))
-      recitation_ids << folder_name[0..3].to_i
+      recitation_ids << folder_name[0..2].to_i
     end
 
     @recitations = Audio::Recitation.where(id: recitation_ids.uniq)
@@ -171,10 +220,10 @@ class BatchAudioSegmentParser
     if reciter_id.present?
       files = files.select do |file_path|
         folder_name = File.basename(File.dirname(file_path))
-        matched = folder_name[0..3].to_i == reciter_id
+        matched = folder_name[0..2].to_i == reciter_id
 
         if surah_id
-          matched && folder_name[4..7].to_i == surah_id
+          matched && folder_name[3..5].to_i == surah_id
         else
           matched
         end
@@ -274,6 +323,13 @@ class BatchAudioSegmentParser
   end
 
   private
+
+  def parse_reciter_and_surah_id(filename)
+    reciter_id = filename[0..2].to_i
+    surah_number = filename[3..5].to_i
+
+    [reciter_id, surah_number]
+  end
 
   def debug_ayah_segments_stats(positions, reciter_id)
     chapter_id = positions[0][:surah]

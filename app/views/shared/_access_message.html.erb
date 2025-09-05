@@ -1,11 +1,11 @@
 <% if @access && @access.admin_notes.present? %>
   <div class="container-lg">
-    <div class="callout alert alert-dismissible <%= 'callout-warning' %>" role="alert">
+    <div class="callout alert alert-dismissible <%= 'callout-warning' %>" role="alert" data-controller="alert">
       <div class="row">
         <div class="col-md-12">
           <div style="font-size: 30px; margin-top: 10px">
             <%= safe_html @access.admin_notes %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-action="click->alert#dismiss" aria-label="Close"></button>
           </div>
         </div>
       </div>

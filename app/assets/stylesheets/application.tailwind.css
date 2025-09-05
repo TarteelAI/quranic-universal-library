@@ -152,6 +152,14 @@
     @apply text-gray-100 bg-gray-800 border-gray-700;
   }
 
+  .alert-dismissible {
+    @apply pr-12;
+  }
+
+  .alert-dismissible .btn-close {
+    @apply absolute top-0 right-0 z-10 p-3;
+  }
+
   /* Card Classes */
   .card {
     @apply relative flex flex-col min-w-0 break-words bg-white border border-gray-200 rounded-lg;
@@ -1004,6 +1012,14 @@
 
   .offcanvas-backdrop {
     @apply fixed inset-0 z-40 bg-black bg-opacity-50;
+  }
+
+  .offcanvas-backdrop.fade {
+    @apply opacity-0 transition-opacity duration-150 ease-linear;
+  }
+
+  .offcanvas-backdrop.show {
+    @apply opacity-100;
   }
 
   /* Container Fluid */

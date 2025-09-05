@@ -183,4 +183,10 @@ export default class extends Controller {
 
     this.modal.show();
   }
+
+  close() {
+    if (this.modal) {
+      this.modal.hide();
+    }
+  }
 }

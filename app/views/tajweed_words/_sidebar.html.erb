@@ -6,10 +6,10 @@
 
 <div class="offcanvas offcanvas-start"
      tabindex="-1" id="tajweed-rules-sidebar"
-     aria-labelledby="tajweed-paletee">
+     aria-labelledby="tajweed-paletee" data-controller="offcanvas" data-offcanvas-target="offcanvas">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="tajweed-paletee">Tajweed Rule Palette</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-action="click->offcanvas#dismiss" aria-label="Close"></button>
   </div>
 
   <div class="offcanvas-body">
@@ -55,12 +55,12 @@
      id="tajweed-page-sidebar"
      aria-labelledby="tajweed-page"
      style="width: 90%;"
->
+     data-controller="offcanvas" data-offcanvas-target="offcanvas">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="tajweed-page">
       Page <span class="page-number"><%= page_number %></span>
     </h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-action="click->offcanvas#dismiss" aria-label="Close"></button>
   </div>
 
   <div class="offcanvas-body">

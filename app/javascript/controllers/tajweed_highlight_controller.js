@@ -1,5 +1,5 @@
 import {Controller} from "@hotwired/stimulus"
-import {Tooltip} from "bootstrap";
+// Bootstrap removed: replacing tooltip with native title attributes
 
 const TAJWEED_RULE_DESCRIPTION = {
   ham_wasl: "Hamzat ul Wasl",
@@ -79,11 +79,8 @@ export default class extends Controller {
     const keys = Object.keys(TAJWEED_RULE_DESCRIPTION);
     keys.forEach((name, i) => {
       this.element.querySelectorAll(`.${name}`).forEach((elem, _) => {
-        new Tooltip(elem, {
-          direction: "top",
-          title: TAJWEED_RULE_DESCRIPTION[name],
-          sanitize: false
-        });
+        // Set native title attribute for basic tooltip behavior
+        elem.setAttribute('title', TAJWEED_RULE_DESCRIPTION[name]);
       })
     })
   }

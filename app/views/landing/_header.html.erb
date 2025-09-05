@@ -37,13 +37,13 @@
         <%= link_to 'Logout', destroy_user_session_path, class: 'tw-text-black tw-hidden md:tw-flex', data: { turbo_method: :delete } if user_signed_in? %>
         <%= link_to 'CMS', '/cms', class: 'tw-inline-block tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2 tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300', data: generate_event_data('clicked-admin', 'navigation') %>
 
-        <a class="tw-inline-block md:tw-hidden" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+        <a class="tw-inline-block md:tw-hidden" type="button" data-action="click->offcanvas#toggle" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
           <svg class="tw-fill-white" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="1" y="1" width="36" height="36" rx="18" stroke="#404040"/>
             <path d="M9 25.25H28.375V23.0971H9V25.25ZM9 19.8679H28.375V17.7155H9V19.8679ZM9 12.3334V14.4863H28.375V12.3334H9Z" fill="black"/>
           </svg>
         </a>
-        <div class="offcanvas offcanvas-end tw-z-[9999]"  tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" data-controller="offcanvas" data-offcanvas-target="offcanvas">
           <div class="offcanvas-header">
             <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_2_682)">
@@ -56,7 +56,7 @@
               </defs>
             </svg>
             <h1 class="offcanvas-title" id="offcanvasRightLabel">QUL</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-action="click->offcanvas#dismiss" aria-label="Close"></button>
           </div>
           <div class="offcanvas-body">
             <div class="tw-flex tw-flex-col tw-gap-3 tw-font-bold tw-mt-4">

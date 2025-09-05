@@ -9,24 +9,63 @@ $dark: #343a40 !default;
 
 $link-color: $primary !default;
 
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-
 $enable-print-styles: true;
 
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
+// Custom utility classes for PDF
+.d-flex { display: flex; }
+.justify-content-center { justify-content: center; }
+.text-center { text-align: center; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 1rem; }
+.p-4 { padding: 1.5rem; }
+
+// Container and grid system
+.container { max-width: 100%; margin: 0 auto; padding: 0 15px; }
+.row { display: flex; flex-wrap: wrap; margin: 0 -15px; }
+.col { flex: 1; padding: 0 15px; }
+.col-12 { width: 100%; padding: 0 15px; }
 
 $print-page-type: portrait; /* landscape or portrait */
 $print-page-size: letter; /* auto, letter */
 $print-page-margin: 1cm;
 
 @import "shared/font_faces";
-@import "bootstrap/scss/reboot";
-@import "bootstrap/scss/containers";
-@import "bootstrap/scss/grid";
 @import "shared/mushaf_page";
+
+// Basic reboot styles for PDF
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
 
 @media print {
   .verse {
@@ -42,9 +81,7 @@ $print-page-margin: 1cm;
   border-collapse: collapse;
 }
 
-.text-center{
-  text-align: center;
-}
+
 
 .icon-surah{
   font-size: 30px;

@@ -6,6 +6,3 @@ import "trix";
 import "@rails/actiontext";
 import "./controllers";
 import "./utils/ayah-player";
-
-// Alert dismiss functionality is now handled by alert_controller.js
-// for cleaner separation of concerns

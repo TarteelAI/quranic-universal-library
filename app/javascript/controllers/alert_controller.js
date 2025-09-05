@@ -1,35 +1,11 @@
 import { Controller } from "@hotwired/stimulus";
 
-export default class extends Controller {
-  static targets = ["alert"];
+// Set up global alert handlers immediately when this module loads
+if (!window.alertHandlersSetup) {
+  window.alertHandlersSetup = true;
 
-  connect() {
-    // Auto-initialize if this controller is on an alert element
-    if (this.element.classList.contains("alert")) {
-      this.alertTarget = this.element;
-    }
-
-    // Set up global alert dismiss handlers when controller connects
-    this.setupGlobalHandlers();
-  }
-
-  setupGlobalHandlers() {
-    // Handle alert dismiss buttons globally with multiple fallback strategies
-    if (!document.alertHandlersSetup) {
-      document.alertHandlersSetup = true;
-
-      // Global event delegation for all alert dismiss buttons
-      document.addEventListener(
-        "click",
-        this.handleGlobalAlertDismiss.bind(this),
-      );
-
-      // Handle Turbo page loads
-      document.addEventListener("turbo:load", this.handleTurboLoad.bind(this));
-    }
-  }
-
-  handleGlobalAlertDismiss(event) {
+  // Global event delegation for all alert dismiss buttons
+  document.addEventListener("click", (event) => {
     const target = event.target;
 
     // Check for various dismiss button patterns
@@ -39,12 +15,12 @@ export default class extends Controller {
       target.matches('[data-bs-dismiss="alert"]')
     ) {
       event.preventDefault();
-      this.dismissAlert(target);
+      dismissAlert(target);
     }
-  }
+  });
 
-  handleTurboLoad() {
-    // Re-attach handlers after Turbo navigation for any missed elements
+  // Handle Turbo page loads
+  document.addEventListener("turbo:load", () => {
     setTimeout(() => {
       const alertButtons = document.querySelectorAll(".alert .btn-close");
       alertButtons.forEach((button) => {
@@ -52,44 +28,61 @@ export default class extends Controller {
           button.dataset.alertHandlerAttached = "true";
           button.addEventListener("click", (e) => {
             e.preventDefault();
-            this.dismissAlert(button);
+            dismissAlert(button);
           });
         }
       });
     }, 100);
+  });
+
+  // Also handle DOMContentLoaded for initial page load
+  document.addEventListener("DOMContentLoaded", () => {
+    const alertButtons = document.querySelectorAll(".alert .btn-close");
+    alertButtons.forEach((button) => {
+      if (!button.dataset.alertHandlerAttached) {
+        button.dataset.alertHandlerAttached = "true";
+        button.addEventListener("click", (e) => {
+          e.preventDefault();
+          dismissAlert(button);
+        });
+      }
+    });
+  });
+}
+
+// Global dismiss function
+function dismissAlert(triggerElement) {
+  // Find the alert element using multiple strategies
+  const alertElement =
+    triggerElement.closest(".alert") ||
+    triggerElement.closest('[role="alert"]') ||
+    triggerElement.closest(".alert-dismissible");
+
+  if (alertElement) {
+    // Add fade out animation
+    alertElement.style.transition = "opacity 0.15s linear";
+    alertElement.style.opacity = "0";
+
+    // Remove element after animation completes
+    setTimeout(() => {
+      alertElement.remove();
+    }, 150);
+  }
+}
+
+export default class extends Controller {
+  static targets = ["alert"];
+
+  connect() {
+    // Auto-initialize if this controller is on an alert element
+    if (this.element.classList.contains("alert")) {
+      this.alertTarget = this.element;
+    }
   }
 
   dismiss(event) {
     event.preventDefault();
-    this.dismissAlert(event.currentTarget);
-  }
-
-  dismissAlert(triggerElement) {
-    // Find the alert element using multiple strategies
-    let alertElement = this.hasAlertTarget
-      ? this.alertTarget
-      : this.findAlertElement(triggerElement);
-
-    if (alertElement) {
-      // Add fade out animation
-      alertElement.style.transition = "opacity 0.15s linear";
-      alertElement.style.opacity = "0";
-
-      // Remove element after animation completes
-      setTimeout(() => {
-        alertElement.remove();
-      }, 150);
-    }
-  }
-
-  findAlertElement(triggerElement) {
-    // Multiple strategies to find the alert element
-    return (
-      triggerElement.closest(".alert") ||
-      triggerElement.closest('[role="alert"]') ||
-      triggerElement.closest(".alert-dismissible") ||
-      (this.element.classList.contains("alert") ? this.element : null)
-    );
+    dismissAlert(event.currentTarget);
   }
 
   // Static method to create dismissible alerts programmatically

@@ -7,20 +7,15 @@
 //   <h1 data-target="hello.output"></h1>
 // </div>
 
-import {
-  Controller
-} from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
-import {
-  Modal
-} from "bootstrap";
 import LocalStore from "../utils/LocalStore";
 
 export default class extends Controller {
   connect() {
     this.store = new LocalStore();
 
-    $(this.element).on("click", e => {
+    $(this.element).on("click", (e) => {
       this.loadModal(e);
     });
   }
@@ -31,25 +26,25 @@ export default class extends Controller {
     e.stopImmediatePropagation();
 
     this.createModel();
-    $("#ajax-modal").on("hidden.bs.modal", function (e) {
-      $("#ajax-modal")
-        .empty()
-        .remove();
+    $("#ajax-modal").on("click", ".btn-close", function (e) {
+      $("#ajax-modal").empty().remove();
     });
 
     this.renderBookmarks();
   }
 
-  renderBookmarks(){
-    this.bookmarks = JSON.parse(this.store.get('bookmarks') || "{}")
-    const modalBody = $("#ajax-modal .modal-body")
+  renderBookmarks() {
+    this.bookmarks = JSON.parse(this.store.get("bookmarks") || "{}");
+    const modalBody = $("#ajax-modal .modal-body");
     modalBody.empty();
     Object.keys(this.bookmarks).forEach((key) => {
-      modalBody.append(`<div class="row"><div class="col-12 border p-2 mb-2">${key}</div></div>`)
-    })
+      modalBody.append(
+        `<div class="row"><div class="col-12 border p-2 mb-2">${key}</div></div>`,
+      );
+    });
 
-    if(Object.keys(this.bookmarks).length === 0 )
-      modalBody.append("You have not bookmarked any ayah.")
+    if (Object.keys(this.bookmarks).length === 0)
+      modalBody.append("You have not bookmarked any ayah.");
   }
 
   createModel(classes) {
@@ -76,7 +71,16 @@ export default class extends Controller {
 
     $(modal).appendTo("body");
 
-    this.modal = new Modal('#ajax-modal');
-    this.modal.show();
+    const el = document.getElementById("ajax-modal");
+    el.style.display = "block";
+    this.modal = {
+      _element: el,
+      show: () => {
+        el.style.display = "block";
+      },
+      hide: () => {
+        el.style.display = "none";
+      },
+    };
   }
 }

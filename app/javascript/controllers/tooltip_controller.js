@@ -1,14 +1,13 @@
-import {Controller} from "@hotwired/stimulus";
+import { Controller } from "@hotwired/stimulus";
 
-import {Tooltip} from "bootstrap";
+// Bootstrap removed: Tooltip no longer used
 
 export default class extends Controller {
   connect() {
-    this.tip = new Tooltip(this.element, {html: true})
+    // No-op: You can implement a custom tooltip here if needed
   }
 
   disconnect() {
-    this.tip.hide()
-    this.tip.dispose()
+    // No-op
   }
 }

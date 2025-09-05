@@ -1,8 +1,4 @@
 @import "shared/variables";
-//TODO: remove bootstrap after migrating all tools UI to tailwind
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/variables';
 
 @import 'libs/actiontext';
 @import "components/splash";
@@ -60,7 +56,7 @@ body {
 }
 
 .narrow-container {
-  @media (min-width: $screen-md) {
+  @media (min-width: 768px) {
     margin: 0 auto;
     width: 100%;
     max-width: 700px !important;

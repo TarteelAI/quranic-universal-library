@@ -8,25 +8,67 @@ export default class extends Controller {
     if (this.element.classList.contains("alert")) {
       this.alertTarget = this.element;
     }
+
+    // Set up global alert dismiss handlers when controller connects
+    this.setupGlobalHandlers();
+  }
+
+  setupGlobalHandlers() {
+    // Handle alert dismiss buttons globally with multiple fallback strategies
+    if (!document.alertHandlersSetup) {
+      document.alertHandlersSetup = true;
+
+      // Global event delegation for all alert dismiss buttons
+      document.addEventListener(
+        "click",
+        this.handleGlobalAlertDismiss.bind(this),
+      );
+
+      // Handle Turbo page loads
+      document.addEventListener("turbo:load", this.handleTurboLoad.bind(this));
+    }
+  }
+
+  handleGlobalAlertDismiss(event) {
+    const target = event.target;
+
+    // Check for various dismiss button patterns
+    if (
+      target.matches('[data-action="click->alert#dismiss"]') ||
+      target.matches(".alert .btn-close") ||
+      target.matches('[data-bs-dismiss="alert"]')
+    ) {
+      event.preventDefault();
+      this.dismissAlert(target);
+    }
+  }
+
+  handleTurboLoad() {
+    // Re-attach handlers after Turbo navigation for any missed elements
+    setTimeout(() => {
+      const alertButtons = document.querySelectorAll(".alert .btn-close");
+      alertButtons.forEach((button) => {
+        if (!button.dataset.alertHandlerAttached) {
+          button.dataset.alertHandlerAttached = "true";
+          button.addEventListener("click", (e) => {
+            e.preventDefault();
+            this.dismissAlert(button);
+          });
+        }
+      });
+    }, 100);
   }
 
   dismiss(event) {
     event.preventDefault();
+    this.dismissAlert(event.currentTarget);
+  }
 
-    // Find the alert element - either the target or closest parent with alert class
+  dismissAlert(triggerElement) {
+    // Find the alert element using multiple strategies
     let alertElement = this.hasAlertTarget
       ? this.alertTarget
-      : event.currentTarget.closest(".alert");
-
-    // If still not found, check if the current element is the alert
-    if (!alertElement && this.element.classList.contains("alert")) {
-      alertElement = this.element;
-    }
-
-    // If still not found, traverse up from the clicked element
-    if (!alertElement) {
-      alertElement = event.target.closest(".alert");
-    }
+      : this.findAlertElement(triggerElement);
 
     if (alertElement) {
       // Add fade out animation
@@ -38,6 +80,16 @@ export default class extends Controller {
         alertElement.remove();
       }, 150);
     }
+  }
+
+  findAlertElement(triggerElement) {
+    // Multiple strategies to find the alert element
+    return (
+      triggerElement.closest(".alert") ||
+      triggerElement.closest('[role="alert"]') ||
+      triggerElement.closest(".alert-dismissible") ||
+      (this.element.classList.contains("alert") ? this.element : null)
+    );
   }
 
   // Static method to create dismissible alerts programmatically

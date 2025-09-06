@@ -9,7 +9,10 @@ module V1
     end
 
     def finder
-      @finder ||= ::V1::ChapterFinder.new(locale: api_locale)
+      @finder ||= ::V1::ChapterFinder.new(
+        locale: api_locale,
+        context: context
+      )
     end
   end
 end

@@ -150,6 +150,12 @@ cypress-tests/.vscode
 # Ignore cypress screenshots and videos
 cypress/artifacts/screenshots/
 cypress/artifacts/videos/
+scripts/cypress-e2e/cypress/screenshots/
+scripts/cypress-e2e/cypress/videos/
+scripts/cypress-e2e/cypress/results/
+
+# Cypress cache
+.cypress_cache
 
 # Ignore redis dump file
 dump.rdb

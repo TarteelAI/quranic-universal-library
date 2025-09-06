@@ -1,0 +1,51 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  cypress-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Cypress binary
+        run: npx cypress install
+        
+      - name: Run Cypress tests
+        run: npm run cypress:run
+        env:
+          # Set base URL for testing (can be overridden)
+          CYPRESS_baseUrl: https://qul.tarteel.ai
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-results
+          path: |
+            scripts/cypress-e2e/cypress/screenshots
+            scripts/cypress-e2e/cypress/videos
+          retention-days: 7
+          
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-reports
+          path: scripts/cypress-e2e/cypress/results
+          retention-days: 7

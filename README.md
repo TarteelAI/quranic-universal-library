@@ -142,6 +142,57 @@ You can now visit [http://localhost:3000](http://localhost:3000) in your browser
 
 🔐 Head over to the admin panel at [http://localhost:3000/admin](http://localhost:3000/admin)
 
+## End-to-End Testing with Cypress
+
+QUL includes comprehensive end-to-end (e2e) testing using [Cypress](https://www.cypress.io/). These tests ensure that critical user workflows function correctly across the application.
+
+### Prerequisites for E2E Testing
+- Node.js (LTS version recommended)
+- All project dependencies installed (`npm install`)
+
+### Running E2E Tests
+
+#### Via Test Runner (Interactive)
+For development and debugging, use the interactive test runner:
+```bash
+npm run test:e2e:open
+# or
+npm run cypress:open
+```
+
+This opens the Cypress Test Runner GUI where you can:
+- Select which browser to use for testing
+- Choose specific test files to run
+- Watch tests execute in real-time
+- Debug test failures interactively
+
+#### Via CLI (Headless)
+For CI/CD or automated testing, run tests in headless mode:
+```bash
+npm run test:e2e
+# or  
+npm run cypress:run
+```
+
+#### Running Specific Tests
+To run tests from a specific file:
+```bash
+cd scripts/cypress-e2e
+npx cypress run --spec "cypress/e2e/Tests/signupTests.cy.js"
+```
+
+### Test Structure
+- **Configuration**: `scripts/cypress-e2e/cypress.config.js`
+- **Test Files**: `scripts/cypress-e2e/cypress/e2e/Tests/`
+- **Page Objects**: `scripts/cypress-e2e/cypress/e2e/Pages/`
+- **Support Files**: `scripts/cypress-e2e/cypress/support/`
+
+### Available Test Suites
+- **Signup Tests**: User registration and email verification workflows
+- **Signin Tests**: User authentication and login validation
+
+For more detailed information about running and writing Cypress tests, see [`scripts/cypress-e2e/readme.md`](scripts/cypress-e2e/readme.md).
+
 ### 10. Contributing to QUL
 We welcome contributions to enhance the QUL project! If you'd like to contribute, please follow these steps:
 

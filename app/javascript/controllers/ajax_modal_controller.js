@@ -26,13 +26,26 @@ export default class extends Controller {
   }
   
   // Close modal method
-  close() {
+  close(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     const modal = document.getElementById('ajax-modal');
+    
     if (modal) {
       // Remove event listeners
-      document.removeEventListener('keydown', this.boundKeyDown);
-      // Remove modal
-      modal.remove();
+      if (this.cleanup) this.cleanup();
+      
+      // Add fade out effect
+      modal.style.transition = 'opacity 0.2s';
+      modal.style.opacity = '0';
+      
+      // Remove modal after animation
+      setTimeout(() => {
+        modal.remove();
+      }, 200);
     }
   }
 
@@ -118,14 +131,13 @@ export default class extends Controller {
     // Create modal HTML
     const modal = `
       <div class="tw-fixed tw-inset-0 tw-z-50 tw-overflow-y-auto" id="ajax-modal">
-        <div class="tw-fixed tw-inset-0 tw-bg-black/50" data-action="click->ajax-modal#close"></div>
+        <div class="tw-fixed tw-inset-0 tw-bg-black/50" id="modal-overlay"></div>
         <div class="tw-relative tw-w-auto tw-mx-auto tw-my-8 tw-max-w-lg ${classes}">
           <div class="tw-relative tw-bg-white tw-rounded-lg tw-shadow-xl tw-overflow-hidden">
             <div class="tw-flex tw-items-center tw-justify-between tw-p-6 tw-border-b tw-border-gray-200">
               <h5 class="tw-text-lg tw-font-semibold tw-text-gray-900" id="title">Loading</h5>
               <button type="button" 
-                      class="tw-p-1 tw-rounded tw-text-gray-400 hover:tw-text-gray-600 hover:tw-bg-gray-200" 
-                      data-action="click->ajax-modal#close"
+                      class="close-modal-button tw-p-1 tw-rounded tw-text-gray-400 hover:tw-text-gray-600 hover:tw-bg-gray-200" 
                       aria-label="Close">
                 <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -141,16 +153,38 @@ export default class extends Controller {
         </div>
       </div>
     `;
-
+    
     // Add modal to the page
     document.body.insertAdjacentHTML('beforeend', modal);
     
-    // Show the modal
     const modalElement = document.getElementById('ajax-modal');
-    modalElement.classList.remove('tw-hidden');
+    const closeButton = modalElement.querySelector('.close-modal-button');
+    const overlay = document.getElementById('modal-overlay');
+    
+    // Add click handlers
+    const closeHandler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.close(e);
+    };
+    
+    closeButton.addEventListener('click', closeHandler);
+    overlay.addEventListener('click', closeHandler);
+
+    // Show the modal with a small delay for the transition
+    setTimeout(() => {
+      modalElement.style.opacity = '1';
+    }, 10);
     
     // Add escape key handler
     this.boundKeyDown = this.handleKeyDown.bind(this);
     document.addEventListener('keydown', this.boundKeyDown);
+    
+    // Cleanup function
+    this.cleanup = () => {
+      closeButton.removeEventListener('click', closeHandler);
+      overlay.removeEventListener('click', closeHandler);
+      document.removeEventListener('keydown', this.boundKeyDown);
+    };
   }
 }

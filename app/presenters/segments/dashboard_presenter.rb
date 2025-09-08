@@ -140,6 +140,7 @@ module Segments
       expected_text = params[:expected_text].to_s.strip
       received_text = params[:received_text].to_s.strip
       failure_type = params[:failure_type].to_s.strip
+      word_search = params[:word_search].to_s.strip
 
       list = ::Segments::Failure.all
       list = list.where(reciter_id: selected_reciter) if selected_reciter.present?
@@ -157,6 +158,10 @@ module Segments
         list = list.where(failure_type: failure_type)
       end
 
+      if word_search.present?
+        list = list.where("expected_transcript LIKE ? OR received_transcript LIKE ?", "%#{word_search}%", "%#{word_search}%")
+      end
+
       correction_status = params[:correction_status].to_s.strip
       if correction_status == 'corrected'
         list = list.where(corrected: true)
@@ -165,6 +170,88 @@ module Segments
       end
 
       list
+    end
+
+    # Word failure statistics methods
+    def word_failure_stats
+      failures = filter_failures
+      
+      # Group by expected_transcript (correct word)
+      grouped_failures = failures.group_by(&:expected_transcript)
+      
+      grouped_failures.map do |expected_word, word_failures|
+        {
+          word: expected_word,
+          fail_count: word_failures.count,
+          unique_reciters: word_failures.map(&:reciter_id).uniq.count,
+          mistaken_variants: word_failures.map(&:received_transcript).uniq.sort,
+          reciter_ids: word_failures.map(&:reciter_id).uniq.sort,
+          mistake_types: word_failures.map(&:failure_type).uniq,
+          surah_ayah_pairs: word_failures.map { |f| "#{f.surah_number}:#{f.ayah_number}" }.uniq.sort,
+          reciter_breakdown: word_failures.group_by(&:reciter_id).transform_values(&:count),
+          corrected_count: word_failures.count(&:corrected),
+          pending_count: word_failures.count { |f| !f.corrected }
+        }
+      end.sort_by { |stats| -stats[:fail_count] }
+    end
+
+    def word_failure_stats_paginated
+      pagy(word_failure_stats)
+    end
+
+    def word_failure_summary
+      failures = filter_failures
+      
+      {
+        total_failures: failures.count,
+        unique_words_with_failures: failures.distinct.count(:expected_transcript),
+        unique_reciters: failures.distinct.count(:reciter_id),
+        unique_surahs: failures.distinct.count(:surah_number),
+        total_corrected: failures.where(corrected: true).count,
+        total_pending: failures.where(corrected: false).count,
+        correction_rate: calculate_correction_rate(failures)
+      }
+    end
+
+    def top_problematic_words(limit = 10)
+      word_failure_stats.first(limit)
+    end
+
+    def reciter_word_failure_breakdown
+      failures = filter_failures
+      reciter_stats = {}
+      
+      failures.group_by(&:reciter_id).each do |reciter_id, reciter_failures|
+        reciter = ::Segments::Reciter.find_by(id: reciter_id)
+        next unless reciter
+        
+        word_groups = reciter_failures.group_by(&:expected_transcript)
+        
+        reciter_stats[reciter_id] = {
+          reciter_name: reciter.name,
+          total_failures: reciter_failures.count,
+          unique_problematic_words: word_groups.count,
+          top_words: word_groups.map do |word, word_failures|
+            {
+              word: word,
+              count: word_failures.count,
+              variants: word_failures.map(&:received_transcript).uniq
+            }
+          end.sort_by { |w| -w[:count] }.first(5)
+        }
+      end
+      
+      reciter_stats
+    end
+
+    private
+
+    def calculate_correction_rate(failures)
+      total = failures.count
+      return 0.0 if total == 0
+      
+      corrected = failures.where(corrected: true).count
+      (corrected.to_f / total * 100).round(2)
     end
   end
 end

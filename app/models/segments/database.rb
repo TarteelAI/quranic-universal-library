@@ -19,12 +19,6 @@ module Segments
     end
 
     protected
-
-    def download_db
-      return if db_file_path.exist?
-
-    end
-
     def download_db
       require "zip"
       zip_temp_path = Rails.root.join("tmp", "segments_upload_#{id}.zip")

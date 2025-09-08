@@ -58,6 +58,12 @@ class Segments::DashboardController < ApplicationController
   def failures
   end
 
+  def word_failures
+  end
+
+  def word_failure_detail
+  end
+
   def ayah_report
   end
 

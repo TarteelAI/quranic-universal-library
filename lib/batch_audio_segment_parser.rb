@@ -2,7 +2,7 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: false)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: true)
 p.validate_log_files
 
 1.upto(114) do |i|
@@ -11,7 +11,7 @@ p.validate_log_files
   p.process_reciter(reciter: 12, surah: i)
 end
 
-43.upto(114) do |i|
+1.upto(114) do |i|
   next if i == 3
   p.seed_waveform_silences(reciter: 12, surah: i)
 end
@@ -161,7 +161,7 @@ class BatchAudioSegmentParser
     end
   end
 
-  def process_reciter(reciter: , surah: nil)
+  def process_reciter(reciter:, surah: nil)
     puts "Processing files for reciter ID: #{reciter}"
     files = filter_segments_files(reciter, surah)
 
@@ -295,23 +295,23 @@ class BatchAudioSegmentParser
 
     failures_data = failures.map do |failure|
       {
-        surah_number: failure[:surah],
-        ayah_number: failure[:ayah],
-        word_number: failure[:word] || 1, # Default to 1 if not specified
-        word_key: failure[:word] ? generate_word_key(failure[:surah], failure[:ayah], failure[:word]) : nil,
-        text: failure[:text],
         reciter_id: reciter_id,
-        failure_type: failure[:type] || 'unknown',
-        received_transcript: failure[:received_text] || failure[:text],
-        expected_transcript: failure[:expected_text] || failure[:text],
+        surah_number: failure[:surah_number],
+        ayah_number: failure[:ayah_number],
+        word_number: failure[:word_number],
+        word_key: generate_word_key(failure[:surah_number], failure[:ayah_number], failure[:word_number]),
+        text: failure[:text],
+        failure_type: failure[:failure_type],
+        received_transcript: failure[:received_transcript],
+        expected_transcript: failure[:expected_transcript],
         start_time: failure[:start_time],
         end_time: failure[:end_time],
-        mistake_positions: '', # Could be enhanced to store more detailed position info
-        corrected: false,
-        corrected_ayah_number: nil,
-        corrected_word_number: nil,
-        corrected_start_time: nil,
-        corrected_end_time: nil
+        mistake_positions: failure[:mistake_positions] || '',
+        corrected: failure[:corrected] || false,
+        corrected_ayah_number: failure[:corrected_ayah_number],
+        corrected_word_number: failure[:corrected_word_number],
+        corrected_start_time: failure[:corrected_start_time],
+        corrected_end_time: failure[:corrected_end_time]
       }
     end
 

@@ -14,7 +14,7 @@
   <%= form_with url: url, method: :put do |form| %>
     <div class="modal-body">
       <% if resource.segment_locked? %>
-        <div class="alert alert-info">
+        <div class="alert alert-info" data-controller="alert">
           Segments are locked for this recitation. Please unlock the segments and try again.
         </div>
       <% else %>

@@ -59,7 +59,7 @@
                 use this permission to suggest changes in wording preferences or subjective opinions.
               </div>
 
-              <div class="alert alert-dark mt-2">
+              <div class="alert alert-dark mt-2" data-controller="alert">
                 We ask for this acknowledgment to ensure that the integrity of the
                 <% if resource.translation? %>
                   translation
@@ -81,7 +81,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-default">Close</button>
 
       <div class="form-group mt-2" style="text-align: right">
         <%= form.submit 'Submit', class: 'btn btn-success' %>

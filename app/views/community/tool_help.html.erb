@@ -24,7 +24,7 @@
                 <%= safe_html doc[:text] %>
               </h3>
             <% elsif doc[:type] == 'info' %>
-              <div class="alert alert-dark">
+              <div class="alert alert-dark" data-controller="alert">
                 <%= safe_html doc[:text] %>
               </div>
             <% elsif doc[:type] == 'step' %>

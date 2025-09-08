@@ -28,7 +28,7 @@
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
       </div>
     <% else %>
-      <div class="alert alert-warning">
+      <div class="alert alert-warning" data-controller="alert">
         This activity does not exist, try one from list below instead?
       </div>
       <ol class="list-group text-start">

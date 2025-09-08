@@ -148,7 +148,7 @@
       </table>
 
       <% if review_words.size > 0 %>
-        <div class="alert alert-danger tw-mt-4">
+        <div class="alert alert-danger tw-mt-4" data-controller="alert">
           <%= review_words.size %> issues found.
           <div class="tw-flex tw-gap-2 tw-flex-wrap">
             <% review_words.each do |w| %>

@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import AlertController from "./alert_controller.js"
+application.register("alert", AlertController)
+
 import AjaxModalController from "./ajax_modal_controller.js"
 application.register("ajax-modal", AjaxModalController)
 

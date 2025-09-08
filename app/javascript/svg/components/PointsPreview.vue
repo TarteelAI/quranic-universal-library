@@ -49,7 +49,7 @@
 <script>
 import {mapState} from "vuex";
 import Raphael from "raphael";
-import {Tooltip} from "bootstrap";
+// Bootstrap Tooltip removed - using custom Stimulus tooltip controller instead
 
 export default {
   name: "PointsPreview",

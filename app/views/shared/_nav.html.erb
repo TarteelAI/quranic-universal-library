@@ -1,38 +1,59 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/" style="color: #54e0d2">
-      Tarteel <small style="color: #00a3ff">QUL</small>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/cms">Admin</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/resources">Resources</a>
-        </li>
-      </ul>
+<nav class="tw-bg-white tw-shadow-sm tw-border-b tw-border-gray-200">
+  <div class="tw-w-full tw-px-4">
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between">
+      <a class="tw-text-xl tw-font-bold tw-text-gray-900 tw-no-underline hover:tw-text-gray-700" href="/" style="color: #54e0d2">
+        Tarteel <small style="color: #00a3ff">QUL</small>
+      </a>
+      <button class="tw-inline-flex tw-items-center tw-justify-center tw-p-2 tw-rounded-md tw-text-gray-400 hover:tw-text-gray-500 hover:tw-bg-gray-100 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-inset focus:tw-ring-gray-500 md:tw-hidden" 
+              type="button" 
+              data-controller="bootstrap-collapse" 
+              data-bootstrap-collapse-target-value="#navbarSupportedContent" 
+              data-action="click->bootstrap-collapse#toggle"
+              aria-controls="navbarSupportedContent" 
+              aria-expanded="false" 
+              aria-label="Toggle navigation">
+        <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <div class="tw-hidden md:tw-flex md:tw-items-center md:tw-space-x-8" id="navbarSupportedContent">
+        <ul class="tw-flex tw-flex-col tw-space-y-2 md:tw-space-y-0 md:tw-flex-row md:tw-space-x-8">
+          <li class="tw-relative">
+            <a class="tw-bg-gray-100 tw-text-gray-900 tw-px-3 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors tw-duration-200" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="tw-relative">
+            <a class="tw-text-gray-700 hover:tw-text-gray-900 tw-px-3 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors tw-duration-200" aria-current="page" href="/cms">Admin</a>
+          </li>
+          <li class="tw-relative">
+            <a class="tw-text-gray-700 hover:tw-text-gray-900 tw-px-3 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors tw-duration-200" aria-current="page" href="/resources">Resources</a>
+          </li>
+        </ul>
 
-      <div class="d-flex">
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-            Salam <%= current_user&.first_name %>
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" data-turbo="false">
-            <li>
-              <% if current_user %>
-                <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'dropdown-item' %>
-              <% else %>
-                <%= link_to 'Log In', new_user_session_path, class: 'dropdown-item' %>
-              <% end %>
-            </li>
-          </ul>
+        <div class="tw-flex">
+          <div class="tw-relative tw-inline-block" data-controller="bootstrap-dropdown">
+            <button class="tw-flex tw-items-center tw-space-x-1 tw-bg-gray-600 tw-text-white tw-border-gray-600 hover:tw-bg-gray-700 hover:tw-border-gray-700 focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-rounded-md tw-border tw-transition-colors tw-duration-200 tw-cursor-pointer tw-inline-flex tw-items-center tw-justify-center" 
+                    type="button" 
+                    data-bootstrap-dropdown-target-value="#dropdownMenuButton1"
+                    data-action="click->bootstrap-dropdown#toggle"
+                    aria-expanded="false">
+              Salam <%= current_user&.first_name %>
+              <svg class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <ul class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-ring-1 tw-ring-black tw-ring-opacity-5 tw-z-50 tw-hidden" 
+                aria-labelledby="dropdownMenuButton1" 
+                data-turbo="false"
+                data-bootstrap-dropdown-target="menu">
+              <li>
+                <% if current_user %>
+                  <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100 hover:tw-text-gray-900 tw-w-full tw-text-left tw-border-none tw-bg-transparent tw-cursor-pointer' %>
+                <% else %>
+                  <%= link_to 'Log In', new_user_session_path, class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100 hover:tw-text-gray-900 tw-w-full tw-text-left tw-border-none tw-bg-transparent tw-cursor-pointer' %>
+                <% end %>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

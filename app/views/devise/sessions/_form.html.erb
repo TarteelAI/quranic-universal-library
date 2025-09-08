@@ -7,17 +7,17 @@
 </p>
 
 <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form', class: 'inputs_container ', data: { controller: 'remote-form', auto_close: true } }) do |f| %>
-  <div class="form-floating tw-mt-3">
-    <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
-    <%= f.label :email, required: true %>
-    <div class="invalid-feedback">
+  <div class="tw-relative tw-mt-3">
+    <%= f.email_field :email, autofocus: true, required: true, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-shadow-sm tw-placeholder-gray-400 focus:tw-outline-none focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-sm:text-sm', placeholder: 'Enter your email' %>
+    <%= f.label :email, required: true, class: 'tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1' %>
+    <div class="tw-text-red-600 tw-text-sm tw-mt-1">
       Please enter a valid email
     </div>
   </div>
-  <div class="form-floating tw-mt-3 password">
-    <%= f.password_field :password, class: 'form-control', placeholder: 'enter your password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
-    <%= f.label :password, required: true %>
-    <div class="invalid-feedback">
+  <div class="tw-relative tw-mt-3 password">
+    <%= f.password_field :password, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-shadow-sm tw-placeholder-gray-400 focus:tw-outline-none focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-sm:text-sm', placeholder: 'enter your password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
+    <%= f.label :password, required: true, class: 'tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1' %>
+    <div class="tw-text-red-600 tw-text-sm tw-mt-1">
       Password does not meet minimum security requirements.
     </div>
   </div>
@@ -32,7 +32,7 @@
       <%= link_to 'Forgot your password?', new_user_password_path, class: 'hover:tw-text-black hover:tw-underline' %>
     </div>
   </div>
-  <div class="text-center tw-mt-8">
-    <%= f.submit t('.sign_in', default: 'Sign in'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3' %>
+  <div class="tw-text-center tw-mt-8">
+    <%= f.submit t('.sign_in', default: 'Sign in'), class: 'tw-bg-gray-800 tw-text-white tw-border-gray-800 hover:tw-bg-gray-900 hover:tw-border-gray-900 focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2 tw-px-8 tw-py-3 tw-text-sm tw-font-medium tw-rounded-md tw-border tw-transition-colors tw-duration-200 tw-cursor-pointer tw-inline-flex tw-items-center tw-justify-center tw-mt-2' %>
   </div>
 <% end %>

@@ -1,28 +1,38 @@
-<div class="alert alert-secondary d-flex" role="alert">
-  <i class="fa fa-info-circle me-2 fa-2x"></i>
-  <div>
-    <p>
+<div class="tw-flex tw-items-start tw-p-4 tw-mb-4 tw-bg-gray-100 tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-relative" 
+     role="alert"
+     id="mushaf-alert">
+  <i class="fa fa-info-circle tw-mr-3 tw-mt-1 tw-text-2xl tw-text-gray-600"></i>
+  <div class="tw-flex-1">
+    <p class="tw-mb-2 tw-text-gray-800">
       Mushaf layout tool is used to create layout of any physical Mushaf.
       We can adjust pages, number of lines per page, alignment of each line on page, and word placement on each line to
       accurately represent the Mushaf page.
     </p>
 
-    <p class="<%= 'mb-0' if @access %>">
+    <p class="<%= @access ? 'tw-mb-0' : 'tw-mb-2' %> tw-text-gray-800">
       This page lists the available Mushaf layouts we've in the QUL.
       If you have a unique layout that you'd like to see added to QUL,
       feel free to submit a request
-      on <%= link_to 'Github', 'https://github.com/TarteelAI/quranic-universal-library/issues/new/choose', target: '_blank', class: 'link-btn text-dark' %>
-      .
+      on <%= link_to 'Github', 'https://github.com/TarteelAI/quranic-universal-library/issues/new/choose', 
+          target: '_blank', 
+          class: 'tw-text-blue-600 hover:tw-underline hover:tw-text-blue-800' %>.
     </p>
 
     <% if !@access %>
-      <p>
-        If you'd like to contribute to the <%= @resource.name %>, simply click the link below to send a request
+      <p class="tw-mb-3 tw-text-gray-800">
+        If you'd like to contribute to the <span class="tw-font-medium"><%= @resource.name %></span>, simply click the link below to send a request
         to the admin. Once approved, you'll be able to start contributing to mushaf layout.
       </p>
 
-      <div id="btn-request-permission">
-        <%= link_to 'Request Access', '_', class: 'btn btn-dark', data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg' } %>
+      <div id="btn-request-permission" class="tw-mt-2">
+        <%= link_to 'Request Access', 
+            '_', 
+            class: 'tw-inline-block tw-px-4 tw-py-2 tw-bg-gray-800 hover:tw-bg-gray-700 tw-text-white tw-rounded-md tw-transition-colors', 
+            data: { 
+              controller: 'ajax-modal', 
+              url: new_user_project_path(resource_id: @resource.id, modal: true), 
+              css_class: 'modal-lg' 
+            } %>
       </div>
     <% end %>
   </div>

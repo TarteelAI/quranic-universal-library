@@ -132,7 +132,7 @@ export default class extends Controller {
     const modal = `
       <div class="tw-fixed tw-inset-0 tw-z-50 tw-overflow-y-auto" id="ajax-modal">
         <div class="tw-fixed tw-inset-0 tw-bg-black/50" id="modal-overlay"></div>
-        <div class="tw-relative tw-w-auto tw-mx-auto tw-my-8 tw-max-w-lg ${classes}">
+        <div class="tw-relative tw-w-auto tw-mx-auto tw-my-8 ${classes}">
           <div class="tw-relative tw-bg-white tw-rounded-lg tw-shadow-xl tw-overflow-hidden">
             <div class="tw-flex tw-items-center tw-justify-between tw-p-6 tw-border-b tw-border-gray-200">
               <h5 class="tw-text-lg tw-font-semibold tw-text-gray-900" id="title">Loading</h5>

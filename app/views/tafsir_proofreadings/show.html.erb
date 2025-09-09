@@ -23,11 +23,11 @@
     actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
   end
 
-  actions << "<div class='dropdown'>
-      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+  actions << "<div class='dropdown' data-controller='bootstrap-dropdown'>
+      <button class='btn btn-primary dropdown-toggle' type='button' data-action='click->bootstrap-dropdown#toggle' aria-expanded='false'>
         Change view
       </button>
-      <ul class='dropdown-menu text-dark'>
+      <ul class='dropdown-menu text-dark' data-bootstrap-dropdown-target='menu'>
        #{more_action.map do |action|
     "<li>#{action}</li>"
   end.join('')

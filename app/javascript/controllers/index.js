@@ -13,6 +13,30 @@ application.register("ajax-modal", AjaxModalController)
 import ArabicKeyboardController from "./arabic_keyboard_controller.js"
 application.register("arabic-keyboard", ArabicKeyboardController)
 
+import AyahSegmentPlayerController from "./ayah_segment_player_controller.js"
+application.register("ayah-segment-player", AyahSegmentPlayerController)
+
+import BootstrapCollapseController from "./bootstrap_collapse_controller.js"
+application.register("bootstrap-collapse", BootstrapCollapseController)
+
+import BootstrapDropdownController from "./bootstrap_dropdown_controller.js"
+application.register("bootstrap-dropdown", BootstrapDropdownController)
+
+import BootstrapModalController from "./bootstrap_modal_controller.js"
+application.register("bootstrap-modal", BootstrapModalController)
+
+import ChapterVersesFilterController from "./chapter_verses_filter_controller.js"
+application.register("chapter-verses-filter", ChapterVersesFilterController)
+
+import CharsInfoController from "./chars_info_controller.js"
+application.register("chars-info", CharsInfoController)
+
+import CollapseController from "./collapse_controller.js"
+application.register("collapse", CollapseController)
+
+import CollapsibleController from "./collapsible_controller.js"
+application.register("collapsible", CollapsibleController)
+
 import ConfirmLeaveController from "./confirm_leave_controller.js"
 application.register("confirm-leave", ConfirmLeaveController)
 

@@ -1,0 +1,121 @@
+<div class="advanced-search-component" data-controller="advanced-search">
+  <div class="search-form bg-white rounded-lg shadow-lg p-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Advanced Quran Search</h2>
+    
+    <%= form_with url: search_path, method: :get, local: true, 
+                  class: "space-y-6", data: { turbo_frame: "search_results" } do |form| %>
+      
+      <!-- Main Search Query -->
+      <div class="form-group">
+        <%= form.label :query, "Search Query", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :query, value: current_query, 
+                           placeholder: "Enter your search query...",
+                           class: "w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                           data: { action: "input->advanced-search#updateSuggestions" } %>
+        <div class="suggestions-container mt-2 hidden" data-advanced-search-target="suggestions"></div>
+      </div>
+
+      <!-- Search Type -->
+      <div class="form-group">
+        <%= form.label :type, "Search Type", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.select :type, search_types, { selected: current_type },
+                       { class: "w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                         data: { action: "change->advanced-search#onTypeChange" } } %>
+        
+        <!-- Type-specific help text -->
+        <div class="search-type-help mt-2 text-sm text-gray-600">
+          <div data-type="combined" class="<%= 'hidden' unless current_type == 'combined' %>">
+            Search across all available data types (text, morphology, roots, lemmas, stems)
+          </div>
+          <div data-type="text" class="<%= 'hidden' unless current_type == 'text' %>">
+            Full-text search across Arabic text and translations
+          </div>
+          <div data-type="morphology" class="<%= 'hidden' unless current_type == 'morphology' %>">
+            Search by grammatical categories (nouns, verbs, particles, etc.)
+          </div>
+          <div data-type="semantic" class="<%= 'hidden' unless current_type == 'semantic' %>">
+            Search by meaning rather than exact words
+          </div>
+          <div data-type="root" class="<%= 'hidden' unless current_type == 'root' %>">
+            Search by Arabic root words
+          </div>
+          <div data-type="lemma" class="<%= 'hidden' unless current_type == 'lemma' %>">
+            Search by word lemmas (base forms)
+          </div>
+          <div data-type="stem" class="<%= 'hidden' unless current_type == 'stem' %>">
+            Search by word stems
+          </div>
+          <div data-type="pattern" class="<%= 'hidden' unless current_type == 'pattern' %>">
+            Search using regular expressions/patterns
+          </div>
+          <div data-type="script_specific" class="<%= 'hidden' unless current_type == 'script_specific' %>">
+            Search in specific Arabic script types
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Filters Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <!-- Arabic Script Filter -->
+        <div class="form-group">
+          <%= form.label :script, "Arabic Script", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.select :script, arabic_scripts, { selected: current_script },
+                         { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+        </div>
+
+        <!-- Morphology Category (shown only for morphology search) -->
+        <div class="form-group morphology-only <%= 'hidden' unless current_type == 'morphology' %>" 
+             data-advanced-search-target="morphologyFilter">
+          <%= form.label :morphology_category, "Morphology Category", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.select :morphology_category, 
+                         options_for_select([['Select Category', '']] + morphology_categories, current_morphology_category),
+                         {},
+                         { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+        </div>
+
+        <!-- Chapter Filter -->
+        <div class="form-group">
+          <%= form.label :chapter_id, "Chapter (Optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.select :chapter_id, 
+                         options_for_select([['All Chapters', '']] + chapters_for_select, current_chapter_id),
+                         {},
+                         { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+        </div>
+      </div>
+
+      <!-- Additional Options -->
+      <div class="form-group">
+        <fieldset class="space-y-2">
+          <legend class="block text-sm font-medium text-gray-700 mb-2">Include in Results</legend>
+          
+          <div class="flex items-center">
+            <%= form.check_box :include_translations, 
+                              { checked: include_translations?, class: "mr-2" },
+                              "true", "false" %>
+            <%= form.label :include_translations, "Include Translations", class: "text-sm text-gray-700" %>
+          </div>
+          
+          <div class="flex items-center">
+            <%= form.check_box :include_tafsirs, 
+                              { checked: include_tafsirs?, class: "mr-2" },
+                              "true", "false" %>
+            <%= form.label :include_tafsirs, "Include Tafsirs", class: "text-sm text-gray-700" %>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Search Button -->
+      <div class="form-group">
+        <%= form.submit "Search", 
+                       class: "w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors",
+                       data: { disable_with: "Searching..." } %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Search Results Area -->
+  <turbo-frame id="search_results" class="mt-8">
+    <!-- Results will be loaded here -->
+  </turbo-frame>
+</div>

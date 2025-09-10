@@ -66,7 +66,12 @@
     "build:css:tinymce_custom": "sass ./app/assets/stylesheets/tinymce_custom.scss ./app/assets/builds/tinymce_custom.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:bootstrap": "sass ./app/assets/stylesheets/bootstrap.scss ./app/assets/builds/bootstrap.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:landing": "sass ./app/assets/stylesheets/landing.scss ./app/assets/builds/landing.css --no-source-map --load-path=node_modules --style=compressed",
-    "build:css:export": "sass ./app/assets/stylesheets/export.scss ./app/assets/builds/export.css --no-source-map --load-path=node_modules --style=compressed"
+    "build:css:export": "sass ./app/assets/stylesheets/export.scss ./app/assets/builds/export.css --no-source-map --load-path=node_modules --style=compressed",
+    "cypress:open": "cd scripts/cypress-e2e && npx cypress open",
+    "cypress:run": "cd scripts/cypress-e2e && npx cypress run",
+    "cypress:run:headless": "cd scripts/cypress-e2e && npx cypress run --headless",
+    "test:e2e": "npm run cypress:run",
+    "test:e2e:open": "npm run cypress:open"
   },
   "lint-staged": {
     "app/**/*.{js,jsx,json}": [

@@ -1,8 +1,13 @@
 module Segments
   class Reciter < Base
     def audio_url(surah_number)
-      name = prefix_file_name? ? surah_number.to_s.rjust(3, '0') : surah_number
-      "#{audio_cdn_path}/#{name}.mp3"
+      @audio_urls_data ||= fetch_audio_urls
+      @audio_urls_data[surah_number.to_i - 1]
+    end
+
+    protected
+    def fetch_audio_urls
+      audio_urls.to_s.split(',').map(&:strip)
     end
   end
 end

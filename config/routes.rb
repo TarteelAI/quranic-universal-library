@@ -148,6 +148,8 @@ Rails.application.routes.draw do
   namespace :segments do
     get '/', to: 'dashboard#show', as: :dashboard
     get '/failures', to: 'dashboard#failures', as: :failures
+    get '/word_failures', to: 'dashboard#word_failures', as: :word_failures
+    get '/word_failure_detail', to: 'dashboard#word_failure_detail', as: :word_failure_detail
     get '/detections', to: 'dashboard#detections', as: :detections
     get '/logs', to: 'dashboard#logs', as: :logs
     get '/reciters', to: 'dashboard#reciters', as: :reciters

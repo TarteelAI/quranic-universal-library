@@ -223,13 +223,34 @@ class AudioSegmentParser
     expected_text = mistake['expectedTranscript']
     received_text = mistake['receivedTranscript']
     ayah_number = mistake['positions'][0]['ayahNumber']
+    word_index = mistake['positions'][0]['wordIndex'] + 1
 
+    failure_data = {
+      surah_number: surah_number,
+      ayah_number: ayah_number,
+      word_number: word_index,
+      word_key: "#{surah_number}:#{ayah_number}:#{word_index}",
+      text: entry['word'],
+      reciter_id: reciter_id,
+      failure_type: mistake['mistakeType'],
+      received_transcript: received_text,
+      expected_transcript: expected_text,
+      start_time: start_time,
+      end_time: end_time,
+      mistake_positions: mistake['positions'].to_json,
+      corrected: false
+    }
+    
+    failures << failure_data
+
+=begin
     failure_data = {
       expected_text: expected_text,
       received_text: received_text,
       ayah_number: ayah_number,
       type: mistake['mistakeType']
     }
+=end
 
     if !first_word_detected
       @last_word_number ||= 1
@@ -318,6 +339,7 @@ class AudioSegmentParser
         failure_data: failure_data
       )
     else
+=begin
       track_failure(
         ayah: ayah_number,
         start_time: start_time,
@@ -325,6 +347,7 @@ class AudioSegmentParser
         text: received_text,
         received_text: received_text
       )
+=end
     end
   end
 

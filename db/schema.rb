@@ -116,9 +116,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_062332) do
     t.string "name"
     t.string "url"
     t.text "description"
+    t.boolean "published", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "published", default: true
   end
 
   create_table "database_backups", force: :cascade do |t|
@@ -272,6 +272,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_062332) do
     t.integer "translation_id"
     t.integer "footnotes_count", default: 0
     t.jsonb "meta_data", default: {}
+    t.integer "current_footnotes_count", default: 0
     t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
@@ -460,9 +461,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_08_062332) do
 
   create_table "quran_table_details", force: :cascade do |t|
     t.string "name"
-    t.integer "enteries"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.integer "records_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "raw_data_ayah_records", force: :cascade do |t|

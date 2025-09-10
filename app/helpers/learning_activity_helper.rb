@@ -63,32 +63,33 @@ module LearningActivityHelper
   end
 
   # Build data for Word Match activity: a list of arabic words and their translations
-  # Prefer English; if not available, fallback to Urdu
-  def generate_word_match_quiz
-    if @filtered_ayah
-      # Use words only from the specified ayah
-      words = Word.where(verse_id: @filtered_ayah.id, char_type_id: 1)
-                  .includes(:en_translation, :ur_translation)
+  # Prefer requested language; if not available, fallback to English, then any available
+  def generate_word_match_quiz(language_iso_code = 'en', word_ids = nil)
+    language = Language.find_by(iso_code: language_iso_code) || Language.find_by(iso_code: 'en')
+    english_language = Language.find_by(iso_code: 'en')
 
-      # If the ayah doesn't have enough words or translations, fallback to random
-      if words.count < 3
-        words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
-      else
-        words = words.limit(words.count > 5 ? 5 : words.count)
-      end
-    else
-      # Fetch random verses with moderate length to avoid very small stopwords-only sets
+    if word_ids.blank?
       verses = Verse.where('words_count BETWEEN 4 AND 12').order('RANDOM()').limit(5)
-      words = Word.where(verse_id: verses.map(&:id), char_type_id: 1).includes(:en_translation, :ur_translation).sample(5)
+      words = Word.where(verse_id: verses.map(&:id), char_type_id: 1).includes(:word_translations).sample(5)
 
       # Fallback in case previous query is sparse
       if words.size < 5
-        words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+        words = Word.where(char_type_id: 1).includes(:word_translations).order('RANDOM()').limit(5)
       end
+    else
+      words = Word.where(id: word_ids).includes(:word_translations)
     end
 
     pairs = words.map do |w|
-      translation = w.en_translation&.text.presence || w.ur_translation&.text.presence || w.word_translation&.text.presence || ''
+      # Try requested language first
+      translation = w.word_translations.detect { |t| t.language_id == language.id }&.text.presence
+
+      # Fallback to English if requested language not available
+      translation ||= w.word_translations.detect { |t| t.language_id == english_language.id }&.text.presence if english_language
+
+      # Final fallback to any available translation
+      translation ||= w.word_translations.first&.text.presence || ''
+
       {
         id: w.id,
         arabic: w.text_qpc_hafs,
@@ -100,6 +101,7 @@ module LearningActivityHelper
     pairs = pairs.select { |p| p[:translation].present? }
 
     {
+      word_ids: words.map(&:id),
       pairs: pairs,
       left_words: pairs.map { |p| { id: p[:id], text: p[:arabic] } },
       right_translations: pairs.map { |p| { id: p[:id], text: p[:translation] } }.shuffle

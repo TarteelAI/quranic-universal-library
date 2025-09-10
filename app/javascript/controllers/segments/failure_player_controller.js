@@ -5,7 +5,6 @@ export default class extends Controller {
     const audioElement = document.getElementById('audio-element');
     const audioPlayer = document.getElementById('audio-player');
     const segmentInfo = document.getElementById('current-segment-info');
-    debugger
 
     document.querySelectorAll('.play-audio-btn').forEach(button => {
       button.addEventListener('click', (event)=> {

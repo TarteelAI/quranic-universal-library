@@ -1,4 +1,4 @@
-<div class="alert alert-secondary d-flex" role="alert">
+<div class="alert alert-secondary d-flex" data-controller="alert" role="alert">
   <i class="fa fa-info-circle me-2 fa-2x"></i>
   <div>
     <p>
@@ -20,5 +20,5 @@
     </p>
   </div>
 
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <button type="button" class="btn-close" data-action="click->alert#close" aria-label="Close"></button>
 </div>

@@ -1,24 +1,16 @@
 @import "../shared/variables";
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
-@import "bootstrap/scss/transitions";
+// Bootstrap imports removed - migrated to Tailwind CSS
 
-@import "bootstrap/scss/root";
-@import 'bootstrap/scss/buttons';
-@import 'bootstrap/scss/tooltip';
-
-//@import 'bootstrap/scss/grid';
-@import 'bootstrap/scss/forms';
-@import 'bootstrap/scss/modal';
-@import 'bootstrap/scss/list-group';
-@import 'bootstrap/scss/list-group';
-@import 'bootstrap/scss/badge';
-@import 'bootstrap/scss/accordion';
-@import 'bootstrap/scss/card';
-@import 'bootstrap/scss/utilities/api';
-@import 'bootstrap/scss/alert';
+// Temporary Bootstrap variables for compatibility during migration
+$primary: #16a085 !default;
+$secondary: #6c757d !default;
+$success: #28a745 !default;
+$info: #17a2b8 !default;
+$warning: #ffc107 !default;
+$danger: #dc3545 !default;
+$light: #f8f9fa !default;
+$dark: #343a40 !default;
+$white: #ffffff !default;
 
 .mr-4 {
   margin-right: 1.5rem !important;

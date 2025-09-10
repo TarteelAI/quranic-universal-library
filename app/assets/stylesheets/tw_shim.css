@@ -1,0 +1,566 @@
+/* Bootstrap to Tailwind CSS Shim - Temporary migration file */
+
+/* Buttons */
+.btn {
+  @apply tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-rounded-md tw-border tw-transition-colors tw-duration-200 tw-cursor-pointer tw-inline-flex tw-items-center tw-justify-center;
+}
+
+.btn-primary {
+  @apply tw-bg-blue-600 tw-text-white tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2;
+}
+
+.btn-secondary {
+  @apply tw-bg-gray-600 tw-text-white tw-border-gray-600 hover:tw-bg-gray-700 hover:tw-border-gray-700 focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2;
+}
+
+.btn-success {
+  @apply tw-bg-green-600 tw-text-white tw-border-green-600 hover:tw-bg-green-700 hover:tw-border-green-700 focus:tw-ring-2 focus:tw-ring-green-500 focus:tw-ring-offset-2;
+}
+
+.btn-danger {
+  @apply tw-bg-red-600 tw-text-white tw-border-red-600 hover:tw-bg-red-700 hover:tw-border-red-700 focus:tw-ring-2 focus:tw-ring-red-500 focus:tw-ring-offset-2;
+}
+
+.btn-warning {
+  @apply tw-bg-yellow-500 tw-text-black tw-border-yellow-500 hover:tw-bg-yellow-600 hover:tw-border-yellow-600 focus:tw-ring-2 focus:tw-ring-yellow-400 focus:tw-ring-offset-2;
+}
+
+.btn-info {
+  @apply tw-bg-cyan-600 tw-text-white tw-border-cyan-600 hover:tw-bg-cyan-700 hover:tw-border-cyan-700 focus:tw-ring-2 focus:tw-ring-cyan-500 focus:tw-ring-offset-2;
+}
+
+.btn-light {
+  @apply tw-bg-gray-100 tw-text-gray-900 tw-border-gray-300 hover:tw-bg-gray-200 hover:tw-border-gray-400 focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2;
+}
+
+.btn-dark {
+  @apply tw-bg-gray-800 tw-text-white tw-border-gray-800 hover:tw-bg-gray-900 hover:tw-border-gray-900 focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2;
+}
+
+.btn-sm {
+  @apply tw-px-3 tw-py-1.5 tw-text-xs;
+}
+
+.btn-lg {
+  @apply tw-px-6 tw-py-3 tw-text-base;
+}
+
+/* Alerts */
+.alert {
+  @apply tw-px-4 tw-py-3 tw-rounded-md tw-border tw-mb-4;
+}
+
+.alert-primary {
+  @apply tw-bg-blue-50 tw-text-blue-800 tw-border-blue-200;
+}
+
+.alert-secondary {
+  @apply tw-bg-gray-50 tw-text-gray-800 tw-border-gray-200;
+}
+
+.alert-success {
+  @apply tw-bg-green-50 tw-text-green-800 tw-border-green-200;
+}
+
+.alert-danger {
+  @apply tw-bg-red-50 tw-text-red-800 tw-border-red-200;
+}
+
+.alert-warning {
+  @apply tw-bg-yellow-50 tw-text-yellow-800 tw-border-yellow-200;
+}
+
+.alert-info {
+  @apply tw-bg-cyan-50 tw-text-cyan-800 tw-border-cyan-200;
+}
+
+.alert-light {
+  @apply tw-bg-gray-50 tw-text-gray-800 tw-border-gray-200;
+}
+
+.alert-dark {
+  @apply tw-bg-gray-800 tw-text-white tw-border-gray-600;
+}
+
+/* Badges */
+.badge {
+  @apply tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium;
+}
+
+.badge-primary {
+  @apply tw-bg-blue-100 tw-text-blue-800;
+}
+
+.badge-secondary {
+  @apply tw-bg-gray-100 tw-text-gray-800;
+}
+
+.badge-success {
+  @apply tw-bg-green-100 tw-text-green-800;
+}
+
+.badge-danger {
+  @apply tw-bg-red-100 tw-text-red-800;
+}
+
+.badge-warning {
+  @apply tw-bg-yellow-100 tw-text-yellow-800;
+}
+
+.badge-info {
+  @apply tw-bg-cyan-100 tw-text-cyan-800;
+}
+
+.badge-light {
+  @apply tw-bg-gray-100 tw-text-gray-800;
+}
+
+.badge-dark {
+  @apply tw-bg-gray-800 tw-text-white;
+}
+
+/* Cards */
+.card {
+  @apply tw-bg-white tw-rounded-lg tw-shadow tw-border tw-border-gray-200 tw-overflow-hidden;
+}
+
+.card-header {
+  @apply tw-px-6 tw-py-4 tw-bg-gray-50 tw-border-b tw-border-gray-200;
+}
+
+.card-body {
+  @apply tw-p-6;
+}
+
+.card-footer {
+  @apply tw-px-6 tw-py-4 tw-bg-gray-50 tw-border-t tw-border-gray-200;
+}
+
+.card-title {
+  @apply tw-text-lg tw-font-semibold tw-text-gray-900 tw-mb-2;
+}
+
+.card-text {
+  @apply tw-text-gray-600;
+}
+
+/* Navigation */
+.navbar {
+  @apply tw-bg-white tw-shadow-sm tw-border-b tw-border-gray-200;
+}
+
+.navbar-expand-lg {
+  @apply tw-flex tw-flex-wrap tw-items-center tw-justify-between;
+}
+
+.navbar-light {
+  @apply tw-bg-white;
+}
+
+.navbar-dark {
+  @apply tw-bg-gray-800;
+}
+
+.navbar-brand {
+  @apply tw-text-xl tw-font-bold tw-text-gray-900 tw-no-underline hover:tw-text-gray-700;
+}
+
+.navbar-nav {
+  @apply tw-flex tw-flex-col tw-space-y-2 md:tw-space-y-0 md:tw-flex-row md:tw-space-x-8;
+}
+
+.nav-item {
+  @apply tw-relative;
+}
+
+.nav-link {
+  @apply tw-text-gray-700 hover:tw-text-gray-900 tw-px-3 tw-py-2 tw-rounded-md tw-text-sm tw-font-medium tw-transition-colors tw-duration-200;
+}
+
+.nav-link.active {
+  @apply tw-bg-gray-100 tw-text-gray-900;
+}
+
+.navbar-toggler {
+  @apply tw-inline-flex tw-items-center tw-justify-center tw-p-2 tw-rounded-md tw-text-gray-400 hover:tw-text-gray-500 hover:tw-bg-gray-100 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-inset focus:tw-ring-gray-500 md:tw-hidden;
+}
+
+.navbar-toggler-icon {
+  @apply tw-w-6 tw-h-6;
+}
+
+.navbar-collapse {
+  @apply tw-hidden md:tw-flex md:tw-items-center md:tw-space-x-8;
+}
+
+.navbar-collapse.show {
+  @apply tw-block;
+}
+
+/* Dropdown */
+.dropdown {
+  @apply tw-relative tw-inline-block;
+}
+
+.dropdown-toggle {
+  @apply tw-flex tw-items-center tw-space-x-1;
+}
+
+.dropdown-menu {
+  @apply tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-rounded-md tw-shadow-lg tw-ring-1 tw-ring-black tw-ring-opacity-5 tw-z-50 tw-hidden;
+}
+
+.dropdown-menu.show {
+  @apply tw-block;
+}
+
+.dropdown-item {
+  @apply tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100 hover:tw-text-gray-900 tw-w-full tw-text-left tw-border-none tw-bg-transparent tw-cursor-pointer;
+}
+
+/* Modal */
+.modal {
+  @apply tw-fixed tw-inset-0 tw-z-50 tw-overflow-y-auto tw-hidden;
+}
+
+.modal.show {
+  @apply tw-block;
+}
+
+.modal-dialog {
+  @apply tw-relative tw-w-auto tw-mx-auto tw-my-8 tw-max-w-lg;
+}
+
+.modal-lg {
+  @apply tw-max-w-2xl;
+}
+
+.modal-content {
+  @apply tw-relative tw-bg-white tw-rounded-lg tw-shadow-xl tw-overflow-hidden;
+}
+
+.modal-header {
+  @apply tw-flex tw-items-center tw-justify-between tw-p-6 tw-border-b tw-border-gray-200;
+}
+
+.modal-title {
+  @apply tw-text-lg tw-font-semibold tw-text-gray-900;
+}
+
+.modal-body {
+  @apply tw-p-6;
+}
+
+.modal-footer {
+  @apply tw-flex tw-items-center tw-justify-end tw-space-x-3 tw-p-6 tw-border-t tw-border-gray-200;
+}
+
+.modal-backdrop {
+  @apply tw-fixed tw-inset-0 tw-bg-gray-500 tw-bg-opacity-75 tw-z-40;
+}
+
+/* Collapse */
+.collapse {
+  @apply tw-hidden;
+}
+
+.collapse.show {
+  @apply tw-block;
+}
+
+/* Grid System */
+.container {
+  @apply tw-w-full tw-mx-auto tw-px-4;
+}
+
+.container-fluid {
+  @apply tw-w-full tw-px-4;
+}
+
+.row {
+  @apply tw-flex tw-flex-wrap tw--mx-4;
+}
+
+.col {
+  @apply tw-flex-1 tw-px-4;
+}
+
+.col-1 { @apply tw-w-1/12 tw-px-4; }
+.col-2 { @apply tw-w-2/12 tw-px-4; }
+.col-3 { @apply tw-w-3/12 tw-px-4; }
+.col-4 { @apply tw-w-4/12 tw-px-4; }
+.col-5 { @apply tw-w-5/12 tw-px-4; }
+.col-6 { @apply tw-w-6/12 tw-px-4; }
+.col-7 { @apply tw-w-7/12 tw-px-4; }
+.col-8 { @apply tw-w-8/12 tw-px-4; }
+.col-9 { @apply tw-w-9/12 tw-px-4; }
+.col-10 { @apply tw-w-10/12 tw-px-4; }
+.col-11 { @apply tw-w-11/12 tw-px-4; }
+.col-12 { @apply tw-w-full tw-px-4; }
+
+/* Flexbox Utilities */
+.d-flex {
+  @apply tw-flex;
+}
+
+.d-inline-flex {
+  @apply tw-inline-flex;
+}
+
+.d-block {
+  @apply tw-block;
+}
+
+.d-inline-block {
+  @apply tw-inline-block;
+}
+
+.d-none {
+  @apply tw-hidden;
+}
+
+.justify-content-start {
+  @apply tw-justify-start;
+}
+
+.justify-content-end {
+  @apply tw-justify-end;
+}
+
+.justify-content-center {
+  @apply tw-justify-center;
+}
+
+.justify-content-between {
+  @apply tw-justify-between;
+}
+
+.justify-content-around {
+  @apply tw-justify-around;
+}
+
+.align-items-start {
+  @apply tw-items-start;
+}
+
+.align-items-end {
+  @apply tw-items-end;
+}
+
+.align-items-center {
+  @apply tw-items-center;
+}
+
+.align-items-baseline {
+  @apply tw-items-baseline;
+}
+
+.align-items-stretch {
+  @apply tw-items-stretch;
+}
+
+.flex-column {
+  @apply tw-flex-col;
+}
+
+.flex-row {
+  @apply tw-flex-row;
+}
+
+.flex-wrap {
+  @apply tw-flex-wrap;
+}
+
+.flex-nowrap {
+  @apply tw-flex-nowrap;
+}
+
+/* Spacing */
+.me-auto {
+  @apply tw-mr-auto;
+}
+
+.mb-2 {
+  @apply tw-mb-2;
+}
+
+.mb-lg-0 {
+  @apply tw-mb-0 lg:tw-mb-0;
+}
+
+/* Text */
+.text-center {
+  @apply tw-text-center;
+}
+
+.text-start {
+  @apply tw-text-left;
+}
+
+.text-end {
+  @apply tw-text-right;
+}
+
+/* Forms */
+.form-control {
+  @apply tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-shadow-sm tw-placeholder-gray-400 focus:tw-outline-none focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-sm:text-sm;
+}
+
+.form-label {
+  @apply tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1;
+}
+
+.form-floating {
+  @apply tw-relative;
+}
+
+/* Utilities */
+.w-100 {
+  @apply tw-w-full;
+}
+
+.h-100 {
+  @apply tw-h-full;
+}
+
+.mt-3 {
+  @apply tw-mt-3;
+}
+
+.mb-3 {
+  @apply tw-mb-3;
+}
+
+.p-3 {
+  @apply tw-p-3;
+}
+
+.p-4 {
+  @apply tw-p-4;
+}
+
+.px-3 {
+  @apply tw-px-3;
+}
+
+.py-2 {
+  @apply tw-py-2;
+}
+
+.rounded {
+  @apply tw-rounded;
+}
+
+.shadow {
+  @apply tw-shadow;
+}
+
+.shadow-sm {
+  @apply tw-shadow-sm;
+}
+
+.border {
+  @apply tw-border tw-border-gray-200;
+}
+
+.border-top {
+  @apply tw-border-t tw-border-gray-200;
+}
+
+.border-bottom {
+  @apply tw-border-b tw-border-gray-200;
+}
+
+.bg-light {
+  @apply tw-bg-gray-50;
+}
+
+.bg-white {
+  @apply tw-bg-white;
+}
+
+.text-muted {
+  @apply tw-text-gray-500;
+}
+
+.text-primary {
+  @apply tw-text-blue-600;
+}
+
+.text-success {
+  @apply tw-text-green-600;
+}
+
+.text-danger {
+  @apply tw-text-red-600;
+}
+
+.text-warning {
+  @apply tw-text-yellow-600;
+}
+
+.text-info {
+  @apply tw-text-cyan-600;
+}
+
+/* Tooltips */
+.tooltip {
+  @apply tw-absolute tw-z-50 tw-px-2 tw-py-1 tw-text-sm tw-text-white tw-bg-gray-900 tw-rounded tw-shadow-lg tw-opacity-0 tw-transition-opacity tw-duration-200;
+}
+
+.tooltip.show {
+  @apply tw-opacity-100;
+}
+
+.tooltip-arrow {
+  @apply tw-absolute tw-w-2 tw-h-2 tw-bg-gray-900 tw-transform tw-rotate-45;
+}
+
+.bs-tooltip-top .tooltip-arrow {
+  @apply tw-bottom-0 tw-left-1/2 tw--translate-x-1/2 tw-translate-y-1/2;
+}
+
+.bs-tooltip-bottom .tooltip-arrow {
+  @apply tw-top-0 tw-left-1/2 tw--translate-x-1/2 tw--translate-y-1/2;
+}
+
+.bs-tooltip-left .tooltip-arrow {
+  @apply tw-right-0 tw-top-1/2 tw-translate-x-1/2 tw--translate-y-1/2;
+}
+
+.bs-tooltip-right .tooltip-arrow {
+  @apply tw-left-0 tw-top-1/2 tw--translate-x-1/2 tw--translate-y-1/2;
+}
+
+.tooltip-inner {
+  @apply tw-max-w-xs tw-text-center;
+}
+
+/* Responsive utilities */
+@media (min-width: 768px) {
+  .d-md-none {
+    @apply tw-hidden;
+  }
+  
+  .d-md-block {
+    @apply tw-block;
+  }
+  
+  .d-md-flex {
+    @apply tw-flex;
+  }
+}
+
+@media (min-width: 992px) {
+  .d-lg-none {
+    @apply tw-hidden;
+  }
+  
+  .d-lg-block {
+    @apply tw-block;
+  }
+  
+  .d-lg-flex {
+    @apply tw-flex;
+  }
+}

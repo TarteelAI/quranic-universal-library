@@ -17,11 +17,11 @@
   more_action << link_to('Page with arabic view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'dropdown-item')
   more_action << link_to('Proofreading view(With pdf)', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'dropdown-item')
 
-  actions << "<div class='dropdown'>
-      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+  actions << "<div class='dropdown' data-controller='bootstrap-dropdown'>
+      <button class='btn btn-primary dropdown-toggle' type='button' data-action='click->bootstrap-dropdown#toggle' aria-expanded='false'>
         Change view
       </button>
-      <ul class='dropdown-menu text-dark'>
+      <ul class='dropdown-menu text-dark' data-bootstrap-dropdown-target='menu'>
        #{more_action.map do |action|
     "<li>#{action}</li>"
   end.join('')

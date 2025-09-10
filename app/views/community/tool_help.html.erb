@@ -17,28 +17,31 @@
           The documentation for this tool is not yet available.
         </div>
       <% else %>
-        <% docs[1..].each_with_index do |doc, i| %>
-          <div class="section mb-2">
+        <div data-controller="collapsible">
+          <% docs[1..].each_with_index do |doc, i| %>
+            <div class="section mb-2">
             <% if doc[:type] == 'heading' %>
               <h3>
                 <%= safe_html doc[:text] %>
               </h3>
             <% elsif doc[:type] == 'info' %>
-              <div class="alert alert-dark">
+              <div class="alert alert-dark" data-controller="alert">
                 <%= safe_html doc[:text] %>
               </div>
             <% elsif doc[:type] == 'step' %>
               <div class="step">
-                <h4 class="step-title flex-between" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
+                <h4 class="step-title flex-between" 
+                    data-action="click->collapsible#toggle" 
+                    data-target="step-<%= i %>">
                   <%= safe_html doc[:title] %>
 
-                  <div>
+                  <div data-collapsible-target="icon">
                     <span class="collapsed-reveal"><i class="fa fa-chevron-down"></i></span>
-                    <span class="collapsed-hidden"><i class="fa fa-chevron-up"></i></span>
+                    <span class="collapsed-hidden" style="display: none;"><i class="fa fa-chevron-up"></i></span>
                   </div>
                 </h4>
 
-                <div id="step-<%= i %>" class="collapse">
+                <div id="step-<%= i %>" class="collapse" style="display: none;">
                   <div>
                     <%= safe_html doc[:text] %>
                   </div>
@@ -70,16 +73,18 @@
               </div>
             <% elsif doc[:type] == 'demo' %>
               <div class="step">
-                <h4 class="step-title flex-between" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
+                <h4 class="step-title flex-between" 
+                    data-action="click->collapsible#toggle" 
+                    data-target="step-<%= i %>">
                   <%= safe_html doc[:title] %>
 
-                  <div>
+                  <div data-collapsible-target="icon">
                     <span class="collapsed-reveal"><i class="fa fa-chevron-down"></i></span>
-                    <span class="collapsed-hidden"><i class="fa fa-chevron-up"></i></span>
+                    <span class="collapsed-hidden" style="display: none;"><i class="fa fa-chevron-up"></i></span>
                   </div>
                 </h4>
 
-                <div id="step-<%= i %>" class="collapse">
+                <div id="step-<%= i %>" class="collapse" style="display: none;">
                   <div>
                     <%= safe_html doc[:text] %>
                   </div>
@@ -90,8 +95,9 @@
                 <%= safe_html doc[:text] %>
               </p>
             <% end %>
-          </div>
-        <% end %>
+            </div>
+          <% end %>
+        </div>
       <% end %>
     </div>
   </div>

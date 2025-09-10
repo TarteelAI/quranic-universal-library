@@ -1,11 +1,17 @@
-<p class="d-inline-flex gap-1">
+<p class="tw-inline-flex tw-gap-1">
 
-  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+  <button class="tw-bg-blue-600 tw-text-white tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-ring-offset-2 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-rounded-md tw-border tw-transition-colors tw-duration-200 tw-cursor-pointer tw-inline-flex tw-items-center tw-justify-center" 
+          type="button" 
+          data-controller="bootstrap-collapse" 
+          data-bootstrap-collapse-target-value="#collapseExample"
+          data-action="click->bootstrap-collapse#toggle"
+          aria-expanded="false" 
+          aria-controls="collapseExample">
     Button with data-bs-target
   </button>
 </p>
-<div class="collapse" id="collapseExample">
-  <div class="card card-body mb-4">
+<div class="tw-hidden" id="collapseExample" data-bootstrap-collapse-target="content">
+  <div class="tw-bg-white tw-rounded-lg tw-shadow tw-border tw-border-gray-200 tw-overflow-hidden tw-p-6 tw-mb-4">
     Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
   </div>
 </div>

@@ -9,23 +9,16 @@ $dark: #343a40 !default;
 
 $link-color: $primary !default;
 
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
+// Bootstrap imports removed - migrated to Tailwind CSS
 
 $enable-print-styles: true;
-
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
 
 $print-page-type: portrait; /* landscape or portrait */
 $print-page-size: letter; /* auto, letter */
 $print-page-margin: 1cm;
 
 @import "shared/font_faces";
-@import "bootstrap/scss/reboot";
-@import "bootstrap/scss/containers";
-@import "bootstrap/scss/grid";
+// Bootstrap imports removed - migrated to Tailwind CSS
 @import "shared/mushaf_page";
 
 @media print {

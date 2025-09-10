@@ -1,6 +1,6 @@
 .faq {
   .item {
-    border-bottom: 1px solid $gray-500;
+    border-bottom: 1px solid #6b7280; // gray-500 equivalent
 
     &.active .question-icon {
       transform: rotate(45deg);

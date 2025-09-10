@@ -6,7 +6,7 @@ import "chartkick/chart.js"
 import "@hotwired/turbo-rails";
 import "./controllers/for_admin";
 
-require("bootstrap/js/dist/tooltip")
+// Bootstrap tooltip removed - using custom Stimulus tooltip controller instead
 
 document.addEventListener("turbo:load", () =>{
   setTimeout(()=>{

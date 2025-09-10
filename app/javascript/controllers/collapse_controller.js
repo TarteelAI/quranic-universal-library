@@ -1,10 +1,11 @@
 import {Controller} from "@hotwired/stimulus";
 
-import {Collapse} from "bootstrap";
+// Bootstrap Collapse removed - using custom bootstrap-collapse controller instead
 
 export default class extends Controller {
   connect() {
-    new Collapse(this.element, {toggle: true})
+    // This controller is now replaced by bootstrap-collapse-controller.js
+    console.warn('This collapse controller is deprecated. Use bootstrap-collapse controller instead.')
   }
 
   disconnect() {

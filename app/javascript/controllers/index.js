@@ -143,3 +143,5 @@ application.register("surah-segment-player", SurahSegmentPlayerController);
 import SegmentsTimelineController from './segments/timeline_controller';
 application.register("segments--timeline", SegmentsTimelineController);
 
+import SegmentFailurePlayerController from './segments/failure_player_controller';
+application.register("segments--failure-player", SegmentFailurePlayerController);

@@ -2,13 +2,19 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/aug-6/vs_logs", reset_db: false)
-1.upto(5) do |i|
-p.process_reciter(2, 2)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: false)
+p.validate_log_files
+p.remove_duplicate_files
+
+1.upto(114) do |i|
+  next if i == 3
+
+  p.process_reciter(reciter: 12, surah: i)
 end
 
-1.upto(5) do |i|
-  p.seed_waveform_silences(2, 2)
+1.upto(114) do |i|
+  next if i == 3
+  p.seed_waveform_silences(reciter: 12, surah: i)
 end
 
 p.seed_reciters
@@ -31,8 +37,75 @@ class BatchAudioSegmentParser
     puts "Batch processing completed!"
   end
 
-  def seed_waveform_silences(reciter, surah)
-    silences = Oj.load(File.read("tools/waveform-ayah-segments/output/#{surah}_silences.json"))
+  def validate_log_files
+    seen = Hash.new { |h, k| h[k] = [] }
+    files = filter_segments_files
+    files_to_remove = []
+
+    files.each do |file_path|
+      folder = File.dirname(file_path)
+      filename = File.basename(folder)
+
+      if filename =~ /^(\d{3})(\d{3})(dd|ff)-/
+        reciter_id, surah_number = parse_reciter_and_surah_id(filename)
+        key = "#{reciter_id}-#{surah_number}"
+
+        if File.zero?(file_path) || File.read(file_path).strip.empty?
+          puts "Empty file #{file_path}"
+          files_to_remove << file_path
+          next
+        end
+
+        seen[key] << file_path
+      else
+        puts "Invalid format: #{file_path}"
+      end
+    end
+
+    puts "Finding duplicate files"
+    seen.each do |key, files|
+      if files.size > 1
+        puts "Reciter/Surah #{key} has duplicates:"
+
+        files_with_sizes = files.map do |path|
+          size_bytes = File.size(path)
+          size_kb = (size_bytes.to_f / 1024).round(2)
+          { path: path, size_bytes: size_bytes, size_kb: size_kb }
+        end.sort_by { |file_info| -file_info[:size_bytes] }
+
+        files_with_sizes.each_with_index do |file_info, index|
+          puts "  #{file_info[:path]} - #{file_info[:size_kb]} KB"
+
+          if file_info[:size_kb].zero?
+            files_to_remove << file_info[:path]
+          elsif index > 0
+            puts "Duplicate file: #{file_info[:path]}"
+            files_to_remove << file_info[:path]
+          end
+        end
+      end
+    end
+
+    "Validation complete. Check the output for any issues."
+    files_to_remove
+  end
+
+  def remove_duplicate_files
+    files = validate_log_files
+    return if files.empty?
+    puts "Removing #{files.length} duplicate files and their folders"
+
+    files.each do |file_path|
+      folder = File.dirname(file_path)
+      binding.pry if @debug.nil?
+      log_file_name = "#{@data_directory.gsub('vs_logs', '')}logs/#{folder.split('/').last}.log"
+      FileUtils.rm_rf(folder)
+      FileUtils.rm_rf(log_file_name)
+    end
+  end
+
+  def seed_waveform_silences(reciter:, surah:)
+    silences = Oj.load(File.read("tools/waveform-ayah-segments/result/#{reciter}/#{surah}_silences.json"))
     ayah_segments = Segments::AyahBoundary
                       .where(reciter_id: reciter, surah_number: surah)
                       .order('ayah_number asc')
@@ -87,34 +160,35 @@ class BatchAudioSegmentParser
       result << ayah_data
     end
 
-    File.open("tools/waveform-ayah-segments/audio/#{surah}_silence_comparison.json", "wb") do |file|
+    FileUtils.mkdir_p("tools/waveform-ayah-segments/result/#{reciter}_plot_data") unless Dir.exist?("tools/waveform-ayah-segments/result/#{reciter}_plot_data")
+    File.open("tools/waveform-ayah-segments/result/#{reciter}_plot_data/#{surah}.json", "wb") do |file|
       file.puts Oj.dump(result, mode: :compat)
     end
   end
 
   def seed_reciters
     segmented_recitations.each do |recitation|
-      resource_content = recitation.get_resource_content
-      base_url = resource_content.meta_value("audio-cdn-url") || "https://download.quranicaudio.com"
-      path = recitation.relative_path
-      path = path.chomp('/') if path.end_with?('/')
-
-      sample_audio_url = recitation.chapter_audio_files.where(chapter_id: 1).first.audio_url
-      prefix_file_name = sample_audio_url.split('/').last.start_with?('00')
       chapters = Segments::Position.where(reciter_id: recitation.id).pluck(:surah_number).uniq
+      uri = URI("https://qul.tarteel.ai/api/v1/audio/surah_recitations/#{recitation.id}?t=#{Time.now.to_i}")
+      response = Net::HTTP.get_response(uri)
+      data = JSON.parse(response.body)
+      audio_urls = []
+      audio_files = data.dig("recitation", "audio_files")
+      audio_files.each do |surah, info|
+        audio_urls << info["audio_url"]
+      end
 
       Segments::Reciter.where(id: recitation.id).first_or_create(
         name: recitation.humanize,
-        audio_cdn_path: "#{base_url}/#{path}",
-        prefix_file_name: prefix_file_name,
+        audio_urls: audio_urls.join(','),
         segmented_chapters: chapters.join(',')
       )
     end
   end
 
-  def process_reciter(reciter_id, surah_id = nil)
-    puts "Processing files for reciter ID: #{reciter_id}"
-    files = filter_segments_files(reciter_id, surah_id)
+  def process_reciter(reciter:, surah: nil)
+    puts "Processing files for reciter ID: #{reciter}"
+    files = filter_segments_files(reciter, surah)
 
     files.each do |file_path|
       process_file(file_path)
@@ -131,7 +205,7 @@ class BatchAudioSegmentParser
 
     files.select do |file_path|
       folder_name = File.basename(File.dirname(file_path))
-      recitation_ids << folder_name[0..3].to_i
+      recitation_ids << folder_name[0..2].to_i
     end
 
     @recitations = Audio::Recitation.where(id: recitation_ids.uniq)
@@ -171,10 +245,10 @@ class BatchAudioSegmentParser
     if reciter_id.present?
       files = files.select do |file_path|
         folder_name = File.basename(File.dirname(file_path))
-        matched = folder_name[0..3].to_i == reciter_id
+        matched = folder_name[0..2].to_i == reciter_id
 
         if surah_id
-          matched && folder_name[4..7].to_i == surah_id
+          matched && folder_name[3..5].to_i == surah_id
         else
           matched
         end
@@ -246,23 +320,23 @@ class BatchAudioSegmentParser
 
     failures_data = failures.map do |failure|
       {
-        surah_number: failure[:surah],
-        ayah_number: failure[:ayah],
-        word_number: failure[:word] || 1, # Default to 1 if not specified
-        word_key: failure[:word] ? generate_word_key(failure[:surah], failure[:ayah], failure[:word]) : nil,
-        text: failure[:text],
         reciter_id: reciter_id,
-        failure_type: failure[:type] || 'unknown',
-        received_transcript: failure[:received_text] || failure[:text],
-        expected_transcript: failure[:expected_text] || failure[:text],
+        surah_number: failure[:surah_number],
+        ayah_number: failure[:ayah_number],
+        word_number: failure[:word_number],
+        word_key: generate_word_key(failure[:surah_number], failure[:ayah_number], failure[:word_number]),
+        text: failure[:text],
+        failure_type: failure[:failure_type],
+        received_transcript: failure[:received_transcript],
+        expected_transcript: failure[:expected_transcript],
         start_time: failure[:start_time],
         end_time: failure[:end_time],
-        mistake_positions: '', # Could be enhanced to store more detailed position info
-        corrected: false,
-        corrected_ayah_number: nil,
-        corrected_word_number: nil,
-        corrected_start_time: nil,
-        corrected_end_time: nil
+        mistake_positions: failure[:mistake_positions] || '',
+        corrected: failure[:corrected] || false,
+        corrected_ayah_number: failure[:corrected_ayah_number],
+        corrected_word_number: failure[:corrected_word_number],
+        corrected_start_time: failure[:corrected_start_time],
+        corrected_end_time: failure[:corrected_end_time]
       }
     end
 
@@ -274,6 +348,13 @@ class BatchAudioSegmentParser
   end
 
   private
+
+  def parse_reciter_and_surah_id(filename)
+    reciter_id = filename[0..2].to_i
+    surah_number = filename[3..5].to_i
+
+    [reciter_id, surah_number]
+  end
 
   def debug_ayah_segments_stats(positions, reciter_id)
     chapter_id = positions[0][:surah]
@@ -436,9 +517,8 @@ class BatchAudioSegmentParser
 
     connection.create_table :segments_reciters do |t|
       t.string :name
-      t.string :audio_cdn_path
       t.string :segmented_chapters
-      t.boolean :prefix_file_name, default: false
+      t.text :audio_urls
     end
 
     connection.create_table :segments_review_ayahs do |t|

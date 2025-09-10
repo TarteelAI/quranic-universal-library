@@ -21,6 +21,7 @@ class CommunityController < ApplicationController
 
   def credits
     @contributors = Contributor.published
+    @github_contributors = GithubService.fetch_contributors(limit: 20)
   end
 
   def faq

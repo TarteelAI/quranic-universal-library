@@ -1,4 +1,27 @@
 namespace :one_time do
+  task find_similar_starts: :environment do
+    verses = Verse.unscoped.order('verse_index ASC').pluck(:id, :chapter_id, :verse_number, :text_imlaei_simple)
+
+    previous = nil
+    matches = []
+    verses.each do |id, surah, ayah, text|
+      words = text.to_s.split(/\s+/)
+      next if words.size < 2
+
+      first_two = words[0, 2].join(" ")
+
+      if previous && previous[:first_two] == first_two && previous[:surah] == surah && previous[:ayah] + 1 == ayah
+        puts "Match found in Surah #{surah}: Ayah #{previous[:ayah]} and #{ayah}"
+        puts "  -> #{previous[:text]}"
+        puts "  -> #{text}"
+        puts "-----------------------------------"
+        matches << [previous[:surah], previous[:ayah], ayah, first_two]
+      end
+
+      previous = { surah: surah, ayah: ayah, first_two: first_two, text: text }
+    end
+  end
+
   task fix_segments: :environment do
     AudioFile.find_each do |f|
       if f.segments.present?

@@ -1,4 +1,5 @@
 class ResourcePresenter < ApplicationPresenter
+  require "cgi"
   include ResourcesHelper
 
   def meta_title
@@ -106,7 +107,6 @@ class ResourcePresenter < ApplicationPresenter
     cleaned = text.gsub(/<[^>]*>/, "")
 
     # 2. Decode HTML entities (requires CGI)
-    require "cgi"
     cleaned = CGI.unescapeHTML(cleaned)
 
     # 3. Normalize whitespace and line breaks

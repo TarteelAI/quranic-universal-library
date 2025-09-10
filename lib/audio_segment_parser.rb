@@ -110,14 +110,13 @@ class AudioSegmentParser
 
   def stats
     data = load_data
-    total_entries = data.size
-    position_entries = data.count { |entry| entry['type'] == 'POSITION' }
-    failure_entries = data.count { |entry| entry['type'] == 'FAILURE' }
+    position_entries = data.select { |entry| entry['type'] == 'POSITION' }
+    failure_entries = data.select { |entry| entry['type'] == 'FAILURE' }
 
     {
-      total_entries: total_entries,
-      positions: position_entries,
-      failures: failure_entries,
+      total_entries: data.size,
+      positions: position_entries.size,
+      failures: failure_entries.size,
     }
   end
 
@@ -134,8 +133,8 @@ class AudioSegmentParser
     folder_name = File.basename(File.dirname(file_path))
 
     # First 4 digits = reciter ID, last 4 digits = surah number
-    reciter_id = folder_name[0..3].to_i
-    surah_number = folder_name[4..7].to_i
+    reciter_id = folder_name[0..2].to_i
+    surah_number = folder_name[3..5].to_i
 
     [reciter_id, surah_number]
   end
@@ -224,13 +223,34 @@ class AudioSegmentParser
     expected_text = mistake['expectedTranscript']
     received_text = mistake['receivedTranscript']
     ayah_number = mistake['positions'][0]['ayahNumber']
+    word_index = mistake['positions'][0]['wordIndex'] + 1
 
+    failure_data = {
+      surah_number: surah_number,
+      ayah_number: ayah_number,
+      word_number: word_index,
+      word_key: "#{surah_number}:#{ayah_number}:#{word_index}",
+      text: entry['word'],
+      reciter_id: reciter_id,
+      failure_type: mistake['mistakeType'],
+      received_transcript: received_text,
+      expected_transcript: expected_text,
+      start_time: start_time,
+      end_time: end_time,
+      mistake_positions: mistake['positions'].to_json,
+      corrected: false
+    }
+    
+    failures << failure_data
+
+=begin
     failure_data = {
       expected_text: expected_text,
       received_text: received_text,
       ayah_number: ayah_number,
       type: mistake['mistakeType']
     }
+=end
 
     if !first_word_detected
       @last_word_number ||= 1
@@ -319,6 +339,7 @@ class AudioSegmentParser
         failure_data: failure_data
       )
     else
+=begin
       track_failure(
         ayah: ayah_number,
         start_time: start_time,
@@ -326,6 +347,7 @@ class AudioSegmentParser
         text: received_text,
         received_text: received_text
       )
+=end
     end
   end
 

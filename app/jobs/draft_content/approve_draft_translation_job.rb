@@ -16,6 +16,7 @@ module DraftContent
         ).first_or_initialize
 
         set_translation_attributes(translation, draft, verse)
+        translation.save!(validate: false)
         import_footnotes(draft, translation) if draft.foot_notes.present?
         draft.update_column(:imported, true)
       end
@@ -78,6 +79,7 @@ module DraftContent
         )
         text = text.sub(/foot_note=(['"]?)#{draft_footnote.id}\1/, "foot_note=#{footnote.id}")
       end
+
       translation.update_column(:text, text.strip)
     end
   end

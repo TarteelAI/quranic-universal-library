@@ -293,7 +293,7 @@
   if (!surahNumber) {
     document.body.innerHTML = "<div class='container'><h2>⚠️ Please provide a surah number (?surah=1)</h2></div>";
   } else {
-    const dataPath = `./waveform-ayah-segments/audio/${surahNumber}_silence_comparison.json`;
+    let dataPath = `./waveform-ayah-segments/result/12_plot_data/${surahNumber}.json`;
 
     fetch(dataPath)
       .then(response => {

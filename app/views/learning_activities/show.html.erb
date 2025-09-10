@@ -5,6 +5,13 @@
 <div class="tw-pt-32 tw-px-4 tw-pb-20 quiz-container overflow-auto">
   <div class="box">
     <h1 class="h3"><%= activity.tr("_"," ").capitalize %></h1>
+
+    <% if params[:ayah].present? && @filtered_ayah.nil? %>
+      <div class="alert alert-warning">
+        <strong>Invalid Ayah:</strong> The ayah "<%= params[:ayah] %>" was not found. Please use the format "chapter:verse" (e.g., "1:1"). Showing random content instead.
+      </div>
+    <% end %>
+
     <% if valid_activity?(activity) %>
       <%= set_page_title "#{activity.humanize} - Quranic quiz" %>
       <%= render activity %>
@@ -23,7 +30,9 @@
         </div>
       </div>
       <div class="more-activities d-flex justify-content-center gap-2 mt-4 d-none">
+        <% ayah_key = @filtered_ayah&.verse_key || '1:1' %>
         <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: '/ayah/1:1', css_class: 'modal-lg', use_turbo: true} %>
+        <% next_url = @filtered_ayah ? learning_activity_path(activity, ayah: @filtered_ayah.verse_key) : learning_activity_path(activity) %>
         <%= link_to 'Next Challenge', learning_activity_path(activity, new: true), class: 'btn btn-outline-dark me-3' %>
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
       </div>

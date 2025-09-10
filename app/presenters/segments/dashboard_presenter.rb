@@ -172,23 +172,18 @@ module Segments
       list
     end
 
-    # Word failure statistics methods
     def word_failure_stats
       failures = filter_failures
-      
-      # Group by expected_transcript (correct word)
       grouped_failures = failures.group_by(&:expected_transcript)
       
       grouped_failures.map do |expected_word, word_failures|
         {
           word: expected_word,
           fail_count: word_failures.count,
-          unique_reciters: word_failures.map(&:reciter_id).uniq.count,
           mistaken_variants: word_failures.map(&:received_transcript).uniq.sort,
           reciter_ids: word_failures.map(&:reciter_id).uniq.sort,
+          surahs: word_failures.map(&:surah_number).uniq.sort,
           mistake_types: word_failures.map(&:failure_type).uniq,
-          surah_ayah_pairs: word_failures.map { |f| "#{f.surah_number}:#{f.ayah_number}" }.uniq.sort,
-          reciter_breakdown: word_failures.group_by(&:reciter_id).transform_values(&:count),
           corrected_count: word_failures.count(&:corrected),
           pending_count: word_failures.count { |f| !f.corrected }
         }

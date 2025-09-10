@@ -78,10 +78,10 @@
           <tr class="tw-bg-gray-100 tw-text-left">
             <th class="tw-p-2 tw-border-b">Rank</th>
             <th class="tw-p-2 tw-border-b">Word</th>
-            <th class="tw-p-2 tw-border-b">Fail Count</th>
-            <th class="tw-p-2 tw-border-b">Unique Reciters</th>
+            <th class="tw-p-2 tw-border-b">Failure Count</th>
             <th class="tw-p-2 tw-border-b">Received Variants</th>
             <th class="tw-p-2 tw-border-b">Reciter IDs</th>
+            <th class="tw-p-2 tw-border-b">Surahs</th>
             <th class="tw-p-2 tw-border-b">Failure Types</th>
             <th class="tw-p-2 tw-border-b">Corrected</th>
             <th class="tw-p-2 tw-border-b">Pending</th>
@@ -105,10 +105,6 @@
               </td>
 
               <td class="tw-p-2">
-                <span class="badge bg-info"><%= word_data[:unique_reciters] %></span>
-              </td>
-
-              <td class="tw-p-2">
                 <div class="tw-max-w-xs">
                   <% word_data[:mistaken_variants].first(3).each do |variant| %>
                     <span class="qpc-hafs tw-mb-1">
@@ -124,6 +120,7 @@
                   <% end %>
                 </div>
               </td>
+
               <td class="tw-p-2">
                 <div class="tw-max-w-xs">
                   <% word_data[:reciter_ids].first(3).each do |reciter_id| %>
@@ -133,6 +130,20 @@
                   <% if word_data[:reciter_ids].length > 5 %>
                     <span class="tw-text-xs tw-text-gray-500">
                       +<%= word_data[:reciter_ids].length - 5 %> more
+                    </span>
+                  <% end %>
+                </div>
+              </td>
+
+              <td class="tw-p-2">
+                <div class="tw-max-w-xs">
+                  <% word_data[:surahs].first(3).each do |reciter_id| %>
+                    <span class="badge bg-secondary tw-mr-1 tw-mb-1"><%= reciter_id %></span>
+                  <% end %>
+
+                  <% if word_data[:surahs].length > 5 %>
+                    <span class="tw-text-xs tw-text-gray-500">
+                      +<%= word_data[:surahs].length - 5 %> more
                     </span>
                   <% end %>
                 </div>
@@ -200,4 +211,5 @@
     </div>
   </div>
 </div>
+
 

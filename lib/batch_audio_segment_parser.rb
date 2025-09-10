@@ -2,8 +2,9 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: true)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: false)
 p.validate_log_files
+p.remove_duplicate_files
 
 1.upto(114) do |i|
   next if i == 3
@@ -39,6 +40,7 @@ class BatchAudioSegmentParser
   def validate_log_files
     seen = Hash.new { |h, k| h[k] = [] }
     files = filter_segments_files
+    files_to_remove = []
 
     files.each do |file_path|
       folder = File.dirname(file_path)
@@ -49,8 +51,8 @@ class BatchAudioSegmentParser
         key = "#{reciter_id}-#{surah_number}"
 
         if File.zero?(file_path) || File.read(file_path).strip.empty?
-          puts "Removing empty folder: #{folder}"
-          FileUtils.rm_rf(folder)
+          puts "Empty file #{file_path}"
+          files_to_remove << file_path
           next
         end
 
@@ -60,23 +62,46 @@ class BatchAudioSegmentParser
       end
     end
 
-    puts "Duplicate entries:"
+    puts "Finding duplicate files"
     seen.each do |key, files|
       if files.size > 1
         puts "Reciter/Surah #{key} has duplicates:"
-        files.each do |path|
-          size_kb = (File.size(path).to_f / 1024).round(2)
-          puts "  #{path} - #{size_kb} KB"
 
-          if size_kb.zero?
-            puts "  Removing empty file: #{path}"
-            FileUtils.rm(path)
+        files_with_sizes = files.map do |path|
+          size_bytes = File.size(path)
+          size_kb = (size_bytes.to_f / 1024).round(2)
+          { path: path, size_bytes: size_bytes, size_kb: size_kb }
+        end.sort_by { |file_info| -file_info[:size_bytes] }
+
+        files_with_sizes.each_with_index do |file_info, index|
+          puts "  #{file_info[:path]} - #{file_info[:size_kb]} KB"
+
+          if file_info[:size_kb].zero?
+            files_to_remove << file_info[:path]
+          elsif index > 0
+            puts "Duplicate file: #{file_info[:path]}"
+            files_to_remove << file_info[:path]
           end
         end
       end
     end
 
     "Validation complete. Check the output for any issues."
+    files_to_remove
+  end
+
+  def remove_duplicate_files
+    files = validate_log_files
+    return if files.empty?
+    puts "Removing #{files.length} duplicate files and their folders"
+
+    files.each do |file_path|
+      folder = File.dirname(file_path)
+      binding.pry if @debug.nil?
+      log_file_name = "#{@data_directory.gsub('vs_logs', '')}logs/#{folder.split('/').last}.log"
+      FileUtils.rm_rf(folder)
+      FileUtils.rm_rf(log_file_name)
+    end
   end
 
   def seed_waveform_silences(reciter:, surah:)
@@ -143,19 +168,19 @@ class BatchAudioSegmentParser
 
   def seed_reciters
     segmented_recitations.each do |recitation|
-      resource_content = recitation.get_resource_content
-      base_url = resource_content.meta_value("audio-cdn-url") || "https://download.quranicaudio.com"
-      path = recitation.relative_path
-      path = path.chomp('/') if path.end_with?('/')
-
-      sample_audio_url = recitation.chapter_audio_files.where(chapter_id: 1).first.audio_url
-      prefix_file_name = sample_audio_url.split('/').last.start_with?('00')
       chapters = Segments::Position.where(reciter_id: recitation.id).pluck(:surah_number).uniq
+      uri = URI("https://qul.tarteel.ai/api/v1/audio/surah_recitations/#{recitation.id}?t=#{Time.now.to_i}")
+      response = Net::HTTP.get_response(uri)
+      data = JSON.parse(response.body)
+      audio_urls = []
+      audio_files = data.dig("recitation", "audio_files")
+      audio_files.each do |surah, info|
+        audio_urls << info["audio_url"]
+      end
 
       Segments::Reciter.where(id: recitation.id).first_or_create(
         name: recitation.humanize,
-        audio_cdn_path: "#{base_url}/#{path}",
-        prefix_file_name: prefix_file_name,
+        audio_urls: audio_urls.join(','),
         segmented_chapters: chapters.join(',')
       )
     end
@@ -492,9 +517,8 @@ class BatchAudioSegmentParser
 
     connection.create_table :segments_reciters do |t|
       t.string :name
-      t.string :audio_cdn_path
       t.string :segmented_chapters
-      t.boolean :prefix_file_name, default: false
+      t.text :audio_urls
     end
 
     connection.create_table :segments_review_ayahs do |t|

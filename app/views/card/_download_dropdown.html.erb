@@ -8,11 +8,11 @@
     %>
   </div>
 <% else %>
-  <div class="dropdown">
-    <button class="btn dropdown-toggle tw-w-full md:tw-w-initial tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 tw-rounded-lg tw-px-4 tw-py-2 tw-text-left focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#C5C8E6] focus:tw-ring-offset-2" id="dropdown-<%= resource.id %>" data-bs-toggle="dropdown" aria-expanded="false">
+  <div class="dropdown" data-controller="bootstrap-dropdown">
+    <button class="btn dropdown-toggle tw-w-full md:tw-w-initial tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 tw-rounded-lg tw-px-4 tw-py-2 tw-text-left focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#C5C8E6] focus:tw-ring-offset-2" id="dropdown-<%= resource.id %>" data-action="click->bootstrap-dropdown#toggle" aria-expanded="false">
       Select download format
     </button>
-    <ul class="dropdown-menu !tw-z-30 tw-w-max tw-absolute tw-left-0 tw-bg-white tw-border tw-border-gray-300 tw-rounded-lg" aria-labelledby="dropdown-<%= resource.id %>">
+    <ul class="dropdown-menu !tw-z-30 tw-w-max tw-absolute tw-left-0 tw-bg-white tw-border tw-border-gray-300 tw-rounded-lg" data-bootstrap-dropdown-target="menu" aria-labelledby="dropdown-<%= resource.id %>">
       <% resource.downloadable_files.each do |file| %>
         <li class="tw-py-2 tw-px-4 hover:tw-bg-gray-100">
           <% if user_signed_in? %>

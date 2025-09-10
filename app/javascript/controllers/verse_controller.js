@@ -1,5 +1,5 @@
 import {Controller} from "@hotwired/stimulus";
-import {Popover} from "bootstrap";
+// Bootstrap Popover removed - using custom Stimulus controllers instead
 
 export default class extends Controller {
   connect() {

@@ -1,5 +1,5 @@
 import {Controller} from "@hotwired/stimulus"
-import {Tooltip} from "bootstrap";
+// Bootstrap Tooltip removed - using custom Stimulus tooltip controller instead
 
 const TAJWEED_RULE_DESCRIPTION = {
   ham_wasl: "Hamzat ul Wasl",

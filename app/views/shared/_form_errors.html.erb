@@ -1,14 +1,14 @@
 <% errors_wrapper_id = local_assigns[:errors_wrapper_id] || 'form-error-wrapper' %>
 <% if object && object.errors.any? %>
-  <div class="alert alert-danger form-flash-message alert-dismissible">
+  <div class="tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-px-4 tw-py-3 tw-rounded tw-mb-4 form-flash-message alert-dismissible">
     <% heading = local_assigns[:header] || "<i class='fa fa-exclamation-triangle'></i> Whoops! There was a small problem.".html_safe %>
     <% message = local_assigns[:message] || "You'll need to fix the following fields:".html_safe %>
-    <h3>
+    <h3 class="tw-font-semibold tw-mb-2">
       <%= heading %>
     </h3>
 
-    <p><%= message %></p>
-    <ul>
+    <p class="tw-mb-3"><%= message %></p>
+    <ul class="tw-list-disc tw-list-inside tw-space-y-1">
       <% object.errors.full_messages.each do |message| %>
         <li><%= message %></li>
       <% end %>

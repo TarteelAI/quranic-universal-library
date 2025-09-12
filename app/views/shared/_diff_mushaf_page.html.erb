@@ -7,7 +7,7 @@
     Font size: <%= name %>(<span id=size>40</span>)<input type="range" min="15" max="100" value="40" class="font-size-slider">
   </div>
 
-  <div class="page-wrapper container-lg flex">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
     <div class="page" id="page-<%= page %>">
       <% lines.each do |line_number, verses| %>
         <div class="line-container">
@@ -16,7 +16,7 @@
               <div class="ayah-container">
                 <div class="ayah" data-ayah="<%= verse_id %>">
                   <% words.each do |word| %>
-               <span class="char char-<%= word.char_type_name %> <%= 'word--missing' if word.word_id.nil? %>"
+               <span class="char char-<%= word.char_type_name %> <%= 'word--missing' if word.word_id.nil?"
                      id=word-<%= word.position_in_page %>
                      data-word-id="<%= word.word_id %>"
                      data-id="<%= word.id %>">

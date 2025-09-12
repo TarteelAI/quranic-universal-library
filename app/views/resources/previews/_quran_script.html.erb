@@ -34,11 +34,11 @@
   Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
 <% end %>
 
-<div class="border p-3 text-center rounded quran-text <%= script_class %>" data-controller="tajweed-highlight">
+<div class="tw-border tw-border-gray-300 tw-p-3 tw-text-center tw-rounded quran-text <%= script_class %>" data-controller="tajweed-highlight">
   <% if by_word %>
-    <div class="tw-flex tw-flex-wrap gap-2">
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
       <% ayah.words.each_with_index do |word, index| %>
-        <span class="px-4 py-2 border word">
+        <span class="tw-px-4 tw-py-2 tw-border tw-border-gray-300 word">
           <% if is_image %>
             <img src="<%= word.read_attribute("#{text_type}_url") %>" alt="<%= word.location %>"/>
           <% else %>

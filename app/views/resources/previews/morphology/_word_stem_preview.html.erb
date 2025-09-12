@@ -10,7 +10,7 @@
           <%= word.text_qpc_hafs %>
         </div>
 
-        <div class="tw-text-sm tw-text-gray-600 ">
+        <div class="tw-text-sm tw-text-gray-600">
           <% if word.stem %>
             <%= link_to word.stem.text_clean, morphology_stem_path(word.stem.text_clean), data: {controller: 'ajax-modal', css_class: 'modal-lg', url: morphology_stem_path(word.stem.text_clean)} %>
           <% end %>

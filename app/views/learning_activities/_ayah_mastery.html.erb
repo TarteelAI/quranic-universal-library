@@ -6,13 +6,13 @@
 <h2 class="heading my-3">Guess the Surah name and Ayah number.</h2>
 
 <div class="quiz" data-controller="activities--ayah-mastery" data-ayah="<%= verse.verse_key %>">
-  <div class="qpc-hafs alert alert-info mb-3">
+  <div class="qpc-hafs tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-mb-3">
     <%= data[:text] %>
   </div>
 
-  <div class="d-grid d-md-flex justify-content-center options gap-2 mt-4" id="options">
+  <div class="d-grid d-md-flex tw-justify-center options tw-gap-2 tw-mt-4" id="options">
     <% data[:options].each do |option| %>
-      <button class="btn btn-info option" data-correct="<%= option[:correct] %>">
+      <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white option" data-correct="<%= option[:correct] %>">
         <%= option[:name] %>
       </button>
     <% end %>

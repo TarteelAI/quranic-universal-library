@@ -12,45 +12,45 @@
   data-ranges="<%= ranges %>"
   data-ayahid="<%= ayah.id %>"
   data-ayahkey="<%= ayah.verse_key %>"
-  class="ayah d-flex quran-text flex-column border p-3 mb-2 border-2 <%= 'border-success' if persisted %>">
+  class="ayah tw-flex quran-text flex-column tw-border tw-border-gray-300 tw-p-3 tw-mb-2 border-2 <%= 'border-success' if persisted %>">
   <div class="actions">
     <% if persisted %>
       <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>
-        <span class="badge bg-success">
+        <span class="badge tw-bg-green-500">
           <i class="fas fa-check"></i>
         </span>
       <% end %>
     <% end %>
 
-    <span class="badge bg-success"><%= ayah.verse_key %></span>
-    <span class="badge bg-info">
+    <span class="badge tw-bg-green-500"><%= ayah.verse_key %></span>
+    <span class="badge tw-bg-blue-400">
       <%= matcher %>
     </span>
 
-    <span class="badge bg-info">
+    <span class="badge tw-bg-blue-400">
       <%= ranges %>
     </span>
 
     <% if @access %>
-      <a class="btn btn-sm btn-success" data-action="savePhrase" title="Save phrase" data-controller="tooltip">
+      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-bg-green-500 hover:tw-bg-green-600 tw-text-white" data-action="savePhrase" title="Save phrase" data-controller="tooltip">
         <i class="fas fa-save"></i>
       </a>
 
-      <a class="btn btn-sm btn-info" data-action="resetSelection" title="Reset selection" data-controller="tooltip">
+      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" data-action="resetSelection" title="Reset selection" data-controller="tooltip">
         <i class="fas fa-refresh"></i>
       </a>
 
-      <a class="btn btn-sm btn-danger has-tooltip" data-action="removePhrase" title="Remove phrase" data-controller="tooltip">
+      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-bg-red-500 hover:tw-bg-red-600 tw-text-white has-tooltip" data-action="removePhrase" title="Remove phrase" data-controller="tooltip">
         <i class="fas fa-trash"></i>
       </a>
 
-      <a class="btn btn-sm btn-outline-success" data-action="bookmark" title="Bookmark" data-controller="tooltip">
+      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-border tw-border-green-500 tw-text-green-500 hover:tw-bg-green-500 hover:tw-text-white" data-action="bookmark" title="Bookmark" data-controller="tooltip">
         <i class="fas fa-bookmark"></i>
       </a>
     <% end %>
   </div>
 
-  <div class="words d-flex flex-wrap">
+  <div class="words tw-flex flex-wrap">
     <% ayah.words.order('position asc').each do |w| %>
       <% if !w.ayah_mark? %>
         <%
@@ -61,17 +61,17 @@
           selected = w.position >= range[0] && w.position <= range[1]
           skipped = skipped_words.include?(w.position)
         %>
-        <div class="d-flex flex-column m-3 align-items-center word <%= 'selected' if selected %>"
+        <div class="tw-flex flex-column m-3 tw-items-center word <%= 'selected' if selected %>"
              data-position="<%= w.position %>"
         >
           <% if @access %>
-            <i class="fa-solid fa-xmark p-1 rounded <%= 'active' if skipped %>"
+            <i class="fa-solid fa-xmark tw-p-1 tw-rounded <%= 'active' if skipped %>"
                data-action="remove"
                title="Exclude from phrase"
                data-controller="tooltip"
             ></i>
           <% end %>
-          <span class="my-2 quran-text qpc-hafs <%= 'text-success' if selected %> <%= 'text-danger' if skipped %>">
+          <span class="my-2 quran-text qpc-hafs <%= 'text-success' if selected %> 'text-danger' skipped">
           <%= w.text_qpc_hafs %>
         </span>
 
@@ -83,7 +83,7 @@
             <i data-action="add"
                title="Include in phrase"
                data-controller="tooltip"
-               class="fa-solid fa-plus p-1 rounded <%= 'active' if selected %>">
+               class="fa-solid fa-plus tw-p-1 tw-rounded <%= 'active' if selected %>">
             </i>
           <% end %>
         </div>

@@ -5,8 +5,8 @@
   not_approved_count = phrase.phrase_verses.not_approved.size
 %>
 
-<div id="<%= dom_id phrase_verse %>" class="d-flex align-items-center" style="flex-direction: row-reverse;">
-  <div class="d-flex">
+<div id="<%= dom_id phrase_verse %>" class="tw-flex tw-items-center" style="flex-direction: row-reverse;">
+  <div class="tw-flex">
     <%= link_to "/cms/morphology_phrases/#{phrase.id}", target: :_blank, class: 'ms-2' do %>
       <span style="display:inline-block;width: 20px; height: 20px; background: <%= phrase.get_color %>"></span>
       <span class="<%= 'text-danger' if !phrase.approved? %>"><%= phrase.verses_count %>(<%= phrase.review_status %>
@@ -14,13 +14,13 @@
     <% end %>
 
     <% if @access %>
-      <div class="ms-4">
+      <div class="tw-ms-4">
         <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put, html: { class: 'form-inline' } do |form| %>
-          <div class="d-flex my-2">
-            <div class="me-2">
+          <div class="tw-flex my-2">
+            <div class="tw-me-2">
               <small>p: <%= phrase.id %> s: <%= phrase_verse.score %></small>
 
-              <span class="badge bg-success"
+              <span class="badge tw-bg-green-500"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#phrase-<%= phrase.id %>-related"
@@ -28,7 +28,7 @@
                     aria-controls="phrase-<%= phrase.id %>-related">
             <%= approved_count %>
           </span>
-              <span class="badge bg-danger"><%= not_approved_count %></span>
+              <span class="badge tw-bg-red-500"><%= not_approved_count %></span>
             </div>
             <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "me-2 btn btn-sm #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'btn-outline-danger' : 'btn-danger'}", data: { controller: 'tooltip' }) %>
             <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "btn btn-sm #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'btn-success' : 'btn-outline-success'}", data: { controller: 'tooltip' }) %>

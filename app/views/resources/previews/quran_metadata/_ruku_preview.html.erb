@@ -45,8 +45,8 @@
     <p><strong>To:</strong> <%= ruku.last_verse.chapter.name_simple %>, Ayah <%= ruku.last_verse.verse_number %></p>
   </div>
 
-  <div class="card mb-2 shadow-sm">
-    <div class="card-body">
+  <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+    <div class="tw-p-6">
       <div class="qpc-hafs quran-text">
         <% verses.each do |verse| %>
           <%= verse.text_qpc_hafs %>

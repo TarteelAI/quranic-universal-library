@@ -24,7 +24,7 @@
     short_text_diff = Diffy::SplitDiff.new(@next.short_text.to_s, @version_object.short_text.to_s, format: :html, allow_empty_diff: false) rescue nil
   %>
 
-  <div class="page-wrapper container-lg surah-info">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 surah-info">
     <h1 class="page-header">
       Chapter info change history
 
@@ -39,8 +39,8 @@
     </span>
     </h1>
 
-    <div class="row" style="font-size: 30px; margin-top: 10px">
-      <div class="col-md-12 section">
+    <div class="tw-flex tw-flex-wrap tw-gap-4" style="font-size: 30px; margin-top: 10px">
+      <div class="tw-w-full section">
         <% if params[:diff] == 'rows' %>
           <%= render 'diff_row_view', text_diff: text_diff, short_text_diff: short_text_diff %>
         <% else %>

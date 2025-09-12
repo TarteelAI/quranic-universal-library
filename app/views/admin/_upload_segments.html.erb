@@ -12,19 +12,19 @@
 
 <div id="body">
   <%= form_with url: url, method: :put do |form| %>
-    <div class="modal-body">
+    <div class="tw-p-6">
       <% if resource.segment_locked? %>
-        <div class="alert alert-info">
+        <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
           Segments are locked for this recitation. Please unlock the segments and try again.
         </div>
       <% else %>
-        <div class="form-group mb-2">
-          <div class="form-check">
+        <div class="tw-mb-4 tw-mb-2">
+          <div class="tw-flex tw-items-center tw-mb-2">
             <%= form.check_box :remove_existing, class: 'form-check-input' %>
             <%= form.label :remove_existing, 'Remove existing segments?', class: 'form-check-label' %>
           </div>
         </div>
-        <div class="form-group mb-2">
+        <div class="tw-mb-4 tw-mb-2">
           <%= form.label :file, 'Select timing db file' %>
           <%= form.file_field :file, class: 'form-control' %>
         </div>
@@ -32,7 +32,7 @@
     </div>
 
     <% if !resource.segment_locked? %>
-      <div class="modal-footer">
+      <div class="tw-flex tw-items-center tw-justify-end tw-p-6 tw-border-t tw-border-gray-200 tw-space-x-2">
         <%= form.submit 'Upload', class: 'btn btn-success' %>
       </div>
     <% end %>

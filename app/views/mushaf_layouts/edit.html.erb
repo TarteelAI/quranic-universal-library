@@ -46,7 +46,7 @@
 
   <%= render 'shared/access_message' %>
 
-  <div class="page-wrapper container-lg">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
     <%= render SplitScreenComponent.new do |component| %>
       <%= component.with_left do %>
         <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset, page_offset: pdf_page_offset %>
@@ -58,13 +58,13 @@
                data-controller="update-mushaf-page mushaf-page-builder">
             <%= render 'shared/page_font', pages: [page_number] %>
 
-            <div class="text-center mb-3 border-bottom p-2 resize-heading">
+            <div class="tw-text-center tw-mb-3 tw-border-b tw-border-gray-300 tw-p-2 resize-heading">
               <label>
                 <input type="checkbox" checked id="propagate-changes">
                 Propagate changes (page: <%= page_number %>)
               </label>
-              <button class="btn btn-danger mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
-              <button class="btn btn-primary" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
+              <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-red-500 hover:tw-bg-red-600 tw-text-white mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
+              <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
             </div>
 
             <%= form_with model: @mushaf, url: mushaf_layout_path(@mushaf.id, page_number: page_number) do |form| %>
@@ -79,8 +79,7 @@
                       end %>
 
                       <div class="word word-group" data-word="<%= word.id %>">
-                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %>
-                      <%= @mushaf_page.mushaf.default_font_name %>">
+                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %> <%=">
                           <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
                         </div>
 
@@ -100,18 +99,18 @@
                           name="layout[words][<%= word.id %>][line_number]"
                           required
                           />
-                        <div class="fs-xs form-text">
+                        <div class="fs-xs tw-text-sm tw-text-gray-600 tw-mt-1">
                           <%= word.location %>
                         </div>
                       </div>
 
                     <% end %>
-                    <button class="remove-ayah btn btn-default has-tooltip" title="Remove this ayah from page">X</button>
+                    <button class="remove-ayah tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors btn-default has-tooltip" title="Remove this ayah from page">X</button>
                   </div>
                 <% end %>
               </div>
 
-              <div class="d-flex justify-content-center p-4">
+              <div class="tw-flex tw-justify-center tw-p-4">
                 <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-default', style: 'margin-right: 50px' %>
                 <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
               </div>

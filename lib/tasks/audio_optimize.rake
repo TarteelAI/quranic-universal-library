@@ -3,7 +3,7 @@ namespace :audio_optimize do
     require 'open3'
     reciter_name = "Maher al-Muaiqly"
     base_path = "/Volumes/Data/qul-segments/audio/65"
-    mp3_path = "#{base_path}/65/mp3"
+    mp3_path = "#{base_path}/mp3"
     optimized_path = "#{base_path}/optimized"
     wav_path = "#{base_path}/wav"
 
@@ -78,34 +78,32 @@ namespace :audio_optimize do
       optimized = "#{optimized_path}/#{file_path}.mp3"
       wav = "#{wav_path}/#{file_path}.wav"
 
-      if File.exist?(optimized)
-        puts "Optimized file #{file_path}.mp3 already exists, skipping."
-        next
-      end
+      if !File.exist?(optimized)
+        puts "Processing Surah #{num} - #{file_path}.mp3"
 
-      puts "Processing Surah #{num} - #{file_path}.mp3"
-      begin
-        analysis = analyze_loudness(file)
+        begin
+          analysis = analyze_loudness(file)
 
-        puts analysis
+          puts analysis
 
-        meta_data = {
-          title: "Surah #{chapter.name_simple}",
-          artist: reciter_name,
-          album: 'Quran',
-          genre: 'Quran',
-          track: "#{chapter.id}/114",
-          comment: 'qul.tarteel.ai'
-        }
-        normalize_audio(
-          file,
-          optimized,
-          analysis,
-          meta_data,
-          encoding: :vbr
-        )
-      rescue TypeError => e
-        puts "Error Processing surah #{chapter.id}"
+          meta_data = {
+            title: "Surah #{chapter.name_simple}",
+            artist: reciter_name,
+            album: 'Quran',
+            genre: 'Quran',
+            track: "#{chapter.id}/114",
+            comment: 'qul.tarteel.ai'
+          }
+          normalize_audio(
+            file,
+            optimized,
+            analysis,
+            meta_data,
+            encoding: :vbr
+          )
+        rescue TypeError => e
+          puts "Error Processing surah #{chapter.id}"
+        end
       end
 
       encode_to_wav(file, wav)

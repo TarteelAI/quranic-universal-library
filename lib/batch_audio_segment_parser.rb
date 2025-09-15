@@ -2,19 +2,22 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-11/vs_logs", reset_db: true)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/15-sept/vs_logs", reset_db: false)
 
 p.validate_log_files
 p.remove_duplicate_files
+
+p.process_all_files
 
 1.upto(114) do |i|
   #next if i == 3
   p.process_reciter(reciter: 12, surah: i)
 end
 
+[1,2,3,4,6,7,8,9,10,12,13,65].each do |r|
 1.upto(114) do |i|
-  next if i == 3
-  p.seed_waveform_silences(reciter: 12, surah: i)
+  p.prepare_ayah_boundaries(reciter: r, surah: i)
+end
 end
 
 p.seed_reciters
@@ -27,6 +30,7 @@ class BatchAudioSegmentParser
   def initialize(data_directory:, reset_db: true)
     @data_directory = data_directory
     setup_db(reset_db: reset_db)
+    @files_with_issues = []
   end
 
   def process_all_files
@@ -101,13 +105,13 @@ class BatchAudioSegmentParser
     files.each do |file_path|
       folder = File.dirname(file_path)
       log_file_name = "#{@data_directory.gsub('vs_logs', '')}logs/#{folder.split('/').last}.log"
-      FileUtils.rm_rf(folder)
-      FileUtils.rm_rf(log_file_name)
+      FileUtils.mv(folder, "#{@data_directory.gsub('vs_logs', '')}/duplicate_files")
+      FileUtils.mv(log_file_name, "#{@data_directory.gsub('vs_logs', '')}/duplicate_files")
     end
   end
 
-  def seed_waveform_silences(reciter:, surah:)
-    silences = Oj.load(File.read("tools/waveform-ayah-segments/result/#{reciter}/#{surah}_silences.json"))
+  def prepare_ayah_boundaries(reciter:, surah:)
+    silences = Oj.load(File.read("#{@data_directory.gsub('vs_logs', '')}/silences/#{reciter}/#{surah}_silences.json"))
     ayah_segments = Segments::AyahBoundary
                       .where(reciter_id: reciter, surah_number: surah)
                       .order('ayah_number asc')
@@ -119,7 +123,9 @@ class BatchAudioSegmentParser
         start_time: ayah.start_time,
         end_time: ayah.end_time,
         gap_start_time: nil,
-        gap_end_time: nil
+        gap_end_time: nil,
+        corrected_start_time: nil,
+        corrected_end_time: nil
       }
 
       # Find all silences that end before this ayah starts
@@ -127,6 +133,7 @@ class BatchAudioSegmentParser
         (silence['end_time'] - 10) < ayah.start_time
       end
 
+      gap_found = false
       if preceding_silences.any?
         # Get the silence that ends closest to the ayah start time
         closest_silence = preceding_silences.max_by { |silence| silence['end_time'] }
@@ -138,27 +145,76 @@ class BatchAudioSegmentParser
           if closest_silence['start_time'] >= previous_ayah.end_time
             ayah_data[:gap_start_time] = closest_silence['start_time']
             ayah_data[:gap_end_time] = closest_silence['end_time']
+            gap_found = true
           end
         else
           # For first ayah, just use the closest silence before it
           ayah_data[:gap_start_time] = closest_silence['start_time']
           ayah_data[:gap_end_time] = closest_silence['end_time']
+          gap_found = true
         end
       end
 
       # Special case for first ayah - check for silence at the very beginning
-      if index == 0 && ayah_data[:gap_start_time].nil?
+      if index == 0 && !gap_found
         initial_silence = silences.find { |silence| silence['start_time'] == 0 }
         if initial_silence && initial_silence['end_time'] < ayah.start_time
           ayah_data[:gap_start_time] = initial_silence['start_time']
           ayah_data[:gap_end_time] = initial_silence['end_time']
+          gap_found = true
         end
       end
 
-      ayah.update_columns(
+      # Set corrected times based on gap detection
+      if gap_found
+        # Use gap data to set corrected times
+        ayah_data[:corrected_start_time] = ayah_data[:gap_end_time]
+        ayah_data[:corrected_end_time] = ayah.end_time
+      else
+        # No gap found, use ayah word-based times
+        ayah_data[:corrected_start_time] = ayah.start_time
+        ayah_data[:corrected_end_time] = ayah.end_time
+      end
+
+      # Handle large gaps between ayahs
+      if index > 0
+        previous_ayah = ayah_segments[index - 1]
+        gap_between_ayahs = ayah_data[:corrected_start_time] - previous_ayah.end_time
+        
+        # If there's a large gap (> 1000ms), adjust both ayahs
+        if gap_between_ayahs > 1000
+          # Move current ayah start time up to 1 second earlier (max 1000ms)
+          max_adjustment = [gap_between_ayahs - 100, 1000].min # Leave at least 100ms gap
+          adjusted_start_time = ayah_data[:corrected_start_time] - max_adjustment
+          
+          # Ensure adjusted start time is still greater than previous ayah end time
+          if adjusted_start_time > previous_ayah.end_time
+            ayah_data[:corrected_start_time] = adjusted_start_time
+            
+            # Also adjust the previous ayah's end time to be much closer to current ayah start
+            # Target: leave only about 500ms gap between ayahs
+            target_gap = 500
+            previous_ayah_end_time = adjusted_start_time - target_gap
+            
+            # Ensure previous ayah end time is not less than its original end time
+            previous_ayah_end_time = [previous_ayah_end_time, previous_ayah.end_time].max
+            
+            # Update the previous ayah's corrected_end_time in the database
+            previous_ayah.update_column(:corrected_end_time, previous_ayah_end_time)
+          end
+        end
+      end
+
+      # Update database with all the calculated values
+      update_data = {
         gap_before_start_time: ayah_data[:gap_start_time],
-        gap_before_end_time: ayah_data[:gap_end_time]
-      )
+        gap_before_end_time: ayah_data[:gap_end_time],
+        corrected_start_time: ayah_data[:corrected_start_time],
+        corrected_end_time: ayah_data[:corrected_end_time]
+      }
+      
+      ayah.update_columns(update_data)
+
       result << ayah_data
     end
 
@@ -198,17 +254,6 @@ class BatchAudioSegmentParser
     after_processing_summary
   end
 
-  protected
-
-  def after_processing_summary
-    puts "Batch processing completed"
-
-    if files_with_issues.size > 0
-      puts "Following files has issues:"
-      puts files_with_issues.join("\n")
-    end
-  end
-
   def segmented_recitations
     return @recitations if @recitations.present?
 
@@ -221,6 +266,17 @@ class BatchAudioSegmentParser
     end
 
     @recitations = Audio::Recitation.where(id: recitation_ids.uniq)
+  end
+
+  protected
+
+  def after_processing_summary
+    puts "Batch processing completed"
+
+    if files_with_issues.size > 0
+      puts "Following files has issues:"
+      puts files_with_issues.join("\n")
+    end
   end
 
   def merge_consecutive_duplicates_positions(positions)

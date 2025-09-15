@@ -1,5 +1,9 @@
 <%= render 'segments/header' %>
 
+<%
+  word_failures = @presenter.word_failures
+  failures = word_failures[:failures]
+%>
 <div
   class="page-wrapper container-lg"
   data-controller="segments--failure-player"
@@ -11,12 +15,18 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
-          <p><strong>Word Text:</strong> <span class="qpc-hafs tw-text-xl"><%= @word_text %></span></p>
-          <p><strong>Total Failures:</strong> <span class="badge bg-danger"><%= @failures.count %></span></p>
+          <p>
+            <strong>Word Text:</strong>
+            <span class="qpc-hafs tw-text-xl">
+            <%= params[:text] %>
+            </span>
+          </p>
+          <p><strong>Total Failures:</strong> <span class="badge bg-danger"><%= failures.count %></span></p>
         </div>
+
         <div class="col-md-6">
           <p><strong>Failure Types:</strong></p>
-          <% @failures.group(:failure_type).count.each do |type, count| %>
+          <% failures.group(:failure_type).count.each do |type, count| %>
             <span class="badge bg-warning tw-mr-1 tw-mb-1"><%= type %> (<%= count %>)</span>
           <% end %>
         </div>
@@ -33,70 +43,70 @@
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
-            <tr>
-              <th class="tw-p-3">Surah:Ayah:Word</th>
-              <th class="tw-p-3">Reciter</th>
-              <th class="tw-p-3">Expected</th>
-              <th class="tw-p-3">Received</th>
-              <th class="tw-p-3">Failure Type</th>
-              <th class="tw-p-3">Time Range</th>
-              <th class="tw-p-3">Status</th>
-              <th class="tw-p-3">Actions</th>
-            </tr>
+          <tr>
+            <th class="tw-p-3">Surah:Ayah:Word</th>
+            <th class="tw-p-3">Reciter</th>
+            <th class="tw-p-3">Expected</th>
+            <th class="tw-p-3">Received</th>
+            <th class="tw-p-3">Failure Type</th>
+            <th class="tw-p-3">Time Range</th>
+            <th class="tw-p-3">Status</th>
+            <th class="tw-p-3">Actions</th>
+          </tr>
           </thead>
           <tbody>
-            <% @failures.each do |failure| %>
-              <tr>
-                <td class="tw-p-3">
+          <% failures.each do |failure| %>
+            <tr>
+              <td class="tw-p-3">
                   <span class="badge bg-primary">
                     <%= link_to "#{failure.surah_number}:#{failure.ayah_number}:#{failure.word_number}", segments_timeline_path(reciter: failure.reciter_id, surah: failure.surah_number, ayah: failure.ayah_number), target: '_blank' %>
                   </span>
-                </td>
-                <td class="tw-p-3">
-                  <%= failure.reciter_id %>
-                </td>
-                <td class="tw-p-3">
-                  <span class="qpc-hafs tw-font-semibold"><%= failure.expected_transcript %></span>
-                </td>
-                <td class="tw-p-3">
-                  <span class="qpc-hafs tw-text-red-600"><%= failure.received_transcript %></span>
-                </td>
-                <td class="tw-p-3">
-                  <span class="badge bg-warning"><%= failure.failure_type %></span>
-                </td>
-                <td class="tw-p-3">
-                  <% if failure.start_time && failure.end_time %>
+              </td>
+              <td class="tw-p-3">
+                <%= failure.reciter_id %>
+              </td>
+              <td class="tw-p-3">
+                <span class="qpc-hafs tw-font-semibold"><%= failure.expected_transcript %></span>
+              </td>
+              <td class="tw-p-3">
+                <span class="qpc-hafs tw-text-red-600"><%= failure.received_transcript %></span>
+              </td>
+              <td class="tw-p-3">
+                <span class="badge bg-warning"><%= failure.failure_type %></span>
+              </td>
+              <td class="tw-p-3">
+                <% if failure.start_time && failure.end_time %>
                     <span class="tw-text-sm">
                       <%= failure.start_time %> - <%= failure.end_time %>
                     </span>
-                  <% else %>
-                    <span class="tw-text-muted">N/A</span>
-                  <% end %>
-                </td>
-                <td class="tw-p-3">
-                  <% if failure.corrected %>
-                    <span class="badge bg-success">Corrected</span>
-                  <% else %>
-                    <span class="badge bg-danger">Pending</span>
-                  <% end %>
-                </td>
-                <td class="tw-p-3">
-                  <% if failure.start_time && failure.end_time %>
-                    <button class="btn btn-sm btn-outline-primary play-audio-btn" 
-                            data-start-time="<%= failure.start_time %>" 
-                            data-end-time="<%= failure.end_time %>"
-                            data-reciter-id="<%= failure.reciter_id %>"
-                            data-surah="<%= failure.surah_number %>"
-                            data-ayah="<%= failure.ayah_number %>"
-                            data-audio-url="<%= failure.reciter.audio_url(failure.surah_number) %>">
-                      <i class="fas fa-play"></i> Play
-                    </button>
-                  <% else %>
-                    <span class="tw-text-muted">No audio</span>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
+                <% else %>
+                  <span class="tw-text-muted">N/A</span>
+                <% end %>
+              </td>
+              <td class="tw-p-3">
+                <% if failure.corrected %>
+                  <span class="badge bg-success">Corrected</span>
+                <% else %>
+                  <span class="badge bg-danger">Pending</span>
+                <% end %>
+              </td>
+              <td class="tw-p-3">
+                <% if failure.start_time && failure.end_time %>
+                  <button class="btn btn-sm btn-outline-primary play-audio-btn"
+                          data-start-time="<%= failure.start_time %>"
+                          data-end-time="<%= failure.end_time %>"
+                          data-reciter-id="<%= failure.reciter_id %>"
+                          data-surah="<%= failure.surah_number %>"
+                          data-ayah="<%= failure.ayah_number %>"
+                          data-audio-url="<%= failure.reciter.audio_url(failure.surah_number) %>">
+                    <i class="fas fa-play"></i> Play
+                  </button>
+                <% else %>
+                  <span class="tw-text-muted">No audio</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
           </tbody>
         </table>
       </div>

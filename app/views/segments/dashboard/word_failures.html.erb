@@ -3,7 +3,7 @@
 <%
   summary = @presenter.word_failure_summary
   top_words = @presenter.top_problematic_words(100)
-  reciter_breakdown = @presenter.reciter_word_failure_breakdown
+  current_reciter = @presenter.selected_reciter
 %>
 
 <div class="page-wrapper container-lg">
@@ -96,7 +96,7 @@
               </td>
               <td class="tw-p-2">
                 <span class="qpc-hafs">
-                  <%= link_to word_data[:word], segments_word_failure_detail_path(text: word_data[:word]), target: '_blank' %>
+                  <%= link_to word_data[:word], segments_word_failure_detail_path(text: word_data[:word], reciter: current_reciter), target: '_blank' %>
                 </span>
               </td>
 
@@ -166,48 +166,6 @@
           <% end %>
         </tbody>
       </table>
-    </div>
-  </div>
-
-  <div class="page-section mt-4">
-    <h3 class="tw-text-xl tw-my-3">Reciter Breakdown</h3>
-    <div class="row">
-      <% reciter_breakdown.each do |reciter_id, stats| %>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="card-title mb-0">
-                Reciter <%= reciter_id %>: <%= stats[:reciter_name] %>
-              </h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text">
-                <strong>Total Failures:</strong> <%= stats[:total_failures] %><br>
-                <strong>Problematic Words:</strong> <%= stats[:unique_problematic_words] %>
-              </p>
-              
-              <% if stats[:top_words].any? %>
-                <h6>Top Problematic Words:</h6>
-                <ul class="list-unstyled">
-                  <% stats[:top_words].each do |word_info| %>
-                    <li class="tw-mb-2">
-                      <span class="qpc-hafs tw-font-semibold"><%= word_info[:word] %></span>
-                      <span class="badge bg-danger tw-ml-2"><%= word_info[:count] %></span>
-                      <br>
-                      <small class="tw-text-gray-600">
-                        Variants: <%= word_info[:variants].first(2).join(', ') %>
-                        <% if word_info[:variants].length > 2 %>
-                          +<%= word_info[:variants].length - 2 %> more
-                        <% end %>
-                      </small>
-                    </li>
-                  <% end %>
-                </ul>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
     </div>
   </div>
 </div>

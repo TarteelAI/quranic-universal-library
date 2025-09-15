@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       namespace :audio do
         get 'surah_recitations', to: 'recitations#surah_recitations'
         get 'surah_recitations/:id', to: 'recitations#surah_recitation_detail'
+        get 'surah_recitations/:id/wav_manifest', to: 'recitations#wav_manifest'
 
         get 'ayah_recitations', to: 'recitations#ayah_recitations'
         get 'ayah_recitations/:id', to: 'recitations#ayah_recitation_detail'

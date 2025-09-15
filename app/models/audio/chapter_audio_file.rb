@@ -101,6 +101,10 @@ module Audio
       self.save(validate: false)
     end
 
+    def prepare_wav_manifest!
+      Audio::GenerateAudioWavManifest.new(self).run
+    end
+
     protected
 
     def find_closest_segment(segments, time)
@@ -129,6 +133,14 @@ module Audio
 
     def total_segments
       read_attribute(:total_segments).to_f
+    end
+
+    def wav_parts
+      meta_value('wav_parts') || []
+    end
+
+    def has_wav_parts?
+      wav_parts.any?
     end
   end
 end

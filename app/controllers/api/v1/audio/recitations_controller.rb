@@ -7,6 +7,9 @@ module Api::V1
       def ayah_recitations; end
       def ayah_recitation_detail; end
 
+      def wav_manifest
+      end
+
       protected
 
       def init_presenter

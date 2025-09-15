@@ -74,6 +74,9 @@ class Segments::DashboardController < ApplicationController
   def ayah_report
   end
 
+  def review_ayahs
+  end
+
   protected
 
   def authorize_access!

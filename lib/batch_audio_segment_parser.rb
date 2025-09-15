@@ -2,7 +2,7 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/15-sept/vs_logs", reset_db: false)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/15-sept/vs_logs", reset_db: true)
 
 p.validate_log_files
 p.remove_duplicate_files
@@ -10,7 +10,6 @@ p.remove_duplicate_files
 p.process_all_files
 
 1.upto(114) do |i|
-  #next if i == 3
   p.process_reciter(reciter: 12, surah: i)
 end
 
@@ -444,6 +443,7 @@ class BatchAudioSegmentParser
           reciter_id: reciter_id,
           verse_id: verse.id,
           ayah_number: verse.verse_number,
+          review_type: 'missing_segments',
           comment: "Expected #{expected_word_count} segments, Found #{actual_word_count} segments"
         }
         puts "Mismatch in Surah #{chapter_id}, Ayah #{verse.verse_number}: Expected #{expected_word_count} words, Found #{actual_word_count} words"
@@ -455,7 +455,8 @@ class BatchAudioSegmentParser
           reciter_id: reciter_id,
           verse_id: verse.id,
           ayah_number: verse.verse_number,
-          comment: "Duplicate words detected in, maybe this ayah has repeated segments?"
+          review_type: 'repetition',
+          comment: "Duplicate words detected in ayah #{verse.verse_number}, maybe this ayah has repeated segments?"
         }
         puts "Duplicate words detected in Surah #{chapter_id}, Ayah #{verse.verse_number}. Maybe repeated words?"
       end
@@ -471,12 +472,14 @@ class BatchAudioSegmentParser
           words_ids = fixed_ayah_positions.map do |a|
             a[:word]
           end
+
           review_ayahs << {
             surah_number: chapter_id,
             reciter_id: reciter_id,
             verse_id: verse.id,
             ayah_number: verse.verse_number,
-            comment: "Auto fixed the missing words(#{words_ids.uniq.join(', ')}) by dividing time of previous word"
+            review_type: 'auto_fixed',
+            comment: "Auto fixed the missing words(#{words_ids.uniq.join(', ')})"
           }
         end
       end
@@ -644,6 +647,7 @@ class BatchAudioSegmentParser
       t.integer :verse_id
       t.integer :reciter_id
       t.string :comment
+      t.string :review_type
     end
 
     connection.create_table :segments_failures do |t|

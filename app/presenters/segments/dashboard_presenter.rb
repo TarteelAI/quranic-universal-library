@@ -60,6 +60,24 @@ module Segments
       pagy(filter_failures)
     end
 
+    def ayah_reviews
+      review_ayahs = ::Segments::ReviewAyah
+
+      if selected_reciter.present?
+        review_ayahs = review_ayahs.where(reciter_id: selected_reciter.to_i)
+      end
+
+      if selected_surah.present?
+        review_ayahs = review_ayahs.where(surah_number: selected_surah.to_i)
+      end
+
+      if selected_review_type.present?
+        review_ayahs = review_ayahs.where(review_type: selected_review_type)
+      end
+
+      pagy(review_ayahs.order('surah_number, ayah_number'))
+    end
+
     def ayah_failures
       list = filter_failures.joins(:reciter)
 
@@ -158,6 +176,14 @@ module Segments
 
     def selected_reciter
       params[:reciter].to_i if params[:reciter].present?
+    end
+
+    def selected_review_type
+      params[:review_type] if params[:review_type].present?
+    end
+
+    def review_types
+      @review_types ||= ::Segments::ReviewAyah.distinct.pluck(:review_type).compact.sort
     end
 
     def filter_failures

@@ -156,6 +156,7 @@ Rails.application.routes.draw do
     get '/reciters', to: 'dashboard#reciters', as: :reciters
     get '/timeline', to: 'dashboard#timeline', as: :timeline
     get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
+    get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
     match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
   end
 

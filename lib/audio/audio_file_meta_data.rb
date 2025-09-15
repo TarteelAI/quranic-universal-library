@@ -2,7 +2,8 @@ require 'wahwah'
 
 module Audio
   class AudioFileMetaData
-    attr_reader :tmp_dir, :recitation
+    attr_reader :tmp_dir,
+                :recitation
 
     def initialize(recitation:)
       @recitation = recitation
@@ -12,11 +13,11 @@ module Audio
 
     def update_meta_data(options={})
       if recitation.one_ayah?
-        update_ayah_audio_meta_data(chapter_id: options[:chapter_id])
+        update_ayah_audio_meta_data(chapter_id: options[:chapter_id], force: options[:force])
         segments = AudioSegment::AyahByAyah.new(recitation)
         segments.track_repetition(chapter_id: options[:chapter_id])
       else
-        update_surah_audio_meta_data(chapter_id: options[:chapter_id])
+        update_surah_audio_meta_data(chapter_id: options[:chapter_id], force: options[:force])
         segments = AudioSegment::SurahBySurah.new(recitation)
         segments.track_repetition(chapter_id: options[:chapter_id])
       end
@@ -26,7 +27,7 @@ module Audio
 
     protected
 
-    def update_surah_audio_meta_data(chapter_id: nil)
+    def update_surah_audio_meta_data(chapter_id: nil, force: false)
       audio_files = Audio::ChapterAudioFile.where(audio_recitation: recitation)
 
       if chapter_id
@@ -34,7 +35,7 @@ module Audio
       end
 
       audio_files.each do |audio_file|
-        next if audio_file.has_audio_meta_data?
+        next if !force && audio_file.has_audio_meta_data?
 
         url = audio_file.audio_url
         audio_file.update_segment_percentile
@@ -62,7 +63,7 @@ module Audio
       end
     end
 
-    def update_ayah_audio_meta_data(chapter_id: nil)
+    def update_ayah_audio_meta_data(chapter_id: nil, force: false)
       audio_files = AudioFile
                       .includes(:verse, :chapter)
                       .where(recitation_id: recitation.id)
@@ -72,7 +73,7 @@ module Audio
       end
 
       audio_files.find_each do |audio_file|
-        next if audio_file.has_audio_meta_data?
+        next if !force && audio_file.has_audio_meta_data?
         url = audio_file.audio_url
 
         if meta_response = fetch_audio_file_meta_data(url)
@@ -150,7 +151,7 @@ module Audio
     end
 
     def fetch_audio_file_meta_data(url)
-      request = fetch_bytes(url, 2.megabyte)
+      request = fetch_bytes(url, 5.megabyte)
       body = request.body
 
       if body.to_s.include?("Not Found")

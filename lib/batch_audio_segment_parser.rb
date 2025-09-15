@@ -2,13 +2,13 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-4/vs_logs", reset_db: false)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/sept-11/vs_logs", reset_db: true)
+
 p.validate_log_files
 p.remove_duplicate_files
 
 1.upto(114) do |i|
-  next if i == 3
-
+  #next if i == 3
   p.process_reciter(reciter: 12, surah: i)
 end
 
@@ -21,6 +21,9 @@ p.seed_reciters
 =end
 
 class BatchAudioSegmentParser
+  attr_accessor :files_with_issues,
+                :data_directory
+
   def initialize(data_directory:, reset_db: true)
     @data_directory = data_directory
     setup_db(reset_db: reset_db)
@@ -34,7 +37,7 @@ class BatchAudioSegmentParser
       process_file(file_path)
     end
 
-    puts "Batch processing completed!"
+    after_processing_summary
   end
 
   def validate_log_files
@@ -97,7 +100,6 @@ class BatchAudioSegmentParser
 
     files.each do |file_path|
       folder = File.dirname(file_path)
-      binding.pry if @debug.nil?
       log_file_name = "#{@data_directory.gsub('vs_logs', '')}logs/#{folder.split('/').last}.log"
       FileUtils.rm_rf(folder)
       FileUtils.rm_rf(log_file_name)
@@ -193,9 +195,19 @@ class BatchAudioSegmentParser
     files.each do |file_path|
       process_file(file_path)
     end
+    after_processing_summary
   end
 
   protected
+
+  def after_processing_summary
+    puts "Batch processing completed"
+
+    if files_with_issues.size > 0
+      puts "Following files has issues:"
+      puts files_with_issues.join("\n")
+    end
+  end
 
   def segmented_recitations
     return @recitations if @recitations.present?
@@ -264,26 +276,30 @@ class BatchAudioSegmentParser
 
     begin
       parser = AudioSegmentParser.new(file_path)
-      puts "  Reciter ID: #{parser.reciter_id}, Surah: #{parser.surah_number}"
+      puts "Reciter ID: #{parser.reciter_id}, Surah: #{parser.surah_number}"
 
       parser.run
 
-      puts "  Reciter ID: #{parser.reciter_id}, Surah: #{parser.surah_number} - Parsed #{parser.positions.count} segments"
+      puts "Reciter ID: #{parser.reciter_id}, Surah: #{parser.surah_number} - Parsed #{parser.positions.count} segments"
       puts "Segments Stats: #{parser.stats}"
-      puts "  Fixing missing positions..."
+      puts "Fixing missing positions..."
       parser.fix_missing_positions
       puts "#{parser.positions.count} segments after fixing the missing positions"
 
-      import_segments(
-        parser.positions,
-        parser.failures,
-        parser.reciter_id
-      )
-
-      puts "  ✓ Successfully processed"
+      if parser.positions.any?
+        import_segments(
+          parser.positions,
+          parser.failures,
+          parser.reciter_id
+        )
+      else
+        puts "No segments found, skipping import"
+        filter_segments_files << file_path
+      end
     rescue => e
-      puts "  ✗ Error processing file: #{e.message}"
-      puts "  Backtrace: #{e.backtrace.first(3).join("\n    ")}"
+      files_with_issues << file_path
+      puts "Error processing file: #{e.message}"
+      puts "Backtrace: #{e.backtrace.first(3).join("\n    ")}"
     end
   end
 
@@ -373,7 +389,7 @@ class BatchAudioSegmentParser
           ayah_number: verse.verse_number,
           comment: "Expected #{expected_word_count} segments, Found #{actual_word_count} segments"
         }
-        puts "  ⚠️ Mismatch in Surah #{chapter_id}, Ayah #{verse.verse_number}: Expected #{expected_word_count} words, Found #{actual_word_count} words"
+        puts "Mismatch in Surah #{chapter_id}, Ayah #{verse.verse_number}: Expected #{expected_word_count} words, Found #{actual_word_count} words"
       end
 
       if expected_word_count != ayah_positions.map { |pos| pos[:word] }.count
@@ -384,7 +400,7 @@ class BatchAudioSegmentParser
           ayah_number: verse.verse_number,
           comment: "Duplicate words detected in, maybe this ayah has repeated segments?"
         }
-        puts "  ⚠️ Duplicate words detected in Surah #{chapter_id}, Ayah #{verse.verse_number}. Maybe repeated words?"
+        puts "Duplicate words detected in Surah #{chapter_id}, Ayah #{verse.verse_number}. Maybe repeated words?"
       end
 
       auto_fixed_missed_positions = ayah_positions.select do |pos|

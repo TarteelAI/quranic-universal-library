@@ -1,8 +1,9 @@
 namespace :audio_optimize do
   task optimize_mp3: :environment do
     require 'open3'
-    reciter_name = "Mahmoud Khalil Al-Husary[Mujawwad]"
-    base_path = "/Volumes/Data/qul-segments/audio/164"
+    reciter_name = "Maher al-Muaiqly"
+    base_path = "/Volumes/Data/qul-segments/audio/65"
+    mp3_path = "#{base_path}/65/mp3"
     optimized_path = "#{base_path}/optimized"
     wav_path = "#{base_path}/wav"
 
@@ -73,7 +74,7 @@ namespace :audio_optimize do
       chapter = Chapter.find(num)
 
       file_path = num.to_s.rjust(3, '0')
-      file = "#{base_path}/#{file_path}.mp3"
+      file = "#{mp3_path}/#{file_path}.mp3"
       optimized = "#{optimized_path}/#{file_path}.mp3"
       wav = "#{wav_path}/#{file_path}.wav"
 
@@ -84,29 +85,30 @@ namespace :audio_optimize do
 
       puts "Processing Surah #{num} - #{file_path}.mp3"
       begin
-      analysis = analyze_loudness(file)
+        analysis = analyze_loudness(file)
 
-      puts analysis
+        puts analysis
 
-      meta_data = {
-        title: "Surah #{chapter.name_simple}",
-        artist: reciter_name,
-        album: 'Quran',
-        genre: 'Quran',
-        track: "#{chapter.id}/114",
-        comment: 'qul.tarteel.ai'
-      }
-      normalize_audio(
-        file,
-        optimized,
-        analysis,
-        meta_data,
-        encoding: :vbr
-      )
-      rescue TypeError => e 
-      	puts "Error Processing surah #{chapter.id}"
-      end 
-      # encode_to_wav(file, wav)
+        meta_data = {
+          title: "Surah #{chapter.name_simple}",
+          artist: reciter_name,
+          album: 'Quran',
+          genre: 'Quran',
+          track: "#{chapter.id}/114",
+          comment: 'qul.tarteel.ai'
+        }
+        normalize_audio(
+          file,
+          optimized,
+          analysis,
+          meta_data,
+          encoding: :vbr
+        )
+      rescue TypeError => e
+        puts "Error Processing surah #{chapter.id}"
+      end
+
+      encode_to_wav(file, wav)
     end
   end
 end

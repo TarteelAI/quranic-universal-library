@@ -417,6 +417,7 @@ class BatchAudioSegmentParser
     end
 
     create_ayah_boundaries(reciter_id, positions)
+    create_detection_data(reciter_id, positions, failures)
   end
 
   private
@@ -569,6 +570,50 @@ class BatchAudioSegmentParser
     return if boundaries_data.empty?
 
     Segments::AyahBoundary.insert_all(boundaries_data)
+  end
+
+  def create_detection_data(reciter_id, positions, failures)
+    positions_by_ayah = positions.group_by { |pos| [pos[:surah], pos[:ayah]] }
+    failures_by_ayah = failures.group_by { |failure| [failure[:surah_number], failure[:ayah_number]] }
+
+    detection_data = []
+
+    positions_by_ayah.each do |(surah, ayah), ayah_positions|
+      position_count = ayah_positions.count
+      
+      ayah_failures = failures_by_ayah[[surah, ayah]] || []
+      failure_count = ayah_failures.count
+
+      if position_count > 0
+        detection_data << {
+          surah_number: surah,
+          ayah_number: ayah,
+          reciter_id: reciter_id,
+          detection_type: 'POSITION',
+          count: position_count
+        }
+      end
+
+      if failure_count > 0
+        detection_data << {
+          surah_number: surah,
+          ayah_number: ayah,
+          reciter_id: reciter_id,
+          detection_type: 'FAILURE',
+          count: failure_count
+        }
+      end
+    end
+
+    if detection_data.any?
+      bulk_insert_detections(detection_data)
+    end
+  end
+
+  def bulk_insert_detections(detection_data)
+    return if detection_data.empty?
+
+    Segments::Detection.insert_all(detection_data)
   end
 
   def generate_word_key(surah_number, ayah_number, word_number)

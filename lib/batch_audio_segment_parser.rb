@@ -2,7 +2,7 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/15-sept/vs_logs", reset_db: true)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/15-sept/vs_logs", reset_db: false)
 
 p.validate_log_files
 p.remove_duplicate_files
@@ -10,12 +10,12 @@ p.remove_duplicate_files
 p.process_all_files
 
 1.upto(114) do |i|
-  p.process_reciter(reciter: 12, surah: i)
+  p.process_reciter(reciter: 65, surah: i)
 end
 
 [1,2,3,4,6,7,8,9,10,12,13,65].each do |r|
 1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: r, surah: i)
+  p.prepare_ayah_boundaries(reciter: 65, surah: 2)
 end
 end
 
@@ -166,11 +166,9 @@ class BatchAudioSegmentParser
 
       # Set corrected times based on gap detection
       if gap_found
-        # Use gap data to set corrected times
         ayah_data[:corrected_start_time] = ayah_data[:gap_end_time]
         ayah_data[:corrected_end_time] = ayah.end_time
       else
-        # No gap found, use ayah word-based times
         ayah_data[:corrected_start_time] = ayah.start_time
         ayah_data[:corrected_end_time] = ayah.end_time
       end
@@ -180,10 +178,9 @@ class BatchAudioSegmentParser
         previous_ayah = ayah_segments[index - 1]
         gap_between_ayahs = ayah_data[:corrected_start_time] - previous_ayah.end_time
         
-        # If there's a large gap (> 1000ms), adjust both ayahs
-        if gap_between_ayahs > 1000
-          # Move current ayah start time up to 1 second earlier (max 1000ms)
-          max_adjustment = [gap_between_ayahs - 100, 1000].min # Leave at least 100ms gap
+        if gap_between_ayahs > 600
+          # Move current ayah start time up to 500 ms earlier
+          max_adjustment = [gap_between_ayahs - 100, 500].min # Leave at least 100ms gap
           adjusted_start_time = ayah_data[:corrected_start_time] - max_adjustment
           
           # Ensure adjusted start time is still greater than previous ayah end time
@@ -191,14 +188,12 @@ class BatchAudioSegmentParser
             ayah_data[:corrected_start_time] = adjusted_start_time
             
             # Also adjust the previous ayah's end time to be much closer to current ayah start
-            # Target: leave only about 500ms gap between ayahs
-            target_gap = 500
+            # Target: leave only about 300ms gap between ayahs
+            target_gap = 300
             previous_ayah_end_time = adjusted_start_time - target_gap
             
             # Ensure previous ayah end time is not less than its original end time
             previous_ayah_end_time = [previous_ayah_end_time, previous_ayah.end_time].max
-            
-            # Update the previous ayah's corrected_end_time in the database
             previous_ayah.update_column(:corrected_end_time, previous_ayah_end_time)
           end
         end

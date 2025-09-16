@@ -62,8 +62,7 @@ class Segments::DashboardController < ApplicationController
   end
 
   def word_failure_detail
-    word_text = params[:text]
-    params[:expected_text] = word_text
+    word_text = params[:text].to_s.strip
 
     if word_text.blank?
       redirect_to segments_word_failures_path, alert: "Word text is required"
@@ -75,6 +74,15 @@ class Segments::DashboardController < ApplicationController
   end
 
   def review_ayahs
+  end
+
+  def download_reciter
+    reciter_id = params[:id]
+    reciter = ::Segments::Reciter.find(reciter_id)
+    
+    ::Segments::ExportReciterSegmentsJob.perform_later(current_user.id, reciter_id)
+    
+    redirect_to segments_reciters_path, notice: "Segments data export for #{reciter.name} has been queued. You will receive an email when it's ready."
   end
 
   protected

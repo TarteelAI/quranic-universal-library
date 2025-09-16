@@ -77,6 +77,11 @@ module Audio
       self.chapter_id = verse.chapter_id
     end
 
+    def set_segments!(segments_list, user = nil)
+      set_segments(segments_list, user)
+      save(validate: false)
+    end
+
     def set_segments(segments_list, user = nil)
       words = verse.words_count
 
@@ -89,11 +94,8 @@ module Audio
       end
 
       list = list.compact_blank
-
-      update(
-        segments: list,
-        segments_count: list.size
-      )
+      self.segments = list
+      self.segments_count = list.size
     end
 
     def update_time_and_offset_segments(from, to, key)

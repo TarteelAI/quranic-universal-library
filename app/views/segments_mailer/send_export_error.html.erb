@@ -1,0 +1,61 @@
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .content {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .error-details {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #dc3545;
+        margin: 20px 0;
+    }
+
+    .footer {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        margin-top: 30px;
+    }
+</style>
+
+<div class="header">
+  <h1>⚠️ Export Error</h1>
+  <p>There was an error preparing segments data for <strong><%= @reciter.name %></strong>.</p>
+</div>
+
+<div class="content">
+  <h2>Hello <%= @user.name || @user.email %>!</h2>
+
+  <p>Unfortunately, there was an error while preparing your segments data export request. The system encountered the
+    following issue:</p>
+
+  <div class="error-details">
+    <h3>🔍 Error Details:</h3>
+    <p><strong>Reciter:</strong> <%= @reciter.name %> (ID: <%= @reciter.id %>)</p>
+    <p><strong>Error Message:</strong></p>
+    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;"><%= @error_message %></pre>
+  </div>
+</div>
+

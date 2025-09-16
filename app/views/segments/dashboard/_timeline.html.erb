@@ -1,18 +1,18 @@
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section filters" style="position: relative">
     <%= form_tag segments_timeline_path, method: :get do %>
-      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
-        <div class="form-group me-2">
+      <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
+        <div class="tw-mb-4 tw-me-2">
           <%= select_tag :surah, options_for_select(@presenter.chapter_options, @presenter.selected_surah), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
-          <p class="form-text">Filter by Surah</p>
+          <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Surah</p>
         </div>
 
-        <div class="form-group me-2">
+        <div class="tw-mb-4 tw-me-2">
           <%= select_tag :reciter, options_for_select(@presenter.reciters.pluck(:name, :id), @presenter.selected_reciter), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
-          <p class="form-text">Filter reciter</p>
+          <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter reciter</p>
         </div>
 
-        <div class="form-group">
+        <div class="tw-mb-4">
           <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
         </div>
       </div>

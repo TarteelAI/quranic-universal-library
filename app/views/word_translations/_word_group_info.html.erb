@@ -1,13 +1,13 @@
-<div class="form-group" id="<%= dom_id word, :group %>">
+<div class="tw-mb-4" id="<%= dom_id word, :group %>">
   <%= text_field_tag :group_text,
                       word_translation.get_group_text,
                      class: "form-control #{language.name.downcase}", disabled: true %>
 
-  <div class="help-block mt-2">
+  <div class="help-block tw-mt-2">
     <% if word_translation.has_grouped_translation? %>
       <% range = word_translation.group_words_range %>
 
-      <div class="help-block d-flex align-items-center justify-content-between">
+      <div class="help-block tw-flex tw-items-center tw-justify-between">
         <small>
           <%= word.location %> is part of a group
           translation(<%= range.first.location %> - <%= range.last.location %>)
@@ -15,7 +15,7 @@
 
         <a
           type="button"
-          class="btn btn-secondary btn-sm"
+          class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-600 hover:tw-bg-gray-700 tw-text-white tw-px-3 tw-py-1 tw-text-sm"
           data-controller="ajax-modal"
           data-url="<%= group_info_word_translation_path(word.id, language: language.id, word_id: word.id) %>"
         >
@@ -23,14 +23,14 @@
         </a>
       </div>
     <% else %>
-      <div class="help-block d-flex align-items-center justify-content-between">
+      <div class="help-block tw-flex tw-items-center tw-justify-between">
         <small>
           <%= word.location %> doesn't have group translation
         </small>
 
         <a
           type="button"
-          class="btn btn-secondary btn-sm"
+          class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-600 hover:tw-bg-gray-700 tw-text-white tw-px-3 tw-py-1 tw-text-sm"
           data-controller="ajax-modal"
           data-url="<%= group_info_word_translation_path(word.id, language: language.id, word_id: word.id) %>"
         >

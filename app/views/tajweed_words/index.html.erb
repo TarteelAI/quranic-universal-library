@@ -4,28 +4,28 @@
            key: 'tajweed'
 %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section filters">
     <%= form_tag tajweed_words_path, method: :get, class: 'd-flex' do %>
-      <div class="row" data-controller="chapter-verses-filter">
+      <div class="tw-flex tw-flex-wrap tw-gap-4" data-controller="chapter-verses-filter">
         <div class="tw-flex tw-flex-col sm:tw-flex-row tw-flex-wrap tw-space-y-4 sm:tw-space-y-0">
           <% if false %>
-            <div class="form-group me-2">
+            <div class="tw-mb-4 tw-me-2">
               <%= select_tag :filter_tajweed_rule_old, options_for_select(tajweed_rule_options_for_select(TajweedRules.new, display: 'name'), params[:filter_tajweed_rule_old]), include_blank: true, class: 'form-select tw-w-[100%]', data: { placeholder: 'Filter by tajweed rule(old)', controller: 'select2' } %>
-              <p class="form-text">Filter by Tajweed rule(old)</p>
+              <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Tajweed rule(old)</p>
             </div>
           <% end %>
-          <div class="form-group me-2">
+          <div class="tw-mb-4 tw-me-2">
             <%= select_tag :filter_tajweed_rule_new, options_for_select(tajweed_rule_options_for_select(TajweedRules.new('new'), display: 'name'), params[:filter_tajweed_rule_new]), include_blank: true, class: 'form-select tw-w-[100%] tw-border-gray-400 tw-rounded-[5px]', data: { placeholder: 'Filter by tajweed rule(new)', controller: 'select2' } %>
-            <p class="form-text">Filter by Tajweed rule</p>
+            <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Tajweed rule</p>
           </div>
 
-          <div class="form-group me-2">
+          <div class="tw-mb-4 tw-me-2">
             <%= text_field_tag :filter_text, params[:filter_text], class: 'form-control tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]' %>
-            <p class="form-text">Filter by text</p>
+            <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by text</p>
           </div>
 
-          <div class="form-group me-2">
+          <div class="tw-mb-4 tw-me-2">
             <div class="tw-flex tw-space-y-4 sm:tw-space-y-0 tw-flex-col sm:tw-flex-row">
               <%= text_field_tag :filter_regexp_start, params[:filter_regexp_start], placeholder: 'Start with', class: 'form-control me-2  tw-w-[100%] sm:tw-w-auto tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]'%>
               <%= text_field_tag :filter_regexp_end, params[:filter_regexp_end], placeholder: 'Ends with', class: 'form-control me-2 tw-w-[100%] sm:tw-w-auto tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]'%>
@@ -34,14 +34,14 @@
                 Filter whole word
               </label>
             </div>
-            <p class="form-text tw-mb-4 sm:tw-mb-0">Filter by Regexp(Find word that start and ends with specific letter)</p>
+            <p class="tw-text-sm tw-text-gray-600 tw-mt-1 tw-mb-4 sm:tw-mb-0">Filter by Regexp(Find word that start and ends with specific letter)</p>
           </div>
         </div>
 
         <div class="tw-flex tw-space-y-4 sm:tw-space-y-0 tw-flex-col sm:tw-flex-row tw-w-[100%]">
           <%= render 'shared/filters', page: true %>
 
-          <div class="form-group ms-auto">
+          <div class="tw-mb-4 ms-auto">
             <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
             <%= link_to 'Clear', tajweed_words_path, class: 'btn-link text-dark' if has_filters?(:filter_page, :filter_chapter, :filter_verse, :filter_text, :filter_tajweed_rule) %>
           </div>
@@ -50,11 +50,11 @@
     <% end %>
   </div>
 
-  <div class="page-section mt-4">
+  <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Words</h2>
     <div class= "tools-table-overflow">
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
       <tr>
         <th><%= sort_order_link 'Word index', :word_index %></th>
         <th>Location</th>
@@ -75,7 +75,7 @@
             <%= link_to word.word_index, tajweed_word_path(word.location) %>
           </td>
 
-          <td class="text-left">
+          <td class="tw-text-left">
             <%= word.location %>
           </td>
           <td class="qpc-hafs">
@@ -104,8 +104,8 @@
             <% end %>
           </td>
 
-          <td class="text-right">
-            <div class="d-flex gap-1">
+          <td class="tw-text-right">
+            <div class="tw-flex tw-gap-1">
               <%= link_to 'Show', tajweed_word_path(word.location), class: 'btn btn-success' %>
             </div>
           </td>
@@ -114,8 +114,8 @@
 
       <tr>
         <td colspan="7">
-          <div class="d-flex align-items-center">
-            <div class="me-4">
+          <div class="tw-flex tw-items-center">
+            <div class="tw-me-4">
               <%= safe_html pagy_bootstrap_nav(@pagy) %>
             </div>
             <div>

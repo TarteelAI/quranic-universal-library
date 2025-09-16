@@ -1,15 +1,15 @@
-<div class="modal-header" id="modal-header">
-  <div class="modal-title flex-between flex-grow-1">
-    <div class="d-flex flex-column">
+<div class="tw-flex tw-items-center tw-justify-between tw-p-6 tw-border-b tw-border-gray-200" id="modal-header">
+  <div class="tw-text-lg tw-font-semibold flex-between flex-grow-1">
+    <div class="tw-flex flex-column">
         <div>
           <strong><%= @ayah.chapter.name_simple %></strong>
-          <span class="badge bg-primary">
+          <span class="badge tw-bg-blue-500">
             Ayah <%= @ayah.verse_number %>
           </span>
         </div>
 
         <div style="margin-top: -8px">
-          <small class="text-muted">
+          <small class="tw-text-gray-600">
             <%= @ayah.chapter.translated_names.english.first.name %>
           </small>
         </div>

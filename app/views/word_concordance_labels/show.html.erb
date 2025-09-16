@@ -20,15 +20,15 @@
            actions: actions
 %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section">
-    <div class="alert alert-dark" role="alert">
+    <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-900 tw-text-white" role="alert">
       <div class="qpc-hafs" id="ayah_text" style="font-size: 30px; margin-top: 10px"><%= @verse.text_qpc_hafs %> </div>
     </div>
 
     <h2>Words list</h2>
-    <table class="table table-hover table-bordered">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
       <tr>
         <td>ID</td>
         <td style="direction: rtl">Text</td>
@@ -70,7 +70,7 @@
     </table>
   </div>
 
-  <div class="d-flex justify-content-end gap-2 mt-3">
+  <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-3">
     <%= link_to('Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-dark') if previous_ayah %>
     <%= link_to('Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-dark') if next_ayah %>
     <%= link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-info') %>

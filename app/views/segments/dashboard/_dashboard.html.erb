@@ -2,8 +2,8 @@
   data = @presenter.graph_data
 %>
 
-<div class="page-wrapper container-lg">
-  <div class="page-section mt-4" data-turbo="false">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="page-section tw-mt-4" data-turbo="false">
     <h1 class="tw-text-2xl tw-font-bold tw-mb-4">Detection Statistics Dashboard</h1>
 
     <%= form_with url: segments_dashboard_path, method: :get, class: "tw-flex tw-gap-4 tw-mb-6" do %>
@@ -28,7 +28,7 @@
       </div>
 
       <div class="tw-flex tw-items-end">
-        <button type="submit" class="btn btn-info">Filter</button>
+        <button type="submit" class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white">Filter</button>
       </div>
     <% end %>
 

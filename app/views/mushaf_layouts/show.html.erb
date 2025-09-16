@@ -54,7 +54,7 @@
 
   <%= render 'shared/access_message' %>
 
-  <div class="page-wrapper container-lg">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
     <% if valid_mushaf_view_type?(params[:view_type]) %>
       <%= render "#{params[:view_type]}_view" %>
     <% else %>

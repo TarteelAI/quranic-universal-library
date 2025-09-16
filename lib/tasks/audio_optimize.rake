@@ -109,4 +109,48 @@ namespace :audio_optimize do
       encode_to_wav(file, wav)
     end
   end
+
+  task encode_wav_to_mp3: :environment do
+    require "shellwords"
+    base_path = "/Volumes/Data/qul-segments/audio/65"
+    mp3_path = "#{base_path}/final/mp3"
+    wav_path = "#{base_path}/wav"
+
+    FileUtils.mkdir_p(mp3_path)
+
+    def encode_to_mp3(input_wav, output_mp3, meta_data = {})
+      return puts "#{File.basename(output_mp3)} already exists" if File.exist?(output_mp3)
+
+      puts "Re-encoding #{File.basename(input_wav)} to MP3..."
+      # Keep mono + 16kHz, high quality MP3
+      args = "-ac 1 -ar 16000 -codec:a libmp3lame -b:a 128k"
+
+      # Add metadata options
+      meta_args = meta_data.map do |key, value|
+        %Q(-metadata #{key}=#{Shellwords.escape(value.to_s)})
+      end.join(" ")
+
+      system("ffmpeg -loglevel error -y -i #{Shellwords.escape(input_wav)} #{args} #{meta_args} #{Shellwords.escape(output_mp3)}")
+    end
+
+    reciter_name = "Maher al-Muaiqly"
+
+    (1..114).each do |num|
+      chapter = Chapter.find(num)
+
+      meta_data = {
+        title: "Surah #{chapter.name_simple}",
+        artist: reciter_name,
+        album: 'Quran',
+        genre: 'Quran',
+        track: "#{chapter.id}/114",
+        comment: 'qul.tarteel.ai'
+      }
+
+      file_path = num.to_s.rjust(3, '0')
+      input_wav = "#{wav_path}/#{file_path}.wav"
+      output_mp3 = "#{mp3_path}/#{file_path}.mp3"
+      encode_to_mp3(input_wav, output_mp3, meta_data)
+    end
+  end
 end

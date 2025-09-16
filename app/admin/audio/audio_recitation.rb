@@ -255,6 +255,7 @@ ActiveAdmin.register Audio::Recitation do
           td 'ID'
           td 'Surah number'
           td 'URL'
+          td 'Duration'
           td 'Ayahs count'
           td 'Semgnets'
         end
@@ -265,6 +266,7 @@ ActiveAdmin.register Audio::Recitation do
               td link_to(r.id, [:cms, r])
               td r.chapter_id
               td r.audio_url
+              td r.duration
               td r.chapter&.verses_count
               td r.segments_count
             end

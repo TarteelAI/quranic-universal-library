@@ -1,0 +1,142 @@
+<%
+  selected_reciter = @presenter.selected_reciter
+  selected_surah = @presenter.selected_surah
+  selected_review_type = @presenter.selected_review_type
+  pagination, ayah_reviews = @presenter.ayah_reviews
+
+  type_colors = {
+    'missing_segments' => 'tw-bg-red-100 tw-text-red-800',
+    'repetition' => 'tw-bg-orange-100 tw-text-orange-800',
+    'auto_fixed' => 'tw-bg-blue-100 tw-text-blue-800'
+  }
+%>
+
+<div class="page-wrapper container-lg mt-4">
+  <div class="page-section filters">
+    <%= form_with url: segments_review_ayahs_path, method: :get, local: true, class: "tw-flex tw-gap-4 tw-mb-6" do %>
+      <div>
+        <label class="tw-block tw-text-sm tw-font-semibold">Reciter:</label>
+        <select name="reciter" class="tw-border tw-rounded tw-px-2 tw-py-1">
+          <option value="">All</option>
+          <% @presenter.reciters.each do |reciter| %>
+            <option value="<%= reciter.id %>" <%= 'selected' if selected_reciter.to_s == reciter.id.to_s %>><%= reciter.name %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div>
+        <label class="tw-block tw-text-sm tw-font-semibold">Surah:</label>
+        <select name="surah" class="tw-border tw-rounded tw-px-2 tw-py-1">
+          <option value="">All</option>
+          <% @presenter.segmented_surah.each do |s| %>
+            <option value="<%= s %>" <%= 'selected' if selected_surah.to_s == s.to_s %>>Surah <%= s %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div>
+        <label class="tw-block tw-text-sm tw-font-semibold">Review Type:</label>
+        <select name="review_type" class="tw-border tw-rounded tw-px-2 tw-py-1">
+          <option value="">All</option>
+          <% @presenter.review_types.each do |type| %>
+            <option value="<%= type %>" <%= 'selected' if selected_review_type == type %>>
+              <%= type.humanize %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="tw-flex tw-items-end">
+        <button type="submit" class="btn btn-info">Filter</button>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h1 class="tw-text-xl tw-font-bold tw-mb-4">Review Ayah Issues</h1>
+    
+    <% if ayah_reviews.any? %>
+      <div class="tw-mb-4">
+        <p class="tw-text-sm tw-text-gray-600">
+          Showing <%= ayah_reviews.count %> review issue(s) found during segmentation processing.
+        </p>
+      </div>
+
+      <table class="tw-w-full tw-border-collapse tw-rounded-md tw-shadow-sm">
+        <thead>
+        <tr class="tw-bg-gray-100 tw-text-left">
+          <th class="tw-p-3 tw-border-b">Reciter</th>
+          <th class="tw-p-3 tw-border-b">Surah</th>
+          <th class="tw-p-3 tw-border-b">Ayah</th>
+          <th class="tw-p-3 tw-border-b">Type</th>
+          <th class="tw-p-3 tw-border-b">Comment</th>
+          <th class="tw-p-3 tw-border-b">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% ayah_reviews.each do |issue| %>
+          <tr class="tw-border-b hover:tw-bg-gray-50">
+            <td class="tw-p-3">
+              <span class="tw-font-medium"><%= issue.reciter_id %></span>
+            </td>
+            <td class="tw-p-3">
+              <span class="tw-bg-blue-100 tw-text-blue-800 tw-px-2 tw-py-1 tw-rounded tw-text-sm">
+                Surah <%= issue.surah_number %>
+              </span>
+            </td>
+            <td class="tw-p-3">
+              <span class="tw-bg-green-100 tw-text-green-800 tw-px-2 tw-py-1 tw-rounded tw-text-sm">
+                Ayah <%= issue.ayah_number %>
+              </span>
+            </td>
+            <td class="tw-p-3">
+              <%
+                type_color = type_colors[issue.review_type] || 'tw-bg-gray-100 tw-text-gray-800'
+              %>
+              <span class="tw-px-2 tw-py-1 tw-rounded tw-text-sm <%= type_color %>">
+                <%= issue.review_type&.humanize || 'Unknown' %>
+              </span>
+            </td>
+            <td class="tw-p-3">
+              <div class="tw-max-w-md">
+                <p class="tw-text-sm tw-text-gray-700 tw-leading-relaxed">
+                  <%= issue.comment %>
+                </p>
+              </div>
+            </td>
+            <td class="tw-p-3">
+              <div class="tw-flex tw-gap-2">
+                <%= link_to "Timeline", 
+                    segments_timeline_path(reciter: issue.reciter_id, surah: issue.surah_number, ayah: issue.ayah_number),
+                    class: "tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-no-underline" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+
+        <tr>
+          <td colspan="6">
+            <div class="d-flex align-items-center">
+              <div class="me-4">
+                <%= safe_html pagy_bootstrap_nav(pagination) %>
+              </div>
+
+              <div>
+                <%= safe_html pagy_info(pagination) %>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+    <% else %>
+      <div class="tw-text-center tw-py-12">
+        <div class="tw-text-gray-500 tw-text-lg tw-mb-4">
+          <i class="fas fa-check-circle tw-text-green-500 tw-text-4xl tw-mb-4"></i>
+          <p>No review issues found!</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -185,10 +185,10 @@ class AudioSegmentParser
     end
 
     word = Word.find_by_location("#{surah_number}:#{ayah}:#{translated_word_number}")
-
     if word.blank?
       translated_word_number = @last_translated_word_number
       word_number = @last_word_number
+      word = Word.find_by_location("#{surah_number}:#{ayah}:#{translated_word_number}")
     end
 
     @last_word_number = word_number
@@ -243,19 +243,17 @@ class AudioSegmentParser
     
     failures << failure_data
 
-=begin
-    failure_data = {
-      expected_text: expected_text,
-      received_text: received_text,
-      ayah_number: ayah_number,
-      type: mistake['mistakeType']
-    }
-=end
-
     if !first_word_detected
       @last_word_number ||= 1
-      last_translated_word_number ||= 1
+      @last_translated_word_number ||= 1
     end
+
+    # Try to detect the actual word spoken
+    #(ayah_number..ayah_number+2).detect do |ayah|
+    #  last_word = ayah == ayah_number ? @last_translated_word_number || 1 : 1
+    #  possible_word_from_received, score = detect_failure_word(received_text, ayah, last_word)
+    #end
+    #binding.pry if start_time == 515080
 
     # Check if we've merged words
     @last_translated_word_number ||= translate_imlaei_word_to_uthmani(surah_number, ayah_number, @last_word_number)
@@ -381,9 +379,9 @@ class AudioSegmentParser
           normalize_text(word.text_imlaei_simple),
           normalize_text(word.text_imlaei),
           normalize_text(word.text_uthmani_simple),
-        # normalize_text(word.text_uthmani), # Commented out as in original
         ].uniq,
-        word_number: word.position
+        word_number: word.position,
+        ayah_number: ayah_number
       }
     end
   end
@@ -527,13 +525,13 @@ class AudioSegmentParser
     uthmani_word
   end
 
-  def detect_failure_word(text, ayah, expected_word_number)
+  #  search_radius: Words around expected position to check
+  def detect_failure_word(text, ayah, expected_word_number, search_radius: 1)
     text = normalize_text(text)
     ayah_words = get_ayah_words(surah_number, ayah)
 
     best_match = nil
     min_distance = Float::INFINITY
-    search_radius = 1 # Words around expected position to check
 
     start_index = [0, expected_word_number - search_radius].max
     end_index = [ayah_words.length - 1, expected_word_number + search_radius].min

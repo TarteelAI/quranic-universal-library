@@ -147,6 +147,8 @@
             else
               ayah_start_time = ayah_boundary.start_time
               ayah_end_time = ayah_boundary.end_time
+              corrected_start_time = ayah_boundary.corrected_start_time
+              corrected_end_time = ayah_boundary.corrected_end_time
 
               gap_start_time = ayah_boundary.gap_before_start_time
               gap_end_time = ayah_boundary.gap_before_end_time
@@ -161,7 +163,8 @@
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
                 (<%= ayah_start_time %> - <%= ayah_end_time %>)
-                (<%= [[ayah_start_time.to_i, gap_end_time + 100].min, [next_ayah_start_gap.to_i - 100, ayah_end_time].max].join(' - ') if gap_end_time &&  gap_start_time %>)
+
+                (<%= [corrected_start_time, corrected_end_time].join(' - ') if corrected_start_time &&  corrected_end_time %>)
 
                 <% if ayah_position.nil? %>
                  <span class="tw-text-red-500">estimated</span>
@@ -175,6 +178,17 @@
                 class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
               > Play
               </button>
+
+              <% if corrected_start_time != ayah_start_time || corrected_end_time != ayah_end_time %>
+                <button
+                  data-start="<%= corrected_start_time  %>"
+                  data-end="<%= corrected_end_time %>"
+                  data-play-ayah="<%= ayah.verse_number %>"
+                  class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
+                > Play Corrected
+                </button>
+              <% end %>
+
               <% if gap_end_time %>
                 <button
                   data-start="<%= [ayah_start_time.to_i, gap_end_time].min  %>"

@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       namespace :audio do
         get 'surah_recitations', to: 'recitations#surah_recitations'
         get 'surah_recitations/:id', to: 'recitations#surah_recitation_detail'
+        get 'surah_recitations/:id/wav_manifest', to: 'recitations#wav_manifest'
 
         get 'ayah_recitations', to: 'recitations#ayah_recitations'
         get 'ayah_recitations/:id', to: 'recitations#ayah_recitation_detail'
@@ -155,6 +156,7 @@ Rails.application.routes.draw do
     get '/reciters', to: 'dashboard#reciters', as: :reciters
     get '/timeline', to: 'dashboard#timeline', as: :timeline
     get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
+    get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
     match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
   end
 

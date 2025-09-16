@@ -1,5 +1,9 @@
 <%= render 'segments/header' %>
 
+<%
+  word_failures = @presenter.word_failures
+  failures = word_failures[:failures]
+%>
 <div
   class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4"
   data-controller="segments--failure-player"
@@ -33,16 +37,16 @@
       <div class="table-responsive">
         <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50 mb-0">
           <thead class="table-light">
-            <tr>
-              <th class="tw-p-3">Surah:Ayah:Word</th>
-              <th class="tw-p-3">Reciter</th>
-              <th class="tw-p-3">Expected</th>
-              <th class="tw-p-3">Received</th>
-              <th class="tw-p-3">Failure Type</th>
-              <th class="tw-p-3">Time Range</th>
-              <th class="tw-p-3">Status</th>
-              <th class="tw-p-3">Actions</th>
-            </tr>
+          <tr>
+            <th class="tw-p-3">Surah:Ayah:Word</th>
+            <th class="tw-p-3">Reciter</th>
+            <th class="tw-p-3">Expected</th>
+            <th class="tw-p-3">Received</th>
+            <th class="tw-p-3">Failure Type</th>
+            <th class="tw-p-3">Time Range</th>
+            <th class="tw-p-3">Status</th>
+            <th class="tw-p-3">Actions</th>
+          </tr>
           </thead>
           <tbody>
             <% @failures.each do |failure| %>

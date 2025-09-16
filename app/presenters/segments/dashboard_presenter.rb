@@ -60,6 +60,24 @@ module Segments
       pagy(filter_failures)
     end
 
+    def ayah_reviews
+      review_ayahs = ::Segments::ReviewAyah
+
+      if selected_reciter.present?
+        review_ayahs = review_ayahs.where(reciter_id: selected_reciter.to_i)
+      end
+
+      if selected_surah.present?
+        review_ayahs = review_ayahs.where(surah_number: selected_surah.to_i)
+      end
+
+      if selected_review_type.present?
+        review_ayahs = review_ayahs.where(review_type: selected_review_type)
+      end
+
+      pagy(review_ayahs.order('surah_number, ayah_number'))
+    end
+
     def ayah_failures
       list = filter_failures.joins(:reciter)
 
@@ -75,6 +93,30 @@ module Segments
         .order(:surah_number, :ayah_number)
     end
 
+    def word_failures
+      failures = filter_failures
+      failures = failures
+                   .includes(:reciter)
+                   .order(:surah_number, :ayah_number, :word_number)
+
+      {
+        failures: failures,
+        ayahs: find_ayah_by_text(params[:expected_text].to_s.strip)
+      }
+    end
+
+    def find_ayah_by_text(word_text)
+      verses = Verse.joins(:words)
+                    .where(words: { text_qpc_hafs: word_text })
+                    .includes(:words, :chapter)
+                    .limit(10)
+
+      {
+        verses: verses,
+        chapters: verses.map(&:chapter).uniq
+      }
+    end
+    
     def segmented_surah
       @surahs ||= ::Segments::Detection.distinct.pluck(:surah_number).sort
     end
@@ -136,6 +178,14 @@ module Segments
       params[:reciter].to_i if params[:reciter].present?
     end
 
+    def selected_review_type
+      params[:review_type] if params[:review_type].present?
+    end
+
+    def review_types
+      @review_types ||= ::Segments::ReviewAyah.distinct.pluck(:review_type).compact.sort
+    end
+
     def filter_failures
       expected_text = params[:expected_text].to_s.strip
       received_text = params[:received_text].to_s.strip
@@ -176,16 +226,16 @@ module Segments
       failures = filter_failures
       grouped_failures = failures.group_by(&:expected_transcript)
       
-      grouped_failures.map do |expected_word, word_failures|
+      grouped_failures.map do |expected_word, failures_by_word|
         {
           word: expected_word,
-          fail_count: word_failures.count,
-          mistaken_variants: word_failures.map(&:received_transcript).uniq.sort,
-          reciter_ids: word_failures.map(&:reciter_id).uniq.sort,
-          surahs: word_failures.map(&:surah_number).uniq.sort,
-          mistake_types: word_failures.map(&:failure_type).uniq,
-          corrected_count: word_failures.count(&:corrected),
-          pending_count: word_failures.count { |f| !f.corrected }
+          fail_count: failures_by_word.count,
+          mistaken_variants: failures_by_word.map(&:received_transcript).uniq.sort,
+          reciter_ids: failures_by_word.map(&:reciter_id).uniq.sort,
+          surahs: failures_by_word.map(&:surah_number).uniq.sort,
+          mistake_types: failures_by_word.map(&:failure_type).uniq,
+          corrected_count: failures_by_word.count(&:corrected),
+          pending_count: failures_by_word.count { |f| !f.corrected }
         }
       end.sort_by { |stats| -stats[:fail_count] }
     end
@@ -226,11 +276,11 @@ module Segments
           reciter_name: reciter.name,
           total_failures: reciter_failures.count,
           unique_problematic_words: word_groups.count,
-          top_words: word_groups.map do |word, word_failures|
+          top_words: word_groups.map do |word, failures_by_word|
             {
               word: word,
-              count: word_failures.count,
-              variants: word_failures.map(&:received_transcript).uniq
+              count: failures_by_word.count,
+              variants: failures_by_word.map(&:received_transcript).uniq
             }
           end.sort_by { |w| -w[:count] }.first(5)
         }

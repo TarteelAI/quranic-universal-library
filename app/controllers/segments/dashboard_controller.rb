@@ -62,23 +62,19 @@ class Segments::DashboardController < ApplicationController
   end
 
   def word_failure_detail
-    @word_text = params[:text]
-    
-    if @word_text.blank?
+    word_text = params[:text]
+    params[:expected_text] = word_text
+
+    if word_text.blank?
       redirect_to segments_word_failures_path, alert: "Word text is required"
       return
     end
-
-    # Get all failures for this specific word
-    @failures = ::Segments::Failure.where(expected_transcript: @word_text)
-                                   .includes(:reciter)
-                                   .order(:surah_number, :ayah_number, :word_number)
-
-    # Get word details from the Quran database
-    @word_details = get_word_details(@word_text)
   end
 
   def ayah_report
+  end
+
+  def review_ayahs
   end
 
   protected
@@ -119,18 +115,6 @@ class Segments::DashboardController < ApplicationController
         @db = ::Segments::Database.new(segment_db_params)
       end
     end
-  end
-
-  def get_word_details(word_text)
-    verses = Verse.joins(:words)
-                  .where(words: { text_qpc_hafs: word_text })
-                  .includes(:words, :chapter)
-                  .limit(10)
-    
-    {
-      verses: verses,
-      chapters: verses.map(&:chapter).uniq
-    }
   end
 
   helper_method :format_time

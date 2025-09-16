@@ -3,7 +3,7 @@
 <%
   summary = @presenter.word_failure_summary
   top_words = @presenter.top_problematic_words(100)
-  reciter_breakdown = @presenter.reciter_word_failure_breakdown
+  current_reciter = @presenter.selected_reciter
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
@@ -96,7 +96,7 @@
               </td>
               <td class="tw-p-2">
                 <span class="qpc-hafs">
-                  <%= link_to word_data[:word], segments_word_failure_detail_path(text: word_data[:word]), target: '_blank' %>
+                  <%= link_to word_data[:word], segments_word_failure_detail_path(text: word_data[:word], reciter: current_reciter), target: '_blank' %>
                 </span>
               </td>
 

@@ -30,29 +30,16 @@ export default class extends Controller {
     }
 
     this.el.find('.play-segment').on('click', this.playSegment.bind(this))
-
-    // Store original audio source
-    this.originalAudioSrc = this.player.src;
-
-    // Initialize jump-to functionality
-    this.initializeJumpTo();
-
-    // Initialize file input functionality
-    this.initializeFileInput();
-
-    // Initialize ayah words mapping
-    this.initializeAyahWords();
-
-    // Load ayah timing data
-    this.loadAyahTimingData();
-
-    // Main timeupdate listener for continuous playback
     this.player.addEventListener('timeupdate', this.updatePlayerProgress.bind(this));
-
-    // Listen for play/pause events to update state
     this.player.addEventListener('play', this.handlePlay.bind(this));
     this.player.addEventListener('pause', this.handlePause.bind(this));
     this.player.addEventListener('ended', this.handleEnded.bind(this));
+
+    this.originalAudioSrc = this.player.src;
+    this.initializeJumpTo();
+    this.initializeFileInput();
+    this.initializeAyahWords();
+    this.loadAyahTimingData();
   }
 
   handlePlay() {
@@ -61,7 +48,6 @@ export default class extends Controller {
 
   handlePause() {
     this.isPlaying = false;
-    // Don't clear segment state here - let it be handled by segment logic
   }
 
   handleEnded() {
@@ -254,8 +240,6 @@ export default class extends Controller {
 
     // Clean up any segment play state
     this.cleanupSegmentPlay();
-
-    // Clear word highlighting
     this.clearWordHighlight();
 
     // Find and set current ayah for highlighting
@@ -309,8 +293,6 @@ export default class extends Controller {
       return;
     }
 
-    console.debug("Playing segment", el.dataset.start, "-", el.dataset.end);
-
     // If clicking the same segment while playing, pause it
     if (this.isPlaying && this.playingSegment === el) {
       this.player.pause();
@@ -319,16 +301,13 @@ export default class extends Controller {
       return;
     }
 
-    // Clean up any previous segment play
     this.cleanupSegmentPlay();
 
-    // Set up new segment play
     this.isSegmentPlay = true;
     this.playingSegment = el;
     this.segmentEndTime = end;
     this.isFullAyahPlay = el.dataset.playAyah !== undefined;
 
-    // Set up segment-specific timeupdate listener
     this.segmentUpdateListener = () => {
       if (this.player.currentTime >= this.segmentEndTime) {
         this.player.pause();
@@ -338,21 +317,16 @@ export default class extends Controller {
     };
     this.player.addEventListener('timeupdate', this.segmentUpdateListener);
 
-    // Start playback
     this.player.currentTime = start;
     this.player.play(); // This will trigger handlePlay()
-
-    // Set up highlighting
     this.clearWordHighlight();
 
     if (this.isFullAyahPlay) {
-      // Find the parent ayah element
       const ayahElement = el.closest('[data-ayah]');
       if (ayahElement) {
         const ayahNumber = ayahElement.dataset.ayah;
         this.currentAyahWords = this.ayahWords.get(ayahNumber);
         this.currentAyahTiming = this.ayahTimingData[ayahNumber];
-        console.debug('Set current ayah words for highlighting:', ayahNumber);
       }
     } else {
       // For individual word segments, highlight immediately
@@ -361,14 +335,12 @@ export default class extends Controller {
   }
 
   updatePlayerProgress() {
-    // Only handle highlighting for non-segment play or full ayah segments
-    if (this.isSegmentPlay && !this.isFullAyahPlay) {
-      return; // Individual word segments handle their own highlighting
-    }
+    const currentTime = this.player.currentTime * 1000;
 
     // If we don't have currentAyahWords set and we're not in segment play,
     // try to find the current ayah based on timing
-    if (!this.currentAyahWords && !this.isSegmentPlay && this.ayahTimingData) {
+    const lastWord = this.currentAyahTiming?.words?.at(-1);
+    if (!this.currentAyahTiming || (lastWord && currentTime > lastWord[2])) {
       this.findCurrentAyahFromTiming();
     }
 
@@ -393,12 +365,12 @@ export default class extends Controller {
     if (!this.currentAyahWords || !this.currentAyahTiming || !this.isPlaying) return;
 
     const currentTime = this.player.currentTime * 1000;
-    console.debug("Current time:", currentTime);
-
     const wordIndex = this.binarySearchWord(currentTime);
     
     if (wordIndex !== -1) {
-      const wordToHighlight = this.currentAyahWords[wordIndex];
+      const wordId = this.currentAyahTiming.words[wordIndex][0];
+      const wordToHighlight = this.currentAyahWords[wordId-1];
+
       if (wordToHighlight !== this.currentlyPlayingWord) {
         this.clearWordHighlight();
         this.highlightWord(wordToHighlight);

@@ -289,11 +289,12 @@
   // Load data from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   const surahNumber = urlParams.get("surah");
+  const reciter = urlParams.get("reciter");
 
-  if (!surahNumber) {
-    document.body.innerHTML = "<div class='container'><h2>⚠️ Please provide a surah number (?surah=1)</h2></div>";
+  if (!surahNumber || !reciter) {
+    document.body.innerHTML = "<div class='container'><h2>⚠️ Please provide a surah number (?surah=1) and reciter(reciter=1)</h2></div>";
   } else {
-    let dataPath = `./waveform-ayah-segments/result/12_plot_data/${surahNumber}.json`;
+    let dataPath = `./waveform-ayah-segments/result/${reciter}_plot_data/${surahNumber}.json`;
 
     fetch(dataPath)
       .then(response => {

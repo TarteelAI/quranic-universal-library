@@ -19,6 +19,7 @@ end
 end
 end
 
+
 p.seed_reciters
 =end
 
@@ -177,21 +178,21 @@ class BatchAudioSegmentParser
       if index > 0
         previous_ayah = ayah_segments[index - 1]
         gap_between_ayahs = ayah_data[:corrected_start_time] - previous_ayah.end_time
-        
-        if gap_between_ayahs > 600
-          # Move current ayah start time up to 500 ms earlier
-          max_adjustment = [gap_between_ayahs - 100, 500].min # Leave at least 100ms gap
+
+        if gap_between_ayahs > 300
+          # Move current ayah start time up to 300 ms earlier
+          max_adjustment = [gap_between_ayahs - 100, 300].min # Leave at least 100ms gap
           adjusted_start_time = ayah_data[:corrected_start_time] - max_adjustment
-          
+
           # Ensure adjusted start time is still greater than previous ayah end time
           if adjusted_start_time > previous_ayah.end_time
             ayah_data[:corrected_start_time] = adjusted_start_time
-            
+
             # Also adjust the previous ayah's end time to be much closer to current ayah start
             # Target: leave only about 300ms gap between ayahs
             target_gap = 300
             previous_ayah_end_time = adjusted_start_time - target_gap
-            
+
             # Ensure previous ayah end time is not less than its original end time
             previous_ayah_end_time = [previous_ayah_end_time, previous_ayah.end_time].max
             previous_ayah.update_column(:corrected_end_time, previous_ayah_end_time)
@@ -206,7 +207,7 @@ class BatchAudioSegmentParser
         corrected_start_time: ayah_data[:corrected_start_time],
         corrected_end_time: ayah_data[:corrected_end_time]
       }
-      
+
       ayah.update_columns(update_data)
 
       result << ayah_data
@@ -578,7 +579,7 @@ class BatchAudioSegmentParser
 
     positions_by_ayah.each do |(surah, ayah), ayah_positions|
       position_count = ayah_positions.count
-      
+
       ayah_failures = failures_by_ayah[[surah, ayah]] || []
       failure_count = ayah_failures.count
 

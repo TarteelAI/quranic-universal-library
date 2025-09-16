@@ -15,7 +15,7 @@ end
 
 [1,2,3,4,6,7,8,9,10,12,13,65].each do |r|
 1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: r, surah: 2)
+  p.prepare_ayah_boundaries(reciter: r, surah: i)
 end
 end
 

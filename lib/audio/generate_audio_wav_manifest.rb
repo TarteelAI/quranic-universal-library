@@ -173,7 +173,7 @@ module Audio
       if total_parts > 1
         "#{File.dirname(base_url)}/#{base_name}_part_#{part_number}.wav"
       else
-        base_url.gsub(file_extension, '.wav')
+        base_url.gsub('mp3', 'wav')
       end
     end
 

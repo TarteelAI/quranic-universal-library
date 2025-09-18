@@ -75,6 +75,7 @@ class ResourceContent < QuranApiRecord
   scope :approved, -> { where approved: true }
   scope :for_language, lambda { |lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
+  scope :root_details, -> { where sub_type: SubType::RootDetail }
     where(id: ResourcePermission.where(permission_to_host: val).pluck(:resource_content_id))
   }
 
@@ -193,6 +194,7 @@ class ResourceContent < QuranApiRecord
     Morphology = 'morphology'
     Font = 'font'
     UloomContent = 'uloom-content'
+    RootDetail = 'root-detail'
   end
 
   def get_language_name
@@ -228,6 +230,10 @@ class ResourceContent < QuranApiRecord
 
   def uloom_content?
     sub_type == SubType::UloomContent
+  end
+
+  def root_detail?
+    sub_type == SubType::RootDetail
   end
 
   def font?

@@ -170,6 +170,8 @@ ActiveAdmin.register ResourceContent do
         end
       elsif resource.uloom_content?
         DraftContent::ApproveDraftUloomContentJob.perform_later(resource.id)
+      elsif resource.root_detail?
+        DraftContent::ApproveDraftRootDetailJob.perform_later(resource.id)
       end
       flash[:notice] = "#{resource.name} drafts will be imported shortly!"
     elsif params[:remove_draft]
@@ -430,6 +432,8 @@ ActiveAdmin.register ResourceContent do
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.transliteration?
         link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq=#{resource.id}"
+      elsif resource.root_detail?
+        link_to 'Root details', "/cms/root_details?q%5Bresource_content_id_eq%5D=#{resource.id}"
       elsif resource.chapter_info?
         link_to 'Chapter info', "/cms/chapter_infos?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.tokens?

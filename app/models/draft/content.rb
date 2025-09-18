@@ -78,6 +78,8 @@ class Draft::Content < ApplicationRecord
       end
     when resource_content.uloom_content?
       DraftContent::ApproveDraftUloomContentJob.perform_now(resource_content_id, id)
+    when resource_content.root_detail?
+      DraftContent::ApproveDraftRootDetailJob.perform_now(resource_content_id, id, use_draft_content: true)
     else
       raise StandardError, "Cannot import Draft::Content ##{id}: unsupported subtype '#{resource_content.sub_type}'"
     end
@@ -85,4 +87,5 @@ class Draft::Content < ApplicationRecord
     update_column(:imported, true)
     self
   end
+
 end

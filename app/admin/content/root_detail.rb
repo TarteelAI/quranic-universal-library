@@ -9,9 +9,7 @@ ActiveAdmin.register RootDetail do
     %i[root_id language_id language_name resource_content_id root_detail meta_data]
   end
 
-  filter :root_id,
-         as: :searchable_select,
-         ajax: { resource: Root }
+  filter :root_id
   filter :language,
          as: :searchable_select,
          ajax: { resource: Language }
@@ -33,10 +31,8 @@ ActiveAdmin.register RootDetail do
       link_to(rc.name, [:cms, rc]) if rc
     end
 
-    # show a short plain-text preview (sanitized / stripped of tags)
     column :root_detail do |resource|
       text = resource.root_detail.to_s
-      # strip HTML tags for safe short preview in table cell, then truncate
       preview = ActionController::Base.helpers.strip_tags(text).squish.truncate(140)
       span preview
     end
@@ -59,10 +55,8 @@ ActiveAdmin.register RootDetail do
         link_to r.name, [:cms, r] if r
       end
 
-      # Render safe HTML similar to Translation.show (uses safe_html helper present in app)
       row :root_detail do
         div class: resource.language_name.to_s.downcase do
-          # safe_html is used across app (as in Translation). It sanitizes and marks HTML safe.
           safe_html resource.root_detail
         end
       end
@@ -83,17 +77,13 @@ ActiveAdmin.register RootDetail do
   form do |f|
     f.inputs 'Root Detail' do
       f.input :root_id
-      # Admins can paste HTML or plain text — consider a WYSIWYG editor if desired
       f.input :root_detail, as: :text
-
       f.input :resource_content,
               as: :searchable_select,
               ajax: { resource: ResourceContent }
-
       f.input :language,
               as: :searchable_select,
               ajax: { resource: Language }
-
       f.input :language_name
     end
 

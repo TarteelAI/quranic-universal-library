@@ -17,7 +17,6 @@
 #  index_root_details_on_language_id          (language_id)
 #  index_root_details_on_language_name        (language_name)
 #  index_root_details_on_resource_content_id  (resource_content_id)
-#  index_root_details_on_root_detail          (root_detail)
 #  index_root_details_on_root_id              (root_id)
 #
 class RootDetail < QuranApiRecord

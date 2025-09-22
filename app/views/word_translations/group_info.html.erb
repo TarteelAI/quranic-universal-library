@@ -15,33 +15,33 @@
 
   <div id="body">
     <%= form_for @word_translation, url: group_info_word_translation_path(@word_translation.word_id, word_id: @word_translation.word_id, language: current_language.id), method: :post, data: { controller: 'remote-form', auto_close: true } do |form| %>
-      <div class="modal-body">
+      <div class="tw-p-6">
         <%= render 'shared/form_errors', object: @word_translation %>
 
-        <div class="form-group mb-2">
+        <div class="tw-mb-4 tw-mb-2">
           <%= form.label :word_range_from %>
           <%= form.select :word_range_from, options_for_select(words, group_word_from.position), {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal' } %>
         </div>
 
-        <div class="form-group mb-2">
+        <div class="tw-mb-4 tw-mb-2">
           <%= form.label :word_range_to %>
           <%= form.select :word_range_to, options_for_select(words, group_word_to.position), {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal' } %>
         </div>
 
-        <div class="form-group mb-2">
+        <div class="tw-mb-4 tw-mb-2">
           <%= form.label :group_word_id, 'Select primary word of group' %>
           <%= form.select :group_word_id, options_for_select(words, group_word.position), {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal' } %>
-          <div class="form-text text-muted">
+          <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
             This word will be used as the primary word for the group.
           </div>
         </div>
 
-        <div class="form-group mb-2">
+        <div class="tw-mb-4 tw-mb-2">
           <%= form.label :group_text %>
           <%= form.text_field :group_text, class: 'form-control', required: true %>
         </div>
 
-        <div class="form-group d-flex justify-content-end mt-3">
+        <div class="tw-mb-4 tw-flex tw-justify-end tw-mt-3">
           <%= form.submit 'Save group translaiton',
                           class: 'btn btn-success',
                           data: { disable_with: 'Please wait...' } %>
@@ -55,7 +55,7 @@
   </div>
 
   <div id="body">
-    <div class="modal-body">
+    <div class="tw-p-6">
       Sorry, we couldn't find the word you're looking for.
     </div>
   </div>

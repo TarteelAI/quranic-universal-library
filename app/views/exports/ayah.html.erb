@@ -9,7 +9,7 @@
 
 <div id="content"
      data-file-name="ayah/<%= params[:script] %>/<%=@verse.chapter_id %>/<%=@verse.verse_number %>"
-     class="<%=font_family %> <%= params[:css_class] %>"
+     class="<%=font_family %> <%= params[:css_class]"
      style="font-size: <%=font_size %>px;line-height: normal!important;">
   <%= safe_html @verse.read_attribute(params[:script]) %>
 </div>

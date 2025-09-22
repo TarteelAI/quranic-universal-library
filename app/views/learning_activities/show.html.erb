@@ -7,7 +7,7 @@
     <h1 class="h3"><%= activity.tr("_"," ").capitalize %></h1>
 
     <% if params[:ayah].present? && @filtered_ayah.nil? %>
-      <div class="alert alert-warning">
+      <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-yellow-100 tw-border tw-border-yellow-400 tw-text-yellow-700">
         <strong>Invalid Ayah:</strong> The ayah "<%= params[:ayah] %>" was not found. Please use the format "chapter:verse" (e.g., "1:1"). Showing random content instead.
       </div>
     <% end %>
@@ -17,19 +17,19 @@
       <%= render activity %>
       <%= link_to 'Try another', learning_activity_path(activity), class: 'btn btn-outline-dark me-3 my-3' %>
       <div class="result my-5" id="quiz-result">
-        <div class="text-danger d-none" id="incorrect-message">
+        <div class="tw-text-red-600 tw-hidden" id="incorrect-message">
           Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
           <a class='text-danger' href="<%= tarteel_link %>" target="_blank">
             Tatreel app here
           </a> to test and improve your memorization.
         </div>
-        <div class="d-none text-success" id="correct-message">
+        <div class="tw-hidden tw-text-green-600" id="correct-message">
           Correct! MashaAllah, you got it right. Download
           <a href="<%= tarteel_link %>" target="_blank">Tarteel app</a> to
           memorize more.
         </div>
       </div>
-      <div class="more-activities d-flex justify-content-center gap-2 mt-4 d-none">
+      <div class="more-activities tw-flex tw-justify-center tw-gap-2 tw-mt-4 tw-hidden">
         <% ayah_key = @filtered_ayah&.verse_key || '1:1' %>
         <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: "/ayah/#{ayah_key}", css_class: 'modal-lg', use_turbo: true} %>
         <% next_url = @filtered_ayah ? learning_activity_path(activity, ayah: @filtered_ayah.verse_key) : learning_activity_path(activity) %>
@@ -37,13 +37,13 @@
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
       </div>
     <% else %>
-      <div class="alert alert-warning">
+      <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-yellow-100 tw-border tw-border-yellow-400 tw-text-yellow-700">
         This activity does not exist, try one from list below instead?
       </div>
       <ol class="list-group text-start">
         <% learning_activities.each do |item| %>
-          <li class="list-group-item d-flex justify-content-between align-items-start">
-            <div class="ms-2 me-auto">
+          <li class="list-group-item tw-flex tw-justify-between tw-items-start">
+            <div class="tw-ms-2 me-auto">
               <div class="fw-bold">
                 <%= item.title %>
               </div>

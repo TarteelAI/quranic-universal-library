@@ -8,17 +8,17 @@
 
 <div id=body>
   <%= form_with model: @user_project, url: user_projects_path, data: { controller: 'remote-form', auto_close: true } do |form| %>
-    <div class="modal-body">
+    <div class="tw-p-6">
       <%= render 'shared/form_errors', object: @user_project %>
 
-      <div class="row">
-        <div class="col-md-12">
+      <div class="tw-flex tw-flex-wrap tw-gap-4">
+        <div class="tw-w-full">
           <%= form.hidden_field :resource_content_id, value: resource.id %>
 
-          <div class="form-group mb-3">
+          <div class="tw-mb-4 tw-mb-3">
             <%= form.label :reason_for_request, 'Reason for Request', class: 'h5' %>
             <%= form.text_area :reason_for_request, required: true, cols: nil, rows: nil, class: 'form-control' %>
-            <div class="text-muted">
+            <div class="tw-text-gray-600">
               Please provide a brief explanation of why you are requesting access to this resource. Additionally, share
               some details about your background, expertise, and any relevant experience that supports your request.
             </div>
@@ -27,10 +27,10 @@
           <% if resource.recitation? %>
             <%= form.hidden_field :language_proficiency, value: 'N/A' %>
           <% else %>
-            <div class="form-group mb-3">
+            <div class="tw-mb-4 tw-mb-3">
               <%= form.label :language_proficiency, 'Language Proficiency', class: 'h5' %>
               <%= form.text_area :language_proficiency, required: true, cols: nil, rows: nil, class: 'form-control' %>
-              <div class="text-muted">
+              <div class="tw-text-gray-600">
                 Please describe your proficiency in language
                 <% if resource.language %>(e.g., <%= resource.language&.name %>)
                 <% end %> of this resource.
@@ -38,28 +38,28 @@
             </div>
           <% end %>
 
-          <div class="form-group mb-3">
+          <div class="tw-mb-4 tw-mb-3">
             <%= form.label :motivation_and_goals, 'Motivation and Goals', class: 'h5' %>
             <%= form.text_area :motivation_and_goals, required: true, cols: nil, rows: nil, class: 'form-control' %>
-            <div class="text-muted">
+            <div class="tw-text-gray-600">
               What motivates you to contribute to the <%= resource.name %> in QUL? Please explain your reasons and
               contribution goals.
             </div>
           </div>
 
           <% if resource.translation? || resource.tafsir? || resource.chapter_info? %>
-            <div class="form-group mb-3">
+            <div class="tw-mb-4 tw-mb-3">
               <div class="custom-control custom-checkbox">
                 <%= form.check_box :review_process_acknowledgment, class: 'custom-control-input' %>
                 <%= form.label :review_process_acknowledgment, 'Review Process Acknowledgment', class: 'custom-control-label' %>
               </div>
-              <div class="text-muted">
+              <div class="tw-text-gray-600">
                 I acknowledge that I will only suggest fixes for typos, spelling mistakes, and factual issues. I will
                 not
                 use this permission to suggest changes in wording preferences or subjective opinions.
               </div>
 
-              <div class="alert alert-dark mt-2">
+              <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-900 tw-text-white tw-mt-2">
                 We ask for this acknowledgment to ensure that the integrity of the
                 <% if resource.translation? %>
                   translation
@@ -80,10 +80,10 @@
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+    <div class="tw-flex tw-items-center tw-justify-end tw-p-6 tw-border-t tw-border-gray-200 tw-space-x-2">
+      <button type="button" class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors btn-default" data-bs-dismiss="modal">Close</button>
 
-      <div class="form-group mt-2" style="text-align: right">
+      <div class="tw-mb-4 tw-mt-2" style="text-align: right">
         <%= form.submit 'Submit', class: 'btn btn-success' %>
       </div>
     </div>

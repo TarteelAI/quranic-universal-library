@@ -3,15 +3,15 @@
 </div>
 
 <div id=body>
-  <div class="modal-body">
-    <div class="alert alert-info">
+  <div class="tw-p-6">
+    <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
       These are additional files or assets required for this resource to work properly. e.g for a Quran script resource
       you may need a specific font to render the text correctly.
     </div>
 
     <ul class="space-y-2">
       <% @resource.related_resources.each do |r| %>
-        <li class="flex items-center gap-2 text-sm text-gray-800">
+        <li class="flex items-center tw-gap-2 text-sm text-gray-800">
          -> <a href="<%= detail_resources_path(r.resource_type, r.id) %>" data-turbo-frame="_top">
             <%= r.name %>
             (<%= r.resource_type %>)

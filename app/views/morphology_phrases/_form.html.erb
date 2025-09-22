@@ -5,14 +5,14 @@
 </div>
 
 <div id="body">
-  <div class="modal-body">
+  <div class="tw-p-6">
     <%= form_with url: new_morphology_phrase_path, method: 'get', id: 'form' do |f| %>
-      <div class="form-group">
+      <div class="tw-mb-4">
         <%= f.label :text, 'Enter phrase text' %>
         <%= f.text_field :text, class: 'form-control' %>
       </div>
 
-      <div class="form-group">
+      <div class="tw-mb-4">
         <%= f.label :ayah_key, 'Or select ayah' %>
         <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key)), {include_blank: true}, class: 'form-control', data: {placeholder: 'Select ayah', controller: 'select2', parent: '#form'} %>
         <p class="help-block">
@@ -20,7 +20,7 @@
         </p>
       </div>
 
-      <div class="form-group my-3 d-flex justify-content-end">
+      <div class="tw-mb-4 my-3 tw-flex tw-justify-end">
         <%= f.submit 'Suggest', class: 'btn btn-primary' %>
       </div>
     <% end %>

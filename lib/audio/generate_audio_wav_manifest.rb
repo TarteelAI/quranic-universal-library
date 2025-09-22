@@ -38,7 +38,7 @@ module Audio
 
         num_parts.times do |index|
           start_time = last_end_time ? last_end_time + 1000 : index * part_duration
-          end_time = [(index + 1) * part_duration, duration_ms].min
+          end_time = [start_time + part_duration, duration_ms].min
 
           start_ayah = find_ayah_for_timestamp(start_time)
           end_ayah = find_ayah_for_timestamp(end_time)
@@ -72,10 +72,7 @@ module Audio
     end
 
     def find_ayah_for_timestamp(timestamp_ms)
-      Audio::Segment
-        .where(
-          audio_recitation_id: audio_file.audio_recitation_id
-        )
+      audio_file.audio_segments
         .where('timestamp_from <= ? AND timestamp_to >= ?', timestamp_ms, timestamp_ms)
         .first
     end

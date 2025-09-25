@@ -145,3 +145,6 @@ application.register("segments--timeline", SegmentsTimelineController);
 
 import SegmentFailurePlayerController from './segments/failure_player_controller';
 application.register("segments--failure-player", SegmentFailurePlayerController);
+
+import FontPreviewController from './font_preview_controller';
+application.register("font-preview", FontPreviewController);

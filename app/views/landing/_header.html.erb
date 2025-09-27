@@ -17,6 +17,7 @@
       </div>
 
       <div class="tw-flex tw-gap-2 md:tw-gap-4 tw-items-center">
+        <%= link_to 'Explorer', quran_explorer_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
         <%= link_to 'Resources', resources_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
         <%= link_to 'Tools', tools_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
         <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black tw-hidden md:tw-flex' %>
@@ -60,6 +61,7 @@
           </div>
           <div class="offcanvas-body">
             <div class="tw-flex tw-flex-col tw-gap-3 tw-font-bold tw-mt-4">
+              <%= link_to 'Explorer', quran_explorer_path, class: 'tw-text-black tw-text-lg' %>
               <%= link_to 'Resources', resources_path, class: 'tw-text-black tw-text-lg' %>
               <%= link_to 'Tools', tools_path, class: 'tw-text-black tw-text-lg' %>
               <%= link_to 'Credits', credits_path, class: 'tw-text-black tw-text-lg]' %>

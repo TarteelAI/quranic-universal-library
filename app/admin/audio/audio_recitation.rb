@@ -4,7 +4,7 @@ ActiveAdmin.register Audio::Recitation do
   menu parent: 'Audio'
   actions :all, except: :destroy
   includes :reciter, :qirat_type
-  
+
   permit_params :name,
                 :arabic_name,
                 :description,
@@ -50,6 +50,7 @@ ActiveAdmin.register Audio::Recitation do
       ).result
     end
   )
+
   action_item :generate_audio, only: :show, if: -> { can?(:manage, resource) && resource.missing_audio_files? } do
     link_to 'Generate Audio files', refresh_meta_cms_audio_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
   end
@@ -92,6 +93,22 @@ ActiveAdmin.register Audio::Recitation do
             }
   end
 
+  action_item :clone_recitation, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Clone Recitation', clone_recitation_cms_audio_recitation_path(resource),
+            method: :post,
+            data: { confirm: "Clone recitation with audio files and segments? New recitation will be created with name: OriginalName (cloned)." }
+  end
+
+  member_action :clone_recitation, method: :post, if: -> { can? :manage, resource } do
+    authorize! :manage, resource
+
+    Audio::CloneRecitationJob.perform_later(resource.id, current_user&.id)
+
+    Utils::System.start_sidekiq
+
+    redirect_to [:cms, resource], notice: "Cloning has been queued. New recitation (name will be '#{resource.name} (cloned)') will appear shortly."
+  end
+
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
     authorize! :manage, resource
     notice = if params[:audio]
@@ -106,7 +123,6 @@ ActiveAdmin.register Audio::Recitation do
     Utils::System.start_sidekiq
     redirect_to [:cms, resource], notice: notice
   end
-
 
   member_action :validate_segments, method: 'get' do
     authorize! :manage, resource

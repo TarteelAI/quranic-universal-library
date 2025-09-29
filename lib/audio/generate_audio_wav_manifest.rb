@@ -79,7 +79,7 @@ module Audio
 
     def split_audio_files(parts)
       #TODO: Make the source file path dynamic based on the audio_file record
-      source_file_path = "/Volumes/Data/qul-segments/audio/65/wav/#{audio_file.chapter_id.to_s.rjust(3, '0')}.wav"
+      source_file_path = "tmp/audio/65/wav/#{audio_file.chapter_id.to_s.rjust(3, '0')}.wav"
 
       unless source_file_path && File.exist?(source_file_path)
         puts "Source audio file not found: #{source_file_path}"

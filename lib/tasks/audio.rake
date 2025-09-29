@@ -1,8 +1,8 @@
-namespace :audio_optimize do
+namespace :audio do
   task optimize_mp3: :environment do
     require 'open3'
-    reciter_name = "Maher al-Muaiqly"
-    base_path = "data/audio/65"
+    reciter_name = "Mahmoud Khalil Al-Husary - Muallim"
+    base_path = "data/audio/12"
     mp3_path = "#{base_path}/mp3"
     optimized_path = "#{base_path}/optimized"
     wav_path = "#{base_path}/wav"
@@ -172,6 +172,54 @@ namespace :audio_optimize do
         end
       end
     end
+  end
+
+  task generate_wav_manifest: :environment do
+    require 'json'
+    require 'fileutils'
+
+    # ids: 1, 2, 3, 4, 5, 7, 8, 9, 12, 65, 164, 168, 171, 174, 179
+
+    reciter_id = 65
+    manifest_file = "data/audio/wav_manifest/#{reciter_id}.json"
+    manifest = JSON.parse(File.read(manifest_file))
+
+    output_dir = "data/audio/#{reciter_id}/wav/parts"
+    FileUtils.mkdir_p(output_dir)
+
+    manifest.each do |surah_id, parts|
+      input_file = "data/audio/#{reciter_id}/wav/#{surah_id.to_s.rjust(3, '0')}.wav"
+      unless File.exist?(input_file)
+        warn "Skipping Surah #{surah_id}, file not found: #{input_file}"
+        next
+      end
+
+      parts.each do |part|
+        part_num = part["part"]
+        start_ms = part["start_time"]
+        duration_ms = part["duration"]
+
+        start_sec = start_ms / 1000.0
+        duration_sec = duration_ms / 1000.0
+
+        output_file = "#{output_dir}/#{surah_id}_part_#{part_num}.wav"
+
+        cmd = [
+          "ffmpeg",
+          "-y",
+          "-i", input_file,
+          "-ss", start_sec.to_s,
+          "-t", duration_sec.to_s,
+          "-c", "copy",
+          output_file
+        ]
+
+        puts "Splitting Surah #{surah_id} Part #{part_num} -> #{output_file}"
+        system(*cmd)
+      end
+    end
+
+    puts "Done!"
   end
 
   task rename_files: :environment do

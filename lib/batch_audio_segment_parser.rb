@@ -13,12 +13,11 @@ p.process_all_files
   p.process_reciter(reciter: 65, surah: i)
 end
 
-[1,2,3,4,6,7,8,9,10,12,13,65].each do |r|
+p.segmented_recitations.each do |r|
 1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: r, surah: i)
+  p.prepare_ayah_boundaries(reciter: r.id, surah: i)
 end
 end
-
 
 p.seed_reciters
 =end
@@ -111,7 +110,13 @@ class BatchAudioSegmentParser
   end
 
   def prepare_ayah_boundaries(reciter:, surah:)
-    silences = Oj.load(File.read("#{@data_directory.gsub('vs_logs', '')}/silences/#{reciter}/#{surah}_silences.json"))
+    silence_file_path = "#{@data_directory.gsub('vs_logs', '')}silences/#{reciter}/#{surah}_silences.json"
+    if !File.exist?(silence_file_path)
+      puts "Silence file not found: #{silence_file_path}, skipping Surah #{surah} for Reciter #{reciter}"
+      return
+    end
+
+    silences = Oj.load(File.read(silence_file_path))
     ayah_segments = Segments::AyahBoundary
                       .where(reciter_id: reciter, surah_number: surah)
                       .order('ayah_number asc')

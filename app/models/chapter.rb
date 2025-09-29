@@ -45,4 +45,8 @@ class Chapter < QuranApiRecord
   def humanize
     "#{chapter_number} - #{name_simple}"
   end
+
+  def self.revelation_places
+    ['madinah', 'makkah']
+  end
 end

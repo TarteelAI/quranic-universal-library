@@ -102,11 +102,13 @@ ActiveAdmin.register Audio::Recitation do
   member_action :clone_recitation, method: :post, if: -> { can? :manage, resource } do
     authorize! :manage, resource
 
-    Audio::CloneRecitationJob.perform_later(resource.id, current_user&.id)
+    attrs = resource.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
+    cloned = Audio::Recitation.new(attrs)
+    cloned.name = "#{resource.name} (cloned)"
+    cloned.approved = false
+    cloned.save!
 
-    Utils::System.start_sidekiq
-
-    redirect_to [:cms, resource], notice: "Cloning has been queued. New recitation (name will be '#{resource.name} (cloned)') will appear shortly."
+    redirect_to [:cms, cloned], notice: "Cloning successfully"
   end
 
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do

@@ -1,4 +1,67 @@
 namespace :one_time do
+  desc "Compare tashkeel counts between two scripts in Word model"
+  task :compare_tashkeel => :environment do
+    script_a = 'text_digital_khatt'
+    script_b = 'text_digital_khatt_v1'
+    regex = /[\u064B-\u065F\u0670\u06D6-\u06ED]/
+
+    def tashkeel_count(text, regex)
+      text.to_s.scan(regex).size
+    end
+
+    Word.find_each do |word|
+      a_text = word.send(script_a)
+      b_text = word.send(script_b)
+
+      next if a_text.blank? || b_text.blank?
+
+      a_count = tashkeel_count(a_text, regex)
+      b_count = tashkeel_count(b_text, regex)
+
+      if a_count != b_count
+        puts "[Word ##{word.id}] #{script_a}=#{a_count}, #{script_b}=#{b_count}"
+        puts "  #{script_a}: #{a_text}"
+        puts "  #{script_b}: #{b_text}"
+      end
+    end
+  end
+
+  desc "Check for duplicate waqf signs and diacritic issues in Word texts"
+  task check_words: :environment do
+    waqf_regex = /([\u06D6-\u06ED])\1+/ # duplicate Quranic annotation signs
+    diacritic_regex = /([\u064B-\u065F\u0670])\1+/ # duplicate harakat / superscript alef
+
+    attrs = ["text_uthmani",
+             "text_indopak",
+             "text_imlaei_simple",
+             "text_imlaei",
+             "text_uthmani_simple",
+             "text_uthmani_tajweed",
+             "text_qpc_hafs",
+             "text_indopak_nastaleeq",
+             "text_qpc_nastaleeq",
+             "text_qpc_nastaleeq_hafs",
+             "text_digital_khatt",
+             "text_digital_khatt_v1",
+             "text_qpc_hafs_tajweed",
+             "text_digital_khatt_indopak"]
+
+    Word.find_each do |word|
+      attrs.each do |attr|
+        text = word.send(attr)
+        next unless text.present?
+
+        issues = []
+        issues << "Duplicate waqf signs" if text.match?(waqf_regex)
+        issues << "Duplicate diacritics" if text.match?(diacritic_regex)
+
+        if issues.any?
+          puts "[Word ##{word.id}] #{attr} => #{issues.join(', ')} | text: #{text}"
+        end
+      end
+    end
+  end
+
   task find_similar_starts: :environment do
     verses = Verse.unscoped.order('verse_index ASC').pluck(:id, :chapter_id, :verse_number, :text_imlaei_simple)
 
@@ -99,7 +162,6 @@ namespace :one_time do
     end
     en_resource.run_after_import_hooks
 
-
     # RTF
     rtf_resource = ResourceContent.one_verse.where(name: 'English Transliteration(RTF)').first_or_create
     rtf_resource.language = en
@@ -135,7 +197,7 @@ namespace :one_time do
     related = {}
     Word.find_each do |word|
       surah, ayah, word_number = word.location.split(':')
-      next  if word.ayah_mark?
+      next if word.ayah_mark?
       next if File.exist?("scripts/img/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg")
 
       puts "#{word.location} is missing"

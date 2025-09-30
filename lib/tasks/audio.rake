@@ -3,12 +3,12 @@ namespace :audio do
     require 'open3'
     reciter_name = "Mahmoud Khalil Al-Husary - Muallim"
     base_path = "data/audio/12"
-    mp3_path = "#{base_path}/mp3"
-    optimized_path = "#{base_path}/optimized"
+    mp3_path = "#{base_path}/original"
+    optimized_mp3_path = "#{base_path}/mp3"
     wav_path = "#{base_path}/wav"
     opus_path = "#{base_path}/opus"
 
-    FileUtils.mkdir_p(optimized_path)
+    FileUtils.mkdir_p(optimized_mp3_path)
     FileUtils.mkdir_p(wav_path)
     FileUtils.mkdir_p(opus_path)
 
@@ -141,7 +141,7 @@ namespace :audio do
 
       file_path = num.to_s.rjust(3, '0')
       file = "#{mp3_path}/#{file_path}.mp3"
-      optimized = "#{optimized_path}/#{file_path}.mp3"
+      optimized = "#{optimized_mp3_path}/#{file_path}.mp3"
       wav = "#{wav_path}/#{file_path}.wav"
       opus = "#{opus_path}/#{file_path}.opus"
 
@@ -180,7 +180,7 @@ namespace :audio do
 
     # ids: 1, 2, 3, 4, 5, 7, 8, 9, 12, 65, 164, 168, 171, 174, 179
 
-    reciter_id = 65
+    reciter_id = 12
     manifest_file = "data/audio/wav_manifest/#{reciter_id}.json"
     manifest = JSON.parse(File.read(manifest_file))
 

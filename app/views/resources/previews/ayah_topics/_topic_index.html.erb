@@ -1,0 +1,65 @@
+<div class="tw-mb-6">
+  <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900 tw-mb-4">
+    All Topics (<%= @pagy.count %>)
+  </h2>
+
+  <div class="tw-text-sm tw-text-gray-600">
+    <p>Browse all Quranic topics organized by Ontology, Thematic, and General categories. Click on any topic to see associated ayahs.</p>
+  </div>
+</div>
+
+<%= render 'resources/previews/ayah_topics/search_box', resource: resource, search_query: @search_query, searched_verse: @searched_verse, is_verse_search: @is_verse_search, total_topics: @pagy.count %>
+
+<!-- Topics Table -->
+<div class="tw-overflow-x-auto tw-mb-6">
+  <table class="tw-min-w-full tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm">
+    <thead class="tw-bg-gray-50 tw-border-b tw-border-gray-200">
+      <tr>
+        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+          <%= sortable_column_header('Topic Name', 'name', resource, @sort_by, @sort_direction, @search_query) %>
+        </th>
+        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden md:tw-table-cell">
+          Arabic Name
+        </th>
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+          Type
+        </th>
+        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">
+          Parent
+        </th>
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">
+          Children
+        </th>
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+          <%= sortable_column_header('Ayahs', 'ayahs_count', resource, @sort_by, @sort_direction, @search_query, extra_classes: 'tw-justify-center') %>
+        </th>
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+          Action
+        </th>
+      </tr>
+    </thead>
+    <tbody class="tw-divide-y tw-divide-gray-200">
+      <% @topics.each do |topic| %>
+        <%= render 'resources/previews/ayah_topics/topic_row', topic: topic, resource: resource %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+<% if @pagy.pages > 1 %>
+  <div class="tw-flex tw-justify-center tw-mt-6">
+    <% 
+      # Build pagination URLs with preserved search and sort params
+      pagy_url_proc = proc do |page_num|
+        detail_resources_path('ayah-topics', resource.id, 
+                              page: page_num, 
+                              search: @search_query,
+                              sort_by: @sort_by,
+                              sort_direction: @sort_direction)
+      end
+    %>
+    <%== pagy_bootstrap_nav(@pagy, pagy_id: 'topics-pagination', link_extra: '', pagy_url: pagy_url_proc).html_safe %>
+  </div>
+<% end %>
+

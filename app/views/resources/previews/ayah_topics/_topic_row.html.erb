@@ -1,0 +1,50 @@
+<tr class="hover:tw-bg-gray-50 tw-transition-colors">
+  <td class="tw-px-4 tw-py-3">
+    <div class="tw-font-medium tw-text-gray-900">
+      <%= topic.name %>
+    </div>
+  </td>
+  <td class="tw-px-4 tw-py-3 tw-hidden md:tw-table-cell">
+    <% if topic.arabic_name.present? %>
+      <span class="tw-text-gray-700 qpc-hafs">
+        <%= topic.arabic_name %>
+      </span>
+    <% else %>
+      <span class="tw-text-gray-400 tw-text-sm">—</span>
+    <% end %>
+  </td>
+  <td class="tw-px-4 tw-py-3 tw-text-center">
+    <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-1">
+      <%= topic_type_badges(topic) %>
+    </div>
+  </td>
+  <td class="tw-px-4 tw-py-3 tw-hidden lg:tw-table-cell">
+    <% if topic.parent.present? %>
+      <div class="tw-text-sm tw-text-gray-700">
+        <%= topic.parent.name %>
+      </div>
+    <% else %>
+      <span class="tw-text-gray-400 tw-text-sm">—</span>
+    <% end %>
+  </td>
+  <td class="tw-px-4 tw-py-3 tw-text-center tw-hidden lg:tw-table-cell">
+    <% if topic.children.any? %>
+      <span class="tw-inline-flex tw-items-center tw-justify-center tw-px-2.5 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-blue-100 tw-text-blue-700">
+        <%= topic.children.count %>
+      </span>
+    <% else %>
+      <span class="tw-text-gray-400 tw-text-sm">0</span>
+    <% end %>
+  </td>
+  <td class="tw-px-4 tw-py-3 tw-text-center">
+    <span class="tw-inline-flex tw-items-center tw-justify-center tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-gray-100 tw-text-gray-700">
+      <%= topic.verse_topics.count %>
+    </span>
+  </td>
+  <td class="tw-px-4 tw-py-3 tw-text-center">
+    <%= link_to detail_resources_path('ayah-topics', resource.id, topic_id: topic.id), class: 'tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-text-white tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors' do %>
+      View
+    <% end %>
+  </td>
+</tr>
+

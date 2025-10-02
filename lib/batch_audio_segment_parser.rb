@@ -10,12 +10,12 @@ p.remove_duplicate_files
 p.process_all_files
 
 1.upto(114) do |i|
-  p.process_reciter(reciter: 65, surah: i)
+  p.process_reciter(reciter: 65, surah: 1)
 end
 
 p.segmented_recitations.each do |r|
 1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: r.id, surah: i)
+  p.prepare_ayah_boundaries(reciter: 65, surah: 1)
 end
 end
 
@@ -110,6 +110,7 @@ class BatchAudioSegmentParser
   end
 
   def prepare_ayah_boundaries(reciter:, surah:)
+
     silence_file_path = "#{@data_directory.gsub('vs_logs', '')}silences/#{reciter}/#{surah}_silences.json"
     if !File.exist?(silence_file_path)
       puts "Silence file not found: #{silence_file_path}, skipping Surah #{surah} for Reciter #{reciter}"
@@ -184,7 +185,7 @@ class BatchAudioSegmentParser
         previous_ayah = ayah_segments[index - 1]
         gap_between_ayahs = ayah_data[:corrected_start_time] - previous_ayah.end_time
 
-        if gap_between_ayahs > 300
+        if gap_between_ayahs > 100
           # Move current ayah start time up to 300 ms earlier
           max_adjustment = [gap_between_ayahs - 100, 300].min # Leave at least 100ms gap
           adjusted_start_time = ayah_data[:corrected_start_time] - max_adjustment
@@ -341,6 +342,23 @@ class BatchAudioSegmentParser
       puts "Fixing missing positions..."
       parser.fix_missing_positions
       puts "#{parser.positions.count} segments after fixing the missing positions"
+
+      Segments::Position
+        .where(
+        surah_number: parser.surah_number,
+        reciter_id: parser.reciter_id
+      ).delete_all
+
+      Segments::Failure
+        .where(
+          surah_number: parser.surah_number,
+          reciter_id: parser.reciter_id
+        ).delete_all
+
+      Segments::AyahBoundary.where(
+        surah_number: parser.surah_number,
+        reciter_id: parser.reciter_id
+      ).delete_all
 
       if parser.positions.any?
         import_segments(

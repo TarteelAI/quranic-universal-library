@@ -96,17 +96,12 @@ ActiveAdmin.register Audio::Recitation do
   action_item :clone_recitation, only: :show, if: -> { can? :manage, resource } do
     link_to 'Clone Recitation', clone_recitation_cms_audio_recitation_path(resource),
             method: :post,
-            data: { confirm: "Clone recitation with audio files and segments? New recitation will be created with name: OriginalName (cloned)." }
+            data: { confirm: "Clone recitation with audio files?" }
   end
 
   member_action :clone_recitation, method: :post, if: -> { can? :manage, resource } do
     authorize! :manage, resource
-
-    attrs = resource.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
-    cloned = Audio::Recitation.new(attrs)
-    cloned.name = "#{resource.name} (cloned)"
-    cloned.approved = false
-    cloned.save!
+    cloned = resource.clone_with_audio_files
 
     redirect_to [:cms, cloned], notice: "Cloning successfully"
   end

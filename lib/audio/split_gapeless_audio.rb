@@ -4,7 +4,7 @@ module Audio
 
     def initialize(recitation_id, base_path = nil)
       @recitation = Audio::Recitation.find(recitation_id)
-      @base_path = base_path || "tmp/audio/#{recitation_id}/mp3"
+      @base_path = base_path || "data/audio/#{recitation_id}/mp3"
       FileUtils.mkdir_p @base_path
       FileUtils.mkdir_p "#{@base_path}/surah"
       FileUtils.mkdir_p "#{@base_path}/ayah-by-ayah"
@@ -50,7 +50,7 @@ module Audio
     end
 
     def surah_audio_file(chapter_id)
-      "#{@base_path}/surah/#{chapter_id}.mp3"
+      "#{@base_path}/#{chapter_id.to_s.rjust(3, '0')}.mp3"
     end
 
     def split_ayah(from, to, input, output)

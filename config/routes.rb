@@ -154,6 +154,7 @@ Rails.application.routes.draw do
     get '/detections', to: 'dashboard#detections', as: :detections
     get '/logs', to: 'dashboard#logs', as: :logs
     get '/reciters', to: 'dashboard#reciters', as: :reciters
+    get '/reciters/:id', to: 'dashboard#reciter', as: :reciter
     get '/timeline', to: 'dashboard#timeline', as: :timeline
     get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
     get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs

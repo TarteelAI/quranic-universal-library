@@ -56,6 +56,24 @@ module Audio
 
     after_update :update_related_resources
 
+    def clone_with_audio_files
+      attrs = attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
+      cloned = Audio::Recitation.new(attrs)
+      cloned.name = "#{name} (cloned)"
+      cloned.approved = false
+      cloned.save!
+
+      chapter_audio_files.find_each do |file|
+        cloned_file = file.dup
+        cloned_file.audio_recitation_id = cloned.id
+        cloned_file.save!
+      end
+
+      update_related_resources.send(:update_related_resources)
+
+      cloned
+    end
+
     def missing_audio_files?
       chapter_audio_files.size < 114
     end

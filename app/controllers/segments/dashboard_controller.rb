@@ -76,6 +76,10 @@ class Segments::DashboardController < ApplicationController
   def review_ayahs
   end
 
+  def reciter
+    @presenter = Segments::ReciterPresenter.new(self)
+  end
+
   def download_reciter
     reciter_id = params[:id]
     reciter = ::Segments::Reciter.find(reciter_id)

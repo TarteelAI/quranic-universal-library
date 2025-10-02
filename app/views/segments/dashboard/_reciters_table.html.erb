@@ -36,7 +36,10 @@
       <tbody>
       <% @presenter.reciter_stats.each do |reciter| %>
         <tr class="tw-border-b hover:tw-bg-gray-50">
-          <td class="tw-p-2"><%= reciter[:name] %></td>
+          <td class="tw-p-2">
+            <%= link_to reciter[:name], segments_reciter_path(reciter[:id]), 
+                class: "tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline" %>
+          </td>
           <td class="tw-p-2"><%= reciter[:positions] %></td>
 
           <td class="tw-p-2">

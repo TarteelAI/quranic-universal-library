@@ -88,6 +88,8 @@ class Verse < QuranApiRecord
   has_many :stems, through: :words
   has_many :lemmas, through: :words
   has_many :phrase_verses, class_name: 'Morphology::PhraseVerse'
+  has_many :verse_topics
+  has_many :topics, through: :verse_topics
 
   has_many :arabic_transliterations
   has_many :word_translations, through: :words, source: 'word_translation'

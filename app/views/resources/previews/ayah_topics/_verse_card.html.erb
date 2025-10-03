@@ -1,4 +1,8 @@
-<% verse = verse_topic.verse %>
+<%
+  verse = verse_topic.verse
+  translation = verse.translations.where(resource_content_id: 131).first
+%>
+
 <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-shadow-sm hover:tw-shadow-md tw-transition-shadow">
   <div class="tw-flex tw-items-start tw-justify-between tw-mb-3">
     <div>
@@ -17,17 +21,11 @@
     <% end %>
   </div>
 
-  <% 
-    english_translation = verse.translations
-                               .select { |t| t.language&.english? && !t.text.to_s.strip.empty? }
-                               .reject { |t| t.resource_name&.downcase&.include?('transliteration') }
-                               .first
-  %>
-  <% if english_translation %>
-    <% highlighted_text = highlight_topic_name_in_text(english_translation.text.to_s, topic.name) %>
+  <% if translation %>
+    <% highlighted_text = highlight_topic_name_in_text(translation.text.to_s, topic.name) %>
     <div class="tw-text-sm tw-text-gray-700 tw-border-t tw-pt-3 tw-mt-3">
       <div class="tw-text-xs tw-text-gray-500 tw-mb-1">
-        <%= english_translation.resource_name %>
+        <%= translation.resource_name %>
       </div>
       <%= safe_html highlighted_text %>
     </div>

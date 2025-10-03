@@ -23,7 +23,6 @@ class ResourcesController < CommunityController
 
     @presenter.set_resource(@resource)
 
-    # Handle ayah-topics specific logic
     if params[:type] == 'ayah-topics'
       handle_ayah_topics
     end
@@ -118,9 +117,9 @@ class ResourcesController < CommunityController
   end
 
   def handle_ayah_topics
+    #TODO: Move logic to presenter
     if params[:topic_id].present?
-      # Show page: Display specific topic
-      @topic = Topic.includes(:children, :parent).find_by(id: params[:topic_id])
+      @topic = Topic.find_by(id: params[:topic_id])
       @verse_topics = @topic&.verse_topics&.includes(
         verse: [
           :chapter, 
@@ -129,15 +128,12 @@ class ResourcesController < CommunityController
         ]
       ) || []
       
-      # Handle sorting for topic show page
       @ayahs_sort = params[:ayahs_sort] || 'asc'
       
-      # Sort verse_topics by verse_number
       if @verse_topics.any?
         @sorted_verse_topics = sort_with_zero_last(@verse_topics.to_a, 'verse.verse_number', @ayahs_sort)
       end
     else
-      # Index page: List topics with search and pagination
       search = TopicSearch.new(
         query: params[:search],
         page: params[:page],
@@ -146,7 +142,6 @@ class ResourcesController < CommunityController
         sort_direction: params[:sort_direction]
       )
 
-      # Pagy with pagination
       @pagy, @topics = pagy(search.results, items: 100, page: params[:page] || 1)
       
       @search_query = search.query

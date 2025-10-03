@@ -1,7 +1,7 @@
 # This script downloads and converts MP3 recitations
 #
 # Usage:
-#   ruby download_audio.rb --reciter 65
+#   ruby download_audio.rb --reciter 4
 #
 
 require 'optparse'
@@ -79,7 +79,7 @@ end
 reciter_id = options[:reciter_id]
 chapters = options[:chapters]
 
-base_path = "data/audio/#{reciter_id}/mp3"
+base_path = "../../data/audio/#{reciter_id}/mp3"
 mp3_path = "#{base_path}"
 FileUtils.mkdir_p(mp3_path)
 

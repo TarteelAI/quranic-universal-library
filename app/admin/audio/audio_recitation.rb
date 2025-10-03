@@ -256,6 +256,8 @@ ActiveAdmin.register Audio::Recitation do
                      .with_segments_counts
                      .includes(:chapter)
 
+    active_admin_comments
+
     panel "Audio files: (#{resource.files_count} files) " do
       if resource.files_count.to_i < 114
         missing = (1..114).to_a - resource.chapter_audio_files.pluck(:chapter_id)

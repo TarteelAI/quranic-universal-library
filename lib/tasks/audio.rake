@@ -3,7 +3,7 @@ namespace :audio do
     require 'open3'
     reciter_name = "Mahmoud Khalil Al-Husary - Muallim"
     base_path = "data/audio/12"
-    mp3_path = "#{base_path}/original"
+    original_mp3_path = "#{base_path}/original"
     optimized_mp3_path = "#{base_path}/mp3"
     wav_path = "#{base_path}/wav"
     opus_path = "#{base_path}/opus"
@@ -140,7 +140,7 @@ namespace :audio do
       chapter = Chapter.find(num)
 
       file_path = num.to_s.rjust(3, '0')
-      file = "#{mp3_path}/#{file_path}.mp3"
+      file = "#{original_mp3_path}/#{file_path}.mp3"
       optimized = "#{optimized_mp3_path}/#{file_path}.mp3"
       wav = "#{wav_path}/#{file_path}.wav"
       opus = "#{opus_path}/#{file_path}.opus"
@@ -165,8 +165,8 @@ namespace :audio do
         )
 
         if success
-          encode_to_wav(file, wav, normalize: :copy)
-          encode_to_opus(file, opus)
+          encode_to_wav(optimized, wav, normalize: :copy)
+          encode_to_opus(optimized, opus)
         else
           puts "ffmpeg failed for Surah #{chapter.id}"
         end

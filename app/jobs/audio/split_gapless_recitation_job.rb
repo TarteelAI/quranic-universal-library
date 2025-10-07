@@ -1,5 +1,5 @@
-module Export
-  class SplitGapelessRecitationJob < ApplicationJob
+module Audio
+  class SplitGaplessRecitationJob < ApplicationJob
     sidekiq_options retry: 0, backtrace: true
     STORAGE_PATH = "#{Rails.root}/data/audio"
 
@@ -24,6 +24,7 @@ module Export
           ayah_from: ayah_from,
           ayah_to: ayah_to
         )
+
         #send_email(base_path, user_id, recitation_id)
       end
     end
@@ -71,7 +72,7 @@ module Export
     end
 
     def split_audio_files(base_path, audio_recitation, surah:, ayah_from:, ayah_to:)
-      audio_split = Audio::SplitGapelessAudio.new(
+      audio_split = Audio::SplitGaplessAudio.new(
         audio_recitation.id,
         base_path
       )
@@ -90,7 +91,7 @@ module Export
     end
 
     def create_ayah_segments(surah_recitation, ayah_recitation, chapter_id)
-      segment_split = Audio::SplitGapelessSegment.new(
+      segment_split = Audio::SplitGaplessSegment.new(
         surah_recitation.id,
         ayah_recitation.id
       )

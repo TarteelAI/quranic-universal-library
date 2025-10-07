@@ -8,8 +8,7 @@ module Segments
       reciter = ::Segments::Reciter.find(reciter_id)
       
       begin
-        # Export segments data using AudioSegment::SurahBySurah
-        exporter = AudioSegment::SurahBySurah.new(nil) # We don't need a recitation object for this method
+        exporter = AudioSegment::SurahBySurah.new(nil)
         db_file_path = exporter.export_segments_positions(reciter_id, 'db')
         
         zip_file_path = create_zip_file(reciter, db_file_path)

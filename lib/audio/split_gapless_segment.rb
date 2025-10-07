@@ -1,5 +1,5 @@
 module Audio
-  class SplitGapelessSegment
+  class SplitGaplessSegment
     include Utils::StrongMemoize
 
     attr_reader :ayah_recitation, :recitation

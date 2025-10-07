@@ -11,6 +11,11 @@
         <input type="text" name="table_name" id="table_name" placeholder="table name" value="ayah_timing">
       </li>
 
+      <li>
+        <label for="export_gapless">Export gapless audio segments</label>
+        <%= form.check_box :export_gapless %>
+      </li>
+
       <li class="searchable_select input optional">
         <label for="file_name">Select reciters</label>
         <select name="reciter_ids" id=reciter_ids multiple data-controller="select2">

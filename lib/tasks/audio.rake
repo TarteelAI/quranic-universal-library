@@ -1,8 +1,11 @@
 namespace :audio do
   task optimize_mp3: :environment do
+    # Check if mp3 is CBR or VBR
+    # ffprobe -hide_banner -i 2.mp3
+
     require 'open3'
-    reciter_name = "Mahmoud Khalil Al-Husary - Muallim"
-    base_path = "data/audio/12"
+    reciter_name = "Maher al-Muaiqly - Murattal"
+    base_path = "data/audio/65"
     original_mp3_path = "#{base_path}/original"
     optimized_mp3_path = "#{base_path}/mp3"
     wav_path = "#{base_path}/wav"

@@ -1,10 +1,11 @@
-module Export
-  class AyahRecitationSegmentsJob < ApplicationJob
-    def perform(file_name:, table_name: 'ayah_timing', user_id:, recitations_ids: [])
+module Audio
+  class ExportAudioSegmentsJob < ApplicationJob
+    def perform(file_name:, table_name: 'ayah_timing', user_id:, recitations_ids: [], gapless: false)
       exporter = AudioSegment::Tarteel.new(
         file_name: file_name,
         table_name: table_name,
-        recitations_ids: recitations_ids
+        recitations_ids: recitations_ids,
+        gapless: gapless
       )
 
       file_path = exporter.export
@@ -23,7 +24,7 @@ module Export
 
       DeveloperMailer.notify(
         to: admin.email,
-        subject: "Ayah recitation segments dump file",
+        subject: "Audio segments dump file",
         message: email_body(admin, issues),
         file_path: zip_path
       ).deliver_now

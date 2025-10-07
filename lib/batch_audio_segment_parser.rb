@@ -2,7 +2,7 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/15-sept/vs_logs", reset_db: false)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/data/vs_logs", reset_db: true)
 
 p.validate_log_files
 p.remove_duplicate_files
@@ -10,12 +10,12 @@ p.remove_duplicate_files
 p.process_all_files
 
 1.upto(114) do |i|
-  p.process_reciter(reciter: 65, surah: 1)
+  p.process_reciter(reciter: 65, surah: i)
 end
 
 p.segmented_recitations.each do |r|
 1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: 65, surah: 1)
+  p.prepare_ayah_boundaries(reciter: 65, surah: i)
 end
 end
 
@@ -104,8 +104,12 @@ class BatchAudioSegmentParser
     files.each do |file_path|
       folder = File.dirname(file_path)
       log_file_name = "#{@data_directory.gsub('vs_logs', '')}logs/#{folder.split('/').last}.log"
+
       FileUtils.mv(folder, "#{@data_directory.gsub('vs_logs', '')}/duplicate_files")
-      FileUtils.mv(log_file_name, "#{@data_directory.gsub('vs_logs', '')}/duplicate_files")
+
+      if File.exist?(log_file_name)
+        FileUtils.mv(log_file_name, "#{@data_directory.gsub('vs_logs', '')}/duplicate_files")
+      end
     end
   end
 

@@ -1,5 +1,7 @@
+require 'zip'
+
 module Audio
-  class SplitGapelessAudio
+  class SplitGaplessAudio
     include Utils::StrongMemoize
 
     def initialize(recitation_id, base_path = nil)
@@ -28,7 +30,7 @@ module Audio
         to = segment.timestamp_to / 1000.0
         ayah_path = ayah_audio_path(chapter_id, segment.verse_number)
         next if File.exist?(ayah_path)
-
+        binding.pry if @debug.nil?
         puts "Splitting #{chapter_id}:#{segment.verse_number} timing range is  #{from} - #{to}"
 
         split_ayah(
@@ -38,13 +40,14 @@ module Audio
           ayah_path
         )
       end
+
+      prepare_surah_audio_zip(chapter_id)
     end
 
     def load_surah_audio(chapter_id)
       strong_memoize "audio_#{chapter_id}_#{@recitation.id}" do
         path = surah_audio_file(chapter_id)
         download_audio_file(chapter_id, path) unless File.exist?(path)
-
         path
       end
     end
@@ -76,6 +79,36 @@ module Audio
       File.open(path, "wb") do |file|
         file << response.body
       end
+    end
+
+    def prepare_surah_audio_zip(chapter_id)
+      surah_folder = "#{@base_path}/surah/#{chapter_id}"
+      FileUtils.mkdir_p surah_folder
+
+      ayah_pattern = "#{@base_path}/ayah-by-ayah/#{chapter_id.to_s.rjust(3, '0')}*.mp3"
+      ayah_files = Dir.glob(ayah_pattern)
+
+      ayah_files.each do |ayah_file|
+        filename = File.basename(ayah_file)
+        destination = "#{surah_folder}/#{filename}"
+        FileUtils.cp(ayah_file, destination) unless File.exist?(destination)
+      end
+
+      zip_surah_folder(surah_folder)
+    end
+
+    def zip_surah_folder(surah_folder)
+      zip_path = "#{surah_folder}.zip"
+      FileUtils.rm_f(zip_path)
+
+      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+        Dir.glob("#{surah_folder}/*").each do |file|
+          filename = File.basename(file)
+          zipfile.add(filename, file)
+        end
+      end
+
+      zip_path
     end
   end
 end

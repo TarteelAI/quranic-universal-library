@@ -34,8 +34,8 @@ ActiveAdmin.register_page 'Dashboard' do
         end
 
         column do
-          panel 'Export ayah audio file segments' do
-            render partial: 'admin/export_ayah_segments_db'
+          panel 'Export audio segments' do
+            render partial: 'admin/export_audio_segments_db'
           end
         end
 

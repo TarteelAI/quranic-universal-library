@@ -47,7 +47,7 @@ module AudioSegment
         segments = db.execute("SELECT surah_number, ayah_number FROM #{table_name} WHERE reciter = ?", recitation.id)
         missing_ayahs = Verse.pluck(:verse_key) - segments.map { |row| "#{row[0]}:#{row[1]}" }
 
-        @issues.push "#{recitation.id} segments are missing for following ayahs: #{missing_ayahs.join(', ')}"
+        @issues.push "Recitation: #{recitation.id} segments are missing for following ayahs: #{missing_ayahs.join(', ')}"
       end
     end
 
@@ -74,12 +74,12 @@ module AudioSegment
 
         segments.each_with_index do |segment, i|
           if segment.length != 3
-            @issues.push("#{recitation.id} #{file.chapter_id}:#{file.verse_number} length of #{i + 1} segment is wrong")
+            @issues.push("Recitation: #{recitation.id} ayah #{file.chapter_id}:#{file.verse_number} length of #{i + 1} segment is wrong")
           end
         end
 
         if segments.size < file.verse.words_count
-          @issues.push("#{recitation.id} #{file.chapter_id}:#{file.verse_number} don't have segments for all words. Words count: #{file.verse.words_count} Segments count: #{segments.size}")
+          @issues.push("Recitation: #{recitation.id} ayah #{file.chapter_id}:#{file.verse_number} don't have segments for all words. Words count: #{file.verse.words_count} Segments count: #{segments.size}")
         end
 
         [
@@ -105,12 +105,12 @@ module AudioSegment
 
         ayah_segments.each_with_index do |segment, i|
           if segment.length != 3
-            @issues.push("#{recitation.id} #{verse.chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
+            @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
           end
         end
 
         if ayah_segments.size < verse.words_count
-          @issues.push("#{recitation.id} #{verse.chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.words_count} Segments count: #{ayah_segments.size}")
+          @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.words_count} Segments count: #{ayah_segments.size}")
         end
 
         [

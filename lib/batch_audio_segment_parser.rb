@@ -2,7 +2,7 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/data/vs_logs", reset_db: true)
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/data/vs_logs", reset_db: false)
 
 p.validate_log_files
 p.remove_duplicate_files
@@ -10,12 +10,12 @@ p.remove_duplicate_files
 p.process_all_files
 
 1.upto(114) do |i|
-  p.process_reciter(reciter: 65, surah: i)
+  p.process_reciter(reciter: 65, surah: 1)
 end
 
 p.segmented_recitations.each do |r|
 1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: 65, surah: i)
+  p.prepare_ayah_boundaries(reciter: r.id, surah: i)
 end
 end
 
@@ -249,6 +249,25 @@ class BatchAudioSegmentParser
     end
   end
 
+  def cleanup_duplicate_failures
+    duplicates = Segments::Failure
+                   .where.not(expected_transcript: ['', nil])
+                   .group(:expected_transcript, :surah_number, :ayah_number, :reciter_id)
+                   .having("COUNT(*) > 5")
+                   .count
+
+    duplicates.each_key do |(expected_transcript, surah_number, ayah_number, reciter_id)|
+      ids = Segments::Failure.where(
+        expected_transcript: expected_transcript,
+        surah_number: surah_number,
+        ayah_number: ayah_number,
+        reciter_id: reciter_id
+      ).order(:id).pluck(:id)
+
+      Segments::Failure.where(id: ids.drop(1)).delete_all
+    end
+  end
+
   def process_reciter(reciter:, surah: nil)
     puts "Processing files for reciter ID: #{reciter}"
     files = filter_segments_files(reciter, surah)
@@ -349,9 +368,9 @@ class BatchAudioSegmentParser
 
       Segments::Position
         .where(
-        surah_number: parser.surah_number,
-        reciter_id: parser.reciter_id
-      ).delete_all
+          surah_number: parser.surah_number,
+          reciter_id: parser.reciter_id
+        ).delete_all
 
       Segments::Failure
         .where(

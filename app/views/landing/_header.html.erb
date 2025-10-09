@@ -17,11 +17,18 @@
       </div>
 
       <div class="tw-flex tw-gap-2 md:tw-gap-4 tw-items-center">
-        <%= link_to 'Resources', resources_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
-        <%= link_to 'Tools', tools_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
-        <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black tw-hidden md:tw-flex' %>
-        <%= link_to 'FAQ', faq_path, class: 'tw-text-black tw-hidden md:tw-flex' %>
-        <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black tw-hidden md:tw-flex tw-items-center', target: '_blank' do %>
+        <% 
+          is_explorer = request.path.start_with?('/explorer')
+          is_resources = request.path.start_with?('/resources')
+          is_tools = request.path.start_with?('/tools')
+          is_faq = request.path.start_with?('/faq')
+        %>
+        <%= link_to 'Explorer', quran_explorer_path, class: "tw-hidden md:tw-flex tw-transition-colors hover:tw-text-[#57d798] #{is_explorer ? 'tw-text-[#57d798] tw-font-semibold' : 'tw-text-black'}" %>
+        <%= link_to 'Resources', resources_path, class: "tw-hidden md:tw-flex tw-transition-colors hover:tw-text-[#57d798] #{is_resources ? 'tw-text-[#57d798] tw-font-semibold' : 'tw-text-black'}" %>
+        <%= link_to 'Tools', tools_path, class: "tw-hidden md:tw-flex tw-transition-colors hover:tw-text-[#57d798] #{is_tools ? 'tw-text-[#57d798] tw-font-semibold' : 'tw-text-black'}" %>
+        <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black tw-hidden md:tw-flex tw-transition-colors hover:tw-text-[#57d798]' %>
+        <%= link_to 'FAQ', faq_path, class: "tw-hidden md:tw-flex tw-transition-colors hover:tw-text-[#57d798] #{is_faq ? 'tw-text-[#57d798] tw-font-semibold' : 'tw-text-black'}" %>
+        <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black tw-hidden md:tw-flex tw-items-center tw-transition-colors hover:tw-text-[#57d798]', target: '_blank' do %>
           <span class="me-2">Github</span>
           <svg
           viewBox="0 0 16 16"
@@ -60,12 +67,13 @@
           </div>
           <div class="offcanvas-body">
             <div class="tw-flex tw-flex-col tw-gap-3 tw-font-bold tw-mt-4">
-              <%= link_to 'Resources', resources_path, class: 'tw-text-black tw-text-lg' %>
-              <%= link_to 'Tools', tools_path, class: 'tw-text-black tw-text-lg' %>
-              <%= link_to 'Credits', credits_path, class: 'tw-text-black tw-text-lg]' %>
-              <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black tw-text-lg' %>
-              <%= link_to 'FAQ', faq_path, class: 'tw-text-black tw-text-lg' %>
-              <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black tw-text-lg tw-flex tw-items-center', target: '_blank' do %>
+              <%= link_to 'Explorer', quran_explorer_path, class: "tw-text-lg tw-transition-colors hover:tw-text-[#57d798] #{is_explorer ? 'tw-text-[#57d798]' : 'tw-text-black'}" %>
+              <%= link_to 'Resources', resources_path, class: "tw-text-lg tw-transition-colors hover:tw-text-[#57d798] #{is_resources ? 'tw-text-[#57d798]' : 'tw-text-black'}" %>
+              <%= link_to 'Tools', tools_path, class: "tw-text-lg tw-transition-colors hover:tw-text-[#57d798] #{is_tools ? 'tw-text-[#57d798]' : 'tw-text-black'}" %>
+              <%= link_to 'Credits', credits_path, class: 'tw-text-black tw-text-lg tw-transition-colors hover:tw-text-[#57d798]' %>
+              <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black tw-text-lg tw-transition-colors hover:tw-text-[#57d798]' %>
+              <%= link_to 'FAQ', faq_path, class: "tw-text-lg tw-transition-colors hover:tw-text-[#57d798] #{is_faq ? 'tw-text-[#57d798]' : 'tw-text-black'}" %>
+              <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black tw-text-lg tw-flex tw-items-center tw-transition-colors hover:tw-text-[#57d798]', target: '_blank' do %>
                 <span class="me-2">Github</span>
                 <svg
                 viewBox="0 0 16 16"

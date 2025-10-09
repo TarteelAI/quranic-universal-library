@@ -2,6 +2,21 @@ require "sqlite3"
 
 class ExportQuranFts
   DB_PATH = Rails.root.join("tmp", "search-data.sqlite")
+  MUQATTAAT_LETTERS = {
+    'الم' => 'الف لام ميم',
+    'الر' => 'الف لام را',
+    'المر' => 'الف لام ميم را',
+    'كهيعص' => 'كاف ها يا عين صاد',
+    'طه' => 'طا ها',
+    'طسم' => 'طا سين ميم',
+    'طس' => 'طا سين',
+    'يس' => 'يا سين',
+    'ص' => 'صاد',
+    'حم' => 'حا ميم',
+    'عسق' => 'عين سين قاف',
+    'ق' => 'قاف',
+    'ن' => 'نون'
+  }
 
   def self.run
     new.export
@@ -25,6 +40,12 @@ class ExportQuranFts
   private
 
   def create_tables(db)
+    # CREATE VIRTUAL TABLE ayah_index USING fts5(
+    #                                         term,
+    #                                         key UNINDEXED,
+    #                                         tokenize = 'trigram'
+    #                                       );
+
     db.execute_batch <<~SQL
       CREATE VIRTUAL TABLE surah_index USING fts5(
         term,
@@ -32,11 +53,17 @@ class ExportQuranFts
         tokenize = 'unicode61 remove_diacritics 1'
       );
 
-      CREATE VIRTUAL TABLE ayah_index USING fts5(
-        term,
-        key UNINDEXED,
-        tokenize = 'trigram'
-      );
+CREATE VIRTUAL TABLE ayah_index_unicode USING fts5(
+  term,
+  key UNINDEXED,
+  tokenize = 'unicode61 remove_diacritics 2'
+);
+
+CREATE VIRTUAL TABLE ayah_index_trigram USING fts5(
+  term,
+  key UNINDEXED,
+  tokenize = 'trigram'
+);
     SQL
   end
 
@@ -79,7 +106,7 @@ class ExportQuranFts
   def insert_ayahs(db)
     Verse.includes(:verse_root, :verse_stem, :verse_lemma).find_each do |verse|
       transliterations = Translation.where(
-        resource_content_id: [1561, 57], #1566
+        resource_content_id: [1561], #1566, 57
         verse_id: verse.id
       )
 
@@ -88,43 +115,84 @@ class ExportQuranFts
         normalize_arabic(verse.text_uthmani_simple),
         normalize_arabic(verse.text_imlaei),
         normalize_arabic(verse.text_qpc_hafs.gsub(/[٠١٢٣٤٥٦٧٨٩]/, '')),
-        verse.text_imlaei_simple,
+        normalize_arabic(verse.text_imlaei_simple),
         normalize_arabic(verse.verse_stem&.text_madani),
         normalize_arabic(verse.verse_lemma&.text_madani),
         normalize_arabic(verse.verse_root&.value),
       ].compact_blank
 
+      if verse.has_harooq_muqattaat?
+        terms += replace_haroof_muqattaat(verse.text_imlaei_simple)
+      end
+
+      terms += add_special_ayah_terms(verse)
+
       transliterations.each do |tr|
         terms << normalize(tr.text)
       end
 
-      terms.uniq.each do |term|
+      terms.compact_blank.uniq.each do |term|
+        #db.execute <<~SQL, [term, verse.verse_key]
+        #  INSERT INTO ayah_index (term, key)
+        #  VALUES (?, ?);
+        #SQL
+
         db.execute <<~SQL, [term, verse.verse_key]
-          INSERT INTO ayah_index (term, key)
-          VALUES (?, ?);
-        SQL
+        INSERT INTO ayah_index_unicode (term, key)
+        VALUES (?, ?);
+      SQL
+
+        # insert into trigram index
+        db.execute <<~SQL, [term, verse.verse_key]
+        INSERT INTO ayah_index_trigram (term, key)
+        VALUES (?, ?);
+      SQL
       end
+    end
+  end
+
+  def replace_haroof_muqattaat(text)
+    return [] if text.blank?
+
+    replaced_text = text
+
+    text.split(/\s/).each do |part|
+      if MUQATTAAT_LETTERS[part]
+        replaced_text = replaced_text.sub(part, MUQATTAAT_LETTERS[part])
+      end
+    end
+
+    [replaced_text]
+  end
+
+  def add_special_ayah_terms(verse)
+    if verse.verse_key == '2:255'
+      ['ayatul kursi', 'ayat al-kursi']
+    else
+      []
     end
   end
 
   def optimize_table(db)
     db.execute "INSERT INTO surah_index(term) VALUES('optimize');"
-    db.execute "INSERT INTO ayah_index(term) VALUES('optimize');"
+    db.execute "INSERT INTO ayah_index_trigram(term) VALUES('optimize');"
+    db.execute "INSERT INTO ayah_index_unicode(term) VALUES('optimize');"
   end
 
   HAFS_WAQF_FOR_PHRASE = ["ۖ", "ۗ", "ۚ", "ۚ", "ۜ", "ۢ", "ۨ", "ۭ"]
   HAFS_WAQF_WITH_SIGNS = ["ـ", "ۖ", "ۗ", "ۘ", "ۚ", "ۛ", "ۜ", "۞", "ۢ", "ۦ", "ۧ", "ۨ", "۩", "۪", "۬", "ۭ"]
   INDOPAK_WAQF = ["ۛ", "ٚ", "ؔ", "ؕ", "ۥ", "ۚ", "۪", "۠", "ۙ", "ؗ", "۫", "ۘ", "ۗ", "۬", "ۙ", "۬", "ۦ"]
-  EXTRA_CHARS = ['', '', '', '', '‏', ',', '‏', '​', '', '‏', "\u200f"]
+  EXTRA_CHARS = ['', '', '', '', '‏', ',', '‏', '​', '', '‏', "\u200f"]
   WAQF_REG = Regexp.new((HAFS_WAQF_WITH_SIGNS + INDOPAK_WAQF + EXTRA_CHARS).join('|'))
 
   TASHKEEL_MATCHERS = [
     [/[آٱأإ]/, 'ا'],
     [/[ٰ]/, 'ا'],
+    [/يؤ/, 'يو'],
     [/[ؤئ]/, 'ء'],
     [/ة/, 'ه'],
-    [/ى/, 'ي'],
-    [/[ًٌٍَُِّْـ]/, ''],
+    [/[ىی]/, 'ي'],
+  [/[ًٌٍَُِّْـ]/, ''],
     [/۪/, ''],
     [/۫/, ''],
     [/[،؛؟؞.!]/, '']
@@ -141,11 +209,16 @@ class ExportQuranFts
   end
 
   def remove_diacritics(text)
-    return if text.to_s.presence.blank?
+    return if text.blank?
+    diacritics_regex = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u200C-\u200F]/
+    punctuation_regex = /[.,\/#!$%\^&\*;:{}=\-_`~()\"'؟،«»…]/
+    space_regex = /\s+/
 
-    text = text.to_s.remove_diacritics
-    # Strip non breaking spaces and extra whitespace
-    text.gsub(WAQF_REG, '').gsub(/\u00A0/, '').strip
+    text.unicode_normalize(:nfc)
+        .gsub(diacritics_regex, '')
+        .gsub(punctuation_regex, '')
+        .gsub(space_regex, ' ')
+        .strip
   end
 
   def normalize(text)
@@ -153,7 +226,7 @@ class ExportQuranFts
     text = text.gsub(/\p{Mn}/, '')
     t = I18n.transliterate(text)
     text = t unless t.include?('?')
-    text.gsub(/[-]|['’]|\b(suresi|surasi|surat|surah|sura|chapter|سورہ|سورت|سورة)\b/, ' ')
+    text.gsub(/[-]|['']|\b(suresi|surasi|surat|surah|sura|chapter|سورہ|سورت|سورة)\b/, ' ')
         .gsub(/\s+/, ' ').strip
   end
 end

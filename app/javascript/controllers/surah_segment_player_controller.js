@@ -92,7 +92,7 @@ export default class extends SegmentPlayer {
 
 
   getAudioUrl() {
-    return this.audioData[this.currentVerseKey].url
+    return this.audioData.url
   }
 
   async loadSegments(verseKey) {
@@ -106,9 +106,7 @@ export default class extends SegmentPlayer {
     const response = await fetch(url);
     const data = await response.json();
 
-    Object.keys(data.segments).forEach(key => {
-      this.audioData[key] = data.audio
-    })
+    this.audioData = data.audio;
 
     this.segmentsData = {
       ...this.segmentsData,

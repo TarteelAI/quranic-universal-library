@@ -135,6 +135,11 @@ class AudioFile < QuranApiRecord
     end.compact_blank
   end
 
+  def set_segments!(segments_list, user = nil)
+    set_segments(segments_list, user)
+    save(validate: false)
+  end
+
   def set_segments(segments_list, user = nil)
     words = verse.words_count
     list = segments_list.map do |s|
@@ -146,10 +151,8 @@ class AudioFile < QuranApiRecord
 
     list = list.compact_blank
 
-    update(
-      segments: list,
-      segments_count: list.size
-    )
+    self.segments = list
+    self.segments_count = list.size
   end
 
   def find_repeated_segments

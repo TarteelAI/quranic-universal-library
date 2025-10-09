@@ -1,5 +1,5 @@
 module Audio
-  class SplitGapelessSegment
+  class SplitGaplessSegment
     include Utils::StrongMemoize
 
     attr_reader :ayah_recitation, :recitation
@@ -31,15 +31,20 @@ module Audio
 
     def load_ayah_segment(verse)
       segment = load_segments(verse.chapter_id)[verse.verse_key]
-      return [] if segment.blank?
+      return [] if segment.blank? || segment.segments.blank?
+
       segment_start = [segment.timestamp_from, segment.segments[0][1]].min
 
-      segment.segments.map do |s|
+      segments = segment.segments.map do |s|
+        next if s[0] > verse.words_count || s.size < 3
+
         [
           s[0], s[1] - segment_start,
           s[2] - segment_start
         ]
       end
+
+      segments.compact_blank
     end
 
     protected

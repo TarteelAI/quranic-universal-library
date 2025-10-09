@@ -58,7 +58,35 @@ class Segments::DashboardController < ApplicationController
   def failures
   end
 
+  def word_failures
+  end
+
+  def word_failure_detail
+    word_text = params[:text].to_s.strip
+
+    if word_text.blank?
+      redirect_to segments_word_failures_path, alert: "Word text is required"
+      return
+    end
+  end
+
   def ayah_report
+  end
+
+  def review_ayahs
+  end
+
+  def reciter
+    @presenter = Segments::ReciterPresenter.new(self)
+  end
+
+  def download_reciter
+    reciter_id = params[:id]
+    reciter = ::Segments::Reciter.find(reciter_id)
+    
+    ::Segments::ExportReciterSegmentsJob.perform_later(current_user.id, reciter_id)
+    
+    redirect_to segments_reciters_path, notice: "Segments data export for #{reciter.name} has been queued. You will receive an email when it's ready."
   end
 
   protected
@@ -99,5 +127,17 @@ class Segments::DashboardController < ApplicationController
         @db = ::Segments::Database.new(segment_db_params)
       end
     end
+  end
+
+  helper_method :format_time
+
+  def format_time(milliseconds)
+    return "N/A" if milliseconds.nil?
+    
+    seconds = milliseconds / 1000
+    minutes = seconds / 60
+    remaining_seconds = seconds % 60
+    
+    "#{minutes.to_i}:#{remaining_seconds.to_i.to_s.rjust(2, '0')}"
   end
 end

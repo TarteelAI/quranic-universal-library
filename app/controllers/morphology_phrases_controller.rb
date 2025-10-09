@@ -2,7 +2,7 @@ class MorphologyPhrasesController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[new edit create update destroy]
   before_action :authorize_access!, only: %i[new edit create update destroy]
-
+  before_action :init_presenter
   def show
     if params[:proofread].present?
       @verse = Verse.find_by_id_or_key(params[:id])
@@ -176,5 +176,9 @@ class MorphologyPhrasesController < CommunityController
 
   def load_resource_access
     @access = can_manage?(find_resource)
+  end
+
+  def init_presenter
+    @presenter = MorphologyPhrasesPresenter.new(self)
   end
 end

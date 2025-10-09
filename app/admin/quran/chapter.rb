@@ -88,7 +88,6 @@ ActiveAdmin.register Chapter do
         row :v4_chapter_glyph_code do
           div "#{chapter.v4_chapter_glyph_code} surah-icon", class: 'surah-name-v4-icon'
         end
-
         row :color_header_chapter_glyph_code do
           div chapter.color_header_chapter_glyph_code, class: 'surah-header-icon'
         end
@@ -103,9 +102,30 @@ ActiveAdmin.register Chapter do
     column :bismillah_pre
     column :revelation_order
     column :revelation_place
+    column :name_simple
     column :name_complex
     column :name_arabic
     column :pages
     column :verses_count
+  end
+
+  form do |f|
+    f.semantic_errors *f.object.errors
+
+    f.inputs 'Chapter Details' do
+      f.input :bismillah_pre
+      f.input :revelation_order
+      f.input :revelation_place, as: :select, collection: Chapter.revelation_places.map { |place| [place.titleize, place] }
+      f.input :name_simple
+      f.input :name_complex
+      f.input :name_arabic
+
+      f.input :v1_chapter_glyph_code, as: :string
+      f.input :v2_chapter_glyph_code, as: :string
+      f.input :v4_chapter_glyph_code, as: :string
+      f.input :color_header_chapter_glyph_code, as: :string
+    end
+
+    f.actions
   end
 end

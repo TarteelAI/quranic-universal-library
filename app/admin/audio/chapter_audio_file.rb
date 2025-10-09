@@ -149,6 +149,8 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       f.input :mime_type
       f.input :bit_rate
       f.input :file_name
+
+      f.input :meta_data, input_html: { data: { controller: 'json-editor', json: resource.meta_data } }
     end
 
     f.actions
@@ -164,6 +166,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       mime_type
       bit_rate
       file_name
+      meta_data
     ]
   end
 end

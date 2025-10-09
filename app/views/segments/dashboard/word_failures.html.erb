@@ -1,0 +1,173 @@
+<%= render 'segments/header' %>
+
+<%
+  summary = @presenter.word_failure_summary
+  top_words = @presenter.top_problematic_words(100)
+  current_reciter = @presenter.selected_reciter
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="card-title text-primary"><%= summary[:total_failures] %></h3>
+          <p class="card-text">Total Failures</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="card-title text-info"><%= summary[:unique_words_with_failures] %></h3>
+          <p class="card-text">Problematic Words</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="card-title text-warning"><%= summary[:unique_reciters] %></h3>
+          <p class="card-text">Unique Reciters</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="card-title text-success"><%= summary[:correction_rate] %>%</h3>
+          <p class="card-text">Correction Rate</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-section filters mt-4">
+    <%= form_tag segments_word_failures_path, method: :get do %>
+      <div class="d-flex tw-flex-wrap">
+        <div class="form-group me-2">
+          <%= select_tag :surah, options_for_select(@presenter.chapter_options, @presenter.selected_surah), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto', id: 'chapter-select', data: { controller: 'select2' } %>
+          <p class="form-text">Filter by Surah</p>
+        </div>
+
+        <div class="form-group me-2">
+          <%= select_tag :reciter, options_for_select(@presenter.reciters.pluck(:name, :id), @presenter.selected_reciter), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
+          <p class="form-text">Filter reciter</p>
+        </div>
+
+        <div class="form-group me-2">
+          <%= search_field_tag :word_search, params[:word_search], class: 'tw-w-[85vw] sm:tw-w-[200px]', placeholder: 'Search words...' %>
+          <p class="form-text">Search words</p>
+        </div>
+
+        <div class="form-group">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h3 class="tw-text-xl tw-my-3">
+      Failure words
+    </h3>
+
+    <div class="tools-table-overflow">
+      <table class="table table-hover">
+        <thead class="tw-position-sticky tw-bg-white border-bottom top-0">
+          <tr class="tw-bg-gray-100 tw-text-left">
+            <th class="tw-p-2 tw-border-b">Rank</th>
+            <th class="tw-p-2 tw-border-b">Word</th>
+            <th class="tw-p-2 tw-border-b">Failure Count</th>
+            <th class="tw-p-2 tw-border-b">Received Variants</th>
+            <th class="tw-p-2 tw-border-b">Reciter IDs</th>
+            <th class="tw-p-2 tw-border-b">Surahs</th>
+            <th class="tw-p-2 tw-border-b">Failure Types</th>
+            <th class="tw-p-2 tw-border-b">Corrected</th>
+            <th class="tw-p-2 tw-border-b">Pending</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% top_words.each_with_index do |word_data, index| %>
+            <tr class="tw-border-b hover:tw-bg-gray-50">
+              <td class="tw-p-2">
+                <span class="badge bg-primary"><%= index + 1 %></span>
+              </td>
+              <td class="tw-p-2">
+                <span class="qpc-hafs">
+                  <%= link_to word_data[:word], segments_word_failure_detail_path(text: word_data[:word], reciter: current_reciter), target: '_blank' %>
+                </span>
+              </td>
+
+              <td class="tw-p-2">
+                <span class="badge bg-danger"><%= word_data[:fail_count] %></span>
+              </td>
+
+              <td class="tw-p-2">
+                <div class="tw-max-w-xs">
+                  <% word_data[:mistaken_variants].first(3).each do |variant| %>
+                    <span class="qpc-hafs tw-mb-1">
+                      <%= variant %>
+                    </span>,
+                  <% end %>
+
+                  <% if word_data[:mistaken_variants].length > 3 %>
+                    <br>
+                    <span class="tw-text-xs tw-text-gray-500 tw-text-right">
+                      +<%= word_data[:mistaken_variants].length - 3 %> more
+                    </span>
+                  <% end %>
+                </div>
+              </td>
+
+              <td class="tw-p-2">
+                <div class="tw-max-w-xs">
+                  <% word_data[:reciter_ids].first(3).each do |reciter_id| %>
+                    <span class="badge bg-secondary tw-mr-1 tw-mb-1"><%= reciter_id %></span>
+                  <% end %>
+
+                  <% if word_data[:reciter_ids].length > 5 %>
+                    <span class="tw-text-xs tw-text-gray-500">
+                      +<%= word_data[:reciter_ids].length - 5 %> more
+                    </span>
+                  <% end %>
+                </div>
+              </td>
+
+              <td class="tw-p-2">
+                <div class="tw-max-w-xs">
+                  <% word_data[:surahs].first(3).each do |reciter_id| %>
+                    <span class="badge bg-secondary tw-mr-1 tw-mb-1"><%= reciter_id %></span>
+                  <% end %>
+
+                  <% if word_data[:surahs].length > 5 %>
+                    <span class="tw-text-xs tw-text-gray-500">
+                      +<%= word_data[:surahs].length - 5 %> more
+                    </span>
+                  <% end %>
+                </div>
+              </td>
+
+              <td class="tw-p-2">
+                <% word_data[:mistake_types].each do |type| %>
+                  <span class="badge bg-warning tw-mr-1 tw-mb-1"><%= type %></span>
+                <% end %>
+              </td>
+
+              <td class="tw-p-2">
+                <span class="badge bg-success"><%= word_data[:corrected_count] %></span>
+              </td>
+
+              <td class="tw-p-2">
+                <span class="badge bg-danger"><%= word_data[:pending_count] %></span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+

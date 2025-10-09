@@ -1,0 +1,5 @@
+wav_manifest = @presenter.wav_manifest
+
+wav_manifest.each do |surah, parts|
+ json.set! surah, parts
+end

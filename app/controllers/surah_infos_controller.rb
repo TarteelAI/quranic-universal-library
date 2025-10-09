@@ -2,7 +2,7 @@ class SurahInfosController < CommunityController
   before_action :load_resource
   before_action :authenticate_user!, only: [:new, :edit, :update, :create]
   before_action :authorize_access!, only: [:new, :edit, :update, :create, :history, :changes]
-
+  before_action :init_presenter
   def index
     @surah_infos = ChapterInfo.order("chapter_id #{sort_order}").where(language: language)
 
@@ -76,5 +76,9 @@ class SurahInfosController < CommunityController
     # default will be English
     params[:language] = (params[:language].presence || params[:language_id].presence || 38).to_i
     @language = Language.find(params[:language])
+  end
+
+  def init_presenter
+    @presenter = SurahInfosPresenter.new(self)
   end
 end

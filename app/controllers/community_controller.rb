@@ -21,6 +21,7 @@ class CommunityController < ApplicationController
 
   def credits
     @contributors = Contributor.published
+    @github_contributors = GithubService.fetch_contributors(limit: 20)
   end
 
   def faq
@@ -33,6 +34,7 @@ class CommunityController < ApplicationController
 
   def chars_info
     require "unicode/name"
+    @presenter = CharInfoPresenter.new(self)
   end
 
   def svg_optimizer
@@ -67,5 +69,9 @@ class CommunityController < ApplicationController
         return redirect_to(root_path, notice: "Sorry you don't have permission to access this page.")
       end
     end
+  end
+
+  def init_presenter
+    @presenter = CommunityPresenter.new(self)
   end
 end

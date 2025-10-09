@@ -88,6 +88,8 @@ class Verse < QuranApiRecord
   has_many :stems, through: :words
   has_many :lemmas, through: :words
   has_many :phrase_verses, class_name: 'Morphology::PhraseVerse'
+  has_many :verse_topics
+  has_many :topics, through: :verse_topics
 
   has_many :arabic_transliterations
   has_many :word_translations, through: :words, source: 'word_translation'
@@ -101,6 +103,41 @@ class Verse < QuranApiRecord
   accepts_nested_attributes_for :word_translations
 
   alias_attribute :code_v4, :code_v2
+
+  def has_harooq_muqattaat?
+    [
+      '2:1',
+      '3:1',
+      '7:1',
+      '10:1',
+      '11:1',
+      '12:1',
+      '13:1',
+      '14:1',
+      '15:1',
+      '19:1',
+      '20:1',
+      '26:1',
+      '27:1',
+      '28:1',
+      '29:1',
+      '30:1',
+      '31:1',
+      '32:1',
+      '36:1',
+      '38:1',
+      '40:1',
+      '41:1',
+      '42:1',
+      '42:2',
+      '43:1',
+      '44:1',
+      '45:1',
+      '46:1',
+      '50:1',
+      '68:1'
+  ].include?(verse_key)
+  end 
 
   def to_s
     verse_key

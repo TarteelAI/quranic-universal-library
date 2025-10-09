@@ -61,14 +61,19 @@
   <div class="page-wrapper container-lg">
     <div data-controller="chars-info" class="page-section mb-3 mt-4 tw-w-full" style="position: relative;">
       <h2 class="tw-text-2xl tw-flex tw-justify-between tw-items-center">
-        <span>
-          Words containing <span class="qpc-hafs"><%= @char %></span>
-        </span>
-        <span>
+        <div>
+          Words containing
+
+          <span class="qpc-hafs">
+            <%= @char.chars.join(', ') %>
+          </span>
+        </div>
+
+        <div>
           <button class="btn btn-primary" id="toggle-issues">
             Toggle matched words
           </button>
-        </span>
+        </div>
       </h2>
 
       <div>

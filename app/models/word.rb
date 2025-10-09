@@ -311,7 +311,7 @@ class Word < QuranApiRecord
     end
 
     if saved_change_to_attribute?('text_qpc_nastaleeq') # QPC text with Quranwbw font
-      update_text_for_mushaf(13, text_qpc_nastaleeq)
+      update_text_for_mushaf([13, 23], text_qpc_nastaleeq)
       update_ayah_script('text_qpc_nastaleeq')
     end
 

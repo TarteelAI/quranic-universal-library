@@ -1,0 +1,59 @@
+<%
+  data = generate_word_match_quiz
+  pairs = data[:pairs]
+  left_words = data[:left_words]
+  right_translations = data[:right_translations]
+%>
+
+<div class="quiz p-4 rounded-3 word-match" data-controller="activities--word-match">
+  <div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+    <span class="fw-semibold">How to play:</span>
+    <span>Click a black dot to start a line and connect it to the matching dot.</span>
+  </div>
+
+  <div class="d-flex flex-column flex-md-row gap-5 position-relative" id="match-area">
+    <!-- Arabic Column -->
+    <div class="flex-fill">
+      <h3 class="mb-3 text-primary text-center tw-text-xl">Arabic</h3>
+      <div class="list-group border rounded shadow-sm" id="left-column">
+        <% left_words.each do |w| %>
+          <div class="list-group-item d-flex align-items-center justify-content-between qpc-hafs rounded-2 mb-2 border-0 shadow-sm"
+               data-id="<%= w[:id] %>">
+            <div class="d-flex align-items-center">
+              <span class="anchor-dot ms-3 bg-secondary rounded-circle" data-side="left"></span>
+              <span class="qpc-hafs fs-5 fw-semibold"><%= w[:text] %></span>
+            </div>
+            <div class="d-flex align-items-center gap-2"><span class="status-icon"></span></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Translation Column -->
+    <div class="flex-fill">
+      <h5 class="mb-3 text-success text-center tw-text-xl">Translations</h5>
+      <div class="list-group border rounded shadow-sm" id="right-column">
+        <% right_translations.each do |t| %>
+          <div class="list-group-item d-flex align-items-center justify-content-between rounded-2 mb-2 border-0 shadow-sm"
+               data-id="<%= t[:id] %>">
+            <div class="d-flex align-items-center">
+              <span class="anchor-dot me-3 bg-secondary rounded-circle" data-side="right"></span>
+              <span class="fs-6"><%= t[:text] %></span>
+            </div>
+            <div class="d-flex align-items-center gap-2"><span class="status-icon"></span></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- SVG overlay for connections -->
+    <svg id="match-svg" class="position-absolute top-0 start-0 w-100 h-100"></svg>
+  </div>
+
+  <!-- Progress -->
+  <div class="mt-3">
+    <div class="progress progress-thin">
+      <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+</div>

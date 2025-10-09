@@ -174,6 +174,7 @@ ActiveAdmin.register Recitation do
       row :created_at
       row :updated_at
     end
+    active_admin_comments
   end
 
   form do |f|
@@ -225,12 +226,14 @@ ActiveAdmin.register Recitation do
     file_name = params[:file_name].presence || 'reciter-audio-timing.sqlite'
     table_name = params[:table_name].presence || 'ayah_timing'
     recitations_ids = params[:reciter_ids].split(',').compact_blank
+    export_gapless = params[:export_gapless] == '1'
 
-    Export::AyahRecitationSegmentsJob.perform_later(
+    Audio::ExportAudioSegmentsJob.perform_later(
       file_name: file_name,
       table_name: table_name,
       user_id: current_user.id,
-      recitations_ids: recitations_ids
+      recitations_ids: recitations_ids,
+      gapless: export_gapless
     )
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq

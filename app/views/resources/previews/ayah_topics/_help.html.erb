@@ -1,0 +1,48 @@
+<div class="tw-space-y-6 tw-text-gray-800 tw-text-base tw-leading-relaxed">
+  <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900">About Ayah Topics</h2>
+  <p>
+    Each verse can be associated with multiple topics across all three categories: ontological, thematic, and general. 
+    The topics are organized hierarchically, meaning each topic may have parent topics and child
+    topics.
+  </p>
+
+  <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900">Database Structure</h3>
+
+  <p>The QUL exports ayah topics data as a SQLite database with the following structure:</p>
+
+  <ul class="tw-list-disc tw-pl-6 tw-space-y-2">
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">topic_id</code>: 
+      Unique identifier for the topic
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">topic_name</code>: 
+      The English name of the topic
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">arabic_name</code>: 
+      The Arabic name or transliteration of the topic (if available)
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">verse_key</code>: 
+      The verse identifier in format "chapter:verse" (e.g., "2:255")
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">is_ontology</code>: 
+      Boolean indicating if this is an ontology topic
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">is_thematic</code>: 
+      Boolean indicating if this is a thematic topic
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">parent_topic_id</code>: 
+      ID of the parent topic (for hierarchical organization)
+    </li>
+    <li>
+      <code class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">description</code>: 
+      Detailed description of what the topic encompasses
+    </li>
+  </ul>
+</div>
+

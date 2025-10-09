@@ -21,11 +21,3 @@
 
   <%= render 'card/info-tip', tip: card.info_tip if card.respond_to?(:info_tip) && card.info_tip.present? %>
 </div>
-
-<% if local_assigns[:show_activity_cta] %>
-  <div class="tw-flex tw-items-center tw-justify-center tw-w-full tw-mt-8">
-    <div class="tw-text-center tw-bg-green-600 tw-text-white tw-py-2 tw-px-4 tw-w-full tw-font-semibold tw-rounded-lg">
-      <span>Let's go</span>
-    </div>
-  </div>
-<% end %>

@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   # Quran Explorer routes
   get 'explorer', to: 'quran_explorer#index', as: :quran_explorer
   get 'explorer/surah/:surah_id', to: 'quran_explorer#surah', as: :quran_explorer_surah
+  get 'explorer/surah/:surah_id/about', to: 'quran_explorer#about_surah', as: :quran_explorer_about_surah
   get 'explorer/surah/:surah_id/ayah/:ayah_id', to: 'quran_explorer#ayah', as: :quran_explorer_ayah
   get 'explorer/surah/:surah_id/ayah/:ayah_id/word/:word_position', to: 'quran_explorer#word', as: :quran_explorer_word
   get 'explorer/verse/:verse_key', to: 'quran_explorer#ayah', as: :quran_explorer_verse

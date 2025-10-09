@@ -1,14 +1,36 @@
 class QuranExplorerController < ApplicationController
-  before_action :load_chapter, only: [:surah, :ayah]
+  before_action :load_chapter, only: [:surah, :about_surah, :ayah, :word]
   before_action :load_verse, only: [:ayah, :word]
   before_action :load_word, only: [:word]
 
   def index
-    @chapters = Chapter.includes(:translated_names).order(:chapter_number)
+    @chapters = Chapter.includes(translated_names: :language, verses: [])
+    
+    # Handle sorting
+    sort_field = params[:sort] || 'chapter_number'
+    sort_direction = params[:direction] == 'desc' ? :desc : :asc
+    
+    case sort_field
+    when 'name_simple'
+      @chapters = @chapters.order(name_simple: sort_direction)
+    when 'name_arabic'
+      @chapters = @chapters.order(name_arabic: sort_direction)
+    when 'revelation_order'
+      @chapters = @chapters.order(revelation_order: sort_direction)
+    when 'verses_count'
+      @chapters = @chapters.order(verses_count: sort_direction)
+    when 'revelation_place'
+      @chapters = @chapters.order(revelation_place: sort_direction)
+    when 'rukus_count'
+      @chapters = @chapters.order(rukus_count: sort_direction)
+    when 'hizbs_count'
+      @chapters = @chapters.order(hizbs_count: sort_direction)
+    else
+      @chapters = @chapters.order(chapter_number: sort_direction)
+    end
   end
 
   def surah
-    @chapter_info = ChapterInfo.where(chapter_id: @chapter.id, language_id: 38).first # English
     @verses = @chapter.verses.includes(:translations, :audio_files).limit(10)
     @stats = {
       verses_count: @chapter.verses_count,
@@ -19,6 +41,10 @@ class QuranExplorerController < ApplicationController
   rescue => e
     Rails.logger.error "Error loading surah #{@chapter.id}: #{e.message}"
     @stats = { verses_count: 0, words_count: 0, pages: 'N/A', rukus_count: 'N/A' }
+  end
+
+  def about_surah
+    @chapter_info = ChapterInfo.where(chapter_id: @chapter.id, language_id: 38).first # English
   end
 
   def ayah

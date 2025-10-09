@@ -1,0 +1,18 @@
+<div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6">
+  <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900 tw-mb-4">About This Surah</h2>
+  <% if @chapter_info %>
+    <% if @chapter_info.short_text.present? %>
+      <div class="tw-text-gray-700 tw-mb-4">
+        <%= simple_format(@chapter_info.short_text) %>
+      </div>
+    <% end %>
+    <% if @chapter_info.text.present? %>
+      <div class="tw-text-gray-700 prose tw-max-w-none">
+        <%= raw(@chapter_info.text) %>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="tw-text-gray-600">No information available for this surah.</p>
+  <% end %>
+</div>
+

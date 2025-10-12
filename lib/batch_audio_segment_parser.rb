@@ -2,29 +2,59 @@ require 'find'
 require 'fileutils'
 
 =begin
-p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/data/vs_logs", reset_db: false)
+# Basic workflow
+p = BatchAudioSegmentParser.new(data_directory: "/Volumes/Data/qul-segments/11oct/vs_logs", reset_db: false)
 
 p.validate_log_files
 p.remove_duplicate_files
-
+p.group_files_by_reciter
 p.process_all_files
 
 1.upto(114) do |i|
-  p.process_reciter(reciter: 65, surah: 1)
+  p.process_reciter(reciter: 1, surah: 3)
 end
 
+# Method 1: Adjust boundaries using full audio silence detection
 p.segmented_recitations.each do |r|
-1.upto(114) do |i|
-  p.prepare_ayah_boundaries(reciter: r.id, surah: i)
-end
+  1.upto(114) do |i|
+  end
 end
 
+# Method 2: Refine using boundary-focused silence detection with per-gap thresholds (recommended)
+# Step 1: Export boundaries
+p.export_ayah_boundaries(reciter: 65, surah: 1)
+
+# Step 2: Calculate per-gap thresholds (in terminal):
+# python calculate_gap_thresholds.py audio.mp3 boundaries/65_1.json -o gap_config.json
+
+# Step 3: Detect silences with per-gap thresholds (simplified - paths in config):
+# python find_boundary_silences.py --gap-thresholds gap_config.json \
+#   --exclude-overlapping --min-duration 30 -o silences.json
+
+# Step 4: Refine using detected silences
+p.refine_boundaries_with_detected_silences(
+  reciter: 65,
+  surah: 1,
+  silences_file: 'tools/waveform-ayah-segments/silences.json'
+)
+
+# Validate boundaries (check for overlaps)
+p.validate_boundaries(reciter: 65, surah: 1)
+
+# Fix any overlaps found
+p.fix_overlaps(reciter: 65, surah: 1)
+
+# Export all for batch processing
+p.export_all_boundaries(reciter: 65)
+
+p.cleanup_duplicate_failures
 p.seed_reciters
 =end
 
 class BatchAudioSegmentParser
   attr_accessor :files_with_issues,
                 :data_directory
+  MIN_GAP_BETWEEN_AYAHS = 80 # milliseconds - minimum gap to maintain between ayahs
 
   def initialize(data_directory:, reset_db: true)
     @data_directory = data_directory
@@ -76,8 +106,18 @@ class BatchAudioSegmentParser
         files_with_sizes = files.map do |path|
           size_bytes = File.size(path)
           size_kb = (size_bytes.to_f / 1024).round(2)
-          { path: path, size_bytes: size_bytes, size_kb: size_kb }
-        end.sort_by { |file_info| -file_info[:size_bytes] }
+          data = Oj.load(File.read(path)) rescue []
+          positions = data.select { |entry| entry['type'] == 'POSITION' }
+
+          {
+            path: path,
+            size_bytes: size_bytes,
+            size_kb: size_kb,
+            positions: positions.size
+          }
+        end
+
+        files_with_sizes = files_with_sizes.sort_by { |file_info| [-file_info[:positions], -file_info[:size_bytes]] }
 
         files_with_sizes.each_with_index do |file_info, index|
           puts "  #{file_info[:path]} - #{file_info[:size_kb]} KB"
@@ -100,6 +140,7 @@ class BatchAudioSegmentParser
     files = validate_log_files
     return if files.empty?
     puts "Removing #{files.length} duplicate files and their folders"
+    FileUtils.mkdir_p("#{@data_directory.gsub('vs_logs', '')}/duplicate_files")
 
     files.each do |file_path|
       folder = File.dirname(file_path)
@@ -114,8 +155,7 @@ class BatchAudioSegmentParser
   end
 
   def prepare_ayah_boundaries(reciter:, surah:)
-
-    silence_file_path = "#{@data_directory.gsub('vs_logs', '')}silences/#{reciter}/#{surah}_silences.json"
+    silence_file_path = "#{@data_directory.gsub('vs_logs', '')}silences/#{reciter}/#{surah}.json"
     if !File.exist?(silence_file_path)
       puts "Silence file not found: #{silence_file_path}, skipping Surah #{surah} for Reciter #{reciter}"
       return
@@ -144,6 +184,7 @@ class BatchAudioSegmentParser
       end
 
       gap_found = false
+
       if preceding_silences.any?
         # Get the silence that ends closest to the ayah start time
         closest_silence = preceding_silences.max_by { |silence| silence['end_time'] }
@@ -229,21 +270,341 @@ class BatchAudioSegmentParser
     end
   end
 
+  # Refine ayah boundaries using detected silences from find_boundary_silences.py
+  # This method uses the output of Python's boundary-focused silence detection
+  # to make precise adjustments based on actual silences around each ayah
+  def refine_boundaries_with_detected_silences(reciter:, surah:, silences_file:)
+    unless File.exist?(silences_file)
+      puts "Silences file not found: #{silences_file}"
+      return
+    end
+
+    boundary_silences = Oj.load(File.read(silences_file))
+    ayah_segments = Segments::AyahBoundary
+                      .where(reciter_id: reciter, surah_number: surah)
+                      .order('ayah_number asc')
+
+    return if ayah_segments.empty?
+
+    result = []
+
+    boundary_silences.each_with_index do |ayah_data, index|
+      ayah_number = ayah_data['ayah']
+      ayah = ayah_segments.find { |a| a.ayah_number == ayah_number }
+      
+      next unless ayah
+
+      # Filter out overlapping silences - only use before_start and after_end
+      useful_silences = ayah_data['silences'].reject { |s| s['position'] == 'overlapping' }
+      
+      before_silences = useful_silences.select { |s| s['position'] == 'before_start' }
+      after_silences = useful_silences.select { |s| s['position'] == 'after_end' }
+
+      ayah_result = {
+        ayah: ayah_number,
+        original_start: ayah.start_time,
+        original_end: ayah.end_time,
+        current_corrected_start: ayah.corrected_start_time,
+        current_corrected_end: ayah.corrected_end_time,
+        new_corrected_start: ayah.corrected_start_time,
+        new_corrected_end: ayah.corrected_end_time,
+        silence_before_used: nil,
+        silence_after_used: nil,
+        adjustment_notes: []
+      }
+
+      # For first ayah, always start at 0
+      if index == 0
+        ayah_result[:new_corrected_start] = 0
+        ayah_result[:adjustment_notes] << 'First ayah: start set to 0'
+      else
+        # For subsequent ayahs, use silence before start if available
+        if before_silences.any?
+          # Get previous ayah to check boundaries
+          prev_ayah_data = boundary_silences[index - 1]
+          prev_ayah = ayah_segments.find { |a| a.ayah_number == prev_ayah_data['ayah'] } if prev_ayah_data
+          
+          # Find closest silence before start
+          closest_before = before_silences.min_by { |s| s['distance_to_boundary'] }
+          
+          # Set start to silence end + MIN_GAP_BETWEEN_AYAHS
+          new_start = closest_before['end_time'] + MIN_GAP_BETWEEN_AYAHS
+          
+          # CRITICAL CHECKS:
+          # 1. Don't move start later than original
+          # 2. Don't move start before previous ayah's end (would create overlap)
+          
+          can_use_silence = new_start <= ayah.start_time
+          
+          # Also check against previous ayah's corrected end
+          if prev_ayah && can_use_silence
+            if new_start <= prev_ayah.corrected_end_time
+              can_use_silence = false
+              ayah_result[:adjustment_notes] << "Silence would place start before previous ayah end (#{prev_ayah.corrected_end_time}ms), keeping current"
+            end
+          end
+          
+          if can_use_silence
+            ayah_result[:new_corrected_start] = new_start
+            ayah_result[:silence_before_used] = closest_before
+            ayah_result[:adjustment_notes] << "Start adjusted using silence (end: #{closest_before['end_time']}ms)"
+          elsif new_start > ayah.start_time
+            ayah_result[:adjustment_notes] << "Silence would move start too late, keeping current"
+          end
+        else
+          ayah_result[:adjustment_notes] << 'No usable silence before start'
+        end
+      end
+
+      # Adjust end time using silence after end if available
+      if after_silences.any?
+        # Get next ayah to check boundaries
+        next_ayah_data = boundary_silences[index + 1] if index < boundary_silences.length - 1
+        next_ayah = ayah_segments.find { |a| a.ayah_number == next_ayah_data['ayah'] } if next_ayah_data
+        
+        # Find closest silence after end
+        closest_after = after_silences.min_by { |s| s['distance_to_boundary'] }
+        
+        # Extend end to silence start - MIN_GAP_BETWEEN_AYAHS
+        new_end = closest_after['start_time'] - MIN_GAP_BETWEEN_AYAHS
+        
+        # CRITICAL CHECKS:
+        # 1. Ensure we extend end time, not reduce it
+        # 2. Don't extend past next ayah's start (would create overlap)
+        
+        can_use_silence = new_end >= ayah.corrected_end_time
+        
+        # Check against next ayah's corrected start
+        if next_ayah && can_use_silence
+          if new_end >= next_ayah.corrected_start_time
+            can_use_silence = false
+            ayah_result[:adjustment_notes] << "Silence would extend end past next ayah start (#{next_ayah.corrected_start_time}ms), keeping current"
+          end
+        end
+        
+        if can_use_silence
+          ayah_result[:new_corrected_end] = new_end
+          ayah_result[:silence_after_used] = closest_after
+          ayah_result[:adjustment_notes] << "End extended using silence (start: #{closest_after['start_time']}ms)"
+        elsif new_end < ayah.corrected_end_time
+          ayah_result[:adjustment_notes] << "Silence would reduce end time, keeping current"
+        end
+      else
+        ayah_result[:adjustment_notes] << 'No usable silence after end'
+      end
+
+      # Update database
+      ayah.update_columns(
+        corrected_start_time: ayah_result[:new_corrected_start],
+        corrected_end_time: ayah_result[:new_corrected_end]
+      )
+
+      result << ayah_result
+    end
+
+    fix_boundary_overlaps(ayah_segments)
+
+    # Reload to get fixed values and prepare plot data
+    ayah_segments.each(&:reload)
+    
+    plot_data = []
+    ayah_segments.each_with_index do |ayah, idx|
+      # Find corresponding result data
+      result_data = result.find { |r| r[:ayah] == ayah.ayah_number }
+      
+      # Determine which silence was used (if any)
+      silence_used = nil
+      if result_data
+        if result_data[:silence_before_used]
+          silence_used = result_data[:silence_before_used]
+        elsif result_data[:silence_after_used]
+          silence_used = result_data[:silence_after_used]
+        end
+      end
+      
+      # Calculate gap to next ayah
+      gap_to_next = nil
+      if idx < ayah_segments.length - 1
+        next_ayah = ayah_segments[idx + 1]
+        gap_to_next = next_ayah.corrected_start_time - ayah.corrected_end_time
+      end
+      
+      plot_data << {
+        ayah: ayah.ayah_number,
+        start_time: ayah.start_time,
+        end_time: ayah.end_time,
+        silence_used: silence_used,
+        corrected_start_time: ayah.corrected_start_time,
+        corrected_end_time: ayah.corrected_end_time,
+        adjustment_method: result_data ? result_data[:adjustment_notes].join('; ') : 'refined_with_boundary_silences',
+        gap_to_next: gap_to_next
+      }
+    end
+
+    # Save detailed refinement results
+    FileUtils.mkdir_p("tools/waveform-ayah-segments/result/#{reciter}_refined") unless Dir.exist?("tools/waveform-ayah-segments/result/#{reciter}_refined")
+    File.open("tools/waveform-ayah-segments/result/#{reciter}_refined/#{surah}.json", "wb") do |file|
+      file.puts Oj.dump(result, mode: :compat)
+    end
+
+    # ALSO save in v2_plot_data format for plot_gaps_v2.html
+    FileUtils.mkdir_p("tools/waveform-ayah-segments/result/#{reciter}_v2_plot_data") unless Dir.exist?("tools/waveform-ayah-segments/result/#{reciter}_v2_plot_data")
+    File.open("tools/waveform-ayah-segments/result/#{reciter}_v2_plot_data/#{surah}.json", "wb") do |file|
+      file.puts Oj.dump(plot_data, mode: :compat)
+    end
+
+    puts "\nRefinement Summary:"
+    result.each do |r|
+      start_change = r[:new_corrected_start] - r[:current_corrected_start]
+      end_change = r[:new_corrected_end] - r[:current_corrected_end]
+      
+      if start_change != 0 || end_change != 0
+        puts "Ayah #{r[:ayah]}:"
+        puts "  Start: #{r[:current_corrected_start]}ms → #{r[:new_corrected_start]}ms (#{start_change > 0 ? '+' : ''}#{start_change}ms)" if start_change != 0
+        puts "  End: #{r[:current_corrected_end]}ms → #{r[:new_corrected_end]}ms (#{end_change > 0 ? '+' : ''}#{end_change}ms)" if end_change != 0
+        r[:adjustment_notes].each { |note| puts "    - #{note}" }
+      end
+    end
+
+    puts "\n✓ Results saved:"
+    puts "  Detailed: tools/waveform-ayah-segments/result/#{reciter}_refined/#{surah}.json"
+    puts "  Plot data: tools/waveform-ayah-segments/result/#{reciter}_v2_plot_data/#{surah}.json"
+    puts "\nView in browser:"
+    puts "  file:///#{Dir.pwd}/tools/plot_gaps_v2.html?reciter=#{reciter}&surah=#{surah}"
+
+    result
+  end
+
+  # Export ayah boundaries to JSON format for use with Python silence detection tools
+  # Exports both original and corrected (final) timings
+  def export_ayah_boundaries(reciter:, surah:, output_dir: nil)
+    output_dir ||= "tools/waveform-ayah-segments/boundaries"
+    FileUtils.mkdir_p(output_dir) unless Dir.exist?(output_dir)
+
+    ayah_segments = Segments::AyahBoundary
+                      .where(reciter_id: reciter, surah_number: surah)
+                      .order('ayah_number asc')
+
+    if ayah_segments.empty?
+      puts "No boundaries found for Reciter #{reciter}, Surah #{surah}"
+      return nil
+    end
+
+    # Export data with both original and corrected timings
+    boundaries_data = ayah_segments.map do |ayah|
+      {
+        ayah: ayah.ayah_number,
+        start_time: ayah.start_time,
+        end_time: ayah.end_time,
+        #corrected_start_time: ayah.corrected_start_time,
+        #corrected_end_time: ayah.corrected_end_time
+      }
+    end
+
+    output_file = "#{output_dir}/#{reciter}_#{surah}.json"
+    File.open(output_file, "w") do |file|
+      file.puts Oj.dump(boundaries_data, mode: :compat)
+    end
+
+    puts "✓ Exported #{ayah_segments.count} boundaries to: #{output_file}"
+    puts "\nUse with Python tools:"
+    puts "  python tools/waveform-ayah-segments/find_boundary_silences.py \\"
+    puts "    path/to/audio.mp3 \\"
+    puts "    #{output_file}"
+
+    output_file
+  end
+
+  # Fix overlaps for specific reciter and surah (can be called standalone)
+  def fix_overlaps(reciter:, surah:)
+    ayah_segments = Segments::AyahBoundary
+                      .where(reciter_id: reciter, surah_number: surah)
+                      .order('ayah_number asc')
+
+    if ayah_segments.empty?
+      puts "No boundaries found for Reciter #{reciter}, Surah #{surah}"
+      return
+    end
+
+    puts "Checking for overlaps in Reciter #{reciter}, Surah #{surah}..."
+    fix_boundary_overlaps(ayah_segments)
+  end
+
+  # Validate ayah boundaries for overlaps and gaps
+  # Returns true if all boundaries are valid, false otherwise
+  def validate_boundaries(reciter:, surah:)
+    ayah_segments = Segments::AyahBoundary
+                      .where(reciter_id: reciter, surah_number: surah)
+                      .order('ayah_number asc')
+
+    return true if ayah_segments.length < 2
+
+    issues = []
+
+    ayah_segments.each_with_index do |ayah, index|
+      next if index >= ayah_segments.length - 1
+
+      next_ayah = ayah_segments[index + 1]
+      
+      # Check for overlap
+      if ayah.corrected_end_time > next_ayah.corrected_start_time
+        overlap = ayah.corrected_end_time - next_ayah.corrected_start_time
+        issues << "Ayah #{ayah.ayah_number}: end (#{ayah.corrected_end_time}ms) > Ayah #{next_ayah.ayah_number} start (#{next_ayah.corrected_start_time}ms) - Overlap: #{overlap}ms"
+      end
+      
+      # Check for minimum gap
+      gap = next_ayah.corrected_start_time - ayah.corrected_end_time
+      if gap >= 0 && gap < MIN_GAP_BETWEEN_AYAHS
+        issues << "Ayah #{ayah.ayah_number} → #{next_ayah.ayah_number}: Gap too small (#{gap}ms < #{MIN_GAP_BETWEEN_AYAHS}ms)"
+      end
+    end
+
+    if issues.any?
+      puts "\n⚠️  Boundary validation issues found:"
+      issues.each { |issue| puts "  - #{issue}" }
+      puts "\nRun fix_boundary_overlaps to fix these issues"
+      return false
+    else
+      puts "✓ All boundaries valid (no overlaps, minimum gaps maintained)"
+      return true
+    end
+  end
+
+  # Export boundaries for all surahs of a reciter
+  def export_all_boundaries(reciter:, output_dir: nil)
+    output_dir ||= "tools/waveform-ayah-segments/boundaries"
+    FileUtils.mkdir_p(output_dir) unless Dir.exist?(output_dir)
+
+    surahs = Segments::AyahBoundary
+               .where(reciter_id: reciter)
+               .pluck(:surah_number)
+               .uniq
+               .sort
+
+    if surahs.empty?
+      puts "No boundaries found for Reciter #{reciter}"
+      return []
+    end
+
+    puts "Exporting boundaries for Reciter #{reciter}..."
+    exported_files = []
+
+    surahs.each do |surah_number|
+      file = export_ayah_boundaries(reciter: reciter, surah: surah_number, output_dir: output_dir)
+      exported_files << file if file
+      print "."
+    end
+
+    puts "\n✓ Exported #{exported_files.count} surah boundaries to: #{output_dir}/"
+    exported_files
+  end
+
   def seed_reciters
     segmented_recitations.each do |recitation|
       chapters = Segments::Position.where(reciter_id: recitation.id).pluck(:surah_number).uniq
-      uri = URI("https://qul.tarteel.ai/api/v1/audio/surah_recitations/#{recitation.id}?t=#{Time.now.to_i}")
-      response = Net::HTTP.get_response(uri)
-      data = JSON.parse(response.body)
-      audio_urls = []
-      audio_files = data.dig("recitation", "audio_files")
-      audio_files.each do |surah, info|
-        audio_urls << info["audio_url"]
-      end
 
       Segments::Reciter.where(id: recitation.id).first_or_create(
         name: recitation.humanize,
-        audio_urls: audio_urls.join(','),
         segmented_chapters: chapters.join(',')
       )
     end
@@ -276,6 +637,71 @@ class BatchAudioSegmentParser
       process_file(file_path)
     end
     after_processing_summary
+  end
+
+  def group_files_by_reciter
+    files = filter_segments_files
+    
+    # Group files by reciter ID
+    files_by_reciter = files.group_by do |file_path|
+      folder_name = File.basename(File.dirname(file_path))
+      # Extract reciter ID from folder name (first 3 digits)
+      folder_name[0..2].to_i
+    end
+    
+    puts "Found files for #{files_by_reciter.keys.size} reciters"
+    
+    files_by_reciter.each do |reciter_id, reciter_files|
+      puts "Processing reciter ID: #{reciter_id} with #{reciter_files.size} files"
+      
+      reciter_folder = File.join(@data_directory, reciter_id.to_s)
+      FileUtils.mkdir_p(reciter_folder) unless Dir.exist?(reciter_folder)
+      
+      reciter_files.each do |file_path|
+        source_folder = File.dirname(file_path)
+        folder_name = File.basename(source_folder)
+        destination_folder = File.join(reciter_folder, folder_name)
+        
+        next if source_folder == destination_folder
+        
+        begin
+          if Dir.exist?(destination_folder)
+            puts "  Destination folder already exists: #{destination_folder}, skipping..."
+          else
+            FileUtils.mv(source_folder, destination_folder)
+            puts "  Moved: #{folder_name} -> #{reciter_folder}/"
+          end
+        rescue => e
+          puts "  Error moving #{source_folder}: #{e.message}"
+        end
+      end
+      
+      log_directory = @data_directory.gsub('vs_logs', 'logs')
+      if Dir.exist?(log_directory)
+        reciter_log_folder = File.join(log_directory, reciter_id.to_s)
+        FileUtils.mkdir_p(reciter_log_folder) unless Dir.exist?(reciter_log_folder)
+        
+        reciter_files.each do |file_path|
+          folder_name = File.basename(File.dirname(file_path))
+          log_file = File.join(log_directory, "#{folder_name}.log")
+          
+          if File.exist?(log_file)
+            destination_log = File.join(reciter_log_folder, "#{folder_name}.log")
+            
+            unless File.exist?(destination_log)
+              begin
+                FileUtils.mv(log_file, destination_log)
+                puts "  Moved log: #{folder_name}.log -> #{reciter_log_folder}/"
+              rescue => e
+                puts "  Error moving log file #{log_file}: #{e.message}"
+              end
+            end
+          end
+        end
+      end
+    end
+    
+    puts "Grouping complete!"
   end
 
   def segmented_recitations
@@ -462,6 +888,60 @@ class BatchAudioSegmentParser
   end
 
   private
+
+  # Validate and fix any overlaps between ayah boundaries
+  # Ensures corrected_end_time <= next ayah's corrected_start_time
+  def fix_boundary_overlaps(ayah_segments)
+    return if ayah_segments.length < 2
+
+    overlaps_fixed = 0
+
+    # Reload to get latest values
+    ayah_segments.each(&:reload)
+
+    ayah_segments.each_with_index do |ayah, index|
+      next if index >= ayah_segments.length - 1  # Skip last ayah
+
+      next_ayah = ayah_segments[index + 1]
+      
+      # Check for overlap (>= because touching boundaries with 0 gap is also an issue)
+      if ayah.corrected_end_time >= next_ayah.corrected_start_time
+        overlap = ayah.corrected_end_time - next_ayah.corrected_start_time
+        
+        puts "⚠️  Overlap detected: Ayah #{ayah.ayah_number} end (#{ayah.corrected_end_time}ms) >= Ayah #{next_ayah.ayah_number} start (#{next_ayah.corrected_start_time}ms)"
+        puts "    Overlap/Touch: #{overlap}ms"
+        
+        # Fix: Set current ayah end to next ayah start - MIN_GAP_BETWEEN_AYAHS
+        #new_end_time = next_ayah.corrected_start_time - MIN_GAP_BETWEEN_AYAHS
+        new_end_time = next_ayah.corrected_start_time - [MIN_GAP_BETWEEN_AYAHS, overlap].max
+        # Ensure we don't reduce end time below original
+        #new_end_time = [new_end_time, ayah.end_time].max
+        
+        puts "    Fixing: Setting Ayah #{ayah.ayah_number} end to #{new_end_time}ms (gap: #{next_ayah.corrected_start_time - new_end_time}ms)"
+        
+        ayah.update_column(:corrected_end_time, new_end_time)
+        overlaps_fixed += 1
+      end
+      
+      # Also check for minimum gap
+      gap = next_ayah.corrected_start_time - ayah.corrected_end_time
+      if gap < MIN_GAP_BETWEEN_AYAHS && gap >= 0
+        puts "⚠️  Small gap detected: #{gap}ms between Ayah #{ayah.ayah_number} and #{next_ayah.ayah_number}"
+        puts "    Adjusting to maintain #{MIN_GAP_BETWEEN_AYAHS}ms minimum gap"
+        
+        # Adjust current ayah end to create minimum gap
+        #new_end_time = next_ayah.corrected_start_time - MIN_GAP_BETWEEN_AYAHS
+        #new_end_time = [new_end_time, ayah.end_time].max
+        
+        #ayah.update_column(:corrected_end_time, new_end_time)
+        overlaps_fixed += 1
+      end
+    end
+
+    if overlaps_fixed > 0
+      puts "\n✓ Fixed #{overlaps_fixed} overlap(s) or gap(s)"
+    end
+  end
 
   def parse_reciter_and_surah_id(filename)
     reciter_id = filename[0..2].to_i

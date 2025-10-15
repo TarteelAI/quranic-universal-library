@@ -438,6 +438,156 @@
             margin-top: 10px;
         }
 
+        .audio-seek-control {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 2px solid #57d798;
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 600px;
+            display: none;
+        }
+
+        .audio-seek-control.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .seek-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .seek-title {
+            font-weight: bold;
+            color: #57d798;
+            font-size: 1.1em;
+        }
+
+        .seek-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #5a6c7d;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        .seek-close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .seek-slider-container {
+            margin: 15px 0;
+        }
+
+        .seek-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e1e8ed;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .seek-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .seek-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
+        }
+
+        .seek-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .seek-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
+        }
+
+        .seek-time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #5a6c7d;
+            margin-top: 8px;
+        }
+
+        .seek-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .seek-control-btn {
+            background: white;
+            border: 2px solid #e1e8ed;
+            color: #2c3e50;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .seek-control-btn:hover {
+            border-color: #57d798;
+            background: #f8f9fa;
+        }
+
+        .seek-control-btn.primary {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            border: none;
+            color: white;
+        }
+
+        .seek-control-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+        }
+
         .selector-panel {
             background: #f8f9fa;
             border-radius: 15px;
@@ -694,7 +844,7 @@
             <div id="audioFileName" class="audio-info"></div>
             <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
             <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
-                💡 Tip: Use Space/Esc to stop playback | +/- to zoom | 0 to reset
+                💡 Tip: Space/Esc to stop | Arrow keys to skip | +/- to zoom | 0 to reset
             </div>
         </div>
 
@@ -761,6 +911,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Audio Seek Control (appears when playing audio) -->
+    <div id="audioSeekControl" class="audio-seek-control">
+        <div class="seek-header">
+            <div class="seek-title" id="seekTitle">Playing Audio Segment</div>
+            <button class="seek-close" onclick="stopAudioPlayback()">×</button>
+        </div>
+        <div class="seek-slider-container">
+            <input type="range" id="seekSlider" class="seek-slider" min="0" max="100" value="0" step="0.1">
+            <div class="seek-time-display">
+                <span id="currentTime">0:00</span>
+                <span id="totalDuration">0:00</span>
+            </div>
+        </div>
+        <div class="seek-controls">
+            <button class="seek-control-btn" onclick="skipBackward()">⏪ -5s</button>
+            <button class="seek-control-btn primary" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
+            <button class="seek-control-btn" onclick="skipForward()">⏩ +5s</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -773,6 +943,12 @@
   let currentlyPlaying = null;
   let sortColumn = null; // 'ayah', 'duration', null
   let sortOrder = 'none'; // 'none', 'asc', 'desc'
+  
+  // Audio seek control variables
+  let currentSegmentStart = 0;
+  let currentSegmentEnd = 0;
+  let seekUpdateInterval = null;
+  let isUserSeeking = false;
 
   function escapeHtml(str) {
     return String(str)
@@ -874,7 +1050,7 @@
       audioElement.pause();
       btn.textContent = btn.textContent.replace('⏸', '▶️');
       btn.classList.remove('playing');
-      currentlyPlaying = null;
+      document.getElementById('playPauseBtn').innerHTML = '▶️ Play';
       return;
     }
 
@@ -887,6 +1063,24 @@
       }
     }
 
+    // Store segment boundaries
+    currentSegmentStart = startMs;
+    currentSegmentEnd = endMs;
+
+    // Set up seek control UI
+    const seekControl = document.getElementById('audioSeekControl');
+    const seekSlider = document.getElementById('seekSlider');
+    const seekTitle = document.getElementById('seekTitle');
+    const totalDuration = document.getElementById('totalDuration');
+    
+    const segmentDuration = (endMs - startMs) / 1000;
+    seekTitle.textContent = `Playing Audio Segment (${formatTime(endMs - startMs)})`;
+    totalDuration.textContent = formatTimeShort(segmentDuration);
+    seekSlider.value = 0;
+    
+    // Show seek control
+    seekControl.classList.add('active');
+
     // Play the new segment
     audioElement.currentTime = startMs / 1000;
     audioElement.play();
@@ -894,18 +1088,138 @@
     btn.textContent = btn.textContent.replace('▶️', '⏸');
     btn.classList.add('playing');
     currentlyPlaying = buttonId;
+    
+    document.getElementById('playPauseBtn').innerHTML = '⏸ Pause';
 
-    // Stop at end time
-    const checkTime = setInterval(() => {
-      if (audioElement.currentTime >= endMs / 1000) {
-        audioElement.pause();
-        btn.textContent = btn.textContent.replace('⏸', '▶️');
-        btn.classList.remove('playing');
-        currentlyPlaying = null;
-        clearInterval(checkTime);
+    // Clear any existing update interval
+    if (seekUpdateInterval) {
+      clearInterval(seekUpdateInterval);
+    }
+
+    // Update slider position as audio plays
+    seekUpdateInterval = setInterval(() => {
+      if (!isUserSeeking && audioElement && !audioElement.paused) {
+        const currentPos = audioElement.currentTime * 1000;
+        const relativePos = currentPos - startMs;
+        const progress = (relativePos / (endMs - startMs)) * 100;
+        
+        seekSlider.value = Math.max(0, Math.min(100, progress));
+        document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+        
+        // Stop at end time
+        if (audioElement.currentTime >= endMs / 1000) {
+          stopAudioPlayback();
+        }
       }
     }, 50);
   }
+
+  function stopAudioPlayback() {
+    if (audioElement) {
+      audioElement.pause();
+    }
+    
+    if (currentlyPlaying) {
+      const btn = document.getElementById(currentlyPlaying);
+      if (btn) {
+        btn.textContent = btn.textContent.replace('⏸', '▶️');
+        btn.classList.remove('playing');
+      }
+      currentlyPlaying = null;
+    }
+    
+    if (seekUpdateInterval) {
+      clearInterval(seekUpdateInterval);
+      seekUpdateInterval = null;
+    }
+    
+    document.getElementById('audioSeekControl').classList.remove('active');
+  }
+
+  function togglePlayPause() {
+    if (!audioElement) return;
+    
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    
+    if (audioElement.paused) {
+      audioElement.play();
+      playPauseBtn.innerHTML = '⏸ Pause';
+      
+      if (currentlyPlaying) {
+        const btn = document.getElementById(currentlyPlaying);
+        if (btn) {
+          btn.textContent = btn.textContent.replace('▶️', '⏸');
+          btn.classList.add('playing');
+        }
+      }
+    } else {
+      audioElement.pause();
+      playPauseBtn.innerHTML = '▶️ Play';
+      
+      if (currentlyPlaying) {
+        const btn = document.getElementById(currentlyPlaying);
+        if (btn) {
+          btn.textContent = btn.textContent.replace('⏸', '▶️');
+          btn.classList.remove('playing');
+        }
+      }
+    }
+  }
+
+  function skipBackward() {
+    if (!audioElement) return;
+    
+    const newTime = Math.max(currentSegmentStart / 1000, audioElement.currentTime - 5);
+    audioElement.currentTime = newTime;
+    updateSeekSlider();
+  }
+
+  function skipForward() {
+    if (!audioElement) return;
+    
+    const newTime = Math.min(currentSegmentEnd / 1000, audioElement.currentTime + 5);
+    audioElement.currentTime = newTime;
+    updateSeekSlider();
+  }
+
+  function updateSeekSlider() {
+    const currentPos = audioElement.currentTime * 1000;
+    const relativePos = currentPos - currentSegmentStart;
+    const progress = (relativePos / (currentSegmentEnd - currentSegmentStart)) * 100;
+    
+    document.getElementById('seekSlider').value = Math.max(0, Math.min(100, progress));
+    document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+  }
+
+  function formatTimeShort(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // Initialize seek slider event listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    const seekSlider = document.getElementById('seekSlider');
+    
+    seekSlider.addEventListener('input', (e) => {
+      isUserSeeking = true;
+      const progress = parseFloat(e.target.value) / 100;
+      const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
+      document.getElementById('currentTime').textContent = formatTimeShort((newTime - currentSegmentStart) / 1000);
+    });
+    
+    seekSlider.addEventListener('change', (e) => {
+      if (!audioElement) return;
+      
+      const progress = parseFloat(e.target.value) / 100;
+      const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
+      audioElement.currentTime = newTime / 1000;
+      
+      setTimeout(() => {
+        isUserSeeking = false;
+      }, 100);
+    });
+  });
 
   // Initialize the application
   let selectedReciter = null;
@@ -1626,13 +1940,17 @@
       e.preventDefault();
       // Stop audio playback
       if (audioElement && currentlyPlaying) {
-        audioElement.pause();
-        const btn = document.getElementById(currentlyPlaying);
-        if (btn) {
-          btn.textContent = btn.textContent.replace('⏸', '▶️');
-          btn.classList.remove('playing');
-        }
-        currentlyPlaying = null;
+        stopAudioPlayback();
+      }
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (audioElement && currentlyPlaying) {
+        skipBackward();
+      }
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (audioElement && currentlyPlaying) {
+        skipForward();
       }
     }
   });
@@ -1644,6 +1962,8 @@
     - : Zoom Out
     0 : Reset Zoom
     Space or Escape : Stop Audio Playback
+    Arrow Left : Skip Backward 5s
+    Arrow Right : Skip Forward 5s
   `);
 </script>
 </body>

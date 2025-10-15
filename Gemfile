@@ -110,7 +110,7 @@ group :development do
   gem "letter_opener"
 end
 
-gem 'carrierwave', '~> 2.2.6'
+gem 'carrierwave', '~> 3.0'
 gem 'fog-aws'
 
 gem 'rest-client'

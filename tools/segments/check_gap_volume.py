@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Quick utility to check the volume level in gaps between ayahs.
-Helps diagnose why silence detection isn't working.
 """
 
 import sys
@@ -23,14 +22,9 @@ if len(sys.argv) < 3:
 audio_file = sys.argv[1]
 boundaries_file = sys.argv[2]
 
-print(f"Loading audio: {audio_file}")
 audio = AudioSegment.from_file(audio_file)
-print(f"✓ Loaded: {len(audio) / 1000:.2f}s\n")
-
-print(f"Loading boundaries: {boundaries_file}")
 with open(boundaries_file) as f:
     boundaries = json.load(f)
-print(f"✓ Loaded: {len(boundaries)} boundaries\n")
 
 print("=" * 80)
 print("GAP VOLUME ANALYSIS")
@@ -40,9 +34,8 @@ for i in range(len(boundaries) - 1):
     current = boundaries[i]
     next_ayah = boundaries[i + 1]
     
-    # Use corrected times if available, otherwise original
-    current_end = current.get('corrected_end_time') or current.get('end_time')
-    next_start = next_ayah.get('corrected_start_time') or next_ayah.get('start_time')
+    current_end = current.get('end_time')
+    next_start = next_ayah.get('start_time')
     
     gap_duration = next_start - current_end
     

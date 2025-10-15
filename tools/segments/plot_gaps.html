@@ -502,19 +502,108 @@
             margin: 15px 0;
         }
 
+        .waveform-container {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #e1e8ed;
+            transition: border-color 0.2s ease;
+        }
+
+        .waveform-container:hover {
+            border-color: #57d798;
+        }
+
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .waveform-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background: rgba(53, 247, 135, 0.2);
+            pointer-events: none;
+            transition: width 0.05s linear;
+        }
+
+        .waveform-cursor {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #00a3ff;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(0, 163, 255, 0.6);
+        }
+
+        .waveform-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #5a6c7d;
+            font-size: 0.9em;
+            opacity: 0.7;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .waveform-toggle {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .waveform-toggle:hover {
+            background: white;
+            border-color: #57d798;
+        }
+
+        .waveform-hover-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0, 163, 255, 0.5);
+            pointer-events: none;
+            display: none;
+        }
+
+        .waveform-container:hover .waveform-hover-line {
+            display: block;
+        }
+
         .seek-slider {
             width: 100%;
             height: 8px;
             border-radius: 4px;
             background: #e1e8ed;
             outline: none;
+            appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
         }
 
         .seek-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
             appearance: none;
+            -webkit-appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -918,6 +1007,14 @@
             <div class="seek-title" id="seekTitle">Playing Audio Segment</div>
             <button class="seek-close" onclick="stopAudioPlayback()">×</button>
         </div>
+        <div class="waveform-container" id="waveformContainer" onclick="seekToWaveformPosition(event)" onmousemove="updateWaveformHover(event)" onmouseleave="hideWaveformHover()">
+            <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+            <div id="waveformProgress" class="waveform-progress"></div>
+            <div id="waveformCursor" class="waveform-cursor"></div>
+            <div id="waveformHoverLine" class="waveform-hover-line"></div>
+            <button id="waveformToggle" class="waveform-toggle" onclick="toggleWaveformView(event)" title="Toggle between segment and full audio view">Segment View</button>
+            <div id="waveformLoading" class="waveform-loading">Generating waveform...</div>
+        </div>
         <div class="seek-slider-container">
             <input type="range" id="seekSlider" class="seek-slider" min="0" max="100" value="0" step="0.1">
             <div class="seek-time-display">
@@ -949,6 +1046,12 @@
   let currentSegmentEnd = 0;
   let seekUpdateInterval = null;
   let isUserSeeking = false;
+  
+  // Waveform variables
+  let audioContext = null;
+  let waveformData = null;
+  let currentSegmentWaveform = null;
+  let showFullWaveform = false; // Toggle between segment and full waveform view
 
   function escapeHtml(str) {
     return String(str)
@@ -1023,6 +1126,9 @@
       audioFileName.innerHTML = `
         ✓ Loaded: <strong>${escapeHtml(file.name)}</strong> (${formatTime(audioElement.duration * 1000)})
       `;
+      
+      // Generate waveform data
+      generateWaveformData(file);
     });
 
     audioElement.addEventListener('ended', () => {
@@ -1035,6 +1141,308 @@
         currentlyPlaying = null;
       }
     });
+  }
+
+  async function generateWaveformData(file) {
+    try {
+      console.log('🎵 Starting waveform generation...');
+      console.log(`File: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)} MB, Type: ${file.type}`);
+      
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log(`AudioContext created, sample rate: ${audioContext.sampleRate} Hz`);
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      console.log(`✓ Audio file loaded as ArrayBuffer (${arrayBuffer.byteLength} bytes)`);
+      
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      console.log(`✓ Audio decoded successfully`);
+      console.log(`  - Duration: ${audioBuffer.duration.toFixed(2)}s`);
+      console.log(`  - Channels: ${audioBuffer.numberOfChannels}`);
+      console.log(`  - Sample Rate: ${audioBuffer.sampleRate} Hz`);
+      console.log(`  - Length: ${audioBuffer.length} samples`);
+      
+      // Extract waveform data from the audio buffer
+      const rawData = audioBuffer.getChannelData(0); // Get first channel
+      const samples = 2000; // Number of samples for the waveform (increased for better detail)
+      const blockSize = Math.floor(rawData.length / samples);
+      const filteredData = [];
+      
+      console.log(`Processing ${rawData.length} audio samples into ${samples} waveform points (block size: ${blockSize})...`);
+      
+      for (let i = 0; i < samples; i++) {
+        let blockStart = blockSize * i;
+        let sum = 0;
+        for (let j = 0; j < blockSize; j++) {
+          sum += Math.abs(rawData[blockStart + j]);
+        }
+        filteredData.push(sum / blockSize);
+      }
+      
+      // Normalize the data
+      const max = Math.max(...filteredData);
+      const min = Math.min(...filteredData);
+      const avg = filteredData.reduce((a, b) => a + b, 0) / filteredData.length;
+      
+      waveformData = filteredData.map(n => n / max);
+      
+      console.log(`✓ Waveform data generated successfully!`);
+      console.log(`  - Samples: ${waveformData.length}`);
+      console.log(`  - Max amplitude: ${max.toFixed(6)}`);
+      console.log(`  - Min amplitude: ${min.toFixed(6)}`);
+      console.log(`  - Avg amplitude: ${avg.toFixed(6)}`);
+      console.log(`  - Dynamic range: ${((max / (avg || 0.001)) * 100).toFixed(1)}%`);
+      
+    } catch (error) {
+      console.error('❌ Error generating waveform:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
+      
+      // Show error in UI
+      const loading = document.getElementById('waveformLoading');
+      if (loading) {
+        loading.innerHTML = `⚠️ Waveform Error<br><span style="font-size: 0.8em;">${error.message}</span>`;
+        loading.style.color = '#f87171';
+      }
+      
+      // Generate a test waveform for debugging
+      console.log('Generating test waveform pattern for debugging...');
+      generateTestWaveform();
+    }
+  }
+
+  function generateTestWaveform() {
+    // Generate a test sine wave pattern for debugging
+    const samples = 2000;
+    waveformData = [];
+    
+    for (let i = 0; i < samples; i++) {
+      // Create a combination of sine waves to simulate audio
+      const t = i / samples;
+      const wave = 
+        Math.sin(t * Math.PI * 20) * 0.5 +  // Low frequency
+        Math.sin(t * Math.PI * 100) * 0.3 +  // Mid frequency
+        Math.sin(t * Math.PI * 300) * 0.2 +  // High frequency
+        Math.random() * 0.1;                   // Noise
+      
+      waveformData.push(Math.abs(wave));
+    }
+    
+    // Normalize
+    const max = Math.max(...waveformData);
+    waveformData = waveformData.map(n => n / max);
+    
+    console.log('✓ Test waveform generated (this is not real audio data)');
+  }
+
+  function drawWaveform(startMs, endMs) {
+    const canvas = document.getElementById('waveformCanvas');
+    const loading = document.getElementById('waveformLoading');
+    
+    if (!canvas) {
+      console.error('Canvas element not found');
+      return;
+    }
+    
+    if (!waveformData) {
+      console.log('Waveform data not ready yet');
+      loading.style.display = 'block';
+      loading.textContent = 'Generating waveform...';
+      
+      // Retry after a short delay
+      setTimeout(() => {
+        if (waveformData && currentSegmentStart === startMs && currentSegmentEnd === endMs) {
+          drawWaveform(startMs, endMs);
+        }
+      }, 500);
+      return;
+    }
+    
+    console.log(`Drawing waveform for segment ${startMs}ms to ${endMs}ms`);
+    loading.style.display = 'none';
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get canvas context');
+      return;
+    }
+    
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    console.log(`Canvas rect: ${rect.width}x${rect.height}, DPR: ${dpr}`);
+    
+    // Set canvas size accounting for device pixel ratio
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    
+    // Clear canvas with background
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    
+    // Calculate which portion of the waveform to display
+    const totalDuration = audioElement.duration * 1000;
+    let segmentData, startIndex, endIndex;
+    
+    if (showFullWaveform) {
+      // Show full audio waveform
+      segmentData = waveformData;
+      startIndex = 0;
+      endIndex = waveformData.length;
+      console.log('Drawing full waveform');
+    } else {
+      // Show only the current segment
+      const startRatio = startMs / totalDuration;
+      const endRatio = endMs / totalDuration;
+      
+      startIndex = Math.floor(startRatio * waveformData.length);
+      endIndex = Math.ceil(endRatio * waveformData.length);
+      segmentData = waveformData.slice(startIndex, endIndex);
+      console.log(`Drawing segment waveform from ${startMs}ms to ${endMs}ms`);
+    }
+    
+    console.log(`Waveform data: ${segmentData.length} samples from index ${startIndex} to ${endIndex}`);
+    
+    if (segmentData.length === 0) {
+      console.error('No segment data to draw');
+      return;
+    }
+    
+    // Draw waveform bars
+    const barWidth = rect.width / segmentData.length;
+    const middleY = rect.height / 2;
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, rect.height);
+    gradient.addColorStop(0, 'rgba(53, 247, 135, 0.9)');
+    gradient.addColorStop(0.5, 'rgba(0, 163, 255, 0.9)');
+    gradient.addColorStop(1, 'rgba(98, 214, 244, 0.9)');
+    
+    ctx.fillStyle = gradient;
+    
+    // Draw each bar
+    for (let i = 0; i < segmentData.length; i++) {
+      const x = i * barWidth;
+      const amplitude = segmentData[i];
+      const barHeight = amplitude * (rect.height * 0.85); // 85% of canvas height for max amplitude
+      const y = middleY - barHeight / 2;
+      
+      // Draw the bar
+      const drawWidth = Math.max(1, barWidth - 0.5);
+      ctx.fillRect(x, y, drawWidth, barHeight);
+    }
+    
+    // If showing full waveform, highlight the current segment region
+    if (showFullWaveform) {
+      const segmentStartRatio = startMs / totalDuration;
+      const segmentEndRatio = endMs / totalDuration;
+      const segmentStartX = segmentStartRatio * rect.width;
+      const segmentEndX = segmentEndRatio * rect.width;
+      
+      // Draw segment boundary markers
+      ctx.strokeStyle = 'rgba(255, 193, 7, 0.8)';
+      ctx.lineWidth = 2;
+      
+      // Start marker
+      ctx.beginPath();
+      ctx.moveTo(segmentStartX, 0);
+      ctx.lineTo(segmentStartX, rect.height);
+      ctx.stroke();
+      
+      // End marker
+      ctx.beginPath();
+      ctx.moveTo(segmentEndX, 0);
+      ctx.lineTo(segmentEndX, rect.height);
+      ctx.stroke();
+      
+      // Highlight region with semi-transparent overlay
+      ctx.fillStyle = 'rgba(255, 193, 7, 0.1)';
+      ctx.fillRect(segmentStartX, 0, segmentEndX - segmentStartX, rect.height);
+    }
+    
+    console.log('Waveform drawn successfully');
+    currentSegmentWaveform = { startIndex, endIndex, segmentData };
+  }
+
+  function updateWaveformProgress() {
+    if (!audioElement) return;
+    
+    const waveformProgress = document.getElementById('waveformProgress');
+    const waveformCursor = document.getElementById('waveformCursor');
+    
+    let progress;
+    
+    if (showFullWaveform) {
+      // Show progress relative to entire audio file
+      const currentPos = audioElement.currentTime * 1000;
+      const totalDuration = audioElement.duration * 1000;
+      progress = (currentPos / totalDuration) * 100;
+    } else {
+      // Show progress relative to current segment
+      const currentPos = audioElement.currentTime * 1000;
+      const relativePos = currentPos - currentSegmentStart;
+      progress = (relativePos / (currentSegmentEnd - currentSegmentStart)) * 100;
+    }
+    
+    waveformProgress.style.width = Math.max(0, Math.min(100, progress)) + '%';
+    waveformCursor.style.left = Math.max(0, Math.min(100, progress)) + '%';
+  }
+
+  function seekToWaveformPosition(event) {
+    if (!audioElement) return;
+    
+    const container = document.getElementById('waveformContainer');
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const progress = x / rect.width;
+    
+    let newTime;
+    
+    if (showFullWaveform) {
+      // Seek anywhere in the full audio
+      const totalDuration = audioElement.duration * 1000;
+      newTime = progress * totalDuration;
+    } else {
+      // Seek within the current segment
+      newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
+    }
+    
+    audioElement.currentTime = newTime / 1000;
+    
+    updateSeekSlider();
+    updateWaveformProgress();
+  }
+
+  function toggleWaveformView(event) {
+    event.stopPropagation(); // Prevent seek when clicking toggle button
+    
+    showFullWaveform = !showFullWaveform;
+    
+    const toggleBtn = document.getElementById('waveformToggle');
+    toggleBtn.textContent = showFullWaveform ? 'Full View' : 'Segment View';
+    
+    // Redraw waveform with new view
+    if (currentSegmentStart !== null && currentSegmentEnd !== null) {
+      drawWaveform(currentSegmentStart, currentSegmentEnd);
+      updateWaveformProgress();
+    }
+  }
+
+  function updateWaveformHover(event) {
+    const container = document.getElementById('waveformContainer');
+    const hoverLine = document.getElementById('waveformHoverLine');
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const progress = (x / rect.width) * 100;
+    
+    hoverLine.style.left = Math.max(0, Math.min(100, progress)) + '%';
+  }
+
+  function hideWaveformHover() {
+    const hoverLine = document.getElementById('waveformHoverLine');
+    hoverLine.style.display = 'none';
   }
 
   function playAudioSegment(startMs, endMs, buttonId) {
@@ -1078,6 +1486,13 @@
     totalDuration.textContent = formatTimeShort(segmentDuration);
     seekSlider.value = 0;
     
+    // Draw waveform for this segment
+    drawWaveform(startMs, endMs);
+    
+    // Reset waveform progress
+    document.getElementById('waveformProgress').style.width = '0%';
+    document.getElementById('waveformCursor').style.left = '0%';
+    
     // Show seek control
     seekControl.classList.add('active');
 
@@ -1105,6 +1520,9 @@
         
         seekSlider.value = Math.max(0, Math.min(100, progress));
         document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+        
+        // Update waveform progress
+        updateWaveformProgress();
         
         // Stop at end time
         if (audioElement.currentTime >= endMs / 1000) {
@@ -1189,6 +1607,7 @@
     
     document.getElementById('seekSlider').value = Math.max(0, Math.min(100, progress));
     document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+    updateWaveformProgress();
   }
 
   function formatTimeShort(seconds) {
@@ -1206,6 +1625,12 @@
       const progress = parseFloat(e.target.value) / 100;
       const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
       document.getElementById('currentTime').textContent = formatTimeShort((newTime - currentSegmentStart) / 1000);
+      
+      // Update waveform preview while dragging
+      const waveformProgress = document.getElementById('waveformProgress');
+      const waveformCursor = document.getElementById('waveformCursor');
+      waveformProgress.style.width = Math.max(0, Math.min(100, progress * 100)) + '%';
+      waveformCursor.style.left = Math.max(0, Math.min(100, progress * 100)) + '%';
     });
     
     seekSlider.addEventListener('change', (e) => {
@@ -1214,6 +1639,8 @@
       const progress = parseFloat(e.target.value) / 100;
       const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
       audioElement.currentTime = newTime / 1000;
+      
+      updateWaveformProgress();
       
       setTimeout(() => {
         isUserSeeking = false;

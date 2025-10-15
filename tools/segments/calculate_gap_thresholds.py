@@ -186,7 +186,7 @@ class GapThresholdCalculator:
                     }
                     
                     # Recommended: use the minimum (most sensitive)
-                    recommended_threshold = min(strategies.values())
+                    recommended_threshold = max(strategies.values())
                 
                 gap_config = {
                     'gap_index': i + 1,
@@ -381,12 +381,7 @@ Examples:
             
             with open(output_path, 'w') as f:
                 json.dump(output_data, f, indent=2)
-            
-            print(f"\n✓ Gap thresholds saved: {args.output}")
-            print(f"\nUse with:")
-            print(f"  python find_boundary_silences.py {args.audio_file} {args.boundaries_file} \\")
-            print(f"    --gap-thresholds {args.output}")
-        
+
         print("\n✓ Analysis complete!")
         
     except Exception as e:

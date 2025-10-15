@@ -2,7 +2,8 @@
 # Smart Boundary Refinement Workflow with Per-Gap Thresholds
 
 # Usage
-# ./segment_boundary_workflow.sh 1 2 ../../data/audio/1/wav/002.wav
+# ./segment_boundary_workflow.sh RECITER SURAH AUDIO_FILE_PATH
+# ./segment_boundary_workflow.sh 1 2 ./data/audio/1/wav/002.wav
 set -e
 
 # Colors
@@ -13,8 +14,8 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}Smart Boundary Refinement${NC}"
-echo -e "${BLUE}Per-Gap Threshold Analysis${NC}"
+echo -e "${BLUE}Ayah segment boundaries adjustment${NC}"
+echo -e "${BLUE}Using gaps analysis around ayah start and end${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
@@ -22,7 +23,6 @@ echo ""
 RECITER=${1}
 SURAH=${2}
 AUDIO_FILE=${3}
-DATA_DIR="/Volumes/Data/qul-segments/11oct/vs_logs"
 
 if [ -z "$AUDIO_FILE" ]; then
     echo -e "${RED}Usage: $0 <reciter_id> <surah_number> <audio_file>${NC}"
@@ -31,11 +31,11 @@ if [ -z "$AUDIO_FILE" ]; then
     echo "  $0 65 1 data/audio/65/wav/002.wav"
     echo ""
     echo "This workflow:"
-    echo "  1. Exports current boundaries from database"
-    echo "  2. Analyzes gap volumes"
-    echo "  3. Calculates optimal threshold for EACH gap"
-    echo "  4. Detects silences using per-gap thresholds"
-    echo "  5. Generates visualization"
+    echo "  1. Exports current ayah boundaries from database"
+    echo "  2. Calculates optimal threshold we can use to detect silence for each gap"
+    echo "  3. Detects silences using optimal volume thresholds"
+    echo "  4. Updates boundaries in the database using detected silences"
+    echo "  5. Generates ayah segments and silence visualization(optional)"
     exit 1
 fi
 
@@ -45,16 +45,26 @@ if [ ! -f "$AUDIO_FILE" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="$SCRIPT_DIR/smart_results"
-BOUNDARIES_DIR="$SCRIPT_DIR/boundaries"
 
-mkdir -p "$OUTPUT_DIR"
+OUTPUT_DIR="$SCRIPT_DIR/data/result"
+# current ayah boundaries
+BOUNDARIES_DIR="$SCRIPT_DIR/data/result/boundaries/${RECITER}"
+# Gaps thresholds results
+GAPS_DIR="$SCRIPT_DIR/data/result/gaps/${RECITER}"
+# Silences detected using per-gap thresholds
+SILENCE_DIR="$SCRIPT_DIR/data/result/silences/${RECITER}"
+# Visualization plot image and data
+PLOT_DIR="$SCRIPT_DIR/data/result/plot_data/${RECITER}"
+
+mkdir -p "$GAPS_DIR"
+mkdir -p "$SILENCE_DIR"
+mkdir -p "$PLOT_DIR"
 mkdir -p "$BOUNDARIES_DIR"
 
-BOUNDARIES_FILE="$BOUNDARIES_DIR/${RECITER}_${SURAH}.json"
-GAP_CONFIG_FILE="$OUTPUT_DIR/${RECITER}_${SURAH}_gap_thresholds.json"
-SILENCES_FILE="$OUTPUT_DIR/${RECITER}_${SURAH}_silences.json"
-PLOT_FILE="$OUTPUT_DIR/${RECITER}_${SURAH}_plot.png"
+BOUNDARIES_FILE="$BOUNDARIES_DIR/${SURAH}.json"
+GAP_RESULT_FILE="$GAPS_DIR/${SURAH}.json"
+SILENCES_FILE="$SILENCE_DIR/${SURAH}.json"
+PLOT_FILE="$PLOT_DIR/${SURAH}_plot.png"
 
 echo -e "${GREEN}Configuration:${NC}"
 echo "  Reciter: $RECITER"
@@ -79,32 +89,34 @@ fi
 echo -e "${GREEN}✓ Boundaries exported${NC}"
 echo ""
 
-# Step 2: Check gap volumes (quick diagnostic)
-echo -e "${YELLOW}Step 2: Checking gap volumes...${NC}"
+# Optional: run this quick diagnostic if gaps calculation is not accurate
+#echo -e "${YELLOW}Checking gap volumes...${NC}"
+
 cd "$SCRIPT_DIR" || exit 1
 
-echo ""
-python3 check_gap_volume.py "$AUDIO_FILE" "$BOUNDARIES_FILE"
-echo ""
+#echo ""
+#python3 check_gap_volume.py "$AUDIO_FILE" "$BOUNDARIES_FILE"
+#echo ""
 
-# Step 3: Calculate per-gap thresholds
-echo -e "${YELLOW}Step 3: Calculating optimal threshold for each gap...${NC}"
+
+# Step 2: Calculate per-gap thresholds
+echo -e "${YELLOW}Step 2: Calculating optimal threshold for each gap...${NC}"
 python3 calculate_gap_thresholds.py \
   "$AUDIO_FILE" \
   "$BOUNDARIES_FILE" \
   --offset 5 \
-  --output "$GAP_CONFIG_FILE"
+  --output "$GAP_RESULT_FILE"
 
 echo ""
 echo -e "${GREEN}✓ Gap thresholds calculated${NC}"
 echo ""
 
-# Step 4: Detect silences using per-gap thresholds
-echo -e "${YELLOW}Step 4: Detecting silences with per-gap thresholds...${NC}"
+# Step 3: Detect silences using per-gap thresholds
+echo -e "${YELLOW}Step 3: Detecting silences with per-gap thresholds...${NC}"
 python3 find_boundary_silences.py \
-  --gap-thresholds "$GAP_CONFIG_FILE" \
+  --gap-thresholds "$GAP_RESULT_FILE" \
   --min-duration 30 \
-  --window 500 \
+  --window 100 \
   --exclude-overlapping \
   --output "$SILENCES_FILE" \
   --save-plot "$PLOT_FILE"
@@ -113,8 +125,8 @@ echo ""
 echo -e "${GREEN}✓ Detection complete${NC}"
 echo ""
 
-# Step 5: Refine boundaries using detected silences
-echo -e "${YELLOW}Step 5: Refining boundaries in database...${NC}"
+# Step 4: Refine boundaries using detected silences
+echo -e "${YELLOW}Step 4: Refining boundaries in database...${NC}"
 echo ""
 
 if command -v jq &> /dev/null; then
@@ -155,16 +167,16 @@ fi
 
 echo ""
 
-# Step 6: Summary
-echo -e "${YELLOW}Step 6: Summary${NC}"
+# Step 5: Summary
+echo -e "${YELLOW}Step 5: Summary${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 echo "Generated files:"
 echo "  📄 Boundaries:    $BOUNDARIES_FILE"
-echo "  ⚙️  Gap Config:    $GAP_CONFIG_FILE"
+echo "  ⚙️ Gap Results:    $GAP_RESULT_FILE"
 echo "  🔍 Silences:      $SILENCES_FILE"
 echo "  📊 Visualization: $PLOT_FILE"
-echo "  📈 Plot Data:     tools/waveform-ayah-segments/result/${RECITER}_v2_plot_data/${SURAH}.json"
+echo "  📈 Plot Data:     ${PLOT_DIR}/${SURAH}.json"
 echo ""
 
 if command -v jq &> /dev/null; then
@@ -180,7 +192,7 @@ fi
 echo -e "${GREEN}Next steps:${NC}"
 echo "  1. Review Python visualization: open $PLOT_FILE"
 echo "  2. View interactive plot with audio playback:"
-echo "     file://$(cd "$SCRIPT_DIR/../.." && pwd)/tools/plot_gaps_v2.html?reciter=$RECITER&surah=$SURAH"
+echo "     http://localhost:3000/tools/plot_segments_timeline.html?reciter=$RECITER&surah=$SURAH"
 echo "  3. Verify boundaries by playing ayahs in the browser"
 echo ""
 
@@ -188,4 +200,3 @@ echo -e "${BLUE}========================================${NC}"
 echo -e "${GREEN}✓ Fully automated workflow complete!${NC}"
 echo -e "${BLUE}Boundaries refined and ready to use${NC}"
 echo -e "${BLUE}========================================${NC}"
-

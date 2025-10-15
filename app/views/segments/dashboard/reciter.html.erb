@@ -17,7 +17,7 @@
           <i class="fas fa-arrow-left tw-mr-2"></i>
           Back to Reciters
         <% end %>
-        <%= link_to segments_download_reciter_path(reciter.id),
+        <%= button_to segments_download_reciter_path(reciter.id),
                     method: :post,
                     class: "tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-no-underline tw-inline-flex tw-items-center tw-gap-2",
                     data: {
@@ -26,17 +26,6 @@
                     } do %>
           <i class="fas fa-download"></i>
           <span>Download Data</span>
-        <% end %>
-
-        <%= link_to segments_download_reciter_path(reciter.id),
-                    method: :post,
-                    class: "tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-no-underline tw-inline-flex tw-items-center tw-gap-1",
-                    data: {
-                      confirm: "This will prepare segments data for #{reciter[:name]} and send it to your email. Continue?",
-                      turbo_method: :post
-                    } do %>
-          <i class="fas fa-download"></i>
-          <span>Download</span>
         <% end %>
       </div>
     </div>

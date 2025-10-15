@@ -9,26 +9,25 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            color: white;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
+            color: #2c3e50;
             min-height: 100vh;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
+            background: white;
             border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             text-align: center;
             margin-bottom: 10px;
             font-size: 2.5em;
-            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            background: linear-gradient(45deg, #35f787, #62d6f4, #00a3ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -37,21 +36,23 @@
         .subtitle {
             text-align: center;
             margin-bottom: 40px;
-            opacity: 0.8;
+            opacity: 0.7;
             font-size: 1.1em;
+            color: #5a6c7d;
         }
 
         .timeline-section {
             margin: 40px 0;
-            background: rgba(0, 0, 0, 0.2);
+            background: #f8f9fa;
             border-radius: 15px;
             padding: 20px;
+            border: 1px solid #e1e8ed;
         }
 
         .section-title {
             font-size: 1.3em;
             margin-bottom: 15px;
-            color: #ffd700;
+            color: #57d798;
             font-weight: bold;
         }
 
@@ -60,15 +61,15 @@
             overflow-x: auto;
             overflow-y: hidden;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
+            background: white;
             padding: 10px 0;
+            border: 1px solid #e1e8ed;
         }
 
         .timeline {
             position: relative;
             height: 80px;
             margin: 20px 0;
-            background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             overflow: visible;
             min-width: 100%;
@@ -83,9 +84,9 @@
         }
 
         .zoom-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            background: white;
+            border: 1px solid #e1e8ed;
+            color: #2c3e50;
             padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
@@ -94,12 +95,13 @@
         }
 
         .zoom-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #f8f9fa;
+            border-color: #57d798;
             transform: translateY(-1px);
         }
 
         .zoom-info {
-            color: #ffd700;
+            color: #57d798;
             font-weight: bold;
             margin: 0 10px;
         }
@@ -122,7 +124,7 @@
 
         .ayah-bar.original {
             top: 5px;
-            opacity: 0.4;
+            opacity: 0.8;
             border-style: dashed;
         }
 
@@ -156,19 +158,47 @@
             position: absolute;
             height: 12px;
             top: 34px;
-            background: rgba(255, 255, 0, 0.3);
-            border: 1px dashed rgba(255, 255, 0, 0.6);
+            background: rgba(255, 255, 0, 0.6);
+            border: 1px dashed rgba(255, 255, 0, 0.9);
             border-radius: 2px;
-            pointer-events: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .ayah-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .ayah-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .ayah-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .ayah-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-        .ayah-5 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
-        .ayah-6 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-        .ayah-7 { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+        .gap-indicator:hover {
+            background: rgba(255, 255, 0, 0.8);
+            border-color: rgba(255, 200, 0, 1);
+            height: 14px;
+            top: 33px;
+        }
+
+        .ayah-1 {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+        }
+
+        .ayah-2 {
+            background: linear-gradient(135deg, #00a3ff 0%, #62d6f4 100%);
+        }
+
+        .ayah-3 {
+            background: linear-gradient(135deg, #62d6f4 0%, #3cff8b 100%);
+        }
+
+        .ayah-4 {
+            background: linear-gradient(135deg, #3cff8b 0%, #83ee41 100%);
+        }
+
+        .ayah-5 {
+            background: linear-gradient(135deg, #57d798 0%, #35f787 100%);
+        }
+
+        .ayah-6 {
+            background: linear-gradient(135deg, #00fff0 0%, #00a3ff 100%);
+        }
+
+        .ayah-7 {
+            background: linear-gradient(135deg, #6aff52 0%, #62d6f4 100%);
+        }
 
         .legend {
             display: flex;
@@ -182,25 +212,26 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            background: white;
             padding: 10px 15px;
             border-radius: 25px;
-            backdrop-filter: blur(5px);
+            border: 1px solid #e1e8ed;
         }
 
         .legend-color {
             width: 20px;
             height: 20px;
             border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid #e1e8ed;
         }
 
         .info-panel {
-            background: rgba(0, 0, 0, 0.3);
+            background: #f8f9fa;
             border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
             display: none;
+            border: 1px solid #e1e8ed;
         }
 
         .info-panel.active {
@@ -209,15 +240,21 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .time-axis {
             position: relative;
             height: 30px;
             margin: 10px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-top: 1px solid #e1e8ed;
         }
 
         .time-marker {
@@ -225,6 +262,7 @@
             font-size: 10px;
             opacity: 0.7;
             top: 5px;
+            color: #5a6c7d;
         }
 
         .stats {
@@ -235,50 +273,52 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: white;
             border-radius: 10px;
             padding: 15px;
             text-align: center;
-            backdrop-filter: blur(5px);
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .stat-value {
             font-size: 1.5em;
             font-weight: bold;
-            color: #ffd700;
+            color: #57d798;
         }
 
         .stat-label {
-            opacity: 0.8;
+            opacity: 0.7;
             margin-top: 5px;
             font-size: 0.9em;
+            color: #5a6c7d;
         }
 
         .comparison-table {
             width: 100%;
             margin: 20px 0;
             border-collapse: collapse;
-            background: rgba(0, 0, 0, 0.2);
+            background: white;
             border-radius: 10px;
             overflow: hidden;
+            border: 1px solid #e1e8ed;
         }
 
         .comparison-table th,
         .comparison-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #e1e8ed;
         }
 
         .comparison-table th {
-            background: rgba(255, 255, 255, 0.1);
+            background: #f8f9fa;
             font-weight: bold;
-            color: #ffd700;
+            color: #57d798;
             position: sticky;
             top: 0;
             z-index: 10;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .comparison-table th.sortable {
@@ -289,7 +329,7 @@
 
         .comparison-table th.sortable:hover {
             background: rgba(255, 255, 255, 0.15);
-            color: #ffed4a;
+            color: #35f787;
         }
 
         .comparison-table th.sortable::after {
@@ -309,7 +349,7 @@
         }
 
         .comparison-table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: #f8f9fa;
         }
 
         .adjustment-badge {
@@ -317,8 +357,9 @@
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 0.8em;
-            background: rgba(100, 200, 100, 0.3);
-            border: 1px solid rgba(100, 200, 100, 0.6);
+            background: rgba(87, 215, 152, 0.1);
+            border: 1px solid rgba(87, 215, 152, 0.3);
+            color: #2c3e50;
         }
 
         .positive-change {
@@ -330,20 +371,20 @@
         }
 
         .audio-drop-zone {
-            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border: 3px dashed #e1e8ed;
             border-radius: 15px;
             padding: 30px;
             text-align: center;
             margin: 20px 0;
-            background: rgba(255, 255, 255, 0.05);
+            background: #f8f9fa;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .audio-drop-zone:hover,
         .audio-drop-zone.drag-over {
-            border-color: #ffd700;
-            background: rgba(255, 215, 0, 0.1);
+            border-color: #57d798;
+            background: rgba(87, 215, 152, 0.1);
         }
 
         .audio-drop-zone.has-audio {
@@ -364,7 +405,7 @@
         }
 
         .play-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
             border: none;
             color: white;
             padding: 10px 20px;
@@ -379,7 +420,7 @@
 
         .play-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
         }
 
         .play-btn:disabled {
@@ -398,10 +439,11 @@
         }
 
         .selector-panel {
-            background: rgba(0, 0, 0, 0.3);
+            background: #f8f9fa;
             border-radius: 15px;
             padding: 30px;
             margin: 30px 0;
+            border: 1px solid #e1e8ed;
         }
 
         .selector-panel.hidden {
@@ -416,25 +458,26 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: #ffd700;
+            color: #57d798;
         }
 
         .input-group input[type="number"] {
             width: 100%;
             max-width: 300px;
             padding: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid #e1e8ed;
             border-radius: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            color: white;
+            background: white;
+            color: #2c3e50;
             font-size: 16px;
             transition: all 0.3s ease;
         }
 
         .input-group input[type="number"]:focus {
             outline: none;
-            border-color: #ffd700;
-            background: rgba(0, 0, 0, 0.3);
+            border-color: #57d798;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
         }
 
         .surah-grid {
@@ -445,36 +488,38 @@
             max-height: 400px;
             overflow-y: auto;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
+            background: white;
             border-radius: 10px;
+            border: 1px solid #e1e8ed;
         }
 
         .surah-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: white;
+            border: 2px solid #e1e8ed;
             border-radius: 8px;
             padding: 15px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            color: #2c3e50;
         }
 
         .surah-card:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #ffd700;
+            background: #f8f9fa;
+            border-color: #57d798;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(87, 215, 152, 0.2);
         }
 
         .surah-card.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #ffd700;
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            border-color: #57d798;
             color: white;
         }
 
         .load-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
             border: none;
             color: white;
             padding: 15px 30px;
@@ -488,7 +533,7 @@
 
         .load-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
         }
 
         .load-btn:disabled {
@@ -499,9 +544,9 @@
         .file-upload-section {
             margin: 30px 0;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
+            background: white;
             border-radius: 10px;
-            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border: 3px dashed #e1e8ed;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -509,8 +554,8 @@
 
         .file-upload-section:hover,
         .file-upload-section.drag-over {
-            border-color: #ffd700;
-            background: rgba(255, 215, 0, 0.1);
+            border-color: #57d798;
+            background: rgba(87, 215, 152, 0.1);
         }
 
         .file-upload-section.has-file {
@@ -519,7 +564,7 @@
         }
 
         .file-upload-section h3 {
-            color: #ffd700;
+            color: #57d798;
             margin-bottom: 15px;
         }
 
@@ -542,18 +587,19 @@
 
         .file-input-label {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: white;
+            border: 2px solid #e1e8ed;
             border-radius: 8px;
             padding: 12px 24px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            color: #2c3e50;
         }
 
         .file-input-label:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: #ffd700;
+            background: #f8f9fa;
+            border-color: #57d798;
         }
 
         .divider {
@@ -569,15 +615,15 @@
             right: 0;
             top: 50%;
             height: 1px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #e1e8ed;
         }
 
         .divider span {
             position: relative;
-            background: rgba(255, 255, 255, 0.1);
+            background: #f8f9fa;
             padding: 5px 20px;
             border-radius: 20px;
-            color: rgba(255, 255, 255, 0.6);
+            color: #5a6c7d;
             font-size: 14px;
         }
 
@@ -602,18 +648,15 @@
 <body>
 <div class="container">
     <h1>Ayah segments and gaps timeline</h1>
-    <p class="subtitle">Silence-based Boundary Adjustments | Strategy: Extend End Times, Preserve Start Times | Min Gap: 100ms</p>
-
-    <!-- Data Selector Panel -->
     <div id="selectorPanel" class="selector-panel">
-        <h2 style="color: #ffd700; margin-bottom: 20px;">📊 Load Ayah Boundary Data</h2>
-        
+        <h2 style="color: #57d798; margin-bottom: 20px;">📊 Load Ayah Boundary Data</h2>
+
         <div class="file-upload-section" id="jsonDropZone">
             <div class="icon">📄</div>
             <h3>Option 1: Upload JSON File</h3>
             <p style="opacity: 0.8; margin-bottom: 15px;">Drop JSON file here or click to browse</p>
             <p style="opacity: 0.6; font-size: 0.9em;">Ayah boundary data in JSON format</p>
-            <input type="file" id="jsonFileInput" accept=".json" style="display: none;" />
+            <input type="file" id="jsonFileInput" accept=".json" style="display: none;"/>
             <div id="fileNameDisplay" style="margin-top: 15px; opacity: 0.8;"></div>
         </div>
 
@@ -622,15 +665,14 @@
         </div>
 
         <div>
-            <h3 style="color: #ffd700; margin-bottom: 20px;">Option 2: Select Reciter & Surah</h3>
-            
+            <h3 style="color: #57d798; margin-bottom: 20px;">Select Reciter & Surah</h3>
             <div class="input-group">
                 <label for="reciterInput">Reciter ID:</label>
-                <input type="number" id="reciterInput" placeholder="Enter reciter ID (e.g., 1, 65, 161)" min="1" />
+                <input type="number" id="reciterInput" placeholder="Enter reciter ID (e.g., 1, 65, 161)" min="1"/>
             </div>
 
             <div class="input-group">
-                <label>Select Surah (1-114):</label>
+                <label>Select Surah:</label>
                 <div class="surah-grid" id="surahGrid"></div>
             </div>
 
@@ -642,65 +684,64 @@
         <div id="errorDisplay"></div>
     </div>
 
-    <!-- Main Content (hidden until data is loaded) -->
     <div id="mainContent" class="main-content">
         <div class="stats" id="statsContainer"></div>
 
-    <div id="audioDropZone" class="audio-drop-zone">
-        <div class="icon">🎵</div>
-        <h3>Drop Audio File Here</h3>
-        <p>Or click to browse</p>
-        <div id="audioFileName" class="audio-info"></div>
-        <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
-        <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
-            💡 Tip: Use Space/Esc to stop playback | +/- to zoom | 0 to reset
+        <div id="audioDropZone" class="audio-drop-zone">
+            <div class="icon">🎵</div>
+            <h3>Drop Audio File Here</h3>
+            <p>Or click to browse</p>
+            <div id="audioFileName" class="audio-info"></div>
+            <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
+            <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
+                💡 Tip: Use Space/Esc to stop playback | +/- to zoom | 0 to reset
+            </div>
         </div>
-    </div>
 
-    <div class="legend">
-        <div class="legend-item">
-            <div class="legend-color" style="background: rgba(255, 255, 255, 0.4); border-style: dashed;"></div>
-            <span>Original Timing</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-            <span>Corrected Timing</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
-            <span>Silence Detection</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: rgba(255, 255, 0, 0.3);"></div>
-            <span>Gap</span>
-        </div>
-    </div>
+         <div class="legend">
+             <div class="legend-item">
+                 <div class="legend-color" style="background: rgba(255, 255, 255, 0.4); border-style: dashed;"></div>
+                 <span>Original Timing</span>
+             </div>
+             <div class="legend-item">
+                 <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                 <span>Corrected Timing (Click for details)</span>
+             </div>
+             <div class="legend-item">
+                 <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
+                 <span>Silence Detection (Clickable)</span>
+             </div>
+             <div class="legend-item">
+                 <div class="legend-color" style="background: rgba(255, 255, 0, 0.6); border-style: dashed;"></div>
+                 <span>Gap (Click to play)</span>
+             </div>
+         </div>
 
-    <div class="zoom-controls">
-        <button class="zoom-btn" onclick="zoomOut()">🔍-</button>
-        <button class="zoom-btn" onclick="resetZoom()">Reset</button>
-        <button class="zoom-btn" onclick="zoomIn()">🔍+</button>
-        <span class="zoom-info" id="zoomLevel">Zoom: 1x</span>
-    </div>
-
-    <div class="timeline-section">
-        <div class="section-title">Visual Timeline</div>
-        <div class="timeline-wrapper">
-            <div id="timeline" class="timeline"></div>
-            <div class="time-axis" id="timeAxis"></div>
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomOut()">🔍-</button>
+            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+            <button class="zoom-btn" onclick="zoomIn()">🔍+</button>
+            <span class="zoom-info" id="zoomLevel">Zoom: 1x</span>
         </div>
-    </div>
 
-    <div id="infoPanel" class="info-panel">
-        <h3 id="infoTitle">Click on any ayah or silence to see details</h3>
-        <div id="infoContent"></div>
-    </div>
+        <div class="timeline-section">
+            <div class="section-title">Visual Timeline</div>
+            <div class="timeline-wrapper">
+                <div id="timeline" class="timeline"></div>
+                <div class="time-axis" id="timeAxis"></div>
+            </div>
+        </div>
 
-    <div class="timeline-section">
-        <div class="section-title">Detailed Comparison Table</div>
-        <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
-            <table class="comparison-table" id="comparisonTable">
-                <thead>
+         <div id="infoPanel" class="info-panel">
+             <h3 id="infoTitle">Click on any ayah, silence, or gap to see details and play audio</h3>
+             <div id="infoContent"></div>
+         </div>
+
+        <div class="timeline-section">
+            <div class="section-title">Detailed Comparison Table</div>
+            <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
                     <tr>
                         <th class="sortable" id="ayahHeader" onclick="sortByAyah()">Ayah</th>
                         <th>Original Start</th>
@@ -711,16 +752,15 @@
                         <th>End Δ</th>
                         <th class="sortable" id="durationHeader" onclick="sortByDuration()">Duration</th>
                         <th class="sortable" id="gapHeader" onclick="sortByGap()">Gap to Next</th>
-                        <th>Method</th>
+                        <th>Info</th>
                         <th>Play</th>
                     </tr>
-                </thead>
-                <tbody id="comparisonBody"></tbody>
-            </table>
+                    </thead>
+                    <tbody id="comparisonBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
-    </div>
-    <!-- End Main Content -->
 </div>
 
 <script>
@@ -777,7 +817,7 @@
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('drag-over');
-      
+
       if (e.dataTransfer.files.length > 0) {
         handleAudioFile(e.dataTransfer.files[0]);
       }
@@ -787,14 +827,14 @@
   function handleAudioFile(file) {
     const dropZone = document.getElementById('audioDropZone');
     const audioFileName = document.getElementById('audioFileName');
-    
+
     if (!file.type.startsWith('audio/')) {
       alert('Please select an audio file');
       return;
     }
 
     const url = URL.createObjectURL(file);
-    
+
     if (audioElement) {
       audioElement.pause();
       audioElement = null;
@@ -828,7 +868,7 @@
     }
 
     const btn = document.getElementById(buttonId);
-    
+
     // If currently playing this segment, pause it
     if (currentlyPlaying === buttonId) {
       audioElement.pause();
@@ -850,7 +890,7 @@
     // Play the new segment
     audioElement.currentTime = startMs / 1000;
     audioElement.play();
-    
+
     btn.textContent = btn.textContent.replace('▶️', '⏸');
     btn.classList.add('playing');
     currentlyPlaying = buttonId;
@@ -906,7 +946,7 @@
       card.className = 'surah-card';
       card.textContent = i;
       card.dataset.surah = i;
-      
+
       card.onclick = () => {
         // Deselect all cards
         document.querySelectorAll('.surah-card').forEach(c => c.classList.remove('selected'));
@@ -915,7 +955,7 @@
         selectedSurah = i;
         updateLoadButton();
       };
-      
+
       surahGrid.appendChild(card);
     }
 
@@ -961,10 +1001,10 @@
     jsonDropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       jsonDropZone.classList.remove('drag-over');
-      
+
       if (e.dataTransfer.files.length > 0) {
         const file = e.dataTransfer.files[0];
-        
+
         // Check if it's a JSON file
         if (file.type === 'application/json' || file.name.endsWith('.json')) {
           handleJSONFile(file);
@@ -978,10 +1018,10 @@
   function handleJSONFile(file) {
     const fileNameDisplay = document.getElementById('fileNameDisplay');
     const jsonDropZone = document.getElementById('jsonDropZone');
-    
+
     fileNameDisplay.innerHTML = `✓ Loading: <strong>${escapeHtml(file.name)}</strong>`;
     jsonDropZone.classList.add('has-file');
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -1010,14 +1050,14 @@
 
   function loadDataFromJSON(jsonData, fileName) {
     data = jsonData;
-    
+
     // Hide selector, show main content
     document.getElementById('selectorPanel').classList.add('hidden');
     document.getElementById('mainContent').classList.add('visible');
-    
+
     // Update title
     document.querySelector('h1').textContent = `Ayah Timeline - ${fileName}`;
-    
+
     // Initialize and render
     initAudioHandling();
     createTimeline();
@@ -1037,14 +1077,14 @@
       })
       .then(loadedData => {
         data = loadedData;
-        
+
         // Hide selector, show main content
         document.getElementById('selectorPanel').classList.add('hidden');
         document.getElementById('mainContent').classList.add('visible');
-        
+
         // Update title
         document.querySelector('h1').textContent = `Surah ${surah} - Reciter ${reciter} - Ayah Timeline`;
-        
+
         // Initialize and render
         initAudioHandling();
         createTimeline();
@@ -1131,7 +1171,7 @@
       originalBar.className = `ayah-bar original ayah-${(ayah.ayah % 7) + 1}`;
       originalBar.style.left = (ayah.start_time / maxTime) * 100 + '%';
       originalBar.style.width = ((ayah.end_time - ayah.start_time) / maxTime) * 100 + '%';
-      
+
       const originalWidth = ((ayah.end_time - ayah.start_time) / maxTime) * 100 * currentZoom;
       if (originalWidth > 8) {
         originalBar.textContent = `A${ayah.ayah} (orig)`;
@@ -1147,7 +1187,7 @@
       correctedBar.className = `ayah-bar corrected ayah-${(ayah.ayah % 7) + 1}`;
       correctedBar.style.left = (ayah.corrected_start_time / maxTime) * 100 + '%';
       correctedBar.style.width = ((ayah.corrected_end_time - ayah.corrected_start_time) / maxTime) * 100 + '%';
-      
+
       const correctedWidth = ((ayah.corrected_end_time - ayah.corrected_start_time) / maxTime) * 100 * currentZoom;
       if (correctedWidth > 8) {
         correctedBar.textContent = `Ayah ${ayah.ayah}`;
@@ -1164,7 +1204,7 @@
         silenceBar.className = 'silence-bar';
         silenceBar.style.left = (ayah.silence_used.start_time / maxTime) * 100 + '%';
         silenceBar.style.width = ((ayah.silence_used.end_time - ayah.silence_used.start_time) / maxTime) * 100 + '%';
-        
+
         silenceBar.onclick = () => showInfo('silence', ayah);
         timeline.appendChild(silenceBar);
       }
@@ -1174,12 +1214,23 @@
         const nextAyah = data[index + 1];
         const gapStart = ayah.corrected_end_time;
         const gapEnd = nextAyah.corrected_start_time;
-        
+
         if (gapEnd > gapStart) {
           const gapBar = document.createElement('div');
           gapBar.className = 'gap-indicator';
           gapBar.style.left = (gapStart / maxTime) * 100 + '%';
           gapBar.style.width = ((gapEnd - gapStart) / maxTime) * 100 + '%';
+          
+          // Create gap data object
+          const gapData = {
+            start_time: gapStart,
+            end_time: gapEnd,
+            duration: gapEnd - gapStart,
+            from_ayah: ayah.ayah,
+            to_ayah: nextAyah.ayah
+          };
+          
+          gapBar.onclick = () => showInfo('gap', gapData);
           timeline.appendChild(gapBar);
         }
       }
@@ -1220,7 +1271,7 @@
       const duration = ayah.corrected_end_time - ayah.corrected_start_time;
       const startAdjustment = ayah.corrected_start_time - ayah.start_time;
       const endAdjustment = ayah.corrected_end_time - ayah.end_time;
-      
+
       infoTitle.textContent = `Ayah ${ayah.ayah} - Corrected Timing`;
       infoContent.innerHTML = `
         <p><strong>Orgional time:</strong> ${formatTime(ayah.start_time)}(${ayah.start_time}ms) - (${formatTime(ayah.end_time)}(${ayah.end_time})ms)</p>
@@ -1230,7 +1281,7 @@
         <p><strong>Corrected End:</strong> ${formatTime(ayah.corrected_end_time)} (${ayah.corrected_end_time}ms)</p>
         <p><strong>End Adjustment:</strong> <span class="${endAdjustment < 0 ? 'negative-change' : 'positive-change'}">${endAdjustment > 0 ? '+' : ''}${endAdjustment}ms</span></p>
         <p><strong>Duration:</strong> ${formatTime(duration)} (${duration}ms)</p>
-        <p><strong>Method:</strong> <span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></p>
+        <p><strong>Adjustment Info:</strong> <span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></p>
         <div class="audio-controls">
           <button id="playCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playCorrected${ayah.ayah}')">
             ▶️ Play Corrected
@@ -1254,6 +1305,21 @@
           </button>
         </div>
       `;
+    } else if (type === 'gap') {
+      const gap = ayah; // In this case, ayah is actually the gap data object
+      infoTitle.textContent = `Gap between Ayah ${gap.from_ayah} and Ayah ${gap.to_ayah}`;
+      infoContent.innerHTML = `
+        <p><strong>Gap Start:</strong> ${formatTime(gap.start_time)} (${gap.start_time}ms)</p>
+        <p><strong>Gap End:</strong> ${formatTime(gap.end_time)} (${gap.end_time}ms)</p>
+        <p><strong>Duration:</strong> ${formatTime(gap.duration)} (${gap.duration}ms)</p>
+        <p><strong>Between:</strong> Ayah ${gap.from_ayah} (end) → Ayah ${gap.to_ayah} (start)</p>
+        ${gap.duration < 100 ? '<p style="color: #f87171; font-weight: bold;">⚠️ Warning: Gap is less than 100ms minimum</p>' : ''}
+        <div class="audio-controls">
+          <button id="playGap${gap.from_ayah}_${gap.to_ayah}" class="play-btn" onclick="playAudioSegment(${gap.start_time}, ${gap.end_time}, 'playGap${gap.from_ayah}_${gap.to_ayah}')">
+            ▶️ Play Gap
+          </button>
+        </div>
+      `;
     }
 
     infoPanel.classList.add('active');
@@ -1274,8 +1340,8 @@
         : '-';
 
       // Highlight gaps that are less than 100ms in red
-      const gapClass = ayah.gap_to_next !== null && ayah.gap_to_next < 100 
-        ? 'negative-change' 
+      const gapClass = ayah.gap_to_next !== null && ayah.gap_to_next < 100
+        ? 'negative-change'
         : '';
 
       row.innerHTML = `
@@ -1295,7 +1361,7 @@
           </button>
         </td>
       `;
-      
+
       tbody.appendChild(row);
     });
   }
@@ -1304,7 +1370,7 @@
     const ayahHeader = document.getElementById('ayahHeader');
     const durationHeader = document.getElementById('durationHeader');
     const gapHeader = document.getElementById('gapHeader');
-    
+
     // If switching from another sort, reset other headers
     if (sortColumn === 'duration') {
       durationHeader.classList.remove('sorted-asc', 'sorted-desc');
@@ -1312,9 +1378,9 @@
     if (sortColumn === 'gap') {
       gapHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
-    
+
     sortColumn = 'ayah';
-    
+
     // Cycle through sort orders: none -> asc -> desc -> none
     if (sortOrder === 'none') {
       sortOrder = 'asc';
@@ -1329,7 +1395,7 @@
       sortColumn = null;
       ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
-    
+
     renderSortedTable();
   }
 
@@ -1337,7 +1403,7 @@
     const ayahHeader = document.getElementById('ayahHeader');
     const durationHeader = document.getElementById('durationHeader');
     const gapHeader = document.getElementById('gapHeader');
-    
+
     // If switching from another sort, reset other headers
     if (sortColumn === 'ayah') {
       ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
@@ -1345,9 +1411,9 @@
     if (sortColumn === 'gap') {
       gapHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
-    
+
     sortColumn = 'duration';
-    
+
     // Cycle through sort orders: none -> asc -> desc -> none
     if (sortOrder === 'none') {
       sortOrder = 'asc';
@@ -1362,7 +1428,7 @@
       sortColumn = null;
       durationHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
-    
+
     renderSortedTable();
   }
 
@@ -1370,7 +1436,7 @@
     const ayahHeader = document.getElementById('ayahHeader');
     const durationHeader = document.getElementById('durationHeader');
     const gapHeader = document.getElementById('gapHeader');
-    
+
     // If switching from another sort, reset other headers
     if (sortColumn === 'ayah') {
       ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
@@ -1378,9 +1444,9 @@
     if (sortColumn === 'duration') {
       durationHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
-    
+
     sortColumn = 'gap';
-    
+
     // Cycle through sort orders: none -> asc -> desc -> none
     if (sortOrder === 'none') {
       sortOrder = 'asc';
@@ -1395,7 +1461,7 @@
       sortColumn = null;
       gapHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
-    
+
     renderSortedTable();
   }
 
@@ -1456,8 +1522,8 @@
         ? `${ayah.gap_to_next}ms`
         : '-';
 
-      const gapClass = ayah.gap_to_next !== null && ayah.gap_to_next < 100 
-        ? 'negative-change' 
+      const gapClass = ayah.gap_to_next !== null && ayah.gap_to_next < 100
+        ? 'negative-change'
         : '';
 
       row.innerHTML = `
@@ -1477,7 +1543,7 @@
           </button>
         </td>
       `;
-      
+
       tbody.appendChild(row);
     });
   }
@@ -1488,7 +1554,7 @@
     const maxTime = Math.max(...data.map(d => d.corrected_end_time));
     const totalOriginalTime = data.reduce((sum, ayah) => sum + (ayah.end_time - ayah.start_time), 0);
     const totalCorrectedTime = data.reduce((sum, ayah) => sum + (ayah.corrected_end_time - ayah.corrected_start_time), 0);
-    
+
     // Calculate gap statistics
     const gaps = [];
     data.slice(0, -1).forEach((ayah, index) => {
@@ -1496,7 +1562,7 @@
       const gap = nextAyah.corrected_start_time - ayah.corrected_end_time;
       if (gap > 0) gaps.push(gap);
     });
-    
+
     const totalGaps = gaps.reduce((sum, gap) => sum + gap, 0);
     const avgGap = gaps.length > 0 ? totalGaps / gaps.length : 0;
     const minGap = gaps.length > 0 ? Math.min(...gaps) : 0;
@@ -1505,7 +1571,7 @@
     const silencesUsed = data.filter(ayah => ayah.silence_used).length;
     const avgStartAdjustment = data.reduce((sum, ayah) => sum + Math.abs(ayah.corrected_start_time - ayah.start_time), 0) / data.length;
     const maxStartAdjustment = Math.max(...data.map(ayah => Math.abs(ayah.corrected_start_time - ayah.start_time)));
-    
+
     const avgEndAdjustment = data.reduce((sum, ayah) => sum + Math.abs(ayah.corrected_end_time - ayah.end_time), 0) / data.length;
 
     const statsContainer = document.getElementById('statsContainer');
@@ -1546,7 +1612,7 @@
   }
 
   // Keyboard shortcuts
-  document.addEventListener('keydown', function(e) {
+  document.addEventListener('keydown', function (e) {
     if (e.key === '+' || e.key === '=') {
       e.preventDefault();
       zoomIn();

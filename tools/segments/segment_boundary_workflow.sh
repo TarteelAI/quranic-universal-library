@@ -2,7 +2,7 @@
 # Smart Boundary Refinement Workflow with Per-Gap Thresholds
 
 # Usage
-# ./segment_boundary_workflow.sh 65 1 ../../data/audio/65/wav/001.wav
+# ./segment_boundary_workflow.sh 1 2 ../../data/audio/1/wav/002.wav
 set -e
 
 # Colors

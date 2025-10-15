@@ -1,7 +1,7 @@
 # This script downloads and converts MP3 recitations
 #
 # Usage:
-#   ruby download_audio.rb --reciter 4
+#   ruby download_audio.rb --reciter 201
 #
 
 require 'optparse'
@@ -61,6 +61,7 @@ end
 
 def download_audio(url, destination_file)
   return puts "#{File.basename(destination_file)} already exists" if File.exist?(destination_file)
+  url = url.gsub("mp3", "wav")
 
   uri = URI(url)
   Net::HTTP.version_1_2
@@ -79,7 +80,7 @@ end
 reciter_id = options[:reciter_id]
 chapters = options[:chapters]
 
-base_path = "../../data/audio/#{reciter_id}/mp3"
+base_path = "../../data/audio/#{reciter_id}/wav"
 mp3_path = "#{base_path}"
 FileUtils.mkdir_p(mp3_path)
 
@@ -94,12 +95,12 @@ chapters.each do |i|
   end
 
   padded = i.to_s.rjust(3, '0')
-  mp3_file = "#{mp3_path}/#{padded}.mp3"
+  mp3_file = "#{mp3_path}/#{padded}.wav"
   audio_url = file_info["audio_url"]
 
   puts "\n=== Surah #{i} - #{reciter_name} ==="
   puts "URL:     #{audio_url}"
-  puts "MP3:     #{mp3_file}"
+  puts "WAV:     #{mp3_file}"
 
   download_audio(audio_url, mp3_file)
 end

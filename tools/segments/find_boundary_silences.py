@@ -358,7 +358,7 @@ class BoundarySilenceDetector:
         min_width = 16
         num_ayahs = len(results)
         duration_seconds = self.duration_ms / 1000
-        ayah_scaling = max(0, (num_ayahs - 10) // 10) * 2
+        ayah_scaling = max(0, (num_ayahs - 10) // 40) * 2
         duration_scaling = max(0, (duration_seconds - 60) // 60) * 1
         dynamic_width = min_width + ayah_scaling + duration_scaling
         dynamic_width = min(dynamic_width, 50)
@@ -386,8 +386,19 @@ class BoundarySilenceDetector:
         ax.plot(times, volumes, linewidth=0.8, alpha=0.6, color='#2196F3', label='Volume')
         
         # Plot ayah boundaries
-        colors = ['#FF5722', '#4CAF50', '#9C27B0', '#FF9800', '#00BCD4']
-        
+        colors = [
+          '#FF5722', # deep orange
+          '#4CAF50', # green
+          '#9C27B0', # purple
+          '#FF9800', # orange
+          '#00BCD4', # cyan
+          '#E91E63', # bold pink/magenta
+          '#2196F3', # vivid blue
+          '#F44336', # bold red
+          '#CDDC39', # lime/yellow-green
+          '#3F51B5'  # indigo/deep blue
+        ]
+
         for i, result in enumerate(results):
             ayah = result['ayah']
             start_sec = result['start_time'] / 1000
@@ -406,8 +417,8 @@ class BoundarySilenceDetector:
             for silence in result['silences']:
                 sil_start = silence['start_time'] / 1000
                 sil_end = silence['end_time'] / 1000
-                ax.axvspan(sil_start, sil_end, alpha=0.4, color='#FFEB3B',
-                          edgecolor='#F57C00', linewidth=2,
+                ax.axvspan(sil_start, sil_end, alpha=0.4, color='#00FF00',
+                          edgecolor='#FFFF00', linewidth=2,
                           label='Detected Silence' if i == 0 and silence == result['silences'][0] else '')
         
         # Formatting

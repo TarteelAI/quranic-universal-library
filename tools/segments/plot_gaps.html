@@ -498,15 +498,34 @@
 
         .file-upload-section {
             margin: 30px 0;
-            padding: 20px;
+            padding: 30px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-section:hover,
+        .file-upload-section.drag-over {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .file-upload-section.has-file {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
         }
 
         .file-upload-section h3 {
             color: #ffd700;
             margin-bottom: 15px;
+        }
+
+        .file-upload-section .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
         }
 
         .file-input-wrapper {
@@ -589,16 +608,13 @@
     <div id="selectorPanel" class="selector-panel">
         <h2 style="color: #ffd700; margin-bottom: 20px;">📊 Load Ayah Boundary Data</h2>
         
-        <div class="file-upload-section">
+        <div class="file-upload-section" id="jsonDropZone">
+            <div class="icon">📄</div>
             <h3>Option 1: Upload JSON File</h3>
-            <p style="opacity: 0.8; margin-bottom: 15px;">Upload a JSON file containing ayah boundary data</p>
-            <div class="file-input-wrapper">
-                <input type="file" id="jsonFileInput" accept=".json" />
-                <label for="jsonFileInput" class="file-input-label">
-                    📁 Choose JSON File
-                </label>
-            </div>
-            <div id="fileNameDisplay" style="margin-top: 10px; opacity: 0.8;"></div>
+            <p style="opacity: 0.8; margin-bottom: 15px;">Drop JSON file here or click to browse</p>
+            <p style="opacity: 0.6; font-size: 0.9em;">Ayah boundary data in JSON format</p>
+            <input type="file" id="jsonFileInput" accept=".json" style="display: none;" />
+            <div id="fileNameDisplay" style="margin-top: 15px; opacity: 0.8;"></div>
         </div>
 
         <div class="divider">
@@ -694,7 +710,7 @@
                         <th>Corrected End</th>
                         <th>End Δ</th>
                         <th class="sortable" id="durationHeader" onclick="sortByDuration()">Duration</th>
-                        <th>Gap to Next</th>
+                        <th class="sortable" id="gapHeader" onclick="sortByGap()">Gap to Next</th>
                         <th>Method</th>
                         <th>Play</th>
                     </tr>
@@ -878,6 +894,7 @@
     const reciterInput = document.getElementById('reciterInput');
     const loadBtn = document.getElementById('loadDataBtn');
     const jsonFileInput = document.getElementById('jsonFileInput');
+    const jsonDropZone = document.getElementById('jsonDropZone');
     const fileNameDisplay = document.getElementById('fileNameDisplay');
 
     selectorPanel.classList.remove('hidden');
@@ -915,23 +932,67 @@
       }
     });
 
-    // Handle JSON file upload
+    // Handle JSON file upload - file input change
     jsonFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
-        fileNameDisplay.innerHTML = `✓ Selected: <strong>${escapeHtml(file.name)}</strong>`;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const jsonData = JSON.parse(event.target.result);
-            loadDataFromJSON(jsonData, file.name);
-          } catch (error) {
-            showError('Invalid JSON file: ' + error.message);
-          }
-        };
-        reader.readAsText(file);
+        handleJSONFile(file);
       }
     });
+
+    // Click on drop zone to trigger file input
+    jsonDropZone.addEventListener('click', (e) => {
+      if (e.target !== jsonFileInput) {
+        jsonFileInput.click();
+      }
+    });
+
+    // Drag and drop handlers for JSON files
+    jsonDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.add('drag-over');
+    });
+
+    jsonDropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.remove('drag-over');
+    });
+
+    jsonDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.remove('drag-over');
+      
+      if (e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        
+        // Check if it's a JSON file
+        if (file.type === 'application/json' || file.name.endsWith('.json')) {
+          handleJSONFile(file);
+        } else {
+          showError('Please drop a JSON file');
+        }
+      }
+    });
+  }
+
+  function handleJSONFile(file) {
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const jsonDropZone = document.getElementById('jsonDropZone');
+    
+    fileNameDisplay.innerHTML = `✓ Loading: <strong>${escapeHtml(file.name)}</strong>`;
+    jsonDropZone.classList.add('has-file');
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        loadDataFromJSON(jsonData, file.name);
+      } catch (error) {
+        jsonDropZone.classList.remove('has-file');
+        showError('Invalid JSON file: ' + error.message);
+      }
+    };
+    reader.readAsText(file);
   }
 
   function updateLoadButton() {
@@ -1242,10 +1303,14 @@
   function sortByAyah() {
     const ayahHeader = document.getElementById('ayahHeader');
     const durationHeader = document.getElementById('durationHeader');
+    const gapHeader = document.getElementById('gapHeader');
     
-    // If switching from duration sort, reset duration header
+    // If switching from another sort, reset other headers
     if (sortColumn === 'duration') {
       durationHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    if (sortColumn === 'gap') {
+      gapHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
     
     sortColumn = 'ayah';
@@ -1271,10 +1336,14 @@
   function sortByDuration() {
     const ayahHeader = document.getElementById('ayahHeader');
     const durationHeader = document.getElementById('durationHeader');
+    const gapHeader = document.getElementById('gapHeader');
     
-    // If switching from ayah sort, reset ayah header
+    // If switching from another sort, reset other headers
     if (sortColumn === 'ayah') {
       ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    if (sortColumn === 'gap') {
+      gapHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
     
     sortColumn = 'duration';
@@ -1292,6 +1361,39 @@
       sortOrder = 'none';
       sortColumn = null;
       durationHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    
+    renderSortedTable();
+  }
+
+  function sortByGap() {
+    const ayahHeader = document.getElementById('ayahHeader');
+    const durationHeader = document.getElementById('durationHeader');
+    const gapHeader = document.getElementById('gapHeader');
+    
+    // If switching from another sort, reset other headers
+    if (sortColumn === 'ayah') {
+      ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    if (sortColumn === 'duration') {
+      durationHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    
+    sortColumn = 'gap';
+    
+    // Cycle through sort orders: none -> asc -> desc -> none
+    if (sortOrder === 'none') {
+      sortOrder = 'asc';
+      gapHeader.classList.add('sorted-asc');
+      gapHeader.classList.remove('sorted-desc');
+    } else if (sortOrder === 'asc') {
+      sortOrder = 'desc';
+      gapHeader.classList.remove('sorted-asc');
+      gapHeader.classList.add('sorted-desc');
+    } else {
+      sortOrder = 'none';
+      sortColumn = null;
+      gapHeader.classList.remove('sorted-asc', 'sorted-desc');
     }
     
     renderSortedTable();
@@ -1319,6 +1421,22 @@
           const durationA = a.corrected_end_time - a.corrected_start_time;
           const durationB = b.corrected_end_time - b.corrected_start_time;
           return durationB - durationA;
+        });
+      }
+    } else if (sortColumn === 'gap') {
+      if (sortOrder === 'asc') {
+        sortedData.sort((a, b) => {
+          // Handle null/undefined gaps - treat them as Infinity for ascending sort
+          const gapA = (a.gap_to_next !== null && a.gap_to_next !== undefined) ? a.gap_to_next : Infinity;
+          const gapB = (b.gap_to_next !== null && b.gap_to_next !== undefined) ? b.gap_to_next : Infinity;
+          return gapA - gapB;
+        });
+      } else if (sortOrder === 'desc') {
+        sortedData.sort((a, b) => {
+          // Handle null/undefined gaps - treat them as -Infinity for descending sort
+          const gapA = (a.gap_to_next !== null && a.gap_to_next !== undefined) ? a.gap_to_next : -Infinity;
+          const gapB = (b.gap_to_next !== null && b.gap_to_next !== undefined) ? b.gap_to_next : -Infinity;
+          return gapB - gapA;
         });
       }
     }

@@ -152,15 +152,23 @@ class BatchAudioSegmentParser
     adjustment_results = adjust_boundary_start_time(ayah_boundaries, boundary_silences_map, adjustment_results)
     adjust_boundary_end_time(ayah_boundaries, boundary_silences_map, adjustment_results)
 
-    ayah_boundaries.each do |ayah_boundary|
+    ayah_boundaries.each_with_index do |ayah_boundary, i|
+      next_ayah = adjustment_results[ayah_boundary.ayah_number+1]
       adjustment = adjustment_results[ayah_boundary.ayah_number]
+      start_time = adjustment[:corrected_start_time]
+      end_time = adjustment[:corrected_end_time]
+
+      if next_ayah
+        end_time = [end_time, next_ayah[:corrected_start_time] - MIN_GAP_BETWEEN_AYAHS].max
+      end
+
       ayah_boundary.update_columns(
-        corrected_start_time: adjustment[:corrected_start_time],
-        corrected_end_time: adjustment[:corrected_end_time]
+        corrected_start_time: start_time,
+        corrected_end_time: end_time
       )
     end
 
-    fix_boundary_overlaps(ayah_boundaries)
+    #fix_boundary_overlaps(ayah_boundaries)
     ayah_boundaries.each(&:reload)
 
     plot_data = []
@@ -407,27 +415,28 @@ class BatchAudioSegmentParser
         # For subsequent ayahs, use silence before start if available
         if before_silences.any?
           # Find closest silence before start
-          closest_before = before_silences.filter { |s| s['distance_to_boundary'] > 0 }.min_by { |s| s['distance_to_boundary'] }
-          # Set start to silence end + MIN_GAP_BETWEEN_AYAHS
-          new_start = closest_before['start_time'] + MIN_GAP_BETWEEN_AYAHS
+          # filter { |s| s['distance_to_boundary'] > 0 }
+          closest_before = before_silences.max_by { |s| s['distance_to_boundary'] }
 
-          #TODO: check if we need this loop
-          while (new_start >= MIN_GAP_BETWEEN_AYAHS + closest_before['start_time'] + (closest_before['duration'] / 2))
-            new_start -= 30 # Move back in 30ms increments to avoid cutting into silence too much
+          if closest_before
+            # Set start to silence end + MIN_GAP_BETWEEN_AYAHS
+            new_start = closest_before['start_time'] + [closest_before['distance_to_boundary']/2, closest_before['duration']/2].max
+
+            # TODO: check if we need this loop
+            #while (new_start >= MIN_GAP_BETWEEN_AYAHS + closest_before['end_time'] + (closest_before['duration'] / 2))
+            # new_start -= 30 # Move back in 30ms increments to avoid cutting into silence too much
+            #end
           end
 
           # Constraints:
           # 1. Don't move start later than original
           # 2. Don't move start before previous ayah's end (this would create overlap)
           can_use_silence = new_start <= ayah_boundary.start_time
-          if can_use_silence
-            if ayah_result[:last_ayah_end]
-              new_start = [new_start, ayah_result[:last_ayah_end].to_i + MIN_GAP_BETWEEN_AYAHS].max
-            end
 
+          if can_use_silence
             ayah_result[:corrected_start_time] = new_start
             ayah_result[:silence_before_used] = closest_before
-            ayah_result[:adjustment_notes] << "Start adjusted using silence (end: #{closest_before['end_time']}ms)"
+            ayah_result[:adjustment_notes] << "Start adjusted using silence that ends at: #{closest_before['end_time']}ms)"
           elsif new_start > ayah_boundary.start_time
             ayah_result[:adjustment_notes] << "Silence would move start too late, keeping current"
           end
@@ -465,16 +474,26 @@ class BatchAudioSegmentParser
       if after_silences.any?
         # Find the silence closest to the current end time
         closest_after = after_silences.min_by { |s| s['distance_to_boundary'] }
+        farthest_after = after_silences.max_by { |s| s['distance_to_boundary'] }
+
+        distances = [
+          max_allowed_end
+        ]
 
         if closest_after
-          max_allowed_end = [max_allowed_end, closest_after['end_time']].min
+          distances << closest_after['end_time'] + MIN_GAP_BETWEEN_AYAHS
         end
+
+        if farthest_after
+          distances << farthest_after['start_time'] - MIN_GAP_BETWEEN_AYAHS
+        end
+        max_allowed_end = distances.min
 
         # Calculate 50% of the silence duration
         # silence_extension = (closest_after['duration'] * 0.5).round
         # proposed_end = current_end + silence_extension
 
-        while new_end < max_allowed_end
+        while new_end+30 < max_allowed_end
           new_end += 30
         end
 

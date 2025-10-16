@@ -239,6 +239,36 @@
             animation: fadeIn 0.3s ease;
         }
 
+        .info-waveform-container {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            background: white;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #e1e8ed;
+            overflow: hidden;
+        }
+
+        .info-waveform-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .info-waveform-label {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            color: #5a6c7d;
+            font-weight: bold;
+            z-index: 10;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -509,7 +539,8 @@
             background: #f8f9fa;
             border-radius: 8px;
             margin: 15px 0;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
             cursor: pointer;
             border: 1px solid #e1e8ed;
             transition: border-color 0.2s ease;
@@ -517,6 +548,25 @@
 
         .waveform-container:hover {
             border-color: #57d798;
+        }
+
+        /* Scrollbar styling for waveform container */
+        .waveform-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .waveform-container::-webkit-scrollbar-track {
+            background: rgba(225, 232, 237, 0.5);
+            border-radius: 3px;
+        }
+
+        .waveform-container::-webkit-scrollbar-thumb {
+            background: rgba(87, 215, 152, 0.5);
+            border-radius: 3px;
+        }
+
+        .waveform-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(87, 215, 152, 0.8);
         }
 
         .waveform-canvas {
@@ -574,6 +624,47 @@
         .waveform-toggle:hover {
             background: white;
             border-color: #57d798;
+        }
+
+        .waveform-zoom-controls {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+        }
+
+        .waveform-zoom-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .waveform-zoom-btn:hover {
+            background: white;
+            border-color: #57d798;
+            color: #57d798;
+        }
+
+        .waveform-zoom-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .waveform-zoom-info {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            color: #5a6c7d;
         }
 
         .waveform-hover-line {
@@ -637,9 +728,20 @@
         .seek-time-display {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.9em;
             color: #5a6c7d;
             margin-top: 8px;
+        }
+
+        .seek-time-ms {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #57d798;
+            font-weight: bold;
+            padding: 2px 8px;
+            background: rgba(87, 215, 152, 0.1);
+            border-radius: 4px;
         }
 
         .seek-controls {
@@ -675,6 +777,76 @@
         .seek-control-btn.primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+        }
+
+        .table-search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .table-search-input {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .table-search-input:focus {
+            outline: none;
+            border-color: #57d798;
+            box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+        }
+
+        .table-search-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .search-results-info {
+            color: #5a6c7d;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .search-results-info.active {
+            color: #57d798;
+            font-weight: bold;
+            opacity: 1;
+        }
+
+        .clear-search-btn {
+            background: white;
+            border: 2px solid #e1e8ed;
+            color: #2c3e50;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .clear-search-btn:hover {
+            border-color: #f87171;
+            color: #f87171;
+            background: #fef2f2;
+        }
+
+        .clear-search-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .table-row-hidden {
+            display: none !important;
         }
 
         .selector-panel {
@@ -933,7 +1105,7 @@
             <div id="audioFileName" class="audio-info"></div>
             <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
             <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
-                💡 Tip: Space/Esc to stop | Arrow keys to skip | +/- to zoom | 0 to reset
+                💡 Tip: / to search | Space to pause | Esc to close | Arrows to skip | +/- to zoom
             </div>
         </div>
 
@@ -944,15 +1116,15 @@
              </div>
              <div class="legend-item">
                  <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                 <span>Corrected Timing (Click for details)</span>
+                 <span>Corrected Timing (Click for details + waveform)</span>
              </div>
              <div class="legend-item">
                  <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
-                 <span>Silence Detection (Clickable)</span>
+                 <span>Silence Detection (Click to see waveform)</span>
              </div>
              <div class="legend-item">
                  <div class="legend-color" style="background: rgba(255, 255, 0, 0.6); border-style: dashed;"></div>
-                 <span>Gap (Click to play)</span>
+                 <span>Gap (Click to see waveform + play)</span>
              </div>
          </div>
 
@@ -973,11 +1145,28 @@
 
          <div id="infoPanel" class="info-panel">
              <h3 id="infoTitle">Click on any ayah, silence, or gap to see details and play audio</h3>
+             <div id="infoWaveformContainer" class="info-waveform-container" style="display: none;">
+                 <canvas id="infoWaveformCanvas" class="info-waveform-canvas"></canvas>
+                 <div id="infoWaveformLabel" class="info-waveform-label">Waveform</div>
+             </div>
              <div id="infoContent"></div>
          </div>
 
         <div class="timeline-section">
             <div class="section-title">Detailed Comparison Table</div>
+            <div class="table-search-container">
+                <input 
+                    type="text" 
+                    id="tableSearchInput" 
+                    class="table-search-input" 
+                    placeholder="Search ayahs... (e.g., 1, 5-10, 15)"
+                    oninput="filterTable()"
+                />
+                <span id="searchResultsInfo" class="search-results-info"></span>
+                <button id="clearSearchBtn" class="clear-search-btn" onclick="clearTableSearch()" disabled>
+                    ✕ Clear
+                </button>
+            </div>
             <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
                 <table class="comparison-table" id="comparisonTable">
                     <thead>
@@ -1012,6 +1201,11 @@
             <div id="waveformProgress" class="waveform-progress"></div>
             <div id="waveformCursor" class="waveform-cursor"></div>
             <div id="waveformHoverLine" class="waveform-hover-line"></div>
+            <div class="waveform-zoom-controls">
+                <button class="waveform-zoom-btn" onclick="zoomWaveformOut(event)" title="Zoom out waveform">−</button>
+                <span class="waveform-zoom-info" id="waveformZoomInfo">1x</span>
+                <button class="waveform-zoom-btn" onclick="zoomWaveformIn(event)" title="Zoom in waveform">+</button>
+            </div>
             <button id="waveformToggle" class="waveform-toggle" onclick="toggleWaveformView(event)" title="Toggle between segment and full audio view">Segment View</button>
             <div id="waveformLoading" class="waveform-loading">Generating waveform...</div>
         </div>
@@ -1019,6 +1213,7 @@
             <input type="range" id="seekSlider" class="seek-slider" min="0" max="100" value="0" step="0.1">
             <div class="seek-time-display">
                 <span id="currentTime">0:00</span>
+                <span id="currentTimeMs" class="seek-time-ms">0ms</span>
                 <span id="totalDuration">0:00</span>
             </div>
         </div>
@@ -1052,6 +1247,12 @@
   let waveformData = null;
   let currentSegmentWaveform = null;
   let showFullWaveform = false; // Toggle between segment and full waveform view
+  let waveformZoom = 1; // Zoom level for waveform canvas
+  const minWaveformZoom = 0.5;
+  const maxWaveformZoom = 4;
+  
+  // Store initial zoom for reset button
+  let initialZoom = 1;
 
   function escapeHtml(str) {
     return String(str)
@@ -1252,7 +1453,7 @@
       
       // Retry after a short delay
       setTimeout(() => {
-        if (waveformData && currentSegmentStart === startMs && currentSegmentEnd === endMs) {
+        if (waveformData) {
           drawWaveform(startMs, endMs);
         }
       }, 500);
@@ -1273,14 +1474,15 @@
     
     console.log(`Canvas rect: ${rect.width}x${rect.height}, DPR: ${dpr}`);
     
-    // Set canvas size accounting for device pixel ratio
-    canvas.width = rect.width * dpr;
+    // Set canvas size accounting for device pixel ratio and waveform zoom
+    const zoomedWidth = rect.width * waveformZoom;
+    canvas.width = zoomedWidth * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
     
     // Clear canvas with background
     ctx.fillStyle = '#f8f9fa';
-    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.fillRect(0, 0, zoomedWidth, rect.height);
     
     // Calculate which portion of the waveform to display
     const totalDuration = audioElement.duration * 1000;
@@ -1303,15 +1505,15 @@
       console.log(`Drawing segment waveform from ${startMs}ms to ${endMs}ms`);
     }
     
-    console.log(`Waveform data: ${segmentData.length} samples from index ${startIndex} to ${endIndex}`);
+    console.log(`Waveform data: ${segmentData.length} samples from index ${startIndex} to ${endIndex}, zoom: ${waveformZoom}x`);
     
     if (segmentData.length === 0) {
       console.error('No segment data to draw');
       return;
     }
     
-    // Draw waveform bars
-    const barWidth = rect.width / segmentData.length;
+    // Draw waveform bars with zoom applied
+    const barWidth = zoomedWidth / segmentData.length;
     const middleY = rect.height / 2;
     
     // Create gradient
@@ -1338,8 +1540,8 @@
     if (showFullWaveform) {
       const segmentStartRatio = startMs / totalDuration;
       const segmentEndRatio = endMs / totalDuration;
-      const segmentStartX = segmentStartRatio * rect.width;
-      const segmentEndX = segmentEndRatio * rect.width;
+      const segmentStartX = segmentStartRatio * zoomedWidth;
+      const segmentEndX = segmentEndRatio * zoomedWidth;
       
       // Draw segment boundary markers
       ctx.strokeStyle = 'rgba(255, 193, 7, 0.8)';
@@ -1430,6 +1632,37 @@
     }
   }
 
+  function zoomWaveformIn(event) {
+    event.stopPropagation(); // Prevent seek when clicking zoom button
+    
+    if (waveformZoom < maxWaveformZoom) {
+      waveformZoom = Math.min(maxWaveformZoom, waveformZoom * 1.5);
+      updateWaveformZoom();
+    }
+  }
+
+  function zoomWaveformOut(event) {
+    event.stopPropagation(); // Prevent seek when clicking zoom button
+    
+    if (waveformZoom > minWaveformZoom) {
+      waveformZoom = Math.max(minWaveformZoom, waveformZoom / 1.5);
+      updateWaveformZoom();
+    }
+  }
+
+  function updateWaveformZoom() {
+    const zoomInfo = document.getElementById('waveformZoomInfo');
+    zoomInfo.textContent = `${waveformZoom.toFixed(1)}x`;
+    
+    // Redraw waveform with new zoom
+    if (currentSegmentStart !== null && currentSegmentEnd !== null) {
+      drawWaveform(currentSegmentStart, currentSegmentEnd);
+      updateWaveformProgress();
+    }
+    
+    console.log(`🔍 Waveform zoom: ${waveformZoom.toFixed(1)}x`);
+  }
+
   function updateWaveformHover(event) {
     const container = document.getElementById('waveformContainer');
     const hoverLine = document.getElementById('waveformHoverLine');
@@ -1475,6 +1708,9 @@
     currentSegmentStart = startMs;
     currentSegmentEnd = endMs;
 
+    // Scroll timeline to show this segment
+    scrollToSegment(startMs, endMs);
+
     // Set up seek control UI
     const seekControl = document.getElementById('audioSeekControl');
     const seekSlider = document.getElementById('seekSlider');
@@ -1483,8 +1719,16 @@
     
     const segmentDuration = (endMs - startMs) / 1000;
     seekTitle.textContent = `Playing Audio Segment (${formatTime(endMs - startMs)})`;
-    totalDuration.textContent = formatTimeShort(segmentDuration);
+    totalDuration.textContent = `${formatTimeShort(segmentDuration)} | ${endMs}ms`;
     seekSlider.value = 0;
+    
+    // Initialize time displays
+    document.getElementById('currentTime').textContent = '0:00';
+    document.getElementById('currentTimeMs').textContent = `${startMs}ms`;
+    
+    // Reset waveform zoom for new segment
+    waveformZoom = 1;
+    document.getElementById('waveformZoomInfo').textContent = '1x';
     
     // Draw waveform for this segment
     drawWaveform(startMs, endMs);
@@ -1520,16 +1764,68 @@
         
         seekSlider.value = Math.max(0, Math.min(100, progress));
         document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+        document.getElementById('currentTimeMs').textContent = `${Math.round(currentPos)}ms`;
         
         // Update waveform progress
         updateWaveformProgress();
         
-        // Stop at end time
+        // Stop at end time (but keep control panel open)
         if (audioElement.currentTime >= endMs / 1000) {
-          stopAudioPlayback();
+          audioElement.pause();
+          
+          // Update button states but don't close the panel
+          if (currentlyPlaying) {
+            const playBtn = document.getElementById(currentlyPlaying);
+            if (playBtn) {
+              playBtn.textContent = playBtn.textContent.replace('⏸', '▶️');
+              playBtn.classList.remove('playing');
+            }
+          }
+          
+          // Show replay button with icon
+          const playPauseBtn = document.getElementById('playPauseBtn');
+          playPauseBtn.innerHTML = '🔁 Replay';
+          playPauseBtn.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+          
+          // Reset button style after a moment
+          setTimeout(() => {
+            playPauseBtn.innerHTML = '▶️ Play';
+            playPauseBtn.style.background = '';
+          }, 2000);
+          
+          // Don't call stopAudioPlayback() to keep panel open
         }
       }
     }, 50);
+  }
+
+  function scrollToSegment(startMs, endMs) {
+    const timeline = document.getElementById('timeline');
+    const timelineWrapper = timeline.closest('.timeline-wrapper');
+    
+    if (!timelineWrapper || !data || data.length === 0) return;
+    
+    // Calculate the maximum time in the data
+    const maxTime = Math.max(...data.map(d => Math.max(d.end_time, d.corrected_end_time || d.end_time)));
+    
+    // Calculate the position of this segment in the timeline
+    const segmentMiddle = (startMs + endMs) / 2;
+    const positionRatio = segmentMiddle / maxTime;
+    
+    // Get the timeline's full width (accounting for zoom)
+    const timelineFullWidth = timeline.scrollWidth;
+    const wrapperWidth = timelineWrapper.clientWidth;
+    
+    // Calculate scroll position to center the segment
+    const scrollPosition = (positionRatio * timelineFullWidth) - (wrapperWidth / 2);
+    
+    // Smooth scroll to the segment
+    timelineWrapper.scrollTo({
+      left: Math.max(0, scrollPosition),
+      behavior: 'smooth'
+    });
+    
+    console.log(`Scrolling to segment at ${startMs}ms-${endMs}ms (${positionRatio.toFixed(2)} of timeline)`);
   }
 
   function stopAudioPlayback() {
@@ -1560,8 +1856,14 @@
     const playPauseBtn = document.getElementById('playPauseBtn');
     
     if (audioElement.paused) {
+      // If at the end of segment, restart from beginning
+      if (audioElement.currentTime >= currentSegmentEnd / 1000) {
+        audioElement.currentTime = currentSegmentStart / 1000;
+      }
+      
       audioElement.play();
       playPauseBtn.innerHTML = '⏸ Pause';
+      playPauseBtn.style.background = ''; // Reset to default gradient
       
       if (currentlyPlaying) {
         const btn = document.getElementById(currentlyPlaying);
@@ -1573,6 +1875,7 @@
     } else {
       audioElement.pause();
       playPauseBtn.innerHTML = '▶️ Play';
+      playPauseBtn.style.background = ''; // Reset to default
       
       if (currentlyPlaying) {
         const btn = document.getElementById(currentlyPlaying);
@@ -1624,7 +1927,10 @@
       isUserSeeking = true;
       const progress = parseFloat(e.target.value) / 100;
       const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
-      document.getElementById('currentTime').textContent = formatTimeShort((newTime - currentSegmentStart) / 1000);
+      const relativeTime = newTime - currentSegmentStart;
+      
+      document.getElementById('currentTime').textContent = formatTimeShort(relativeTime / 1000);
+      document.getElementById('currentTimeMs').textContent = `${Math.round(newTime)}ms`;
       
       // Update waveform preview while dragging
       const waveformProgress = document.getElementById('waveformProgress');
@@ -1799,6 +2105,9 @@
     // Update title
     document.querySelector('h1').textContent = `Ayah Timeline - ${fileName}`;
 
+    // Set initial zoom based on number of ayahs
+    setInitialZoom();
+
     // Initialize and render
     initAudioHandling();
     createTimeline();
@@ -1825,6 +2134,9 @@
 
         // Update title
         document.querySelector('h1').textContent = `Surah ${surah} - Reciter ${reciter} - Ayah Timeline`;
+
+        // Set initial zoom based on number of ayahs
+        setInitialZoom();
 
         // Initialize and render
         initAudioHandling();
@@ -1866,7 +2178,47 @@
   }
 
   function resetZoom() {
-    currentZoom = 1;
+    currentZoom = initialZoom;
+    updateZoom();
+    console.log(`🔄 Reset zoom to initial value: ${initialZoom}x`);
+  }
+
+  function setInitialZoom() {
+    if (!data || data.length === 0) {
+      currentZoom = 1;
+      initialZoom = 1;
+      return;
+    }
+
+    const ayahCount = data.length;
+    
+    // Calculate optimal zoom based on ayah count
+    if (ayahCount <= 10) {
+      // Small surahs (e.g., Al-Kawthar: 3, Al-Ikhlas: 4) - no zoom needed
+      currentZoom = 1;
+    } else if (ayahCount <= 20) {
+      // Short surahs (e.g., Al-Mulk: 30) - slight zoom
+      currentZoom = 1.5;
+    } else if (ayahCount <= 40) {
+      // Medium surahs (e.g., Ya-Sin: 83) - moderate zoom
+      currentZoom = 2.5;
+    } else if (ayahCount <= 80) {
+      // Long surahs (e.g., Al-Kahf: 110) - more zoom
+      currentZoom = 4;
+    } else if (ayahCount <= 150) {
+      // Very long surahs (e.g., Al-Baqarah: 286) - significant zoom
+      currentZoom = 6;
+    } else {
+      // Extremely long surahs - maximum comfortable zoom
+      currentZoom = 8;
+    }
+    
+    // Store this as the initial zoom
+    initialZoom = currentZoom;
+    
+    console.log(`📊 Auto-zoom: ${ayahCount} ayahs → ${currentZoom}x zoom`);
+    
+    // Apply the zoom
     updateZoom();
   }
 
@@ -1990,6 +2342,82 @@
     return baseIntervals[baseIntervals.length - 1];
   }
 
+  function drawInfoWaveform(startMs, endMs, label, highlightColor = 'rgba(87, 215, 152, 0.9)') {
+    const canvas = document.getElementById('infoWaveformCanvas');
+    const container = document.getElementById('infoWaveformContainer');
+    const labelEl = document.getElementById('infoWaveformLabel');
+    
+    if (!waveformData || !canvas) {
+      container.style.display = 'none';
+      return;
+    }
+    
+    container.style.display = 'block';
+    labelEl.textContent = label;
+    
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Set canvas size
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    
+    // Clear canvas
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    
+    // Calculate which portion of waveform to display
+    const totalDuration = audioElement ? audioElement.duration * 1000 : 
+                         (data && data.length > 0 ? Math.max(...data.map(d => d.corrected_end_time)) : 1000);
+    
+    const startRatio = startMs / totalDuration;
+    const endRatio = endMs / totalDuration;
+    
+    const startIndex = Math.floor(startRatio * waveformData.length);
+    const endIndex = Math.ceil(endRatio * waveformData.length);
+    const segmentData = waveformData.slice(startIndex, endIndex);
+    
+    if (segmentData.length === 0) {
+      ctx.fillStyle = '#5a6c7d';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No waveform data available', rect.width / 2, rect.height / 2);
+      return;
+    }
+    
+    // Draw waveform
+    const barWidth = rect.width / segmentData.length;
+    const middleY = rect.height / 2;
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, rect.height);
+    gradient.addColorStop(0, highlightColor);
+    gradient.addColorStop(0.5, 'rgba(0, 163, 255, 0.8)');
+    gradient.addColorStop(1, 'rgba(98, 214, 244, 0.8)');
+    
+    ctx.fillStyle = gradient;
+    
+    for (let i = 0; i < segmentData.length; i++) {
+      const x = i * barWidth;
+      const amplitude = segmentData[i];
+      const barHeight = amplitude * (rect.height * 0.85);
+      const y = middleY - barHeight / 2;
+      
+      ctx.fillRect(x, y, Math.max(1, barWidth - 0.5), barHeight);
+    }
+    
+    // Add time markers
+    ctx.fillStyle = '#5a6c7d';
+    ctx.font = '10px monospace';
+    ctx.fillText(`${startMs}ms`, 5, rect.height - 5);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${endMs}ms`, rect.width - 5, rect.height - 5);
+    
+    console.log(`📊 Drew info waveform: ${startMs}ms - ${endMs}ms (${segmentData.length} samples)`);
+  }
+
   function showInfo(type, ayah) {
     const infoPanel = document.getElementById('infoPanel');
     const infoTitle = document.getElementById('infoTitle');
@@ -1998,6 +2426,10 @@
     if (type === 'original') {
       const duration = ayah.end_time - ayah.start_time;
       infoTitle.textContent = `Ayah ${ayah.ayah} - Original Timing`;
+      
+      // Draw waveform for original segment
+      drawInfoWaveform(ayah.start_time, ayah.end_time, `Ayah ${ayah.ayah} Original`, 'rgba(150, 150, 150, 0.7)');
+      
       infoContent.innerHTML = `
         <p><strong>Start Time:</strong> ${formatTime(ayah.start_time)} (${ayah.start_time}ms)</p>
         <p><strong>End Time:</strong> ${formatTime(ayah.end_time)} (${ayah.end_time}ms)</p>
@@ -2014,6 +2446,10 @@
       const endAdjustment = ayah.corrected_end_time - ayah.end_time;
 
       infoTitle.textContent = `Ayah ${ayah.ayah} - Corrected Timing`;
+      
+      // Draw waveform for corrected segment
+      drawInfoWaveform(ayah.corrected_start_time, ayah.corrected_end_time, `Ayah ${ayah.ayah} Corrected`, 'rgba(53, 247, 135, 0.9)');
+      
       infoContent.innerHTML = `
         <p><strong>Orgional time:</strong> ${formatTime(ayah.start_time)}(${ayah.start_time}ms) - (${formatTime(ayah.end_time)}(${ayah.end_time})ms)</p>
 
@@ -2035,11 +2471,16 @@
     } else if (type === 'silence') {
       const silence = ayah.silence_used;
       infoTitle.textContent = `Silence before Ayah ${ayah.ayah}`;
+      
+      // Draw waveform for silence - should show low amplitude
+      drawInfoWaveform(silence.start_time, silence.end_time, `Silence (${silence.duration}ms)`, 'rgba(255, 0, 0, 0.6)');
+      
       infoContent.innerHTML = `
         <p><strong>Silence Start:</strong> ${formatTime(silence.start_time)} (${silence.start_time}ms)</p>
         <p><strong>Silence End:</strong> ${formatTime(silence.end_time)} (${silence.end_time}ms)</p>
         <p><strong>Duration:</strong> ${formatTime(silence.duration)} (${silence.duration}ms)</p>
         <p><strong>Used for:</strong> Ayah ${ayah.ayah} boundary adjustment</p>
+        <p style="color: #f87171; font-size: 0.9em;">💡 The waveform above should show low amplitude (silence region)</p>
         <div class="audio-controls">
           <button id="playSilence${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${silence.start_time}, ${silence.end_time}, 'playSilence${ayah.ayah}')">
             ▶️ Play Silence
@@ -2049,12 +2490,18 @@
     } else if (type === 'gap') {
       const gap = ayah; // In this case, ayah is actually the gap data object
       infoTitle.textContent = `Gap between Ayah ${gap.from_ayah} and Ayah ${gap.to_ayah}`;
+      
+      // Draw waveform for gap
+      const gapColor = gap.duration < 100 ? 'rgba(248, 113, 113, 0.8)' : 'rgba(255, 193, 7, 0.8)';
+      drawInfoWaveform(gap.start_time, gap.end_time, `Gap (${gap.duration}ms)`, gapColor);
+      
       infoContent.innerHTML = `
         <p><strong>Gap Start:</strong> ${formatTime(gap.start_time)} (${gap.start_time}ms)</p>
         <p><strong>Gap End:</strong> ${formatTime(gap.end_time)} (${gap.end_time}ms)</p>
         <p><strong>Duration:</strong> ${formatTime(gap.duration)} (${gap.duration}ms)</p>
         <p><strong>Between:</strong> Ayah ${gap.from_ayah} (end) → Ayah ${gap.to_ayah} (start)</p>
         ${gap.duration < 100 ? '<p style="color: #f87171; font-weight: bold;">⚠️ Warning: Gap is less than 100ms minimum</p>' : ''}
+        <p style="color: #5a6c7d; font-size: 0.9em;">💡 Waveform shows the audio between ayahs - should be low amplitude</p>
         <div class="audio-controls">
           <button id="playGap${gap.from_ayah}_${gap.to_ayah}" class="play-btn" onclick="playAudioSegment(${gap.start_time}, ${gap.end_time}, 'playGap${gap.from_ayah}_${gap.to_ayah}')">
             ▶️ Play Gap
@@ -2138,6 +2585,9 @@
     }
 
     renderSortedTable();
+    
+    // Re-apply any active filter
+    filterTable();
   }
 
   function sortByDuration() {
@@ -2171,6 +2621,9 @@
     }
 
     renderSortedTable();
+    
+    // Re-apply any active filter
+    filterTable();
   }
 
   function sortByGap() {
@@ -2204,6 +2657,9 @@
     }
 
     renderSortedTable();
+    
+    // Re-apply any active filter
+    filterTable();
   }
 
   function renderSortedTable() {
@@ -2289,6 +2745,97 @@
     });
   }
 
+  function filterTable() {
+    const searchInput = document.getElementById('tableSearchInput');
+    const searchValue = searchInput.value.trim();
+    const tbody = document.getElementById('comparisonBody');
+    const rows = tbody.getElementsByTagName('tr');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    const resultsInfo = document.getElementById('searchResultsInfo');
+    
+    // If search is empty, show all rows
+    if (!searchValue) {
+      for (let row of rows) {
+        row.classList.remove('table-row-hidden');
+      }
+      clearBtn.disabled = true;
+      resultsInfo.textContent = '';
+      resultsInfo.classList.remove('active');
+      return;
+    }
+    
+    // Enable clear button
+    clearBtn.disabled = false;
+    
+    // Parse search query - support comma-separated values and ranges
+    const matchingAyahs = parseAyahSearchQuery(searchValue);
+    
+    if (matchingAyahs.size === 0 && searchValue) {
+      resultsInfo.textContent = 'Invalid search format';
+      resultsInfo.classList.add('active');
+      resultsInfo.style.color = '#f87171';
+      return;
+    }
+    
+    // Filter rows
+    let visibleCount = 0;
+    for (let row of rows) {
+      const ayahCell = row.querySelector('td:first-child strong');
+      if (ayahCell) {
+        const ayahText = ayahCell.textContent;
+        const ayahNumber = parseInt(ayahText.replace('Ayah ', ''));
+        
+        if (matchingAyahs.has(ayahNumber)) {
+          row.classList.remove('table-row-hidden');
+          visibleCount++;
+        } else {
+          row.classList.add('table-row-hidden');
+        }
+      }
+    }
+    
+    // Update results info
+    resultsInfo.classList.add('active');
+    resultsInfo.style.color = visibleCount > 0 ? '#57d798' : '#f87171';
+    resultsInfo.textContent = `${visibleCount} ayah${visibleCount !== 1 ? 's' : ''} found`;
+    
+    console.log(`🔍 Search: "${searchValue}" → ${visibleCount} results`);
+  }
+
+  function parseAyahSearchQuery(query) {
+    const ayahs = new Set();
+    
+    // Split by comma
+    const parts = query.split(',').map(p => p.trim());
+    
+    for (let part of parts) {
+      // Check if it's a range (e.g., "5-10")
+      if (part.includes('-')) {
+        const [start, end] = part.split('-').map(n => parseInt(n.trim()));
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          for (let i = start; i <= end; i++) {
+            ayahs.add(i);
+          }
+        }
+      } else {
+        // Single number
+        const num = parseInt(part);
+        if (!isNaN(num)) {
+          ayahs.add(num);
+        }
+      }
+    }
+    
+    return ayahs;
+  }
+
+  function clearTableSearch() {
+    const searchInput = document.getElementById('tableSearchInput');
+    searchInput.value = '';
+    filterTable();
+    searchInput.focus();
+  }
+
   function updateStats() {
     if (!data || data.length === 0) return;
 
@@ -2326,6 +2873,10 @@
         <div class="stat-label">Total Duration</div>
       </div>
       <div class="stat-card">
+        <div class="stat-value">${currentZoom.toFixed(1)}x</div>
+        <div class="stat-label">Initial Zoom</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-value">${silencesUsed}/${data.length}</div>
         <div class="stat-label">Silences Used</div>
       </div>
@@ -2354,30 +2905,65 @@
 
   // Keyboard shortcuts
   document.addEventListener('keydown', function (e) {
+    // Check if user is typing in an input field
+    const isTyping = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+    
     if (e.key === '+' || e.key === '=') {
-      e.preventDefault();
-      zoomIn();
+      if (!isTyping) {
+        e.preventDefault();
+        zoomIn();
+      }
     } else if (e.key === '-') {
-      e.preventDefault();
-      zoomOut();
+      if (!isTyping) {
+        e.preventDefault();
+        zoomOut();
+      }
     } else if (e.key === '0') {
-      e.preventDefault();
-      resetZoom();
-    } else if (e.key === ' ' || e.key === 'Escape') {
-      e.preventDefault();
-      // Stop audio playback
-      if (audioElement && currentlyPlaying) {
+      if (!isTyping) {
+        e.preventDefault();
+        resetZoom();
+      }
+    } else if (e.key === '/') {
+      if (!isTyping) {
+        e.preventDefault();
+        // Focus search input
+        const searchInput = document.getElementById('tableSearchInput');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    } else if (e.key === ' ') {
+      if (!isTyping) {
+        e.preventDefault();
+        // Toggle play/pause (don't close the panel)
+        if (audioElement && currentlyPlaying) {
+          togglePlayPause();
+        }
+      }
+    } else if (e.key === 'Escape') {
+      // Handle Escape even when typing (to close search or audio)
+      if (e.target.id === 'tableSearchInput') {
+        e.preventDefault();
+        clearTableSearch();
+        e.target.blur();
+      } else if (audioElement && currentlyPlaying) {
+        e.preventDefault();
         stopAudioPlayback();
       }
     } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      if (audioElement && currentlyPlaying) {
-        skipBackward();
+      if (!isTyping) {
+        e.preventDefault();
+        if (audioElement && currentlyPlaying) {
+          skipBackward();
+        }
       }
     } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      if (audioElement && currentlyPlaying) {
-        skipForward();
+      if (!isTyping) {
+        e.preventDefault();
+        if (audioElement && currentlyPlaying) {
+          skipForward();
+        }
       }
     }
   });
@@ -2385,10 +2971,13 @@
   // Add keyboard shortcuts info
   console.log(`
     Keyboard Shortcuts:
+    / : Focus Search
+    Escape (in search) : Clear and close search
     + or = : Zoom In
     - : Zoom Out
-    0 : Reset Zoom
-    Space or Escape : Stop Audio Playback
+    0 : Reset to Auto-Zoom
+    Space : Toggle Play/Pause
+    Escape : Close Audio Player
     Arrow Left : Skip Backward 5s
     Arrow Right : Skip Forward 5s
   `);

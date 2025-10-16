@@ -116,7 +116,7 @@ echo -e "${YELLOW}Step 3: Detecting silences with per-gap thresholds...${NC}"
 python3 find_boundary_silences.py \
   --gap-thresholds "$GAP_RESULT_FILE" \
   --min-duration 30 \
-  --window 100 \
+  --window 200 \
   --exclude-overlapping \
   --output "$SILENCES_FILE" \
   --save-plot "$PLOT_FILE"

@@ -127,6 +127,24 @@ class BatchAudioSegmentParser
     end
   end
 
+  def update_last_ayah_with_audio_duration(reciter:, surah:)
+    audio_file_path = "#{@data_directory.gsub('vs_logs', 'audio')}/#{reciter}/wav/#{format('%03d', surah)}.wav"
+    duration = calculate_audio_file_duration(audio_file_path)
+
+    if duration
+      last_ayah_boundary = Segments::AyahBoundary.where(
+        reciter_id: reciter,
+        surah_number: surah
+      ).order(ayah_number: :desc).first
+
+      last_ayah_boundary.update_columns(
+        corrected_end_time: [duration, last_ayah_boundary.corrected_end_time.to_i].max
+      )
+    else
+      raise "Could not determine audio duration for file: #{audio_file_path}"
+    end
+  end
+
   # Adjust Ayah boundaries using silence data calculated using
   # relative volume levels around the boundaries(see find_boundary_silences.py for more info)
   def refine_boundaries_with_detected_silences(reciter:, surah:, silences_file:)
@@ -153,7 +171,7 @@ class BatchAudioSegmentParser
     adjust_boundary_end_time(ayah_boundaries, boundary_silences_map, adjustment_results)
 
     ayah_boundaries.each_with_index do |ayah_boundary, i|
-      next_ayah = adjustment_results[ayah_boundary.ayah_number+1]
+      next_ayah = adjustment_results[ayah_boundary.ayah_number + 1]
       adjustment = adjustment_results[ayah_boundary.ayah_number]
       start_time = adjustment[:corrected_start_time]
       end_time = adjustment[:corrected_end_time]
@@ -168,7 +186,10 @@ class BatchAudioSegmentParser
       )
     end
 
-    #fix_boundary_overlaps(ayah_boundaries)
+    update_last_ayah_with_audio_duration(reciter: reciter, surah: surah)
+    adjustment_results[ayah_boundaries.last.ayah_number][:adjustment_notes] << "Last ayah end time set to audio duration"
+
+    # fix_boundary_overlaps(ayah_boundaries)
     ayah_boundaries.each(&:reload)
 
     plot_data = []
@@ -207,10 +228,6 @@ class BatchAudioSegmentParser
     # Save detailed refinement results
     result_path = "tools/segments/data/result/plot_data/#{reciter}"
     FileUtils.mkdir_p(result_path) unless Dir.exist?(result_path)
-    File.open("#{result_path}/#{surah}_refined.json", "wb") do |file|
-      file.puts Oj.dump(adjustment_results.values, mode: :compat)
-    end
-
     File.open("#{result_path}/#{surah}.json", "wb") do |file|
       file.puts Oj.dump(plot_data, mode: :compat)
     end
@@ -386,6 +403,16 @@ class BatchAudioSegmentParser
 
   protected
 
+  def calculate_audio_file_duration(audio_file_path)
+    # Use ffprobe to get duration in seconds with high precision
+    command = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"#{audio_file_path}\""
+    duration_seconds = `#{command}`.strip.to_f
+
+    if duration_seconds > 0
+      (duration_seconds * 1000).round
+    end
+  end
+
   def adjust_boundary_start_time(ayah_boundaries, boundary_silences_map, adjustment_results)
     ayah_boundaries.each_with_index do |ayah_boundary, index|
       ayah_number = ayah_boundary.ayah_number
@@ -420,12 +447,7 @@ class BatchAudioSegmentParser
 
           if closest_before
             # Set start to silence end + MIN_GAP_BETWEEN_AYAHS
-            new_start = closest_before['start_time'] + [closest_before['distance_to_boundary']/2, closest_before['duration']/2].max
-
-            # TODO: check if we need this loop
-            #while (new_start >= MIN_GAP_BETWEEN_AYAHS + closest_before['end_time'] + (closest_before['duration'] / 2))
-            # new_start -= 30 # Move back in 30ms increments to avoid cutting into silence too much
-            #end
+            new_start = closest_before['start_time'] + [closest_before['distance_to_boundary'] / 2, closest_before['duration'] / 2].max
           end
 
           # Constraints:
@@ -493,7 +515,7 @@ class BatchAudioSegmentParser
         # silence_extension = (closest_after['duration'] * 0.5).round
         # proposed_end = current_end + silence_extension
 
-        while new_end+30 < max_allowed_end
+        while new_end + 30 < max_allowed_end
           new_end += 30
         end
 

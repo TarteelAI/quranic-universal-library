@@ -4,7 +4,7 @@
 #   ./run_segments_boundary_adjustment.sh                # runs for all reciters and all surahs (1..114)
 #   ./run_segments_boundary_adjustment.sh 50 60          # runs for all reciters, surahs 50..60
 
-RECITERS=(2)
+RECITERS=(1)
 START_SURAH="${1:-1}"
 END_SURAH="${2:-114}"
 

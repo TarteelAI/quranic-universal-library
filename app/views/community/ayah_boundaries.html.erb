@@ -1,1234 +1,1228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayah segments and gaps timeline</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
-            color: #2c3e50;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #35f787, #62d6f4, #00a3ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            text-align: center;
-            margin-bottom: 40px;
-            opacity: 0.7;
-            font-size: 1.1em;
-            color: #5a6c7d;
-        }
-
-        .timeline-section {
-            margin: 40px 0;
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid #e1e8ed;
-        }
-
-        .section-title {
-            font-size: 1.3em;
-            margin-bottom: 15px;
-            color: #57d798;
-            font-weight: bold;
-        }
-
-        .timeline-wrapper {
-            position: relative;
-            overflow-x: auto;
-            overflow-y: hidden;
-            border-radius: 8px;
-            background: white;
-            padding: 10px 0;
-            border: 1px solid #e1e8ed;
-        }
-
-        .timeline {
-            position: relative;
-            height: 80px;
-            margin: 20px 0;
-            border-radius: 8px;
-            overflow: visible;
-            min-width: 100%;
-        }
-
-        .zoom-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            align-items: center;
-        }
-
-        .zoom-btn {
-            background: white;
-            border: 1px solid #e1e8ed;
-            color: #2c3e50;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .zoom-btn:hover {
-            background: #f8f9fa;
-            border-color: #57d798;
-            transform: translateY(-1px);
-        }
-
-        .zoom-info {
-            color: #57d798;
-            font-weight: bold;
-            margin: 0 10px;
-        }
-
-        .ayah-bar {
-            position: absolute;
-            height: 30px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .ayah-bar.original {
-            top: 5px;
-            opacity: 0.8;
-            border-style: dashed;
-        }
-
-        .ayah-bar.corrected {
-            top: 45px;
-            opacity: 1;
-        }
-
-        .ayah-bar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            opacity: 1;
-        }
-
-        .silence-bar {
-            position: absolute;
-            height: 8px;
-            top: 36px;
-            background: rgba(255, 0, 0, 0.5);
-            border: 1px solid rgba(255, 0, 0, 0.8);
-            border-radius: 2px;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .silence-bar:hover {
-            background: rgba(255, 0, 0, 0.8);
-        }
-
-        .gap-indicator {
-            position: absolute;
-            height: 12px;
-            top: 34px;
-            background: rgba(255, 255, 0, 0.6);
-            border: 1px dashed rgba(255, 255, 0, 0.9);
-            border-radius: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .gap-indicator:hover {
-            background: rgba(255, 255, 0, 0.8);
-            border-color: rgba(255, 200, 0, 1);
-            height: 14px;
-            top: 33px;
-        }
-
-        .ayah-1 {
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-        }
-
-        .ayah-2 {
-            background: linear-gradient(135deg, #00a3ff 0%, #62d6f4 100%);
-        }
-
-        .ayah-3 {
-            background: linear-gradient(135deg, #62d6f4 0%, #3cff8b 100%);
-        }
-
-        .ayah-4 {
-            background: linear-gradient(135deg, #3cff8b 0%, #83ee41 100%);
-        }
-
-        .ayah-5 {
-            background: linear-gradient(135deg, #57d798 0%, #35f787 100%);
-        }
-
-        .ayah-6 {
-            background: linear-gradient(135deg, #00fff0 0%, #00a3ff 100%);
-        }
-
-        .ayah-7 {
-            background: linear-gradient(135deg, #6aff52 0%, #62d6f4 100%);
-        }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 25px;
-            border: 1px solid #e1e8ed;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 1px solid #e1e8ed;
-        }
-
-        .info-panel {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            display: none;
-            border: 1px solid #e1e8ed;
-        }
-
-        .info-panel.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .info-waveform-container {
-            position: relative;
-            width: 100%;
-            height: 100px;
-            background: white;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #e1e8ed;
-            overflow: hidden;
-        }
-
-        .info-waveform-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .info-waveform-label {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7em;
-            color: #5a6c7d;
-            font-weight: bold;
-            z-index: 10;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .time-axis {
-            position: relative;
-            height: 30px;
-            margin: 10px 0;
-            border-top: 1px solid #e1e8ed;
-        }
-
-        .time-marker {
-            position: absolute;
-            font-size: 10px;
-            opacity: 0.7;
-            top: 5px;
-            color: #5a6c7d;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid #e1e8ed;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #57d798;
-        }
-
-        .stat-label {
-            opacity: 0.7;
-            margin-top: 5px;
-            font-size: 0.9em;
-            color: #5a6c7d;
-        }
-
-        .comparison-table {
-            width: 100%;
-            margin: 20px 0;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #e1e8ed;
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e1e8ed;
-        }
-
-        .comparison-table th {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #57d798;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .comparison-table th.sortable {
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-        }
-
-        .comparison-table th.sortable:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #35f787;
-        }
-
-        .comparison-table th.sortable::after {
-            content: ' ⇅';
-            opacity: 0.3;
-            font-size: 0.8em;
-        }
-
-        .comparison-table th.sortable.sorted-asc::after {
-            content: ' ↑';
-            opacity: 1;
-        }
-
-        .comparison-table th.sortable.sorted-desc::after {
-            content: ' ↓';
-            opacity: 1;
-        }
-
-        .comparison-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .adjustment-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            background: rgba(87, 215, 152, 0.1);
-            border: 1px solid rgba(87, 215, 152, 0.3);
-            color: #2c3e50;
-        }
-
-        .positive-change {
-            color: #4ade80;
-        }
-
-        .negative-change {
-            color: #f87171;
-        }
-
-        .audio-drop-zone {
-            border: 3px dashed #e1e8ed;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            margin: 20px 0;
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .audio-drop-zone:hover,
-        .audio-drop-zone.drag-over {
-            border-color: #57d798;
-            background: rgba(87, 215, 152, 0.1);
-        }
-
-        .audio-drop-zone.has-audio {
-            border-color: #4ade80;
-            background: rgba(74, 222, 128, 0.1);
-        }
-
-        .audio-drop-zone .icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        .audio-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .play-btn {
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .play-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
-        }
-
-        .play-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .play-btn.playing {
-            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-        }
-
-        .audio-info {
-            font-size: 0.9em;
-            opacity: 0.8;
-            margin-top: 10px;
-        }
-
-        .audio-seek-control {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border-radius: 15px;
-            padding: 20px 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 2px solid #57d798;
-            z-index: 1000;
-            min-width: 400px;
-            max-width: 600px;
-            display: none;
-        }
-
-        .audio-seek-control.active {
-            display: block;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        .seek-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .seek-title {
-            font-weight: bold;
-            color: #57d798;
-            font-size: 1.1em;
-        }
-
-        .seek-close {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #5a6c7d;
-            opacity: 0.7;
-            transition: all 0.2s ease;
-        }
-
-        .seek-close:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .seek-slider-container {
-            margin: 15px 0;
-        }
-
-        .waveform-container {
-            position: relative;
-            width: 100%;
-            height: 80px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin: 15px 0;
-            overflow-x: auto;
-            overflow-y: hidden;
-            cursor: pointer;
-            border: 1px solid #e1e8ed;
-            transition: border-color 0.2s ease;
-        }
-
-        .waveform-container:hover {
-            border-color: #57d798;
-        }
-
-        /* Scrollbar styling for waveform container */
-        .waveform-container::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .waveform-container::-webkit-scrollbar-track {
-            background: rgba(225, 232, 237, 0.5);
-            border-radius: 3px;
-        }
-
-        .waveform-container::-webkit-scrollbar-thumb {
-            background: rgba(87, 215, 152, 0.5);
-            border-radius: 3px;
-        }
-
-        .waveform-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(87, 215, 152, 0.8);
-        }
-
-        .waveform-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .waveform-progress {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            background: rgba(53, 247, 135, 0.2);
-            pointer-events: none;
-            transition: width 0.05s linear;
-        }
-
-        .waveform-cursor {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #00a3ff;
-            pointer-events: none;
-            box-shadow: 0 0 8px rgba(0, 163, 255, 0.6);
-        }
-
-        .waveform-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #5a6c7d;
-            font-size: 0.9em;
-            opacity: 0.7;
-            text-align: center;
-            max-width: 80%;
-        }
-
-        .waveform-toggle {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e1e8ed;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 0.75em;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10;
-        }
-
-        .waveform-toggle:hover {
-            background: white;
-            border-color: #57d798;
-        }
-
-        .waveform-zoom-controls {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            display: flex;
-            gap: 4px;
-            z-index: 10;
-        }
-
-        .waveform-zoom-btn {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e1e8ed;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 0.75em;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .waveform-zoom-btn:hover {
-            background: white;
-            border-color: #57d798;
-            color: #57d798;
-        }
-
-        .waveform-zoom-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .waveform-zoom-info {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e1e8ed;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 0.7em;
-            color: #5a6c7d;
-        }
-
-        .waveform-hover-line {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            background: rgba(0, 163, 255, 0.5);
-            pointer-events: none;
-            display: none;
-        }
-
-        .waveform-container:hover .waveform-hover-line {
-            display: block;
-        }
-
-        .seek-slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: #e1e8ed;
-            outline: none;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
-
-        .seek-slider::-webkit-slider-thumb {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .seek-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
-        }
-
-        .seek-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .seek-slider::-moz-range-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
-        }
-
-        .seek-time-display {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9em;
-            color: #5a6c7d;
-            margin-top: 8px;
-        }
-
-        .seek-time-ms {
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            color: #57d798;
-            font-weight: bold;
-            padding: 2px 8px;
-            background: rgba(87, 215, 152, 0.1);
-            border-radius: 4px;
-        }
-
-        .seek-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            justify-content: center;
-        }
-
-        .seek-control-btn {
-            background: white;
-            border: 2px solid #e1e8ed;
-            color: #2c3e50;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .seek-control-btn:hover {
-            border-color: #57d798;
-            background: #f8f9fa;
-        }
-
-        .seek-control-btn.primary {
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-            border: none;
-            color: white;
-        }
-
-        .seek-control-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
-        }
-
-        .table-search-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .table-search-input {
-            flex: 1;
-            min-width: 200px;
-            max-width: 400px;
-            padding: 12px 16px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            color: #2c3e50;
-            transition: all 0.3s ease;
-        }
-
-        .table-search-input:focus {
-            outline: none;
-            border-color: #57d798;
-            box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
-        }
-
-        .table-search-input::placeholder {
-            color: #a0aec0;
-        }
-
-        .search-results-info {
-            color: #5a6c7d;
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        .search-results-info.active {
-            color: #57d798;
-            font-weight: bold;
-            opacity: 1;
-        }
-
-        .clear-search-btn {
-            background: white;
-            border: 2px solid #e1e8ed;
-            color: #2c3e50;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-
-        .clear-search-btn:hover {
-            border-color: #f87171;
-            color: #f87171;
-            background: #fef2f2;
-        }
-
-        .clear-search-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .table-row-hidden {
-            display: none !important;
-        }
-
-        .selector-panel {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            border: 1px solid #e1e8ed;
-        }
-
-        .selector-panel.hidden {
-            display: none;
-        }
-
-        .input-group {
-            margin: 20px 0;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #57d798;
-        }
-
-        .input-group input[type="number"] {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            background: white;
-            color: #2c3e50;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input[type="number"]:focus {
-            outline: none;
-            border-color: #57d798;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
-        }
-
-        .surah-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            margin: 20px 0;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #e1e8ed;
-        }
-
-        .surah-card {
-            background: white;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            padding: 15px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .surah-card:hover {
-            background: #f8f9fa;
-            border-color: #57d798;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(87, 215, 152, 0.2);
-        }
-
-        .surah-card.selected {
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-            border-color: #57d798;
-            color: white;
-        }
-
-        .load-btn {
-            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .load-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
-        }
-
-        .load-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .file-upload-section {
-            margin: 30px 0;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            border: 3px dashed #e1e8ed;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .file-upload-section:hover,
-        .file-upload-section.drag-over {
-            border-color: #57d798;
-            background: rgba(87, 215, 152, 0.1);
-        }
-
-        .file-upload-section.has-file {
-            border-color: #4ade80;
-            background: rgba(74, 222, 128, 0.1);
-        }
-
-        .file-upload-section h3 {
-            color: #57d798;
-            margin-bottom: 15px;
-        }
-
-        .file-upload-section .icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .file-input-label {
-            display: inline-block;
-            background: white;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            padding: 12px 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .file-input-label:hover {
-            background: #f8f9fa;
-            border-color: #57d798;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 30px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 50%;
-            height: 1px;
-            background: #e1e8ed;
-        }
-
-        .divider span {
-            position: relative;
-            background: #f8f9fa;
-            padding: 5px 20px;
-            border-radius: 20px;
-            color: #5a6c7d;
-            font-size: 14px;
-        }
-
-        .main-content {
-            display: none;
-        }
-
-        .main-content.visible {
-            display: block;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.2);
-            border: 2px solid rgba(239, 68, 68, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            color: #fca5a5;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayah boundaries and gaps timeline</title>
+  <style>
+      body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          margin: 0;
+          padding: 20px;
+          background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
+          color: #2c3e50;
+          min-height: 100vh;
+      }
+
+      .container {
+          max-width: 1400px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 20px;
+          padding: 30px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+          text-align: center;
+          margin-bottom: 10px;
+          font-size: 2.5em;
+          background: linear-gradient(45deg, #35f787, #62d6f4, #00a3ff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+      }
+
+      .subtitle {
+          text-align: center;
+          margin-bottom: 40px;
+          opacity: 0.7;
+          font-size: 1.1em;
+          color: #5a6c7d;
+      }
+
+      .timeline-section {
+          margin: 40px 0;
+          background: #f8f9fa;
+          border-radius: 15px;
+          padding: 20px;
+          border: 1px solid #e1e8ed;
+      }
+
+      .section-title {
+          font-size: 1.3em;
+          margin-bottom: 15px;
+          color: #57d798;
+          font-weight: bold;
+      }
+
+      .timeline-wrapper {
+          position: relative;
+          overflow-x: auto;
+          overflow-y: hidden;
+          border-radius: 8px;
+          background: white;
+          padding: 10px 0;
+          border: 1px solid #e1e8ed;
+      }
+
+      .timeline {
+          position: relative;
+          height: 80px;
+          margin: 20px 0;
+          border-radius: 8px;
+          overflow: visible;
+          min-width: 100%;
+      }
+
+      .zoom-controls {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          margin: 20px 0;
+          align-items: center;
+      }
+
+      .zoom-btn {
+          background: white;
+          border: 1px solid #e1e8ed;
+          color: #2c3e50;
+          padding: 8px 15px;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 14px;
+      }
+
+      .zoom-btn:hover {
+          background: #f8f9fa;
+          border-color: #57d798;
+          transform: translateY(-1px);
+      }
+
+      .zoom-info {
+          color: #57d798;
+          font-weight: bold;
+          margin: 0 10px;
+      }
+
+      .ayah-bar {
+          position: absolute;
+          height: 30px;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 12px;
+          color: white;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .ayah-bar.original {
+          top: 5px;
+          opacity: 0.8;
+          border-style: dashed;
+      }
+
+      .ayah-bar.corrected {
+          top: 45px;
+          opacity: 1;
+      }
+
+      .ayah-bar:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+          opacity: 1;
+      }
+
+      .silence-bar {
+          position: absolute;
+          height: 8px;
+          top: 36px;
+          background: rgba(255, 0, 0, 0.5);
+          border: 1px solid rgba(255, 0, 0, 0.8);
+          border-radius: 2px;
+          cursor: pointer;
+          z-index: 10;
+      }
+
+      .silence-bar:hover {
+          background: rgba(255, 0, 0, 0.8);
+      }
+
+      .gap-indicator {
+          position: absolute;
+          height: 12px;
+          top: 34px;
+          background: rgba(255, 255, 0, 0.6);
+          border: 1px dashed rgba(255, 255, 0, 0.9);
+          border-radius: 2px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .gap-indicator:hover {
+          background: rgba(255, 255, 0, 0.8);
+          border-color: rgba(255, 200, 0, 1);
+          height: 14px;
+          top: 33px;
+      }
+
+      .ayah-1 {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+      }
+
+      .ayah-2 {
+          background: linear-gradient(135deg, #00a3ff 0%, #62d6f4 100%);
+      }
+
+      .ayah-3 {
+          background: linear-gradient(135deg, #62d6f4 0%, #3cff8b 100%);
+      }
+
+      .ayah-4 {
+          background: linear-gradient(135deg, #3cff8b 0%, #83ee41 100%);
+      }
+
+      .ayah-5 {
+          background: linear-gradient(135deg, #57d798 0%, #35f787 100%);
+      }
+
+      .ayah-6 {
+          background: linear-gradient(135deg, #00fff0 0%, #00a3ff 100%);
+      }
+
+      .ayah-7 {
+          background: linear-gradient(135deg, #6aff52 0%, #62d6f4 100%);
+      }
+
+      .legend {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          margin: 30px 0;
+          flex-wrap: wrap;
+      }
+
+      .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: white;
+          padding: 10px 15px;
+          border-radius: 25px;
+          border: 1px solid #e1e8ed;
+      }
+
+      .legend-color {
+          width: 20px;
+          height: 20px;
+          border-radius: 4px;
+          border: 1px solid #e1e8ed;
+      }
+
+      .info-panel {
+          background: #f8f9fa;
+          border-radius: 10px;
+          padding: 20px;
+          margin: 20px 0;
+          display: none;
+          border: 1px solid #e1e8ed;
+      }
+
+      .info-panel.active {
+          display: block;
+          animation: fadeIn 0.3s ease;
+      }
+
+      .info-waveform-container {
+          position: relative;
+          width: 100%;
+          height: 100px;
+          background: white;
+          border-radius: 8px;
+          margin: 15px 0;
+          border: 1px solid #e1e8ed;
+          overflow: hidden;
+      }
+
+      .info-waveform-canvas {
+          width: 100%;
+          height: 100%;
+          display: block;
+      }
+
+      .info-waveform-label {
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          background: rgba(255, 255, 255, 0.9);
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 0.7em;
+          color: #5a6c7d;
+          font-weight: bold;
+          z-index: 10;
+      }
+
+      @keyframes fadeIn {
+          from {
+              opacity: 0;
+              transform: translateY(-10px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      .time-axis {
+          position: relative;
+          height: 30px;
+          margin: 10px 0;
+          border-top: 1px solid #e1e8ed;
+      }
+
+      .time-marker {
+          position: absolute;
+          font-size: 10px;
+          opacity: 0.7;
+          top: 5px;
+          color: #5a6c7d;
+      }
+
+      .stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
+          margin: 20px 0;
+      }
+
+      .stat-card {
+          background: white;
+          border-radius: 10px;
+          padding: 15px;
+          text-align: center;
+          border: 1px solid #e1e8ed;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-value {
+          font-size: 1.5em;
+          font-weight: bold;
+          color: #57d798;
+      }
+
+      .stat-label {
+          opacity: 0.7;
+          margin-top: 5px;
+          font-size: 0.9em;
+          color: #5a6c7d;
+      }
+
+      .comparison-table {
+          width: 100%;
+          margin: 20px 0;
+          border-collapse: collapse;
+          background: white;
+          border-radius: 10px;
+          overflow: hidden;
+          border: 1px solid #e1e8ed;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+          padding: 12px;
+          text-align: left;
+          border-bottom: 1px solid #e1e8ed;
+      }
+
+      .comparison-table th {
+          background: #f8f9fa;
+          font-weight: bold;
+          color: #57d798;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .comparison-table th.sortable {
+          cursor: pointer;
+          user-select: none;
+          transition: all 0.2s ease;
+      }
+
+      .comparison-table th.sortable:hover {
+          background: rgba(255, 255, 255, 0.15);
+          color: #35f787;
+      }
+
+      .comparison-table th.sortable::after {
+          content: ' ⇅';
+          opacity: 0.3;
+          font-size: 0.8em;
+      }
+
+      .comparison-table th.sortable.sorted-asc::after {
+          content: ' ↑';
+          opacity: 1;
+      }
+
+      .comparison-table th.sortable.sorted-desc::after {
+          content: ' ↓';
+          opacity: 1;
+      }
+
+      .comparison-table tr:hover {
+          background: #f8f9fa;
+      }
+
+      .adjustment-badge {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 0.8em;
+          background: rgba(87, 215, 152, 0.1);
+          border: 1px solid rgba(87, 215, 152, 0.3);
+          color: #2c3e50;
+      }
+
+      .positive-change {
+          color: #4ade80;
+      }
+
+      .negative-change {
+          color: #f87171;
+      }
+
+      .audio-drop-zone {
+          border: 3px dashed #e1e8ed;
+          border-radius: 15px;
+          padding: 30px;
+          text-align: center;
+          margin: 20px 0;
+          background: #f8f9fa;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .audio-drop-zone:hover,
+      .audio-drop-zone.drag-over {
+          border-color: #57d798;
+          background: rgba(87, 215, 152, 0.1);
+      }
+
+      .audio-drop-zone.has-audio {
+          border-color: #4ade80;
+          background: rgba(74, 222, 128, 0.1);
+      }
+
+      .audio-drop-zone .icon {
+          font-size: 3em;
+          margin-bottom: 10px;
+      }
+
+      .audio-controls {
+          display: flex;
+          gap: 10px;
+          margin-top: 15px;
+          flex-wrap: wrap;
+      }
+
+      .play-btn {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border: none;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+      }
+
+      .play-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+      }
+
+      .play-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+      }
+
+      .play-btn.playing {
+          background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+      }
+
+      .audio-info {
+          font-size: 0.9em;
+          opacity: 0.8;
+          margin-top: 10px;
+      }
+
+      .audio-seek-control {
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: white;
+          border-radius: 15px;
+          padding: 20px 30px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          border: 2px solid #57d798;
+          z-index: 1000;
+          min-width: 400px;
+          max-width: 600px;
+          display: none;
+      }
+
+      .audio-seek-control.active {
+          display: block;
+          animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+          from {
+              opacity: 0;
+              transform: translateX(-50%) translateY(20px);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(-50%) translateY(0);
+          }
+      }
+
+      .seek-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+      }
+
+      .seek-title {
+          font-weight: bold;
+          color: #57d798;
+          font-size: 1.1em;
+      }
+
+      .seek-close {
+          background: none;
+          border: none;
+          font-size: 1.5em;
+          cursor: pointer;
+          color: #5a6c7d;
+          opacity: 0.7;
+          transition: all 0.2s ease;
+      }
+
+      .seek-close:hover {
+          opacity: 1;
+          transform: scale(1.1);
+      }
+
+      .seek-slider-container {
+          margin: 15px 0;
+      }
+
+      .waveform-container {
+          position: relative;
+          width: 100%;
+          height: 80px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          margin: 15px 0;
+          overflow-x: auto;
+          overflow-y: hidden;
+          cursor: pointer;
+          border: 1px solid #e1e8ed;
+          transition: border-color 0.2s ease;
+      }
+
+      .waveform-container:hover {
+          border-color: #57d798;
+      }
+
+      /* Scrollbar styling for waveform container */
+      .waveform-container::-webkit-scrollbar {
+          height: 6px;
+      }
+
+      .waveform-container::-webkit-scrollbar-track {
+          background: rgba(225, 232, 237, 0.5);
+          border-radius: 3px;
+      }
+
+      .waveform-container::-webkit-scrollbar-thumb {
+          background: rgba(87, 215, 152, 0.5);
+          border-radius: 3px;
+      }
+
+      .waveform-container::-webkit-scrollbar-thumb:hover {
+          background: rgba(87, 215, 152, 0.8);
+      }
+
+      .waveform-canvas {
+          width: 100%;
+          height: 100%;
+          display: block;
+      }
+
+      .waveform-progress {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          background: rgba(53, 247, 135, 0.2);
+          pointer-events: none;
+          transition: width 0.05s linear;
+      }
+
+      .waveform-cursor {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 2px;
+          background: #00a3ff;
+          pointer-events: none;
+          box-shadow: 0 0 8px rgba(0, 163, 255, 0.6);
+      }
+
+      .waveform-loading {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: #5a6c7d;
+          font-size: 0.9em;
+          opacity: 0.7;
+          text-align: center;
+          max-width: 80%;
+      }
+
+      .waveform-toggle {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid #e1e8ed;
+          border-radius: 4px;
+          padding: 4px 8px;
+          font-size: 0.75em;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          z-index: 10;
+      }
+
+      .waveform-toggle:hover {
+          background: white;
+          border-color: #57d798;
+      }
+
+      .waveform-zoom-controls {
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          display: flex;
+          gap: 4px;
+          z-index: 10;
+      }
+
+      .waveform-zoom-btn {
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid #e1e8ed;
+          border-radius: 4px;
+          padding: 4px 8px;
+          font-size: 0.75em;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-weight: bold;
+          color: #2c3e50;
+      }
+
+      .waveform-zoom-btn:hover {
+          background: white;
+          border-color: #57d798;
+          color: #57d798;
+      }
+
+      .waveform-zoom-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+      }
+
+      .waveform-zoom-info {
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid #e1e8ed;
+          border-radius: 4px;
+          padding: 4px 8px;
+          font-size: 0.7em;
+          color: #5a6c7d;
+      }
+
+      .waveform-hover-line {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 1px;
+          background: rgba(0, 163, 255, 0.5);
+          pointer-events: none;
+          display: none;
+      }
+
+      .waveform-container:hover .waveform-hover-line {
+          display: block;
+      }
+
+      .seek-slider {
+          width: 100%;
+          height: 8px;
+          border-radius: 4px;
+          background: #e1e8ed;
+          outline: none;
+          appearance: none;
+          -webkit-appearance: none;
+          cursor: pointer;
+      }
+
+      .seek-slider::-webkit-slider-thumb {
+          appearance: none;
+          -webkit-appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
+          transition: all 0.2s ease;
+      }
+
+      .seek-slider::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
+      }
+
+      .seek-slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
+          transition: all 0.2s ease;
+      }
+
+      .seek-slider::-moz-range-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
+      }
+
+      .seek-time-display {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.9em;
+          color: #5a6c7d;
+          margin-top: 8px;
+      }
+
+      .seek-time-ms {
+          font-family: 'Courier New', monospace;
+          font-size: 0.85em;
+          color: #57d798;
+          font-weight: bold;
+          padding: 2px 8px;
+          background: rgba(87, 215, 152, 0.1);
+          border-radius: 4px;
+      }
+
+      .seek-controls {
+          display: flex;
+          gap: 10px;
+          margin-top: 15px;
+          justify-content: center;
+      }
+
+      .seek-control-btn {
+          background: white;
+          border: 2px solid #e1e8ed;
+          color: #2c3e50;
+          padding: 8px 15px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 0.9em;
+          font-weight: bold;
+      }
+
+      .seek-control-btn:hover {
+          border-color: #57d798;
+          background: #f8f9fa;
+      }
+
+      .seek-control-btn.primary {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border: none;
+          color: white;
+      }
+
+      .seek-control-btn.primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+      }
+
+      .table-search-container {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin-bottom: 15px;
+          flex-wrap: wrap;
+      }
+
+      .table-search-input {
+          flex: 1;
+          min-width: 200px;
+          max-width: 400px;
+          padding: 12px 16px;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          font-size: 14px;
+          background: white;
+          color: #2c3e50;
+          transition: all 0.3s ease;
+      }
+
+      .table-search-input:focus {
+          outline: none;
+          border-color: #57d798;
+          box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+      }
+
+      .table-search-input::placeholder {
+          color: #a0aec0;
+      }
+
+      .search-results-info {
+          color: #5a6c7d;
+          font-size: 0.9em;
+          opacity: 0.8;
+      }
+
+      .search-results-info.active {
+          color: #57d798;
+          font-weight: bold;
+          opacity: 1;
+      }
+
+      .clear-search-btn {
+          background: white;
+          border: 2px solid #e1e8ed;
+          color: #2c3e50;
+          padding: 10px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          font-weight: bold;
+      }
+
+      .clear-search-btn:hover {
+          border-color: #f87171;
+          color: #f87171;
+          background: #fef2f2;
+      }
+
+      .clear-search-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+      }
+
+      .table-row-hidden {
+          display: none !important;
+      }
+
+      .selector-panel {
+          background: #f8f9fa;
+          border-radius: 15px;
+          padding: 30px;
+          margin: 30px 0;
+          border: 1px solid #e1e8ed;
+      }
+
+      .selector-panel.hidden {
+          display: none;
+      }
+
+      .input-group {
+          margin: 20px 0;
+      }
+
+      .input-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #57d798;
+      }
+
+      .input-group input[type="number"] {
+          width: 100%;
+          max-width: 300px;
+          padding: 12px;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          background: white;
+          color: #2c3e50;
+          font-size: 16px;
+          transition: all 0.3s ease;
+      }
+
+      .input-group input[type="number"]:focus {
+          outline: none;
+          border-color: #57d798;
+          background: white;
+          box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+      }
+
+      .surah-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+          gap: 10px;
+          margin: 20px 0;
+          max-height: 400px;
+          overflow-y: auto;
+          padding: 10px;
+          background: white;
+          border-radius: 10px;
+          border: 1px solid #e1e8ed;
+      }
+
+      .surah-card {
+          background: white;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          padding: 15px 10px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-weight: bold;
+          color: #2c3e50;
+      }
+
+      .surah-card:hover {
+          background: #f8f9fa;
+          border-color: #57d798;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(87, 215, 152, 0.2);
+      }
+
+      .surah-card.selected {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border-color: #57d798;
+          color: white;
+      }
+
+      .load-btn {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border: none;
+          color: white;
+          padding: 15px 30px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 16px;
+          transition: all 0.3s ease;
+          margin-top: 20px;
+      }
+
+      .load-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+      }
+
+      .load-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+      }
+
+      .file-upload-section {
+          margin: 30px 0;
+          padding: 30px;
+          background: white;
+          border-radius: 10px;
+          border: 3px dashed #e1e8ed;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .file-upload-section:hover,
+      .file-upload-section.drag-over {
+          border-color: #57d798;
+          background: rgba(87, 215, 152, 0.1);
+      }
+
+      .file-upload-section.has-file {
+          border-color: #4ade80;
+          background: rgba(74, 222, 128, 0.1);
+      }
+
+      .file-upload-section h3 {
+          color: #57d798;
+          margin-bottom: 15px;
+      }
+
+      .file-upload-section .icon {
+          font-size: 3em;
+          margin-bottom: 10px;
+      }
+
+      .file-input-wrapper {
+          position: relative;
+          display: inline-block;
+      }
+
+      .file-input-wrapper input[type="file"] {
+          position: absolute;
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+
+      .file-input-label {
+          display: inline-block;
+          background: white;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          padding: 12px 24px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-weight: bold;
+          color: #2c3e50;
+      }
+
+      .file-input-label:hover {
+          background: #f8f9fa;
+          border-color: #57d798;
+      }
+
+      .divider {
+          text-align: center;
+          margin: 30px 0;
+          position: relative;
+      }
+
+      .divider::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          height: 1px;
+          background: #e1e8ed;
+      }
+
+      .divider span {
+          position: relative;
+          background: #f8f9fa;
+          padding: 5px 20px;
+          border-radius: 20px;
+          color: #5a6c7d;
+          font-size: 14px;
+      }
+
+      .main-content {
+          display: none;
+      }
+
+      .main-content.visible {
+          display: block;
+      }
+
+      .error-message {
+          background: rgba(239, 68, 68, 0.2);
+          border: 2px solid rgba(239, 68, 68, 0.5);
+          border-radius: 10px;
+          padding: 15px;
+          margin: 20px 0;
+          color: #fca5a5;
+      }
+  </style>
 </head>
 <body>
-<script>
-    window.dataBaseUrl = "<%= Rails.root %>";
-</script>
 <div class="container">
-    <h1>Ayah segments and gaps timeline</h1>
-    <div id="selectorPanel" class="selector-panel">
-        <h2 style="color: #57d798; margin-bottom: 20px;">📊 Load Ayah Boundary Data</h2>
+  <h1>Ayah boundaries and gaps timeline</h1>
+  <div id="selectorPanel" class="selector-panel">
+    <h2 style="color: #57d798; margin-bottom: 20px;">📊 Load Ayah Boundary Data</h2>
 
-        <div class="file-upload-section" id="jsonDropZone">
-            <div class="icon">📄</div>
-            <h3>Option 1: Upload JSON File</h3>
-            <p style="opacity: 0.8; margin-bottom: 15px;">Drop JSON file here or click to browse</p>
-            <p style="opacity: 0.6; font-size: 0.9em;">Ayah boundary data in JSON format</p>
-            <input type="file" id="jsonFileInput" accept=".json" style="display: none;"/>
-            <div id="fileNameDisplay" style="margin-top: 15px; opacity: 0.8;"></div>
-        </div>
-
-        <div class="divider">
-            <span>OR</span>
-        </div>
-
-        <div>
-            <h3 style="color: #57d798; margin-bottom: 20px;">Select Reciter & Surah</h3>
-            <div class="input-group">
-                <label for="reciterInput">Reciter ID:</label>
-                <input type="number" id="reciterInput" placeholder="Enter reciter ID (e.g., 1, 65, 161)" min="1"/>
-            </div>
-
-            <div class="input-group">
-                <label>Select Surah:</label>
-                <div class="surah-grid" id="surahGrid"></div>
-            </div>
-
-            <button id="loadDataBtn" class="load-btn" disabled>
-                Load Data
-            </button>
-        </div>
-
-        <div id="errorDisplay"></div>
+    <div class="file-upload-section" id="jsonDropZone">
+      <div class="icon">📄</div>
+      <h3>Option 1: Upload JSON File</h3>
+      <p style="opacity: 0.8; margin-bottom: 15px;">Drop JSON file here or click to browse</p>
+      <p style="opacity: 0.6; font-size: 0.9em;">Ayah boundary data in JSON format</p>
+      <input type="file" id="jsonFileInput" accept=".json" style="display: none;"/>
+      <div id="fileNameDisplay" style="margin-top: 15px; opacity: 0.8;"></div>
     </div>
 
-    <div id="mainContent" class="main-content">
-        <div class="stats" id="statsContainer"></div>
-
-        <div id="audioDropZone" class="audio-drop-zone">
-            <div class="icon">🎵</div>
-            <h3>Drop Audio File Here</h3>
-            <p>Or click to browse</p>
-            <div id="audioFileName" class="audio-info"></div>
-            <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
-            <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
-                💡 Tip: / to search | Space to pause | Esc to close | Arrows to skip | +/- to zoom
-            </div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: rgba(255, 255, 255, 0.4); border-style: dashed;"></div>
-                <span>Original Timing</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                <span>Corrected Timing (Click for details + waveform)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
-                <span>Silence Detection (Click to see waveform)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: rgba(255, 255, 0, 0.6); border-style: dashed;"></div>
-                <span>Gap (Click to see waveform + play)</span>
-            </div>
-        </div>
-
-        <div class="zoom-controls">
-            <button class="zoom-btn" onclick="zoomOut()">🔍-</button>
-            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
-            <button class="zoom-btn" onclick="zoomIn()">🔍+</button>
-            <span class="zoom-info" id="zoomLevel">Zoom: 1x</span>
-        </div>
-
-        <div class="timeline-section">
-            <div class="section-title">Visual Timeline</div>
-            <div class="timeline-wrapper">
-                <div id="timeline" class="timeline"></div>
-                <div class="time-axis" id="timeAxis"></div>
-            </div>
-        </div>
-
-        <div id="infoPanel" class="info-panel">
-            <h3 id="infoTitle">Click on any ayah, silence, or gap to see details and play audio</h3>
-            <div id="infoWaveformContainer" class="info-waveform-container" style="display: none;">
-                <canvas id="infoWaveformCanvas" class="info-waveform-canvas"></canvas>
-                <div id="infoWaveformLabel" class="info-waveform-label">Waveform</div>
-            </div>
-            <div id="infoContent"></div>
-        </div>
-
-        <div class="timeline-section">
-            <div class="section-title">Detailed Comparison Table</div>
-            <div class="table-search-container">
-                <input
-                        type="text"
-                        id="tableSearchInput"
-                        class="table-search-input"
-                        placeholder="Search ayahs... (e.g., 1, 5-10, 15)"
-                        oninput="filterTable()"
-                />
-                <span id="searchResultsInfo" class="search-results-info"></span>
-                <button id="clearSearchBtn" class="clear-search-btn" onclick="clearTableSearch()" disabled>
-                    ✕ Clear
-                </button>
-            </div>
-            <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
-                <table class="comparison-table" id="comparisonTable">
-                    <thead>
-                    <tr>
-                        <th class="sortable" id="ayahHeader" onclick="sortByAyah()">Ayah</th>
-                        <th>Original Start</th>
-                        <th>Corrected Start</th>
-                        <th>Start Δ</th>
-                        <th>Original End</th>
-                        <th>Corrected End</th>
-                        <th>End Δ</th>
-                        <th class="sortable" id="durationHeader" onclick="sortByDuration()">Duration</th>
-                        <th class="sortable" id="gapHeader" onclick="sortByGap()">Gap to Next</th>
-                        <th>Info</th>
-                        <th>Play</th>
-                    </tr>
-                    </thead>
-                    <tbody id="comparisonBody"></tbody>
-                </table>
-            </div>
-        </div>
+    <div class="divider">
+      <span>OR</span>
     </div>
 
-    <!-- Audio Seek Control (appears when playing audio) -->
-    <div id="audioSeekControl" class="audio-seek-control">
-        <div class="seek-header">
-            <div class="seek-title" id="seekTitle">Playing Audio Segment</div>
-            <button class="seek-close" onclick="stopAudioPlayback()">×</button>
-        </div>
-        <div class="waveform-container" id="waveformContainer" onclick="seekToWaveformPosition(event)"
-             onmousemove="updateWaveformHover(event)" onmouseleave="hideWaveformHover()">
-            <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
-            <div id="waveformProgress" class="waveform-progress"></div>
-            <div id="waveformCursor" class="waveform-cursor"></div>
-            <div id="waveformHoverLine" class="waveform-hover-line"></div>
-            <div class="waveform-zoom-controls">
-                <button class="waveform-zoom-btn" onclick="zoomWaveformOut(event)" title="Zoom out waveform">−</button>
-                <span class="waveform-zoom-info" id="waveformZoomInfo">1x</span>
-                <button class="waveform-zoom-btn" onclick="zoomWaveformIn(event)" title="Zoom in waveform">+</button>
-            </div>
-            <button id="waveformToggle" class="waveform-toggle" onclick="toggleWaveformView(event)"
-                    title="Toggle between segment and full audio view">Segment View
-            </button>
-            <div id="waveformLoading" class="waveform-loading">Generating waveform...</div>
-        </div>
-        <div class="seek-slider-container">
-            <input type="range" id="seekSlider" class="seek-slider" min="0" max="100" value="0" step="0.1">
-            <div class="seek-time-display">
-                <span id="currentTime">0:00</span>
-                <span id="currentTimeMs" class="seek-time-ms">0ms</span>
-                <span id="totalDuration">0:00</span>
-            </div>
-        </div>
-        <div class="seek-controls">
-            <button class="seek-control-btn" onclick="skipBackward()">⏪ -5s</button>
-            <button class="seek-control-btn primary" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
-            <button class="seek-control-btn" onclick="skipForward()">⏩ +5s</button>
-        </div>
+    <div>
+      <h3 style="color: #57d798; margin-bottom: 20px;">Select Reciter & Surah</h3>
+      <div class="input-group">
+        <label for="reciterInput">Reciter ID:</label>
+        <input type="number" id="reciterInput" placeholder="Enter reciter ID (e.g., 1, 65, 161)" min="1"/>
+      </div>
+
+      <div class="input-group">
+        <label>Select Surah:</label>
+        <div class="surah-grid" id="surahGrid"></div>
+      </div>
+
+      <button id="loadDataBtn" class="load-btn" disabled>
+        Load Data
+      </button>
     </div>
+
+    <div id="errorDisplay"></div>
+  </div>
+
+  <div id="mainContent" class="main-content">
+    <div class="stats" id="statsContainer"></div>
+
+    <div id="audioDropZone" class="audio-drop-zone">
+      <div class="icon">🎵</div>
+      <h3>Drop Audio File Here</h3>
+      <p>Or click to browse</p>
+      <div id="audioFileName" class="audio-info"></div>
+      <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
+      <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
+        💡 Tip: / to search | Space to pause | Esc to close | Arrows to skip | +/- to zoom
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 255, 255, 0.4); border-style: dashed;"></div>
+        <span>Original Timing</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+        <span>Corrected Timing </span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
+        <span>Silences</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255, 255, 0, 0.6); border-style: dashed;"></div>
+        <span>Gaps</span>
+      </div>
+    </div>
+
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoomOut()">🔍-</button>
+      <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+      <button class="zoom-btn" onclick="zoomIn()">🔍+</button>
+      <span class="zoom-info" id="zoomLevel">Zoom: 1x</span>
+    </div>
+
+    <div class="timeline-section">
+      <div class="section-title">Visual Timeline</div>
+      <div class="timeline-wrapper">
+        <div id="timeline" class="timeline"></div>
+        <div class="time-axis" id="timeAxis"></div>
+      </div>
+    </div>
+
+    <div id="infoPanel" class="info-panel">
+      <h3 id="infoTitle">Click on any ayah, silence, or gap to see details and play audio</h3>
+      <div id="infoWaveformContainer" class="info-waveform-container" style="display: none;">
+        <canvas id="infoWaveformCanvas" class="info-waveform-canvas"></canvas>
+        <div id="infoWaveformLabel" class="info-waveform-label">Waveform</div>
+      </div>
+      <div id="infoContent"></div>
+    </div>
+
+    <div class="timeline-section">
+      <div class="section-title">Detailed Comparison Table</div>
+      <div class="table-search-container">
+        <input
+          type="text"
+          id="tableSearchInput"
+          class="table-search-input"
+          placeholder="Search ayahs... (e.g., 1, 5-10, 15)"
+          oninput="filterTable()"
+          />
+        <span id="searchResultsInfo" class="search-results-info"></span>
+        <button id="clearSearchBtn" class="clear-search-btn" onclick="clearTableSearch()" disabled>
+          ✕ Clear
+        </button>
+      </div>
+      <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
+        <table class="comparison-table" id="comparisonTable">
+          <thead>
+          <tr>
+            <th class="sortable" id="ayahHeader" onclick="sortByAyah()">Ayah</th>
+            <th>Original Start</th>
+            <th>Corrected Start</th>
+            <th>Start Δ</th>
+            <th>Original End</th>
+            <th>Corrected End</th>
+            <th>End Δ</th>
+            <th class="sortable" id="durationHeader" onclick="sortByDuration()">Duration</th>
+            <th class="sortable" id="gapHeader" onclick="sortByGap()">Gap to Next</th>
+            <th>Info</th>
+            <th>Play</th>
+          </tr>
+          </thead>
+          <tbody id="comparisonBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Seek Control (appears when playing audio) -->
+  <div id="audioSeekControl" class="audio-seek-control">
+    <div class="seek-header">
+      <div class="seek-title" id="seekTitle">Playing Audio Segment</div>
+      <button class="seek-close" onclick="stopAudioPlayback()">×</button>
+    </div>
+    <div class="waveform-container" id="waveformContainer" onclick="seekToWaveformPosition(event)" onmousemove="updateWaveformHover(event)" onmouseleave="hideWaveformHover()">
+      <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+      <div id="waveformProgress" class="waveform-progress"></div>
+      <div id="waveformCursor" class="waveform-cursor"></div>
+      <div id="waveformHoverLine" class="waveform-hover-line"></div>
+      <div class="waveform-zoom-controls">
+        <button class="waveform-zoom-btn" onclick="zoomWaveformOut(event)" title="Zoom out waveform">−</button>
+        <span class="waveform-zoom-info" id="waveformZoomInfo">1x</span>
+        <button class="waveform-zoom-btn" onclick="zoomWaveformIn(event)" title="Zoom in waveform">+</button>
+      </div>
+      <button id="waveformToggle" class="waveform-toggle" onclick="toggleWaveformView(event)" title="Toggle between segment and full audio view">Segment View</button>
+      <div id="waveformLoading" class="waveform-loading">Generating waveform...</div>
+    </div>
+    <div class="seek-slider-container">
+      <input type="range" id="seekSlider" class="seek-slider" min="0" max="100" value="0" step="0.1">
+      <div class="seek-time-display">
+        <span id="currentTime">0:00</span>
+        <span id="currentTimeMs" class="seek-time-ms">0ms</span>
+        <span id="totalDuration">0:00</span>
+      </div>
+    </div>
+    <div class="seek-controls">
+      <button class="seek-control-btn" onclick="skipBackward()">⏪ -5s</button>
+      <button class="seek-control-btn primary" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
+      <button class="seek-control-btn" onclick="skipForward()">⏩ +5s</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1571,7 +1565,7 @@
     }
 
     console.log('Waveform drawn successfully');
-    currentSegmentWaveform = {startIndex, endIndex, segmentData};
+    currentSegmentWaveform = { startIndex, endIndex, segmentData };
   }
 
   function updateWaveformProgress() {
@@ -2109,7 +2103,7 @@
     document.getElementById('mainContent').classList.add('visible');
 
     // Update title
-    document.querySelector('h1').textContent = `Ayah Timeline - ${fileName}`;
+    document.querySelector('h1').textContent = `Ayah Boundaries Timeline - ${fileName}`;
 
     // Set initial zoom based on number of ayahs
     setInitialZoom();
@@ -2122,7 +2116,7 @@
   }
 
   function loadDataFromPath(reciter, surah) {
-    const dataPath = `/tools/segments/data/result/plot_data/${reciter}/${surah}.json`;
+    const dataPath = `./data/result/plot_data/${reciter}/${surah}.json`;
 
     fetch(dataPath)
       .then(response => {
@@ -2137,11 +2131,8 @@
         // Hide selector, show main content
         document.getElementById('selectorPanel').classList.add('hidden');
         document.getElementById('mainContent').classList.add('visible');
+        document.querySelector('h1').textContent = `Surah ${surah} - Reciter ${reciter} - Ayah Boundaries Timeline`;
 
-        // Update title
-        document.querySelector('h1').textContent = `Surah ${surah} - Reciter ${reciter} - Ayah Timeline`;
-
-        // Set initial zoom based on number of ayahs
         setInitialZoom();
 
         // Initialize and render

@@ -14,12 +14,6 @@ p.process_all_files
   p.process_reciter(reciter: 1, surah: 2)
 end
 
-# Method 1: Adjust boundaries using full audio silence detection
-p.segmented_recitations.each do |r|
-  1.upto(114) do |i|
-  end
-end
-
 p.cleanup_duplicate_failures
 p.seed_reciters
 =end

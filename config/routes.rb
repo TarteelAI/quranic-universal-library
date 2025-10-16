@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   end
 
   get 'tools', to: 'community#tools', as: :tools
+  get '/ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info

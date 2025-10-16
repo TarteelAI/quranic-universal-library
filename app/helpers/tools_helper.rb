@@ -140,12 +140,12 @@ module ToolsHelper
       ),
       ToolCard.new(
         title: 'Audio Segmentations',
-        description: 'Audio segmentations for Quranic recitations.',
+        description: 'This tool is used to inspect and validate the raw segmentation data of recitations by viewing detailed statistics, testing real-time word highlighting, and identifying missing or misaligned words.',
         url: segments_dashboard_path,
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: [],
-        info_tip: 'Tool to statistics and manage audio segmentations for Quranic recitations.',
+        tags: ['Timestamp', 'timestamp'],
+        info_tip: 'Review and validate raw audio segmentation data of recitations.',
       ),
       ToolCard.new(
         title: 'Compare audio',
@@ -153,9 +153,27 @@ module ToolsHelper
         url: '/compare-audio',
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: [],
+        tags: ['Timestamp', 'timestamp'],
         info_tip: 'This tool is used to compare two audio recitations through waveform visualizations, helping identify differences and similarities between them.',
-        )
+      ),
+      ToolCard.new(
+        title: 'Audio Segment',
+        description: 'Compare audio recitations',
+        url: '/compare-audio',
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: ['Timestamp', 'timestamp'],
+        info_tip: 'This tool is used to compare two audio recitations through waveform visualizations, helping identify differences and similarities between them.',
+      ),
+      ToolCard.new(
+        title: 'Ayah Boundary Visualizer',
+        description: 'This tool visualizes ayah start and end times as timeline bars, helping to debug and refine ayah boundary data derived from raw segmentation.',
+        url: '/ayah-boundaries',
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: ['Timestamp', 'timestamp'],
+        info_tip: 'This tool visualizes ayah boundaries from raw segments data.'
+      )
     ]
   end
 end

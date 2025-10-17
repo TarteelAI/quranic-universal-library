@@ -11,7 +11,11 @@ export default class extends Controller {
   connect() {
     this.fontLoaded = false
     this.fontData = null
+    this.fontLoadError = false
+    this.loadingFont = false
     this.debounceTimer = null
+    this.fontLoadingInterval = null
+    this.fontLoadingTimeout = null
     
     this.loadFont()
     this.setupEventListeners()
@@ -21,22 +25,42 @@ export default class extends Controller {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer)
     }
+    if (this.fontLoadingInterval) {
+      clearInterval(this.fontLoadingInterval)
+    }
+    if (this.fontLoadingTimeout) {
+      clearTimeout(this.fontLoadingTimeout)
+    }
   }
 
   loadFont() {
+    // Check if opentype.js is loaded, if not wait for it
     if (typeof opentype === 'undefined') {
-      this.showPlaceholderMessage()
+      setTimeout(() => this.loadFont(), 200)
       return
     }
 
+    // Prevent multiple simultaneous load attempts
+    if (this.loadingFont) {
+      return
+    }
+
+    this.loadingFont = true
+
     opentype.load(this.fontUrlValue, (err, font) => {
+      this.loadingFont = false
+
       if (err) {
-        this.showPlaceholderMessage()
+        this.fontLoadError = true
+        if (this.isGlyphsTabActive()) {
+          this.showPlaceholderMessage()
+        }
         return
       }
 
       this.fontData = font
       this.fontLoaded = true
+      this.fontLoadError = false
 
       // Render glyphs if glyphs tab is already active
       if (this.isGlyphsTabActive()) {
@@ -88,17 +112,13 @@ export default class extends Controller {
       if (glyphsTab) {
         // Bootstrap tab events
         glyphsTab.addEventListener('shown.bs.tab', () => {
-          if (this.fontLoaded && this.fontData) {
-            this.renderGlyphs()
-          }
+          this.handleGlyphsTabShown()
         })
         
         // Click event as backup
         glyphsTab.addEventListener('click', () => {
           setTimeout(() => {
-            if (this.fontLoaded && this.fontData) {
-              this.renderGlyphs()
-            }
+            this.handleGlyphsTabShown()
           }, 100)
         })
       }
@@ -109,9 +129,7 @@ export default class extends Controller {
           mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
               if (glyphsPane.classList.contains('active') && glyphsPane.classList.contains('show')) {
-                if (this.fontLoaded && this.fontData) {
-                  this.renderGlyphs()
-                }
+                this.handleGlyphsTabShown()
               }
             }
           })
@@ -122,6 +140,64 @@ export default class extends Controller {
     } catch (error) {
       // Silently handle errors in production
     }
+  }
+
+  handleGlyphsTabShown() {
+    if (this.fontLoaded && this.fontData) {
+      // Font is already loaded, render glyphs immediately
+      this.renderGlyphs()
+    } else {
+      // Font is still loading, show loading message and wait
+      this.showLoadingMessage()
+      this.waitForFontAndRender()
+    }
+  }
+
+  showLoadingMessage() {
+    if (this.hasGlyphsContainerTarget) {
+      this.glyphsContainerTarget.innerHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-4 tw-text-gray-500"><div class="tw-animate-spin tw-rounded-full tw-h-12 tw-w-12 tw-border-b-2 tw-border-blue-500 tw-mx-auto tw-mb-4"></div><div>Loading font and glyphs...</div></div></div>'
+      this.removeGridClasses()
+    }
+  }
+
+  waitForFontAndRender() {
+    // Clear any existing intervals/timeouts
+    if (this.fontLoadingInterval) {
+      clearInterval(this.fontLoadingInterval)
+    }
+    if (this.fontLoadingTimeout) {
+      clearTimeout(this.fontLoadingTimeout)
+    }
+
+    let checkCount = 0
+    const maxChecks = 300 // 30 seconds (300 * 100ms)
+
+    // Check every 100ms if font is loaded
+    this.fontLoadingInterval = setInterval(() => {
+      checkCount++
+
+      if (this.fontLoaded && this.fontData) {
+        clearInterval(this.fontLoadingInterval)
+        this.fontLoadingInterval = null
+        if (this.isGlyphsTabActive()) {
+          this.renderGlyphs()
+        }
+      } else if (this.fontLoadError) {
+        // Font failed to load
+        clearInterval(this.fontLoadingInterval)
+        this.fontLoadingInterval = null
+        if (this.isGlyphsTabActive()) {
+          this.showPlaceholderMessage()
+        }
+      } else if (checkCount >= maxChecks) {
+        // Timeout reached
+        clearInterval(this.fontLoadingInterval)
+        this.fontLoadingInterval = null
+        if (this.isGlyphsTabActive()) {
+          this.showPlaceholderMessage()
+        }
+      }
+    }, 100)
   }
 
   isGlyphsTabActive() {
@@ -139,6 +215,28 @@ export default class extends Controller {
         return
       }
       
+      // Ensure CSS font is also loaded before rendering
+      if (document.fonts && this.fontFaceValue) {
+        document.fonts.load(`12px "${this.fontFaceValue}"`).then(() => {
+          this.actuallyRenderGlyphs(query)
+        }).catch(() => {
+          // Still try to render even if font face loading fails
+          this.actuallyRenderGlyphs(query)
+        })
+      } else {
+        // Fallback if Font Loading API is not supported
+        this.actuallyRenderGlyphs(query)
+      }
+    } catch (error) {
+      if (this.hasGlyphsContainerTarget) {
+        this.glyphsContainerTarget.innerHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-4 tw-text-gray-500">Error loading glyphs</div></div>'
+        this.removeGridClasses()
+      }
+    }
+  }
+
+  actuallyRenderGlyphs(query = '') {
+    try {
       // Restore grid classes when showing actual glyphs
       this.restoreGridClasses()
       this.glyphsContainerTarget.innerHTML = ''
@@ -147,7 +245,7 @@ export default class extends Controller {
         if (!glyph.unicode) return
 
         const unicodeHex = glyph.unicode.toString(16).toUpperCase()
-        if (!unicodeHex.includes(query.toUpperCase())) return
+        if (query && !unicodeHex.includes(query.toUpperCase())) return
 
         const glyphChar = String.fromCharCode(glyph.unicode)
         const el = document.createElement('div')
@@ -169,7 +267,7 @@ export default class extends Controller {
 
   showPlaceholderMessage() {
     try {
-      const placeholderHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-8 tw-text-gray-500 tw-bg-gray-100 tw-rounded tw-border-2 tw-border-dashed tw-border-gray-300 tw-max-w-md tw-mx-auto"><div class="tw-text-lg tw-font-medium tw-mb-2 tw-px-2">Preview is not available for this font</div><div class="tw-text-sm">The TTF font file could not be loaded</div></div></div>'
+      const placeholderHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-8 tw-text-gray-500 tw-bg-gray-100 tw-rounded tw-border-2 tw-border-dashed tw-border-gray-300 tw-max-w-md tw-mx-auto"><div class="tw-text-lg tw-font-medium tw-mb-2 tw-px-2">Preview is not available for this font</div><div class="tw-text-sm tw-mb-4">The TTF font file could not be loaded</div>'
       
       if (this.hasGlyphsContainerTarget) {
         this.glyphsContainerTarget.innerHTML = placeholderHTML

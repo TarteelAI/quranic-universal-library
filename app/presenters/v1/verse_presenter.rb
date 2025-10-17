@@ -152,5 +152,10 @@ module V1
         list
       end
     end
+
+    def per_page
+      items = params[:per_page].to_i.abs
+      [items | 10, 286].min
+    end
   end
 end

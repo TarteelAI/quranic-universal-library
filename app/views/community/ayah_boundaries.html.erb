@@ -2024,7 +2024,7 @@
   async function fetchVerses(chapterId) {
     try {
       console.log(`📖 Fetching verses for chapter ${chapterId}...`);
-      const apiUrl = `/api/v1/chapters/${chapterId}/verses?words=false&fields=text_imlaei`;
+      const apiUrl = `/api/v1/chapters/${chapterId}/verses?words=false&fields=text_imlaei&per_page=286`;
       
       const response = await fetch(apiUrl);
       
@@ -2188,7 +2188,7 @@
     document.getElementById('mainContent').classList.add('visible');
 
     // Update title
-    document.querySelector('h1').textContent = `Ayah Boundaries Timeline - ${fileName}`;
+    document.querySelector('h1').textContent = `Ayah Boundaries Timeline - Reciter ${selectedReciter} Surah ${fileName}`;
 
     // Try to extract chapter ID from first ayah's verse_key if available
     // or from fileName pattern like "65.json" or similar

@@ -107,9 +107,10 @@ module Audio
 
       # Check if we've segments for all ayahs
       if verses_count != segments.size
+        missing_ayahs = (1..verses_count).to_a - segments.pluck(:verse_number)
         issues.push(
           {
-            text: "#{verses_count - segments.size} ayahs don't have segments data. Total segments: #{segments.size}",
+            text: "#{verses_count - segments.size} ayahs(#{missing_ayahs.join(', ')}) don't have segments data. Total segments: #{segments.size}",
             severity: 'bg-danger'
           }
         )

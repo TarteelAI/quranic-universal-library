@@ -1,0 +1,2988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayah segments and gaps timeline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #35f787, #62d6f4, #00a3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 40px;
+            opacity: 0.7;
+            font-size: 1.1em;
+            color: #5a6c7d;
+        }
+
+        .timeline-section {
+            margin: 40px 0;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #57d798;
+            font-weight: bold;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border-radius: 8px;
+            background: white;
+            padding: 10px 0;
+            border: 1px solid #e1e8ed;
+        }
+
+        .timeline {
+            position: relative;
+            height: 80px;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: visible;
+            min-width: 100%;
+        }
+
+        .zoom-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .zoom-btn {
+            background: white;
+            border: 1px solid #e1e8ed;
+            color: #2c3e50;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .zoom-btn:hover {
+            background: #f8f9fa;
+            border-color: #57d798;
+            transform: translateY(-1px);
+        }
+
+        .zoom-info {
+            color: #57d798;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        .ayah-bar {
+            position: absolute;
+            height: 30px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .ayah-bar.original {
+            top: 5px;
+            opacity: 0.8;
+            border-style: dashed;
+        }
+
+        .ayah-bar.corrected {
+            top: 45px;
+            opacity: 1;
+        }
+
+        .ayah-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            opacity: 1;
+        }
+
+        .silence-bar {
+            position: absolute;
+            height: 8px;
+            top: 36px;
+            background: rgba(255, 0, 0, 0.5);
+            border: 1px solid rgba(255, 0, 0, 0.8);
+            border-radius: 2px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .silence-bar:hover {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        .gap-indicator {
+            position: absolute;
+            height: 12px;
+            top: 34px;
+            background: rgba(255, 255, 0, 0.6);
+            border: 1px dashed rgba(255, 255, 0, 0.9);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gap-indicator:hover {
+            background: rgba(255, 255, 0, 0.8);
+            border-color: rgba(255, 200, 0, 1);
+            height: 14px;
+            top: 33px;
+        }
+
+        .ayah-1 {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+        }
+
+        .ayah-2 {
+            background: linear-gradient(135deg, #00a3ff 0%, #62d6f4 100%);
+        }
+
+        .ayah-3 {
+            background: linear-gradient(135deg, #62d6f4 0%, #3cff8b 100%);
+        }
+
+        .ayah-4 {
+            background: linear-gradient(135deg, #3cff8b 0%, #83ee41 100%);
+        }
+
+        .ayah-5 {
+            background: linear-gradient(135deg, #57d798 0%, #35f787 100%);
+        }
+
+        .ayah-6 {
+            background: linear-gradient(135deg, #00fff0 0%, #00a3ff 100%);
+        }
+
+        .ayah-7 {
+            background: linear-gradient(135deg, #6aff52 0%, #62d6f4 100%);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .info-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+            border: 1px solid #e1e8ed;
+        }
+
+        .info-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-waveform-container {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            background: white;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #e1e8ed;
+            overflow: hidden;
+        }
+
+        .info-waveform-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .info-waveform-label {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            color: #5a6c7d;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .time-axis {
+            position: relative;
+            height: 30px;
+            margin: 10px 0;
+            border-top: 1px solid #e1e8ed;
+        }
+
+        .time-marker {
+            position: absolute;
+            font-size: 10px;
+            opacity: 0.7;
+            top: 5px;
+            color: #5a6c7d;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #57d798;
+        }
+
+        .stat-label {
+            opacity: 0.7;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #5a6c7d;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e1e8ed;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #57d798;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .comparison-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-table th.sortable:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #35f787;
+        }
+
+        .comparison-table th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 0.8em;
+        }
+
+        .comparison-table th.sortable.sorted-asc::after {
+            content: ' ↑';
+            opacity: 1;
+        }
+
+        .comparison-table th.sortable.sorted-desc::after {
+            content: ' ↓';
+            opacity: 1;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .adjustment-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            background: rgba(87, 215, 152, 0.1);
+            border: 1px solid rgba(87, 215, 152, 0.3);
+            color: #2c3e50;
+        }
+
+        .positive-change {
+            color: #4ade80;
+        }
+
+        .negative-change {
+            color: #f87171;
+        }
+
+        .audio-drop-zone {
+            border: 3px dashed #e1e8ed;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .audio-drop-zone:hover,
+        .audio-drop-zone.drag-over {
+            border-color: #57d798;
+            background: rgba(87, 215, 152, 0.1);
+        }
+
+        .audio-drop-zone.has-audio {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .audio-drop-zone .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+        }
+
+        .play-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .play-btn.playing {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        }
+
+        .audio-info {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .audio-seek-control {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 2px solid #57d798;
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 600px;
+            display: none;
+        }
+
+        .audio-seek-control.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .seek-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .seek-title {
+            font-weight: bold;
+            color: #57d798;
+            font-size: 1.1em;
+        }
+
+        .seek-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #5a6c7d;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        .seek-close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .seek-slider-container {
+            margin: 15px 0;
+        }
+
+        .waveform-container {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            cursor: pointer;
+            border: 1px solid #e1e8ed;
+            transition: border-color 0.2s ease;
+        }
+
+        .waveform-container:hover {
+            border-color: #57d798;
+        }
+
+        /* Scrollbar styling for waveform container */
+        .waveform-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .waveform-container::-webkit-scrollbar-track {
+            background: rgba(225, 232, 237, 0.5);
+            border-radius: 3px;
+        }
+
+        .waveform-container::-webkit-scrollbar-thumb {
+            background: rgba(87, 215, 152, 0.5);
+            border-radius: 3px;
+        }
+
+        .waveform-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(87, 215, 152, 0.8);
+        }
+
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .waveform-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background: rgba(53, 247, 135, 0.2);
+            pointer-events: none;
+            transition: width 0.05s linear;
+        }
+
+        .waveform-cursor {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #00a3ff;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(0, 163, 255, 0.6);
+        }
+
+        .waveform-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #5a6c7d;
+            font-size: 0.9em;
+            opacity: 0.7;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .waveform-toggle {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .waveform-toggle:hover {
+            background: white;
+            border-color: #57d798;
+        }
+
+        .waveform-zoom-controls {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+        }
+
+        .waveform-zoom-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .waveform-zoom-btn:hover {
+            background: white;
+            border-color: #57d798;
+            color: #57d798;
+        }
+
+        .waveform-zoom-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .waveform-zoom-info {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            color: #5a6c7d;
+        }
+
+        .waveform-hover-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0, 163, 255, 0.5);
+            pointer-events: none;
+            display: none;
+        }
+
+        .waveform-container:hover .waveform-hover-line {
+            display: block;
+        }
+
+        .seek-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e1e8ed;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .seek-slider::-webkit-slider-thumb {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .seek-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
+        }
+
+        .seek-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(53, 247, 135, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .seek-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.6);
+        }
+
+        .seek-time-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #5a6c7d;
+            margin-top: 8px;
+        }
+
+        .seek-time-ms {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #57d798;
+            font-weight: bold;
+            padding: 2px 8px;
+            background: rgba(87, 215, 152, 0.1);
+            border-radius: 4px;
+        }
+
+        .seek-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .seek-control-btn {
+            background: white;
+            border: 2px solid #e1e8ed;
+            color: #2c3e50;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .seek-control-btn:hover {
+            border-color: #57d798;
+            background: #f8f9fa;
+        }
+
+        .seek-control-btn.primary {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            border: none;
+            color: white;
+        }
+
+        .seek-control-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+        }
+
+        .table-search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .table-search-input {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .table-search-input:focus {
+            outline: none;
+            border-color: #57d798;
+            box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+        }
+
+        .table-search-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .search-results-info {
+            color: #5a6c7d;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .search-results-info.active {
+            color: #57d798;
+            font-weight: bold;
+            opacity: 1;
+        }
+
+        .clear-search-btn {
+            background: white;
+            border: 2px solid #e1e8ed;
+            color: #2c3e50;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .clear-search-btn:hover {
+            border-color: #f87171;
+            color: #f87171;
+            background: #fef2f2;
+        }
+
+        .clear-search-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .table-row-hidden {
+            display: none !important;
+        }
+
+        .selector-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 1px solid #e1e8ed;
+        }
+
+        .selector-panel.hidden {
+            display: none;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #57d798;
+        }
+
+        .input-group input[type="number"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            background: white;
+            color: #2c3e50;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input[type="number"]:focus {
+            outline: none;
+            border-color: #57d798;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+        }
+
+        .surah-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .surah-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .surah-card:hover {
+            background: #f8f9fa;
+            border-color: #57d798;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(87, 215, 152, 0.2);
+        }
+
+        .surah-card.selected {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            border-color: #57d798;
+            color: white;
+        }
+
+        .load-btn {
+            background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .load-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+        }
+
+        .load-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .file-upload-section {
+            margin: 30px 0;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            border: 3px dashed #e1e8ed;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-section:hover,
+        .file-upload-section.drag-over {
+            border-color: #57d798;
+            background: rgba(87, 215, 152, 0.1);
+        }
+
+        .file-upload-section.has-file {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .file-upload-section h3 {
+            color: #57d798;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-section .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .file-input-label:hover {
+            background: #f8f9fa;
+            border-color: #57d798;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: #e1e8ed;
+        }
+
+        .divider span {
+            position: relative;
+            background: #f8f9fa;
+            padding: 5px 20px;
+            border-radius: 20px;
+            color: #5a6c7d;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .main-content.visible {
+            display: block;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Ayah segments and gaps timeline</h1>
+    <div id="selectorPanel" class="selector-panel">
+        <h2 style="color: #57d798; margin-bottom: 20px;">📊 Load Ayah Boundary Data</h2>
+
+        <div class="file-upload-section" id="jsonDropZone">
+            <div class="icon">📄</div>
+            <h3>Option 1: Upload JSON File</h3>
+            <p style="opacity: 0.8; margin-bottom: 15px;">Drop JSON file here or click to browse</p>
+            <p style="opacity: 0.6; font-size: 0.9em;">Ayah boundary data in JSON format</p>
+            <input type="file" id="jsonFileInput" accept=".json" style="display: none;"/>
+            <div id="fileNameDisplay" style="margin-top: 15px; opacity: 0.8;"></div>
+        </div>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div>
+            <h3 style="color: #57d798; margin-bottom: 20px;">Select Reciter & Surah</h3>
+            <div class="input-group">
+                <label for="reciterInput">Reciter ID:</label>
+                <input type="number" id="reciterInput" placeholder="Enter reciter ID (e.g., 1, 65, 161)" min="1"/>
+            </div>
+
+            <div class="input-group">
+                <label>Select Surah:</label>
+                <div class="surah-grid" id="surahGrid"></div>
+            </div>
+
+            <button id="loadDataBtn" class="load-btn" disabled>
+                Load Data
+            </button>
+        </div>
+
+        <div id="errorDisplay"></div>
+    </div>
+
+    <div id="mainContent" class="main-content">
+        <div class="stats" id="statsContainer"></div>
+
+        <div id="audioDropZone" class="audio-drop-zone">
+            <div class="icon">🎵</div>
+            <h3>Drop Audio File Here</h3>
+            <p>Or click to browse</p>
+            <div id="audioFileName" class="audio-info"></div>
+            <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
+            <div style="font-size: 0.85em; opacity: 0.6; margin-top: 10px;">
+                💡 Tip: / to search | Space to pause | Esc to close | Arrows to skip | +/- to zoom
+            </div>
+        </div>
+
+         <div class="legend">
+             <div class="legend-item">
+                 <div class="legend-color" style="background: rgba(255, 255, 255, 0.4); border-style: dashed;"></div>
+                 <span>Original Timing</span>
+             </div>
+             <div class="legend-item">
+                 <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                 <span>Corrected Timing (Click for details + waveform)</span>
+             </div>
+             <div class="legend-item">
+                 <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
+                 <span>Silence Detection (Click to see waveform)</span>
+             </div>
+             <div class="legend-item">
+                 <div class="legend-color" style="background: rgba(255, 255, 0, 0.6); border-style: dashed;"></div>
+                 <span>Gap (Click to see waveform + play)</span>
+             </div>
+         </div>
+
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomOut()">🔍-</button>
+            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+            <button class="zoom-btn" onclick="zoomIn()">🔍+</button>
+            <span class="zoom-info" id="zoomLevel">Zoom: 1x</span>
+        </div>
+
+        <div class="timeline-section">
+            <div class="section-title">Visual Timeline</div>
+            <div class="timeline-wrapper">
+                <div id="timeline" class="timeline"></div>
+                <div class="time-axis" id="timeAxis"></div>
+            </div>
+        </div>
+
+         <div id="infoPanel" class="info-panel">
+             <h3 id="infoTitle">Click on any ayah, silence, or gap to see details and play audio</h3>
+             <div id="infoWaveformContainer" class="info-waveform-container" style="display: none;">
+                 <canvas id="infoWaveformCanvas" class="info-waveform-canvas"></canvas>
+                 <div id="infoWaveformLabel" class="info-waveform-label">Waveform</div>
+             </div>
+             <div id="infoContent"></div>
+         </div>
+
+        <div class="timeline-section">
+            <div class="section-title">Detailed Comparison Table</div>
+            <div class="table-search-container">
+                <input 
+                    type="text" 
+                    id="tableSearchInput" 
+                    class="table-search-input" 
+                    placeholder="Search ayahs... (e.g., 1, 5-10, 15)"
+                    oninput="filterTable()"
+                />
+                <span id="searchResultsInfo" class="search-results-info"></span>
+                <button id="clearSearchBtn" class="clear-search-btn" onclick="clearTableSearch()" disabled>
+                    ✕ Clear
+                </button>
+            </div>
+            <div style="overflow-x: auto; max-height: 600px; overflow-y: auto;">
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
+                    <tr>
+                        <th class="sortable" id="ayahHeader" onclick="sortByAyah()">Ayah</th>
+                        <th>Original Start</th>
+                        <th>Corrected Start</th>
+                        <th>Start Δ</th>
+                        <th>Original End</th>
+                        <th>Corrected End</th>
+                        <th>End Δ</th>
+                        <th class="sortable" id="durationHeader" onclick="sortByDuration()">Duration</th>
+                        <th class="sortable" id="gapHeader" onclick="sortByGap()">Gap to Next</th>
+                        <th>Info</th>
+                        <th>Play</th>
+                    </tr>
+                    </thead>
+                    <tbody id="comparisonBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Seek Control (appears when playing audio) -->
+    <div id="audioSeekControl" class="audio-seek-control">
+        <div class="seek-header">
+            <div class="seek-title" id="seekTitle">Playing Audio Segment</div>
+            <button class="seek-close" onclick="stopAudioPlayback()">×</button>
+        </div>
+        <div class="waveform-container" id="waveformContainer" onclick="seekToWaveformPosition(event)" onmousemove="updateWaveformHover(event)" onmouseleave="hideWaveformHover()">
+            <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+            <div id="waveformProgress" class="waveform-progress"></div>
+            <div id="waveformCursor" class="waveform-cursor"></div>
+            <div id="waveformHoverLine" class="waveform-hover-line"></div>
+            <div class="waveform-zoom-controls">
+                <button class="waveform-zoom-btn" onclick="zoomWaveformOut(event)" title="Zoom out waveform">−</button>
+                <span class="waveform-zoom-info" id="waveformZoomInfo">1x</span>
+                <button class="waveform-zoom-btn" onclick="zoomWaveformIn(event)" title="Zoom in waveform">+</button>
+            </div>
+            <button id="waveformToggle" class="waveform-toggle" onclick="toggleWaveformView(event)" title="Toggle between segment and full audio view">Segment View</button>
+            <div id="waveformLoading" class="waveform-loading">Generating waveform...</div>
+        </div>
+        <div class="seek-slider-container">
+            <input type="range" id="seekSlider" class="seek-slider" min="0" max="100" value="0" step="0.1">
+            <div class="seek-time-display">
+                <span id="currentTime">0:00</span>
+                <span id="currentTimeMs" class="seek-time-ms">0ms</span>
+                <span id="totalDuration">0:00</span>
+            </div>
+        </div>
+        <div class="seek-controls">
+            <button class="seek-control-btn" onclick="skipBackward()">⏪ -5s</button>
+            <button class="seek-control-btn primary" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
+            <button class="seek-control-btn" onclick="skipForward()">⏩ +5s</button>
+        </div>
+    </div>
+</div>
+
+<script>
+  let data = [];
+  let currentZoom = 1;
+  const minZoom = 0.5;
+  const maxZoom = 200;
+  let audioElement = null;
+  let audioLoaded = false;
+  let currentlyPlaying = null;
+  let sortColumn = null; // 'ayah', 'duration', null
+  let sortOrder = 'none'; // 'none', 'asc', 'desc'
+  
+  // Audio seek control variables
+  let currentSegmentStart = 0;
+  let currentSegmentEnd = 0;
+  let seekUpdateInterval = null;
+  let isUserSeeking = false;
+  
+  // Waveform variables
+  let audioContext = null;
+  let waveformData = null;
+  let currentSegmentWaveform = null;
+  let showFullWaveform = false; // Toggle between segment and full waveform view
+  let waveformZoom = 1; // Zoom level for waveform canvas
+  const minWaveformZoom = 0.5;
+  const maxWaveformZoom = 4;
+  
+  // Store initial zoom for reset button
+  let initialZoom = 1;
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  // Initialize audio handling
+  function initAudioHandling() {
+    const dropZone = document.getElementById('audioDropZone');
+    const fileInput = document.getElementById('audioFileInput');
+    const audioFileName = document.getElementById('audioFileName');
+
+    // Click to browse
+    dropZone.addEventListener('click', (e) => {
+      if (e.target !== fileInput) {
+        fileInput.click();
+      }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleAudioFile(e.target.files[0]);
+      }
+    });
+
+    // Drag and drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+
+      if (e.dataTransfer.files.length > 0) {
+        handleAudioFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  function handleAudioFile(file) {
+    const dropZone = document.getElementById('audioDropZone');
+    const audioFileName = document.getElementById('audioFileName');
+
+    if (!file.type.startsWith('audio/')) {
+      alert('Please select an audio file');
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+
+    if (audioElement) {
+      audioElement.pause();
+      audioElement = null;
+    }
+
+    audioElement = new Audio(url);
+    audioElement.addEventListener('loadedmetadata', () => {
+      audioLoaded = true;
+      dropZone.classList.add('has-audio');
+      audioFileName.innerHTML = `
+        ✓ Loaded: <strong>${escapeHtml(file.name)}</strong> (${formatTime(audioElement.duration * 1000)})
+      `;
+      
+      // Generate waveform data
+      generateWaveformData(file);
+    });
+
+    audioElement.addEventListener('ended', () => {
+      if (currentlyPlaying) {
+        const btn = document.getElementById(currentlyPlaying);
+        if (btn) {
+          btn.textContent = btn.textContent.replace('⏸', '▶️');
+          btn.classList.remove('playing');
+        }
+        currentlyPlaying = null;
+      }
+    });
+  }
+
+  async function generateWaveformData(file) {
+    try {
+      console.log('🎵 Starting waveform generation...');
+      console.log(`File: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)} MB, Type: ${file.type}`);
+      
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log(`AudioContext created, sample rate: ${audioContext.sampleRate} Hz`);
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      console.log(`✓ Audio file loaded as ArrayBuffer (${arrayBuffer.byteLength} bytes)`);
+      
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      console.log(`✓ Audio decoded successfully`);
+      console.log(`  - Duration: ${audioBuffer.duration.toFixed(2)}s`);
+      console.log(`  - Channels: ${audioBuffer.numberOfChannels}`);
+      console.log(`  - Sample Rate: ${audioBuffer.sampleRate} Hz`);
+      console.log(`  - Length: ${audioBuffer.length} samples`);
+      
+      // Extract waveform data from the audio buffer
+      const rawData = audioBuffer.getChannelData(0); // Get first channel
+      const samples = 2000; // Number of samples for the waveform (increased for better detail)
+      const blockSize = Math.floor(rawData.length / samples);
+      const filteredData = [];
+      
+      console.log(`Processing ${rawData.length} audio samples into ${samples} waveform points (block size: ${blockSize})...`);
+      
+      for (let i = 0; i < samples; i++) {
+        let blockStart = blockSize * i;
+        let sum = 0;
+        for (let j = 0; j < blockSize; j++) {
+          sum += Math.abs(rawData[blockStart + j]);
+        }
+        filteredData.push(sum / blockSize);
+      }
+      
+      // Normalize the data
+      const max = Math.max(...filteredData);
+      const min = Math.min(...filteredData);
+      const avg = filteredData.reduce((a, b) => a + b, 0) / filteredData.length;
+      
+      waveformData = filteredData.map(n => n / max);
+      
+      console.log(`✓ Waveform data generated successfully!`);
+      console.log(`  - Samples: ${waveformData.length}`);
+      console.log(`  - Max amplitude: ${max.toFixed(6)}`);
+      console.log(`  - Min amplitude: ${min.toFixed(6)}`);
+      console.log(`  - Avg amplitude: ${avg.toFixed(6)}`);
+      console.log(`  - Dynamic range: ${((max / (avg || 0.001)) * 100).toFixed(1)}%`);
+      
+    } catch (error) {
+      console.error('❌ Error generating waveform:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
+      
+      // Show error in UI
+      const loading = document.getElementById('waveformLoading');
+      if (loading) {
+        loading.innerHTML = `⚠️ Waveform Error<br><span style="font-size: 0.8em;">${error.message}</span>`;
+        loading.style.color = '#f87171';
+      }
+      
+      // Generate a test waveform for debugging
+      console.log('Generating test waveform pattern for debugging...');
+      generateTestWaveform();
+    }
+  }
+
+  function generateTestWaveform() {
+    // Generate a test sine wave pattern for debugging
+    const samples = 2000;
+    waveformData = [];
+    
+    for (let i = 0; i < samples; i++) {
+      // Create a combination of sine waves to simulate audio
+      const t = i / samples;
+      const wave = 
+        Math.sin(t * Math.PI * 20) * 0.5 +  // Low frequency
+        Math.sin(t * Math.PI * 100) * 0.3 +  // Mid frequency
+        Math.sin(t * Math.PI * 300) * 0.2 +  // High frequency
+        Math.random() * 0.1;                   // Noise
+      
+      waveformData.push(Math.abs(wave));
+    }
+    
+    // Normalize
+    const max = Math.max(...waveformData);
+    waveformData = waveformData.map(n => n / max);
+    
+    console.log('✓ Test waveform generated (this is not real audio data)');
+  }
+
+  function drawWaveform(startMs, endMs) {
+    const canvas = document.getElementById('waveformCanvas');
+    const loading = document.getElementById('waveformLoading');
+    
+    if (!canvas) {
+      console.error('Canvas element not found');
+      return;
+    }
+    
+    if (!waveformData) {
+      console.log('Waveform data not ready yet');
+      loading.style.display = 'block';
+      loading.textContent = 'Generating waveform...';
+      
+      // Retry after a short delay
+      setTimeout(() => {
+        if (waveformData) {
+          drawWaveform(startMs, endMs);
+        }
+      }, 500);
+      return;
+    }
+    
+    console.log(`Drawing waveform for segment ${startMs}ms to ${endMs}ms`);
+    loading.style.display = 'none';
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get canvas context');
+      return;
+    }
+    
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    console.log(`Canvas rect: ${rect.width}x${rect.height}, DPR: ${dpr}`);
+    
+    // Set canvas size accounting for device pixel ratio and waveform zoom
+    const zoomedWidth = rect.width * waveformZoom;
+    canvas.width = zoomedWidth * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    
+    // Clear canvas with background
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, zoomedWidth, rect.height);
+    
+    // Calculate which portion of the waveform to display
+    const totalDuration = audioElement.duration * 1000;
+    let segmentData, startIndex, endIndex;
+    
+    if (showFullWaveform) {
+      // Show full audio waveform
+      segmentData = waveformData;
+      startIndex = 0;
+      endIndex = waveformData.length;
+      console.log('Drawing full waveform');
+    } else {
+      // Show only the current segment
+      const startRatio = startMs / totalDuration;
+      const endRatio = endMs / totalDuration;
+      
+      startIndex = Math.floor(startRatio * waveformData.length);
+      endIndex = Math.ceil(endRatio * waveformData.length);
+      segmentData = waveformData.slice(startIndex, endIndex);
+      console.log(`Drawing segment waveform from ${startMs}ms to ${endMs}ms`);
+    }
+    
+    console.log(`Waveform data: ${segmentData.length} samples from index ${startIndex} to ${endIndex}, zoom: ${waveformZoom}x`);
+    
+    if (segmentData.length === 0) {
+      console.error('No segment data to draw');
+      return;
+    }
+    
+    // Draw waveform bars with zoom applied
+    const barWidth = zoomedWidth / segmentData.length;
+    const middleY = rect.height / 2;
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, rect.height);
+    gradient.addColorStop(0, 'rgba(53, 247, 135, 0.9)');
+    gradient.addColorStop(0.5, 'rgba(0, 163, 255, 0.9)');
+    gradient.addColorStop(1, 'rgba(98, 214, 244, 0.9)');
+    
+    ctx.fillStyle = gradient;
+    
+    // Draw each bar
+    for (let i = 0; i < segmentData.length; i++) {
+      const x = i * barWidth;
+      const amplitude = segmentData[i];
+      const barHeight = amplitude * (rect.height * 0.85); // 85% of canvas height for max amplitude
+      const y = middleY - barHeight / 2;
+      
+      // Draw the bar
+      const drawWidth = Math.max(1, barWidth - 0.5);
+      ctx.fillRect(x, y, drawWidth, barHeight);
+    }
+    
+    // If showing full waveform, highlight the current segment region
+    if (showFullWaveform) {
+      const segmentStartRatio = startMs / totalDuration;
+      const segmentEndRatio = endMs / totalDuration;
+      const segmentStartX = segmentStartRatio * zoomedWidth;
+      const segmentEndX = segmentEndRatio * zoomedWidth;
+      
+      // Draw segment boundary markers
+      ctx.strokeStyle = 'rgba(255, 193, 7, 0.8)';
+      ctx.lineWidth = 2;
+      
+      // Start marker
+      ctx.beginPath();
+      ctx.moveTo(segmentStartX, 0);
+      ctx.lineTo(segmentStartX, rect.height);
+      ctx.stroke();
+      
+      // End marker
+      ctx.beginPath();
+      ctx.moveTo(segmentEndX, 0);
+      ctx.lineTo(segmentEndX, rect.height);
+      ctx.stroke();
+      
+      // Highlight region with semi-transparent overlay
+      ctx.fillStyle = 'rgba(255, 193, 7, 0.1)';
+      ctx.fillRect(segmentStartX, 0, segmentEndX - segmentStartX, rect.height);
+    }
+    
+    console.log('Waveform drawn successfully');
+    currentSegmentWaveform = { startIndex, endIndex, segmentData };
+  }
+
+  function updateWaveformProgress() {
+    if (!audioElement) return;
+    
+    const waveformProgress = document.getElementById('waveformProgress');
+    const waveformCursor = document.getElementById('waveformCursor');
+    
+    let progress;
+    
+    if (showFullWaveform) {
+      // Show progress relative to entire audio file
+      const currentPos = audioElement.currentTime * 1000;
+      const totalDuration = audioElement.duration * 1000;
+      progress = (currentPos / totalDuration) * 100;
+    } else {
+      // Show progress relative to current segment
+      const currentPos = audioElement.currentTime * 1000;
+      const relativePos = currentPos - currentSegmentStart;
+      progress = (relativePos / (currentSegmentEnd - currentSegmentStart)) * 100;
+    }
+    
+    waveformProgress.style.width = Math.max(0, Math.min(100, progress)) + '%';
+    waveformCursor.style.left = Math.max(0, Math.min(100, progress)) + '%';
+  }
+
+  function seekToWaveformPosition(event) {
+    if (!audioElement) return;
+    
+    const container = document.getElementById('waveformContainer');
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const progress = x / rect.width;
+    
+    let newTime;
+    
+    if (showFullWaveform) {
+      // Seek anywhere in the full audio
+      const totalDuration = audioElement.duration * 1000;
+      newTime = progress * totalDuration;
+    } else {
+      // Seek within the current segment
+      newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
+    }
+    
+    audioElement.currentTime = newTime / 1000;
+    
+    updateSeekSlider();
+    updateWaveformProgress();
+  }
+
+  function toggleWaveformView(event) {
+    event.stopPropagation(); // Prevent seek when clicking toggle button
+    
+    showFullWaveform = !showFullWaveform;
+    
+    const toggleBtn = document.getElementById('waveformToggle');
+    toggleBtn.textContent = showFullWaveform ? 'Full View' : 'Segment View';
+    
+    // Redraw waveform with new view
+    if (currentSegmentStart !== null && currentSegmentEnd !== null) {
+      drawWaveform(currentSegmentStart, currentSegmentEnd);
+      updateWaveformProgress();
+    }
+  }
+
+  function zoomWaveformIn(event) {
+    event.stopPropagation(); // Prevent seek when clicking zoom button
+    
+    if (waveformZoom < maxWaveformZoom) {
+      waveformZoom = Math.min(maxWaveformZoom, waveformZoom * 1.5);
+      updateWaveformZoom();
+    }
+  }
+
+  function zoomWaveformOut(event) {
+    event.stopPropagation(); // Prevent seek when clicking zoom button
+    
+    if (waveformZoom > minWaveformZoom) {
+      waveformZoom = Math.max(minWaveformZoom, waveformZoom / 1.5);
+      updateWaveformZoom();
+    }
+  }
+
+  function updateWaveformZoom() {
+    const zoomInfo = document.getElementById('waveformZoomInfo');
+    zoomInfo.textContent = `${waveformZoom.toFixed(1)}x`;
+    
+    // Redraw waveform with new zoom
+    if (currentSegmentStart !== null && currentSegmentEnd !== null) {
+      drawWaveform(currentSegmentStart, currentSegmentEnd);
+      updateWaveformProgress();
+    }
+    
+    console.log(`🔍 Waveform zoom: ${waveformZoom.toFixed(1)}x`);
+  }
+
+  function updateWaveformHover(event) {
+    const container = document.getElementById('waveformContainer');
+    const hoverLine = document.getElementById('waveformHoverLine');
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const progress = (x / rect.width) * 100;
+    
+    hoverLine.style.left = Math.max(0, Math.min(100, progress)) + '%';
+  }
+
+  function hideWaveformHover() {
+    const hoverLine = document.getElementById('waveformHoverLine');
+    hoverLine.style.display = 'none';
+  }
+
+  function playAudioSegment(startMs, endMs, buttonId) {
+    if (!audioLoaded || !audioElement) {
+      alert('Please load an audio file first');
+      return;
+    }
+
+    const btn = document.getElementById(buttonId);
+
+    // If currently playing this segment, pause it
+    if (currentlyPlaying === buttonId) {
+      audioElement.pause();
+      btn.textContent = btn.textContent.replace('⏸', '▶️');
+      btn.classList.remove('playing');
+      document.getElementById('playPauseBtn').innerHTML = '▶️ Play';
+      return;
+    }
+
+    // Stop any other playing segment
+    if (currentlyPlaying) {
+      const prevBtn = document.getElementById(currentlyPlaying);
+      if (prevBtn) {
+        prevBtn.textContent = prevBtn.textContent.replace('⏸', '▶️');
+        prevBtn.classList.remove('playing');
+      }
+    }
+
+    // Store segment boundaries
+    currentSegmentStart = startMs;
+    currentSegmentEnd = endMs;
+
+    // Scroll timeline to show this segment
+    scrollToSegment(startMs, endMs);
+
+    // Set up seek control UI
+    const seekControl = document.getElementById('audioSeekControl');
+    const seekSlider = document.getElementById('seekSlider');
+    const seekTitle = document.getElementById('seekTitle');
+    const totalDuration = document.getElementById('totalDuration');
+    
+    const segmentDuration = (endMs - startMs) / 1000;
+    seekTitle.textContent = `Playing Audio Segment (${formatTime(endMs - startMs)})`;
+    totalDuration.textContent = `${formatTimeShort(segmentDuration)} | ${endMs}ms`;
+    seekSlider.value = 0;
+    
+    // Initialize time displays
+    document.getElementById('currentTime').textContent = '0:00';
+    document.getElementById('currentTimeMs').textContent = `${startMs}ms`;
+    
+    // Reset waveform zoom for new segment
+    waveformZoom = 1;
+    document.getElementById('waveformZoomInfo').textContent = '1x';
+    
+    // Draw waveform for this segment
+    drawWaveform(startMs, endMs);
+    
+    // Reset waveform progress
+    document.getElementById('waveformProgress').style.width = '0%';
+    document.getElementById('waveformCursor').style.left = '0%';
+    
+    // Show seek control
+    seekControl.classList.add('active');
+
+    // Play the new segment
+    audioElement.currentTime = startMs / 1000;
+    audioElement.play();
+
+    btn.textContent = btn.textContent.replace('▶️', '⏸');
+    btn.classList.add('playing');
+    currentlyPlaying = buttonId;
+    
+    document.getElementById('playPauseBtn').innerHTML = '⏸ Pause';
+
+    // Clear any existing update interval
+    if (seekUpdateInterval) {
+      clearInterval(seekUpdateInterval);
+    }
+
+    // Update slider position as audio plays
+    seekUpdateInterval = setInterval(() => {
+      if (!isUserSeeking && audioElement && !audioElement.paused) {
+        const currentPos = audioElement.currentTime * 1000;
+        const relativePos = currentPos - startMs;
+        const progress = (relativePos / (endMs - startMs)) * 100;
+        
+        seekSlider.value = Math.max(0, Math.min(100, progress));
+        document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+        document.getElementById('currentTimeMs').textContent = `${Math.round(currentPos)}ms`;
+        
+        // Update waveform progress
+        updateWaveformProgress();
+        
+        // Stop at end time (but keep control panel open)
+        if (audioElement.currentTime >= endMs / 1000) {
+          audioElement.pause();
+          
+          // Update button states but don't close the panel
+          if (currentlyPlaying) {
+            const playBtn = document.getElementById(currentlyPlaying);
+            if (playBtn) {
+              playBtn.textContent = playBtn.textContent.replace('⏸', '▶️');
+              playBtn.classList.remove('playing');
+            }
+          }
+          
+          // Show replay button with icon
+          const playPauseBtn = document.getElementById('playPauseBtn');
+          playPauseBtn.innerHTML = '🔁 Replay';
+          playPauseBtn.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+          
+          // Reset button style after a moment
+          setTimeout(() => {
+            playPauseBtn.innerHTML = '▶️ Play';
+            playPauseBtn.style.background = '';
+          }, 2000);
+          
+          // Don't call stopAudioPlayback() to keep panel open
+        }
+      }
+    }, 50);
+  }
+
+  function scrollToSegment(startMs, endMs) {
+    const timeline = document.getElementById('timeline');
+    const timelineWrapper = timeline.closest('.timeline-wrapper');
+    
+    if (!timelineWrapper || !data || data.length === 0) return;
+    
+    // Calculate the maximum time in the data
+    const maxTime = Math.max(...data.map(d => Math.max(d.end_time, d.corrected_end_time || d.end_time)));
+    
+    // Calculate the position of this segment in the timeline
+    const segmentMiddle = (startMs + endMs) / 2;
+    const positionRatio = segmentMiddle / maxTime;
+    
+    // Get the timeline's full width (accounting for zoom)
+    const timelineFullWidth = timeline.scrollWidth;
+    const wrapperWidth = timelineWrapper.clientWidth;
+    
+    // Calculate scroll position to center the segment
+    const scrollPosition = (positionRatio * timelineFullWidth) - (wrapperWidth / 2);
+    
+    // Smooth scroll to the segment
+    timelineWrapper.scrollTo({
+      left: Math.max(0, scrollPosition),
+      behavior: 'smooth'
+    });
+    
+    console.log(`Scrolling to segment at ${startMs}ms-${endMs}ms (${positionRatio.toFixed(2)} of timeline)`);
+  }
+
+  function stopAudioPlayback() {
+    if (audioElement) {
+      audioElement.pause();
+    }
+    
+    if (currentlyPlaying) {
+      const btn = document.getElementById(currentlyPlaying);
+      if (btn) {
+        btn.textContent = btn.textContent.replace('⏸', '▶️');
+        btn.classList.remove('playing');
+      }
+      currentlyPlaying = null;
+    }
+    
+    if (seekUpdateInterval) {
+      clearInterval(seekUpdateInterval);
+      seekUpdateInterval = null;
+    }
+    
+    document.getElementById('audioSeekControl').classList.remove('active');
+  }
+
+  function togglePlayPause() {
+    if (!audioElement) return;
+    
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    
+    if (audioElement.paused) {
+      // If at the end of segment, restart from beginning
+      if (audioElement.currentTime >= currentSegmentEnd / 1000) {
+        audioElement.currentTime = currentSegmentStart / 1000;
+      }
+      
+      audioElement.play();
+      playPauseBtn.innerHTML = '⏸ Pause';
+      playPauseBtn.style.background = ''; // Reset to default gradient
+      
+      if (currentlyPlaying) {
+        const btn = document.getElementById(currentlyPlaying);
+        if (btn) {
+          btn.textContent = btn.textContent.replace('▶️', '⏸');
+          btn.classList.add('playing');
+        }
+      }
+    } else {
+      audioElement.pause();
+      playPauseBtn.innerHTML = '▶️ Play';
+      playPauseBtn.style.background = ''; // Reset to default
+      
+      if (currentlyPlaying) {
+        const btn = document.getElementById(currentlyPlaying);
+        if (btn) {
+          btn.textContent = btn.textContent.replace('⏸', '▶️');
+          btn.classList.remove('playing');
+        }
+      }
+    }
+  }
+
+  function skipBackward() {
+    if (!audioElement) return;
+    
+    const newTime = Math.max(currentSegmentStart / 1000, audioElement.currentTime - 5);
+    audioElement.currentTime = newTime;
+    updateSeekSlider();
+  }
+
+  function skipForward() {
+    if (!audioElement) return;
+    
+    const newTime = Math.min(currentSegmentEnd / 1000, audioElement.currentTime + 5);
+    audioElement.currentTime = newTime;
+    updateSeekSlider();
+  }
+
+  function updateSeekSlider() {
+    const currentPos = audioElement.currentTime * 1000;
+    const relativePos = currentPos - currentSegmentStart;
+    const progress = (relativePos / (currentSegmentEnd - currentSegmentStart)) * 100;
+    
+    document.getElementById('seekSlider').value = Math.max(0, Math.min(100, progress));
+    document.getElementById('currentTime').textContent = formatTimeShort(relativePos / 1000);
+    updateWaveformProgress();
+  }
+
+  function formatTimeShort(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // Initialize seek slider event listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    const seekSlider = document.getElementById('seekSlider');
+    
+    seekSlider.addEventListener('input', (e) => {
+      isUserSeeking = true;
+      const progress = parseFloat(e.target.value) / 100;
+      const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
+      const relativeTime = newTime - currentSegmentStart;
+      
+      document.getElementById('currentTime').textContent = formatTimeShort(relativeTime / 1000);
+      document.getElementById('currentTimeMs').textContent = `${Math.round(newTime)}ms`;
+      
+      // Update waveform preview while dragging
+      const waveformProgress = document.getElementById('waveformProgress');
+      const waveformCursor = document.getElementById('waveformCursor');
+      waveformProgress.style.width = Math.max(0, Math.min(100, progress * 100)) + '%';
+      waveformCursor.style.left = Math.max(0, Math.min(100, progress * 100)) + '%';
+    });
+    
+    seekSlider.addEventListener('change', (e) => {
+      if (!audioElement) return;
+      
+      const progress = parseFloat(e.target.value) / 100;
+      const newTime = currentSegmentStart + (progress * (currentSegmentEnd - currentSegmentStart));
+      audioElement.currentTime = newTime / 1000;
+      
+      updateWaveformProgress();
+      
+      setTimeout(() => {
+        isUserSeeking = false;
+      }, 100);
+    });
+  });
+
+  // Initialize the application
+  let selectedReciter = null;
+  let selectedSurah = null;
+
+  function initializeApp() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const surahNumber = urlParams.get("surah");
+    const reciter = urlParams.get("reciter");
+
+    if (surahNumber && reciter) {
+      // Load data from URL parameters
+      selectedReciter = reciter;
+      selectedSurah = surahNumber;
+      loadDataFromPath(reciter, surahNumber);
+    } else {
+      // Show selector panel
+      initializeSelector();
+    }
+  }
+
+  function initializeSelector() {
+    const selectorPanel = document.getElementById('selectorPanel');
+    const mainContent = document.getElementById('mainContent');
+    const surahGrid = document.getElementById('surahGrid');
+    const reciterInput = document.getElementById('reciterInput');
+    const loadBtn = document.getElementById('loadDataBtn');
+    const jsonFileInput = document.getElementById('jsonFileInput');
+    const jsonDropZone = document.getElementById('jsonDropZone');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+    selectorPanel.classList.remove('hidden');
+    mainContent.classList.remove('visible');
+
+    // Create surah cards
+    for (let i = 1; i <= 114; i++) {
+      const card = document.createElement('div');
+      card.className = 'surah-card';
+      card.textContent = i;
+      card.dataset.surah = i;
+
+      card.onclick = () => {
+        // Deselect all cards
+        document.querySelectorAll('.surah-card').forEach(c => c.classList.remove('selected'));
+        // Select this card
+        card.classList.add('selected');
+        selectedSurah = i;
+        updateLoadButton();
+      };
+
+      surahGrid.appendChild(card);
+    }
+
+    // Handle reciter input
+    reciterInput.addEventListener('input', () => {
+      selectedReciter = reciterInput.value || null;
+      updateLoadButton();
+    });
+
+    // Handle load button
+    loadBtn.addEventListener('click', () => {
+      if (selectedReciter && selectedSurah) {
+        loadDataFromPath(selectedReciter, selectedSurah);
+      }
+    });
+
+    // Handle JSON file upload - file input change
+    jsonFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        handleJSONFile(file);
+      }
+    });
+
+    // Click on drop zone to trigger file input
+    jsonDropZone.addEventListener('click', (e) => {
+      if (e.target !== jsonFileInput) {
+        jsonFileInput.click();
+      }
+    });
+
+    // Drag and drop handlers for JSON files
+    jsonDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.add('drag-over');
+    });
+
+    jsonDropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.remove('drag-over');
+    });
+
+    jsonDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.remove('drag-over');
+
+      if (e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+
+        // Check if it's a JSON file
+        if (file.type === 'application/json' || file.name.endsWith('.json')) {
+          handleJSONFile(file);
+        } else {
+          showError('Please drop a JSON file');
+        }
+      }
+    });
+  }
+
+  function handleJSONFile(file) {
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const jsonDropZone = document.getElementById('jsonDropZone');
+
+    fileNameDisplay.innerHTML = `✓ Loading: <strong>${escapeHtml(file.name)}</strong>`;
+    jsonDropZone.classList.add('has-file');
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        loadDataFromJSON(jsonData, file.name);
+      } catch (error) {
+        jsonDropZone.classList.remove('has-file');
+        showError('Invalid JSON file: ' + error.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function updateLoadButton() {
+    const loadBtn = document.getElementById('loadDataBtn');
+    loadBtn.disabled = !(selectedReciter && selectedSurah);
+  }
+
+  function showError(message) {
+    const errorDisplay = document.getElementById('errorDisplay');
+    errorDisplay.innerHTML = `<div class="error-message">❌ ${escapeHtml(message)}</div>`;
+    setTimeout(() => {
+      errorDisplay.innerHTML = '';
+    }, 5000);
+  }
+
+  function loadDataFromJSON(jsonData, fileName) {
+    data = jsonData;
+
+    // Hide selector, show main content
+    document.getElementById('selectorPanel').classList.add('hidden');
+    document.getElementById('mainContent').classList.add('visible');
+
+    // Update title
+    document.querySelector('h1').textContent = `Ayah Timeline - ${fileName}`;
+
+    // Set initial zoom based on number of ayahs
+    setInitialZoom();
+
+    // Initialize and render
+    initAudioHandling();
+    createTimeline();
+    createComparisonTable();
+    updateStats();
+  }
+
+  function loadDataFromPath(reciter, surah) {
+    const dataPath = `./data/result/plot_data/${reciter}/${surah}.json`;
+
+    fetch(dataPath)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(loadedData => {
+        data = loadedData;
+
+        // Hide selector, show main content
+        document.getElementById('selectorPanel').classList.add('hidden');
+        document.getElementById('mainContent').classList.add('visible');
+
+        // Update title
+        document.querySelector('h1').textContent = `Surah ${surah} - Reciter ${reciter} - Ayah Timeline`;
+
+        // Set initial zoom based on number of ayahs
+        setInitialZoom();
+
+        // Initialize and render
+        initAudioHandling();
+        createTimeline();
+        createComparisonTable();
+        updateStats();
+      })
+      .catch(error => {
+        console.error('Error loading data:', error);
+        showError(`Could not load data from ${dataPath}: ${error.message}. Make sure the file exists.`);
+      });
+  }
+
+  // Start the application
+  initializeApp();
+
+  function formatTime(ms) {
+    const seconds = ms / 1000;
+    if (seconds >= 60) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = (seconds % 60).toFixed(1);
+      return `${minutes}m ${remainingSeconds}s`;
+    }
+    return seconds.toFixed(1) + 's';
+  }
+
+  function zoomIn() {
+    if (currentZoom < maxZoom) {
+      currentZoom *= 1.5;
+      updateZoom();
+    }
+  }
+
+  function zoomOut() {
+    if (currentZoom > minZoom) {
+      currentZoom /= 1.5;
+      updateZoom();
+    }
+  }
+
+  function resetZoom() {
+    currentZoom = initialZoom;
+    updateZoom();
+    console.log(`🔄 Reset zoom to initial value: ${initialZoom}x`);
+  }
+
+  function setInitialZoom() {
+    if (!data || data.length === 0) {
+      currentZoom = 1;
+      initialZoom = 1;
+      return;
+    }
+
+    const ayahCount = data.length;
+    
+    // Calculate optimal zoom based on ayah count
+    if (ayahCount <= 10) {
+      // Small surahs (e.g., Al-Kawthar: 3, Al-Ikhlas: 4) - no zoom needed
+      currentZoom = 1;
+    } else if (ayahCount <= 20) {
+      // Short surahs (e.g., Al-Mulk: 30) - slight zoom
+      currentZoom = 1.5;
+    } else if (ayahCount <= 40) {
+      // Medium surahs (e.g., Ya-Sin: 83) - moderate zoom
+      currentZoom = 2.5;
+    } else if (ayahCount <= 80) {
+      // Long surahs (e.g., Al-Kahf: 110) - more zoom
+      currentZoom = 4;
+    } else if (ayahCount <= 150) {
+      // Very long surahs (e.g., Al-Baqarah: 286) - significant zoom
+      currentZoom = 6;
+    } else {
+      // Extremely long surahs - maximum comfortable zoom
+      currentZoom = 8;
+    }
+    
+    // Store this as the initial zoom
+    initialZoom = currentZoom;
+    
+    console.log(`📊 Auto-zoom: ${ayahCount} ayahs → ${currentZoom}x zoom`);
+    
+    // Apply the zoom
+    updateZoom();
+  }
+
+  function updateZoom() {
+    const timeline = document.getElementById('timeline');
+    const timeAxis = document.getElementById('timeAxis');
+
+    timeline.style.width = (100 * currentZoom) + '%';
+    timeAxis.style.width = (100 * currentZoom) + '%';
+
+    document.getElementById('zoomLevel').textContent = `Zoom: ${currentZoom.toFixed(1)}x`;
+
+    createTimeline();
+  }
+
+  function createTimeline() {
+    if (!data || data.length === 0) return;
+
+    const timeline = document.getElementById('timeline');
+    const timeAxis = document.getElementById('timeAxis');
+
+    timeline.innerHTML = '';
+    timeAxis.innerHTML = '';
+
+    const maxTime = Math.max(...data.map(d => Math.max(d.end_time, d.corrected_end_time || d.end_time)));
+
+    // Create time markers
+    const markerInterval = getOptimalMarkerInterval(maxTime, currentZoom);
+    for (let time = 0; time <= maxTime; time += markerInterval) {
+      const position = (time / maxTime) * 100;
+
+      const marker = document.createElement('div');
+      marker.className = 'time-marker';
+      marker.style.left = position + '%';
+      marker.textContent = formatTime(time);
+      timeAxis.appendChild(marker);
+    }
+
+    // Create ayah bars and silences
+    data.forEach((ayah, index) => {
+      // Original ayah bar (dashed, top)
+      const originalBar = document.createElement('div');
+      originalBar.className = `ayah-bar original ayah-${(ayah.ayah % 7) + 1}`;
+      originalBar.style.left = (ayah.start_time / maxTime) * 100 + '%';
+      originalBar.style.width = ((ayah.end_time - ayah.start_time) / maxTime) * 100 + '%';
+
+      const originalWidth = ((ayah.end_time - ayah.start_time) / maxTime) * 100 * currentZoom;
+      if (originalWidth > 8) {
+        originalBar.textContent = `A${ayah.ayah} (orig)`;
+      } else if (originalWidth > 4) {
+        originalBar.textContent = `${ayah.ayah}`;
+      }
+
+      originalBar.onclick = () => showInfo('original', ayah);
+      timeline.appendChild(originalBar);
+
+      // Corrected ayah bar (solid, bottom)
+      const correctedBar = document.createElement('div');
+      correctedBar.className = `ayah-bar corrected ayah-${(ayah.ayah % 7) + 1}`;
+      correctedBar.style.left = (ayah.corrected_start_time / maxTime) * 100 + '%';
+      correctedBar.style.width = ((ayah.corrected_end_time - ayah.corrected_start_time) / maxTime) * 100 + '%';
+
+      const correctedWidth = ((ayah.corrected_end_time - ayah.corrected_start_time) / maxTime) * 100 * currentZoom;
+      if (correctedWidth > 8) {
+        correctedBar.textContent = `Ayah ${ayah.ayah}`;
+      } else if (correctedWidth > 4) {
+        correctedBar.textContent = `${ayah.ayah}`;
+      }
+
+      correctedBar.onclick = () => showInfo('corrected', ayah);
+      timeline.appendChild(correctedBar);
+
+      // Silence bar if exists
+      if (ayah.silence_used) {
+        const silenceBar = document.createElement('div');
+        silenceBar.className = 'silence-bar';
+        silenceBar.style.left = (ayah.silence_used.start_time / maxTime) * 100 + '%';
+        silenceBar.style.width = ((ayah.silence_used.end_time - ayah.silence_used.start_time) / maxTime) * 100 + '%';
+
+        silenceBar.onclick = () => showInfo('silence', ayah);
+        timeline.appendChild(silenceBar);
+      }
+
+      // Gap indicator to next ayah
+      if (index < data.length - 1) {
+        const nextAyah = data[index + 1];
+        const gapStart = ayah.corrected_end_time;
+        const gapEnd = nextAyah.corrected_start_time;
+
+        if (gapEnd > gapStart) {
+          const gapBar = document.createElement('div');
+          gapBar.className = 'gap-indicator';
+          gapBar.style.left = (gapStart / maxTime) * 100 + '%';
+          gapBar.style.width = ((gapEnd - gapStart) / maxTime) * 100 + '%';
+          
+          // Create gap data object
+          const gapData = {
+            start_time: gapStart,
+            end_time: gapEnd,
+            duration: gapEnd - gapStart,
+            from_ayah: ayah.ayah,
+            to_ayah: nextAyah.ayah
+          };
+          
+          gapBar.onclick = () => showInfo('gap', gapData);
+          timeline.appendChild(gapBar);
+        }
+      }
+    });
+  }
+
+  function getOptimalMarkerInterval(maxTime, zoom) {
+    const baseIntervals = [1000, 2000, 5000, 10000, 15000, 30000, 60000, 120000, 300000];
+    const targetMarkers = Math.max(5, Math.min(20, 10 * zoom));
+
+    for (let interval of baseIntervals) {
+      if (maxTime / interval <= targetMarkers) {
+        return interval;
+      }
+    }
+    return baseIntervals[baseIntervals.length - 1];
+  }
+
+  function drawInfoWaveform(startMs, endMs, label, highlightColor = 'rgba(87, 215, 152, 0.9)') {
+    const canvas = document.getElementById('infoWaveformCanvas');
+    const container = document.getElementById('infoWaveformContainer');
+    const labelEl = document.getElementById('infoWaveformLabel');
+    
+    if (!waveformData || !canvas) {
+      container.style.display = 'none';
+      return;
+    }
+    
+    container.style.display = 'block';
+    labelEl.textContent = label;
+    
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Set canvas size
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    
+    // Clear canvas
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    
+    // Calculate which portion of waveform to display
+    const totalDuration = audioElement ? audioElement.duration * 1000 : 
+                         (data && data.length > 0 ? Math.max(...data.map(d => d.corrected_end_time)) : 1000);
+    
+    const startRatio = startMs / totalDuration;
+    const endRatio = endMs / totalDuration;
+    
+    const startIndex = Math.floor(startRatio * waveformData.length);
+    const endIndex = Math.ceil(endRatio * waveformData.length);
+    const segmentData = waveformData.slice(startIndex, endIndex);
+    
+    if (segmentData.length === 0) {
+      ctx.fillStyle = '#5a6c7d';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No waveform data available', rect.width / 2, rect.height / 2);
+      return;
+    }
+    
+    // Draw waveform
+    const barWidth = rect.width / segmentData.length;
+    const middleY = rect.height / 2;
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, rect.height);
+    gradient.addColorStop(0, highlightColor);
+    gradient.addColorStop(0.5, 'rgba(0, 163, 255, 0.8)');
+    gradient.addColorStop(1, 'rgba(98, 214, 244, 0.8)');
+    
+    ctx.fillStyle = gradient;
+    
+    for (let i = 0; i < segmentData.length; i++) {
+      const x = i * barWidth;
+      const amplitude = segmentData[i];
+      const barHeight = amplitude * (rect.height * 0.85);
+      const y = middleY - barHeight / 2;
+      
+      ctx.fillRect(x, y, Math.max(1, barWidth - 0.5), barHeight);
+    }
+    
+    // Add time markers
+    ctx.fillStyle = '#5a6c7d';
+    ctx.font = '10px monospace';
+    ctx.fillText(`${startMs}ms`, 5, rect.height - 5);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${endMs}ms`, rect.width - 5, rect.height - 5);
+    
+    console.log(`📊 Drew info waveform: ${startMs}ms - ${endMs}ms (${segmentData.length} samples)`);
+  }
+
+  function showInfo(type, ayah) {
+    const infoPanel = document.getElementById('infoPanel');
+    const infoTitle = document.getElementById('infoTitle');
+    const infoContent = document.getElementById('infoContent');
+
+    if (type === 'original') {
+      const duration = ayah.end_time - ayah.start_time;
+      infoTitle.textContent = `Ayah ${ayah.ayah} - Original Timing`;
+      
+      // Draw waveform for original segment
+      drawInfoWaveform(ayah.start_time, ayah.end_time, `Ayah ${ayah.ayah} Original`, 'rgba(150, 150, 150, 0.7)');
+      
+      infoContent.innerHTML = `
+        <p><strong>Start Time:</strong> ${formatTime(ayah.start_time)} (${ayah.start_time}ms)</p>
+        <p><strong>End Time:</strong> ${formatTime(ayah.end_time)} (${ayah.end_time}ms)</p>
+        <p><strong>Duration:</strong> ${formatTime(duration)} (${duration}ms)</p>
+        <div class="audio-controls">
+          <button id="playOriginal${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.start_time}, ${ayah.end_time}, 'playOriginal${ayah.ayah}')">
+            ▶️ Play Original
+          </button>
+        </div>
+      `;
+    } else if (type === 'corrected') {
+      const duration = ayah.corrected_end_time - ayah.corrected_start_time;
+      const startAdjustment = ayah.corrected_start_time - ayah.start_time;
+      const endAdjustment = ayah.corrected_end_time - ayah.end_time;
+
+      infoTitle.textContent = `Ayah ${ayah.ayah} - Corrected Timing`;
+      
+      // Draw waveform for corrected segment
+      drawInfoWaveform(ayah.corrected_start_time, ayah.corrected_end_time, `Ayah ${ayah.ayah} Corrected`, 'rgba(53, 247, 135, 0.9)');
+      
+      infoContent.innerHTML = `
+        <p><strong>Orgional time:</strong> ${formatTime(ayah.start_time)}(${ayah.start_time}ms) - (${formatTime(ayah.end_time)}(${ayah.end_time})ms)</p>
+
+        <p><strong>Corrected Start:</strong> ${formatTime(ayah.corrected_start_time)} (${ayah.corrected_start_time}ms)</p>
+        <p><strong>Start Adjustment:</strong> <span class="${startAdjustment < 0 ? 'negative-change' : 'positive-change'}">${startAdjustment > 0 ? '+' : ''}${startAdjustment}ms</span></p>
+        <p><strong>Corrected End:</strong> ${formatTime(ayah.corrected_end_time)} (${ayah.corrected_end_time}ms)</p>
+        <p><strong>End Adjustment:</strong> <span class="${endAdjustment < 0 ? 'negative-change' : 'positive-change'}">${endAdjustment > 0 ? '+' : ''}${endAdjustment}ms</span></p>
+        <p><strong>Duration:</strong> ${formatTime(duration)} (${duration}ms)</p>
+        <p><strong>Adjustment Info:</strong> <span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></p>
+        <div class="audio-controls">
+          <button id="playCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playCorrected${ayah.ayah}')">
+            ▶️ Play Corrected
+          </button>
+          <button id="playOriginalComp${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.start_time}, ${ayah.end_time}, 'playOriginalComp${ayah.ayah}')" style="opacity: 0.7;">
+            ▶️ Play Original (Compare)
+          </button>
+        </div>
+      `;
+    } else if (type === 'silence') {
+      const silence = ayah.silence_used;
+      infoTitle.textContent = `Silence before Ayah ${ayah.ayah}`;
+      
+      // Draw waveform for silence - should show low amplitude
+      drawInfoWaveform(silence.start_time, silence.end_time, `Silence (${silence.duration}ms)`, 'rgba(255, 0, 0, 0.6)');
+      
+      infoContent.innerHTML = `
+        <p><strong>Silence Start:</strong> ${formatTime(silence.start_time)} (${silence.start_time}ms)</p>
+        <p><strong>Silence End:</strong> ${formatTime(silence.end_time)} (${silence.end_time}ms)</p>
+        <p><strong>Duration:</strong> ${formatTime(silence.duration)} (${silence.duration}ms)</p>
+        <p><strong>Used for:</strong> Ayah ${ayah.ayah} boundary adjustment</p>
+        <p style="color: #f87171; font-size: 0.9em;">💡 The waveform above should show low amplitude (silence region)</p>
+        <div class="audio-controls">
+          <button id="playSilence${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${silence.start_time}, ${silence.end_time}, 'playSilence${ayah.ayah}')">
+            ▶️ Play Silence
+          </button>
+        </div>
+      `;
+    } else if (type === 'gap') {
+      const gap = ayah; // In this case, ayah is actually the gap data object
+      infoTitle.textContent = `Gap between Ayah ${gap.from_ayah} and Ayah ${gap.to_ayah}`;
+      
+      // Draw waveform for gap
+      const gapColor = gap.duration < 100 ? 'rgba(248, 113, 113, 0.8)' : 'rgba(255, 193, 7, 0.8)';
+      drawInfoWaveform(gap.start_time, gap.end_time, `Gap (${gap.duration}ms)`, gapColor);
+      
+      infoContent.innerHTML = `
+        <p><strong>Gap Start:</strong> ${formatTime(gap.start_time)} (${gap.start_time}ms)</p>
+        <p><strong>Gap End:</strong> ${formatTime(gap.end_time)} (${gap.end_time}ms)</p>
+        <p><strong>Duration:</strong> ${formatTime(gap.duration)} (${gap.duration}ms)</p>
+        <p><strong>Between:</strong> Ayah ${gap.from_ayah} (end) → Ayah ${gap.to_ayah} (start)</p>
+        ${gap.duration < 100 ? '<p style="color: #f87171; font-weight: bold;">⚠️ Warning: Gap is less than 100ms minimum</p>' : ''}
+        <p style="color: #5a6c7d; font-size: 0.9em;">💡 Waveform shows the audio between ayahs - should be low amplitude</p>
+        <div class="audio-controls">
+          <button id="playGap${gap.from_ayah}_${gap.to_ayah}" class="play-btn" onclick="playAudioSegment(${gap.start_time}, ${gap.end_time}, 'playGap${gap.from_ayah}_${gap.to_ayah}')">
+            ▶️ Play Gap
+          </button>
+        </div>
+      `;
+    }
+
+    infoPanel.classList.add('active');
+  }
+
+  function createComparisonTable() {
+    const tbody = document.getElementById('comparisonBody');
+    tbody.innerHTML = '';
+
+    data.forEach((ayah, index) => {
+      const row = document.createElement('tr');
+      const startAdjustment = ayah.corrected_start_time - ayah.start_time;
+      const endAdjustment = ayah.corrected_end_time - ayah.end_time;
+      const correctedDuration = ayah.corrected_end_time - ayah.corrected_start_time;
+
+      const gapToNext = ayah.gap_to_next !== null && ayah.gap_to_next !== undefined
+        ? `${ayah.gap_to_next}ms`
+        : '-';
+
+      // Highlight gaps that are less than 100ms in red
+      const gapClass = ayah.gap_to_next !== null && ayah.gap_to_next < 100
+        ? 'negative-change'
+        : '';
+
+      row.innerHTML = `
+        <td><strong>Ayah ${ayah.ayah}</strong></td>
+        <td>${formatTime(ayah.start_time)}</td>
+        <td>${formatTime(ayah.corrected_start_time)}</td>
+        <td class="${startAdjustment < 0 ? 'negative-change' : 'positive-change'}">${startAdjustment > 0 ? '+' : ''}${startAdjustment}ms</td>
+        <td>${formatTime(ayah.end_time)}</td>
+        <td>${formatTime(ayah.corrected_end_time)}</td>
+        <td class="${endAdjustment < 0 ? 'negative-change' : 'positive-change'}">${endAdjustment > 0 ? '+' : ''}${endAdjustment}ms</td>
+        <td>${formatTime(correctedDuration)}</td>
+        <td class="${gapClass}"><strong>${gapToNext}</strong></td>
+        <td><span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></td>
+        <td>
+          <button id="playTableCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playTableCorrected${ayah.ayah}')" style="padding: 5px 10px; font-size: 0.9em;">
+            ▶️
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+    });
+  }
+
+  function sortByAyah() {
+    const ayahHeader = document.getElementById('ayahHeader');
+    const durationHeader = document.getElementById('durationHeader');
+    const gapHeader = document.getElementById('gapHeader');
+
+    // If switching from another sort, reset other headers
+    if (sortColumn === 'duration') {
+      durationHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    if (sortColumn === 'gap') {
+      gapHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+
+    sortColumn = 'ayah';
+
+    // Cycle through sort orders: none -> asc -> desc -> none
+    if (sortOrder === 'none') {
+      sortOrder = 'asc';
+      ayahHeader.classList.add('sorted-asc');
+      ayahHeader.classList.remove('sorted-desc');
+    } else if (sortOrder === 'asc') {
+      sortOrder = 'desc';
+      ayahHeader.classList.remove('sorted-asc');
+      ayahHeader.classList.add('sorted-desc');
+    } else {
+      sortOrder = 'none';
+      sortColumn = null;
+      ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+
+    renderSortedTable();
+    
+    // Re-apply any active filter
+    filterTable();
+  }
+
+  function sortByDuration() {
+    const ayahHeader = document.getElementById('ayahHeader');
+    const durationHeader = document.getElementById('durationHeader');
+    const gapHeader = document.getElementById('gapHeader');
+
+    // If switching from another sort, reset other headers
+    if (sortColumn === 'ayah') {
+      ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    if (sortColumn === 'gap') {
+      gapHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+
+    sortColumn = 'duration';
+
+    // Cycle through sort orders: none -> asc -> desc -> none
+    if (sortOrder === 'none') {
+      sortOrder = 'asc';
+      durationHeader.classList.add('sorted-asc');
+      durationHeader.classList.remove('sorted-desc');
+    } else if (sortOrder === 'asc') {
+      sortOrder = 'desc';
+      durationHeader.classList.remove('sorted-asc');
+      durationHeader.classList.add('sorted-desc');
+    } else {
+      sortOrder = 'none';
+      sortColumn = null;
+      durationHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+
+    renderSortedTable();
+    
+    // Re-apply any active filter
+    filterTable();
+  }
+
+  function sortByGap() {
+    const ayahHeader = document.getElementById('ayahHeader');
+    const durationHeader = document.getElementById('durationHeader');
+    const gapHeader = document.getElementById('gapHeader');
+
+    // If switching from another sort, reset other headers
+    if (sortColumn === 'ayah') {
+      ayahHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+    if (sortColumn === 'duration') {
+      durationHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+
+    sortColumn = 'gap';
+
+    // Cycle through sort orders: none -> asc -> desc -> none
+    if (sortOrder === 'none') {
+      sortOrder = 'asc';
+      gapHeader.classList.add('sorted-asc');
+      gapHeader.classList.remove('sorted-desc');
+    } else if (sortOrder === 'asc') {
+      sortOrder = 'desc';
+      gapHeader.classList.remove('sorted-asc');
+      gapHeader.classList.add('sorted-desc');
+    } else {
+      sortOrder = 'none';
+      sortColumn = null;
+      gapHeader.classList.remove('sorted-asc', 'sorted-desc');
+    }
+
+    renderSortedTable();
+    
+    // Re-apply any active filter
+    filterTable();
+  }
+
+  function renderSortedTable() {
+    // Create a copy of the data array to sort
+    let sortedData = [...data];
+
+    if (sortColumn === 'ayah') {
+      if (sortOrder === 'asc') {
+        sortedData.sort((a, b) => a.ayah - b.ayah);
+      } else if (sortOrder === 'desc') {
+        sortedData.sort((a, b) => b.ayah - a.ayah);
+      }
+    } else if (sortColumn === 'duration') {
+      if (sortOrder === 'asc') {
+        sortedData.sort((a, b) => {
+          const durationA = a.corrected_end_time - a.corrected_start_time;
+          const durationB = b.corrected_end_time - b.corrected_start_time;
+          return durationA - durationB;
+        });
+      } else if (sortOrder === 'desc') {
+        sortedData.sort((a, b) => {
+          const durationA = a.corrected_end_time - a.corrected_start_time;
+          const durationB = b.corrected_end_time - b.corrected_start_time;
+          return durationB - durationA;
+        });
+      }
+    } else if (sortColumn === 'gap') {
+      if (sortOrder === 'asc') {
+        sortedData.sort((a, b) => {
+          // Handle null/undefined gaps - treat them as Infinity for ascending sort
+          const gapA = (a.gap_to_next !== null && a.gap_to_next !== undefined) ? a.gap_to_next : Infinity;
+          const gapB = (b.gap_to_next !== null && b.gap_to_next !== undefined) ? b.gap_to_next : Infinity;
+          return gapA - gapB;
+        });
+      } else if (sortOrder === 'desc') {
+        sortedData.sort((a, b) => {
+          // Handle null/undefined gaps - treat them as -Infinity for descending sort
+          const gapA = (a.gap_to_next !== null && a.gap_to_next !== undefined) ? a.gap_to_next : -Infinity;
+          const gapB = (b.gap_to_next !== null && b.gap_to_next !== undefined) ? b.gap_to_next : -Infinity;
+          return gapB - gapA;
+        });
+      }
+    }
+    // If sortOrder is 'none', sortedData remains in original order
+
+    // Update the table with sorted data
+    const tbody = document.getElementById('comparisonBody');
+    tbody.innerHTML = '';
+
+    sortedData.forEach((ayah, index) => {
+      const row = document.createElement('tr');
+      const startAdjustment = ayah.corrected_start_time - ayah.start_time;
+      const endAdjustment = ayah.corrected_end_time - ayah.end_time;
+      const correctedDuration = ayah.corrected_end_time - ayah.corrected_start_time;
+
+      const gapToNext = ayah.gap_to_next !== null && ayah.gap_to_next !== undefined
+        ? `${ayah.gap_to_next}ms`
+        : '-';
+
+      const gapClass = ayah.gap_to_next !== null && ayah.gap_to_next < 100
+        ? 'negative-change'
+        : '';
+
+      row.innerHTML = `
+        <td><strong>Ayah ${ayah.ayah}</strong></td>
+        <td>${formatTime(ayah.start_time)}</td>
+        <td>${formatTime(ayah.corrected_start_time)}</td>
+        <td class="${startAdjustment < 0 ? 'negative-change' : 'positive-change'}">${startAdjustment > 0 ? '+' : ''}${startAdjustment}ms</td>
+        <td>${formatTime(ayah.end_time)}</td>
+        <td>${formatTime(ayah.corrected_end_time)}</td>
+        <td class="${endAdjustment < 0 ? 'negative-change' : 'positive-change'}">${endAdjustment > 0 ? '+' : ''}${endAdjustment}ms</td>
+        <td>${formatTime(correctedDuration)}</td>
+        <td class="${gapClass}"><strong>${gapToNext}</strong></td>
+        <td><span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></td>
+        <td>
+          <button id="playTableCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playTableCorrected${ayah.ayah}')" style="padding: 5px 10px; font-size: 0.9em;">
+            ▶️
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+    });
+  }
+
+  function filterTable() {
+    const searchInput = document.getElementById('tableSearchInput');
+    const searchValue = searchInput.value.trim();
+    const tbody = document.getElementById('comparisonBody');
+    const rows = tbody.getElementsByTagName('tr');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    const resultsInfo = document.getElementById('searchResultsInfo');
+    
+    // If search is empty, show all rows
+    if (!searchValue) {
+      for (let row of rows) {
+        row.classList.remove('table-row-hidden');
+      }
+      clearBtn.disabled = true;
+      resultsInfo.textContent = '';
+      resultsInfo.classList.remove('active');
+      return;
+    }
+    
+    // Enable clear button
+    clearBtn.disabled = false;
+    
+    // Parse search query - support comma-separated values and ranges
+    const matchingAyahs = parseAyahSearchQuery(searchValue);
+    
+    if (matchingAyahs.size === 0 && searchValue) {
+      resultsInfo.textContent = 'Invalid search format';
+      resultsInfo.classList.add('active');
+      resultsInfo.style.color = '#f87171';
+      return;
+    }
+    
+    // Filter rows
+    let visibleCount = 0;
+    for (let row of rows) {
+      const ayahCell = row.querySelector('td:first-child strong');
+      if (ayahCell) {
+        const ayahText = ayahCell.textContent;
+        const ayahNumber = parseInt(ayahText.replace('Ayah ', ''));
+        
+        if (matchingAyahs.has(ayahNumber)) {
+          row.classList.remove('table-row-hidden');
+          visibleCount++;
+        } else {
+          row.classList.add('table-row-hidden');
+        }
+      }
+    }
+    
+    // Update results info
+    resultsInfo.classList.add('active');
+    resultsInfo.style.color = visibleCount > 0 ? '#57d798' : '#f87171';
+    resultsInfo.textContent = `${visibleCount} ayah${visibleCount !== 1 ? 's' : ''} found`;
+    
+    console.log(`🔍 Search: "${searchValue}" → ${visibleCount} results`);
+  }
+
+  function parseAyahSearchQuery(query) {
+    const ayahs = new Set();
+    
+    // Split by comma
+    const parts = query.split(',').map(p => p.trim());
+    
+    for (let part of parts) {
+      // Check if it's a range (e.g., "5-10")
+      if (part.includes('-')) {
+        const [start, end] = part.split('-').map(n => parseInt(n.trim()));
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          for (let i = start; i <= end; i++) {
+            ayahs.add(i);
+          }
+        }
+      } else {
+        // Single number
+        const num = parseInt(part);
+        if (!isNaN(num)) {
+          ayahs.add(num);
+        }
+      }
+    }
+    
+    return ayahs;
+  }
+
+  function clearTableSearch() {
+    const searchInput = document.getElementById('tableSearchInput');
+    searchInput.value = '';
+    filterTable();
+    searchInput.focus();
+  }
+
+  function updateStats() {
+    if (!data || data.length === 0) return;
+
+    const maxTime = Math.max(...data.map(d => d.corrected_end_time));
+    const totalOriginalTime = data.reduce((sum, ayah) => sum + (ayah.end_time - ayah.start_time), 0);
+    const totalCorrectedTime = data.reduce((sum, ayah) => sum + (ayah.corrected_end_time - ayah.corrected_start_time), 0);
+
+    // Calculate gap statistics
+    const gaps = [];
+    data.slice(0, -1).forEach((ayah, index) => {
+      const nextAyah = data[index + 1];
+      const gap = nextAyah.corrected_start_time - ayah.corrected_end_time;
+      if (gap > 0) gaps.push(gap);
+    });
+
+    const totalGaps = gaps.reduce((sum, gap) => sum + gap, 0);
+    const avgGap = gaps.length > 0 ? totalGaps / gaps.length : 0;
+    const minGap = gaps.length > 0 ? Math.min(...gaps) : 0;
+    const maxGap = gaps.length > 0 ? Math.max(...gaps) : 0;
+
+    const silencesUsed = data.filter(ayah => ayah.silence_used).length;
+    const avgStartAdjustment = data.reduce((sum, ayah) => sum + Math.abs(ayah.corrected_start_time - ayah.start_time), 0) / data.length;
+    const maxStartAdjustment = Math.max(...data.map(ayah => Math.abs(ayah.corrected_start_time - ayah.start_time)));
+
+    const avgEndAdjustment = data.reduce((sum, ayah) => sum + Math.abs(ayah.corrected_end_time - ayah.end_time), 0) / data.length;
+
+    const statsContainer = document.getElementById('statsContainer');
+    statsContainer.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-value">${data.length}</div>
+        <div class="stat-label">Total Ayahs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${formatTime(maxTime)}</div>
+        <div class="stat-label">Total Duration</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${currentZoom.toFixed(1)}x</div>
+        <div class="stat-label">Initial Zoom</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${silencesUsed}/${data.length}</div>
+        <div class="stat-label">Silences Used</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${Math.round(avgGap)}ms</div>
+        <div class="stat-label">Avg Gap</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: ${minGap < 100 ? '#f87171' : '#4ade80'}">${Math.round(minGap)}ms</div>
+        <div class="stat-label">Min Gap</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${Math.round(maxGap)}ms</div>
+        <div class="stat-label">Max Gap</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${Math.round(avgStartAdjustment)}ms</div>
+        <div class="stat-label">Avg Start Δ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${Math.round(avgEndAdjustment)}ms</div>
+        <div class="stat-label">Avg End Δ</div>
+      </div>
+    `;
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function (e) {
+    // Check if user is typing in an input field
+    const isTyping = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+    
+    if (e.key === '+' || e.key === '=') {
+      if (!isTyping) {
+        e.preventDefault();
+        zoomIn();
+      }
+    } else if (e.key === '-') {
+      if (!isTyping) {
+        e.preventDefault();
+        zoomOut();
+      }
+    } else if (e.key === '0') {
+      if (!isTyping) {
+        e.preventDefault();
+        resetZoom();
+      }
+    } else if (e.key === '/') {
+      if (!isTyping) {
+        e.preventDefault();
+        // Focus search input
+        const searchInput = document.getElementById('tableSearchInput');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    } else if (e.key === ' ') {
+      if (!isTyping) {
+        e.preventDefault();
+        // Toggle play/pause (don't close the panel)
+        if (audioElement && currentlyPlaying) {
+          togglePlayPause();
+        }
+      }
+    } else if (e.key === 'Escape') {
+      // Handle Escape even when typing (to close search or audio)
+      if (e.target.id === 'tableSearchInput') {
+        e.preventDefault();
+        clearTableSearch();
+        e.target.blur();
+      } else if (audioElement && currentlyPlaying) {
+        e.preventDefault();
+        stopAudioPlayback();
+      }
+    } else if (e.key === 'ArrowLeft') {
+      if (!isTyping) {
+        e.preventDefault();
+        if (audioElement && currentlyPlaying) {
+          skipBackward();
+        }
+      }
+    } else if (e.key === 'ArrowRight') {
+      if (!isTyping) {
+        e.preventDefault();
+        if (audioElement && currentlyPlaying) {
+          skipForward();
+        }
+      }
+    }
+  });
+
+  // Add keyboard shortcuts info
+  console.log(`
+    Keyboard Shortcuts:
+    / : Focus Search
+    Escape (in search) : Clear and close search
+    + or = : Zoom In
+    - : Zoom Out
+    0 : Reset to Auto-Zoom
+    Space : Toggle Play/Pause
+    Escape : Close Audio Player
+    Arrow Left : Skip Backward 5s
+    Arrow Right : Skip Forward 5s
+  `);
+</script>
+</body>
+</html>
+
+

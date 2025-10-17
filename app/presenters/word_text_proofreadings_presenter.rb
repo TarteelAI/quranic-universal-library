@@ -22,7 +22,7 @@ class WordTextProofreadingsPresenter < ApplicationPresenter
     if index?
       "Quranic Script & Fonts Proofreading Tool - Verse List"
     elsif show?
-      "Quranic Script & Fonts Proofreading Tool - Verse #{@verse.verse_key}"
+      "Quranic Script & Fonts Proofreading Tool - Verse #{current_ayah.verse_key}"
     elsif params[:action] == 'compare_words'
       "Quranic Script & Fonts Proofreading Tool - Compare Words with '#{@char}'"
     else
@@ -36,5 +36,9 @@ class WordTextProofreadingsPresenter < ApplicationPresenter
 
   def meta_keywords
     'Quran script proofreading, Tashkeel correction, Quranic fonts review, Arabic script checker, Quran font compatibility, Quran orthography tool'
+  end
+
+  def current_ayah
+    @current_ayah ||= Verse.find(params[:id])
   end
 end

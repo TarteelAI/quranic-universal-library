@@ -19,17 +19,18 @@ namespace :one_time do
       168 => 'quran/surah/minshawi/kids_repeat',
       164 => 'quran/surah/khalil_al_husary/mujawwad',
       174 => 'quran/surah/yasser_ad-dussary/murattal',
-      175 => 'quran/surah/alnufais',
+      175 => 'quran/surah/alnufais/murattal',
     }
 
     def clone_with_audio_files(r)
       cloned = Audio::Recitation.where(name: "#{r.name} (cloned from #{r.id})").first
+
       if cloned.blank?
-      attrs = r.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
-      cloned = Audio::Recitation.new(attrs)
-      cloned.name = "#{r.name} (cloned from #{r.id})"
-      cloned.approved = false
-      cloned.save!
+        attrs = r.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
+        cloned = Audio::Recitation.new(attrs)
+        cloned.name = "#{r.name} (cloned from #{r.id})"
+        cloned.approved = false
+        cloned.save!
       end
 
       r.chapter_audio_files.find_each do |file|
@@ -46,13 +47,14 @@ namespace :one_time do
     end
 
     mapping.each do |reciter_id, path|
-      recitation = Audio::Recitation.find(reciter_id)
-      cloned = clone_with_audio_files(recitation)
+      recitation = Audio::Recitation.find(13)
+      #cloned = clone_with_audio_files(recitation)
 
-      cloned.relative_path = "#{path}/mp3"
-      cloned.save(validate: false)
+      recitation.relative_path = "#{path}/mp3"
+      recitation.save(validate: false)
 
-      Audio::ChapterAudioFile.where(audio_recitation_id: cloned.id).each do |file|
+      path = 'quran/surah/saad_al_ghamdi/murattal'
+      Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
         file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/mp3/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
         file.save(validate: false)
       end

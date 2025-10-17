@@ -159,7 +159,7 @@ module Audio
     end
 
     def get_output_file_path(part_number)
-      "/Volumes/Data/qul-segments/audio/65/wav_parts/#{audio_file.chapter_id.to_s.rjust(3, '0')}_part_#{part_number}.wav"
+      "tools/segments/data/audio/65/wav_parts/#{audio_file.chapter_id.to_s.rjust(3, '0')}_part_#{part_number}.wav"
     end
 
     def generate_wav_file_name(part_number, total_parts)

@@ -144,7 +144,7 @@ module ToolsHelper
         url: segments_dashboard_path,
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: ['Timestamp', 'timestamp'],
+        tags: [['Timestamp', 'timestamp']],
         info_tip: 'Review and validate raw audio segmentation data of recitations.',
       ),
       ToolCard.new(
@@ -153,16 +153,7 @@ module ToolsHelper
         url: '/compare-audio',
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: ['Timestamp', 'timestamp'],
-        info_tip: 'This tool is used to compare two audio recitations through waveform visualizations, helping identify differences and similarities between them.',
-      ),
-      ToolCard.new(
-        title: 'Audio Segment',
-        description: 'Compare audio recitations',
-        url: '/compare-audio',
-        type: 'segments',
-        icon: 'timestamp.svg',
-        tags: ['Timestamp', 'timestamp'],
+        tags: [['Timestamp', 'timestamp']],
         info_tip: 'This tool is used to compare two audio recitations through waveform visualizations, helping identify differences and similarities between them.',
       ),
       ToolCard.new(
@@ -170,8 +161,8 @@ module ToolsHelper
         description: 'This tool visualizes ayah start and end times as timeline bars, helping to debug and refine ayah boundary data derived from raw segmentation.',
         url: '/ayah-boundaries',
         type: 'segments',
-        icon: 'timestamp.svg',
-        tags: ['Timestamp', 'timestamp'],
+        icon: 'timeline.svg',
+        tags: [['Timestamp', 'timestamp']],
         info_tip: 'This tool visualizes ayah boundaries from raw segments data.'
       )
     ]

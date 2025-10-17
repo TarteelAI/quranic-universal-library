@@ -1,6 +1,13 @@
 #!/bin/bash
-# Smart Boundary Refinement Workflow with Per-Gap Thresholds
 
+# Ayah boundaries adjustment workflow, this script:
+# 1. Exports current ayah boundaries from database
+# 2. Calculates optimal threshold we can use to detect silence for each gap between ayahs
+# 3. Detects silences using optimal volume thresholds
+# 4. Updates boundaries in the database using detected silences
+# 5. Generates ayah segments and silence visualization(optional)
+
+#
 # Usage
 # ./segment_boundary_workflow.sh RECITER SURAH AUDIO_FILE_PATH
 # ./segment_boundary_workflow.sh 1 2 ./data/audio/1/wav/002.wav
@@ -64,7 +71,7 @@ mkdir -p "$BOUNDARIES_DIR"
 BOUNDARIES_FILE="$BOUNDARIES_DIR/${SURAH}.json"
 GAP_RESULT_FILE="$GAPS_DIR/${SURAH}.json"
 SILENCES_FILE="$SILENCE_DIR/${SURAH}.json"
-PLOT_FILE="$PLOT_DIR/${SURAH}_plot.png"
+PLOT_FILE="$PLOT_DIR/${SURAH}.png"
 
 echo -e "${GREEN}Configuration:${NC}"
 echo "  Reciter: $RECITER"
@@ -118,8 +125,7 @@ python3 find_boundary_silences.py \
   --min-duration 30 \
   --window 200 \
   --exclude-overlapping \
-  --output "$SILENCES_FILE" \
-  --save-plot "$PLOT_FILE"
+  --output "$SILENCES_FILE"
 
 echo ""
 echo -e "${GREEN}✓ Detection complete${NC}"

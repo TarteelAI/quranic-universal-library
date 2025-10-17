@@ -1054,6 +1054,31 @@
           margin: 20px 0;
           color: #fca5a5;
       }
+
+      .ayah-text-display {
+          background: rgba(87, 215, 152, 0.05);
+          border: 1px solid rgba(87, 215, 152, 0.2);
+          border-radius: 8px;
+          padding: 12px 16px;
+          margin: 12px 0;
+          text-align: center;
+      }
+
+      .ayah-text-display .ayah-arabic {
+          font-size: 20px;
+          line-height: 1.8;
+          color: #2c3e50;
+          direction: rtl;
+          font-family: 'qpc-hafs', 'Traditional Arabic', 'Arial', sans-serif;
+      }
+
+      .ayah-text-display .ayah-label {
+          font-size: 11px;
+          color: #5a6c7d;
+          opacity: 0.7;
+          margin-bottom: 6px;
+          font-weight: bold;
+      }
   </style>
 </head>
 <body>
@@ -1148,6 +1173,10 @@
       <div id="infoWaveformContainer" class="info-waveform-container" style="display: none;">
         <canvas id="infoWaveformCanvas" class="info-waveform-canvas"></canvas>
         <div id="infoWaveformLabel" class="info-waveform-label">Waveform</div>
+      </div>
+      <div id="ayahTextDisplay" class="ayah-text-display" style="display: none;">
+        <div class="ayah-label">Ayah</div>
+        <div class="ayah-arabic qpc-hafs" id="ayahTextContent"></div>
       </div>
       <div id="infoContent"></div>
     </div>
@@ -1678,6 +1707,22 @@
     hoverLine.style.display = 'none';
   }
 
+  function playAyahFromTable(ayahNumber) {
+    // Find the ayah data
+    const ayah = data.find(a => a.ayah === ayahNumber);
+    if (!ayah) {
+      console.error(`Ayah ${ayahNumber} not found in data`);
+      return;
+    }
+
+    // Show the info panel for this ayah
+    showInfo('corrected', ayah);
+
+    // Play the audio segment
+    const buttonId = `playTableCorrected${ayahNumber}`;
+    playAudioSegment(ayah.corrected_start_time, ayah.corrected_end_time, buttonId);
+  }
+
   function playAudioSegment(startMs, endMs, buttonId) {
     if (!audioLoaded || !audioElement) {
       alert('Please load an audio file first');
@@ -1957,6 +2002,8 @@
   // Initialize the application
   let selectedReciter = null;
   let selectedSurah = null;
+  let versesData = null; // Store fetched verses
+  let currentChapterId = null; // Store current chapter ID
 
   function initializeApp() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1971,6 +2018,44 @@
     } else {
       // Show selector panel
       initializeSelector();
+    }
+  }
+
+  async function fetchVerses(chapterId) {
+    try {
+      console.log(`📖 Fetching verses for chapter ${chapterId}...`);
+      const apiUrl = `/api/v1/chapters/${chapterId}/verses?words=false&fields=text_imlaei`;
+      
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      versesData = {};
+      
+      // Index verses by ayah number for quick lookup
+      if (data.verses && Array.isArray(data.verses)) {
+        data.verses.forEach(verse => {
+          const verseKey = verse.verse_key; // e.g., "1:1"
+          const ayahNumber = parseInt(verseKey.split(':')[1]);
+          versesData[ayahNumber] = {
+            text: verse.text_imlaei,
+            verse_key: verse.verse_key,
+            page_number: verse.page_number
+          };
+        });
+        
+        console.log(`✓ Loaded ${data.verses.length} verses for chapter ${chapterId}`);
+        console.log('Sample verse:', versesData[1]);
+      }
+      
+      currentChapterId = chapterId;
+    } catch (error) {
+      console.error('❌ Error fetching verses:', error);
+      console.error('Error details:', error.message);
+      versesData = null;
     }
   }
 
@@ -2105,6 +2190,20 @@
     // Update title
     document.querySelector('h1').textContent = `Ayah Boundaries Timeline - ${fileName}`;
 
+    // Try to extract chapter ID from first ayah's verse_key if available
+    // or from fileName pattern like "65.json" or similar
+    let chapterId = null;
+    if (data && data.length > 0 && data[0].verse_key) {
+      chapterId = parseInt(data[0].verse_key.split(':')[0]);
+    } else if (fileName.match(/(\d+)\.json/)) {
+      chapterId = parseInt(fileName.match(/(\d+)\.json/)[1]);
+    }
+
+    // Fetch verses if we have a chapter ID
+    if (chapterId) {
+      fetchVerses(chapterId);
+    }
+
     // Set initial zoom based on number of ayahs
     setInitialZoom();
 
@@ -2132,6 +2231,9 @@
         document.getElementById('selectorPanel').classList.add('hidden');
         document.getElementById('mainContent').classList.add('visible');
         document.querySelector('h1').textContent = `Surah ${surah} - Reciter ${reciter} - Ayah Boundaries Timeline`;
+
+        // Fetch verses for this chapter
+        fetchVerses(surah);
 
         setInitialZoom();
 
@@ -2339,6 +2441,22 @@
     return baseIntervals[baseIntervals.length - 1];
   }
 
+  function displayAyahText(ayahNumber) {
+    const ayahTextDisplay = document.getElementById('ayahTextDisplay');
+    const ayahTextContent = document.getElementById('ayahTextContent');
+    
+    if (!versesData || !versesData[ayahNumber]) {
+      ayahTextDisplay.style.display = 'none';
+      return;
+    }
+    
+    const verse = versesData[ayahNumber];
+    ayahTextContent.textContent = verse.text;
+    ayahTextDisplay.style.display = 'block';
+    
+    console.log(`📖 Displaying ayah ${ayahNumber}: ${verse.text.substring(0, 50)}...`);
+  }
+
   function drawInfoWaveform(startMs, endMs, label, highlightColor = 'rgba(87, 215, 152, 0.9)') {
     const canvas = document.getElementById('infoWaveformCanvas');
     const container = document.getElementById('infoWaveformContainer');
@@ -2427,6 +2545,9 @@
       // Draw waveform for original segment
       drawInfoWaveform(ayah.start_time, ayah.end_time, `Ayah ${ayah.ayah} Original`, 'rgba(150, 150, 150, 0.7)');
 
+      // Display ayah text
+      displayAyahText(ayah.ayah);
+
       infoContent.innerHTML = `
         <p><strong>Start Time:</strong> ${formatTime(ayah.start_time)} (${ayah.start_time}ms)</p>
         <p><strong>End Time:</strong> ${formatTime(ayah.end_time)} (${ayah.end_time}ms)</p>
@@ -2446,6 +2567,9 @@
 
       // Draw waveform for corrected segment
       drawInfoWaveform(ayah.corrected_start_time, ayah.corrected_end_time, `Ayah ${ayah.ayah} Corrected`, 'rgba(53, 247, 135, 0.9)');
+
+      // Display ayah text
+      displayAyahText(ayah.ayah);
 
       infoContent.innerHTML = `
         <p><strong>Orgional time:</strong> ${formatTime(ayah.start_time)}(${ayah.start_time}ms) - (${formatTime(ayah.end_time)}(${ayah.end_time})ms)</p>
@@ -2472,6 +2596,9 @@
       // Draw waveform for silence - should show low amplitude
       drawInfoWaveform(silence.start_time, silence.end_time, `Silence (${silence.duration}ms)`, 'rgba(255, 0, 0, 0.6)');
 
+      // Hide ayah text for silence
+      document.getElementById('ayahTextDisplay').style.display = 'none';
+
       infoContent.innerHTML = `
         <p><strong>Silence Start:</strong> ${formatTime(silence.start_time)} (${silence.start_time}ms)</p>
         <p><strong>Silence End:</strong> ${formatTime(silence.end_time)} (${silence.end_time}ms)</p>
@@ -2491,6 +2618,9 @@
       // Draw waveform for gap
       const gapColor = gap.duration < 100 ? 'rgba(248, 113, 113, 0.8)' : 'rgba(255, 193, 7, 0.8)';
       drawInfoWaveform(gap.start_time, gap.end_time, `Gap (${gap.duration}ms)`, gapColor);
+
+      // Hide ayah text for gaps
+      document.getElementById('ayahTextDisplay').style.display = 'none';
 
       infoContent.innerHTML = `
         <p><strong>Gap Start:</strong> ${formatTime(gap.start_time)} (${gap.start_time}ms)</p>
@@ -2541,7 +2671,7 @@
         <td class="${gapClass}"><strong>${gapToNext}</strong></td>
         <td><span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></td>
         <td>
-          <button id="playTableCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playTableCorrected${ayah.ayah}')" style="padding: 5px 10px; font-size: 0.9em;">
+          <button id="playTableCorrected${ayah.ayah}" class="play-btn" onclick="playAyahFromTable(${ayah.ayah})" style="padding: 5px 10px; font-size: 0.9em;">
             ▶️
           </button>
         </td>
@@ -2732,7 +2862,7 @@
         <td class="${gapClass}"><strong>${gapToNext}</strong></td>
         <td><span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></td>
         <td>
-          <button id="playTableCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playTableCorrected${ayah.ayah}')" style="padding: 5px 10px; font-size: 0.9em;">
+          <button id="playTableCorrected${ayah.ayah}" class="play-btn" onclick="playAyahFromTable(${ayah.ayah})" style="padding: 5px 10px; font-size: 0.9em;">
             ▶️
           </button>
         </td>

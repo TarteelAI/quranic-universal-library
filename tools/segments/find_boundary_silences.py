@@ -2,8 +2,7 @@
 """
 Boundary-Focused Silence Detection
 
-Finds silences specifically around ayah boundaries (transitions between ayahs).
-More efficient than full audio scan - only analyzes gaps between ayahs.
+Finds silences specifically around ayah boundaries.
 
 Usage:
     python find_boundary_silences.py audio.mp3 boundaries.json
@@ -519,14 +518,13 @@ class BoundarySilenceDetector:
                 print("    No silences detected in search window")
 
 
-def load_boundaries(boundaries_path: str, use_corrected: bool = True) -> List[Dict]:
+def load_boundaries(boundaries_path: str) -> List[Dict]:
     """
     Load ayah boundaries from JSON file.
     
     Args:
         boundaries_path: Path to JSON file
-        use_corrected: Use corrected times if available, otherwise use original (default: True)
-    
+
     Returns:
         List of boundary dictionaries
     """
@@ -567,80 +565,23 @@ def load_boundaries(boundaries_path: str, use_corrected: bool = True) -> List[Di
             'original_end_time': b.get('end_time')
         }
         
-        # Use corrected times if available and requested, otherwise original
-        if use_corrected and has_corrected_start:
-            boundary['start_time'] = b['corrected_start_time']
-        else:
-            boundary['start_time'] = b.get('start_time')
-        
-        if use_corrected and has_corrected_end:
-            boundary['end_time'] = b['corrected_end_time']
-        else:
-            boundary['end_time'] = b.get('end_time')
+
+        boundary['start_time'] = b.get('start_time')
+        boundary['end_time'] = b.get('end_time')
         
         # Validate
         if boundary['start_time'] is None or boundary['end_time'] is None:
             raise ValueError(f"Boundary {i} missing start_time or end_time")
         
         processed_boundaries.append(boundary)
-    
-    timing_type = "corrected" if (use_corrected and has_corrected) else "original"
-    print(f"✓ Loaded {len(processed_boundaries)} boundaries (using {timing_type} times)")
-    
+
     return processed_boundaries
 
 
 def main():
     parser = argparse.ArgumentParser(
         description='Find silences specifically around ayah boundaries',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # SIMPLIFIED WORKFLOW (Recommended):
-  # Step 1: Calculate per-gap thresholds
-  python calculate_gap_thresholds.py audio.mp3 boundaries.json -o gap_config.json
-  
-  # Step 2: Detect silences (audio & boundaries paths read from config!)
-  python find_boundary_silences.py --gap-thresholds gap_config.json \
-    --exclude-overlapping -o silences.json --visualize
-  
-  # TRADITIONAL WORKFLOW:
-  # Basic usage
-  python find_boundary_silences.py audio.mp3 boundaries.json
-  
-  # Exclude overlapping silences (recommended for boundary adjustment)
-  python find_boundary_silences.py audio.mp3 boundaries.json --exclude-overlapping
-  
-  # Use relative threshold
-  python find_boundary_silences.py audio.mp3 boundaries.json --relative
-  
-  # With visualization
-  python find_boundary_silences.py audio.mp3 boundaries.json --visualize
-  
-  # Diagnose why no silences found
-  python find_boundary_silences.py audio.mp3 boundaries.json --diagnose
-  
-Boundaries JSON Format:
-  # Simple format (original times only)
-  [
-    {"ayah": 1, "start_time": 1200, "end_time": 4480},
-    {"ayah": 2, "start_time": 4880, "end_time": 7840}
-  ]
-  
-  # Extended format (with corrected times - exported from Ruby)
-  [
-    {
-      "ayah": 1,
-      "start_time": 1200,
-      "end_time": 4480,
-      "corrected_start_time": 0,
-      "corrected_end_time": 4780
-    }
-  ]
-  
-  By default, uses corrected times if available.
-  Use --use-original to force original times.
-        """
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
     parser.add_argument(
@@ -709,19 +650,7 @@ Boundaries JSON Format:
         action='store_true',
         help='Display visualization'
     )
-    
-    parser.add_argument(
-        '--save-plot',
-        help='Save visualization to file',
-        default=None
-    )
-    
-    parser.add_argument(
-        '--use-original',
-        action='store_true',
-        help='Use original times instead of corrected times (if available in JSON)'
-    )
-    
+
     parser.add_argument(
         '--diagnose',
         action='store_true',
@@ -784,7 +713,7 @@ Boundaries JSON Format:
                 sys.exit(1)
         
         # Load boundaries
-        boundaries = load_boundaries(boundaries_file, use_corrected=not args.use_original)
+        boundaries = load_boundaries(boundaries_file)
         
         # Initialize detector
         detector = BoundarySilenceDetector(
@@ -829,7 +758,7 @@ Boundaries JSON Format:
             detector.diagnose_gaps(results)
         
         # Visualize if requested
-        if args.visualize or args.save_plot:
+        if args.visualize:
             if HAS_MATPLOTLIB:
                 detector.visualize_results(results, output_path=args.save_plot)
             else:

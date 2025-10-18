@@ -1,6 +1,5 @@
-<div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
-  <div id="resource-bg">
-  </div>
+<div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b tw-mb-8" id="hero">
+  <div id="resource-bg"></div>
   <%= render 'layouts/grid' do %>
     <div class="tw-grid-cols-subgrid tw-grid tw-gap-6 md:tw-gap-8 lg:tw-gap-14">
       <a href="/" class="tw-inline-block">
@@ -13,4 +12,56 @@
       </a>
     </div>
   <% end %>
+</div>
+
+<div class="tw-min-h-screen tw-bg-gray-50" data-controller="quran-explorer" data-quran-explorer-direction-value="<%= params[:direction] || 'asc' %>" data-quran-explorer-view-value="<%= params[:view] || 'grid' %>">
+  <div class="tw-max-w-7xl tw-mx-auto tw-px-4 tw-py-8">
+    <!-- Sorting Controls -->
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6 tw-mb-6">
+      <div class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center sm:tw-justify-between tw-gap-4">
+        <div>
+          <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900">Explore Surahs</h2>
+          <p class="tw-text-gray-600 tw-mt-1">Click on any surah to explore its verses and content</p>
+        </div>
+        
+        <div class="tw-flex tw-flex-col sm:tw-flex-row tw-items-start sm:tw-items-center tw-gap-4">
+          <!-- View Toggle -->
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <span class="tw-text-sm tw-font-medium tw-text-gray-700">View:</span>
+            <div class="tw-flex tw-bg-gray-100 tw-rounded-lg tw-p-1">
+              <button data-quran-explorer-target="gridViewBtn" data-action="click->quran-explorer#showGridView" class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-rounded-md tw-transition-colors <%= 'tw-bg-white tw-text-[#57d798] tw-shadow-sm' if params[:view] != 'juz' || params[:view].blank? %> <%= 'tw-text-gray-600 hover:tw-text-[#57d798]' if params[:view] == 'juz' %>">
+                Grid
+              </button>
+              <button data-quran-explorer-target="juzViewBtn" data-action="click->quran-explorer#showJuzView" class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-rounded-md tw-transition-colors <%= 'tw-bg-white tw-text-[#57d798] tw-shadow-sm' if params[:view] == 'juz' %> <%= 'tw-text-gray-600 hover:tw-text-[#57d798]' if params[:view] != 'juz' && params[:view].present? %>">
+                Juz
+              </button>
+            </div>
+          </div>
+          
+          <!-- Sorting Controls -->
+          <div data-quran-explorer-target="sortControls" class="tw-flex tw-items-center tw-gap-3 <%= 'tw-hidden' if params[:view] == 'juz' %>">
+            <label for="sort-select" class="tw-text-sm tw-font-medium tw-text-gray-700">Sort by:</label>
+            <select data-quran-explorer-target="sortSelect" data-action="change->quran-explorer#sortChanged" class="tw-px-4 tw-pr-10 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-text-sm tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-[#57d798] tw-focus:tw-border-[#57d798] tw-bg-white">
+              <option value="chapter_number" <%= 'selected' if params[:sort] == 'chapter_number' || params[:sort].blank? %>>Chapter Number</option>
+              <option value="name_simple" <%= 'selected' if params[:sort] == 'name_simple' %>>Alphabetical</option>
+              <option value="revelation_order" <%= 'selected' if params[:sort] == 'revelation_order' %>>Revelation Order</option>
+              <option value="verses_count" <%= 'selected' if params[:sort] == 'verses_count' %>>Verses</option>
+            </select>
+            
+            <button data-quran-explorer-target="sortDirection" data-action="click->quran-explorer#toggleSortDirection" class="tw-p-2 tw-text-gray-600 hover:tw-text-[#57d798] tw-transition-colors" title="Toggle sort direction">
+              <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid View -->
+    <%= render 'grid_view', chapters: @chapters %>
+
+    <!-- Juz View -->
+    <%= render 'juz_view', chapters: @chapters %>
+  </div>
 </div>

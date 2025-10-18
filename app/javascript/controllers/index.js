@@ -143,6 +143,12 @@ application.register("surah-segment-player", SurahSegmentPlayerController);
 import SegmentsTimelineController from './segments/timeline_controller';
 application.register("segments--timeline", SegmentsTimelineController);
 
+import QuranExplorerController from './quran_explorer_controller';
+application.register("quran-explorer", QuranExplorerController);
+
+import TranslationSelectorController from './translation_selector_controller';
+application.register("translation-selector", TranslationSelectorController);
+
 import SegmentFailurePlayerController from './segments/failure_player_controller';
 application.register("segments--failure-player", SegmentFailurePlayerController);
 

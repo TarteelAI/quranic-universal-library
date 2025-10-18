@@ -1,8 +1,8 @@
-<div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
-  <div id="resource-bg">
-  </div>
+<div class="tw-pb-6 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative" id="hero">
+  <div id="resource-bg"></div>
+  
   <%= render 'layouts/grid' do %>
-    <div class="tw-grid-cols-subgrid tw-grid tw-gap-6 md:tw-gap-8 lg:tw-gap-14">
+    <div class="tw-grid-cols-subgrid tw-grid">
       <a href="/" class="tw-inline-block">
         <svg width="234" height="63" viewBox="0 0 234 63" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path opacity="0.6" fill-rule="evenodd" clip-rule="evenodd" d="M58.0765 6.71579L55.3007 4.00632C55.0029 3.71559 54.996 3.23883 55.2852 2.93956L57.9036 0.230668C58.1958 -0.0716857 58.6786 -0.0775736 58.9781 0.217563L61.7538 2.95248C62.0502 3.2446 62.0549 3.72139 61.7643 4.0193L59.1461 6.70275C58.8543 7.00174 58.3755 7.00758 58.0765 6.71579ZM65.2019 6.71313L62.4261 4.00369C62.1293 3.71399 62.1212 3.23931 62.408 2.93967L64.995 0.236103C65.2868 -0.0687889 65.7716 -0.0759189 66.0722 0.220261L68.8478 2.95513C69.1432 3.24621 69.1491 3.72092 68.8609 4.01922L66.274 6.69736C65.9828 6.99888 65.5019 7.00596 65.2019 6.71313ZM59.6716 8.75605H62.8125C69.2878 8.75605 72.5979 11.781 72.5979 17.6616C72.5979 23.5422 69.2878 26.5672 62.8125 26.5672H59.6716C58.25 26.5672 56.9811 26.4215 55.8662 26.1317H24.8332C23.8047 29.1605 21.1861 30.6697 17.0193 30.6697H8.31151C2.80272 30.6697 0 28.0319 0 22.7321V17.8316H4.10743V22.7321C4.10743 25.7087 5.89537 27.1123 9.27797 27.1365H16.0528C19.2284 27.1365 20.9985 25.8994 21.2033 23.2651V9.19168H25.3107V13.2941H25.3308V22.5985H50.9922C50.2567 21.2767 49.8862 19.629 49.8862 17.6616C49.8862 11.781 53.1963 8.75605 59.6716 8.75605ZM60.3964 23.0582H62.0877C66.171 23.034 68.3213 21.219 68.3213 17.6616C68.3213 14.08 66.171 12.265 62.0877 12.265H60.3964C56.3131 12.265 54.1628 14.08 54.1628 17.6616C54.1628 21.219 56.3131 23.034 60.3964 23.0582Z" fill="black"/>
@@ -13,4 +13,305 @@
       </a>
     </div>
   <% end %>
+</div>
+
+<div class="tw-min-h-screen tw-bg-gray-50">
+  <div class="tw-max-w-7xl tw-mx-auto tw-px-4 tw-py-8">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="tw-mb-6">
+      <ol class="custom-breadcrumb">
+        <li class="breadcrumb-link">
+          <%= link_to 'Quran Explorer', quran_explorer_path, class: 'btn-link text-dark' %>
+        </li>
+        <li class="breadcrumb-link">
+          <%= link_to "Surah #{@chapter.chapter_number}: #{@chapter.name_simple}", quran_explorer_surah_path(@chapter.chapter_number), class: 'btn-link text-dark' %>
+        </li>
+        <li class="breadcrumb-link">
+          <%= link_to "Verse #{@verse.verse_number}", quran_explorer_ayah_path(@chapter.chapter_number, @verse.verse_number), class: 'btn-link text-dark' %>
+        </li>
+        <li class="breadcrumb-link active">
+          Word <%= @word.position %>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-8 tw-mb-8">
+      <div class="tw-text-center tw-mb-6">
+        <div class="tw-text-6xl tw-text-gray-900 tw-mb-4" dir="rtl">
+          <%= @word.text_uthmani %>
+        </div>
+        <h1 class="tw-text-2xl tw-font-bold tw-text-gray-900 tw-mb-2">
+          Word <%= @word.position %> of Verse <%= @verse.verse_number %>
+        </h1>
+        <p class="tw-text-gray-600">
+          <%= @chapter.name_simple %> <%= @verse.verse_number %>:<%= @word.position %>
+        </p>
+      </div>
+
+      <!-- Navigation -->
+      <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6">
+        <% if @word.position > 1 %>
+          <% prev_word = @verse.words.find_by(position: @word.position - 1) %>
+          <% if prev_word %>
+            <%= link_to quran_explorer_word_path(@chapter.chapter_number, @verse.verse_number, prev_word.position), 
+                        class: "tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm" do %>
+              ← Previous Word
+            <% end %>
+          <% end %>
+        <% end %>
+        
+        <%= link_to quran_explorer_ayah_path(@chapter.chapter_number, @verse.verse_number), 
+                    class: "tw-bg-[#57d798] hover:tw-bg-[#3fc882] tw-text-white tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm" do %>
+          Back to Verse
+        <% end %>
+        
+        <% if @word.position < @verse.words_count %>
+          <% next_word = @verse.words.find_by(position: @word.position + 1) %>
+          <% if next_word %>
+            <%= link_to quran_explorer_word_path(@chapter.chapter_number, @verse.verse_number, next_word.position), 
+                        class: "tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm" do %>
+              Next Word →
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Different Scripts -->
+    <% 
+      word_scripts = []
+      word_scripts << { id: 'uthmani', name: 'Uthmani Script', text: @word.text_uthmani } if @word.text_uthmani.present?
+      word_scripts << { id: 'qpc_hafs', name: 'QPC Hafs Script', text: @word.text_qpc_hafs } if @word.text_qpc_hafs.present?
+      word_scripts << { id: 'indopak', name: 'IndoPak Script', text: @word.text_indopak } if @word.text_indopak.present?
+      word_scripts << { id: 'imlaei', name: 'Imlaei Script', text: @word.text_imlaei } if @word.text_imlaei.present?
+      default_word_script = word_scripts.first
+    %>
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6 tw-mb-8" data-controller="translation-selector">
+      <div class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center sm:tw-justify-between tw-gap-4 tw-mb-6">
+        <h2 class="tw-text-xl tw-font-bold tw-text-gray-900">Arabic Script</h2>
+        
+        <% if word_scripts.size > 1 %>
+          <!-- Script Selector Dropdown -->
+          <div class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center tw-gap-2 sm:tw-gap-3">
+            <label for="word-script-select" class="tw-text-sm tw-font-medium tw-text-gray-700">Select Script:</label>
+            <select 
+              id="word-script-select"
+              data-translation-selector-target="select" 
+              data-action="change->translation-selector#change"
+              class="tw-w-full sm:tw-w-auto tw-px-4 tw-pr-10 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-text-sm tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-[#57d798] tw-focus:tw-border-[#57d798] tw-bg-white tw-shadow-sm">
+              <% word_scripts.each do |script| %>
+                <option value="<%= script[:id] %>" <%= 'selected' if script[:id] == default_word_script[:id] %>>
+                  <%= script[:name] %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+        <% end %>
+      </div>
+      
+      <div>
+        <% word_scripts.each do |script| %>
+          <div 
+            data-translation-selector-target="item" 
+            data-item-id="<%= script[:id] %>"
+            class="<%= 'tw-hidden' unless script[:id] == default_word_script[:id] %>">
+            <h3 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-3"><%= script[:name] %></h3>
+            <div class="tw-text-4xl tw-text-gray-900 tw-p-4 tw-bg-gray-50 tw-rounded-lg tw-text-center" dir="rtl">
+              <%= script[:text] %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Translations -->
+    <% if @translations.any? %>
+      <% 
+        # Find default English translation or first available
+        default_word_translation = @translations.find { |t| t.language_id == 38 } || @translations.first
+      %>
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-8 tw-mb-8" data-controller="translation-selector">
+        <div class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center sm:tw-justify-between tw-gap-4 tw-mb-6">
+          <h2 class="tw-text-xl tw-font-bold tw-text-gray-900">Translation</h2>
+          
+          <% if @translations.size > 1 %>
+            <!-- Translation Selector Dropdown -->
+            <div class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center tw-gap-2 sm:tw-gap-3">
+              <label for="word-translation-select" class="tw-text-sm tw-font-medium tw-text-gray-700">Select Translation:</label>
+              <select 
+                id="word-translation-select"
+                data-translation-selector-target="select" 
+                data-action="change->translation-selector#change"
+                class="tw-w-full sm:tw-w-auto tw-px-4 tw-pr-10 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-text-sm tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-[#57d798] tw-focus:tw-border-[#57d798] tw-bg-white tw-shadow-sm">
+                <% @translations.each do |translation| %>
+                  <option 
+                    value="<%= translation.id %>" 
+                    <%= 'selected' if translation.id == default_word_translation.id %>>
+                    <%= translation.language.name %>
+                  </option>
+                <% end %>
+              </select>
+            </div>
+          <% end %>
+        </div>
+        
+        <div>
+          <% @translations.each do |translation| %>
+            <div 
+              data-translation-selector-target="item" 
+              data-item-id="<%= translation.id %>"
+              class="tw-border tw-border-gray-200 tw-rounded-lg tw-p-6 <%= 'tw-hidden' unless translation.id == default_word_translation.id %>">
+              <h3 class="tw-font-medium tw-text-gray-900 tw-mb-3 tw-text-lg">
+                <%= translation.language.name %>
+              </h3>
+              <div class="tw-text-gray-700 tw-text-lg">
+                <%= translation.text %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Morphology -->
+    <% if @morphology_word %>
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-8 tw-mb-8">
+        <h2 class="tw-text-xl tw-font-bold tw-text-gray-900 tw-mb-6">Morphological Analysis</h2>
+        
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6">
+          <div class="tw-space-y-4">
+            <% if @morphology_word.description.present? %>
+              <div>
+                <h3 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Description</h3>
+                <div class="tw-text-gray-900">
+                  <%= raw(@morphology_word.description) %>
+                </div>
+              </div>
+            <% end %>
+            
+            <% if @morphology_word.case.present? %>
+              <div>
+                <h3 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Case</h3>
+                <div class="tw-text-gray-900">
+                  <%= raw(@morphology_word.case) %>
+                </div>
+              </div>
+            <% end %>
+            
+            <% if @morphology_word.case_reason.present? %>
+              <div>
+                <h3 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Case Reason</h3>
+                <div class="tw-text-gray-900">
+                  <%= raw(@morphology_word.case_reason) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="tw-space-y-4">
+            <% if @morphology_word.grammar_concepts.any? %>
+              <div>
+                <h3 class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-3">Grammar Concepts</h3>
+                <div class="tw-flex tw-flex-wrap tw-gap-2">
+                  <% @morphology_word.grammar_concepts.each do |concept| %>
+                    <span class="tw-bg-purple-100 tw-text-purple-700 tw-px-3 tw-py-1 tw-rounded-full tw-text-sm">
+                      <%= raw(concept.description) %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Root, Lemma, Stem Information -->
+    <% if @word.root || @word.lemma || @word.stem %>
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-8 tw-mb-8">
+        <h2 class="tw-text-xl tw-font-bold tw-text-gray-900 tw-mb-6">Linguistic Components</h2>
+        
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6">
+          <% if @word.root %>
+            <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-p-6">
+              <h3 class="tw-text-lg tw-font-bold tw-text-gray-900 tw-mb-4 tw-text-center">Root</h3>
+              <div class="tw-text-center">
+                <div class="tw-text-3xl tw-text-gray-900 tw-mb-2" dir="rtl">
+                  <%= @word.root.text_uthmani %>
+                </div>
+                <% if @word.root.respond_to?(:description) && @word.root.description.present? %>
+                  <div class="tw-text-sm tw-text-gray-600">
+                    <%= @word.root.description %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @word.lemma %>
+            <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-p-6">
+              <h3 class="tw-text-lg tw-font-bold tw-text-gray-900 tw-mb-4 tw-text-center">Lemma</h3>
+              <div class="tw-text-center">
+                <div class="tw-text-3xl tw-text-gray-900 tw-mb-2" dir="rtl">
+                  <%= @word.lemma.text_madani %>
+                </div>
+                <% if @word.lemma.respond_to?(:description) && @word.lemma.description.present? %>
+                  <div class="tw-text-sm tw-text-gray-600">
+                    <%= @word.lemma.description %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @word.stem %>
+            <div class="tw-border tw-border-gray-200 tw-rounded-lg tw-p-6">
+              <h3 class="tw-text-lg tw-font-bold tw-text-gray-900 tw-mb-4 tw-text-center">Stem</h3>
+              <div class="tw-text-center">
+                <div class="tw-text-3xl tw-text-gray-900 tw-mb-2" dir="rtl">
+                  <%= @word.stem.text_madani %>
+                </div>
+                <% if @word.stem.respond_to?(:description) && @word.stem.description.present? %>
+                  <div class="tw-text-sm tw-text-gray-600">
+                    <%= @word.stem.description %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Related Words -->
+    <% if @related_words&.any? %>
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-8">
+        <h2 class="tw-text-xl tw-font-bold tw-text-gray-900 tw-mb-6">Related Words (Same Root)</h2>
+        
+        <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-cols-4 tw-gap-4">
+          <% @related_words.each do |related_word| %>
+            <%= link_to quran_explorer_word_path(related_word.chapter_id, related_word.verse.verse_number, related_word.position), 
+                        class: "tw-block tw-p-4 tw-border tw-border-gray-200 tw-rounded-lg hover:tw-border-[#57d798] hover:tw-shadow-md tw-transition-all tw-duration-200" do %>
+              <div class="tw-text-center">
+                <div class="tw-text-xl tw-text-gray-900 tw-mb-2" dir="rtl">
+                  <%= related_word.text_uthmani %>
+                </div>
+                
+                <div class="tw-text-sm tw-text-gray-600">
+                  <%= related_word.location %>
+                </div>
+                
+                <% if related_word.en_translation %>
+                  <div class="tw-text-xs tw-text-gray-500 tw-mt-1">
+                    <%= related_word.en_translation.text %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>

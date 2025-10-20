@@ -1112,6 +1112,17 @@
         <div class="surah-grid" id="surahGrid"></div>
       </div>
 
+      <div class="input-group">
+        <label for="audioUrlInput">Audio URL (optional):</label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="url" id="audioUrlInput" placeholder="Enter audio URL or use default" style="flex: 1;"/>
+          <button id="loadAudioBtn" class="load-btn" style="padding: 10px 20px; margin: 0;" disabled>
+            Load Audio
+          </button>
+        </div>
+        <div id="audioUrlInfo" style="font-size: 0.9em; color: #5a6c7d; margin-top: 5px;"></div>
+      </div>
+
       <button id="loadDataBtn" class="load-btn" disabled>
         Load Data
       </button>
@@ -1377,6 +1388,63 @@
     });
   }
 
+  function loadAudioFromUrl(url) {
+    const dropZone = document.getElementById('audioDropZone');
+    const audioFileName = document.getElementById('audioFileName');
+
+    if (!url) {
+      alert('Please enter an audio URL');
+      return;
+    }
+
+    // Validate URL
+    try {
+      new URL(url);
+    } catch (e) {
+      alert('Please enter a valid URL');
+      return;
+    }
+
+    if (audioElement) {
+      audioElement.pause();
+      audioElement = null;
+    }
+
+    audioElement = new Audio(url);
+    
+    // Show loading state
+    audioFileName.innerHTML = '🔄 Loading audio from URL...';
+    dropZone.classList.add('has-audio');
+
+    audioElement.addEventListener('loadedmetadata', () => {
+      audioLoaded = true;
+      audioFileName.innerHTML = `
+        ✓ Loaded from URL: <strong>${escapeHtml(url)}</strong> (${formatTime(audioElement.duration * 1000)})
+      `;
+
+      // Generate waveform data from URL
+      generateWaveformDataFromUrl(url);
+    });
+
+    audioElement.addEventListener('error', (e) => {
+      console.error('Error loading audio from URL:', e);
+      audioFileName.innerHTML = `❌ Error loading audio from URL: ${escapeHtml(url)}`;
+      dropZone.classList.remove('has-audio');
+      alert('Failed to load audio from URL. Please check the URL and try again.');
+    });
+
+    audioElement.addEventListener('ended', () => {
+      if (currentlyPlaying) {
+        const btn = document.getElementById(currentlyPlaying);
+        if (btn) {
+          btn.textContent = btn.textContent.replace('⏸', '▶️');
+          btn.classList.remove('playing');
+        }
+        currentlyPlaying = null;
+      }
+    });
+  }
+
   async function generateWaveformData(file) {
     try {
       console.log('🎵 Starting waveform generation...');
@@ -1468,6 +1536,81 @@
     waveformData = waveformData.map(n => n / max);
 
     console.log('✓ Test waveform generated (this is not real audio data)');
+  }
+
+  async function generateWaveformDataFromUrl(url) {
+    try {
+      console.log('🎵 Starting waveform generation from URL...');
+      console.log(`URL: ${url}`);
+
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log(`AudioContext created, sample rate: ${audioContext.sampleRate} Hz`);
+      }
+
+      // Fetch the audio file
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      console.log(`✓ Audio file loaded as ArrayBuffer (${arrayBuffer.byteLength} bytes)`);
+
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      console.log(`✓ Audio decoded successfully`);
+      console.log(`  - Duration: ${audioBuffer.duration.toFixed(2)}s`);
+      console.log(`  - Channels: ${audioBuffer.numberOfChannels}`);
+      console.log(`  - Sample Rate: ${audioBuffer.sampleRate} Hz`);
+      console.log(`  - Length: ${audioBuffer.length} samples`);
+
+      // Extract waveform data from the audio buffer
+      const rawData = audioBuffer.getChannelData(0); // Get first channel
+      const samples = 2000; // Number of samples for the waveform
+      const blockSize = Math.floor(rawData.length / samples);
+      const filteredData = [];
+
+      console.log(`Processing ${rawData.length} audio samples into ${samples} waveform points (block size: ${blockSize})...`);
+
+      for (let i = 0; i < samples; i++) {
+        let blockStart = blockSize * i;
+        let sum = 0;
+        for (let j = 0; j < blockSize; j++) {
+          sum += Math.abs(rawData[blockStart + j]);
+        }
+        filteredData.push(sum / blockSize);
+      }
+
+      // Normalize the data
+      const max = Math.max(...filteredData);
+      const min = Math.min(...filteredData);
+      const avg = filteredData.reduce((a, b) => a + b, 0) / filteredData.length;
+
+      waveformData = filteredData.map(n => n / max);
+
+      console.log(`✓ Waveform data generated successfully!`);
+      console.log(`  - Samples: ${waveformData.length}`);
+      console.log(`  - Max amplitude: ${max.toFixed(6)}`);
+      console.log(`  - Min amplitude: ${min.toFixed(6)}`);
+      console.log(`  - Avg amplitude: ${avg.toFixed(6)}`);
+      console.log(`  - Dynamic range: ${((max / (avg || 0.001)) * 100).toFixed(1)}%`);
+
+    } catch (error) {
+      console.error('❌ Error generating waveform from URL:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
+
+      // Show error in UI
+      const loading = document.getElementById('waveformLoading');
+      if (loading) {
+        loading.innerHTML = `⚠️ Waveform Error<br><span style="font-size: 0.8em;">${error.message}</span>`;
+        loading.style.color = '#f87171';
+      }
+
+      // Generate a test waveform for debugging
+      console.log('Generating test waveform pattern for debugging...');
+      generateTestWaveform();
+    }
   }
 
   function drawWaveform(startMs, endMs) {
@@ -2019,6 +2162,40 @@
   let selectedSurah = null;
   let versesData = null; // Store fetched verses
   let currentChapterId = null; // Store current chapter ID
+  let selectedAudioUrl = null; // Store selected audio URL
+
+  // Reciter ID to CDN path mapping
+  const reciterMapping = {
+    1: 'quran/surah/abdul_baset/mujawwad',
+    2: 'quran/surah/abdul_baset/murattal',
+    3: 'quran/surah/abdurrahmaan_as_sudais/murattal',
+    4: 'quran/surah/abu_bakr_shatri/murattal',
+    5: 'quran/surah/hani_ar_rifai/murattal',
+    6: 'quran/surah/khalil_al_husary/muallim',
+    7: 'quran/surah/mishari_al_afasy/murattal',
+    8: 'quran/surah/minshawi/mujawwad',
+    9: 'quran/surah/minshawi/murattal',
+    10: 'quran/surah/saud_ash_shuraym/murattal',
+    12: 'quran/surah/khalil_al_husary/muallim',
+    13: 'quran/surah/saad_al_ghamdi/murattal',
+    65: 'quran/surah/maher-al-muaiqly_1424_1425/murattal',
+    161: 'quran/surah/khalifa_al_tunaiji/murattal/',
+    168: 'quran/surah/minshawi/kids_repeat',
+    164: 'quran/surah/khalil_al_husary/mujawwad',
+    174: 'quran/surah/yasser_ad-dussary/murattal',
+    175: 'quran/surah/alnufais/murattal',
+  };
+
+  // Generate default audio URL based on reciter and surah
+  function generateDefaultAudioUrl(reciterId, surahNumber) {
+    const reciterPath = reciterMapping[reciterId];
+    if (!reciterPath) {
+      return null;
+    }
+    
+    const paddedSurahNumber = surahNumber.toString().padStart(3, '0');
+    return `https://audio-cdn.tarteel.ai/${reciterPath}/wav/${paddedSurahNumber}.wav`;
+  }
 
   function initializeApp() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -2080,6 +2257,9 @@
     const surahGrid = document.getElementById('surahGrid');
     const reciterInput = document.getElementById('reciterInput');
     const loadBtn = document.getElementById('loadDataBtn');
+    const audioUrlInput = document.getElementById('audioUrlInput');
+    const loadAudioBtn = document.getElementById('loadAudioBtn');
+    const audioUrlInfo = document.getElementById('audioUrlInfo');
     const jsonFileInput = document.getElementById('jsonFileInput');
     const jsonDropZone = document.getElementById('jsonDropZone');
     const fileNameDisplay = document.getElementById('fileNameDisplay');
@@ -2100,6 +2280,7 @@
         // Select this card
         card.classList.add('selected');
         selectedSurah = i;
+        updateAudioUrlInfo();
         updateLoadButton();
       };
 
@@ -2109,10 +2290,24 @@
     // Handle reciter input
     reciterInput.addEventListener('input', () => {
       selectedReciter = reciterInput.value || null;
+      updateAudioUrlInfo();
       updateLoadButton();
     });
 
-    // Handle load button
+    // Handle audio URL input
+    audioUrlInput.addEventListener('input', () => {
+      selectedAudioUrl = audioUrlInput.value.trim() || null;
+      updateLoadAudioButton();
+    });
+
+    // Handle load audio button
+    loadAudioBtn.addEventListener('click', () => {
+      if (selectedAudioUrl) {
+        loadAudioFromUrl(selectedAudioUrl);
+      }
+    });
+
+    // Handle load data button
     loadBtn.addEventListener('click', () => {
       if (selectedReciter && selectedSurah) {
         loadDataFromPath(selectedReciter, selectedSurah);
@@ -2182,6 +2377,31 @@
     reader.readAsText(file);
   }
 
+  function updateAudioUrlInfo() {
+    const audioUrlInfo = document.getElementById('audioUrlInfo');
+    const audioUrlInput = document.getElementById('audioUrlInput');
+    
+    if (selectedReciter && selectedSurah) {
+      const defaultUrl = generateDefaultAudioUrl(parseInt(selectedReciter), selectedSurah);
+      if (defaultUrl) {
+        audioUrlInfo.innerHTML = `Default URL: <a href="${defaultUrl}" target="_blank" style="color: #57d798;">${defaultUrl}</a>`;
+        if (!audioUrlInput.value.trim()) {
+          audioUrlInput.value = defaultUrl;
+          selectedAudioUrl = defaultUrl;
+        }
+      } else {
+        audioUrlInfo.textContent = `No default audio available for reciter ${selectedReciter}`;
+      }
+    } else {
+      audioUrlInfo.textContent = 'Select reciter and surah to see default audio URL';
+    }
+  }
+
+  function updateLoadAudioButton() {
+    const loadAudioBtn = document.getElementById('loadAudioBtn');
+    loadAudioBtn.disabled = !selectedAudioUrl;
+  }
+
   function updateLoadButton() {
     const loadBtn = document.getElementById('loadDataBtn');
     loadBtn.disabled = !(selectedReciter && selectedSurah);
@@ -2230,7 +2450,10 @@
   }
 
   function loadDataFromPath(reciter, surah) {
-    const dataPath = `./data/result/plot_data/${reciter}/${surah}.json`;
+    const isDevelopment = false && window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('dev');
+    const dataPath = isDevelopment 
+      ? `./data/result/plot_data/${reciter}/${surah}.json`
+      : `https://static-cdn.tarteel.ai/qul/segments-data/plot_data/${reciter}/${surah}.json`;
 
     fetch(dataPath)
       .then(response => {
@@ -2249,6 +2472,13 @@
 
         // Fetch verses for this chapter
         fetchVerses(surah);
+
+        // Load default audio if available
+        const defaultAudioUrl = generateDefaultAudioUrl(parseInt(reciter), parseInt(surah));
+        if (defaultAudioUrl) {
+          console.log(`🎵 Auto-loading default audio: ${defaultAudioUrl}`);
+          loadAudioFromUrl(defaultAudioUrl);
+        }
 
         setInitialZoom();
 

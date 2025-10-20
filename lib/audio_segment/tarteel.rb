@@ -121,9 +121,11 @@ module AudioSegment
     end
 
     def get_gapless_segments_data(recitation)
+      recitation_id = get_cloned_id(recitation.id)
+
       segments = Audio::Segment
                    .where(
-                     audio_recitation: recitation
+                     audio_recitation_id: recitation_id
                    )
                    .order('chapter_id ASC, verse_number ASC')
                    .includes(:verse)
@@ -153,9 +155,34 @@ module AudioSegment
       end
     end
 
+    CLONED_IDS = {
+      1 => 186,
+      2 => 187,
+      3 => 188,
+      4 => 189,
+      5 => 192,
+      6 => 191,
+      7 => 192,
+      8 => 193,
+      9 => 194,
+      10 => 195,
+      12 => 196,
+      13 => 197,
+
+      65 => 198,
+      161 => 199,
+      164 => 201,
+      174 => 202,
+      175 => 203,
+    }
+    def get_cloned_id(id)
+      CLONED_IDS[id] || id
+    end
+
     def export_gapless_recitation_jsons(recitation, target_dir)
+      recitation_id = get_cloned_id(recitation.id)
       segments = Audio::Segment
-                   .where(audio_recitation_id: recitation.id)
+                   .where(audio_recitation_id: recitation_id)
                    .order('chapter_id ASC, verse_number ASC')
                    .includes(:verse)
 

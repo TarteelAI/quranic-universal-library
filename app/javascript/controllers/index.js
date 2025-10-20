@@ -7,6 +7,9 @@ import { application } from "./application"
 import AjaxModalController from "./ajax_modal_controller.js"
 application.register("ajax-modal", AjaxModalController)
 
+import AlertController from "./alert_controller.js"
+application.register("alert", AlertController)
+
 import ArabicKeyboardController from "./arabic_keyboard_controller.js"
 application.register("arabic-keyboard", ArabicKeyboardController)
 
@@ -15,6 +18,9 @@ application.register("confirm-leave", ConfirmLeaveController)
 
 import DatepickerController from "./datepicker_controller.js"
 application.register("datepicker", DatepickerController)
+
+import DropdownController from "./dropdown_controller.js"
+application.register("dropdown", DropdownController)
 
 import MushafPageBuilderController from "./mushaf_page_builder_controller.js"
 application.register("mushaf-page-builder", MushafPageBuilderController)
@@ -145,3 +151,6 @@ application.register("segments--timeline", SegmentsTimelineController);
 
 import SegmentFailurePlayerController from './segments/failure_player_controller';
 application.register("segments--failure-player", SegmentFailurePlayerController);
+
+import TabsController from './tabs_controller';
+application.register("tabs", TabsController);

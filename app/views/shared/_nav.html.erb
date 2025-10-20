@@ -20,11 +20,11 @@
       </ul>
 
       <div class="tw-flex tw-items-center">
-        <div class="tw-relative">
-          <button class="tw-bg-gray-600 hover:tw-bg-gray-700 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-border-0 tw-cursor-pointer" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        <div class="tw-relative" data-controller="dropdown">
+          <button class="tw-bg-gray-600 hover:tw-bg-gray-700 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-border-0 tw-cursor-pointer" type="button" id="dropdownMenuButton1" data-action="click->dropdown#toggle" aria-expanded="false">
             Salam <%= current_user&.first_name %>
           </button>
-          <ul class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md tw-shadow-lg tw-z-50 tw-hidden" aria-labelledby="dropdownMenuButton1" data-turbo="false">
+          <ul class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md tw-shadow-lg tw-z-50 tw-hidden" data-dropdown-target="menu" aria-labelledby="dropdownMenuButton1" data-turbo="false">
             <li>
               <% if current_user %>
                 <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'tw-block tw-w-full tw-text-left tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100 tw-no-underline' %>

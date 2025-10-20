@@ -3,10 +3,10 @@
   partial_name = resource_content.name.downcase.gsub('name', '').strip
 %>
 
-<div class="tw-mt-5">
+<div class="tw-mt-5" data-controller="tabs">
   <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
     <li class="tw-m-0" role="presentation">
-      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 active"
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]"
               id="tab-docs"
               data-bs-toggle="tab"
               data-bs-target="#tab-preview-pane"
@@ -19,7 +19,7 @@
     </li>
 
     <li class="tw-m-0" role="presentation">
-      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200"
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]"
               id="tab-help"
               data-bs-toggle="tab"
               data-bs-target="#tab-help-pane"

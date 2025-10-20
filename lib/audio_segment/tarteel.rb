@@ -1,4 +1,7 @@
 require 'sqlite3'
+require 'zip'        # gem 'rubyzip'
+require 'fileutils'
+require 'json'
 
 module AudioSegment
   class Tarteel
@@ -36,6 +39,32 @@ module AudioSegment
       db.close
 
       file_path
+    end
+
+    # Export segments data as JSON files(one file per surah) and create a master zip
+    def export_json_files
+      file_label = File.basename(file_path, File.extname(file_path))
+
+      root_tmp = File.join(File.dirname(file_path), "json_export_#{Time.now.to_i}")
+      FileUtils.mkdir_p(root_tmp)
+      recitations.each do |recitation|
+        reciter_dir = File.join(root_tmp, file_label, recitation.id.to_s)
+        FileUtils.mkdir_p(reciter_dir)
+
+        export_gapless_recitation_jsons(recitation, reciter_dir)
+      end
+
+      master_zip = file_path
+      Zip::File.open(master_zip, Zip::File::CREATE) do |zipfile|
+        Dir[File.join(root_tmp, '**', '**')].each do |f|
+          next if File.directory?(f)
+          entry = f.sub("#{root_tmp}/", '')
+          zipfile.add(entry, f)
+        end
+      end
+
+      FileUtils.rm_rf(root_tmp)
+      master_zip
     end
 
     protected
@@ -121,6 +150,48 @@ module AudioSegment
           segment.timestamp_to,
           ayah_segments.to_s.gsub(/\s+/, '')
         ]
+      end
+    end
+
+    def export_gapless_recitation_jsons(recitation, target_dir)
+      segments = Audio::Segment
+                   .where(audio_recitation_id: recitation.id)
+                   .order('chapter_id ASC, verse_number ASC')
+                   .includes(:verse)
+
+      grouped = segments.group_by(&:chapter_id)
+
+      grouped.each do |chapter_id, segs|
+        json_ayahs = []
+
+        segs.each do |seg|
+          ayah_segments = seg.get_segments
+          verse = seg.verse
+
+            ayah_segments.each_with_index do |s, i|
+            if s.length != 3
+              @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
+            end
+          end
+
+          if ayah_segments.size < verse.words_count
+            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
+          end
+
+          json_ayahs << {
+            ayah: verse.verse_number,
+            start: seg.timestamp_from.to_i,
+            end: seg.timestamp_to.to_i,
+            words: ayah_segments
+          }
+        end
+
+        json_filename = format("%03d.json", chapter_id)
+        json_path = File.join(target_dir, json_filename)
+
+        File.open(json_path, "w") do |f|
+          f.write(JSON.dump(json_ayahs))
+        end
       end
     end
 

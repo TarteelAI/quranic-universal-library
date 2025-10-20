@@ -1247,9 +1247,13 @@
       </div>
     </div>
     <div class="seek-controls">
+      <button class="seek-control-btn" onclick="previousAyah()">Previous</button>
+
       <button class="seek-control-btn" onclick="skipBackward()">⏪ -5s</button>
       <button class="seek-control-btn primary" id="playPauseBtn" onclick="togglePlayPause()">⏸ Pause</button>
       <button class="seek-control-btn" onclick="skipForward()">⏩ +5s</button>
+
+      <button class="seek-control-btn" onclick="nextAyah()">Next</button>
     </div>
   </div>
 </div>
@@ -1720,10 +1724,12 @@
 
     // Play the audio segment
     const buttonId = `playTableCorrected${ayahNumber}`;
-    playAudioSegment(ayah.corrected_start_time, ayah.corrected_end_time, buttonId);
+    playAudioSegment(ayah.corrected_start_time, ayah.corrected_end_time, buttonId, ayahNumber);
   }
 
-  function playAudioSegment(startMs, endMs, buttonId) {
+  function playAudioSegment(startMs, endMs, buttonId, ayahNumber) {
+    currentAyah = ayahNumber;
+
     if (!audioLoaded || !audioElement) {
       alert('Please load an audio file first');
       return;
@@ -1940,6 +1946,14 @@
     updateSeekSlider();
   }
 
+  function nextAyah(){
+    playAyahFromTable(currentAyah+1)
+  }
+  function previousAyah(){
+    if(currentAyah >1)
+      playAyahFromTable(currentAyah-1)
+  }
+
   function skipForward() {
     if (!audioElement) return;
 
@@ -2001,6 +2015,7 @@
 
   // Initialize the application
   let selectedReciter = null;
+  let currentAyah = null;
   let selectedSurah = null;
   let versesData = null; // Store fetched verses
   let currentChapterId = null; // Store current chapter ID
@@ -2581,10 +2596,10 @@
         <p><strong>Duration:</strong> ${formatTime(duration)} (${duration}ms)</p>
         <p><strong>Adjustment Info:</strong> <span class="adjustment-badge">${ayah.adjustment_method || 'N/A'}</span></p>
         <div class="audio-controls">
-          <button id="playCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playCorrected${ayah.ayah}')">
+          <button id="playCorrected${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.corrected_start_time}, ${ayah.corrected_end_time}, 'playCorrected${ayah.ayah}', ${ayah.ayah})">
             ▶️ Play Corrected
           </button>
-          <button id="playOriginalComp${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.start_time}, ${ayah.end_time}, 'playOriginalComp${ayah.ayah}')" style="opacity: 0.7;">
+          <button id="playOriginalComp${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${ayah.start_time}, ${ayah.end_time}, 'playOriginalComp${ayah.ayah}', ${ayah.ayah})" style="opacity: 0.7;">
             ▶️ Play Original (Compare)
           </button>
         </div>
@@ -2606,7 +2621,7 @@
         <p><strong>Used for:</strong> Ayah ${ayah.ayah} boundary adjustment</p>
         <p style="color: #f87171; font-size: 0.9em;">💡 The waveform above should show low amplitude (silence region)</p>
         <div class="audio-controls">
-          <button id="playSilence${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${silence.start_time}, ${silence.end_time}, 'playSilence${ayah.ayah}')">
+          <button id="playSilence${ayah.ayah}" class="play-btn" onclick="playAudioSegment(${silence.start_time}, ${silence.end_time}, 'playSilence${ayah.ayah}', ${ayah.ayah})">
             ▶️ Play Silence
           </button>
         </div>
@@ -2630,7 +2645,7 @@
         ${gap.duration < 100 ? '<p style="color: #f87171; font-weight: bold;">⚠️ Warning: Gap is less than 100ms minimum</p>' : ''}
         <p style="color: #5a6c7d; font-size: 0.9em;">💡 Waveform shows the audio between ayahs - should be low amplitude</p>
         <div class="audio-controls">
-          <button id="playGap${gap.from_ayah}_${gap.to_ayah}" class="play-btn" onclick="playAudioSegment(${gap.start_time}, ${gap.end_time}, 'playGap${gap.from_ayah}_${gap.to_ayah}')">
+          <button id="playGap${gap.from_ayah}_${gap.to_ayah}" class="play-btn" onclick="playAudioSegment(${gap.start_time}, ${gap.end_time}, 'playGap${gap.from_ayah}_${gap.to_ayah}', ${gap.from_ayah})">
             ▶️ Play Gap
           </button>
         </div>

@@ -19,11 +19,11 @@
     td{cursor: pointer;}
 </style>
 
-<div class="page-wrapper container-lg">
-  <div class="page-section mt-4">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="page-section tw-mt-4">
     <h2>Ayah diff</h2>
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th>Key</th>
         <th>Exported translation</th>
@@ -39,16 +39,16 @@
         %>
 
         <% if diff.include?('li') %>
-          <tr>
-            <td scope="row">
+          <tr class="hover:tw-bg-gray-200 tw-border-b">
+            <td scope="row" class="tw-py-2 tw-pl-2">
               <%= translation.verse_key %>
             </td>
 
-            <td>
+            <td class="tw-py-2">
               <%= safe_html exported %>
             </td>
 
-            <td>
+            <td class="tw-py-2">
               <div>
                 <%= safe_html current_translation %>
               </div>
@@ -58,7 +58,7 @@
               </div>
             </td>
 
-            <td>
+            <td class="tw-py-2">
               <%= safe_html diff %>
             </td>
           </tr>

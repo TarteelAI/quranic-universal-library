@@ -3,7 +3,7 @@
 %>
 
 <%= turbo_frame_tag 'lines-info' do %>
-  <div class="text-center mx-3 my-3">
+  <div class="tw-text-center mx-3 my-3">
     <h4>Line alignment(page: <%= page_number %>)</h4>
     <% 1.upto(@mushaf.lines_per_page) do |line| %>
       <div id="page-<%= page_number %>-line-<%= line %>">
@@ -12,8 +12,8 @@
         %>
 
         <%= form_with model: model, url: save_line_alignment_mushaf_layout_path(@mushaf, line: line, page_number: page_number), method: :put, html: { class: 'form-inline' } do |form| %>
-          <div class="d-flex my-2">
-            <a class="btn btn-sm">
+          <div class="tw-flex my-2">
+            <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm">
               <%= line %>
             </a>
 

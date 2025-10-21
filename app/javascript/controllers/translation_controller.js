@@ -84,6 +84,10 @@ export default class extends Controller {
         $(modal).appendTo("body");
 
         this.modal = new Modal('#ajax-modal');
+                document.querySelector('#ajax-modal .btn-close').addEventListener('click', () => {
+            this.modal.hide();
+        });
+        
         document.getElementById('ajax-modal').addEventListener("hidden.bs.modal", (e) => {
             $("#ajax-modal")
                 .empty()

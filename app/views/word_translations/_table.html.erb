@@ -5,8 +5,8 @@
   has_group_translation = word_translations.where.not(group_word_id: nil).exists?
 %>
 
-<table class="table table-hover mt-4">
-  <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+<table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
+  <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
   <tr>
     <th>Word#</th>
     <th>Text Uthmani</th>
@@ -32,31 +32,31 @@
       word = translation.word
     %>
 
-    <tr class="<%= 'bg-danger text-white' if translation.blank? %>">
-      <th scope="row">
+    <tr class="hover:tw-bg-gray-200 tw-border-b <%= 'bg-danger text-white' if translation.blank? %>">
+      <th scope="row" class="tw-py-2 tw-pl-2">
         <%= translation.word.position %>
       </th>
 
-      <td>
+      <td class="tw-py-2">
         <span class="qpc-hafs">
         <%= word.text_qpc_hafs %>
         </span>
       </td>
 
       <% if !is_english %>
-        <td>
+        <td class="tw-py-2">
           <%= word.en_translation&.text %>
         </td>
       <% end %>
 
-      <td>
+      <td class="tw-py-2">
         <span class="<%= language_class %>">
           <%= translation&.text %>
         </span>
       </td>
 
       <% if has_group_translation %>
-        <td>
+        <td class="tw-py-2">
           <span class="<%= language_class %>">
            <%= translation.get_group_text %>
           </span>

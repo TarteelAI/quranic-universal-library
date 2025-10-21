@@ -33,8 +33,8 @@
   </div>
 <% end %>
 
-<div class="container-lg">
-  <div class="mt-4 mt-md-5">
+<div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="tw-mt-4 mt-md-5">
     <% if params[:script].present? && params[:char].present? && scripts[params[:script].to_sym] %>
       <%= render 'chars_table', scripts: scripts %>
     <% else %>

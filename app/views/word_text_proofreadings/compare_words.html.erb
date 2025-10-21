@@ -10,7 +10,7 @@
     dk_v1 = "͏ ء ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٜ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۙ ۚ ۛ ۜ ۝ ۞ ۟ ۠ ۢ ۣ ۥ ۦ ۧ ۨ ۩ ۬ ۭ ࣰ ࣱ ࣲ ࣳ".split('').compact_blank
     dk_v2 = "͏ ء ا ب ة ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ـ ف ق ك ل م ن ه و ى ي ً ٌ ٍ َ ُ ِ ّ ْ ٓ ٔ ٕ ٜ ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٰ ٱ ۖ ۗ ۘ ۚ ۛ ۜ ۝ ۞ ۟ ۠ ۢ ۣ ۥ ۦ ۧ ۨ ۩ ۬ ۭ ࣰ ࣱ ࣲ ࣳ".split('').compact_blank
   %>
-  <div class="page-wrapper container-lg" data-controller="chars-info">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4" data-controller="chars-info">
     <div class="page-section">
       <div>
         <h3>QPC Hafs char list</h3>
@@ -29,7 +29,7 @@
         <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4">
           <% dk_v2.each do |char| %>
             <a href="<%= compare_words_word_text_proofreadings_path(char: char, script: 'text_digital_khatt') %>"
-               class="digitalkhatt-v2 <%= css %> ">
+               class="digitalkhatt-v2 <%= css %>">
               <%= char %>
             </a>
           <% end %>
@@ -58,19 +58,14 @@
 
   <%= render 'shared/page_font', verses: Verse.where(id: @words.pluck(:verse_id).uniq) %>
 
-  <div class="page-wrapper container-lg">
-    <div data-controller="chars-info" class="page-section mb-3 mt-4 tw-w-full" style="position: relative;">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+    <div data-controller="chars-info" class="page-section tw-mb-3 tw-mt-4 tw-w-full" style="position: relative;">
       <h2 class="tw-text-2xl tw-flex tw-justify-between tw-items-center">
-        <div>
-          Words containing
-
-          <span class="qpc-hafs">
-            <%= @char.chars.join(', ') %>
-          </span>
-        </div>
-
-        <div>
-          <button class="btn btn-primary" id="toggle-issues">
+        <span>
+          Words containing <span class="qpc-hafs"><%= @char %></span>
+        </span>
+        <span>
+          <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white" id="toggle-issues">
             Toggle matched words
           </button>
         </div>
@@ -107,7 +102,7 @@
           %>
 
           <tr class="quran-text <%= td_class %>">
-            <td class="<%= v1_cols_bg %> <%= td_class %>">
+            <td class="<%= v1_cols_bg %> td_class">
               <div data-controller="copy-to-clipboard" data-text="'<%= word.location %>'">
                 <%= word.location %>
               </div>
@@ -115,23 +110,23 @@
               <%= link_to('View ', [:cms, word], target: '_blank') %>
             </td>
 
-            <td class="qpc-hafs char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+            <td class="qpc-hafs char <%= v2_cols_bg %> td_class" data-controller="copy-to-clipboard">
               <%= word.text_qpc_hafs %>
             </td>
-            <td class="p<%= word.v2_page %>-v2 char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+            <td class="p<%= word.v2_page %>-v2 char <%= v2_cols_bg %> td_class" data-controller="copy-to-clipboard">
               <%= word.code_v2 %>
             </td>
-            <td class="digitalkhatt-v2 char <%= v2_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+            <td class="digitalkhatt-v2 char <%= v2_cols_bg %> td_class" data-controller="copy-to-clipboard">
               <%= word.text_digital_khatt %>
             </td>
 
-            <td class="me-quran char <%= v1_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+            <td class="me-quran char <%= v1_cols_bg %> td_class" data-controller="copy-to-clipboard">
               <%= word.text_uthmani %>
             </td>
-            <td class="p<%= word.page_number %>-v1 char <%= v1_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+            <td class="p<%= word.page_number %>-v1 char <%= v1_cols_bg %> td_class" data-controller="copy-to-clipboard">
               <%= word.code_v1 %>
             </td>
-            <td class="digitalkhatt-v2 char <%= v1_cols_bg %> <%= td_class %>" data-controller="copy-to-clipboard">
+            <td class="digitalkhatt-v2 char <%= v1_cols_bg %> td_class" data-controller="copy-to-clipboard">
               <%= word.text_digital_khatt_v1 %>
             </td>
           </tr>
@@ -139,8 +134,8 @@
 
         <tr class="tw-w-full">
           <td colspan="7">
-            <div class="d-flex align-items-center">
-              <div class="me-4">
+            <div class="tw-flex tw-items-center">
+              <div class="tw-me-4">
                 <%= pagy_bootstrap_nav(@pagy).html_safe %>
               </div>
               <div>
@@ -153,7 +148,7 @@
       </table>
 
       <% if review_words.size > 0 %>
-        <div class="alert alert-danger tw-mt-4">
+        <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-mt-4">
           <%= review_words.size %> issues found.
           <div class="tw-flex tw-gap-2 tw-flex-wrap">
             <% review_words.each do |w| %>

@@ -49,7 +49,7 @@
         <%= @resource.name %>
       </h1>
 
-      <span class="tw-bg-gray-100 tw-text-gray-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer ">
+      <span class="tw-bg-gray-100 tw-text-gray-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer">
           <%= @resource.humanize_cardinality_type %>
         </span>
     </header>
@@ -80,7 +80,7 @@
             </div>
           <% else %>
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>
-            <div class="tw-mt-3 tw-flex gap-3 tw-flex-wrap">
+            <div class="tw-mt-3 tw-flex tw-gap-3 tw-flex-wrap">
               <% @resource.downloadable_files.each do |file| %>
                 <% if user_signed_in? %>
                   <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-btn tw-btn-success' do %>

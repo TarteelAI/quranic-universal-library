@@ -10,31 +10,31 @@
            key: 'word_translation'
 %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section filters">
     <%= form_tag word_translations_path, method: :get do %>
-      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
+      <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
         <%= hidden_field_tag :language, current_language.id %>
 
-        <div class="form-group me-2">
+        <div class="tw-mb-4 tw-me-2">
           <%= select_tag :language, options_from_collection_for_select(@word_translation_languages, :id, :name, selected: current_language.id), include_blank: false, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { placeholder: 'Select language', controller: 'select2' } %>
-          <p class="form-text">Select language</p>
+          <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Select language</p>
         </div>
 
         <%= render 'shared/filters', juz: true %>
 
-        <div class="form-group">
-          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        <div class="tw-mb-4">
+          <%= submit_tag 'Filter', class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
         </div>
       </div>
     <% end %>
   </div>
 
-  <div class="page-section mt-4">
+  <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Ayahs</h2>
     <div class="tools-table-overflow">
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Ayah key', :verse_key %></th>
         <th>Progress</th>
@@ -44,34 +44,34 @@
       </thead>
       <tbody>
       <% @verses.each do |verse| %>
-        <tr>
-          <th scope="row"><%= verse.verse_key %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= verse.verse_key %></th>
 
           <% progress = verse.word_translation_progress(current_language.id) %>
-          <td>
-            <div class="progress">
-              <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress %>%;">
+          <td class="tw-py-2">
+            <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
+              <div class="tw-bg-green-500 tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress %>%;">
                 <%= progress %>%
               </div>
             </div>
           </td>
 
-          <td class="qpc-hafs">
+          <td class="tw-py-2 qpc-hafs">
             <%= truncate verse.text_qpc_hafs, length: 100 %>
           </td>
 
-          <td>
-            <div class="d-flex gap-1">
-              <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'btn btn-info' %>
-              <%= link_to 'Show', word_translation_path(verse.id, language: current_language.id), class: 'btn btn-success' %>
+          <td class="tw-py-2">
+            <div class="tw-flex tw-gap-1">
+              <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors' %>
+              <%= link_to 'Show', word_translation_path(verse.id, language: current_language.id), class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors' %>
             </div>
           </td>
         </tr>
       <% end %>
       <tr>
         <td colspan="4">
-          <div class="d-flex align-items-center">
-            <div class="me-4">
+          <div class="tw-flex tw-items-center">
+            <div class="tw-me-4">
               <%= pagy_bootstrap_nav(@pagy).html_safe %>
             </div>
             <div>

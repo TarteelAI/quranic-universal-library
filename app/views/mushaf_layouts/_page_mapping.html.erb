@@ -2,21 +2,21 @@
 
 <%= turbo_frame_tag "mushaf-page" do %>
 
-  <h3 class="p-3 text-center">
+  <h3 class="tw-p-3 tw-text-center">
     <p>
       <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>
     </p>
 
-    <div class="progress">
-      <div class="progress-bar" role="progressbar" style="width: <%= progress %>%;" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100"><%= progress %>
+    <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
+      <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300" role="progressbar" style="width: <%= progress %>%;" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100"><%= progress %>
         %
       </div>
     </div>
   </h3>
 
-  <section class="highlight mt-4">
-    <table class="table table-hover mt-4">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+  <section class="highlight tw-mt-4">
+    <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Page', :page_number, view_type: 'page_mapping', mushaf_id: @resource.id, page_number: params[:page_number] %></th>
         <th>Ayah Range</th>
@@ -26,28 +26,28 @@
       <tbody>
       <% sort_order = params[:sort_order] || 'ASC' %>
       <% @mushaf.mushaf_pages.order("page_number #{sort_order}").each do |page| %>
-        <tr>
-          <td scope="row"><%= page.page_number %></td>
-          <td>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
+          <td class="tw-py-2">
             <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
               <%
                 first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
                 last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
               %>
 
-              <div class="d-flex gap-2">
+              <div class="tw-flex tw-gap-2">
                 <div>
-                  <div class="form-group" id=<%= page.page_number %>-from>
+                  <div class="tw-mb-4" id=<%= page.page_number %>-from>
                     <%= form.text_field :first_verse_id, value: first_ayah_key, style: 'width: 70px', class: 'from form-control', placeholder: 'From', required: true, disabled: !@access %>
-                    <div class="form-text">
+                    <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
                       <%= first_ayah_key %>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <div class="form-group" id=<%= page.page_number %>-to>
+                  <div class="tw-mb-4" id=<%= page.page_number %>-to>
                     <%= form.text_field :last_verse_id, value: last_ayah_key, style: 'width: 70px', class: 'to form-control', placeholder: 'To', required: true, disabled: !@access %>
-                    <div class="form-text">
+                    <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
                       <%= last_ayah_key %>
                     </div>
                   </div>
@@ -59,7 +59,7 @@
             <% end %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
           </td>
         </tr>

@@ -17,10 +17,10 @@
   end
 %>
 
-<div class="tw-mt-5">
+<div class="tw-mt-5" data-controller="tabs">
   <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]"
               id="tab-docs"
               data-bs-toggle="tab"
               data-bs-target="#tab-preview-pane"
@@ -32,8 +32,8 @@
       </button>
     </li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]"
               id="tab-help"
               data-bs-toggle="tab"
               data-bs-target="#tab-help-pane"
@@ -87,7 +87,7 @@
 
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <% if ayah_phrases.present? %>
-            <div class="quran-text qpc-hafs d-flex flex-wrap">
+            <div class="quran-text qpc-hafs tw-flex flex-wrap">
               <% ayah.words.each do |word| %>
                 <div style="<%= "color: #{word_phrases[word.id].get_color}" if word_phrases[word.id]%>">
                   <%= word.text_qpc_hafs %>
@@ -109,7 +109,7 @@
                 <%= phrase.text_qpc_hafs %>
               </div>
 
-              <small class="text-muted d-block tw-mb-2">
+              <small class="tw-text-gray-600 tw-block tw-mb-2">
                 This phrase is repeated
                 <%= pluralize phrase.occurrence, 'time' %> in
                 <%= pluralize phrase.verses_count, 'ayah' %> across
@@ -171,7 +171,7 @@
         </h3>
 
         <div class="tw-list-inside tw-space-y-2">
-          <div class="mb-2">
+          <div class="tw-mb-2">
             <p>
               The ZIP file contains two JSON files:
             </p>
@@ -202,7 +202,7 @@
   }
 }</code>
 </pre>
-            <ul class="list-disc list-inside mb-4">
+            <ul class="list-disc list-inside tw-mb-4">
               <li><strong>key</strong> key is the phrase ID (50 is this case)</li>
               <li><strong>surahs</strong>: Number of Surahs where this phrase appears</li>
               <li><strong>ayahs</strong>: Number of Ayahs containing this phrase</li>
@@ -221,7 +221,7 @@
   "2:23": [50, 16379]
 </code>
 </pre>
-            <ul class="list-disc list-inside mb-4">
+            <ul class="list-disc list-inside tw-mb-4">
               <li><strong>Key</strong>: Ayah key in the <code>surah:ayah</code> format</li>
               <li><strong>Value</strong>: List of phrase IDs that appear in this Ayah</li>
             </ul>
@@ -229,9 +229,9 @@
         </div>
 
         <h4 class="tw-font-semibold tw-mt-6 tw-mb-2">️How to Highlight Shared Phrases</h4>
-        <p class="mb-2">To highlight phrases in a given Ayah:</p>
+        <p class="tw-mb-2">To highlight phrases in a given Ayah:</p>
 
-        <ol class="list-decimal list-inside mb-4">
+        <ol class="list-decimal list-inside tw-mb-4">
           <li>Use <code>phrase_verses.json</code> to get phrase IDs for the Ayah</li>
           <li>Look up each phrase ID in <code>phrases.json</code></li>
           <li>Get the word ranges for the current Ayah (e.g., <code>[4,6]</code> means words 4 to 6)</li>
@@ -240,7 +240,7 @@
 
         <h4 class="tw-font-semibold tw-mt-6 tw-mb-2">️Example Rendering Logic (pseudo code)</h4>
 
-        <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto text-sm mb-4"><code>// Required: Load phrases.json, phrase_verses.json, and Quran words data
+        <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4"><code>// Required: Load phrases.json, phrase_verses.json, and Quran words data
 
 const phraseVerses = /* loaded from phrase_verses.json */;
 const phrases = /* loaded from phrases.json */;

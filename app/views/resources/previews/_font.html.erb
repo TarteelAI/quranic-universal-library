@@ -13,13 +13,14 @@
   font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_path}.ttf"
 %>
 
+<div class="tw-mt-5" data-controller="tabs">
 <!-- Preload font for faster loading -->
 <link rel="preload" href="<%= font_url %>" as="fetch" crossorigin="anonymous">
 
-<div class="tw-mt-5">
+
   <ul class="nav nav-tabs" id="font-docs-tab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]"
               id="tab-docs"
               data-bs-toggle="tab"
               data-bs-target="#tab-docs-pane"
@@ -31,8 +32,8 @@
       </button>
     </li>
     <% if ligatures.present? %>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link"
+      <li class="tw-m-0" role="presentation">
+        <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]"
                 id="tab-ligatures"
                 data-bs-toggle="tab"
                 data-bs-target="#tab-ligatures-pane"
@@ -43,8 +44,8 @@
         </button>
       </li>
     <% end %>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]"
               id="tab-glyphs"
               data-bs-toggle="tab"
               data-bs-target="#tab-glyphs-pane"
@@ -91,7 +92,7 @@
           elements.
         </p>
 
-        <h3 class="text-lg font-medium mb-2">Steps to Integrate</h3>
+        <h3 class="text-lg font-medium tw-mb-2">Steps to Integrate</h3>
         <ol class="tw-list-decimal tw-list-inside tw-space-y-2">
           <li>
             <strong>Download the font and scripts/ligatures</strong>
@@ -110,11 +111,11 @@
 
           <li>
             <strong>Use the <code>@font-face</code> in your html</strong>
-            <p class="mb-2">You can use the font by:</p>
-            <ul class="list-disc list-inside mb-4">
+            <p class="tw-mb-2">You can use the font by:</p>
+            <ul class="list-disc list-inside tw-mb-4">
               <li>Applying it directly via <code>style</code> or CSS:</li>
             </ul>
-            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4">
+            <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4">
 <code><code>
 &lt;div style="font-family: '<%= font_face %>';"&gt;
   <%= sample_text %>
@@ -122,10 +123,10 @@
       </code></code>
 </pre>
 
-            <ul class="list-disc list-inside mb-4">
+            <ul class="list-disc list-inside tw-mb-4">
               <li>Or using a CSS class:</li>
             </ul>
-            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4"><code>.my-text {
+            <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4"><code>.my-text {
   font-family: <%= font_face %>;
 }
 &lt;p class="my-text"&gt;<%= sample_text %>&lt;/p&gt;</code>
@@ -174,8 +175,8 @@
           <div class="page-section">
             <h2>Ligatures</h2>
             <div class="tools-table-overflow">
-              <table class="table table-hover">
-                <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+              <table class="tw-w-full hover:tw-bg-gray-50">
+                <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
                 <tr>
                   <th>
                     #

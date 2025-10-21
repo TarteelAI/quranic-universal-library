@@ -4,13 +4,13 @@
            key: 'quran_script'
 %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section filters">
     <%= form_tag word_text_proofreadings_path, method: :get do %>
-      <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
+      <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
         <%= render 'shared/filters', juz: true, page: true %>
 
-        <div class="form-group">
+        <div class="tw-mb-4">
           <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
           <%= link_to 'Clear', word_text_proofreadings_path, class: 'btn-link text-dark' if has_filters?(:filter_juz, :filter_chapter, :filter_page, :filter_verse) %>
         </div>
@@ -18,11 +18,11 @@
     <% end %>
   </div>
 
-  <div class="page-section mt-4">
+  <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Ayah list</h2>
     <div class="tools-table-overflow">
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Ayah#', :id %></th>
         <th>Key</th>
@@ -33,15 +33,15 @@
 
       <tbody>
       <% @verses.each do |verse| %>
-        <tr>
-          <th scope="row"><%= verse.id %></th>
-          <td><%= verse.verse_key %></td>
-          <td class="me_quran">
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= verse.id %></th>
+          <td class="tw-py-2"><%= verse.verse_key %></td>
+          <td class="tw-py-2 me_quran">
             <%= verse.text_uthmani %>
           </td>
 
-          <td>
-            <div class="d-grid align-items-center">
+          <td class="tw-py-2">
+            <div class="d-grid tw-items-center">
               <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'btn btn-success' %>
             </div>
           </td>
@@ -50,8 +50,8 @@
 
       <tr>
         <td colspan="4">
-          <div class="d-flex align-items-center">
-            <div class="me-4">
+          <div class="tw-flex tw-items-center">
+            <div class="tw-me-4">
               <%= pagy_bootstrap_nav(@pagy).html_safe %>
             </div>
             <div>

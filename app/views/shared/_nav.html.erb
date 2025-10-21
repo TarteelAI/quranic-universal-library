@@ -1,35 +1,35 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/" style="color: #54e0d2">
+<nav class="tw-bg-gray-100 tw-border-b tw-border-gray-200">
+  <div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+    <a class="tw-text-xl tw-font-bold tw-no-underline" href="/" style="color: #54e0d2">
       Tarteel <small style="color: #00a3ff">QUL</small>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+    <button class="tw-block md:tw-hidden tw-p-2 tw-rounded tw-border tw-border-gray-300 tw-bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="tw-block tw-w-6 tw-h-6 tw-bg-gray-600 tw-rounded"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/">Home</a>
+    <div class="tw-hidden md:tw-flex tw-items-center tw-justify-between tw-w-full" id="navbarSupportedContent">
+      <ul class="tw-flex tw-space-x-6 tw-list-none tw-m-0 tw-p-0">
+        <li class="tw-m-0">
+          <a class="tw-text-blue-600 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200" aria-current="page" href="/">Home</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/cms">Admin</a>
+        <li class="tw-m-0">
+          <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200" aria-current="page" href="/cms">Admin</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/resources">Resources</a>
+        <li class="tw-m-0">
+          <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200" aria-current="page" href="/resources">Resources</a>
         </li>
       </ul>
 
-      <div class="d-flex">
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+      <div class="tw-flex tw-items-center">
+        <div class="tw-relative" data-controller="dropdown">
+          <button class="tw-bg-gray-600 hover:tw-bg-gray-700 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-border-0 tw-cursor-pointer" type="button" id="dropdownMenuButton1" data-action="click->dropdown#toggle" aria-expanded="false">
             Salam <%= current_user&.first_name %>
           </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" data-turbo="false">
+          <ul class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md tw-shadow-lg tw-z-50 tw-hidden" data-dropdown-target="menu" aria-labelledby="dropdownMenuButton1" data-turbo="false">
             <li>
               <% if current_user %>
-                <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'dropdown-item' %>
+                <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'tw-block tw-w-full tw-text-left tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100 tw-no-underline' %>
               <% else %>
-                <%= link_to 'Log In', new_user_session_path, class: 'dropdown-item' %>
+                <%= link_to 'Log In', new_user_session_path, class: 'tw-block tw-w-full tw-text-left tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100 tw-no-underline' %>
               <% end %>
             </li>
           </ul>

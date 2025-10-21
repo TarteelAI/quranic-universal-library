@@ -1,20 +1,20 @@
-<div class="modal-body" id="modal-body">
+<div class="tw-p-6" id="modal-body" data-controller="tabs">
   <ul class="nav nav-tabs nav-tabs-clean" id="ayahTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="ayah-tab" data-bs-toggle="tab" data-bs-target="#ayah" type="button" role="tab" aria-controls="ayah" aria-selected="true">Ayah</button>
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]" id="ayah-tab" data-bs-toggle="tab" data-bs-target="#ayah" type="button" role="tab" aria-controls="ayah" aria-selected="true">Ayah</button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="translations-tab" data-bs-toggle="tab" data-bs-target="#translations" type="button" role="tab" aria-controls="translations" aria-selected="false">Translations</button>
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]" id="translations-tab" data-bs-toggle="tab" data-bs-target="#translations" type="button" role="tab" aria-controls="translations" aria-selected="false">Translations</button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tafsirs-tab" data-bs-toggle="tab" data-bs-target="#tafsirs" type="button" role="tab" aria-controls="tafsirs" aria-selected="false">Tafsirs</button>
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]" id="tafsirs-tab" data-bs-toggle="tab" data-bs-target="#tafsirs" type="button" role="tab" aria-controls="tafsirs" aria-selected="false">Tafsirs</button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab" aria-controls="words" aria-selected="false">Words</button>
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798]" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab" aria-controls="words" aria-selected="false">Words</button>
     </li>
   </ul>
 
-  <div class="tab-content p-4" id="ayahTabsContent">
+  <div class="tab-content tw-p-4" id="ayahTabsContent">
     <div class="tab-pane fade show active" id="ayah" role="tabpanel" aria-labelledby="ayah-tab">
       <div class="qpc-hafs">
         <%= @ayah.text_qpc_hafs %>

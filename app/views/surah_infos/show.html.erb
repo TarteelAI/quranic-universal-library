@@ -24,7 +24,7 @@
            actions: actions
 %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section">
     <h2>Short text</h2>
     <div lang=<%= @language.iso_code %>>
@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  <div class="page-section mt-4">
+  <div class="page-section tw-mt-4">
     <h2>Full Surah info</h2>
     <div lang=<%= @language.iso_code %>>
       <%= safe_html @info.text %>

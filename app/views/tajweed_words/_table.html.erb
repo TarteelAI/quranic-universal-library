@@ -1,5 +1,5 @@
-<table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50 tw-mt-4">
-  <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+<table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
+  <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
   <tr>
     <th>Word id</th>
     <th>IndoPak text</th>
@@ -12,25 +12,25 @@
   <tbody>
   <% @verse.words.order('position asc').each do |word| %>
     <% translation = word.translation_for_language(current_language) %>
-    <tr class="<%= 'bg-danger text-white' if translation.blank? %>">
-      <th scope="row"><%= word.position %></th>
+    <tr class="hover:tw-bg-gray-200 tw-border-b <%= 'bg-danger text-white' if translation.blank? %>">
+      <th scope="row" class="tw-py-2 tw-pl-2"><%= word.position %></th>
 
-      <td>
+      <td class="tw-py-2">
         <span class="indopak">
         <%= word.text_indopak %>
         </span>
       </td>
 
-      <td>
+      <td class="tw-py-2">
         <%= word.en_translation&.text %>
       </td>
 
-      <td>
+      <td class="tw-py-2">
         <span class="<%= current_language.iso_code %> current_language.name.downcase">
           <%= translation&.text %>
         </span>
       </td>
-      <td>
+      <td class="tw-py-2">
       </td>
     </tr>
   <% end %>

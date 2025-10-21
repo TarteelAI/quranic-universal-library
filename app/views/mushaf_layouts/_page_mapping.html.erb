@@ -15,8 +15,8 @@
   </h3>
 
   <section class="highlight tw-mt-4">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50 tw-mt-4">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+    <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Page', :page_number, view_type: 'page_mapping', mushaf_id: @resource.id, page_number: params[:page_number] %></th>
         <th>Ayah Range</th>
@@ -26,9 +26,9 @@
       <tbody>
       <% sort_order = params[:sort_order] || 'ASC' %>
       <% @mushaf.mushaf_pages.order("page_number #{sort_order}").each do |page| %>
-        <tr>
-          <td scope="row"><%= page.page_number %></td>
-          <td>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
+          <td class="tw-py-2">
             <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
               <%
                 first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
@@ -59,7 +59,7 @@
             <% end %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
           </td>
         </tr>

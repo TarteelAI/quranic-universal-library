@@ -31,8 +31,8 @@
   <div class="page-section tw-mt-4">
     <h2><%= @resource.name %></h2>
     <div class="tools-table-overflow">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Ayah key', :verse_key, resource_id: @resource.id %></th>
         <th>Footnotes</th>
@@ -43,18 +43,18 @@
       </thead>
       <tbody>
       <% @translations.each do |translation| %>
-        <tr>
-          <td scope="row"><%= translation.verse.verse_key %></td>
-          <td>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <td scope="row" class="tw-py-2 tw-pl-2"><%= translation.verse.verse_key %></td>
+          <td class="tw-py-2">
             <%= translation.foot_notes.size %>
           </td>
-          <td>
+          <td class="tw-py-2">
             <%= translation.resource_name %>
           </td>
-          <td dir="<%= @resource.language&.direction %>">
+          <td class="tw-py-2" dir="<%= @resource.language&.direction %>">
             <%= safe_html translation.text %>
           </td>
-          <td>
+          <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
               <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info' %>
               <%= link_to 'Show', translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success' %>

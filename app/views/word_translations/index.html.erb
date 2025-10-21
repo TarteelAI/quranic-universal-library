@@ -33,8 +33,8 @@
   <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Ayahs</h2>
     <div class="tools-table-overflow">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Ayah key', :verse_key %></th>
         <th>Progress</th>
@@ -44,11 +44,11 @@
       </thead>
       <tbody>
       <% @verses.each do |verse| %>
-        <tr>
-          <th scope="row"><%= verse.verse_key %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= verse.verse_key %></th>
 
           <% progress = verse.word_translation_progress(current_language.id) %>
-          <td>
+          <td class="tw-py-2">
             <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
               <div class="tw-bg-green-500 tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress %>%;">
                 <%= progress %>%
@@ -56,11 +56,11 @@
             </div>
           </td>
 
-          <td class="qpc-hafs">
+          <td class="tw-py-2 qpc-hafs">
             <%= truncate verse.text_qpc_hafs, length: 100 %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
               <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors' %>
               <%= link_to 'Show', word_translation_path(verse.id, language: current_language.id), class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors' %>

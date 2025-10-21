@@ -37,8 +37,8 @@
   <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Surah list</h2>
     <div class="tools-table-overflow">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th>
           <%= sort_order_link 'Surah', :chapter_id, recitation_id: @recitation.id %>
@@ -50,10 +50,10 @@
 
       <tbody>
       <% @audio_files.each do |file| %>
-        <tr>
-          <th scope="row"><%= file.chapter_id %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= file.chapter_id %></th>
 
-          <td>
+          <td class="tw-py-2">
             <% progress = file.segment_progress %>
             <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
               <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300 tw-bg-green-500"
@@ -67,7 +67,7 @@
             </div>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
               <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
               <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>

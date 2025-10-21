@@ -27,8 +27,8 @@
   <div class="page-section">
     <h2 class="tw-text-2xl tw-mb-4">Ayah list</h2>
     <div class="tools-table-overflow">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Ayah key', :verse_key %></th>
         <th>Progress</th>
@@ -39,10 +39,10 @@
 
       <tbody>
       <% @verses.each do |verse| %>
-        <tr>
-          <th scope="row"><%= verse.verse_key %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= verse.verse_key %></th>
 
-          <td>
+          <td class="tw-py-2">
             <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
               <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300 tw-bg-green-500 progress-bar-striped active" role="progressbar" aria-valuenow="<%= verse.arabic_transliteration_progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= verse.arabic_transliteration_progress %>%;">
                 <%= verse.arabic_transliteration_progress %>%
@@ -50,11 +50,11 @@
             </div>
           </td>
 
-          <td class="indopak">
+          <td class="tw-py-2 indopak">
             <%= verse.text_indopak %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= link_to 'Show', arabic_transliteration_path(verse.id), class: 'btn btn-success' %>
           </td>
         </tr>

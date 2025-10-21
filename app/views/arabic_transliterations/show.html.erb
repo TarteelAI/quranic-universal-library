@@ -80,8 +80,8 @@
 
   <div class="page-section tw-mt-4">
     <h2>Words</h2>
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <td>Word id</td>
         <td>IndoPak</td>
@@ -92,15 +92,15 @@
 
       <tbody>
       <% @verse.words.order('position asc').each do |word| %>
-        <tr>
-          <th scope="row"><%= word.position %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= word.position %></th>
 
-          <td class="quran-text indopak-nastaleeq"><%= word.arabic_transliteration&.indopak_text %></td>
-          <td class="quran-text indopak-nastaleeq">
+          <td class="tw-py-2 quran-text indopak-nastaleeq"><%= word.arabic_transliteration&.indopak_text %></td>
+          <td class="tw-py-2 quran-text indopak-nastaleeq">
             <%= word.arabic_transliteration&.text %>
           </td>
 
-          <td class="arabic">
+          <td class="tw-py-2 arabic">
             <%= word.arabic_transliteration&.continuous? %>
           </td>
         </tr>

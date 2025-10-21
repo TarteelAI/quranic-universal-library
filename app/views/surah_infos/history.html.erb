@@ -4,8 +4,8 @@
 
 <div id="body">
   <div class="tw-p-6">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+    <table class="tw-w-full">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <th>Date</th>
       <th>Event</th>
       <th>User</th>
@@ -15,20 +15,20 @@
 
       <tbody>
       <% @info.versions.unscope(:order).order('created_at DESC').each do |version| %>
-        <tr>
-          <td>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <td class="tw-py-2 tw-pl-2">
             <%= version.created_at.strftime("%B %d, %Y at %I:%M %P") %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= version.event %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= whodunnit version %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= link_to "View Changes", changes_surah_info_path(@info.chapter_id, version: version.id, resource_id: @resource.id, language: @info.language_id), target: '_blank' %>
           </td>
         </tr>

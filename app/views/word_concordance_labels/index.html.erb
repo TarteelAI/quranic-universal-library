@@ -21,8 +21,8 @@
   <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Ayah list</h2>
     <div class="tools-table-overflow">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Ayah#', :id %></th>
         <th>Key</th>
@@ -33,14 +33,14 @@
 
       <tbody>
       <% @verses.each do |verse| %>
-        <tr>
-          <th scope="row"><%= verse.id %></th>
-          <td><%= verse.verse_key %></td>
-          <td class="me_quran">
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= verse.id %></th>
+          <td class="tw-py-2"><%= verse.verse_key %></td>
+          <td class="tw-py-2 me_quran">
             <%= verse.text_uthmani %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <div class="d-grid">
               <%= link_to 'Show', word_concordance_label_path(verse.id), class: 'btn btn-success' %>
             </div>

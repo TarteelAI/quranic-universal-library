@@ -27,8 +27,8 @@
   <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Surah list</h2>
     <div class="tools-table-overflow">
-    <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th><%= sort_order_link 'Surah', :chapter_id, resource_id: @resource.id %></th>
         <th>Language</th>
@@ -39,18 +39,18 @@
 
       <tbody>
       <% @surah_infos.each do |info| %>
-        <tr>
-          <th scope="row"><%= info.chapter_id %> - <%= info.chapter.name_simple %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= info.chapter_id %> - <%= info.chapter.name_simple %></th>
 
-          <td>
+          <td class="tw-py-2">
             <%= info.language.name %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <%= info.short_text %>
           </td>
 
-          <td>
+          <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
               <%= link_to 'Edit', edit_surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-info' if @access %>
               <%= link_to 'Show', surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-success' %>

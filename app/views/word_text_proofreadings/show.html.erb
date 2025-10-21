@@ -164,9 +164,9 @@
     </div>
 
     <div style="max-height: 500px;overflow-y: auto;">
-      <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50 tw-mt-4 tw-relative">
-        <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
-        <tr class="tw-bg-white tw-border-b tw-border-gray-300">
+      <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4 tw-relative">
+        <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
+        <tr>
           <td>ID</td>
           <td style="direction: rtl">IndoPak</td>
           <td style="direction: rtl">Indopak Nastaleeq</td>
@@ -189,66 +189,66 @@
         </thead>
         <tbody>
         <% @verse.words.order('position asc').each do |word| %>
-          <tr class="quran-text">
-            <td>
+          <tr class="hover:tw-bg-gray-200 tw-border-b quran-text">
+            <td class="tw-py-2 tw-pl-2">
               <%= link_to( word.location, [:cms, word], target: '_blank') %>
             </td>
 
-            <td class="indopak char">
+            <td class="tw-py-2 indopak char">
               <%= word.text_indopak %>
             </td>
 
-            <td class="indopak-nastaleeq char">
+            <td class="tw-py-2 indopak-nastaleeq char">
               <%= word.text_indopak_nastaleeq %>
             </td>
 
-            <td class="indopak-nastaleeq char">
+            <td class="tw-py-2 indopak-nastaleeq char">
               <%= word.text_qpc_nastaleeq %>
             </td>
 
-            <td class="qpc-nastaleeq char">
+            <td class="tw-py-2 qpc-nastaleeq char">
               <%= word.text_qpc_nastaleeq_hafs %>
             </td>
 
-            <td class="digitalkhatt-indopak char">
+            <td class="tw-py-2 digitalkhatt-indopak char">
               <%= word.text_digital_khatt_indopak %>
             </td>
-            <td class="me_quran char">
+            <td class="tw-py-2 me_quran char">
               <%= word.text_uthmani %>
             </td>
-            <td class="digitalkhatt char">
+            <td class="tw-py-2 digitalkhatt char">
               <%= word.text_digital_khatt_v1 %>
             </td>
 
-            <td class="p<%= word.page_number %>-v1 char">
+            <td class="tw-py-2 p<%= word.page_number %>-v1 char">
               <%= word.code_v1 %>
             </td>
 
-            <td class="digitalkhatt char">
+            <td class="tw-py-2 digitalkhatt char">
               <%= word.text_digital_khatt %>
             </td>
 
 
 
 
-            <td class="me_quran char">
+            <td class="tw-py-2 me_quran char">
               <%= word.text_imlaei %>
             </td>
 
-            <td class="qpc-hafs char">
+            <td class="tw-py-2 qpc-hafs char">
               <%= word.text_qpc_hafs %>
             </td>
 
-            <td class="qpc-hafs char">
+            <td class="tw-py-2 qpc-hafs char">
               <%= word.text_uthmani_tajweed.to_s.html_safe %>
             </td>
 
-            <td class="p<%= @verse.v2_page %>-v4-tajweed char">
+            <td class="tw-py-2 p<%= @verse.v2_page %>-v4-tajweed char">
               <%= word.code_v2 %>
             </td>
 
 
-            <td class="p<%= word.v2_page %>-v2 char">
+            <td class="tw-py-2 p<%= word.v2_page %>-v2 char">
               <%= word.code_v2 %>
             </td>
           </tr>

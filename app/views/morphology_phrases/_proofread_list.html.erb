@@ -14,8 +14,8 @@
 
 <div class="page-section tw-mt-4">
   <h2>Ayah phrases list</h2>
-  <table class="tw-w-full tw-border-collapse tw-border tw-border-gray-300 hover:tw-bg-gray-50 tw-mt-4">
-    <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+  <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
+    <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
     <tr>
       <th><%= sort_order_link 'Ayah Key', :verse_index, proofread: true %></th>
       <th>Phrases</th>
@@ -25,14 +25,14 @@
     </thead>
     <tbody>
     <% @verses.each do |verse| %>
-      <tr>
-        <td scope="row"><%= verse.verse_key %></td>
+      <tr class="hover:tw-bg-gray-200 tw-border-b">
+        <td scope="row" class="tw-py-2 tw-pl-2"><%= verse.verse_key %></td>
 
-        <td>
+        <td class="tw-py-2">
           <%= verse.verse_phrases.size %>
         </td>
 
-        <td>
+        <td class="tw-py-2">
           <div class="d-grid tw-gap-1">
             <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
           </div>

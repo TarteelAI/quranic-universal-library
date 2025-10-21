@@ -1,0 +1,48 @@
+<div id="grid-view-content" class="tw-bg-white tw-rounded-lg tw-shadow-md tw-overflow-hidden <%= 'tw-hidden' if params[:view] == 'juz' %>">
+  <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-cols-4 tw-gap-4 tw-p-6">
+    <% chapters.each do |chapter| %>
+      <%= link_to quran_explorer_surah_path(chapter.chapter_number), 
+                  class: "tw-group tw-block tw-p-4 tw-border tw-border-gray-200 tw-rounded-lg hover:tw-border-[#57d798] hover:tw-shadow-md tw-transition-all tw-duration-200" do %>
+        <div class="tw-flex tw-items-center tw-gap-3">
+          <!-- Surah Number Badge -->
+          <div class="tw-flex-shrink-0 tw-w-10 tw-h-10 tw-bg-[#d7f5e7] tw-rounded-full tw-flex tw-items-center tw-justify-center">
+            <span class="tw-text-[#57d798] tw-font-bold tw-text-sm"><%= chapter.chapter_number %></span>
+          </div>
+          
+          <!-- Main Content -->
+          <div class="tw-flex-1 tw-min-w-0">
+            <div class="tw-flex tw-items-center tw-gap-2 tw-mb-1">
+              <h3 class="tw-text-base tw-font-semibold tw-text-gray-900 group-hover:tw-text-[#57d798] tw-truncate">
+                <%= chapter.name_simple %>
+              </h3>
+              
+              <!-- Makki/Madani Icon -->
+              <% if chapter.revelation_place.downcase == 'makkah' %>
+                <!-- Mecca Icon for Makkah -->
+                <%= image_tag 'mecca.png', alt: 'Mecca', class: 'tw-w-4 tw-h-4 tw-object-contain' %>
+              <% else %>
+                <%= image_tag 'madina.png', alt: 'Madinah', class: 'tw-w-4 tw-h-4 tw-object-contain' %>
+              <% end %>
+            </div>
+            
+            <div class="tw-text-sm tw-text-gray-600 tw-mb-2">
+              <% 
+                english_translation = chapter.translated_names.find { |tn| tn.language_id == 38 }&.name
+                translation_text = english_translation || chapter.name_simple
+              %>
+              <%= translation_text %> • <%= chapter.verses_count %> Ayahs
+            </div>
+          </div>
+          
+          <!-- Arabic Name -->
+          <div class="tw-flex-shrink-0">
+            <div class="tw-text-2xl tw-text-[#57d798] tw-font-bold" dir="rtl">
+              <%= chapter.name_arabic %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+

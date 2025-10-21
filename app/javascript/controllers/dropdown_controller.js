@@ -5,10 +5,12 @@ export default class extends Controller {
 
   connect() {
     this.clickOutsideHandler = this.clickOutside.bind(this)
+    this.element.dropdown = this
   }
 
   disconnect() {
     document.removeEventListener("click", this.clickOutsideHandler)
+    delete this.element.dropdown
   }
 
   toggle(event) {
@@ -19,6 +21,8 @@ export default class extends Controller {
     const button = event.currentTarget
     
     if (menu.classList.contains("tw-hidden")) {
+      this.closeAllOtherDropdowns()
+      
       menu.classList.remove("tw-hidden")
       button.setAttribute("aria-expanded", "true")
       if (this.hasIconTarget) this.iconTarget.style.transform = "rotate(180deg)"
@@ -29,6 +33,15 @@ export default class extends Controller {
     } else {
       this.close()
     }
+  }
+
+  closeAllOtherDropdowns() {
+    const allDropdowns = document.querySelectorAll('[data-controller*="dropdown"]')
+    allDropdowns.forEach(dropdownElement => {
+      if (dropdownElement !== this.element && dropdownElement.dropdown) {
+        dropdownElement.dropdown.close()
+      }
+    })
   }
 
   close() {

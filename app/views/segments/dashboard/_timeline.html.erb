@@ -163,9 +163,7 @@
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
                 (<%= ayah_start_time %> - <%= ayah_end_time %>)
-
-                (<%= [corrected_start_time, corrected_end_time].join(' - ') if corrected_start_time &&  corrected_end_time %>)
-
+                (✅<%= [corrected_start_time, corrected_end_time].join(' - ') if corrected_start_time &&  corrected_end_time %>)
                 <% if ayah_position.nil? %>
                  <span class="tw-text-red-500">estimated</span>
                 <% end %>
@@ -179,7 +177,6 @@
               > Play
               </button>
 
-              <% if corrected_start_time != ayah_start_time || corrected_end_time != ayah_end_time %>
                 <button
                   data-start="<%= corrected_start_time  %>"
                   data-end="<%= corrected_end_time %>"
@@ -187,17 +184,6 @@
                   class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
                 > Play Corrected
                 </button>
-              <% end %>
-
-              <% if gap_end_time %>
-                <button
-                  data-start="<%= [ayah_start_time.to_i, gap_end_time].min  %>"
-                  data-end="<%= [next_ayah_start_gap.to_i - 100, ayah_end_time].max %>"
-                  data-play-ayah="<%= ayah.verse_number %>"
-                  class="play-segment tw-bg-orange-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-orange-500 hover:tw-text-white"
-                > Play Gap
-                </button>
-              <% end %>
 
               <%= link_to 'logs', segments_logs_path(reciter: reciter.id, surah: @presenter.selected_surah), class: 'tw-bg-blue-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-blue-500 hover:tw-text-white', target: '_blank' %>
               <%= link_to 'Segment', "/surah_audio_files/#{reciter.id}/segment_builder?chapter_id=#{@presenter.selected_surah}&verse=#{ayah.verse_number}", class: 'tw-bg-green-400 tw-text-white tw-px-2 tw-py-1 tw-rounded tw-text-sm hover:tw-bg-green-500 hover:tw-text-white', target: '_blank' %>

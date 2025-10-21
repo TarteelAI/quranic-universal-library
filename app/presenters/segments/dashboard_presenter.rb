@@ -94,15 +94,11 @@ module Segments
     end
 
     def word_failures
-      failures = filter_failures
-      failures = failures
-                   .includes(:reciter)
-                   .order(:surah_number, :ayah_number, :word_number)
-
-      {
-        failures: failures,
-        ayahs: find_ayah_by_text(params[:expected_text].to_s.strip)
-      }
+      text =  params[:text].strip
+      failures = filter_failures.where(expected_transcript: text)
+      failures
+        .includes(:reciter)
+        .order(:surah_number, :ayah_number, :word_number)
     end
 
     def find_ayah_by_text(word_text)

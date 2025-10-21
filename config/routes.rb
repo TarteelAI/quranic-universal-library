@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   end
 
   get 'tools', to: 'community#tools', as: :tools
+  get '/ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
@@ -154,9 +155,11 @@ Rails.application.routes.draw do
     get '/detections', to: 'dashboard#detections', as: :detections
     get '/logs', to: 'dashboard#logs', as: :logs
     get '/reciters', to: 'dashboard#reciters', as: :reciters
+    get '/reciters/:id', to: 'dashboard#reciter', as: :reciter
     get '/timeline', to: 'dashboard#timeline', as: :timeline
     get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
     get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
+    post '/reciters/:id/download', to: 'dashboard#download_reciter', as: :download_reciter
     match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
   end
 

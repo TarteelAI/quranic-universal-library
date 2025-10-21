@@ -1,9 +1,9 @@
-module Export
-  class SplitGapelessRecitationJob < ApplicationJob
+module Audio
+  class SplitGaplessRecitationJob < ApplicationJob
     sidekiq_options retry: 0, backtrace: true
-    STORAGE_PATH = "#{Rails.root}/tmp/gapped_audio"
+    STORAGE_PATH = "#{Rails.root}/data/audio"
 
-    def perform(recitation_id:, host:, user_id:, surah:, ayah_from:, ayah_to:, divide_audio:, ayah_recitation_id: nil, create_ayah_recitation: false)
+    def perform(recitation_id:, host:, user_id:, surah: nil, ayah_from: nil, ayah_to: nil, divide_audio:, ayah_recitation_id: nil, create_ayah_recitation: false)
       base_path = prepare_file_paths(recitation_id)
       surah_recitation = Audio::Recitation.find(recitation_id)
       ayah_recitation = find_or_create_ayah_recitation(ayah_recitation_id, surah_recitation)
@@ -12,7 +12,7 @@ module Export
         create_audio_files(ayah_recitation, host)
       end
 
-      surah = surah.present? ? surah.to_i : nil
+      surah = surah.to_i if surah.present?
       create_ayah_segments(surah_recitation, ayah_recitation, surah)
       detect_repeated_segments(ayah_recitation, surah)
 
@@ -24,6 +24,7 @@ module Export
           ayah_from: ayah_from,
           ayah_to: ayah_to
         )
+
         #send_email(base_path, user_id, recitation_id)
       end
     end
@@ -71,7 +72,7 @@ module Export
     end
 
     def split_audio_files(base_path, audio_recitation, surah:, ayah_from:, ayah_to:)
-      audio_split = Audio::SplitGapelessAudio.new(
+      audio_split = Audio::SplitGaplessAudio.new(
         audio_recitation.id,
         base_path
       )
@@ -90,7 +91,7 @@ module Export
     end
 
     def create_ayah_segments(surah_recitation, ayah_recitation, chapter_id)
-      segment_split = Audio::SplitGapelessSegment.new(
+      segment_split = Audio::SplitGaplessSegment.new(
         surah_recitation.id,
         ayah_recitation.id
       )
@@ -105,7 +106,7 @@ module Export
     end
 
     def prepare_file_paths(recitation_id)
-      file_path = "#{STORAGE_PATH}/#{recitation_id}"
+      file_path = "#{STORAGE_PATH}/#{recitation_id}/mp3"
       FileUtils::mkdir_p file_path
 
       file_path

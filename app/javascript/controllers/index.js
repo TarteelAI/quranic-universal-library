@@ -154,3 +154,6 @@ application.register("segments--failure-player", SegmentFailurePlayerController)
 
 import TabsController from './tabs_controller';
 application.register("tabs", TabsController);
+
+import FontPreviewController from './font_preview_controller';
+application.register("font-preview", FontPreviewController);

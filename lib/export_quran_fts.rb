@@ -191,8 +191,8 @@ CREATE VIRTUAL TABLE ayah_index_trigram USING fts5(
     [/يؤ/, 'يو'],
     [/[ؤئ]/, 'ء'],
     [/ة/, 'ه'],
-    [/ى/, 'ي'],
-    [/[ًٌٍَُِّْـ]/, ''],
+    [/[ىی]/, 'ي'],
+  [/[ًٌٍَُِّْـ]/, ''],
     [/۪/, ''],
     [/۫/, ''],
     [/[،؛؟؞.!]/, '']
@@ -210,10 +210,15 @@ CREATE VIRTUAL TABLE ayah_index_trigram USING fts5(
 
   def remove_diacritics(text)
     return if text.blank?
+    diacritics_regex = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u200C-\u200F]/
+    punctuation_regex = /[.,\/#!$%\^&\*;:{}=\-_`~()\"'؟،«»…]/
+    space_regex = /\s+/
 
-    text = text.to_s.remove_diacritics
-    # Strip non breaking spaces and extra whitespace
-    text.gsub(WAQF_REG, '').gsub(/\u00A0/, '').strip
+    text.unicode_normalize(:nfc)
+        .gsub(diacritics_regex, '')
+        .gsub(punctuation_regex, '')
+        .gsub(space_regex, ' ')
+        .strip
   end
 
   def normalize(text)

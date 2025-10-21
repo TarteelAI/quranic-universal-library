@@ -39,7 +39,7 @@ class AyahAudioFilesController < CommunityController
     verse = Verse.find_by(verse_key: params[:verse_key].to_s.strip)
     segments = params[:segments]
     audio = AudioFile.where(verse: verse, recitation_id: params[:id]).first
-    audio.set_segments(segments, current_user)
+    audio.set_segments!(segments, current_user)
 
     render 'segments'
   end

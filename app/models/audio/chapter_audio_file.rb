@@ -102,7 +102,7 @@ module Audio
     end
 
     def prepare_wav_manifest!
-      Audio::GenerateAudioWavManifest.new(self).run
+      Audio::GenerateAudioWavManifest.new(self).run(split_audio: Rails.env.development?)
     end
 
     protected

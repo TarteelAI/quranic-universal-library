@@ -1,0 +1,105 @@
+<%
+  children = topic.all_children
+  parent = topic.get_parent
+%>
+
+<div class="tw-p-4 tw-rounded-lg tw-border tw-mb-6 <%= topic_background_color(topic) %>">
+  <h2 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mb-2">
+    <%= topic.name %>
+    <% if topic.arabic_name.present? %>
+      <span class="qpc-hafs tw-text-gray-700 tw-font-normal">(<%= topic.arabic_name %>)</span>
+    <% end %>
+  </h2>
+
+  <div class="tw-flex tw-gap-2 tw-mb-2">
+    <%= topic_type_badges(topic) %>
+  </div>
+
+  <% if topic.description.present? %>
+    <div class="tw-text-gray-600 tw-text-sm tw-mt-3">
+      <%= safe_html topic.description %>
+    </div>
+  <% end %>
+
+  <% if parent %>
+    <div class="tw-mt-4">
+      <span class="tw-text-gray-700 tw-font-semibold">Parent Topic:</span>
+      <%= link_to parent.name, detail_resources_path('ayah-topics', resource.id, topic_id: parent.id), class: 'tw-text-blue-600 hover:tw-text-blue-800' %>
+    </div>
+  <% end %>
+</div>
+
+<% if children.present? %>
+  <div class="tw-mb-6">
+    <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4">
+      Child Topics (<%= children.count %>)
+    </h3>
+
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      <% children.each do |child_topic| %>
+        <%= link_to detail_resources_path('ayah-topics', resource.id, topic_id: child_topic.id), class: 'tw-block' do %>
+          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-shadow-sm hover:tw-shadow-md hover:tw-border-blue-300 tw-transition-all">
+            <div class="tw-flex tw-items-start tw-justify-between">
+              <div class="tw-flex-1">
+                <h5 class="tw-font-semibold tw-text-gray-900 tw-text-sm tw-mb-1">
+                  <%= child_topic.name %>
+                </h5>
+                <% if child_topic.arabic_name.present? %>
+                  <p class="tw-text-xs tw-text-gray-600 qpc-hafs tw-mb-2">
+                    <%= child_topic.arabic_name %>
+                  </p>
+                <% end %>
+                <div class="tw-flex tw-items-center tw-gap-2 tw-mt-2">
+                  <span class="tw-text-xs tw-text-gray-500">
+                    <%= child_topic.verse_topics.count %> ayahs
+                  </span>
+                  <% if child_topic.children.any? %>
+                    <span class="tw-text-xs tw-text-gray-500">
+                      • <%= child_topic.children.count %> sub-topics
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              <div class="tw-ml-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="tw-h-4 tw-w-4 tw-text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<div class="tw-space-y-4">
+  <% if verse_topics.any? %>
+    <% sorted_verse_topics = @sorted_verse_topics || verse_topics %>
+    <div class="tw-flex tw-items-center tw-justify-between tw-mb-4">
+      <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
+        Ayahs Associated with This Topic (<%= verse_topics.count %>)
+      </h3>
+
+      <% new_ayahs_sort = @ayahs_sort == 'asc' ? 'desc' : 'asc' %>
+      <%= link_to detail_resources_path('ayah-topics', resource.id, topic_id: topic.id, ayahs_sort: new_ayahs_sort),
+                  class: 'tw-text-sm tw-text-blue-600 hover:tw-text-blue-800 tw-flex tw-items-center tw-gap-1',
+                  style: 'text-decoration: none;' do %>
+        Sort ⇅
+      <% end %>
+    </div>
+
+    <div class="tw-space-y-3">
+      <% sorted_verse_topics.each do |verse_topic| %>
+        <%= render 'resources/previews/ayah_topics/verse_card', verse_topic: verse_topic, topic: topic %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="tw-p-6 tw-rounded-xl tw-bg-gray-50 tw-border tw-border-gray-200">
+      <p class="tw-text-gray-600 tw-text-center tw-italic">
+        No ayahs found for this topic.
+      </p>
+    </div>
+  <% end %>
+</div>
+

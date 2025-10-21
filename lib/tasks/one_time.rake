@@ -1,4 +1,129 @@
 namespace :one_time do
+  task update_audio_url: :environment do
+    mapping = {
+      1 => 'quran/surah/abdul_baset/mujawwad',
+      2 => 'quran/surah/abdul_baset/murattal',
+      3 => 'quran/surah/abdurrahmaan_as_sudais/murattal',
+      4 => 'quran/surah/abu_bakr_shatri/murattal',
+      5 => 'quran/surah/hani_ar_rifai/murattal',
+      6 => 'quran/surah/khalil_al_husary/muallim',
+      7 => 'quran/surah/mishari_al_afasy/murattal',
+      8 => 'quran/surah/minshawi/mujawwad',
+      9 => 'quran/surah/minshawi/murattal',
+      10 => 'quran/surah/saud_ash_shuraym/murattal',
+      12 => 'quran/surah/khalil_al_husary/muallim',
+      13 => 'quran/surah/saad_al_ghamdi/murattal',
+
+      65 => 'quran/surah/maher-al-muaiqly_1424_1425/murattal',
+      161 => 'quran/surah/khalifa_al_tunaiji/murattal/',
+      168 => 'quran/surah/minshawi/kids_repeat',
+      164 => 'quran/surah/khalil_al_husary/mujawwad',
+      174 => 'quran/surah/yasser_ad-dussary/murattal',
+      175 => 'quran/surah/alnufais/murattal',
+    }
+
+    def clone_with_audio_files(r)
+      cloned = Audio::Recitation.where(name: "#{r.name} (cloned from #{r.id})").first
+
+      if cloned.blank?
+        attrs = r.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
+        cloned = Audio::Recitation.new(attrs)
+        cloned.name = "#{r.name} (cloned from #{r.id})"
+        cloned.approved = false
+        cloned.save!
+      end
+
+      r.chapter_audio_files.find_each do |file|
+        cloned_file = cloned.chapter_audio_files.where(chapter_id: file.chapter_id).first_or_create
+        attrs = file.attributes.except('id', 'created_at', 'updated_at', 'audio_recitation_id', 'meta_data')
+        cloned_file.attributes = attrs
+        cloned_file.audio_recitation_id = cloned.id
+        cloned_file.save(validate: false)
+      end
+
+      cloned.send :update_related_resources
+
+      cloned
+    end
+
+    mapping.each do |reciter_id, path|
+      recitation = Audio::Recitation.find(13)
+      #cloned = clone_with_audio_files(recitation)
+
+      recitation.relative_path = "#{path}/mp3"
+      recitation.save(validate: false)
+
+      path = 'quran/surah/saad_al_ghamdi/murattal'
+      Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
+        file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/mp3/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
+        file.save(validate: false)
+      end
+    end
+  end
+
+  desc "Compare tashkeel counts between two scripts in Word model"
+  task :compare_tashkeel => :environment do
+    script_a = 'text_digital_khatt'
+    script_b = 'text_digital_khatt_v1'
+    regex = /[\u064B-\u065F\u0670\u06D6-\u06ED]/
+
+    def tashkeel_count(text, regex)
+      text.to_s.scan(regex).size
+    end
+
+    Word.find_each do |word|
+      a_text = word.send(script_a)
+      b_text = word.send(script_b)
+
+      next if a_text.blank? || b_text.blank?
+
+      a_count = tashkeel_count(a_text, regex)
+      b_count = tashkeel_count(b_text, regex)
+
+      if a_count != b_count
+        puts "[Word ##{word.id}] #{script_a}=#{a_count}, #{script_b}=#{b_count}"
+        puts "  #{script_a}: #{a_text}"
+        puts "  #{script_b}: #{b_text}"
+      end
+    end
+  end
+
+  desc "Check for duplicate waqf signs and diacritic issues in Word texts"
+  task check_words: :environment do
+    waqf_regex = /([\u06D6-\u06ED])\1+/ # duplicate Quranic annotation signs
+    diacritic_regex = /([\u064B-\u065F\u0670])\1+/ # duplicate harakat / superscript alef
+
+    attrs = ["text_uthmani",
+             "text_indopak",
+             "text_imlaei_simple",
+             "text_imlaei",
+             "text_uthmani_simple",
+             "text_uthmani_tajweed",
+             "text_qpc_hafs",
+             "text_indopak_nastaleeq",
+             "text_qpc_nastaleeq",
+             "text_qpc_nastaleeq_hafs",
+             "text_digital_khatt",
+             "text_digital_khatt_v1",
+             "text_qpc_hafs_tajweed",
+             "text_digital_khatt_indopak"]
+
+    Word.find_each do |word|
+      attrs.each do |attr|
+        text = word.send(attr)
+        next unless text.present?
+
+        issues = []
+        issues << "Duplicate waqf signs" if text.match?(waqf_regex)
+        issues << "Duplicate diacritics" if text.match?(diacritic_regex)
+
+        if issues.any?
+          puts "[Word ##{word.id}] #{attr} => #{issues.join(', ')} | text: #{text}"
+        end
+      end
+    end
+  end
+
   task find_similar_starts: :environment do
     verses = Verse.unscoped.order('verse_index ASC').pluck(:id, :chapter_id, :verse_number, :text_imlaei_simple)
 
@@ -99,7 +224,6 @@ namespace :one_time do
     end
     en_resource.run_after_import_hooks
 
-
     # RTF
     rtf_resource = ResourceContent.one_verse.where(name: 'English Transliteration(RTF)').first_or_create
     rtf_resource.language = en
@@ -135,7 +259,7 @@ namespace :one_time do
     related = {}
     Word.find_each do |word|
       surah, ayah, word_number = word.location.split(':')
-      next  if word.ayah_mark?
+      next if word.ayah_mark?
       next if File.exist?("scripts/img/svg-tajweed/#{surah}/#{ayah}/#{word_number}.svg")
 
       puts "#{word.location} is missing"

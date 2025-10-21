@@ -18,7 +18,10 @@
   </div>
 
   <div class="page-section tw-mt-4">
-    <h1 class="tw-text-xl tw-font-bold tw-mb-4">Reciters Summary</h1>
+    <h1 class="tw-text-xl tw-font-bold tw-mb-4">
+      Reciters Summary (total <%= @presenter.reciters.size %>)
+    </h1>
+
 
     <table class="tw-w-full tw-border-collapse tw-rounded-md tw-shadow-sm">
       <thead>
@@ -30,12 +33,16 @@
         <th class="tw-p-2 tw-border-b">Pending</th>
         <th class="tw-p-2 tw-border-b">Missed Words</th>
         <th class="tw-p-2 tw-border-b">Fixed missed Words</th>
+        <th class="tw-p-2 tw-border-b">Actions</th>
       </tr>
       </thead>
       <tbody>
       <% @presenter.reciter_stats.each do |reciter| %>
         <tr class="tw-border-b hover:tw-bg-gray-50">
-          <td class="tw-p-2"><%= reciter[:name] %></td>
+          <td class="tw-p-2">
+            <%= link_to reciter[:name], segments_reciter_path(reciter[:id]), 
+                class: "tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline" %>
+          </td>
           <td class="tw-p-2"><%= reciter[:positions] %></td>
 
           <td class="tw-p-2">
@@ -71,6 +78,18 @@
             <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
              <%= number_to_percentage(reciter[:corrected_missing_words_percentage], precision: 1) %>
             </span>
+          </td>
+          <td class="tw-p-2">
+            <%= link_to segments_download_reciter_path(reciter[:id]), 
+                method: :post,
+                class: "tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-no-underline tw-inline-flex tw-items-center tw-gap-1",
+                data: { 
+                  confirm: "This will prepare segments data for #{reciter[:name]} and send it to your email. Continue?",
+                  turbo_method: :post
+                } do %>
+              <i class="fas fa-download"></i>
+              <span>Download</span>
+            <% end %>
           </td>
         </tr>
       <% end %>

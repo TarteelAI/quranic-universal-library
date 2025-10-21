@@ -1,12 +1,13 @@
 class WordTextProofreadingsController < CommunityController
-  before_action :init_presenter
-
   ALLOWED_SCRIPTS = [
     'text_qpc_hafs',
     'text_uthmani',
     'text_digital_khatt',
-    'text_digital_khatt_v1'
+    'text_digital_khatt_v1',
+    'text_digital_khatt_indopak',
+    'text_indopak_nastaleeq'
   ]
+
   def index
     verses = Verse
 
@@ -40,7 +41,8 @@ class WordTextProofreadingsController < CommunityController
   end
 
   def compare_words
-    @char = params[:char]
+    @char = params[:char].to_s.strip
+    script = params[:script].to_s.strip
 
     if @char.present?
       pattern = "%#{@char}%"
@@ -50,13 +52,12 @@ class WordTextProofreadingsController < CommunityController
                 'asc'
               end
 
-      script = params[:script].to_s
       if !ALLOWED_SCRIPTS.include?(script)
         script = 'text_qpc_hafs'
       end
 
       words = Word.unscoped
-                  .where("#{script} like ?", pattern)
+                  .where("#{script} LIKE ?", pattern)
                   .order("word_index #{order}")
       @pagy, @words = pagy(words, items: 500)
     end

@@ -10,7 +10,7 @@ gem "nokogiri", '~> 1.18.8', require: false
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.3.5"
-gem 'sqlite3', '~> 1.4'
+gem "sqlite3", "~> 2.1"
 
 # Use the Puma app server [https://github.com/puma/puma]
 gem "puma", ">= 5.6.4"
@@ -115,8 +115,8 @@ gem 'fog-aws'
 
 gem 'rest-client'
 
-gem 'sidekiq'
-gem 'sidekiq-scheduler'
+gem 'sidekiq', '~> 7.2.4'
+gem 'sidekiq-scheduler', '~> 5.0.3'
 gem 'sidekiq-status'
 gem 'sinatra', require: false
 

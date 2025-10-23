@@ -17,17 +17,17 @@
 class ResourcePermission < ApplicationRecord
   belongs_to :resource_content
 
-  enum permission_to_host: {
+  enum :permission_to_host, {
     unknown: 0,
     requested: 1,
     granted: 2,
     rejected: 3
-  }, _prefix: :host_permission_is
+  }, prefix: :host_permission_is
 
-  enum permission_to_share: {
+  enum :permission_to_share, {
     unknown: 0,
     requested: 1,
     granted: 2,
     rejected: 3
-  }, _prefix: :share_permission_is
+  }, prefix: :share_permission_is
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ActiveAdmin.register PauseMark do
+ActiveAdmin.register ::PauseMark do
   menu parent: 'Quran'
   filter :word_id
   filter :mark
@@ -13,9 +13,12 @@ ActiveAdmin.register PauseMark do
   end
 
   controller do
+    def resource_class
+      ::PauseMark
+    end
     def create
-      word = Word.find(params[:word_id])
-      mark = PauseMark.create(
+      word = ::Word.find(params[:word_id])
+      mark = ::PauseMark.create(
         position: word.position,
         word_id: word.id,
         mark: params[:mark],

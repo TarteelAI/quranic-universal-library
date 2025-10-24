@@ -21,6 +21,7 @@ module Qul
     config.eager_load_paths << "#{config.root}/lib"
 
     config.assets.css_compressor = :escompress
+    config.active_support.to_time_preserves_timezone = :zone
 
     ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
       html_tag.html_safe

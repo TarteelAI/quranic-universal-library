@@ -100,7 +100,13 @@ ActiveAdmin.register_page 'Dashboard' do
           column('ID') { |v| link_to v.id, "/cms/content_changes/#{v.id}" }
           column('Item', &:item_type)
           column('Event', &:event)
-          column('Modified at') { |v| v.created_at.to_s :long }
+          column('Modified at') do |v|
+            begin
+              I18n.l(v.created_at, format: :long)
+            rescue
+              v.created_at.to_s
+            end
+          end
           column('User') do |v|
             if (user = GlobalID::Locator.locate(v.whodunnit))
               link_to "#{user.name}(#{user.email})", [:cms, user]

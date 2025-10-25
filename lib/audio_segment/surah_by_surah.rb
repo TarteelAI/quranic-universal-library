@@ -190,7 +190,17 @@ module AudioSegment
         audio_file_id: audio_file.id
       ).first_or_initialize
 
-      segments = Oj.load(verse_segment.words.to_s)
+      data = verse_segment.words.to_s
+      if data.include?('[') # array
+        segments = Oj.load(data).map do |s|
+          s.map(&:to_i)
+        end
+      else
+        segments = data.split(',').map do |s|
+          s.split(':').map(&:to_i)
+        end
+      end
+
       from = verse_segment.start_time.to_i
       to = verse_segment.end_time.presence
 

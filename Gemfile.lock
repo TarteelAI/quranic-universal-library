@@ -427,8 +427,7 @@ GEM
       netrc (~> 0.8)
     reverse_markdown (2.1.1)
       nokogiri
-    rexml (3.3.6)
-      strscan
+    rexml (3.3.9)
     rubocop (1.31.0)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)

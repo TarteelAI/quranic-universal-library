@@ -99,4 +99,29 @@ class ApiClient < QuranApiRecord
     )
     reload
   end
+
+  # Rate limiting functionality for search API
+  def rate_limit_exceeded?
+    return false if request_quota.nil? || request_quota <= 0
+    
+    current_period_requests_count.to_i >= request_quota
+  end
+
+  def increment_request_count!
+    increment!(:current_period_requests_count)
+    increment!(:requests_count)
+    
+    # Track in Redis for real-time monitoring
+    redis_requests_queue.append({
+      timestamp: Time.current.to_i,
+      endpoint: 'search_api',
+      api_client_id: id
+    }.to_json)
+  end
+
+  def remaining_quota
+    return Float::INFINITY if request_quota.nil? || request_quota <= 0
+    
+    [request_quota - current_period_requests_count.to_i, 0].max
+  end
 end

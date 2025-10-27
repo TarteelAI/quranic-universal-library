@@ -1,47 +1,356 @@
-<p>Search from Quran</p>
+<p>Advanced Quran Search</p>
 
 <%= semantic_form_for cms_verses_path, method: :get do |form| %>
-  <ul class="mb-2">
-    <%= form.input(:query, as: :string, input_html: { name: 'query' }) %>
-  </ul>
+  <div class="search-tabs">
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#text-search">Text Search</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#morphology-search">Morphology</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#semantic-search">Semantic</a>
+      </li>
+    </ul>
+  </div>
 
-  <input type="submit" name="commit" value="Search" data-disable-with="Please wait.." class="pointer-hover">
+  <div class="tab-content">
+    <!-- Text Search Tab -->
+    <div class="tab-pane fade show active" id="text-search">
+      <div class="row">
+        <div class="col-md-8">
+          <%= form.input(:query, as: :string, input_html: { 
+            name: 'query', 
+            placeholder: 'Enter Arabic text, translation, or verse reference...',
+            class: 'form-control'
+          }) %>
+        </div>
+        <div class="col-md-4">
+          <%= form.input(:search_type, as: :select, 
+            collection: [
+              ['General Search', 'general'],
+              ['Arabic Script', 'script'],
+              ['Exact Match', 'exact']
+            ],
+            input_html: { name: 'search_type' }
+          ) %>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4">
+          <%= form.input(:chapter_id, as: :select,
+            collection: Chapter.all.map { |c| ["#{c.id}. #{c.name_simple}", c.id] },
+            prompt: 'All Chapters',
+            input_html: { name: 'chapter_id' }
+          ) %>
+        </div>
+        <div class="col-md-4">
+          <%= form.input(:juz_number, as: :select,
+            collection: (1..30).map { |j| ["Juz #{j}", j] },
+            prompt: 'All Juz',
+            input_html: { name: 'juz_number' }
+          ) %>
+        </div>
+        <div class="col-md-4">
+          <%= form.input(:language_id, as: :select,
+            collection: Language.joins(:translations).distinct.map { |l| [l.name, l.id] },
+            prompt: 'All Languages',
+            input_html: { name: 'language_id' }
+          ) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Morphology Search Tab -->
+    <div class="tab-pane fade" id="morphology-search">
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.input(:part_of_speech, as: :select,
+            collection: Morphology::WordSegment.distinct.pluck(:part_of_speech_key).compact.map { |p| [p, p] },
+            prompt: 'Part of Speech',
+            input_html: { name: 'part_of_speech' }
+          ) %>
+        </div>
+        <div class="col-md-6">
+          <%= form.input(:root_name, as: :string,
+            input_html: { 
+              name: 'root_name',
+              placeholder: 'Enter root (e.g., ك-ت-ب)',
+              class: 'form-control'
+            }
+          ) %>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.input(:grammar_role, as: :select,
+            collection: Morphology::WordSegment.distinct.pluck(:grammar_role).compact.map { |g| [g, g] },
+            prompt: 'Grammar Role',
+            input_html: { name: 'grammar_role' }
+          ) %>
+        </div>
+        <div class="col-md-6">
+          <%= form.input(:verb_form, as: :select,
+            collection: Morphology::WordSegment.distinct.pluck(:verb_form).compact.map { |v| [v, v] },
+            prompt: 'Verb Form',
+            input_html: { name: 'verb_form' }
+          ) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semantic Search Tab -->
+    <div class="tab-pane fade" id="semantic-search">
+      <div class="row">
+        <div class="col-md-12">
+          <%= form.input(:semantic_query, as: :text,
+            input_html: { 
+              name: 'semantic_query',
+              placeholder: 'Enter concepts or themes (e.g., "patience", "guidance", "mercy")...',
+              rows: 3,
+              class: 'form-control'
+            }
+          ) %>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.input(:similarity_threshold, as: :range,
+            input_html: { 
+              name: 'similarity_threshold',
+              min: 0.1,
+              max: 1.0,
+              step: 0.1,
+              value: 0.7,
+              class: 'form-range'
+            }
+          ) %>
+          <small class="text-muted">Similarity Threshold: 0.7</small>
+        </div>
+        <div class="col-md-6">
+          <%= form.input(:semantic_boost, as: :select,
+            collection: [
+              ['Low', 'low'],
+              ['Medium', 'medium'], 
+              ['High', 'high']
+            ],
+            selected: 'medium',
+            input_html: { name: 'semantic_boost' }
+          ) %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-actions mt-3">
+    <input type="submit" name="commit" value="Search" 
+           data-disable-with="Searching..." 
+           class="btn btn-primary">
+    <button type="button" class="btn btn-secondary ms-2" onclick="clearSearchForm()">Clear</button>
+  </div>
 <% end %>
 
-<% if params[:query].present? %>
+<% if params[:query].present? || params[:semantic_query].present? || params[:part_of_speech].present? %>
   <%
     search = Utils::QuranSearch.new()
-    result = search.search(params[:query])
+    
+    # Determine search type and execute appropriate search
+    if params[:semantic_query].present?
+      # Use semantic search
+      query = params[:semantic_query]
+      search_options = {
+        filters: {
+          chapter_id: params[:chapter_id],
+          juz_number: params[:juz_number],
+          language_id: params[:language_id]
+        },
+        search_options: {
+          similarity_threshold: params[:similarity_threshold]&.to_f || 0.7
+        }
+      }
+      result = { 'verses' => Verse.semantic_search(query, search_options).map { |v| format_verse_result(v) } }
+    elsif params[:part_of_speech].present? || params[:root_name].present?
+      # Use morphology search
+      morphology_filters = {
+        part_of_speech: params[:part_of_speech],
+        root: params[:root_name],
+        grammar_role: params[:grammar_role],
+        verb_form: params[:verb_form]
+      }.reject { |k, v| v.blank? }
+      
+      words = Word.morphology_search(morphology_filters)
+      result = { 'verses' => words.map { |w| format_word_result(w) } }
+    else
+      # Use regular text search
+      search_options = {
+        filters: {
+          chapter_id: params[:chapter_id],
+          juz_number: params[:juz_number], 
+          language_id: params[:language_id]
+        }
+      }
+      result = search.search(params[:query], search_options)
+    end
 
     verses = result['verses'] || []
     navigation = result['navigation'] || []
+    suggestions = result['suggestions'] || []
+    search_time = result['search_time'] || 0
+    total_results = result['total_results'] || verses.length
   %>
 
-  <div class="scrollable panel" data-controller="translation">
-    <h3>Results</h3>
+  <div class="search-results-container">
+    <!-- Search Stats -->
+    <div class="search-stats mb-3">
+      <div class="row">
+        <div class="col-md-6">
+          <span class="text-muted">
+            Found <strong><%= total_results %></strong> results 
+            <% if search_time > 0 %>
+              in <strong><%= search_time %>ms</strong>
+            <% end %>
+          </span>
+        </div>
+        <div class="col-md-6 text-end">
+          <% if suggestions.any? %>
+            <div class="suggestions">
+              <small class="text-muted">Suggestions: </small>
+              <% suggestions.first(3).each do |suggestion| %>
+                <a href="?query=<%= CGI.escape(suggestion['text']) %>" class="badge bg-light text-dark me-1">
+                  <%= suggestion['text'] %>
+                </a>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
 
-    <div class="panel_contents">
-      <table border="0" cellspacing="0" cellpadding="0">
-        <thead>
-        <tr>
-          <td>ID</td>
-          <td>Text</td>
-        </tr>
-        </thead>
+    <div class="scrollable panel" data-controller="translation">
+      <h3>Search Results</h3>
 
-        <tbody>
-        <% verses.each do |result| %>
+      <div class="panel_contents">
+        <table border="0" cellspacing="0" cellpadding="0" class="search-results-table">
+          <thead>
           <tr>
-            <td>
-              <%= link_to result['verse_key'], cms_verse_path(result['verse_key']), target: '_blank' %>
+            <td style="width: 120px;">Reference</td>
+            <td style="width: 60%;">Text</td>
+            <td style="width: 40%;">Translation/Context</td>
+          </tr>
+          </thead>
+
+          <tbody>
+        <% verses.each do |result| %>
+          <tr class="search-result-row">
+            <td class="verse-reference">
+              <%= link_to result['verse_key'], cms_verse_path(result['verse_key']), 
+                  target: '_blank', class: 'btn btn-sm btn-outline-primary' %>
+              
+              <% if result['chapter_id'] && result['verse_number'] %>
+                <div class="text-muted small mt-1">
+                  Ch. <%= result['chapter_id'] %>:<%= result['verse_number'] %>
+                </div>
+              <% end %>
             </td>
 
-            <td>
+            <td class="verse-text">
               <div class="quran-text qpc-hafs search-result">
-                <% result['words'].each do |w| %>
-                  <span class="<%= 'highlight' if w['highlight'] %>"><%= w['text'] %></span>
+                <% if result['words'] %>
+                  <% result['words'].each do |w| %>
+                    <span class="<%= 'highlight' if w['highlight'] %>"><%= w['text'] %></span>
+                  <% end %>
+                <% elsif result['text_uthmani'] %>
+                  <div class="arabic-text">
+                    <%= result['text_uthmani'] %>
+                  </div>
+                <% elsif result['text'] %>
+                  <div class="word-text">
+                    <%= result['text'] %>
+                  </div>
                 <% end %>
               </div>
+              
+              <!-- Display morphology info for word results -->
+              <% if result['morphology'] %>
+                <div class="morphology-info mt-2">
+                  <% result['morphology'].each do |morph| %>
+                    <span class="badge bg-info me-1">
+                      <%= morph['part_of_speech'] %>
+                    </span>
+                    <% if morph['verb_form'] %>
+                      <span class="badge bg-secondary me-1">
+                        Form <%= morph['verb_form'] %>
+                      </span>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+
+            <td class="verse-context">
+              <!-- Display translations -->
+              <% if result['translations'] %>
+                <% result['translations'].first(2).each do |translation| %>
+                  <div class="translation mb-2">
+                    <div class="translation-text">
+                      <%= truncate(translation['text'], length: 200) %>
+                    </div>
+                    <div class="translation-meta text-muted small">
+                      <%= translation['language_name'] %> 
+                      <% if translation['resource_name'] %>
+                        - <%= translation['resource_name'] %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+
+              <!-- Display word translations for word results -->
+              <% if result['word_translations'] %>
+                <div class="word-translations">
+                  <% result['word_translations'].first(3).each do |trans| %>
+                    <span class="badge bg-light text-dark me-1">
+                      <%= trans['text'] %>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <!-- Display root/lemma info -->
+              <% if result['root_name'] || result['lemma_name'] %>
+                <div class="morphology-meta mt-2">
+                  <% if result['root_name'] %>
+                    <span class="text-muted small">Root: <%= result['root_name'] %></span>
+                  <% end %>
+                  <% if result['lemma_name'] %>
+                    <span class="text-muted small ms-2">Lemma: <%= result['lemma_name'] %></span>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <!-- Display semantic context for semantic search -->
+              <% if result['semantic_context'] %>
+                <div class="semantic-context mt-2">
+                  <% if result['semantic_context']['topics'] %>
+                    <div class="topics">
+                      <span class="text-muted small">Topics: </span>
+                      <% result['semantic_context']['topics'].first(3).each do |topic| %>
+                        <span class="badge bg-success me-1"><%= topic %></span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  
+                  <% if result['similarity_score'] %>
+                    <div class="similarity-score text-muted small mt-1">
+                      Similarity: <%= (result['similarity_score'] * 100).round(1) %>%
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
             </td>
           </tr>
         <% end %>
@@ -49,5 +358,131 @@
       </table>
     </div>
   </div>
+  
+  <!-- Pagination would go here if implementing server-side pagination -->
+  
 <% end %>
+
+<style>
+.search-tabs .nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+}
+
+.search-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.search-tabs .nav-link.active {
+  color: #495057;
+  border-bottom: 2px solid #007bff;
+  background: none;
+}
+
+.search-results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.search-results-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.search-result-row:hover {
+  background-color: #f8f9fa;
+}
+
+.verse-reference {
+  text-align: center;
+}
+
+.verse-text .highlight {
+  background-color: #fff3cd;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.arabic-text {
+  font-size: 1.2em;
+  line-height: 1.8;
+  direction: rtl;
+  text-align: right;
+}
+
+.translation {
+  border-left: 3px solid #007bff;
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+
+.morphology-info .badge {
+  margin-right: 4px;
+}
+
+.search-stats {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.suggestions .badge {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.suggestions .badge:hover {
+  background-color: #e9ecef !important;
+}
+
+.semantic-context .topics {
+  margin-bottom: 4px;
+}
+
+.word-translations .badge {
+  margin-right: 2px;
+  margin-bottom: 2px;
+}
+</style>
+
+<script>
+function clearSearchForm() {
+  document.querySelectorAll('input[type="text"], input[type="search"], textarea, select').forEach(function(element) {
+    element.value = '';
+  });
+  
+  // Reset range inputs
+  document.querySelectorAll('input[type="range"]').forEach(function(element) {
+    element.value = element.getAttribute('value') || element.getAttribute('min') || 0;
+  });
+}
+
+// Update similarity threshold display
+document.addEventListener('DOMContentLoaded', function() {
+  const thresholdInput = document.querySelector('input[name="similarity_threshold"]');
+  if (thresholdInput) {
+    const display = thresholdInput.parentNode.querySelector('small');
+    
+    thresholdInput.addEventListener('input', function() {
+      if (display) {
+        display.textContent = `Similarity Threshold: ${this.value}`;
+      }
+    });
+  }
+  
+  // Auto-submit semantic search form when threshold changes
+  const form = document.querySelector('form');
+  if (thresholdInput && form) {
+    thresholdInput.addEventListener('change', function() {
+      if (document.querySelector('input[name="semantic_query"]').value.trim()) {
+        form.submit();
+      }
+    });
+  }
+});
+</script>
 

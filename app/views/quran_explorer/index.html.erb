@@ -1,0 +1,88 @@
+<div class="tw-min-h-screen tw-bg-gray-50">
+  <div class="tw-max-w-7xl tw-mx-auto tw-px-4 tw-py-8">
+    <!-- Header -->
+    <div class="tw-text-center tw-mb-12">
+      <h1 class="tw-text-4xl tw-font-bold tw-text-gray-900 tw-mb-4">Quran Explorer</h1>
+      <p class="tw-text-xl tw-text-gray-600 tw-max-w-3xl tw-mx-auto">
+        Discover the rich resources available in the Quranic Universal Library. 
+        Explore surahs, verses, and individual words with comprehensive data including translations, 
+        tafsir, audio segments, and morphological analysis.
+      </p>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-8 tw-mb-12">
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6 tw-text-center">
+        <div class="tw-w-16 tw-h-16 tw-bg-blue-100 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-4">
+          <svg class="tw-w-8 tw-h-8 tw-text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mb-2">Surah View</h3>
+        <p class="tw-text-gray-600">
+          Explore basic information about each surah including Arabic and English names, 
+          revelation details, themes, and comprehensive statistics.
+        </p>
+      </div>
+
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6 tw-text-center">
+        <div class="tw-w-16 tw-h-16 tw-bg-green-100 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-4">
+          <svg class="tw-w-8 tw-h-8 tw-text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mb-2">Ayah View</h3>
+        <p class="tw-text-gray-600">
+          View verses in multiple Arabic scripts, access translations in various languages, 
+          read tafsir explanations, and explore audio segments with precise timings.
+        </p>
+      </div>
+
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6 tw-text-center">
+        <div class="tw-w-16 tw-h-16 tw-bg-purple-100 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-4">
+          <svg class="tw-w-8 tw-h-8 tw-text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+          </svg>
+        </div>
+        <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mb-2">Word View</h3>
+        <p class="tw-text-gray-600">
+          Analyze individual words with detailed morphological data including roots, stems, 
+          lemmas, word-by-word translations, and grammatical analysis.
+        </p>
+      </div>
+    </div>
+
+    <!-- Surahs Grid -->
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-overflow-hidden">
+      <div class="tw-px-6 tw-py-4 tw-border-b tw-bg-gray-50">
+        <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900">Explore Surahs</h2>
+        <p class="tw-text-gray-600 tw-mt-1">Click on any surah to explore its verses and content</p>
+      </div>
+      
+      <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-cols-4 tw-gap-4 tw-p-6">
+        <% @chapters.each do |chapter| %>
+          <%= link_to quran_explorer_surah_path(chapter.chapter_number), 
+                      class: "tw-group tw-block tw-p-4 tw-border tw-border-gray-200 tw-rounded-lg hover:tw-border-blue-500 hover:tw-shadow-md tw-transition-all tw-duration-200" do %>
+            <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+              <span class="tw-text-sm tw-font-medium tw-text-gray-500">Surah <%= chapter.chapter_number %></span>
+              <span class="tw-text-xs tw-text-gray-400"><%= chapter.verses_count %> verses</span>
+            </div>
+            
+            <h3 class="tw-text-lg tw-font-semibold tw-text-gray-900 group-hover:tw-text-blue-600 tw-mb-1">
+              <%= chapter.name_simple %>
+            </h3>
+            
+            <div class="tw-text-2xl tw-text-right tw-text-gray-700 tw-mb-2" dir="rtl">
+              <%= chapter.name_arabic %>
+            </div>
+            
+            <div class="tw-flex tw-items-center tw-justify-between tw-text-xs tw-text-gray-500">
+              <span class="tw-capitalize"><%= chapter.revelation_place %></span>
+              <span>Order: <%= chapter.revelation_order %></span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

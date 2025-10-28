@@ -11,12 +11,12 @@
                       .order('count DESC')
 %>
 
-<div id="title" class="d-none">
+<div id="title" class="tw-hidden">
   Stem <%= stem.text_madani %> detail
 </div>
 
 <div id="body">
-  <div class="modal-body tw-docs">
+  <div class="tw-p-6 tw-docs">
     <p class="prose max-w-none">
       Stem <span class="tw-font-bold"><%= stem.text_madani %></span> has
       <span class="tw-font-semibold"><%= stem.uniq_words_count %></span> unique word forms and appears

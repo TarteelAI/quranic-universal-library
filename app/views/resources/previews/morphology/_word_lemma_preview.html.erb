@@ -10,7 +10,7 @@
           <%= word.text_qpc_hafs %>
         </div>
 
-        <div class="tw-text-sm tw-text-gray-600 ">
+        <div class="tw-text-sm tw-text-gray-600">
           <% if word.lemma %>
             <%= link_to word.lemma.text_clean, morphology_lemma_path(word.lemma.text_clean), data: {controller: 'ajax-modal', css_class: 'modal-lg', url: morphology_lemma_path(word.lemma.text_clean)} %>
           <% end %>

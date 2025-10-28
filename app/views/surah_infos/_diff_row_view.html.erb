@@ -1,32 +1,32 @@
-<div class="row">
+<div class="tw-flex tw-flex-wrap tw-gap-4">
   <% if text_diff %>
-    <div class="col-md-12">
+    <div class="tw-w-full">
       <h2>New Text</h2>
       <%= safe_html text_diff.left %>
     </div>
 
-    <div class="col-md-12">
+    <div class="tw-w-full">
       <h2>Old Text</h2>
       <%= safe_html text_diff.right %>
     </div>
 
   <% else %>
-    <div class="col-md-12">
+    <div class="tw-w-full">
       <h2>This was first version</h2>
       <%= safe_html @version_object.text %>
     </div>
   <% end %>
 </div>
 
-<div class="row">
+<div class="tw-flex tw-flex-wrap tw-gap-4">
   <% if short_text_diff %>
-    <div class="col-md-12">
+    <div class="tw-w-full">
       <h2>New Short Text</h2>
 
       <%= safe_html short_text_diff.left %>
     </div>
 
-    <div class="col-md-12">
+    <div class="tw-w-full">
       <h2>Old Short Text</h2>
       <%= safe_html short_text_diff.right %>
     </div>

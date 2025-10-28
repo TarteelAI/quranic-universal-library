@@ -32,55 +32,19 @@
       </button>
     </li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
-              id="tab-help"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+<% if by_word %>
+  Preview of words from Surah <%= ayah.chapter.name_simple %>, Ayah <%= ayah.verse_number %>
+<% else %>
+  Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
+<% end %>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="quran-script-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-preview" tabindex="0">
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
-          Quran Script Preview
-        </h2>
-
-        <div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
-          <div class="tw-mb-4">
-            <%= label_tag :ayah, 'Jump to ayah', class: 'tw-me-2' %>
-            <%= select_tag :ayah, options_for_select(Verse.pluck(:verse_key), ayah.verse_key), onchange: "jumpToAyah(this.value)", style: 'min-width:200px', data: { controller: 'select2' } %>
-          </div>
-        </div>
-
-        <% if by_word %>
-          Preview of words from Surah <%= ayah.chapter.name_simple %>, Ayah <%= ayah.verse_number %>
-        <% else %>
-          Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
-        <% end %>
-
-        <div class="border p-3 text-center rounded quran-text <%= script_class %>" data-controller="tajweed-highlight">
-          <% if by_word %>
-            <div class="tw-flex tw-flex-wrap gap-2">
-              <% ayah.words.each_with_index do |word, index| %>
-                <span class="px-4 py-2 border word">
-                  <% if is_image %>
-                    <img src="<%= word.read_attribute("#{text_type}_url") %>" alt="<%= word.location %>"/>
-                  <% else %>
-                    <%= safe_html word.read_attribute(text_type) %>
-                  <% end %>
-                </span>
-              <% end %>
-            </div>
+<div class="tw-border tw-border-gray-300 tw-p-3 tw-text-center tw-rounded quran-text <%= script_class %>" data-controller="tajweed-highlight">
+  <% if by_word %>
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
+      <% ayah.words.each_with_index do |word, index| %>
+        <span class="tw-px-4 tw-py-2 tw-border tw-border-gray-300 word">
+          <% if is_image %>
+            <img src="<%= word.read_attribute("#{text_type}_url") %>" alt="<%= word.location %>"/>
           <% else %>
             <% if is_image %>
               <div>

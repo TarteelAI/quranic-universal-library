@@ -3,22 +3,22 @@
 </div>
 
 <div id="body">
-  <div class="modal-body">
+  <div class="tw-p-6">
     <ol class="list-group list-group-numbered">
       <% if @issues.size.zero? %>
-        <li class="list-group-item d-flex">
-          <div class="d-flex align-items-start w-100">
-            <div class="ml-2 mr-auto">
+        <li class="list-group-item tw-flex">
+          <div class="tw-flex tw-items-start tw-w-full">
+            <div class="tw-ml-2 mr-auto">
               We're good alhumudAllah, no issue found.
             </div>
           </div>
         </li>
       <% else %>
         <% @issues.each do |issue| %>
-          <li class="list-group-item d-flex">
-            <div class="d-flex justify-content-between align-items-start w-100">
+          <li class="list-group-item tw-flex">
+            <div class="tw-flex tw-justify-between tw-items-start tw-w-full">
               <div style="width: 20px; height: 20px" class="<%= issue[:severity]%>"></div>
-              <div class="ml-2 mr-auto">
+              <div class="tw-ml-2 mr-auto">
                 <%= issue[:text] %>
               </div>
             </div>

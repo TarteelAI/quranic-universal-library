@@ -36,7 +36,7 @@
   <div class="tw-flex flex-wrap tw-gap-1 quran-text ayah-tajweed-words tajweed-new">
     <% ayah_tajweeed_words.each do |w| %>
       <%= link_to tajweed_word_path(w.location), class: 'text-decoration-none', style: 'color: inherit' do %>
-        <div data-location='<%=w.location%>' class="tw-border tw-border-gray-300 border-solid tw-p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-')">
+        <div data-location='<%=w.location%>' class="tw-border tw-border-gray-300 border-solid tw-p-1 mx-1 <%= 'border-primary' if w.position == @word.position %> preview-<%= w.location.gsub(':', '-') %>">
           <div class="qpc-hafs char"
                data-controller="tajweed-highlight">
             <%= safe_html w.text %>

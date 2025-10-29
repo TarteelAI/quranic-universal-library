@@ -4,6 +4,10 @@ export default class extends Controller {
   connect() {
     const tabButtons = this.element.querySelectorAll('[data-bs-toggle="tab"]')
     
+    tabButtons.forEach(btn => {
+      btn.classList.add('tw-rounded-t')
+    })
+    
     const updateBordersAndColors = (activeButton) => {
       tabButtons.forEach(btn => {
         // Remove borders from all buttons
@@ -13,7 +17,7 @@ export default class extends Controller {
         btn.style.borderBottom = 'none'
         
         // Set inactive color for all buttons
-        btn.classList.remove('tw-text-gray-700')
+        btn.classList.remove('tw-text-gray-700', 'tw-bg-white', 'tw--mb-px', 'tw-border-b', 'tw-border-b-white')
         btn.classList.add('tw-text-[#57d798]')
       })
       
@@ -24,9 +28,9 @@ export default class extends Controller {
         activeButton.style.borderLeft = '1px solid #dee2e6'
         activeButton.style.borderBottom = 'none'
         
-        // Set active color
+        // Set active color and styling
         activeButton.classList.remove('tw-text-[#57d798]')
-        activeButton.classList.add('tw-text-gray-700')
+        activeButton.classList.add('tw-text-gray-700', 'tw-bg-white', 'tw--mb-px', 'tw-border-b', 'tw-border-b-white')
       }
     }
     

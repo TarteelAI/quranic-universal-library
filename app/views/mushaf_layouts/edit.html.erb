@@ -74,12 +74,14 @@
                   <div class="verse" data-verse="<%= verse.id %>">
                     <span class="word-group"> <%= verse.verse_key %></span>
                     <% verse.words.order('position ASC').each_with_index do |word, i| %>
-                      <% word_position = @words.detect do |w|
-                        w.word_id == word.id
-                      end %>
+                      <%
+                        word_position = @words.detect do |w|
+                          w.word_id == word.id
+                        end
+                      %>
 
                       <div class="word word-group" data-word="<%= word.id %>">
-                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %> <%=">
+                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %>">
                           <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
                         </div>
 

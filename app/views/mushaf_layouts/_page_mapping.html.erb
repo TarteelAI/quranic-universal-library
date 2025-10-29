@@ -40,7 +40,7 @@
                   <div class="tw-mb-4" id=<%= page.page_number %>-from>
                     <%= form.text_field :first_verse_id, value: first_ayah_key, style: 'width: 70px', class: 'from form-control', placeholder: 'From', required: true, disabled: !@access %>
                     <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
-                      <%= first_ayah_key %>
+                      <%= first_ayah_key || 'surah:ayah' %>
                     </div>
                   </div>
                 </div>
@@ -48,7 +48,7 @@
                   <div class="tw-mb-4" id=<%= page.page_number %>-to>
                     <%= form.text_field :last_verse_id, value: last_ayah_key, style: 'width: 70px', class: 'to form-control', placeholder: 'To', required: true, disabled: !@access %>
                     <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
-                      <%= last_ayah_key %>
+                      <%= last_ayah_key || 'surah:ayah' %>
                     </div>
                   </div>
                 </div>

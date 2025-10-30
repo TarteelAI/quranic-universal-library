@@ -57,6 +57,42 @@
         </div>
       </div>
 
+
+      <div class="tw-w-full section pb-3 tw-border-b tw-border-gray-300">
+        <b>Uthmani Simple</b>
+
+        <div class="me_quran quran-text" style="margin-top: 10px">
+          <%= @verse.text_uthmani_simple %>
+        </div>
+      </div>
+
+      <div class="tw-w-full section pb-3 tw-border-b tw-border-gray-300">
+        <b>Imlaei</b>
+
+        <div class="me_quran quran-text" style="margin-top: 10px">
+          <%= @verse.text_imlaei %>
+        </div>
+      </div>
+
+
+      <div class="tw-w-full section pb-3 tw-border-b tw-border-gray-300">
+        <b>Imlaei Simple</b>
+
+        <div class="me_quran quran-text" style="margin-top: 10px">
+          <%= @verse.text_imlaei_simple %>
+        </div>
+      </div>
+
+      <div class="tw-w-full section pb-3 tw-border-b tw-border-gray-300">
+        <b>Imlaei Simple(new)</b>
+
+        <div class="me_quran quran-text" style="margin-top: 10px">
+          <% @verse.words.each do |w| %>
+            <%= w.text_imlaei_simple %>
+          <% end %>
+        </div>
+      </div>
+
       <div class="tw-w-full section pb-3 tw-border-b tw-border-gray-300">
         <b>Digital Khatt</b>
 
@@ -175,11 +211,13 @@
           <td>Digitak Khatt indopak</td>
 
           <td style="direction: rtl">Uthmani</td>
+          <td style="direction: rtl">Uthmani Simple</td>
           <td style="direction: rtl">Digital Khatt v1</td>
           <td style="direction: rtl">V1</td>
 
           <td style="direction: rtl">Digital Khatt v2</td>
           <td style="direction: rtl">Imlaei</td>
+          <td style="direction: rtl">Imlaei Simple</td>
           <td style="direction: rtl">KFQC Hafs</td>
           <td style="direction: rtl;">QC Hafs tajweed</td>
           <td style="direction: rtl">V4 Tajweed</td>
@@ -216,6 +254,9 @@
             <td class="tw-py-2 me_quran char">
               <%= word.text_uthmani %>
             </td>
+            <td class="tw-py-2 me_quran char">
+              <%= word.text_uthmani_simple %>
+            </td>
             <td class="tw-py-2 digitalkhatt char">
               <%= word.text_digital_khatt_v1 %>
             </td>
@@ -228,11 +269,12 @@
               <%= word.text_digital_khatt %>
             </td>
 
-
-
-
             <td class="tw-py-2 me_quran char">
               <%= word.text_imlaei %>
+            </td>
+
+            <td class="tw-py-2 me_quran char">
+              <%= word.text_imlaei_simple %>
             </td>
 
             <td class="tw-py-2 qpc-hafs char">

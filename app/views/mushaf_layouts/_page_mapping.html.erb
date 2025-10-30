@@ -23,7 +23,7 @@
     <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
       <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
-        <th><%= sort_order_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
+        <th><%= mushaf_sort_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
         <th>
           <span class="tw-inline-flex tw-items-center tw-gap-2">
             Ayah Range

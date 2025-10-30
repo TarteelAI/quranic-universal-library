@@ -1,5 +1,5 @@
 module MushafLayoutsHelper
-  def sort_order_link(text, sort_key, url_params = {}, link_options = {})
+  def mushaf_sort_link(text, sort_key, url_params = {}, link_options = {})
     current_order = params[:sort_order] || 'asc'
     current_key = params[:sort_key]
     

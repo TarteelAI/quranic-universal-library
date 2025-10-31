@@ -64,6 +64,9 @@ application.register("resizeable", ResizeableController)
 import TooltipController from "./tooltip_controller.js"
 application.register("tooltip", TooltipController)
 
+import TurboFrameLoadingController from "./turbo_frame_loading_controller.js"
+application.register("turbo-frame-loading", TurboFrameLoadingController)
+
 import CopyToClipboardController from "./copy_to_clipboard_controller.js"
 application.register("copy-to-clipboard", CopyToClipboardController)
 

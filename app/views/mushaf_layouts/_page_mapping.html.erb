@@ -1,7 +1,6 @@
 <% progress = @mushaf.percentage_done %>
 
 <%= turbo_frame_tag "mushaf-page" do %>
-
   <h3 class="tw-p-3 tw-text-center">
     <p>
       <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>
@@ -14,27 +13,36 @@
     </div>
   </h3>
 
-  <section class="highlight tw-mt-4">
+  <section class="highlight tw-mt-4" style="position: relative;" data-controller="turbo-frame-loading">
+    <div id="turbo-loading-indicator" class="tw-absolute tw-h-screen tw-top-0 tw-left-0 tw-right-0 tw-flex tw-items-center tw-justify-center tw-bg-white/80 tw-z-50 tw-py-4 tw-hidden">
+      <svg class="animate-spin h-8 w-8 tw-text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="32" height="32">
+        <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
     <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
       <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
-        <th><%= sort_order_link 'Page', :page_number, view_type: 'page_mapping', mushaf_id: @resource.id, page_number: params[:page_number] %></th>
-        <th>Ayah Range</th>
+        <th><%= mushaf_sort_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
+        <th>
+          <span class="tw-inline-flex tw-items-center tw-gap-2">
+            Ayah Range
+            <%= render 'card/info-tip', tip: 'Ayah key format is <code>surah:ayah</code><br/>For example: <code>1:1</code> refers to the first verse of the first surah.<br/><code>2:255</code> refers to verse 255 of surah 2.' %>
+          </span>
+        </th>
         <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-      <% sort_order = params[:sort_order] || 'ASC' %>
-      <% @mushaf.mushaf_pages.order("page_number #{sort_order}").each do |page| %>
+      <% sort_key = params[:sort_key] || 'page_number' %>
+      <% sort_order = params[:sort_order] || 'asc' %>
+      <% @mushaf.mushaf_pages.order("#{sort_key} #{sort_order}").each do |page| %>
         <tr class="hover:tw-bg-gray-200 tw-border-b">
           <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
           <td class="tw-py-2">
             <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
-              <%
-                first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
-                last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
-              %>
-
+              <% first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id) %>
+              <% last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id) %>
               <div class="tw-flex tw-gap-2">
                 <div>
                   <div class="tw-mb-4" id=<%= page.page_number %>-from>
@@ -58,7 +66,6 @@
               </div>
             <% end %>
           </td>
-
           <td class="tw-py-2">
             <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
           </td>

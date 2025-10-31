@@ -317,8 +317,8 @@ module AudioSegment
         }
       end
 
-      File.open(file_path, "wb") do |csv|
-        f << JSON.generate(data, { state: JsonNoEscapeHtmlState.new })
+      File.open(file_path, "wb") do |file|
+        file << JSON.generate(data, { state: JsonNoEscapeHtmlState.new })
       end
     end
     private

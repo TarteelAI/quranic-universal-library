@@ -15,7 +15,7 @@
 
       <div class="tw-mb-4 tw-mb-2">
         <%= form.label :export_format, 'Select format', class: 'form-label' %>
-        <%= form.select :export_format, [['Sqlite db', 'db'], ['CSV', 'csv']], {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal', placeholder: 'select format' } %>
+        <%= form.select :export_format, [['Sqlite db', 'db'], ['JSON', 'json'], ['CSV', 'csv']], {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal', placeholder: 'select format' } %>
       </div>
     </div>
 

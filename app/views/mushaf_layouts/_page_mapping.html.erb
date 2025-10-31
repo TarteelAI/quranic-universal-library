@@ -13,6 +13,17 @@
     </div>
   </h3>
 
+  <div class="tw-px-4" data-controller="page-search">
+    <div class="tw-mb-4">
+      <input 
+        type="text" 
+        data-page-search-target="searchInput"
+        data-action="input->page-search#search"
+        placeholder="Search by page number or ayah (e.g., 20 or 2:5)..."
+        class="form-control tw-w-full tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500"
+      />
+    </div>
+
   <section class="highlight tw-mt-4" style="position: relative;" data-controller="turbo-frame-loading">
     <div id="turbo-loading-indicator" class="tw-absolute tw-h-screen tw-top-0 tw-left-0 tw-right-0 tw-flex tw-items-center tw-justify-center tw-bg-white/80 tw-z-50 tw-py-4 tw-hidden">
       <svg class="animate-spin h-8 w-8 tw-text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="32" height="32">
@@ -37,12 +48,14 @@
       <% sort_key = params[:sort_key] || 'page_number' %>
       <% sort_order = params[:sort_order] || 'asc' %>
       <% @mushaf.mushaf_pages.order("#{sort_key} #{sort_order}").each do |page| %>
-        <tr class="hover:tw-bg-gray-200 tw-border-b">
+        <%
+          first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
+          last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
+        %>
+        <tr class="hover:tw-bg-gray-200 tw-border-b" data-page-search-target="tableRow" data-page-number="<%= page.page_number %>" data-first-ayah="<%= first_ayah_key %>" data-last-ayah="<%= last_ayah_key %>">
           <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
           <td class="tw-py-2">
             <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
-              <% first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id) %>
-              <% last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id) %>
               <div class="tw-flex tw-gap-2">
                 <div>
                   <div class="tw-mb-4" id=<%= page.page_number %>-from>
@@ -73,5 +86,5 @@
       <% end %>
       </tbody>
     </table>
-  </section>
+  </div>
 <% end %>

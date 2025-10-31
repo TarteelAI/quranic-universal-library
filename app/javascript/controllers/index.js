@@ -160,3 +160,6 @@ application.register("tabs", TabsController);
 
 import FontPreviewController from './font_preview_controller';
 application.register("font-preview", FontPreviewController);
+
+import PageSearchController from './page_search_controller.js';
+application.register("page-search", PageSearchController);

@@ -14,7 +14,17 @@
     </div>
   </h3>
 
-  <section class="highlight tw-mt-4">
+  <div class="tw-px-4" data-controller="page-search">
+    <div class="tw-mb-4">
+      <input 
+        type="text" 
+        data-page-search-target="searchInput"
+        data-action="input->page-search#search"
+        placeholder="Search by page number or ayah (e.g., 20 or 2:5)..."
+        class="form-control tw-w-full tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500"
+      />
+    </div>
+
     <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
       <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
@@ -26,14 +36,14 @@
       <tbody>
       <% sort_order = params[:sort_order] || 'ASC' %>
       <% @mushaf.mushaf_pages.order("page_number #{sort_order}").each do |page| %>
-        <tr class="hover:tw-bg-gray-200 tw-border-b">
+        <%
+          first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
+          last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
+        %>
+        <tr class="hover:tw-bg-gray-200 tw-border-b" data-page-search-target="tableRow" data-page-number="<%= page.page_number %>" data-first-ayah="<%= first_ayah_key %>" data-last-ayah="<%= last_ayah_key %>">
           <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
           <td class="tw-py-2">
             <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
-              <%
-                first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
-                last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
-              %>
 
               <div class="tw-flex tw-gap-2">
                 <div>
@@ -66,5 +76,5 @@
       <% end %>
       </tbody>
     </table>
-  </section>
+  </div>
 <% end %>

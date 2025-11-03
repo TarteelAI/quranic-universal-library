@@ -47,10 +47,18 @@ class MushafLayoutsController < CommunityController
     @access = can_manage?(@resource)
     @presenter.set_resource(@resource)
 
-    if params[:view_type] == 'select_compare'
-      render partial: 'select_compare', layout: false
-    elsif params[:view_type] == 'select_page'
-      render partial: 'select_page', layout: false
+    if params[:page_number].present?
+      if params[:view_type] == 'select_compare'
+        render partial: 'select_compare', layout: false
+      elsif params[:view_type] == 'select_page'
+        render partial: 'select_page', layout: false
+      else
+        render 'show_page'
+      end
+    else
+      @pages = load_sorted_pages
+      @pages = apply_search_filter(@pages) if params[:search].present?
+      calculate_page_statuses
     end
   end
 
@@ -60,10 +68,11 @@ class MushafLayoutsController < CommunityController
     first_verse = @mushaf_page.first_verse
     last_verse = @mushaf_page.last_verse
 
-    if first_verse.nil? || last_verse.nil?
-      return redirect_to mushaf_layout_path(@mushaf.id, page_number: page_number, mapping: true), alert: "Please fix the ayah range for #{page_number} before editing the layout"
+    @ayah_range_missing = first_verse.nil? || last_verse.nil?
+    
+    unless @ayah_range_missing
+      @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
     end
-    @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
   end
 
   def update
@@ -162,5 +171,55 @@ class MushafLayoutsController < CommunityController
 
   def init_presenter
     @presenter = MushafLayoutPresenter.new(self)
+  end
+
+  def load_sorted_pages
+    sort_key = params[:sort_key] || 'page_number'
+    sort_order = params[:sort_order] || 'asc'
+
+    allowed_sort_keys = ['page_number', 'first_verse_id', 'last_verse_id', 'verses_count', 'lines_count']
+    sort_key = 'page_number' unless allowed_sort_keys.include?(sort_key)
+    sort_order = 'asc' unless ['asc', 'desc'].include?(sort_order)
+
+    @mushaf.mushaf_pages.preload(:first_verse, :last_verse).order("#{sort_key} #{sort_order}")
+  end
+
+  def apply_search_filter(pages)
+    search_term = params[:search].to_s.strip
+    return pages if search_term.blank?
+    
+    if search_term.match?(/^\d+$/)
+      return pages.where(page_number: search_term.to_i)
+    end
+    
+    if search_term.include?(':')
+      parts = search_term.split(':')
+      if parts.length == 2
+        surah = parts[0].to_i
+        ayah = parts[1].to_i
+        
+        if surah > 0 && ayah > 0
+          verse = Verse.find_by(chapter_id: surah, verse_number: ayah)
+          if verse
+            return pages.where("(first_verse_id <= ? AND last_verse_id >= ?)", verse.id, verse.id)
+          end
+        end
+      end
+    end
+    
+    pages
+  end
+
+  def calculate_page_statuses
+    page_numbers = @pages.pluck(:page_number)
+    
+    @words_counts = MushafWord.where(mushaf_id: @mushaf.id, page_number: page_numbers)
+                              .group(:page_number)
+                              .count
+    
+    @lines_counts = MushafWord.where(mushaf_id: @mushaf.id, page_number: page_numbers)
+                              .where.not(line_number: [0, nil])
+                              .group(:page_number)
+                              .count
   end
 end

@@ -11,7 +11,6 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        // sans: ['Inter var', ...defaultTheme.fontFamily.sans],
         sarina: ['Sarina', 'cursive'],
         inter: ['Inter', 'sans-serif'],
         title: ['Open Sauce Sans', 'sans-serif'],

@@ -1,64 +1,85 @@
-<%
-  page_number = @mushaf_page.page_number
-  actions = []
-  more_action = []
-
-  turbo_page_options = {
-    turbo_frame: 'page',
-    turbo_method: 'get',
-    turbo_action: "replace"
-  }
-
-  turbo_mushaf_page_options = {
-    turbo_frame: 'mushaf-page',
-    turbo_method: 'get',
-    turbo_action: "replace"
-  }
-
-  if @access
-    more_action << link_to('Update page words', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
-  end
-
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'select_compare') })
-  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page', previous_view_type: params[:view_type]) })
-
-  actions << "<div class='dropdown'>
-      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
-        Actions
-      </button>
-      <ul class='dropdown-menu text-dark'>
-       #{more_action.map do |action|
-    "<li>#{action}</li>"
-  end.join('')
-  }
-    </ul>
-    </div>"
-
-  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-
-  actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info', data: {turbo_frame: '_top'})
+<%= render 'tools/header',
+           name: 'Mushaf layouts',
+           key: 'mushaf_layouts',
+           help: 'mushaf_layout'
 %>
 
-<%= turbo_frame_tag :page do %>
-  <%= render 'tools/header',
-             name: 'Mushaf layouts',
-             title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
-             key: 'mushaf_layout',
-             actions: actions
-  %>
+<%= render 'shared/access_message' %>
 
-  <%= render 'shared/access_message' %>
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="page-section">
+    <div class="tw-mb-6">
+      <h2 class="tw-text-2xl tw-font-semibold"><%= @mushaf.name %></h2>
+    </div>
 
-  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-    <% if valid_mushaf_view_type?(params[:view_type]) %>
-      <%= render "#{params[:view_type]}_view" %>
-    <% else %>
-      <%= render 'page_preview' %>
+    <div class="tw-sticky tw-top-0 tw-z-20 tw-bg-white tw-pb-4 tw-mb-4 tw-border-b tw-border-gray-200">
+      <%= form_with url: mushaf_layout_path(@mushaf.id), method: :get, data: { turbo_frame: 'pages_table' }, class: '' do |f| %>
+        <div class="tw-flex tw-gap-2">
+          <%= f.search_field :search, 
+              value: params[:search],
+              placeholder: "Search by page number or ayah (e.g., 20 or 2:5)...",
+              class: "form-control tw-flex-1 tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500" %>
+          <%= f.hidden_field :sort_key, value: params[:sort_key] %>
+          <%= f.hidden_field :sort_order, value: params[:sort_order] %>
+          <%= f.submit 'Search', class: 'btn btn-primary' %>
+          <% if params[:search].present? %>
+            <%= link_to 'Clear', mushaf_layout_path(@mushaf.id, sort_key: params[:sort_key], sort_order: params[:sort_order]), class: 'btn btn-secondary', data: { turbo_frame: 'pages_table' } %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <%= turbo_frame_tag "pages_table" do %>
+      <div class="tools-table-overflow">
+        <table class="tw-w-full hover:tw-bg-gray-50">
+          <thead class="tw-sticky tw-z-10 tw-bg-white tw-border-b-2 tw-border-black" style="top: 42px;">
+            <tr>
+            <th class="tw-py-3 tw-px-4 tw-text-left">
+              <%= sort_order_link 'Page #', :page_number, {}, { data: { turbo_frame: 'pages_table' } } %>
+            </th>
+              <th class="tw-py-3 tw-px-4 tw-text-left">Ayah Range</th>
+              <th class="tw-py-3 tw-px-4 tw-text-left">Status</th>
+              <th class="tw-py-3 tw-px-4 tw-text-left">Actions</th>
+            </tr>
+          </thead>
+          
+        <tbody>
+          <% @pages.each do |page| %>
+            <tr class="hover:tw-bg-gray-100 tw-border-b">
+              <td class="tw-py-3 tw-px-4">
+                <%= link_to page.page_number, mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-font-medium tw-no-underline tw-cursor-pointer page-number-link', data: { turbo_frame: '_top' } %>
+              </td>
+              
+              <td class="tw-py-3 tw-px-4">
+                <% if page.first_ayah_key && page.last_ayah_key %>
+                  <span class="tw-text-gray-700"><%= page.first_ayah_key %> - <%= page.last_ayah_key %></span>
+                <% else %>
+                  <span class="tw-text-gray-400">Not set</span>
+                <% end %>
+              </td>
+                
+                <td class="tw-py-3 tw-px-4">
+                  <% status = page_status(page) %>
+                  <span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium <%= status_badge_class(status) %>">
+                    <%= status %>
+                  </span>
+                </td>
+                
+              <td class="tw-py-3 tw-px-4">
+                <div class="tw-flex tw-gap-2 tw-flex-wrap">
+                  <% if @access %>
+                    <%= link_to 'Ayah range', mushaf_layout_path(@mushaf.id, page_number: page.page_number, view_type: 'page_mapping'), class: 'btn btn-info btn-sm', data: { turbo_frame: '_top' } %>
+                    <%= link_to 'Word mapping', edit_mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'btn btn-warning btn-sm', data: { turbo_frame: '_top' } %>
+                    <%= link_to 'Line alignment', mushaf_layout_path(@mushaf.id, page_number: page.page_number, view_type: 'line_alignment'), class: 'btn btn-secondary btn-sm', data: { turbo_frame: '_top' } %>
+                  <% end %>
+                  <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'btn btn-success btn-sm', data: { turbo_frame: '_top' } %>
+                </div>
+              </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% end %>
   </div>
-<% end %>
+</div>

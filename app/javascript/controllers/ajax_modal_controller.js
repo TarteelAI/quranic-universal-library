@@ -95,10 +95,10 @@ export default class extends Controller {
       <div class="modal-dialog modal-dialog-centered ${classes}">
         <div class="modal-content" id="modal-content">
           <div class="modal-header" id="modal-header">
-            <h5 class="modal-title" id="title">Loading</h5>
+            <h5 class="modal-title mt-0" id="title">Loading</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div id="modal-body">
+          <div id="modal-body" class="px-2">
           <div class="modal-body">
             Loading
           </div>

@@ -9,7 +9,12 @@
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section">
     <div class="tw-mb-6">
-      <h2 class="tw-text-2xl tw-font-semibold"><%= @mushaf.name %></h2>
+      <h2 class="tw-text-2xl tw-font-semibold tw-mb-3"><%= @mushaf.name %></h2>
+      <p class="tw-text-gray-600 tw-text-base">
+        This Mushaf layout contains <strong><%= @mushaf.pages_count %></strong> pages with <strong><%= @mushaf.lines_per_page %></strong> lines per page. 
+        For more information about working with Mushaf layouts, click on the Help button above. 
+        Below is the complete list of all pages.
+      </p>
     </div>
 
     <div class="tw-sticky tw-top-0 tw-z-20 tw-bg-white tw-pb-4 tw-mb-4 tw-border-b tw-border-gray-200">

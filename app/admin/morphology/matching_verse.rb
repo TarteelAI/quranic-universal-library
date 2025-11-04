@@ -35,13 +35,14 @@ ActiveAdmin.register Morphology::MatchingVerse do
     send_file file, filename: "matching_ayah.json", type: "application/json"
   end
 
-  action_item :approve, only: :show do
+  action_item :approve, only: :show, if: -> { can? :update, resource } do
     link_to approve_cms_morphology_matching_verse_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
 
   member_action :approve, method: 'put' do
+    authorize! :update, resource
     resource.toggle_approve!
 
     if request.xhr?

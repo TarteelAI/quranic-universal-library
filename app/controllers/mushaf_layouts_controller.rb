@@ -40,7 +40,16 @@ class MushafLayoutsController < CommunityController
   def save_page_mapping
     @mushaf_page.attributes = params_for_page_mapping
     @mushaf_page.save(validate: false)
+    @mushaf_page.reload
+    @pages = [@mushaf_page]
+    calculate_page_statuses
+    
     flash[:notice] = "Page #{@mushaf_page.page_number} is saved"
+    
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number) }
+    end
   end
 
   def show
@@ -52,6 +61,8 @@ class MushafLayoutsController < CommunityController
         render partial: 'select_compare', layout: false
       elsif params[:view_type] == 'select_page'
         render partial: 'select_page', layout: false
+      elsif params[:view_type] == 'page_mapping_modal'
+        render partial: 'page_mapping_modal', layout: false
       else
         render 'show_page'
       end

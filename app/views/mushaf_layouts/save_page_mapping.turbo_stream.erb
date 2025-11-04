@@ -1,3 +1,7 @@
+<%= turbo_stream.replace "page-row-#{@mushaf_page.page_number}" do %>
+  <%= render 'page_row', page: @mushaf_page %>
+<% end %>
+
 <%= turbo_stream.update "mushaf-page" do %>
   <%= render 'page_mapping' %>
 <% end %>

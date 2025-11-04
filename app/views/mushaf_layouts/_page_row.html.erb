@@ -1,0 +1,32 @@
+<tr class="hover:tw-bg-gray-100 tw-border-b" id="page-row-<%= page.page_number %>">
+  <td class="tw-py-3 tw-px-4">
+    <%= link_to page.page_number, mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-font-medium tw-no-underline tw-cursor-pointer page-number-link', data: { turbo_frame: '_top' } %>
+  </td>
+  
+  <td class="tw-py-3 tw-px-4">
+    <% if page.first_ayah_key && page.last_ayah_key %>
+      <span class="tw-text-gray-700"><%= page.first_ayah_key %> - <%= page.last_ayah_key %></span>
+    <% else %>
+      <span class="tw-text-gray-400">Not set</span>
+    <% end %>
+  </td>
+    
+  <td class="tw-py-3 tw-px-4">
+    <% status = page_status(page) %>
+    <span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium <%= status_badge_class(status) %>">
+      <%= status %>
+    </span>
+  </td>
+    
+  <td class="tw-py-3 tw-px-4">
+    <div class="tw-flex tw-gap-2 tw-flex-wrap">
+      <% if @access %>
+        <%= link_to 'Ayah range', '#_', class: 'btn btn-info btn-sm', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page.page_number, view_type: 'page_mapping_modal'), css_class: 'modal-xl' } %>
+        <%= link_to 'Word mapping', edit_mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'btn btn-warning btn-sm', data: { turbo_frame: '_top' } %>
+        <%= link_to 'Line alignment', mushaf_layout_path(@mushaf.id, page_number: page.page_number, view_type: 'line_alignment'), class: 'btn btn-secondary btn-sm', data: { turbo_frame: '_top' } %>
+      <% end %>
+      <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'btn btn-success btn-sm', data: { turbo_frame: '_top' } %>
+    </div>
+  </td>
+</tr>
+

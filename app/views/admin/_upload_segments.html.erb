@@ -1,4 +1,4 @@
-<div id=title>
+<div id="title" class="tw-text-xl tw-font-semibold tw-text-gray-800">
   Upload segments for <%= resource.name %>
 </div>
 
@@ -18,22 +18,22 @@
           Segments are locked for this recitation. Please unlock the segments and try again.
         </div>
       <% else %>
-        <div class="tw-mb-4 tw-mb-2">
-          <div class="tw-flex tw-items-center tw-mb-2">
-            <%= form.check_box :remove_existing, class: 'form-check-input' %>
-            <%= form.label :remove_existing, 'Remove existing segments?', class: 'form-check-label' %>
-          </div>
+        <div class="tw-mb-4 tw-my-2">
+          <%= form.label :remove_existing, class: "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer" do %>
+            <%= form.check_box :remove_existing, class: "tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500" %>
+            <span class="tw-text-gray-700">Remove existing segments?</span>
+          <% end %>
         </div>
-        <div class="tw-mb-4 tw-mb-2">
-          <%= form.label :file, 'Select timing db file' %>
-          <%= form.file_field :file, class: 'form-control' %>
+        <div class="tw-mb-4 tw-my-2">
+          <%= form.label :file, 'Select timing db file', class: 'tw-block tw-text-gray-700 tw-font-medium tw-mb-2' %>
+          <%= form.file_field :file, class: 'tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-transparent' %>
         </div>
       <% end %>
     </div>
 
     <% if !resource.segment_locked? %>
       <div class="tw-flex tw-items-center tw-justify-end tw-p-6 tw-border-t tw-border-gray-200 tw-space-x-2">
-        <%= form.submit 'Upload', class: 'btn btn-success' %>
+        <%= form.submit 'Upload', class: 'tw-bg-green-600 tw-text-white tw-px-6 tw-py-2 tw-rounded tw-font-medium hover:tw-bg-green-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-green-500 focus:tw-ring-offset-2 tw-transition-colors tw-cursor-pointer' %>
       </div>
     <% end %>
   <% end %>

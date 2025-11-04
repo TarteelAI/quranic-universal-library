@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushaf Page Ayah & Words Boundaries Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .file-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .file-input-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input[type="file"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        input[type="file"]:hover {
+            border-color: #667eea;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .toggle label {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .stat-icon.markers { background: #ffe0e0; color: #dc3545; }
+        .stat-icon.words { background: #e0e7ff; color: #4c6ef5; }
+        .stat-icon.ayahs { background: #d4f4dd; color: #28a745; }
+
+        .stat-info h3 {
+            font-size: 24px;
+            color: #212529;
+        }
+
+        .stat-info p {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .viewer-container {
+            padding: 30px;
+            overflow: auto;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .info-panel.active {
+            display: block;
+        }
+
+        .list-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 380px;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .list-sidebar.open {
+            right: 0;
+        }
+
+        .help-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-modal.open {
+            display: flex;
+        }
+
+        .help-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .help-content h2 {
+            margin-top: 0;
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .help-content h3 {
+            color: #495057;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 5px;
+        }
+
+        .help-content ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .help-content li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .help-content kbd {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .help-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #adb5bd;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .help-close:hover {
+            background: #f8f9fa;
+            color: #495057;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        .sidebar-content {
+            padding: 20px;
+        }
+
+        .list-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .list-item:hover {
+            background: #e9ecef;
+            transform: translateX(-4px);
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .list-item-header {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item-details {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .color-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: inline-block;
+            border: 2px solid;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 15px;
+            color: #212529;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .info-item strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .legend {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-color.ayah {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #28a745;
+        }
+
+        .legend-color.word {
+            background: rgba(0, 123, 255, 0.2);
+            border-color: #007bff;
+        }
+
+        .legend-color.marker {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: #dc3545;
+        }
+
+        .legend-color.line {
+            background: rgba(255, 193, 7, 0.2);
+            border-color: #ffc107;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 60px 30px;
+            color: #6c757d;
+        }
+
+        .placeholder h2 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .placeholder p {
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 15px;
+            display: none;
+        }
+
+        .zoom-controls.active {
+            display: block;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+
+        .zoom-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .zoom-level {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mushaf Page Ayah & Words Boundaries Viewer</h1>
+            <p>Interactive visualization of detected lines, ayahs, words, and markers boundaries in mushaf page</p>
+        </div>
+
+        <div class="controls">
+            <div class="file-input-group">
+                <label for="jsonFile">JSON:</label>
+                <input type="file" id="jsonFile" accept=".json" />
+            </div>
+            <div class="file-input-group">
+                <label for="imageFile">Image:</label>
+                <input type="file" id="imageFile" accept="image/*" />
+            </div>
+            
+            <div class="toggle-group">
+                <div class="toggle">
+                    <input type="checkbox" id="showAyahs" checked />
+                    <label for="showAyahs">Show Ayahs</label>
+                </div>
+                <div class="toggle">
+                    <input type="checkbox" id="showWords" checked />
+                    <label for="showWords">Show Words</label>
+                </div>
+                <div class="toggle">
+                    <input type="checkbox" id="showMarkers" checked />
+                    <label for="showMarkers">Show Markers</label>
+                </div>
+                <div class="toggle">
+                    <input type="checkbox" id="showLines" checked />
+                    <label for="showLines">Show Lines</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat" onclick="showList('markers')" style="cursor: pointer;" title="Click to see list">
+                <div class="stat-icon markers" id="markerCount">M</div>
+                <div class="stat-info">
+                    <h3 id="markerNum">0</h3>
+                    <p>Markers</p>
+                </div>
+            </div>
+            <div class="stat" onclick="showList('words')" style="cursor: pointer;" title="Click to see list">
+                <div class="stat-icon words" id="wordCount">W</div>
+                <div class="stat-info">
+                    <h3 id="wordNum">0</h3>
+                    <p>Words</p>
+                </div>
+            </div>
+            <div class="stat" onclick="showList('ayahs')" style="cursor: pointer;" title="Click to see list">
+                <div class="stat-icon ayahs" id="ayahCount">A</div>
+                <div class="stat-info">
+                    <h3 id="ayahNum">0</h3>
+                    <p>Ayahs</p>
+                </div>
+            </div>
+            <div class="stat" onclick="showList('lines')" style="cursor: pointer;" title="Click to see list">
+                <div class="stat-icon" style="background: #fff3cd; color: #856404;">L</div>
+                <div class="stat-info">
+                    <h3 id="lineNum">0</h3>
+                    <p>Lines</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="viewer-container" id="viewerContainer">
+            <div class="placeholder">
+                <h2>📄 Load Files to Begin</h2>
+                <p>1. Select a JSON file (e.g., <code>5_positions.json</code>)</p>
+                <p>2. Select the corresponding image file (e.g., <code>5.jpg</code>)</p>
+                <p>3. Interact with the visualization!</p>
+            </div>
+        </div>
+
+        <div class="legend" id="legend" style="display: none;">
+            <div class="legend-item">
+                <div class="legend-color line"></div>
+                <span>Text Lines</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color ayah"></div>
+                <span>Ayah Boundaries</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color word"></div>
+                <span>Word Boxes</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color marker"></div>
+                <span>Ayah Markers (End)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <h3>Selection Info</h3>
+        <div id="infoPanelContent">
+            <p>Hover over or click elements to see details</p>
+        </div>
+    </div>
+
+    <div class="list-sidebar" id="listSidebar">
+        <div class="sidebar-header">
+            <h2 id="sidebarTitle">Elements</h2>
+            <button class="close-btn" onclick="closeSidebar()">×</button>
+        </div>
+        <div class="sidebar-content" id="sidebarContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Help Button -->
+    <button class="help-button" onclick="openHelp()" title="Help">?</button>
+
+    <!-- Help Modal -->
+    <div class="help-modal" id="helpModal" onclick="closeHelp()">
+        <div class="help-content" onclick="event.stopPropagation()">
+            <button class="help-close" onclick="closeHelp()">×</button>
+            <h2>📖 Quick Guide</h2>
+            
+            <h3>🚀 Getting Started</h3>
+            <ul>
+                <li>Click <strong>JSON</strong> to load extraction results (e.g., 5_ayah_positions.json)</li>
+                <li>Click <strong>Image</strong> to load the Mushaf page image (e.g., 5.jpg)</li>
+                <li>Use checkboxes to toggle Ayahs, Words, Markers, and Lines visibility</li>
+            </ul>
+
+            <h3>🎯 Interactive Features</h3>
+            <ul>
+                <li><strong>Hover</strong> over elements to see tooltips with details</li>
+                <li><strong>Click</strong> elements to view full information in side panel</li>
+                <li><strong>Click stat icons</strong> (🔴🔵🟢🟡) to open sidebar with element lists</li>
+                <li><strong>Click items in sidebar</strong> to scroll and highlight them on canvas</li>
+            </ul>
+
+            <h3>⌨️ Keyboard Shortcuts</h3>
+            <ul>
+                <li><kbd>A</kbd> - Toggle Ayahs overlay</li>
+                <li><kbd>W</kbd> - Toggle Words overlay</li>
+                <li><kbd>M</kbd> - Toggle Markers overlay</li>
+                <li><kbd>L</kbd> - Toggle Lines overlay</li>
+                <li><kbd>+</kbd> or <kbd>=</kbd> - Zoom in</li>
+                <li><kbd>-</kbd> - Zoom out</li>
+                <li><kbd>0</kbd> - Reset zoom</li>
+                <li><kbd>ESC</kbd> - Close sidebar and clear highlight</li>
+            </ul>
+
+            <h3>🎨 Color Coding</h3>
+            <ul>
+                <li><strong>Single Mode:</strong> When only one overlay type is active, each element gets a unique color</li>
+                <li><strong>Multi Mode:</strong> Standard colors - Lines (yellow), Ayahs (green), Words (blue), Markers (red)</li>
+            </ul>
+
+            <h3>🔍 Navigation</h3>
+            <ul>
+                <li><strong>Zoom:</strong> Use +/- buttons or keyboard shortcuts</li>
+                <li><strong>Pan:</strong> Click and drag on the canvas</li>
+                <li><strong>Scroll to Element:</strong> Click items in sidebar to auto-scroll and highlight</li>
+            </ul>
+
+            <h3>📊 Statistics Panel</h3>
+            <ul>
+                <li>Shows total count of Markers, Words, Ayahs, and Lines</li>
+                <li>Click any stat icon to open sidebar with detailed list</li>
+                <li>Sidebar shows positions, dimensions, and color coding</li>
+            </ul>
+
+            <h3>💡 Tips</h3>
+            <ul>
+                <li>Toggle off multiple overlays for clearer view</li>
+                <li>Use sidebar lists to systematically verify each element</li>
+                <li>Check visualization image for quick overview</li>
+                <li>Pulsing yellow highlight shows currently selected element</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="zoom-controls" id="zoomControls">
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <div class="zoom-level" id="zoomLevel">100%</div>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <button class="zoom-btn" onclick="resetZoom()" title="Reset">⟲</button>
+    </div>
+
+    <script>
+        let jsonData = null;
+        let image = null;
+        let canvas = null;
+        let ctx = null;
+        let scale = 1.0;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let highlightedElement = null;  // Currently highlighted element
+        let highlightAnimation = 0;     // Animation frame counter
+
+        // Load JSON file
+        document.getElementById('jsonFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    jsonData = JSON.parse(event.target.result);
+                    console.log('JSON loaded:', jsonData);
+                    updateStats();
+                    if (image) {
+                        renderVisualization();
+                    }
+                } catch (error) {
+                    alert('Error parsing JSON file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Load image file
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                image = new Image();
+                image.onload = function() {
+                    console.log('Image loaded:', image.width, 'x', image.height);
+                    if (jsonData) {
+                        renderVisualization();
+                    }
+                };
+                image.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Toggle checkboxes
+        document.getElementById('showAyahs').addEventListener('change', renderVisualization);
+        document.getElementById('showWords').addEventListener('change', renderVisualization);
+        document.getElementById('showMarkers').addEventListener('change', renderVisualization);
+        document.getElementById('showLines').addEventListener('change', renderVisualization);
+
+        function updateStats() {
+            if (!jsonData) return;
+
+            document.getElementById('stats').style.display = 'flex';
+            document.getElementById('legend').style.display = 'flex';
+            
+            document.getElementById('markerNum').textContent = jsonData.total_markers || 0;
+            document.getElementById('wordNum').textContent = jsonData.total_words || 0;
+            document.getElementById('ayahNum').textContent = jsonData.total_ayahs || 0;
+            
+            // Count total lines from all ayahs
+            let totalLines = 0;
+            if (jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.line_rects) {
+                        totalLines += ayah.line_rects.length;
+                    }
+                });
+            }
+            document.getElementById('lineNum').textContent = totalLines;
+        }
+
+        function renderVisualization() {
+            if (!image || !jsonData) return;
+
+            // Clear placeholder
+            const container = document.getElementById('viewerContainer');
+            container.innerHTML = '';
+
+            // Create canvas
+            const wrapper = document.createElement('div');
+            wrapper.className = 'canvas-wrapper';
+            
+            canvas = document.createElement('canvas');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx = canvas.getContext('2d');
+
+            wrapper.appendChild(canvas);
+            container.appendChild(wrapper);
+
+            // Show zoom controls
+            document.getElementById('zoomControls').classList.add('active');
+
+            // Draw
+            drawCanvas();
+
+            // Add mouse events
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('click', handleClick);
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function drawCanvas() {
+            if (!ctx || !image) return;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw image
+            ctx.drawImage(image, 0, 0);
+            
+            // Increment animation counter for pulsing effect
+            highlightAnimation = (highlightAnimation + 1) % 60;
+
+            const showAyahs = document.getElementById('showAyahs').checked;
+            const showWords = document.getElementById('showWords').checked;
+            const showMarkers = document.getElementById('showMarkers').checked;
+            const showLines = document.getElementById('showLines').checked;
+            
+            // Count how many overlays are active
+            const activeCount = [showLines, showAyahs, showWords, showMarkers].filter(x => x).length;
+            const singleMode = activeCount === 1;
+            
+            // Define color palettes
+            const ayahColors = [
+                {stroke: '#28a745', fill: 'rgba(40, 167, 69, 0.15)'},    // Green
+                {stroke: '#007bff', fill: 'rgba(0, 123, 255, 0.15)'},    // Blue
+                {stroke: '#fd7e14', fill: 'rgba(253, 126, 20, 0.15)'},   // Orange
+                {stroke: '#6f42c1', fill: 'rgba(111, 66, 193, 0.15)'},   // Purple
+                {stroke: '#e83e8c', fill: 'rgba(232, 62, 140, 0.15)'},   // Pink
+                {stroke: '#20c997', fill: 'rgba(32, 201, 151, 0.15)'},   // Teal
+                {stroke: '#17a2b8', fill: 'rgba(23, 162, 184, 0.15)'},   // Cyan
+            ];
+            
+            const lineColors = [
+                {stroke: '#ffc107', fill: 'rgba(255, 193, 7, 0.1)'},     // Yellow
+                {stroke: '#fd7e14', fill: 'rgba(253, 126, 20, 0.1)'},    // Orange
+                {stroke: '#e83e8c', fill: 'rgba(232, 62, 140, 0.1)'},    // Pink
+                {stroke: '#20c997', fill: 'rgba(32, 201, 151, 0.1)'},    // Teal
+            ];
+
+            // Draw lines first (background layer)
+            if (showLines && jsonData.ayahs) {
+                let lineIndex = 0;
+                const seenLines = new Set();
+                
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.line_rects && ayah.line_rects.length > 0) {
+                        ayah.line_rects.forEach((rect) => {
+                            const lineKey = rect.join(',');
+                            if (!seenLines.has(lineKey)) {
+                                seenLines.add(lineKey);
+                                const [x, y, w, h] = rect;
+                                
+                                // Use different colors if only lines are shown
+                                const color = singleMode && showLines ? 
+                                    lineColors[lineIndex % lineColors.length] : 
+                                    {stroke: '#ffc107', fill: 'rgba(255, 193, 7, 0.08)'};
+                                
+                                ctx.strokeStyle = color.stroke;
+                                ctx.lineWidth = singleMode ? 3 : 1;
+                                ctx.strokeRect(x, y, w, h);
+                                
+                                ctx.fillStyle = color.fill;
+                                ctx.fillRect(x, y, w, h);
+                                
+                                // Label lines if in single mode
+                                if (singleMode) {
+                                    ctx.fillStyle = color.stroke;
+                                    ctx.font = 'bold 14px Arial';
+                                    ctx.fillText(`Line ${lineIndex + 1}`, x + 5, y + 20);
+                                }
+                                
+                                lineIndex++;
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Draw ayahs (using line_rects for multi-line ayahs)
+            if (showAyahs && jsonData.ayahs) {
+                jsonData.ayahs.forEach((ayah, ayahIndex) => {
+                    // Use different colors if only ayahs are shown
+                    const color = singleMode && showAyahs ? 
+                        ayahColors[ayahIndex % ayahColors.length] : 
+                        {stroke: '#28a745', fill: 'rgba(40, 167, 69, 0.15)'};
+                    
+                    // Use line_rects for non-overlapping per-line rectangles
+                    if (ayah.line_rects && ayah.line_rects.length > 0) {
+                        ayah.line_rects.forEach((rect, index) => {
+                            const [x, y, w, h] = rect;
+                            
+                            // Calculate width based on words in this ayah on this line
+                            // to avoid full-width boxes when ayah ends mid-line
+                            let lineWords = [];
+                            if (ayah.words) {
+                                lineWords = ayah.words.filter(word => 
+                                    Math.abs(word.bbox[1] - y) < h / 2
+                                );
+                            }
+                            
+                            let displayX = x;
+                            let displayW = w;
+                            
+                            if (lineWords.length > 0) {
+                                // Calculate actual width from words
+                                const leftmost = Math.min(...lineWords.map(w => w.bbox[0]));
+                                const rightmost = Math.max(...lineWords.map(w => w.bbox[0] + w.bbox[2]));
+                                displayX = leftmost;
+                                displayW = rightmost - leftmost;
+                            }
+                            
+                            // Draw rectangle
+                            ctx.strokeStyle = color.stroke;
+                            ctx.lineWidth = singleMode ? 3 : 2;
+                            ctx.strokeRect(displayX, y, displayW, h);
+                            
+                            // Draw semi-transparent fill
+                            ctx.fillStyle = color.fill;
+                            ctx.fillRect(displayX, y, displayW, h);
+                            
+                            // Draw label only on first line
+                            if (index === 0) {
+                                ctx.fillStyle = color.stroke;
+                                ctx.font = 'bold 16px Arial';
+                                ctx.fillText(`Ayah ${ayah.number}`, displayX + 5, y + 20);
+                            }
+                        });
+                    } else if (ayah.bbox && ayah.bbox[2] > 0 && ayah.bbox[3] > 0) {
+                        // Fallback to single bbox
+                        const [x, y, w, h] = ayah.bbox;
+                        
+                        ctx.strokeStyle = color.stroke;
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, w, h);
+                        
+                        ctx.fillStyle = color.fill;
+                        ctx.fillRect(x, y, w, h);
+                        
+                        ctx.fillStyle = color.stroke;
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillText(`Ayah ${ayah.number}`, x + 5, y + 20);
+                    }
+                });
+            }
+
+            // Draw words
+            if (showWords && jsonData.ayahs) {
+                const wordColors = [
+                    '#007bff', '#28a745', '#dc3545', '#ffc107', 
+                    '#17a2b8', '#6f42c1', '#fd7e14', '#e83e8c'
+                ];
+                
+                jsonData.ayahs.forEach((ayah, ayahIndex) => {
+                    if (ayah.words) {
+                        ayah.words.forEach((word, wordIndex) => {
+                            const [x, y, w, h] = word.bbox;
+                            
+                            // Use different colors per ayah if only words shown
+                            const colorIndex = singleMode && showWords ? ayahIndex : 0;
+                            const strokeColor = singleMode && showWords ? 
+                                wordColors[colorIndex % wordColors.length] : 
+                                '#007bff';
+                            
+                            ctx.strokeStyle = strokeColor;
+                            ctx.lineWidth = singleMode ? 2 : 2;
+                            ctx.strokeRect(x, y, w, h);
+                            
+                            if (singleMode && showWords) {
+                                const fillColor = strokeColor + '20';  // Add alpha
+                                ctx.fillStyle = fillColor;
+                                ctx.fillRect(x, y, w, h);
+                            } else {
+                                ctx.fillStyle = 'rgba(0, 123, 255, 0.1)';
+                                ctx.fillRect(x, y, w, h);
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Draw markers from ayahs
+            if (showMarkers && jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.marker) {
+                        const { center, bbox } = ayah.marker;
+                        
+                        // Draw circle
+                        ctx.strokeStyle = '#dc3545';
+                        ctx.fillStyle = 'rgba(220, 53, 69, 0.2)';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(center[0], center[1], 20, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Draw box if available
+                        if (bbox) {
+                            const [x, y, w, h] = bbox;
+                            ctx.strokeStyle = '#dc3545';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x, y, w, h);
+                        }
+                        
+                        // Draw marker number
+                        ctx.fillStyle = '#dc3545';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText(ayah.number, center[0] - 5, center[1] - 25);
+                    }
+                });
+            }
+
+            // Draw markers from raw data if no ayahs
+            if (showMarkers && jsonData.markers_raw && jsonData.markers_raw.length > 0) {
+                jsonData.markers_raw.forEach((marker, index) => {
+                    const { center, bbox } = marker;
+                    
+                    // Draw circle
+                    ctx.strokeStyle = '#dc3545';
+                    ctx.fillStyle = 'rgba(220, 53, 69, 0.2)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(center[0], center[1], 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Draw box
+                    if (bbox) {
+                        const [x, y, w, h] = bbox;
+                        ctx.strokeStyle = '#dc3545';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x, y, w, h);
+                    }
+                    
+                    // Draw marker number
+                    ctx.fillStyle = '#dc3545';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillText(`M${index + 1}`, center[0] - 10, center[1] - 25);
+                });
+            }
+            
+            // Draw highlighted element with pulsing border
+            if (highlightedElement) {
+                const pulseIntensity = Math.abs(Math.sin(highlightAnimation * 0.1)) * 0.5 + 0.5;
+                
+                ctx.strokeStyle = '#ff0';  // Yellow highlight
+                ctx.lineWidth = 6 * pulseIntensity + 2;
+                ctx.setLineDash([10, 5]);
+                
+                if (highlightedElement.type === 'ayah' && highlightedElement.rects) {
+                    highlightedElement.rects.forEach(rect => {
+                        const [x, y, w, h] = rect;
+                        ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+                    });
+                } else if (highlightedElement.bbox) {
+                    const [x, y, w, h] = highlightedElement.bbox;
+                    ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+                }
+                
+                ctx.setLineDash([]);
+                
+                // Continue animation
+                requestAnimationFrame(drawCanvas);
+            }
+        }
+
+        function handleMouseMove(e) {
+            if (!jsonData) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if hovering over any element
+            let hoveredElement = null;
+
+            // Check markers first
+            if (jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.marker) {
+                        const [cx, cy] = ayah.marker.center;
+                        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                        if (dist < 20) {
+                            hoveredElement = {
+                                type: 'marker',
+                                ayah: ayah.number,
+                                data: ayah.marker
+                            };
+                        }
+                    }
+                });
+            }
+
+            // Check words
+            if (!hoveredElement && jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.words) {
+                        ayah.words.forEach((word, index) => {
+                            const [wx, wy, ww, wh] = word.bbox;
+                            if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
+                                hoveredElement = {
+                                    type: 'word',
+                                    ayah: ayah.number,
+                                    index: index,
+                                    data: word
+                                };
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Check ayahs
+            if (!hoveredElement && jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.bbox && ayah.bbox[2] > 0 && ayah.bbox[3] > 0) {
+                        const [ax, ay, aw, ah] = ayah.bbox;
+                        if (x >= ax && x <= ax + aw && y >= ay && y <= ay + ah) {
+                            hoveredElement = {
+                                type: 'ayah',
+                                data: ayah
+                            };
+                        }
+                    }
+                });
+            }
+
+            // Update cursor
+            canvas.style.cursor = hoveredElement ? 'pointer' : 'crosshair';
+        }
+
+        function handleClick(e) {
+            if (!jsonData) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Find clicked element
+            let clickedElement = null;
+
+            // Check markers
+            if (jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.marker) {
+                        const [cx, cy] = ayah.marker.center;
+                        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                        if (dist < 20) {
+                            clickedElement = {
+                                type: 'Marker',
+                                ayah: ayah.number,
+                                data: ayah.marker
+                            };
+                        }
+                    }
+                });
+            }
+
+            // Check words
+            if (!clickedElement && jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.words) {
+                        ayah.words.forEach((word, index) => {
+                            const [wx, wy, ww, wh] = word.bbox;
+                            if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
+                                clickedElement = {
+                                    type: 'Word',
+                                    ayah: ayah.number,
+                                    wordIndex: index + 1,
+                                    data: word
+                                };
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Check ayahs
+            if (!clickedElement && jsonData.ayahs) {
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.bbox && ayah.bbox[2] > 0 && ayah.bbox[3] > 0) {
+                        const [ax, ay, aw, ah] = ayah.bbox;
+                        if (x >= ax && x <= ax + aw && y >= ay && y <= ay + ah) {
+                            clickedElement = {
+                                type: 'Ayah',
+                                number: ayah.number,
+                                data: ayah
+                            };
+                        }
+                    }
+                });
+            }
+
+            // Show info panel
+            if (clickedElement) {
+                showInfoPanel(clickedElement);
+            } else {
+                // Clear highlight if clicking on empty space
+                if (highlightedElement) {
+                    highlightedElement = null;
+                    drawCanvas();
+                }
+            }
+        }
+
+        function showInfoPanel(element) {
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('infoPanelContent');
+            
+            let html = '';
+
+            if (element.type === 'Marker') {
+                html = `
+                    <div class="info-item">
+                        <strong>Type:</strong>
+                        <span>Ayah Marker ${element.ayah}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Center:</strong>
+                        <span>[${element.data.center[0]}, ${element.data.center[1]}]</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Bounding Box:</strong>
+                        <span>[${element.data.bbox.join(', ')}]</span>
+                    </div>
+                    ${element.data.confidence ? `
+                    <div class="info-item">
+                        <strong>Confidence:</strong>
+                        <span>${(element.data.confidence * 100).toFixed(1)}%</span>
+                    </div>` : ''}
+                    ${element.data.template ? `
+                    <div class="info-item">
+                        <strong>Template:</strong>
+                        <span>${element.data.template}</span>
+                    </div>` : ''}
+                `;
+            } else if (element.type === 'Word') {
+                html = `
+                    <div class="info-item">
+                        <strong>Type:</strong>
+                        <span>Word ${element.wordIndex} in Ayah ${element.ayah}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Bounding Box:</strong>
+                        <span>[${element.data.bbox.join(', ')}]</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Size:</strong>
+                        <span>${element.data.bbox[2]} × ${element.data.bbox[3]} px</span>
+                    </div>
+                    ${element.data.area ? `
+                    <div class="info-item">
+                        <strong>Area:</strong>
+                        <span>${Math.round(element.data.area)} px²</span>
+                    </div>` : ''}
+                    ${element.data.aspect_ratio ? `
+                    <div class="info-item">
+                        <strong>Aspect Ratio:</strong>
+                        <span>${element.data.aspect_ratio.toFixed(2)}</span>
+                    </div>` : ''}
+                `;
+            } else if (element.type === 'Ayah') {
+                html = `
+                    <div class="info-item">
+                        <strong>Type:</strong>
+                        <span>Ayah ${element.number}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Bounding Box:</strong>
+                        <span>[${element.data.bbox.join(', ')}]</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Size:</strong>
+                        <span>${element.data.bbox[2]} × ${element.data.bbox[3]} px</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Words:</strong>
+                        <span>${element.data.words ? element.data.words.length : 0} words</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Has Marker:</strong>
+                        <span>${element.data.marker ? 'Yes' : 'No'}</span>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+            panel.classList.add('active');
+        }
+
+        function handleMouseDown(e) {
+            if (e.button === 1 || e.shiftKey) { // Middle mouse or Shift+click
+                isDragging = true;
+                dragStartX = e.clientX - offsetX;
+                dragStartY = e.clientY - offsetY;
+                canvas.style.cursor = 'grabbing';
+            }
+        }
+
+        function handleMouseUp(e) {
+            isDragging = false;
+            canvas.style.cursor = 'crosshair';
+        }
+
+        function zoomIn() {
+            scale = Math.min(scale * 1.2, 5.0);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            scale = Math.max(scale / 1.2, 0.5);
+            updateZoom();
+        }
+
+        function resetZoom() {
+            scale = 1.0;
+            offsetX = 0;
+            offsetY = 0;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            if (canvas) {
+                canvas.style.transform = `scale(${scale})`;
+                canvas.style.transformOrigin = 'top left';
+                document.getElementById('zoomLevel').textContent = Math.round(scale * 100) + '%';
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '+' || e.key === '=') {
+                zoomIn();
+            } else if (e.key === '-') {
+                zoomOut();
+            } else if (e.key === '0') {
+                resetZoom();
+            } else if (e.key === 'a') {
+                document.getElementById('showAyahs').checked = !document.getElementById('showAyahs').checked;
+                renderVisualization();
+            } else if (e.key === 'w') {
+                document.getElementById('showWords').checked = !document.getElementById('showWords').checked;
+                renderVisualization();
+            } else if (e.key === 'm') {
+                document.getElementById('showMarkers').checked = !document.getElementById('showMarkers').checked;
+                renderVisualization();
+            } else if (e.key === 'l') {
+                document.getElementById('showLines').checked = !document.getElementById('showLines').checked;
+                renderVisualization();
+            } else if (e.key === 'Escape') {
+                // Close help modal if open
+                const helpModal = document.getElementById('helpModal');
+                if (helpModal.classList.contains('open')) {
+                    closeHelp();
+                } else {
+                    closeSidebar();
+                    // Also clear highlight if any
+                    if (highlightedElement) {
+                        highlightedElement = null;
+                        drawCanvas();
+                    }
+                }
+            } else if (e.key === 'h' || e.key === 'H' || e.key === '?') {
+                openHelp();
+            }
+        });
+
+        function showList(type) {
+            if (!jsonData) return;
+
+            const sidebar = document.getElementById('listSidebar');
+            const title = document.getElementById('sidebarTitle');
+            const content = document.getElementById('sidebarContent');
+
+            // Get active checkboxes to determine color scheme
+            const showAyahs = document.getElementById('showAyahs').checked;
+            const showWords = document.getElementById('showWords').checked;
+            const showLines = document.getElementById('showLines').checked;
+            const showMarkers = document.getElementById('showMarkers').checked;
+            const activeCount = [showLines, showAyahs, showWords, showMarkers].filter(x => x).length;
+            const singleMode = activeCount === 1;
+
+            const ayahColors = ['#28a745', '#007bff', '#fd7e14', '#6f42c1', '#e83e8c', '#20c997', '#17a2b8'];
+            const lineColors = ['#ffc107', '#fd7e14', '#e83e8c', '#20c997'];
+
+            let html = '';
+
+            if (type === 'markers') {
+                title.textContent = 'Markers List';
+                // Use markers_raw to show ALL markers, including ones not yet assigned to ayahs
+                const markers = jsonData.markers_raw || [];
+                markers.forEach((marker, index) => {
+                    const [cx, cy] = marker.center;
+                    
+                    // Find which ayah this marker ends (if any)
+                    let ayahNumber = null;
+                    jsonData.ayahs.forEach(ayah => {
+                        if (ayah.marker && 
+                            ayah.marker.center[0] === cx && 
+                            ayah.marker.center[1] === cy) {
+                            ayahNumber = ayah.number;
+                        }
+                    });
+                    
+                    html += `
+                        <div class="list-item" style="border-left-color: #dc3545;" 
+                             onclick="highlightElement('marker', ${ayahNumber || index + 1})">
+                            <div class="list-item-header">
+                                <span>Marker ${index + 1}${ayahNumber ? ` (ends Ayah ${ayahNumber})` : ''}</span>
+                                <span class="color-badge" style="background: rgba(220,53,69,0.3); border-color: #dc3545;"></span>
+                            </div>
+                            <div class="list-item-details">
+                                Center: [${cx}, ${cy}]<br>
+                                ${marker.confidence ? `Confidence: ${(marker.confidence * 100).toFixed(1)}%<br>` : ''}
+                                ${marker.template ? `Template: ${marker.template}` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else if (type === 'ayahs') {
+                title.textContent = 'Ayahs List';
+                jsonData.ayahs.forEach((ayah, index) => {
+                    const color = singleMode && showAyahs ? ayahColors[index % ayahColors.length] : '#28a745';
+                    const [x, y, w, h] = ayah.bbox;
+                    const lineCount = ayah.line_rects ? ayah.line_rects.length : 1;
+                    const wordCount = ayah.words ? ayah.words.length : 0;
+                    
+                    html += `
+                        <div class="list-item" style="border-left-color: ${color};" 
+                             onclick="highlightElement('ayah', ${index})">
+                            <div class="list-item-header">
+                                <span>Ayah ${ayah.number}</span>
+                                <span class="color-badge" style="background: ${color}30; border-color: ${color};"></span>
+                            </div>
+                            <div class="list-item-details">
+                                Position: [${x}, ${y}]<br>
+                                Size: ${w} × ${h} px<br>
+                                Lines: ${lineCount} | Words: ${wordCount}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else if (type === 'words') {
+                title.textContent = 'Words List';
+                const wordColors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#e83e8c'];
+                let wordIndex = 0;
+                
+                jsonData.ayahs.forEach((ayah, ayahIndex) => {
+                    if (ayah.words) {
+                        const ayahColor = singleMode && showWords ? wordColors[ayahIndex % wordColors.length] : '#007bff';
+                        
+                        html += `<div style="padding: 10px 0; font-weight: bold; color: ${ayahColor};">Ayah ${ayah.number}</div>`;
+                        
+                        ayah.words.forEach((word, wIndex) => {
+                            wordIndex++;
+                            const [x, y, w, h] = word.bbox;
+                            
+                            html += `
+                                <div class="list-item" style="border-left-color: ${ayahColor};" 
+                                     onclick="highlightElement('word', ${ayahIndex}, ${wIndex})">
+                                    <div class="list-item-header">
+                                        <span>Word ${wordIndex}</span>
+                                        <span class="color-badge" style="background: ${ayahColor}30; border-color: ${ayahColor};"></span>
+                                    </div>
+                                    <div class="list-item-details">
+                                        Position: [${x}, ${y}]<br>
+                                        Size: ${w} × ${h} px
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                });
+            } else if (type === 'lines') {
+                title.textContent = 'Lines List';
+                let lineIndex = 0;
+                const seenLines = new Set();
+                
+                jsonData.ayahs.forEach(ayah => {
+                    if (ayah.line_rects) {
+                        ayah.line_rects.forEach(rect => {
+                            const lineKey = rect.join(',');
+                            if (!seenLines.has(lineKey)) {
+                                seenLines.add(lineKey);
+                                const [x, y, w, h] = rect;
+                                const color = singleMode && showLines ? 
+                                    lineColors[lineIndex % lineColors.length] : '#ffc107';
+                                
+                                html += `
+                                    <div class="list-item" style="border-left-color: ${color};" 
+                                         onclick="highlightElement('line', ${lineIndex})">
+                                        <div class="list-item-header">
+                                            <span>Line ${lineIndex + 1}</span>
+                                            <span class="color-badge" style="background: ${color}30; border-color: ${color};"></span>
+                                        </div>
+                                        <div class="list-item-details">
+                                            Position: [${x}, ${y}]<br>
+                                            Size: ${w} × ${h} px
+                                        </div>
+                                    </div>
+                                `;
+                                lineIndex++;
+                            }
+                        });
+                    }
+                });
+            }
+
+            content.innerHTML = html;
+            sidebar.classList.add('open');
+        }
+
+        function closeSidebar() {
+            document.getElementById('listSidebar').classList.remove('open');
+        }
+
+        function openHelp() {
+            document.getElementById('helpModal').classList.add('open');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').classList.remove('open');
+        }
+
+        function highlightElement(type, index1, index2) {
+            if (!jsonData || !canvas) return;
+            
+            highlightedElement = null;
+            let targetBbox = null;
+            
+            if (type === 'marker') {
+                // Find marker by ayah number
+                const ayah = jsonData.ayahs.find(a => a.number === index1);
+                if (ayah && ayah.marker) {
+                    const [cx, cy] = ayah.marker.center;
+                    const bbox = ayah.marker.bbox || [cx - 30, cy - 30, 60, 60];
+                    highlightedElement = {
+                        type: 'marker',
+                        bbox: bbox
+                    };
+                    targetBbox = bbox;
+                }
+            } else if (type === 'ayah') {
+                const ayah = jsonData.ayahs[index1];
+                if (ayah) {
+                    highlightedElement = {
+                        type: 'ayah',
+                        rects: ayah.line_rects || [ayah.bbox],
+                        bbox: ayah.bbox
+                    };
+                    targetBbox = ayah.bbox;
+                }
+            } else if (type === 'word') {
+                const ayah = jsonData.ayahs[index1];
+                if (ayah && ayah.words && ayah.words[index2]) {
+                    const word = ayah.words[index2];
+                    highlightedElement = {
+                        type: 'word',
+                        bbox: word.bbox
+                    };
+                    targetBbox = word.bbox;
+                }
+            } else if (type === 'line') {
+                // Find the line by index
+                let lineIndex = 0;
+                const seenLines = new Set();
+                let found = false;
+                
+                for (const ayah of jsonData.ayahs) {
+                    if (ayah.line_rects && !found) {
+                        for (const rect of ayah.line_rects) {
+                            const lineKey = rect.join(',');
+                            if (!seenLines.has(lineKey)) {
+                                seenLines.add(lineKey);
+                                if (lineIndex === index1) {
+                                    highlightedElement = {
+                                        type: 'line',
+                                        bbox: rect
+                                    };
+                                    targetBbox = rect;
+                                    found = true;
+                                    break;
+                                }
+                                lineIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Scroll to element
+            if (targetBbox && canvas) {
+                const [x, y, w, h] = targetBbox;
+                const centerX = x + w / 2;
+                const centerY = y + h / 2;
+                
+                // Get canvas wrapper
+                const wrapper = canvas.parentElement;
+                const container = wrapper.parentElement;
+                
+                // Calculate scroll position to center the element
+                const scrollX = centerX - container.clientWidth / 2;
+                const scrollY = centerY - container.clientHeight / 2;
+                
+                // Smooth scroll
+                container.scrollTo({
+                    left: Math.max(0, scrollX),
+                    top: Math.max(0, scrollY),
+                    behavior: 'smooth'
+                });
+            }
+            
+            // Redraw with highlight
+            drawCanvas();
+            
+            // Don't close sidebar - let user close manually
+        }
+    </script>
+</body>
+</html>
+

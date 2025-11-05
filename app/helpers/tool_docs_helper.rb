@@ -20,7 +20,7 @@ module ToolDocsHelper
   end
 
   def doc_image_tag(path)
-    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}}"
+    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}"
     "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
   end
 

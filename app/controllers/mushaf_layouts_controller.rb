@@ -5,7 +5,7 @@ class MushafLayoutsController < CommunityController
   before_action :authenticate_user!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
   before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
   before_action :authorize_access!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
-  before_action :load_page_words, only: [:edit, :show, :save_line_alignment]
+  before_action :load_page_words, only: [:edit, :show, :save_line_alignment, :save_page_mapping]
   before_action :init_presenter
 
   def index
@@ -53,6 +53,7 @@ class MushafLayoutsController < CommunityController
   end
 
   def show
+    #TODO: move the logic to presenter
     @access = can_manage?(@resource)
     @presenter.set_resource(@resource)
 
@@ -79,9 +80,8 @@ class MushafLayoutsController < CommunityController
     first_verse = @mushaf_page.first_verse
     last_verse = @mushaf_page.last_verse
 
-    @ayah_range_missing = first_verse.nil? || last_verse.nil?
-    
-    unless @ayah_range_missing
+
+    if first_verse && last_verse
       @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
     end
   end

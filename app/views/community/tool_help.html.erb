@@ -26,6 +26,12 @@
             <% elsif doc[:type] == 'info' %>
               <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-[#d3d3d4] tw-border tw-text-black">
                 <%= safe_html doc[:text] %>
+
+                <% if doc[:screenshot] %>
+                  <div class="screenshot my-2">
+                    <%= doc_image_tag(doc[:screenshot]) %>
+                  </div>
+                <% end %>
               </div>
             <% elsif doc[:type] == 'step' %>
               <div class="step">
@@ -53,7 +59,7 @@
                     <% doc[:sections].each do |section| %>
                       <div class="tw-mt-3">
                         <% if section[:text] %>
-                          <div class="<%= 'alert alert-dark' if 'info' == section[:type] %> section[:css_class]">
+                          <div class="<%= 'alert alert-dark' if 'info' == section[:type] %> <%= section[:css_class] %>">
                             <%= safe_html section[:text] %>
                           </div>
                         <% end %>

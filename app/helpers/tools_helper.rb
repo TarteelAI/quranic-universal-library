@@ -2,7 +2,7 @@ module ToolsHelper
   def developer_tools
     [
       ToolCard.new(
-        title: 'Prepare Mushaf layout',
+        title: 'Mushaf layouts',
         description: 'Proofread and fix different layouts of Mushaf (15 lines, 16 lines, v2, v1 etc)',
         url: '/mushaf_layouts',
         type: 'mushaf-layout',

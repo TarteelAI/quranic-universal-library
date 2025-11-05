@@ -64,13 +64,13 @@ module MushafPageHelper
 
   def page_status(page)
     return 'Set Ayah range' if page.first_verse_id.nil? || page.last_verse_id.nil?
-    
+
     words_count = @words_counts&.[](page.page_number) || 0
     return 'Map words needed' if words_count == 0
-    
+
     lines_count = @lines_counts&.[](page.page_number) || 0
     return 'Align lines needed' if lines_count == 0
-    
+
     'Ready'
   end
 

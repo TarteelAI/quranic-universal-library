@@ -1,5 +1,6 @@
 <%
   page_number = @mushaf_page.page_number.to_i
+  ayah_range_missing = @mushaf_page.first_verse_id.nil? || @mushaf_page.last_verse_id.nil?
 
   pdf_page_offset = (@resource.meta_value('source_pdf_page_offset') || 2).to_i
 
@@ -9,7 +10,7 @@
   turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
 
   if @access
-    more_action << link_to('Update page ayah mapping', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Set Ayah Range', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
     more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
   end
 
@@ -33,7 +34,7 @@
   actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
   actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
-  actions << link_to('Back to filter', mushaf_layouts_path, class: 'btn btn-info')
+  actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'btn btn-info')
 %>
 
 <%= turbo_frame_tag :page do %>
@@ -47,51 +48,44 @@
   <%= render 'shared/access_message' %>
 
   <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-    <% if @ayah_range_missing %>
-      <div class="tw-max-w-2xl tw-mx-auto tw-mt-8">
-        <div class="tw-bg-blue-50 tw-border-l-4 tw-border-blue-500 tw-p-6 tw-rounded-lg">
-          <div class="tw-flex tw-items-start">
-            <div class="tw-flex-shrink-0">
-              <svg class="tw-h-8 tw-w-8 tw-text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div class="tw-ml-4 tw-flex-1">
-              <h3 class="tw-text-lg tw-font-semibold tw-text-blue-900 tw-mb-2">
-                Ayah Range Required
-              </h3>
-              <p class="tw-text-blue-800 tw-mb-4">
-                Before you can map words for page <%= page_number %>, you need to set the Ayah range first. This defines which verses appear on this page.
-              </p>
-              <div class="tw-flex tw-gap-3">
-                <%= link_to mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'btn btn-primary', data: { turbo_frame: '_top' } do %>
-                  <span>Set Ayah Range</span>
-                <% end %>
-                <%= link_to 'Back to Pages', mushaf_layout_path(@mushaf.id), class: 'btn btn-secondary', data: { turbo_frame: '_top' } %>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% else %>
-      <%= render SplitScreenComponent.new do |component| %>
-        <%= component.with_left do %>
-          <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset, page_offset: pdf_page_offset %>
-        <% end %>
+    <%= turbo_frame_tag "mushaf-page" do %>
+      <% if ayah_range_missing %>
+        <%= render 'missing_required_data', step: 'word_mapping' %>
+      <% else %>
+        <%= render SplitScreenComponent.new do |component| %>
+          <%= component.with_left do %>
+            <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset, page_offset: pdf_page_offset %>
+          <% end %>
 
-        <%= component.with_right do %>
-        <%= turbo_frame_tag "mushaf-page" do %>
+          <%= component.with_right do %>
           <div data-page="<%= page_number %>"
                data-controller="update-mushaf-page mushaf-page-builder">
             <%= render 'shared/page_font', pages: [page_number] %>
 
-            <div class="tw-text-center tw-mb-3 tw-border-b tw-border-gray-300 tw-p-2 resize-heading">
+            <div class="page-controls tw-text-center tw-mb-3 tw-border-b tw-border-gray-300 tw-p-2 resize-heading">
               <label>
                 <input type="checkbox" checked id="propagate-changes">
                 Propagate changes (page: <%= page_number %>)
               </label>
-              <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-red-500 hover:tw-bg-red-600 tw-text-white mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
-              <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
+
+              <div class="tw-inline-flex tw-gap-2 tw-ml-4">
+                <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-red-500 hover:tw-bg-red-600 tw-text-white mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
+                <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
+
+                <button type="button" id="undo-button" class="btn btn-secondary btn-sm" title="Undo (Ctrl+Z)" data-controller="tooltip" disabled>
+                  <svg class="tw-w-4 tw-h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                  </svg>
+                  Undo
+                </button>
+
+                <button type="button" id="redo-button" class="btn btn-secondary btn-sm" title="Redo (Ctrl+Y)" data-controller="tooltip" disabled>
+                  <svg class="tw-w-4 tw-h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"/>
+                  </svg>
+                  Redo
+                </button>
+              </div>
             </div>
 
             <%= form_with model: @mushaf, url: mushaf_layout_path(@mushaf.id, page_number: page_number) do |form| %>

@@ -4,46 +4,46 @@
            help: 'mushaf_layout'
 %>
 
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="page-section">
-    <h2 class="tw-text-2xl tw-mb-4">Mushaf list</h2>
-    <div class="tools-table-overflow">
-    <table class="tw-w-full hover:tw-bg-gray-50">
-      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
-      <tr>
-        <th>
-          <%= sort_order_link 'Id', :id %>
-        </th>
-        <th>Name</th>
-        <th>Pages</th>
-        <th class="md:tw-hidden">Lines</th>
-        <th class="tw-hidden md:tw-block">Lines per page</th>
-        <th>Font</th>
-        <th>Qirat</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
+<%= turbo_frame_tag 'resources' do %>
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+    <div class="page-section">
+      <h2 class="tw-text-2xl tw-mb-4">Mushaf list</h2>
+      <div class="tools-table-overflow">
+        <table class="tw-w-full hover:tw-bg-gray-50">
+          <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
+          <tr>
+            <th>
+              <%= sort_order_link 'Id', :id %>
+            </th>
+            <th>Name</th>
+            <th>Pages</th>
+            <th class="md:tw-hidden">Lines</th>
+            <th class="tw-hidden md:tw-block">Lines per page</th>
+            <th>Font</th>
+            <th>Qirat</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
 
-      <tbody>
-      <% @mushafs.each do |m| %>
-        <tr class="hover:tw-bg-gray-200 tw-border-b">
-          <td class="tw-py-2 tw-pl-2">
-            <%= link_to m.id, mushaf_layout_path(m.id) %>
-          </td>
-          <td class="tw-py-2"><%= m.name %></td>
-          <td class="tw-py-2"><%= m.pages_count %></td>
-          <td class="tw-py-2"><%= m.lines_per_page %></td>
-          <td class="tw-py-2"><%= m.default_font_name %></td>
-          <td class="tw-py-2"><%= m.qirat_type&.name %></td>
-          <td class="tw-py-2">
-            <%= link_to 'Show', mushaf_layout_path(m.id), class: 'btn btn-success btn-sm' %>
-          </td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
+          <tbody>
+          <% @mushafs.each do |m| %>
+            <tr class="hover:tw-bg-gray-200 tw-border-b">
+              <td class="tw-py-2 tw-pl-2">
+                <%= link_to m.id, mushaf_layout_path(m.id), data: {turbo_frame: '_top'} %>
+              </td>
+              <td class="tw-py-2"><%= m.name %></td>
+              <td class="tw-py-2"><%= m.pages_count %></td>
+              <td class="tw-py-2"><%= m.lines_per_page %></td>
+              <td class="tw-py-2"><%= m.default_font_name %></td>
+              <td class="tw-py-2"><%= m.qirat_type&.name %></td>
+              <td class="tw-py-2">
+                <%= link_to 'Show', mushaf_layout_path(m.id), class: 'btn btn-success btn-sm', data: {turbo_frame: '_top'} %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
-</div>
-
-
+<% end %>

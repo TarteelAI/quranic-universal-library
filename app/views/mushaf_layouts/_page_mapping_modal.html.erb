@@ -1,17 +1,20 @@
-<div id="title" class="tw-hidden">Set Ayah Range for Page <%= params[:page_number] %></div>
+<div id="title" class="tw-hidden">
+  Set ayahs range for page <%= params[:page_number] %>
+</div>
+
 <div id="body">
   <%
     pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 2).to_i
     page_number_for_pdf = @mushaf_page.page_number.to_i + pdf_page_offset
     page = @mushaf_page
   %>
-  
+
   <% if page %>
     <%
       first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
       last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
     %>
-    
+
     <%= render SplitScreenComponent.new do |component| %>
       <%= component.with_left do %>
         <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number_for_pdf, page_offset: pdf_page_offset %>
@@ -20,12 +23,10 @@
       <%= component.with_right do %>
         <div class="tw-p-4">
           <h4 class="tw-text-lg tw-font-semibold tw-mb-3">Page <%= page.page_number %> - Ayah Range</h4>
-          
+
           <div class="tw-mb-4">
             <p class="tw-text-sm tw-text-gray-600 tw-mb-3">
-              Ayah key format is <code>surah:ayah</code>
-              <br/>
-              For example: <code>1:1</code> refers to the first verse of the first surah, <code>2:255</code> refers to verse 255 of surah 2.
+              Configure the first and last ayah keys on this page in. Ayah key format is 'Sura:Ayah' (e.g., 2:255).
             </p>
           </div>
 
@@ -40,7 +41,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Last Ayah</label>
                 <div id="<%= page.page_number %>-to">
@@ -50,10 +51,10 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="tw-flex tw-gap-2 tw-justify-end tw-pt-3">
-                <%= form.submit 'Save', id: 'submit', class: 'btn btn-primary', disabled: !@access, data: { bs_dismiss: 'modal' } %>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <%= form.submit 'Save', id: 'submit', class: 'btn btn-primary', disabled: !@access, data: { bs_dismiss: 'modal' } %>
               </div>
             </div>
           <% end %>

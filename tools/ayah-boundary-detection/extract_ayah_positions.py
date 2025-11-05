@@ -23,7 +23,10 @@ class AyahPositionExtractor:
     def __init__(self, 
                  marker_templates_dir: Optional[str] = None,
                  template_match_threshold: float = 0.6,
-                 line_boundaries_file: Optional[str] = None):
+                 line_boundaries_file: Optional[str] = None,
+                 detect_words: bool = False,
+                 min_word_width: int = 15,
+                 merge_threshold: int = 30):
         """
         Initialize the extractor.
         
@@ -31,10 +34,16 @@ class AyahPositionExtractor:
             marker_templates_dir: Directory containing marker template images
             template_match_threshold: Template matching confidence threshold
             line_boundaries_file: JSON file with pre-defined line boundaries
+            detect_words: Whether to detect individual words
+            min_word_width: Minimum width for a valid word (pixels)
+            merge_threshold: Max gap to merge narrow words (pixels)
         """
         self.marker_templates_dir = marker_templates_dir
         self.template_match_threshold = template_match_threshold
         self.line_boundaries_file = line_boundaries_file
+        self.detect_words = detect_words
+        self.min_word_width = min_word_width
+        self.merge_threshold = merge_threshold
         self.line_boundaries = None
         self.marker_templates = []
         
@@ -170,6 +179,244 @@ class AyahPositionExtractor:
                 kept.append(match)
         
         return kept
+    
+    def detect_words_in_ayah(self, binary: np.ndarray, ayah_line_rects: List[List[int]], 
+                             markers: List[Dict] = None) -> List[Dict]:
+        """
+        Detect individual words within an ayah using vertical projection.
+        
+        Args:
+            binary: Binary image
+            ayah_line_rects: List of line rectangles for this ayah
+            markers: List of markers to exclude from word detection
+            
+        Returns:
+            List of word dictionaries with bbox
+        """
+        all_words = []
+        
+        for line_rect in ayah_line_rects:
+            lx, ly, lw, lh = line_rect
+            
+            # Extract line ROI
+            line_roi = binary[ly:ly+lh, lx:lx+lw]
+            
+            # Vertical projection (sum along columns)
+            projection = np.sum(line_roi, axis=0)
+            
+            # Smooth the projection to avoid false boundaries from letter spacing
+            from scipy.ndimage import uniform_filter1d
+            projection = uniform_filter1d(projection, size=5)
+            
+            # Find word boundaries where projection drops below threshold
+            # Use higher threshold to ignore small gaps within words
+            threshold = lh * 20  # Threshold for "empty" space (increased from 10)
+            
+            # Find transitions from text to space
+            in_word = False
+            word_start = 0
+            words = []
+            
+            for x in range(len(projection)):
+                if projection[x] > threshold:
+                    if not in_word:
+                        word_start = x
+                        in_word = True
+                else:
+                    if in_word:
+                        word_end = x
+                        word_width = word_end - word_start
+                        
+                        # Only keep if wide enough
+                        if word_width >= self.min_word_width:
+                            words.append({
+                                'bbox': [lx + word_start, ly, word_width, lh],
+                                'line_y': ly
+                            })
+                        
+                        in_word = False
+            
+            # Handle word at end of line
+            if in_word:
+                word_width = len(projection) - word_start
+                if word_width >= self.min_word_width:
+                    words.append({
+                        'bbox': [lx + word_start, ly, word_width, lh],
+                        'line_y': ly
+                    })
+            
+            # Filter out markers from words
+            if markers:
+                words = self._filter_marker_words(words, markers, ly, lh)
+            
+            all_words.extend(words)
+        
+        # Deduplicate across all lines (removes overlapping detections)
+        all_words = self._deduplicate_words(all_words)
+        
+        # Merge narrow words and close gaps (RTL order)
+        all_words = self._merge_narrow_words(all_words)
+        
+        return all_words
+    
+    def _deduplicate_words(self, words: List[Dict]) -> List[Dict]:
+        """
+        Remove duplicate/overlapping words, keeping the wider one.
+        Simple approach: group by x position and keep widest.
+        
+        Args:
+            words: List of words
+            
+        Returns:
+            Deduplicated words
+        """
+        if not words:
+            return words
+        
+        # Group words by x position (within 5px tolerance)
+        groups = []
+        used = [False] * len(words)
+        
+        for i, word in enumerate(words):
+            if used[i]:
+                continue
+            
+            wx = word['bbox'][0]
+            group = [word]
+            used[i] = True
+            
+            # Find all words starting at similar x position
+            for j, other in enumerate(words):
+                if used[j] or i == j:
+                    continue
+                
+                ox = other['bbox'][0]
+                if abs(wx - ox) <= 5:  # Same starting position (within 5px)
+                    group.append(other)
+                    used[j] = True
+            
+            # Keep the widest word from this group
+            widest = max(group, key=lambda w: w['bbox'][2])
+            groups.append(widest)
+        
+        # Sort by x position
+        groups.sort(key=lambda w: w['bbox'][0])
+        
+        return groups
+    
+    def _filter_marker_words(self, words: List[Dict], markers: List[Dict], 
+                            line_y: int, line_h: int) -> List[Dict]:
+        """
+        Remove words that overlap with markers.
+        
+        Args:
+            words: List of detected words
+            markers: List of markers
+            line_y: Current line y position
+            line_h: Current line height
+            
+        Returns:
+            Filtered words without markers
+        """
+        filtered = []
+        
+        for word in words:
+            wx, wy, ww, wh = word['bbox']
+            word_center_x = wx + ww // 2
+            word_center_y = wy + wh // 2
+            
+            # Check if word overlaps with any marker
+            overlaps_marker = False
+            
+            for marker in markers:
+                mx, my = marker['center']
+                
+                # Only check markers on this line
+                if abs(my - (line_y + line_h // 2)) > line_h:
+                    continue
+                
+                # Check if word overlaps marker (within 40px radius)
+                distance = np.sqrt((word_center_x - mx)**2 + (word_center_y - my)**2)
+                if distance < 40:
+                    overlaps_marker = True
+                    break
+            
+            if not overlaps_marker:
+                filtered.append(word)
+        
+        return filtered
+    
+    def _merge_narrow_words(self, words: List[Dict]) -> List[Dict]:
+        """
+        Merge words that are close to each other (handles tight letter spacing).
+        Uses multiple passes to catch all mergeable words.
+        
+        Args:
+            words: List of words on a line
+            
+        Returns:
+            List of merged words
+        """
+        if not words:
+            return words
+        
+        # Sort by x position (right to left for RTL)
+        words.sort(key=lambda w: w['bbox'][0], reverse=True)
+        
+        # Multiple merge passes to catch all tight spacing
+        changed = True
+        max_passes = 5
+        pass_num = 0
+        
+        while changed and pass_num < max_passes:
+            changed = False
+            merged = []
+            i = 0
+            
+            while i < len(words):
+                current = words[i].copy()
+                
+                # Try to merge with next word (to the left in RTL reading order)
+                merged_this_word = False
+                if i + 1 < len(words):
+                    next_word = words[i + 1]
+                    
+                    # In RTL with reverse sort:
+                    # current is on RIGHT (higher x)
+                    # next is on LEFT (lower x)
+                    current_x = current['bbox'][0]
+                    current_w = current['bbox'][2]
+                    next_x = next_word['bbox'][0]
+                    next_w = next_word['bbox'][2]
+                    
+                    # Gap = space between current's left edge and next's right edge
+                    gap = current_x - (next_x + next_w)
+                    
+                    # Merge conditions:
+                    # 1. If either word is narrow (<70px) and gap is small (or overlapping)
+                    # 2. If gap is very tiny (<15px) or overlapping
+                    should_merge = (
+                        ((current_w < 70 or next_w < 70) and gap < self.merge_threshold) or
+                        (gap < 15)  # Very tight spacing or any overlap
+                    )
+                    
+                    if should_merge:
+                        # Merge the two words
+                        new_x = next_x
+                        new_w = (current_x + current_w) - next_x
+                        current['bbox'] = [new_x, current['bbox'][1], new_w, current['bbox'][3]]
+                        i += 1  # Skip next word since we merged it
+                        changed = True
+                        merged_this_word = True
+                
+                merged.append(current)
+                if not merged_this_word:
+                    i += 1
+            
+            words = merged
+            pass_num += 1
+        
+        return words
     
     def calculate_ayah_rectangles(self, markers: List[Dict]) -> List[Dict]:
         """
@@ -322,6 +569,15 @@ class AyahPositionExtractor:
         # Calculate ayah rectangles
         ayahs = self.calculate_ayah_rectangles(markers)
         
+        # Optionally detect words within each ayah
+        if self.detect_words:
+            for ayah in ayahs:
+                words = self.detect_words_in_ayah(binary, ayah['line_rects'], markers)
+                ayah['words'] = words
+            
+            total_words = sum(len(ayah.get('words', [])) for ayah in ayahs)
+            print(f"Detected {total_words} words")
+        
         # Prepare result
         result = {
             'image_path': image_path,
@@ -335,10 +591,13 @@ class AyahPositionExtractor:
             'markers_raw': markers
         }
         
+        if self.detect_words:
+            result['total_words'] = sum(len(ayah.get('words', [])) for ayah in ayahs)
+        
         return result
     
     def visualize_results(self, image_path: str, result: Dict, output_path: str):
-        """Draw ayah rectangles on image."""
+        """Draw ayah rectangles and optionally words on image."""
         image = cv2.imread(image_path)
         vis_image = image.copy()
         
@@ -361,6 +620,12 @@ class AyahPositionExtractor:
             for rect in ayah['line_rects']:
                 x, y, w, h = rect
                 cv2.rectangle(vis_image, (x, y), (x + w, y + h), color, 3)
+            
+            # Draw words if available
+            if 'words' in ayah and ayah['words']:
+                for word in ayah['words']:
+                    wx, wy, ww, wh = word['bbox']
+                    cv2.rectangle(vis_image, (wx, wy), (wx + ww, wy + wh), (255, 200, 0), 2)
             
             # Draw ayah number
             if ayah['line_rects']:
@@ -422,6 +687,23 @@ def main():
         required=True,
         help='Path to JSON file with pre-defined line boundaries'
     )
+    parser.add_argument(
+        '--detect-words',
+        action='store_true',
+        help='Enable word detection within ayahs'
+    )
+    parser.add_argument(
+        '--min-word-width',
+        type=int,
+        default=15,
+        help='Minimum word width in pixels (default: 15)'
+    )
+    parser.add_argument(
+        '--merge-threshold',
+        type=int,
+        default=30,
+        help='Max gap to merge narrow words in pixels (default: 30)'
+    )
     
     args = parser.parse_args()
     
@@ -433,7 +715,10 @@ def main():
     extractor = AyahPositionExtractor(
         marker_templates_dir=args.marker_templates,
         template_match_threshold=args.template_threshold,
-        line_boundaries_file=args.line_boundaries
+        line_boundaries_file=args.line_boundaries,
+        detect_words=args.detect_words,
+        min_word_width=args.min_word_width,
+        merge_threshold=args.merge_threshold
     )
     
     # Extract
@@ -444,6 +729,8 @@ def main():
     print(f"\nExtraction Summary:")
     print(f"  Total Ayahs: {result['total_ayahs']}")
     print(f"  Total Markers: {result['total_markers']}")
+    if 'total_words' in result:
+        print(f"  Total Words: {result['total_words']}")
     
     # Generate output filenames
     image_stem = Path(args.image_path).stem

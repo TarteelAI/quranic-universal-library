@@ -21,6 +21,15 @@ module V1
         ayah_recitations.find(params[:id])
       end
 
+      def audio_format
+        format = params[:audio_format].to_s.downcase
+        if surah_recitation.format.include?(format)
+          format
+        else
+          'mp3'
+        end
+      end
+
       def wav_manifest
         manifest = {}
         chapter_audio_files = ::Audio::ChapterAudioFile

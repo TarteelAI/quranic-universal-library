@@ -46,6 +46,12 @@ module Audio
       false
     end
 
+    def get_audio_file_url(audio_format: nil)
+      return audio_url if audio_format.blank? || audio_format == 'mp3'
+
+      audio_url.gsub(/mp3/, "#{audio_format}")
+    end
+
     def has_audio_meta_data?
       [duration, bit_rate, file_size, mime_type].all?(&:present?)
     end

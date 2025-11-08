@@ -103,7 +103,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :mushaf_layouts, except: [:delete, :new] do
+  resources :mushaf_layouts, except: [:destroy, :new] do
     member do
       put :save_page_mapping
       put :save_line_alignment
@@ -119,20 +119,20 @@ Rails.application.routes.draw do
   end
 
   resources :learning_activities, only: [:show, :index]
-  resources :arabic_transliterations, except: :delete
+  resources :arabic_transliterations, except: :destroy
   resources :word_text_proofreadings, only: [:index, :show] do
     collection do
       get :compare_words
     end
   end
-  resources :translation_proofreadings, except: :delete
-  resources :tafsir_proofreadings, except: :delete
-  resources :word_translations, except: :delete do
+  resources :translation_proofreadings, except: :destroy
+  resources :tafsir_proofreadings, except: :destroy
+  resources :word_translations, except: :destroy do
     member do
       match :group_info, via: [:get, :post]
     end
   end
-  resources :surah_infos, except: :delete do
+  resources :surah_infos, except: :destroy do
     member do
       get :history
       get :changes

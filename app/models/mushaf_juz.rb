@@ -29,7 +29,7 @@ class MushafJuz < QuranApiRecord
   belongs_to :first_verse, class_name: 'Verse'
   belongs_to :last_verse, class_name: 'Verse'
 
-  enum mushaf_type: {
+  enum :mushaf_type, {
     madani: 1,
     indopak: 2
   }

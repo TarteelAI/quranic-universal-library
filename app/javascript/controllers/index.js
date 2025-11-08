@@ -163,3 +163,6 @@ application.register("font-preview", FontPreviewController);
 
 import PageSearchController from './page_search_controller.js';
 application.register("page-search", PageSearchController);
+
+import LiveSearchController from './live_search_controller.js';
+application.register("live-search", LiveSearchController);

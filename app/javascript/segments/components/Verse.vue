@@ -82,7 +82,7 @@
               <td>Text</td>
               <td>Start</td>
               <td>Ends</td>
-              <td>Waqaf</td>
+              <td>Pause</td>
               <td>Actions</td>
             </tr>
             </thead>

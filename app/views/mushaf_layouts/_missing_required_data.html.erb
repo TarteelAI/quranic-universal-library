@@ -1,7 +1,10 @@
 <%
-  page_number = @mushaf_page.page_number
-  has_ayah_range = @mushaf_page.first_verse_id.present? && @mushaf_page.last_verse_id.present?
-  has_words = @mushaf_page.words.exists?
+  mushaf = @presenter.mushaf
+  mushaf_page = @presenter.mushaf_page
+  
+  page_number = mushaf_page.page_number
+  has_ayah_range = mushaf_page.first_verse_id.present? && mushaf_page.last_verse_id.present?
+  has_words = mushaf_page.words.exists?
   step ||= 'preview' # Default to preview if not specified
 %>
 
@@ -106,7 +109,7 @@
                         class: 'btn btn-primary',
                         data: {
                           controller: 'ajax-modal',
-                          url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number, view_type: 'page_mapping_modal'),
+                          url: mushaf_layout_path(mushaf.id, page_number: mushaf_page.page_number, view_type: 'page_mapping_modal'),
                           css_class: 'modal-xl'
                         }
             %>
@@ -116,13 +119,13 @@
                         class: 'btn btn-primary',
                         data: {
                           controller: 'ajax-modal',
-                          url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number, view_type: 'page_mapping_modal'),
+                          url: mushaf_layout_path(mushaf.id, page_number: mushaf_page.page_number, view_type: 'page_mapping_modal'),
                           css_class: 'modal-xl'
                         }
             %>
 
             <% if has_ayah_range && !has_words %>
-              <%= link_to edit_mushaf_layout_path(@mushaf.id, page_number: page_number),
+              <%= link_to edit_mushaf_layout_path(mushaf.id, page_number: page_number),
                           class: 'btn btn-primary',
                           data: { turbo_frame: '_top' } do %>
                 <span>Map Words</span>
@@ -130,7 +133,7 @@
             <% end %>
           <% end %>
 
-          <%= link_to 'Back to Pages', mushaf_layout_path(@mushaf.id),
+          <%= link_to 'Back to Pages', mushaf_layout_path(mushaf.id),
                       class: 'btn btn-secondary',
                       data: { turbo_frame: '_top' } %>
         </div>

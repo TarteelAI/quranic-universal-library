@@ -31,7 +31,7 @@ class ApplicationPresenter
   end
 
   def page_number
-    params[:page] || '1'
+    (params[:page_number] || '1').to_i.abs
   end
 
   def meta_tags

@@ -1,8 +1,13 @@
 <%
-  page_number = @mushaf_page.page_number.to_i
-  ayah_range_missing = @mushaf_page.first_verse_id.nil? || @mushaf_page.last_verse_id.nil?
+  mushaf = @presenter.mushaf
+  mushaf_page = @presenter.mushaf_page
+  resource = @presenter.resource
+  compared_mushaf = @presenter.compared_mushaf
+  
+  page_number = mushaf_page.page_number.to_i
+  ayah_range_missing = mushaf_page.first_verse_id.nil? || mushaf_page.last_verse_id.nil?
 
-  pdf_page_offset = (@resource.meta_value('source_pdf_page_offset') || 2).to_i
+  pdf_page_offset = (resource.meta_value('source_pdf_page_offset') || 2).to_i
 
   actions = []
   more_action = []
@@ -10,14 +15,14 @@
   turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
 
   if @access
-    more_action << link_to('Set Ayah Range', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Set Ayah Range', mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
-  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: @compared_mushaf&.id, edit: true) })
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Preview Page', mushaf_layout_path(mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: compared_mushaf&.id, edit: true) })
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -31,8 +36,8 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Previous Page', edit_mushaf_layout_path(mushaf.id, compare: compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', edit_mushaf_layout_path(mushaf.id, compare: compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
   actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'btn btn-info')
 %>
@@ -40,7 +45,7 @@
 <%= turbo_frame_tag :page do %>
   <%= render 'tools/header',
              name: 'Mushaf layouts',
-             title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
+             title: "#{mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{mushaf_page.first_ayah_key} - #{mushaf_page.last_ayah_key})</div>",
              key: 'mushaf_layout',
              actions: actions
   %>
@@ -88,7 +93,7 @@
               </div>
             </div>
 
-            <%= form_with model: @mushaf, url: mushaf_layout_path(@mushaf.id, page_number: page_number) do |form| %>
+            <%= form_with model: mushaf, url: mushaf_layout_path(mushaf.id, page_number: page_number) do |form| %>
               <div class="mushaf-layout-form indopak">
                 <% word_index = 1 %>
                 <% @verses.each do |verse| %>
@@ -102,8 +107,8 @@
                       %>
 
                       <div class="word word-group" data-word="<%= word.id %>">
-                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %>">
-                          <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
+                        <div class="p<%= page_number %>-<%= mushaf_page.mushaf.default_font_name %>">
+                          <%= word.text_for_mushaf(mushaf_page.mushaf_id) %>
                         </div>
 
                         <input
@@ -134,7 +139,7 @@
               </div>
 
               <div class="tw-flex tw-justify-center tw-p-4">
-                <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-default', style: 'margin-right: 50px' %>
+                <%= link_to 'Cancel', mushaf_layout_path(mushaf.id, page_number: page_number), class: 'btn btn-default', style: 'margin-right: 50px' %>
                 <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
               </div>
             <% end %>

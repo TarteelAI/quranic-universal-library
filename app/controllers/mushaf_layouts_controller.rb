@@ -1,20 +1,26 @@
 class MushafLayoutsController < CommunityController
   include ActiveStorage::SetCurrent
 
-  before_action :find_resource
-  before_action :authenticate_user!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
-  before_action :load_mushaf_page, only: [:show, :save_page_mapping, :edit, :save_line_alignment]
+  before_action :authenticate_user!, except: [:index, :show]
   before_action :authorize_access!, only: [:update, :save_page_mapping, :save_line_alignment, :edit]
-  before_action :load_page_words, only: [:edit, :show, :save_line_alignment, :save_page_mapping]
-  before_action :init_presenter
 
   def index
-    @mushafs = Mushaf.order("#{sort_key} #{sort_order}")
+  end
+
+  def show
+    modal_views = ['select_compare', 'select_page']
+    if modal_views.include?(params[:view_type].to_s)
+      render partial: params[:view_type], layout: false
+    elsif params[:page_number].present?
+      render 'show_page'
+    end
   end
 
   def save_line_alignment
+    @words = @presenter.words
+
     @record = MushafLineAlignment.where(
-      mushaf_id: @mushaf.id,
+      mushaf_id: @presenter.mushaf.id,
       page_number: params[:page_number],
       line_number: params[:line]
     ).first_or_initialize
@@ -24,7 +30,7 @@ class MushafLayoutsController < CommunityController
     if !['center', 'bismillah', 'surah_name'].include?(alignment) || @record.alignment == alignment
       # We don't need to save justified lines, by default all lines are justified
       # clicking same alignment should remove the data(there is no other way of clear the miss-click)
-      @record.clear! if @record.persisted?
+      @record.destroy if @record.persisted?
     else
       @record.alignment = alignment if @record.alignment.blank?
       @record.set_meta_value(alignment, true)
@@ -32,68 +38,44 @@ class MushafLayoutsController < CommunityController
       @record.save(validate: false)
 
       if @record.is_surah_name?
-        @mushaf.update_surah_numbers_in_layout
+        @presenter.mushaf.update_surah_numbers_in_layout
       end
     end
   end
 
   def save_page_mapping
+    @mushaf_page = @presenter.mushaf_page
     @mushaf_page.attributes = params_for_page_mapping
     @mushaf_page.save(validate: false)
     @mushaf_page.reload
     @pages = [@mushaf_page]
-    calculate_page_statuses
-    
+    @words = @presenter.words
+    @words_counts = { @mushaf_page.page_number => @words.count }
+    @lines_counts = { @mushaf_page.page_number => @words.where.not(line_number: [0, nil]).count }
+
     flash[:notice] = "Page #{@mushaf_page.page_number} is saved"
-    
+
     respond_to do |format|
       format.turbo_stream
-      format.html { redirect_to mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number) }
-    end
-  end
-
-  def show
-    #TODO: move the logic to presenter
-    @access = can_manage?(@resource)
-    @presenter.set_resource(@resource)
-
-    if params[:page_number].present?
-      if params[:view_type] == 'select_compare'
-        render partial: 'select_compare', layout: false
-      elsif params[:view_type] == 'select_page'
-        render partial: 'select_page', layout: false
-      elsif params[:view_type] == 'page_mapping_modal'
-        render partial: 'page_mapping_modal', layout: false
-      else
-        render 'show_page'
-      end
-    else
-      @pages = load_sorted_pages
-      @pages = apply_search_filter(@pages) if params[:search].present?
-      calculate_page_statuses
+      format.html { redirect_to mushaf_layout_path(@presenter.mushaf.id, page_number: @mushaf_page.page_number) }
     end
   end
 
   def edit
-    @lines_per_page = @resource.resource.lines_per_page
-
-    first_verse = @mushaf_page.first_verse
-    last_verse = @mushaf_page.last_verse
-
-
-    if first_verse && last_verse
-      @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
-    end
+    @lines_per_page = @presenter.lines_per_page
+    @verses = @presenter.verses
+    @ayah_range_missing = @presenter.ayah_range_missing?
+    @words = @presenter.words unless @ayah_range_missing
   end
 
   def update
-    MushafLayoutJob.perform_now(@resource.resource_id, page_number, layout_params.to_json)
-    load_mushaf_page
-    load_page_words
+    MushafLayoutJob.perform_now(@presenter.resource.resource_id, page_number, layout_params.to_json)
+    @presenter.reload_mushaf_page!
+    @words = @presenter.words
     flash[:notice] = "Saved successfully, please verify the layout before moving to next page"
   rescue Exception => e
-    File.open("data/mapping-#{@resource.resource_id}-#{page_number}.json", "wb") do |f|
-      f << "MushafLayoutJob.perform_now(#{@resource.resource_id}, #{page_number},#{layout_params.to_json.to_json})"
+    File.open("data/mapping-#{@presenter.resource.resource_id}-#{page_number}.json", "wb") do |f|
+      f << "MushafLayoutJob.perform_now(#{@presenter.resource.resource_id}, #{page_number},#{layout_params.to_json.to_json})"
     end
   end
 
@@ -111,46 +93,18 @@ class MushafLayoutsController < CommunityController
     params.require(:layout).permit(words: {}).to_h
   end
 
-  def load_page_words
-    @words = MushafWord.where(
-      mushaf_id: @resource.resource_id,
-      page_number: page_number
-    ).order('position_in_page ASC')
-
-    if @compared_mushaf
-      @compare_mushaf_words = MushafWord
-                                .where(
-                                  mushaf_id: @compared_mushaf.id,
-                                  page_number: page_number
-                                ).order('position_in_page ASC')
-    end
-  end
-
   def page_number
     (params[:page_number] || 1).to_i
   end
 
   def authorize_access!
-    if @resource.blank? || !can_manage?(@resource)
-      redirect_to mushaf_layout_path(@resource.id, mushaf_id: @resource.id, page_number: page_number), alert: "Sorry you don't have access to this resource"
+    if @presenter.resource.blank? || !can_manage?(@presenter.resource)
+      redirect_to mushaf_layout_path(@presenter.resource.id, mushaf_id: @presenter.resource.id, page_number: page_number), alert: "Sorry you don't have access to this resource"
     end
   end
 
   def load_resource_access
-    @access = can_manage?(find_resource)
-  end
-
-  def find_resource
-    return @resource if @resource
-
-    if params[:id]
-      @mushaf = Mushaf.find(params[:id])
-      @resource = @mushaf.resource_content
-
-      if params[:compare].present?
-        @compared_mushaf = Mushaf.find(params[:compare])
-      end
-    end
+    @access = can_manage?(@presenter.resource)
   end
 
   def params_for_page_mapping
@@ -162,75 +116,7 @@ class MushafLayoutsController < CommunityController
     mapping
   end
 
-  def load_mushaf_page
-    @mushaf_page = MushafPage.where(mushaf_id: @mushaf.id, page_number: page_number).first_or_initialize
-
-    if @compared_mushaf
-      @compare_mushaf_page = MushafPage.where(mushaf_id: @compared_mushaf.id, page_number: page_number).first
-    end
-  end
-
-  def sort_key
-    sortby = params[:sort_keyby] || 'id'
-
-    if ['id', 'name'].include?(sortby)
-      sortby
-    else
-      'id'
-    end
-  end
-
   def init_presenter
     @presenter = MushafLayoutPresenter.new(self)
-  end
-
-  def load_sorted_pages
-    sort_key = params[:sort_key] || 'page_number'
-    sort_order = params[:sort_order] || 'asc'
-
-    allowed_sort_keys = ['page_number', 'first_verse_id', 'last_verse_id', 'verses_count', 'lines_count']
-    sort_key = 'page_number' unless allowed_sort_keys.include?(sort_key)
-    sort_order = 'asc' unless ['asc', 'desc'].include?(sort_order)
-
-    @mushaf.mushaf_pages.preload(:first_verse, :last_verse).order("#{sort_key} #{sort_order}")
-  end
-
-  def apply_search_filter(pages)
-    search_term = params[:search].to_s.strip
-    return pages if search_term.blank?
-    
-    if search_term.match?(/^\d+$/)
-      return pages.where(page_number: search_term.to_i)
-    end
-    
-    if search_term.include?(':')
-      parts = search_term.split(':')
-      if parts.length == 2
-        surah = parts[0].to_i
-        ayah = parts[1].to_i
-        
-        if surah > 0 && ayah > 0
-          verse = Verse.find_by(chapter_id: surah, verse_number: ayah)
-          if verse
-            return pages.where("(first_verse_id <= ? AND last_verse_id >= ?)", verse.id, verse.id)
-          end
-        end
-      end
-    end
-    
-    pages
-  end
-
-  def calculate_page_statuses
-    page_numbers = @pages.pluck(:page_number)
-    
-    @words_counts = MushafWord.where(mushaf_id: @mushaf.id, page_number: page_numbers)
-                              .group(:page_number)
-                              .count
-    
-    @lines_counts = MushafWord.where(mushaf_id: @mushaf.id, page_number: page_numbers)
-                              .where.not(line_number: [0, nil])
-                              .group(:page_number)
-                              .count
   end
 end

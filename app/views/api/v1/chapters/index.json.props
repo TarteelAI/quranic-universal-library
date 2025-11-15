@@ -1,4 +1,3 @@
-
 json.chapters do
   json.array! @presenter.chapters, partial: 'chapter'
 end

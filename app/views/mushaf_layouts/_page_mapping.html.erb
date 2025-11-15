@@ -1,9 +1,12 @@
-<% progress = @mushaf.percentage_done %>
+<%
+  mushaf = @presenter.mushaf
+  progress = mushaf.percentage_done
+%>
 
 <%= turbo_frame_tag "mushaf-page" do %>
   <h3 class="tw-p-3 tw-text-center">
     <p>
-      <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>
+      <%= pluralize mushaf.done_pages_count, 'page' %> finished out of <%= mushaf.pages_count %>
     </p>
 
     <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
@@ -35,7 +38,7 @@
       <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
         <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
         <tr>
-          <th><%= mushaf_sort_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
+          <th><%= mushaf_sort_link 'Page', :page_number, { id: mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
           <th>
           <span class="tw-inline-flex tw-items-center tw-gap-2">
             Ayah Range
@@ -48,7 +51,7 @@
         <tbody>
         <% sort_key = params[:sort_key] || 'page_number' %>
         <% sort_order = params[:sort_order] || 'asc' %>
-        <% @mushaf.mushaf_pages.order("#{sort_key} #{sort_order}").each do |page| %>
+        <% mushaf.mushaf_pages.order("#{sort_key} #{sort_order}").each do |page| %>
           <%
             first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
             last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
@@ -56,7 +59,7 @@
           <tr class="hover:tw-bg-gray-200 tw-border-b" data-page-search-target="tableRow" data-page-number="<%= page.page_number %>" data-first-ayah="<%= first_ayah_key %>" data-last-ayah="<%= last_ayah_key %>">
             <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
             <td class="tw-py-2">
-              <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
+              <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
                 <div class="tw-flex tw-gap-2">
                   <div>
                     <div class="tw-mb-4" id=<%= page.page_number %>-from>
@@ -81,7 +84,7 @@
               <% end %>
             </td>
             <td class="tw-py-2">
-              <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
+              <%= link_to 'Preview', mushaf_layout_path(mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
             </td>
           </tr>
         <% end %>

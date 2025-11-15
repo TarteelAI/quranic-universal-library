@@ -63,12 +63,6 @@ class MushafLineAlignment < ApplicationRecord
     meta_data.blank? && alignment.blank?
   end
 
-  def clear!
-    self.alignment = nil
-    self.meta_data = {}
-    self.destroy
-  end
-
   def update_page_lines_count
     MushafPage.find_by(
       mushaf_id: mushaf_id,

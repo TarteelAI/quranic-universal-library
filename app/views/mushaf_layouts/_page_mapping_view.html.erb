@@ -1,6 +1,9 @@
 <%
-  pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 2).to_i
-  page_number = @mushaf_page.page_number.to_i + pdf_page_offset
+  resource = @presenter.resource
+  mushaf_page = @presenter.mushaf_page
+  
+  pdf_page_offset = (resource.meta_value('source-pdf-page-offset') || 2).to_i
+  page_number = mushaf_page.page_number.to_i + pdf_page_offset
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

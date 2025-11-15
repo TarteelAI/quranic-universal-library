@@ -4,25 +4,25 @@
 
 <div id="body">
   <%
-    pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 2).to_i
-    page_number_for_pdf = @mushaf_page.page_number.to_i + pdf_page_offset
-    page = @mushaf_page
+    mushaf = @presenter.mushaf
+    mushaf_page = @presenter.mushaf_page
+    resource = @presenter.resource
   %>
 
-  <% if page %>
+  <% if mushaf_page %>
     <%
-      first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
-      last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
+      first_ayah_key = Utils::Quran.get_ayah_key_from_id(mushaf_page.first_verse_id)
+      last_ayah_key = Utils::Quran.get_ayah_key_from_id(mushaf_page.last_verse_id)
     %>
 
     <%= render SplitScreenComponent.new do |component| %>
       <%= component.with_left do %>
-        <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number_for_pdf, page_offset: pdf_page_offset %>
+        <%= render 'shared/pdf_or_archive_embed', resource: @presenter.resource %>
       <% end %>
 
       <%= component.with_right do %>
         <div class="tw-p-4">
-          <h4 class="tw-text-lg tw-font-semibold tw-mb-3">Page <%= page.page_number %> - Ayah Range</h4>
+          <h4 class="tw-text-lg tw-font-semibold tw-mb-3">Page <%= mushaf_page.page_number %> - Ayah Range</h4>
 
           <div class="tw-mb-4">
             <p class="tw-text-sm tw-text-gray-600 tw-mb-3">
@@ -30,11 +30,11 @@
             </p>
           </div>
 
-          <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'mushaf-pages' } do |form| %>
+          <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(mushaf, page_number: mushaf_page.page_number), method: :put, html: { class: 'mushaf-pages' } do |form| %>
             <div class="tw-space-y-4">
               <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">First Ayah</label>
-                <div id="<%= page.page_number %>-from">
+                <div id="<%= mushaf_page.page_number %>-from">
                   <%= form.text_field :first_verse_id, value: first_ayah_key, class: 'from form-control', placeholder: 'From (e.g., 1:1)', required: true, disabled: !@access %>
                   <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
                     Current: <%= first_ayah_key || 'Not set' %>
@@ -44,7 +44,7 @@
 
               <div>
                 <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Last Ayah</label>
-                <div id="<%= page.page_number %>-to">
+                <div id="<%= mushaf_page.page_number %>-to">
                   <%= form.text_field :last_verse_id, value: last_ayah_key, class: 'to form-control', placeholder: 'To (e.g., 1:7)', required: true, disabled: !@access %>
                   <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
                     Current: <%= last_ayah_key || 'Not set' %>

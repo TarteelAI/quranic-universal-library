@@ -192,6 +192,8 @@
                     >
                       Track
                     </button>
+
+                    <input type="checkbox">
                   </div>
                 </td>
               </tr>

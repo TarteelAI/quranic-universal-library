@@ -1,9 +1,9 @@
 <%
-  archive_url = @resource.get_archive_embed_url
-  pdf_url = @resource.get_source_pdf_url
+  archive_url = resource.get_archive_embed_url
+  pdf_url = resource.get_source_pdf_url
   jump_to_page = local_assigns[:jump_to_page] || 1
-  page_url = @resource.get_proofrading_image_url
-  img_format = @resource.get_proofrading_image_type
+  page_url = resource.get_proofrading_image_url
+  img_format = resource.get_proofrading_image_type
 
   views = []
   views << :image if page_url.present?

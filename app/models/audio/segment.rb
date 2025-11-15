@@ -86,10 +86,18 @@ module Audio
       words = verse.words_count
 
       list = segments_list.map do |s|
-        s = s.map(&:to_i)
+        word_id = s[0].to_i
+        start_time = s[1].to_i
+        end_time = s[2].to_i
 
-        if s.size == 3 && s[0] <= words
-          s
+        metadata = s[3] if s.size == 4 && s[3].is_a?(Hash)
+
+        if word_id <= words && start_time && end_time
+          if metadata
+            [word_id, start_time, end_time, metadata]
+          else
+            [word_id, start_time, end_time]
+          end
         end
       end
 
@@ -111,6 +119,8 @@ module Audio
         next if s.size < 2
 
         if s.size == 4
+          s.drop(1)
+        elsif s.size == 3
           s.drop(1)
         else
           s

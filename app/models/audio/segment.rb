@@ -83,21 +83,20 @@ module Audio
     end
 
     def set_segments(segments_list, user = nil)
-      words = verse.words_count
+      words_count = verse.words_count
 
       list = segments_list.map do |s|
-        word_id = s[0].to_i
+        word_number = s[0].to_i
+        next if word_number > words_count
+
         start_time = s[1].to_i
         end_time = s[2].to_i
+        metadata = s[3] || {}
 
-        metadata = s[3] if s.size == 4 && s[3].is_a?(Hash)
-
-        if word_id <= words && start_time && end_time
-          if metadata
-            [word_id, start_time, end_time, metadata]
-          else
-            [word_id, start_time, end_time]
-          end
+        if metadata.present? && metadata['waqaf']
+          [word_number, start_time, end_time, {waqaf: true}]
+        else
+          [word_number, start_time, end_time]
         end
       end
 
@@ -117,14 +116,7 @@ module Audio
     def get_segments
       segments.map do |s|
         next if s.size < 2
-
-        if s.size == 4
-          s.drop(1)
-        elsif s.size == 3
-          s.drop(1)
-        else
-          s
-        end
+        s
       end.compact_blank
     end
 

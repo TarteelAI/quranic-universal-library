@@ -161,7 +161,10 @@
                     @change="toggleWaqaf"
                     class="form-check-input"
                     style="cursor: pointer; width: 20px; height: 20px;"
-                    title="Mark if reciter paused after this word"
+                    title="Check if Qari has taken a waqf after this word"
+                    data-controller="tooltip"
+                    name="waqf"
+                    :id="[`waqf-${index}`]"
                 />
                 <small class="form-text d-block">
                   {{ hasWaqaf(segment) ? 'وقف' : '' }}

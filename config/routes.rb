@@ -68,7 +68,6 @@ Rails.application.routes.draw do
 
     resources :treebank, only: [:index, :update] do
       collection do
-        get :svg
         get :syntax_graph
         get :edit
         post :add_node_row

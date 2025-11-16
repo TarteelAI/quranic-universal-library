@@ -26,7 +26,7 @@
           <tr class="edge-row edge-type-<%= edge.type %>" data-edge-id="<%= edge.id %>">
             <td class="edge-id"><%= edge.id %></td>
             <td>
-              <span class="status_tag <%= edge.type %>">
+              <span class="badge bg-<%= edge.type == 'word' ? 'primary' : 'secondary' %>">
                 <%= edge.type.humanize %>
               </span>
             </td>

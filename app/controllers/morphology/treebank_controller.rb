@@ -1,6 +1,6 @@
 module Morphology
   class TreebankController < ApplicationController
-    before_action :set_chapter_verse_and_graph_number, only: [:index, :svg, :edit, :update]
+    before_action :set_chapter_verse_and_graph_number, only: [:index, :edit, :update]
 
     def index
       handle_verse_key_search if params[:verse_key].present?
@@ -11,18 +11,6 @@ module Morphology
       @collection = presenter.collection
       @verse_info = presenter.verse_info
       @navigation = presenter.navigation
-    end
-
-    def svg
-      @graph = Morphology::Graph.find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
-      return unless @graph
-
-      @graph_nodes = @graph.nodes.order(:number)
-      @graph_edges = Morphology::GraphNodeEdge.joins(:source, :target)
-                                               .where(morphology_graph_nodes: { graph_id: @graph.id })
-                                               .distinct
-
-      @graph_data = Morphology::GraphPresenter.new(@graph).to_syntax_graph_json
     end
 
     def add_node_row

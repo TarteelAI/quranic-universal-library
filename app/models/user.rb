@@ -59,13 +59,13 @@ class User < ApplicationRecord
 
   after_create :send_welcome_email
 
-  enum role: {
+  enum :role, {
     normal_user: 0,
     super_admin: 1,
     admin: 2,
     moderator: 3,
     contributor: 4,
-  }, _prefix: 'is'
+  }, prefix: 'is'
 
   def super_admin?
     1 == id || is_super_admin?

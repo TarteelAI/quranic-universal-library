@@ -1,7 +1,14 @@
 # frozen_string_literal: true
-unless Rails.env.development?
-  redis_url = ENV['REDIS_URL'] || 'localhost:6379'
-  ENV['REDIS_URL'] = redis_url
+
+ActiveJob::Base.queue_adapter = :sidekiq # default queue adapter
+
+Rails.application.configure do
+  config.active_job.queue_adapter = :sidekiq
+  config.action_mailbox.queues.routing = 'mailers'
+  config.active_storage.queues.analysis = 'active_storage_analysis'
+  config.active_storage.queues.purge = 'low'
+  config.active_storage.queues.mirror = 'low'
+  config.action_mailer.deliver_later_queue_name = 'mailers'
 end
 
 require 'sidekiq/web'
@@ -9,15 +16,18 @@ require 'sidekiq-scheduler/web'
 require 'sidekiq-status'
 require 'sidekiq-status/web'
 
-# Need delays for action mailer, active jobs syntax is weird
-Sidekiq::Extensions.enable_delay!
-
-Sidekiq.logger.level = Logger::INFO
-Sidekiq.default_worker_options = { 'backtrace' => true }
+Sidekiq.logger.level = Logger::WARN
+Sidekiq.default_job_options['backtrace'] = true
 
 Sidekiq.configure_server do |config|
   Sidekiq::Status.configure_server_middleware config
   Sidekiq::Status.configure_client_middleware config
+
+  # Load the schedule
+  config.on(:startup) do
+    Sidekiq.schedule = YAML.load_file('config/sidekiq_scheduler.yml')
+    SidekiqScheduler::Scheduler.instance.reload_schedule!
+  end
 end
 
 Sidekiq.configure_client do |config|

@@ -15,7 +15,7 @@ class Synonym < ApplicationRecord
     where('synonyms like ?', "%#{synonym}%")
   }
 
-  serialize :synonyms, Array
+  attribute :synonyms, :json, default: []
 
   has_many :word_synonyms, class_name: 'WordSynonym'
 

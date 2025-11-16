@@ -1,0 +1,16 @@
+<div class="d-flex gap-2">
+  <div class="mb-2 w-50">
+    <label class="form-label small mb-1">Value:</label>
+    <%= text_field_tag field_name_prefix + "[value]", 
+                       value,
+                       class: 'form-control form-control-sm',
+                       placeholder: 'e.g., *' %>
+  </div>
+  <div class="w-50">
+    <label class="form-label small mb-1">POS:</label>
+    <%= text_field_tag field_name_prefix + "[pos]", 
+                       pos,
+                       class: 'form-control form-control-sm',
+                       placeholder: 'POS tag' %>
+  </div>
+</div>

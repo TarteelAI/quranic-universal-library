@@ -1,0 +1,11 @@
+<%= render 'tools/header',
+           name: 'Morphology Treebank',
+           key: 'morphology_treebank',
+           help: false
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+    <%= render partial: 'morphology/treebank/index', locals: { collection: @collection } %>
+  </div>
+</div>

@@ -133,6 +133,7 @@ class Morphology::WordSegment < QuranApiRecord
   belongs_to :root, optional: true
   belongs_to :topic, optional: true
   belongs_to :lemma, optional: true
+  has_one :graph_node, class_name: 'Morphology::GraphNode', foreign_key: :segment_id
 
   default_scope { order 'position asc' }
 

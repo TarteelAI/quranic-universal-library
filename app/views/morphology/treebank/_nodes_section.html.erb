@@ -1,0 +1,30 @@
+<div class="edit-section" data-controller="graph-bulk-edit">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Graph Nodes (<span class="node-count"><%= graph_nodes.count %></span>)</h2>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="edit-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Number</th>
+          <th>Type</th>
+          <th>Resource/Details</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% graph_nodes.each do |node| %>
+          <%= render 'morphology/treebank/node_row',
+                     node: node,
+                     graph_nodes: graph_nodes,
+                     node_types: node_types,
+                     available_words: available_words,
+                     available_segments: available_segments,
+                     graph_id: graph_id %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

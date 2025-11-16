@@ -1,0 +1,71 @@
+<div class="edit-section" data-controller="graph-bulk-edit">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Graph Edges (<%= graph_edges.count %>)</h2>
+    <button type="button" 
+            class="btn btn-success btn-sm"
+            data-action="click->graph-bulk-edit#addEdgeRow"
+            title="Add new edge">
+      <i class="fa fa-plus"></i> Add Edge
+    </button>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="edit-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Source Node</th>
+          <th>Target Node</th>
+          <th>Relation</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% graph_edges.each do |edge| %>
+          <tr class="edge-row edge-type-<%= edge.type %>" data-edge-id="<%= edge.id %>">
+            <td class="edge-id"><%= edge.id %></td>
+            <td>
+              <span class="status_tag <%= edge.type %>">
+                <%= edge.type.humanize %>
+              </span>
+            </td>
+            <td>
+              <%= select_tag "edges[#{edge.id}][source_id]",
+                             options_for_select(available_nodes, edge.source_id),
+                             class: 'form-select' %>
+            </td>
+            <td>
+              <%= select_tag "edges[#{edge.id}][target_id]",
+                             options_for_select(available_nodes, edge.target_id),
+                             class: 'form-select' %>
+            </td>
+            <td>
+              <%= text_field_tag "edges[#{edge.id}][relation]",
+                                 edge.relation,
+                                 class: 'form-control',
+                                 list: 'edge-relations',
+                                 placeholder: 'Relation' %>
+            </td>
+            <td class="actions-cell">
+              <%= hidden_field_tag "edges[#{edge.id}][_destroy]", '0', class: 'destroy-flag' %>
+              <button type="button" 
+                      class="btn btn-danger btn-sm remove-edge-btn bg-white"
+                      data-edge-id="<%= edge.id %>"
+                      data-action="click->graph-bulk-edit#removeEdge"
+                      title="Remove edge">
+                <i class="fa fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  
+  <datalist id="edge-relations">
+    <% edge_relations.each do |relation| %>
+      <option value="<%= relation %>">
+    <% end %>
+  </datalist>
+</div>

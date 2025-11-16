@@ -1,0 +1,8 @@
+<div class="resource-dropdowns" data-node-id="<%= node_id %>">
+  <div class="mb-2">
+    <label class="form-label small mb-1">Word:</label>
+    <%= select_tag field_name_prefix + "[resource_id]",
+                   options_for_select(available_words, resource_id),
+                   { include_blank: 'Select Word', class: 'form-select form-select-sm' } %>
+  </div>
+</div>

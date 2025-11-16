@@ -1,0 +1,129 @@
+<%
+  node_id_value = node.node_id.to_s
+  is_new_node = node_id_value.start_with?('new_')
+  field_name_prefix = is_new_node ? "new_nodes[#{node_id_value}]" : "nodes[#{node_id_value}]"
+  
+  show_add_button = true
+  if node.type == 'word' && node.resource_type == 'Morphology::Word' && node.resource
+    word_segments = graph_nodes.select { |n| n.resource_type == 'Morphology::Word' && n.resource_id == node.resource_id }
+    show_add_button = (word_segments.last == node)
+  end
+%>
+
+<tr class="node-row node-type-<%= node.persisted? ? node.type : 'new' %>"
+    data-node-id="<%= node_id_value %>"
+    id="node_<%= node_id_value %>">
+  
+  <td class="node-id">
+    <%= is_new_node ? 'NEW' : node.id %>
+    <%= hidden_field_tag field_name_prefix + "[graph_id]", graph_id if is_new_node %>
+    <%= hidden_field_tag field_name_prefix + "[temp_id]", node.temp_id if node.temp_id.present? %>
+  </td>
+  
+  <td class="node-number">
+    <%= node.display_number %>
+    <%= hidden_field_tag field_name_prefix + "[number]", node.number || '' %>
+    <%= hidden_field_tag field_name_prefix + "[temp_number]", node.temp_number if node.temp_number.present? %>
+  </td>
+  
+  <td>
+    <%= select_tag field_name_prefix + "[type]", 
+                   options_for_select(node_types.map { |t| [t.humanize, t] }, node.type),
+                   class: 'form-select node-type-select',
+                   data: { 
+                     node_id: node_id_value, 
+                     action: 'change->graph-bulk-edit#handleNodeTypeChange'
+                   } %>
+  </td>
+  
+  <td class="resource-cell">
+    <%= hidden_field_tag field_name_prefix + "[resource_type]", node.resource_type, class: 'resource-type-select', data: { node_id: node_id_value } %>
+    
+    <%= turbo_frame_tag "node_#{node_id_value}_fields" do %>
+      <span class="field-content w-100">
+        <% if node.type == 'word' %>
+          <%= render 'morphology/treebank/form/word_fields',
+                     node_id: node_id_value,
+                     field_name_prefix: field_name_prefix,
+                     available_words: available_words,
+                     available_segments: available_segments,
+                     resource_id: node.resource_id,
+                     segment_id: node.segment_id %>
+                     
+        <% elsif node.type == 'reference' %>
+          <%= render 'morphology/treebank/form/reference_fields',
+                     node_id: node_id_value,
+                     field_name_prefix: field_name_prefix,
+                     available_words: available_words,
+                     available_segments: available_segments,
+                     resource_id: node.resource_id,
+                     segment_id: node.segment_id %>
+                     
+        <% elsif node.type == 'elided' %>
+          <%= render 'morphology/treebank/form/elided_fields',
+                     node_id: node_id_value,
+                     field_name_prefix: field_name_prefix,
+                     value: node.value,
+                     pos: node.pos %>
+                     
+        <% elsif node.type == 'phrase' %>
+          <% 
+            phrase_pos = node.resource&.relation || ''
+            # Convert database numbers (0-indexed) to display numbers (1-indexed)
+            phrase_source = node.resource&.source&.number ? node.resource.source.number + 1 : nil
+            phrase_target = node.resource&.target&.number ? node.resource.target.number + 1 : nil
+            # Only include nodes with actual numbers (not temporary new-number-X)
+            available_node_numbers = graph_nodes.reject { |n| n.number.to_s.start_with?('new-number-') }
+                                                .map { |n| ["n#{n.number + 1}", n.number + 1] }
+          %>
+          <%= render 'morphology/treebank/form/phrase_fields',
+                     node_id: node_id_value,
+                     field_name_prefix: field_name_prefix,
+                     phrase_pos: phrase_pos,
+                     phrase_source: phrase_source,
+                     phrase_target: phrase_target,
+                     value: node.value,
+                     available_node_numbers: available_node_numbers %>
+                     
+        <% else %>
+          <div class="text-muted">-</div>
+        <% end %>
+      </span>
+    <% end %>
+    
+    <span class="field-placeholder" style="display: none;">-</span>
+  </td>
+  
+  <td class="actions-cell">
+    <%= hidden_field_tag field_name_prefix + "[_destroy]", '0', class: 'destroy-flag' %>
+    <div class="btn-group btn-group-sm">
+      <% if show_add_button %>
+        <%= button_tag type: 'button',
+                       class: 'btn btn-success btn-sm add-node-btn bg-white',
+                       data: { 
+                         node_id: node_id_value,
+                         action: 'click->graph-bulk-edit#addNodeAfter',
+                         turbo_method: :post,
+                         turbo_frame: "new_node_after_#{node_id_value}"
+                       },
+                       title: 'Add node after this' do %>
+          <i class="fa fa-plus"></i>
+        <% end %>
+      <% end %>
+      
+      <% unless node.type == 'word' %>
+        <%= button_tag type: 'button',
+                       class: "btn btn-sm remove-node-btn bg-white #{is_new_node ? 'btn-danger' : 'btn-danger'}",
+                       data: { 
+                         node_id: node_id_value,
+                         action: is_new_node ? 'click->graph-bulk-edit#removeNewNode' : 'click->graph-bulk-edit#removeNode'
+                       },
+                       title: 'Remove node' do %>
+          <i class="fa fa-trash"></i>
+        <% end %>
+      <% end %>
+    </div>
+  </td>
+</tr>
+
+<%= turbo_frame_tag "new_node_after_#{node_id_value}" %>

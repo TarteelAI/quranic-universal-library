@@ -1,0 +1,211 @@
+<div class="morphology-graph-view">
+  <div class="page-header">
+    <h1>Syntax Graph - <%= @location %> (Graph <%= @graph_number %>)</h1>
+    <%= link_to '← Back to Nodes', morphology_treebank_index_path(location: @location, graph_number: @graph_number), class: 'button' %>
+  </div>
+
+  <div class="graph-stats">
+    <p><strong>Total Nodes:</strong> <%= @graph_nodes.count %></p>
+    <p><strong>Total Edges:</strong> <%= @graph_edges.count %></p>
+    <p><strong>Word Nodes:</strong> <%= @graph_nodes.where(type: 'word').count %></p>
+    <p><strong>Reference Nodes:</strong> <%= @graph_nodes.where(type: 'reference').count %></p>
+    <p><strong>Phrase Nodes:</strong> <%= @graph_nodes.where(type: 'phrase').count %></p>
+    <p><strong>Elided Nodes:</strong> <%= @graph_nodes.where(type: 'elided').count %></p>
+  </div>
+
+  <% if @graph_nodes.any? %>
+    <div class="syntax-graph-section">
+      <h3>Syntax Graph Visualization</h3>
+      <div class="syntax-graph-container"
+           data-controller="syntax-graph"
+           data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(location: @location, graph_number: @graph_number) %>">
+        <div data-syntax-graph-target="container">Loading syntax graph...</div>
+      </div>
+    </div>
+
+    <div class="graph-details">
+      <h3>Graph Nodes</h3>
+      <table class="index_table">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Type</th>
+            <th>Value</th>
+            <th>POS</th>
+            <th>Resource</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @graph_nodes.each do |node| %>
+            <tr class="node-type-<%= node.type %>">
+              <td>n<%= node.number + 1 %></td>
+              <td>
+                <span class="status_tag <%= node.type %>">
+                  <%= node.type.humanize %>
+                </span>
+              </td>
+              <td><%= truncate(node.value, length: 50) %></td>
+              <td><%= node.pos %></td>
+              <td>
+                <% if node.resource %>
+                  <% if node.resource.is_a?(Morphology::Word) %>
+                    Word: <%= node.resource.location %>
+                  <% elsif node.resource.is_a?(Morphology::GraphNodeEdge) %>
+                    Edge: <%= node.resource.relation %>
+                  <% end %>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to 'Edit', edit_morphology_treebank_path(node) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <h3>Graph Edges</h3>
+      <table class="index_table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Source</th>
+            <th>Target</th>
+            <th>Relation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @graph_edges.each do |edge| %>
+            <tr>
+              <td><%= edge.id %></td>
+              <td>
+                <span class="status_tag <%= edge.type %>">
+                  <%= edge.type.humanize %>
+                </span>
+              </td>
+              <td>n<%= edge.source.number + 1 %> (<%= edge.source.type %>)</td>
+              <td>n<%= edge.target.number + 1 %> (<%= edge.target.type %>)</td>
+              <td><strong><%= edge.relation %></strong></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="blank_slate_container">
+      <span class="blank_slate">
+        No graph nodes found for index <%= @graph_index %>
+      </span>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .morphology-graph-view {
+    padding: 20px;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .graph-stats {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #e8f4f8;
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  
+  .graph-stats p {
+    margin: 0;
+  }
+  
+  .syntax-graph-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .syntax-graph-container {
+    min-height: 400px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    padding: 20px;
+  }
+  
+  .graph-details {
+    margin-top: 30px;
+  }
+  
+  .graph-details h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+  }
+  
+  .index_table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .index_table th,
+  .index_table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .index_table th {
+    background: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .status_tag {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .status_tag.word {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .status_tag.reference {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+  
+  .status_tag.phrase {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  .status_tag.elided {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  
+  .button:hover {
+    background: #0056b3;
+  }
+</style>

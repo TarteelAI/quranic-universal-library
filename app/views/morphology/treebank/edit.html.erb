@@ -1,0 +1,221 @@
+<%= render 'tools/header',
+           name: 'Morphology Treebank',
+           key: 'morphology_treebank',
+           help: false
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section">
+<div class="container-fluid mt-4">
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <% if @verse_info %>
+          <div class="d-flex gap-2">
+            <span class="badge bg-primary">Verse: <%= @verse_info[:verse_key] %></span>
+            <span class="badge bg-secondary">Graph <%= @verse_info[:graph_number] %> of <%= @verse_info[:total_graphs] %></span>
+          </div>
+        <% end %>
+      </div>
+      
+      <h3 class="tw-text-xl mb-0">Edit Syntax Graph</h3>
+      
+      <div>
+        <%= link_to 'Back to View', morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'btn btn-secondary btn-sm' %>
+      </div>
+    </div>
+    
+    
+    <div class="card-body">
+      <% if flash[:alert] %>
+        <div class="alert alert-danger">
+          <%= flash[:alert] %>
+        </div>
+      <% end %>
+
+      <%= form_with url: edit_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), method: :patch, local: true do |f| %>
+        <%= hidden_field_tag :graph_id, @graph.id %>
+
+    <%= render 'nodes_section',
+               graph_nodes: @graph_nodes,
+               node_types: @node_types,
+               available_words: @available_words,
+               available_edges: @available_edges,
+               available_segments: @available_segments,
+               graph_id: @graph.id %>
+
+    <%= render 'edges_section', 
+               graph_edges: @graph_edges, 
+               available_nodes: @available_nodes, 
+               edge_relations: @edge_relations %>
+
+      <div class="form-actions mt-4">
+        <%= f.submit 'Save All Changes', class: 'btn btn-primary btn-lg', data: { confirm: 'Are you sure you want to update all nodes and edges?' } %>
+        <%= link_to 'Cancel', morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'btn btn-secondary btn-lg' %>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+ </div>
+</div>
+<style>
+  .morphology-treebank-bulk-edit {
+    padding: 20px;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .edit-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .edit-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  .edit-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 14px;
+  }
+  
+  .edit-table th,
+  .edit-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+  }
+  
+  .edit-table th {
+    background: #f0f0f0;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .node-id,
+  .edge-id {
+    font-weight: bold;
+    color: #666;
+    width: 60px;
+  }
+  
+  .node-number {
+    font-weight: bold;
+    color: #2c3e50;
+    width: 80px;
+  }
+  
+  .form-control,
+  .form-select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .form-control:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  }
+  
+  .resource-dropdowns {
+    min-width: 200px;
+  }
+  
+  .node-row.node-type-word {
+    background: #f0f8f0;
+  }
+  
+  .node-row.node-type-reference {
+    background: #f0f5ff;
+  }
+  
+  .node-row.node-type-phrase {
+    background: #fffef0;
+  }
+  
+  .node-row.node-type-elided {
+    background: #fff0f0;
+  }
+  
+  .status_tag {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .status_tag.word {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .status_tag.phrase {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  .form-actions {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    display: flex;
+    gap: 15px;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .button.primary {
+    background: #007bff;
+  }
+  
+  .button:hover {
+    opacity: 0.9;
+  }
+  
+  .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+  
+  .alert-danger {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+</style>

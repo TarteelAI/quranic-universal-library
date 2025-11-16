@@ -65,6 +65,16 @@ Rails.application.routes.draw do
     get 'roots/:id', to: 'roots#show', as: :root
     get 'lemmas/:id', to: 'lemmas#show', as: :lemma
     get 'stems/:id', to: 'stems#show', as: :stem
+
+    resources :treebank, only: [:index, :update] do
+      collection do
+        get :svg
+        get :syntax_graph
+        get :edit
+        post :add_node_row
+        post :update_node_fields
+      end
+    end
   end
 
   resources :user_projects, except: [:index, :destroy]

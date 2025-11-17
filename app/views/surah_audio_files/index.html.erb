@@ -7,25 +7,25 @@
 <%= render 'tools/header',
            name: 'Surah recitations',
            title: @recitation.humanize,
-           key: 'surah_recitation'
+           key: 'surah_recitation_segment_builder'
 %>
 
 <%= render 'shared/access_message' %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section filters">
-    <div class="row">
+    <div class="tw-flex tw-flex-wrap tw-gap-4">
       <div class="col-lg-12">
         <%= form_tag surah_audio_files_path, method: :get do %>
-          <div data-controller="chapter-verses-filter" class="d-flex tw-flex-wrap">
+          <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
             <%= render 'shared/filters', verse: false %>
 
-            <div class="form-group me-2">
+            <div class="tw-mb-4 tw-me-2">
               <%= select_tag :recitation_id, options_for_select(recitations, params[:recitation_id]), class: 'form-select tw-w-[85vw] sm:tw-w-auto', data: { controller: 'select2' } %>
-              <p class="form-text">Filter by recitation</p>
+              <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by recitation</p>
             </div>
 
-            <div class="form-group">
+            <div class="tw-mb-4">
               <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
             </div>
           </div>
@@ -34,11 +34,11 @@
     </div>
   </div>
 
-  <div class="page-section mt-4">
+  <div class="page-section tw-mt-4">
     <h2 class="tw-text-2xl tw-mb-4">Surah list</h2>
     <div class="tools-table-overflow">
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th>
           <%= sort_order_link 'Surah', :chapter_id, recitation_id: @recitation.id %>
@@ -50,13 +50,13 @@
 
       <tbody>
       <% @audio_files.each do |file| %>
-        <tr>
-          <th scope="row"><%= file.chapter_id %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= file.chapter_id %></th>
 
-          <td>
+          <td class="tw-py-2">
             <% progress = file.segment_progress %>
-            <div class="progress">
-              <div class="progress-bar progress-bar-success"
+            <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
+              <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300 tw-bg-green-500"
                    role="progressbar"
                    aria-valuenow="<%= progress %>"
                    aria-valuemin="0" aria-valuemax="100"
@@ -67,10 +67,10 @@
             </div>
           </td>
 
-          <td>
-            <div class="d-flex gap-1">
-              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
-              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success' %>
+          <td class="tw-py-2">
+            <div class="tw-flex tw-gap-1">
+              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
+              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
             </div>
           </td>
         </tr>

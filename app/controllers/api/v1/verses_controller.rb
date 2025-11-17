@@ -9,7 +9,7 @@ module Api
 
       protected
       def init_presenter
-        @presenter = ::V1::VersePresenter.new(params)
+        @presenter = ::V1::VersePresenter.new(self)
       end
     end
   end

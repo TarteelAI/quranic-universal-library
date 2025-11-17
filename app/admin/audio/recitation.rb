@@ -174,6 +174,7 @@ ActiveAdmin.register Recitation do
       row :created_at
       row :updated_at
     end
+    active_admin_comments
   end
 
   form do |f|
@@ -218,23 +219,36 @@ ActiveAdmin.register Recitation do
     end
   end
 
-  # Export multiple recitation segments to sqlite db
+  # Export multiple recitation segments to sqlite db or json files
   collection_action :export_sqlite_db, method: 'put' do
     authorize! :download, :from_admin
 
-    file_name = params[:file_name].presence || 'reciter-audio-timing.sqlite'
+    format = params[:export_format].presence || 'sqlite'
+    default_file = format == 'json' ? 'reciter-audio-timing.zip' : 'reciter-audio-timing.sqlite'
+    file_name = params[:file_name].presence || default_file
     table_name = params[:table_name].presence || 'ayah_timing'
-    recitations_ids = params[:reciter_ids].split(',').compact_blank
 
-    Export::AyahRecitationSegmentsJob.perform_later(
+    recitations_ids =
+      if params[:reciter_ids].is_a?(String)
+        params[:reciter_ids].split(',').map(&:strip).reject(&:blank?)
+      else
+        Array(params[:reciter_ids]).map(&:to_s).reject(&:blank?)
+      end
+
+    export_gapless = params[:export_gapless] == '1'
+
+    Audio::ExportAudioSegmentsJob.perform_later(
       file_name: file_name,
       table_name: table_name,
       user_id: current_user.id,
-      recitations_ids: recitations_ids
+      recitations_ids: recitations_ids,
+      gapless: export_gapless,
+      format: format
     )
+
     # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
-    redirect_back(fallback_location: '/cms', notice: 'Recitation segments db will be shared via email.')
+    redirect_back(fallback_location: '/cms', notice: "Recitation segments export job enqueued (format: #{format}). You will receive an email when finished.")
   end
 end

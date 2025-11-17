@@ -21,7 +21,7 @@ module Exporter
       segments.each do |batch|
         batch.each do |segment|
           segments_data[segment.verse_key] = {
-            segments: segment.segments,
+            segments: segment.get_segments(drop_metadata: true),
             duration_sec: segment.duration.to_i.abs,
             duration_ms: segment.duration_ms.to_i.abs,
             timestamp_from: segment.timestamp_from,

@@ -13,10 +13,14 @@
   font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_path}.ttf"
 %>
 
-<div class="tw-mt-5">
+<div class="tw-mt-5" data-controller="tabs">
+<!-- Preload font for faster loading -->
+<link rel="preload" href="<%= font_url %>" as="fetch" crossorigin="anonymous">
+
+
   <ul class="nav nav-tabs" id="font-docs-tab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
               data-bs-toggle="tab"
               data-bs-target="#tab-docs-pane"
@@ -28,8 +32,8 @@
       </button>
     </li>
     <% if ligatures.present? %>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link"
+      <li class="tw-m-0" role="presentation">
+        <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
                 id="tab-ligatures"
                 data-bs-toggle="tab"
                 data-bs-target="#tab-ligatures-pane"
@@ -40,8 +44,8 @@
         </button>
       </li>
     <% end %>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-glyphs"
               data-bs-toggle="tab"
               data-bs-target="#tab-glyphs-pane"
@@ -53,7 +57,11 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content">
+  <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content" 
+       data-controller="font-preview"
+       data-font-preview-font-url-value="<%= font_url %>"
+       data-font-preview-font-face-value="<%= font_face %>"
+       data-font-preview-sample-text-value="<%= sample_text %>">
     <div class="tab-pane fade show active"
          id="tab-docs-pane"
          role="tabpanel"
@@ -84,7 +92,7 @@
           elements.
         </p>
 
-        <h3 class="text-lg font-medium mb-2">Steps to Integrate</h3>
+        <h3 class="text-lg font-medium tw-mb-2">Steps to Integrate</h3>
         <ol class="tw-list-decimal tw-list-inside tw-space-y-2">
           <li>
             <strong>Download the font and scripts/ligatures</strong>
@@ -103,11 +111,11 @@
 
           <li>
             <strong>Use the <code>@font-face</code> in your html</strong>
-            <p class="mb-2">You can use the font by:</p>
-            <ul class="list-disc list-inside mb-4">
+            <p class="tw-mb-2">You can use the font by:</p>
+            <ul class="list-disc list-inside tw-mb-4">
               <li>Applying it directly via <code>style</code> or CSS:</li>
             </ul>
-            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4">
+            <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4">
 <code><code>
 &lt;div style="font-family: '<%= font_face %>';"&gt;
   <%= sample_text %>
@@ -115,10 +123,10 @@
       </code></code>
 </pre>
 
-            <ul class="list-disc list-inside mb-4">
+            <ul class="list-disc list-inside tw-mb-4">
               <li>Or using a CSS class:</li>
             </ul>
-            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4"><code>.my-text {
+            <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4"><code>.my-text {
   font-family: <%= font_face %>;
 }
 &lt;p class="my-text"&gt;<%= sample_text %>&lt;/p&gt;</code>
@@ -126,7 +134,7 @@
           </li>
         </ol>
         <h2 class="tw-text-xl tw-font-semibold">Live Preview of this font</h2>
-        <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here...">
+        <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here..." data-font-preview-target="sampleTextInput">
           <%= params[:text].presence || sample_text %>
         </textarea>
         <div class="tw-text-gray-400 tw-text-sm !tw-mt-0">
@@ -142,14 +150,16 @@
             max="150"
             value="24"
             class="tw-w-1/2 tw-h-2 tw-bg-gray-200 tw-rounded-lg tw-shadow-sm tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-400"
+            data-font-preview-target="fontSizeSlider"
             />
-          <span id="font-size-value" class="tw-text-lg">24px</span>
+          <span id="font-size-value" class="tw-text-lg" data-font-preview-target="fontSizeValue">24px</span>
         </div>
 
         <div
           id="sample-text"
           class="tw-p-4 tw-rounded tw-bg-white tw-shadow tw-text-2xl tw-border tw-overflow-hidden tw-w-full"
           style="line-height: 1.5;"
+          data-font-preview-target="sampleText"
         >
           <%= sample_text %>
         </div>
@@ -165,8 +175,8 @@
           <div class="page-section">
             <h2>Ligatures</h2>
             <div class="tools-table-overflow">
-              <table class="table table-hover">
-                <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+              <table class="tw-w-full hover:tw-bg-gray-50">
+                <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
                 <tr>
                   <th>
                     #
@@ -177,7 +187,7 @@
                 </tr>
                 </thead>
 
-                <tbody>
+                <tbody data-font-preview-target="ligaturesTable">
                   <% i = 0 %>
                   <% ligatures.each do |key, val| %>
                    <tr>
@@ -209,9 +219,12 @@
           id="glyph-search"
           placeholder="Search glyphs by Unicode (e.g., 0627 for Alif)..."
           class="tw-w-full tw-p-2 tw-mb-4 tw-border tw-border-gray-300 tw-rounded-lg"
+          data-font-preview-target="glyphSearch"
           />
         <div id="glyphs"
-             class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 md:tw-grid-cols-6 lg:tw-grid-cols-8 tw-gap-4">
+             class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 md:tw-grid-cols-6 lg:tw-grid-cols-8 tw-gap-4"
+             data-font-preview-target="glyphsContainer"
+             data-font-preview-grid-classes="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 md:tw-grid-cols-6 lg:tw-grid-cols-8 tw-gap-4">
         </div>
       </div>
     </div>
@@ -228,60 +241,4 @@
       }
   </style>
 
-  <script>
-    const glyphSearchInput = document.getElementById('glyph-search');
-    const glyphsContainer = document.getElementById('glyphs');
-    const sampleText = document.getElementById("sample-text");
-
-    document.getElementById('sample-text-input').addEventListener('input', function () {
-      sampleText.textContent = this.value;
-    });
-
-    const fontSizeSlider = document.getElementById("font-size-slider");
-    const fontSizeValue = document.getElementById("font-size-value");
-
-    fontSizeSlider.addEventListener("input", function () {
-      const fontSize = fontSizeSlider.value + "px";
-      sampleText.style.fontSize = fontSize;
-      fontSizeValue.textContent = fontSize;
-    });
-
-    opentype.load('<%= font_url %>', function (err, font) {
-      if (err) {
-        console.error('Could not load font:', err);
-        return;
-      }
-
-      function renderGlyphs(query = '') {
-        glyphsContainer.innerHTML = '';
-        debugger
-        Object.values(font.glyphs.glyphs).forEach(glyph => {
-          if (!glyph.unicode) return;
-
-          const unicodeHex = glyph.unicode.toString(16).toUpperCase();
-          if (!unicodeHex.includes(query.toUpperCase())) return;
-
-          const glyphChar = String.fromCharCode(glyph.unicode);
-          const el = document.createElement('div');
-          el.className = 'tw-text-center tw-p-2 tw-border tw-border-gray-300 tw-rounded';
-          el.style.fontFamily = '<%= font_face %>';
-          el.innerHTML = `
-          <div class="tw-text-3xl tw-mb-2" dir="rtl">${glyphChar}</div>
-          <div class="tw-text-xs tw-text-gray-500">U+${unicodeHex}</div>
-        `;
-          glyphsContainer.appendChild(el);
-        });
-      }
-
-      let debounceTimer;
-      glyphSearchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          renderGlyphs(glyphSearchInput.value.trim());
-        }, 200);
-      });
-
-      renderGlyphs();
-    });
-  </script>
 </div>

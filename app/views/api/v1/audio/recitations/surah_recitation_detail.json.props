@@ -3,6 +3,7 @@ recitation = @presenter.surah_recitation
 json.recitation do
   json.partial! partial: 'surah_recitation', locals: {
     surah_recitation: recitation,
-    include_audio_files: true
+    include_audio_files: true,
+    audio_format: @presenter.audio_format
   }
 end

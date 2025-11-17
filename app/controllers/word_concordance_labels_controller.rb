@@ -1,4 +1,5 @@
 class WordConcordanceLabelsController < CommunityController
+  before_action :init_presenter
   def index
     verses = Verse
 
@@ -58,5 +59,9 @@ class WordConcordanceLabelsController < CommunityController
   def load_resource_access
     @resource = ResourceContent.where(name: 'Corpus').first_or_create
     @access = can_manage?(@resource)
+  end
+
+  def init_presenter
+    @presenter = WordConcordanceLabelsPresenter.new(self)
   end
 end

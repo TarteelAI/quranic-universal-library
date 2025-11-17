@@ -3,7 +3,7 @@ class AyahAudioFilesController < CommunityController
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
   before_action :authorize_access!, only: %i[save_segments]
   before_action :authenticate_user!, only: %i[save_segments]
-
+  before_action :init_presenter
   def index
     files = AudioFile.where(recitation_id: @recitation.id)
 
@@ -39,7 +39,7 @@ class AyahAudioFilesController < CommunityController
     verse = Verse.find_by(verse_key: params[:verse_key].to_s.strip)
     segments = params[:segments]
     audio = AudioFile.where(verse: verse, recitation_id: params[:id]).first
-    audio.set_segments(segments, current_user)
+    audio.set_segments!(segments, current_user)
 
     render 'segments'
   end
@@ -83,5 +83,9 @@ class AyahAudioFilesController < CommunityController
     recitation = load_recitation
     @resource = recitation.resource_content
     @access = can_manage?(@resource)
+  end
+
+  def init_presenter
+    @presenter = AyahAudioFilesPresenter.new(self)
   end
 end

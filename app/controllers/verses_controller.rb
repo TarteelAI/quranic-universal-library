@@ -1,4 +1,5 @@
 class VersesController < CommunityController
+  before_action :set_presenter
   def compare
     ids = prepare_verse_ids
     @translation_ids = prepare_translation_ids
@@ -52,5 +53,9 @@ class VersesController < CommunityController
 
     # Limit to 10 translations for performance
     ids.first(10)
+  end
+
+  def set_presenter
+    @presenter = VersesPresenter.new(self)
   end
 end

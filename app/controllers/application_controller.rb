@@ -1,6 +1,9 @@
 class ApplicationController < ActionController::Base
+  before_action :init_presenter
+
   include Pagy::Backend
   helper_method :pagy
+  include SeoHelper
 
   rescue_from ActionController::UnknownFormat,
               ActionController::RoutingError,
@@ -15,6 +18,11 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def init_presenter
+    @presenter = ApplicationPresenter.new(self)
+  end
+
   def authenticate_user_logged_in
     session[:use_modal] = params.key?(:modal)
     authenticate_user!

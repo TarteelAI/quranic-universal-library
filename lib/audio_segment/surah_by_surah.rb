@@ -153,36 +153,77 @@ module AudioSegment
       segments.each do |segment|
         repetition = segment.find_repeated_segments
 
-        segment.update(
+        segment.update_columns(
           has_repetition: repetition.present?,
           repeated_segments: repetition.to_s
         )
       end
     end
 
+    def export_segments_positions(reciter_id, format = 'db')
+      raise "Invalid export format, we only support csv, json and db formats" unless %w[csv json db].include?(format)
+
+      positions = ::Segments::Position.where(reciter_id: reciter_id).order('surah_number, ayah_number')
+      ayah_positions = positions.group_by { |pos| [pos.surah_number, pos.ayah_number] }
+      ayah_boundaries = ::Segments::AyahBoundary.where(reciter_id: reciter_id).index_by { |b| [b.surah_number, b.ayah_number] }
+
+      file_path = "#{Rails.root}/tmp/segments_positions_#{reciter_id}.#{format}"
+      FileUtils.rm(file_path) if File.exist?(file_path)
+
+      if format == 'db'
+        export_segments_sqlite(ayah_positions, ayah_boundaries, file_path)
+      elsif format == 'json'
+        export_segments_json(ayah_positions, ayah_boundaries, file_path)
+      else
+        export_segments_csv(ayah_positions, ayah_boundaries, file_path)
+      end
+
+      file_path
+    end
     protected
 
     def import_verse_segments(verse, verse_segment, next_verse_segment)
+      audio_file = find_or_create_audio_file(verse)
       segment = Audio::Segment.where(
         verse_id: verse.id,
         audio_recitation_id: recitation.id,
-        audio_file_id: find_or_create_audio_file(verse).id
+        audio_file_id: audio_file.id
       ).first_or_initialize
 
-      segments = Oj.load(verse_segment.words.to_s)
+      data = verse_segment.words.to_s
+      if data.include?('[') # array
+        segments = Oj.load(data).map do |s|
+          s.map(&:to_i)
+        end
+      else
+        segments = data.split(',').map do |s|
+          s.split(':').map(&:to_i)
+        end
+      end
+
       from = verse_segment.start_time.to_i
       to = verse_segment.end_time.presence
 
       to ||= next_verse_segment ? next_verse_segment.start_time.to_i - 1 : (segments.last[2]).abs
+      to = to.to_i
 
       if next_verse_segment
         next_ayah_start = next_verse_segment.start_time.to_i
-
-        to = [to.to_i, next_ayah_start + 2000].min
+        to = [to, next_ayah_start - 200].min
       end
 
+      if verse.first_ayah?
+        from = 0
+        segments[0][1] = 0
+      elsif verse.last_ayah?
+        to = [to, audio_file.duration_ms.to_i].max
+      end
+
+      # Adjust last segment end time if it exceeds the verse end time
+      segments[-1][2] = to
+
       segment.set_timing(from, to, verse)
-      segment.set_segments(segments)
+      segment.set_segments!(segments)
 
       segment
     end
@@ -276,9 +317,108 @@ module AudioSegment
         }
       end
 
-      File.open(file_path, "wb") do |csv|
+      File.open(file_path, "wb") do |file|
+        file << JSON.generate(data, { state: JsonNoEscapeHtmlState.new })
+      end
+    end
+    private
+
+    def export_segments_sqlite(ayah_positions, ayah_boundaries, file_path)
+      db = SQLite3::Database.new(file_path)
+      table_name = 'timings'
+
+      columns = ['sura', 'ayah', 'start_time', 'end_time', 'words']
+      create_table_sql = "CREATE TABLE IF NOT EXISTS #{table_name} (#{columns.map { |c| "#{c} TEXT" }.join(', ')});"
+      db.execute(create_table_sql)
+
+      insert_sql = "INSERT INTO #{table_name} (#{columns.join(', ')}) VALUES (#{columns.map { '?' }.join(', ')});"
+      insert_statement = db.prepare(insert_sql)
+
+      ayah_positions.each do |(surah, ayah), positions|
+        timing_data = prepare_ayah_segments_data_for_export(surah, ayah, positions, ayah_boundaries)
+        
+        data = [
+          timing_data[:surah],
+          timing_data[:ayah],
+          timing_data[:start_time],
+          timing_data[:end_time],
+          timing_data[:words].to_s
+        ]
+
+        insert_statement.execute(data)
+      end
+
+      insert_statement.close
+      db.close
+    end
+
+    def export_segments_csv(ayah_positions, ayah_boundaries, file_path)
+      columns = ['sura', 'ayah', 'start_time', 'end_time', 'words']
+
+      CSV.open(file_path, "wb") do |csv|
+        csv << columns
+
+        ayah_positions.each do |(surah, ayah), positions|
+          timing_data = prepare_ayah_segments_data_for_export(surah, ayah, positions, ayah_boundaries)
+          
+          data = [
+            timing_data[:surah],
+            timing_data[:ayah],
+            timing_data[:start_time],
+            timing_data[:end_time],
+            timing_data[:words].to_s
+          ]
+
+          csv << data
+        end
+      end
+    end
+
+    def export_segments_json(ayah_positions, ayah_boundaries, file_path)
+      data = {}
+      
+      ayah_positions.each do |(surah, ayah), positions|
+        timing_data = prepare_ayah_segments_data_for_export(surah, ayah, positions, ayah_boundaries)
+        
+        data["#{timing_data[:surah]}:#{timing_data[:ayah]}"] = {
+          from: timing_data[:start_time],
+          to: timing_data[:end_time],
+          words: timing_data[:words]
+        }
+      end
+
+      File.open(file_path, "wb") do |f|
         f << JSON.generate(data, { state: JsonNoEscapeHtmlState.new })
       end
+    end
+
+    def prepare_ayah_segments_data_for_export(surah, ayah, positions, ayah_boundaries)
+      boundary = ayah_boundaries[[surah, ayah]]
+      
+      start_time = boundary&.corrected_start_time || boundary&.start_time
+      end_time = boundary&.corrected_end_time || boundary&.end_time
+      
+      if start_time.nil? || end_time.nil?
+        sorted_positions = positions.sort_by(&:start_time)
+        start_time ||= sorted_positions.first&.start_time
+        end_time ||= sorted_positions.last&.end_time
+      end
+      
+      words = positions.map do |pos|
+        [
+          pos.word_number,
+          pos.corrected_start_time || pos.start_time,
+          pos.corrected_end_time || pos.end_time
+        ]
+      end
+
+      {
+        surah: surah,
+        ayah: ayah,
+        start_time: start_time,
+        end_time: end_time,
+        words: words
+      }
     end
   end
 end

@@ -82,6 +82,7 @@
               <td>Text</td>
               <td>Start</td>
               <td>Ends</td>
+              <td>Pause</td>
               <td>Actions</td>
             </tr>
             </thead>
@@ -151,12 +152,31 @@
                   </small>
                 </td>
 
-                <td :data-word="segment[0]" :data-index="index">
-                  <div
-                      class="d-flex gap-1"
-                      :data-word="segment[0]" :data-index="index"
-                  >
-                    <button
+              <td style="width: 80px; text-align: center;">
+                <input
+                    type="checkbox"
+                    :checked="hasWaqaf(segment)"
+                    :data-index="index"
+                    :disabled="segmentLocked"
+                    @change="toggleWaqaf"
+                    class="form-check-input"
+                    style="cursor: pointer; width: 20px; height: 20px;"
+                    title="Check if Qari has taken a waqf after this word"
+                    data-controller="tooltip"
+                    name="waqf"
+                    :id="[`waqf-${index}`]"
+                />
+                <small class="form-text d-block">
+                  {{ hasWaqaf(segment) ? 'وقف' : '' }}
+                </small>
+              </td>
+
+              <td :data-word="segment[0]" :data-index="index">
+                <div
+                    class="d-flex gap-1"
+                    :data-word="segment[0]" :data-index="index"
+                >
+                  <button
                       @click="insertSegment"
                       class="btn btn-sm btn-info"
                       :disabled="segmentLocked"
@@ -221,13 +241,13 @@ export default {
     );
 
     this.unwatchWord = this.$store.watch(
-      (state, getters) => state.wordLoopTime,
+        (state, getters) => state.wordLoopTime,
 
-      (newValue, _) => {
-        if (newValue >= 0) {
-          player.currentTime = newValue / 1000;
+        (newValue, _) => {
+          if (newValue >= 0) {
+            player.currentTime = newValue / 1000;
+          }
         }
-      }
     );
 
     addEventListener(
@@ -251,6 +271,18 @@ export default {
     this.unwatch();
   },
   methods: {
+    hasWaqaf(segment) {
+      return segment[3] && segment[3].waqaf === true;
+    },
+    toggleWaqaf(event) {
+      const target = event.target;
+      const { index } = target.dataset;
+
+      this.$store.commit('TRACK_SEG_WAQAF', {
+        waqaf: target.checked,
+        index: Number(index),
+      });
+    },
     getWordCssClass(index) {
       let cssClasses = 'word';
 

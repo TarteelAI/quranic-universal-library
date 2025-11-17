@@ -1,0 +1,30 @@
+.sort-link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-number-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sort-icons {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.sort-icons i {
+  opacity: 0.3;
+  font-size: 0.875rem;
+  line-height: 0.5;
+}
+
+.sort-icons i.active {
+  opacity: 1;
+}
+

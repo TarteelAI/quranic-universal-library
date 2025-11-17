@@ -59,7 +59,8 @@ const store = createStore({
       autoPlay: false,
       disableHotkeys: true,
 
-      repeatGroups: [] // only need for recitation 168
+      repeatGroups: [], // only need for recitation 168
+      isManualAyahChange: false
     };
   },
   getters: {},
@@ -122,6 +123,8 @@ const store = createStore({
       else verse = Number(payload.to);
 
       if (verse >= 1 || verse <= state.versesCount) {
+        state.isManualAyahChange = true;
+        
         state.currentVerseNumber = verse;
         state.currentTimestamp = 0;
         state.currentWord = 1;
@@ -284,6 +287,21 @@ const store = createStore({
 
       const segment = verseSegment.segments[index] || [];
       segment[2] = time;
+      verseSegment.segments[index] = segment;
+    },
+    TRACK_SEG_WAQAF(state, payload) {
+      const {
+          verseSegment
+      } = state;
+      const {
+          waqaf,
+          index
+      } = payload;
+      const segment = verseSegment.segments[index] || [];
+      if (!segment[3]) {
+          segment[3] = {};
+      }
+      segment[3].waqaf = waqaf;
       verseSegment.segments[index] = segment;
     },
     SET_SEG_WORD_NUMBER(state, payload) {
@@ -530,6 +548,10 @@ const store = createStore({
             state.verseSegment.segments.push([index])
         }
       }
+      
+      setTimeout(() => {
+        state.isManualAyahChange = false;
+      }, 100);
     },
     LOAD_SEGMENTS({state}, payload) {
       const {

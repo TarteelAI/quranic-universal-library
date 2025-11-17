@@ -1,0 +1,140 @@
+<%
+  page_number = @mushaf_page.page_number
+  has_ayah_range = @mushaf_page.first_verse_id.present? && @mushaf_page.last_verse_id.present?
+  has_words = @mushaf_page.words.exists?
+  step ||= 'preview' # Default to preview if not specified
+%>
+
+<div class="tw-max-w-3xl tw-mx-auto tw-mt-8">
+  <div class="tw-bg-yellow-50 tw-border-yellow-500 tw-p-6 tw-rounded-lg tw-shadow-md">
+    <div class="tw-flex tw-items-start">
+      <div class="tw-flex-shrink-0">
+        <svg class="tw-h-10 tw-w-10 tw-text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+
+      <div class="tw-ml-4 tw-flex-1">
+        <h3 class="tw-text-xl tw-font-bold tw-text-yellow-900 tw-mb-3">
+          <% if step == 'word_mapping' %>
+            Can't Map Words for page <%= page_number %>
+          <% elsif step == 'line_alignment' %>
+            Can't Fix Line Alignment for page <%= page_number %>
+          <% else %>
+            Can't Show Preview of page <%= page_number %>
+          <% end %>
+        </h3>
+
+        <p class="tw-text-yellow-800 tw-mb-4">
+          <% if step == 'word_mapping' %>
+            Before you can map words to line numbers for this page, you need to set the ayah range first. The ayah range defines which verses appear on this page.
+          <% elsif step == 'line_alignment' %>
+            Before you can fix line alignment for this page, you need to complete the following steps:
+          <% else %>
+            Before you can preview this page, you need to complete the following steps:
+          <% end %>
+        </p>
+
+        <% if step == 'word_mapping' %>
+          <!-- For word mapping, only show ayah range requirement -->
+          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-yellow-200">
+            <div class="tw-flex tw-items-start tw-gap-3">
+              <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              <div>
+                <span class="tw-font-semibold tw-text-gray-900">Step 1: Ayah Range Required</span>
+                <p class="tw-text-sm tw-text-gray-600 tw-mt-1">You must set the starting and ending ayah for this page before you can map words to line numbers.</p>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <!-- For other steps, show full checklist -->
+          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-yellow-200">
+            <ul class="tw-space-y-3">
+              <% unless has_ayah_range %>
+                <li class="tw-flex tw-items-start tw-gap-3">
+                  <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  <div>
+                    <span class="tw-font-semibold tw-text-gray-900">Step 1: Ayah Range Missing</span>
+                    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Set the starting and ending ayah for this page</p>
+                  </div>
+                </li>
+              <% else %>
+                <li class="tw-flex tw-items-start tw-gap-3">
+                  <svg class="tw-h-6 tw-w-6 tw-text-green-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <div>
+                    <span class="tw-font-semibold tw-text-gray-900">Step 1: Ayah Range</span>
+                    <p class="tw-text-sm tw-text-green-600 tw-mt-1">✓ Completed</p>
+                  </div>
+                </li>
+              <% end %>
+
+              <% unless has_words %>
+                <li class="tw-flex tw-items-start tw-gap-3">
+                  <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  <div>
+                    <span class="tw-font-semibold tw-text-gray-900">Step 2: Word Mapping Missing</span>
+                    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Assign line numbers to all words on this page</p>
+                  </div>
+                </li>
+              <% else %>
+                <li class="tw-flex tw-items-start tw-gap-3">
+                  <svg class="tw-h-6 tw-w-6 tw-text-green-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <div>
+                    <span class="tw-font-semibold tw-text-gray-900">Step 2: Word Mapping</span>
+                    <p class="tw-text-sm tw-text-green-600 tw-mt-1">✓ Completed</p>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="tw-flex tw-flex-wrap tw-gap-3">
+          <% if step == 'word_mapping' %>
+            <!-- For word mapping, only show Set Ayah Range button -->
+            <%= link_to 'Set Ayah Range', '#_',
+                        class: 'btn btn-primary',
+                        data: {
+                          controller: 'ajax-modal',
+                          url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number, view_type: 'page_mapping_modal'),
+                          css_class: 'modal-xl'
+                        }
+            %>
+          <% else %>
+            <!-- For other steps, show appropriate buttons based on completion status -->
+            <%= link_to 'Set Ayah Range', '#_',
+                        class: 'btn btn-primary',
+                        data: {
+                          controller: 'ajax-modal',
+                          url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number, view_type: 'page_mapping_modal'),
+                          css_class: 'modal-xl'
+                        }
+            %>
+
+            <% if has_ayah_range && !has_words %>
+              <%= link_to edit_mushaf_layout_path(@mushaf.id, page_number: page_number),
+                          class: 'btn btn-primary',
+                          data: { turbo_frame: '_top' } do %>
+                <span>Map Words</span>
+              <% end %>
+            <% end %>
+          <% end %>
+
+          <%= link_to 'Back to Pages', mushaf_layout_path(@mushaf.id),
+                      class: 'btn btn-secondary',
+                      data: { turbo_frame: '_top' } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

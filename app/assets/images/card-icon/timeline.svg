@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .bar { fill: white; rx: 2; ry: 2; }
+      .stem { stroke: white; stroke-width: 2.5; stroke-linecap: round; }
+      .badge { fill: white; }
+      .badgetext { fill: #000; font-family: "Helvetica Neue", Arial, sans-serif; font-weight: 700; font-size: 9px; text-anchor: middle; dominant-baseline: central; }
+    </style>
+  </defs>
+
+  <rect class="bar" x="20" y="90" width="70" height="12" rx="2" />
+  <line class="stem" x1="35" y1="78" x2="35" y2="90" />
+  <circle class="badge" cx="35" cy="68" r="10" />
+  <text class="badgetext" x="35" y="68">01</text>
+  <line class="stem" x1="75" y1="102" x2="75" y2="114" />
+  <circle class="badge" cx="75" cy="124" r="10" />
+  <text class="badgetext" x="75" y="124">02</text>
+
+  <rect class="bar" x="110" y="90" width="70" height="12" rx="2" />
+  <line class="stem" x1="125" y1="78" x2="125" y2="90" />
+  <circle class="badge" cx="125" cy="68" r="10" />
+  <text class="badgetext" x="125" y="68">03</text>
+  <line class="stem" x1="165" y1="102" x2="165" y2="114" />
+  <circle class="badge" cx="165" cy="124" r="10" />
+  <text class="badgetext" x="165" y="124">04</text>
+</svg>

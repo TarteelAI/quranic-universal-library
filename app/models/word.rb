@@ -321,7 +321,7 @@ class Word < QuranApiRecord
     end
 
     if saved_change_to_attribute?('text_qpc_hafs')
-      update_text_for_mushaf(5, text_qpc_hafs)
+      update_text_for_mushaf([5, 27], text_qpc_hafs)
       update_ayah_script('text_qpc_hafs')
     end
 

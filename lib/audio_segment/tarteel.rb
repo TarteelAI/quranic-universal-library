@@ -190,12 +190,13 @@ module AudioSegment
 
       grouped.each do |chapter_id, segs|
         json_ayahs = []
+        last_ayah_end = nil
 
         segs.each do |seg|
-          ayah_segments = seg.get_segments
+          ayah_segments = seg.get_segments(drop_metadata: true)
           verse = seg.verse
 
-            ayah_segments.each_with_index do |s, i|
+          ayah_segments.each_with_index do |s, i|
             if s.length != 3
               @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
             end
@@ -205,12 +206,20 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
           end
 
+          start_time = if last_ayah_end
+                          last_ayah_end + 1
+                        else
+                          seg.timestamp_from.to_i
+                       end
+
           json_ayahs << {
             ayah: verse.verse_number,
-            start: seg.timestamp_from.to_i,
+            start: start_time,
             end: seg.timestamp_to.to_i,
             words: ayah_segments
           }
+
+          last_ayah_end = seg.timestamp_to.to_i
         end
 
         json_filename = format("%03d.json", chapter_id)

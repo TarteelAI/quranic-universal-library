@@ -121,12 +121,17 @@ class AudioFile < QuranApiRecord
     get_segments.to_s.gsub(/\s+/, '')
   end
 
-  def get_segments
+  def get_segments(drop_metadata: false)
     return [] if segments.blank?
 
     segments.map do |s|
       next if s.size < 2
-      s
+
+      if drop_metadata
+        [s[0], s[1], s[2]]
+      else
+        s
+      end
     end.compact_blank
   end
 

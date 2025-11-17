@@ -4,12 +4,18 @@ class BaseFinder
   attr_reader :locale,
               :per_page,
               :current_page,
-              :pagination
+              :pagination,
+              :context
 
-  def initialize(locale: nil, current_page: 1, per_page: 20)
+  def initialize(locale: nil, current_page: 1, per_page: 20, context: nil)
     @locale = locale
     @current_page = current_page
     @per_page = per_page
+    @context = context
+  end
+
+  def params
+    context&.params || {}
   end
 
   def get_ayah_range_to_load(first_verse_id, last_verse_id)

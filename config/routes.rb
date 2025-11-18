@@ -120,11 +120,8 @@ Rails.application.routes.draw do
 
   resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :delete
-  resources :word_text_proofreadings, only: [:index, :show] do
-    collection do
-      get :compare_words
-    end
-  end
+  resources :word_text_proofreadings, only: [:index, :show]
+  get 'quran_scripts_comparison/compare_words', to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
   resources :translation_proofreadings, except: :delete
   resources :tafsir_proofreadings, except: :delete
   resources :word_translations, except: :delete do

@@ -23,8 +23,6 @@ class WordTextProofreadingsPresenter < ApplicationPresenter
       "Quranic Script & Fonts Proofreading Tool - Verse List"
     elsif show?
       "Quranic Script & Fonts Proofreading Tool - Verse #{current_ayah.verse_key}"
-    elsif params[:action] == 'compare_words'
-      "Quranic Script & Fonts Proofreading Tool - Compare Words with '#{@char}'"
     else
       "Quranic Script & Fonts Proofreading Tool"
     end

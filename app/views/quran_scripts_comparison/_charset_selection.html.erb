@@ -1,0 +1,39 @@
+<%
+  css = "tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg tw-shadow-sm tw-text-gray-700 tw-hover:bg-gray-100 tw-transition"
+%>
+
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4" data-controller="chars-info">
+  <div class="page-section">
+    <div class="tw-mb-6">
+      <a href="<%= compare_words_quran_scripts_comparison_path %>"
+         class="tw-text-blue-600 tw-hover:tw-underline tw-mb-4 tw-inline-block">
+        ← Back to Script Type Selection
+      </a>
+      <h2 class="tw-text-2xl tw-font-bold">
+        <%= @presenter.script_type.capitalize %> Script - Character Selection
+      </h2>
+    </div>
+
+    <% @presenter.scripts.each do |script_name| %>
+      <div class="tw-mb-8">
+        <h3 class="tw-text-xl tw-font-semibold tw-mb-4">
+          <%= @presenter.script_display_name(script_name) %>
+        </h3>
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4 tw-bg-gray-50 tw-rounded-lg">
+          <% if @presenter.charsets[script_name] %>
+            <% @presenter.charsets[script_name].each do |char| %>
+              <%
+                sample_verse = Verse.first || Verse.new
+                font_class = get_quran_script_font_family(script_name, sample_verse) || 'qpc-hafs'
+              %>
+              <a href="<%= compare_words_quran_scripts_comparison_path(char: char, script: script_name, script_type: @presenter.script_type) %>"
+                 class="<%= font_class %> <%= css %>">
+                <%= char %>
+              </a>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

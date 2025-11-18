@@ -60,8 +60,8 @@ class ApplicationPresenter
   end
 
   protected
-  def paginate(list)
-    @pagination, list = pagy(list)
+  def paginate(list, items: per_page)
+    @pagination, list = pagy(list, items: items)
     list
   end
 

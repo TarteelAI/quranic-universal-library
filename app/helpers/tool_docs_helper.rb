@@ -10,6 +10,7 @@ module ToolDocsHelper
       'corpus',
       'mutashabihat',
       'quran_script',
+      'quran_scripts_comparison',
       'surah_info',
       'surah_recitation',
       'surah_recitation_segment_builder',
@@ -710,6 +711,76 @@ module ToolDocsHelper
         type: "demo",
         title: "Demo",
         text: "Demo video will be available here soon"
+      }
+    ]
+  end
+
+  def quran_scripts_comparison_help
+    [
+      "Quran Scripts Comparison Tool",
+      {
+        text: "This tool is designed to compare different Quranic scripts and identify inconsistencies. It helps you find words where characters appear in some scripts but are missing in others"
+      },
+      {
+        type: 'info',
+        text: "The tool supports two script types: <strong>Madani</strong> and <strong>Indopak</strong>. Each script type includes multiple script variants that are compared against each other."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Select Script Type',
+        text: "When you first open the tool, you'll see two options: <strong>Madani Script</strong> and <strong>Indopak Script</strong>. Click on the script type you want to compare.",
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Select a Character',
+        text: "After selecting a script type, you'll see character sets for each script variant. Click on any character to view all words containing that character.",
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Review Word Comparison',
+        text: "After clicking a character, you'll see a table showing all words that contain that character in at least one of the scripts. The table displays:",
+        sections: [
+          {
+            text: "<strong>Word ID</strong>: The location identifier (e.g., 1:1:1) with a copy-to-clipboard feature"
+          },
+          {
+            text: "<strong>Script Columns</strong>: Each script variant is shown in its own column with proper font rendering"
+          },
+          {
+            text: "<strong>Highlighting</strong>: Words are highlighted to indicate issues:"
+          },
+          {
+            text: "• <span style='background-color: #fee2e2; padding: 2px 4px;'>Red background</span> on entire row: The character is missing in one or more scripts",
+            css_class: 'tw-ml-4'
+          },
+          {
+            text: "• <span style='background-color: #fef3c7; padding: 2px 4px;'>Yellow background</span> on individual cell: That specific script doesn't contain the character",
+            css_class: 'tw-ml-4'
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Use Additional Features',
+        text: "The word comparison view includes several helpful features:",
+        sections: [
+          {
+            text: "<strong>Toggle matched words</strong>: Click the button to hide/show words where all scripts match (no issues)"
+          },
+          {
+            text: "<strong>Font size slider</strong>: Adjust the font size for better readability"
+          },
+          {
+            text: "<strong>Copy to clipboard</strong>: Click on any word location or text to copy it to your clipboard"
+          },
+          {
+            text: "<strong>Issues summary</strong>: At the bottom, you'll see a summary of all words with issues, with clickable location tags"
+          }
+        ]
+      },
+      {
+        type: 'info',
+        text: "<strong>Tip:</strong> This tool is particularly useful for finding inconsistencies between script variants. Words highlighted in red or yellow indicate potential issues that may need review or correction."
       }
     ]
   end

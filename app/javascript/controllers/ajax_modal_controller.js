@@ -169,6 +169,12 @@ export default class extends Controller {
       if (target) {
         e.preventDefault();
         this.hide();
+        return;
+      }
+      
+      const modalContent = modal.querySelector('#modal-content');
+      if (modalContent && !modalContent.contains(e.target)) {
+        this.hide();
       }
     });
   }

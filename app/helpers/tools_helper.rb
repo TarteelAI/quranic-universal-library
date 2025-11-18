@@ -74,7 +74,7 @@ module ToolsHelper
         description: 'Proofread tashkeel issues in Quran script for different fonts.',
         url: '/word_text_proofreadings',
         type: 'quranic-text',
-        icon: 'open_book.svg',
+        icon: 'qaf.svg',
         tags: [['Quran Script', 'quran-script'], ['Fonts', 'fonts']],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool enables you to proofread Quran script( For Tashkeel issues and font compatibility), both ayah by ayah and word by word.",
@@ -84,7 +84,7 @@ module ToolsHelper
         description: 'Proofread and suggest fixes for Surah information in different languages.',
         url: surah_infos_path,
         type: 'segments',
-        icon: 'timestamp.svg',
+        icon: 'translation.svg',
         tags: [['Surah info', 'surah-info']],
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool allow you to proofread Surah info in different languages."
@@ -105,7 +105,7 @@ module ToolsHelper
         url: word_translations_path,
         type: 'corpus',
         tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
-        icon: 'timestamp.svg',
+        icon: 'translation.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
         info_tip: "This tool is used to proofread and fix word-by-word translations"
       ),
@@ -137,6 +137,16 @@ module ToolsHelper
         icon: 'compare.svg',
         tags: [],
         info_tip: 'Compare multiple Ayahs, with optional translations to find differences or similarities in the script.',
+      ),
+      ToolCard.new(
+        title: 'Quran Scripts Comparison',
+        description: 'Compare different Quranic script variants (Madani and Indopak) to identify inconsistencies and missing characters.',
+        url: compare_words_quran_scripts_comparison_path,
+        type: 'quranic-text',
+        icon: 'compare.svg',
+        tags: [['Quran Script', 'quran-script']],
+        cta_bg: 'rgba(56, 165, 126, 0.9)',
+        info_tip: 'Compare different Quranic script variants and identify words where characters appear in some scripts but are missing in others. Essential for script proofreading and quality assurance.',
       ),
       ToolCard.new(
         title: 'Audio Segmentations',

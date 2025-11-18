@@ -1,0 +1,45 @@
+<%= render 'shared/page_font', verses: Verse.where(id: @presenter.words.pluck(:verse_id).uniq) %>
+
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div data-controller="chars-info" class="page-section tw-mb-3 tw-mt-4 tw-w-full" style="position: relative;">
+    <div class="tw-mb-4">
+      <a href="<%= compare_words_quran_scripts_comparison_path(script_type: @presenter.script_type) %>"
+         class="tw-text-blue-600 tw-hover:tw-underline tw-mb-4 tw-inline-block">
+        ← Back to Character Selection
+      </a>
+    </div>
+
+    <h2 class="tw-text-2xl tw-flex tw-justify-between tw-items-center">
+        <span>
+          Words containing <span class="<%= get_quran_script_font_family(params[:script], @presenter.words.first&.verse || Verse.new) || 'qpc-hafs' %>"><%= @presenter.char %></span>
+          in <%= @presenter.script_type.capitalize %> scripts
+        </span>
+
+      <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white" id="toggle-issues">
+        Toggle matched words
+      </button>
+    </h2>
+
+    <div class="tw-mb-4">
+      Font size:
+      <input type="range" min="15" max="100" value="30" class="font-size-slider">
+    </div>
+
+    <%= render 'table' %>
+
+    <% if @presenter.review_words.size > 0 %>
+      <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-mt-4">
+        <%= @presenter.review_words.size %> issues found (words where character is missing in one or more scripts).
+        <div class="tw-flex tw-gap-2 tw-flex-wrap tw-mt-2">
+          <% @presenter.review_words.each do |w| %>
+            <span class="tw-px-4 tw-py-2 tw-border tw-border-red-300 tw-rounded-lg tw-shadow-sm tw-text-gray-700 tw-hover:bg-gray-100 tw-transition"
+                  data-text="'<%= w %>'"
+                  data-controller="copy-to-clipboard">
+              <%= w %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

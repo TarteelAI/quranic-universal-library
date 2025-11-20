@@ -27,13 +27,13 @@ Rails.application.routes.draw do
         get 'ayah_segments/:recitation_id', to: 'segments#ayah_segments'
       end
 
-      get '/verses/select2', to: 'verses#select2'
-
-      namespace :resources do
+      scope 'resources' do
         get '/translations', to: 'resources#translations'
         get '/tafsirs', to: 'resources#tafsirs'
         get '/languages', to: 'resources#languages'
       end
+
+      get '/verses/select2', to: 'verses#select2'
     end
   end
 

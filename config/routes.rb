@@ -28,6 +28,12 @@ Rails.application.routes.draw do
       end
 
       get '/verses/select2', to: 'verses#select2'
+
+      namespace :resources do
+        get '/translations', to: 'resources#translations'
+        get '/tafsirs', to: 'resources#tafsirs'
+        get '/languages', to: 'resources#languages'
+      end
     end
   end
 

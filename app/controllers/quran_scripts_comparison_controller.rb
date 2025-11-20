@@ -11,3 +11,4 @@ class QuranScriptsComparisonController < CommunityController
   end
 end
 
+

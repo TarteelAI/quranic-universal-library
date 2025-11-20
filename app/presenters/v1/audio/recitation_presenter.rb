@@ -1,6 +1,6 @@
 module V1
   module Audio
-    class RecitationPresenter < ApplicationPresenter
+    class RecitationPresenter < ApiPresenter
       def ayah_recitations
         ::Recitation
           .approved

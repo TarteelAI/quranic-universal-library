@@ -32,14 +32,15 @@ Rails.application.routes.draw do
   end
 
   get 'tools', to: 'community#tools', as: :tools
-  get '/ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
+  get :quran_scripts_comparison, to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
+  get 'ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
-  get 'svg', to: 'community#svg_optimizer'
-  get 'credits', to: 'community#credits', as: :credits
-  get 'faq', to: 'community#faq', as: :faq
-  get '/compare_ayah', to: 'verses#compare', as: :compare_ayah
+  get :svg, to: 'community#svg_optimizer'
+  get :credits, to: 'community#credits', as: :credits
+  get :faq, to: 'community#faq', as: :faq
+  get :compare_ayah, to: 'verses#compare', as: :compare_ayah
   
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"
@@ -121,7 +122,7 @@ Rails.application.routes.draw do
   resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :delete
   resources :word_text_proofreadings, only: [:index, :show]
-  get 'quran_scripts_comparison/compare_words', to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
+
   resources :translation_proofreadings, except: :delete
   resources :tafsir_proofreadings, except: :delete
   resources :word_translations, except: :delete do

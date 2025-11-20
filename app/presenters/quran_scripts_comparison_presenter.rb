@@ -1,14 +1,16 @@
 class QuranScriptsComparisonPresenter < ApplicationPresenter
   MADANI_SCRIPTS = [
     'text_qpc_hafs',
+    'text_uthmani',
     'text_digital_khatt',
     'text_digital_khatt_v1'
   ].freeze
 
   INDOPAK_SCRIPTS = [
     'text_digital_khatt_indopak',
-    'text_indopak_nastaleeq',
-    'text_qpc_nastaleeq_hafs'
+    'text_qpc_nastaleeq_hafs',
+    'text_indopak',
+    'text_indopak_nastaleeq'
   ].freeze
 
   SCRIPT_DISPLAY_NAMES = {
@@ -21,7 +23,9 @@ class QuranScriptsComparisonPresenter < ApplicationPresenter
     'code_v4' => 'V4 Tajweed',
     'code_v1' => 'QPC V1',
     'code_v2' => 'QPC V2',
-    'uthmani' => 'Uthmani'
+    'uthmani' => 'Uthmani',
+    'text_uthmani' => 'Uthmani',
+    'text_indopak' => 'Indopak',
   }.freeze
 
   def script_type_selected?

@@ -18,7 +18,12 @@
       <div class="tw-mb-8">
         <h3 class="tw-text-xl tw-font-semibold tw-mb-4">
           <%= @presenter.script_display_name(script_name) %>
+
+          <span class="tw-text-sm tw-font-normal tw-text-gray-500 tw-ml-2 tw-bg-gray-200 tw-px-2 tw-py-1 tw-rounded-full">
+            <%= @presenter.charsets[script_name].size %>
+          </span>
         </h3>
+
         <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-4 tw-bg-gray-50 tw-rounded-lg">
           <% if @presenter.charsets[script_name] %>
             <% @presenter.charsets[script_name].each do |char| %>

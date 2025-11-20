@@ -13,8 +13,8 @@
   default_view = views.first
 %>
 
-<div id="proofreading-view-switcher" data-turbo-permanent>
-  <div data-controller="proofreading-view-switcher">
+<div id="proofreading-view-switcher" class="tw-h-full tw-flex tw-flex-col" data-turbo-permanent>
+  <div data-controller="proofreading-view-switcher" class="tw-h-full tw-flex tw-flex-col">
     <% if views.size > 1 %>
       <div class="source-buttons btn-group tw-flex mx-2" role="group">
         <% if page_url.present? %>
@@ -87,12 +87,13 @@
     <% end %>
 
     <% if pdf_url.present? %>
-      <div class="proofreading-container <%= 'active' if default_view == :pdf %>"
+      <div class="proofreading-container tw-overflow-auto tw-h-full tw-flex tw-flex-col <%= 'active' if default_view == :pdf %>"
            data-view-type="pdf">
         <div data-controller="pdf-viewer"
+             class="tw-h-full tw-flex tw-flex-col"
              data-pdf-url="<%= pdf_url %>"
              data-page="<%= jump_to_page %>">
-          <div id="pdf-wrapper">
+          <div id="pdf-wrapper" class="tw-flex-1 tw-overflow-auto">
             <div id="pdf-container">
               <canvas id="pdf-canvas"></canvas>
             </div>

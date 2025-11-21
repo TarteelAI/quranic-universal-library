@@ -16,6 +16,8 @@ export default class extends Controller {
     this.tooltip.setAttribute('role', 'tooltip');
     this.tooltip.style.visibility = 'hidden';
     this.tooltip.style.overflow = 'visible';
+    this.tooltip.style.position = 'fixed';
+    this.tooltip.style.display = 'none';
     
     const contentWrapper = document.createElement('div');
     if (this.htmlValue) {
@@ -62,6 +64,7 @@ export default class extends Controller {
   showTooltip() {
     if (!this.title) return;
     
+    this.tooltip.style.display = 'block';
     this.tooltip.style.visibility = 'hidden';
     this.tooltip.classList.remove('tw-opacity-0');
     this.tooltip.classList.add('tw-opacity-100');
@@ -75,6 +78,7 @@ export default class extends Controller {
     this.tooltip.classList.remove('tw-opacity-100');
     this.tooltip.classList.add('tw-opacity-0');
     this.tooltip.style.visibility = 'hidden';
+    this.tooltip.style.display = 'none';
   }
 
   updatePosition() {

@@ -6,3 +6,9 @@ import "trix"
 import "@rails/actiontext"
 import "./controllers"
 import "./utils/ayah-player"
+
+
+import { initFlowbite } from 'flowbite'
+
+document.addEventListener('DOMContentLoaded', initFlowbite)
+document.addEventListener('turbo:load', initFlowbite)

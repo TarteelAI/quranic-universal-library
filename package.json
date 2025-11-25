@@ -17,6 +17,7 @@
     "esbuild": "0.21.2",
     "esbuild-plugin-vue3": "^0.4.0",
     "esbuild-rails": "^1.0.7",
+    "flowbite": "^4.0.1",
     "hotkeys-js": "^3.8.7",
     "howler": "^2.2.4",
     "jquery": "3.7.1",

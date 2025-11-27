@@ -111,13 +111,13 @@ export default class AjaxModalController extends Controller {
 
     const backdrop = document.createElement('div');
     backdrop.id = 'ajax-modal-backdrop';
-    backdrop.className = 'tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-opacity-0 tw-z-40';
+    backdrop.className = 'tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-opacity-0 tw-z-[9998]';
     backdrop.addEventListener('click', () => this.hide());
     document.body.appendChild(backdrop);
 
     const modal = document.createElement('div');
     modal.id = 'ajax-modal';
-    modal.className = 'tw-fixed tw-inset-0 tw-z-50 tw-overflow-y-auto tw-opacity-0 tw-transition-opacity tw-duration-300';
+    modal.className = 'tw-fixed tw-inset-0 tw-z-[9999] tw-overflow-y-auto tw-opacity-0 tw-transition-opacity tw-duration-300';
     modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('tabIndex', '-1');
     modal.setAttribute('role', 'dialog');

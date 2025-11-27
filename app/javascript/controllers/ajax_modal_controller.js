@@ -162,6 +162,11 @@ export default class extends Controller {
     };
     document.addEventListener('keydown', this.escapeHandler);
 
+    this.closeEventHandler = () => {
+      this.hide();
+    };
+    document.addEventListener('ajax-modal:close', this.closeEventHandler);
+
     document.body.style.overflow = 'hidden';
 
     modal.addEventListener('click', (e) => {
@@ -224,6 +229,10 @@ export default class extends Controller {
       if (this.escapeHandler) {
         document.removeEventListener('keydown', this.escapeHandler);
         this.escapeHandler = null;
+      }
+      if (this.closeEventHandler) {
+        document.removeEventListener('ajax-modal:close', this.closeEventHandler);
+        this.closeEventHandler = null;
       }
       document.body.style.overflow = '';
     }, 300);

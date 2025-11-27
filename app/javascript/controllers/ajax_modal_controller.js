@@ -11,7 +11,7 @@ import {
   Controller
 } from "@hotwired/stimulus"
 
-export default class extends Controller {
+export default class AjaxModalController extends Controller {
   connect() {
     $(this.element).on("click", e => {
       if ($(e.target).hasClass("disable-loading")) return;
@@ -30,7 +30,7 @@ export default class extends Controller {
     const url = target.data('url')
     const {useTurbo, cssClass} = e.currentTarget.dataset;
 
-    this.createModel(cssClass);
+    this.createModal(cssClass);
     this.show();
 
     if (url) {
@@ -92,7 +92,7 @@ export default class extends Controller {
     }
   }
 
-  createModel(classes) {
+  createModal(classes) {
     const existingModal = document.getElementById('ajax-modal');
     const existingBackdrop = document.getElementById('ajax-modal-backdrop');
     if (existingModal) existingModal.remove();

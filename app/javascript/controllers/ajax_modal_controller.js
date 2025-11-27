@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
-export default class extends Controller {
+export default class AjaxModalController extends Controller {
   connect() {
     $(this.element).on("click", e => {
       if ($(e.target).hasClass("disable-loading")) return;
@@ -102,7 +102,7 @@ export default class extends Controller {
 
     const backdrop = document.createElement('div');
     backdrop.id = 'ajax-modal-backdrop';
-    backdrop.className = 'tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-z-40';
+    backdrop.className = 'tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-opacity-0 tw-z-40';
     backdrop.addEventListener('click', () => this.hide());
 
     const modal = document.createElement('div');
@@ -152,6 +152,11 @@ export default class extends Controller {
     };
     document.addEventListener('keydown', this.escapeHandler);
 
+    this.closeEventHandler = () => {
+      this.hide();
+    };
+    document.addEventListener('ajax-modal:close', this.closeEventHandler);
+
     document.body.style.overflow = 'hidden';
   }
 
@@ -186,6 +191,10 @@ export default class extends Controller {
       if (this.escapeHandler) {
         document.removeEventListener('keydown', this.escapeHandler);
         this.escapeHandler = null;
+      }
+      if (this.closeEventHandler) {
+        document.removeEventListener('ajax-modal:close', this.closeEventHandler);
+        this.closeEventHandler = null;
       }
       document.body.style.overflow = '';
     }, 300);

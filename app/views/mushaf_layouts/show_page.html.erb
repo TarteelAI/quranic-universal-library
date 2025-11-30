@@ -1,5 +1,7 @@
 <%
-  page_number = @mushaf_page.page_number
+  mushaf = @presenter.mushaf
+  mushaf_page = @presenter.mushaf_page
+  page_number = mushaf_page.page_number
   actions = []
   more_action = []
 
@@ -16,15 +18,15 @@
   }
 
   if @access
-    more_action << link_to('Update Word lines', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Set Ayah Range', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Update Word lines', edit_mushaf_layout_path(mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Set Ayah Range', mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'select_compare') })
-  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page', previous_view_type: params[:view_type]) })
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Preview Page', mushaf_layout_path(mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
+  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(mushaf.id, page_number: page_number + 1, view_type: 'select_compare') })
+  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(mushaf.id, page_number: page_number, compare: params[:compare], view_type: 'select_page', previous_view_type: params[:view_type]) })
 
   actions << "<div class='dropdown'>
       <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -38,16 +40,16 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Previous Page', mushaf_layout_path(mushaf.id, compare: params[:compare], page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', mushaf_layout_path(mushaf.id, compare: params[:compare], page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
-  actions << link_to('Back to all pages', mushaf_layout_path(@mushaf.id), class: 'btn btn-info', data: {turbo_frame: '_top'})
+  actions << link_to('Back to all pages', mushaf_layout_path(mushaf.id), class: 'btn btn-info', data: {turbo_frame: '_top'})
 %>
 
 <%= turbo_frame_tag :page do %>
   <%= render 'tools/header',
              name: 'Mushaf layouts',
-             title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
+             title: "#{mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{mushaf_page.first_ayah_key} - #{mushaf_page.last_ayah_key})</div>",
              key: 'mushaf_layout',
              actions: actions
   %>

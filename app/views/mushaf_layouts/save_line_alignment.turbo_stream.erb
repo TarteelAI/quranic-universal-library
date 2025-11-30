@@ -1,8 +1,15 @@
-<% id = "page-#{@record.page_number}-line-#{@record.line_number}" %>
+<%
+  mushaf = @presenter.mushaf
+  mushaf_page = @presenter.mushaf_page
+  resource = @presenter.resource
+  words = @presenter.words
+  
+  id = "page-#{@record.page_number}-line-#{@record.line_number}"
+%>
 
 <%= turbo_stream.replace id do %>
   <div id="<%= id %>">
-    <%= form_with model: @record, url: save_line_alignment_mushaf_layout_path(@mushaf, line: @record.line_number, page_number: @record.page_number), method: :put, html: { class: 'form-inline' } do |form| %>
+    <%= form_with model: @record, url: save_line_alignment_mushaf_layout_path(mushaf, line: @record.line_number, page_number: @record.page_number), method: :put, html: { class: 'form-inline' } do |form| %>
       <div class="d-flex my-2">
         <a class="btn btn-sm">
           <%= @record.line_number %>
@@ -17,6 +24,6 @@
   </div>
 <% end %>
 
-<%= turbo_stream.replace dom_id(@mushaf_page.mushaf, "page_#{@mushaf_page.page_number}") do %>
-  <%= render 'shared/mushaf_page', words: @words, page: @mushaf_page.page_number, mushaf: @mushaf_page.mushaf, name: @resource.name %>
+<%= turbo_stream.replace dom_id(mushaf_page.mushaf, "page_#{mushaf_page.page_number}") do %>
+  <%= render 'shared/mushaf_page', words: words, page: mushaf_page.page_number, mushaf: mushaf_page.mushaf, name: resource.name %>
 <% end %>

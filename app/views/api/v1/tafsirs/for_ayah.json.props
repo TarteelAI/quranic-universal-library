@@ -1,0 +1,12 @@
+tafsirs = @presenter.tafsirs_for_ayah
+
+json.tafsirs do
+  json.array! tafsirs do |tafsir|
+    json.partial! partial: 'tafsir', locals: { tafsir: tafsir }
+  end
+end
+
+json.metadata do
+  json.total_count tafsirs.size
+end
+

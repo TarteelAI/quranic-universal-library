@@ -45,6 +45,8 @@ module V1
 
     def random_tafsir
       verses = Verse.unscoped
+      chapter = filter_chapter
+
       if(ids = parse_ayah_range).present?
         verses = verses.where(id: ids)
       elsif chapter.present?

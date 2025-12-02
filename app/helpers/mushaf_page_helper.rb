@@ -9,9 +9,9 @@ module MushafPageHelper
       ['QPC Dotted', 'qpc-dotted'],
       ['QPC Outline', 'qpc-outline'],
       ['Me Quran', 'me_quran'],
-      ['Digital Khatt', 'digitalkhatt'],
-      ['Digital Khatt Indopak', 'digitalkhatt-indopak'],
-      ['Urdu', 'urdu'],
+      ['Digital Khatt v2', 'digitalkhatt-v2'],
+      ['Digital Khatt v1', 'digitalkhatt'],
+      ['Digital Khatt Indopak', 'digitalkhatt-indopak']
     ]
   end
 

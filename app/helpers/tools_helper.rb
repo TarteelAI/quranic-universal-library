@@ -120,14 +120,14 @@ module ToolsHelper
         info_tip: "This tool is used to tag part of speech, grammar of each word of Quran."
       ),
       ToolCard.new(
-        title: 'Text unicode value',
-        description: 'See details of each letter in Arabic text of Quran.',
+        title: 'Text and Font Compatibility Checker',
+        description: 'Analyze Unicode values and preview Quranic text across all available fonts.',
         url: chars_info_path,
         type: 'corpus',
-        tags: ['Letter Info'],
+        tags: ['Letter Info', 'Font Preview'],
         icon: 'info.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool helps you detect unicode value of any character, and is being used to debug the font issues."
+        info_tip: "Analyze Unicode values of Quranic characters and preview text rendering across all available fonts to ensure compatibility and debug font issues."
       ),
       ToolCard.new(
         title: 'Compare ayah',

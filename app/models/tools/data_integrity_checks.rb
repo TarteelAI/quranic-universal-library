@@ -36,6 +36,11 @@ module Tools
       {
         name: "Ayah on different Mushaf Page",
         description: "Get list of ayahs that are not on same page in two mushafs",
+        instructions: [
+          "Select two Mushafs to compare",
+          "Review ayahs that appear on different page numbers in each Mushaf",
+          "Click on page numbers to preview the ayah location in each Mushaf"
+        ],
         table_attrs: ['ayah', 'first_mushaf_page', 'second_mushaf_page'],
         fields: [
           {
@@ -99,6 +104,12 @@ module Tools
       {
         name: "Compare Mushaf Page Last and First Word",
         description: "Compare last and first word of two mushaf pages",
+        instructions: [
+          "Select two Mushafs to compare",
+          "Choose whether to compare first words, last words, or both",
+          "Review pages where the first or last words differ between Mushafs",
+          "Click on word links to view the specific word in the Mushaf page preview"
+        ],
         table_attrs: ['id', 'first_mushaf_first_word', 'second_mushaf_first_word', 'first_mushaf_last_word', 'second_mushaf_last_word'],
         fields: [
           {
@@ -188,6 +199,10 @@ module Tools
       {
         name: "Words without root",
         description: "List of words that don't have root",
+        instructions: [
+          "Review the list of Quran words that are missing root word associations",
+          "Click on word IDs to edit and add the missing root information"
+        ],
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
@@ -201,6 +216,10 @@ module Tools
       {
         name: "Words without stem",
         description: "List of words that don't have stem",
+        instructions: [
+          "Review the list of Quran words that are missing stem associations",
+          "Click on word IDs to edit and add the missing stem information"
+        ],
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
@@ -214,6 +233,10 @@ module Tools
       {
         name: "Ayahs with no related ayahs",
         description: "List of ayahs that has no matching/related ayahs",
+        instructions: [
+          "Review ayahs that don't have any related or matching ayahs in the system",
+          "Click on ayah IDs to view details and add related ayahs if appropriate"
+        ],
         table_attrs: ['id', 'key', 'text'],
         fields: [],
         links_proc: {
@@ -242,6 +265,11 @@ module Tools
       {
         name: "Mushaf pages where ayahs doens't end of same page",
         description: "List of mushaf pages where ayah doesn't end on the same page.",
+        instructions: [
+          "Select a Mushaf from the dropdown",
+          "Review pages where ayahs span across multiple pages",
+          "Click on word links to see the first and last words of each page"
+        ],
         table_attrs: ['page_number', 'first_word', 'last_word'],
         paginate: false,
         links_proc: {
@@ -287,6 +315,11 @@ module Tools
       {
         name: "Mushaf page with starting ayah",
         description: "List of pages that has first ayah of any surah.",
+        instructions: [
+          "Select a Mushaf from the dropdown",
+          "View all pages that start with the first ayah of a surah",
+          "Click on page numbers or ayah links to view details"
+        ],
         table_attrs: ['page_number', 'ayah'],
         paginate: false,
         links_proc: {
@@ -335,6 +368,11 @@ module Tools
       {
         name: "Mushaf page with Bismillah",
         description: "List of pages that has Bismillah.",
+        instructions: [
+          "Select a Mushaf from the dropdown",
+          "View all pages that contain Bismillah with their page and line numbers",
+          "Click on page numbers to view the specific Mushaf page"
+        ],
         table_attrs: ['page_number', 'line_number', 'ayah'],
         paginate: false,
         links_proc: {
@@ -359,14 +397,32 @@ module Tools
         ],
         check: ->(params) do
           mushaf_id = params[:mushaf_id]
+          sort_by = params[:sort_by].presence || 'page_number'
+          sort_order = params[:sort_order].presence || 'asc'
 
           if mushaf_id.present?
             lines_with_bismillah = MushafLineAlignment.where(mushaf_id: mushaf_id).order('page_number ASC').select(&:is_bismillah?)
 
-            lines_with_bismillah.map do |line|
+            result = lines_with_bismillah.map do |line|
               page = MushafPage.includes(:first_word).where(mushaf_id: mushaf_id, page_number: line.page_number).first
               [page, line.line_number, page.first_word.location]
             end
+
+            result.sort_by! do |record|
+              case sort_by
+              when 'page_number'
+                record[0].page_number
+              when 'line_number'
+                record[1]
+              when 'ayah'
+                record[2]
+              else
+                record[0].page_number
+              end
+            end
+
+            result.reverse! if sort_order == 'desc'
+            result
           else
             MushafPage.none
           end
@@ -382,6 +438,13 @@ module Tools
       {
         name: "Compare two translation",
         description: "Compare two translations, see text diff etc",
+        instructions: [
+          "Select two translations to compare",
+          "Optionally filter by specific verse key",
+          "Choose whether to match exactly or case-insensitively",
+          "Filter by matched status to see only matching or non-matching translations",
+          "Review the diff column to see highlighted differences between translations"
+        ],
         table_attrs: [:verse_key, :first_translation, :second_translation, :matched, :diff],
         links_proc: {
           verse_key: -> (record, _) do
@@ -501,6 +564,12 @@ module Tools
       {
         name: "Mushaf Script Comparison",
         description: "This tool compares the script differences between two Mushafs. It helps identify variations in mushaf scripts.",
+        instructions: [
+          "Select two Mushafs to compare from the dropdowns",
+          "Choose whether to compare text content or text length",
+          "Review the results showing words with different scripts between the two Mushafs",
+          "Click on the text links to preview the specific word in each Mushaf layout"
+        ],
         table_attrs: ['word_id', 'first_mushaf_text', 'second_mushaf_text', 'page_number'],
         links_proc: {
           word_id: -> (record, _) do
@@ -553,6 +622,19 @@ module Tools
           first_mushaf_id = params[:first_mushaf_id]
           second_mushaf_id = params[:second_mushaf_id]
           compare_type = params[:compare_type] || 'text'
+          sort_by = params[:sort_by].presence || 'word_id'
+          sort_order = params[:sort_order].presence || 'asc'
+
+          sort_column_mapping = {
+            'word_id' => 'word_id',
+            'first_mushaf_text' => 'mushaf_words.text',
+            'second_mushaf_text' => 'mw2.text',
+            'page_number' => 'mushaf_words.page_number',
+            'first_mushaf_page' => 'mushaf_words.page_number',
+            'second_mushaf_page' => 'mw2.page_number'
+          }
+
+          sort_column = sort_column_mapping[sort_by] || 'word_id'
 
           if first_mushaf_id && second_mushaf_id
             first_mushaf = Mushaf.find(first_mushaf_id)
@@ -560,9 +642,6 @@ module Tools
             condition = compare_type == 'text' ? "mushaf_words.text <> mw2.text" : "LENGTH(mushaf_words.text) <> LENGTH(mw2.text)"
 
             if first_mushaf.using_glyphs? || second_mushaf.using_glyphs?
-              # Comparing v1 and v2 maybe, both mushaf should be using glyphs.
-              # If not return empty results with an error
-              # For glyphs, we'll compare the length of the text
               if first_mushaf.using_glyphs? && second_mushaf.using_glyphs?
                 matching_words = MushafWord
                                    .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf.id} AND mw2.mushaf_id = #{second_mushaf.id}")
@@ -574,7 +653,6 @@ module Tools
                 }
               end
             else
-              # Compare text
               matching_words = MushafWord
                                  .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf.id} AND mw2.mushaf_id = #{second_mushaf.id}")
                                  .where(condition)
@@ -593,7 +671,7 @@ module Tools
             "mushaf_words.text AS first_mushaf_text",
             "mw2.text AS second_mushaf_text",
             "mw2.page_number AS second_mushaf_page"
-          )
+          ).order("#{sort_column} #{sort_order}")
 
           pages_with_difference = result.map(&:first_mushaf_page).uniq.sort
 
@@ -612,6 +690,12 @@ module Tools
       {
         name: "Compare layout difference of two Mushafs",
         description: "Compare two mushaf words and get list of words that are not on same page/or line",
+        instructions: [
+          "Select whether to compare by line number or page number",
+          "Choose two Mushafs to compare",
+          "Review words that appear on different pages or lines in each Mushaf",
+          "Click on page numbers to view the word location in each Mushaf"
+        ],
         table_attrs: ['word_id', 'text', 'first_mushaf_page', 'second_mushaf_page', 'first_mushaf_line', 'second_mushaf_line'],
         links_proc: {
           word_id: -> (record, _) do
@@ -693,6 +777,11 @@ module Tools
       {
         name: "Mushaf Words with incorrect position in ayah",
         description: "List of mushaf words with incorrect position",
+        instructions: [
+          "Select a Mushaf to check (or leave empty to check all)",
+          "Review mushaf words where the position doesn't match the expected verse position",
+          "Click on word IDs to correct the position information"
+        ],
         table_attrs: ['id', 'mushaf_id', 'word_id', 'text', 'word_position', 'position_in_verse'],
         fields: [
           {
@@ -731,6 +820,11 @@ module Tools
       {
         name: "Mushaf Words with incorrect char type",
         description: "List of mushaf words non word char types. ",
+        instructions: [
+          "Select a Mushaf to check (or leave empty to check all)",
+          "Review mushaf words with non-standard character types",
+          "Click on word IDs to correct the character type classification"
+        ],
         table_attrs: ['id', 'mushaf_id', 'word_id', 'text', 'char_type_name'],
         fields: [
           {
@@ -759,6 +853,11 @@ module Tools
       {
         name: "Duplicate Mushaf Word entries",
         description: "List of Mushaf Word with duplicate entries per Mushaf",
+        instructions: [
+          "Select a Mushaf to check (or leave empty to check all)",
+          "Review words that have duplicate entries in the same Mushaf",
+          "Click on word IDs to view and remove duplicate entries"
+        ],
         table_attrs: ['mushaf_id', 'word_id', 'count'],
         paginate: false,
         fields: [
@@ -797,6 +896,11 @@ module Tools
       {
         name: "Quran Words with missing Arabic",
         description: "Quran Words with missing Arabic",
+        instructions: [
+          "Select a specific script type to check, or leave empty to check all script types",
+          "Review words that are missing Arabic text for the selected script",
+          "Click on word IDs to add the missing Arabic text"
+        ],
         table_attrs: ['id', 'chapter_id', 'text_uthmani', 'char_type_name'],
         fields: [
           {
@@ -828,6 +932,11 @@ module Tools
       {
         name: "Mushaf Words record without text",
         description: "List of Mushaf Words without text",
+        instructions: [
+          "Select a Mushaf to check (or leave empty to check all)",
+          "Review mushaf word entries that are missing text content",
+          "Click on word IDs to add the missing text"
+        ],
         table_attrs: ['id', 'mushaf_id', 'word_id', 'text', 'char_type_name'],
         fields: [
           {
@@ -856,6 +965,10 @@ module Tools
       {
         name: "Words without lemma",
         description: "List of Words that don't have lemma",
+        instructions: [
+          "Review the list of Quran words that are missing lemma associations",
+          "Click on word IDs to edit and add the missing lemma information"
+        ],
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
@@ -872,6 +985,10 @@ module Tools
       {
         name: "Words without stem",
         description: "List of Words that don't have stem",
+        instructions: [
+          "Review the list of Quran words that are missing stem associations",
+          "Click on word IDs to edit and add the missing stem information"
+        ],
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
@@ -888,6 +1005,10 @@ module Tools
       {
         name: "Words without root word",
         description: "List of Words that don't have root",
+        instructions: [
+          "Review the list of Quran words that are missing root word associations",
+          "Click on word IDs to edit and add the missing root information"
+        ],
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
@@ -905,8 +1026,9 @@ module Tools
         name: "Missing Words in Mushaf Layout",
         description: "This tool identifies words that are missing from a specific Mushaf layout. It helps ensure that the all Mushaf layout accurately reflects the complete Quran text",
         instructions: [
-          "dsd",
-          "sd"
+          "Select a Mushaf from the dropdown to check for missing words",
+          "Review the results to identify which Quran words are not present in the selected Mushaf layout",
+          "Click on the page number link to navigate to the Mushaf layout editor where you can add the missing word"
         ],
         table_attrs: ['id', 'location', 'text_uthmani', 'page'],
         fields: [
@@ -944,6 +1066,11 @@ module Tools
       {
         name: "Orphan Mushaf Words",
         description: "This tool identifies Mushaf words that do not have associated word records in the dataset. It helps to ensure that all words in the Mushaf are properly linked to their corresponding Quran word.",
+        instructions: [
+          "Review mushaf word entries that don't have a corresponding Quran word record",
+          "These orphan entries may indicate data integrity issues",
+          "Click on IDs to investigate and fix the missing word associations"
+        ],
         table_attrs: ['id', 'word_id', 'text'],
         check: ->(params) do
           results = MushafWord.joins("left join words on words.id = mushaf_words.word_id").where('words.id is null')
@@ -956,6 +1083,11 @@ module Tools
       {
         name: "Surah with missing translated names",
         description: "List of surahs with missing translated names for specific language",
+        instructions: [
+          "Select a language from the dropdown to check for missing translations",
+          "Review surahs that don't have translated names in the selected language",
+          "Click on surah IDs to add the missing translated names"
+        ],
         table_attrs: ['id', 'name_simple'],
         fields: [
           {
@@ -984,6 +1116,11 @@ module Tools
       {
         name: "Words with missing translation",
         description: "List of words with missing translation for specific language",
+        instructions: [
+          "Select a language from the dropdown to check for missing word translations",
+          "Review words that don't have translations in the selected language",
+          "Click on word IDs to add the missing translations"
+        ],
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [
           {
@@ -1012,6 +1149,11 @@ module Tools
       {
         name: "Ayah with missing translation",
         description: "List of ayahs with missing translation",
+        instructions: [
+          "Select a translation resource from the dropdown",
+          "Review ayahs that don't have translations in the selected resource",
+          "Click on ayah IDs to add the missing translations"
+        ],
         table_attrs: ['id', 'verse_key'],
         fields: [
           {
@@ -1038,6 +1180,11 @@ module Tools
       {
         name: "Ayah with missing tafsirs",
         description: "List of ayahs with missing tafsirs",
+        instructions: [
+          "Select a tafsir resource from the dropdown",
+          "Review ayahs that don't have tafsir content in the selected resource",
+          "Click on ayah IDs to add the missing tafsir content"
+        ],
         table_attrs: ['id', 'verse_key'],
         fields: [
           {

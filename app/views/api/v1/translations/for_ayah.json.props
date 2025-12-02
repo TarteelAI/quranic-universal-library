@@ -1,0 +1,12 @@
+translations = @presenter.translations_for_ayah
+
+json.translations do
+  json.array! translations do |translation|
+    json.partial! partial: 'translation', locals: { translation: translation }
+  end
+end
+
+json.metadata do
+  json.total_count translations.size
+end
+

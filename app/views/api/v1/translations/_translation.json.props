@@ -1,0 +1,20 @@
+translation = local_assigns[:translation]
+resource_content = local_assigns[:resource_content] || translation.get_resource_content
+
+json.id translation.id
+json.verse_key translation.verse_key
+json.verse_id translation.verse_id
+json.resource_id resource_content.id
+json.resource_name resource_content.name
+json.language_id resource_content.language_id
+json.language_name resource_content.language_name
+
+translated_name_obj = @presenter.get_translated_name(resource_content)
+
+json.translated_name do
+  json.name translated_name_obj[:name]
+  json.locale translated_name_obj[:locale]
+end
+
+json.text translation.text.to_s
+

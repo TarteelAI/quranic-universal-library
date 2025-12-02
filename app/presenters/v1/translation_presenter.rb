@@ -1,39 +1,39 @@
 module V1
-  class TafsirPresenter < ApiPresenter
-    def tafsirs_for_ayah
+  class TranslationPresenter < ApiPresenter
+    def translations_for_ayah
       ayah_key = params[:ayah_key]
       language_code = params[:language]
       resource_ids = params[:resource_ids].to_s.split(',').map(&:strip)
 
-      finder = TafsirFinder.new(
+      finder = TranslationFinder.new(
         resource_content_id: nil,
         locale: api_locale,
         current_page: current_page,
         per_page: per_page
       )
       
-      tafsirs = finder.for_ayah(
+      translations = finder.for_ayah(
         ayah_key: ayah_key,
         language_code: language_code,
         resource_content_ids: resource_ids,
       )
 
-      if tafsirs.any?
-        ids = tafsirs.map(&:resource_content_id).uniq
+      if translations.any?
+        ids = translations.map(&:resource_content_id).uniq
         resources = ResourceContent.where(id: ids)
         eager_load_best_names(resources, resource_type: ResourceContent)
       end
 
-      tafsirs
+      translations
     end
 
-    def tafsirs_by_range
+    def translations_by_range
       @resource_content = find_resource_content
       ids = parse_ayah_range
 
       raise ActionController::ParameterMissing.new('from/to or ayah_keys') if ids.empty?
       
-      finder = TafsirFinder.new(
+      finder = TranslationFinder.new(
         resource_content_id: @resource_content.id,
         locale: api_locale,
         current_page: current_page,
@@ -43,8 +43,10 @@ module V1
       finder.for_ayahs(ids)
     end
 
-    def random_tafsir
+    def random_translation
       verses = Verse.unscoped
+      chapter = filter_chapter
+
       if(ids = parse_ayah_range).present?
         verses = verses.where(id: ids)
       elsif chapter.present?
@@ -53,7 +55,7 @@ module V1
 
       params[:ayah_key] = verses.order('RANDOM()').limit(1).first.verse_key
 
-      tafsirs_for_ayah.order("RANDOM()").first
+      translations_for_ayah.order("RANDOM()").first
     end
 
     def resource_content
@@ -64,10 +66,11 @@ module V1
 
     def find_resource_content
       resource_id = params[:resource_id] || params[:id]
-      resource = ResourceContent.tafsirs.approved.includes(:language).find_by(id: resource_id)
+      rejected_ids = ResourcePermission.share_permission_is_rejected.pluck(:resource_content_id)
+      resource = ResourceContent.translations.approved.where.not(id: rejected_ids).includes(:language).find_by(id: resource_id)
       
       if resource.blank?
-        raise ::Api::RecordNotFound.new("Tafsir resource with ID #{resource_id} not found")
+        raise ::Api::RecordNotFound.new("Translation resource with ID #{resource_id} not found")
       end
       
       resource

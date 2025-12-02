@@ -1,0 +1,9 @@
+translations = @presenter.translations_by_range
+resource_content = @presenter.resource_content
+
+json.translations do
+  json.array! translations do |translation|
+    json.partial! partial: 'translation', locals: { translation: translation, resource_content: resource_content }
+  end
+end
+

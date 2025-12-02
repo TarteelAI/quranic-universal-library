@@ -31,7 +31,7 @@
   <%= render 'shared/tajweed_images_styles' if use_images %>
   <%= render 'shared/page_font', pages: [page], words: nil %>
 
-  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
+  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
     <% if show_controls %>
       <div class="mushaf-page-setting tw-flex flex-column tw-mb-4">
         <div><span>Name: <%= name %></span></div>

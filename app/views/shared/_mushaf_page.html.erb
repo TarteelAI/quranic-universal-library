@@ -31,7 +31,7 @@
   <%= render 'shared/tajweed_images_styles' if use_images %>
   <%= render 'shared/page_font', pages: [page], words: nil %>
 
-  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
+  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
     <% if show_controls %>
       <div class="mushaf-page-setting tw-flex flex-column tw-mb-4">
         <div><span>Name: <%= name %></span></div>
@@ -67,7 +67,7 @@
           <% next if line_mapping.blank? && verses.blank? %>
 
           <div class="line-container" data-line="<%= line_number %>">
-            <div class="line <%= 'line--center' if line_mapping.is_center_aligned? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line--bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
+            <div class="line <%= 'line--center' if line_mapping.is_center_aligned? || line_mapping.is_bismillah? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line--bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
               <% if line_mapping.is_surah_name? %>
                 <%= render 'shared/chapter_name', chapter: Chapter.find_by(id: line_mapping.get_surah_number) %>
               <% end %>

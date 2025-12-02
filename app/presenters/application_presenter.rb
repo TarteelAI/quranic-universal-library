@@ -8,10 +8,14 @@ class ApplicationPresenter
               :context,
               :resource
 
+  attr_accessor :translated_names_cache
+
+
   def initialize(context)
     @context = context
     @params = context.params
     @lookahead = Api::ParamLookahead.new(params)
+    @translated_names_cache = {}
   end
 
   def action_name

@@ -1,0 +1,28 @@
+<div class="row g-2 mb-2">
+  <div class="col-4">
+    <label class="form-label small mb-1">POS:</label>
+    <%= text_field_tag field_name_prefix + "[phrase_pos]", 
+                       phrase_pos,
+                       class: 'form-control form-control-sm phrase-pos-input',
+                       placeholder: 'e.g., PP',
+                       data: { node_id: node_id, action: 'input->graph-bulk-edit#updatePhraseValue' } %>
+  </div>
+  <div class="col-4">
+    <label class="form-label small mb-1">Source:</label>
+    <%= select_tag field_name_prefix + "[phrase_source]",
+                   options_for_select(available_node_numbers, phrase_source),
+                   { include_blank: 'Select', 
+                     class: 'form-select form-select-sm phrase-source-select',
+                     data: { node_id: node_id, action: 'change->graph-bulk-edit#updatePhraseValue' } } %>
+  </div>
+  <div class="col-4">
+    <label class="form-label small mb-1">Target:</label>
+    <%= select_tag field_name_prefix + "[phrase_target]",
+                   options_for_select(available_node_numbers, phrase_target),
+                   { include_blank: 'Select', 
+                     class: 'form-select form-select-sm phrase-target-select',
+                     data: { node_id: node_id, action: 'change->graph-bulk-edit#updatePhraseValue' } } %>
+  </div>
+</div>
+<%= hidden_field_tag field_name_prefix + "[value]", value, class: 'phrase-value-field' %>
+<%= hidden_field_tag field_name_prefix + "[pos]", phrase_pos, class: 'phrase-pos-field' %>

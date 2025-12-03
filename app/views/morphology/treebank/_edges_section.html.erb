@@ -1,0 +1,43 @@
+<div class="edit-section" data-controller="graph-bulk-edit">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2">
+      <h2 class="mb-0">Graph Edges (<span class="edge-count"><%= presenter.edges.count %></span>)</h2>
+      <button type="button" 
+              class="btn btn-link text-secondary p-0"
+              data-controller="popover"
+              data-bs-toggle="popover"
+              data-bs-placement="right"
+              title="What are Graph Edges?"
+              data-bs-content="<div class='text-start'><p class='mb-2 small'>Graph edges are the curved lines that connect nodes. They represent the grammatical relationships between words or phrases, with a starting point (source) and an ending point (target).</p><div class='text-center'><img src='<%= image_path('morphology/edges_diagram.png') %>' class='img-fluid rounded border' style='max-width: 250px;' alt='Edges Diagram'></div></div>">
+        <i class="fa fa-question-circle"></i>
+      </button>
+    </div>
+    <%= button_tag type: 'button',
+                   class: 'btn btn-success btn-sm',
+                   title: 'Add new edge',
+                   data: { action: 'click->graph-bulk-edit#addEdge' } do %>
+      <i class="fa fa-plus"></i> Add Edge
+    <% end %>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="edit-table tw-table-fixed">
+      <thead>
+        <tr>
+          <th class="tw-w-[60px]">ID</th>
+          <th>Source Node</th>
+          <th>Target Node</th>
+          <th class="tw-w-[150px]">Relation</th>
+          <th class="tw-w-[80px]">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="edges_tbody">
+        <% presenter.edges.each do |edge| %>
+          <%= render 'morphology/treebank/forms/edge_row',
+                     edge: edge,
+                     presenter: presenter %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

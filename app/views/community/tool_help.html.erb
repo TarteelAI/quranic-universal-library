@@ -10,22 +10,28 @@
   </div>
 
   <div id="body">
-    <div class="modal-body">
+    <div class="tw-p-6">
       <% if docs.blank? %>
-        <div class="d-flex py-5 align-items-center justify-content-center">
-          <i class="fa fa-exclamation-triangle fa-5x text-warning"></i>
+        <div class="tw-flex tw-py-5 tw-items-center tw-justify-center">
+          <i class="fa fa-exclamation-triangle fa-5x tw-text-yellow-600"></i>
           The documentation for this tool is not yet available.
         </div>
       <% else %>
         <% docs[1..].each_with_index do |doc, i| %>
-          <div class="section mb-2">
+          <div class="section tw-mb-2">
             <% if doc[:type] == 'heading' %>
               <h3>
                 <%= safe_html doc[:text] %>
               </h3>
             <% elsif doc[:type] == 'info' %>
-              <div class="alert alert-dark">
+              <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-[#d3d3d4] tw-border tw-text-black">
                 <%= safe_html doc[:text] %>
+
+                <% if doc[:screenshot] %>
+                  <div class="screenshot my-2">
+                    <%= doc_image_tag(doc[:screenshot]) %>
+                  </div>
+                <% end %>
               </div>
             <% elsif doc[:type] == 'step' %>
               <div class="step">
@@ -51,7 +57,7 @@
 
                   <% if doc[:sections] %>
                     <% doc[:sections].each do |section| %>
-                      <div class="mt-3">
+                      <div class="tw-mt-3">
                         <% if section[:text] %>
                           <div class="<%= 'alert alert-dark' if 'info' == section[:type] %> <%= section[:css_class] %>">
                             <%= safe_html section[:text] %>
@@ -101,9 +107,9 @@
   </div>
 
   <div id="body">
-    <div class="modal-body">
-      <div class="text-center py-5">
-        <i class="fa fa-exclamation-triangle fa-5x text-warning"></i>
+    <div class="tw-p-6">
+      <div class="tw-text-center tw-py-5">
+        <i class="fa fa-exclamation-triangle fa-5x tw-text-yellow-600"></i>
         The tool you are looking for does not exist.
       </div>
     </div>

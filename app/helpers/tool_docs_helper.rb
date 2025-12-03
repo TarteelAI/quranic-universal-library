@@ -20,7 +20,8 @@ module ToolDocsHelper
   end
 
   def doc_image_tag(path)
-    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}"
+    # NOTE: update version number when images are updated
+    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}?v=2"
     "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
   end
 
@@ -165,10 +166,10 @@ module ToolDocsHelper
 
   def mushaf_layout_help
     [
-      "Mushaf Layout",
+      "Mushaf Layout Tool",
 
       {
-        text: 'Mushaf layout tool is used to create layout of any physical Mushaf. We can adjust pages, number of lines per page, alignment of each line on page, and word placement on each line to accurately represent the Mushaf page.',
+        text: 'The Mushaf Layout tool is used to create digital layouts of physical Mushaf pages. This tool allows you to accurately configure page structure, word placement, and line alignment to precisely represent any printed Mushaf.',
       },
 
       {
@@ -178,67 +179,268 @@ module ToolDocsHelper
 
       {
         type: 'heading',
-        text: "Please follow these steps to work on a new Mushaf layout or resolve any issues with an existing one:"
-      },
-      {
-        type: 'step',
-        title: 'Step 1: Select the mushaf layout you want to work on',
-        sections: [
-          {
-            text: 'From the Mushaf layout index page, find the layout you want to work on and click the <code>Show</code> button.',
-            screenshot: 'mushaf-layout-list.png'
-          },
-
-          {
-            text: 'This will open the first page of selected Mushaf. You can navigate to other pages using the <code>Next</code> and <code>Previous</code> buttons. <code>Actions</code> dropdown will show bunch of actions you can perform on selected page. The first action is to update the ayah mapping for the pages.',
-            screenshot: 'mushaf-layout-actions.png'
-          }
-        ]
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Ayah Mapping for Each Page',
-        text: 'Click on <code>Update page ayah mapping</code> from actions dropdown to open the page mapping page. Enter the Ayah key for the first and last Ayah of the page (e.g., 1:1 for Surah 1, Ayah 1), then click the <code>Save</code> button to save your changes. We need to configure ayah ranges for all the pages in the selected Mushaf.',
-        screenshot: 'mushaf-layout-page-mapping.png'
+        text: "Page Processing Workflow"
       },
 
       {
-        type: 'step',
-        title: 'Step 3: Update words for each line',
-        text: "Click on the <code>Update page words</code> option from the actions dropdown to open the page where you can set the line number of each word in the current page. Adjust the line number of each word using the <code>Line</code> number field below each word. Updating the position of the first word will automatically propagate the change to all following words. You don't need to adjust the line number for every word, just update the first word of each line. You can view the Mushaf page in the PDF on the left side of the screen. After fixing the position of all the words, click the <code>Save</code> button to save your changes.",
-        screenshot: 'mushaf-layout-words.png'
+        text: "Each page in the Mushaf goes through a 4-step workflow: <strong>Step 1: Set Ayah Range</strong> → <strong>Step 2: Assign Line Numbers</strong> → <strong>Step 3: Fix Line Alignment</strong> → <strong>Step 4: Preview</strong>. All steps must be completed before the page can be properly displayed.",
+        screenshot: 'mushaf-workflow-overview.png'
       },
 
       {
         type: 'info',
-        text: "If you need to update line number of a specific words, you can disable auto propagation by unchecking on the <code>Propagate changes</code> checkbox. This will allow you to update the line number of each word individually."
+        text: "<strong>Tip:</strong> Most of the actions mentioned in the following steps are also available in the <code>Actions</code> dropdown menu on the page. You can use either the direct buttons or the dropdown menu to access these features.",
+        screenshot: 'mushaf-actions-dropdown.png'
+      },
+
+      {
+        type: 'heading',
+        text: "Getting Started"
       },
 
       {
         type: 'step',
-        title: 'Step 4: Fix line alignment of page',
+        title: 'Select a Mushaf Layout',
         sections: [
           {
-            text: "After fixing the words position, the next step is to fix the line alignment of the page. Click <code>Fix line alignment</code> from the actions dropdown to open the line alignment page.",
-            screenshot: 'mushaf-layout-line-alignment.png'
+            text: 'From the Mushaf layout index page, browse available Mushaf layouts and click the <code>Show</code> button on the one you want to work on.',
+            screenshot: 'mushaf-layout-list.png'
           },
-
           {
-            text: "You'll see four alignment options for each line. <ul><li><code>C</code> Select this if line should be center aligned</li><li><code>J</code> Select this if line should be justified(this is default option for all lines)</li><li><code>B</code> Select this if there is Bismillah on this line</li><li><code>N</code> Select this if there is surah name on this line</li></ul>. Line alignment info is automatically saved, and page preview will be refreshed."
+            text: 'This opens the pages overview showing all pages with their current status. Each page shows its number, ayah range, and completion status. Use the search bar to find specific pages by page number or ayah reference (e.g., "20" or "2:5").',
+            screenshot: 'mushaf-pages-overview.png'
+          }
+        ]
+      },
+      {
+        type: 'heading',
+        text: "Step 1: Set Ayah Range"
+      },
+
+      {
+        type: 'step',
+        title: 'Setting the First and Last Ayah',
+        sections: [
+          {
+            text: 'This is the first required step for each page. Click the <code>Set Ayah Range</code> button or select <code>Set Ayah Range</code> from the Actions dropdown.',
+          },
+          {
+            text: 'A modal will open showing the PDF of the Mushaf page on the left side. Enter the ayah key for the first ayah and last ayah on this page using the format <code>Surah:Ayah</code> (e.g., <code>2:255</code> for Ayat al-Kursi).',
+            screenshot: 'mushaf-ayah-range-modal.png'
+          },
+          {
+            text: 'Click <code>Save</code> to save the ayah range.',
+          }
+        ]
+      },
+
+      {
+        type: 'heading',
+        text: "Step 2: Assign Line Numbers (Word Mapping)"
+      },
+
+      {
+        type: 'step',
+        title: 'Opening the Word Mapping Interface',
+        text: 'Once Step 1 is complete, click <code>Update Word lines</code> or select <code>Update Word lines</code> from the Actions dropdown to open the word mapping interface. The PDF of the Mushaf page will be displayed on the left, and all words from the ayah range will be listed on the right.',
+        screenshot: 'mushaf-word-mapping-interface.png'
+      },
+
+      {
+        type: 'step',
+        title: 'Understanding Word Line Numbers Mapping',
+        sections: [
+          {
+            text: 'Each word has a line number input field below it. The line number indicates which line of the page the word appears on. For example, if a page has 15 lines, valid line numbers are 1-15.',
+          },
+          {
+            text: '<strong>Important:</strong> Setting a line number to <code>0</code> means that word does <strong>not appear</strong> on this page. This is useful when words from the ayah range continue on the next page.',
+          }
+        ]
+      },
+
+      {
+        type: 'info',
+        text: "The word mapping interface includes an actions bar with several helpful tools: <code>Propagate changes</code> checkbox, <code>+1</code> and <code>-1</code> buttons for bulk adjustments, and <code>Undo</code>/<code>Redo</code> buttons. Each of these features is explained in detail in the following sections."
+      },
+
+      {
+        type: 'step',
+        title: 'Using Auto-Propagation',
+        sections: [
+          {
+            text: 'The <code>Propagate changes</code> checkbox (checked by default) automatically updates all following words when you change one word\'s line number. This saves significant time during word mapping.',
+          },
+          {
+            text: '<strong>How it works:</strong> When you set a word to line 3, all words after it will also be set to line 3. When you set the first word of line 4 to line 4, all following words become line 4, and so on.',
+          },
+          {
+            text: '<strong>Special behavior:</strong> When you set a word to <code>0</code> (not on page), it <strong>always</strong> propagates to following words, regardless of the checkbox state. This ensures words continuing on the next page are properly marked.',
+          },
+          {
+            text: 'If you need to adjust individual words without affecting others, simply uncheck the <code>Propagate changes</code> checkbox.',
           }
         ]
       },
 
       {
         type: 'step',
-        title: 'Step 5: Proofread the page',
-        text: "After fixing the line alignment, you can proofread the page by clicking the <code>Proofread view</code> option from the actions dropdown. This will open the proofreading page where you can view the page in the PDF viewer and compare it with the actual Mushaf page. If you find any issues, you can go back to the previous steps to fix them.",
+        title: 'Bulk adjustments with +1/-1 Buttons',
+        sections: [
+          {
+            text: 'The <code>+1</code> button increments all non-zero line numbers by 1. This is useful if you need to insert a new line at the beginning. All words on line 1 become line 2, line 2 becomes line 3, etc.',
+          },
+          {
+            text: 'The <code>-1</code> button decrements all non-zero line numbers by 1. Useful for removing a line or adjusting the entire page down.',
+          },
+          {
+            text: '<strong>Note:</strong> Both buttons skip words with line number <code>0</code> since those words are not on the page.',
+          }
+        ]
+      },
+
+      {
+        type: 'step',
+        title: 'Using Undo/Redo',
+        sections: [
+          {
+            text: 'The word mapping interface includes <code>Undo</code> and <code>Redo</code> buttons that allow you to revert or reapply changes. This is extremely helpful for recovering from mistakes.',
+          },
+          {
+            text: '<strong>Keyboard shortcuts:</strong> <ul><li><code>Ctrl+Z</code> (or <code>Cmd+Z</code> on Mac) - Undo last change</li><li><code>Ctrl+Y</code> (or <code>Cmd+Shift+Z</code> on Mac) - Redo last undone change</li></ul>',
+          },
+          {
+            text: 'The system maintains a history of up to 50 states. The Undo button is disabled when there\'s nothing to undo, and the Redo button is disabled when there\'s nothing to redo.',
+          }
+        ]
+      },
+
+      {
+        type: 'step',
+        title: 'Typical Word Mapping Workflow',
+        sections: [
+          {
+            text: '<ol><li>Compare the PDF on the left with the word list on the right</li><li>Set the first word of line 1 to <code>1</code> - all following words automatically become <code>1</code></li><li>Find the first word of line 2 in the PDF, set it to <code>2</code> - all following words become <code>2</code></li><li>Continue this for each line on the page</li><li>If the last few words continue on the next page, set the first continuing word to <code>0</code> - all remaining words automatically become <code>0</code></li><li>Click <code>Save</code> to save your changes</li></ol>',
+          },
+          {
+            text: 'Using this method, you typically only need to adjust the first word of each line, making the process very efficient.',
+          }
+        ]
+      },
+
+      {
+        type: 'heading',
+        text: "Step 3: Fix Line Alignment"
+      },
+
+      {
+        type: 'step',
+        title: 'Setting Alignment for Each Line',
+        sections: [
+          {
+            text: 'After completing word mapping, click <code>Fix line alignment</code> from the Actions dropdown. This opens the line alignment interface with the PDF on the left and alignment controls on the right.',
+            screenshot: 'mushaf-line-alignment-interface.png'
+          },
+          {
+            text: 'Each line has four alignment options:<ul><li><code>C</code> - Center aligned</li><li><code>J</code> - Justified (default for all lines)</li><li><code>B</code> - Bismillah (Check this if line has Bismillah)</li><li><code>N</code> - Surah Name (check this if line has surah name)</li></ul>',
+          },
+          {
+            text: 'Compare each line in the PDF with the rendered preview. Click the appropriate button to set the alignment. Changes are automatically saved and the preview updates instantly.',
+          },
+          {
+            text: 'Most lines use Justified (J) alignment by default, so you typically only need to mark special lines like Bismillah or Surah names.',
+          }
+        ]
+      },
+
+      {
+        type: 'heading',
+        text: "Step 4: Preview and Verify"
+      },
+
+      {
+        type: 'step',
+        title: 'Reviewing the Final Page',
+        sections: [
+          {
+            text: 'Once all three steps are complete, click <code>Preview Page</code> from the Actions dropdown to view the final rendered page.',
+          },
+          {
+            text: 'Compare the rendered page carefully with the original PDF. Check for:<ul><li>Correct line breaks - words should break at the same positions as the PDF</li><li>Proper alignment - center-aligned, Bismillah, and surah name lines should match the PDF</li><li>No missing or extra words - all words from the ayah range should appear if on this page</li></ul>',
+          },
+          {
+            text: 'If you find any issues, use the Actions dropdown to go back to the relevant step and make corrections.',
+          }
+        ]
+      },
+
+      {
+        type: 'step',
+        title: 'Using Proofreading View',
+        text: 'For detailed proofreading, select <code>Proofreading view (With PDF)</code> from Actions. This shows the PDF and rendered page side-by-side for easy comparison. This view is especially useful for catching subtle differences.',
+      },
+
+      {
+        type: 'heading',
+        text: "Additional Features"
+      },
+
+      {
+        type: 'step',
+        title: 'Comparing with Other Mushafs',
+        text: 'You can compare your Mushaf layout with other Mushaf layouts using the <code>Compare with</code> option from Actions. Select another Mushaf from the dropdown to see them side-by-side. This is helpful when working on similar Mushaf styles.',
+      },
+
+      {
+        type: 'step',
+        title: 'Jumping to Specific Pages',
+        text: 'Use the <code>Jump to page</code> option from Actions to quickly navigate to any page number or ayah reference. This is faster than using Next/Previous buttons for large jumps.',
+      },
+
+      {
+        type: 'heading',
+        text: "Tips and Best Practices"
+      },
+
+      {
+        type: 'info',
+        text: "<ul><li>Always work through pages in order (Step 1 → Step 2 → Step 3 → Step 4) for best results</li><li>Use the <code>Propagate changes</code> checkbox to speed up word mapping significantly</li><li>Remember that <code>0</code> means 'not on this page' - use it for words that continue on the next page</li><li>Use <code>Ctrl+Z</code> frequently during word mapping to quickly fix mistakes</li><li>The <code>+1</code> and <code>-1</code> buttons are helpful when you need to adjust all lines at once</li><li>Most lines use Justified alignment - focus on marking special lines (Bismillah, Surah names)</li><li>Always verify your work in the Preview step before moving to the next page</li><li>Use the search feature to quickly find specific pages or ayahs</li><li>If you encounter issues with page count or lines per page, contact an admin</li></ul>"
+      },
+
+      {
+        type: 'heading',
+        text: "Common Issues and Solutions"
+      },
+
+      {
+        type: 'step',
+        title: 'Words Breaking at Wrong Positions',
+        text: 'This usually means the line numbers are incorrect in Step 2. Go back to word mapping and verify that each word is assigned to the correct line by comparing with the PDF.',
+      },
+
+      {
+        type: 'step',
+        title: 'Missing Words in Preview',
+        text: 'Check that all words are assigned a non-zero line number. Words with line number <code>0</code> are excluded from the page. Only use <code>0</code> for words that truly don\'t appear on this page.',
+      },
+
+      {
+        type: 'step',
+        title: 'Alignment Looks Wrong',
+        text: 'Verify the alignment settings in Step 3. Make sure Bismillah lines are marked with <code>B</code> and Surah names with <code>N</code>. Most other lines should use <code>J</code> (Justified).',
+      },
+
+      {
+        type: 'step',
+        title: 'Page Not Showing Preview',
+        text: 'Make sure all three steps are completed. The preview requires: (1) Ayah range set, (2) All words mapped to line numbers, (3) Line alignments configured. The missing data screen will show which steps are incomplete.',
       },
 
       {
         type: 'demo',
-        title: "Demo",
-        text: "TODO: Add a demo video here"
+        title: "Video Tutorial",
+        text: "Watch a complete walkthrough of the Mushaf Layout workflow from start to finish.",
+        screenshot: 'mushaf-layout-video-tutorial.png'
       }
     ]
   end
@@ -395,6 +597,119 @@ module ToolDocsHelper
         title: "Fix the transliteration",
         text: "This page will show the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its transliteration. Once you're satisfied with the update, click <code>Save transliteration</code> to save the changes.",
         screenshot: "fix-arabic-transliteration.png"
+      }
+    ]
+  end
+
+  def surah_recitation_segment_builder_help
+    [
+      "Surah Recitation Segments",
+
+      {
+        text: "The Surah Recitation Segments tool is used to create or edit timestamp data for each word in a Surah's audio file. This data allows us to highlight the currently playing word during audio playback, enabling accurate follow-along experiences."
+      },
+
+      {
+        text: "Only contributors with edit permissions can create or modify recitation segments. Please contact the admin or open an issue on GitHub if you encounter permission issues or suspect incorrect timing data.",
+        type: "info"
+      },
+
+      {
+        type: "heading",
+        text: "Please follow these steps to create or fix Surah recitation segments:"
+      },
+
+      {
+        type: "step",
+        title: "Step 1: Select the Surah and reciter",
+        sections: [
+          {
+            text: "From the Surah Recitation Segments index page, select the reciter you want to work on, then choose the Surah. Click the <code>Filter</code> button to see list of Surahs for the selected reciter. Click the <code>Fix segment</code> button to open the segment editor.",
+            screenshot: "surah-segments-select-surah.png"
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 2: Choose the audio source",
+        sections: [
+          {
+            text: "Once the segment editor is open, select the audio source. You can either enter an audio file URL or choose a local audio file from your computer. The URL field will be pre-filled with the existing audio file, but you can change it if needed.",
+            screenshot: "surah-segment-builder.png"
+          },
+          {
+            type: "info",
+            text: "You might select a local audio file if the current CDN audio has issues and you have a fixed version locally that is not yet uploaded to the CDN."
+          },
+          {
+            text: "After selecting the audio source, click the <code>Load Audio Data</code> button to load the audio into the editor."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 3: Add Ayah timing (if missing)",
+        sections: [
+          {
+            text: "If Ayah timing is missing, check the <code>Update Ayah timing</code> checkbox in the editor. This will allow you to set start and end times for each Ayah.",
+            screenshot: "surah-segment-builder-ayah-timing.png"
+          },
+          {
+            text: "Click the <code>Start</code> button when the Ayah begins to set its start time. Click the <code>End</code> button when the Ayah ends — this will set the current Ayah's end time and the start time for the next Ayah automatically."
+          },
+          {
+            type: "info",
+            text: "If <code>Auto Save</code> is checked, the system will automatically save the Ayah timing after each end time is set."
+          },
+          {
+            text: "Once all Ayah timings are set, you can proceed to update word timings."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 4: Track and set word timestamps",
+        text: "Click <code>Play</code> to start the audio. When a word is being recited, click its <code>Track</code> button to set the start time. The next time you click <code>Track</code> (for the same or next word), it will set the end time for the current word and automatically set the start time for the next word. Continue this process until all words in the Ayah have timings. You can also drag the time handles in the waveform to fine-tune timings.",
+        screenshot: "surah-segments-track-timing.png"
+      },
+
+      {
+        type: "info",
+        text: "Because the <code>Track</code> button sets both the end time of the current word and the start time of the next word, you don’t need to set times manually for every single field unless corrections are needed."
+      },
+
+      {
+        type: "step",
+        title: "Step 5: Review and fix mistakes",
+        sections: [
+          {
+            text: "After tracking all words in the Ayah, play it back to ensure the highlighted words match the audio exactly.",
+          },
+          {
+            text: "If any word timing is off, you can manually adjust it by editing the time fields or moving the waveform markers."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Step 6: Save your work",
+        text: "Click the <code>Save Segments</code> button to store your changes. The system will save all word timings for the current Ayah. Remember to save after each Ayah before moving to the next one."
+      },
+
+      {
+        type: "step",
+        title: "Step 7: Repeat for remaining Ayahs",
+        text: "Continue tracking and saving word timings for each Ayah until the entire Surah is completed."
+      },
+
+      {
+        type: "demo",
+        title: "Demo",
+        text: "Demo video will be available here soon"
       }
     ]
   end

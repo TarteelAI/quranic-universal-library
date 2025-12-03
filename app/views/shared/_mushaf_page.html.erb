@@ -31,12 +31,12 @@
   <%= render 'shared/tajweed_images_styles' if use_images %>
   <%= render 'shared/page_font', pages: [page], words: nil %>
 
-  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
+  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
     <% if show_controls %>
-      <div class="mushaf-page-setting d-flex flex-column mb-4">
+      <div class="mushaf-page-setting tw-flex flex-column tw-mb-4">
         <div><span>Name: <%= name %></span></div>
 
-        <div class="d-none">
+        <div class="tw-hidden">
           <label for="mushtabiat">Enable Mushtabiat</label>
           <input type="checkbox" id="mushtabiat" <%= 'checked' if params[:mushtabiat] == '1' %> />
         </div>
@@ -55,7 +55,7 @@
       </div>
     <% end %>
 
-    <div class="page-wrapper container-lg flex">
+    <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
       <div id="page-<%= page %>"
            data-controller="<%= 'tajweed-font' if mushaf.font_code == 'v4-tajweed' %>"
            class="page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
@@ -67,7 +67,7 @@
           <% next if line_mapping.blank? && verses.blank? %>
 
           <div class="line-container" data-line="<%= line_number %>">
-            <div class="line <%= 'line--center' if line_mapping.is_center_aligned? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line---bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
+            <div class="line <%= 'line--center' if line_mapping.is_center_aligned? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line--bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
               <% if line_mapping.is_surah_name? %>
                 <%= render 'shared/chapter_name', chapter: Chapter.find_by(id: line_mapping.get_surah_number) %>
               <% end %>
@@ -89,7 +89,7 @@
 
                       <% if current_group && !group_tag_started %>
                         <% group_tag_started = true %>
-                        <div class="d-inline-block mushtabiat" data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.get_color %>">
+                        <div class="tw-inline-block mushtabiat" data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.get_color %>">
                       <% elsif !current_group && group_tag_started %>
                         <% group_tag_started = false %>
                         </div>

@@ -4,10 +4,10 @@
   similar_ayahs = ayah.get_matching_verses
 %>
 
-<div class="tw-mt-5">
+<div class="tw-mt-5" data-controller="tabs">
   <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
               data-bs-toggle="tab"
               data-bs-target="#tab-preview-pane"
@@ -19,8 +19,8 @@
       </button>
     </li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
+    <li class="tw-m-0" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
               data-bs-toggle="tab"
               data-bs-target="#tab-help-pane"
@@ -68,10 +68,10 @@
           </div>
         </div>
 
-        <div class="card mb-2 shadow-sm">
-          <div class="card-body">
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+          <div class="tw-p-6">
             <div class="qpc-hafs quran-text">
-              <div class="badge bg-secondary text-white text-left">
+              <div class="badge tw-bg-gray-600 text-white tw-text-left">
                 <%= ayah.verse_key %>
               </div>
               <%= ayah.text_qpc_hafs %>
@@ -92,10 +92,10 @@
                 matching_ayah = similar.matched_verse
                 match_words = similar.matched_word_positions
               %>
-              <div class="card mb-2 shadow-sm">
-                <div class="card-body">
+              <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+                <div class="tw-p-6">
                   <div class="qpc-hafs quran-text">
-                    <div class="badge bg-secondary text-white text-left">
+                    <div class="badge tw-bg-gray-600 text-white tw-text-left">
                       <%= matching_ayah.verse_key %>
                     </div>
 
@@ -108,7 +108,7 @@
                     <% end %>
                   </div>
                   <div class="tw-mt-4">
-                    <small class="text-muted d-block tw-mb-2">
+                    <small class="tw-text-gray-600 tw-block tw-mb-2">
                       This ayah matches <%= similar.matched_words_count %> words with <%= similar.coverage %>% coverage and a similarity score of <%= similar.score %>
                     </small>
                   </div>

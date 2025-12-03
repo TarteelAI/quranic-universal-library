@@ -16,17 +16,36 @@ module LearningActivityHelper
         icon: 'list.svg',
         url: learning_activity_path('ayah_mastery'),
         tags: ['Quran Learning', 'Hafiz Training', 'Ayah Guessing']
+      ),
+      ToolCard.new(
+        title: 'Word Match',
+        description: 'Match Arabic words with their correct English/Urdu translations by dragging or tapping.',
+        icon: 'list.svg',
+        url: learning_activity_path('word_match'),
+        tags: ['Vocabulary', 'Word Matching']
       )
     ]
   end
 
   def valid_activity?(name)
-    ['complete_the_ayah', 'ayah_mastery'].include?(name)
+    ['complete_the_ayah', 'ayah_mastery', 'word_match'].include?(name)
   end
 
   def generate_ayah_mastery_quiz
-    list = Verse.where('words_count < 30').order('random()').includes(:chapter).first(4)
-    verse = list.sample
+    # If specific ayah is filtered, use it as the correct answer
+    if @filtered_ayah
+      verse = @filtered_ayah
+      # Get 3 other similar verses for options
+      list = Verse.where('words_count < 30')
+                  .where.not(id: verse.id)
+                  .includes(:chapter)
+                  .order('random()')
+                  .first(3)
+      list << verse
+    else
+      list = Verse.where('words_count < 30').order('random()').includes(:chapter).first(4)
+      verse = list.sample
+    end
 
     options = list.map do |v|
       {
@@ -43,27 +62,61 @@ module LearningActivityHelper
     }
   end
 
-  def generate_complete_the_ayah_quiz
-    if params[:key]
-      verse = Verse.find_by(verse_key: params[:key].strip)
+  # Build data for Word Match activity: a list of arabic words and their translations
+  # Prefer English; if not available, fallback to Urdu
+  def generate_word_match_quiz
+    if @filtered_ayah
+      # Use words only from the specified ayah
+      words = Word.where(verse_id: @filtered_ayah.id, char_type_id: 1)
+                  .includes(:en_translation, :ur_translation)
+
+      # If the ayah doesn't have enough words or translations, fallback to random
+      if words.count < 3
+        words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+      else
+        words = words.limit(words.count > 5 ? 5 : words.count)
+      end
+    else
+      # Fetch random verses with moderate length to avoid very small stopwords-only sets
+      verses = Verse.where('words_count BETWEEN 4 AND 12').order('RANDOM()').limit(5)
+      words = Word.where(verse_id: verses.map(&:id), char_type_id: 1).includes(:en_translation, :ur_translation).sample(5)
+
+      # Fallback in case previous query is sparse
+      if words.size < 5
+        words = Word.where(char_type_id: 1).includes(:en_translation, :ur_translation).order('RANDOM()').limit(5)
+      end
     end
 
-    verse ||= Verse.where('words_count > 6 AND words_count < 40').includes(:words).order("RANDOM()").first
-    words = verse.words.select(&:word?)
+    pairs = words.map do |w|
+      translation = w.en_translation&.text.presence || w.ur_translation&.text.presence || w.word_translation&.text.presence || ''
+      {
+        id: w.id,
+        arabic: w.text_qpc_hafs,
+        translation: translation
+      }
+    end
 
-    words_to_show = words.sample((verse.words_count * 0.6).round)
-    remaining_words = words - words_to_show
+    # Ensure we only include pairs with a translation
+    pairs = pairs.select { |p| p[:translation].present? }
 
     {
-      verse: verse,
-      words: words,
-      words_to_show: words_to_show,
-      remaining_words: remaining_words.shuffle
+      pairs: pairs,
+      left_words: pairs.map { |p| { id: p[:id], text: p[:arabic] } },
+      right_translations: pairs.map { |p| { id: p[:id], text: p[:translation] } }.shuffle
     }
   end
 
+
+
   def generate_complete_the_ayah_quiz
-    if params[:key]
+    # Use filtered ayah if available, otherwise use params[:key] or random verse
+    if @filtered_ayah
+      verse = @filtered_ayah
+      # If filtered ayah is too short, fallback to random verse
+      if verse.words_count < 4
+        verse = Verse.where('words_count > 6 AND words_count < 40').includes(:words).order("RANDOM()").first
+      end
+    elsif params[:key]
       verse = Verse.find_by(verse_key: params[:key].strip)
     end
 

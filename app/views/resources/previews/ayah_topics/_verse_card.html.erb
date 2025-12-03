@@ -1,0 +1,34 @@
+<%
+  verse = verse_topic.verse
+  translation = verse.translations.where(resource_content_id: 131).first
+%>
+
+<div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-shadow-sm hover:tw-shadow-md tw-transition-shadow">
+  <div class="tw-flex tw-items-start tw-justify-between tw-mb-3">
+    <div>
+      <h5 class="tw-font-semibold tw-text-gray-900">
+        <%= verse.verse_key %> - <%= verse.chapter.name_simple %>
+      </h5>
+      <p class="tw-text-sm tw-text-gray-600">
+        Verse <%= verse.verse_number %>
+      </p>
+    </div>
+  </div>
+  
+  <div class="qpc-hafs quran-text tw-text-xl tw-text-right tw-mb-3 tw-leading-[1.5]">
+    <% verse.words.each do |w| %>
+      <%= render_topic_word(w, verse_topic.topic_words&.include?(w.position)) %>
+    <% end %>
+  </div>
+
+  <% if translation %>
+    <% highlighted_text = highlight_topic_name_in_text(translation.text.to_s, topic.name) %>
+    <div class="tw-text-sm tw-text-gray-700 tw-border-t tw-pt-3 tw-mt-3">
+      <div class="tw-text-xs tw-text-gray-500 tw-mb-1">
+        <%= translation.resource_name %>
+      </div>
+      <%= safe_html highlighted_text %>
+    </div>
+  <% end %>
+</div>
+

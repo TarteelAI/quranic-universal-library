@@ -71,10 +71,11 @@ class ResourceContent < QuranApiRecord
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }
   scope :with_segments, -> { where("meta_data ->> 'has-segments' = 'yes'") }
   scope :fonts, -> { where sub_type: SubType::Font }
-  scope :uloom_quran, -> { where sub_type: SubType::UloomQuran }
+  scope :uloom_contents, -> { where sub_type: SubType::UloomContent }
   scope :approved, -> { where approved: true }
   scope :for_language, lambda { |lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
+  scope :root_details, -> { where sub_type: SubType::RootDetail }
     where(id: ResourcePermission.where(permission_to_host: val).pluck(:resource_content_id))
   }
 
@@ -192,7 +193,8 @@ class ResourceContent < QuranApiRecord
     MetaData = 'meta'
     Morphology = 'morphology'
     Font = 'font'
-    UloomQuran = 'uloom-quran'
+    UloomContent = 'uloom-content'
+    RootDetail = 'root-detail'
   end
 
   def get_language_name
@@ -226,8 +228,12 @@ class ResourceContent < QuranApiRecord
     sub_type == SubType::QuranText
   end
 
-  def uloom_quran?
-    sub_type == SubType::UloomQuran
+  def uloom_content?
+    sub_type == SubType::UloomContent
+  end
+
+  def root_detail?
+    sub_type == SubType::RootDetail
   end
 
   def font?

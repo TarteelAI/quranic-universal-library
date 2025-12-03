@@ -1,7 +1,7 @@
 <%= render 'layouts/qul_head' %>
 
-<div class="container-lg tw-mb-4" data-turbo="false">
-  <div class="page-section mt-4 tw-flex tw-gap-4">
+<div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-mb-4" data-turbo="false">
+  <div class="page-section tw-mt-4 tw-flex tw-gap-4">
     <%= link_to segments_dashboard_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>
       <i class="fas fa-tachometer-alt"></i>
       <span>Dashboard</span>
@@ -12,9 +12,19 @@
       <span>Failures</span>
     <% end %>
 
+    <%= link_to segments_word_failures_path, class: "tw-bg-purple-100 tw-text-purple-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-purple-200 hover:tw-text-black" do %>
+      <i class="fas fa-chart-bar"></i>
+      <span>Word Stats</span>
+    <% end %>
+
     <%= link_to segments_detections_path, class: "tw-bg-blue-100 tw-text-blue-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-blue-200 hover:tw-text-black" do %>
       <i class="fas fa-check-circle"></i>
       <span>Detections</span>
+    <% end %>
+
+    <%= link_to segments_review_ayahs_path, class: "tw-bg-yellow-100 tw-text-yellow-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-yellow-200 hover:tw-text-black" do %>
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Review Ayahs</span>
     <% end %>
 
     <%= link_to segments_reciters_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>

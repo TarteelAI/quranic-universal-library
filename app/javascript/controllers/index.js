@@ -10,11 +10,17 @@ application.register("ajax-modal", AjaxModalController);
 import ArabicKeyboardController from "./arabic_keyboard_controller.js";
 application.register("arabic-keyboard", ArabicKeyboardController);
 
+import AlertController from "./alert_controller.js";
+application.register("alert", AlertController);
+
 import ConfirmLeaveController from "./confirm_leave_controller.js";
 application.register("confirm-leave", ConfirmLeaveController);
 
 import DatepickerController from "./datepicker_controller.js";
 application.register("datepicker", DatepickerController);
+
+import DropdownController from "./dropdown_controller.js";
+application.register("dropdown", DropdownController);
 
 import MushafPageBuilderController from "./mushaf_page_builder_controller.js";
 application.register("mushaf-page-builder", MushafPageBuilderController);
@@ -58,6 +64,9 @@ application.register("resizeable", ResizeableController);
 import TooltipController from "./tooltip_controller.js";
 application.register("tooltip", TooltipController);
 
+import TurboFrameLoadingController from "./turbo_frame_loading_controller.js";
+application.register("turbo-frame-loading", TurboFrameLoadingController);
+
 import CopyToClipboardController from "./copy_to_clipboard_controller.js";
 application.register("copy-to-clipboard", CopyToClipboardController);
 
@@ -96,6 +105,9 @@ application.register("activities--fill-in-blank", FillTheBlankController);
 
 import AyahMasteryController from "./activities/ayah_mastery_controller";
 application.register("activities--ayah-mastery", AyahMasteryController);
+
+import WordMatchController from "./activities/word_match_controller";
+application.register("activities--word-match", WordMatchController);
 
 import FaqController from "./faq_controller";
 application.register("faq", FaqController);
@@ -144,3 +156,20 @@ application.register("graph-bulk-edit", GraphBulkEditController);
 
 import PopoverController from "./popover_controller";
 application.register("popover", PopoverController);
+import SegmentsTimelineController from "./segments/timeline_controller";
+application.register("segments--timeline", SegmentsTimelineController);
+
+import SegmentFailurePlayerController from "./segments/failure_player_controller";
+application.register(
+  "segments--failure-player",
+  SegmentFailurePlayerController
+);
+
+import TabsController from "./tabs_controller";
+application.register("tabs", TabsController);
+
+import FontPreviewController from "./font_preview_controller";
+application.register("font-preview", FontPreviewController);
+
+import PageSearchController from "./page_search_controller.js";
+application.register("page-search", PageSearchController);

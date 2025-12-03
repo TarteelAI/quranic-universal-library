@@ -4,6 +4,7 @@ class TranslationProofreadingsController < CommunityController
   before_action :authorize_access!, only: %i[edit update]
 
   def show
+    #TODO: use presenter to load the translation
     @translation = Translation
                      .includes(:verse, :foot_notes)
                      .where(resource_content_id: @resource.id)
@@ -23,7 +24,6 @@ class TranslationProofreadingsController < CommunityController
     if @translation.blank?
       return redirect_to translation_proofreading_path(resource_id: @resource.id), alert: "Translation not found"
     end
-
     @draft_translation = @translation.build_draft
   end
 
@@ -84,9 +84,14 @@ class TranslationProofreadingsController < CommunityController
 
     params[:resource_id] ||= 131
     @resource = ResourceContent.find(params[:resource_id])
+    @presenter.set_resource(@resource)
   end
 
   def load_resource_access
     @access = can_manage?(find_resource)
+  end
+
+  def init_presenter
+    @presenter = TranslationPresenter.new(self)
   end
 end

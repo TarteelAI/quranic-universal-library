@@ -58,7 +58,12 @@ export default {
         (state, getters) => state.currentAyahTimeFrom,
 
         (newValue, _) => {
-          if (newValue >= 0) {
+          const shouldSeek = newValue >= 0 && (
+            this.$store.state.audioType === 'ayah' || 
+            this.$store.state.isManualAyahChange
+          );
+          
+          if (shouldSeek) {
             player.currentTime = newValue / 1000;
           }
         },

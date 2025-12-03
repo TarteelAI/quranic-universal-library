@@ -226,7 +226,7 @@ class DownloadableResource < ApplicationRecord
   end
 
   def humanize
-    "#{name} - #{resource_type}"
+    "#{name} - #{resource_type}(#{humanize_cardinality_type})"
   end
 
   def icon

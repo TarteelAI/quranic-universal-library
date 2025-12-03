@@ -4,11 +4,12 @@ namespace :fix_transliteration do
     # 85:18 was repeated twice, key for 85:22 were wrong
 
     PaperTrail.enabled = false
-    Utils::Downloader.download("CDN/data/transliterations/docx-updated.html", "tmp/docx-updated.html")
+    FileUtils.mkdir_p("tmp/transliterations")
+    Utils::Downloader.download("CDN/transliterations/docx-updated.html", "tmp/transliterations/docx-updated.html")
 
     IMPORTED = {}
     require 'nokogiri'
-    resource = ResourceContent.find(1565)
+    resource = ResourceContent.where(id: 1565).first_or_create
 
     def replace_zah_with_italic(html, verse)
       text = verse.text_qpc_hafs
@@ -37,32 +38,6 @@ namespace :fix_transliteration do
         end
       end
 
-      doc.to_html
-    end
-
-    def fix_zah_text(html, verse)
-      text = verse.text_qpc_hafs
-      doc = Nokogiri::HTML::fragment(html)
-      dhal_indexes = text.enum_for(:scan, /ذ/).map { Regexp.last_match.begin(0) }
-      za_indexes = text.enum_for(:scan, /ظ/).map { Regexp.last_match.begin(0) }
-
-      dazl = dhal_indexes.map do |i| [i, 'ذ'] end
-      zah = za_indexes.map do |i| [i, 'ظ'] end
-      sequence = (dazl +zah ).sort_by(&:first)
-
-      th_nodes = []
-      doc.traverse do |node|
-        if node.name == "u" && node.text.strip == "th"
-          th_nodes << node
-        end
-      end
-      sequence.each_with_index do |(_, letter), i|
-        node = th_nodes[i]
-        next unless node
-        if letter == 'ظ'
-          node.children = Nokogiri::XML::Node.new('i', doc).tap { |i| i.content = "th" }
-        end
-      end
       doc.to_html
     end
 
@@ -112,7 +87,6 @@ namespace :fix_transliteration do
 
 
       text = fix_underline_text(text).strip
-      t = text.dup
       text2 = replace_zah_with_italic(text.dup, verse)
 
       tr.draft_text = text2
@@ -122,7 +96,7 @@ namespace :fix_transliteration do
       puts "Importing #{verse.verse_key} #{tr.id}"
     end
 
-    html = File.read('tmp/docx-updated.html')
+    html = File.read('tmp/transliterations/docx-updated.html')
     doc = Nokogiri::HTML(html)
     doc.css("a").remove
     doc.css("img").remove
@@ -207,7 +181,7 @@ namespace :fix_transliteration do
       create_transliteration(current_surah, current_ayah, ayah_text_buffer.strip, resource)
     end
 
-    binding.pry
     Verse.pluck(:verse_key) - IMPORTED.keys
   end
 end
+

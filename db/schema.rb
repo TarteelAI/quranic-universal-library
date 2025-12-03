@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_08_13_152209) do
+ActiveRecord::Schema[7.0].define(version: 2025_09_16_073555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -466,6 +466,28 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_13_152209) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.jsonb "approved_synonyms", default: []
+  end
+
+  create_table "uloom_contents", force: :cascade do |t|
+    t.text "text"
+    t.string "cardinality_type"
+    t.integer "chapter_id"
+    t.integer "verse_id"
+    t.integer "word_id"
+    t.integer "resource_content_id"
+    t.string "location"
+    t.string "location_range"
+    t.jsonb "meta_data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cardinality_type"], name: "index_uloom_contents_on_cardinality_type"
+    t.index ["chapter_id"], name: "index_uloom_contents_on_chapter_id"
+    t.index ["location"], name: "index_uloom_contents_on_location"
+    t.index ["location_range"], name: "index_uloom_contents_on_location_range"
+    t.index ["resource_content_id"], name: "index_uloom_contents_on_resource_content_id"
+    t.index ["text"], name: "index_uloom_contents_on_text"
+    t.index ["verse_id"], name: "index_uloom_contents_on_verse_id"
+    t.index ["word_id"], name: "index_uloom_contents_on_word_id"
   end
 
   create_table "user_downloads", force: :cascade do |t|

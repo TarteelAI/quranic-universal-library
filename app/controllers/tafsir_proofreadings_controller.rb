@@ -2,8 +2,8 @@ class TafsirProofreadingsController < CommunityController
   before_action :find_resource
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]
-
   def show
+    #TODO: use presenter to load data
     @tafisr = find_tafsir(@resource)
   end
 
@@ -63,6 +63,8 @@ class TafsirProofreadingsController < CommunityController
       params[:resource_id] ||= 169
       @resource = ResourceContent.find(params[:resource_id])
     end
+
+    @presenter.set_resource(@resource)
   end
 
   def load_resource_access
@@ -102,5 +104,9 @@ class TafsirProofreadingsController < CommunityController
     else
       'verse_id'
     end
+  end
+
+  def init_presenter
+    @presenter = TafsirPresenter.new(self)
   end
 end

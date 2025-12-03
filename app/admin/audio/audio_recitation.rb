@@ -4,7 +4,7 @@ ActiveAdmin.register Audio::Recitation do
   menu parent: 'Audio'
   actions :all, except: :destroy
   includes :reciter, :qirat_type
-  
+
   permit_params :name,
                 :arabic_name,
                 :description,
@@ -50,6 +50,7 @@ ActiveAdmin.register Audio::Recitation do
       ).result
     end
   )
+
   action_item :generate_audio, only: :show, if: -> { can?(:manage, resource) && resource.missing_audio_files? } do
     link_to 'Generate Audio files', refresh_meta_cms_audio_recitation_path(resource, audio: true), method: :put, data: { confirm: "Are you sure to generate audio files?" }
   end
@@ -92,6 +93,19 @@ ActiveAdmin.register Audio::Recitation do
             }
   end
 
+  action_item :clone_recitation, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Clone Recitation', clone_recitation_cms_audio_recitation_path(resource),
+            method: :post,
+            data: { confirm: "Clone recitation with audio files?" }
+  end
+
+  member_action :clone_recitation, method: :post, if: -> { can? :manage, resource } do
+    authorize! :manage, resource
+    cloned = resource.clone_with_audio_files
+
+    redirect_to [:cms, cloned], notice: "Cloning successfully"
+  end
+
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
     authorize! :manage, resource
     notice = if params[:audio]
@@ -106,7 +120,6 @@ ActiveAdmin.register Audio::Recitation do
     Utils::System.start_sidekiq
     redirect_to [:cms, resource], notice: notice
   end
-
 
   member_action :validate_segments, method: 'get' do
     authorize! :manage, resource
@@ -127,7 +140,7 @@ ActiveAdmin.register Audio::Recitation do
       ayah_recitation_id = params[:ayah_recitation_id]
       divide_audio = params[:divide_audio] == '1'
 
-      Export::SplitGapelessRecitationJob.perform_later(
+      Audio::SplitGaplessRecitationJob.perform_later(
         recitation_id: resource.id,
         surah: surah,
         ayah_from: ayah_from,
@@ -243,6 +256,8 @@ ActiveAdmin.register Audio::Recitation do
                      .with_segments_counts
                      .includes(:chapter)
 
+    active_admin_comments
+
     panel "Audio files: (#{resource.files_count} files) " do
       if resource.files_count.to_i < 114
         missing = (1..114).to_a - resource.chapter_audio_files.pluck(:chapter_id)
@@ -255,6 +270,7 @@ ActiveAdmin.register Audio::Recitation do
           td 'ID'
           td 'Surah number'
           td 'URL'
+          td 'Duration'
           td 'Ayahs count'
           td 'Semgnets'
         end
@@ -265,6 +281,7 @@ ActiveAdmin.register Audio::Recitation do
               td link_to(r.id, [:cms, r])
               td r.chapter_id
               td r.audio_url
+              td r.duration
               td r.chapter&.verses_count
               td r.segments_count
             end

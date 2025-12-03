@@ -25,12 +25,12 @@
 %>
 
 <div class="page-section">
-  <div class="d-flex flex-column align-items-end">
-    <div class="badge bg-success">
+  <div class="tw-flex flex-column tw-items-end">
+    <div class="badge tw-bg-green-500">
       <%= verse.verse_key %>
     </div>
 
-    <div class="quran-text qpc-hafs d-flex flex-wrap">
+    <div class="quran-text qpc-hafs tw-flex flex-wrap">
       <% phrase_groups.each do |key, group| %>
         <% if key.is_a?(Morphology::Phrase) %>
           <%
@@ -38,7 +38,7 @@
             title = title.join("<br/>").html_safe
           %>
           <div title="(<%= key.id %>: <%= key.source_verse.verse_key %>)<%= key.text_qpc_hafs %> <span class='badge badge-info'><%= key.occurrence %></span> <%= title %>"
-               class="mx-1 phrase d-inline-flex"
+               class="mx-1 phrase tw-inline-flex"
                data-controller="tooltip"
                style="color: <%= key.get_color %>">
             <% group.each do |w| %>
@@ -54,8 +54,8 @@
     </div>
   </div>
 
-  <div class="d-flex flex-column align-items-end">
-    <span class="badge bg-success mt-3">
+  <div class="tw-flex flex-column tw-items-end">
+    <span class="badge tw-bg-green-500 tw-mt-3">
       Phrases
     </span>
 

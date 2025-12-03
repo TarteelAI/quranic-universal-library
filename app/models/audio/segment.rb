@@ -77,23 +77,32 @@ module Audio
       self.chapter_id = verse.chapter_id
     end
 
+    def set_segments!(segments_list, user = nil)
+      set_segments(segments_list, user)
+      save(validate: false)
+    end
+
     def set_segments(segments_list, user = nil)
-      words = verse.words_count
+      words_count = verse.words_count
 
       list = segments_list.map do |s|
-        s = s.map(&:to_i)
+        word_number = s[0].to_i
+        next if word_number > words_count
 
-        if s.size == 3 && s[0] <= words
-          s
+        start_time = s[1].to_i
+        end_time = s[2].to_i
+        metadata = s[3] || {}
+
+        if metadata.present? && metadata['waqaf']
+          [word_number, start_time, end_time, {waqaf: true}]
+        else
+          [word_number, start_time, end_time]
         end
       end
 
       list = list.compact_blank
-
-      update(
-        segments: list,
-        segments_count: list.size
-      )
+      self.segments = list
+      self.segments_count = list.size
     end
 
     def update_time_and_offset_segments(from, to, key)
@@ -104,12 +113,14 @@ module Audio
       save(validate: false)
     end
 
-    def get_segments
+    def get_segments(drop_metadata: false)
+      return [] if segments.blank?
+
       segments.map do |s|
         next if s.size < 2
 
-        if s.size == 4
-          s.drop(1)
+        if drop_metadata
+          [s[0], s[1], s[2]]
         else
           s
         end

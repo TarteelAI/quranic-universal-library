@@ -111,18 +111,32 @@ ActiveAdmin.register ResourceContent do
 
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
-
-    # Restart sidekiq if it's not running
     Utils::System.start_sidekiq
 
     if params[:approved]
-      DraftContent::ApproveDraftContentJob.perform_later(resource.id)
+      if resource.tafsir?
+        DraftContent::ApproveDraftTafsirJob.perform_later(resource.id)
+      elsif resource.translation?
+        if resource.one_word?
+          DraftContent::ApproveDraftWordTranslationJob.perform_later(resource.id)
+        else
+          DraftContent::ApproveDraftTranslationJob.perform_later(resource.id)
+        end
+      end
       flash[:notice] = "#{resource.name} will be imported shortly!"
     elsif params[:remove_draft]
-      DraftContent::RemoveDraftContentJob.perform_later(resource.id)
+      if resource.tafsir?
+        Draft::Tafsir.where(resource_content_id: resource.id).delete_all
+      elsif resource.translation?
+        if resource.one_word?
+          Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
+        else
+          Draft::Translation.where(resource_content_id: resource.id).delete_all
+        end
+      end
       flash[:notice] = "#{resource.name} will be removed shortly!"
     elsif resource.syncable?
-      DraftContent::ImportDraftContentJob.perform_later(resource.id)
+      DraftContent::ImportDraftDataJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be synced shortly!"
     end
 
@@ -139,6 +153,36 @@ ActiveAdmin.register ResourceContent do
           end
 
     redirect_to url
+  end
+
+  member_action :import_draft_content, method: 'put' do
+    authorize! :manage, resource
+    Utils::System.start_sidekiq
+
+    if params[:approved]
+      if resource.tafsir?
+        DraftContent::ApproveDraftTafsirJob.perform_later(resource.id, nil, use_draft_content: true)
+      elsif resource.translation?
+        if resource.one_word?
+          DraftContent::ApproveDraftWordTranslationJob.perform_later(resource.id, nil, use_draft_content: true)
+        else
+          DraftContent::ApproveDraftTranslationJob.perform_later(resource.id, nil, use_draft_content: true)
+        end
+      elsif resource.uloom_content?
+        DraftContent::ApproveDraftUloomContentJob.perform_later(resource.id)
+      elsif resource.root_detail?
+        DraftContent::ApproveDraftRootDetailJob.perform_later(resource.id)
+      end
+      flash[:notice] = "#{resource.name} drafts will be imported shortly!"
+    elsif params[:remove_draft]
+      Draft::Content.where(resource_content_id: resource.id).delete_all
+      flash[:notice] = "#{resource.name} drafts will be removed shortly!"
+    elsif resource.syncable?
+      DraftContent::ImportDraftContentJob.perform_later(resource.id)
+      flash[:notice] = "#{resource.name} will be synced shortly!"
+    end
+
+    redirect_to "/cms/draft_contents?q%5Bresource_content_id_eq%5D=#{resource.id}"
   end
 
   member_action :export, method: 'put' do
@@ -387,7 +431,9 @@ ActiveAdmin.register ResourceContent do
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.transliteration?
-        link_to 'transliteration', "/cms/transliterations?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq=#{resource.id}"
+      elsif resource.root_detail?
+        link_to 'Root details', "/cms/root_details?q%5Bresource_content_id_eq%5D=#{resource.id}"
       elsif resource.chapter_info?
         link_to 'Chapter info', "/cms/chapter_infos?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.tokens?
@@ -407,18 +453,11 @@ ActiveAdmin.register ResourceContent do
         end
       elsif resource.mushaf_layout?
         link_to 'Mushaf pages', "/cms/mushaf_pages?q%5Bmushaf_id_eq%5D=#{resource.get_mushaf_id}"
-      elsif resource.uloom_quran?
-        safe_join([
-                    link_to('UloomQuran – By Verse',   "/cms/uloom_quran_by_verses?q%5Bresource_content_id_eq%5D=#{resource.id}"),
-                    tag(:br),
-                    link_to('UloomQuran – By Word',    "/cms/uloom_quran_by_words?q%5Bresource_content_id_eq%5D=#{resource.id}"),
-                    tag(:br),
-                    link_to('UloomQuran – By Chapter', "/cms/uloom_quran_by_chapters?q%5Bresource_content_id_eq%5D=#{resource.id}")
-                  ])
+      elsif resource.uloom_content?
+        link_to 'UloomContents', "/cms/uloom_contents?q%5Bresource_content_id_eq=#{resource.id}"
       end
     end
   end
-
 
   sidebar 'Export data', only: :show, if: -> { can?(:export, resource) && (resource.translation? || resource.tafsir?) } do
     div do

@@ -14,12 +14,23 @@ export default class extends Controller {
     this.btnPrevious.on('click', this.previousPage.bind(this));
     this.btnNext.on('click', this.nextPage.bind(this));
 
-    const zoomslider = this.element.querySelector('#zoom-slider');
-
-    zoomslider.addEventListener('input', () => {
-      const scale = zoomslider.value;
+    this.zoomSlider = this.element.querySelector('#zoom-slider');
+    this.zoomHandler = () => {
+      const scale = this.zoomSlider.value;
       this.zoom(scale);
-    });
+    };
+
+    this.zoomSlider.addEventListener('input', this.zoomHandler);
+  }
+
+  disconnect() {
+    this.btnJump.off('change');
+    this.btnPrevious.off('click');
+    this.btnNext.off('click');
+
+    if (this.zoomSlider && this.zoomHandler) {
+      this.zoomSlider.removeEventListener('input', this.zoomHandler);
+    }
   }
 
   zoom(scale) {

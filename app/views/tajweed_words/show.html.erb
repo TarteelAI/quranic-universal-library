@@ -26,23 +26,23 @@
 
 <%= render 'shared/page_font', verses: [@word.verse] %>
 
-<div class="page-wrapper container-lg" data-controller="tajweed-annotator">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4" data-controller="tajweed-annotator">
   <div class="page-section">
     <%= render 'word_preview' %>
   </div>
 
-  <div class="page-section mt-4">
-    <h2 class="position-sticky bg-white border px-2 py-3 d-flex align-items-center justify-content-between" style="z-index: 100; top:5px">
+  <div class="page-section tw-mt-4">
+    <h2 class="tw-sticky tw-bg-white tw-border tw-border-gray-300 tw-px-2 tw-py-3 tw-flex tw-items-center tw-justify-between" style="z-index: 100; top:5px">
       <span>
         Letters with tajweed rules
       </span>
 
-      <div class="d-flex">
-        <button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-rules-sidebar" aria-controls="tajweed-rules-sidebar">
+      <div class="tw-flex">
+        <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white tw-me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-rules-sidebar" aria-controls="tajweed-rules-sidebar">
           Tajweed Palette
         </button>
 
-        <button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
+        <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white tw-me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
            Tajweed page
         </button>
 
@@ -55,8 +55,8 @@
       </div>
     </h2>
 
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <th>Index</th>
         <th>Letter</th>

@@ -72,6 +72,14 @@ class Topic < QuranApiRecord
     verses.pluck(:verse_key)
   end
 
+  def all_children
+    Topic.where("parent_id = :id OR thematic_parent_id = :id OR ontology_parent_id = :id", id: id)
+  end
+
+  def get_parent
+    parent || thematic_parent || ontology_parent
+  end
+
   # copied from https://github.com/amerine/acts_as_tree/blob/master/lib/acts_as_tree.rb#L175
   def self.tree_view(label_method = :name,  node = nil, level = -1)
     if node.nil?

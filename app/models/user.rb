@@ -45,10 +45,14 @@ class User < ApplicationRecord
          :rememberable,
          :trackable,
          :validatable,
-         :recoverable,
+         :recoverable
          :confirmable
 
-  validates :first_name, :last_name, presence: true
+  validates :first_name,
+            :last_name,
+            presence: true,
+            length: { maximum: 50 },
+            format: { with: /\A[\p{L}\p{M}'\- ]+\z/u, message: 'contains invalid characters' }
 
   has_many :user_projects
   has_many :user_downloads
@@ -66,10 +70,6 @@ class User < ApplicationRecord
   def super_admin?
     1 == id || is_super_admin?
   end
-
-  #def role=(val)
-  #  super(val[/\d+/] ? val.to_i : val)
-  #end
 
   def name
     short_name = first_name.presence || last_name.presence || email

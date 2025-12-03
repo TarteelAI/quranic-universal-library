@@ -1,7 +1,13 @@
 module Segments
   class Database < ApplicationRecord
     self.table_name = 'segments_databases'
-    has_one_attached :db_file
+    has_one_attached :db_file, service: Rails.env.production? ? :qul_segments : :local
+
+    #TODO: Use service_prefix after upgrading to Rails 7.1
+    # and remove this
+    before_create do
+      db_file.blob.key = File.join("segments", SecureRandom.hex(24))
+    end
 
     def self.current
       where(active: true).first
@@ -13,12 +19,6 @@ module Segments
     end
 
     protected
-
-    def download_db
-      return if db_file_path.exist?
-
-    end
-
     def download_db
       require "zip"
       zip_temp_path = Rails.root.join("tmp", "segments_upload_#{id}.zip")

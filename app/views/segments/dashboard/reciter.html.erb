@@ -1,0 +1,230 @@
+<%= render 'segments/header' %>
+
+<%
+  reciter = @presenter.reciter
+%>
+
+<div class="page-wrapper container-lg">
+  <div class="page-section mt-4" data-turbo="false">
+    <!-- Header Section -->
+    <div class="tw-flex tw-items-center tw-justify-between tw-mb-6">
+      <div>
+        <h1 class="tw-text-3xl tw-font-bold tw-mb-2"><%= reciter.name %></h1>
+        <p class="tw-text-gray-600">Segmentation Statistics & Progress Report</p>
+      </div>
+      <div class="tw-flex tw-gap-2">
+        <%= link_to segments_reciters_path, class: "tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-no-underline" do %>
+          <i class="fas fa-arrow-left tw-mr-2"></i>
+          Back to Reciters
+        <% end %>
+        <%= button_to segments_download_reciter_path(reciter.id),
+                    method: :post,
+                    class: "tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-no-underline tw-inline-flex tw-items-center tw-gap-2",
+                    data: {
+                      confirm: "This will prepare segments data for #{reciter[:name]} and send it to your email. Continue?",
+                      turbo_method: :post
+                    } do %>
+          <i class="fas fa-download"></i>
+          <span>Download Data</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Overall Progress Section -->
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-p-6 tw-mb-6">
+      <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Overall Progress</h2>
+      
+      <!-- Stats Row -->
+      <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-4 tw-gap-4 tw-mb-4">
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-blue-600"><%= @presenter.overall_progress_percentage %>%</div>
+          <div class="tw-text-xs tw-text-gray-600">Completion</div>
+        </div>
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-green-600"><%= number_with_delimiter(@presenter.segmentation_stats[:total_segmented_ayahs]) %></div>
+          <div class="tw-text-xs tw-text-gray-600">Ayahs</div>
+        </div>
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-purple-600"><%= number_with_delimiter(@presenter.segmentation_stats[:total_segmented_words]) %></div>
+          <div class="tw-text-xs tw-text-gray-600">Words</div>
+        </div>
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-orange-600"><%= @presenter.segmentation_stats[:segmented_chapters_count] %></div>
+          <div class="tw-text-xs tw-text-gray-600">Surahs</div>
+        </div>
+      </div>
+      
+      <!-- Progress Bar Row -->
+      <div class="tw-mt-6">
+        <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+          <span class="tw-text-sm tw-font-medium tw-text-gray-700">
+            Progress: <%= number_with_delimiter(@presenter.segmentation_stats[:total_segmented_ayahs]) %> / <%= number_with_delimiter(@presenter.total_verses) %> ayahs
+          </span>
+          <span class="tw-text-lg tw-font-bold tw-text-blue-600"><%= @presenter.overall_progress_percentage %>%</span>
+        </div>
+        <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-4 tw-shadow-inner">
+          <div class="tw-bg-gradient-to-r tw-from-blue-500 tw-to-blue-600 tw-h-4 tw-rounded-full tw-shadow-sm tw-transition-all tw-duration-300" 
+               style="width: <%= @presenter.overall_progress_percentage %>%">
+          </div>
+        </div>
+        <div class="tw-text-xs tw-text-gray-500 tw-mt-1 tw-text-center">
+          <%= @presenter.segmentation_stats[:total_segmented_ayahs] %> ayahs completed
+        </div>
+      </div>
+    </div>
+
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-p-6 tw-mb-6">
+      <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Missing Surahs</h2>
+      
+      <% if @presenter.missing_ayahs_stats[:missing_surahs].any? %>
+        <div class="tw-mb-6">
+          <h3 class="tw-text-lg tw-font-medium tw-mb-3 tw-text-red-600">
+            <i class="fas fa-exclamation-triangle tw-mr-2"></i>
+            Completely Missing Surahs (<%= @presenter.missing_ayahs_stats[:missing_surahs].size %>)
+          </h3>
+          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+            <% @presenter.missing_ayahs_stats[:missing_surahs].each do |surah| %>
+              <div class="tw-bg-red-50 tw-border tw-border-red-200 tw-rounded tw-p-3">
+                <div class="tw-font-medium tw-text-red-800">Surah <%= surah.is_a?(Hash) ? surah[:chapter_id] : surah %> - <%= surah.is_a?(Hash) ? surah[:chapter_name] : 'Unknown' %></div>
+                <div class="tw-text-sm tw-text-red-600"><%= surah.is_a?(Hash) ? surah[:expected_verses] : 0 %> ayahs missing</div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Partially Missing Surahs -->
+      <% if @presenter.missing_ayahs_stats[:missing_ayahs_by_surah].any? %>
+        <div>
+          <h3 class="tw-text-lg tw-font-medium tw-mb-3 tw-text-orange-600">
+            <i class="fas fa-exclamation-circle tw-mr-2"></i>
+            Partially Missing Ayahs (<%= @presenter.missing_ayahs_stats[:missing_ayahs_by_surah].size %> surahs)
+          </h3>
+          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+            <% @presenter.missing_ayahs_stats[:missing_ayahs_by_surah].each do |chapter_id, surah| %>
+              <div class="tw-bg-orange-50 tw-border tw-border-orange-200 tw-rounded tw-p-3">
+                <div class="tw-font-medium tw-text-orange-800">Surah <%= surah[:chapter_id] %> - <%= surah[:chapter_name] %></div>
+                <div class="tw-text-sm tw-text-orange-600">
+                  <%= surah[:actual_verses] %> / <%= surah[:expected_verses] %> ayahs 
+                  (<%= surah[:missing_count] %> missing)
+                </div>
+                <div class="tw-w-full tw-bg-orange-200 tw-rounded-full tw-h-1 tw-mt-2">
+                  <div class="tw-bg-orange-500 tw-h-1 tw-rounded-full" 
+                       style="width: <%= (surah[:actual_verses] / surah[:expected_verses].to_f) * 100 %>%"></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @presenter.missing_ayahs_stats[:missing_surahs].empty? && @presenter.missing_ayahs_stats[:missing_ayahs_by_surah].empty? %>
+        <div class="tw-text-center tw-py-8 tw-text-gray-500">
+          <i class="fas fa-check-circle tw-text-4xl tw-text-green-500 tw-mb-2"></i>
+          <p class="tw-text-lg">No missing content detected!</p>
+          <p class="tw-text-sm">All segmented surahs appear to be complete.</p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-p-6 tw-mb-6">
+      <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Surah Segments details</h2>
+      
+      <% if @presenter.segmented_surahs.any? %>
+        <div class="tw-overflow-x-auto">
+          <table class="tw-w-full tw-border-collapse tw-rounded-md">
+            <thead>
+              <tr class="tw-bg-gray-100">
+                <th class="tw-p-3 tw-text-left tw-border-b">Surah</th>
+                <th class="tw-p-3 tw-text-center tw-border-b">Verses</th>
+                <th class="tw-p-3 tw-text-center tw-border-b">Segmented</th>
+                <th class="tw-p-3 tw-text-center tw-border-b">Words</th>
+                <th class="tw-p-3 tw-text-center tw-border-b">Progress</th>
+                <th class="tw-p-3 tw-text-center tw-border-b">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @presenter.segmented_surahs.each do |surah| %>
+                <tr class="tw-border-b hover:tw-bg-gray-50">
+                  <td class="tw-p-3">
+                    <div class="tw-font-medium">Surah <%= surah[:chapter_id] %></div>
+                    <div class="tw-text-sm tw-text-gray-600"><%= surah[:chapter_name] %></div>
+                  </td>
+                  <td class="tw-p-3 tw-text-center tw-font-mono">
+                    <%= surah[:verses_count] %>
+                  </td>
+                  <td class="tw-p-3 tw-text-center tw-font-mono">
+                    <%= surah[:segmented_verses] %>
+                  </td>
+                  <td class="tw-p-3 tw-text-center tw-font-mono">
+                    <%= number_with_delimiter(surah[:segmented_words]) %>
+                  </td>
+                  <td class="tw-p-3">
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      <div class="tw-flex-1 tw-bg-gray-200 tw-rounded-full tw-h-2">
+                        <div class="tw-bg-blue-600 tw-h-2 tw-rounded-full" 
+                             style="width: <%= surah[:completion_percentage] %>%"></div>
+                      </div>
+                      <span class="tw-text-sm tw-font-medium tw-min-w-0"><%= surah[:completion_percentage] %>%</span>
+                    </div>
+                  </td>
+                  <td class="tw-p-3 tw-text-center">
+                    <% if surah[:completion_percentage] == 100 %>
+                      <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-green-100 tw-text-green-800">
+                        <i class="fas fa-check tw-mr-1"></i>
+                        Complete
+                      </span>
+                    <% elsif surah[:completion_percentage] > 0 %>
+                      <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-yellow-100 tw-text-yellow-800">
+                        <i class="fas fa-clock tw-mr-1"></i>
+                        Partial
+                      </span>
+                    <% else %>
+                      <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-red-100 tw-text-red-800">
+                        <i class="fas fa-times tw-mr-1"></i>
+                        Missing
+                      </span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="tw-text-center tw-py-8 tw-text-gray-500">
+          <i class="fas fa-info-circle tw-text-4xl tw-text-blue-500 tw-mb-2"></i>
+          <p class="tw-text-lg">No segmented surahs found</p>
+          <p class="tw-text-sm">This reciter doesn't have any segmentation data yet.</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-p-6">
+      <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Summary Statistics</h2>
+      <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-6">
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-blue-600"><%= @presenter.segmentation_stats[:segmented_chapters_count] %></div>
+          <div class="tw-text-sm tw-text-gray-600">of <%= @presenter.total_chapters %> Surahs</div>
+          <div class="tw-text-xs tw-text-gray-500">Segmented</div>
+        </div>
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-green-600"><%= @presenter.missing_ayahs_stats[:total_missing_surahs] %></div>
+          <div class="tw-text-sm tw-text-gray-600">Completely</div>
+          <div class="tw-text-xs tw-text-gray-500">Missing Surahs</div>
+        </div>
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-orange-600"><%= @presenter.missing_ayahs_stats[:missing_ayahs_by_surah].size %></div>
+          <div class="tw-text-sm tw-text-gray-600">Partially</div>
+          <div class="tw-text-xs tw-text-gray-500">Missing Surahs</div>
+        </div>
+        <div class="tw-text-center">
+          <div class="tw-text-2xl tw-font-bold tw-text-red-600"><%= number_with_delimiter(@presenter.missing_ayahs_stats[:total_missing_ayahs]) %></div>
+          <div class="tw-text-sm tw-text-gray-600">Total Missing</div>
+          <div class="tw-text-xs tw-text-gray-500">Ayahs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

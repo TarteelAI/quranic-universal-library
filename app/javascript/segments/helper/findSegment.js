@@ -61,10 +61,9 @@ const findSurahVerseSegment = (timestamp, verseSegment, verse, currentWord) => {
 
 const findVerse = (timestamp, segments, currentVerse, chapter, totalVerse) => {
   if (currentVerse) {
-    // check if timestamp is still within current ayah 
     const segment = segments[`${chapter}:${currentVerse}`];
     if(!segment) 
-      return {}; 
+      return null; 
 
     const {
       timestamp_from,
@@ -74,17 +73,25 @@ const findVerse = (timestamp, segments, currentVerse, chapter, totalVerse) => {
     if (timestamp >= timestamp_from && timestamp <= timestamp_to)
       return currentVerse
 
-    if (timestamp < timestamp_from && currentVerse > 0) {
-      // go to previous verse
+    if (timestamp < timestamp_from) {
+      if (currentVerse <= 1) {
+        return null;
+      }
       return findVerse(timestamp, segments, currentVerse - 1, chapter, totalVerse)
     }
 
-    if (timestamp > timestamp_to && currentVerse < totalVerse) {
-      // go to previous verse
+    if (timestamp > timestamp_to) {
+      if (currentVerse >= totalVerse) {
+        return null;
+      }
       return findVerse(timestamp, segments, currentVerse + 1, chapter, totalVerse)
     }
+
+    return null;
   } else {
-    // Loop over all ayah and find one
+    if (totalVerse < 1) {
+      return null;
+    }
     return findVerse(timestamp, segments, 1, chapter, totalVerse)
   }
 }

@@ -20,7 +20,7 @@ class Morphology::Graph < QuranApiRecord
   has_many :nodes, class_name: 'Morphology::GraphNode', foreign_key: :graph_id, dependent: :destroy
 
   validates :chapter_id, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 114 }
-  validates :verse_id, presence: true, numericality: { greater_than: 0 }
+  validates :verse_id, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 6236 }
   validates :graph_number, presence: true, numericality: { greater_than: 0 }
   validates :graph_number, uniqueness: { scope: [:chapter_id, :verse_id] }
 

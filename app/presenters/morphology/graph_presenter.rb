@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Morphology
-  class GraphPresenter
+  class GraphPresenter < ApplicationPresenter
     attr_reader :graph
 
     def initialize(graph)
@@ -23,11 +23,17 @@ module Morphology
     private
 
     def word_nodes
-      @word_nodes ||= graph.nodes.where(type: ['word', 'elided', 'reference']).order(:number)
+      @word_nodes ||= graph.nodes
+                           .includes(resource: { word: [:verse, :en_translation], word_segments: [] })
+                           .where(type: ['word', 'elided', 'reference'])
+                           .order(:number)
     end
 
     def phrase_nodes
-      @phrase_nodes ||= graph.nodes.where(type: 'phrase').order(:number)
+      @phrase_nodes ||= graph.nodes
+                             .includes(resource: [:source, :target])
+                             .where(type: 'phrase')
+                             .order(:number)
     end
 
     def words_payload
@@ -85,6 +91,7 @@ module Morphology
 
     def graph_edges
       @graph_edges ||= Morphology::GraphNodeEdge
+        .includes(:source, :target)
         .joins(:source, :target)
         .where(morphology_graph_nodes: { graph_id: graph.id })
         .where.not(type: 'phrase')

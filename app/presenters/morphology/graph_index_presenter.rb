@@ -1,5 +1,5 @@
 module Morphology
-  class GraphIndexPresenter
+  class GraphIndexPresenter < ApplicationPresenter
     attr_reader :graph
 
     def initialize(graph)

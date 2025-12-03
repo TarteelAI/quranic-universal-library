@@ -5,7 +5,7 @@ module Morphology
     def index
       handle_verse_key_search if params[:verse_key].present?
 
-      @graph = Morphology::Graph.find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
+      @graph = Morphology::Graph.includes(:verse).find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
       presenter = Morphology::GraphIndexPresenter.new(@graph)
 
       @collection = presenter.collection
@@ -156,7 +156,7 @@ module Morphology
     end
 
     def edit
-      @graph = Morphology::Graph.find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
+      @graph = Morphology::Graph.includes(:verse).find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
       return unless @graph
 
       @presenter = Morphology::GraphEditPresenter.new(@graph)

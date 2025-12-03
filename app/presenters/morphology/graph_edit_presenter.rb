@@ -1,5 +1,5 @@
 module Morphology
-  class GraphEditPresenter
+  class GraphEditPresenter < ApplicationPresenter
     attr_reader :graph, :chapter_id, :verse_id
     
     def initialize(graph)
@@ -13,7 +13,8 @@ module Morphology
     end
 
     def edges
-      @edges ||= Morphology::GraphNodeEdge.joins(:source, :target)
+      @edges ||= Morphology::GraphNodeEdge.includes(:source, :target)
+                                          .joins(:source, :target)
                                           .where(morphology_graph_nodes: { graph_id: graph.id })
                                           .where.not(type: 'phrase')
                                           .distinct
@@ -61,7 +62,8 @@ module Morphology
         min_verse = [@verse_id - @range, 1].max
         max_verse = [@verse_id + @range, chapter.verses_count].min
 
-        Morphology::Word.joins(:verse, :word)
+        Morphology::Word.includes(:word)
+                        .joins(:verse)
                         .where(verses: { chapter_id: @chapter_id })
                         .where('verses.verse_number >= ? AND verses.verse_number <= ?', min_verse, max_verse)
                         .order(:location)

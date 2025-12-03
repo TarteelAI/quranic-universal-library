@@ -141,3 +141,6 @@ application.register("syntax-graph", SyntaxGraphController);
 
 import GraphBulkEditController from "./graph_bulk_edit_controller";
 application.register("graph-bulk-edit", GraphBulkEditController);
+
+import PopoverController from "./popover_controller";
+application.register("popover", PopoverController);

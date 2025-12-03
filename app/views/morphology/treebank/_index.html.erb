@@ -1,62 +1,62 @@
 <div>
   <% if collection.any? %>
-    <div class="card border-0 mb-4 morphology-graph-index">
-      <div class="card-header bg-light">
-        <div>
-          <div class="d-flex justify-content-between align-items-center">
-            <% if @verse_info %>
-              <div>
-                <div class="row">
-                  <div class="d-flex align-items-center gap-2">
-                    <p class="mb-1"><strong>Verse:</strong> <%= @verse_info[:verse_key] %> (Chapter <%= @verse_info[:chapter] %>, Verse <%= @verse_info[:verse] %>)</p>
-                    <% if @navigation[:prev_chapter_id] %>
-                      <%= link_to morphology_treebank_index_path(chapter_id: @navigation[:prev_chapter_id], verse_id: @navigation[:prev_verse_id], graph_number: @navigation[:prev_graph_number]), class: 'btn btn-info btn-sm', title: 'Previous' do %>
-                        <i class="fa fa-chevron-left"></i>
-                      <% end %>
-                    <% else %>
-                      <span class="btn btn-secondary btn-sm disabled" title="No previous">
-                        <i class="fa fa-chevron-left"></i>
-                      </span>
-                    <% end %>
-                    
-                    <% if @navigation[:next_chapter_id] %>
-                      <%= link_to morphology_treebank_index_path(chapter_id: @navigation[:next_chapter_id], verse_id: @navigation[:next_verse_id], graph_number: @navigation[:next_graph_number]), class: 'btn btn-success btn-sm', title: 'Next' do %>
-                        <i class="fa fa-chevron-right"></i>
-                      <% end %>
-                    <% else %>
-                      <span class="btn btn-secondary btn-sm disabled" title="No next">
-                        <i class="fa fa-chevron-right"></i>
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-                <p class="mb-0"><strong>Graph Number:</strong> <%= @verse_info[:graph_number] %> of <%= @verse_info[:total_graphs] %></p>
+    <div class="tw-border-0 tw-mb-4 morphology-graph-index">
+      <div class="tw-bg-gray-100 tw-p-4 tw-rounded-t-lg">
+        <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-4">
+          <% if @verse_info %>
+            <div>
+              <div class="tw-flex tw-items-center tw-gap-2 tw-mb-1">
+                <p class="tw-mb-0"><span class="tw-font-semibold">Verse:</span> <%= @verse_info[:verse_key] %> (Chapter <%= @verse_info[:chapter] %>, Verse <%= @verse_info[:verse] %>)</p>
+                
+                <% if @navigation[:prev_chapter_id] %>
+                  <%= link_to morphology_treebank_index_path(chapter_id: @navigation[:prev_chapter_id], verse_id: @navigation[:prev_verse_id], graph_number: @navigation[:prev_graph_number]), class: 'tw-px-2 tw-py-1 tw-bg-cyan-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-cyan-600', title: 'Previous' do %>
+                    <i class="fa fa-chevron-left"></i>
+                  <% end %>
+                <% else %>
+                  <span class="tw-px-2 tw-py-1 tw-bg-gray-400 tw-text-white tw-rounded tw-text-sm tw-cursor-not-allowed" title="No previous">
+                    <i class="fa fa-chevron-left"></i>
+                  </span>
+                <% end %>
+                
+                <% if @navigation[:next_chapter_id] %>
+                  <%= link_to morphology_treebank_index_path(chapter_id: @navigation[:next_chapter_id], verse_id: @navigation[:next_verse_id], graph_number: @navigation[:next_graph_number]), class: 'tw-px-2 tw-py-1 tw-bg-green-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-green-600', title: 'Next' do %>
+                    <i class="fa fa-chevron-right"></i>
+                  <% end %>
+                <% else %>
+                  <span class="tw-px-2 tw-py-1 tw-bg-gray-400 tw-text-white tw-rounded tw-text-sm tw-cursor-not-allowed" title="No next">
+                    <i class="fa fa-chevron-right"></i>
+                  </span>
+                <% end %>
+
+                <%= form_with url: morphology_treebank_index_path, method: :get, local: true, class: 'tw-flex tw-items-center tw-gap-2 tw-ml-3' do %>
+                  <%= text_field_tag :verse_key, nil, placeholder: 'e.g. 2:255', class: 'tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm tw-w-24 focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500' %>
+                  <%= submit_tag 'Go', class: 'tw-px-3 tw-py-1 tw-border tw-border-gray-400 tw-rounded tw-text-sm tw-bg-white hover:tw-bg-gray-100 tw-cursor-pointer' %>
+                <% end %>
               </div>
-            <% end %>
-            <div>
-              <p class="mb-1"><strong>Total Nodes:</strong> <%= collection.count %></p>
-              <p class="mb-0">
-                <strong>Types:</strong> 
-                Word: <%= collection.where(type: 'word').count %> | 
-                Reference: <%= collection.where(type: 'reference').count %> | 
-                Phrase: <%= collection.where(type: 'phrase').count %> | 
-                Elided: <%= collection.where(type: 'elided').count %>
-              </p>
+              <p class="tw-mb-0 tw-text-sm"><span class="tw-font-semibold">Graph Number:</span> <%= @verse_info[:graph_number] %> of <%= @verse_info[:total_graphs] %></p>
             </div>
-            <div>
-              <%= link_to 'Edit Graph', edit_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'btn btn-primary btn-sm' %>
-            </div>
+          <% end %>
+          <div class="tw-text-sm">
+            <p class="tw-mb-1"><span class="tw-font-semibold">Total Nodes:</span> <%= collection.count %></p>
+            <p class="tw-mb-0">
+              <span class="tw-font-semibold">Types:</span> 
+              Word: <%= collection.where(type: 'word').count %> | 
+              Reference: <%= collection.where(type: 'reference').count %> | 
+              Phrase: <%= collection.where(type: 'phrase').count %> | 
+              Elided: <%= collection.where(type: 'elided').count %>
+            </p>
+          </div>
+          <div>
+            <%= link_to 'Edit Graph', edit_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-800' %>
           </div>
         </div>
-        
-        
       </div>
-      <div class="card-body syntax-graph-section">
-        <div class="bg-light p-3 rounded syntax-graph-container"
-             style="min-height: 400px;"
+      
+      <div class="tw-p-4 syntax-graph-section">
+        <div class="tw-bg-gray-100 tw-p-3 tw-rounded tw-min-h-[400px] syntax-graph-container"
              data-controller="syntax-graph"
              data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_id: @chapter_id || 1, verse_id: @verse_id || 1, graph_number: @graph_number || 1) %>">
-          <div data-syntax-graph-target="container">Loading syntax graph...</div>
+          <div data-syntax-graph-target="container" class="tw-text-gray-500">Loading syntax graph...</div>
         </div>
       </div>
     </div>

@@ -11,15 +11,141 @@ export default class extends Controller {
     });
   }
 
+  refreshGraphPreview() {
+    window.dispatchEvent(new CustomEvent("refresh-graph-preview"));
+  }
+
+  saveNodeField(event) {
+    const input = event.target;
+    const nodeId = input.dataset.nodeId;
+    const field = input.dataset.field;
+    const value = input.value;
+
+    if (!nodeId || !field) return;
+
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
+
+    fetch(
+      `/morphology/treebank/save_node?node_id=${nodeId}&${field}=${encodeURIComponent(value)}`,
+      {
+        method: "PATCH",
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          Accept: "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        if (response.ok) {
+          this.showSaveIndicator(input, "success");
+          this.refreshGraphPreview();
+        } else {
+          this.showSaveIndicator(input, "error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving node:", error);
+        this.showSaveIndicator(input, "error");
+      });
+  }
+
+  saveEdgeField(event) {
+    const input = event.target;
+    const edgeId = input.dataset.edgeId;
+    const field = input.dataset.field;
+    const value = input.value;
+
+    if (!edgeId || !field) return;
+
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
+
+    fetch(
+      `/morphology/treebank/save_edge?edge_id=${edgeId}&${field}=${encodeURIComponent(value)}`,
+      {
+        method: "PATCH",
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          Accept: "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        if (response.ok) {
+          this.showSaveIndicator(input, "success");
+          this.refreshGraphPreview();
+        } else {
+          this.showSaveIndicator(input, "error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving edge:", error);
+        this.showSaveIndicator(input, "error");
+      });
+  }
+
+  showSaveIndicator(input, status) {
+    const originalBorder = input.style.borderColor;
+    input.style.borderColor = status === "success" ? "#28a745" : "#dc3545";
+    setTimeout(() => {
+      input.style.borderColor = originalBorder;
+    }, 1000);
+  }
+
+  savePhraseNodeField(event) {
+    const input = event.target;
+    const nodeId = input.dataset.nodeId;
+    const row = document.querySelector(`.node-row[data-node-id="${nodeId}"]`);
+
+    if (!row) return;
+
+    const phrasePos = row.querySelector(".phrase-pos-input")?.value || "";
+    const phraseSource =
+      row.querySelector(".phrase-source-select")?.value || "";
+    const phraseTarget =
+      row.querySelector(".phrase-target-select")?.value || "";
+
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
+
+    const params = new URLSearchParams({
+      node_id: nodeId,
+      phrase_pos: phrasePos,
+      phrase_source: phraseSource,
+      phrase_target: phraseTarget,
+    });
+
+    fetch(`/morphology/treebank/save_phrase_node?${params.toString()}`, {
+      method: "PATCH",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        Accept: "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          this.showSaveIndicator(input, "success");
+          this.refreshGraphPreview();
+        } else {
+          this.showSaveIndicator(input, "error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving phrase node:", error);
+        this.showSaveIndicator(input, "error");
+      });
+  }
+
   handleNodeTypeChange(event) {
     const nodeId = event.target.dataset.nodeId;
     const nodeType = event.target.value;
     const graphId = this.getGraphId();
 
-    console.log("=== handleNodeTypeChange ===");
-    console.log("Node ID:", nodeId);
-    console.log("Node Type:", nodeType);
-    console.log("Turbo Frame ID:", `node_${nodeId}_fields`);
+    this.saveNodeField(event);
 
     fetch(
       `/morphology/treebank/update_node_fields?graph_id=${graphId}&node_id=${nodeId}&node_type=${nodeType}`,
@@ -33,11 +159,7 @@ export default class extends Controller {
     )
       .then((response) => response.text())
       .then((html) => {
-        console.log("Turbo Stream Response:", html);
         Turbo.renderStreamMessage(html);
-        if (nodeType === "phrase") {
-          this.updatePhraseDropdowns();
-        }
         this.updateResourceType(nodeId, nodeType);
       })
       .catch((error) => {
@@ -128,68 +250,6 @@ export default class extends Controller {
       });
   }
 
-  showField(cell) {
-    if (!cell) return;
-    const content = cell.querySelector(".field-content");
-    const placeholder = cell.querySelector(".field-placeholder");
-    if (content) content.style.display = "block";
-    if (placeholder) placeholder.style.display = "none";
-  }
-
-  hideField(cell) {
-    if (!cell) return;
-    const content = cell.querySelector(".field-content");
-    const placeholder = cell.querySelector(".field-placeholder");
-    if (content) content.style.display = "none";
-    if (placeholder) placeholder.style.display = "block";
-  }
-
-  updateResourceDropdown(nodeId, resourceType) {
-    const container = document.querySelector(
-      `.resource-dropdowns[data-node-id="${nodeId}"]`
-    );
-    if (!container) return;
-
-    const wordDisplay = container.querySelector(".word-resource-display");
-    const edgeDropdown = container.querySelector(".edge-resource-dropdown");
-
-    if (wordDisplay) wordDisplay.style.display = "none";
-    if (edgeDropdown) edgeDropdown.style.display = "none";
-
-    if (resourceType === "Morphology::Word" && wordDisplay) {
-      wordDisplay.style.display = "block";
-      this.updateSegmentField(nodeId, true);
-    } else if (resourceType === "Morphology::GraphNodeEdge" && edgeDropdown) {
-      edgeDropdown.style.display = "block";
-      this.updateSegmentField(nodeId, false);
-    }
-  }
-
-  updateSegmentField(nodeId, showDisplay) {
-    const row = document.querySelector(`.node-row[data-node-id="${nodeId}"]`);
-    if (!row) return;
-
-    const segmentField = row.querySelector(".segment-field");
-    if (!segmentField) return;
-
-    const segmentDisplay = segmentField.querySelector(".segment-display");
-    const segmentDropdown = segmentField.querySelector(".segment-dropdown");
-
-    if (showDisplay) {
-      if (segmentDisplay) segmentDisplay.style.display = "block";
-      if (segmentDropdown) segmentDropdown.style.display = "none";
-    } else {
-      if (segmentDisplay) segmentDisplay.style.display = "none";
-      if (segmentDropdown) segmentDropdown.style.display = "block";
-    }
-  }
-
-  handleResourceTypeChange(event) {
-    const nodeId = event.target.dataset.nodeId;
-    const resourceType = event.target.value;
-    this.updateResourceDropdown(nodeId, resourceType);
-  }
-
   removeNode(event) {
     const nodeId = event.currentTarget.dataset.nodeId;
     const row = document.querySelector(`.node-row[data-node-id="${nodeId}"]`);
@@ -204,51 +264,34 @@ export default class extends Controller {
       return;
     }
 
-    const destroyFlag = row.querySelector(".destroy-flag");
-    if (destroyFlag) {
-      destroyFlag.value = "1";
-    }
-    row.style.opacity = "0.5";
-    row.style.textDecoration = "line-through";
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
 
-    row.querySelectorAll("input, select, button").forEach((input) => {
-      if (!input.classList.contains("destroy-flag")) {
-        input.disabled = true;
-      }
-    });
-
-    const removeBtn = event.currentTarget;
-    removeBtn.innerHTML = '<i class="fa fa-undo"></i> Undo';
-    removeBtn.classList.remove("btn-danger");
-    removeBtn.classList.add("btn-warning");
-    removeBtn.disabled = false;
-    removeBtn.dataset.action = "click->graph-bulk-edit#undoRemoveNode";
-  }
-
-  undoRemoveNode(event) {
-    const nodeId = event.currentTarget.dataset.nodeId;
-    const row = document.querySelector(`.node-row[data-node-id="${nodeId}"]`);
-
-    if (!row) return;
-
-    const destroyFlag = row.querySelector(".destroy-flag");
-    if (destroyFlag) {
-      destroyFlag.value = "0";
-    }
-    row.style.opacity = "1";
-    row.style.textDecoration = "none";
-
-    row.querySelectorAll("input, select, button").forEach((input) => {
-      if (!input.classList.contains("destroy-flag")) {
-        input.disabled = false;
-      }
-    });
-
-    const removeBtn = event.currentTarget;
-    removeBtn.innerHTML = '<i class="fa fa-trash"></i>';
-    removeBtn.classList.remove("btn-warning");
-    removeBtn.classList.add("btn-danger");
-    removeBtn.dataset.action = "click->graph-bulk-edit#removeNode";
+    fetch(`/morphology/treebank/delete_node?node_id=${nodeId}`, {
+      method: "DELETE",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        Accept: "text/vnd.turbo-stream.html",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error("Failed to delete node");
+        }
+      })
+      .then((html) => {
+        Turbo.renderStreamMessage(html);
+        this.updateNodeCount();
+        this.updatePhraseNodeCount();
+        this.refreshGraphPreview();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Failed to delete node");
+      });
   }
 
   addNodeAfter(event) {
@@ -271,30 +314,17 @@ export default class extends Controller {
         Turbo.renderStreamMessage(html);
         this.updatePhraseDropdowns();
         this.updateNodeCount();
+        this.refreshGraphPreview();
       })
       .catch((error) => {
         console.error("Error adding node:", error);
       });
   }
 
-  removeNewNode(event) {
-    const nodeId = event.currentTarget.dataset.nodeId;
-    const row = document.querySelector(`.node-row[data-node-id="${nodeId}"]`);
-    const turboFrame = document.querySelector(`#new_node_after_${nodeId}`);
-
-    if (!row) return;
-
-    if (confirm("Remove this new node?")) {
-      row.remove();
-      if (turboFrame) turboFrame.remove();
-      this.updateNodeCount();
-      this.updatePhraseDropdowns();
-    }
-  }
-
   getGraphId() {
-    const form = document.querySelector("form");
-    const graphIdInput = form?.querySelector('input[name="graph_id"]');
+    const graphIdInput =
+      document.getElementById("graph_id") ||
+      document.querySelector('input[name="graph_id"]');
     return graphIdInput?.value || "";
   }
 
@@ -308,59 +338,64 @@ export default class extends Controller {
     }
   }
 
-  addEdgeRow(event) {
-    event.preventDefault();
-    const edgesSection = event.currentTarget.closest(".edit-section");
-    const tbody = edgesSection?.querySelector(".edit-table tbody");
-    if (!tbody) {
-      console.error("Could not find edges table tbody");
-      return;
+  updatePhraseNodeCount() {
+    const rows = document.querySelectorAll("#phrase_nodes_tbody .node-row");
+    const countSpan = document.querySelector(".phrase-node-count");
+    if (countSpan) {
+      countSpan.textContent = rows.length;
     }
+  }
 
-    const timestamp = Date.now();
-    const tempId = `new_${timestamp}`;
-    const availableNodes = this.getAvailableNodesForEdges();
+  addPhraseNode(event) {
+    event.preventDefault();
+    const graphId = this.getGraphId();
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
 
-    const newRow = document.createElement("tr");
-    newRow.className = "edge-row edge-type-word";
-    newRow.dataset.edgeId = tempId;
-    newRow.innerHTML = `
-      <td class="edge-id">NEW</td>
-      <td>
-        <span class="status_tag word">Word</span>
-      </td>
-      <td>
-        <select name="new_edges[${tempId}][source_id]" class="form-select">
-          <option value="">Select Source</option>
-          ${availableNodes}
-        </select>
-      </td>
-      <td>
-        <select name="new_edges[${tempId}][target_id]" class="form-select">
-          <option value="">Select Target</option>
-          ${availableNodes}
-        </select>
-      </td>
-      <td>
-        <input type="text" 
-               name="new_edges[${tempId}][relation]" 
-               class="form-control" 
-               list="edge-relations" 
-               placeholder="Relation">
-      </td>
-      <td class="actions-cell">
-        <button type="button" 
-                class="btn btn-danger btn-sm remove-edge-btn bg-white"
-                data-edge-id="${tempId}"
-                data-action="click->graph-bulk-edit#removeNewEdge"
-                title="Remove edge">
-          <i class="fa fa-trash"></i>
-        </button>
-      </td>
-    `;
+    fetch(`/morphology/treebank/add_phrase_node?graph_id=${graphId}`, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        Accept: "text/vnd.turbo-stream.html",
+      },
+    })
+      .then((response) => response.text())
+      .then((html) => {
+        Turbo.renderStreamMessage(html);
+        this.updatePhraseNodeCount();
+        this.refreshGraphPreview();
+      })
+      .catch((error) => {
+        console.error("Error adding phrase node:", error);
+        alert("Failed to add phrase node");
+      });
+  }
 
-    tbody.appendChild(newRow);
-    this.updateEdgeCount();
+  addEdge(event) {
+    event.preventDefault();
+    const graphId = this.getGraphId();
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
+
+    fetch(`/morphology/treebank/add_edge?graph_id=${graphId}`, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        Accept: "text/vnd.turbo-stream.html",
+      },
+    })
+      .then((response) => response.text())
+      .then((html) => {
+        Turbo.renderStreamMessage(html);
+        this.updateEdgeCount();
+        this.refreshGraphPreview();
+      })
+      .catch((error) => {
+        console.error("Error adding edge:", error);
+        alert("Failed to add edge");
+      });
   }
 
   removeEdge(event) {
@@ -368,95 +403,42 @@ export default class extends Controller {
     const row = document.querySelector(`.edge-row[data-edge-id="${edgeId}"]`);
     if (!row) return;
 
-    if (!confirm("Mark this edge for deletion?")) return;
+    if (!confirm("Are you sure you want to delete this edge?")) return;
 
-    const destroyFlag = row.querySelector(".destroy-flag");
-    if (destroyFlag) {
-      destroyFlag.value = "1";
-    }
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    )?.content;
 
-    row.style.opacity = "0.5";
-    row.style.textDecoration = "line-through";
-
-    row.querySelectorAll("input, select, button").forEach((input) => {
-      if (!input.classList.contains("destroy-flag")) {
-        input.disabled = true;
-      }
-    });
-
-    const removeBtn = event.currentTarget;
-    removeBtn.innerHTML = '<i class="fa fa-undo"></i> Undo';
-    removeBtn.classList.remove("btn-danger");
-    removeBtn.classList.add("btn-warning");
-    removeBtn.disabled = false;
-    removeBtn.dataset.action = "click->graph-bulk-edit#undoRemoveEdge";
-  }
-
-  undoRemoveEdge(event) {
-    const edgeId = event.currentTarget.dataset.edgeId;
-    const row = document.querySelector(`.edge-row[data-edge-id="${edgeId}"]`);
-    if (!row) return;
-
-    const destroyFlag = row.querySelector(".destroy-flag");
-    if (destroyFlag) {
-      destroyFlag.value = "0";
-    }
-
-    row.style.opacity = "1";
-    row.style.textDecoration = "none";
-
-    row.querySelectorAll("input, select, button").forEach((input) => {
-      if (!input.classList.contains("destroy-flag")) {
-        input.disabled = false;
-      }
-    });
-
-    const removeBtn = event.currentTarget;
-    removeBtn.innerHTML = '<i class="fa fa-trash"></i>';
-    removeBtn.classList.remove("btn-warning");
-    removeBtn.classList.add("btn-danger");
-    removeBtn.dataset.action = "click->graph-bulk-edit#removeEdge";
-  }
-
-  removeNewEdge(event) {
-    const edgeId = event.currentTarget.dataset.edgeId;
-    const row = document.querySelector(`.edge-row[data-edge-id="${edgeId}"]`);
-    if (!row) return;
-
-    if (confirm("Remove this new edge?")) {
-      row.remove();
-      this.updateEdgeCount();
-    }
-  }
-
-  getAvailableNodesForEdges() {
-    const nodes = [];
-    document.querySelectorAll(".node-row").forEach((row) => {
-      const nodeId = row.querySelector(".node-id")?.textContent?.trim();
-      const nodeNumber = row.querySelector(".node-number")?.textContent?.trim();
-      const nodeType = row.querySelector(".node-type-select")?.value;
-
-      if (
-        nodeId &&
-        nodeId !== "NEW" &&
-        nodeNumber &&
-        !nodeNumber.startsWith("new-number-")
-      ) {
-        nodes.push(
-          `<option value="${nodeId}">${nodeNumber} - ${nodeType}</option>`
-        );
-      }
-    });
-    return nodes.join("");
+    fetch(`/morphology/treebank/delete_edge?edge_id=${edgeId}`, {
+      method: "DELETE",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        Accept: "text/vnd.turbo-stream.html",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error("Failed to delete edge");
+        }
+      })
+      .then((html) => {
+        Turbo.renderStreamMessage(html);
+        this.updateEdgeCount();
+        this.refreshGraphPreview();
+      })
+      .catch((error) => {
+        console.error("Error deleting edge:", error);
+        alert("Failed to delete edge");
+      });
   }
 
   updateEdgeCount() {
-    const rows = document.querySelectorAll(
-      '.edge-row:not([style*="display: none"])'
-    );
-    const heading = document.querySelector(".edit-section h2");
-    if (heading) {
-      heading.textContent = `Graph Edges (${rows.length})`;
+    const rows = document.querySelectorAll(".edge-row");
+    const countSpan = document.querySelector(".edge-count");
+    if (countSpan) {
+      countSpan.textContent = rows.length;
     }
   }
 }

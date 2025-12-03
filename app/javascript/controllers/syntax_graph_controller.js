@@ -9,11 +9,26 @@ export default class extends Controller {
   };
 
   connect() {
-    console.log("fad");
     if (this.hasUrlValue) {
       this.loadGraphData();
     } else if (this.graphDataValue) {
       this.renderSyntaxGraph();
+    }
+
+    // Listen for refresh events
+    this.refreshHandler = () => this.refresh();
+    window.addEventListener("refresh-graph-preview", this.refreshHandler);
+  }
+
+  disconnect() {
+    if (this.refreshHandler) {
+      window.removeEventListener("refresh-graph-preview", this.refreshHandler);
+    }
+  }
+
+  refresh() {
+    if (this.hasUrlValue) {
+      this.loadGraphData();
     }
   }
 

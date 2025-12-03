@@ -1,6 +1,6 @@
 module Morphology
   class TreebankController < ApplicationController
-    before_action :set_chapter_verse_and_graph_number, only: [:index, :edit, :update]
+    before_action :set_chapter_verse_and_graph_number, only: [:index, :edit]
 
     def index
       handle_verse_key_search if params[:verse_key].present?
@@ -15,84 +15,144 @@ module Morphology
 
     def add_node_row
       @graph = Morphology::Graph.find(params[:graph_id])
-      @after_node_id = params[:after_node_id]
+      after_node_id = params[:after_node_id]
+
+      new_node = Morphology::NodeService.new(@graph).add_after(after_node_id)
       presenter = Morphology::GraphEditPresenter.new(@graph)
-
-      @graph_nodes = presenter.nodes
-
-      timestamp = Time.now.to_f.to_s.gsub('.', '_')
-      temp_id = "new_#{timestamp}_#{rand(10000)}"
-      temp_number_str = "new-number-#{timestamp}"
-
-      @new_node = Morphology::GraphNode.new(
-        graph_id: @graph.id,
-        type: 'elided',
-        value: '',
-        pos: ''
-      )
-      @new_node.temp_id = temp_id
-      @new_node.temp_number = temp_number_str
-
-      @node_types = presenter.node_types
-      @available_words = presenter.available_words
-      @available_segments = presenter.available_segments
+      presenter.nodes.reload
 
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.after(
-            "node_#{@after_node_id}",
-            partial: 'morphology/treebank/node_row',
-            locals: {
-              node: @new_node,
-              graph_nodes: @graph_nodes,
-              node_types: @node_types,
-              available_words: @available_words,
-              available_segments: @available_segments,
-              graph_id: @graph.id
-            }
+          streams = [
+            turbo_stream.after(
+              "node_#{after_node_id}",
+              partial: 'morphology/treebank/forms/node_row',
+              locals: { node: new_node, presenter: presenter, graph_id: @graph.id }
+            )
+          ]
+          streams.concat(build_node_update_streams(presenter, @graph.id, from_number: new_node.number + 1))
+          render turbo_stream: streams
+        end
+      end
+    end
+
+    def add_phrase_node
+      @graph = Morphology::Graph.find(params[:graph_id])
+
+      new_node = Morphology::PhraseNodeService.new(@graph).add
+      presenter = Morphology::GraphEditPresenter.new(@graph)
+      presenter.nodes.reload
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.append(
+            'phrase_nodes_tbody',
+            partial: 'morphology/treebank/forms/phrase_node_row',
+            locals: { node: new_node, presenter: presenter, graph_id: @graph.id }
           )
+        end
+        format.html do
+          redirect_to edit_morphology_treebank_index_path(
+            chapter_id: @graph.chapter_id,
+            verse_id: @graph.verse_id,
+            graph_number: @graph.graph_number
+          ), notice: 'Phrase node added successfully.'
+        end
+      end
+    end
+
+    def delete_node
+      result = Morphology::NodeService.delete(params[:node_id])
+      @graph = result[:graph]
+      deleted_node_id = result[:node_id]
+      deleted_number = result[:number]
+
+      respond_to do |format|
+        format.json { head :ok }
+        format.turbo_stream do
+          presenter = Morphology::GraphEditPresenter.new(@graph)
+          presenter.nodes.reload
+
+          streams = [turbo_stream.remove("node_#{deleted_node_id}")]
+          streams.concat(build_node_update_streams(presenter, @graph.id, from_number: deleted_number))
+          render turbo_stream: streams
+        end
+        format.html do
+          redirect_to edit_morphology_treebank_index_path(
+            chapter_id: @graph.chapter_id,
+            verse_id: @graph.verse_id,
+            graph_number: @graph.graph_number
+          ), notice: 'Node deleted successfully.'
         end
       end
     end
 
     def update_node_fields
-      @graph = Morphology::Graph.find(params[:graph_id])
-      @node_id = params[:node_id]
-      @node_type = params[:node_type]
-      presenter = Morphology::GraphEditPresenter.new(@graph)
-
-      @graph_nodes = presenter.nodes
-
-      is_new_node = @node_id.to_s.start_with?('new_')
-      @field_name_prefix = is_new_node ? "new_nodes[#{@node_id}]" : "nodes[#{@node_id}]"
-
-      @available_words = presenter.available_words
-      @available_segments = presenter.available_segments
-      @available_node_numbers = @graph_nodes.reject { |n| n.number.to_s.start_with?('new-number-') }
-                                            .map { |n| ["n#{n.number + 1}", n.number + 1] }
+      graph = Morphology::Graph.find(params[:graph_id])
+      presenter = Morphology::GraphEditPresenter.new(graph)
 
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.update(
-            "node_#{@node_id}_fields",
-            partial: "morphology/treebank/form/#{@node_type}_fields",
-            locals: {
-              node_id: @node_id,
-              field_name_prefix: @field_name_prefix,
-              available_words: @available_words,
-              available_segments: @available_segments,
-              available_node_numbers: @available_node_numbers,
-              resource_id: nil,
-              segment_id: nil,
-              value: '',
-              pos: '',
-              phrase_pos: '',
-              phrase_source: nil,
-              phrase_target: nil
-            }
+            "node_#{params[:node_id]}_fields",
+            partial: "morphology/treebank/forms/#{params[:node_type]}_fields",
+            locals: { node_id: params[:node_id], presenter: presenter }
           )
         end
       end
+    end
+
+    def save_node
+      node = Morphology::NodeService.update(params[:node_id], params)
+
+      if node.errors.empty?
+        head :ok
+      else
+        render json: { errors: node.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    def save_edge
+      edge = Morphology::EdgeService.update(params[:edge_id], params)
+
+      if edge.errors.empty?
+        head :ok
+      else
+        render json: { errors: edge.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    def add_edge
+      @graph = Morphology::Graph.find(params[:graph_id])
+
+      new_edge = Morphology::EdgeService.new(@graph).add
+      presenter = Morphology::GraphEditPresenter.new(@graph)
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.append(
+            'edges_tbody',
+            partial: 'morphology/treebank/forms/edge_row',
+            locals: { edge: new_edge, presenter: presenter }
+          )
+        end
+      end
+    end
+
+    def delete_edge
+      deleted_edge_id = Morphology::EdgeService.delete(params[:edge_id])
+
+      respond_to do |format|
+        format.json { head :ok }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.remove("edge_#{deleted_edge_id}")
+        end
+      end
+    end
+
+    def save_phrase_node
+      Morphology::PhraseNodeService.update(params[:node_id], params)
+      head :ok
     end
 
     def edit
@@ -100,43 +160,6 @@ module Morphology
       return unless @graph
 
       @presenter = Morphology::GraphEditPresenter.new(@graph)
-      @graph_nodes = @presenter.nodes
-      @graph_edges = @presenter.edges
-      @node_types = @presenter.node_types
-      @available_nodes = @presenter.available_nodes
-      @available_words = @presenter.available_words
-      @available_segments = @presenter.available_segments
-      @available_edges = @presenter.available_edges
-      @edge_relations = @presenter.edge_relations
-      @resource_types = @presenter.resource_types
-    end
-
-    def update
-      @graph = Morphology::Graph.find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
-      return unless @graph
-
-      updater = Morphology::GraphBulkUpdater.new(@graph, params)
-
-      if updater.update
-        redirect_to morphology_treebank_index_path(
-          chapter_id: @chapter_id, 
-          verse_id: @verse_id, 
-          graph_number: @graph_number
-        ), notice: 'Graph updated successfully.'
-      else
-        flash.now[:alert] = "Errors: #{updater.errors.join('; ')}"
-        @presenter = Morphology::GraphEditPresenter.new(@graph)
-        @graph_nodes = @presenter.nodes
-        @graph_edges = @presenter.edges
-        @node_types = @presenter.node_types
-        @available_nodes = @presenter.available_nodes
-        @available_words = @presenter.available_words
-        @available_segments = @presenter.available_segments
-        @available_edges = @presenter.available_edges
-        @edge_relations = @presenter.edge_relations
-        @resource_types = @presenter.resource_types
-        render :edit
-      end
     end
 
     def syntax_graph
@@ -184,6 +207,24 @@ module Morphology
       else
         flash.now[:alert] = "Invalid verse key format. Use chapter:verse (e.g., 1:1)"
       end
+    end
+
+    def build_node_update_streams(presenter, graph_id, from_number:)
+      node_locals = { presenter: presenter, graph_id: graph_id }
+      streams = []
+
+      presenter.nodes.each do |node|
+        next if node.number < from_number && node.type != 'phrase'
+
+        partial = node.type == 'phrase' ? 'phrase_node_row' : 'node_row'
+        streams << turbo_stream.replace(
+          "node_#{node.id}",
+          partial: "morphology/treebank/forms/#{partial}",
+          locals: node_locals.merge(node: node)
+        )
+      end
+
+      streams
     end
   end
 end

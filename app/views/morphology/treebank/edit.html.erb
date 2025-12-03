@@ -6,17 +6,15 @@
 
 <div class="page-wrapper container-lg">
   <div class="page-section">
-    <div class="container-fluid mt-4">
+    <div class="container-fluid">
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center bg-light p-3">
           <div class="d-flex align-items-center gap-3">
             <strong>Verse:</strong><%= @graph.verse_key %> (Graph <%= @graph.graph_number %>)
           </div>
-
           <h3 class="tw-text-xl mb-0">Edit Syntax Graph</h3>
-
           <div>
-            <%= link_to 'Back to View', morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'btn btn-secondary btn-sm' %>
+            <%= link_to 'Back to View', morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-black-700' %>
           </div>
         </div>
 
@@ -26,27 +24,83 @@
               <%= flash[:alert] %>
             </div>
           <% end %>
-
-          <%= form_with url: edit_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), method: :patch, local: true do |f| %>
-            <%= hidden_field_tag :graph_id, @graph.id %>
-            <%= render 'nodes_section',
-                      graph_nodes: @graph_nodes,
-                      node_types: @node_types,
-                      available_words: @available_words,
-                      available_edges: @available_edges,
-                      available_segments: @available_segments,
-                      graph_id: @graph.id %>
-
-            <%= render 'edges_section',
-                      graph_edges: @graph_edges,
-                      available_nodes: @available_nodes,
-                      edge_relations: @edge_relations %>
-
-            <div class="d-flex gap-3 mt-4 p-3 bg-light rounded">
-              <%= f.submit 'Save All Changes', class: 'btn btn-primary btn-lg', data: { confirm: 'Are you sure you want to update all nodes and edges?' } %>
-              <%= link_to 'Cancel', morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'btn btn-secondary btn-lg' %>
+          
+          <% if flash[:notice] %>
+            <div class="alert alert-success">
+              <%= flash[:notice] %>
             </div>
           <% end %>
+
+          <%= hidden_field_tag :graph_id, @graph.id, id: 'graph_id' %>
+
+          <div class="row">
+            <div class="col-lg-10 p-0">
+              <%= render 'nodes_section', presenter: @presenter, graph_id: @graph.id %>
+              <%= render 'phrase_nodes_section', presenter: @presenter, graph_id: @graph.id %>
+              <%= render 'edges_section', presenter: @presenter, graph_id: @graph.id %>
+            </div>
+
+            <div class="col-lg-2">
+              <div class="tw-sticky tw-top-[70vh]">
+                <div class="card shadow-sm" id="graph_preview_panel">
+                  <div class="card-header d-flex justify-content-between align-items-center py-2 bg-light">
+                    <h2>Preview</h2>
+                    <div>
+                      <button type="button" 
+                              class="btn btn-outline-secondary btn-sm me-1"
+                              onclick="window.dispatchEvent(new CustomEvent('refresh-graph-preview'));"
+                              title="Refresh">
+                        <i class="fa fa-refresh"></i>
+                      </button>
+                      <button type="button" 
+                              class="btn btn-outline-primary btn-sm"
+                              data-bs-toggle="modal" 
+                              data-bs-target="#graphPreviewModal"
+                              title="Expand">
+                        <i class="fa fa-expand"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body p-2 bg-white">
+                    <div class="syntax-graph-container rounded bg-light tw-min-h-[150px] tw-max-h-[50vh] tw-overflow-auto"
+                         data-controller="syntax-graph"
+                         data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number) %>"
+                         id="graph_preview_container">
+                      <div data-syntax-graph-target="container" class="p-3 text-center text-muted">Loading syntax graph...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="graphPreviewModal" tabindex="-1" aria-labelledby="graphPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title" id="graphPreviewModalLabel">
+          Graph Preview - <%= @graph.verse_key %> (Graph <%= @graph.graph_number %>)
+        </h5>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" 
+                  class="btn btn-outline-secondary btn-sm"
+                  onclick="window.dispatchEvent(new CustomEvent('refresh-graph-preview'));">
+            <i class="fa fa-refresh"></i> Refresh
+          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="modal-body p-0">
+        <div class="syntax-graph-container bg-light tw-min-h-[500px] tw-max-h-[80vh] tw-overflow-auto"
+             data-controller="syntax-graph"
+             data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number) %>"
+             id="graph_preview_modal_container">
+          <div data-syntax-graph-target="container" class="p-3">Loading syntax graph...</div>
         </div>
       </div>
     </div>

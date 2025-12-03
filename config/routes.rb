@@ -66,12 +66,19 @@ Rails.application.routes.draw do
     get 'lemmas/:id', to: 'lemmas#show', as: :lemma
     get 'stems/:id', to: 'stems#show', as: :stem
 
-    resources :treebank, only: [:index, :update] do
+    resources :treebank, only: [:index] do
       collection do
         get :syntax_graph
         get :edit
         post :add_node_row
+        post :add_phrase_node
+        delete :delete_node
         post :update_node_fields
+        patch :save_node
+        patch :save_edge
+        patch :save_phrase_node
+        post :add_edge
+        delete :delete_edge
       end
     end
   end

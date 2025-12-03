@@ -20,7 +20,7 @@ module Morphology
     end
 
     def node_types
-      @node_types ||= Morphology::GraphNode.types.keys
+      @node_types ||= Morphology::GraphNode.types.keys.reject { |t| t == 'phrase' }
     end
 
     def available_nodes
@@ -47,7 +47,6 @@ module Morphology
       ['Morphology::Word', 'Morphology::GraphNodeEdge']
     end
 
-    # Helper class to fetch nearby words
     class WordsFetcher
       def initialize(chapter_id, verse_id, range: 3)
         @chapter_id = chapter_id
@@ -70,7 +69,6 @@ module Morphology
       end
     end
 
-    # Helper class to fetch nearby segments
     class SegmentsFetcher
       def initialize(chapter_id, verse_id, range: 3)
         @chapter_id = chapter_id

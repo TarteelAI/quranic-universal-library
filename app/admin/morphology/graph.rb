@@ -1,9 +1,12 @@
 ActiveAdmin.register Morphology::Graph, as: 'Graph' do
   menu parent: 'Morphology'
-  config.filters = false
-  config.sort_order = "chapter_id_asc"
-  
-  actions :all, except: [:new, :create, :destroy, :edit, :update]
+  actions :index, :show
+
+  filter :chapter, as: :searchable_select,
+         ajax: { resource: Chapter }
+
+  filter :verse, as: :searchable_select,
+         ajax: { resource: Verse }
 
   action_item :edit, only: :show do
     link_to 'Edit Graph', edit_morphology_treebank_index_path(
@@ -14,19 +17,32 @@ ActiveAdmin.register Morphology::Graph, as: 'Graph' do
   end
 
   show do
-    render partial: 'admin/morphology/graph/show', locals: {
-      graph: resource
-    }
+    attributes_table do
+      row :id
+      row :chapter do |graph|
+        link_to graph.chapter.name, [:cms, graph.chapter]
+      end
+      row :verse do |graph|
+        link_to graph.verse.verse_key, [:cms, graph.verse]
+      end
+      row :graph_number
+      row :created_at
+      row :updated_at
+    end
+
+    panel 'Graph Visualization' do
+      render partial: 'admin/morphology/graph/show', locals: {
+        graph: resource
+      }
+    end
   end
 
   index do
     id_column
-    column :verse_key
-    column :graph_number
+    column :verse_key, sortable: :verse_id
+    column :graph_number, sortable: :graph_number
     column :created_at
     column :updated_at
-    actions defaults: false do |graph|
-      link_to 'View', cms_graph_path(graph), class: 'member_link'
-    end
+    actions
   end
 end

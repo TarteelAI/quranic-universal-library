@@ -7,7 +7,6 @@ export default class extends Controller {
     theme: Object,
     url: String,
   };
-
   connect() {
     if (this.hasUrlValue) {
       this.loadGraphData();
@@ -15,7 +14,6 @@ export default class extends Controller {
       this.renderSyntaxGraph();
     }
 
-    // Listen for refresh events
     this.refreshHandler = () => this.refresh();
     window.addEventListener("refresh-graph-preview", this.refreshHandler);
   }
@@ -48,12 +46,6 @@ export default class extends Controller {
         '<div class="error">Failed to load syntax graph</div>';
     }
   }
-
-  // graphDataValueChanged() {
-  //   console.log("Graph data changed");
-  //   this.renderSyntaxGraph();
-  // }
-
   async renderSyntaxGraph() {
     try {
       const visualizer = new SyntaxGraphVisualizer(
@@ -551,12 +543,6 @@ class SyntaxGraphVisualizer {
         height: fontSize,
       };
     }
-  }
-
-  brackets(word) {
-    return (
-      word.type === "reference" || (word.type === "elided" && word.elidedText)
-    );
   }
 
   getPhraseNode(node) {

@@ -70,7 +70,14 @@ class Morphology::GraphNode < QuranApiRecord
   end
 
   def location
-    verse&.location
+    case type
+    when 'word'
+      resource.location
+    when 'reference'
+      resource.present? ? resource.location : nil
+    else
+      "#{type} #{resource.id}"
+    end
   end
   
   def display_number

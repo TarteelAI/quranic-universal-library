@@ -20,7 +20,6 @@
 class Morphology::GraphNodeEdge < QuranApiRecord
   self.inheritance_column = :_type
   
-  # Associations
   belongs_to :source, class_name: 'Morphology::GraphNode', foreign_key: :source_id, inverse_of: :outgoing_edges
   belongs_to :target, class_name: 'Morphology::GraphNode', foreign_key: :target_id, inverse_of: :incoming_edges
   has_one :phrase_node, as: :resource, class_name: 'Morphology::GraphNode'

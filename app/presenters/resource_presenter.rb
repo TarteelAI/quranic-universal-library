@@ -45,13 +45,7 @@ class ResourcePresenter < ApplicationPresenter
     when :recitation
       "Quran Audio Recitation by #{resource.name} - Download MP3 and Segments Data"
     when :quran_script
-      script_type = resource.resource_content.meta_value('text-type')
-      if script_type
-        text = load_ayah.send(script_type)
-        clean_meta_description("#{resource.name}(#{load_ayah.verse_key}) - #{text}")
-      else
-        "#{resource.name} #{verse} - Download Quran Text in different scripts and formats"
-      end
+      "Download Quran script #{resource.name}"
     when :font
       "#{resource.name} - Download Quran Fonts for Arabic and Quranic Text"
     when :quran_metadata

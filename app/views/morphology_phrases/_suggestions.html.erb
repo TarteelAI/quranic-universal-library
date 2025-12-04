@@ -17,19 +17,16 @@
             range ||= [-1, -1]
           %>
 
-          <div class="tw-flex tw-flex-wrap tw-gap-4">
+          <div class="tw-flex tw-gap-4">
             <div class="tw-w-full md:tw-w-1/2">
               <div class="tw-mb-4">
                 <%= f.label :ayah_key, 'Selected ayah' %>
                 <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key), selected: ayah&.verse_key), { include_blank: true }, class: 'form-control', id: 'source_ayah', data: { placeholder: 'Select ayah', controller: 'select2' } %>
-                <p class="help-block">
-                  Ayah has more priority, if selected it'll ignore the phrase
-                </p>
               </div>
             </div>
 
             <div class="tw-w-full md:tw-w-1/2">
-              <div class="tw-flex tw-flex-wrap tw-gap-4">
+              <div class="tw-flex tw-gap-4">
                 <div class="tw-w-full md:tw-w-1/2">
                   <div class="tw-mb-4">
                     <%= f.label :word_from, 'Word from' %>
@@ -64,7 +61,7 @@
             <% ayah.words.each do |w| %>
               <% if !w.ayah_mark? %>
                 <div class="tw-flex flex-column m-3 tw-items-center">
-                <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0].to_f && <= range[1].to_f %>">
+                <span class="quran-text qpc-hafs <%= 'text-success' if w.position >= range[0].to_f && w.position <= range[1].to_f %>">
                   <%= w.text_qpc_hafs %>
                 </span>
                 </div>

@@ -501,7 +501,7 @@ class SimilarAyahPhraseSearch
         tashkeel: "%#{w}%",
         simple: "%#{w.remove_diacritics}%"
       ).first
-    end
+    end.compact_blank
   end
 
   def find_verse_using_text(text)

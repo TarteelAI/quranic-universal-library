@@ -1,4 +1,44 @@
 namespace :one_time do
+  desc "Add group translations for 'يا أيها الذين آمنوا' phrase and fix WbW translations"
+  task fix_group_translations: :environment do
+    phrase_start = "يا ايها الذين امنوا"
+    language_id = 38
+
+    verses = Verse.where("text_imlaei_simple LIKE ?", "#{phrase_start}%")
+
+    total_updates = 0
+    updates = {}
+
+    verses.find_each do |verse|
+      words = verse.words.order(:position).first(3)
+      next if words.size < 3
+
+      w1, w2, w3 = words
+
+      translations_map = {
+        w1.id => "O you",
+        w2.id => "those who(believe)",
+        w3.id => "believe"
+      }
+
+      translations_map.each do |word_id, fixed_text|
+        wt = WordTranslation.where(word_id: word_id, language_id: language_id).first_or_initialize
+        updates[wt.word.location] = { old: wt.text, new: fixed_text } if wt.text != fixed_text
+        wt.text = fixed_text
+        wt.group_word_id = w1.id
+
+        if word_id == w1.id
+          wt.group_text = "O you who believe"
+        else
+          wt.group_text = "*(1)"
+        end
+
+        wt.save!
+      end
+      total_updates += 1
+    end
+  end
+
   task update_audio_url: :environment do
     mapping = {
       1 => 'quran/surah/abdul_baset/mujawwad',
@@ -48,7 +88,7 @@ namespace :one_time do
 
     mapping.each do |reciter_id, path|
       recitation = Audio::Recitation.find(13)
-      #cloned = clone_with_audio_files(recitation)
+      # cloned = clone_with_audio_files(recitation)
 
       recitation.relative_path = "#{path}/mp3"
       recitation.save(validate: false)

@@ -1,3 +1,11 @@
+# == Schema Information
+#
+# Table name: segments_databases
+#
+#  id     :bigint           not null, primary key
+#  active :boolean          default(FALSE)
+#  name   :string
+#
 module Segments
   class Database < ApplicationRecord
     self.table_name = 'segments_databases'

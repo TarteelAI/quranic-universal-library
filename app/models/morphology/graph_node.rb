@@ -48,10 +48,29 @@ class Morphology::GraphNode < QuranApiRecord
     elided: 3
   }
 
+  scope :by_chapter, ->(chapter_id) { joins(:graph).where('morphology_graphs.chapter_id = ?', chapter_id) }
+  scope :by_verse, ->(verse_id) { joins(:graph).where('morphology_graphs.verse_id = ?', verse_id) }
+
+  scope :chapter_eq, lambda {|chapter_id|
+    joins(:graph).where('morphology_graphs.chapter_id = ?', chapter_id)
+  }
+
+  scope :word_eq, lambda {|word_id|
+    joins(:graph).where('morphology_graphs.word_id = ?', word_id)
+  }
+
+  scope :verse_eq, lambda {|verse_id|
+    joins(:graph).where('morphology_graphs.verse_id = ?', verse_id)
+  }
+
   alias_method :morphology_word, :resource
-  
+
+  def self.ransackable_scopes(*)
+    %i[chapter_eq verse_eq word_eq]
+  end
+
   def location
-    "#{chapter_id}:#{verse_id}" if chapter_id && verse_id
+    verse&.location
   end
   
   def display_number

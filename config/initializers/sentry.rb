@@ -13,9 +13,7 @@ if Rails.env.production?
       ActionController::RoutingError,
       ActiveRecord::RecordNotFound
     ]
-
-    config.rails.report_rescued_exceptions = false
-
+    
     # dependency info
     config.send_modules = false
 

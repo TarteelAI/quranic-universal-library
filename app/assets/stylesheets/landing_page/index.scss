@@ -2,14 +2,6 @@
 
 body {
   overflow-x: hidden;
-  
-  > div[role="tooltip"] {
-    position: fixed !important;
-    
-    &[style*="visibility: hidden"] {
-      display: none !important;
-    }
-  }
 }
 
 @import "buttons";

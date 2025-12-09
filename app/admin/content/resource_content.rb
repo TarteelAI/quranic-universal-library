@@ -136,7 +136,7 @@ ActiveAdmin.register ResourceContent do
       end
       flash[:notice] = "#{resource.name} will be removed shortly!"
     elsif resource.syncable?
-      DraftContent::ImportDraftDataJob.perform_later(resource.id)
+      DraftContent::ImportDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be synced shortly!"
     end
 

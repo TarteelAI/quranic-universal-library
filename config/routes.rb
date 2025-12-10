@@ -33,6 +33,8 @@ Rails.application.routes.draw do
         get '/languages', to: 'resources#languages'
       end
 
+      get 'unicode/name', to: 'unicode#name'
+
       get 'tafsirs/random', to: 'tafsirs#random'
       get 'tafsirs/for_ayah/:ayah_key', to: 'tafsirs#for_ayah'
       get 'tafsirs/:resource_id/by_range', to: 'tafsirs#by_range'

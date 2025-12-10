@@ -320,6 +320,7 @@ export default class extends Controller {
     const canvas = document.getElementById('glyph-outline-canvas')
     const unicodeEl = document.getElementById('glyph-unicode')
     const charEl = document.getElementById('glyph-char')
+    const nameEl = document.getElementById('glyph-name')
     const metadataEl = document.getElementById('glyph-metadata')
 
     if (unicodeEl) unicodeEl.textContent = `U+${unicodeHex}`
@@ -327,28 +328,25 @@ export default class extends Controller {
       charEl.textContent = glyphChar
       charEl.style.fontFamily = this.fontFaceValue
     }
-
-    const pathType = glyph.path ? 
-      (glyph.path.commands ? 'TrueType (glyf)' : 
-       glyph.path.toSVG ? 'PostScript (CFF)' : 
-       'Unknown') : 'N/A'
     
-    const metadata = {
-      'Unicode': `U+${unicodeHex}`,
-      'Character': glyphChar,
-      'Glyph ID': glyph.id || 'N/A',
-      'Advance Width': glyph.advanceWidth || 'N/A',
-      'Left Side Bearing': glyph.leftSideBearing !== undefined ? glyph.leftSideBearing : 'N/A',
-      'Right Side Bearing': glyph.rightSideBearing !== undefined ? glyph.rightSideBearing : 'N/A',
-      'Bounding Box': glyph.bbox ? `${glyph.bbox.minX}, ${glyph.bbox.minY} to ${glyph.bbox.maxX}, ${glyph.bbox.maxY}` : 'N/A',
-      'Path Type': pathType,
-      'Has Outline': glyph.path ? 'Yes' : 'No'
-    }
-
-    if (metadataEl) {
-      metadataEl.innerHTML = Object.entries(metadata).map(([key, value]) => 
-        `<div class="tw-flex tw-justify-between tw-py-2 tw-border-b tw-border-gray-200"><span class="tw-font-semibold tw-text-gray-700">${key}:</span><span class="tw-text-gray-600">${value}</span></div>`
-      ).join('')
+    let unicodeInfo = null
+    
+    if (nameEl) {
+      nameEl.textContent = 'Loading...'
+      this.fetchUnicodeInfo(unicodeHex).then(info => {
+        unicodeInfo = info
+        if (nameEl) {
+          nameEl.textContent = info?.name || 'Unknown'
+        }
+        this.updateMetadata(metadataEl, glyph, unicodeHex, glyphChar, unicodeInfo)
+      }).catch(() => {
+        if (nameEl) {
+          nameEl.textContent = 'Unknown'
+        }
+        this.updateMetadata(metadataEl, glyph, unicodeHex, glyphChar, null)
+      })
+    } else {
+      this.updateMetadata(metadataEl, glyph, unicodeHex, glyphChar, null)
     }
 
     overlay.classList.remove('tw-hidden')
@@ -369,6 +367,118 @@ export default class extends Controller {
       overlay.style.display = 'none'
       document.body.style.overflow = ''
     }
+  }
+
+  async fetchUnicodeInfo(unicodeHex) {
+    try {
+      const codePoint = unicodeHex.replace(/^U\+/i, '')
+      const response = await fetch(`/api/v1/unicode/name?code_point=${codePoint}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch Unicode info')
+      }
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.error('Error fetching Unicode info:', error)
+      return null
+    }
+  }
+
+  copyToClipboard(text, button) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.showCopySuccess(button)
+      }).catch(err => {
+        console.error('Failed to copy:', err)
+        this.fallbackCopyToClipboard(text, button)
+      })
+    } else {
+      this.fallbackCopyToClipboard(text, button)
+    }
+  }
+
+  fallbackCopyToClipboard(text, button) {
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    try {
+      document.execCommand('copy')
+      this.showCopySuccess(button)
+    } catch (err) {
+      console.error('Fallback copy failed:', err)
+    } finally {
+      document.body.removeChild(textArea)
+    }
+  }
+
+  showCopySuccess(button) {
+    if (!button) return
+    
+    const originalTitle = button.getAttribute('title') || 'Copy character'
+    const svg = button.querySelector('svg')
+    const originalPath = button.getAttribute('data-original-path') || 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
+    
+    button.setAttribute('title', 'Copied!')
+    button.classList.add('tw-text-green-600')
+    
+    if (svg) {
+      svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+    }
+    
+    setTimeout(() => {
+      button.setAttribute('title', originalTitle)
+      button.classList.remove('tw-text-green-600')
+      if (svg && originalPath) {
+        svg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${originalPath}"></path>`
+      }
+    }, 2000)
+  }
+
+  updateMetadata(metadataEl, glyph, unicodeHex, glyphChar, unicodeInfo) {
+    if (!metadataEl) return
+    
+    const metadata = {
+      'Unicode': `U+${unicodeHex}`,
+      'Character': glyphChar,
+      'Name': unicodeInfo?.name || 'Loading...',
+      'HTML Entity': unicodeInfo?.html_entity ? `${unicodeInfo.html_entity}` : 'N/A'
+    }
+
+    let metadataHTML = Object.entries(metadata).map(([key, value]) => 
+      `<div class="tw-flex tw-justify-between tw-py-2 tw-border-b tw-border-gray-200"><span class="tw-font-semibold tw-text-gray-700">${key}:</span><span class="tw-text-gray-600">${value}</span></div>`
+    ).join('')
+
+    // Add decomposition/composition if available
+    if (unicodeInfo?.decomposition && unicodeInfo.decomposition_chars && unicodeInfo.decomposition_chars.length > 0) {
+      const decompDisplay = unicodeInfo.decomposition_chars.map((char, idx) => {
+        const hex = unicodeInfo.decomposition_hex[idx]
+        return `<span class="tw-inline-block tw-mx-1 tw-px-2 tw-py-1 tw-bg-gray-100 tw-rounded" title="U+${hex}">${char}</span>`
+      }).join('')
+      metadataHTML += `<div class="tw-py-2 tw-border-b tw-border-gray-200">
+        <div class="tw-font-semibold tw-text-gray-700 tw-mb-2">Decomposition:</div>
+        <div class="tw-text-gray-600 tw-flex tw-items-center tw-flex-wrap tw-gap-1">${decompDisplay}</div>
+      </div>`
+    }
+
+    // Add Compart.com link
+    if (unicodeInfo?.compart_url) {
+      metadataHTML += `<div class="tw-py-2 tw-border-b tw-border-gray-200">
+        <a href="${unicodeInfo.compart_url}" target="_blank" rel="noopener noreferrer" class="tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline tw-flex tw-items-center">
+          <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+          View more details on Compart.com
+        </a>
+      </div>`
+    }
+
+    metadataEl.innerHTML = metadataHTML
   }
 
   renderGlyphOutline(canvas, glyph) {
@@ -892,8 +1002,16 @@ export default class extends Controller {
             <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6">
               <div>
                 <div class="tw-mb-6">
-                  <div class="tw-text-7xl tw-text-center tw-mb-3 tw-leading-none" id="glyph-char" style="font-family: '${this.fontFaceValue}'"></div>
+                  <div class="tw-flex tw-items-center tw-justify-center tw-gap-3 tw-mb-3">
+                    <div class="tw-text-7xl tw-leading-none" id="glyph-char" style="font-family: '${this.fontFaceValue}'"></div>
+                    <button id="copy-glyph-char-btn" class="tw-p-2 tw-text-gray-500 hover:tw-text-gray-700 hover:tw-bg-gray-100 tw-rounded tw-transition-colors tw-flex tw-items-center tw-justify-center" title="Copy character" style="min-width: 36px; min-height: 36px;">
+                      <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                      </svg>
+                    </button>
+                  </div>
                   <div class="tw-text-center tw-text-gray-600 tw-font-mono tw-text-lg" id="glyph-unicode"></div>
+                  <div class="tw-text-center tw-text-gray-700 tw-text-base tw-mt-2 tw-font-medium" id="glyph-name"></div>
                 </div>
                 <div id="glyph-metadata" class="tw-text-sm tw-bg-gray-50 tw-rounded-lg tw-p-4"></div>
               </div>
@@ -921,6 +1039,20 @@ export default class extends Controller {
     closeButtons.forEach(btn => {
       btn.addEventListener('click', () => this.closeGlyphOverlay())
     })
+    
+    const copyCharBtn = overlayEl.querySelector('#copy-glyph-char-btn')
+    if (copyCharBtn) {
+      const svg = copyCharBtn.querySelector('svg')
+      const originalPath = svg ? svg.querySelector('path')?.getAttribute('d') : null
+      copyCharBtn.setAttribute('data-original-path', originalPath || '')
+      
+      copyCharBtn.addEventListener('click', () => {
+        const charEl = document.getElementById('glyph-char')
+        if (charEl && charEl.textContent) {
+          this.copyToClipboard(charEl.textContent, copyCharBtn)
+        }
+      })
+    }
     
     overlayEl.addEventListener('click', (e) => {
       if (e.target.id === 'glyph-details-overlay') {

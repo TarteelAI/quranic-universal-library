@@ -3,16 +3,24 @@
   verse = data[:verse]
 %>
 
-<h2 class="heading my-3">Guess the Surah name and Ayah number.</h2>
+<h2 class="heading my-3 tw-text-3xl tw-font-bold tw-text-center tw-mb-6 tw-text-gray-800">Ayah Mastery Challenge</h2>
 
 <div class="quiz" data-controller="activities--ayah-mastery" data-ayah="<%= verse.verse_key %>">
-  <div class="qpc-hafs tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-mb-3">
-    <%= data[:text] %>
+  <div class="tw-px-6 tw-py-5 tw-rounded-lg tw-mb-6 tw-bg-gradient-to-br tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
+    <div class="tw-text-center tw-mb-3">
+      <div class="tw-inline-block tw-px-4 tw-py-2 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-sm tw-font-semibold tw-mb-3">
+        Identify the Source
+      </div>
+      <p class="tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-3">Which surah and ayah number is this from?</p>
+    </div>
+    <div class="qpc-hafs tw-text-2xl tw-leading-relaxed tw-text-center tw-text-gray-800 tw-px-4 tw-py-3 tw-bg-white tw-rounded-lg tw-shadow-sm">
+      <%= data[:text] %>
+    </div>
   </div>
 
-  <div class="d-grid d-md-flex tw-justify-center options tw-gap-2 tw-mt-4" id="options">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-6" id="options">
     <% data[:options].each do |option| %>
-      <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white option" data-correct="<%= option[:correct] %>">
+      <button class="ayah-option tw-px-6 tw-py-4 tw-rounded-lg tw-font-semibold tw-text-lg tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-blue-500 tw-to-indigo-500 hover:tw-from-blue-600 hover:tw-to-indigo-600 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 option tw-border-0" data-correct="<%= option[:correct] %>">
         <%= option[:name] %>
       </button>
     <% end %>

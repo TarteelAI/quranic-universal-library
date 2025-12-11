@@ -256,7 +256,7 @@ ActiveAdmin.register Word do
         end
       end
 
-      row 'KFQC Hafs Tajweed(New)', class: 'quran-text' do
+      row 'KFGQPC Hafs Tajweed(New)', class: 'quran-text' do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_qpc_hafs_tajweed.to_s.html_safe, class: 'qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
 

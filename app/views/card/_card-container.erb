@@ -7,9 +7,9 @@
   data_attrs = local_assigns[:data] || {}
 %>
 
-<%= content_tag tag_name, class: "tw-w-full tw-inline-block", **href_attr, data: data_attrs  do %>
-  <div class="tw-relative tw-rounded-[45px] tw-h-[550px] tool-card-with-bg tw-px-8 tw-py-6 tw-relative <%= "#{card_type} pattern#{pattern}" %>">
-    <div class="overlay"></div>
+<%= content_tag tag_name, class: "tw-w-full tw-inline-block tw-transition-transform tw-duration-300 hover:tw-scale-[1.02] tw-group", **href_attr, data: data_attrs  do %>
+  <div class="tw-relative tw-rounded-3xl md:tw-rounded-[45px] tw-h-auto tw-min-h-[500px] md:tw-h-[550px] tool-card-with-bg tw-px-6 md:tw-px-8 tw-py-6 tw-shadow-xl hover:tw-shadow-2xl tw-transition-all tw-duration-300 <%= "#{card_type} pattern#{pattern}" %>">
+    <div class="overlay tw-opacity-90 group-hover:tw-opacity-85 tw-transition-opacity tw-duration-300"></div>
     <%= yield %>
   </div>
 <% end %>

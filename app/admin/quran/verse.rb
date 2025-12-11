@@ -155,7 +155,7 @@ ActiveAdmin.register Verse do
         end
       end
 
-      row 'KFQC Hafs' do
+      row 'KFGQPC Hafs' do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_qpc_hafs.to_s.html_safe, class: 'quran-text qpc-hafs')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
@@ -176,7 +176,7 @@ ActiveAdmin.register Verse do
         end
       end
 
-      row 'KFQC Hafs Tajweed(New)' do
+      row 'KFGQPC Hafs Tajweed(New)' do
         div class: 'd-flex flex-column align-item-end' do
           div(resource.text_qpc_hafs_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
 
@@ -241,7 +241,7 @@ ActiveAdmin.register Verse do
           td 'QPC Tajweed'
           td 'Uthmani'
           td 'Uth-Simple'
-          td 'KFQC Hafs'
+          td 'KFGQPC Hafs'
           td 'Imlaei'
           td 'Im-Simle'
           td 'Nastaleeq(Indopak)'

@@ -17,19 +17,19 @@
       </div>
     <% end %>
 
-    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">
+    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow tw-min-h-[200px] md:tw-min-h-[250px]">
       <% if local_assigns[:is_quran_script] %>
         <%= render 'quran_script_preview',
                    resource: card.resource_content,
                    preview_verse: local_assigns[:preview_verse]
         %>
       <% else %>
-        <div class="tw-flex tw-items-center tw-justify-center tw-w-full">
+        <div class="tw-flex tw-items-center tw-justify-center tw-w-full tw-transform group-hover:tw-scale-105 tw-transition-transform tw-duration-300">
           <% if card.respond_to?(:icon) && card.icon.present? %>
             <% if card.icon.start_with?('fa-') %>
-              <i class="fa tw-text-white tw-text-[200px] md:tw-text-[100px] <%= card.icon %>"></i>
+              <i class="fa tw-text-white tw-text-[150px] md:tw-text-[180px] lg:tw-text-[200px] <%= card.icon %> tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity"></i>
             <% else %>
-              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon" %>
+              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon", class: "tw-max-w-full tw-h-auto tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity" %>
             <% end %>
           <% end %>
         </div>

@@ -109,6 +109,9 @@ application.register("activities--ayah-mastery", AyahMasteryController);
 import WordMatchController from "./activities/word_match_controller";
 application.register("activities--word-match", WordMatchController);
 
+import SurahOrderController from "./activities/surah_order_controller";
+application.register("activities--surah-order", SurahOrderController);
+
 import FaqController from "./faq_controller";
 application.register("faq", FaqController);
 

@@ -23,12 +23,19 @@ module LearningActivityHelper
         icon: 'list.svg',
         url: learning_activity_path('word_match'),
         tags: ['Vocabulary', 'Word Matching']
+      ),
+      ToolCard.new(
+        title: 'Surah Order',
+        description: 'Test your knowledge of the order of Surahs in the Quran. Identify which Surah comes before or after a given Surah.',
+        icon: 'list.svg',
+        url: learning_activity_path('surah_order'),
+        tags: ['Surah Order', 'Quran Learning', 'Memorization']
       )
     ]
   end
 
   def valid_activity?(name)
-    ['complete_the_ayah', 'ayah_mastery', 'word_match'].include?(name)
+    ['complete_the_ayah', 'ayah_mastery', 'word_match', 'surah_order'].include?(name)
   end
 
   def generate_ayah_mastery_quiz
@@ -150,6 +157,42 @@ module LearningActivityHelper
       words: words,
       words_to_show: words_to_show_final,
       remaining_words: remaining_words.shuffle
+    }
+  end
+
+  def generate_surah_order_quiz
+    surahs = Chapter.order(:chapter_number).to_a
+    current = surahs.sample
+
+    # Determine allowed directions
+    allowed_directions = []
+    allowed_directions << :before if current.chapter_number > 1
+    allowed_directions << :after  if current.chapter_number < 114
+
+    direction = allowed_directions.sample
+
+    # Fetch correct surah in the selected direction
+    offset = direction == :before ? -1 : 1
+    correct = surahs.find { |s| s.chapter_number == current.chapter_number + offset }
+
+    # Pick 3 incorrect options
+    incorrect_options = surahs
+                          .reject { |s| s.id == current.id || s.id == correct.id }
+                          .sample(3)
+                          .map { |s| { id: s.id, name: s.name_simple, correct: false } }
+
+    # Build final options list
+    options = incorrect_options << {
+      id: correct.id,
+      name: correct.name_simple,
+      correct: true
+    }
+
+    {
+      current_surah: current,
+      correct_surah: correct,
+      direction: direction,
+      options: options.shuffle
     }
   end
 

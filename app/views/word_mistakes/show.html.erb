@@ -6,7 +6,6 @@
       mushaf_id: @mushaf.id,
       page_number: @page_number)
     .index_by(&:line_number)
-
 %>
 
 <%= render 'layouts/qul_head' %>
@@ -58,8 +57,8 @@
                       
                       <% if full_word_mistake %>
                         <%
-                          text_color = mistake_color(full_word_mistake.mistake_count)
-                          glow = mistake_glow_intensity(full_word_mistake.mistake_count)
+                          text_color = mistake_color(full_word_mistake.frequency)
+                          glow = mistake_glow_intensity(full_word_mistake.frequency)
                         %>
                         <span class="char <%= word.css_class %> char-<%= word.char_type_name %> word-mistake-highlight"
                               id="word-<%= word.position_in_page %>"
@@ -67,7 +66,7 @@
                               data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
                               data-id="<%= word.id %>"
                               style="color: <%= text_color %>; text-shadow: 0 0 <%= glow %>px <%= text_color %>;"
-                              title="Mistakes: <%= full_word_mistake.mistake_count %>">
+                              title="Frequency: <%= full_word_mistake.frequency %>">
                           <a href="#" style="color: inherit; text-decoration: none;">
                             <%= safe_html word.text %>
                           </a>
@@ -81,14 +80,14 @@
                           partial_mistakes.sort_by(&:char_start).each do |mistake|
                             char_start = mistake.char_start
                             char_end = mistake.char_end
-                            text_color = mistake_color(mistake.mistake_count)
-                            glow = mistake_glow_intensity(mistake.mistake_count)
+                            text_color = mistake_color(mistake.frequency)
+                            glow = mistake_glow_intensity(mistake.frequency)
                             
                             highlighted_text += word_text[last_pos...char_start].html_safe if last_pos < char_start
                             highlighted_text += content_tag(:span, word_text[char_start...char_end].html_safe, 
                               class: 'word-mistake-highlight-partial',
                               style: "color: #{text_color}; text-shadow: 0 0 #{glow}px #{text_color};",
-                              title: "Mistakes: #{mistake.mistake_count}")
+                              title: "Frequency: #{mistake.frequency}")
                             last_pos = char_end
                           end
                           

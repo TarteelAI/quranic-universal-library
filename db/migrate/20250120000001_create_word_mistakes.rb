@@ -4,6 +4,7 @@ class CreateWordMistakes < ActiveRecord::Migration[7.0]
     c.create_table :word_mistakes do |t|
       t.integer :word_id, null: false
       t.integer :mistake_count, null: false, default: 0
+      t.float :frequency
       t.integer :char_start, null: true
       t.integer :char_end, null: true
 

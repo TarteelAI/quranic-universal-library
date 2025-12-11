@@ -68,7 +68,7 @@ export default class extends Controller {
   }
 
   attachListenersToNewInputs() {
-    this.element.querySelectorAll('input[type="number"][name*="[mistake_count]"]').forEach(input => {
+    this.element.querySelectorAll('input[type="number"][name*="[frequency]"]').forEach(input => {
       if (!input.dataset.listenerAttached || input.dataset.listenerAttached !== 'true') {
         input.addEventListener('input', (e) => {
           this.handleInputChange(e.target)
@@ -95,13 +95,13 @@ export default class extends Controller {
   }
 
   async saveMistake(input, mistakeKey) {
-    const mistakeCount = parseInt(input.value) || 0
+    const frequency = parseFloat(input.value) || 0
     const [wordId, charStart, charEnd] = this.parseMistakeKey(mistakeKey)
     
     const data = {
       mistakes: {
         [mistakeKey]: {
-          mistake_count: mistakeCount,
+          frequency: frequency,
           char_start: charStart === 'nil' ? null : charStart,
           char_end: charEnd === 'nil' ? null : charEnd
         }
@@ -120,7 +120,7 @@ export default class extends Controller {
       })
 
       if (response.ok) {
-        this.updatePreview(wordId, charStart, charEnd, mistakeCount)
+        this.updatePreview(wordId, charStart, charEnd, frequency)
         this.showSaveIndicator(input)
       } else {
         console.error('Failed to save mistake')
@@ -143,7 +143,7 @@ export default class extends Controller {
     return [wordId, charStart, charEnd]
   }
 
-  updatePreview(wordId, charStart, charEnd, mistakeCount) {
+  updatePreview(wordId, charStart, charEnd, frequency) {
     const wordIdStr = wordId.toString()
     const charStartStr = charStart === 'nil' ? null : charStart
     const charEndStr = charEnd === 'nil' ? null : charEnd
@@ -155,21 +155,21 @@ export default class extends Controller {
     if (!wordElement) return
 
     if (charStartStr === null && charEndStr === null) {
-      this.updateFullWordPreview(wordElement, mistakeCount)
+      this.updateFullWordPreview(wordElement, parseFloat(frequency))
     } else {
-      this.updatePartialWordPreview(wordElement, parseInt(charStartStr), parseInt(charEndStr), mistakeCount)
+      this.updatePartialWordPreview(wordElement, parseInt(charStartStr), parseInt(charEndStr), parseFloat(frequency))
     }
   }
 
-  updateFullWordPreview(wordElement, mistakeCount) {
-    if (mistakeCount > 0) {
-      const textColor = this.mistakeColor(mistakeCount)
-      const glow = this.mistakeGlowIntensity(mistakeCount)
+  updateFullWordPreview(wordElement, frequency) {
+    if (frequency && frequency > 0) {
+      const textColor = this.mistakeColor(frequency)
+      const glow = this.mistakeGlowIntensity(frequency)
       
       wordElement.classList.add('word-mistake-highlight')
       wordElement.style.color = textColor
       wordElement.style.textShadow = `0 0 ${glow}px ${textColor}`
-      wordElement.title = `Mistakes: ${mistakeCount}`
+      wordElement.title = `Frequency: ${frequency}`
     } else {
       wordElement.classList.remove('word-mistake-highlight')
       wordElement.style.color = ''
@@ -178,7 +178,7 @@ export default class extends Controller {
     }
   }
 
-  updatePartialWordPreview(wordElement, charStart, charEnd, mistakeCount) {
+  updatePartialWordPreview(wordElement, charStart, charEnd, frequency) {
     const textNode = wordElement.querySelector('a')
     if (!textNode) return
 
@@ -197,22 +197,22 @@ export default class extends Controller {
       const start = parseInt(span.dataset.charStart || span.getAttribute('data-char-start'))
       const end = parseInt(span.dataset.charEnd || span.getAttribute('data-char-end'))
       if (!isNaN(start) && !isNaN(end) && !(start === charStart && end === charEnd)) {
-        const count = parseInt(span.dataset.mistakeCount || span.getAttribute('data-mistake-count')) || 0
-        if (count > 0) {
+        const freq = parseFloat(span.dataset.frequency || span.getAttribute('data-frequency')) || 0
+        if (freq > 0) {
           highlightMap.set(`${start}-${end}`, {
             start,
             end,
-            count
+            frequency: freq
           })
         }
       }
     })
     
-    if (mistakeCount > 0) {
+    if (frequency > 0) {
       highlightMap.set(`${charStart}-${charEnd}`, {
         start: charStart,
         end: charEnd,
-        count: mistakeCount
+        frequency: frequency
       })
     }
     
@@ -227,11 +227,11 @@ export default class extends Controller {
         html += plainText
       }
       
-      const textColor = this.mistakeColor(highlight.count)
-      const glow = this.mistakeGlowIntensity(highlight.count)
+      const textColor = this.mistakeColor(highlight.frequency)
+      const glow = this.mistakeGlowIntensity(highlight.frequency)
       const highlightText = wordText.substring(highlight.start, highlight.end)
       
-      html += `<span class="word-mistake-highlight-partial" data-char-start="${highlight.start}" data-char-end="${highlight.end}" data-mistake-count="${highlight.count}" style="color: ${textColor}; text-shadow: 0 0 ${glow}px ${textColor};" title="Mistakes: ${highlight.count}">${highlightText}</span>`
+      html += `<span class="word-mistake-highlight-partial" data-char-start="${highlight.start}" data-char-end="${highlight.end}" data-frequency="${highlight.frequency}" style="color: ${textColor}; text-shadow: 0 0 ${glow}px ${textColor};" title="Frequency: ${highlight.frequency}">${highlightText}</span>`
       lastPos = highlight.end
     })
     
@@ -242,20 +242,36 @@ export default class extends Controller {
     textNode.innerHTML = html || wordText
   }
 
-  mistakeColor(mistakeCount, maxMistakes = 50) {
-    if (!mistakeCount || mistakeCount === 0) return 'inherit'
+  mistakeColor(frequency) {
+    if (!frequency || frequency <= 0) return 'inherit'
     
-    const normalized = Math.min(mistakeCount / maxMistakes, 1.0)
-    const r = Math.round(255 * normalized)
-    const g = Math.round(255 * (1 - normalized))
-    const b = 0
+    const freq = Math.min(Math.max(parseFloat(frequency), 0.0), 1.0)
+    
+    const yellowR = 255, yellowG = 200, yellowB = 0
+    const orangeR = 255, orangeG = 140, orangeB = 0
+    const redR = 255, redG = 0, redB = 0
+    
+    let r, g, b
+    
+    if (freq <= 0.5) {
+      const t = freq * 2
+      r = Math.round(yellowR + (orangeR - yellowR) * t)
+      g = Math.round(yellowG + (orangeG - yellowG) * t)
+      b = Math.round(yellowB + (orangeB - yellowB) * t)
+    } else {
+      const t = (freq - 0.5) * 2
+      r = Math.round(orangeR + (redR - orangeR) * t)
+      g = Math.round(orangeG + (redG - orangeG) * t)
+      b = Math.round(orangeB + (redB - orangeB) * t)
+    }
+    
     return `rgb(${r}, ${g}, ${b})`
   }
 
-  mistakeGlowIntensity(mistakeCount, maxMistakes = 50) {
-    if (!mistakeCount || mistakeCount === 0) return 0
-    const normalized = Math.min(mistakeCount / maxMistakes, 1.0)
-    return Math.round(normalized * 20)
+  mistakeGlowIntensity(frequency) {
+    if (!frequency || frequency <= 0) return 0
+    const freq = Math.min(Math.max(parseFloat(frequency), 0.0), 1.0)
+    return Math.round(freq * 20)
   }
 
   showSaveIndicator(input) {
@@ -288,7 +304,7 @@ export default class extends Controller {
         body: JSON.stringify({
           mistakes: {
             [mistakeKey]: {
-              mistake_count: 0,
+              frequency: 0,
               char_start: charStart === 'nil' ? null : charStart,
               char_end: charEnd === 'nil' ? null : charEnd
             }
@@ -308,7 +324,7 @@ export default class extends Controller {
   }
 
   extractMistakeKeyFromContainer(container) {
-    const input = container.querySelector('input[type="number"][name*="[mistake_count]"]')
+    const input = container.querySelector('input[type="number"][name*="[frequency]"]')
     return input ? this.extractMistakeKey(input.name) : null
   }
 }

@@ -37,16 +37,17 @@ class WordMistakesController < AdminsController
           char_start, char_end = [char_start, char_end].minmax
         end
         
-        mistake_count = mistake_data[:mistake_count]&.to_i || 0
+        frequency = mistake_data[:frequency]&.to_f
+        frequency = nil if frequency && frequency <= 0
         
-        if mistake_count > 0
+        if frequency && frequency > 0
           mistake = WordMistake.find_or_initialize_by(
             word_id: word_id,
             char_start: char_start,
             char_end: char_end
           )
           
-          mistake.assign_attributes(mistake_count: mistake_count)
+          mistake.assign_attributes(frequency: frequency)
           mistake.save!
         else
           WordMistake.where(

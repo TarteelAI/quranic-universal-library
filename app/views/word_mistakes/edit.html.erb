@@ -36,13 +36,15 @@
             </div>
 
             <div class="tw-mb-2">
-              <label class="tw-block tw-text-sm tw-font-medium tw-mb-1">Full Word Mistakes:</label>
+              <label class="tw-block tw-text-sm tw-font-medium tw-mb-1">Full Word Frequency (0-1):</label>
               <input type="number" 
-                     name="mistakes[<%= word_id %>_nil_nil][mistake_count]"
-                     value="<%= full_word_mistake&.mistake_count || 0 %>"
+                     step="0.01"
+                     name="mistakes[<%= word_id %>_nil_nil][frequency]"
+                     value="<%= full_word_mistake&.frequency || 0 %>"
                      min="0"
+                     max="1"
                      class="tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-3 tw-py-1"
-                     placeholder="Enter mistake count">
+                     placeholder="Enter frequency (0-1)">
             </div>
 
             <div class="tw-mb-2">
@@ -91,9 +93,11 @@
                 <div class="tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-p-2 tw-rounded" data-partial-range="<%= mistake.char_start %>-<%= mistake.char_end %>">
                   <span class="tw-text-sm">Chars <%= mistake.char_start %>-<%= mistake.char_end %>:</span>
                   <input type="number" 
-                         name="mistakes[<%= word_id %>_<%= mistake.char_start %>_<%= mistake.char_end %>][mistake_count]"
-                         value="<%= mistake.mistake_count %>"
+                         step="0.01"
+                         name="mistakes[<%= word_id %>_<%= mistake.char_start %>_<%= mistake.char_end %>][frequency]"
+                         value="<%= mistake.frequency || 0 %>"
                          min="0"
+                         max="1"
                          class="tw-flex-1 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-1">
                   <button type="button" 
                           class="tw-text-red-600 hover:tw-text-red-800"
@@ -159,8 +163,8 @@
                             
                             <% if full_word_mistake %>
                               <%
-                                text_color = mistake_color(full_word_mistake.mistake_count)
-                                glow = mistake_glow_intensity(full_word_mistake.mistake_count)
+                                text_color = mistake_color(full_word_mistake.frequency)
+                                glow = mistake_glow_intensity(full_word_mistake.frequency)
                               %>
                               <span class="char <%= word.css_class %> char-<%= word.char_type_name %> word-mistake-highlight"
                                     id="preview-word-<%= word.position_in_page %>"
@@ -169,7 +173,7 @@
                                     data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
                                     data-id="<%= word.id %>"
                                     style="color: <%= text_color %>; text-shadow: 0 0 <%= glow %>px <%= text_color %>;"
-                                    title="Mistakes: <%= full_word_mistake.mistake_count %>">
+                                    title="Frequency: <%= full_word_mistake.frequency %>">
                                 <a href="#" class="preview-word-link" data-word-id="<%= word.word_id %>" style="color: inherit; text-decoration: none; cursor: pointer;">
                                   <%= safe_html word_text %>
                                 </a>
@@ -182,15 +186,15 @@
                                 partial_mistakes.sort_by(&:char_start).each do |mistake|
                                   char_start = mistake.char_start
                                   char_end = mistake.char_end
-                                  text_color = mistake_color(mistake.mistake_count)
-                                  glow = mistake_glow_intensity(mistake.mistake_count)
+                                  text_color = mistake_color(mistake.frequency)
+                                  glow = mistake_glow_intensity(mistake.frequency)
                                   
                                   highlighted_text += word_text[last_pos...char_start].html_safe if last_pos < char_start
                                   highlighted_text += content_tag(:span, word_text[char_start...char_end].html_safe, 
                                     class: 'word-mistake-highlight-partial',
                                     style: "color: #{text_color}; text-shadow: 0 0 #{glow}px #{text_color};",
-                                    title: "Mistakes: #{mistake.mistake_count}",
-                                    data: { char_start: char_start, char_end: char_end, mistake_count: mistake.mistake_count })
+                                    title: "Frequency: #{mistake.frequency}",
+                                    data: { char_start: char_start, char_end: char_end, frequency: mistake.frequency })
                                   last_pos = char_end
                                 end
                                 
@@ -330,9 +334,11 @@
     partialDiv.innerHTML = `
       <span class="tw-text-sm">Chars ${start}-${end - 1}:</span>
       <input type="number" 
-             name="mistakes[${wordId}_${start}_${end}][mistake_count]"
+             step="0.01"
+             name="mistakes[${wordId}_${start}_${end}][frequency]"
              value="0"
              min="0"
+             max="1"
              class="tw-flex-1 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-1 partial-mistake-input"
              data-listener-attached="false">
       <button type="button" 

@@ -143,6 +143,10 @@ Rails.application.routes.draw do
     end
   end
 
+  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
+  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
+  put 'mistake-heatmap', to: 'word_mistakes#update'
+
   resources :word_concordance_labels, only: [:show, :index] do
     member do
       get :word_detail

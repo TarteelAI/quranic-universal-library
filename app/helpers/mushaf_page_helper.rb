@@ -107,5 +107,24 @@ module MushafPageHelper
       "<span class='label-text tw-me-2'>#{text}</span> <span class='sort-icons'>#{icon_asc} #{icon_desc}</span>".html_safe
     end
   end
+
+  def mistake_color(mistake_count, max_mistakes = 50)
+    return 'inherit' if mistake_count.nil? || mistake_count == 0
+
+    normalized = [mistake_count.to_f / max_mistakes, 1.0].min
+    
+    r = (255 * normalized).round
+    g = (255 * (1 - normalized)).round
+    b = 0
+    
+    "rgb(#{r}, #{g}, #{b})"
+  end
+
+  def mistake_glow_intensity(mistake_count, max_mistakes = 50)
+    return 0 if mistake_count.nil? || mistake_count == 0
+
+    normalized = [mistake_count.to_f / max_mistakes, 1.0].min
+    (normalized * 20).round
+  end
 end
 

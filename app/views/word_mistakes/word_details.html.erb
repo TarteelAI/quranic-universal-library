@@ -1,0 +1,142 @@
+<%
+  word = @presenter.word
+  mistake = @presenter.word_mistake
+
+  similar_words_data = @presenter.similar_words_data
+  similar_words = similar_words_data[:words]
+  similar_mistakes = similar_words_data[:mistakes]
+  current_page = @presenter.current_page
+  total_pages = similar_words_data[:pages]
+  total_similar = similar_words_data[:count]
+
+  context_data = @presenter.mistake_context_words
+  context_words = context_data[:words]
+  context_words_mistake = context_data[:mistakes]
+%>
+
+<div id="title">
+  Mistake detail for <%= word.location %>
+</div>
+
+<div id="body">
+  <div class="tw-p-6">
+    <% if mistake %>
+      <div class="tw-mb-6">
+        <div class="tw-bg-gray-50 tw-p-4 tw-rounded">
+          <p><strong>Frequency:</strong> <%= mistake.frequency %></p>
+          <p><strong>Mistake Count:</strong> <%= mistake.mistake_count || 'N/A' %></p>
+          <p><strong>Received Text:</strong>
+            <span class="text-qpc-hafs tw-text-right">
+              <%= mistake.received_text %>
+            </span>
+          </p>
+        </div>
+      </div>
+    <% else %>
+      <div class="tw-mb-6">
+        <div class="tw-bg-yellow-50 tw-p-4 tw-rounded tw-text-yellow-800">
+          No mistake data available for this word.
+        </div>
+      </div>
+    <% end %>
+
+    <div class="tw-mb-6">
+      <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Context</h3>
+      <div class="tw-bg-gray-50 tw-p-4 tw-rounded">
+        <div class="tw-flex tw-items-start tw-gap-3 tw-flex-wrap" dir="rtl">
+          <% context_words.each_with_index do |ctx_word, idx| %>
+            <% ctx_mistake = context_words_mistake[ctx_word.id]&.first %>
+            <% is_current = ctx_word.id == word.id %>
+            <div class="tw-flex tw-flex-col tw-items-center tw-min-w-0">
+              <span class="<%= 'tw-font-bold tw-text-blue-600' if is_current %> tw-text-right text-qpc-hafs" title="<%= ctx_word.location %>" style="font-size: 1.5rem;">
+                <%= ctx_word.text_qpc_hafs %>
+              </span>
+
+              <% if ctx_mistake %>
+                <span class="tw-text-xs tw-text-gray-600 tw-mt-1 tw-text-right text-qpc-hafs">
+                  <%= ctx_mistake.received_text %>
+                </span>
+              <% end %>
+            </div>
+
+            <% unless idx == context_words.length - 1 %>
+              <span class="tw-text-gray-400 tw-self-center tw-mx-1">|</span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="tw-mb-6">
+      <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Similar Words in Quran</h3>
+      <p class="tw-text-sm tw-text-gray-600 tw-mb-4">
+        Total: <%= total_similar %> words with same text
+        <span dir="rtl" style="font-family: text-qpc-hafs, serif;">
+          <%= word.text_qpc_hafs %>
+        </span>
+      </p>
+
+      <div class="tw-overflow-x-auto">
+        <table class="tw-min-w-full tw-border tw-border-gray-300">
+          <thead class="tw-bg-gray-100">
+          <tr>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Location</th>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right">Text</th>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right">Received Text</th>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2">Mistake Count</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if similar_words.any? %>
+            <% similar_words.each do |sim_word| %>
+              <% sim_mistake = similar_mistakes[sim_word.id]&.first %>
+              <tr class="<%= 'tw-bg-red-50' if sim_mistake %>">
+                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2">
+                  <%= link_to sim_word.location, mistake_heatmap_word_details_path(sim_word.id),
+                              class: 'tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline tw-cursor-pointer',
+                              data: { controller: 'ajax-modal', url: mistake_heatmap_word_details_path(sim_word.id), css_class: 'modal-xl' } %>
+                </td>
+                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right text-qpc-hafs" dir="rtl">
+                  <%= sim_word.text_qpc_hafs %>
+                </td>
+                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right text-qpc-hafs" dir="rtl">
+                  <%= sim_mistake ? sim_mistake.received_text : '' %>
+                </td>
+                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2">
+                  <%= sim_mistake ? (sim_mistake.mistake_count || '-') : '-' %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="4" class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-center tw-text-gray-500">No
+                similar words found
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if total_pages > 1 %>
+        <div class="tw-flex tw-items-center tw-justify-between tw-mt-4">
+          <div class="tw-text-sm tw-text-gray-600">
+            Page <%= current_page %> of <%= total_pages %>
+          </div>
+          <div class="tw-flex tw-gap-2">
+            <% if current_page > 1 %>
+              <%= link_to 'Previous', mistake_heatmap_word_details_path(word.id, page: current_page - 1),
+                          class: 'tw-px-4 tw-py-2 tw-bg-gray-200 hover:tw-bg-gray-300 tw-rounded',
+                          data: { controller: 'ajax-modal', url: mistake_heatmap_word_details_path(word.id, page: current_page - 1), css_class: 'modal-xl' } %>
+            <% end %>
+            <% if current_page < total_pages %>
+              <%= link_to 'Next', mistake_heatmap_word_details_path(word.id, page: current_page + 1),
+                          class: 'tw-px-4 tw-py-2 tw-bg-gray-200 hover:tw-bg-gray-300 tw-rounded',
+                          data: { controller: 'ajax-modal', url: mistake_heatmap_word_details_path(word.id, page: current_page + 1), css_class: 'modal-xl' } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

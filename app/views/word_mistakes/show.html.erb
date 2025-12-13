@@ -1,126 +1,28 @@
 <%
-  lines = group_words_lines(@words)
-  
-  lines_mapping = MushafLineAlignment
-    .where(
-      mushaf_id: @mushaf.id,
-      page_number: @page_number)
-    .index_by(&:line_number)
+  page_number = @presenter.page_number
 %>
 
 <%= render 'layouts/qul_head' %>
 
 <div class="tw-container tw-mx-auto tw-px-4 tw-py-6">
   <div class="tw-mb-6 tw-flex tw-items-center tw-justify-between">
-    <h1 class="tw-text-3xl tw-font-bold">Mistake Heatmap - Page <%= @page_number %></h1>
+    <h1 class="tw-text-3xl tw-font-bold">Mistake Heatmap - Page <%= page_number %></h1>
     <div class="tw-flex tw-gap-4">
-      <% if @page_number > 1 %>
-        <%= link_to "Previous Page", mistake_heatmap_path(page: @page_number - 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
+      <% if page_number > 1 %>
+        <%= link_to "Previous Page", mistake_heatmap_path(page: page_number - 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
       <% end %>
-      <% if @page_number < @mushaf.pages_count %>
-        <%= link_to "Next Page", mistake_heatmap_path(page: @page_number + 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
+      <% if page_number < 604 %>
+        <%= link_to "Next Page", mistake_heatmap_path(page: page_number + 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
       <% end %>
-      <%= link_to "Edit Mistakes", edit_mistake_heatmap_path(page: @page_number), class: "tw-px-4 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
+      <%= link_to "Edit Mistakes", edit_mistake_heatmap_path(page: page_number), class: "tw-px-4 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
     </div>
   </div>
-  
+
   <div class="tw-flex tw-justify-center tw-items-center tw-min-h-[calc(100vh-250px)] tw-py-8">
-    <div class="theme-light mushaf qpc-hafs" data-controller="mushaf-page">
+    <div class="theme-light mushaf text-qpc-hafs">
+
       <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
-        <div id="page-<%= @page_number %>" class="page p<%= @page_number %>-qpc-hafs">
-        <% 1.upto(@mushaf.lines_per_page) do |line_number| %>
-          <%
-            line_mapping = lines_mapping[line_number] || MushafLineAlignment.dummy
-            verses = lines[line_number] || []
-          %>
-          <% next if line_mapping.blank? && verses.blank? %>
-
-          <div class="line-container" data-line="<%= line_number %>">
-            <div class="line <%= 'line--center' if line_mapping.is_center_aligned? || line_mapping.is_bismillah? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line--bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
-              <% if line_mapping.is_surah_name? %>
-                <%= render 'shared/chapter_name', chapter: Chapter.find_by(id: line_mapping.get_surah_number) %>
-              <% end %>
-
-              <% if line_mapping.is_bismillah? %>
-                <%= render 'shared/bismillah' %>
-              <% end %>
-
-              <% verses.each do |verse_id, words| %>
-                <div class="ayah-container">
-                  <div class="ayah" data-ayah="<%= verse_id %>">
-                    <% words.each do |word| %>
-                      <%
-                        word_mistakes = @mistakes[word.word_id] || []
-                        full_word_mistake = word_mistakes.find { |m| m.full_word? }
-                        partial_mistakes = word_mistakes.select { |m| m.partial_word? }
-                      %>
-                      
-                      <% if full_word_mistake %>
-                        <%
-                          text_color = mistake_color(full_word_mistake.frequency)
-                          glow = mistake_glow_intensity(full_word_mistake.frequency)
-                        %>
-                        <span class="char <%= word.css_class %> char-<%= word.char_type_name %> word-mistake-highlight"
-                              id="word-<%= word.position_in_page %>"
-                              data-word-id="<%= word.word_id %>"
-                              data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
-                              data-id="<%= word.id %>"
-                              style="color: <%= text_color %>; text-shadow: 0 0 <%= glow %>px <%= text_color %>;"
-                              title="Frequency: <%= full_word_mistake.frequency %>">
-                          <a href="#" style="color: inherit; text-decoration: none;">
-                            <%= safe_html word.text %>
-                          </a>
-                        </span>
-                      <% elsif partial_mistakes.any? %>
-                        <% 
-                          word_text = word.text || ''
-                          highlighted_text = ''
-                          last_pos = 0
-                          
-                          partial_mistakes.sort_by(&:char_start).each do |mistake|
-                            char_start = mistake.char_start
-                            char_end = mistake.char_end
-                            text_color = mistake_color(mistake.frequency)
-                            glow = mistake_glow_intensity(mistake.frequency)
-                            
-                            highlighted_text += word_text[last_pos...char_start].html_safe if last_pos < char_start
-                            highlighted_text += content_tag(:span, word_text[char_start...char_end].html_safe, 
-                              class: 'word-mistake-highlight-partial',
-                              style: "color: #{text_color}; text-shadow: 0 0 #{glow}px #{text_color};",
-                              title: "Frequency: #{mistake.frequency}")
-                            last_pos = char_end
-                          end
-                          
-                          highlighted_text += word_text[last_pos..-1].html_safe if last_pos < word_text.length
-                        %>
-                        <span class="char <%= word.css_class %> char-<%= word.char_type_name %>"
-                              id="word-<%= word.position_in_page %>"
-                              data-word-id="<%= word.word_id %>"
-                              data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
-                              data-id="<%= word.id %>">
-                          <a href="#" style="color: inherit; text-decoration: none;">
-                            <%= highlighted_text.html_safe %>
-                          </a>
-                        </span>
-                      <% else %>
-                        <span class="char <%= word.css_class %> char-<%= word.char_type_name %>"
-                              id="word-<%= word.position_in_page %>"
-                              data-word-id="<%= word.word_id %>"
-                              data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
-                              data-id="<%= word.id %>">
-                          <a href="#" style="color: inherit; text-decoration: none;">
-                            <%= safe_html word.text %>
-                          </a>
-                        </span>
-                      <% end %>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-        </div>
+        <%= render 'page_preview' %>
       </div>
     </div>
   </div>

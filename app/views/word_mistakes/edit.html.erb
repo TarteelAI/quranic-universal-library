@@ -1,8 +1,15 @@
 <%= render 'layouts/qul_head' %>
 
-<%= form_with url: mistake_heatmap_path(page: @page_number), method: :put, local: true, class: "tw-container tw-mx-auto tw-px-4 tw-py-6", data: { controller: "mistake-heatmap", "mistake-heatmap-update-url-value": mistake_heatmap_path(page: @page_number) } do |form| %>
+<%
+  page_data = @presenter.page_data
+  mistakes = page_data[:mistakes]
+  words = page_data[:words]
+  page_number = @presenter.page_number
+%>
+
+<%= form_with url: mistake_heatmap_path(page: page_number), method: :put, local: true, class: "tw-container tw-mx-auto tw-px-4 tw-py-6", data: { controller: "mistake-heatmap", "mistake-heatmap-update-url-value": mistake_heatmap_path(page: page_number) } do |form| %>
   <div class="tw-mb-6">
-    <h1 class="tw-text-3xl tw-font-bold">Edit Word Mistakes - Page <%= @page_number %></h1>
+    <h1 class="tw-text-3xl tw-font-bold">Edit Word Mistakes - Page <%= page_number %></h1>
     <p class="tw-text-sm tw-text-gray-600 tw-mt-2">Changes save automatically as you type</p>
   </div>
 
@@ -16,28 +23,28 @@
     <div>
       <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Words on Page</h2>
       <div class="tw-space-y-2 tw-max-h-[600px] tw-overflow-y-auto">
-        <% @words.select(&:word?).each_with_index do |word, index| %>
-          <% 
+        <% words.each_with_index do |word, index| %>
+          <%
             word_text = word.text || ''
             word_id = word.word_id
-            existing_mistakes = @mistakes[word_id] || []
+            existing_mistakes = mistakes[word_id] || []
             full_word_mistake = existing_mistakes.find { |m| m.full_word? }
             partial_mistakes = existing_mistakes.select { |m| m.partial_word? }
           %>
-          
+
           <div class="tw-border tw-border-gray-200 tw-rounded tw-p-3 word-form-container" id="word-form-<%= word_id %>" data-word-id="<%= word_id %>">
             <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
               <span class="tw-font-medium">Word #<%= word.position_in_page %></span>
               <span class="tw-text-sm tw-text-gray-600"><%= word.word&.verse_key || word.verse&.verse_key %></span>
             </div>
-            
+
             <div class="tw-mb-2 tw-p-2 tw-bg-gray-50 tw-rounded" dir="rtl" style="font-family: qpc-hafs, serif; font-size: 20px; text-align: center;">
               <span id="word-text-<%= word_id %>" data-text="<%= word_text %>"><%= safe_html word_text %></span>
             </div>
 
             <div class="tw-mb-2">
               <label class="tw-block tw-text-sm tw-font-medium tw-mb-1">Full Word Frequency (0-1):</label>
-              <input type="number" 
+              <input type="number"
                      step="0.01"
                      name="mistakes[<%= word_id %>_nil_nil][frequency]"
                      value="<%= full_word_mistake&.frequency || 0 %>"
@@ -48,9 +55,9 @@
             </div>
 
             <div class="tw-mb-2">
-              <button type="button" 
+              <button type="button"
                       class="tw-text-sm tw-text-blue-600 hover:tw-text-blue-800 tw-underline"
-                      onclick="togglePartialRangeSelector(<%= word_id %>, '<%= word_text.gsub("'", "\\'").gsub("\"", "&quot;") %>')">
+                      onclick="togglePartialRangeSelector(<%= word_id %>, '<%= word_text %>')">
                 Select Partial Word Range
               </button>
             </div>
@@ -60,7 +67,7 @@
                 <label class="tw-block tw-text-xs tw-font-medium tw-mb-1">Click characters to select/unselect:</label>
                 <div class="tw-flex tw-flex-wrap tw-gap-1 tw-p-2 tw-bg-white tw-rounded tw-border" dir="rtl">
                   <% word_text.chars.each_with_index do |char, idx| %>
-                    <button type="button" 
+                    <button type="button"
                             class="partial-range-char tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm hover:tw-bg-blue-100"
                             data-char-index="<%= idx %>"
                             data-word-id="<%= word_id %>"
@@ -75,12 +82,12 @@
                 <label class="tw-block tw-text-xs tw-font-medium tw-mb-1">Selected: <span id="selected-range-<%= word_id %>">-</span></label>
               </div>
               <div class="tw-flex tw-gap-2">
-                <button type="button" 
+                <button type="button"
                         class="tw-px-3 tw-py-1 tw-bg-green-500 tw-text-white tw-text-sm tw-rounded hover:tw-bg-green-600"
                         onclick="confirmPartialRange(<%= word_id %>, '<%= word_text.gsub("'", "\\'").gsub("\"", "&quot;") %>')">
                   Add Range
                 </button>
-                <button type="button" 
+                <button type="button"
                         class="tw-px-3 tw-py-1 tw-bg-gray-500 tw-text-white tw-text-sm tw-rounded hover:tw-bg-gray-600"
                         onclick="cancelPartialRange(<%= word_id %>)">
                   Cancel
@@ -92,22 +99,22 @@
               <% partial_mistakes.each do |mistake| %>
                 <div class="tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-p-2 tw-rounded" data-partial-range="<%= mistake.char_start %>-<%= mistake.char_end %>">
                   <span class="tw-text-sm">Chars <%= mistake.char_start %>-<%= mistake.char_end %>:</span>
-                  <input type="number" 
+                  <input type="number"
                          step="0.01"
                          name="mistakes[<%= word_id %>_<%= mistake.char_start %>_<%= mistake.char_end %>][frequency]"
                          value="<%= mistake.frequency || 0 %>"
                          min="0"
                          max="1"
                          class="tw-flex-1 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-1">
-                  <button type="button" 
+                  <button type="button"
                           class="tw-text-red-600 hover:tw-text-red-800"
                           data-action="click->mistake-heatmap#removePartialRange">
                     Remove
                   </button>
-                  <input type="hidden" 
+                  <input type="hidden"
                          name="mistakes[<%= word_id %>_<%= mistake.char_start %>_<%= mistake.char_end %>][char_start]"
                          value="<%= mistake.char_start %>">
-                  <input type="hidden" 
+                  <input type="hidden"
                          name="mistakes[<%= word_id %>_<%= mistake.char_start %>_<%= mistake.char_end %>][char_end]"
                          value="<%= mistake.char_end %>">
                 </div>
@@ -121,124 +128,14 @@
     <div>
       <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Page Preview</h2>
       <div id="preview" class="tw-border tw-border-gray-300 tw-rounded tw-p-4 tw-bg-white" style="direction: rtl;">
-        <%
-          lines = group_words_lines(@words)
-          
-          lines_mapping = MushafLineAlignment
-            .where(
-              mushaf_id: @mushaf.id,
-              page_number: @page_number)
-            .index_by(&:line_number)
-        %>
-        <%= render 'shared/page_font', pages: [@page_number], words: nil %>
-        <div class="theme-light mushaf qpc-hafs" data-controller="mushaf-page">
-          <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
-            <div id="page-<%= @page_number %>" class="page p<%= @page_number %>-qpc-hafs">
-              <% 1.upto(@mushaf.lines_per_page) do |line_number| %>
-                <%
-                  line_mapping = lines_mapping[line_number] || MushafLineAlignment.dummy
-                  verses = lines[line_number] || []
-                %>
-                <% next if line_mapping.blank? && verses.blank? %>
-
-                <div class="line-container" data-line="<%= line_number %>">
-                  <div class="line <%= 'line--center' if line_mapping.is_center_aligned? || line_mapping.is_bismillah? %> <%= 'line--surah-name' if line_mapping.is_surah_name? %> <%= 'line--bismillah' if line_mapping.is_bismillah? %>" id="line-<%= line_number %>">
-                    <% if line_mapping.is_surah_name? %>
-                      <%= render 'shared/chapter_name', chapter: Chapter.find_by(id: line_mapping.get_surah_number) %>
-                    <% end %>
-
-                    <% if line_mapping.is_bismillah? %>
-                      <%= render 'shared/bismillah' %>
-                    <% end %>
-                    <% verses.each do |verse_id, words| %>
-                      <div class="ayah-container">
-                        <div class="ayah" data-ayah="<%= verse_id %>">
-                          <% words.each do |word| %>
-                            <%
-                              word_mistakes = @mistakes[word.word_id] || []
-                              full_word_mistake = word_mistakes.find { |m| m.full_word? }
-                              partial_mistakes = word_mistakes.select { |m| m.partial_word? }
-                              word_text = word.text || ''
-                            %>
-                            
-                            <% if full_word_mistake %>
-                              <%
-                                text_color = mistake_color(full_word_mistake.frequency)
-                                glow = mistake_glow_intensity(full_word_mistake.frequency)
-                              %>
-                              <span class="char <%= word.css_class %> char-<%= word.char_type_name %> word-mistake-highlight"
-                                    id="preview-word-<%= word.position_in_page %>"
-                                    data-word-id="<%= word.word_id %>"
-                                    data-original-text="<%= word_text %>"
-                                    data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
-                                    data-id="<%= word.id %>"
-                                    style="color: <%= text_color %>; text-shadow: 0 0 <%= glow %>px <%= text_color %>;"
-                                    title="Frequency: <%= full_word_mistake.frequency %>">
-                                <a href="#" class="preview-word-link" data-word-id="<%= word.word_id %>" style="color: inherit; text-decoration: none; cursor: pointer;">
-                                  <%= safe_html word_text %>
-                                </a>
-                              </span>
-                            <% elsif partial_mistakes.any? %>
-                              <% 
-                                highlighted_text = ''
-                                last_pos = 0
-                                
-                                partial_mistakes.sort_by(&:char_start).each do |mistake|
-                                  char_start = mistake.char_start
-                                  char_end = mistake.char_end
-                                  text_color = mistake_color(mistake.frequency)
-                                  glow = mistake_glow_intensity(mistake.frequency)
-                                  
-                                  highlighted_text += word_text[last_pos...char_start].html_safe if last_pos < char_start
-                                  highlighted_text += content_tag(:span, word_text[char_start...char_end].html_safe, 
-                                    class: 'word-mistake-highlight-partial',
-                                    style: "color: #{text_color}; text-shadow: 0 0 #{glow}px #{text_color};",
-                                    title: "Frequency: #{mistake.frequency}",
-                                    data: { char_start: char_start, char_end: char_end, frequency: mistake.frequency })
-                                  last_pos = char_end
-                                end
-                                
-                                highlighted_text += word_text[last_pos..-1].html_safe if last_pos < word_text.length
-                              %>
-                              <span class="char <%= word.css_class %> char-<%= word.char_type_name %>"
-                                    id="preview-word-<%= word.position_in_page %>"
-                                    data-word-id="<%= word.word_id %>"
-                                    data-original-text="<%= word_text %>"
-                                    data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
-                                    data-id="<%= word.id %>">
-                                <a href="#" class="preview-word-link" data-word-id="<%= word.word_id %>" style="color: inherit; text-decoration: none; cursor: pointer;">
-                                  <%= highlighted_text.html_safe %>
-                                </a>
-                              </span>
-                            <% else %>
-                              <span class="char <%= word.css_class %> char-<%= word.char_type_name %>"
-                                    id="preview-word-<%= word.position_in_page %>"
-                                    data-word-id="<%= word.word_id %>"
-                                    data-original-text="<%= word_text %>"
-                                    data-ayah="<%= word.word&.verse_key || word.verse&.verse_key %>"
-                                    data-id="<%= word.id %>">
-                                <a href="#" class="preview-word-link" data-word-id="<%= word.word_id %>" style="color: inherit; text-decoration: none; cursor: pointer;">
-                                  <%= safe_html word_text %>
-                                </a>
-                              </span>
-                            <% end %>
-                          <% end %>
-                        </div>
-                      </div>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
+        <%= render 'page_preview' %>
       </div>
     </div>
   </div>
 
   <div class="tw-mt-8 tw-pt-6 tw-border-t tw-border-gray-300 tw-flex tw-items-center tw-justify-between">
     <div>
-      <%= link_to "View Heatmap", mistake_heatmap_path(page: @page_number), class: "tw-px-6 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
+      <%= link_to "View Heatmap", mistake_heatmap_path(page: page_number), class: "tw-px-6 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
     </div>
     <div class="tw-text-sm tw-text-gray-600">
       Changes are saved automatically
@@ -272,11 +169,11 @@
   function toggleCharSelection(button, wordId) {
     const charIndex = parseInt(button.dataset.charIndex);
     const isSelected = button.dataset.selected === 'true';
-    
+
     if (!selectedChars[wordId]) {
       selectedChars[wordId] = new Set();
     }
-    
+
     if (isSelected) {
       selectedChars[wordId].delete(charIndex);
       button.classList.remove('tw-bg-blue-300', 'tw-border-blue-500');
@@ -286,29 +183,29 @@
       button.classList.add('tw-bg-blue-300', 'tw-border-blue-500');
       button.dataset.selected = 'true';
     }
-    
+
     updateRangeDisplay(wordId);
   }
 
   function updateRangeDisplay(wordId) {
     const selected = selectedChars[wordId] || new Set();
     const display = document.getElementById(`selected-range-${wordId}`);
-    
+
     if (selected.size === 0) {
       display.textContent = '-';
       return;
     }
-    
+
     const sorted = Array.from(selected).sort((a, b) => a - b);
     const min = Math.min(...sorted);
     const max = Math.max(...sorted);
-    
+
     display.textContent = `Chars ${min} to ${max} (${selected.size} selected)`;
   }
 
   function confirmPartialRange(wordId, wordText) {
     const selected = selectedChars[wordId] || new Set();
-    
+
     if (selected.size === 0) {
       alert('Please select at least one character');
       return;
@@ -321,19 +218,19 @@
     const container = document.getElementById(`partial-mistakes-${wordId}`);
     const rangeKey = `${start}-${end}`;
     const existingRange = container.querySelector(`[data-partial-range="${rangeKey}"]`);
-    
+
     if (existingRange) {
       alert('This range already exists.');
       return;
     }
-    
+
     const partialDiv = document.createElement('div');
     partialDiv.className = 'tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-p-2 tw-rounded';
     partialDiv.setAttribute('data-partial-range', rangeKey);
-    
+
     partialDiv.innerHTML = `
       <span class="tw-text-sm">Chars ${start}-${end - 1}:</span>
-      <input type="number" 
+      <input type="number"
              step="0.01"
              name="mistakes[${wordId}_${start}_${end}][frequency]"
              value="0"
@@ -341,21 +238,21 @@
              max="1"
              class="tw-flex-1 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-1 partial-mistake-input"
              data-listener-attached="false">
-      <button type="button" 
+      <button type="button"
               class="tw-text-red-600 hover:tw-text-red-800"
               data-action="click->mistake-heatmap#removePartialRange">
         Remove
       </button>
-      <input type="hidden" 
+      <input type="hidden"
              name="mistakes[${wordId}_${start}_${end}][char_start]"
              value="${start}">
-      <input type="hidden" 
+      <input type="hidden"
              name="mistakes[${wordId}_${start}_${end}][char_end]"
              value="${end}">
     `;
-    
+
     container.appendChild(partialDiv);
-    
+
     setTimeout(() => {
       const formElement = document.querySelector('[data-controller*="mistake-heatmap"]')
       if (formElement) {
@@ -372,7 +269,7 @@
         }
       }
     }, 200)
-    
+
     cancelPartialRange(wordId);
   }
 
@@ -383,7 +280,7 @@
     resetCharButtons(wordId);
     updateRangeDisplay(wordId);
   }
-  
+
   function removePartialRange(button) {
     button.closest('[data-partial-range]').remove();
   }

@@ -114,7 +114,7 @@
 
         <input
             type="checkbox"
-            :checked="autoSave"
+            :checked="editMode"
             @change="changeEditMode"
             id="edit-mode"
             :disabled="segmentLocked"
@@ -144,7 +144,7 @@
         </label>
 
         <button
-            v-if="editMode && audioType == 'chapter'"
+            v-if="editMode"
             class="btn btn-danger btn-sm"
             @click="markAyahStart"
             :disabled="segmentLocked">
@@ -152,7 +152,7 @@
         </button>
 
         <button
-            v-if="editMode && audioType == 'chapter'"
+            v-if="editMode"
             class="btn btn-danger mx-1 btn-sm"
             @click="markAyahEnd"
             :disabled="segmentLocked">

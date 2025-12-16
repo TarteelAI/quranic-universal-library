@@ -93,6 +93,7 @@ class ExportMushafLayout
       ExportedLayout.table_name = table_name
       batch_size = 1000
       layout_records = []
+      last_surah_number = nil
 
       mushaf.mushaf_pages.order("page_number ASC").each do |page|
         lines = {}
@@ -137,6 +138,9 @@ class ExportMushafLayout
             range_end = words.last.word_index
           elsif line_type == 'surah_name'
             range_start = alignment.get_surah_number
+            last_surah_number = range_start
+          elsif line_type == 'basmallah'
+            range_start = last_surah_number
           end
 
           is_centered = alignment&.is_center_aligned? || line_type == 'surah_name' || line_type == 'basmallah'

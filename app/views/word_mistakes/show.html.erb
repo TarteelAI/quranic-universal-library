@@ -9,12 +9,12 @@
     <h1 class="tw-text-3xl tw-font-bold">Mistake Heatmap - Page <%= page_number %></h1>
     <div class="tw-flex tw-gap-4">
       <% if page_number > 1 %>
-        <%= link_to "Previous Page", mistake_heatmap_path(page: page_number - 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
+        <%= link_to "Previous Page", mistake_heatmap_path(page_number: page_number - 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
       <% end %>
       <% if page_number < 604 %>
-        <%= link_to "Next Page", mistake_heatmap_path(page: page_number + 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
+        <%= link_to "Next Page", mistake_heatmap_path(page_number: page_number + 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
       <% end %>
-      <%= link_to "Edit Mistakes", edit_mistake_heatmap_path(page: page_number), class: "tw-px-4 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
+      <%= link_to "Edit Mistakes", edit_mistake_heatmap_path(page_number: page_number), class: "tw-px-4 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
     </div>
   </div>
 

@@ -207,6 +207,18 @@ ActiveAdmin.register Audio::Recitation do
     end
   end
 
+  controller do
+    helper_method :human_duration
+    def human_duration(seconds)
+      return nil if seconds.blank? || seconds.to_i <= 0
+      s = seconds.to_i
+      h = s / 3600
+      m = (s % 3600) / 60
+      sec = s % 60
+      format('%02d:%02d:%02d', h, m, sec)
+    end
+  end
+
   index do
     id_column
     column :name
@@ -217,6 +229,9 @@ ActiveAdmin.register Audio::Recitation do
     column :approved
     column :files_count
     column :segments_count
+    column :total_duration do |r|
+      human_duration(r.total_duration)
+    end
     column :segment_locked
 
     actions
@@ -245,6 +260,9 @@ ActiveAdmin.register Audio::Recitation do
       row :priority
       row :qirat_type
       row :segments_count
+      row :total_duration do
+        human_duration(resource.total_duration)
+      end
       row :segment_locked
       row :files_count
       row :created_at

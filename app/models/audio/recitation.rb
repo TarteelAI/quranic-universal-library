@@ -94,6 +94,10 @@ module Audio
       _name
     end
 
+    def total_duration
+      (chapter_audio_files.sum(:duration) || 0).round(2)
+    end
+
     def validate_segments_data(audio_file: nil)
       segments = Audio::Segment.where(audio_recitation_id: id).includes(verse: :actual_words)
       issues = []

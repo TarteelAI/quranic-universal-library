@@ -75,16 +75,24 @@ ActiveAdmin.register Recitation do
 
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
     authorize! :manage, resource
-    notice = if params[:audio]
-               Audio::GenerateAudioFilesJob.perform_later(resource)
-               'Audio files will be generated in a few sec.'
-             else
-               Audio::UpdateMetaDataJob.perform_later(resource)
-               'Meta data will be refreshed in a few sec.'
-             end
 
-    # Restart sidekiq if it's not running
+    force_flag = if params.key?(:force)
+                   ActiveRecord::Type::Boolean.new.cast(params[:force])
+                 else
+                   true
+                 end
+
+    if params[:audio].present?
+      Audio::GenerateAudioFilesJob.perform_later(resource)
+      notice = 'Audio files will be generated in a few sec.'
+    else
+      Audio::UpdateMetaDataJob.perform_later(resource, { chapter_id: params[:chapter_id], force: force_flag })
+      notice = 'Meta data will be refreshed in a few sec.'
+    end
+
+    # Start sidekiq if needed
     Utils::System.start_sidekiq
+
     redirect_to [:cms, resource], notice: notice
   end
 

@@ -38,8 +38,11 @@ ActiveAdmin.register Audio::ChapterAudioFile do
             data: { controller: 'ajax-modal', url: validate_segments_cms_audio_chapter_audio_file_path(resource) }
   end
 
-  action_item :refresh_meta, only: :show,  if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_cms_audio_chapter_audio_file_path(resource), method: :put
+  action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Refresh Meta',
+            refresh_meta_cms_audio_chapter_audio_file_path(resource),
+            method: :put,
+            data: { confirm: 'Are you sure you want to refresh meta data for this file?', turbo: false }
   end
 
   member_action :validate_segments, method: 'get' do

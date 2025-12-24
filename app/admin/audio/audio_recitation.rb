@@ -56,7 +56,8 @@ ActiveAdmin.register Audio::Recitation do
   end
 
   action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_cms_audio_recitation_path(resource), method: :put, data: {confirm: 'Are you sure to update metadata of audio files?'}
+    link_to 'Refresh Meta', refresh_meta_cms_audio_recitation_path(resource, force: true), method: :put,
+            data: { confirm: 'This will re-fetch and overwrite metadata for all files in this recitation. Continue?' }
   end
 
   action_item :split_to_gapped, only: :show, if: -> { can? :manage, resource } do

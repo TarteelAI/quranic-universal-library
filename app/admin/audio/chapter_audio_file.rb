@@ -73,8 +73,14 @@ ActiveAdmin.register Audio::ChapterAudioFile do
         "<div title='#{file.file_size} bytes' class=has-tooltip>#{number_to_human_size file.file_size.to_f}</div>".html_safe
       end
       row :bit_rate
-      row :duration
-      row :duration_ms
+      row :duration do
+        total_sec = resource.duration
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec || 0} seconds)"
+      end
+      row :duration_ms do
+        total_sec = resource.duration_ms ? resource.duration_ms / 1000.0 : 0
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{resource.duration_ms || 0} ms)"
+      end
       row :file_name
       row :format
       row :audio_url

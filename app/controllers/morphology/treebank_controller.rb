@@ -12,6 +12,18 @@ module Morphology
       @collection = presenter.collection
       @verse_info = presenter.verse_info
       @navigation = presenter.navigation
+      @corpus_graph_image_id = presenter.corpus_graph_image_id
+      @compare_mode = params[:compare].to_s == '1'
+
+      respond_to do |format|
+        format.html
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("treebank_compare_button", partial: "morphology/treebank/compare_button"),
+            turbo_stream.replace("treebank_compare_content", partial: "morphology/treebank/compare_content")
+          ]
+        end
+      end
     end
 
     def add_node_row

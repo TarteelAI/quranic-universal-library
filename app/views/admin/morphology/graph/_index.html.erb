@@ -22,7 +22,7 @@
           <% collection.each do |graph| %>
             <tr class="<%= cycle('odd', 'even') %>">
               <td><%= graph.id %></td>
-              <td><%= "#{graph.chapter_id}:#{graph.verse_id}" %></td>
+              <td><%= "#{graph.chapter_number}:#{graph.verse_number}" %></td>
               <td><%= graph.graph_number %></td>
               <td><%= graph.nodes.count %></td>
               <td>

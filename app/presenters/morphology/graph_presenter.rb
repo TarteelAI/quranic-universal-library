@@ -2,10 +2,11 @@
 
 module Morphology
   class GraphPresenter < ApplicationPresenter
-    attr_reader :graph
+    attr_reader :graph, :locale
 
-    def initialize(graph)
+    def initialize(graph, locale: 'ar')
       @graph = graph
+      @locale = locale
     end
 
     def to_syntax_graph_json
@@ -13,6 +14,7 @@ module Morphology
         graphNumber: graph.graph_number,
         graphCount: total_graphs_in_verse,
         legacyCorpusGraphNumber: graph.graph_number,
+        locale: locale,
         words: words_payload,
         edges: edges_payload,
         phraseNodes: phrase_nodes_payload,
@@ -58,13 +60,16 @@ module Morphology
     end
 
     def phrase_nodes_payload
+      translations = edge_relation_translations
+
       phrase_nodes.map do |pnode|
         next unless pnode.resource # Skip if no edge resource
 
         {
           startNode: pnode.resource.source.number,
           endNode: pnode.resource.target.number,
-          phraseTag: pnode.resource.relation
+          phraseTag: pnode.resource.relation,
+          label: translations[pnode.resource.relation.to_sym] || pnode.resource.relation
         }
       end.compact
     end
@@ -72,12 +77,14 @@ module Morphology
     def edges_payload
       @edges_payload ||= begin
         payload = []
+        translations = edge_relation_translations
 
         graph_edges.each do |edge|
           payload << {
             startNode: edge.source.number,
             endNode: edge.target.number,
-            dependencyTag: edge.relation
+            dependencyTag: edge.relation,
+            label: translations[edge.relation.to_sym] || edge.relation
           }
         end
 
@@ -87,6 +94,15 @@ module Morphology
 
     def edge_labels
       @edge_labels ||= graph_edges.pluck(:relation).compact
+    end
+
+    def edge_relation_translations
+      @edge_relation_translations ||= I18n.t('morphology.edge_relations', locale: locale, default: {})
+    end
+
+    def pos_tag_translation(pos_tag)
+      return nil if pos_tag.blank?
+      I18n.t("morphology.pos_tags.#{pos_tag}", locale: locale, default: pos_tag)
     end
 
     def graph_edges
@@ -126,17 +142,21 @@ module Morphology
     end
 
     def reference_segment(morphology_word)
+      pos_tag = morphology_word.word_segments.first.part_of_speech_key
       {
         arabic: morphology_word.word_segments.pluck(:text_uthmani).join,
-        posTag: morphology_word.word_segments.first.part_of_speech_key
+        posTag: pos_tag,
+        posLabel: pos_tag_translation(pos_tag)
       }
     end
 
     def token_segments(morphology_word)
       morphology_word.word_segments.map do |segment|
+        pos_tag = segment.part_of_speech_key
         {
           arabic: segment.text_uthmani,
-          posTag: segment.part_of_speech_key
+          posTag: pos_tag,
+          posLabel: pos_tag_translation(pos_tag)
         }
       end
     end
@@ -152,6 +172,7 @@ module Morphology
       end
 
       data[:elidedPosTag] = pos_tag
+      data[:elidedPosLabel] = pos_tag_translation(pos_tag)
 
       # Only add elidedText if text is not '*'
       if text != '*'
@@ -160,7 +181,7 @@ module Morphology
     end
 
     def total_graphs_in_verse
-      Morphology::Graph.where(chapter_id: graph.chapter_id, verse_id: graph.verse_id).count
+      Morphology::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number).count
     end
   end
 end

@@ -154,8 +154,17 @@ application.register("surah-segment-player", SurahSegmentPlayerController);
 import SyntaxGraphController from "./syntax_graph_controller";
 application.register("syntax-graph", SyntaxGraphController);
 
+import SyntaxGraphDownloadController from "./syntax_graph_download_controller";
+application.register("syntax-graph-download", SyntaxGraphDownloadController);
+
 import GraphBulkEditController from "./graph_bulk_edit_controller";
 application.register("graph-bulk-edit", GraphBulkEditController);
+
+import GraphSettingsController from "./graph_settings_controller";
+application.register("graph-settings", GraphSettingsController);
+
+import GraphSplitterController from "./graph_splitter_controller";
+application.register("graph-splitter", GraphSplitterController);
 
 import PopoverController from "./popover_controller";
 application.register("popover", PopoverController);

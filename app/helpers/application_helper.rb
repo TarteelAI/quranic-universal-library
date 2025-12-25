@@ -119,4 +119,24 @@ module ApplicationHelper
   def safe_html(html)
     html.to_s.html_safe
   end
+
+  def quran_scripts
+    {
+      text_qpc_hafs: "QPC Hafs",
+      text_uthmani: "Utmani(Me Quran)",
+      text_indopak_nastaleeq: "Indopak Nastaleeq",
+      text_indopak: "Inodpak(PDMS Saleem)",
+      text_imlaei: "Imlaei(Simple script)",
+      text_imlaei_simple: "Imlaei(Without tashkeel)",
+      text_uthmani_tajweed: "QPC Hafs with tajweed",
+      text_qpc_nastaleeq: "QPC Nastaleeq",
+      text_digital_khatt: "Digitak Khatt v2(1422 - 1439H print)",
+      text_digital_khatt_v1: "Digitak Khatt v1(1405H print)",
+      text_digital_khatt_indopak: "Digitak Khatt Indopak",
+    }
+  end
+
+  def arabic_fonts_options
+    quran_scripts.map { |key, name| [name, key.to_s.sub(/^text_/, "").tr("_", "-")] }
+  end
 end

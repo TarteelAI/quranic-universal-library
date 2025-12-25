@@ -1360,6 +1360,11 @@ dom-serializer@^1.0.1:
     domhandler "^4.2.0"
     entities "^2.0.0"
 
+dom-to-image-more@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/dom-to-image-more/-/dom-to-image-more-3.7.2.tgz#15afae48b771c63f0b066f7c0c48900506fb5a7e"
+  integrity sha512-uQf+pHv6eQhgfI8t2bFuinV0KsPyT8TZgCLwcSU8uBVgN9v6leb0mMpvp6HQAlAcplP3NCcGjxbdqef6pTzvmw==
+
 domelementtype@^2.0.1, domelementtype@^2.2.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/domelementtype/-/domelementtype-2.3.0.tgz"

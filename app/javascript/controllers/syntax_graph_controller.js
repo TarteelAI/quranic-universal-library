@@ -6,6 +6,7 @@ export default class extends Controller {
     graphData: Object,
     theme: Object,
     url: String,
+    filename: String,
   };
   connect() {
     if (this.hasUrlValue) {
@@ -67,27 +68,122 @@ export default class extends Controller {
       fonts: {
         defaultFont: { family: "Helvetica Neue, Arial, sans-serif" },
         defaultArabicFont: {
-          family: "qpc-hafs, Arial Unicode MS, sans-serif",
+          family: "qpc-hafs",
         },
         elidedWordFont: { family: "Arial, sans-serif" },
       },
       syntaxGraphTokenFontSize: 34,
-      syntaxGraphTagFontSize: 12,
+      syntaxGraphTagFontSize: 15,
       syntaxGraphHeaderFontSize: 10,
       syntaxGraphElidedWordFontSize: 22,
-      syntaxGraphEdgeLabelFontSize: 13,
+      syntaxGraphEdgeLabelFontSize: 15,
+      syntaxGraphHeaderTextDeltaY: 15,
+      syntaxGraphPosTagGap: 25,
+      syntaxGraphBracketDeltaY: 16,
+      syntaxGraphWordGap: 63,
+      syntaxGraphHeaderExtraGap: 25,
+      syntaxGraphPosTagYOffset: 65,
     };
 
-    if (!this.themeValue) return defaultTheme;
+    const savedSettings = this.loadSavedSettings();
 
-    return {
-      ...defaultTheme,
-      ...this.themeValue,
-      fonts: {
-        ...defaultTheme.fonts,
-        ...(this.themeValue.fonts || {}),
-      },
-    };
+    let theme = { ...defaultTheme };
+
+    if (savedSettings) {
+      theme = {
+        ...theme,
+        ...savedSettings,
+        fonts: {
+          ...theme.fonts,
+          ...(savedSettings.fonts || {}),
+        },
+      };
+    }
+
+    if (this.themeValue && Object.keys(this.themeValue).length > 0) {
+      theme = {
+        ...theme,
+        ...this.themeValue,
+        fonts: {
+          ...theme.fonts,
+          ...(this.themeValue.fonts || {}),
+        },
+      };
+    }
+    return theme;
+  }
+
+  loadSavedSettings() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+
+      const getInt = (key) => {
+        const value = parseInt(params.get(key), 10);
+        return Number.isNaN(value) ? null : value;
+      };
+
+      const settings = {};
+
+      const tokenSize = getInt("syntaxGraphTokenFontSize");
+      if (tokenSize !== null) settings.syntaxGraphTokenFontSize = tokenSize;
+
+      const tagSize = getInt("syntaxGraphTagFontSize");
+      if (tagSize !== null) settings.syntaxGraphTagFontSize = tagSize;
+
+      const headerSize = getInt("syntaxGraphHeaderFontSize");
+      if (headerSize !== null) settings.syntaxGraphHeaderFontSize = headerSize;
+
+      const elidedSize = getInt("syntaxGraphElidedWordFontSize");
+      if (elidedSize !== null)
+        settings.syntaxGraphElidedWordFontSize = elidedSize;
+
+      const edgeSize = getInt("syntaxGraphEdgeLabelFontSize");
+      if (edgeSize !== null) settings.syntaxGraphEdgeLabelFontSize = edgeSize;
+
+      const headerDeltaY = getInt("syntaxGraphHeaderTextDeltaY");
+      if (headerDeltaY !== null)
+        settings.syntaxGraphHeaderTextDeltaY = headerDeltaY;
+
+      const posTagGap = getInt("syntaxGraphPosTagGap");
+      if (posTagGap !== null) settings.syntaxGraphPosTagGap = posTagGap;
+
+      const bracketDeltaY = getInt("syntaxGraphBracketDeltaY");
+      if (bracketDeltaY !== null)
+        settings.syntaxGraphBracketDeltaY = bracketDeltaY;
+
+      const wordGap = getInt("syntaxGraphWordGap");
+      if (wordGap !== null) settings.syntaxGraphWordGap = wordGap;
+
+      const headerExtraGap = getInt("syntaxGraphHeaderExtraGap");
+      if (headerExtraGap !== null)
+        settings.syntaxGraphHeaderExtraGap = headerExtraGap;
+
+      const posTagYOffset = getInt("syntaxGraphPosTagYOffset");
+      if (posTagYOffset !== null)
+        settings.syntaxGraphPosTagYOffset = posTagYOffset;
+
+      const fonts = {};
+      const defaultFont = params.get("defaultFont");
+      if (defaultFont) fonts.defaultFont = { family: defaultFont };
+
+      const defaultArabicFont = params.get("defaultArabicFont");
+      if (defaultArabicFont)
+        fonts.defaultArabicFont = { family: defaultArabicFont };
+
+      const elidedWordFont = params.get("elidedWordFont");
+      if (elidedWordFont) fonts.elidedWordFont = { family: elidedWordFont };
+
+      if (Object.keys(fonts).length > 0) {
+        settings.fonts = fonts;
+      }
+
+      if (Object.keys(settings).length === 0) return null;
+
+      return settings;
+    } catch (e) {
+      console.warn("Failed to load saved graph settings:", e);
+      return null;
+    }
   }
 }
 class SyntaxGraphVisualizer {
@@ -151,6 +247,12 @@ class SyntaxGraphVisualizer {
 
     this.subject = "اسم";
     this.predicate = "خبر";
+  }
+
+  getLabelFont() {
+    return this.syntaxGraph.locale === 'ar'
+      ? this.theme.fonts.defaultArabicFont
+      : this.theme.fonts.defaultFont;
   }
 
   async renderGraph() {
@@ -250,7 +352,7 @@ class SyntaxGraphVisualizer {
       this.layoutWord(words[i], wordLayouts[i]);
     }
 
-    const wordGap = 63;
+    const wordGap = this.theme.syntaxGraphWordGap || 63;
     const containerWidth = this.getTotalWidth(
       wordLayouts.map((layout) => layout.bounds),
       wordGap
@@ -276,7 +378,7 @@ class SyntaxGraphVisualizer {
           line: { x1: 0, y1: 0, x2: 0, y2: 0 },
           nodeCircle: { cx: 0, cy: 0, r: 0 },
           phraseTag: this.createBox(
-            phraseNode.phraseTag,
+            phraseNode.label || phraseNode.phraseTag,
             tempSvg,
             this.theme.fonts.defaultFont,
             this.theme.syntaxGraphTagFontSize
@@ -286,7 +388,7 @@ class SyntaxGraphVisualizer {
     }
 
     const edgeLabels = (this.syntaxGraph.edges || []).map((edge) => {
-      const label = this.getEdgeLabel(edge);
+      const label = edge.label || this.getEdgeLabel(edge);
       return this.createBox(
         label,
         tempSvg,
@@ -367,9 +469,11 @@ class SyntaxGraphVisualizer {
       nodeCircles,
       posTags,
     } = layout;
-    const headerTextDeltaY = 15; // React uses 23, not 15
-    const posTagGap = 25;
-    const bracketDeltaY = 16;
+    const headerTextDeltaY = this.theme.syntaxGraphHeaderTextDeltaY || 15; // React uses 23, not 15
+    const headerExtraGap = this.theme.syntaxGraphHeaderExtraGap || 10;
+    const posTagGap = this.theme.syntaxGraphPosTagGap || 25;
+    const bracketDeltaY = this.theme.syntaxGraphBracketDeltaY || 16;
+    const posTagYOffset = this.theme.syntaxGraphPosTagYOffset || 65;
     let y = 0;
 
     const posTagWidth = this.getTotalWidth(posTags, posTagGap);
@@ -390,12 +494,12 @@ class SyntaxGraphVisualizer {
     this.centerHorizontal(phonetic, width, y);
     y += headerTextDeltaY;
     this.centerHorizontal(translation, width, y);
-    y += headerTextDeltaY + 10; // React uses +7, not +10
+    y += headerExtraGap; // React uses +7, not +10
 
     let x = (width + tokenWidth) / 2;
     if (brackets) {
       x -= ket.width;
-      ket.x = x + 12; // React doesn't add +12 offset
+      ket.x = x + 10;
       ket.y = y + bracketDeltaY;
     }
     x -= token.width;
@@ -403,22 +507,25 @@ class SyntaxGraphVisualizer {
     token.y = y - 20; // React puts token at y, not y - 20
     if (brackets) {
       x -= bra.width;
-      bra.x = x;
+      bra.x = x; // Add spacing for RTL - start bracket is on the right
       bra.y = y + bracketDeltaY;
     }
 
     if (!word.token && !word.elidedText) {
-      token.y += bracketDeltaY;
+      token.x += -10;
     }
-    y += 65;
+    y += posTagYOffset;
 
     let tagX = (width + posTagWidth) / 2;
     const r = 3;
     for (const posTag of posTags) {
       tagX -= posTag.width;
-      nodeCircles.push({ cx: tagX + posTag.width / 2, cy: y, r });
-      posTag.x = tagX + posTag.width / 2;
-      posTag.y = y + 10;
+      const centerX = tagX + posTag.width / 2;
+      const centerY = y + 18;
+      nodeCircles.push({ cx: centerX, cy: y, r });
+      // Position box so its center is at centerX, centerY for addCenteredText
+      posTag.x = centerX - posTag.width / 2;
+      posTag.y = centerY - posTag.height / 2;
       tagX -= posTagGap;
     }
 
@@ -474,10 +581,12 @@ class SyntaxGraphVisualizer {
     layout.nodeCircle = { cx: x, cy: y, r: 3 };
     y += 10;
 
-    // Phrase
+    // Phrase tag - center text above the node circle
     const phraseTag = layout.phraseTag;
-    phraseTag.x = x + 8;
-    phraseTag.y = y;
+    const centerX = x;
+    const centerY = y + 10;
+    phraseTag.x = centerX - phraseTag.width / 2;
+    phraseTag.y = centerY - phraseTag.height / 2;
 
     // Node
     y += phraseTag.height + 4;
@@ -557,7 +666,7 @@ class SyntaxGraphVisualizer {
     } else if (word.elidedText) {
       return word.elidedText;
     } else {
-      return "(*)";
+      return "( * )";
     }
   }
 
@@ -565,9 +674,27 @@ class SyntaxGraphVisualizer {
     if (word.token) {
       return word.token.segments
         .filter((segment) => segment.posTag !== "DET")
+        .map((segment) => segment.posLabel || segment.posTag);
+    } else {
+      return [word.elidedPosLabel || word.elidedPosTag || "ELIDED"];
+    }
+  }
+
+  getPosTagCodes(word) {
+    if (word.token) {
+      return word.token.segments
+        .filter((segment) => segment.posTag !== "DET")
         .map((segment) => segment.posTag);
     } else {
       return [word.elidedPosTag || "ELIDED"];
+    }
+  }
+
+  getPosTagSegments(word) {
+    if (word.token) {
+      return word.token.segments.filter((segment) => segment.posTag !== "DET");
+    } else {
+      return [{ posTag: word.elidedPosTag || "ELIDED" }];
     }
   }
 
@@ -679,7 +806,7 @@ class SyntaxGraphVisualizer {
         );
         textElement.setAttribute(
           "font-size",
-          this.theme.syntaxGraphTokenFontSize
+          (this.theme.syntaxGraphTokenFontSize)
         );
         textElement.setAttribute("direction", "rtl");
 
@@ -700,15 +827,16 @@ class SyntaxGraphVisualizer {
       } else {
         // Elided or simple token
         const tokenText = this.getTokenText(word);
-        const isElided = !word.token;
-        const font =
-          isElided && tokenText === "(*)"
-            ? this.theme.fonts.elidedWordFont
-            : this.theme.fonts.defaultArabicFont;
-        const fontSize =
-          isElided && tokenText === "(*)"
-            ? this.theme.syntaxGraphElidedWordFontSize
-            : this.theme.syntaxGraphTokenFontSize;
+        const isElided = tokenText == "( * )";
+
+        // Use elided font for all elided words (both (*) placeholder and actual elidedText)
+        const font = isElided
+          ? this.theme.fonts.elidedWordFont
+          : this.theme.fonts.defaultArabicFont;
+        const fontSize = isElided
+          ? this.theme.syntaxGraphElidedWordFontSize
+          : this.theme.syntaxGraphTokenFontSize;
+
         this.addText(
           svg,
           tokenText,
@@ -734,22 +862,23 @@ class SyntaxGraphVisualizer {
 
       // POS tags and node circles
       const posTagTexts = this.getPosTagTexts(word);
+      const posTagSegments = this.getPosTagSegments(word);
       posTagTexts.forEach((posTagText, j) => {
         const nodeCircle = wordLayout.nodeCircles[j];
         const posTag = wordLayout.posTags[j];
         const className = fade
           ? "silver"
-          : this.colorService.getPosTagColor(posTagText);
+          : this.colorService.getSegmentColor(posTagSegments[j]);
 
         if (nodeCircle) {
           this.addCircle(svg, nodeCircle, className);
         }
         if (posTag) {
-          this.addText(
+          this.addCenteredText(
             svg,
             posTagText,
             posTag,
-            this.theme.fonts.defaultFont,
+            this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize,
             className
           );
@@ -768,11 +897,11 @@ class SyntaxGraphVisualizer {
         if (phraseLayout) {
           this.addLine(svg, phraseLayout.line, "sky-light");
           this.addCircle(svg, phraseLayout.nodeCircle, className);
-          this.addText(
+          this.addCenteredText(
             svg,
-            phraseNode.phraseTag,
+            phraseNode.label || phraseNode.phraseTag,
             phraseLayout.phraseTag,
-            this.theme.fonts.defaultFont,
+            this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize,
             className
           );
@@ -791,18 +920,18 @@ class SyntaxGraphVisualizer {
         }
       });
 
-      // Render edge labels with Arabic terms
+      // Render edge labels
       this.syntaxGraph.edges.forEach((edge, i) => {
         const edgeLabel = edgeLabels[i];
         const className = `${this.colorService.getDependencyColor(edge.dependencyTag)}-light`;
 
         if (edgeLabel) {
           this.addRect(svg, edgeLabel, "edge-label");
-          this.addText(
+          this.addCenteredText(
             svg,
-            this.getEdgeLabel(edge),
+            edge.label || this.getEdgeLabel(edge),
             edgeLabel,
-            this.theme.fonts.defaultFont,
+            this.getLabelFont(),
             this.theme.syntaxGraphEdgeLabelFontSize,
             className
           );
@@ -838,6 +967,30 @@ class SyntaxGraphVisualizer {
     textElement.setAttribute("font-size", fontSize);
     if (className) textElement.classList.add(className);
     if (rtl) textElement.setAttribute("direction", "rtl");
+
+    svg.appendChild(textElement);
+  }
+
+  addCenteredText(svg, text, box, font, fontSize, className = "") {
+    if (!box || !text) return;
+
+    const textElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "text"
+    );
+    textElement.textContent = text;
+
+    // Center the text within the box
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+
+    textElement.setAttribute("x", x);
+    textElement.setAttribute("y", y);
+    textElement.setAttribute("font-family", font.family);
+    textElement.setAttribute("font-size", fontSize);
+    textElement.setAttribute("text-anchor", "middle");
+    textElement.setAttribute("dominant-baseline", "middle");
+    if (className) textElement.classList.add(className);
 
     svg.appendChild(textElement);
   }

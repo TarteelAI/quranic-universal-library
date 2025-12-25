@@ -580,4 +580,100 @@ namespace :one_time do
       p.save
     end
   end
+
+  desc "Create morphology graphs and word nodes for verses without graph data"
+  task create_missing_graphs: :environment do
+    empty_graphs = Morphology::Graph
+      .left_joins(:nodes)
+      .where(morphology_graph_nodes: { id: nil })
+    count = empty_graphs.count
+
+    if count.positive?
+      deleted = empty_graphs.delete_all
+      puts "Deleted #{deleted} empty graphs."
+    end
+
+    existing_verse_keys = Morphology::Graph.distinct.pluck(:chapter_number, :verse_number).map do |chapter_number, verse_number|
+      "#{chapter_number}:#{verse_number}"
+    end.to_set
+
+    puts "Found #{existing_verse_keys.size} verses with existing graphs"
+
+    verses_with_morphology = Verse
+      .joins(:morphology_words)
+      .includes(:morphology_words)
+      .distinct
+      .select(:id, :chapter_id, :verse_number, :verse_key)
+
+    verses_to_process = verses_with_morphology.reject do |verse|
+      existing_verse_keys.include?("#{verse.chapter_id}:#{verse.verse_number}")
+    end
+
+    total = verses_to_process.size
+    puts "Found #{total} verses with morphology words but no graphs"
+
+    if total == 0
+      puts "Nothing to do. All verses with morphology data already have graphs."
+      next
+    end
+
+    created_graphs = 0
+    created_nodes = 0
+    errors = []
+
+    verses_to_process.each_with_index do |verse, index|
+      morphology_words = Morphology::Word
+        .includes(:word, :word_segments)
+        .where(verse_id: verse.id)
+        .joins(:word)
+        .order('words.position ASC')
+
+      next if morphology_words.empty?
+
+      begin
+        ActiveRecord::Base.transaction do
+          graph = Morphology::Graph.create!(
+            chapter_number: verse.chapter_id,
+            verse_number: verse.verse_number,
+            graph_number: 1
+          )
+          created_graphs += 1
+
+          node_index = 0
+          morphology_words.each do |morphology_word|
+            morphology_word.word_segments.each do |segment|
+              Morphology::GraphNode.create!(
+                graph_id: graph.id,
+                type: 'word',
+                number: node_index,
+                segment_id: segment.id,
+                resource_type: 'Morphology::Word',
+                resource_id: morphology_word.id
+              )
+              node_index += 1
+            end
+            created_nodes += node_index
+          end
+        end
+      rescue StandardError => e
+        errors << { verse_key: verse.verse_key, error: e.message }
+        puts "Error processing verse #{verse.verse_key}: #{e.message}"
+      end
+
+      if (index + 1) % 100 == 0 || index + 1 == total
+        puts "Progress: #{index + 1}/#{total} verses processed (#{created_graphs} graphs, #{created_nodes} nodes created)"
+      end
+    end
+
+    puts "\n=== Summary ==="
+    puts "Total graphs created: #{created_graphs}"
+    puts "Total nodes created: #{created_nodes}"
+
+    if errors.any?
+      puts "\nErrors (#{errors.size}):"
+      errors.each { |e| puts "  - #{e[:verse_key]}: #{e[:error]}" }
+    end
+
+    puts "\nDone!"
+  end
 end

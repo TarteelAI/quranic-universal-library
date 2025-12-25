@@ -14,7 +14,7 @@
           </div>
           <h3 class="tw-text-xl mb-0">Edit Syntax Graph</h3>
           <div>
-            <%= link_to 'Back to View', morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number), class: 'tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-black-700' %>
+            <%= link_to 'Back to View', morphology_treebank_index_path(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number), class: 'tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-black-700' %>
           </div>
         </div>
 
@@ -64,7 +64,7 @@
                   <div class="card-body p-2 bg-white">
                     <div class="syntax-graph-container rounded bg-light tw-min-h-[150px] tw-max-h-[50vh] tw-overflow-auto"
                          data-controller="syntax-graph"
-                         data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number) %>"
+                         data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number) %>"
                          id="graph_preview_container">
                       <div data-syntax-graph-target="container" class="p-3 text-center text-muted">Loading syntax graph...</div>
                     </div>
@@ -98,7 +98,7 @@
       <div class="modal-body p-0">
         <div class="syntax-graph-container bg-light tw-min-h-[500px] tw-max-h-[80vh] tw-overflow-auto"
              data-controller="syntax-graph"
-             data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number) %>"
+             data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number) %>"
              id="graph_preview_modal_container">
           <div data-syntax-graph-target="container" class="p-3">Loading syntax graph...</div>
         </div>

@@ -39,7 +39,7 @@ class Morphology::GraphNode < QuranApiRecord
   has_one :source_edge, class_name: 'Morphology::GraphNodeEdge', foreign_key: :source_id
   has_one :target_edge, class_name: 'Morphology::GraphNodeEdge', foreign_key: :target_id
 
-  delegate :chapter_id, :verse_id, :graph_number, to: :graph, allow_nil: true
+  delegate :chapter_number, :verse_number, :graph_number, to: :graph, allow_nil: true
 
   enum type: {
     word: 0,
@@ -48,19 +48,16 @@ class Morphology::GraphNode < QuranApiRecord
     elided: 3
   }
 
-  scope :by_chapter, ->(chapter_id) { joins(:graph).where('morphology_graphs.chapter_id = ?', chapter_id) }
-  scope :by_verse, ->(verse_id) { joins(:graph).where('morphology_graphs.verse_id = ?', verse_id) }
-
-  scope :chapter_eq, lambda {|chapter_id|
-    joins(:graph).where('morphology_graphs.chapter_id = ?', chapter_id)
+  scope :chapter_eq, lambda {|chapter_number|
+    joins(:graph).where('morphology_graphs.chapter_number = ?', chapter_number)
   }
 
   scope :word_eq, lambda {|word_id|
     joins(:graph).where('morphology_graphs.word_id = ?', word_id)
   }
 
-  scope :verse_eq, lambda {|verse_id|
-    joins(:graph).where('morphology_graphs.verse_id = ?', verse_id)
+  scope :verse_eq, lambda {|verse_number|
+    joins(:graph).where('morphology_graphs.verse_number = ?', verse_number)
   }
 
   alias_method :morphology_word, :resource
@@ -76,7 +73,7 @@ class Morphology::GraphNode < QuranApiRecord
     when 'reference'
       resource.present? ? resource.location : nil
     else
-      "#{type} #{resource.id}"
+      "#{type} #{resource&.id}"
     end
   end
   

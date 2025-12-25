@@ -14,6 +14,7 @@
     "chartkick": "^5.0.1",
     "chokidar": "^3.6.0",
     "copy-to-clipboard": "^3.3.3",
+    "dom-to-image-more": "^3.7.2",
     "esbuild": "0.21.2",
     "esbuild-plugin-vue3": "^0.4.0",
     "esbuild-rails": "^1.0.7",

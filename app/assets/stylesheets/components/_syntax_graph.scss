@@ -84,51 +84,87 @@
 
   // Light versions for arcs and arrows
   .purple-light {
-    fill: none;
+    stroke: #8e44ad;
+  }
+  text.purple-light {
+    fill: #8e44ad;
     stroke: #8e44ad;
   }
   .navy-light {
-    fill: none;
+    stroke: #2c3e50;
+  }
+  text.navy-light {
+    fill: #2c3e50;
     stroke: #2c3e50;
   }
   .orange-light {
-    fill: none;
+    stroke: #e67e22;
+  }
+  text.orange-light {
+    fill: #e67e22;
     stroke: #e67e22;
   }
   .sky-light {
-    fill: none;
+    stroke: #3498db;
+  }
+  text.sky-light {
+    fill: #3498db;
     stroke: #3498db;
   }
   .red-light {
-    fill: none;
+    stroke: #e74c3c;
+  }
+  text.red-light {
+    fill: #e74c3c;
     stroke: #e74c3c;
   }
   .rust-light {
-    fill: none;
+    stroke: #a0522d;
+  }
+  text.rust-light {
+    fill: #a0522d;
     stroke: #a0522d;
   }
   .gold-light {
-    fill: none;
+    stroke: #f39c12;
+  }
+  text.gold-light {
+    fill: #f39c12;
     stroke: #f39c12;
   }
   .green-light {
-    fill: none;
+    stroke: #27ae60;
+  }
+  text.green-light {
+    fill: #27ae60;
     stroke: #27ae60;
   }
   .seagreen-light {
-    fill: none;
+    stroke: #16a085;
+  }
+  text.seagreen-light {
+    fill: #16a085;
     stroke: #16a085;
   }
   .metal-light {
-    fill: none;
+    stroke: #95a5a6;
+  }
+  text.metal-light {
+    fill: #95a5a6;
     stroke: #95a5a6;
   }
   .rose-light {
-    fill: none;
+    stroke: #e91e63;
+  }
+  text.rose-light {
+    fill: #e91e63;
     stroke: #e91e63;
   }
   .pink-light {
-    fill: none;
+    stroke: #ff69b4;
+  }
+  text.pink-light {
+    fill: #ff69b4;
     stroke: #ff69b4;
   }
 
@@ -164,10 +200,6 @@
 }
 
 .syntax-graph-container {
-  margin: 20px 0;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
   background: white;
   overflow-x: auto;
   direction: rtl;
@@ -183,10 +215,6 @@
 
 .morphology-graph-index {
   .syntax-graph-section {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-
     h3 {
       margin-bottom: 15px;
       color: #333;
@@ -195,9 +223,10 @@
 }
 
 .syntax-graph-container svg {
+  background-color: #fff;
   align-self: center;
   margin: 0 auto;
-  padding-top: 25px;
+  padding: 40px 0px;
   max-width: 100%;
   height: auto;
 }

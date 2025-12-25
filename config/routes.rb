@@ -8,6 +8,10 @@ Rails.application.routes.draw do
   root to: 'landing#home'
 
   namespace :api, defaults: { format: :json } do
+    namespace :morphology do
+      resources :edge_relations, only: [:index]
+    end
+
     namespace :v1 do
       resources :chapters, only: [:index, :show] do
         member do
@@ -96,6 +100,8 @@ Rails.application.routes.draw do
         patch :save_phrase_node
         post :add_edge
         delete :delete_edge
+        get :verse_graphs_data
+        post :split_graph
       end
     end
   end

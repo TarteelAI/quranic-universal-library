@@ -1,11 +1,12 @@
 module Morphology
   class TreebankController < ApplicationController
     before_action :set_chapter_verse_and_graph_number, only: [:index, :edit]
+    before_action :set_locale, only: [:index, :edit, :syntax_graph]
 
     def index
       handle_verse_key_search if params[:verse_key].present?
 
-      @graph = Morphology::Graph.includes(:verse).find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
+      @graph = Morphology::Graph.find_by(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number)
       presenter = Morphology::GraphIndexPresenter.new(@graph)
 
       @collection = presenter.collection
@@ -53,8 +54,8 @@ module Morphology
         end
         format.html do
           redirect_to edit_morphology_treebank_index_path(
-            chapter_id: @graph.chapter_id,
-            verse_id: @graph.verse_id,
+            chapter_number: @graph.chapter_number,
+            verse_number: @graph.verse_number,
             graph_number: @graph.graph_number
           ), notice: 'Phrase node added successfully.'
         end
@@ -79,8 +80,8 @@ module Morphology
         end
         format.html do
           redirect_to edit_morphology_treebank_index_path(
-            chapter_id: @graph.chapter_id,
-            verse_id: @graph.verse_id,
+            chapter_number: @graph.chapter_number,
+            verse_number: @graph.verse_number,
             graph_number: @graph.graph_number
           ), notice: 'Node deleted successfully.'
         end
@@ -156,32 +157,49 @@ module Morphology
     end
 
     def edit
-      @graph = Morphology::Graph.includes(:verse).find_by(chapter_id: @chapter_id, verse_id: @verse_id, graph_number: @graph_number)
+      @graph = Morphology::Graph.find_by(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number)
       return unless @graph
 
       @presenter = Morphology::GraphEditPresenter.new(@graph)
     end
 
     def syntax_graph
-      chapter_id = (params[:chapter_id] || 1).to_i
-      verse_id = (params[:verse_id] || 1).to_i
+      chapter_number = (params[:chapter_number] || 1).to_i
+      verse_number = (params[:verse_number] || 1).to_i
       graph_number = (params[:graph_number] || 1).to_i
+      locale = params[:locale] || 'ar'
 
-      graph = Morphology::Graph.find_by(chapter_id: chapter_id, verse_id: verse_id, graph_number: graph_number)
+      graph = Morphology::Graph.find_by(chapter_number: chapter_number, verse_number: verse_number, graph_number: graph_number)
 
       if graph
-        presenter = Morphology::GraphPresenter.new(graph)
+        presenter = Morphology::GraphPresenter.new(graph, locale: locale)
         render json: presenter.to_syntax_graph_json
       else
         render json: { error: 'Graph not found' }, status: :not_found
       end
     end
 
+    def verse_graphs_data
+      chapter_number = params[:chapter_number].to_i
+      verse_number = params[:verse_number].to_i
+
+      graphs_data = Morphology::GraphSplitterService.prepare_verse_graphs_data(chapter_number, verse_number)
+      render json: { graphs: graphs_data }
+    end
+
+    def split_graph
+      splitter = Morphology::GraphSplitterService.new(Morphology::Graph.find(params[:graph_id]))
+      new_graph = splitter.split(params[:node_ids].map(&:to_i))
+
+      response = splitter.response_data(new_graph, method(:morphology_treebank_index_path))
+      render json: response, status: (new_graph ? :ok : :unprocessable_entity)
+    end
+
     private
 
     def set_chapter_verse_and_graph_number
-      @chapter_id = (params[:chapter_id] || 1).to_i
-      @verse_id = (params[:verse_id] || 1).to_i
+      @chapter_number = (params[:chapter_number] || 1).to_i
+      @verse_number = (params[:verse_number] || 1).to_i
       @graph_number = (params[:graph_number] || 1).to_i
     end
 
@@ -190,19 +208,19 @@ module Morphology
       parts = verse_key.split(':')
 
       if parts.length >= 2
-        chapter_id = parts[0].to_i
-        verse_id = parts[1].to_i
+        chapter_number = parts[0].to_i
+        verse_number = parts[1].to_i
 
-        graph = Morphology::Graph.for_verse(chapter_id, verse_id).ordered.first
+        graph = Morphology::Graph.for_verse(chapter_number, verse_number).ordered.first
 
         if graph
           redirect_to morphology_treebank_index_path(
-            chapter_id: graph.chapter_id, 
-            verse_id: graph.verse_id, 
+            chapter_number: graph.chapter_number,
+            verse_number: graph.verse_number,
             graph_number: graph.graph_number
           )
         else
-          flash.now[:alert] = "No graph found for verse #{chapter_id}:#{verse_id}"
+          flash.now[:alert] = "No graph found for verse #{chapter_number}:#{verse_number}"
         end
       else
         flash.now[:alert] = "Invalid verse key format. Use chapter:verse (e.g., 1:1)"
@@ -225,6 +243,10 @@ module Morphology
       end
 
       streams
+    end
+
+    def set_locale
+      @locale = params[:locale] || 'ar'
     end
   end
 end

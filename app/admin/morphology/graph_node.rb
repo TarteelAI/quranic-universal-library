@@ -14,10 +14,7 @@ ActiveAdmin.register Morphology::GraphNode do
 
   controller do
     def scoped_collection
-      collection = super.includes(:graph)
-      collection = collection.by_chapter(params[:chapter]) if params[:chapter].present?
-      collection = collection.by_verse(params[:verse]) if params[:verse].present?
-      collection
+      super.includes(:graph)
     end
   end
 
@@ -28,10 +25,10 @@ ActiveAdmin.register Morphology::GraphNode do
       node.type&.titleize
     end
     column :chapter do |node|
-      node.chapter_id
+      node.chapter_number
     end
     column :verse do |node|
-      node.verse_id
+      node.verse_number
     end
     column :location
     column :resource_type
@@ -49,10 +46,10 @@ ActiveAdmin.register Morphology::GraphNode do
         node.type&.titleize
       end
       row :chapter do |node|
-        node.chapter_id
+        node.chapter_number
       end
       row :verse do |node|
-        node.verse_id
+        node.verse_number
       end
       row :location
       row :graph

@@ -1,0 +1,29 @@
+<%
+  page_number = @presenter.page_number
+%>
+
+<%= render 'layouts/qul_head' %>
+
+<div class="tw-container tw-mx-auto tw-px-4 tw-py-6">
+  <div class="tw-mb-6 tw-flex tw-items-center tw-justify-between">
+    <h1 class="tw-text-3xl tw-font-bold">Mistake Heatmap - Page <%= page_number %></h1>
+    <div class="tw-flex tw-gap-4">
+      <% if page_number > 1 %>
+        <%= link_to "Previous Page", mistake_heatmap_path(page_number: page_number - 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
+      <% end %>
+      <% if page_number < 604 %>
+        <%= link_to "Next Page", mistake_heatmap_path(page_number: page_number + 1), class: "tw-px-4 tw-py-2 tw-bg-blue-500 tw-text-white tw-rounded hover:tw-bg-blue-600" %>
+      <% end %>
+      <%= link_to "Edit Mistakes", edit_mistake_heatmap_path(page_number: page_number), class: "tw-px-4 tw-py-2 tw-bg-green-500 tw-text-white tw-rounded hover:tw-bg-green-600" %>
+    </div>
+  </div>
+
+  <div class="tw-flex tw-justify-center tw-items-center tw-min-h-[calc(100vh-250px)] tw-py-8">
+    <div class="theme-light mushaf text-qpc-hafs">
+
+      <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
+        <%= render 'page_preview' %>
+      </div>
+    </div>
+  </div>
+</div>

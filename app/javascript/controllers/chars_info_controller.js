@@ -8,7 +8,6 @@
 // </div>
 
 import { Controller } from "@hotwired/stimulus";
-import copyToClipboard from "copy-to-clipboard";
 
 export default class extends Controller {
   static targets = ["input", "output", "preview"]
@@ -50,21 +49,6 @@ export default class extends Controller {
     txt.removeClass()
     txt.addClass(font).addClass('text form-control')
   }
-
-  copy() {
-    let text = $(this.element).data('text');
-    copyToClipboard(text);
-
-    $(this.element)
-      .attr("title", "Copied")
-      .tooltip("_fixTitle")
-      .tooltip("show");
-
-    $(this.element).on("hidden.bs.tooltip", () =>
-      $(this.element).attr("title", "Copy").tooltip("_fixTitle")
-    );
-  }
-
   showPreview(event) {
     event.preventDefault()
     if (!this.hasInputTarget || !this.hasOutputTarget) {

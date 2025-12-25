@@ -1,0 +1,112 @@
+<%
+  data = generate_surah_order_quiz
+  mode = data[:mode]
+%>
+
+<h2 class="heading my-3 tw-text-3xl tw-font-bold tw-text-center tw-mb-6 tw-text-gray-800">Surah Order Challenge</h2>
+
+<div class="quiz" data-controller="activities--surah-order" data-mode="<%= mode %>">
+  <% if mode == 'sort' %>
+    <div class="tw-px-6 tw-py-5 tw-rounded-lg tw-mb-6 tw-bg-gradient-to-br tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
+      <div class="tw-text-center tw-mb-4">
+        <div class="tw-inline-block tw-px-4 tw-py-2 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-sm tw-font-semibold tw-mb-3">
+          Sort Challenge
+        </div>
+        <p class="tw-text-xl tw-font-semibold tw-text-gray-700">
+          Sort these surahs in their correct order in the Quran
+        </p>
+      </div>
+    </div>
+
+    <div class="tw-mb-6">
+      <p class="tw-text-center tw-text-lg tw-font-bold tw-text-gray-800 tw-mb-4">Available Surahs:</p>
+      <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-3 tw-mb-6" id="available-surahs">
+        <% data[:surahs].each do |surah| %>
+          <div class="sortable-surah tw-px-6 tw-py-4 tw-rounded-lg tw-font-semibold tw-text-lg tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-green-500 tw-to-emerald-500 hover:tw-from-green-600 hover:tw-to-emerald-600 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 tw-cursor-grab active:tw-cursor-grabbing tw-border-0 tw-flex tw-items-center tw-justify-center tw-min-h-[60px] tw-text-center"
+               data-surah-id="<%= surah[:id] %>"
+               data-chapter-number="<%= surah[:chapter_number] %>">
+            <%= surah[:name] %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="tw-mb-6">
+      <p class="tw-text-center tw-text-lg tw-font-bold tw-text-gray-800 tw-mb-4">Sort Here (Drag or Click):</p>
+      <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-3" id="sort-slots" style="direction: rtl;">
+        <% 4.times do |index| %>
+          <div class="sort-slot tw-min-w-[150px] tw-min-h-[60px] tw-rounded-lg tw-border-2 tw-border-dashed tw-border-blue-400 tw-bg-blue-50 tw-cursor-pointer hover:tw-border-blue-500 hover:tw-bg-blue-100 tw-transition-all tw-duration-200 tw-flex tw-items-center tw-justify-center"
+               data-slot-index="<%= index %>">
+            <span class="tw-text-xl tw-text-blue-400 tw-font-bold">?</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="tw-text-center">
+      <button type="button" data-action="click->activities--surah-order#resetActivity" class="reset-btn tw-px-8 tw-py-3 tw-rounded-lg tw-font-semibold tw-text-lg tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-gray-500 tw-to-gray-600 hover:tw-from-gray-600 hover:tw-to-gray-700 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 tw-border-0">
+        Reset
+      </button>
+    </div>
+
+    <script type="application/json" id="correct-order-data">
+      <%= data[:correct_order].map { |s| { id: s[:id], chapter_number: s[:chapter_number] } }.to_json.html_safe %>
+    </script>
+  <% else %>
+    <%
+      current_surah = data[:current_surah]
+      direction = data[:direction]
+      n = data[:n]
+      
+      if mode == 'next'
+        question_text = "What surah came after"
+        direction_icon = "→"
+        show_before_icon = false
+      elsif mode == 'previous'
+        question_text = "What surah came before"
+        direction_icon = "←"
+        show_before_icon = true
+      elsif mode == 'nth_after'
+        question_text = "What is the #{n.ordinalize} surah after"
+        direction_icon = "→"
+        show_before_icon = false
+      elsif mode == 'nth_before'
+        question_text = "What is the #{n.ordinalize} surah before"
+        direction_icon = "←"
+        show_before_icon = true
+      end
+    %>
+
+    <div class="tw-px-6 tw-py-5 tw-rounded-lg tw-mb-6 tw-bg-gradient-to-br tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
+      <div class="tw-text-center">
+        <div class="tw-inline-block tw-px-4 tw-py-2 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-sm tw-font-semibold tw-mb-3">
+          Surah <%= current_surah.chapter_number %>
+        </div>
+        <h3 class="tw-text-4xl tw-font-bold tw-mb-3 tw-text-gray-800 tw-tracking-wide">
+          <%= current_surah.name_simple %>
+        </h3>
+        <div class="tw-flex tw-items-center tw-justify-center tw-gap-3 tw-mt-4">
+          <% if show_before_icon %>
+            <span class="tw-text-3xl tw-text-blue-600 tw-font-bold">?</span>
+            <span class="tw-text-2xl tw-text-blue-600"><%= direction_icon %></span>
+          <% end %>
+          <p class="tw-text-xl tw-font-semibold tw-text-gray-700">
+            <%= question_text %> this surah?
+          </p>
+          <% unless show_before_icon %>
+            <span class="tw-text-2xl tw-text-blue-600"><%= direction_icon %></span>
+            <span class="tw-text-3xl tw-text-blue-600 tw-font-bold">?</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-6" id="options">
+      <% data[:options].each do |option| %>
+        <button class="surah-option tw-px-6 tw-py-4 tw-rounded-lg tw-font-semibold tw-text-lg tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-blue-500 tw-to-indigo-500 hover:tw-from-blue-600 hover:tw-to-indigo-600 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 option tw-border-0" data-correct="<%= option[:correct] %>">
+          <%= option[:name] %>
+        </button>
+      <% end %>
+    </div>
+  <% end %>
+</div>

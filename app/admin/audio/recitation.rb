@@ -161,6 +161,11 @@ ActiveAdmin.register Recitation do
         link_to r.recitation_style.name, [:cms, r.recitation_style] if r.recitation_style
       end
 
+      row :total_duration do
+        total_sec = resource.total_duration
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec} seconds)"
+      end
+
       row :resource_content do |r|
         if r.resource_content
           link_to "#{r.resource_content.id}-#{r.resource_content.name}", [:cms, r.resource_content]

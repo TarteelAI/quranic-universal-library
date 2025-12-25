@@ -23,12 +23,19 @@ module LearningActivityHelper
         icon: 'list.svg',
         url: learning_activity_path('word_match'),
         tags: ['Vocabulary', 'Word Matching']
+      ),
+      ToolCard.new(
+        title: 'Surah Order',
+        description: 'Test your knowledge of the order of Surahs in the Quran. Identify which Surah comes before or after a given Surah.',
+        icon: 'list.svg',
+        url: learning_activity_path('surah_order'),
+        tags: ['Surah Order', 'Quran Learning', 'Memorization']
       )
     ]
   end
 
   def valid_activity?(name)
-    ['complete_the_ayah', 'ayah_mastery', 'word_match'].include?(name)
+    ['complete_the_ayah', 'ayah_mastery', 'word_match', 'surah_order'].include?(name)
   end
 
   def generate_ayah_mastery_quiz
@@ -151,6 +158,136 @@ module LearningActivityHelper
       words_to_show: words_to_show_final,
       remaining_words: remaining_words.shuffle
     }
+  end
+
+  def generate_surah_order_quiz
+    surahs = Chapter.order(:chapter_number).to_a
+    
+    modes = []
+    modes << :next if surahs.any? { |s| s.chapter_number < 114 }
+    modes << :previous if surahs.any? { |s| s.chapter_number > 1 }
+    modes << :nth_after if surahs.any? { |s| s.chapter_number <= 110 }
+    modes << :nth_before if surahs.any? { |s| s.chapter_number >= 5 }
+    modes << :sort
+    
+    mode = modes.sample
+    
+    case mode
+    when :next, :previous
+      generate_next_previous_quiz(surahs, mode)
+    when :nth_after, :nth_before
+      generate_nth_quiz(surahs, mode)
+    when :sort
+      generate_sort_quiz(surahs)
+    end
+  end
+
+  private
+
+  def generate_next_previous_quiz(surahs, direction)
+    if direction == :previous
+      current = surahs.select { |s| s.chapter_number > 1 }.sample
+    else
+      current = surahs.select { |s| s.chapter_number < 114 }.sample
+    end
+    
+    return generate_next_previous_quiz(surahs, direction) unless current
+    
+    offset = direction == :previous ? -1 : 1
+    correct = surahs.find { |s| s.chapter_number == current.chapter_number + offset }
+    
+    return generate_next_previous_quiz(surahs, direction) unless correct
+    
+    incorrect_options = surahs
+                          .reject { |s| s.id == current.id || s.id == correct.id }
+                          .sample(3)
+                          .map { |s| { id: s.id, name: s.name_simple, correct: false } }
+    
+    options = incorrect_options << {
+      id: correct.id,
+      name: correct.name_simple,
+      correct: true
+    }
+    
+    {
+      mode: direction == :previous ? 'previous' : 'next',
+      current_surah: current,
+      correct_surah: correct,
+      direction: direction,
+      options: options.shuffle
+    }
+  end
+
+  def generate_nth_quiz(surahs, direction)
+    n = [2, 3, 4].sample
+    
+    if direction == :nth_before
+      current = surahs.select { |s| s.chapter_number >= n + 1 }.sample
+      return generate_nth_quiz(surahs, direction) unless current && current.chapter_number >= n + 1
+      correct = surahs.find { |s| s.chapter_number == current.chapter_number - n }
+    else
+      current = surahs.select { |s| s.chapter_number <= 114 - n }.sample
+      return generate_nth_quiz(surahs, direction) unless current && current.chapter_number <= 114 - n
+      correct = surahs.find { |s| s.chapter_number == current.chapter_number + n }
+    end
+    
+    return generate_nth_quiz(surahs, direction) unless correct
+    
+    incorrect_options = surahs
+                          .reject { |s| s.id == current.id || s.id == correct.id }
+                          .sample(3)
+                          .map { |s| { id: s.id, name: s.name_simple, correct: false } }
+    
+    options = incorrect_options << {
+      id: correct.id,
+      name: correct.name_simple,
+      correct: true
+    }
+    
+    {
+      mode: direction == :nth_before ? 'nth_before' : 'nth_after',
+      current_surah: current,
+      correct_surah: correct,
+      direction: direction,
+      n: n,
+      options: options.shuffle
+    }
+  end
+
+  def generate_sort_quiz(surahs)
+    start_index = rand(0..110)
+    selected_surahs = surahs[start_index, 4]
+    
+    sorted_surahs = selected_surahs.map do |s|
+      {
+        id: s.id,
+        name: s.name_simple,
+        chapter_number: s.chapter_number
+      }
+    end
+    
+    shuffled_surahs = sorted_surahs.shuffle
+    
+    {
+      mode: 'sort',
+      surahs: shuffled_surahs,
+      correct_order: sorted_surahs.sort_by { |s| s[:chapter_number] }
+    }
+  end
+
+  def mode_to_string(mode)
+    case mode
+    when :next
+      'next'
+    when :previous
+      'previous'
+    when :nth_after
+      'nth_after'
+    when :nth_before
+      'nth_before'
+    else
+      mode.to_s
+    end
   end
 
   private

@@ -247,6 +247,10 @@ ActiveAdmin.register Audio::Recitation do
       row :segments_count
       row :segment_locked
       row :files_count
+      row :total_duration do
+        total_sec = resource.total_duration
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec} seconds)"
+      end
       row :created_at
       row :updated_at
     end

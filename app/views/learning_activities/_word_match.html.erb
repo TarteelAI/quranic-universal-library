@@ -5,23 +5,31 @@
   right_translations = data[:right_translations]
 %>
 
-<div class="quiz tw-p-4 rounded-3 word-match" data-controller="activities--word-match">
-  <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-flex tw-items-center tw-gap-2">
-    <span class="fw-semibold">How to play:</span>
-    <span>Click a black dot to start a line and connect it to the matching dot.</span>
+<h2 class="heading my-3 tw-text-2xl md:tw-text-3xl tw-font-bold tw-text-center tw-mb-4 md:tw-mb-6 tw-text-gray-800 tw-px-2">Word Match Challenge</h2>
+
+<div class="quiz tw-p-2 md:tw-p-4 rounded-3 word-match" data-controller="activities--word-match">
+  <div class="tw-px-3 md:tw-px-6 tw-py-3 md:tw-py-4 tw-rounded-lg tw-mb-4 md:tw-mb-6 tw-bg-gradient-to-r tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
+    <div class="tw-flex tw-items-center tw-justify-center tw-gap-2 md:tw-gap-3 tw-flex-wrap tw-text-center">
+      <span class="tw-font-bold tw-text-blue-700 tw-text-sm md:tw-text-base">How to play:</span>
+      <span class="tw-text-gray-700 tw-text-xs md:tw-text-sm">Click on a word or dot to start a line and connect it to the matching translation.</span>
+    </div>
   </div>
 
-  <div class="tw-flex flex-column flex-md-row tw-gap-5 tw-relative" id="match-area">
-    <!-- Arabic Column -->
+  <div class="tw-flex flex-column flex-md-row tw-gap-3 md:tw-gap-6 tw-relative" id="match-area">
     <div class="flex-fill">
-      <h3 class="tw-mb-3 tw-text-blue-600 tw-text-center tw-text-xl">Arabic</h3>
-      <div class="list-group tw-border tw-border-gray-300 tw-rounded tw-shadow-sm" id="left-column">
+      <div class="tw-text-center tw-mb-2 md:tw-mb-4">
+        <h3 class="tw-text-lg md:tw-text-2xl tw-font-bold tw-text-blue-600 tw-mb-1 md:tw-mb-2">Arabic Words</h3>
+        <div class="tw-inline-block tw-px-3 md:tw-px-4 tw-py-1 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-xs md:tw-text-sm tw-font-semibold">
+          <%= left_words.length %> words
+        </div>
+      </div>
+      <div class="list-group tw-border-2 tw-border-blue-200 tw-rounded-lg tw-shadow-lg tw-bg-white tw-p-1 md:tw-p-2" id="left-column">
         <% left_words.each do |w| %>
-          <div class="list-group-item tw-flex tw-items-center tw-justify-between qpc-hafs rounded-2 tw-mb-2 border-0 tw-shadow-sm"
+          <div class="list-group-item tw-flex tw-items-center tw-justify-between qpc-hafs rounded-lg tw-mb-1 md:tw-mb-2 border-2 tw-border-gray-100 tw-shadow-sm tw-bg-gradient-to-r tw-from-blue-50 tw-to-white hover:tw-from-blue-100 hover:tw-border-blue-300 tw-transition-all tw-duration-200 tw-cursor-pointer tw-py-2 md:tw-py-3"
                data-id="<%= w[:id] %>">
-            <div class="tw-flex tw-items-center">
-              <span class="anchor-dot tw-ms-3 tw-bg-gray-600 rounded-circle" data-side="left"></span>
-              <span class="qpc-hafs fs-5 fw-semibold"><%= w[:text] %></span>
+            <div class="tw-flex tw-items-center tw-gap-2 md:tw-gap-3">
+              <span class="anchor-dot tw-ms-1 md:tw-ms-2 tw-bg-blue-500 tw-border-2 tw-border-white tw-shadow-md rounded-full tw-w-6 tw-h-6 md:tw-w-5 md:tw-h-5 tw-transition-all hover:tw-scale-125" data-side="left"></span>
+              <span class="qpc-hafs tw-text-base md:tw-text-xl tw-font-bold tw-text-gray-800"><%= w[:text] %></span>
             </div>
             <div class="tw-flex tw-items-center tw-gap-2"><span class="status-icon"></span></div>
           </div>
@@ -29,16 +37,20 @@
       </div>
     </div>
 
-    <!-- Translation Column -->
     <div class="flex-fill">
-      <h5 class="tw-mb-3 tw-text-green-600 tw-text-center tw-text-xl">Translations</h5>
-      <div class="list-group tw-border tw-border-gray-300 tw-rounded tw-shadow-sm" id="right-column">
+      <div class="tw-text-center tw-mb-2 md:tw-mb-4">
+        <h3 class="tw-text-lg md:tw-text-2xl tw-font-bold tw-text-green-600 tw-mb-1 md:tw-mb-2">Translations</h3>
+        <div class="tw-inline-block tw-px-3 md:tw-px-4 tw-py-1 tw-rounded-full tw-bg-green-500 tw-text-white tw-text-xs md:tw-text-sm tw-font-semibold">
+          <%= right_translations.length %> options
+        </div>
+      </div>
+      <div class="list-group tw-border-2 tw-border-green-200 tw-rounded-lg tw-shadow-lg tw-bg-white tw-p-1 md:tw-p-2" id="right-column">
         <% right_translations.each do |t| %>
-          <div class="list-group-item tw-flex tw-items-center tw-justify-between rounded-2 tw-mb-2 border-0 tw-shadow-sm"
+          <div class="list-group-item tw-flex tw-items-center tw-justify-between rounded-lg tw-mb-1 md:tw-mb-2 border-2 tw-border-gray-100 tw-shadow-sm tw-bg-gradient-to-r tw-from-green-50 tw-to-white hover:tw-from-green-100 hover:tw-border-green-300 tw-transition-all tw-duration-200 tw-cursor-pointer tw-py-2 md:tw-py-3"
                data-id="<%= t[:id] %>">
-            <div class="tw-flex tw-items-center">
-              <span class="anchor-dot tw-me-3 tw-bg-gray-600 rounded-circle" data-side="right"></span>
-              <span class="fs-6"><%= t[:text] %></span>
+            <div class="tw-flex tw-items-center tw-gap-2 md:tw-gap-3">
+              <span class="anchor-dot tw-me-1 md:tw-me-2 tw-bg-green-500 tw-border-2 tw-border-white tw-shadow-md rounded-full tw-w-6 tw-h-6 md:tw-w-5 md:tw-h-5 tw-transition-all hover:tw-scale-125" data-side="right"></span>
+              <span class="tw-text-sm md:tw-text-lg tw-font-semibold tw-text-gray-800"><%= t[:text] %></span>
             </div>
             <div class="tw-flex tw-items-center tw-gap-2"><span class="status-icon"></span></div>
           </div>
@@ -46,14 +58,16 @@
       </div>
     </div>
 
-    <!-- SVG overlay for connections -->
-    <svg id="match-svg" class="tw-absolute top-0 start-0 tw-w-full tw-h-full"></svg>
+    <svg id="match-svg" class="tw-absolute top-0 start-0 tw-w-full tw-h-full tw-pointer-events-none"></svg>
   </div>
 
-  <!-- Progress -->
-  <div class="tw-mt-3">
-    <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6 progress-thin">
-      <div id="progress-bar" class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300 tw-bg-green-500" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  <div class="tw-mt-4 md:tw-mt-6">
+    <div class="tw-mb-2 tw-flex tw-items-center tw-justify-between tw-text-xs md:tw-text-sm tw-font-semibold tw-text-gray-700">
+      <span>Progress</span>
+      <span id="progress-text" class="tw-text-blue-600">0%</span>
+    </div>
+    <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6 md:tw-h-8 tw-shadow-inner tw-overflow-hidden">
+      <div id="progress-bar" class="tw-h-6 md:tw-h-8 tw-rounded-full tw-text-white tw-text-xs md:tw-text-sm tw-font-bold tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-500 tw-bg-gradient-to-r tw-from-green-500 tw-to-emerald-500 tw-shadow-lg" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
   </div>
 </div>

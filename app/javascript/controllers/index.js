@@ -109,6 +109,9 @@ application.register("activities--ayah-mastery", AyahMasteryController);
 import WordMatchController from "./activities/word_match_controller";
 application.register("activities--word-match", WordMatchController);
 
+import SurahOrderController from "./activities/surah_order_controller";
+application.register("activities--surah-order", SurahOrderController);
+
 import FaqController from "./faq_controller";
 application.register("faq", FaqController);
 
@@ -182,3 +185,6 @@ application.register("font-preview", FontPreviewController);
 
 import PageSearchController from "./page_search_controller.js";
 application.register("page-search", PageSearchController);
+
+import MistakeHeatmapController from "./mistake_heatmap_controller.js";
+application.register("mistake-heatmap", MistakeHeatmapController);

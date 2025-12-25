@@ -96,7 +96,9 @@
           <% if resource.one_word? %>
             <div class="tw-flex tw-flex-wrap tw-gap-3 tw-justify-start quran-text">
               <% transliterations.each do |wt| %>
-                <div class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
+                <div
+                  id="<%= dom_id wt %>"
+                  class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
                   <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
                     <%= wt.resource.text_qpc_hafs %>
                   </div>

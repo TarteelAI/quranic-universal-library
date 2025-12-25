@@ -6,35 +6,51 @@
   remaining_words = data[:remaining_words]
 %>
 
-<h2 class="heading my-3">
-  Click or drag and drop the missing words to compete the ayah.
-</h2>
+<h2 class="heading my-3 tw-text-3xl tw-font-bold tw-text-center tw-mb-6 tw-text-gray-800">Complete the Ayah Challenge</h2>
 
 <div class="quiz" data-controller="activities--fill-in-blank" data-ayah="<%= verse.verse_key %>">
-  <div class="qpc-hafs tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-mb-3 tw-flex flex-wrap">
-    <% words.each do |word| %>
-      <% if words_to_show.include?(word) %>
-        <span class="word-box qpc-hafs">
-          <%= word.text_qpc_hafs %>
-        </span>
-      <% else %>
-        <span class="blank-box"
-              data-word-id="<%= word.id %>">
-        </span>
-      <% end %>
-    <% end %>
-  </div>
-
-  <div class="options tw-gap-2 tw-mb-3" id="options">
-    <% remaining_words.each do |word| %>
-      <div class="draggable-word qpc-hafs"
-           data-word-id="<%= word.id %>">
-        <%= word.text_qpc_hafs %>
+  <div class="tw-px-6 tw-py-5 tw-rounded-lg tw-mb-6 tw-bg-gradient-to-br tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
+    <div class="tw-text-center tw-mb-4">
+      <div class="tw-inline-block tw-px-4 tw-py-2 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-sm tw-font-semibold tw-mb-3">
+        Fill in the Blanks
       </div>
-    <% end %>
+      <p class="tw-text-base tw-font-medium tw-text-gray-700">Click or drag and drop the missing words to complete the ayah.</p>
+    </div>
+    <div class="ayah-text-container tw-px-6 tw-py-6 tw-rounded-lg tw-bg-white tw-shadow-sm">
+      <div class="qpc-hafs tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-3 tw-leading-relaxed" style="font-size: 32px; direction: rtl; text-align: center;">
+        <% words.each do |word| %>
+          <% if words_to_show.include?(word) %>
+            <span class="word-box qpc-hafs tw-inline-flex tw-items-center tw-justify-center tw-px-4 tw-py-3 tw-rounded-lg tw-bg-blue-50 tw-border-2 tw-border-blue-200 tw-shadow-sm" style="font-size: 32px; min-height: 60px; line-height: 1.2;">
+              <%= word.text_qpc_hafs %>
+            </span>
+          <% else %>
+            <span class="blank-box tw-inline-flex tw-items-center tw-justify-center tw-min-w-[100px] tw-h-[60px] tw-rounded-lg tw-border-2 tw-border-dashed tw-border-red-400 tw-bg-red-50 tw-cursor-pointer hover:tw-border-red-500 hover:tw-bg-red-100 tw-transition-all tw-duration-200"
+                  data-word-id="<%= word.id %>"
+                  style="line-height: 1.2;">
+              <span class="tw-text-2xl tw-text-red-400 tw-font-bold">?</span>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
   </div>
 
-  <button type="button" data-action="click->activities--fill-in-blank#resetActivity" class="reset-btn tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white">
-    Reset
-  </button>
+  <div class="tw-mb-4">
+    <p class="tw-text-center tw-text-lg tw-font-bold tw-text-gray-800 tw-mb-4">Available Words:</p>
+    <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-3 tw-mb-4" id="options">
+      <% remaining_words.each do |word| %>
+        <div class="draggable-word qpc-hafs tw-inline-flex tw-items-center tw-justify-center tw-px-5 tw-py-4 tw-rounded-lg tw-font-semibold tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-green-500 tw-to-emerald-500 hover:tw-from-green-600 hover:tw-to-emerald-600 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 tw-cursor-grab active:tw-cursor-grabbing tw-border-0"
+             data-word-id="<%= word.id %>"
+             style="font-size: 28px; min-height: 60px; line-height: 1.2;">
+          <%= word.text_qpc_hafs %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="tw-text-center">
+    <button type="button" data-action="click->activities--fill-in-blank#resetActivity" class="reset-btn tw-px-8 tw-py-3 tw-rounded-lg tw-font-semibold tw-text-lg tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-gray-500 tw-to-gray-600 hover:tw-from-gray-600 hover:tw-to-gray-700 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 tw-border-0">
+      Reset
+    </button>
+  </div>
 </div>

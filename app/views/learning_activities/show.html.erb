@@ -2,7 +2,7 @@
   tarteel_link = 'https://tarteel.go.link/?adj_t=1foxrfdy&adj_engagement_type=fallback_click&adj_fallback=https%3A%2F%2Fwww.tarteel.ai&adj_redirect_macos=https%3A%2F%2Fwww.tarteel.ai'
   activity = (params[:activity] || params[:id]).presence.to_s.downcase
 %>
-<div class="tw-pt-32 tw-px-4 tw-pb-20 quiz-container overflow-auto">
+<div class="tw-pt-20 md:tw-pt-32 tw-px-2 md:tw-px-4 tw-pb-10 md:tw-pb-20 quiz-container overflow-auto">
   <div class="box">
     <h1 class="h3"><%= activity.tr("_"," ").capitalize %></h1>
 

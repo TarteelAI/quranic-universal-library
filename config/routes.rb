@@ -37,6 +37,8 @@ Rails.application.routes.draw do
         get '/languages', to: 'resources#languages'
       end
 
+      get 'unicode/name', to: 'unicode#name'
+
       get 'tafsirs/random', to: 'tafsirs#random'
       get 'tafsirs/for_ayah/:ayah_key', to: 'tafsirs#for_ayah'
       get 'tafsirs/:resource_id/by_range', to: 'tafsirs#by_range'
@@ -146,6 +148,11 @@ Rails.application.routes.draw do
       put :save_line_alignment
     end
   end
+
+  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
+  put 'mistake-heatmap', to: 'word_mistakes#update'
+  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
+  get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
 
   resources :word_concordance_labels, only: [:show, :index] do
     member do

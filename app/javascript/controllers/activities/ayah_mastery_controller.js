@@ -9,12 +9,37 @@ export default class extends ActivityController {
 
   checkAnswer(e) {
     e.preventDefault();
+    const button = $(e.target);
+    
+    if (button.attr('disabled')) {
+      return;
+    }
+
     const {correct} = e.target.dataset;
 
     if (correct == 'true') {
-      this.onSuccess();
-      this.el.find(".option").attr('disabled', 'disabled');
-    } else
-      this.wrongAnswer();
+      this.handleCorrectAnswer(button);
+    } else {
+      this.handleWrongAnswer(button);
+    }
+  }
+
+  handleCorrectAnswer(correctButton) {
+    this.el.find(".option").attr('disabled', 'disabled');
+    correctButton.addClass('correct-answer');
+    this.onSuccess();
+  }
+
+  handleWrongAnswer(wrongButton) {
+    wrongButton.addClass('wrong-answer shake');
+    wrongButton.attr('disabled', 'disabled');
+    
+    this.wrongAnswer();
+
+    setTimeout(() => {
+      wrongButton.removeClass('shake');
+      wrongButton.removeClass('wrong-answer');
+      wrongButton.removeAttr('disabled');
+    }, 1000);
   }
 }

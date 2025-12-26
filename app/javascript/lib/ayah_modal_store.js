@@ -26,6 +26,8 @@ export function getAyahModalPrefs() {
     translationIds: Array.isArray(prefs.translationIds) ? prefs.translationIds : null,
     tafsirIds: Array.isArray(prefs.tafsirIds) ? prefs.tafsirIds : null,
     wordTranslationId: Number.isInteger(prefs.wordTranslationId) ? prefs.wordTranslationId : null,
+    transliterationId: Number.isInteger(prefs.transliterationId) ? prefs.transliterationId : null,
+    recitationResourceId: Number.isInteger(prefs.recitationResourceId) ? prefs.recitationResourceId : null,
   };
 }
 

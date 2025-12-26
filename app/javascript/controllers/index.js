@@ -201,6 +201,12 @@ application.register("ayah-word-translation-selector", AyahWordTranslationSelect
 import AyahScriptSelectorController from "./ayah_script_selector_controller";
 application.register("ayah-script-selector", AyahScriptSelectorController);
 
+import AyahTransliterationSelectorController from "./ayah_transliteration_selector_controller";
+application.register("ayah-transliteration-selector", AyahTransliterationSelectorController);
+
+import AyahRecitationSelectorController from "./ayah_recitation_selector_controller";
+application.register("ayah-recitation-selector", AyahRecitationSelectorController);
+
 import PageSearchController from "./page_search_controller.js";
 application.register("page-search", PageSearchController);
 

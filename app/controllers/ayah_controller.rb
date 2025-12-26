@@ -21,6 +21,29 @@ class AyahController < ApplicationController
     render partial: 'ayah/words', layout: false
   end
 
+  def theme
+    render partial: 'ayah/theme', layout: false
+  end
+
+  def transliteration
+    render partial: 'ayah/transliteration', layout: false
+  end
+
+  def topics
+    render partial: 'ayah/topics', layout: false
+  end
+
+  def topic
+    @topic = Topic.find_by(id: params[:topic_id])
+    return head :not_found unless @topic
+    @verse_topics = @topic.verse_topics.includes(verse: [:chapter, :words, :translations]).to_a
+    render partial: 'ayah/topic', layout: false
+  end
+
+  def recitation
+    render partial: 'ayah/recitation', layout: false
+  end
+
   protected
 
   def init_presenter

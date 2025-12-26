@@ -184,6 +184,79 @@ class AyahPresenter < ApplicationPresenter
     return {} unless word_translations.any?
     @word_translation_by_word_id ||= word_translations.index_by(&:word_id)
   end
+
+  def ayah_theme
+    return nil unless found?
+    @ayah_theme ||= AyahTheme.for_verse(ayah)
+  end
+
+  def ayah_theme_ayahs
+    return [] unless ayah_theme
+    @ayah_theme_ayahs ||= ayah_theme.ayahs.select(:id, :verse_key, :verse_index, :text_qpc_hafs).to_a
+  end
+
+  def transliteration_resources
+    @transliteration_resources ||= ResourceContent.transliteration.one_verse.approved.order(:priority, :id)
+  end
+
+  def transliteration_resources_by_id
+    @transliteration_resources_by_id ||= transliteration_resources.index_by(&:id)
+  end
+
+  def transliteration_id
+    selected = params[:transliteration_id]
+    default_id = transliteration_resources.first&.id
+    selected = default_id if selected.blank? && default_id.present?
+    selected.to_i
+  end
+
+  def transliteration
+    return nil unless found?
+    @transliteration ||= Transliteration.where(resource_type: 'Verse', resource_id: ayah.id, resource_content_id: transliteration_id).first
+  end
+
+  def topics
+    return [] unless found?
+    @topics ||= ayah.topics.to_a
+  end
+
+  def topic_modal_url(topic_id)
+    return '' unless found?
+    context.ayah_topic_path(key: ayah.verse_key, topic_id: topic_id)
+  end
+
+  def recitation_resources
+    @recitation_resources ||= ResourceContent.recitations.approved.order(:priority, :id)
+  end
+
+  def recitation_resources_by_id
+    @recitation_resources_by_id ||= recitation_resources.index_by(&:id)
+  end
+
+  def recitation_resource_id
+    selected = params[:recitation_resource_id]
+    default_id = recitation_resources.first&.id
+    selected = default_id if selected.blank? && default_id.present?
+    selected.to_i
+  end
+
+  def recitation_resource
+    @recitation_resource ||= recitation_resources_by_id[recitation_resource_id]
+  end
+
+  def recitation
+    return nil unless recitation_resource
+    @recitation ||= if recitation_resource.one_ayah?
+                      Recitation.find_by(resource_content_id: recitation_resource.id)
+                    else
+                      Audio::Recitation.find_by(resource_content_id: recitation_resource.id)
+                    end
+  end
+
+  def recitation_controller
+    return '' unless recitation_resource
+    recitation_resource.one_ayah? ? 'ayah-segment-player' : 'surah-segment-player'
+  end
 end
 
 

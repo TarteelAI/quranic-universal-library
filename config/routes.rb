@@ -88,6 +88,7 @@ Rails.application.routes.draw do
     get 'roots/:id', to: 'roots#show', as: :root
     get 'lemmas/:id', to: 'lemmas#show', as: :lemma
     get 'stems/:id', to: 'stems#show', as: :stem
+    get 'word', to: 'words#show', as: :word
 
     resources :treebank, only: [:index] do
       collection do

@@ -37,7 +37,9 @@
         </div>
       </div>
     <% else %>
-      <div class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] syntax-graph-container tw-overflow-auto"
+      <div
+        data-turbo=false
+        class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] syntax-graph-container tw-overflow-auto"
            data-controller="syntax-graph"
            data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(locale: @locale, chapter_number: @chapter_number || 1, verse_number: @verse_number || 1, graph_number: @graph_number || 1) %>"
            id="main-syntax-graph">

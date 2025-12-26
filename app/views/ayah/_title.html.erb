@@ -3,8 +3,24 @@
     <div class="tw-flex flex-column">
         <div>
           <strong><%= @ayah.chapter.name_simple %></strong>
-          <span class="badge tw-bg-blue-500">
-            Ayah <%= @ayah.verse_number %>
+          <% current_tab = params[:tab].presence || 'ayah' %>
+          <span class="tw-relative tw-inline-block" data-controller="ayah-jump" data-ayah-jump-tab-value="<%= current_tab %>">
+            <button type="button" class="badge tw-bg-blue-500 tw-inline-flex tw-items-center tw-gap-1" data-action="click->ayah-jump#toggle">
+              Ayah <%= @ayah.verse_number %>
+              <i class="fa fa-chevron-down tw-text-[10px]"></i>
+            </button>
+            <div id="ayah-jump-panel" class="tw-hidden tw-absolute tw-left-0 tw-mt-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-shadow-lg tw-p-3 tw-z-[10002]" data-ayah-jump-target="panel">
+              <select class="tw-w-[220px]"
+                      data-controller="select2"
+                      data-parent="#ayah-jump-panel"
+                      data-ayah-jump-target="select"
+                      data-action="change->ayah-jump#jump">
+                <% 1.upto(@ayah.chapter.verses_count) do |n| %>
+                  <% key = "#{@ayah.chapter_id}:#{n}" %>
+                  <option value="<%= key %>" <%= "selected" if n == @ayah.verse_number %>><%= key %></option>
+                <% end %>
+              </select>
+            </div>
           </span>
         </div>
 
@@ -16,8 +32,8 @@
     </div>
 
     <div>
-      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key), class: 'btn btn-sm btn-dark' if @ayah.previous_ayah %>
-      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key), class: 'btn btn-sm btn-dark' if @ayah.next_ayah %>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true } if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true } if @ayah.next_ayah %>
     </div>
   </div>
 

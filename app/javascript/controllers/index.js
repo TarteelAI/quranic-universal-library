@@ -94,6 +94,9 @@ application.register("resource-search", ResourceSearchController);
 import TranslationFootnoteController from "./translation_footnote_controller";
 application.register("translation-footnote", TranslationFootnoteController);
 
+import TranslationFootnoteToggleController from "./translation_footnote_toggle_controller";
+application.register("translation-footnote-toggle", TranslationFootnoteToggleController);
+
 import PageTitleController from "./page_title_controller";
 application.register("page-title", PageTitleController);
 
@@ -182,6 +185,21 @@ application.register("tabs", TabsController);
 
 import FontPreviewController from "./font_preview_controller";
 application.register("font-preview", FontPreviewController);
+
+import AyahTranslationSelectorController from "./ayah_translation_selector_controller";
+application.register("ayah-translation-selector", AyahTranslationSelectorController);
+
+import AyahTafsirSelectorController from "./ayah_tafsir_selector_controller";
+application.register("ayah-tafsir-selector", AyahTafsirSelectorController);
+
+import AyahJumpController from "./ayah_jump_controller";
+application.register("ayah-jump", AyahJumpController);
+
+import AyahWordTranslationSelectorController from "./ayah_word_translation_selector_controller";
+application.register("ayah-word-translation-selector", AyahWordTranslationSelectorController);
+
+import AyahScriptSelectorController from "./ayah_script_selector_controller";
+application.register("ayah-script-selector", AyahScriptSelectorController);
 
 import PageSearchController from "./page_search_controller.js";
 application.register("page-search", PageSearchController);

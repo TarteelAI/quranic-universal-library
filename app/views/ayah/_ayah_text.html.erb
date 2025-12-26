@@ -1,0 +1,54 @@
+<%= turbo_frame_tag :ayah_text do %>
+  <%
+    font_class = get_quran_script_font_family(@script, @ayah) || 'qpc-hafs'
+  %>
+
+  <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-script-selector">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs"><%= @script_label %></span>
+    </div>
+
+    <button type="button"
+            class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"
+            data-action="click->ayah-script-selector#open">
+      Change script
+    </button>
+
+    <div class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-z-[10000]" data-ayah-script-selector-target="backdrop" data-action="click->ayah-script-selector#close"></div>
+    <div class="tw-hidden tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-[420px] tw-max-w-[90vw] tw-bg-white tw-border-l tw-border-gray-200 tw-z-[10001] tw-flex-col" data-ayah-script-selector-target="panel">
+      <div class="tw-p-4 tw-border-b tw-border-gray-200 tw-flex tw-items-center tw-justify-between">
+        <div class="tw-font-semibold tw-text-gray-900">Select script</div>
+        <button type="button" class="tw-text-gray-500 hover:tw-text-gray-900" data-action="click->ayah-script-selector#close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
+        <%= form_with url: ayah_text_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_text }, html: { data: { ayah_script_selector_target: "form" } } do %>
+          <div class="tw-space-y-2">
+            <% @scripts.each do |value, label| %>
+              <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
+                <%= radio_button_tag "script", value, @script == value, data: { action: "change->ayah-script-selector#change" } %>
+                <span><%= label %></span>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-mt-4 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-flex tw-justify-center">
+    <% if @script == 'image' %>
+      <img class="tw-max-w-full tw-h-auto" alt="<%= @ayah.verse_key %>" src="<%= @ayah.image_url(type: 'v1', format: 'png') %>">
+    <% else %>
+      <% if @script.to_s.start_with?('code_') %>
+        <%= render 'shared/page_font', verses: [@ayah] %>
+      <% end %>
+      <div dir="rtl" class="<%= font_class %> tw-text-3xl tw-leading-relaxed tw-text-right">
+        <%= safe_html @ayah.read_attribute(@script) %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+

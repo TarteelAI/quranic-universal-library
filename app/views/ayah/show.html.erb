@@ -1,3 +1,5 @@
+<%= render 'layouts/qul_head' if !(request.xhr? || request.format.turbo_stream?) %>
+
 <%= turbo_frame_tag :ayah_info do %>
   <%= render partial: 'title' %>
   <%= render 'info' %>

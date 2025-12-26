@@ -98,6 +98,26 @@ class AyahController < ApplicationController
       @tafsir_by_resource_id[t.resource_content_id] ||= t
     end
 
+    ranges = []
+    @tafsir_by_resource_id.values.each do |t|
+      next unless t.start_verse_id.present? && t.end_verse_id.present?
+      next unless t.start_verse_id != t.end_verse_id
+      ranges << [t.start_verse_id, t.end_verse_id]
+    end
+
+    ids = ranges.flat_map { |a, b| a <= b ? (a..b).to_a : (b..a).to_a }.uniq
+    verses_by_id = ids.any? ? Verse.where(id: ids).select(:id, :verse_key, :verse_index, :text_qpc_hafs).to_a.index_by(&:id) : {}
+
+    @tafsir_ayahs_by_resource_id = {}
+    @tafsir_by_resource_id.values.each do |t|
+      next unless t.start_verse_id.present? && t.end_verse_id.present?
+      next unless t.start_verse_id != t.end_verse_id
+      a = [t.start_verse_id, t.end_verse_id].min
+      b = [t.start_verse_id, t.end_verse_id].max
+      verses = (a..b).map { |vid| verses_by_id[vid] }.compact.sort_by(&:verse_index)
+      @tafsir_ayahs_by_resource_id[t.resource_content_id] = verses
+    end
+
     render partial: 'ayah/tafsirs', layout: false
   end
 

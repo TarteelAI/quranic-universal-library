@@ -2,6 +2,8 @@ import {Controller} from "@hotwired/stimulus";
 
 export default class extends Controller {
   connect() {
+    const frame = this.element.querySelector('turbo-frame')
+    this.frameId = frame ? frame.id : null
     this.loadingIndicator = this.element.querySelector('#turbo-loading-indicator');
     
     this.boundShowLoading = this.showLoading.bind(this);
@@ -14,6 +16,10 @@ export default class extends Controller {
   }
 
   showLoading(event) {
+    if (!this.frameId) return
+    const headers = event?.detail?.fetchOptions?.headers || {}
+    const target = headers['Turbo-Frame']
+    if (target !== this.frameId) return
     const indicator = this.element.querySelector('#turbo-loading-indicator');
     if (indicator) {
       indicator.classList.remove('tw-hidden');
@@ -21,6 +27,10 @@ export default class extends Controller {
   }
 
   hideLoading(event) {
+    if (this.frameId) {
+      const targetId = event?.target?.id
+      if (targetId && targetId !== this.frameId) return
+    }
     const indicator = this.element.querySelector('#turbo-loading-indicator');
     if (indicator) {
       indicator.classList.add('tw-hidden');

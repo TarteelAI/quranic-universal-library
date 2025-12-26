@@ -50,9 +50,20 @@
         <% rc = @tafsir_resources_by_id[rid] %>
         <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-4">
           <div class="tw-text-xs tw-text-gray-500"><%= rc&.name.presence || "Tafsir ##{rid}" %></div>
-          <% if t.group_verse_key_from.present? && t.group_verse_key_to.present? && t.group_verse_key_from != t.group_verse_key_to %>
-            <div class="tw-mt-1 tw-text-xs tw-text-gray-500">
-              This tafsir is for <%= t.group_verses_count.presence || 'multiple' %> ayahs from <%= t.group_verse_key_from %> to <%= t.group_verse_key_to %>
+          <% ayahs = (@tafsir_ayahs_by_resource_id || {})[rid] || [] %>
+          <% if ayahs.any? %>
+            <div class="tw-mt-3 tw-bg-emerald-50 tw-border tw-border-emerald-200 tw-rounded tw-p-3">
+              <div class="tw-text-sm tw-font-semibold tw-text-emerald-900">
+                This tafsir is for <%= ayahs.size %> ayahs from <%= ayahs.first.verse_key %>
+                to <%= ayahs.last.verse_key %>
+              </div>
+              <div class="tw-mt-2 tw-space-y-2">
+                <div class="tw-bg-white/70 tw-border tw-border-emerald-100 tw-rounded tw-p-3 qpc-hafs">
+                  <% ayahs.each do |v| %>
+                    <%= v.text_qpc_hafs %>
+                  <% end %>
+                </div>
+              </div>
             </div>
           <% end %>
           <div class="tw-mt-2 tw-text-sm tw-text-gray-900"><%= safe_html t.text %></div>

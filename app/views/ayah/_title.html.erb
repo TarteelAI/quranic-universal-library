@@ -32,8 +32,8 @@
     </div>
 
     <div>
-      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true } if @ayah.previous_ayah %>
-      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true } if @ayah.next_ayah %>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
     </div>
   </div>
 

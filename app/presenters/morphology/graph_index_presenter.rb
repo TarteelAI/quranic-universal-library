@@ -28,6 +28,10 @@ module Morphology
       @navigation ||= build_navigation
     end
 
+    def corpus_graph_image_id
+      2
+    end
+
     private
 
     def build_navigation

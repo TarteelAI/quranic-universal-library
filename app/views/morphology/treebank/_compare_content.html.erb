@@ -1,0 +1,52 @@
+<%= turbo_frame_tag "treebank_compare_content" do %>
+  <div class="tw-mt-4">
+    <% if @compare_mode %>
+      <div id="treebank-compare-layout" class="tw-flex tw-flex-row tw-gap-0" data-controller="resizeable">
+        <div id="left-side" class="tw-w-1/2 tw-min-w-[300px]">
+          <div class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] syntax-graph-container tw-overflow-auto"
+               data-controller="syntax-graph draggable-scroll"
+               data-action="mousedown->draggable-scroll#mouseDownHandler"
+               data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(locale: @locale, chapter_number: @chapter_number || 1, verse_number: @verse_number || 1, graph_number: @graph_number || 1) %>"
+               id="main-syntax-graph">
+            <div data-syntax-graph-target="container" class="tw-text-gray-500">Loading syntax graph...</div>
+          </div>
+        </div>
+        <div id="resize-handler" class="tw-w-2 tw-bg-gray-300 hover:tw-bg-gray-400 tw-cursor-col-resize"></div>
+        <div id="right-side" class="tw-w-1/2 tw-min-w-[300px]">
+          <div class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] tw-overflow-auto"
+               data-controller="draggable-scroll"
+               data-action="mousedown->draggable-scroll#mouseDownHandler">
+            <div class="tw-p-4">
+              <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-wrap">
+                <div class="tw-text-sm tw-text-gray-600">
+                  <a class="tw-text-blue-600 tw-underline"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     href="https://corpus.quran.com/treebank.jsp?chapter=<%= (@chapter_number || 1) %>&verse=<%= (@verse_number || 1) %>">
+                    Open Quran Corpus treebank
+                  </a>
+                </div>
+              </div>
+              <div class="tw-mt-3 tw-inline-block tw-bg-white tw-rounded">
+                <img class="tw-max-w-none tw-h-auto"
+                     alt="Quran Corpus treebank"
+                     src="https://corpus.quran.com/graphimage?id=<%= @corpus_graph_image_id %>">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div
+        data-turbo=false
+        class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] syntax-graph-container tw-overflow-auto"
+           data-controller="syntax-graph"
+           data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(locale: @locale, chapter_number: @chapter_number || 1, verse_number: @verse_number || 1, graph_number: @graph_number || 1) %>"
+           id="main-syntax-graph">
+        <div data-syntax-graph-target="container" class="tw-text-gray-500">Loading syntax graph...</div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+

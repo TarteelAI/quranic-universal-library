@@ -745,14 +745,27 @@ class SyntaxGraphVisualizer {
 
       // Header text
       if (word.token) {
-        this.addText(
-          svg,
-          word.token.location || "",
-          wordLayout.location,
-          this.theme.fonts.defaultFont,
-          this.theme.syntaxGraphHeaderFontSize,
-          fade ? "silver" : "location"
-        );
+        const locationText = word.token.location || "";
+        if (fade) {
+          this.addText(
+            svg,
+            locationText,
+            wordLayout.location,
+            this.theme.fonts.defaultFont,
+            this.theme.syntaxGraphHeaderFontSize,
+            "silver"
+          );
+        } else {
+          this.addLinkText(
+            svg,
+            locationText,
+            wordLayout.location,
+            this.theme.fonts.defaultFont,
+            this.theme.syntaxGraphHeaderFontSize,
+            this.wordDetailUrl(locationText),
+            "location"
+          );
+        }
         this.addText(
           svg,
           word.token.phonetic || "",
@@ -942,6 +955,16 @@ class SyntaxGraphVisualizer {
     return svg;
   }
 
+  wordDetailUrl(location) {
+    const params = new URLSearchParams(window.location.search);
+    const locale = params.get("locale");
+    let url = `/morphology/word?location=${encodeURIComponent(location)}`;
+    if (locale) {
+      url += `&locale=${encodeURIComponent(locale)}`;
+    }
+    return url;
+  }
+
   brackets(word) {
     return (
       word.type === "reference" || (word.type === "elided" && word.elidedText)
@@ -969,6 +992,31 @@ class SyntaxGraphVisualizer {
     if (rtl) textElement.setAttribute("direction", "rtl");
 
     svg.appendChild(textElement);
+  }
+
+  addLinkText(svg, text, box, font, fontSize, href, className = "", rtl = false) {
+    if (!box || !text || !href) return;
+
+    const linkElement = document.createElementNS("http://www.w3.org/2000/svg", "a");
+    linkElement.setAttribute("href", href);
+    linkElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", href);
+
+    const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    textElement.textContent = text;
+
+    const fontMetrics = this.getFontMetrics(font);
+    const y = box.y + box.height - fontMetrics.descenderHeight * fontSize;
+    const x = rtl ? box.x + box.width : box.x;
+
+    textElement.setAttribute("x", x);
+    textElement.setAttribute("y", y);
+    textElement.setAttribute("font-family", font.family);
+    textElement.setAttribute("font-size", fontSize);
+    if (className) textElement.classList.add(className);
+    if (rtl) textElement.setAttribute("direction", "rtl");
+
+    linkElement.appendChild(textElement);
+    svg.appendChild(linkElement);
   }
 
   addCenteredText(svg, text, box, font, fontSize, className = "") {

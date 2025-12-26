@@ -86,10 +86,8 @@ export default class extends Controller {
     const tooltipRect = this.tooltip.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const scrollX = window.scrollX || window.pageXOffset;
-    const scrollY = window.scrollY || window.pageYOffset;
     
-    const offset = 8;
+    const offset = 6;
     
     let placement = this.placementValue;
     let x = 0;
@@ -131,8 +129,8 @@ export default class extends Controller {
     x = Math.max(padding, Math.min(x, viewportWidth - tooltipRect.width - padding));
     y = Math.max(padding, Math.min(y, viewportHeight - tooltipRect.height - padding));
     
-    this.tooltip.style.left = `${x + scrollX}px`;
-    this.tooltip.style.top = `${y + scrollY}px`;
+    this.tooltip.style.left = `${x}px`;
+    this.tooltip.style.top = `${y}px`;
   }
 
   updateArrowDirection(placement) {

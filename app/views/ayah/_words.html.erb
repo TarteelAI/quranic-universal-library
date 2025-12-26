@@ -21,9 +21,9 @@
       <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
         <%= form_with url: ayah_words_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_words }, html: { data: { ayah_word_translation_selector_target: "form" } } do %>
           <div class="tw-space-y-2">
-            <% @word_translation_resources.each do |rc| %>
+            <% @presenter.word_translation_resources.each do |rc| %>
               <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
-                <%= radio_button_tag "word_translation_id", rc.id, @word_translation_id == rc.id, data: { action: "change->ayah-word-translation-selector#change" } %>
+                <%= radio_button_tag "word_translation_id", rc.id, @presenter.word_translation_id == rc.id, data: { action: "change->ayah-word-translation-selector#change" } %>
                 <span><%= rc.name %></span>
               </label>
             <% end %>
@@ -34,8 +34,8 @@
   </div>
 
   <div dir="rtl" class="tw-mt-4 tw-grid tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-3">
-    <% @words.each do |w| %>
-      <% wt = @word_translation_by_word_id[w.id] %>
+    <% @presenter.words.each do |w| %>
+      <% wt = @presenter.word_translation_by_word_id[w.id] %>
       <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3">
         <div dir="rtl" class="qpc-hafs arabic tw-text-2xl tw-leading-none tw-font-semibold tw-text-gray-900 tw-text-center">
           <%= w.text_qpc_hafs.presence || w.text_uthmani %>

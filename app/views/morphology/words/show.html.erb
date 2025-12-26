@@ -1,35 +1,19 @@
 <%= render 'layouts/qul_head' %>
 
 <div class="tw-container tw-mx-auto tw-px-4 tw-py-6">
-  <% pos_styles = {
-    "N" => "tw-border-sky-200 tw-bg-sky-50 tw-text-sky-900",
-    "PN" => "tw-border-blue-200 tw-bg-blue-50 tw-text-blue-900",
-    "V" => "tw-border-emerald-200 tw-bg-emerald-50 tw-text-emerald-900",
-    "P" => "tw-border-amber-200 tw-bg-amber-50 tw-text-amber-900",
-    "CONJ" => "tw-border-indigo-200 tw-bg-indigo-50 tw-text-indigo-900",
-    "PRON" => "tw-border-teal-200 tw-bg-teal-50 tw-text-teal-900",
-    "DET" => "tw-border-gray-200 tw-bg-gray-50 tw-text-gray-900"
-  } %>
-  <% pos_text_styles = {
-    "N" => "sky",
-    "PN" => "blue",
-    "V" => "seagreen",
-    "P" => "rust",
-    "CONJ" => "navy",
-    "PRON" => "sky-dark",
-    "DET" => "gray",
-    "ADJ" => "purple",
-    "REL" => "gold",
-    "DEM" => "brown",
-    "NEG" => "red"
-  } %>
-
   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap">
     <div class="tw-text-2xl md:tw-text-3xl tw-font-semibold tw-text-gray-900">
-      Grammar of <%= @word.position.ordinalize %> word of ayah <%= @verse.verse_key %>
+      <%= @presenter.title %>
     </div>
     <div class="tw-flex tw-items-center tw-gap-2">
-      <%= link_to morphology_treebank_index_path(locale: @locale, chapter_number: @verse.chapter_id, verse_number: @verse.verse_number, graph_number: 1),
+      <%= link_to '#_', class: "tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50",
+                  data: { controller: 'ajax-modal', url: @presenter.read_ayah_path, css_class: 'modal-lg', use_turbo: true } do %>
+        Read ayah
+      <% end %>
+      <%= link_to @presenter.dependency_graph_path, class: "tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50" do %>
+        Dependency graph
+      <% end %>
+      <%= link_to @presenter.back_to_treebank_path,
                   class: "tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-800" do %>
         Back
       <% end %>
@@ -37,17 +21,17 @@
   </div>
 
   <div class="tw-mt-2 tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-    <div class="tw-text-sm tw-text-gray-600"><%= @word.location %></div>
+    <div class="tw-text-sm tw-text-gray-600"><%= @presenter.word_location %></div>
     <div class="tw-flex tw-items-center tw-gap-2">
-      <% if @prev_word.present? %>
-        <%= link_to morphology_word_path(locale: @locale, location: @prev_word.location), class: "tw-px-2 tw-py-1 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700" do %>
+      <% if @presenter.prev_word_path.present? %>
+        <%= link_to @presenter.prev_word_path, class: "tw-px-2 tw-py-1 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700" do %>
           <i class="fa fa-chevron-left"></i>
         <% end %>
       <% else %>
         <span class="tw-px-2 tw-py-1 tw-bg-gray-300 tw-text-white tw-rounded tw-text-sm tw-cursor-not-allowed"><i class="fa fa-chevron-left"></i></span>
       <% end %>
-      <% if @next_word.present? %>
-        <%= link_to morphology_word_path(locale: @locale, location: @next_word.location), class: "tw-px-2 tw-py-1 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700" do %>
+      <% if @presenter.next_word_path.present? %>
+        <%= link_to @presenter.next_word_path, class: "tw-px-2 tw-py-1 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700" do %>
           <i class="fa fa-chevron-right"></i>
         <% end %>
       <% else %>
@@ -57,52 +41,52 @@
   </div>
 
   <div class="tw-mt-8 tw-flex tw-justify-center">
-    <% if @segments.any? %>
+    <% if @presenter.segments.any? %>
       <div class="text-qpc-hafs tw-text-6xl md:tw-text-7xl tw-font-bold tw-text-center">
-        <% @segments.each_with_index do |segment, idx| %><% pos_key = segment.part_of_speech_key.to_s.upcase -%><% text_style = pos_text_styles[pos_key] || "metal" -%><span class="<%= text_style %>"><%= segment.text_qpc_hafs.presence || segment.text_uthmani %></span><% end %>
+        <% @presenter.segments.each do |segment| %><span class="<%= @presenter.pos_text_class(segment.part_of_speech_key) %>"><%= segment.text_qpc_hafs.presence || segment.text_uthmani %></span><% end %>
       </div>
     <% else %>
-      <div dir="rtl" class="qpc-hafs arabic tw-text-6xl md:tw-text-7xl tw-leading-none tw-font-bold"><%= @word.text_qpc_hafs.presence || @word.text_uthmani %></div>
+      <div dir="rtl" class="qpc-hafs arabic tw-text-6xl md:tw-text-7xl tw-leading-none tw-font-bold"><%= @presenter.word&.text_qpc_hafs.presence || @presenter.word&.text_uthmani %></div>
     <% end %>
   </div>
 
   <div class="tw-mt-4 tw-flex tw-justify-center">
     <div class="tw-bg-white tw-rounded tw-p-3 tw-inline-block tw-border tw-border-gray-200">
-      <img class="tw-max-w-full tw-h-auto" alt="<%= @word.location %>" src="<%= @word.corpus_image_url %>">
+      <img class="tw-max-w-full tw-h-auto" alt="<%= @presenter.word_location %>" src="<%= @presenter.corpus_image_url %>">
     </div>
   </div>
 
   <div class="tw-mt-4 tw-text-sm tw-text-gray-700 tw-flex tw-flex-col tw-gap-1 tw-items-center">
-    <div><span class="tw-font-semibold">Meaning:</span> <%= @word.en_translation&.text.presence || "-" %></div>
-    <div><span class="tw-font-semibold">Transliteration:</span> <%= @word.en_transliteration.presence || "-" %></div>
+    <div><span class="tw-font-semibold">Meaning:</span> <%= @presenter.meaning %></div>
+    <div><span class="tw-font-semibold">Transliteration:</span> <%= @presenter.transliteration %></div>
   </div>
 
   <div class="tw-mt-6 tw-bg-gray-100 tw-rounded tw-p-5">
-    <div class="tw-text-sm tw-text-gray-700"><%= simple_format(@morphology_word&.description.to_s.presence || "-") %></div>
+    <div class="tw-text-sm tw-text-gray-700"><%= safe_html @presenter.description_html %></div>
   </div>
 
-  <% if @segments.any? %>
-    <div class="tw-mt-8 tw-bg-gray-100 tw-rounded tw-p-5">
-      <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-wrap">
-        <div class="tw-text-sm tw-font-semibold tw-text-gray-800">Segments</div>
-        <div class="tw-text-sm tw-text-gray-600">Total: <%= @segments.size %></div>
+  <% if @presenter.segments.any? %>
+    <div class="tw-mt-8 tw-bg-white tw-rounded tw-border tw-border-gray-200">
+      <div class="tw-px-5 tw-py-4 tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-wrap">
+        <div>
+          <div class="tw-text-base tw-font-semibold tw-text-gray-900">Segments</div>
+          <div class="tw-mt-1 tw-text-xs tw-text-gray-500">Word <%= @presenter.word_location %> has <%= @presenter.segments.size %> segments</div>
+        </div>
       </div>
-      <div class="tw-mt-4 tw-divide-y tw-divide-gray-200 tw-bg-white tw-rounded tw-border tw-border-gray-200">
-        <% @segments.each do |segment| %>
-          <% pos_key = segment.part_of_speech_key.to_s.upcase %>
-          <% text_style = pos_text_styles[pos_key] || "metal" %>
-          <div class="tw-px-4 tw-py-3">
+      <div class="tw-border-t tw-border-gray-200 tw-divide-y tw-divide-gray-200">
+        <% @presenter.segments.each do |segment| %>
+          <div class="tw-px-5 tw-py-4">
             <div dir="rtl" class="text-qpc-hafs tw-text-4xl md:tw-text-5xl tw-font-bold tw-leading-none">
-              <span class="<%= text_style %>"><%= segment.text_uthmani %></span>
+              <span class="<%= @presenter.pos_text_class(segment.part_of_speech_key) %>"><%= segment.text_uthmani %></span>
             </div>
             <div class="tw-mt-2 tw-text-sm tw-text-gray-700 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
               <span class="tw-font-semibold"><%= segment.part_of_speech_name.presence || segment.part_of_speech_key.presence || "-" %></span>
               <% if segment.grammar_term_name.present? %>
-                <span>·</span>
+                <span class="tw-text-gray-400">•</span>
                 <span><%= segment.grammar_term_name.humanize %></span>
               <% end %>
               <% if segment.grammar_term_desc_english.present? %>
-                <span class="tw-text-gray-600">·</span>
+                <span class="tw-text-gray-400">•</span>
                 <span class="tw-text-gray-600"><%= safe_html segment.grammar_term_desc_english %></span>
               <% end %>
             </div>
@@ -110,9 +94,8 @@
               <div dir="rtl" class="tw-mt-1 tw-text-sm tw-text-gray-700 arabic"><%= safe_html segment.grammar_term_desc_arabic %></div>
             <% end %>
             <% if segment.topic_id.present? %>
-              <% topic_label = (@locale == "ar" ? segment.topic&.arabic_name : segment.topic&.name).presence || "Topic ##{segment.topic_id}" %>
               <div class="tw-mt-2 tw-text-sm" dir="ltr">
-                <a class="tw-text-blue-700 tw-underline" href="/resources/ayah-topics/<%= @verse.id %>?topic_id=<%= segment.topic_id %>"><%= topic_label %></a>
+                <a class="tw-text-blue-700 tw-underline" href="<%= @presenter.topic_path(segment.topic_id) %>"><%= @presenter.topic_label(segment.topic) %></a>
               </div>
             <% end %>
           </div>
@@ -121,93 +104,40 @@
     </div>
   <% end %>
 
-  <div class="tw-mt-8 tw-bg-gray-100 tw-rounded tw-p-5">
-    <div class="tw-grid tw-grid-cols-1 tw-gap-4">
-      <div class="tw-bg-white tw-rounded tw-p-4">
-        <div class="tw-text-sm tw-font-semibold tw-text-gray-800">Word info</div>
-        <div class="tw-mt-3 tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-text-sm tw-text-gray-700">
-          <div><span class="tw-font-semibold">Lemma:</span> <%= @word.lemma&.text_madani.presence || "-" %></div>
-          <div><span class="tw-font-semibold">Stem:</span> <%= @word.stem&.text_madani.presence || "-" %></div>
-          <div><span class="tw-font-semibold">Root:</span> <%= @word.root&.value.presence || "-" %></div>
-          <div><span class="tw-font-semibold">Case:</span> <%= @morphology_word&.case.presence || "-" %></div>
-          <div class="md:tw-col-span-2">
-            <span class="tw-font-semibold">Case reason:</span> <%= @morphology_word&.case_reason.presence || "-" %>
-          </div>
-        </div>
+  <div class="tw-mt-8 tw-bg-white tw-rounded tw-border tw-border-gray-200 tw-px-5 tw-py-4">
+    <div class="tw-text-base tw-font-semibold tw-text-gray-900">Word info</div>
+    <div class="tw-mt-3 tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-text-sm tw-text-gray-700">
+      <div>
+        <span class="tw-font-semibold">Lemma:</span>
+        <% if @presenter.lemma_modal_url.present? %>
+          <%= link_to @presenter.lemma_text, '#_', class: "tw-text-blue-700 tw-underline",
+                      data: { controller: 'ajax-modal', css_class: 'modal-lg', url: @presenter.lemma_modal_url } %>
+        <% else %>
+          <%= @presenter.lemma_text %>
+        <% end %>
       </div>
+      <div>
+        <span class="tw-font-semibold">Stem:</span>
+        <% if @presenter.stem_modal_url.present? %>
+          <%= link_to @presenter.stem_text, '#_', class: "tw-text-blue-700 tw-underline",
+                      data: { controller: 'ajax-modal', css_class: 'modal-lg', url: @presenter.stem_modal_url } %>
+        <% else %>
+          <%= @presenter.stem_text %>
+        <% end %>
+      </div>
+      <div>
+        <span class="tw-font-semibold">Root:</span>
+        <% if @presenter.root_modal_url.present? %>
+          <%= link_to @presenter.root_text, '#_', class: "tw-text-blue-700 tw-underline",
+                      data: { controller: 'ajax-modal', css_class: 'modal-lg', url: @presenter.root_modal_url } %>
+        <% else %>
+          <%= @presenter.root_text %>
+        <% end %>
+      </div>
+      <div><span class="tw-font-semibold">Case:</span> <%= @presenter.case_text %></div>
+      <div class="md:tw-col-span-2"><span class="tw-font-semibold">Case reason:</span> <%= @presenter.case_reason_text %></div>
     </div>
   </div>
-
-  <div class="tw-mt-4 tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-    <div class="tw-bg-white tw-rounded tw-p-4">
-      <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-wrap">
-        <div class="tw-text-sm tw-font-semibold tw-text-gray-800">Verb forms</div>
-        <div class="tw-text-sm tw-text-gray-600">Total: <%= @verb_forms.size %></div>
-      </div>
-      <% if @verb_forms.any? %>
-        <div class="tw-mt-3 tw-overflow-x-auto">
-          <table class="tw-w-full tw-text-sm">
-            <thead class="tw-bg-gray-50">
-            <tr>
-              <th class="tw-text-left tw-px-3 tw-py-2">Form</th>
-              <th class="tw-text-left tw-px-3 tw-py-2">Value</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% @verb_forms.each do |vf| %>
-              <tr class="tw-border-t">
-                <td class="tw-px-3 tw-py-2"><%= vf.name.humanize %></td>
-                <td class="tw-px-3 tw-py-2"><%= vf.value %></td>
-              </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <div class="tw-mt-3 tw-text-sm tw-text-gray-600">-</div>
-      <% end %>
-    </div>
-
-    <div class="tw-bg-white tw-rounded tw-p-4">
-      <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-wrap">
-        <div class="tw-text-sm tw-font-semibold tw-text-gray-800">Derived words</div>
-        <div class="tw-text-sm tw-text-gray-600">Total: <%= @derived_words.size %></div>
-      </div>
-      <% if @derived_words.any? %>
-        <div class="tw-mt-3 tw-overflow-x-auto">
-          <table class="tw-w-full tw-text-sm">
-            <thead class="tw-bg-gray-50">
-            <tr>
-              <th class="tw-text-left tw-px-3 tw-py-2">Form</th>
-              <th class="tw-text-left tw-px-3 tw-py-2">Location</th>
-              <th class="tw-text-left tw-px-3 tw-py-2">Transliteration</th>
-              <th class="tw-text-left tw-px-3 tw-py-2">Translation</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% @derived_words.each do |dw| %>
-              <tr class="tw-border-t">
-                <td class="tw-px-3 tw-py-2"><%= dw.form_name.presence || "-" %></td>
-                <td class="tw-px-3 tw-py-2">
-                  <% if dw.word&.location.present? %>
-                    <%= link_to dw.word.location, morphology_word_path(locale: @locale, location: dw.word.location), class: "tw-text-blue-700 tw-underline" %>
-                  <% else %>
-                    -
-                  <% end %>
-                </td>
-                <td class="tw-px-3 tw-py-2"><%= dw.en_transliteration.presence || "-" %></td>
-                <td class="tw-px-3 tw-py-2"><%= dw.en_translation.presence || "-" %></td>
-              </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <div class="tw-mt-3 tw-text-sm tw-text-gray-600">-</div>
-      <% end %>
-    </div>
-  </div>
-
 
 </div>
 

@@ -58,6 +58,7 @@
           </div>
           <div>
             <%= render "compare_button" %>
+
             <button type="button"
                     class="tw-px-3 tw-py-1.5 tw-bg-gray-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-700"
                     data-bs-toggle="modal"
@@ -80,9 +81,11 @@
       </div>
 
       <%= render "compare_content" %>
+
       <div data-controller="graph-settings">
         <%= render 'graph_settings' %>
       </div>
+
       <%= render 'graph_splitter_modal' %>
     </div>
   <% end %>

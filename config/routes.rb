@@ -206,6 +206,15 @@ Rails.application.routes.draw do
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah
+  get '/ayah/:key/text', to: 'ayah#text', as: :ayah_text
+  get '/ayah/:key/translations', to: 'ayah#translations', as: :ayah_translations
+  get '/ayah/:key/tafsirs', to: 'ayah#tafsirs', as: :ayah_tafsirs
+  get '/ayah/:key/words', to: 'ayah#words', as: :ayah_words
+  get '/ayah/:key/theme', to: 'ayah#theme', as: :ayah_theme
+  get '/ayah/:key/transliteration', to: 'ayah#transliteration', as: :ayah_transliteration
+  get '/ayah/:key/topics', to: 'ayah#topics', as: :ayah_topics
+  get '/ayah/:key/topics/:topic_id', to: 'ayah#topic', as: :ayah_topic
+  get '/ayah/:key/recitation', to: 'ayah#recitation', as: :ayah_recitation
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all
 end

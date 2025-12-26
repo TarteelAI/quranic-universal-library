@@ -1,0 +1,81 @@
+<%= turbo_frame_tag :ayah_translations do %>
+  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-mb-4">
+    <%= @ayah.text_qpc_hafs %>
+  </div>
+
+  <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-translation-selector">
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
+      <% @presenter.translation_ids.each do |rid| %>
+        <% rc = @presenter.translation_resources_by_id[rid] %>
+        <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs">
+          <%= rc&.name.presence || "Translation ##{rid}" %>
+        </span>
+      <% end %>
+    </div>
+
+    <button type="button"
+            class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"
+            data-action="click->ayah-translation-selector#open">
+      Change translations
+    </button>
+
+    <div class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-z-[10000]" data-ayah-translation-selector-target="backdrop" data-action="click->ayah-translation-selector#close"></div>
+    <div class="tw-hidden tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-[420px] tw-max-w-[90vw] tw-bg-white tw-border-l tw-border-gray-200 tw-z-[10001] tw-flex-col" data-ayah-translation-selector-target="panel">
+      <div class="tw-p-4 tw-border-b tw-border-gray-200 tw-flex tw-items-center tw-justify-between">
+        <div class="tw-font-semibold tw-text-gray-900">Select translations</div>
+        <button type="button" class="tw-text-gray-500 hover:tw-text-gray-900" data-action="click->ayah-translation-selector#close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
+        <%= form_with url: ayah_translations_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_translations }, html: { data: { ayah_translation_selector_target: "form" } } do %>
+          <div class="tw-space-y-2">
+            <% @presenter.translation_resources.each do |rc| %>
+              <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
+                <%= check_box_tag "translation_ids[]", rc.id, @presenter.translation_ids.include?(rc.id), class: "tw-mt-1", data: { action: "change->ayah-translation-selector#change" } %>
+                <span><%= rc.name %></span>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-mt-4 tw-space-y-6">
+    <% if @presenter.translations.any? %>
+      <% @presenter.translation_ids.each do |rid| %>
+        <% tr = @presenter.translations.find { |t| t.resource_content_id == rid } %>
+        <% next unless tr %>
+        <% rc = @presenter.translation_resources_by_id[rid] %>
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-4" data-controller="translation-footnote-toggle">
+          <div class="tw-text-xs tw-text-gray-500"><%= rc&.name.presence || "Translation ##{rid}" %></div>
+          <div class="tw-mt-2 tw-text-sm tw-text-gray-900"><%= safe_html(@presenter.translation_html_by_id[rid]) %></div>
+          <% footnotes = @presenter.translation_footnotes_by_id[rid] || {} %>
+          <% if footnotes.any? %>
+            <div class="tw-mt-3 tw-space-y-2">
+              <% footnotes.each do |fid, fn| %>
+                <div class="tw-hidden tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded tw-p-3" data-footnote-block-id="<%= fid %>">
+                  <div class="tw-flex tw-items-start tw-justify-between tw-gap-3">
+                    <div class="tw-text-xs tw-text-gray-500">Footnote <%= fid %></div>
+                    <button type="button"
+                            class="tw-text-gray-400 hover:tw-text-gray-700"
+                            data-action="click->translation-footnote-toggle#close"
+                            data-footnote-close-id="<%= fid %>">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </div>
+                  <div class="tw-mt-2 tw-text-sm tw-text-gray-900"><%= safe_html fn.text %></div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="tw-text-sm tw-text-gray-600">No translations found for the selected resources.</div>
+    <% end %>
+  </div>
+<% end %>
+
+

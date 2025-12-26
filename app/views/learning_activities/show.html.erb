@@ -4,8 +4,6 @@
 %>
 <div class="tw-pt-20 md:tw-pt-32 tw-px-2 md:tw-px-4 tw-pb-10 md:tw-pb-20 quiz-container overflow-auto">
   <div class="box">
-    <h1 class="h3"><%= activity.tr("_"," ").capitalize %></h1>
-
     <% if params[:ayah].present? && @filtered_ayah.nil? %>
       <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-yellow-100 tw-border tw-border-yellow-400 tw-text-yellow-700">
         <strong>Invalid Ayah:</strong> The ayah "<%= params[:ayah] %>" was not found. Please use the format "chapter:verse" (e.g., "1:1"). Showing random content instead.

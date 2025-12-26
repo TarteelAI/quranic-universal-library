@@ -3,6 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   connect() {
     const tabButtons = this.element.querySelectorAll('[data-bs-toggle="tab"]')
+    const controller = this
     
     tabButtons.forEach(btn => {
       btn.classList.add('tw-rounded-t')
@@ -37,20 +38,22 @@ export default class extends Controller {
     const initialActive = this.element.querySelector('[data-bs-toggle="tab"].active')
     if (initialActive) {
       updateBordersAndColors(initialActive)
+      const targetId = initialActive.getAttribute('data-bs-target')
+      if (targetId) this.updateAyahNavLinks(targetId.replace('#', ''))
     }
     
     tabButtons.forEach(button => {
-      button.addEventListener('click', function(e) {
+      button.addEventListener('click', (e) => {
         e.preventDefault()
         e.stopPropagation()
         
         tabButtons.forEach(btn => btn.classList.remove('active'))
         
-        this.classList.add('active')
+        button.classList.add('active')
         
-        updateBordersAndColors(this)
+        updateBordersAndColors(button)
         
-        const targetId = this.getAttribute('data-bs-target')
+        const targetId = button.getAttribute('data-bs-target')
         if (targetId) {
           const allPanes = document.querySelectorAll('.tab-pane')
           allPanes.forEach(pane => {
@@ -61,9 +64,29 @@ export default class extends Controller {
           if (targetPane) {
             targetPane.classList.add('show', 'active')
           }
+          controller.updateAyahNavLinks(targetId.replace('#', ''))
         }
       })
     })
+  }
+
+  updateAyahNavLinks(tabKey) {
+    const header = document.getElementById('modal-header')
+    if (!header) return
+    const links = header.querySelectorAll('a[data-ayah-nav="true"]')
+    links.forEach((a) => {
+      try {
+        const url = new URL(a.getAttribute('href'), window.location.origin)
+        url.searchParams.set('tab', tabKey)
+        a.setAttribute('href', url.pathname + url.search)
+      } catch (_) {
+      }
+    })
+
+    const jump = header.querySelector('[data-ayah-jump-tab-value]')
+    if (jump) {
+      jump.setAttribute('data-ayah-jump-tab-value', tabKey)
+    }
   }
 }
 

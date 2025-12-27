@@ -115,11 +115,12 @@ module Audio
 
     def find_closest_segment(segments, time)
       closest_segment = segments[0]
-      closest_diff = (closest_segment.timestamp_median - time).abs
+      closest_diff = closest_segment.timestamp_median ? (closest_segment.timestamp_median - time).abs : Float::INFINITY
 
       segments.each do |segment|
+        next if segment.timestamp_median.nil?
         diff = (segment.timestamp_median - time).abs
-
+        
         if closest_diff >= diff && time > closest_segment.timestamp_to
           closest_diff = diff
           closest_segment = segment

@@ -38,8 +38,11 @@ ActiveAdmin.register Audio::ChapterAudioFile do
             data: { controller: 'ajax-modal', url: validate_segments_cms_audio_chapter_audio_file_path(resource) }
   end
 
-  action_item :refresh_meta, only: :show,  if: -> { can? :manage, resource } do
-    link_to 'Refresh Meta', refresh_meta_cms_audio_chapter_audio_file_path(resource), method: :put
+  action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Refresh Meta',
+            refresh_meta_cms_audio_chapter_audio_file_path(resource),
+            method: :put,
+            data: { confirm: 'Are you sure you want to refresh meta data for this file?', turbo: false }
   end
 
   member_action :validate_segments, method: 'get' do
@@ -73,8 +76,14 @@ ActiveAdmin.register Audio::ChapterAudioFile do
         "<div title='#{file.file_size} bytes' class=has-tooltip>#{number_to_human_size file.file_size.to_f}</div>".html_safe
       end
       row :bit_rate
-      row :duration
-      row :duration_ms
+      row :duration do
+        total_sec = resource.duration
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec || 0} seconds)"
+      end
+      row :duration_ms do
+        total_sec = resource.duration_ms ? resource.duration_ms / 1000.0 : 0
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{resource.duration_ms || 0} ms)"
+      end
       row :file_name
       row :format
       row :audio_url

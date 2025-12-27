@@ -1,4 +1,10 @@
 require 'wahwah'
+require 'fileutils'
+require 'json'
+require 'mime/types'
+require 'net/http'
+require 'open3'
+require 'uri'
 
 module Audio
   class AudioFileMetaData
@@ -41,20 +47,16 @@ module Audio
         audio_file.update_segment_percentile
 
         if meta_response = fetch_audio_file_meta_data(url)
-          file = meta_response[:file]
-
-          meta = WahWah.open(file)
-          duration = (meta.duration || calculate_duration(file)).to_f
-
+          duration = meta_response[:duration]
           audio_file.attributes = {
-            file_size: meta_response[:size].to_i,
-            bit_rate: meta.bitrate,
-            duration: duration.round(2),
-            duration_ms: (duration * 1000).to_i,
-            mime_type: MIME::Types.type_for(file).first.content_type,
+            file_size: meta_response[:size],
+            bit_rate: meta_response[:bit_rate],
+            duration: duration&.round(2),
+            duration_ms: duration ? (duration * 1000).to_i : nil,
+            mime_type: meta_response[:mime_type],
             meta_data: prepare_surah_audio_meta_data(
               audio_file: audio_file,
-              meta: meta
+              year: meta_response[:year]
             )
           }
         end
@@ -77,20 +79,16 @@ module Audio
         url = audio_file.audio_url
 
         if meta_response = fetch_audio_file_meta_data(url)
-          file = meta_response[:file]
-
-          meta = WahWah.open(file)
-          duration = (meta.duration || calculate_duration(file)).to_f
-
+          duration = meta_response[:duration]
           audio_file.attributes = {
-            file_size: meta_response[:size].to_i,
-            bit_rate: meta.bitrate,
-            duration: duration.round(2),
-            duration_ms: (duration * 1000).to_i,
-            mime_type: MIME::Types.type_for(file).first.content_type,
+            file_size: meta_response[:size],
+            bit_rate: meta_response[:bit_rate],
+            duration: duration&.round(2),
+            duration_ms: duration ? (duration * 1000).to_i : nil,
+            mime_type: meta_response[:mime_type],
             meta_data: prepare_surah_meta_data(
               audio_file: audio_file,
-              meta: meta
+              year: meta_response[:year]
             )
           }
 
@@ -103,24 +101,26 @@ module Audio
       FileUtils.rm_rf(tmp_dir)
     end
 
-    def prepare_surah_meta_data(audio_file:, meta:)
+    def prepare_surah_meta_data(audio_file:, year:)
       existing_meta = audio_file.meta_data || {}
       chapter = audio_file.chapter
 
-      existing_meta.with_defaults_values({
-                                           album: "#{recitation.name} Quran recitation",
-                                           genre: "Quran",
-                                           title: chapter.name_simple,
-                                           track: "#{chapter.chapter_number}/114",
-                                           artist: recitation.name,
-                                           year: meta.year
-                                         })
+      existing_meta.with_defaults_values(
+        {
+          album: "#{recitation.name} Quran recitation",
+          genre: "Quran",
+          title: chapter.name_simple,
+          track: "#{chapter.chapter_number}/114",
+          artist: recitation.name,
+          year: year
+        }
+      )
 
       existing_meta[:comment] = 'https://qul.tarteel.ai/'
       existing_meta.to_h
     end
 
-    def prepare_surah_audio_meta_data(audio_file:, meta:)
+    def prepare_surah_audio_meta_data(audio_file:, year:)
       meta_data = audio_file.meta_data || {}
       chapter = audio_file.chapter
 
@@ -131,7 +131,7 @@ module Audio
           title: chapter.name_simple,
           track: "114/#{chapter.id}",
           artist: recitation.name,
-          year: meta.year
+          year: year
         }
       )
 
@@ -139,41 +139,144 @@ module Audio
       meta_data.to_h
     end
 
-    def calculate_duration(audio_file)
-      # ffmpeg -i https://download.quranicaudio.com/quran/abdullaah_3awwaad_al-juhaynee/001.mp3 2>&1 | egrep "Duration"
-
-      result = `ffmpeg -i #{audio_file} 2>&1 | egrep "Duration"`
-      matched = result.match(/Duration:\s(?<h>(\d+)):(?<m>(\d+)):(?<s>(\d+))/)
-
-      (matched[:h].to_i * 3600) + (matched[:m].to_i * 60) + matched[:s].to_i
-    rescue Exception => e
-      nil
-    end
-
     def fetch_audio_file_meta_data(url)
-      request = fetch_bytes(url, 5.megabyte)
-      body = request.body
+      headers = fetch_headers(url)
+      return false if headers[:not_found]
 
-      if body.to_s.include?("Not Found")
+      probed = probe_with_ffprobe(url)
+      if probed && (probed[:duration] || probed[:bit_rate])
+        return {
+          size: headers[:size],
+          mime_type: headers[:mime_type] || mime_type_from_url(url),
+          duration: probed[:duration],
+          bit_rate: probed[:bit_rate],
+          year: probed[:year]
+        }
+      end
+
+      request = fetch_bytes(url, 5.megabytes)
+      return false unless request
+
+      body = request.body
+      if request.is_a?(Net::HTTPNotFound) || body.to_s.include?('Not Found')
         return false
       else
         tmp_file_name = "audio-#{Time.now.to_i}.mp3"
         File.open("#{tmp_dir}/#{tmp_file_name}", "wb") do |file|
           file << body
         end
+        file_path = "#{tmp_dir}/#{tmp_file_name}"
+
+        meta = WahWah.open(file_path)
+        duration = meta.duration || probe_with_ffprobe(file_path)&.dig(:duration)
+        bit_rate = meta.bitrate || probe_with_ffprobe(file_path)&.dig(:bit_rate)
 
         {
-          file: "#{tmp_dir}/#{tmp_file_name}",
-          size: request.response.header['content-length']
+          size: headers[:size] || request['content-length']&.to_i,
+          mime_type: headers[:mime_type] || mime_type_from_url(url) || MIME::Types.type_for(file_path).first&.content_type,
+          duration: duration&.to_f,
+          bit_rate: bit_rate,
+          year: meta.year || probe_with_ffprobe(file_path)&.dig(:year)
         }
       end
     end
 
     def fetch_bytes(url, size)
       uri = URI(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.get(url, { 'Range' => "bytes=0-#{size}" })
+      get_request(uri, { 'Range' => "bytes=0-#{size - 1}" })
+    end
+
+    def fetch_headers(url)
+      uri = URI(url)
+      head = head_request(uri)
+      return { not_found: true } if head.is_a?(Net::HTTPNotFound)
+
+      mime_type = head&.[]('content-type')&.split(';')&.first
+      size = head&.[]('content-length')&.to_i
+
+      if size.to_i <= 0
+        ranged = get_request(uri, { 'Range' => 'bytes=0-0' })
+        if ranged && ranged['content-range']
+          size = ranged['content-range'].split('/').last.to_i
+        else
+          size = ranged&.[]('content-length')&.to_i
+        end
+        mime_type ||= ranged&.[]('content-type')&.split(';')&.first
+      end
+
+      { size: size.to_i > 0 ? size.to_i : nil, mime_type: mime_type }
+    rescue StandardError
+      {}
+    end
+
+    def probe_with_ffprobe(source)
+      stdout, _stderr, status = Open3.capture3(
+        'ffprobe',
+        '-v',
+        'error',
+        '-print_format',
+        'json',
+        '-show_entries',
+        'format=duration,bit_rate:format_tags=year,date',
+        '-i',
+        source
+      )
+
+      return nil unless status.success? && stdout.to_s.strip.length.positive?
+
+      data = JSON.parse(stdout)
+      format = data['format'] || {}
+      duration = format['duration']&.to_f
+      bit_rate_bps = format['bit_rate']&.to_f
+      tags = format['tags'] || {}
+      year_raw = tags['year'] || tags['date'] || tags['YEAR'] || tags['DATE']
+      year = year_raw.to_s[/\d{4}/]
+
+      {
+        duration: duration && duration.positive? ? duration : nil,
+        bit_rate: bit_rate_bps && bit_rate_bps.positive? ? (bit_rate_bps / 1000.0) : nil,
+        year: year
+      }
+    rescue StandardError
+      nil
+    end
+
+    def mime_type_from_url(url)
+      MIME::Types.type_for(url).first&.content_type
+    end
+
+    def head_request(uri)
+      request_with_redirects(uri, Net::HTTP::Head, {})
+    end
+
+    def get_request(uri, headers)
+      request_with_redirects(uri, Net::HTTP::Get, headers)
+    end
+
+    def request_with_redirects(uri, request_class, headers)
+      redirects = 0
+
+      while redirects < 5
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.scheme == 'https'
+        http.open_timeout = 10
+        http.read_timeout = 30
+
+        request = request_class.new(uri.request_uri, headers)
+        response = http.request(request)
+
+        if response.is_a?(Net::HTTPRedirection) && response['location'].present?
+          uri = URI(response['location'])
+          redirects += 1
+          next
+        end
+
+        return response
+      end
+
+      nil
+    rescue StandardError
+      nil
     end
   end
 end

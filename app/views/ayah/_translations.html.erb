@@ -1,5 +1,5 @@
 <%= turbo_frame_tag :ayah_translations do %>
-  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-mb-4">
+  <div dir="rtl" class="qpc-hafs tw-text-2xl sm:tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3 sm:tw-p-5 tw-mb-3 sm:tw-mb-4">
     <%= @ayah.text_qpc_hafs %>
   </div>
 
@@ -42,13 +42,13 @@
     </div>
   </div>
 
-  <div class="tw-mt-4 tw-space-y-6">
+  <div class="tw-mt-3 sm:tw-mt-4 tw-space-y-4 sm:tw-space-y-6">
     <% if @presenter.translations.any? %>
       <% @presenter.translation_ids.each do |rid| %>
         <% tr = @presenter.translations.find { |t| t.resource_content_id == rid } %>
         <% next unless tr %>
         <% rc = @presenter.translation_resources_by_id[rid] %>
-        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-4" data-controller="translation-footnote-toggle">
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3 sm:tw-p-4" data-controller="translation-footnote-toggle">
           <div class="tw-text-xs tw-text-gray-500"><%= rc&.name.presence || "Translation ##{rid}" %></div>
           <div class="tw-mt-2 tw-text-sm tw-text-gray-900"><%= safe_html(@presenter.translation_html_by_id[rid]) %></div>
           <% footnotes = @presenter.translation_footnotes_by_id[rid] || {} %>

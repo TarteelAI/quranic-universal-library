@@ -6,6 +6,12 @@ export default class extends Controller {
 
   connect() {
     const prefs = getAyahModalPrefs();
+    if (prefs.recitationPanelOpen) {
+      this.backdropTarget.classList.remove("tw-hidden");
+      this.backdropTarget.classList.add("tw-block");
+      this.panelTarget.classList.remove("tw-hidden");
+      this.panelTarget.classList.add("tw-flex");
+    }
     if (Number.isInteger(prefs.recitationResourceId)) {
       const current = this.currentRecitationResourceId();
       if (current !== prefs.recitationResourceId) {
@@ -17,6 +23,7 @@ export default class extends Controller {
 
   open(e) {
     e.preventDefault();
+    setAyahModalPrefs({ recitationPanelOpen: true });
     this.backdropTarget.classList.remove("tw-hidden");
     this.backdropTarget.classList.add("tw-block");
     this.panelTarget.classList.remove("tw-hidden");
@@ -25,6 +32,7 @@ export default class extends Controller {
 
   close(e) {
     e.preventDefault();
+    setAyahModalPrefs({ recitationPanelOpen: false });
     this.panelTarget.classList.add("tw-hidden");
     this.panelTarget.classList.remove("tw-flex");
     this.backdropTarget.classList.add("tw-hidden");

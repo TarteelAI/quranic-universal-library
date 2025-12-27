@@ -1,5 +1,5 @@
 <%= turbo_frame_tag :ayah_tafsirs do %>
-  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-mb-4">
+  <div dir="rtl" class="qpc-hafs tw-text-2xl sm:tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3 sm:tw-p-5 tw-mb-3 sm:tw-mb-4">
     <%= @ayah.text_qpc_hafs %>
   </div>
 
@@ -42,13 +42,13 @@
     </div>
   </div>
 
-  <div class="tw-mt-4 tw-space-y-6">
+  <div class="tw-mt-3 sm:tw-mt-4 tw-space-y-4 sm:tw-space-y-6">
     <% if @presenter.tafsir_by_id.present? %>
       <% @presenter.tafsir_ids.each do |rid| %>
         <% t = @presenter.tafsir_by_id[rid] %>
         <% next unless t %>
         <% rc = @presenter.tafsir_resources_by_id[rid] %>
-        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-4">
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3 sm:tw-p-4">
           <div class="tw-text-xs tw-text-gray-500"><%= rc&.name.presence || "Tafsir ##{rid}" %></div>
           <% ayahs = (@presenter.tafsir_ayahs_by_id || {})[rid] || [] %>
           <% if ayahs.any? %>
@@ -58,7 +58,7 @@
                 to <%= ayahs.last.verse_key %>
               </div>
               <div class="tw-mt-2 tw-space-y-2">
-                <div class="tw-bg-white/70 tw-border tw-border-emerald-100 tw-rounded tw-p-3 qpc-hafs">
+                <div class="tw-bg-white/70 tw-border tw-border-emerald-100 tw-rounded tw-p-2 sm:tw-p-3 qpc-hafs">
                   <% ayahs.each do |v| %>
                     <%= v.text_qpc_hafs %>
                   <% end %>

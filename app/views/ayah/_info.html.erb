@@ -1,33 +1,33 @@
 <% active_tab = params[:tab].presence || 'ayah' %>
-<div class="tw-p-6" id="modal-body" data-controller="tabs">
-  <ul class="nav nav-tabs nav-tabs-clean" id="ayahTabs" role="tablist">
-    <li class="tw-m-0" role="presentation">
+<div class="tw-p-3 sm:tw-p-6" id="modal-body" data-controller="tabs">
+  <ul class="nav nav-tabs nav-tabs-clean tw-flex-nowrap tw-overflow-x-auto tw-overflow-y-hidden tw-whitespace-nowrap" id="ayahTabs" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'ayah' %>" id="ayah-tab" data-bs-toggle="tab" data-bs-target="#ayah" type="button" role="tab" aria-controls="ayah" aria-selected="<%= active_tab == 'ayah' %>">Ayah</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'translations' %>" id="translations-tab" data-bs-toggle="tab" data-bs-target="#translations" type="button" role="tab" aria-controls="translations" aria-selected="<%= active_tab == 'translations' %>">Translations</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'tafsirs' %>" id="tafsirs-tab" data-bs-toggle="tab" data-bs-target="#tafsirs" type="button" role="tab" aria-controls="tafsirs" aria-selected="<%= active_tab == 'tafsirs' %>">Tafsirs</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'words' %>" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab" aria-controls="words" aria-selected="<%= active_tab == 'words' %>">Words</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'theme' %>" id="theme-tab" data-bs-toggle="tab" data-bs-target="#theme" type="button" role="tab" aria-controls="theme" aria-selected="<%= active_tab == 'theme' %>">Theme</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'transliteration' %>" id="transliteration-tab" data-bs-toggle="tab" data-bs-target="#transliteration" type="button" role="tab" aria-controls="transliteration" aria-selected="<%= active_tab == 'transliteration' %>">Transliteration</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'topics' %>" id="topics-tab" data-bs-toggle="tab" data-bs-target="#topics" type="button" role="tab" aria-controls="topics" aria-selected="<%= active_tab == 'topics' %>">Topics</button>
     </li>
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'recitation' %>" id="recitation-tab" data-bs-toggle="tab" data-bs-target="#recitation" type="button" role="tab" aria-controls="recitation" aria-selected="<%= active_tab == 'recitation' %>">Recitation</button>
     </li>
   </ul>
 
-  <div class="tab-content tw-p-4" id="ayahTabsContent">
+  <div class="tab-content tw-p-2 sm:tw-p-4" id="ayahTabsContent">
     <div class="tab-pane fade <%= 'show active' if active_tab == 'ayah' %>" id="ayah" role="tabpanel" aria-labelledby="ayah-tab">
       <%= turbo_frame_tag :ayah_text, src: ayah_text_path(@ayah.verse_key, script: 'text_qpc_hafs') %>
     </div>

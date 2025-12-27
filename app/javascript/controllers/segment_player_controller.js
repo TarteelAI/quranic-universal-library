@@ -22,6 +22,7 @@ export default class extends Controller {
     this.segmnetsData = {}
     this.audioData = {}
     this.isPlaying = false
+    this.playWindowEndMs = null
 
     this.versePaginaiton = {};
     this.segmentPaginaiton = {};
@@ -163,6 +164,11 @@ export default class extends Controller {
 
   updateProgress() {
     const time = this.player.seek();
+    if (this.playWindowEndMs !== null && time * 1000 >= this.playWindowEndMs) {
+      this.playWindowEndMs = null;
+      this.player.pause();
+      return;
+    }
     this.currentTime.textContent = this.formatTime(time);
 
     const progressPercent = (time / this.player.duration()) * 100;
@@ -200,8 +206,8 @@ export default class extends Controller {
     cancelAnimationFrame(this.playerId);
 
     const icon = this.playButton.querySelector("i");
-    icon.classList.add("fa-pause");
-    icon.classList.remove("fa-play");
+    icon.classList.add("fa-play");
+    icon.classList.remove("fa-pause");
   }
 
   onend() {

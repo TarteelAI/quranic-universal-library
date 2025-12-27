@@ -29,7 +29,20 @@ module Morphology
     end
 
     def corpus_graph_image_id
-      2
+      return nil unless graph
+      verse_id = graph.verse_id
+
+      prev = Morphology::Graph.connection.select_value(<<~SQL).to_i
+        SELECT COALESCE(SUM(t.max_graph_number), 0) AS total
+        FROM (
+          SELECT MAX(graph_number) AS max_graph_number
+          FROM morphology_graphs
+          WHERE verse_id < #{Morphology::Graph.connection.quote(verse_id)}
+          GROUP BY verse_id
+        ) t
+      SQL
+
+      prev + (graph.graph_number.to_i)
     end
 
     private

@@ -28,6 +28,12 @@ export function getAyahModalPrefs() {
     wordTranslationId: Number.isInteger(prefs.wordTranslationId) ? prefs.wordTranslationId : null,
     transliterationId: Number.isInteger(prefs.transliterationId) ? prefs.transliterationId : null,
     recitationResourceId: Number.isInteger(prefs.recitationResourceId) ? prefs.recitationResourceId : null,
+    translationPanelOpen: prefs.translationPanelOpen === true,
+    tafsirPanelOpen: prefs.tafsirPanelOpen === true,
+    wordTranslationPanelOpen: prefs.wordTranslationPanelOpen === true,
+    transliterationPanelOpen: prefs.transliterationPanelOpen === true,
+    scriptPanelOpen: prefs.scriptPanelOpen === true,
+    recitationPanelOpen: prefs.recitationPanelOpen === true,
   };
 }
 

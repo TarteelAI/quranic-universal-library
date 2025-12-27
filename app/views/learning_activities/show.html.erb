@@ -29,7 +29,7 @@
       </div>
       <div class="more-activities tw-flex tw-justify-center tw-gap-2 tw-mt-4 tw-hidden">
         <% ayah_key = @filtered_ayah&.verse_key || '1:1' %>
-        <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: "/ayah/#{ayah_key}", css_class: 'modal-lg', use_turbo: true} %>
+        <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: "/ayah/#{ayah_key}", css_class: 'modal-lg ayah-modal', use_turbo: true} %>
         <% next_url = @filtered_ayah ? learning_activity_path(activity, ayah: @filtered_ayah.verse_key) : learning_activity_path(activity) %>
         <%= link_to 'Next Challenge', next_url, class: 'btn btn-outline-dark me-3' %>
         <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>

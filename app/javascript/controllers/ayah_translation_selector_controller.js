@@ -6,6 +6,12 @@ export default class extends Controller {
 
   connect() {
     const prefs = getAyahModalPrefs();
+    if (prefs.translationPanelOpen) {
+      this.backdropTarget.classList.remove("tw-hidden");
+      this.backdropTarget.classList.add("tw-block");
+      this.panelTarget.classList.remove("tw-hidden");
+      this.panelTarget.classList.add("tw-flex");
+    }
     if (prefs.translationIds && prefs.translationIds.length) {
       const current = this.currentTranslationIds();
       const desired = prefs.translationIds.map((x) => parseInt(x, 10)).filter((x) => Number.isInteger(x));
@@ -18,6 +24,7 @@ export default class extends Controller {
 
   open(e) {
     e.preventDefault();
+    setAyahModalPrefs({ translationPanelOpen: true });
     this.backdropTarget.classList.remove("tw-hidden");
     this.backdropTarget.classList.add("tw-block");
     this.panelTarget.classList.remove("tw-hidden");
@@ -26,6 +33,7 @@ export default class extends Controller {
 
   close(e) {
     e.preventDefault();
+    setAyahModalPrefs({ translationPanelOpen: false });
     this.panelTarget.classList.add("tw-hidden");
     this.panelTarget.classList.remove("tw-flex");
     this.backdropTarget.classList.add("tw-hidden");

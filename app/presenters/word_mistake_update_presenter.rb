@@ -65,3 +65,4 @@ class WordMistakeUpdatePresenter
     [word_id, char_start, char_end]
   end
 end
+

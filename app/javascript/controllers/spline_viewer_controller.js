@@ -1,42 +1,68 @@
 import {Controller} from "@hotwired/stimulus";
-import ScreenSize from "../utils/screen-size";
 
 export default class extends Controller {
-  connect() {
-    this.device = new ScreenSize();
-   // this.adjustCanvasSize();
-
-    window.addEventListener('resize', () => {
-     // setTimeout(() => this.adjustCanvasSize(), 100);
-    });
+  static values = {
+    url: String,
+    width: Number,
+    height: Number,
+    viewerClass: String,
   }
 
-  adjustCanvasSize() {
-    const canvas = this.element.querySelector("canvas");
+  connect() {
+    this.mounted = false;
 
-    const {scale, desktopScale, scaleLargeDesktop, mobileScale, marginLeft} = this.element.dataset;
-    if(scale && scale === '1' || !canvas) {
-      return
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          this.mount();
+          this.observer?.disconnect();
+          this.observer = null;
+        }
+      },
+      { root: null, rootMargin: "200px", threshold: 0.01 }
+    );
+
+    this.observer.observe(this.element);
+  }
+
+  disconnect() {
+    this.observer?.disconnect();
+    this.observer = null;
+  }
+
+  async mount() {
+    if (this.mounted) return;
+    this.mounted = true;
+
+    await this.loadViewer();
+
+    const el = document.createElement("spline-viewer");
+    el.setAttribute("url", this.urlValue);
+
+    if (this.hasWidthValue) el.setAttribute("width", String(this.widthValue));
+    if (this.hasHeightValue) el.setAttribute("height", String(this.heightValue));
+    if (this.hasViewerClassValue && this.viewerClassValue) el.setAttribute("class", this.viewerClassValue);
+
+    this.element.replaceChildren(el);
+  }
+
+  loadViewer() {
+    if (!window.__qulSplineViewerLoadPromise) {
+      window.__qulSplineViewerLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = "https://unpkg.com/@splinetool/viewer/build/spline-viewer.js";
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
     }
-    const d = this.device;
 
-    if(d.isMobile() && mobileScale){
-      canvas.style.transform = `scale(${parseFloat(mobileScale)})`;
-      console.log("========= mobile", mobileScale)
-
-    } else if (d.isDesktop()) {
-      // Desktop
-      let s = parseFloat(desktopScale || scale || 1.5);
-      canvas.style.transform = `scale(${s})`;
-      //canvas.style.marginLeft = `${marginLeft||'-40px'}`;
-      console.log("========= desktop", s)
-    } else if (d.isLargeDesktop()) {
-      // Large Desktop
-      let largeScreeenScale = parseFloat(scaleLargeDesktop || scale || 1);
-      console.log("========= largeScreeenScale", largeScreeenScale)
-
-      canvas.style.transform = `scale(${largeScreeenScale})`;
-     // canvas.style.marginLeft = `-60px`;
-    }
+    return window.__qulSplineViewerLoadPromise;
   }
 }

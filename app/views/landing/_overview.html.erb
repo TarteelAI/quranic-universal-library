@@ -1,8 +1,6 @@
 <%= render 'layouts/grid' do %>
   <div class="tw-py-4 md:tw-py-8">
-    <p class="tw-font-semibold tw-text-gray-900">OVERVIEW</p>
     <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-gap-8 lg:tw-gap-16 tw-mt-3">
-      <!-- Left column -->
       <div class="tw-max-w-prose tw-text-pretty">
         <h2 class="tw-text-3xl tw-font-normal tw-text-gray-900 tw-max-w-[10ch] md:tw-text-5xl">
           <span class="tw-font-sarina">Reigniting</span> <br/>
@@ -15,7 +13,6 @@
           <%= link_to 'GET STARTED', resources_path, class: 'tw-hidden md:tw-inline-block tw-mt-4 tw-px-8 tw-py-3 tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors', id: 'get-started' %>
         </div>
       </div>
-      <!-- Right column -->
       <div class="tw-max-w-prose tw-mt-4 tw-text-gray-600 tw-text-pretty">
         <p class="tw-text-lg md:tw-text-2xl md:tw-font-thin md:tw-text-black">
           Islamic projects are built upon the same universal resources: the Quran, its translations, its tafsir, recitations of it, and related content and data. 
@@ -29,7 +26,6 @@
         </p>
       </div>
     </div>
-    <!-- Mobile 'GET STARTED' button -->
     <div class="tw-w-full md:tw-hidden tw-mt-7">
       <%= link_to 'GET STARTED', resources_path, class: 'tw-block tw-w-full tw-px-8 tw-py-4 tw-bg-gray-900 tw-text-white tw-text-center tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 tw-transition-colors hover:tw-text-white', id: 'get-started' %>
     </div>

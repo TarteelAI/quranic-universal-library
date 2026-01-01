@@ -1,9 +1,13 @@
-<script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
 <div class="tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center">
-  <spline-viewer
-    url="https://static-cdn.tarteel.ai/qul/spline/scene.splinecode"
-    width="800"
-    height="800"
-    class="tw-scale-75 md:tw-scale-100"
-  ></spline-viewer>
+  <div class="tw-w-full tw-h-full lg:tw-hidden">
+    <%= image_tag 'landingbackground.png', alt: 'QUL animation', class: 'tw-w-full tw-h-full tw-object-cover' %>
+  </div>
+  <div
+    class="tw-hidden lg:tw-flex tw-w-full tw-h-full tw-justify-center tw-items-center"
+    data-controller="spline-viewer"
+    data-spline-viewer-url-value="https://static-cdn.tarteel.ai/qul/spline/scene.splinecode"
+    data-spline-viewer-width-value="800"
+    data-spline-viewer-height-value="800"
+    data-spline-viewer-viewer-class-value="tw-scale-75 md:tw-scale-100"
+  ></div>
 </div>

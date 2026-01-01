@@ -23,6 +23,11 @@ a.tool-card-with-bg,
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
+a.tw-group:hover .tool-card-with-bg {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
 .tool-card-with-bg{
   height: 500px;
   background-repeat: no-repeat !important;

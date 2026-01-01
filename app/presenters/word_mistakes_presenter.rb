@@ -142,3 +142,4 @@ class WordMistakesPresenter < ApplicationPresenter
       .group_by(&:word_id)
   end
 end
+

@@ -1,11 +1,13 @@
 <div class="sidescroll-container">
-  <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white tw-font-title">Developer Resources</h2>
+  <h2 class="tw-text-3xl md:tw-text-5xl tw-text-white tw-font-title">
+    Developer Resources
+  </h2>
 </div>
 <div class="tw-mt-10">
   <%= render 'card/card_sidescrolling_container' do %>
     <% featured_developer_resources.each do |card| %>
       <%= render 'card/card-container', card: card do %>
-        <%= render 'card/card_content', card: card, show_stats: true %>
+        <%= render 'card/card_content', card: card, show_stats: true, show_learn_more: true, learn_more_text: 'View Data' %>
       <% end %>
     <% end %>
   <% end %>

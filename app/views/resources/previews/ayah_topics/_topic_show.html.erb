@@ -4,25 +4,25 @@
 %>
 
 <div class="tw-p-4 tw-rounded-lg tw-border tw-mb-6 <%= topic_background_color(topic) %>">
-  <h2 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mb-2">
+  <h2 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-tw-mb-2">
     <%= topic.name %>
     <% if topic.arabic_name.present? %>
       <span class="qpc-hafs tw-text-gray-700 tw-font-normal">(<%= topic.arabic_name %>)</span>
     <% end %>
   </h2>
 
-  <div class="tw-flex tw-gap-2 tw-mb-2">
+  <div class="tw-flex tw-gap-2 tw-tw-mb-2">
     <%= topic_type_badges(topic) %>
   </div>
 
   <% if topic.description.present? %>
-    <div class="tw-text-gray-600 tw-text-sm tw-mt-3">
+    <div class="tw-text-gray-600 tw-text-sm tw-tw-mt-3">
       <%= safe_html topic.description %>
     </div>
   <% end %>
 
   <% if parent %>
-    <div class="tw-mt-4">
+    <div class="tw-tw-mt-4">
       <span class="tw-text-gray-700 tw-font-semibold">Parent Topic:</span>
       <% if local_assigns[:resource].present? %>
         <%= link_to parent.name, detail_resources_path('ayah-topics', resource.id, topic_id: parent.id), class: 'tw-text-blue-600 hover:tw-text-blue-800' %>
@@ -38,7 +38,7 @@
 
 <% if children.present? %>
   <div class="tw-mb-6">
-    <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4">
+    <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-tw-mb-4">
       Child Topics (<%= children.count %>)
     </h3>
 
@@ -52,11 +52,11 @@
                   <%= child_topic.name %>
                 </h5>
                 <% if child_topic.arabic_name.present? %>
-                  <p class="tw-text-xs tw-text-gray-600 qpc-hafs tw-mb-2">
+                  <p class="tw-text-xs tw-text-gray-600 qpc-hafs tw-tw-mb-2">
                     <%= child_topic.arabic_name %>
                   </p>
                 <% end %>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-mt-2">
+                <div class="tw-flex tw-items-center tw-gap-2 tw-tw-mt-2">
                   <span class="tw-text-xs tw-text-gray-500">
                     <%= child_topic.verse_topics.count %> ayahs
                   </span>
@@ -96,7 +96,7 @@
 <div class="tw-space-y-4">
   <% if verse_topics.any? %>
     <% sorted_verse_topics = @sorted_verse_topics || verse_topics %>
-    <div class="tw-flex tw-items-center tw-justify-between tw-mb-4">
+    <div class="tw-flex tw-items-center tw-justify-between tw-tw-mb-4">
       <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800">
         Ayahs Associated with This Topic (<%= verse_topics.count %>)
       </h3>
@@ -117,7 +117,7 @@
     </div>
   <% else %>
     <div class="tw-p-6 tw-rounded-xl tw-bg-gray-50 tw-border tw-border-gray-200">
-      <p class="tw-text-gray-600 tw-text-center tw-italic">
+      <p class="tw-text-gray-600 tw-tw-text-center tw-italic">
         No ayahs found for this topic.
       </p>
     </div>

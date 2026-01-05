@@ -1,4 +1,4 @@
-<div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex" role="alert" data-controller="alert">
+<div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex tw-relative" role="alert" data-controller="alert">
   <i class="fa fa-info-circle tw-me-2 fa-2x"></i>
   <div>
     <p>
@@ -19,9 +19,13 @@
     </p>
 
     <p id="btn-request-permission">
-      <%= link_to 'Request Access to Mutashabihat ul Quran Tool', '_', class: 'btn btn-dark',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg'} %>
+      <%= link_to 'Request Access to Mutashabihat ul Quran Tool', '_', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg'} %>
     </p>
   </div>
 
-  <button type="button" class="btn-close" data-action="click->alert#close" aria-label="Close"></button>
+  <button type="button" class="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 hover:tw-text-gray-900 tw-bg-transparent hover:tw-bg-gray-200 tw-rounded-lg tw-p-1.5 tw-inline-flex tw-items-center tw-justify-center tw-transition-colors" data-action="click->alert#close" aria-label="Close">
+    <svg class="tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+    </svg>
+  </button>
 </div>

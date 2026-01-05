@@ -24,6 +24,60 @@ export default class extends Controller {
     this.sourceGraphId = null;
     this.graphsData = [];
     this.nextTempGraphId = -1;
+    
+    const modalElement = document.getElementById("graphSplitterModal");
+    if (modalElement) {
+      this.setupModal(modalElement);
+    }
+  }
+
+  setupModal(modalElement) {
+    const showButtons = document.querySelectorAll('[data-bs-target="#graphSplitterModal"]');
+    showButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showModal(modalElement);
+        this.loadGraphsData();
+      });
+    });
+
+    const closeButtons = modalElement.querySelectorAll('[data-action*="closeModal"], [data-bs-dismiss="modal"]');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.hideModal(modalElement);
+      });
+    });
+
+    modalElement.addEventListener('click', (e) => {
+      if (e.target === modalElement) {
+        this.hideModal(modalElement);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modalElement.classList.contains('tw-hidden')) {
+        this.hideModal(modalElement);
+      }
+    });
+  }
+
+  showModal(modalElement) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-z-[9998]';
+    backdrop.style.opacity = '0';
+    document.body.appendChild(backdrop);
+    
+    modalElement.classList.remove('tw-hidden');
+    modalElement.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+    
+    requestAnimationFrame(() => {
+      backdrop.style.opacity = '1';
+      modalElement.classList.remove('tw-opacity-0');
+      modalElement.classList.add('tw-opacity-100');
+    });
   }
 
   async loadGraphsData() {
@@ -230,11 +284,8 @@ export default class extends Controller {
       }
       
       const modalElement = document.getElementById("graphSplitterModal");
-      const modal = window.bootstrap?.Modal?.getInstance(modalElement);
-      if (modal) {
-        modal.hide();
-      } else {
-        modalElement.querySelector('[data-bs-dismiss="modal"]')?.click();
+      if (modalElement) {
+        this.hideModal(modalElement);
       }
       
       window.location.reload();
@@ -329,5 +380,36 @@ export default class extends Controller {
 
   hideError() {
     this.errorContainerTarget.classList.add("tw-hidden");
+  }
+
+  closeModal(event) {
+    const modalElement = document.getElementById("graphSplitterModal");
+    if (modalElement) {
+      this.hideModal(modalElement);
+    }
+  }
+
+  hideModal(modalElement) {
+    modalElement.classList.remove('tw-opacity-100');
+    modalElement.classList.add('tw-opacity-0');
+    modalElement.setAttribute('aria-hidden', 'true');
+    
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+      backdrop.style.opacity = '0';
+      setTimeout(() => {
+        if (backdrop.parentNode) {
+          backdrop.parentNode.removeChild(backdrop);
+        }
+      }, 300);
+    }
+    
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    setTimeout(() => {
+      modalElement.classList.add('tw-hidden');
+    }, 300);
   }
 }

@@ -5,13 +5,13 @@
   right_translations = data[:right_translations]
 %>
 
-<h2 class="heading my-3 tw-text-2xl md:tw-text-3xl tw-font-bold tw-text-center tw-mb-4 md:tw-mb-6 tw-text-gray-800 tw-px-2">
+<h2 class="heading tw-my-3 tw-text-2xl md:tw-text-3xl tw-font-bold tw-tw-text-center tw-tw-mb-4 md:tw-mb-6 tw-text-gray-800 tw-px-2">
   Word Match Challenge
 </h2>
 
-<div class="quiz tw-p-2 md:tw-p-4 rounded-3 word-match" data-controller="activities--word-match">
-  <div class="tw-px-3 md:tw-px-6 tw-py-3 md:tw-py-4 tw-rounded-lg tw-mb-4 md:tw-mb-6 tw-bg-gradient-to-r tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
-    <div class="tw-flex tw-items-center tw-justify-center tw-gap-2 md:tw-gap-3 tw-flex-wrap tw-text-center">
+<div class="quiz tw-tw-p-2 md:tw-p-4 rounded-3 word-match" data-controller="activities--word-match">
+  <div class="tw-px-3 md:tw-px-6 tw-py-3 md:tw-py-4 tw-rounded-lg tw-tw-mb-4 md:tw-mb-6 tw-bg-gradient-to-r tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
+    <div class="tw-flex tw-items-center tw-justify-center tw-gap-2 md:tw-gap-3 tw-flex-wrap tw-tw-text-center">
       <span class="tw-font-bold tw-text-blue-700 tw-text-sm md:tw-text-base">How to play:</span>
       <span class="tw-text-gray-700 tw-text-xs md:tw-text-sm">Click on a word or dot to start a line and connect it to the matching translation.</span>
     </div>
@@ -19,15 +19,15 @@
 
   <div class="tw-flex flex-column flex-md-row tw-gap-3 md:tw-gap-6 tw-relative" id="match-area">
     <div class="flex-fill">
-      <div class="tw-text-center tw-mb-2 md:tw-mb-4">
-        <h3 class="tw-text-lg md:tw-text-2xl tw-font-bold tw-text-blue-600 tw-mb-1 md:tw-mb-2">Arabic Words</h3>
+      <div class="tw-tw-text-center tw-tw-mb-2 md:tw-tw-mb-4">
+        <h3 class="tw-text-lg md:tw-text-2xl tw-font-bold tw-text-blue-600 tw-mb-1 md:tw-tw-mb-2">Arabic Words</h3>
         <div class="tw-inline-block tw-px-3 md:tw-px-4 tw-py-1 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-xs md:tw-text-sm tw-font-semibold">
           <%= left_words.length %> words
         </div>
       </div>
-      <div class="list-group tw-border-2 tw-border-blue-200 tw-rounded-lg tw-shadow-lg tw-bg-white tw-p-1 md:tw-p-2" id="left-column">
+      <div class="list-group tw-border-2 tw-border-blue-200 tw-rounded-lg tw-shadow-lg tw-bg-white tw-p-1 md:tw-tw-p-2" id="left-column">
         <% left_words.each do |w| %>
-          <div class="list-group-item tw-flex tw-items-center tw-justify-between qpc-hafs rounded-lg tw-mb-1 md:tw-mb-2 border-2 tw-border-gray-100 tw-shadow-sm tw-bg-gradient-to-r tw-from-blue-50 tw-to-white hover:tw-from-blue-100 hover:tw-border-blue-300 tw-transition-all tw-duration-200 tw-cursor-pointer tw-py-2 md:tw-py-3"
+          <div class="list-group-item tw-flex tw-items-center tw-justify-between qpc-hafs rounded-lg tw-mb-1 md:tw-tw-mb-2 border-2 tw-border-gray-100 tw-shadow-sm tw-bg-gradient-to-r tw-from-blue-50 tw-to-white hover:tw-from-blue-100 hover:tw-border-blue-300 tw-transition-all tw-duration-200 tw-cursor-pointer tw-py-2 md:tw-py-3"
                data-id="<%= w[:id] %>">
             <div class="tw-flex tw-items-center tw-gap-2 md:tw-gap-3">
               <span class="anchor-dot tw-ms-1 md:tw-ms-2 tw-bg-blue-500 tw-border-2 tw-border-white tw-shadow-md rounded-full tw-w-6 tw-h-6 md:tw-w-5 md:tw-h-5 tw-transition-all hover:tw-scale-125" data-side="left"></span>
@@ -40,15 +40,15 @@
     </div>
 
     <div class="flex-fill">
-      <div class="tw-text-center tw-mb-2 md:tw-mb-4">
-        <h3 class="tw-text-lg md:tw-text-2xl tw-font-bold tw-text-green-600 tw-mb-1 md:tw-mb-2">Translations</h3>
+      <div class="tw-tw-text-center tw-tw-mb-2 md:tw-tw-mb-4">
+        <h3 class="tw-text-lg md:tw-text-2xl tw-font-bold tw-text-green-600 tw-mb-1 md:tw-tw-mb-2">Translations</h3>
         <div class="tw-inline-block tw-px-3 md:tw-px-4 tw-py-1 tw-rounded-full tw-bg-green-500 tw-text-white tw-text-xs md:tw-text-sm tw-font-semibold">
           <%= right_translations.length %> options
         </div>
       </div>
-      <div class="list-group tw-border-2 tw-border-green-200 tw-rounded-lg tw-shadow-lg tw-bg-white tw-p-1 md:tw-p-2" id="right-column">
+      <div class="list-group tw-border-2 tw-border-green-200 tw-rounded-lg tw-shadow-lg tw-bg-white tw-p-1 md:tw-tw-p-2" id="right-column">
         <% right_translations.each do |t| %>
-          <div class="list-group-item tw-flex tw-items-center tw-justify-between rounded-lg tw-mb-1 md:tw-mb-2 border-2 tw-border-gray-100 tw-shadow-sm tw-bg-gradient-to-r tw-from-green-50 tw-to-white hover:tw-from-green-100 hover:tw-border-green-300 tw-transition-all tw-duration-200 tw-cursor-pointer tw-py-2 md:tw-py-3"
+          <div class="list-group-item tw-flex tw-items-center tw-justify-between rounded-lg tw-mb-1 md:tw-tw-mb-2 border-2 tw-border-gray-100 tw-shadow-sm tw-bg-gradient-to-r tw-from-green-50 tw-to-white hover:tw-from-green-100 hover:tw-border-green-300 tw-transition-all tw-duration-200 tw-cursor-pointer tw-py-2 md:tw-py-3"
                data-id="<%= t[:id] %>">
             <div class="tw-flex tw-items-center tw-gap-2 md:tw-gap-3">
               <span class="anchor-dot tw-me-1 md:tw-me-2 tw-bg-green-500 tw-border-2 tw-border-white tw-shadow-md rounded-full tw-w-6 tw-h-6 md:tw-w-5 md:tw-h-5 tw-transition-all hover:tw-scale-125" data-side="right"></span>
@@ -63,8 +63,8 @@
     <svg id="match-svg" class="tw-absolute top-0 start-0 tw-w-full tw-h-full tw-pointer-events-none"></svg>
   </div>
 
-  <div class="tw-mt-4 md:tw-mt-6">
-    <div class="tw-mb-2 tw-flex tw-items-center tw-justify-between tw-text-xs md:tw-text-sm tw-font-semibold tw-text-gray-700">
+  <div class="tw-tw-mt-4 md:tw-mt-6">
+    <div class="tw-tw-mb-2 tw-flex tw-items-center tw-justify-between tw-text-xs md:tw-text-sm tw-font-semibold tw-text-gray-700">
       <span>Progress</span>
       <span id="progress-text" class="tw-text-blue-600">0%</span>
     </div>

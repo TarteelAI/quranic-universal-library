@@ -1,9 +1,9 @@
 <div class="morphology-graph-show">
   <h2>Graph <%= graph.id %> - <%= graph.verse_key %> (Graph #<%= graph.graph_number %>)</h2>
 
-  <div class="syntax-graph-section mb-4">
+  <div class="syntax-graph-section tw-mb-4">
     <h3>Syntax Graph Visualization</h3>
-    <div class="bg-light p-3 rounded syntax-graph-container"
+    <div class="bg-light tw-p-3 rounded syntax-graph-container"
          style="min-height: 400px;"
          data-controller="syntax-graph"
          data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(
@@ -55,7 +55,7 @@
     </table>
   </div>
 
-  <div class="graph-edges mt-4">
+  <div class="graph-edges tw-mt-4">
     <h3>Edges</h3>
     <% edges = Morphology::GraphNodeEdge.joins(:source, :target)
                  .where(morphology_graph_nodes: { graph_id: graph.id })

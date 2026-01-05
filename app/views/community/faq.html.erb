@@ -5,7 +5,7 @@
     <h1 class="tw-text-2xl md:tw-text-3xl">
       Frequently Asked Questions
     </h1>
-    <p class="tw-mt-4">
+    <p class="tw-tw-mt-4">
       QUL is a comprehensive platform for Quranic resources.
       It provides access to structured and reliable data, along with tools to explore, manage, and contribute to Quranic resources.
       Researchers, students, and developers can leverage resources from QUL to build Islamic applications, perform data analysis, and conduct advanced research or studies related to the Quran.
@@ -14,20 +14,20 @@
       <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="tw-underline">GitHub repository</a>.
     </p>
 
-    <div class="tw-mt-3 mt-md-4 faq" data-controller="faq">
+    <div class="tw-tw-mt-3 mt-md-4 faq" data-controller="faq">
       <% @items.each do |faq| %>
         <div class="item tw-cursor-pointer" id="faq-<%= faq.id %>">
-          <div class="tw-py-4 tw-flex question-wrapper tw-items-center">
+          <div class="tw-py-4 tw-flex question-wrapper tw-items-center tw-justify-between">
             <span class="tw-me-1">
               <a href="#faq-<%= faq.id %>">🔗</a>
             </span>
 
-            <a href="#faq-<%= faq.id %>" class="question flex-grow-1">
+            <a href="#faq-<%= faq.id %>" class="question tw-flex-1">
             <span class="tw-text-xl">
               <%= safe_html faq.question %>
             </span>
-              <span class="question-icon"></span>
             </a>
+            <span class="question-icon tw-ml-2"></span>
           </div>
 
           <div class="answer-wrapper">

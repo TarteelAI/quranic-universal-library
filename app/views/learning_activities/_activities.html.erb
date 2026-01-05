@@ -1,7 +1,7 @@
 <%
   patterns = (1..10).to_a
 %>
-<div class="tw-mt-2 md:tw-mt-6">
+<div class="tw-tw-mt-2 md:tw-mt-6">
   <%= render 'card/card_grid' do %>
     <% learning_activities.each_with_index do |card, index| %>
       <%= render 'card/card-container', card: card, patterns: patterns do %>

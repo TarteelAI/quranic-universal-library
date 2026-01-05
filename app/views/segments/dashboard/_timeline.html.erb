@@ -2,24 +2,24 @@
   <div class="page-section filters" style="position: relative">
     <%= form_tag segments_timeline_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
-        <div class="tw-mb-4 tw-me-2">
+        <div class="tw-tw-mb-4 tw-me-2">
           <%= select_tag :surah, options_for_select(@presenter.chapter_options, @presenter.selected_surah), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
           <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Surah</p>
         </div>
 
-        <div class="tw-mb-4 tw-me-2">
+        <div class="tw-tw-mb-4 tw-me-2">
           <%= select_tag :reciter, options_for_select(@presenter.reciters.pluck(:name, :id), @presenter.selected_reciter), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { controller: 'select2' } %>
           <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter reciter</p>
         </div>
 
-        <div class="tw-mb-4">
-          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        <div class="tw-tw-mb-4">
+          <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
         </div>
       </div>
     <% end %>
   </div>
 
-  <div class="page-section tw-mt-4" data-controller="segments--timeline" data-ayah="<%= params[:ayah] %>">
+  <div class="page-section tw-tw-mt-4" data-controller="segments--timeline" data-ayah="<%= params[:ayah] %>">
     <% if @presenter.selected_reciter.present? && @presenter.selected_surah.present? %>
       <%
         data = @presenter.timeline_data
@@ -78,16 +78,16 @@
           }
       </style>
 
-      <h2 class="tw-text-xl tw-font-bold tw-mb-4">
+      <h2 class="tw-text-xl tw-font-bold tw-tw-mb-4">
         Word-by-Word Timeline – <%= reciter.name %>, Surah <%= @presenter.selected_surah %>
       </h2>
 
       <!-- Audio File Upload Section -->
-      <div class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-mb-4">
-        <h3 class="tw-text-lg tw-font-semibold tw-mb-3 tw-text-gray-700">Audio Source</h3>
+      <div class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-tw-mb-4">
+        <h3 class="tw-text-lg tw-font-semibold tw-tw-mb-3 tw-text-gray-700">Audio Source</h3>
 
         <!-- Drag and Drop Zone -->
-        <div id="audio-drop-zone" class="tw-border-2 tw-border-dashed tw-border-gray-300 tw-rounded-lg tw-p-6 tw-mb-4 tw-text-center tw-transition-colors hover:tw-border-blue-400 hover:tw-bg-blue-50 tw-cursor-pointer">
+        <div id="audio-drop-zone" class="tw-border-2 tw-border-dashed tw-border-gray-300 tw-rounded-lg tw-p-6 tw-tw-mb-4 tw-tw-text-center tw-transition-colors hover:tw-border-blue-400 hover:tw-bg-blue-50 tw-cursor-pointer">
           <div class="tw-flex tw-flex-col tw-items-center tw-space-y-2">
             <div class="tw-text-gray-600">
               <span class="tw-font-medium">Drop your audio file here</span> or <span class="tw-text-blue-500 tw-font-medium">click to browse</span>
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <div class="tw-mt-2 tw-text-xs tw-text-gray-500">
+        <div class="tw-tw-mt-2 tw-text-xs tw-text-gray-500">
           Upload a local audio file to test timing synchronization with different audio sources.
         </div>
       </div>
@@ -159,7 +159,7 @@
           <div
             data-ayah="<%= ayah.verse_number %>"
           >
-            <h3 class="tw-font-semibold tw-mb-2">
+            <h3 class="tw-font-semibold tw-tw-mb-2">
               Ayah <%= ayah.verse_key %>
               <span class="tw-text-gray-500 tw-text-sm">
                 (<%= ayah_start_time %> - <%= ayah_end_time %>)
@@ -252,7 +252,7 @@
              style="position: sticky; bottom: 0"
       ></audio>
 
-      <div class="tw-mt-4 tw-flex tw-items-center tw-gap-2">
+      <div class="tw-tw-mt-4 tw-flex tw-items-center tw-gap-2">
         <label for="jump-to-input" class="tw-text-sm tw-font-medium tw-text-gray-700">Jump to (ms):</label>
         <input
           type="number"

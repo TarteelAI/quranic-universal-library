@@ -4,12 +4,12 @@
   similar_ayahs = ayah.get_matching_verses
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
-    <li class="tw-m-0" role="presentation">
+<div class="tw-tw-mt-5" data-controller="tabs">
+  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
-              data-bs-toggle="tab"
+              data-action="click->tabs#switch"
               data-bs-target="#tab-preview-pane"
               type="button"
               role="tab"
@@ -19,10 +19,10 @@
       </button>
     </li>
 
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
-              data-bs-toggle="tab"
+              data-action="click->tabs#switch"
               data-bs-target="#tab-help-pane"
               type="button" role="tab"
               aria-controls="tab-help-pane"
@@ -32,7 +32,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content tw-tw-p-2 tw-tw-mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
@@ -68,10 +68,10 @@
           </div>
         </div>
 
-        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
           <div class="tw-p-6">
             <div class="qpc-hafs quran-text">
-              <div class="badge tw-bg-gray-600 text-white tw-text-left">
+              <div class="badge tw-bg-gray-600 text-white tw-tw-text-left">
                 <%= ayah.verse_key %>
               </div>
               <%= ayah.text_qpc_hafs %>
@@ -81,7 +81,7 @@
 
         <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <% if similar_ayahs.size > 1 %>
-            <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
+            <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4" role="alert">
               <p class="tw-leading-normal">
                 <%= ayah.verse_key %> has <%= pluralize similar_ayahs.size, 'similar ayah' %>
               </p>
@@ -92,10 +92,10 @@
                 matching_ayah = similar.matched_verse
                 match_words = similar.matched_word_positions
               %>
-              <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+              <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
                 <div class="tw-p-6">
                   <div class="qpc-hafs quran-text">
-                    <div class="badge tw-bg-gray-600 text-white tw-text-left">
+                    <div class="badge tw-bg-gray-600 text-white tw-tw-text-left">
                       <%= matching_ayah.verse_key %>
                     </div>
 
@@ -107,8 +107,8 @@
                       <% end %>
                     <% end %>
                   </div>
-                  <div class="tw-mt-4">
-                    <small class="tw-text-gray-600 tw-block tw-mb-2">
+                  <div class="tw-tw-mt-4">
+                    <small class="tw-text-gray-600 tw-block tw-tw-mb-2">
                       This ayah matches <%= similar.matched_words_count %> words with <%= similar.coverage %>% coverage and a similarity score of <%= similar.score %>
                     </small>
                   </div>
@@ -132,22 +132,22 @@
 
         <div>
           <h2 class="tw-text-2xl tw-font-bold">Similar Ayah Resource</h2>
-          <p class="tw-mt-2">
+          <p class="tw-tw-mt-2">
             The Similar Ayah resource in QUL highlights verses in the Quran that share similar words or expressions. This is useful for exploring recurring linguistic patterns, themes, or phrases across the Quran.
           </p>
         </div>
 
         <div>
           <h3 class="tw-text-xl tw-font-semibold">Export Formats</h3>
-          <p class="tw-mt-2">
+          <p class="tw-tw-mt-2">
             QUL exports similar ayah data in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
           </p>
         </div>
 
         <div>
           <h3 class="tw-text-lg tw-font-semibold">SQLite Schema</h3>
-          <div class="tw-overflow-x-auto tw-bg-gray-50 tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-mt-2">
-            <table class="tw-min-w-full tw-text-sm tw-text-left">
+          <div class="tw-overflow-x-auto tw-bg-gray-50 tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-tw-mt-2">
+            <table class="tw-min-w-full tw-text-sm tw-tw-text-left">
               <thead class="tw-bg-gray-100 tw-uppercase tw-text-xs tw-font-semibold">
               <tr>
                 <th class="tw-px-4 tw-py-2">Column</th>
@@ -193,16 +193,16 @@
 
         <div>
           <h3 class="tw-text-lg tw-font-semibold">Example</h3>
-          <p class="tw-mt-2">
+          <p class="tw-tw-mt-2">
             If <code>1:1</code> matches <code>27:30</code> with the following data:
           </p>
-          <pre class="tw-bg-gray-100 tw-p-4 tw-rounded-md tw-mt-2 tw-text-sm tw-whitespace-pre-wrap">
+          <pre class="tw-bg-gray-100 tw-p-4 tw-rounded-md tw-tw-mt-2 tw-text-sm tw-whitespace-pre-wrap">
 matched_words_count: 4
 coverage: 100
 score: 100
 match_words_range: [5,8]
     </pre>
-          <p class="tw-mt-2">
+          <p class="tw-tw-mt-2">
             The interpretation would be:
           </p>
           <div class="tw-bg-blue-50 tw-border-l-4 tw-border-blue-400 tw-p-4 tw-rounded-md tw-text-sm">

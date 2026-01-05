@@ -1,44 +1,44 @@
-<h1 class="tw-text-2xl tw-font-semibold tw-mt-4">Welcome! Let’s get you started!</h1>
+<h1 class="tw-text-2xl tw-font-semibold tw-tw-mt-4">Welcome! Let’s get you started!</h1>
 <p class="tw-mt-6">
   Signup using your <strong>Email</strong> credentials.
 </p>
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { role: 'form', class: 'inputs_container', data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-  <div class="form-floating tw-mt-3">
-    <%= f.text_field :first_name, autofocus: true, required: true, class: 'form-control', placeholder: 'First name' %>
-    <%= f.label :first_name, required: true %>
-    <div class="invalid-feedback">
+  <div class="tw-relative tw-mt-6">
+    <%= f.text_field :first_name, autofocus: true, required: true, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent peer', placeholder: ' ' %>
+    <%= f.label :first_name, class: 'tw-absolute tw-text-sm tw-text-gray-500 tw-duration-300 tw-transform -tw-translate-y-4 tw-scale-75 tw-top-2 tw-z-10 tw-origin-[0] tw-bg-white tw-px-2 peer-focus:tw-px-2 peer-focus:tw-text-blue-600 peer-placeholder-shown:tw-scale-100 peer-placeholder-shown:-tw-translate-y-1/2 peer-placeholder-shown:tw-top-1/2 peer-focus:tw-top-2 peer-focus:tw-scale-75 peer-focus:-tw-translate-y-4 tw-start-1 tw-pointer-events-none', required: true %>
+    <div class="tw-text-sm tw-text-red-600 tw-mt-1 tw-hidden invalid-feedback">
       First name is required
     </div>
   </div>
-  <div class="form-floating tw-mt-3">
-    <%= f.text_field :last_name, required: true, class: 'form-control', placeholder: 'Last name' %>
-    <%= f.label :last_name, required: true %>
-    <div class="invalid-feedback">
+  <div class="tw-relative tw-mt-6">
+    <%= f.text_field :last_name, required: true, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent peer', placeholder: ' ' %>
+    <%= f.label :last_name, class: 'tw-absolute tw-text-sm tw-text-gray-500 tw-duration-300 tw-transform -tw-translate-y-4 tw-scale-75 tw-top-2 tw-z-10 tw-origin-[0] tw-bg-white tw-px-2 peer-focus:tw-px-2 peer-focus:tw-text-blue-600 peer-placeholder-shown:tw-scale-100 peer-placeholder-shown:-tw-translate-y-1/2 peer-placeholder-shown:tw-top-1/2 peer-focus:tw-top-2 peer-focus:tw-scale-75 peer-focus:-tw-translate-y-4 tw-start-1 tw-pointer-events-none', required: true %>
+    <div class="tw-text-sm tw-text-red-600 tw-mt-1 tw-hidden invalid-feedback">
       Last name is required
     </div>
   </div>
-  <div class="form-floating tw-mt-3">
-    <%= f.email_field :email, required: true, class: 'form-control', placeholder: 'Email' %>
-    <%= f.label :email, required: true %>
-    <div class="invalid-feedback">
+  <div class="tw-relative tw-mt-6">
+    <%= f.email_field :email, required: true, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent peer', placeholder: ' ' %>
+    <%= f.label :email, class: 'tw-absolute tw-text-sm tw-text-gray-500 tw-duration-300 tw-transform -tw-translate-y-4 tw-scale-75 tw-top-2 tw-z-10 tw-origin-[0] tw-bg-white tw-px-2 peer-focus:tw-px-2 peer-focus:tw-text-blue-600 peer-placeholder-shown:tw-scale-100 peer-placeholder-shown:-tw-translate-y-1/2 peer-placeholder-shown:tw-top-1/2 peer-focus:tw-top-2 peer-focus:tw-scale-75 peer-focus:-tw-translate-y-4 tw-start-1 tw-pointer-events-none', required: true %>
+    <div class="tw-text-sm tw-text-red-600 tw-mt-1 tw-hidden invalid-feedback">
       Please enter a valid email
     </div>
   </div>
-  <div class="form-floating tw-mt-3 password">
-    <%= f.password_field :password, class: 'form-control', placeholder: 'Password', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
-    <%= f.label :password, required: true %>
-    <div class="invalid-feedback">
+  <div class="tw-relative tw-mt-6 password">
+    <%= f.password_field :password, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent peer', placeholder: ' ', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
+    <%= f.label :password, class: 'tw-absolute tw-text-sm tw-text-gray-500 tw-duration-300 tw-transform -tw-translate-y-4 tw-scale-75 tw-top-2 tw-z-10 tw-origin-[0] tw-bg-white tw-px-2 peer-focus:tw-px-2 peer-focus:tw-text-blue-600 peer-placeholder-shown:tw-scale-100 peer-placeholder-shown:-tw-translate-y-1/2 peer-placeholder-shown:tw-top-1/2 peer-focus:tw-top-2 peer-focus:tw-scale-75 peer-focus:-tw-translate-y-4 tw-start-1 tw-pointer-events-none', required: true %>
+    <div class="tw-text-sm tw-text-red-600 tw-mt-1 tw-hidden invalid-feedback">
       Password does not meet minimum security requirements.
     </div>
   </div>
-  <div class="tw-mt-3 tw-flex tw-items-center">
+  <div class="tw-mt-6 tw-flex tw-items-center">
     <%= f.label :add_to_mailing_list, class: "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer" do %>
       <%= f.check_box :add_to_mailing_list, class: "tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-primary-600 focus:tw-ring-primary-500" %>
       <span class="tw-text-gray-700">I agree to signup for the Tarteel Mailing list.</span>
     <% end %>
   </div>
-  <div class="tw-text-center tw-mt-8">
-    <%= f.submit t('.sign_up', default: 'Sign up'), class: 'btn btn-dark btn-rounded mt-2 px-8 py-3' %>
+  <div class="tw-tw-text-center tw-mt-8">
+    <%= f.submit t('.sign_up', default: 'Sign up'), class: 'tw-px-8 tw-py-3 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-tw-mt-2' %>
   </div>
 <% end %>

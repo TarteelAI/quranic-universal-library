@@ -3,14 +3,14 @@
 %>
 
 <div class="tw-space-y-6 tw-text-gray-800 tw-text-base tw-leading-relaxed">
-  <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
+  <h1 class="tw-text-2xl tw-font-bold tw-tw-mb-4">
     Ayahs with Sajdah in Quran
   </h1>
 
   <div class="tw-space-y-4 tw-mt-6">
     <% verses.each do |verse| %>
       <div class="tw-border tw-border-gray-200 tw-rounded-xl tw-p-4 tw-shadow-sm tw-bg-white">
-        <div class="tw-flex tw-gap-2 tw-items-center tw-mb-2">
+        <div class="tw-flex tw-gap-2 tw-items-center tw-tw-mb-2">
           <div class="tw-text-sm tw-font-semibold">
             Ayah: <%= verse.verse_key %>
           </div>
@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        <div class="qpc-hafs tw-text-lg tw-leading-relaxed tw-font-arabic tw-mt-2 tw-text-right">
+        <div class="qpc-hafs tw-text-lg tw-leading-relaxed tw-font-arabic tw-tw-mt-2 tw-tw-text-right">
           <%= verse.text_qpc_hafs %>
         </div>
       </div>

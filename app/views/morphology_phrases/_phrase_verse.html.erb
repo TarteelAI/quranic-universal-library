@@ -16,13 +16,13 @@
     <% if @access %>
       <div class="tw-ms-4">
         <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put, html: { class: 'form-inline' } do |form| %>
-          <div class="tw-flex my-2">
+          <div class="tw-flex tw-my-2">
             <div class="tw-me-2">
               <small>p: <%= phrase.id %> s: <%= phrase_verse.score %></small>
 
               <span class="badge tw-bg-green-500"
                     type="button"
-                    data-bs-toggle="collapse"
+                    data-controller="collapse" data-action="click->collapse#toggle"
                     data-bs-target="#phrase-<%= phrase.id %>-related"
                     aria-expanded="false"
                     aria-controls="phrase-<%= phrase.id %>-related">
@@ -30,8 +30,8 @@
           </span>
               <span class="badge tw-bg-red-500"><%= not_approved_count %></span>
             </div>
-            <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "me-2 btn btn-sm #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'btn-outline-danger' : 'btn-danger'}", data: { controller: 'tooltip' }) %>
-            <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "btn btn-sm #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'btn-success' : 'btn-outline-success'}", data: { controller: 'tooltip' }) %>
+            <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "tw-mr-2 tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-rounded tw-transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'tw-bg-transparent tw-text-red-600 tw-border tw-border-red-600 hover:tw-bg-red-600 hover:tw-text-white' : 'tw-bg-red-600 hover:tw-bg-red-700 tw-text-white'}", data: { controller: 'tooltip' }) %>
+            <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-rounded tw-transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-border tw-border-green-600 tw-text-green-600 hover:tw-bg-green-600 hover:tw-text-white'}", data: { controller: 'tooltip' }) %>
           </div>
         <% end %>
       </div>

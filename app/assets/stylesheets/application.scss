@@ -1,8 +1,4 @@
 @import "shared/variables";
-//TODO: remove bootstrap after migrating all tools UI to tailwind
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/variables";
 
 @import "libs/actiontext";
 @import "components/splash";

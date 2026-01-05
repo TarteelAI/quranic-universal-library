@@ -20,13 +20,13 @@
           <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
             <%= render 'shared/filters', verse: false %>
 
-            <div class="tw-mb-4 tw-me-2">
+            <div class="tw-tw-mb-4 tw-me-2">
               <%= select_tag :recitation_id, options_for_select(recitations, params[:recitation_id]), class: 'form-select tw-w-[85vw] sm:tw-w-auto', data: { controller: 'select2' } %>
               <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by recitation</p>
             </div>
 
-            <div class="tw-mb-4">
-              <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+            <div class="tw-tw-mb-4">
+              <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
             </div>
           </div>
         <% end %>
@@ -34,8 +34,8 @@
     </div>
   </div>
 
-  <div class="page-section tw-mt-4">
-    <h2 class="tw-text-2xl tw-mb-4">Surah list</h2>
+  <div class="page-section tw-tw-mt-4">
+    <h2 class="tw-text-2xl tw-tw-mb-4">Surah list</h2>
     <div class="tools-table-overflow">
     <table class="tw-w-full hover:tw-bg-gray-50">
       <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
@@ -69,8 +69,8 @@
 
           <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
-              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
-              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'btn btn-success text-wrap' %>
+              <%= link_to 'Show', surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-whitespace-normal' %>
+              <%= link_to 'Fix Segments', segment_builder_surah_audio_file_path(@recitation.id, chapter_id: file.chapter_id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-whitespace-normal' %>
             </div>
           </td>
         </tr>

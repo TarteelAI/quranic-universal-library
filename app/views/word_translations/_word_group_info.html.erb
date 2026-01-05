@@ -1,9 +1,9 @@
-<div class="tw-mb-4" id="<%= dom_id word, :group %>">
+<div class="tw-tw-mb-4" id="<%= dom_id word, :group %>">
   <%= text_field_tag :group_text,
                       word_translation.get_group_text,
                      class: "form-control #{language.name.downcase}", disabled: true %>
 
-  <div class="help-block tw-mt-2">
+  <div class="help-block tw-tw-mt-2">
     <% if word_translation.has_grouped_translation? %>
       <% range = word_translation.group_words_range %>
 

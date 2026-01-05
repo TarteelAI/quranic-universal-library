@@ -30,22 +30,22 @@
 </div>
 
 <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow">
-  <div class="tw-mb-4">
+  <div class="tw-tw-mb-4">
     <h1 class="tw-text-3xl tw-font-bold">Rub al-Hizb <%= rub.rub_el_hizb_number %></h1>
-    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Total Ayahs:
+    <p class="tw-tw-mt-2 tw-text-sm tw-text-gray-600">Total Ayahs:
       <strong>
         <%= rub.verses_count %>
       </strong></p>
   </div>
 
-  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4 tw-mb-4">
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-2">Ayah Range</h2>
+  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4 tw-tw-mb-4">
+    <h2 class="tw-text-lg tw-font-semibold tw-tw-mb-2">Ayah Range</h2>
     <p><strong>From:</strong> <%= rub.first_verse.chapter.name_simple %>, Ayah <%= rub.first_verse.verse_number %></p>
     <p><strong>To:</strong> <%= rub.last_verse.chapter.name_simple %>, Ayah <%= rub.last_verse.verse_number %></p>
   </div>
 
   <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4">
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-4">Surahs in this Rub al-Hizb</h2>
+    <h2 class="tw-text-lg tw-font-semibold tw-tw-mb-4">Surahs in this Rub al-Hizb</h2>
     <ul class="tw-divide-y tw-divide-gray-200">
       <% rub.verse_mapping.each do |chapter_id, verses_range| %>
         <% chapter = Chapter.find(chapter_id) %>

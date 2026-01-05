@@ -3,8 +3,8 @@
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="page-section tw-mt-4" data-turbo="false">
-    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">Detection Statistics Dashboard</h1>
+  <div class="page-section tw-tw-mt-4" data-turbo="false">
+    <h1 class="tw-text-2xl tw-font-bold tw-tw-mb-4">Detection Statistics Dashboard</h1>
 
     <%= form_with url: segments_dashboard_path, method: :get, class: "tw-flex tw-gap-4 tw-mb-6" do %>
       <div>
@@ -34,18 +34,18 @@
 
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-8">
       <div>
-        <h2 class="tw-font-bold tw-mb-2">Detection Type Count</h2>
+        <h2 class="tw-font-bold tw-tw-mb-2">Detection Type Count</h2>
         <canvas id="detectionChart" height="250"></canvas>
       </div>
 
       <div>
-        <h2 class="tw-font-bold tw-mb-2">Mistake Type Distribution</h2>
+        <h2 class="tw-font-bold tw-tw-mb-2">Mistake Type Distribution</h2>
         <canvas id="mistakeChart" height="250"></canvas>
       </div>
     </div>
 
     <div class="tw-mt-8">
-      <h2 class="tw-font-bold tw-mb-2">Reciters Stats</h2>
+      <h2 class="tw-font-bold tw-tw-mb-2">Reciters Stats</h2>
       <div class="tw-w-full">
         <canvas id="recitersChart" height="100"></canvas>
       </div>

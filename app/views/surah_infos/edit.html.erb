@@ -9,19 +9,19 @@
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section">
     <%= form_with model: @info, url: surah_info_path(@info.chapter_id, resource_id: @resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
-      <div class="tw-mb-4 tw-mb-3">
+      <div class="tw-tw-mb-4 tw-tw-mb-3">
         <%= form.label :short_text, class: 'form-label h2' %>
-        <%= form.text_area :short_text, class: 'form-control', row: 2 %>
+        <%= form.text_area :short_text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', row: 2 %>
       </div>
 
-      <div class="tw-mb-4">
+      <div class="tw-tw-mb-4">
         <%= form.label :text, 'Surah Info text', class: 'form-label h2' %>
-        <%= form.text_area :text, class: 'form-control', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
+        <%= form.text_area :text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
       </div>
 
-      <div class="tw-mb-4 tw-flex tw-justify-end tw-mt-3">
-        <%= link_to 'Cancel', surah_info_path(@info.chapter_id, language: @info.language_id, resource_id: @resource.id), class: 'btn btn-default' %>
-        <%= form.submit "Save Surah Info", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+      <div class="tw-tw-mb-4 tw-flex tw-justify-end tw-tw-mt-3">
+        <%= link_to 'Cancel', surah_info_path(@info.chapter_id, language: @info.language_id, resource_id: @resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors' %>
+        <%= form.submit "Save Surah Info", class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>
   </div>

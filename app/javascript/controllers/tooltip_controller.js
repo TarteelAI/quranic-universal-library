@@ -12,11 +12,10 @@ export default class extends Controller {
     this.element.removeAttribute('title');
     
     this.tooltip = document.createElement('div');
-    this.tooltip.className = 'tw-absolute tw-z-50 tw-px-2 tw-py-1 tw-text-sm tw-text-white tw-bg-gray-900 tw-rounded tw-shadow-lg tw-pointer-events-none tw-opacity-0 tw-transition-opacity tw-duration-200 tw-max-w-xs';
+    this.tooltip.className = 'tw-absolute tw-z-[10000] tw-px-2 tw-py-1 tw-text-sm tw-text-white tw-bg-gray-900 tw-rounded tw-shadow-lg tw-pointer-events-none tw-opacity-0 tw-transition-opacity tw-duration-200 tw-max-w-xs';
     this.tooltip.setAttribute('role', 'tooltip');
     this.tooltip.style.visibility = 'hidden';
     this.tooltip.style.overflow = 'visible';
-    this.tooltip.style.position = 'fixed';
     this.tooltip.style.display = 'none';
     
     const contentWrapper = document.createElement('div');
@@ -86,8 +85,10 @@ export default class extends Controller {
     const tooltipRect = this.tooltip.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
     
-    const offset = 6;
+    const offset = 8;
     
     let placement = this.placementValue;
     let x = 0;
@@ -129,8 +130,8 @@ export default class extends Controller {
     x = Math.max(padding, Math.min(x, viewportWidth - tooltipRect.width - padding));
     y = Math.max(padding, Math.min(y, viewportHeight - tooltipRect.height - padding));
     
-    this.tooltip.style.left = `${x}px`;
-    this.tooltip.style.top = `${y}px`;
+    this.tooltip.style.left = `${x + scrollX}px`;
+    this.tooltip.style.top = `${y + scrollY}px`;
   }
 
   updateArrowDirection(placement) {

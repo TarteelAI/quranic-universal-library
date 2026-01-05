@@ -15,7 +15,7 @@
         <div class="tw-w-full">
           <%= form.hidden_field :resource_content_id, value: resource.id %>
 
-          <div class="tw-mb-4 tw-mb-3">
+          <div class="tw-tw-mb-4 tw-tw-mb-3">
             <%= form.label :reason_for_request, 'Reason for Request', class: 'h5' %>
             <%= form.text_area :reason_for_request, required: true, cols: nil, rows: nil, class: 'form-control' %>
             <div class="tw-text-gray-600">
@@ -27,7 +27,7 @@
           <% if resource.recitation? %>
             <%= form.hidden_field :language_proficiency, value: 'N/A' %>
           <% else %>
-            <div class="tw-mb-4 tw-mb-3">
+            <div class="tw-tw-mb-4 tw-tw-mb-3">
               <%= form.label :language_proficiency, 'Language Proficiency', class: 'h5' %>
               <%= form.text_area :language_proficiency, required: true, cols: nil, rows: nil, class: 'form-control' %>
               <div class="tw-text-gray-600">
@@ -38,7 +38,7 @@
             </div>
           <% end %>
 
-          <div class="tw-mb-4 tw-mb-3">
+          <div class="tw-tw-mb-4 tw-tw-mb-3">
             <%= form.label :motivation_and_goals, 'Motivation and Goals', class: 'h5' %>
             <%= form.text_area :motivation_and_goals, required: true, cols: nil, rows: nil, class: 'form-control' %>
             <div class="tw-text-gray-600">
@@ -48,7 +48,7 @@
           </div>
 
           <% if resource.translation? || resource.tafsir? || resource.chapter_info? %>
-            <div class="tw-mb-4 tw-mb-3">
+            <div class="tw-tw-mb-4 tw-tw-mb-3">
               <div class="custom-control custom-checkbox">
                 <%= form.check_box :review_process_acknowledgment, class: 'custom-control-input' %>
                 <%= form.label :review_process_acknowledgment, 'Review Process Acknowledgment', class: 'custom-control-label' %>
@@ -59,7 +59,7 @@
                 use this permission to suggest changes in wording preferences or subjective opinions.
               </div>
 
-              <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-900 tw-text-white tw-mt-2">
+              <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-900 tw-text-white tw-tw-mt-2">
                 We ask for this acknowledgment to ensure that the integrity of the
                 <% if resource.translation? %>
                   translation
@@ -81,10 +81,10 @@
     </div>
 
     <div class="tw-flex tw-items-center tw-justify-end tw-p-6 tw-border-t tw-border-gray-200 tw-space-x-2">
-      <button type="button" class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors btn-default" data-bs-dismiss="modal">Close</button>
+      <button type="button" class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800" data-action="click->ajax-modal#hide">Close</button>
 
-      <div class="tw-mb-4 tw-mt-2" style="text-align: right">
-        <%= form.submit 'Submit', class: 'btn btn-success' %>
+      <div class="tw-tw-mb-4 tw-tw-mt-2" style="text-align: right">
+        <%= form.submit 'Submit', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
       </div>
     </div>
   <% end %>

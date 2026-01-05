@@ -4,12 +4,12 @@
 
 <div id="body">
   <div class="tw-p-6" id=modal-body>
-    <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
+    <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
      This will refresh the exported files for <%= resource.name %>, the old files will be replaced with the new ones.
     </div>
 
     <%= form_with url: refresh_downloads_cms_downloadable_resource_path(resource), method: :put do |form| %>
-      <div class="tw-mb-4">
+      <div class="tw-tw-mb-4">
         <%= form.check_box :notify_users %>
         <%= form.label :notify_users, 'Notify users about the new version via email' %>
         <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <div class="tw-mb-4 tw-mt-3">
+      <div class="tw-tw-mb-4 tw-tw-mt-3">
         <%= form.submit 'Submit' %>
       </div>
     <% end %>

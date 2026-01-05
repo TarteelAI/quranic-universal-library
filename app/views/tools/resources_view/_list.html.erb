@@ -29,7 +29,7 @@
           </span>
 
           <% if card.tags.present? %>
-            <div class="tw-flex tw-flex-wrap tw-gap-1 tw-mt-2 md:tw-hidden">
+            <div class="tw-flex tw-flex-wrap tw-gap-1 tw-tw-mt-2 md:tw-hidden">
               <% card.tags.each do |tag| %>
                 <%= render 'card/card-tag', tag: tag %>
               <% end %>
@@ -50,7 +50,7 @@
         <% end %>
       </td>
 
-      <td class="tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top tw-mt-3">
+      <td class="tw-py-3 tw-px-4 tw-hidden md:tw-table-cell tw-align-top tw-tw-mt-3">
         <% if card.tags.present? %>
           <div class="tw-flex tw-flex-wrap tw-gap-2">
             <% card.tags.each do |tag| %>

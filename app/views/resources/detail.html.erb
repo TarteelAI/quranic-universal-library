@@ -10,7 +10,7 @@
 
 <div id="resources" data-controller="resource-search">
   <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
-    <div id="resource-bg">
+    <div id="resource-bg" class="tw-invert">
     </div>
 
     <%= render 'layouts/grid' do %>
@@ -27,11 +27,11 @@
         <nav aria-label="breadcrumb">
           <ol class="custom-breadcrumb">
             <li class="breadcrumb-link">
-              <%= link_to 'Developer Resources', resources_path, class: 'btn-link text-dark' %>
+              <%= link_to 'Developer Resources', resources_path, class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
             </li>
 
             <li class="breadcrumb-link">
-              <%= link_to @resource.group_heading, resource_path(@resource.resource_type), class: 'btn-link text-dark' %>
+              <%= link_to @resource.group_heading, resource_path(@resource.resource_type), class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
             </li>
 
             <li class="breadcrumb-link active">
@@ -44,8 +44,8 @@
   </div>
 
   <div class="tw-container tw-mx-auto tw-p-6 tw-space-y-8">
-    <header class="tw-text-center">
-      <h1 class="tw-text-3xl tw-font-bold tw-text-gray-800 tw-mb-4">
+    <header class="tw-tw-text-center">
+      <h1 class="tw-text-3xl tw-font-bold tw-text-gray-800 tw-tw-mb-4">
         <%= @resource.name %>
       </h1>
 
@@ -57,7 +57,7 @@
     <%= render 'layouts/grid' do %>
       <div class="tw-grid-cols-subgrid tw-grid">
         <% if @resource.description.present? %>
-          <section class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-shadow-sm tw-w-full tw-mb-5">
+          <section class="tw-bg-gray-50 tw-p-4 tw-rounded-lg tw-shadow-sm tw-w-full tw-tw-mb-5">
             <div class="tw-text-gray-700">
               <%= safe_html @resource.description %>
             </div>
@@ -65,29 +65,29 @@
         <% end %>
 
         <% if tags.present? %>
-          <section class="tw-mb-4">
+          <section class="tw-tw-mb-4">
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Tags</h2>
-            <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
+            <div class="tw-flex tw-flex-wrap tw-gap-2 tw-tw-mt-3">
               <%= render partial: 'card/card-tag', as: :tag, collection: tags %>
             </div>
           </section>
         <% end %>
 
-        <section class="tw-mb-4">
+        <section class="tw-tw-mb-4">
           <% if copyright_notice.present? %>
             <div class="tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700 tw-p-4 tw-rounded-lg tw-text-base">
               <%= safe_html copyright_notice %>
             </div>
           <% else %>
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>
-            <div class="tw-mt-3 tw-flex tw-gap-3 tw-flex-wrap">
+            <div class="tw-tw-mt-3 tw-flex tw-gap-3 tw-flex-wrap">
               <% @resource.downloadable_files.each do |file| %>
                 <% if user_signed_in? %>
-                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-btn tw-btn-success' do %>
+                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' do %>
                     Download <%= file.file_type %>
                   <% end %>
                 <% else %>
-                  <%= link_to '#_', class: 'tw-btn tw-btn-success', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
+                  <%= link_to '#_', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
                     Download <%= file.file_type %>
                   <% end %>
                 <% end %>
@@ -99,12 +99,12 @@
         <%= render 'preview', resource: @resource %>
 
         <% if @resource.related_resources.present? %>
-          <section class="tw-mt-4">
+          <section class="tw-tw-mt-4">
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
               Related Resources
             </h2>
 
-            <ul class="tw-list-disc tw-ml-6 tw-space-y-2 tw-mt-3">
+            <ul class="tw-list-disc tw-ml-6 tw-space-y-2 tw-tw-mt-3">
               <% @resource.related_resources.each do |related| %>
                 <li>
                   <%= link_to related.name, detail_resources_path(related.resource_type, related.id), class: "tw-text-blue-600 hover:tw-text-blue-800 tw-underline" %>

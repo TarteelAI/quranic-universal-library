@@ -68,10 +68,10 @@
   </td>
   
   <td class="actions-cell">
-    <div class="btn-group btn-group-sm">
+    <div class="tw-flex tw-gap-1">
       <% if show_add_button %>
         <%= button_tag type: 'button',
-                       class: 'btn btn-success btn-sm add-node-btn bg-white',
+                       class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors add-node-btn tw-bg-white',
                        data: { 
                          node_id: node_id_value,
                          action: 'click->graph-bulk-edit#addNodeAfter',

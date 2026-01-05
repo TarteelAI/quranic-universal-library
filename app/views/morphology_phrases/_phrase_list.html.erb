@@ -1,25 +1,25 @@
-<div class="page-section tw-mt-4 filters">
+<div class="page-section tw-tw-mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
-    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-end tw-flex-wrap">
+    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-start tw-flex-wrap">
       <%= render 'shared/filters' %>
 
-      <div class="tw-mb-4 tw-me-2">
-        <%= search_field_tag :text, params[:text], class: 'form-control tw-w-[85vw] sm:tw-w-auto tw-border-gray-400 tw-rounded-[5px] tw-h-[38px]', placeholder: 'Search' %>
+      <div class="tw-tw-mb-4 tw-me-2">
+        <%= search_field_tag :text, params[:text], class: 'tw-w-[85vw] sm:tw-w-auto tw-px-3 tw-py-2 tw-border tw-border-gray-400 tw-rounded-[5px] tw-h-[38px] tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', placeholder: 'Search' %>
         <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Search content</p>
       </div>
 
-      <div class="tw-mb-4 tw-flex tw-items-center align-content-center align-self-start">
-        <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
-        <%= link_to 'Clear', morphology_phrases_path, class: 'btn-link text-dark' if has_filters?(:filter_chapter, :filter_verse, :text) %>
+      <div class="tw-tw-mb-4 tw-flex tw-items-center">
+        <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
+        <%= link_to 'Clear', morphology_phrases_path, class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_chapter, :filter_verse, :text) %>
       </div>
     </div>
   <% end %>
 </div>
 
-<div class="page-section tw-mt-4">
-  <h2 class="tw-text-2xl tw-mb-4">Phrase list</h2>
+<div class="page-section tw-tw-mt-4">
+  <h2 class="tw-text-2xl tw-tw-mb-4">Phrase list</h2>
   <div class="tools-table-overflow">
-  <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
+  <table class="tw-w-full hover:tw-bg-gray-50 tw-tw-mt-4">
     <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
     <tr>
       <th><%= sort_order_link 'Id', :id %></th>
@@ -58,16 +58,16 @@
         </td>
 
         <td class="tw-py-2">
-          <div class="d-grid tw-gap-2">
-            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
-            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
+          <div class="tw-flex tw-flex-col tw-gap-2">
+            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
+            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors' if user_signed_in? %>
           </div>
         </td>
       </tr>
     <% end %>
     <tr>
       <td colspan="4">
-        <%= safe_html pagy_bootstrap_nav(@pagy) %>
+        <%= safe_html pagy_nav_tailwind(@pagy) %>
       </td>
 
       <td colspan="2">

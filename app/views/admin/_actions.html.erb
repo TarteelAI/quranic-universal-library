@@ -21,7 +21,7 @@
   <%= link_to 'View Sidekiq', '/sidekiq', class: 'button action', target: '_blank' %>
   </div>
 
-  <div class="tw-mt-2">
+  <div class="tw-tw-mt-2">
     <%= form_tag admin_action_cms_database_backups_path(name: 'clear_cdn_cache'), method: :put, class: 'action' do %>
       <p>Enter comma-separated URLs of assets</p>
       <%= text_area_tag "urls" %>

@@ -22,10 +22,10 @@
 
       <%= component.with_right do %>
         <div class="tw-p-4">
-          <h4 class="tw-text-lg tw-font-semibold tw-mb-3">Page <%= page.page_number %> - Ayah Range</h4>
+          <h4 class="tw-text-lg tw-font-semibold tw-tw-mb-3">Page <%= page.page_number %> - Ayah Range</h4>
 
-          <div class="tw-mb-4">
-            <p class="tw-text-sm tw-text-gray-600 tw-mb-3">
+          <div class="tw-tw-mb-4">
+            <p class="tw-text-sm tw-text-gray-600 tw-tw-mb-3">
               Configure the first and last ayah keys on this page in. Ayah key format is 'Sura:Ayah' (e.g., 2:255).
             </p>
           </div>
@@ -33,7 +33,7 @@
           <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'mushaf-pages' } do |form| %>
             <div class="tw-space-y-4">
               <div>
-                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">First Ayah</label>
+                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-tw-mb-2">First Ayah</label>
                 <div id="<%= page.page_number %>-from">
                   <%= form.text_field :first_verse_id, value: first_ayah_key, class: 'from form-control', placeholder: 'From (e.g., 1:1)', required: true, disabled: !@access %>
                   <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
@@ -43,7 +43,7 @@
               </div>
 
               <div>
-                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Last Ayah</label>
+                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-tw-mb-2">Last Ayah</label>
                 <div id="<%= page.page_number %>-to">
                   <%= form.text_field :last_verse_id, value: last_ayah_key, class: 'to form-control', placeholder: 'To (e.g., 1:7)', required: true, disabled: !@access %>
                   <div class="tw-text-sm tw-text-gray-600 tw-mt-1">

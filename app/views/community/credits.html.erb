@@ -1,7 +1,7 @@
 <%= render 'layouts/qul_head' %>
 
 <%= render 'layouts/grid' do %>
-  <div class="tw-mb-5 tw-mt-6">
+  <div class="tw-tw-mb-5 tw-mt-6">
     <h1 class="tw-text-2xl md:tw-text-3xl">
       Credits
     </h1>
@@ -14,8 +14,8 @@
       serving the ummah for generations to come.
     </p>
 
-    <div class="tw-mt-8 tw-text-center">
-      <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-mb-2">
+    <div class="tw-mt-8 tw-tw-text-center">
+      <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-tw-mb-2">
         Want to be part of this beautiful journey?
       </h2>
 
@@ -34,15 +34,15 @@
         <% @contributors.each do |contributor| %>
           <%= link_to contributor.url, target: :_blank, class: 'contributor-card tw-bg-white tw-rounded-xl tw-overflow-hidden tw-shadow-md hover:tw-shadow-lg tw-border tw-border-gray-300' do %>
             <div class="tw-p-6 tw-flex tw-flex-col tw-items-center">
-              <div class="avatar tw-mb-4 tw-rounded-full tw-overflow-hidden tw-w-24 tw-h-24 tw-border-4">
+              <div class="avatar tw-tw-mb-4 tw-rounded-full tw-overflow-hidden tw-w-24 tw-h-24 tw-border-4">
                 <%= image_tag contributor.logo, alt: contributor.name, class: 'tw-w-full tw-h-full tw-object-cover' %>
               </div>
 
-              <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-mb-2 tw-text-center">
+              <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900 tw-tw-mb-2 tw-tw-text-center">
                 <%= contributor.name %>
               </h3>
 
-              <div class="tw-text-gray-500 tw-text-sm tw-text-center tw-mb-4">
+              <div class="tw-text-gray-500 tw-text-sm tw-tw-text-center tw-tw-mb-4">
                 <%== contributor.description.to_s %>
               </div>
             </div>
@@ -51,12 +51,12 @@
       </div>
     </div>
 
-    <p class="tw-mt-3 tw-font-semibold">
+    <p class="tw-tw-mt-3 tw-font-semibold">
       Within the limitations of our knowledge and respecting the privacy of those who desire it, we wish to specifically
       acknowledge the following individuals and groups for their contributions:
     </p>
 
-    <div class="tw-mt-4 tw-mt-md-4">
+    <div class="tw-tw-mt-4 tw-mt-md-4">
       <ul class="credits-list">
         <% contributors.each do |contributor| %>
           <li>
@@ -86,16 +86,16 @@
       </ul>
     </div>
 
-    <div class="tw-mb-5 tw-mt-6">
-      <p class="tw-mt-3 md:tw-mt-0">QUL is more than just a resource library; it's a community-driven platform designed
+    <div class="tw-tw-mb-5 tw-mt-6">
+      <p class="tw-tw-mt-3 md:tw-mt-0">QUL is more than just a resource library; it's a community-driven platform designed
         to
         streamline and enhance the creation of Quranic solutions.</p>
-      <p class="md:tw-pb-3">Explore <a href="/" class="btn-link text-dark text-decoration-underline fw-bold">QUL</a>
+      <p class="md:tw-pb-3">Explore <a href="/" class="tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline text-decoration-underline fw-bold">QUL</a>
         today
         and see how it can support your projects and contribute to the broader Islamic community!</p>
     </div>
 
-    <div class="tw-mt-8 tw-pb-5 tw-text-center">
+    <div class="tw-mt-8 tw-pb-5 tw-tw-text-center">
       <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="tw-px-8 tw-py-3 tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors">
         Contribute
       </a>
@@ -103,20 +103,20 @@
 
     <% if @github_contributors.present? %>
       <div class="tw-mt-12 tw-border-t tw-border-gray-200 tw-pt-8">
-        <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-mb-6 tw-text-center">
+        <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-800 tw-mb-6 tw-tw-text-center">
           Code Contributors
         </h2>
-        <p class="tw-text-gray-600 tw-text-center tw-mb-8">
+        <p class="tw-text-gray-600 tw-tw-text-center tw-mb-8">
           Special thanks to our amazing developers who have contributed code to this project:
         </p>
         
         <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-4">
           <% @github_contributors.each do |contributor| %>
             <div class="tw-flex tw-flex-col tw-items-center tw-p-4 tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 hover:tw-shadow-md tw-transition-shadow">
-              <a href="<%= contributor[:html_url] %>" target="_blank" class="tw-flex tw-flex-col tw-items-center tw-text-center">
+              <a href="<%= contributor[:html_url] %>" target="_blank" class="tw-flex tw-flex-col tw-items-center tw-tw-text-center">
                 <img src="<%= contributor[:avatar_url] %>" 
                      alt="<%= contributor[:login] %>" 
-                     class="tw-w-16 tw-h-16 tw-rounded-full tw-mb-2 tw-border-2 tw-border-gray-200">
+                     class="tw-w-16 tw-h-16 tw-rounded-full tw-tw-mb-2 tw-border-2 tw-border-gray-200">
                 <span class="tw-text-sm tw-font-medium tw-text-gray-900 tw-mb-1">
                   <%= contributor[:login] %>
                 </span>
@@ -128,7 +128,7 @@
           <% end %>
         </div>
         
-        <div class="tw-text-center tw-mt-6">
+        <div class="tw-tw-text-center tw-mt-6">
           <a href="https://github.com/TarteelAI/quranic-universal-library/graphs/contributors" 
              target="_blank" 
              class="tw-text-sm tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline">

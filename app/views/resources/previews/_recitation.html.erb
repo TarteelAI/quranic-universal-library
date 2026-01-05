@@ -4,12 +4,12 @@
   chapter = ayah.chapter
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="nav nav-tabs" id="docs-tab" role="tablist">
-    <li class="tw-m-0" role="presentation">
+<div class="tw-tw-mt-5" data-controller="tabs">
+  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="docs-tab" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
-              data-bs-toggle="tab"
+              data-action="click->tabs#switch"
               data-bs-target="#tab-preview-pane"
               type="button"
               role="tab"
@@ -19,10 +19,10 @@
       </button>
     </li>
 
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
-              data-bs-toggle="tab"
+              data-action="click->tabs#switch"
               data-bs-target="#tab-help-pane"
               type="button" role="tab"
               aria-controls="tab-help-pane"
@@ -32,7 +32,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="docs-tab-content">
+  <div class="tab-content tw-tw-p-2 tw-tw-mt-3" id="docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
@@ -84,8 +84,8 @@
             QUL supports two types of Quranic recitations audio data:
           </p>
 
-          <section class="tw-mb-4">
-            <h2 class="tw-font-semibold tw-mb-4">1. Surah-by-Surah (Gapless)</h2>
+          <section class="tw-tw-mb-4">
+            <h2 class="tw-font-semibold tw-tw-mb-4">1. Surah-by-Surah (Gapless)</h2>
             <ul class="tw-list-disc tw-list-inside tw-space-y-1">
               <li>Contains <strong>114 audio files</strong>, one per surah.</li>
               <li>Each audio file plays the entire surah continuously without gaps.</li>
@@ -93,8 +93,8 @@
             </ul>
           </section>
 
-          <section class="tw-mb-4">
-            <h2 class="tw-font-semibold tw-mb-4">2. Ayah-by-Ayah (Gapped)</h2>
+          <section class="tw-tw-mb-4">
+            <h2 class="tw-font-semibold tw-tw-mb-4">2. Ayah-by-Ayah (Gapped)</h2>
             <ul class="tw-list-disc tw-list-inside tw-space-y-1">
               <li>Contains <strong>6,236 audio files</strong>, one for each ayah (verse) in the Quran.</li>
               <li>Each audio file corresponds to a single ayah.</li>
@@ -104,9 +104,9 @@
           </section>
 
           <section>
-            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Ayah-by-Ayah Segments Data Format</h2>
+            <h2 class="tw-text-2xl tw-font-semibold tw-tw-mb-4">Ayah-by-Ayah Segments Data Format</h2>
 
-            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-tw-mb-4"><code>{
   "surah": &lt;surah_number&gt;,
   "ayah": &lt;ayah_number&gt;,
    "audio_url": "audio file url",
@@ -119,9 +119,9 @@
           </section>
 
           <section>
-            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Surah-by-Surah Segments Data Format</h2>
+            <h2 class="tw-text-2xl tw-font-semibold tw-tw-mb-4">Surah-by-Surah Segments Data Format</h2>
 
-            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-tw-mb-4"><code>{
               "surah:ayah": {
   "duration_sec": &lt;duration in seconds&gt;,
    "timestamp_from": "start time of this ayah within audio file",
@@ -134,9 +134,9 @@
           </section>
 
           <section>
-            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Sample data for surah segment</h2>
+            <h2 class="tw-text-2xl tw-font-semibold tw-tw-mb-4">Sample data for surah segment</h2>
 
-            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-tw-mb-4"><code>{
   "1:1": {
     "segments": [
       [1, 361, 1051],

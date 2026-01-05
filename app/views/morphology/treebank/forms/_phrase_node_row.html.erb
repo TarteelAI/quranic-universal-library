@@ -15,16 +15,16 @@
   <td>
     <%= text_field_tag field_name_prefix + "[phrase_pos]",
                        phrase_pos,
-                       class: 'form-control form-control-sm phrase-pos-input',
+                       class: 'form-control tw-text-sm phrase-pos-input',
                        placeholder: 'e.g., PP',
                        data: { node_id: node.id, action: 'change->graph-bulk-edit#savePhraseNodeField' } %>
   </td>
   <td>
-    <div class="d-flex gap-2 align-items-center">
+    <div class="tw-flex gap-2 tw-items-center">
       <%= select_tag field_name_prefix + "[phrase_source]",
                      options_for_select(available_node_numbers, phrase_source),
                      { include_blank: 'Source', 
-                       class: 'form-select form-select-sm phrase-source-select',
+                       class: 'form-select tw-text-sm phrase-source-select',
                        data: { 
                          controller: 'select2',
                          node_id: node.id, 
@@ -34,7 +34,7 @@
       <%= select_tag field_name_prefix + "[phrase_target]",
                      options_for_select(available_node_numbers, phrase_target),
                      { include_blank: 'Target', 
-                       class: 'form-select form-select-sm phrase-target-select',
+                       class: 'form-select tw-text-sm phrase-target-select',
                        data: { 
                          controller: 'select2',
                          node_id: node.id, 

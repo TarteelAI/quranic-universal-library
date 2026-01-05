@@ -1,19 +1,19 @@
 <div class="edit-section" data-controller="graph-bulk-edit">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex align-items-center gap-2">
-      <h2 class="mb-0">Graph Edges (<span class="edge-count"><%= presenter.edges.count %></span>)</h2>
+  <div class="tw-flex tw-justify-between tw-items-center tw-tw-mb-3">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <h2 class="tw-tw-mb-0">Graph Edges (<span class="edge-count"><%= presenter.edges.count %></span>)</h2>
       <button type="button" 
-              class="btn btn-link text-secondary p-0"
+              class="tw-tw-p-0 tw-text-gray-600 hover:tw-text-gray-800 tw-bg-transparent tw-border-0 tw-cursor-pointer"
               data-controller="popover"
-              data-bs-toggle="popover"
+              data-action="click->popover#toggle"
               data-bs-placement="right"
               title="What are Graph Edges?"
-              data-bs-content="<div class='text-start'><p class='mb-2 small'>Graph edges are the curved lines that connect nodes. They represent the grammatical relationships between words or phrases, with a starting point (source) and an ending point (target).</p><div class='text-center'><img src='<%= image_path('morphology/edges_diagram.png') %>' class='img-fluid rounded border' style='max-width: 250px;' alt='Edges Diagram'></div></div>">
+              data-bs-content="<div class='text-start'><p class='tw-mb-2 small'>Graph edges are the curved lines that connect nodes. They represent the grammatical relationships between words or phrases, with a starting point (source) and an ending point (target).</p><div class='tw-text-center'><img src='<%= image_path('morphology/edges_diagram.png') %>' class='img-fluid rounded border' style='max-width: 250px;' alt='Edges Diagram'></div></div>">
         <i class="fa fa-question-circle"></i>
       </button>
     </div>
     <%= button_tag type: 'button',
-                   class: 'btn btn-success btn-sm',
+                   class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors',
                    title: 'Add new edge',
                    data: { action: 'click->graph-bulk-edit#addEdge' } do %>
       <i class="fa fa-plus"></i> Add Edge

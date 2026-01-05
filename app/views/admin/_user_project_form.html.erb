@@ -3,12 +3,12 @@
 <%= form_for access, url: [:cms, access], method: :post do |form| %>
   <%= form.hidden_field :user_id, value: resource.id %>
 
-  <div class="tw-mb-4 tw-mb-2">
+  <div class="tw-tw-mb-4 tw-tw-mb-2">
     <%= form.label :description %>
     <%= form.text_area :description, rows: 2 %>
   </div>
 
-  <div class="tw-mb-4 tw-mb-2">
+  <div class="tw-tw-mb-4 tw-tw-mb-2">
     <%= form.label :resource_content_id, 'Select resource' %>
     <%= form.select :resource_content_id, ResourceContent.all.map { |r| [r.humanize, r.id] }, {}, required: true, data: { controller: 'select2' } %>
   </div>

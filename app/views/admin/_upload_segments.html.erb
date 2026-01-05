@@ -14,18 +14,18 @@
   <%= form_with url: url, method: :put do |form| %>
     <div class="tw-p-6">
       <% if resource.segment_locked? %>
-        <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
+        <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
           Segments are locked for this recitation. Please unlock the segments and try again.
         </div>
       <% else %>
-        <div class="tw-mb-4 tw-my-2">
+        <div class="tw-tw-mb-4 tw-tw-my-2">
           <%= form.label :remove_existing, class: "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer" do %>
             <%= form.check_box :remove_existing, class: "tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500" %>
             <span class="tw-text-gray-700">Remove existing segments?</span>
           <% end %>
         </div>
-        <div class="tw-mb-4 tw-my-2">
-          <%= form.label :file, 'Select timing db file', class: 'tw-block tw-text-gray-700 tw-font-medium tw-mb-2' %>
+        <div class="tw-tw-mb-4 tw-tw-my-2">
+          <%= form.label :file, 'Select timing db file', class: 'tw-block tw-text-gray-700 tw-font-medium tw-tw-mb-2' %>
           <%= form.file_field :file, class: 'tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-3 tw-py-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-transparent' %>
         </div>
       <% end %>

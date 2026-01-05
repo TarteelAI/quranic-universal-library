@@ -1,12 +1,12 @@
 <%
   actions = []
   if @verse.id > 1
-    actions << link_to('Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white')
   end
   if @verse.id < 6236
-    actions << link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark')
+    actions << link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white')
   end
-  actions << link_to('Back to filter', word_text_proofreadings_path, class: 'btn btn-info')
+  actions << link_to('Back to filter', word_text_proofreadings_path, class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
@@ -192,7 +192,7 @@
     </div>
   </div>
 
-  <div data-controller="mushaf-page" class="mushaf-wrapper page-section tw-mb-3 tw-mt-4">
+  <div data-controller="mushaf-page" class="mushaf-wrapper page-section tw-tw-mb-3 tw-tw-mt-4">
     <h2>Words</h2>
     <div style="width: 100%;margin: 0 5px;text-align: center;direction: ltr;font-size: 20px">
       Font size:
@@ -200,7 +200,7 @@
     </div>
 
     <div style="max-height: 500px;overflow-y: auto;">
-      <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4 tw-relative">
+      <table class="tw-w-full hover:tw-bg-gray-50 tw-tw-mt-4 tw-relative">
         <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
         <tr>
           <td>ID</td>
@@ -302,9 +302,9 @@
   </div>
 
   <div class="tw-flex tw-justify-end tw-gap-2">
-     <%= link_to( 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark') if @verse.id > 1 %>
-     <%= link_to( 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < 6236 %>
-     <%= link_to( 'Back to filter', word_text_proofreadings_path, class: 'btn btn-info') %>
+     <%= link_to( 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white') if @verse.id > 1 %>
+     <%= link_to( 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white') if @verse.id < 6236 %>
+     <%= link_to( 'Back to filter', word_text_proofreadings_path, class: 'btn btn-outline-info tw-text-sm') %>
   </div>
 </div>
 

@@ -1,9 +1,9 @@
 <%
   selected_font = get_quran_script_font_family(params[:script], Verse.first)
 %>
-<div class="tw-flex tw-flex-wrap tw-gap-4 my-4 sticky">
+<div class="tw-flex tw-flex-wrap tw-gap-4 tw-my-4 sticky">
   <div class="tw-w-full">
-    <div class="tw-flex flex-column tw-mb-4">
+    <div class="tw-flex flex-column tw-tw-mb-4">
       <div>
         Font size:(<span id="font-size"></span>)
         <input type="range" min="15" max="100" value="28" class="font-size-slider">

@@ -13,7 +13,7 @@
       <span class="tw-text-gray-400 tw-text-sm">—</span>
     <% end %>
   </td>
-  <td class="tw-px-4 tw-py-3 tw-text-center">
+  <td class="tw-px-4 tw-py-3 tw-tw-text-center">
     <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-1">
       <%= topic_type_badges(topic) %>
     </div>
@@ -27,7 +27,7 @@
       <span class="tw-text-gray-400 tw-text-sm">—</span>
     <% end %>
   </td>
-  <td class="tw-px-4 tw-py-3 tw-text-center tw-hidden lg:tw-table-cell">
+  <td class="tw-px-4 tw-py-3 tw-tw-text-center tw-hidden lg:tw-table-cell">
     <% if topic.children.any? %>
       <span class="tw-inline-flex tw-items-center tw-justify-center tw-px-2.5 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-blue-100 tw-text-blue-700">
         <%= topic.children.count %>
@@ -36,12 +36,12 @@
       <span class="tw-text-gray-400 tw-text-sm">0</span>
     <% end %>
   </td>
-  <td class="tw-px-4 tw-py-3 tw-text-center">
+  <td class="tw-px-4 tw-py-3 tw-tw-text-center">
     <span class="tw-inline-flex tw-items-center tw-justify-center tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium tw-bg-gray-100 tw-text-gray-700">
       <%= topic.verse_topics.count %>
     </span>
   </td>
-  <td class="tw-px-4 tw-py-3 tw-text-center">
+  <td class="tw-px-4 tw-py-3 tw-tw-text-center">
     <%= link_to detail_resources_path('ayah-topics', resource.id, topic_id: topic.id), class: 'tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-text-white tw-bg-blue-600 tw-rounded hover:tw-bg-blue-700 tw-transition-colors' do %>
       View
     <% end %>

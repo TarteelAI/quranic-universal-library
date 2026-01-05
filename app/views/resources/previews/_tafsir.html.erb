@@ -4,12 +4,12 @@
   tafsir = Tafsir.for_verse(ayah, resource.resource_content)
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
-    <li class="tw-m-0" role="presentation">
+<div class="tw-tw-mt-5" data-controller="tabs">
+  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
-              data-bs-toggle="tab"
+              data-action="click->tabs#switch"
               data-bs-target="#tab-preview-pane"
               type="button"
               role="tab"
@@ -19,10 +19,10 @@
       </button>
     </li>
 
-    <li class="tw-m-0" role="presentation">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
-              data-bs-toggle="tab"
+              data-action="click->tabs#switch"
               data-bs-target="#tab-help-pane"
               type="button" role="tab"
               aria-controls="tab-help-pane"
@@ -32,7 +32,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content tw-tw-p-2 tw-tw-mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
@@ -71,7 +71,7 @@
         <% if tafsir %>
           <% verses = tafsir.ayahs %>
 
-          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
             <div class="tw-p-6">
               <div class="qpc-hafs quran-text">
                 <% verses.each do |verse| %>
@@ -87,7 +87,7 @@
             <% verses = tafsir.ayahs %>
 
             <% if tafsir.group_verses_count > 1 %>
-              <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
+              <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4" role="alert">
                 <p class="tw-leading-normal">
                   You are reading tafsir of <%= verses.size %> ayahs: <%= verses.first.verse_key %>
                   to <%= verses.last.verse_key %>.
@@ -127,7 +127,7 @@
           </div>
 
           <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-p-4 tw-text-sm tw-font-mono tw-overflow-auto">
-            <p class="tw-font-semibold tw-mb-2">Example JSON Format:</p>
+            <p class="tw-font-semibold tw-tw-mb-2">Example JSON Format:</p>
             <pre class="tw-whitespace-pre-wrap">{
   "2:3": {
     "text": "tafisr text.",

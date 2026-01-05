@@ -1,29 +1,29 @@
 <%= render 'layouts/grid' do %>
   <div class="tw-py-4 md:tw-py-8">
     <p class="tw-font-semibold tw-text-gray-900">OVERVIEW</p>
-    <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-gap-8 lg:tw-gap-16 tw-mt-3">
+    <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-gap-8 lg:tw-gap-16 tw-tw-mt-3">
       <!-- Left column -->
       <div class="tw-max-w-prose tw-text-pretty">
         <h2 class="tw-text-3xl tw-font-normal tw-text-gray-900 tw-max-w-[10ch] md:tw-text-5xl">
           <span class="tw-font-sarina">Reigniting</span> <br/>
           the Islamic Golden Age.
         </h2>
-        <div class="tw-mt-4">
+        <div class="tw-tw-mt-4">
           <p class="tw-text-lg md:tw-text-xl tw-font-thin">
             <span class="tw-font-semibold">QUL</span> <span class="tw-font-medium">— Quranic Universal Library,</span> provides a comprehensive, centralized hub of essential digital Quran resources, allowing you to go from idea to impact much faster.
           </p>
-          <%= link_to 'GET STARTED', resources_path, class: 'tw-hidden md:tw-inline-block tw-mt-4 tw-px-8 tw-py-3 tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors', id: 'get-started' %>
+          <%= link_to 'GET STARTED', resources_path, class: 'tw-hidden md:tw-inline-block tw-tw-mt-4 tw-px-8 tw-py-3 tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors', id: 'get-started' %>
         </div>
       </div>
       <!-- Right column -->
-      <div class="tw-max-w-prose tw-mt-4 tw-text-gray-600 tw-text-pretty">
+      <div class="tw-max-w-prose tw-tw-mt-4 tw-text-gray-600 tw-text-pretty">
         <p class="tw-text-lg md:tw-text-2xl md:tw-font-thin md:tw-text-black">
           Islamic projects are built upon the same universal resources: the Quran, its translations, its tafsir, recitations of it, and related content and data. 
         </p>
-        <p class="tw-text-lg tw-mt-4">
+        <p class="tw-text-lg tw-tw-mt-4">
           To save you time and effort when it comes to sourcing, formatting, and auditing all the Quranic resources you need for your project, we've curated and open-sourced them. We've also included the tools necessary to interact with and explore them.
         </p>
-        <p class="tw-text-lg tw-mt-4">
+        <p class="tw-text-lg tw-tw-mt-4">
           QUL is primarily geared towards other Muslim developers. To contribute, visit the QUL repo on <a href="https://github.com/TarteelAI/quranic-universal-library" class="tw-text-gray-900 tw-underline hover:tw-text-gray-700">Github</a>.
           Special thanks to <%= link_to 'all those whose contributions made this project possible', credits_path, class: "tw-text-gray-900 tw-underline hover:tw-text-gray-700" %>.
         </p>
@@ -31,7 +31,7 @@
     </div>
     <!-- Mobile 'GET STARTED' button -->
     <div class="tw-w-full md:tw-hidden tw-mt-7">
-      <%= link_to 'GET STARTED', resources_path, class: 'tw-block tw-w-full tw-px-8 tw-py-4 tw-bg-gray-900 tw-text-white tw-text-center tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 tw-transition-colors hover:tw-text-white', id: 'get-started' %>
+      <%= link_to 'GET STARTED', resources_path, class: 'tw-block tw-w-full tw-px-8 tw-py-4 tw-bg-gray-900 tw-text-white tw-tw-text-center tw-rounded-full tw-text-sm tw-font-semibold hover:tw-bg-gray-800 tw-transition-colors hover:tw-text-white', id: 'get-started' %>
     </div>
   </div>
 <% end %>

@@ -15,7 +15,7 @@
     actions << link_to('Next ayah', word_translation_path(next_ayah.id, language: params[:language]), class: 'tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors')
   end
 
-  actions << link_to('Back to filter', word_translations_path(language: params[:language]), class: 'tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors')
+  actions << link_to('Back to filter', word_translations_path(language: params[:language]), class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
@@ -26,8 +26,8 @@
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="page-section tw-mb-4">
-    <div class="tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
+  <div class="page-section tw-tw-mb-4">
+    <div class="tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4" role="alert">
       <div>
         <b>Text Uthmani:</b>
         <div class="qpc-hafs"> <%= @verse.text_qpc_hafs %></div>
@@ -44,13 +44,13 @@
       <% end %>
     </div>
 
-    <div class="tw-text-xl tw-mb-4">
+    <div class="tw-text-xl tw-tw-mb-4">
       <%
         progress = @verse.word_translation_progress(@language.id)
       %>
 
       Translation progress
-      <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6 tw-mt-2">
+      <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6 tw-tw-mt-2">
         <div class="tw-bg-green-500 tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">
           <%= progress %>%
         </div>

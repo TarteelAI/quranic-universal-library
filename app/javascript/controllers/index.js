@@ -212,3 +212,12 @@ application.register("page-search", PageSearchController);
 
 import MistakeHeatmapController from "./mistake_heatmap_controller.js";
 application.register("mistake-heatmap", MistakeHeatmapController);
+
+import CollapseController from "./collapse_controller.js";
+application.register("collapse", CollapseController);
+
+import OffcanvasResetController from "./offcanvas_reset_controller.js";
+application.register("offcanvas-reset", OffcanvasResetController);
+
+import OffcanvasController from "./offcanvas_controller.js";
+application.register("offcanvas", OffcanvasController);

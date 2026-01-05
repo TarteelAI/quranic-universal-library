@@ -10,10 +10,10 @@
 <%= form_with url: mistake_heatmap_path(page: page_number), method: :put, local: true, class: "tw-container tw-mx-auto tw-px-4 tw-py-6", data: { controller: "mistake-heatmap", "mistake-heatmap-update-url-value": mistake_heatmap_path(page: page_number) } do |form| %>
   <div class="tw-mb-6">
     <h1 class="tw-text-3xl tw-font-bold">Edit Word Mistakes - Page <%= page_number %></h1>
-    <p class="tw-text-sm tw-text-gray-600 tw-mt-2">Changes save automatically as you type</p>
+    <p class="tw-text-sm tw-text-gray-600 tw-tw-mt-2">Changes save automatically as you type</p>
   </div>
 
-  <div class="tw-mb-4 tw-p-4 tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded">
+  <div class="tw-tw-mb-4 tw-p-4 tw-bg-yellow-50 tw-border tw-border-yellow-200 tw-rounded">
     <p class="tw-text-sm tw-text-yellow-800">
       <strong>Instructions:</strong> Enter mistake counts for words. To mark partial words, click "Select Range" and choose the character range from the dropdown, then enter the mistake count.
     </p>
@@ -21,7 +21,7 @@
 
   <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-6">
     <div>
-      <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Words on Page</h2>
+      <h2 class="tw-text-xl tw-font-semibold tw-tw-mb-4">Words on Page</h2>
       <div class="tw-space-y-2 tw-max-h-[600px] tw-overflow-y-auto">
         <% words.each_with_index do |word, index| %>
           <%
@@ -32,17 +32,17 @@
             partial_mistakes = existing_mistakes.select { |m| m.partial_word? }
           %>
 
-          <div class="tw-border tw-border-gray-200 tw-rounded tw-p-3 word-form-container" id="word-form-<%= word_id %>" data-word-id="<%= word_id %>">
-            <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+          <div class="tw-border tw-border-gray-200 tw-rounded tw-tw-p-3 word-form-container" id="word-form-<%= word_id %>" data-word-id="<%= word_id %>">
+            <div class="tw-flex tw-items-center tw-justify-between tw-tw-mb-2">
               <span class="tw-font-medium">Word #<%= word.position_in_page %></span>
               <span class="tw-text-sm tw-text-gray-600"><%= word.word&.verse_key || word.verse&.verse_key %></span>
             </div>
 
-            <div class="tw-mb-2 tw-p-2 tw-bg-gray-50 tw-rounded" dir="rtl" style="font-family: qpc-hafs, serif; font-size: 20px; text-align: center;">
+            <div class="tw-tw-mb-2 tw-tw-p-2 tw-bg-gray-50 tw-rounded" dir="rtl" style="font-family: qpc-hafs, serif; font-size: 20px; text-align: center;">
               <span id="word-text-<%= word_id %>" data-text="<%= word_text %>"><%= safe_html word_text %></span>
             </div>
 
-            <div class="tw-mb-2">
+            <div class="tw-tw-mb-2">
               <label class="tw-block tw-text-sm tw-font-medium tw-mb-1">Full Word Frequency (0-1):</label>
               <input type="number"
                      step="0.01"
@@ -54,7 +54,7 @@
                      placeholder="Enter frequency (0-1)">
             </div>
 
-            <div class="tw-mb-2">
+            <div class="tw-tw-mb-2">
               <button type="button"
                       class="tw-text-sm tw-text-blue-600 hover:tw-text-blue-800 tw-underline"
                       onclick="togglePartialRangeSelector(<%= word_id %>, '<%= word_text %>')">
@@ -62,10 +62,10 @@
               </button>
             </div>
 
-            <div id="partial-range-selector-<%= word_id %>" class="tw-hidden tw-mb-2 tw-p-2 tw-bg-blue-50 tw-rounded">
-              <div class="tw-mb-2">
+            <div id="partial-range-selector-<%= word_id %>" class="tw-hidden tw-tw-mb-2 tw-tw-p-2 tw-bg-blue-50 tw-rounded">
+              <div class="tw-tw-mb-2">
                 <label class="tw-block tw-text-xs tw-font-medium tw-mb-1">Click characters to select/unselect:</label>
-                <div class="tw-flex tw-flex-wrap tw-gap-1 tw-p-2 tw-bg-white tw-rounded tw-border" dir="rtl">
+                <div class="tw-flex tw-flex-wrap tw-gap-1 tw-tw-p-2 tw-bg-white tw-rounded tw-border" dir="rtl">
                   <% word_text.chars.each_with_index do |char, idx| %>
                     <button type="button"
                             class="partial-range-char tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm hover:tw-bg-blue-100"
@@ -78,7 +78,7 @@
                   <% end %>
                 </div>
               </div>
-              <div class="tw-mb-2">
+              <div class="tw-tw-mb-2">
                 <label class="tw-block tw-text-xs tw-font-medium tw-mb-1">Selected: <span id="selected-range-<%= word_id %>">-</span></label>
               </div>
               <div class="tw-flex tw-gap-2">
@@ -97,7 +97,7 @@
 
             <div id="partial-mistakes-<%= word_id %>" class="tw-space-y-2">
               <% partial_mistakes.each do |mistake| %>
-                <div class="tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-p-2 tw-rounded" data-partial-range="<%= mistake.char_start %>-<%= mistake.char_end %>">
+                <div class="tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-tw-p-2 tw-rounded" data-partial-range="<%= mistake.char_start %>-<%= mistake.char_end %>">
                   <span class="tw-text-sm">Chars <%= mistake.char_start %>-<%= mistake.char_end %>:</span>
                   <input type="number"
                          step="0.01"
@@ -126,7 +126,7 @@
     </div>
 
     <div>
-      <h2 class="tw-text-xl tw-font-semibold tw-mb-4">Page Preview</h2>
+      <h2 class="tw-text-xl tw-font-semibold tw-tw-mb-4">Page Preview</h2>
       <div id="preview" class="tw-border tw-border-gray-300 tw-rounded tw-p-4 tw-bg-white" style="direction: rtl;">
         <%= render 'page_preview' %>
       </div>
@@ -225,7 +225,7 @@
     }
 
     const partialDiv = document.createElement('div');
-    partialDiv.className = 'tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-p-2 tw-rounded';
+    partialDiv.className = 'tw-flex tw-gap-2 tw-items-center tw-bg-blue-50 tw-tw-p-2 tw-rounded';
     partialDiv.setAttribute('data-partial-range', rangeKey);
 
     partialDiv.innerHTML = `

@@ -19,24 +19,24 @@
       <%= hidden_field_tag :resource_id, @resource.id %>
       <%= render 'shared/form_errors', object: @translation %>
 
-      <div class="tw-mb-4 tw-mb-3">
+      <div class="tw-tw-mb-4 tw-tw-mb-3">
         <%= form.label :start_verse_id, 'Verse from', class: 'form-label' %>
         <%= form.select :start_verse_id, options_for_select(Verse.order('id asc').pluck(:verse_key, :id), selected: @tafisr.start_verse_id), {}, class: 'form-control', data: { placeholder: 'Ayah from', controller: 'select2' } %>
       </div>
 
-      <div class="tw-mb-4 tw-mb-3">
+      <div class="tw-tw-mb-4 tw-tw-mb-3">
         <%= form.label :end_verse_id, 'Verse to', class: 'form-label' %>
         <%= form.select :end_verse_id, options_for_select(Verse.order('id asc').pluck(:verse_key, :id), selected: @tafisr.end_verse_id), {}, class: 'form-control', data: { placeholder: 'Ayah to', controller: 'select2' } %>
       </div>
 
-      <div class="tw-mb-4 tw-mb-3" id="tafsir_text" class="<%= lang %>">
+      <div class="tw-tw-mb-4 tw-tw-mb-3" id="tafsir_text" class="<%= lang %>">
         <%= form.label :text, 'Tafsir Text', class: 'form-label' %>
         <%= form.text_area :text, class: "form-control", id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
       </div>
 
-      <div class="tw-mb-4 tw-mt-5" style="text-align: right">
-        <%= link_to 'Cancel', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-default' %>
-        <%= form.submit 'Purpose changes', class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+      <div class="tw-tw-mb-4 tw-tw-mt-5" style="text-align: right">
+        <%= link_to 'Cancel', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors' %>
+        <%= form.submit 'Purpose changes', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>
   </div>

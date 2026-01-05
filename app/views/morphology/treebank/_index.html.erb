@@ -1,12 +1,12 @@
 <div>
   <% if collection.any? %>
-    <div class="tw-border-0 tw-mb-4 morphology-graph-index">
+    <div class="tw-border-0 tw-tw-mb-4 morphology-graph-index">
       <div class="tw-bg-gray-100 tw-p-4 tw-rounded-t-lg">
         <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-4">
           <% if @verse_info %>
             <div>
               <div class="tw-flex tw-items-center tw-gap-2 tw-mb-1">
-                <p class="tw-mb-0"><span class="tw-font-semibold">Verse:</span> <%= @verse_info[:verse_key] %></p>
+                <p class="tw-tw-mb-0"><span class="tw-font-semibold">Verse:</span> <%= @verse_info[:verse_key] %></p>
                 
                 <% if @navigation[:prev_chapter_number] %>
                   <%= link_to morphology_treebank_index_path(locale: @locale, chapter_number: @navigation[:prev_chapter_number], verse_number: @navigation[:prev_verse_number], graph_number: @navigation[:prev_graph_number]), class: 'tw-px-2 tw-py-1 tw-bg-blue-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-600', title: 'Previous' do %>
@@ -43,12 +43,12 @@
                       onchange: 'this.form.submit()' %>
                 <% end %>
               </div>
-              <p class="tw-mb-0 tw-text-sm"><span class="tw-font-semibold">Graph Number:</span> <%= @verse_info[:graph_number] %> of <%= @verse_info[:total_graphs] %></p>
+              <p class="tw-tw-mb-0 tw-text-sm"><span class="tw-font-semibold">Graph Number:</span> <%= @verse_info[:graph_number] %> of <%= @verse_info[:total_graphs] %></p>
             </div>
           <% end %>
           <div class="tw-text-sm">
             <p class="tw-mb-1"><span class="tw-font-semibold">Total Nodes:</span> <%= collection.count %></p>
-            <p class="tw-mb-0">
+            <p class="tw-tw-mb-0">
               <span class="tw-font-semibold">Types:</span> 
               Word: <%= collection.where(type: 'word').count %> | 
               Reference: <%= collection.where(type: 'reference').count %> | 
@@ -61,16 +61,14 @@
 
             <button type="button"
                     class="tw-px-3 tw-py-1.5 tw-bg-gray-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-700"
-                    data-bs-toggle="modal"
-                    data-bs-target="#graph-settings-modal"
+                    onclick="document.getElementById('graph-settings-modal').classList.remove('tw-hidden'); document.body.style.overflow = 'hidden';"
                     data-controller="tooltip"
                     title="Graph settings">
               <i class="fa fa-cog"></i>
             </button>
             <button type="button"
                     class="tw-px-3 tw-py-1.5 tw-bg-green-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-green-700"
-                    data-bs-toggle="modal"
-                    data-bs-target="#graphSplitterModal"
+                    onclick="document.getElementById('graphSplitterModal').classList.remove('tw-hidden'); document.body.style.overflow = 'hidden';"
                     data-controller="tooltip"
                     title="Split graph">
               <i class="fa fa-scissors"></i>

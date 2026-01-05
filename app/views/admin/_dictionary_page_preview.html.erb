@@ -19,12 +19,12 @@
         <p><%= word_root.english_trilateral %>&nbsp<%= word_root.arabic_trilateral %></p>
       </div>
     </div>
-    <div class="tw-mt-3 tw-text-center">
+    <div class="tw-tw-mt-3 tw-tw-text-center">
       <img src="<%= word_root.cover_url %>" class="img"/>
     </div>
-    <div class="tw-text-center defination-header">Defination</div>
+    <div class="tw-tw-text-center defination-header">Defination</div>
     <div class="defination-wraper">
-      <div class="tw-text-center">
+      <div class="tw-tw-text-center">
         <% word_root.root_definitions.literal.each do |definition| %>
           <p><%= definition.description %></p>
         <% end %>
@@ -40,7 +40,7 @@
       <% end %>
     </div>
 
-    <div class="quranic-usage-header tw-text-center">Quranic Usage</div>
+    <div class="quranic-usage-header tw-tw-text-center">Quranic Usage</div>
     <div>
       <% last_translation = nil %>
       <% word_root.root_examples.where.not(word_arabic: nil).each do |example| %>
@@ -61,11 +61,11 @@
 
     <% word_root.root_examples.where.not(segment_arabic: nil).each do |example| %>
       <% if example.segment_arabic %>
-        <div class="qpc-hafs tw-text-center tw-mb-1">
+        <div class="qpc-hafs tw-tw-text-center tw-mb-1">
           <%= highlight(example.segment_arabic, example.word_arabic) %>
         </div>
 
-        <div class="tw-text-center bordered">
+        <div class="tw-tw-text-center bordered">
           <%= example.segment_translation %>
         </div>
       <% end %>

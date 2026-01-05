@@ -36,14 +36,14 @@
     <div class="tw-flex tw-flex-wrap tw-gap-4">
       <div class="tw-w-full">
         <%= form_with url: chars_info_path, method: "get" do |form| %>
-          <div class="tw-mb-4">
-            <%= form.label :text, 'Enter the text', class: 'tw-font-medium tw-mb-2 tw-block' %>
+          <div class="tw-tw-mb-4">
+            <%= form.label :text, 'Enter the text', class: 'tw-font-medium tw-tw-mb-2 tw-block' %>
             <%= form.text_area :text, 
                 value: params[:text], 
-                class: "form-control text",
+                class: "tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent text",
                 data: { chars_info_target: "input" },
                 placeholder: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ" %>
-            <div class="tw-text-sm tw-text-gray-600 tw-mt-2">
+            <div class="tw-text-sm tw-text-gray-600 tw-tw-mt-2">
               Enter the text to analyze its Unicode characters or preview it across all available fonts
             </div>
             <% if params[:name].present? %>
@@ -53,22 +53,22 @@
             <% end %>
           </div>
 
-          <div class="tw-mb-4">
+          <div class="tw-tw-mb-4">
             <%= form.label :script, 'Select script' %>
             <%
               scripts_options = scripts.map do |key, name|
                 [name, key]
               end
             %>
-            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "form-control" %>
+            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent" %>
           </div>
 
-          <div class="tw-mb-4 tw-flex tw-gap-3 tw-mt-2 tw-flex-wrap">
-            <%= form.submit "Analyze Unicode", class: "btn btn-success" %>
+          <div class="tw-tw-mb-4 tw-flex tw-gap-3 tw-tw-mt-2 tw-flex-wrap">
+            <%= form.submit "Analyze Unicode", class: "tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors" %>
             <button 
               type="button"
               data-action="click->chars-info#showPreview"
-              class="btn btn-primary tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white"
+              class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-rounded tw-transition-colors"
             >
               Preview in All Fonts
             </button>
@@ -81,7 +81,7 @@
 
     <div data-chars-info-target="output" class="tw-hidden tw-mb-8">
       <div class="tw-bg-gradient-to-r tw-from-blue-50 tw-to-indigo-50 tw-rounded-xl tw-p-6 tw-border tw-border-blue-200 tw-shadow-sm">
-        <div class="tw-flex tw-items-center tw-justify-between tw-mb-4">
+        <div class="tw-flex tw-items-center tw-justify-between tw-tw-mb-4">
           <h3 class="tw-text-2xl tw-font-bold tw-text-gray-800 tw-flex tw-items-center tw-gap-2">
             <svg class="tw-w-6 tw-h-6 tw-text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -106,7 +106,7 @@
         <div class="tw-space-y-3">
           <% all_quran_fonts.each do |font_name, font_class| %>
             <div class="tw-bg-white tw-rounded-lg tw-p-5 tw-border tw-border-gray-200 tw-shadow-sm hover:tw-shadow-md tw-transition-shadow">
-              <div class="tw-flex tw-items-center tw-justify-between tw-mb-3">
+              <div class="tw-flex tw-items-center tw-justify-between tw-tw-mb-3">
                 <div class="tw-text-sm tw-font-semibold tw-text-gray-700 tw-px-3 tw-py-1 tw-bg-gray-100 tw-rounded-full">
                   <%= font_name %>
                 </div>

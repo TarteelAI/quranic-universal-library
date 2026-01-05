@@ -1,4 +1,4 @@
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-mt-4">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-tw-mt-4">
   <div class="page-section filters">
     <%= form_with url: segments_detections_path, method: :get, local: true, class: "tw-flex tw-gap-4 tw-mb-6" do %>
       <div>
@@ -27,25 +27,25 @@
     <% end %>
   </div>
 
-  <div class="page-section tw-mt-4">
-    <h1 class="tw-text-xl tw-font-bold tw-mb-4">Detection Type Summary</h1>
+  <div class="page-section tw-tw-mt-4">
+    <h1 class="tw-text-xl tw-font-bold tw-tw-mb-4">Detection Type Summary</h1>
 
     <table class="tw-w-full tw-border-collapse tw-rounded-md tw-shadow-sm">
       <thead>
-      <tr class="tw-bg-gray-100 tw-text-left">
-        <th class="tw-p-2 tw-border-b">Reciter</th>
-        <th class="tw-p-2 tw-border-b">Surah</th>
-        <th class="tw-p-2 tw-border-b">Type</th>
-        <th class="tw-p-2 tw-border-b">Count</th>
+      <tr class="tw-bg-gray-100 tw-tw-text-left">
+        <th class="tw-tw-p-2 tw-border-b">Reciter</th>
+        <th class="tw-tw-p-2 tw-border-b">Surah</th>
+        <th class="tw-tw-p-2 tw-border-b">Type</th>
+        <th class="tw-tw-p-2 tw-border-b">Count</th>
       </tr>
       </thead>
       <tbody>
       <% @grouped_detections.each do |d| %>
         <tr class="tw-border-b hover:tw-bg-gray-50">
-          <td class="tw-p-2"><%= d.reciter_name %></td>
-          <td class="tw-p-2">Surah <%= d.surah_number %></td>
-          <td class="tw-p-2"><%= d.detection_type %></td>
-          <td class="tw-p-2"><%= d.total %></td>
+          <td class="tw-tw-p-2"><%= d.reciter_name %></td>
+          <td class="tw-tw-p-2">Surah <%= d.surah_number %></td>
+          <td class="tw-tw-p-2"><%= d.detection_type %></td>
+          <td class="tw-tw-p-2"><%= d.total %></td>
         </tr>
       <% end %>
       </tbody>

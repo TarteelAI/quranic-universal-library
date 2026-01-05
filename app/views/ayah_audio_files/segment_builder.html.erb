@@ -4,10 +4,10 @@
 <%
   actions = []
   if @chapter.id > 1
-    actions << link_to('Previous Surah', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'btn btn-dark')
+    actions << link_to('Previous Surah', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
   if @chapter.id < 114
-    actions << link_to('Next Surah', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'btn btn-dark')
+    actions << link_to('Next Surah', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
 
   actions << link_to('Short keys', '#_', class: 'btn btn-info', data: { controller: 'ajax-modal', url: builder_help_surah_audio_files_path })
@@ -22,7 +22,7 @@
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 mt-0">
-  <div class="page-section tw-mt-4">
+  <div class="page-section tw-tw-mt-4">
     <div id="app"
          data-recitation="<%= @recitation.id %>"
          data-segment-locked="<%= @recitation.segment_locked? || !@access %>"

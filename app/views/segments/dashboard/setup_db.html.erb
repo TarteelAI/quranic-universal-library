@@ -1,8 +1,8 @@
 <%= render 'segments/header' %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="page-section tw-mt-4" data-turbo="false">
-    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
+  <div class="page-section tw-tw-mt-4" data-turbo="false">
+    <h1 class="tw-text-2xl tw-font-bold tw-tw-mb-4">
       Uploaded databases
     </h1>
 
@@ -50,18 +50,18 @@
       <% end %>
     </div>
 
-    <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
+    <h1 class="tw-text-2xl tw-font-bold tw-tw-mb-4">
       Upload Database File
     </h1>
 
     <%= form_with model: @db, url: segments_setup_db_path, method: 'post', html: { multipart: true } do |f| %>
-      <div class="tw-mb-4 tw-my-2">
+      <div class="tw-tw-mb-4 tw-tw-my-2">
         <%= f.label :name, class: "tw-block tw-text-gray-700 tw-font-medium" %>
         <%= f.text_field :name, class: 'form-control', required: true %>
       </div>
 
-      <div class="tw-mb-4 tw-my-2">
-        <%= f.label :db_file, "Select File", class: "tw-block tw-text-gray-700 tw-font-medium tw-mb-2" %>
+      <div class="tw-tw-mb-4 tw-tw-my-2">
+        <%= f.label :db_file, "Select File", class: "tw-block tw-text-gray-700 tw-font-medium tw-tw-mb-2" %>
         <%= f.file_field :db_file, class: "tw-w-full tw-border tw-rounded tw-px-3 tw-py-2", required: true %>
       </div>
 

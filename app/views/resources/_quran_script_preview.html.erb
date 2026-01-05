@@ -13,13 +13,13 @@
 %>
 
 <% if font_face.present? && preview_text.present? %>
-  <div class="tw-bg-blue-500 tw-p-3 tw-text-center tw-rounded quran-text <%= font_face %>">
+  <div class="tw-bg-blue-500 tw-tw-p-3 tw-tw-text-center tw-rounded quran-text <%= font_face %>">
     <div>
       <%= safe_html preview_text %>
     </div>
   </div>
 <% else %>
-  <div class="tw-bg-white tw-px-3 tw-py-2 tw-text-center tw-rounded quran-text text-dark <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
+  <div class="tw-bg-white tw-px-3 tw-py-2 tw-tw-text-center tw-rounded quran-text text-dark <%= resource.meta_value('font')%> p574-<%= resource.meta_value('font') %>">
     <% if is_image %>
       <div class="tw-flex">
         <% preview_verse.words.words.each do |w| %>

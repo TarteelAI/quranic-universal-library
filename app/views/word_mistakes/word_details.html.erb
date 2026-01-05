@@ -26,7 +26,7 @@
           <p><strong>Frequency:</strong> <%= mistake.frequency %></p>
           <p><strong>Mistake Count:</strong> <%= mistake.mistake_count || 'N/A' %></p>
           <p><strong>Received Text:</strong>
-            <span class="text-qpc-hafs tw-text-right">
+            <span class="text-qpc-hafs tw-tw-text-right">
               <%= mistake.received_text %>
             </span>
           </p>
@@ -41,19 +41,19 @@
     <% end %>
 
     <div class="tw-mb-6">
-      <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Context</h3>
+      <h3 class="tw-text-lg tw-font-semibold tw-tw-mb-2">Context</h3>
       <div class="tw-bg-gray-50 tw-p-4 tw-rounded">
         <div class="tw-flex tw-items-start tw-gap-3 tw-flex-wrap" dir="rtl">
           <% context_words.each_with_index do |ctx_word, idx| %>
             <% ctx_mistake = context_words_mistake[ctx_word.id]&.first %>
             <% is_current = ctx_word.id == word.id %>
             <div class="tw-flex tw-flex-col tw-items-center tw-min-w-0">
-              <span class="<%= 'tw-font-bold tw-text-blue-600' if is_current %> tw-text-right text-qpc-hafs" title="<%= ctx_word.location %>" style="font-size: 1.5rem;">
+              <span class="<%= 'tw-font-bold tw-text-blue-600' if is_current %> tw-tw-text-right text-qpc-hafs" title="<%= ctx_word.location %>" style="font-size: 1.5rem;">
                 <%= ctx_word.text_qpc_hafs %>
               </span>
 
               <% if ctx_mistake %>
-                <span class="tw-text-xs tw-text-gray-600 tw-mt-1 tw-text-right text-qpc-hafs">
+                <span class="tw-text-xs tw-text-gray-600 tw-mt-1 tw-tw-text-right text-qpc-hafs">
                   <%= ctx_mistake.received_text %>
                 </span>
               <% end %>
@@ -68,8 +68,8 @@
     </div>
 
     <div class="tw-mb-6">
-      <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Similar Words in Quran</h3>
-      <p class="tw-text-sm tw-text-gray-600 tw-mb-4">
+      <h3 class="tw-text-lg tw-font-semibold tw-tw-mb-2">Similar Words in Quran</h3>
+      <p class="tw-text-sm tw-text-gray-600 tw-tw-mb-4">
         Total: <%= total_similar %> words with same text
         <span dir="rtl" style="font-family: text-qpc-hafs, serif;">
           <%= word.text_qpc_hafs %>
@@ -80,9 +80,9 @@
         <table class="tw-min-w-full tw-border tw-border-gray-300">
           <thead class="tw-bg-gray-100">
           <tr>
-            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Location</th>
-            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right">Text</th>
-            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right">Received Text</th>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-tw-text-left">Location</th>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-tw-text-right">Text</th>
+            <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-tw-text-right">Received Text</th>
             <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2">Mistake Count</th>
           </tr>
           </thead>
@@ -96,10 +96,10 @@
                               class: 'tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline tw-cursor-pointer',
                               data: { controller: 'ajax-modal', url: mistake_heatmap_word_details_path(sim_word.id), css_class: 'modal-xl' } %>
                 </td>
-                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right text-qpc-hafs" dir="rtl">
+                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-tw-text-right text-qpc-hafs" dir="rtl">
                   <%= sim_word.text_qpc_hafs %>
                 </td>
-                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-right text-qpc-hafs" dir="rtl">
+                <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-tw-text-right text-qpc-hafs" dir="rtl">
                   <%= sim_mistake ? sim_mistake.received_text : '' %>
                 </td>
                 <td class="tw-border tw-border-gray-300 tw-px-4 tw-py-2">
@@ -109,7 +109,7 @@
             <% end %>
           <% else %>
             <tr>
-              <td colspan="4" class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-center tw-text-gray-500">No
+              <td colspan="4" class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-tw-text-center tw-text-gray-500">No
                 similar words found
               </td>
             </tr>
@@ -119,7 +119,7 @@
       </div>
 
       <% if total_pages > 1 %>
-        <div class="tw-flex tw-items-center tw-justify-between tw-mt-4">
+        <div class="tw-flex tw-items-center tw-justify-between tw-tw-mt-4">
           <div class="tw-text-sm tw-text-gray-600">
             Page <%= current_page %> of <%= total_pages %>
           </div>

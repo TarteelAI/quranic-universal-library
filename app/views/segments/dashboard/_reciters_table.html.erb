@@ -1,4 +1,4 @@
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-mt-4">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-tw-mt-4">
   <div class="page-section filters">
     <%= form_with url: segments_reciters_path, method: :get, class: "tw-flex tw-gap-4 tw-mb-6" do %>
       <div>
@@ -17,39 +17,39 @@
     <% end %>
   </div>
 
-  <div class="page-section tw-mt-4">
-    <h1 class="tw-text-xl tw-font-bold tw-mb-4">
+  <div class="page-section tw-tw-mt-4">
+    <h1 class="tw-text-xl tw-font-bold tw-tw-mb-4">
       Reciters Summary (total <%= @presenter.reciters.size %>)
     </h1>
 
 
     <table class="tw-w-full tw-border-collapse tw-rounded-md tw-shadow-sm">
       <thead>
-      <tr class="tw-bg-gray-100 tw-text-left">
-        <th class="tw-p-2 tw-border-b">Reciter</th>
-        <th class="tw-p-2 tw-border-b">Positions</th>
-        <th class="tw-p-2 tw-border-b">Failures</th>
-        <th class="tw-p-2 tw-border-b">Corrected</th>
-        <th class="tw-p-2 tw-border-b">Pending</th>
-        <th class="tw-p-2 tw-border-b">Missed Words</th>
-        <th class="tw-p-2 tw-border-b">Fixed missed Words</th>
-        <th class="tw-p-2 tw-border-b">Actions</th>
+      <tr class="tw-bg-gray-100 tw-tw-text-left">
+        <th class="tw-tw-p-2 tw-border-b">Reciter</th>
+        <th class="tw-tw-p-2 tw-border-b">Positions</th>
+        <th class="tw-tw-p-2 tw-border-b">Failures</th>
+        <th class="tw-tw-p-2 tw-border-b">Corrected</th>
+        <th class="tw-tw-p-2 tw-border-b">Pending</th>
+        <th class="tw-tw-p-2 tw-border-b">Missed Words</th>
+        <th class="tw-tw-p-2 tw-border-b">Fixed missed Words</th>
+        <th class="tw-tw-p-2 tw-border-b">Actions</th>
       </tr>
       </thead>
       <tbody>
       <% @presenter.reciter_stats.each do |reciter| %>
         <tr class="tw-border-b hover:tw-bg-gray-50">
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to reciter[:name], segments_reciter_path(reciter[:id]), 
                 class: "tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline" %>
           </td>
-          <td class="tw-p-2"><%= reciter[:positions] %></td>
+          <td class="tw-tw-p-2"><%= reciter[:positions] %></td>
 
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to reciter[:failures], segments_failures_path(reciter: reciter[:id]) %>
           </td>
 
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to reciter[:corrected_failures], segments_failures_path(reciter: reciter[:id], correction_status: 'corrected') %>
 
             <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
@@ -57,14 +57,14 @@
             </span>
           </td>
 
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to reciter[:pending_failures], segments_failures_path(reciter: reciter[:id], correction_status: 'pending') %>
             <span class="tw-ml-2 tw-inline-block tw-bg-red-100 tw-text-red-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
              <%= number_to_percentage(reciter[:pending_percentage], precision: 1) %>
             </span>
           </td>
 
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to reciter[:missing_words], segments_failures_path(reciter: reciter[:id], failure_type: 'MISSED_WORD') %>
 
             <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
@@ -72,14 +72,14 @@
             </span>
           </td>
 
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to reciter[:corrected_missing_words], segments_failures_path(reciter: reciter[:id], failure_type: 'MISSED_WORD',  correction_status: 'corrected') %>
 
             <span class="tw-ml-2 tw-inline-block tw-bg-green-100 tw-text-green-800 tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
              <%= number_to_percentage(reciter[:corrected_missing_words_percentage], precision: 1) %>
             </span>
           </td>
-          <td class="tw-p-2">
+          <td class="tw-tw-p-2">
             <%= link_to segments_download_reciter_path(reciter[:id]), 
                 method: :post,
                 class: "tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-no-underline tw-inline-flex tw-items-center tw-gap-1",

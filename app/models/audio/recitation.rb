@@ -41,10 +41,10 @@ module Audio
     include NameTranslateable
     include Resourceable
 
-    has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id
-    has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id
-    has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id
-    has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id
+    has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id, dependent: :delete_all
 
     belongs_to :section, class_name: 'Audio::Section', optional: true
     belongs_to :recitation_style, optional: true

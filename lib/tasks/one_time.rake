@@ -50,6 +50,7 @@ namespace :one_time do
       7 => 'quran/surah/mishari_al_afasy/murattal',
       8 => 'quran/surah/minshawi/mujawwad',
       9 => 'quran/surah/minshawi/murattal',
+      200 => 'quran/surah/minshawi/kids_repeat',
       10 => 'quran/surah/saud_ash_shuraym/murattal',
       12 => 'quran/surah/khalil_al_husary/muallim',
       13 => 'quran/surah/saad_al_ghamdi/murattal',
@@ -60,41 +61,12 @@ namespace :one_time do
       164 => 'quran/surah/khalil_al_husary/mujawwad',
       174 => 'quran/surah/yasser_ad-dussary/murattal',
       175 => 'quran/surah/alnufais/murattal',
+      179 => 'quran/surah/mansour_al_salimi_1444/murattal',
     }
-
-    mapping = {
-      179 => 'quran/surah/mansour_al_salimi_1444/murattal'
-    }
-
-    def clone_with_audio_files(r)
-      cloned = Audio::Recitation.where(name: "#{r.name} (cloned from #{r.id})").first
-
-      if cloned.blank?
-        attrs = r.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
-        cloned = Audio::Recitation.new(attrs)
-        cloned.name = "#{r.name} (cloned from #{r.id})"
-        cloned.approved = false
-        cloned.save!
-      end
-
-      r.chapter_audio_files.find_each do |file|
-        cloned_file = cloned.chapter_audio_files.where(chapter_id: file.chapter_id).first_or_create
-        attrs = file.attributes.except('id', 'created_at', 'updated_at', 'audio_recitation_id', 'meta_data')
-        cloned_file.attributes = attrs
-        cloned_file.audio_recitation_id = cloned.id
-        cloned_file.save(validate: false)
-      end
-
-      cloned.send :update_related_resources
-
-      cloned
-    end
-
 
     mapping.each do |reciter_id, path|
       recitation = Audio::Recitation.find(reciter_id)
       recitation.relative_path = "#{path}/mp3"
-      recitation.format = "mp3,wav"
       recitation.update_audio_stats
       recitation.save(validate: false)
       recitation.send(:update_related_resources)
@@ -106,8 +78,9 @@ namespace :one_time do
       end
     end
 
-    ids = [178, 179, 180, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205]
+    ids = [178, 179, 180, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204]
     ids.each do |id|
+      puts "Processing #{id}"
       recitation = Audio::Recitation.find(id)
       recitation.update_audio_stats
       recitation.save(validate: false)
@@ -601,8 +574,8 @@ namespace :one_time do
   desc "Create morphology graphs and word nodes for verses without graph data"
   task create_missing_graphs: :environment do
     empty_graphs = Morphology::Graph
-      .left_joins(:nodes)
-      .where(morphology_graph_nodes: { id: nil })
+                     .left_joins(:nodes)
+                     .where(morphology_graph_nodes: { id: nil })
     count = empty_graphs.count
 
     if count.positive?
@@ -617,10 +590,10 @@ namespace :one_time do
     puts "Found #{existing_verse_keys.size} verses with existing graphs"
 
     verses_with_morphology = Verse
-      .joins(:morphology_words)
-      .includes(:morphology_words)
-      .distinct
-      .select(:id, :chapter_id, :verse_number, :verse_key)
+                               .joins(:morphology_words)
+                               .includes(:morphology_words)
+                               .distinct
+                               .select(:id, :chapter_id, :verse_number, :verse_key)
 
     verses_to_process = verses_with_morphology.reject do |verse|
       existing_verse_keys.include?("#{verse.chapter_id}:#{verse.verse_number}")
@@ -640,10 +613,10 @@ namespace :one_time do
 
     verses_to_process.each_with_index do |verse, index|
       morphology_words = Morphology::Word
-        .includes(:word, :word_segments)
-        .where(verse_id: verse.id)
-        .joins(:word)
-        .order('words.position ASC')
+                           .includes(:word, :word_segments)
+                           .where(verse_id: verse.id)
+                           .joins(:word)
+                           .order('words.position ASC')
 
       next if morphology_words.empty?
 

@@ -37,13 +37,13 @@
         <%= link_to 'Logout', destroy_user_session_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex', data: { turbo_method: :delete } if user_signed_in? %>
         <%= link_to 'CMS', '/cms', class: 'tw-inline-block tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2 tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300', data: generate_event_data('clicked-admin', 'navigation') %>
 
-        <a class="tw-inline-block md:tw-hidden" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#offcanvasRight" aria-controls="offcanvasRight">
+        <button class="tw-inline-block md:tw-hidden tw-bg-transparent tw-border-none tw-p-0 tw-cursor-pointer" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#offcanvasRight" aria-controls="offcanvasRight">
           <svg class="tw-fill-white" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="1" y="1" width="36" height="36" rx="18" stroke="#404040"/>
             <path d="M9 25.25H28.375V23.0971H9V25.25ZM9 19.8679H28.375V17.7155H9V19.8679ZM9 12.3334V14.4863H28.375V12.3334H9Z" fill="black"/>
           </svg>
-        </a>
-        <div class="tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-full tw-max-w-md tw-bg-white tw-shadow-xl tw-z-[9999] tw-transform tw-transition-transform tw-duration-300 tw-ease-in-out tw-hidden md:tw-hidden"  tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" data-offcanvas-target="offcanvas" style="transform: translateX(100%);">
+        </button>
+        <div class="tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-full tw-max-w-md tw-bg-white tw-shadow-xl tw-z-[9999] tw-transform tw-transition-transform tw-duration-300 tw-ease-in-out tw-hidden md:tw-hidden"  tabindex="-1" id="offcanvasRight" data-offcanvas-target="offcanvas" data-controller="offcanvas" style="transform: translateX(100%);">
           <div class="tw-flex tw-items-center tw-justify-between tw-p-4 tw-border-b">
             <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_2_682)">
@@ -55,7 +55,6 @@
                 </clipPath>
               </defs>
             </svg>
-            <h1 class="tw-text-xl tw-font-bold" id="offcanvasRightLabel">QUL</h1>
             <button type="button" class="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 hover:tw-text-gray-900 tw-bg-transparent hover:tw-bg-gray-200 tw-rounded-lg tw-p-1.5 tw-inline-flex tw-items-center tw-justify-center tw-transition-colors" data-action="click->offcanvas#toggle" aria-label="Close">
               <svg class="tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>

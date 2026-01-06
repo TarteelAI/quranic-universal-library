@@ -3,7 +3,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["offcanvas"]
   static values = {
-    open: Boolean
+    open: Boolean,
+    target: String
   }
 
   connect() {
@@ -16,8 +17,10 @@ export default class extends Controller {
   }
 
   toggle(event) {
-    event.preventDefault()
-    event.stopPropagation()
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     this.openValue = !this.openValue
   }
 
@@ -29,50 +32,45 @@ export default class extends Controller {
     }
   }
 
-  show() {
+  getTarget() {
     if (this.hasOffcanvasTarget) {
-      this.offcanvasTarget.classList.remove('tw-hidden')
-      this.offcanvasTarget.classList.add('tw-fixed', 'tw-top-0', 'tw-right-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
-      document.body.style.overflow = 'hidden'
-      
-      const backdrop = document.createElement('div')
-      backdrop.className = 'tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-z-40 tw-transition-opacity tw-duration-300'
-      backdrop.id = 'offcanvas-backdrop'
-      backdrop.addEventListener('click', () => {
-        this.openValue = false
-      })
-      document.body.appendChild(backdrop)
+      return this.offcanvasTarget
+    }
+
+    if (this.hasTargetValue) {
+      return document.querySelector(this.targetValue)
+    }
+
+    return null
+  }
+
+  show() {
+    const target = this.getTarget()
+    if (target) {
+      target.classList.remove('tw-hidden')
+      target.classList.add('tw-fixed', 'tw-top-0', 'tw-right-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
       
       setTimeout(() => {
-        this.offcanvasTarget.style.transform = 'translateX(0)'
+        target.style.transform = 'translateX(0)'
       }, 10)
     }
   }
 
   hide() {
-    if (this.hasOffcanvasTarget) {
-      this.offcanvasTarget.style.transform = 'translateX(100%)'
-      
-      const backdrop = document.getElementById('offcanvas-backdrop')
-      if (backdrop) {
-        backdrop.style.opacity = '0'
-        setTimeout(() => {
-          if (backdrop.parentNode) {
-            backdrop.parentNode.removeChild(backdrop)
-          }
-        }, 300)
-      }
+    const target = this.getTarget()
+    if (target) {
+      target.style.transform = 'translateX(100%)'
       
       setTimeout(() => {
-        this.offcanvasTarget.classList.add('tw-hidden')
-        this.offcanvasTarget.classList.remove('tw-fixed', 'tw-top-0', 'tw-right-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
-        document.body.style.overflow = ''
+        target.classList.add('tw-hidden')
+        target.classList.remove('tw-fixed', 'tw-top-0', 'tw-right-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
       }, 300)
     }
   }
 
   hideOnClick(event) {
-    if (!this.element.contains(event.target) && !this.offcanvasTarget.contains(event.target)) {
+    const target = this.getTarget()
+    if (target && !this.element.contains(event.target) && !target.contains(event.target)) {
       this.openValue = false
     }
   }

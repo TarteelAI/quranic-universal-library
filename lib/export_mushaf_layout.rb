@@ -9,29 +9,33 @@ end
 
 class ExportMushafLayout
   MUSHAF_IDS = [
-    2, # v1
-    1, # v2
-    5, # KFGQPC HAFS
-    6, # Indopak 15 lines
-    # Surah name and bismillah is on the same line for some pages
-    7,
-    # Pak company has wrong line alignments data
-    8,
-    17, # Indopak 13 lines
+    1, # PQC v2 1421H
+    2, # QPC v1 1405H
+    6, # Indopak 15 lines(Qudratullah)
+    7, # Indopak 16 lines(Taj company)
+    8, # Indopak 14 lines(Pak company)
+    17, # Indopak 13 lines(Qudratullah)
+    18, # Indopak 17 lines(Taj company)
+    19, # QPC V4 1441H
     20, # Digital Khatt v2
-    22, # Digital Khatt v1,
-    19, # V4 1441h print
+    22, # Digital Khatt v1
+    23, # Indopak 13 lines(Taj)
+    29 # Indopak 9 lines(Gaba)
   ]
+
   attr_accessor :mushafs,
-                :stats
+                :stats,
+                :postfix_names
 
   def initialize
     @mushafs = []
     @stats = {}
+    @postfix_names = false
   end
 
-  def export(ids = MUSHAF_IDS, db_name = "quran-data.sqlite")
+  def export(ids: MUSHAF_IDS, db_name: 'quran-data.sqlite', postfix_names: true)
     @mushafs = Mushaf.where(id: ids).order('id ASC')
+    @postfix_names = postfix_names
 
     prepare_db_and_tables(db_name)
     export_words
@@ -71,20 +75,20 @@ class ExportMushafLayout
       end
 
       words.push([
-        surah,
-        ayah,
-        word_number,
-        word.word_index,
-        text_uthmani,
-        text_indopak,
-        indopak_hanafi,
-        dk_indopak,
-        code_v1,
-        text_digital_khatt_v2,
-        text_digital_khatt_v1,
-        text_qpc_hafs,
-        is_ayah_marker
-      ])
+                   surah,
+                   ayah,
+                   word_number,
+                   word.word_index,
+                   text_uthmani,
+                   text_indopak,
+                   indopak_hanafi,
+                   dk_indopak,
+                   code_v1,
+                   text_digital_khatt_v2,
+                   text_digital_khatt_v1,
+                   text_qpc_hafs,
+                   is_ayah_marker
+                 ])
       i += 1
       stats[:words_count] += 1
 
@@ -204,49 +208,85 @@ class ExportMushafLayout
     SQL
   end
 
-  def get_mushaf_file_name(mushaf_id)
-    mapping = {
-      "1": "qpc_v2_layout",
-      "2": "qpc_v1_layout",
-      "3": "indopak_layout",
+  def layout_name_ids
+    {
+      qpc_v2_layout: %w[1 4 5 10 11 12 20],
+      qpc_v1_layout: %w[2 22 21],
+      qpc_v4_layout: %w[19],
 
-      # 4-12 has same layout
-      "4": "qpc_hafs_15_lines_layout",
-      "5": "qpc_hafs_15_lines_layout",
-      "10": "qpc_hafs_15_lines_layout",
-      "11": "qpc_hafs_15_lines_layout",
-      "12": "qpc_hafs_15_lines_layout",
+      indopak_15_lines_layout: %w[6 3 13 14],
+      indopak_16_lines_layout: %w[7],
+      indopak_14_lines_layout: %w[8],
 
-      "6": "indopak_15_lines_layout",
-      "7": "indopak_16_lines_layout",
-      "8": "indopak_14_lines_layout",
-      "14": "indopak_madani_15_lines_layout",
-      "13": "indopak_madani_15_lines_layout",
-      "16": "qpc_hafs_tajweed_15_lines_layout",
-      "17": "indopak_13_lines_layout",
-      "18": "indopak_17_lines_layout",
-      "19": "qpc_v4_layout",
-      "20": "qpc_v2_layout",
-      "21": "qpc_tajweed_layout",
-      "22": "qpc_v1_layout",
-      "23": "indopak_13_lines_layout",
-      "29": "indopak_9_lines_layout"
+      indopak_13_lines_layout: %w[17 23],
+      indopak_17_lines_layout: %w[18],
+      indopak_9_lines_layout: %w[29]
     }
-
-    mapping[mushaf_id.to_s.to_sym] || "mushaf_#{mushaf_id}_layout"
   end
 
-  def prepare_db_and_tables(db)
+  def layout_name_posfix
+    {
+      29 => '_gaba',
+      23 => '_taj',
+      18 => '_taj',
+      17 => '_qudratullah',
+      8 => '_pak',
+      6 => '_qudratullah',
+      7 => '_taj',
+      14 => '_madani'
+    }
+  end
+
+  def get_mushaf_file_name(mushaf_id)
+    name = layout_name_ids.find do |_layout, ids|
+      ids.include?(mushaf_id.to_s)
+    end
+    name = name&.first
+
+    if name.nil?
+      name = "mushaf_#{mushaf_id.to_s}_layout"
+    end
+
+    postfix = layout_name_posfix[mushaf_id]
+    if postfix_names && postfix
+      "#{name.to_s}#{postfix}"
+    else
+      name.to_s
+    end
+  end
+
+  def prepare_db_and_tables(db_name)
     ExportedWord.establish_connection(
       { adapter: 'sqlite3',
-        database: db
-      })
+        database: db_name
+      }
+    )
     ExportedLayout.establish_connection(
       { adapter: 'sqlite3',
-        database: db
-      })
+        database: db_name
+      }
+    )
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, dk_indopak string, qpc_v1 string, dk_v2 string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute <<~SQL
+        CREATE TABLE words (
+          surah_number     INTEGER,
+          ayah_number      INTEGER,
+          word_number      INTEGER,
+          word_number_all  INTEGER,
+
+          uthmani          STRING,
+          nastaleeq        STRING,
+          indopak          STRING,
+          dk_indopak       STRING,
+          qpc_v1           STRING,
+          dk_v2            STRING,
+          dk_v1            STRING,
+          qpc_hafs         STRING,
+
+          is_ayah_marker   BOOLEAN
+      )
+    SQL
+
     layout_created = {}
 
     mushafs.each do |mushaf|
@@ -257,7 +297,16 @@ class ExportMushafLayout
       stats[:exported_layouts] ||= {}
       stats[:exported_layouts][db_name] = {}
 
-      ExportedLayout.connection.execute "CREATE TABLE #{db_name}(page integer, line integer, type text, is_centered boolean, range_start integer, range_end integer)"
+      ExportedLayout.connection.execute <<~SQL
+         CREATE TABLE #{db_name} (
+         page         INTEGER,
+         line         INTEGER,
+         type         STRING,
+         is_centered  BOOLEAN,
+         range_start  INTEGER,
+         range_end    INTEGER
+        )
+      SQL
     end
   end
 
@@ -313,6 +362,7 @@ class ExportMushafLayout
       '38:24:33': '۩۝٢٤'
     }
   }
+
   def get_word_text(word, script)
     custom = CUSTOM_TEXT[script.to_sym] || {}
 

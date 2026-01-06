@@ -69,7 +69,7 @@ module Audio
         cloned_file.save!
       end
 
-      update_related_resources.send(:update_related_resources)
+      cloned.send(:update_related_resources)
 
       cloned
     end
@@ -219,6 +219,7 @@ module Audio
       reciter&.update_recitation_count
       qirat_type&.update_recitation_count
       recitation_style&.update_recitation_count
+      chapter_audio_files.each(&:update_segment_percentile)
     end
   end
 end

@@ -98,7 +98,7 @@ module Audio
 
         if (file_segments = audio_segments.order('verse_number ASC')).present?
           segment = find_closest_segment(file_segments, timestamp)
-          percentiles.push segment.verse_key
+          percentiles.push(segment.verse_key) if segment
         end
       end
 
@@ -118,6 +118,7 @@ module Audio
       closest_diff = (closest_segment.timestamp_median - time).abs
 
       segments.each do |segment|
+        next if timestamp_median.timestamp_median.blank?
         diff = (segment.timestamp_median - time).abs
 
         if closest_diff >= diff && time > closest_segment.timestamp_to

@@ -13,8 +13,10 @@ class ExportMushafLayout
     1, # v2
     5, # KFGQPC HAFS
     6, # Indopak 15 lines
-    # 7, # Indopak 16 lines surah name and bismillah is on the same line for some pages
-    # 8, # Indopak 14 lines Pak company has wrong line alignments data
+    # Surah name and bismillah is on the same line for some pages
+    7,
+    # Pak company has wrong line alignments data
+    8,
     17, # Indopak 13 lines
     20, # Digital Khatt v2
     22, # Digital Khatt v1,
@@ -68,7 +70,21 @@ class ExportMushafLayout
         stats[:issues].push("One of script text is blank for word: #{word.location}")
       end
 
-      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{dk_indopak}', '#{code_v1}', '#{text_digital_khatt_v2}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
+      words.push([
+        surah,
+        ayah,
+        word_number,
+        word.word_index,
+        text_uthmani,
+        text_indopak,
+        indopak_hanafi,
+        dk_indopak,
+        code_v1,
+        text_digital_khatt_v2,
+        text_digital_khatt_v1,
+        text_qpc_hafs,
+        is_ayah_marker
+      ])
       i += 1
       stats[:words_count] += 1
 
@@ -167,11 +183,15 @@ class ExportMushafLayout
   end
 
   def bulk_insert_layouts(layout_records)
+    return if layout_records.blank?
+
+    conn = ExportedLayout.connection
+
     values = layout_records.map do |record|
-      "(#{record[0]}, #{record[1]}, '#{record[2]}', #{record[3] ? 'TRUE' : 'FALSE'}, #{record[4] ? record[4] : 'NULL'}, #{record[5] ? record[5] : 'NULL'})"
+      "(#{record[0]}, #{record[1]}, #{conn.quote(record[2])}, #{record[3] ? 'TRUE' : 'FALSE'}, #{record[4] ? record[4] : 'NULL'}, #{record[5] ? record[5] : 'NULL'})"
     end.join(", ")
 
-    ExportedLayout.connection.execute <<-SQL
+    conn.execute <<-SQL
   INSERT INTO #{ExportedLayout.table_name} (
     page,
     line,
@@ -201,15 +221,19 @@ class ExportMushafLayout
       "7": "indopak_16_lines_layout",
       "8": "indopak_14_lines_layout",
       "14": "indopak_madani_15_lines_layout",
+      "13": "indopak_madani_15_lines_layout",
       "16": "qpc_hafs_tajweed_15_lines_layout",
       "17": "indopak_13_lines_layout",
+      "18": "indopak_17_lines_layout",
       "19": "qpc_v4_layout",
       "20": "qpc_v2_layout",
       "21": "qpc_tajweed_layout",
-      "22": "qpc_v1_layout"
+      "22": "qpc_v1_layout",
+      "23": "indopak_13_lines_layout",
+      "29": "indopak_9_lines_layout"
     }
 
-    mapping[mushaf_id.to_s.to_sym]
+    mapping[mushaf_id.to_s.to_sym] || "mushaf_#{mushaf_id}_layout"
   end
 
   def prepare_db_and_tables(db)
@@ -227,7 +251,7 @@ class ExportMushafLayout
 
     mushafs.each do |mushaf|
       db_name = get_mushaf_file_name(mushaf.id)
-      next if layout_created[db_name]
+      next if db_name.blank? || layout_created[db_name]
 
       layout_created[db_name] = true
       stats[:exported_layouts] ||= {}
@@ -249,24 +273,31 @@ class ExportMushafLayout
   end
 
   def bulk_insert_words(values)
-    # nastaleeq is indopak script printed in Madaniah and compatible with QPC font
-    ExportedWord.connection.execute <<-SQL
+    return if values.blank?
+
+    conn = ExportedWord.connection
+
+    values_sql = values.map do |row|
+      "(#{row[0]}, #{row[1]}, #{row[2]}, #{row[3]}, #{conn.quote(row[4])}, #{conn.quote(row[5])}, #{conn.quote(row[6])}, #{conn.quote(row[7])}, #{conn.quote(row[8])}, #{conn.quote(row[9])}, #{conn.quote(row[10])}, #{conn.quote(row[11])}, #{row[12] ? 'TRUE' : 'FALSE'})"
+    end.join(', ')
+
+    conn.execute <<-SQL
   INSERT INTO words (
     surah_number,
     ayah_number,
     word_number,
     word_number_all,
     uthmani,
-    nastaleeq, 
+    nastaleeq,
     indopak,
     dk_indopak,
     qpc_v1,
     dk_v2,
-    dk_v1, 
+    dk_v1,
     qpc_hafs,
     is_ayah_marker
   ) VALUES
-    #{values.join(',')}
+    #{values_sql}
     SQL
   end
 
@@ -291,6 +322,8 @@ class ExportMushafLayout
   def prepare_layout_stats(mushaf, table_name)
     page_count = mushaf.mushaf_pages.count
     exported_words_count = 0
+    ExportedLayout.table_name = table_name
+
     exported_page_count = ExportedLayout.connection.execute("SELECT COUNT(DISTINCT page) FROM #{table_name}").first[0]
     lines_count_per_page = ExportedLayout.select(:page, 'COUNT(line) as lines').group(:page)
 

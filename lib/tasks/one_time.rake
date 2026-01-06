@@ -62,6 +62,10 @@ namespace :one_time do
       175 => 'quran/surah/alnufais/murattal',
     }
 
+    mapping = {
+      179 => 'quran/surah/mansour_al_salimi_1444/murattal'
+    }
+
     def clone_with_audio_files(r)
       cloned = Audio::Recitation.where(name: "#{r.name} (cloned from #{r.id})").first
 
@@ -86,17 +90,30 @@ namespace :one_time do
       cloned
     end
 
+
     mapping.each do |reciter_id, path|
-      recitation = Audio::Recitation.find(13)
-      # cloned = clone_with_audio_files(recitation)
-
+      recitation = Audio::Recitation.find(reciter_id)
       recitation.relative_path = "#{path}/mp3"
+      recitation.format = "mp3,wav"
+      recitation.update_audio_stats
       recitation.save(validate: false)
+      recitation.send(:update_related_resources)
 
-      path = 'quran/surah/saad_al_ghamdi/murattal'
       Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
         file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/mp3/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
         file.save(validate: false)
+        file.update_segment_percentile
+      end
+    end
+
+    ids = [178, 179, 180, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205]
+    ids.each do |id|
+      recitation = Audio::Recitation.find(id)
+      recitation.update_audio_stats
+      recitation.save(validate: false)
+      recitation.send(:update_related_resources)
+      Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
+        file.update_segment_percentile
       end
     end
   end

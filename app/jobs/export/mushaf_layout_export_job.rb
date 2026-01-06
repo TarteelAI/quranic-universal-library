@@ -1,5 +1,7 @@
 module Export
   class MushafLayoutExportJob < ApplicationJob
+    sidekiq_options retry: 3
+
     STORAGE_PATH = "#{Rails.root}/tmp/exported_mushaf_layouts"
 
     def perform(file_name:, user_id:, mushaf_ids: [])

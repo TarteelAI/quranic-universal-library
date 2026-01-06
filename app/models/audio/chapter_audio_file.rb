@@ -118,7 +118,7 @@ module Audio
       closest_diff = (closest_segment.timestamp_median - time).abs
 
       segments.each do |segment|
-        next if timestamp_median.timestamp_median.blank?
+        next if segment.timestamp_median.blank?
         diff = (segment.timestamp_median - time).abs
 
         if closest_diff >= diff && time > closest_segment.timestamp_to

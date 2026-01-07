@@ -42,7 +42,7 @@
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
               data-action="click->tabs#switch"
-              data-bs-target="#tab-docs-pane"
+              data-tabs-target-value="tab-docs-pane"
               type="button"
               role="tab"
               aria-controls="tab-docs-pane"
@@ -56,7 +56,7 @@
         <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
                 id="tab-ligatures"
                 data-action="click->tabs#switch"
-                data-bs-target="#tab-ligatures-pane"
+                data-tabs-target-value="tab-ligatures-pane"
                 type="button" role="tab"
                 aria-controls="tab-ligatures-pane"
                 aria-selected="false">
@@ -69,7 +69,7 @@
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-glyphs"
               data-action="click->tabs#switch"
-              data-bs-target="#tab-glyphs-pane"
+              data-tabs-target-value="tab-glyphs-pane"
               type="button" role="tab"
               aria-controls="tab-glyphs-pane"
               aria-selected="false">
@@ -189,7 +189,7 @@
     </div>
 
     <% if ligatures.present? %>
-      <div class="tab-pane fade"
+      <div class="tab-pane fade tw-hidden"
            id="tab-ligatures-pane"
            role="tabpanel"
            aria-labelledby="tab-ligatures" tabindex="0">
@@ -231,7 +231,7 @@
       </div>
     <% end %>
 
-    <div class="tab-pane fade"
+    <div class="tab-pane fade tw-hidden"
          id="tab-glyphs-pane"
          role="tabpanel"
          aria-labelledby="tab-glyphs" tabindex="0">

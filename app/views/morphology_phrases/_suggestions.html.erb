@@ -102,12 +102,12 @@
           </div>
         </div>
 
-        <figure class="highlight tw-tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-tw-p-2">
+        <figure class="highlight tw-tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-tw-p-2" data-controller="tabs">
           <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
             <li class="tw-m-0">
               <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 active"
                  data-action="click->tabs#switch"
-                 data-bs-target="#tab-suggestions"
+                 data-tabs-target-value="tab-suggestions"
                  role="tab" aria-selected="true">
                 Suggestions
                 <span class="badge tw-bg-green-500 tw-ms-1">
@@ -119,7 +119,7 @@
             <li class="tw-m-0">
               <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200"
                  data-action="click->tabs#switch"
-                 data-bs-target="#tab-ayahs"
+                 data-tabs-target-value="tab-ayahs"
                  role="tab" aria-selected="false">
                 Ayahs
               </a>
@@ -139,7 +139,7 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="tab-ayahs" role="tabpanel" aria-labelledby="tab-ayahs">
+            <div class="tab-pane fade tw-hidden" id="tab-ayahs" role="tabpanel" aria-labelledby="tab-ayahs">
               <% if @phrase&.persisted? %>
                 <%= turbo_frame_tag 'phrase-verses', src: morphology_phrase_path(@phrase.id, result_type: 'preview'), loading: "lazy", target: 'self' do
                   'Loading please wait..'

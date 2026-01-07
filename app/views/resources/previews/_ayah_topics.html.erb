@@ -1,10 +1,10 @@
-<div class="tw-tw-mt-5">
+<div class="tw-tw-mt-5" data-controller="tabs">
   <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="topics-docs-tab" role="tablist">
     <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-topics"
               data-action="click->tabs#switch"
-              data-bs-target="#tab-topics-pane"
+              data-tabs-target-value="tab-topics-pane"
               type="button"
               role="tab"
               aria-controls="tab-topics-pane"
@@ -17,7 +17,7 @@
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
               data-action="click->tabs#switch"
-              data-bs-target="#tab-help-pane"
+              data-tabs-target-value="tab-help-pane"
               type="button" role="tab"
               aria-controls="tab-help-pane"
               aria-selected="false">
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="tab-pane"
+    <div class="tab-pane tw-hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-help" tabindex="1">

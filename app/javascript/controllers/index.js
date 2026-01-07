@@ -64,6 +64,12 @@ application.register("resizeable", ResizeableController);
 import TooltipController from "./tooltip_controller.js";
 application.register("tooltip", TooltipController);
 
+import StickyHeaderController from "./sticky_header_controller.js";
+application.register("sticky-header", StickyHeaderController);
+
+import SplineViewerController from "./spline_viewer_controller.js";
+application.register("spline-viewer", SplineViewerController);
+
 import TurboFrameLoadingController from "./turbo_frame_loading_controller.js";
 application.register("turbo-frame-loading", TurboFrameLoadingController);
 

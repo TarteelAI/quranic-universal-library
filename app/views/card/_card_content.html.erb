@@ -1,13 +1,13 @@
 <div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
   <div class="tw-flex tw-flex-col tw-justify-between tw-h-full">
     <div class="tw-flex tw-flex-col tw-gap-2">
-      <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title %>
+      <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title, class_name: local_assigns[:tool] ? 'tw-text-2xl tw-font-bold' : nil %>
       <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
     </div>
 
     <% if local_assigns[:show_learn_more] %>
       <div class="tw-mt-8">
-        <%= render 'card/learn-more-button' %>
+        <%= render 'card/learn-more-button', text: local_assigns[:learn_more_text] %>
       </div>
     <% end %>
 
@@ -29,7 +29,7 @@
             <% if card.icon.start_with?('fa-') %>
               <i class="fa tw-text-white tw-text-[150px] md:tw-text-[180px] lg:tw-text-[200px] <%= card.icon %> tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity"></i>
             <% else %>
-              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon", class: "tw-max-w-full tw-h-auto tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity" %>
+              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title}", class: "tw-max-w-full tw-h-auto tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity" %>
             <% end %>
           <% end %>
         </div>

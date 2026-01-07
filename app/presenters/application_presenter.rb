@@ -48,15 +48,15 @@ class ApplicationPresenter
   end
 
   def meta_title
-    'Quranic Universal Library'
+    'QUL | Quranic Universal Library: Open-Source Muslim Developer Tools'
   end
 
   def meta_description
-    'A comprehensive collection of Quranic digital resources'
+    'The ultimate open-source toolkit for Muslim developers. Access Quranic APIs, recitations, Mushaf layouts, translations, and metadata to build your next Islamic project.'
   end
 
   def meta_keywords
-    'quran, islamic tools, muslim developers, quran api, quranic library'
+    'Quranic API, Islamic Open Source, Quranic Data, Muslim Dev Toolkit, Quran Dataset JSON.'
   end
 
   def og_image

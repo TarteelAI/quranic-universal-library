@@ -24,14 +24,30 @@
   </div>
   <div class="tw-relative tw-z-10 tw-pt-2 tw-w-full">
     <div class="tw-mt-4 md:tw-mt-10 tw-text-pretty">
-      <h1 class="tw-text-4xl md:tw-text-6xl tw-max-w-[15ch] tw-font-normal tw-leading-tight [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]">The Toolkit for Muslim Developers</h1>
+      <h1 class="tw-text-4xl md:tw-text-6xl tw-max-w-[15ch] tw-font-normal tw-leading-tight [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]">
+        The Open-Source Toolkit for Muslim Developers
+      </h1>
       <p class="tw-mt-3 tw-max-w-[30ch] text-lg md:tw-text-2xl tw-leading-snug tw-text-white/80 lg:tw-text-white/70 [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]">A comprehensive collection of Quranic digital resources</p>
     </div>
-    <div class="tw-mt-10 md:tw-mt-20">
-      <div class="tw-text-xs tw-font-bold tw-text-white/80 lg:tw-text-white/70 [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]">A PROJECT BY</div>
-      <a href="https://www.tarteel.ai/" target="_blank" class="tw-inline-block tw-invert tw-w-24 md:tw-w-32 tw-mt-2 tw-contrast-100">
-        <%= image_tag asset_path('logotype.svg'), alt: 'Tarteel logo' %>
-      </a>
+    <div class="tw-mt-10 md:tw-mt-20 tw-flex tw-flex-col md:tw-flex-row md:tw-items-end md:tw-justify-between tw-gap-4">
+      <div>
+        <div class="tw-text-xs tw-font-bold tw-text-white/80 lg:tw-text-white/70 [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]">A PROJECT BY</div>
+        <a href="https://www.tarteel.ai/" target="_blank" class="tw-inline-block tw-invert tw-w-24 md:tw-w-32 tw-mt-2 tw-contrast-100">
+          <%= image_tag asset_path('logotype.svg'), alt: 'Tarteel logo' %>
+        </a>
+      </div>
+      <div class="tw-flex md:tw-justify-end">
+        <a
+          class="tw-text-white/80 hover:tw-text-white github-button"
+          href="https://github.com/TarteelAI/quranic-universal-library"
+          data-color-scheme="no-preference: light; light: light; dark: dark;"
+          data-size="large"
+          data-show-count="true"
+          target="_blank"
+          aria-label="Star QUL on Github"
+          title="Star QUL on Github"
+        >Star us</a>
+      </div>
     </div>
   </div>
 </div>

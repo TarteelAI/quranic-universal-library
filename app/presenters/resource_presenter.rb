@@ -17,6 +17,7 @@ class ResourcePresenter < ApplicationPresenter
     if show?
       resource_key = resource.resource_type.tr('-', '_').to_sym
       card = downloadable_resource_cards[resource_key]
+
       if card
         card.description
       end

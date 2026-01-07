@@ -18,30 +18,30 @@
       <div class="tw-p-6">
         <%= render 'shared/form_errors', object: @word_translation %>
 
-        <div class="tw-tw-mb-4 tw-tw-mb-2">
+        <div class="tw-mb-4">
           <%= form.label :word_range_from %>
-          <%= form.select :word_range_from, options_for_select(words, group_word_from.position), {}, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent', data: { controller: 'select2', parent: '#ajax-modal' } %>
+          <%= form.select :word_range_from, options_for_select(words, group_word_from.position), {}, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-transparent', data: { controller: 'select2', parent: '#ajax-modal' } %>
         </div>
 
-        <div class="tw-tw-mb-4 tw-tw-mb-2">
+        <div class="tw-mb-4">
           <%= form.label :word_range_to %>
-          <%= form.select :word_range_to, options_for_select(words, group_word_to.position), {}, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent', data: { controller: 'select2', parent: '#ajax-modal' } %>
+          <%= form.select :word_range_to, options_for_select(words, group_word_to.position), {}, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-transparent', data: { controller: 'select2', parent: '#ajax-modal' } %>
         </div>
 
-        <div class="tw-tw-mb-4 tw-tw-mb-2">
+        <div class="tw-mb-4">
           <%= form.label :group_word_id, 'Select primary word of group' %>
-          <%= form.select :group_word_id, options_for_select(words, group_word.position), {}, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent', data: { controller: 'select2', parent: '#ajax-modal' } %>
+          <%= form.select :group_word_id, options_for_select(words, group_word.position), {}, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-transparent', data: { controller: 'select2', parent: '#ajax-modal' } %>
           <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
             This word will be used as the primary word for the group.
           </div>
         </div>
 
-        <div class="tw-tw-mb-4 tw-tw-mb-2">
+        <div class="tw-mb-4">
           <%= form.label :group_text %>
-          <%= form.text_field :group_text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent', required: true %>
+          <%= form.text_field :group_text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-transparent', required: true %>
         </div>
 
-        <div class="tw-tw-mb-4 tw-flex tw-justify-end tw-tw-mt-3">
+        <div class="tw-mb-4 tw-flex tw-justify-end tw-mt-3">
           <%= form.submit 'Save group translaiton',
                           class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-green-600 hover:tw-bg-green-700 tw-text-white',
                           data: { disable_with: 'Please wait...' } %>

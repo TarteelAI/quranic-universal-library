@@ -26,6 +26,76 @@ $asset-version: "3.3";
 }
 
 @font-face {
+  font-family: "qpc-v4-bismillah-color";
+  src: url("#{$font-cdn}/quran_fonts/bismillah_color/QCF_Bismillah_COLOR-Regular.woff2?v=#{$asset-version}") format("woff2"),
+  url("#{$font-cdn}/quran_fonts/bismillah_color/QCF_Bismillah_COLOR-Regular.woff?v=#{$asset-version}") format("woff"),
+  url("#{$font-cdn}/quran_fonts/bismillah_color/QCF_Bismillah_COLOR-Regular.ttf?v=#{$asset-version}") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'arabic-sign-font';
+  src: url("#{$font-cdn}/arabic-sign/arabic_sign_font.woff2?v=#{$asset-version}") format("woff2"),
+  url("#{$font-cdn}/arabic-sign/arabic_sign_font.woff?v=#{$asset-version}") format("woff"),
+  url("#{$font-cdn}/arabic-sign/arabic_sign_font.ttf?v=#{$asset-version}") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'v4-tajweed-ot_svg_dark';
+  src: url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_dark/ttf/p1.ttf") format("truetype"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_dark/woff/p1.woff") format("woff"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_dark/woff2/p1.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'v4-tajweed-ot_svg_light';
+  src: url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_light/ttf/p1.ttf") format("truetype"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_light/woff/p1.woff") format("woff"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_light/woff2/p1.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'v4-tajweed-ot_svg_sepia';
+  src: url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_sepia/ttf/p1.ttf") format("truetype"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_sepia/woff/p1.woff") format("woff"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/ot_svg_sepia/woff2/p1.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'v4-tajweed-dark_mood';
+  src: url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/dark_mood/ttf/p1.ttf") format("truetype"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/dark_mood/woff/p1.woff") format("woff"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4-tajweed/dark_mood/woff2/p1.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'v4-tajweed-no-color';
+  src: url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4/woff2/p1.woff2") format("woff2"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4/woff/p1.woff") format("woff"),
+  url("https://static-cdn.tarteel.ai/qul/fonts/quran_fonts/v4/ttf/p1.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: quran-icon;
   src: url("#{$font-cdn}/common/quran-common.woff2?v=#{$asset-version}"),
   url("#{$font-cdn}/common/quran-common.woff?v=#{$asset-version}") format("woff"),
@@ -130,6 +200,49 @@ $asset-version: "3.3";
   font-family: bismillah;
   font-size: xxx-large;
 }
+
+.qpc-v4-bismillah-color {
+  font-family: "qpc-v4-bismillah-color" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.arabic-sign-font {
+  font-family: 'arabic-sign-font' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.font-v4-tajweed-ot-svg-dark {
+  font-family: 'v4-tajweed-ot_svg_dark' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.font-v4-tajweed-ot-svg-light {
+  font-family: 'v4-tajweed-ot_svg_light' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.font-v4-tajweed-ot-svg-sepia {
+  font-family: 'v4-tajweed-ot_svg_sepia' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.font-v4-tajweed-dark-mood {
+  font-family: 'v4-tajweed-dark_mood' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.v4-tajweed-no-color {
+  font-family: 'v4-tajweed-no-color' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
 
 .pdms-saleem{
   font-family: pdms-saleem;

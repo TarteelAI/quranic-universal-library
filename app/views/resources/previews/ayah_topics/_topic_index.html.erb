@@ -9,7 +9,7 @@
 
     <div>
       <h3 class="tw-text-xl tw-font-semibold tw-text-indigo-700">Ontology Topics</h3>
-      <p class="tw-text-gray-700 tw-tw-mt-2">
+      <p class="tw-text-gray-700 tw-mt-2">
         The <span class="tw-font-semibold">Quranic Ontology</span> uses knowledge representation
         to define key concepts in the Quran and show their relationships using predicate logic.
         The ontology is based on traditional Quranic analysis, including the
@@ -17,7 +17,7 @@
         Named entities in verses, such as historic people and places, are linked to concepts
         in the ontology through named entity tagging.
       </p>
-      <p class="tw-text-gray-700 tw-tw-mt-2">
+      <p class="tw-text-gray-700 tw-mt-2">
         The ontology is a graph of <span class="tw-font-semibold">300 linked concepts</span>
         and <span class="tw-font-semibold">350 relations</span>, providing a structured map of Quranic knowledge.
         Ontology topics are sourced from <a href="https://corpus.quran.com/ontology.jsp" class="tw-text-blue-600 tw-underline" target="_blank" rel="noopener noreferrer">Quran corpus project</a>.
@@ -26,11 +26,11 @@
 
     <div>
       <h3 class="tw-text-xl tw-font-semibold tw-text-green-700">Thematic Topics</h3>
-      <p class="tw-text-gray-700 tw-tw-mt-2">
+      <p class="tw-text-gray-700 tw-mt-2">
         Thematic topics are grouped into three major themes, each highlighting
         a different dimension of Quranic teachings:
       </p>
-      <ul class="tw-list-disc tw-pl-6 tw-tw-mt-3 tw-space-y-2 tw-text-gray-700">
+      <ul class="tw-list-disc tw-pl-6 tw-mt-3 tw-space-y-2 tw-text-gray-700">
         <li>
           <span class="tw-font-semibold">۩ Doctrine</span> — Focuses on a Muslim’s relationship
           with Allah, with others, and with creation. Includes acts of worship, family relations,
@@ -53,7 +53,7 @@
 
     <div>
       <h3 class="tw-text-xl tw-font-semibold tw-text-blue-700">General Topics</h3>
-      <p class="tw-text-gray-700 tw-tw-mt-2">
+      <p class="tw-text-gray-700 tw-mt-2">
         <span class="tw-font-semibold">General topics</span> cover a wide range of Quranic subjects
         that don’t fall directly under Ontology or Thematic categories. These provide an accessible
         entry point for readers to explore various aspects of the Quran.
@@ -69,25 +69,25 @@
   <table class="tw-min-w-full tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm">
     <thead class="tw-bg-gray-50 tw-border-b tw-border-gray-200">
       <tr>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
           <%= sortable_column_header('Topic Name', 'name', resource, @sort_by, @sort_direction, @search_query) %>
         </th>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden md:tw-table-cell">
+        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden md:tw-table-cell">
           Arabic Name
         </th>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
           Type
         </th>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">
+        <th class="tw-px-4 tw-py-3 tw-text-left tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">
           Parent
         </th>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">
           Children
         </th>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
           <%= sortable_column_header('Ayahs', 'ayahs_count', resource, @sort_by, @sort_direction, @search_query, extra_classes: 'tw-justify-center') %>
         </th>
-        <th class="tw-px-4 tw-py-3 tw-tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
+        <th class="tw-px-4 tw-py-3 tw-text-center tw-text-xs tw-font-semibold tw-text-gray-700 tw-uppercase tw-tracking-wider">
           Action
         </th>
       </tr>

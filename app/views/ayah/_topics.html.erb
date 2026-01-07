@@ -1,5 +1,5 @@
 <%= turbo_frame_tag :ayah_topics do %>
-  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-tw-mb-4">
+  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-mb-4">
     <%= @ayah.text_qpc_hafs %>
   </div>
 
@@ -14,7 +14,7 @@
                         data: { controller: 'ajax-modal', url: @presenter.topic_modal_url(t.id), css_class: 'modal-lg' } %>
           </div>
           <% if t.arabic_name.present? %>
-            <div dir="rtl" class="tw-tw-mt-2 tw-text-sm tw-text-gray-700 arabic"><%= t.arabic_name %></div>
+            <div dir="rtl" class="tw-mt-2 tw-text-sm tw-text-gray-700 arabic"><%= t.arabic_name %></div>
           <% end %>
         </div>
       <% end %>

@@ -9,7 +9,7 @@
 <div id="body">
   <div class="tw-p-6" id=modal-body>
     <% if ayah_recitations.present? %>
-      <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700">
+      <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-red-100 tw-border tw-border-red-400 tw-text-red-700">
         We have following ayah recitations for this reciter.
 
         <ul>
@@ -23,13 +23,13 @@
     <% end %>
 
     <%= form_with url: split_to_gapped_cms_audio_recitation_path(resource), method: :put do |form| %>
-      <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
+      <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700">
         This feature allows you to convert Surah segments into individual ayahs and,
         if enabled, divide the audio files to ayah by ayah as well.
         The generated audio files will be shared with you via email for manual upload to storage.
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :divide_audio, 'Divide Audio File' %>
         <%= form.check_box :divide_audio %>
 
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :host, 'Audio host' %>
         <%= form.text_field :host, class: 'form-control', value: "https://audio-cdn.tarteel.ai/quran/#{resource.name.gsub(/\s+/, '')}" %>
         <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
@@ -46,7 +46,7 @@
         </div>
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :surah, 'Split specific surah' %>
         <%= form.text_field :surah, class: 'form-control' %>
         <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
@@ -54,28 +54,28 @@
         </div>
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :ayah_from, 'Ayah range from' %>
         <%= form.text_field :ayah_from, class: 'form-control' %>
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :ayah_to, 'Ayah range to' %>
         <%= form.text_field :ayah_to, class: 'form-control' %>
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :ayah_recitation_id, 'Enter ayah recitation ID' %>
         <%= form.number_field :ayah_recitation_id %>
       </div>
 
       OR
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.label :create_ayah_recitation, 'Create new ayah recitation' %>
         <%= form.check_box :create_ayah_recitation %>
       </div>
 
-      <div class="tw-tw-mb-4">
+      <div class="tw-mb-4">
         <%= form.submit 'Split recitation' %>
       </div>
     <% end %>

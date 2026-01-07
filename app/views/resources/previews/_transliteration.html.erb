@@ -15,7 +15,7 @@
   end
 %>
 
-<div class="tw-tw-mt-5" data-controller="tabs">
+<div class="tw-mt-5" data-controller="tabs">
   <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
     <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
@@ -43,7 +43,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-tw-p-2 tw-tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
@@ -80,10 +80,10 @@
         </div>
 
         <% if !resource.one_word? %>
-          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
+          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
             <div class="tw-p-6">
               <div class="qpc-hafs quran-text">
-                <div class="badge tw-bg-gray-600 text-white tw-tw-text-left">
+                <div class="badge tw-bg-gray-600 text-white tw-text-left">
                   <%= ayah.verse_key %>
                 </div>
                 <%= ayah.text_qpc_hafs %>
@@ -98,8 +98,8 @@
               <% transliterations.each do |wt| %>
                 <div
                   id="<%= dom_id wt %>"
-                  class="tw-bg-gray-50 tw-tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-tw-text-center tw-min-w-[5rem]">
-                  <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-tw-mb-2 tw-tw-p-2">
+                  class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
+                  <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
                     <%= wt.resource.text_qpc_hafs %>
                   </div>
 
@@ -144,7 +144,7 @@
   "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
 }
       </pre>
-              <p class="tw-tw-mt-2">
+              <p class="tw-mt-2">
                 The transliteration string may include <strong>HTML tags</strong> (e.g., <code class="tw-bg-gray-100 tw-px-1 tw-rounded">&lt;u&gt;</code>, <code class="tw-bg-gray-100 tw-px-1 tw-rounded">&lt;b&gt;</code>) for styling and emphasis.
               </p>
             </div>

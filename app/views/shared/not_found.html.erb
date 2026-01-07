@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      <div class="more-activities tw-flex tw-justify-center tw-gap-2 tw-tw-mt-4 tw-hidden">
+      <div class="more-activities tw-flex tw-justify-center tw-gap-2 tw-mt-4 tw-hidden">
         <%= link_to 'Learn more about this ayah', '#_', class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-green-600 tw-text-green-600 hover:tw-bg-green-600 hover:tw-text-white tw-me-3 ayah-info', data: { controller: 'ajax-modal', url: '/ayah/1:1', css_class: 'modal-lg ayah-modal', use_turbo: true} %>
         <%= link_to 'Try another', learning_activity_path(activity), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-gray-800 tw-text-gray-800 hover:tw-bg-gray-800 hover:tw-text-white tw-me-3' %>
         <%= link_to 'More learning activities', learning_activities_path, class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-gray-800 tw-text-gray-800 hover:tw-bg-gray-800 hover:tw-text-white' %>

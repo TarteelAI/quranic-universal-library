@@ -6,14 +6,14 @@
 </p>
 <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-  <div class="form-floating tw-tw-mt-3">
+  <div class="form-floating tw-mt-3">
     <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
     <%= f.label :email, required: true %>
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
-  <div class="tw-tw-text-center tw-mt-8">
+  <div class="tw-text-center tw-mt-8">
     <%= f.submit 'Resend unlock instructions', class: 'tw-px-8 tw-py-3 tw-bg-black tw-text-white tw-rounded-full' %>
   </div>
 <% end %>

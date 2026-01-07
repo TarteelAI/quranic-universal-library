@@ -1,5 +1,5 @@
 <%= turbo_frame_tag :ayah_theme do %>
-  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-tw-mb-4">
+  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-mb-4">
     <%= @ayah.text_qpc_hafs %>
   </div>
 
@@ -12,7 +12,7 @@
         <div class="tw-text-sm tw-font-semibold tw-text-emerald-900">
           This theme is for <%= ayahs.size %> ayahs from <%= ayahs.first.verse_key %> to <%= ayahs.last.verse_key %>
         </div>
-        <div class="tw-tw-mt-3 tw-bg-white/70 tw-border tw-border-emerald-100 tw-rounded tw-p-4 qpc-hafs" dir="rtl">
+        <div class="tw-mt-3 tw-bg-white/70 tw-border tw-border-emerald-100 tw-rounded tw-p-4 qpc-hafs" dir="rtl">
           <% ayahs.each do |v| %>
             <%= v.text_qpc_hafs %>
           <% end %>
@@ -20,10 +20,10 @@
       </div>
     <% end %>
 
-    <div class="tw-tw-mt-4 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5">
+    <div class="tw-mt-4 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5">
       <div class="tw-text-sm tw-text-gray-900"><%= safe_html theme.theme %></div>
       <% if theme.keywords.present? %>
-        <div class="tw-tw-mt-4 tw-flex tw-flex-wrap tw-gap-2">
+        <div class="tw-mt-4 tw-flex tw-flex-wrap tw-gap-2">
           <% theme.keywords.each do |k| %>
             <span class="tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-800 tw-text-xs tw-px-3 tw-py-1 tw-rounded-full"><%= k %></span>
           <% end %>

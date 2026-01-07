@@ -8,7 +8,7 @@
     <div class="tw-flex tw-items-center tw-justify-between">
       <%= link_to Unicode::Name.of(letter['c']), chars_info_path(char: letter['c'], script: 'text_uthmani'), target: '_blank', class: 'me-2', title: 'View all words with this char', data: {controller: 'tooltip'} %>
 
-      <div class="qpc-hafs <%= rule_name %> tw-tw-text-left"
+      <div class="qpc-hafs <%= rule_name %> tw-text-left"
            title="Copy <%= letter['c'] %>"
            data-text="<%= letter['c'] -%>"
            data-controller="copy-to-clipboard">

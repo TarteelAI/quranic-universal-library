@@ -33,15 +33,15 @@
     </div>
   </div>
 
-  <div dir="rtl" class="tw-tw-mt-4 tw-grid tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-3">
+  <div dir="rtl" class="tw-mt-4 tw-grid tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-3">
     <% @presenter.words.each do |w| %>
       <% wt = @presenter.word_translation_by_word_id[w.id] %>
-      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-tw-p-3">
-        <div dir="rtl" class="qpc-hafs arabic tw-text-2xl tw-leading-none tw-font-semibold tw-text-gray-900 tw-tw-text-center">
+      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3">
+        <div dir="rtl" class="qpc-hafs arabic tw-text-2xl tw-leading-none tw-font-semibold tw-text-gray-900 tw-text-center">
           <%= w.text_qpc_hafs.presence || w.text_uthmani %>
         </div>
-        <div class="tw-tw-mt-2 tw-text-xs tw-text-gray-500 tw-tw-text-center"><%= w.location %></div>
-        <div dir="ltr" class="tw-tw-mt-2 tw-text-sm tw-text-gray-800 tw-tw-text-center"><%= wt&.text.presence || '-' %></div>
+        <div class="tw-mt-2 tw-text-xs tw-text-gray-500 tw-text-center"><%= w.location %></div>
+        <div dir="ltr" class="tw-mt-2 tw-text-sm tw-text-gray-800 tw-text-center"><%= wt&.text.presence || '-' %></div>
       </div>
     <% end %>
   </div>

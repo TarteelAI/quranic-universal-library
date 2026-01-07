@@ -31,21 +31,21 @@
 </div>
 
 <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow">
-  <div class="tw-tw-mb-4">
+  <div class="tw-mb-4">
     <h1 class="tw-text-3xl tw-font-bold">Ruku <%= ruku.ruku_number %></h1>
-    <p class="tw-tw-mt-2 tw-text-sm tw-text-gray-600">Total Ayahs:
+    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Total Ayahs:
       <strong>
         <%= ruku.verses_count %>
       </strong></p>
   </div>
 
-  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4 tw-tw-mb-4">
-    <h2 class="tw-text-lg tw-font-semibold tw-tw-mb-2">Ayah Range</h2>
+  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4 tw-mb-4">
+    <h2 class="tw-text-lg tw-font-semibold tw-mb-2">Ayah Range</h2>
     <p><strong>From:</strong> <%= ruku.first_verse.chapter.name_simple %>, Ayah <%= ruku.first_verse.verse_number %></p>
     <p><strong>To:</strong> <%= ruku.last_verse.chapter.name_simple %>, Ayah <%= ruku.last_verse.verse_number %></p>
   </div>
 
-  <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
+  <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
     <div class="tw-p-6">
       <div class="qpc-hafs quran-text">
         <% verses.each do |verse| %>

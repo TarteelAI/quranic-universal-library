@@ -1,5 +1,5 @@
 <%= turbo_frame_tag "treebank_compare_content" do %>
-  <div class="tw-tw-mt-4">
+  <div class="tw-mt-4">
     <% if @compare_mode %>
       <div id="treebank-compare-layout" class="tw-flex tw-flex-row tw-gap-0" data-controller="resizeable">
         <div id="left-side" class="tw-w-1/2 tw-min-w-[300px]">
@@ -27,7 +27,7 @@
                   </a>
                 </div>
               </div>
-              <div class="tw-tw-mt-3 tw-inline-block tw-bg-white tw-rounded">
+              <div class="tw-mt-3 tw-inline-block tw-bg-white tw-rounded">
                 <img class="tw-max-w-none tw-h-auto"
                      alt="Quran Corpus treebank"
                      src="https://corpus.quran.com/graphimage?id=<%= @corpus_graph_image_id %>">

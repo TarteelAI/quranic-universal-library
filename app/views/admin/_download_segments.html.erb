@@ -5,7 +5,7 @@
 <div id="body">
   <%= form_with url: download_segments_cms_audio_recitation_path(resource), method: :put, data: {turbo: false} do |form| %>
     <div class="tw-p-6">
-      <div class="tw-tw-mb-2">
+      <div class="tw-mb-2">
         <%= form.label :chapter_id, 'Select chapter', class: 'form-label' %>
         <%= form.select :chapter_id, Chapter.order('id asc').map { |c| [c.humanize, c.id] }, { include_blank: 'Select chapter' }, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal', placeholder: 'select chapter' } %>
         <div class="help-block">
@@ -13,7 +13,7 @@
         </div>
       </div>
 
-      <div class="tw-tw-mb-2">
+      <div class="tw-mb-2">
         <%= form.label :export_format, 'Select format', class: 'form-label' %>
         <%= form.select :export_format, [['Sqlite db', 'db'], ['JSON', 'json'], ['CSV', 'csv']], {}, class: 'form-control', data: { controller: 'select2', parent: '#ajax-modal', placeholder: 'select format' } %>
       </div>

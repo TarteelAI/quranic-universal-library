@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <div class="tw-tw-mt-2 tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+  <div class="tw-mt-2 tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
     <div class="tw-text-sm tw-text-gray-600"><%= @presenter.word_location %></div>
     <div class="tw-flex tw-items-center tw-gap-2">
       <% if @presenter.prev_word_path.present? %>
@@ -42,7 +42,7 @@
 
   <div class="tw-mt-8 tw-flex tw-justify-center">
     <% if @presenter.segments.any? %>
-      <div class="text-qpc-hafs tw-text-6xl md:tw-text-7xl tw-font-bold tw-tw-text-center">
+      <div class="text-qpc-hafs tw-text-6xl md:tw-text-7xl tw-font-bold tw-text-center">
         <% @presenter.segments.each do |segment| %><span class="<%= @presenter.pos_text_class(segment.part_of_speech_key) %>"><%= segment.text_qpc_hafs.presence || segment.text_uthmani %></span><% end %>
       </div>
     <% else %>
@@ -50,13 +50,13 @@
     <% end %>
   </div>
 
-  <div class="tw-tw-mt-4 tw-flex tw-justify-center">
-    <div class="tw-bg-white tw-rounded tw-tw-p-3 tw-inline-block tw-border tw-border-gray-200">
+  <div class="tw-mt-4 tw-flex tw-justify-center">
+    <div class="tw-bg-white tw-rounded tw-p-3 tw-inline-block tw-border tw-border-gray-200">
       <img class="tw-max-w-full tw-h-auto" alt="<%= @presenter.word_location %>" src="<%= @presenter.corpus_image_url %>">
     </div>
   </div>
 
-  <div class="tw-tw-mt-4 tw-text-sm tw-text-gray-700 tw-flex tw-flex-col tw-gap-1 tw-items-center">
+  <div class="tw-mt-4 tw-text-sm tw-text-gray-700 tw-flex tw-flex-col tw-gap-1 tw-items-center">
     <div><span class="tw-font-semibold">Meaning:</span> <%= @presenter.meaning %></div>
     <div><span class="tw-font-semibold">Transliteration:</span> <%= @presenter.transliteration %></div>
   </div>
@@ -79,7 +79,7 @@
             <div dir="rtl" class="text-qpc-hafs tw-text-4xl md:tw-text-5xl tw-font-bold tw-leading-none">
               <span class="<%= @presenter.pos_text_class(segment.part_of_speech_key) %>"><%= segment.text_uthmani %></span>
             </div>
-            <div class="tw-tw-mt-2 tw-text-sm tw-text-gray-700 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
+            <div class="tw-mt-2 tw-text-sm tw-text-gray-700 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
               <span class="tw-font-semibold"><%= segment.part_of_speech_name.presence || segment.part_of_speech_key.presence || "-" %></span>
               <% if segment.grammar_term_name.present? %>
                 <span class="tw-text-gray-400">•</span>
@@ -94,7 +94,7 @@
               <div dir="rtl" class="tw-mt-1 tw-text-sm tw-text-gray-700 arabic"><%= safe_html segment.grammar_term_desc_arabic %></div>
             <% end %>
             <% if segment.topic_id.present? %>
-              <div class="tw-tw-mt-2 tw-text-sm" dir="ltr">
+              <div class="tw-mt-2 tw-text-sm" dir="ltr">
                 <a class="tw-text-blue-700 tw-underline" href="<%= @presenter.topic_path(segment.topic_id) %>"><%= @presenter.topic_label(segment.topic) %></a>
               </div>
             <% end %>
@@ -106,7 +106,7 @@
 
   <div class="tw-mt-8 tw-bg-white tw-rounded tw-border tw-border-gray-200 tw-px-5 tw-py-4">
     <div class="tw-text-base tw-font-semibold tw-text-gray-900">Word info</div>
-    <div class="tw-tw-mt-3 tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-text-sm tw-text-gray-700">
+    <div class="tw-mt-3 tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-text-sm tw-text-gray-700">
       <div>
         <span class="tw-font-semibold">Lemma:</span>
         <% if @presenter.lemma_modal_url.present? %>

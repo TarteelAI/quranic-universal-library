@@ -12,7 +12,7 @@
   data-ranges="<%= ranges %>"
   data-ayahid="<%= ayah.id %>"
   data-ayahkey="<%= ayah.verse_key %>"
-  class="ayah tw-flex quran-text flex-column tw-border tw-border-gray-300 tw-tw-p-3 tw-tw-mb-2 border-2 <%= 'border-success' if persisted %>">
+  class="ayah tw-flex quran-text flex-column tw-border tw-border-gray-300 tw-p-3 tw-mb-2 border-2 <%= 'border-success' if persisted %>">
   <div class="actions">
     <% if persisted %>
       <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>

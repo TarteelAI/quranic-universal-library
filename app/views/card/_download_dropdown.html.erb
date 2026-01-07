@@ -1,6 +1,6 @@
 <% if resource.restrict_download? %>
   <% url = copyright_resource_path(resource.id) %>
-  <div class="tw-tw-text-left tw-text-sm">
+  <div class="tw-text-left tw-text-sm">
     This resource is © copyrighted.
     <%= link_to 'learn more', url,
                 class: 'tw-text-blue-600 hover:tw-underline',
@@ -9,13 +9,13 @@
   </div>
 <% else %>
   <div class="tw-relative" data-controller="dropdown">
-    <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-w-full md:tw-w-auto tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 tw-rounded-lg tw-tw-text-left tw-whitespace-nowrap tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#C5C8E6] focus:tw-ring-offset-2 tw-flex tw-items-center tw-justify-between tw-gap-2" id="dropdown-<%= resource.id %>" data-action="click->dropdown#toggle" aria-expanded="false">
+    <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-w-full md:tw-w-auto tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 tw-rounded-lg tw-text-left tw-whitespace-nowrap tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#C5C8E6] focus:tw-ring-offset-2 tw-flex tw-items-center tw-justify-between tw-gap-2" id="dropdown-<%= resource.id %>" data-action="click->dropdown#toggle" aria-expanded="false">
       <span>Select download format</span>
       <svg data-dropdown-target="icon" class="tw-w-4 tw-h-4 tw-transition-transform tw-duration-200" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
       </svg>
     </button>
-    <ul class="tw-absolute tw-right-0 tw-tw-mt-2 tw-min-w-48 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md tw-shadow-lg tw-z-50 tw-hidden" data-dropdown-target="menu" aria-labelledby="dropdown-<%= resource.id %>">
+    <ul class="tw-absolute tw-right-0 tw-mt-2 tw-min-w-48 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md tw-shadow-lg tw-z-50 tw-hidden" data-dropdown-target="menu" aria-labelledby="dropdown-<%= resource.id %>">
       <% if resource.downloadable_files.any? %>
       <% resource.downloadable_files.each do |file| %>
         <li class="tw-py-2 tw-px-4 hover:tw-bg-gray-100">

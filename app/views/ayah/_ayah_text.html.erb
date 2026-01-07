@@ -38,14 +38,14 @@
     </div>
   </div>
 
-  <div class="tw-tw-mt-4 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-flex tw-justify-center">
+  <div class="tw-mt-4 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-flex tw-justify-center">
     <% if script == 'image' %>
       <img class="tw-max-w-full tw-h-auto" alt="<%= @ayah.verse_key %>" src="<%= @ayah.image_url(type: 'v1', format: 'png') %>">
     <% else %>
       <% if script.to_s.start_with?('code_') %>
         <%= render 'shared/page_font', verses: [@ayah] %>
       <% end %>
-      <div dir="rtl" class="<%= font_class %> tw-text-3xl tw-leading-relaxed tw-tw-text-right">
+      <div dir="rtl" class="<%= font_class %> tw-text-3xl tw-leading-relaxed tw-text-right">
         <%= safe_html @ayah.read_attribute(script) %>
       </div>
     <% end %>

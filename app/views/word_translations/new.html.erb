@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <div class="tw-w-full tw-tw-mb-4">
+      <div class="tw-w-full tw-mb-4">
         <% @verse.translations.each do |trans| %>
           <b><%= trans.resource_name %></b>
           <div class="<%= trans.language_name %>" id="ayah_text">
@@ -31,7 +31,7 @@
             <% end %>
           </div>
 
-          <div class="tw-tw-mb-4 tw-flex tw-justify-end tw-items-center tw-tw-mt-3">
+          <div class="tw-mb-4 tw-flex tw-justify-end tw-items-center tw-mt-3">
             <%= link_to 'Cancel', word_translation_path(@verse.id, language: @language.id), class: 'tw-me-3' %>
             <%= form.submit 'Save translations',
                             class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors',

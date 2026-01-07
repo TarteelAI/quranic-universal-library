@@ -9,17 +9,17 @@
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex" role="alert">
+  <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex" role="alert">
     The Compare Ayah tool lets you view and compare multiple Ayahs, with optional translations. This comparison helps in
     exploring similarities in wording, or structure.
   </div>
 
-  <div class="page-section filters tw-tw-mb-3">
+  <div class="page-section filters tw-mb-3">
     <div class="tw-flex tw-flex-wrap tw-gap-4">
       <div class="col-lg-12">
         <%= form_with url: compare_ayah_path, method: :get do |f| %>
           <div class="tw-flex tw-flex-wrap">
-            <div class="tw-tw-mb-4 tw-me-2">
+            <div class="tw-mb-4 tw-me-2">
               <%= f.search_field :ayahs,
                                  value: params[:ayahs],
                                  class: 'form-control',
@@ -28,7 +28,7 @@
               <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Select ayah</p>
             </div>
 
-            <div class="tw-tw-mb-4 tw-me-2">
+            <div class="tw-mb-4 tw-me-2">
               <%= f.select :resource_ids,
                            options_for_select(ResourceContent.translations.one_verse.pluck(:name, :id), params[:resource_ids]),
                            { prompt: 'Select Translation' },
@@ -41,7 +41,7 @@
               <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Select translation</p>
             </div>
 
-            <div class="tw-tw-mb-4">
+            <div class="tw-mb-4">
               <%= f.submit 'Show Ayahs', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
             </div>
           </div>
@@ -52,7 +52,7 @@
 
   <% if @verses.present? %>
     <% @verses.each do |verse| %>
-      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
+      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
         <div class="tw-p-6">
           <div class="display-5 qpc-hafs quran-text tw-leading-normal">
             <div>
@@ -73,8 +73,8 @@
 
           <% if @show_translation %>
             <% verse.translations.sort_by { |tr| @translation_ids.index(tr.resource_content_id.to_s) || Float::INFINITY }.each do |tr| %>
-              <div class="translation-text tw-tw-mt-3">
-                <h3 class="tw-tw-mb-2 tw-font-semibold">
+              <div class="translation-text tw-mt-3">
+                <h3 class="tw-mb-2 tw-font-semibold">
                   (<%= tr.resource_content_id %>)
                   <%= tr.resource_name %>
                 </h3>
@@ -87,7 +87,7 @@
       </div>
     <% end %>
   <% else %>
-    <div class="tw-border tw-border-gray-300 border-gray-300 tw-rounded-lg tw-p-4 text-gray-500 tw-tw-text-center">
+    <div class="tw-border tw-border-gray-300 border-gray-300 tw-rounded-lg tw-p-4 text-gray-500 tw-text-center">
       Please select some ayahs
     </div>
   <% end %>

@@ -10,7 +10,7 @@
       <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
         <%= render 'shared/filters', juz: true, page: true %>
 
-        <div class="tw-tw-mb-4">
+        <div class="tw-mb-4">
           <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
           <%= link_to 'Clear', word_text_proofreadings_path, class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_juz, :filter_chapter, :filter_page, :filter_verse) %>
         </div>
@@ -18,8 +18,8 @@
     <% end %>
   </div>
 
-  <div class="page-section tw-tw-mt-4">
-    <h2 class="tw-text-2xl tw-tw-mb-4">Ayah list</h2>
+  <div class="page-section tw-mt-4">
+    <h2 class="tw-text-2xl tw-mb-4">Ayah list</h2>
     <div class="tools-table-overflow">
     <table class="tw-w-full hover:tw-bg-gray-50">
       <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">

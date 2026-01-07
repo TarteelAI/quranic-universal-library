@@ -15,7 +15,7 @@
       </div>
 
       <div class="tw-ml-4 tw-flex-1">
-        <h3 class="tw-text-xl tw-font-bold tw-text-yellow-900 tw-tw-mb-3">
+        <h3 class="tw-text-xl tw-font-bold tw-text-yellow-900 tw-mb-3">
           <% if step == 'word_mapping' %>
             Can't Map Words for page <%= page_number %>
           <% elsif step == 'line_alignment' %>
@@ -25,7 +25,7 @@
           <% end %>
         </h3>
 
-        <p class="tw-text-yellow-800 tw-tw-mb-4">
+        <p class="tw-text-yellow-800 tw-mb-4">
           <% if step == 'word_mapping' %>
             Before you can map words to line numbers for this page, you need to set the ayah range first. The ayah range defines which verses appear on this page.
           <% elsif step == 'line_alignment' %>
@@ -37,7 +37,7 @@
 
         <% if step == 'word_mapping' %>
           <!-- For word mapping, only show ayah range requirement -->
-          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-tw-mb-4 tw-border tw-border-yellow-200">
+          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-yellow-200">
             <div class="tw-flex tw-items-start tw-gap-3">
               <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -50,7 +50,7 @@
           </div>
         <% else %>
           <!-- For other steps, show full checklist -->
-          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-tw-mb-4 tw-border tw-border-yellow-200">
+          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-yellow-200">
             <ul class="tw-space-y-3">
               <% unless has_ayah_range %>
                 <li class="tw-flex tw-items-start tw-gap-3">

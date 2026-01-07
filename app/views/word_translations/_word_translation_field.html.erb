@@ -8,8 +8,8 @@
 <%= form.hidden_field :word_id %>
 <%= form.hidden_field :language_id, value: language.id %>
 
-<div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-5 tw-tw-p-3">
-  <h5 class="tw-text-lg tw-font-semibold tw-tw-mb-3 tw-tw-text-right" dir="rtl">
+<div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-5 tw-p-3">
+  <h5 class="tw-text-lg tw-font-semibold tw-mb-3 tw-text-right" dir="rtl">
     <strong class="tw-ms-2">
       <%= word.location %>
     </strong>
@@ -19,16 +19,16 @@
   </h5>
 
   <div
-    class="tw-tw-p-0 word-translation"
+    class="tw-p-0 word-translation"
     data-word="<%= word.location %>"
   >
     <div class="tw-flex tw-flex-wrap tw-gap-4">
       <div class="tw-w-full md:tw-w-1/2">
-        <div class="tw-tw-mb-4">
+        <div class="tw-mb-4">
           <%= form.text_field :text,
                               class: "tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent #{@language.name.downcase}",
                               placeholder: "Enter #{@language.name} translation of #{word.location}" %>
-          <div class="tw-flex tw-items-center tw-justify-between tw-text-sm tw-text-gray-600 tw-tw-mt-2">
+          <div class="tw-flex tw-items-center tw-justify-between tw-text-sm tw-text-gray-600 tw-mt-2">
             <small>Enter word by word translation for <%= word.location %></small>
             <div class="tw-me-5">
               <strong>Current translation:</strong> <%= word_translation.text %>

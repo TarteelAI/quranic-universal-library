@@ -1,10 +1,10 @@
-<div class="page-section tw-tw-mt-4 filters">
+<div class="page-section tw-mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
     <%= hidden_field_tag :proofread, true %>
     <div data-controller="chapter-verses-filter" class="tw-flex tw-items-start tw-flex-wrap">
       <%= render 'shared/filters' %>
 
-      <div class="tw-tw-mb-4 tw-flex tw-items-center">
+      <div class="tw-mb-4 tw-flex tw-items-center">
         <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
         <%= link_to 'Clear', morphology_phrases_path(proofread: true) if has_filters?(:filter_chapter, :filter_verse) %>
       </div>
@@ -12,9 +12,9 @@
   <% end %>
 </div>
 
-<div class="page-section tw-tw-mt-4">
+<div class="page-section tw-mt-4">
   <h2>Ayah phrases list</h2>
-  <table class="tw-w-full hover:tw-bg-gray-50 tw-tw-mt-4">
+  <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
     <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
     <tr>
       <th><%= sort_order_link 'Ayah Key', :verse_index, proofread: true %></th>

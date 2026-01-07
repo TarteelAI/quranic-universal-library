@@ -7,7 +7,7 @@
   )
 %>
 
-<div class="tw-tw-mt-5" data-controller="tabs">
+<div class="tw-mt-5" data-controller="tabs">
   <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
     <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
@@ -35,7 +35,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-tw-p-2 tw-tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
@@ -71,10 +71,10 @@
           </div>
         </div>
 
-        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-2">
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
           <div class="tw-p-6">
             <div class="qpc-hafs quran-text">
-              <div class="badge tw-bg-gray-600 text-white tw-tw-text-left">
+              <div class="badge tw-bg-gray-600 text-white tw-text-left">
                 <%= ayah.verse_key %>
               </div>
               <%= ayah.text_qpc_hafs %>
@@ -90,7 +90,7 @@
 
             <% if translation.foot_notes.any? %>
               <div class="tw-mt-8">
-                <h5 class="tw-font-semibold tw-text-sm tw-text-gray-600 tw-tw-mb-2">Footnotes</h5>
+                <h5 class="tw-font-semibold tw-text-sm tw-text-gray-600 tw-mb-2">Footnotes</h5>
                 <ul class="tw-space-y-3 tw-text-sm tw-text-gray-700">
                   <% translation.foot_notes.each_with_index do |footnote, index| %>
                     <li class="tw-bg-gray-50 tw-p-4 tw-rounded-lg">
@@ -114,7 +114,7 @@
          aria-labelledby="tab-docs" tabindex="1">
       <div class="tw-space-y-6">
         <div>
-          <p class="tw-tw-mb-2">
+          <p class="tw-mb-2">
             Translations are available in both <strong>JSON</strong> and <strong>SQLite database</strong> formats.
             Some translation has footnotes as well, footnotes are embedded in the translation text using
             <code>sup</code> HTML tag.
@@ -122,7 +122,7 @@
             multiple export formats for translations.
           </p>
 
-          <h3 class="tw-text-xl tw-font-semibold tw-tw-mb-2">Available export formats:</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-2">Available export formats:</h3>
 
           <h4 class="tw-text-lg tw-font-semibold">1. Nested Array Structure</h4>
           <p>

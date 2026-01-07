@@ -7,12 +7,12 @@
 <div class="page-wrapper container-lg">
   <div class="page-section">
     <div class="tw-w-full">
-      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-tw-mb-4">
-        <div class="tw-flex tw-justify-between tw-items-center tw-bg-gray-50 tw-tw-p-3 tw-border-b tw-border-gray-200">
+      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-4">
+        <div class="tw-flex tw-justify-between tw-items-center tw-bg-gray-50 tw-p-3 tw-border-b tw-border-gray-200">
           <div class="tw-flex tw-items-center tw-gap-3">
             <strong>Verse:</strong><%= @graph.verse_key %> (Graph <%= @graph.graph_number %>)
           </div>
-          <h3 class="tw-text-xl tw-tw-mb-0">Edit Syntax Graph</h3>
+          <h3 class="tw-text-xl tw-mb-0">Edit Syntax Graph</h3>
           <div>
             <%= link_to 'Back to View', morphology_treebank_index_path(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number), class: 'tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-black-700' %>
           </div>
@@ -20,13 +20,13 @@
 
         <div class="tw-p-4">
           <% if flash[:alert] %>
-            <div class="tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4">
+            <div class="tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4">
               <%= flash[:alert] %>
             </div>
           <% end %>
           
           <% if flash[:notice] %>
-            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4">
+            <div class="tw-bg-green-50 tw-border tw-border-green-200 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4">
               <%= flash[:notice] %>
             </div>
           <% end %>
@@ -60,7 +60,7 @@
                       </button>
                     </div>
                   </div>
-                  <div class="tw-tw-p-2 tw-bg-white">
+                  <div class="tw-p-2 tw-bg-white">
                     <div class="syntax-graph-container rounded bg-light tw-min-h-[150px] tw-max-h-[50vh] tw-overflow-auto"
                          data-controller="syntax-graph"
                          data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number) %>"

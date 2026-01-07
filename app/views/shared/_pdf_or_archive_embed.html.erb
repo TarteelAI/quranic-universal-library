@@ -46,7 +46,7 @@
     <% if page_url.present? %>
       <div class="proofreading-container <%= 'active' if default_view == :image %>"
            data-view-type="image">
-        <div class="tw-p-4 tw-tw-text-center zoomable"
+        <div class="tw-p-4 tw-text-center zoomable"
              data-controller="zoom-image"
              data-page="<%= jump_to_page %>"
              data-host="<%= page_url %>"
@@ -56,11 +56,11 @@
             Page <span id="page"><%= jump_to_page %></span>
           </label>
           <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-          <div class="tw-flex tw-justify-between tw-tw-mb-3">
+          <div class="tw-flex tw-justify-between tw-mb-3">
             <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" id="previous-page">Previous Page</button>
             <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" id="next-page">Next page</button>
           </div>
-          <div id="image-container" class="tw-tw-mt-4 tw-p-4">
+          <div id="image-container" class="tw-mt-4 tw-p-4">
             <img id="zoom-image"
                  data-controller="lazy-load"
                  width="100%"
@@ -103,7 +103,7 @@
     <% end %>
 
     <% if views.empty? %>
-      <div class="tw-tw-text-center text-faded pt-4">
+      <div class="tw-text-center text-faded pt-4">
         PDF of this resource isn't available, please contact the admin to upload it.
       </div>
     <% end %>

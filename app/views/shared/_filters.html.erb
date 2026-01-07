@@ -19,26 +19,26 @@
 %>
 
 <% if filter_juz %>
-  <div class="tw-tw-mb-4 tw-me-2">
+  <div class="tw-mb-4 tw-me-2">
     <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'juz-select', data: { placeholder: 'Filter by juz/para', controller: 'select2' } %>
     <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Juz/Para</p>
   </div>
 <% end %>
 
 <% if filter_page %>
-  <div class="tw-tw-mb-4 tw-me-2">
+  <div class="tw-mb-4 tw-me-2">
     <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'page-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
     <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Page</p>
   </div>
 <% end %>
 
-<div class="tw-tw-mb-4 tw-me-2">
+<div class="tw-mb-4 tw-me-2">
   <%= select_tag :filter_chapter, options_for_select(chapters, params[:filter_chapter]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
   <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Surah</p>
 </div>
 
 <% if filter_verse %>
-  <div class="tw-tw-mb-4 tw-me-2">
+  <div class="tw-mb-4 tw-me-2">
     <%= select_tag :verse_number, options_for_select(verses_range, params[:verse_number]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'verse-select', data: { controller: 'select2' } %>
     <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Ayah</p>
   </div>

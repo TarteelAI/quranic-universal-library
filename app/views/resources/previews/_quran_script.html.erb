@@ -11,7 +11,7 @@
 
 <%= render 'shared/page_font', verses: [ayah] %>
 
-<div class="tw-tw-mt-5" data-controller="tabs">
+<div class="tw-mt-5" data-controller="tabs">
   <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="quran-script-tab" role="tablist">
     <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
@@ -45,7 +45,7 @@
          role="tabpanel"
          aria-labelledby="tab-preview" tabindex="0">
       <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold tw-tw-mt-4">
+        <h2 class="tw-text-xl tw-font-semibold tw-mt-4">
           <%= resource.name %> preview of Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
         </h2>
 
@@ -121,7 +121,7 @@
           <% end %>
         </p>
 
-        <h3 class="tw-text-sm tw-font-semibold tw-tw-mt-4">Sample JSON</h3>
+        <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Sample JSON</h3>
         <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-sm tw-font-mono tw-whitespace-pre overflow-x-auto">
           {
           "1:1": {
@@ -145,9 +145,9 @@
           }
         </div>
 
-        <h3 class="tw-text-sm tw-font-semibold tw-tw-mt-4">Field Descriptions</h3>
+        <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Field Descriptions</h3>
         <div class="tools-table-overflow">
-          <table class="tw-min-w-full tw-text-sm tw-tw-text-left tw-border tw-border-gray-200 tw-rounded-lg">
+          <table class="tw-min-w-full tw-text-sm tw-text-left tw-border tw-border-gray-200 tw-rounded-lg">
             <thead class="tw-bg-gray-100 tw-text-xs tw-uppercase tw-font-semibold">
             <tr>
               <th class="tw-px-4 tw-py-2">Field</th>
@@ -229,9 +229,9 @@
           </table>
         </div>
 
-        <h3 class="tw-text-sm tw-font-semibold tw-tw-mt-4">Usage Examples</h3>
+        <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Usage Examples</h3>
         <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4">
-          <h4 class="tw-text-sm tw-font-semibold tw-tw-mb-2">CSS Integration</h4>
+          <h4 class="tw-text-sm tw-font-semibold tw-mb-2">CSS Integration</h4>
           <pre class="tw-text-xs tw-font-mono tw-whitespace-pre-wrap">/* Include the font family in your CSS */
 .quran-text {
   font-family: '<%= script_class %>', 'Amiri', serif;
@@ -239,7 +239,7 @@
   text-align: right;
 }</pre>
 
-          <h4 class="tw-text-sm tw-font-semibold tw-tw-mt-4 tw-tw-mb-2">JavaScript Usage</h4>
+          <h4 class="tw-text-sm tw-font-semibold tw-mt-4 tw-mb-2">JavaScript Usage</h4>
           <pre class="tw-text-xs tw-font-mono tw-whitespace-pre-wrap">// Fetch verse data
 fetch('/api/v1/verses/1:1.json')
   .then(response => response.json())
@@ -249,7 +249,7 @@ fetch('/api/v1/verses/1:1.json')
   });</pre>
         </div>
 
-        <h3 class="tw-text-sm tw-font-semibold tw-tw-mt-4">Features</h3>
+        <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Features</h3>
         <ul class="tw-list-disc tw-list-inside tw-text-sm tw-text-gray-700">
           <li>High-quality Arabic text rendering</li>
           <li>Proper diacritical marks and Tajweed annotations</li>

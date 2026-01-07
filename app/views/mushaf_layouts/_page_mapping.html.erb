@@ -1,7 +1,7 @@
 <% progress = @mushaf.percentage_done %>
 
 <%= turbo_frame_tag "mushaf-page" do %>
-  <h3 class="tw-tw-p-3 tw-tw-text-center">
+  <h3 class="tw-p-3 tw-text-center">
     <p>
       <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>
     </p>
@@ -14,7 +14,7 @@
   </h3>
 
   <div class="tw-px-4" data-controller="page-search">
-    <div class="tw-tw-mb-4">
+    <div class="tw-mb-4">
       <input
         type="text"
         data-page-search-target="searchInput"
@@ -24,7 +24,7 @@
         />
     </div>
 
-    <section class="highlight tw-tw-mt-4" style="position: relative;" data-controller="turbo-frame-loading">
+    <section class="highlight tw-mt-4" style="position: relative;" data-controller="turbo-frame-loading">
       <div id="turbo-loading-indicator" class="tw-absolute tw-h-screen tw-top-0 tw-left-0 tw-right-0 tw-flex tw-items-center tw-justify-center tw-bg-white/80 tw-z-50 tw-py-4 tw-hidden">
         <svg class="animate-spin h-8 w-8 tw-text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="32" height="32">
           <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -32,7 +32,7 @@
         </svg>
       </div>
 
-      <table class="tw-w-full hover:tw-bg-gray-50 tw-tw-mt-4">
+      <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
         <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
         <tr>
           <th><%= mushaf_sort_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
@@ -59,7 +59,7 @@
               <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
                 <div class="tw-flex tw-gap-2">
                   <div>
-                    <div class="tw-tw-mb-4" id=<%= page.page_number %>-from>
+                    <div class="tw-mb-4" id=<%= page.page_number %>-from>
                       <%= form.text_field :first_verse_id, value: first_ayah_key, style: 'width: 70px', class: 'from form-control', placeholder: 'From', required: true, disabled: !@access %>
                       <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
                         <%= first_ayah_key || 'surah:ayah' %>
@@ -67,7 +67,7 @@
                     </div>
                   </div>
                   <div>
-                    <div class="tw-tw-mb-4" id=<%= page.page_number %>-to>
+                    <div class="tw-mb-4" id=<%= page.page_number %>-to>
                       <%= form.text_field :last_verse_id, value: last_ayah_key, style: 'width: 70px', class: 'to form-control', placeholder: 'To', required: true, disabled: !@access %>
                       <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
                         <%= last_ayah_key || 'surah:ayah' %>

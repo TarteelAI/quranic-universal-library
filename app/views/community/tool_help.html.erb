@@ -18,13 +18,13 @@
         </div>
       <% else %>
         <% docs[1..].each_with_index do |doc, i| %>
-          <div class="section tw-tw-mb-2">
+          <div class="section tw-mb-2">
             <% if doc[:type] == 'heading' %>
               <h3>
                 <%= safe_html doc[:text] %>
               </h3>
             <% elsif doc[:type] == 'info' %>
-              <div class="tw-px-4 tw-py-3 tw-rounded tw-tw-mb-4 tw-bg-[#d3d3d4] tw-border tw-text-black">
+              <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-[#d3d3d4] tw-border tw-text-black">
                 <%= safe_html doc[:text] %>
 
                 <% if doc[:screenshot] %>
@@ -57,7 +57,7 @@
 
                   <% if doc[:sections] %>
                     <% doc[:sections].each do |section| %>
-                      <div class="tw-tw-mt-3">
+                      <div class="tw-mt-3">
                         <% if section[:text] %>
                           <div class="<%= 'tw-p-4 tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-700 tw-text-gray-100 tw-rounded' if 'info' == section[:type] %> <%= section[:css_class] %>">
                             <%= safe_html section[:text] %>
@@ -108,7 +108,7 @@
 
   <div id="body">
     <div class="tw-p-6">
-      <div class="tw-tw-text-center tw-py-5">
+      <div class="tw-text-center tw-py-5">
         <i class="fa fa-exclamation-triangle fa-5x tw-text-yellow-600"></i>
         The tool you are looking for does not exist.
       </div>

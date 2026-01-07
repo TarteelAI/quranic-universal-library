@@ -23,7 +23,7 @@
   <% end %>
 
   <% if search_query.present? %>
-    <div class="tw-tw-mt-3 tw-space-y-2">
+    <div class="tw-mt-3 tw-space-y-2">
       <% if is_verse_search %>
         <!-- Ayah Search Results -->
         <% if searched_verse %>
@@ -38,7 +38,7 @@
                 <p class="tw-font-semibold tw-text-gray-900 tw-mb-1">
                   Ayah <%= searched_verse.verse_key %> - <%= searched_verse.chapter.name_simple %>
                 </p>
-                <p class="tw-text-sm tw-text-gray-700 qpc-hafs tw-tw-mb-2">
+                <p class="tw-text-sm tw-text-gray-700 qpc-hafs tw-mb-2">
                   <%= searched_verse.text_qpc_hafs %>
                 </p>
                 <p class="tw-text-sm tw-text-gray-600">

@@ -9,8 +9,8 @@
   <div data-controller="mutashabihat-builder" class="mutashabihat">
     <%= form_with url: new_morphology_phrase_path, method: :get do |f| %>
       <%= f.hidden_field :phrase_id, value: @phrase&.id %>
-      <div class="page-section tw-tw-mt-4">
-        <figure class="highlight tw-tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-tw-p-2" style="position: sticky;top: 0px;z-index: 100;background: #fff;">
+      <div class="page-section tw-mt-4">
+        <figure class="highlight tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-p-2" style="position: sticky;top: 0px;z-index: 100;background: #fff;">
           <h3>Source ayah/phrase</h3>
           <%
             ayah, range = @phrase_search.source_verse_and_range
@@ -19,7 +19,7 @@
 
           <div class="tw-flex tw-gap-4">
             <div class="tw-w-full md:tw-w-1/2">
-              <div class="tw-tw-mb-4">
+              <div class="tw-mb-4">
                 <%= f.label :ayah_key, 'Selected ayah' %>
                 <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key), selected: ayah&.verse_key), { include_blank: true }, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent', id: 'source_ayah', data: { placeholder: 'Select ayah', controller: 'select2' } %>
               </div>
@@ -28,7 +28,7 @@
             <div class="tw-w-full md:tw-w-1/2">
               <div class="tw-flex tw-gap-4">
                 <div class="tw-w-full md:tw-w-1/2">
-                  <div class="tw-tw-mb-4">
+                  <div class="tw-mb-4">
                     <%= f.label :word_from, 'Word from' %>
                     <%= f.select :word_from, options_for_select(ayah.words.map do |w|
                       ["#{w.position} - #{w.text_qpc_hafs} ", w.position]
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="tw-w-full md:tw-w-1/2">
-                  <div class="tw-tw-mb-4">
+                  <div class="tw-mb-4">
                     <%= f.label :word_to, 'Word to' %>
                     <%= f.select :word_to, options_for_select(ayah.words.map do |w|
                       ["#{w.position} - #{w.text_qpc_hafs} ", w.position]
@@ -73,36 +73,36 @@
         <div class="filters tw-flex tw-flex-wrap tw-gap-4">
           <div class="tw-w-full">
             <div class="tw-flex tw-justify-between tw-items-center">
-              <div class="tw-tw-mb-4">
-                <div class="tw-flex tw-items-center tw-tw-mb-2">
+              <div class="tw-mb-4">
+                <div class="tw-flex tw-items-center tw-mb-2">
                   <%= check_box_tag :use_text_search, 1, params[:use_text_search].blank? || params[:use_text_search].to_i == 1, id: 'use_text_search', class: 'tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500' %>
                   <%= label_tag :use_text_search, 'Use text search', class: 'tw-ml-2 tw-text-gray-700 tw-cursor-pointer' %>
                 </div>
 
-                <div class="tw-flex tw-items-center tw-tw-mb-2">
+                <div class="tw-flex tw-items-center tw-mb-2">
                   <%= check_box_tag :use_root_search, 1, params[:use_root_search].to_i == 1, id: 'use_root_search', class: 'tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500' %>
                   <%= label_tag :use_root_search, 'Use root search', class: 'tw-ml-2 tw-text-gray-700 tw-cursor-pointer' %>
                 </div>
 
-                <div class="tw-flex tw-items-center tw-tw-mb-2">
+                <div class="tw-flex tw-items-center tw-mb-2">
                   <%= check_box_tag :use_lemma_search, 1, params[:use_lemma_search].to_i == 1, id: 'use_lemma_search', class: 'tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500' %>
                   <%= label_tag :use_lemma_search, 'Use lemma search', class: 'tw-ml-2 tw-text-gray-700 tw-cursor-pointer' %>
                 </div>
 
-                <div class="tw-flex tw-items-center tw-tw-mb-2">
+                <div class="tw-flex tw-items-center tw-mb-2">
                   <%= check_box_tag :use_lcs_search, 1, params[:use_lcs_search].to_i == 1, id: 'use_lcs_search', class: 'tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500' %>
                   <%= label_tag :use_lcs_search, 'Use LCS search', class: 'tw-ml-2 tw-text-gray-700 tw-cursor-pointer' %>
                 </div>
               </div>
 
-              <div class="tw-tw-mb-4">
+              <div class="tw-mb-4">
                 <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white', data: { disable_with: 'Please wait..' } %>
               </div>
             </div>
           </div>
         </div>
 
-        <figure class="highlight tw-tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-tw-p-2" data-controller="tabs">
+        <figure class="highlight tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-p-2" data-controller="tabs">
           <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
             <li class="tw-m-0">
               <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 active"
@@ -126,7 +126,7 @@
             </li>
           </ul>
 
-          <div class="tab-content tw-tw-p-3">
+          <div class="tab-content tw-p-3">
             <div class="tab-pane fade active show" id="tab-suggestions" role="tabpanel" aria-labelledby="tab-suggestions">
               <div id="suggestions">
                 <%= render 'add_ayah' %>

@@ -174,4 +174,15 @@
 .sort-link{
   cursor: pointer;
   text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #46ac7a !important;
+
+    .label-text,
+    .sort-icons,
+    * {
+      color: #46ac7a !important;
+    }
+  }
 }

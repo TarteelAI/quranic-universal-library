@@ -32,8 +32,8 @@
       </h2>
       <div class="tw-flex tw-gap-1 tw-mt-3 md:tw-mt-0">
         <% if local_assigns[:help] != false %>
-          <%= link_to '#', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-border tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-transition-colors', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
-            <i class="fa fa-info-circle tw-mr-1"></i> Help
+          <%= link_to '#', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-white tw-border tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center group', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
+            <span class="tw-w-5 tw-h-5 tw-rounded-full tw-bg-blue-500 tw-text-white tw-flex tw-items-center tw-justify-center tw-text-xs tw-font-normal tw-leading-none tw-mr-2 group-hover:tw-bg-white group-hover:tw-text-blue-500 tw-transition-colors">i</span> Help
           <% end %>
         <% end %>
         <%= safe_html actions.join('') %>

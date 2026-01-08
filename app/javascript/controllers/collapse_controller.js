@@ -2,10 +2,25 @@ import {Controller} from "@hotwired/stimulus";
 
 export default class extends Controller {
   static values = {
-    toggle: { type: Boolean, default: true }
+    toggle: { type: Boolean, default: true },
+    target: String
   }
 
   connect() {
+    if (this.hasTargetValue) {
+      const targetElement = document.querySelector(this.targetValue);
+      if (targetElement && targetElement.classList.contains('collapse')) {
+        this.isTrigger = true;
+        this.targetElement = targetElement;
+        const targetHasHidden = targetElement.classList.contains('tw-hidden');
+        const targetHasShow = targetElement.classList.contains('show');
+        const targetHasActive = targetElement.classList.contains('active');
+        const targetIsOpen = targetHasShow || targetHasActive || !targetHasHidden;
+        this.updateTriggerState(targetIsOpen);
+        return;
+      }
+    }
+    
     const hasMdFlex = this.element.classList.contains('md:tw-flex');
     const isMobile = window.innerWidth < 768;
     
@@ -134,12 +149,29 @@ export default class extends Controller {
     }
   }
 
-  toggle() {
-    // Skip toggle for responsive navbar on desktop
+  toggle(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    if (this.isTrigger && this.targetElement) {
+      const targetHasHidden = this.targetElement.classList.contains('tw-hidden');
+      const targetHasShow = this.targetElement.classList.contains('show');
+      const targetHasActive = this.targetElement.classList.contains('active');
+      const targetIsOpen = targetHasShow || targetHasActive || !targetHasHidden;
+      
+      if (targetIsOpen) {
+        this.hideTarget(this.targetElement);
+      } else {
+        this.showTarget(this.targetElement);
+      }
+      return;
+    }
+    
     const isMobile = window.innerWidth < 768;
     const hasMdFlex = this.element.classList.contains('md:tw-flex');
     if (hasMdFlex && !isMobile) {
-      // On desktop, navbar should always be visible - don't toggle
       return;
     }
     
@@ -147,6 +179,64 @@ export default class extends Controller {
       this.hide();
     } else {
       this.show();
+    }
+  }
+  
+  showTarget(targetElement) {
+    targetElement.classList.remove('tw-hidden');
+    targetElement.style.maxHeight = '0';
+    targetElement.style.overflow = 'hidden';
+    
+    requestAnimationFrame(() => {
+      const height = targetElement.scrollHeight;
+      targetElement.style.maxHeight = `${height}px`;
+      
+      setTimeout(() => {
+        targetElement.style.maxHeight = '';
+        targetElement.style.overflow = '';
+        targetElement.classList.add('show', 'active');
+        this.updateTriggerState(true);
+      }, 300);
+    });
+  }
+  
+  hideTarget(targetElement) {
+    const height = targetElement.scrollHeight;
+    targetElement.style.maxHeight = `${height}px`;
+    targetElement.style.overflow = 'hidden';
+    
+    requestAnimationFrame(() => {
+      targetElement.style.maxHeight = '0';
+      
+      setTimeout(() => {
+        targetElement.classList.add('tw-hidden');
+        targetElement.classList.remove('show', 'active');
+        targetElement.style.maxHeight = '';
+        targetElement.style.overflow = '';
+        this.updateTriggerState(false);
+      }, 300);
+    });
+  }
+  
+  updateTriggerState(isOpen) {
+    if (!this.isTrigger) return;
+    
+    if (isOpen) {
+      this.element.setAttribute('aria-expanded', 'true');
+      this.element.classList.remove('collapsed');
+      
+      const revealIcon = this.element.querySelector('.collapsed-reveal');
+      const hiddenIcon = this.element.querySelector('.collapsed-hidden');
+      if (revealIcon) revealIcon.classList.add('tw-hidden');
+      if (hiddenIcon) hiddenIcon.classList.remove('tw-hidden');
+    } else {
+      this.element.setAttribute('aria-expanded', 'false');
+      this.element.classList.add('collapsed');
+      
+      const revealIcon = this.element.querySelector('.collapsed-reveal');
+      const hiddenIcon = this.element.querySelector('.collapsed-hidden');
+      if (revealIcon) revealIcon.classList.remove('tw-hidden');
+      if (hiddenIcon) hiddenIcon.classList.add('tw-hidden');
     }
   }
 
@@ -223,7 +313,7 @@ export default class extends Controller {
     if (!targetId) return;
     
     const triggers = document.querySelectorAll(
-      `[data-bs-target="#${targetId}"], [data-bs-target="${targetId}"], [aria-controls="${targetId}"]`
+      `[data-bs-target="#${targetId}"], [data-bs-target="${targetId}"], [aria-controls="${targetId}"], [data-collapse-target-value="#${targetId}"], [data-collapse-target-value="${targetId}"]`
     );
     
     triggers.forEach(trigger => {
@@ -231,7 +321,6 @@ export default class extends Controller {
         trigger.setAttribute('aria-expanded', 'true');
         trigger.classList.remove('collapsed');
         
-        // Update chevron icons
         const revealIcon = trigger.querySelector('.collapsed-reveal');
         const hiddenIcon = trigger.querySelector('.collapsed-hidden');
         if (revealIcon) revealIcon.classList.add('tw-hidden');
@@ -240,7 +329,6 @@ export default class extends Controller {
         trigger.setAttribute('aria-expanded', 'false');
         trigger.classList.add('collapsed');
         
-        // Update chevron icons
         const revealIcon = trigger.querySelector('.collapsed-reveal');
         const hiddenIcon = trigger.querySelector('.collapsed-hidden');
         if (revealIcon) revealIcon.classList.remove('tw-hidden');

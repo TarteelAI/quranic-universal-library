@@ -1,15 +1,23 @@
-<div class="modal fade" id="graphSplitterModal" tabindex="-1" aria-labelledby="graphSplitterModalLabel" aria-hidden="true"
+<div class="tw-fixed tw-inset-0 tw-z-[9999] tw-overflow-y-auto tw-opacity-0 tw-transition-opacity tw-duration-300 tw-hidden" 
+     id="graphSplitterModal" 
+     tabindex="-1" 
+     aria-labelledby="graphSplitterModalLabel" 
+     aria-hidden="true"
      data-controller="graph-splitter"
      data-graph-splitter-chapter-value="<%= @chapter_number %>"
-     data-graph-splitter-verse-value="<%= @verse_number %>"
-     data-action="show.bs.modal->graph-splitter#loadGraphsData">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="graphSplitterModalLabel">Split Graph - Verse <%= @chapter_number %>:<%= @verse_number %></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
+     data-graph-splitter-verse-value="<%= @verse_number %>">
+  <div class="tw-flex tw-min-h-full tw-items-center tw-justify-center tw-p-4">
+    <div class="tw-relative tw-w-full tw-max-w-6xl tw-transform tw-transition-all tw-duration-300">
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-xl tw-overflow-hidden">
+        <div class="tw-flex tw-items-center tw-justify-between tw-px-6 tw-py-4 tw-border-b tw-border-gray-200">
+          <h5 class="tw-text-lg tw-font-semibold tw-text-gray-900 tw-m-0" id="graphSplitterModalLabel">Split Graph - Verse <%= @chapter_number %>:<%= @verse_number %></h5>
+          <button type="button" class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-p-1" data-action="click->graph-splitter#closeModal" aria-label="Close">
+            <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="tw-px-6 tw-py-4 tw-max-h-[70vh] tw-overflow-y-auto">
         <div data-graph-splitter-target="loadingState" class="tw-text-center tw-py-12">
           <div class="spinner-border tw-text-blue-600" role="status">
             <span class="tw-sr-only">Loading graphs...</span>
@@ -21,11 +29,11 @@
           <div class="accordion tw-mb-4" id="graphSplitterAccordion">
             <div class="accordion-item tw-border tw-border-gray-300 tw-rounded">
               <h2 class="accordion-header" id="headingInstructions">
-                <button class="accordion-button collapsed tw-text-sm tw-py-2 tw-px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInstructions" aria-expanded="false" aria-controls="collapseInstructions">
+                <button class="accordion-button collapsed tw-text-sm tw-py-2 tw-px-3" type="button" data-controller="collapse" data-action="click->collapse#toggle" data-collapse-target-value="#collapseInstructions" aria-expanded="false" aria-controls="collapseInstructions">
                   <i class="fa fa-info-circle tw-mr-2 tw-text-blue-600"></i> Instructions & Warnings
                 </button>
               </h2>
-              <div id="collapseInstructions" class="accordion-collapse collapse" aria-labelledby="headingInstructions" data-bs-parent="#graphSplitterAccordion">
+              <div id="collapseInstructions" class="accordion-collapse collapse tw-hidden" aria-labelledby="headingInstructions" data-bs-parent="#graphSplitterAccordion" data-controller="collapse">
                 <div class="accordion-body tw-p-3">
                   <div class="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded tw-p-3 tw-mb-3">
                     <p class="tw-text-sm tw-text-blue-800 tw-mb-0">
@@ -60,15 +68,16 @@
           <div data-graph-splitter-target="graphsContainer" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="tw-px-4 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-600 tw-transition" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="tw-px-4 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700 tw-transition" data-action="click->graph-splitter#saveChanges" data-graph-splitter-target="saveButton">
-          <span data-graph-splitter-target="saveButtonText">Save Changes</span>
-          <span data-graph-splitter-target="saveButtonSpinner" class="spinner-border spinner-border-sm tw-hidden" role="status">
-            <span class="tw-sr-only">Saving...</span>
-          </span>
-        </button>
+        </div>
+        <div class="tw-flex tw-items-center tw-justify-end tw-gap-3 tw-px-6 tw-py-4 tw-border-t tw-border-gray-200">
+          <button type="button" class="tw-px-4 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-600 tw-transition" data-action="click->graph-splitter#closeModal">Close</button>
+          <button type="button" class="tw-px-4 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700 tw-transition" data-action="click->graph-splitter#saveChanges" data-graph-splitter-target="saveButton">
+            <span data-graph-splitter-target="saveButtonText">Save Changes</span>
+            <span data-graph-splitter-target="saveButtonSpinner" class="tw-inline-block tw-w-4 tw-h-4 tw-border-2 tw-border-white tw-border-t-transparent tw-rounded-full tw-animate-spin tw-hidden tw-ml-2" role="status">
+              <span class="tw-sr-only">Saving...</span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

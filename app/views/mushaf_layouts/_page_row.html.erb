@@ -67,7 +67,7 @@
         </div>
       </div>
     <% else %>
-      <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'btn btn-primary', data: { turbo_frame: '_top', disable_with: 'Preview' } %>
+      <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white', data: { turbo_frame: '_top', disable_with: 'Preview' } %>
     <% end %>
   </td>
 </tr>

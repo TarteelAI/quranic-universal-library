@@ -15,7 +15,7 @@
       <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
         <%= render 'card/card_content',
                    card: card,
-                   title: link_to(card.name, detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top' }),
+                   title: link_to(card.name, detail_resources_path(card.resource_type, card.id), class: 'hover:tw-text-[#46ac7a] tw-transition-colors', data: { turbo_frame: '_top' }),
                    show_info: false,
                    is_quran_script: is_quran_script,
                    preview_verse: @preview_verse,

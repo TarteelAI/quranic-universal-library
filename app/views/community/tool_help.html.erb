@@ -28,29 +28,29 @@
                 <%= safe_html doc[:text] %>
 
                 <% if doc[:screenshot] %>
-                  <div class="screenshot my-2">
+                  <div class="screenshot tw-my-2">
                     <%= doc_image_tag(doc[:screenshot]) %>
                   </div>
                 <% end %>
               </div>
             <% elsif doc[:type] == 'step' %>
               <div class="step">
-                <h4 class="step-title flex-between tw-border tw-border-gray-300 tw-p-3 tw-rounded-md" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
+                <h4 class="step-title tw-flex tw-items-center tw-justify-between tw-border tw-border-gray-300 tw-p-3 tw-rounded-md tw-cursor-pointer hover:tw-bg-gray-50 tw-transition-colors tw-my-2" data-controller="collapse" data-action="click->collapse#toggle" data-collapse-target-value="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
                   <%= safe_html doc[:title] %>
 
                   <div>
                     <span class="collapsed-reveal"><i class="fa fa-chevron-down"></i></span>
-                    <span class="collapsed-hidden"><i class="fa fa-chevron-up"></i></span>
+                    <span class="collapsed-hidden tw-hidden"><i class="fa fa-chevron-up"></i></span>
                   </div>
                 </h4>
 
-                <div id="step-<%= i %>" class="collapse">
+                <div id="step-<%= i %>" class="collapse tw-hidden" data-controller="collapse">
                   <div>
                     <%= safe_html doc[:text] %>
                   </div>
 
                   <% if doc[:screenshot] %>
-                    <div class="screenshot my-2">
+                    <div class="screenshot tw-my-2">
                       <%= doc_image_tag(doc[:screenshot]) %>
                     </div>
                   <% end %>
@@ -59,13 +59,13 @@
                     <% doc[:sections].each do |section| %>
                       <div class="tw-mt-3">
                         <% if section[:text] %>
-                          <div class="<%= 'alert alert-dark' if 'info' == section[:type] %> <%= section[:css_class] %>">
+                          <div class="<%= 'tw-p-4 tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-700 tw-text-gray-100 tw-rounded' if 'info' == section[:type] %> <%= section[:css_class] %>">
                             <%= safe_html section[:text] %>
                           </div>
                         <% end %>
 
                         <% if section[:screenshot] %>
-                          <div class="screenshot my-2">
+                          <div class="screenshot tw-my-2">
                             <%= doc_image_tag(section[:screenshot]) %>
                           </div>
                         <% end %>
@@ -76,16 +76,16 @@
               </div>
             <% elsif doc[:type] == 'demo' %>
               <div class="step">
-                <h4 class="step-title flex-between tw-border tw-border-gray-300 tw-p-3 tw-rounded-md" data-bs-toggle="collapse" data-bs-target="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
+                <h4 class="step-title tw-flex tw-items-center tw-justify-between tw-border tw-border-gray-300 tw-p-3 tw-rounded-md tw-cursor-pointer hover:tw-bg-gray-50 tw-transition-colors tw-my-2" data-controller="collapse" data-action="click->collapse#toggle" data-collapse-target-value="#step-<%= i %>" aria-expanded="false" aria-controls="step-<%= i %>">
                   <%= safe_html doc[:title] %>
 
                   <div>
                     <span class="collapsed-reveal"><i class="fa fa-chevron-down"></i></span>
-                    <span class="collapsed-hidden"><i class="fa fa-chevron-up"></i></span>
+                    <span class="collapsed-hidden tw-hidden"><i class="fa fa-chevron-up"></i></span>
                   </div>
                 </h4>
 
-                <div id="step-<%= i %>" class="collapse">
+                <div id="step-<%= i %>" class="collapse tw-hidden" data-controller="collapse">
                   <div>
                     <%= safe_html doc[:text] %>
                   </div>

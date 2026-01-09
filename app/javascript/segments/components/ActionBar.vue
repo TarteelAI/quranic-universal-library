@@ -93,7 +93,7 @@
               type="number"
               v-model="stepDuration"
               placeholder="step duration"
-              class="form-control-xs"
+              class="tw-w-full tw-px-2 tw-py-1 tw-text-xs tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
           />
         </div>
       </div>
@@ -175,7 +175,7 @@
                   placeholder="From"
                   ref="ayahTimeFromInput"
                   :value="currentAyahTimeFrom"
-                  class="form-control-xs me-4"
+                  class="tw-w-full tw-px-2 tw-py-1 tw-text-xs tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-mr-4"
                   :disabled="segmentLocked"
                   @change="currentAyahTimeFromChanged"
               />
@@ -191,7 +191,7 @@
                   ref="ayahTimeToInput"
                   :disabled="segmentLocked"
                   :value="currentAyahTimeTo"
-                  class="form-control-xs"
+                  class="tw-w-full tw-px-2 tw-py-1 tw-text-xs tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
                   @change="currentAyahTimeToChanged"
               />
               <small class="form-text d-block" v-if="!!verseOriginalSegment">{{

@@ -67,7 +67,7 @@
       <td colspan="<%= scripts.size + 1 %>">
         <div class="tw-flex tw-items-center">
           <div class="tw-me-4">
-            <%= pagy_bootstrap_nav(@presenter.pagination).html_safe %>
+            <%= pagy_nav_tailwind(@presenter.pagination).html_safe %>
           </div>
           <div>
             <%= pagy_info(@presenter.pagination).html_safe %>

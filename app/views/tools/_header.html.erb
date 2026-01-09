@@ -7,7 +7,7 @@
 
 <div id="resources-header">
   <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
-    <div id="resource-bg">
+    <div id="resource-bg" class="tw-invert">
     </div>
     <%= render 'layouts/grid' do %>
       <div class="tw-grid-cols-subgrid tw-grid tw-gap-6 md:tw-gap-8 lg:tw-gap-14">
@@ -25,15 +25,15 @@
 </div>
 
 <div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="tw-mt-4 mt-md-5">
-    <div class="tw-mb-3 flex-between tw-justify-between">
+  <div class="tw-mt-4 tw-mb-4 md:tw-mt-5">
+    <div class="tw-mb-3 tw-flex tw-items-center tw-justify-between">
       <h2 class="tw-text-2xl md:tw-text-3xl tw-leading-none tw-text-pretty">
         <%= safe_html title %>
       </h2>
-      <div class="tw-flex tw-gap-1 tw-mt-3 tw-mt-md-0">
+      <div class="tw-flex tw-gap-1 tw-mt-3 md:tw-mt-0">
         <% if local_assigns[:help] != false %>
-          <%= link_to '#', class: 'btn btn-outline-info btn-xs', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
-            <i class="fa fa-info-circle"></i> Help
+          <%= link_to '#', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-white tw-border tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center group', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
+            <span class="tw-w-5 tw-h-5 tw-rounded-full tw-bg-blue-500 tw-text-white tw-flex tw-items-center tw-justify-center tw-text-xs tw-font-normal tw-leading-none tw-mr-2 group-hover:tw-bg-white group-hover:tw-text-blue-500 tw-transition-colors">i</span> Help
           <% end %>
         <% end %>
         <%= safe_html actions.join('') %>

@@ -40,7 +40,7 @@
             <%= form.label :text, 'Enter the text', class: 'tw-font-medium tw-mb-2 tw-block' %>
             <%= form.text_area :text, 
                 value: params[:text], 
-                class: "form-control text",
+                class: "tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent text",
                 data: { chars_info_target: "input" },
                 placeholder: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ" %>
             <div class="tw-text-sm tw-text-gray-600 tw-mt-2">
@@ -60,15 +60,15 @@
                 [name, key]
               end
             %>
-            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "form-control" %>
+            <%= form.select :script, options_for_select(scripts_options, params[:script]), { include_blank: 'Select ' }, class: "tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent" %>
           </div>
 
           <div class="tw-mb-4 tw-flex tw-gap-3 tw-mt-2 tw-flex-wrap">
-            <%= form.submit "Analyze Unicode", class: "btn btn-success" %>
+            <%= form.submit "Analyze Unicode", class: "tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors" %>
             <button 
               type="button"
               data-action="click->chars-info#showPreview"
-              class="btn btn-primary tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white"
+              class="tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-rounded tw-transition-colors"
             >
               Preview in All Fonts
             </button>

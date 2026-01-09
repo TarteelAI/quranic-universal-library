@@ -4,15 +4,21 @@
 %>
 
 
-<div class="offcanvas offcanvas-start"
+<div class="tw-fixed tw-top-0 tw-left-0 tw-h-full tw-w-full tw-max-w-md tw-bg-white tw-shadow-xl tw-z-50 tw-transform tw-transition-transform tw-duration-300 tw-ease-in-out tw-hidden"
      tabindex="-1" id="tajweed-rules-sidebar"
-     aria-labelledby="tajweed-paletee">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="tajweed-paletee">Tajweed Rule Palette</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+     aria-labelledby="tajweed-paletee"
+     data-offcanvas-target="offcanvas"
+     style="transform: translateX(-100%);">
+  <div class="tw-flex tw-items-center tw-justify-between tw-p-4 tw-border-b">
+    <h5 class="tw-text-lg tw-font-semibold" id="tajweed-paletee">Tajweed Rule Palette</h5>
+    <button type="button" class="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 hover:tw-text-gray-900 tw-bg-transparent hover:tw-bg-gray-200 tw-rounded-lg tw-p-1.5 tw-inline-flex tw-items-center tw-justify-center tw-transition-colors" data-action="click->offcanvas#toggle" aria-label="Close">
+      <svg class="tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
   </div>
 
-  <div class="offcanvas-body">
+  <div class="tw-p-4 tw-overflow-y-auto" style="max-height: calc(100vh - 80px);">
     <div class="tajweed-palette">
       <% documentation = tajweed.documentation %>
       <% tajweed.rules.each_with_index do |r, i| %>
@@ -36,7 +42,7 @@
             </span>
           </div>
 
-          <div class="flex-between">
+          <div class="tw-flex tw-items-center tw-justify-between">
             <span>
               Letters
             </span>
@@ -50,27 +56,31 @@
   </div>
 </div>
 
-<div class="offcanvas offcanvas-start"
+<div class="tw-fixed tw-top-0 tw-left-0 tw-h-full tw-w-[90%] tw-bg-white tw-shadow-xl tw-z-50 tw-transform tw-transition-transform tw-duration-300 tw-ease-in-out tw-hidden"
      tabindex="-1"
      id="tajweed-page-sidebar"
      aria-labelledby="tajweed-page"
-     style="width: 90%;"
->
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="tajweed-page">
+     data-offcanvas-target="offcanvas"
+     style="transform: translateX(-100%);">
+  <div class="tw-flex tw-items-center tw-justify-between tw-p-4 tw-border-b">
+    <h5 class="tw-text-lg tw-font-semibold" id="tajweed-page">
       Page <span class="page-number"><%= page_number %></span>
     </h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 hover:tw-text-gray-900 tw-bg-transparent hover:tw-bg-gray-200 tw-rounded-lg tw-p-1.5 tw-inline-flex tw-items-center tw-justify-center tw-transition-colors" data-action="click->offcanvas#toggle" aria-label="Close">
+      <svg class="tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
   </div>
 
-  <div class="offcanvas-body">
+  <div class="tw-p-4 tw-overflow-y-auto" style="max-height: calc(100vh - 80px);">
     <div class="tw-text-center tw-flex">
       <div class="tw-p-4 tw-text-center zoomable"
            data-controller="zoom-image"
            data-page="<%= page_number %>"
            data-host="<%= new_tajweed_img_host %>"
       >
-        <label for="zoom-slider" class="form-label">New Tajweed page</label>
+        <label for="zoom-slider" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">New Tajweed page</label>
         <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
         <div class="tw-flex tw-justify-between">
           <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" id="previous-page">Previous Page</button>

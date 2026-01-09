@@ -54,7 +54,7 @@ export default class extends Controller {
       } else {
         $(form)
           .find("#form-error-wrapper div")
-          .addClass("alert alert-danger")
+          .addClass("tw-p-4 tw-mb-4 tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-rounded")
           .removeClass("d-none");
       }
 

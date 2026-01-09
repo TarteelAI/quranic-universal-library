@@ -3,20 +3,20 @@
   value ||= ''
   pos ||= ''
 %>
-<div class="d-flex gap-2">
-  <div class="mb-2 w-50">
-    <label class="form-label small mb-1">Value:</label>
+<div class="tw-flex gap-2">
+  <div class="tw-mb-2 w-50">
+    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1 small mb-1">Value:</label>
     <%= text_field_tag field_name_prefix + "[value]", 
                        value,
-                       class: 'form-control form-control-sm',
+                       class: 'form-control tw-text-sm',
                        placeholder: 'e.g., *',
                        data: { node_id: node_id, field: 'value', action: 'change->graph-bulk-edit#saveNodeField' } %>
   </div>
   <div class="w-50">
-    <label class="form-label small mb-1">POS:</label>
+    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1 small mb-1">POS:</label>
     <%= text_field_tag field_name_prefix + "[pos]", 
                        pos,
-                       class: 'form-control form-control-sm',
+                       class: 'form-control tw-text-sm',
                        placeholder: 'POS tag',
                        data: { node_id: node_id, field: 'pos', action: 'change->graph-bulk-edit#saveNodeField' } %>
   </div>

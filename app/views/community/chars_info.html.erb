@@ -2,7 +2,7 @@
 
 <% if params[:script].present? && params[:char].present? && scripts[params[:script].to_sym] %>
   <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
-    <div id="resource-bg">
+    <div id="resource-bg" class="tw-invert">
     </div>
     <%= render 'layouts/grid' do %>
       <div class="tw-grid-cols-subgrid tw-grid tw-gap-6 md:tw-gap-8 lg:tw-gap-14">
@@ -20,7 +20,7 @@
 <% end %>
 
 <div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="tw-mt-4 mt-md-5">
+  <div class="tw-mt-4 tw-mb-4 mt-md-5">
     <% if params[:script].present? && params[:char].present? && scripts[params[:script].to_sym] %>
       <%= render 'chars_table', scripts: scripts %>
     <% else %>

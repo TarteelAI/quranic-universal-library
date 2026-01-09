@@ -11,8 +11,8 @@
         <%= render 'shared/filters', juz: true, page: true %>
 
         <div class="tw-mb-4">
-          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
-          <%= link_to 'Clear', word_text_proofreadings_path, class: 'btn-link text-dark' if has_filters?(:filter_juz, :filter_chapter, :filter_page, :filter_verse) %>
+          <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
+          <%= link_to 'Clear', word_text_proofreadings_path, class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_juz, :filter_chapter, :filter_page, :filter_verse) %>
         </div>
       </div>
     <% end %>
@@ -42,7 +42,7 @@
 
           <td class="tw-py-2">
             <div class="d-grid tw-items-center">
-              <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'btn btn-success' %>
+              <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
             </div>
           </td>
         </tr>
@@ -52,7 +52,7 @@
         <td colspan="4">
           <div class="tw-flex tw-items-center">
             <div class="tw-me-4">
-              <%= pagy_bootstrap_nav(@pagy).html_safe %>
+              <%= pagy_nav_tailwind(@pagy).html_safe %>
             </div>
             <div>
               <%= pagy_info(@pagy).html_safe %>

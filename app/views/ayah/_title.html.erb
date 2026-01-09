@@ -1,5 +1,5 @@
 <div class="tw-flex tw-items-center tw-justify-between tw-p-3 sm:tw-p-6 tw-border-b tw-border-gray-200" id="modal-header">
-  <div class="tw-text-lg tw-font-semibold flex-between flex-grow-1">
+  <div class="tw-text-lg tw-font-semibold tw-flex tw-items-center tw-justify-between flex-grow-1">
     <div class="tw-flex flex-column">
         <div>
           <strong><%= @ayah.chapter.name_simple %></strong>
@@ -32,11 +32,15 @@
     </div>
 
     <div>
-      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
-      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'btn btn-sm btn-dark', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
     </div>
   </div>
 
-  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <button type="button" class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-p-1" data-action="click->ajax-modal#hide" aria-label="Close">
+    <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+  </button>
 </div>
 

@@ -13,8 +13,8 @@
     <% if valid_activity?(activity) %>
       <%= set_page_title "#{activity.humanize} - Quranic quiz" %>
       <%= render activity %>
-      <%= link_to 'Try another', learning_activity_path(activity), class: 'btn btn-outline-dark me-3 my-3' %>
-      <div class="result my-5" id="quiz-result">
+      <%= link_to 'Try another', learning_activity_path(activity), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-gray-800 tw-text-gray-800 hover:tw-bg-gray-800 hover:tw-text-white tw-me-3 tw-my-3' %>
+      <div class="result tw-my-5" id="quiz-result">
         <div class="tw-text-red-600 tw-hidden" id="incorrect-message">
           Incorrect answer. Try again! You can also use Tarteel app to test your memorization. Download
           <a class='text-danger' href="<%= tarteel_link %>" target="_blank">
@@ -29,26 +29,26 @@
       </div>
       <div class="more-activities tw-flex tw-justify-center tw-gap-2 tw-mt-4 tw-hidden">
         <% ayah_key = @filtered_ayah&.verse_key || '1:1' %>
-        <%= link_to 'Learn more about this ayah', '#_', class: 'btn btn-outline-success me-3 ayah-info', data: { controller: 'ajax-modal', url: "/ayah/#{ayah_key}", css_class: 'modal-lg ayah-modal', use_turbo: true} %>
+        <%= link_to 'Learn more about this ayah', '#_', class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-green-600 tw-text-green-600 hover:tw-bg-green-600 hover:tw-text-white tw-me-3 ayah-info', data: { controller: 'ajax-modal', url: "/ayah/#{ayah_key}", css_class: 'modal-lg ayah-modal', use_turbo: true} %>
         <% next_url = @filtered_ayah ? learning_activity_path(activity, ayah: @filtered_ayah.verse_key) : learning_activity_path(activity) %>
-        <%= link_to 'Next Challenge', next_url, class: 'btn btn-outline-dark me-3' %>
-        <%= link_to 'More learning activities', learning_activities_path, class: 'btn btn-outline-dark' %>
+        <%= link_to 'Next Challenge', next_url, class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-gray-800 tw-text-gray-800 hover:tw-bg-gray-800 hover:tw-text-white tw-me-3' %>
+        <%= link_to 'More learning activities', learning_activities_path, class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-border tw-border-gray-800 tw-text-gray-800 hover:tw-bg-gray-800 hover:tw-text-white' %>
       </div>
     <% else %>
       <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-yellow-100 tw-border tw-border-yellow-400 tw-text-yellow-700">
         This activity does not exist, try one from list below instead?
       </div>
-      <ol class="list-group text-start">
+      <ol class="tw-list-none tw-p-0 tw-m-0">
         <% learning_activities.each do |item| %>
-          <li class="list-group-item tw-flex tw-justify-between tw-items-start">
-            <div class="tw-ms-2 me-auto">
+          <li class="tw-flex tw-justify-between tw-items-start tw-p-3 tw-border tw-border-gray-200 tw-rounded tw-mb-2 tw-bg-white hover:tw-bg-gray-50">
+            <div class="tw-ms-2 tw-me-auto">
               <div class="fw-bold">
                 <%= item.title %>
               </div>
               <%= item.description %>
             </div>
             <span>
-              <%= link_to 'Try', item.url, class: 'btn btn-success' %>
+              <%= link_to 'Try', item.url, class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' %>
             </span>
           </li>
         <% end %>

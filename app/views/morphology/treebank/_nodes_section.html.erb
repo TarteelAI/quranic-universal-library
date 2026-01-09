@@ -3,16 +3,16 @@
 %>
 
 <div class="edit-section" data-controller="graph-bulk-edit">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex align-items-center gap-2">
-      <h2 class="mb-0">Graph Nodes (<span class="node-count"><%= non_phrase_nodes.count %></span>)</h2>
+  <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <h2 class="tw-mb-0">Graph Nodes (<span class="node-count"><%= non_phrase_nodes.count %></span>)</h2>
       <button type="button" 
-              class="btn btn-link text-secondary p-0"
+              class="tw-p-0 tw-text-gray-600 hover:tw-text-gray-800 tw-bg-transparent tw-border-0 tw-cursor-pointer"
               data-controller="popover"
-              data-bs-toggle="popover"
+              data-action="click->popover#toggle"
               data-bs-placement="right"
               title="What are Graph Nodes?"
-              data-bs-content="<div class='text-start'><p class='mb-2 small'>Graph nodes represent the individual words or elided tokens in the verse. They form the basis of the dependency graph.</p><div class='text-center'><img src='<%= image_path('morphology/nodes_diagram.png') %>' class='img-fluid rounded border' style='max-width: 250px;' alt='Nodes Diagram'></div></div>">
+              data-bs-content="<div class='text-start'><p class='tw-mb-2 small'>Graph nodes represent the individual words or elided tokens in the verse. They form the basis of the dependency graph.</p><div class='tw-text-center'><img src='<%= image_path('morphology/nodes_diagram.png') %>' class='img-fluid rounded border' style='max-width: 250px;' alt='Nodes Diagram'></div></div>">
         <i class="fa fa-question-circle"></i>
       </button>
     </div>

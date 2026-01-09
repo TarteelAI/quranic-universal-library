@@ -101,7 +101,7 @@ module MushafPageHelper
       search: params[:search]
     )
 
-    link_options[:class] = "d-flex sort-link #{link_options[:class]}"
+    link_options[:class] = "d-flex sort-link hover:tw-text-[#46ac7a] tw-transition-colors #{link_options[:class]}"
 
     link_to url_for(url_params), link_options do
       "<span class='label-text tw-me-2'>#{text}</span> <span class='sort-icons'>#{icon_asc} #{icon_desc}</span>".html_safe

@@ -19,9 +19,6 @@ require 'pagy/extras/array'
 
 # Frontend Extras
 
-# Bootstrap: Nav, responsive and compact helpers and systemd-templates for Bootstrap pagination
-# See https://ddnexus.github.io/pagy/extras/bootstrap
-require 'pagy/extras/bootstrap'
 
 # Feature Extras
 

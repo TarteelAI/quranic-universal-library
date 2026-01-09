@@ -10,20 +10,20 @@
   turbo_mushaf_page_options = { turbo_frame: 'mushaf-page', turbo_method: 'get', turbo_action: "replace" }
 
   if @access
-    more_action << link_to('Set Ayah Range', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'dropdown-item', data: turbo_page_options)
-    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'dropdown-item', data: turbo_page_options)
+    more_action << link_to('Set Ayah Range', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
   end
 
-  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'dropdown-item', data: turbo_page_options)
-  more_action << link_to('Compare with', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
-  more_action << link_to('Jump to page', '#_', class: 'dropdown-item', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: @compared_mushaf&.id, edit: true) })
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+  more_action << link_to('Compare with', '#_', class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
+  more_action << link_to('Jump to page', '#_', class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: @compared_mushaf&.id, edit: true) })
 
-  actions << "<div class='dropdown'>
-      <button class='btn btn-primary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+  actions << "<div class='tw-relative' data-controller='dropdown'>
+      <button class='tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
         Actions
       </button>
-      <ul class='dropdown-menu text-dark'>
+      <ul class='tw-absolute tw-right-0 tw-mt-2 tw-w-56 tw-rounded-md tw-shadow-lg tw-bg-white tw-ring-1 tw-ring-black tw-ring-opacity-5 tw-z-50 tw-hidden' data-dropdown-target='menu'>
        #{more_action.map do |action|
     "<li>#{action}</li>"
   end.join('')
@@ -31,8 +31,8 @@
     </ul>
     </div>"
 
-  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors', data: turbo_mushaf_page_options)
 
   actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'btn btn-info')
 %>
@@ -72,14 +72,14 @@
                 <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-red-500 hover:tw-bg-red-600 tw-text-white mx-4" id="decrement" title="Decrement line number by 1 for all words" data-controller="tooltip">-1</button>
                 <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white" id=increment title="Increment line number by 1 for all words" data-controller="tooltip">+1</button>
 
-                <button type="button" id="undo-button" class="btn btn-secondary btn-sm" title="Undo (Ctrl+Z)" data-controller="tooltip" disabled>
+                <button type="button" id="undo-button" class="tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-rounded tw-transition-colors" title="Undo (Ctrl+Z)" data-controller="tooltip" disabled>
                   <svg class="tw-w-4 tw-h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                   </svg>
                   Undo
                 </button>
 
-                <button type="button" id="redo-button" class="btn btn-secondary btn-sm" title="Redo (Ctrl+Y)" data-controller="tooltip" disabled>
+                <button type="button" id="redo-button" class="tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-rounded tw-transition-colors" title="Redo (Ctrl+Y)" data-controller="tooltip" disabled>
                   <svg class="tw-w-4 tw-h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"/>
                   </svg>
@@ -134,8 +134,8 @@
               </div>
 
               <div class="tw-flex tw-justify-center tw-p-4">
-                <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'btn btn-default', style: 'margin-right: 50px' %>
-                <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+                <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors', style: 'margin-right: 50px' %>
+                <%= form.submit "Save", class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait...' } %>
               </div>
             <% end %>
           </div>

@@ -16,12 +16,12 @@
   <div class="page-section page-section-card">
     <%= safe_html rule[:description] %>
 
-    <h3 class="tajweed-new tw-mt-2 mb-0">
+    <h3 class="tajweed-new tw-mt-2 tw-mb-0">
       Rule Color:
       <span class="tajweed-rule-icon <%= params[:rule] %>"></span>
       <span class="qpc-hafs <%= params[:rule] %>">بِسۡمِ ٱللَّهِ</span>
     </h3>
-    <h3 class="tajweed-new tw-mt-2 mb-0">
+    <h3 class="tajweed-new tw-mt-2 tw-mb-0">
       Rule Letters:
       <div class="qpc-hafs">
         <%= safe_html rule[:rule_letters] %>
@@ -30,7 +30,7 @@
   </div>
 
   <% if rule[:rule_tip] %>
-    <div class='alert alert-dark'>
+    <div class='tw-p-4 tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-700 tw-text-gray-100 tw-rounded'>
       <%= safe_html rule[:rule_tip] %>
     </div>
   <% end %>

@@ -1,4 +1,4 @@
-<div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex" role="alert" data-controller="alert">
+<div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex tw-relative" role="alert" data-controller="alert">
   <i class="fa fa-info-circle tw-me-2 fa-2x"></i>
   <div>
     <p>
@@ -7,7 +7,7 @@
       accurately represent the Mushaf page.
     </p>
 
-    <p class="<%= 'mb-0' if @access %>">
+    <p class="<%= 'tw-mb-0' if @access %>">
       This page lists the available Mushaf layouts we've in the QUL.
       If you have a unique layout that you'd like to see added to QUL,
       feel free to submit a request
@@ -22,10 +22,8 @@
       </p>
 
       <div id="btn-request-permission">
-        <%= link_to 'Request Access', '_', class: 'btn btn-dark', data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg' } %>
+        <%= link_to 'Request Access', '_', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors', data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg' } %>
       </div>
     <% end %>
   </div>
-
-  <button type="button" class="btn-close" data-action="click->alert#close" aria-label="Close"></button>
 </div>

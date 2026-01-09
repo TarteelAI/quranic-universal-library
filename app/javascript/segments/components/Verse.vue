@@ -66,7 +66,7 @@
 
         <div v-if="rawSegmentVisible" class="mt-3">
           <textarea
-              class="form-control"
+              class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
               @input="updateRawSegments"
           ></textarea>
         </div>

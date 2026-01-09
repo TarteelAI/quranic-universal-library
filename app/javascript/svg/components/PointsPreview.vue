@@ -49,7 +49,6 @@
 <script>
 import {mapState} from "vuex";
 import Raphael from "raphael";
-import {Tooltip} from "bootstrap";
 
 export default {
   name: "PointsPreview",

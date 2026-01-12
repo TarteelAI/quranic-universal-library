@@ -19,22 +19,24 @@
   more_action << link_to('Compare with', '#_', class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_compare_mushaf') })
   more_action << link_to('Jump to page', '#_', class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'select_page', previous_view_type: params[:view_type], compare: @compared_mushaf&.id, edit: true) })
 
-  actions << "<div class='tw-relative' data-controller='dropdown'>
-      <button class='tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
+  actions << %Q{
+    <div class='tw-relative' data-controller='dropdown'>
+      <button class='tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center tw-gap-2' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
         Actions
+        <svg class='tw-w-4 tw-h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'></path>
+        </svg>
       </button>
       <ul class='tw-absolute tw-right-0 tw-mt-2 tw-w-56 tw-rounded-md tw-shadow-lg tw-bg-white tw-ring-1 tw-ring-black tw-ring-opacity-5 tw-z-50 tw-hidden' data-dropdown-target='menu'>
-       #{more_action.map do |action|
-    "<li>#{action}</li>"
-  end.join('')
+        #{more_action.map { |action| "<li>#{action}</li>" }.join('')}
+      </ul>
+    </div>
   }
-    </ul>
-    </div>"
 
-  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors', data: turbo_mushaf_page_options)
+  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center', data: turbo_mushaf_page_options)
 
-  actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'btn btn-info')
+  actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center')
 %>
 
 <%= turbo_frame_tag :page do %>

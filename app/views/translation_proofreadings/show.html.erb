@@ -17,43 +17,45 @@
   more_action << link_to('Page with arabic view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100')
   more_action << link_to('Proofreading view(With pdf)', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100')
 
-  actions << "<div class='tw-relative' data-controller='dropdown'>
-      <button class='tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
+  actions << %Q{
+    <div class='tw-relative' data-controller='dropdown'>
+      <button class='tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center tw-gap-2' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
         Change view
+        <svg class='tw-w-4 tw-h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'></path>
+        </svg>
       </button>
       <ul class='tw-absolute tw-right-0 tw-mt-2 tw-w-56 tw-rounded-md tw-shadow-lg tw-bg-white tw-ring-1 tw-ring-black tw-ring-opacity-5 tw-z-50 tw-hidden' data-dropdown-target='menu'>
-       #{more_action.map do |action|
-    "<li>#{action}</li>"
-  end.join('')
+        #{more_action.map { |action| "<li>#{action}</li>" }.join('')}
+      </ul>
+    </div>
   }
-    </ul>
-    </div>"
 
   if view_type == 'ayah'
     previous_ayah = verse.previous_ayah
     next_ayah = verse.next_ayah
     if previous_ayah
-      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
+      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center')
     end
     if next_ayah
-      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
+      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center')
     end
   else
     page = verse.page_number
 
     if page > 1
       previous_ayah = Verse.where(page_number: page - 1).order('verse_index ASC').first
-      actions << link_to('Previous page', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
+      actions << link_to('Previous page', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center')
     end
 
     if page < 604
       next_ayah = Verse.where(page_number: page + 1).order('verse_index ASC').first
 
-      actions << link_to('Next page', translation_proofreading_path(next_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
+      actions << link_to('Next page', translation_proofreading_path(next_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center')
     end
   end
 
-  actions << link_to('Back to filter', translation_proofreadings_path(resource_id: @resource.id), class: 'btn btn-outline-info tw-text-sm')
+  actions << link_to('Back to filter', translation_proofreadings_path(resource_id: @resource.id), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-white tw-border tw-border-blue-600 tw-text-blue-600 hover:tw-bg-blue-600 hover:tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center')
 %>
 
 <%= render 'tools/header',

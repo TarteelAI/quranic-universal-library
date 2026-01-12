@@ -1,42 +1,42 @@
 <template>
-  <div class="row">
-    <div class="col-12">
-      <h3 class="d-flex">
-        <span class="flex-grow-1">Select Audio</span>
-        <button class="btn btn-info" @click="loadAudio">
+  <div class="tw-flex tw-flex-wrap tw-gap-4">
+    <div class="tw-w-full">
+      <h3 class="tw-flex tw-items-center">
+        <span class="tw-flex-grow tw-text-xl tw-font-bold">Select Audio</span>
+        <button class="tw-px-4 tw-py-2 tw-bg-cyan-600 tw-text-white tw-text-sm tw-font-medium tw-rounded tw-transition-colors hover:tw-bg-cyan-700" @click="loadAudio">
           Load Audio Data!
         </button>
       </h3>
     </div>
 
-    <div class="col-6">
-      <div class="form-group">
+    <div class="tw-w-full md:tw-w-[calc(50%-0.5rem)]">
+      <div class="tw-space-y-1">
         <input
             type="text"
-            class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
+            class="tw-w-full tw-px-3 tw-py-2 tw-text-sm tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
             ref="audioUrl"
             placeholder="Audio url"
             :value="quranicAudioUrl"
         />
-        <div class="form-text text-muted">Enter file URL</div>
+        <div class="tw-text-xs tw-text-gray-500">Enter file URL</div>
       </div>
     </div>
 
-    <div class="col-6">
-      <div class="form-group">
-        <input type="file" class="form-control" ref="audioFile"/>
-        <div class="form-text text-muted">
+    <div class="tw-w-full md:tw-w-[calc(50%-0.5rem)]">
+      <div class="tw-space-y-1">
+        <input type="file" class="tw-w-full tw-px-3 tw-py-1.5 tw-text-sm tw-border tw-border-gray-300 tw-rounded-md tw-cursor-pointer file:tw-mr-4 file:tw-py-1 file:tw-px-4 file:tw-rounded file:tw-border-0 file:tw-text-sm file:tw-font-semibold file:tw-bg-blue-50 file:tw-text-blue-700 hover:file:tw-bg-blue-100" ref="audioFile"/>
+        <div class="tw-text-xs tw-text-gray-500">
           Or Select Audio file
 
-          <span class="text-primary" v-if="fromFile">
+          <span class="tw-text-blue-600 tw-font-medium" v-if="fromFile">
             Loaded
           </span>
         </div>
       </div>
     </div>
 
-    <div :class="[audioSrc ? 'col-12 player-wrapper' : 'd-none']">
-      <audio ref="audio" :src="audioSrc" id="player" controls class="w-100"></audio>
+    <div :class="[audioSrc ? 'tw-w-full tw-mt-4' : 'tw-hidden']">
+      <audio ref="audio" :src="audioSrc" id="player" controls class="tw-w-full"></audio>
     </div>
   </div>
 </template>

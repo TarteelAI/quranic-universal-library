@@ -1,6 +1,8 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
+  static targets = ["modal"];
+
   connect() {
     this.defaults = {
       syntaxGraphTokenFontSize: 34,
@@ -20,6 +22,34 @@ export default class extends Controller {
     };
 
     this.loadFromUrl();
+    this.setupModal();
+  }
+
+  setupModal() {
+    this.escapeHandler = (e) => {
+      if (e.key === "Escape" && !this.modalTarget.classList.contains("tw-hidden")) {
+        this.hideModal();
+      }
+    };
+    document.addEventListener("keydown", this.escapeHandler);
+  }
+
+  disconnect() {
+    if (this.escapeHandler) {
+      document.removeEventListener("keydown", this.escapeHandler);
+    }
+  }
+
+  showModal(event) {
+    if (event) event.preventDefault();
+    this.modalTarget.classList.remove("tw-hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  hideModal(event) {
+    if (event) event.preventDefault();
+    this.modalTarget.classList.add("tw-hidden");
+    document.body.style.overflow = "";
   }
 
   loadFromUrl() {

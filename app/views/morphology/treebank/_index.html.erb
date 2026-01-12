@@ -1,6 +1,6 @@
 <div>
   <% if collection.any? %>
-    <div class="tw-border-0 tw-mb-4 morphology-graph-index">
+    <div class="tw-border-0 tw-mb-4 morphology-graph-index" data-controller="graph-settings">
       <div class="tw-bg-gray-100 tw-p-4 tw-rounded-t-lg">
         <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-4">
           <% if @verse_info %>
@@ -61,7 +61,7 @@
 
             <button type="button"
                     class="tw-px-3 tw-py-1.5 tw-bg-gray-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-700"
-                    onclick="document.getElementById('graph-settings-modal').classList.remove('tw-hidden'); document.body.style.overflow = 'hidden';"
+                    data-action="click->graph-settings#showModal"
                     data-controller="tooltip"
                     title="Graph settings">
               <i class="fa fa-cog"></i>
@@ -80,9 +80,7 @@
 
       <%= render "compare_content" %>
 
-      <div data-controller="graph-settings">
-        <%= render 'graph_settings' %>
-      </div>
+      <%= render 'graph_settings' %>
 
       <%= render 'graph_splitter_modal' %>
     </div>

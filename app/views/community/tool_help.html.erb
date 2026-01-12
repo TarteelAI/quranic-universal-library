@@ -20,7 +20,7 @@
         <% docs[1..].each_with_index do |doc, i| %>
           <div class="section tw-mb-2">
             <% if doc[:type] == 'heading' %>
-              <h3>
+              <h3 class="tw-text-lg tw-font-semibold tw-mt-8 tw-mb-4 tw-text-gray-900 tw-border-b tw-pb-2">
                 <%= safe_html doc[:text] %>
               </h3>
             <% elsif doc[:type] == 'info' %>

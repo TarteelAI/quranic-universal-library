@@ -4,6 +4,11 @@ const findSegment = (timestamp, segments, currentVerse, chapter, currentWord, ve
   if (verse) {
     const verseSegment = segments[`${chapter}:${verse}`];
 
+    // Guard against undefined verseSegment (e.g., missing segments, timestamp outside range)
+    if (!verseSegment) {
+      return {};
+    }
+
     return findSurahVerseSegment(timestamp, verseSegment, verse, currentWord);
   }
 
@@ -38,6 +43,11 @@ const findVerseSegment = (timestamp, verseSegments, currentWord) => {
 }
 
 const findSurahVerseSegment = (timestamp, verseSegment, verse, currentWord) => {
+  // Guard against undefined verseSegment parameter
+  if (!verseSegment) {
+    return { verse: null, word: null };
+  }
+
   const segments = verseSegment.segments || [];
 
   let target = {

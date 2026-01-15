@@ -41,9 +41,7 @@ export default class extends Controller {
         form.classList.remove("was-validated");
 
         if (this.autoClose) {
-          $(that.form)
-            .closest(".modal")
-            .modal("hide");
+          document.dispatchEvent(new CustomEvent("ajax-modal:close"));
         } else if(!this.disableHistoryOnSubmit){
           history.pushState(
             {},

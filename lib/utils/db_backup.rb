@@ -44,19 +44,28 @@ module Utils
     end
 
     def upload(tag)
-      # Upload file to google cloud storage
       backup = DatabaseBackup.new(database_name: backup_name)
       backup.size = number_to_human_size(File.size(dump_file_name))
-      backup.file = Rails.root.join(dump_file_name).open
       backup.tag = tag
+
+      backup.backup_file.attach(
+        io: File.open(dump_file_name),
+        filename: File.basename(dump_file_name),
+        content_type: 'application/x-bzip2'
+      )
 
       backup.save
 
       if export_binary?
         binary_backup = DatabaseBackup.new(database_name: "#{backup_name}_binary")
         binary_backup.size = number_to_human_size(File.size(binary_dump_file_name))
-        binary_backup.file = Rails.root.join(binary_dump_file_name).open
         binary_backup.tag = tag
+
+        binary_backup.backup_file.attach(
+          io: File.open(binary_dump_file_name),
+          filename: File.basename(binary_dump_file_name),
+          content_type: 'application/x-bzip2'
+        )
 
         binary_backup.save
       end

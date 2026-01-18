@@ -15,11 +15,11 @@
       <div class="tw-flex tw-flex-wrap tw-gap-4">
         <div class="tw-w-full md:tw-w-1/2">
           <p><strong>Word Text:</strong> <span class="qpc-hafs tw-text-xl"><%= @word_text %></span></p>
-          <p><strong>Total Failures:</strong> <span class="badge tw-bg-red-500"><%= @failures.count %></span></p>
+          <p><strong>Total Failures:</strong> <span class="badge tw-bg-red-500"><%= failures.count %></span></p>
         </div>
         <div class="tw-w-full md:tw-w-1/2">
           <p><strong>Failure Types:</strong></p>
-          <% @failures.group(:failure_type).count.each do |type, count| %>
+          <% failures.group(:failure_type).count.each do |type, count| %>
             <span class="badge tw-bg-yellow-500 tw-mr-1 tw-mb-1"><%= type %> (<%= count %>)</span>
           <% end %>
         </div>
@@ -48,7 +48,7 @@
           </tr>
           </thead>
           <tbody>
-            <% @failures.each do |failure| %>
+            <% failures.each do |failure| %>
               <tr>
                 <td class="tw-p-3">
                   <span class="badge tw-bg-blue-500">

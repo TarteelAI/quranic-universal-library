@@ -46,6 +46,7 @@
               <p class="tw-mb-0 tw-text-sm"><span class="tw-font-semibold">Graph Number:</span> <%= @verse_info[:graph_number] %> of <%= @verse_info[:total_graphs] %></p>
             </div>
           <% end %>
+
           <div class="tw-text-sm">
             <p class="tw-mb-1"><span class="tw-font-semibold">Total Nodes:</span> <%= collection.count %></p>
             <p class="tw-mb-0">
@@ -56,6 +57,7 @@
               Elided: <%= collection.where(type: 'elided').count %>
             </p>
           </div>
+
           <div>
             <%= render "compare_button" %>
 
@@ -66,6 +68,7 @@
                     title="Graph settings">
               <i class="fa fa-cog"></i>
             </button>
+
             <button type="button"
                     class="tw-px-3 tw-py-1.5 tw-bg-green-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-green-700"
                     onclick="document.getElementById('graphSplitterModal').classList.remove('tw-hidden'); document.body.style.overflow = 'hidden';"

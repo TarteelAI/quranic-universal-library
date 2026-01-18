@@ -120,6 +120,16 @@ module ToolsHelper
         info_tip: "This tool is used to tag part of speech, grammar of each word of Quran."
       ),
       ToolCard.new(
+        title: 'Ayah Dependency Graphs',
+        description: 'Help us preparing data for missing ayahs. Ayah Dependency Graph Tool visualizes the internal dependency structure of an ayah by presenting it as a structured graph.',
+        url: morphology_treebank_index_path,
+        type: 'corpus',
+        tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['Morphology', 'quranic-morphology']],
+        icon: 'tags.svg',
+        cta_bg: 'rgba(56, 165, 126, 0.9)',
+        info_tip: "This tool is used to visualize and edit dependency graphs for ayahs."
+      ),
+      ToolCard.new(
         title: 'Text and Font Compatibility Checker',
         description: 'Analyze Unicode values and preview Quranic text across all available fonts.',
         url: chars_info_path,

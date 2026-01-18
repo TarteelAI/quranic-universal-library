@@ -1,11 +1,10 @@
 module Morphology
-  class TreebankController < ApplicationController
+  class TreebankController < CommunityController
     before_action :set_chapter_verse_and_graph_number, only: [:index, :edit]
     before_action :set_locale, only: [:index, :edit, :syntax_graph]
 
     def index
       handle_verse_key_search if params[:verse_key].present?
-
       @graph = Morphology::Graph.find_by(chapter_number: @chapter_number, verse_number: @verse_number, graph_number: @graph_number)
       presenter = Morphology::GraphIndexPresenter.new(@graph)
 
@@ -258,7 +257,15 @@ module Morphology
     end
 
     def set_locale
-      @locale = params[:locale] || 'ar'
+      @locale = params[:locale] || I18n.locale
+    end
+
+    def load_resource_access
+      @access = can_manage?(find_resource)
+    end
+
+    def find_resource
+      @resource ||= ResourceContent.find_by(id: 1612)
     end
   end
 end

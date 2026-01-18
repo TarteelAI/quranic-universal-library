@@ -3,7 +3,7 @@ class UserProjectsController < ApplicationController
 
   def new
      @user_project = UserProject.new(resource_content_id: params[:resource_id])
-     render layout: false
+     render layout: false if request.xhr?
   end
 
   def create

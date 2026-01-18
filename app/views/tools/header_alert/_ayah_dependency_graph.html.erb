@@ -1,0 +1,26 @@
+<div class="alert alert-secondary d-flex" role="alert">
+  <i class="fa fa-info-circle me-2 fa-2x"></i>
+  <div>
+    <h2>
+      Ayah Dependency Graph Tool
+    </h2>
+
+    <p class="mb-0">
+      Ayah Dependency Graph Tool visualizes the internal dependency structure of an ayah by presenting it as a structured graph.
+      It shows how words are linked, which elements depend on others, and how the overall ayah is organized.
+    </p>
+
+    <% if !@access %>
+      <p>
+        If you'd like to contribute to the <%= @resource.name %>, simply click the link below to send a request
+        to the admin. Once approved, you'll be able to start contributing to mushaf layout.
+      </p>
+
+      <div id="btn-request-permission">
+        <%= link_to 'Request Access', '_', class: 'btn btn-dark', data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg' } %>
+      </div>
+    <% end %>
+  </div>
+
+  <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>

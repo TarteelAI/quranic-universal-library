@@ -16,7 +16,8 @@ module ToolDocsHelper
       'surah_recitation_segment_builder',
       'tajweed',
       'word_translation',
-      'compare_ayah'
+      'compare_ayah',
+      'ayah_dependency_graph'
     ]
   end
 

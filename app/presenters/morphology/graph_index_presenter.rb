@@ -67,10 +67,15 @@ module Morphology
 
     def find_next_graph
       # Try next graph in same verse
-      next_graph = Morphology::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number)
-                                    .where('graph_number > ?', graph.graph_number)
-                                    .order(:graph_number)
-                                    .first
+      next_graph = Morphology::Graph
+                     .where(
+                       chapter_number: graph.chapter_number,
+                       verse_number: graph.verse_number
+                     )
+                     .where('graph_number > ?', graph.graph_number)
+                     .order(:graph_number)
+                     .first
+
       return next_graph if next_graph
 
       # Try first graph of next verse in same chapter
@@ -81,17 +86,23 @@ module Morphology
       return next_graph if next_graph
 
       # Try first graph of first verse in next chapter
-      Morphology::Graph.where('chapter_number > ?', graph.chapter_number)
-                       .order(:chapter_number, :verse_number, :graph_number)
-                       .first
+      Morphology::Graph
+        .where('chapter_number > ?', graph.chapter_number)
+        .order(:chapter_number, :verse_number, :graph_number)
+        .first
     end
 
     def find_previous_graph
       # Try previous graph in same verse
-      prev_graph = Morphology::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number)
-                                    .where('graph_number < ?', graph.graph_number)
-                                    .order(graph_number: :desc)
-                                    .first
+      prev_graph = Morphology::Graph
+                     .where(
+                       chapter_number: graph.chapter_number,
+                       verse_number: graph.verse_number
+                     )
+                     .where('graph_number < ?', graph.graph_number)
+                     .order(graph_number: :desc)
+                     .first
+
       return prev_graph if prev_graph
 
       # Try last graph of previous verse in same chapter
@@ -102,13 +113,21 @@ module Morphology
       return prev_graph if prev_graph
 
       # Try last graph of last verse in previous chapter
-      Morphology::Graph.where('chapter_number < ?', graph.chapter_number)
-                       .order(chapter_number: :desc, verse_number: :desc, graph_number: :desc)
-                       .first
+      Morphology::Graph
+        .where('chapter_number < ?', graph.chapter_number)
+        .order(
+          chapter_number: :desc,
+          verse_number: :desc,
+          graph_number: :desc
+        )
+        .first
     end
 
     def total_graphs_in_verse
-      Morphology::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number).count
+      Morphology::Graph.where(
+        chapter_number: graph.chapter_number,
+        verse_number: graph.verse_number
+      ).count
     end
   end
 end

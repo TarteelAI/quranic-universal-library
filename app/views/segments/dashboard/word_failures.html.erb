@@ -172,7 +172,7 @@
   <div class="page-section tw-mt-4">
     <h3 class="tw-text-xl tw-my-3">Reciter Breakdown</h3>
     <div class="tw-flex tw-flex-wrap tw-gap-4">
-      <% reciter_breakdown.each do |reciter_id, stats| %>
+      <% @presenter.reciter_word_failure_breakdown.each do |reciter_id, stats| %>
         <div class="tw-w-full md:tw-w-1/2 col-lg-4 tw-mb-3">
           <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm">
             <div class="tw-px-6 tw-py-4 tw-bg-gray-50 tw-border-b tw-border-gray-200 tw-rounded-t-lg">

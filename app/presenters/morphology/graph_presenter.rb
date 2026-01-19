@@ -97,12 +97,20 @@ module Morphology
     end
 
     def edge_relation_translations
-      @edge_relation_translations ||= I18n.t('morphology.edge_relations', locale: locale, default: {})
+      @edge_relation_translations ||= I18n.t(
+        'morphology.edge_relations',
+        locale: locale,
+        default: I18n.t('morphology.edge_relations', locale: :en)
+      )
     end
 
     def pos_tag_translation(pos_tag)
       return nil if pos_tag.blank?
-      I18n.t("morphology.pos_tags.#{pos_tag}", locale: locale, default: pos_tag)
+      I18n.t(
+        "morphology.pos_tags.#{pos_tag}",
+        locale: locale,
+        default: I18n.t("morphology.pos_tags.#{pos_tag}", locale: :en, default: pos_tag)
+      )
     end
 
     def graph_edges

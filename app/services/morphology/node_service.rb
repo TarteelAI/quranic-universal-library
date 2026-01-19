@@ -21,13 +21,12 @@ module Morphology
     end
 
     def self.delete(node_id)
-      node = Morphology::GraphNode.find(node_id)
+      node = Morphology::DependencyGraph::GraphNode.find(node_id)
       graph = node.graph
       deleted_number = node.number
       deleted_id = node.id
 
-      # If it's a phrase node with an associated edge, delete the edge too
-      if node.type == 'phrase' && node.resource_type == 'Morphology::GraphNodeEdge' && node.resource
+      if node.type == 'phrase' && node.resource_type == 'Morphology::DependencyGraph::GraphNodeEdge' && node.resource
         node.resource.destroy
       end
 
@@ -38,7 +37,7 @@ module Morphology
     end
 
     def self.update(node_id, params)
-      node = Morphology::GraphNode.find(node_id)
+      node = Morphology::DependencyGraph::GraphNode.find(node_id)
       permitted = params.permit(:type, :value, :pos, :resource_id, :segment_id).to_h
 
       case permitted[:type]

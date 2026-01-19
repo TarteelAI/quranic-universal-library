@@ -5,15 +5,12 @@
 #  id            :bigint           not null, primary key
 #  char_end      :integer
 #  char_start    :integer
+#  frequency     :float
 #  mistake_count :integer          default(0), not null
+#  received_text :text
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  word_id       :integer          not null
-#
-# Indexes
-#
-#  index_word_mistakes_on_word_id                              (word_id)
-#  index_word_mistakes_on_word_id_and_char_start_and_char_end  (word_id,char_start,char_end)
 #
 class WordMistake < QuranApiRecord
   belongs_to :word

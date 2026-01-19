@@ -4,22 +4,22 @@
     <%= select_tag "edges[#{edge.id}][source_id]",
                    options_for_select(presenter.available_nodes, edge.source_id),
                    class: 'form-select',
-                   data: { 
+                   data: {
                      controller: 'select2',
-                     edge_id: edge.id, 
-                     field: 'source_id', 
-                     action: 'change->graph-bulk-edit#saveEdgeField' 
+                     edge_id: edge.id,
+                     field: 'source_id',
+                     action: 'change->graph-bulk-edit#saveEdgeField'
                    } %>
   </td>
   <td>
     <%= select_tag "edges[#{edge.id}][target_id]",
                    options_for_select(presenter.available_nodes, edge.target_id),
                    class: 'form-select',
-                   data: { 
+                   data: {
                      controller: 'select2',
-                     edge_id: edge.id, 
-                     field: 'target_id', 
-                     action: 'change->graph-bulk-edit#saveEdgeField' 
+                     edge_id: edge.id,
+                     field: 'target_id',
+                     action: 'change->graph-bulk-edit#saveEdgeField'
                    } %>
   </td>
   <td>
@@ -27,18 +27,18 @@
                    options_for_select(presenter.edge_relations, edge.relation),
                    class: 'form-select',
                    include_blank: '-- Select Relation --',
-                   data: { 
+                   data: {
                      controller: 'select2',
-                     edge_id: edge.id, 
-                     field: 'relation', 
-                     action: 'change->graph-bulk-edit#saveEdgeField' 
+                     edge_id: edge.id,
+                     field: 'relation',
+                     action: 'change->graph-bulk-edit#saveEdgeField'
                    } %>
   </td>
   <td class="actions-cell">
     <%= button_tag type: 'button',
                    class: 'tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors remove-edge-btn bg-white',
                    title: 'Remove edge',
-                   data: { 
+                   data: {
                      edge_id: edge.id,
                      action: 'click->graph-bulk-edit#removeEdge'
                    } do %>
@@ -46,3 +46,4 @@
     <% end %>
   </td>
 </tr>
+

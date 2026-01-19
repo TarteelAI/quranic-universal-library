@@ -8,7 +8,6 @@ module Morphology
 
     def add
       next_number = (graph.nodes.maximum(:number) || -1) + 1
-
       graph.nodes.create!(
         type: 'phrase',
         value: '',
@@ -18,7 +17,7 @@ module Morphology
     end
 
     def self.update(node_id, params)
-      node = Morphology::GraphNode.find(node_id)
+      node = Morphology::DependencyGraph::GraphNode.find(node_id)
       new(node.graph).update_node(node, params)
     end
 
@@ -49,20 +48,20 @@ module Morphology
     end
 
     def update_or_create_edge(node, source_node, target_node, relation)
-      if node.resource_type == 'Morphology::GraphNodeEdge' && node.resource
+      if node.resource_type == 'Morphology::DependencyGraph::GraphNodeEdge' && node.resource
         node.resource.update(
           source_id: source_node&.id,
           target_id: target_node&.id,
           relation: relation
         )
       elsif source_node && target_node
-        edge = Morphology::GraphNodeEdge.create(
+        edge = Morphology::DependencyGraph::GraphNodeEdge.create(
           source_id: source_node.id,
           target_id: target_node.id,
           relation: relation,
           type: 'phrase'
         )
-        node.update(resource_type: 'Morphology::GraphNodeEdge', resource_id: edge.id)
+        node.update(resource_type: 'Morphology::DependencyGraph::GraphNodeEdge', resource_id: edge.id)
       end
     end
 

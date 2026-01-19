@@ -6,7 +6,7 @@
           <div class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] syntax-graph-container tw-overflow-auto"
                data-controller="syntax-graph draggable-scroll"
                data-action="mousedown->draggable-scroll#mouseDownHandler"
-               data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(locale: @locale, chapter_number: @chapter_number || 1, verse_number: @verse_number || 1, graph_number: @graph_number || 1) %>"
+               data-syntax-graph-url-value="<%= syntax_graph_morphology_dependency_graph_path(@graph, locale: @locale) %>"
                id="main-syntax-graph">
             <div data-syntax-graph-target="container" class="tw-text-gray-500">Loading syntax graph...</div>
           </div>
@@ -41,12 +41,11 @@
         data-turbo=false
         class="tw-bg-gray-100 tw-rounded tw-min-h-[300px] syntax-graph-container tw-overflow-auto"
            data-controller="syntax-graph"
-           data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(locale: @locale, chapter_number: @chapter_number || 1, verse_number: @verse_number || 1, graph_number: @graph_number || 1) %>"
+           data-syntax-graph-url-value="<%= syntax_graph_morphology_dependency_graph_path(@graph, locale: @locale) %>"
            id="main-syntax-graph">
         <div data-syntax-graph-target="container" class="tw-text-gray-500">Loading syntax graph...</div>
       </div>
     <% end %>
   </div>
 <% end %>
-
 

@@ -7,7 +7,7 @@ module Morphology
     end
 
     def collection
-      @collection ||= graph&.nodes&.order(:id) || Morphology::GraphNode.none
+      @collection ||= graph&.nodes&.order(:id) || Morphology::DependencyGraph::GraphNode.none
     end
 
     def verse_info
@@ -32,12 +32,12 @@ module Morphology
       return nil unless graph
       verse_id = graph.verse_id
 
-      prev = Morphology::Graph.connection.select_value(<<~SQL).to_i
+      prev = Morphology::DependencyGraph::Graph.connection.select_value(<<~SQL).to_i
         SELECT COALESCE(SUM(t.max_graph_number), 0) AS total
         FROM (
           SELECT MAX(graph_number) AS max_graph_number
-          FROM morphology_graphs
-          WHERE verse_id < #{Morphology::Graph.connection.quote(verse_id)}
+          FROM morphology_dependency_graphs
+          WHERE verse_id < #{Morphology::DependencyGraph::Graph.connection.quote(verse_id)}
           GROUP BY verse_id
         ) t
       SQL
@@ -51,23 +51,18 @@ module Morphology
       nav = {}
 
       if next_graph = find_next_graph
-        nav[:next_chapter_number] = next_graph.chapter_number
-        nav[:next_verse_number] = next_graph.verse_number
-        nav[:next_graph_number] = next_graph.graph_number
+        nav[:next_id] = next_graph.id
       end
 
       if prev_graph = find_previous_graph
-        nav[:prev_chapter_number] = prev_graph.chapter_number
-        nav[:prev_verse_number] = prev_graph.verse_number
-        nav[:prev_graph_number] = prev_graph.graph_number
+        nav[:prev_id] = prev_graph.id
       end
 
       nav
     end
 
     def find_next_graph
-      # Try next graph in same verse
-      next_graph = Morphology::Graph
+      next_graph = Morphology::DependencyGraph::Graph
                      .where(
                        chapter_number: graph.chapter_number,
                        verse_number: graph.verse_number
@@ -78,23 +73,20 @@ module Morphology
 
       return next_graph if next_graph
 
-      # Try first graph of next verse in same chapter
-      next_graph = Morphology::Graph.where(chapter_number: graph.chapter_number)
+      next_graph = Morphology::DependencyGraph::Graph.where(chapter_number: graph.chapter_number)
                                     .where('verse_number > ?', graph.verse_number)
                                     .order(:verse_number, :graph_number)
                                     .first
       return next_graph if next_graph
 
-      # Try first graph of first verse in next chapter
-      Morphology::Graph
+      Morphology::DependencyGraph::Graph
         .where('chapter_number > ?', graph.chapter_number)
         .order(:chapter_number, :verse_number, :graph_number)
         .first
     end
 
     def find_previous_graph
-      # Try previous graph in same verse
-      prev_graph = Morphology::Graph
+      prev_graph = Morphology::DependencyGraph::Graph
                      .where(
                        chapter_number: graph.chapter_number,
                        verse_number: graph.verse_number
@@ -105,15 +97,13 @@ module Morphology
 
       return prev_graph if prev_graph
 
-      # Try last graph of previous verse in same chapter
-      prev_graph = Morphology::Graph.where(chapter_number: graph.chapter_number)
+      prev_graph = Morphology::DependencyGraph::Graph.where(chapter_number: graph.chapter_number)
                                     .where('verse_number < ?', graph.verse_number)
                                     .order(verse_number: :desc, graph_number: :desc)
                                     .first
       return prev_graph if prev_graph
 
-      # Try last graph of last verse in previous chapter
-      Morphology::Graph
+      Morphology::DependencyGraph::Graph
         .where('chapter_number < ?', graph.chapter_number)
         .order(
           chapter_number: :desc,
@@ -124,7 +114,7 @@ module Morphology
     end
 
     def total_graphs_in_verse
-      Morphology::Graph.where(
+      Morphology::DependencyGraph::Graph.where(
         chapter_number: graph.chapter_number,
         verse_number: graph.verse_number
       ).count

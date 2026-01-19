@@ -90,22 +90,26 @@ Rails.application.routes.draw do
     get 'stems/:id', to: 'stems#show', as: :stem
     get 'word', to: 'words#show', as: :word
 
-    resources :treebank, only: [:index] do
+    get 'dictionary/:category/:key', to: 'dictionary_terms#show', as: :dictionary_term
+
+    resources :dependency_graphs, path: 'dependency-graphs', only: [:index, :show, :edit] do
       collection do
-        get :syntax_graph
-        get :edit
-        post :add_node_row
-        post :add_phrase_node
-        delete :delete_node
-        post :update_node_fields
-        patch :save_node
-        patch :save_edge
-        patch :save_phrase_node
-        post :add_edge
-        delete :delete_edge
-        get :verse_graphs_data
-        post :split_graph
+        get :lookup
       end
+
+      member do
+        get :syntax_graph
+        get :verse_graphs_data
+        post :split
+      end
+
+      resources :nodes, controller: 'dependency_graph_nodes', only: [:create, :update, :destroy] do
+        member do
+          post :fields
+        end
+      end
+
+      resources :edges, controller: 'dependency_graph_edges', only: [:create, :update, :destroy]
     end
   end
 

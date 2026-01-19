@@ -122,7 +122,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Ayah Dependency Graphs',
         description: 'Help us preparing data for missing ayahs. Ayah Dependency Graph Tool visualizes the internal dependency structure of an ayah by presenting it as a structured graph.',
-        url: morphology_treebank_index_path,
+        url: morphology_dependency_graphs_path,
         type: 'corpus',
         tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['Morphology', 'quranic-morphology']],
         icon: 'tags.svg',

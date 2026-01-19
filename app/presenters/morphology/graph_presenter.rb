@@ -106,10 +106,10 @@ module Morphology
     end
 
     def graph_edges
-      @graph_edges ||= Morphology::GraphNodeEdge
+      @graph_edges ||= Morphology::DependencyGraph::GraphNodeEdge
         .includes(:source, :target)
         .joins(:source, :target)
-        .where(morphology_graph_nodes: { graph_id: graph.id })
+        .where(morphology_dependency_graph_nodes: { graph_id: graph.id })
         .where.not(type: 'phrase')
         .order(:id)
     end
@@ -181,7 +181,7 @@ module Morphology
     end
 
     def total_graphs_in_verse
-      Morphology::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number).count
+      Morphology::DependencyGraph::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number).count
     end
   end
 end

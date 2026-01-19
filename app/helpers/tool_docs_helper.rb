@@ -800,4 +800,122 @@ module ToolDocsHelper
       }
     ]
   end
+
+  def ayah_dependency_graph_help
+    [
+      "Ayah Dependency Graphs",
+      {
+        text: "This tool visualizes the dependency structure of an ayah as a graph and allows you to edit nodes and edges."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find an ayah',
+        text: "Use the filters (Surah/Ayah) and status filter on the index page. The table shows ayah text, graph count, and a derived review status."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Open the graph',
+        text: "Click <code>View</code> to open the graph. Use <code>Previous</code>/<code>Next</code> to navigate between graphs."
+      },
+      {
+        type: 'heading',
+        text: "Understanding the editor"
+      },
+      {
+        type: 'info',
+        text: "<strong>Auto-save:</strong> Most fields save automatically when you change them. The preview refreshes after updates."
+      },
+      {
+        type: 'step',
+        title: 'Graph Nodes',
+        sections: [
+          {
+            text: "Graph nodes represent the individual words or elided tokens in the verse. They form the basis of the dependency graph."
+          },
+          {
+            type: 'info',
+            text: "<div class='text-center'><img src='#{image_path('morphology/nodes_diagram.png')}' class='img-fluid rounded border' style='max-width: 420px;' alt='Nodes Diagram'></div>"
+          },
+          {
+            type: 'info',
+            text: "<strong>Node Type</strong><br/>Choose what this node represents:<ul><li><code>Word</code>: a token linked to a Quran word/segment</li><li><code>Reference</code>: a reference token (also linked to a word)</li><li><code>Elided</code>: an implied token (no word resource)</li></ul>"
+          },
+          {
+            type: 'info',
+            text: "<strong>Resource/Details</strong><br/><ul><li><code>Word</code>: select the Word and (optionally) a Segment</li><li><code>Reference</code>: select the Word</li><li><code>Elided</code>: set <code>Value</code> and <code>POS</code></li></ul>"
+          },
+          {
+            type: 'info',
+            text: "<strong>Actions</strong><br/><ul><li><code>+</code>: adds a new node after the current node</li><li><code>🗑</code>: removes the node (disabled for word nodes)</li></ul>"
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Phrase Nodes',
+        sections: [
+          {
+            text: "Phrase nodes represent grammatical constituents that group multiple words or other phrases together (e.g., Noun Phrase, Verb Phrase). They help define the hierarchical structure of the sentence."
+          },
+          {
+            type: 'info',
+            text: "<div class='text-center'><img src='#{image_path('morphology/phrase_node_diagram.png')}' class='img-fluid rounded border' style='max-width: 420px;' alt='Phrase Node Diagram'></div>"
+          },
+          {
+            type: 'info',
+            text: "<strong>POS</strong><br/>This is the phrase tag (e.g. NP/VP/PP)."
+          },
+          {
+            type: 'info',
+            text: "<strong>Source → Target</strong><br/>Select the start and end node range (<code>nX → nY</code>) that the phrase spans."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Graph Edges',
+        sections: [
+          {
+            text: "Graph edges are the curved lines that connect nodes. They represent the grammatical relationships between words or phrases, with a starting point (source) and an ending point (target)."
+          },
+          {
+            type: 'info',
+            text: "<div class='text-center'><img src='#{image_path('morphology/edges_diagram.png')}' class='img-fluid rounded border' style='max-width: 420px;' alt='Edges Diagram'></div>"
+          },
+          {
+            type: 'info',
+            text: "<strong>Source Node / Target Node</strong><br/>Pick the head/dependent endpoints for the relationship."
+          },
+          {
+            type: 'info',
+            text: "<strong>Relation</strong><br/>Select the dependency tag (edge label) used in the rendered graph."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Preview',
+        text: "Use the preview panel to confirm the graph renders as expected. Click refresh if you need to re-render."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Compare with Quran Corpus (optional)',
+        text: "Click <code>Compare</code> to view the Quran Corpus reference image side-by-side with the rendered graph."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Edit graph (modal)',
+        text: "Click <code>Edit</code> to open the editor. Changes are saved field-by-field as you update node/edge fields."
+      },
+      {
+        type: 'step',
+        title: 'Step 5: Split graph (optional)',
+        text: "Use <code>Split graph</code> to move nodes between graphs for the same ayah. Any edges that connect nodes across different graphs will be removed."
+      },
+      {
+        type: 'info',
+        text: "<strong>Review status on index:</strong> <code>Approved</code> means all graphs for the ayah are approved. Otherwise it shows <code>In progress</code>."
+      }
+    ]
+  end
 end

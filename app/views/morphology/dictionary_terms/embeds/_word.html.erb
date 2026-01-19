@@ -1,0 +1,40 @@
+<%
+  parts = location.to_s.strip.delete_prefix('(').delete_suffix(')').split(':')
+  chapter_number = parts[0].to_i
+  verse_number = parts[1].to_i
+  word_position = parts[2].to_i
+  verse = Verse.find_by(chapter_id: chapter_number, verse_number: verse_number)
+  word = verse&.words&.find_by(position: word_position)
+%>
+
+<div class="tw-my-4 tw-border tw-border-gray-200 tw-rounded tw-overflow-hidden">
+  <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-py-2 tw-bg-gray-50 tw-border-b tw-border-gray-200">
+    <div class="tw-font-semibold tw-text-sm">Word — <%= location %></div>
+    <div class="tw-flex tw-items-center tw-gap-3">
+      <%= link_to 'Open word', morphology_word_path(locale: I18n.locale, location: location), class: 'tw-text-sm tw-text-blue-700 tw-underline' %>
+      <% if verse.present? %>
+        <%= link_to 'Read ayah', ayah_path(key: verse.verse_key), class: 'tw-text-sm tw-text-blue-700 tw-underline' %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if word.present? %>
+    <div class="tw-p-4 tw-flex tw-flex-col tw-gap-2">
+      <div dir="rtl" class="text-qpc-hafs tw-text-4xl tw-leading-none tw-font-bold">
+        <%= word.text_qpc_hafs.presence || word.text_uthmani %>
+      </div>
+      <div class="tw-text-sm tw-text-gray-700">
+        <span class="tw-font-semibold">Meaning:</span>
+        <%= word.en_translation&.text.presence || '-' %>
+      </div>
+      <div class="tw-text-xs tw-text-gray-500">
+        Ayah <%= verse&.verse_key %>
+      </div>
+    </div>
+  <% else %>
+    <div class="tw-p-4 tw-text-sm tw-text-gray-600">
+      Word not found for <%= location %>.
+    </div>
+  <% end %>
+</div>
+

@@ -13,15 +13,15 @@ module Morphology
     end
 
     def edges
-      @edges ||= Morphology::GraphNodeEdge.includes(:source, :target)
+      @edges ||= Morphology::DependencyGraph::GraphNodeEdge.includes(:source, :target)
                                           .joins(:source, :target)
-                                          .where(morphology_graph_nodes: { graph_id: graph.id })
+                                          .where(morphology_dependency_graph_nodes: { graph_id: graph.id })
                                           .where.not(type: 'phrase')
                                           .distinct
     end
 
     def node_types
-      @node_types ||= Morphology::GraphNode.types.keys.reject { |t| t == 'phrase' }
+      @node_types ||= Morphology::DependencyGraph::GraphNode.types.keys.reject { |t| t == 'phrase' }
     end
 
     def available_nodes
@@ -41,11 +41,11 @@ module Morphology
     end
 
     def edge_relations
-      @edge_relations ||= Morphology::GraphNodeEdge.distinct.pluck(:relation).compact.sort
+      @edge_relations ||= Morphology::DependencyGraph::GraphNodeEdge.distinct.pluck(:relation).compact.sort
     end
 
     def resource_types
-      ['Morphology::Word', 'Morphology::GraphNodeEdge']
+      ['Morphology::Word', 'Morphology::DependencyGraph::GraphNodeEdge']
     end
 
     class WordsFetcher

@@ -1,8 +1,8 @@
-ActiveAdmin.register Morphology::GraphNode do
+ActiveAdmin.register Morphology::DependencyGraph::GraphNode do
   menu parent: 'Morphology'
   actions :index, :show
 
-  filter :type, as: :select, collection: Morphology::GraphNode.types.keys.map { |k| [k.titleize, k] }
+  filter :type, as: :select, collection: Morphology::DependencyGraph::GraphNode.types.keys.map { |k| [k.titleize, k] }
   filter :resource_type, as: :select, collection: ['Word', 'Verse']
   filter :chapter, as: :searchable_select,
          ajax: { resource: Chapter }

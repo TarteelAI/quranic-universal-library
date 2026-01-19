@@ -43,7 +43,6 @@ class Morphology::Word < QuranApiRecord
   has_many :word_grammar_concepts, class_name: 'Morphology::WordGrammarConcept'
   has_many :grammar_concepts, class_name: 'Morphology::GrammarConcept', through: :word_grammar_concepts
 
-  # TODO: add position and text_uthmani and we'll be saved from another join
   def text
     word.text_qpc_hafs
   end

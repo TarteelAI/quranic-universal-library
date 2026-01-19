@@ -3,7 +3,8 @@
 c= Corpus::QuranGrammarHtmlGenerator.new
 result =c.generate!(
   english_term: 'Adjectives',
-  arabic_term: 'صفة', output_language: 'English',
+  arabic_term: 'صفة',
+  output_language: 'English',
   corpus_link: 'https://corpus.quran.com/documentation/adjective.jsp'
 )
 =end

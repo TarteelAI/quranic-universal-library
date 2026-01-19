@@ -93,10 +93,6 @@ Rails.application.routes.draw do
     get 'grammar/:category/:term', to: 'grammar_terms#show', as: :grammar_term
 
     resources :dependency_graphs, path: 'dependency-graphs', only: [:index, :show, :edit] do
-      collection do
-        get :lookup
-      end
-
       member do
         get :syntax_graph
         get :verse_graphs_data

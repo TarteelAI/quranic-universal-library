@@ -121,22 +121,6 @@ module Morphology
       @presenter = Morphology::GraphEditPresenter.new(@graph)
     end
 
-    def lookup
-      parts = params[:verse_key].to_s.strip.split(':')
-      redirect_to morphology_dependency_graphs_path and return if parts.length < 2
-
-      chapter_number = parts[0].to_i
-      verse_number = parts[1].to_i
-
-      graph = Morphology::DependencyGraph::Graph.for_verse(chapter_number, verse_number).ordered.first
-
-      if graph
-        redirect_to morphology_dependency_graph_path(graph, locale: params[:locale], compare: params[:compare])
-      else
-        redirect_to morphology_dependency_graphs_path(locale: params[:locale]), alert: "No graph found for verse #{chapter_number}:#{verse_number}"
-      end
-    end
-
     def syntax_graph
       graph = Morphology::DependencyGraph::Graph.find(params[:id])
       presenter = Morphology::GraphPresenter.new(graph, locale: @locale || 'ar')

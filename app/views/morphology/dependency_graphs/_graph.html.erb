@@ -28,11 +28,6 @@
                   </span>
                 <% end %>
 
-                <%= form_with url: lookup_morphology_dependency_graphs_path(locale: @locale), method: :get, local: true, class: 'tw-flex tw-items-center tw-gap-2 tw-ml-3' do %>
-                  <%= text_field_tag :verse_key, '', placeholder: 'e.g. 2:255', class: 'tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm tw-w-24 focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500' %>
-                  <%= submit_tag 'Go', class: 'tw-px-3 tw-py-1 tw-border tw-border-gray-400 tw-rounded tw-text-sm tw-bg-white hover:tw-bg-gray-100 tw-cursor-pointer' %>
-                <% end %>
-
                 <%= form_with url: morphology_dependency_graph_path(@graph), method: :get, local: true, class: 'tw-flex tw-items-center tw-gap-2 tw-ml-3' do %>
                   <%= select_tag :locale,
                       options_for_select([['العربية', 'ar'], ['English', 'en'], ['Urdu', 'ur']], @locale || 'ar'),

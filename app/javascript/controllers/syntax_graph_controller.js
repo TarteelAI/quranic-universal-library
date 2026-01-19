@@ -914,7 +914,7 @@ class SyntaxGraphVisualizer {
         );
 
         if (phraseLayout) {
-          this.addLine(svg, phraseLayout.line, "sky-light");
+          this.addLine(svg, phraseLayout.line, "sky");
           this.addCircle(svg, phraseLayout.nodeCircle, className);
           this.addModalCenteredText(
             svg,
@@ -934,7 +934,7 @@ class SyntaxGraphVisualizer {
       this.syntaxGraph.edges.forEach((edge, i) => {
         const arc = arcs[i];
         if (arc) {
-          const className = `${this.colorService.getDependencyColor(edge.dependencyTag)}-light`;
+          const className = `${this.colorService.getDependencyColor(edge.dependencyTag)}`;
           this.addArc(svg, arc, className);
           this.addArrow(svg, arrows[i], className);
         }
@@ -943,7 +943,7 @@ class SyntaxGraphVisualizer {
       // Render edge labels
       this.syntaxGraph.edges.forEach((edge, i) => {
         const edgeLabel = edgeLabels[i];
-        const className = `${this.colorService.getDependencyColor(edge.dependencyTag)}-light`;
+        const className = `${this.colorService.getDependencyColor(edge.dependencyTag)}`;
 
         if (edgeLabel) {
           this.addRect(svg, edgeLabel, "edge-label");

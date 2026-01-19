@@ -17,6 +17,11 @@ module Morphology
       @segments = @morphology_word ? @morphology_word.word_segments.includes(:grammar_term, :grammar_concept, :grammar_role, :grammar_sub_role, :lemma, :root, :topic).to_a : []
     end
 
+    def ayah_graph
+      graphs = Morphology::DependencyGraph::Graph.for_verse(@verse.chapter_id, @verse.verse_number)
+      graphs.first
+    end
+
     def found?
       verse.present? && word.present?
     end
@@ -28,15 +33,6 @@ module Morphology
 
     def word_location
       word&.location.to_s
-    end
-
-    def back_to_treebank_path
-      return '' unless verse
-      context.lookup_morphology_dependency_graphs_path(locale: locale, verse_key: verse.verse_key)
-    end
-
-    def dependency_graph_path
-      back_to_treebank_path
     end
 
     def ayah_key

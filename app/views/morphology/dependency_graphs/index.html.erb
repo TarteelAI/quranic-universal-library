@@ -10,6 +10,13 @@
       <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
         <%= render 'shared/filters' %>
 
+        <div class="tw-mb-4 tw-me-4">
+          <%= select_tag :review_status,
+                         options_for_select([['All', ''], ['Approved', 'approved'], ['In progress', 'in_progress']], params[:review_status].to_s),
+                         class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]' %>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Status</label>
+        </div>
+
         <%
           pos_tags = I18n.t('morphology.pos_tags', locale: :en, default: {}).to_h
           pos_tags = pos_tags.except('pronoun')
@@ -20,26 +27,23 @@
         %>
 
         <div class="tw-mb-4 tw-me-4">
-          <%= select_tag :review_status,
-                         options_for_select([['All', ''], ['Approved', 'approved'], ['In progress', 'in_progress']], params[:review_status].to_s),
-                         class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]' %>
-          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Status</label>
-        </div>
-
-        <div class="tw-mb-4 tw-me-4">
           <%= select_tag :pos_tag,
                          options_for_select([['Any', '']] + pos_options, params[:pos_tag].to_s),
-                         class: 'form-select tw-w-[85vw] sm:tw-w-[260px]',
+                         class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]',
                          data: { controller: 'select2', placeholder: 'POS tag' } %>
-          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">POS tag in words</label>
+          <label class='tw-block tw-text-sm tw-font-medium tw-text-gray-700'>
+            Filter by POS tag
+          </label>
         </div>
 
         <div class="tw-mb-4 tw-me-4">
           <%= select_tag :edge_relation,
                          options_for_select([['Any', '']] + edge_options, params[:edge_relation].to_s),
-                         class: 'form-select tw-w-[85vw] sm:tw-w-[260px]',
+                         class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]',
                          data: { controller: 'select2', placeholder: 'Edge relation' } %>
-          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Edge relation</label>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">
+            Filter by Edge relation
+          </label>
         </div>
 
         <div class="tw-mb-4 tw-me-4">

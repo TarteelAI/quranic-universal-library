@@ -9,6 +9,7 @@ class CreateMorphologyGrammarTermTranslations < ActiveRecord::Migration[7.0]
     c.add_column Morphology::GrammarTerm.table_name, :arabic, :string
     c.add_column Morphology::GrammarTerm.table_name, :english, :string
     c.add_column Morphology::GrammarTerm.table_name, :term_type, :integer, default: 1
+    c.add_column Morphology::GrammarTerm.table_name, :corpus_link, :string
 
     c.create_table :morphology_grammar_term_translations do |t|
       t.bigint :grammar_term_id, null: false

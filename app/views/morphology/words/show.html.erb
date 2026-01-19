@@ -10,18 +10,18 @@
                   data: { controller: 'ajax-modal', url: @presenter.read_ayah_path, css_class: 'modal-lg', use_turbo: true } do %>
         Read ayah
       <% end %>
-      <%= link_to @presenter.dependency_graph_path, class: "tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50" do %>
+
+      <%= link_to morphology_dependency_graph_path(@presenter.ayah_graph), class: "tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50" do %>
         Dependency graph
-      <% end %>
-      <%= link_to @presenter.back_to_treebank_path,
-                  class: "tw-px-3 tw-py-1.5 tw-bg-black tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-800" do %>
-        Back
       <% end %>
     </div>
   </div>
 
   <div class="tw-mt-2 tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-    <div class="tw-text-sm tw-text-gray-600"><%= @presenter.word_location %></div>
+    <div class="tw-text-sm tw-text-gray-600">
+      <%= @presenter.word_location %>
+    </div>
+
     <div class="tw-flex tw-items-center tw-gap-2">
       <% if @presenter.prev_word_path.present? %>
         <%= link_to @presenter.prev_word_path, class: "tw-px-2 tw-py-1 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700" do %>
@@ -138,7 +138,6 @@
       <div class="md:tw-col-span-2"><span class="tw-font-semibold">Case reason:</span> <%= @presenter.case_reason_text %></div>
     </div>
   </div>
-
 </div>
 
 

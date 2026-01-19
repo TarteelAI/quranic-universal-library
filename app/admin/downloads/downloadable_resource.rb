@@ -149,7 +149,7 @@ ActiveAdmin.register DownloadableResource do
   form data: { turbo: false } do |f|
     f.inputs 'Downloadable resource detail' do
       if f.object.errors.any?
-        div class: 'alert alert-danger' do
+        div class: 'tw-p-4 tw-mb-4 tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-rounded' do
           ul do
             f.object.errors.full_messages.each do |e|
               li e

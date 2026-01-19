@@ -1,0 +1,6 @@
+tafsir = @presenter.random_tafsir
+
+json.tafsir do
+  json.partial! partial: 'tafsir', locals: { tafsir: tafsir }
+end
+

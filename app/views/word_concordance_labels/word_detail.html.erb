@@ -1,7 +1,7 @@
 <%
   actions = []
-  actions << link_to('Previous Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position - 1}"), class: 'btn btn-dark')
-  actions << link_to('Next Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position + 1}"), class: 'btn btn-dark')
+  actions << link_to('Previous Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position - 1}"), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
+  actions << link_to('Next Word', word_detail_word_concordance_label_path(@verse.id, word: "#{@verse.verse_key}:#{@word.position + 1}"), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   actions << link_to('Back to ayah', word_concordance_label_path(@verse.id), class: 'btn btn-info')
 %>
 
@@ -122,7 +122,7 @@
 
           <td>
             <%#= link_to 'Edit', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran btn btn-info btn-sm" %>
-            <%= link_to 'Show', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran btn btn-primary btn-sm" %>
+            <%= link_to 'Show', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position), class: "me_quran tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors" %>
           </td>
         </tr>
       <% end %>

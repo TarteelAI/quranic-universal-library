@@ -48,6 +48,6 @@ class MushafWord < QuranApiRecord
   end
 
   def image_url
-    "#{CDN_HOST}/images/#{text}"
+    "#{CDN_HOST}/qul/images/#{text}"
   end
 end

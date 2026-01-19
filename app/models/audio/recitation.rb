@@ -41,10 +41,10 @@ module Audio
     include NameTranslateable
     include Resourceable
 
-    has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id
-    has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id
-    has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id
-    has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id
+    has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id, dependent: :delete_all
 
     belongs_to :section, class_name: 'Audio::Section', optional: true
     belongs_to :recitation_style, optional: true
@@ -69,7 +69,7 @@ module Audio
         cloned_file.save!
       end
 
-      update_related_resources.send(:update_related_resources)
+      cloned.send(:update_related_resources)
 
       cloned
     end
@@ -92,6 +92,10 @@ module Audio
       _name += " (#{style})" if style.present?
 
       _name
+    end
+
+    def total_duration
+      (chapter_audio_files.sum(:duration) || 0).round(2)
     end
 
     def validate_segments_data(audio_file: nil)
@@ -215,6 +219,7 @@ module Audio
       reciter&.update_recitation_count
       qirat_type&.update_recitation_count
       recitation_style&.update_recitation_count
+      chapter_audio_files.each(&:update_segment_percentile)
     end
   end
 end

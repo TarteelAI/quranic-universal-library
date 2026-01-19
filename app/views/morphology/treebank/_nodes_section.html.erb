@@ -1,0 +1,42 @@
+<%
+  non_phrase_nodes = presenter.nodes.reject { |n| n.type == 'phrase' }
+%>
+
+<div class="edit-section" data-controller="graph-bulk-edit">
+  <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <h2 class="tw-mb-0">Graph Nodes (<span class="node-count"><%= non_phrase_nodes.count %></span>)</h2>
+      <button type="button" 
+              class="tw-p-0 tw-text-gray-600 hover:tw-text-gray-800 tw-bg-transparent tw-border-0 tw-cursor-pointer"
+              data-controller="popover"
+              data-action="click->popover#toggle"
+              data-bs-placement="right"
+              title="What are Graph Nodes?"
+              data-bs-content="<div class='text-start'><p class='tw-mb-2 small'>Graph nodes represent the individual words or elided tokens in the verse. They form the basis of the dependency graph.</p><div class='tw-text-center'><img src='<%= image_path('morphology/nodes_diagram.png') %>' class='img-fluid rounded border' style='max-width: 250px;' alt='Nodes Diagram'></div></div>">
+        <i class="fa fa-question-circle"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="edit-table tw-table-fixed">
+      <thead>
+        <tr>
+          <th class="tw-w-[60px]">ID</th>
+          <th class="tw-w-[70px]">Number</th>
+          <th class="tw-w-[120px]">Type</th>
+          <th>Resource/Details</th>
+          <th class="tw-w-[100px]">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% non_phrase_nodes.each do |node| %>
+          <%= render 'morphology/treebank/forms/node_row',
+                     node: node,
+                     presenter: presenter,
+                     graph_id: graph_id %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

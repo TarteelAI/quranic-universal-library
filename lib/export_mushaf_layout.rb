@@ -9,27 +9,33 @@ end
 
 class ExportMushafLayout
   MUSHAF_IDS = [
-    2, # v1
-    1, # v2
-    5, # KFGQPC HAFS
-    6, # Indopak 15 lines
-    # 7, # Indopak 16 lines surah name and bismillah is on the same line for some pages
-    # 8, # Indopak 14 lines Pak company has wrong line alignments data
-    17, # Indopak 13 lines
+    1, # PQC v2 1421H
+    2, # QPC v1 1405H
+    6, # Indopak 15 lines(Qudratullah)
+    7, # Indopak 16 lines(Taj company)
+    8, # Indopak 14 lines(Pak company)
+    17, # Indopak 13 lines(Qudratullah)
+    18, # Indopak 17 lines(Taj company)
+    19, # QPC V4 1441H
     20, # Digital Khatt v2
-    22, # Digital Khatt v1,
-    19, # V4 1441h print
+    22, # Digital Khatt v1
+    23, # Indopak 13 lines(Taj)
+    29 # Indopak 9 lines(Gaba)
   ]
+
   attr_accessor :mushafs,
-                :stats
+                :stats,
+                :postfix_names
 
   def initialize
     @mushafs = []
     @stats = {}
+    @postfix_names = false
   end
 
-  def export(ids = MUSHAF_IDS, db_name = "quran-data.sqlite")
+  def export(ids: MUSHAF_IDS, db_name: 'quran-data.sqlite', postfix_names: true)
     @mushafs = Mushaf.where(id: ids).order('id ASC')
+    @postfix_names = postfix_names
 
     prepare_db_and_tables(db_name)
     export_words
@@ -68,7 +74,21 @@ class ExportMushafLayout
         stats[:issues].push("One of script text is blank for word: #{word.location}")
       end
 
-      words.push("(#{surah}, #{ayah}, #{word_number}, #{word.word_index}, '#{text_uthmani}', '#{text_indopak}', '#{indopak_hanafi}', '#{dk_indopak}', '#{code_v1}', '#{text_digital_khatt_v2}', '#{text_digital_khatt_v1}', '#{text_qpc_hafs}', #{is_ayah_marker})")
+      words.push([
+                   surah,
+                   ayah,
+                   word_number,
+                   word.word_index,
+                   text_uthmani,
+                   text_indopak,
+                   indopak_hanafi,
+                   dk_indopak,
+                   code_v1,
+                   text_digital_khatt_v2,
+                   text_digital_khatt_v1,
+                   text_qpc_hafs,
+                   is_ayah_marker
+                 ])
       i += 1
       stats[:words_count] += 1
 
@@ -93,6 +113,7 @@ class ExportMushafLayout
       ExportedLayout.table_name = table_name
       batch_size = 1000
       layout_records = []
+      last_surah_number = nil
 
       mushaf.mushaf_pages.order("page_number ASC").each do |page|
         lines = {}
@@ -137,6 +158,9 @@ class ExportMushafLayout
             range_end = words.last.word_index
           elsif line_type == 'surah_name'
             range_start = alignment.get_surah_number
+            last_surah_number = range_start
+          elsif line_type == 'basmallah'
+            range_start = last_surah_number
           end
 
           is_centered = alignment&.is_center_aligned? || line_type == 'surah_name' || line_type == 'basmallah'
@@ -163,11 +187,15 @@ class ExportMushafLayout
   end
 
   def bulk_insert_layouts(layout_records)
+    return if layout_records.blank?
+
+    conn = ExportedLayout.connection
+
     values = layout_records.map do |record|
-      "(#{record[0]}, #{record[1]}, '#{record[2]}', #{record[3] ? 'TRUE' : 'FALSE'}, #{record[4] ? record[4] : 'NULL'}, #{record[5] ? record[5] : 'NULL'})"
+      "(#{record[0]}, #{record[1]}, #{conn.quote(record[2])}, #{record[3] ? 'TRUE' : 'FALSE'}, #{record[4] ? record[4] : 'NULL'}, #{record[5] ? record[5] : 'NULL'})"
     end.join(", ")
 
-    ExportedLayout.connection.execute <<-SQL
+    conn.execute <<-SQL
   INSERT INTO #{ExportedLayout.table_name} (
     page,
     line,
@@ -180,56 +208,105 @@ class ExportMushafLayout
     SQL
   end
 
-  def get_mushaf_file_name(mushaf_id)
-    mapping = {
-      "1": "qpc_v2_layout",
-      "2": "qpc_v1_layout",
-      "3": "indopak_layout",
+  def layout_name_ids
+    {
+      qpc_v2_layout: %w[1 4 5 10 11 12 20],
+      qpc_v1_layout: %w[2 22 21],
+      qpc_v4_layout: %w[19],
 
-      # 4-12 has same layout
-      "4": "qpc_hafs_15_lines_layout",
-      "5": "qpc_hafs_15_lines_layout",
-      "10": "qpc_hafs_15_lines_layout",
-      "11": "qpc_hafs_15_lines_layout",
-      "12": "qpc_hafs_15_lines_layout",
+      indopak_15_lines_layout: %w[6 3 13 14],
+      indopak_16_lines_layout: %w[7],
+      indopak_14_lines_layout: %w[8],
 
-      "6": "indopak_15_lines_layout",
-      "7": "indopak_16_lines_layout",
-      "8": "indopak_14_lines_layout",
-      "14": "indopak_madani_15_lines_layout",
-      "16": "qpc_hafs_tajweed_15_lines_layout",
-      "17": "indopak_13_lines_layout",
-      "19": "qpc_v4_layout",
-      "20": "qpc_v2_layout",
-      "21": "qpc_tajweed_layout",
-      "22": "qpc_v1_layout"
+      indopak_13_lines_layout: %w[17 23],
+      indopak_17_lines_layout: %w[18],
+      indopak_9_lines_layout: %w[29]
     }
-
-    mapping[mushaf_id.to_s.to_sym]
   end
 
-  def prepare_db_and_tables(db)
+  def layout_name_posfix
+    {
+      29 => '_gaba',
+      23 => '_taj',
+      18 => '_taj',
+      17 => '_qudratullah',
+      8 => '_pak',
+      6 => '_qudratullah',
+      7 => '_taj',
+      14 => '_madani'
+    }
+  end
+
+  def get_mushaf_file_name(mushaf_id)
+    name = layout_name_ids.find do |_layout, ids|
+      ids.include?(mushaf_id.to_s)
+    end
+    name = name&.first
+
+    if name.nil?
+      name = "mushaf_#{mushaf_id.to_s}_layout"
+    end
+
+    postfix = layout_name_posfix[mushaf_id]
+    if postfix_names && postfix
+      "#{name.to_s}#{postfix}"
+    else
+      name.to_s
+    end
+  end
+
+  def prepare_db_and_tables(db_name)
     ExportedWord.establish_connection(
       { adapter: 'sqlite3',
-        database: db
-      })
+        database: db_name
+      }
+    )
     ExportedLayout.establish_connection(
       { adapter: 'sqlite3',
-        database: db
-      })
+        database: db_name
+      }
+    )
 
-    ExportedWord.connection.execute "CREATE TABLE words(surah_number integer, ayah_number integer, word_number integer, word_number_all integer, uthmani string, nastaleeq string, indopak string, dk_indopak string, qpc_v1 string, dk_v2 string, dk_v1 string, qpc_hafs string, is_ayah_marker boolean)"
+    ExportedWord.connection.execute <<~SQL
+        CREATE TABLE words (
+          surah_number     INTEGER,
+          ayah_number      INTEGER,
+          word_number      INTEGER,
+          word_number_all  INTEGER,
+
+          uthmani          STRING,
+          nastaleeq        STRING,
+          indopak          STRING,
+          dk_indopak       STRING,
+          qpc_v1           STRING,
+          dk_v2            STRING,
+          dk_v1            STRING,
+          qpc_hafs         STRING,
+
+          is_ayah_marker   BOOLEAN
+      )
+    SQL
+
     layout_created = {}
 
     mushafs.each do |mushaf|
       db_name = get_mushaf_file_name(mushaf.id)
-      next if layout_created[db_name]
+      next if db_name.blank? || layout_created[db_name]
 
       layout_created[db_name] = true
       stats[:exported_layouts] ||= {}
       stats[:exported_layouts][db_name] = {}
 
-      ExportedLayout.connection.execute "CREATE TABLE #{db_name}(page integer, line integer, type text, is_centered boolean, range_start integer, range_end integer)"
+      ExportedLayout.connection.execute <<~SQL
+         CREATE TABLE #{db_name} (
+         page         INTEGER,
+         line         INTEGER,
+         type         STRING,
+         is_centered  BOOLEAN,
+         range_start  INTEGER,
+         range_end    INTEGER
+        )
+      SQL
     end
   end
 
@@ -245,24 +322,31 @@ class ExportMushafLayout
   end
 
   def bulk_insert_words(values)
-    # nastaleeq is indopak script printed in Madaniah and compatible with QPC font
-    ExportedWord.connection.execute <<-SQL
+    return if values.blank?
+
+    conn = ExportedWord.connection
+
+    values_sql = values.map do |row|
+      "(#{row[0]}, #{row[1]}, #{row[2]}, #{row[3]}, #{conn.quote(row[4])}, #{conn.quote(row[5])}, #{conn.quote(row[6])}, #{conn.quote(row[7])}, #{conn.quote(row[8])}, #{conn.quote(row[9])}, #{conn.quote(row[10])}, #{conn.quote(row[11])}, #{row[12] ? 'TRUE' : 'FALSE'})"
+    end.join(', ')
+
+    conn.execute <<-SQL
   INSERT INTO words (
     surah_number,
     ayah_number,
     word_number,
     word_number_all,
     uthmani,
-    nastaleeq, 
+    nastaleeq,
     indopak,
     dk_indopak,
     qpc_v1,
     dk_v2,
-    dk_v1, 
+    dk_v1,
     qpc_hafs,
     is_ayah_marker
   ) VALUES
-    #{values.join(',')}
+    #{values_sql}
     SQL
   end
 
@@ -278,6 +362,7 @@ class ExportMushafLayout
       '38:24:33': '۩۝٢٤'
     }
   }
+
   def get_word_text(word, script)
     custom = CUSTOM_TEXT[script.to_sym] || {}
 
@@ -287,6 +372,8 @@ class ExportMushafLayout
   def prepare_layout_stats(mushaf, table_name)
     page_count = mushaf.mushaf_pages.count
     exported_words_count = 0
+    ExportedLayout.table_name = table_name
+
     exported_page_count = ExportedLayout.connection.execute("SELECT COUNT(DISTINCT page) FROM #{table_name}").first[0]
     lines_count_per_page = ExportedLayout.select(:page, 'COUNT(line) as lines').group(:page)
 

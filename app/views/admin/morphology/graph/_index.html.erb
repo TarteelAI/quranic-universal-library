@@ -1,0 +1,48 @@
+<div class="morphology-graph-index">
+  <h2>Morphology Graphs</h2>
+
+  <div class="graph-stats tw-mb-4">
+    <p><strong>Total Graphs:</strong> <%= collection.count %></p>
+  </div>
+
+  <% if collection.any? %>
+    <div class="graphs-list">
+      <table class="index_table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Verse</th>
+            <th>Graph #</th>
+            <th>Nodes</th>
+            <th>Edges</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% collection.each do |graph| %>
+            <tr class="<%= cycle('odd', 'even') %>">
+              <td><%= graph.id %></td>
+              <td><%= "#{graph.chapter_number}:#{graph.verse_number}" %></td>
+              <td><%= graph.graph_number %></td>
+              <td><%= graph.nodes.count %></td>
+              <td>
+                <%= Morphology::GraphNodeEdge.joins(:source)
+                      .where(morphology_graph_nodes: { graph_id: graph.id })
+                      .distinct.count %>
+              </td>
+              <td>
+                <%= link_to 'View', cms_graph_path(graph), class: 'button' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="blank_slate_container">
+      <span class="blank_slate">
+        No graphs found
+      </span>
+    </div>
+  <% end %>
+</div>

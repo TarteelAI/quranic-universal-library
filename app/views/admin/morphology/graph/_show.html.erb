@@ -1,0 +1,94 @@
+<div class="morphology-graph-show">
+  <h2>Graph <%= graph.id %> - <%= graph.verse_key %> (Graph #<%= graph.graph_number %>)</h2>
+
+  <div class="syntax-graph-section tw-mb-4">
+    <h3>Syntax Graph Visualization</h3>
+    <div class="bg-light tw-p-3 rounded syntax-graph-container"
+         style="min-height: 400px;"
+         data-controller="syntax-graph"
+         data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(
+           chapter_number: graph.chapter_number,
+           verse_number: graph.verse_number,
+           graph_number: graph.graph_number
+         ) %>">
+      <div data-syntax-graph-target="container">Loading syntax graph...</div>
+    </div>
+  </div>
+
+  <div class="graph-nodes">
+    <h3>Nodes</h3>
+    <table class="index_table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Number</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th>POS</th>
+          <th>Resource</th>
+          <th>Segment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% graph.nodes.order(:number).each do |node| %>
+          <tr class="<%= cycle('odd', 'even') %> node-type-<%= node.type %>">
+            <td><%= node.id %></td>
+            <td><%= "n#{node.number + 1}" %></td>
+            <td>
+              <span class="status_tag <%= node.type %>">
+                <%= node.type.humanize %>
+              </span>
+            </td>
+            <td><%= truncate(node.value, length: 50) %></td>
+            <td><%= node.pos %></td>
+            <td>
+              <% if node.resource %>
+                <%= "#{node.resource_type} ##{node.resource_id}" %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td><%= node.segment_id || '-' %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="graph-edges tw-mt-4">
+    <h3>Edges</h3>
+    <% edges = Morphology::GraphNodeEdge.joins(:source, :target)
+                 .where(morphology_graph_nodes: { graph_id: graph.id })
+                 .distinct %>
+    <% if edges.any? %>
+      <table class="index_table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Source</th>
+            <th>Target</th>
+            <th>Relation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% edges.each do |edge| %>
+            <tr class="<%= cycle('odd', 'even') %>">
+              <td><%= edge.id %></td>
+              <td>
+                <span class="status_tag <%= edge.type %>">
+                  <%= edge.type.humanize %>
+                </span>
+              </td>
+              <td><%= "n#{edge.source.number + 1}" %> (<%= edge.source.type %>)</td>
+              <td><%= "n#{edge.target.number + 1}" %> (<%= edge.target.type %>)</td>
+              <td><%= edge.relation %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No edges found for this graph.</p>
+    <% end %>
+  </div>
+</div>

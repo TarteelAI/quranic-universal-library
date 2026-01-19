@@ -13,7 +13,7 @@ module Api
       def set_cache_headers
         if Rails.env.production?
           if action_name != 'random'
-            expires_in 7.day, public: true
+            expires_in default_cache_expires_at, public: true
             headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
           end
 
@@ -23,6 +23,11 @@ module Api
 
       def render_json(data, status: :ok)
         render json: data, status: status
+      end
+
+      def default_cache_expires_at
+        # Default cache expiration: 24 hours
+        24.hours
       end
 
       def record_not_found(exception)

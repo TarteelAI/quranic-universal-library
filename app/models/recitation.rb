@@ -38,6 +38,10 @@ class Recitation < QuranApiRecord
   scope :approved, -> { where(approved: true) }
   scope :un_approved, -> { where(approved: false) }
 
+  def total_duration
+    (audio_files.sum(:duration) || 0).round(2)
+  end
+
   def one_ayah?
     true
   end

@@ -8,6 +8,10 @@ Rails.application.routes.draw do
   root to: 'landing#home'
 
   namespace :api, defaults: { format: :json } do
+    namespace :morphology do
+      resources :edge_relations, only: [:index]
+    end
+
     namespace :v1 do
       resources :chapters, only: [:index, :show] do
         member do
@@ -27,19 +31,36 @@ Rails.application.routes.draw do
         get 'ayah_segments/:recitation_id', to: 'segments#ayah_segments'
       end
 
+      scope 'resources' do
+        get '/translations', to: 'resources#translations'
+        get '/tafsirs', to: 'resources#tafsirs'
+        get '/languages', to: 'resources#languages'
+      end
+
+      get 'unicode/name', to: 'unicode#name'
+
+      get 'tafsirs/random', to: 'tafsirs#random'
+      get 'tafsirs/for_ayah/:ayah_key', to: 'tafsirs#for_ayah'
+      get 'tafsirs/:resource_id/by_range', to: 'tafsirs#by_range'
+
+      get 'translations/random', to: 'translations#random'
+      get 'translations/for_ayah/:ayah_key', to: 'translations#for_ayah'
+      get 'translations/:resource_id/by_range', to: 'translations#by_range'
+
       get '/verses/select2', to: 'verses#select2'
     end
   end
 
   get 'tools', to: 'community#tools', as: :tools
-  get '/ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
+  get :quran_scripts_comparison, to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
+  get 'ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
-  get 'svg', to: 'community#svg_optimizer'
-  get 'credits', to: 'community#credits', as: :credits
-  get 'faq', to: 'community#faq', as: :faq
-  get '/compare_ayah', to: 'verses#compare', as: :compare_ayah
+  get :svg, to: 'community#svg_optimizer'
+  get :credits, to: 'community#credits', as: :credits
+  get :faq, to: 'community#faq', as: :faq
+  get :compare_ayah, to: 'verses#compare', as: :compare_ayah
   
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"
@@ -67,6 +88,25 @@ Rails.application.routes.draw do
     get 'roots/:id', to: 'roots#show', as: :root
     get 'lemmas/:id', to: 'lemmas#show', as: :lemma
     get 'stems/:id', to: 'stems#show', as: :stem
+    get 'word', to: 'words#show', as: :word
+
+    resources :treebank, only: [:index] do
+      collection do
+        get :syntax_graph
+        get :edit
+        post :add_node_row
+        post :add_phrase_node
+        delete :delete_node
+        post :update_node_fields
+        patch :save_node
+        patch :save_edge
+        patch :save_phrase_node
+        post :add_edge
+        delete :delete_edge
+        get :verse_graphs_data
+        post :split_graph
+      end
+    end
   end
 
   resources :user_projects, except: [:index, :destroy]
@@ -110,6 +150,11 @@ Rails.application.routes.draw do
     end
   end
 
+  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
+  put 'mistake-heatmap', to: 'word_mistakes#update'
+  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
+  get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
+
   resources :word_concordance_labels, only: [:show, :index] do
     member do
       get :word_detail
@@ -120,11 +165,8 @@ Rails.application.routes.draw do
 
   resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :delete
-  resources :word_text_proofreadings, only: [:index, :show] do
-    collection do
-      get :compare_words
-    end
-  end
+  resources :word_text_proofreadings, only: [:index, :show]
+
   resources :translation_proofreadings, except: :delete
   resources :tafsir_proofreadings, except: :delete
   resources :word_translations, except: :delete do
@@ -164,6 +206,15 @@ Rails.application.routes.draw do
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah
+  get '/ayah/:key/text', to: 'ayah#text', as: :ayah_text
+  get '/ayah/:key/translations', to: 'ayah#translations', as: :ayah_translations
+  get '/ayah/:key/tafsirs', to: 'ayah#tafsirs', as: :ayah_tafsirs
+  get '/ayah/:key/words', to: 'ayah#words', as: :ayah_words
+  get '/ayah/:key/theme', to: 'ayah#theme', as: :ayah_theme
+  get '/ayah/:key/transliteration', to: 'ayah#transliteration', as: :ayah_transliteration
+  get '/ayah/:key/topics', to: 'ayah#topics', as: :ayah_topics
+  get '/ayah/:key/topics/:topic_id', to: 'ayah#topic', as: :ayah_topic
+  get '/ayah/:key/recitation', to: 'ayah#recitation', as: :ayah_recitation
   match '/404', to: 'application#not_found', via: :all
   #  match '*unmatched', to: 'application#not_found', via: :all
 end

@@ -1,0 +1,134 @@
+// Morphology Treebank Edit & View Styles
+
+// SVG View specific styles
+.morphology-graph-view {
+  padding: 1.25rem;
+}
+
+.graph-stats {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: #e8f4f8;
+  border-radius: 0.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.625rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+.graph-details {
+  margin-top: 2rem;
+
+  h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.index_table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.25rem;
+
+  th,
+  td {
+    padding: 0.625rem;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+
+  th {
+    background: #f0f0f0;
+    font-weight: bold;
+  }
+}
+
+// Edit section styles
+.edit-section {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: #f9f9f9;
+  border-radius: 0.5rem;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: #333;
+  }
+}
+
+.edit-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    padding: 0.625rem;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+  }
+
+  th {
+    background: #f0f0f0;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+}
+
+.node-id,
+.edge-id {
+  font-weight: bold;
+  color: #666;
+  width: 60px;
+}
+
+.node-number {
+  font-weight: bold;
+  color: #2c3e50;
+  width: 80px;
+}
+
+.resource-dropdowns {
+  min-width: 200px;
+}
+
+.edit-table,
+.edit-section {
+  .form-control,
+  .form-select {
+    font-size: 0.875rem;
+
+    &.form-control-sm,
+    &.form-select-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Node type row colors
+.node-row {
+  &.node-type-word {
+    background: #f0f8f0;
+  }
+
+  &.node-type-reference {
+    background: #f0f5ff;
+  }
+
+  &.node-type-phrase {
+    background: #fffef0;
+  }
+
+  &.node-type-elided {
+    background: #fff0f0;
+  }
+}

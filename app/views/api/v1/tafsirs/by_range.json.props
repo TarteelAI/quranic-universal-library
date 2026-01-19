@@ -1,0 +1,11 @@
+tafsirs = @presenter.tafsirs_by_range
+resource_content = @presenter.resource_content
+
+json.tafsirs do
+  json.array! tafsirs do |tafsir|
+    json.partial! partial: 'tafsir', locals: { tafsir: tafsir, resource_content: resource_content }
+  end
+end
+
+
+

@@ -20,7 +20,7 @@
         data-search="<%= "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}" %>">
       <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
         <p class="tw-font-semibold tw-block">
-          <%= link_to card.name, detail_resources_path(card.resource_type, card.id), data: { turbo_frame: '_top' } %>
+          <%= link_to card.name, detail_resources_path(card.resource_type, card.id), class: 'hover:tw-text-[#46ac7a] tw-transition-colors', data: { turbo_frame: '_top' } %>
         </p>
 
         <% if card.related_resources.present? %>

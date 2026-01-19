@@ -1,0 +1,13 @@
+<%= render 'tools/header',
+           name: "Quran scripts comparison",
+           key: 'quran_scripts_comparison'
+%>
+
+<% if !@presenter.script_type_selected? %>
+  <%= render 'script_selection' %>
+<% elsif @presenter.char.blank? %>
+  <%= render 'charset_selection' %>
+<% else %>
+  <%= render 'words_table' %>
+<% end %>
+

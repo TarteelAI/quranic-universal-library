@@ -113,7 +113,7 @@
                               sort_direction: @sort_direction)
       end
     %>
-    <%== pagy_bootstrap_nav(@pagy, pagy_id: 'topics-pagination', link_extra: '', pagy_url: pagy_url_proc).html_safe %>
+    <%== pagy_nav_tailwind(@pagy, pagy_id: 'topics-pagination', link_extra: '', pagy_url: pagy_url_proc).html_safe %>
   </div>
 <% end %>
 

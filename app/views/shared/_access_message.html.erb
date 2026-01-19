@@ -1,11 +1,10 @@
 <% if @access && @access.admin_notes.present? %>
   <div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-    <div class="callout tw-px-4 tw-py-3 tw-rounded tw-mb-4 alert-dismissible <%= 'callout-warning' %>" role="alert" data-controller="alert">
+    <div class="callout tw-px-4 tw-py-3 tw-rounded tw-mb-4 alert-dismissible <%= 'callout-warning' %> tw-relative" role="alert" data-controller="alert">
       <div class="tw-flex tw-flex-wrap tw-gap-4">
         <div class="tw-w-full">
           <div style="font-size: 30px; margin-top: 10px">
             <%= safe_html @access.admin_notes %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         </div>
       </div>

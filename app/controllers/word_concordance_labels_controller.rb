@@ -39,10 +39,13 @@ class WordConcordanceLabelsController < CommunityController
 
   def segment_detail
     @verse = Verse.find(params[:id])
+    params[:word] ||= "#{@verse.verse_key}:1"
+
     @word = @verse.morphology_words.includes(:word, :word_segments).find_by_location(params[:word])
 
     if @word.nil?
       redirect_to word_concordance_label_path(@verse.id), notice: "Can't find the word"
+      return
     end
 
     @segment = @word.word_segments[params[:segment].to_i - 1]

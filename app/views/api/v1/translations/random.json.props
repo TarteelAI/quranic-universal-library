@@ -1,0 +1,6 @@
+translation = @presenter.random_translation
+
+json.translation do
+  json.partial! partial: 'translation', locals: { translation: translation }
+end
+

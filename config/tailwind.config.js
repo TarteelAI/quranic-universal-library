@@ -5,7 +5,7 @@ module.exports = {
   content: [
     './public/*.html',
     './app/helpers/**/*.rb',
-    './app/javascript/**/*.js',
+    './app/javascript/**/*.{js,vue}',
     './app/views/**/*.{erb,html}',
   ],
   theme: {

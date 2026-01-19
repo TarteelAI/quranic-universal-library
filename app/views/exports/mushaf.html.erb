@@ -1,23 +1,284 @@
 <style>
-  #content{
-      border: 1px solid;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-  }
+    #content {
+        border: 1px solid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .anomaly-controls {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: white;
+        padding: 15px;
+        border: 2px solid #333;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 1000;
+        min-width: 250px;
+    }
+
+    .anomaly-controls h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+    .anomaly-controls label {
+        display: block;
+        margin: 8px 0;
+        cursor: pointer;
+    }
+
+    .anomaly-controls input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .anomaly-controls input[type="number"] {
+        width: 60px;
+        margin-left: 8px;
+    }
+
+    .anomaly-controls button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .anomaly-controls button:hover {
+        background: #0056b3;
+    }
+
+    .anomaly-results {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: white;
+        padding: 15px;
+        border: 2px solid #333;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 1000;
+        max-width: 600px;
+        max-height: 500px;
+        display: none;
+    }
+
+    .anomaly-results.visible {
+        display: block;
+    }
+
+    .anomaly-results h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .anomaly-results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .anomaly-results-count {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .anomaly-results-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .anomaly-results button {
+        padding: 6px 12px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .anomaly-results button:hover {
+        background: #0056b3;
+    }
+
+    .anomaly-results button.secondary {
+        background: #6c757d;
+    }
+
+    .anomaly-results button.secondary:hover {
+        background: #545b62;
+    }
+
+    .anomaly-results-json {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .anomaly-pages-list {
+        max-height: 200px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 8px;
+        background: #f8f9fa;
+    }
+
+    .anomaly-page-item {
+        padding: 6px 8px;
+        margin: 4px 0;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .anomaly-page-item:hover {
+        background: #e7f3ff;
+        border-color: #007bff;
+    }
+
+    .anomaly-page-item .page-number {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .anomaly-page-item .line-numbers {
+        font-size: 11px;
+        color: #666;
+        margin-left: 8px;
+    }
+
+    .page-highlight {
+        outline: 3px solid #ffc107;
+        outline-offset: 2px;
+        transition: outline 0.3s;
+    }
+
+    .copy-success {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #28a745;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        z-index: 10000;
+        display: none;
+    }
+
+    .copy-success.visible {
+        display: block;
+        animation: fadeOut 2s ease-in-out;
+    }
+
+    @keyframes fadeOut {
+        0% { opacity: 1; }
+        70% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .no-justify .mushaf .page,
+    .no-justify .page {
+        text-align: left !important;
+        text-align-last: left !important;
+    }
 </style>
+
+<div class="anomaly-controls">
+  <h3>Controls</h3>
+  <label>
+    <input type="checkbox" id="checkWordCount" checked>
+    Word Count Check
+  </label>
+  <label>
+    <input type="checkbox" id="checkWordSpacing" checked>
+    Word Spacing Check
+  </label>
+  <label>
+    <input type="checkbox" id="checkLineWidth" checked>
+    Line Width Check
+  </label>
+  <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+  <label>
+    <input type="checkbox" id="disableJustification" onchange="toggleJustification()">
+    Disable Text Justification
+  </label>
+  <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+  <label>
+    Word Count Diff Threshold:
+    <input type="number" id="wordCountThreshold" value="5" min="0">
+  </label>
+  <label>
+    Word Spacing Diff Threshold (px):
+    <input type="number" id="wordSpacingThreshold" value="10" min="0" step="0.1">
+  </label>
+  <label>
+    Line Width Diff Threshold (px):
+    <input type="number" id="lineWidthThreshold" value="20" min="0" step="0.1">
+  </label>
+  <button onclick="detectAnomalies()">Run Anomaly Detection</button>
+  <button onclick="calculateLineWidthRatios()">Calculate Line width ratio</button>
+</div>
+
+<div class="anomaly-results" id="anomalyResults">
+  <div class="anomaly-results-header">
+    <h3>
+      Results
+      <span class="anomaly-results-count" id="resultsCount">0 anomalies</span>
+    </h3>
+  </div>
+
+  <div class="anomaly-results-actions">
+    <button onclick="copyResults()">Copy JSON</button>
+    <label style="margin-left: 10px; font-size: 12px;">
+      <input type="checkbox" id="showFilteredRatios" onchange="toggleRatioFilter()" style="margin-right: 4px;">
+      Show only lines with ratio &lt; 1.0
+    </label>
+    <button onclick="closeResults()" class="secondary">Close</button>
+  </div>
+  <div id="resultsTypeIndicator" style="margin: 8px 0; font-size: 12px; color: #666;"></div>
+  <div class="anomaly-pages-list" id="pagesList"></div>
+  <pre class="anomaly-results-json" id="resultsJson"></pre>
+</div>
+
+<div class="copy-success" id="copySuccess">Copied to clipboard!</div>
 
 <div id="content"
      class="<%= params[:css_class] %>"
      data-file-name="mushaf/<%= @mushaf.id %>/<%= params[:page_number] %>"
 >
-  <% 1.upto(@mushaf.pages_count) do |page| %>
+  <% @pages.each do |page| %>
     <% words = MushafWord.where(
       mushaf_id: @mushaf,
       page_number: page
     ).order('position_in_page ASC')
     %>
 
+    <p class="page-indicator" style="margin: 8px 0;">
+      Page: <%= page %>
+    </p>
     <%= render 'shared/mushaf_page',
                words: words,
                page: page,
@@ -27,3 +288,411 @@
   <% end %>
 </div>
 
+
+<script>
+  function toggleJustification() {
+    const disableJustification = document.getElementById('disableJustification').checked;
+    const content = document.getElementById('content');
+    if (disableJustification) {
+      content.classList.add('no-justify');
+    } else {
+      content.classList.remove('no-justify');
+    }
+    forceReflow();
+  }
+
+  function forceReflow() {
+    document.body.offsetHeight;
+  }
+
+  function detectAnomalies() {
+    forceReflow();
+    
+    setTimeout(() => {
+      let pages = document.querySelectorAll(".page");
+      let anomaliesByPage = {};
+
+      const excludedLines = ["line--center", "line--surah-name", "line--bismillah"];
+
+      const checkWordCount = document.getElementById('checkWordCount').checked;
+      const checkWordSpacing = document.getElementById('checkWordSpacing').checked;
+      const checkLineWidth = document.getElementById('checkLineWidth').checked;
+      const wordCountThreshold = parseInt(document.getElementById('wordCountThreshold').value) || 5;
+      const wordSpacingThreshold = parseFloat(document.getElementById('wordSpacingThreshold').value) || 10;
+      const lineWidthThreshold = parseFloat(document.getElementById('lineWidthThreshold').value) || 20;
+
+      pages.forEach((page) => {
+        let pageNumber = parseInt(page.id.replace("page-", ""), 10);
+
+        let lines = [...page.querySelectorAll(".line")].filter(
+          line => !excludedLines.some(cls => line.classList.contains(cls))
+        );
+
+      let stats = lines.map((line) => {
+        let words = line.querySelectorAll(".char");
+        if (words.length === 0) {
+          return null;
+        }
+        
+        let wordRects = [...words].map(word => word.getBoundingClientRect());
+        
+        let firstWordLeft = wordRects[0].left;
+        let lastWordRight = wordRects[wordRects.length - 1].right;
+        let contentWidth = lastWordRight - firstWordLeft;
+        
+        let lineWidth = 0;
+        let ayahContainers = line.querySelectorAll(".ayah-container");
+        
+        if (ayahContainers.length > 0) {
+          ayahContainers.forEach(ayah => {
+            let ayahRect = ayah.getBoundingClientRect();
+            lineWidth += ayahRect.width;
+          });
+        } else {
+          wordRects.forEach(wordRect => {
+            lineWidth += wordRect.width;
+          });
+        }
+
+        let spacings = [];
+        for (let i = 0; i < wordRects.length - 1; i++) {
+          let currentWordRight = wordRects[i].right;
+          let nextWordLeft = wordRects[i + 1].left;
+          let spacing = nextWordLeft - currentWordRight;
+          spacings.push(spacing);
+        }
+
+        let avgSpacing = spacings.length > 0 ? spacings.reduce((a, b) => a + b, 0) / spacings.length : 0;
+
+        return {
+          line,
+          lineNum: line.parentElement.dataset.line,
+          wordCount: words.length,
+          avgSpacing,
+          lineWidth: lineWidth,
+          contentWidth: contentWidth
+        };
+      }).filter(s => s !== null);
+
+      if (stats.length === 0) return;
+
+      stats.forEach((s, index) => {
+        let issues = [];
+        let prevStat = index > 0 ? stats[index - 1] : null;
+        let nextStat = index < stats.length - 1 ? stats[index + 1] : null;
+
+        if (checkWordCount) {
+          let wordCountOff = false;
+          if (prevStat && Math.abs(s.wordCount - prevStat.wordCount) >= wordCountThreshold) {
+            wordCountOff = true;
+          }
+          if (nextStat && Math.abs(s.wordCount - nextStat.wordCount) >= wordCountThreshold) {
+            wordCountOff = true;
+          }
+          if (wordCountOff) {
+            issues.push("Word Count");
+          }
+        }
+
+        if (checkWordSpacing) {
+          let spacingOff = false;
+          if (prevStat && Math.abs(s.avgSpacing - prevStat.avgSpacing) > wordSpacingThreshold) {
+            spacingOff = true;
+          }
+          if (nextStat && Math.abs(s.avgSpacing - nextStat.avgSpacing) > wordSpacingThreshold) {
+            spacingOff = true;
+          }
+          if (spacingOff) {
+            issues.push("Word Spacing");
+          }
+        }
+
+        if (checkLineWidth) {
+          let lineWidthOff = false;
+          let prevDiff = prevStat ? Math.abs(s.lineWidth - prevStat.lineWidth) : 0;
+          let nextDiff = nextStat ? Math.abs(s.lineWidth - nextStat.lineWidth) : 0;
+          
+          if (pageNumber === 25 && (s.lineNum === '14' || s.lineNum === '15')) {
+            console.log(`Page ${pageNumber} Line ${s.lineNum}:`, {
+              lineWidth: s.lineWidth.toFixed(2),
+              contentWidth: s.contentWidth.toFixed(2),
+              prevLine: prevStat ? { width: prevStat.lineWidth.toFixed(2), diff: prevDiff.toFixed(2) } : 'none',
+              nextLine: nextStat ? { width: nextStat.lineWidth.toFixed(2), diff: nextDiff.toFixed(2) } : 'none',
+              threshold: lineWidthThreshold
+            });
+          }
+          
+          if (prevStat && prevDiff > lineWidthThreshold) {
+            lineWidthOff = true;
+          }
+          if (nextStat && nextDiff > lineWidthThreshold) {
+            lineWidthOff = true;
+          }
+          if (lineWidthOff) {
+            issues.push("Line Width");
+          }
+        }
+
+        if (issues.length > 0) {
+          if (!anomaliesByPage[pageNumber]) {
+            anomaliesByPage[pageNumber] = [];
+          }
+          let lineNum = parseInt(s.lineNum);
+          if (!anomaliesByPage[pageNumber].includes(lineNum)) {
+            anomaliesByPage[pageNumber].push(lineNum);
+          }
+        }
+      });
+    });
+
+      let anomalies = Object.keys(anomaliesByPage).map(page => ({
+        page: parseInt(page),
+        lines: anomaliesByPage[page].sort((a, b) => a - b)
+      })).filter(item => item.lines.length > 0);
+
+      console.table(anomalies);
+      displayResults(anomalies);
+      return anomalies;
+    }, 100);
+  }
+
+  let currentResultsType = 'anomalies';
+  let currentResultsData = null;
+
+  function displayResults(anomalies) {
+    currentResultsType = 'anomalies';
+    currentResultsData = anomalies;
+    
+    const resultsPanel = document.getElementById('anomalyResults');
+    const resultsJson = document.getElementById('resultsJson');
+    const resultsCount = document.getElementById('resultsCount');
+    const pagesList = document.getElementById('pagesList');
+    const typeIndicator = document.getElementById('resultsTypeIndicator');
+
+    let totalLines = anomalies.reduce((sum, item) => sum + item.lines.length, 0);
+    resultsCount.textContent = `${anomalies.length} ${anomalies.length === 1 ? 'page' : 'pages'} (${totalLines} ${totalLines === 1 ? 'line' : 'lines'})`;
+    resultsJson.textContent = JSON.stringify(anomalies, null, 2);
+    typeIndicator.textContent = 'Anomaly Detection Results';
+    
+    pagesList.innerHTML = '';
+    if (anomalies.length > 0) {
+      anomalies.forEach(item => {
+        const pageItem = document.createElement('div');
+        pageItem.className = 'anomaly-page-item';
+        pageItem.onclick = () => scrollToPage(item.page, item.lines);
+        pageItem.innerHTML = `
+          <span class="page-number">Page ${item.page}</span>
+          <span class="line-numbers">Lines: ${item.lines.join(', ')}</span>
+        `;
+        pagesList.appendChild(pageItem);
+      });
+    } else {
+      pagesList.innerHTML = '<div style="padding: 10px; text-align: center; color: #666;">No anomalies found</div>';
+    }
+    
+    resultsPanel.classList.add('visible');
+  }
+
+  function displayLineWidthRatios(results, showFiltered = false) {
+    currentResultsType = 'lineWidthRatios';
+    currentResultsData = results;
+    
+    const resultsPanel = document.getElementById('anomalyResults');
+    const resultsJson = document.getElementById('resultsJson');
+    const resultsCount = document.getElementById('resultsCount');
+    const pagesList = document.getElementById('pagesList');
+    const typeIndicator = document.getElementById('resultsTypeIndicator');
+
+    let displayResults = showFiltered ? detectPagesWithCustomWidth(results) : results;
+    let pageCount = Object.keys(displayResults).length;
+    let totalLines = Object.values(displayResults).reduce((sum, lineRatios) => sum + Object.keys(lineRatios).length, 0);
+    
+    resultsCount.textContent = `${pageCount} ${pageCount === 1 ? 'page' : 'pages'} (${totalLines} ${totalLines === 1 ? 'line' : 'lines'})`;
+    resultsJson.textContent = JSON.stringify(displayResults, null, 2);
+    typeIndicator.textContent = showFiltered ? 'Line Width Ratios (Filtered: ratio < 1.0)' : 'Line Width Ratios (All)';
+    
+    pagesList.innerHTML = '';
+    if (pageCount > 0) {
+      Object.entries(displayResults).forEach(([pageNumber, lineRatios]) => {
+        const pageItem = document.createElement('div');
+        pageItem.className = 'anomaly-page-item';
+        let lineInfo = Object.entries(lineRatios).map(([line, ratio]) => `L${line}: ${ratio}`).join(', ');
+        pageItem.onclick = () => scrollToPage(parseInt(pageNumber), Object.keys(lineRatios).map(l => parseInt(l)));
+        pageItem.innerHTML = `
+          <span class="page-number">Page ${pageNumber}</span>
+          <span class="line-numbers">${lineInfo}</span>
+        `;
+        pagesList.appendChild(pageItem);
+      });
+    } else {
+      pagesList.innerHTML = '<div style="padding: 10px; text-align: center; color: #666;">No results found</div>';
+    }
+    
+    resultsPanel.classList.add('visible');
+  }
+
+  function scrollToPage(pageNumber, lineNumbers) {
+    const pageElement = document.getElementById(`page-${pageNumber}`);
+    if (!pageElement) {
+      console.warn(`Page ${pageNumber} not found`);
+      return;
+    }
+
+    pageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    pageElement.classList.add('page-highlight');
+    
+    setTimeout(() => {
+      pageElement.classList.remove('page-highlight');
+    }, 2000);
+
+    if (lineNumbers && lineNumbers.length > 0) {
+      setTimeout(() => {
+        const firstLineNumber = lineNumbers[0];
+        const lineContainer = pageElement.querySelector(`.line-container[data-line="${firstLineNumber}"]`);
+        if (lineContainer) {
+          const lineElement = lineContainer.querySelector('.line');
+          if (lineElement) {
+            lineElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            lineElement.style.outline = '2px solid #ffc107';
+            lineElement.style.outlineOffset = '2px';
+            setTimeout(() => {
+              lineElement.style.outline = '';
+              lineElement.style.outlineOffset = '';
+            }, 2000);
+          }
+        }
+      }, 300);
+    }
+  }
+
+  function copyResults() {
+    const resultsJson = document.getElementById('resultsJson');
+    const text = resultsJson.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      showCopySuccess();
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+      fallbackCopyTextToClipboard(text);
+    });
+  }
+
+  function copyCurrentResults() {
+    if (currentResultsData) {
+      const text = JSON.stringify(currentResultsData, null, 2);
+      navigator.clipboard.writeText(text).then(() => {
+        showCopySuccess();
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        fallbackCopyTextToClipboard(text);
+      });
+    }
+  }
+
+
+  function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showCopySuccess();
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+    }
+    document.body.removeChild(textArea);
+  }
+
+  function showCopySuccess() {
+    const successMsg = document.getElementById('copySuccess');
+    successMsg.classList.add('visible');
+    setTimeout(() => {
+      successMsg.classList.remove('visible');
+    }, 2000);
+  }
+
+  function closeResults() {
+    const resultsPanel = document.getElementById('anomalyResults');
+    resultsPanel.classList.remove('visible');
+  }
+
+  function calculateLineWidthRatios() {
+    forceReflow();
+    
+    setTimeout(() => {
+      let pages = document.querySelectorAll(".page");
+      let results = {};
+
+      pages.forEach((page) => {
+        let pageNumber = parseInt(page.id.replace("page-", ""), 10);
+        let totalWidth = page.getBoundingClientRect().width;
+
+        if (pageNumber === 1 || pageNumber === 2) {
+          totalWidth *= 0.9;
+        }
+
+        let lines = page.querySelectorAll(".line-container");
+        let lineRatios = {};
+
+        lines.forEach((line) => {
+          let lineNumber = line.dataset.line;
+          let lineWidth = 0;
+          let ayahs = line.querySelectorAll(".ayah-container");
+
+          if(ayahs.length === 0)
+            return;
+
+          ayahs.forEach((ayah) => {
+            lineWidth += ayah.getBoundingClientRect().width;
+          });
+
+          let ratio = lineWidth / totalWidth;
+
+          lineRatios[lineNumber] = parseFloat(ratio.toFixed(2));
+        });
+
+        if (Object.keys(lineRatios).length > 0) {
+          results[pageNumber] = lineRatios;
+        }
+      });
+
+      console.table(results);
+      displayLineWidthRatios(results, false);
+      
+      return results;
+    }, 100);
+  }
+
+  function detectPagesWithCustomWidth(results) {
+    let filtered = {};
+
+    Object.entries(results).forEach(([pageNumber, lineRatios]) => {
+      let reduced = {};
+
+      Object.entries(lineRatios).forEach(([lineNumber, ratio]) => {
+        if (ratio < 1) {
+          reduced[lineNumber] = ratio;
+        }
+      });
+
+      if (Object.keys(reduced).length > 0) {
+        filtered[pageNumber] = reduced;
+      }
+    });
+
+    return filtered;
+  }
+
+  function toggleRatioFilter() {
+    if (currentResultsType === 'lineWidthRatios' && currentResultsData) {
+      const showFiltered = document.getElementById('showFilteredRatios').checked;
+      displayLineWidthRatios(currentResultsData, showFiltered);
+    }
+  }
+
+</script>

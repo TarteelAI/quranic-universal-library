@@ -4,13 +4,13 @@
   next_ayah = @verse.next_ayah
 
   if previous_ayah
-    actions << link_to('Previous ayah', word_concordance_label_path(previous_ayah.id), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', word_concordance_label_path(previous_ayah.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
   if next_ayah
-    actions << link_to('Next ayah', word_concordance_label_path(next_ayah.id), class: 'btn btn-dark')
+    actions << link_to('Next ayah', word_concordance_label_path(next_ayah.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
 
-  actions << link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-info')
+  actions << link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
@@ -56,13 +56,13 @@
           <td class="tw-py-2" style="direction: rtl;">
             <% word.word_segments.each do |segment| %>
              <span>
-              <%= link_to(segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: word.location, segment: segment.position), class: "me_quran btn btn-primary btn-sm") %>
+              <%= link_to(segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: word.location, segment: segment.position), class: "me_quran tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors") %>
              </span>
             <% end %>
           </td>
 
           <td class="tw-py-2">
-            <%= link_to('Show', word_detail_word_concordance_label_path(@verse.id, word: word.location), class: 'btn btn-success') %>
+            <%= link_to('Show', word_detail_word_concordance_label_path(@verse.id, word: word.location), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors') %>
           </td>
         </tr>
       <% end %>
@@ -71,9 +71,9 @@
   </div>
 
   <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-3">
-    <%= link_to('Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-dark') if previous_ayah %>
-    <%= link_to('Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-dark') if next_ayah %>
-    <%= link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-info') %>
+    <%= link_to('Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors') if previous_ayah %>
+    <%= link_to('Next ayah', word_concordance_label_path(@verse.id + 1), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors') if next_ayah %>
+    <%= link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-outline-info tw-text-sm') %>
   </div>
 </div>
 

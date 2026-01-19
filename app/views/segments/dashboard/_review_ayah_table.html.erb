@@ -11,7 +11,7 @@
   }
 %>
 
-<div class="page-wrapper container-lg mt-4">
+<div class="page-wrapper container-lg tw-mt-4">
   <div class="page-section filters">
     <%= form_with url: segments_review_ayahs_path, method: :get, local: true, class: "tw-flex tw-gap-4 tw-mb-6" do %>
       <div>
@@ -52,7 +52,7 @@
     <% end %>
   </div>
 
-  <div class="page-section mt-4">
+  <div class="page-section tw-mt-4">
     <h1 class="tw-text-xl tw-font-bold tw-mb-4">Review Ayah Issues</h1>
     
     <% if ayah_reviews.any? %>
@@ -116,9 +116,9 @@
 
         <tr>
           <td colspan="6">
-            <div class="d-flex align-items-center">
+            <div class="tw-flex tw-items-center">
               <div class="me-4">
-                <%= safe_html pagy_bootstrap_nav(pagination) %>
+                <%= safe_html pagy_nav_tailwind(pagination) %>
               </div>
 
               <div>

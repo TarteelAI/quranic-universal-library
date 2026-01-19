@@ -29,6 +29,10 @@ class ExportsController < ApplicationController
 
   def mushaf
     @mushaf = Mushaf.find(params[:mushaf_id])
+    per_page = params[:per_page] || 100
+    page = params[:page] || 1
+
+    @pagy, @pages = pagy_array((1..@mushaf.pages_count).to_a, items: per_page, page: page)
   end
 
   protected

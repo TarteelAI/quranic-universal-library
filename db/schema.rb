@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_09_16_073555) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_28_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -611,6 +611,17 @@ ActiveRecord::Schema[7.0].define(version: 2025_09_16_073555) do
     t.boolean "reviewed", default: false
     t.integer "reviewed_by_id"
     t.index ["reviewed"], name: "index_versions_on_reviewed"
+  end
+
+  create_table "word_mistakes", force: :cascade do |t|
+    t.integer "word_id", null: false
+    t.integer "mistake_count", default: 0, null: false
+    t.integer "char_start"
+    t.integer "char_end"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["word_id", "char_start", "char_end"], name: "index_word_mistakes_on_word_id_and_char_start_and_char_end"
+    t.index ["word_id"], name: "index_word_mistakes_on_word_id"
   end
 
   create_table "word_synonyms", force: :cascade do |t|

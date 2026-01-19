@@ -1,10 +1,26 @@
-<div class="tw-flex tw-items-center tw-justify-between tw-p-6 tw-border-b tw-border-gray-200" id="modal-header">
-  <div class="tw-text-lg tw-font-semibold flex-between flex-grow-1">
+<div class="tw-flex tw-items-center tw-justify-between tw-p-3 sm:tw-p-6 tw-border-b tw-border-gray-200" id="modal-header">
+  <div class="tw-text-lg tw-font-semibold tw-flex tw-items-center tw-justify-between flex-grow-1">
     <div class="tw-flex flex-column">
         <div>
           <strong><%= @ayah.chapter.name_simple %></strong>
-          <span class="badge tw-bg-blue-500">
-            Ayah <%= @ayah.verse_number %>
+          <% current_tab = params[:tab].presence || 'ayah' %>
+          <span class="tw-relative tw-inline-block" data-controller="ayah-jump" data-ayah-jump-tab-value="<%= current_tab %>">
+            <button type="button" class="badge tw-bg-blue-500 tw-inline-flex tw-items-center tw-gap-1" data-action="click->ayah-jump#toggle">
+              Ayah <%= @ayah.verse_number %>
+              <i class="fa fa-chevron-down tw-text-[10px]"></i>
+            </button>
+            <div id="ayah-jump-panel" class="tw-hidden tw-absolute tw-left-0 tw-mt-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-shadow-lg tw-p-3 tw-z-[10002]" data-ayah-jump-target="panel">
+              <select class="tw-w-[220px]"
+                      data-controller="select2"
+                      data-parent="#ayah-jump-panel"
+                      data-ayah-jump-target="select"
+                      data-action="change->ayah-jump#jump">
+                <% 1.upto(@ayah.chapter.verses_count) do |n| %>
+                  <% key = "#{@ayah.chapter_id}:#{n}" %>
+                  <option value="<%= key %>" <%= "selected" if n == @ayah.verse_number %>><%= key %></option>
+                <% end %>
+              </select>
+            </div>
           </span>
         </div>
 
@@ -16,11 +32,15 @@
     </div>
 
     <div>
-      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key), class: 'btn btn-sm btn-dark' if @ayah.previous_ayah %>
-      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key), class: 'btn btn-sm btn-dark' if @ayah.next_ayah %>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
     </div>
   </div>
 
-  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <button type="button" class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-p-1" data-action="click->ajax-modal#hide" aria-label="Close">
+    <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+  </button>
 </div>
 

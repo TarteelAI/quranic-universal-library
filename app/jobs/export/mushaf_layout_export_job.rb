@@ -1,5 +1,7 @@
 module Export
   class MushafLayoutExportJob < ApplicationJob
+    sidekiq_options retry: 3
+
     STORAGE_PATH = "#{Rails.root}/tmp/exported_mushaf_layouts"
 
     def perform(file_name:, user_id:, mushaf_ids: [])
@@ -23,7 +25,11 @@ module Export
     def export_sqlite_db(file_name, mushaf_ids)
       mushafs = load_mushafs(mushaf_ids)
       export_service = ExportMushafLayout.new
-      export_service.export(mushafs.pluck(:id), file_name)
+      export_service.export(
+        ids: mushafs.pluck(:id),
+        db_name: file_name,
+        postfix_names: ['tarteel-mushafs'] != mushaf_ids
+      )
 
       @export_stats = export_service.export_stats
     end

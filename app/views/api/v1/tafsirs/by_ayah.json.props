@@ -1,0 +1,11 @@
+tafsirs = @presenter.tafsirs
+
+if tafsirs&.first
+  tafsir = tafsirs.first
+  json.tafsir do
+    json.partial! partial: 'tafsir', locals: { tafsir: tafsir, resource_content: @presenter.resource_content }
+  end
+else
+  json.tafsir nil
+end
+

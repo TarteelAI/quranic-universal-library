@@ -1,0 +1,27 @@
+<%= turbo_frame_tag :ayah_topics do %>
+  <div dir="rtl" class="qpc-hafs tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-5 tw-mb-4">
+    <%= @ayah.text_qpc_hafs %>
+  </div>
+
+  <% topics = @presenter.topics %>
+  <% if topics.any? %>
+    <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-divide-y tw-divide-gray-200">
+      <% topics.each do |t| %>
+        <div class="tw-p-4">
+          <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap">
+            <div class="tw-text-sm tw-font-semibold tw-text-gray-900"><%= t.name.presence || "Topic ##{t.id}" %></div>
+            <%= link_to 'View', '#_', class: 'tw-text-sm tw-text-blue-700 tw-underline',
+                        data: { controller: 'ajax-modal', url: @presenter.topic_modal_url(t.id), css_class: 'modal-lg' } %>
+          </div>
+          <% if t.arabic_name.present? %>
+            <div dir="rtl" class="tw-mt-2 tw-text-sm tw-text-gray-700 arabic"><%= t.arabic_name %></div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="tw-text-sm tw-text-gray-600">No topics linked to this ayah.</div>
+  <% end %>
+<% end %>
+
+

@@ -5,6 +5,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #46ac7a !important;
+
+    .label-text,
+    .sort-icons,
+    * {
+      color: #46ac7a !important;
+    }
+  }
 }
 
 .page-number-link {

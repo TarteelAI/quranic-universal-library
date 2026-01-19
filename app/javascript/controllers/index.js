@@ -2,167 +2,224 @@
 // Run that command whenever you add a new controller or create them with
 // ./bin/rails generate stimulus controllerName
 
-import { application } from "./application"
+import { application } from "./application";
 
-import AjaxModalController from "./ajax_modal_controller.js"
-application.register("ajax-modal", AjaxModalController)
+import AjaxModalController from "./ajax_modal_controller.js";
+application.register("ajax-modal", AjaxModalController);
 
-import AlertController from "./alert_controller.js"
-application.register("alert", AlertController)
+import ArabicKeyboardController from "./arabic_keyboard_controller.js";
+application.register("arabic-keyboard", ArabicKeyboardController);
 
-import ArabicKeyboardController from "./arabic_keyboard_controller.js"
-application.register("arabic-keyboard", ArabicKeyboardController)
+import AlertController from "./alert_controller.js";
+application.register("alert", AlertController);
 
-import ConfirmLeaveController from "./confirm_leave_controller.js"
-application.register("confirm-leave", ConfirmLeaveController)
+import ConfirmLeaveController from "./confirm_leave_controller.js";
+application.register("confirm-leave", ConfirmLeaveController);
 
-import DatepickerController from "./datepicker_controller.js"
-application.register("datepicker", DatepickerController)
+import DatepickerController from "./datepicker_controller.js";
+application.register("datepicker", DatepickerController);
 
-import DropdownController from "./dropdown_controller.js"
-application.register("dropdown", DropdownController)
+import DropdownController from "./dropdown_controller.js";
+application.register("dropdown", DropdownController);
 
-import MushafPageBuilderController from "./mushaf_page_builder_controller.js"
-application.register("mushaf-page-builder", MushafPageBuilderController)
+import MushafPageBuilderController from "./mushaf_page_builder_controller.js";
+application.register("mushaf-page-builder", MushafPageBuilderController);
 
-import MushafPageController from "./mushaf_page_controller.js"
-application.register("mushaf-page", MushafPageController)
+import MushafPageController from "./mushaf_page_controller.js";
+application.register("mushaf-page", MushafPageController);
 
-import RemoteSelect2Controller from "./remote_select2_controller.js"
-application.register("remote-select2", RemoteSelect2Controller)
+import RemoteSelect2Controller from "./remote_select2_controller.js";
+application.register("remote-select2", RemoteSelect2Controller);
 
-import Select2Controller from "./select2_controller.js"
-application.register("select2", Select2Controller)
+import Select2Controller from "./select2_controller.js";
+application.register("select2", Select2Controller);
 
-import ShowFootnoteController from "./show_footnote_controller.js"
-application.register("show-footnote", ShowFootnoteController)
+import ShowFootnoteController from "./show_footnote_controller.js";
+application.register("show-footnote", ShowFootnoteController);
 
-import TajweedHighlightController from "./tajweed_highlight_controller.js"
-application.register("tajweed-highlight", TajweedHighlightController)
+import TajweedHighlightController from "./tajweed_highlight_controller.js";
+application.register("tajweed-highlight", TajweedHighlightController);
 
-import TajweedFontController from "./tajweed_font_controller.js"
-application.register("tajweed-font", TajweedFontController)
+import TajweedFontController from "./tajweed_font_controller.js";
+application.register("tajweed-font", TajweedFontController);
 
-import TinymceController from "./tinymce_controller.js"
-application.register("tinymce", TinymceController)
+import TinymceController from "./tinymce_controller.js";
+application.register("tinymce", TinymceController);
 
-import TranslationController from "./translation_controller.js"
-application.register("translation", TranslationController)
+import TranslationController from "./translation_controller.js";
+application.register("translation", TranslationController);
 
-import PdfViewerController from "./pdf_viewer_controller.js"
-application.register("pdf-viewer", PdfViewerController)
+import PdfViewerController from "./pdf_viewer_controller.js";
+application.register("pdf-viewer", PdfViewerController);
 
-import JsonEditController from "./json_editor_controller.js"
-application.register("json-editor", JsonEditController)
+import JsonEditController from "./json_editor_controller.js";
+application.register("json-editor", JsonEditController);
 
-import FlashMessageController from "./flash_message_controller.js"
-application.register("flash-message", FlashMessageController)
+import FlashMessageController from "./flash_message_controller.js";
+application.register("flash-message", FlashMessageController);
 
-import ResizeableController from "./resizeable_controller.js"
-application.register("resizeable", ResizeableController)
+import ResizeableController from "./resizeable_controller.js";
+application.register("resizeable", ResizeableController);
 
-import TooltipController from "./tooltip_controller.js"
-application.register("tooltip", TooltipController)
+import TooltipController from "./tooltip_controller.js";
+application.register("tooltip", TooltipController);
 
-import TurboFrameLoadingController from "./turbo_frame_loading_controller.js"
-application.register("turbo-frame-loading", TurboFrameLoadingController)
+import TurboFrameLoadingController from "./turbo_frame_loading_controller.js";
+application.register("turbo-frame-loading", TurboFrameLoadingController);
 
-import CopyToClipboardController from "./copy_to_clipboard_controller.js"
-application.register("copy-to-clipboard", CopyToClipboardController)
+import CopyToClipboardController from "./copy_to_clipboard_controller.js";
+application.register("copy-to-clipboard", CopyToClipboardController);
 
-import CharsInfoController from "./chars_info_controller.js"
-application.register("chars-info", CharsInfoController)
+import CharsInfoController from "./chars_info_controller.js";
+application.register("chars-info", CharsInfoController);
 
-import VerseController from "./verse_controller.js"
-application.register("verse", VerseController)
+import VerseController from "./verse_controller.js";
+application.register("verse", VerseController);
 
-import PeityController from "./peity_controller.js"
-application.register("peity", PeityController)
+import PeityController from "./peity_controller.js";
+application.register("peity", PeityController);
 
-import MutashabihatBuilderController from "./mutashabihat_builder_controller.js"
-application.register("mutashabihat-builder", MutashabihatBuilderController)
+import MutashabihatBuilderController from "./mutashabihat_builder_controller.js";
+application.register("mutashabihat-builder", MutashabihatBuilderController);
 
-import PhraseAyahBookmarkController from "./phrase_ayah_bookmark_controller.js"
-application.register("phrase-ayah-bookmark", PhraseAyahBookmarkController)
+import PhraseAyahBookmarkController from "./phrase_ayah_bookmark_controller.js";
+application.register("phrase-ayah-bookmark", PhraseAyahBookmarkController);
 
-import RemoteFormController from "./remote_form_controller.js"
-application.register("remote-form", RemoteFormController)
+import RemoteFormController from "./remote_form_controller.js";
+application.register("remote-form", RemoteFormController);
 
-import ResourceSearchController  from "./resource_search_controller";
+import ResourceSearchController from "./resource_search_controller";
 application.register("resource-search", ResourceSearchController);
 
 import TranslationFootnoteController from "./translation_footnote_controller";
 application.register("translation-footnote", TranslationFootnoteController);
 
-import PageTitleController from './page_title_controller';
+import TranslationFootnoteToggleController from "./translation_footnote_toggle_controller";
+application.register("translation-footnote-toggle", TranslationFootnoteToggleController);
+
+import PageTitleController from "./page_title_controller";
 application.register("page-title", PageTitleController);
 
-import TogglePasswordController from './toggle_password_controller';
+import TogglePasswordController from "./toggle_password_controller";
 application.register("toggle-password", TogglePasswordController);
 
-import FillTheBlankController from './activities/fill_the_blanks_controller';
+import FillTheBlankController from "./activities/fill_the_blanks_controller";
 application.register("activities--fill-in-blank", FillTheBlankController);
 
-import AyahMasteryController from './activities/ayah_mastery_controller';
+import AyahMasteryController from "./activities/ayah_mastery_controller";
 application.register("activities--ayah-mastery", AyahMasteryController);
 
-import WordMatchController from './activities/word_match_controller';
+import WordMatchController from "./activities/word_match_controller";
 application.register("activities--word-match", WordMatchController);
 
-import FaqController from './faq_controller';
+import SurahOrderController from "./activities/surah_order_controller";
+application.register("activities--surah-order", SurahOrderController);
+
+import FaqController from "./faq_controller";
 application.register("faq", FaqController);
 
-import LazyLoadController from './lazy_load_controller';
+import LazyLoadController from "./lazy_load_controller";
 application.register("lazy-load", LazyLoadController);
 
-import ZoomImageController from './zoom_image_controller';
+import ZoomImageController from "./zoom_image_controller";
 application.register("zoom-image", ZoomImageController);
 
-import TajweedAnnotatorController from './tajweed_annotator_controller';
+import TajweedAnnotatorController from "./tajweed_annotator_controller";
 application.register("tajweed-annotator", TajweedAnnotatorController);
 
-import ChapterVersesFilterController from './chapter_verses_filter_controller';
+import ChapterVersesFilterController from "./chapter_verses_filter_controller";
 application.register("chapter-verses-filter", ChapterVersesFilterController);
 
-import DraggableScrollController from './draggable_scroll_controller';
-application.register('draggable-scroll', DraggableScrollController);
+import DraggableScrollController from "./draggable_scroll_controller";
+application.register("draggable-scroll", DraggableScrollController);
 
-import FilterAyahController from './filter_ayah_controller';
+import FilterAyahController from "./filter_ayah_controller";
 application.register("filter-ayah", FilterAyahController);
 
-import ProofreadingViewSwitcher from './proofreading_view_switcher_controller';
+import ProofreadingViewSwitcher from "./proofreading_view_switcher_controller";
 application.register("proofreading-view-switcher", ProofreadingViewSwitcher);
 
-import UpdateMushafPageController from './update_mushaf_page_controller';
+import UpdateMushafPageController from "./update_mushaf_page_controller";
 application.register("update-mushaf-page", UpdateMushafPageController);
 
-import RunableWidgetController from './runable_widget_controller';
+import RunableWidgetController from "./runable_widget_controller";
 application.register("runable-widget", RunableWidgetController);
 
-import EventTrackerController from "./event_tracker_controller"
+import EventTrackerController from "./event_tracker_controller";
 application.register("event-tracker", EventTrackerController);
 
-
-import SurahSegmentPlayerController from "./surah_segment_player_controller"
-import AyahSegmentPlayerController from "./ayah_segment_player_controller"
+import SurahSegmentPlayerController from "./surah_segment_player_controller";
+import AyahSegmentPlayerController from "./ayah_segment_player_controller";
 
 application.register("ayah-segment-player", AyahSegmentPlayerController);
 application.register("surah-segment-player", SurahSegmentPlayerController);
 
-import SegmentsTimelineController from './segments/timeline_controller';
+import SyntaxGraphController from "./syntax_graph_controller";
+application.register("syntax-graph", SyntaxGraphController);
+
+import SyntaxGraphDownloadController from "./syntax_graph_download_controller";
+application.register("syntax-graph-download", SyntaxGraphDownloadController);
+
+import GraphBulkEditController from "./graph_bulk_edit_controller";
+application.register("graph-bulk-edit", GraphBulkEditController);
+
+import GraphSettingsController from "./graph_settings_controller";
+application.register("graph-settings", GraphSettingsController);
+
+import GraphSplitterController from "./graph_splitter_controller";
+application.register("graph-splitter", GraphSplitterController);
+
+import PopoverController from "./popover_controller";
+application.register("popover", PopoverController);
+import SegmentsTimelineController from "./segments/timeline_controller";
 application.register("segments--timeline", SegmentsTimelineController);
 
-import SegmentFailurePlayerController from './segments/failure_player_controller';
-application.register("segments--failure-player", SegmentFailurePlayerController);
+import SegmentFailurePlayerController from "./segments/failure_player_controller";
+application.register(
+  "segments--failure-player",
+  SegmentFailurePlayerController
+);
 
-import TabsController from './tabs_controller';
+import TabsController from "./tabs_controller";
 application.register("tabs", TabsController);
 
-import FontPreviewController from './font_preview_controller';
+import FontPreviewController from "./font_preview_controller";
 application.register("font-preview", FontPreviewController);
 
-import PageSearchController from './page_search_controller.js';
+import AyahTranslationSelectorController from "./ayah_translation_selector_controller";
+application.register("ayah-translation-selector", AyahTranslationSelectorController);
+
+import AyahTafsirSelectorController from "./ayah_tafsir_selector_controller";
+application.register("ayah-tafsir-selector", AyahTafsirSelectorController);
+
+import AyahJumpController from "./ayah_jump_controller";
+application.register("ayah-jump", AyahJumpController);
+
+import AyahWordTranslationSelectorController from "./ayah_word_translation_selector_controller";
+application.register("ayah-word-translation-selector", AyahWordTranslationSelectorController);
+
+import AyahScriptSelectorController from "./ayah_script_selector_controller";
+application.register("ayah-script-selector", AyahScriptSelectorController);
+
+import AyahTransliterationSelectorController from "./ayah_transliteration_selector_controller";
+application.register("ayah-transliteration-selector", AyahTransliterationSelectorController);
+
+import AyahRecitationSelectorController from "./ayah_recitation_selector_controller";
+application.register("ayah-recitation-selector", AyahRecitationSelectorController);
+
+import PageSearchController from "./page_search_controller.js";
 application.register("page-search", PageSearchController);
 
 import LiveSearchController from './live_search_controller.js';
 application.register("live-search", LiveSearchController);
+import MistakeHeatmapController from "./mistake_heatmap_controller.js";
+application.register("mistake-heatmap", MistakeHeatmapController);
+
+import CollapseController from "./collapse_controller.js";
+application.register("collapse", CollapseController);
+
+import OffcanvasResetController from "./offcanvas_reset_controller.js";
+application.register("offcanvas-reset", OffcanvasResetController);
+
+import OffcanvasController from "./offcanvas_controller.js";
+application.register("offcanvas", OffcanvasController);

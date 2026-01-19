@@ -7,18 +7,18 @@
   page_number = @predicted_page
 
   if @access
-    actions << link_to('Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'btn btn-success')
+    actions << link_to('Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors')
   end
 
   if (prev_ayah)
-    actions << link_to('Previous ayah', arabic_transliteration_path(prev_ayah.id), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', arabic_transliteration_path(prev_ayah.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
 
   if (next_ayah)
-    actions << link_to('Next ayah', arabic_transliteration_path(next_ayah.id), class: 'btn btn-dark')
+    actions << link_to('Next ayah', arabic_transliteration_path(next_ayah.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
 
-  actions << link_to('Back to filter', arabic_transliterations_path, class: 'btn btn-info')
+  actions << link_to('Back to filter', arabic_transliterations_path, class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',

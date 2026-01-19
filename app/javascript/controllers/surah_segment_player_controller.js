@@ -20,8 +20,10 @@ export default class extends SegmentPlayer {
 
   playAyah(key) {
     const segment = this.segmentsData[key]
-    if (segment)
+    if (segment) {
       this.player.seek(segment.time_from / 1000);
+      this.playWindowEndMs = segment.time_to;
+    }
   }
 
   findAyahKeyAtTime(time) {

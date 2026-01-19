@@ -27,3 +27,10 @@
 <%= turbo_stream.replace 'flash-messages' do %>
   <%= render 'shared/flash_notices' %>
 <% end %>
+
+<%= turbo_stream.append "turbo-script-container" do %>
+  <script>
+    document.dispatchEvent(new CustomEvent('ajax-modal:close'));
+    this.parentElement.removeChild(this);
+  </script>
+<% end %>

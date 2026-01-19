@@ -3,7 +3,7 @@
 %>
 
 <%= turbo_frame_tag 'lines-info' do %>
-  <div class="tw-text-center mx-3 my-3">
+  <div class="tw-text-center mx-3 tw-my-3">
     <h4>Line alignment(page: <%= page_number %>)</h4>
     <% 1.upto(@mushaf.lines_per_page) do |line| %>
       <div id="page-<%= page_number %>-line-<%= line %>">
@@ -12,15 +12,15 @@
         %>
 
         <%= form_with model: model, url: save_line_alignment_mushaf_layout_path(@mushaf, line: line, page_number: page_number), method: :put, html: { class: 'form-inline' } do |form| %>
-          <div class="tw-flex my-2">
+          <div class="tw-flex tw-my-2">
             <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm">
               <%= line %>
             </a>
 
-            <%= form.submit "C", title: 'Center aligned', class: "mx-2 btn btn-sm #{ model.is_center_aligned? ? 'btn-success' : 'btn-dark'}", disabled: !@access,  data: {controller: 'tooltip'} %>
-            <%= form.submit "J", title: 'Justify line', class: "mx-2 btn btn-sm #{ model.is_justified? ? 'btn-success' : 'btn-dark'}",  disabled: !@access, data: {controller: 'tooltip'} %>
-            <%= form.submit "B", title: 'Bismillah', class: "mx-2 btn btn-sm #{ model.is_bismillah? ? 'btn-success' : 'btn-dark'}", disabled: !@access, data: {controller: 'tooltip'} %>
-            <%= form.submit "N", title: 'Surah name', class: "mx-2 btn btn-sm #{ model.is_surah_name? ? 'btn-success' : 'btn-dark'}", disabled: !@access, data: {controller: 'tooltip'} %>
+            <%= form.submit "C", title: 'Center aligned', class: "tw-mx-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-rounded tw-transition-colors #{ model.is_center_aligned? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white'}", disabled: !@access,  data: {controller: 'tooltip'} %>
+            <%= form.submit "J", title: 'Justify line', class: "tw-mx-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-rounded tw-transition-colors #{ model.is_justified? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white'}",  disabled: !@access, data: {controller: 'tooltip'} %>
+            <%= form.submit "B", title: 'Bismillah', class: "tw-mx-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-rounded tw-transition-colors #{ model.is_bismillah? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white'}", disabled: !@access, data: {controller: 'tooltip'} %>
+            <%= form.submit "N", title: 'Surah name', class: "tw-mx-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-rounded tw-transition-colors #{ model.is_surah_name? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white'}", disabled: !@access, data: {controller: 'tooltip'} %>
           </div>
         <% end %>
       </div>

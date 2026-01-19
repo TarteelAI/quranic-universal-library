@@ -1,11 +1,11 @@
 <div class="page-section tw-mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
     <%= hidden_field_tag :proofread, true %>
-    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-end tw-flex-wrap">
+    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-start tw-flex-wrap">
       <%= render 'shared/filters' %>
 
-      <div class="tw-mb-4 tw-flex tw-items-center align-content-center align-self-start">
-        <%= submit_tag 'Filter', class: 'btn btn-primary me-3', data: { disable_with: 'Please wait..' } %>
+      <div class="tw-mb-4 tw-flex tw-items-center">
+        <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
         <%= link_to 'Clear', morphology_phrases_path(proofread: true) if has_filters?(:filter_chapter, :filter_verse) %>
       </div>
     </div>
@@ -34,14 +34,14 @@
 
         <td class="tw-py-2">
           <div class="d-grid tw-gap-1">
-            <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
+            <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
           </div>
         </td>
       </tr>
     <% end %>
     <tr>
       <td colspan="4">
-        <%= safe_html pagy_bootstrap_nav(@pagy) %>
+        <%= safe_html pagy_nav_tailwind(@pagy) %>
       </td>
 
       <td colspan="2">

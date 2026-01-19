@@ -6,36 +6,30 @@
   ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
   script_class = get_quran_script_font_family(text_type, ayah) || 'qpc-hafs'
   by_word = resource_content.word?
-  is_image = [
-    'qa_tajweed_image',
-    'qa_black_image',
-    'rq_tajweed_image',
-    'svg_tajweed',
-    'v4_tajweed_image'
-  ].include?(text_type)
+  is_image = text_type.include?('image')
 %>
 
 <%= render 'shared/page_font', verses: [ayah] %>
 
-<div class="tw-mt-5">
-  <ul class="nav nav-tabs" id="quran-script-tab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
+<div class="tw-mt-5" data-controller="tabs">
+  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="quran-script-tab" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-preview"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-preview-pane"
+              data-action="click->tabs#switch"
+              data-tabs-target-value="tab-preview-pane"
               type="button"
               role="tab"
               aria-controls="tab-preview-pane"
               aria-selected="true">
-        <%= resource.name %> Preview
+        Preview
       </button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
+    <li class="tw-m-0 tw-flex-none" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-help-pane"
+              data-action="click->tabs#switch"
+              data-tabs-target-value="tab-help-pane"
               type="button"
               role="tab"
               aria-controls="tab-help-pane"
@@ -50,24 +44,48 @@
          id="tab-preview-pane"
          role="tabpanel"
          aria-labelledby="tab-preview" tabindex="0">
-      <div class="tw-mt-4">
-        <p class="tw-text-sm tw-text-gray-600 tw-mb-2">
-          <% if by_word %>
-            Preview of words from Surah <%= ayah.chapter.name_simple %>, Ayah <%= ayah.verse_number %>
-          <% else %>
-            Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
-          <% end %>
-        </p>
+      <div class="tw-space-y-6">
+        <h2 class="tw-text-xl tw-font-semibold tw-mt-4">
+          <%= resource.name %> preview of Surah <%= ayah.chapter.name_simple %> ayah <%= ayah.verse_number %>
+        </h2>
 
-        <div class="tw-border tw-border-gray-300 tw-p-3 tw-text-center tw-rounded quran-text <%= script_class %>" data-controller="tajweed-highlight">
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
+          <div class="tw-flex tw-items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+            <%= select_tag :ayah,
+                           [],
+                           onchange: "jumpToAyah(this.value)",
+                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           style: 'min-width: 220px',
+                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+          </div>
+
+          <div class="tw-flex tw-gap-2">
+            <% if ayah.previous_ayah %>
+              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                ← Previous
+              <% end %>
+            <% end %>
+
+            <% if ayah.next_ayah %>
+              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+                Next →
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <% if by_word %>
-            <div class="tw-flex tw-flex-wrap tw-gap-2">
+            <div class="tw-flex tw-flex-wrap tw-gap-2 quran-text">
               <% ayah.words.each_with_index do |word, index| %>
                 <span class="tw-px-4 tw-py-2 tw-border tw-border-gray-300 word">
                   <% if is_image %>
-                    <img src="<%= word.read_attribute("#{text_type}_url") %>" alt="<%= word.location %>"/>
+                    <img src="<%= word.send(text_type) %>" alt="<%= word.location %>"/>
                   <% else %>
-                    <%= safe_html word.read_attribute(text_type) %>
+                    <div class="<%= script_class %>">
+                      <%= safe_html word.read_attribute(text_type) %>
+                    </div>
                   <% end %>
                 </span>
               <% end %>
@@ -75,10 +93,10 @@
           <% else %>
             <% if is_image %>
               <div>
-                <img src="<%= ayah.send("#{text_type}_url") %>" alt="<%= ayah.verse_key %>"/>
+                <img src="<%= ayah.send(text_type) %>" alt="<%= ayah.verse_key %>"/>
               </div>
             <% else %>
-              <div>
+              <div class="<%= script_class %>">
                 <%= safe_html ayah.read_attribute(text_type) %>
               </div>
             <% end %>
@@ -87,7 +105,7 @@
       </div>
     </div>
 
-    <div class="tab-pane"
+    <div class="tab-pane tw-hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-help" tabindex="1">
@@ -95,7 +113,7 @@
         <h2 class="tw-text-xl tw-font-bold"><%= resource.name %> Resource</h2>
 
         <p class="tw-text-sm tw-text-gray-700">
-          This resource provides <strong>Quranic script</strong> in <%= resource.name %> format. 
+          This resource provides <strong>Quranic script</strong> in <%= resource.name %> format.
           <% if is_image %>
             The script is rendered as high-quality images for optimal display and printing.
           <% else %>
@@ -105,26 +123,26 @@
 
         <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Sample JSON</h3>
         <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-sm tw-font-mono tw-whitespace-pre overflow-x-auto">
-{
-  "1:1": {
-    "verse_key": "1:1",
-    "text": "<%= is_image ? '[Image URL]' : 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ' %>",
-    "script_type": "<%= text_type %>",
-    "font_family": "<%= script_class %>",
-    <% if by_word %>
-    "words": [
-      {
-        "position": 1,
-        "text": "<%= is_image ? '[Word Image URL]' : 'بِسۡمِ' %>",
-        "location": "1:1:1"
-      }
-    ],
-    <% end %>
-    "page_number": 1,
-    "juz_number": 1,
-    "hizb_number": 1
-  }
-}
+          {
+          "1:1": {
+          "verse_key": "1:1",
+          "text": "<%= is_image ? '[Image URL]' : 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ' %>",
+          "script_type": "<%= text_type %>",
+          "font_family": "<%= script_class %>",
+          <% if by_word %>
+            "words": [
+            {
+            "position": 1,
+            "text": "<%= is_image ? '[Word Image URL]' : 'بِسۡمِ' %>",
+            "location": "1:1:1"
+            }
+            ],
+          <% end %>
+          "page_number": 1,
+          "juz_number": 1,
+          "hizb_number": 1
+          }
+          }
         </div>
 
         <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Field Descriptions</h3>
@@ -165,32 +183,32 @@
               <td class="tw-px-4 tw-py-2">CSS font family for proper rendering (<code><%= script_class %></code>)</td>
             </tr>
             <% if by_word %>
-            <tr>
-              <td class="tw-px-4 tw-py-2">words</td>
-              <td class="tw-px-4 tw-py-2">Array</td>
-              <td class="tw-px-4 tw-py-2">Array of word objects with individual word text/images</td>
-            </tr>
-            <tr>
-              <td class="tw-px-4 tw-py-2">words[].position</td>
-              <td class="tw-px-4 tw-py-2">Integer</td>
-              <td class="tw-px-4 tw-py-2">Position of the word within the verse</td>
-            </tr>
-            <tr>
-              <td class="tw-px-4 tw-py-2">words[].text</td>
-              <td class="tw-px-4 tw-py-2">String</td>
-              <td class="tw-px-4 tw-py-2">
-                <% if is_image %>
-                  URL to the individual word image
-                <% else %>
-                  Unicode text of the individual word
-                <% end %>
-              </td>
-            </tr>
-            <tr>
-              <td class="tw-px-4 tw-py-2">words[].location</td>
-              <td class="tw-px-4 tw-py-2">String</td>
-              <td class="tw-px-4 tw-py-2">Word location in format <code>surah:ayah:word</code></td>
-            </tr>
+              <tr>
+                <td class="tw-px-4 tw-py-2">words</td>
+                <td class="tw-px-4 tw-py-2">Array</td>
+                <td class="tw-px-4 tw-py-2">Array of word objects with individual word text/images</td>
+              </tr>
+              <tr>
+                <td class="tw-px-4 tw-py-2">words[].position</td>
+                <td class="tw-px-4 tw-py-2">Integer</td>
+                <td class="tw-px-4 tw-py-2">Position of the word within the verse</td>
+              </tr>
+              <tr>
+                <td class="tw-px-4 tw-py-2">words[].text</td>
+                <td class="tw-px-4 tw-py-2">String</td>
+                <td class="tw-px-4 tw-py-2">
+                  <% if is_image %>
+                    URL to the individual word image
+                  <% else %>
+                    Unicode text of the individual word
+                  <% end %>
+                </td>
+              </tr>
+              <tr>
+                <td class="tw-px-4 tw-py-2">words[].location</td>
+                <td class="tw-px-4 tw-py-2">String</td>
+                <td class="tw-px-4 tw-py-2">Word location in format <code>surah:ayah:word</code></td>
+              </tr>
             <% end %>
             <tr>
               <td class="tw-px-4 tw-py-2">page_number</td>
@@ -220,7 +238,7 @@
   direction: rtl;
   text-align: right;
 }</pre>
-          
+
           <h4 class="tw-text-sm tw-font-semibold tw-mt-4 tw-mb-2">JavaScript Usage</h4>
           <pre class="tw-text-xs tw-font-mono tw-whitespace-pre-wrap">// Fetch verse data
 fetch('/api/v1/verses/1:1.json')

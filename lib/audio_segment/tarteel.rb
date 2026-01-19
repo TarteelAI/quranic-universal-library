@@ -47,6 +47,7 @@ module AudioSegment
 
       root_tmp = File.join(File.dirname(file_path), "json_export_#{Time.now.to_i}")
       FileUtils.mkdir_p(root_tmp)
+
       recitations.each do |recitation|
         reciter_dir = File.join(root_tmp, file_label, recitation.id.to_s)
         FileUtils.mkdir_p(reciter_dir)
@@ -54,7 +55,7 @@ module AudioSegment
         export_gapless_recitation_jsons(recitation, reciter_dir)
       end
 
-      master_zip = file_path
+      master_zip = "#{file_path}.zip"
       Zip::File.open(master_zip, Zip::File::CREATE) do |zipfile|
         Dir[File.join(root_tmp, '**', '**')].each do |f|
           next if File.directory?(f)
@@ -99,7 +100,7 @@ module AudioSegment
       audio_files = recitation.audio_files.order("verse_id ASC")
 
       audio_files.map do |file|
-        segments = file.get_segments
+        segments = get_ayah_segments(file)
 
         segments.each_with_index do |segment, i|
           if segment.length != 3
@@ -131,7 +132,7 @@ module AudioSegment
                    .includes(:verse)
 
       segments.map do |segment|
-        ayah_segments = segment.get_segments
+        ayah_segments = get_ayah_segments(segment)
         verse = segment.verse
 
         ayah_segments.each_with_index do |segment, i|
@@ -190,12 +191,13 @@ module AudioSegment
 
       grouped.each do |chapter_id, segs|
         json_ayahs = []
+        last_ayah_end = nil
 
         segs.each do |seg|
-          ayah_segments = seg.get_segments
+          ayah_segments = get_ayah_segments(seg)
           verse = seg.verse
 
-            ayah_segments.each_with_index do |s, i|
+          ayah_segments.each_with_index do |s, i|
             if s.length != 3
               @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
             end
@@ -205,12 +207,20 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
           end
 
+          start_time = if last_ayah_end
+                          last_ayah_end + 1
+                        else
+                          seg.timestamp_from.to_i
+                       end
+
           json_ayahs << {
             ayah: verse.verse_number,
-            start: seg.timestamp_from.to_i,
+            start: start_time,
             end: seg.timestamp_to.to_i,
             words: ayah_segments
           }
+
+          last_ayah_end = seg.timestamp_to.to_i
         end
 
         json_filename = format("%03d.json", chapter_id)
@@ -271,6 +281,10 @@ module AudioSegment
       FileUtils::mkdir_p file_path
 
       "#{file_path}/#{file_name}"
+    end
+
+    def get_ayah_segments(seg)
+      seg.get_segments(drop_metadata: true)
     end
   end
 end

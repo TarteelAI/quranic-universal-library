@@ -15,7 +15,7 @@
     actions << link_to('Next ayah', word_translation_path(next_ayah.id, language: params[:language]), class: 'tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors')
   end
 
-  actions << link_to('Back to filter', word_translations_path(language: params[:language]), class: 'tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors')
+  actions << link_to('Back to filter', word_translations_path(language: params[:language]), class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',

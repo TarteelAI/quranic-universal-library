@@ -1,7 +1,7 @@
 
 <%
   phrase_verses = @phrase.phrase_verses.includes(verse: :words)
-  phrase_style = "style=\"color: #{@phrase.get_color}\"".html_safe
+  phrase_style = "style='color: #{@phrase.get_color}'".html_safe
 %>
 
 <% if params[:modal] %>

@@ -1,67 +1,79 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["menu", "icon"]
+  static targets = ["menu"]
+  static values = {
+    open: Boolean
+  }
 
   connect() {
-    this.clickOutsideHandler = this.clickOutside.bind(this)
-    this.element.dropdown = this
+    this.openValue = false
+    this.setupClickOutside()
   }
 
   disconnect() {
-    document.removeEventListener("click", this.clickOutsideHandler)
-    delete this.element.dropdown
+    this.removeClickOutside()
   }
 
   toggle(event) {
     event.preventDefault()
     event.stopPropagation()
-    
-    const menu = this.menuTarget
-    const button = event.currentTarget
-    
-    if (menu.classList.contains("tw-hidden")) {
-      this.closeAllOtherDropdowns()
-      
-      menu.classList.remove("tw-hidden")
-      button.setAttribute("aria-expanded", "true")
-      if (this.hasIconTarget) this.iconTarget.style.transform = "rotate(180deg)"
+    this.openValue = !this.openValue
+  }
 
-      setTimeout(() => {
-        document.addEventListener("click", this.clickOutsideHandler)
-      }, 0)
+  openValueChanged() {
+    if (this.openValue) {
+      this.show()
     } else {
-      this.close()
+      this.hide()
     }
+  }
+
+  show() {
+    this.closeAllOtherDropdowns()
+    if (this.hasMenuTarget) {
+      this.menuTarget.classList.remove('tw-hidden')
+      this.menuTarget.classList.add('tw-block')
+    }
+    this.element.classList.add('tw-relative')
   }
 
   closeAllOtherDropdowns() {
     const allDropdowns = document.querySelectorAll('[data-controller*="dropdown"]')
     allDropdowns.forEach(dropdownElement => {
-      if (dropdownElement !== this.element && dropdownElement.dropdown) {
-        dropdownElement.dropdown.close()
+      if (dropdownElement !== this.element) {
+        try {
+          const controller = this.application.getControllerForElementAndIdentifier(dropdownElement, 'dropdown')
+          if (controller && controller.openValue) {
+            controller.openValue = false
+          }
+        } catch (e) {
+        }
       }
     })
   }
 
-  close() {
-    const menu = this.menuTarget
-    const button = this.element.querySelector('[aria-expanded]')
-    
-    if (!menu.classList.contains("tw-hidden")) {
-      menu.classList.add("tw-hidden")
-      if (button) {
-        button.setAttribute("aria-expanded", "false")
-      }
-      if (this.hasIconTarget) this.iconTarget.style.transform = "rotate(0deg)"
-      document.removeEventListener("click", this.clickOutsideHandler)
+  hide() {
+    if (this.hasMenuTarget) {
+      this.menuTarget.classList.add('tw-hidden')
+      this.menuTarget.classList.remove('tw-block')
     }
   }
 
-  clickOutside(event) {
+  hideOnClick(event) {
     if (!this.element.contains(event.target)) {
-      this.close()
+      this.openValue = false
+    }
+  }
+
+  setupClickOutside() {
+    this.boundHideOnClick = this.hideOnClick.bind(this)
+    document.addEventListener('click', this.boundHideOnClick)
+  }
+
+  removeClickOutside() {
+    if (this.boundHideOnClick) {
+      document.removeEventListener('click', this.boundHideOnClick)
     }
   }
 }
-

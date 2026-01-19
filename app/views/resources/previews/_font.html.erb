@@ -1,29 +1,48 @@
-<script src="https://cdn.jsdelivr.net/npm/opentype.js/dist/opentype.min.js"></script>
 <%
   resource_content = resource.resource_content
   sample_text = resource_content.meta_value('text')
   font_face = resource_content.meta_value('font-face')
-  font_path = resource_content.meta_value('ttf')
+  
+  font_base_path = resource_content.meta_value('ttf')
+  font_format = 'ttf'
+  font_extension = '.ttf'
+  
+  unless font_base_path.present?
+    font_base_path = resource_content.meta_value('woff2')
+    font_format = 'woff2'
+    font_extension = '.woff2'
+  end
+  
+  unless font_base_path.present?
+    font_base_path = resource_content.meta_value('woff')
+    font_format = 'woff'
+    font_extension = '.woff'
+  end
+  
+  unless font_base_path.present?
+    font_base_path = resource_content.meta_value('otf')
+    font_format = 'otf'
+    font_extension = '.otf'
+  end
+
   ligatures = resource_content.meta_value('ligatures')
 
   if ligatures.present?
     ligatures = Oj.load(ligatures)
   end
 
-  font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_path}.ttf"
+  font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}#{font_extension}"
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-<!-- Preload font for faster loading -->
 <link rel="preload" href="<%= font_url %>" as="fetch" crossorigin="anonymous">
 
-
-  <ul class="nav nav-tabs" id="font-docs-tab" role="tablist">
-    <li class="tw-m-0" role="presentation">
+<div class="tw-mt-5" data-controller="tabs">
+  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="font-docs-tab" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-docs-pane"
+              data-action="click->tabs#switch"
+              data-tabs-target-value="tab-docs-pane"
               type="button"
               role="tab"
               aria-controls="tab-docs-pane"
@@ -31,12 +50,13 @@
         Documentation
       </button>
     </li>
+
     <% if ligatures.present? %>
-      <li class="tw-m-0" role="presentation">
+      <li class="tw-m-0 tw-flex-none" role="presentation">
         <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
                 id="tab-ligatures"
-                data-bs-toggle="tab"
-                data-bs-target="#tab-ligatures-pane"
+                data-action="click->tabs#switch"
+                data-tabs-target-value="tab-ligatures-pane"
                 type="button" role="tab"
                 aria-controls="tab-ligatures-pane"
                 aria-selected="false">
@@ -44,11 +64,12 @@
         </button>
       </li>
     <% end %>
-    <li class="tw-m-0" role="presentation">
+
+    <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-glyphs"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-glyphs-pane"
+              data-action="click->tabs#switch"
+              data-tabs-target-value="tab-glyphs-pane"
               type="button" role="tab"
               aria-controls="tab-glyphs-pane"
               aria-selected="false">
@@ -60,6 +81,7 @@
   <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content" 
        data-controller="font-preview"
        data-font-preview-font-url-value="<%= font_url %>"
+       data-font-preview-font-format-value="<%= font_format %>"
        data-font-preview-font-face-value="<%= font_face %>"
        data-font-preview-sample-text-value="<%= sample_text %>">
     <div class="tab-pane fade show active"
@@ -103,7 +125,7 @@
             <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-overflow-auto tw-text-sm"><code>
 @font-face {
   font-family: '<%= font_face %>';
-  src: url('<%= font_url %>');
+  src: url('<%= font_url %>') format('<%= font_format == 'woff2' ? 'woff2' : font_format == 'woff' ? 'woff' : font_format == 'otf' ? 'opentype' : 'truetype' %>');
   font-display: swap;
 }
       </code></pre>
@@ -167,7 +189,7 @@
     </div>
 
     <% if ligatures.present? %>
-      <div class="tab-pane fade"
+      <div class="tab-pane fade tw-hidden"
            id="tab-ligatures-pane"
            role="tabpanel"
            aria-labelledby="tab-ligatures" tabindex="0">
@@ -209,7 +231,7 @@
       </div>
     <% end %>
 
-    <div class="tab-pane fade"
+    <div class="tab-pane fade tw-hidden"
          id="tab-glyphs-pane"
          role="tabpanel"
          aria-labelledby="tab-glyphs" tabindex="0">
@@ -233,7 +255,8 @@
   <style>
       @font-face {
           font-family: '<%= font_face %>';
-          src: url('<%= font_url %>');
+          src: url('<%= font_url %>') format('<%= font_format == 'woff2' ? 'woff2' : font_format == 'woff' ? 'woff' : font_format == 'otf' ? 'opentype' : 'truetype' %>');
+          font-display: swap;
       }
 
       #glyphs div, #sample-text, .ligature-preview {

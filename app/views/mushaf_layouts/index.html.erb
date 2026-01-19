@@ -37,7 +37,7 @@
               <td class="tw-py-2"><%= m.default_font_name %></td>
               <td class="tw-py-2"><%= m.qirat_type&.name %></td>
               <td class="tw-py-2">
-                <%= link_to 'Show', mushaf_layout_path(m.id), class: 'btn btn-success btn-sm', data: {turbo_frame: '_top'} %>
+                <%= link_to 'Show', mushaf_layout_path(m.id), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: {turbo_frame: '_top'} %>
               </td>
             </tr>
           <% end %>

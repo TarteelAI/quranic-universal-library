@@ -1,5 +1,4 @@
 import {Controller} from "@hotwired/stimulus"
-import {Tooltip} from "bootstrap";
 
 const TAJWEED_RULE_DESCRIPTION = {
   ham_wasl: "Hamzat ul Wasl",
@@ -75,15 +74,19 @@ export default class extends Controller {
 
     return null;
   }
+  
   bindTajweedTooltip() {
     const keys = Object.keys(TAJWEED_RULE_DESCRIPTION);
-    keys.forEach((name, i) => {
-      this.element.querySelectorAll(`.${name}`).forEach((elem, _) => {
-        new Tooltip(elem, {
-          direction: "top",
-          title: TAJWEED_RULE_DESCRIPTION[name],
-          sanitize: false
-        });
+    keys.forEach((name) => {
+      this.element.querySelectorAll(`.${name}`).forEach((elem) => {
+        const existingControllers = elem.getAttribute('data-controller') || '';
+        const controllers = existingControllers.split(' ').filter(c => c.trim());
+        if (!controllers.includes('tooltip')) {
+          controllers.push('tooltip');
+          elem.setAttribute('data-controller', controllers.join(' '));
+        }
+        elem.setAttribute('title', TAJWEED_RULE_DESCRIPTION[name]);
+        elem.setAttribute('data-tooltip-placement-value', 'top');
       })
     })
   }

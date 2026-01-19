@@ -1,0 +1,135 @@
+<div class="tw-fixed tw-inset-0 tw-z-50 tw-overflow-y-auto tw-hidden" 
+     id="graph-settings-modal" 
+     tabindex="-1" 
+     aria-labelledby="graph-settings-modal-label" 
+     aria-hidden="true"
+     data-graph-settings-target="modal">
+  <!-- Backdrop -->
+  <div class="tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity" data-action="click->graph-settings#hideModal"></div>
+  <div class="tw-flex tw-min-h-full tw-items-center tw-justify-center tw-p-4">
+    <div class="tw-relative tw-bg-white tw-rounded-lg tw-shadow-xl tw-w-full tw-max-w-6xl tw-max-h-[90vh] tw-overflow-hidden">
+      <div class="tw-flex tw-items-center tw-justify-between tw-p-4 tw-border-b">
+        <h5 class="tw-text-lg tw-font-semibold" id="graph-settings-modal-label">Graph Display Settings</h5>
+        <button type="button" class="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 hover:tw-text-gray-900 tw-bg-transparent hover:tw-bg-gray-200 tw-rounded-lg tw-p-1.5 tw-inline-flex tw-items-center tw-justify-center tw-transition-colors" data-action="click->graph-settings#hideModal" aria-label="Close">
+          <svg class="tw-w-5 tw-h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="tw-p-4 tw-overflow-y-auto" style="max-height: calc(90vh - 120px);">
+        <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-5 tw-gap-4 tw-mb-4">
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Arabic Font Size</label>
+            <input type="number" id="setting-token-font-size" value="34" min="10" max="60" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphTokenFontSize">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">POS Tag Font Size</label>
+            <input type="number" id="setting-tag-font-size" value="12" min="8" max="30" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphTagFontSize">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Header Font Size</label>
+            <input type="number" id="setting-header-font-size" value="10" min="8" max="24" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphHeaderFontSize">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Elided Word Font Size</label>
+            <input type="number" id="setting-elided-font-size" value="22" min="10" max="40" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphElidedWordFontSize">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Edge Label Font Size</label>
+            <input type="number" id="setting-edge-label-font-size" value="13" min="8" max="24" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphEdgeLabelFontSize">
+          </div>
+        </div>
+
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mb-4">
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Header Line Spacing</label>
+            <input type="number" id="setting-header-line-gap" value="15" min="0" max="60"
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphHeaderTextDeltaY">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">POS Tag Gap</label>
+            <input type="number" id="setting-pos-tag-gap" value="25" min="0" max="100"
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphPosTagGap">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Bracket Offset (Y)</label>
+            <input type="number" id="setting-bracket-delta-y" value="16" min="0" max="60"
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphBracketDeltaY">
+          </div>
+        </div>
+
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mb-4">
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Word Gap</label>
+            <input type="number" id="setting-word-gap" value="63" min="0" max="200"
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphWordGap">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Arabic Y Offset</label>
+            <input type="number" id="setting-header-extra-gap" value="10" min="0" max="60"
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphHeaderExtraGap">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">POS Tag Y Offset</label>
+            <input type="number" id="setting-pos-tag-y-offset" value="65" min="0" max="200"
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="syntaxGraphPosTagYOffset">
+          </div>
+        </div>
+
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mb-4">
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Default Font</label>
+            <input type="text" id="setting-default-font" value="Helvetica Neue, Arial, sans-serif" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="defaultFont">
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Arabic Font</label>
+            <%= select_tag :arabic_font,
+                            options_for_select(
+                            [["Select", ""]] + arabic_fonts_options,
+                            params[:arabic_font]
+                            ),
+                            id: "setting-arabic-font",
+                            data: { setting: "defaultArabicFont" },
+                            class: "tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm" %>
+          </div>
+          <div>
+            <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-1">Elided Word Font</label>
+            <input type="text" id="setting-elided-word-font" value="Arial, sans-serif" 
+                   class="tw-w-full tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm"
+                   data-setting="elidedWordFont">
+          </div>
+        </div>
+      </div>
+      <div class="tw-flex tw-items-center tw-justify-end tw-gap-2 tw-p-4 tw-border-t">
+        <div class="tw-flex tw-gap-2">
+          <button type="button" id="apply-graph-settings" data-action="click->graph-settings#apply click->graph-settings#hideModal"
+                  class="tw-px-3 tw-py-1.5 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700">
+            Apply Settings
+          </button>
+          <button type="button" id="reset-graph-settings" data-action="click->graph-settings#reset click->graph-settings#hideModal"
+                  class="tw-px-3 tw-py-1.5 tw-bg-gray-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-600">
+            Reset to Defaults
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

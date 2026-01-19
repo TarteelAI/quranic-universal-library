@@ -92,7 +92,7 @@
           <% top_words.each_with_index do |word_data, index| %>
             <tr class="tw-border-b hover:tw-bg-gray-50">
               <td class="tw-p-2">
-                <span class="badge tw-bg-blue-500"><%= index + 1 %></span>
+                <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-blue-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= index + 1 %></span>
               </td>
               <td class="tw-p-2">
                 <span class="qpc-hafs">
@@ -101,7 +101,7 @@
               </td>
 
               <td class="tw-p-2">
-                <span class="badge tw-bg-red-500"><%= word_data[:fail_count] %></span>
+                <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= word_data[:fail_count] %></span>
               </td>
 
               <td class="tw-p-2">
@@ -124,7 +124,7 @@
               <td class="tw-p-2">
                 <div class="tw-max-w-xs">
                   <% word_data[:reciter_ids].first(3).each do |reciter_id| %>
-                    <span class="badge tw-bg-gray-600 tw-mr-1 tw-mb-1"><%= reciter_id %></span>
+                    <span class="tw-mr-1 tw-mb-1 tw-inline-flex tw-items-center tw-rounded-full tw-bg-gray-600 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= reciter_id %></span>
                   <% end %>
 
                   <% if word_data[:reciter_ids].length > 5 %>
@@ -138,7 +138,7 @@
               <td class="tw-p-2">
                 <div class="tw-max-w-xs">
                   <% word_data[:surahs].first(3).each do |reciter_id| %>
-                    <span class="badge tw-bg-gray-600 tw-mr-1 tw-mb-1"><%= reciter_id %></span>
+                    <span class="tw-mr-1 tw-mb-1 tw-inline-flex tw-items-center tw-rounded-full tw-bg-gray-600 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= reciter_id %></span>
                   <% end %>
 
                   <% if word_data[:surahs].length > 5 %>
@@ -151,16 +151,16 @@
 
               <td class="tw-p-2">
                 <% word_data[:mistake_types].each do |type| %>
-                  <span class="badge tw-bg-yellow-500 tw-mr-1 tw-mb-1"><%= type %></span>
+                  <span class="tw-mr-1 tw-mb-1 tw-inline-flex tw-items-center tw-rounded-full tw-bg-yellow-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= type %></span>
                 <% end %>
               </td>
 
               <td class="tw-p-2">
-                <span class="badge tw-bg-green-500"><%= word_data[:corrected_count] %></span>
+                <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-green-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= word_data[:corrected_count] %></span>
               </td>
 
               <td class="tw-p-2">
-                <span class="badge tw-bg-red-500"><%= word_data[:pending_count] %></span>
+                <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= word_data[:pending_count] %></span>
               </td>
             </tr>
           <% end %>
@@ -192,7 +192,7 @@
                   <% stats[:top_words].each do |word_info| %>
                     <li class="tw-mb-2">
                       <span class="qpc-hafs tw-font-semibold"><%= word_info[:word] %></span>
-                      <span class="badge tw-bg-red-500 tw-ml-2"><%= word_info[:count] %></span>
+                      <span class="tw-ml-2 tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= word_info[:count] %></span>
                       <br>
                       <small class="tw-text-gray-600">
                         Variants: <%= word_info[:variants].first(2).join(', ') %>

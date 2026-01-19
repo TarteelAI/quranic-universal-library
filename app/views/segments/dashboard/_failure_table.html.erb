@@ -138,14 +138,14 @@
             <td>
               <% if failure.corrected? %>
                 <span
-                  class="badge tw-bg-green-500"
+                  class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-green-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"
                   data-controller="tooltip"
                   title="Corrected word <%= failure.surah_number %>:<%= failure.corrected_ayah_number %>:<%= failure.corrected_word_number %>"
                 >
                   Yes
                 </span>
               <% else %>
-                <span class="badge tw-bg-red-500">No</span>
+                <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">No</span>
               <% end %>
             </td>
             <td>

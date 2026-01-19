@@ -5,6 +5,7 @@ class RenameMorphologyGraphTablesToDependencyGraphTables < ActiveRecord::Migrati
     c.rename_table :morphology_graphs, :morphology_dependency_graphs
     c.rename_table :morphology_graph_nodes, :morphology_dependency_graph_nodes
     c.rename_table :morphology_graph_node_edges, :morphology_dependency_graph_node_edges
+    c.add_column :morphology_dependency_graphs,:review_status, :integer
 
     c.execute <<~SQL
       UPDATE morphology_dependency_graph_nodes

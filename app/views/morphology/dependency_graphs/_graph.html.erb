@@ -35,7 +35,7 @@
 
                 <%= form_with url: morphology_dependency_graph_path(@graph), method: :get, local: true, class: 'tw-flex tw-items-center tw-gap-2 tw-ml-3' do %>
                   <%= select_tag :locale,
-                      options_for_select([['العربية', 'ar'], ['English', 'en']], @locale || 'ar'),
+                      options_for_select([['العربية', 'ar'], ['English', 'en'], ['Urdu', 'ur']], @locale || 'ar'),
                       class: 'tw-px-2 tw-py-1 tw-border tw-border-gray-300 tw-rounded tw-text-sm focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500',
                       onchange: 'this.form.submit()' %>
                 <% end %>

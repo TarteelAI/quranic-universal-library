@@ -15,12 +15,12 @@
       <div class="tw-flex tw-flex-wrap tw-gap-4">
         <div class="tw-w-full md:tw-w-1/2">
           <p><strong>Word Text:</strong> <span class="qpc-hafs tw-text-xl"><%= @word_text %></span></p>
-          <p><strong>Total Failures:</strong> <span class="badge tw-bg-red-500"><%= failures.count %></span></p>
+          <p><strong>Total Failures:</strong> <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= failures.count %></span></p>
         </div>
         <div class="tw-w-full md:tw-w-1/2">
           <p><strong>Failure Types:</strong></p>
           <% failures.group(:failure_type).count.each do |type, count| %>
-            <span class="badge tw-bg-yellow-500 tw-mr-1 tw-mb-1"><%= type %> (<%= count %>)</span>
+            <span class="tw-mr-1 tw-mb-1 tw-inline-flex tw-items-center tw-rounded-full tw-bg-yellow-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= type %> (<%= count %>)</span>
           <% end %>
         </div>
       </div>
@@ -51,7 +51,7 @@
             <% failures.each do |failure| %>
               <tr>
                 <td class="tw-p-3">
-                  <span class="badge tw-bg-blue-500">
+                  <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-blue-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">
                     <%= link_to "#{failure.surah_number}:#{failure.ayah_number}:#{failure.word_number}", segments_timeline_path(reciter: failure.reciter_id, surah: failure.surah_number, ayah: failure.ayah_number), target: '_blank' %>
                   </span>
                 </td>
@@ -65,7 +65,7 @@
                   <span class="qpc-hafs tw-text-red-600"><%= failure.received_transcript %></span>
                 </td>
                 <td class="tw-p-3">
-                  <span class="badge tw-bg-yellow-500"><%= failure.failure_type %></span>
+                  <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-yellow-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= failure.failure_type %></span>
                 </td>
                 <td class="tw-p-3">
                   <% if failure.start_time && failure.end_time %>
@@ -78,9 +78,9 @@
                 </td>
                 <td class="tw-p-3">
                   <% if failure.corrected %>
-                    <span class="badge tw-bg-green-500">Corrected</span>
+                    <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-green-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">Corrected</span>
                   <% else %>
-                    <span class="badge tw-bg-red-500">Pending</span>
+                    <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">Pending</span>
                   <% end %>
                 </td>
                 <td class="tw-p-3">

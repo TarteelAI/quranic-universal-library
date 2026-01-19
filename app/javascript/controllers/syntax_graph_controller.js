@@ -255,6 +255,11 @@ class SyntaxGraphVisualizer {
       : this.theme.fonts.defaultFont;
   }
 
+  dictionaryTermUrl(category, key) {
+    const locale = this.syntaxGraph.locale || 'en';
+    return `/morphology/dictionary/${encodeURIComponent(category)}/${encodeURIComponent(key)}?locale=${encodeURIComponent(locale)}`;
+  }
+
   async renderGraph() {
     await this.loadFonts();
     const layout = this.layoutGraph();
@@ -341,7 +346,7 @@ class SyntaxGraphVisualizer {
           this.createBox(
             text,
             tempSvg,
-            this.theme.fonts.defaultFont,
+            this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize
           )
         ),
@@ -380,7 +385,7 @@ class SyntaxGraphVisualizer {
           phraseTag: this.createBox(
             phraseNode.label || phraseNode.phraseTag,
             tempSvg,
-            this.theme.fonts.defaultFont,
+            this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize
           ),
         });
@@ -392,7 +397,7 @@ class SyntaxGraphVisualizer {
       return this.createBox(
         label,
         tempSvg,
-        this.theme.fonts.defaultArabicFont,
+        this.getLabelFont(),
         this.theme.syntaxGraphEdgeLabelFontSize
       );
     });
@@ -887,13 +892,14 @@ class SyntaxGraphVisualizer {
           this.addCircle(svg, nodeCircle, className);
         }
         if (posTag) {
-          this.addCenteredText(
+          this.addModalCenteredText(
             svg,
             posTagText,
             posTag,
             this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize,
-            className
+            className,
+            this.dictionaryTermUrl("pos_tags", posTagSegments[j].posTag)
           );
         }
       });
@@ -910,13 +916,14 @@ class SyntaxGraphVisualizer {
         if (phraseLayout) {
           this.addLine(svg, phraseLayout.line, "sky-light");
           this.addCircle(svg, phraseLayout.nodeCircle, className);
-          this.addCenteredText(
+          this.addModalCenteredText(
             svg,
             phraseNode.label || phraseNode.phraseTag,
             phraseLayout.phraseTag,
             this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize,
-            className
+            className,
+            this.dictionaryTermUrl("edge_relations", phraseNode.phraseTag)
           );
         }
       });
@@ -940,13 +947,14 @@ class SyntaxGraphVisualizer {
 
         if (edgeLabel) {
           this.addRect(svg, edgeLabel, "edge-label");
-          this.addCenteredText(
+          this.addModalCenteredText(
             svg,
             edge.label || this.getEdgeLabel(edge),
             edgeLabel,
             this.getLabelFont(),
             this.theme.syntaxGraphEdgeLabelFontSize,
-            className
+            className,
+            this.dictionaryTermUrl("edge_relations", edge.dependencyTag)
           );
         }
       });
@@ -1041,6 +1049,32 @@ class SyntaxGraphVisualizer {
     if (className) textElement.classList.add(className);
 
     svg.appendChild(textElement);
+  }
+
+  addModalCenteredText(svg, text, box, font, fontSize, className = "", url) {
+    if (!box || !text || !url) return;
+
+    const linkElement = document.createElementNS("http://www.w3.org/2000/svg", "a");
+    linkElement.setAttribute("href", url);
+    linkElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
+    linkElement.setAttribute("data-controller", "ajax-modal");
+    linkElement.setAttribute("data-url", url);
+
+    const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    textElement.textContent = text;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    textElement.setAttribute("x", x);
+    textElement.setAttribute("y", y);
+    textElement.setAttribute("font-family", font.family);
+    textElement.setAttribute("font-size", fontSize);
+    textElement.setAttribute("text-anchor", "middle");
+    textElement.setAttribute("dominant-baseline", "middle");
+    if (className) textElement.classList.add(className);
+    textElement.classList.add("term-link");
+
+    linkElement.appendChild(textElement);
+    svg.appendChild(linkElement);
   }
 
   getFontMetrics(font) {

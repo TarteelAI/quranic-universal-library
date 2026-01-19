@@ -1,5 +1,7 @@
 module Morphology
   class DependencyGraphEdgesController < CommunityController
+    before_action :authorize_access!, only: [:create, :update, :destroy]
+
     def create
       graph = Morphology::DependencyGraph::Graph.find(params[:dependency_graph_id])
       new_edge = Morphology::EdgeService.new(graph).add
@@ -42,6 +44,15 @@ module Morphology
           redirect_to edit_morphology_dependency_graph_path(graph), notice: 'Edge deleted successfully.'
         end
       end
+    end
+
+    protected
+    def load_resource_access
+      @access = can_manage?(find_resource)
+    end
+
+    def find_resource
+      @resource ||= ResourceContent.find_by(id: 1612)
     end
   end
 end

@@ -1,7 +1,6 @@
 module Morphology
   class DependencyGraphsController < CommunityController
-    before_action :set_locale, only: [:index, :show, :edit, :syntax_graph, :verse_graphs_data]
-
+    before_action :authorize_access!, only: [:edit, :split]
     def index
       scope = Verse.all
 

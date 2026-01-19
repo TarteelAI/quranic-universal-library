@@ -1,5 +1,7 @@
 module Morphology
   class DependencyGraphNodesController < CommunityController
+    before_action :authorize_access!, only: [:create, :update, :destroy]
+
     def create
       graph = Morphology::DependencyGraph::Graph.find(params[:dependency_graph_id])
 
@@ -107,7 +109,14 @@ module Morphology
       end
     end
 
-    private
+    protected
+    def load_resource_access
+      @access = can_manage?(find_resource)
+    end
+
+    def find_resource
+      @resource ||= ResourceContent.find_by(id: 1612)
+    end
 
     def build_node_update_streams(presenter, graph_id, from_number:)
       node_locals = { presenter: presenter, graph_id: graph_id }

@@ -59,13 +59,13 @@ module Corpus
       puts("Failed to generate response: #{e.message}")
       nil
     end
-  end
 
-  private
+    private
 
-  def open_ai_key
-    ENV.fetch("OPENAI_API_KEY") do
-      raise("OPENAI_API_KEY environment variable is not set")
+    def open_ai_key
+      ENV.fetch("OPENAI_API_KEY") do
+        raise("OPENAI_API_KEY environment variable is not set")
+      end
     end
   end
 end

@@ -255,9 +255,9 @@ class SyntaxGraphVisualizer {
       : this.theme.fonts.defaultFont;
   }
 
-  dictionaryTermUrl(category, key) {
+  grammarTermUrl(category, term) {
     const locale = this.syntaxGraph.locale || 'en';
-    return `/morphology/dictionary/${encodeURIComponent(category)}/${encodeURIComponent(key)}?locale=${encodeURIComponent(locale)}`;
+    return `/morphology/grammar/${encodeURIComponent(category)}/${encodeURIComponent(term)}?locale=${encodeURIComponent(locale)}`;
   }
 
   async renderGraph() {
@@ -899,7 +899,7 @@ class SyntaxGraphVisualizer {
             this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize,
             className,
-            this.dictionaryTermUrl("pos_tags", posTagSegments[j].posTag)
+            this.grammarTermUrl("pos_tags", posTagSegments[j].posTag)
           );
         }
       });
@@ -923,7 +923,7 @@ class SyntaxGraphVisualizer {
             this.getLabelFont(),
             this.theme.syntaxGraphTagFontSize,
             className,
-            this.dictionaryTermUrl("edge_relations", phraseNode.phraseTag)
+            this.grammarTermUrl("edge_relations", phraseNode.phraseTag)
           );
         }
       });
@@ -954,7 +954,7 @@ class SyntaxGraphVisualizer {
             this.getLabelFont(),
             this.theme.syntaxGraphEdgeLabelFontSize,
             className,
-            this.dictionaryTermUrl("edge_relations", edge.dependencyTag)
+            this.grammarTermUrl("edge_relations", edge.dependencyTag)
           );
         }
       });

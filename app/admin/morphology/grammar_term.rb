@@ -20,8 +20,7 @@ ActiveAdmin.register Morphology::GrammarTerm do
   )
 
   permit_params do
-    %i[category term arabic_description arabic_grammar_name english_description english_grammar_name urdu_description
-       urdu_grammar_name]
+    %i[category term arabic_grammar_name english_grammar_name urdu_grammar_name]
   end
 
   index do
@@ -30,5 +29,11 @@ ActiveAdmin.register Morphology::GrammarTerm do
 
     column :category
     column :term
+    column :english_grammar_name
+    column :arabic_grammar_name
+    column :translations do |t|
+      t.translations.count
+    end
+    actions
   end
 end

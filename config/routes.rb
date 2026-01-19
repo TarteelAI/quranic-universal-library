@@ -90,7 +90,7 @@ Rails.application.routes.draw do
     get 'stems/:id', to: 'stems#show', as: :stem
     get 'word', to: 'words#show', as: :word
 
-    get 'dictionary/:category/:key', to: 'dictionary_terms#show', as: :dictionary_term
+    get 'grammar/:category/:term', to: 'grammar_terms#show', as: :grammar_term
 
     resources :dependency_graphs, path: 'dependency-graphs', only: [:index, :show, :edit] do
       collection do

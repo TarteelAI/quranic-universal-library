@@ -25,37 +25,20 @@ class Morphology::GrammarTerm < QuranApiRecord
   has_many :words, through: :word_segments, class_name: 'Morphology::Word'
   has_many :translations, class_name: 'Morphology::GrammarTermTranslation', foreign_key: :grammar_term_id, dependent: :destroy
 
+  enum :term_type, {
+    pos_tag: 1,
+    edge_relation: 2 # Relation between two phrases/words
+  }
+
   def humanize
-    "#{english_grammar_name} - #{arabic_grammar_name}"
+    "#{term} (#{arabic})"
   end
 
   def to_s
-    "#{category}:#{term}"
+    humanize
   end
 
   def translation_for(locale)
-    translations.find_by(locale: locale.to_s) || translations.find_by(locale: I18n.default_locale.to_s)
-  end
-
-  def fallback_title_for(locale)
-    case locale.to_s
-    when 'ar'
-      arabic_grammar_name
-    when 'ur'
-      urdu_grammar_name
-    else
-      english_grammar_name
-    end
-  end
-
-  def fallback_description_for(locale)
-    case locale.to_s
-    when 'ar'
-      arabic_description
-    when 'ur'
-      urdu_description
-    else
-      english_description
-    end
+    translations.find_by(locale: locale.to_s) || translations.find_by(locale: 'en')
   end
 end

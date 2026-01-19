@@ -29,6 +29,8 @@ module Morphology
 
       with_graphs = params[:with_graphs].to_s == '1'
       status_filter = params[:review_status].presence
+      pos_tag_filter = params[:pos_tag].presence
+      edge_relation_filter = params[:edge_relation].presence
 
       select_sql = [
         'verses.id, verses.text_qpc_hafs, verses.verse_key',
@@ -43,6 +45,35 @@ module Morphology
         .group('verses.id')
 
       grouped = grouped.having('COUNT(morphology_dependency_graphs.id) > 0') if with_graphs
+
+      if pos_tag_filter
+        grouped = grouped.where(
+          <<~SQL.squish,
+            EXISTS (
+              SELECT 1
+              FROM morphology_dependency_graphs g
+              JOIN morphology_dependency_graph_nodes n ON n.graph_id = g.id
+              WHERE g.verse_id = verses.id AND n.pos = ?
+            )
+          SQL
+          pos_tag_filter.to_s
+        )
+      end
+
+      if edge_relation_filter
+        grouped = grouped.where(
+          <<~SQL.squish,
+            EXISTS (
+              SELECT 1
+              FROM morphology_dependency_graphs g
+              JOIN morphology_dependency_graph_nodes n ON n.graph_id = g.id
+              JOIN morphology_dependency_graph_node_edges e ON e.source_id = n.id
+              WHERE g.verse_id = verses.id AND e.relation = ?
+            )
+          SQL
+          edge_relation_filter.to_s
+        )
+      end
 
       if status_filter == 'approved'
         grouped = grouped.having(

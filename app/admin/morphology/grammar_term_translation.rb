@@ -8,7 +8,7 @@ ActiveAdmin.register Morphology::GrammarTermTranslation do
 
   filter :locale, as: :select, collection: %w[en ar ur]
   filter :title
-  filter :grammar_term_id
+  filter :grammar_term, as: :searchable_select
 
   index do
     id_column

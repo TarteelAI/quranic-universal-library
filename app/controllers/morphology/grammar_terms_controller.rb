@@ -7,9 +7,8 @@ module Morphology
 
       @grammar_term = Morphology::GrammarTerm.find_by!(category: @category, term: @term)
       @translation = @grammar_term.translation_for(@locale)
-
-      @title = (@translation&.title.presence || @grammar_term.fallback_title_for(@locale)).presence || @term
-      @description = @translation&.description.presence || @grammar_term.fallback_description_for(@locale).to_s
+      @title = @translation&.title.presence
+      @description = @translation&.description.presence
     end
   end
 end

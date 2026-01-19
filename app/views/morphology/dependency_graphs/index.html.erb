@@ -1,6 +1,7 @@
 <%= render 'tools/header',
            name: 'Ayah Dependency Graphs',
-           key: 'ayah_dependency_graph'
+           key: 'ayah_dependency_graph',
+           wide_container: true
 %>
 
 <div class="page-wrapper tw-container tw-px-4">
@@ -9,11 +10,36 @@
       <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
         <%= render 'shared/filters' %>
 
+        <%
+          pos_tags = I18n.t('morphology.pos_tags', locale: :en, default: {}).to_h
+          pos_tags = pos_tags.except('pronoun')
+          pos_options = pos_tags.map { |k, v| ["#{v} (#{k})", k] }.sort_by { |opt| opt[0].to_s }
+
+          edge_relations = I18n.t('morphology.edge_relations', locale: :en, default: {}).to_h
+          edge_options = edge_relations.map { |k, v| ["#{v} (#{k})", k] }.sort_by { |opt| opt[0].to_s }
+        %>
+
         <div class="tw-mb-4 tw-me-4">
           <%= select_tag :review_status,
                          options_for_select([['All', ''], ['Approved', 'approved'], ['In progress', 'in_progress']], params[:review_status].to_s),
                          class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]' %>
           <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Status</label>
+        </div>
+
+        <div class="tw-mb-4 tw-me-4">
+          <%= select_tag :pos_tag,
+                         options_for_select([['Any', '']] + pos_options, params[:pos_tag].to_s),
+                         class: 'form-select tw-w-[85vw] sm:tw-w-[260px]',
+                         data: { controller: 'select2', placeholder: 'POS tag' } %>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">POS tag in words</label>
+        </div>
+
+        <div class="tw-mb-4 tw-me-4">
+          <%= select_tag :edge_relation,
+                         options_for_select([['Any', '']] + edge_options, params[:edge_relation].to_s),
+                         class: 'form-select tw-w-[85vw] sm:tw-w-[260px]',
+                         data: { controller: 'select2', placeholder: 'Edge relation' } %>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Edge relation</label>
         </div>
 
         <div class="tw-mb-4 tw-me-4">
@@ -25,7 +51,7 @@
 
         <div class="tw-mb-4">
           <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
-          <%= link_to 'Clear', morphology_dependency_graphs_path, class: 'tw-text-sm tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_chapter, :verse_number, :verse_key, :review_status, :with_graphs) %>
+          <%= link_to 'Clear', morphology_dependency_graphs_path, class: 'tw-text-sm tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_chapter, :verse_number, :verse_key, :review_status, :with_graphs, :pos_tag, :edge_relation) %>
         </div>
       </div>
     <% end %>

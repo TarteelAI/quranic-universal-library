@@ -79,7 +79,8 @@ class Morphology::WordSegment < QuranApiRecord
   POS_TAG_COLORS = {
     n: 'sky', # Noun
     pn: 'blue', # Proper Noun
-    pron: 'sky', # Pronoun #TODO: Set Pronoun color based on pronoun type.
+    #TODO: Set Pronoun color based on pronoun type
+    pron: 'sky', # Pronoun
     dem: 'brown', # Demonstrative
     rel: 'gold', # Relative pronoun
     adj: 'purple', # Adjective

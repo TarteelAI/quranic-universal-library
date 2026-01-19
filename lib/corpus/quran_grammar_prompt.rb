@@ -20,12 +20,13 @@ module Corpus
       ABSOLUTE RULES:
       - Output ONLY valid HTML
       - Use Tailwind CSS utility classes only
-      - ALL Arabic words, phrases, and ayat MUST be wrapped in a special <corpus-ayah key="ayah key"> tag
+      - Any Quran ayah text MUST be wrapped in <corpus-ayah key="surah:ayah"> ... </corpus-ayah>
+      - The <corpus-ayah> tag MUST include a key attribute with the ayah key (surah:ayah)
+      - Any standalone Quran word (not the full ayah) MUST be wrapped in <corpus-word location="surah:ayah:word"> ... </corpus-word>
+      - The <corpus-word> tag MUST include a location attribute (surah:ayah:word)
       - All examples MUST come from the Quran
-      - Each Quran example MUST include:
-        - Arabic ayah text
-        - Highlighted relevant word(s)
-      - Do NOT invent examples
+      - Each Quran example MUST include Arabic ayah text and highlighted relevant word(s)
+      - Do NOT invent examples or quotes
       - Do NOT reference non-Quranic sources
       - Do NOT mention your reasoning
 
@@ -34,9 +35,19 @@ module Corpus
       - Align wording with the corpus definition
 
       The output may contain Arabic and another language.
+
+      IMPORTANT OUTPUT STYLE:
+      - Do NOT follow a rigid template. Avoid repetitive section headings across different terms.
+      - Keep the explanation scannable and UI-friendly, but vary structure naturally based on the term.
+      - Always include a short definition near the top, but the rest of the layout can vary.
+
+      TERM TYPE HANDLING:
+      - A term type will be provided as either POS_TAG or EDGE_RELATION. Use it and do not infer the type from casing.
+      - POS_TAG: Include an "Arabic word examples" list (4–8 items). Each item must be a <corpus-word> taken from your Quranic examples.
+      - EDGE_RELATION: Include an "Edge examples" list (2–4 items). Each item must use words taken from your Quranic examples and wrap each word with <corpus-word>.
     SYSTEM
 
-    def self.user_prompt(english:, arabic:, output_language:, corpus_link: nil)
+    def self.user_prompt(english:, arabic:, output_language:, term_type:, corpus_link: nil)
       corpus_line = corpus_link ? "- Quran Corpus reference: #{corpus_link}" : ""
 
       <<~USER
@@ -45,40 +56,41 @@ module Corpus
         Input:
         - English term: #{english}
         - Arabic term: #{arabic}
+        - Term type: #{term_type}
         - Output language: #{output_language}
         #{corpus_line}
 
         Instructions:
         - If a Quran Corpus reference link is provided, use it to understand the term precisely
         - The main explanation text must be in #{output_language}
-        - Arabic text must remain Arabic and must be wrapped with <corpus-ayah key="ayah key"> tag. Use appropriate ayah keys(surah:ayah)
+        - Every Quran ayah you quote must be wrapped in <corpus-ayah key="surah:ayah"> ... </corpus-ayah>
+        - If you list a single Quran word outside the full ayah, wrap it in <corpus-word location="surah:ayah:word"> ... </corpus-word>
         - The output may contain both Arabic and #{output_language} text
 
-        HTML STRUCTURE REQUIREMENTS:
+        CONTENT REQUIREMENTS:
 
-        1) Header section
-           - English term (prominent)
-           - Arabic term (RTL, wrapped in text-qpc-hafs)
+        - Start with a compact header (term + Arabic term).
+        - Add a short definition (2–4 sentences) near the top.
+        - Add 2–3 Quranic examples with:
+          - Arabic ayah text wrapped in <corpus-ayah key="surah:ayah"> ... </corpus-ayah> (with highlighted relevant word(s) inside)
+          - A brief literal translation in #{output_language}
+          - Surah name and ayah number
+        - Include learner-focused notes (common confusions, and how to spot it in dependency graphs).
 
-        2) Short definition
-           - 2–3 sentences in #{output_language}
-           - Optional one-line Arabic definition
+        ADDITIONAL REQUIREMENTS BY TERM TYPE:
 
-        3) How it works in Quranic Arabic
-           - Bullet points explaining:
-             - grammatical function
-             - position in the sentence
-             - key rules or constraints
+        - If term type is POS_TAG:
+          - Include an "Arabic word examples" list (4–8 items).
+          - Each listed word MUST be taken from the Quranic examples you included and MUST be wrapped in <corpus-word location="surah:ayah:word">.
 
-        4) Quranic examples (2–3)
-           Each example must include:
-           - Arabic ayah text with highlighted relevant word(s)
-           - Brief, literal translation in #{output_language}
-           - Surah name and ayah number
+        - If term type is EDGE_RELATION:
+          - Include an "Edge examples" list (2–4 items) using the words from your Quranic examples.
+          - Each item should be written like: "<dependent> → <head> (relation)", with both Arabic words wrapped in <corpus-word location="surah:ayah:word">.
+          - Do not invent edges: they must be consistent with your example explanation and consistent with the corpus definition if a link is provided.
 
-        5) Learner notes
-           - Common mistakes or confusion
-           - How to identify this term in dependency graphs
+        STYLE:
+        - Do not use a fixed template. Vary headings and structure naturally.
+        - Keep it concise; avoid filler.
 
         Output ONLY the final HTML.
       USER

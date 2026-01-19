@@ -15,6 +15,7 @@ module Corpus
       english_term:,
       arabic_term:,
       output_language:,
+      term_type:,
       corpus_link: nil
     )
       uri = URI('https://api.openai.com/v1/chat/completions')
@@ -37,6 +38,7 @@ module Corpus
             content: Corpus::QuranGrammarPrompt.user_prompt(
               english: english_term,
               arabic: arabic_term,
+              term_type: term_type,
               output_language: output_language,
               corpus_link: corpus_link
             )

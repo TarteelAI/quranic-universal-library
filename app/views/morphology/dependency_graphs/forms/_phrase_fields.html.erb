@@ -12,7 +12,7 @@
     <%= select_tag field_name_prefix + "[phrase_source]",
                    options_for_select(available_node_numbers, phrase_source),
                    { include_blank: 'Select', 
-                     class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent tw-text-sm phrase-source-select',
+                     class: 'tw-w-full tw-min-w-[100px] tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent tw-text-sm phrase-source-select',
                      data: { node_id: node_id, action: 'change->graph-bulk-edit#updatePhraseValue' } } %>
   </div>
   <div>
@@ -20,7 +20,7 @@
     <%= select_tag field_name_prefix + "[phrase_target]",
                    options_for_select(available_node_numbers, phrase_target),
                    { include_blank: 'Select', 
-                     class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent tw-text-sm phrase-target-select',
+                     class: 'tw-w-full tw-min-w-[100px] tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent tw-text-sm phrase-target-select',
                      data: { node_id: node_id, action: 'change->graph-bulk-edit#updatePhraseValue' } } %>
   </div>
 </div>

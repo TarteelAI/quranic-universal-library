@@ -3,7 +3,7 @@
   <td>
     <%= select_tag "edges[#{edge.id}][source_id]",
                    options_for_select(presenter.available_nodes, edge.source_id),
-                   class: 'form-select',
+                   class: 'tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
                    data: {
                      controller: 'select2',
                      edge_id: edge.id,
@@ -14,7 +14,7 @@
   <td>
     <%= select_tag "edges[#{edge.id}][target_id]",
                    options_for_select(presenter.available_nodes, edge.target_id),
-                   class: 'form-select',
+                   class: 'tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
                    data: {
                      controller: 'select2',
                      edge_id: edge.id,
@@ -25,7 +25,7 @@
   <td>
     <%= select_tag "edges[#{edge.id}][relation]",
                    options_for_select(presenter.edge_relations, edge.relation),
-                   class: 'form-select',
+                   class: 'tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
                    include_blank: '-- Select Relation --',
                    data: {
                      controller: 'select2',
@@ -36,7 +36,7 @@
   </td>
   <td class="actions-cell">
     <%= button_tag type: 'button',
-                   class: 'tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors remove-edge-btn bg-white',
+                   class: 'tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors remove-edge-btn',
                    title: 'Remove edge',
                    data: {
                      edge_id: edge.id,

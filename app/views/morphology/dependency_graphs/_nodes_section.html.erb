@@ -18,7 +18,7 @@
     </div>
   </div>
   
-  <div class="table-responsive">
+  <div class="tw-overflow-x-auto">
     <table class="edit-table tw-table-fixed">
       <thead>
         <tr>
@@ -31,7 +31,7 @@
       </thead>
       <tbody>
         <% non_phrase_nodes.each do |node| %>
-          <%= render 'morphology/treebank/forms/node_row',
+          <%= render 'morphology/dependency_graphs/forms/node_row',
                      node: node,
                      presenter: presenter,
                      graph_id: graph_id %>

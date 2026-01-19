@@ -15,7 +15,7 @@
   <td>
     <%= text_field_tag field_name_prefix + "[phrase_pos]",
                        phrase_pos,
-                       class: 'form-control tw-text-sm phrase-pos-input',
+                       class: 'phrase-pos-input tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm',
                        placeholder: 'e.g., PP',
                        data: { node_id: node.id, action: 'change->graph-bulk-edit#savePhraseNodeField' } %>
   </td>
@@ -24,7 +24,7 @@
       <%= select_tag field_name_prefix + "[phrase_source]",
                      options_for_select(available_node_numbers, phrase_source),
                      { include_blank: 'Source', 
-                       class: 'form-select tw-text-sm phrase-source-select',
+                       class: 'phrase-source-select tw-min-w-[100px] tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
                        data: { 
                          controller: 'select2',
                          node_id: node.id, 
@@ -34,7 +34,7 @@
       <%= select_tag field_name_prefix + "[phrase_target]",
                      options_for_select(available_node_numbers, phrase_target),
                      { include_blank: 'Target', 
-                       class: 'form-select tw-text-sm phrase-target-select',
+                       class: 'phrase-target-select tw-min-w-[100px] tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
                        data: { 
                          controller: 'select2',
                          node_id: node.id, 
@@ -46,7 +46,7 @@
     <%= hidden_field_tag field_name_prefix + "[value]", node.value, class: 'phrase-value-field' %>
     <%= hidden_field_tag field_name_prefix + "[pos]", phrase_pos, class: 'phrase-pos-field' %>
     <%= button_tag type: 'button',
-                   class: 'btn btn-sm btn-danger bg-white',
+                   class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors',
                    title: 'Remove phrase node',
                    data: { 
                      node_id: node.id,

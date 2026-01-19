@@ -20,7 +20,7 @@
     <% end %>
   </div>
   
-  <div class="table-responsive">
+  <div class="tw-overflow-x-auto">
     <table class="edit-table tw-table-fixed">
       <thead>
         <tr>
@@ -33,7 +33,7 @@
       </thead>
       <tbody id="edges_tbody">
         <% presenter.edges.each do |edge| %>
-          <%= render 'morphology/treebank/forms/edge_row',
+          <%= render 'morphology/dependency_graphs/forms/edge_row',
                      edge: edge,
                      presenter: presenter %>
         <% end %>

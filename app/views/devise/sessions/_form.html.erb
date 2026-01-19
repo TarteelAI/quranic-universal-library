@@ -7,9 +7,6 @@
 </p>
 
 <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form', class: 'inputs_container ', data: { controller: 'remote-form', auto_close: true } }) do |f| %>
-  <div id="form-error-wrapper" class="tw-relative tw-mt-6">
-    <div class="d-none"></div>
-  </div>
   <div class="tw-relative tw-mt-6">
     <%= f.email_field :email, autofocus: true, required: true, class: 'tw-block tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent peer', placeholder: ' ' %>
     <%= f.label :email, class: 'tw-absolute tw-text-sm tw-text-gray-500 tw-duration-300 tw-transform -tw-translate-y-4 tw-scale-75 tw-top-2 tw-z-10 tw-origin-[0] tw-bg-white tw-px-2 peer-focus:tw-px-2 peer-focus:tw-text-blue-600 peer-placeholder-shown:tw-scale-100 peer-placeholder-shown:-tw-translate-y-1/2 peer-placeholder-shown:tw-top-1/2 peer-focus:tw-top-2 peer-focus:tw-scale-75 peer-focus:-tw-translate-y-4 tw-start-1 tw-pointer-events-none', required: true %>

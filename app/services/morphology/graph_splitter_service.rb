@@ -10,7 +10,7 @@ module Morphology
     end
 
     def self.prepare_verse_graphs_data(chapter_number, verse_number)
-      graphs = Morphology::Graph
+      graphs = Morphology::DependencyGraph::Graph
         .for_verse(chapter_number, verse_number)
         .includes(nodes: { resource: :word })
         .ordered
@@ -133,11 +133,11 @@ module Morphology
     private
 
     def create_new_graph
-      next_graph_number = Morphology::Graph
+      next_graph_number = Morphology::DependencyGraph::Graph
         .for_verse(source_graph.chapter_number, source_graph.verse_number)
         .maximum(:graph_number).to_i + 1
 
-      Morphology::Graph.create!(
+      Morphology::DependencyGraph::Graph.create!(
         chapter_number: source_graph.chapter_number,
         verse_number: source_graph.verse_number,
         graph_number: next_graph_number
@@ -163,9 +163,9 @@ module Morphology
     def move_nodes_to_graph(nodes, target_graph)
       node_ids = nodes.pluck(:id)
       
-      Morphology::GraphNode.where(id: node_ids).update_all(graph_id: target_graph.id)
+      Morphology::DependencyGraph::GraphNode.where(id: node_ids).update_all(graph_id: target_graph.id)
       
-      edges_to_delete = Morphology::GraphNodeEdge
+      edges_to_delete = Morphology::DependencyGraph::GraphNodeEdge
         .where("source_id IN (?) OR target_id IN (?)", node_ids, node_ids)
         .where.not("source_id IN (?) AND target_id IN (?)", node_ids, node_ids)
       
@@ -181,7 +181,7 @@ module Morphology
     end
 
     def cleanup_empty_graphs
-      verse_graphs = Morphology::Graph.for_verse(
+      verse_graphs = Morphology::DependencyGraph::Graph.for_verse(
         source_graph.chapter_number,
         source_graph.verse_number
       ).order(:graph_number)
@@ -196,7 +196,7 @@ module Morphology
       end
       
       if deleted_any
-        remaining_graphs = Morphology::Graph.for_verse(
+        remaining_graphs = Morphology::DependencyGraph::Graph.for_verse(
           source_graph.chapter_number,
           source_graph.verse_number
         ).order(:graph_number)

@@ -11,7 +11,7 @@ module Morphology
       source_node = nodes.first
       target_node = nodes.second || nodes.first
 
-      Morphology::GraphNodeEdge.create!(
+      Morphology::DependencyGraph::GraphNodeEdge.create!(
         source_id: source_node&.id,
         target_id: target_node&.id,
         relation: '',
@@ -20,14 +20,14 @@ module Morphology
     end
 
     def self.delete(edge_id)
-      edge = Morphology::GraphNodeEdge.find(edge_id)
+      edge = Morphology::DependencyGraph::GraphNodeEdge.find(edge_id)
       id = edge.id
       edge.destroy!
       id
     end
 
     def self.update(edge_id, params)
-      edge = Morphology::GraphNodeEdge.find(edge_id)
+      edge = Morphology::DependencyGraph::GraphNodeEdge.find(edge_id)
       permitted = params.permit(:source_id, :target_id, :relation)
       edge.update(permitted)
       edge

@@ -16,7 +16,8 @@ export default class extends Controller {
 
   static values = {
     chapter: Number,
-    verse: Number
+    verse: Number,
+    graphId: Number
   };
 
   connect() {
@@ -83,7 +84,7 @@ export default class extends Controller {
   async loadGraphsData() {
     console.log("loadGraphsData called", this.chapterValue, this.verseValue);
     try {
-      const url = `/morphology/treebank/verse_graphs_data?chapter_number=${this.chapterValue}&verse_number=${this.verseValue}`;
+      const url = `/morphology/dependency-graphs/${this.graphIdValue}/verse_graphs_data`;
       console.log("Fetching from:", url);
       
       const response = await fetch(url);
@@ -352,14 +353,13 @@ export default class extends Controller {
   }
 
   async splitGraph(sourceGraphId, nodeIds) {
-    const response = await fetch("/morphology/treebank/split_graph", {
+    const response = await fetch(`/morphology/dependency-graphs/${sourceGraphId}/split`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
       },
       body: JSON.stringify({
-        graph_id: sourceGraphId,
         node_ids: nodeIds
       })
     });

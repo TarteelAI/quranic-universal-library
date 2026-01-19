@@ -32,7 +32,7 @@ module Morphology
 
     def back_to_treebank_path
       return '' unless verse
-      context.morphology_treebank_index_path(locale: locale, chapter_number: verse.chapter_id, verse_number: verse.verse_number, graph_number: 1)
+      context.lookup_morphology_dependency_graphs_path(locale: locale, verse_key: verse.verse_key)
     end
 
     def dependency_graph_path

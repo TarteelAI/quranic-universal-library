@@ -26,8 +26,8 @@
               <td><%= graph.graph_number %></td>
               <td><%= graph.nodes.count %></td>
               <td>
-                <%= Morphology::GraphNodeEdge.joins(:source)
-                      .where(morphology_graph_nodes: { graph_id: graph.id })
+                <%= Morphology::DependencyGraph::GraphNodeEdge.joins(:source)
+                      .where(morphology_dependency_graph_nodes: { graph_id: graph.id })
                       .distinct.count %>
               </td>
               <td>

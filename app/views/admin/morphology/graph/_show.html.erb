@@ -6,11 +6,7 @@
     <div class="bg-light tw-p-3 rounded syntax-graph-container"
          style="min-height: 400px;"
          data-controller="syntax-graph"
-         data-syntax-graph-url-value="<%= syntax_graph_morphology_treebank_index_path(
-           chapter_number: graph.chapter_number,
-           verse_number: graph.verse_number,
-           graph_number: graph.graph_number
-         ) %>">
+         data-syntax-graph-url-value="<%= syntax_graph_morphology_dependency_graph_path(graph) %>">
       <div data-syntax-graph-target="container">Loading syntax graph...</div>
     </div>
   </div>
@@ -57,8 +53,8 @@
 
   <div class="graph-edges tw-mt-4">
     <h3>Edges</h3>
-    <% edges = Morphology::GraphNodeEdge.joins(:source, :target)
-                 .where(morphology_graph_nodes: { graph_id: graph.id })
+    <% edges = Morphology::DependencyGraph::GraphNodeEdge.joins(:source, :target)
+                 .where(morphology_dependency_graph_nodes: { graph_id: graph.id })
                  .distinct %>
     <% if edges.any? %>
       <table class="index_table">

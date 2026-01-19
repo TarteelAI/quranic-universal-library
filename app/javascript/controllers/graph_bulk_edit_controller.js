@@ -22,13 +22,14 @@ export default class extends Controller {
     const value = input.value;
 
     if (!nodeId || !field) return;
+    const graphId = this.getGraphId();
 
     const csrfToken = document.querySelector(
       'meta[name="csrf-token"]'
     )?.content;
 
     fetch(
-      `/morphology/treebank/save_node?node_id=${nodeId}&${field}=${encodeURIComponent(value)}`,
+      `/morphology/dependency-graphs/${graphId}/nodes/${nodeId}?${field}=${encodeURIComponent(value)}`,
       {
         method: "PATCH",
         headers: {
@@ -58,13 +59,14 @@ export default class extends Controller {
     const value = input.value;
 
     if (!edgeId || !field) return;
+    const graphId = this.getGraphId();
 
     const csrfToken = document.querySelector(
       'meta[name="csrf-token"]'
     )?.content;
 
     fetch(
-      `/morphology/treebank/save_edge?edge_id=${edgeId}&${field}=${encodeURIComponent(value)}`,
+      `/morphology/dependency-graphs/${graphId}/edges/${edgeId}?${field}=${encodeURIComponent(value)}`,
       {
         method: "PATCH",
         headers: {
@@ -101,6 +103,7 @@ export default class extends Controller {
     const row = document.querySelector(`.node-row[data-node-id="${nodeId}"]`);
 
     if (!row) return;
+    const graphId = this.getGraphId();
 
     const phrasePos = row.querySelector(".phrase-pos-input")?.value || "";
     const phraseSource =
@@ -113,13 +116,12 @@ export default class extends Controller {
     )?.content;
 
     const params = new URLSearchParams({
-      node_id: nodeId,
       phrase_pos: phrasePos,
       phrase_source: phraseSource,
       phrase_target: phraseTarget,
     });
 
-    fetch(`/morphology/treebank/save_phrase_node?${params.toString()}`, {
+    fetch(`/morphology/dependency-graphs/${graphId}/nodes/${nodeId}?${params.toString()}`, {
       method: "PATCH",
       headers: {
         "X-CSRF-Token": csrfToken,
@@ -148,7 +150,7 @@ export default class extends Controller {
     this.saveNodeField(event);
 
     fetch(
-      `/morphology/treebank/update_node_fields?graph_id=${graphId}&node_id=${nodeId}&node_type=${nodeType}`,
+      `/morphology/dependency-graphs/${graphId}/nodes/${nodeId}/fields?node_type=${nodeType}`,
       {
         method: "POST",
         headers: {
@@ -177,7 +179,7 @@ export default class extends Controller {
     if (nodeType === "word" || nodeType === "reference") {
       resourceTypeSelect.value = "Morphology::Word";
     } else if (nodeType === "phrase") {
-      resourceTypeSelect.value = "Morphology::GraphNodeEdge";
+      resourceTypeSelect.value = "Morphology::DependencyGraph::GraphNodeEdge";
     } else if (nodeType === "elided") {
       resourceTypeSelect.value = "";
     }
@@ -267,8 +269,9 @@ export default class extends Controller {
     const csrfToken = document.querySelector(
       'meta[name="csrf-token"]'
     )?.content;
+    const graphId = this.getGraphId();
 
-    fetch(`/morphology/treebank/delete_node?node_id=${nodeId}`, {
+    fetch(`/morphology/dependency-graphs/${graphId}/nodes/${nodeId}`, {
       method: "DELETE",
       headers: {
         "X-CSRF-Token": csrfToken,
@@ -300,7 +303,7 @@ export default class extends Controller {
     const graphId = this.getGraphId();
 
     fetch(
-      `/morphology/treebank/add_node_row?graph_id=${graphId}&after_node_id=${currentNodeId}`,
+      `/morphology/dependency-graphs/${graphId}/nodes?after_node_id=${currentNodeId}`,
       {
         method: "POST",
         headers: {
@@ -353,7 +356,7 @@ export default class extends Controller {
       'meta[name="csrf-token"]'
     )?.content;
 
-    fetch(`/morphology/treebank/add_phrase_node?graph_id=${graphId}`, {
+    fetch(`/morphology/dependency-graphs/${graphId}/nodes?type=phrase`, {
       method: "POST",
       headers: {
         "X-CSRF-Token": csrfToken,
@@ -379,7 +382,7 @@ export default class extends Controller {
       'meta[name="csrf-token"]'
     )?.content;
 
-    fetch(`/morphology/treebank/add_edge?graph_id=${graphId}`, {
+    fetch(`/morphology/dependency-graphs/${graphId}/edges`, {
       method: "POST",
       headers: {
         "X-CSRF-Token": csrfToken,
@@ -408,8 +411,9 @@ export default class extends Controller {
     const csrfToken = document.querySelector(
       'meta[name="csrf-token"]'
     )?.content;
+    const graphId = this.getGraphId();
 
-    fetch(`/morphology/treebank/delete_edge?edge_id=${edgeId}`, {
+    fetch(`/morphology/dependency-graphs/${graphId}/edges/${edgeId}`, {
       method: "DELETE",
       headers: {
         "X-CSRF-Token": csrfToken,

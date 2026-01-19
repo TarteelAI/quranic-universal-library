@@ -1,4 +1,4 @@
-ActiveAdmin.register Morphology::Graph, as: 'Graph' do
+ActiveAdmin.register Morphology::DependencyGraph::Graph, as: 'Graph' do
   menu parent: 'Morphology'
   actions :index, :show
 
@@ -10,16 +10,12 @@ ActiveAdmin.register Morphology::Graph, as: 'Graph' do
 
   controller do
     def scoped_collection
-      super.select("morphology_graphs.*, (chapter_number * 10000 + verse_number * 100 + graph_number) as verse_key_sort")
+      super.select("morphology_dependency_graphs.*, (chapter_number * 10000 + verse_number * 100 + graph_number) as verse_key_sort")
     end
   end
 
   action_item :edit, only: :show do
-    link_to 'Edit Graph', edit_morphology_treebank_index_path(
-      chapter_number: resource.chapter_number,
-      verse_number: resource.verse_number,
-      graph_number: resource.graph_number
-    ), target: '_blank'
+    link_to 'Edit Graph', edit_morphology_dependency_graph_path(resource), target: '_blank'
   end
 
   show do

@@ -573,9 +573,9 @@ namespace :one_time do
 
   desc "Create morphology graphs and word nodes for verses without graph data"
   task create_missing_graphs: :environment do
-    empty_graphs = Morphology::Graph
+    empty_graphs = Morphology::DependencyGraph::Graph
                      .left_joins(:nodes)
-                     .where(morphology_graph_nodes: { id: nil })
+                     .where(morphology_dependency_graph_nodes: { id: nil })
     count = empty_graphs.count
 
     if count.positive?
@@ -583,7 +583,7 @@ namespace :one_time do
       puts "Deleted #{deleted} empty graphs."
     end
 
-    existing_verse_keys = Morphology::Graph.distinct.pluck(:chapter_number, :verse_number).map do |chapter_number, verse_number|
+    existing_verse_keys = Morphology::DependencyGraph::Graph.distinct.pluck(:chapter_number, :verse_number).map do |chapter_number, verse_number|
       "#{chapter_number}:#{verse_number}"
     end.to_set
 
@@ -622,7 +622,7 @@ namespace :one_time do
 
       begin
         ActiveRecord::Base.transaction do
-          graph = Morphology::Graph.create!(
+          graph = Morphology::DependencyGraph::Graph.create!(
             chapter_number: verse.chapter_id,
             verse_number: verse.verse_number,
             graph_number: 1
@@ -632,7 +632,7 @@ namespace :one_time do
           node_index = 0
           morphology_words.each do |morphology_word|
             morphology_word.word_segments.each do |segment|
-              Morphology::GraphNode.create!(
+              Morphology::DependencyGraph::GraphNode.create!(
                 graph_id: graph.id,
                 type: 'word',
                 number: node_index,

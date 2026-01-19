@@ -1,0 +1,58 @@
+<% 
+  phrase_pos = node.resource&.relation || ''
+  phrase_source = node.resource&.source&.number ? node.resource.source.number + 1 : nil
+  phrase_target = node.resource&.target&.number ? node.resource.target.number + 1 : nil
+  available_node_numbers = presenter.nodes.reject { |n| n.type == 'phrase' }.map { |n| ["n#{n.number + 1}", n.number + 1] }
+  field_name_prefix = "nodes[#{node.id}]"
+%>
+<tr class="node-row node-type-phrase" data-node-id="<%= node.id %>" id="node_<%= node.id %>">
+  <td class="node-id"><%= node.id %></td>
+  <td class="node-number">
+    <%= node.display_number %>
+    <%= hidden_field_tag field_name_prefix + "[number]", node.number %>
+    <%= hidden_field_tag field_name_prefix + "[type]", 'phrase' %>
+  </td>
+  <td>
+    <%= text_field_tag field_name_prefix + "[phrase_pos]",
+                       phrase_pos,
+                       class: 'phrase-pos-input tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm',
+                       placeholder: 'e.g., PP',
+                       data: { node_id: node.id, action: 'change->graph-bulk-edit#savePhraseNodeField' } %>
+  </td>
+  <td>
+    <div class="tw-flex gap-2 tw-items-center">
+      <%= select_tag field_name_prefix + "[phrase_source]",
+                     options_for_select(available_node_numbers, phrase_source),
+                     { include_blank: 'Source', 
+                       class: 'phrase-source-select tw-min-w-[100px] tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
+                       data: { 
+                         controller: 'select2',
+                         node_id: node.id, 
+                         action: 'change->graph-bulk-edit#savePhraseNodeField' 
+                       } } %>
+      <span>→</span>
+      <%= select_tag field_name_prefix + "[phrase_target]",
+                     options_for_select(available_node_numbers, phrase_target),
+                     { include_blank: 'Target', 
+                       class: 'phrase-target-select tw-min-w-[100px] tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
+                       data: { 
+                         controller: 'select2',
+                         node_id: node.id, 
+                         action: 'change->graph-bulk-edit#savePhraseNodeField' 
+                       } } %>
+    </div>
+  </td>
+  <td class="actions-cell">
+    <%= hidden_field_tag field_name_prefix + "[value]", node.value, class: 'phrase-value-field' %>
+    <%= hidden_field_tag field_name_prefix + "[pos]", phrase_pos, class: 'phrase-pos-field' %>
+    <%= button_tag type: 'button',
+                   class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors',
+                   title: 'Remove phrase node',
+                   data: { 
+                     node_id: node.id,
+                     action: 'click->graph-bulk-edit#removeNode'
+                   } do %>
+      <i class="fa fa-trash"></i>
+    <% end %>
+  </td>
+</tr>

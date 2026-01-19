@@ -2,6 +2,8 @@
   resource = @user_project.resource_content
 %>
 
+<%= render 'layouts/qul_head' if !request.xhr? %>
+
 <div id=title>
   Request permission for <%= resource.name %>
 </div>

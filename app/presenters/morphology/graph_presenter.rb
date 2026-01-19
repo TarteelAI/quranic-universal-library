@@ -97,19 +97,27 @@ module Morphology
     end
 
     def edge_relation_translations
-      @edge_relation_translations ||= I18n.t('morphology.edge_relations', locale: locale, default: {})
+      @edge_relation_translations ||= I18n.t(
+        'morphology.edge_relations',
+        locale: locale,
+        default: I18n.t('morphology.edge_relations', locale: :en)
+      )
     end
 
     def pos_tag_translation(pos_tag)
       return nil if pos_tag.blank?
-      I18n.t("morphology.pos_tags.#{pos_tag}", locale: locale, default: pos_tag)
+      I18n.t(
+        "morphology.pos_tags.#{pos_tag}",
+        locale: locale,
+        default: I18n.t("morphology.pos_tags.#{pos_tag}", locale: :en, default: pos_tag)
+      )
     end
 
     def graph_edges
-      @graph_edges ||= Morphology::GraphNodeEdge
+      @graph_edges ||= Morphology::DependencyGraph::GraphNodeEdge
         .includes(:source, :target)
         .joins(:source, :target)
-        .where(morphology_graph_nodes: { graph_id: graph.id })
+        .where(morphology_dependency_graph_nodes: { graph_id: graph.id })
         .where.not(type: 'phrase')
         .order(:id)
     end
@@ -181,7 +189,7 @@ module Morphology
     end
 
     def total_graphs_in_verse
-      Morphology::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number).count
+      Morphology::DependencyGraph::Graph.where(chapter_number: graph.chapter_number, verse_number: graph.verse_number).count
     end
   end
 end

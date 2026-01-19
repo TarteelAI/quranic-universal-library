@@ -1,0 +1,18 @@
+<%= turbo_frame_tag "treebank_compare_button", class: "tw-inline-block" do %>
+  <% if @compare_mode %>
+    <%= link_to morphology_dependency_graph_path(@graph, locale: @locale),
+                class: "tw-inline-flex tw-items-center tw-justify-center tw-px-3 tw-py-1.5 tw-bg-red-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-red-700",
+                data: { turbo_stream: true, controller: "tooltip" },
+                title: "Close compare" do %>
+      <i class="fa fa-times"></i>
+    <% end %>
+  <% else %>
+    <%= link_to morphology_dependency_graph_path(@graph, locale: @locale, compare: 1),
+                class: "tw-inline-flex tw-items-center tw-justify-center tw-px-3 tw-py-1.5 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700",
+                data: { turbo_stream: true, controller: "tooltip" },
+                title: "Compare (side-by-side)" do %>
+      <i class="fa fa-columns"></i>
+    <% end %>
+  <% end %>
+<% end %>
+

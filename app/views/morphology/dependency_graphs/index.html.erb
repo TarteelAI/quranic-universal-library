@@ -1,0 +1,89 @@
+<%= render 'tools/header',
+           name: 'Ayah Dependency Graphs',
+           key: 'ayah_dependency_graph'
+%>
+
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="page-section filters">
+    <%= form_tag morphology_dependency_graphs_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
+        <%= render 'shared/filters' %>
+
+        <div class="tw-mb-4 tw-me-4">
+          <%= select_tag :review_status,
+                         options_for_select([['All', ''], ['Approved', 'approved'], ['In progress', 'in_progress']], params[:review_status].to_s),
+                         class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]' %>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">Status</label>
+        </div>
+
+        <div class="tw-mb-4 tw-me-4">
+          <%= select_tag :with_graphs,
+                         options_for_select([['All', '0'], ['Only with graphs', '1']], params[:with_graphs].to_s.presence || '0'),
+                         class: 'tw-w-44 tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white tw-h-[38px]' %>
+          <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700">With graphs</label>
+        </div>
+
+        <div class="tw-mb-4">
+          <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
+          <%= link_to 'Clear', morphology_dependency_graphs_path, class: 'tw-text-sm tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_chapter, :verse_number, :verse_key, :review_status, :with_graphs) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section tw-mt-4">
+    <h2 class="tw-text-2xl tw-mb-4">Ayah list</h2>
+
+    <div class="tools-table-overflow">
+      <table class="tw-w-full hover:tw-bg-gray-50">
+        <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
+          <tr>
+            <th>Key</th>
+            <th>Ayah</th>
+            <th>Graphs</th>
+            <th>Review status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @verses.each do |verse| %>
+            <tr class="hover:tw-bg-gray-200 tw-border-b">
+              <th scope="row" class="tw-py-2 tw-pl-2"><%= verse.verse_key %></th>
+              <td class="tw-py-2">
+                <div class="text-qpc-hafs tw-text-left">
+                  <%= truncate verse.text_qpc_hafs, length: 70 %>
+                </div>
+              </td>
+              <td class="tw-py-2"><%= verse.try(:graphs_count).to_i %></td>
+              <td class="tw-py-2"><%= verse.try(:review_status_label).to_s.humanize %></td>
+              <td class="tw-py-2">
+                <% if verse.try(:graphs_count).to_i > 0 %>
+                  <%= link_to 'View',
+                              morphology_dependency_graph_path(verse.try(:first_graph_id)),
+                              class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
+                <% else %>
+                  <span class="tw-inline-flex tw-items-center tw-justify-center tw-px-3 tw-py-1.5 tw-rounded tw-text-sm tw-font-medium tw-bg-gray-200 tw-text-gray-500 tw-cursor-not-allowed">View</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+
+          <tr>
+            <td colspan="5">
+              <div class="tw-flex tw-items-center">
+                <div class="tw-me-4">
+                  <%= pagy_nav_tailwind(@pagy).html_safe %>
+                </div>
+                <div>
+                  <%= pagy_info(@pagy).html_safe %>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

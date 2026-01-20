@@ -205,6 +205,11 @@ Rails.application.routes.draw do
     match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
   end
 
+  get '/og/ayah/:key', to: 'open_graph_images#ayah', defaults: { format: :png }, as: :og_ayah_image
+  get '/og/surah/:chapter_number', to: 'open_graph_images#surah', defaults: { format: :png }, as: :og_surah_image
+  get '/og/word/:chapter_number/:verse_number/:position', to: 'open_graph_images#word', defaults: { format: :png }, as: :og_word_image
+  get '/og/word', to: 'open_graph_images#word', defaults: { format: :png }, as: :og_word_image_query
+
   get '/ayah/:key', to: 'ayah#show', as: :ayah
   get '/ayah/:key/text', to: 'ayah#text', as: :ayah_text
   get '/ayah/:key/translations', to: 'ayah#translations', as: :ayah_translations

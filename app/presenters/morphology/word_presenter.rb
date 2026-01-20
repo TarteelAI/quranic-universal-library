@@ -26,6 +26,26 @@ module Morphology
       verse.present? && word.present?
     end
 
+    def meta_title
+      return super unless found?
+      "#{word.text_uthmani} • #{verse.verse_key}:#{word.position}"
+    end
+
+    def meta_description
+      return super unless found?
+      [meaning, transliteration].reject(&:blank?).join(' • ')
+    end
+
+    def og_image
+      return super unless found?
+      context.og_word_image_url(
+        chapter_number: verse.chapter_id,
+        verse_number: verse.verse_number,
+        position: word.position,
+        locale: locale
+      )
+    end
+
     def title
       return '' unless word
       "Grammar of #{word.position.ordinalize} word of ayah #{verse.verse_key}"

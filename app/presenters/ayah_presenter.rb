@@ -1,4 +1,19 @@
 class AyahPresenter < ApplicationPresenter
+  def meta_title
+    return super unless found?
+    "#{ayah.chapter.name_simple} (#{ayah.verse_key})"
+  end
+
+  def meta_description
+    return super unless found?
+    ayah.text_qpc_hafs.to_s
+  end
+
+  def og_image
+    return super unless found?
+    context.og_ayah_image_url(key: ayah.verse_key, locale: params[:locale])
+  end
+
   def ayah
     @ayah ||= Verse.find_by(verse_key: params[:key])
   end

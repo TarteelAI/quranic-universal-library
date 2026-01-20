@@ -17,62 +17,77 @@
     fill: #888;
     font-style: italic;
   }
-
-  .silver {
-    fill: #999;
-  }
-
+  
   .edge-label {
     fill: rgba(255, 255, 255, 0.6);
   }
 
-  // Color classes for POS tags and dependencies
-  .purple {
-    fill: #8e44ad;
-  }
-  .navy {
-    fill: #2c3e50;
-  }
-  .orange {
-    fill: #e67e22;
-  }
-  .brown {
-    fill: #8b4513;
-  }
-  .gray {
-    fill: #7f8c8d;
-  }
-  .rose {
-    fill: #e91e63;
-  }
-  .sky {
-    fill: #3498db;
-  }
-  .red {
-    fill: #e74c3c;
-  }
-  .blue {
-    fill: #2980b9;
-  }
-  .rust {
-    fill: #a0522d;
-  }
-  .gold {
-    fill: #f39c12;
-  }
-  .green {
-    fill: #27ae60;
-  }
-  .seagreen {
-    fill: #16a085;
-  }
-  .metal {
-    fill: #95a5a6;
-  }
-  .pink {
-    fill: #ff69b4;
-  }
+  tspan, text{
+    &.silver {
+      fill: #999;
+    }
+    // Color classes for POS tags and dependencies
+    &.purple {
+      fill: #8e44ad;
+    }
 
+    &.navy {
+      fill: #2c3e50;
+    }
+
+    &.orange {
+      fill: #e67e22;
+    }
+
+    &.brown {
+      fill: #8b4513;
+    }
+
+    &.gray {
+      fill: #7f8c8d;
+    }
+
+    &.rose {
+      fill: #e91e63;
+    }
+
+    &.sky {
+      fill: #3498db;
+    }
+
+    &.red {
+      fill: #e74c3c;
+    }
+
+    &.blue {
+      fill: #2980b9;
+    }
+
+    &.rust {
+      fill: #a0522d;
+    }
+
+    &.gold {
+      fill: #f39c12;
+    }
+
+    &.green {
+      fill: #27ae60;
+    }
+
+    &.seagreen {
+      fill: #16a085;
+    }
+
+    &.metal {
+      fill: #95a5a6;
+    }
+
+    &.pink {
+      fill: #ff69b4;
+    }
+  }
+  
   // Circle styles
   circle {
     fill: currentColor;

@@ -1,7 +1,5 @@
 class ApplicationController < ActionController::Base
   before_action :init_presenter
-  before_action :set_locale
-  before_action :set_paper_trail_whodunnit
 
   include Pagy::Backend
   helper_method :pagy
@@ -13,7 +11,11 @@ class ApplicationController < ActionController::Base
               ActiveRecord::RecordNotFound,
               with: ->(exception) { render_error 404, exception }
 
+  before_action :set_locale
   protect_from_forgery with: :exception
+  # Papertrail audit user should be set after protect_from_forgery
+  before_action :set_paper_trail_whodunnit
+
   def not_found
     render 'shared/not_found'
   end

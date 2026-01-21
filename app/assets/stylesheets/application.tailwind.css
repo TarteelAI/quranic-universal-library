@@ -23,11 +23,27 @@
     }
 
     .tw-btn {
-        @apply tw-font-semibold tw-py-2 tw-px-4 tw-rounded focus:tw-outline-none focus:tw-ring-2;
+        @apply !tw-no-underline tw-font-semibold tw-py-2 tw-px-4 tw-rounded focus:tw-outline-none focus:tw-ring-2;
+    }
+
+    .tw-btn-sm {
+        @apply tw-py-1 tw-px-2 tw-text-sm;
+    }
+
+    .tw-btn-info {
+        @apply tw-bg-blue-500 !tw-text-white hover:tw-bg-blue-600 focus:tw-ring-blue-300 hover:!tw-text-white;
     }
 
     .tw-btn-success {
-        @apply tw-bg-green-500 tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:tw-text-white;
+        @apply tw-bg-green-500 !tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:!tw-text-white;
+    }
+
+    .tw-btn-warning {
+        @apply tw-bg-yellow-500 !tw-text-white hover:tw-bg-yellow-600 focus:tw-ring-yellow-300 hover:!tw-text-white;
+    }
+
+    .tw-btn-danger {
+        @apply tw-bg-red-500 !tw-text-white hover:tw-bg-red-600 focus:tw-ring-red-300 hover:!tw-text-white;
     }
 
     .tw-docs {

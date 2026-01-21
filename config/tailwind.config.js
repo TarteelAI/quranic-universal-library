@@ -7,6 +7,7 @@ module.exports = {
     './app/helpers/**/*.rb',
     './app/javascript/**/*.{js,vue}',
     './app/views/**/*.{erb,html}',
+    './app/admin/**/*.rb',
   ],
   theme: {
     extend: {
@@ -37,6 +38,12 @@ module.exports = {
     'tw-hidden',
     'tw-link-button',
     'tw-docs',
-    'tw-docs *'
+    'tw-docs *',
+    'tw-btn',
+    'tw-btn-sm',
+    'tw-btn-info',
+    'tw-btn-success',
+    'tw-btn-warning',
+    'tw-btn-danger'
   ]
 };

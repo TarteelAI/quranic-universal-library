@@ -55,7 +55,7 @@ ActiveAdmin.register_page 'Dashboard' do
           div do
             Tools::DataIntegrityChecks.checks.each do |check_name|
               check = Tools::DataIntegrityChecks.send(check_name)
-              div class: 'fs-lg p-3 d-flex border-bottom' do
+              div class: 'fs-lg p-3 d-flex tw-border-b' do
                 div do
                   div(check[:name])
                   small(check[:description].to_s.html_safe)
@@ -78,7 +78,7 @@ ActiveAdmin.register_page 'Dashboard' do
             Tools::TajweedRulesCheck.checks.each do |check_name|
               check = Tools::TajweedRulesCheck.send(check_name)
 
-              div class: 'fs-lg p-3 d-flex border-bottom' do
+              div class: 'fs-lg p-3 d-flex tw-border-b' do
                 div do
                   div(check[:name].to_s.html_safe)
                   small(check[:description].to_s.html_safe)

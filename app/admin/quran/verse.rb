@@ -218,7 +218,7 @@ ActiveAdmin.register Verse do
 
       row :image do
         div class: 'quran-text' do
-          image_tag resource.image_url, class: 'w-100'
+          image_tag resource.image_url, class: 'tw-w-full'
         end
       end
 

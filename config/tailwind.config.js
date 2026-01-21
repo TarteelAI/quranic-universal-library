@@ -35,6 +35,7 @@ module.exports = {
     'tw-text-orange-600',
     'tw-text-green-600',
     'tw-text-yellow-600',
+    'tw-text-green-500',
     'tw-hidden',
     'tw-link-button',
     'tw-docs',
@@ -44,6 +45,15 @@ module.exports = {
     'tw-btn-info',
     'tw-btn-success',
     'tw-btn-warning',
-    'tw-btn-danger'
+    'tw-btn-danger',
+    'tw-flex',
+    'tw-flex-col',
+    'tw-items-end',
+    'tw-ms-auto',
+    'tw-me-2',
+    'tw-m-1',
+    'tw-my-2',
+    'tw-p-3',
+    'tw-py-2'
   ]
 };

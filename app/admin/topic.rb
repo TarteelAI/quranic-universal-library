@@ -81,7 +81,7 @@ ActiveAdmin.register Topic do
               link_to([:cms, verse_topic.verse]) do
                 span verse_topic.verse.verse_key, title: "(tematic: #{verse_topic.thematic?}, ontology: #{verse_topic.ontology?})"
                 verse_topic.verse.words.each do |w|
-                  span w.text_qpc_hafs, class: "#{'text-success' if verse_topic.topic_words.include?(w.position)}"
+                  span w.text_qpc_hafs, class: "#{'tw-text-green-500' if verse_topic.topic_words.include?(w.position)}"
                 end
               end
             end

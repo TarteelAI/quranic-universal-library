@@ -69,8 +69,8 @@ ActiveAdmin.register Mushaf do
       h3 "Pages that don't have #{resource.lines_per_page} lines (total #{resource.mushaf_pages.where('lines_count != ?', resource.lines_per_page).count})"
       div do
         pages.where('lines_count != ?', resource.lines_per_page).each do |page|
-          span class: 'btn btn-info m-1' do
-            span link_to(page.page_number, "/cms/mushaf_page_preview?page=#{page.page_number}&mushaf=#{resource.id}", class: 'text-white')
+          span class: 'tw-btn tw-btn-info tw-m-1' do
+            span link_to(page.page_number, "/cms/mushaf_page_preview?page=#{page.page_number}&mushaf=#{resource.id}")
             span page.lines_count, class: 'badge text-bg-secondary bg-success'
           end
         end
@@ -84,8 +84,8 @@ ActiveAdmin.register Mushaf do
                                   .order('page_number ASC, line_number ASC')
 
         alignments_with_surah.each do |alignment|
-          span class: 'btn btn-info m-1', title: alignment.chapter&.name_simple, data: {controller: 'tooltip'} do
-            span link_to(alignment.page_number, "/cms/mushaf_page_preview?page=#{alignment.page_number}&mushaf=#{resource.id}", class: 'text-white')
+          span class: 'tw-btn tw-btn-info tw-m-1', title: alignment.chapter&.name_simple, data: {controller: 'tooltip'} do
+            span link_to(alignment.page_number, "/cms/mushaf_page_preview?page=#{alignment.page_number}&mushaf=#{resource.id}")
             span alignment.get_surah_number, class: 'badge text-bg-secondary bg-success'
           end
         end

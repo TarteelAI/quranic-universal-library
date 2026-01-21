@@ -56,7 +56,7 @@ ActiveAdmin.register_page 'Ayah data preview' do
       end
 
       catalog.each do |content|
-        panel "<div data-bs-toggle='collapse' data-bs-target='#content-#{content.id}' class='d-flex collapable scrollable'>#{content.resource&.name} <span class='ms-auto'></span></div>".html_safe do
+        panel "<div data-bs-toggle='collapse' data-bs-target='#content-#{content.id}' class='tw-flex collapable scrollable'>#{content.resource&.name} <span class='tw-ms-auto'></span></div>".html_safe do
           div do
             link_to "View record", [:cms, content]
           end

@@ -10,7 +10,7 @@ result =c.generate!(
 =end
 
 module Corpus
-  class QuranGrammarHtmlGenerator < OpenAPIAgent
+  class QuranGrammarHtmlGenerator < OpenaiAgent
     def generate(
       english_term:,
       arabic_term:,

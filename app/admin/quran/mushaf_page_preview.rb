@@ -47,7 +47,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
           tr do
             td do
               link_to mushaf.name, "/cms/mushaf_page_preview?mushaf=#{mushaf.id}&page=#{page}",
-                      class: "#{'text-success' if mushaf.id == params['mushaf'].to_i}"
+                      class: "#{'tw-text-green-500' if mushaf.id == params['mushaf'].to_i}"
             end
 
             td mushaf.pages_count

@@ -74,7 +74,7 @@ class Translation < QuranApiRecord
         current_text: foot_note.text,
         draft_text: foot_note.text,
         resource_content_id: resource_content_id,
-        foot_note: foot_note
+        footnote: foot_note
       )
     end
 

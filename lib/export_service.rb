@@ -25,7 +25,6 @@ class ExportService
     end
   end
 
-  #TODO: save this to resource content
   TRANSLATION_NAME_MAPPING = {
     920 => 'en-daryabadi',
     131 => 'en-khattab',
@@ -91,7 +90,6 @@ class ExportService
     30 => 'fi-finnish',
 
     225 => 'gu-rabila',
-    #32 => 'ha-gumi', duplicate of 115
     115 => 'ha-gummi',
     233 => 'he-dar-al-salam',
     122 => 'hi-omari',
@@ -118,11 +116,9 @@ class ExportService
     788 => 'mk-macedonian',
     224 => 'ml-kunhi',
     80 => 'ml-karakunnu',
-    #37 => 'ml-kunhi', duplicate of 224
     226 => 'mr-shafi-ansari',
     38 => 'mn-maranao',
     784 => 'ms-basmeih',
-    # 39 => 'ms-basmeih', duplicate of 784
     108 => 'ne-ahl-hadith-central',
     235 => 'nl-faris',
     144 => 'nl-sofian',
@@ -147,7 +143,6 @@ class ExportService
     89 => 'sq-sherif',
     48 => 'sv-knut',
     231 => 'sw-abdullah-nasir',
-    #793 => 'sw-muhsen', duplicate of 49
     49 => 'sw-muhsin',
     133 => 'ta-hameed',
     50 => 'ta-jan-trust',

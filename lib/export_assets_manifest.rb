@@ -13,13 +13,31 @@ class ExportAssetsManifest
 
   def export
     manifest = build_manifest
-    file_path = File.join(base_path, "assets-manifest-#{manifest_version}.json")
+    file_path = File.join(base_path, "manifest-#{manifest_version}.json")
 
     File.open(file_path, 'w') do |f|
       f << JSON.pretty_generate(manifest)
     end
 
     file_path
+  end
+
+  def upload(manifest_path: nil)
+    manifest_path ||= export
+    object_key = "asset-manifests/#{File.basename(manifest_path)}"
+
+    bucket.object(object_key)
+          .upload_file(
+            manifest_path,
+            content_type: 'application/json'
+          )
+
+    "#{content_cnd_host}/#{object_key}"
+  end
+
+  def export_and_upload
+    manifest_path = export
+    upload(manifest_path: manifest_path)
   end
 
   protected
@@ -120,6 +138,20 @@ class ExportAssetsManifest
     else
       raise "Unknown resource type: #{resource_type}"
     end
+  end
+
+  def s3_client
+    @s3_client ||= Aws::S3::Resource.new(
+      access_key_id: ENV['QUL_STORAGE_ACCESS_KEY'],
+      secret_access_key: ENV['QUL_STORAGE_ACCESS_KEY_SECRET'],
+      region: ENV['QUL_STORAGE_REGION'],
+      endpoint: ENV['QUL_STORAGE_ENDPOINT'],
+      force_path_style: true
+    )
+  end
+
+  def bucket
+    @bucket ||= s3_client.bucket(ENV['QUL_STORAGE_BUCKET'])
   end
 
   def content_cnd_host

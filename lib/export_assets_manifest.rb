@@ -123,10 +123,10 @@ class ExportAssetsManifest
   end
 
   def content_cnd_host
-    ENV['CND_HOST']
+    ENV['CDN_HOST']
   end
 
   def audio_cdn_host
-    ENV['AUDIO_CND_HOST']
+    ENV['AUDIO_CDN_HOST']
   end
 end

@@ -43,21 +43,31 @@ ActiveAdmin.register Tag do
     end
 
     panel "Resources for this tag (#{resource.resources.size})" do
+      grouped_resources = resource.resources.group_by(&:sub_type)
+
       table do
         thead do
           td 'Id'
-          td 'Type'
+          td 'Cardinality'
           td 'Language'
           td 'Name'
         end
 
         tbody do
-          resource.resources.each do |r|
-            tr do
-              td link_to(r.id, [:cms, r])
-              td r.sub_type
-              td r.language_name
-              td r.name
+          grouped_resources.each do |sub_type, resources|
+            tr class: 'tw-bg-gray-100' do
+              td colspan: 4, class: 'tw-font-bold tw-text-gray-700 tw-py-2' do
+                "#{sub_type.to_s.titleize} (#{resources.size})"
+              end
+            end
+
+            resources.each do |r|
+              tr do
+                td link_to(r.id, [:cms, r])
+                td r.cardinality_type
+                td r.language_name
+                td r.name
+              end
             end
           end
         end

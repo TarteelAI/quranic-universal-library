@@ -29,9 +29,8 @@
 
 <%= turbo_frame_tag dom_id(mushaf, "page_#{page}") do %>
   <%= render 'shared/tajweed_images_styles' if use_images %>
-  <%= render 'shared/page_font', pages: [page], words: nil %>
 
-  <div class="theme-light mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
+  <div class="mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
     <% if show_controls %>
       <div class="mushaf-page-setting tw-flex flex-column tw-mb-4">
         <div><span>Name: <%= name %></span></div>
@@ -58,7 +57,7 @@
     <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
       <div id="page-<%= page %>"
            data-controller="<%= 'tajweed-font' if mushaf.font_code == 'v4-tajweed' %>"
-           class="page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
+           class="theme-light page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
         <% 1.upto(mushaf.lines_per_page) do |line_number| %>
           <%
             line_mapping = lines_mapping[line_number] || MushafLineAlignment.dummy
@@ -129,4 +128,6 @@
         </div>
   </div>
   </div>
+
+  <%= render 'shared/page_font', pages: [page], words: nil %>
 <% end %>

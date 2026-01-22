@@ -111,7 +111,7 @@ module Audio
 
       # Check if we've segments for all ayahs
       if verses_count != segments.size
-        missing_ayahs = (1..verses_count).to_a - segments.pluck(:verse_number)
+        missing_ayahs = (1..verses_count).to_a - segments.pluck(:verse_id)
         issues.push(
           {
             text: "#{verses_count - segments.size} ayahs(#{missing_ayahs.join(', ')}) don't have segments data. Total segments: #{segments.size}",
@@ -121,7 +121,15 @@ module Audio
       end
 
       segments.each do |segment|
-        if segment.timestamp_to < segment.timestamp_from
+        if segment.timestamp_to.blank? || segment.timestamp_from.blank?
+          issues.push(
+            {
+              key: segment.verse_key,
+              text: "#{segment.verse_key} timestamp from OR to is missing.",
+              severity: 'bg-danger'
+            }
+          )
+        elsif segment.timestamp_to < segment.timestamp_from
           issues.push(
             {
               key: segment.verse_key,

@@ -129,12 +129,9 @@ class ExportAssetsManifest
 
       "#{content_cnd_host}/translations/#{name}-#{version}.json"
     when 'audio'
-      name = resource.meta_value('audio-path')
-
-      "#{audio_cdn_host}/#{name}"
+      "#{content_cnd_host}/audio/gapless/#{resource.id}/audio_files.json"
     when 'segments'
-      name = resource.meta_value('segments-path')
-      "#{audio_cdn_host}/segments/gapless/#{name}.json"
+      "#{content_cnd_host}/audio/gapless/#{resource.id}/segments.json"
     else
       raise "Unknown resource type: #{resource_type}"
     end

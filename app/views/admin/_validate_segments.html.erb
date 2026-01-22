@@ -15,9 +15,11 @@
         </li>
       <% else %>
         <% @issues.each do |issue| %>
-          <li class="list-group-item tw-flex">
+          <li class="list-group-item tw-flex tw-mb-2 tw-py-2 tw-border-b tw-border-gray-300">
             <div class="tw-flex tw-justify-between tw-items-start tw-w-full">
-              <div style="width: 20px; height: 20px" class="<%= issue[:severity] %>"></div>
+              <div style="width: 20px; height: 20px" class="<%= issue[:severity] %>">
+              </div>
+
               <div class="tw-ml-2 mr-auto">
                 <%= issue[:text] %>
               </div>
@@ -25,9 +27,10 @@
               <% if issue[:key] %>
                 <% chapter, verse = issue[:key].split(':') %>
                 <% if resource.one_ayah? %>
-                  <%= link_to 'Debug', segment_builder_ayah_audio_file_path(resource.id, chapter_id: chapter, verse: verse), class: 'btn btn-danger text-white btn-sm', target: '_blank' %>
+                  <%= link_to 'Debug', segment_builder_ayah_audio_file_path(resource.id, chapter_id: chapter, verse: verse), class: 'tw-btn tw-btn-danger tw-btn-sm', target: '_blank' %>
                 <% else %>
-                  <%= link_to 'Debug', segment_builder_surah_audio_file_path(chapter, recitation_id: resource.id, verse: verse), class: 'btn btn-danger text-white btn-sm', target: '_blank' %>
+                  <% recitation = resource.is_a?(Audio::ChapterAudioFile) ? resource.audio_recitation : resource %>
+                  <%= link_to 'Debug', segment_builder_surah_audio_file_path(chapter, recitation_id: recitation.id, verse: verse), class: 'tw-btn tw-btn-danger tw-btn-sm', target: '_blank' %>
                 <% end %>
               <% end %>
             </div>

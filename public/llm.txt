@@ -160,10 +160,10 @@ Different Quran layout formats for various print styles:
 - `GET /api/v1/resources/languages` - Supported languages
 
 #### Morphology
-- `GET /api/morphology/edge_relations` - Morphology edges
-- `GET /morphology/roots/:id` - Root details
-- `GET /morphology/lemmas/:id` - Lemma details
-- `GET /morphology/word` - Word morphology
+- `GET /api/morphology/edge_relations` - Morphology edges (API endpoint)
+- `GET /morphology/roots/:id` - Root details (web route)
+- `GET /morphology/lemmas/:id` - Lemma details (web route)
+- `GET /morphology/word` - Word morphology (web route)
 
 ### API Features
 - JSON format responses

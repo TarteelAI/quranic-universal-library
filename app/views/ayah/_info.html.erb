@@ -1,6 +1,6 @@
 <% active_tab = params[:tab].presence || 'ayah' %>
 <div class="tw-p-3 sm:tw-p-6" id="modal-body" data-controller="tabs">
-  <ul class="nav nav-tabs nav-tabs-clean tw-flex-nowrap tw-overflow-x-auto tw-overflow-y-hidden tw-whitespace-nowrap" id="ayahTabs" role="tablist">
+  <ul class="nav nav-tabs tw-flex tw-flex-nowrap tw-overflow-x-auto tw-overflow-y-hidden tw-whitespace-nowrap tw-border-b tw-border-gray-200" id="ayahTabs" role="tablist">
     <li class="tw-m-0 tw-flex-none" role="presentation">
       <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] <%= 'active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6]' if active_tab == 'ayah' %>" id="ayah-tab" data-action="click->tabs#switch" data-tabs-target-value="ayah" type="button" role="tab" aria-controls="ayah" aria-selected="<%= active_tab == 'ayah' %>">Ayah</button>
     </li>

@@ -3,13 +3,13 @@
     <%= @ayah.text_qpc_hafs %>
   </div>
 
-  <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-transliteration-selector">
-    <div class="tw-flex tw-flex-wrap tw-gap-2">
-      <% rc = @presenter.transliteration_resources_by_id[@presenter.transliteration_id] %>
-      <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs">
-        <%= rc&.name.presence || "Transliteration ##{@presenter.transliteration_id}" %>
-      </span>
-    </div>
+   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-transliteration-selector">
+     <div class="tw-flex tw-flex-wrap tw-gap-2">
+       <% rc = @presenter.transliteration_resources_by_id[@presenter.transliteration_id] %>
+       <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs">
+         <%= rc&.name.presence || "Transliteration ##{@presenter.transliteration_id}" %>
+       </span>
+     </div>
 
     <button type="button"
             class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"

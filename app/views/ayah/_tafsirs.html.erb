@@ -3,15 +3,12 @@
     <%= @ayah.text_qpc_hafs %>
   </div>
 
-  <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-tafsir-selector">
-    <div class="tw-flex tw-flex-wrap tw-gap-2">
-      <% @presenter.tafsir_ids.each do |rid| %>
-        <% rc = @presenter.tafsir_resources_by_id[rid] %>
-        <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs">
-          <%= rc&.name.presence || "Tafsir ##{rid}" %>
-        </span>
-      <% end %>
-    </div>
+   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-tafsir-selector">
+     <div class="tw-flex tw-flex-wrap tw-gap-2">
+       <span class="tw-inline-flex tw-items-center tw-px-3 tw-py-1 tw-rounded tw-bg-blue-100 tw-text-blue-800 tw-text-sm tw-font-medium">
+         <%= @presenter.tafsir_ids.size %> tafsir<%= 's' if @presenter.tafsir_ids.size != 1 %> selected
+       </span>
+     </div>
 
     <button type="button"
             class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"

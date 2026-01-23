@@ -57,6 +57,12 @@ class AyahPresenter < ApplicationPresenter
     @translation_resources_by_id ||= translation_resources.index_by(&:id)
   end
 
+  def translation_resources_grouped_by_language
+    @translation_resources_grouped_by_language ||= translation_resources.includes(:language).group_by do |resource|
+      resource.language&.name&.titleize || 'Unknown'
+    end.sort_by { |language, _| language }.to_h
+  end
+
   def translations
     return [] unless found?
     @translations ||= ayah.translations.where(resource_content_id: translation_ids).includes(:language, :foot_notes).to_a

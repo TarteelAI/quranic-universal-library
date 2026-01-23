@@ -5,12 +5,9 @@
 
   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-translation-selector">
     <div class="tw-flex tw-flex-wrap tw-gap-2">
-      <% @presenter.translation_ids.each do |rid| %>
-        <% rc = @presenter.translation_resources_by_id[rid] %>
-        <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs">
-          <%= rc&.name.presence || "Translation ##{rid}" %>
-        </span>
-      <% end %>
+      <span class="tw-inline-flex tw-items-center tw-px-3 tw-py-1 tw-rounded tw-bg-blue-100 tw-text-blue-800 tw-text-sm tw-font-medium">
+        <%= @presenter.translation_ids.size %> translation<%= 's' if @presenter.translation_ids.size != 1 %> selected
+      </span>
     </div>
 
     <button type="button"
@@ -27,14 +24,34 @@
           <i class="fa fa-times"></i>
         </button>
       </div>
+      <div class="tw-p-4 tw-border-b tw-border-gray-200">
+        <input type="text"
+               placeholder="Search translations..."
+               class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-text-sm tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-500 tw-focus:border-blue-500"
+               data-ayah-translation-selector-target="search"
+               data-action="input->ayah-translation-selector#search">
+      </div>
       <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
         <%= form_with url: ayah_translations_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_translations }, html: { data: { ayah_translation_selector_target: "form" } } do %>
-          <div class="tw-space-y-2">
-            <% @presenter.translation_resources.each do |rc| %>
-              <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
-                <%= check_box_tag "translation_ids[]", rc.id, @presenter.translation_ids.include?(rc.id), class: "tw-mt-1", data: { action: "change->ayah-translation-selector#change" } %>
-                <span><%= rc.name %></span>
-              </label>
+          <div class="tw-space-y-3" data-ayah-translation-selector-target="translationList">
+            <% @presenter.translation_resources_grouped_by_language.each do |language, resources| %>
+              <div class="translation-group" data-language="<%= language.downcase %>">
+                <button type="button"
+                        class="tw-flex tw-items-center tw-justify-between tw-w-full tw-px-3 tw-py-2 tw-text-left tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-md tw-text-sm tw-font-medium tw-text-gray-900 hover:tw-bg-gray-100"
+                        data-action="click->ayah-translation-selector#toggleGroup"
+                        data-group="<%= language.downcase %>">
+                  <span><%= language %> (<%= resources.size %>)</span>
+                  <i class="fa fa-chevron-down tw-transition-transform tw-duration-200" data-ayah-translation-selector-target="chevron" data-group="<%= language.downcase %>"></i>
+                </button>
+                <div class="tw-mt-2 tw-space-y-2 tw-hidden" data-ayah-translation-selector-target="groupContent" data-group="<%= language.downcase %>">
+                  <% resources.each do |rc| %>
+                    <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800 translation-item" data-name="<%= rc.name.downcase %>">
+                      <%= check_box_tag "translation_ids[]", rc.id, @presenter.translation_ids.include?(rc.id), class: "tw-mt-1", data: { action: "change->ayah-translation-selector#change" } %>
+                      <span><%= rc.name %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
             <% end %>
           </div>
         <% end %>

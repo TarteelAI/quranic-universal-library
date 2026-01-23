@@ -532,7 +532,7 @@ ActiveAdmin.register Word do
           tr do
             td link_to(trans.id, [:cms, trans])
             td link_to(trans.language_name, cms_language_path(trans.language_id)) if trans.language_id
-            td trans.text
+            td safe_html(trans.text)
           end
         end
       end

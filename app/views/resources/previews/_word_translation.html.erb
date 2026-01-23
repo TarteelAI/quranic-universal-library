@@ -7,6 +7,7 @@
     .order('words.position ASC')
 
   language_name = word_translations.first&.language_name.to_s.downcase
+  is_colored = resource.name.include?('color')
 %>
 
 <div class="tw-mt-5" data-controller="tabs">
@@ -79,10 +80,14 @@
               <% word_translations.each do |wt| %>
                 <div class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
                   <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
-                    <%= wt.word.text_qpc_hafs %>
+                    <% if is_colored %>
+                      <%= safe_html wt.word.text_qpc_hafs %>
+                    <% else %>
+                      <%= safe_html wt.word.grammar_segmented_text %>
+                    <% end %>
                   </div>
                   <div class="tw-text-sm tw-text-gray-600 <%= language_name %>">
-                    <%= wt.text %>
+                    <%= safe_html wt.text %>
                   </div>
                 </div>
               <% end %>

@@ -21,7 +21,9 @@ ActiveAdmin.register WordTranslation do
 
     column :language, &:language_name
     column :word
-    column :text
+    column :text do |r|
+      safe_html r.text
+    end
     actions
   end
 
@@ -32,10 +34,13 @@ ActiveAdmin.register WordTranslation do
       row :language
       row :text do |resource|
         div class: resource.language_name.to_s.downcase do
-          resource.text
+          safe_html resource.text
         end
       end
-      row :resource_content
+      row :resource_content do |resource|
+        resource_content = resource.get_resource_content
+        link_to resource_content.name, [:cms, resource_content]
+      end
       row :created_at
       row :updated_at
     end

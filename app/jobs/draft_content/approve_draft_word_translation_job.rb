@@ -5,9 +5,12 @@ module DraftContent
     private
 
     def import_from_legacy_table
-      Draft::WordTranslation.includes(:word)
-                            .where(resource_content_id: @resource.id)
-                            .find_each { |draft| import_word(draft) }
+      Draft::WordTranslation
+        .includes(:word)
+        .where(resource_content_id: @resource.id)
+        .find_each do |draft|
+          import_word(draft)
+        end
     end
 
     def import_from_draft_content
@@ -22,6 +25,7 @@ module DraftContent
 
     def import_word(draft)
       word = draft.word
+
       translation = WordTranslation.where(
         word_id: word.id,
         resource_content_id: @resource.id

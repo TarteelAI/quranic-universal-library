@@ -144,6 +144,12 @@ class Word < QuranApiRecord
   default_scope { order 'position asc' }
   alias_attribute :code_v4, :code_v2
 
+  def grammar_segmented_text
+    morphology_word_segments.map do |seg|
+      "<span class='#{seg.get_segment_color}'>#{seg.text_uthmani}</span>"
+    end.join
+  end
+
   def self.ransackable_scopes(*)
     %i[letters_cont starts_with_eq ends_with_eq]
   end

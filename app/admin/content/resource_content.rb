@@ -427,7 +427,11 @@ ActiveAdmin.register ResourceContent do
   sidebar 'Data for this resource', only: :show do
     div do
       if resource.translation?
-        link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
+        if resource.one_word?
+          link_to 'WBW Translations', "/cms/word_translations?q%5Bresource_content_id_eq=#{resource.id}"
+        else
+          link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
+        end
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.transliteration?

@@ -35,15 +35,19 @@
           Table below is showing all the pages with their current status.
         </p>
       </div>
-      <div class="tw-sticky tw-top-0 tw-z-20 tw-bg-white tw-pb-4 tw-mb-4 tw-border-b tw-border-gray-200">
-        <%= form_with url: mushaf_layout_path(@mushaf.id), method: :get do |f| %>
+      <div class="tw-sticky tw-top-0 tw-z-20 tw-bg-white tw-pb-4 tw-mb-4 tw-border-b tw-border-gray-200" data-controller="live-search">
+        <%= form_with url: mushaf_layout_path(@mushaf.id), method: :get, html: { data: { live_search_target: "form", turbo_frame: "resources" } } do |f| %>
           <div class="tw-flex tw-gap-2">
             <%= f.search_field :search,
                                value: params[:search],
                                placeholder: "Search by page number or ayah (e.g., 20 or 2:5)...",
-                               class: "form-control tw-flex-1 tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500" %>
+                               class: "form-control tw-flex-1 tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500",
+                               data: { live_search_target: "searchInput", action: "input->live-search#search" } %>
             <%= f.hidden_field :sort_key, value: params[:sort_key] %>
             <%= f.hidden_field :sort_order, value: params[:sort_order] %>
+
+            <% if params[:search].present? %>
+              <%= link_to 'Clear', mushaf_layout_path(@mushaf.id, sort_key: params[:sort_key], sort_order: params[:sort_order]), class: 'btn btn-secondary', data: { turbo_frame: 'resources' } %>
             <%= f.submit 'Search', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
 
             <% if params[:search].present? %>

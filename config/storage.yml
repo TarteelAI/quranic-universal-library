@@ -64,3 +64,15 @@ qul_segments:
   endpoint: <%= ENV.fetch('QUL_STORAGE_ENDPOINT'){'https://fix.me'} %>
   upload:
     cache_control: "private, max-age=0"
+
+# Database backups storage (S3-compatible)
+database_backups:
+  service: S3
+  access_key_id: <%= ENV.fetch('AWS_ACCESS_KEY'){'missing'} %>
+  secret_access_key: <%= ENV.fetch('AWS_ACCESS_KEY_SECRET'){'missing'} %>
+  region: <%= ENV.fetch('DB_BACKUP_REGION'){'us-east-2'} %>
+  bucket: <%= ENV.fetch('DB_BACK_BUCKET'){'db-backups'} %>
+  public: false
+  <%= "endpoint: #{ENV['DB_BACKUP_ENDPOINT']}" if ENV['DB_BACKUP_ENDPOINT'].present? %>
+  upload:
+    cache_control: "private, max-age=<%= 2.days.to_i %>"

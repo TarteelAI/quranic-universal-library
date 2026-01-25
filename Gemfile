@@ -111,8 +111,9 @@ group :development do
   gem "letter_opener"
 end
 
-gem 'carrierwave', '~> 2.2.6'
-gem 'fog-aws'
+# Removed CarrierWave - migrated to ActiveStorage
+# gem 'carrierwave', '~> 2.2.6'
+# gem 'fog-aws'
 
 gem 'rest-client'
 

@@ -49,7 +49,13 @@ ActiveAdmin.register DatabaseBackup do
     column :tag
     column :size
     column :download do |backup|
-      link_to 'Download', backup.file.url
+      if backup.backup_file.attached?
+        link_to 'Download', rails_blob_path(backup.backup_file, disposition: 'attachment')
+      elsif backup.file.present?
+        link_to 'Download', backup.file.url
+      else
+        'No file'
+      end
     end
   end
 

@@ -52,7 +52,8 @@ module AudioSegment
         reciter_dir = File.join(root_tmp, file_label, recitation.id.to_s)
         FileUtils.mkdir_p(reciter_dir)
 
-        export_gapless_recitation_jsons(recitation, reciter_dir)
+        export_gapless_recitation_segments(recitation, reciter_dir)
+        export_gapless_recitation_audio_files(recitation, reciter_dir)
       end
 
       master_zip = "#{file_path}.zip"
@@ -122,11 +123,9 @@ module AudioSegment
     end
 
     def get_gapless_segments_data(recitation)
-      recitation_id = get_cloned_id(recitation.id)
-
       segments = Audio::Segment
                    .where(
-                     audio_recitation_id: recitation_id
+                     audio_recitation_id: recitation.id
                    )
                    .order('chapter_id ASC, verse_number ASC')
                    .includes(:verse)
@@ -156,34 +155,9 @@ module AudioSegment
       end
     end
 
-    CLONED_IDS = {
-      1 => 186,
-      2 => 187,
-      3 => 188,
-      4 => 189,
-      5 => 192,
-      6 => 191,
-      7 => 192,
-      8 => 193,
-      9 => 194,
-      10 => 195,
-      12 => 196,
-      13 => 197,
-
-      65 => 198,
-      161 => 199,
-      164 => 201,
-      174 => 202,
-      175 => 203,
-    }
-    def get_cloned_id(id)
-      CLONED_IDS[id] || id
-    end
-
-    def export_gapless_recitation_jsons(recitation, target_dir)
-      recitation_id = get_cloned_id(recitation.id)
+    def export_gapless_recitation_segments(recitation, target_dir)
       segments = Audio::Segment
-                   .where(audio_recitation_id: recitation_id)
+                   .where(audio_recitation_id: recitation.id)
                    .order('chapter_id ASC, verse_number ASC')
                    .includes(:verse)
 
@@ -229,7 +203,38 @@ module AudioSegment
         File.open(json_path, "w") do |f|
           f.write(JSON.dump(json_ayahs))
         end
+
+        uploader = UploadToCdn.new
+        key = "audio/gapless/#{recitation.get_resource_content.id}/segments.json"
+        uploader.upload(json_path, key)
+
+        json_path
       end
+    end
+
+    def export_gapless_recitation_audio_files(recitation, target_dir)
+      audio_files = recitation.chapter_audio_files.order('chapter_id ASC')
+
+      json_data = audio_files.map do |audio_file|
+        {
+          surah: audio_file.chapter_id,
+          version: audio_file.updated_at.to_i,
+          url: audio_file.audio_url
+        }
+      end
+
+      json_filename = "audio_files.json"
+      json_path = File.join(target_dir, json_filename)
+
+      File.open(json_path, "w") do |f|
+        f.write(JSON.dump(json_data))
+      end
+
+      uploader = UploadToCdn.new
+      key = "audio/gapless/#{recitation.get_resource_content.id}/audio_files.json"
+      uploader.upload(json_path, key)
+
+      json_path
     end
 
     def prepare_db

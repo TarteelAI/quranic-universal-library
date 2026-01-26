@@ -26,13 +26,8 @@ class ExportAssetsManifest
     manifest_path ||= export
     object_key = "asset-manifests/#{File.basename(manifest_path)}"
 
-    bucket.object(object_key)
-          .upload_file(
-            manifest_path,
-            content_type: 'application/json'
-          )
-
-    "#{content_cnd_host}/#{object_key}"
+    uploader = UploadToCdn.new
+    uploader.upload(manifest_path, object_key)
   end
 
   def export_and_upload
@@ -137,25 +132,7 @@ class ExportAssetsManifest
     end
   end
 
-  def s3_client
-    @s3_client ||= Aws::S3::Resource.new(
-      access_key_id: ENV['QUL_STORAGE_ACCESS_KEY'],
-      secret_access_key: ENV['QUL_STORAGE_ACCESS_KEY_SECRET'],
-      region: ENV['QUL_STORAGE_REGION'],
-      endpoint: ENV['QUL_STORAGE_ENDPOINT'],
-      force_path_style: true
-    )
-  end
-
-  def bucket
-    @bucket ||= s3_client.bucket(ENV['QUL_STORAGE_BUCKET'])
-  end
-
   def content_cnd_host
     ENV['CDN_HOST']
-  end
-
-  def audio_cdn_host
-    ENV['AUDIO_CDN_HOST']
   end
 end

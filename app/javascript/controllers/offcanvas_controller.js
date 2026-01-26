@@ -48,7 +48,15 @@ export default class extends Controller {
     const target = this.getTarget()
     if (target) {
       target.classList.remove('tw-hidden')
-      target.classList.add('tw-fixed', 'tw-top-0', 'tw-right-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
+      
+      // Determine direction based on class
+      const isLeft = target.classList.contains('tw-left-0')
+      target.style.transform = isLeft ? 'translateX(-100%)' : 'translateX(100%)'
+
+      // Force reflow
+      target.offsetHeight
+
+      target.classList.add('tw-fixed', 'tw-top-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
       
       setTimeout(() => {
         target.style.transform = 'translateX(0)'
@@ -59,11 +67,12 @@ export default class extends Controller {
   hide() {
     const target = this.getTarget()
     if (target) {
-      target.style.transform = 'translateX(100%)'
+      const isLeft = target.classList.contains('tw-left-0')
+      target.style.transform = isLeft ? 'translateX(-100%)' : 'translateX(100%)'
       
       setTimeout(() => {
         target.classList.add('tw-hidden')
-        target.classList.remove('tw-fixed', 'tw-top-0', 'tw-right-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
+        target.classList.remove('tw-fixed', 'tw-top-0', 'tw-h-full', 'tw-w-full', 'tw-max-w-md', 'tw-bg-white', 'tw-shadow-xl', 'tw-z-50', 'tw-transform', 'tw-transition-transform', 'tw-duration-300', 'tw-ease-in-out')
       }, 300)
     }
   }

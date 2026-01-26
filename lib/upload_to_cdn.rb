@@ -3,7 +3,7 @@ class UploadToCdn
     bucket.object(object_key)
           .upload_file(
             file_path,
-            content_type
+            content_type: content_type
           )
 
     url = "#{content_cnd_host}/#{object_key}"

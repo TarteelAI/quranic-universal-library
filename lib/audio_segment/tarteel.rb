@@ -162,6 +162,8 @@ module AudioSegment
                    .includes(:verse)
 
       grouped = segments.group_by(&:chapter_id)
+      all_segments = {}
+      uploader = UploadToCdn.new
 
       grouped.each do |chapter_id, segs|
         json_ayahs = []
@@ -204,12 +206,22 @@ module AudioSegment
           f.write(JSON.dump(json_ayahs))
         end
 
-        uploader = UploadToCdn.new
-        key = "audio/gapless/#{recitation.get_resource_content.id}/segments.json"
+        all_segments[chapter_id] = json_ayahs
+
+        key = "audio/gapless/#{recitation.get_resource_content.id}/#{chapter_id}.json"
         uploader.upload(json_path, key)
 
         json_path
       end
+
+      full_segments_file_path = File.join(target_dir, "all_segments.json")
+
+      File.open(full_segments_file_path, "w") do |f|
+        f.write(JSON.dump(all_segments))
+      end
+
+      key = "audio/gapless/#{recitation.get_resource_content.id}/segments.json"
+      uploader.upload(full_segments_file_path, key)
     end
 
     def export_gapless_recitation_audio_files(recitation, target_dir)

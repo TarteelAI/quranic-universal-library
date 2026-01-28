@@ -57,7 +57,7 @@ const store = createStore({
       compareSegment: false,
       segmentsUrl: 'surah_audio_files',
       autoPlay: false,
-      disableHotkeys: true,
+      disableHotkeys: false,
 
       repeatGroups: [], // only need for recitation 168
       isManualAyahChange: false

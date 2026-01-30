@@ -30,9 +30,9 @@ if Rails.env.production?
       transaction_name = transaction_context[:name]
 
       if transaction_name == 'Admin::MushafWordsController#show'
-        0.01
+        0.001
       else
-        0.02
+        0.002
       end
     end
 

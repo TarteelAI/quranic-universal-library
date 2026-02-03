@@ -1,5 +1,5 @@
 require 'sqlite3'
-require 'zip'        # gem 'rubyzip'
+require 'zip'
 require 'fileutils'
 require 'json'
 

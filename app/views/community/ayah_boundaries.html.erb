@@ -2165,28 +2165,28 @@
   let selectedAudioUrl = null; // Store selected audio URL
 
   // Reciter ID to CDN path mapping
+  //TODO: move this to stimulus controller and use api for fetching the audio urls
   const reciterMapping = {
-    1: 'quran/surah/abdul_baset/mujawwad',
-    2: 'quran/surah/abdul_baset/murattal',
-    3: 'quran/surah/abdurrahmaan_as_sudais/murattal',
-    4: 'quran/surah/abu_bakr_shatri/murattal',
-    5: 'quran/surah/hani_ar_rifai/murattal',
-    6: 'quran/surah/khalil_al_husary/muallim',
-    7: 'quran/surah/mishari_al_afasy/murattal',
+    1: 'quran/surah/abdulBasit/mujawwad',
+    2: 'quran/surah/abdulBasit/murattal',
+    3: 'quran/surah/abdulrahmanAlSudais/murattal',
+    4: 'quran/surah/abuBakrAlShatri/murattal',
+    5: 'quran/surah/HaniArRifai/murattal',
+    6: 'quran/surah/husary/muallim',
+    7: 'quran/surah/alafasy/murattal',
     8: 'quran/surah/minshawi/mujawwad',
     9: 'quran/surah/minshawi/murattal',
-    10: 'quran/surah/saud_ash_shuraym/murattal',
-    12: 'quran/surah/khalil_al_husary/muallim',
-    13: 'quran/surah/saad_al_ghamdi/murattal',
-    65: 'quran/surah/maher-al-muaiqly_1424_1425/murattal',
-    161: 'quran/surah/khalifa_al_tunaiji/murattal/',
+    10: 'quran/surah/saudAlShuraim/murattal',
+    12: 'quran/surah/husary/muallim',
+    13: 'quran/surah/ghamadi/murattal',
+    65: 'quran/surah/maherAlMuaiqly/murattal',
+    161: 'quran/surah/khalifaAlTunaiji/murattal/',
     168: 'quran/surah/minshawi/kids_repeat',
-    164: 'quran/surah/khalil_al_husary/mujawwad',
-    174: 'quran/surah/yasser_ad-dussary/murattal',
+    164: 'quran/surah/husary/mujawwad',
+    174: 'quran/surah/yasserAlDosari/murattal',
     175: 'quran/surah/alnufais/murattal',
   };
 
-  // Generate default audio URL based on reciter and surah
   function generateDefaultAudioUrl(reciterId, surahNumber) {
     const reciterPath = reciterMapping[reciterId];
     if (!reciterPath) {
@@ -2203,12 +2203,10 @@
     const reciter = urlParams.get("reciter");
 
     if (surahNumber && reciter) {
-      // Load data from URL parameters
       selectedReciter = reciter;
       selectedSurah = surahNumber;
       loadDataFromPath(reciter, surahNumber);
     } else {
-      // Show selector panel
       initializeSelector();
     }
   }

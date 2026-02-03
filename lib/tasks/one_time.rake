@@ -41,40 +41,36 @@ namespace :one_time do
 
   task update_audio_url: :environment do
     mapping = {
-      1 => 'quran/surah/abdul_baset/mujawwad',
-      2 => 'quran/surah/abdul_baset/murattal',
-      3 => 'quran/surah/abdurrahmaan_as_sudais/murattal',
-      4 => 'quran/surah/abu_bakr_shatri/murattal',
-      5 => 'quran/surah/hani_ar_rifai/murattal',
-      6 => 'quran/surah/khalil_al_husary/muallim',
-      7 => 'quran/surah/mishari_al_afasy/murattal',
-      8 => 'quran/surah/minshawi/mujawwad',
-      9 => 'quran/surah/minshawi/murattal',
-      200 => 'quran/surah/minshawi/kids_repeat',
-      10 => 'quran/surah/saud_ash_shuraym/murattal',
-      12 => 'quran/surah/khalil_al_husary/muallim',
-      13 => 'quran/surah/saad_al_ghamdi/murattal',
+      1 => 'quran/surah/abdulBasit/mujawwad/mp3',
+      2 => 'quran/surah/abdulBasit/murattal/mp3',
+      3 => 'quran/surah/abdulrahmanAlSudais/murattal/mp3',
+      4 => 'quran/surah/abuBakrAlShatri/murattal/mp3',
+      5 => 'quran/surah/haniarRifai/murattal/mp3',
+      6 => 'quran/surah/husary/muallim/mp3',
+      7 => 'quran/surah/alafasy/murattal/mp3',
+      8 => 'quran/surah/minshawy/mujawwad/mp3',
+      9 => 'quran/surah/minshawy/murattal/mp3',
+      200 => 'quran/surah/minshawy/kids_repeat/mp3',
+      10 => 'quran/surah/saudAlShuraim/murattal/mp3',
+      12 => 'quran/surah/husary/muallim/mp3',
+      13 => 'quran/surah/ghamadi/murattal/mp3',
 
-      65 => 'quran/surah/maher-al-muaiqly_1424_1425/murattal',
-      161 => 'quran/surah/khalifa_al_tunaiji/murattal/',
-      168 => 'quran/surah/minshawi/kids_repeat',
-      164 => 'quran/surah/khalil_al_husary/mujawwad',
-      174 => 'quran/surah/yasser_ad-dussary/murattal',
-      175 => 'quran/surah/alnufais/murattal',
-      179 => 'quran/surah/mansour_al_salimi_1444/murattal',
+      65 => 'quran/surah/maherAlMuaiqly/murattal/mp3',
+      161 => 'quran/surah/khalifaAlTunaiji/murattal/mp3',
+      168 => 'quran/surah/minshawy/kids_repeat/mp3',
+      164 => 'quran/surah/husary/mujawwad/mp3',
+      174 => 'quran/surah/yasserAlDosari/murattal/mp3',
+      175 => 'quran/surah/alnufais/murattal/mp3',
+      179 => 'quran/surah/mansourAlSalimi/murattal/mp3',
     }
 
     mapping.each do |reciter_id, path|
       recitation = Audio::Recitation.find(reciter_id)
-      recitation.relative_path = "#{path}/mp3"
-      recitation.update_audio_stats
-      recitation.save(validate: false)
-      recitation.send(:update_related_resources)
+      recitation.update_column :relative_path, path
 
       Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
-        file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/mp3/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
+        file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
         file.save(validate: false)
-        file.update_segment_percentile
       end
     end
 

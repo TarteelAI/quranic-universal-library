@@ -2,36 +2,43 @@
   resource_content = resource.resource_content
   sample_text = resource_content.meta_value('text')
   font_face = resource_content.meta_value('font-face')
-  
+
   font_base_path = resource_content.meta_value('ttf')
   font_format = 'ttf'
   font_extension = '.ttf'
-  
+
   unless font_base_path.present?
     font_base_path = resource_content.meta_value('woff2')
     font_format = 'woff2'
     font_extension = '.woff2'
   end
-  
+
   unless font_base_path.present?
     font_base_path = resource_content.meta_value('woff')
     font_format = 'woff'
     font_extension = '.woff'
   end
-  
+
   unless font_base_path.present?
     font_base_path = resource_content.meta_value('otf')
     font_format = 'otf'
     font_extension = '.otf'
   end
 
-  ligatures = resource_content.meta_value('ligatures')
+  preview_pattern = resource_content.meta_value('preview-pattern') ||
+                    resource_content.meta_value('preview_pattern')
 
-  if ligatures.present?
-    ligatures = Oj.load(ligatures)
+  page_key = (params[:page].presence || 'p1').to_s
+
+  if preview_pattern.present?
+    preview_base = preview_pattern.sub(/p\d+$/, page_key)
+    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{preview_base}#{font_extension}"
+  else
+    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}#{font_extension}"
   end
 
-  font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}#{font_extension}"
+  ligatures = resource_content.meta_value('ligatures')
+  ligatures = Oj.load(ligatures) if ligatures.present?
 %>
 
 <link rel="preload" href="<%= font_url %>" as="fetch" crossorigin="anonymous">
@@ -78,7 +85,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content" 
+  <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content"
        data-controller="font-preview"
        data-font-preview-font-url-value="<%= font_url %>"
        data-font-preview-font-format-value="<%= font_format %>"
@@ -123,12 +130,12 @@
           <li>
             <strong>Define a <code>@font-face</code> Rule in Your CSS</strong>
             <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-overflow-auto tw-text-sm"><code>
-@font-face {
+              @font-face {
   font-family: '<%= font_face %>';
   src: url('<%= font_url %>') format('<%= font_format == 'woff2' ? 'woff2' : font_format == 'woff' ? 'woff' : font_format == 'otf' ? 'opentype' : 'truetype' %>');
   font-display: swap;
 }
-      </code></pre>
+            </code></pre>
           </li>
 
           <li>
@@ -139,10 +146,10 @@
             </ul>
             <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4">
 <code><code>
-&lt;div style="font-family: '<%= font_face %>';"&gt;
+  &lt;div style="font-family: '<%= font_face %>';"&gt;
   <%= sample_text %>
   &lt;/div&gt;
-      </code></code>
+</code></code>
 </pre>
 
             <ul class="list-disc list-inside tw-mb-4">
@@ -210,19 +217,19 @@
                 </thead>
 
                 <tbody data-font-preview-target="ligaturesTable">
-                  <% i = 0 %>
-                  <% ligatures.each do |key, val| %>
-                   <tr>
-                     <td><%= i+=1 %></td>
-                     <td><%= val %></td>
-                     <td><%= key %></td>
-                     <td>
-                       <div class="ligature-preview">
-                         <%= val %>
-                       </div>
-                     </td>
-                   </tr>
-                  <% end %>
+                <% i = 0 %>
+                <% ligatures.each do |key, val| %>
+                  <tr>
+                    <td><%= i+=1 %></td>
+                    <td><%= val %></td>
+                    <td><%= key %></td>
+                    <td>
+                      <div class="ligature-preview">
+                        <%= val %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
                 </tbody>
               </table>
             </div>

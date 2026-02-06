@@ -74,5 +74,3 @@ database_backups:
   bucket: <%= ENV.fetch('DB_BACK_BUCKET'){'db-backups'} %>
   public: false
   <%= "endpoint: #{ENV['DB_BACKUP_ENDPOINT']}" if ENV['DB_BACKUP_ENDPOINT'].present? %>
-  upload:
-    cache_control: "private, max-age=<%= 2.days.to_i %>"

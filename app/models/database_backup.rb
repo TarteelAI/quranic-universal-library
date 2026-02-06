@@ -20,7 +20,7 @@ class DatabaseBackup < ApplicationRecord
     if backup_file.attached?
       Rails.application.routes.url_helpers.rails_blob_path(backup_file, only_path: true)
     elsif file.present?
-      DatabaseBackupUploader.new.url(file)
+      file.url
     end
   end
 

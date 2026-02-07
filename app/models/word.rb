@@ -80,7 +80,7 @@ class Word < QuranApiRecord
     6 => 'text_indopak_nastaleeq',
     7 => 'text_indopak_nastaleeq',
     8 => 'text_indopak_nastaleeq',
-    13 => 'text_indopak_nastaleeq',
+    13 => 'text_qpc_hafs',
     14 => 'text_qpc_nastaleeq_hafs',
     15 => 'text_indopak_nastaleeq',
     16 => 'text_indopak_nastaleeq',
@@ -317,7 +317,7 @@ class Word < QuranApiRecord
     end
 
     if saved_change_to_attribute?('text_qpc_nastaleeq') # QPC text with Quranwbw font
-      update_text_for_mushaf([13, 23], text_qpc_nastaleeq)
+      update_text_for_mushaf([23], text_qpc_nastaleeq)
       update_ayah_script('text_qpc_nastaleeq')
     end
 
@@ -327,7 +327,7 @@ class Word < QuranApiRecord
     end
 
     if saved_change_to_attribute?('text_qpc_hafs')
-      update_text_for_mushaf([5, 27], text_qpc_hafs)
+      update_text_for_mushaf([5, 27, 13], text_qpc_hafs)
       update_ayah_script('text_qpc_hafs')
     end
 

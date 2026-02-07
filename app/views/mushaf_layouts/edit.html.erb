@@ -104,7 +104,7 @@
                       %>
 
                       <div class="word word-group" data-word="<%= word.id %>">
-                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %>">
+                        <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %> <%= @mushaf_page.mushaf.default_font_name %>">
                           <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
                         </div>
 
@@ -128,8 +128,8 @@
                           <%= word.location %>
                         </div>
                       </div>
-
                     <% end %>
+
                     <button class="remove-ayah tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors btn-default has-tooltip" title="Remove this ayah from page">X</button>
                   </div>
                 <% end %>

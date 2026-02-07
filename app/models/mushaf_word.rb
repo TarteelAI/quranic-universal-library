@@ -31,9 +31,9 @@ class MushafWord < QuranApiRecord
   belongs_to :verse
   belongs_to :mushaf
   belongs_to :char_type
-  has_paper_trail on: %i[update], ignore: %i[created_at updated_at]
-
   has_one :word_translation, foreign_key: 'word_id', primary_key: 'word_id'
+
+  has_paper_trail on: %i[update], ignore: %i[created_at updated_at]
 
   def word?
     'word' == char_type_name

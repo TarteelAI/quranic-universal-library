@@ -68,9 +68,9 @@ qul_segments:
 # Database backups storage (S3-compatible)
 database_backups:
   service: S3
-  access_key_id: <%= ENV.fetch('AWS_ACCESS_KEY'){'missing'} %>
-  secret_access_key: <%= ENV.fetch('AWS_ACCESS_KEY_SECRET'){'missing'} %>
-  region: <%= ENV.fetch('DB_BACKUP_REGION'){'us-east-2'} %>
-  bucket: <%= ENV.fetch('DB_BACK_BUCKET'){'db-backups'} %>
+  access_key_id: <%= ENV.fetch('QUL_STORAGE_ACCESS_KEY'){'missing'} %>
+  secret_access_key: <%= ENV.fetch('QUL_STORAGE_ACCESS_KEY_SECRET'){'missing'} %>
+  region: <%= ENV.fetch('QUL_STORAGE_REGION'){'us-east-1'} %>
+  bucket: <%= ENV.fetch('QUL_BACKUPS_BUCKET'){'missing'} %>
   public: false
-  <%= "endpoint: #{ENV['DB_BACKUP_ENDPOINT']}" if ENV['DB_BACKUP_ENDPOINT'].present? %>
+  endpoint: <%= ENV.fetch('QUL_STORAGE_ENDPOINT'){'https://fix.me'} %>

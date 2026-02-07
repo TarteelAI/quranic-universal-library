@@ -8,7 +8,7 @@ CMD ["/sbin/my_init"]
 
 # customizing passenger-customizable image
 RUN /pd_build/ruby-3.3.*.sh
-# RUN bash -lc 'rvm --default use ruby-3.3'
+RUN bash -lc 'rvm --default use ruby-3.3.10'
 RUN /pd_build/redis.sh
 
 # Nodejs

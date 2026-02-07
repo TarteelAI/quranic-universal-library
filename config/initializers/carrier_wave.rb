@@ -1,7 +1,10 @@
-require 'fog/aws'
-require 'carrierwave/storage/fog'
+# frozen_string_literal: true
+# Deprecated: Replaced with ActiveStorage
+# require 'fog/aws'
+# require 'carrierwave/storage/fog'
 
-CarrierWave.configure do |config|
+if defined?(CarrierWave)
+  CarrierWave.configure do |config|
   if %[development test].include?(Rails.env)
     config.storage = :file
   else
@@ -19,6 +22,7 @@ CarrierWave.configure do |config|
     config.fog_directory  = ENV.fetch('DB_BACK_BUCKET'){'db-backups'}            # required
     config.fog_public     = false                                                 # optional, defaults to true
     config.fog_attributes = { cache_control: "public, max-age=#{2.days.to_i}" } # optional, defaults to {}
+  end
   end
 end
 

@@ -146,8 +146,8 @@ class ResourceContent < QuranApiRecord
               :export_format,
               :export_file_name
 
-  # TODO: replace uploader with ActiveStorage
-  mount_uploader :sqlite_db, DatabaseBackupUploader
+  has_one_attached :sqlite_database, service: :database_backups
+  # mount_uploader :sqlite_db, DatabaseBackupUploader
   has_many_attached :source_files
 
   module CardinalityType

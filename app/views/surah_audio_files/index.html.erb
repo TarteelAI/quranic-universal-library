@@ -54,12 +54,13 @@
           <th scope="row" class="tw-py-2 tw-pl-2"><%= file.chapter_id %></th>
 
           <td class="tw-py-2">
-            <% progress = file.segment_progress %>
+            <% progress = [file.segment_progress, 100].min %>
             <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
               <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300 tw-bg-green-500"
                    role="progressbar"
                    aria-valuenow="<%= progress %>"
-                   aria-valuemin="0" aria-valuemax="100"
+                   aria-valuemin="0"
+                   aria-valuemax="100"
                    style="width: <%= progress %>%; min-width: 30px"
               >
                 <%= progress %>%

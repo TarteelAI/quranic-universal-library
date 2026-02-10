@@ -7,8 +7,8 @@ ENV HOME /root
 CMD ["/sbin/my_init"]
 
 # customizing passenger-customizable image
-RUN /pd_build/ruby-3.3.*.sh
-RUN bash -lc 'rvm --default use ruby-3.3.5'
+RUN /pd_build/ruby-3.4.8.sh
+RUN bash -lc 'rvm --default use ruby-3.4.8'
 RUN /pd_build/redis.sh
 
 # Nodejs

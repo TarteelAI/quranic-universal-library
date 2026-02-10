@@ -65,6 +65,10 @@ module AudioSegment
         end
       end
 
+      # Update manifest
+      manifest = ExportAssetsManifest.new
+      manifest.export_and_upload
+
       FileUtils.rm_rf(root_tmp)
       master_zip
     end

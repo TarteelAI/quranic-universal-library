@@ -75,10 +75,10 @@ module Audio
     end
 
     def segment_progress
-      if total_segments.zero?
+      if segments_count.to_i.zero?
         0
       else
-        (total_verses / total_segments.to_f) * 100
+        (total_verses / segments_count.to_i.to_f) * 100
       end
     end
 
@@ -139,7 +139,7 @@ module Audio
     end
 
     def total_segments
-      read_attribute(:total_segments).to_f
+      segments_count
     end
 
     def wav_parts

@@ -183,11 +183,14 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
           end
 
+=begin
           start_time = if last_ayah_end
                           last_ayah_end + 1
                         else
                           seg.timestamp_from.to_i
                        end
+=end
+          start_time = seg.timestamp_from.to_i
 
           json_ayahs << {
             ayah: verse.verse_number,

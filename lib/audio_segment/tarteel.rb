@@ -54,6 +54,11 @@ module AudioSegment
 
         export_gapless_recitation_segments(recitation, reciter_dir)
         export_gapless_recitation_audio_files(recitation, reciter_dir)
+
+        if resource_content = recitation.get_resource_content
+          resource_content.set_meta_value('exported-version', Time.now.to_i)
+          resource_content.save
+        end
       end
 
       master_zip = "#{file_path}.zip"

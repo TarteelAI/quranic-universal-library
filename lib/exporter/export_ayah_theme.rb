@@ -16,8 +16,8 @@ module Exporter
           fields = [
             record.theme,
             record.chapter_id,
-            record.verse_id_from,
-            record.verse_id_to,
+            record.verse_number_from,
+            record.verse_number_to,
             record.keywords.join(','),
             record.verses_count
           ]

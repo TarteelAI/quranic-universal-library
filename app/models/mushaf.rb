@@ -24,11 +24,15 @@ class Mushaf < QuranApiRecord
   include Resourceable
 
   belongs_to :qirat_type
-  has_many :mushaf_pages
+  has_many :mushaf_pages, dependent: :delete_all
+  has_many :mushaf_line_alignments, dependent: :delete_all
+  has_many :mushaf_words, dependent: :delete_all
 
   validates :pages_count, presence: true, numericality: { greater_than: 100 }
+
   after_create :attach_resource_content
   after_create :generate_pages
+
   scope :approved, -> { where(enabled: true) }
 
   def using_glyphs?
@@ -45,13 +49,13 @@ class Mushaf < QuranApiRecord
 
   def percentage_done
     total = Word.count
-    done = MushafWord.where(mushaf_id: id).count
+    done = mushaf_words.count
 
     ((done.to_f / total.to_f) * 100.to_f).round 2
   end
 
   def done_pages_count
-    MushafPage.where(mushaf_id: id).where.not(first_word_id: nil, last_word_id: nil).count
+    mushaf_pages.where.not(first_word_id: nil, last_word_id: nil).count
   end
 
   def font_code
@@ -63,10 +67,6 @@ class Mushaf < QuranApiRecord
   end
 
   def pdf_url
-    #TODO: Naveed. Add this in db
-    #TODO: more mushaf layouts we can add
-    # - https://tafsir.app/m-qatar/1/1
-    #
     case id
     when 1 # v2
       "https://tafsir.app/m-madinah/1/1"
@@ -113,10 +113,10 @@ class Mushaf < QuranApiRecord
 
   def update_pages_stats
     mushaf_pages.each do |page|
-      page = MushafPage.where(mushaf_id: id, page_number: page.page_number).first_or_initialize
+      page = mushaf_pages.where( page_number: page.page_number).first_or_initialize
 
-      first_word = MushafWord.where(page_number: page.page_number, mushaf_id: id).order("position_in_page ASC").first
-      last_word = MushafWord.where(page_number: page.page_number, mushaf_id: id).order("position_in_page DESC").first
+      first_word = mushaf_words.where(page_number: page.page_number).order("position_in_page ASC").first
+      last_word = mushaf_words.where(page_number: page.page_number).order("position_in_page DESC").first
 
       verses = Verse.order("verse_index ASC").where("verse_index >= #{first_word.word.verse_id} AND verse_index <= #{last_word.word.verse_id}")
       page.first_verse_id = first_word.word.verse_id

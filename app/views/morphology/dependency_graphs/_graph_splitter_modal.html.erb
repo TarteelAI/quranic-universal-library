@@ -1,0 +1,121 @@
+<div class="tw-fixed tw-inset-0 tw-z-[9999] tw-overflow-y-auto tw-opacity-0 tw-transition-opacity tw-duration-300 tw-hidden" 
+     id="graphSplitterModal" 
+     tabindex="-1" 
+     aria-labelledby="graphSplitterModalLabel" 
+     aria-hidden="true"
+     data-controller="graph-splitter"
+     data-graph-splitter-chapter-value="<%= @chapter_number %>"
+     data-graph-splitter-verse-value="<%= @verse_number %>">
+  <div class="tw-flex tw-min-h-full tw-items-center tw-justify-center tw-p-4">
+    <div class="tw-relative tw-w-full tw-max-w-6xl tw-transform tw-transition-all tw-duration-300">
+      <div class="tw-bg-white tw-rounded-lg tw-shadow-xl tw-overflow-hidden">
+        <div class="tw-flex tw-items-center tw-justify-between tw-px-6 tw-py-4 tw-border-b tw-border-gray-200">
+          <h5 class="tw-text-lg tw-font-semibold tw-text-gray-900 tw-m-0" id="graphSplitterModalLabel">Split Graph - Verse <%= @chapter_number %>:<%= @verse_number %></h5>
+          <button type="button" class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-p-1" data-action="click->graph-splitter#closeModal" aria-label="Close">
+            <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="tw-px-6 tw-py-4 tw-max-h-[70vh] tw-overflow-y-auto">
+        <div data-graph-splitter-target="loadingState" class="tw-text-center tw-py-12">
+          <div class="tw-mx-auto tw-h-7 tw-w-7 tw-rounded-full tw-border-2 tw-border-blue-600 tw-border-t-transparent tw-animate-spin" role="status" aria-label="Loading"></div>
+          <p class="tw-mt-3 tw-text-gray-600">Loading graph data...</p>
+        </div>
+
+        <div data-graph-splitter-target="contentState" class="tw-hidden">
+          <div class="accordion tw-mb-4" id="graphSplitterAccordion">
+            <div class="accordion-item tw-border tw-border-gray-300 tw-rounded">
+              <h2 class="accordion-header" id="headingInstructions">
+                <button class="accordion-button collapsed tw-text-sm tw-py-2 tw-px-3" type="button" data-controller="collapse" data-action="click->collapse#toggle" data-collapse-target-value="#collapseInstructions" aria-expanded="false" aria-controls="collapseInstructions">
+                  <i class="fa fa-info-circle tw-mr-2 tw-text-blue-600"></i> Instructions & Warnings
+                </button>
+              </h2>
+              <div id="collapseInstructions" class="accordion-collapse collapse tw-hidden" aria-labelledby="headingInstructions" data-bs-parent="#graphSplitterAccordion" data-controller="collapse">
+                <div class="accordion-body tw-p-3">
+                  <div class="tw-bg-blue-50 tw-border tw-border-blue-200 tw-rounded tw-p-3 tw-mb-3">
+                    <p class="tw-text-sm tw-text-blue-800 tw-mb-0">
+                      <strong>Instructions:</strong> Drag and drop word nodes between graphs to reorganize them. You can create a new empty graph and move nodes into it.
+                    </p>
+                  </div>
+
+                  <div class="tw-bg-yellow-50 tw-border tw-border-yellow-300 tw-rounded tw-p-3">
+                    <div class="tw-text-sm tw-text-yellow-800">
+                      <p class="tw-mb-2"><strong><i class="fa fa-exclamation-triangle"></i> Warning:</strong></p>
+                      <ul class="tw-list-disc tw-pl-5 tw-mb-0 tw-space-y-1">
+                        <li>When splitting graphs, edges connecting nodes across different graphs will be automatically deleted to maintain graph integrity.</li>
+                        <li>Maintain the verse word sequence when splitting. For example, if a verse has 20 words and you want to divide it into multiple graphs, move words 1-5 to the first graph, words 6-10 to the second graph, words 11-15 to the third graph, and so on.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div data-graph-splitter-target="errorContainer" class="tw-bg-red-50 tw-border tw-border-red-200 tw-rounded tw-p-3 tw-mb-4 tw-hidden">
+            <p class="tw-text-sm tw-text-red-800 tw-mb-0"></p>
+          </div>
+
+          <div class="tw-mb-4 tw-flex tw-justify-end">
+            <button type="button" class="tw-px-4 tw-py-2 tw-bg-green-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-green-700 tw-transition" data-action="click->graph-splitter#createNewGraph">
+              <i class="fa fa-plus-circle"></i> Add Graph
+            </button>
+          </div>
+
+          <div data-graph-splitter-target="graphsContainer" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+          </div>
+        </div>
+        </div>
+        <div class="tw-flex tw-items-center tw-justify-end tw-gap-3 tw-px-6 tw-py-4 tw-border-t tw-border-gray-200">
+          <button type="button" class="tw-px-4 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded tw-text-sm hover:tw-bg-gray-600 tw-transition" data-action="click->graph-splitter#closeModal">Close</button>
+          <button type="button" class="tw-px-4 tw-py-2 tw-bg-blue-600 tw-text-white tw-rounded tw-text-sm hover:tw-bg-blue-700 tw-transition" data-action="click->graph-splitter#saveChanges" data-graph-splitter-target="saveButton">
+            <span data-graph-splitter-target="saveButtonText">Save Changes</span>
+            <span data-graph-splitter-target="saveButtonSpinner" class="tw-inline-block tw-w-4 tw-h-4 tw-border-2 tw-border-white tw-border-t-transparent tw-rounded-full tw-animate-spin tw-hidden tw-ml-2" role="status">
+              <span class="tw-sr-only">Saving...</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <template data-graph-splitter-target="graphTemplate">
+    <div class="graph-card" data-graph-id="">
+      <div class="tw-bg-white tw-border tw-border-gray-300 tw-rounded-lg tw-shadow-sm">
+        <div class="tw-bg-gray-50 tw-px-4 tw-py-3 tw-border-b tw-border-gray-200 tw-flex tw-justify-between tw-items-center">
+          <h6 class="tw-text-base tw-font-semibold tw-text-gray-800 tw-mb-0">Graph <span class="graph-number"></span></h6>
+          <span class="tw-px-2 tw-py-1 tw-bg-gray-200 tw-text-gray-700 tw-text-xs tw-rounded node-count">0 nodes</span>
+        </div>
+        <div class="tw-p-4 graph-dropzone tw-min-h-[400px] tw-max-h-[400px] tw-overflow-y-auto tw-transition-colors" 
+             data-graph-splitter-target="dropzone"
+             data-action="dragover->graph-splitter#handleDragOver drop->graph-splitter#handleDrop dragleave->graph-splitter#handleDragLeave">
+          <div class="nodes-list tw-min-h-full"
+               data-action="dragover->graph-splitter#handleDragOver drop->graph-splitter#handleDrop">
+          </div>
+          <div class="empty-state tw-text-gray-400 tw-text-center tw-py-8 tw-hidden"
+               data-action="dragover->graph-splitter#handleDragOver drop->graph-splitter#handleDrop">
+            <i class="fa fa-inbox tw-text-4xl tw-mb-2"></i>
+            <p class="tw-mb-0 tw-text-sm">No nodes in this graph</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template data-graph-splitter-target="nodeTemplate">
+    <div class="node-item tw-bg-white tw-border tw-border-gray-300 tw-rounded tw-mb-2 tw-shadow-sm hover:tw-shadow-md tw-transition-shadow" 
+         draggable="true"
+         data-node-id=""
+         data-action="dragstart->graph-splitter#handleDragStart dragend->graph-splitter#handleDragEnd">
+      <div class="tw-p-3 tw-flex tw-items-center tw-cursor-move">
+        <i class="fa fa-grip-vertical tw-text-gray-400 tw-mr-3"></i>
+        <div class="tw-flex-grow">
+          <div class="node-display-text tw-font-semibold tw-text-gray-800 tw-text-sm"></div>
+          <small class="node-location tw-text-gray-500 tw-text-xs"></small>
+        </div>
+        <span class="tw-px-2 tw-py-1 tw-bg-blue-100 tw-text-blue-800 tw-text-xs tw-rounded tw-ml-2 node-type"></span>
+      </div>
+    </div>
+  </template>
+</div>

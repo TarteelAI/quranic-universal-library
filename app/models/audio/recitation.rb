@@ -41,10 +41,10 @@ module Audio
     include NameTranslateable
     include Resourceable
 
-    has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id
-    has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id
-    has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id
-    has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id
+    has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id, dependent: :delete_all
 
     belongs_to :section, class_name: 'Audio::Section', optional: true
     belongs_to :recitation_style, optional: true
@@ -69,7 +69,7 @@ module Audio
         cloned_file.save!
       end
 
-      update_related_resources.send(:update_related_resources)
+      cloned.send(:update_related_resources)
 
       cloned
     end
@@ -94,6 +94,10 @@ module Audio
       _name
     end
 
+    def total_duration
+      (chapter_audio_files.sum(:duration) || 0).round(2)
+    end
+
     def validate_segments_data(audio_file: nil)
       segments = Audio::Segment.where(audio_recitation_id: id).includes(verse: :actual_words)
       issues = []
@@ -107,16 +111,25 @@ module Audio
 
       # Check if we've segments for all ayahs
       if verses_count != segments.size
+        missing_ayahs = (1..verses_count).to_a - segments.pluck(:verse_id)
         issues.push(
           {
-            text: "#{verses_count - segments.size} ayahs don't have segments data. Total segments: #{segments.size}",
+            text: "#{verses_count - segments.size} ayahs(#{missing_ayahs.join(', ')}) don't have segments data. Total segments: #{segments.size}",
             severity: 'bg-danger'
           }
         )
       end
 
       segments.each do |segment|
-        if segment.timestamp_to < segment.timestamp_from
+        if segment.timestamp_to.blank? || segment.timestamp_from.blank?
+          issues.push(
+            {
+              key: segment.verse_key,
+              text: "#{segment.verse_key} timestamp from OR to is missing.",
+              severity: 'bg-danger'
+            }
+          )
+        elsif segment.timestamp_to < segment.timestamp_from
           issues.push(
             {
               key: segment.verse_key,
@@ -214,6 +227,7 @@ module Audio
       reciter&.update_recitation_count
       qirat_type&.update_recitation_count
       recitation_style&.update_recitation_count
+      chapter_audio_files.each(&:update_segment_percentile)
     end
   end
 end

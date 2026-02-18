@@ -136,7 +136,7 @@ ActiveAdmin.register ResourceContent do
       end
       flash[:notice] = "#{resource.name} will be removed shortly!"
     elsif resource.syncable?
-      DraftContent::ImportDraftDataJob.perform_later(resource.id)
+      DraftContent::ImportDraftContentJob.perform_later(resource.id)
       flash[:notice] = "#{resource.name} will be synced shortly!"
     end
 
@@ -240,7 +240,7 @@ ActiveAdmin.register ResourceContent do
     permission = resource.resource_permission
 
     if permission&.copyright_notice.present?
-      div class: 'alert alert-danger fs-lg' do
+      div class: 'tw-p-4 tw-mb-4 tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-rounded tw-text-lg' do
         safe_html permission.copyright_notice
       end
     end
@@ -427,7 +427,11 @@ ActiveAdmin.register ResourceContent do
   sidebar 'Data for this resource', only: :show do
     div do
       if resource.translation?
-        link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
+        if resource.one_word?
+          link_to 'WBW Translations', "/cms/word_translations?q%5Bresource_content_id_eq=#{resource.id}"
+        else
+          link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
+        end
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
       elsif resource.transliteration?

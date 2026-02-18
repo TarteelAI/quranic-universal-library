@@ -19,16 +19,9 @@ class PDFViewer {
     this.zoomOutBtn = context.querySelector('#zoomOutBtn');
     this.pageDropdown = context.querySelector('#pageDropdown');
 
-    // Bind event listeners
-    this.pageDropdown.addEventListener('change', this.jumpToPage.bind(this));
-    this.fitParent.addEventListener('change', this.toggleCanvasFit.bind(this));
-    this.prevBtn.addEventListener('click', this.prevPage.bind(this));
-    this.nextBtn.addEventListener('click', this.nextPage.bind(this));
-    this.zoomInBtn.addEventListener('click', this.zoomIn.bind(this));
-    this.zoomOutBtn.addEventListener('click', this.zoomOut.bind(this));
-
-    // Initialize
-    this.toggleCanvasFit();
+    if (this.fitParent) {
+      this.toggleCanvasFit();
+    }
     this.onLoadCallbacks = []; // Array to store onLoad callbacks
   }
 
@@ -115,11 +108,20 @@ class PDFViewer {
   }
 
   toggleCanvasFit() {
-    if (this.fitParent.checked) {
+    if (this.fitParent && this.fitParent.checked) {
       this.canvas.classList.add('w-100');
     } else {
       this.canvas.classList.remove('w-100');
-      this.renderPage(this.currentPage);
+      if (this.pdfDoc) {
+        this.renderPage(this.currentPage);
+      }
+    }
+  }
+
+  setFitViewport(fit) {
+    if (this.fitParent) {
+      this.fitParent.checked = fit;
+      this.toggleCanvasFit();
     }
   }
 

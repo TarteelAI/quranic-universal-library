@@ -10,7 +10,7 @@
 
 <div id="resources" data-controller="resource-search">
   <div class="tw-pb-8 md:tw-pb-14 tw-overflow-hidden tw-pt-[70px] md:tw-pt-[80px] tw-relative tw-border-b" id="hero">
-    <div id="resource-bg">
+    <div id="resource-bg" class="tw-invert">
     </div>
 
     <%= render 'layouts/grid' do %>
@@ -27,11 +27,11 @@
         <nav aria-label="breadcrumb">
           <ol class="custom-breadcrumb">
             <li class="breadcrumb-link">
-              <%= link_to 'Developer Resources', resources_path, class: 'btn-link text-dark' %>
+              <%= link_to 'Developer Resources', resources_path, class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
             </li>
 
             <li class="breadcrumb-link">
-              <%= link_to @resource.group_heading, resource_path(@resource.resource_type), class: 'btn-link text-dark' %>
+              <%= link_to @resource.group_heading, resource_path(@resource.resource_type), class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
             </li>
 
             <li class="breadcrumb-link active">
@@ -49,7 +49,7 @@
         <%= @resource.name %>
       </h1>
 
-      <span class="tw-bg-gray-100 tw-text-gray-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer ">
+      <span class="tw-bg-gray-100 tw-text-gray-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full cursor-pointer">
           <%= @resource.humanize_cardinality_type %>
         </span>
     </header>
@@ -80,14 +80,14 @@
             </div>
           <% else %>
             <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">Download Links</h2>
-            <div class="tw-mt-3 tw-flex gap-3 tw-flex-wrap">
+            <div class="tw-mt-3 tw-flex tw-gap-3 tw-flex-wrap">
               <% @resource.downloadable_files.each do |file| %>
                 <% if user_signed_in? %>
-                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-btn tw-btn-success' do %>
+                  <%= link_to resource_download_file_path(@resource.resource_type, token: file.token), target: '_blank', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' do %>
                     Download <%= file.file_type %>
                   <% end %>
                 <% else %>
-                  <%= link_to '#_', class: 'tw-btn tw-btn-success', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
+                  <%= link_to '#_', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { controller: 'ajax-modal', url: new_user_session_path(user_return_to: "/resources/#{@resource.resource_type}/#{@resource.id}", modal: true) } do %>
                     Download <%= file.file_type %>
                   <% end %>
                 <% end %>

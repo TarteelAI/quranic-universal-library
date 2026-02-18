@@ -7,6 +7,7 @@ export default class extends ActivityController {
     this.leftList = this.element.querySelector('#left-column');
     this.rightList = this.element.querySelector('#right-column');
     this.progressBar = this.element.querySelector('#progress-bar');
+    this.progressText = this.element.querySelector('#progress-text');
     this.matchArea = this.element.querySelector('#match-area');
     this.svg = this.element.querySelector('#match-svg');
 
@@ -30,6 +31,11 @@ export default class extends ActivityController {
         dot.removeEventListener('mouseleave', this._handleDotLeave);
       });
     }
+    if (this._allItems) {
+      this._allItems.forEach((item) => {
+        item.removeEventListener('click', this._handleItemClick);
+      });
+    }
     if (this._handleMouseMove) {
       window.removeEventListener('mousemove', this._handleMouseMove);
     }
@@ -41,56 +47,26 @@ export default class extends ActivityController {
   bindEvents() {
     // Dots on both sides
     this._allDots = Array.from(this.element.querySelectorAll('.anchor-dot'));
+    this._allItems = Array.from(this.element.querySelectorAll('.list-group-item[data-id]'));
 
     // Handlers
+    this._handleItemClick = (e) => {
+      const item = e.currentTarget.closest('[data-id]');
+      if (!item || item.classList.contains('matched')) return;
+
+      const dot = item.querySelector('.anchor-dot');
+      if (!dot) return;
+
+      this._handleClick(dot, item);
+    };
+
     this._handleDotClick = (e) => {
+      e.stopPropagation();
       const dot = e.currentTarget;
       const item = dot.closest('[data-id]');
       if (!item || item.classList.contains('matched')) return;
 
-      if (!this.draggingFrom) {
-        // Start
-        this.draggingFrom = dot;
-        // mark active
-        this._clearActiveDot();
-        dot.classList.add('active');
-        const start = this.getCenterRelativeTo(dot, this.matchArea);
-        this.ensureGhostLine();
-        this.updateGhostLine(start.x, start.y, start.x, start.y);
-        // color ghost line like success
-        if (this.ghostLine) {
-          this.ghostLine.setAttribute('stroke', '#198754');
-        }
-        // Begin following mouse for preview
-        this._handleMouseMove = (evt) => {
-          if (!this.draggingFrom || !this.ghostLine) return;
-          const parentRect = this.matchArea.getBoundingClientRect();
-          const x = evt.clientX - parentRect.left;
-          const y = evt.clientY - parentRect.top;
-          const startPos = this.getCenterRelativeTo(this.draggingFrom, this.matchArea);
-          this.updateGhostLine(startPos.x, startPos.y, x, y);
-        };
-        window.addEventListener('mousemove', this._handleMouseMove);
-      } else {
-        // Finish
-        const startItem = this.draggingFrom.closest('[data-id]');
-        const startSide = this.draggingFrom.getAttribute('data-side');
-        const targetDot = dot;
-        const targetItem = targetDot.closest('[data-id]');
-        const targetSide = targetDot.getAttribute('data-side');
-
-        if (startItem && targetItem && startSide !== targetSide) {
-          const leftItem = startSide === 'left' ? startItem : targetItem;
-          const rightItem = startSide === 'right' ? startItem : targetItem;
-          this.checkPair(leftItem, rightItem);
-        }
-
-        this.clearGhostLine();
-        window.removeEventListener('mousemove', this._handleMouseMove);
-        this._handleMouseMove = null;
-        this.draggingFrom = null;
-        this._clearActiveDot();
-      }
+      this._handleClick(dot, item);
     };
 
     // Hover cues on dots
@@ -108,6 +84,51 @@ export default class extends ActivityController {
       dot.addEventListener('mouseenter', this._handleDotEnter);
       dot.addEventListener('mouseleave', this._handleDotLeave);
     });
+
+    this._allItems.forEach(item => {
+      item.addEventListener('click', this._handleItemClick);
+    });
+  }
+
+  _handleClick(dot, item) {
+    if (!this.draggingFrom) {
+      this.draggingFrom = dot;
+      this._clearActiveDot();
+      dot.classList.add('active');
+      const start = this.getCenterRelativeTo(dot, this.matchArea);
+      this.ensureGhostLine();
+      this.updateGhostLine(start.x, start.y, start.x, start.y);
+      if (this.ghostLine) {
+        this.ghostLine.setAttribute('stroke', '#198754');
+      }
+      this._handleMouseMove = (evt) => {
+        if (!this.draggingFrom || !this.ghostLine) return;
+        const parentRect = this.matchArea.getBoundingClientRect();
+        const x = evt.clientX - parentRect.left;
+        const y = evt.clientY - parentRect.top;
+        const startPos = this.getCenterRelativeTo(this.draggingFrom, this.matchArea);
+        this.updateGhostLine(startPos.x, startPos.y, x, y);
+      };
+      window.addEventListener('mousemove', this._handleMouseMove);
+    } else {
+      const startItem = this.draggingFrom.closest('[data-id]');
+      const startSide = this.draggingFrom.getAttribute('data-side');
+      const targetDot = dot;
+      const targetItem = targetDot.closest('[data-id]');
+      const targetSide = targetDot.getAttribute('data-side');
+
+      if (startItem && targetItem && startSide !== targetSide) {
+        const leftItem = startSide === 'left' ? startItem : targetItem;
+        const rightItem = startSide === 'right' ? startItem : targetItem;
+        this.checkPair(leftItem, rightItem);
+      }
+
+      this.clearGhostLine();
+      window.removeEventListener('mousemove', this._handleMouseMove);
+      this._handleMouseMove = null;
+      this.draggingFrom = null;
+      this._clearActiveDot();
+    }
   }
 
   _clearActiveDot() {
@@ -147,6 +168,9 @@ export default class extends ActivityController {
     const percent = Math.round((this.matchedCount / this.totalPairs) * 100);
     this.progressBar.style.width = `${percent}%`;
     this.progressBar.setAttribute('aria-valuenow', `${percent}`);
+    if (this.progressText) {
+      this.progressText.textContent = `${percent}%`;
+    }
   }
 
   finish() {

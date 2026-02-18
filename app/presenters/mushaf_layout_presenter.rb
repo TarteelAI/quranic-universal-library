@@ -4,9 +4,9 @@ class MushafLayoutPresenter < ApplicationPresenter
     when 'index'
       "Mushaf Layouts"
     when 'show'
-      "#{resource.name} - Page #{page_number}"
+      "#{resource&.name || 'Mushaf'} - Page #{page_number}"
     when 'edit'
-      "Update #{resource.name} - Page #{page_number}"
+      "Update #{resource&.name || 'Mushaf'} - Page #{page_number}"
     end
   end
 
@@ -15,9 +15,9 @@ class MushafLayoutPresenter < ApplicationPresenter
     when 'index'
       "Mushaf Layouts"
     when 'show'
-      "#{resource.name} Layout - Page #{page_number}"
+      "#{resource&.name || 'Mushaf'} Layout - Page #{page_number}"
     when 'edit'
-      "Edit #{resource.name} Layout - Page #{page_number}"
+      "Edit #{resource&.name || 'Mushaf'} Layout - Page #{page_number}"
     end
   end
 
@@ -27,7 +27,7 @@ class MushafLayoutPresenter < ApplicationPresenter
     when 'index'
       "Customize Quran Mushaf page layouts. Adjust lines per page, align verses, map page ranges."
     else
-      "Edit layout for #{resource.name} Mushaf page #{page_number}. Adjust word placement and line alignment."
+      "Edit layout for #{resource&.name || 'Mushaf'} Mushaf page #{page_number}. Adjust word placement and line alignment."
     end
   end
 
@@ -36,7 +36,7 @@ class MushafLayoutPresenter < ApplicationPresenter
     when 'index'
       "Mushaf layout, Quran page layout, line alignment, page mapping"
     else
-      "Mushaf layout, #{resource.name}, page #{page_number}, word placement, line alignment"
+      "Mushaf layout, #{resource&.name || 'Mushaf'}, page #{page_number}, word placement, line alignment"
     end
   end
 end

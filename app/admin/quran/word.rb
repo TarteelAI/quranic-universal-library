@@ -175,14 +175,14 @@ ActiveAdmin.register Word do
       end
 
       row :text_uthmani, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_uthmani.to_s.html_safe, class: 'me_quran')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row :text_uthmani_simple, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_uthmani_simple.to_s.html_safe, class: 'me_quran')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani_simple}", target: '_blank', class: 'fs-sm')
         end
@@ -197,35 +197,35 @@ ActiveAdmin.register Word do
       end
 
       row :text_qpc_hafs, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_hafs.to_s.html_safe, class: 'qpc-hafs')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row :text_qpc_hafs_colored, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_hafs.to_s.html_safe, class: 'qpc-hafs-color')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row :text_digital_khatt, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_digital_khatt, class: 'digitalkhatt')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row :text_digital_khatt_v1, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_digital_khatt_v1, class: 'digitalkhatt')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_v1}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'DigitalKhatt indopak' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_digital_khatt_indopak.to_s.html_safe, class: 'quran-text digitalkhatt-indopak')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_indopak}", target: '_blank', class: 'fs-sm')
         end
@@ -250,14 +250,14 @@ ActiveAdmin.register Word do
       end
 
       row :text_uthmani_tajweed, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'qpc-hafs', data: {controller: 'tajweed-highlight'})
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani_tajweed}", target: '_blank', class: 'fs-sm')
         end
       end
 
-      row 'KFQC Hafs Tajweed(New)', class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+      row 'KFGQPC Hafs Tajweed(New)', class: 'quran-text' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_hafs_tajweed.to_s.html_safe, class: 'qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
 
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs_tajweed}", target: '_blank', class: 'fs-sm')
@@ -283,7 +283,7 @@ ActiveAdmin.register Word do
       end
 
       row :text_indopak, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_indopak.to_s.html_safe, class: 'indopak')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_indopak}", target: '_blank', class: 'fs-sm')
         end
@@ -532,7 +532,7 @@ ActiveAdmin.register Word do
           tr do
             td link_to(trans.id, [:cms, trans])
             td link_to(trans.language_name, cms_language_path(trans.language_id)) if trans.language_id
-            td trans.text
+            td safe_html(trans.text)
           end
         end
       end

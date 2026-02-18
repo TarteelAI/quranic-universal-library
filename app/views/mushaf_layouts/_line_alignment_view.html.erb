@@ -1,30 +1,36 @@
 <%
   page_number = @mushaf_page.page_number
   pdf_page_offset = (@resource.meta_value('source-pdf-page-offset') || 1).to_i
+  ayah_range_missing = @mushaf_page.first_verse_id.nil? || @mushaf_page.last_verse_id.nil?
+  words_missing = @words.blank?
 %>
 
-<div class="page-wrapper container-lg">
-  <div class="mushaf-wrapper">
-    <%= render SplitScreenComponent.new do |component| %>
-      <%= component.with_left do %>
-        <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset %>
-      <% end %>
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <% if ayah_range_missing || words_missing %>
+    <%= render 'missing_required_data', step: 'line_alignment' %>
+  <% else %>
+    <div class="mushaf-wrapper">
+      <%= render SplitScreenComponent.new do |component| %>
+        <%= component.with_left do %>
+          <%= render 'shared/pdf_or_archive_embed', jump_to_page: page_number + pdf_page_offset %>
+        <% end %>
 
-      <%= component.with_right do %>
-        <%= turbo_frame_tag "mushaf-page" do %>
-          <div
-            data-page="<%= page_number %>"
-            data-controller="update-mushaf-page"
-            class="d-flex justify-content-between <%= @mushaf.default_font_name %>">
-            <%= render 'line_alignment' %>
+        <%= component.with_right do %>
+          <%= turbo_frame_tag "mushaf-page" do %>
+            <div
+              data-page="<%= page_number %>"
+              data-controller="update-mushaf-page"
+              class="tw-flex tw-justify-between <%= @mushaf.default_font_name %>">
+              <%= render 'line_alignment' %>
 
-            <div class="page-section p-3">
-              <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+              <div class="page-section tw-p-3">
+                <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+              </div>
             </div>
-          </div>
+          <% end %>
         <% end %>
       <% end %>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>
 

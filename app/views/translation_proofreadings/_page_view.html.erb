@@ -5,13 +5,13 @@
   ).order('verse_id ASC')
 %>
 
-<div class="page-wrapper container-lg">
-  <div class="d-flex justify-content-center">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="tw-flex tw-justify-center">
     <div>
       <% translations.each do |ayah_translation| %>
-        <div class="p-2">
+        <div class="tw-p-2">
           <%= safe_html ayah_translation.text %>
-          <span class="border bg-primary">
+          <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-green-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">
             <%= ayah_translation.verse_key %>
           </span>
         </div>

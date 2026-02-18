@@ -1,0 +1,83 @@
+<%= turbo_frame_tag :ayah_recitation do %>
+   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-recitation-selector">
+     <div class="tw-flex tw-flex-wrap tw-gap-2">
+       <% rc = @presenter.recitation_resource %>
+       <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-1 tw-rounded tw-bg-gray-100 tw-text-gray-700 tw-text-xs">
+         <%= rc&.name.presence || "Recitation ##{@presenter.recitation_resource_id}" %>
+       </span>
+     </div>
+
+    <button type="button"
+            class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"
+            data-action="click->ayah-recitation-selector#open">
+      Change reciter
+    </button>
+
+    <div class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-z-[10000]" data-ayah-recitation-selector-target="backdrop" data-action="click->ayah-recitation-selector#close"></div>
+    <div class="tw-hidden tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-[420px] tw-max-w-[90vw] tw-bg-white tw-border-l tw-border-gray-200 tw-z-[10001] tw-flex-col" data-ayah-recitation-selector-target="panel">
+      <div class="tw-p-4 tw-border-b tw-border-gray-200 tw-flex tw-items-center tw-justify-between">
+        <div class="tw-font-semibold tw-text-gray-900">Select reciter</div>
+        <button type="button" class="tw-text-gray-500 hover:tw-text-gray-900" data-action="click->ayah-recitation-selector#close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
+        <%= form_with url: ayah_recitation_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_recitation }, html: { data: { ayah_recitation_selector_target: "form" } } do %>
+          <div class="tw-space-y-2">
+            <% @presenter.recitation_resources.each do |r| %>
+              <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
+                <%= radio_button_tag "recitation_resource_id", r.id, @presenter.recitation_resource_id == r.id, data: { action: "change->ayah-recitation-selector#change" } %>
+                <span><%= r.name %></span>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% recitation = @presenter.recitation %>
+  <% if recitation.present? && @presenter.recitation_controller.present? %>
+    <div
+      class="tw-mt-4 tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-4 tw-relative"
+      data-controller="<%= @presenter.recitation_controller %>"
+      id="audio-player"
+      data-recitation="<%= recitation.id %>"
+      data-verse-key="<%= @ayah.verse_key %>"
+    >
+      <div class="tw-mb-4">
+        <div id="current-ayah">
+          <div id="words" class="tw-flex tw-flex-wrap qpc-hafs tw-mb-4 tw-gap-1"></div>
+          <span class="highlight-span" id="word-highlight"></span>
+        </div>
+      </div>
+
+      <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-100 tw-h-14">
+        <div class="tw-max-w-3xl tw-mx-auto tw-px-4 tw-py-2 tw-h-full tw-relative">
+          <div class="tw-flex tw-items-center tw-h-full tw-gap-4">
+            <span id="current-time" class="tw-text-sm tw-text-gray-600 tw-whitespace-nowrap tw-font-medium tw-md:tw-min-w-[75px] tw-text-right">0:00</span>
+            <button id="play-button" disabled class="tw-p-2 tw-bg-primary-100 tw-rounded-full tw-shadow-sm hover:tw-shadow-md hover:tw-bg-primary-200 tw-transition-all tw-flex-shrink-0">
+              <i class="fas fa-play tw-text-gray-600 tw-w-6 tw-h-6"></i>
+            </button>
+            <div class="tw-flex-1 tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+              <div class="tw-flex-1">
+                <div id="progress-bar" class="tw-h-2 tw-bg-gray-200 tw-rounded-full tw-relative tw-cursor-pointer">
+                  <div id="progress" class="tw-h-full tw-bg-blue-300 tw-rounded-full tw-transition-all tw-duration-50 tw-w-0"></div>
+                </div>
+              </div>
+              <span id="total-duration" class="tw-text-sm tw-text-gray-600 tw-whitespace-nowrap tw-font-medium tw-md:tw-min-w-[75px] tw-text-right">0:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a id="previous-ayah" href="?ayah=<%= @ayah.previous_ayah&.verse_key %>" class="tw-hidden"></a>
+      <a id="next-ayah" href="?ayah=<%= @ayah.next_ayah&.verse_key %>" class="tw-hidden"></a>
+      <select id="ayah-select" class="tw-hidden"></select>
+    </div>
+  <% else %>
+    <div class="tw-mt-4 tw-text-sm tw-text-gray-600">No recitation available.</div>
+  <% end %>
+<% end %>
+
+

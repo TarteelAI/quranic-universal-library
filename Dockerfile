@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:3.0.6
+FROM phusion/passenger-customizable:3.1.6
 
 # set correct environment variables
 ENV HOME /root
@@ -8,7 +8,7 @@ CMD ["/sbin/my_init"]
 
 # customizing passenger-customizable image
 RUN /pd_build/ruby-3.3.*.sh
-RUN bash -lc 'rvm --default use ruby-3.3.3'
+RUN bash -lc 'rvm --default use ruby-3.3.10'
 RUN /pd_build/redis.sh
 
 # Nodejs

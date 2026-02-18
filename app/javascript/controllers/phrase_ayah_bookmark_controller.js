@@ -7,76 +7,46 @@
 //   <h1 data-target="hello.output"></h1>
 // </div>
 
-import {
-  Controller
-} from "@hotwired/stimulus"
-
-import {
-  Modal
-} from "bootstrap";
+import AjaxModalController from "./ajax_modal_controller"
 import LocalStore from "../utils/LocalStore";
 
-export default class extends Controller {
+export default class extends AjaxModalController {
   connect() {
     this.store = new LocalStore();
-
     $(this.element).on("click", e => {
       this.loadModal(e);
     });
   }
 
   loadModal(e) {
-    var that = this;
     e.preventDefault();
     e.stopImmediatePropagation();
-
-    this.createModel();
-    $("#ajax-modal").on("hidden.bs.modal", function (e) {
-      $("#ajax-modal")
-        .empty()
-        .remove();
-    });
-
+    this.createModal();
+    this.show();
     this.renderBookmarks();
   }
 
-  renderBookmarks(){
-    this.bookmarks = JSON.parse(this.store.get('bookmarks') || "{}")
-    const modalBody = $("#ajax-modal .modal-body")
-    modalBody.empty();
-    Object.keys(this.bookmarks).forEach((key) => {
-      modalBody.append(`<div class="row"><div class="col-12 border p-2 mb-2">${key}</div></div>`)
-    })
+  renderBookmarks() {
+    const bookmarks = this.store.get('bookmarks') || [];
+    let html = '';
 
-    if(Object.keys(this.bookmarks).length === 0 )
-      modalBody.append("You have not bookmarked any ayah.")
-  }
-
-  createModel(classes) {
-    if ($("#ajax-modal").length > 0) {
-      $("#ajax-modal").remove();
-      $(".modal-backdrop").remove();
+    if (bookmarks.length === 0) {
+      html = '<div class="tw-p-4 tw-text-center tw-text-gray-500">No bookmarks found.</div>';
+    } else {
+      html = '<div class="tw-divide-y tw-divide-gray-100">';
+      bookmarks.forEach(bookmark => {
+        html += `
+          <div class="tw-p-4 hover:tw-bg-gray-50 tw-transition-colors">
+            <a href="${bookmark.url}" class="tw-block">
+              <div class="tw-font-medium tw-text-gray-900">${bookmark.key}</div>
+              <div class="tw-text-sm tw-text-gray-500 tw-mt-1">${bookmark.text}</div>
+            </a>
+          </div>
+        `;
+      });
+      html += '</div>';
     }
 
-    let modal = `<div class="modal fade" id="ajax-modal" aria-hidden="true" tabIndex="-1">
-      <div class="modal-dialog modal-dialog-centered}">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="title">Bookmarks</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div id="modal-body">
-          <div class="modal-body">
-            Loading
-          </div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-    $(modal).appendTo("body");
-
-    this.modal = new Modal('#ajax-modal');
-    this.modal.show();
+    this.setContent('Bookmarks', html);
   }
 }

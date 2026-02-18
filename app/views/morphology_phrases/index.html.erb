@@ -2,7 +2,7 @@
   actions = []
 
   if @access
-    actions << link_to('New Phrase', new_morphology_phrase_path, class: 'btn btn-success', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) })
+    actions << link_to('New Phrase', new_morphology_phrase_path, class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) })
     actions << link_to('View bookmarks', '#_', class: 'btn btn-info', data: { controller: 'phrase-ayah-bookmark' })
   end
 
@@ -15,7 +15,7 @@
 
 <%= render 'tools/header', name: 'Mutashabihat ul Quran', actions: actions, key: 'mutashabihat' %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <% if params[:proofread] %>
     <%= render 'proofread_list' %>
   <% else %>

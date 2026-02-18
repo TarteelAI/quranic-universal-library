@@ -35,10 +35,10 @@ ActiveAdmin.register Audio::Segment do
     column :verse_key, sortable: :verse_id
     column :timestamp_from
     column :timestamp_to
-
     column :duration
-    column :diff do |resource|
-      resource.timestamp_to - resource.timestamp_from
+
+    column :duration_ms do |resource|
+      resource.timestamp_to.to_i - resource.timestamp_from.to_i
     end
 
     actions

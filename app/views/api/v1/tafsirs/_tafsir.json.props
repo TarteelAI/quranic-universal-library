@@ -1,0 +1,28 @@
+tafsir = local_assigns[:tafsir]
+# Get resource_content from local_assigns, presenter, or tafsir association
+resource_content = local_assigns[:resource_content] || tafsir.get_resource_content
+
+verse_keys = []
+if tafsir.start_verse_id && tafsir.end_verse_id
+  (tafsir.start_verse_id..tafsir.end_verse_id).each do |verse_id|
+    verse_keys << Utils::Quran.get_ayah_key_from_id(verse_id)
+  end
+else
+  verse_keys << tafsir.verse_key if tafsir.verse_key
+end
+
+json.id tafsir.id
+json.verses verse_keys.compact
+json.resource_id resource_content.id
+json.resource_name resource_content.name
+json.language_id resource_content.language_id
+json.language_name resource_content.language_name
+
+translated_name_obj = @presenter.get_translated_name(resource_content)
+
+json.translated_name do
+  json.name translated_name_obj[:name]
+  json.locale translated_name_obj[:locale]
+end
+
+json.text tafsir.text.to_s

@@ -145,10 +145,11 @@
   color: #d8019c;
 }
 
-.silver {
+.silver, .paren {
   color: #b4b4b4;
 }
 
-.silver-light {
+// punctuation, brackets
+.silver-light, .punc {
   color: #bebebe;
 }

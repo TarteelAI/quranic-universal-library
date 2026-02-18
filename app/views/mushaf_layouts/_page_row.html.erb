@@ -1,0 +1,74 @@
+<tr class="hover:tw-bg-gray-100 tw-border-b" id="page-row-<%= page.page_number %>">
+  <td class="tw-py-3 tw-px-4">
+    <%= link_to page.page_number, mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-font-medium tw-no-underline tw-cursor-pointer page-number-link', data: { turbo_frame: '_top' } %>
+  </td>
+
+  <td class="tw-py-3 tw-px-4">
+    <% if page.first_ayah_key && page.last_ayah_key %>
+      <span class="tw-text-gray-700"><%= page.first_ayah_key %> - <%= page.last_ayah_key %></span>
+    <% else %>
+      <span class="tw-text-gray-400">Not set</span>
+    <% end %>
+  </td>
+
+  <td class="tw-py-3 tw-px-4">
+    <% status = page_status(page) %>
+    <span class="tw-px-2 tw-py-1 tw-rounded-full tw-text-xs tw-font-medium <%= status_badge_class(status) %>">
+      <%= status %>
+    </span>
+  </td>
+
+  <td class="tw-py-3 tw-px-4">
+    <% if @access %>
+      <div class="tw-flex tw-flex-col tw-gap-3">
+        <div class="tw-flex tw-items-center">
+          <%
+            ayah_range_done = page.first_verse_id.present? && page.last_verse_id.present?
+            word_mapping_done = page.first_word_id.present? && page.last_word_id.present?
+            line_alignment_done = page.lines_count.to_i > 0
+            all_done = ayah_range_done && word_mapping_done && line_alignment_done
+          %>
+          <div class="tw-w-8 tw-h-8 tw-rounded-full tw-border-2 <%= ayah_range_done ? 'tw-border-[#70DDA7]' : 'tw-border-gray-500' %> tw-flex tw-items-center tw-justify-center tw-text-[#70DDA7] tw-font-bold tw-flex-shrink-0">
+            <% if ayah_range_done %>✓
+            <% end %>
+          </div>
+          <div class="tw-h-0.5 tw-flex-1 <%= ayah_range_done ? 'tw-bg-[#70DDA7]' : 'tw-bg-gray-500' %>"></div>
+          <div class="tw-w-8 tw-h-8 tw-rounded-full tw-border-2 <%= word_mapping_done ? 'tw-border-[#70DDA7]' : 'tw-border-gray-500' %> tw-flex tw-items-center tw-justify-center tw-text-[#70DDA7] tw-font-bold tw-flex-shrink-0">
+            <% if word_mapping_done %>✓
+            <% end %>
+          </div>
+          <div class="tw-h-0.5 tw-flex-1 <%= word_mapping_done ? 'tw-bg-[#70DDA7]' : 'tw-bg-gray-500' %>"></div>
+          <div class="tw-w-8 tw-h-8 tw-rounded-full tw-border-2 <%= line_alignment_done ? 'tw-border-[#70DDA7]' : 'tw-border-gray-500' %> tw-flex tw-items-center tw-justify-center tw-text-[#70DDA7] tw-font-bold tw-flex-shrink-0">
+            <% if line_alignment_done %>✓
+            <% end %>
+          </div>
+          <div class="tw-h-0.5 tw-flex-1 <%= line_alignment_done ? 'tw-bg-[#70DDA7]' : 'tw-bg-gray-500' %>"></div>
+          <div class="tw-w-8 tw-h-8 tw-rounded-full tw-border-2 <%= all_done ? 'tw-border-[#70DDA7]' : 'tw-border-gray-500' %> tw-flex tw-items-center tw-justify-center tw-text-[#70DDA7] tw-font-bold tw-flex-shrink-0">
+            <% if all_done %>✓
+            <% end %>
+          </div>
+        </div>
+        <div class="tw-flex tw-items-center">
+          <div class="tw-min-w-20 tw-flex tw-justify-center tw-flex-shrink-0">
+            <%= link_to 'Set Ayah Range', '#_', class: 'tw-text-gray-700 hover:tw-text-[#70DDA7] tw-no-underline tw-cursor-pointer tw-transition-colors tw-text-sm tw-whitespace-nowrap', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page.page_number, view_type: 'page_mapping_modal'), css_class: 'modal-xl' } %>
+          </div>
+          <div class="tw-flex-1"></div>
+          <div class="tw-min-w-24 tw-flex tw-justify-center tw-flex-shrink-0">
+            <%= link_to 'Update Word lines', edit_mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-text-gray-700 hover:tw-text-[#70DDA7] tw-no-underline tw-cursor-pointer tw-transition-colors tw-text-sm tw-whitespace-nowrap', data: { turbo_frame: '_top' } %>
+          </div>
+          <div class="tw-flex-1"></div>
+          <div class="tw-min-w-24 tw-flex tw-justify-center tw-flex-shrink-0">
+            <%= link_to 'Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page.page_number, view_type: 'line_alignment'), class: 'tw-text-gray-700 hover:tw-text-[#70DDA7] tw-no-underline tw-cursor-pointer tw-transition-colors tw-text-sm tw-whitespace-nowrap', data: { turbo_frame: '_top' } %>
+          </div>
+          <div class="tw-flex-1"></div>
+          <div class="tw-min-w-16 tw-flex tw-justify-center tw-flex-shrink-0">
+            <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-text-gray-700 hover:tw-text-[#70DDA7] tw-no-underline tw-cursor-pointer tw-transition-colors tw-text-sm tw-whitespace-nowrap', data: { turbo_frame: '_top' } %>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), class: 'tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white', data: { turbo_frame: '_top', disable_with: 'Preview' } %>
+    <% end %>
+  </td>
+</tr>
+

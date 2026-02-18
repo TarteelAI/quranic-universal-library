@@ -81,6 +81,8 @@ gem install bundler
 bundle install
 ```
 
+* **Tip:** To prevent Bundler from reinstalling due to a version mismatch, you can install the specific version listed under `BUNDLED_WITH` in `Gemfile.lock` using the command `gem install bundler -v [version]`
+
 #### 5. Database Configuration
 
 **QUL requires two databases:**

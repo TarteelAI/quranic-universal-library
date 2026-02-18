@@ -2,11 +2,18 @@
 
 body {
   overflow-x: hidden;
+  
+  > div[role="tooltip"] {
+    position: fixed !important;
+    
+    &[style*="visibility: hidden"] {
+      display: none !important;
+    }
+  }
 }
 
 @import "buttons";
 @import "tools";
-@import "bootstrap-overrides";
 @import "devise_styles";
 @import "tabs";
 @import "tool_cards";

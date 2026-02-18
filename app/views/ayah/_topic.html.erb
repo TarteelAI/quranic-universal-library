@@ -1,0 +1,11 @@
+<div id="title">
+  <%= @topic.name.presence || "Topic ##{@topic.id}" %>
+</div>
+
+<div id="body">
+  <div class="tw-p-6">
+    <%= render 'resources/previews/ayah_topics/topic_show', topic: @topic, verse_topics: @verse_topics, ayah_key: @ayah.verse_key %>
+  </div>
+</div>
+
+

@@ -183,11 +183,13 @@ module Importer
     end
 
     def sanitize_text(text)
-      #collect footnotes
+      text.gsub!(/؟/, '<span class=ar>؟</span>')
       processed_text = sanitize_footnote(text)
 
       formatted = simple_format(processed_text)
-      html = formatted.split("\n").map(&:strip).reject(&:empty?).map do |line|
+      paragraphs = formatted.split('\n').map(&:strip).reject(&:empty?)
+
+      html = paragraphs.map do |line|
         if line.start_with?('*')
           "<h3>#{line.sub('*', '').strip}</h3>"
         else
@@ -197,7 +199,6 @@ module Importer
 
       doc = Nokogiri::HTML.fragment(html)
 
-      # Merge hlt and qpc-hafs in one spans
       doc.css('span.hlt > span.qpc-hafs').each do |qpc_span|
         merged = Nokogiri::XML::Node.new('span', doc)
         merged['class'] = 'qpc-hafs hlt'
@@ -219,7 +220,6 @@ module Importer
         end
       end
 
-      #append footnote list
       sanitize_footnote(nil, doc: doc)
 
       "<div class=\"ar\" lang=\"ar\">#{doc.to_html}</div>"
@@ -230,7 +230,6 @@ module Importer
       # Wrap Ayah references
       text = text.gsub(/(\[[ء-ْ ]{1,11}: [\d٠-٩، -]+\])/, '<span class="ayah-ref">\1</span>')
 
-      # Wrap ayah text
       text.gsub(/([«{﴿][\s\S]*?[﴾}»])/, '<span class="qpc-hafs">\1</span>')
     end
 
@@ -241,8 +240,6 @@ module Importer
 
       # Replace section separators
       text.gsub!(/\n([⁕* ]+)\n/, '<p class="sep">\1</p>')
-
-      # Wrap Ayah references in a span with a specific class
       text.gsub!(/(\[[ء-ْ ]{1,11}: [\d٠-٩، -]+\])/, '<span class="ayah-tag">\1</span>')
 
       # Wrap poetry lines marked by '؎' inside paragraph tags
@@ -252,7 +249,6 @@ module Importer
       # Bold lines that start with '* ' followed by Arabic text
       text.gsub!(/(^|\n)(\* [ء-ي].*)/, '\1<b>\2</b>')
 
-      # Highlight phrases
       text.gsub(/([«{﴿][\s\S]*?[﴾}»])/, '<span class="hlt">\1</span>')
     end
   end

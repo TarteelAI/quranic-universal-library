@@ -1,6 +1,6 @@
 module V1
   module Audio
-    class RecitationPresenter < ApplicationPresenter
+    class RecitationPresenter < ApiPresenter
       def ayah_recitations
         ::Recitation
           .approved
@@ -19,6 +19,15 @@ module V1
 
       def ayah_recitation
         ayah_recitations.find(params[:id])
+      end
+
+      def audio_format
+        format = params[:audio_format].to_s.downcase
+        if surah_recitation.format.include?(format)
+          format
+        else
+          'mp3'
+        end
       end
 
       def wav_manifest

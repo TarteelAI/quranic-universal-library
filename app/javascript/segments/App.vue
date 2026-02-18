@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="tw-space-y-8 tw-pb-20">
     <Alert />
     <SelectAudioSrc />
     <ActionBar />

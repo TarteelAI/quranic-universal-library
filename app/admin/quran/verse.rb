@@ -89,42 +89,42 @@ ActiveAdmin.register Verse do
       end
 
       row 'Indopak' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_indopak.to_s.html_safe, class: 'quran-text indopak')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_indopak}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'Indopak Nastaleeq' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_indopak_nastaleeq.to_s.html_safe, class: 'quran-text indopak-nastaleeq')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_indopak_nastaleeq}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'QPC Indopak Nastaleeq' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_nastaleeq.to_s.html_safe, class: 'quran-text indopak-nastaleeq')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_nastaleeq}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'QPC Nastaleeq Hafs' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_nastaleeq_hafs.to_s.html_safe, class: 'quran-text qpc-nastaleeq')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_nastaleeq_hafs}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'QPC Nastaleeq' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_nastaleeq.to_s.html_safe, class: 'quran-text indopak-nastaleeq')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_nastaleeq}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'DigitalKhatt indopak' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_digital_khatt_indopak.to_s.html_safe, class: 'quran-text digitalkhatt-indopak')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_indopak}", target: '_blank', class: 'fs-sm')
         end
@@ -143,7 +143,7 @@ ActiveAdmin.register Verse do
       end
 
       row 'Text Uthmani' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_uthmani.to_s.html_safe, class: 'quran-text me_quran')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani}", target: '_blank', class: 'fs-sm')
         end
@@ -155,29 +155,29 @@ ActiveAdmin.register Verse do
         end
       end
 
-      row 'KFQC Hafs' do
-        div class: 'd-flex flex-column align-item-end' do
+      row 'KFGQPC Hafs' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_hafs.to_s.html_safe, class: 'quran-text qpc-hafs')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row :text_qpc_hafs_colored, class: 'quran-text' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_hafs.to_s.html_safe, class: 'qpc-hafs-color')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'Uthmani Tajweed(ReciteQuran)' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_uthmani_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs', 'data-controller': 'tajweed-highlight')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_uthmani_tajweed}", target: '_blank', class: 'fs-sm')
         end
       end
 
-      row 'KFQC Hafs Tajweed(New)' do
-        div class: 'd-flex flex-column align-item-end' do
+      row 'KFGQPC Hafs Tajweed(New)' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_qpc_hafs_tajweed.to_s.html_safe, class: 'quran-text qpc-hafs tajweed-new', 'data-controller': 'tajweed-highlight')
 
           div link_to('Chars', "/community/chars_info?text=#{resource.text_qpc_hafs_tajweed}", target: '_blank', class: 'fs-sm')
@@ -191,14 +191,14 @@ ActiveAdmin.register Verse do
       end
 
       row 'Digital Khatt' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_digital_khatt, class: 'quran-text digitalkhatt')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt}", target: '_blank', class: 'fs-sm')
         end
       end
 
       row 'Digital Khatt V1' do
-        div class: 'd-flex flex-column align-item-end' do
+        div class: 'tw-flex tw-flex-col tw-items-end' do
           div(resource.text_digital_khatt_v1, class: 'quran-text digitalkhatt')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_digital_khatt_v1}", target: '_blank', class: 'fs-sm')
         end
@@ -218,7 +218,7 @@ ActiveAdmin.register Verse do
 
       row :image do
         div class: 'quran-text' do
-          image_tag resource.image_url, class: 'w-100'
+          image_tag resource.image_url, class: 'tw-w-full'
         end
       end
 
@@ -241,7 +241,7 @@ ActiveAdmin.register Verse do
           td 'QPC Tajweed'
           td 'Uthmani'
           td 'Uth-Simple'
-          td 'KFQC Hafs'
+          td 'KFGQPC Hafs'
           td 'Imlaei'
           td 'Im-Simle'
           td 'Nastaleeq(Indopak)'
@@ -321,7 +321,7 @@ ActiveAdmin.register Verse do
       end
     end
 
-    panel "<div data-bs-toggle='collapse' data-bs-target='#recitations' class='d-flex collapable'>Available Recitations(#{verse.audio_files.size}) <span class='ms-auto'></span></div>".html_safe do
+    panel "<div data-bs-toggle='collapse' data-bs-target='#recitations' class='tw-flex collapable'>Available Recitations(#{verse.audio_files.size}) <span class='tw-ms-auto'></span></div>".html_safe do
       div id: 'recitations', class: 'collapse', 'aria-labelledby': 'recitations' do
         table do
           thead do
@@ -353,7 +353,7 @@ ActiveAdmin.register Verse do
       end
     end
 
-    panel "<div data-bs-toggle='collapse' data-bs-target='#translations' class='d-flex collapable scrollable'>Translations(#{verse.translations.size}) <span class='ms-auto'></span></div>".html_safe do
+    panel "<div data-bs-toggle='collapse' data-bs-target='#translations' class='tw-flex collapable scrollable'>Translations(#{verse.translations.size}) <span class='tw-ms-auto'></span></div>".html_safe do
       div id: 'translations', class: 'collapse', 'aria-labelledby': 'translations' do
         table do
           thead do
@@ -401,7 +401,7 @@ ActiveAdmin.register Verse do
 
               td class: 'quran-text qpc-hafs' do
                 matching_verse.words.map do |w|
-                  span w.text_qpc_hafs, class: "#{'text-success' if positions.include?(w.position)}"
+                  span w.text_qpc_hafs, class: "#{'tw-text-green-500' if positions.include?(w.position)}"
                 end
               end
             end

@@ -10,8 +10,12 @@
 }
 
 @layer components {
+    .tw-container.tw-max-w-7xl {
+        @apply tw-mt-4;
+    }
+
     .active-tab {
-      @apply border-b-2 border-blue-600 text-blue-600;
+        @apply border-b-2 border-blue-600 text-blue-600;
     }
 
     .tw-link-button {
@@ -19,11 +23,27 @@
     }
 
     .tw-btn {
-        @apply tw-font-semibold tw-py-2 tw-px-4 tw-rounded focus:tw-outline-none focus:tw-ring-2;
+        @apply !tw-no-underline tw-font-semibold tw-py-2 tw-px-4 tw-rounded focus:tw-outline-none focus:tw-ring-2;
+    }
+
+    .tw-btn-sm {
+        @apply tw-py-1 tw-px-2 tw-text-sm;
+    }
+
+    .tw-btn-info {
+        @apply tw-bg-blue-500 !tw-text-white hover:tw-bg-blue-600 focus:tw-ring-blue-300 hover:!tw-text-white;
     }
 
     .tw-btn-success {
-        @apply tw-bg-green-500 tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:tw-text-white;
+        @apply tw-bg-green-500 !tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:!tw-text-white;
+    }
+
+    .tw-btn-warning {
+        @apply tw-bg-yellow-500 !tw-text-white hover:tw-bg-yellow-600 focus:tw-ring-yellow-300 hover:!tw-text-white;
+    }
+
+    .tw-btn-danger {
+        @apply tw-bg-red-500 !tw-text-white hover:tw-bg-red-600 focus:tw-ring-red-300 hover:!tw-text-white;
     }
 
     .tw-docs {
@@ -53,21 +73,21 @@
 
     .tw-docs pre {
         @apply tw-p-4 tw-rounded-md tw-overflow-x-auto;
-        background-color: #ecf0f1; 
+        background-color: #ecf0f1;
         font-size: 1.1em;
-        color: #2c3e50; 
+        color: #2c3e50;
     }
 
     .tw-docs code {
         @apply tw-px-1 tw-rounded tw-bg-gray-200;
-        background-color: #ecf0f1; 
+        background-color: #ecf0f1;
         font-family: "Courier New", monospace;
         color: #2c3e50;
     }
 
     .tw-docs .example {
         @apply tw-p-4 tw-rounded-lg tw-mt-3 tw-mb-3;
-        background-color: #eafaf1; 
+        background-color: #eafaf1;
         border: 1px solid #b3e0b3;
     }
 
@@ -77,17 +97,29 @@
 
     .tw-docs .note {
         @apply tw-p-4 tw-mt-3 tw-mb-3;
-        background-color: #fef6e4; 
+        background-color: #fef6e4;
         border-left: 4px solid #f39c12;
     }
 
     .tw-docs .hlt {
         @apply tw-font-bold;
-        color: #ff6347; 
+        color: #ff6347;
     }
 
     .tw-docs a {
         @apply tw-underline tw-font-bold;
+    }
+
+    .btn {
+        @apply tw-inline-flex tw-items-center tw-justify-center tw-px-4 tw-py-2 tw-text-base tw-font-medium tw-leading-6 tw-rounded-md tw-transition-colors tw-duration-150 tw-ease-in-out tw-border tw-cursor-pointer tw-no-underline;
+    }
+
+    .btn-info {
+        @apply tw-bg-blue-600 tw-text-white tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+    }
+
+    .btn-outline-info {
+        @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
     }
 }
 
@@ -101,7 +133,7 @@
     justify-content: center;
 }
 
-.resize-handler:hover{
+.resize-handler:hover {
     width: 16px;
 }
 
@@ -112,8 +144,8 @@
     background-color: #4a5568;
     border-radius: 50%;
     box-shadow:
-            0 -8px 0 #4a5568,
-            0 8px 0 #4a5568;
+        0 -8px 0 #4a5568,
+        0 8px 0 #4a5568;
 }
 
 .contributor-card {
@@ -132,5 +164,3 @@
 .contributor-logo:hover .logo {
     transform: scale(1.05);
 }
-
-

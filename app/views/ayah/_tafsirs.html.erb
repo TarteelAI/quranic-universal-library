@@ -1,0 +1,75 @@
+<%= turbo_frame_tag :ayah_tafsirs do %>
+  <div dir="rtl" class="qpc-hafs tw-text-2xl sm:tw-text-3xl tw-leading-relaxed tw-text-right tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3 sm:tw-p-5 tw-mb-3 sm:tw-mb-4">
+    <%= @ayah.text_qpc_hafs %>
+  </div>
+
+   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-tafsir-selector">
+     <div class="tw-flex tw-flex-wrap tw-gap-2">
+       <span class="tw-inline-flex tw-items-center tw-px-3 tw-py-1 tw-rounded tw-bg-blue-100 tw-text-blue-800 tw-text-sm tw-font-medium">
+         <%= @presenter.tafsir_ids.size %> tafsir<%= 's' if @presenter.tafsir_ids.size != 1 %> selected
+       </span>
+     </div>
+
+    <button type="button"
+            class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"
+            data-action="click->ayah-tafsir-selector#open">
+      Change tafsirs
+    </button>
+
+    <div class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-z-[10000]" data-ayah-tafsir-selector-target="backdrop" data-action="click->ayah-tafsir-selector#close"></div>
+    <div class="tw-hidden tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-[420px] tw-max-w-[90vw] tw-bg-white tw-border-l tw-border-gray-200 tw-z-[10001] tw-flex-col" data-ayah-tafsir-selector-target="panel">
+      <div class="tw-p-4 tw-border-b tw-border-gray-200 tw-flex tw-items-center tw-justify-between">
+        <div class="tw-font-semibold tw-text-gray-900">Select tafsirs</div>
+        <button type="button" class="tw-text-gray-500 hover:tw-text-gray-900" data-action="click->ayah-tafsir-selector#close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
+        <%= form_with url: ayah_tafsirs_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_tafsirs }, html: { data: { ayah_tafsir_selector_target: "form" } } do %>
+          <div class="tw-space-y-2">
+            <% @presenter.tafsir_resources.each do |rc| %>
+              <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
+                <%= check_box_tag "tafsir_ids[]", rc.id, @presenter.tafsir_ids.include?(rc.id), class: "tw-mt-1", data: { action: "change->ayah-tafsir-selector#change" } %>
+                <span><%= rc.name %></span>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-mt-3 sm:tw-mt-4 tw-space-y-4 sm:tw-space-y-6">
+    <% if @presenter.tafsir_by_id.present? %>
+      <% @presenter.tafsir_ids.each do |rid| %>
+        <% t = @presenter.tafsir_by_id[rid] %>
+        <% next unless t %>
+        <% rc = @presenter.tafsir_resources_by_id[rid] %>
+        <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3 sm:tw-p-4">
+          <div class="tw-text-xs tw-text-gray-500"><%= rc&.name.presence || "Tafsir ##{rid}" %></div>
+          <% ayahs = (@presenter.tafsir_ayahs_by_id || {})[rid] || [] %>
+          <% if ayahs.any? %>
+            <div class="tw-mt-3 tw-bg-emerald-50 tw-border tw-border-emerald-200 tw-rounded tw-p-3">
+              <div class="tw-text-sm tw-font-semibold tw-text-emerald-900">
+                This tafsir is for <%= ayahs.size %> ayahs from <%= ayahs.first.verse_key %>
+                to <%= ayahs.last.verse_key %>
+              </div>
+              <div class="tw-mt-2 tw-space-y-2">
+                <div class="tw-bg-white/70 tw-border tw-border-emerald-100 tw-rounded tw-p-2 sm:tw-p-3 qpc-hafs">
+                  <% ayahs.each do |v| %>
+                    <%= v.text_qpc_hafs %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <div class="tw-mt-2 tw-text-sm tw-text-gray-900"><%= safe_html t.text %></div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="tw-text-sm tw-text-gray-600">No tafsir found for the selected resources.</div>
+    <% end %>
+  </div>
+<% end %>
+
+

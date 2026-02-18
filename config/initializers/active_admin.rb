@@ -189,6 +189,7 @@ ActiveAdmin.setup do |config|
   #
   # To load a stylesheet:
   #   config.register_stylesheet 'my_stylesheet.css'
+  config.register_stylesheet 'tailwind'
   config.register_stylesheet 'tinymce_custom', id: 'tinymce_custom_style'
   config.register_stylesheet 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'
 

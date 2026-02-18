@@ -68,14 +68,15 @@ class Morphology::MatchingVerse < ApplicationRecord
   def calculate_matching_score
     service = MatchingAyahService.new(verse)
 
-    score = service.calculating_matching_score(matched_verse, use_root: true)
+    score = service.get_comprehensive_score(matched_verse, use_root: true)
     word_positions = service.get_matching_words(matched_verse, use_root: true)
 
     update_columns(
       matched_word_positions: word_positions,
       matched_words_count: word_positions.size,
       score: score,
-      words_count: matched_verse.words.words.size
+      words_count: matched_verse.words.words.size,
+      coverage: service.get_match_coverage(matched_verse)
     )
   end
 end

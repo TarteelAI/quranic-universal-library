@@ -93,7 +93,7 @@ ActiveAdmin.register Morphology::Phrase do
       end
 
       chapters.values.each do |c|
-        span class: 'btn btn-info m-1' do
+        span class: 'tw-btn tw-btn-info tw-m-1' do
           span c[:chapter].id
           span c[:chapter].name_simple
           span c[:count], class: 'badge text-bg-secondary bg-success'
@@ -106,12 +106,12 @@ ActiveAdmin.register Morphology::Phrase do
         div do
           span do
             link_to 'Approve all', approve_cms_morphology_phrase_verse_path(resource, all: true, toggle: '1'),
-                    method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
+                    method: :put, class: 'tw-btn tw-btn-sm tw-btn-info', data: { remote: true, confirm: 'Are you sure?' }
           end
 
           span do
             link_to 'Disapprove all', approve_cms_morphology_phrase_verse_path(resource, all: true, toggle: '0'),
-                    method: :put, class: 'btn btn-primary btn-sm text-white', data: { remote: true, confirm: 'Are you sure?' }
+                    method: :put, class: 'tw-btn tw-btn-sm tw-btn-info', data: { remote: true, confirm: 'Are you sure?' }
           end
         end
       end
@@ -134,11 +134,11 @@ ActiveAdmin.register Morphology::Phrase do
               td  do
                 status_tag v.approved?
 
-                div class: 'd-flex flex-column' do
+                div class: 'tw-flex tw-flex-col' do
                 if(can? :update, Morphology::MatchingVerse)
-                    span class: 'my-2' do
+                    span class: 'tw-my-2' do
                       link_to approve_cms_morphology_phrase_verse_path(v),
-                              class: "btn #{v.approved? ? 'btn-danger' : 'btn-success'} btn-sm text-white",
+                              class: "tw-btn tw-btn-sm #{v.approved? ? 'tw-btn-danger' : 'tw-btn-success'}",
                               method: :put,
                               data: { remote: true, confirm: 'Are you sure?' } do
                         v.approved? ? 'Un Approve!' : 'Approve!'
@@ -148,7 +148,7 @@ ActiveAdmin.register Morphology::Phrase do
                     if resource.source_verse_id && v.verse_id != resource.source_verse_id
                       span id: dom_id(v) do
                         link_to create_matching_ayah_cms_morphology_phrase_verse_path(v), method: :put,
-                                class: 'btn btn-sm btn-info text-white', data: { remote: true, confirm: 'Are you sure?' } do
+                                class: 'tw-btn tw-btn-sm tw-btn-info', data: { remote: true, confirm: 'Are you sure?' } do
                           'Create Matching ayah'
                         end
                     end
@@ -162,7 +162,7 @@ ActiveAdmin.register Morphology::Phrase do
                   span w.text_qpc_hafs,
                        class: "#{
                          if w.position >= v.word_position_from.to_i && w.position <= v.word_position_to.to_i
-                           'text-success'
+                           'tw-text-green-500'
                          end}"
                 end
               end

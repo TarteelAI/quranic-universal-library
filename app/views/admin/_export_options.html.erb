@@ -1,4 +1,4 @@
-<div class="mt-2">
+<div class="tw-mt-2">
   <%
     export_formats = [
       ['Sqlite database', 'sqlite']
@@ -13,7 +13,7 @@
     end
   %>
   <%= semantic_form_for resource, url: export_cms_resource_content_path(resource, export_type: 'raw_tafsir'), method: :put do |form| %>
-    <ul class="m-0 mb-1">
+    <ul class="m-0 tw-mb-1">
       <% form.input(:export_file_name, label: 'File name') %>
 
       <% if resource.translation? %>

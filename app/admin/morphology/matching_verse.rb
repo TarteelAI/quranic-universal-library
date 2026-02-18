@@ -35,13 +35,14 @@ ActiveAdmin.register Morphology::MatchingVerse do
     send_file file, filename: "matching_ayah.json", type: "application/json"
   end
 
-  action_item :approve, only: :show do
+  action_item :approve, only: :show, if: -> { can? :update, resource } do
     link_to approve_cms_morphology_matching_verse_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       resource.approved? ? 'Un Approve!' : 'Approve!'
     end
   end
 
   member_action :approve, method: 'put' do
+    authorize! :update, resource
     resource.toggle_approve!
 
     if request.xhr?
@@ -89,14 +90,14 @@ ActiveAdmin.register Morphology::MatchingVerse do
       row :verse do
         c = resource.verse
 
-        div class: 'd-flex' do
+        div class: 'tw-flex' do
           span link_to(c.verse_key, [:cms, c])
           span c.text_qpc_hafs, class: 'quran-text qpc-hafs'
         end
       end
 
       row :matched_verse do
-        div class: 'd-flex' do
+        div class: 'tw-flex' do
           c = resource.matched_verse
           positions = resource.matched_word_positions.map(&:to_i)
 
@@ -104,7 +105,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
 
           span do
           c.words.map do |w|
-            span w.text_qpc_hafs, class: "quran-text qpc-hafs #{'text-success' if positions.include?(w.position)}"
+            span w.text_qpc_hafs, class: "quran-text qpc-hafs #{'tw-text-green-500' if positions.include?(w.position)}"
           end
           end
         end
@@ -120,8 +121,8 @@ ActiveAdmin.register Morphology::MatchingVerse do
 
       other_matching_verses = resource.verse.get_matching_verses
       panel "Ayahs similar to #{resource.verse.verse_key} (#{other_matching_verses.size})", id: 'verse-words' do
-        div class: 'd-flex' do
-          span link_to('Approve all', '#'), class: 'me-2'
+        div class: 'tw-flex' do
+          span link_to('Approve all', '#'), class: 'tw-me-2'
           span link_to('Unapprve all', '#')
         end
 
@@ -158,7 +159,7 @@ ActiveAdmin.register Morphology::MatchingVerse do
 
                 td class: 'quran-text qpc-hafs' do
                   matching_verse.words.map do |w|
-                    span w.text_qpc_hafs, class: "#{'text-success' if positions.include?(w.position)}"
+                    span w.text_qpc_hafs, class: "#{'tw-text-green-500' if positions.include?(w.position)}"
                   end
                 end
               end

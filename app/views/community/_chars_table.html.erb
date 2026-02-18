@@ -11,14 +11,14 @@
     }
 </style>
 
-<div class="page-wrapper container-lg" data-controller="chars-info">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4" data-controller="chars-info">
   <div class="page-section">
     <h2>List of words from <%= scripts[script.to_sym] %> script that include <%= char %></h2>
     <%= render 'char_font_options' %>
 
     <div>
-      <table class="table table-hover text-center">
-        <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+      <table class="tw-w-full hover:tw-bg-gray-50 tw-text-center">
+        <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
         <tr>
           <th>Location</th>
           <th>Text</th>
@@ -27,9 +27,9 @@
 
         <tbody>
           <% words.each do |word| %>
-          <tr>
-            <td><%= link_to word.location, cms_word_path(word) %></td>
-            <td>
+          <tr class="hover:tw-bg-gray-200 tw-border-b">
+            <td class="tw-py-2 tw-pl-2"><%= link_to word.location, cms_word_path(word) %></td>
+            <td class="tw-py-2">
               <div class="char <%= params[:font] %>" data-controller="tajweed-highlight">
                 <% if script.include?('tajweed') %>
                   <%= safe_html word.read_attribute(script) %>
@@ -43,7 +43,7 @@
 
           <tr>
           <td>
-            <%= safe_html pagy_bootstrap_nav(pagination) %>
+            <%= safe_html pagy_nav_tailwind(pagination) %>
           </td>
 
           <td>

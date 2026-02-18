@@ -59,7 +59,11 @@ const config = {
   metafile: generateMeta,
   loader: {
     '.svg': 'file', // For SVG files
-  }
+  },
+  define: {
+    'global': 'globalThis',
+  },
+  inject: [],
 }
 
 async function buildAndReload() {

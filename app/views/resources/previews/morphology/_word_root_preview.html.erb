@@ -10,7 +10,7 @@
           <%= word.text_qpc_hafs %>
         </div>
 
-        <div class="tw-text-sm tw-text-gray-600 ">
+        <div class="tw-text-sm tw-text-gray-600">
           <% if word.root %>
             <%= link_to word.root.arabic_trilateral, morphology_root_path(word.root.arabic_trilateral), data: {controller: 'ajax-modal', css_class: 'modal-lg', url: morphology_root_path(word.root.arabic_trilateral)} %>
           <% end %>

@@ -1,5 +1,5 @@
 module V1
-  class VersePresenter < ApplicationPresenter
+  class VersePresenter < ApiPresenter
     VERSE_FIELDS = [
       'text_uthmani',
       'text_indopak',
@@ -151,6 +151,11 @@ module V1
       else
         list
       end
+    end
+
+    def per_page
+      items = params[:per_page].to_i.abs
+      [items | 10, 286].min
     end
   end
 end

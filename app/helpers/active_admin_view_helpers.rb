@@ -179,5 +179,21 @@ module ActiveAdminViewHelpers
         end
       end
     end
+
+    def humanize_duration(seconds)
+      return "0s" if seconds.nil? || seconds.zero?
+
+      total_seconds = seconds.to_i
+      hours = total_seconds / 3600
+      minutes = (total_seconds % 3600) / 60
+      secs = total_seconds % 60
+
+      result = []
+      result << "#{hours}h" if hours > 0
+      result << "#{minutes}m" if minutes > 0
+      result << "#{secs}s" if secs > 0
+
+      result.join(" ")
+    end
   end
 end

@@ -17,7 +17,7 @@
         <tr class="tw-border-b hover:tw-bg-gray-50"
           data-search="<%= "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>">
           <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-align-top">
-            <%= link_to card.url, class: 'hover:tw-text-black tw-block', data: { turbo_frame: '_top' } do %>
+            <%= link_to card.url, class: 'hover:tw-text-[#46ac7a] tw-transition-colors tw-block', data: { turbo_frame: '_top' } do %>
               <div class="tw-flex tw-gap-3">
                 <div>
                   <%= inline_svg_tag "svgs/#{card.list_icon || 'layout.svg'}" %>
@@ -43,7 +43,7 @@
 
           <td class="tw-text-center tw-py-3 tw-px-4 tw-align-top">
             <% if card.respond_to?(:count) && card.count.present? %>
-              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-font-bold tw-text-xs md:tw-text-sm tw-px-2 md:tw-px-3 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[30px] md:tw-min-w-[35px] tw-text-center', data: { turbo_frame: '_top' } %>
+              <%= link_to card.count, card.url, class: 'tw-rounded-full tw-bg-[#E0FAEC] tw-text-[#099a4d] hover:tw-text-[#46ac7a] tw-font-bold tw-text-xs md:tw-text-sm tw-px-2 md:tw-px-3 tw-py-1 tw-leading-none tw-border-2 tw-border-[#56B599] tw-inline-block tw-min-w-[30px] md:tw-min-w-[35px] tw-text-center tw-transition-colors', data: { turbo_frame: '_top' } %>
             <% end %>
           </td>
         </tr>

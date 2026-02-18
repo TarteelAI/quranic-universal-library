@@ -4,43 +4,37 @@
   failures = @presenter.word_failures
 %>
 <div
-  class="page-wrapper container-lg"
+  class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4"
   data-controller="segments--failure-player"
 >
-  <div class="card mb-4">
-    <div class="card-header">
-      <h5 class="card-title mb-0">Word Information</h5>
+  <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-4">
+    <div class="tw-px-6 tw-py-4 tw-bg-gray-50 tw-border-b tw-border-gray-200 tw-rounded-t-lg">
+      <h5 class="tw-text-lg tw-font-semibold tw-mb-3 tw-mb-0">Word Information</h5>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <p>
-            <strong>Word Text:</strong>
-            <span class="qpc-hafs tw-text-xl">
-            <%= params[:text] %>
-            </span>
-          </p>
-          <p><strong>Total Failures:</strong> <span class="badge bg-danger"><%= failures.count %></span></p>
+    <div class="tw-p-6">
+      <div class="tw-flex tw-flex-wrap tw-gap-4">
+        <div class="tw-w-full md:tw-w-1/2">
+          <p><strong>Word Text:</strong> <span class="qpc-hafs tw-text-xl"><%= @word_text %></span></p>
+          <p><strong>Total Failures:</strong> <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= failures.count %></span></p>
         </div>
-
-        <div class="col-md-6">
+        <div class="tw-w-full md:tw-w-1/2">
           <p><strong>Failure Types:</strong></p>
           <% failures.group(:failure_type).count.each do |type, count| %>
-            <span class="badge bg-warning tw-mr-1 tw-mb-1"><%= type %> (<%= count %>)</span>
+            <span class="tw-mr-1 tw-mb-1 tw-inline-flex tw-items-center tw-rounded-full tw-bg-yellow-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= type %> (<%= count %>)</span>
           <% end %>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h5 class="card-title mb-0">Failure Variants</h5>
+  <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm">
+    <div class="tw-px-6 tw-py-4 tw-bg-gray-50 tw-border-b tw-border-gray-200 tw-rounded-t-lg">
+      <h5 class="tw-text-lg tw-font-semibold tw-mb-3 tw-mb-0">Failure Variants</h5>
     </div>
 
-    <div class="card-body p-0">
+    <div class="tw-p-6 tw-p-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="tw-w-full hover:tw-bg-gray-50 tw-mb-0">
           <thead class="table-light">
           <tr>
             <th class="tw-p-3">Surah:Ayah:Word</th>
@@ -54,75 +48,75 @@
           </tr>
           </thead>
           <tbody>
-          <% failures.each do |failure| %>
-            <tr>
-              <td class="tw-p-3">
-                  <span class="badge bg-primary">
+            <% failures.each do |failure| %>
+              <tr>
+                <td class="tw-p-3">
+                  <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-blue-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">
                     <%= link_to "#{failure.surah_number}:#{failure.ayah_number}:#{failure.word_number}", segments_timeline_path(reciter: failure.reciter_id, surah: failure.surah_number, ayah: failure.ayah_number), target: '_blank' %>
                   </span>
-              </td>
-              <td class="tw-p-3">
-                <%= failure.reciter_id %>
-              </td>
-              <td class="tw-p-3">
-                <span class="qpc-hafs tw-font-semibold"><%= failure.expected_transcript %></span>
-              </td>
-              <td class="tw-p-3">
-                <span class="qpc-hafs tw-text-red-600"><%= failure.received_transcript %></span>
-              </td>
-              <td class="tw-p-3">
-                <span class="badge bg-warning"><%= failure.failure_type %></span>
-              </td>
-              <td class="tw-p-3">
-                <% if failure.start_time && failure.end_time %>
+                </td>
+                <td class="tw-p-3">
+                  <%= failure.reciter_id %>
+                </td>
+                <td class="tw-p-3">
+                  <span class="qpc-hafs tw-font-semibold"><%= failure.expected_transcript %></span>
+                </td>
+                <td class="tw-p-3">
+                  <span class="qpc-hafs tw-text-red-600"><%= failure.received_transcript %></span>
+                </td>
+                <td class="tw-p-3">
+                  <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-yellow-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white"><%= failure.failure_type %></span>
+                </td>
+                <td class="tw-p-3">
+                  <% if failure.start_time && failure.end_time %>
                     <span class="tw-text-sm">
                       <%= failure.start_time %> - <%= failure.end_time %>
                     </span>
-                <% else %>
-                  <span class="tw-text-muted">N/A</span>
-                <% end %>
-              </td>
-              <td class="tw-p-3">
-                <% if failure.corrected %>
-                  <span class="badge bg-success">Corrected</span>
-                <% else %>
-                  <span class="badge bg-danger">Pending</span>
-                <% end %>
-              </td>
-              <td class="tw-p-3">
-                <% if failure.start_time && failure.end_time %>
-                  <button class="btn btn-sm btn-outline-primary play-audio-btn"
-                          data-start-time="<%= failure.start_time %>"
-                          data-end-time="<%= failure.end_time %>"
-                          data-reciter-id="<%= failure.reciter_id %>"
-                          data-surah="<%= failure.surah_number %>"
-                          data-ayah="<%= failure.ayah_number %>"
-                          data-audio-url="<%= failure.reciter.audio_url(failure.surah_number) %>">
-                    <i class="fas fa-play"></i> Play
-                  </button>
-                <% else %>
-                  <span class="tw-text-muted">No audio</span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
+                  <% else %>
+                    <span class="tw-text-muted">N/A</span>
+                  <% end %>
+                </td>
+                <td class="tw-p-3">
+                  <% if failure.corrected %>
+                    <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-green-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">Corrected</span>
+                  <% else %>
+                    <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-red-500 tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-white">Pending</span>
+                  <% end %>
+                </td>
+                <td class="tw-p-3">
+                  <% if failure.start_time && failure.end_time %>
+                    <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-border tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white play-audio-btn" 
+                            data-start-time="<%= failure.start_time %>" 
+                            data-end-time="<%= failure.end_time %>"
+                            data-reciter-id="<%= failure.reciter_id %>"
+                            data-surah="<%= failure.surah_number %>"
+                            data-ayah="<%= failure.ayah_number %>"
+                            data-audio-url="<%= failure.reciter.audio_url(failure.surah_number) %>">
+                      <i class="fas fa-play"></i> Play
+                    </button>
+                  <% else %>
+                    <span class="tw-text-muted">No audio</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <div id="audio-player" class="mt-4" style="display: none;">
-    <div class="card">
-      <div class="card-header">
-        <h6 class="card-title mb-0">Audio Player</h6>
+  <div id="audio-player" class="tw-mt-4" style="display: none;">
+    <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm">
+      <div class="tw-px-6 tw-py-4 tw-bg-gray-50 tw-border-b tw-border-gray-200 tw-rounded-t-lg">
+        <h6 class="tw-text-lg tw-font-semibold tw-mb-3 tw-mb-0">Audio Player</h6>
       </div>
-      <div class="card-body">
-        <audio id="audio-element" controls class="w-100">
+      <div class="tw-p-6">
+        <audio id="audio-element" controls class="tw-w-full">
           Your browser does not support the audio element.
         </audio>
-        <div class="mt-2">
-          <small class="text-muted">
+        <div class="tw-mt-2">
+          <small class="tw-text-gray-600">
             Playing segment: <span id="current-segment-info"></span>
           </small>
         </div>

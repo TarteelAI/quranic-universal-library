@@ -1,0 +1,50 @@
+<%= turbo_frame_tag :ayah_words do %>
+   <div class="tw-flex tw-items-start tw-justify-between tw-gap-4 tw-flex-wrap" data-controller="ayah-word-translation-selector">
+     <div class="tw-text-sm tw-text-gray-700">
+       Word by word translation
+     </div>
+
+    <button type="button"
+            class="tw-px-3 tw-py-1.5 tw-bg-white tw-text-gray-900 tw-rounded tw-text-sm tw-border tw-border-gray-200 hover:tw-bg-gray-50"
+            data-action="click->ayah-word-translation-selector#open">
+      Change translation
+    </button>
+
+    <div class="tw-hidden tw-fixed tw-inset-0 tw-bg-black/40 tw-z-[10000]" data-ayah-word-translation-selector-target="backdrop" data-action="click->ayah-word-translation-selector#close"></div>
+    <div class="tw-hidden tw-fixed tw-top-0 tw-right-0 tw-h-full tw-w-[420px] tw-max-w-[90vw] tw-bg-white tw-border-l tw-border-gray-200 tw-z-[10001] tw-flex-col" data-ayah-word-translation-selector-target="panel">
+      <div class="tw-p-4 tw-border-b tw-border-gray-200 tw-flex tw-items-center tw-justify-between">
+        <div class="tw-font-semibold tw-text-gray-900">Select translation</div>
+        <button type="button" class="tw-text-gray-500 hover:tw-text-gray-900" data-action="click->ayah-word-translation-selector#close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="tw-p-4 tw-overflow-y-auto tw-flex-1">
+        <%= form_with url: ayah_words_path(@ayah.verse_key), method: :get, local: true, data: { turbo_frame: :ayah_words }, html: { data: { ayah_word_translation_selector_target: "form" } } do %>
+          <div class="tw-space-y-2">
+            <% @presenter.word_translation_resources.each do |rc| %>
+              <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-800">
+                <%= radio_button_tag "word_translation_id", rc.id, @presenter.word_translation_id == rc.id, data: { action: "change->ayah-word-translation-selector#change" } %>
+                <span><%= rc.name %></span>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div dir="rtl" class="tw-mt-4 tw-grid tw-grid-cols-2 md:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-3">
+    <% @presenter.words.each do |w| %>
+      <% wt = @presenter.word_translation_by_word_id[w.id] %>
+      <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded tw-p-3">
+        <div dir="rtl" class="qpc-hafs arabic tw-text-2xl tw-leading-none tw-font-semibold tw-text-gray-900 tw-text-center">
+          <%= w.text_qpc_hafs.presence || w.text_uthmani %>
+        </div>
+        <div class="tw-mt-2 tw-text-xs tw-text-gray-500 tw-text-center"><%= w.location %></div>
+        <div dir="ltr" class="tw-mt-2 tw-text-sm tw-text-gray-800 tw-text-center"><%= wt&.text.presence || '-' %></div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+

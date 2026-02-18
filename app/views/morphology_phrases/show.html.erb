@@ -2,11 +2,11 @@
   <%
     actions = []
     if previous_ayah = @verse.previous_ayah
-      actions << link_to('Previous ayah', morphology_phrase_path(previous_ayah.id, proofread: true), class: 'btn btn-dark')
+      actions << link_to('Previous ayah', morphology_phrase_path(previous_ayah.id, proofread: true), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
     end
 
     if next_ayah = @verse.next_ayah
-      actions << link_to('Next ayah', morphology_phrase_path(next_ayah.id, proofread: true), class: 'btn btn-dark')
+      actions << link_to('Next ayah', morphology_phrase_path(next_ayah.id, proofread: true), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
     end
 
     actions << link_to('Back', morphology_phrases_path(proofread: true), class: 'btn btn-info')
@@ -18,7 +18,7 @@
              key: 'ayah_mutashabihat',
              actions: actions
   %>
-  <div class="page-wrapper container-lg">
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
     <%= render 'ayah_preview', mapping: {
       verse: @verse,
       phrase_verses: @verse.verse_phrases,

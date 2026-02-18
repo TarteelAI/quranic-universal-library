@@ -1,0 +1,22 @@
+resources = @presenter.translations
+
+json.translations do
+  json.array! resources do |resource|
+    translated_name_obj = @presenter.get_translated_name(resource)
+    
+    json.id resource.id
+    json.name resource.name
+    json.language resource.language_name
+    json.author_name resource.author_name
+    json.records_count resource.records_count
+    json.slug resource.slug
+    
+    json.translated_name do
+      json.name translated_name_obj[:name]
+      json.locale translated_name_obj[:locale]
+    end
+    
+    json.updated_at resource.updated_at.to_i
+  end
+end
+

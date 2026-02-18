@@ -1,4 +1,5 @@
 include_audio_files = local_assigns[:include_audio_files] || false
+audio_format = local_assigns[:audio_format] || 'mp3'
 
  json.extract! surah_recitation,
     :id,
@@ -18,7 +19,7 @@ include_audio_files = local_assigns[:include_audio_files] || false
        json.set! audio_file.chapter_id.to_s, {
             file_size: audio_file.file_size,
             duration: audio_file.duration,
-            audio_url: audio_file.audio_url,
+            audio_url: audio_file.get_audio_file_url(audio_format: audio_format),
             segments_count: audio_file.segments_count
           }
     end

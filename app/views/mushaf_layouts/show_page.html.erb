@@ -1,0 +1,67 @@
+<%
+  page_number = @mushaf_page.page_number
+  actions = []
+  more_action = []
+
+  turbo_page_options = {
+    turbo_frame: 'page',
+    turbo_method: 'get',
+    turbo_action: "replace"
+  }
+
+  turbo_mushaf_page_options = {
+    turbo_frame: 'mushaf-page',
+    turbo_method: 'get',
+    turbo_action: "replace"
+  }
+
+  if @access
+    more_action << link_to('Update Word lines', edit_mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+    more_action << link_to('Set Ayah Range', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'page_mapping'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+    more_action << link_to('Fix line alignment', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'line_alignment'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+  end
+
+  more_action << link_to('Proofreading view(With pdf)', mushaf_layout_path(@mushaf.id, page_number: page_number, view_type: 'proofreading'), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+  more_action << link_to('Preview Page', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: turbo_page_options)
+  more_action << link_to('Compare with', '#_', class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number + 1, view_type: 'select_compare') })
+  more_action << link_to('Jump to page', '#_', class: 'tw-block tw-px-4 tw-py-2 tw-text-sm tw-text-gray-700 hover:tw-bg-gray-100', data: { controller: 'ajax-modal', url: mushaf_layout_path(@mushaf.id, page_number: page_number, compare: @compared_mushaf&.id, view_type: 'select_page', previous_view_type: params[:view_type]) })
+
+  actions << %Q{
+    <div class='tw-relative' data-controller='dropdown'>
+      <button class='tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center tw-gap-2' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
+        Actions
+        <svg class='tw-w-4 tw-h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'></path>
+        </svg>
+      </button>
+      <ul class='tw-absolute tw-right-0 tw-mt-2 tw-w-56 tw-rounded-md tw-shadow-lg tw-bg-white tw-ring-1 tw-ring-black tw-ring-opacity-5 tw-z-50 tw-hidden' data-dropdown-target='menu'>
+        #{more_action.map { |action| "<li>#{action}</li>" }.join('')}
+      </ul>
+    </div>
+  }
+
+  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center', data: turbo_mushaf_page_options)
+
+  actions << link_to('Back to all pages', mushaf_layout_path(@mushaf.id), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-blue-600 hover:tw-bg-blue-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center', data: {turbo_frame: '_top'})
+%>
+
+<%= turbo_frame_tag :page do %>
+  <%= render 'tools/header',
+             name: 'Mushaf layouts',
+             title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
+             key: 'mushaf_layout',
+             actions: actions
+  %>
+
+  <%= render 'shared/access_message' %>
+
+  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+    <% if valid_mushaf_view_type?(params[:view_type]) %>
+      <%= render "#{params[:view_type]}_view" %>
+    <% else %>
+      <%= render 'page_preview' %>
+    <% end %>
+  </div>
+<% end %>
+

@@ -1,60 +1,88 @@
 namespace :one_time do
+  desc "Add group translations for 'يا أيها الذين آمنوا' phrase and fix WbW translations"
+  task fix_group_translations: :environment do
+    phrase_start = "يا ايها الذين امنوا"
+    language_id = 38
+
+    verses = Verse.where("text_imlaei_simple LIKE ?", "#{phrase_start}%")
+
+    total_updates = 0
+    updates = {}
+
+    verses.find_each do |verse|
+      words = verse.words.order(:position).first(3)
+      next if words.size < 3
+
+      w1, w2, w3 = words
+
+      translations_map = {
+        w1.id => "O you",
+        w2.id => "those who(believe)",
+        w3.id => "believe"
+      }
+
+      translations_map.each do |word_id, fixed_text|
+        wt = WordTranslation.where(word_id: word_id, language_id: language_id).first_or_initialize
+        updates[wt.word.location] = { old: wt.text, new: fixed_text } if wt.text != fixed_text
+        wt.text = fixed_text
+        wt.group_word_id = w1.id
+
+        if word_id == w1.id
+          wt.group_text = "O you who believe"
+        else
+          wt.group_text = "*(1)"
+        end
+
+        wt.save!
+      end
+      total_updates += 1
+    end
+  end
+
   task update_audio_url: :environment do
     mapping = {
-      1 => 'quran/surah/abdul_baset/mujawwad',
-      2 => 'quran/surah/abdul_baset/murattal',
-      3 => 'quran/surah/abdurrahmaan_as_sudais/murattal',
-      4 => 'quran/surah/abu_bakr_shatri/murattal',
-      5 => 'quran/surah/hani_ar_rifai/murattal',
-      6 => 'quran/surah/khalil_al_husary/muallim',
-      7 => 'quran/surah/mishari_al_afasy/murattal',
-      8 => 'quran/surah/minshawi/mujawwad',
-      9 => 'quran/surah/minshawi/murattal',
-      10 => 'quran/surah/saud_ash_shuraym/murattal',
-      12 => 'quran/surah/khalil_al_husary/muallim',
-      13 => 'quran/surah/saad_al_ghamdi/murattal',
+      1 => 'quran/surah/abdulBasit/mujawwad/mp3',
+      2 => 'quran/surah/abdulBasit/murattal/mp3',
+      3 => 'quran/surah/abdulrahmanAlSudais/murattal/mp3',
+      4 => 'quran/surah/abuBakrAlShatri/murattal/mp3',
+      5 => 'quran/surah/haniarRifai/murattal/mp3',
+      6 => 'quran/surah/husary/muallim/mp3',
+      7 => 'quran/surah/alafasy/murattal/mp3',
+      8 => 'quran/surah/minshawy/mujawwad/mp3',
+      9 => 'quran/surah/minshawy/murattal/mp3',
+      200 => 'quran/surah/minshawy/kids_repeat/mp3',
+      10 => 'quran/surah/saudAlShuraim/murattal/mp3',
+      12 => 'quran/surah/husary/muallim/mp3',
+      13 => 'quran/surah/ghamadi/murattal/mp3',
 
-      65 => 'quran/surah/maher-al-muaiqly_1424_1425/murattal',
-      161 => 'quran/surah/khalifa_al_tunaiji/murattal/',
-      168 => 'quran/surah/minshawi/kids_repeat',
-      164 => 'quran/surah/khalil_al_husary/mujawwad',
-      174 => 'quran/surah/yasser_ad-dussary/murattal',
-      175 => 'quran/surah/alnufais',
+      65 => 'quran/surah/maherAlMuaiqly/murattal/mp3',
+      161 => 'quran/surah/khalifaAlTunaiji/murattal/mp3',
+      168 => 'quran/surah/minshawy/kids_repeat/mp3',
+      164 => 'quran/surah/husary/mujawwad/mp3',
+      174 => 'quran/surah/yasserAlDosari/murattal/mp3',
+      175 => 'quran/surah/alnufais/murattal/mp3',
+      179 => 'quran/surah/mansourAlSalimi/murattal/mp3',
     }
-
-    def clone_with_audio_files(r)
-      cloned = Audio::Recitation.where(name: "#{r.name} (cloned from #{r.id})").first
-      if cloned.blank?
-      attrs = r.attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
-      cloned = Audio::Recitation.new(attrs)
-      cloned.name = "#{r.name} (cloned from #{r.id})"
-      cloned.approved = false
-      cloned.save!
-      end
-
-      r.chapter_audio_files.find_each do |file|
-        cloned_file = cloned.chapter_audio_files.where(chapter_id: file.chapter_id).first_or_create
-        attrs = file.attributes.except('id', 'created_at', 'updated_at', 'audio_recitation_id', 'meta_data')
-        cloned_file.attributes = attrs
-        cloned_file.audio_recitation_id = cloned.id
-        cloned_file.save(validate: false)
-      end
-
-      cloned.send :update_related_resources
-
-      cloned
-    end
 
     mapping.each do |reciter_id, path|
       recitation = Audio::Recitation.find(reciter_id)
-      cloned = clone_with_audio_files(recitation)
+      recitation.update_column :relative_path, path
 
-      cloned.relative_path = "#{path}/mp3"
-      cloned.save(validate: false)
-
-      Audio::ChapterAudioFile.where(audio_recitation_id: cloned.id).each do |file|
-        file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/mp3/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
+      Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
+        file.audio_url = "https://audio-cdn.tarteel.ai/#{path}/#{file.chapter_id.to_s.rjust(3, '0')}.mp3"
         file.save(validate: false)
+      end
+    end
+
+    ids = [178, 179, 180, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204]
+    ids.each do |id|
+      puts "Processing #{id}"
+      recitation = Audio::Recitation.find(id)
+      recitation.update_audio_stats
+      recitation.save(validate: false)
+      recitation.send(:update_related_resources)
+      Audio::ChapterAudioFile.where(audio_recitation_id: recitation.id).each do |file|
+        file.update_segment_percentile
       end
     end
   end
@@ -537,5 +565,101 @@ namespace :one_time do
       s += 1
       p.save
     end
+  end
+
+  desc "Create morphology graphs and word nodes for verses without graph data"
+  task create_missing_graphs: :environment do
+    empty_graphs = Morphology::DependencyGraph::Graph
+                     .left_joins(:nodes)
+                     .where(morphology_dependency_graph_nodes: { id: nil })
+    count = empty_graphs.count
+
+    if count.positive?
+      deleted = empty_graphs.delete_all
+      puts "Deleted #{deleted} empty graphs."
+    end
+
+    existing_verse_keys = Morphology::DependencyGraph::Graph.distinct.pluck(:chapter_number, :verse_number).map do |chapter_number, verse_number|
+      "#{chapter_number}:#{verse_number}"
+    end.to_set
+
+    puts "Found #{existing_verse_keys.size} verses with existing graphs"
+
+    verses_with_morphology = Verse
+                               .joins(:morphology_words)
+                               .includes(:morphology_words)
+                               .distinct
+                               .select(:id, :chapter_id, :verse_number, :verse_key)
+
+    verses_to_process = verses_with_morphology.reject do |verse|
+      existing_verse_keys.include?("#{verse.chapter_id}:#{verse.verse_number}")
+    end
+
+    total = verses_to_process.size
+    puts "Found #{total} verses with morphology words but no graphs"
+
+    if total == 0
+      puts "Nothing to do. All verses with morphology data already have graphs."
+      next
+    end
+
+    created_graphs = 0
+    created_nodes = 0
+    errors = []
+
+    verses_to_process.each_with_index do |verse, index|
+      morphology_words = Morphology::Word
+                           .includes(:word, :word_segments)
+                           .where(verse_id: verse.id)
+                           .joins(:word)
+                           .order('words.position ASC')
+
+      next if morphology_words.empty?
+
+      begin
+        ActiveRecord::Base.transaction do
+          graph = Morphology::DependencyGraph::Graph.create!(
+            chapter_number: verse.chapter_id,
+            verse_number: verse.verse_number,
+            graph_number: 1
+          )
+          created_graphs += 1
+
+          node_index = 0
+          morphology_words.each do |morphology_word|
+            morphology_word.word_segments.each do |segment|
+              Morphology::DependencyGraph::GraphNode.create!(
+                graph_id: graph.id,
+                type: 'word',
+                number: node_index,
+                segment_id: segment.id,
+                resource_type: 'Morphology::Word',
+                resource_id: morphology_word.id
+              )
+              node_index += 1
+            end
+            created_nodes += node_index
+          end
+        end
+      rescue StandardError => e
+        errors << { verse_key: verse.verse_key, error: e.message }
+        puts "Error processing verse #{verse.verse_key}: #{e.message}"
+      end
+
+      if (index + 1) % 100 == 0 || index + 1 == total
+        puts "Progress: #{index + 1}/#{total} verses processed (#{created_graphs} graphs, #{created_nodes} nodes created)"
+      end
+    end
+
+    puts "\n=== Summary ==="
+    puts "Total graphs created: #{created_graphs}"
+    puts "Total nodes created: #{created_nodes}"
+
+    if errors.any?
+      puts "\nErrors (#{errors.size}):"
+      errors.each { |e| puts "  - #{e[:verse_key]}: #{e[:error]}" }
+    end
+
+    puts "\nDone!"
   end
 end

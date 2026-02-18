@@ -15,13 +15,13 @@
   end
 %>
 
-<div class="tw-mt-5">
-  <ul class="nav nav-tabs" id="translation-docs-tab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
+<div class="tw-mt-5" data-controller="tabs">
+  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="tw-m-0 tw-flex-none" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] active tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative"
               id="tab-docs"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-preview-pane"
+              data-action="click->tabs#switch"
+              data-tabs-target-value="tab-preview-pane"
               type="button"
               role="tab"
               aria-controls="tab-preview-pane"
@@ -30,11 +30,11 @@
       </button>
     </li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
+    <li class="tw-m-0 tw-flex-none" role="presentation">
+      <button class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-transparent tw-relative"
               id="tab-help"
-              data-bs-toggle="tab"
-              data-bs-target="#tab-help-pane"
+              data-action="click->tabs#switch"
+              data-tabs-target-value="tab-help-pane"
               type="button" role="tab"
               aria-controls="tab-help-pane"
               aria-selected="false">
@@ -80,10 +80,10 @@
         </div>
 
         <% if !resource.one_word? %>
-          <div class="card mb-2 shadow-sm">
-            <div class="card-body">
+          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
+            <div class="tw-p-6">
               <div class="qpc-hafs quran-text">
-                <div class="badge bg-secondary text-white text-left">
+                <div class="badge tw-bg-gray-600 text-white tw-text-left">
                   <%= ayah.verse_key %>
                 </div>
                 <%= ayah.text_qpc_hafs %>
@@ -96,7 +96,9 @@
           <% if resource.one_word? %>
             <div class="tw-flex tw-flex-wrap tw-gap-3 tw-justify-start quran-text">
               <% transliterations.each do |wt| %>
-                <div class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
+                <div
+                  id="<%= dom_id wt %>"
+                  class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
                   <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
                     <%= wt.resource.text_qpc_hafs %>
                   </div>
@@ -120,7 +122,7 @@
       </div>
     </div>
 
-    <div class="tab-pane"
+    <div class="tab-pane tw-hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">

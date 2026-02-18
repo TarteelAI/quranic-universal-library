@@ -4,11 +4,13 @@ module QuranScriptHelper
     when 'code_v1'
       "p#{verse.page_number}-v1"
     when 'code_v2'
-      "p#{verse.page_number}-v2"
+      "p#{verse.v2_page}-v2"
     when 'code_v4'
       "p#{verse.v2_page}-v4-tajweed"
     when 'text_qpc_hafs'
       'qpc-hafs'
+    when 'text_qpc_hafs_tajweed'
+      'qpc-hafs-color'
     when 'text_uthmani_tajweed'
       'tajweed-new qpc-hafs'
     when 'text_qpc_nastaleeq', 'text_qpc_nastaleeq_hafs'
@@ -23,6 +25,10 @@ module QuranScriptHelper
       'digitalkhatt-indopak'
     when 'text_uthmani'
       'me_quran'
+    when 'text_uthmani_simple'
+      'me_quran'
+    when 'text_imlaei', 'text_imlaei_simple'
+      'qpc-hafs'
     when 'text_indopak'
       'indopak'
     end

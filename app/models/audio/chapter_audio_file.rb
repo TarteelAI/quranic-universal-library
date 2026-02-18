@@ -46,6 +46,12 @@ module Audio
       false
     end
 
+    def get_audio_file_url(audio_format: nil)
+      return audio_url if audio_format.blank? || audio_format == 'mp3'
+
+      audio_url.gsub(/mp3/, "#{audio_format}")
+    end
+
     def has_audio_meta_data?
       [duration, bit_rate, file_size, mime_type].all?(&:present?)
     end
@@ -69,10 +75,10 @@ module Audio
     end
 
     def segment_progress
-      if total_segments.zero?
+      if segments_count.to_i.zero?
         0
       else
-        (total_verses / total_segments.to_f) * 100
+        (total_verses / segments_count.to_i.to_f) * 100
       end
     end
 
@@ -92,7 +98,7 @@ module Audio
 
         if (file_segments = audio_segments.order('verse_number ASC')).present?
           segment = find_closest_segment(file_segments, timestamp)
-          percentiles.push segment.verse_key
+          percentiles.push(segment.verse_key) if segment
         end
       end
 
@@ -112,6 +118,7 @@ module Audio
       closest_diff = (closest_segment.timestamp_median - time).abs
 
       segments.each do |segment|
+        next if segment.timestamp_median.blank?
         diff = (segment.timestamp_median - time).abs
 
         if closest_diff >= diff && time > closest_segment.timestamp_to
@@ -132,7 +139,7 @@ module Audio
     end
 
     def total_segments
-      read_attribute(:total_segments).to_f
+      segments_count
     end
 
     def wav_parts

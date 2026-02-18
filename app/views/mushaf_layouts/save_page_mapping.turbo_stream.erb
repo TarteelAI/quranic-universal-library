@@ -1,7 +1,36 @@
+<%= turbo_stream.replace "page-row-#{@mushaf_page.page_number}" do %>
+  <%= render 'page_row', page: @mushaf_page %>
+<% end %>
+
 <%= turbo_stream.update "mushaf-page" do %>
   <%= render 'page_mapping' %>
 <% end %>
 
+<%= turbo_stream.replace "page-preview-#{@mushaf_page.page_number}" do %>
+  <%= turbo_frame_tag "page-preview-#{@mushaf_page.page_number}" do %>
+    <% 
+      ayah_range_missing = @mushaf_page.first_verse_id.nil? || @mushaf_page.last_verse_id.nil?
+      words_missing = @words.blank?
+    %>
+    <% if ayah_range_missing || words_missing %>
+      <%= render 'missing_required_data' %>
+    <% else %>
+      <div class="mushaf-wrapper">
+        <div class="mushaf-layout <%= @mushaf.default_font_name %>">
+          <%= render 'shared/mushaf_page', words: @words, page: @mushaf_page.page_number, mushaf: @mushaf, name: @resource.name %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
 <%= turbo_stream.replace 'flash-messages' do %>
   <%= render 'shared/flash_notices' %>
+<% end %>
+
+<%= turbo_stream.append "turbo-script-container" do %>
+  <script>
+    document.dispatchEvent(new CustomEvent('ajax-modal:close'));
+    this.parentElement.removeChild(this);
+  </script>
 <% end %>

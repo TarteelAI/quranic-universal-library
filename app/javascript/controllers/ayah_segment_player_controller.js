@@ -31,22 +31,17 @@ export default class extends SegmentPlayer {
   }
 
   playAyah(key) {
+    if (this.player && this.player.playing()) {
+      this.player.stop();
+    }
     this.player = this.initializeAyahPlayer(key);
     this.player.seek(0);
+    this.playWindowEndMs = null;
   }
 
   onend() {
-    const part = this.currentVerseKey.split(":");
-    const versesCount = QuranUtils.getSurahAyahCount(part[0]);
-
-    if(parseInt(part[1]) < versesCount) {
-      const nextVerseKey = `${part[0]}:${parseInt(part[1]) + 1}`;
-
-      this.jumpToVerse(nextVerseKey).then(() => {
-        this.playAyah(nextVerseKey);
-        this.player.play();
-      })
-    }
+    this.isPlaying = false;
+    this.player.seek(0);
   }
 
   findAyahKeyAtTime(time) {

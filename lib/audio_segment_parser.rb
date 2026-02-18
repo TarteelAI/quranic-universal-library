@@ -34,6 +34,8 @@ class AudioSegmentParser
           process_position(entry)
         when 'FAILURE'
           process_failure(entry)
+        when 'SPECIAL_CASE'
+          process_special_case(entry)
         end
       rescue => e
         puts "Error processing file #{file_path}: \n Entry: #{entry.inspect} Error: #{e.message} "
@@ -54,48 +56,88 @@ class AudioSegmentParser
       missing_word_numbers = expected_word_numbers - existing_word_numbers
 
       next if missing_word_numbers.empty?
-
       missing_word_numbers.each do |missing_word_number|
-        last_word_position = ayah_positions.max_by { |pos| pos[:word] }
-        next unless last_word_position
-
         word_data = ayah_words[missing_word_number - 1]
-        last_word = ayah_words[last_word_position[:word] - 1]
 
-        next unless word_data
+        if missing_word_number == 1
+          # First word was merged with last word of previous ayah
+          last_ayah_positions = positions_by_ayah[ayah_number - 1]
+          next if last_ayah_positions.nil? # Multiple missing ayahs
+          previous_word_position = last_ayah_positions[-1]
+          next if previous_word_position.blank?
 
-        word_text = word_data[:text]
-        last_word_text = last_word[:text]
+          last_ayah_words = get_ayah_words(surah_number, ayah_number - 1)
+          last_word = last_ayah_words[-1]
 
-        timing = divide_segment_time(
-          last_word_position[:start_time],
-          last_word_position[:end_time],
-          [last_word_text, word_text]
-        )
+          timing = divide_segment_time(
+            previous_word_position[:start_time],
+            previous_word_position[:end_time],
+            [last_word[:text], word_data[:text]]
+          )
 
-        last_word_time = timing[0]
-        word_time = timing[1]
+          previous_word_time = timing[0]
+          word_time = timing[1]
 
-        last_word_position[:end_time] = last_word_time[1]
+          previous_word_position[:end_time] = previous_word_time[1]
 
-        missing_position = {
-          surah: surah_number,
-          ayah: ayah_number,
-          word: missing_word_number,
-          start_time: word_time[0],
-          end_time: word_time[1],
-          text: word_text,
-          failure_data: {
-            type: 'missing_word',
-            expected_text: word_text
+          missing_position = {
+            surah: surah_number,
+            ayah: ayah_number,
+            word: missing_word_number,
+            start_time: word_time[0],
+            end_time: word_time[1],
+            text: word_data[:text],
+            failure_data: {
+              type: 'missing_word',
+              expected_text: word_data[:text]
+            }
           }
-        }
+          insert_index = positions.index(previous_word_position)
 
-        insert_index = positions.index { |pos| pos[:ayah] == ayah_number && pos[:word] > missing_word_number }
-        if insert_index
-          positions.insert(insert_index, missing_position)
+          if insert_index
+            positions.insert(insert_index + 1, missing_position)
+          else
+            positions << missing_position
+          end
         else
-          positions << missing_position
+          previous_word_position = ayah_positions
+                                     .select { |pos| pos[:word] == missing_word_number - 1 }
+                                     .first
+          next unless previous_word_position
+
+          previous_word = ayah_words[previous_word_position[:word] - 1]
+
+          timing = divide_segment_time(
+            previous_word_position[:start_time],
+            previous_word_position[:end_time],
+            [previous_word[:text], word_data[:text]]
+          )
+
+          previous_word_time = timing[0]
+          word_time = timing[1]
+
+          previous_word_position[:end_time] = previous_word_time[1]
+
+          missing_position = {
+            surah: surah_number,
+            ayah: ayah_number,
+            word: missing_word_number,
+            start_time: word_time[0],
+            end_time: word_time[1],
+            text: word_data[:text],
+            failure_data: {
+              type: 'missing_word',
+              expected_text: word_data[:text]
+            }
+          }
+
+          insert_index = positions.index(previous_word_position)
+
+          if insert_index
+            positions.insert(insert_index + 1, missing_position)
+          else
+            positions << missing_position
+          end
         end
       end
     end
@@ -118,8 +160,12 @@ class AudioSegmentParser
   def load_data
     return @data if @data
     @data = File.read(file_path)
-    return [] if @data.length < 10 # Skip empty or too short files
-    @data = JSON.parse(@data)
+
+    if @data.length < 10
+      @data = []
+    else
+      @data = JSON.parse(@data)
+    end
   end
 
   def extract_ids_from_path(file_path)
@@ -132,6 +178,26 @@ class AudioSegmentParser
     [reciter_id, surah_number]
   end
 
+  def process_special_case(entry)
+    if positions.present?
+      ayah = positions.last[:ayah]
+    else
+      ayah = 1
+    end
+
+    text = entry['word']
+    detect_word, score = detect_failure_word(text, ayah, @last_word_number || 1)
+
+    if detect_word.present?
+      entry['position'] = {
+        'ayahNumber' => ayah,
+        'wordNumber' => detect_word
+      }
+
+      process_position(entry)
+    end
+  end
+
   def process_position(entry)
     position_data = entry['position']
 
@@ -141,7 +207,7 @@ class AudioSegmentParser
 
     if @last_word_number == word_number
       # Check if this is actually next word
-      detect_word, score = detect_failure_word(received_text, ayah, last_translated_word_number + 1)
+      detect_word, score = detect_failure_word(received_text, ayah, @last_translated_word_number + 1)
 
       # matching score 2 is arbitrary threshold to avoid false positives
       # replace with this some cleaver logic to detect best score based on word text length
@@ -243,13 +309,21 @@ class AudioSegmentParser
 
     # Check if we've merged words
     @last_translated_word_number ||= translate_imlaei_word_to_uthmani(surah_number, ayah_number, @last_word_number)
-    possible_ayah_merged_words = detect_merged_word_numbers(received_text, ayah_number, @last_translated_word_number, search_radius: 2)
+    possible_word_from_received = detect_merged_word_numbers(received_text, ayah_number, @last_translated_word_number, search_radius: 3)
+
+    if possible_word_from_received.present?
+      possible_ayah_merged_words = possible_word_from_received
+    else
+      possible_ayah_merged_words = detect_merged_word_numbers(expected_text, ayah_number, word_index, search_radius: 2)
+    end
 
     if possible_ayah_merged_words.blank?
       possible_ayah_merged_words = detect_merged_word_numbers(received_text, ayah_number, @last_translated_word_number + 1)
     end
 
     if possible_ayah_merged_words.present?
+      possible_ayah_merged_words = possible_ayah_merged_words.uniq { |w| [w[:word_number], w[:ayah_number]] }
+
       # Split the time between the merged words
       texts = []
       possible_ayah_merged_words.each do |merged_word|
@@ -259,7 +333,6 @@ class AudioSegmentParser
       end
 
       timing = divide_segment_time(start_time, end_time, texts)
-
       possible_ayah_merged_words.each_with_index do |merged_word, index|
         time = timing[index]
 
@@ -278,7 +351,7 @@ class AudioSegmentParser
           failure_data: failure_data
         )
       end
-    elsif (detect_word, _score = detect_failure_word(expected_text, ayah_number, @last_translated_word_number))
+    elsif (detect_word, _score = detect_failure_word(received_text, ayah_number, @last_translated_word_number))
       uthmani_word = translate_uthmani_word_to_imlaei(
         surah_number,
         ayah_number,
@@ -327,7 +400,7 @@ class AudioSegmentParser
           normalize_text(word.text_imlaei),
           normalize_text(word.text_uthmani_simple),
         ].uniq,
-        text: word.text_imlaei,
+        text: word.text_imlaei.gsub('۞', '').strip,
         word_number: word.position,
         ayah_number: ayah_number
       }
@@ -338,7 +411,7 @@ class AudioSegmentParser
     return '' if text.nil?
     text.tr('ًٌٍَُِّْـٰ', '')
   end
-  
+
   def detect_merged_word_numbers(text, ayah_number, start_word_number, search_radius: 2)
     ayah_words = get_ayah_words(surah_number, ayah_number)
     next_ayah_words = get_ayah_words(surah_number, ayah_number + 1)
@@ -369,7 +442,7 @@ class AudioSegmentParser
     (start_word_number - search_radius).upto(start_word_number + search_radius) do |pos|
       next if pos < 1 || pos > ayah_words.size
 
-      (2..max_words_to_try).each do |count|
+      (1..max_words_to_try).each do |count|
         words_group = ayah_words[pos - 1, count]
         next if words_group.nil? || words_group.empty?
 

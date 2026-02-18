@@ -5,7 +5,7 @@ ActiveAdmin.register_page 'Dashboard' do
 
   content title: 'Dashboard' do
     readonly_msg = "You currently have read-only access to browse the data." if current_user.is_normal_user?
-    div "Welcome to the QUL CMS Dashboard! This content management system provides tools to browse, validate, and manage Quranic data. It also allows authorized users to run reports and moderate content updates efficiently. #{readonly_msg}", class: 'alert alert-info'
+    div "Welcome to the QUL CMS Dashboard! This content management system provides tools to browse, validate, and manage Quranic data. It also allows authorized users to run reports and moderate content updates efficiently. #{readonly_msg}", class: 'tw-p-4 tw-mb-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-800 tw-rounded'
 
     if can? :run_actions, :from_admin
       columns do
@@ -50,18 +50,18 @@ ActiveAdmin.register_page 'Dashboard' do
     columns do
       column do
         panel 'Data Integrity checks' do
-          div "This section includes various tools designed to ensure data integrity across the QUL resources. These tools help identify inconsistencies, missing data, and other potential issues within the dataset. Regularly running these checks helps us detect and resolve data issues effectively.", class: 'alert alert-info'
+          div "This section includes various tools designed to ensure data integrity across the QUL resources. These tools help identify inconsistencies, missing data, and other potential issues within the dataset. Regularly running these checks helps us detect and resolve data issues effectively.", class: 'tw-p-4 tw-mb-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-800 tw-rounded'
 
           div do
             Tools::DataIntegrityChecks.checks.each do |check_name|
               check = Tools::DataIntegrityChecks.send(check_name)
-              div class: 'fs-lg p-3 d-flex border-bottom' do
+              div class: 'fs-lg tw-p-3 tw-flex tw-border-b' do
                 div do
                   div(check[:name])
                   small(check[:description].to_s.html_safe)
                 end
 
-                span link_to('Go', "/cms/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
+                span link_to('Go', "/cms/data_integrity_check?check_name=#{check_name}"), class: 'tw-ms-auto'
               end
             end
           end
@@ -72,19 +72,19 @@ ActiveAdmin.register_page 'Dashboard' do
     columns do
       column do
         panel 'Tajweed rules' do
-          div "This section includes tools to find words with a specific tajweed rule", class: 'alert alert-info'
+          div "This section includes tools to find words with a specific tajweed rule", class: 'tw-p-4 tw-mb-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-800 tw-rounded'
 
           div do
             Tools::TajweedRulesCheck.checks.each do |check_name|
               check = Tools::TajweedRulesCheck.send(check_name)
 
-              div class: 'fs-lg p-3 d-flex border-bottom' do
+              div class: 'fs-lg tw-p-3 tw-flex tw-border-b' do
                 div do
                   div(check[:name].to_s.html_safe)
                   small(check[:description].to_s.html_safe)
                 end
 
-                span link_to('Go', "/cms/data_integrity_check?check_name=#{check_name}"), class: 'ms-auto'
+                span link_to('Go', "/cms/data_integrity_check?check_name=#{check_name}"), class: 'tw-ms-auto'
               end
             end
           end

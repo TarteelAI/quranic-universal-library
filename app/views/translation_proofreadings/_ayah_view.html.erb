@@ -1,10 +1,10 @@
 <h2>Translation for <%= verse.verse_key %></h2>
 
-<div class="qpc-hafs my-3">
+<div class="qpc-hafs tw-my-3">
   <%= verse.text_qpc_hafs %>
 </div>
 
-<div id="ayah_text" style="font-size: 30px; margin-top: 10px"
+<div id="ayah_text" style="margin-top: 10px"
      class="<%= @translation.language_name %>"
      data-controller="translation-footnote"
 >
@@ -12,11 +12,11 @@
 </div>
 
 <% if @translation.foot_notes.present? %>
-  <div class="mt-3 mt-md-5">
-    <h2>Foot notes</h2>
+  <div class="tw-mt-3 mt-md-5">
+    <h2 class="tw-font-bold">Foot notes</h2>
     <% @translation.foot_notes.each do |foot_note| %>
-      <div style="font-size: 30px;margin-top: 10px">
-        <strong><%= foot_note.id %></strong>
+      <div>
+        <p><%= foot_note.id %></p>
         <div class="<%= @translation.language_name %>">
           <%= safe_html foot_note.text %>
         </div>

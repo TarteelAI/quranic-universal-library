@@ -1,0 +1,22 @@
+languages = @presenter.languages
+
+json.languages do
+  json.array! languages do |language|
+    translated_name = language[:translated_name]
+    
+    json.id language[:id]
+    json.name language[:name]
+    json.iso_code language[:iso_code]
+    json.native_name language[:native_name]
+    json.direction language[:direction]
+    
+    json.translated_name do
+      json.name translated_name[:name]
+      json.locale translated_name[:locale]
+    end
+    
+    json.translations_count language[:translations_count]
+    json.tafsirs_count language[:tafsirs_count]
+  end
+end
+

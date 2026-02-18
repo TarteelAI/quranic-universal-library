@@ -39,6 +39,12 @@ class SurahAudioFilesController < CommunityController
 
   def segment_builder
     @audio_file = load_audio_file
+
+    if @audio_file.nil?
+      redirect_to surah_audio_files_path(
+        recitation_id: @recitation.id
+      ), alert: 'Audio file not found'
+    end
   end
 
   def segments

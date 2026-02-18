@@ -26,7 +26,7 @@ module Exporter
             ayah_number: row.verse_number,
             audio_url: row.audio_url,
             duration: row.duration,
-            segments: row.get_segments
+            segments: row.get_segments(drop_metadata: true)
           }
         end
       end

@@ -1,0 +1,101 @@
+<%
+  node_id_value = node.id.to_s
+  field_name_prefix = "nodes[#{node_id_value}]"
+  
+  show_add_button = true
+  if node.type == 'word' && node.resource_type == 'Morphology::Word' && node.resource
+    word_segments = presenter.nodes.select { |n| n.resource_type == 'Morphology::Word' && n.resource_id == node.resource_id }
+    show_add_button = (word_segments.last == node)
+  end
+%>
+
+<tr class="node-row node-type-<%= node.type %>"
+    data-node-id="<%= node_id_value %>"
+    id="node_<%= node_id_value %>">
+  
+  <td class="node-id">
+    <%= node.id %>
+  </td>
+  
+  <td class="node-number">
+    <%= node.display_number %>
+    <%= hidden_field_tag field_name_prefix + "[number]", node.number %>
+  </td>
+  
+  <td>
+    <%= select_tag field_name_prefix + "[type]", 
+                   options_for_select(presenter.node_types.map { |t| [t.humanize, t] }, node.type),
+                   class: 'node-type-select tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
+                   data: { 
+                     node_id: node_id_value,
+                     field: 'type',
+                     action: 'change->graph-bulk-edit#handleNodeTypeChange'
+                   } %>
+  </td>
+  
+  <td class="resource-cell">
+    <%= hidden_field_tag field_name_prefix + "[resource_type]", node.resource_type, class: 'resource-type-select', data: { node_id: node_id_value } %>
+    
+    <%= turbo_frame_tag "node_#{node_id_value}_fields" do %>
+      <span class="field-content tw-w-full">
+        <% if node.type == 'word' %>
+          <%= render 'morphology/dependency_graphs/forms/word_fields',
+                     node_id: node_id_value,
+                     presenter: presenter,
+                     resource_id: node.resource_id,
+                     segment_id: node.segment_id %>
+                     
+        <% elsif node.type == 'reference' %>
+          <%= render 'morphology/dependency_graphs/forms/reference_fields',
+                     node_id: node_id_value,
+                     presenter: presenter,
+                     resource_id: node.resource_id %>
+                     
+        <% elsif node.type == 'elided' %>
+          <%= render 'morphology/dependency_graphs/forms/elided_fields',
+                     node_id: node_id_value,
+                     presenter: presenter,
+                     value: node.value,
+                     pos: node.pos %>
+                     
+        <% else %>
+          <div class="tw-text-gray-400">-</div>
+        <% end %>
+      </span>
+    <% end %>
+    
+    <span class="field-placeholder tw-hidden">-</span>
+  </td>
+  
+  <td class="actions-cell">
+    <div class="tw-flex tw-gap-1">
+      <% if show_add_button %>
+        <%= button_tag type: 'button',
+                       class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors add-node-btn',
+                       data: { 
+                         node_id: node_id_value,
+                         action: 'click->graph-bulk-edit#addNodeAfter',
+                         turbo_method: :post,
+                         turbo_frame: "new_node_after_#{node_id_value}"
+                       },
+                       title: 'Add node after this' do %>
+          <i class="fa fa-plus"></i>
+        <% end %>
+      <% end %>
+      
+      <% unless node.type == 'word' %>
+        <%= button_tag type: 'button',
+                       class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors',
+                       title: 'Remove node',
+                       data: { 
+                         node_id: node_id_value,
+                         action: 'click->graph-bulk-edit#removeNode'
+                       } do %>
+          <i class="fa fa-trash"></i>
+        <% end %>
+      <% end %>
+    </div>
+  </td>
+</tr>
+
+<%= turbo_frame_tag "new_node_after_#{node_id_value}" %>

@@ -72,20 +72,18 @@ class ResourceContent < QuranApiRecord
   scope :with_segments, -> { where("meta_data ->> 'has-segments' = 'yes'") }
   scope :fonts, -> { where sub_type: SubType::Font }
   scope :uloom_contents, -> { where sub_type: SubType::UloomContent }
+  scope :root_details, -> { where sub_type: SubType::RootDetail }
   scope :approved, -> { where approved: true }
   scope :for_language, lambda { |lang| where(language: Language.find_by_iso_code(lang)) }
   scope :permission_to_host_eq, lambda { |val|
-  scope :root_details, -> { where sub_type: SubType::RootDetail }
     where(id: ResourcePermission.where(permission_to_host: val).pluck(:resource_content_id))
   }
 
   scope :without_downloadable_resources, -> {
-    # left_joins(:downloadable_resources)
-    #  .where(downloadable_resources: { id: nil })
     where.not(id: DownloadableResource.pluck(:resource_content_id))
   }
+
   scope :with_downloadable_resources, -> {
-    # joins(:downloadable_resources).distinct
     where(id: DownloadableResource.pluck(:resource_content_id))
   }
 
@@ -148,8 +146,8 @@ class ResourceContent < QuranApiRecord
               :export_format,
               :export_file_name
 
-  # TODO: replace uploader with ActiveStorage
   mount_uploader :sqlite_db, DatabaseBackupUploader
+  has_one_attached :sqlite_database, service: :database_backups
   has_many_attached :source_files
 
   module CardinalityType

@@ -7,18 +7,18 @@
   page_number = @predicted_page
 
   if @access
-    actions << link_to('Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'btn btn-success')
+    actions << link_to('Contribute', new_arabic_transliteration_path(ayah: @verse.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors')
   end
 
   if (prev_ayah)
-    actions << link_to('Previous ayah', arabic_transliteration_path(prev_ayah.id), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', arabic_transliteration_path(prev_ayah.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
 
   if (next_ayah)
-    actions << link_to('Next ayah', arabic_transliteration_path(next_ayah.id), class: 'btn btn-dark')
+    actions << link_to('Next ayah', arabic_transliteration_path(next_ayah.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors')
   end
 
-  actions << link_to('Back to filter', arabic_transliterations_path, class: 'btn btn-info')
+  actions << link_to('Back to filter', arabic_transliterations_path, class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
@@ -28,14 +28,14 @@
            actions: actions
 %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section zoomable">
-    <div class="alert alert-info" role="alert">
-      <div class="indopak-nastaleeq quran-text mb-2">
+    <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700" role="alert">
+      <div class="indopak-nastaleeq quran-text tw-mb-2">
         <%= @verse.text_indopak_nastaleeq %>
       </div>
 
-      <div class="indopak-nastaleeq quran-text mb-2 text-transliteration">
+      <div class="indopak-nastaleeq quran-text tw-mb-2 text-transliteration">
         <%= render 'ayah_preview' %>
       </div>
     </div>
@@ -44,23 +44,23 @@
          data-host="<%= img_host %>"
          data-page="<%= @predicted_page %>"
          data-controller="zoom-image">
-      <div class="form-group">
+      <div class="tw-mb-4">
         <%= select_tag :change_page, options_for_select(1..980, @predicted_page), id: 'jump-to-page', class: 'form-control', data: { placeholder: 'Jump to page', controller: 'select2' } %>
         <div class="help-block">Jump to page number</div>
       </div>
 
-      <div class="text-center"
+      <div class="tw-text-center"
            data-controller="zoom-image"
            data-page="<%= page_number %>"
            data-host="<%= img_host %>"
       >
         <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-        <div class="d-flex justify-content-between">
-          <button class="btn btn-info" id="previous-page">Previous Page</button>
-          <button class="btn btn-info" id="next-page">Next page</button>
+        <div class="tw-flex tw-justify-between">
+          <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" id="previous-page">Previous Page</button>
+          <button class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" id="next-page">Next page</button>
         </div>
 
-        <div id="image-container" class="mt-4 p-4" style="height: 400px">
+        <div id="image-container" class="tw-mt-4 tw-p-4" style="height: 400px">
           <img id="zoom-image" data-controller="lazy-load" width="100%" data-src="<%= img_host %>/<%= page_number %>.jpg" } %>
         </div>
       </div>
@@ -68,10 +68,10 @@
   </div>
 
   <div class="page-section">
-    <div class="lead">
+    <div class="tw-text-xl tw-mb-4">
       Transliteration progress
-      <div class="progress">
-        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="<%= @verse.arabic_transliteration_progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= @verse.arabic_transliteration_progress %>%;">
+      <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
+        <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300 tw-bg-green-500 progress-bar-striped active" role="progressbar" aria-valuenow="<%= @verse.arabic_transliteration_progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= @verse.arabic_transliteration_progress %>%;">
           <%= @verse.arabic_transliteration_progress %>%
         </div>
       </div>
@@ -80,8 +80,8 @@
 
   <div class="page-section tw-mt-4">
     <h2>Words</h2>
-    <table class="table table-hover">
-      <thead class="tw-sticky tw-top-0 tw-z-10 bg-white border-bottom">
+    <table class="tw-w-full hover:tw-bg-gray-50">
+      <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
         <td>Word id</td>
         <td>IndoPak</td>
@@ -92,15 +92,15 @@
 
       <tbody>
       <% @verse.words.order('position asc').each do |word| %>
-        <tr>
-          <th scope="row"><%= word.position %></th>
+        <tr class="hover:tw-bg-gray-200 tw-border-b">
+          <th scope="row" class="tw-py-2 tw-pl-2"><%= word.position %></th>
 
-          <td class="quran-text indopak-nastaleeq"><%= word.arabic_transliteration&.indopak_text %></td>
-          <td class="quran-text indopak-nastaleeq">
+          <td class="tw-py-2 quran-text indopak-nastaleeq"><%= word.arabic_transliteration&.indopak_text %></td>
+          <td class="tw-py-2 quran-text indopak-nastaleeq">
             <%= word.arabic_transliteration&.text %>
           </td>
 
-          <td class="arabic">
+          <td class="tw-py-2 arabic">
             <%= word.arabic_transliteration&.continuous? %>
           </td>
         </tr>

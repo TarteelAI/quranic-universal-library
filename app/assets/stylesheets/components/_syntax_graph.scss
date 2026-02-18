@@ -1,0 +1,141 @@
+// Syntax Graph SVG Styling
+.syntax-graph-view {
+  font-family: Arial, sans-serif;
+
+  .location {
+    fill: #666;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .term-link {
+    cursor: pointer;
+  }
+
+  .phonetic {
+    fill: #888;
+    font-style: italic;
+  }
+  
+  .edge-label {
+    fill: rgba(255, 255, 255, 0.6);
+  }
+
+  tspan, text{
+    &.silver {
+      fill: #999;
+    }
+    // Color classes for POS tags and dependencies
+    &.purple {
+      fill: #8e44ad;
+    }
+
+    &.navy {
+      fill: #2c3e50;
+    }
+
+    &.orange {
+      fill: #e67e22;
+    }
+
+    &.brown {
+      fill: #8b4513;
+    }
+
+    &.gray {
+      fill: #7f8c8d;
+    }
+
+    &.rose {
+      fill: #e91e63;
+    }
+
+    &.sky {
+      fill: #3498db;
+    }
+
+    &.red {
+      fill: #e74c3c;
+    }
+
+    &.blue {
+      fill: #2980b9;
+    }
+
+    &.rust {
+      fill: #a0522d;
+    }
+
+    &.gold {
+      fill: #f39c12;
+    }
+
+    &.green {
+      fill: #27ae60;
+    }
+
+    &.seagreen {
+      fill: #16a085;
+    }
+
+    &.metal {
+      fill: #95a5a6;
+    }
+
+    &.pink {
+      fill: #ff69b4;
+    }
+  }
+  
+  // Circle styles
+  circle {
+    fill: currentColor;
+    stroke: white;
+    stroke-width: 1;
+  }
+
+  // Line styles
+  line,
+  path {
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+
+  // Arrow styles
+  polygon {
+    fill: currentColor;
+  }
+}
+
+.syntax-graph-container {
+  background: white;
+  overflow-x: auto;
+  direction: rtl;
+  text-align: center;
+
+  .error {
+    color: #e74c3c;
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+  }
+}
+
+.morphology-graph-index {
+  .syntax-graph-section {
+    h3 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+  }
+}
+
+.syntax-graph-container svg {
+  background-color: #fff;
+  align-self: center;
+  margin: 0 auto;
+  padding: 40px 0px;
+  max-width: 100%;
+  height: auto;
+}

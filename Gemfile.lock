@@ -513,10 +513,10 @@ GEM
       tilt
     securerandom (0.4.1)
     select2-rails (4.0.13)
-    sentry-rails (5.19.0)
-      railties (>= 5.0)
-      sentry-ruby (~> 5.19.0)
-    sentry-ruby (5.19.0)
+    sentry-rails (6.1.2)
+      railties (>= 5.2.0)
+      sentry-ruby (~> 6.1.2)
+    sentry-ruby (6.1.2)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     sentry-sidekiq (5.19.0)
@@ -722,7 +722,7 @@ DEPENDENCIES
   web-console
 
 RUBY VERSION
-   ruby 3.3.3p89
+   ruby 3.3.5p100
 
 BUNDLED WITH
    2.5.15

@@ -1,10 +1,6 @@
 @import "shared/variables";
-//TODO: remove bootstrap after migrating all tools UI to tailwind
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/variables';
 
-@import 'libs/actiontext';
+@import "libs/actiontext";
 @import "components/splash";
 @import "components/wraper";
 //@import "components/keyboard";
@@ -30,19 +26,23 @@
 @import "landing_page";
 @import "components/tools_help";
 @import "components/segment_player";
+@import "components/syntax_graph";
+@import "components/treebank_edit";
+@import "components/mushaf_pages_table";
 
 html,
 body {
   height: 100%;
 }
 
-.select2-container .select2-selection--single{
+.select2-container .select2-selection--single {
   height: 38px !important;
 }
-.select2-selection__rendered{
-    line-height: 38px !important;
+.select2-selection__rendered {
+  line-height: 38px !important;
 }
-.select2-selection__clear, .select2-selection__arrow{
+.select2-selection__clear,
+.select2-selection__arrow {
   height: 38px !important;
 }
 
@@ -50,11 +50,11 @@ body {
   outline: none !important;
 }
 
-.form-floating{
-  .select2-container{
+.form-floating {
+  .select2-container {
     padding: 17px 0 0 5px;
   }
-  .select2-selection{
+  .select2-selection {
     border: none;
   }
 }
@@ -71,13 +71,12 @@ body {
   }
 }
 
-
 [class^="tw-btn"]:hover {
-//  color: inherit;
+  //  color: inherit;
 }
 
-@media (max-width : 640px){
-  .tools-table-overflow{
+@media (max-width: 640px) {
+  .tools-table-overflow {
     overflow-x: auto;
   }
 }

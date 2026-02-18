@@ -1,10 +1,10 @@
 <template>
-  <div class="row">
-    <div class="col-12" v-if="segmentsLoaded">
-      <div class="h3">
-        Current Ayah {{ currentVerseKey }}
+  <div class="tw-flex tw-flex-wrap">
+    <div class="tw-w-full" v-if="segmentsLoaded">
+      <div class="tw-text-xl tw-font-bold tw-mb-4 tw-flex tw-items-center tw-gap-4">
+        <span>Current Ayah {{ currentVerseKey }}</span>
 
-        <select @change="changeAyah">
+        <select @change="changeAyah" class="tw-text-sm tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-1 tw-bg-white focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500">
           <option
             v-for="(num, index) in Array.from(
               { length: versesCount },
@@ -18,7 +18,7 @@
         </select>
       </div>
 
-      <div class="qpc-hafs d-flex flex-wrap words">
+      <div class="qpc-hafs tw-flex tw-flex-wrap tw-gap-2 tw-p-4 tw-bg-gray-50 tw-rounded-lg tw-mb-6 tw-sticky tw-top-0 tw-z-50 tw-shadow-sm words">
         <span
           :id="index + 1"
           :class="[this.getWordCssClass(index)]"
@@ -26,20 +26,21 @@
           :key="index"
           title="Repeat word"
           @click="showWordPopover"
+          class="tw-px-2 tw-py-1 tw-border tw-border-dotted tw-border-green-600 tw-rounded tw-cursor-pointer tw-transition-colors"
         >
           {{ text }}
         </span>
       </div>
 
       <div v-if="shouldShowSegment">
-        <h4 class="d-flex justify-content-between mt-4">
-          <div>Segments</div>
+        <h4 class="tw-flex tw-justify-between tw-items-center tw-mt-8 tw-mb-4">
+          <div class="tw-text-lg tw-font-semibold">Segments</div>
 
-          <div>
+          <div class="tw-flex tw-gap-2">
             <button
                 @click="showRawSegment"
                 :disabled="segmentLocked"
-                class="btn btn-sm btn-info me-2"
+                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-cyan-600 tw-text-white tw-rounded hover:tw-bg-cyan-700 disabled:tw-opacity-50"
             >
               Show raw segments
             </button>
@@ -47,8 +48,8 @@
             <button
                 @click="toggleSegmentTiming"
                 :disabled="segmentLocked"
-                class="btn btn-sm btn-danger me-2"
-                :class="{ 'd-none': segmentLocked }"
+                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-red-600 tw-text-white tw-rounded hover:tw-bg-red-700 disabled:tw-opacity-50"
+                :class="{ 'tw-hidden': segmentLocked }"
             >
               {{this.verseSegment.segments[0].length > 1 ? 'Clear Segment' : 'Reload Segments'}}
             </button>
@@ -56,45 +57,47 @@
             <button
                 @click="saveAyahSegment"
                 :disabled="segmentLocked"
-                class="btn btn-sm btn-success"
-                :class="{ 'd-none': segmentLocked }"
+                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-green-600 tw-text-white tw-rounded hover:tw-bg-green-700 disabled:tw-opacity-50"
+                :class="{ 'tw-hidden': segmentLocked }"
             >
               Save Segments
             </button>
           </div>
         </h4>
 
-        <div v-if="rawSegmentVisible" class="mt-3">
+        <div v-if="rawSegmentVisible" class="tw-mt-3">
           <textarea
-              class="form-control"
+              class="tw-w-full tw-px-3 tw-py-2 tw-text-sm tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
               @input="updateRawSegments"
           ></textarea>
         </div>
-        <div class="small" v-if="rawSegments[currentVerseNumber]">
+        <div class="tw-text-xs tw-text-gray-500 tw-mb-2" v-if="rawSegments[currentVerseNumber]">
           {{ JSON.stringify(rawSegments[currentVerseNumber]) }}
         </div>
 
-        <div class="table-wrapper" id="tableWrapper">
-          <table class="table table-hover mt-4">
-            <thead>
-            <tr>
-              <td>Word</td>
-              <td>Text</td>
-              <td>Start</td>
-              <td>Ends</td>
-              <td>Actions</td>
-            </tr>
+        <div class="tw-overflow-x-auto tw-border tw-border-gray-200 tw-rounded-lg" id="tableWrapper">
+          <table class="tw-w-full tw-text-left tw-border-collapse">
+            <thead class="tw-bg-gray-50 tw-sticky tw-top-0 tw-z-10">
+              <tr>
+                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Word</th>
+                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Text</th>
+                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Start</th>
+                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Ends</th>
+                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b tw-text-center">Pause</th>
+                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Actions</th>
+              </tr>
             </thead>
-            <tbody>
+            <tbody class="tw-divide-y tw-divide-gray-100">
               <tr
                 :id="[`word-${segment[0]}-${index}`]"
-                :class="[index + 1 == currentWord ? 'active word' : 'word']"
+                :class="[index + 1 == currentWord ? 'tw-bg-green-50' : '']"
                 v-for="(segment, index) in verseSegment.segments"
                 :key="index"
                 :data-index="index"
                 :data-word="segment[0]"
+                class="hover:tw-bg-gray-50 tw-transition-colors"
               >
-                <td>
+                <td class="tw-px-4 tw-py-2">
                   <input
                     type="number"
                     min="1"
@@ -102,14 +105,15 @@
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="updateSegmentNumber"
+                    class="tw-w-16 tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500"
                   />
-                  <small class="form-text flex">
+                  <small class="tw-block tw-text-[10px] tw-text-gray-400 tw-mt-0.5">
                     <span>{{ segment[0] }} </span>
                   </small>
                 </td>
 
-                <td>{{ segmentText(segment) }}</td>
-                <td style="width: 200px">
+                <td class="tw-px-4  tw-py-2 tw-text-lg qpc-hafs">{{ segmentText(segment) }}</td>
+                <td class="tw-px-4 tw-py-2 tw-w-48">
                   <input
                     type="number"
                     min="0"
@@ -118,8 +122,9 @@
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="updateSegmentStart"
+                    class="tw-w-full tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500"
                   />
-                  <small class="form-text d-flex justify-content-between">
+                  <small class="tw-flex tw-justify-between tw-text-[10px] tw-text-gray-400 tw-mt-0.5">
                     <span>
                       {{ segmentOriginalStart(index) }}
                     </span>
@@ -130,7 +135,7 @@
                   </small>
                 </td>
 
-                <td style="width: 200px">
+                <td class="tw-px-4 tw-py-2 tw-w-48">
                   <input
                     type="number"
                     min="0"
@@ -139,8 +144,9 @@
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="updateSegmentEnd"
+                    class="tw-w-full tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500"
                   />
-                  <small class="form-text d-flex justify-content-between">
+                  <small class="tw-flex tw-justify-between tw-text-[10px] tw-text-gray-400 tw-mt-0.5">
                     <span>
                       {{ segmentOriginalEnd(index) }}
                     </span>
@@ -151,44 +157,62 @@
                   </small>
                 </td>
 
-                <td :data-word="segment[0]" :data-index="index">
-                  <div
-                      class="d-flex gap-1"
-                      :data-word="segment[0]" :data-index="index"
-                  >
-                    <button
+              <td class="tw-px-4 tw-py-2 tw-text-center">
+                <input
+                    type="checkbox"
+                    :checked="hasWaqaf(segment)"
+                    :data-index="index"
+                    :disabled="segmentLocked"
+                    @change="toggleWaqaf"
+                    class="tw-w-5 tw-h-5 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500 tw-cursor-pointer"
+                    title="Check if Qari has taken a waqf after this word"
+                    data-controller="tooltip"
+                    name="waqf"
+                    :id="[`waqf-${index}`]"
+                />
+                <small class="tw-block tw-text-xs tw-text-gray-500 tw-mt-0.5">
+                  {{ hasWaqaf(segment) ? 'وقف' : '' }}
+                </small>
+              </td>
+
+              <td class="tw-px-4 tw-py-2" :data-word="segment[0]" :data-index="index">
+                <div
+                    class="tw-flex tw-flex-wrap tw-gap-1"
+                    :data-word="segment[0]" :data-index="index"
+                >
+                  <button
                       @click="insertSegment"
-                      class="btn btn-sm btn-info"
+                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-cyan-600 tw-text-white tw-rounded hover:tw-bg-cyan-700 disabled:tw-opacity-50"
                       :disabled="segmentLocked"
-                      :class="{ 'd-none': segmentLocked }"
+                      :class="{ 'tw-hidden': segmentLocked }"
                     >
                       Add
                     </button>
                     <button
                       @click="removeSegment"
-                      class="me-2 btn btn-sm btn-danger"
+                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-red-600 tw-text-white tw-rounded hover:tw-bg-red-700 disabled:tw-opacity-50"
                       :disabled="segmentLocked"
-                      :class="{ 'd-none': segmentLocked }"
+                      :class="{ 'tw-hidden': segmentLocked }"
                     >
                       Remove
                     </button>
 
-                    <button @click="playWord" class="btn btn-sm btn-secondary">
+                    <button @click="playWord" class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-gray-600 tw-text-white tw-rounded hover:tw-bg-gray-700">
                       {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
                     </button>
 
                     <button
                       @click="loopWord"
-                      class="me-2 btn btn-sm btn-secondary"
+                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-gray-600 tw-text-white tw-rounded hover:tw-bg-gray-700"
                     >
                       {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
                     </button>
 
                     <button
                       @click="trackTime"
-                      class="btn btn-sm btn-warning"
+                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-yellow-500 tw-text-white tw-rounded hover:tw-bg-yellow-600 disabled:tw-opacity-50"
                       :disabled="segmentLocked"
-                      :class="{ 'd-none': segmentLocked }"
+                      :class="{ 'tw-hidden': segmentLocked }"
                     >
                       Track
                     </button>
@@ -221,13 +245,13 @@ export default {
     );
 
     this.unwatchWord = this.$store.watch(
-      (state, getters) => state.wordLoopTime,
+        (state, getters) => state.wordLoopTime,
 
-      (newValue, _) => {
-        if (newValue >= 0) {
-          player.currentTime = newValue / 1000;
+        (newValue, _) => {
+          if (newValue >= 0) {
+            player.currentTime = newValue / 1000;
+          }
         }
-      }
     );
 
     addEventListener(
@@ -251,6 +275,18 @@ export default {
     this.unwatch();
   },
   methods: {
+    hasWaqaf(segment) {
+      return segment[3] && segment[3].waqaf === true;
+    },
+    toggleWaqaf(event) {
+      const target = event.target;
+      const { index } = target.dataset;
+
+      this.$store.commit('TRACK_SEG_WAQAF', {
+        waqaf: target.checked,
+        index: Number(index),
+      });
+    },
     getWordCssClass(index) {
       let cssClasses = 'word';
 

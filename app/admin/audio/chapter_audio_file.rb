@@ -78,6 +78,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       row :file_name
       row :format
       row :audio_url
+      row :segments_count
       row :timing_percentiles
       row :meta_data do
         if resource.meta_data.present?

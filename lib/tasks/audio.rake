@@ -3,9 +3,13 @@ namespace :audio do
     # Check if mp3 is CBR or VBR
     # ffprobe -hide_banner -i 2.mp3
 
+    # Finished 65,
+    # Pending: 2, 3, 4, 5, 7, 8, 9, 12, 65, 164, 168, 171, 174, 179
+    # In progress: 1, 2
+
     require 'open3'
-    reciter_name = "Maher al-Muaiqly - Murattal"
-    base_path = "data/audio/65"
+    reciter_name = "Khalifah Taniji - Murattal"
+    base_path = "data/audio/161"
     original_mp3_path = "#{base_path}/original"
     optimized_mp3_path = "#{base_path}/mp3"
     wav_path = "#{base_path}/wav"
@@ -48,8 +52,8 @@ namespace :audio do
       # Opus encoding options
       audio_opts = [
         '-c:a', 'libopus',
-        '-b:a', '64k',        # Good balance for speech (try 64k–96k)
-        '-vbr', 'on',         # Enable variable bitrate (higher quality for same size)
+        '-b:a', '64k', # Good balance for speech (try 64k–96k)
+        '-vbr', 'on', # Enable variable bitrate (higher quality for same size)
         '-compression_level', '10' # Max compression
       ]
 
@@ -57,7 +61,7 @@ namespace :audio do
         'ffmpeg',
         '-i', input_file,
         *audio_opts,
-        '-vn',                # no video
+        '-vn', # no video
         '-map_metadata', '-1', # drop existing metadata
         '-map_chapters', '-1',
         *metadata_flags,
@@ -183,7 +187,7 @@ namespace :audio do
 
     # ids: 1, 2, 3, 4, 5, 7, 8, 9, 12, 65, 164, 168, 171, 174, 179
 
-    reciter_id = 12
+    reciter_id = 3
     manifest_file = "data/audio/wav_manifest/#{reciter_id}.json"
     manifest = JSON.parse(File.read(manifest_file))
 

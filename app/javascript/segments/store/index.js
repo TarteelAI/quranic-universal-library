@@ -57,7 +57,7 @@ const store = createStore({
       compareSegment: false,
       segmentsUrl: 'surah_audio_files',
       autoPlay: false,
-      disableHotkeys: true,
+      disableHotkeys: false,
 
       repeatGroups: [], // only need for recitation 168
       isManualAyahChange: false
@@ -287,6 +287,21 @@ const store = createStore({
 
       const segment = verseSegment.segments[index] || [];
       segment[2] = time;
+      verseSegment.segments[index] = segment;
+    },
+    TRACK_SEG_WAQAF(state, payload) {
+      const {
+          verseSegment
+      } = state;
+      const {
+          waqaf,
+          index
+      } = payload;
+      const segment = verseSegment.segments[index] || [];
+      if (!segment[3]) {
+          segment[3] = {};
+      }
+      segment[3].waqaf = waqaf;
       verseSegment.segments[index] = segment;
     },
     SET_SEG_WORD_NUMBER(state, payload) {

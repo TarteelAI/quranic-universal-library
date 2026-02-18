@@ -5,13 +5,13 @@ module.exports = {
   content: [
     './public/*.html',
     './app/helpers/**/*.rb',
-    './app/javascript/**/*.js',
+    './app/javascript/**/*.{js,vue}',
     './app/views/**/*.{erb,html}',
+    './app/admin/**/*.rb',
   ],
   theme: {
     extend: {
       fontFamily: {
-        // sans: ['Inter var', ...defaultTheme.fontFamily.sans],
         sarina: ['Sarina', 'cursive'],
         inter: ['Inter', 'sans-serif'],
         title: ['Open Sauce Sans', 'sans-serif'],
@@ -35,9 +35,25 @@ module.exports = {
     'tw-text-orange-600',
     'tw-text-green-600',
     'tw-text-yellow-600',
+    'tw-text-green-500',
     'tw-hidden',
     'tw-link-button',
     'tw-docs',
-    'tw-docs *'
+    'tw-docs *',
+    'tw-btn',
+    'tw-btn-sm',
+    'tw-btn-info',
+    'tw-btn-success',
+    'tw-btn-warning',
+    'tw-btn-danger',
+    'tw-flex',
+    'tw-flex-col',
+    'tw-items-end',
+    'tw-ms-auto',
+    'tw-me-2',
+    'tw-m-1',
+    'tw-my-2',
+    'tw-p-3',
+    'tw-py-2'
   ]
 };

@@ -8,14 +8,14 @@
 
 <%= render 'shared/access_message' %>
 
-<div class="page-wrapper container-lg">
+<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section">
     <%= form_with model: @draft_translation, url: translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), method: :put, html: { role: 'form', class: 'form', autocomplete: 'off', data: { controller: 'remote-form' } } do |form| %>
       <%= hidden_field_tag :resource_id, @resource.id %>
       <%= render 'shared/form_errors', object: @translation %>
 
-      <div class="form-floating mb-3">
-        <%= form.text_area :draft_text, class: "form-control #{lang}", autofocus: true, required: true %>
+      <div class="form-floating tw-mb-3">
+        <%= form.text_area :draft_text, class: "tw-w-full #{lang}", autofocus: true, required: true %>
         <%= form.label :draft_text, 'Translation', required: true %>
 
         <div class="invalid-feedback">
@@ -25,10 +25,10 @@
 
       <h3>Footnotes</h3>
       <%= form.fields_for :foot_notes, @draft_translation.foot_notes do |f_form| %>
-        <div class="form-floating mb-3">
+        <div class="form-floating tw-mb-3">
           <%= f_form.hidden_field :id %>
           <%= f_form.hidden_field :foot_note_id %>
-          <%= f_form.text_area :draft_text, class: "form-control #{lang}", required: true %>
+          <%= f_form.text_area :draft_text, class: "tw-w-full #{lang}", required: true %>
           <%= f_form.label :draft_text, "Footnote (#{f_form.object.foot_note_id})", required: true %>
 
           <div class="invalid-feedback">
@@ -37,9 +37,9 @@
         </div>
       <% end %>
 
-      <div class="text-center mt-5">
-        <%= link_to 'Cancel', translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), class: 'btn btn-default' %>
-        <%= form.submit 'Purpose changes', class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
+      <div class="tw-text-center tw-mt-5">
+        <%= link_to 'Cancel', translation_proofreading_path(@translation.verse.id, resource_id: @resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors' %>
+        <%= form.submit 'Purpose changes', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>
   </div>

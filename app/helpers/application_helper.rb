@@ -1,4 +1,21 @@
 module ApplicationHelper
+  def pagy_nav_tailwind(pagy, **opts)
+    html = pagy_nav(pagy, **opts)
+    html = html.gsub(/<nav[^>]*>/, '<nav class="tw-flex tw-items-center tw-border-t tw-border-b tw-border-gray-300">')
+    html = html.gsub(/<ul[^>]*>/, '<ul class="tw-flex tw-items-center">')
+    
+    html = html.gsub(/<a([^>]*class="[^"]*prev[^"]*)([^"]*)"/, '<a\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-700 tw-bg-white tw-border tw-border-gray-300 tw-rounded-l-md hover:tw-bg-gray-50"')
+    
+    html = html.gsub(/<a([^>]*class="[^"]*next[^"]*)([^"]*)"/, '<a\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-[#46ac7a] tw-bg-white tw-border tw-border-gray-300 tw-rounded-r-md hover:tw-bg-gray-50"')
+    
+    html = html.gsub(/<span([^>]*class="[^"]*page[^"]*)([^"]*)"/, '<span\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-[#46ac7a] tw-border tw-border-gray-300"')
+    
+    html = html.gsub(/<a([^>]*class="[^"]*page[^"]*)([^"]*)"/, '<a\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-[#46ac7a] tw-bg-white tw-border-l tw-border-gray-300 hover:tw-bg-gray-50"')
+    
+    html = html.gsub(/<span([^>]*class="[^"]*gap[^"]*)([^"]*)"/, '<span\1 tw-px-2 tw-text-gray-700"')
+    
+    html.html_safe
+  end
   include Pagy::Frontend
 
   def is_current_page?(controller:, action: nil)
@@ -118,5 +135,25 @@ module ApplicationHelper
 
   def safe_html(html)
     html.to_s.html_safe
+  end
+
+  def quran_scripts
+    {
+      text_qpc_hafs: "QPC Hafs",
+      text_uthmani: "Utmani(Me Quran)",
+      text_indopak_nastaleeq: "Indopak Nastaleeq",
+      text_indopak: "Inodpak(PDMS Saleem)",
+      text_imlaei: "Imlaei(Simple script)",
+      text_imlaei_simple: "Imlaei(Without tashkeel)",
+      text_uthmani_tajweed: "QPC Hafs with tajweed",
+      text_qpc_nastaleeq: "QPC Nastaleeq",
+      text_digital_khatt: "Digitak Khatt v2(1422 - 1439H print)",
+      text_digital_khatt_v1: "Digitak Khatt v1(1405H print)",
+      text_digital_khatt_indopak: "Digitak Khatt Indopak",
+    }
+  end
+
+  def arabic_fonts_options
+    quran_scripts.map { |key, name| [name, key.to_s.sub(/^text_/, "").tr("_", "-")] }
   end
 end

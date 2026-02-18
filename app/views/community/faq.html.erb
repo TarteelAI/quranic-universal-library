@@ -5,31 +5,29 @@
     <h1 class="tw-text-2xl md:tw-text-3xl">
       Frequently Asked Questions
     </h1>
-    <p class="mt-4">
+    <p class="tw-mt-4">
       QUL is a comprehensive platform for Quranic resources.
-      Whether you're a researcher, developer, or someone seeking to deepen your understanding of the Quran,
-      QUL offers valuable tools and data to support your work.
-      Below, you'll find answers to some of the most common questions about QUL.
-      If you don't find what you're looking for,
-      Feel free to reach out to us by creating new issue on
-      <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="text-dark">GitHub
-        page</a>.
+      It provides access to structured and reliable data, along with tools to explore, manage, and contribute to Quranic resources.
+      Researchers, students, and developers can leverage resources from QUL to build Islamic applications, perform data analysis, and conduct advanced research or studies related to the Quran.
+      Below are answers to some of the most common questions about QUL.
+      If you don’t find what you’re looking for, please open a new issue on our
+      <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="tw-underline hover:tw-text-[#46ac7a] tw-transition-colors">GitHub repository</a>.
     </p>
 
-    <div class="mt-3 mt-md-4 faq" data-controller="faq">
+    <div class="tw-mt-3 mt-md-4 faq" data-controller="faq">
       <% @items.each do |faq| %>
         <div class="item tw-cursor-pointer" id="faq-<%= faq.id %>">
-          <div class="py-4 d-flex question-wrapper align-items-center">
-            <span class="me-1">
+          <div class="tw-py-4 tw-flex question-wrapper tw-items-center tw-justify-between">
+            <span class="tw-me-1">
               <a href="#faq-<%= faq.id %>">🔗</a>
             </span>
 
-            <a href="#faq-<%= faq.id %>" class="question flex-grow-1">
+            <a href="#faq-<%= faq.id %>" class="question tw-flex-1">
             <span class="tw-text-xl">
               <%= safe_html faq.question %>
             </span>
-              <span class="question-icon"></span>
             </a>
+            <span class="question-icon tw-ml-2"></span>
           </div>
 
           <div class="answer-wrapper">

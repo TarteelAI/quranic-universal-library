@@ -1,31 +1,31 @@
 <%= render 'layouts/grid' do %>
-  <div class="px-4">
-    <div class="row device-container px-3">
+  <div class="tw-px-4">
+    <div class="tw-flex tw-flex-wrap tw-gap-4 device-container tw-px-3">
       <%= render 'devise/shared/spline_animation' %>
-      <div class="col-md-6 col-12 right">
-        <div class="py-3 px-md-4" data-turbo="false">
-          <h2 class="mb-3">
+      <div class="tw-w-full md:tw-w-1/2 right">
+        <div class="tw-py-3 px-md-4" data-turbo="false">
+          <h2 class="tw-mb-3">
             Change your password
           </h2>
           <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
             <%= f.hidden_field :reset_password_token %>
             <%= render 'shared/form_errors', object: resource %>
-            <div class="form-floating mb-3">
+            <div class="form-floating tw-mb-3">
               <%= f.password_field :password, autofocus: true, required: true, class: 'form-control', placeholder: 'New password', minlength: 6 %>
               <%= f.label :password, t('.new_password', default: 'New password'), required: true %>
               <div class="invalid-feedback">
                 Password does not meet minimum security requirements.
               </div>
             </div>
-            <div class="form-floating mb-3">
+            <div class="form-floating tw-mb-3">
               <%= f.password_field :password_confirmation, required: true, class: 'form-control', placeholder: 'Confirm your password', minlength: 6 %>
               <%= f.label :password_confirmation, t('.confirm_new_password', default: 'Confirm new password'), required: true %>
               <div class="invalid-feedback">
                 Password does not meet minimum security requirements.
               </div>
             </div>
-            <div class="text-center">
-              <%= f.submit 'Change my password', class: 'btn btn-dark btn-rounded mt-2 px-5' %>
+            <div class="tw-text-center">
+              <%= f.submit 'Change my password', class: 'btn btn-dark btn-rounded tw-mt-2 px-5' %>
             </div>
           <% end %>
         </div>

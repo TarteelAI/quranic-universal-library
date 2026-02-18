@@ -1,0 +1,96 @@
+module Morphology
+  class GraphEditPresenter < ApplicationPresenter
+    attr_reader :graph, :chapter_number, :verse_number
+    
+    def initialize(graph)
+      @graph = graph
+      @chapter_number = graph.chapter_number
+      @verse_number = graph.verse_number
+    end
+
+    def nodes
+      @nodes ||= graph.nodes.order(:number)
+    end
+
+    def edges
+      @edges ||= Morphology::DependencyGraph::GraphNodeEdge.includes(:source, :target)
+                                          .joins(:source, :target)
+                                          .where(morphology_dependency_graph_nodes: { graph_id: graph.id })
+                                          .where.not(type: 'phrase')
+                                          .distinct
+    end
+
+    def node_types
+      @node_types ||= Morphology::DependencyGraph::GraphNode.types.keys.reject { |t| t == 'phrase' }
+    end
+
+    def available_nodes
+      @available_nodes ||= nodes.map { |n| ["n#{n.number + 1} - #{n.type}: #{n.value}", n.id] }
+    end
+
+    def available_words(range: 3)
+      @available_words ||= WordsFetcher.new(chapter_number, verse_number, range: range).fetch
+    end
+
+    def available_segments(range: 3)
+      @available_segments ||= SegmentsFetcher.new(chapter_number, verse_number, range: range).fetch
+    end
+
+    def available_edges
+      @available_edges ||= edges.map { |e| ["#{e.relation}: n#{e.source.number + 1} → n#{e.target.number + 1}", e.id] }
+    end
+
+    def edge_relations
+      @edge_relations ||= Morphology::DependencyGraph::GraphNodeEdge.distinct.pluck(:relation).compact.sort
+    end
+
+    def resource_types
+      ['Morphology::Word', 'Morphology::DependencyGraph::GraphNodeEdge']
+    end
+
+    class WordsFetcher
+      def initialize(chapter_number, verse_number, range: 3)
+        @chapter_number = chapter_number
+        @verse_number = verse_number
+        @range = range
+      end
+      
+      def fetch
+        chapter = Chapter.find_by(id: @chapter_number)
+        return [] unless chapter
+
+        min_verse = [@verse_number - @range, 1].max
+        max_verse = [@verse_number + @range, chapter.verses_count].min
+
+        Morphology::Word.includes(:word)
+                        .joins(:verse)
+                        .where(verses: { chapter_id: @chapter_number })
+                        .where('verses.verse_number >= ? AND verses.verse_number <= ?', min_verse, max_verse)
+                        .order(:location)
+                        .map { |w| ["#{w.location} - #{w.word.text_uthmani}", w.id] }
+      end
+    end
+
+    class SegmentsFetcher
+      def initialize(chapter_number, verse_number, range: 3)
+        @chapter_number = chapter_number
+        @verse_number = verse_number
+        @range = range
+      end
+
+      def fetch
+        chapter = Chapter.find_by(id: @chapter_number)
+        return [] unless chapter
+
+        min_verse = [@verse_number - @range, 1].max
+        max_verse = [@verse_number + @range, chapter.verses_count].min
+
+        Morphology::WordSegment.joins(word: :verse)
+                               .where(verses: { chapter_id: @chapter_number })
+                               .where('verses.verse_number >= ? AND verses.verse_number <= ?', min_verse, max_verse)
+                               .order('morphology_words.location, morphology_word_segments.position')
+                               .map { |s| ["#{s.location} - #{s.text_uthmani}", s.id] }
+      end
+    end
+  end
+end

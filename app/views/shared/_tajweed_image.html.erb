@@ -7,8 +7,7 @@
       <span class="part rl<%= part['rule'] %>" data-img-width=<%= part['imageWidth'] %> style="<%= style %>" group="<%= part['group'] %>" rule="<%= part['rule'] %>" audio="<%= part['audio'] %>"></span>
     <% end %>
   <% end %>
-
-  <img src="https://static.quran.com/<%= word.text %>"/>
+  <img src="<%= word.image_url %>"/>
 </a>
 
 <script src="https://unpkg.com/@popperjs/core@2"></script>

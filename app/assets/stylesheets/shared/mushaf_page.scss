@@ -157,6 +157,7 @@
     line-height: 1.85;
     text-align: center;
     display: flex;
+    justify-content: center;
     align-content: center;
     margin: auto;
   }
@@ -223,4 +224,36 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.word-mistake-highlight {
+  transition: all 0.3s ease;
+  display: inline-block;
+  
+  &:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    position: relative;
+  }
+}
+
+.word-mistake-highlight-partial {
+  transition: all 0.3s ease;
+  display: inline;
+  
+  &:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
+  }
+}
+.surah-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.surah-header .surah-icon {
+  position: absolute;
 }

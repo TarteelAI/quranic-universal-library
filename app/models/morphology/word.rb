@@ -2,20 +2,20 @@
 #
 # Table name: morphology_words
 #
-#  id                      :bigint           not null, primary key
+#  id                      :integer          not null, primary key
+#  word_id                 :integer
+#  verse_id                :integer
+#  grammar_pattern_id      :integer
+#  grammar_base_pattern_id :integer
+#  words_count_for_root    :integer
+#  words_count_for_lemma   :integer
+#  words_count_for_stem    :integer
+#  location                :string
+#  description             :text
 #  case                    :string
 #  case_reason             :string
-#  description             :text
-#  location                :string
-#  words_count_for_lemma   :integer
-#  words_count_for_root    :integer
-#  words_count_for_stem    :integer
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
-#  grammar_base_pattern_id :bigint
-#  grammar_pattern_id      :bigint
-#  verse_id                :bigint
-#  word_id                 :bigint
 #
 # Indexes
 #
@@ -25,16 +25,13 @@
 #  index_morphology_words_on_verse_id                 (verse_id)
 #  index_morphology_words_on_word_id                  (word_id)
 #
-# Foreign Keys
-#
-#  fk_rails_...  (verse_id => verses.id)
-#  fk_rails_...  (word_id => words.id)
-#
 
 class Morphology::Word < QuranApiRecord
-  belongs_to :word, class_name: '::Word'
+  belongs_to :word, class_name: '::Word', optional: true
   belongs_to :verse
   belongs_to :grammar_pattern, class_name: 'Morphology::GrammarPattern', optional: true
+  belongs_to :grammar_base_pattern, class_name: 'Morphology::GrammarPattern', optional: true
+  belongs_to :resource_content, optional: true
   belongs_to :grammar_base_pattern, class_name: 'Morphology::GrammarPattern', optional: true
 
   has_many :derived_words, class_name: 'Morphology::DerivedWord'

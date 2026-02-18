@@ -2,18 +2,18 @@
 #
 # Table name: mushaf_pages
 #
-#  id             :bigint           not null, primary key
-#  lines_count    :integer
+#  id             :integer          not null, primary key
 #  page_number    :integer
 #  verse_mapping  :json
+#  first_verse_id :integer
+#  last_verse_id  :integer
 #  verses_count   :integer
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
-#  first_verse_id :integer
-#  first_word_id  :integer
-#  last_verse_id  :integer
-#  last_word_id   :integer
 #  mushaf_id      :integer
+#  first_word_id  :integer
+#  last_word_id   :integer
+#  lines_count    :integer
 #
 # Indexes
 #
@@ -24,13 +24,13 @@
 
 class MushafPage < QuranApiRecord
   include NavigationSearchable
-  belongs_to :mushaf
+  belongs_to :mushaf, optional: true
 
-  belongs_to :first_verse, class_name: 'Verse'
-  belongs_to :last_verse, class_name: 'Verse'
+  belongs_to :first_verse, class_name: 'Verse', optional: true
+  belongs_to :last_verse, class_name: 'Verse', optional: true
 
-  belongs_to :first_word, class_name: 'Word'
-  belongs_to :last_word, class_name: 'Word'
+  belongs_to :first_word, class_name: 'Word', optional: true
+  belongs_to :last_word, class_name: 'Word', optional: true
 
   has_many :verses, foreign_key: :page_number
   has_many :chapters, through: :verses

@@ -48,7 +48,7 @@ class Translation < QuranApiRecord
 
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
 
-  belongs_to :verse
+  belongs_to :verse, optional: true
   belongs_to :language
   has_many :foot_notes
   has_many :draft_translations, class_name: 'Draft::Translation'

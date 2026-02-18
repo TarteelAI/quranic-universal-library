@@ -2,17 +2,17 @@
 #
 # Table name: word_translations
 #
-#  id                  :bigint           not null, primary key
-#  group_text          :string
-#  language_name       :string
-#  priority            :integer
+#  id                  :integer          not null, primary key
+#  word_id             :integer
 #  text                :string
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  group_word_id       :integer
+#  language_name       :string
 #  language_id         :integer
 #  resource_content_id :integer
-#  word_id             :integer
+#  priority            :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  group_text          :string
+#  group_word_id       :integer
 #
 # Indexes
 #
@@ -27,9 +27,10 @@ class WordTranslation < QuranApiRecord
 
   has_paper_trail ignore: [:created_at, :updated_at]
 
-  belongs_to :word
-  belongs_to :language
+  belongs_to :word, optional: true
+  belongs_to :language, optional: true
   belongs_to :group_word, class_name: 'Word', optional: true
+  belongs_to :resource_content, optional: true
 
   attr_accessor :word_range_from, :word_range_to
 

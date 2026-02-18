@@ -28,9 +28,9 @@
 #  fk_rails_...  (word_id => words.id)
 #
 class TajweedWord < QuranApiRecord
-  belongs_to :mushaf
-  belongs_to :word
-  belongs_to :verse
+  belongs_to :mushaf, optional: true
+  belongs_to :word, optional: true
+  belongs_to :verse, optional: true
   belongs_to :resource_content
 
   scope :rule_eq, lambda { |rule|

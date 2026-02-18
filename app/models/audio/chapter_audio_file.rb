@@ -39,7 +39,7 @@ module Audio
     include HasMetaData
 
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
-    belongs_to :chapter
+    belongs_to :chapter, optional: true
     has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: 'audio_file_id'
 
     def one_ayah?

@@ -20,7 +20,7 @@
 #
 class TranslatedName < QuranApiRecord
   include StripWhitespaces
-  belongs_to :language
+  belongs_to :language, optional: true
   belongs_to :resource, polymorphic: true
 
   after_save :fix_priority

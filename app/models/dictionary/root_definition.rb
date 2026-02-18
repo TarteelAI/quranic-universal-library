@@ -17,7 +17,7 @@
 
 module Dictionary
   class RootDefinition < QuranApiRecord
-    enum definition_type: {
+    enum :definition_type, {
       literal: 1,
       regular: 2
     }

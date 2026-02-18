@@ -5,12 +5,12 @@ ruby ">= 3.3.3", "<= 3.3.10"
 
 gem 'concurrent-ruby', '1.3.4'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 7.0.8.4"
+gem "rails", "~> 8.0.0"
 gem "nokogiri", '~> 1.18.8', require: false
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.3.5"
-gem 'sqlite3', '~> 1.4'
+gem "sqlite3", "~> 2.1"
 
 # Use the Puma app server [https://github.com/puma/puma]
 gem "puma", ">= 5.6.4"
@@ -27,7 +27,7 @@ gem 'redcarpet', require: false
 gem 'activerecord-import', require: false
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder", "~> 2.11"
+gem "jbuilder", "~> 2.13"
 
 gem 'addressable', require: false
 
@@ -48,7 +48,7 @@ gem 'image_processing', require: false
 # Admin panel
 gem 'activeadmin', '~> 3.2.3'
 gem 'activeadmin-searchable_select', '>= 1.8.0'
-gem 'paper_trail', '>= 12.1.0'
+gem 'paper_trail', '>= 15.0.0'
 
 gem 'rails-html-sanitizer', '>= 1.4.2'
 gem 'pdf-reader', require:  false
@@ -102,7 +102,10 @@ group :development do
 
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console'
-  gem 'annotate'
+  #gem 'annotate'
+
+###
+
 
   gem 'pry-rails'
   # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
@@ -111,13 +114,13 @@ group :development do
   gem "letter_opener"
 end
 
-gem 'carrierwave', '~> 2.2.6'
+gem 'carrierwave', '~> 3.0'
 gem 'fog-aws'
 
 gem 'rest-client'
 
-gem 'sidekiq'
-gem 'sidekiq-scheduler'
+gem 'sidekiq', '~> 7.2.4'
+gem 'sidekiq-scheduler', '~> 5.0.3'
 gem 'sidekiq-status'
 gem 'sinatra', require: false
 

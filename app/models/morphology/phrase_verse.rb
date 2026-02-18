@@ -23,7 +23,7 @@
 #  index_morphology_phrase_verses_on_word_position_to    (word_position_to)
 #
 class Morphology::PhraseVerse < ApplicationRecord
-  belongs_to :phrase, class_name: 'Morphology::Phrase'
+  belongs_to :phrase, class_name: 'Morphology::Phrase', optional: true
   belongs_to :verse
   scope :approved, -> {where approved: true}
   scope :not_approved, -> {where approved: [false, nil]}

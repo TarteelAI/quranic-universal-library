@@ -20,7 +20,7 @@
 #
 class MushafLineAlignment < ApplicationRecord
   include HasMetaData
-  belongs_to :mushaf
+  belongs_to :mushaf, optional: true
 
   scope :with_surah_names, -> { where alignment: 'surah_name' }
 

@@ -9,7 +9,7 @@ Bundler.require(*Rails.groups)
 module Qul
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.0
+    config.load_defaults 8.0
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -21,6 +21,7 @@ module Qul
     config.eager_load_paths << "#{config.root}/lib"
 
     config.assets.css_compressor = :escompress
+    config.active_support.to_time_preserves_timezone = :zone
 
     ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
       html_tag.html_safe

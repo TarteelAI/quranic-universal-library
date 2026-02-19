@@ -210,6 +210,8 @@ application.register("ayah-recitation-selector", AyahRecitationSelectorControlle
 import PageSearchController from "./page_search_controller.js";
 application.register("page-search", PageSearchController);
 
+import LiveSearchController from './live_search_controller.js';
+application.register("live-search", LiveSearchController);
 import MistakeHeatmapController from "./mistake_heatmap_controller.js";
 application.register("mistake-heatmap", MistakeHeatmapController);
 

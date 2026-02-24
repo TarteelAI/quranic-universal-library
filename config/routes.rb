@@ -57,6 +57,8 @@ Rails.application.routes.draw do
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
+  get 'stt_validation', to: 'community#stt_validation'
+
   get :svg, to: 'community#svg_optimizer'
   get :credits, to: 'community#credits', as: :credits
   get :faq, to: 'community#faq', as: :faq
@@ -216,5 +218,4 @@ Rails.application.routes.draw do
   get '/ayah/:key/topics/:topic_id', to: 'ayah#topic', as: :ayah_topic
   get '/ayah/:key/recitation', to: 'ayah#recitation', as: :ayah_recitation
   match '/404', to: 'application#not_found', via: :all
-  #  match '*unmatched', to: 'application#not_found', via: :all
 end

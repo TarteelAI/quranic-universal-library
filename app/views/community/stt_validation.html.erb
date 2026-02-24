@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STT Validation Timeline</title>
+  <style>
+      @font-face {
+          font-family: 'qpc-hafs';
+          src: url('https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.ttf') format('truetype');
+          font-display: swap;
+      }
+
+      body {
+          font-family: 'qpc-hafs', sans-serif;
+          margin: 0;
+          padding: 20px;
+          background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
+          color: #2c3e50;
+          min-height: 100vh;
+      }
+
+      .container {
+          max-width: 1400px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 20px;
+          padding: 30px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+          text-align: center;
+          margin-bottom: 10px;
+          font-size: 2.5em;
+          background: linear-gradient(45deg, #35f787, #62d6f4, #00a3ff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+      }
+
+      .subtitle {
+          text-align: center;
+          margin-bottom: 40px;
+          opacity: 0.7;
+          font-size: 1.1em;
+          color: #5a6c7d;
+      }
+
+      .selector-panel {
+          background: #f8f9fa;
+          border-radius: 15px;
+          padding: 30px;
+          margin: 30px 0;
+          border: 1px solid #e1e8ed;
+      }
+
+      .selector-panel.hidden {
+          display: none;
+      }
+
+      .file-upload-section {
+          margin: 30px 0;
+          padding: 30px;
+          background: white;
+          border-radius: 10px;
+          border: 3px dashed #e1e8ed;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .file-upload-section:hover,
+      .file-upload-section.drag-over {
+          border-color: #57d798;
+          background: rgba(87, 215, 152, 0.1);
+      }
+
+      .file-upload-section.has-file {
+          border-color: #4ade80;
+          background: rgba(74, 222, 128, 0.1);
+      }
+
+      .file-upload-section h3 {
+          color: #57d798;
+          margin-bottom: 15px;
+      }
+
+      .file-upload-section .icon {
+          font-size: 3em;
+          margin-bottom: 10px;
+      }
+
+      .divider {
+          text-align: center;
+          margin: 30px 0;
+          position: relative;
+      }
+
+      .divider::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          height: 1px;
+          background: #e1e8ed;
+      }
+
+      .divider span {
+          position: relative;
+          background: #f8f9fa;
+          padding: 5px 20px;
+          border-radius: 20px;
+          color: #5a6c7d;
+          font-size: 14px;
+      }
+
+      .input-group {
+          margin: 20px 0;
+      }
+
+      .input-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #57d798;
+      }
+
+      .input-group input[type="number"],
+      .input-group input[type="url"] {
+          width: 100%;
+          max-width: 360px;
+          padding: 12px;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          background: white;
+          color: #2c3e50;
+          font-size: 16px;
+          transition: all 0.3s ease;
+      }
+
+      .input-group input[type="number"]:focus,
+      .input-group input[type="url"]:focus {
+          outline: none;
+          border-color: #57d798;
+          background: white;
+          box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+      }
+
+      .surah-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+          gap: 10px;
+          margin: 20px 0;
+          max-height: 400px;
+          overflow-y: auto;
+          padding: 10px;
+          background: white;
+          border-radius: 10px;
+          border: 1px solid #e1e8ed;
+      }
+
+      .surah-card {
+          background: white;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          padding: 15px 10px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-weight: bold;
+          color: #2c3e50;
+          user-select: none;
+      }
+
+      .surah-card:hover {
+          background: #f8f9fa;
+          border-color: #57d798;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(87, 215, 152, 0.2);
+      }
+
+      .surah-card.selected {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border-color: #57d798;
+          color: white;
+      }
+
+      .load-btn {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border: none;
+          color: white;
+          padding: 15px 30px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 16px;
+          transition: all 0.3s ease;
+          margin-top: 20px;
+      }
+
+      .load-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(53, 247, 135, 0.4);
+      }
+
+      .load-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+      }
+
+      .error-message {
+          background: rgba(239, 68, 68, 0.2);
+          border: 2px solid rgba(239, 68, 68, 0.5);
+          border-radius: 10px;
+          padding: 15px;
+          margin: 20px 0;
+          color: #b91c1c;
+          font-weight: bold;
+      }
+
+      .main-content {
+          display: none;
+      }
+
+      .main-content.visible {
+          display: block;
+      }
+
+      .stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
+          margin: 20px 0;
+      }
+
+      .stat-card {
+          background: white;
+          border-radius: 10px;
+          padding: 15px;
+          text-align: center;
+          border: 1px solid #e1e8ed;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-value {
+          font-size: 1.5em;
+          font-weight: bold;
+          color: #57d798;
+      }
+
+      .stat-label {
+          opacity: 0.7;
+          margin-top: 5px;
+          font-size: 0.9em;
+          color: #5a6c7d;
+      }
+
+      .timeline-section {
+          margin: 30px 0;
+          background: #f8f9fa;
+          border-radius: 15px;
+          padding: 20px;
+          border: 1px solid #e1e8ed;
+      }
+
+      .section-title {
+          font-size: 1.3em;
+          margin-bottom: 15px;
+          color: #57d798;
+          font-weight: bold;
+      }
+
+      .controls-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          align-items: center;
+          justify-content: space-between;
+          margin: 15px 0 0;
+      }
+
+      .control-group {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          align-items: center;
+      }
+
+      .control-group input[type="number"],
+      .control-group select {
+          padding: 10px 12px;
+          border: 2px solid #e1e8ed;
+          border-radius: 8px;
+          background: white;
+          color: #2c3e50;
+          font-size: 14px;
+      }
+
+      .control-group input[type="number"]:focus,
+      .control-group select:focus {
+          outline: none;
+          border-color: #57d798;
+          box-shadow: 0 0 0 3px rgba(87, 215, 152, 0.1);
+      }
+
+      .small-btn {
+          background: white;
+          border: 2px solid #e1e8ed;
+          color: #2c3e50;
+          padding: 10px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          font-weight: bold;
+      }
+
+      .small-btn:hover {
+          background: #f8f9fa;
+          border-color: #57d798;
+          transform: translateY(-1px);
+      }
+
+      .timeline-container {
+          overflow-x: auto;
+          padding: 12px;
+          border: 1px solid #e1e8ed;
+          background: white;
+          border-radius: 12px;
+          display: flex;
+          gap: 8px;
+          flex-direction: row-reverse;
+          align-items: stretch;
+      }
+
+      .ayah-block {
+          flex: 0 0 auto;
+          border: 1px solid #e1e8ed;
+          background: #ffffff;
+          border-radius: 12px;
+          padding: 12px 12px 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+      }
+
+      .ayah-block:hover {
+          border-color: #57d798;
+          box-shadow: 0 6px 20px rgba(87, 215, 152, 0.18);
+          transform: translateY(-1px);
+      }
+
+      .ayah-number {
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          color: white;
+          font-size: 12px;
+          padding: 3px 8px;
+          border-radius: 999px;
+          font-weight: bold;
+      }
+
+      .ayah-meta {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 12px;
+          color: #5a6c7d;
+      }
+
+      .pill {
+          background: rgba(87, 215, 152, 0.08);
+          border: 1px solid rgba(87, 215, 152, 0.2);
+          padding: 2px 8px;
+          border-radius: 999px;
+          font-weight: bold;
+      }
+
+      .pill.bad {
+          background: rgba(239, 68, 68, 0.08);
+          border-color: rgba(239, 68, 68, 0.2);
+          color: #b91c1c;
+      }
+
+      .token-track {
+          margin-top: 10px;
+          height: 10px;
+          background: #f3f4f6;
+          border: 1px solid #e1e8ed;
+          border-radius: 999px;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .token-span {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, #35f787 0%, #00a3ff 100%);
+          border-radius: 999px;
+          opacity: 0.85;
+      }
+
+      .stt-word {
+          margin-top: 10px;
+          color: #5a6c7d;
+          font-size: 12px;
+          direction: rtl;
+          text-align: right;
+          line-height: 1.7;
+      }
+
+      .stt-word span {
+          display: inline-block;
+          padding: 0 2px;
+          border-radius: 4px;
+      }
+
+      .ayah-text {
+          margin-top: 8px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          direction: rtl;
+          text-align: right;
+          line-height: 1.9;
+          font-size: 14px;
+          color: #2c3e50;
+      }
+
+      .word-missed { color: #dc2626; cursor: pointer; font-weight: bold; }
+      .word-repeat { color: #2563eb; cursor: pointer; font-weight: bold; }
+      .word-extra { color: #d97706; cursor: pointer; font-weight: bold; }
+      .word-wrong { color: #7c3aed; cursor: pointer; font-weight: bold; }
+
+      .tooltip { position: relative; display: inline-block; }
+
+      .tooltip .tooltiptext {
+          visibility: hidden;
+          background-color: #111827;
+          color: #fff;
+          text-align: center;
+          border-radius: 6px;
+          padding: 3px 8px;
+          position: absolute;
+          z-index: 100;
+          top: -28px;
+          right: 0;
+          font-size: 12px;
+          white-space: nowrap;
+      }
+
+      .tooltip:hover .tooltiptext {
+          visibility: visible;
+      }
+
+      .highlight-context {
+          background-color: rgba(255, 235, 163, 0.8);
+      }
+
+      .modal {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          justify-content: center;
+          align-items: center;
+          z-index: 50;
+          padding: 16px;
+      }
+
+      .modal-content {
+          background: white;
+          border-radius: 14px;
+          width: 100%;
+          max-width: 980px;
+          max-height: 90vh;
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+      }
+
+      .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid #e1e8ed;
+          padding-bottom: 10px;
+          margin-bottom: 10px;
+      }
+
+      .modal-header h2 {
+          margin: 0;
+          font-size: 20px;
+          color: #2c3e50;
+      }
+
+      .close-btn {
+          border: none;
+          background: transparent;
+          font-size: 28px;
+          cursor: pointer;
+          color: #5a6c7d;
+          padding: 0 6px;
+      }
+
+      .close-btn:hover {
+          color: #111827;
+      }
+
+      #modalContent {
+          overflow: auto;
+          flex: 1;
+      }
+
+      #modalContent table {
+          width: 100%;
+          border-collapse: collapse;
+          text-align: center;
+          font-size: 14px;
+      }
+
+      #modalContent th, #modalContent td {
+          border: 1px solid #e1e8ed;
+          padding: 8px 10px;
+      }
+
+      #modalContent th {
+          background-color: #f8f9fa;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          color: #57d798;
+      }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>STT Validation Timeline</h1>
+
+  <div id="selectorPanel" class="selector-panel">
+    <h2 style="color: #57d798; margin-bottom: 20px;">📊 Load STT Data</h2>
+
+    <div class="file-upload-section" id="jsonDropZone">
+      <div class="icon">📄</div>
+      <h3>Option 1: Upload JSON File</h3>
+      <p style="opacity: 0.8; margin-bottom: 15px;">Drop JSON file here or click to browse</p>
+      <p style="opacity: 0.6; font-size: 0.9em;">STT bundle data in JSON format</p>
+      <input type="file" id="jsonFileInput" accept=".json" style="display: none;"/>
+      <div id="fileNameDisplay" style="margin-top: 15px; opacity: 0.8;"></div>
+    </div>
+
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <div>
+      <h3 style="color: #57d798; margin-bottom: 20px;">Select Reciter & Surah</h3>
+
+      <div class="input-group">
+        <label for="reciterInput">Reciter ID:</label>
+        <input type="number" id="reciterInput" placeholder="Enter reciter ID (e.g., 1, 65, 175)" min="1"/>
+      </div>
+
+      <div class="input-group">
+        <label for="surahInput">Surah Number:</label>
+        <input type="number" id="surahInput" placeholder="Enter surah number (1-114)" min="1" max="114"/>
+      </div>
+
+      <div class="input-group">
+        <label>Select Surah:</label>
+        <div class="surah-grid" id="surahGrid"></div>
+      </div>
+
+      <div class="input-group">
+        <label for="audioUrlInput">Audio URL (optional):</label>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <input type="url" id="audioUrlInput" placeholder="Enter audio URL or use default" style="flex: 1; min-width: 280px;"/>
+          <button id="loadAudioBtn" class="load-btn" style="padding: 12px 18px; margin: 0;" disabled>Load Audio</button>
+        </div>
+        <div id="audioUrlInfo" style="font-size: 0.9em; color: #5a6c7d; margin-top: 6px;"></div>
+      </div>
+
+      <div style="opacity: 0.8; color: #5a6c7d; font-size: 0.95em; margin-top: 8px;">
+        STT JSON URL preview: <span id="jsonUrlPreview" style="font-weight: bold;"></span>
+      </div>
+
+      <button id="loadDataBtn" class="load-btn" disabled>Load Data</button>
+    </div>
+
+    <div id="errorDisplay"></div>
+  </div>
+
+  <div id="mainContent" class="main-content">
+    <div class="stats" id="statsContainer"></div>
+
+    <div class="timeline-section">
+      <div class="section-title">Timeline Controls</div>
+      <div class="controls-row">
+        <div class="control-group">
+          <label for="filterSelect" style="font-weight: bold; color: #57d798;">Filter:</label>
+          <select id="filterSelect">
+            <option value="all">All</option>
+            <option value="ok">Status: ok</option>
+            <option value="needs_review">Status: needs_review</option>
+            <option value="ambiguous">Status: ambiguous</option>
+            <option value="exact_match">Exact match</option>
+            <option value="has_repeat">Has repeat</option>
+            <option value="has_missing">Has missing</option>
+            <option value="has_wrong">Has wrong</option>
+            <option value="has_extra">Has extra</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="jumpAyahInput" style="font-weight: bold; color: #57d798;">Jump to ayah:</label>
+          <input id="jumpAyahInput" type="number" placeholder="Ayah #" min="1"/>
+          <button id="jumpAyahBtn" class="small-btn">Jump</button>
+          <button id="backToTopBtn" class="small-btn">Back to top</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-section">
+      <div class="section-title">Audio</div>
+      <audio id="audioPlayer" controls style="width: 100%;"></audio>
+    </div>
+
+    <div class="timeline-section">
+      <div class="section-title">STT Timeline</div>
+      <div id="timeline" class="timeline-container"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalAyah"></h2>
+      <button id="closeModal" class="close-btn" aria-label="Close">&times;</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+  const CDN_HOST = '<%= ENV['CDN_HOST'] %>';
+  const selectorPanel = document.getElementById('selectorPanel');
+  const mainContent = document.getElementById('mainContent');
+  const jsonDropZone = document.getElementById('jsonDropZone');
+  const jsonFileInput = document.getElementById('jsonFileInput');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+  const reciterInput = document.getElementById('reciterInput');
+  const surahInput = document.getElementById('surahInput');
+  const surahGrid = document.getElementById('surahGrid');
+  const loadDataBtn = document.getElementById('loadDataBtn');
+  const errorDisplay = document.getElementById('errorDisplay');
+  const statsContainer = document.getElementById('statsContainer');
+  const filterSelect = document.getElementById('filterSelect');
+  const jumpAyahInput = document.getElementById('jumpAyahInput');
+  const jumpAyahBtn = document.getElementById('jumpAyahBtn');
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  const timelineContainer = document.getElementById('timeline');
+  const audioUrlInput = document.getElementById('audioUrlInput');
+  const audioUrlInfo = document.getElementById('audioUrlInfo');
+  const loadAudioBtn = document.getElementById('loadAudioBtn');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const jsonUrlPreview = document.getElementById('jsonUrlPreview');
+
+  const modal = document.getElementById('modal');
+  const modalAyah = document.getElementById('modalAyah');
+  const modalContent = document.getElementById('modalContent');
+  const closeModalBtn = document.getElementById('closeModal');
+
+  let selectedReciter = null;
+  let selectedSurah = null;
+  let selectedAudioUrl = null;
+
+  let rawData = null;
+  let flatAyahs = [];
+  let totalTokens = 1;
+
+  const reciterMapping = {
+    1: 'quran/surah/abdulBasit/mujawwad',
+    2: 'quran/surah/abdulBasit/murattal',
+    3: 'quran/surah/abdulrahmanAlSudais/murattal',
+    4: 'quran/surah/abuBakrAlShatri/murattal',
+    5: 'quran/surah/HaniArRifai/murattal',
+    6: 'quran/surah/husary/muallim',
+    7: 'quran/surah/alafasy/murattal',
+    8: 'quran/surah/minshawi/mujawwad',
+    9: 'quran/surah/minshawi/murattal',
+    10: 'quran/surah/saudAlShuraim/murattal',
+    12: 'quran/surah/husary/muallim',
+    13: 'quran/surah/ghamadi/murattal',
+    65: 'quran/surah/maherAlMuaiqly/murattal',
+    161: 'quran/surah/khalifaAlTunaiji/murattal/',
+    168: 'quran/surah/minshawi/kids_repeat',
+    164: 'quran/surah/husary/mujawwad',
+    174: 'quran/surah/yasserAlDosari/murattal',
+    175: 'quran/surah/alnufais/murattal',
+  };
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function generateDefaultAudioUrl(reciterId, surahNumber) {
+    const reciterPath = reciterMapping[reciterId];
+    if (!reciterPath) return null;
+    const paddedSurahNumber = surahNumber.toString().padStart(3, '0');
+    return `https://audio-cdn.tarteel.ai/${reciterPath}/wav/${paddedSurahNumber}.wav`;
+  }
+
+  function buildSttJsonUrl(reciterId, surahNumber) {
+    if (!reciterId || !surahNumber) return '';
+    return `${CDN_HOST}/qul/stt/${reciterId}/bundle/${surahNumber}.json`;
+  }
+
+  function updateJsonUrlPreview() {
+    const url = buildSttJsonUrl(selectedReciter, selectedSurah);
+    jsonUrlPreview.textContent = url || '—';
+  }
+
+  function setSelectedReciter(value) {
+    const num = parseInt(value, 10);
+    selectedReciter = Number.isFinite(num) && num > 0 ? num : null;
+    updateJsonUrlPreview();
+    updateAudioUrlInfo();
+    updateLoadButton();
+  }
+
+  function setSelectedSurah(value) {
+    const num = parseInt(value, 10);
+    selectedSurah = Number.isFinite(num) && num >= 1 && num <= 114 ? num : null;
+    surahInput.value = selectedSurah || '';
+    Array.from(surahGrid.querySelectorAll('.surah-card')).forEach((el) => {
+      const v = parseInt(el.dataset.surah, 10);
+      el.classList.toggle('selected', selectedSurah === v);
+    });
+    updateJsonUrlPreview();
+    updateAudioUrlInfo();
+    updateLoadButton();
+  }
+
+  function updateAudioUrlInfo() {
+    if (selectedReciter && selectedSurah) {
+      const defaultUrl = generateDefaultAudioUrl(selectedReciter, selectedSurah);
+      if (defaultUrl) {
+        audioUrlInfo.innerHTML = `Default URL: <a href="${escapeHtml(defaultUrl)}" target="_blank" style="color: #57d798; font-weight: bold;">${escapeHtml(defaultUrl)}</a>`;
+        if (!audioUrlInput.value.trim()) {
+          audioUrlInput.value = defaultUrl;
+          selectedAudioUrl = defaultUrl;
+        }
+      } else {
+        audioUrlInfo.textContent = `No default audio available for reciter ${selectedReciter}`;
+      }
+    } else {
+      audioUrlInfo.textContent = 'Select reciter and surah to see default audio URL';
+    }
+    updateLoadAudioButton();
+  }
+
+  function updateLoadAudioButton() {
+    selectedAudioUrl = audioUrlInput.value.trim() || null;
+    loadAudioBtn.disabled = !selectedAudioUrl;
+  }
+
+  function updateLoadButton() {
+    loadDataBtn.disabled = !(selectedReciter && selectedSurah);
+  }
+
+  function showError(message) {
+    errorDisplay.innerHTML = `<div class="error-message">❌ ${escapeHtml(message)}</div>`;
+    setTimeout(() => {
+      errorDisplay.innerHTML = '';
+    }, 7000);
+  }
+
+  function showMainContent() {
+    selectorPanel.classList.add('hidden');
+    mainContent.classList.add('visible');
+  }
+
+  function normalizeSttData(jsonData) {
+    const ayahsObj = jsonData && typeof jsonData === 'object' ? jsonData.ayahs : null;
+    if (!ayahsObj || typeof ayahsObj !== 'object') {
+      throw new Error('Unexpected JSON format: missing ayahs');
+    }
+
+    const segments = [];
+    let maxToken = 1;
+
+    Object.entries(ayahsObj).forEach(([ayahNumber, occurrences]) => {
+      if (!Array.isArray(occurrences)) return;
+      occurrences.forEach((item, occurrenceIndex) => {
+        const span = item && item.matched_stt_span ? item.matched_stt_span : null;
+        const startIdx = span && Number.isFinite(span.start_token_index) ? span.start_token_index : null;
+        const endIdx = span && Number.isFinite(span.end_token_index) ? span.end_token_index : null;
+        if (endIdx && endIdx > maxToken) maxToken = endIdx;
+
+        segments.push({
+          ayahNumber: parseInt(ayahNumber, 10),
+          ayahKey: item.ayah || `${jsonData.surah || ''}:${ayahNumber}`,
+          occurrence: occurrenceIndex,
+          status: item.status || 'ok',
+          similarity: typeof item.similarity === 'number' ? item.similarity : null,
+          meta: item.meta || {},
+          text: item.text || '',
+          stt: item.stt || '',
+          words: Array.isArray(item.words) ? item.words : [],
+          startTokenIndex: startIdx,
+          endTokenIndex: endIdx,
+          file: item.file || null,
+        });
+      });
+    });
+
+    segments.sort((a, b) => {
+      const aIdx = a.startTokenIndex ?? Number.MAX_SAFE_INTEGER;
+      const bIdx = b.startTokenIndex ?? Number.MAX_SAFE_INTEGER;
+      if (aIdx !== bIdx) return aIdx - bIdx;
+      if (a.ayahNumber !== b.ayahNumber) return a.ayahNumber - b.ayahNumber;
+      return a.occurrence - b.occurrence;
+    });
+
+    return { segments, maxToken: Math.max(1, maxToken) };
+  }
+
+  function computeStats(segments) {
+    const total = segments.length;
+    const statusCounts = {};
+    const flags = { has_repeat: 0, has_missing: 0, has_wrong: 0, has_extra: 0, exact_match: 0 };
+
+    segments.forEach((s) => {
+      const st = s.status || 'unknown';
+      statusCounts[st] = (statusCounts[st] || 0) + 1;
+      if (s.meta && s.meta.has_repeat) flags.has_repeat += 1;
+      if (s.meta && s.meta.has_missing) flags.has_missing += 1;
+      if (s.meta && s.meta.has_wrong) flags.has_wrong += 1;
+      if (s.meta && s.meta.has_extra) flags.has_extra += 1;
+      if (s.meta && s.meta.exact_match) flags.exact_match += 1;
+    });
+
+    return { total, statusCounts, flags };
+  }
+
+  function renderStats(segments) {
+    const { total, statusCounts, flags } = computeStats(segments);
+    const ok = statusCounts.ok || 0;
+    const needsReview = statusCounts.needs_review || 0;
+    const ambiguous = statusCounts.ambiguous || 0;
+
+    statsContainer.innerHTML = `
+      <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total entries</div></div>
+      <div class="stat-card"><div class="stat-value">${ok}</div><div class="stat-label">Status: ok</div></div>
+      <div class="stat-card"><div class="stat-value">${needsReview}</div><div class="stat-label">Needs review</div></div>
+      <div class="stat-card"><div class="stat-value">${ambiguous}</div><div class="stat-label">Ambiguous</div></div>
+      <div class="stat-card"><div class="stat-value">${flags.exact_match}</div><div class="stat-label">Exact match</div></div>
+      <div class="stat-card"><div class="stat-value">${flags.has_missing}</div><div class="stat-label">Has missing</div></div>
+      <div class="stat-card"><div class="stat-value">${flags.has_repeat}</div><div class="stat-label">Has repeat</div></div>
+      <div class="stat-card"><div class="stat-value">${flags.has_wrong}</div><div class="stat-label">Has wrong</div></div>
+      <div class="stat-card"><div class="stat-value">${flags.has_extra}</div><div class="stat-label">Has extra</div></div>
+    `;
+  }
+
+  function matchesFilter(seg, filter) {
+    if (filter === 'all') return true;
+    if (filter === 'ok') return seg.status === 'ok';
+    if (filter === 'needs_review') return seg.status === 'needs_review';
+    if (filter === 'ambiguous') return seg.status === 'ambiguous';
+    if (filter === 'exact_match') return !!(seg.meta && seg.meta.exact_match);
+    if (filter === 'has_repeat') return !!(seg.meta && seg.meta.has_repeat);
+    if (filter === 'has_missing') return !!(seg.meta && seg.meta.has_missing);
+    if (filter === 'has_wrong') return !!(seg.meta && seg.meta.has_wrong);
+    if (filter === 'has_extra') return !!(seg.meta && seg.meta.has_extra);
+    return true;
+  }
+
+  function getWordClass(status) {
+    if (status === 'missed') return 'word-missed';
+    if (status === 'repeat') return 'word-repeat';
+    if (status === 'extra') return 'word-extra';
+    if (status === 'wrong') return 'word-wrong';
+    return '';
+  }
+
+  function getWordTooltip(status) {
+    if (status === 'missed') return 'Missed';
+    if (status === 'repeat') return 'Repeat';
+    if (status === 'extra') return 'Extra';
+    if (status === 'wrong') return 'Wrong';
+    return '';
+  }
+
+  function clearSttHighlights(ayahBlock) {
+    ayahBlock.querySelectorAll('.stt-word span').forEach((s) => s.classList.remove('highlight-context'));
+  }
+
+  function highlightSttContext(ayahBlock, index) {
+    const sttSpans = Array.from(ayahBlock.querySelectorAll('.stt-word span'));
+    if (!sttSpans.length) return;
+    clearSttHighlights(ayahBlock);
+
+    const center = Math.max(0, Math.min(sttSpans.length - 1, index));
+    const start = Math.max(0, center - 2);
+    const end = Math.min(sttSpans.length - 1, center + 2);
+    for (let i = start; i <= end; i += 1) sttSpans[i].classList.add('highlight-context');
+
+    sttSpans[center].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    setTimeout(() => clearSttHighlights(ayahBlock), 2500);
+  }
+
+  function createAyahBlock(seg) {
+    const block = document.createElement('div');
+    block.className = 'ayah-block';
+    block.id = `ayah-${seg.ayahNumber}-${seg.occurrence}`;
+
+    const num = document.createElement('div');
+    num.className = 'ayah-number';
+    num.textContent = seg.occurrence ? `${seg.ayahNumber}×${seg.occurrence + 1}` : `${seg.ayahNumber}`;
+
+    const metaRow = document.createElement('div');
+    metaRow.className = 'ayah-meta';
+    metaRow.appendChild(num);
+
+    const meta = document.createElement('div');
+
+    const statusPill = document.createElement('span');
+    statusPill.className = `pill ${seg.status === 'ok' ? '' : 'bad'}`.trim();
+    statusPill.textContent = seg.status;
+    meta.appendChild(statusPill);
+
+    if (typeof seg.similarity === 'number') {
+      const sim = document.createElement('span');
+      sim.className = 'pill';
+      sim.textContent = `Matched ${(seg.similarity * 100).toFixed(1)}%`;
+      meta.appendChild(sim);
+    }
+    metaRow.appendChild(meta);
+    block.appendChild(metaRow);
+
+    const track = document.createElement('div');
+    track.className = 'token-track';
+    const span = document.createElement('div');
+    span.className = 'token-span';
+    if (seg.startTokenIndex != null && seg.endTokenIndex != null) {
+      const left = ((seg.startTokenIndex - 1) / totalTokens) * 100;
+      const width = ((seg.endTokenIndex - seg.startTokenIndex + 1) / totalTokens) * 100;
+      span.style.left = `${Math.max(0, Math.min(100, left))}%`;
+      span.style.width = `${Math.max(0.2, Math.min(100, width))}%`;
+    } else {
+      span.style.left = '0%';
+      span.style.width = '0%';
+      span.style.opacity = '0';
+    }
+    track.appendChild(span);
+    block.appendChild(track);
+
+    const sttDiv = document.createElement('div');
+    sttDiv.className = 'stt-word';
+    const sttTokens = (seg.stt || '').split(/\s+/).filter(Boolean);
+    sttTokens.forEach((t, idx) => {
+      const w = document.createElement('span');
+      w.dataset.index = String(idx);
+      w.textContent = t;
+      sttDiv.appendChild(w);
+      sttDiv.appendChild(document.createTextNode(' '));
+    });
+    block.appendChild(sttDiv);
+
+    const canonDiv = document.createElement('div');
+    canonDiv.className = 'ayah-text';
+    seg.words.forEach((w, idx) => {
+      const status = w.status || 'ok';
+      const cls = getWordClass(status);
+      const tip = getWordTooltip(status);
+      const spanWord = document.createElement('span');
+      spanWord.className = `${cls} tooltip`.trim();
+      spanWord.dataset.index = String(idx);
+      spanWord.textContent = w.text || '';
+      if (tip) {
+        const tt = document.createElement('span');
+        tt.className = 'tooltiptext';
+        tt.textContent = tip;
+        spanWord.appendChild(tt);
+      }
+      spanWord.addEventListener('click', (e) => {
+        e.stopPropagation();
+        highlightSttContext(block, idx);
+      });
+      canonDiv.appendChild(spanWord);
+    });
+    block.appendChild(canonDiv);
+
+    block.addEventListener('click', () => showModal(seg));
+    return block;
+  }
+
+  function renderTimeline() {
+    const filter = filterSelect.value || 'all';
+    timelineContainer.innerHTML = '';
+    flatAyahs.filter((s) => matchesFilter(s, filter)).forEach((seg) => {
+      timelineContainer.appendChild(createAyahBlock(seg));
+    });
+    setTimeout(() => {
+      timelineContainer.scrollLeft = timelineContainer.scrollWidth;
+    }, 80);
+  }
+
+  function showModal(seg) {
+    modalAyah.textContent = seg.ayahKey ? `Ayah ${seg.ayahKey}` : `Ayah ${seg.ayahNumber}`;
+
+    const meta = seg.meta || {};
+    const counts = meta.counts || {};
+    const spanText = seg.startTokenIndex != null && seg.endTokenIndex != null
+      ? `${seg.startTokenIndex} → ${seg.endTokenIndex}`
+      : '—';
+
+    const wordsRows = seg.words.map((w) => {
+      const pos = escapeHtml(w.position ?? '');
+      const txt = escapeHtml(w.text ?? '');
+      const st = escapeHtml(w.status ?? 'ok');
+      return `<tr><td>${pos}</td><td style="direction: rtl; text-align: right;">${txt}</td><td>${st}</td></tr>`;
+    }).join('');
+
+    const words = seg.words.map((w) => w.text || '').join(' ');
+
+    modalContent.innerHTML = `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div><span style="font-weight: bold; color: #57d798;">Status</span><div>${escapeHtml(seg.status)}</div></div>
+        <div><span style="font-weight: bold; color: #57d798;">Similarity</span><div>${seg.similarity == null ? '—' : `${(seg.similarity * 100).toFixed(2)}%`}</div></div>
+        <div><span style="font-weight: bold; color: #57d798;">Token span</span><div>${escapeHtml(spanText)}</div></div>
+        <div><span style="font-weight: bold; color: #57d798;">Flags</span><div>${escapeHtml([
+          meta.exact_match ? 'exact' : null,
+          meta.has_missing ? 'missing' : null,
+          meta.has_repeat ? 'repeat' : null,
+          meta.has_wrong ? 'wrong' : null,
+          meta.has_extra ? 'extra' : null,
+        ].filter(Boolean).join(', ') || '—')}</div></div>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <div style="font-weight: bold; color: #57d798; margin-bottom: 6px;">STT</div>
+        <div class="stt-word" style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 10px; background: #fff;">${escapeHtml(seg.stt)}</div>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <div style="font-weight: bold; color: #57d798; margin-bottom: 6px;">Ayah</div>
+        <div class="stt-word" style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 10px; background: #fff; color: #2c3e50; font-size: 14px;">${escapeHtml(seg.text)}</div>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <div style="font-weight: bold; color: #57d798; margin-bottom: 6px;">Fixed STT</div>
+        <div class="stt-word" style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 10px; background: #fff; color: #2c3e50; font-size: 14px;">${escapeHtml(words)}</div>
+      </div>
+
+      <div style="margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <span class="pill">exact ${escapeHtml(counts.exact ?? 0)}</span>
+        <span class="pill bad">wrong ${escapeHtml(counts.wrong ?? 0)}</span>
+        <span class="pill bad">missed ${escapeHtml(counts.missed ?? 0)}</span>
+        <span class="pill">repeat ${escapeHtml(counts.repeat ?? 0)}</span>
+        <span class="pill">extra ${escapeHtml(counts.extra ?? 0)}</span>
+      </div>
+
+      <div style="font-weight: bold; color: #57d798; margin-bottom: 6px;">Words</div>
+      <table>
+        <thead><tr><th>Position</th><th>Text</th><th>Status</th></tr></thead>
+        <tbody>${wordsRows}</tbody>
+      </table>
+    `;
+
+    modal.style.display = 'flex';
+  }
+
+  function hideModal() {
+    modal.style.display = 'none';
+  }
+
+  function loadDataFromJSON(jsonData, sourceLabel) {
+    rawData = jsonData;
+    const normalized = normalizeSttData(jsonData);
+    flatAyahs = normalized.segments;
+    totalTokens = normalized.maxToken;
+
+    renderStats(flatAyahs);
+    renderTimeline();
+    showMainContent();
+
+    const titleParts = [];
+    if (selectedReciter) titleParts.push(`Reciter ${selectedReciter}`);
+    if (selectedSurah) titleParts.push(`Surah ${selectedSurah}`);
+    const suffix = titleParts.length ? ` - ${titleParts.join(' ')}` : '';
+    document.querySelector('h1').textContent = `STT Validation Timeline${suffix}`;
+
+    if (sourceLabel) {
+      fileNameDisplay.innerHTML = `✓ Loaded: <strong>${escapeHtml(sourceLabel)}</strong>`;
+    }
+  }
+
+  async function loadDataFromPath(reciterId, surahNumber) {
+    const url = buildSttJsonUrl(reciterId, surahNumber);
+    if (!url) return;
+    loadDataBtn.disabled = true;
+    fileNameDisplay.innerHTML = `⏳ Loading: <strong>${escapeHtml(url)}</strong>`;
+    jsonDropZone.classList.add('has-file');
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      loadDataFromJSON(data, url);
+    } catch (e) {
+      jsonDropZone.classList.remove('has-file');
+      showError(`Failed to load JSON: ${e && e.message ? e.message : e}`);
+    } finally {
+      updateLoadButton();
+    }
+  }
+
+  function handleJSONFile(file) {
+    fileNameDisplay.innerHTML = `⏳ Loading: <strong>${escapeHtml(file.name)}</strong>`;
+    jsonDropZone.classList.add('has-file');
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        loadDataFromJSON(jsonData, file.name);
+      } catch (error) {
+        jsonDropZone.classList.remove('has-file');
+        showError(`Invalid JSON file: ${error.message}`);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function initSurahGrid() {
+    for (let i = 1; i <= 114; i += 1) {
+      const card = document.createElement('div');
+      card.className = 'surah-card';
+      card.dataset.surah = String(i);
+      card.textContent = String(i);
+      card.addEventListener('click', () => setSelectedSurah(i));
+      surahGrid.appendChild(card);
+    }
+  }
+
+  function initFileDrop() {
+    jsonDropZone.addEventListener('click', () => jsonFileInput.click());
+    jsonDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.add('drag-over');
+    });
+    jsonDropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.remove('drag-over');
+    });
+    jsonDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      jsonDropZone.classList.remove('drag-over');
+      if (!e.dataTransfer.files || !e.dataTransfer.files.length) return;
+      const file = e.dataTransfer.files[0];
+      if (file.type === 'application/json' || file.name.endsWith('.json')) handleJSONFile(file);
+      else showError('Please drop a JSON file');
+    });
+    jsonFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+      if (file) handleJSONFile(file);
+    });
+  }
+
+  function initControls() {
+    reciterInput.addEventListener('input', () => setSelectedReciter(reciterInput.value));
+    surahInput.addEventListener('input', () => setSelectedSurah(surahInput.value));
+
+    audioUrlInput.addEventListener('input', updateLoadAudioButton);
+    loadAudioBtn.addEventListener('click', () => {
+      const url = audioUrlInput.value.trim();
+      if (!url) return;
+      audioPlayer.src = url;
+      audioPlayer.load();
+    });
+
+    loadDataBtn.addEventListener('click', () => {
+      if (!selectedReciter || !selectedSurah) return;
+      loadDataFromPath(selectedReciter, selectedSurah);
+    });
+
+    filterSelect.addEventListener('change', renderTimeline);
+    jumpAyahBtn.addEventListener('click', () => {
+      const ayahNum = parseInt(jumpAyahInput.value, 10);
+      if (!Number.isFinite(ayahNum) || ayahNum <= 0) return;
+      const elem = document.querySelector(`[id^="ayah-${ayahNum}-"]`);
+      if (elem) elem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  function initModal() {
+    closeModalBtn.addEventListener('click', hideModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) hideModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideModal();
+    });
+  }
+
+  function tryLoadFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const reciter = params.get('reciter');
+    const surah = params.get('surah');
+    if (!reciter || !surah) return;
+    reciterInput.value = reciter;
+    surahInput.value = surah;
+    setSelectedReciter(reciter);
+    setSelectedSurah(surah);
+    loadDataFromPath(selectedReciter, selectedSurah);
+  }
+
+  initSurahGrid();
+  initFileDrop();
+  initControls();
+  initModal();
+  updateAudioUrlInfo();
+  updateJsonUrlPreview();
+  tryLoadFromQuery();
+</script>
+</body>
+</html>

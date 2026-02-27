@@ -1027,8 +1027,9 @@
     const wordsRows = seg.words.map((w) => {
       const pos = escapeHtml(w.position ?? '');
       const txt = escapeHtml(w.text ?? '');
+      const stt = escapeHtml(w.stt_text ?? '');
       const st = escapeHtml(w.status ?? 'ok');
-      return `<tr><td>${pos}</td><td style="direction: rtl; text-align: right;">${txt}</td><td>${st}</td></tr>`;
+      return `<tr><td>${pos}</td><td style="direction: rtl; text-align: right;">${txt}</td><td style="direction: rtl; text-align: right;">${stt}</td><td>${st}</td></tr>`;
     }).join('');
 
     const words = seg.words.map((w) => w.text || '').join(' ');
@@ -1072,7 +1073,7 @@
 
       <div style="font-weight: bold; color: #57d798; margin-bottom: 6px;">Words</div>
       <table>
-        <thead><tr><th>Position</th><th>Text</th><th>Status</th></tr></thead>
+        <thead><tr><th>Position</th><th>Text</th><th>STT</th><th>Status</th></tr></thead>
         <tbody>${wordsRows}</tbody>
       </table>
     `;

@@ -4,9 +4,8 @@ class SurahTranscriptAligner
   SCORE_CHAR_WEIGHT = 0.3
 
   ARABIC_DIACRITICS_RE = /[\u064B-\u065F\u0670\u06D6-\u06ED\u08D4-\u08FF]/.freeze
-  LATIN_RE = /[A-Za-z]+/.freeze
   WHITESPACE_RE = /\s+/.freeze
-  PUNCT_RE = /[^\w\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]/.freeze
+  WAQF_RE = /[ٰۛۖۗۘۙۚۜ۞۩ۭ]/.freeze
   ARABIC_LETTER_RE = /[\u0621-\u064A]/.freeze
 
   TRANSLITERATION_MAP = {
@@ -24,7 +23,6 @@ class SurahTranscriptAligner
     "ٰ" => "",
     "ۡ" => "",
     "ۢ" => "",
-    "ۭ" => ""
   }.freeze
 
   LAM_ALEF_LIGATURES = {
@@ -56,6 +54,7 @@ class SurahTranscriptAligner
       canonical_raw = words.map do |w|
         remove_waqfs(w.text_imlaei.to_s.strip)
       end
+
       canonical_norm = canonical_raw.map { |w| normalize_word(w, strip_diacritics: true) }
       canonical_chars = canonical_norm.join.gsub(" ", "").codepoints
 
@@ -91,9 +90,15 @@ class SurahTranscriptAligner
 
       span_raw = (s >= 0 && e >= s) ? (@stt_raw_tokens[s..e] || []) : []
       span_norm = (s >= 0 && e >= s) ? (@stt_norm_tokens[s..e] || []) : []
-      span_raw, span_norm = merge_stt_tokens(@surah_number, vd[:verse_number], span_raw, span_norm)
 
-      stt_words = align_words(vd[:canonical_raw], vd[:canonical_norm], span_raw, span_norm)
+      stt_words = align_words(
+        vd[:canonical_raw],
+        vd[:canonical_norm],
+        span_raw,
+        span_norm,
+        vd[:verse_number]
+      )
+      stt_words = post_process_merge_extras(stt_words, @surah_number, vd[:verse_number])
 
       output_hash = build_output_hash(
         ayah_number: vd[:verse_number],
@@ -135,7 +140,6 @@ class SurahTranscriptAligner
       occurrence = m[:occ] ? m[:occ].to_i : 0
 
       payload = JSON.parse(File.read(path))
-      payload["file"] = basename
       payload["occurrence"] = occurrence
       by_ayah[ayah_number.to_s] << payload
     end
@@ -174,6 +178,7 @@ class SurahTranscriptAligner
   end
 
   private
+
   def sort_key_for(path)
     basename = File.basename(path)
     m = /\A(?<ayah>\d+)(?:_(?<occ>\d+))?\.json\z/.match(basename)
@@ -183,24 +188,52 @@ class SurahTranscriptAligner
     [ayah_number, occurrence, basename]
   end
 
-  def normalize_text(text)
-    normalize_arabic(text.to_s, strip_diacritics: true)
-  end
-
-  def translate_imlaei_word_to_uthmani(surah, ayah, imlaei_word)
+  def translate_imlaei_word_to_uthmani(surah, ayah, one_based_stt_index)
     surah_mapping = MUSHAF_TRANSLATOR_INDEX[surah.to_s]
-    if surah_mapping && surah_mapping[ayah.to_s]
-      val = surah_mapping[ayah.to_s][imlaei_word.to_i.to_s]
-      val ? val.to_i : imlaei_word.to_i
+    return (one_based_stt_index - 1) unless surah_mapping && surah_mapping[ayah.to_s]
+    mapping = surah_mapping[ayah.to_s]
+    key = one_based_stt_index.to_s
+    val = mapping[key]
+    if val
+      val.to_i
     else
-      imlaei_word.to_i
+      next_val = mapping[(one_based_stt_index + 1).to_s]
+      next_val ? next_val.to_i : (one_based_stt_index - 1)
     end
   end
 
-  def should_merge_next?(surah, ayah, current_stt_index)
-    current_pos = translate_imlaei_word_to_uthmani(surah, ayah, current_stt_index)
-    next_pos = translate_imlaei_word_to_uthmani(surah, ayah, current_stt_index + 1)
-    current_pos == next_pos
+  def post_process_merge_extras(words, surah, ayah)
+    return words if words.empty?
+    result = []
+    previous_word = nil
+
+    words.each_with_index do |w, index|
+      merged = false
+      if w["status"] == "extra" && previous_word
+        if translate_imlaei_word_to_uthmani(surah, ayah, index + 1) == index
+          # merge with previous and remove the "extra" status
+          previous_word['stt_text'] = "#{previous_word['stt_text']} #{w['stt_text']}".strip
+          previous_word['stt_text_simple'] = "#{previous_word['stt_text_simple']} #{w['stt_text_simple']}".strip
+          merged = true
+
+          if compute_similarity(w['text_simple'].chars, w['stt_text_simple'].chars) > 0.9
+            # Use stt text for fixed version
+            previous_word['text'] = previous_word['stt_text']
+            previous_word['status'] = 'ok'
+          end
+
+          result[-1] = previous_word
+        end
+      end
+
+      if !merged
+        result << w
+      end
+
+      previous_word = w
+    end
+
+    result
   end
 
   def tokenize(text, strip_diacritics: true)
@@ -254,7 +287,7 @@ class SurahTranscriptAligner
     SequenceMatcher.new(a: canonical_tokens_norm, b: span_tokens_norm).ratio
   end
 
-  def align_words(canonical_raw, canonical_norm, span_raw, span_norm)
+  def align_words(canonical_raw, canonical_norm, span_raw, span_norm, ayah_number)
     sm = SequenceMatcher.new(a: canonical_norm, b: span_norm)
     opcodes = sm.get_opcodes
 
@@ -265,10 +298,13 @@ class SurahTranscriptAligner
       if tag == "equal"
         (0...[i2 - i1, j2 - j1].min).each do |k|
           i = i1 + k
+          j = j1 + k
           out << {
             "position" => i + 1,
             "text" => canonical_raw[i].to_s,
-            "text_simple" => canonical_norm[i].to_s
+            "text_simple" => canonical_norm[i].to_s,
+            "stt_text" => span_raw[j].to_s,
+            "stt_text_simple" => span_norm[j].to_s
           }
           last_canonical_index = i + 1
         end
@@ -279,14 +315,29 @@ class SurahTranscriptAligner
 
         common.times do |k|
           i = i1 + k
+          j = j1 + k
           out << {
             "position" => i + 1,
             "text" => canonical_raw[i].to_s,
             "text_simple" => canonical_norm[i].to_s,
+            "stt_text" => span_raw[j].to_s,
+            "stt_text_simple" => span_norm[j].to_s,
             "status" => "wrong",
             "fixed" => canonical_raw[i].to_s
           }
           last_canonical_index = i + 1
+        end
+
+        (common...b_len).each do |k|
+          j = j1 + k
+          out << {
+            "text" => span_raw[j].to_s,
+            "text_simple" => span_norm[j].to_s,
+            "stt_text" => span_raw[j].to_s,
+            "stt_text_simple" => span_norm[j].to_s,
+            "position" => nil,
+            "status" => "extra"
+          }
         end
       elsif tag == "delete"
         (i1...i2).each do |i|
@@ -294,6 +345,8 @@ class SurahTranscriptAligner
             "position" => i + 1,
             "text" => canonical_raw[i].to_s,
             "text_simple" => canonical_norm[i].to_s,
+            "stt_text" => nil,
+            "stt_text_simple" => nil,
             "status" => "missed"
           }
           last_canonical_index = i + 1
@@ -305,7 +358,13 @@ class SurahTranscriptAligner
         start_pos = find_contextual_repeat(canonical_norm, inserted_norm, last_canonical_index)
 
         inserted_raw.each_with_index do |tok, k|
-          entry = { "text" => tok.to_s, "text_simple" => inserted_norm[k].to_s }
+          entry = {
+            "text" => tok.to_s,
+            "text_simple" => inserted_norm[k].to_s,
+            "stt_text" => tok.to_s,
+            "stt_text_simple" => inserted_norm[k].to_s
+          }
+
           if start_pos
             entry["position"] = start_pos + k + 1
             entry["status"] = "repeat"
@@ -313,6 +372,7 @@ class SurahTranscriptAligner
             entry["position"] = nil
             entry["status"] = "extra"
           end
+
           out << entry
         end
       end
@@ -388,48 +448,22 @@ class SurahTranscriptAligner
   end
 
   def normalize_word(text, strip_diacritics:)
-    s = normalize_arabic(text.to_s, strip_diacritics: strip_diacritics)
-    s.split(" ").select { |x| x.match?(ARABIC_LETTER_RE) }.join(" ")
+    normalize_arabic(text.to_s, strip_diacritics: strip_diacritics)
+    # s.split(" ").select { |x| x.match?(ARABIC_LETTER_RE) }.join(" ")
   end
 
   def remove_waqfs(text)
     text.to_s.gsub(/[ٰ ۖ ۗ ۘ ۙ]/, "")
   end
 
-  def merge_stt_tokens(surah, ayah, span_raw, span_norm)
-    return [span_raw, span_norm] if span_raw.empty? || span_norm.empty?
-
-    merged_raw = []
-    merged_norm = []
-
-    i = 0
-    while i < span_raw.length
-      raw = span_raw[i].to_s
-      norm = span_norm[i].to_s
-
-      while i < (span_raw.length - 1) && should_merge_next?(surah, ayah, i)
-        i += 1
-        raw = "#{raw} #{span_raw[i]}".strip
-        norm = "#{norm} #{span_norm[i]}".strip
-      end
-
-      merged_raw << raw
-      merged_norm << norm
-      i += 1
-    end
-
-    [merged_raw, merged_norm]
-  end
-
   def normalize_arabic(text, strip_diacritics:)
     t = (text || "").to_s
-    t = t.unicode_normalize(:nfkc)
+    t = t.unicode_normalize(:nfc)
 
     t = t.gsub(/[#{Regexp.escape(TRANSLITERATION_MAP.keys.join)}]/) { |ch| TRANSLITERATION_MAP.fetch(ch) }
     t = t.gsub(/[#{Regexp.escape(LAM_ALEF_LIGATURES.keys.join)}]/) { |ch| LAM_ALEF_LIGATURES.fetch(ch) }
 
-    t = t.gsub(LATIN_RE, " ")
-    t = t.gsub(PUNCT_RE, " ")
+    t = t.gsub(WAQF_RE, "")
     t = t.gsub(ARABIC_DIACRITICS_RE, "") if strip_diacritics
     t.gsub(WHITESPACE_RE, " ").strip
   end

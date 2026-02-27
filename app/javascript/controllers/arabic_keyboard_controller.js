@@ -17,7 +17,7 @@ export default class extends Controller {
               }, 2000)
             },
             css: {
-              input: 'form-control',
+              input: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent',
               container: 'center-block dropdown-menu',
               buttonDefault: 'btn btn-default',
               buttonHover: 'btn-primary',

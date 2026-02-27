@@ -173,13 +173,24 @@
                 <%= Unicode::Name.of(char) %>
               <% end %>
             </td>
-            <td data-text="<%= char -%>"
-                title="Copy <%= char %>"
-                data-controller="tooltip copy-to-clipboard"
-                class="char"
-            >
-              <%= char %>
+            <td class="char">
+              <div class="tw-flex tw-text-center lg:tw-justify-around">
+                <div class="char">
+                  <%= char %>
+                </div>
+
+                <div>
+                  <button class="tw-btn tw-btn-sm tw-btn-info"
+                          data-text="<%= char -%>"
+                          data-title="Copy <%= char %>"
+                          data-controller="tooltip copy-to-clipboard"
+                  >
+                    copy
+                  </button>
+                </div>
+              </div>
             </td>
+
             <td><%= chars.count char %></td>
             <td><%= decimal %></td>
             <td><%= "&##{decimal};" %></td>

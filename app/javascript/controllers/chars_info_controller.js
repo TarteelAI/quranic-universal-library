@@ -47,7 +47,7 @@ export default class extends Controller {
     char.addClass(font).addClass('char')
 
     txt.removeClass()
-    txt.addClass(font).addClass('text form-control')
+    txt.addClass(font).addClass('tw-w-full tw-p-4 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent text')
   }
   showPreview(event) {
     event.preventDefault()

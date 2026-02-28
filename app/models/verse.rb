@@ -78,7 +78,7 @@ class Verse < QuranApiRecord
   has_many :mushaf_words
   has_many :morphology_words, class_name: 'Morphology::Word'
   has_many :verse_pages
-  has_many :actual_words, -> { where char_type_id: true }, class_name: 'Word'
+  has_many :actual_words, -> { where char_type_id: 1 }, class_name: 'Word'
   has_many :media_contents, as: :resource
   has_many :translations
   has_many :transliterations, as: :resource

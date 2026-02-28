@@ -538,7 +538,7 @@
 </head>
 <body>
 <div class="container">
-  <h1>STT Validation Timeline</h1>
+  <h1>Audio transcription preview</h1>
 
   <div id="selectorPanel" class="selector-panel">
     <h2 style="color: #57d798; margin-bottom: 20px;">📊 Load STT Data</h2>
@@ -600,17 +600,17 @@
       <div class="section-title">Timeline Controls</div>
       <div class="controls-row">
         <div class="control-group">
-          <label for="filterSelect" style="font-weight: bold; color: #57d798;">Filter:</label>
+          <label for="filterSelect" style="font-weight: bold; color: #57d798;">Filter ayahs:</label>
           <select id="filterSelect">
             <option value="all">All</option>
             <option value="ok">Status: ok</option>
             <option value="needs_review">Status: needs_review</option>
             <option value="ambiguous">Status: ambiguous</option>
             <option value="exact_match">Exact match</option>
-            <option value="has_repeat">Has repeat</option>
-            <option value="has_missing">Has missing</option>
-            <option value="has_wrong">Has wrong</option>
-            <option value="has_extra">Has extra</option>
+            <option value="has_repeat">Has repeated words</option>
+            <option value="has_missing">Has missing word</option>
+            <option value="has_wrong">Has wrong words</option>
+            <option value="has_extra">Has extra words</option>
           </select>
         </div>
 
@@ -618,7 +618,6 @@
           <label for="jumpAyahInput" style="font-weight: bold; color: #57d798;">Jump to ayah:</label>
           <input id="jumpAyahInput" type="number" placeholder="Ayah #" min="1"/>
           <button id="jumpAyahBtn" class="small-btn">Jump</button>
-          <button id="backToTopBtn" class="small-btn">Back to top</button>
         </div>
       </div>
     </div>
@@ -661,7 +660,6 @@
   const filterSelect = document.getElementById('filterSelect');
   const jumpAyahInput = document.getElementById('jumpAyahInput');
   const jumpAyahBtn = document.getElementById('jumpAyahBtn');
-  const backToTopBtn = document.getElementById('backToTopBtn');
   const timelineContainer = document.getElementById('timeline');
   const audioUrlInput = document.getElementById('audioUrlInput');
   const audioUrlInfo = document.getElementById('audioUrlInfo');
@@ -859,7 +857,7 @@
     const ambiguous = statusCounts.ambiguous || 0;
 
     statsContainer.innerHTML = `
-      <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total entries</div></div>
+      <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Total Ayahs</div></div>
       <div class="stat-card"><div class="stat-value">${ok}</div><div class="stat-label">Status: ok</div></div>
       <div class="stat-card"><div class="stat-value">${needsReview}</div><div class="stat-label">Needs review</div></div>
       <div class="stat-card"><div class="stat-value">${ambiguous}</div><div class="stat-label">Ambiguous</div></div>
@@ -1099,7 +1097,7 @@
     if (selectedReciter) titleParts.push(`Reciter ${selectedReciter}`);
     if (selectedSurah) titleParts.push(`Surah ${selectedSurah}`);
     const suffix = titleParts.length ? ` - ${titleParts.join(' ')}` : '';
-    document.querySelector('h1').textContent = `STT Validation Timeline${suffix}`;
+    document.querySelector('h1').textContent = `Audio transcription report${suffix}`;
 
     if (sourceLabel) {
       fileNameDisplay.innerHTML = `✓ Loaded: <strong>${escapeHtml(sourceLabel)}</strong>`;
@@ -1200,9 +1198,6 @@
       if (!Number.isFinite(ayahNum) || ayahNum <= 0) return;
       const elem = document.querySelector(`[id^="ayah-${ayahNum}-"]`);
       if (elem) elem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    });
-    backToTopBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 

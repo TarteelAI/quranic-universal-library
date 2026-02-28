@@ -352,7 +352,7 @@ class ExportMushafLayout
 
   CUSTOM_TEXT = {
     # Sajdah marker is with the ayah marker for ayah: 38:24
-    # https://qul.tarteel.ai/admin/mushaf_page_preview?mushaf=2&compare=22&page=454&word=27496
+    # https://qul.tarteel.ai/cms/mushaf_page_preview?page=454&mushaf=2&compare=22&word=27496
     code_v1: {
       '38:24:32': 'ﯩ',
       '38:24:33': 'ﯪﯫ',

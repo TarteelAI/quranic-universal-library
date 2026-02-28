@@ -41,13 +41,16 @@
           </tr>
         <% end %>
 
-          <tr>
-          <td>
-            <%= safe_html pagy_nav_tailwind(pagination) %>
-          </td>
-
-          <td>
-            <%= safe_html pagy_info(pagination) %>
+        <tr>
+          <td colspan="2">
+            <div class="tw-flex tw-items-center tw-py-4">
+              <div class="tw-me-4">
+                <%= safe_html pagy_nav_tailwind(pagination) %>
+              </div>
+              <div>
+                <%= safe_html pagy_info_tailwind(pagination) %>
+              </div>
+            </div>
           </td>
         </tr>
         </tbody>

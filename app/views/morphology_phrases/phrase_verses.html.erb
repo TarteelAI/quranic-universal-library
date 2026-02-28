@@ -12,28 +12,33 @@
   <%= render 'tools/header',
              name: 'Mutashabihat ul Quran',
              title: "Phrase ayahs",
-             key: 'ayah_mutashabihat'
+             key: 'ayah_mutashabihat',
+             help: 'mutashabihat'
   %>
 <% end %>
 
 <div id="body">
   <div class="tw-p-6">
     <% phrase_verses.each_with_index do |phrase_verse, index| %>
-      <div class="quran-text qpc-hafs">
-        <div class="badge tw-bg-green-500">
-          <%= phrase_verse.verse.verse_key %>
+      <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-gray-100 tw-shadow-sm hover:tw-shadow-md tw-transition-shadow">
+        <div class="tw-flex tw-justify-between tw-items-start tw-mb-3">
+          <span class="tw-px-3 tw-py-1 tw-bg-slate-800 tw-text-white tw-text-xs tw-font-bold tw-rounded-full">
+            <%= phrase_verse.verse.verse_key %>
+          </span>
+          
+          <div class="tw-text-xs tw-text-gray-400">
+            <%= phrase_verse.verse.chapter.name_simple %>
+          </div>
         </div>
 
-        <% phrase_verse.verse.words.each do |word| %>
-            <span <%= phrase_style if phrase_verse.highlight_word?(word) %>>
-              <%= word.text_qpc_hafs %>
-            </span>
-        <% end %>
+        <div class="quran-text qpc-hafs tw-text-2xl tw-leading-loose tw-text-right tw-dir-rtl">
+          <% phrase_verse.verse.words.each do |word| %>
+              <span <%= phrase_style if phrase_verse.highlight_word?(word) %>>
+                <%= word.text_qpc_hafs %>
+              </span>
+          <% end %>
+        </div>
       </div>
-
-      <% unless index == phrase_verses.size - 1 %>
-        <hr class="tw-mb-2 tw-mt-2 tw-border-gray-300"/>
-      <% end %>
     <% end %>
   </div>
 </div>

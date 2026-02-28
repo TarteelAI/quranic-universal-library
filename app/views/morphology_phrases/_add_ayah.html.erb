@@ -1,11 +1,18 @@
 <%= turbo_frame_tag 'add-ayah' do %>
-  <div class="tw-mb-4 tw-mb-2">
-    <%= label_tag 'add_ayah_key', 'Add ayah' %>
-    <%= select_tag 'add_ayah_key', options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key)), include_blank: true, class: 'form-control add-suggestion', data: { placeholder: 'Add ayah', controller: 'select2' } %>
-  </div>
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+    <div>
+      <%= label_tag 'add_ayah_key', 'Add ayah', class: 'tw-block tw-text-xs tw-font-bold tw-text-blue-600 tw-uppercase tw-tracking-wider tw-mb-1' %>
+      <%= select_tag 'add_ayah_key', options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key)), include_blank: true, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-blue-200 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-bg-white add-suggestion', data: { placeholder: 'Select ayah to add', controller: 'select2' } %>
+    </div>
 
-  <div class="tw-mb-4 tw-mb-3">
-    <%= label_tag 'Search ayah' %>
-    <%= search_field 'search', '', class: 'form-control search-suggestion', placeholder: 'search using ayah key' %>
+    <div>
+      <%= label_tag 'search', 'Search ayah', class: 'tw-block tw-text-xs tw-font-bold tw-text-blue-600 tw-uppercase tw-tracking-wider tw-mb-1' %>
+      <div class="tw-relative">
+        <div class="tw-absolute tw-inset-y-0 tw-left-0 tw-pl-3 tw-flex tw-items-center tw-pointer-events-none">
+          <i class="fas fa-search tw-text-blue-300 tw-text-xs"></i>
+        </div>
+        <%= search_field 'search', '', class: 'tw-w-full tw-pl-9 tw-px-3 tw-py-2 tw-border tw-border-blue-200 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-bg-white search-suggestion', placeholder: 'search using ayah key (e.g. 1:1)' %>
+      </div>
+    </div>
   </div>
 <% end %>

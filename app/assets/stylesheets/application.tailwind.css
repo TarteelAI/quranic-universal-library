@@ -118,9 +118,70 @@
         @apply tw-bg-blue-600 tw-text-white tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
     }
 
-    .btn-outline-info {
-        @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
-    }
+  .btn-outline-info {
+    @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+  }
+
+  /* Badge Component */
+  .badge {
+    @apply tw-inline-flex tw-items-center tw-justify-center tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-semibold tw-rounded;
+  }
+
+  .badge-default {
+    @apply tw-bg-gray-600 tw-text-white;
+  }
+
+  .badge-success {
+    @apply tw-bg-green-500 tw-text-white;
+  }
+
+  .badge-danger {
+    @apply tw-bg-red-500 tw-text-white;
+  }
+
+  .badge-warning {
+    @apply tw-bg-yellow-500 tw-text-white;
+  }
+
+  .badge-info {
+    @apply tw-bg-blue-500 tw-text-white;
+  }
+
+  .badge-purple {
+    @apply tw-bg-purple-500 tw-text-white;
+  }
+
+  .badge-resource {
+    @apply tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-border-2 tw-border-[#56B599];
+  }
+
+  .badge-pill {
+    @apply tw-rounded-full tw-px-2 tw-py-0.5 tw-text-xs;
+  }
+
+  .badge-outline-default {
+    @apply tw-border tw-border-gray-600 tw-text-gray-600 tw-bg-transparent;
+  }
+
+  .badge-outline-success {
+    @apply tw-border tw-border-green-500 tw-text-green-500 tw-bg-transparent;
+  }
+
+  .badge-outline-danger {
+    @apply tw-border tw-border-red-500 tw-text-red-500 tw-bg-transparent;
+  }
+
+  .badge-outline-warning {
+    @apply tw-border tw-border-yellow-500 tw-text-yellow-500 tw-bg-transparent;
+  }
+
+  .badge-outline-info {
+    @apply tw-border tw-border-blue-500 tw-text-blue-500 tw-bg-transparent;
+  }
+
+  .badge-outline-purple {
+    @apply tw-border tw-border-purple-500 tw-text-purple-500 tw-bg-transparent;
+  }
 }
 
 .resize-handler {

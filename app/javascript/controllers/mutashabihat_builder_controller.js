@@ -63,8 +63,10 @@ export default class extends Controller {
 
   resetSelection(event){
     const ayah = $(event.target).closest('.ayah');
-    ayah.find('.word').removeClass('selected');
-    ayah.find('[data-action=add]').removeClass('active');
+    ayah.find('.word').removeClass('selected removed');
+    ayah.find('[data-action=add]').removeClass('active tw-bg-green-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200');
+    ayah.find('[data-action=remove]').removeClass('active tw-bg-red-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200');
+    ayah.find('.quran-text').removeClass('tw-text-green-600 tw-font-bold tw-text-red-400 tw-line-through');
   }
 
   savePhrase(event) {
@@ -114,29 +116,83 @@ export default class extends Controller {
 
   addWord(event) {
     const wordDom = $(event.target).closest('.word')
-    const selected = wordDom.hasClass('selected')
+    const isShiftClick = event.shiftKey
+    const currentPosition = parseInt(wordDom.data('position'))
+    const ayahId = wordDom.closest('.ayah').data('ayahid')
 
-    if (selected) {
-      wordDom.removeClass('selected')
-      wordDom.find("[data-action=add]").removeClass('active')
+    this.lastWordAction = this.lastWordAction || {}
+
+    if (isShiftClick && this.lastWordAction.ayahId === ayahId && this.lastWordAction.action === 'add') {
+      const start = Math.min(this.lastWordAction.position, currentPosition)
+      const end = Math.max(this.lastWordAction.position, currentPosition)
+      
+      wordDom.closest('.ayah').find('.word').each((i, el) => {
+        const pos = parseInt($(el).data('position'))
+        if (pos >= start && pos <= end) {
+          this.toggleWordState($(el), 'add', true)
+        }
+      })
     } else {
-      wordDom.addClass('selected')
-      wordDom.find("[data-action=add]").addClass('active')
-      wordDom.find("[data-action=remove]").removeClass('active')
+      this.toggleWordState(wordDom, 'add')
     }
+
+    this.lastWordAction = { ayahId, position: currentPosition, action: 'add' }
   }
 
   removeWord(event) {
     const wordDom = $(event.target).closest('.word')
-    const selected = wordDom.hasClass('removed')
+    const isShiftClick = event.shiftKey
+    const currentPosition = parseInt(wordDom.data('position'))
+    const ayahId = wordDom.closest('.ayah').data('ayahid')
 
-    if (selected) {
-      wordDom.removeClass('selected')
-      wordDom.find("[data-action=remove]").removeClass('active')
+    this.lastWordAction = this.lastWordAction || {}
+
+    if (isShiftClick && this.lastWordAction.ayahId === ayahId && this.lastWordAction.action === 'remove') {
+      const start = Math.min(this.lastWordAction.position, currentPosition)
+      const end = Math.max(this.lastWordAction.position, currentPosition)
+      
+      wordDom.closest('.ayah').find('.word').each((i, el) => {
+        const pos = parseInt($(el).data('position'))
+        if (pos >= start && pos <= end) {
+          this.toggleWordState($(el), 'remove', true)
+        }
+      })
     } else {
-      wordDom.addClass('selected')
-      wordDom.find("[data-action=remove]").addClass('active')
-      wordDom.find("[data-action=add]").removeClass('active')
+      this.toggleWordState(wordDom, 'remove')
+    }
+
+    this.lastWordAction = { ayahId, position: currentPosition, action: 'remove' }
+  }
+
+  toggleWordState(wordDom, actionType, forceEnable = false) {
+    const addIcon = wordDom.find("[data-action=add]")
+    const removeIcon = wordDom.find("[data-action=remove]")
+    const textSpan = wordDom.find(".quran-text")
+
+    if (actionType === 'add') {
+      const selected = wordDom.hasClass('selected')
+      if (selected && !forceEnable) {
+        wordDom.removeClass('selected')
+        addIcon.removeClass('active tw-bg-green-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
+        textSpan.removeClass('tw-text-green-600 tw-font-bold')
+      } else {
+        wordDom.addClass('selected').removeClass('removed')
+        addIcon.addClass('active tw-bg-green-500 tw-text-white').removeClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
+        removeIcon.removeClass('active tw-bg-red-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
+        textSpan.addClass('tw-text-green-600 tw-font-bold').removeClass('tw-text-red-400 tw-line-through')
+      }
+    } else if (actionType === 'remove') {
+      const removed = wordDom.hasClass('removed')
+      if (removed && !forceEnable) {
+        wordDom.removeClass('removed')
+        removeIcon.removeClass('active tw-bg-red-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
+        textSpan.removeClass('tw-text-red-400 tw-line-through')
+      } else {
+        wordDom.addClass('removed').removeClass('selected')
+        removeIcon.addClass('active tw-bg-red-500 tw-text-white').removeClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
+        addIcon.removeClass('active tw-bg-green-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
+        textSpan.addClass('tw-text-red-400 tw-line-through').removeClass('tw-text-green-600 tw-font-bold')
+      }
     }
   }
 

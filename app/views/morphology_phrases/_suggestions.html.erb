@@ -11,6 +11,25 @@
       <%= f.hidden_field :phrase_id, value: @phrase&.id %>
 
       <div class="page-section tw-mt-6">
+        <!-- Info Banner -->
+        <div class="tw-bg-blue-50 tw-border-l-4 tw-border-blue-500 tw-p-4 tw-mb-6 tw-rounded-r-lg tw-shadow-sm">
+          <div class="tw-flex tw-items-start">
+            <div class="tw-flex-shrink-0">
+              <i class="fas fa-info-circle tw-text-blue-500 tw-mt-0.5"></i>
+            </div>
+            <div class="tw-ml-3">
+              <h3 class="tw-text-sm tw-font-bold tw-text-blue-800">Pro Tip: Select a Range of Words</h3>
+              <div class="tw-mt-1 tw-text-sm tw-text-blue-700">
+                <ul class="tw-list-disc tw-list-inside tw-space-y-1">
+                  <li>Click the <i class="fa-solid fa-plus tw-text-[10px] tw-w-4 tw-h-4 tw-inline-flex tw-items-center tw-justify-center tw-rounded-full tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200"></i> (Include) or <i class="fa-solid fa-xmark tw-text-[10px] tw-w-4 tw-h-4 tw-inline-flex tw-items-center tw-justify-center tw-rounded-full tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200"></i> (Exclude) button on the start word.</li>
+                  <li>Hold down the <strong>Shift key</strong> and click the same button on your end word.</li>
+                  <li>The entire range of words between them will instantly update!</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Source Selection Card -->
         <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-6 tw-mb-6 tw-sticky tw-top-4 tw-z-30">
           <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4 tw-flex tw-items-center">

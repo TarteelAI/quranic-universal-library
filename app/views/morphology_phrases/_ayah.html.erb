@@ -74,12 +74,12 @@
           selected = w.position >= range[0] && w.position <= range[1]
           skipped = skipped_words.include?(w.position)
         %>
-        <div class="tw-flex tw-flex-col tw-items-center tw-px-2 tw-relative tw-group"
+        <div class="word tw-flex tw-flex-col tw-items-center tw-px-2 tw-relative tw-group <%= 'selected' if selected %> <%= 'removed' if skipped %>"
              data-position="<%= w.position %>">
           
           <% if @access %>
             <div class="tw-absolute -tw-top-5 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity tw-flex tw-gap-1 tw-z-10">
-              <i class="fa-solid fa-xmark tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= skipped ? 'tw-bg-red-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-red-500 hover:tw-text-white hover:tw-border-red-500' %> tw-shadow-sm"
+              <i class="fa-solid fa-xmark tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= skipped ? 'active tw-bg-red-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-red-500 hover:tw-text-white hover:tw-border-red-500' %> tw-shadow-sm"
                  data-action="remove"
                  title="Exclude"
                  data-controller="tooltip"></i>
@@ -87,7 +87,7 @@
               <i data-action="add"
                  title="Include"
                  data-controller="tooltip"
-                 class="fa-solid fa-plus tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= selected ? 'tw-bg-green-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-green-500 hover:tw-text-white hover:tw-border-green-500' %> tw-shadow-sm">
+                 class="fa-solid fa-plus tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= selected ? 'active tw-bg-green-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-green-500 hover:tw-text-white hover:tw-border-green-500' %> tw-shadow-sm">
               </i>
             </div>
           <% end %>

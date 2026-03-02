@@ -38,6 +38,18 @@ QUL is implemented using Ruby on Rails, and Active Admin for implementing the ad
 - Import Data: Import data from different sources.
 - Quranic grammar and morphology: Manage Quranic grammar and morphology data.
 
+## Documentation
+Start with the docs index: [docs/README.md](docs/README.md)
+
+- Getting Started: [docs/getting-started.md](docs/getting-started.md)
+- Downloading Data: [docs/downloading-data.md](docs/downloading-data.md)
+- Data Model: [docs/data-model.md](docs/data-model.md)
+- Datasets: [docs/datasets.md](docs/datasets.md)
+- Tutorials: [docs/tutorials.md](docs/tutorials.md)
+- Best Practices: [docs/best-practices.md](docs/best-practices.md)
+- Contributing: [docs/contributing.md](docs/contributing.md)
+- FAQ: [docs/faq.md](docs/faq.md)
+
 ## Setup Guide
 This guide will help you set up the QUL project on your local machine. Follow the steps below to get started.
 

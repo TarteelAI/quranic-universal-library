@@ -5,9 +5,10 @@ module V1
                .translations
                .approved
                .one_verse
+               .includes(:language)
                .order(priority: :asc, id: :asc)
 
-      process_results(list)
+      process_results(list).select { |resource| translation_resource_usable?(resource) }
     end
 
     def word_translations
@@ -24,9 +25,10 @@ module V1
       list = ResourceContent
                .tafsirs
                .approved
+               .includes(:language)
                .order(priority: :asc, id: :asc)
 
-      process_results(list)
+      process_results(list).select { |resource| tafsir_resource_usable?(resource) }
     end
 
     def languages
@@ -69,6 +71,42 @@ module V1
     def process_results(records, resource_type: ResourceContent)
       records = apply_language_filter(records, resource_type: resource_type)
       eager_load_best_names(records, resource_type: resource_type)
+    end
+
+    def translation_resource_usable?(resource)
+      slug = resource.slug.to_s.strip
+      return false if slug.blank?
+
+      language_code = resource.language&.iso_code.to_s.strip.downcase
+      return false if language_code.blank?
+
+      slug_matches_language?(slug, language_code)
+    end
+
+    def tafsir_resource_usable?(resource)
+      slug = resource.slug.to_s.strip
+      return false if slug.blank?
+
+      language_code = resource.language&.iso_code.to_s.strip.downcase
+      return false if language_code.blank?
+      return false if resource.records_count.to_i <= 0
+
+      slug_matches_language?(slug, language_code)
+    end
+
+    def slug_matches_language?(slug, language_code)
+      normalized_slug = slug.to_s.downcase.strip
+      return false if normalized_slug.blank?
+      return false if language_code.blank?
+
+      if normalized_slug.start_with?('quran.')
+        return normalized_slug.include?(".#{language_code}.")
+      end
+
+      prefix = normalized_slug[/\A([a-z]{2,3})(?:[-_\.])/, 1]
+      return true if prefix.blank?
+
+      prefix == language_code
     end
 
     def apply_language_filter(resources, resource_type:)

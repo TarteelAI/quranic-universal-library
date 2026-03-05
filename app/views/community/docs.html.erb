@@ -18,9 +18,11 @@
     </div>
   <% end %>
 
-  <% if tag = DownloadableResourceTag.find_by(slug: params[:key]) %>
-    <%= render partial: "docs/tag", locals: { tag: tag } %>
-  <% else %>
-    <%= render partial: "docs/#{params[:key]}" if lookup_context.exists?("docs/#{params[:key]}", [], true)%>
+  <% if @docs_source == :markdown %>
+    <%= render "community/docs_markdown", docs_page: @docs_page %>
+  <% elsif @docs_source == :tag %>
+    <%= render partial: "docs/tag", locals: { tag: @docs_tag } %>
+  <% elsif @docs_source == :partial %>
+    <%= render partial: "docs/#{@docs_partial}" %>
   <% end %>
 </div>

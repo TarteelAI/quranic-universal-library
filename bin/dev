@@ -1,12 +1,30 @@
 #!/usr/bin/env sh
 
-if ! gem list foreman -i --silent; then
+set -eu
+
+APP_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$APP_ROOT"
+
+. "$APP_ROOT/bin/dev-env"
+
+if [ -f ".ruby-version" ]; then
+  REQUIRED_RUBY="$(cat .ruby-version)"
+  CURRENT_RUBY="$(ruby -e 'print RUBY_VERSION' 2>/dev/null || true)"
+
+  if [ "${CURRENT_RUBY}" != "${REQUIRED_RUBY}" ]; then
+    echo "Error: expected Ruby ${REQUIRED_RUBY} for this repo, but found ${CURRENT_RUBY:-unknown}."
+    echo "Run with rbenv enabled, then retry bin/dev."
+    exit 1
+  fi
+fi
+
+if ! command -v foreman >/dev/null 2>&1; then
   echo "Installing foreman..."
   gem install foreman
 fi
 
-# Default to port 3000 if not specified
-export PORT="${PORT:-3000}"
+# Default to port 3001 if not specified
+export PORT="${PORT:-3001}"
 
 # Let the debug gem allow remote connections,
 # but avoid loading until `debugger` is called

@@ -1,20 +1,34 @@
 # Best Practices
 
-## For New Users
+## Data and Schema
 
-- Start with the mini dump, not custom data.
-- Validate DB restore before debugging app code.
-- Keep local setup notes (Ruby, PG port, env vars) for repeatability.
+- Keep `surah_id`, `ayah_number`, and `word_position` as integers.
+- Add indexes for `surah_id + ayah_number` in verse-level tables.
+- Keep translations and tafsir in separate tables to support multiple sources and languages.
+- Avoid duplicating large text blobs when ID-based references are enough.
 
-## For Contributors
+## Performance
 
-- Use feature branches; avoid committing directly to `main`.
-- Keep PRs focused (docs-only, migration-only, feature-only when possible).
-- Write migration code to be idempotent when practical (`if_exists`, `if_not_exists`).
-- If a migration touches `quran_dev`, verify state against existing dump schema.
+- Cache frequently requested verse and tafsir payloads.
+- Use SQLite/PostgreSQL for large datasets instead of in-memory-only workflows.
+- Stream large JSON files instead of loading them entirely.
+- Benchmark expensive joins on morphology/topic workloads.
 
-## For Documentation
+## Data Quality and Validation
 
-- Prefer explicit commands over abstract instructions.
-- Include likely failure cases and exact fixes.
-- Keep new-user path first; put advanced details after.
+- Validate required keys (`surah_id`, `ayah_number`, `word_position`) early.
+- Keep a small verification script to test joins across selected resource categories.
+- Confirm UTF-8 handling in your runtime, storage, and API outputs.
+- Track dataset source/version in your metadata for traceability.
+
+## Documentation Quality
+
+- Keep setup commands copy/paste ready.
+- Put new-user steps before advanced implementation details.
+- Include likely failure cases and exact remediation commands.
+- Keep GitHub markdown files as canonical content for website docs.
+
+## Change Management
+
+- Keep pull requests focused by concern (docs, integrations, feature).
+- Add concise release notes when docs change user-facing resource workflows.

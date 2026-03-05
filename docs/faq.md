@@ -1,33 +1,38 @@
 # FAQ
 
-## Do I need the full production database?
+## Is there an API?
 
-No. Use the official **mini development dump**. Full production dump is not shared.
+QUL primarily provides downloadable datasets. Integrators usually package data into their own API or database layer.
 
-## Should I use SQL or binary dump?
+## Do I need to clone this repository to use QUL resources?
 
-Start with binary. If your `pg_restore` client cannot read it, use SQL dump.
+No. Most users can work directly from downloadable resources at [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources).
 
-## Why do I see migration conflicts like duplicate columns/tables?
+## Should I choose JSON or SQLite?
 
-The dump can already contain schema changes that also exist as migrations. Validate actual schema state before applying destructive fixes.
+- JSON: best for quick scripts and prototypes.
+- SQLite: best for larger datasets and query-heavy applications.
 
-## Which PostgreSQL version should I use?
+## How do I join different resources together?
 
-PostgreSQL `14.3+` is supported. If multiple versions are installed locally, set `PGPORT` (and optionally `PGHOST`) explicitly.
+Start with shared identifiers:
 
-## I run `bin/dev` and it fails with `foreman` missing.
+- `surah_id`
+- `ayah_number`
+- `word_position` (for word-level resources)
 
-Install foreman in the active Ruby:
+See [data-model.md](data-model.md) for join guidance.
 
-```bash
-gem install foreman
-```
+## What should I do if data looks wrong or missing?
 
-## App boots but some pages fail
+Open an issue with:
 
-Check:
+- resource URL
+- format (JSON/SQLite)
+- exact identifiers involved
+- expected vs actual output
+- minimal reproducible snippet
 
-1. Mini dump restore completed without errors.
-2. `rails db:migrate` and `rails db:seed` finished.
-3. Redis and PostgreSQL are running.
+## Can I use QUL data commercially?
+
+Check repository license terms and dataset-specific licensing details before production use.

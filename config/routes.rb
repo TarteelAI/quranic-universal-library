@@ -56,6 +56,7 @@ Rails.application.routes.draw do
   get 'tools', to: 'community#tools', as: :tools
   get :quran_scripts_comparison, to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
   get 'ayah-boundaries', to: 'community#ayah_boundaries', as: :ayah_boundaries
+  get 'docs', to: 'community#docs_index', as: :docs_index
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info

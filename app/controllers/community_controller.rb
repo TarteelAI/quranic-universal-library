@@ -24,6 +24,27 @@ class CommunityController < ApplicationController
   end
 
   def docs
+    docs_page_service = DocsPageService.new
+    @docs_page = docs_page_service.find(params[:key])
+
+    if @docs_page.present?
+      @docs_source = :markdown
+    elsif (@docs_tag = DownloadableResourceTag.find_by(slug: params[:key]))
+      @docs_source = :tag
+    elsif docs_partial_exists?(params[:key])
+      @docs_source = :partial
+      @docs_partial = params[:key]
+    else
+      raise ActionController::RoutingError, "Not Found"
+    end
+
+    render layout: false if request.xhr?
+  end
+
+  def docs_index
+    @docs_page = DocsPageService.new.readme
+    raise ActionController::RoutingError, "Not Found" unless @docs_page.present?
+
     render layout: false if request.xhr?
   end
 
@@ -81,5 +102,11 @@ class CommunityController < ApplicationController
 
   def init_presenter
     @presenter = CommunityPresenter.new(self)
+  end
+
+  def docs_partial_exists?(key)
+    return false unless key.to_s.match?(/\A[a-z0-9_-]+\z/)
+
+    lookup_context.exists?("docs/#{key}", [], true)
   end
 end

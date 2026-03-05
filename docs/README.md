@@ -1,19 +1,37 @@
 # QUL Documentation
 
-This documentation is optimized for first-time users and contributors who want to run QUL locally and understand how data flows through the project.
+Use this documentation to discover, download, and integrate QUL resources in your own app or research workflow.
 
-## Start Here
+You do not need to run the QUL CMS locally to use most QUL datasets.
 
-1. [Getting Started](getting-started.md)
-2. [Downloading Data](downloading-data.md)
-3. [Data Model](data-model.md)
-4. [Datasets](datasets.md)
-5. [Tutorials](tutorials.md)
-6. [Best Practices](best-practices.md)
-7. [Contributing](contributing.md)
-8. [FAQ](faq.md)
+The pages here are published on the website at `/docs` and mirrored in the repository for versioned updates.
 
 ## Audience
 
-- New users: set up quickly and run the app with the mini dump.
-- Developers: understand DB boundaries, workflows, and contribution paths.
+- Resource users downloading datasets from QUL.
+- Developers and researchers integrating QUL datasets.
+- Contributors preparing documentation and code pull requests.
+
+## Resource Users (Primary)
+
+1. [Getting Started](getting-started.md)
+2. [Downloading and Using Data](downloading-data.md)
+3. [Resource Guides Index](resource-guides-index.md)
+4. [Datasets](datasets.md)
+5. [Data Model](data-model.md)
+6. [Tutorials](tutorials.md)
+7. [FAQ](faq.md)
+
+## Documentation Maintenance (Secondary)
+
+1. [Resource Guide Template](resource-guide-template.md)
+2. [Best Practices](best-practices.md)
+3. [Contributing](contributing.md)
+
+## Primary Links
+
+- Project home: [https://qul.tarteel.ai/](https://qul.tarteel.ai/)
+- Resources directory: [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
+- Source code: [https://github.com/TarteelAI/quranic-universal-library](https://github.com/TarteelAI/quranic-universal-library)
+- Issues: [https://github.com/TarteelAI/quranic-universal-library/issues](https://github.com/TarteelAI/quranic-universal-library/issues)
+- Community Discord: [https://discord.gg/HAcGh8mfmj](https://discord.gg/HAcGh8mfmj)

@@ -1,35 +1,46 @@
 # Contributing
 
-## Basic Flow
+Thanks for helping improve QUL.
 
-1. Fork repository on GitHub.
+## Where to Contribute
+
+- Repository: [https://github.com/TarteelAI/quranic-universal-library](https://github.com/TarteelAI/quranic-universal-library)
+- Issues: [https://github.com/TarteelAI/quranic-universal-library/issues](https://github.com/TarteelAI/quranic-universal-library/issues)
+
+## Standard Flow
+
+1. Fork the repository.
 2. Clone your fork.
-3. Add upstream remote:
+3. Add upstream remote.
+4. Create a feature branch.
+5. Make focused changes.
+6. Push branch and open PR.
 
 ```bash
+git clone https://github.com/YOUR-USERNAME/quranic-universal-library.git
+cd quranic-universal-library
 git remote add upstream https://github.com/TarteelAI/quranic-universal-library.git
+git switch -c docs/your-topic
 ```
 
-4. Create branch:
+## Documentation Contributions
 
-```bash
-git switch -c docs/your-change
-```
+- Edit files in `docs/` first (source of truth).
+- Ensure links are valid in both GitHub and website docs rendering.
+- Update root `README.md` only when entrypoint links or quick-start instructions change.
 
-5. Make changes, commit, push, open PR to `TarteelAI/quranic-universal-library`.
+## Reporting Data Issues
 
-## Keep Your Fork Updated
+When opening an issue for dataset problems, include:
 
-```bash
-git fetch upstream
-git switch main
-git merge upstream/main
-git push origin main
-```
+- Dataset URL and format (JSON/SQLite)
+- Exact identifiers (`surah_id`, `ayah_number`, `word_position` when relevant)
+- Expected vs actual output
+- Minimal reproducible snippet
 
-## Documentation PR Checklist
+## PR Checklist
 
-- Docs are clear for first-time users.
-- All commands are copy-paste ready.
-- Root `README.md` links to any new docs page.
-- Spelling and link checks are done.
+- Scope is clear and focused.
+- Commands in docs were re-validated.
+- New user onboarding path remains intact.
+- Backward-compatible website docs behavior is preserved.

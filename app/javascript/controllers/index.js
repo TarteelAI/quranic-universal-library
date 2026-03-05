@@ -221,3 +221,6 @@ application.register("offcanvas-reset", OffcanvasResetController);
 
 import OffcanvasController from "./offcanvas_controller.js";
 application.register("offcanvas", OffcanvasController);
+
+import DocsCodeController from "./docs_code_controller.js";
+application.register("docs-code", DocsCodeController);

@@ -72,10 +72,10 @@
     }
 
     .tw-docs pre {
-        @apply tw-p-4 tw-rounded-md tw-overflow-x-auto;
-        background-color: #ecf0f1;
-        font-size: 1.1em;
-        color: #2c3e50;
+        @apply tw-p-4 tw-overflow-x-auto;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        font-size: 0.95rem;
     }
 
     .tw-docs code {
@@ -83,6 +83,59 @@
         background-color: #ecf0f1;
         font-family: "Courier New", monospace;
         color: #2c3e50;
+    }
+
+    .tw-docs pre code {
+        @apply tw-p-0 tw-bg-transparent tw-rounded-none;
+        color: inherit;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .tw-docs-code-block,
+    .tw-docs-playground {
+        @apply tw-my-6 tw-overflow-hidden tw-rounded-xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-sm;
+    }
+
+    .tw-docs-code-header {
+        @apply tw-flex tw-items-center tw-justify-between tw-gap-2 tw-bg-gray-900 tw-px-3 tw-py-2 tw-text-gray-100;
+    }
+
+    .tw-docs-code-language {
+        @apply tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide;
+    }
+
+    .tw-docs-code-actions {
+        @apply tw-flex tw-items-center tw-gap-2;
+    }
+
+    .tw-docs-code-button {
+        @apply tw-rounded tw-border-0 tw-bg-gray-700 tw-px-2 tw-py-1 tw-text-xs tw-font-medium tw-text-gray-100 hover:tw-bg-gray-600;
+    }
+
+    .tw-docs-playground-grid {
+        @apply tw-grid xl:tw-grid-cols-2;
+    }
+
+    .tw-docs-playground-pane {
+        @apply tw-flex tw-flex-col tw-bg-white;
+    }
+
+    .tw-docs-playground-pane + .tw-docs-playground-pane {
+        @apply tw-border-t tw-border-gray-200 xl:tw-border-l xl:tw-border-t-0;
+    }
+
+    .tw-docs-playground-label {
+        @apply tw-bg-gray-50 tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-gray-500;
+    }
+
+    .tw-docs-playground-editor {
+        @apply tw-min-h-[340px] lg:tw-min-h-[420px] tw-w-full tw-resize-y tw-border-0 tw-p-4 tw-font-mono tw-text-[13px] tw-leading-6 focus:tw-ring-2 focus:tw-ring-blue-500;
+        tab-size: 2;
+        background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to bottom, #f8fafc, #f1f5f9) border-box;
+    }
+
+    .tw-docs-playground-preview {
+        @apply tw-min-h-[340px] lg:tw-min-h-[420px] tw-w-full tw-border-0 tw-bg-white;
     }
 
     .tw-docs .example {

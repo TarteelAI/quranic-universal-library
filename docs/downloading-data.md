@@ -1,51 +1,84 @@
-# Downloading Data
+# Downloading and Using Data
 
-QUL development uses a **mini dump** (not full production data).
+Use this guide when consuming QUL data in your own application or research pipeline.
 
-## Available Dumps
+Resources directory: [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
 
-- SQL dump zip: `https://static-cdn.tarteel.ai/qul/mini-dumps/mini_quran_dev.sql.zip`
-- Binary dump zip: `https://static-cdn.tarteel.ai/qul/mini-dumps/mini_quran_dev.dump.zip`
+Many resources are available in:
 
-As of **July 28, 2025**:
+- JSON: simple integration, scripts, prototypes
+- SQLite: better for larger datasets and query-heavy workflows
 
-- SQL zip size: ~`202 MB`
-- Binary zip size: ~`131 MB`
+SQLite docs: [https://www.sqlite.org/docs.html](https://www.sqlite.org/docs.html)
 
-## Option A: SQL Restore
+## Typical Integration Workflow
 
-```bash
-unzip mini_quran_dev.sql.zip
-psql -d quran_dev -f mini_quran_dev.sql
+1. Select a dataset from `/resources`.
+2. Download JSON or SQLite.
+3. Inspect keys (`surah_id`, `ayah_number`, `word_position`, etc.).
+4. Load into your runtime.
+5. Import into your database for production workloads.
+6. Add indexes on high-traffic query keys.
+
+## Load Examples
+
+### JavaScript
+
+```javascript
+const fs = require("fs")
+const data = JSON.parse(fs.readFileSync("data.json", "utf8"))
+console.log(data[0])
 ```
 
-## Option B: Binary Restore
+### Python
 
-```bash
-unzip mini_quran_dev.dump.zip
-pg_restore --no-owner --no-privileges --no-tablespaces --no-acl --dbname quran_dev -v mini_quran_dev.dump
+```python
+import json
+
+with open("data.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+print(data[0])
 ```
 
-## Recommended Choice
+### Ruby
 
-- Use **binary dump** first (typically faster restore).
-- If binary restore fails due to format/client mismatch, use **SQL dump**.
+```ruby
+require "json"
 
-## Validation
-
-After restore:
-
-```bash
-psql -d quran_dev -c "SELECT COUNT(*) FROM quran.verses;"
+data = JSON.parse(File.read("data.json"))
+puts data.first
 ```
 
-You should see a non-zero count.
+## Performance Tips
+
+- Index by `surah_id` + `ayah_number`.
+- For large datasets, prefer SQLite or PostgreSQL over in-memory JSON processing.
+- Cache frequently accessed verses/tafsir payloads.
+- Stream very large JSON files instead of loading full files into memory.
 
 ## Troubleshooting
 
-- `unsupported version ... in file header`:
-  - Use a newer `pg_restore` client (or use SQL dump).
-- `role ... does not exist` during SQL restore:
-  - Create the missing role, or edit dump ownership statements if needed.
-- `schema "quran" does not exist`:
-  - Ensure the restore completed successfully.
+- Download is slow/fails: retry with a stable connection and verify file size after download.
+- Schema mismatch in your app: inspect fields first and map keys explicitly.
+- Encoding issues: ensure UTF-8 handling in runtime and database.
+- Memory issues on large files: prefer SQLite or stream JSON.
+
+## When to Request Updates or Changes
+
+Open a GitHub issue when:
+
+- download links are broken
+- files are missing expected records
+- key mappings are inconsistent
+- you need coverage not available in current packages
+
+Include:
+
+- resource URL
+- chosen format (JSON/SQLite)
+- identifiers involved (`surah_id`, `ayah_number`, `word_position` if relevant)
+- expected vs actual behavior
+- a minimal reproducible snippet
+
+Issue tracker: [https://github.com/TarteelAI/quranic-universal-library/issues](https://github.com/TarteelAI/quranic-universal-library/issues)

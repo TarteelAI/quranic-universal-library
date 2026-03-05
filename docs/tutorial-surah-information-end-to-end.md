@@ -211,11 +211,23 @@ const surahInfoById = {
 };
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Surah Info Preview</h3>
   <p style="margin:0 0 12px;color:#475569;">Render short + detailed chapter context before ayah content</p>
-  <label style="display:block;margin-bottom:6px;font-weight:600;">Jump to Surah</label>
-  <select id="surah" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+  <label for="surah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Surah</label>
+  <select id="surah" style="${dropdownStyle}">
     <option value="1">1</option>
     <option value="36">36</option>
   </select>

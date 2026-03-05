@@ -125,11 +125,23 @@ const surahById = new Map(surahs.map((s) => [s.surah_id, s]));
 const juzByNumber = new Map(juzRanges.map((j) => [j.juz_number, j]));
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Quran Metadata Preview (Browse by Juz)</h3>
   <p style="margin:0 0 12px;color:#475569;">Resolve ayah ranges and boundary surahs from metadata</p>
-  <label style="display:block;margin-bottom:6px;font-weight:600;">Select Juz</label>
-  <select id="juz" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;"></select>
+  <label for="juz" style="display:block;margin-bottom:8px;font-weight:600;">Select Juz</label>
+  <select id="juz" style="${dropdownStyle}"></select>
   <div id="result" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;"></div>
 `;
 

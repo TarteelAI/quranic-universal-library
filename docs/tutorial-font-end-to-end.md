@@ -139,9 +139,10 @@ const fontPresets = {
     fontSize: "1.24rem"
   },
   "System fallback": {
-    family: "'Noto Naskh Arabic','Geeza Pro','Tahoma','Arial',serif",
-    candidates: ["Noto Naskh Arabic", "Geeza Pro", "Tahoma", "Arial"],
-    label: "System-safe fallback stack",
+    // First font name is intentionally fake to force fallback behavior in demo.
+    family: "'QUL Missing Font Demo','Noto Naskh Arabic','Geeza Pro','Tahoma','Arial',serif",
+    candidates: ["QUL Missing Font Demo", "Noto Naskh Arabic", "Geeza Pro", "Tahoma", "Arial"],
+    label: "System-safe fallback stack (forced fallback demo)",
     accent: "#7c2d12",
     letterSpacing: "0.25px",
     fontSize: "1.2rem"
@@ -171,17 +172,12 @@ app.innerHTML = `
   </select>
   <label for="stack" style="display:block;margin-bottom:8px;font-weight:600;">Font Stack</label>
   <select id="stack" style="${dropdownStyle}"></select>
-  <label for="simulate-missing" style="display:block;margin:0 0 10px;color:#334155;">
-    <input id="simulate-missing" type="checkbox" />
-    Simulate missing primary font (force fallback step)
-  </label>
   <div id="status" style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;font-size:0.92rem;"></div>
   <div id="verse" dir="rtl" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;text-align:right;font-size:1.25rem;line-height:2;"></div>
 `;
 
 const ayahSelect = app.querySelector("#ayah");
 const stackSelect = app.querySelector("#stack");
-const simulateMissingToggle = app.querySelector("#simulate-missing");
 const statusBox = app.querySelector("#status");
 const verseBox = app.querySelector("#verse");
 
@@ -197,12 +193,7 @@ const render = () => {
   const preset = fontPresets[stackSelect.value];
   if (!preset) return;
 
-  const simulateMissingPrimary = simulateMissingToggle.checked;
-  const requestedFamily = simulateMissingPrimary
-    ? `'QUL Missing Primary Demo',${preset.family}`
-    : preset.family;
-
-  verseBox.style.fontFamily = requestedFamily;
+  verseBox.style.fontFamily = preset.family;
   verseBox.style.fontSize = preset.fontSize;
   verseBox.style.letterSpacing = preset.letterSpacing;
   verseBox.style.borderColor = preset.accent;
@@ -218,20 +209,23 @@ const render = () => {
   const availability = supportsFontCheck
     ? `Installed fonts detected: QPC HAFS = ${qpcLoaded ? "yes" : "no"}, Amiri Quran = ${amiriLoaded ? "yes" : "no"}`
     : "Font availability check is not supported in this browser.";
+  const forcedFallbackNote =
+    stackSelect.value === "System fallback"
+      ? "Yes (first requested font is intentionally missing)."
+      : "No.";
 
   statusBox.innerHTML = `
     <strong>Active preset:</strong> ${stackSelect.value}<br />
     <strong>Applied:</strong> ${preset.label}<br />
     <strong>Requested stack:</strong> ${preset.candidates.join(" -> ")} -> serif<br />
     <strong>Likely active font:</strong> ${likelyFont}<br />
-    <strong>Simulated missing primary:</strong> ${simulateMissingPrimary ? "on" : "off"}<br />
+    <strong>Forced fallback demo:</strong> ${forcedFallbackNote}<br />
     ${availability}
   `;
 };
 
 ayahSelect.addEventListener("change", render);
 stackSelect.addEventListener("change", render);
-simulateMissingToggle.addEventListener("change", render);
 stackSelect.value = "qpc-hafs (with fallbacks)";
 render();
 ```

@@ -173,13 +173,35 @@ app.innerHTML = `
   <label for="stack" style="display:block;margin-bottom:8px;font-weight:600;">Font Stack</label>
   <select id="stack" style="${dropdownStyle}"></select>
   <div id="status" style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;font-size:0.92rem;"></div>
-  <div id="verse" dir="rtl" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;text-align:right;font-size:1.25rem;line-height:2;"></div>
+  <div id="verse" style="direction:rtl;padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;text-align:right;font-size:1.25rem;line-height:2;"></div>
 `;
 
 const ayahSelect = app.querySelector("#ayah");
 const stackSelect = app.querySelector("#stack");
 const statusBox = app.querySelector("#status");
 const verseBox = app.querySelector("#verse");
+
+// Canvas-based heuristic to detect whether a font appears available.
+// Browsers do not provide a perfect "actual rendered font" API.
+const fontSeemsAvailable = (fontName) => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
+
+  const probe = "بِسۡمِ ٱللَّهِ";
+  const size = "32px";
+  ctx.font = `${size} monospace`;
+  const monoWidth = ctx.measureText(probe).width;
+  ctx.font = `${size} serif`;
+  const serifWidth = ctx.measureText(probe).width;
+
+  ctx.font = `${size} "${fontName}", monospace`;
+  const withMono = ctx.measureText(probe).width;
+  ctx.font = `${size} "${fontName}", serif`;
+  const withSerif = ctx.measureText(probe).width;
+
+  return withMono !== monoWidth || withSerif !== serifWidth;
+};
 
 Object.keys(fontPresets).forEach((label) => {
   const opt = document.createElement("option");
@@ -199,16 +221,14 @@ const render = () => {
   verseBox.style.borderColor = preset.accent;
   verseBox.style.boxShadow = `inset 0 0 0 1px ${preset.accent}22`;
 
-  const supportsFontCheck = typeof document.fonts?.check === "function";
-  const installedFonts = supportsFontCheck
-    ? preset.candidates.filter((fontName) => document.fonts.check(`16px "${fontName}"`))
-    : [];
-  const likelyFont = installedFonts[0] || "browser default serif";
-  const qpcLoaded = supportsFontCheck ? document.fonts.check('16px "KFGQPC Uthmanic Script HAFS"') : false;
-  const amiriLoaded = supportsFontCheck ? document.fonts.check('16px "Amiri Quran"') : false;
-  const availability = supportsFontCheck
-    ? `Installed fonts detected: QPC HAFS = ${qpcLoaded ? "yes" : "no"}, Amiri Quran = ${amiriLoaded ? "yes" : "no"}`
-    : "Font availability check is not supported in this browser.";
+  const availableCandidates = preset.candidates.filter((fontName) =>
+    fontName === "QUL Missing Font Demo" ? false : fontSeemsAvailable(fontName)
+  );
+  const likelyFont = availableCandidates[0] || "browser default serif";
+  const availability =
+    availableCandidates.length > 0
+      ? availableCandidates.join(", ")
+      : "none (browser default serif likely)";
   const forcedFallbackNote =
     stackSelect.value === "System fallback"
       ? "Yes (first requested font is intentionally missing)."
@@ -218,9 +238,10 @@ const render = () => {
     <strong>Active preset:</strong> ${stackSelect.value}<br />
     <strong>Applied:</strong> ${preset.label}<br />
     <strong>Requested stack:</strong> ${preset.candidates.join(" -> ")} -> serif<br />
-    <strong>Likely active font:</strong> ${likelyFont}<br />
+    <strong>Likely active font (heuristic):</strong> ${likelyFont}<br />
+    <strong>Detected available candidates (heuristic):</strong> ${availability}<br />
     <strong>Forced fallback demo:</strong> ${forcedFallbackNote}<br />
-    ${availability}
+    <strong>Browser computed font-family:</strong> ${window.getComputedStyle(verseBox).fontFamily}
   `;
 };
 

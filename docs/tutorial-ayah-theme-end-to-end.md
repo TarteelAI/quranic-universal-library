@@ -119,19 +119,28 @@ const findTheme = (surah, ayah) =>
   themeRows.find((r) => r.surah_number === surah && ayah >= r.ayah_from && ayah <= r.ayah_to) || null;
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Ayah Theme Preview</h3>
   <p style="margin:0 0 12px;color:#475569;">Resolve thematic summary by ayah range</p>
   <div style="margin-bottom:12px;">
-    <label for="ayah" style="display:block;margin-bottom:6px;font-weight:700;color:#0f172a;">Jump to Ayah</label>
-    <div style="position:relative;max-width:240px;">
-      <select id="ayah" style="width:100%;appearance:none;-webkit-appearance:none;margin:0;padding:10px 38px 10px 12px;border:1px solid #94a3b8;border-radius:10px;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);color:#0f172a;font-weight:600;box-shadow:0 1px 2px rgba(15,23,42,0.08);cursor:pointer;outline:none;">
-        <option value="1:1">1:1</option>
-        <option value="1:7">1:7</option>
-        <option value="73:4">73:4</option>
-      </select>
-      <span aria-hidden="true" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#475569;font-size:12px;pointer-events:none;">▼</span>
-    </div>
+    <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Ayah</label>
+    <select id="ayah" style="${dropdownStyle}">
+      <option value="1:1">1:1</option>
+      <option value="1:7">1:7</option>
+      <option value="73:4">73:4</option>
+    </select>
     <div style="margin-top:4px;font-size:12px;color:#64748b;">Pick an ayah to resolve its theme range.</div>
   </div>
   <div id="theme" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;"></div>

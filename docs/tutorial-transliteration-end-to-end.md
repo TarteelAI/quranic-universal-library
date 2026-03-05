@@ -119,11 +119,23 @@ const transliterationByAyah = {
 };
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Transliteration Preview</h3>
   <p style="margin:0 0 12px;color:#475569;">Switch between Arabic-only and Arabic + transliteration</p>
-  <label style="display:block;margin-bottom:6px;font-weight:600;">Jump to Ayah</label>
-  <select id="ayah" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+  <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Ayah</label>
+  <select id="ayah" style="${dropdownStyle}">
     <option value="1:1">1:1</option>
     <option value="1:2">1:2</option>
   </select>

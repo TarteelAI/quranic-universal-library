@@ -184,11 +184,23 @@ const resolveTafsir = (ayahKey) => {
 };
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Tafsir Preview (Grouped Ayah Aware)</h3>
   <p style="margin:0 0 12px;color:#475569;">Demonstrates object + pointer tafsir mapping from the Help format</p>
   <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Ayah</label>
-  <select id="ayah" style="margin-bottom:12px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+  <select id="ayah" style="${dropdownStyle}">
     <option value="2:3">2:3</option>
     <option value="2:4">2:4 (pointer to 2:3)</option>
     <option value="2:5">2:5</option>

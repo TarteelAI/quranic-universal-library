@@ -128,16 +128,28 @@ const fontStacks = {
 };
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Font Preview (Quran Script)</h3>
   <p style="margin:0 0 12px;color:#475569;">Test verse rendering with different font stacks</p>
-  <label style="display:block;margin-bottom:6px;font-weight:600;">Select Ayah</label>
-  <select id="ayah" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+  <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Select Ayah</label>
+  <select id="ayah" style="${dropdownStyle}">
     <option value="1:1">1:1</option>
     <option value="73:4">73:4</option>
   </select>
-  <label style="display:block;margin-bottom:6px;font-weight:600;">Font Stack</label>
-  <select id="stack" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;"></select>
+  <label for="stack" style="display:block;margin-bottom:8px;font-weight:600;">Font Stack</label>
+  <select id="stack" style="${dropdownStyle}"></select>
   <div id="verse" dir="rtl" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;text-align:right;font-size:1.25rem;line-height:2;"></div>
 `;
 

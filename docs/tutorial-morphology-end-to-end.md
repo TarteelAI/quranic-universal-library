@@ -122,6 +122,18 @@ const ayah = {
 };
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Morphology Preview (Word Level)</h3>
   <p style="margin:0 0 12px;color:#475569;">Surah Al-Fatihah — Ayah 1 (word stem/root/lemma + ayah summary)</p>
@@ -131,8 +143,8 @@ app.innerHTML = `
   <button id="jump-ayah" type="button" style="margin:0 0 10px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;cursor:pointer;">
     Scroll to Ayah Sections ↓
   </button>
-  <label for="field" style="display:block;margin:0 0 6px;font-weight:600;">Word view</label>
-  <select id="field" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+  <label for="field" style="display:block;margin:0 0 8px;font-weight:600;">Word view</label>
+  <select id="field" style="${dropdownStyle}">
     <option value="stem">Word Stem</option>
     <option value="root">Word Root</option>
     <option value="lemma">Word Lemma</option>

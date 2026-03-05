@@ -201,14 +201,26 @@ const helpSample = {
 };
 
 const app = document.getElementById("app");
+const dropdownStyle = [
+  "margin-bottom:12px",
+  "padding:8px",
+  "border:1px solid #cbd5e1",
+  "border-radius:8px",
+  "background:#fff",
+  "color:#0f172a",
+  "font-size:0.95rem",
+  "line-height:1.3",
+  "min-width:220px"
+].join(";");
+
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Mutashabihat Preview (Phrase-Level)</h3>
   <p style="margin:0 0 12px;color:#475569;">Preview behavior + Help data model on one screen</p>
   <div style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;">
     Start with <strong>1:1</strong> (Bismillah). Then switch to <strong>27:30</strong> or <strong>2:112</strong> to see repeated phrase behavior.
   </div>
-  <label style="display:block;margin-bottom:6px;font-weight:600;">Jump to Ayah</label>
-  <select id="ayah" style="margin-bottom:10px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+  <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Ayah</label>
+  <select id="ayah" style="${dropdownStyle}">
     <option value="1:1">1:1</option>
     <option value="27:30">27:30</option>
     <option value="2:112">2:112</option>

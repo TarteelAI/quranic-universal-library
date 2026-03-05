@@ -121,10 +121,28 @@ const samples = {
   "73:4": "أَوۡ زِدۡ عَلَيۡهِ وَرَتِّلِ ٱلۡقُرۡءَانَ تَرۡتِيلًا"
 };
 
-const fontStacks = {
-  "qpc-hafs (with fallbacks)": "'KFGQPC Uthmanic Script HAFS','Amiri Quran','Noto Naskh Arabic','Scheherazade New',serif",
-  "Amiri Quran": "'Amiri Quran','Noto Naskh Arabic',serif",
-  "System fallback": "'Noto Naskh Arabic','Tahoma','Arial',serif"
+const fontPresets = {
+  "qpc-hafs (with fallbacks)": {
+    family: "'KFGQPC Uthmanic Script HAFS','Amiri Quran','Noto Naskh Arabic','Scheherazade New',serif",
+    label: "QPC stack (if installed) + safe fallbacks",
+    accent: "#0f766e",
+    letterSpacing: "0px",
+    fontSize: "1.28rem"
+  },
+  "Amiri Quran": {
+    family: "'Amiri Quran','Noto Naskh Arabic',serif",
+    label: "Amiri-first stack",
+    accent: "#1d4ed8",
+    letterSpacing: "0.1px",
+    fontSize: "1.24rem"
+  },
+  "System fallback": {
+    family: "'Noto Naskh Arabic','Tahoma','Arial',serif",
+    label: "System-safe fallback stack",
+    accent: "#7c2d12",
+    letterSpacing: "0.25px",
+    fontSize: "1.2rem"
+  }
 };
 
 const app = document.getElementById("app");
@@ -150,14 +168,16 @@ app.innerHTML = `
   </select>
   <label for="stack" style="display:block;margin-bottom:8px;font-weight:600;">Font Stack</label>
   <select id="stack" style="${dropdownStyle}"></select>
+  <div id="status" style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;font-size:0.92rem;"></div>
   <div id="verse" dir="rtl" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;text-align:right;font-size:1.25rem;line-height:2;"></div>
 `;
 
 const ayahSelect = app.querySelector("#ayah");
 const stackSelect = app.querySelector("#stack");
+const statusBox = app.querySelector("#status");
 const verseBox = app.querySelector("#verse");
 
-Object.keys(fontStacks).forEach((label) => {
+Object.keys(fontPresets).forEach((label) => {
   const opt = document.createElement("option");
   opt.value = label;
   opt.textContent = label;
@@ -166,7 +186,27 @@ Object.keys(fontStacks).forEach((label) => {
 
 const render = () => {
   verseBox.textContent = samples[ayahSelect.value] || "";
-  verseBox.style.fontFamily = fontStacks[stackSelect.value];
+  const preset = fontPresets[stackSelect.value];
+  if (!preset) return;
+
+  verseBox.style.fontFamily = preset.family;
+  verseBox.style.fontSize = preset.fontSize;
+  verseBox.style.letterSpacing = preset.letterSpacing;
+  verseBox.style.borderColor = preset.accent;
+  verseBox.style.boxShadow = `inset 0 0 0 1px ${preset.accent}22`;
+
+  const supportsFontCheck = typeof document.fonts?.check === "function";
+  const qpcLoaded = supportsFontCheck ? document.fonts.check('16px "KFGQPC Uthmanic Script HAFS"') : false;
+  const amiriLoaded = supportsFontCheck ? document.fonts.check('16px "Amiri Quran"') : false;
+  const availability = supportsFontCheck
+    ? `Installed fonts detected: QPC HAFS = ${qpcLoaded ? "yes" : "no"}, Amiri Quran = ${amiriLoaded ? "yes" : "no"}`
+    : "Font availability check is not supported in this browser.";
+
+  statusBox.innerHTML = `
+    <strong>Active preset:</strong> ${stackSelect.value}<br />
+    <strong>Applied:</strong> ${preset.label}<br />
+    ${availability}
+  `;
 };
 
 ayahSelect.addEventListener("change", render);

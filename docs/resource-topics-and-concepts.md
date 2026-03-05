@@ -1,14 +1,14 @@
 # Topics and Concepts Guide (Legacy Umbrella)
 
-This page is kept for compatibility and points to the split guides used by the current tutorials.
+This page is kept for compatibility with older links.
 
-Use these dedicated guides:
+Canonical tutorials for this area:
 
-1. [Ayah Topics Guide](resource-ayah-topics.md)
-2. [Mutashabihat Guide](resource-mutashabihat.md)
-3. [Similar Ayah Guide](resource-similar-ayah.md)
-4. [Ayah Theme Guide](resource-ayah-theme.md)
+1. [Tutorial 10: Ayah Topics End-to-End](tutorial-ayah-topics-end-to-end.md)
+2. [Tutorial 12: Mutashabihat End-to-End](tutorial-mutashabihat-end-to-end.md)
+3. [Tutorial 13: Similar Ayah End-to-End](tutorial-similar-ayah-end-to-end.md)
+4. [Tutorial 14: Ayah Theme End-to-End](tutorial-ayah-theme-end-to-end.md)
 
-Official directory:
+Recommended starting point:
 
-- [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
+- [Tutorials Index](tutorials.md)

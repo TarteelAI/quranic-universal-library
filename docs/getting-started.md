@@ -74,6 +74,6 @@ For details, see [data-model.md](data-model.md).
 
 - Detailed download and format guidance: [downloading-data.md](downloading-data.md)
 - Category-by-category overview: [datasets.md](datasets.md)
-- Per-resource step-by-step guides: [resource-guides-index.md](resource-guides-index.md)
-- Practical implementations: [tutorials.md](tutorials.md)
+- Canonical step-by-step implementations: [tutorials.md](tutorials.md)
+- Resource guides compatibility index: [resource-guides-index.md](resource-guides-index.md)
 - Common questions: [faq.md](faq.md)

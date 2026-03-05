@@ -4,6 +4,12 @@ This page is the tutorials index for resource users.
 
 Each end-to-end tutorial is on its own page so you can focus on one resource type at a time.
 
+This is the canonical implementation path for resource integration docs.
+
+Legacy compatibility index:
+
+- [Resource Guides Index (compatibility alias)](resource-guides-index.md)
+
 ## Start Here: How to Pick Your First Resource
 
 Use this repeatable rule for any resource type:

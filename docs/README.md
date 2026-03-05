@@ -19,15 +19,14 @@ The pages here are published on the website at `/docs` and mirrored in the repos
 3. [Tutorials](tutorials.md)
 4. [Datasets](datasets.md)
 5. [Data Model](data-model.md)
-6. [Resource Guides Index (compatibility alias)](resource-guides-index.md)
-7. [FAQ](faq.md)
+6. [FAQ](faq.md)
 
 ## Documentation Maintenance (Secondary)
 
 1. [Resource Guide Template](resource-guide-template.md)
 2. [Best Practices](best-practices.md)
 3. [Contributing](contributing.md)
-4. [Resource to Tutorial Mapping](resource_tutorial_map.md)
+4. [Resource to Tutorial Mapping](resource-tutorial-map.md)
 
 ## Primary Links
 

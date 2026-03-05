@@ -124,6 +124,7 @@ const samples = {
 const fontPresets = {
   "qpc-hafs (with fallbacks)": {
     family: "'KFGQPC Uthmanic Script HAFS','Amiri Quran','Noto Naskh Arabic','Scheherazade New',serif",
+    candidates: ["KFGQPC Uthmanic Script HAFS", "Amiri Quran", "Noto Naskh Arabic", "Scheherazade New"],
     label: "QPC stack (if installed) + safe fallbacks",
     accent: "#0f766e",
     letterSpacing: "0px",
@@ -131,13 +132,15 @@ const fontPresets = {
   },
   "Amiri Quran": {
     family: "'Amiri Quran','Noto Naskh Arabic',serif",
+    candidates: ["Amiri Quran", "Noto Naskh Arabic"],
     label: "Amiri-first stack",
     accent: "#1d4ed8",
     letterSpacing: "0.1px",
     fontSize: "1.24rem"
   },
   "System fallback": {
-    family: "'Noto Naskh Arabic','Tahoma','Arial',serif",
+    family: "'Noto Naskh Arabic','Geeza Pro','Tahoma','Arial',serif",
+    candidates: ["Noto Naskh Arabic", "Geeza Pro", "Tahoma", "Arial"],
     label: "System-safe fallback stack",
     accent: "#7c2d12",
     letterSpacing: "0.25px",
@@ -168,12 +171,17 @@ app.innerHTML = `
   </select>
   <label for="stack" style="display:block;margin-bottom:8px;font-weight:600;">Font Stack</label>
   <select id="stack" style="${dropdownStyle}"></select>
+  <label for="simulate-missing" style="display:block;margin:0 0 10px;color:#334155;">
+    <input id="simulate-missing" type="checkbox" />
+    Simulate missing primary font (force fallback step)
+  </label>
   <div id="status" style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;font-size:0.92rem;"></div>
   <div id="verse" dir="rtl" style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;text-align:right;font-size:1.25rem;line-height:2;"></div>
 `;
 
 const ayahSelect = app.querySelector("#ayah");
 const stackSelect = app.querySelector("#stack");
+const simulateMissingToggle = app.querySelector("#simulate-missing");
 const statusBox = app.querySelector("#status");
 const verseBox = app.querySelector("#verse");
 
@@ -189,13 +197,22 @@ const render = () => {
   const preset = fontPresets[stackSelect.value];
   if (!preset) return;
 
-  verseBox.style.fontFamily = preset.family;
+  const simulateMissingPrimary = simulateMissingToggle.checked;
+  const requestedFamily = simulateMissingPrimary
+    ? `'QUL Missing Primary Demo',${preset.family}`
+    : preset.family;
+
+  verseBox.style.fontFamily = requestedFamily;
   verseBox.style.fontSize = preset.fontSize;
   verseBox.style.letterSpacing = preset.letterSpacing;
   verseBox.style.borderColor = preset.accent;
   verseBox.style.boxShadow = `inset 0 0 0 1px ${preset.accent}22`;
 
   const supportsFontCheck = typeof document.fonts?.check === "function";
+  const installedFonts = supportsFontCheck
+    ? preset.candidates.filter((fontName) => document.fonts.check(`16px "${fontName}"`))
+    : [];
+  const likelyFont = installedFonts[0] || "browser default serif";
   const qpcLoaded = supportsFontCheck ? document.fonts.check('16px "KFGQPC Uthmanic Script HAFS"') : false;
   const amiriLoaded = supportsFontCheck ? document.fonts.check('16px "Amiri Quran"') : false;
   const availability = supportsFontCheck
@@ -205,12 +222,16 @@ const render = () => {
   statusBox.innerHTML = `
     <strong>Active preset:</strong> ${stackSelect.value}<br />
     <strong>Applied:</strong> ${preset.label}<br />
+    <strong>Requested stack:</strong> ${preset.candidates.join(" -> ")} -> serif<br />
+    <strong>Likely active font:</strong> ${likelyFont}<br />
+    <strong>Simulated missing primary:</strong> ${simulateMissingPrimary ? "on" : "off"}<br />
     ${availability}
   `;
 };
 
 ayahSelect.addEventListener("change", render);
 stackSelect.addEventListener("change", render);
+simulateMissingToggle.addEventListener("change", render);
 stackSelect.value = "qpc-hafs (with fallbacks)";
 render();
 ```

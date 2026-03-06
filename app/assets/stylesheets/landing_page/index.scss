@@ -2,13 +2,9 @@
 
 body {
   overflow-x: hidden;
-  
-  > div[role="tooltip"] {
+
+  >div[role="tooltip"] {
     position: fixed !important;
-    
-    &[style*="visibility: hidden"] {
-      display: none !important;
-    }
   }
 }
 

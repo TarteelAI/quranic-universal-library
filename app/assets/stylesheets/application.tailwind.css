@@ -118,6 +118,21 @@
         @apply tw-bg-blue-600 tw-text-white tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
     }
 
+    .btn-outline-info {
+        @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+    }
+
+    .btn-success {
+        @apply tw-bg-green-600 tw-text-white tw-border-green-600 hover:tw-bg-green-700 hover:tw-border-green-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-green-500;
+    }
+
+    .btn-outline-success {
+        @apply tw-bg-transparent tw-text-green-600 tw-border-green-600 hover:tw-bg-green-600 hover:tw-border-green-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-green-500;
+    }
+
+    .btn-danger {
+        @apply tw-bg-red-600 tw-text-white tw-border-red-600 hover:tw-bg-red-700 hover:tw-border-red-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-red-500;
+    }
   .btn-outline-info {
     @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
   }

@@ -75,7 +75,7 @@
               <%= pagy_nav_tailwind(@pagy).html_safe %>
             </div>
             <div>
-              <%= pagy_info(@pagy).html_safe %>
+              <%= safe_html pagy_info_tailwind(@pagy) %>
             </div>
           </div>
         </td>

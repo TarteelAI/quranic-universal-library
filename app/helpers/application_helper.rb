@@ -1,20 +1,44 @@
 module ApplicationHelper
   def pagy_nav_tailwind(pagy, **opts)
-    html = pagy_nav(pagy, **opts)
-    html = html.gsub(/<nav[^>]*>/, '<nav class="tw-flex tw-items-center tw-border-t tw-border-b tw-border-gray-300">')
-    html = html.gsub(/<ul[^>]*>/, '<ul class="tw-flex tw-items-center">')
+    link = pagy_link_proc(pagy, **opts)
     
-    html = html.gsub(/<a([^>]*class="[^"]*prev[^"]*)([^"]*)"/, '<a\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-700 tw-bg-white tw-border tw-border-gray-300 tw-rounded-l-md hover:tw-bg-gray-50"')
+    html = +%(<nav class="pagination-nav tw-flex tw-items-center tw-justify-center tw-gap-1.5" aria-label="pager">)
     
-    html = html.gsub(/<a([^>]*class="[^"]*next[^"]*)([^"]*)"/, '<a\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-[#46ac7a] tw-bg-white tw-border tw-border-gray-300 tw-rounded-r-md hover:tw-bg-gray-50"')
+    # Previous link
+    if pagy.prev
+      html << link.call(pagy.prev, '<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>'.html_safe, 'aria-label="previous" class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-500 tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg hover:tw-bg-gray-50 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a] hover:tw-shadow-sm tw-transition-all tw-duration-200"')
+    else
+      html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-300 tw-bg-gray-50/50 tw-border tw-border-gray-100 tw-rounded-lg tw-cursor-not-allowed">)
+      html << %(<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>)
+      html << %(</span>)
+    end
     
-    html = html.gsub(/<span([^>]*class="[^"]*page[^"]*)([^"]*)"/, '<span\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-[#46ac7a] tw-border tw-border-gray-300"')
+    # Page links
+    pagy.series.each do |item|
+      if item.is_a?(Integer) # page number
+        html << link.call(item, item, 'class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-sm tw-font-medium tw-text-gray-600 tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg hover:tw-bg-gray-50 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a] hover:tw-shadow-sm tw-transition-all tw-duration-200"')
+      elsif item.is_a?(String) # current page
+        html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-sm tw-font-bold tw-text-white tw-bg-[#46ac7a] tw-border tw-border-[#46ac7a] tw-rounded-lg tw-shadow-sm tw-shadow-green-500/10">#{item}</span>)
+      elsif item == :gap # gap
+        html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-400 tw-font-bold">...</span>)
+      end
+    end
     
-    html = html.gsub(/<a([^>]*class="[^"]*page[^"]*)([^"]*)"/, '<a\1 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-text-[#46ac7a] tw-bg-white tw-border-l tw-border-gray-300 hover:tw-bg-gray-50"')
+    # Next link
+    if pagy.next
+      html << link.call(pagy.next, '<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'.html_safe, 'aria-label="next" class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-500 tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg hover:tw-bg-gray-50 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a] hover:tw-shadow-sm tw-transition-all tw-duration-200"')
+    else
+      html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-300 tw-bg-gray-50/50 tw-border tw-border-gray-100 tw-rounded-lg tw-cursor-not-allowed">)
+      html << %(<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>)
+      html << %(</span>)
+    end
     
-    html = html.gsub(/<span([^>]*class="[^"]*gap[^"]*)([^"]*)"/, '<span\1 tw-px-2 tw-text-gray-700"')
-    
+    html << %(</nav>)
     html.html_safe
+  end
+
+  def pagy_info_tailwind(pagy)
+    %(<div class="tw-text-sm tw-text-gray-500 tw-font-medium tw-bg-gray-50 tw-px-3 tw-py-1 tw-rounded-full tw-border tw-border-gray-200">#{pagy_info(pagy)}</div>).html_safe
   end
   include Pagy::Frontend
 

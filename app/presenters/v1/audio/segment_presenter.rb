@@ -51,7 +51,7 @@ module V1
       end
 
       def chapter_id
-        params[:surah]
+        params[:chapter] || params[:surah]
       end
 
       def ayah

@@ -133,6 +133,31 @@
           </div>
 
           <div class="tab-content tw-p-6">
+        <figure class="highlight tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-p-2" data-controller="tabs">
+          <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
+            <li class="tw-m-0">
+              <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 active"
+                 data-action="click->tabs#switch"
+                 data-tabs-target-value="tab-suggestions"
+                 role="tab" aria-selected="true">
+                Suggestions
+                <span class="badge badge-success tw-ms-1">
+                  <%= @suggestions.keys.size %>
+                </span>
+              </a>
+            </li>
+
+            <li class="tw-m-0">
+              <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200"
+                 data-action="click->tabs#switch"
+                 data-tabs-target-value="tab-ayahs"
+                 role="tab" aria-selected="false">
+                Ayahs
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content tw-p-3">
             <div class="tab-pane fade active show" id="tab-suggestions" role="tabpanel" aria-labelledby="tab-suggestions">
               <div id="suggestions">
                 <div class="tw-bg-blue-50 tw-rounded-lg tw-p-4 tw-mb-6 tw-border tw-border-blue-100">

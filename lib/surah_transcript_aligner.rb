@@ -1,4 +1,6 @@
 class SurahTranscriptAligner
+  MUSHAF_TRANSLATOR_INDEX = JSON.parse(File.read("lib/data/mushaf-translator-index.json"))
+
   DEFAULT_WINDOW_SIZE = 10
   SCORE_TOKEN_WEIGHT = 0.7
   SCORE_CHAR_WEIGHT = 0.3
@@ -8,7 +10,7 @@ class SurahTranscriptAligner
   WAQF_RE = /[ٰۛۖۗۘۙۚۜ۞۩ۭ]/.freeze
   ARABIC_LETTER_RE = /[\u0621-\u064A]/.freeze
 
-  TRANSLITERATION_MAP = {
+  CHAR_REPLACEMENT_MAP = {
     "أ" => "ا",
     "إ" => "ا",
     "آ" => "ا",
@@ -32,7 +34,33 @@ class SurahTranscriptAligner
     "ﻵ" => "لا"
   }.freeze
 
-  MUSHAF_TRANSLATOR_INDEX = JSON.parse(File.read("lib/data/mushaf-translator-index.json"))
+  WORD_TEXT_MAPPING = {
+    '2:181:3': {
+      simple: 'بعدما',
+      text: 'بَعْدَمَا'
+    },
+    '2:181:4': {
+      simple: '',
+      text: ''
+    },
+    '8:6:4': {
+      simple: 'بعدما',
+      text: 'بَعْدَمَا'
+    },
+    '8:6:5': {
+      simple: '',
+      text: ''
+    },
+    '13:37:8': {
+      simple: 'بعدما',
+      text: 'بَعْدَمَا'
+    },
+    '13:37:9': {
+      simple: '',
+      text: ''
+    }
+  }
+
   STT_PATH = "data/stt"
   OUTPUT_DIR = "#{STT_PATH}/results"
 
@@ -46,16 +74,21 @@ class SurahTranscriptAligner
 
     verses = Verse
                .where(chapter_id: @surah_number)
-               .includes(:words)
+               .includes(:actual_words)
                .order(:verse_number)
 
     @verse_data = verses.map do |verse|
-      words = verse.words.to_a.select { |w| w.char_type_id.to_i == 1 }.sort_by(&:position)
+      words = verse.actual_words.sort_by(&:position)
+
       canonical_raw = words.map do |w|
-        remove_waqfs(w.text_imlaei.to_s.strip)
+        text = get_word_text(w)
+        remove_waqfs(text.to_s)
+      end.compact_blank
+
+      canonical_norm = canonical_raw.map do |w|
+        normalize_word(w, strip_diacritics: true)
       end
 
-      canonical_norm = canonical_raw.map { |w| normalize_word(w, strip_diacritics: true) }
       canonical_chars = canonical_norm.join.gsub(" ", "").codepoints
 
       {
@@ -460,7 +493,7 @@ class SurahTranscriptAligner
     t = (text || "").to_s
     t = t.unicode_normalize(:nfc)
 
-    t = t.gsub(/[#{Regexp.escape(TRANSLITERATION_MAP.keys.join)}]/) { |ch| TRANSLITERATION_MAP.fetch(ch) }
+    t = t.gsub(/[#{Regexp.escape(CHAR_REPLACEMENT_MAP.keys.join)}]/) { |ch| CHAR_REPLACEMENT_MAP.fetch(ch) }
     t = t.gsub(/[#{Regexp.escape(LAM_ALEF_LIGATURES.keys.join)}]/) { |ch| LAM_ALEF_LIGATURES.fetch(ch) }
 
     t = t.gsub(WAQF_RE, "")
@@ -511,6 +544,14 @@ class SurahTranscriptAligner
     end
 
     counts
+  end
+
+  def get_word_text(word)
+    if(text = WORD_TEXT_MAPPING[word.location.to_sym])
+      text[:text]
+    else
+      word.text_imlaei
+    end
   end
 
   class SequenceMatcher

@@ -18,6 +18,11 @@
     <div class="tw-flex tw-items-center tw-gap-2">
       <% if persisted %>
         <div class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-green-500 tw-text-white tw-text-xs">
+  class="ayah tw-flex quran-text flex-column tw-border tw-border-gray-300 tw-p-3 tw-mb-2 border-2 <%= 'border-success' if persisted %>">
+  <div class="actions">
+    <% if persisted %>
+      <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>
+        <span class="badge badge-success">
           <i class="fas fa-check"></i>
         </div>
       <% end %>
@@ -41,6 +46,14 @@
           <i class="fas fa-save"></i>
           <span class="tw-hidden md:tw-inline">Save</span>
         </button>
+    <span class="badge badge-success"><%= ayah.verse_key %></span>
+    <span class="badge badge-info">
+      <%= matcher %>
+    </span>
+
+    <span class="badge badge-info">
+      <%= ranges %>
+    </span>
 
         <button class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-slate-300 tw-text-slate-600 hover:tw-bg-slate-50 tw-rounded tw-transition-colors" data-action="resetSelection" title="Reset selection" data-controller="tooltip">
           <i class="fas fa-redo-alt tw-text-xs"></i>

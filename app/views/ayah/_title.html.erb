@@ -5,7 +5,7 @@
           <strong><%= @ayah.chapter.name_simple %></strong>
           <% current_tab = params[:tab].presence || 'ayah' %>
           <span class="tw-relative tw-inline-block" data-controller="ayah-jump" data-ayah-jump-tab-value="<%= current_tab %>">
-            <button type="button" class="badge tw-bg-blue-500 tw-inline-flex tw-items-center tw-gap-1 tw-px-2 tw-py-0.5 tw-rounded tw-text-white tw-text-xs" data-action="click->ayah-jump#toggle">
+            <button type="button" class="badge badge-info" data-action="click->ayah-jump#toggle">
               Ayah <%= @ayah.verse_number %>
               <i class="fa fa-chevron-down tw-text-[10px]"></i>
             </button>

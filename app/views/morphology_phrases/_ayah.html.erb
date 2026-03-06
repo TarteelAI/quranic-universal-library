@@ -16,18 +16,18 @@
   <div class="actions">
     <% if persisted %>
       <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>
-        <span class="badge tw-bg-green-500">
+        <span class="badge badge-success">
           <i class="fas fa-check"></i>
         </span>
       <% end %>
     <% end %>
 
-    <span class="badge tw-bg-green-500"><%= ayah.verse_key %></span>
-    <span class="badge tw-bg-blue-400">
+    <span class="badge badge-success"><%= ayah.verse_key %></span>
+    <span class="badge badge-info">
       <%= matcher %>
     </span>
 
-    <span class="badge tw-bg-blue-400">
+    <span class="badge badge-info">
       <%= ranges %>
     </span>
 

@@ -19,6 +19,10 @@ class CommunityController < ApplicationController
     render layout: false
   end
 
+  def stt_validation
+    render layout: false
+  end
+
   def docs
     render layout: false if request.xhr?
   end

@@ -1,44 +1,34 @@
 <%
   phrase = phrase_verse.phrase
-
   approved_count = phrase.phrase_verses.approved.size
   not_approved_count = phrase.phrase_verses.not_approved.size
 %>
 
-<div id="<%= dom_id phrase_verse %>" class="tw-flex tw-items-center" style="flex-direction: row-reverse;">
-  <div class="tw-flex">
-    <%= link_to "/cms/morphology_phrases/#{phrase.id}", target: :_blank, class: 'ms-2' do %>
-      <span style="display:inline-block;width: 20px; height: 20px; background: <%= phrase.get_color %>"></span>
-      <span class="<%= 'text-danger' if !phrase.approved? %>"><%= phrase.verses_count %>(<%= phrase.review_status %>
-        )</span>
+<div id="<%= dom_id phrase_verse %>" class="tw-flex tw-flex-row-reverse tw-items-center tw-gap-4 tw-p-3 tw-bg-gray-50 tw-rounded-lg tw-border tw-border-gray-200 hover:tw-bg-gray-100 tw-transition-colors">
+  <div class="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+    <%= link_to "/cms/morphology_phrases/#{phrase.id}", target: :_blank, class: 'tw-flex tw-items-center tw-gap-2 tw-no-underline hover:tw-opacity-80' do %>
+      <span class="tw-inline-block tw-w-4 tw-h-4 tw-rounded-sm tw-flex-shrink-0" style="background: <%= phrase.get_color %>"></span>
+      <span class="tw-text-sm tw-font-medium <%= 'tw-text-red-600' if !phrase.approved? %>"><%= phrase.verses_count %> (<%= phrase.review_status %>)</span>
     <% end %>
-
     <% if @access %>
-      <div class="tw-ms-4">
-        <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put, html: { class: 'form-inline' } do |form| %>
-          <div class="tw-flex tw-my-2">
-            <div class="tw-me-2">
-              <small>p: <%= phrase.id %> s: <%= phrase_verse.score %></small>
-
-              <span class="badge tw-bg-green-500"
-                    type="button"
-                    data-controller="collapse" data-action="click->collapse#toggle"
-                    data-bs-target="#phrase-<%= phrase.id %>-related"
-                    aria-expanded="false"
-                    aria-controls="phrase-<%= phrase.id %>-related">
-            <%= approved_count %>
-          </span>
-              <span class="badge tw-bg-red-500"><%= not_approved_count %></span>
-            </div>
-            <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "tw-mr-2 tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-rounded tw-transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'tw-bg-transparent tw-text-red-600 tw-border tw-border-red-600 hover:tw-bg-red-600 hover:tw-text-white' : 'tw-bg-red-600 hover:tw-bg-red-700 tw-text-white'}", data: { controller: 'tooltip' }) %>
-            <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-rounded tw-transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-border tw-border-green-600 tw-text-green-600 hover:tw-bg-green-600 hover:tw-text-white'}", data: { controller: 'tooltip' }) %>
-          </div>
-        <% end %>
-      </div>
+      <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put do |form| %>
+        <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+          <span class="tw-text-xs tw-text-gray-500">p: <%= phrase.id %> s: <%= phrase_verse.score %></span>
+          <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded tw-text-xs tw-font-medium tw-bg-green-100 tw-text-green-800"
+                type="button"
+                data-controller="collapse"
+                data-action="click->collapse#toggle"
+                data-bs-target="#phrase-<%= phrase.id %>-related"
+                aria-expanded="false"
+                aria-controls="phrase-<%= phrase.id %>-related"><%= approved_count %></span>
+          <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded tw-text-xs tw-font-medium tw-bg-red-100 tw-text-red-800"><%= not_approved_count %></span>
+          <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "tw-px-2.5 tw-py-1 tw-text-xs tw-font-medium tw-rounded tw-transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'tw-bg-transparent tw-text-red-600 tw-border tw-border-red-300 hover:tw-bg-red-50' : 'tw-bg-red-600 hover:tw-bg-red-700 tw-text-white'}", data: { controller: 'tooltip', tooltip_placement_value: 'top' }) %>
+          <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "tw-px-2.5 tw-py-1 tw-text-xs tw-font-medium tw-rounded tw-transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'tw-bg-green-600 hover:tw-bg-green-700 tw-text-white' : 'tw-border tw-border-green-600 tw-text-green-600 hover:tw-bg-green-50'}", data: { controller: 'tooltip', tooltip_placement_value: 'top' }) %>
+        </div>
+      <% end %>
     <% end %>
   </div>
-
-  <div class="quran-text qpc-hafs">
+  <div class="quran-text qpc-hafs tw-text-xl tw-font-medium" style="<%= phrase.get_color.present? ? "color: #{phrase.get_color}" : 'color: #111827' %>">
     <%= phrase.text_qpc_hafs %>
   </div>
 </div>

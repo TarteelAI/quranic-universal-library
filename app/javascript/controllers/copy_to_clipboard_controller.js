@@ -2,25 +2,28 @@ import { Controller } from "@hotwired/stimulus";
 import copyToClipboard from "copy-to-clipboard";
 
 export default class extends Controller {
+  copy = () => {
+    const text =
+      this.element.dataset.text ||
+      this.element.textContent.trim();
+
+    copyToClipboard(text);
+
+    this.element.dispatchEvent(
+      new CustomEvent("tooltip:update", {
+        detail: {
+          text: "Copied",
+          temporary: true
+        }
+      })
+    );
+  };
+
   connect() {
-    this.$el = $(this.element);
-    this.$el.attr("title", "Copy").tooltip();
-    this.$el.on("click", this.copy);
+    this.element.addEventListener("click", this.copy);
   }
 
   disconnect() {
-    this.$el.off("click", this.copy);
-    this.$el.tooltip("dispose");
+    this.element.removeEventListener("click", this.copy);
   }
-
-  copy = () => {
-    const text = this.$el.data("text") || this.$el.text().trim();
-    copyToClipboard(text);
-
-    this.$el.attr("title", "Copied").tooltip("_fixTitle").tooltip("show");
-
-    setTimeout(() => {
-      this.$el.attr("title", "Copy").tooltip("_fixTitle");
-    }, 1500);
-  };
 }

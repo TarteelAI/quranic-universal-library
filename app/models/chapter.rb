@@ -36,7 +36,7 @@ class Chapter < QuranApiRecord
   has_one :translated_name, as: :resource # for eager load
   has_many :chapter_infos
 
-  serialize :pages
+  attribute :pages, :json, default: []
 
   alias_method :name, :id
 

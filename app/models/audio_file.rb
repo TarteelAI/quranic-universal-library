@@ -51,11 +51,11 @@
 #
 
 class AudioFile < QuranApiRecord
-  belongs_to :verse
-  belongs_to :chapter
-  belongs_to :recitation
+  belongs_to :verse, optional: true
+  belongs_to :chapter, optional: true
+  belongs_to :recitation, optional: true
 
-  serialize :segments
+  attribute :segments, :json, default: []
 
   scope :missing_segments, -> { where(segments_count: 0) }
 

@@ -2,43 +2,43 @@
 #
 # Table name: morphology_word_segments
 #
-#  id                        :bigint           not null, primary key
-#  aspect_type               :string
-#  case_type                 :string
-#  derivation_type           :string
-#  gender_type               :string
-#  grammar_term_desc_arabic  :string
-#  grammar_term_desc_english :string
+#  id                        :integer          not null, primary key
+#  word_id                   :integer
+#  root_id                   :integer
+#  topic_id                  :integer
+#  lemma_id                  :integer
+#  grammar_concept_id        :integer
+#  grammar_role_id           :integer
+#  grammar_sub_role_id       :integer
+#  grammar_term_id           :integer
 #  grammar_term_key          :string
 #  grammar_term_name         :string
-#  hidden                    :boolean
-#  lemma_name                :string
-#  mood_type                 :string
-#  number_type               :string
 #  part_of_speech_key        :string
 #  part_of_speech_name       :string
-#  person_type               :string
-#  pos_tags                  :string
 #  position                  :integer
-#  pronoun_type              :string
-#  root_name                 :string
-#  segment_type              :string
-#  special_type              :string
-#  state_type                :string
-#  text_qpc_hafs             :string
 #  text_uthmani              :string
+#  grammar_term_desc_english :string
+#  grammar_term_desc_arabic  :string
+#  pos_tags                  :string
+#  root_name                 :string
+#  lemma_name                :string
 #  verb_form                 :string
-#  voice_type                :string
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
-#  grammar_concept_id        :bigint
-#  grammar_role_id           :bigint
-#  grammar_sub_role_id       :bigint
-#  grammar_term_id           :bigint
-#  lemma_id                  :bigint
-#  root_id                   :bigint
-#  topic_id                  :bigint
-#  word_id                   :bigint
+#  hidden                    :boolean
+#  segment_type              :string
+#  person_type               :string
+#  voice_type                :string
+#  gender_type               :string
+#  number_type               :string
+#  aspect_type               :string
+#  mood_type                 :string
+#  derivation_type           :string
+#  state_type                :string
+#  case_type                 :string
+#  pronoun_type              :string
+#  special_type              :string
+#  text_qpc_hafs             :string
 #
 # Indexes
 #
@@ -66,13 +66,6 @@
 #  index_morphology_word_segments_on_topic_id             (topic_id)
 #  index_morphology_word_segments_on_voice_type           (voice_type)
 #  index_morphology_word_segments_on_word_id              (word_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (lemma_id => lemmas.id)
-#  fk_rails_...  (root_id => roots.id)
-#  fk_rails_...  (topic_id => topics.id)
-#  fk_rails_...  (word_id => words.id)
 #
 
 class Morphology::WordSegment < QuranApiRecord
@@ -125,7 +118,7 @@ class Morphology::WordSegment < QuranApiRecord
     com: 'navy' # Comitative particle (e.g., مع)
   }.freeze
 
-  belongs_to :word, class_name: 'Morphology::Word'
+  belongs_to :word, class_name: 'Morphology::Word', optional: true
   belongs_to :grammar_concept, class_name: 'Morphology::GrammarConcept', optional: true
   belongs_to :grammar_role, class_name: 'Morphology::GrammarConcept', optional: true
   belongs_to :grammar_sub_role, class_name: 'Morphology::GrammarConcept', optional: true
@@ -146,15 +139,13 @@ class Morphology::WordSegment < QuranApiRecord
   def get_segment_color
     pos_tag = part_of_speech_key.to_s.downcase.to_sym
 
-=begin
-TODO: Set Pronoun color based on pronoun type.
-    if pos_tag == :pron
-      {
-        subj: 'sky',
-        obj: 'orange',
-      }[pronoun_type.tag.to_sym] || 'metal'
-    end
-=end
+    # TODO: Set Pronoun color based on pronoun type.
+    # if pos_tag == :pron
+    #   {
+    #     subj: 'sky',
+    #     obj: 'orange',
+    #   }[pronoun_type.tag.to_sym] || 'metal'
+    # end
 
     POS_TAG_COLORS[pos_tag]
   end

@@ -28,7 +28,7 @@ module Morphology
       belongs_to :target, class_name: 'Morphology::DependencyGraph::GraphNode', foreign_key: :target_id, inverse_of: :incoming_edges
       has_one :phrase_node, as: :resource, class_name: 'Morphology::DependencyGraph::GraphNode'
 
-      enum type: {
+      enum :type, {
         word: 0,
         phrase: 1
       }

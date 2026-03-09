@@ -1,34 +1,34 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
+const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  prefix: 'tw-',
+  prefix: "tw-",
   content: [
-    './public/*.html',
-    './app/helpers/**/*.rb',
-    './app/javascript/**/*.{js,vue}',
-    './app/views/**/*.{erb,html}',
-    './app/admin/**/*.rb',
+    "./public/*.html",
+    "./app/helpers/**/*.rb",
+    "./app/javascript/**/*.{js,vue}",
+    "./app/views/**/*.{erb,html}",
+    "./app/admin/**/*.rb",
   ],
   theme: {
     extend: {
       fontFamily: {
-        sarina: ['Sarina', 'cursive'],
-        inter: ['Inter', 'sans-serif'],
-        title: ['Open Sauce Sans', 'sans-serif'],
+        sarina: ["Sarina", "cursive"],
+        inter: ["Inter", "sans-serif"],
+        title: ["Open Sauce Sans", "sans-serif"],
       },
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/container-queries'),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/container-queries"),
   ],
   safelist: [
-    'tw-bg-red-100',
-    'tw-bg-blue-100',
-    'tw-bg-orange-100',
-    'tw-bg-green-100',
-    'tw-bg-yellow-100',
+    "tw-bg-red-100",
+    "tw-bg-blue-100",
+    "tw-bg-orange-100",
+    "tw-bg-green-100",
+    "tw-bg-yellow-100",
 
     "tw-text-red-600",
     "tw-text-blue-600",
@@ -46,6 +46,23 @@ module.exports = {
     "tw-btn-success",
     "tw-btn-warning",
     "tw-btn-danger",
+
+    // Custom btn classes
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "btn-outline",
+    "btn-dark",
+    "btn-tab",
+    "btn-tab-active",
+    "btn-toggle",
+    "btn-toggle-active",
+    "btn-info",
+    "btn-success",
+    "btn-danger",
+    "btn-outline-info",
+    "btn-outline-success",
+
     "tw-flex",
     "tw-flex-col",
     "tw-items-end",

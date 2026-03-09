@@ -32,8 +32,8 @@
     </div>
 
     <div class="tw-flex tw-gap-2 tw-flex-wrap">
-      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
-      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'btn-dark tw-px-3 tw-py-1.5 tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'btn-dark tw-px-3 tw-py-1.5 tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
     </div>
   </div>
 

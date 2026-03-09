@@ -6,14 +6,14 @@
   previous_word = @word.previous_word
 
   if previous_word
-    actions << link_to('Previous word', tajweed_word_path(previous_word.location), class: 'btn-dark')
+    actions << link_to('Previous word', tajweed_word_path(previous_word.location), class: 'btn btn-dark')
   end
 
   if next_word
-    actions << link_to('Next word', tajweed_word_path(next_word.location), class: 'btn-dark')
+    actions << link_to('Next word', tajweed_word_path(next_word.location), class: 'btn btn-dark')
   end
 
-  actions << link_to('Back to filter', tajweed_words_path, class: 'btn-outline')
+  actions << link_to('Back to filter', tajweed_words_path, class: 'btn btn-outline')
   rule_options = tajweed_rule_options_for_select(tajweed)
 %>
 
@@ -38,11 +38,11 @@
       </span>
 
       <div class="tw-flex">
-        <button class="btn-primary tw-me-2" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#tajweed-rules-sidebar" aria-controls="tajweed-rules-sidebar">
+        <button class="btn btn-primary tw-me-2" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#tajweed-rules-sidebar" aria-controls="tajweed-rules-sidebar">
           Tajweed Palette
         </button>
 
-        <button class="btn-primary tw-me-2" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
+        <button class="btn btn-primary tw-me-2" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
            Tajweed page
         </button>
 

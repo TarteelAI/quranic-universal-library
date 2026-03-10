@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   root to: 'landing#home'
 
+  get '/health', to: 'health#show'
+
   namespace :api, defaults: { format: :json } do
     namespace :morphology do
       resources :edge_relations, only: [:index]

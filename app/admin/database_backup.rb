@@ -41,6 +41,20 @@ ActiveAdmin.register DatabaseBackup do
     end
   end
 
+  show do
+    attributes_table do
+      row :id
+      row :database_name
+      row :tag
+      row :size
+      row :created_at
+      row :updated_at
+      row :url do |backup|
+        backup.file_url
+      end
+    end
+  end
+
   index do
     id_column
     column :database_name

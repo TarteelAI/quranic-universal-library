@@ -1,4 +1,6 @@
 class CommunityController < ApplicationController
+  before_action :init_presenter
+
   DEFAULT_LANGUAGE = 174 # We're focusing on Urdu atm
   helper_method :current_language
   before_action :load_resource_access
@@ -16,6 +18,10 @@ class CommunityController < ApplicationController
   end
 
   def ayah_boundaries
+    render layout: false
+  end
+
+  def stt_validation
     render layout: false
   end
 

@@ -242,6 +242,10 @@ ActiveAdmin.register Recitation do
 
     export_gapless = params[:export_gapless] == '1'
 
+    if format == 'json' && recitations_ids == ['tarteel-reciters'] && current_user.id != 1
+      return redirect_back(fallback_location: '/cms', alert: "Sorry, only main admin can export these gapless segments in JSON format.")
+    end
+
     Audio::ExportAudioSegmentsJob.perform_later(
       file_name: file_name,
       table_name: table_name,

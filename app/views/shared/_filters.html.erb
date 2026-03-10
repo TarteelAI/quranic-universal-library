@@ -20,26 +20,26 @@
 
 <% if filter_juz %>
   <div class="tw-mb-4 tw-me-2">
-    <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'juz-select', data: { placeholder: 'Filter by juz/para', controller: 'select2' } %>
-    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Juz/Para</p>
+    <%= select_tag :filter_juz, options_for_select(1..30, params[:filter_juz]), include_blank: true, class: 'tw-w-full sm:tw-w-44 tw-px-3 tw-py-2 tw-border tw-border-slate-300 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-transition-all', id: 'juz-select', data: { placeholder: 'Filter by juz/para', controller: 'select2' } %>
+    <p class="tw-text-xs tw-text-slate-500 tw-mt-1">Filter by Juz/Para</p>
   </div>
 <% end %>
 
 <% if filter_page %>
   <div class="tw-mb-4 tw-me-2">
-    <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'page-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
-    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Page</p>
+    <%= select_tag :filter_page, options_for_select(1..604, params[:filter_page]), include_blank: true, class: 'tw-w-full sm:tw-w-44 tw-px-3 tw-py-2 tw-border tw-border-slate-300 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-transition-all', id: 'page-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
+    <p class="tw-text-xs tw-text-slate-500 tw-mt-1">Filter by Page</p>
   </div>
 <% end %>
 
 <div class="tw-mb-4 tw-me-2">
-  <%= select_tag :filter_chapter, options_for_select(chapters, params[:filter_chapter]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'chapter-select', data: { controller: 'select2' } %>
-  <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Surah</p>
+  <%= select_tag :filter_chapter, options_for_select(chapters, params[:filter_chapter]), include_blank: true, class: 'tw-w-full sm:tw-w-64 tw-px-3 tw-py-2 tw-border tw-border-slate-300 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-transition-all', id: 'chapter-select', data: { controller: 'select2' } %>
+  <p class="tw-text-xs tw-text-slate-500 tw-mt-1">Filter by Surah</p>
 </div>
 
 <% if filter_verse %>
   <div class="tw-mb-4 tw-me-2">
-    <%= select_tag :verse_number, options_for_select(verses_range, params[:verse_number]), include_blank: true, class: 'form-select tw-w-[85vw] sm:tw-w-auto ', id: 'verse-select', data: { controller: 'select2' } %>
-    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by Ayah</p>
+    <%= select_tag :verse_number, options_for_select(verses_range, params[:verse_number]), include_blank: true, class: 'tw-w-full sm:tw-w-32 tw-px-3 tw-py-2 tw-border tw-border-slate-300 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-transition-all', id: 'verse-select', data: { controller: 'select2' } %>
+    <p class="tw-text-xs tw-text-slate-500 tw-mt-1">Filter by Ayah</p>
   </div>
 <% end %>

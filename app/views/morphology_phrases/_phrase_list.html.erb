@@ -1,16 +1,21 @@
-<div class="page-section tw-mt-4 filters">
+<div class="tw-bg-slate-50 tw-rounded-xl tw-border tw-border-slate-200 tw-p-6 tw-mb-6">
+  <div class="tw-mb-4 tw-flex tw-items-center tw-gap-2">
+    <i class="fas fa-filter tw-text-slate-400"></i>
+    <h3 class="tw-text-sm tw-font-bold tw-text-slate-700 tw-uppercase tw-tracking-wider">Filters</h3>
+  </div>
+
   <%= form_tag morphology_phrases_path, method: :get do %>
-    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-start tw-flex-wrap">
+    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-start tw-flex-wrap tw-gap-4">
       <%= render 'shared/filters' %>
 
-      <div class="tw-mb-4 tw-me-2">
-        <%= search_field_tag :text, params[:text], class: 'tw-w-[85vw] sm:tw-w-auto tw-px-3 tw-py-2 tw-border tw-border-gray-400 tw-rounded-[5px] tw-h-[38px] tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', placeholder: 'Search' %>
-        <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Search content</p>
+      <div class="tw-flex-grow-1 sm:tw-flex-grow-0">
+        <%= search_field_tag :text, params[:text], class: 'tw-w-full sm:tw-w-64 tw-px-3 tw-py-2 tw-border tw-border-slate-300 tw-rounded-lg focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-transition-all', placeholder: 'Search content...' %>
+        <p class="tw-text-xs tw-text-slate-500 tw-mt-1">Keyword search</p>
       </div>
 
-      <div class="tw-mb-4 tw-flex tw-items-center">
-        <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
-        <%= link_to 'Clear', morphology_phrases_path, class: 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' if has_filters?(:filter_chapter, :filter_verse, :text) %>
+      <div class="tw-flex tw-items-start tw-pt-1">
+        <%= submit_tag 'Apply Filters', class: 'tw-h-10 tw-px-6 tw-text-sm tw-font-bold tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded-lg tw-transition-all tw-shadow-sm hover:tw-shadow-md', data: { disable_with: 'Loading...' } %>
+        <%= link_to 'Clear', morphology_phrases_path, class: 'tw-h-10 tw-px-4 tw-flex tw-items-center tw-text-sm tw-font-medium tw-text-slate-500 hover:tw-text-slate-700 hover:tw-underline tw-transition-colors' if has_filters?(:filter_chapter, :filter_verse, :text) %>
       </div>
     </div>
   <% end %>
@@ -60,7 +65,7 @@
         <td class="tw-py-2">
           <div class="tw-flex tw-flex-col tw-gap-2">
             <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
-            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-rounded tw-transition-colors' if user_signed_in? %>
+            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
           </div>
         </td>
       </tr>

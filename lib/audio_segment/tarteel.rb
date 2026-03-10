@@ -43,39 +43,29 @@ module AudioSegment
 
     # Export segments data as JSON files(one file per surah) and create a master zip
     def export_json_files
-      file_label = File.basename(file_path, File.extname(file_path))
-
-      root_tmp = File.join(File.dirname(file_path), "json_export_#{Time.now.to_i}")
-      FileUtils.mkdir_p(root_tmp)
-
       recitations.each do |recitation|
-        reciter_dir = File.join(root_tmp, file_label, recitation.id.to_s)
+        resource_content = recitation.get_resource_content
+        reciter_dir = File.join(file_path, resource_content.id.to_s)
         FileUtils.mkdir_p(reciter_dir)
+        version = Time.now.to_i
 
         export_gapless_recitation_segments(recitation, reciter_dir)
         export_gapless_recitation_audio_files(recitation, reciter_dir)
 
-        if resource_content = recitation.get_resource_content
-          resource_content.set_meta_value('exported-version', Time.now.to_i)
-          resource_content.save
-        end
+        puts "Exported #{resource_content.id} with version #{version}"
+        resource_content.set_meta_value('exported-version', version)
+        resource_content.save(validate: false)
       end
 
-      master_zip = "#{file_path}.zip"
-      Zip::File.open(master_zip, Zip::File::CREATE) do |zipfile|
-        Dir[File.join(root_tmp, '**', '**')].each do |f|
-          next if File.directory?(f)
-          entry = f.sub("#{root_tmp}/", '')
-          zipfile.add(entry, f)
-        end
-      end
+       `bzip2 #{file_path}`
 
       # Update manifest
       manifest = ExportAssetsManifest.new
       manifest.export_and_upload
 
-      FileUtils.rm_rf(root_tmp)
-      master_zip
+      FileUtils.rm_rf(file_path)
+
+      "#{file_path}.bz2"
     end
 
     protected
@@ -176,7 +166,6 @@ module AudioSegment
 
       grouped.each do |chapter_id, segs|
         json_ayahs = []
-        last_ayah_end = nil
 
         segs.each do |seg|
           ayah_segments = get_ayah_segments(seg)
@@ -192,13 +181,6 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
           end
 
-=begin
-          start_time = if last_ayah_end
-                          last_ayah_end + 1
-                        else
-                          seg.timestamp_from.to_i
-                       end
-=end
           start_time = seg.timestamp_from.to_i
 
           json_ayahs << {
@@ -207,8 +189,6 @@ module AudioSegment
             end: seg.timestamp_to.to_i,
             words: ayah_segments
           }
-
-          last_ayah_end = seg.timestamp_to.to_i
         end
 
         json_filename = format("%03d.json", chapter_id)
@@ -226,7 +206,7 @@ module AudioSegment
         json_path
       end
 
-      full_segments_file_path = File.join(target_dir, "all_segments.json")
+      full_segments_file_path = File.join(target_dir, "segments.json")
 
       File.open(full_segments_file_path, "w") do |f|
         f.write(JSON.dump(all_segments))
@@ -277,7 +257,7 @@ module AudioSegment
 
     def load_recitations(ids)
       if ids == ['tarteel-reciters']
-        tag = Tag.where(name: 'Tarteel recitation').first_or_create
+        tag = Tag.find(4) # Tarteel recitations
 
         if gapless
           resources = ResourceContent
@@ -306,10 +286,10 @@ module AudioSegment
     end
 
     def prepare_file_paths(file_name)
-      file_path = "#{STORAGE_PATH}/#{Time.now.to_i}"
-      FileUtils::mkdir_p file_path
+      path = "#{STORAGE_PATH}/#{Time.now.to_i}"
+      FileUtils::mkdir_p(path)
 
-      "#{file_path}/#{file_name}"
+      "#{path}/#{file_name}"
     end
 
     def get_ayah_segments(seg)

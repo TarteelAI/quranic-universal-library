@@ -42,7 +42,7 @@
 
           <td class="tw-py-2">
             <div class="d-grid tw-items-center">
-              <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
+              <%= link_to 'Show', word_text_proofreading_path(verse.id), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>
@@ -50,12 +50,12 @@
 
       <tr>
         <td colspan="4">
-          <div class="tw-flex tw-items-center">
+          <div class="tw-flex tw-items-center tw-py-4">
             <div class="tw-me-4">
               <%= pagy_nav_tailwind(@pagy).html_safe %>
             </div>
             <div>
-              <%= pagy_info(@pagy).html_safe %>
+              <%= safe_html pagy_info_tailwind(@pagy) %>
             </div>
           </div>
         </td>

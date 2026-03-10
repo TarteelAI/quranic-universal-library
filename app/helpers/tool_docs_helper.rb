@@ -21,6 +21,33 @@ module ToolDocsHelper
     ]
   end
 
+  def mutashabihat_help
+    [
+      "Mutashabihat ul Quran Tool",
+      {
+        text: "The Mutashabihat tool is designed to identify and explore verses in the Quran that share similarities in wording, structure, or meaning (mutashabihat)."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Select a Source Phrase',
+        text: "Select a Surah and Ayah to use as your anchor. Use the 'Word from' and 'Word to' dropdowns to pinpoint the exact sequence of words you want to analyze.",
+        screenshot: 'mutashabihat-builder.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Search for Similarities',
+        text: "Apply filters like 'Root', 'Lemma', or 'LCS' (Longest Common Subsequence) to find related verses. Click 'Apply Filter' to see a list of suggested ayahs that match your criteria.",
+        screenshot: 'mutashabihat-filters.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Save and Refine',
+        text: "Review the suggested ayahs. You can include or exclude specific words by clicking the '+' or 'X' icons that appear when you hover over them. Click 'Save' to bookmark the phrase for future reference.",
+        screenshot: 'mutashabihat-save.png'
+      }
+    ]
+  end
+
   def doc_image_tag(path)
     # NOTE: update version number when images are updated
     url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}?v=2"

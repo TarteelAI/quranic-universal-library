@@ -1,6 +1,11 @@
+<%
+  resource = @presenter.resource
+  resource_content = resource.resource_content
+%>
+
 <%= render 'tools/header',
            name: 'Surah Information',
-           title: "Update #{@resource.name} For Surah #{@info.chapter.name_simple}",
+           title: "Update #{resource_content.name} For Surah #{resource.chapter.name_simple}",
            key: 'surah_info'
 %>
 
@@ -8,7 +13,7 @@
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
   <div class="page-section">
-    <%= form_with model: @info, url: surah_info_path(@info.chapter_id, resource_id: @resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
+    <%= form_with model: resource, url: surah_info_path(resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
       <div class="tw-mb-4 tw-mb-3">
         <%= form.label :short_text, class: 'form-label h2' %>
         <%= form.text_area :short_text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', row: 2 %>
@@ -19,8 +24,8 @@
         <%= form.text_area :text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
       </div>
 
-      <div class="tw-mb-4 tw-flex tw-justify-end tw-mt-3">
-        <%= link_to 'Cancel', surah_info_path(@info.chapter_id, language: @info.language_id, resource_id: @resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors' %>
+      <div class="tw-mb-4 tw-flex tw-justify-end tw-mt-3 tw-gap-3">
+        <%= link_to 'Cancel', surah_info_path(resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors' %>
         <%= form.submit "Save Surah Info", class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>

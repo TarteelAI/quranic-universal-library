@@ -12,45 +12,71 @@
   data-ranges="<%= ranges %>"
   data-ayahid="<%= ayah.id %>"
   data-ayahkey="<%= ayah.verse_key %>"
+  class="ayah tw-bg-white tw-rounded-xl tw-border-2 <%= persisted ? 'tw-border-green-500 tw-shadow-md' : 'tw-border-gray-100 tw-shadow-sm' %> tw-p-5 tw-mb-4 tw-transition-all hover:tw-border-blue-200">
+  
+  <div class="tw-flex tw-justify-between tw-items-center tw-mb-4 tw-pb-4 tw-border-b tw-border-gray-50">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <% if persisted %>
+        <div class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-green-500 tw-text-white tw-text-xs">
   class="ayah tw-flex quran-text flex-column tw-border tw-border-gray-300 tw-p-3 tw-mb-2 border-2 <%= 'border-success' if persisted %>">
   <div class="actions">
     <% if persisted %>
       <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', title: 'See ayah in admin', data: { controller: 'tooltip' } do %>
-        <span class="badge tw-bg-green-500">
+        <span class="badge badge-success">
           <i class="fas fa-check"></i>
+        </div>
+      <% end %>
+      
+      <span class="tw-px-2.5 tw-py-0.5 tw-rounded-md tw-text-sm tw-font-bold tw-bg-gray-800 tw-text-white"><%= ayah.verse_key %></span>
+      
+      <span class="tw-px-2.5 tw-py-0.5 tw-rounded-md tw-text-xs tw-font-medium tw-bg-blue-50 tw-text-blue-700 tw-border tw-border-blue-100">
+        <%= matcher %>
+      </span>
+
+      <% if ranges.any? %>
+        <span class="tw-px-2.5 tw-py-0.5 tw-rounded-md tw-text-xs tw-font-mono tw-bg-gray-100 tw-text-gray-600">
+          <%= ranges.inspect %>
         </span>
       <% end %>
-    <% end %>
+    </div>
 
-    <span class="badge tw-bg-green-500"><%= ayah.verse_key %></span>
-    <span class="badge tw-bg-blue-400">
+    <div class="tw-flex tw-items-center tw-gap-1.5">
+      <% if @access %>
+        <button class="tw-h-8 tw-px-3 tw-text-xs tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center tw-gap-1.5" data-action="savePhrase" title="Save phrase" data-controller="tooltip">
+          <i class="fas fa-save"></i>
+          <span class="tw-hidden md:tw-inline">Save</span>
+        </button>
+    <span class="badge badge-success"><%= ayah.verse_key %></span>
+    <span class="badge badge-info">
       <%= matcher %>
     </span>
 
-    <span class="badge tw-bg-blue-400">
+    <span class="badge badge-info">
       <%= ranges %>
     </span>
 
-    <% if @access %>
-      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-bg-green-500 hover:tw-bg-green-600 tw-text-white" data-action="savePhrase" title="Save phrase" data-controller="tooltip">
-        <i class="fas fa-save"></i>
-      </a>
+        <button class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-slate-300 tw-text-slate-600 hover:tw-bg-slate-50 tw-rounded tw-transition-colors" data-action="resetSelection" title="Reset selection" data-controller="tooltip">
+          <i class="fas fa-redo-alt tw-text-xs"></i>
+        </button>
 
-      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white" data-action="resetSelection" title="Reset selection" data-controller="tooltip">
-        <i class="fas fa-refresh"></i>
-      </a>
+        <button class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-red-200 tw-text-red-600 hover:tw-bg-red-50 tw-rounded tw-transition-colors" data-action="removePhrase" title="Remove phrase" data-controller="tooltip">
+          <i class="fas fa-trash tw-text-xs"></i>
+        </button>
 
-      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-bg-red-500 hover:tw-bg-red-600 tw-text-white has-tooltip" data-action="removePhrase" title="Remove phrase" data-controller="tooltip">
-        <i class="fas fa-trash"></i>
-      </a>
+        <button class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-slate-300 tw-text-slate-600 hover:tw-bg-slate-50 tw-rounded tw-transition-colors" data-action="bookmark" title="Bookmark" data-controller="tooltip">
+          <i class="fas fa-bookmark tw-text-xs"></i>
+        </button>
+      <% end %>
 
-      <a class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors tw-px-3 tw-py-1 tw-text-sm tw-border tw-border-green-500 tw-text-green-500 hover:tw-bg-green-500 hover:tw-text-white" data-action="bookmark" title="Bookmark" data-controller="tooltip">
-        <i class="fas fa-bookmark"></i>
-      </a>
-    <% end %>
+      <% if persisted %>
+        <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}", target: '_blank', class: 'tw-text-gray-400 hover:tw-text-blue-500 tw-transition-colors', title: 'Open in CMS', data: { controller: 'tooltip' } do %>
+          <i class="fas fa-external-link-alt"></i>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
-  <div class="words tw-flex flex-wrap">
+  <div class="words tw-flex tw-flex-wrap tw-gap-y-6 tw-justify-end tw-dir-rtl">
     <% ayah.words.order('position asc').each do |w| %>
       <% if !w.ayah_mark? %>
         <%
@@ -61,31 +87,31 @@
           selected = w.position >= range[0] && w.position <= range[1]
           skipped = skipped_words.include?(w.position)
         %>
-        <div class="tw-flex flex-column m-3 tw-items-center word <%= 'selected' if selected %>"
-             data-position="<%= w.position %>"
-        >
+        <div class="word tw-flex tw-flex-col tw-items-center tw-px-2 tw-relative tw-group <%= 'selected' if selected %> <%= 'removed' if skipped %>"
+             data-position="<%= w.position %>">
+          
           <% if @access %>
-            <i class="fa-solid fa-xmark tw-p-1 tw-rounded <%= 'active' if skipped %>"
-               data-action="remove"
-               title="Exclude from phrase"
-               data-controller="tooltip"
-            ></i>
+            <div class="tw-absolute -tw-top-5 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity tw-flex tw-gap-1 tw-z-10">
+              <i class="fa-solid fa-xmark tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= skipped ? 'active tw-bg-red-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-red-500 hover:tw-text-white hover:tw-border-red-500' %> tw-shadow-sm"
+                 data-action="remove"
+                 title="Exclude"
+                 data-controller="tooltip"></i>
+                 
+              <i data-action="add"
+                 title="Include"
+                 data-controller="tooltip"
+                 class="fa-solid fa-plus tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= selected ? 'active tw-bg-green-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-green-500 hover:tw-text-white hover:tw-border-green-500' %> tw-shadow-sm">
+              </i>
+            </div>
           <% end %>
-          <span class="tw-my-2 quran-text qpc-hafs <%= 'text-success' if selected %> 'text-danger' skipped">
-          <%= w.text_qpc_hafs %>
-        </span>
 
-          <span class="fs-xs">
-          <%= w.position %>
-        </span>
+          <span class="quran-text qpc-hafs tw-text-2xl tw-mb-1 <%= 'tw-text-green-600 tw-font-bold' if selected %> <%= 'tw-text-red-400 tw-line-through' if skipped %>">
+            <%= w.text_qpc_hafs %>
+          </span>
 
-          <% if @access %>
-            <i data-action="add"
-               title="Include in phrase"
-               data-controller="tooltip"
-               class="fa-solid fa-plus tw-p-1 tw-rounded <%= 'active' if selected %>">
-            </i>
-          <% end %>
+          <span class="tw-text-xs tw-font-mono tw-text-gray-500 tw-bg-gray-50 tw-px-1.5 tw-py-0.5 tw-rounded">
+            <%= w.position %>
+          </span>
         </div>
       <% end %>
     <% end %>

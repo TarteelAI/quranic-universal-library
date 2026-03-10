@@ -4,10 +4,12 @@ module Utils
   class DbBackup
     include ActionView::Helpers::NumberHelper
     STORAGE_PATH = "#{Rails.root}/tmp/database_dumps".freeze
-    attr_reader :config, :backup_name
-    attr_accessor :options
 
-    def self.run(tag, options: {})
+    attr_accessor :config,
+                :backup_name,
+                :options
+
+    def self.run(tag, options: { binary: false })
       FileUtils.mkdir_p(STORAGE_PATH)
 
       databases.each do |key, config|
@@ -22,8 +24,7 @@ module Utils
     end
 
     def run(tag)
-      require 'fileutils'
-      FileUtils.mkdir_p STORAGE_PATH
+      FileUtils.mkdir_p(STORAGE_PATH)
 
       # create the dump
       command = pg_dump_command
@@ -48,7 +49,6 @@ module Utils
       backup.size = number_to_human_size(File.size(dump_file_name))
       backup.tag = tag
 
-      # Use ActiveStorage for new backups
       backup.backup_file.attach(
         io: File.open(dump_file_name),
         filename: File.basename(dump_file_name),
@@ -79,7 +79,6 @@ module Utils
     def compress
       `bzip2 #{dump_file_name}`
 
-      # return the db file path
       @dump_filename = "#{dump_file_name}.bz2"
 
       if export_binary?
@@ -91,7 +90,7 @@ module Utils
     protected
 
     def export_binary?
-      Rails.env.development? || options[:binary]
+      options[:binary]
     end
 
     def binary_dump_command

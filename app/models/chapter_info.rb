@@ -21,12 +21,30 @@
 #
 class ChapterInfo < QuranApiRecord
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
-  include Resourceable
 
+  belongs_to :resource_content, optional: true
   belongs_to :chapter
   belongs_to :language
 
   def surah_name
     chapter.name_simple
+  end
+
+  def previous_surah_info
+    ChapterInfo
+      .where(
+        resource_content_id: resource_content_id,
+        chapter_id: chapter_id - 1
+      )
+      .first
+  end
+
+  def next_surah_info
+    ChapterInfo
+      .where(
+        resource_content_id: resource_content_id,
+        chapter_id: chapter_id + 1
+      )
+      .first
   end
 end

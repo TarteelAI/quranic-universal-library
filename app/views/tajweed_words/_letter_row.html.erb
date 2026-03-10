@@ -28,7 +28,7 @@
         <div class="tw-flex tw-justify-between">
           <%= f.select :rule, options_for_select(rule_options, selected: letter['r']), { include_blank: 'Select rule' }, id: "l-#{@tajweed_word.id}-#{letter['i']}", data: { controller: 'select2', placeholder: 'Select rule' } %>
 
-          <%= f.submit 'Save', class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
+          <%= f.submit 'Save', class: 'btn btn-success' %>
         </div>
       <% end %>
     <% end %>

@@ -176,12 +176,7 @@ Rails.application.routes.draw do
       match :group_info, via: [:get, :post]
     end
   end
-  resources :surah_infos, except: :delete do
-    member do
-      get :history
-      get :changes
-    end
-  end
+  resources :surah_infos, except: :delete
   resources :translation_diffs, only: [:index, :show]
 
   namespace :exports do

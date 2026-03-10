@@ -1,4 +1,6 @@
 class CommunityController < ApplicationController
+  before_action :init_presenter
+
   DEFAULT_LANGUAGE = 174 # We're focusing on Urdu atm
   helper_method :current_language
   before_action :load_resource_access

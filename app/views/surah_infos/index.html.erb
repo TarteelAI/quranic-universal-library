@@ -1,6 +1,13 @@
+<%
+  records = @presenter.resources
+  resource = @presenter.resource_content
+  language = @presenter.language
+  available_languages = @presenter.available_languages
+%>
+
 <%= render 'tools/header',
            name: 'Surah Information',
-           title: "Proofread Surah info for #{@resource.language_name&.humanize} language",
+           title: "Proofread Surah info for #{language.name} language",
            key: 'surah_info'
 %>
 
@@ -11,7 +18,11 @@
     <%= form_tag surah_infos_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="tw-flex tw-flex-wrap">
         <div class="tw-mb-4 tw-me-2">
-          <%= select_tag :language_id, options_from_collection_for_select(@available_languages, :id, :name, selected: @language.id), include_blank: false, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]', data: { placeholder: 'Select language', controller: 'select2' } %>
+          <%= select_tag :language_id,
+                         options_from_collection_for_select(available_languages, :id, :name, selected: language.id),
+                         include_blank: false, class: 'form-select tw-w-[85vw] sm:tw-w-[200px]',
+                         data: { placeholder: 'Select language', controller: 'select2' }
+          %>
           <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Filter by language</p>
         </div>
 
@@ -30,7 +41,7 @@
     <table class="tw-w-full hover:tw-bg-gray-50">
       <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
       <tr>
-        <th><%= sort_order_link 'Surah', :chapter_id, resource_id: @resource.id %></th>
+        <th><%= sort_order_link 'Surah', :chapter_id, resource_id: resource.id %></th>
         <th>Language</th>
         <th>Short text</th>
         <th>Actions</th>
@@ -38,22 +49,24 @@
       </thead>
 
       <tbody>
-      <% @surah_infos.each do |info| %>
+      <% records.each do |info| %>
         <tr class="hover:tw-bg-gray-200 tw-border-b">
-          <th scope="row" class="tw-py-2 tw-pl-2"><%= info.chapter_id %> - <%= info.chapter.name_simple %></th>
+          <th scope="row" class="tw-py-2 tw-pl-2 tw-text-left">
+            <%= info.chapter_id %> - <%= info.chapter.name_simple %>
+          </th>
 
           <td class="tw-py-2">
-            <%= info.language.name %>
+            <%= info.language_name %>
           </td>
 
           <td class="tw-py-2">
-            <%= info.short_text %>
+            <%= truncate (info.short_text.presence || info.text).to_s, length: 200 %>
           </td>
 
           <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
-              <%= link_to 'Edit', edit_surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'btn btn-info' if @access %>
-              <%= link_to 'Show', surah_info_path(info.chapter_id, resource_id: @resource.id, language: info.language_id), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
+              <%= link_to 'Edit', edit_surah_info_path(info.id), class: 'btn btn-info' if @access %>
+              <%= link_to 'Show', surah_info_path(info.id), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

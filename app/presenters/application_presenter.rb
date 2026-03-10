@@ -81,4 +81,14 @@ class ApplicationPresenter
     items = params[:per_page].to_i.abs
     [items | 10, MAX_RECORDS_PER_PAGE].min
   end
+
+  def sort_order
+    s = (params[:sort_order].presence || 'asc').downcase
+
+    if ['asc', 'desc'].include?(s)
+      s
+    else
+      'asc'
+    end
+  end
 end

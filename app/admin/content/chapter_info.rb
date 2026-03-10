@@ -3,6 +3,8 @@
 ActiveAdmin.register ChapterInfo do
   menu parent: 'Content', priority: 3
   actions :all, except: :destroy
+  includes :resource_content
+
   ActiveAdminViewHelpers.versionate(self)
 
   filter :chapter,
@@ -21,34 +23,29 @@ ActiveAdmin.register ChapterInfo do
 
   index do
     id_column
-
+    column :resource_content
     column :language do |resource|
       link_to resource.language_name, cms_language_path(resource.language_id) if resource.language_id
     end
-
     column :chapter do |resource|
       link_to resource.chapter_id, cms_chapter_path(resource.chapter_id)
     end
-
     actions
   end
 
   show do
     attributes_table do
       row :id
-      row :chapter do |object|
-        link_to object.chapter_id, cms_chapter_path(object.chapter)
-      end
+      row :chapter
       row :language
-      row :resource_content do |object|
-        object.get_resource_content&.name
-      end
+      row :resource_content
 
       row :text do |resource|
         div class: resource.language_name do
           safe_html resource.text
         end
       end
+
       row :short_text
       row :created_at
       row :updated_at

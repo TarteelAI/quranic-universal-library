@@ -1,7 +1,7 @@
 module Audio
   class ExportAudioSegmentsJob < ApplicationJob
     queue_as :default
-    def perform(file_name:, table_name: 'ayah_timing', user_id:, recitations_ids: [], gapless: false, format: 'sqlite')
+    def perform(file_name: 'segments', table_name: 'ayah_timing', user_id:, recitations_ids: [], gapless: false, format: 'sqlite')
       exporter = AudioSegment::Tarteel.new(
         file_name: file_name,
         table_name: table_name,

@@ -5,7 +5,7 @@
           <strong><%= @ayah.chapter.name_simple %></strong>
           <% current_tab = params[:tab].presence || 'ayah' %>
           <span class="tw-relative tw-inline-block" data-controller="ayah-jump" data-ayah-jump-tab-value="<%= current_tab %>">
-            <button type="button" class="badge tw-bg-blue-500 tw-inline-flex tw-items-center tw-gap-1 tw-px-2 tw-py-0.5 tw-rounded tw-text-white tw-text-xs" data-action="click->ayah-jump#toggle">
+            <button type="button" class="badge badge-info" data-action="click->ayah-jump#toggle">
               Ayah <%= @ayah.verse_number %>
               <i class="fa fa-chevron-down tw-text-[10px]"></i>
             </button>
@@ -32,8 +32,8 @@
     </div>
 
     <div class="tw-flex tw-gap-2 tw-flex-wrap">
-      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
-      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-rounded tw-font-medium tw-transition-colors tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
+      <%= link_to 'Previous ayah', ayah_path(@ayah.previous_ayah.verse_key, tab: current_tab), class: 'btn btn-dark tw-px-3 tw-py-1.5 tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.previous_ayah %>
+      <%= link_to 'Next ayah', ayah_path(@ayah.next_ayah.verse_key, tab: current_tab), class: 'btn btn-dark tw-px-3 tw-py-1.5 tw-whitespace-nowrap', data: { ayah_nav: true, turbo_frame: :ayah_info, turbo_action: 'replace' } if @ayah.next_ayah %>
     </div>
   </div>
 

@@ -9,13 +9,14 @@
       actions << link_to('Next ayah', morphology_phrase_path(next_ayah.id, proofread: true), class: 'btn btn-dark')
     end
 
-    actions << link_to('Back', morphology_phrases_path(proofread: true), class: 'btn btn-info')
+    actions << link_to('Back', morphology_phrases_path(proofread: true), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-slate-700 hover:tw-bg-slate-800 tw-text-white tw-rounded tw-transition-colors tw-inline-flex tw-items-center')
   %>
 
   <%= render 'tools/header',
              name: 'Mutashabihat ul Quran',
              title: "Mutashabihat phrases for ayah #{@verse.verse_key}",
              key: 'ayah_mutashabihat',
+             help: 'mutashabihat',
              actions: actions
   %>
   <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-mt-4 tw-relative tw-z-10">

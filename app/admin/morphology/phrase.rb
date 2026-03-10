@@ -131,14 +131,14 @@ ActiveAdmin.register Morphology::Phrase do
             tr do
               td link_to v.id, [:cms, v]
               td link_to verse.verse_key, [:cms, verse]
-              td  do
-                status_tag v.approved?
-
-                div class: 'tw-flex tw-flex-col' do
-                if(can? :update, Morphology::MatchingVerse)
-                    span class: 'tw-my-2' do
+              td class: 'tw-py-2' do
+                div class: 'tw-flex tw-flex-col tw-gap-2 tw-items-start' do
+                  status_tag v.approved?
+                  
+                  if can? :update, Morphology::MatchingVerse
+                    div class: 'tw-w-full' do
                       link_to approve_cms_morphology_phrase_verse_path(v),
-                              class: "tw-btn tw-btn-sm #{v.approved? ? 'tw-btn-danger' : 'tw-btn-success'}",
+                              class: "tw-btn tw-btn-sm tw-whitespace-nowrap tw-w-full tw-text-center #{v.approved? ? 'tw-btn-danger' : 'tw-btn-success'}",
                               method: :put,
                               data: { remote: true, confirm: 'Are you sure?' } do
                         v.approved? ? 'Un Approve!' : 'Approve!'
@@ -146,14 +146,14 @@ ActiveAdmin.register Morphology::Phrase do
                     end
 
                     if resource.source_verse_id && v.verse_id != resource.source_verse_id
-                      span id: dom_id(v) do
+                      div id: dom_id(v), class: 'tw-w-full' do
                         link_to create_matching_ayah_cms_morphology_phrase_verse_path(v), method: :put,
-                                class: 'tw-btn tw-btn-sm tw-btn-info', data: { remote: true, confirm: 'Are you sure?' } do
+                                class: 'tw-btn tw-btn-sm tw-btn-info tw-whitespace-nowrap tw-w-full tw-text-center', data: { remote: true, confirm: 'Are you sure?' } do
                           'Create Matching ayah'
                         end
+                      end
                     end
                   end
-                end
                 end
               end
 

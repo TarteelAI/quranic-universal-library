@@ -55,8 +55,6 @@ class AudioFile < QuranApiRecord
   belongs_to :chapter, optional: true
   belongs_to :recitation, optional: true
 
-  attribute :segments, :json, default: []
-
   scope :missing_segments, -> { where(segments_count: 0) }
 
   def has_audio_meta_data?

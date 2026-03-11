@@ -96,18 +96,13 @@ group :development do
   gem 'rubocop-performance'
   gem 'rubocop-rspec'
 
-  gem 'solargraph'
-  gem 'solargraph-rails'
   gem 'mechanize', require: false
 
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console'
-  #gem 'annotate'
+  gem 'annotate'
+  gem 'pry'
 
-###
-
-
-  gem 'pry-rails'
   # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
   # gem "rack-mini-profiler", ">= 2.3.3"
   # preview email on development

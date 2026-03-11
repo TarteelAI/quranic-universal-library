@@ -15,8 +15,6 @@ class Synonym < ApplicationRecord
     where('synonyms like ?', "%#{synonym}%")
   }
 
-  attribute :synonyms, :json, default: []
-
   has_many :word_synonyms, class_name: 'WordSynonym'
 
   def self.ransackable_scopes(*)

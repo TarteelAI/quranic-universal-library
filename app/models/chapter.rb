@@ -36,8 +36,6 @@ class Chapter < QuranApiRecord
   has_one :translated_name, as: :resource # for eager load
   has_many :chapter_infos
 
-  attribute :pages, :json, default: []
-
   alias_method :name, :id
 
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]

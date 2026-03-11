@@ -45,7 +45,7 @@ module Morphology
 
       delegate :chapter_number, :verse_number, :graph_number, to: :graph, allow_nil: true
 
-      enum type: {
+      enum :type, {
         word: 0,
         reference: 1,
         phrase: 2,

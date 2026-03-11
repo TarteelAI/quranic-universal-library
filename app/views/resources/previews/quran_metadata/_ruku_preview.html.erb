@@ -17,13 +17,13 @@
 
   <div class="tw-flex tw-gap-2">
     <% if ruku.ruku_number > 1 %>
-      <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number - 1), class: 'btn btn-secondary btn-sm' do %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number - 1), class: 'btn btn-secondary' do %>
         ← Previous
       <% end %>
     <% end %>
 
     <% if ruku.ruku_number < 30 %>
-      <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number + 1), class: 'btn btn-secondary btn-sm' do %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number + 1), class: 'btn btn-secondary' do %>
         Next →
       <% end %>
     <% end %>

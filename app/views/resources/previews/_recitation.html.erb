@@ -58,11 +58,11 @@
           </div>
 
           <div class="tw-flex tw-gap-2">
-            <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.previous_ayah&.verse_key), id: 'previous-ayah', class: 'btn btn-secondary btn-sm' do %>
+            <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.previous_ayah&.verse_key), id: 'previous-ayah', class: 'btn btn-secondary' do %>
               ← Previous
             <% end %>
 
-            <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.next_ayah&.verse_key), id: 'next-ayah', class: 'btn btn-secondary btn-sm' do %>
+            <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.next_ayah&.verse_key), id: 'next-ayah', class: 'btn btn-secondary' do %>
               Next →
             <% end %>
           </div>

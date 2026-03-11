@@ -64,7 +64,7 @@
 
         <td class="tw-py-2">
           <div class="tw-flex tw-flex-col tw-gap-2">
-            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success btn-sm' %>
+            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
             <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
           </div>
         </td>

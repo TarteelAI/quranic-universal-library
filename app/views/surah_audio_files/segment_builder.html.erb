@@ -4,14 +4,14 @@
 <%
   actions = []
   if @audio_file.chapter_id > 1
-    actions << link_to('Previous Surah', segment_builder_surah_audio_file_path(@audio_file.chapter_id - 1, recitation_id: @recitation.id), class: 'btn btn-dark btn-sm')
+    actions << link_to('Previous Surah', segment_builder_surah_audio_file_path(@audio_file.chapter_id - 1, recitation_id: @recitation.id), class: 'btn btn-dark')
   end
   if @audio_file.chapter_id < 114
-    actions << link_to('Next Surah', segment_builder_surah_audio_file_path(@audio_file.chapter_id + 1, recitation_id: @recitation.id), class: 'btn btn-dark btn-sm')
+    actions << link_to('Next Surah', segment_builder_surah_audio_file_path(@audio_file.chapter_id + 1, recitation_id: @recitation.id), class: 'btn btn-dark')
   end
 
-  actions << link_to('Short keys', '#_', class: 'btn btn-info btn-sm', data: { controller: 'ajax-modal', url: builder_help_surah_audio_files_path })
-  actions << link_to('Back to Index', surah_audio_files_path(recitation_id: @recitation.id), class: 'btn btn-info btn-sm')
+  actions << link_to('Short keys', '#_', class: 'btn btn-info', data: { controller: 'ajax-modal', url: builder_help_surah_audio_files_path })
+  actions << link_to('Back to Index', surah_audio_files_path(recitation_id: @recitation.id), class: 'btn btn-info')
 %>
 
 <%= render 'tools/header',

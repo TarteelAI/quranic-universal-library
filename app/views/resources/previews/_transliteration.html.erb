@@ -66,13 +66,13 @@
 
           <div class="tw-flex tw-gap-2">
             <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary btn-sm' do %>
+              <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
                 ← Previous
               <% end %>
             <% end %>
 
             <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary btn-sm' do %>
+              <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
                 Next →
               <% end %>
             <% end %>

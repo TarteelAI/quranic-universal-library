@@ -69,13 +69,13 @@
 
           <div class="tw-flex tw-gap-2">
             <% if chapter_id > 1 %>
-              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id - 1), class: 'btn btn-secondary btn-sm' do %>
+              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id - 1), class: 'btn btn-secondary' do %>
                 ← Previous
               <% end %>
             <% end %>
 
             <% if chapter_id < 114 %>
-              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id + 1), class: 'btn btn-secondary btn-sm' do %>
+              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id + 1), class: 'btn btn-secondary' do %>
                 Next →
               <% end %>
             <% end %>

@@ -1,15 +1,15 @@
 <%
   actions = []
   if @chapter.id > 1
-    actions << link_to('Previous Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'btn btn-dark btn-sm')
+    actions << link_to('Previous Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id - 1), class: 'btn btn-dark')
   end
 
   if @chapter.id < 114
-    actions << link_to('Next Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'btn btn-dark btn-sm')
+    actions << link_to('Next Surah', ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id + 1), class: 'btn btn-dark')
   end
 
-  actions << link_to('View Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id), class: 'btn btn-success btn-sm')
-  actions << link_to('Back to Index', ayah_audio_files_path(id: @recitation.id), class: 'btn btn-info btn-sm')
+  actions << link_to('View Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id), class: 'btn btn-success')
+  actions << link_to('Back to Index', ayah_audio_files_path(id: @recitation.id), class: 'btn btn-info')
 %>
 
 <%= render 'tools/header',
@@ -51,7 +51,7 @@
 
           <td class="tw-py-2">
             <div class="tw-flex tw-flex-col tw-gap-1">
-              <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id, verse: file.verse_number), class: 'btn btn-success btn-sm' %>
+              <%= link_to 'Fix Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id, verse: file.verse_number), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

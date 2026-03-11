@@ -16,13 +16,13 @@
 
   <div class="tw-flex tw-gap-2">
     <% if rub.rub_el_hizb_number > 1 %>
-      <%= link_to detail_resources_path('quran-metadata', resource.id, rub: rub.rub_el_hizb_number - 1), class: 'btn btn-secondary btn-sm' do %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, rub: rub.rub_el_hizb_number - 1), class: 'btn btn-secondary' do %>
         ← Previous
       <% end %>
     <% end %>
 
     <% if rub.rub_el_hizb_number < 240 %>
-      <%= link_to detail_resources_path('quran-metadata', resource.id, rub: rub.rub_el_hizb_number + 1), class: 'btn btn-secondary btn-sm' do %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, rub: rub.rub_el_hizb_number + 1), class: 'btn btn-secondary' do %>
         Next →
       <% end %>
     <% end %>

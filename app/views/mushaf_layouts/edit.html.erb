@@ -21,7 +21,7 @@
 
   actions << %Q{
     <div class='tw-relative' data-controller='dropdown'>
-      <button class='tw-h-10 btn btn-success btn-sm tw-flex tw-items-center tw-gap-2' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
+      <button class='tw-h-10 btn btn-success tw-flex tw-items-center tw-gap-2' type='button' data-action='click->dropdown#toggle' aria-expanded='false'>
         Actions
         <svg class='tw-w-4 tw-h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
           <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'></path>
@@ -36,7 +36,7 @@
   actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
   actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
 
-  actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'tw-h-10 btn btn-info btn-sm tw-flex tw-items-center')
+  actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'tw-h-10 btn btn-info tw-flex tw-items-center')
 %>
 
 <%= turbo_frame_tag :page do %>
@@ -137,7 +137,7 @@
 
               <div class="tw-flex tw-justify-center tw-p-4">
                 <%= link_to 'Cancel', mushaf_layout_path(@mushaf.id, page_number: page_number), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors', style: 'margin-right: 50px' %>
-                <%= form.submit "Save", class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+                <%= form.submit "Save", class: 'btn btn-success', data: { disable_with: 'Please wait...' } %>
               </div>
             <% end %>
           </div>

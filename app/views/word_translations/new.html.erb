@@ -34,7 +34,7 @@
           <div class="tw-mb-4 tw-flex tw-justify-end tw-items-center tw-mt-3">
             <%= link_to 'Cancel', word_translation_path(@verse.id, language: @language.id), class: 'tw-me-3' %>
             <%= form.submit 'Save translations',
-                            class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors',
+                            class: 'btn btn-success',
                             data: { disable_with: 'Please wait...' } %>
           </div>
         <% end %>

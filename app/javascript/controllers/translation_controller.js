@@ -38,7 +38,7 @@ export default class extends AjaxModalController {
                     modalBody.innerHTML = `
                     <div class='tw-text-center tw-p-5'> 
                         <h2>${err.responseText}</h2>
-                        <p><a href="/users/sign_in?user_return_to=${location.pathname}" class="tw-btn tw-btn-primary">Login</a></p>
+                        <p><a href="/users/sign_in?user_return_to=${location.pathname}" class="btn btn-primary">Login</a></p>
                     </div>`;
                 }
             }

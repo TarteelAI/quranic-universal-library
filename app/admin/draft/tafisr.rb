@@ -45,13 +45,13 @@ ActiveAdmin.register Draft::Tafsir do
 
   action_item :previous, only: :show do
     if item = resource.previous_ayah_tafsir
-      link_to("Previous(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}", class: 'tw-btn tw-btn-sm tw-btn-info') if item
+      link_to("Previous(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}", class: 'btn btn-info') if item
     end
   end
 
   action_item :next, only: :show do
     if item = resource.next_ayah_tafsir
-      link_to "Next(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}", class: 'tw-btn tw-btn-sm tw-btn-info'
+      link_to "Next(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}", class: 'btn btn-info'
     end
   end
 
@@ -242,22 +242,22 @@ ActiveAdmin.register Draft::Tafsir do
           end
 
           div class: 'tw-flex tw-my-2 tw-justify-between tw-gap-2 tw-flex-wrap' do
-            span(link_to 'Filter', "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'tw-btn tw-btn-sm tw-btn-info')
+            span(link_to 'Filter', "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info')
 
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
             if can?(:manage, :draft_content)
-              span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'tw-btn tw-btn-sm tw-btn-success', data: { confirm: 'Are you sure to re-sync this tafsir from the source?' })
+              span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'btn btn-success', data: { confirm: 'Are you sure to re-sync this tafsir from the source?' })
 
               if issue_count.positive?
-                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'tw-btn tw-btn-sm tw-btn-warning')
+                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-warning')
               end
 
-              span(link_to 'Validate', validate_draft_cms_resource_content_path(resource_content), class: 'tw-btn tw-btn-sm tw-btn-success', data: { controller: 'ajax-modal', url: validate_draft_cms_resource_content_path(resource_content) })
-              span(link_to 'Compare grouping', compare_ayah_grouping_cms_resource_content_path(resource_content), class: 'tw-btn tw-btn-sm tw-btn-success', data: { controller: 'ajax-modal', url: compare_ayah_grouping_cms_resource_content_path(resource_content), css_class: 'modal-lg' })
+              span(link_to 'Validate', validate_draft_cms_resource_content_path(resource_content), class: 'btn btn-success', data: { controller: 'ajax-modal', url: validate_draft_cms_resource_content_path(resource_content) })
+              span(link_to 'Compare grouping', compare_ayah_grouping_cms_resource_content_path(resource_content), class: 'btn btn-success', data: { controller: 'ajax-modal', url: compare_ayah_grouping_cms_resource_content_path(resource_content), css_class: 'modal-lg' })
 
-              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'tw-btn tw-btn-sm tw-btn-warning', data: { confirm: 'Are you sure to import this tafsir?' })
-              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'tw-btn tw-btn-sm tw-btn-danger', data: { confirm: 'Are you sure to remove draft tafsir?' })
+              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-warning', data: { confirm: 'Are you sure to import this tafsir?' })
+              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-danger', data: { confirm: 'Are you sure to remove draft tafsir?' })
             end
           end
         end

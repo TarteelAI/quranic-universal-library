@@ -36,18 +36,10 @@ module.exports = {
     "tw-text-green-600",
     "tw-text-yellow-600",
     "tw-text-green-500",
-    "tw-hidden",
-    "tw-link-button",
     "tw-docs",
     "tw-docs *",
-    "tw-btn",
-    "tw-btn-sm",
-    "tw-btn-info",
-    "tw-btn-success",
-    "tw-btn-warning",
-    "tw-btn-danger",
 
-    // Custom btn classes
+    // Button classes
     "btn",
     "btn-primary",
     "btn-secondary",

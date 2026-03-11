@@ -93,7 +93,7 @@ ActiveAdmin.register Morphology::Phrase do
       end
 
       chapters.values.each do |c|
-        span class: 'tw-btn tw-btn-info tw-m-1' do
+        span class: 'btn btn-info tw-m-1' do
           span c[:chapter].id
           span c[:chapter].name_simple
           span c[:count], class: 'badge text-bg-secondary bg-success'
@@ -106,12 +106,12 @@ ActiveAdmin.register Morphology::Phrase do
         div do
           span do
             link_to 'Approve all', approve_cms_morphology_phrase_verse_path(resource, all: true, toggle: '1'),
-                    method: :put, class: 'tw-btn tw-btn-sm tw-btn-info', data: { remote: true, confirm: 'Are you sure?' }
+                    method: :put, class: 'btn btn-info', data: { remote: true, confirm: 'Are you sure?' }
           end
 
           span do
             link_to 'Disapprove all', approve_cms_morphology_phrase_verse_path(resource, all: true, toggle: '0'),
-                    method: :put, class: 'tw-btn tw-btn-sm tw-btn-info', data: { remote: true, confirm: 'Are you sure?' }
+                    method: :put, class: 'btn btn-info', data: { remote: true, confirm: 'Are you sure?' }
           end
         end
       end
@@ -138,7 +138,7 @@ ActiveAdmin.register Morphology::Phrase do
                   if can? :update, Morphology::MatchingVerse
                     div class: 'tw-w-full' do
                       link_to approve_cms_morphology_phrase_verse_path(v),
-                              class: "tw-btn tw-btn-sm tw-whitespace-nowrap tw-w-full tw-text-center #{v.approved? ? 'tw-btn-danger' : 'tw-btn-success'}",
+                              class: "btn tw-whitespace-nowrap tw-w-full tw-text-center #{v.approved? ? 'btn-danger' : 'btn-success'}",
                               method: :put,
                               data: { remote: true, confirm: 'Are you sure?' } do
                         v.approved? ? 'Un Approve!' : 'Approve!'
@@ -148,7 +148,7 @@ ActiveAdmin.register Morphology::Phrase do
                     if resource.source_verse_id && v.verse_id != resource.source_verse_id
                       div id: dom_id(v), class: 'tw-w-full' do
                         link_to create_matching_ayah_cms_morphology_phrase_verse_path(v), method: :put,
-                                class: 'tw-btn tw-btn-sm tw-btn-info tw-whitespace-nowrap tw-w-full tw-text-center', data: { remote: true, confirm: 'Are you sure?' } do
+                                class: 'btn btn-info tw-whitespace-nowrap tw-w-full tw-text-center', data: { remote: true, confirm: 'Are you sure?' } do
                           'Create Matching ayah'
                         end
                       end

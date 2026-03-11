@@ -170,6 +170,22 @@
     @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
   }
 
+  .btn-sm {
+    @apply tw-py-1 tw-px-3 tw-text-sm;
+  }
+
+  .btn-cta {
+    @apply tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold tw-border-gray-900 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors tw-px-8 tw-py-3;
+  }
+
+  .btn-outline-dark {
+    @apply tw-bg-transparent tw-text-gray-800 tw-border-gray-800 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors;
+  }
+
+  .btn-outline-pill {
+    @apply tw-inline-block tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300;
+  }
+
   /* Badge Component */
   .badge {
     @apply tw-inline-flex tw-items-center tw-justify-center tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-semibold tw-rounded;

@@ -62,6 +62,10 @@ module.exports = {
     "btn-danger",
     "btn-outline-info",
     "btn-outline-success",
+    "btn-sm",
+    "btn-cta",
+    "btn-outline-dark",
+    "btn-outline-pill",
 
     "tw-flex",
     "tw-flex-col",

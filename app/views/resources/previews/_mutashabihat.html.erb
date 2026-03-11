@@ -72,13 +72,13 @@
 
           <div class="tw-flex tw-gap-2">
             <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('mutashabihat', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+              <%= link_to detail_resources_path('mutashabihat', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary btn-sm' do %>
                 ← Previous
               <% end %>
             <% end %>
 
             <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('mutashabihat', resource.id, ayah: ayah.next_ayah.verse_key), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+              <%= link_to detail_resources_path('mutashabihat', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary btn-sm' do %>
                 Next →
               <% end %>
             <% end %>

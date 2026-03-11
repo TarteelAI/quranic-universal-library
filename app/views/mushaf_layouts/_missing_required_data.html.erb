@@ -103,7 +103,7 @@
           <% if step == 'word_mapping' %>
             <!-- For word mapping, only show Set Ayah Range button -->
             <%= link_to 'Set Ayah Range', '#_',
-                        class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors',
+                        class: 'btn btn-success btn-sm',
                         data: {
                           controller: 'ajax-modal',
                           url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number, view_type: 'page_mapping_modal'),
@@ -113,7 +113,7 @@
           <% else %>
             <!-- For other steps, show appropriate buttons based on completion status -->
             <%= link_to 'Set Ayah Range', '#_',
-                        class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors',
+                        class: 'btn btn-success btn-sm',
                         data: {
                           controller: 'ajax-modal',
                           url: mushaf_layout_path(@mushaf.id, page_number: @mushaf_page.page_number, view_type: 'page_mapping_modal'),
@@ -123,7 +123,7 @@
 
             <% if has_ayah_range && !has_words %>
               <%= link_to edit_mushaf_layout_path(@mushaf.id, page_number: page_number),
-                          class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors',
+                          class: 'btn btn-success btn-sm',
                           data: { turbo_frame: '_top' } do %>
                 <span>Map Words</span>
               <% end %>

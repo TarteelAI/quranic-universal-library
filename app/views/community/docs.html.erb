@@ -21,6 +21,6 @@
   <% if tag = DownloadableResourceTag.find_by(slug: params[:key]) %>
     <%= render partial: "docs/tag", locals: { tag: tag } %>
   <% else %>
-    <%= render partial: "docs/#{params[:key]}" %>
+    <%= render partial: "docs/#{params[:key]}" if lookup_context.exists?("docs/#{params[:key]}", [], true)%>
   <% end %>
 </div>

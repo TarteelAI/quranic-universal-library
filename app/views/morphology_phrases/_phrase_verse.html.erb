@@ -10,6 +10,7 @@
       <span class="tw-inline-block tw-w-4 tw-h-4 tw-rounded-sm tw-flex-shrink-0" style="background: <%= phrase.get_color %>"></span>
       <span class="tw-text-sm tw-font-medium <%= 'tw-text-red-600' if !phrase.approved? %>"><%= phrase.verses_count %> (<%= phrase.review_status %>)</span>
     <% end %>
+
     <% if @access %>
       <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put do |form| %>
         <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
@@ -28,6 +29,7 @@
       <% end %>
     <% end %>
   </div>
+
   <div class="quran-text qpc-hafs tw-text-xl tw-font-medium" style="<%= phrase.get_color.present? ? "color: #{phrase.get_color}" : 'color: #111827' %>">
     <%= phrase.text_qpc_hafs %>
   </div>

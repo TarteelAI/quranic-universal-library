@@ -21,7 +21,7 @@
         </div>
 
         <div class="tw-mb-4">
-          <%= submit_tag 'Filter', class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
         </div>
       </div>
     <% end %>
@@ -65,7 +65,7 @@
           <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
               <%= link_to 'Edit', edit_tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-info' %>
-              <%= link_to 'Show', tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors' %>
+              <%= link_to 'Show', tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

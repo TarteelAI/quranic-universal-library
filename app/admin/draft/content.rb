@@ -87,15 +87,15 @@ ActiveAdmin.register Draft::Content do
           end
 
           div class: 'tw-flex tw-my-2 tw-justify-between tw-gap-2 tw-flex-wrap' do
-            span link_to('Filter', "/cms/draft_contents?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'tw-btn tw-btn-sm tw-btn-info')
+            span link_to('Filter', "/cms/draft_contents?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info')
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
             if can?(:manage, :draft_content)
               if issue_count.positive?
-                span link_to("Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'tw-btn tw-btn-sm tw-btn-warning')
+                span link_to("Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-warning')
               end
               span link_to('Approve', import_draft_content_cms_resource_content_path(resource_content, approved: true),
                            method: :put,
-                           class: 'tw-btn tw-btn-sm tw-btn-warning',
+                           class: 'btn btn-warning',
                            data: { confirm: 'Are you sure to import this resource?' })
             end
           end

@@ -16,13 +16,13 @@
 
   <div class="tw-flex tw-gap-2">
     <% if juz.juz_number > 1 %>
-      <%= link_to detail_resources_path('quran-metadata', resource.id, juz: juz.juz_number - 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, juz: juz.juz_number - 1), class: 'btn btn-secondary' do %>
         ← Previous
       <% end %>
     <% end %>
 
     <% if juz.juz_number < 30 %>
-      <%= link_to detail_resources_path('quran-metadata', resource.id, juz: juz.juz_number + 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+      <%= link_to detail_resources_path('quran-metadata', resource.id, juz: juz.juz_number + 1), class: 'btn btn-secondary' do %>
         Next →
       <% end %>
     <% end %>

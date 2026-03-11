@@ -24,7 +24,7 @@
         <%= render 'shared/filters', juz: true %>
 
         <div class="tw-mb-4">
-          <%= submit_tag 'Filter', class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-4 tw-py-2 tw-rounded tw-transition-colors', data: { disable_with: 'Please wait..' } %>
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
         </div>
       </div>
     <% end %>
@@ -62,8 +62,8 @@
 
           <td class="tw-py-2">
             <div class="tw-flex tw-gap-1">
-              <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors' %>
-              <%= link_to 'Show', word_translation_path(verse.id, language: current_language.id), class: 'tw-bg-green-500 hover:tw-bg-green-600 tw-text-white tw-px-3 tw-py-1 tw-rounded tw-text-sm tw-transition-colors' %>
+              <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, language: current_language.id), class: 'btn btn-info' %>
+              <%= link_to 'Show', word_translation_path(verse.id, language: current_language.id), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

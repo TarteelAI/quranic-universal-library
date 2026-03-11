@@ -18,34 +18,6 @@
     @apply border-b-2 border-blue-600 text-blue-600;
   }
 
-  .tw-link-button {
-    @apply tw-font-semibold tw-underline hover:tw-text-black;
-  }
-
-  .tw-btn {
-    @apply !tw-no-underline tw-font-semibold tw-py-2 tw-px-4 tw-rounded focus:tw-outline-none focus:tw-ring-2;
-  }
-
-  .tw-btn-sm {
-    @apply tw-py-1 tw-px-2 tw-text-sm;
-  }
-
-  .tw-btn-info {
-    @apply tw-bg-blue-500 !tw-text-white hover:tw-bg-blue-600 focus:tw-ring-blue-300 hover:!tw-text-white;
-  }
-
-  .tw-btn-success {
-    @apply tw-bg-green-500 !tw-text-white hover:tw-bg-green-600 focus:tw-ring-green-300 hover:!tw-text-white;
-  }
-
-  .tw-btn-warning {
-    @apply tw-bg-yellow-500 !tw-text-white hover:tw-bg-yellow-600 focus:tw-ring-yellow-300 hover:!tw-text-white;
-  }
-
-  .tw-btn-danger {
-    @apply tw-bg-red-500 !tw-text-white hover:tw-bg-red-600 focus:tw-ring-red-300 hover:!tw-text-white;
-  }
-
   .tw-docs {
     @apply tw-text-gray-900 tw-leading-relaxed;
   }
@@ -168,6 +140,26 @@
 
   .btn-outline-info {
     @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+  }
+
+  .btn-sm {
+    @apply tw-py-1 tw-px-3 tw-text-sm;
+  }
+
+  .btn-lg {
+    @apply tw-py-3 tw-px-8 tw-text-lg;
+  }
+
+  .btn-cta {
+    @apply tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold tw-border-gray-900 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors tw-px-8 tw-py-3;
+  }
+
+  .btn-outline-dark {
+    @apply tw-bg-transparent tw-text-gray-800 tw-border-gray-800 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors;
+  }
+
+  .btn-outline-pill {
+    @apply tw-inline-block tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300;
   }
 
   /* Badge Component */

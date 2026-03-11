@@ -63,13 +63,13 @@
 
           <div class="tw-flex tw-gap-2">
             <% if page > 1 %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary' do %>
                 ← Previous Page
               <% end %>
             <% end %>
 
             <% if page < mushaf.pages_count %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'tw-bg-gray-200 hover:tw-bg-gray-300 tw-px-4 tw-py-2 tw-rounded tw-text-sm tw-shadow-sm' do %>
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary' do %>
                 Next Page →
               <% end %>
             <% end %>

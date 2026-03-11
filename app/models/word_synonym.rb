@@ -2,11 +2,11 @@
 #
 # Table name: word_synonyms
 #
-#  id         :bigint           not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id         :integer          not null, primary key
 #  synonym_id :integer
 #  word_id    :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 # Indexes
 #
@@ -14,6 +14,6 @@
 #
 
 class WordSynonym < ApplicationRecord
-  belongs_to :word
-  belongs_to :synonym
+  belongs_to :word, optional: true
+  belongs_to :synonym, optional: true
 end

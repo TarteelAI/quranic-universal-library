@@ -40,7 +40,7 @@
 
 module Audio
   class Segment < QuranApiRecord
-    belongs_to :verse
+    belongs_to :verse, optional: true
     belongs_to :chapter
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :audio_file, class_name: 'Audio::ChapterAudioFile'

@@ -15,5 +15,5 @@
 #  index_pause_marks_on_word_id  (word_id)
 #
 class PauseMark < ApplicationRecord
-  belongs_to :word
+  belongs_to :word, optional: true
 end

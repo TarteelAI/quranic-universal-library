@@ -22,9 +22,10 @@
 class RootDetail < QuranApiRecord
   has_paper_trail
 
-  belongs_to :resource_content
-  belongs_to :language
+  belongs_to :resource_content, optional: true
+  belongs_to :language, optional: true
   belongs_to :root, optional: true
+  belongs_to :token, optional: true
 
   validates :token_id, presence: true
 end

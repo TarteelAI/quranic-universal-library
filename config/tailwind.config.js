@@ -63,6 +63,7 @@ module.exports = {
     "btn-outline-info",
     "btn-outline-success",
     "btn-sm",
+    "btn-lg",
     "btn-cta",
     "btn-outline-dark",
     "btn-outline-pill",

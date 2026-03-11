@@ -15,6 +15,7 @@
           <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4 tw-flex tw-items-center">
             <i class="fas fa-book-open tw-mr-2 tw-text-blue-500"></i> Source ayah/phrase
           </h3>
+
           <%
             ayah, range = @phrase_search.source_verse_and_range
             range ||= [-1, -1]
@@ -56,7 +57,7 @@
                 <% end %>
               </div>
             </div>
-            
+
             <div class="tw-flex tw-justify-between tw-items-center">
               <div class="tw-flex tw-flex-wrap tw-gap-4">
                 <div class="tw-flex tw-items-center">
@@ -85,15 +86,14 @@
           </div>
         </div>
 
-        <!-- Results Section -->
         <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-overflow-hidden" data-controller="tabs">
           <div class="tw-border-b tw-border-gray-100 tw-bg-gray-50/50 tw-px-4">
             <ul class="tw-flex tw-flex-wrap -tw-mb-px tw-text-sm tw-font-medium tw-text-center" role="tablist">
               <li class="tw-mr-2" role="presentation">
                 <button class="tw-inline-block tw-p-4 tw-border-b-2 tw-rounded-t-lg tw-border-blue-600 tw-text-blue-600 aria-selected:tw-border-blue-600 aria-selected:tw-text-blue-600 active"
-                   data-action="click->tabs#switch"
-                   data-tabs-target-value="tab-suggestions"
-                   role="tab" aria-selected="true">
+                        data-action="click->tabs#switch"
+                        data-tabs-target-value="tab-suggestions"
+                        role="tab" aria-selected="true">
                   Suggestions
                   <span class="tw-ml-2 tw-px-2 tw-py-0.5 tw-text-xs tw-font-bold tw-bg-green-100 tw-text-green-700 tw-rounded-full">
                     <%= @suggestions.keys.size %>
@@ -103,9 +103,9 @@
 
               <li class="tw-mr-2" role="presentation">
                 <button class="tw-inline-block tw-p-4 tw-border-b-2 tw-border-transparent tw-rounded-t-lg hover:tw-text-gray-600 hover:tw-border-gray-300"
-                   data-action="click->tabs#switch"
-                   data-tabs-target-value="tab-ayahs"
-                   role="tab" aria-selected="false">
+                        data-action="click->tabs#switch"
+                        data-tabs-target-value="tab-ayahs"
+                        role="tab" aria-selected="false">
                   Saved Ayahs
                 </button>
               </li>
@@ -113,66 +113,68 @@
           </div>
 
           <div class="tab-content tw-p-6">
-        <figure class="highlight tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-p-2" data-controller="tabs">
-          <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
-            <li class="tw-m-0">
-              <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 active"
-                 data-action="click->tabs#switch"
-                 data-tabs-target-value="tab-suggestions"
-                 role="tab" aria-selected="true">
-                Suggestions
-                <span class="badge badge-success tw-ms-1">
+            <div class="highlight tw-mt-4 tw-border tw-border-gray-300 tw-my-2 tw-p-2" data-controller="tabs">
+              <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
+                <li class="tw-m-0">
+                  <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 active"
+                     data-action="click->tabs#switch"
+                     data-tabs-target-value="tab-suggestions"
+                     role="tab" aria-selected="true">
+                    Suggestions
+                    <span class="badge badge-success tw-ms-1">
                   <%= @suggestions.keys.size %>
                 </span>
-              </a>
-            </li>
+                  </a>
+                </li>
 
-            <li class="tw-m-0">
-              <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200"
-                 data-action="click->tabs#switch"
-                 data-tabs-target-value="tab-ayahs"
-                 role="tab" aria-selected="false">
-                Ayahs
-              </a>
-            </li>
-          </ul>
-
-          <div class="tab-content tw-p-3">
-            <div class="tab-pane fade active show" id="tab-suggestions" role="tabpanel" aria-labelledby="tab-suggestions">
-              <div id="suggestions">
-                <div class="tw-bg-blue-50 tw-rounded-lg tw-p-4 tw-mb-6 tw-border tw-border-blue-100">
-                  <h4 class="tw-text-sm tw-font-bold tw-text-blue-800 tw-mb-2">Manual Addition</h4>
-                  <%= render 'add_ayah' %>
-                </div>
-
-                <div id="suggested-ayahs" class="tw-space-y-4">
-                  <% if @suggestions.any? %>
-                    <% @suggestions.each do |key, suggestion| %>
-                      <%= render 'ayah', options: suggestion %>
-                    <% end %>
-                  <% else %>
-                    <div class="tw-text-center tw-py-12 tw-text-gray-500">
-                      <i class="fas fa-search tw-text-4xl tw-mb-4 tw-opacity-20"></i>
-                      <p>No suggestions found for current selection.</p>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
+                <li class="tw-m-0">
+                  <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200"
+                     data-action="click->tabs#switch"
+                     data-tabs-target-value="tab-ayahs"
+                     role="tab" aria-selected="false">
+                    Ayahs
+                  </a>
+                </li>
+              </ul>
             </div>
 
-            <div class="tab-pane fade tw-hidden" id="tab-ayahs" role="tabpanel" aria-labelledby="tab-ayahs">
-              <% if @phrase&.persisted? %>
-                <%= turbo_frame_tag 'phrase-verses', src: morphology_phrase_path(@phrase.id, result_type: 'preview'), loading: "lazy", target: 'self' do %>
-                  <div class="tw-flex tw-items-center tw-justify-center tw-py-12">
-                    <div class="tw-animate-spin tw-rounded-full tw-h-8 tw-w-8 tw-border-b-2 tw-border-blue-600"></div>
-                    <span class="tw-ml-3 tw-text-gray-500">Loading saved phrases...</span>
+            <div class="tab-content tw-p-3">
+              <div class="tab-pane fade active show" id="tab-suggestions" role="tabpanel" aria-labelledby="tab-suggestions">
+                <div id="suggestions">
+                  <div class="tw-bg-blue-50 tw-rounded-lg tw-p-4 tw-mb-6 tw-border tw-border-blue-100">
+                    <h4 class="tw-text-sm tw-font-bold tw-text-blue-800 tw-mb-2">Manual Addition</h4>
+                    <%= render 'add_ayah' %>
+                  </div>
+
+                  <div id="suggested-ayahs" class="tw-space-y-4">
+                    <% if @suggestions.any? %>
+                      <% @suggestions.each do |key, suggestion| %>
+                        <%= render 'ayah', options: suggestion %>
+                      <% end %>
+                    <% else %>
+                      <div class="tw-text-center tw-py-12 tw-text-gray-500">
+                        <i class="fas fa-search tw-text-4xl tw-mb-4 tw-opacity-20"></i>
+                        <p>No suggestions found for current selection.</p>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade tw-hidden" id="tab-ayahs" role="tabpanel" aria-labelledby="tab-ayahs">
+                <% if @phrase&.persisted? %>
+                  <%= turbo_frame_tag 'phrase-verses', src: morphology_phrase_path(@phrase.id, result_type: 'preview'), loading: "lazy", target: 'self' do %>
+                    <div class="tw-flex tw-items-center tw-justify-center tw-py-12">
+                      <div class="tw-animate-spin tw-rounded-full tw-h-8 tw-w-8 tw-border-b-2 tw-border-blue-600"></div>
+                      <span class="tw-ml-3 tw-text-gray-500">Loading saved phrases...</span>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <div class="tw-text-center tw-py-12 tw-text-gray-500">
+                    <p>Save this phrase to see it in the Ayahs tab.</p>
                   </div>
                 <% end %>
-              <% else %>
-                <div class="tw-text-center tw-py-12 tw-text-gray-500">
-                  <p>Save this phrase to see it in the Ayahs tab.</p>
-                </div>
-              <% end %>
+              </div>
             </div>
           </div>
         </div>

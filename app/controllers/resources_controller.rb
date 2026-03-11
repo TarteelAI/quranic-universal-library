@@ -49,7 +49,7 @@ class ResourcesController < CommunityController
   def download
     if file = DownloadableFile.find_by(token: params[:token])
       file.track_download(current_user)
-      redirect_to file.file.url
+      redirect_to file.file.url, allow_other_host: true
     else
       redirect_to resource_path(params[:resource_id]), alert: 'Sorry, this resource does not exist.'
     end
@@ -81,12 +81,10 @@ class ResourcesController < CommunityController
   end
 
   def sort_with_zero_last(collection, attribute, direction)
-    # Split attribute path for nested attributes (e.g., 'verse.verse_number')
     attrs = attribute.split('.')
     
     sorted = collection.sort_by do |item|
       value = attrs.reduce(item) { |obj, attr| obj.send(attr) }
-      # For ascending sort, put 0 at the end by treating it as infinity
       if direction == 'asc'
         value == 0 ? Float::INFINITY : value
       else

@@ -1,3 +1,7 @@
+<%
+  resource = local_assigns[:resource] || @resource
+%>
+
 <div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex tw-relative" role="alert" data-controller="alert">
   <i class="fa fa-info-circle tw-me-2 fa-2x"></i>
   <div>
@@ -12,11 +16,11 @@
     </p>
 
     <p>
-      If you'd like to contribute to improving this <%= @resource.name %>, simply click the Request Access button below to send a request to the admin. Once approved, you'll be able to start suggesting the improvements to this resource.
+      If you'd like to contribute to improving this <%= resource.name %>, simply click the Request Access button below to send a request to the admin. Once approved, you'll be able to start suggesting the improvements to this resource.
     </p>
 
     <p id="btn-request-permission">
-      <%= link_to 'Request Access', '_', class: 'btn btn-dark',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg'} %>
+      <%= link_to 'Request Access', '_', class: 'btn btn-dark',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: resource.id, modal: true), css_class: 'modal-lg'} %>
     </p>
   </div>
 </div>

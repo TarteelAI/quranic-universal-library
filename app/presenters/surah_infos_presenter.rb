@@ -1,12 +1,17 @@
 class SurahInfosPresenter < ApplicationPresenter
   def resource_content
     # By default show english surah info
-    params[:resource_id] ||= 58
+    filters = {}
+    if params[:language_id].present?
+      filters[:language_id] = params[:language_id].to_i
+    else
+      filters[:id] = params[:resource_id] || 58
+    end
 
     ResourceContent
       .chapter_info
       .includes(:language)
-      .where(id: params[:resource_id]).first
+      .where(filters).first
   end
 
   def language

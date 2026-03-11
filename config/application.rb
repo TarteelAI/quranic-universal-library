@@ -23,6 +23,16 @@ module Qul
     config.assets.css_compressor = :escompress
     config.active_support.to_time_preserves_timezone = :zone
 
+    config.active_record.yaml_column_permitted_classes = [
+      Symbol,
+      Date,
+      Time,
+      ActiveSupport::TimeWithZone,
+      ActiveSupport::TimeZone,
+      ActiveSupport::HashWithIndifferentAccess,
+      BigDecimal
+    ]
+
     ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
       html_tag.html_safe
     end

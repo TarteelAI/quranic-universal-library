@@ -125,7 +125,7 @@ class TajweedRules
 
   def name(index)
     return if index.blank?
-    rules.key(index.to_i) || raise_invalid_rule(index)
+    rules.key(index.to_i)
   end
 
   def color(name)

@@ -48,15 +48,13 @@ if (watch || isDev) sourcemap = true;
 minify = false;
 sourcemap = true
 
-const stimulusAutoImportPlugin = require("./stimulus_auto_import_plugin");
-
 const config = {
   absWorkingDir: path.join(process.cwd(), "app/javascript"),
   bundle: true,
   entryPoints: entryPoints,
   minify: minify,
   outdir: path.join(process.cwd(), "app/assets/builds"),
-  plugins: [rails(), vuePlugin(), stimulusAutoImportPlugin()],
+  plugins: [rails(), vuePlugin()],
   sourcemap: sourcemap,
   metafile: generateMeta,
   loader: {

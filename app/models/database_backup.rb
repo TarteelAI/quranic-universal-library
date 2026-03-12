@@ -13,15 +13,10 @@
 #
 
 class DatabaseBackup < ApplicationRecord
-  mount_uploader :file, DatabaseBackupUploader
   has_one_attached :backup_file, service: :database_backups
 
   def file_url
-    if backup_file.attached?
-      Rails.application.routes.url_helpers.rails_blob_path(backup_file, only_path: true)
-    elsif file.present?
-      file.url
-    end
+    Rails.application.routes.url_helpers.rails_blob_path(backup_file, only_path: true) if backup_file.attached?
   end
 
   alias_method :url, :file_url

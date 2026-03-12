@@ -109,9 +109,6 @@ group :development do
   gem "letter_opener"
 end
 
-gem 'carrierwave', '~> 3.0'
-gem 'fog-aws'
-
 gem 'rest-client'
 
 gem 'sidekiq', '~> 7.2.4'

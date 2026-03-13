@@ -38,7 +38,10 @@ module AudioSegment
 
       db.close
 
-      file_path
+      `bzip2 #{file_path}`
+      FileUtils.rm_rf(file_path)
+
+      "#{file_path}.bz2"
     end
 
     # Export segments data as JSON files(one file per surah) and create a master zip
@@ -57,15 +60,16 @@ module AudioSegment
         resource_content.save(validate: false)
       end
 
-       `bzip2 #{file_path}`
+      if Rails.env.production?
+        manifest = ExportAssetsManifest.new
+        manifest.export_and_upload
+      end
 
-      # Update manifest
-      manifest = ExportAssetsManifest.new
-      manifest.export_and_upload
-
+      archive_path = "#{file_path}.tar.bz2"
+      system('tar', '-cjf', archive_path, '-C', File.dirname(file_path), File.basename(file_path))
       FileUtils.rm_rf(file_path)
 
-      "#{file_path}.bz2"
+      archive_path
     end
 
     protected
@@ -164,10 +168,11 @@ module AudioSegment
       all_segments = {}
       uploader = UploadToCdn.new
 
-      grouped.each do |chapter_id, segs|
+      grouped.each do |chapter_id, surah_segments|
         json_ayahs = []
+        previous_ayah_end_time = nil
 
-        segs.each_with_index do |seg, index|
+        surah_segments.each_with_index do |seg, index|
           ayah_segments = get_ayah_segments(seg)
           verse = seg.verse
 
@@ -181,14 +186,20 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
           end
 
-          next_ayah = segs[index+1]
+          next_ayah = surah_segments[index+1]
 
-          start_time = seg.timestamp_from.to_i
+          start_time = if previous_ayah_end_time
+                         [previous_ayah_end_time + 1, seg.timestamp_from.to_i].max
+                       else
+                         seg.timestamp_from.to_i
+                       end
+
           end_time = if next_ayah
-                       [seg.timestamp_to.to_i - 1, next_ayah.timestamp_to.to_i].max
+                       [seg.timestamp_to.to_i, next_ayah.timestamp_from.to_i - 1].max
                      else
                        seg.timestamp_to.to_i
                      end
+          previous_ayah_end_time = end_time
 
           json_ayahs << {
             ayah: verse.verse_number,
@@ -208,7 +219,7 @@ module AudioSegment
         all_segments[chapter_id] = json_ayahs
 
         key = "audio/gapless/#{recitation.get_resource_content.id}/#{chapter_id}.json"
-        uploader.upload(json_path, key)
+        uploader.upload(json_path, key) if Rails.env.production?
 
         json_path
       end
@@ -220,7 +231,7 @@ module AudioSegment
       end
 
       key = "audio/gapless/#{recitation.get_resource_content.id}/segments.json"
-      uploader.upload(full_segments_file_path, key)
+      uploader.upload(full_segments_file_path, key) if Rails.env.production?
     end
 
     def export_gapless_recitation_audio_files(recitation, target_dir)
@@ -243,7 +254,7 @@ module AudioSegment
 
       uploader = UploadToCdn.new
       key = "audio/gapless/#{recitation.get_resource_content.id}/audio_files.json"
-      uploader.upload(json_path, key)
+      uploader.upload(json_path, key) if Rails.env.production?
 
       json_path
     end

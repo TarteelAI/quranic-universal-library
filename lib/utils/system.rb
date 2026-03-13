@@ -2,7 +2,7 @@ module Utils
   class System
     def self.start_sidekiq
       if sidekiq_stopped?
-        system "bundle exec sidekiq -e #{Rails.env.to_s} -d &"
+        system "bundle exec sidekiq -e #{Rails.env.to_s} &"
       end
     rescue Exception => e
       Sentry.capture_exception(e)

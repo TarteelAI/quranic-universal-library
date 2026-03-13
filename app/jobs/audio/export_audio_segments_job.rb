@@ -23,15 +23,11 @@ module Audio
     def send_email(file_path, user_id, issues, format)
       admin = User.find(user_id)
 
-      `bzip2 #{file_path}`
-
-      zip_path = "#{file_path}.bz2"
-
       DeveloperMailer.notify(
         to: admin.email,
         subject: "Audio segments dump file (format: #{format})",
         message: email_body(admin, issues, format),
-        file_path: zip_path
+        file_path: file_path
       ).deliver_now
     end
 

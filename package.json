@@ -63,6 +63,7 @@
     "build": "node esbuild.config.js",
     "build:css": "npm-run-all --parallel \"build:css:* {@}\" --",
     "build:css:application": "sass ./app/assets/stylesheets/application.scss ./app/assets/builds/application.css --no-source-map --load-path=node_modules",
+    "build:css:tailwind": "bin/rails tailwindcss:build",
     "build:css:active_admin": "sass ./app/assets/stylesheets/active_admin.scss ./app/assets/builds/active_admin.css --no-source-map --load-path=node_modules",
     "build:css:pdf": "sass ./app/assets/stylesheets/pdf.scss ./app/assets/builds/pdf.css --no-source-map --load-path=node_modules --load-path=app/assets/custom-plugins",
     "build:css:tinymce_custom": "sass ./app/assets/stylesheets/tinymce_custom.scss ./app/assets/builds/tinymce_custom.css --no-source-map --load-path=node_modules --style=compressed",

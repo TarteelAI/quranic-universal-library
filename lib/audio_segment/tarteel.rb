@@ -167,7 +167,7 @@ module AudioSegment
       grouped.each do |chapter_id, segs|
         json_ayahs = []
 
-        segs.each do |seg|
+        segs.each_with_index do |seg, index|
           ayah_segments = get_ayah_segments(seg)
           verse = seg.verse
 
@@ -181,12 +181,19 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
           end
 
+          next_ayah = segs[index+1]
+
           start_time = seg.timestamp_from.to_i
+          end_time = if next_ayah
+                       [seg.timestamp_to.to_i - 1, next_ayah.timestamp_to.to_i].max
+                     else
+                       seg.timestamp_to.to_i
+                     end
 
           json_ayahs << {
             ayah: verse.verse_number,
             start: start_time,
-            end: seg.timestamp_to.to_i,
+            end: end_time,
             words: ayah_segments
           }
         end

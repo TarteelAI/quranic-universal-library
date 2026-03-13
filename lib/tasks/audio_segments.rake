@@ -1,4 +1,113 @@
 namespace :audio_segments do
+  task validate_segment_gaps: :environment do
+    tag = Tag.find(4)
+    resources = ResourceContent
+                  .recitations
+                  .one_chapter
+                  .joins(:resource_tags)
+                  .where(resource_tags: { tag_id: tag.id })
+
+    FileUtils.mkdir_p("public/segment_gaps/reciter")
+
+    recitations = Audio::Recitation.where(resource_content_id: resources.pluck(:id))
+    recitations.each do |recitation|
+      puts "Reciter #{recitation.id} - #{recitation.name}:"
+
+      output_path = Rails.root.join("public", "segment_gaps", "reciter", "#{recitation.get_resource_content.id}.csv")
+
+      CSV.open(output_path, "w") do |csv|
+        csv << [
+          "surah",
+          "ayah",
+          "start",
+          "end",
+          "next_start",
+          "gap"
+        ]
+
+        1.upto(114) do |chapter_id|
+          segments = recitation
+                       .audio_segments
+                       .where(chapter_id: chapter_id)
+                       .order('verse_id ASC')
+
+          segments.each_with_index do |seg, i|
+            nxt = segments[i + 1]
+            next if nxt.nil?
+
+            gap = seg.timestamp_to - nxt.timestamp_from
+            next unless gap > 0
+
+            csv << [
+              seg.chapter_id,
+              seg.verse_number,
+              seg.timestamp_from,
+              seg.timestamp_to,
+              nxt.timestamp_from,
+              gap
+            ]
+          end
+        end
+      end
+    end
+
+    puts "CSV exported to #{output_path}"
+  end
+
+  task validate_segment_manifest: :environment do
+    require "open-uri"
+    require "json"
+    require "csv"
+
+    manifest_url = "TODO"
+    manifest = Oj.load URI.open(manifest_url).read
+
+    manifest['assets']['segments'].each do |data|
+      id = data['id']
+      url = "#{data['url']}?v=#{data['version']}"
+
+      puts "Downloading segments for reciter #{id}..."
+      json = URI.open(url).read
+      segments = JSON.parse(json)
+
+      FileUtils.mkdir_p("public/segment_gaps/manifest")
+      output_path = Rails.root.join("public", "segment_gaps", "manifest", "#{id}.csv")
+
+      CSV.open(output_path, "w") do |csv|
+        csv << [
+          "surah",
+          "ayah",
+          "start",
+          "end",
+          "next_start",
+          "gap"
+        ]
+
+        segments.each do |surah, surah_segments|
+          sorted = surah_segments.sort_by { |s| s["ayah"] }
+          sorted.each_with_index do |seg, i|
+            nxt = sorted[i + 1]
+            next if nxt.nil?
+
+            gap = seg["end"] - nxt["start"]
+            next unless gap > 0
+
+            csv << [
+              surah,
+              seg["ayah"],
+              seg["start"],
+              seg["end"],
+              nxt["start"],
+              gap
+            ]
+          end
+        end
+      end
+
+      puts "CSV exported to #{output_path}"
+    end
+  end
+
   desc "Find Audio::Segment records with missing, misplaced, or invalid timing issues"
   task validate_segments: :environment do
     require "csv"

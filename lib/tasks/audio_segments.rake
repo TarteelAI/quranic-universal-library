@@ -17,11 +17,11 @@ namespace :audio_segments do
 
       CSV.open(output_path, "w") do |csv|
         csv << [
-          "surah",
           "ayah",
           "start",
           "end",
-          "next_start",
+          "next ayah",
+          "next start",
           "gap"
         ]
 
@@ -36,13 +36,13 @@ namespace :audio_segments do
             next if nxt.nil?
 
             gap = seg.timestamp_to - nxt.timestamp_from
-            next unless gap > 0
+            next if gap == 0
 
             csv << [
-              seg.chapter_id,
-              seg.verse_number,
+              seg.verse_key,
               seg.timestamp_from,
               seg.timestamp_to,
+              nxt.verse_key,
               nxt.timestamp_from,
               gap
             ]
@@ -51,7 +51,11 @@ namespace :audio_segments do
       end
     end
 
-    puts "CSV exported to #{output_path}"
+    file_path = "public/segment_gaps/reciter"
+    archive_path = "#{file_path}.tar.bz2"
+    system('tar', '-cjf', archive_path, '-C', File.dirname(file_path), File.basename(file_path))
+
+    puts "CSV exported to #{archive_path}"
   end
 
   task validate_segment_manifest: :environment do

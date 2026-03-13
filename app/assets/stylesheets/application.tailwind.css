@@ -222,6 +222,26 @@
   .badge-outline-purple {
     @apply tw-border tw-border-purple-500 tw-text-purple-500 tw-bg-transparent;
   }
+
+  .tag {
+    @apply tw-font-medium tw-px-4 tw-py-1 tw-rounded-full tw-cursor-pointer;
+  }
+
+  .tag-orange {
+    @apply tw-bg-orange-100 tw-text-orange-600;
+  }
+
+  .tag-blue {
+    @apply tw-bg-blue-100 tw-text-blue-600;
+  }
+
+  .tag-green {
+    @apply tw-bg-green-100 tw-text-green-600;
+  }
+
+  .tag-red {
+    @apply tw-bg-red-100 tw-text-red-600;
+  }
 }
 
 .resize-handler {

@@ -86,5 +86,11 @@ module.exports = {
     "badge-outline-warning",
     "badge-outline-info",
     "badge-outline-purple",
+
+    "tag",
+    "tag-orange",
+    "tag-blue",
+    "tag-green",
+    "tag-red",
   ],
 };

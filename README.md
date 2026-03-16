@@ -66,25 +66,34 @@ docker compose up -d
 ```
 This creates three databases automatically: `quran_community_tarteel`, `quran_dev` (with `quran` schema), and `quran_community_cms_test`.
 
-#### 3. Install Ruby dependencies
+#### 3. Set database environment variables
+```bash
+export DB_HOST=localhost
+export DB_USERNAME=postgres
+export DB_PASSWORD=password
+```
+You can also add these to a `.env` file or your shell profile.
+
+#### 4. Install dependencies
 ```bash
 gem install bundler
 bundle install
+npm install
 ```
 
-#### 4. Load the Quranic data dump
+#### 5. Load the Quranic data dump
 Download the [SQL dump file](https://static-cdn.tarteel.ai/qul/mini-dumps/mini_quran_dev.sql.zip), unzip it, and load it:
 ```bash
 PGPASSWORD=password psql -h localhost -U postgres -d quran_dev -f path/to/mini_quran_dev.sql
 ```
 
-#### 5. Run migrations and seed
+#### 6. Run migrations and seed
 ```bash
 rails db:migrate
 rails db:seed
 ```
 
-#### 6. Start the application
+#### 7. Start the application
 ```bash
 bin/dev
 ```

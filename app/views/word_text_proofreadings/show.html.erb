@@ -309,8 +309,22 @@
 </div>
 
 <script>
-  addEventListener('click', e => {
-    const node = e.target;
-    navigator.clipboard.writeText(node.textContent);
-  }, false);
+  document.querySelectorAll('.char').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', async (e) => {
+      const text = e.currentTarget.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    });
+  });
 </script>

@@ -1,0 +1,17 @@
+<%
+  selected = facet.selected
+  filter_classes = if selected
+    'tw-border-emerald-500 tw-bg-emerald-50 tw-text-emerald-800'
+  else
+    'tw-border-slate-200 tw-bg-white tw-text-slate-700 hover:tw-border-slate-300'
+  end
+%>
+
+<%= link_to resource_search_toggle_type_path(facet.resource_type),
+            class: "tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-border tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium hover:tw-text-inherit #{filter_classes}",
+            data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+  <span><%= resource_type_label(facet.resource_type) %></span>
+  <% if facet.count.present? %>
+    <span class="tw-inline-flex tw-min-w-[1.5rem] tw-items-center tw-justify-center tw-rounded-full tw-bg-black/5 tw-px-2 tw-py-0.5 tw-text-xs"><%= facet.count %></span>
+  <% end %>
+<% end %>

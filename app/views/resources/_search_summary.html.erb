@@ -1,0 +1,86 @@
+<%
+  search_result ||= @resource_search
+  show_facets ||= false
+  show_type_filters = show_facets && search_result&.global && search_result.available_resource_types.any?
+  show_tag_filters = show_facets && search_result.available_tags.any? && (!search_result.global || search_result.selected_resource_types.any?)
+  show_tag_hint = show_facets && search_result&.global && search_result.available_tags.any? && search_result.selected_resource_types.blank?
+%>
+
+<% if search_result&.active? || show_type_filters || show_tag_filters || show_tag_hint %>
+  <div class="tw-mt-6 tw-space-y-4">
+    <% if search_result&.quran_reference? %>
+      <div class="tw-rounded-2xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-4 tw-text-sm tw-text-emerald-900">
+        Quran reference detected:
+        <span class="tw-font-semibold"><%= search_result.normalized_ayah %></span>
+        <% if search_result.parsed_reference.chapter.present? %>
+          (<%= search_result.parsed_reference.chapter.name_simple %>, Ayah <%= search_result.parsed_reference.verse_number %>)
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if search_result&.active? %>
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-sm">
+        <span class="tw-text-gray-500">Active filters:</span>
+
+        <% if search_result.query.present? %>
+          <span class="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-bg-slate-100 tw-px-3 tw-py-1">
+            <span class="tw-font-medium">Search:</span>
+            <span><%= search_result.query %></span>
+          </span>
+        <% end %>
+
+        <% search_result.selected_resource_types.each do |resource_type| %>
+          <%= link_to resource_search_remove_type_path(resource_type), class: 'tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-bg-emerald-100 tw-text-emerald-800 tw-px-3 tw-py-1 hover:tw-text-emerald-900', data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+            <span class="tw-font-medium">Category:</span>
+            <span><%= resource_type_label(resource_type) %></span>
+            <span aria-hidden="true">&times;</span>
+          <% end %>
+        <% end %>
+
+        <% search_result.selected_tags.each do |tag_name| %>
+          <%= link_to resource_search_remove_tag_path(tag_name), class: 'tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-bg-[#476CFF]/10 tw-text-[#476CFF] tw-px-3 tw-py-1 hover:tw-text-[#476CFF]', data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+            <span class="tw-font-medium"><%= tag_name %></span>
+            <span aria-hidden="true">&times;</span>
+          <% end %>
+        <% end %>
+
+        <%= link_to 'Clear all', resource_search_clear_path, class: 'tw-text-sm tw-font-medium tw-text-gray-600 hover:tw-text-black tw-underline tw-underline-offset-4', data: { turbo_frame: 'resources', turbo_action: 'advance' } %>
+      </div>
+    <% end %>
+
+    <% if show_type_filters %>
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <span class="tw-text-sm tw-font-medium tw-text-slate-600">Categories:</span>
+
+        <% search_result.available_resource_types.each do |facet| %>
+          <%= render partial: 'resources/type_filter', locals: { facet: facet } %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if show_tag_filters %>
+      <div class="tw-space-y-2" data-controller="facet-list" data-facet-list-collapsed-lines-value="2">
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+          <span class="tw-text-sm tw-font-medium tw-text-slate-600">Refine by tag:</span>
+
+          <button type="button"
+                  class="tw-hidden tw-text-sm tw-font-medium tw-text-slate-600 hover:tw-text-slate-900"
+                  data-action="facet-list#toggle"
+                  data-facet-list-target="toggle"
+                  aria-expanded="false">
+            Show more
+          </button>
+        </div>
+
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-transition-[max-height] tw-duration-300 tw-ease-in-out"
+             data-facet-list-target="items">
+          <% search_result.available_tags.each do |facet| %>
+            <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
+          <% end %>
+        </div>
+      </div>
+    <% elsif show_tag_hint %>
+      <p class="tw-text-sm tw-text-slate-500">Select a category to narrow the results before filtering by tag.</p>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,29 @@
+<%
+  tag = facet.tag
+  selected = facet.selected
+  filter_classes = if selected
+    'tw-border-[#476CFF] tw-bg-[#476CFF]/10 tw-text-[#476CFF]'
+  else
+    'tw-border-slate-200 tw-bg-white tw-text-slate-700 hover:tw-border-slate-300'
+  end
+%>
+
+<div class="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-border tw-p-1 <%= filter_classes %>">
+  <%= link_to resource_search_toggle_tag_path(tag.name),
+              class: 'tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium hover:tw-text-inherit',
+              data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+    <span><%= tag.name %></span>
+    <% if facet.count.present? %>
+      <span class="tw-inline-flex tw-min-w-[1.5rem] tw-items-center tw-justify-center tw-rounded-full tw-bg-black/5 tw-px-2 tw-py-0.5 tw-text-xs"><%= facet.count %></span>
+    <% end %>
+  <% end %>
+
+  <% if tag.slug.present? %>
+    <%= link_to docs_path(tag.slug),
+                class: 'tw-inline-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-full tw-text-slate-500 hover:tw-bg-black/5 hover:tw-text-slate-700',
+                title: "Learn about #{tag.name}",
+                data: { controller: 'ajax-modal', url: docs_path(tag.slug), css_class: 'modal-lg' } do %>
+      <span class="tw-text-xs tw-font-bold">i</span>
+    <% end %>
+  <% end %>
+</div>

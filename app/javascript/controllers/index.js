@@ -148,6 +148,9 @@ application.register("runable-widget", RunableWidgetController);
 import EventTrackerController from "./event_tracker_controller";
 application.register("event-tracker", EventTrackerController);
 
+import FacetListController from "./facet_list_controller.js";
+application.register("facet-list", FacetListController);
+
 import SurahSegmentPlayerController from "./surah_segment_player_controller";
 import AyahSegmentPlayerController from "./ayah_segment_player_controller";
 

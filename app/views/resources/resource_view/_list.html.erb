@@ -1,11 +1,17 @@
+<%
+  resources = local_assigns[:resources] || @resources
+  search_context = local_assigns[:search_context] || @resource_search
+  show_tags_column = resources.any? { |card| card.get_tags.present? }
+%>
+
 <table class="tw-w-full">
   <thead>
   <tr class="tw-border-b tw-bg-slate-100 tw-text-sm">
     <th class="tw-py-3 tw-min-w-48 tw-px-4 tw-font-normal tw-align-top">
-      <%= sort_order_link 'Name', :name, {}, data: { turbo_action: 'advance' } %>
+      <%= search_context&.active? ? 'Name' : sort_order_link('Name', :name, {}, data: { turbo_action: 'advance' }) %>
     </th>
-    <th class="tw-py-3 tw-font-normal tw-hidden md:tw-table-cell tw-w-max tw-align-top">Category</th>
-    <% if @resources.any? { |card| card.get_tags.present? } %>
+    <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-w-max tw-align-top">Category</th>
+    <% if show_tags_column %>
       <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell tw-align-top">Tags</th>
     <% end %>
     <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-20 tw-hidden md:tw-table-cell tw-align-top">Download</th>
@@ -13,14 +19,14 @@
   </thead>
   <tbody>
 
-  <% @resources.each do |card| %>
+  <% resources.each do |card| %>
     <% tags = card.get_tags %>
 
     <tr class="tw-border-b" id="<%= dom_id card %>"
         data-search="<%= "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}" %>">
       <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-max-w-[500px] tw-align-top">
         <p class="tw-font-semibold tw-block">
-          <%= link_to card.name, detail_resources_path(card.resource_type, card.id), class: 'hover:tw-text-[#46ac7a] tw-transition-colors', data: { turbo_frame: '_top' } %>
+          <%= link_to card.name, resource_search_detail_path(card, search_context), class: 'hover:tw-text-[#46ac7a] tw-transition-colors', data: { turbo_frame: '_top' } %>
         </p>
 
         <% if card.related_resources.present? %>
@@ -33,11 +39,26 @@
         <% end %>
 
         <div class="tw-text-gray-500 tw-text-xs tw-mt-1 md:tw-hidden tw-flex tw-flex-col tw-gap-1 tw-space-y-1">
-          <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+          <div class="tw-flex tw-flex-wrap tw-gap-2">
+            <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-emerald-50 tw-px-2.5 tw-py-1 tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-emerald-700">
+              <%= resource_type_label(card.resource_type) %>
+            </span>
+
+            <% if card.humanize_cardinality_type.present? %>
+              <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-slate-100 tw-px-2.5 tw-py-1 tw-text-[11px] tw-font-medium tw-text-slate-700">
+                <%= card.humanize_cardinality_type %>
+              </span>
+            <% end %>
+          </div>
+
+          <%= render 'card/card-description', description: card.description.presence || card.info.presence || card.humanize_cardinality_type %>
 
           <% if tags.present? %>
             <div class="tw-flex tw-flex-wrap tw-gap-1 tw-pb-1">
-              <%= render 'card/card-tag', as: :tag, collection: tags %>
+              <% tags.each do |tag| %>
+                <% facet = Resources::SearchQuery::TagFacet.new(tag: tag, name: tag.name, count: nil, selected: Array(search_context&.selected_tags).include?(tag.name)) %>
+                <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
+              <% end %>
             </div>
           <% end %>
 
@@ -47,15 +68,24 @@
         </div>
       </td>
 
-      <td class="tw-py-3 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
-        <%= render 'card/card-description', description: card.humanize_cardinality_type %>
+      <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-table-cell tw-w-max tw-align-top">
+        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
+          <span class="tw-inline-flex tw-items-center tw-rounded-full tw-bg-emerald-50 tw-px-3 tw-py-1 tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-emerald-700">
+            <%= resource_type_label(card.resource_type) %>
+          </span>
+
+          <% if card.humanize_cardinality_type.present? %>
+            <span class="tw-text-xs tw-text-slate-500"><%= card.humanize_cardinality_type %></span>
+          <% end %>
+        </div>
       </td>
 
-      <% if @resources.any? { |card| card.get_tags.present? } %>
+      <% if show_tags_column %>
         <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-flex tw-flex-wrap tw-gap-1 tw-text-pretty tw-align-top">
           <% if card.get_tags.present? %>
             <% card.get_tags.each do |tag| %>
-              <%= render 'card/card-tag', tag: tag %>
+              <% facet = Resources::SearchQuery::TagFacet.new(tag: tag, name: tag.name, count: nil, selected: Array(search_context&.selected_tags).include?(tag.name)) %>
+              <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
             <% end %>
           <% end %>
         </td>

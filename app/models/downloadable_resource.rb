@@ -88,7 +88,11 @@ class DownloadableResource < ApplicationRecord
   end
 
   def tag_names
-    downloadable_resource_tags.pluck(:name)
+    if downloadable_resource_tags.loaded?
+      downloadable_resource_tags.map(&:name)
+    else
+      downloadable_resource_tags.pluck(:name)
+    end
   end
 
   def run_export_action

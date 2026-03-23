@@ -1,3 +1,7 @@
+<%
+  resources = local_assigns[:resources] || @resources || @resource_cards
+%>
+
 <div class="resources-table">
   <table class="tw-w-full tw-mt-8">
     <thead class="tw-sticky tw-top-0 tw-z-10 tw-min-w-full">
@@ -13,7 +17,7 @@
     </thead>
 
     <tbody>
-      <% @resources.each do |card| %>
+      <% resources.each do |card| %>
         <tr class="tw-border-b hover:tw-bg-gray-50"
           data-search="<%= "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>">
           <td class="tw-py-3 tw-px-4 tw-text-sm tw-text-pretty tw-align-top">

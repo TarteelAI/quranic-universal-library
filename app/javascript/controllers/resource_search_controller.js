@@ -1,36 +1,36 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  connect() {
-    this.el = $(this.element);
-    this.input = this.el.find('#search-input');
-    document.addEventListener('keydown', this.handleKeydown.bind(this));
+  static values = { mode: { type: String, default: 'filter' } };
 
-    this.input.on(
-      'DOMAttrModified input change keypress paste blur',
-      this.search.bind(this)
-    );
+  connect() {
+    this.input = this.element.querySelector('#search-input');
+    this.boundHandleKeydown = this.handleKeydown.bind(this);
+    this.boundHandleInput = this.handleInput.bind(this);
+
+    document.addEventListener('keydown', this.boundHandleKeydown);
+
+    if (this.input && this.modeValue !== 'submit') {
+      this.input.addEventListener('input', this.boundHandleInput);
+    }
   }
 
   disconnect() {
-    document.removeEventListener('keydown', this.handleKeydown.bind(this));
+    document.removeEventListener('keydown', this.boundHandleKeydown);
+
+    if (this.input) {
+      this.input.removeEventListener('input', this.boundHandleInput);
+    }
+
   }
 
-  showEmptyResultsMessage() {
-    this.el.find('#empty-results-message').removeClass('tw-hidden');
+  handleInput(event) {
+    this.filterResults(event.target.value);
   }
 
-  hideEmptyResultsMessage() {
-    this.el.find('#empty-results-message').addClass('tw-hidden');
-  }
+  filterResults(rawQuery) {
+    const query = (rawQuery || '').trim().toLowerCase();
 
-  resetSearch() {
-    this.searchItems().removeClass('!tw-hidden');
-    this.hideEmptyResultsMessage();
-  }
-
-  search(event) {
-    const query = (event.target.value || '').trim().toLowerCase();
     if (query.length <= 1) {
       this.resetSearch();
       return;
@@ -38,33 +38,45 @@ export default class extends Controller {
 
     let hasResults = false;
 
-    this.searchItems().each((_, el) => {
-      const resource = $(el);
-      const name = resource.data('search').toLowerCase();
+    this.searchItems().forEach((element) => {
+      const searchValue = (element.dataset.search || '').toLowerCase();
 
-      if (name.includes(query)) {
-        resource.removeClass('!tw-hidden');
+      if (searchValue.includes(query)) {
+        element.classList.remove('!tw-hidden');
         hasResults = true;
       } else {
-        resource.addClass('!tw-hidden');
+        element.classList.add('!tw-hidden');
       }
     });
 
-    if (!hasResults) {
-      this.showEmptyResultsMessage();
-    } else {
+    if (hasResults) {
       this.hideEmptyResultsMessage();
+    } else {
+      this.showEmptyResultsMessage();
     }
   }
 
-  searchItems (){
-    return this.el.find('[data-search]')
+  resetSearch() {
+    this.searchItems().forEach((element) => element.classList.remove('!tw-hidden'));
+    this.hideEmptyResultsMessage();
+  }
+
+  searchItems() {
+    return Array.from(this.element.querySelectorAll('[data-search]'));
+  }
+
+  showEmptyResultsMessage() {
+    this.element.querySelector('#empty-results-message')?.classList.remove('tw-hidden');
+  }
+
+  hideEmptyResultsMessage() {
+    this.element.querySelector('#empty-results-message')?.classList.add('tw-hidden');
   }
 
   handleKeydown(event) {
-    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
-      this.input.focus();
+      this.input?.focus();
     }
   }
 }

@@ -4,14 +4,20 @@ class ResourcesController < CommunityController
   before_action :init_presenter
 
   def index
-    @resources = view_context.downloadable_resource_cards.values
+    @resource_cards = view_context.downloadable_resource_cards.values
 
     sort_by = params[:sort_key]
     sort_order = params[:sort_order]
 
     if sort_by.present? && ['name', 'count'].include?(sort_by)
-      @resources = @resources.sort_by { |resource| resource[sort_by.to_sym] }
-      @resources.reverse! if sort_order == 'desc'
+      @resource_cards = @resource_cards.sort_by { |resource| resource[sort_by.to_sym] }
+      @resource_cards.reverse! if sort_order == 'desc'
+    end
+
+    @resource_search = if params[:q].present? || params[:tags].present?
+      build_resource_search(searchable_resources_scope, global: true)
+    else
+      empty_resource_search(global: true)
     end
   end
 
@@ -56,25 +62,61 @@ class ResourcesController < CommunityController
   end
 
   def show
-    @resources = DownloadableResource
-                   .published
-                   .includes(:downloadable_resource_tags, :related_resources)
-                   .where(resource_type: params[:id])
+    base_scope = searchable_resources_scope.where(resource_type: params[:id])
 
     sort_by = params[:sort_key]
     sort_order = params[:sort_order].to_s == 'desc' ? 'desc' : 'asc'
 
     if sort_by.present? && ['name'].include?(sort_by)
-      @resources = @resources.order("name #{sort_order}")
+      base_scope = base_scope.order("name #{sort_order}")
     end
-    @presenter.set_resource(@resources.first)
+    @all_resources = base_scope.to_a
 
-    if @resources.empty?
+    if @all_resources.empty?
       redirect_to resources_path, alert: 'Sorry, this resource does not exist.'
+      return
     end
+
+    @resource_search = build_resource_search(base_scope, global: false)
+    @resources = @resource_search.results
+    @presenter.set_resource(@all_resources.first)
   end
 
   protected
+
+  def searchable_resources_scope
+    DownloadableResource
+      .published
+      .includes(:downloadable_resource_tags, :related_resources, :resource_content)
+  end
+
+  def build_resource_search(scope, global:)
+    Resources::SearchQuery
+      .new(
+        scope: scope,
+        query: params[:q],
+        selected_tags: params[:tags],
+        selected_resource_types: params[:resource_types],
+        global: global
+      )
+      .call
+  end
+
+  def empty_resource_search(global:)
+    Resources::SearchQuery::Result.new(
+      query: params[:q].to_s,
+      text_query: '',
+      selected_tags: Array(params[:tags]).reject(&:blank?),
+      selected_resource_types: Array(params[:resource_types]).reject(&:blank?),
+      parsed_reference: nil,
+      results: [],
+      primary_results: [],
+      related_results: [],
+      available_tags: [],
+      available_resource_types: [],
+      global: global
+    )
+  end
 
   def set_resource
     @resource = DownloadableResource.published.find(params[:id])

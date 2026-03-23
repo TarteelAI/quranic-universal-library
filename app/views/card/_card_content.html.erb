@@ -1,8 +1,14 @@
 <div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
   <div class="tw-flex tw-flex-col tw-justify-between tw-h-full">
     <div class="tw-flex tw-flex-col tw-gap-2">
+      <% if local_assigns[:eyebrow].present? %>
+        <div>
+          <%= local_assigns[:eyebrow] %>
+        </div>
+      <% end %>
+
       <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title %>
-      <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+      <%= render 'card/card-description', description: local_assigns[:description] || card.humanize_cardinality_type || card.description %>
     </div>
 
     <% if local_assigns[:show_learn_more] %>

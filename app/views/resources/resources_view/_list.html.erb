@@ -1,3 +1,7 @@
+<%
+  resources = local_assigns[:resources] || @resources || @resource_cards
+%>
+
 <div class="resources-table">
   <table class="w-full mt-8">
     <thead class="sticky top-0 z-10 min-w-full">
@@ -13,7 +17,7 @@
     </thead>
 
     <tbody>
-      <% @resources.each do |card| %>
+      <% resources.each do |card| %>
         <tr class="border-b hover:bg-gray-50"
           data-search="<%= "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>">
           <td class="py-3 px-4 text-sm text-pretty align-top">
@@ -43,7 +47,7 @@
 
           <td class="text-center py-3 px-4 align-top">
             <% if card.respond_to?(:count) && card.count.present? %>
-              <%= link_to card.count, card.url, class: 'badge badge-resource', data: { turbo_frame: '_top' } %>
+              <%= link_to card.count, card.url, class: 'rounded-full bg-[#E0FAEC] text-[#099a4d] hover:text-[#46ac7a] font-bold text-xs md:text-sm px-2 md:px-3 py-1 leading-none border-2 border-[#56B599] inline-block min-w-[30px] md:min-w-[35px] text-center transition-colors', data: { turbo_frame: '_top' } %>
             <% end %>
           </td>
         </tr>

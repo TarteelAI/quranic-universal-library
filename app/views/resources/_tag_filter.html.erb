@@ -1,0 +1,29 @@
+<%
+  tag = facet.tag
+  selected = facet.selected
+  filter_classes = if selected
+    'border-[#476CFF] bg-[#476CFF]/10 text-[#476CFF]'
+  else
+    'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+  end
+%>
+
+<div class="inline-flex items-center gap-1.5 rounded-full border p-1 <%= filter_classes %>">
+  <%= link_to resource_search_toggle_tag_path(tag.name),
+              class: 'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium hover:text-inherit',
+              data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+    <span><%= tag.name %></span>
+    <% if facet.count.present? %>
+      <span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-black/5 px-2 py-0.5 text-xs"><%= facet.count %></span>
+    <% end %>
+  <% end %>
+
+  <% if tag.slug.present? %>
+    <%= link_to docs_path(tag.slug),
+                class: 'inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-black/5 hover:text-slate-700',
+                title: "Learn about #{tag.name}",
+                data: { controller: 'ajax-modal', url: docs_path(tag.slug), css_class: 'modal-lg' } do %>
+      <span class="text-xs font-bold">i</span>
+    <% end %>
+  <% end %>
+</div>

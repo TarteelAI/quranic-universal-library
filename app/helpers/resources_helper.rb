@@ -1,4 +1,21 @@
 module ResourcesHelper
+  RESOURCE_TYPE_LABELS = {
+    'ayah-theme' => 'Ayah Theme',
+    'ayah-topics' => 'Ayah Topics',
+    'font' => 'Font',
+    'morphology' => 'Morphology',
+    'mushaf-layout' => 'Mushaf Layout',
+    'mutashabihat' => 'Mutashabihat',
+    'quran-metadata' => 'Quran Metadata',
+    'quran-script' => 'Quran Script',
+    'recitation' => 'Recitation',
+    'similar-ayah' => 'Similar Ayah',
+    'surah-info' => 'Surah Info',
+    'tafsir' => 'Tafsir',
+    'translation' => 'Translation',
+    'transliteration' => 'Transliteration'
+  }.freeze
+
   def downloadable_resource_cards
     return @downloadable_resource_cards if @downloadable_resource_cards
 
@@ -173,5 +190,81 @@ module ResourcesHelper
 
   def featured_developer_resources
     downloadable_resource_cards.values
+  end
+
+  def current_resources_page_path(overrides = {})
+    query_params = normalized_resource_query_params(overrides)
+
+    if action_name == 'show'
+      resource_path(params[:id], query_params)
+    else
+      resources_path(query_params)
+    end
+  end
+
+  def resource_search_clear_path
+    preserved = {}
+    preserved[:view] = params[:view] if params[:view].present?
+    current_resources_page_path(preserved.merge(q: nil, tags: [], resource_types: []))
+  end
+
+  def resource_search_toggle_tag_path(tag_name)
+    tags = Array(params[:tags]).map(&:to_s)
+    normalized_name = tag_name.to_s
+
+    if tags.include?(normalized_name)
+      tags -= [normalized_name]
+    else
+      tags << normalized_name
+    end
+
+    current_resources_page_path(tags: tags)
+  end
+
+  def resource_search_remove_tag_path(tag_name)
+    tags = Array(params[:tags]).map(&:to_s) - [tag_name.to_s]
+    current_resources_page_path(tags: tags)
+  end
+
+  def resource_search_toggle_type_path(resource_type)
+    resource_types = Array(params[:resource_types]).map(&:to_s)
+    normalized_type = resource_type.to_s
+
+    if resource_types.include?(normalized_type)
+      resource_types -= [normalized_type]
+    else
+      resource_types << normalized_type
+    end
+
+    current_resources_page_path(resource_types: resource_types)
+  end
+
+  def resource_search_remove_type_path(resource_type)
+    resource_types = Array(params[:resource_types]).map(&:to_s) - [resource_type.to_s]
+    current_resources_page_path(resource_types: resource_types)
+  end
+
+  def resource_type_label(resource_type)
+    RESOURCE_TYPE_LABELS.fetch(resource_type.to_s) do
+      resource_type.to_s.tr('-', ' ').titleize
+    end
+  end
+
+  def resource_search_detail_path(resource, search_result = @resource_search)
+    detail_params = {}
+    detail_params[:ayah] = search_result.normalized_ayah if search_result&.normalized_ayah.present?
+    detail_resources_path(resource.resource_type, resource.id, detail_params)
+  end
+
+  private
+
+  def normalized_resource_query_params(overrides = {})
+    query_params = request.query_parameters.symbolize_keys
+    merged = query_params.merge(overrides.symbolize_keys)
+
+    merged[:tags] = Array(merged[:tags]).map(&:to_s).reject(&:blank?).uniq if merged.key?(:tags)
+    merged[:resource_types] = Array(merged[:resource_types]).map(&:to_s).reject(&:blank?).uniq if merged.key?(:resource_types)
+    merged.delete_if { |_key, value| value.respond_to?(:empty?) ? value.empty? : value.nil? }
+    merged
   end
 end

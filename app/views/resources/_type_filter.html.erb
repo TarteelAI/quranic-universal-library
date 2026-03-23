@@ -1,0 +1,17 @@
+<%
+  selected = facet.selected
+  filter_classes = if selected
+    'border-emerald-500 bg-emerald-50 text-emerald-800'
+  else
+    'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+  end
+%>
+
+<%= link_to resource_search_toggle_type_path(facet.resource_type),
+            class: "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium hover:text-inherit #{filter_classes}",
+            data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+  <span><%= resource_type_label(facet.resource_type) %></span>
+  <% if facet.count.present? %>
+    <span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-black/5 px-2 py-0.5 text-xs"><%= facet.count %></span>
+  <% end %>
+<% end %>

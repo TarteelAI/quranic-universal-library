@@ -1,0 +1,69 @@
+<%
+  search_result ||= @resource_search
+  title ||= 'Available Resources'
+  view_type ||= 'list'
+  count ||= search_result&.result_count || 0
+  form_url = action_name == 'show' ? resource_path(params[:id]) : resources_path
+  active_view_class = 'flex gap-2 rounded bg-[#476CFF]/10 text-[#476CFF] font-bold text-sm px-3 py-2 hover:text-[#476CFF] items-center'
+  inactive_view_class = 'flex gap-2 rounded font-bold text-sm px-3 py-2 border hover:text-black items-center'
+%>
+
+<div data-controller="resource-search" data-resource-search-mode-value="submit">
+  <div class="flex items-start md:items-center gap-4 flex-col lg:flex-row justify-between">
+    <div class="flex gap-6 items-center w-full lg:w-auto justify-between">
+      <div class="flex gap-4 items-center">
+        <h1 class="text-2xl md:text-3xl leading-none text-pretty">
+          <%= title %>
+        </h1>
+
+        <div class="rounded-full bg-[#E0FAEC] text-[#099a4d] font-bold px-3.5 py-1 leading-none border-2 border-[#56B599] inline-block min-w-[35px] text-center flex-shrink-0">
+          <%= count %>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 w-full lg:w-1/2">
+      <%= form_with url: form_url, method: :get, data: { turbo_frame: 'resources', turbo_action: 'advance' }, html: { class: 'w-full' } do %>
+        <% if params[:view].present? %>
+          <%= hidden_field_tag :view, params[:view] %>
+        <% end %>
+
+        <% Array(search_result&.selected_resource_types).each do |resource_type| %>
+          <%= hidden_field_tag 'resource_types[]', resource_type %>
+        <% end %>
+
+        <% Array(search_result&.selected_tags).each do |tag_name| %>
+          <%= hidden_field_tag 'tags[]', tag_name %>
+        <% end %>
+
+        <div class="flex items-center gap-3">
+          <div class="flex-1">
+            <%= render partial: 'shared/search_input',
+                       locals: {
+                         name: :q,
+                         value: search_result&.query,
+                         placeholder: 'Search by name, tag, or Quran ref like 2:255'
+                       } %>
+          </div>
+
+          <%= button_tag 'Search',
+                         type: :submit,
+                         class: 'inline-flex items-center justify-center rounded-full bg-[#476CFF] px-5 py-3 text-sm font-semibold text-white hover:bg-[#3657d8] focus:outline-none focus:ring-2 focus:ring-[#476CFF]/30' %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex gap-3 items-center">
+      View:
+      <%= link_to current_resources_page_path(view: 'list'), class: "#{view_type == 'list' ? active_view_class : inactive_view_class}", data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+        <%= inline_svg_tag('svgs/list.svg') %>
+        List
+      <% end %>
+
+      <%= link_to current_resources_page_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class}", data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+        <%= inline_svg_tag('svgs/grid.svg') %>
+        Grid
+      <% end %>
+    </div>
+  </div>
+</div>

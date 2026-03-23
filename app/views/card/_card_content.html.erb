@@ -1,44 +1,52 @@
-<div class="flex flex-col flex-1 min-h-0 h-full w-full <%= local_assigns[:tool] ? 'gap-4' : 'gap-6' %>">
-  <div class="flex flex-col gap-2 shrink-0 <%= 'min-h-[6.75rem] md:min-h-[6rem]' if local_assigns[:tool] %>">
-    <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title, tool: local_assigns[:tool] %>
-    <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description, tool: local_assigns[:tool] %>
-  </div>
+<div class="gap-4 h-full flex flex-col justify-between w-full">
+  <div class="flex flex-col justify-between h-full">
+    <div class="flex flex-col gap-2">
+      <% if local_assigns[:eyebrow].present? %>
+        <div>
+          <%= local_assigns[:eyebrow] %>
+        </div>
+      <% end %>
 
-  <% if local_assigns[:show_learn_more] %>
-    <div class="shrink-0">
-      <%= render 'card/learn-more-button' %>
+      <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title %>
+      <%= render 'card/card-description', description: local_assigns[:description] || card.humanize_cardinality_type || card.description %>
     </div>
-  <% end %>
 
-  <% if local_assigns[:show_info] && card.info.present? %>
-    <div class="shrink-0 text-white">
-      <%= safe_html card.info %>
-    </div>
-  <% end %>
+    <% if local_assigns[:show_learn_more] %>
+      <div class="mt-8">
+        <%= render 'card/learn-more-button' %>
+      </div>
+    <% end %>
 
-  <div class="flex flex-col items-center justify-center flex-1 min-h-0 w-full gap-6">
-    <% if local_assigns[:is_quran_script] %>
-      <%= render 'quran_script_preview',
-                 resource: card.resource_content,
-                 preview_verse: local_assigns[:preview_verse]
-      %>
-    <% else %>
-      <div class="flex items-center justify-center w-full transform group-hover:scale-105 transition-transform duration-300">
-        <% if card.respond_to?(:icon) && card.icon.present? %>
-          <% if card.icon.start_with?('fa-') %>
-            <i class="fa text-white text-8xl md:text-9xl <%= card.icon %> opacity-90 group-hover:opacity-100 transition-opacity"></i>
-          <% else %>
-            <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon", class: "max-w-full h-auto opacity-90 group-hover:opacity-100 transition-opacity" %>
+    <% if local_assigns[:show_info] && card.info.present? %>
+      <div class="mt-8 text-white">
+        <%= safe_html card.info %>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col items-center justify-center flex-grow">
+      <% if local_assigns[:is_quran_script] %>
+        <%= render 'quran_script_preview',
+                   resource: card.resource_content,
+                   preview_verse: local_assigns[:preview_verse]
+        %>
+      <% else %>
+        <div class="flex items-center justify-center w-full transform group-hover:scale-105 transition-transform duration-300">
+          <% if card.respond_to?(:icon) && card.icon.present? %>
+            <% if card.icon.start_with?('fa-') %>
+              <i class="fa text-white text-8xl md:text-9xl <%= card.icon %> opacity-90 group-hover:opacity-100 transition-opacity"></i>
+            <% else %>
+              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon", class: "max-w-full h-auto opacity-90 group-hover:opacity-100 transition-opacity" %>
+            <% end %>
           <% end %>
-        <% end %>
-      </div>
-    <% end %>
+        </div>
+      <% end %>
 
-    <% if local_assigns[:show_download] %>
-      <div class="flex w-full items-center flex-col justify-center">
-        <%= render 'card/download_dropdown', resource: card %>
-      </div>
-    <% end %>
+      <% if local_assigns[:show_download] %>
+        <div class="flex w-full items-center flex-col justify-center mt-8">
+          <%= render 'card/download_dropdown', resource: card %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <%= render 'card/card_footer',

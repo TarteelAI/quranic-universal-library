@@ -98,7 +98,7 @@ rails db:seed
 bin/dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000). Admin panel at [http://localhost:3000/admin](http://localhost:3000/admin).
+Visit [http://localhost:3000](http://localhost:3000). Admin panel at [http://localhost:3000/cms](http://localhost:3000/cms).
 
 #### Docker Commands Reference
 | Command | Description |

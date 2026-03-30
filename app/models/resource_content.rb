@@ -146,7 +146,6 @@ class ResourceContent < QuranApiRecord
               :export_format,
               :export_file_name
 
-  mount_uploader :sqlite_db, DatabaseBackupUploader
   has_one_attached :sqlite_database, service: :database_backups
   has_many_attached :source_files
 

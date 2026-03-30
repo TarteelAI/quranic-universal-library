@@ -64,6 +64,7 @@ const config = {
     'global': 'globalThis',
   },
   inject: [],
+  target: ['es2019'],
 }
 
 async function buildAndReload() {

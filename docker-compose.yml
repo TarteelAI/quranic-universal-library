@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:14
+    command: >
+      postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=off
+    environment:
+      POSTGRES_DB: quran_community_tarteel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
+    volumes:
+      - qul-postgres-data:/var/lib/postgresql/data
+      - ./docker/dev/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+    volumes:
+      - qul-redis-data:/data
+
+volumes:
+  qul-postgres-data:
+  qul-redis-data:

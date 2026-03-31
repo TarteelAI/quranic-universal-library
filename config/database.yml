@@ -3,6 +3,10 @@ quran_api_db_dev:
   encoding: unicode
   database: quran_dev
   schema_search_path: quran,"$user",public
+  host: <%= ENV['DB_HOST'] %>
+  port: <%= ENV.fetch('DB_PORT', '5432') %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
 
 quran_api_db:
   adapter: postgresql
@@ -17,10 +21,18 @@ quran_api_db:
 development:
   adapter: postgresql
   database: quran_community_tarteel
+  host: <%= ENV['DB_HOST'] %>
+  port: <%= ENV.fetch('DB_PORT', '5432') %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
 
 test:
   adapter: postgresql
   database: quran_community_cms_test
+  host: <%= ENV['DB_HOST'] %>
+  port: <%= ENV.fetch('DB_PORT', '5432') %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
 
 production:
   adapter: postgresql

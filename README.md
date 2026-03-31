@@ -48,6 +48,71 @@ This guide will help you set up the QUL project on your local machine. Follow th
 - **PostgreSQL**:  14.3 or higher
 - **Redis**: 7.0.0 or higher
 
+### Quick Start with Docker (Recommended)
+
+Docker simplifies database setup and avoids conflicts with local PostgreSQL installations.
+
+**Requirements:** [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop).
+
+#### 1. Clone the repository
+```bash
+git clone git@github.com:TarteelAI/quranic-universal-library.git
+cd quranic-universal-library
+```
+
+#### 2. Start PostgreSQL and Redis
+```bash
+docker compose up -d
+```
+This creates three databases automatically: `quran_community_tarteel`, `quran_dev` (with `quran` schema), and `quran_community_cms_test`.
+
+#### 3. Set database environment variables
+```bash
+export DB_HOST=localhost
+export DB_USERNAME=postgres
+export DB_PASSWORD=password
+```
+You can also add these to a `.env` file or your shell profile.
+
+#### 4. Install dependencies
+```bash
+gem install bundler
+bundle install
+npm install
+```
+
+#### 5. Load the Quranic data dump
+Download the [SQL dump file](https://static-cdn.tarteel.ai/qul/mini-dumps/mini_quran_dev.sql.zip), unzip it, and load it:
+```bash
+PGPASSWORD=password psql -h localhost -U postgres -d quran_dev -f path/to/mini_quran_dev.sql
+```
+
+#### 6. Run migrations and seed
+```bash
+rails db:migrate
+rails db:seed
+```
+
+#### 7. Start the application
+```bash
+bin/dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000). Admin panel at [http://localhost:3000/cms](http://localhost:3000/cms).
+
+#### Docker Commands Reference
+| Command | Description |
+|---------|-------------|
+| `docker compose up -d` | Start services in background |
+| `docker compose down` | Stop services (data preserved) |
+| `docker compose down -v` | Stop services and delete all data |
+| `docker compose logs db` | View PostgreSQL logs |
+| `docker compose logs redis` | View Redis logs |
+
+---
+
+### Manual Setup (without Docker)
+
 #### 1. Clone the repository
 ```bash
 git clone git@github.com:TarteelAI/quranic-universal-library.git

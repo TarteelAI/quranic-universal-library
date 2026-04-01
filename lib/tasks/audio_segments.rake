@@ -13,39 +13,45 @@ namespace :audio_segments do
     recitations.each do |recitation|
       puts "Reciter #{recitation.id} - #{recitation.name}:"
 
-      output_path = Rails.root.join("public", "segment_gaps", "reciter", "#{recitation.get_resource_content.id}.csv")
+      invalid_segments = []
+      1.upto(114) do |chapter_id|
+        segments = recitation
+                     .audio_segments
+                     .where(chapter_id: chapter_id)
+                     .order('verse_id ASC')
 
-      CSV.open(output_path, "w") do |csv|
-        csv << [
-          "ayah",
-          "start",
-          "end",
-          "next ayah",
-          "next start",
-          "gap"
-        ]
+        segments.each_with_index do |seg, i|
+          nxt = segments[i + 1]
+          next if nxt.nil?
 
-        1.upto(114) do |chapter_id|
-          segments = recitation
-                       .audio_segments
-                       .where(chapter_id: chapter_id)
-                       .order('verse_id ASC')
+          gap = seg.timestamp_to - nxt.timestamp_from
+          next if [0, 1, -1].include?(gap)
 
-          segments.each_with_index do |seg, i|
-            nxt = segments[i + 1]
-            next if nxt.nil?
+          invalid_segments << [
+            seg.verse_key,
+            seg.timestamp_from,
+            seg.timestamp_to,
+            nxt.verse_key,
+            nxt.timestamp_from,
+            gap
+          ]
+        end
+      end
 
-            gap = seg.timestamp_to - nxt.timestamp_from
-            next if gap == 0
+      if invalid_segments.present?
+        output_path = Rails.root.join("public", "segment_gaps", "reciter", "#{recitation.get_resource_content.id}.csv")
 
-            csv << [
-              seg.verse_key,
-              seg.timestamp_from,
-              seg.timestamp_to,
-              nxt.verse_key,
-              nxt.timestamp_from,
-              gap
-            ]
+        CSV.open(output_path, "w") do |csv|
+          csv << [
+            "ayah",
+            "start",
+            "end",
+            "next ayah",
+            "next start",
+            "gap"
+          ]
+          invalid_segments.each do |row|
+            csv < row
           end
         end
       end
@@ -77,39 +83,52 @@ namespace :audio_segments do
       FileUtils.mkdir_p("public/segment_gaps/manifest")
       output_path = Rails.root.join("public", "segment_gaps", "manifest", "#{id}.csv")
 
-      CSV.open(output_path, "w") do |csv|
-        csv << [
-          "surah",
-          "ayah",
-          "start",
-          "end",
-          "next_start",
-          "gap"
-        ]
+      invalid_segments = []
+      segments.each do |surah, surah_segments|
+        sorted = surah_segments.sort_by { |s| s["ayah"] }
+        sorted.each_with_index do |seg, i|
+          nxt = sorted[i + 1]
+          next if nxt.nil?
 
-        segments.each do |surah, surah_segments|
-          sorted = surah_segments.sort_by { |s| s["ayah"] }
-          sorted.each_with_index do |seg, i|
-            nxt = sorted[i + 1]
-            next if nxt.nil?
+          gap = seg["end"] - nxt["start"]
+          next if [0, 1, -1].include?(gap)
 
-            gap = seg["end"] - nxt["start"]
-            next unless gap > 0
-
-            csv << [
-              surah,
-              seg["ayah"],
-              seg["start"],
-              seg["end"],
-              nxt["start"],
-              gap
-            ]
-          end
+          invalid_segments << [
+            surah,
+            seg["ayah"],
+            seg["start"],
+            seg["end"],
+            nxt["start"],
+            gap
+          ]
         end
       end
 
-      puts "CSV exported to #{output_path}"
+      if invalid_segments.present?
+        CSV.open(output_path, "w") do |csv|
+          csv << [
+            "surah",
+            "ayah",
+            "start",
+            "end",
+            "next_start",
+            "gap"
+          ]
+        end
+
+        invalid_segments.each do |row|
+          csv < row
+        end
+      else
+        puts "Segments for recitation #{id} looks good!"
+      end
     end
+
+    output_path = "public/segment_gaps/manifest"
+    archive_path = "#{output_path}.tar.bz2"
+    system('tar', '-cjf', archive_path, '-C', File.dirname(output_path), File.basename(output_path))
+
+    puts "CSV exported to #{archive_path}"
   end
 
   desc "Find Audio::Segment records with missing, misplaced, or invalid timing issues"

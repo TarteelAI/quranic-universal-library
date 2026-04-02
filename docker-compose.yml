@@ -1,3 +1,24 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: docker/dev/Dockerfile
+  volumes:
+    - .:/app
+    - qul-bundle:/app/vendor/bundle
+    - qul-node-modules:/app/node_modules
+  environment:
+    DB_HOST: db
+    DB_USERNAME: postgres
+    DB_PASSWORD: password
+    REDIS_URL: redis://redis:6379/0
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+  tty: true
+  stdin_open: true
+
 services:
   db:
     image: postgres:14
@@ -25,6 +46,26 @@ services:
     volumes:
       - qul-redis-data:/data
 
+  web:
+    <<: *app
+    command: bin/rails server -b 0.0.0.0 -p 3000
+    ports:
+      - '3000:3000'
+
+  js:
+    <<: *app
+    command: npm run build -- --reload
+
+  tailwind:
+    <<: *app
+    command: bin/rails tailwindcss:watch
+
+  sidekiq:
+    <<: *app
+    command: bundle exec sidekiq
+
 volumes:
   qul-postgres-data:
   qul-redis-data:
+  qul-bundle:
+  qul-node-modules:

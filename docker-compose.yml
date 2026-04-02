@@ -55,6 +55,10 @@ services:
   js:
     <<: *app
     command: npm run build -- --reload
+    environment:
+      PORT: 3005
+    ports:
+      - '3005:3005'
 
   tailwind:
     <<: *app

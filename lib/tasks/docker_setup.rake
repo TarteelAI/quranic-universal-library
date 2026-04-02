@@ -58,7 +58,7 @@ namespace :db do
       puts "[db:load_quran_dump] Loading #{File.basename(sql_file)} into #{db_name}..."
       env = db_password ? { 'PGPASSWORD' => db_password } : {}
       success = system(env, 'psql', '-h', db_host, '-U', db_user, '-d', db_name, '-f', sql_file,
-                        [:out, :err] => '/dev/null')
+                        out: '/dev/null')
 
       if success
         puts '[db:load_quran_dump] Dump loaded successfully.'

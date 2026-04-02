@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Ensure volume mount directories exist (needed for lock file on fresh volumes)
+mkdir -p vendor/bundle node_modules
+
 BUNDLE_CHECKSUM_FILE="vendor/bundle/.gemfile_checksum"
 NPM_CHECKSUM_FILE="node_modules/.package_checksum"
 LOCK_FILE="vendor/bundle/.entrypoint.lock"

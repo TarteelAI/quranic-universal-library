@@ -83,7 +83,7 @@ echo ""
 echo -e "${YELLOW}Step 1: Exporting boundaries from database...${NC}"
 cd "$SCRIPT_DIR/../.." || exit 1
 
-bundle exec rake segments:export_boundaries \
+bundle exec rake segments:export_segments_boundaries \
   RECITER="$RECITER" \
   SURAH="$SURAH" \
   OUTPUT_DIR="$BOUNDARIES_DIR"
@@ -100,11 +100,6 @@ echo ""
 #echo -e "${YELLOW}Checking gap volumes...${NC}"
 
 cd "$SCRIPT_DIR" || exit 1
-
-#echo ""
-#python3 check_gap_volume.py "$AUDIO_FILE" "$BOUNDARIES_FILE"
-#echo ""
-
 
 # Step 2: Calculate per-gap thresholds
 echo -e "${YELLOW}Step 2: Calculating optimal threshold for each gap...${NC}"

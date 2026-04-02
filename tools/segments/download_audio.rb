@@ -46,8 +46,8 @@ unless options[:reciter_id]
 end
 
 # Helpers
-def fetch_reciter_and_audio_files(reciter_id)
-  uri = URI("https://qul.tarteel.ai/api/v1/audio/surah_recitations/#{reciter_id}?v=#{Time.now.to_i}")
+def fetch_reciter_and_audio_files(reciter_id, format='mp3')
+  uri = URI("https://qul.tarteel.ai/api/v1/audio/surah_recitations/#{reciter_id}?v=#{Time.now.to_i}&format=#{format}")
   response = Net::HTTP.get_response(uri)
   unless response.is_a?(Net::HTTPSuccess)
     abort "Failed to fetch audio files from #{uri} (HTTP #{response.code})"
@@ -79,13 +79,14 @@ end
 
 reciter_id = options[:reciter_id]
 chapters = options[:chapters]
+format = 'wav'
 
 base_path = "./data/audio/#{reciter_id}/wav"
 mp3_path = "#{base_path}"
 FileUtils.mkdir_p(mp3_path)
 
 puts "Fetching audio files for reciter ID #{reciter_id}..."
-reciter_name, audio_files = fetch_reciter_and_audio_files(reciter_id)
+reciter_name, audio_files = fetch_reciter_and_audio_files(reciter_id, format)
 
 chapters.each do |i|
   file_info = audio_files[i.to_s]
@@ -102,5 +103,5 @@ chapters.each do |i|
   puts "URL:     #{audio_url}"
   puts "WAV:     #{mp3_file}"
 
-  download_audio(audio_url, mp3_file, 'wav')
+  download_audio(audio_url, mp3_file, format)
 end

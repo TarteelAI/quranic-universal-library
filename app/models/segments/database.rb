@@ -44,7 +44,9 @@ module Segments
           end
         end
       end
-
+    rescue Exception => e
+      Rails.logger.error "Failed to download and extract DB file: #{e.message}"
+    ensure
       File.delete(zip_temp_path) if File.exist?(zip_temp_path)
     end
 

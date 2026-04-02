@@ -102,7 +102,11 @@ class Segments::DashboardController < ApplicationController
       return redirect_to segments_setup_db_path, alert: "Segments database is missing"
     end
 
-    ::Segments::Database.current.load_db
+    begin
+      ::Segments::Database.current.load_db
+    rescue => e
+      return redirect_to segments_setup_db_path, alert: "Can't load the current DB. Please update a new zip"
+    end
   end
 
   def init_presenter

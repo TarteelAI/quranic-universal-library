@@ -175,7 +175,9 @@ ActiveAdmin.register Audio::Recitation do
       FileUtils.mkdir_p("#{Rails.root}/public/segments_data")
       FileUtils.mv(file, file_path)
 
-      AudioSegment::SurahBySurah.delay.import(
+      AsyncResourceActionJob.perform_later(
+        AudioSegment::SurahBySurah,
+        :import,
         recitation_id: resource.id,
         file_path: file_path,
         remove_existing: remove_existing

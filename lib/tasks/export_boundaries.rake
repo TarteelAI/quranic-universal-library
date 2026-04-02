@@ -9,6 +9,9 @@ namespace :segments do
     BatchAudioSegmentParser.new(data_directory: "tools/segments/data/vs_logs", reset_db: true)
     Segments::Reciter.where(id: recitation.id).first_or_create(name: recitation.name)
 
+    Segments::Position.delete_all
+    Segments::AyahBoundary.delete_all
+
     # Import raw segments
     Dir.glob("data/segments-json/#{recitation.id}/*.json").each do |file_path|
       data = Oj.load(File.read(file_path))
@@ -40,6 +43,31 @@ namespace :segments do
           start_time: segments.first[1],
           end_time: segments.last[2]
         )
+      end
+    end
+
+    # Import adjusted boundaries
+    Dir.glob("tools/segments/data/result/adjusted-boundaries/#{recitation.id}/*.json").each do |file_path|
+      chapter_number = File.basename(file_path, ".json").to_i
+      data = Oj.load(File.read(file_path))
+      data.each do |entry|
+        surah_number = entry['surah']
+        ayah_number = entry['ayah']
+        start_time = entry['corrected_start_time']
+        end_time = entry['corrected_end_time']
+
+        boundary = Segments::AyahBoundary.find_by(
+          reciter_id: reciter_id,
+          surah_number: surah_number,
+          ayah_number: ayah_number
+        )
+
+        if (boundary)
+          boundary.update_columns(
+            corrected_start_time: start_time,
+            corrected_end_time: end_time
+          )
+        end
       end
     end
   end

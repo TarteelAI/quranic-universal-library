@@ -22,7 +22,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 WORKDIR /app
 
 # Bundler config: install gems into vendor/bundle (mounted volume)
-RUN gem install bundler
+# Install bundler version matching Gemfile.lock to avoid version conflicts
+RUN gem install bundler -v 2.5.15
 ENV BUNDLE_PATH=/app/vendor/bundle
 ENV BUNDLE_BIN=/app/vendor/bundle/bin
 ENV PATH="/app/vendor/bundle/bin:/app/bin:${PATH}"

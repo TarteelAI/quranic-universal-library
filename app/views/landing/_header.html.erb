@@ -1,6 +1,7 @@
-<%= render 'layouts/grid' do %>
-  <div class="tw-relative">
-    <header class="tw-absolute tw-start-0 tw-z-20 tw-flex tw-justify-between tw-items-center tw-w-full tw-py-2 md:tw-py-3 lg:tw-py-4" data-controller="offcanvas-reset">
+<header class="tw-sticky tw-top-0 tw-z-50 tw-w-full tw-bg-white tw-border-b tw-border-black/5" data-controller="offcanvas-reset">
+  <div class="tw-px-4 md:tw-px-8 lg:tw-px-0 tw-grid tw-grid-cols-1 md:tw-grid-cols-12 tw-justify-center tw-max-w-[1680px] tw-mx-auto">
+    <div class="tw-col-span-12 lg:tw-col-start-2 lg:tw-col-span-10">
+      <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-py-2 md:tw-py-3 lg:tw-py-4">
       <div class="qul-logo">
         <%= link_to root_path, class: 'tw-text-black' do %>
           <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,6 +85,7 @@
           </div>
         </div>
       </div>
-    </header>
+      </div>
+    </div>
   </div>
-<% end %>
+</header>

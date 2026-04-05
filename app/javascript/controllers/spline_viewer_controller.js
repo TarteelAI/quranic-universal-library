@@ -1,42 +1,91 @@
-import {Controller} from "@hotwired/stimulus";
-import ScreenSize from "../utils/screen-size";
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  connect() {
-    this.device = new ScreenSize();
-   // this.adjustCanvasSize();
+  static targets = ["fallback", "container", "viewer"];
 
-    window.addEventListener('resize', () => {
-     // setTimeout(() => this.adjustCanvasSize(), 100);
-    });
+  connect() {
+    this.loaded = false;
+    this.observer = null;
+
+    if (this.isSmallScreen()) {
+      this.showFallback();
+    } else {
+      this.lazyLoadSpline();
+    }
+
+    window.addEventListener("resize", this.handleResize.bind(this));
   }
 
-  adjustCanvasSize() {
-    const canvas = this.element.querySelector("canvas");
-
-    const {scale, desktopScale, scaleLargeDesktop, mobileScale, marginLeft} = this.element.dataset;
-    if(scale && scale === '1' || !canvas) {
-      return
+  disconnect() {
+    window.removeEventListener("resize", this.handleResize.bind(this));
+    if (this.observer) {
+      this.observer.disconnect();
     }
-    const d = this.device;
+  }
 
-    if(d.isMobile() && mobileScale){
-      canvas.style.transform = `scale(${parseFloat(mobileScale)})`;
-      console.log("========= mobile", mobileScale)
+  isSmallScreen() {
+    return window.innerWidth < 1024;
+  }
 
-    } else if (d.isDesktop()) {
-      // Desktop
-      let s = parseFloat(desktopScale || scale || 1.5);
-      canvas.style.transform = `scale(${s})`;
-      //canvas.style.marginLeft = `${marginLeft||'-40px'}`;
-      console.log("========= desktop", s)
-    } else if (d.isLargeDesktop()) {
-      // Large Desktop
-      let largeScreeenScale = parseFloat(scaleLargeDesktop || scale || 1);
-      console.log("========= largeScreeenScale", largeScreeenScale)
+  showFallback() {
+    if (this.hasFallbackTarget) {
+      this.fallbackTarget.classList.remove("tw-hidden");
+    }
+    if (this.hasContainerTarget) {
+      this.containerTarget.classList.add("tw-hidden");
+    }
+  }
 
-      canvas.style.transform = `scale(${largeScreeenScale})`;
-     // canvas.style.marginLeft = `-60px`;
+  showSpline() {
+    if (this.hasFallbackTarget) {
+      this.fallbackTarget.classList.add("tw-hidden");
+    }
+    if (this.hasContainerTarget) {
+      this.containerTarget.classList.remove("tw-hidden");
+    }
+  }
+
+  lazyLoadSpline() {
+    if (this.loaded) return;
+
+    if ("IntersectionObserver" in window) {
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.loadSpline();
+              this.observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+      this.observer.observe(this.containerTarget);
+    } else {
+      this.loadSpline();
+    }
+  }
+
+  loadSpline() {
+    this.loaded = true;
+    this.showSpline();
+
+    if (!window.customElements.get("spline-viewer")) {
+      const script = document.createElement("script");
+      script.type = "module";
+      script.src =
+        "https://unpkg.com/@splinetool/viewer/build/spline-viewer.js";
+      document.head.appendChild(script);
+    }
+  }
+
+  handleResize() {
+    if (this.isSmallScreen()) {
+      this.showFallback();
+    } else if (!this.loaded) {
+      this.lazyLoadSpline();
+    } else {
+      this.showSpline();
     }
   }
 }

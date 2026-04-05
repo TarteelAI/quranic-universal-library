@@ -1,9 +1,19 @@
-<script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
-<div class="tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center">
-  <spline-viewer
-    url="https://static-cdn.tarteel.ai/qul/spline/scene.splinecode"
-    width="800"
-    height="800"
-    class="tw-scale-75 md:tw-scale-100"
-  ></spline-viewer>
+<div data-controller="spline-viewer" class="tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center">
+  <img
+    src="/spline.webp"
+    alt="Quranic Universal Library 3D Scene"
+    class="tw-w-full tw-h-full tw-object-cover"
+    data-spline-viewer-target="fallback"
+  />
+  <div class="tw-hidden lg:tw-block tw-w-full tw-h-full" data-spline-viewer-target="container">
+    <div class="tw-w-full tw-h-full tw-flex tw-justify-center tw-items-center">
+      <spline-viewer
+        url="https://static-cdn.tarteel.ai/qul/spline/scene.splinecode"
+        width="800"
+        height="800"
+        class="tw-scale-75 md:tw-scale-100"
+        data-spline-viewer-target="viewer"
+      ></spline-viewer>
+    </div>
+  </div>
 </div>

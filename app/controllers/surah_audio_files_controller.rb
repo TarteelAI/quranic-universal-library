@@ -7,20 +7,6 @@ class SurahAudioFilesController < CommunityController
   end
 
   def index
-    files = Audio::ChapterAudioFile
-              .where.not(chapter_id: nil)
-              .where(audio_recitation: @recitation)
-
-    if params[:filter_chapter].present?
-      files = files.where(chapter_id: params[:filter_chapter])
-    end
-
-    files = files.eager_load(:chapter)
-                 .select('audio_chapter_audio_files.*, count(audio_segments.*) as total_segments')
-                 .joins('left OUTER JOIN audio_segments on audio_segments.audio_file_id = audio_chapter_audio_files.id')
-                 .group('audio_chapter_audio_files.id, chapters.id')
-
-    @audio_files = files.order("#{sort_key} #{sort_order}")
   end
 
   def show

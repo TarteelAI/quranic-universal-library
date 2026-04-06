@@ -15,7 +15,7 @@
 
 <%= render 'tools/header',
            name: 'Surah recitations',
-           title: "#{@recitation.humanize} - #{@audio_file.chapter.name_simple}",
+           title: [@recitation.humanize, @audio_file.chapter&.name_simple].compact.join(' - '),
            key: 'surah_recitation_segment_builder',
            actions: actions
 %>

@@ -1,7 +1,6 @@
 <%
-  recitations = Audio::Recitation.all.map do |a|
-    [a.humanize, a.id]
-  end
+  recitations = @presenter.recitations
+  audio_files = @presenter.audio_files
 %>
 
 <%= render 'tools/header',
@@ -49,10 +48,10 @@
       </thead>
 
       <tbody>
-      <% @audio_files.each do |file| %>
+      <% audio_files.each do |file| %>
         <tr class="hover:tw-bg-gray-200 tw-border-b">
           <th scope="row" class="tw-py-2 tw-pl-2 tw-text-left">
-            <%= file.chapter_id %> - <%= file.chapter.name_simple %>
+            <%= file.chapter_id %> - <%= file.chapter&.name_simple %>
           </th>
 
           <td class="tw-py-2">

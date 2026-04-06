@@ -16,7 +16,7 @@
 
 <%= render 'tools/header',
            name: 'Surah recitations',
-           title: "Segment builder for #{@recitation.name}(#{@recitation.id})<div style='font-size: 0.5em'>Surah #{@audio_file.chapter.name_simple}</div>",
+           title: "Segment builder for #{@recitation.name}(#{@recitation.id})<div style='font-size: 0.5em'>Surah #{@audio_file.chapter&.name_simple || @audio_file.chapter_id}</div>",
            key: 'surah_recitation_segment_builder',
            actions: actions
 %>

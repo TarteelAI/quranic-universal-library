@@ -28,10 +28,15 @@ export default class extends Controller {
     "multiWordInput",
     "searchInput",
     "matchCount",
-    "ayahList"
+    "ayahList",
+    "toolsPanel",
+    "toolsBackdrop"
   ]
 
   connect() {
+    this.toolsOpen = false
+    this._onKeydown = this.onKeydown.bind(this)
+    window.addEventListener("keydown", this._onKeydown)
     this.svg = this.svgHostTarget.querySelector("svg")
     this.wordNodes = []
     this.ayahWords = new Map()
@@ -80,13 +85,88 @@ export default class extends Controller {
       }
       this.refresh()
     }
+    this.syncPanelUi()
+    this.refreshButtonLabels()
   }
 
   disconnect() {
+    window.removeEventListener("keydown", this._onKeydown)
+    this.unlockBodyScroll()
     this.stopSequence(false)
     if (this.hasAyahListTarget) {
       this.ayahListTarget.removeEventListener("click", this._ayahClick)
     }
+  }
+
+  onKeydown(e) {
+    if (e.key === "Escape" && this.toolsOpen) {
+      e.preventDefault()
+      this.closeToolsPanel()
+    }
+  }
+
+  openCustomizePanel() {
+    this.setToolsOpen(true)
+  }
+
+  closeToolsPanel() {
+    this.setToolsOpen(false)
+  }
+
+  setToolsOpen(open) {
+    this.toolsOpen = open
+    this.syncPanelUi()
+  }
+
+  syncPanelUi() {
+    const tools = this.toolsOpen
+
+    if (this.hasToolsPanelTarget) {
+      const p = this.toolsPanelTarget
+      p.hidden = !tools
+      p.classList.toggle("tw-translate-x-full", !tools)
+      p.classList.toggle("tw-translate-x-0", tools)
+      p.classList.toggle("tw-pointer-events-none", !tools)
+      p.classList.toggle("tw-pointer-events-auto", tools)
+      p.setAttribute("aria-hidden", tools ? "false" : "true")
+    }
+
+    if (this.hasToolsBackdropTarget) {
+      const b = this.toolsBackdropTarget
+      b.classList.toggle("tw-opacity-0", !tools)
+      b.classList.toggle("tw-invisible", !tools)
+      b.classList.toggle("tw-pointer-events-none", !tools)
+      b.setAttribute("aria-hidden", tools ? "false" : "true")
+    }
+
+    if (tools) {
+      this.lockBodyScroll()
+    } else {
+      this.unlockBodyScroll()
+    }
+  }
+
+  lockBodyScroll() {
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+      document.body.style.overflow = "hidden"
+    }
+  }
+
+  unlockBodyScroll() {
+    document.body.style.overflow = ""
+  }
+
+  scrollMushafIntoView() {
+    if (!this.hasSvgHostTarget) return
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.svgHostTarget.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest"
+        })
+      })
+    })
   }
 
   toggleState(event) {
@@ -105,6 +185,7 @@ export default class extends Controller {
     if (!k || this.state.margins[k] === undefined) return
     this.state.margins[k] = !this.state.margins[k]
     this.applyMargins()
+    this.refreshButtonLabels()
   }
 
   onAyahListClick(e) {
@@ -126,12 +207,14 @@ export default class extends Controller {
     if (this.state.ayah) {
       this.startSequence(this.state.ayah.surah, this.state.ayah.ayah)
     }
+    this.scrollMushafIntoView()
   }
 
   selectLine(e) {
     const n = Number(e.currentTarget.dataset.line)
     this.state.line = this.state.line === n ? null : n
     this.refresh()
+    this.scrollMushafIntoView()
   }
 
   applyLine() {
@@ -218,6 +301,7 @@ export default class extends Controller {
     const id = raw.replace(/^md-word-/, "").padStart(3, "0")
     this.state.wordIds = [id]
     this.refresh()
+    this.scrollMushafIntoView()
   }
 
   highlightMultipleWords() {
@@ -229,6 +313,7 @@ export default class extends Controller {
       .map(id => id.replace(/^md-word-/, "").padStart(3, "0"))
     this.state.wordIds = ids
     this.refresh()
+    this.scrollMushafIntoView()
   }
 
   applyWordHighlights() {
@@ -241,6 +326,7 @@ export default class extends Controller {
   search() {
     this.state.search = this.normalize(this.searchInputTarget.value)
     this.refreshSearchOnly()
+    this.scrollMushafIntoView()
   }
 
   clearSearch() {
@@ -317,14 +403,14 @@ export default class extends Controller {
   }
 
   applyDiacritics() {
-    const sel = "path[data-type='diacritic'], path[data-type='dots']"
+    const sel = "path[data-type='diacritic']"
     this.svg.querySelectorAll(sel).forEach(p => {
       this.capture(p)
       p.style.display = this.state.showDiacritics ? "" : "none"
       if (this.state.highlightDiacritics && this.state.showDiacritics) {
         p.style.fill = COLORS.diacriticHighlight
       } else {
-        this.restore(p)
+        this.restoreFill(p)
       }
     })
   }
@@ -394,6 +480,7 @@ export default class extends Controller {
     this.applyAyah()
     this.applyWordHighlights()
     this.applySearch()
+    this.refreshButtonLabels()
   }
 
   applyWaqfLayer() {
@@ -465,6 +552,32 @@ export default class extends Controller {
     if (!o) return
     node.style.fill = o.fill
     node.style.display = o.display
+  }
+
+  restoreFill(node) {
+    const o = this.cache.original.get(node)
+    if (!o) return
+    node.style.fill = o.fill
+  }
+
+  refreshButtonLabels() {
+    this.element.querySelectorAll("[data-key]").forEach(button => {
+      const key = button.dataset.key
+      if (!key || this.state[key] === undefined) return
+      const onLabel = button.dataset.onLabel
+      const offLabel = button.dataset.offLabel
+      if (!onLabel || !offLabel) return
+      button.textContent = this.state[key] ? onLabel : offLabel
+    })
+
+    this.element.querySelectorAll("[data-margin-key]").forEach(button => {
+      const key = button.dataset.marginKey
+      if (!key || this.state.margins[key] === undefined) return
+      const onLabel = button.dataset.onLabel
+      const offLabel = button.dataset.offLabel
+      if (!onLabel || !offLabel) return
+      button.textContent = this.state.margins[key] ? onLabel : offLabel
+    })
   }
 
   normalize(s) {

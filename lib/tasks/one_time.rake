@@ -1,4 +1,68 @@
 namespace :one_time do
+  task setup_svg_mushaf: :environment do
+    m = Mushaf.where(
+      name: 'SVG Mushaf'
+    ).first_or_initialize
+    m.pages_count = 604
+    m.qirat_type_id = 1
+    m.lines_per_page = 15
+    m.default_font_name = 'svg'
+    m.save
+
+    v4 = Mushaf.find(19)
+
+    require "net/http"
+    require "uri"
+
+    CDN_BASE = "TODO"
+    LOCAL_BASE = Rails.root.join("data/svg-mushaf/data/ligature-basd-svg")
+
+    def fetch_remote_svg(url)
+      uri = URI.parse(url)
+      res = Net::HTTP.get_response(uri)
+
+      unless res.is_a?(Net::HTTPSuccess)
+        raise "Failed to fetch #{url} (#{res.code})"
+      end
+
+      res.body
+    end
+
+    def fetch_local_svg(path)
+      File.read(path)
+    end
+
+    def strip_svg_xml_declaration(svg)
+      svg.to_s.sub(/\A\uFEFF?/, "").sub(/\A<\?xml[^>]*\?>\s*/i, "")
+    end
+
+    m.mushaf_pages.each do |mushaf_page|
+      padded = mushaf_page.page_number.to_s.rjust(3, "0")
+
+      svg =
+        if Rails.env.development?
+          path = LOCAL_BASE.join("#{padded}.svg")
+          fetch_local_svg(path)
+        else
+          url = "#{CDN_BASE}/#{padded}.svg"
+          fetch_remote_svg(url)
+        end
+
+      svg = strip_svg_xml_declaration(svg)
+
+      v4_page = MushafPage.where(mushaf_id: v4.id, page_number: mushaf_page.page_number).first
+      mushaf_page.attributes = v4_page.attributes.slice("first_verse_id", "last_verse_id", "verses_count", 'first_word_id', 'last_word_id')
+      mushaf_page.text = svg
+      mushaf_page.save!
+
+      puts "Imported page #{padded}"
+    rescue => e
+      puts "Error on page #{padded}: #{e.message}"
+    end
+
+    puts "Done."
+  end
+
   desc "Add group translations for 'يا أيها الذين آمنوا' phrase and fix WbW translations"
   task fix_group_translations: :environment do
     phrase_start = "يا ايها الذين امنوا"

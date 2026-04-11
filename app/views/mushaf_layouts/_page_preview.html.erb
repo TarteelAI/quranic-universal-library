@@ -6,7 +6,7 @@
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 page-section">
   <%= turbo_frame_tag "page-preview-#{page_number}" do %>
-    <% if ayah_range_missing || words_missing %>
+    <% if !@mushaf.use_svg? && (ayah_range_missing || words_missing) %>
       <%= render 'missing_required_data', step: 'preview' %>
     <% else %>
       <div class="mushaf-wrapper">

@@ -66,6 +66,10 @@ class Mushaf < QuranApiRecord
     default_font_name == 'img'
   end
 
+  def use_svg?
+    default_font_name == 'svg'
+  end
+
   def pdf_url
     case id
     when 1 # v2

@@ -1,0 +1,162 @@
+<%
+  mushaf_page = MushafPage.where(page_number: page, mushaf: mushaf).first
+  lines_count = mushaf.lines_per_page.to_i.positive? ? mushaf.lines_per_page : 15
+%>
+
+<div data-controller="svg-mushaf" class="svg-mushaf-demo tw-w-full tw-min-w-0 tw-flex tw-flex-col tw-gap-6">
+  <div
+    data-svg-mushaf-target="svgHost"
+    class="page tw-w-full tw-rounded-xl tw-border tw-border-slate-200 tw-bg-slate-50 tw-p-2 tw-shadow-inner [&>svg]:tw-block [&>svg]:tw-w-full [&>svg]:tw-max-w-full [&>svg]:tw-h-auto"
+  >
+    <%= raw mushaf_page&.text %>
+  </div>
+
+  <div class="tw-space-y-6">
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-flex tw-items-start tw-gap-3 tw-mb-3">
+        <span class="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-emerald-50 tw-text-lg" aria-hidden="true">📘</span>
+        <div class="tw-min-w-0 tw-space-y-2">
+          <h2 class="tw-text-sm tw-font-semibold tw-text-slate-900">Mushaf info</h2>
+          <p class="tw-text-xs tw-leading-relaxed tw-text-slate-600">
+            King Fahd Complex for the Printing of the Holy Qur&apos;an, 1441&nbsp;AH — vector pages with semantic grouping: 604 pages, 15 lines per page, each page a standalone SVG with per-line, per-ayah, and per-word metadata (<code class="tw-rounded tw-bg-slate-100 tw-px-1">data-surah</code>, <code class="tw-rounded tw-bg-slate-100 tw-px-1">data-aya</code>, <code class="tw-rounded tw-bg-slate-100 tw-px-1">data-word-index-in-ayah</code>). Dataset reference:
+            <a href="https://mushafdatabase.com" target="_blank" rel="noopener noreferrer" class="tw-text-sky-700 tw-underline tw-underline-offset-2 hover:tw-text-sky-900">Mushaf Database</a>.
+          </p>
+          <p class="tw-text-xs tw-leading-relaxed tw-text-slate-600">
+            Tools: line highlight (overlay), ayah highlight (grouped by surah and ayah from SVG), word IDs and comma-separated multi-word highlights (audio sync preview), sequential word emphasis (1&nbsp;s per word), search with match count, diacritics and waqf visibility and highlight modes, and independent page margin layers.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+        <span class="tw-text-base" aria-hidden="true">🎛</span>
+        <h3 class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Display controls</h3>
+      </div>
+      <div class="tw-flex tw-flex-wrap tw-gap-2">
+        <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                data-action="click->svg-mushaf#toggleState" data-key="showDiacritics" data-svg-mushaf-key-param="showDiacritics">
+          Toggle diacritics
+        </button>
+        <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                data-action="click->svg-mushaf#toggleState" data-key="highlightDiacritics" data-svg-mushaf-key-param="highlightDiacritics">
+          Diacritic highlight
+        </button>
+        <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                data-action="click->svg-mushaf#toggleState" data-key="showWaqf" data-svg-mushaf-key-param="showWaqf">
+          Toggle waqf
+        </button>
+        <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                data-action="click->svg-mushaf#toggleState" data-key="waqfHighlight" data-svg-mushaf-key-param="waqfHighlight">
+          Waqf highlight
+        </button>
+      </div>
+    </section>
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+        <span class="tw-text-base" aria-hidden="true">📄</span>
+        <h3 class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Page margins</h3>
+      </div>
+      <p class="tw-mb-3 tw-text-xs tw-text-slate-500">Toggle each margin layer independently (surah name, juz, page number, hizb, sajda).</p>
+      <div class="tw-flex tw-flex-wrap tw-gap-2">
+        <% %w[surah juz pageNumber hizb sajda].each do |key| %>
+          <% label = { "surah" => "Surah name", "juz" => "Juz name", "pageNumber" => "Page number", "hizb" => "Hizb", "sajda" => "Sajda" }[key] %>
+          <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                  data-margin-key="<%= key %>"
+                  data-action="click->svg-mushaf#toggleMargin">
+            <%= label %>
+          </button>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+        <span class="tw-text-base" aria-hidden="true">📏</span>
+        <h3 class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Line controls</h3>
+      </div>
+      <div class="tw-flex tw-flex-wrap tw-gap-1.5">
+        <% 1.upto(lines_count) do |n| %>
+          <button type="button" class="tw-min-w-[2.25rem] tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-2 tw-py-1.5 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                  data-line="<%= n %>"
+                  data-action="click->svg-mushaf#selectLine">
+            <%= n %>
+          </button>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+        <span class="tw-text-base" aria-hidden="true">📖</span>
+        <h3 class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Ayah controls</h3>
+      </div>
+      <p class="tw-mb-3 tw-text-xs tw-text-slate-500">Ayahs on this page (from SVG word groups). Click to highlight the ayah and run sequential word emphasis (1&nbsp;s per word). Click again to clear.</p>
+      <div class="tw-flex tw-flex-wrap tw-gap-1.5" data-svg-mushaf-target="ayahList"></div>
+      <div class="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
+        <button type="button" class="tw-rounded-lg tw-border tw-border-rose-200 tw-bg-rose-50 tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-rose-800 hover:tw-bg-rose-100"
+                data-action="click->svg-mushaf#stopSequenceClick">
+          Stop playback
+        </button>
+      </div>
+    </section>
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+        <span class="tw-text-base" aria-hidden="true">🔤</span>
+        <h3 class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Word controls</h3>
+      </div>
+      <div class="tw-flex tw-flex-wrap tw-items-end tw-gap-4">
+        <div class="tw-flex tw-flex-col tw-gap-1">
+          <label class="tw-text-xs tw-font-medium tw-text-slate-500">Word ID</label>
+          <input type="text" placeholder="001" autocomplete="off"
+                 class="tw-w-28 tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-2 tw-py-1.5 tw-text-sm tw-text-slate-900"
+                 data-svg-mushaf-target="wordInput"
+                 data-action="keydown.enter->svg-mushaf#highlightWord">
+        </div>
+        <button type="button" class="tw-rounded-lg tw-bg-indigo-600 tw-px-3 tw-py-2 tw-text-xs tw-font-semibold tw-text-white hover:tw-bg-indigo-700"
+                data-action="click->svg-mushaf#highlightWord">
+          Highlight
+        </button>
+        <div class="tw-flex tw-flex-col tw-gap-1">
+          <label class="tw-text-xs tw-font-medium tw-text-slate-500">Multi-word (comma-separated)</label>
+          <input type="text" placeholder="003,004,005" autocomplete="off"
+                 class="tw-w-44 tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-2 tw-py-1.5 tw-text-sm tw-text-slate-900"
+                 data-svg-mushaf-target="multiWordInput"
+                 data-action="keydown.enter->svg-mushaf#highlightMultipleWords">
+        </div>
+        <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                data-action="click->svg-mushaf#highlightMultipleWords">
+          Highlight group
+        </button>
+      </div>
+      <p class="tw-mt-3 tw-text-xs tw-text-slate-500">Audio sync preview: use word IDs as they appear in the SVG (<code class="tw-rounded tw-bg-slate-100 tw-px-1">md-word-###</code>).</p>
+    </section>
+
+    <section class="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-5 tw-shadow-sm">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+        <span class="tw-text-base" aria-hidden="true">🔎</span>
+        <h3 class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Search</h3>
+      </div>
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <input type="search" placeholder="One word, or a phrase (space-separated words)…" autocomplete="off"
+               class="tw-min-w-[12rem] tw-flex-1 tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-sm tw-text-slate-900"
+               data-svg-mushaf-target="searchInput"
+               data-action="keydown.enter->svg-mushaf#search">
+        <button type="button" class="tw-rounded-lg tw-bg-amber-600 tw-px-3 tw-py-2 tw-text-xs tw-font-semibold tw-text-white hover:tw-bg-amber-700"
+                data-action="click->svg-mushaf#search">
+          Search
+        </button>
+        <button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50"
+                data-action="click->svg-mushaf#clearSearch">
+          Clear search
+        </button>
+        <span class="tw-text-xs tw-font-medium tw-text-slate-600" data-svg-mushaf-target="matchCount"></span>
+      </div>
+      <p class="tw-mt-2 tw-text-xs tw-text-slate-500">Matches use orange highlights only; clearing search does not remove ayah or word highlights.</p>
+    </section>
+
+  </div>
+</div>

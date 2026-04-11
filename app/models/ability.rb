@@ -11,10 +11,12 @@ class Ability
     cannot :read, DownloadableResource
     cannot :read, DownloadableFile
     cannot :read, UserDownload
+    cannot :read, ChangeLog
     cannot :read, Feedback
     cannot :read, ImportantNote
     cannot :read, AdminTodo
     cannot :notify_users, DownloadableResource
+    cannot :deliver, ChangeLog
     cannot :read, Contributor
     cannot :read, ActiveAdmin::Page, name: "Analytics"
 
@@ -24,6 +26,7 @@ class Ability
     if user.is_admin?
       can :manage, NavigationSearchRecord
       can :manage, ResourceContent
+      can :manage, ChangeLog
       can :manage, Translation
       can :manage, TranslatedName
       can :manage, FootNote
@@ -42,6 +45,7 @@ class Ability
       can :download, :from_admin
       can :run_actions, :from_admin
       can :refresh_downloads, DownloadableResource
+      can :deliver, ChangeLog
     end
 
     if user.is_moderator?

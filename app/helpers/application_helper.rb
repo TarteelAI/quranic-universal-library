@@ -161,6 +161,26 @@ module ApplicationHelper
     html.to_s.html_safe
   end
 
+  def change_log_resource_path(change_log)
+    resource = change_log.public_downloadable_resource
+    return if resource.blank?
+
+    detail_resources_path(resource.resource_type, resource.id)
+  end
+
+  def change_log_resource_url(change_log)
+    resource = change_log.public_downloadable_resource
+    return if resource.blank?
+
+    detail_resources_url(resource.resource_type, resource.id)
+  end
+
+  def change_log_resource_type(change_log)
+    resource = change_log.public_downloadable_resource
+    value = resource&.group_name || change_log.resource_type_slug
+    value.to_s.tr('_', ' ').tr('-', ' ').titleize
+  end
+
   def quran_scripts
     {
       text_qpc_hafs: "QPC Hafs",

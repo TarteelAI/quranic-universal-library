@@ -114,6 +114,8 @@ Rails.application.routes.draw do
   end
 
   resources :user_projects, except: [:index, :destroy]
+  resources :change_logs, only: [:index, :show]
+
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
 

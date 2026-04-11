@@ -18,7 +18,10 @@ class ResourcesController < CommunityController
   def detail
     @resource = DownloadableResource
                   .published
-                  .includes(:downloadable_resource_tags, :related_resources)
+                  .includes(
+                    :downloadable_resource_tags,
+                    :related_resources,
+                    resource_content: [:change_logs])
                   .find(params[:id])
 
     @presenter.set_resource(@resource)

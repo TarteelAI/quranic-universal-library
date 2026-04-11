@@ -1,0 +1,14 @@
+As-Salaam-Alaikum <%= @user.name %>,
+
+A new changelog has been published for <%= @resource_content.name %>.
+
+<%= @change_log.title %>
+<%= @change_log.created_at.strftime('%B %d, %Y at %I:%M %P %Z') %>
+
+<%= @change_log.content_plain_text %>
+
+<% if @downloadable_resource.present? %>
+View resource: <%= detail_resources_url(@downloadable_resource.resource_type, @downloadable_resource.id) %>
+<% else %>
+View changelog timeline: <%= changelog_url %>
+<% end %>

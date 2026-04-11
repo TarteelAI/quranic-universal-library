@@ -78,6 +78,10 @@ ActiveAdmin.register ResourceContent do
     end
   end
 
+  action_item :add_change_log, only: :show, if: -> { can? :create, ChangeLog } do
+    link_to 'Add Change Log', new_cms_change_log_path(change_log: { resource_content_id: resource.id })
+  end
+
   member_action :upload_file, method: 'post' do
     authorize! :upload_file, resource
 
@@ -337,6 +341,27 @@ ActiveAdmin.register ResourceContent do
               td r.published?
             end
           end
+        end
+      end
+    end
+
+    panel "Change Logs (#{resource.change_logs.size})" do
+      div do
+        if can?(:create, ChangeLog)
+          text_node link_to('Add Change Log', new_cms_change_log_path(change_log: { resource_content_id: resource.id }), class: 'button')
+        end
+      end
+
+      table_for resource.change_logs.includes(:user) do
+        column :title do |change_log|
+          link_to change_log.title, [:cms, change_log]
+        end
+        column :published
+        column :delivered
+        column('Created by', &:user)
+        column :created_at
+        column :content do |change_log|
+          safe_html change_log.text.to_s
         end
       end
     end

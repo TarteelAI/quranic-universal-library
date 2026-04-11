@@ -1,0 +1,29 @@
+<p>
+  <strong>As-Salaam-Alaikum, <%= @user.name %></strong>
+</p>
+
+<p>
+  A new changelog has been published for <strong><%= @resource_content.name %></strong>.
+</p>
+
+<p>
+  <strong><%= @change_log.title %></strong>
+</p>
+
+<p>
+  <%= @change_log.created_at.strftime('%B %d, %Y at %I:%M %P %Z') %>
+</p>
+
+<div>
+  <%= @change_log.content_html.html_safe %>
+</div>
+
+<% if @downloadable_resource.present? %>
+  <p>
+    <%= link_to 'View resource', detail_resources_url(@downloadable_resource.resource_type, @downloadable_resource.id), class: 'cta-button' %>
+  </p>
+<% else %>
+  <p>
+    <%= link_to 'View changelog timeline', changelog_url, class: 'cta-button' %>
+  </p>
+<% end %>

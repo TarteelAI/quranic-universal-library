@@ -39,7 +39,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content tw-px-0 sm:tw-px-2 tw-py-2 tw-mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
@@ -49,34 +49,34 @@
           <%= resource.name %> Page <%= page %>
         </h2>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
-          <div class="tw-flex tw-items-center">
-            <%= label_tag :page, 'Jump to page', class: 'tw-me-2 tw-font-medium' %>
+        <% if mushaf %>
+        <div class="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-flex-wrap sm:tw-items-center sm:tw-justify-center tw-mb-6">
+          <div class="tw-flex tw-w-full tw-items-center tw-gap-2 sm:tw-w-auto">
+            <%= label_tag :page, 'Jump to page', class: 'tw-shrink-0 tw-whitespace-nowrap tw-text-sm sm:tw-text-base tw-font-medium' %>
             <%= select_tag :page,
                            options_for_select((1..mushaf.pages_count).to_a, page),
                            onchange: "jumpToPage(this.value)",
-                           class: 'tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm',
-                           style: 'min-width:200px',
+                           class: 'tw-min-w-0 tw-flex-1 tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm sm:tw-min-w-[200px] sm:tw-flex-none',
                            data: { controller: 'select2' }
             %>
           </div>
 
-          <div class="tw-flex tw-gap-2">
+          <div class="tw-flex tw-w-full tw-flex-nowrap tw-justify-center tw-gap-2 sm:tw-w-auto">
             <% if page > 1 %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary' do %>
-                ← Previous Page
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary tw-whitespace-nowrap tw-text-sm sm:tw-text-base', aria: { label: 'Previous page' } do %>
+                ← Previous
               <% end %>
             <% end %>
 
             <% if page < mushaf.pages_count %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary' do %>
-                Next Page →
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary tw-whitespace-nowrap tw-text-sm sm:tw-text-base', aria: { label: 'Next page' } do %>
+                Next →
               <% end %>
             <% end %>
           </div>
         </div>
 
-        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+        <div class="tw-py-5 tw-px-2 sm:tw-px-6 sm:tw-py-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
           <div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
           <%= render 'shared/mushaf_page',
                      words: words,
@@ -87,6 +87,7 @@
           %>
           </div>
         </div>
+        <% end %>
       </div>
     </div>
 

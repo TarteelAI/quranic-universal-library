@@ -1,0 +1,29 @@
+<article class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-xl tw-p-6 tw-shadow-sm tw-space-y-4">
+  <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-start md:tw-justify-between tw-gap-3">
+    <div class="tw-space-y-2">
+      <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-900"><%= change_log.title %></h2>
+      <div class="tw-flex tw-flex-wrap tw-gap-3 tw-text-sm tw-text-gray-500">
+        <span><%= change_log.created_at.strftime('%B %d, %Y at %I:%M %P %Z') %></span>
+        <span class="badge badge-info"><%= change_log_resource_type(change_log) %></span>
+
+        <% if change_log_resource_path(change_log).present? %>
+          <%= link_to change_log.resource_content.name, change_log_resource_path(change_log), class: 'tw-text-blue-600 hover:tw-text-blue-800 tw-underline' %>
+        <% else %>
+          <span><%= change_log.resource_content.name %></span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="tw-text-sm tw-text-gray-500">
+      <%= change_log.user.name %>
+    </div>
+  </div>
+
+  <div class="trix-content tw-text-gray-700">
+    <%= change_log.excerpt %>
+  </div>
+
+  <div>
+    <%= link_to 'View full change log', change_log_path(change_log), class: 'tw-text-blue-600 hover:tw-text-blue-800 tw-underline tw-font-medium' %>
+  </div>
+</article>

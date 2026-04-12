@@ -341,6 +341,27 @@ ActiveAdmin.register ResourceContent do
       end
     end
 
+    if (can? :create, ChangeLog)
+      panel "Change Logs (#{resource.change_logs.size})" do
+        div do
+          if can?(:create, ChangeLog)
+            text_node link_to('Add Change Log', new_cms_change_log_path(change_log: { resource_content_id: resource.id }), class: 'button')
+          end
+        end
+
+        table_for resource.change_logs.includes(:user) do
+          column :title do |change_log|
+            link_to change_log.title, [:cms, change_log]
+          end
+          column :published
+          column :delivered
+          column('Created by', &:user)
+          column :created_at
+          column :excerpt
+        end
+      end
+    end
+
     active_admin_comments
   end
 

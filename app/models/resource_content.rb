@@ -134,6 +134,7 @@ class ResourceContent < QuranApiRecord
   has_many :translated_names, as: :resource
   has_many :resource_tags, as: :resource
   has_many :tags, through: :resource_tags
+  has_many :change_logs, -> { order(created_at: :desc) }, dependent: :destroy
   has_many :downloadable_resources
   has_many :user_projects
 
@@ -316,6 +317,19 @@ class ResourceContent < QuranApiRecord
 
   def humanize
     "#{id}-#{name} - #{language_name}(#{sub_type})"
+  end
+
+  def primary_downloadable_resource
+    downloadable_resources.published.first || downloadable_resources.first
+  end
+
+  def changelog_route_types
+    [
+      sub_type,
+      resource_type,
+      resource_type_name,
+      primary_downloadable_resource&.resource_type
+    ].compact.map { |value| value.to_s.tr('_', '-') }.uniq
   end
 
   def topic?

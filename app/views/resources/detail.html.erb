@@ -1,9 +1,10 @@
 <%
   tags = @resource.get_tags
   copyright_notice = nil
+  resource_content = @resource.resource_content
 
   if @resource.restrict_download?
-    permission = @resource.resource_content.resource_permission
+    permission = resource_content.resource_permission
     copyright_notice = permission.copyright_notice
   end
 %>
@@ -97,6 +98,20 @@
         </section>
 
         <%= render 'preview', resource: @resource %>
+
+        <% if resource_content.change_logs.any? %>
+          <section class="tw-mt-4 tw-space-y-4">
+            <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+              <h2 class="tw-text-xl tw-font-semibold tw-text-gray-700">
+                Changelog
+              </h2>
+            </div>
+
+            <div class="tw-space-y-4">
+              <%= render partial: 'change_logs/item', collection: resource_content.change_logs, as: :change_log %>
+            </div>
+          </section>
+        <% end %>
 
         <% if @resource.related_resources.present? %>
           <section class="tw-mt-4">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_09_193823) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_12_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_193823) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "change_logs", force: :cascade do |t|
+    t.integer "resource_content_id", null: false
+    t.integer "user_id", null: false
+    t.string "title", null: false
+    t.text "text", null: false
+    t.text "excerpt", null: false
+    t.boolean "published", default: false, null: false
+    t.boolean "delivered", default: false, null: false
+    t.datetime "delivered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["delivered"], name: "index_change_logs_on_delivered"
+    t.index ["published", "created_at"], name: "index_change_logs_on_published_and_created_at"
+    t.index ["published"], name: "index_change_logs_on_published"
+    t.index ["resource_content_id"], name: "index_change_logs_on_resource_content_id"
   end
 
   create_table "contact_messages", force: :cascade do |t|

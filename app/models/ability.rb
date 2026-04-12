@@ -11,6 +11,7 @@ class Ability
     cannot :read, DownloadableResource
     cannot :read, DownloadableFile
     cannot :read, UserDownload
+    cannot :read, ChangeLog
     cannot :read, Feedback
     cannot :read, ImportantNote
     cannot :read, AdminTodo
@@ -24,6 +25,7 @@ class Ability
     if user.is_admin?
       can :manage, NavigationSearchRecord
       can :manage, ResourceContent
+      can :manage, ChangeLog
       can :manage, Translation
       can :manage, TranslatedName
       can :manage, FootNote

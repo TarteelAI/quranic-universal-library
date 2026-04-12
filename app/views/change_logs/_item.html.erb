@@ -4,7 +4,8 @@
       <h2 class="tw-text-2xl tw-font-semibold tw-text-gray-900"><%= change_log.title %></h2>
       <div class="tw-flex tw-flex-wrap tw-gap-3 tw-text-sm tw-text-gray-500">
         <span><%= change_log.created_at.strftime('%B %d, %Y at %I:%M %P %Z') %></span>
-        <span><%= change_log_resource_type(change_log) %></span>
+        <span class="badge badge-info"><%= change_log_resource_type(change_log) %></span>
+
         <% if change_log_resource_path(change_log).present? %>
           <%= link_to change_log.resource_content.name, change_log_resource_path(change_log), class: 'tw-text-blue-600 hover:tw-text-blue-800 tw-underline' %>
         <% else %>
@@ -19,7 +20,7 @@
   </div>
 
   <div class="trix-content tw-text-gray-700">
-    <%= safe_html change_log.excerpt %>
+    <%= change_log.excerpt %>
   </div>
 
   <div>

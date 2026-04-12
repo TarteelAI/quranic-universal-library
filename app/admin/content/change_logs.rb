@@ -10,31 +10,8 @@ ActiveAdmin.register ChangeLog do
          ajax: { resource: User }
   filter :created_at
   filter :published
-  filter :delivered
-
-  action_item :deliver, only: :show, if: -> { can?(:deliver, resource) && resource.deliverable? } do
-    link_to deliver_cms_change_log_path(resource), method: :put, data: { confirm: 'Are you sure? This action will send this changelog email to all users and cannot be repeated.' } do
-      'Send changelog email'
-    end
-  end
-
-  member_action :deliver, method: :put do
-    authorize! :deliver, resource
-    unless resource.deliverable?
-      return redirect_to [:cms, resource], alert: 'Only published changelogs that have not been delivered can be sent.'
-    end
-
-    Utils::System.start_sidekiq
-    ChangeLogDeliveryJob.perform_later(resource.id)
-
-    redirect_to [:cms, resource], notice: 'Changelog email has been queued for delivery.'
-  end
 
   controller do
-    def scoped_collection
-      super.includes(:resource_content, :user)
-    end
-
     def create
       build_resource
       resource.user = current_user
@@ -49,7 +26,6 @@ ActiveAdmin.register ChangeLog do
     column('Created by', &:user)
     column :excerpt
     column :published
-    column :delivered
     column :created_at
     actions
   end
@@ -61,8 +37,6 @@ ActiveAdmin.register ChangeLog do
       row :resource_content
       row :user
       row :published
-      row :delivered
-      row :delivered_at
       row :created_at
       row :updated_at
       row :excerpt

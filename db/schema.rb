@@ -108,6 +108,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_12_100000) do
     t.integer "user_id", null: false
     t.string "title", null: false
     t.text "text", null: false
+    t.text "excerpt", null: false
     t.boolean "published", default: false, null: false
     t.boolean "delivered", default: false, null: false
     t.datetime "delivered_at"

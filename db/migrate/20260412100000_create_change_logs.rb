@@ -7,14 +7,10 @@ class CreateChangeLogs < ActiveRecord::Migration[8.0]
       t.text :text, null: false
       t.text :excerpt, null: false
       t.boolean :published, null: false, default: false
-      t.boolean :delivered, null: false, default: false
-      t.datetime :delivered_at
 
       t.timestamps
     end
 
-    add_index :change_logs, :published
-    add_index :change_logs, :delivered
     add_index :change_logs, :resource_content_id
     add_index :change_logs, [:published, :created_at]
   end

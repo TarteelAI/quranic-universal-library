@@ -1,6 +1,15 @@
 class CommunityPresenter < ApplicationPresenter
   def meta_title
-    "QUL Tools"
+    case action_name
+    when 'tools'
+      "QUL Tools"
+    when 'faq'
+      "FAQ"
+    when 'credits'
+      "Credits"
+    else
+      "QUL Tools"
+    end
   end
 
   def meta_description

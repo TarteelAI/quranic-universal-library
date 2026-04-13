@@ -64,21 +64,31 @@ module ApplicationHelper
   end
 
   def header_nav_link_classes(active:, variant: :desktop, extra: nil)
-    base = case variant.to_sym
-           when :desktop
-             'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex'
-           when :drawer
-             'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg'
-           else
-             raise ArgumentError, "unsupported variant: #{variant.inspect}"
-           end
-    active_suffix = 'tw-font-semibold tw-text-[#46ac7a]'
-    [base, extra, (active ? active_suffix : nil)].compact.join(' ')
+    if active
+      case variant.to_sym
+      when :desktop
+        ['tw-text-[#46ac7a] tw-font-semibold hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex', extra].compact.join(' ')
+      when :drawer
+        ['tw-text-[#46ac7a] tw-font-semibold hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg', extra].compact.join(' ')
+      else
+        raise ArgumentError, "unsupported variant: #{variant.inspect}"
+      end
+    else
+      base = case variant.to_sym
+             when :desktop
+               'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex'
+             when :drawer
+               'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg'
+             else
+               raise ArgumentError, "unsupported variant: #{variant.inspect}"
+             end
+      [ base, extra ].compact.join(' ')
+    end
   end
 
   def header_nav_cms_link_classes(active:)
     base = 'btn-outline-pill tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2'
-    active_suffix = 'tw-font-semibold tw-border-[#46ac7a] tw-text-[#46ac7a] hover:tw-bg-[#46ac7a]/10 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a]'
+    active_suffix = 'tw-font-semibold tw-border-[#46ac7a] !tw-text-[#46ac7a] hover:!tw-bg-[#46ac7a]/10 hover:!tw-text-[#46ac7a] hover:!tw-border-[#46ac7a]'
     active ? "#{base} #{active_suffix}" : base
   end
 

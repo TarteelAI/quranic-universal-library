@@ -60,6 +60,8 @@ module.exports = {
     "btn-outline-dark",
     "btn-outline-pill",
 
+    "nav-link--active",
+
     "tw-flex",
     "tw-flex-col",
     "tw-items-end",

@@ -1,12 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-const DESKTOP_IDLE = "tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex"
-const DESKTOP_ACTIVE = "tw-text-[#46ac7a] tw-font-semibold hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex"
-const DRAWER_IDLE = "tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg"
-const DRAWER_ACTIVE = "tw-text-[#46ac7a] tw-font-semibold hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg"
-const LOGO_CLASS = "tw-text-black"
-const CMS_IDLE = "btn-outline-pill tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2"
-const CMS_ACTIVE = "btn-outline-pill tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2 tw-font-semibold tw-border-[#46ac7a] !tw-text-[#46ac7a] hover:!tw-bg-[#46ac7a]/10 hover:!tw-text-[#46ac7a] hover:!tw-border-[#46ac7a]"
+const ACTIVE_NAV_CLASS = "nav-link--active"
 
 const RESOURCES_PREFIX = "/resources"
 const FAQ_PATH = "/faq"
@@ -37,38 +31,34 @@ const TOOL_PATH_PREFIXES = [
 ].sort((a, b) => b.length - a.length)
 
 export default class extends Controller {
-  static targets = ["logo", "resources", "tools", "faq", "credits", "cms"]
+  static targets = ["resources", "tools", "faq", "credits", "cms"]
 
   connect() {
     this.boundApply = () => this.apply()
     this.apply()
     document.addEventListener("turbo:load", this.boundApply)
+    document.addEventListener("turbo:render", this.boundApply)
   }
 
   disconnect() {
     document.removeEventListener("turbo:load", this.boundApply)
+    document.removeEventListener("turbo:render", this.boundApply)
   }
 
   apply() {
     const path = window.location.pathname
-    this.resetNavLinks()
-    this.resetCms()
-    this.resetLogo()
+    this.clearNavStates()
 
     if (this.matchesResources(path)) {
-      this.activateTargets(this.resourcesTargets, "active")
+      this.activateTargets(this.resourcesTargets)
     } else if (this.matchesTools(path)) {
-      this.activateTargets(this.toolsTargets, "active")
+      this.activateTargets(this.toolsTargets)
     } else if (path === FAQ_PATH) {
-      this.activateTargets(this.faqTargets, "active")
+      this.activateTargets(this.faqTargets)
     } else if (path === CREDITS_PATH) {
-      this.activateTargets(this.creditsTargets, "active")
+      this.activateTargets(this.creditsTargets)
     } else if (this.matchesCms(path)) {
-      this.activateCms()
-    }
-
-    if (path === "/" || path === "") {
-      this.logoTargets.forEach((el) => el.setAttribute("aria-current", "page"))
+      this.activateTargets(this.cmsTargets)
     }
   }
 
@@ -84,57 +74,23 @@ export default class extends Controller {
     return path.startsWith(CMS_PREFIX)
   }
 
-  resetNavLinks() {
-    this.setTargetsVariant(this.resourcesTargets, "idle")
-    this.setTargetsVariant(this.toolsTargets, "idle")
-    this.setTargetsVariant(this.faqTargets, "idle")
-    this.setTargetsVariant(this.creditsTargets, "idle")
+  clearNavStates() {
+    ;[
+      ...this.resourcesTargets,
+      ...this.toolsTargets,
+      ...this.faqTargets,
+      ...this.creditsTargets,
+      ...this.cmsTargets,
+    ].forEach((el) => {
+      el.classList.remove(ACTIVE_NAV_CLASS)
+      el.removeAttribute("aria-current")
+    })
   }
 
-  setTargetsVariant(elements, mode) {
+  activateTargets(elements) {
     elements.forEach((el) => {
-      const drawer = el.dataset.variant === "drawer"
-      el.className = this.classForLink(el, drawer, mode)
-      el.removeAttribute("aria-current")
-    })
-  }
-
-  activateTargets(elements, mode) {
-    elements.forEach((el) => {
-      const drawer = el.dataset.variant === "drawer"
-      el.className = this.classForLink(el, drawer, mode)
+      el.classList.add(ACTIVE_NAV_CLASS)
       el.setAttribute("aria-current", "page")
-    })
-  }
-
-  classForLink(el, drawer, mode) {
-    const active = mode === "active"
-    if (drawer) {
-      return active ? DRAWER_ACTIVE : DRAWER_IDLE
-    }
-    return active ? DESKTOP_ACTIVE : DESKTOP_IDLE
-  }
-
-  resetCms() {
-    if (!this.hasCmsTarget) return
-    this.cmsTargets.forEach((el) => {
-      el.className = CMS_IDLE
-      el.removeAttribute("aria-current")
-    })
-  }
-
-  activateCms() {
-    this.cmsTargets.forEach((el) => {
-      el.className = CMS_ACTIVE
-      el.setAttribute("aria-current", "page")
-    })
-  }
-
-  resetLogo() {
-    if (!this.hasLogoTarget) return
-    this.logoTargets.forEach((el) => {
-      el.className = LOGO_CLASS
-      el.removeAttribute("aria-current")
     })
   }
 }

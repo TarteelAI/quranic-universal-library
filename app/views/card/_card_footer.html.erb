@@ -19,5 +19,7 @@
     </div>
   <% end %>
 
-  <%= render 'card/info-tip', tip: card.info_tip if card.respond_to?(:info_tip) && card.info_tip.present? %>
+  <% if card.respond_to?(:info_tip) && card.info_tip.present? && !local_assigns[:tool] %>
+    <%= render 'card/info-tip', tip: card.info_tip %>
+  <% end %>
 </div>

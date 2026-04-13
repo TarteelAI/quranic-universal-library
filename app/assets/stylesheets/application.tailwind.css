@@ -162,6 +162,26 @@
     @apply tw-inline-block tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300;
   }
 
+  .nav-link--desktop {
+    @apply tw-hidden md:tw-flex tw-text-black tw-transition-colors hover:tw-text-[#46ac7a];
+  }
+
+  .nav-link--drawer {
+    @apply tw-text-lg tw-text-black tw-transition-colors hover:tw-text-[#46ac7a];
+  }
+
+  .nav-link--active:not(.nav-link--cms) {
+    @apply tw-font-semibold tw-text-[#46ac7a] hover:tw-text-[#46ac7a];
+  }
+
+  .nav-link--cms {
+    @apply tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2;
+  }
+
+  .nav-link--cms.nav-link--active {
+    @apply tw-font-semibold tw-border-[#46ac7a] !tw-text-[#46ac7a] hover:!tw-bg-[#46ac7a]/10 hover:!tw-text-[#46ac7a] hover:!tw-border-[#46ac7a];
+  }
+
   /* Badge Component */
   .badge {
     @apply tw-inline-flex tw-items-center tw-justify-center tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-semibold tw-rounded;

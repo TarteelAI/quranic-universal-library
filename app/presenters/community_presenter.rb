@@ -2,13 +2,13 @@ class CommunityPresenter < ApplicationPresenter
   def meta_title
     case action_name
     when 'tools'
-      "QUL Tools"
+      'QUL Tools'
     when 'faq'
-      "FAQ"
+      'FAQ'
     when 'credits'
-      "Credits"
+      'Credits'
     else
-      "QUL Tools"
+      'Quranic Universal Library'
     end
   end
 

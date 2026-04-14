@@ -19,7 +19,11 @@
         <div class="item tw-cursor-pointer" id="faq-<%= faq.id %>">
           <div class="tw-py-4 tw-flex question-wrapper tw-items-center tw-justify-between">
             <span class="tw-me-1">
-              <a href="#faq-<%= faq.id %>">🔗</a>
+              <a href="<%= faq_path(anchor: "faq-#{faq.id}") %>"
+                 data-controller="copy-to-clipboard"
+                 data-text="<%= faq_url(anchor: "faq-#{faq.id}") %>"
+                 data-stop-propagation
+                 data-toast-message="Link copied to clipboard">🔗</a>
             </span>
 
             <a href="#faq-<%= faq.id %>" class="question tw-flex-1">

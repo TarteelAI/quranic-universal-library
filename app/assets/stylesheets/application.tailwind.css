@@ -242,6 +242,18 @@
   .tag-red {
     @apply tw-bg-red-100 tw-text-red-600;
   }
+
+  .inputs_container.was-validated input:invalid {
+    @apply tw-border-red-500;
+  }
+
+  .inputs_container.was-validated input:invalid ~ .invalid-feedback {
+    @apply tw-block;
+  }
+
+  .inputs_container.was-validated input:invalid:focus {
+    @apply tw-ring-2 tw-ring-red-500 tw-border-red-500;
+  }
 }
 
 .resize-handler {

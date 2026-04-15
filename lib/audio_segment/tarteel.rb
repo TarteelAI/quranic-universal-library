@@ -52,7 +52,7 @@ module AudioSegment
         FileUtils.mkdir_p(reciter_dir)
         version = Time.now.to_i
 
-        export_gapless_recitation_segments(recitation, reciter_dir)
+        export_gapless_recitation_segments(recitation, reciter_dir, true)
         export_gapless_recitation_audio_files(recitation, reciter_dir)
 
         puts "Exported #{resource_content.id} with version #{version}"
@@ -158,7 +158,7 @@ module AudioSegment
       end
     end
 
-    def export_gapless_recitation_segments(recitation, target_dir)
+    def export_gapless_recitation_segments(recitation, target_dir, allow_gaps_between_ayah = false)
       segments = Audio::Segment
                    .where(audio_recitation_id: recitation.id)
                    .order('chapter_id ASC, verse_number ASC')
@@ -188,18 +188,23 @@ module AudioSegment
 
           next_ayah = surah_segments[index+1]
 
-          start_time = if previous_ayah_end_time
-                         [previous_ayah_end_time + 1, seg.timestamp_from.to_i].max
-                       else
-                         seg.timestamp_from.to_i
-                       end
+          if allow_gaps_between_ayah
+            start_time = seg.timestamp_from.to_i
+            end_time = seg.timestamp_to.to_i
+          else
+            start_time = if previous_ayah_end_time
+                           [previous_ayah_end_time + 1, seg.timestamp_from.to_i].max
+                         else
+                           seg.timestamp_from.to_i
+                         end
 
-          end_time = if next_ayah
-                       [seg.timestamp_to.to_i, next_ayah.timestamp_from.to_i - 1].max
-                     else
-                       seg.timestamp_to.to_i
-                     end
-          previous_ayah_end_time = end_time
+            end_time = if next_ayah
+                         [seg.timestamp_to.to_i, next_ayah.timestamp_from.to_i - 1].max
+                       else
+                         seg.timestamp_to.to_i
+                       end
+            previous_ayah_end_time = end_time
+          end
 
           json_ayahs << {
             ayah: verse.verse_number,

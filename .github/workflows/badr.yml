@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  quranic-universal-library:
+  deploy:
     uses: TarteelAI/infra/.github/workflows/badr.yml@main
     with:
       image: tarteel/quranic-universal-library

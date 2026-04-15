@@ -39,12 +39,19 @@
       </ul>
     </div>
   }
-
-  actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-
-  actions << link_to('Back to all pages', mushaf_layout_path(@mushaf.id), class: 'btn btn-info', data: {turbo_frame: '_top'})
 %>
+<% actions << link_to(mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark tw-inline-flex tw-items-center tw-justify-center tw-h-10 tw-shrink-0 tw-px-2 md:tw-px-3', data: turbo_mushaf_page_options, aria: { label: 'Previous page' }) do %>
+  <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></span>
+  <span class="tw-hidden md:tw-inline">Previous Page</span>
+<% end %>
+<% actions << link_to(mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark tw-inline-flex tw-items-center tw-justify-center tw-h-10 tw-shrink-0 tw-px-2 md:tw-px-3', data: turbo_mushaf_page_options, aria: { label: 'Next page' }) do %>
+  <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+  <span class="tw-hidden md:tw-inline">Next page</span>
+<% end %>
+<% actions << link_to(mushaf_layout_path(@mushaf.id), class: 'btn btn-info tw-inline-flex tw-items-center tw-justify-center tw-h-10 tw-shrink-0 tw-px-2 md:tw-px-3', data: { turbo_frame: '_top' }, aria: { label: 'Back to all pages' }) do %>
+  <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg></span>
+  <span class="tw-hidden md:tw-inline">Back to all pages</span>
+<% end %>
 
 <%= turbo_frame_tag :page do %>
   <%= render 'tools/header',

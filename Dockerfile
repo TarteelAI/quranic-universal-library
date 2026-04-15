@@ -137,7 +137,6 @@ RUN apt-get update
 RUN apt-get install -y curl build-essential autoconf automake ffmpeg
 
 # setup yarn
-RUN /pd_build/nodejs.sh
 RUN corepack enable
 
 # setup gems

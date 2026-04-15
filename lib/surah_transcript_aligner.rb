@@ -1,3 +1,5 @@
+
+
 class SurahTranscriptAligner
   MUSHAF_TRANSLATOR_INDEX = JSON.parse(File.read("lib/data/mushaf-translator-index.json"))
 

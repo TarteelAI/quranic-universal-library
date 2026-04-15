@@ -11,8 +11,9 @@ RUN /pd_build/ruby-3.3.*.sh
 RUN bash -lc 'rvm --default use ruby-3.3.10'
 RUN /pd_build/redis.sh
 
-# Nodejs
-RUN /pd_build/nodejs.sh 20
+# Nodejs - install Node 20 LTS directly (bypass phusion script which installs Node 22)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
 
 # set environment variables
 ARG SECRET_KEY_BASE

@@ -150,6 +150,10 @@
     @apply tw-py-3 tw-px-8 tw-text-lg;
   }
 
+  .btn-header-action {
+    @apply tw-h-10 tw-shrink-0 tw-px-2 md:tw-px-3;
+  }
+
   .btn-cta {
     @apply tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold tw-border-gray-900 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors tw-px-8 tw-py-3;
   }

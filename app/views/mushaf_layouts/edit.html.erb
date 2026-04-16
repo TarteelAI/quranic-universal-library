@@ -32,12 +32,19 @@
       </ul>
     </div>
   }
-
-  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-
-  actions << link_to('Back to mushaf list', mushaf_layouts_path, class: 'tw-h-10 btn btn-info tw-flex tw-items-center')
 %>
+<% actions << link_to(edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark btn-header-action', data: turbo_mushaf_page_options, aria: { label: 'Previous page' }) do %>
+  <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></span>
+  <span class="tw-hidden md:tw-inline">Previous Page</span>
+<% end %>
+<% actions << link_to(edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark btn-header-action', data: turbo_mushaf_page_options, aria: { label: 'Next page' }) do %>
+  <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+  <span class="tw-hidden md:tw-inline">Next page</span>
+<% end %>
+<% actions << link_to(mushaf_layouts_path, class: 'btn btn-info btn-header-action', aria: { label: 'Back to mushaf list' }) do %>
+  <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg></span>
+  <span class="tw-hidden md:tw-inline">Back to mushaf list</span>
+<% end %>
 
 <%= turbo_frame_tag :page do %>
   <%= render 'tools/header',

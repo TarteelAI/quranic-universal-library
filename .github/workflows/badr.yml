@@ -1,0 +1,14 @@
+name: BADR
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    uses: TarteelAI/infra/.github/workflows/badr.yml@main
+    with:
+      image: tarteel/quranic-universal-library
+      deployment: quranic-universal-library
+      clusters: '["tarteel-v3"]'
+    secrets: inherit

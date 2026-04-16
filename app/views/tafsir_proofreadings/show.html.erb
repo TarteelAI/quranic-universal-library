@@ -45,14 +45,14 @@
     actions << link_to('Next ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark')
   end
 
-  actions << link_to('Back to filter', tafsir_proofreadings_path(resource_id: @resource.id), class: 'btn btn-outline-info')
 %>
 
 <%= render 'tools/header',
            name: "Ayah tafsir",
            title: "#{@resource.name} <div style='font-size: 0.5em'>#{@tafisr.group_verse_key_from} - #{@tafisr.group_verse_key_to}</div>",
            key: 'ayah_tafsir',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

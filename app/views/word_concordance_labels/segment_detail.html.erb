@@ -2,14 +2,14 @@
   actions = []
   actions << link_to('Previous Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position - 1), class: 'btn btn-dark')
   actions << link_to('Next Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position + 1), class: 'btn btn-dark')
-  actions << link_to('Back to word', word_detail_word_concordance_label_path(@verse.id, word: @word.location), class: 'btn btn-info')
 %>
 
 <%= render 'tools/header',
            name: "Quran corpus tool",
            title: "Segment #{@word.location}:#{@segment.position}",
            key: 'corpus',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Word', path: word_detail_word_concordance_label_path(@verse.id, word: @word.location) }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

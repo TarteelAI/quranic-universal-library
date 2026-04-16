@@ -55,14 +55,14 @@
     end
   end
 
-  actions << link_to('Back to filter', translation_proofreadings_path(resource_id: @resource.id), class: 'btn btn-outline-info')
 %>
 
 <%= render 'tools/header',
            name: "Ayah translation",
            title: "#{@resource.name} - #{@translation.verse.verse_key}",
            key: 'ayah_translation',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: translation_proofreadings_path(resource_id: @resource.id) }]
 %>
 
 <%= render 'shared/access_message' %>

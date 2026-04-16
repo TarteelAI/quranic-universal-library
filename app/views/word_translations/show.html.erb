@@ -15,14 +15,14 @@
     actions << link_to('Next ayah', word_translation_path(next_ayah.id, language: params[:language]), class: 'btn btn-dark')
   end
 
-  actions << link_to('Back to filter', word_translations_path(language: params[:language]), class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
            name: "Word translation proofreading",
            title: "#{@language.name} word-by-word translation for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
            key: 'word_translation',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: word_translations_path(language: params[:language]) }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

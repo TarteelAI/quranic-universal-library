@@ -42,16 +42,15 @@
 
   actions << link_to('Previous Page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
   actions << link_to('Next page', mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
-
-  actions << link_to('Back to all pages', mushaf_layout_path(@mushaf.id), class: 'btn btn-info', data: {turbo_frame: '_top'})
 %>
 
 <%= turbo_frame_tag :page do %>
   <%= render 'tools/header',
-             name: 'Mushaf layouts',
+             name: @mushaf.name,
              title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
              key: 'mushaf_layout',
-             actions: actions
+             actions: actions,
+             breadcrumb_parents: [{ label: 'All pages', path: mushaf_layout_path(@mushaf.id), data: { turbo_frame: '_top' } }]
   %>
 
   <%= render 'shared/access_message' %>

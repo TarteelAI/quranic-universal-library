@@ -1,0 +1,8 @@
+.git
+tmp
+log
+node_modules
+vendor/bundle
+app/assets/builds
+*.sql
+*.dump

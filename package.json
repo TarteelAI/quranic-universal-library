@@ -58,7 +58,7 @@
   "scripts": {
     "lint": "eslint \"app/javascript/src/**/*.{js,jsx,vue}\"",
     "lint:fix": "eslint --fix \"app/javascript/**/*.{js,jsx,vue}\"",
-    "size": "yarn run build && size-limit",
+    "size": "npm run build && size-limit",
     "format": "prettier-standard --format",
     "build": "node esbuild.config.js",
     "build:css": "npm-run-all --parallel \"build:css:* {@}\" --",

@@ -109,6 +109,48 @@ Visit [http://localhost:3000](http://localhost:3000). Admin panel at [http://loc
 | `docker compose logs db` | View PostgreSQL logs |
 | `docker compose logs redis` | View Redis logs |
 
+### Full Docker Setup (Everything in Containers)
+
+Run the entire stack in Docker — no local Ruby, Node, or system dependencies needed.
+
+**Requirements:** [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop).
+
+#### 1. Clone the repository
+```bash
+git clone git@github.com:TarteelAI/quranic-universal-library.git
+cd quranic-universal-library
+```
+
+#### 2. Start all services
+```bash
+docker compose up
+```
+This builds the development image (first time takes a few minutes), installs Ruby and Node dependencies, and starts 6 services: PostgreSQL, Redis, Rails server, esbuild watcher, Tailwind watcher, and Sidekiq.
+
+#### 3. Set up the databases
+In a separate terminal:
+```bash
+docker compose exec web rails db:setup
+```
+This creates both databases, downloads and loads the Quranic data dump into `quran_dev`, runs migrations, and seeds the data.
+
+#### 4. Visit the app
+Open [http://localhost:3000](http://localhost:3000). Admin panel at [http://localhost:3000/cms](http://localhost:3000/cms).
+
+#### Full Docker Commands Reference
+| Task | Command |
+|------|---------|
+| Start everything | `docker compose up` |
+| First-time DB setup | `docker compose exec web rails db:setup` |
+| Rails console | `docker compose exec web rails console` |
+| Run migrations | `docker compose exec web rails db:migrate` |
+| Install new gem | `docker compose exec web bundle install` |
+| Install npm package | `docker compose exec web npm install <pkg>` |
+| RuboCop | `docker compose exec web bundle exec rubocop` |
+| Rebuild after Dockerfile change | `docker compose up --build` |
+| Stop everything | `docker compose down` |
+| Stop and delete all data | `docker compose down -v` |
+
 ---
 
 ### Manual Setup (without Docker)

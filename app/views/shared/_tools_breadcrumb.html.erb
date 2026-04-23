@@ -1,0 +1,31 @@
+<% link_root = local_assigns.fetch(:link_root, true) %>
+<% current_label = local_assigns[:current_label] %>
+<% breadcrumb_parents = Array.wrap(local_assigns[:breadcrumb_parents]).compact %>
+<% link_class = 'tw-text-gray-900 hover:tw-text-gray-700 hover:tw-underline' %>
+
+<nav aria-label="breadcrumb">
+  <ol class="custom-breadcrumb">
+    <li class="breadcrumb-link">
+      <% if link_root %>
+        <%= link_to 'Developer Tools', tools_path, class: link_class %>
+      <% else %>
+        Developer Tools
+      <% end %>
+    </li>
+
+    <% breadcrumb_parents.each do |parent| %>
+      <% next if parent.blank? %>
+      <% p = parent.respond_to?(:symbolize_keys) ? parent.symbolize_keys : parent %>
+      <% label = p[:label] %>
+      <% path = p[:path] || p[:url] %>
+      <% extra = p.except(:label, :path, :url) %>
+      <li class="breadcrumb-link">
+        <%= link_to label, path, { class: link_class }.merge(extra) %>
+      </li>
+    <% end %>
+
+    <li class="breadcrumb-link active">
+      <%= current_label %>
+    </li>
+  </ol>
+</nav>

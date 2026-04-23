@@ -10,14 +10,14 @@
     actions << link_to('Next ayah', word_concordance_label_path(next_ayah.id), class: 'btn btn-dark')
   end
 
-  actions << link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
            name: "Quran corpus tool",
            title: "Corpus tagging for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
            key: 'corpus',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: word_concordance_labels_path }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
@@ -73,7 +73,6 @@
   <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-3">
     <%= link_to('Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-dark') if previous_ayah %>
     <%= link_to('Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-dark') if next_ayah %>
-    <%= link_to('Back to filter', word_concordance_labels_path, class: 'btn btn-outline-info tw-text-sm') %>
   </div>
 </div>
 

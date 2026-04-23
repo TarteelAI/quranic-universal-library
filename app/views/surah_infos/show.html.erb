@@ -15,7 +15,6 @@
     actions << link_to('Next Surah', surah_info_path(next_info.id), class: 'btn btn-dark')
   end
 
-  actions << link_to('Back to Index', surah_infos_path(resource_id: resource_content.id), class: 'btn btn-info')
 %>
 
 <%= render 'tools/header',
@@ -23,7 +22,8 @@
            title: "#{resource_content.name} For Surah #{resource.chapter.name_simple}",
            key: 'surah_info',
            actions: actions,
-           resource: resource_content
+           resource: resource_content,
+           breadcrumb_parents: [{ label: 'Surah information', path: surah_infos_path(resource_id: resource_content.id) }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

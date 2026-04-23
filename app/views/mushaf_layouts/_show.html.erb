@@ -2,9 +2,7 @@
            name: @mushaf.name,
            key: 'mushaf_layouts',
            help: 'mushaf_layout',
-           actions: [
-             link_to('Back to mushaf list', mushaf_layouts_path, class: 'btn btn-info')
-           ]
+           breadcrumb_parents: [{ label: 'Mushaf layouts', path: mushaf_layouts_path }]
 %>
 
 <%= render 'shared/access_message' %>

@@ -3,7 +3,7 @@
 
   if @access
     actions << link_to('New Phrase', new_morphology_phrase_path, class: 'tw-h-10 btn btn-success tw-inline-flex tw-items-center', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) })
-    actions << link_to('View bookmarks', '#_', class: 'tw-h-10 btn btn-dark tw-inline-flex tw-items-center', data: { controller: 'phrase-ayah-bookmark' })
+    actions << link_to('View bookmarks', '#_', class: 'btn btn-dark btn-header-action', data: { controller: 'phrase-ayah-bookmark' })
   end
 
   if params[:proofread]

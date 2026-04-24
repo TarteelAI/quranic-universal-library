@@ -23,12 +23,12 @@
       </div>
       <div class="tw-flex tw-gap-3 tw-items-center">
         View:
-        <%= link_to tools_path(view: 'list'), class: "#{view_type == 'list' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
+        <%= link_to tools_path(view: 'list'), class: "#{view_type == 'list' ? active_view_class : inactive_view_class }", data: { turbo_frame: 'tools', turbo_action: 'advance' } do %>
           <%= inline_svg_tag('svgs/list.svg') %>
           List
         <% end %>
 
-        <%= link_to tools_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class }", data: { turbo_action: 'advance' } do %>
+        <%= link_to tools_path(view: 'grid'), class: "#{view_type == 'grid' ? active_view_class : inactive_view_class }", data: { turbo_frame: 'tools', turbo_action: 'advance' } do %>
           <%= inline_svg_tag('svgs/grid.svg') %>
           Grid
         <% end %>

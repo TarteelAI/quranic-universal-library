@@ -1,4 +1,4 @@
-<header class="tw-sticky tw-top-0 tw-z-50 tw-w-full tw-bg-white tw-border-b tw-border-black/5" data-controller="offcanvas-reset">
+<header id="qul-site-header" class="tw-sticky tw-top-0 tw-z-50 tw-w-full tw-bg-white tw-border-b tw-border-black/5" data-turbo-permanent data-controller="offcanvas-reset header-nav">
   <div class="tw-px-4 md:tw-px-8 lg:tw-px-0 tw-grid tw-grid-cols-1 md:tw-grid-cols-12 tw-justify-center tw-max-w-[1680px] tw-mx-auto">
     <div class="tw-col-span-12 lg:tw-col-start-2 lg:tw-col-span-10">
       <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-py-2 md:tw-py-3 lg:tw-py-4">
@@ -18,10 +18,10 @@
       </div>
 
       <div class="tw-flex tw-gap-2 md:tw-gap-4 tw-items-center">
-        <%= link_to 'Resources', resources_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex' %>
-        <%= link_to 'Tools', tools_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex' %>
+        <%= link_to 'Resources', resources_path, class: 'nav-link--desktop', data: { header_nav_target: 'resources' } %>
+        <%= link_to 'Tools', tools_path, class: 'nav-link--desktop', data: { header_nav_target: 'tools' } %>
         <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex' %>
-        <%= link_to 'FAQ', faq_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex' %>
+        <%= link_to 'FAQ', faq_path, class: 'nav-link--desktop', data: { header_nav_target: 'faq' } %>
         <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex tw-items-center', target: '_blank' do %>
           <span class="tw-me-2">Github</span>
           <svg
@@ -35,8 +35,8 @@
           </svg>
         <% end %>
 
-        <%= link_to 'Logout', destroy_user_session_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex', data: { turbo_method: :delete } if user_signed_in? %>
-        <%= link_to 'CMS', '/cms', class: 'btn-outline-pill tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2', data: generate_event_data('clicked-admin', 'navigation') %>
+        <%= link_to 'Logout', destroy_user_session_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-hidden md:tw-flex', data: { turbo_method: :delete, turbo_frame: '_top' } if user_signed_in? %>
+        <%= link_to 'CMS', '/cms', class: 'btn-outline-pill nav-link--cms', data: generate_event_data('clicked-admin', 'navigation').merge(turbo_frame: '_top', header_nav_target: 'cms') %>
 
         <button class="tw-inline-block md:tw-hidden tw-bg-transparent tw-border-none tw-p-0 tw-cursor-pointer" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#offcanvasRight" aria-controls="offcanvasRight">
           <svg class="tw-fill-white" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,11 +64,11 @@
           </div>
           <div class="tw-p-4 tw-overflow-y-auto" style="max-height: calc(100vh - 80px);">
             <div class="tw-flex tw-flex-col tw-gap-3 tw-font-bold tw-mt-4">
-              <%= link_to 'Resources', resources_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg' %>
-              <%= link_to 'Tools', tools_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg' %>
-              <%= link_to 'Credits', credits_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg' %>
+              <%= link_to 'Resources', resources_path, class: 'nav-link--drawer', data: { header_nav_target: 'resources' } %>
+              <%= link_to 'Tools', tools_path, class: 'nav-link--drawer', data: { header_nav_target: 'tools' } %>
+              <%= link_to 'Credits', credits_path, class: 'nav-link--drawer' %>
               <%= link_to 'Community', 'https://discord.gg/HAcGh8mfmj', target: '_blank', class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg' %>
-              <%= link_to 'FAQ', faq_path, class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg' %>
+              <%= link_to 'FAQ', faq_path, class: 'nav-link--drawer', data: { header_nav_target: 'faq' } %>
               <%= link_to 'https://github.com/TarteelAI/quranic-universal-library', class: 'tw-text-black hover:tw-text-[#46ac7a] tw-transition-colors tw-text-lg tw-flex tw-items-center', target: '_blank' do %>
                 <span class="tw-me-2">Github</span>
                 <svg

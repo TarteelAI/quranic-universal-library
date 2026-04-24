@@ -1,46 +1,44 @@
-<div class="tw-gap-4 tw-h-full tw-flex tw-flex-col tw-justify-between tw-w-full">
-  <div class="tw-flex tw-flex-col tw-justify-between tw-h-full">
-    <div class="tw-flex tw-flex-col tw-gap-2">
-      <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title %>
-      <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description %>
+<div class="tw-flex tw-flex-col tw-flex-1 tw-min-h-0 tw-h-full tw-w-full <%= local_assigns[:tool] ? 'tw-gap-4' : 'tw-gap-6' %>">
+  <div class="tw-flex tw-flex-col tw-gap-2 tw-shrink-0 <%= 'tw-min-h-[6.75rem] md:tw-min-h-[6rem]' if local_assigns[:tool] %>">
+    <%= render 'card/card-title', title: local_assigns[:title] || card.name || card.title, tool: local_assigns[:tool] %>
+    <%= render 'card/card-description', description: card.humanize_cardinality_type || card.description, tool: local_assigns[:tool] %>
+  </div>
+
+  <% if local_assigns[:show_learn_more] %>
+    <div class="tw-shrink-0">
+      <%= render 'card/learn-more-button' %>
     </div>
+  <% end %>
 
-    <% if local_assigns[:show_learn_more] %>
-      <div class="tw-mt-8">
-        <%= render 'card/learn-more-button' %>
-      </div>
-    <% end %>
+  <% if local_assigns[:show_info] && card.info.present? %>
+    <div class="tw-shrink-0 text-white">
+      <%= safe_html card.info %>
+    </div>
+  <% end %>
 
-    <% if local_assigns[:show_info] && card.info.present? %>
-      <div class="tw-mt-8 text-white">
-        <%= safe_html card.info %>
-      </div>
-    <% end %>
-
-    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-grow">
-      <% if local_assigns[:is_quran_script] %>
-        <%= render 'quran_script_preview',
-                   resource: card.resource_content,
-                   preview_verse: local_assigns[:preview_verse]
-        %>
-      <% else %>
-        <div class="tw-flex tw-items-center tw-justify-center tw-w-full tw-transform group-hover:tw-scale-105 tw-transition-transform tw-duration-300">
-          <% if card.respond_to?(:icon) && card.icon.present? %>
-            <% if card.icon.start_with?('fa-') %>
-              <i class="fa tw-text-white tw-text-8xl md:tw-text-9xl <%= card.icon %> tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity"></i>
-            <% else %>
-              <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon", class: "tw-max-w-full tw-h-auto tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity" %>
-            <% end %>
+  <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-1 tw-min-h-0 tw-w-full tw-gap-6">
+    <% if local_assigns[:is_quran_script] %>
+      <%= render 'quran_script_preview',
+                 resource: card.resource_content,
+                 preview_verse: local_assigns[:preview_verse]
+      %>
+    <% else %>
+      <div class="tw-flex tw-items-center tw-justify-center tw-w-full tw-transform group-hover:tw-scale-105 tw-transition-transform tw-duration-300">
+        <% if card.respond_to?(:icon) && card.icon.present? %>
+          <% if card.icon.start_with?('fa-') %>
+            <i class="fa tw-text-white tw-text-8xl md:tw-text-9xl <%= card.icon %> tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity"></i>
+          <% else %>
+            <%= image_tag "card-icon/#{card.icon}", alt: "#{card.name || card.title} icon", class: "tw-max-w-full tw-h-auto tw-opacity-90 group-hover:tw-opacity-100 tw-transition-opacity" %>
           <% end %>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
+    <% end %>
 
-      <% if local_assigns[:show_download] %>
-        <div class="tw-flex tw-w-full tw-items-center tw-flex-col tw-justify-center tw-mt-8">
-          <%= render 'card/download_dropdown', resource: card %>
-        </div>
-      <% end %>
-    </div>
+    <% if local_assigns[:show_download] %>
+      <div class="tw-flex tw-w-full tw-items-center tw-flex-col tw-justify-center">
+        <%= render 'card/download_dropdown', resource: card %>
+      </div>
+    <% end %>
   </div>
 
   <%= render 'card/card_footer',

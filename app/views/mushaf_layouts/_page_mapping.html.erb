@@ -37,10 +37,7 @@
         <tr>
           <th><%= mushaf_sort_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
           <th>
-          <span class="tw-inline-flex tw-items-center tw-gap-2">
-            Ayah Range
-            <%= render 'card/info-tip', tip: 'Ayah key format is <code>surah:ayah</code><br/>For example: <code>1:1</code> refers to the first verse of the first surah.<br/><code>2:255</code> refers to verse 255 of surah 2.' %>
-          </span>
+          Ayah Range
           </th>
           <th>Actions</th>
         </tr>

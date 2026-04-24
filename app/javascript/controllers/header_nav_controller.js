@@ -4,34 +4,11 @@ const ACTIVE_NAV_CLASS = "nav-link--active"
 
 const RESOURCES_PREFIX = "/resources"
 const FAQ_PATH = "/faq"
-const CREDITS_PATH = "/credits"
+const TOOLS_PATH = "/tools"
 const CMS_PREFIX = "/cms"
 
-const TOOL_PATH_PREFIXES = [
-  "/tools",
-  "/mushaf_layouts",
-  "/tajweed_words",
-  "/morphology_phrases",
-  "/surah_audio_files",
-  "/ayah_audio_files",
-  "/translation_proofreadings",
-  "/tafsir_proofreadings",
-  "/word_text_proofreadings",
-  "/surah_infos",
-  "/arabic_transliterations",
-  "/word_translations",
-  "/word_concordance_labels",
-  "/morphology/dependency-graphs",
-  "/community/chars_info",
-  "/compare_ayah",
-  "/quran_scripts_comparison",
-  "/segments",
-  "/compare-audio",
-  "/ayah-boundaries",
-].sort((a, b) => b.length - a.length)
-
 export default class extends Controller {
-  static targets = ["resources", "tools", "faq", "credits", "cms"]
+  static targets = ["resources", "tools", "faq", "cms"]
 
   connect() {
     this.boundApply = () => this.apply()
@@ -51,12 +28,10 @@ export default class extends Controller {
 
     if (this.matchesResources(path)) {
       this.activateTargets(this.resourcesTargets)
-    } else if (this.matchesTools(path)) {
+    } else if (path === TOOLS_PATH) {
       this.activateTargets(this.toolsTargets)
     } else if (path === FAQ_PATH) {
       this.activateTargets(this.faqTargets)
-    } else if (path === CREDITS_PATH) {
-      this.activateTargets(this.creditsTargets)
     } else if (this.matchesCms(path)) {
       this.activateTargets(this.cmsTargets)
     }
@@ -64,10 +39,6 @@ export default class extends Controller {
 
   matchesResources(path) {
     return path === RESOURCES_PREFIX || path.startsWith(`${RESOURCES_PREFIX}/`)
-  }
-
-  matchesTools(path) {
-    return TOOL_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))
   }
 
   matchesCms(path) {
@@ -79,7 +50,6 @@ export default class extends Controller {
       ...this.resourcesTargets,
       ...this.toolsTargets,
       ...this.faqTargets,
-      ...this.creditsTargets,
       ...this.cmsTargets,
     ].forEach((el) => {
       el.classList.remove(ACTIVE_NAV_CLASS)

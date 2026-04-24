@@ -32,6 +32,11 @@
       </ul>
     </div>
   }
+
+
+  actions << link_to('Previous Page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+  actions << link_to('Next page', edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number + 1, view_type: params[:view_type]), class: 'btn btn-dark', data: turbo_mushaf_page_options)
+
 %>
 <% actions << link_to(edit_mushaf_layout_path(@mushaf.id, compare: @compared_mushaf&.id, page_number: page_number - 1, view_type: params[:view_type]), class: 'btn btn-dark btn-header-action', data: turbo_mushaf_page_options, aria: { label: 'Previous page' }) do %>
   <span class="tw-inline-flex md:tw-hidden" aria-hidden="true"><svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></span>
@@ -48,10 +53,11 @@
 
 <%= turbo_frame_tag :page do %>
   <%= render 'tools/header',
-             name: 'Mushaf layouts',
+             name: @mushaf.name,
              title: "#{@mushaf.name}<br/><div style='font-size: 0.5em'>(Pg##{page_number} Ayahs: #{@mushaf_page.first_ayah_key} - #{@mushaf_page.last_ayah_key})</div>",
              key: 'mushaf_layout',
-             actions: actions
+             actions: actions,
+             breadcrumb_parents: [{ label: 'Mushaf layouts', path: mushaf_layouts_path }]
   %>
 
   <%= render 'shared/access_message' %>

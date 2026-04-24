@@ -1,3 +1,5 @@
+
+
 class SurahTranscriptAligner
   MUSHAF_TRANSLATOR_INDEX = JSON.parse(File.read("lib/data/mushaf-translator-index.json"))
 
@@ -62,13 +64,36 @@ class SurahTranscriptAligner
   }
 
   STT_PATH = "data/stt"
-  OUTPUT_DIR = "#{STT_PATH}/results"
+
+  # 1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 65, 161, 164, 174, 175, 179
+  def self.process_reciter(id:)
+    splitter = TranscriptSplitter.new(reciter_id: id)
+    puts "Processing reciter #{id} - splitting transcript"
+    splitter.split
+
+    1.upto(114) do |surah|
+      puts "Processing reciter #{id} surah #{surah} - fixing stt alignment"
+      aligner = new(surah_number: surah, recitation_id: id)
+      aligner.export_aligned_ayahs
+      aligner.export_ayahs_bundle
+      aligner.export_fixed_stt
+    end
+
+    puts "Joining fixed stt results for reciter #{id}"
+    splitter.join
+    puts "Finished processing reciter #{id}"
+  end
 
   def initialize(surah_number:, recitation_id:)
     @surah_number = surah_number.to_i
     @recitation_id = recitation_id.to_i
-    @transcript_text = File.read("#{STT_PATH}/#{@recitation_id}/#{@surah_number}.txt").to_s
 
+    file_path = "#{STT_PATH}/#{@recitation_id}/by_surah/#{@surah_number}.txt"
+    unless File.exist?(file_path)
+      raise "STT file missing for surah #{@surah_number}. Please run STT split first."
+    end
+
+    @transcript_text = File.read(file_path).to_s
     @stt_raw_tokens = tokenize(@transcript_text, strip_diacritics: false)
     @stt_norm_tokens = tokenize(@transcript_text, strip_diacritics: true)
 
@@ -133,7 +158,7 @@ class SurahTranscriptAligner
       )
       stt_words = post_process_merge_extras(stt_words, @surah_number, vd[:verse_number])
 
-      output_hash = build_output_hash(
+      result = build_output_hash(
         ayah_number: vd[:verse_number],
         verse_text: vd[:verse_text],
         span_raw: span_raw,
@@ -143,7 +168,7 @@ class SurahTranscriptAligner
         stt_words: stt_words,
         words_count: vd[:canonical_raw].length
       )
-      export_ayah_stt(vd[:verse_number], output_hash)
+      export_ayah_stt(vd[:verse_number], result)
       processed += 1
 
       cursor = [cursor, e + 1].max if s >= 0 && e >= s && score > 0.0
@@ -157,8 +182,8 @@ class SurahTranscriptAligner
   end
 
   def export_ayahs_bundle
-    ayahs_path = Rails.root.join(OUTPUT_DIR, @recitation_id.to_s, @surah_number.to_s)
-    bundle_path = Rails.root.join(OUTPUT_DIR, "bundle", @recitation_id.to_s)
+    ayahs_path = Rails.root.join(STT_PATH, @recitation_id.to_s, "ayah_data", @surah_number.to_s)
+    bundle_path = Rails.root.join(STT_PATH, @recitation_id.to_s, "bundle", @surah_number.to_s)
 
     files = Dir.glob(ayahs_path.join("*.json").to_s)
 
@@ -189,8 +214,8 @@ class SurahTranscriptAligner
   end
 
   def export_fixed_stt
-    ayahs_path = Rails.root.join(OUTPUT_DIR, @recitation_id.to_s, @surah_number.to_s)
-    fixed_stt_path = Rails.root.join(OUTPUT_DIR, "fixed", @recitation_id.to_s)
+    ayahs_path = Rails.root.join(STT_PATH, @recitation_id.to_s, "ayah_data", @surah_number.to_s)
+    fixed_stt_path = "#{STT_PATH}/#{@recitation_id}/fixed/by_surah"
 
     files = Dir.glob(ayahs_path.join("*.json").to_s)
 
@@ -207,7 +232,7 @@ class SurahTranscriptAligner
     end
 
     FileUtils.mkdir_p(fixed_stt_path)
-    File.write(fixed_stt_path.join("#{@surah_number.to_s}.txt"), data.join(' '))
+    File.write("#{fixed_stt_path}/#{@surah_number.to_s}.txt", data.join(' '))
   end
 
   private
@@ -372,6 +397,21 @@ class SurahTranscriptAligner
             "status" => "extra"
           }
         end
+
+        # When a_len > b_len, canonical words have no STT counterpart (e.g. two canonical
+        # words were merged into one STT token). Emit them as missed so they aren't silently dropped.
+        (common...a_len).each do |k|
+          i = i1 + k
+          out << {
+            "position" => i + 1,
+            "text" => canonical_raw[i].to_s,
+            "text_simple" => canonical_norm[i].to_s,
+            "stt_text" => nil,
+            "stt_text_simple" => nil,
+            "status" => "missed"
+          }
+          last_canonical_index = i + 1
+        end
       elsif tag == "delete"
         (i1...i2).each do |i|
           out << {
@@ -415,7 +455,7 @@ class SurahTranscriptAligner
   end
 
   def export_ayah_stt(ayah_number, output_hash)
-    dir = Rails.root.join(OUTPUT_DIR, @recitation_id.to_s, @surah_number.to_s)
+    dir = Rails.root.join(STT_PATH, @recitation_id.to_s, "ayah_data", @surah_number.to_s)
     FileUtils.mkdir_p(dir)
 
     occurrence = @ayah_occurrence_counter[ayah_number]

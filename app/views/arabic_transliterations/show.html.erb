@@ -18,14 +18,14 @@
     actions << link_to('Next ayah', arabic_transliteration_path(next_ayah.id), class: 'btn btn-dark')
   end
 
-  actions << link_to('Back to filter', arabic_transliterations_path, class: 'btn btn-outline-info tw-text-sm')
 %>
 
 <%= render 'tools/header',
            name: "Arabic/Urdu Transliterations",
            title: "Arabic/Urdu Transliterations - #{@verse.verse_key}",
            key: 'arabic_transliteration',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: arabic_transliterations_path }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

@@ -6,13 +6,17 @@ ENV HOME /root
 # use baseimage-docker's init process
 CMD ["/sbin/my_init"]
 
+# Install Node 20 LTS before ruby setup — the phusion ruby script (install_ruby_utils.sh)
+# checks for /etc/apt/sources.list.d/nodesource.list and skips Node installation if present.
+# Without this, it installs Node 22 whose npm is broken (missing promise-retry).
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
+RUN corepack enable
+
 # customizing passenger-customizable image
 RUN /pd_build/ruby-3.3.*.sh
 RUN bash -lc 'rvm --default use ruby-3.3.10'
 RUN /pd_build/redis.sh
-
-# Nodejs
-RUN /pd_build/nodejs.sh 20
 
 # set environment variables
 ARG SECRET_KEY_BASE
@@ -135,10 +139,6 @@ RUN cp /etc/cron.daily/logrotate /etc/cron.hourly
 
 RUN apt-get update
 RUN apt-get install -y curl build-essential autoconf automake ffmpeg
-
-# setup yarn
-RUN /pd_build/nodejs.sh
-RUN corepack enable
 
 # setup gems
 WORKDIR /tmp

@@ -11,14 +11,14 @@
   end
 
   actions << link_to('Short keys', '#_', class: 'btn btn-info', data: { controller: 'ajax-modal', url: builder_help_surah_audio_files_path })
-  actions << link_to('Back to Index', ayah_audio_files_path(recitation_id: @recitation.id), class: 'btn btn-info')
 %>
 
 <%= render 'tools/header',
            name: 'Ayah recitations',
            title: "Segment builder for #{@recitation.humanize}(#{@recitation.id})<div style='font-size: 0.5em'>Surah #{@chapter.name_simple}</div>",
            key: 'ayah_recitation',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Recitations', path: ayah_audio_files_path(recitation_id: @recitation.id) }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 mt-0">

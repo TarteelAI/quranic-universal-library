@@ -5,9 +5,16 @@
   help_key = local_assigns[:help] || tool_key
   wide_container = local_assigns[:wide_container] || false
   resource = local_assigns[:resource] || @resource
+  breadcrumb_label = local_assigns[:name].presence || strip_tags((local_assigns[:title] || title).to_s).squish
+  hero_below_logo = render(partial: 'shared/tools_breadcrumb',
+                           locals: {
+                             current_label: breadcrumb_label.presence || 'Tools',
+                             link_root: true,
+                             breadcrumb_parents: local_assigns[:breadcrumb_parents]
+                           })
 %>
 
-<%= render 'layouts/qul_head' %>
+<%= render 'layouts/qul_head', hero_below_logo: hero_below_logo %>
 
 <div class="tw-container <%= 'tw-max-w-7xl tw-mx-auto' unless wide_container %>  tw-px-4 tw-mt-4 mt-md-5">
   <div class="tw-mb-3 flex-between tw-justify-between">

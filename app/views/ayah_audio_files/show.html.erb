@@ -9,14 +9,14 @@
   end
 
   actions << link_to('View Segments', segment_builder_ayah_audio_file_path(@recitation.id, chapter_id: @chapter.id), class: 'btn btn-success')
-  actions << link_to('Back to Index', ayah_audio_files_path(id: @recitation.id), class: 'btn btn-info')
 %>
 
 <%= render 'tools/header',
            name: 'Ayah recitations',
            title: "#{@recitation.name} - Surah #{@chapter.name_simple}",
            key: 'ayah_recitation',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Recitations', path: ayah_audio_files_path(id: @recitation.id) }]
 %>
 
 <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">

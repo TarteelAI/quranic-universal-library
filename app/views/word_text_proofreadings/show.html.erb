@@ -6,14 +6,14 @@
   if @verse.id < 6236
     actions << link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark')
   end
-  actions << link_to('Back to filter', word_text_proofreadings_path, class: 'btn btn-outline')
 %>
 
 <%= render 'tools/header',
            name: "Quran scripts",
            title: "#{@verse.chapter.name_simple} - #{@verse.verse_number}",
            key: 'quran_script',
-           actions: actions
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: word_text_proofreadings_path }]
 %>
 
 <%= render 'shared/page_font', verses: [@verse] %>
@@ -304,6 +304,5 @@
   <div class="tw-flex tw-justify-end tw-gap-2">
      <%= link_to( 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark') if @verse.id > 1 %>
      <%= link_to( 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < 6236 %>
-     <%= link_to( 'Back to filter', word_text_proofreadings_path, class: 'btn btn-outline') %>
   </div>
 </div>

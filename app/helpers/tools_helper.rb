@@ -7,8 +7,7 @@ module ToolsHelper
         url: '/mushaf_layouts',
         type: 'mushaf-layout',
         icon: 'layout.svg',
-        tags: [['Mushaf Layout', 'mushaf-layout']],
-        info_tip: "This tool allows you to create the digital Quran layout as it appears in printed Mushafs."
+        tags: [['Mushaf Layout', 'mushaf-layout']]
       ),
       ToolCard.new(
         title: 'Tajweed Rules Annotation Tool',
@@ -16,8 +15,7 @@ module ToolsHelper
         url: tajweed_words_path,
         type: 'tajweed-tool',
         icon: 'tajweed.svg',
-        tags: [['Tajweed', 'tajweed']],
-        info_tip: "Use Tajweed Tools to locate words with specific Tajweed rules, receive suggestions for missing rules, add the missing or fix the incorrect one."
+        tags: [['Tajweed', 'tajweed']]
       ),
       ToolCard.new(
         title: 'Mutashabihat ul Quran',
@@ -26,8 +24,7 @@ module ToolsHelper
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
         cta_bg: 'rgba(56, 152, 173, 0.9)',
-        tags: [['Mutashabihat', 'mutashabihat']],
-        info_tip: "This tool allows you to identify and compare verses and phrases that share similarities in meaning, context, or wording."
+        tags: [['Mutashabihat', 'mutashabihat']]
       ),
       ToolCard.new(
         title: 'Surah audio segments',
@@ -36,8 +33,7 @@ module ToolsHelper
         type: 'segments',
         tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah'], ['Timestamp', 'timestamp']],
         icon: 'timestamp.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "Surah Timestamp Editor is designed to help you prepare precise timestamp data for surah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Ayah audio segments',
@@ -46,8 +42,7 @@ module ToolsHelper
         type: 'segments',
         tags: [['Recitation', 'recitation'], ['Ayah by Ayah', 'ayah-by-ayah'], ['Timestamp', 'timestamp']],
         icon: 'timestamp.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "Ayah Timestamp Editor is designed to help you prepare precise timestamp data for ayah audio files. This data empower Quranic apps to highlight the currently playing words in real-time."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Ayah translation in different languages',
@@ -56,8 +51,7 @@ module ToolsHelper
         type: 'translation',
         tags: [['Translation', 'translation']],
         icon: 'translation.svg',
-        cta_bg: 'rgba(90, 77, 65, 0.9)',
-        info_tip: "This tool helps you review and suggest fixes for Quran translations, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
+        cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
         title: 'Ayah tafsirs in different languages',
@@ -66,8 +60,7 @@ module ToolsHelper
         type: 'tafsir',
         tags: [['Tafsir', 'tafsir']],
         icon: 'translation.svg',
-        cta_bg: 'rgba(90, 77, 65, 0.9)',
-        info_tip: "This tool helps you review and suggest fixes for Quran tafsirs, including typos and issues that may occur during OCR (Optical Character Recognition) or due to human error."
+        cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
         title: 'Quranic script and fonts',
@@ -76,8 +69,7 @@ module ToolsHelper
         type: 'quranic-text',
         icon: 'qaf.svg',
         tags: [['Quran Script', 'quran-script'], ['Fonts', 'fonts']],
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool enables you to proofread Quran script( For Tashkeel issues and font compatibility), both ayah by ayah and word by word.",
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Surah Info in different languages',
@@ -86,8 +78,7 @@ module ToolsHelper
         type: 'segments',
         icon: 'translation.svg',
         tags: [['Surah info', 'surah-info']],
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool allow you to proofread Surah info in different languages."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Arabic/Urdu syllable of Quran words',
@@ -96,8 +87,7 @@ module ToolsHelper
         type: 'corpus',
         tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
         icon: 'qaf.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool allow you to prepare Arabic transliterations(syllable)."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Word by Word translation',
@@ -106,8 +96,7 @@ module ToolsHelper
         type: 'corpus',
         tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
         icon: 'translation.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool is used to proofread and fix word-by-word translations"
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Concordance labeling of each word',
@@ -116,8 +105,7 @@ module ToolsHelper
         type: 'corpus',
         tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['POS', 'part-of-speech'], ['Morphology', 'quranic-morphology']],
         icon: 'tags.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool is used to tag part of speech, grammar of each word of Quran."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Ayah Dependency Graphs',
@@ -126,8 +114,7 @@ module ToolsHelper
         type: 'corpus',
         tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['Morphology', 'quranic-morphology']],
         icon: 'tags.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "This tool is used to visualize and edit dependency graphs for ayahs."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Text and Font Compatibility Checker',
@@ -136,8 +123,7 @@ module ToolsHelper
         type: 'corpus',
         tags: ['Letter Info', 'Font Preview'],
         icon: 'info.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: "Analyze Unicode values of Quranic characters and preview text rendering across all available fonts to ensure compatibility and debug font issues."
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Compare ayah',
@@ -145,8 +131,7 @@ module ToolsHelper
         url: compare_ayah_path,
         type: 'ayah-reader',
         icon: 'compare.svg',
-        tags: [],
-        info_tip: 'Compare multiple Ayahs, with optional translations to find differences or similarities in the script.',
+        tags: []
       ),
       ToolCard.new(
         title: 'Quran Scripts Comparison',
@@ -155,8 +140,7 @@ module ToolsHelper
         type: 'quranic-text',
         icon: 'compare.svg',
         tags: [['Quran Script', 'quran-script']],
-        cta_bg: 'rgba(56, 165, 126, 0.9)',
-        info_tip: 'Compare different Quranic script variants and identify words where characters appear in some scripts but are missing in others. Essential for script proofreading and quality assurance.',
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
         title: 'Audio Segmentations',
@@ -164,8 +148,7 @@ module ToolsHelper
         url: segments_dashboard_path,
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: [['Timestamp', 'timestamp']],
-        info_tip: 'Review and validate raw audio segmentation data of recitations.',
+        tags: [['Timestamp', 'timestamp']]
       ),
       ToolCard.new(
         title: 'Compare audio',
@@ -173,8 +156,7 @@ module ToolsHelper
         url: '/compare-audio',
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: [['Timestamp', 'timestamp']],
-        info_tip: 'This tool is used to compare two audio recitations through waveform visualizations, helping identify differences and similarities between them.',
+        tags: [['Timestamp', 'timestamp']]
       ),
       ToolCard.new(
         title: 'Ayah Boundary Visualizer',
@@ -182,8 +164,7 @@ module ToolsHelper
         url: '/ayah-boundaries',
         type: 'segments',
         icon: 'timeline.svg',
-        tags: [['Timestamp', 'timestamp']],
-        info_tip: 'This tool visualizes ayah boundaries from raw segments data.'
+        tags: [['Timestamp', 'timestamp']]
       )
     ]
   end

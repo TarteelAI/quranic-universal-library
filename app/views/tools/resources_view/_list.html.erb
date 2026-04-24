@@ -5,7 +5,6 @@
       <%= sort_order_link 'Tool', :name, {}, data: { turbo_action: 'advance' } %>
     </th>
     <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden sm:tw-table-cell">Description</th>
-    <th class="tw-py-3 tw-px-4 tw-font-normal tw-hidden md:tw-table-cell">Additional Info</th>
     <th class="tw-py-3 tw-px-4 tw-font-normal tw-w-48 tw-hidden md:tw-table-cell">Tags</th>
   </tr>
   </thead>
@@ -41,12 +40,6 @@
       <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden sm:tw-table-cell tw-text-pretty tw-align-top">
         <%= link_to card.url, class: 'hover:tw-text-[#46ac7a] tw-transition-colors tw-block', data: { turbo_frame: '_top' } do %>
           <%= card.description %>
-        <% end %>
-      </td>
-
-      <td class="tw-py-3 tw-px-4 tw-text-sm tw-hidden md:tw-table-cell tw-text-gray-500 tw-align-top">
-        <%= link_to card.url, class: 'hover:tw-text-[#46ac7a] tw-transition-colors tw-block', data: { turbo_frame: '_top' } do %>
-          <%= card.info_tip if card.respond_to?(:info_tip) %>
         <% end %>
       </td>
 

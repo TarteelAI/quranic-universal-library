@@ -50,14 +50,7 @@
 
       <tr>
         <td colspan="4">
-          <div class="tw-flex tw-items-center tw-py-4">
-            <div class="tw-me-4">
-              <%= pagy_nav_tailwind(@pagy).html_safe %>
-            </div>
-            <div>
-              <%= safe_html pagy_info_tailwind(@pagy) %>
-            </div>
-          </div>
+          <%= pagination_section @pagy %>
         </td>
       </tr>
       </tbody>

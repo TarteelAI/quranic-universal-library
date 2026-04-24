@@ -1,0 +1,14 @@
+<%
+  nav_options = (local_assigns[:nav_options] || {}).symbolize_keys
+  extra_class = local_assigns[:extra_class].presence
+  base = %w[tw-flex tw-flex-col sm:tw-flex-row tw-items-center tw-gap-4 tw-w-full sm:tw-justify-between tw-py-4]
+  base << extra_class if extra_class
+%>
+<div class="<%= base.join(' ') %>">
+  <%= safe_html pagy_info_tailwind(pagy) %>
+  <% if pagy.pages > 1 %>
+    <div class="tw-flex tw-justify-center sm:tw-justify-end tw-w-full sm:tw-w-auto">
+      <%= safe_html pagy_nav_tailwind(pagy, **nav_options) %>
+    </div>
+  <% end %>
+</div>

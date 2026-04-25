@@ -161,6 +161,12 @@ module ApplicationHelper
     html.to_s.html_safe
   end
 
+  def pagination_section(pagy, nav_options: {}, extra_class: nil)
+    return ''.html_safe if pagy.blank?
+
+    render 'shared/pagination', pagy: pagy, nav_options: nav_options, extra_class: extra_class
+  end
+
   def change_log_resource_path(change_log)
     resource = change_log.public_downloadable_resource
     return if resource.blank?

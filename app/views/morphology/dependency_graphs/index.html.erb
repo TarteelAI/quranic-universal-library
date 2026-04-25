@@ -101,14 +101,7 @@
 
           <tr>
             <td colspan="5">
-              <div class="tw-flex tw-items-center">
-                <div class="tw-me-4">
-                  <%= pagy_nav_tailwind(@pagy).html_safe %>
-                </div>
-                <div>
-                  <%= pagy_info(@pagy).html_safe %>
-                </div>
-              </div>
+              <%= pagination_section @pagy %>
             </td>
           </tr>
         </tbody>

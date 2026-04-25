@@ -100,20 +100,14 @@
   </table>
 </div>
 
-<!-- Pagination -->
-<% if @pagy.pages > 1 %>
-  <div class="tw-flex tw-justify-center tw-mt-6">
-    <% 
-      # Build pagination URLs with preserved search and sort params
-      pagy_url_proc = proc do |page_num|
-        detail_resources_path('ayah-topics', resource.id, 
-                              page: page_num, 
-                              search: @search_query,
-                              sort_by: @sort_by,
-                              sort_direction: @sort_direction)
-      end
-    %>
-    <%== pagy_nav_tailwind(@pagy, pagy_id: 'topics-pagination', link_extra: '', pagy_url: pagy_url_proc).html_safe %>
-  </div>
-<% end %>
+<% pagy_url_proc = proc do |page_num|
+     detail_resources_path('ayah-topics', resource.id,
+                           page: page_num,
+                           search: @search_query,
+                           sort_by: @sort_by,
+                           sort_direction: @sort_direction)
+   end %>
+<div class="tw-mt-6">
+  <%= pagination_section @pagy, nav_options: { pagy_id: 'topics-pagination', link_extra: '', pagy_url: pagy_url_proc } %>
+</div>
 

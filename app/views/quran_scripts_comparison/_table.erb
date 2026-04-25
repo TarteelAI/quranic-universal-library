@@ -65,14 +65,7 @@
   <% if @presenter.words.present? %>
     <tr class="tw-w-full">
       <td colspan="<%= scripts.size + 1 %>">
-        <div class="tw-flex tw-items-center tw-py-4">
-          <div class="tw-me-4">
-            <%= pagy_nav_tailwind(@presenter.pagination).html_safe %>
-          </div>
-          <div>
-            <%= safe_html pagy_info_tailwind(@presenter.pagination) %>
-          </div>
-        </div>
+        <%= pagination_section @presenter.pagination %>
       </td>
     </tr>
   <% end %>

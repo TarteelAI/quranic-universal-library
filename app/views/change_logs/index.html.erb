@@ -18,10 +18,7 @@
       <%= render partial: 'change_logs/item', collection: change_logs, as: :change_log %>
     </div>
 
-    <div class="tw-flex tw-flex-col md:tw-flex-row tw-items-center tw-justify-between tw-gap-4">
-      <%= safe_html pagy_info_tailwind(pagination) %>
-      <%= safe_html pagy_nav_tailwind(pagination) %>
-    </div>
+    <%= pagination_section pagination %>
   <% else %>
     <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-p-6 tw-text-gray-600">
       No changelogs are available yet.

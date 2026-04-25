@@ -19,10 +19,14 @@ export default class extends Controller {
 
     this.recitation = recitation;
     this.verses = {};
-    this.segmnetsData = {}
+    this.segmentsData = {}
     this.audioData = {}
     this.isPlaying = false
     this.playWindowEndMs = null
+    this.loopEnabled = false
+    this.draggingProgress = false
+    this.seekOnNextPlay = true
+    this.jumpToken = 0
 
     this.versePaginaiton = {};
     this.segmentPaginaiton = {};
@@ -33,8 +37,12 @@ export default class extends Controller {
 
     this.playButton = this.element.querySelector('#play-button');
     this.progressBar = this.element.querySelector('#progress-bar');
+    this.progress = this.element.querySelector('#progress');
+    this.progressHandle = this.element.querySelector('#progress-handle');
     this.currentTime = this.element.querySelector('#current-time');
     this.totalTime = this.element.querySelector('#total-duration');
+    this.loopButton = this.element.querySelector('#loop-button');
+    this.currentVerseKeyLabel = this.element.querySelector('#current-verse-key');
 
     this.loadingIndicator = this.createLoadingIndicator();
     this.ayahContainer = this.element.querySelector("#current-ayah");
@@ -82,18 +90,15 @@ export default class extends Controller {
 
   bindEvents() {
     this.playButton.addEventListener('click', this.togglePlay.bind(this));
-    this.progressBar.addEventListener('click', this.seek.bind(this));
+    this.loopButton.addEventListener('click', this.toggleLoop.bind(this));
+    this.progressBar.addEventListener('pointerdown', this.startSeek.bind(this));
 
     this.prevAyahButton.addEventListener("click", (e) => {
       e.preventDefault();
       const url = new URL(this.prevAyahButton.href);
       const key = url.searchParams.get("ayah");
       if (key) {
-        this.jumpToVerse(key).then(() => {
-         if(this.isPlaying){
-            this.playAyah(key);
-         }
-        })
+        this.jumpToVerseAndResume(key);
       }
     });
 
@@ -103,28 +108,58 @@ export default class extends Controller {
       const key = url.searchParams.get("ayah");
 
       if (key) {
-        this.jumpToVerse(key).then(() => {
-          if(this.isPlaying){
-            this.playAyah(key);
-          }
-        })
+        this.jumpToVerseAndResume(key);
       }
     });
 
     $(this.ayahSelect).on("select2:select", (e) => {
       const key = e.params.data.id;
       if (key) {
-        this.jumpToVerse(key).then(() => {
-          if(this.isPlaying){
-            this.playAyah(key);
-          }
-        })
+        this.jumpToVerseAndResume(key);
       }
     });
   }
 
-  seek(event) {
+  startSeek(event) {
+    if (!this.player) {
+      this.initializePlayer();
+    }
 
+    this.draggingProgress = true;
+    this.seek(event);
+
+    const onMove = (moveEvent) => {
+      if (this.draggingProgress) {
+        this.seek(moveEvent);
+      }
+    };
+
+    const onUp = () => {
+      this.draggingProgress = false;
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
+
+  async seek(event) {
+    event.preventDefault();
+
+    if (!this.player || !this.player.duration()) {
+      return;
+    }
+
+    const rect = this.progressBar.getBoundingClientRect();
+    const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
+    const time = ratio * this.player.duration();
+
+    this.player.seek(time);
+    this.currentTime.textContent = this.formatTime(time);
+    this.updateProgressPosition(ratio * 100);
+    await this.updateVerse(time * 1000);
+    this.updateHighlighting(time * 1000);
   }
 
   async loadVerses(verseKey) {
@@ -156,37 +191,69 @@ export default class extends Controller {
 
   onplay() {
     this.isPlaying = true;
+    cancelAnimationFrame(this.playerId);
     this.playerId = requestAnimationFrame(() => this.updateProgress());
     const icon = this.playButton.querySelector("i");
     icon.classList.add("fa-pause");
     icon.classList.remove("fa-play");
   }
 
-  updateProgress() {
-    const time = this.player.seek();
-    if (this.playWindowEndMs !== null && time * 1000 >= this.playWindowEndMs) {
-      this.playWindowEndMs = null;
-      this.player.pause();
+  async updateProgress() {
+    if (!this.player) {
       return;
     }
+
+    const time = this.player.seek();
+    const timeMs = time * 1000;
+
+    if (this.loopEnabled && this.shouldRestartLoop(timeMs)) {
+      this.restartCurrentVerse();
+      this.playerId = requestAnimationFrame(() => this.updateProgress());
+      return;
+    }
+
+    if (this.playWindowEndMs !== null && timeMs >= this.playWindowEndMs) {
+      this.playWindowEndMs = null;
+      this.playNextAyah();
+      return;
+    }
+
     this.currentTime.textContent = this.formatTime(time);
 
     const progressPercent = (time / this.player.duration()) * 100;
-    this.progressBar.style.width = `${progressPercent}%`;
+    this.updateProgressPosition(progressPercent);
 
-    this.updateVerse(time * 1000);
-    this.updateHighlighting(time * 1000);
+    await this.updateVerse(timeMs);
+
+    if (!this.isPlaying) {
+      return;
+    }
+
+    this.updateHighlighting(timeMs);
 
     this.playerId = requestAnimationFrame(() => this.updateProgress());
   }
 
+  updateProgressPosition(percent) {
+    const progress = Math.min(Math.max(percent, 0), 100);
+
+    this.progress.style.width = `${progress}%`;
+    this.progressHandle.style.left = `${progress}%`;
+  }
+
   updateHighlighting(time) {
     const segment = this.findSegmentAtTime(time);
-    if (!segment) return;
+    if (!segment) {
+      this.highlightBg.classList.add("tw-hidden");
+      return;
+    }
 
     const location = `${this.currentVerseKey}:${segment[0]}`;
     const word = this.ayahContainer.querySelector(`[data-location="${location}"]`);
-    if (!word) return;
+    if (!word) {
+      this.highlightBg.classList.add("tw-hidden");
+      return;
+    }
 
     const containerRect = this.ayahContainer.getBoundingClientRect();
     const wordRect = word.getBoundingClientRect();
@@ -194,7 +261,7 @@ export default class extends Controller {
     const top = wordRect.top - containerRect.top + this.ayahContainer.scrollTop;
     const left = wordRect.left - containerRect.left + this.ayahContainer.scrollLeft;
 
-    this.highlightBg.style.display = 'block';
+    this.highlightBg.classList.remove("tw-hidden");
     this.highlightBg.style.top = `${top}px`;
     this.highlightBg.style.left = `${left}px`;
     this.highlightBg.style.width = `${wordRect.width}px`;
@@ -211,13 +278,22 @@ export default class extends Controller {
   }
 
   onend() {
-    this.isPlaying = false;
-    this.player.seek(0);
+    cancelAnimationFrame(this.playerId);
+
+    if (this.loopEnabled) {
+      this.restartCurrentVerse();
+    } else {
+      this.playNextAyah();
+    }
   }
 
   onload() {
-    const duraton = this.player.duration();
-    this.totalTime.textContent = this.formatTime(duraton);
+    this.updateTotalDuration();
+  }
+
+  updateTotalDuration() {
+    const duration = this.player.duration();
+    this.totalTime.textContent = this.formatTime(duration);
   }
 
   onloaderror() {
@@ -239,16 +315,19 @@ export default class extends Controller {
       const div = document.createElement("span");
       div.textContent = word.text;
       div.dataset.location = word.location;
+      div.className = "tw-relative tw-z-10 tw-rounded-md tw-px-1";
       container.appendChild(div);
     });
-    this.highlightBg.style.display = "none";
+    this.highlightBg.classList.add("tw-hidden");
+    this.currentVerseKeyLabel.textContent = verseKey;
   }
 
 
   async jumpToVerse(verseKey) {
+    const jumpToken = ++this.jumpToken;
     const parts = verseKey.split(":");
-    this.currentChapter = parts[0];
-    this.currentVerseNumber = parts[1];
+    this.currentChapter = parseInt(parts[0], 10);
+    this.currentVerseNumber = parseInt(parts[1], 10);
     this.currentVerseKey = verseKey;
 
     const url = new URL(window.location);
@@ -256,7 +335,7 @@ export default class extends Controller {
     history.pushState({}, "", url);
 
     const verseId = QuranUtils.getAyahIdFromKey(verseKey);
-    document.querySelector('#select2-ayah-select-container').textContent = verseKey
+    this.updateAyahSelect(verseKey);
 
     const prevVerseNumber = verseId - 1;
     const nextVerseNumber = verseId + 1;
@@ -275,15 +354,110 @@ export default class extends Controller {
       this.nextAyahButton.classList.add("tw-hidden");
     }
 
-    await this.loadVerses(verseKey).then(() => {
+    await this.loadVerses(verseKey)
+
+    if (jumpToken === this.jumpToken) {
       this.renderAyah(verseKey);
-    })
+    }
+  }
+
+  async jumpToVerseAndResume(verseKey) {
+    const shouldResume = this.isPlaying;
+
+    if (shouldResume && this.player) {
+      this.player.pause();
+    }
+
+    await this.jumpToVerse(verseKey);
+
+    if (shouldResume) {
+      this.playAyah(verseKey);
+      this.seekOnNextPlay = false;
+      this.player.play();
+    } else {
+      this.seekOnNextPlay = true;
+    }
   }
 
   buildVerseUrl(verseId) {
     const key = QuranUtils.getAyahKeyFromId(verseId);
+    const url = new URL(window.location);
 
-    return `/resources/recitation/${this.resource}?ayah=${key}`;
+    url.searchParams.set("ayah", key);
+    return url.toString();
+  }
+
+  updateAyahSelect(verseKey) {
+    if (!this.ayahSelect) {
+      return;
+    }
+
+    if (!this.ayahSelect.querySelector(`option[value="${verseKey}"]`)) {
+      this.ayahSelect.append(new Option(verseKey, verseKey, true, true));
+    }
+
+    $(this.ayahSelect).val(verseKey).trigger('change');
+  }
+
+  nextVerseKey() {
+    const verseId = QuranUtils.getAyahIdFromKey(this.currentVerseKey);
+
+    if (!verseId || verseId >= 6236) {
+      return null;
+    }
+
+    return QuranUtils.getAyahKeyFromId(verseId + 1);
+  }
+
+  async playNextAyah() {
+    const key = this.nextVerseKey();
+
+    if (!key) {
+      this.isPlaying = false;
+      this.player.seek(0);
+      this.updateProgressPosition(0);
+      return;
+    }
+
+    await this.jumpToVerse(key);
+    this.playAyah(key);
+    this.seekOnNextPlay = false;
+    this.player.play();
+  }
+
+  toggleLoop() {
+    this.loopEnabled = !this.loopEnabled;
+    this.loopButton.setAttribute('aria-pressed', this.loopEnabled.toString());
+    this.loopButton.classList.toggle('tw-bg-primary-100', this.loopEnabled);
+    this.loopButton.classList.toggle('tw-text-primary-700', this.loopEnabled);
+    this.loopButton.classList.toggle('tw-bg-slate-100', !this.loopEnabled);
+    this.loopButton.classList.toggle('tw-text-slate-500', !this.loopEnabled);
+  }
+
+  shouldRestartLoop(timeMs) {
+    const endMs = this.currentVerseEndMs();
+
+    return endMs !== null && timeMs >= endMs;
+  }
+
+  restartCurrentVerse() {
+    this.player.seek(this.currentVerseStartMs() / 1000);
+
+    if (!this.player.playing()) {
+      this.player.play();
+    }
+  }
+
+  currentVerseStartMs() {
+    return this.segmentsData[this.currentVerseKey]?.time_from || 0;
+  }
+
+  currentVerseEndMs() {
+    return this.segmentsData[this.currentVerseKey]?.time_to || (this.player.duration() * 1000);
+  }
+
+  isPlayerReadyForVerse(verseKey) {
+    return Boolean(this.player && verseKey);
   }
 
   togglePlay() {
@@ -294,7 +468,11 @@ export default class extends Controller {
     if (this.isPlaying) {
       this.player.pause();
     } else {
-      this.playAyah(this.currentVerseKey);
+      if (this.seekOnNextPlay || !this.isPlayerReadyForVerse(this.currentVerseKey)) {
+        this.playAyah(this.currentVerseKey);
+        this.seekOnNextPlay = false;
+      }
+
       this.player.play();
     }
   }

@@ -10,44 +10,62 @@
   data-verse-key="<%= ayah.verse_key %>"
 >
 
-<div id="current-ayah">
-  <div id=words class="tw-flex tw-flex-wrap qpc-hafs tw-mb-4 tw-gap-1"></div>
-  <span class="highlight-span" id="word-highlight"></span>
+<div id="current-ayah" class="tw-relative tw-min-h-32 tw-rounded-2xl tw-bg-slate-50 tw-p-6 tw-shadow-inner">
+  <div class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-gap-3">
+    <span class="tw-text-xs tw-font-semibold tw-uppercase tw-tracking-wide tw-text-slate-500">Current ayah</span>
+    <span id="current-verse-key" class="tw-rounded-full tw-bg-white tw-px-3 tw-py-1 tw-text-sm tw-font-semibold tw-text-slate-700 tw-shadow-sm"><%= ayah.verse_key %></span>
+  </div>
+  <div id="words" class="tw-relative tw-z-10 tw-flex tw-flex-wrap qpc-hafs tw-mb-4 tw-gap-1 tw-text-3xl tw-leading-loose"></div>
+  <span id="word-highlight" class="tw-pointer-events-none tw-absolute tw-hidden tw-rounded-lg tw-bg-primary-100 tw-ring-2 tw-ring-primary-200 tw-shadow-sm tw-transition-all tw-duration-150"></span>
 </div>
 
 <div
-  class="tw-fixed tw-bottom-4 tw-left-[50%] tw-w-[90%] tw-md:tw-w-[60%] tw-lg:tw-w-[40%] tw--translate-x-1/2 tw-bg-white/90 tw-backdrop-blur-sm tw-rounded-xl tw-shadow-2xl tw-border tw-border-gray-100 tw-h-14 tw-z-[100]"
+  class="tw-fixed tw-bottom-4 tw-left-[50%] tw-w-[94%] tw-md:tw-w-[70%] tw-lg:tw-w-[52%] tw--translate-x-1/2 tw-bg-white/95 tw-backdrop-blur-sm tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-100 tw-z-[100]"
 >
-  <div class="tw-max-w-3xl tw-mx-auto tw-px-4 tw-py-2 tw-h-full tw-relative">
-    <div class="tw-flex tw-items-center tw-h-full tw-gap-4">
-      <span id="current-time"
-            class="tw-text-sm tw-text-gray-600 tw-whitespace-nowrap tw-font-medium tw-md:tw-min-w-[75px] tw-text-right">
-        0:00
-      </span>
-
+  <div class="tw-max-w-4xl tw-mx-auto tw-px-4 tw-py-4 tw-relative">
+    <div class="tw-flex tw-items-center tw-gap-3">
       <button
         id="play-button"
         disabled
-        class="tw-p-2 tw-bg-primary-100 tw-rounded-full tw-shadow-sm hover:tw-shadow-md hover:tw-bg-primary-200 tw-transition-all tw-flex-shrink-0">
-        <i class="fas fa-play tw-text-gray-600 tw-w-6 tw-h-6"></i>
+        class="tw-flex tw-h-11 tw-w-11 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-primary-100 tw-shadow-sm tw-transition-all hover:tw-bg-primary-200 hover:tw-shadow-md">
+        <i class="fas fa-play tw-text-gray-700"></i>
       </button>
 
-      <div class="tw-flex-1 tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-        <div class="tw-flex-1">
-          <div
-            id="progress-bar"
-            class="tw-h-2 tw-bg-gray-200 tw-rounded-full tw-relative tw-cursor-pointer">
-            <div
-              id="progress"
-              class="tw-h-full tw-bg-blue-300 tw-rounded-full tw-transition-all tw-duration-50 tw-w-0"></div>
-          </div>
+      <button
+        id="loop-button"
+        type="button"
+        aria-pressed="false"
+        title="Loop current ayah"
+        class="tw-flex tw-h-10 tw-w-10 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-slate-100 tw-text-slate-500 tw-transition-all hover:tw-bg-slate-200">
+        <i class="fas fa-refresh"></i>
+      </button>
+
+      <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
+        <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
+          <span id="current-time"
+                class="tw-text-xs tw-font-semibold tw-tabular-nums tw-text-gray-600">
+            0:00
+          </span>
+          <span id="total-duration"
+                class="tw-text-xs tw-font-semibold tw-tabular-nums tw-text-gray-600">
+            0:00
+          </span>
         </div>
 
-        <span id="total-duration"
-              class="tw-text-sm tw-text-gray-600 tw-whitespace-nowrap tw-font-medium tw-md:tw-min-w-[75px] tw-text-right">
-          0:00
-        </span>
+        <div>
+          <div
+            id="progress-bar"
+            class="tw-relative tw-h-3 tw-cursor-pointer tw-rounded-full tw-bg-gray-200">
+            <div
+              id="progress"
+              class="tw-h-full tw-w-0 tw-rounded-full tw-bg-blue-400"></div>
+            <div
+              id="progress-handle"
+              class="tw-absolute tw-left-0 tw-top-1/2 tw-h-5 tw-w-5 tw--translate-x-1/2 tw--translate-y-1/2 tw-rounded-full tw-border-2 tw-border-white tw-bg-blue-500 tw-shadow-md"></div>
+          </div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>

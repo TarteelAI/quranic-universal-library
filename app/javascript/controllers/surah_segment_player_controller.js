@@ -7,6 +7,11 @@ export default class extends SegmentPlayer {
   }
 
   initializePlayer() {
+    if (this.player) {
+      this.player.unload();
+    }
+
+    this.playerChapter = this.currentChapter;
     this.player = new Howl({
       src: [this.getAudioUrl()],
       html5: true,
@@ -18,11 +23,23 @@ export default class extends SegmentPlayer {
     });
   }
 
+  isPlayerReadyForVerse() {
+    return this.player && this.playerChapter === this.currentChapter;
+  }
+
   playAyah(key) {
+    if (!this.player || this.playerChapter !== this.currentChapter) {
+      this.initializePlayer();
+    }
+
     const segment = this.segmentsData[key]
     if (segment) {
       this.player.seek(segment.time_from / 1000);
-      this.playWindowEndMs = segment.time_to;
+      this.playWindowEndMs = null;
+
+      if (this.player.state() === 'loaded') {
+        this.updateTotalDuration();
+      }
     }
   }
 
@@ -56,7 +73,7 @@ export default class extends SegmentPlayer {
     return null;
   }
 
-  updateVerse(time) {
+  async updateVerse(time) {
     const segments = this.segmentsData[this.currentVerseKey];
     if (segments && time >= segments.time_from && time <= segments.time_to) {
       return
@@ -65,8 +82,7 @@ export default class extends SegmentPlayer {
     const key = this.findAyahKeyAtTime(time);
 
     if (!key) return;
-    this.currentVerseKey = key;
-    this.jumpToVerse(key);
+    await this.jumpToVerse(key);
   }
 
   findSegmentAtTime(time) {
@@ -98,12 +114,13 @@ export default class extends SegmentPlayer {
   }
 
   async loadSegments(verseKey) {
-    const verseData = this.segmnetsData[verseKey];
+    const verseData = this.segmentsData[verseKey];
     if (verseData?.segments)
       return
 
     const parts = verseKey.split(":");
-    const url = `/api/v1/audio/surah_segments/${this.recitation}?from=5&surah=${parts[0]}&from=${parts[1]}`;
+    const ayahCount = QuranUtils.getSurahAyahCount(parts[0]);
+    const url = `/api/v1/audio/surah_segments/${this.recitation}?surah=${parts[0]}&from=1&to=${ayahCount}`;
 
     const response = await fetch(url);
     const data = await response.json();

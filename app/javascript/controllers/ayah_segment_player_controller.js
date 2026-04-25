@@ -8,8 +8,18 @@ export default class extends SegmentPlayer {
     await super.connect();
   }
 
+  disconnect() {
+    super.disconnect();
+
+    Object.values(this.ayahPlayerData || {}).forEach(player => player.unload());
+  }
+
   initializePlayer() {
     this.player = this.initializeAyahPlayer(this.currentVerseKey);
+  }
+
+  isPlayerReadyForVerse(key) {
+    return this.player === this.ayahPlayerData[key];
   }
 
   initializeAyahPlayer(key) {
@@ -34,14 +44,14 @@ export default class extends SegmentPlayer {
     if (this.player && this.player.playing()) {
       this.player.stop();
     }
+
     this.player = this.initializeAyahPlayer(key);
     this.player.seek(0);
     this.playWindowEndMs = null;
-  }
 
-  onend() {
-    this.isPlaying = false;
-    this.player.seek(0);
+    if (this.player.state() === 'loaded') {
+      this.updateTotalDuration();
+    }
   }
 
   findAyahKeyAtTime(time) {
@@ -74,8 +84,7 @@ export default class extends SegmentPlayer {
     return null;
   }
 
-  updateVerse(time) {
-    // Don't need to check for ayah by ayah
+  async updateVerse(time) {
   }
 
   findSegmentAtTime(time) {
@@ -107,12 +116,12 @@ export default class extends SegmentPlayer {
   }
 
   async loadSegments(verseKey) {
-    const verseData = this.segmnetsData[verseKey];
+    const verseData = this.segmentsData[verseKey];
     if (verseData?.segments)
       return
 
     const parts = verseKey.split(":");
-    const url = `/api/v1/audio/ayah_segments/${this.recitation}?from=5&surah=${parts[0]}&from=${parts[1]}`;
+    const url = `/api/v1/audio/ayah_segments/${this.recitation}?surah=${parts[0]}&from=${parts[1]}`;
 
     const response = await fetch(url);
     const data = await response.json();

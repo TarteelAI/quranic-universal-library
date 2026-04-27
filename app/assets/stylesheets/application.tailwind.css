@@ -10,273 +10,273 @@
 }
 
 @layer components {
-  .tw-container.tw-max-w-7xl {
-    @apply tw-mt-4;
+  .container.max-w-7xl {
+    @apply mt-4;
   }
 
   .active-tab {
     @apply border-b-2 border-blue-600 text-blue-600;
   }
 
-  .tw-docs {
-    @apply tw-text-gray-900 tw-leading-relaxed;
+  .qul-docs {
+    @apply text-gray-900 leading-relaxed;
   }
 
   /* Headings */
-  .tw-docs h1 {
-    @apply tw-text-3xl tw-font-bold tw-text-blue-600 tw-mb-4;
+  .qul-docs h1 {
+    @apply text-3xl font-bold text-blue-600 mb-4;
   }
 
-  .tw-docs h2 {
-    @apply tw-text-2xl tw-font-semibold tw-text-gray-700 tw-mt-6 tw-mb-2;
+  .qul-docs h2 {
+    @apply text-2xl font-semibold text-gray-700 mt-6 mb-2;
   }
 
-  .tw-docs h3 {
-    @apply tw-text-xl tw-font-semibold tw-mt-4;
+  .qul-docs h3 {
+    @apply text-xl font-semibold mt-4;
   }
 
-  .tw-docs p {
-    @apply tw-mb-4;
+  .qul-docs p {
+    @apply mb-4;
   }
 
-  .tw-docs ul {
-    @apply tw-list-disc tw-pl-6 tw-space-y-2;
+  .qul-docs ul {
+    @apply list-disc pl-6 space-y-2;
   }
 
-  .tw-docs pre {
-    @apply tw-p-4 tw-rounded-md tw-overflow-x-auto;
+  .qul-docs pre {
+    @apply p-4 rounded-md overflow-x-auto;
     background-color: #ecf0f1;
     font-size: 1.1em;
     color: #2c3e50;
   }
 
-  .tw-docs code {
-    @apply tw-px-1 tw-rounded tw-bg-gray-200;
+  .qul-docs code {
+    @apply px-1 rounded bg-gray-200;
     background-color: #ecf0f1;
     font-family: "Courier New", monospace;
     color: #2c3e50;
   }
 
-  .tw-docs .example {
-    @apply tw-p-4 tw-rounded-lg tw-mt-3 tw-mb-3;
+  .qul-docs .example {
+    @apply p-4 rounded-lg mt-3 mb-3;
     background-color: #eafaf1;
     border: 1px solid #b3e0b3;
   }
 
-  .tw-docs .example h3 {
-    @apply tw-mt-0;
+  .qul-docs .example h3 {
+    @apply mt-0;
   }
 
-  .tw-docs .note {
-    @apply tw-p-4 tw-mt-3 tw-mb-3;
+  .qul-docs .note {
+    @apply p-4 mt-3 mb-3;
     background-color: #fef6e4;
     border-left: 4px solid #f39c12;
   }
 
-  .tw-docs .hlt {
-    @apply tw-font-bold;
+  .qul-docs .hlt {
+    @apply font-bold;
     color: #ff6347;
   }
 
-  .tw-docs a {
-    @apply tw-underline tw-font-bold;
+  .qul-docs a {
+    @apply underline font-bold;
   }
 
   .btn {
-    @apply tw-inline-flex tw-items-center tw-justify-center tw-px-4 tw-py-2 tw-text-base tw-font-medium tw-leading-6 tw-rounded-md tw-transition-colors tw-duration-150 tw-ease-in-out tw-border tw-cursor-pointer tw-no-underline;
+    @apply inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 rounded-md transition-colors duration-150 ease-in-out border cursor-pointer no-underline;
   }
 
   .btn-info {
-    @apply tw-bg-blue-600 tw-text-white tw-border-blue-600 hover:tw-bg-blue-700 hover:tw-border-blue-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
   }
 
   .btn-outline-info {
-    @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+    @apply bg-transparent text-blue-600 border-blue-600 hover:bg-blue-600 hover:border-blue-600 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
   }
 
   .btn-success {
-    @apply tw-bg-green-600 tw-text-white tw-border-green-600 hover:tw-bg-green-700 hover:tw-border-green-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-green-500;
+    @apply bg-green-600 text-white border-green-600 hover:bg-green-700 hover:border-green-700 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-green-500;
   }
 
   .btn-outline-success {
-    @apply tw-bg-transparent tw-text-green-600 tw-border-green-600 hover:tw-bg-green-600 hover:tw-border-green-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-green-500;
+    @apply bg-transparent text-green-600 border-green-600 hover:bg-green-600 hover:border-green-600 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-green-500;
   }
 
   .btn-danger {
-    @apply tw-bg-red-600 tw-text-white tw-border-red-600 hover:tw-bg-red-700 hover:tw-border-red-700 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-red-500;
+    @apply bg-red-600 text-white border-red-600 hover:bg-red-700 hover:border-red-700 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
   }
 
   .btn-primary {
-    @apply tw-bg-blue-400 hover:tw-bg-blue-500 tw-text-white;
+    @apply bg-blue-400 hover:bg-blue-500 text-white;
   }
 
   .btn-secondary {
-    @apply tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800;
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800;
   }
 
   .btn-outline {
-    @apply tw-bg-white tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-font-medium tw-transition-colors tw-px-4 tw-py-2 tw-text-sm tw-border;
+    @apply bg-white border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white rounded font-medium transition-colors px-4 py-2 text-sm border;
   }
 
   .btn-dark {
-    @apply tw-bg-gray-800 hover:tw-bg-gray-900 tw-text-white;
+    @apply bg-gray-800 hover:bg-gray-900 text-white;
   }
 
   .btn-tab {
-    @apply tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] tw-border-transparent tw-border;
+    @apply text-gray-700 font-medium no-underline px-3 py-2 rounded hover:text-[#57d798] border-transparent border;
   }
 
   .btn-tab-active {
-    @apply tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-text-[#57d798] tw-border-t tw-border-r tw-border-l tw-border-[#dee2e6] tw-relative;
+    @apply text-gray-700 font-medium no-underline px-3 py-2 rounded hover:text-[#57d798] border-t border-r border-l border-[#dee2e6] relative;
   }
 
   .btn-toggle {
-    @apply tw-flex tw-gap-2 tw-rounded tw-font-bold tw-text-sm tw-px-3 tw-py-2 tw-border tw-text-gray-700 hover:tw-text-black;
+    @apply flex gap-2 rounded font-bold text-sm px-3 py-2 border text-gray-700 hover:text-black;
   }
 
   .btn-toggle-active {
-    @apply tw-flex tw-gap-2 tw-rounded tw-bg-[#476CFF]/10 tw-text-[#476CFF] tw-font-bold tw-text-sm tw-px-3 tw-py-2 tw-border-none;
+    @apply flex gap-2 rounded bg-[#476CFF]/10 text-[#476CFF] font-bold text-sm px-3 py-2 border-none;
   }
 
   .btn-outline-info {
-    @apply tw-bg-transparent tw-text-blue-600 tw-border-blue-600 hover:tw-bg-blue-600 hover:tw-border-blue-600 hover:tw-text-white focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500;
+    @apply bg-transparent text-blue-600 border-blue-600 hover:bg-blue-600 hover:border-blue-600 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
   }
 
   .btn-sm {
-    @apply tw-py-1 tw-px-3 tw-text-sm;
+    @apply py-1 px-3 text-sm;
   }
 
   .btn-lg {
-    @apply tw-py-3 tw-px-8 tw-text-lg;
+    @apply py-3 px-8 text-lg;
   }
 
   .btn-header-action {
-    @apply tw-h-10 tw-shrink-0 tw-px-2 md:tw-px-3;
+    @apply h-10 shrink-0 px-2 md:px-3;
   }
 
   .btn-cta {
-    @apply tw-bg-gray-900 tw-text-white tw-rounded-full tw-text-sm tw-font-semibold tw-border-gray-900 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors tw-px-8 tw-py-3;
+    @apply bg-gray-900 text-white rounded-full text-sm font-semibold border-gray-900 hover:bg-gray-800 hover:text-white transition-colors px-8 py-3;
   }
 
   .btn-outline-dark {
-    @apply tw-bg-transparent tw-text-gray-800 tw-border-gray-800 hover:tw-bg-gray-800 hover:tw-text-white tw-transition-colors;
+    @apply bg-transparent text-gray-800 border-gray-800 hover:bg-gray-800 hover:text-white transition-colors;
   }
 
   .btn-outline-pill {
-    @apply tw-inline-block tw-text-black tw-border tw-border-black tw-rounded-full hover:tw-bg-black hover:tw-text-white tw-transition-colors tw-duration-300;
+    @apply inline-block text-black border border-black rounded-full hover:bg-black hover:text-white transition-colors duration-300;
   }
 
   .nav-link--desktop {
-    @apply tw-hidden md:tw-flex tw-text-black tw-transition-colors hover:tw-text-[#46ac7a];
+    @apply hidden md:flex text-black transition-colors hover:text-[#46ac7a];
   }
 
   .nav-link--drawer {
-    @apply tw-text-lg tw-text-black tw-transition-colors hover:tw-text-[#46ac7a];
+    @apply text-lg text-black transition-colors hover:text-[#46ac7a];
   }
 
   .nav-link--active:not(.nav-link--cms) {
-    @apply tw-font-semibold tw-text-[#46ac7a] hover:tw-text-[#46ac7a];
+    @apply font-semibold text-[#46ac7a] hover:text-[#46ac7a];
   }
 
   .nav-link--cms {
-    @apply tw-px-4 tw-py-1 md:tw-px-6 md:tw-py-2;
+    @apply px-4 py-1 md:px-6 md:py-2;
   }
 
   .nav-link--cms.nav-link--active {
-    @apply tw-font-semibold tw-border-[#46ac7a] !tw-text-[#46ac7a] hover:!tw-bg-[#46ac7a]/10 hover:!tw-text-[#46ac7a] hover:!tw-border-[#46ac7a];
+    @apply font-semibold border-[#46ac7a] !text-[#46ac7a] hover:!bg-[#46ac7a]/10 hover:!text-[#46ac7a] hover:!border-[#46ac7a];
   }
 
   /* Badge Component */
   .badge {
-    @apply tw-inline-flex tw-items-center tw-justify-center tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-semibold tw-rounded;
+    @apply inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-semibold rounded;
   }
 
   .badge-default {
-    @apply tw-bg-gray-600 tw-text-white;
+    @apply bg-gray-600 text-white;
   }
 
   .badge-success {
-    @apply tw-bg-green-500 tw-text-white;
+    @apply bg-green-500 text-white;
   }
 
   .badge-danger {
-    @apply tw-bg-red-500 tw-text-white;
+    @apply bg-red-500 text-white;
   }
 
   .badge-warning {
-    @apply tw-bg-yellow-500 tw-text-white;
+    @apply bg-yellow-500 text-white;
   }
 
   .badge-info {
-    @apply tw-bg-blue-500 tw-text-white;
+    @apply bg-blue-500 text-white;
   }
 
   .badge-purple {
-    @apply tw-bg-purple-500 tw-text-white;
+    @apply bg-purple-500 text-white;
   }
 
   .badge-resource {
-    @apply tw-bg-[#E0FAEC] tw-text-[#099a4d] tw-border-2 tw-border-[#56B599];
+    @apply bg-[#E0FAEC] text-[#099a4d] border-2 border-[#56B599];
   }
 
   .badge-pill {
-    @apply tw-rounded-full tw-px-2 tw-py-0.5 tw-text-xs;
+    @apply rounded-full px-2 py-0.5 text-xs;
   }
 
   .badge-outline-default {
-    @apply tw-border tw-border-gray-600 tw-text-gray-600 tw-bg-transparent;
+    @apply border border-gray-600 text-gray-600 bg-transparent;
   }
 
   .badge-outline-success {
-    @apply tw-border tw-border-green-500 tw-text-green-500 tw-bg-transparent;
+    @apply border border-green-500 text-green-500 bg-transparent;
   }
 
   .badge-outline-danger {
-    @apply tw-border tw-border-red-500 tw-text-red-500 tw-bg-transparent;
+    @apply border border-red-500 text-red-500 bg-transparent;
   }
 
   .badge-outline-warning {
-    @apply tw-border tw-border-yellow-500 tw-text-yellow-500 tw-bg-transparent;
+    @apply border border-yellow-500 text-yellow-500 bg-transparent;
   }
 
   .badge-outline-info {
-    @apply tw-border tw-border-blue-500 tw-text-blue-500 tw-bg-transparent;
+    @apply border border-blue-500 text-blue-500 bg-transparent;
   }
 
   .badge-outline-purple {
-    @apply tw-border tw-border-purple-500 tw-text-purple-500 tw-bg-transparent;
+    @apply border border-purple-500 text-purple-500 bg-transparent;
   }
 
   .tag {
-    @apply tw-font-medium tw-px-4 tw-py-1 tw-rounded-full tw-cursor-pointer;
+    @apply font-medium px-4 py-1 rounded-full cursor-pointer;
   }
 
   .tag-orange {
-    @apply tw-bg-orange-100 tw-text-orange-600;
+    @apply bg-orange-100 text-orange-600;
   }
 
   .tag-blue {
-    @apply tw-bg-blue-100 tw-text-blue-600;
+    @apply bg-blue-100 text-blue-600;
   }
 
   .tag-green {
-    @apply tw-bg-green-100 tw-text-green-600;
+    @apply bg-green-100 text-green-600;
   }
 
   .tag-red {
-    @apply tw-bg-red-100 tw-text-red-600;
+    @apply bg-red-100 text-red-600;
   }
 
   .inputs_container.was-validated input:invalid {
-    @apply tw-border-red-500;
+    @apply border-red-500;
   }
 
   .inputs_container.was-validated input:invalid ~ .invalid-feedback {
-    @apply tw-block;
+    @apply block;
   }
 
   .inputs_container.was-validated input:invalid:focus {
-    @apply tw-ring-2 tw-ring-red-500 tw-border-red-500;
+    @apply ring-2 ring-red-500 border-red-500;
   }
 }
 

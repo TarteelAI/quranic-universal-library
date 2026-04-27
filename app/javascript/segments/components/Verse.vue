@@ -1,10 +1,10 @@
 <template>
-  <div class="tw-flex tw-flex-wrap">
-    <div class="tw-w-full" v-if="segmentsLoaded">
-      <div class="tw-text-xl tw-font-bold tw-mb-4 tw-flex tw-items-center tw-gap-4">
+  <div class="flex flex-wrap">
+    <div class="w-full" v-if="segmentsLoaded">
+      <div class="text-xl font-bold mb-4 flex items-center gap-4">
         <span>Current Ayah {{ currentVerseKey }}</span>
 
-        <select @change="changeAyah" class="tw-text-sm tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-1 tw-bg-white focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500">
+        <select @change="changeAyah" class="text-sm border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
           <option
             v-for="(num, index) in Array.from(
               { length: versesCount },
@@ -18,7 +18,7 @@
         </select>
       </div>
 
-      <div class="qpc-hafs tw-flex tw-flex-wrap tw-gap-2 tw-p-4 tw-bg-gray-50 tw-rounded-lg tw-mb-6 tw-sticky tw-top-0 tw-z-50 tw-shadow-sm words">
+      <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words">
         <span
           :id="index + 1"
           :class="[this.getWordCssClass(index)]"
@@ -26,21 +26,21 @@
           :key="index"
           title="Repeat word"
           @click="showWordPopover"
-          class="tw-px-2 tw-py-1 tw-border tw-border-dotted tw-border-green-600 tw-rounded tw-cursor-pointer tw-transition-colors"
+          class="px-2 py-1 border border-dotted border-green-600 rounded cursor-pointer transition-colors"
         >
           {{ text }}
         </span>
       </div>
 
       <div v-if="shouldShowSegment">
-        <h4 class="tw-flex tw-justify-between tw-items-center tw-mt-8 tw-mb-4">
-          <div class="tw-text-lg tw-font-semibold">Segments</div>
+        <h4 class="flex justify-between items-center mt-8 mb-4">
+          <div class="text-lg font-semibold">Segments</div>
 
-          <div class="tw-flex tw-gap-2">
+          <div class="flex gap-2">
             <button
                 @click="showRawSegment"
                 :disabled="segmentLocked"
-                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-cyan-600 tw-text-white tw-rounded hover:tw-bg-cyan-700 disabled:tw-opacity-50"
+                class="px-3 py-1 text-xs font-medium bg-cyan-600 text-white rounded hover:bg-cyan-700 disabled:opacity-50"
             >
               Show raw segments
             </button>
@@ -48,8 +48,8 @@
             <button
                 @click="toggleSegmentTiming"
                 :disabled="segmentLocked"
-                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-red-600 tw-text-white tw-rounded hover:tw-bg-red-700 disabled:tw-opacity-50"
-                :class="{ 'tw-hidden': segmentLocked }"
+                class="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                :class="{ 'hidden': segmentLocked }"
             >
               {{this.verseSegment.segments[0].length > 1 ? 'Clear Segment' : 'Reload Segments'}}
             </button>
@@ -57,47 +57,47 @@
             <button
                 @click="saveAyahSegment"
                 :disabled="segmentLocked"
-                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-green-600 tw-text-white tw-rounded hover:tw-bg-green-700 disabled:tw-opacity-50"
-                :class="{ 'tw-hidden': segmentLocked }"
+                class="px-3 py-1 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                :class="{ 'hidden': segmentLocked }"
             >
               Save Segments
             </button>
           </div>
         </h4>
 
-        <div v-if="rawSegmentVisible" class="tw-mt-3">
+        <div v-if="rawSegmentVisible" class="mt-3">
           <textarea
-              class="tw-w-full tw-px-3 tw-py-2 tw-text-sm tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               @input="updateRawSegments"
           ></textarea>
         </div>
-        <div class="tw-text-xs tw-text-gray-500 tw-mb-2" v-if="rawSegments[currentVerseNumber]">
+        <div class="text-xs text-gray-500 mb-2" v-if="rawSegments[currentVerseNumber]">
           {{ JSON.stringify(rawSegments[currentVerseNumber]) }}
         </div>
 
-        <div class="tw-overflow-x-auto tw-border tw-border-gray-200 tw-rounded-lg" id="tableWrapper">
-          <table class="tw-w-full tw-text-left tw-border-collapse">
-            <thead class="tw-bg-gray-50 tw-sticky tw-top-0 tw-z-10">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg" id="tableWrapper">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 sticky top-0 z-10">
               <tr>
-                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Word</th>
-                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Text</th>
-                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Start</th>
-                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Ends</th>
-                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b tw-text-center">Pause</th>
-                <th class="tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-text-gray-600 tw-border-b">Actions</th>
+                <th class="px-4 py-2 text-xs font-semibold text-gray-600 border-b">Word</th>
+                <th class="px-4 py-2 text-xs font-semibold text-gray-600 border-b">Text</th>
+                <th class="px-4 py-2 text-xs font-semibold text-gray-600 border-b">Start</th>
+                <th class="px-4 py-2 text-xs font-semibold text-gray-600 border-b">Ends</th>
+                <th class="px-4 py-2 text-xs font-semibold text-gray-600 border-b text-center">Pause</th>
+                <th class="px-4 py-2 text-xs font-semibold text-gray-600 border-b">Actions</th>
               </tr>
             </thead>
-            <tbody class="tw-divide-y tw-divide-gray-100">
+            <tbody class="divide-y divide-gray-100">
               <tr
                 :id="[`word-${segment[0]}-${index}`]"
-                :class="[index + 1 == currentWord ? 'tw-bg-green-50' : '']"
+                :class="[index + 1 == currentWord ? 'bg-green-50' : '']"
                 v-for="(segment, index) in verseSegment.segments"
                 :key="index"
                 :data-index="index"
                 :data-word="segment[0]"
-                class="hover:tw-bg-gray-50 tw-transition-colors"
+                class="hover:bg-gray-50 transition-colors"
               >
-                <td class="tw-px-4 tw-py-2">
+                <td class="px-4 py-2">
                   <input
                     type="number"
                     min="1"
@@ -105,15 +105,15 @@
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="updateSegmentNumber"
-                    class="tw-w-16 tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500"
+                    class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <small class="tw-block tw-text-[10px] tw-text-gray-400 tw-mt-0.5">
+                  <small class="block text-[10px] text-gray-400 mt-0.5">
                     <span>{{ segment[0] }} </span>
                   </small>
                 </td>
 
-                <td class="tw-px-4  tw-py-2 tw-text-lg qpc-hafs">{{ segmentText(segment) }}</td>
-                <td class="tw-px-4 tw-py-2 tw-w-48">
+                <td class="px-4  py-2 text-lg qpc-hafs">{{ segmentText(segment) }}</td>
+                <td class="px-4 py-2 w-48">
                   <input
                     type="number"
                     min="0"
@@ -122,9 +122,9 @@
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="updateSegmentStart"
-                    class="tw-w-full tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500"
+                    class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <small class="tw-flex tw-justify-between tw-text-[10px] tw-text-gray-400 tw-mt-0.5">
+                  <small class="flex justify-between text-[10px] text-gray-400 mt-0.5">
                     <span>
                       {{ segmentOriginalStart(index) }}
                     </span>
@@ -135,7 +135,7 @@
                   </small>
                 </td>
 
-                <td class="tw-px-4 tw-py-2 tw-w-48">
+                <td class="px-4 py-2 w-48">
                   <input
                     type="number"
                     min="0"
@@ -144,9 +144,9 @@
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="updateSegmentEnd"
-                    class="tw-w-full tw-px-2 tw-py-1 tw-text-sm tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500"
+                    class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <small class="tw-flex tw-justify-between tw-text-[10px] tw-text-gray-400 tw-mt-0.5">
+                  <small class="flex justify-between text-[10px] text-gray-400 mt-0.5">
                     <span>
                       {{ segmentOriginalEnd(index) }}
                     </span>
@@ -157,62 +157,62 @@
                   </small>
                 </td>
 
-              <td class="tw-px-4 tw-py-2 tw-text-center">
+              <td class="px-4 py-2 text-center">
                 <input
                     type="checkbox"
                     :checked="hasWaqaf(segment)"
                     :data-index="index"
                     :disabled="segmentLocked"
                     @change="toggleWaqaf"
-                    class="tw-w-5 tw-h-5 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500 tw-cursor-pointer"
+                    class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     title="Check if Qari has taken a waqf after this word"
                     data-controller="tooltip"
                     name="waqf"
                     :id="[`waqf-${index}`]"
                 />
-                <small class="tw-block tw-text-xs tw-text-gray-500 tw-mt-0.5">
+                <small class="block text-xs text-gray-500 mt-0.5">
                   {{ hasWaqaf(segment) ? 'وقف' : '' }}
                 </small>
               </td>
 
-              <td class="tw-px-4 tw-py-2" :data-word="segment[0]" :data-index="index">
+              <td class="px-4 py-2" :data-word="segment[0]" :data-index="index">
                 <div
-                    class="tw-flex tw-flex-wrap tw-gap-1"
+                    class="flex flex-wrap gap-1"
                     :data-word="segment[0]" :data-index="index"
                 >
                   <button
                       @click="insertSegment"
-                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-cyan-600 tw-text-white tw-rounded hover:tw-bg-cyan-700 disabled:tw-opacity-50"
+                      class="px-2 py-1 text-[10px] font-medium bg-cyan-600 text-white rounded hover:bg-cyan-700 disabled:opacity-50"
                       :disabled="segmentLocked"
-                      :class="{ 'tw-hidden': segmentLocked }"
+                      :class="{ 'hidden': segmentLocked }"
                     >
                       Add
                     </button>
                     <button
                       @click="removeSegment"
-                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-red-600 tw-text-white tw-rounded hover:tw-bg-red-700 disabled:tw-opacity-50"
+                      class="px-2 py-1 text-[10px] font-medium bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
                       :disabled="segmentLocked"
-                      :class="{ 'tw-hidden': segmentLocked }"
+                      :class="{ 'hidden': segmentLocked }"
                     >
                       Remove
                     </button>
 
-                    <button @click="playWord" class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-gray-600 tw-text-white tw-rounded hover:tw-bg-gray-700">
+                    <button @click="playWord" class="px-2 py-1 text-[10px] font-medium bg-gray-600 text-white rounded hover:bg-gray-700">
                       {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
                     </button>
 
                     <button
                       @click="loopWord"
-                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-gray-600 tw-text-white tw-rounded hover:tw-bg-gray-700"
+                      class="px-2 py-1 text-[10px] font-medium bg-gray-600 text-white rounded hover:bg-gray-700"
                     >
                       {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
                     </button>
 
                     <button
                       @click="trackTime"
-                      class="tw-px-2 tw-py-1 tw-text-[10px] tw-font-medium tw-bg-yellow-500 tw-text-white tw-rounded hover:tw-bg-yellow-600 disabled:tw-opacity-50"
+                      class="px-2 py-1 text-[10px] font-medium bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:opacity-50"
                       :disabled="segmentLocked"
-                      :class="{ 'tw-hidden': segmentLocked }"
+                      :class="{ 'hidden': segmentLocked }"
                     >
                       Track
                     </button>

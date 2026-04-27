@@ -5,36 +5,36 @@
 %>
 
 <%= turbo_frame_tag 'resources' do %>
-  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+  <div class="page-wrapper container max-w-7xl mx-auto px-4">
     <div class="page-section">
-      <h2 class="tw-text-2xl tw-mb-4">Mushaf list</h2>
+      <h2 class="text-2xl mb-4">Mushaf list</h2>
       <div class="tools-table-overflow">
-        <table class="tw-w-full tw-text-left hover:tw-bg-gray-50">
-          <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
+        <table class="w-full text-left hover:bg-gray-50">
+          <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
           <tr>
             <th>
               <%= sort_order_link 'Id', :id %>
             </th>
             <th>Name</th>
             <th>Pages</th>
-            <th class="md:tw-hidden">Lines</th>
-            <th class="tw-hidden md:tw-table-cell">Lines per page</th>
+            <th class="md:hidden">Lines</th>
+            <th class="hidden md:table-cell">Lines per page</th>
             <th>Qirat</th>
-            <th class="tw-text-right">Actions</th>
+            <th class="text-right">Actions</th>
           </tr>
           </thead>
 
           <tbody>
           <% @mushafs.each do |m| %>
-            <tr class="hover:tw-bg-gray-200 tw-border-b">
-              <td class="tw-py-2 tw-pl-2">
+            <tr class="hover:bg-gray-200 border-b">
+              <td class="py-2 pl-2">
                 <%= link_to m.id, mushaf_layout_path(m.id), data: {turbo_frame: '_top'} %>
               </td>
-              <td class="tw-py-2"><%= m.name %></td>
-              <td class="tw-py-2"><%= m.pages_count %></td>
-              <td class="tw-py-2"><%= m.lines_per_page %></td>
-              <td class="tw-py-2"><%= m.qirat_type&.name %></td>
-              <td class="tw-py-2 tw-text-right">
+              <td class="py-2"><%= m.name %></td>
+              <td class="py-2"><%= m.pages_count %></td>
+              <td class="py-2"><%= m.lines_per_page %></td>
+              <td class="py-2"><%= m.qirat_type&.name %></td>
+              <td class="py-2 text-right">
                 <%= link_to 'Show', mushaf_layout_path(m.id), class: 'btn btn-success', data: {turbo_frame: '_top'} %>
               </td>
             </tr>

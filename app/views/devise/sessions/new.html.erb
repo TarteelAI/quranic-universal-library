@@ -1,39 +1,39 @@
 <%= render 'layouts/grid' do %>
   <% if params[:modal] == 'true' || local_assigns[:modal] || session.delete(:use_modal) %>
-    <div id="title" class="tw-text-lg tw-font-medium">
+    <div id="title" class="text-lg font-medium">
       You need to sign in or sign up before continuing.
     </div>
     <div id="body">
-      <div class="tw-p-4">
+      <div class="p-4">
         <%= render 'form' %>
         <%= render 'devise/shared/links' %>
-        <p class="tw-mt-2">
+        <p class="mt-2">
           Don’t have an account?
-          <%= link_to 'Create Account', new_user_registration_path, class: 'tw-text-gray-900 hover:tw-text-gray-700' %>
+          <%= link_to 'Create Account', new_user_registration_path, class: 'text-gray-900 hover:text-gray-700' %>
         </p>
       </div>
     </div>
   <% else %>
-    <div class="tw-mx-auto tw-px-4 tw-pb-10">
-      <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6 md:tw-gap-8">
-        <div class="tw-w-full tw-bg-black tw-rounded-3xl tw-overflow-hidden tw-h-[30vh] md:tw-h-[80vh] tw-flex tw-items-center tw-justify-center">
+    <div class="mx-auto px-4 pb-10">
+      <div class="flex flex-col md:flex-row gap-6 md:gap-8">
+        <div class="w-full bg-black rounded-3xl overflow-hidden h-[30vh] md:h-[80vh] flex items-center justify-center">
           <%= render 'devise/shared/spline_animation' %>
         </div>
-        <div class="tw-w-full">
-          <div class="tw-py-3 md:tw-px-4">
-            <ul class="tw-relative tw-flex tw-gap-4 tw-border-b tw-border-gray-200 tw-pb-2" role="tablist">
+        <div class="w-full">
+          <div class="py-3 md:px-4">
+            <ul class="relative flex gap-4 border-b border-gray-200 pb-2" role="tablist">
               <li>
-                <a class="tw-font-semibold hover:tw-text-black" href="<%= new_user_session_path %>">Login</a>
-                <span class="tw-block tw-h-[2px] tw-w-[4.5ch] tw-bg-black tw-absolute -tw-bottom-[1px] tw-start-0"></span>
+                <a class="font-semibold hover:text-black" href="<%= new_user_session_path %>">Login</a>
+                <span class="block h-[2px] w-[4.5ch] bg-black absolute -bottom-[1px] start-0"></span>
               </li>
               <li>
-                <a class="tw-text-gray-400 tw-font-semibold hover:tw-text-black" href="<%= new_user_registration_path %>">Create Account</a>
+                <a class="text-gray-400 font-semibold hover:text-black" href="<%= new_user_registration_path %>">Create Account</a>
               </li>
             </ul>
-            <div class="md:tw-py-3" data-turbo="false">
+            <div class="md:py-3" data-turbo="false">
               <%= render 'form' %>
             </div>
-            <div class="tw-mb-4 tw-text-center">
+            <div class="mb-4 text-center">
               <%= render 'devise/shared/links' %>
             </div>
           </div>

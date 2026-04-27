@@ -36,10 +36,10 @@
   <% else %>
     <div class="mushaf mushaf-<%= mushaf.font_code %> <%= mushaf.font_code %> <%= mushaf_class %>" data-controller="mushaf-page tajweed-highlight">
       <% if show_controls %>
-        <div class="mushaf-page-setting tw-flex flex-column tw-mb-4">
+        <div class="mushaf-page-setting flex flex-column mb-4">
           <div><span>Name: <%= name %></span></div>
 
-          <div class="tw-hidden">
+          <div class="hidden">
             <label for="mushtabiat">Enable Mushtabiat</label>
             <input type="checkbox" id="mushtabiat" <%= 'checked' if params[:mushtabiat] == '1' %> />
           </div>
@@ -58,7 +58,7 @@
         </div>
       <% end %>
 
-      <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 flex">
+      <div class="page-wrapper container max-w-7xl mx-auto px-4 flex">
         <div id="page-<%= page %>"
              data-controller="<%= 'tajweed-font' if mushaf.font_code == 'v4-tajweed' %>"
              class="theme-light page p<%= page %>-<%= mushaf.font_code %> <%= page_class %>">
@@ -92,7 +92,7 @@
 
                         <% if current_group && !group_tag_started %>
                           <% group_tag_started = true %>
-                          <div class="tw-inline-block mushtabiat" data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.get_color %>">
+                          <div class="inline-block mushtabiat" data-group="<%= current_group.id %>" style="color: <%= current_group.phrase.get_color %>">
                         <% elsif !current_group && group_tag_started %>
                           <% group_tag_started = false %>
                           </div>

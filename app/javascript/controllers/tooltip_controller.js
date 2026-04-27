@@ -47,8 +47,8 @@ export default class extends Controller {
     this.tooltip.setAttribute("role", "tooltip");
     
     // Apply styles directly to be safe from purge or config issues
-    // Using tw- classes for theme consistency
-    this.tooltip.className = "tw-fixed tw-z-[99999] tw-px-3 tw-py-1.5 tw-text-[11px] tw-font-medium tw-text-white tw-bg-gray-900 tw-rounded tw-shadow-xl tw-pointer-events-none tw-whitespace-nowrap tw-leading-tight";
+    // Using  classes for theme consistency
+    this.tooltip.className = "fixed z-[99999] px-3 py-1.5 text-[11px] font-medium text-white bg-gray-900 rounded shadow-xl pointer-events-none whitespace-nowrap leading-tight";
     
     // Explicit visibility management
     this.tooltip.style.opacity = "0";
@@ -58,7 +58,7 @@ export default class extends Controller {
     
     // Add the arrow
     this.arrow = document.createElement("div");
-    this.arrow.className = "tw-absolute tw-w-2 tw-h-2 tw-bg-gray-900 tw-rotate-45";
+    this.arrow.className = "absolute w-2 h-2 bg-gray-900 rotate-45";
     this.tooltip.appendChild(this.arrow);
 
     document.body.appendChild(this.tooltip);

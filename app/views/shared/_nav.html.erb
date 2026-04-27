@@ -1,35 +1,35 @@
-<nav class="tw-bg-gray-100 tw-border-b tw-border-gray-200">
-  <div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-flex tw-items-center tw-justify-between tw-py-2">
-    <a class="tw-text-xl tw-font-bold tw-no-underline" href="/" style="color: #54e0d2">
+<nav class="bg-gray-100 border-b border-gray-200">
+  <div class="container max-w-7xl mx-auto px-4 flex items-center justify-between py-2">
+    <a class="text-xl font-bold no-underline" href="/" style="color: #54e0d2">
       Tarteel <small style="color: #00a3ff">QUL</small>
     </a>
-    <button class="tw-block md:tw-hidden tw-p-2 tw-rounded tw-border tw-border-gray-300 tw-bg-white" type="button" data-controller="collapse" data-action="click->collapse#toggle" data-collapse-target-value="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="tw-block tw-w-6 tw-h-6 tw-bg-gray-600 tw-rounded"></span>
+    <button class="block md:hidden p-2 rounded border border-gray-300 bg-white" type="button" data-controller="collapse" data-action="click->collapse#toggle" data-collapse-target-value="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="block w-6 h-6 bg-gray-600 rounded"></span>
     </button>
-    <div class="tw-hidden md:tw-flex tw-items-center tw-justify-between tw-w-full" id="navbarSupportedContent" data-controller="collapse">
-      <ul class="tw-flex tw-flex-col md:tw-flex-row tw-space-y-2 md:tw-space-y-0 md:tw-space-x-6 tw-list-none tw-m-0 tw-p-0 tw-w-full md:tw-w-auto">
-        <li class="tw-m-0">
-          <a class="tw-text-blue-600 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 tw-block" aria-current="page" href="/">Home</a>
+    <div class="hidden md:flex items-center justify-between w-full" id="navbarSupportedContent" data-controller="collapse">
+      <ul class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 list-none m-0 p-0 w-full md:w-auto">
+        <li class="m-0">
+          <a class="text-blue-600 font-medium no-underline px-3 py-2 rounded hover:bg-gray-200 block" aria-current="page" href="/">Home</a>
         </li>
-        <li class="tw-m-0">
-          <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 tw-block" aria-current="page" href="/cms">Admin</a>
+        <li class="m-0">
+          <a class="text-gray-700 font-medium no-underline px-3 py-2 rounded hover:bg-gray-200 block" aria-current="page" href="/cms">Admin</a>
         </li>
-        <li class="tw-m-0">
-          <a class="tw-text-gray-700 tw-font-medium tw-no-underline tw-px-3 tw-py-2 tw-rounded hover:tw-bg-gray-200 tw-block" aria-current="page" href="/resources">Resources</a>
+        <li class="m-0">
+          <a class="text-gray-700 font-medium no-underline px-3 py-2 rounded hover:bg-gray-200 block" aria-current="page" href="/resources">Resources</a>
         </li>
       </ul>
 
-      <div class="tw-flex tw-items-center tw-mt-4 md:tw-mt-0">
-        <div class="tw-relative" data-controller="dropdown">
+      <div class="flex items-center mt-4 md:mt-0">
+        <div class="relative" data-controller="dropdown">
           <button class="btn btn-dark" type="button" id="dropdownMenuButton1" data-action="click->dropdown#toggle" aria-expanded="false">
             Salam <%= current_user&.first_name %>
           </button>
-          <ul class="tw-absolute tw-right-0 tw-mt-2 tw-w-48 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md tw-shadow-lg tw-z-50 tw-hidden" data-dropdown-target="menu" aria-labelledby="dropdownMenuButton1" data-turbo="false">
+          <ul class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden" data-dropdown-target="menu" aria-labelledby="dropdownMenuButton1" data-turbo="false">
             <li>
               <% if current_user %>
-                <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'tw-block tw-w-full tw-text-left tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100 tw-no-underline' %>
+                <%= button_to 'Log out', destroy_user_session_path, method: :delete, class: 'block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline' %>
               <% else %>
-                <%= link_to 'Log In', new_user_session_path, class: 'tw-block tw-w-full tw-text-left tw-px-4 tw-py-2 tw-text-gray-700 hover:tw-bg-gray-100 tw-no-underline' %>
+                <%= link_to 'Log In', new_user_session_path, class: 'block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline' %>
               <% end %>
             </li>
           </ul>

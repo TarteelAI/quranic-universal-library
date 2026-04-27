@@ -29,19 +29,19 @@ export default class extends Controller {
 
   showFallback() {
     if (this.hasFallbackTarget) {
-      this.fallbackTarget.classList.remove("tw-hidden");
+      this.fallbackTarget.classList.remove("hidden");
     }
     if (this.hasContainerTarget) {
-      this.containerTarget.classList.add("tw-hidden");
+      this.containerTarget.classList.add("hidden");
     }
   }
 
   showSpline() {
     if (this.hasFallbackTarget) {
-      this.fallbackTarget.classList.add("tw-hidden");
+      this.fallbackTarget.classList.add("hidden");
     }
     if (this.hasContainerTarget) {
-      this.containerTarget.classList.remove("tw-hidden");
+      this.containerTarget.classList.remove("hidden");
     }
   }
 

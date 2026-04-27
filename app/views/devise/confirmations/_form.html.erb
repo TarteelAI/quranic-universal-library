@@ -1,19 +1,19 @@
-<h1 class="tw-text-2xl tw-font-semibold">
+<h1 class="text-2xl font-semibold">
   Resend confirmation instructions
 </h1>
-<p class="tw-mt-6">
+<p class="mt-6">
   Enter your <strong>email address</strong> below, and we'll send you a link to confirm your account.
 </p>
 <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-  <div class="form-floating tw-mt-3">
+  <div class="form-floating mt-3">
     <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
     <%= f.label :email, required: true %>
     <div class="invalid-feedback">
       Please enter a valid email
     </div>
   </div>
-  <div class="tw-text-center tw-mt-8">
-    <%= f.submit 'Resend confirmation instructions', class: 'tw-px-8 tw-py-3 tw-bg-black tw-text-white tw-rounded-full' %>
+  <div class="text-center mt-8">
+    <%= f.submit 'Resend confirmation instructions', class: 'px-8 py-3 bg-black text-white rounded-full' %>
   </div>
 <% end %>

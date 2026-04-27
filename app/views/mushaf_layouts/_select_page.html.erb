@@ -1,19 +1,19 @@
 <div id=title>
-  <h5 class="tw-text-lg tw-font-semibold">Select page <%= @resource.name %></h5>
+  <h5 class="text-lg font-semibold">Select page <%= @resource.name %></h5>
 </div>
 
 <div id=body>
-  <div class="tw-p-6">
-    <div class="tw-bg-white tw-rounded-lg tw-p-4">
-      <div class="tw-grid tw-grid-cols-10 tw-gap-2 tw-overflow-y-auto tw-max-h-[70vh]">
+  <div class="p-6">
+    <div class="bg-white rounded-lg p-4">
+      <div class="grid grid-cols-10 gap-2 overflow-y-auto max-h-[70vh]">
         <% 1.upto(@mushaf.pages_count) do |page| %>
           <% if params[:edit] %>
             <%= link_to page.to_s, mushaf_layout_path(@mushaf.id, page_number: page, compare: params[:compare], view_type: params[:previous_view_type]),
-                        class: "tw-px-3 tw-py-1.5 tw-bg-gray-50 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-text-center tw-transition-colors tw-duration-200 tw-text-sm"
+                        class: "px-3 py-1.5 bg-gray-50 hover:bg-blue-500 hover:text-white rounded text-center transition-colors duration-200 text-sm"
             %>
           <% else %>
             <%= link_to page.to_s, edit_mushaf_layout_path(@mushaf.id, page_number: page),
-                        class: "tw-px-3 tw-py-1.5 tw-bg-gray-50 hover:tw-bg-blue-500 hover:tw-text-white tw-rounded tw-text-center tw-transition-colors tw-duration-200 tw-text-sm"
+                        class: "px-3 py-1.5 bg-gray-50 hover:bg-blue-500 hover:text-white rounded text-center transition-colors duration-200 text-sm"
             %>
           <% end %>
         <% end %>

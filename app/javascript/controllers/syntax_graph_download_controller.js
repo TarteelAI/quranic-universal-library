@@ -13,14 +13,14 @@ export default class extends Controller {
     if (button) {
       originalHtml = button.innerHTML;
       button.disabled = true;
-      button.classList.add("tw-opacity-70", "tw-cursor-not-allowed");
+      button.classList.add("opacity-70", "cursor-not-allowed");
       button.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
     }
 
     if (!this.hasGraphContainerTarget) {
       if (button) {
         button.disabled = false;
-        button.classList.remove("tw-opacity-70", "tw-cursor-not-allowed");
+        button.classList.remove("opacity-70", "cursor-not-allowed");
         if (originalHtml) button.innerHTML = originalHtml;
       }
       return;
@@ -32,7 +32,7 @@ export default class extends Controller {
       console.warn("No syntax graph SVG found to download.");
       if (button) {
         button.disabled = false;
-        button.classList.remove("tw-opacity-70", "tw-cursor-not-allowed");
+        button.classList.remove("opacity-70", "cursor-not-allowed");
         if (originalHtml) button.innerHTML = originalHtml;
       }
       return;
@@ -67,7 +67,7 @@ export default class extends Controller {
     } finally {
       if (button) {
         button.disabled = false;
-        button.classList.remove("tw-opacity-70", "tw-cursor-not-allowed");
+        button.classList.remove("opacity-70", "cursor-not-allowed");
         if (originalHtml) button.innerHTML = originalHtml;
       }
     }

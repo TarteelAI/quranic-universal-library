@@ -1,48 +1,48 @@
 <%= render 'layouts/qul_head' %>
 
-<div class="tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-mb-4" data-turbo="false">
-  <div class="page-section tw-mt-4 tw-flex tw-gap-4">
-    <%= link_to segments_dashboard_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>
+<div class="container max-w-7xl mx-auto px-4 mb-4" data-turbo="false">
+  <div class="page-section mt-4 flex gap-4">
+    <%= link_to segments_dashboard_path, class: "bg-gray-100 text-gray-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-gray-200 hover:text-black" do %>
       <i class="fas fa-tachometer-alt"></i>
       <span>Dashboard</span>
     <% end %>
 
-    <%= link_to segments_failures_path, class: "tw-bg-red-100 tw-text-red-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-red-200 hover:tw-text-black" do %>
+    <%= link_to segments_failures_path, class: "bg-red-100 text-red-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-red-200 hover:text-black" do %>
       <i class="fas fa-times-circle"></i>
       <span>Failures</span>
     <% end %>
 
-    <%= link_to segments_word_failures_path, class: "tw-bg-purple-100 tw-text-purple-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-purple-200 hover:tw-text-black" do %>
+    <%= link_to segments_word_failures_path, class: "bg-purple-100 text-purple-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-purple-200 hover:text-black" do %>
       <i class="fas fa-chart-bar"></i>
       <span>Word Stats</span>
     <% end %>
 
-    <%= link_to segments_detections_path, class: "tw-bg-blue-100 tw-text-blue-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-blue-200 hover:tw-text-black" do %>
+    <%= link_to segments_detections_path, class: "bg-blue-100 text-blue-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-blue-200 hover:text-black" do %>
       <i class="fas fa-check-circle"></i>
       <span>Detections</span>
     <% end %>
 
-    <%= link_to segments_review_ayahs_path, class: "tw-bg-yellow-100 tw-text-yellow-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-yellow-200 hover:tw-text-black" do %>
+    <%= link_to segments_review_ayahs_path, class: "bg-yellow-100 text-yellow-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-yellow-200 hover:text-black" do %>
       <i class="fas fa-exclamation-triangle"></i>
       <span>Review Ayahs</span>
     <% end %>
 
-    <%= link_to segments_reciters_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>
+    <%= link_to segments_reciters_path, class: "bg-gray-100 text-gray-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-gray-200 hover:text-black" do %>
       <i class="fas fa-microphone-alt"></i>
       <span>Reciters</span>
     <% end %>
 
-    <%= link_to segments_timeline_path, class: "tw-bg-green-100 tw-text-green-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-green-200 hover:tw-text-black" do %>
+    <%= link_to segments_timeline_path, class: "bg-green-100 text-green-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-green-200 hover:text-black" do %>
       <i class="fas fa-stream"></i>
       <span>Timeline</span>
     <% end %>
 
-    <%= link_to segments_ayah_report_path, class: "tw-bg-orange-100 tw-text-orange-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-orange-200 hover:tw-text-black" do %>
+    <%= link_to segments_ayah_report_path, class: "bg-orange-100 text-orange-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-orange-200 hover:text-black" do %>
       <i class="fas fa-stream"></i>
       <span>Ayah report</span>
     <% end %>
 
-    <%= link_to segments_setup_db_path, class: "tw-bg-gray-100 tw-text-gray-800 tw-px-4 tw-py-2 tw-rounded tw-shadow tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-200 hover:tw-text-black" do %>
+    <%= link_to segments_setup_db_path, class: "bg-gray-100 text-gray-800 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-gray-200 hover:text-black" do %>
       <i class="fas fa-upload"></i>
       <span>Upload DB</span>
     <% end %>

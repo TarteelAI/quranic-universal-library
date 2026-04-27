@@ -22,7 +22,7 @@ export default class extends Controller {
     if (target !== this.frameId) return
     const indicator = this.element.querySelector('#turbo-loading-indicator');
     if (indicator) {
-      indicator.classList.remove('tw-hidden');
+      indicator.classList.remove('hidden');
     }
   }
 
@@ -33,7 +33,7 @@ export default class extends Controller {
     }
     const indicator = this.element.querySelector('#turbo-loading-indicator');
     if (indicator) {
-      indicator.classList.add('tw-hidden');
+      indicator.classList.add('hidden');
     }
   }
 

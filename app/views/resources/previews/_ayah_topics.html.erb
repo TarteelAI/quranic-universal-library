@@ -1,6 +1,6 @@
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="topics-docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="topics-docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-topics"
               data-action="click->tabs#switch"
@@ -13,7 +13,7 @@
       </button>
     </li>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-help"
               data-action="click->tabs#switch"
@@ -26,12 +26,12 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="topics-docs-tab-content">
+  <div class="tab-content p-2 mt-3" id="topics-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-topics-pane"
          role="tabpanel"
          aria-labelledby="tab-topics" tabindex="0">
-      <div class="tw-space-y-6">
+      <div class="space-y-6">
         
         <% if @topic.present? %>
           <!-- SHOW PAGE: Display specific topic details -->
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="tab-pane tw-hidden"
+    <div class="tab-pane hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-help" tabindex="1">

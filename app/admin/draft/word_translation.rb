@@ -142,18 +142,18 @@ ActiveAdmin.register Draft::WordTranslation do
     div "Total: #{translations.size}"
     div "Imported: #{imported.size}"
 
-    div class: 'tw-flex tw-w-full tw-flex-col sidebar-item' do
+    div class: 'flex w-full flex-col sidebar-item' do
       translations.each do |resource_content|
-        div class: "tw-w-full tw-p-1 tw-border-b tw-mb-3 #{'selected' if selected == resource_content.id}" do
-          div class: 'tw-flex tw-justify-between' do
+        div class: "w-full p-1 border-b mb-3 #{'selected' if selected == resource_content.id}" do
+          div class: 'flex justify-between' do
             span link_to(resource_content.id, [:cms, resource_content], target: 'blank')
-            imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes tw-ms-2') : ''
+            imported.include?(resource_content.id) ? span('imported', class: 'status_tag yes ms-2') : ''
           end
 
           div "#{resource_content.name}(#{resource_content.language_name})"
           div "Synced: #{resource_content.meta_value('synced-at')} Updated: #{resource_content.updated_at}"
 
-          div class: 'tw-flex tw-my-2 tw-justify-between tw-gap-2 tw-flex-wrap' do
+          div class: 'flex my-2 justify-between gap-2 flex-wrap' do
             span(link_to 'Filter', "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info')
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 

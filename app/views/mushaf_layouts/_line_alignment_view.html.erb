@@ -5,7 +5,7 @@
   words_missing = @words.blank?
 %>
 
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
   <% if ayah_range_missing || words_missing %>
     <%= render 'missing_required_data', step: 'line_alignment' %>
   <% else %>
@@ -20,10 +20,10 @@
             <div
               data-page="<%= page_number %>"
               data-controller="update-mushaf-page"
-              class="tw-flex tw-justify-between <%= @mushaf.default_font_name %>">
+              class="flex justify-between <%= @mushaf.default_font_name %>">
               <%= render 'line_alignment' %>
 
-              <div class="page-section tw-p-3">
+              <div class="page-section p-3">
                 <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
               </div>
             </div>

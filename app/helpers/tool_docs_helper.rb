@@ -794,11 +794,11 @@ module ToolDocsHelper
           },
           {
             text: "• <span style='background-color: #fee2e2; padding: 2px 4px;'>Red background</span> on entire row: The character is missing in one or more scripts",
-            css_class: 'tw-ml-4'
+            css_class: 'ml-4'
           },
           {
             text: "• <span style='background-color: #fef3c7; padding: 2px 4px;'>Yellow background</span> on individual cell: That specific script doesn't contain the character",
-            css_class: 'tw-ml-4'
+            css_class: 'ml-4'
           }
         ]
       },

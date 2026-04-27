@@ -31,15 +31,15 @@ export default class extends AjaxModalController {
     let html = '';
 
     if (bookmarks.length === 0) {
-      html = '<div class="tw-p-4 tw-text-center tw-text-gray-500">No bookmarks found.</div>';
+      html = '<div class="p-4 text-center text-gray-500">No bookmarks found.</div>';
     } else {
-      html = '<div class="tw-divide-y tw-divide-gray-100">';
+      html = '<div class="divide-y divide-gray-100">';
       bookmarks.forEach(bookmark => {
         html += `
-          <div class="tw-p-4 hover:tw-bg-gray-50 tw-transition-colors">
-            <a href="${bookmark.url}" class="tw-block">
-              <div class="tw-font-medium tw-text-gray-900">${bookmark.key}</div>
-              <div class="tw-text-sm tw-text-gray-500 tw-mt-1">${bookmark.text}</div>
+          <div class="p-4 hover:bg-gray-50 transition-colors">
+            <a href="${bookmark.url}" class="block">
+              <div class="font-medium text-gray-900">${bookmark.key}</div>
+              <div class="text-sm text-gray-500 mt-1">${bookmark.text}</div>
             </a>
           </div>
         `;

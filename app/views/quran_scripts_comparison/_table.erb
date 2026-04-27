@@ -1,17 +1,17 @@
 <%
-  cols_bg = "tw-border tw-border-gray-300 tw-bg-gray-50"
-  v1_cols_bg = "tw-border tw-border-gray-300 tw-bg-gray-200"
-  v2_cols_bg = "tw-border tw-border-gray-300 tw-bg-gray-50"
+  cols_bg = "border border-gray-300 bg-gray-50"
+  v1_cols_bg = "border border-gray-300 bg-gray-200"
+  v2_cols_bg = "border border-gray-300 bg-gray-50"
   words = @presenter.words
   scripts = @presenter.scripts
 %>
 
-<table class="tw-w-full">
-  <thead class="tw-bg-white tw-shadow-md tw-sticky tw-top-0">
-  <tr class="tw-hover:tw-bg-gray-100 tw-border tw-border-gray-300">
-    <th class="tw-px-3 tw-py-2">ID</th>
+<table class="w-full">
+  <thead class="bg-white shadow-md sticky top-0">
+  <tr class="hover:bg-gray-100 border border-gray-300">
+    <th class="px-3 py-2">ID</th>
     <% @presenter.comparision_scripts.each do |script_name| %>
-      <th class="tw-px-3 tw-py-2 <%= cols_bg %>">
+      <th class="px-3 py-2 <%= cols_bg %>">
         <%= @presenter.script_display_name(script_name) %>
       </th>
     <% end %>
@@ -25,9 +25,9 @@
         has_char_in_all = scripts.all? { |script| word.send(script).to_s.include?(@presenter.char) }
 
         if !has_char_in_all
-          td_class = 'tw-bg-red-100 tw-px-3 tw-py-2'
+          td_class = 'bg-red-100 px-3 py-2'
         else
-          td_class = 'toggle tw-px-3 tw-py-2'
+          td_class = 'toggle px-3 py-2'
         end
       %>
 
@@ -45,7 +45,7 @@
             script_value = word.send(script_name)
             script_class = get_quran_script_font_family(script_name, word) || 'qpc-hafs'
             has_char = script_value.to_s.include?(@presenter.char)
-            cell_class = has_char ? '' : 'tw-bg-yellow-200'
+            cell_class = has_char ? '' : 'bg-yellow-200'
           %>
 
           <td class="<%= script_class %> char <%= cols_bg %> td_class <%= cell_class %>" data-controller="copy-to-clipboard">
@@ -56,14 +56,14 @@
     <% end %>
   <% else %>
     <tr>
-      <td colspan="<%= scripts.size + 1 %>" class="tw-text-center tw-py-8">
+      <td colspan="<%= scripts.size + 1 %>" class="text-center py-8">
         No words found containing this character.
       </td>
     </tr>
   <% end %>
 
   <% if @presenter.words.present? %>
-    <tr class="tw-w-full">
+    <tr class="w-full">
       <td colspan="<%= scripts.size + 1 %>">
         <%= pagination_section @presenter.pagination %>
       </td>

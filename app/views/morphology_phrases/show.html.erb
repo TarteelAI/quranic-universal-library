@@ -9,7 +9,7 @@
       actions << link_to('Next ayah', morphology_phrase_path(next_ayah.id, proofread: true), class: 'btn btn-dark')
     end
 
-    actions << link_to('Back', morphology_phrases_path(proofread: true), class: 'tw-h-10 tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-slate-700 hover:tw-bg-slate-800 tw-text-white tw-rounded tw-transition-colors tw-inline-flex tw-items-center')
+    actions << link_to('Back', morphology_phrases_path(proofread: true), class: 'h-10 px-4 py-2 text-sm font-medium bg-slate-700 hover:bg-slate-800 text-white rounded transition-colors inline-flex items-center')
   %>
 
   <%= render 'tools/header',
@@ -19,8 +19,8 @@
              help: 'mutashabihat',
              actions: actions
   %>
-  <div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4 tw-mt-4 tw-relative tw-z-10">
-    <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-6 tw-mb-6">
+  <div class="page-wrapper container max-w-7xl mx-auto px-4 mt-4 relative z-10">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
       <%= render 'ayah_preview', mapping: {
       verse: @verse,
       phrase_verses: @verse.verse_phrases,

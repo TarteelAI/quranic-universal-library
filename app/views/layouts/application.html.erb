@@ -8,8 +8,8 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
-  <body class="tw-font-inter" data-controller="event-tracker">
-    <div id="turbo-script-container" class="tw-hidden"></div>
+  <body class="font-inter" data-controller="event-tracker">
+    <div id="turbo-script-container" class="hidden"></div>
     <%= render 'shared/flash_notices' %>
     <%= render 'landing/header' %>
     <%= yield %>

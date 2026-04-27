@@ -1,42 +1,42 @@
-<div id="title" class="tw-hidden">
+<div id="title" class="hidden">
   <%= tag.name %>
 </div>
 
 <div id="body">
-  <div class="tw-p-6 tw-docs">
+  <div class="p-6 qul-docs">
     <div class="prose max-w-none">
       <%= safe_html tag.description %>
 
       <% if tag.glossary_term.present? %>
-        <div class="tw-d-block">
-          <%= link_to "Click here", "https://www.tarteel.ai/glossary/#{tag.glossary_term}", class: 'tw-underline hover:tw-no-underline' %>
+        <div class="d-block">
+          <%= link_to "Click here", "https://www.tarteel.ai/glossary/#{tag.glossary_term}", class: 'underline hover:no-underline' %>
           to read more
           about <%= tag.name %>
-          on <%= link_to 'Tarteel glossary', 'https://www.tarteel.ai/glossary', class: 'tw-underline hover:tw-no-underline' %>
+          on <%= link_to 'Tarteel glossary', 'https://www.tarteel.ai/glossary', class: 'underline hover:no-underline' %>
           page.
         </div>
       <% end %>
 
       <% if tag.downloadable_resources.any? %>
-        <div class="tw-mt-8">
-          <h2 class="tw-text-3xl tw-font-semibold tw-text-gray-800 tw-mb-6">
+        <div class="mt-8">
+          <h2 class="text-3xl font-semibold text-gray-800 mb-6">
             Resources related to <strong><%= tag.name %></strong> tag
           </h2>
 
           <% grouped_resources = tag.downloadable_resources.group_by(&:resource_type) %>
 
-          <div class="tw-space-y-8">
+          <div class="space-y-8">
             <% grouped_resources.each do |resource_type, resources| %>
               <% first = resources.first %>
-              <div class="tw-border tw-rounded-xl tw-shadow-sm tw-p-6 tw-bg-white">
-                <h3 class="tw-text-xl tw-font-medium tw-text-gray-700 tw-border-b tw-pb-2 tw-mb-4 capitalize">
+              <div class="border rounded-xl shadow-sm p-6 bg-white">
+                <h3 class="text-xl font-medium text-gray-700 border-b pb-2 mb-4 capitalize">
                   <%= first.group_name %>
                 </h3>
 
-                <ul class="tw-space-y-3">
+                <ul class="space-y-3">
                   <% resources.each do |resource| %>
                     <li>
-                      <%= link_to resource.name, detail_resources_path(resource.resource_type, resource.id), class: "tw-text-blue-600 hover:tw-text-blue-800 tw-underline" %>
+                      <%= link_to resource.name, detail_resources_path(resource.resource_type, resource.id), class: "text-blue-600 hover:text-blue-800 underline" %>
                     </li>
                   <% end %>
                 </ul>

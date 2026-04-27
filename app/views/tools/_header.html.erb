@@ -16,15 +16,15 @@
 
 <%= render 'layouts/qul_head', hero_below_logo: hero_below_logo %>
 
-<div class="tw-container <%= 'tw-max-w-7xl tw-mx-auto' unless wide_container %>  tw-px-4 tw-mt-4 mt-md-5">
-  <div class="tw-mb-3 flex-between tw-justify-between">
-    <h2 class="tw-text-2xl md:tw-text-3xl tw-leading-none tw-text-pretty">
+<div class="container <%= 'max-w-7xl mx-auto' unless wide_container %>  px-4 mt-4 mt-md-5">
+  <div class="mb-3 flex-between justify-between">
+    <h2 class="text-2xl md:text-3xl leading-none text-pretty">
       <%= safe_html title %>
     </h2>
-    <div class="tw-flex tw-gap-1 tw-mt-3 tw-mt-md-0">
+    <div class="flex gap-1 mt-3 mt-md-0">
       <% if local_assigns[:help] != false %>
-        <%= link_to '#', class: 'btn btn-outline tw-flex tw-items-center tw-h-10', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
-          <span class="tw-w-5 tw-h-5 tw-rounded-full tw-bg-blue-500 tw-text-white tw-flex tw-items-center tw-justify-center tw-text-xs tw-font-normal tw-leading-none tw-mr-2 group-hover:tw-bg-white group-hover:tw-text-blue-500 tw-transition-colors">i</span> Help
+        <%= link_to '#', class: 'btn btn-outline flex items-center h-10', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
+          <span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-normal leading-none mr-2 group-hover:bg-white group-hover:text-blue-500 transition-colors">i</span> Help
         <% end %>
       <% end %>
       <%= safe_html actions.join('') %>

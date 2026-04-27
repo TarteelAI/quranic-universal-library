@@ -1,42 +1,42 @@
 <template>
-  <div class="tw-flex tw-flex-wrap tw-gap-4">
-    <div class="tw-w-full">
-      <h3 class="tw-flex tw-items-center">
-        <span class="tw-flex-grow tw-text-xl tw-font-bold">Select Audio</span>
-        <button class="tw-px-4 tw-py-2 tw-bg-cyan-600 tw-text-white tw-text-sm tw-font-medium tw-rounded tw-transition-colors hover:tw-bg-cyan-700" @click="loadAudio">
+  <div class="flex flex-wrap gap-4">
+    <div class="w-full">
+      <h3 class="flex items-center">
+        <span class="flex-grow text-xl font-bold">Select Audio</span>
+        <button class="px-4 py-2 bg-cyan-600 text-white text-sm font-medium rounded transition-colors hover:bg-cyan-700" @click="loadAudio">
           Load Audio Data!
         </button>
       </h3>
     </div>
 
-    <div class="tw-w-full md:tw-w-[calc(50%-0.5rem)]">
-      <div class="tw-space-y-1">
+    <div class="w-full md:w-[calc(50%-0.5rem)]">
+      <div class="space-y-1">
         <input
             type="text"
-            class="tw-w-full tw-px-3 tw-py-2 tw-text-sm tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             ref="audioUrl"
             placeholder="Audio url"
             :value="quranicAudioUrl"
         />
-        <div class="tw-text-xs tw-text-gray-500">Enter file URL</div>
+        <div class="text-xs text-gray-500">Enter file URL</div>
       </div>
     </div>
 
-    <div class="tw-w-full md:tw-w-[calc(50%-0.5rem)]">
-      <div class="tw-space-y-1">
-        <input type="file" class="tw-w-full tw-px-3 tw-py-1.5 tw-text-sm tw-border tw-border-gray-300 tw-rounded-md tw-cursor-pointer file:tw-mr-4 file:tw-py-1 file:tw-px-4 file:tw-rounded file:tw-border-0 file:tw-text-sm file:tw-font-semibold file:tw-bg-blue-50 file:tw-text-blue-700 hover:file:tw-bg-blue-100" ref="audioFile"/>
-        <div class="tw-text-xs tw-text-gray-500">
+    <div class="w-full md:w-[calc(50%-0.5rem)]">
+      <div class="space-y-1">
+        <input type="file" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" ref="audioFile"/>
+        <div class="text-xs text-gray-500">
           Or Select Audio file
 
-          <span class="tw-text-blue-600 tw-font-medium" v-if="fromFile">
+          <span class="text-blue-600 font-medium" v-if="fromFile">
             Loaded
           </span>
         </div>
       </div>
     </div>
 
-    <div :class="[audioSrc ? 'tw-w-full tw-mt-4' : 'tw-hidden']">
-      <audio ref="audio" :src="audioSrc" id="player" controls class="tw-w-full"></audio>
+    <div :class="[audioSrc ? 'w-full mt-4' : 'hidden']">
+      <audio ref="audio" :src="audioSrc" id="player" controls class="w-full"></audio>
     </div>
   </div>
 </template>

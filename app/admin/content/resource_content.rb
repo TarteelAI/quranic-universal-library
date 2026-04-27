@@ -240,7 +240,7 @@ ActiveAdmin.register ResourceContent do
     permission = resource.resource_permission
 
     if permission&.copyright_notice.present?
-      div class: 'tw-p-4 tw-mb-4 tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-rounded tw-text-lg' do
+      div class: 'p-4 mb-4 bg-red-50 border border-red-200 text-red-800 rounded text-lg' do
         safe_html permission.copyright_notice
       end
     end

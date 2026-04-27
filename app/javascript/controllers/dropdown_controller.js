@@ -32,10 +32,10 @@ export default class extends Controller {
   show() {
     this.closeAllOtherDropdowns()
     if (this.hasMenuTarget) {
-      this.menuTarget.classList.remove('tw-hidden')
-      this.menuTarget.classList.add('tw-block')
+      this.menuTarget.classList.remove('hidden')
+      this.menuTarget.classList.add('block')
     }
-    this.element.classList.add('tw-relative')
+    this.element.classList.add('relative')
   }
 
   closeAllOtherDropdowns() {
@@ -55,8 +55,8 @@ export default class extends Controller {
 
   hide() {
     if (this.hasMenuTarget) {
-      this.menuTarget.classList.add('tw-hidden')
-      this.menuTarget.classList.remove('tw-block')
+      this.menuTarget.classList.add('hidden')
+      this.menuTarget.classList.remove('block')
     }
   }
 

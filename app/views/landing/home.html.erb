@@ -1,11 +1,11 @@
-<div class="tw-flex tw-justify-center tw-flex-col tw-items-center tw-px-4 lg:tw-px-8">
-  <div class="tw-bg-black tw-rounded-3xl tw-text-white tw-w-full tw-max-w-[1600px] tw-relative tw-overflow-hidden tw-z-10">
-    <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-min-h-[500px] md:tw-min-h-[600px]">
-      <div class="tw-absolute tw-h-full tw-w-full lg:tw-w-1/2 tw-left-0">
-        <div class="lg:tw-hidden tw-absolute tw-bottom-0 tw-left-0 tw-right-0 tw-bg-gradient-to-t tw-from-black/70 tw-to-transparent tw-z-10 tw-h-2/3 md:tw-h-full"></div>
+<div class="flex justify-center flex-col items-center px-4 lg:px-8">
+  <div class="bg-black rounded-3xl text-white w-full max-w-[1600px] relative overflow-hidden z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[500px] md:min-h-[600px]">
+      <div class="absolute h-full w-full lg:w-1/2 left-0">
+        <div class="lg:hidden absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent z-10 h-2/3 md:h-full"></div>
         <%= render 'landing/spline' %>
       </div>
-      <div class="tw-hidden lg:tw-block tw-col-span-1"><!-- Empty column for spline background --></div>
+      <div class="hidden lg:block col-span-1"><!-- Empty column for spline background --></div>
       <%= render 'landing/hero' %>
     </div>
   </div>
@@ -13,10 +13,10 @@
 
 <%= render 'landing/overview' %>
 
-<div class="tw-bg-black tw-text-white tw-py-10 md:tw-py-16 tw-mt-4">
+<div class="bg-black text-white py-10 md:py-16 mt-4">
   <%= render 'landing/resources' %>
 </div>
 
-<div class="tw-text-white tw-py-10 md:tw-py-16 tw-bg-[#404040]">
+<div class="text-white py-10 md:py-16 bg-[#404040]">
   <%= render 'landing/tools' %>
 </div>

@@ -10,7 +10,7 @@ export default class extends Controller {
     const tabButtons = this.getTabButtons()
     
     tabButtons.forEach(btn => {
-      btn.classList.add('tw-rounded-t')
+      btn.classList.add('rounded-t')
       if (!btn.hasAttribute('data-action')) {
         btn.setAttribute('data-action', 'click->tabs#switch')
       }
@@ -53,14 +53,14 @@ export default class extends Controller {
     const allPanes = this.getTabPanes()
     allPanes.forEach(pane => {
       pane.classList.remove('active')
-      pane.classList.add('tw-hidden')
+      pane.classList.add('hidden')
       pane.setAttribute('hidden', 'hidden')
     })
 
     const targetPane = this.element.querySelector(targetId)
     if (targetPane) {
       targetPane.classList.add('active')
-      targetPane.classList.remove('tw-hidden')
+      targetPane.classList.remove('hidden')
       targetPane.removeAttribute('hidden')
     }
   }
@@ -72,8 +72,8 @@ export default class extends Controller {
       btn.style.borderLeft = 'none'
       btn.style.borderBottom = 'none'
       
-      btn.classList.remove('tw-text-gray-700', 'tw-bg-white', 'tw--mb-px', 'tw-border-b', 'tw-border-b-white', 'active')
-      btn.classList.add('tw-text-[#57d798]')
+      btn.classList.remove('text-gray-700', 'bg-white', '-mb-px', 'border-b', 'border-b-white', 'active')
+      btn.classList.add('text-[#57d798]')
       btn.setAttribute('aria-selected', 'false')
     })
     
@@ -83,8 +83,8 @@ export default class extends Controller {
       activeButton.style.borderLeft = '1px solid #dee2e6'
       activeButton.style.borderBottom = 'none'
       
-      activeButton.classList.remove('tw-text-[#57d798]')
-      activeButton.classList.add('tw-text-gray-700', 'tw-bg-white', 'tw--mb-px', 'tw-border-b', 'tw-border-b-white', 'active')
+      activeButton.classList.remove('text-[#57d798]')
+      activeButton.classList.add('text-gray-700', 'bg-white', '-mb-px', 'border-b', 'border-b-white', 'active')
       activeButton.setAttribute('aria-selected', 'true')
     }
   }

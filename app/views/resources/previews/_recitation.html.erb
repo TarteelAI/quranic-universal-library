@@ -4,9 +4,9 @@
   chapter = ayah.chapter
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
               data-action="click->tabs#switch"
@@ -19,7 +19,7 @@
       </button>
     </li>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-help"
               data-action="click->tabs#switch"
@@ -32,23 +32,23 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="docs-tab-content">
+  <div class="tab-content p-2 mt-3" id="docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold">
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">
           Recitation and segments preview for <%= resource.name %> recitation.
         </h2>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
-          <div class="tw-flex tw-items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+          <div class="flex items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
             <%= select_tag :ayah,
                            options_for_select([ayah.verse_key], ayah.verse_key),
                            id: 'ayah-select',
-                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           class: "px-3 py-2 border rounded bg-white shadow-sm",
                            style: 'min-width: 220px',
                            data: {
                              controller: 'remote-select2',
@@ -57,7 +57,7 @@
             %>
           </div>
 
-          <div class="tw-flex tw-gap-2">
+          <div class="flex gap-2">
             <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.previous_ayah&.verse_key), id: 'previous-ayah', class: 'btn btn-secondary' do %>
               ← Previous
             <% end %>
@@ -72,28 +72,28 @@
       </div>
     </div>
 
-    <div class="tab-pane tw-hidden"
+    <div class="tab-pane hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="tw-space-y-6">
-        <div class="tw-p-6 tw-bg-white tw-shadow-md tw-rounded-md tw-font-sans tw-text-gray-800">
-          <p class="tw-text-2xl tw-font-semibold tw-mb-6">
+      <div class="space-y-6">
+        <div class="p-6 bg-white shadow-md rounded-md font-sans text-gray-800">
+          <p class="text-2xl font-semibold mb-6">
             QUL supports two types of Quranic recitations audio data:
           </p>
 
-          <section class="tw-mb-4">
-            <h2 class="tw-font-semibold tw-mb-4">1. Surah-by-Surah (Gapless)</h2>
-            <ul class="tw-list-disc tw-list-inside tw-space-y-1">
+          <section class="mb-4">
+            <h2 class="font-semibold mb-4">1. Surah-by-Surah (Gapless)</h2>
+            <ul class="list-disc list-inside space-y-1">
               <li>Contains <strong>114 audio files</strong>, one per surah.</li>
               <li>Each audio file plays the entire surah continuously without gaps.</li>
               <li>Often referred to as <em>gapless</em> audio.</li>
             </ul>
           </section>
 
-          <section class="tw-mb-4">
-            <h2 class="tw-font-semibold tw-mb-4">2. Ayah-by-Ayah (Gapped)</h2>
-            <ul class="tw-list-disc tw-list-inside tw-space-y-1">
+          <section class="mb-4">
+            <h2 class="font-semibold mb-4">2. Ayah-by-Ayah (Gapped)</h2>
+            <ul class="list-disc list-inside space-y-1">
               <li>Contains <strong>6,236 audio files</strong>, one for each ayah (verse) in the Quran.</li>
               <li>Each audio file corresponds to a single ayah.</li>
               <li>Also called <em>gapped</em> audio due to discrete audio segments for each ayah.</li>
@@ -102,9 +102,9 @@
           </section>
 
           <section>
-            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Ayah-by-Ayah Segments Data Format</h2>
+            <h2 class="text-2xl font-semibold mb-4">Ayah-by-Ayah Segments Data Format</h2>
 
-            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+            <pre class="bg-gray-100 p-4 rounded overflow-x-auto mb-4"><code>{
   "surah": &lt;surah_number&gt;,
   "ayah": &lt;ayah_number&gt;,
    "audio_url": "audio file url",
@@ -117,9 +117,9 @@
           </section>
 
           <section>
-            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Surah-by-Surah Segments Data Format</h2>
+            <h2 class="text-2xl font-semibold mb-4">Surah-by-Surah Segments Data Format</h2>
 
-            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+            <pre class="bg-gray-100 p-4 rounded overflow-x-auto mb-4"><code>{
               "surah:ayah": {
   "duration_sec": &lt;duration in seconds&gt;,
    "timestamp_from": "start time of this ayah within audio file",
@@ -132,9 +132,9 @@
           </section>
 
           <section>
-            <h2 class="tw-text-2xl tw-font-semibold tw-mb-4">Sample data for surah segment</h2>
+            <h2 class="text-2xl font-semibold mb-4">Sample data for surah segment</h2>
 
-            <pre class="tw-bg-gray-100 tw-p-4 tw-rounded tw-overflow-x-auto tw-mb-4"><code>{
+            <pre class="bg-gray-100 p-4 rounded overflow-x-auto mb-4"><code>{
   "1:1": {
     "segments": [
       [1, 361, 1051],

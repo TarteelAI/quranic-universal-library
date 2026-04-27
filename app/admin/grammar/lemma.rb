@@ -92,7 +92,7 @@ ActiveAdmin.register Lemma do
               td class: 'quran-text qpc-hafs' do
                 verse.words.map do |word|
                   if words_ids.include?(word.id)
-                    "<a class=tw-text-green-500 href='/cms/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
+                    "<a class=text-green-500 href='/cms/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
                   else
                     "<a href='/cms/words/#{word.id}' target=_blank>#{word.text_qpc_hafs}</a>"
                   end

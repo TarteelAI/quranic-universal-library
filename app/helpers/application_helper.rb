@@ -2,34 +2,34 @@ module ApplicationHelper
   def pagy_nav_tailwind(pagy, **opts)
     link = pagy_link_proc(pagy, **opts)
     
-    html = +%(<nav class="pagination-nav tw-flex tw-items-center tw-justify-center tw-gap-1.5" aria-label="pager">)
+    html = +%(<nav class="pagination-nav flex items-center justify-center gap-1.5" aria-label="pager">)
     
     # Previous link
     if pagy.prev
-      html << link.call(pagy.prev, '<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>'.html_safe, 'aria-label="previous" class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-500 tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg hover:tw-bg-gray-50 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a] hover:tw-shadow-sm tw-transition-all tw-duration-200"')
+      html << link.call(pagy.prev, '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>'.html_safe, 'aria-label="previous" class="inline-flex items-center justify-center w-9 h-9 text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-[#46ac7a] hover:border-[#46ac7a] hover:shadow-sm transition-all duration-200"')
     else
-      html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-300 tw-bg-gray-50/50 tw-border tw-border-gray-100 tw-rounded-lg tw-cursor-not-allowed">)
-      html << %(<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>)
+      html << %(<span class="inline-flex items-center justify-center w-9 h-9 text-gray-300 bg-gray-50/50 border border-gray-100 rounded-lg cursor-not-allowed">)
+      html << %(<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>)
       html << %(</span>)
     end
     
     # Page links
     pagy.series.each do |item|
       if item.is_a?(Integer) # page number
-        html << link.call(item, item, 'class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-sm tw-font-medium tw-text-gray-600 tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg hover:tw-bg-gray-50 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a] hover:tw-shadow-sm tw-transition-all tw-duration-200"')
+        html << link.call(item, item, 'class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-[#46ac7a] hover:border-[#46ac7a] hover:shadow-sm transition-all duration-200"')
       elsif item.is_a?(String) # current page
-        html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-sm tw-font-bold tw-text-white tw-bg-[#46ac7a] tw-border tw-border-[#46ac7a] tw-rounded-lg tw-shadow-sm tw-shadow-green-500/10">#{item}</span>)
+        html << %(<span class="inline-flex items-center justify-center w-9 h-9 text-sm font-bold text-white bg-[#46ac7a] border border-[#46ac7a] rounded-lg shadow-sm shadow-green-500/10">#{item}</span>)
       elsif item == :gap # gap
-        html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-400 tw-font-bold">...</span>)
+        html << %(<span class="inline-flex items-center justify-center w-9 h-9 text-gray-400 font-bold">...</span>)
       end
     end
     
     # Next link
     if pagy.next
-      html << link.call(pagy.next, '<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'.html_safe, 'aria-label="next" class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-500 tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg hover:tw-bg-gray-50 hover:tw-text-[#46ac7a] hover:tw-border-[#46ac7a] hover:tw-shadow-sm tw-transition-all tw-duration-200"')
+      html << link.call(pagy.next, '<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'.html_safe, 'aria-label="next" class="inline-flex items-center justify-center w-9 h-9 text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-[#46ac7a] hover:border-[#46ac7a] hover:shadow-sm transition-all duration-200"')
     else
-      html << %(<span class="tw-inline-flex tw-items-center tw-justify-center tw-w-9 tw-h-9 tw-text-gray-300 tw-bg-gray-50/50 tw-border tw-border-gray-100 tw-rounded-lg tw-cursor-not-allowed">)
-      html << %(<svg class="tw-w-4.5 tw-h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>)
+      html << %(<span class="inline-flex items-center justify-center w-9 h-9 text-gray-300 bg-gray-50/50 border border-gray-100 rounded-lg cursor-not-allowed">)
+      html << %(<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>)
       html << %(</span>)
     end
     
@@ -38,7 +38,7 @@ module ApplicationHelper
   end
 
   def pagy_info_tailwind(pagy)
-    %(<div class="tw-text-sm tw-text-gray-500 tw-font-medium tw-bg-gray-50 tw-px-3 tw-py-1 tw-rounded-full tw-border tw-border-gray-200">#{pagy_info(pagy)}</div>).html_safe
+    %(<div class="text-sm text-gray-500 font-medium bg-gray-50 px-3 py-1 rounded-full border border-gray-200">#{pagy_info(pagy)}</div>).html_safe
   end
   include Pagy::Frontend
 

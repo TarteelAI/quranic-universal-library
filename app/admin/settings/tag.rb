@@ -55,8 +55,8 @@ ActiveAdmin.register Tag do
 
         tbody do
           grouped_resources.each do |sub_type, resources|
-            tr class: 'tw-bg-gray-100' do
-              td colspan: 4, class: 'tw-font-bold tw-text-gray-700 tw-py-2' do
+            tr class: 'bg-gray-100' do
+              td colspan: 4, class: 'font-bold text-gray-700 py-2' do
                 "#{sub_type.to_s.titleize} (#{resources.size})"
               end
             end

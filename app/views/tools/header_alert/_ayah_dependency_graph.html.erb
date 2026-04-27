@@ -1,5 +1,5 @@
-<div class="tw-px-4 tw-py-3 tw-rounded tw-mb-4 tw-bg-gray-100 tw-border tw-border-gray-400 tw-text-gray-700 tw-flex tw-relative" role="alert" data-controller="alert">
-  <i class="fa fa-info-circle tw-me-2 fa-2x"></i>
+<div class="px-4 py-3 rounded mb-4 bg-gray-100 border border-gray-400 text-gray-700 flex relative" role="alert" data-controller="alert">
+  <i class="fa fa-info-circle me-2 fa-2x"></i>
   <div>
     <p>
       <strong>
@@ -7,7 +7,7 @@
       </strong>
     </p>
 
-    <p class="<%= @access ? 'tw-mb-0' : '' %>">
+    <p class="<%= @access ? 'mb-0' : '' %>">
       Ayah Dependency Graph Tool visualizes the internal dependency structure of an ayah by presenting it as a structured graph.
       It shows how words are linked, which elements depend on others, and how the overall ayah is organized.
     </p>
@@ -18,7 +18,7 @@
         to the admin. Once approved, you'll be able to start contributing to mushaf layout.
       </p>
 
-      <div id="btn-request-permission" class="tw-mt-3">
+      <div id="btn-request-permission" class="mt-3">
         <%= link_to 'Request Access', '_', class: 'btn btn-dark', data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg' } %>
       </div>
     <% end %>

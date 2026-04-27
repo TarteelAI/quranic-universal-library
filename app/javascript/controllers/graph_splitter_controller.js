@@ -57,7 +57,7 @@ export default class extends Controller {
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !modalElement.classList.contains('tw-hidden')) {
+      if (e.key === 'Escape' && !modalElement.classList.contains('hidden')) {
         this.hideModal(modalElement);
       }
     });
@@ -65,19 +65,19 @@ export default class extends Controller {
 
   showModal(modalElement) {
     const backdrop = document.createElement('div');
-    backdrop.className = 'modal-backdrop tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-z-[9998]';
+    backdrop.className = 'modal-backdrop fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 z-[9998]';
     backdrop.style.opacity = '0';
     document.body.appendChild(backdrop);
     
-    modalElement.classList.remove('tw-hidden');
+    modalElement.classList.remove('hidden');
     modalElement.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
     
     requestAnimationFrame(() => {
       backdrop.style.opacity = '1';
-      modalElement.classList.remove('tw-opacity-0');
-      modalElement.classList.add('tw-opacity-100');
+      modalElement.classList.remove('opacity-0');
+      modalElement.classList.add('opacity-100');
     });
   }
 
@@ -102,13 +102,13 @@ export default class extends Controller {
       this.graphsData = data.graphs;
       this.renderGraphs();
       
-      this.loadingStateTarget.classList.add("tw-hidden");
-      this.contentStateTarget.classList.remove("tw-hidden");
+      this.loadingStateTarget.classList.add("hidden");
+      this.contentStateTarget.classList.remove("hidden");
     } catch (error) {
       console.error("Error loading graphs:", error);
       this.showError("Failed to load graphs data. Please try again.");
-      this.loadingStateTarget.classList.add("tw-hidden");
-      this.contentStateTarget.classList.remove("tw-hidden");
+      this.loadingStateTarget.classList.add("hidden");
+      this.contentStateTarget.classList.remove("hidden");
     }
   }
 
@@ -133,7 +133,7 @@ export default class extends Controller {
     const emptyState = graphCard.querySelector(".empty-state");
     
     if (graph.nodes.length === 0) {
-      emptyState.classList.remove("tw-hidden");
+      emptyState.classList.remove("hidden");
     } else {
       graph.nodes.forEach(node => {
         const nodeElement = this.createNodeElement(node);
@@ -174,16 +174,16 @@ export default class extends Controller {
     this.draggedNode = event.currentTarget;
     this.sourceGraphId = event.currentTarget.closest(".graph-card").dataset.graphId;
     
-    event.currentTarget.classList.add("tw-opacity-50");
+    event.currentTarget.classList.add("opacity-50");
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("text/html", event.currentTarget.innerHTML);
   }
 
   handleDragEnd(event) {
-    event.currentTarget.classList.remove("tw-opacity-50");
+    event.currentTarget.classList.remove("opacity-50");
     
     this.dropzoneTargets.forEach(dropzone => {
-      dropzone.classList.remove("tw-border-blue-500", "tw-bg-blue-50");
+      dropzone.classList.remove("border-blue-500", "bg-blue-50");
     });
   }
 
@@ -192,14 +192,14 @@ export default class extends Controller {
     event.dataTransfer.dropEffect = "move";
     
     const dropzone = event.currentTarget;
-    dropzone.classList.add("tw-border-blue-500", "tw-bg-blue-50");
+    dropzone.classList.add("border-blue-500", "bg-blue-50");
   }
 
   handleDragLeave(event) {
     const dropzone = event.currentTarget;
     
     if (!dropzone.contains(event.relatedTarget)) {
-      dropzone.classList.remove("tw-border-blue-500", "tw-bg-blue-50");
+      dropzone.classList.remove("border-blue-500", "bg-blue-50");
     }
   }
 
@@ -217,7 +217,7 @@ export default class extends Controller {
     
     // Remove highlight from all dropzones
     this.dropzoneTargets.forEach(dz => {
-      dz.classList.remove("tw-border-blue-500", "tw-bg-blue-50");
+      dz.classList.remove("border-blue-500", "bg-blue-50");
     });
     
     const targetGraphCard = dropzone.closest(".graph-card");
@@ -231,7 +231,7 @@ export default class extends Controller {
     const emptyState = dropzone.querySelector(".empty-state");
     
     nodesList.appendChild(this.draggedNode);
-    emptyState.classList.add("tw-hidden");
+    emptyState.classList.add("hidden");
     
     this.updateNodeCounts();
     this.updateEmptyStates();
@@ -258,9 +258,9 @@ export default class extends Controller {
       const hasNodes = nodesList.querySelectorAll(".node-item").length > 0;
       
       if (hasNodes) {
-        emptyState.classList.add("tw-hidden");
+        emptyState.classList.add("hidden");
       } else {
-        emptyState.classList.remove("tw-hidden");
+        emptyState.classList.remove("hidden");
       }
     });
   }
@@ -276,8 +276,8 @@ export default class extends Controller {
     }
     
     this.saveButtonTarget.disabled = true;
-    this.saveButtonTextTarget.classList.add("tw-hidden");
-    this.saveButtonSpinnerTarget.classList.remove("tw-hidden");
+    this.saveButtonTextTarget.classList.add("hidden");
+    this.saveButtonSpinnerTarget.classList.remove("hidden");
     
     try {
       for (const change of changedGraphs) {
@@ -295,8 +295,8 @@ export default class extends Controller {
       this.showError(error.message || "Failed to save changes. Please try again.");
       
       this.saveButtonTarget.disabled = false;
-      this.saveButtonTextTarget.classList.remove("tw-hidden");
-      this.saveButtonSpinnerTarget.classList.add("tw-hidden");
+      this.saveButtonTextTarget.classList.remove("hidden");
+      this.saveButtonSpinnerTarget.classList.add("hidden");
     }
   }
 
@@ -375,11 +375,11 @@ export default class extends Controller {
 
   showError(message) {
     this.errorContainerTarget.querySelector('p').textContent = message;
-    this.errorContainerTarget.classList.remove("tw-hidden");
+    this.errorContainerTarget.classList.remove("hidden");
   }
 
   hideError() {
-    this.errorContainerTarget.classList.add("tw-hidden");
+    this.errorContainerTarget.classList.add("hidden");
   }
 
   closeModal(event) {
@@ -390,8 +390,8 @@ export default class extends Controller {
   }
 
   hideModal(modalElement) {
-    modalElement.classList.remove('tw-opacity-100');
-    modalElement.classList.add('tw-opacity-0');
+    modalElement.classList.remove('opacity-100');
+    modalElement.classList.add('opacity-0');
     modalElement.setAttribute('aria-hidden', 'true');
     
     const backdrop = document.querySelector('.modal-backdrop');
@@ -409,7 +409,7 @@ export default class extends Controller {
     document.body.style.paddingRight = '';
     
     setTimeout(() => {
-      modalElement.classList.add('tw-hidden');
+      modalElement.classList.add('hidden');
     }, 300);
   }
 }

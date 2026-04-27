@@ -183,23 +183,23 @@ ActiveAdmin.register Draft::Translation do
     div "Total Resources: #{translations.size}"
     div "Imported: #{imported.size}"
 
-    div class: 'tw-flex tw-w-full tw-flex-col sidebar-item' do
+    div class: 'flex w-full flex-col sidebar-item' do
       translations.each do |t|
         resource_content = t[:resource]
         next if resource_content.nil?
 
         is_fully_imported = t[:total_count] > 0 && t[:total_count] == t[:imported_count]
 
-        div class: "tw-w-full tw-p-2 tw-border-b tw-mb-3 #{'selected' if selected == resource_content.id}" do
-          div class: 'tw-flex tw-justify-between' do
+        div class: "w-full p-2 border-b mb-3 #{'selected' if selected == resource_content.id}" do
+          div class: 'flex justify-between' do
             span link_to(resource_content.id, [:cms, resource_content], target: '_blank')
-            span('Imported', class: 'status_tag yes tw-ms-2') if is_fully_imported
+            span('Imported', class: 'status_tag yes ms-2') if is_fully_imported
           end
 
           div "#{resource_content.name} (#{resource_content.language_name})"
           div "Synced: #{resource_content.meta_value('synced-at')} | Updated: #{resource_content.updated_at}"
 
-          div class: 'tw-text-sm tw-text-gray-500' do
+          div class: 'text-sm text-gray-500' do
             span "Total: #{t[:total_count]}, "
             span "Matched: #{t[:matched_count]}, "
             span "Not Matched: #{t[:not_matched_count]}, "
@@ -208,7 +208,7 @@ ActiveAdmin.register Draft::Translation do
             span "Need Review: #{t[:need_review_count]}"
           end
 
-          div class: 'tw-flex tw-my-2 tw-justify-between tw-gap-2 tw-flex-wrap' do
+          div class: 'flex my-2 justify-between gap-2 flex-wrap' do
             span(link_to 'Filter', "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info')
 
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count

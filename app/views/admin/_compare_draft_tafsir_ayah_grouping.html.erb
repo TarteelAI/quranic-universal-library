@@ -3,20 +3,20 @@
 </div>
 
 <div id="body">
-  <div class="tw-p-6">
-    <div class="tw-mt-4" data-controller="filter-ayah">
-      <input type="search" id="search-input" class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent tw-mb-3" placeholder="Search Ayah (Verse Key)">
+  <div class="p-6">
+    <div class="mt-4" data-controller="filter-ayah">
+      <input type="search" id="search-input" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3" placeholder="Search Ayah (Verse Key)">
 
-      <table class="tw-w-full hover:tw-bg-gray-50">
+      <table class="w-full hover:bg-gray-50">
         <thead class="table-dark">
         <tr>
           <th data-action="click->filter-ayah#sortColumn">Verse Key</th>
-          <th class="tw-bg-blue-500 text-white">Tafsir Group From</th>
-          <th class="tw-bg-blue-500 text-white">Tafsir Group To</th>
-          <th class="tw-bg-blue-500 text-white">Tafsir Group Count</th>
-          <th class="tw-bg-green-500 text-white">Draft Group From</th>
-          <th class="tw-bg-green-500 text-white">Draft Group To</th>
-          <th class="tw-bg-green-500 text-white">Draft Group Count</th>
+          <th class="bg-blue-500 text-white">Tafsir Group From</th>
+          <th class="bg-blue-500 text-white">Tafsir Group To</th>
+          <th class="bg-blue-500 text-white">Tafsir Group Count</th>
+          <th class="bg-green-500 text-white">Draft Group From</th>
+          <th class="bg-green-500 text-white">Draft Group To</th>
+          <th class="bg-green-500 text-white">Draft Group Count</th>
         </tr>
         </thead>
 
@@ -46,22 +46,22 @@
                 <% end %>
               </td>
 
-              <td class="tw-bg-blue-500 text-white">
+              <td class="bg-blue-500 text-white">
                 <%= current_from %>
               </td>
-              <td class="tw-bg-blue-500 text-white">
+              <td class="bg-blue-500 text-white">
                 <%= current_to %>
               </td>
-              <td class="tw-bg-blue-500 text-white">
+              <td class="bg-blue-500 text-white">
                 <%= current_count %>
               </td>
-              <td class="tw-bg-green-500 text-white">
+              <td class="bg-green-500 text-white">
                 <%= draft_from %>
               </td>
-              <td class="tw-bg-green-500 text-white">
+              <td class="bg-green-500 text-white">
                 <%= draft_to %>
               </td>
-              <td class="tw-bg-green-500 text-white">
+              <td class="bg-green-500 text-white">
                 <%= draft_count %>
               </td>
             </tr>
@@ -73,23 +73,23 @@
                 <% end %>
               </td>
 
-              <td class="tw-bg-blue-500 text-white">
+              <td class="bg-blue-500 text-white">
                 <%= current_from %>
               </td>
 
-              <td class="tw-bg-blue-500 text-white">
+              <td class="bg-blue-500 text-white">
                 <%= current_to %>
               </td>
-              <td class="tw-bg-blue-500 text-white">
+              <td class="bg-blue-500 text-white">
                 <%= current_count %>
               </td>
-              <td class="tw-bg-green-500 text-white">
+              <td class="bg-green-500 text-white">
                 <%= draft_from %>
               </td>
-              <td class="tw-bg-green-500 text-white">
+              <td class="bg-green-500 text-white">
                 <%= draft_to %>
               </td>
-              <td class="tw-bg-green-500 text-white">
+              <td class="bg-green-500 text-white">
                 <%= draft_count %>
               </td>
             </tr>

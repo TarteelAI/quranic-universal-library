@@ -36,7 +36,7 @@ export default class extends AjaxModalController {
                 const modalBody = document.getElementById('modal-body');
                 if (modalBody) {
                     modalBody.innerHTML = `
-                    <div class='tw-text-center tw-p-5'> 
+                    <div class='text-center p-5'> 
                         <h2>${err.responseText}</h2>
                         <p><a href="/users/sign_in?user_return_to=${location.pathname}" class="btn btn-primary">Login</a></p>
                     </div>`;

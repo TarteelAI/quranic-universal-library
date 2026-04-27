@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
-    this.element.classList.add('tw-my-5');
+    this.element.classList.add('my-5');
   }
 }
 

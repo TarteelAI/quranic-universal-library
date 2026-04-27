@@ -5,17 +5,17 @@
   step ||= 'preview' # Default to preview if not specified
 %>
 
-<div class="tw-max-w-3xl tw-mx-auto tw-mt-8">
-  <div class="tw-bg-yellow-50 tw-border-yellow-500 tw-p-6 tw-rounded-lg tw-shadow-md">
-    <div class="tw-flex tw-items-start">
-      <div class="tw-flex-shrink-0">
-        <svg class="tw-h-10 tw-w-10 tw-text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div class="max-w-3xl mx-auto mt-8">
+  <div class="bg-yellow-50 border-yellow-500 p-6 rounded-lg shadow-md">
+    <div class="flex items-start">
+      <div class="flex-shrink-0">
+        <svg class="h-10 w-10 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
         </svg>
       </div>
 
-      <div class="tw-ml-4 tw-flex-1">
-        <h3 class="tw-text-xl tw-font-bold tw-text-yellow-900 tw-mb-3">
+      <div class="ml-4 flex-1">
+        <h3 class="text-xl font-bold text-yellow-900 mb-3">
           <% if step == 'word_mapping' %>
             Can't Map Words for page <%= page_number %>
           <% elsif step == 'line_alignment' %>
@@ -25,7 +25,7 @@
           <% end %>
         </h3>
 
-        <p class="tw-text-yellow-800 tw-mb-4">
+        <p class="text-yellow-800 mb-4">
           <% if step == 'word_mapping' %>
             Before you can map words to line numbers for this page, you need to set the ayah range first. The ayah range defines which verses appear on this page.
           <% elsif step == 'line_alignment' %>
@@ -37,61 +37,61 @@
 
         <% if step == 'word_mapping' %>
           <!-- For word mapping, only show ayah range requirement -->
-          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-yellow-200">
-            <div class="tw-flex tw-items-start tw-gap-3">
-              <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="bg-white rounded-lg p-4 mb-4 border border-yellow-200">
+            <div class="flex items-start gap-3">
+              <svg class="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
               <div>
-                <span class="tw-font-semibold tw-text-gray-900">Step 1: Ayah Range Required</span>
-                <p class="tw-text-sm tw-text-gray-600 tw-mt-1">You must set the starting and ending ayah for this page before you can map words to line numbers.</p>
+                <span class="font-semibold text-gray-900">Step 1: Ayah Range Required</span>
+                <p class="text-sm text-gray-600 mt-1">You must set the starting and ending ayah for this page before you can map words to line numbers.</p>
               </div>
             </div>
           </div>
         <% else %>
           <!-- For other steps, show full checklist -->
-          <div class="tw-bg-white tw-rounded-lg tw-p-4 tw-mb-4 tw-border tw-border-yellow-200">
-            <ul class="tw-space-y-3">
+          <div class="bg-white rounded-lg p-4 mb-4 border border-yellow-200">
+            <ul class="space-y-3">
               <% unless has_ayah_range %>
-                <li class="tw-flex tw-items-start tw-gap-3">
-                  <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="flex items-start gap-3">
+                  <svg class="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                   <div>
-                    <span class="tw-font-semibold tw-text-gray-900">Step 1: Ayah Range Missing</span>
-                    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Set the starting and ending ayah for this page</p>
+                    <span class="font-semibold text-gray-900">Step 1: Ayah Range Missing</span>
+                    <p class="text-sm text-gray-600 mt-1">Set the starting and ending ayah for this page</p>
                   </div>
                 </li>
               <% else %>
-                <li class="tw-flex tw-items-start tw-gap-3">
-                  <svg class="tw-h-6 tw-w-6 tw-text-green-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="flex items-start gap-3">
+                  <svg class="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                   </svg>
                   <div>
-                    <span class="tw-font-semibold tw-text-gray-900">Step 1: Ayah Range</span>
-                    <p class="tw-text-sm tw-text-green-600 tw-mt-1">✓ Completed</p>
+                    <span class="font-semibold text-gray-900">Step 1: Ayah Range</span>
+                    <p class="text-sm text-green-600 mt-1">✓ Completed</p>
                   </div>
                 </li>
               <% end %>
 
               <% unless has_words %>
-                <li class="tw-flex tw-items-start tw-gap-3">
-                  <svg class="tw-h-6 tw-w-6 tw-text-red-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="flex items-start gap-3">
+                  <svg class="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                   <div>
-                    <span class="tw-font-semibold tw-text-gray-900">Step 2: Word Mapping Missing</span>
-                    <p class="tw-text-sm tw-text-gray-600 tw-mt-1">Assign line numbers to all words on this page</p>
+                    <span class="font-semibold text-gray-900">Step 2: Word Mapping Missing</span>
+                    <p class="text-sm text-gray-600 mt-1">Assign line numbers to all words on this page</p>
                   </div>
                 </li>
               <% else %>
-                <li class="tw-flex tw-items-start tw-gap-3">
-                  <svg class="tw-h-6 tw-w-6 tw-text-green-500 tw-flex-shrink-0 tw-mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li class="flex items-start gap-3">
+                  <svg class="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                   </svg>
                   <div>
-                    <span class="tw-font-semibold tw-text-gray-900">Step 2: Word Mapping</span>
-                    <p class="tw-text-sm tw-text-green-600 tw-mt-1">✓ Completed</p>
+                    <span class="font-semibold text-gray-900">Step 2: Word Mapping</span>
+                    <p class="text-sm text-green-600 mt-1">✓ Completed</p>
                   </div>
                 </li>
               <% end %>
@@ -99,7 +99,7 @@
           </div>
         <% end %>
 
-        <div class="tw-flex tw-flex-wrap tw-gap-3">
+        <div class="flex flex-wrap gap-3">
           <% if step == 'word_mapping' %>
             <!-- For word mapping, only show Set Ayah Range button -->
             <%= link_to 'Set Ayah Range', '#_',
@@ -131,7 +131,7 @@
           <% end %>
 
           <%= link_to 'Back to Pages', mushaf_layout_path(@mushaf.id),
-                      class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-500 hover:tw-bg-gray-600 tw-text-white tw-rounded tw-transition-colors',
+                      class: 'px-4 py-2 text-sm font-medium bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors',
                       data: { turbo_frame: '_top' } %>
         </div>
       </div>

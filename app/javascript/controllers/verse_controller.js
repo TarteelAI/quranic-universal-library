@@ -35,14 +35,14 @@ export default class extends Controller {
     }
     
     const popover = document.createElement('div');
-    popover.className = 'tw-absolute tw-z-50 tw-bg-white tw-rounded-lg tw-shadow-xl tw-border tw-border-gray-200 tw-p-3 tw-max-w-xs tw-opacity-0 tw-transition-opacity tw-duration-200';
+    popover.className = 'absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 max-w-xs opacity-0 transition-opacity duration-200';
     popover.style.position = 'fixed';
     popover.style.left = `${rect.left + (rect.width / 2)}px`;
     popover.style.top = `${rect.top - 10}px`;
     popover.style.transform = 'translate(-50%, -100%)';
     
     const content = document.createElement('div');
-    content.className = 'tw-text-sm tw-text-gray-700';
+    content.className = 'text-sm text-gray-700';
     content.textContent = text || 'Hello';
     popover.appendChild(content);
     
@@ -50,8 +50,8 @@ export default class extends Controller {
     this.currentPopover = popover;
     
     requestAnimationFrame(() => {
-      popover.classList.remove('tw-opacity-0');
-      popover.classList.add('tw-opacity-100');
+      popover.classList.remove('opacity-0');
+      popover.classList.add('opacity-100');
     });
     
     setTimeout(() => {
@@ -64,8 +64,8 @@ export default class extends Controller {
 
   removePopover() {
     if (this.currentPopover && this.currentPopover.parentNode) {
-      this.currentPopover.classList.remove('tw-opacity-100');
-      this.currentPopover.classList.add('tw-opacity-0');
+      this.currentPopover.classList.remove('opacity-100');
+      this.currentPopover.classList.add('opacity-0');
       setTimeout(() => {
         if (this.currentPopover && this.currentPopover.parentNode) {
           this.currentPopover.parentNode.removeChild(this.currentPopover);

@@ -7,10 +7,10 @@ export default class extends Controller {
   connect() {
     const prefs = getAyahModalPrefs();
     if (prefs.transliterationPanelOpen) {
-      this.backdropTarget.classList.remove("tw-hidden");
-      this.backdropTarget.classList.add("tw-block");
-      this.panelTarget.classList.remove("tw-hidden");
-      this.panelTarget.classList.add("tw-flex");
+      this.backdropTarget.classList.remove("hidden");
+      this.backdropTarget.classList.add("block");
+      this.panelTarget.classList.remove("hidden");
+      this.panelTarget.classList.add("flex");
     }
     if (Number.isInteger(prefs.transliterationId)) {
       const current = this.currentTransliterationId();
@@ -24,19 +24,19 @@ export default class extends Controller {
   open(e) {
     e.preventDefault();
     setAyahModalPrefs({ transliterationPanelOpen: true });
-    this.backdropTarget.classList.remove("tw-hidden");
-    this.backdropTarget.classList.add("tw-block");
-    this.panelTarget.classList.remove("tw-hidden");
-    this.panelTarget.classList.add("tw-flex");
+    this.backdropTarget.classList.remove("hidden");
+    this.backdropTarget.classList.add("block");
+    this.panelTarget.classList.remove("hidden");
+    this.panelTarget.classList.add("flex");
   }
 
   close(e) {
     e.preventDefault();
     setAyahModalPrefs({ transliterationPanelOpen: false });
-    this.panelTarget.classList.add("tw-hidden");
-    this.panelTarget.classList.remove("tw-flex");
-    this.backdropTarget.classList.add("tw-hidden");
-    this.backdropTarget.classList.remove("tw-block");
+    this.panelTarget.classList.add("hidden");
+    this.panelTarget.classList.remove("flex");
+    this.backdropTarget.classList.add("hidden");
+    this.backdropTarget.classList.remove("block");
   }
 
   change() {

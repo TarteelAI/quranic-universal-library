@@ -15,9 +15,9 @@
   end
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
               data-action="click->tabs#switch"
@@ -30,7 +30,7 @@
       </button>
     </li>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-help"
               data-action="click->tabs#switch"
@@ -43,28 +43,28 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold">
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">
           <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
         </h2>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
-          <div class="tw-flex tw-items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+          <div class="flex items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
             <%= select_tag :ayah,
                            [ayah.verse_key],
                            onchange: "jumpToAyah(this.value)",
-                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           class: "px-3 py-2 border rounded bg-white shadow-sm",
                            style: 'min-width: 220px',
                            data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
           </div>
 
-          <div class="tw-flex tw-gap-2">
+          <div class="flex gap-2">
             <% if ayah.previous_ayah %>
               <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
                 ← Previous
@@ -80,10 +80,10 @@
         </div>
 
         <% if !resource.one_word? %>
-          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
-            <div class="tw-p-6">
+          <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+            <div class="p-6">
               <div class="qpc-hafs quran-text">
-                <div class="badge badge-default tw-text-left">
+                <div class="badge badge-default text-left">
                   <%= ayah.verse_key %>
                 </div>
                 <%= ayah.text_qpc_hafs %>
@@ -92,18 +92,18 @@
           </div>
         <% end %>
 
-        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
           <% if resource.one_word? %>
-            <div class="tw-flex tw-flex-wrap tw-gap-3 tw-justify-start quran-text">
+            <div class="flex flex-wrap gap-3 justify-start quran-text">
               <% transliterations.each do |wt| %>
                 <div
                   id="<%= dom_id wt %>"
-                  class="tw-bg-gray-50 tw-p-2 tw-rounded-lg tw-border tw-border-gray-200 tw-text-center tw-min-w-[5rem]">
-                  <div class="tw-text-lg tw-text-gray-800 qpc-hafs tw-mb-2 tw-p-2">
+                  class="bg-gray-50 p-2 rounded-lg border border-gray-200 text-center min-w-[5rem]">
+                  <div class="text-lg text-gray-800 qpc-hafs mb-2 p-2">
                     <%= wt.resource.text_qpc_hafs %>
                   </div>
 
-                  <div class="tw-text-sm tw-text-gray-600">
+                  <div class="text-sm text-gray-600">
                     <%= wt.text %>
                   </div>
                 </div>
@@ -111,59 +111,59 @@
             </div>
           <% else %>
             <% if transliteration&.text.present? %>
-              <div class="<%= transliteration.language_name.to_s.downcase %> tw-text-base tw-leading-relaxed tw-space-y-4">
+              <div class="<%= transliteration.language_name.to_s.downcase %> text-base leading-relaxed space-y-4">
                 <%= safe_html transliteration.text %>
               </div>
             <% else %>
-              <p class="tw-text-gray-500 tw-italic">Transliteration is not available for this ayah.</p>
+              <p class="text-gray-500 italic">Transliteration is not available for this ayah.</p>
             <% end %>
           <% end %>
         </div>
       </div>
     </div>
 
-    <div class="tab-pane tw-hidden"
+    <div class="tab-pane hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="tw-space-y-6">
-        <div class="tw-p-6 tw-bg-white tw-rounded-2xl tw-shadow-md tw-space-y-6 tw-text-gray-800">
+      <div class="space-y-6">
+        <div class="p-6 bg-white rounded-2xl shadow-md space-y-6 text-gray-800">
           <p>
             QUL has multiple transliterations of the Quran in various languages. These are available in two formats:
           </p>
 
-          <div class="tw-space-y-4">
+          <div class="space-y-4">
             <div>
-              <h3 class="tw-text-lg tw-font-semibold">JSON</h3>
-              <ul class="tw-list-disc tw-pl-6 tw-space-y-1">
-                <li>Organized by <code class="tw-bg-gray-100 tw-px-1 tw-rounded">ayah_key</code> in the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">"surah:ayah"</code> format.</li>
+              <h3 class="text-lg font-semibold">JSON</h3>
+              <ul class="list-disc pl-6 space-y-1">
+                <li>Organized by <code class="bg-gray-100 px-1 rounded">ayah_key</code> in the <code class="bg-gray-100 px-1 rounded">"surah:ayah"</code> format.</li>
                 <li>Example:</li>
               </ul>
-              <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-text-sm tw-overflow-x-auto">
+              <pre class="bg-gray-100 rounded p-4 text-sm overflow-x-auto">
 {
   "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
 }
       </pre>
-              <p class="tw-mt-2">
-                The transliteration string may include <strong>HTML tags</strong> (e.g., <code class="tw-bg-gray-100 tw-px-1 tw-rounded">&lt;u&gt;</code>, <code class="tw-bg-gray-100 tw-px-1 tw-rounded">&lt;b&gt;</code>) for styling and emphasis.
+              <p class="mt-2">
+                The transliteration string may include <strong>HTML tags</strong> (e.g., <code class="bg-gray-100 px-1 rounded">&lt;u&gt;</code>, <code class="bg-gray-100 px-1 rounded">&lt;b&gt;</code>) for styling and emphasis.
               </p>
             </div>
 
             <div>
-              <h3 class="tw-text-lg tw-font-semibold">SQLite</h3>
+              <h3 class="text-lg font-semibold">SQLite</h3>
               <p>Provides transliteration in a structured relational format with the following columns:</p>
-              <ul class="tw-list-disc tw-pl-6 tw-space-y-1">
-                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">sura</code> (integer)</li>
-                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">ayah</code> (integer)</li>
-                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">ayah_key</code> (string, e.g., <code>"1:1"</code>)</li>
-                <li><code class="tw-bg-gray-100 tw-px-1 tw-rounded">text</code> (HTML-formatted transliteration)</li>
+              <ul class="list-disc pl-6 space-y-1">
+                <li><code class="bg-gray-100 px-1 rounded">sura</code> (integer)</li>
+                <li><code class="bg-gray-100 px-1 rounded">ayah</code> (integer)</li>
+                <li><code class="bg-gray-100 px-1 rounded">ayah_key</code> (string, e.g., <code>"1:1"</code>)</li>
+                <li><code class="bg-gray-100 px-1 rounded">text</code> (HTML-formatted transliteration)</li>
               </ul>
             </div>
           </div>
 
           <div>
-            <h2 class="tw-text-xl tw-font-semibold">Notes</h2>
-            <ul class="tw-list-disc tw-pl-6 tw-space-y-1">
+            <h2 class="text-xl font-semibold">Notes</h2>
+            <ul class="list-disc pl-6 space-y-1">
               <li>Transliterations may be <strong>word-by-word</strong> or <strong>ayah-by-ayah</strong>.</li>
               <li>HTML tags in the text allow flexible rendering (e.g., vowel highlighting or emphasis).</li>
             </ul>

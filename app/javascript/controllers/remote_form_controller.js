@@ -52,7 +52,7 @@ export default class extends Controller {
       } else {
         $(form)
           .find("#form-error-wrapper div")
-          .addClass("tw-p-4 tw-mb-4 tw-bg-red-50 tw-border tw-border-red-200 tw-text-red-800 tw-rounded")
+          .addClass("p-4 mb-4 bg-red-50 border border-red-200 text-red-800 rounded")
           .removeClass("d-none");
       }
 

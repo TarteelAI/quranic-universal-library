@@ -6,9 +6,9 @@
   partial_name = "#{resource_content.one_word? ? 'word' : 'ayah'}_#{resource_type}".downcase
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
               data-action="click->tabs#switch"
@@ -21,7 +21,7 @@
       </button>
     </li>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-help"
               data-action="click->tabs#switch"
@@ -34,28 +34,28 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold">
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">
           <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
         </h2>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
-          <div class="tw-flex tw-items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+          <div class="flex items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
             <%= select_tag :ayah,
                            [],
                            onchange: "jumpToAyah(this.value)",
-                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           class: "px-3 py-2 border rounded bg-white shadow-sm",
                            style: 'min-width: 220px',
                            data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
           </div>
 
-          <div class="tw-flex tw-gap-2">
+          <div class="flex gap-2">
             <% if ayah.previous_ayah %>
               <%= link_to detail_resources_path('morphology', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
                 ← Previous
@@ -70,17 +70,17 @@
           </div>
         </div>
 
-        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
          <%= render "resources/previews/morphology/#{partial_name}_preview", resource: resource_content, ayah: ayah %>
         </div>
       </div>
     </div>
 
-    <div class="tab-pane tw-hidden"
+    <div class="tab-pane hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="tw-space-y-6">
+      <div class="space-y-6">
         <%= render "resources/previews/morphology/#{partial_name}_help" %>
       </div>
     </div>

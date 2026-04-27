@@ -3,24 +3,24 @@
 </div>
 
 <div id="body">
-  <div class="tw-p-6">
+  <div class="p-6">
     <ol class="list-group list-group-numbered">
       <% if @issues.size.zero? %>
-        <li class="list-group-item tw-flex">
-          <div class="tw-flex tw-items-start tw-w-full">
-            <div class="tw-ml-2 mr-auto">
+        <li class="list-group-item flex">
+          <div class="flex items-start w-full">
+            <div class="ml-2 mr-auto">
               We're good alhumudAllah, no issue found.
             </div>
           </div>
         </li>
       <% else %>
         <% @issues.each do |issue| %>
-          <li class="list-group-item tw-flex tw-mb-2 tw-py-2 tw-border-b tw-border-gray-300">
-            <div class="tw-flex tw-justify-between tw-items-start tw-w-full">
+          <li class="list-group-item flex mb-2 py-2 border-b border-gray-300">
+            <div class="flex justify-between items-start w-full">
               <div style="width: 20px; height: 20px" class="<%= issue[:severity] %>">
               </div>
 
-              <div class="tw-ml-2 mr-auto">
+              <div class="ml-2 mr-auto">
                 <%= issue[:text] %>
               </div>
 

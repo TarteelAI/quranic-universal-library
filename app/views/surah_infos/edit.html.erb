@@ -11,21 +11,21 @@
 
 <%= render 'shared/access_message' %>
 
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
     <%= form_with model: resource, url: surah_info_path(resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
-      <div class="tw-mb-4 tw-mb-3">
+      <div class="mb-4 mb-3">
         <%= form.label :short_text, class: 'form-label h2' %>
-        <%= form.text_area :short_text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', row: 2 %>
+        <%= form.text_area :short_text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', row: 2 %>
       </div>
 
-      <div class="tw-mb-4">
+      <div class="mb-4">
         <%= form.label :text, 'Surah Info text', class: 'form-label h2' %>
-        <%= form.text_area :text, class: 'tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
+        <%= form.text_area :text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
       </div>
 
-      <div class="tw-mb-4 tw-flex tw-justify-end tw-mt-3 tw-gap-3">
-        <%= link_to 'Cancel', surah_info_path(resource.id), class: 'tw-px-4 tw-py-2 tw-text-sm tw-font-medium tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors' %>
+      <div class="mb-4 flex justify-end mt-3 gap-3">
+        <%= link_to 'Cancel', surah_info_path(resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>
         <%= form.submit "Save Surah Info", class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>

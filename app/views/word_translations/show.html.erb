@@ -25,9 +25,9 @@
            breadcrumb_parents: [{ label: 'Filter', path: word_translations_path(language: params[:language]) }]
 %>
 
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
-  <div class="page-section tw-mb-4">
-    <div class="tw-bg-blue-100 tw-border tw-border-blue-400 tw-text-blue-700 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section mb-4">
+    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4" role="alert">
       <div>
         <b>Text Uthmani:</b>
         <div class="qpc-hafs"> <%= @verse.text_qpc_hafs %></div>
@@ -44,14 +44,14 @@
       <% end %>
     </div>
 
-    <div class="tw-text-xl tw-mb-4">
+    <div class="text-xl mb-4">
       <%
         progress = @verse.word_translation_progress(@language.id)
       %>
 
       Translation progress
-      <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6 tw-mt-2">
-        <div class="tw-bg-green-500 tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">
+      <div class="w-full bg-gray-200 rounded-full h-6 mt-2">
+        <div class="bg-green-500 h-6 rounded-full text-white text-xs flex items-center justify-center transition-all duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">
           <%= progress %>%
         </div>
       </div>

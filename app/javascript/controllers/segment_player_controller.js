@@ -67,11 +67,11 @@ export default class extends Controller {
 
   createLoadingIndicator() {
     const indicator = document.createElement('div');
-    indicator.className = 'tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-bg-white/80 tw-z-10 tw-hidden';
+    indicator.className = 'absolute inset-0 flex items-center justify-center bg-white/80 z-10 hidden';
     indicator.innerHTML = `
       <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24">
-        <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     `;
     this.element.appendChild(indicator);
@@ -80,12 +80,12 @@ export default class extends Controller {
 
   showLoading() {
     this.loading = true;
-    this.loadingIndicator.classList.remove('tw-hidden');
+    this.loadingIndicator.classList.remove('hidden');
   }
 
   hideLoading() {
     this.loading = false;
-    this.loadingIndicator.classList.add('tw-hidden');
+    this.loadingIndicator.classList.add('hidden');
   }
 
   bindEvents() {
@@ -244,14 +244,14 @@ export default class extends Controller {
   updateHighlighting(time) {
     const segment = this.findSegmentAtTime(time);
     if (!segment) {
-      this.highlightBg.classList.add("tw-hidden");
+      this.highlightBg.classList.add("hidden");
       return;
     }
 
     const location = `${this.currentVerseKey}:${segment[0]}`;
     const word = this.ayahContainer.querySelector(`[data-location="${location}"]`);
     if (!word) {
-      this.highlightBg.classList.add("tw-hidden");
+      this.highlightBg.classList.add("hidden");
       return;
     }
 
@@ -261,7 +261,7 @@ export default class extends Controller {
     const top = wordRect.top - containerRect.top + this.ayahContainer.scrollTop;
     const left = wordRect.left - containerRect.left + this.ayahContainer.scrollLeft;
 
-    this.highlightBg.classList.remove("tw-hidden");
+    this.highlightBg.classList.remove("hidden");
     this.highlightBg.style.top = `${top}px`;
     this.highlightBg.style.left = `${left}px`;
     this.highlightBg.style.width = `${wordRect.width}px`;
@@ -315,10 +315,10 @@ export default class extends Controller {
       const div = document.createElement("span");
       div.textContent = word.text;
       div.dataset.location = word.location;
-      div.className = "tw-relative tw-z-10 tw-rounded-md tw-px-1";
+      div.className = "relative z-10 rounded-md px-1";
       container.appendChild(div);
     });
-    this.highlightBg.classList.add("tw-hidden");
+    this.highlightBg.classList.add("hidden");
     this.currentVerseKeyLabel.textContent = verseKey;
   }
 
@@ -341,17 +341,17 @@ export default class extends Controller {
     const nextVerseNumber = verseId + 1;
 
     if (prevVerseNumber >= 1) {
-      this.prevAyahButton.classList.remove("tw-hidden");
+      this.prevAyahButton.classList.remove("hidden");
       this.prevAyahButton.href = this.buildVerseUrl(prevVerseNumber);
     } else {
-      this.prevAyahButton.classList.add("tw-hidden");
+      this.prevAyahButton.classList.add("hidden");
     }
 
     if (nextVerseNumber <= 6236) {
-      this.nextAyahButton.classList.remove("tw-hidden");
+      this.nextAyahButton.classList.remove("hidden");
       this.nextAyahButton.href = this.buildVerseUrl(nextVerseNumber);
     } else {
-      this.nextAyahButton.classList.add("tw-hidden");
+      this.nextAyahButton.classList.add("hidden");
     }
 
     await this.loadVerses(verseKey)
@@ -428,10 +428,10 @@ export default class extends Controller {
   toggleLoop() {
     this.loopEnabled = !this.loopEnabled;
     this.loopButton.setAttribute('aria-pressed', this.loopEnabled.toString());
-    this.loopButton.classList.toggle('tw-bg-primary-100', this.loopEnabled);
-    this.loopButton.classList.toggle('tw-text-primary-700', this.loopEnabled);
-    this.loopButton.classList.toggle('tw-bg-slate-100', !this.loopEnabled);
-    this.loopButton.classList.toggle('tw-text-slate-500', !this.loopEnabled);
+    this.loopButton.classList.toggle('bg-primary-100', this.loopEnabled);
+    this.loopButton.classList.toggle('text-primary-700', this.loopEnabled);
+    this.loopButton.classList.toggle('bg-slate-100', !this.loopEnabled);
+    this.loopButton.classList.toggle('text-slate-500', !this.loopEnabled);
   }
 
   shouldRestartLoop(timeMs) {

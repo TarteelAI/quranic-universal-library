@@ -11,35 +11,35 @@
                       .order('count DESC')
 %>
 
-<div id="title" class="tw-hidden">
+<div id="title" class="hidden">
   Stem <%= stem.text_madani %> detail
 </div>
 
 <div id="body">
-  <div class="tw-p-6 tw-docs">
+  <div class="p-6 qul-docs">
     <p class="prose max-w-none">
-      Stem <span class="tw-font-bold"><%= stem.text_madani %></span> has
-      <span class="tw-font-semibold"><%= stem.uniq_words_count %></span> unique word forms and appears
-      <span class="tw-font-semibold"><%= stem.words_count %></span> times in the Quran.
+      Stem <span class="font-bold"><%= stem.text_madani %></span> has
+      <span class="font-semibold"><%= stem.uniq_words_count %></span> unique word forms and appears
+      <span class="font-semibold"><%= stem.words_count %></span> times in the Quran.
     </p>
 
-    <div class="tw-overflow-x-auto tw-max-h-[500px] tw-border tw-rounded-lg tw-shadow-sm">
-      <table class="tw-min-w-full tw-table-auto tw-text-sm tw-text-left tw-border-collapse">
-        <thead class="tw-bg-gray-100 tw-sticky tw-top-0 tw-z-10">
+    <div class="overflow-x-auto max-h-[500px] border rounded-lg shadow-sm">
+      <table class="min-w-full table-auto text-sm text-left border-collapse">
+        <thead class="bg-gray-100 sticky top-0 z-10">
         <tr>
-          <th class="tw-px-4 tw-py-2 tw-border-b">Word</th>
-          <th class="tw-px-4 tw-py-2 tw-border-b">Translation</th>
-          <th class="tw-px-4 tw-py-2 tw-border-b">Occurrences</th>
+          <th class="px-4 py-2 border-b">Word</th>
+          <th class="px-4 py-2 border-b">Translation</th>
+          <th class="px-4 py-2 border-b">Occurrences</th>
         </tr>
         </thead>
         <tbody>
         <% grouped_words.each do |word| %>
-          <tr class="tw-hover:bg-gray-50">
-            <td class="tw-px-4 tw-py-2 tw-border-b tw-whitespace-nowrap qpc-hafs quran-text tw-leading-normal">
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-2 border-b whitespace-nowrap qpc-hafs quran-text leading-normal">
               <%= word.text_qpc_hafs %>
             </td>
-            <td class="tw-px-4 tw-py-2 tw-border-b"><%= word.translations.uniq.join(', ') %></td>
-            <td class="tw-px-4 tw-py-2 tw-border-b"><%= word.count %></td>
+            <td class="px-4 py-2 border-b"><%= word.translations.uniq.join(', ') %></td>
+            <td class="px-4 py-2 border-b"><%= word.count %></td>
           </tr>
         <% end %>
         </tbody>

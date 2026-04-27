@@ -4,9 +4,9 @@
   theme = AyahTheme.for_verse(ayah)
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
               data-action="click->tabs#switch"
@@ -19,7 +19,7 @@
       </button>
     </li>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-help"
               data-action="click->tabs#switch"
@@ -32,28 +32,28 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold">
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">
           <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
         </h2>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
-          <div class="tw-flex tw-items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'tw-me-2 tw-font-medium' %>
+        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+          <div class="flex items-center">
+            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
             <%= select_tag :ayah,
                            [],
                            onchange: "jumpToAyah(this.value)",
-                           class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                           class: "px-3 py-2 border rounded bg-white shadow-sm",
                            style: 'min-width: 220px',
                            data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
           </div>
 
-          <div class="tw-flex tw-gap-2">
+          <div class="flex gap-2">
             <% if ayah.previous_ayah %>
               <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
                 ← Previous
@@ -71,8 +71,8 @@
         <% if theme %>
           <% verses = theme.ayahs %>
 
-          <div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-2">
-            <div class="tw-p-6">
+          <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+            <div class="p-6">
               <div class="qpc-hafs quran-text">
                 <% verses.each do |verse| %>
                   <%= verse.text_qpc_hafs %>
@@ -82,13 +82,13 @@
           </div>
         <% end %>
 
-        <div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
+        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
           <% if theme %>
             <% verses = theme.ayahs %>
 
             <% if verses.size > 1 %>
-              <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded tw-mb-4" role="alert">
-                <p class="tw-leading-normal">
+              <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded mb-4" role="alert">
+                <p class="leading-normal">
                   This theme is for group of <%= verses.size %> ayahs from <%= verses.first.verse_key %> to <%= verses.last.verse_key %>.
                 </p>
               </div>
@@ -98,44 +98,44 @@
               <%= safe_html theme.theme %>
             </div>
 
-            <div class="tw-flex tw-gap-2 tw-mt-4">
+            <div class="flex gap-2 mt-4">
               <% theme.keywords.each do |keyword| %>
-                <span class="tw-bg-blue-100 tw-text-blue-600 tw-font-medium tw-px-4 tw-py-1 tw-rounded-full">
+                <span class="bg-blue-100 text-blue-600 font-medium px-4 py-1 rounded-full">
                   <%= keyword %>
                 </span>
               <% end %>
             </div>
           <% else %>
-            <p class="tw-text-gray-500 tw-italic">Tafisr is not available for this ayah.</p>
+            <p class="text-gray-500 italic">Tafisr is not available for this ayah.</p>
           <% end %>
         </div>
       </div>
     </div>
 
-    <div class="tab-pane tw-hidden"
+    <div class="tab-pane hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-        <div class="tw-space-y-6 tw-text-gray-800 tw-text-base tw-leading-relaxed">
-          <h2 class="tw-text-2xl tw-font-bold tw-text-gray-900">Ayah themes</h2>
+        <div class="space-y-6 text-gray-800 text-base leading-relaxed">
+          <h2 class="text-2xl font-bold text-gray-900">Ayah themes</h2>
 
           <p>
             The Ayah Theme resource in QUL provides a concise thematic summary for a verse or group of verses in the Qur’an.
             It helps readers quickly grasp the central message or topic covered in a passage.
           </p>
 
-          <div class="tw-bg-gray-50 tw-border-l-4 tw-border-gray-300 tw-p-4">
-            <p class="tw-font-semibold tw-mb-2">Example:</p>
+          <div class="bg-gray-50 border-l-4 border-gray-300 p-4">
+            <p class="font-semibold mb-2">Example:</p>
             <h3>For Surah 1:1 to 1:7, the theme is:</h3>
-            <p class="tw-mb-2">Supplication to Allah for guidance taught by Allah Himself</p>
+            <p class="mb-2">Supplication to Allah for guidance taught by Allah Himself</p>
           </div>
 
 
-          <h3 class="tw-text-xl tw-font-semibold">
+          <h3 class="text-xl font-semibold">
             QUL export ayah themes data as a Sqlite database with following columns
           </h3>
 
-          <ul class="tw-list-disc tw-pl-6 tw-space-y-2">
+          <ul class="list-disc pl-6 space-y-2">
             <li><code>theme</code>: A short description summarizing the main idea or subject of the ayah group.</li>
             <li><code>surah_number</code>: The surah number to which the ayahs belong.
             </li>

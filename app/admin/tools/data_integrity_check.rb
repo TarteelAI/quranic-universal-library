@@ -29,11 +29,11 @@ ActiveAdmin.register_page 'Data Integrity Check' do
     end
 
     panel title do
-      div description.to_s.html_safe, class: 'tw-py-2'
-      div data[:error], class: 'tw-p-4 tw-mb-4 tw-bg-blue-50 tw-border tw-border-blue-200 tw-text-blue-800 tw-rounded' if data.is_a?(Hash) && data[:error].present?
+      div description.to_s.html_safe, class: 'py-2'
+      div data[:error], class: 'p-4 mb-4 bg-blue-50 border border-blue-200 text-blue-800 rounded' if data.is_a?(Hash) && data[:error].present?
 
       if instructions.present?
-        div "<strong>Usage</strong> <div>#{instructions.join('<br>')}</div>".html_safe, class: 'tw-p-4 tw-mb-4 tw-bg-gray-800 tw-border tw-border-gray-700 tw-text-gray-100 tw-rounded'
+        div "<strong>Usage</strong> <div>#{instructions.join('<br>')}</div>".html_safe, class: 'p-4 mb-4 bg-gray-800 border border-gray-700 text-gray-100 rounded'
       end
 
       if check

@@ -43,9 +43,9 @@
 
 <link rel="preload" href="<%= font_url %>" as="fetch" crossorigin="anonymous">
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="font-docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="font-docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
               data-action="click->tabs#switch"
@@ -59,7 +59,7 @@
     </li>
 
     <% if ligatures.present? %>
-      <li class="tw-m-0 tw-flex-none" role="presentation">
+      <li class="m-0 flex-none" role="presentation">
         <button class="btn-tab"
                 id="tab-ligatures"
                 data-action="click->tabs#switch"
@@ -72,7 +72,7 @@
       </li>
     <% end %>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-glyphs"
               data-action="click->tabs#switch"
@@ -85,7 +85,7 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-p-2 tw-mt-3" id="font-docs-tab-content"
+  <div class="tab-content p-2 mt-3" id="font-docs-tab-content"
        data-controller="font-preview"
        data-font-preview-font-url-value="<%= font_url %>"
        data-font-preview-font-format-value="<%= font_format %>"
@@ -96,15 +96,15 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
 
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold">How to Use This Font</h2>
-        <div class="tw-bg-yellow-100 tw-border tw-border-yellow-300 tw-text-yellow-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">How to Use This Font</h2>
+        <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded" role="alert">
           ⚠️ <strong>This documentation covers usage on web platforms only.</strong><br>
           For environments like React Native, Android, or iOS, you'll need to handle font integration using
           platform-specific methods.
         </div>
 
-        <p class="tw-text-base tw-text-gray-800">
+        <p class="text-base text-gray-800">
           You can use this font in your application by downloading the font file—available in multiple formats such as
           <strong>TTF</strong>, <strong>WOFF</strong>, and <strong>WOFF2</strong>. You may choose the format that best
           fits your platform or include multiple formats for broader compatibility.
@@ -112,7 +112,7 @@
           Some fonts—such as those used for Surah names or Juz titles—depend on special characters or ligatures to
           render correctly. Ligature files for these fonts are available on this page.
           Standard Quran fonts require a separate <strong>Quran script</strong>, which you can download from the
-          <a href="https://qul.tarteel.ai/resources/quran-script" class="tw-underline tw-text-blue-600 hover:tw-text-blue-800">
+          <a href="https://qul.tarteel.ai/resources/quran-script" class="underline text-blue-600 hover:text-blue-800">
             Quran Scripts
           </a> page.
 
@@ -121,15 +121,15 @@
           elements.
         </p>
 
-        <h3 class="text-lg font-medium tw-mb-2">Steps to Integrate</h3>
-        <ol class="tw-list-decimal tw-list-inside tw-space-y-2">
+        <h3 class="text-lg font-medium mb-2">Steps to Integrate</h3>
+        <ol class="list-decimal list-inside space-y-2">
           <li>
             <strong>Download the font and scripts/ligatures</strong>
           </li>
 
           <li>
             <strong>Define a <code>@font-face</code> Rule in Your CSS</strong>
-            <pre class="tw-bg-gray-100 tw-rounded tw-p-4 tw-overflow-auto tw-text-sm"><code>
+            <pre class="bg-gray-100 rounded p-4 overflow-auto text-sm"><code>
               @font-face {
   font-family: '<%= font_face %>';
   src: url('<%= font_url %>') format('<%= font_format == 'woff2' ? 'woff2' : font_format == 'woff' ? 'woff' : font_format == 'otf' ? 'opentype' : 'truetype' %>');
@@ -140,11 +140,11 @@
 
           <li>
             <strong>Use the <code>@font-face</code> in your html</strong>
-            <p class="tw-mb-2">You can use the font by:</p>
-            <ul class="list-disc list-inside tw-mb-4">
+            <p class="mb-2">You can use the font by:</p>
+            <ul class="list-disc list-inside mb-4">
               <li>Applying it directly via <code>style</code> or CSS:</li>
             </ul>
-            <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4">
+            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4">
 <code><code>
   &lt;div style="font-family: '<%= font_face %>';"&gt;
   <%= sample_text %>
@@ -152,41 +152,41 @@
 </code></code>
 </pre>
 
-            <ul class="list-disc list-inside tw-mb-4">
+            <ul class="list-disc list-inside mb-4">
               <li>Or using a CSS class:</li>
             </ul>
-            <pre class="bg-gray-100 tw-p-4 tw-rounded text-sm overflow-auto tw-mb-4"><code>.my-text {
+            <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto mb-4"><code>.my-text {
   font-family: <%= font_face %>;
 }
 &lt;p class="my-text"&gt;<%= sample_text %>&lt;/p&gt;</code>
 </pre>
           </li>
         </ol>
-        <h2 class="tw-text-xl tw-font-semibold">Live Preview of this font</h2>
-        <textarea id="sample-text-input" class="tw-w-full tw-p-2 tw-border tw-rounded-lg tw-focus:outline-none tw-focus:ring" placeholder="Type here..." data-font-preview-target="sampleTextInput">
+        <h2 class="text-xl font-semibold">Live Preview of this font</h2>
+        <textarea id="sample-text-input" class="w-full p-2 border rounded-lg focus:outline-none focus:ring" placeholder="Type here..." data-font-preview-target="sampleTextInput">
           <%= params[:text].presence || sample_text %>
         </textarea>
-        <div class="tw-text-gray-400 tw-text-sm !tw-mt-0">
+        <div class="text-gray-400 text-sm !mt-0">
           Type your text to see a live preview rendered using this font
         </div>
 
-        <div class="tw-flex tw-items-center tw-space-x-2">
-          <label for="font-size-slider" class="tw-text-lg">Adjust the font size:</label>
+        <div class="flex items-center space-x-2">
+          <label for="font-size-slider" class="text-lg">Adjust the font size:</label>
           <input
             id="font-size-slider"
             type="range"
             min="10"
             max="150"
             value="24"
-            class="tw-w-1/2 tw-h-2 tw-bg-gray-200 tw-rounded-lg tw-shadow-sm tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-blue-400"
+            class="w-1/2 h-2 bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             data-font-preview-target="fontSizeSlider"
             />
-          <span id="font-size-value" class="tw-text-lg" data-font-preview-target="fontSizeValue">24px</span>
+          <span id="font-size-value" class="text-lg" data-font-preview-target="fontSizeValue">24px</span>
         </div>
 
         <div
           id="sample-text"
-          class="tw-p-4 tw-rounded tw-bg-white tw-shadow tw-text-2xl tw-border tw-overflow-hidden tw-w-full"
+          class="p-4 rounded bg-white shadow text-2xl border overflow-hidden w-full"
           style="line-height: 1.5;"
           data-font-preview-target="sampleText"
         >
@@ -196,7 +196,7 @@
     </div>
 
     <% if ligatures.present? %>
-      <div class="tab-pane fade tw-hidden"
+      <div class="tab-pane fade hidden"
            id="tab-ligatures-pane"
            role="tabpanel"
            aria-labelledby="tab-ligatures" tabindex="0">
@@ -204,8 +204,8 @@
           <div class="page-section">
             <h2>Ligatures</h2>
             <div class="tools-table-overflow">
-              <table class="tw-w-full hover:tw-bg-gray-50">
-                <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b tw-border-gray-300">
+              <table class="w-full hover:bg-gray-50">
+                <thead class="sticky top-0 z-10 bg-white border-b border-gray-300">
                 <tr>
                   <th>
                     #
@@ -238,7 +238,7 @@
       </div>
     <% end %>
 
-    <div class="tab-pane fade tw-hidden"
+    <div class="tab-pane fade hidden"
          id="tab-glyphs-pane"
          role="tabpanel"
          aria-labelledby="tab-glyphs" tabindex="0">
@@ -247,13 +247,13 @@
           type="text"
           id="glyph-search"
           placeholder="Search glyphs by Unicode (e.g., 0627 for Alif)..."
-          class="tw-w-full tw-p-2 tw-mb-4 tw-border tw-border-gray-300 tw-rounded-lg"
+          class="w-full p-2 mb-4 border border-gray-300 rounded-lg"
           data-font-preview-target="glyphSearch"
           />
         <div id="glyphs"
-             class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 md:tw-grid-cols-6 lg:tw-grid-cols-8 tw-gap-4"
+             class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4"
              data-font-preview-target="glyphsContainer"
-             data-font-preview-grid-classes="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 md:tw-grid-cols-6 lg:tw-grid-cols-8 tw-gap-4">
+             data-font-preview-grid-classes="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
         </div>
       </div>
     </div>

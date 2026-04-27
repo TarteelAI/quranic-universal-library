@@ -22,7 +22,7 @@ ActiveAdmin.register Draft::Translation do
 
   action_item :previous_page, only: :show do
     if item = resource.previous_ayah_translation
-      link_to("Previous(#{item.verse.verse_key})", "/cms/draft_translations/#{item.id}", class: 'btn btn-info') if item
+      link_to("Previous(#{item.verse.verse_key})", "/cms/draft_translations/#{item.id}") if item
     end
   end
 
@@ -34,7 +34,7 @@ ActiveAdmin.register Draft::Translation do
 
   action_item :next_page, only: :show do
     if item = resource.next_ayah_translation
-      link_to "Next(#{item.verse.verse_key})", "/cms/draft_translations/#{item.id}", class: 'btn btn-info'
+      link_to "Next(#{item.verse.verse_key})", "/cms/draft_translations/#{item.id}"
     end
   end
 
@@ -209,19 +209,19 @@ ActiveAdmin.register Draft::Translation do
           end
 
           div class: 'tw-flex tw-my-2 tw-justify-between tw-gap-2 tw-flex-wrap' do
-            span(link_to 'Filter', "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info')
+            span(link_to 'Filter', "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info btn-sm')
 
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
             if can?(:manage, :draft_content) || current_user.super_admin?
-              span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'btn btn-success', data: { confirm: 'Are you sure to re-sync this translation from QuranEnc?' })
-              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-danger', data: { confirm: 'Are you sure to import this translation?' })
+              span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'btn btn-success btn-sm', data: { confirm: 'Are you sure to re-sync this translation from QuranEnc?' })
+              span(link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: 'put', class: 'btn btn-danger btn-sm', data: { confirm: 'Are you sure to import this translation?' })
 
               if issue_count.positive?
-                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-warning')
+                span(link_to "Issues #{issue_count}", "/cms/admin_todos?q%5Bresource_content_id_eq%5D=#{resource_content.id}&order=id_desc", class: 'btn btn-warning btn-sm')
               end
 
-              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-danger', data: { confirm: 'Are you sure to remove draft translations?' })
+              span(link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: 'put', class: 'btn btn-danger btn-sm', data: { confirm: 'Are you sure to remove draft translations?' })
             end
           end
         end

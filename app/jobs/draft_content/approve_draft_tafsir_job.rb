@@ -18,8 +18,12 @@ module DraftContent
         tafsir.save(validate: false)
 
         imported_ids << tafsir.id
-        imported_ayahs[draft.verse_key] = true
-        draft.ayah_group_list.each { |key| imported_ayahs[key] = true }
+        imported_ayahs[verse.verse_key] = true
+
+        tafsir.reload.ayah_group_list.each do |key|
+          imported_ayahs[key] = true
+        end
+
         draft.update_column(:imported, true)
       end
 
@@ -88,7 +92,8 @@ module DraftContent
         group_verses_count: Verse.where(id: draft.start_verse_id..draft.end_verse_id).count,
         group_tafsir_id: draft.group_tafsir_id,
         start_verse_id: draft.start_verse_id,
-        end_verse_id: draft.end_verse_id
+        end_verse_id: draft.end_verse_id,
+        archived: false
       )
     end
 

@@ -454,7 +454,7 @@ ActiveAdmin.register ResourceContent do
           link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
         end
       elsif resource.tafsir?
-        link_to 'Tafsir', "cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.transliteration?
         link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.root_detail?

@@ -454,32 +454,32 @@ ActiveAdmin.register ResourceContent do
           link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
         end
       elsif resource.tafsir?
-        link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Tafsir', "cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.transliteration?
-        link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.root_detail?
-        link_to 'Root details', "/cms/root_details?q%5Bresource_content_id_eq%5D=#{resource.id}"
+        link_to 'Root details', "/cms/root_details?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.chapter_info?
-        link_to 'Chapter info', "/cms/chapter_infos?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Chapter info', "/cms/chapter_infos?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.tokens?
-        link_to 'Quran Text', "/cms/tokens?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Quran Text', "/cms/tokens?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.video?
-        link_to 'Media content', "/cms/media_contents?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Media content', "/cms/media_contents?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.foot_note?
-        link_to 'Footnotes', "/cms/foot_notes?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'Footnotes', "/cms/foot_notes?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.topic?
-        link_to 'Topics', "/cms/topics"
+        link_to 'Topics', "/cms/topics?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.recitation?
         if resource.chapter?
           link_to 'Surah recitations',
-                  "/cms/audio_chapter_audio_files?q%5Bresource_content_id_eq=#{resource.id}"
+                  "/cms/audio_chapter_audio_files?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
         else
-          link_to 'Ayah recitations', "/cms/recitations?q%5Bresource_content_id_eq=#{resource.id}"
+          link_to 'Ayah recitations', "/cms/recitations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
         end
       elsif resource.mushaf_layout?
         link_to 'Mushaf pages', "/cms/mushaf_pages?q%5Bmushaf_id_eq%5D=#{resource.get_mushaf_id}"
       elsif resource.uloom_content?
-        link_to 'UloomContents', "/cms/uloom_contents?q%5Bresource_content_id_eq=#{resource.id}"
+        link_to 'UloomContents', "/cms/uloom_contents?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       end
     end
   end

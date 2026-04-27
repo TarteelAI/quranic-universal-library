@@ -342,17 +342,25 @@ class DownloadableResource < ApplicationRecord
     downloads = UserDownload
                   .where(downloadable_file_id: downloadable_files.pluck(:id))
                   .includes(:user)
+    change_log = update_email_change_log
 
     notified = {}
     downloads.each do |user_download|
       next if notified[user_download.user_id]
       notified[user_download.user_id] = true
 
-      DownloadableResourceMailer.new_update(self, user_download.user).deliver_later
+      DownloadableResourceMailer.new_update(self, user_download.user, change_log).deliver_later
     end
   end
 
   def restrict_download?
     !! meta_value('copyright')
+  end
+
+  def update_email_change_log
+    return if resource_content.blank?
+
+    since = [Time.current.beginning_of_day, 6.hours.ago].min
+    resource_content.change_logs.published.where(created_at: since..).first
   end
 end

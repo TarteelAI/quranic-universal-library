@@ -4,11 +4,26 @@
 
 <p>
   We hope you are doing well. We wanted to inform you that the <strong><%= @resource.name %></strong> you downloaded from QUL(Quranic
-  Universal Library) has been updated with the latest content and improvements.
+  Universal Library) has a new update.
 </p>
 
 <p>
   To ensure you have the most up-to-date version, please visit the link below to download the updated resource:
+</p>
+
+<% if @change_log.present? %>
+  <div style="margin: 24px 0; padding: 18px; border: 1px dotted #2563eb; background-color: #eff6ff; border-radius: 8px;">
+    <h3 style="margin-top: 0; margin-bottom: 12px; color: #1e3a8a;">What's new</h3>
+    <strong><%= @change_log.title %></strong>
+    <p style="margin-bottom: 12px;"><%= @change_log.excerpt %></p>
+    <p style="margin-bottom: 0;">
+      <%= link_to 'View full change log', change_log_url(@change_log), style: 'color: #2563eb; font-weight: 600;' %>
+    </p>
+  </div>
+<% end %>
+
+<p>
+  Please use the link below to download the latest version:
 </p>
 <p>
   <%= link_to 'Download the Updated Resource', detail_resources_url(@resource.resource_type, @resource.id), class: 'cta-button' %>

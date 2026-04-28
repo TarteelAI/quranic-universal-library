@@ -110,6 +110,10 @@
     @apply bg-blue-400 hover:bg-blue-500 text-white;
   }
 
+  .btn-warning {
+    @apply tw-bg-yellow-400 hover:tw-bg-yellow-500 tw-text-white;
+  }
+
   .btn-secondary {
     @apply bg-gray-200 hover:bg-gray-300 text-gray-800;
   }

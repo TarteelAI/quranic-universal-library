@@ -107,8 +107,11 @@
               </h2>
             </div>
 
-            <div class="space-y-4">
-              <%= render partial: 'change_logs/item', collection: resource_content.change_logs, as: :change_log %>
+<div class="space-y-4">
+  <%= render partial: 'change_logs/item',
+      collection: resource_content.change_logs,
+      as: :change_log,
+      locals: { show_resource_link: false } %>
             </div>
           </section>
         <% end %>

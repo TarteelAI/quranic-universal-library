@@ -1,13 +1,23 @@
+<% show_resource_link = true if local_assigns[:show_resource_link].nil? %>
+
 <article class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
   <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
     <div class="space-y-2">
-      <h2 class="text-2xl font-semibold text-gray-900"><%= change_log.title %></h2>
+      <h2 class="text-2xl font-semibold text-gray-900">
+        <%= change_log.title %>
+      </h2>
+
       <div class="flex flex-wrap gap-3 text-sm text-gray-500">
         <span><%= change_log.created_at.strftime('%B %d, %Y at %I:%M %P %Z') %></span>
-        <span class="badge badge-info"><%= change_log_resource_type(change_log) %></span>
+
+        <span class="badge badge-info">
+          <%= change_log_resource_type(change_log) %>
+        </span>
 
         <% if change_log_resource_path(change_log).present? %>
-          <%= link_to change_log.resource_content.name, change_log_resource_path(change_log), class: 'text-blue-600 hover:text-blue-800 underline' %>
+          <%= link_to change_log.resource_content.name,
+              change_log_resource_path(change_log),
+              class: 'text-blue-600 hover:text-blue-800 underline' %>
         <% else %>
           <span><%= change_log.resource_content.name %></span>
         <% end %>
@@ -22,6 +32,17 @@
   <div class="trix-content text-gray-700">
     <%= change_log.excerpt %>
   </div>
+
+  <% if show_resource_link && change_log_resource_path(change_log).present? %>
+    <div class="tw-text-sm tw-text-gray-600">
+      Resource:
+      <%= link_to change_log.resource_content.name, change_log_resource_path(change_log), class: 'tw-text-blue-600 hover:tw-text-blue-800 tw-underline tw-font-medium' %>
+    </div>
+  <% elsif show_resource_link %>
+    <div class="tw-text-sm tw-text-gray-600">
+      Resource: <%= change_log.resource_content.name %>
+    </div>
+  <% end %>
 
   <div>
     <%= link_to 'View full change log', change_log_path(change_log), class: 'text-blue-600 hover:text-blue-800 underline font-medium' %>

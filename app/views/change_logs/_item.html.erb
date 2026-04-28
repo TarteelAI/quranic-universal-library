@@ -34,12 +34,12 @@
   </div>
 
   <% if show_resource_link && change_log_resource_path(change_log).present? %>
-    <div class="tw-text-sm tw-text-gray-600">
+    <div class="text-sm text-gray-600">
       Resource:
-      <%= link_to change_log.resource_content.name, change_log_resource_path(change_log), class: 'tw-text-blue-600 hover:tw-text-blue-800 tw-underline tw-font-medium' %>
+      <%= link_to change_log.resource_content.name, change_log_resource_path(change_log), class: 'text-blue-600 hover:text-blue-800 underline font-medium' %>
     </div>
   <% elsif show_resource_link %>
-    <div class="tw-text-sm tw-text-gray-600">
+    <div class="text-sm text-gray-600">
       Resource: <%= change_log.resource_content.name %>
     </div>
   <% end %>

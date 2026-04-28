@@ -55,7 +55,7 @@ export default class AjaxModalController extends Controller {
           const modalBody = document.getElementById('modal-body');
           if (modalBody) {
             modalBody.innerHTML = `
-              <div class='tw-text-center tw-p-5'> 
+              <div class='text-center p-5'> 
                 <h2>${err.responseText || 'Unauthorized'}</h2>
                 <p><a href="/users/sign_in?user_return_to=${location.pathname}" class="btn btn-primary">Login</a></p>
               </div>`;
@@ -63,7 +63,7 @@ export default class AjaxModalController extends Controller {
         }
       })
     } else {
-      this.setContent(target.data("title"), `<div class="tw-p-4">${target.data("content")}</div>`)
+      this.setContent(target.data("title"), `<div class="p-4">${target.data("content")}</div>`)
     }
   }
 
@@ -98,45 +98,45 @@ export default class AjaxModalController extends Controller {
     if (existingModal) existingModal.remove();
     if (existingBackdrop) existingBackdrop.remove();
 
-    let sizeClasses = 'tw-max-w-md';
+    let sizeClasses = 'max-w-md';
     if (classes) {
       if (classes.includes('modal-lg')) {
-        sizeClasses = 'tw-max-w-3xl';
+        sizeClasses = 'max-w-3xl';
       } else if (classes.includes('modal-xl')) {
-        sizeClasses = 'tw-max-w-6xl';
+        sizeClasses = 'max-w-6xl';
       } else if (classes.includes('modal-sm')) {
-        sizeClasses = 'tw-max-w-sm';
+        sizeClasses = 'max-w-sm';
       }
     }
 
     const backdrop = document.createElement('div');
     backdrop.id = 'ajax-modal-backdrop';
-    backdrop.className = 'tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-transition-opacity tw-duration-300 tw-opacity-0 tw-z-[9998]';
+    backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 opacity-0 z-[9998]';
     backdrop.addEventListener('click', () => this.hide());
     document.body.appendChild(backdrop);
 
     const modal = document.createElement('div');
     modal.id = 'ajax-modal';
-    modal.className = 'tw-fixed tw-inset-0 tw-z-[9999] tw-overflow-y-auto tw-opacity-0 tw-transition-opacity tw-duration-300';
+    modal.className = 'fixed inset-0 z-[9999] overflow-y-auto opacity-0 transition-opacity duration-300';
     modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('tabIndex', '-1');
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     
     modal.innerHTML = `
-      <div class="tw-flex tw-min-h-full tw-items-center tw-justify-center tw-p-4">
-        <div class="tw-relative tw-w-full ${sizeClasses} tw-transform tw-transition-all tw-duration-300 tw-scale-95">
-          <div class="tw-bg-white tw-rounded-lg tw-shadow-xl tw-overflow-hidden" id="modal-content">
-            <div class="tw-flex tw-items-center tw-justify-between tw-px-6 tw-py-4 tw-border-b tw-border-gray-200" id="modal-header">
-              <h5 class="tw-text-lg tw-font-semibold tw-text-gray-900 tw-m-0" id="title">Loading</h5>
-              <button type="button" class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors tw-p-1" aria-label="Close" id="modal-close-btn">
-                <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative w-full ${sizeClasses} transform transition-all duration-300 scale-95">
+          <div class="bg-white rounded-lg shadow-xl overflow-hidden" id="modal-content">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200" id="modal-header">
+              <h5 class="text-lg font-semibold text-gray-900 m-0" id="title">Loading</h5>
+              <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors p-1" aria-label="Close" id="modal-close-btn">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
             </div>
-            <div id="modal-body" class="tw-px-2">
-              <div class="tw-p-4">
+            <div id="modal-body" class="px-2">
+              <div class="p-4">
                 Loading
               </div>
             </div>
@@ -187,16 +187,16 @@ export default class AjaxModalController extends Controller {
   show() {
     requestAnimationFrame(() => {
       if (this.backdropElement) {
-        this.backdropElement.classList.remove('tw-opacity-0');
-        this.backdropElement.classList.add('tw-opacity-100');
+        this.backdropElement.classList.remove('opacity-0');
+        this.backdropElement.classList.add('opacity-100');
       }
       if (this.modalElement) {
-        this.modalElement.classList.remove('tw-opacity-0');
-        this.modalElement.classList.add('tw-opacity-100');
-        const dialog = this.modalElement.querySelector('.tw-scale-95');
+        this.modalElement.classList.remove('opacity-0');
+        this.modalElement.classList.add('opacity-100');
+        const dialog = this.modalElement.querySelector('.scale-95');
         if (dialog) {
-          dialog.classList.remove('tw-scale-95');
-          dialog.classList.add('tw-scale-100');
+          dialog.classList.remove('scale-95');
+          dialog.classList.add('scale-100');
         }
       }
     });
@@ -204,16 +204,16 @@ export default class AjaxModalController extends Controller {
 
   hide() {
     if (this.backdropElement) {
-      this.backdropElement.classList.remove('tw-opacity-100');
-      this.backdropElement.classList.add('tw-opacity-0');
+      this.backdropElement.classList.remove('opacity-100');
+      this.backdropElement.classList.add('opacity-0');
     }
     if (this.modalElement) {
-      this.modalElement.classList.remove('tw-opacity-100');
-      this.modalElement.classList.add('tw-opacity-0');
-      const dialog = this.modalElement.querySelector('.tw-scale-100');
+      this.modalElement.classList.remove('opacity-100');
+      this.modalElement.classList.add('opacity-0');
+      const dialog = this.modalElement.querySelector('.scale-100');
       if (dialog) {
-        dialog.classList.remove('tw-scale-100');
-        dialog.classList.add('tw-scale-95');
+        dialog.classList.remove('scale-100');
+        dialog.classList.add('scale-95');
       }
     }
 

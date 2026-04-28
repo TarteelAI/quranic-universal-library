@@ -184,7 +184,7 @@ export default class extends Controller {
 
   showLoadingMessage() {
     if (this.hasGlyphsContainerTarget) {
-      this.glyphsContainerTarget.innerHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-4 tw-text-gray-500"><div class="tw-animate-spin tw-rounded-full tw-h-12 tw-w-12 tw-border-b-2 tw-border-blue-500 tw-mx-auto tw-mb-4"></div><div>Loading font and glyphs...</div></div></div>'
+      this.glyphsContainerTarget.innerHTML = '<div class="flex items-center justify-center min-h-[400px] w-full"><div class="text-center p-4 text-gray-500"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div><div>Loading font and glyphs...</div></div></div>'
       this.removeGridClasses()
     }
   }
@@ -238,7 +238,7 @@ export default class extends Controller {
     try {
       if (!this.fontData || !this.hasGlyphsContainerTarget) {
         if (this.hasGlyphsContainerTarget) {
-          this.glyphsContainerTarget.innerHTML = '<div class="tw-text-center tw-p-4 tw-text-gray-500">Loading glyphs...</div>'
+          this.glyphsContainerTarget.innerHTML = '<div class="text-center p-4 text-gray-500">Loading glyphs...</div>'
           this.removeGridClasses()
         }
         return
@@ -258,7 +258,7 @@ export default class extends Controller {
       }
     } catch (error) {
       if (this.hasGlyphsContainerTarget) {
-        this.glyphsContainerTarget.innerHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-4 tw-text-gray-500">Error loading glyphs</div></div>'
+        this.glyphsContainerTarget.innerHTML = '<div class="flex items-center justify-center min-h-[400px] w-full"><div class="text-center p-4 text-gray-500">Error loading glyphs</div></div>'
         this.removeGridClasses()
       }
     }
@@ -293,19 +293,19 @@ export default class extends Controller {
 
       glyphs.forEach(({ unicodeHex, glyphChar, glyph }) => {
         const el = document.createElement('div')
-        el.className = 'tw-text-center tw-p-2 tw-border tw-border-gray-300 tw-rounded tw-cursor-pointer hover:tw-bg-gray-100 tw-transition-colors'
+        el.className = 'text-center p-2 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 transition-colors'
         el.style.fontFamily = this.fontFaceValue
         el.onclick = () => this.showGlyphDetails(glyph, unicodeHex, glyphChar)
         el.innerHTML = `
-          <div class="tw-text-3xl tw-mb-2" dir="rtl">${glyphChar}</div>
-          <div class="tw-text-xs tw-text-gray-500">U+${unicodeHex}</div>
+          <div class="text-3xl mb-2" dir="rtl">${glyphChar}</div>
+          <div class="text-xs text-gray-500">U+${unicodeHex}</div>
         `
         this.glyphsContainerTarget.appendChild(el)
       })
     } catch (error) {
       console.error('Error rendering glyphs:', error)
       if (this.hasGlyphsContainerTarget) {
-        this.glyphsContainerTarget.innerHTML = '<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-4 tw-text-gray-500">Error loading glyphs</div></div>'
+        this.glyphsContainerTarget.innerHTML = '<div class="flex items-center justify-center min-h-[400px] w-full"><div class="text-center p-4 text-gray-500">Error loading glyphs</div></div>'
         this.removeGridClasses()
       }
     }
@@ -349,7 +349,7 @@ export default class extends Controller {
       this.updateMetadata(metadataEl, glyph, unicodeHex, glyphChar, null)
     }
 
-    overlay.classList.remove('tw-hidden')
+    overlay.classList.remove('hidden')
     overlay.style.display = 'flex'
     document.body.style.overflow = 'hidden'
 
@@ -363,7 +363,7 @@ export default class extends Controller {
   closeGlyphOverlay() {
     const overlay = document.getElementById('glyph-details-overlay')
     if (overlay) {
-      overlay.classList.add('tw-hidden')
+      overlay.classList.add('hidden')
       overlay.style.display = 'none'
       document.body.style.overflow = ''
     }
@@ -425,7 +425,7 @@ export default class extends Controller {
     const originalPath = button.getAttribute('data-original-path') || 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
     
     button.setAttribute('title', 'Copied!')
-    button.classList.add('tw-text-green-600')
+    button.classList.add('text-green-600')
     
     if (svg) {
       svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
@@ -433,7 +433,7 @@ export default class extends Controller {
     
     setTimeout(() => {
       button.setAttribute('title', originalTitle)
-      button.classList.remove('tw-text-green-600')
+      button.classList.remove('text-green-600')
       if (svg && originalPath) {
         svg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${originalPath}"></path>`
       }
@@ -451,26 +451,26 @@ export default class extends Controller {
     }
 
     let metadataHTML = Object.entries(metadata).map(([key, value]) => 
-      `<div class="tw-flex tw-justify-between tw-py-2 tw-border-b tw-border-gray-200"><span class="tw-font-semibold tw-text-gray-700">${key}:</span><span class="tw-text-gray-600">${value}</span></div>`
+      `<div class="flex justify-between py-2 border-b border-gray-200"><span class="font-semibold text-gray-700">${key}:</span><span class="text-gray-600">${value}</span></div>`
     ).join('')
 
     // Add decomposition/composition if available
     if (unicodeInfo?.decomposition && unicodeInfo.decomposition_chars && unicodeInfo.decomposition_chars.length > 0) {
       const decompDisplay = unicodeInfo.decomposition_chars.map((char, idx) => {
         const hex = unicodeInfo.decomposition_hex[idx]
-        return `<span class="tw-inline-block tw-mx-1 tw-px-2 tw-py-1 tw-bg-gray-100 tw-rounded" title="U+${hex}">${char}</span>`
+        return `<span class="inline-block mx-1 px-2 py-1 bg-gray-100 rounded" title="U+${hex}">${char}</span>`
       }).join('')
-      metadataHTML += `<div class="tw-py-2 tw-border-b tw-border-gray-200">
-        <div class="tw-font-semibold tw-text-gray-700 tw-mb-2">Decomposition:</div>
-        <div class="tw-text-gray-600 tw-flex tw-items-center tw-flex-wrap tw-gap-1">${decompDisplay}</div>
+      metadataHTML += `<div class="py-2 border-b border-gray-200">
+        <div class="font-semibold text-gray-700 mb-2">Decomposition:</div>
+        <div class="text-gray-600 flex items-center flex-wrap gap-1">${decompDisplay}</div>
       </div>`
     }
 
     // Add Compart.com link
     if (unicodeInfo?.compart_url) {
-      metadataHTML += `<div class="tw-py-2 tw-border-b tw-border-gray-200">
-        <a href="${unicodeInfo.compart_url}" target="_blank" rel="noopener noreferrer" class="tw-text-blue-600 hover:tw-text-blue-800 hover:tw-underline tw-flex tw-items-center">
-          <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      metadataHTML += `<div class="py-2 border-b border-gray-200">
+        <a href="${unicodeInfo.compart_url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
           </svg>
           View more details on Compart.com
@@ -988,43 +988,43 @@ export default class extends Controller {
 
   createGlyphOverlay() {
     const overlayHTML = `
-      <div id="glyph-details-overlay" class="tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-z-50 tw-hidden tw-items-center tw-justify-center" style="display: none;">
-        <div class="tw-bg-white tw-rounded-lg tw-shadow-xl tw-max-w-4xl tw-w-full tw-mx-4 tw-max-h-[90vh] tw-overflow-y-auto" onclick="event.stopPropagation()">
-          <div class="tw-sticky tw-top-0 tw-bg-white tw-border-b tw-border-gray-200 tw-px-6 tw-py-4 tw-flex tw-justify-between tw-items-center tw-z-10">
-            <h3 class="tw-text-xl tw-font-semibold tw-text-gray-900">Glyph Details</h3>
-            <button id="close-glyph-overlay-btn" class="tw-text-gray-400 hover:tw-text-gray-600 tw-transition-colors">
-              <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div id="glyph-details-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="display: none;">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+          <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
+            <h3 class="text-xl font-semibold text-gray-900">Glyph Details</h3>
+            <button id="close-glyph-overlay-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
-          <div class="tw-p-6">
-            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6">
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div class="tw-mb-6">
-                  <div class="tw-flex tw-items-center tw-justify-center tw-gap-3 tw-mb-3">
-                    <div class="tw-text-7xl tw-leading-none" id="glyph-char" style="font-family: '${this.fontFaceValue}'"></div>
-                    <button id="copy-glyph-char-btn" class="tw-p-2 tw-text-gray-500 hover:tw-text-gray-700 hover:tw-bg-gray-100 tw-rounded tw-transition-colors tw-flex tw-items-center tw-justify-center" title="Copy character" style="min-width: 36px; min-height: 36px;">
-                      <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mb-6">
+                  <div class="flex items-center justify-center gap-3 mb-3">
+                    <div class="text-7xl leading-none" id="glyph-char" style="font-family: '${this.fontFaceValue}'"></div>
+                    <button id="copy-glyph-char-btn" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors flex items-center justify-center" title="Copy character" style="min-width: 36px; min-height: 36px;">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                       </svg>
                     </button>
                   </div>
-                  <div class="tw-text-center tw-text-gray-600 tw-font-mono tw-text-lg" id="glyph-unicode"></div>
-                  <div class="tw-text-center tw-text-gray-700 tw-text-base tw-mt-2 tw-font-medium" id="glyph-name"></div>
+                  <div class="text-center text-gray-600 font-mono text-lg" id="glyph-unicode"></div>
+                  <div class="text-center text-gray-700 text-base mt-2 font-medium" id="glyph-name"></div>
                 </div>
-                <div id="glyph-metadata" class="tw-text-sm tw-bg-gray-50 tw-rounded-lg tw-p-4"></div>
+                <div id="glyph-metadata" class="text-sm bg-gray-50 rounded-lg p-4"></div>
               </div>
               <div>
-                <div class="tw-text-sm tw-font-semibold tw-mb-3 tw-text-gray-700">Glyph Outline</div>
-                <div class="tw-border tw-border-gray-300 tw-rounded-lg tw-p-4 tw-bg-gray-50 tw-flex tw-items-center tw-justify-center">
+                <div class="text-sm font-semibold mb-3 text-gray-700">Glyph Outline</div>
+                <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 flex items-center justify-center">
                   <canvas id="glyph-outline-canvas" width="400" height="400" style="max-width: 100%; height: auto; display: block;"></canvas>
                 </div>
               </div>
             </div>
           </div>
-          <div class="tw-sticky tw-bottom-0 tw-bg-white tw-border-t tw-border-gray-200 tw-px-6 tw-py-4 tw-flex tw-justify-end">
-            <button id="close-glyph-overlay-btn-bottom" class="tw-px-4 tw-py-2 tw-bg-gray-200 hover:tw-bg-gray-300 tw-text-gray-800 tw-rounded tw-transition-colors">
+          <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
+            <button id="close-glyph-overlay-btn-bottom" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors">
               Close
             </button>
           </div>
@@ -1067,7 +1067,7 @@ export default class extends Controller {
   showPlaceholderMessage() {
     try {
       const format = this.fontFormatValue || 'font'
-      const placeholderHTML = `<div class="tw-flex tw-items-center tw-justify-center tw-min-h-[400px] tw-w-full"><div class="tw-text-center tw-p-8 tw-text-gray-500 tw-bg-gray-100 tw-rounded tw-border-2 tw-border-dashed tw-border-gray-300 tw-max-w-md tw-mx-auto"><div class="tw-text-lg tw-font-medium tw-mb-2 tw-px-2">Preview is not available for this font</div><div class="tw-text-sm tw-mb-4">The ${format.toUpperCase()} font file could not be loaded</div>`
+      const placeholderHTML = `<div class="flex items-center justify-center min-h-[400px] w-full"><div class="text-center p-8 text-gray-500 bg-gray-100 rounded border-2 border-dashed border-gray-300 max-w-md mx-auto"><div class="text-lg font-medium mb-2 px-2">Preview is not available for this font</div><div class="text-sm mb-4">The ${format.toUpperCase()} font file could not be loaded</div>`
       
       if (this.hasGlyphsContainerTarget) {
         this.glyphsContainerTarget.innerHTML = placeholderHTML
@@ -1075,11 +1075,11 @@ export default class extends Controller {
       }
       
       if (this.hasSampleTextTarget) {
-        this.sampleTextTarget.innerHTML = '<div class="tw-text-center tw-p-4 tw-text-gray-500 tw-bg-gray-100 tw-rounded tw-border-2 tw-border-dashed tw-border-gray-300"><div class="tw-text-sm">Preview is not available for this font</div></div>'
+        this.sampleTextTarget.innerHTML = '<div class="text-center p-4 text-gray-500 bg-gray-100 rounded border-2 border-dashed border-gray-300"><div class="text-sm">Preview is not available for this font</div></div>'
       }
       
       if (this.hasLigaturesTableTarget) {
-        this.ligaturesTableTarget.innerHTML = `<tr><td colspan="4" class="tw-text-center tw-p-8 tw-text-gray-500 tw-bg-gray-100 tw-rounded tw-border-2 tw-border-dashed tw-border-gray-300"><div class="tw-text-lg tw-font-medium tw-mb-2">Preview is not available for this font</div><div class="tw-text-sm">The ${format.toUpperCase()} font file could not be loaded</div></td></tr>`
+        this.ligaturesTableTarget.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-gray-500 bg-gray-100 rounded border-2 border-dashed border-gray-300"><div class="text-lg font-medium mb-2">Preview is not available for this font</div><div class="text-sm">The ${format.toUpperCase()} font file could not be loaded</div></td></tr>`
       }
     } catch (error) {
       // Silently handle errors in production

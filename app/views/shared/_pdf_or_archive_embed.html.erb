@@ -13,10 +13,10 @@
   default_view = views.first
 %>
 
-<div id="proofreading-view-switcher" class="tw-h-full tw-flex tw-flex-col" data-turbo-permanent>
-  <div data-controller="proofreading-view-switcher" class="tw-h-full tw-flex tw-flex-col">
+<div id="proofreading-view-switcher" class="h-full flex flex-col" data-turbo-permanent>
+  <div data-controller="proofreading-view-switcher" class="h-full flex flex-col">
     <% if views.size > 1 %>
-      <div class="source-buttons tw-flex tw-gap-1 tw-flex mx-2" role="group">
+      <div class="source-buttons flex gap-1 flex mx-2" role="group">
         <% if page_url.present? %>
           <button type="button"
                   class="btn btn-outline <%= 'active' if default_view == :image %>"
@@ -46,21 +46,21 @@
     <% if page_url.present? %>
       <div class="proofreading-container <%= 'active' if default_view == :image %>"
            data-view-type="image">
-        <div class="tw-p-4 tw-text-center zoomable"
+        <div class="p-4 text-center zoomable"
              data-controller="zoom-image"
              data-page="<%= jump_to_page %>"
              data-host="<%= page_url %>"
              data-format="<%= img_format %>"
         >
-          <label for="zoom-slider" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">
+          <label for="zoom-slider" class="block text-sm font-medium text-gray-700 mb-1">
             Page <span id="page"><%= jump_to_page %></span>
           </label>
           <input type="range" class="form-range" min="1" max="3" step="0.1" id="zoom-slider" value="1"/>
-          <div class="tw-flex tw-justify-between tw-mb-3">
+          <div class="flex justify-between mb-3">
             <button class="btn btn-primary" id="previous-page">Previous Page</button>
             <button class="btn btn-primary" id="next-page">Next page</button>
           </div>
-          <div id="image-container" class="tw-mt-4 tw-p-4">
+          <div id="image-container" class="mt-4 p-4">
             <img id="zoom-image"
                  data-controller="lazy-load"
                  width="100%"
@@ -87,13 +87,13 @@
     <% end %>
 
     <% if pdf_url.present? %>
-      <div class="proofreading-container tw-overflow-auto tw-h-full tw-flex tw-flex-col <%= 'active' if default_view == :pdf %>"
+      <div class="proofreading-container overflow-auto h-full flex flex-col <%= 'active' if default_view == :pdf %>"
            data-view-type="pdf">
         <div data-controller="pdf-viewer"
-             class="tw-h-full tw-flex tw-flex-col"
+             class="h-full flex flex-col"
              data-pdf-url="<%= pdf_url %>"
              data-page="<%= jump_to_page %>">
-          <div id="pdf-wrapper" class="tw-flex-1 tw-overflow-auto">
+          <div id="pdf-wrapper" class="flex-1 overflow-auto">
             <div id="pdf-container">
               <canvas id="pdf-canvas"></canvas>
             </div>
@@ -103,7 +103,7 @@
     <% end %>
 
     <% if views.empty? %>
-      <div class="tw-text-center text-faded pt-4">
+      <div class="text-center text-faded pt-4">
         PDF of this resource isn't available, please contact the admin to upload it.
       </div>
     <% end %>

@@ -118,13 +118,13 @@ module Morphology
 
     def pos_styles
       {
-        "N" => "tw-border-sky-200 tw-bg-sky-50 tw-text-sky-900",
-        "PN" => "tw-border-blue-200 tw-bg-blue-50 tw-text-blue-900",
-        "V" => "tw-border-emerald-200 tw-bg-emerald-50 tw-text-emerald-900",
-        "P" => "tw-border-amber-200 tw-bg-amber-50 tw-text-amber-900",
-        "CONJ" => "tw-border-indigo-200 tw-bg-indigo-50 tw-text-indigo-900",
-        "PRON" => "tw-border-teal-200 tw-bg-teal-50 tw-text-teal-900",
-        "DET" => "tw-border-gray-200 tw-bg-gray-50 tw-text-gray-900"
+        "N" => "border-sky-200 bg-sky-50 text-sky-900",
+        "PN" => "border-blue-200 bg-blue-50 text-blue-900",
+        "V" => "border-emerald-200 bg-emerald-50 text-emerald-900",
+        "P" => "border-amber-200 bg-amber-50 text-amber-900",
+        "CONJ" => "border-indigo-200 bg-indigo-50 text-indigo-900",
+        "PRON" => "border-teal-200 bg-teal-50 text-teal-900",
+        "DET" => "border-gray-200 bg-gray-50 text-gray-900"
       }
     end
 

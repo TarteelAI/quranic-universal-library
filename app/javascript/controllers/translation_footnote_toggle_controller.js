@@ -12,13 +12,13 @@ export default class extends Controller {
     const block = this.element.querySelector(`[data-footnote-block-id="${id}"]`);
     if (!block) return;
 
-    if (block.classList.contains("tw-hidden")) {
+    if (block.classList.contains("hidden")) {
       this.element
         .querySelectorAll("[data-footnote-block-id]")
-        .forEach((el) => el.classList.add("tw-hidden"));
-      block.classList.remove("tw-hidden");
+        .forEach((el) => el.classList.add("hidden"));
+      block.classList.remove("hidden");
     } else {
-      block.classList.add("tw-hidden");
+      block.classList.add("hidden");
     }
   }
 
@@ -31,7 +31,7 @@ export default class extends Controller {
     if (!id) return;
 
     const block = this.element.querySelector(`[data-footnote-block-id="${id}"]`);
-    if (block) block.classList.add("tw-hidden");
+    if (block) block.classList.add("hidden");
   }
 }
 

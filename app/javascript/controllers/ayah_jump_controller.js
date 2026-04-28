@@ -18,7 +18,7 @@ export default class extends Controller {
   toggle(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (this.panelTarget.classList.contains("tw-hidden")) {
+    if (this.panelTarget.classList.contains("hidden")) {
       this.show();
     } else {
       this.hide();
@@ -26,11 +26,11 @@ export default class extends Controller {
   }
 
   show() {
-    this.panelTarget.classList.remove("tw-hidden");
+    this.panelTarget.classList.remove("hidden");
   }
 
   hide() {
-    this.panelTarget.classList.add("tw-hidden");
+    this.panelTarget.classList.add("hidden");
   }
 
   jump(e) {

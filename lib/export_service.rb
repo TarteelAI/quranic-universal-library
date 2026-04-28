@@ -156,7 +156,7 @@ class ExportService
     211 => 'tl-dar-al-salam',
 
     53 => 'tt-tatar',
-    801 => 'tw-haroun',
+    801 => 'haroun',
     76 => 'ug-saleh',
     217 => 'uk-mikhailo',
 

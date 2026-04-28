@@ -1,12 +1,12 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  prefix: "tw-",
   content: [
     "./public/*.html",
     "./app/helpers/**/*.rb",
     "./app/javascript/**/*.{js,vue}",
     "./app/views/**/*.{erb,html}",
+    "./app/components/**/*.{erb,html}",
     "./app/admin/**/*.rb",
   ],
   theme: {
@@ -24,22 +24,21 @@ module.exports = {
     require("@tailwindcss/container-queries"),
   ],
   safelist: [
-    "tw-bg-red-100",
-    "tw-bg-blue-100",
-    "tw-bg-orange-100",
-    "tw-bg-green-100",
-    "tw-bg-yellow-100",
+    "bg-red-100",
+    "bg-blue-100",
+    "bg-orange-100",
+    "bg-green-100",
+    "bg-yellow-100",
 
-    "tw-text-red-600",
-    "tw-text-blue-600",
-    "tw-text-orange-600",
-    "tw-text-green-600",
-    "tw-text-yellow-600",
-    "tw-text-green-500",
-    "tw-docs",
-    "tw-docs *",
+    "text-red-600",
+    "text-blue-600",
+    "text-orange-600",
+    "text-green-600",
+    "text-yellow-600",
+    "text-green-500",
+    "qul-docs",
+    "qul-docs *",
 
-    // Button classes
     "btn",
     "btn-primary",
     "btn-secondary",
@@ -62,17 +61,16 @@ module.exports = {
 
     "nav-link--active",
 
-    "tw-flex",
-    "tw-flex-col",
-    "tw-items-end",
-    "tw-ms-auto",
-    "tw-me-2",
-    "tw-m-1",
-    "tw-my-2",
-    "tw-p-3",
-    "tw-py-2",
+    "flex",
+    "flex-col",
+    "items-end",
+    "ms-auto",
+    "me-2",
+    "m-1",
+    "my-2",
+    "p-3",
+    "py-2",
 
-    // Badge classes
     "badge",
     "badge-default",
     "badge-success",

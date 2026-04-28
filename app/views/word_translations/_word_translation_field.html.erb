@@ -8,9 +8,9 @@
 <%= form.hidden_field :word_id %>
 <%= form.hidden_field :language_id, value: language.id %>
 
-<div class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-lg tw-shadow-sm tw-mb-5 tw-p-3">
-  <h5 class="tw-text-lg tw-font-semibold tw-mb-3 tw-text-right" dir="rtl">
-    <strong class="tw-ms-2">
+<div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-5 p-3">
+  <h5 class="text-lg font-semibold mb-3 text-right" dir="rtl">
+    <strong class="ms-2">
       <%= word.location %>
     </strong>
     <strong class="qpc-hafs" dir="rtl">
@@ -19,18 +19,18 @@
   </h5>
 
   <div
-    class="tw-p-0 word-translation"
+    class="p-0 word-translation"
     data-word="<%= word.location %>"
   >
-    <div class="tw-flex tw-flex-wrap tw-gap-4">
-      <div class="tw-w-full md:tw-w-1/2">
-        <div class="tw-mb-4">
+    <div class="flex flex-wrap gap-4">
+      <div class="w-full md:w-1/2">
+        <div class="mb-4">
           <%= form.text_field :text,
-                              class: "tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent #{@language.name.downcase}",
+                              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent #{@language.name.downcase}",
                               placeholder: "Enter #{@language.name} translation of #{word.location}" %>
-          <div class="tw-flex tw-items-center tw-justify-between tw-text-sm tw-text-gray-600 tw-mt-2">
+          <div class="flex items-center justify-between text-sm text-gray-600 mt-2">
             <small>Enter word by word translation for <%= word.location %></small>
-            <div class="tw-me-5">
+            <div class="me-5">
               <strong>Current translation:</strong> <%= word_translation.text %>
             </div>
 
@@ -44,7 +44,7 @@
       </div>
 
       <% if word_translation.persisted? %>
-        <div class="tw-w-full md:tw-w-1/2">
+        <div class="w-full md:w-1/2">
           <%= render 'word_group_info', word_translation: word_translation, language: language, word: word %>
         </div>
       <% end %>

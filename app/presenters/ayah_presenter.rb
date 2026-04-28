@@ -81,7 +81,7 @@ class AyahPresenter < ApplicationPresenter
         next if fid.blank?
         node['data-action'] = [node['data-action'], 'click->translation-footnote-toggle#toggle'].compact.join(' ')
         node['data-footnote-id'] = fid
-        node['class'] = [node['class'], 'tw-cursor-pointer tw-text-blue-700'].compact.join(' ')
+        node['class'] = [node['class'], 'cursor-pointer text-blue-700'].compact.join(' ')
       end
       @translation_html_by_id[tr.resource_content_id] = fragment.to_html
     end

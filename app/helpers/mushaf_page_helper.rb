@@ -77,15 +77,15 @@ module MushafPageHelper
   def status_badge_class(status)
     case status
     when 'Ready'
-      'tw-bg-green-100 tw-text-green-800'
+      'bg-green-100 text-green-800'
     when 'Align lines needed'
-      'tw-bg-yellow-100 tw-text-yellow-800'
+      'bg-yellow-100 text-yellow-800'
     when 'Map words needed'
-      'tw-bg-orange-100 tw-text-orange-800'
+      'bg-orange-100 text-orange-800'
     when 'Set Ayah range'
-      'tw-bg-red-100 tw-text-red-800'
+      'bg-red-100 text-red-800'
     else
-      'tw-bg-gray-100 tw-text-gray-800'
+      'bg-gray-100 text-gray-800'
     end
   end
 
@@ -101,10 +101,10 @@ module MushafPageHelper
       search: params[:search]
     )
 
-    link_options[:class] = "d-flex sort-link hover:tw-text-[#46ac7a] tw-transition-colors #{link_options[:class]}"
+    link_options[:class] = "d-flex sort-link hover:text-[#46ac7a] transition-colors #{link_options[:class]}"
 
     link_to url_for(url_params), link_options do
-      "<span class='label-text tw-me-2'>#{text}</span> <span class='sort-icons'>#{icon_asc} #{icon_desc}</span>".html_safe
+      "<span class='label-text me-2'>#{text}</span> <span class='sort-icons'>#{icon_asc} #{icon_desc}</span>".html_safe
     end
   end
 

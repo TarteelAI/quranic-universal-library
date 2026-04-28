@@ -1,10 +1,10 @@
 <template>
-  <div class="tw-flex tw-flex-wrap tw-my-2">
-    <div class="tw-w-full tw-flex tw-flex-wrap tw-items-start tw-gap-4">
-      <div class="tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-flex tw-gap-1">
+  <div class="flex flex-wrap my-2">
+    <div class="w-full flex flex-wrap items-start gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-1">
           <button
-              class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-cyan-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-cyan-700 disabled:tw-opacity-50"
+              class="px-3 py-1 text-xs font-medium bg-cyan-600 text-white rounded transition-colors hover:bg-cyan-700 disabled:opacity-50"
               data-step="-1"
               @click="changeAyah"
               :disabled="currentVerseNumber <= 1"
@@ -12,7 +12,7 @@
             Previous ayah
           </button>
           <button
-              class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-cyan-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-cyan-700 disabled:tw-opacity-50"
+              class="px-3 py-1 text-xs font-medium bg-cyan-600 text-white rounded transition-colors hover:bg-cyan-700 disabled:opacity-50"
               data-step="1"
               @click="changeAyah"
               :disabled="currentVerseNumber >= versesCount"
@@ -21,48 +21,48 @@
           </button>
         </div>
 
-        <div class="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-1">
-          <div class="tw-flex tw-items-center">
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <div class="flex items-center">
             <input
                 type="checkbox"
                 :checked="disableHotkeys"
                 @change="toggleHotkeys"
                 id="toggle-hotkeys"
-                class="tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label for="toggle-hotkeys"
-                   class="tw-ml-2 tw-text-sm tw-text-gray-700"
+                   class="ml-2 text-sm text-gray-700"
                    data-controller="tooltip"
                    title="Toggle hotkeys">
               Disable Hotkeys
             </label>
           </div>
 
-          <div class="tw-flex tw-items-center">
+          <div class="flex items-center">
             <input
                 type="checkbox"
                 :checked="showSegments"
                 @change="toggleSegment"
                 id="toggle-segments"
-                class="tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label for="toggle-segments"
-                   class="tw-ml-2 tw-text-sm tw-text-gray-700"
+                   class="ml-2 text-sm text-gray-700"
                    title="Toggle segments table.">
               Segments
             </label>
           </div>
 
-          <div class="tw-flex tw-items-center">
+          <div class="flex items-center">
             <input
                 type="checkbox"
                 :checked="autoScroll"
                 @change="toggleAutoscroll"
                 id="toggle-scroll"
-                class="tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label for="toggle-scroll"
-                   class="tw-ml-2 tw-text-sm tw-text-gray-700"
+                   class="ml-2 text-sm text-gray-700"
                    data-controller="tooltip"
                    title="Autoscroll segments table to current word">
               Autoscroll
@@ -71,83 +71,83 @@
         </div>
       </div>
 
-      <div class="tw-flex tw-gap-1">
+      <div class="flex gap-1">
         <button
-            class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-blue-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-blue-700 disabled:tw-opacity-50"
+            class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700 disabled:opacity-50"
             @click="togglePlay"
             :disabled="disablePlay"
         >
           {{ playing ? "Pause" : "Play" }}
         </button>
         <button
-            class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-blue-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-blue-700"
+            class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700"
             @click="loopAyah"
         >
           {{ isLooingAyah ? "Looping" : "Loop" }}
         </button>
       </div>
 
-      <div class="tw-flex tw-flex-col tw-gap-1">
-        <div class="tw-flex tw-gap-1">
-          <button class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-blue-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-blue-700" @click="stepUp">Forward</button>
-          <button class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-blue-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-blue-700" @click="stepBack">Backward</button>
+      <div class="flex flex-col gap-1">
+        <div class="flex gap-1">
+          <button class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700" @click="stepUp">Forward</button>
+          <button class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700" @click="stepBack">Backward</button>
         </div>
         <div>
           <input
               type="number"
               v-model="stepDuration"
               placeholder="step duration"
-              class="tw-w-24 tw-px-2 tw-py-1 tw-text-xs tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
+              class="w-24 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      <div class="tw-flex tw-flex-col tw-gap-2 tw-ml-auto">
-        <div class="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-1">
-          <div class="tw-flex tw-items-center">
+      <div class="flex flex-col gap-2 ml-auto">
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <div class="flex items-center">
             <input
                 type="checkbox"
                 :checked="lockAyah"
                 @change="toggleLockAyah"
                 id="lock-ayah"
-                class="tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label for="lock-ayah"
-                   class="tw-ml-2 tw-text-sm tw-text-gray-700"
+                   class="ml-2 text-sm text-gray-700"
                    data-controller="tooltip"
                    title="If checked, player will not play the next ayah when current ayah is finished.">
               Lock ayah
             </label>
           </div>
 
-          <div class="tw-flex tw-items-center">
+          <div class="flex items-center">
             <input
                 type="checkbox"
                 :checked="editMode"
                 @change="changeEditMode"
                 id="edit-mode"
                 :disabled="segmentLocked"
-                class="tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label for="edit-mode"
-                   class="tw-ml-2 tw-text-sm tw-text-gray-700"
+                   class="ml-2 text-sm text-gray-700"
                    data-controller="tooltip"
                    title="Check this if you need to update the ayah timing when you click ayah start or end button. Clicking ayah end will also set start time of next ayah.">
               Update Ayah timing
             </label>
           </div>
 
-          <div class="tw-flex tw-items-center" v-if="editMode">
+          <div class="flex items-center" v-if="editMode">
             <input
                 type="checkbox"
                 :checked="autoSave"
                 @change="changeAutoSave"
                 id="auto-save"
                 :disabled="segmentLocked"
-                class="tw-w-4 tw-h-4 tw-rounded tw-border-gray-300 tw-text-blue-600 focus:tw-ring-blue-500"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label for="auto-save"
-                   class="tw-ml-2 tw-text-sm tw-text-gray-700"
+                   class="ml-2 text-sm text-gray-700"
                    data-controller="tooltip"
                    title="Auto save will automatically save ayah the segment timestamps.">
               Auto Save
@@ -155,17 +155,17 @@
           </div>
         </div>
 
-        <div class="tw-flex tw-items-center tw-gap-2">
-          <div v-if="editMode && audioType == 'chapter'" class="tw-flex tw-gap-1">
+        <div class="flex items-center gap-2">
+          <div v-if="editMode && audioType == 'chapter'" class="flex gap-1">
             <button
-                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-red-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-red-700 disabled:tw-opacity-50"
+                class="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded transition-colors hover:bg-red-700 disabled:opacity-50"
                 @click="markAyahStart"
                 :disabled="segmentLocked">
               Start
             </button>
 
             <button
-                class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-red-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-red-700 disabled:tw-opacity-50"
+                class="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded transition-colors hover:bg-red-700 disabled:opacity-50"
                 @click="markAyahEnd"
                 :disabled="segmentLocked">
               End
@@ -173,7 +173,7 @@
           </div>
 
           <button
-              class="tw-px-3 tw-py-1 tw-text-xs tw-font-medium tw-bg-green-600 tw-text-white tw-rounded tw-transition-colors hover:tw-bg-green-700 disabled:tw-opacity-50"
+              class="px-3 py-1 text-xs font-medium bg-green-600 text-white rounded transition-colors hover:bg-green-700 disabled:opacity-50"
               @click="saveAyahSegment"
               :disabled="disableSaveAyahBtn"
           >
@@ -181,33 +181,33 @@
           </button>
         </div>
 
-        <div class="tw-flex tw-gap-2">
-          <div class="tw-flex tw-flex-col">
+        <div class="flex gap-2">
+          <div class="flex flex-col">
             <input
                 type="number"
                 placeholder="From"
                 ref="ayahTimeFromInput"
                 :value="currentAyahTimeFrom"
-                class="tw-w-24 tw-px-2 tw-py-1 tw-text-xs tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
+                class="w-24 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 :disabled="segmentLocked"
                 @change="currentAyahTimeFromChanged"
             />
-            <small class="tw-text-xs tw-text-gray-500" v-if="!!verseOriginalSegment">{{
+            <small class="text-xs text-gray-500" v-if="!!verseOriginalSegment">{{
                 verseOriginalSegment.timestamp_from
               }}</small>
           </div>
 
-          <div class="tw-flex tw-flex-col">
+          <div class="flex flex-col">
             <input
                 type="number"
                 placeholder="to"
                 ref="ayahTimeToInput"
                 :disabled="segmentLocked"
                 :value="currentAyahTimeTo"
-                class="tw-w-24 tw-px-2 tw-py-1 tw-text-xs tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500"
+                class="w-24 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 @change="currentAyahTimeToChanged"
             />
-            <small class="tw-text-xs tw-text-gray-500" v-if="!!verseOriginalSegment">{{
+            <small class="text-xs text-gray-500" v-if="!!verseOriginalSegment">{{
                 verseOriginalSegment.timestamp_to
               }}</small>
           </div>
@@ -215,10 +215,10 @@
       </div>
     </div>
 
-    <div class="tw-w-full tw-flex tw-flex-wrap tw-items-center tw-gap-6 tw-my-6 tw-p-4 tw-bg-gray-50 tw-rounded-lg">
-      <div class="tw-flex tw-items-center tw-gap-2">
-        <span class="tw-text-sm tw-font-medium tw-text-gray-700">Speed:</span>
-        <select @change="updatePlaybackSpeed" class="tw-text-sm tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-0.5 tw-bg-white focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-blue-500">
+    <div class="w-full flex flex-wrap items-center gap-6 my-6 p-4 bg-gray-50 rounded-lg">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700">Speed:</span>
+        <select @change="updatePlaybackSpeed" class="text-sm border border-gray-300 rounded px-2 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
           <option value="0.3">Slowest</option>
           <option value="0.5">Slower</option>
           <option value="0.75">Slow</option>
@@ -228,14 +228,14 @@
         </select>
       </div>
       
-      <div class="tw-flex tw-gap-4 tw-text-sm tw-text-gray-600">
-        <span><strong class="tw-text-gray-900">Duration:</strong> {{ totalDuration() }} ms</span>
-        <span><strong class="tw-text-gray-900">Current:</strong> {{ currentTime() }}</span>
-        <span><strong class="tw-text-gray-900">Elapsed:</strong> {{ elapsedTime() }}</span>
-        <span><strong class="tw-text-gray-900">Remaining:</strong> {{ remainingTime() }}</span>
+      <div class="flex gap-4 text-sm text-gray-600">
+        <span><strong class="text-gray-900">Duration:</strong> {{ totalDuration() }} ms</span>
+        <span><strong class="text-gray-900">Current:</strong> {{ currentTime() }}</span>
+        <span><strong class="text-gray-900">Elapsed:</strong> {{ elapsedTime() }}</span>
+        <span><strong class="text-gray-900">Remaining:</strong> {{ remainingTime() }}</span>
       </div>
 
-      <div class="tw-grow tw-min-w-[200px]" v-if="audioType == 'chapter'">
+      <div class="grow min-w-[200px]" v-if="audioType == 'chapter'">
         <Slider
             v-model="sliderRange"
             keyboardSupport="true"

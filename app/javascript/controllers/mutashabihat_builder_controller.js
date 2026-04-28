@@ -64,9 +64,9 @@ export default class extends Controller {
   resetSelection(event){
     const ayah = $(event.target).closest('.ayah');
     ayah.find('.word').removeClass('selected removed');
-    ayah.find('[data-action=add]').removeClass('active tw-bg-green-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200');
-    ayah.find('[data-action=remove]').removeClass('active tw-bg-red-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200');
-    ayah.find('.quran-text').removeClass('tw-text-green-600 tw-font-bold tw-text-red-400 tw-line-through');
+    ayah.find('[data-action=add]').removeClass('active bg-green-500 text-white').addClass('bg-white text-slate-400 border border-slate-200');
+    ayah.find('[data-action=remove]').removeClass('active bg-red-500 text-white').addClass('bg-white text-slate-400 border border-slate-200');
+    ayah.find('.quran-text').removeClass('text-green-600 font-bold text-red-400 line-through');
   }
 
   savePhrase(event) {
@@ -173,25 +173,25 @@ export default class extends Controller {
       const selected = wordDom.hasClass('selected')
       if (selected && !forceEnable) {
         wordDom.removeClass('selected')
-        addIcon.removeClass('active tw-bg-green-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
-        textSpan.removeClass('tw-text-green-600 tw-font-bold')
+        addIcon.removeClass('active bg-green-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
+        textSpan.removeClass('text-green-600 font-bold')
       } else {
         wordDom.addClass('selected').removeClass('removed')
-        addIcon.addClass('active tw-bg-green-500 tw-text-white').removeClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
-        removeIcon.removeClass('active tw-bg-red-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
-        textSpan.addClass('tw-text-green-600 tw-font-bold').removeClass('tw-text-red-400 tw-line-through')
+        addIcon.addClass('active bg-green-500 text-white').removeClass('bg-white text-slate-400 border border-slate-200')
+        removeIcon.removeClass('active bg-red-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
+        textSpan.addClass('text-green-600 font-bold').removeClass('text-red-400 line-through')
       }
     } else if (actionType === 'remove') {
       const removed = wordDom.hasClass('removed')
       if (removed && !forceEnable) {
         wordDom.removeClass('removed')
-        removeIcon.removeClass('active tw-bg-red-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
-        textSpan.removeClass('tw-text-red-400 tw-line-through')
+        removeIcon.removeClass('active bg-red-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
+        textSpan.removeClass('text-red-400 line-through')
       } else {
         wordDom.addClass('removed').removeClass('selected')
-        removeIcon.addClass('active tw-bg-red-500 tw-text-white').removeClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
-        addIcon.removeClass('active tw-bg-green-500 tw-text-white').addClass('tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200')
-        textSpan.addClass('tw-text-red-400 tw-line-through').removeClass('tw-text-green-600 tw-font-bold')
+        removeIcon.addClass('active bg-red-500 text-white').removeClass('bg-white text-slate-400 border border-slate-200')
+        addIcon.removeClass('active bg-green-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
+        textSpan.addClass('text-red-400 line-through').removeClass('text-green-600 font-bold')
       }
     }
   }

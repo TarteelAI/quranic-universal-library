@@ -3,18 +3,18 @@
   manzil = Manzil.find_by(manzil_number: id) || Manzil.first
 %>
 
-<div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-4 tw-mb-6">
-  <div class="tw-flex tw-items-center">
-    <%= label_tag :manzil, 'Jump to Manzil', class: 'tw-me-2 tw-font-medium' %>
+<div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+  <div class="flex items-center">
+    <%= label_tag :manzil, 'Jump to Manzil', class: 'me-2 font-medium' %>
     <%= select_tag :manzil,
                    options_for_select((1..7).to_a, manzil.manzil_number),
                    onchange: "jumpToManzil(this.value)",
-                   class: "tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm",
+                   class: "px-3 py-2 border rounded bg-white shadow-sm",
                    style: 'min-width: 220px',
                    data: { controller: 'select2' } %>
   </div>
 
-  <div class="tw-flex tw-gap-2">
+  <div class="flex gap-2">
     <% if manzil.manzil_number > 1 %>
       <%= link_to detail_resources_path('quran-metadata', resource.id, manzil: manzil.manzil_number - 1), class: 'btn btn-secondary' do %>
         ← Previous
@@ -29,28 +29,28 @@
   </div>
 </div>
 
-<div class="tw-p-6 tw-rounded-xl tw-bg-white tw-shadow">
-  <div class="tw-mb-4">
-    <h1 class="tw-text-3xl tw-font-bold">Manzil <%= manzil.manzil_number %></h1>
-    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Total Ayahs:
+<div class="p-6 rounded-xl bg-white shadow">
+  <div class="mb-4">
+    <h1 class="text-3xl font-bold">Manzil <%= manzil.manzil_number %></h1>
+    <p class="mt-2 text-sm text-gray-600">Total Ayahs:
       <strong>
         <%= manzil.verses_count %>
       </strong></p>
   </div>
 
-  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4 tw-mb-4">
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-2">Ayah Range</h2>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
+    <h2 class="text-lg font-semibold mb-2">Ayah Range</h2>
     <p><strong>From:</strong> <%= manzil.first_verse.chapter.name_simple %>, Ayah <%= manzil.first_verse.verse_number %></p>
     <p><strong>To:</strong> <%= manzil.last_verse.chapter.name_simple %>, Ayah <%= manzil.last_verse.verse_number %></p>
   </div>
 
-  <div class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-p-4">
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-4">Surahs in this Manzil</h2>
-    <ul class="tw-divide-y tw-divide-gray-200">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <h2 class="text-lg font-semibold mb-4">Surahs in this Manzil</h2>
+    <ul class="divide-y divide-gray-200">
       <% manzil.verse_mapping.each do |chapter_id, verses_range| %>
         <% chapter = Chapter.find(chapter_id) %>
-        <li class="tw-py-2">
-          <span class="tw-font-medium">Surah <%= chapter.name_simple %></span>: Ayahs <%= verses_range %>
+        <li class="py-2">
+          <span class="font-medium">Surah <%= chapter.name_simple %></span>: Ayahs <%= verses_range %>
         </li>
       <% end %>
     </ul>

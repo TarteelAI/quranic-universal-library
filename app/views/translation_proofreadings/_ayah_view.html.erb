@@ -1,6 +1,6 @@
 <h2>Translation for <%= verse.verse_key %></h2>
 
-<div class="qpc-hafs tw-my-3">
+<div class="qpc-hafs my-3">
   <%= verse.text_qpc_hafs %>
 </div>
 
@@ -12,8 +12,8 @@
 </div>
 
 <% if @translation.foot_notes.present? %>
-  <div class="tw-mt-3 mt-md-5">
-    <h2 class="tw-font-bold">Foot notes</h2>
+  <div class="mt-3 mt-md-5">
+    <h2 class="font-bold">Foot notes</h2>
     <% @translation.foot_notes.each do |foot_note| %>
       <div>
         <p><%= foot_note.id %></p>

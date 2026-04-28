@@ -17,15 +17,15 @@ export default class extends Controller {
   }
 
   showEmptyResultsMessage() {
-    this.el.find('#empty-results-message').removeClass('tw-hidden');
+    this.el.find('#empty-results-message').removeClass('hidden');
   }
 
   hideEmptyResultsMessage() {
-    this.el.find('#empty-results-message').addClass('tw-hidden');
+    this.el.find('#empty-results-message').addClass('hidden');
   }
 
   resetSearch() {
-    this.searchItems().removeClass('!tw-hidden');
+    this.searchItems().removeClass('!hidden');
     this.hideEmptyResultsMessage();
   }
 
@@ -43,10 +43,10 @@ export default class extends Controller {
       const name = resource.data('search').toLowerCase();
 
       if (name.includes(query)) {
-        resource.removeClass('!tw-hidden');
+        resource.removeClass('!hidden');
         hasResults = true;
       } else {
-        resource.addClass('!tw-hidden');
+        resource.addClass('!hidden');
       }
     });
 

@@ -25,7 +25,7 @@
   <td>
     <%= select_tag field_name_prefix + "[type]", 
                    options_for_select(presenter.node_types.map { |t| [t.humanize, t] }, node.type),
-                   class: 'node-type-select tw-w-full tw-border tw-border-gray-300 tw-rounded tw-px-2 tw-py-2 tw-text-sm tw-bg-white',
+                   class: 'node-type-select w-full border border-gray-300 rounded px-2 py-2 text-sm bg-white',
                    data: { 
                      node_id: node_id_value,
                      field: 'type',
@@ -37,7 +37,7 @@
     <%= hidden_field_tag field_name_prefix + "[resource_type]", node.resource_type, class: 'resource-type-select', data: { node_id: node_id_value } %>
     
     <%= turbo_frame_tag "node_#{node_id_value}_fields" do %>
-      <span class="field-content tw-w-full">
+      <span class="field-content w-full">
         <% if node.type == 'word' %>
           <%= render 'morphology/dependency_graphs/forms/word_fields',
                      node_id: node_id_value,
@@ -59,16 +59,16 @@
                      pos: node.pos %>
                      
         <% else %>
-          <div class="tw-text-gray-400">-</div>
+          <div class="text-gray-400">-</div>
         <% end %>
       </span>
     <% end %>
     
-    <span class="field-placeholder tw-hidden">-</span>
+    <span class="field-placeholder hidden">-</span>
   </td>
   
   <td class="actions-cell">
-    <div class="tw-flex tw-gap-1">
+    <div class="flex gap-1">
       <% if show_add_button %>
         <%= button_tag type: 'button',
                        class: 'btn btn-success add-node-btn',
@@ -85,7 +85,7 @@
       
       <% unless node.type == 'word' %>
         <%= button_tag type: 'button',
-                       class: 'tw-px-3 tw-py-1.5 tw-text-sm tw-font-medium tw-bg-red-600 hover:tw-bg-red-700 tw-text-white tw-rounded tw-transition-colors',
+                       class: 'px-3 py-1.5 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded transition-colors',
                        title: 'Remove node',
                        data: { 
                          node_id: node_id_value,

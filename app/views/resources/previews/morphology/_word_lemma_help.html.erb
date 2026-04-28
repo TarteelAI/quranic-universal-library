@@ -1,96 +1,96 @@
-<div class="tw-p-6 tw-bg-white tw-rounded tw-font-sans tw-text-gray-800 tw-space-y-8">
-  <p class="tw-leading-normal">
+<div class="p-6 bg-white rounded font-sans text-gray-800 space-y-8">
+  <p class="leading-normal">
     In Quranic linguistics, a <strong>lemma</strong> is the canonical dictionary form of a word — the form you'll typically find in a lexicon. It acts as the base reference for all grammatical variations of a word such as conjugated verbs or inflected nouns.
   </p>
 
-  <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
-    <p class="tw-font-semibold">ℹ️ Note:</p>
-    <p class="tw-leading-normal">
-      Lemmas are distinct from <em>roots</em>. While a root captures the core triliteral structure (e.g., ر-ح-م), a lemma represents the normalized lexical form (e.g., <span class="tw-font-mono">رَحِمَ</span>) from which conjugations are derived.
+  <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded" role="alert">
+    <p class="font-semibold">ℹ️ Note:</p>
+    <p class="leading-normal">
+      Lemmas are distinct from <em>roots</em>. While a root captures the core triliteral structure (e.g., ر-ح-م), a lemma represents the normalized lexical form (e.g., <span class="font-mono">رَحِمَ</span>) from which conjugations are derived.
     </p>
   </div>
 
-  <div class="tw-bg-gray-50 tw-border-l-4 tw-border-gray-300 tw-p-4">
-    <p class="tw-font-semibold tw-mb-2">Example:</p>
-    <ul class="tw-list-disc tw-pl-5 tw-space-y-1">
+  <div class="bg-gray-50 border-l-4 border-gray-300 p-4">
+    <p class="font-semibold mb-2">Example:</p>
+    <ul class="list-disc pl-5 space-y-1">
       <li>
-        Lemma: <span class="tw-font-mono tw-bg-gray-100 tw-px-1">رَحِمَ</span> – to have mercy
+        Lemma: <span class="font-mono bg-gray-100 px-1">رَحِمَ</span> – to have mercy
       </li>
       <li>Derived forms:
-        <ul class="tw-list-disc tw-pl-5 tw-mt-1 tw-space-y-1">
-          <li><span class="qpc-hafs tw-font-bold">يَرْحَمُ</span> – he has mercy</li>
-          <li><span class="qpc-hafs tw-font-bold">نَرْحَمُ</span> – we have mercy</li>
-          <li><span class="qpc-hafs tw-font-bold">ارْحَمْ</span> – have mercy! (imperative)</li>
+        <ul class="list-disc pl-5 mt-1 space-y-1">
+          <li><span class="qpc-hafs font-bold">يَرْحَمُ</span> – he has mercy</li>
+          <li><span class="qpc-hafs font-bold">نَرْحَمُ</span> – we have mercy</li>
+          <li><span class="qpc-hafs font-bold">ارْحَمْ</span> – have mercy! (imperative)</li>
         </ul>
       </li>
     </ul>
   </div>
 
   <div>
-    <p class="tw-leading-normal">
-      QUL exports lemma data as Sqlite database with two tables <code class="tw-font-mono">lemmas</code> and <code class="tw-font-mono">word_lemmas</code>.
+    <p class="leading-normal">
+      QUL exports lemma data as Sqlite database with two tables <code class="font-mono">lemmas</code> and <code class="font-mono">word_lemmas</code>.
     </p>
 
-    <div class="tw-mt-4">
-      <h4 class="tw-font-semibold tw-mb-2">Table: <code class="tw-font-mono">lemmas</code></h4>
-      <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm">
-        <thead class="tw-bg-gray-100 tw-text-gray-700">
+    <div class="mt-4">
+      <h4 class="font-semibold mb-2">Table: <code class="font-mono">lemmas</code></h4>
+      <table class="w-full table-auto border-collapse text-sm">
+        <thead class="bg-gray-100 text-gray-700">
         <tr>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Column</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
         </tr>
         </thead>
         <tbody>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">id</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Unique identifier for the lemma</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">id</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Unique identifier for the lemma</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
-          <td class="tw-px-4 tw-py-2">text</td>
-          <td class="tw-px-4 tw-py-2">TEXT</td>
-          <td class="tw-px-4 tw-py-2">Canonical form in Arabic with tashkeel</td>
+        <tr class="border-b border-gray-200 bg-gray-50">
+          <td class="px-4 py-2">text</td>
+          <td class="px-4 py-2">TEXT</td>
+          <td class="px-4 py-2">Canonical form in Arabic with tashkeel</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
-          <td class="tw-px-4 tw-py-2">text_clean</td>
-          <td class="tw-px-4 tw-py-2">TEXT</td>
-          <td class="tw-px-4 tw-py-2">Canonical form in Arabic without tashkeel</td>
+        <tr class="border-b border-gray-200 bg-gray-50">
+          <td class="px-4 py-2">text_clean</td>
+          <td class="px-4 py-2">TEXT</td>
+          <td class="px-4 py-2">Canonical form in Arabic without tashkeel</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
-          <td class="tw-px-4 tw-py-2">words_count</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Total occurrences of all derived words for lemma</td>
+        <tr class="border-b border-gray-200 bg-gray-50">
+          <td class="px-4 py-2">words_count</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Total occurrences of all derived words for lemma</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">uniq_words_count</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Count of unique word forms derived from this lemma</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">uniq_words_count</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Count of unique word forms derived from this lemma</td>
         </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="tw-mt-6">
-      <h4 class="tw-font-semibold tw-mb-2">🔗 Table: <code class="tw-font-mono">word_lemmas</code></h4>
-      <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm">
-        <thead class="tw-bg-gray-100 tw-text-gray-700">
+    <div class="mt-6">
+      <h4 class="font-semibold mb-2">🔗 Table: <code class="font-mono">word_lemmas</code></h4>
+      <table class="w-full table-auto border-collapse text-sm">
+        <thead class="bg-gray-100 text-gray-700">
         <tr>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Column</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
         </tr>
         </thead>
         <tbody>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">lemma_id</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Foreign key to the <code class="tw-font-mono">lemmas.id</code> field</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">lemma_id</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Foreign key to the <code class="font-mono">lemmas.id</code> field</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">word_location</td>
-          <td class="tw-px-4 tw-py-2">TEXT</td>
-          <td class="tw-px-4 tw-py-2">Word identifier (e.g. <code>2:3:5</code>)</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">word_location</td>
+          <td class="px-4 py-2">TEXT</td>
+          <td class="px-4 py-2">Word identifier (e.g. <code>2:3:5</code>)</td>
         </tr>
         </tbody>
       </table>

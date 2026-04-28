@@ -1,24 +1,24 @@
 <%= render 'layouts/qul_head' %>
 
 <%= render 'layouts/grid' do %>
-  <div class="tw-mt-6 tw-mb-10">
-    <h1 class="tw-text-2xl md:tw-text-3xl">
+  <div class="mt-6 mb-10">
+    <h1 class="text-2xl md:text-3xl">
       Frequently Asked Questions
     </h1>
-    <p class="tw-mt-4">
+    <p class="mt-4">
       QUL is a comprehensive platform for Quranic resources.
       It provides access to structured and reliable data, along with tools to explore, manage, and contribute to Quranic resources.
       Researchers, students, and developers can leverage resources from QUL to build Islamic applications, perform data analysis, and conduct advanced research or studies related to the Quran.
       Below are answers to some of the most common questions about QUL.
       If you don’t find what you’re looking for, please open a new issue on our
-      <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="tw-underline hover:tw-text-[#46ac7a] tw-transition-colors">GitHub repository</a>.
+      <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" class="underline hover:text-[#46ac7a] transition-colors">GitHub repository</a>.
     </p>
 
-    <div class="tw-mt-3 mt-md-4 faq" data-controller="faq">
+    <div class="mt-3 mt-md-4 faq" data-controller="faq">
       <% @items.each do |faq| %>
-        <div class="item tw-cursor-pointer" id="faq-<%= faq.id %>">
-          <div class="tw-py-4 tw-flex question-wrapper tw-items-center tw-justify-between">
-            <span class="tw-me-1">
+        <div class="item cursor-pointer" id="faq-<%= faq.id %>">
+          <div class="py-4 flex question-wrapper items-center justify-between">
+            <span class="me-1">
               <a href="<%= faq_path(anchor: "faq-#{faq.id}") %>"
                  data-controller="copy-to-clipboard"
                  data-text="<%= faq_url(anchor: "faq-#{faq.id}") %>"
@@ -26,12 +26,12 @@
                  data-toast-message="Link copied to clipboard">🔗</a>
             </span>
 
-            <a href="#faq-<%= faq.id %>" class="question tw-flex-1">
-            <span class="tw-text-xl">
+            <a href="#faq-<%= faq.id %>" class="question flex-1">
+            <span class="text-xl">
               <%= safe_html faq.question %>
             </span>
             </a>
-            <span class="question-icon tw-ml-2"></span>
+            <span class="question-icon ml-2"></span>
           </div>
 
           <div class="answer-wrapper">

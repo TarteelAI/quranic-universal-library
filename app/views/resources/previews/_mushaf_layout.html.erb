@@ -11,9 +11,9 @@
   tag = DownloadableResourceTag.find_by(slug: 'mushaf-layout')
 %>
 
-<div class="tw-mt-5" data-controller="tabs">
-  <ul class="tw-flex tw-flex-nowrap tw-list-none tw-m-0 tw-p-0 tw-border-b tw-border-gray-200" id="translation-docs-tab" role="tablist">
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+<div class="mt-5" data-controller="tabs">
+  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
               data-action="click->tabs#switch"
@@ -26,7 +26,7 @@
       </button>
     </li>
 
-    <li class="tw-m-0 tw-flex-none" role="presentation">
+    <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab"
               id="tab-help"
               data-action="click->tabs#switch"
@@ -39,45 +39,45 @@
     </li>
   </ul>
 
-  <div class="tab-content tw-px-0 sm:tw-px-2 tw-py-2 tw-mt-3" id="translation-docs-tab-content">
+  <div class="tab-content px-0 sm:px-2 py-2 mt-3" id="translation-docs-tab-content">
     <div class="tab-pane show active"
          id="tab-preview-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
-      <div class="tw-space-y-6">
-        <h2 class="tw-text-xl tw-font-semibold">
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold">
           <%= resource.name %> Page <%= page %>
         </h2>
 
         <% if mushaf %>
-        <div class="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-flex-wrap sm:tw-items-center sm:tw-justify-center tw-mb-6">
-          <div class="tw-flex tw-w-full tw-items-center tw-gap-2 sm:tw-w-auto">
-            <%= label_tag :page, 'Jump to page', class: 'tw-shrink-0 tw-whitespace-nowrap tw-text-sm sm:tw-text-base tw-font-medium' %>
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center mb-6">
+          <div class="flex w-full items-center gap-2 sm:w-auto">
+            <%= label_tag :page, 'Jump to page', class: 'shrink-0 whitespace-nowrap text-sm sm:text-base font-medium' %>
             <%= select_tag :page,
                            options_for_select((1..mushaf.pages_count).to_a, page),
                            onchange: "jumpToPage(this.value)",
-                           class: 'tw-min-w-0 tw-flex-1 tw-px-3 tw-py-2 tw-border tw-rounded tw-bg-white tw-shadow-sm sm:tw-min-w-[200px] sm:tw-flex-none',
+                           class: 'min-w-0 flex-1 px-3 py-2 border rounded bg-white shadow-sm sm:min-w-[200px] sm:flex-none',
                            data: { controller: 'select2' }
             %>
           </div>
 
-          <div class="tw-flex tw-w-full tw-flex-nowrap tw-justify-center tw-gap-2 sm:tw-w-auto">
+          <div class="flex w-full flex-nowrap justify-center gap-2 sm:w-auto">
             <% if page > 1 %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary tw-whitespace-nowrap tw-text-sm sm:tw-text-base', aria: { label: 'Previous page' } do %>
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary whitespace-nowrap text-sm sm:text-base', aria: { label: 'Previous page' } do %>
                 ← Previous
               <% end %>
             <% end %>
 
             <% if page < mushaf.pages_count %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary tw-whitespace-nowrap tw-text-sm sm:tw-text-base', aria: { label: 'Next page' } do %>
+              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary whitespace-nowrap text-sm sm:text-base', aria: { label: 'Next page' } do %>
                 Next →
               <% end %>
             <% end %>
           </div>
         </div>
 
-        <div class="tw-py-5 tw-px-2 sm:tw-px-6 sm:tw-py-6 tw-rounded-xl tw-bg-white tw-shadow max-w-2xl tw-mx-auto">
-          <div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
+        <div class="py-5 px-2 sm:px-6 sm:py-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+          <div class="flex justify-center flex-col items-center">
           <%= render 'shared/mushaf_page',
                      words: words,
                      page: page,
@@ -91,11 +91,11 @@
       </div>
     </div>
 
-    <div class="tab-pane tw-hidden"
+    <div class="tab-pane hidden"
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="tw-space-y-6 tw-docs">
+      <div class="space-y-6 qul-docs">
         <%= safe_html tag.description if tag %>
       </div>
     </div>

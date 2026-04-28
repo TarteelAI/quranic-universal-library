@@ -124,18 +124,18 @@ export default class extends Controller {
     if (this.hasToolsPanelTarget) {
       const p = this.toolsPanelTarget
       p.hidden = !tools
-      p.classList.toggle("tw-translate-x-full", !tools)
-      p.classList.toggle("tw-translate-x-0", tools)
-      p.classList.toggle("tw-pointer-events-none", !tools)
-      p.classList.toggle("tw-pointer-events-auto", tools)
+      p.classList.toggle("translate-x-full", !tools)
+      p.classList.toggle("translate-x-0", tools)
+      p.classList.toggle("pointer-events-none", !tools)
+      p.classList.toggle("pointer-events-auto", tools)
       p.setAttribute("aria-hidden", tools ? "false" : "true")
     }
 
     if (this.hasToolsBackdropTarget) {
       const b = this.toolsBackdropTarget
-      b.classList.toggle("tw-opacity-0", !tools)
-      b.classList.toggle("tw-invisible", !tools)
-      b.classList.toggle("tw-pointer-events-none", !tools)
+      b.classList.toggle("opacity-0", !tools)
+      b.classList.toggle("invisible", !tools)
+      b.classList.toggle("pointer-events-none", !tools)
       b.setAttribute("aria-hidden", tools ? "false" : "true")
     }
 
@@ -281,7 +281,7 @@ export default class extends Controller {
       const [surah, ayah] = key.split("|")
       const label = `${Number(surah)}:${Number(ayah)}`
       rows.push(
-        `<button type="button" class="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-2.5 tw-py-1.5 tw-text-xs tw-font-medium tw-text-slate-700 hover:tw-bg-slate-50 tw-min-w-[3rem]" data-surah="${surah}" data-ayah="${ayah}">${label}</button>`
+        `<button type="button" class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 min-w-[3rem]" data-surah="${surah}" data-ayah="${ayah}">${label}</button>`
       )
     }
     this.ayahListTarget.innerHTML = rows.join("")

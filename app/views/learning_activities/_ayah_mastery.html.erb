@@ -3,24 +3,24 @@
   verse = data[:verse]
 %>
 
-<h2 class="heading tw-my-3 tw-text-3xl tw-font-bold tw-text-center tw-mb-6 tw-text-gray-800">Ayah Mastery Challenge</h2>
+<h2 class="heading my-3 text-3xl font-bold text-center mb-6 text-gray-800">Ayah Mastery Challenge</h2>
 
 <div class="quiz" data-controller="activities--ayah-mastery" data-ayah="<%= verse.verse_key %>">
-  <div class="tw-px-6 tw-py-5 tw-rounded-lg tw-mb-6 tw-bg-gradient-to-br tw-from-blue-50 tw-to-indigo-50 tw-border-2 tw-border-blue-200 tw-shadow-md">
-    <div class="tw-text-center tw-mb-3">
-      <div class="tw-inline-block tw-px-4 tw-py-2 tw-rounded-full tw-bg-blue-500 tw-text-white tw-text-sm tw-font-semibold tw-mb-3">
+  <div class="px-6 py-5 rounded-lg mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md">
+    <div class="text-center mb-3">
+      <div class="inline-block px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-semibold mb-3">
         Identify the Source
       </div>
-      <p class="tw-text-sm tw-font-medium tw-text-gray-600 tw-mb-3">Which surah and ayah number is this from?</p>
+      <p class="text-sm font-medium text-gray-600 mb-3">Which surah and ayah number is this from?</p>
     </div>
-    <div class="qpc-hafs tw-text-2xl tw-leading-relaxed tw-text-center tw-text-gray-800 tw-px-4 tw-py-3 tw-bg-white tw-rounded-lg tw-shadow-sm">
+    <div class="qpc-hafs text-2xl leading-relaxed text-center text-gray-800 px-4 py-3 bg-white rounded-lg shadow-sm">
       <%= data[:text] %>
     </div>
   </div>
 
-  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-6" id="options">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6" id="options">
     <% data[:options].each do |option| %>
-      <button class="ayah-option tw-px-6 tw-py-4 tw-rounded-lg tw-font-semibold tw-text-lg tw-transition-all tw-duration-200 tw-bg-gradient-to-r tw-from-blue-500 tw-to-indigo-500 hover:tw-from-blue-600 hover:tw-to-indigo-600 tw-text-white tw-shadow-lg hover:tw-shadow-xl tw-transform hover:tw-scale-105 option tw-border-0" data-correct="<%= option[:correct] %>">
+      <button class="ayah-option px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 option border-0" data-correct="<%= option[:correct] %>">
         <%= option[:name] %>
       </button>
     <% end %>

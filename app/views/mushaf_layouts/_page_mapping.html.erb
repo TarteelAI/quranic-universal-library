@@ -1,39 +1,39 @@
 <% progress = @mushaf.percentage_done %>
 
 <%= turbo_frame_tag "mushaf-page" do %>
-  <h3 class="tw-p-3 tw-text-center">
+  <h3 class="p-3 text-center">
     <p>
       <%= pluralize @mushaf.done_pages_count, 'page' %> finished out of <%= @mushaf.pages_count %>
     </p>
 
-    <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-6">
-      <div class="tw-h-6 tw-rounded-full tw-text-white tw-text-xs tw-flex tw-items-center tw-justify-center tw-transition-all tw-duration-300" role="progressbar" style="width: <%= progress %>%;" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100"><%= progress %>
+    <div class="w-full bg-gray-200 rounded-full h-6">
+      <div class="h-6 rounded-full text-white text-xs flex items-center justify-center transition-all duration-300" role="progressbar" style="width: <%= progress %>%;" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100"><%= progress %>
         %
       </div>
     </div>
   </h3>
 
-  <div class="tw-px-4" data-controller="page-search">
-    <div class="tw-mb-4">
+  <div class="px-4" data-controller="page-search">
+    <div class="mb-4">
       <input
         type="text"
         data-page-search-target="searchInput"
         data-action="input->page-search#search"
         placeholder="Search by page number or ayah (e.g., 20 or 2:5)..."
-        class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent tw-w-full tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
     </div>
 
-    <section class="highlight tw-mt-4" style="position: relative;" data-controller="turbo-frame-loading">
-      <div id="turbo-loading-indicator" class="tw-absolute tw-h-screen tw-top-0 tw-left-0 tw-right-0 tw-flex tw-items-center tw-justify-center tw-bg-white/80 tw-z-50 tw-py-4 tw-hidden">
-        <svg class="animate-spin h-8 w-8 tw-text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="32" height="32">
-          <circle class="tw-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="tw-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    <section class="highlight mt-4" style="position: relative;" data-controller="turbo-frame-loading">
+      <div id="turbo-loading-indicator" class="absolute h-screen top-0 left-0 right-0 flex items-center justify-center bg-white/80 z-50 py-4 hidden">
+        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="32" height="32">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
       </div>
 
-      <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
-        <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
+      <table class="w-full hover:bg-gray-50 mt-4">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
         <tr>
           <th><%= mushaf_sort_link 'Page', :page_number, { id: @mushaf.id, view_type: 'page_mapping', page_number: params[:page_number] }, { data: { turbo_frame: 'page' } } %></th>
           <th>
@@ -50,23 +50,23 @@
             first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
             last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
           %>
-          <tr class="hover:tw-bg-gray-200 tw-border-b" data-page-search-target="tableRow" data-page-number="<%= page.page_number %>" data-first-ayah="<%= first_ayah_key %>" data-last-ayah="<%= last_ayah_key %>">
-            <td scope="row" class="tw-py-2 tw-pl-2"><%= page.page_number %></td>
-            <td class="tw-py-2">
+          <tr class="hover:bg-gray-200 border-b" data-page-search-target="tableRow" data-page-number="<%= page.page_number %>" data-first-ayah="<%= first_ayah_key %>" data-last-ayah="<%= last_ayah_key %>">
+            <td scope="row" class="py-2 pl-2"><%= page.page_number %></td>
+            <td class="py-2">
               <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'form-inline mushaf-pages' } do |form| %>
-                <div class="tw-flex tw-gap-2">
+                <div class="flex gap-2">
                   <div>
-                    <div class="tw-mb-4" id=<%= page.page_number %>-from>
+                    <div class="mb-4" id=<%= page.page_number %>-from>
                       <%= form.text_field :first_verse_id, value: first_ayah_key, style: 'width: 70px', class: 'from form-control', placeholder: 'From', required: true, disabled: !@access %>
-                      <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
+                      <div class="text-sm text-gray-600 mt-1">
                         <%= first_ayah_key || 'surah:ayah' %>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <div class="tw-mb-4" id=<%= page.page_number %>-to>
+                    <div class="mb-4" id=<%= page.page_number %>-to>
                       <%= form.text_field :last_verse_id, value: last_ayah_key, style: 'width: 70px', class: 'to form-control', placeholder: 'To', required: true, disabled: !@access %>
-                      <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
+                      <div class="text-sm text-gray-600 mt-1">
                         <%= last_ayah_key || 'surah:ayah' %>
                       </div>
                     </div>
@@ -77,7 +77,7 @@
                 </div>
               <% end %>
             </td>
-            <td class="tw-py-2">
+            <td class="py-2">
               <%= link_to 'Preview', mushaf_layout_path(@mushaf.id, page_number: page.page_number), target: '_blank', class: 'btn btn-success' %>
             </td>
           </tr>

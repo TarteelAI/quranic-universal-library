@@ -27,7 +27,7 @@ export default class extends Controller {
 
   setupModal() {
     this.escapeHandler = (e) => {
-      if (e.key === "Escape" && !this.modalTarget.classList.contains("tw-hidden")) {
+      if (e.key === "Escape" && !this.modalTarget.classList.contains("hidden")) {
         this.hideModal();
       }
     };
@@ -42,13 +42,13 @@ export default class extends Controller {
 
   showModal(event) {
     if (event) event.preventDefault();
-    this.modalTarget.classList.remove("tw-hidden");
+    this.modalTarget.classList.remove("hidden");
     document.body.style.overflow = "hidden";
   }
 
   hideModal(event) {
     if (event) event.preventDefault();
-    this.modalTarget.classList.add("tw-hidden");
+    this.modalTarget.classList.add("hidden");
     document.body.style.overflow = "";
   }
 

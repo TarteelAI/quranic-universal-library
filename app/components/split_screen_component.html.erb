@@ -1,13 +1,13 @@
-<div class="tw-mx-auto tw-h-screen tw-flex tw-flex-col md:tw-h-[80vh]" data-controller="resizeable">
-  <div class="tw-flex tw-flex-grow tw-overflow-hidden tw-border tw-border-gray-200 tw-p-2">
-    <div id="left-side" class="tw-bg-gray-50 tw-overflow-auto tw-text-pretty">
+<div class="mx-auto h-screen flex flex-col md:h-[80vh]" data-controller="resizeable">
+  <div class="flex flex-grow overflow-hidden border border-gray-200 p-2">
+    <div id="left-side" class="bg-gray-50 overflow-auto text-pretty">
       <%= left %>
     </div>
 
     <% if right.present? %>
       <div id="resize-handler" class="resize-handler"></div>
 
-      <div id="right-side" class="tw-bg-gray-50 tw-overflow-auto tw-text-pretty">
+      <div id="right-side" class="bg-gray-50 overflow-auto text-pretty">
         <%= right %>
       </div>
     <% end %>

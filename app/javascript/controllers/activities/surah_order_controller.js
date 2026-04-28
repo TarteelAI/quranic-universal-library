@@ -50,8 +50,8 @@ export default class extends ActivityController {
 
     if (!target.classList.contains('sort-slot')) {
       if (target === this.availableSurahs) {
-        draggableSurah.classList.remove('tw-cursor-default');
-        draggableSurah.classList.add('tw-cursor-grab');
+        draggableSurah.classList.remove('cursor-default');
+        draggableSurah.classList.add('cursor-grab');
         if (!draggableSurah.hasEventListener) {
           draggableSurah.addEventListener('click', this.surahClick);
           draggableSurah.hasEventListener = true;
@@ -62,8 +62,8 @@ export default class extends ActivityController {
 
     if (target.querySelector('.sortable-surah')) {
       const existingSurah = target.querySelector('.sortable-surah');
-      existingSurah.classList.remove('tw-cursor-default');
-      existingSurah.classList.add('tw-cursor-grab');
+      existingSurah.classList.remove('cursor-default');
+      existingSurah.classList.add('cursor-grab');
       this.availableSurahs.appendChild(existingSurah);
       if (!existingSurah.hasEventListener) {
         existingSurah.addEventListener('click', this.surahClick);
@@ -73,8 +73,8 @@ export default class extends ActivityController {
 
     target.innerHTML = '';
     target.appendChild(draggableSurah);
-    draggableSurah.classList.remove('tw-cursor-grab');
-    draggableSurah.classList.add('tw-cursor-default');
+    draggableSurah.classList.remove('cursor-grab');
+    draggableSurah.classList.add('cursor-default');
     if (draggableSurah.hasEventListener) {
       draggableSurah.removeEventListener('click', this.surahClick);
       draggableSurah.hasEventListener = false;
@@ -111,10 +111,10 @@ export default class extends ActivityController {
     const surahInSlot = slot.querySelector('.sortable-surah');
 
     if (surahInSlot) {
-      surahInSlot.classList.remove('tw-cursor-default');
-      surahInSlot.classList.add('tw-cursor-grab');
+      surahInSlot.classList.remove('cursor-default');
+      surahInSlot.classList.add('cursor-grab');
       this.availableSurahs.appendChild(surahInSlot);
-      slot.innerHTML = '<span class="tw-text-xl tw-text-blue-400 tw-font-bold">?</span>';
+      slot.innerHTML = '<span class="text-xl text-blue-400 font-bold">?</span>';
       if (!surahInSlot.hasEventListener) {
         surahInSlot.addEventListener('click', this.surahClick);
         surahInSlot.hasEventListener = true;
@@ -126,8 +126,8 @@ export default class extends ActivityController {
   fillSlot(slot, surahElement) {
     if (slot.querySelector('.sortable-surah')) {
       const existingSurah = slot.querySelector('.sortable-surah');
-      existingSurah.classList.remove('tw-cursor-default');
-      existingSurah.classList.add('tw-cursor-grab');
+      existingSurah.classList.remove('cursor-default');
+      existingSurah.classList.add('cursor-grab');
       this.availableSurahs.appendChild(existingSurah);
       if (!existingSurah.hasEventListener) {
         existingSurah.addEventListener('click', this.surahClick);
@@ -137,8 +137,8 @@ export default class extends ActivityController {
 
     slot.innerHTML = '';
     slot.appendChild(surahElement);
-    surahElement.classList.remove('tw-cursor-grab');
-    surahElement.classList.add('tw-cursor-default');
+    surahElement.classList.remove('cursor-grab');
+    surahElement.classList.add('cursor-default');
     if (surahElement.hasEventListener) {
       surahElement.removeEventListener('click', this.surahClick);
       surahElement.hasEventListener = false;
@@ -227,7 +227,7 @@ export default class extends ActivityController {
       if (surahInSlot) {
         allSurahs.push(surahInSlot);
       }
-      slot.innerHTML = '<span class="tw-text-xl tw-text-blue-400 tw-font-bold">?</span>';
+      slot.innerHTML = '<span class="text-xl text-blue-400 font-bold">?</span>';
       slot.classList.remove('correct-answer');
       
       if (Sortable.get(slot)) {
@@ -241,8 +241,8 @@ export default class extends ActivityController {
     this.availableSurahs.innerHTML = '';
     
     allSurahs.forEach((surah) => {
-      surah.classList.remove('tw-cursor-default', 'correct-answer', 'wrong-answer', 'shake');
-      surah.classList.add('tw-cursor-grab');
+      surah.classList.remove('cursor-default', 'correct-answer', 'wrong-answer', 'shake');
+      surah.classList.add('cursor-grab');
       
       if (surah.hasEventListener) {
         surah.removeEventListener('click', this.surahClick);

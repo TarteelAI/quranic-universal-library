@@ -45,7 +45,7 @@ export default class extends Controller {
 
   createPopover() {
     this.popoverElement = document.createElement('div');
-    this.popoverElement.className = 'tw-absolute tw-z-50 tw-bg-white tw-rounded-lg tw-shadow-xl tw-border tw-border-gray-200 tw-p-4 tw-max-w-sm tw-opacity-0 tw-transition-opacity tw-duration-200 tw-pointer-events-none';
+    this.popoverElement.className = 'absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 max-w-sm opacity-0 transition-opacity duration-200 pointer-events-none';
     this.popoverElement.setAttribute('role', 'tooltip');
     this.popoverElement.style.visibility = 'hidden';
     this.popoverElement.style.position = 'fixed';
@@ -53,20 +53,20 @@ export default class extends Controller {
     
     if (this.title) {
       const titleEl = document.createElement('div');
-      titleEl.className = 'tw-font-semibold tw-text-gray-900 tw-mb-2';
+      titleEl.className = 'font-semibold text-gray-900 mb-2';
       titleEl.innerHTML = this.title;
       this.popoverElement.appendChild(titleEl);
     }
     
     if (this.content) {
       const contentEl = document.createElement('div');
-      contentEl.className = 'tw-text-sm tw-text-gray-700';
+      contentEl.className = 'text-sm text-gray-700';
       contentEl.innerHTML = this.content;
       this.popoverElement.appendChild(contentEl);
     }
     
     this.arrow = document.createElement('div');
-    this.arrow.className = 'tw-absolute tw-w-0 tw-h-0';
+    this.arrow.className = 'absolute w-0 h-0';
     this.arrow.style.pointerEvents = 'none';
     this.arrow.style.zIndex = '51';
     this.popoverElement.appendChild(this.arrow);
@@ -83,9 +83,9 @@ export default class extends Controller {
     
     this.popoverElement.style.display = 'block';
     this.popoverElement.style.visibility = 'hidden';
-    this.popoverElement.classList.remove('tw-opacity-0');
-    this.popoverElement.classList.add('tw-opacity-100');
-    this.popoverElement.classList.remove('tw-pointer-events-none');
+    this.popoverElement.classList.remove('opacity-0');
+    this.popoverElement.classList.add('opacity-100');
+    this.popoverElement.classList.remove('pointer-events-none');
     
     this.updatePosition();
     
@@ -93,9 +93,9 @@ export default class extends Controller {
   }
 
   hide = () => {
-    this.popoverElement.classList.remove('tw-opacity-100');
-    this.popoverElement.classList.add('tw-opacity-0');
-    this.popoverElement.classList.add('tw-pointer-events-none');
+    this.popoverElement.classList.remove('opacity-100');
+    this.popoverElement.classList.add('opacity-0');
+    this.popoverElement.classList.add('pointer-events-none');
     this.popoverElement.style.visibility = 'hidden';
     this.popoverElement.style.display = 'none';
   }
@@ -103,7 +103,7 @@ export default class extends Controller {
   toggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (this.popoverElement.classList.contains('tw-opacity-0')) {
+    if (this.popoverElement.classList.contains('opacity-0')) {
       this.show();
     } else {
       this.hide();

@@ -1,14 +1,14 @@
-<div class="tw-space-y-6">
+<div class="space-y-6">
 
-  <h2 class="tw-text-xl tw-font-bold">Sajdah Ayahs</h2>
+  <h2 class="text-xl font-bold">Sajdah Ayahs</h2>
 
-  <p class="tw-text-sm tw-text-gray-700">
+  <p class="text-sm text-gray-700">
     QUL exports Sajdah data(list of ayah where Sajdah is prescribed) in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
     Each record includes the ayah key, sajdah number, and whether the sajdah is <em>optional</em> or <em>required</em>.
   </p>
 
-  <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Sample JSON</h3>
-  <div class="tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-lg tw-p-4 tw-text-sm tw-font-mono tw-whitespace-pre overflow-x-auto">
+  <h3 class="text-sm font-semibold mt-4">Sample JSON</h3>
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm font-mono whitespace-pre overflow-x-auto">
     {
     "1": {
     "sajdah_number": 1,
@@ -18,33 +18,33 @@
     }
   </div>
 
-  <h3 class="tw-text-sm tw-font-semibold tw-mt-4">Field Descriptions</h3>
+  <h3 class="text-sm font-semibold mt-4">Field Descriptions</h3>
   <div class="tools-table-overflow">
-    <table class="tw-min-w-full tw-text-sm tw-text-left tw-border tw-border-gray-200 tw-rounded-lg">
-      <thead class="tw-bg-gray-100 tw-text-xs tw-uppercase tw-font-semibold">
+    <table class="min-w-full text-sm text-left border border-gray-200 rounded-lg">
+      <thead class="bg-gray-100 text-xs uppercase font-semibold">
       <tr>
-        <th class="tw-px-4 tw-py-2">Field</th>
-        <th class="tw-px-4 tw-py-2">Type</th>
-        <th class="tw-px-4 tw-py-2">Description</th>
+        <th class="px-4 py-2">Field</th>
+        <th class="px-4 py-2">Type</th>
+        <th class="px-4 py-2">Description</th>
       </tr>
       </thead>
-      <tbody class="tw-divide-y tw-divide-gray-200">
+      <tbody class="divide-y divide-gray-200">
       <tr>
-        <td class="tw-px-4 tw-py-2">sajdah_number</td>
-        <td class="tw-px-4 tw-py-2">Integer</td>
-        <td class="tw-px-4 tw-py-2">Sequential number of the sajdah verse</td>
+        <td class="px-4 py-2">sajdah_number</td>
+        <td class="px-4 py-2">Integer</td>
+        <td class="px-4 py-2">Sequential number of the sajdah verse</td>
       </tr>
       <tr>
-        <td class="tw-px-4 tw-py-2">verse_key</td>
-        <td class="tw-px-4 tw-py-2">String</td>
-        <td class="tw-px-4 tw-py-2">Reference to the verse in the format <code>surah:ayah</code> (e.g., <code>7:206</code>)</td>
+        <td class="px-4 py-2">verse_key</td>
+        <td class="px-4 py-2">String</td>
+        <td class="px-4 py-2">Reference to the verse in the format <code>surah:ayah</code> (e.g., <code>7:206</code>)</td>
       </tr>
       <tr>
-        <td class="tw-px-4 tw-py-2">sajdah_type</td>
-        <td class="tw-px-4 tw-py-2">String</td>
-        <td class="tw-px-4 tw-py-2">
+        <td class="px-4 py-2">sajdah_type</td>
+        <td class="px-4 py-2">String</td>
+        <td class="px-4 py-2">
           Type of sajdah:
-          <ul class="tw-list-disc tw-ml-5">
+          <ul class="list-disc ml-5">
             <li><code>required</code> – Sujood is obligatory upon recitation or hearing</li>
             <li><code>optional</code> – Sujood is recommended</li>
           </ul>

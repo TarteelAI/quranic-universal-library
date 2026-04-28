@@ -1,4 +1,4 @@
-<div id="title" class="tw-hidden">
+<div id="title" class="hidden">
   Set ayahs range for page <%= params[:page_number] %>
 </div>
 
@@ -21,38 +21,38 @@
       <% end %>
 
       <%= component.with_right do %>
-        <div class="tw-p-4">
-          <h4 class="tw-text-lg tw-font-semibold tw-mb-3">Page <%= page.page_number %> - Ayah Range</h4>
+        <div class="p-4">
+          <h4 class="text-lg font-semibold mb-3">Page <%= page.page_number %> - Ayah Range</h4>
 
-          <div class="tw-mb-4">
-            <p class="tw-text-sm tw-text-gray-600 tw-mb-3">
+          <div class="mb-4">
+            <p class="text-sm text-gray-600 mb-3">
               Configure the first and last ayah keys on this page in. Ayah key format is 'Sura:Ayah' (e.g., 2:255).
             </p>
           </div>
 
           <%= form_with model: page, url: save_page_mapping_mushaf_layout_path(@mushaf, page_number: page.page_number), method: :put, html: { class: 'mushaf-pages' } do |form| %>
-            <div class="tw-space-y-4">
+            <div class="space-y-4">
               <div>
-                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">First Ayah</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">First Ayah</label>
                 <div id="<%= page.page_number %>-from">
                   <%= form.text_field :first_verse_id, value: first_ayah_key, class: 'from form-control', placeholder: 'From (e.g., 1:1)', required: true, disabled: !@access %>
-                  <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
+                  <div class="text-sm text-gray-600 mt-1">
                     Current: <%= first_ayah_key || 'Not set' %>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Last Ayah</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Last Ayah</label>
                 <div id="<%= page.page_number %>-to">
                   <%= form.text_field :last_verse_id, value: last_ayah_key, class: 'to form-control', placeholder: 'To (e.g., 1:7)', required: true, disabled: !@access %>
-                  <div class="tw-text-sm tw-text-gray-600 tw-mt-1">
+                  <div class="text-sm text-gray-600 mt-1">
                     Current: <%= last_ayah_key || 'Not set' %>
                   </div>
                 </div>
               </div>
 
-              <div class="tw-flex tw-gap-2 tw-justify-end tw-pt-3">
+              <div class="flex gap-2 justify-end pt-3">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <%= form.submit 'Save', id: 'submit', class: 'btn btn-primary', disabled: !@access %>
               </div>
@@ -62,7 +62,7 @@
       <% end %>
     <% end %>
   <% else %>
-    <p class="tw-text-red-600">Page not found</p>
+    <p class="text-red-600">Page not found</p>
   <% end %>
 </div>
 

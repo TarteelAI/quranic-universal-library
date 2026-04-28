@@ -3,16 +3,16 @@
     tags = show_tags ? card.try(:get_tags) || card.try(:tags) : []
 %>
 
-<div class="tw-flex tw-items-center tw-justify-between">
+<div class="flex items-center justify-between">
   <% if local_assigns[:show_stats] && card.respond_to?(:count) && card.count.to_i > 0 %>
-    <div class="tw-text-white tw-font-bold tw-opacity-70">
+    <div class="text-white font-bold opacity-70">
       <%= safe_html(card.stats) if card.respond_to?(:stats) %>
     </div>
     <div class="badge badge-resource">
       <%= card.count %>
     </div>
   <% elsif show_tags %>
-    <div class="tw-flex tw-flex-wrap tw-gap-2">
+    <div class="flex flex-wrap gap-2">
       <% tags.each do |tag| %>
         <%= render 'card/card-tag', tag: tag, tool: local_assigns[:tool] %>
       <% end %>

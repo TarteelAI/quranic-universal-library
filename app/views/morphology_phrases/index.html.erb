@@ -2,20 +2,20 @@
   actions = []
 
   if @access
-    actions << link_to('New Phrase', new_morphology_phrase_path, class: 'tw-h-10 btn btn-success tw-inline-flex tw-items-center', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) })
+    actions << link_to('New Phrase', new_morphology_phrase_path, class: 'h-10 btn btn-success inline-flex items-center', data: { controller: 'ajax-modal', url: new_morphology_phrase_path(modal: true) })
     actions << link_to('View bookmarks', '#_', class: 'btn btn-dark btn-header-action', data: { controller: 'phrase-ayah-bookmark' })
   end
 
   if params[:proofread]
-    actions << link_to('Phrase view', morphology_phrases_path, class: 'tw-h-10 btn btn-info tw-inline-flex tw-items-center')
+    actions << link_to('Phrase view', morphology_phrases_path, class: 'h-10 btn btn-info inline-flex items-center')
   else
-    actions << link_to('Proofread view', morphology_phrases_path(proofread: true), class: 'tw-h-10 btn btn-info tw-inline-flex tw-items-center')
+    actions << link_to('Proofread view', morphology_phrases_path(proofread: true), class: 'h-10 btn btn-info inline-flex items-center')
   end
 %>
 
 <%= render 'tools/header', name: 'Mutashabihat ul Quran', actions: actions, key: 'mutashabihat' %>
 
-<div class="page-wrapper tw-container tw-max-w-7xl tw-mx-auto tw-px-4">
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
   <% if params[:proofread] %>
     <%= render 'proofread_list' %>
   <% else %>

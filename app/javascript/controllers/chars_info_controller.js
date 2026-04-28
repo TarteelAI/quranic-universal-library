@@ -32,7 +32,7 @@ export default class extends Controller {
     })
 
     el.find('#toggle-issues').on('click', (event) => {
-      el.find('.toggle').toggleClass('tw-hidden')
+      el.find('.toggle').toggleClass('hidden')
     })
   }
 
@@ -47,7 +47,7 @@ export default class extends Controller {
     char.addClass(font).addClass('char')
 
     txt.removeClass()
-    txt.addClass(font).addClass('tw-w-full tw-p-4 tw-border tw-border-gray-300 tw-rounded-md tw-focus:tw-outline-none tw-focus:tw-ring-2 tw-focus:tw-ring-blue-500 tw-focus:tw-border-transparent text')
+    txt.addClass(font).addClass('w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text')
   }
   showPreview(event) {
     event.preventDefault()
@@ -66,7 +66,7 @@ export default class extends Controller {
       previewElement.textContent = inputText
     })
 
-    this.outputTarget.classList.remove('tw-hidden')
+    this.outputTarget.classList.remove('hidden')
 
     setTimeout(() => {
       this.outputTarget.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -77,7 +77,7 @@ export default class extends Controller {
     event.preventDefault()
 
     if (this.hasOutputTarget) {
-      this.outputTarget.classList.add('tw-hidden')
+      this.outputTarget.classList.add('hidden')
     }
   }
 }

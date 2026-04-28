@@ -1,103 +1,103 @@
-<div class="tw-p-6 tw-bg-white tw-rounded tw-font-sans tw-text-gray-800 tw-space-y-8">
-  <p class="tw-leading-normal">
+<div class="p-6 bg-white rounded font-sans text-gray-800 space-y-8">
+  <p class="leading-normal">
     A <strong>stem</strong> is the intermediate form of a word between the <em>lemma</em> and its inflected surface form. It typically reflects the base pattern of a word before it’s conjugated or declined. Stemming is used in linguistic processing to group words with similar forms.
   </p>
 
-  <div class="tw-bg-green-100 tw-border tw-border-green-300 tw-text-green-800 tw-px-4 tw-py-3 tw-rounded" role="alert">
-    <p class="tw-font-semibold">ℹ️ Note:</p>
-    <p class="tw-leading-normal">
-      While a <strong>lemma</strong> is a dictionary entry (e.g., <span class="tw-font-mono">رَحِمَ</span>), a <strong>stem</strong> may be a simplified, reduced form (e.g., <span class="tw-font-mono">رَحْم</span>) used for grouping variants. It may not always correspond to a valid Arabic word.
+  <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded" role="alert">
+    <p class="font-semibold">ℹ️ Note:</p>
+    <p class="leading-normal">
+      While a <strong>lemma</strong> is a dictionary entry (e.g., <span class="font-mono">رَحِمَ</span>), a <strong>stem</strong> may be a simplified, reduced form (e.g., <span class="font-mono">رَحْم</span>) used for grouping variants. It may not always correspond to a valid Arabic word.
     </p>
 
-    <p class="tw-leading-normal">
+    <p class="leading-normal">
       Stemming is useful for grouping words in search, clustering, or analyzing morphological variation without needing the full lemma or root system.
     </p>
   </div>
 
-  <div class="tw-bg-gray-50 tw-border-l-4 tw-border-gray-300 tw-p-4">
-    <p class="tw-font-semibold tw-mb-2">Example:</p>
-    <ul class="tw-list-disc tw-pl-5 tw-space-y-1">
+  <div class="bg-gray-50 border-l-4 border-gray-300 p-4">
+    <p class="font-semibold mb-2">Example:</p>
+    <ul class="list-disc pl-5 space-y-1">
       <li>
-        Lemma: <span class="tw-font-mono tw-bg-gray-100 tw-px-1">رَحِمَ</span> – to have mercy
+        Lemma: <span class="font-mono bg-gray-100 px-1">رَحِمَ</span> – to have mercy
       </li>
       <li>
-        Stem: <span class="tw-font-mono tw-bg-gray-100 tw-px-1">رَحْم</span>
+        Stem: <span class="font-mono bg-gray-100 px-1">رَحْم</span>
       </li>
       <li>Related forms:
-        <ul class="tw-list-disc tw-pl-5 tw-mt-1 tw-space-y-1">
-          <li><span class="qpc-hafs tw-font-bold">رَحْمَة</span> (raḥmah) – mercy</li>
-          <li><span class="qpc-hafs tw-font-bold">يَرْحَمُ</span> (yarḥamu) – he shows mercy</li>
-          <li><span class="qpc-hafs tw-font-bold">الرَّحِيم</span> (Ar-Raḥīm) – the Merciful</li>
+        <ul class="list-disc pl-5 mt-1 space-y-1">
+          <li><span class="qpc-hafs font-bold">رَحْمَة</span> (raḥmah) – mercy</li>
+          <li><span class="qpc-hafs font-bold">يَرْحَمُ</span> (yarḥamu) – he shows mercy</li>
+          <li><span class="qpc-hafs font-bold">الرَّحِيم</span> (Ar-Raḥīm) – the Merciful</li>
         </ul>
       </li>
     </ul>
   </div>
 
   <div>
-    <p class="tw-leading-normal">
-      QUL exports stem data in the <code class="tw-font-mono">stems</code> and <code class="tw-font-mono">word_stems</code> tables of the SQLite dataset.
+    <p class="leading-normal">
+      QUL exports stem data in the <code class="font-mono">stems</code> and <code class="font-mono">word_stems</code> tables of the SQLite dataset.
     </p>
 
-    <div class="tw-mt-4">
-      <h4 class="tw-font-semibold tw-mb-2">Table: <code class="tw-font-mono">stems</code></h4>
-      <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm">
-        <thead class="tw-bg-gray-100 tw-text-gray-700">
+    <div class="mt-4">
+      <h4 class="font-semibold mb-2">Table: <code class="font-mono">stems</code></h4>
+      <table class="w-full table-auto border-collapse text-sm">
+        <thead class="bg-gray-100 text-gray-700">
         <tr>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Column</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
         </tr>
         </thead>
         <tbody>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">id</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Unique identifier for the stem</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">id</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Unique identifier for the stem</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
-          <td class="tw-px-4 tw-py-2">text</td>
-          <td class="tw-px-4 tw-py-2">TEXT</td>
-          <td class="tw-px-4 tw-py-2">Stem text with tashkeel</td>
+        <tr class="border-b border-gray-200 bg-gray-50">
+          <td class="px-4 py-2">text</td>
+          <td class="px-4 py-2">TEXT</td>
+          <td class="px-4 py-2">Stem text with tashkeel</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">text_clean</td>
-          <td class="tw-px-4 tw-py-2">TEXT</td>
-          <td class="tw-px-4 tw-py-2">Stem text without tashkeel</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">text_clean</td>
+          <td class="px-4 py-2">TEXT</td>
+          <td class="px-4 py-2">Stem text without tashkeel</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200 tw-bg-gray-50">
-          <td class="tw-px-4 tw-py-2">words_count</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Total occurrences of all derived words for stem</td>
+        <tr class="border-b border-gray-200 bg-gray-50">
+          <td class="px-4 py-2">words_count</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Total occurrences of all derived words for stem</td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">uniq_words_count</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Count of unique word forms derived from this stem</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">uniq_words_count</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Count of unique word forms derived from this stem</td>
         </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="tw-mt-6">
-      <h4 class="tw-font-semibold tw-mb-2">Table: <code class="tw-font-mono">word_stems</code></h4>
-      <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-sm">
-        <thead class="tw-bg-gray-100 tw-text-gray-700">
+    <div class="mt-6">
+      <h4 class="font-semibold mb-2">Table: <code class="font-mono">word_stems</code></h4>
+      <table class="w-full table-auto border-collapse text-sm">
+        <thead class="bg-gray-100 text-gray-700">
         <tr>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Column</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Type</th>
-          <th class="tw-border tw-border-gray-300 tw-px-4 tw-py-2 tw-text-left">Description</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Column</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
         </tr>
         </thead>
         <tbody>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">stem_id</td>
-          <td class="tw-px-4 tw-py-2">INTEGER</td>
-          <td class="tw-px-4 tw-py-2">Foreign key to <code class="tw-font-mono">stems.id</code></td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">stem_id</td>
+          <td class="px-4 py-2">INTEGER</td>
+          <td class="px-4 py-2">Foreign key to <code class="font-mono">stems.id</code></td>
         </tr>
-        <tr class="tw-border-b tw-border-gray-200">
-          <td class="tw-px-4 tw-py-2">location</td>
-          <td class="tw-px-4 tw-py-2">TEXT</td>
-          <td class="tw-px-4 tw-py-2">Word location (e.g. <code>1:1:2</code>)</td>
+        <tr class="border-b border-gray-200">
+          <td class="px-4 py-2">location</td>
+          <td class="px-4 py-2">TEXT</td>
+          <td class="px-4 py-2">Word location (e.g. <code>1:1:2</code>)</td>
         </tr>
         </tbody>
       </table>

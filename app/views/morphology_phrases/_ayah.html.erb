@@ -12,75 +12,75 @@
   data-ranges="<%= ranges %>"
   data-ayahid="<%= ayah.id %>"
   data-ayahkey="<%= ayah.verse_key %>"
-  class="ayah tw-bg-white tw-rounded-xl tw-border-2 <%= persisted ? 'tw-border-green-500 tw-shadow-md' : 'tw-border-gray-100 tw-shadow-sm' %> tw-p-5 tw-mb-4 tw-transition-all hover:tw-border-blue-200">
+  class="ayah bg-white rounded-xl border-2 <%= persisted ? 'border-green-500 shadow-md' : 'border-gray-100 shadow-sm' %> p-5 mb-4 transition-all hover:border-blue-200">
 
-  <div class="tw-flex tw-justify-between tw-items-center tw-mb-4 tw-pb-4 tw-border-b tw-border-gray-50">
-    <div class="tw-flex tw-items-center tw-gap-2">
+  <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-50">
+    <div class="flex items-center gap-2">
       <% if persisted %>
         <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}",
                     target: '_blank',
                     title: 'See ayah in admin',
                     data: { controller: 'tooltip' } do %>
 
-          <div class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-green-500 tw-text-white tw-text-xs">
+          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-xs">
             <i class="fas fa-check"></i>
           </div>
         <% end %>
       <% end %>
 
-      <span class="tw-px-2.5 tw-py-0.5 tw-rounded-md tw-text-sm tw-font-bold tw-bg-gray-800 tw-text-white">
+      <span class="px-2.5 py-0.5 rounded-md text-sm font-bold bg-gray-800 text-white">
         <%= ayah.verse_key %>
       </span>
-      <span class="tw-px-2.5 tw-py-0.5 tw-rounded-md tw-text-xs tw-font-medium tw-bg-blue-50 tw-text-blue-700 tw-border tw-border-blue-100">
+      <span class="px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
         <%= matcher %>
       </span>
       <% if ranges.any? %>
-        <span class="tw-px-2.5 tw-py-0.5 tw-rounded-md tw-text-xs tw-font-mono tw-bg-gray-100 tw-text-gray-600">
+        <span class="px-2.5 py-0.5 rounded-md text-xs font-mono bg-gray-100 text-gray-600">
           <%= ranges.inspect %>
         </span>
       <% end %>
     </div>
 
-    <div class="tw-flex tw-items-center tw-gap-1.5">
+    <div class="flex items-center gap-1.5">
       <% if @access %>
         <button
-          class="tw-h-8 tw-px-3 tw-text-xs tw-font-medium tw-bg-green-600 hover:tw-bg-green-700 tw-text-white tw-rounded tw-transition-colors tw-flex tw-items-center tw-gap-1.5"
+          class="h-8 px-3 text-xs font-medium bg-green-600 hover:bg-green-700 text-white rounded transition-colors flex items-center gap-1.5"
           data-action="savePhrase"
           title="Save phrase"
           data-controller="tooltip">
           <i class="fas fa-save"></i>
-          <span class="tw-hidden md:tw-inline">Save</span>
+          <span class="hidden md:inline">Save</span>
         </button>
 
         <button
-          class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-slate-300 tw-text-slate-600 hover:tw-bg-slate-50 tw-rounded tw-transition-colors"
+          class="h-8 w-8 flex items-center justify-center bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 rounded transition-colors"
           data-action="resetSelection"
           title="Reset selection"
           data-controller="tooltip">
-          <i class="fas fa-redo-alt tw-text-xs"></i>
+          <i class="fas fa-redo-alt text-xs"></i>
         </button>
 
         <button
-          class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-red-200 tw-text-red-600 hover:tw-bg-red-50 tw-rounded tw-transition-colors"
+          class="h-8 w-8 flex items-center justify-center bg-white border border-red-200 text-red-600 hover:bg-red-50 rounded transition-colors"
           data-action="removePhrase"
           title="Remove phrase"
           data-controller="tooltip">
-          <i class="fas fa-trash tw-text-xs"></i>
+          <i class="fas fa-trash text-xs"></i>
         </button>
 
         <button
-          class="tw-h-8 tw-w-8 tw-flex tw-items-center tw-justify-center tw-bg-white tw-border tw-border-slate-300 tw-text-slate-600 hover:tw-bg-slate-50 tw-rounded tw-transition-colors"
+          class="h-8 w-8 flex items-center justify-center bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 rounded transition-colors"
           data-action="bookmark"
           title="Bookmark"
           data-controller="tooltip">
-          <i class="fas fa-bookmark tw-text-xs"></i>
+          <i class="fas fa-bookmark text-xs"></i>
         </button>
       <% end %>
 
       <% if persisted %>
         <%= link_to "/cms/morphology_phrase_verses/#{phrase_ayah_id}",
                     target: '_blank',
-                    class: 'tw-text-gray-400 hover:tw-text-blue-500 tw-transition-colors',
+                    class: 'text-gray-400 hover:text-blue-500 transition-colors',
                     title: 'Open in CMS',
                     data: { controller: 'tooltip' } do %>
           <i class="fas fa-external-link-alt"></i>
@@ -89,7 +89,7 @@
     </div>
   </div>
 
-  <div class="words tw-flex tw-flex-wrap tw-gap-y-6 quran-text">
+  <div class="words flex flex-wrap gap-y-6 quran-text">
     <% ayah.words.order('position asc').each do |w| %>
       <% next if w.ayah_mark? %>
       <%
@@ -99,28 +99,28 @@
       %>
 
       <div
-        class="word tw-flex tw-flex-col tw-items-center tw-px-2 tw-relative tw-group <%= 'selected' if selected %> <%= 'removed' if skipped %>"
+        class="word flex flex-col items-center px-2 relative group <%= 'selected' if selected %> <%= 'removed' if skipped %>"
         data-position="<%= w.position %>">
         <% if @access %>
-          <div class="tw-absolute -tw-top-5 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity tw-flex tw-gap-1 tw-z-10">
+          <div class="absolute -top-5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
             <i
-              class="fa-solid fa-xmark tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= skipped ? 'active tw-bg-red-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-red-500 hover:tw-text-white hover:tw-border-red-500' %> tw-shadow-sm"
+              class="fa-solid fa-xmark cursor-pointer text-[10px] w-5 h-5 flex items-center justify-center rounded-full <%= skipped ? 'active bg-red-500 text-white' : 'bg-white text-slate-400 border border-slate-200 hover:bg-red-500 hover:text-white hover:border-red-500' %> shadow-sm"
               data-action="remove"
               title="Exclude"
               data-controller="tooltip"></i>
             <i
-              class="fa-solid fa-plus tw-cursor-pointer tw-text-[10px] tw-w-5 tw-h-5 tw-flex tw-items-center tw-justify-center tw-rounded-full <%= selected ? 'active tw-bg-green-500 tw-text-white' : 'tw-bg-white tw-text-slate-400 tw-border tw-border-slate-200 hover:tw-bg-green-500 hover:tw-text-white hover:tw-border-green-500' %> tw-shadow-sm"
+              class="fa-solid fa-plus cursor-pointer text-[10px] w-5 h-5 flex items-center justify-center rounded-full <%= selected ? 'active bg-green-500 text-white' : 'bg-white text-slate-400 border border-slate-200 hover:bg-green-500 hover:text-white hover:border-green-500' %> shadow-sm"
               data-action="add"
               title="Include"
               data-controller="tooltip"></i>
           </div>
         <% end %>
 
-        <span class="qpc-hafs tw-text-2xl tw-mb-1 <%= 'tw-text-green-600 tw-font-bold' if selected %> <%= 'tw-text-red-400 tw-line-through' if skipped %>">
+        <span class="qpc-hafs text-2xl mb-1 <%= 'text-green-600 font-bold' if selected %> <%= 'text-red-400 line-through' if skipped %>">
           <%= w.text_qpc_hafs %>
         </span>
 
-        <span class="tw-text-xs tw-font-mono tw-text-gray-500 tw-bg-gray-50 tw-px-1.5 tw-py-0.5 tw-rounded">
+        <span class="text-xs font-mono text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">
           <%= w.position %>
         </span>
       </div>

@@ -1,14 +1,14 @@
-<footer id="qul-site-footer" class="tw-border-t" data-turbo-permanent>
+<footer id="qul-site-footer" class="border-t" data-turbo-permanent>
   <%= render 'layouts/grid' do %>
-    <div class="w-full tw-items-center tw-py-5 md:tw-py-8 md:tw-justify-between tw-flex tw-flex-col md:tw-flex-row tw-gap-3">
-      <div class="tw-flex tw-flex-col tw-gap-3 tw-justify-between">
-        <div class="tw-flex tw-gap-3 tw-items-center">
+    <div class="w-full items-center py-5 md:py-8 md:justify-between flex flex-col md:flex-row gap-3">
+      <div class="flex flex-col gap-3 justify-between">
+        <div class="flex gap-3 items-center">
           <div class="qul-tag">
             <span>Quranic</span>
             <span>Universal</span>
             <span>Library</span>
           </div>
-          <div class="tw-w-px tw-h-[30px] tw-bg-gray-400"></div>
+          <div class="w-px h-[30px] bg-gray-400"></div>
           <div class="qul-tag">
             <svg width="39" height="32" viewBox="0 0 39 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path opacity="0.35" fill-rule="evenodd" clip-rule="evenodd" d="M30.9746 3.58175L29.4942 2.1367C29.3353 1.98164 29.3316 1.72737 29.4859 1.56776L30.8823 0.123023C31.0382 -0.0382324 31.2957 -0.0413724 31.4554 0.116033L32.9358 1.57465C33.0939 1.73045 33.0964 1.98474 32.9414 2.14362L31.545 3.57479C31.3894 3.73426 31.134 3.73737 30.9746 3.58175ZM34.7748 3.58033L33.2944 2.1353C33.1361 1.98079 33.1318 1.72763 33.2847 1.56782L34.6645 0.125922C34.8201 -0.0366866 35.0786 -0.0404899 35.2389 0.117472L36.7193 1.57607C36.8768 1.73131 36.88 1.98449 36.7263 2.14358L35.3466 3.57192C35.1913 3.73273 34.9348 3.73651 34.7748 3.58033ZM31.8262 4.67011H33.5014C36.9549 4.67011 38.7202 6.28344 38.7202 9.41976C38.7202 12.5561 36.9549 14.1694 33.5014 14.1694H31.8262C31.0679 14.1694 30.391 14.0916 29.7963 13.937H13.2443C12.6957 15.5523 11.2991 16.3571 9.07693 16.3571H4.4328C1.49478 16.3571 0 14.9503 0 12.1237V9.5101H2.19063V12.1237C2.19063 13.7112 3.1442 14.4598 4.94824 14.4727H8.56149C10.2569 14.4727 11.2012 13.8115 11.3088 12.4035V4.90236H13.4994V7.0901H13.5097V12.0526H27.1972C26.8049 11.3477 26.6074 10.469 26.6074 9.41976C26.6074 6.28344 28.3728 4.67011 31.8262 4.67011ZM32.2128 12.2979H33.1148C35.2926 12.285 36.4394 11.317 36.4394 9.41976C36.4394 7.50958 35.2926 6.54158 33.1148 6.54158H32.2128C30.0351 6.54158 28.8882 7.50958 28.8882 9.41976C28.8882 11.317 30.0351 12.285 32.2128 12.2979Z" fill="black"/>
@@ -16,9 +16,9 @@
             </svg>
           </div>
         </div>
-        <div class="md:tw-hidden">
+        <div class="md:hidden">
           <a
-          class="tw-text-gray-900 hover:tw-underline hover:tw-text-[#46ac7a] tw-transition-colors github-button"
+          class="text-gray-900 hover:underline hover:text-[#46ac7a] transition-colors github-button"
           href="https://github.com/TarteelAI/quranic-universal-library"
           data-color-scheme="no-preference: light; light: light; dark: dark;"
           data-size="large"
@@ -29,14 +29,14 @@
         >Star us</a>
         </div>
       </div>
-      <div class="tw-flex tw-gap-5 tw-justify-start md:tw-justify-end">
-        <%= link_to 'FAQ', faq_path, class: 'tw-text-gray-900 hover:tw-underline hover:tw-text-[#46ac7a] tw-transition-colors tw-w-[max-content]' %>
-        <%= link_to 'Credits', credits_path, class: 'tw-text-gray-900 hover:tw-underline hover:tw-text-[#46ac7a] tw-transition-colors tw-w-[max-content]' %>
-        <%= link_to 'Terms of use', 'https://www.tarteel.ai/terms', class: 'tw-text-gray-900 hover:tw-underline hover:tw-text-[#46ac7a] tw-transition-colors tw-w-[max-content]', target: '_blank' %>
-        <%= link_to 'Privacy Policy', 'https://www.tarteel.ai/privacy', class: 'tw-text-gray-900 hover:tw-underline hover:tw-text-[#46ac7a] tw-transition-colors tw-w-[max-content]', target: '_blank' %>
-        <div class="tw-hidden md:tw-block">
+      <div class="flex gap-5 justify-start md:justify-end">
+        <%= link_to 'FAQ', faq_path, class: 'text-gray-900 hover:underline hover:text-[#46ac7a] transition-colors w-[max-content]' %>
+        <%= link_to 'Credits', credits_path, class: 'text-gray-900 hover:underline hover:text-[#46ac7a] transition-colors w-[max-content]' %>
+        <%= link_to 'Terms of use', 'https://www.tarteel.ai/terms', class: 'text-gray-900 hover:underline hover:text-[#46ac7a] transition-colors w-[max-content]', target: '_blank' %>
+        <%= link_to 'Privacy Policy', 'https://www.tarteel.ai/privacy', class: 'text-gray-900 hover:underline hover:text-[#46ac7a] transition-colors w-[max-content]', target: '_blank' %>
+        <div class="hidden md:block">
           <a
-          class="tw-text-gray-900 hover:tw-underline hover:tw-text-[#46ac7a] tw-transition-colors github-button"
+          class="text-gray-900 hover:underline hover:text-[#46ac7a] transition-colors github-button"
           href="https://github.com/TarteelAI/quranic-universal-library"
           data-color-scheme="no-preference: light; light: light; dark: dark;"
           data-size="large"

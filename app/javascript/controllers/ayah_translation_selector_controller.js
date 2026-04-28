@@ -15,10 +15,10 @@ export default class extends Controller {
   connect() {
     const prefs = getAyahModalPrefs();
     if (prefs.translationPanelOpen) {
-      this.backdropTarget.classList.remove("tw-hidden");
-      this.backdropTarget.classList.add("tw-block");
-      this.panelTarget.classList.remove("tw-hidden");
-      this.panelTarget.classList.add("tw-flex");
+      this.backdropTarget.classList.remove("hidden");
+      this.backdropTarget.classList.add("block");
+      this.panelTarget.classList.remove("hidden");
+      this.panelTarget.classList.add("flex");
     }
     if (prefs.translationIds && prefs.translationIds.length) {
       const current = this.currentTranslationIds();
@@ -35,19 +35,19 @@ export default class extends Controller {
   open(e) {
     e.preventDefault();
     setAyahModalPrefs({ translationPanelOpen: true });
-    this.backdropTarget.classList.remove("tw-hidden");
-    this.backdropTarget.classList.add("tw-block");
-    this.panelTarget.classList.remove("tw-hidden");
-    this.panelTarget.classList.add("tw-flex");
+    this.backdropTarget.classList.remove("hidden");
+    this.backdropTarget.classList.add("block");
+    this.panelTarget.classList.remove("hidden");
+    this.panelTarget.classList.add("flex");
   }
 
   close(e) {
     e.preventDefault();
     setAyahModalPrefs({ translationPanelOpen: false });
-    this.panelTarget.classList.add("tw-hidden");
-    this.panelTarget.classList.remove("tw-flex");
-    this.backdropTarget.classList.add("tw-hidden");
-    this.backdropTarget.classList.remove("tw-block");
+    this.panelTarget.classList.add("hidden");
+    this.panelTarget.classList.remove("flex");
+    this.backdropTarget.classList.add("hidden");
+    this.backdropTarget.classList.remove("block");
     // Submit form when closing to save translation selections
     if (this.formTarget) this.formTarget.requestSubmit();
   }
@@ -131,7 +131,7 @@ export default class extends Controller {
             '[data-ayah-translation-selector-target="groupContent"]',
           );
           if (groupContent) {
-            groupContent.classList.remove("tw-hidden");
+            groupContent.classList.remove("hidden");
             const chevron = group.querySelector(
               '[data-ayah-translation-selector-target="chevron"]',
             );
@@ -160,7 +160,7 @@ export default class extends Controller {
             '[data-ayah-translation-selector-target="groupContent"]',
           );
           if (groupContent) {
-            groupContent.classList.remove("tw-hidden");
+            groupContent.classList.remove("hidden");
             const chevron = group.querySelector(
               '[data-ayah-translation-selector-target="chevron"]',
             );
@@ -182,11 +182,11 @@ export default class extends Controller {
     );
 
     if (content) {
-      content.classList.toggle("tw-hidden");
+      content.classList.toggle("hidden");
     }
 
     if (chevron) {
-      const isExpanded = !content.classList.contains("tw-hidden");
+      const isExpanded = !content.classList.contains("hidden");
       chevron.style.transform = isExpanded ? "rotate(180deg)" : "rotate(0deg)";
     }
   }

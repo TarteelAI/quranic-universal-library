@@ -93,7 +93,7 @@ ActiveAdmin.register Morphology::Phrase do
       end
 
       chapters.values.each do |c|
-        span class: 'btn btn-info tw-m-1' do
+        span class: 'btn btn-info m-1' do
           span c[:chapter].id
           span c[:chapter].name_simple
           span c[:count], class: 'badge text-bg-secondary bg-success'
@@ -131,14 +131,14 @@ ActiveAdmin.register Morphology::Phrase do
             tr do
               td link_to v.id, [:cms, v]
               td link_to verse.verse_key, [:cms, verse]
-              td class: 'tw-py-2' do
-                div class: 'tw-flex tw-flex-col tw-gap-2 tw-items-start' do
+              td class: 'py-2' do
+                div class: 'flex flex-col gap-2 items-start' do
                   status_tag v.approved?
                   
                   if can? :update, Morphology::MatchingVerse
-                    div class: 'tw-w-full' do
+                    div class: 'w-full' do
                       link_to approve_cms_morphology_phrase_verse_path(v),
-                              class: "btn tw-whitespace-nowrap tw-w-full tw-text-center #{v.approved? ? 'btn-danger' : 'btn-success'}",
+                              class: "btn whitespace-nowrap w-full text-center #{v.approved? ? 'btn-danger' : 'btn-success'}",
                               method: :put,
                               data: { remote: true, confirm: 'Are you sure?' } do
                         v.approved? ? 'Un Approve!' : 'Approve!'
@@ -146,9 +146,9 @@ ActiveAdmin.register Morphology::Phrase do
                     end
 
                     if resource.source_verse_id && v.verse_id != resource.source_verse_id
-                      div id: dom_id(v), class: 'tw-w-full' do
+                      div id: dom_id(v), class: 'w-full' do
                         link_to create_matching_ayah_cms_morphology_phrase_verse_path(v), method: :put,
-                                class: 'btn btn-info tw-whitespace-nowrap tw-w-full tw-text-center', data: { remote: true, confirm: 'Are you sure?' } do
+                                class: 'btn btn-info whitespace-nowrap w-full text-center', data: { remote: true, confirm: 'Are you sure?' } do
                           'Create Matching ayah'
                         end
                       end
@@ -162,7 +162,7 @@ ActiveAdmin.register Morphology::Phrase do
                   span w.text_qpc_hafs,
                        class: "#{
                          if w.position >= v.word_position_from.to_i && w.position <= v.word_position_to.to_i
-                           'tw-text-green-500'
+                           'text-green-500'
                          end}"
                 end
               end

@@ -3,7 +3,7 @@
 </div>
 
 <div id=body>
-  <div class="tw-p-6">
+  <div class="p-6">
     <ul class="list-group">
       <% Mushaf.where.not(id: @mushaf.id).each do |compare| %>
         <li class="list-group-item">
@@ -13,7 +13,7 @@
     </ul>
   </div>
 
-  <div class="tw-flex tw-items-center tw-justify-end tw-p-6 tw-border-t tw-border-gray-200 tw-space-x-2">
-    <button type="button" class="tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-transition-colors btn-default" data-dismiss="modal">Close</button>
+  <div class="flex items-center justify-end p-6 border-t border-gray-200 space-x-2">
+    <button type="button" class="px-4 py-2 rounded font-medium transition-colors btn-default" data-dismiss="modal">Close</button>
   </div>
 </div>

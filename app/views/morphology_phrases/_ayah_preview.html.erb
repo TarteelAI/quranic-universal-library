@@ -24,20 +24,20 @@
   end
 %>
 
-<div class="tw-space-y-6">
-  <div class="tw-flex tw-flex-col tw-items-end">
-    <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded tw-text-xs tw-font-medium tw-bg-green-600 tw-text-white">
+<div class="space-y-6">
+  <div class="flex flex-col items-end">
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white">
       <%= verse.verse_key %>
     </span>
-    <div class="quran-text qpc-hafs tw-flex tw-flex-wrap tw-gap-x-1 tw-mt-3 tw-text-2xl tw-leading-relaxed tw-text-right tw-justify-end">
+    <div class="quran-text qpc-hafs flex flex-wrap gap-x-1 mt-3 text-2xl leading-relaxed text-right justify-end">
       <% phrase_groups.each do |key, group| %>
         <% if key.is_a?(Morphology::Phrase) %>
           <%
             title = key.phrase_verses.approved.map &:text
             title = title.join("<br/>").html_safe
           %>
-          <span title="(<%= key.id %>: <%= key.source_verse.verse_key %>)<%= key.text_qpc_hafs %> <span class='tw-bg-blue-100 tw-text-blue-800 tw-px-1 tw-rounded tw-text-xs'><%= key.occurrence %></span> <%= title %>"
-                class="phrase tw-inline-flex tw-mr-1"
+          <span title="(<%= key.id %>: <%= key.source_verse.verse_key %>)<%= key.text_qpc_hafs %> <span class='bg-blue-100 text-blue-800 px-1 rounded text-xs'><%= key.occurrence %></span> <%= title %>"
+                class="phrase inline-flex mr-1"
                 data-controller="tooltip"
                 style="color: <%= key.get_color %>">
             <% group.each do |w| %>
@@ -45,7 +45,7 @@
             <% end %>
           </span>
         <% else %>
-          <span class="tw-text-gray-900">
+          <span class="text-gray-900">
             <%= group.text_qpc_hafs %>
           </span>
         <% end %>
@@ -53,11 +53,11 @@
     </div>
   </div>
 
-  <div class="tw-border-t tw-border-gray-200 tw-pt-6">
-    <h3 class="tw-text-lg tw-font-semibold tw-text-gray-800 tw-mb-4 tw-flex tw-items-center tw-gap-2">
-      <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded tw-text-xs tw-font-medium tw-bg-green-600 tw-text-white">Phrases</span>
+  <div class="border-t border-gray-200 pt-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white">Phrases</span>
     </h3>
-    <div class="tw-space-y-3">
+    <div class="space-y-3">
       <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by { |s| -s.score }, as: :phrase_verse %>
     </div>
   </div>

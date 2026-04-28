@@ -12,7 +12,7 @@ export default class extends Controller {
       if (targetElement && targetElement.classList.contains('collapse')) {
         this.isTrigger = true;
         this.targetElement = targetElement;
-        const targetHasHidden = targetElement.classList.contains('tw-hidden');
+        const targetHasHidden = targetElement.classList.contains('hidden');
         const targetHasShow = targetElement.classList.contains('show');
         const targetHasActive = targetElement.classList.contains('active');
         const targetIsOpen = targetHasShow || targetHasActive || !targetHasHidden;
@@ -21,7 +21,7 @@ export default class extends Controller {
       }
     }
     
-    const hasMdFlex = this.element.classList.contains('md:tw-flex');
+    const hasMdFlex = this.element.classList.contains('md:flex');
     const isMobile = window.innerWidth < 768;
     
     if (hasMdFlex) {
@@ -34,13 +34,13 @@ export default class extends Controller {
         return;
       } else {
         if (!this.element.classList.contains('show') && !this.element.classList.contains('active')) {
-          if (!this.element.classList.contains('tw-hidden')) {
-            this.element.classList.add('tw-hidden');
+          if (!this.element.classList.contains('hidden')) {
+            this.element.classList.add('hidden');
           }
           this.isOpen = false;
         } else {
-          if (this.element.classList.contains('tw-hidden')) {
-            this.element.classList.remove('tw-hidden');
+          if (this.element.classList.contains('hidden')) {
+            this.element.classList.remove('hidden');
           }
           this.isOpen = true;
         }
@@ -51,15 +51,15 @@ export default class extends Controller {
       this.isOpen = hasShow || hasActive || !this.element.classList.contains('collapse');
       
       if (!this.isOpen) {
-        this.element.classList.add('tw-hidden');
+        this.element.classList.add('hidden');
         this.element.style.maxHeight = '0';
       } else {
-        this.element.classList.remove('tw-hidden');
+        this.element.classList.remove('hidden');
         this.element.style.maxHeight = '';
       }
     }
     
-    this.element.classList.add('tw-transition-all', 'tw-duration-300', 'tw-ease-in-out', 'tw-overflow-hidden');
+    this.element.classList.add('transition-all', 'duration-300', 'ease-in-out', 'overflow-hidden');
     
     setTimeout(() => {
       this.setupTriggers();
@@ -120,7 +120,7 @@ export default class extends Controller {
     // Update initial trigger states
     this.updateTriggers();
     
-    const hasMdFlex = this.element.classList.contains('md:tw-flex');
+    const hasMdFlex = this.element.classList.contains('md:flex');
     if (hasMdFlex) {
       this.resizeHandler = () => {
         const isMobile = window.innerWidth < 768;
@@ -129,18 +129,18 @@ export default class extends Controller {
           if (computedStyle.display === 'none') {
             this.element.style.display = '';
           }
-          if (this.element.classList.contains('tw-hidden')) {
-            this.element.classList.remove('tw-hidden');
+          if (this.element.classList.contains('hidden')) {
+            this.element.classList.remove('hidden');
           }
           this.isOpen = true;
         } else {
           if (!this.isOpen) {
-            if (!this.element.classList.contains('tw-hidden')) {
-              this.element.classList.add('tw-hidden');
+            if (!this.element.classList.contains('hidden')) {
+              this.element.classList.add('hidden');
             }
           } else {
-            if (this.element.classList.contains('tw-hidden')) {
-              this.element.classList.remove('tw-hidden');
+            if (this.element.classList.contains('hidden')) {
+              this.element.classList.remove('hidden');
             }
           }
         }
@@ -156,7 +156,7 @@ export default class extends Controller {
     }
     
     if (this.isTrigger && this.targetElement) {
-      const targetHasHidden = this.targetElement.classList.contains('tw-hidden');
+      const targetHasHidden = this.targetElement.classList.contains('hidden');
       const targetHasShow = this.targetElement.classList.contains('show');
       const targetHasActive = this.targetElement.classList.contains('active');
       const targetIsOpen = targetHasShow || targetHasActive || !targetHasHidden;
@@ -170,7 +170,7 @@ export default class extends Controller {
     }
     
     const isMobile = window.innerWidth < 768;
-    const hasMdFlex = this.element.classList.contains('md:tw-flex');
+    const hasMdFlex = this.element.classList.contains('md:flex');
     if (hasMdFlex && !isMobile) {
       return;
     }
@@ -183,7 +183,7 @@ export default class extends Controller {
   }
   
   showTarget(targetElement) {
-    targetElement.classList.remove('tw-hidden');
+    targetElement.classList.remove('hidden');
     targetElement.style.maxHeight = '0';
     targetElement.style.overflow = 'hidden';
     
@@ -209,7 +209,7 @@ export default class extends Controller {
       targetElement.style.maxHeight = '0';
       
       setTimeout(() => {
-        targetElement.classList.add('tw-hidden');
+        targetElement.classList.add('hidden');
         targetElement.classList.remove('show', 'active');
         targetElement.style.maxHeight = '';
         targetElement.style.overflow = '';
@@ -227,36 +227,36 @@ export default class extends Controller {
       
       const revealIcon = this.element.querySelector('.collapsed-reveal');
       const hiddenIcon = this.element.querySelector('.collapsed-hidden');
-      if (revealIcon) revealIcon.classList.add('tw-hidden');
-      if (hiddenIcon) hiddenIcon.classList.remove('tw-hidden');
+      if (revealIcon) revealIcon.classList.add('hidden');
+      if (hiddenIcon) hiddenIcon.classList.remove('hidden');
     } else {
       this.element.setAttribute('aria-expanded', 'false');
       this.element.classList.add('collapsed');
       
       const revealIcon = this.element.querySelector('.collapsed-reveal');
       const hiddenIcon = this.element.querySelector('.collapsed-hidden');
-      if (revealIcon) revealIcon.classList.remove('tw-hidden');
-      if (hiddenIcon) hiddenIcon.classList.add('tw-hidden');
+      if (revealIcon) revealIcon.classList.remove('hidden');
+      if (hiddenIcon) hiddenIcon.classList.add('hidden');
     }
   }
 
   show() {
     const isMobile = window.innerWidth < 768;
-    const hasMdFlex = this.element.classList.contains('md:tw-flex');
+    const hasMdFlex = this.element.classList.contains('md:flex');
     if (hasMdFlex && !isMobile) {
       return;
     }
     
     if (hasMdFlex) {
-      if (this.element.classList.contains('tw-hidden')) {
-        this.element.classList.remove('tw-hidden');
+      if (this.element.classList.contains('hidden')) {
+        this.element.classList.remove('hidden');
       }
       this.isOpen = true;
       this.updateTriggers();
       return;
     }
     
-    this.element.classList.remove('tw-hidden');
+    this.element.classList.remove('hidden');
     this.element.style.maxHeight = '0';
     this.element.style.overflow = 'hidden';
     
@@ -276,14 +276,14 @@ export default class extends Controller {
 
   hide() {
     const isMobile = window.innerWidth < 768;
-    const hasMdFlex = this.element.classList.contains('md:tw-flex');
+    const hasMdFlex = this.element.classList.contains('md:flex');
     if (hasMdFlex && !isMobile) {
       return;
     }
     
     if (hasMdFlex) {
-      if (!this.element.classList.contains('tw-hidden')) {
-        this.element.classList.add('tw-hidden');
+      if (!this.element.classList.contains('hidden')) {
+        this.element.classList.add('hidden');
       }
       this.isOpen = false;
       this.updateTriggers();
@@ -298,7 +298,7 @@ export default class extends Controller {
       this.element.style.maxHeight = '0';
       
       setTimeout(() => {
-        this.element.classList.add('tw-hidden');
+        this.element.classList.add('hidden');
         this.element.classList.remove('show', 'active');
         this.element.style.maxHeight = '';
         this.element.style.overflow = '';
@@ -323,16 +323,16 @@ export default class extends Controller {
         
         const revealIcon = trigger.querySelector('.collapsed-reveal');
         const hiddenIcon = trigger.querySelector('.collapsed-hidden');
-        if (revealIcon) revealIcon.classList.add('tw-hidden');
-        if (hiddenIcon) hiddenIcon.classList.remove('tw-hidden');
+        if (revealIcon) revealIcon.classList.add('hidden');
+        if (hiddenIcon) hiddenIcon.classList.remove('hidden');
       } else {
         trigger.setAttribute('aria-expanded', 'false');
         trigger.classList.add('collapsed');
         
         const revealIcon = trigger.querySelector('.collapsed-reveal');
         const hiddenIcon = trigger.querySelector('.collapsed-hidden');
-        if (revealIcon) revealIcon.classList.remove('tw-hidden');
-        if (hiddenIcon) hiddenIcon.classList.add('tw-hidden');
+        if (revealIcon) revealIcon.classList.remove('hidden');
+        if (hiddenIcon) hiddenIcon.classList.add('hidden');
       }
     });
   }

@@ -1,21 +1,21 @@
-<div class="page-section tw-mt-4 filters">
+<div class="page-section mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
     <%= hidden_field_tag :proofread, true %>
-    <div data-controller="chapter-verses-filter" class="tw-flex tw-items-start tw-flex-wrap">
+    <div data-controller="chapter-verses-filter" class="flex items-start flex-wrap">
       <%= render 'shared/filters' %>
 
-      <div class="tw-mb-4 tw-flex tw-items-center">
-        <%= submit_tag 'Filter', class: 'btn btn-success tw-mr-3 tw-h-[38px]', data: { disable_with: 'Please wait..' } %>
+      <div class="mb-4 flex items-center">
+        <%= submit_tag 'Filter', class: 'btn btn-success mr-3 h-[38px]', data: { disable_with: 'Please wait..' } %>
         <%= link_to 'Clear', morphology_phrases_path(proofread: true) if has_filters?(:filter_chapter, :filter_verse) %>
       </div>
     </div>
   <% end %>
 </div>
 
-<div class="page-section tw-mt-4">
+<div class="page-section mt-4">
   <h2>Ayah phrases list</h2>
-  <table class="tw-w-full hover:tw-bg-gray-50 tw-mt-4">
-    <thead class="tw-sticky tw-top-0 tw-z-10 tw-bg-white tw-border-b-2 tw-border-black">
+  <table class="w-full hover:bg-gray-50 mt-4">
+    <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
     <tr>
       <th><%= sort_order_link 'Ayah Key', :verse_index, proofread: true %></th>
       <th>Phrases</th>
@@ -25,15 +25,15 @@
     </thead>
     <tbody>
     <% @verses.each do |verse| %>
-      <tr class="hover:tw-bg-gray-200 tw-border-b">
-        <td scope="row" class="tw-py-2 tw-pl-2"><%= verse.verse_key %></td>
+      <tr class="hover:bg-gray-200 border-b">
+        <td scope="row" class="py-2 pl-2"><%= verse.verse_key %></td>
 
-        <td class="tw-py-2">
+        <td class="py-2">
           <%= verse.verse_phrases.size %>
         </td>
 
-        <td class="tw-py-2">
-          <div class="d-grid tw-gap-1">
+        <td class="py-2">
+          <div class="d-grid gap-1">
             <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
           </div>
         </td>

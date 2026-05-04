@@ -1,6 +1,10 @@
+<%
+  resources = local_assigns[:resources] || @resources || @resource_cards
+%>
+
 <div class="col-span-12 lg:col-start-2 lg:col-span-12 mt-8">
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" >
-    <% @resources.each do |card| %>
+    <% resources.each do |card| %>
       <% search_term = "#{card.type} #{card.title.downcase} #{card.description.to_s.downcase}" %>
 
       <%= render 'card/card-container', card: card, data: { turbo_frame: '_top', search: search_term } do %>
@@ -9,5 +13,4 @@
     <% end %>
   </div>
 </div>
-
 

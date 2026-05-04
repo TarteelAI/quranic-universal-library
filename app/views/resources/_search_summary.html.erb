@@ -1,0 +1,86 @@
+<%
+  search_result ||= @resource_search
+  show_facets ||= false
+  show_type_filters = show_facets && search_result&.global && search_result.available_resource_types.any?
+  show_tag_filters = show_facets && search_result.available_tags.any? && (!search_result.global || search_result.selected_resource_types.any?)
+  show_tag_hint = show_facets && search_result&.global && search_result.available_tags.any? && search_result.selected_resource_types.blank?
+%>
+
+<% if search_result&.active? || show_type_filters || show_tag_filters || show_tag_hint %>
+  <div class="mt-6 space-y-4">
+    <% if search_result&.quran_reference? %>
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+        Quran reference detected:
+        <span class="font-semibold"><%= search_result.normalized_ayah %></span>
+        <% if search_result.parsed_reference.chapter.present? %>
+          (<%= search_result.parsed_reference.chapter.name_simple %>, Ayah <%= search_result.parsed_reference.verse_number %>)
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if search_result&.active? %>
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="text-gray-500">Active filters:</span>
+
+        <% if search_result.query.present? %>
+          <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1">
+            <span class="font-medium">Search:</span>
+            <span><%= search_result.query %></span>
+          </span>
+        <% end %>
+
+        <% search_result.selected_resource_types.each do |resource_type| %>
+          <%= link_to resource_search_remove_type_path(resource_type), class: 'inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 hover:text-emerald-900', data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+            <span class="font-medium">Category:</span>
+            <span><%= resource_type_label(resource_type) %></span>
+            <span aria-hidden="true">&times;</span>
+          <% end %>
+        <% end %>
+
+        <% search_result.selected_tags.each do |tag_name| %>
+          <%= link_to resource_search_remove_tag_path(tag_name), class: 'inline-flex items-center gap-2 rounded-full bg-[#476CFF]/10 text-[#476CFF] px-3 py-1 hover:text-[#476CFF]', data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
+            <span class="font-medium"><%= tag_name %></span>
+            <span aria-hidden="true">&times;</span>
+          <% end %>
+        <% end %>
+
+        <%= link_to 'Clear all', resource_search_clear_path, class: 'text-sm font-medium text-gray-600 hover:text-black underline underline-offset-4', data: { turbo_frame: 'resources', turbo_action: 'advance' } %>
+      </div>
+    <% end %>
+
+    <% if show_type_filters %>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm font-medium text-slate-600">Categories:</span>
+
+        <% search_result.available_resource_types.each do |facet| %>
+          <%= render partial: 'resources/type_filter', locals: { facet: facet } %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if show_tag_filters %>
+      <div class="space-y-2" data-controller="facet-list" data-facet-list-collapsed-lines-value="2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-medium text-slate-600">Refine by tag:</span>
+
+          <button type="button"
+                  class="hidden text-sm font-medium text-slate-600 hover:text-slate-900"
+                  data-action="facet-list#toggle"
+                  data-facet-list-target="toggle"
+                  aria-expanded="false">
+            Show more
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 transition-[max-height] duration-300 ease-in-out"
+             data-facet-list-target="items">
+          <% search_result.available_tags.each do |facet| %>
+            <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
+          <% end %>
+        </div>
+      </div>
+    <% elsif show_tag_hint %>
+      <p class="text-sm text-slate-500">Select a category to narrow the results before filtering by tag.</p>
+    <% end %>
+  </div>
+<% end %>

@@ -86,12 +86,102 @@
     @apply inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 rounded-md transition-colors duration-150 ease-in-out border cursor-pointer no-underline;
   }
 
+  .tw-docs {
+    @apply text-gray-900 leading-relaxed;
+  }
+
+  .tw-docs h1 {
+    @apply text-3xl font-bold text-blue-600 mb-4;
+  }
+
+  .tw-docs h2 {
+    @apply text-2xl font-semibold text-gray-700 mt-6 mb-2;
+  }
+
+  .tw-docs h3 {
+    @apply text-xl font-semibold mt-4;
+  }
+
+  .tw-docs p {
+    @apply mb-4;
+  }
+
+  .tw-docs ul {
+    @apply list-disc pl-6 space-y-2;
+  }
+
+  .tw-docs pre {
+    @apply p-4 overflow-x-auto;
+    background-color: #0f172a;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+  }
+
   .btn-info {
     @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
   }
 
   .btn-outline-info {
     @apply bg-transparent text-blue-600 border-blue-600 hover:bg-blue-600 hover:border-blue-600 hover:text-white focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+  }
+
+  .tw-docs pre code {
+    @apply p-0 bg-transparent rounded-none;
+    color: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  .tw-docs-code-block,
+  .tw-docs-playground {
+    @apply my-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm;
+  }
+
+  .tw-docs-code-header {
+    @apply flex items-center justify-between gap-2 bg-gray-900 px-3 py-2 text-gray-100;
+  }
+
+  .tw-docs-code-language {
+    @apply text-xs font-semibold uppercase tracking-wide;
+  }
+
+  .tw-docs-code-actions {
+    @apply flex items-center gap-2;
+  }
+
+  .tw-docs-code-button {
+    @apply rounded border-0 bg-gray-700 px-2 py-1 text-xs font-medium text-gray-100 hover:bg-gray-600;
+  }
+
+  .tw-docs-playground-grid {
+    @apply grid xl:grid-cols-2;
+  }
+
+  .tw-docs-playground-pane {
+    @apply flex flex-col bg-white;
+  }
+
+  .tw-docs-playground-pane + .tw-docs-playground-pane {
+    @apply border-t border-gray-200 xl:border-l xl:border-t-0;
+  }
+
+  .tw-docs-playground-label {
+    @apply bg-gray-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500;
+  }
+
+  .tw-docs-playground-editor {
+    @apply min-h-[340px] lg:min-h-[420px] w-full resize-y border-0 p-4 font-mono text-[13px] leading-6 focus:ring-2 focus:ring-blue-500;
+    tab-size: 2;
+    background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to bottom, #f8fafc, #f1f5f9) border-box;
+  }
+
+  .tw-docs-playground-preview {
+    @apply min-h-[340px] lg:min-h-[420px] w-full border-0 bg-white;
+  }
+
+  .tw-docs .example {
+    @apply p-4 rounded-lg mt-3 mb-3;
+    background-color: #eafaf1;
+    border: 1px solid #b3e0b3;
   }
 
   .btn-success {

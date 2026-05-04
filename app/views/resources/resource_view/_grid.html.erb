@@ -1,13 +1,15 @@
 <%
   patterns = (1..10).to_a
 
-  group = @resources.first
+  resources = local_assigns[:resources] || @resources
+  search_context = local_assigns[:search_context] || @resource_search
+  group = resources.first
   is_quran_script = group&.quran_script?
 %>
 
 <div class="col-span-12 lg:col-start-2 lg:col-span-12 mt-8">
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" >
-    <% @resources.each do |card| %>
+    <% resources.each do |card| %>
       <%
         search_term = "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}"
       %>
@@ -15,17 +17,25 @@
       <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
         <%= render 'card/card_content',
                    card: card,
-                   title: link_to(card.name, detail_resources_path(card.resource_type, card.id), class: 'hover:text-[#46ac7a] transition-colors', data: { turbo_frame: '_top' }),
+                   eyebrow: content_tag(:span, resource_type_label(card.resource_type), class: 'inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white'),
+                   title: link_to(card.name, resource_search_detail_path(card, search_context), class: 'hover:text-[#46ac7a] transition-colors', data: { turbo_frame: '_top' }),
                    show_info: false,
                    is_quran_script: is_quran_script,
                    preview_verse: @preview_verse,
                    text_type: 'text_qpc_hafs',
                    show_download: true,
-                   show_tags: true
+                   show_tags: false
         %>
+
+        <% if card.get_tags.present? %>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <% card.get_tags.each do |tag| %>
+              <% facet = Resources::SearchQuery::TagFacet.new(tag: tag, name: tag.name, count: nil, selected: Array(search_context&.selected_tags).include?(tag.name)) %>
+              <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
+            <% end %>
+          </div>
+        <% end %>
       <% end %>
     <% end %>
   </div>
 </div>
-
-

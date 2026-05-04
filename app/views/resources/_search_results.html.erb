@@ -1,0 +1,31 @@
+<%
+  search_result ||= @resource_search
+  view_type ||= 'list'
+%>
+
+<% if search_result.result_count.zero? %>
+  <div class="mt-8 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+    <h2 class="text-xl font-semibold">No results found</h2>
+    <p class="mt-2 text-sm text-slate-500">Try a broader term, a different ayah reference, or remove one of the active tags.</p>
+  </div>
+<% elsif search_result.global && search_result.quran_reference? && search_result.related_results.any? %>
+  <section class="mt-8">
+    <div class="mb-4">
+      <h2 class="text-xl font-semibold">Ayah-capable resources</h2>
+      <p class="text-sm text-slate-500">These resources map most directly to the Quran reference you entered.</p>
+    </div>
+    <%= render "resources/resource_view/#{view_type}", resources: search_result.primary_results, search_context: search_result %>
+  </section>
+
+  <section class="mt-10">
+    <div class="mb-4">
+      <h2 class="text-xl font-semibold">Related resources</h2>
+      <p class="text-sm text-slate-500">These are broader datasets and utilities that can still support the same ayah workflow.</p>
+    </div>
+    <%= render "resources/resource_view/#{view_type}", resources: search_result.related_results, search_context: search_result %>
+  </section>
+<% else %>
+  <div class="mt-8">
+    <%= render "resources/resource_view/#{view_type}", resources: search_result.primary_results, search_context: search_result %>
+  </div>
+<% end %>

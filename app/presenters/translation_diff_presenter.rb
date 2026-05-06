@@ -85,7 +85,7 @@ class TranslationDiffPresenter < ApplicationPresenter
   def fetch_from_cdn
     cdn_url = ENV['TRANSLATION_CDN_URL']
     key = ExportService.new(resource).get_export_file_name
-    url = "#{cdn_url}/#{key}-#{exported_version}.json?d=d"
+    url = "#{cdn_url}/#{key}-#{exported_version}.json"
 
     uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)

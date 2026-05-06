@@ -83,7 +83,7 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 rounded-md transition-colors duration-150 ease-in-out border cursor-pointer no-underline;
+    @apply whitespace-nowrap inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 rounded-md transition-colors duration-150 ease-in-out border cursor-pointer no-underline;
   }
 
   .tw-docs {

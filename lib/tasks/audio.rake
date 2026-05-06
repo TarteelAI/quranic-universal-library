@@ -8,8 +8,8 @@ namespace :audio do
     # In progress: 1, 2
 
     require 'open3'
-    reciter_name = "Khalifah Taniji - Murattal"
-    base_path = "data/audio/161"
+    reciter_name = "Abdul Kabir Haidari - Murattal"
+    base_path = "data/audio/180"
     original_mp3_path = "#{base_path}/original"
     optimized_mp3_path = "#{base_path}/mp3"
     wav_path = "#{base_path}/wav"
@@ -102,7 +102,15 @@ namespace :audio do
       system(*command)
     end
 
-    def reencode_via_wav(input_file, output_file, meta_data = {}, encoding: :cbr)
+    def probe_bitrate(file_path)
+      result = `ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 #{Shellwords.escape(file_path)} 2>/dev/null`.strip
+      kbps = (result.to_i / 1000.0).ceil
+      kbps >= 32 ? "#{kbps}k" : '64k'
+    rescue StandardError
+      '64k'
+    end
+
+    def reencode_via_wav(input_file, output_file, meta_data = {}, encoding: :cbr, bitrate: '128k')
       temp_wav = "#{File.dirname(output_file)}/#{File.basename(output_file, '.*')}.tmp.wav"
 
       # Step 1: Decode to WAV (keep original sample rate and channels)
@@ -118,12 +126,9 @@ namespace :audio do
       metadata_flags = meta_data.flat_map { |k, v| ['-metadata', "#{k}=#{v}"] }
 
       audio_opts = case encoding
-                   when :vbr
-                     ['-q:a', '5'] # ~150 kbps VBR
-                   when :cbr
-                     ['-b:a', '128k']
-                   else
-                     raise ArgumentError, "Unsupported encoding: #{encoding}"
+                   when :vbr then ['-q:a', '5']
+                   when :cbr then ['-b:a', bitrate]
+                   else raise ArgumentError, "Unsupported encoding: #{encoding}"
                    end
 
       encode_cmd = [
@@ -155,6 +160,9 @@ namespace :audio do
       if !File.exist?(optimized)
         puts "Processing Surah #{num} - #{file_path}.mp3"
 
+        source_bitrate = probe_bitrate(file)
+        puts "  Source bitrate: #{source_bitrate}"
+
         meta_data = {
           title: "Surah #{chapter.name_simple}",
           artist: reciter_name,
@@ -168,7 +176,8 @@ namespace :audio do
           file,
           optimized,
           meta_data,
-          encoding: :cbr
+          encoding: :cbr,
+          bitrate: source_bitrate
         )
 
         if success

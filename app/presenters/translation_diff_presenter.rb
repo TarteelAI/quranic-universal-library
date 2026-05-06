@@ -1,41 +1,25 @@
 class TranslationDiffPresenter < ApplicationPresenter
-  attr_reader :exported_translations
-
   def exported_translations
-    ResourceContent.where(id: ExportService::TRANSLATION_NAME_MAPPING.keys)
+    tag = Tag.find(5)
+    ids = tag
+            .resource_tags
+            .where(resource_type: 'ResourceContent')
+            .select(:resource_id)
+
+    ResourceContent
+      .where(id: ids)
+      .order(:name)
   end
 
   def current_translations
-    records = Translation
-                .where(resource_content_id: resource.id)
-                .order('verse_id ASC')
-
-    if params[:chapter]
-      records = records.where(chapter_id: params[:chapter])
-    end
-
-    records
+    Translation
+      .where(resource_content_id: resource.id)
+      .includes(:verse)
+      .order('verse_id ASC')
   end
 
-  def generate_diff(translation)
-    @exported_translations ||= load_exported_translations
-    export_service ||= Exporter::AyahTranslation.new
-
-    current_translation = export_service.export_chunks(translation)
-    current_translation.delete(:f) if current_translation[:f].blank?
-
-    exported_translation = get_ayah_translation(@exported_translations, translation.verse_key)
-
-    if exported_translation.is_a?(String)
-      current_translation = "#{current_translation[:t].join('')}"
-    else
-      current_translation = current_translation.to_json
-      exported_translation = exported_translation.to_json
-    end
-
-    diff = Diffy::Diff.new(exported_translation.to_s, current_translation.to_s).to_s(:html).html_safe
-
-    [exported_translation, current_translation, diff]
+  def diffs
+    @diffs ||= build_diffs
   end
 
   def exported_version(translation = nil)
@@ -47,7 +31,7 @@ class TranslationDiffPresenter < ApplicationPresenter
   end
 
   def resource
-    ResourceContent.find(params[:id])
+    @resource ||= ResourceContent.find(params[:id])
   end
 
   def translation_key(translation)
@@ -56,24 +40,58 @@ class TranslationDiffPresenter < ApplicationPresenter
 
   protected
 
+  def build_diffs
+    loaded = load_exported_translations
+    exporter = Exporter::AyahTranslation.new
+
+    current_translations.filter_map do |translation|
+      current = exporter.export_chunks(translation)
+      current.delete(:f) if current[:f].blank?
+      exported = get_ayah_translation(loaded, translation.verse_key)
+
+      current_str, exported_str = stringify(current, exported)
+      diff = Diffy::Diff.new(exported_str, current_str).to_s(:html).html_safe
+
+      next unless diff.include?('<li')
+
+      { translation: translation, exported: exported_str, current: current_str, diff: diff }
+    end
+  end
+
+  def stringify(current, exported)
+    if exported.is_a?(String)
+      [current[:t].join(''), exported.to_s]
+    else
+      [current.to_json, exported.to_json]
+    end
+  end
+
   def get_ayah_translation(data, verse_key)
     if data.is_a?(Array)
       s, a = verse_key.split(':').map(&:to_i)
-      data[s.to_i - 1][a.to_i - 1]
+      data[s - 1][a - 1]
     else
       data[verse_key]
     end
   end
 
   def load_exported_translations
+    cache_key = "translation_diff/#{resource.id}/v#{exported_version}"
+    Rails.cache.fetch(cache_key, expires_in: 10.minutes) do
+      fetch_from_cdn
+    end
+  end
+
+  def fetch_from_cdn
+    cdn_url = ENV['TRANSLATION_CDN_URL']
     key = ExportService.new(resource).get_export_file_name
-    url = "#{ENV['TRANSLATION_CDN_URL']}/#{key}-#{exported_version}.json"
+    url = "#{cdn_url}/#{key}-#{exported_version}.json"
 
     uri = URI(url)
-    Net::HTTP.version_1_2 # make sure we use higher HTTP protocol version than 1.0
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    http.read_timeout = 30
 
-    Oj.safe_load(http.get(url).body)
+    Oj.safe_load(http.get(uri.request_uri).body)
   end
 end

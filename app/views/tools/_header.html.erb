@@ -6,25 +6,29 @@
   wide_container = local_assigns[:wide_container] || false
   resource = local_assigns[:resource] || @resource
   breadcrumb_label = local_assigns[:name].presence || strip_tags((local_assigns[:title] || title).to_s).squish
-  hero_below_logo = render(partial: 'shared/tools_breadcrumb',
-                           locals: {
-                             current_label: breadcrumb_label.presence || 'Tools',
-                             link_root: true,
-                             breadcrumb_parents: local_assigns[:breadcrumb_parents]
-                           })
 %>
 
-<%= render 'layouts/qul_head', hero_below_logo: hero_below_logo %>
+<%= render 'layouts/qul_head' do %>
+  <%= render partial: 'shared/tools_breadcrumb',
+             locals: {
+               current_label: breadcrumb_label.presence || 'Tools',
+               link_root: true,
+               breadcrumb_parents: local_assigns[:breadcrumb_parents]
+             }
+  %>
+<% end %>
 
 <div class="container <%= 'max-w-7xl mx-auto' unless wide_container %>  px-4 mt-4 mt-md-5">
   <div class="mb-3 flex-between justify-between">
     <h2 class="text-2xl md:text-3xl leading-none text-pretty">
       <%= safe_html title %>
     </h2>
+
     <div class="flex gap-1 mt-3 mt-md-0">
       <% if local_assigns[:help] != false %>
         <%= link_to '#', class: 'btn btn-outline flex items-center h-10', data: { controller: 'ajax-modal', url: tools_help_path(help_key), css_class: 'modal-lg tools-help' } do %>
-          <span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-normal leading-none mr-2 group-hover:bg-white group-hover:text-blue-500 transition-colors">i</span> Help
+          <span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-normal leading-none mr-2 group-hover:bg-white group-hover:text-blue-500 transition-colors">i</span>
+          Help
         <% end %>
       <% end %>
       <%= safe_html actions.join('') %>

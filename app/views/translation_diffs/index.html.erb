@@ -1,58 +1,83 @@
+<%
+  translations = @presenter.exported_translations
+%>
+
 <%= render 'tools/header',
-           name: 'Compare translation diffs',
+           name: "Compare Translation",
            help: false
 %>
 
-<div class="page-wrapper container max-w-7xl mx-auto px-4">
-  <div class="page-section mt-4">
-    <h2>Exported translations</h2>
-    <table class="w-full hover:bg-gray-50">
-      <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
-      <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Key</th>
-        <th>Current version
-        <th>Exported version</th>
-        <th>Require new export?</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <% @presenter.exported_translations.each do |translation| %>
-        <%
-          latest_version = translation.updated_at.to_i
-          exported_version = @presenter.exported_version(translation)
-        %>
-        <tr class="hover:bg-gray-200 border-b">
-          <th scope="row" class="py-2 pl-2"><%= link_to translation.id, translation_diff_path(translation.id, version: @presenter.exported_version(translation)) %></th>
+<div class="container max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
+  <div class="page-wrapper">
+    <div class="page-section mt-4">
+      <div class="tools-table-overflow">
+        <h1 class="text-xl font-bold mb-4">
+          Exported translations (<%= translations.size %>)
+        </h1>
 
-          <td class="py-2">
-            <%= translation.name %>
-          </td>
-          <td class="py-2">
-            <%= @presenter.translation_key(translation) %>
-          </td>
+        <table class="w-full">
+          <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+          <tr>
+            <th class="py-2 px-2 text-left w-12">ID</th>
+            <th class="py-2 px-2 text-left">Name</th>
+            <th class="py-2 px-2 text-left">Key</th>
+            <th class="py-2 px-2 text-left">Current version</th>
+            <th class="py-2 px-2 text-left">Exported version</th>
+            <th class="py-2 px-2 text-left">Status</th>
+            <th class="py-2 px-2 text-left">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
 
-          <td class="py-2">
-            <%= latest_version %>
-          </td>
+          <% translations.each do |translation| %>
+            <%
+              latest_version = translation.updated_at.to_i
+              exported_version = @presenter.exported_version(translation)
+              needs_export = exported_version.zero? || exported_version < latest_version
+            %>
 
-          <td class="py-2">
-            <%= exported_version %>
-          </td>
+            <tr class="hover:bg-gray-50 border-b <%= needs_export ? 'bg-red-50' : '' %>">
+              <td class="py-2 px-2 font-mono text-sm">
+                <%= translation.id %>
+              </td>
 
-          <td class="py-2">
-            <%= exported_version && exported_version.to_i < latest_version %>
-          </td>
+              <td class="py-2 px-2">
+                <%= translation.name %>
+              </td>
 
-          <td class="py-2">
-            <%= link_to 'View diff', translation_diff_path(translation.id, version: @presenter.exported_version(translation)), class: 'btn btn-info' %>
-          </td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
+              <td class="py-2 px-2 font-mono text-sm text-gray-600">
+                <%= @presenter.translation_key(translation) %>
+              </td>
+
+              <td class="py-2 px-2 font-mono text-sm">
+                <%= latest_version %>
+              </td>
+
+              <td class="py-2 px-2 font-mono text-sm">
+                <%= exported_version.positive? ? exported_version : '—' %>
+              </td>
+
+              <td class="py-2 px-2">
+                <% if needs_export %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                  Needs export
+                </span>
+                <% else %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                  Up to date
+                </span>
+                <% end %>
+              </td>
+
+              <td class="py-2 px-2">
+                <%= link_to 'View diffs', translation_diff_path(translation.id), class: 'btn btn-info btn-sm' %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 

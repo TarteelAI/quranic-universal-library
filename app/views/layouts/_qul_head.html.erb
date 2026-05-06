@@ -11,9 +11,8 @@
           <line opacity="0.2" x1="105.5" y1="-2.18557e-08" x2="105.5" y2="60" stroke="black"/>
         </svg>
       </a>
-      <% if local_assigns[:hero_below_logo].present? %>
-        <%= hero_below_logo %>
-      <% end %>
+
+      <%= yield if block_given? %>
     </div>
   <% end %>
 </div>

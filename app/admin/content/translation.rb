@@ -41,6 +41,7 @@ ActiveAdmin.register Translation do
     column :text, sortable: :text do |resource|
       resource.text.first(100)
     end
+    column :footnotes_count
 
     column :updated_at
 

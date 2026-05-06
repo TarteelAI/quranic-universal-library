@@ -1,10 +1,7 @@
 class TranslationDiffsController < AdminsController
-  def index
-  end
+  def index; end
 
-  def show
-
-  end
+  def show;end
 
   protected
   def init_presenter

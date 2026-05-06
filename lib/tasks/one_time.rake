@@ -1,4 +1,46 @@
 namespace :one_time do
+  task import_draft_translation: :environment do
+    require 'csv'
+    resource = ResourceContent.find(50)
+
+    Utils::Downloader.download("CDN/#{resource.id}.csv", Rails.root.join("tms/translation-#{resource.id}.csv"))
+    data = CSV.read(Rails.root.join("tms/translation-#{resource.id}.csv"), headers: true)
+
+    Draft::Translation.where(resource_content_id: resource.id).delete_all
+    ActiveRecord::Base.connection.reset_pk_sequence!(Draft::Translation.table_name)
+
+    data.each do |row|
+      translation = Translation.where(resource_content_id: resource.id, verse_key: row['ayah_key']).first
+
+      if translation.text != row['text'].strip
+        verse = translation.verse
+        Draft::Translation.create!(
+          verse_id:            verse.id,
+          resource_content_id: resource.id,
+          translation: translation,
+          draft_text:          row['text'].strip,
+          current_text:        translation.text,
+          text_matched:        (translation.text == row['text'].strip),
+          imported:            false
+        )
+      end
+    end
+  end
+
+  task compare_translation: :environment do
+    require 'csv'
+    resource = ResourceContent.find(50)
+    data = CSV.read("data/translations/#{resource.id}.csv", headers: true)
+    updated = []
+    data.each do |row|
+      translation = Translation.where(resource_content_id: resource.id, verse_key: row['ayah_key']).first
+      if translation.text != row['text'].strip
+        puts "Translation for #{translation.verse_key} is different"
+        updated << translation.verse_key
+      end
+    end
+  end
+
   task setup_svg_mushaf: :environment do
     m = Mushaf.where(
       name: 'SVG Mushaf'

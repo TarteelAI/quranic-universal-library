@@ -1,71 +1,72 @@
+<%
+  resource = @presenter.resource
+  exported_version = @presenter.exported_version
+  diffs = @presenter.diffs
+%>
+
 <%= render 'tools/header',
-           name: "#{@presenter.resource.name} translation diffs",
+           name: "#{resource.name} — Translation Diffs",
            help: false
 %>
 
-<style>
-    .diff{overflow:auto;}
-    .diff ul{background:#fff;overflow:auto;}
-    .diff del, .diff ins{display:block;text-decoration:none;}
-    .diff li.ins{background:#dfd; color:#080}
-    .diff li.del{background:#fee; color:#b00}
-    .diff li{background:#ffc; display:inline-block; margin-right: 15px}
-    .diff del, .diff ins, .diff span{white-space:pre-wrap;}
-    .diff del strong{font-weight:normal;background:#fcc;}
-    .diff ins strong{font-weight:normal;background:#9f9;}
-    .ml-2{margin-left: 5px}
-    .sticky{position: sticky;top:5px;background: #fff;z-index:10;}
-    .ltr{direction: ltr;}
-    td{cursor: pointer;}
-</style>
-
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section mt-4">
-    <h2>Ayah diff</h2>
-    <table class="w-full hover:bg-gray-50">
-      <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
-      <tr>
-        <th>Key</th>
-        <th>Exported translation</th>
-        <th>New translation</th>
-        <th>Diff</th>
-      </tr>
-      </thead>
+    <div class="mb-3">
+      <h2 class="text-lg font-semibold"><%= resource.name %></h2>
+      <p class="text-sm text-gray-500">
+        Comparing exported version <strong><%= exported_version %></strong> vs current DB records
+      </p>
+    </div>
 
-      <tbody lang="<%= @presenter.resource.language&.iso_code %>">
-      <% @presenter.current_translations.each do |translation| %>
-        <%
-          exported, current_translation, diff = @presenter.generate_diff(translation)
-        %>
 
-        <% if diff.include?('li') %>
-          <tr class="hover:bg-gray-200 border-b">
-            <td scope="row" class="py-2 pl-2">
-              <%= translation.verse_key %>
-            </td>
+    <% if diffs.empty? %>
+      <div class="py-8 text-center text-gray-500 border rounded bg-gray-50">
+        No differences found.
+      </div>
+    <% else %>
+      <div class="mb-3 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800 font-medium">
+        <%= diffs.size %> ayah<%= diffs.size == 1 ? '' : 's' %> with changes
+      </div>
 
-            <td class="py-2">
-              <%= safe_html exported %>
-            </td>
+      <div class="tools-table-overflow">
+        <table class="w-full">
+          <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+            <tr>
+              <th class="py-2 px-2 text-left w-20">Ayah</th>
+              <th class="py-2 px-2 text-left">Exported</th>
+              <th class="py-2 px-2 text-left">Current</th>
+              <th class="py-2 px-2 text-left">Diff</th>
+              <th class="py-2 px-2 w-20">Actions</th>
+            </tr>
+          </thead>
 
-            <td class="py-2">
-              <div>
-                <%= safe_html current_translation %>
-              </div>
+          <tbody lang="<%= resource.language&.iso_code %>">
+          <% diffs.each do |entry| %>
+            <tr class="hover:bg-gray-50 border-b align-top">
+              <td class="py-2 pl-2 font-mono text-sm whitespace-nowrap">
+                <%= entry[:translation].verse_key %>
+              </td>
 
-              <div class="ms-1">
-                <%= link_to 'View', "/cms/translations/#{translation.id}", class: 'btn btn-success', target: '_blank'  %>
-              </div>
-            </td>
+              <td class="py-2 px-2 text-sm max-w-xs">
+                <div class="break-words"><%= safe_html entry[:exported] %></div>
+              </td>
 
-            <td class="py-2">
-              <%= safe_html diff %>
-            </td>
-          </tr>
-        <% end %>
-      <% end %>
-      </tbody>
-    </table>
+              <td class="py-2 px-2 text-sm max-w-xs">
+                <div class="break-words"><%= safe_html entry[:current] %></div>
+              </td>
+
+              <td class="py-2 px-2 text-sm">
+                <%= safe_html entry[:diff] %>
+              </td>
+
+              <td class="py-2 px-2">
+                <%= link_to 'View', "/cms/translations/#{entry[:translation].id}", class: 'btn btn-success btn-sm', target: '_blank' %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
   </div>
 </div>
-

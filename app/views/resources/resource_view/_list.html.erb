@@ -81,12 +81,14 @@
       </td>
 
       <% if show_tags_column %>
-        <td class="py-3 px-4 text-sm hidden md:flex flex-wrap gap-1 text-pretty align-top">
+        <td class="py-3 px-4 text-sm hidden md:table-cell text-pretty align-top">
           <% if card.get_tags.present? %>
-            <% card.get_tags.each do |tag| %>
-              <% facet = Resources::SearchQuery::TagFacet.new(tag: tag, name: tag.name, count: nil, selected: Array(search_context&.selected_tags).include?(tag.name)) %>
-              <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
-            <% end %>
+            <div class="flex flex-wrap gap-2">
+              <% card.get_tags.each do |tag| %>
+                <% facet = Resources::SearchQuery::TagFacet.new(tag: tag, name: tag.name, count: nil, selected: Array(search_context&.selected_tags).include?(tag.name)) %>
+                <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
+              <% end %>
+            </div>
           <% end %>
         </td>
       <% end %>

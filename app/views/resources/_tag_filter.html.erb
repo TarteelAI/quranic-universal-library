@@ -1,29 +1,28 @@
 <%
   tag = facet.tag
   selected = facet.selected
-  filter_classes = if selected
-    'border-[#476CFF] bg-[#476CFF]/10 text-[#476CFF]'
-  else
-    'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-  end
+  allowed = %w[orange blue green red]
+  color = allowed.include?(tag.color_class.to_s) ? tag.color_class.to_s : 'blue'
+  selected_classes = selected ? 'ring-2 ring-[#476CFF] ring-offset-2' : ''
 %>
-
-<div class="inline-flex items-center gap-1.5 rounded-full border p-1 <%= filter_classes %>">
+<div class="inline-flex items-center gap-1">
   <%= link_to resource_search_toggle_tag_path(tag.name),
-              class: 'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium hover:text-inherit',
+              class: "tag tag-#{color} inline-flex items-center gap-2 text-sm no-underline #{selected_classes}",
               data: { turbo_frame: 'resources', turbo_action: 'advance' } do %>
     <span><%= tag.name %></span>
     <% if facet.count.present? %>
-      <span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-black/5 px-2 py-0.5 text-xs"><%= facet.count %></span>
+      <span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-black/10 px-2 py-0.5 text-xs font-semibold"><%= facet.count %></span>
     <% end %>
   <% end %>
 
   <% if tag.slug.present? %>
     <%= link_to docs_path(tag.slug),
-                class: 'inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-black/5 hover:text-slate-700',
+                class: 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-700',
                 title: "Learn about #{tag.name}",
                 data: { controller: 'ajax-modal', url: docs_path(tag.slug), css_class: 'modal-lg' } do %>
-      <span class="text-xs font-bold">i</span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+      </svg>
     <% end %>
   <% end %>
 </div>

@@ -148,6 +148,16 @@
       </div>
 
       <div class="w-full section pb-3 border-b border-gray-300">
+        <b>Sign language</b>
+        <div class="quran-text arabic-sign-font" style="margin-top: 10px"><%= @verse.text_sign_language %></div>
+      </div>
+
+      <div class="w-full section pb-3 border-b border-gray-300">
+        <b>Misbah script</b>
+        <div class="quran-text misbah-font" style="margin-top: 10px"><%= @verse.text_sign_language %></div>
+      </div>
+
+      <div class="w-full section pb-3 border-b border-gray-300">
         <b>Image</b>
         <div style="margin-top: 10px" class="quran-text">
           <img data-src="<%= @verse.image_url %>" data-controller="lazy-load"/>
@@ -229,7 +239,7 @@
         <% @verse.words.order('position asc').each do |word| %>
           <tr class="hover:bg-gray-200 border-b quran-text">
             <td class="py-2 pl-2">
-              <%= link_to( word.location, [:cms, word], target: '_blank') %>
+              <%= link_to(word.location, [:cms, word], target: '_blank') %>
             </td>
 
             <td class="py-2 indopak char cursor-pointer" data-controller="copy-to-clipboard">
@@ -289,20 +299,26 @@
               <%= word.code_v2 %>
             </td>
 
-
             <td class="py-2 p<%= word.v2_page %>-v2 char cursor-pointer" data-controller="copy-to-clipboard">
               <%= word.code_v2 %>
+            </td>
+
+            <td class="py-2 arabic-sign-font char cursor-pointer" data-controller="copy-to-clipboard">
+              <%= word.text_sign_language %>
+            </td>
+
+            <td class="py-2 misbah-font char cursor-pointer" data-controller="copy-to-clipboard">
+              <%= word.text_sign_language %>
             </td>
           </tr>
         <% end %>
         </tbody>
       </table>
     </div>
-
   </div>
 
   <div class="flex justify-end gap-2">
-     <%= link_to( 'Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark') if @verse.id > 1 %>
-     <%= link_to( 'Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < 6236 %>
+    <%= link_to('Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark') if @verse.id > 1 %>
+    <%= link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < 6236 %>
   </div>
 </div>

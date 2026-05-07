@@ -38,6 +38,7 @@ ActiveAdmin.register Word do
   filter :text_qpc_nastaleeq_hafs
   filter :text_qpc_hafs
   filter :text_digital_khatt_indopak
+  filter :text_sign_language
 
   filter :word_index
 
@@ -102,6 +103,7 @@ ActiveAdmin.register Word do
       text_digital_khatt
       text_digital_khatt_v1
       text_digital_khatt_indopak
+      text_sign_language
       meta_data
     ]
   end
@@ -129,6 +131,7 @@ ActiveAdmin.register Word do
       f.input :text_qpc_hafs, input_html: { class: 'quran-text qpc-hafs' }
       f.input :text_uthmani_tajweed, input_html: { class: 'quran-text me_quran' }
       f.input :text_qpc_hafs_tajweed, input_html: { class: 'quran-text qpc-hafs' }
+      f.input :text_sign_language,   input_html: { class: 'quran-text arabic-sign-font' }
 
       f.input :code_v1, input_html: { class: 'quran-text' }
       f.input :code_v2, input_html: { class: 'quran-text' }
@@ -299,6 +302,20 @@ ActiveAdmin.register Word do
 
       row 'QPC Nastaleeq Hafs', class: 'quran-text' do
         span resource.text_qpc_nastaleeq_hafs, class: 'qpc-nastaleeq'
+      end
+
+      row 'Sign Language' do
+        div class: 'quran-text' do
+          div(resource.text_sign_language.to_s.html_safe, class: 'arabic-sign-font')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_sign_language}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row 'Misbah Script' do
+        div class: 'quran-text' do
+          div(resource.text_sign_language.to_s.html_safe, class: 'misbah-font')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_sign_language}", target: '_blank', class: 'fs-sm')
+        end
       end
 
       row :code_v1, class: 'quran-text' do

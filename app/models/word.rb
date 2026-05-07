@@ -375,6 +375,11 @@ class Word < QuranApiRecord
       update_text_for_mushaf(24, text_digital_khatt_indopak)
       update_ayah_script('text_digital_khatt_indopak')
     end
+
+    if saved_change_to_attribute?('text_sign_language')
+      update_text_for_mushaf(31, text_sign_language)
+      update_ayah_script('text_sign_language')
+    end
   end
 
   def update_text_for_mushaf(mushaf_id, text)

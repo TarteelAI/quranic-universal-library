@@ -216,6 +216,20 @@ ActiveAdmin.register Verse do
         end
       end
 
+      row 'Sign Language', class: 'quran-text' do
+        div class: 'row quran-text' do
+          div(resource.text_sign_language.to_s.html_safe, class: 'arabic-sign-font')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_sign_language}", target: '_blank', class: 'fs-sm')
+        end
+      end
+
+      row 'Misbah Script', class: 'quran-text' do
+        div class: 'row quran-text' do
+          div(resource.text_sign_language.to_s.html_safe, class: 'misbah-font')
+          div link_to('Chars', "/community/chars_info?text=#{resource.text_sign_language}", target: '_blank', class: 'fs-sm')
+        end
+      end
+      
       row :image do
         div class: 'quran-text' do
           image_tag resource.image_url, class: 'w-full'
@@ -248,6 +262,7 @@ ActiveAdmin.register Verse do
           td 'Nastaleeq(QPC)'
           td 'Nastaleeq Hafs(QPC)'
           td 'Indopak'
+          td 'Sign'
           td 'Char type'
         end
 
@@ -312,6 +327,10 @@ ActiveAdmin.register Verse do
 
               td class: 'indopak' do
                 w.text_indopak
+              end
+
+              td class: 'arabic-sign-font' do
+                w.text_sign_language
               end
 
               td w.char_type_name
@@ -506,6 +525,7 @@ ActiveAdmin.register Verse do
       text_digital_khatt_indopak
       text_imlaei
       text_imlaei_simple
+      text_sign_language
       code_v1
       code_v2
       verse_key
@@ -531,6 +551,7 @@ ActiveAdmin.register Verse do
       f.input :text_qpc_nastaleeq, input_html: { class: 'quran-text indopak-nastaleeq' }
       f.input :text_qpc_nastaleeq_hafs, input_html: { class: 'quran-text qpc-nastaleeq' }
       f.input :text_digital_khatt_indopak, input_html: { class: 'quran-text digitalkhatt-indopak' }
+      f.input :text_sign_language,   input_html: { class: 'quran-text arabic-sign-font' }
 
       f.input :code_v1, input_html: { class: 'quran-text' }
       f.input :code_v2, input_html: { class: 'quran-text' }

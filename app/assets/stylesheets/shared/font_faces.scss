@@ -37,9 +37,9 @@ $asset-version: "3.3";
 
 @font-face {
   font-family: 'arabic-sign-font';
-  src: url("#{$font-cdn}/arabic-sign/arabic_sign_font.woff2?v=#{$asset-version}") format("woff2"),
-  url("#{$font-cdn}/arabic-sign/arabic_sign_font.woff?v=#{$asset-version}") format("woff"),
-  url("#{$font-cdn}/arabic-sign/arabic_sign_font.ttf?v=#{$asset-version}") format("truetype");
+  src: url("#{$font-cdn}/sign-language/sign-language.woff2?v=#{$asset-version}") format("woff2"),
+  url("#{$font-cdn}/sign-language/sign-language.woff?v=#{$asset-version}") format("woff"),
+  url("#{$font-cdn}/sign-language/sign-language.ttf?v=#{$asset-version}") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -209,6 +209,22 @@ $asset-version: "3.3";
 
 .arabic-sign-font {
   font-family: 'arabic-sign-font' !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+@font-face {
+  font-family: 'misbah-font';
+  src: url("#{$font-cdn}/sign-language/LPMQIsepMisbah-Regular.woff2?v=#{$asset-version}") format("woff2"),
+  url("#{$font-cdn}/sign-language/LPMQIsepMisbah-Regular.woff?v=#{$asset-version}") format("woff"),
+  url("#{$font-cdn}/missign-languagebah/LPMQIsepMisbah-Regular.ttf?v=#{$asset-version}") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.misbah-font {
+  font-family: 'misbah-font' !important;
   direction: rtl;
   font-size: 30px;
 }

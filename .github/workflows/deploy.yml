@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main, add-badr-pipeline]
+    branches: [main]
 
 permissions:
   contents: read

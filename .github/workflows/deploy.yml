@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, add-badr-pipeline]
 
 permissions:
   contents: read
@@ -41,16 +41,14 @@ jobs:
       - name: Rollout
         env:
           KUBECONFIG_B64: ${{ secrets.KUBECONFIG_DEPLOY_QUL }}
-          NAMESPACE: tarteel-deployments
           SHA: ${{ github.sha }}
         run: |
-          echo "::add-mask::$NAMESPACE"
           mkdir -p $HOME/.kube
           echo "$KUBECONFIG_B64" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
           IMAGE="tarteel/quranic-universal-library:$SHA"
           kubectl set image deployment/quranic-universal-library \
             quranic-universal-library="$IMAGE" \
-            -n "$NAMESPACE"
+            -n tarteel-deployments
           kubectl rollout status deployment/quranic-universal-library \
-            -n "$NAMESPACE" --timeout=5m
+            -n tarteel-deployments --timeout=5m

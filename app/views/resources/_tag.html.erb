@@ -1,0 +1,16 @@
+<%
+  allowed = %w[orange blue green red]
+  color = allowed.include?(tag.color_class.to_s) ? tag.color_class.to_s : 'blue'
+  base_class = "tag tag-#{color} inline-flex items-center gap-2 text-sm no-underline"
+%>
+
+<% if tag.slug.present? %>
+  <%= link_to docs_path(tag.slug),
+              class: base_class,
+              title: "About #{tag.name}",
+              data: { controller: 'ajax-modal', url: docs_path(tag.slug), css_class: 'modal-lg' } do %>
+    <span><%= tag.name %></span>
+  <% end %>
+<% else %>
+  <span class="<%= base_class %>"><%= tag.name %></span>
+<% end %>

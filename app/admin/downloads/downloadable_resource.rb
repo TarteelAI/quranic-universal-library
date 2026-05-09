@@ -63,12 +63,18 @@ ActiveAdmin.register DownloadableResource do
 
   controller do
     include ActiveStorage::SetCurrent
+
+    def find_resource
+      scoped_collection.find_by_slug_or_id!(params[:id])
+    end
   end
 
   show do
     attributes_table do
       row :id
       row :name
+      row :slug
+      row :short_summary
       row :resource_content
       row :resource_type
       row :language
@@ -159,6 +165,8 @@ ActiveAdmin.register DownloadableResource do
       end
 
       f.input :name
+      f.input :slug, hint: 'URL-friendly identifier'
+      f.input :short_summary, hint: 'One-line plain-text summary shown in the resource list.'
       f.input :published
 
       f.input :position
@@ -189,6 +197,8 @@ ActiveAdmin.register DownloadableResource do
   permit_params do
     [
       :name,
+      :slug,
+      :short_summary,
       :info,
       :position,
       :published,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_07_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_10_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -203,6 +203,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_07_000000) do
     t.integer "language_id"
     t.integer "files_count", default: 0
     t.jsonb "meta_data", default: {}
+    t.string "slug"
+    t.string "short_summary"
+    t.index ["slug"], name: "index_downloadable_resources_on_slug", unique: true
   end
 
   create_table "draft_contents", force: :cascade do |t|

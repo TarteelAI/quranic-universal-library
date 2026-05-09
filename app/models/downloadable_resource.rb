@@ -55,6 +55,15 @@ class DownloadableResource < ApplicationRecord
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
   validates :resource_content, uniqueness: { allow_nil: true }
+  validates :slug, uniqueness: { allow_blank: true }
+
+  def self.find_by_slug_or_id!(param)
+    find_by(slug: param) || find(param)
+  end
+
+  def to_param
+    slug.presence || id&.to_s
+  end
 
   def tags=(val)
     names = val.split(',').map(&:strip).reject(&:empty?).uniq

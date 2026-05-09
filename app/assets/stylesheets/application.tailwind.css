@@ -372,6 +372,10 @@
   .inputs_container.was-validated input:invalid:focus {
     @apply ring-2 ring-red-500 border-red-500;
   }
+
+  .collapse.show {
+    @apply visible;
+  }
 }
 
 .resize-handler {

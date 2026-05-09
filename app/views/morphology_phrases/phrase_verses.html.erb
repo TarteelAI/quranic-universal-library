@@ -1,4 +1,3 @@
-
 <%
   phrase_verses = @phrase.phrase_verses.includes(verse: :words)
   phrase_style = "style='color: #{@phrase.get_color}'".html_safe
@@ -6,12 +5,12 @@
 
 <% if params[:modal] %>
   <div id=title>
-    Phrase ayahs
+    Ayahs containing the phrase
   </div>
 <% else %>
   <%= render 'tools/header',
              name: 'Mutashabihat ul Quran',
-             title: "Phrase ayahs",
+             title: "Ayahs containing the phrase",
              key: 'ayah_mutashabihat',
              help: 'mutashabihat'
   %>
@@ -19,26 +18,23 @@
 
 <div id="body">
   <div class="p-6">
-    <% phrase_verses.each_with_index do |phrase_verse, index| %>
+    <% phrase_verses.each do |phrase_verse| %>
       <div class="bg-white rounded-lg p-4 mb-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-3">
+        <div class="flex items-center gap-3 mb-3">
           <span class="px-3 py-1 bg-slate-800 text-white text-xs font-bold rounded-full">
             <%= phrase_verse.verse.verse_key %>
           </span>
-          
-          <div class="text-xs text-gray-400">
+
+          <span class="text-sm text-gray-600">
             <%= phrase_verse.verse.chapter.name_simple %>
-          </div>
-      <div class="quran-text qpc-hafs">
-        <div class="badge badge-success">
-          <%= phrase_verse.verse.verse_key %>
+          </span>
         </div>
 
         <div class="quran-text qpc-hafs text-2xl leading-loose text-right dir-rtl">
           <% phrase_verse.verse.words.each do |word| %>
-              <span <%= phrase_style if phrase_verse.highlight_word?(word) %>>
-                <%= word.text_qpc_hafs %>
-              </span>
+            <span <%= phrase_style if phrase_verse.highlight_word?(word) %>>
+              <%= word.text_qpc_hafs %>
+            </span>
           <% end %>
         </div>
       </div>

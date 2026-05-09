@@ -47,7 +47,7 @@
             <td class="px-4 py-2 border-b whitespace-nowrap qpc-hafs quran-text leading-normal">
               <%= word.text_qpc_hafs %>
             </td>
-            <td class="px-4 py-2 border-b"><%= word.translations.uniq.join(', ') %></td>
+            <td class="px-4 py-2 border-b"><%= safe_html word.translations.uniq.join(', ') %></td>
             <td class="px-4 py-2 border-b"><%= word.count %></td>
           </tr>
         <% end %>

@@ -17,7 +17,6 @@
       <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
         <%= render 'card/card_content',
                    card: card,
-                   eyebrow: content_tag(:span, resource_type_label(card.resource_type), class: 'inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white'),
                    title: link_to(card.name, resource_search_detail_path(card, search_context), class: 'hover:text-[#46ac7a] transition-colors', data: { turbo_frame: '_top' }),
                    show_info: false,
                    is_quran_script: is_quran_script,
@@ -30,8 +29,7 @@
         <% if card.get_tags.present? %>
           <div class="mt-4 flex flex-wrap gap-2">
             <% card.get_tags.each do |tag| %>
-              <% facet = Resources::SearchQuery::TagFacet.new(tag: tag, name: tag.name, count: nil, selected: Array(search_context&.selected_tags).include?(tag.name)) %>
-              <%= render partial: 'resources/tag_filter', locals: { facet: facet } %>
+              <%= render partial: 'resources/tag', locals: { tag: tag } %>
             <% end %>
           </div>
         <% end %>

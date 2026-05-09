@@ -28,7 +28,7 @@ class ResourcesController < CommunityController
                     :downloadable_resource_tags,
                     :related_resources,
                     resource_content: [:change_logs])
-                  .find(params[:id])
+                  .find_by_slug_or_id!(params[:id])
 
     @presenter.set_resource(@resource)
 
@@ -41,14 +41,14 @@ class ResourcesController < CommunityController
     @resource = DownloadableResource
                   .published
                   .includes(:downloadable_resource_tags, :related_resources)
-                  .find(params[:id])
+                  .find_by_slug_or_id!(params[:id])
     @presenter.set_resource(@resource)
   end
 
   def copyright
     @resource = DownloadableResource
                   .published
-                  .find(params[:id])
+                  .find_by_slug_or_id!(params[:id])
 
     if request.xhr?
       render layout: false
@@ -122,7 +122,7 @@ class ResourcesController < CommunityController
   end
 
   def set_resource
-    @resource = DownloadableResource.published.find(params[:id])
+    @resource = DownloadableResource.published.find_by_slug_or_id!(params[:id])
   end
 
   def sort_with_zero_last(collection, attribute, direction)

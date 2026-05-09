@@ -253,7 +253,7 @@ module ResourcesHelper
   def resource_search_detail_path(resource, search_result = @resource_search)
     detail_params = {}
     detail_params[:ayah] = search_result.normalized_ayah if search_result&.normalized_ayah.present?
-    detail_resources_path(resource.resource_type, resource.id, detail_params)
+    detail_resources_path(resource.resource_type, resource.to_param, detail_params)
   end
 
   private

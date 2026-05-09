@@ -1,8 +1,19 @@
 module ApplicationHelper
   def pagy_nav_tailwind(pagy, **opts)
-    link = pagy_link_proc(pagy, **opts)
-    
-    html = +%(<nav class="pagination-nav flex items-center justify-center gap-1.5" aria-label="pager">)
+    pagy_id  = opts.delete(:pagy_id)
+    pagy_url = opts.delete(:pagy_url)
+
+    link = if pagy_url
+             link_extra = opts[:link_extra].to_s
+             ->(num, text = num, extra = '') {
+               %(<a href="#{pagy_url.call(num)}" #{link_extra} #{extra}>#{text}</a>)
+             }
+           else
+             pagy_link_proc(pagy, **opts)
+           end
+
+    id_attr = pagy_id ? %( id="#{pagy_id}") : ''
+    html = +%(<nav#{id_attr} class="pagination-nav flex items-center justify-center gap-1.5" aria-label="pager">)
     
     # Previous link
     if pagy.prev

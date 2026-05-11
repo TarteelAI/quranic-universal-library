@@ -30,7 +30,7 @@ class TranscriptSplitter
     raw = File.read(json_path)
     data = JSON.parse(raw)
 
-    output_dir = "#{STT_TRANSCRIPT_PATH}/#{@reciter_id}/states_by_surah"
+    output_dir = "/Volumes/dev/code/voice-server/data/audio_transcripts/#{@reciter_id}"
     FileUtils.mkdir_p(output_dir)
 
     data.each do |key, value|
@@ -62,3 +62,11 @@ class TranscriptSplitter
     puts "Joined 114 transcripts into #{output_path}"
   end
 end
+
+=begin
+[1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 65, 161, 164, 174, 175, 179].each do |reciter_id|
+  splitter = TranscriptSplitter.new(reciter_id: reciter_id)
+  splitter.split
+  splitter.split_states
+end
+=end

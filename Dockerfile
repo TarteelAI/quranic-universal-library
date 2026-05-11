@@ -171,8 +171,8 @@ RUN yarn install --frozen-lockfile
 # populated when sprockets scans it. Doing this explicitly (instead of relying on the
 # jsbundling/cssbundling/tailwindcss-rails task enhancements) makes any bundler error
 # fail the Docker build at the responsible step.
-RUN yarn build
 RUN yarn build:css
+RUN yarn build
 
 # precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile

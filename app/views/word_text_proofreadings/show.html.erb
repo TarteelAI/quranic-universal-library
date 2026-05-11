@@ -149,12 +149,12 @@
 
       <div class="w-full section pb-3 border-b border-gray-300">
         <b>Sign language</b>
-        <div class="quran-text arabic-sign-font" style="margin-top: 10px"><%= @verse.text_sign_language %></div>
+        <div class="quran-text arabic-sign-font" style="margin-top: 10px"><%= @verse.text_indonesian_sign_language %></div>
       </div>
 
       <div class="w-full section pb-3 border-b border-gray-300">
         <b>Misbah script</b>
-        <div class="quran-text misbah-font" style="margin-top: 10px"><%= @verse.text_sign_language %></div>
+        <div class="quran-text misbah-font" style="margin-top: 10px"><%= @verse.text_indopak_misbah %></div>
       </div>
 
       <div class="w-full section pb-3 border-b border-gray-300">
@@ -306,11 +306,11 @@
             </td>
 
             <td class="py-2 arabic-sign-font char cursor-pointer" data-controller="copy-to-clipboard">
-              <%= word.text_sign_language %>
+              <%= word.text_indonesian_sign_language %>
             </td>
 
             <td class="py-2 misbah-font char cursor-pointer" data-controller="copy-to-clipboard">
-              <%= word.text_sign_language %>
+              <%= word.text_indopak_misbah %>
             </td>
           </tr>
         <% end %>

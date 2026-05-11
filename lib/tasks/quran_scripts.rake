@@ -156,7 +156,7 @@ namespace :quran_scripts do
 
     Word.unscoped.order(:word_index).find_in_batches(batch_size: 1000) do |batch|
       batch.each do |word|
-        word.update_column(:text_sign_language, words_data[word.word_index - 1])
+        word.update_column(:text_indonesian_sign_language, words_data[word.word_index - 1])
         print "."
       end
     end
@@ -173,7 +173,41 @@ namespace :quran_scripts do
 
     Verse.unscoped.order(:verse_index).find_in_batches(batch_size: 1000) do |batch|
       batch.each do |ayah|
-        ayah.update_column(:text_sign_language, ayah_data[ayah.verse_index - 1])
+        ayah.update_column(:text_indonesian_sign_language, ayah_data[ayah.verse_index - 1])
+        print "."
+      end
+    end
+  end
+
+  task import_misbah_words: :environment do
+    def sanitize_text(text)
+      text.sub(/^\d+:\d+\t/, '').strip
+    end
+    data_path = "data/scripts/misbah/words/all.txt"
+    words_data = File.readlines(data_path, encoding: "UTF-8").map do |w|
+      sanitize_text(w)
+    end
+
+    Word.unscoped.order(:word_index).find_in_batches(batch_size: 1000) do |batch|
+      batch.each do |word|
+        word.update_column(:text_indopak_misbah, words_data[word.word_index - 1])
+        print "."
+      end
+    end
+  end
+
+  task import_misbah_ayah: :environment do
+    def sanitize_text(text)
+      text.sub(/^\d+:\d+\t/, '').strip
+    end
+    data_path = "data/scripts/misbah/ayah/all.txt"
+    ayah_data = File.readlines(data_path, encoding: "UTF-8").map do |w|
+      sanitize_text(w)
+    end
+
+    Verse.unscoped.order(:verse_index).find_in_batches(batch_size: 1000) do |batch|
+      batch.each do |ayah|
+        ayah.update_column(:text_indopak_misbah, ayah_data[ayah.verse_index - 1])
         print "."
       end
     end

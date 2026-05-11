@@ -233,8 +233,8 @@
           <td style="direction: rtl">V4 Tajweed</td>
 
           <td style="direction: rtl">V2</td>
-          <td>Sign language</td>
-          <td>Misbah</td>
+          <td>Sign language(ID)</td>
+          <td>Indopak Misbah</td>
         </tr>
         </thead>
         <tbody>
@@ -305,7 +305,7 @@
               <%= word.code_v2 %>
             </td>
 
-            <td class="py-2 arabic-sign-font char cursor-pointer" data-controller="copy-to-clipboard">
+            <td class="py-2 <%= word.word? ? 'arabic-sign-font' : 'misbah-font' %> char cursor-pointer" data-controller="copy-to-clipboard">
               <%= word.text_indonesian_sign_language %>
             </td>
 

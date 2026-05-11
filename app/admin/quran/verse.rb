@@ -263,8 +263,8 @@ ActiveAdmin.register Verse do
           td 'Nastaleeq(QPC)'
           td 'Nastaleeq Hafs(QPC)'
           td 'Indopak'
-          td 'Sign'
-          td 'Misbah'
+          td 'Sign Language(ID)'
+          td 'Indopak Misbah'
           td 'Char type'
         end
 
@@ -331,7 +331,7 @@ ActiveAdmin.register Verse do
                 w.text_indopak
               end
 
-              td class: 'arabic-sign-font' do
+              td class:(w.word? ? 'arabic-sign-font' : 'misbah-font') do
                 w.text_indonesian_sign_language
               end
 

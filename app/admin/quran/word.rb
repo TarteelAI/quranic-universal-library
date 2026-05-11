@@ -309,7 +309,7 @@ ActiveAdmin.register Word do
 
       row 'Sign Language' do
         div class: 'quran-text' do
-          div(resource.text_indonesian_sign_language.to_s.html_safe, class: 'arabic-sign-font')
+          div(resource.text_indonesian_sign_language.to_s.html_safe, class: resource.word? ? 'arabic-sign-font' : 'misbah-font')
           div link_to('Chars', "/community/chars_info?text=#{resource.text_indonesian_sign_language}", target: '_blank', class: 'fs-sm')
         end
       end

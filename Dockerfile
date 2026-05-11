@@ -133,6 +133,11 @@ RUN rm /etc/nginx/sites-enabled/default
 ADD docker/qul.tarteel.ai /etc/nginx/sites-enabled/qul.tarteel.ai
 ADD docker/gzip.conf /etc/nginx/conf.d/gzip.conf
 
+# sidekiq
+RUN mkdir -p /etc/service/sidekiq
+ADD docker/sidekiq.run /etc/service/sidekiq/run
+RUN chmod +x /etc/service/sidekiq/run
+
 # logrotate
 COPY docker/nginx.logrotate.conf /etc/logrotate.d/nginx
 RUN cp /etc/cron.daily/logrotate /etc/cron.hourly
@@ -159,11 +164,10 @@ RUN chown app Gemfile
 RUN chown app Gemfile.lock
 RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
-# precompile assets
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# install JS deps inside the image
+RUN yarn install --frozen-lockfile
 
-#TODO: fix this, sprockets can't find the compiled assets.
-# Compiling twice seems to be working
+# precompile assets (jsbundling-rails + cssbundling-rails + tailwindcss-rails enhance this task)
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump

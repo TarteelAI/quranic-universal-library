@@ -11,7 +11,8 @@ class QuranScriptsComparisonPresenter < ApplicationPresenter
     'text_qpc_nastaleeq_hafs',
     'text_indopak',
     'text_indopak_nastaleeq',
-    'text_sign_language'
+    'text_indonesian_sign_language',
+    'text_indopak_misbah'
   ].freeze
 
   SCRIPT_DISPLAY_NAMES = {
@@ -27,7 +28,8 @@ class QuranScriptsComparisonPresenter < ApplicationPresenter
     'uthmani' => 'Uthmani',
     'text_uthmani' => 'Uthmani',
     'text_indopak' => 'Indopak',
-    'text_sign_language' => 'Arabic Sign language'
+    'text_indonesian_sign_language' => 'Arabic Sign language',
+    'text_indopak_misbah' => 'Indopak Misbah'
   }.freeze
 
   def script_type_selected?

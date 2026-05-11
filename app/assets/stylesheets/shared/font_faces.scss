@@ -217,7 +217,7 @@ $asset-version: "3.3";
   font-family: 'misbah-font';
   src: url("#{$font-cdn}/sign-language/LPMQIsepMisbah-Regular.woff2?v=#{$asset-version}") format("woff2"),
   url("#{$font-cdn}/sign-language/LPMQIsepMisbah-Regular.woff?v=#{$asset-version}") format("woff"),
-  url("#{$font-cdn}/missign-languagebah/LPMQIsepMisbah-Regular.ttf?v=#{$asset-version}") format("truetype");
+  url("#{$font-cdn}/sign-language/LPMQIsepMisbah-Regular.ttf?v=#{$asset-version}") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;

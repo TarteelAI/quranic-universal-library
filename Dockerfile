@@ -167,7 +167,14 @@ RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 # install JS deps inside the image
 RUN yarn install --frozen-lockfile
 
-# precompile assets (jsbundling-rails + cssbundling-rails + tailwindcss-rails enhance this task)
+# Build JS and CSS bundles before sprockets runs, so app/assets/builds/ is fully
+# populated when sprockets scans it. Doing this explicitly (instead of relying on the
+# jsbundling/cssbundling/tailwindcss-rails task enhancements) makes any bundler error
+# fail the Docker build at the responsible step.
+RUN yarn build
+RUN yarn build:css
+
+# precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump

@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+cd "$(dirname "$0")/.."
+exec bundle exec sidekiq -e "${RAILS_ENV:-production}" -C config/sidekiq.yml

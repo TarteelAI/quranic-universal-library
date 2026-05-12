@@ -16,6 +16,11 @@ const findSegment = (timestamp, segments, currentVerse, chapter, currentWord, ve
 };
 
 const findVerseSegment = (timestamp, verseSegments, currentWord) => {
+  // Guard against undefined verseSegments parameter (e.g. segments[currentVerseKey] miss)
+  if (!verseSegments) {
+    return {};
+  }
+
   const segments = verseSegments.segments || [];
   let target = {};
 

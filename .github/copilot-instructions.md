@@ -6,7 +6,7 @@ Always reference these instructions first and fallback to search or bash command
 
 ### Prerequisites and Environment Setup
 - **CRITICAL**: Ruby version 3.3.3 is required. Ruby 3.2.3 will cause Gemfile compatibility issues.
-- **Node.js**: Version 20+ (current: v20.19.4 works)
+- **Node.js**: Version 18+ (pinned by `.node-version`)
 - **PostgreSQL**: Version 14.3+ required (16.9 tested and working)
 - **Redis**: Version 7.0.0+ required for caching and background jobs
 - **RVM or rbenv**: Required for Ruby version management
@@ -120,7 +120,7 @@ bundle exec rails server
 **Expected startup output:**
 ```
 => Booting Puma
-=> Rails 7.0.8.4 application starting in development
+=> Rails 8.0.x application starting in development
 => Run `bin/rails server --help` for more startup options
 * Listening on http://127.0.0.1:3000
 ```
@@ -221,7 +221,7 @@ If Rails cannot connect to PostgreSQL:
 
 ### Asset Compilation Issues
 If CSS/JS builds fail:
-- Check Node.js version: `node --version` (should be 20+)
+- Check Node.js version: `node --version` (should be 18+)
 - Clear cache: `rm -rf app/assets/builds/* node_modules/.cache`
 - Rebuild: `npm run build && npm run build:css`
 

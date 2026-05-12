@@ -50,6 +50,8 @@ class Morphology::Phrase < ApplicationRecord
   scope :approved, -> {where approved: true}
   after_commit :update_verses_stats, on: [:create, :update]
 
+  validate :word_position_range_within_source_verse, if: :should_validate_word_position_range?
+
   def update_verses_stats
     verses = phrase_verses.approved.map(&:verse)
 
@@ -140,5 +142,26 @@ class Morphology::Phrase < ApplicationRecord
       hash = ((hash * 33) ^ byte)
     end
     hash & 0xffffffff
+  end
+
+  def should_validate_word_position_range?
+    new_record? ||
+      word_position_from_changed? ||
+      word_position_to_changed? ||
+      (approved_changed? && approved?)
+  end
+
+  def word_position_range_within_source_verse
+    return unless word_position_from && word_position_to && source_verse
+
+    if word_position_from > word_position_to
+      errors.add(:word_position_to, "must be >= word_position_from (#{word_position_from})")
+    end
+
+    max = source_verse.words_count || source_verse.words.count
+    if word_position_to > max
+      errors.add(:word_position_to,
+                 "is #{word_position_to} but #{source_verse.verse_key} only has #{max} words")
+    end
   end
 end

@@ -31,6 +31,8 @@ class Morphology::PhraseVerse < ApplicationRecord
   after_destroy :update_phrase_stats
   after_create :update_phrase_stats
 
+  validate :word_position_range_within_verse, if: :should_validate_word_position_range?
+
   def create_matching_ayah
     matching = Morphology::MatchingVerse.where(verse_id: phrase.source_verse_id, matched_verse_id: verse_id).first_or_initialize
 
@@ -72,5 +74,26 @@ class Morphology::PhraseVerse < ApplicationRecord
   protected
   def update_phrase_stats
     phrase&.update_verses_stats
+  end
+
+  def should_validate_word_position_range?
+    new_record? ||
+      word_position_from_changed? ||
+      word_position_to_changed? ||
+      (approved_changed? && approved?)
+  end
+
+  def word_position_range_within_verse
+    return unless word_position_from && word_position_to && verse
+
+    if word_position_from > word_position_to
+      errors.add(:word_position_to, "must be >= word_position_from (#{word_position_from})")
+    end
+
+    max = verse.words_count || verse.words.count
+    if word_position_to > max
+      errors.add(:word_position_to,
+                 "is #{word_position_to} but #{verse.verse_key} only has #{max} words")
+    end
   end
 end

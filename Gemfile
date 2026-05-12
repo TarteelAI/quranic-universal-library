@@ -65,7 +65,6 @@ gem 'csv', require: false
 # metadata for audio file
 gem 'streamio-ffmpeg', '~> 3.0', require:  false
 gem 'wahwah', require: false
-gem 'dalli'
 gem 'diffy'
 
 gem "chartkick"
@@ -124,6 +123,9 @@ gem 'pretender'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", ">= 1.4.4", require: false
+
+# HTTP/2 proxy + asset cache + X-Sendfile in front of Rails
+gem "thruster", require: false
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails", ">= 3.4.1"

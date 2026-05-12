@@ -1,2 +1,0 @@
-#!/bin/bash
-exec /sbin/setuser app bash -lc "/home/app/qul/bin/start-sidekiq" >> /home/app/qul/log/sidekiq.log 2>&1

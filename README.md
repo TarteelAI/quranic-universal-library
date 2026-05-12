@@ -56,3 +56,55 @@ Primary path for resource users:
 ## Contributing
 
 Use [docs/contributing.md](docs/contributing.md) for the complete contribution flow and PR checklist.
+
+## Production Docker image (local smoke test)
+
+The production image is a single-process container based on `ruby:slim`. It
+ships Rails behind [Thruster](https://github.com/basecamp/thruster) for HTTP/2,
+X-Sendfile, and asset caching. The same image is used for the web role and the
+Sidekiq worker role; they differ only in the `CMD` they run.
+
+External services (Postgres, Redis) are expected at runtime — they are **not**
+embedded in the image. Cache and Sidekiq both use Redis (`REDIS_URL`).
+
+### Build
+
+```bash
+docker build -t qul:prod .
+```
+
+### Run web + worker + db + redis with docker-compose
+
+```bash
+cp .env.production.example .env.production   # fill in RAILS_MASTER_KEY, SMTP, S3, etc.
+docker compose -f docker-compose.prod.yml up --build
+```
+
+Then open <http://localhost:8080>. Sidekiq's web UI is mounted at `/sidekiq`.
+
+### Run by hand
+
+```bash
+# Web
+docker run --rm -p 8080:80 \
+  -e RAILS_MASTER_KEY=<from config/master.key> \
+  -e DATABASE_URL=postgres://user:pass@host.docker.internal:5432/quran_community_tarteel \
+  -e REDIS_URL=redis://host.docker.internal:6379/1 \
+  --env-file .env.production \
+  qul:prod
+
+# Sidekiq worker (same image, different CMD)
+docker run --rm \
+  --env-file .env.production \
+  qul:prod ./bin/start-sidekiq
+```
+
+### Notes
+
+- `bundle install` (locally) is required after pulling in the new `thruster`
+  gem so that `Gemfile.lock` is regenerated before you build.
+- Secrets are passed at **runtime** via `--env-file` / `-e`. They are no longer
+  baked into the image as `ARG`/`ENV`.
+- Building on Apple Silicon: add `--platform=linux/amd64` if your production
+  target is amd64.
+

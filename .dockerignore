@@ -7,20 +7,31 @@
 .DS_Store
 
 node_modules
-tmp/cache
-tmp/pids
-tmp/sockets
-log/*.log
-storage
+app/assets/builds
 public/assets
 public/packs
 public/packs-test
 
+tmp/*
+!tmp/.keep
+log/*
+!log/.keep
+storage/*
+!storage/.keep
+
 coverage
 spec/reports
 test/reports
+test
+cypress
+cypress.config.js
+
+Dockerfile*
+docker-compose*.yml
+docker/
 
 *.swp
 *.swo
 
 todo.txt
+AGENTS.md

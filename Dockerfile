@@ -1,197 +1,105 @@
-FROM phusion/passenger-customizable:3.1.6
+# syntax=docker/dockerfile:1
+#
+# Production Dockerfile for QUL.
+#
+# Single-process image. The same image is used for two container roles:
+#   web:    CMD ["./bin/thrust", "./bin/rails", "server"]   (default)
+#   worker: CMD ["./bin/start-sidekiq"]
+#
+# External services expected at runtime (set via env vars):
+#   DATABASE_URL (or QURAN_API_DB_* / CMS_DB_* groups), REDIS_URL,
+#   RAILS_MASTER_KEY, plus the SMTP/S3/Sentry/etc. vars used by the app.
 
-# set correct environment variables
-ENV HOME /root
+ARG RUBY_VERSION=3.3.3
+FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# use baseimage-docker's init process
-CMD ["/sbin/my_init"]
+WORKDIR /rails
 
-# Install Node 20 LTS before ruby setup — the phusion ruby script (install_ruby_utils.sh)
-# checks for /etc/apt/sources.list.d/nodesource.list and skips Node installation if present.
-# Without this, it installs Node 22 whose npm is broken (missing promise-retry).
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs
-RUN corepack enable
+# Runtime OS packages
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends wget gnupg lsb-release curl ca-certificates && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      libjemalloc2 \
+      libvips \
+      postgresql-client-16 \
+      ffmpeg \
+      git && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# customizing passenger-customizable image
-RUN /pd_build/ruby-3.3.*.sh
-RUN bash -lc 'rvm --default use ruby-3.3.10'
-RUN /pd_build/redis.sh
+ENV RAILS_ENV="production" \
+    BUNDLE_DEPLOYMENT="1" \
+    BUNDLE_PATH="/usr/local/bundle" \
+    BUNDLE_WITHOUT="development:test" \
+    TMPDIR="/rails/tmp" \
+    LD_PRELOAD="libjemalloc.so.2"
 
-# set environment variables
-ARG SECRET_KEY_BASE
-ARG RAILS_MASTER_KEY
-ARG SENTRY_DSN
-ARG LOKALISE_API_KEY
-ARG LOKALISE_PROJECT_ID
+# --- Build stage ---------------------------------------------------------------
+FROM base AS build
 
-# Quran API db
-ARG QURAN_API_DB_NAME
-ARG QURAN_API_DB_USERNAME
-ARG QURAN_API_DB_PASSWORD
-ARG QURAN_API_DB_HOST
-ARG QURAN_API_DB_PORT
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential \
+      autoconf \
+      automake \
+      libpq-dev \
+      node-gyp \
+      pkg-config \
+      python-is-python3 && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# CMS db
-ARG CMS_DB_NAME
-ARG CMS_DB_USERNAME
-ARG CMS_DB_PASSWORD
-ARG CMS_DB_HOST
-ARG CMS_DB_PORT
+# Node + Yarn
+ARG NODE_VERSION=20.18.0
+ARG YARN_VERSION=1.22.22
+ENV PATH=/usr/local/node/bin:$PATH
+RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
+    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
+    npm install -g yarn@$YARN_VERSION && \
+    rm -rf /tmp/node-build-master
 
-# Storage
-ARG DB_BACK_BUCKET
-ARG AWS_ACCESS_KEY
-ARG AWS_ACCESS_KEY_SECRET
-ARG AWS_BUCKET
-ARG ALLOW_PUBLIC_EXPORT
+# Install gems
+COPY Gemfile Gemfile.lock ./
+RUN bundle install --jobs $(nproc) && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+    bundle exec bootsnap precompile --gemfile
 
-# QUL exported file storage
-ARG QUL_STORAGE_ACCESS_KEY
-ARG QUL_STORAGE_ACCESS_KEY_SECRET
-ARG QUL_STORAGE_BUCKET
-ARG QUL_STORAGE_PUBLIC_EXPORT
-ARG QUL_STORAGE_ENDPOINT
-ARG QUL_STORAGE_REGION
-
-# SMTP
-ARG SMTP_ADDRESS
-ARG SMTP_PORT
-ARG SMTP_USERNAME
-ARG SMTP_PASSWORD
-ARG MAILER_SENDER
-ARG ADMIN_USER_EMAIL
-
-# Cloudflare
-ARG CLOUDFLARE_API_KEY
-ARG CLOUDFLARE_ZONE_ID
-
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
-ENV RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
-
-ENV SENTRY_DSN=${SENTRY_DSN}
-ENV LOKALISE_API_KEY=${LOKALISE_API_KEY}
-ENV LOKALISE_PROJECT_ID=${LOKALISE_PROJECT_ID}
-
-# Quran API db
-ENV QURAN_API_DB_NAME=${QURAN_API_DB_NAME}
-ENV QURAN_API_DB_USERNAME=${QURAN_API_DB_USERNAME}
-ENV QURAN_API_DB_PASSWORD=${QURAN_API_DB_PASSWORD}
-ENV QURAN_API_DB_HOST=${QURAN_API_DB_HOST}
-ENV QURAN_API_DB_PORT=${QURAN_API_DB_PORT}
-
-# CMS db
-ENV CMS_DB_NAME=${CMS_DB_NAME}
-ENV CMS_DB_USERNAME=${CMS_DB_USERNAME}
-ENV CMS_DB_PASSWORD=${CMS_DB_PASSWORD}
-ENV CMS_DB_HOST=${CMS_DB_HOST}
-ENV CMS_DB_PORT=${CMS_DB_PORT}
-
-# Storage
-ENV DB_BACK_BUCKET=${DB_BACK_BUCKET}
-ENV AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-ENV AWS_ACCESS_KEY_SECRET=${AWS_ACCESS_KEY_SECRET}
-ENV AWS_BUCKET=${AWS_BUCKET}
-ENV ALLOW_PUBLIC_EXPORT=${ALLOW_PUBLIC_EXPORT}
-
-# QUL exported file storage
-ENV QUL_STORAGE_ACCESS_KEY=${QUL_STORAGE_ACCESS_KEY}
-ENV QUL_STORAGE_ACCESS_KEY_SECRET=${QUL_STORAGE_ACCESS_KEY_SECRET}
-ENV QUL_STORAGE_BUCKET=${QUL_STORAGE_BUCKET}
-ENV QUL_STORAGE_PUBLIC_EXPORT=${QUL_STORAGE_PUBLIC_EXPORT}
-ENV QUL_STORAGE_ENDPOINT=${QUL_STORAGE_ENDPOINT}
-ENV QUL_STORAGE_REGION=${QUL_STORAGE_REGION}
-
-# SMTP
-ENV SMTP_ADDRESS=${SMTP_ADDRESS}
-ENV SMTP_PORT=${SMTP_PORT}
-ENV SMTP_USERNAME=${SMTP_USERNAME}
-ENV SMTP_PASSWORD=${SMTP_PASSWORD}
-ENV MAILER_SENDER=${MAILER_SENDER}
-ENV ADMIN_USER_EMAIL=${ADMIN_USER_EMAIL}
-
-# Cloudflare
-ENV CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY}
-ENV CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID}
-
-ENV RAILS_ENV production
-ENV NODE_ENV production
-ENV RAILS_SERVE_STATIC_FILES true
-
-
-# redis
-ENV REDIS_URL "redis://127.0.0.1:6379"
-RUN rm -f /etc/service/redis/down
-
-# memcached
-RUN /pd_build/memcached.sh
-RUN rm -f /etc/service/memcached/down
-
-# nginx
-RUN rm /etc/service/nginx/down
-RUN rm /etc/nginx/sites-enabled/default
-ADD docker/qul.tarteel.ai /etc/nginx/sites-enabled/qul.tarteel.ai
-ADD docker/gzip.conf /etc/nginx/conf.d/gzip.conf
-
-# sidekiq
-RUN mkdir -p /etc/service/sidekiq
-ADD docker/sidekiq.run /etc/service/sidekiq/run
-RUN chmod +x /etc/service/sidekiq/run
-
-# logrotate
-COPY docker/nginx.logrotate.conf /etc/logrotate.d/nginx
-RUN cp /etc/cron.daily/logrotate /etc/cron.hourly
-
-RUN apt-get update
-RUN apt-get install -y curl build-essential autoconf automake ffmpeg
-
-# setup gems
-WORKDIR /tmp
-ADD Gemfile Gemfile
-ADD Gemfile.lock Gemfile.lock
-RUN bundle install
-
-# setup the app
-RUN mkdir /home/app/qul
-ADD . /home/app/qul/
-
-WORKDIR /home/app/qul
-RUN mkdir -p tmp
-RUN mkdir -p log && touch log/production.log
-RUN chown -R app log
-RUN chown -R app public
-RUN chown app Gemfile
-RUN chown app Gemfile.lock
-RUN mkdir -p /var/log/nginx/qul.tarteel.ai
-
-# install JS deps inside the image
+# Install JS deps
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-# Build JS and CSS bundles before sprockets runs, so app/assets/builds/ is fully
-# populated when sprockets scans it. Doing this explicitly (instead of relying on the
-# jsbundling/cssbundling/tailwindcss-rails task enhancements) makes any bundler error
-# fail the Docker build at the responsible step.
-RUN SECRET_KEY_BASE_DUMMY=1 yarn build:css
-RUN SECRET_KEY_BASE_DUMMY=1 yarn build
+# Application code
+COPY . .
 
-# precompile assets
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompile bootsnap for faster boot
+RUN bundle exec bootsnap precompile app/ lib/
 
-# pg_dump
-RUN apt-get install -y wget
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get --allow-releaseinfo-change update
-RUN apt-get install -y postgresql-client-16
+# Build JS/CSS bundles explicitly so any bundler failure (esbuild, sass, tailwind)
+# fails the Docker layer with a clear error, then fingerprint via sprockets.
+RUN yarn build
+RUN yarn build:css
+RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
 
-# cleanup apt
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Drop node_modules from the final image — they are only needed for the build
+RUN rm -rf node_modules
 
-# write permissions to tmp
-RUN chown -R app tmp
+# --- Final stage --------------------------------------------------------------
+FROM base
 
-# ... and to production.log
-RUN chown app log/production.log
+COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --from=build /rails /rails
 
-# expose port 3000
-EXPOSE 3000
+# Non-root runtime user
+RUN groupadd --system --gid 1000 rails && \
+    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
+    mkdir -p tmp/cache tmp/pids tmp/sockets tmp/storage tmp/qr tmp/database_backups && \
+    chown -R rails:rails db log storage tmp && \
+    chmod -R 775 tmp
+USER 1000:1000
+
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+
+# Web server by default; override CMD for the sidekiq container.
+EXPOSE 80
+CMD ["./bin/thrust", "./bin/rails", "server"]

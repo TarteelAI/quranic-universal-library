@@ -449,9 +449,9 @@ ActiveAdmin.register ResourceContent do
     div do
       if resource.translation?
         if resource.one_word?
-          link_to 'WBW Translations', "/cms/word_translations?q%5Bresource_content_id_eq=#{resource.id}"
+          link_to 'WBW Translations', "/cms/word_translations?q%5Bresource_content_id_eq%5D==#{resource.id}"
         else
-          link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
+          link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq%5D==#{resource.id}"
         end
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"

@@ -29,7 +29,7 @@ module Importer
             get_html("https://quranenc.com/en")
           end
 
-          links = page.search('.toggle.woww .toggle-content a')
+          links = page.search('.accordion-body .tab_card a.text_primary')
 
           keys = links.map do |link|
             url = link['href']
@@ -38,16 +38,16 @@ module Importer
 
           keys.compact_blank.uniq.map do |key|
             link = page.link_with(href: /browse\/#{key}/)
-            parent = link.node.parent
-            last_updated = parent.search('.label-light').text.strip
-            match = last_updated.match(/(\d{4}-\d{2}-\d{2}) - V([\d.]+)/)
-            name = parent.parent.search('label').text.strip
+            parent = link.node.ancestors(".tab_card")
+            name = parent.search('h2').text.strip
+            meta = parent.search('.tab_card_header').text.strip
+            last_updated, version = meta.split('-').map(&:strip)
 
             {
               key: key,
               name: name,
-              last_update: match[1].to_datetime,
-              version: match[2]
+              last_update: last_updated.to_datetime,
+              version: version.sub('V', '')
             }
           end
         rescue JSON::ParserError => e
@@ -259,7 +259,7 @@ module Importer
         if report_foonote_issues && (footnote_id_reg.nil? || footnote_text_reg.nil?)
           need_to_review = true
 
-          log_issue({tag: 'missing-footnote-mapping', text: verse.verse_key })
+          log_issue({ tag: 'missing-footnote-mapping', text: verse.verse_key })
           log_message "====FOOTNOTE REGEXP is missing for #{quran_enc_key} and #{verse.verse_key} has footnote"
         end
 
@@ -269,7 +269,7 @@ module Importer
         current_footnote_ids = translation.original_footnotes_ids
 
         footnote_ids = if footnote_id_reg
-                         #translation_text.scan(footnote_id_reg)
+                         # translation_text.scan(footnote_id_reg)
                          data['translation'].scan(footnote_id_reg)
                        else
                          []
@@ -605,21 +605,21 @@ module Importer
       punjabi_arif: { id: 857 },
       lingala_zakaria: { id: 855, name: 'Zakariya Muhammed Balingongo' },
       afar_hamza: { id: 854, name: 'Shaikh Mahmud Abdulkader Hamza' },
-      greek_rwwad: {id: 1252},
-      romanian_project: {id: 1253},
-      amharic_zain: {id: 1269},
-      luhya_center: {id: 1268},
-      malagasy_rwwad: {id: 1267},
-      kannada_bashir: {id: 1266},
-      pashto_sarfaraz: {id: 1265},
-      khmer_rwwad: {id: 1261},
-      chinese_mayolong: {id: 1259},
-      maguindanao_rwwad: {id: 1258},
-      iranun_sarro: {id: 1257},
-      bisayan_rwwad: {id: 1256},
-      croatian_rwwad: {id: 1255},
-      swahili_rwwad: {id: 1557},
-      german_rwwad: {id: 1556},
+      greek_rwwad: { id: 1252 },
+      romanian_project: { id: 1253 },
+      amharic_zain: { id: 1269 },
+      luhya_center: { id: 1268 },
+      malagasy_rwwad: { id: 1267 },
+      kannada_bashir: { id: 1266 },
+      pashto_sarfaraz: { id: 1265 },
+      khmer_rwwad: { id: 1261 },
+      chinese_mayolong: { id: 1259 },
+      maguindanao_rwwad: { id: 1258 },
+      iranun_sarro: { id: 1257 },
+      bisayan_rwwad: { id: 1256 },
+      croatian_rwwad: { id: 1255 },
+      swahili_rwwad: { id: 1557 },
+      german_rwwad: { id: 1556 },
       arabic_seraj: {
         id: 908,
         language: 9,
@@ -627,7 +627,15 @@ module Importer
         author: 'Muhammad Al-Khudairi',
         native: 'محمد الخضيري'
       },
-      russian_aboadel: {id: 1254}
+      russian_aboadel: { id: 1254 },
+      arabic_yaseer: { id: 1625 },
+      arabic_nafahat: { id: 1626 },
+      swedish_rwwad: { id: 1627 },
+      russian_rwwad: { id: 1628 },
+      belarusian_krivtsov: { id: 1629 },
+      circassian_rwwad: { id: 1631 },
+      thai_rwwad: { id: 1632 },
+      tamil_omar_brief: { id: 1633 }
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
@@ -694,11 +702,13 @@ module Importer
       'georgian_rwwad',
       'french_hameedullah',
       'vietnamese_rwwad',
+      'circassian_rwwad',
+      'tamil_omar_brief',
       # Custom
       'uyghur_saleh',
       'pashto_zakaria',
       'bengali_zakaria',
-      'urdu_junagarhi'
+      'urdu_junagarhi',
     ].freeze
   end
 end

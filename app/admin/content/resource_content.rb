@@ -262,7 +262,7 @@ ActiveAdmin.register ResourceContent do
 
       if can?(:download, :restricted_content) || permission.blank? || permission&.share_permission_is_granted? || permission&.share_permission_is_unknown?
         row :sqlite_db do
-          link_to 'Download', resource.sqlite_db.url if resource.sqlite_db&.url
+          link_to 'Download', resource.sqlite_database.url if resource.sqlite_database.attacked?
         end
       end
 

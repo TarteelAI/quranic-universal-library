@@ -10,6 +10,10 @@
 #
 
 class QuranTableDetail < ApplicationRecord
+  PK_MAPPING  = {
+    'word_corpus': 'corpus_id'
+  }
+
   def self.refresh_tables_meta
     (Verse.connection.tables - ['refresh_tables_meta']).each do |name|
       table = QuranTableDetail.where(name: name).first_or_create
@@ -25,11 +29,13 @@ class QuranTableDetail < ApplicationRecord
 
   def load_table(page, limit)
     QuranTable.table_name = name
+    QuranTable.primary_key = PK_MAPPING[name.to_sym] if PK_MAPPING[name.to_sym]
     QuranTable.page(page).per(limit)    
   end
 
   def load_record(id)
     QuranTable.table_name = name
+    QuranTable.primary_key = PK_MAPPING[name.to_sym] if PK_MAPPING[name.to_sym]
     QuranTable.find(id)
   end
 end

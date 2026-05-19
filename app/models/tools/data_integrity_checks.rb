@@ -730,13 +730,13 @@ module Tools
           }
         ],
         check: ->(params) do
-          first_mushaf_id = params[:first_mushaf_id]
-          second_mushaf_id = params[:second_mushaf_id]
+          first_mushaf_id = params[:first_mushaf_id].presence
+          second_mushaf_id = params[:second_mushaf_id].presence
           compare_attr = params[:compare_field].presence || 'page_number'
 
           if first_mushaf_id && second_mushaf_id
             matching_words = MushafWord
-                               .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf_id} AND mw2.mushaf_id = #{second_mushaf_id}")
+                               .joins("INNER JOIN mushaf_words AS mw2 ON mushaf_words.word_id = mw2.word_id AND mushaf_words.mushaf_id = #{first_mushaf_id.to_i} AND mw2.mushaf_id = #{second_mushaf_id.to_i}")
                                .where("mushaf_words.#{compare_attr} <> mw2.#{compare_attr}")
 
             result = matching_words.select(

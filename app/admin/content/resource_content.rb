@@ -262,7 +262,7 @@ ActiveAdmin.register ResourceContent do
 
       if can?(:download, :restricted_content) || permission.blank? || permission&.share_permission_is_granted? || permission&.share_permission_is_unknown?
         row :sqlite_db do
-          link_to 'Download', resource.sqlite_db.url if resource.sqlite_db&.url
+          link_to 'Download', resource.sqlite_database.url if resource.sqlite_database.attacked?
         end
       end
 
@@ -449,9 +449,9 @@ ActiveAdmin.register ResourceContent do
     div do
       if resource.translation?
         if resource.one_word?
-          link_to 'WBW Translations', "/cms/word_translations?q%5Bresource_content_id_eq=#{resource.id}"
+          link_to 'WBW Translations', "/cms/word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
         else
-          link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq=#{resource.id}"
+          link_to 'Translations', "/cms/translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
         end
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"

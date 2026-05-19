@@ -140,6 +140,7 @@ class ResourceContent < QuranApiRecord
 
   has_one :en_translation_name, -> { where language_id: 38 }, as: :resource, class_name: 'TranslatedName'
   has_one :resource_permission
+  has_one :book, dependent: :destroy
 
   after_commit :run_create_and_update_hooks, on: %i[create update]
 

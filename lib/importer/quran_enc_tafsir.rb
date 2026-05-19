@@ -205,6 +205,9 @@ module Importer
       },
       azeri_mokhtasar: {
         id: 1271
+      },
+      uzbek_moyassar: {
+        id: 1630,
       }
     }
 

@@ -16,5 +16,6 @@
 #
 
 class WordCorpus < QuranApiRecord
+  self.table_name = 'word_corpuses'
   belongs_to :word
 end

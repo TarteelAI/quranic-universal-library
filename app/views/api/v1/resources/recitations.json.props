@@ -1,7 +1,7 @@
-resources = @presenter.tafsirs
+resources = @presenter.recitations
 include_names = @presenter.include_names?
 
-json.tafsirs do
+json.recitations do
   json.array! resources do |resource|
     translated_name_obj = @presenter.get_translated_name(resource)
 
@@ -10,6 +10,7 @@ json.tafsirs do
     json.language_name resource.language_name
     json.author_name resource.author_name
     json.records_count resource.records_count
+    json.cardinality_type resource.cardinality_type
     json.slug resource.slug
 
     json.translated_name do

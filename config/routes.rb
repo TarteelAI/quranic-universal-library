@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       scope 'resources' do
         get '/translations', to: 'resources#translations'
         get '/tafsirs', to: 'resources#tafsirs'
+        get '/recitations', to: 'resources#recitations'
         get '/languages', to: 'resources#languages'
       end
 

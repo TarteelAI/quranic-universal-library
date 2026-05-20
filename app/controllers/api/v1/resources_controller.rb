@@ -7,6 +7,9 @@ module Api
       def tafsirs
       end
 
+      def recitations
+      end
+
       def languages
       end
 

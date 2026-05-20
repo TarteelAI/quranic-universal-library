@@ -24,7 +24,8 @@ class TranslatedName < QuranApiRecord
   belongs_to :resource, polymorphic: true
 
   after_save :fix_priority
-  scope :english, -> {where(language_id: 38)}
+  scope :english, -> { where(language_id: 38) }
+
   protected
 
   def fix_priority

@@ -29,6 +29,15 @@ module V1
       process_results(list)
     end
 
+    def recitations
+      list = ResourceContent
+               .recitations
+               .approved
+               .order(priority: :asc, id: :asc)
+
+      process_results(list)
+    end
+
     def languages
       translation_counts = ResourceContent
                              .translations
@@ -58,6 +67,7 @@ module V1
           native_name: language.native_name,
           direction: language.direction,
           translated_name: get_translated_name(language),
+          names: get_all_translated_names(language),
           translations_count: translation_counts[language.id] || 0,
           tafsirs_count: tafsir_counts[language.id] || 0
         }
@@ -68,7 +78,9 @@ module V1
 
     def process_results(records, resource_type: ResourceContent)
       records = apply_language_filter(records, resource_type: resource_type)
-      eager_load_best_names(records, resource_type: resource_type)
+      records = eager_load_best_names(records, resource_type: resource_type).to_a
+      eager_load_all_names(records, resource_type: resource_type) if include_names?
+      records
     end
 
     def apply_language_filter(resources, resource_type:)
@@ -86,4 +98,3 @@ module V1
     end
   end
 end
-

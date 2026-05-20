@@ -16,6 +16,18 @@ module V1
       end
     end
 
+    def include_names?
+      requested_includes.include?('names')
+    end
+
+    def get_all_translated_names(resource)
+      (@all_translated_names_cache || {})[resource.id] || {}
+    end
+
+    def requested_includes
+      @requested_includes ||= params[:includes].to_s.split(',').map(&:strip).reject(&:blank?)
+    end
+
     protected
     def filter_chapter
       chapter = (params[:chapter] ||
@@ -63,6 +75,29 @@ module V1
       end
 
       with_names
+    end
+
+    def eager_load_all_names(resources, resource_type: ResourceContent)
+      @all_translated_names_cache ||= {}
+      resource_ids = resources.map(&:id)
+      return if resource_ids.empty?
+
+      #TODO: replace language_name with iso_code and use that to avoid joining with languages table
+      rows = TranslatedName
+               .joins(:language)
+               .where(resource_type: resource_type.to_s, resource_id: resource_ids)
+               .order('translated_names.language_priority DESC, translated_names.id ASC')
+               .pluck(
+                 'translated_names.resource_id',
+                 'translated_names.name',
+                 'languages.iso_code'
+               )
+
+      rows.each do |resource_id, name, iso_code|
+        next if iso_code.blank?
+        @all_translated_names_cache[resource_id] ||= {}
+        @all_translated_names_cache[resource_id][iso_code] ||= name
+      end
     end
 
     def requested_language_for_translated_name

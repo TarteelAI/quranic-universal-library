@@ -10,6 +10,12 @@ module Api
       def recitations
       end
 
+      def ayah_recitations
+      end
+
+      def surah_recitations
+      end
+
       def languages
       end
 

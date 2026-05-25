@@ -1,0 +1,35 @@
+resources = @presenter.ayah_recitations
+include_names = @presenter.include_names?
+
+json.recitations do
+  json.array! resources do |resource|
+    translated_name_obj = @presenter.get_translated_name(resource)
+
+    json.id resource.id
+    json.name resource.name
+    json.language_name resource.language_name
+    json.author_name resource.author_name
+    json.records_count resource.records_count
+    json.cardinality_type resource.cardinality_type
+    json.slug resource.slug
+
+    json.translated_name do
+      json.name translated_name_obj[:name]
+      json.locale translated_name_obj[:locale]
+    end
+
+    if include_names
+      json.names do
+        @presenter.get_all_translated_names(resource).each do |locale, name|
+          json.set! locale, name
+        end
+      end
+    end
+
+    json.updated_at resource.updated_at.to_i
+  end
+end
+
+json.meta do
+  json.total resources.size
+end

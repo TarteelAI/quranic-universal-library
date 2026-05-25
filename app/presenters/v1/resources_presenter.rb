@@ -38,6 +38,26 @@ module V1
       process_results(list)
     end
 
+    def ayah_recitations
+      list = ResourceContent
+               .recitations
+               .approved
+               .one_verse
+               .order(priority: :asc, id: :asc)
+
+      process_results(list)
+    end
+
+    def surah_recitations
+      list = ResourceContent
+               .recitations
+               .approved
+               .one_chapter
+               .order(priority: :asc, id: :asc)
+
+      process_results(list)
+    end
+
     def languages
       translation_counts = ResourceContent
                              .translations

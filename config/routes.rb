@@ -37,6 +37,8 @@ Rails.application.routes.draw do
         get '/translations', to: 'resources#translations'
         get '/tafsirs', to: 'resources#tafsirs'
         get '/recitations', to: 'resources#recitations'
+        get '/ayah_recitations', to: 'resources#ayah_recitations'
+        get '/surah_recitations', to: 'resources#surah_recitations'
         get '/languages', to: 'resources#languages'
       end
 

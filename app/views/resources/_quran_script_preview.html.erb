@@ -2,6 +2,7 @@
   text_type = resource.meta_value('text_type') || resource.meta_value('script')
   preview_text = resource.meta_value('text')
   font_face = resource.meta_value('font-face')
+  preview_verse = Verse.find_by(verse_key: '73:4')
 
   is_image = [
     'qa_tajweed_image',

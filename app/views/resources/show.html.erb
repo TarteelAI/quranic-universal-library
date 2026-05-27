@@ -4,17 +4,12 @@
   group_key = params[:id].tr('-', '_').to_sym
 
   is_quran_script = group.resource_content&.quran_script? || group.resource_content&.font?
-  @preview_verse = Verse.find_by(verse_key: '73:4') if is_quran_script
-
   group_card = resources[group_key]
 
   view_type = params[:view] == 'grid' ? 'grid' : 'list'
-
-  active_view_class = 'flex gap-2 rounded bg-[#476CFF]/10 text-[#476CFF] font-bold text-sm px-3 py-2 hover:text-[#476CFF]'
-  inactive_view_class = 'flex gap-2 rounded font-bold text-sm px-3 py-2 border hover:text-black'
 %>
 
-<%= render 'shared/page_font', verses: [@preview_verse] if @preview_verse %>
+<%= render 'shared/page_font', verses: [Verse.find_by(verse_key: '73:4')] if is_quran_script %>
 
 <div class="pb-8 md:pb-14 overflow-hidden pt-[70px] md:pt-[80px] relative border-b" id="hero">
   <div id="resource-bg" class="invert">

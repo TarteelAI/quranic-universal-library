@@ -17,7 +17,9 @@ module ToolDocsHelper
       'tajweed',
       'word_translation',
       'compare_ayah',
-      'ayah_dependency_graph'
+      'ayah_dependency_graph',
+      'ayah_boundaries',
+      'compare_audio'
     ]
   end
 
@@ -478,7 +480,7 @@ module ToolDocsHelper
     [
       "Tajweed annotations tool",
       {
-        text: "This tool is designed fix the tajweed annotations for each word in the Ayah."
+        text: "This tool is designed to fix the tajweed annotations for each word in the Ayah."
       },
       {
         type: 'info',
@@ -942,6 +944,117 @@ module ToolDocsHelper
       {
         type: 'info',
         text: "<strong>Review status on index:</strong> <code>Approved</code> means all graphs for the ayah are approved. Otherwise it shows <code>In progress</code>."
+      }
+    ]
+  end
+
+  def ayah_recitation_help
+    [
+      "Ayah recitations tool",
+      {
+        text: "This tool is used to build and proofread word-by-word timestamp (segment) data for ayah-by-ayah recitations. Each segment maps a word in the ayah to its start and end time in the audio file so the word can be highlighted while the recitation plays."
+      },
+      {
+        type: 'info',
+        text: "Segments are the backbone of word highlighting. Accurate segments ensure each word lights up at the exact moment it is recited."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the recitation and ayah',
+        text: "Use the filters to pick a <code>Surah</code> and, optionally, an <code>Ayah</code> number. The table lists the audio files of the selected recitation along with their verse. Click <code>Show</code> to open an ayah."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Review the audio and existing segments',
+        text: "The ayah page shows the recitation details and audio for the selected Surah. Use the <code>Previous Surah</code> and <code>Next Surah</code> buttons to move between Surahs, and click <code>View Segments</code> to open the segment builder."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Build or fix the segments',
+        text: "In the segment builder, play the audio and adjust the start/end time of each word so the highlighting matches the recitation. Click <code>Short keys</code> to see the keyboard shortcuts that speed up segmenting. Your changes are saved against the selected recitation."
+      },
+      {
+        type: 'info',
+        text: "You need editing access to save segments. If you don't have access, open the tool and click <code>Request Access</code>."
+      }
+    ]
+  end
+
+  def corpus_help
+    [
+      "Quran corpus tool",
+      {
+        text: "This tool is used to proofread and fix the Quran corpus data, the concordance label, part of speech (POS), grammar and morphology tagging for every word of the Quran."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the ayah',
+        text: "Use the filters to narrow down by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> number. The table lists the ayahs; click <code>Show</code> to open an ayah for tagging."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Review the words of the ayah',
+        text: "The ayah page lists every word with its current corpus data. Use the <code>Previous ayah</code> and <code>Next ayah</code> buttons to move between ayahs. Click a word to open its detail page."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Fix word level data',
+        text: "On the word detail page you can review and correct the word's morphology and segments. Use <code>Previous Word</code> and <code>Next Word</code> to move between words of the ayah, and open a segment to edit its segment-level data."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Fix segment level data',
+        text: "Many words split into multiple morphological segments (prefix, stem, suffix). Open a segment to correct its part of speech and grammar tagging, then save your changes."
+      },
+      {
+        type: 'info',
+        text: "You need editing access to save corpus changes. If you don't have access, open the tool and click <code>Request Access</code>."
+      }
+    ]
+  end
+
+  def ayah_boundaries_help
+    [
+      "Ayah Boundary Visualizer",
+      {
+        text: "This tool visualizes ayah start and end times as timeline bars, helping you debug and refine the ayah boundary data derived from raw segmentation. It overlays the original and corrected timings, silences and gaps so you can spot misaligned ayahs at a glance."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Load the boundary data',
+        text: "Either drop a JSON file of ayah boundary data, or enter a <code>Reciter ID</code> and pick a Surah to load the data directly. You can optionally provide an audio URL (or use the default) so the timings can be checked against the recitation."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Load the audio',
+        text: "Drop an audio file (or load it from the URL) to enable playback. Once loaded, a waveform is generated so you can line up boundaries with the actual audio."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Inspect the timeline',
+        text: "The timeline shows each ayah as a bar: dashed bars are the original timing and solid bars are the corrected timing. Red marks are silences and yellow marks are gaps between ayahs. Use the zoom controls to zoom in for fine adjustments. Click any bar, silence or gap to see its details and play just that segment."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Review the comparison table',
+        text: "The detailed comparison table lists every ayah with its original and corrected start/end times, the deltas, duration and gap to the next ayah. Use the search box to jump to a specific ayah (e.g. <code>5</code> or <code>5-10</code>) and click the column headers to sort."
+      },
+      {
+        type: 'info',
+        text: "Keyboard shortcuts while audio is loaded: <code>/</code> to search, <code>Space</code> to pause, <code>Esc</code> to close, arrows to skip, and <code>+</code>/<code>-</code> to zoom."
+      }
+    ]
+  end
+
+  def compare_audio_help
+    [
+      "Compare audio tool",
+      {
+        text: "This tool is used to compare audio recitations side-by-side so you can spot differences in timing, segmentation and audio between reciters or between versions of the same recitation."
+      },
+      {
+        type: 'info',
+        text: "The documentation for this tool is being expanded. Reach out on GitHub if a specific step is unclear."
       }
     ]
   end

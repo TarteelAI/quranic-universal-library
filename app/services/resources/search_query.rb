@@ -77,15 +77,13 @@ module Resources
     end
 
     def call
-      parsed_reference = QuranReferenceParser.new(query).parse
-      text_query = extract_text_query(parsed_reference)
+      text_query = normalize_text(query)
 
       candidate_resources = filter_by_text(resources, text_query)
       candidate_resources = filter_by_tags(candidate_resources)
       available_resource_types = build_type_facets(candidate_resources)
       candidate_resources = filter_by_resource_types(candidate_resources)
-      sorted_resources = sort_resources(candidate_resources, text_query, parsed_reference)
-      primary_results, related_results = split_results(sorted_resources, parsed_reference)
+      sorted_resources = sort_resources(candidate_resources, text_query)
       available_tags = build_tag_facets(sorted_resources)
 
       Result.new(
@@ -93,10 +91,10 @@ module Resources
         text_query: text_query,
         selected_tags: selected_tags,
         selected_resource_types: selected_resource_types,
-        parsed_reference: parsed_reference,
+        parsed_reference: nil,
         results: sorted_resources,
-        primary_results: primary_results,
-        related_results: related_results,
+        primary_results: sorted_resources,
+        related_results: [],
         available_tags: available_tags,
         available_resource_types: available_resource_types,
         global: global
@@ -109,15 +107,6 @@ module Resources
 
     def resources
       @resources ||= scope.to_a
-    end
-
-    def extract_text_query(parsed_reference)
-      raw_query = if parsed_reference
-        parsed_reference.remaining_query.to_s
-      else
-        query
-      end
-      normalize_text(raw_query)
     end
 
     def filter_by_text(resources, text_query)
@@ -151,22 +140,21 @@ module Resources
       end
     end
 
-    def sort_resources(resources, text_query, parsed_reference)
-      return resources if text_query.blank? && parsed_reference.blank?
+    def sort_resources(resources, text_query)
+      return resources if text_query.blank?
 
       resources.sort_by do |resource|
         [
-          -score_resource(resource, text_query, parsed_reference),
+          -score_resource(resource, text_query),
           resource.name.to_s.downcase,
           resource.id.to_i
         ]
       end
     end
 
-    def score_resource(resource, text_query, parsed_reference)
+    def score_resource(resource, text_query)
       text_terms = text_query.split
       score = text_score(resource, text_terms)
-      score += quran_reference_score(resource, parsed_reference) if parsed_reference
       score += TYPE_PRIORITY.fetch(resource.resource_type, 0)
       score + CARDINALITY_PRIORITY.fetch(resource.cardinality_type, 0)
     end
@@ -176,10 +164,7 @@ module Resources
 
       fields = {
         name: normalize_text(resource.name),
-        info: normalize_text(resource.info),
-        tags: normalize_text(resource.downloadable_resource_tags.map(&:name).join(' ')),
-        resource_type: normalize_text(resource.resource_type.to_s.tr('-', ' ')),
-        cardinality: normalize_text(resource.humanize_cardinality_type)
+        tags: normalize_text(resource.downloadable_resource_tags.map(&:name).join(' '))
       }
 
       score = 0
@@ -188,44 +173,9 @@ module Resources
         score += 18 if fields[:name].include?(term)
         score += 14 if fields[:tags].split.include?(term)
         score += 8 if fields[:tags].include?(term)
-        score += 6 if fields[:resource_type].include?(term)
-        score += 5 if fields[:cardinality].include?(term)
-        score += 4 if fields[:info].include?(term)
       end
 
       score
-    end
-
-    def quran_reference_score(resource, parsed_reference)
-      score = primary_for_quran_reference?(resource) ? 120 : 30
-      score += 8 if parsed_reference.remaining_query.blank?
-      score
-    end
-
-    def split_results(sorted_resources, parsed_reference)
-      return [sorted_resources, []] unless global && parsed_reference
-
-      primary = []
-      related = []
-
-      sorted_resources.each do |resource|
-        if primary_for_quran_reference?(resource)
-          primary << resource
-        else
-          related << resource
-        end
-      end
-
-      [primary, related]
-    end
-
-    def primary_for_quran_reference?(resource)
-      [
-        ResourceContent::CardinalityType::OneVerse,
-        ResourceContent::CardinalityType::OneWord,
-        ResourceContent::CardinalityType::OnePhrase,
-        ResourceContent::CardinalityType::NVerse
-      ].include?(resource.cardinality_type)
     end
 
     def build_tag_facets(resources)
@@ -273,10 +223,6 @@ module Resources
       @searchable_blob[resource.id] ||= normalize_text(
         [
           resource.name,
-          resource.info,
-          resource.resource_type.to_s.tr('-', ' '),
-          resource.humanize_cardinality_type,
-          resource.group_heading,
           resource.downloadable_resource_tags.map(&:name).join(' ')
         ].compact.join(' ')
       )

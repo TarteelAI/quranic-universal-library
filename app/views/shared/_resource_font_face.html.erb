@@ -1,0 +1,43 @@
+<%
+  font_face = resource_content.meta_value('font-face')
+
+  font_base_path = resource_content.meta_value('woff2')
+  font_format = 'woff2'
+
+  unless font_base_path.present?
+    font_base_path = resource_content.meta_value('woff')
+    font_format = 'woff'
+  end
+
+  unless font_base_path.present?
+    font_base_path = resource_content.meta_value('ttf')
+    font_format = 'ttf'
+  end
+
+  unless font_base_path.present?
+    font_base_path = resource_content.meta_value('otf')
+    font_format = 'otf'
+  end
+
+  page_based_font = font_face.match?(/p\d+-v/)
+  page = local_assigns[:page]
+
+  if page_based_font.present? && page.present?
+    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}/p#{page}.#{font_format}"
+  else
+    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}.#{font_format}"
+  end
+%>
+
+<link rel="preload" href="<%= font_url %>" as="fetch" crossorigin="anonymous">
+
+<style>
+    @font-face {
+        font-family: '<%= font_face %>';
+        src: url('<%= font_url %>') format('<%= font_format == 'woff2' ? 'woff2' : font_format == 'woff' ? 'woff' : font_format == 'otf' ? 'opentype' : 'truetype' %>');
+        font-display: swap;
+    }
+    .<%=font_face %>, #glyphs div, #sample-text, .ligature-preview {
+        font-family: '<%= font_face %>';
+    }
+</style>

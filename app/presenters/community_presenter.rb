@@ -15,7 +15,7 @@ class CommunityPresenter < ApplicationPresenter
   def meta_description
     case action_name
     when 'tools'
-      'Explore a variety of developer tools designed to manage Quranic content.'
+      'Free developer tools to build, proofread and manage Quran data — Tajweed, audio segments, translations, tafsir, corpus and scripts — and export it all as clean JSON.'
     when 'faq'
       'Find answers to common questions about the Quranic Universal Library'
     when 'credits'
@@ -24,6 +24,6 @@ class CommunityPresenter < ApplicationPresenter
   end
 
   def meta_keywords
-    "Quran tools directory, digital Quran resources, Quran API tools, Tajweed editor, audio timestamp editor, translation proofreading, corpus analysis, Quranic developer toolkit"
+    "Quran data, Quran json data, Quran tools directory, digital Quran resources, Quran API tools, Tajweed editor, audio timestamp editor, translation proofreading, corpus analysis, Quranic developer toolkit"
   end
 end

@@ -4,7 +4,7 @@ class ResourcePresenter < ApplicationPresenter
 
   def meta_title
     if index?
-      'QUL Resources - Download Quran Translations, Tafsir, Audio, and Datasets'
+      'QUL Resources — Download Quran Data: Translations, Tafsir, Audio, Scripts & JSON Datasets'
     elsif show?
       @resource.group_info
     elsif action_name == 'related_resources'
@@ -23,17 +23,17 @@ class ResourcePresenter < ApplicationPresenter
     elsif action_name == 'detail'
       generate_resource_description
     else
-      'Explore a curated collection of Quranic digital resources including recitations, tafsir, metadata, themes, and more — designed for developers, researchers, and students.'
+      'Download a curated collection of Quran data as JSON — recitations, translations, tafsir, word-by-word, Uthmani/IndoPak scripts, metadata and themes — for developers, researchers and students.'
     end
   end
 
   def meta_keywords
+    global_keywords = ['Quran data', 'Quran json data', 'download Quran data']
+
     if index?
-      'Quran resources, Quran translations, Quran tafsir, Quran datasets, Quran audio recitations'
-    elsif show?
-      [resource.name, resource.resource_type, "download #{resource.resource_type.humanize}", resource.humanize_cardinality_type, resource.tags].compact_blank.join(', ')
-    elsif action_name == 'detail'
-      [resource.name, resource.resource_type, "download #{resource.resource_type.humanize}", resource.humanize_cardinality_type, resource.tags].compact_blank.join(', ')
+      (['Quran resources', 'Quran translations json', 'Quran tafsir json', 'Quran datasets', 'Quran audio recitations', 'Uthmani script json'] + global_keywords).join(', ')
+    elsif show? || action_name == 'detail'
+      ([resource.name, "#{resource.name} json data", resource.resource_type, "download #{resource.resource_type.humanize}", resource.humanize_cardinality_type, resource.tags] + global_keywords).compact_blank.join(', ')
     end
   end
 
@@ -43,13 +43,13 @@ class ResourcePresenter < ApplicationPresenter
 
     case resource_type
     when :recitation
-      "Quran Audio Recitation by #{resource.name} - Download MP3 and Segments Data"
+      "Download Quran audio recitation by #{resource.name} — MP3 files and word-by-word segment data as JSON for every ayah."
     when :quran_script
-      "Download Quran script #{resource.name}"
+      "Download #{resource.name} Quran script as JSON — Uthmani/IndoPak verse and word text data for every ayah."
     when :font
-      "#{resource.name} - Download Quran Fonts for Arabic and Quranic Text"
+      "Download #{resource.name} — Quran fonts for Arabic and Quranic text, with glyph code-point data."
     when :quran_metadata
-      "#{resource.name} - Download Quran Metadata"
+      "Download #{resource.name} — Quran metadata as JSON data (surah, ayah, juz, page and more)."
     when :surah_info
       if info = ChapterInfo.where(resource_content_id: resource.resource_content_id, chapter_id: verse.chapter_id).first
         clean_meta_description(info.text)
@@ -57,14 +57,14 @@ class ResourcePresenter < ApplicationPresenter
         "#{resource.name} - Download Quran Surah Information"
       end
     when :ayah_topics
-      "#{resource.name} - Download Quran Ayah Topics and Thematic Index"
+      "Download #{resource.name} — Quran ayah topics and thematic index as JSON data."
     when :morphology
       # TODO: Find the morphology data for the specific verse
-      "#{resource.name} - Download Quran Morphological Data"
+      "Download #{resource.name} — Quran morphological data as JSON."
     when :mutashabihat
-      "#{resource.name} - Download Quran Mutashabihat Data"
+      "Download #{resource.name} — Quran mutashabihat (similar ayah) data as JSON."
     when :similar_ayah
-      "#{resource.name} - Download Quran Similar Ayah Data"
+      "Download #{resource.name} — Quran similar ayah data as JSON."
     when :ayah_theme
       theme = AyahTheme.for_verse(load_ayah)
       if theme

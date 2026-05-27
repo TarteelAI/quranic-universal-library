@@ -21,6 +21,10 @@ class CommunityController < ApplicationController
     render layout: false
   end
 
+  def compare_audio
+    render layout: false
+  end
+
   def stt_validation
     render layout: false
   end

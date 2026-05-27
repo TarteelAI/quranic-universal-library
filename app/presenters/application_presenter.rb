@@ -48,15 +48,15 @@ class ApplicationPresenter
   end
 
   def meta_title
-    'Quranic Universal Library'
+    'Quranic Universal Library — Download Quran Data, JSON & APIs'
   end
 
   def meta_description
-    'A comprehensive collection of Quranic digital resources'
+    'Download free Quran data as JSON — translations, tafsir, word-by-word, audio recitations and Uthmani/IndoPak scripts — plus developer tools and APIs from the Quranic Universal Library.'
   end
 
   def meta_keywords
-    'quran, islamic tools, muslim developers, quran api, quranic library'
+    'quran data, quran json data, quran json, download quran data, quran database, quran translations json, quran tafsir json, uthmani script json, indopak script, quran word by word data, quran audio recitation data, quran api, quranic library, islamic developer tools'
   end
 
   def og_image

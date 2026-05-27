@@ -26,8 +26,7 @@
     <div class="flex flex-col items-center justify-center flex-grow">
       <% if local_assigns[:is_quran_script] %>
         <%= render 'quran_script_preview',
-                   resource: card.resource_content,
-                   preview_verse: local_assigns[:preview_verse]
+                   resource: card.resource_content
         %>
       <% else %>
         <div class="flex items-center justify-center w-full transform group-hover:scale-105 transition-transform duration-300">

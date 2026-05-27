@@ -14,13 +14,13 @@ class MushafLayoutResourcesPresenter < ResourcePresenter
 
   def meta_description
     if action_name == 'detail'
-      "Preview of page #{page_number} of the #{resource.name}. Download #{resource.name} data for your application."
+      "Preview page #{page_number} of #{resource.name} and download the Mushaf layout as JSON data — line, page and word position data for your application."
     else
       super
     end
   end
 
   def meta_keywords
-    "#{resource.name}, Mushaf layout, Quran Mushaf layout, Quran page images, Quran page data, Quran page preview, download #{resource.name}, page #{page_number}"
+    "#{resource.name}, #{resource.name} json data, Mushaf layout, Quran Mushaf layout, Quran page images, Quran page data, Quran layout json data, Quran data, Quran page preview, download #{resource.name}, page #{page_number}"
   end
 end

@@ -39,6 +39,32 @@ module Exporter
       base_path
     end
 
+    # Exports one JSON file per page (plus an info.json with mushaf metadata) so the
+    # layout can be consumed directly without querying the database (issue #257).
+    def export_json
+      base_path = "#{@export_file_path}/json"
+      FileUtils.mkdir_p(base_path)
+
+      mushaf = find_mushaf
+
+      write_json(
+        "#{base_path}/info.json",
+        {
+          name: mushaf.name,
+          number_of_pages: mushaf.pages_count,
+          lines_per_page: mushaf.lines_per_page,
+          font_name: mushaf.default_font_name
+        }
+      )
+
+      text_method = mushaf.text_type_method
+      pages.each do |page|
+        export_page_json(page, base_path, mushaf, text_method)
+      end
+
+      base_path
+    end
+
     protected
 
     def export_page_document(page, path)
@@ -107,6 +133,35 @@ module Exporter
 
         statement.execute(fields)
       end
+    end
+
+    def export_page_json(page, path, mushaf, text_method)
+      lines = prepare_page_lines(page, mushaf)
+      page_data = { page: page.page_number, lines: {} }
+
+      lines.keys.sort.each_with_index do |line, index|
+        alignment, line_type = get_line_alignment(page, line, mushaf)
+        is_centered = alignment&.is_center_aligned? || line_type == 'surah_name' || line_type == 'basmallah'
+
+        line_data = {
+          type: line_type,
+          alignment: is_centered ? 'centered' : 'justified'
+        }
+
+        case line_type
+        when 'ayah'
+          words = (lines[line] || []).sort_by(&:word_index)
+          line_data[:first_word_id] = words.first&.word_index
+          line_data[:last_word_id] = words.last&.word_index
+          line_data[:data] = words.map { |word| word.send(text_method) }
+        when 'surah_name'
+          line_data[:surah_number] = alignment&.get_surah_number
+        end
+
+        page_data[:lines][index + 1] = line_data
+      end
+
+      write_json("#{path}/#{page.page_number}.json", page_data)
     end
 
     def prepare_page_lines(page, mushaf)

@@ -1,25 +1,29 @@
-<div data-controller="spline-viewer" class="w-full h-full flex justify-center items-center">
+<div
+  data-controller="spline-viewer"
+  data-spline-viewer-fallback-value="false"
+  class="w-full h-full flex justify-center items-center"
+>
   <img
     src="/spline.webp"
-    alt="Quranic Universal Library 3D Scene"
-    class="w-full h-full object-cover"
+    alt="Quranic Universal Library"
+    class="hidden w-full h-full object-cover"
     data-spline-viewer-target="fallback"
   />
-  <div class="hidden lg:block w-full h-full" data-spline-viewer-target="container">
-    <div
-      class="w-full h-full flex justify-center items-center"
-      data-spline-viewer-target="mount"
-    ></div>
+  <div class="w-full h-full [perspective:1200px]" data-spline-viewer-target="container">
+    <video
+      data-spline-viewer-target="video"
+      class="w-full h-full object-contain will-change-transform transition-transform duration-300 ease-out"
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster="/spline.webp"
+      aria-hidden="true"
+    >
+      <source
+        data-src="https://static-cdn.tarteel.ai/qul/spline/spline-video.mp4"
+        type="video/mp4"
+      />
+    </video>
   </div>
-
-  <%# Kept in an inert <template> so the <spline-viewer> WebGL canvas is created lazily
-      and can be torn down before Turbo caches the page (see spline_viewer_controller). %>
-  <template data-spline-viewer-target="template">
-    <spline-viewer
-      url="https://static-cdn.tarteel.ai/qul/spline/scene.splinecode"
-      width="800"
-      height="800"
-      class="scale-75 md:scale-100"
-    ></spline-viewer>
-  </template>
 </div>

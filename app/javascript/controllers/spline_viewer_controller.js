@@ -10,7 +10,7 @@ export default class extends Controller {
   static values = {
     maxTilt: { type: Number, default: 14 },
     restScale: { type: Number, default: 0.92 },
-    hoverScale: { type: Number, default: 0.82 },
+    hoverScale: { type: Number, default: 0.85 },
     // When disabled (default), the video is used on every screen size. Enable
     // to fall back to the static image on small screens instead.
     fallback: { type: Boolean, default: false },

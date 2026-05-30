@@ -120,8 +120,9 @@ module Exporter
           create_download_file(downloadable_resource, docx, 'docx')
         end
         sqlite = exporter.export_sqlite
+        json = exporter.export_json
 
-        # create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, json, 'json')
         create_download_file(downloadable_resource, sqlite, 'sqlite')
       end
     end

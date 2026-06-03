@@ -64,7 +64,6 @@ gem 'csv', require: false
 
 # metadata for audio file
 gem 'streamio-ffmpeg', '~> 3.0', require:  false
-gem 'wahwah', require: false
 gem 'dalli'
 gem 'diffy'
 

@@ -56,6 +56,22 @@
           <div class="flex items-center">
             <input
                 type="checkbox"
+                :checked="showTimeline"
+                @change="toggleTimeline"
+                id="toggle-timeline"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label for="toggle-timeline"
+                   class="ml-2 text-sm text-gray-700"
+                   data-controller="tooltip"
+                   title="Show a visual timeline of word segments.">
+              Timeline
+            </label>
+          </div>
+
+          <div class="flex items-center">
+            <input
+                type="checkbox"
                 :checked="autoScroll"
                 @change="toggleAutoscroll"
                 id="toggle-scroll"
@@ -372,6 +388,7 @@ export default {
       "lockAyah",
       "disableHotkeys",
       "showSegments",
+      "showTimeline",
       "autoScroll"
     ]),
 
@@ -472,6 +489,9 @@ export default {
     },
     toggleSegment() {
       this.$store.commit("TOGGLE_SEGMENTS");
+    },
+    toggleTimeline() {
+      this.$store.commit("TOGGLE_TIMELINE");
     },
     togglePlay() {
       if (player.paused)

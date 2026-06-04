@@ -734,18 +734,23 @@ export default {
         ? player.duration * 1000
         : null;
 
+      const present = (value) => value !== undefined && value !== null && value !== '';
+
       for (let verse = 1; verse <= this.versesCount; verse++) {
         const key = `${this.chapter}:${verse}`;
         const data = this.segments[key];
         if (!data) continue;
 
-        const message = this.detectAyahIssue(data, audioDuration);
+        const nextData = this.segments[`${this.chapter}:${verse + 1}`];
+        const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
+
+        const message = this.detectAyahIssue(data, audioDuration, nextAyahStart);
         if (message) issues.push({ verse, key, message });
       }
 
       return issues;
     },
-    detectAyahIssue(data, audioDuration) {
+    detectAyahIssue(data, audioDuration, nextAyahStart) {
       const present = (value) => value !== undefined && value !== null && value !== '';
 
       if (!present(data.timestamp_from) || !present(data.timestamp_to) ||
@@ -753,16 +758,28 @@ export default {
         return 'Ayah start/end time is missing or invalid';
       }
 
+      if (nextAyahStart !== null && Number(data.timestamp_to) > nextAyahStart) {
+        return 'Overlaps the next ayah';
+      }
+
       const words = data.words || [];
       const wordCount = Math.max(0, words.length - 1);
       const segments = data.segments || [];
       const covered = new Set();
+      let previousEnd = null;
 
       for (let i = 0; i < segments.length; i++) {
         const seg = segments[i];
         if (!present(seg[1]) || !present(seg[2])) return 'Some words have no timing';
-        if (Number(seg[2]) <= Number(seg[1])) return 'A word end time is before or equal to its start';
-        if (audioDuration && Number(seg[2]) > audioDuration) return 'A segment goes past the audio duration';
+
+        const start = Number(seg[1]);
+        const end = Number(seg[2]);
+
+        if (end <= start) return 'A word end time is before or equal to its start';
+        if (audioDuration && end > audioDuration) return 'A segment goes past the audio duration';
+        if (previousEnd !== null && start < previousEnd) return 'Word segments overlap';
+
+        previousEnd = end;
         covered.add(Number(seg[0]));
       }
 

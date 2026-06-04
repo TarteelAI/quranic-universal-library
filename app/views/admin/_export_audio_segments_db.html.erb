@@ -24,6 +24,11 @@
         </select>
       </li>
 
+      <li class="text input optional">
+        <label for="manifest_version">Manifest version (json only)</label>
+        <input type="number" name="manifest_version" id="manifest_version" placeholder="manifest version" value="1" min="1">
+      </li>
+
       <li class="searchable_select input optional">
         <label for="file_name">Select reciters</label>
         <select name="reciter_ids[]" id="reciter_ids" multiple data-controller="select2">

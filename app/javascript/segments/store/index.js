@@ -541,13 +541,27 @@ const store = createStore({
         });
       }
 
-      if (state.verseSegment.segments.length < state.wordsText.length - 1) {
-        // add missing segments
-        for (var index = 1; index < state.wordsText.length; index++) {
-          if (!state.verseSegment.segments[index])
-            state.verseSegment.segments.push([index])
+      // add missing words in sequence, keeping repeated runs intact
+      const lastWord = state.wordsText.length - 1;
+      const filledSegments = [];
+      let previousWord = 0;
+
+      state.verseSegment.segments.forEach((segment) => {
+        const wordPosition = segment[0];
+
+        for (var missing = previousWord + 1; missing < wordPosition; missing++) {
+          filledSegments.push([missing]);
         }
+
+        filledSegments.push(segment);
+        previousWord = wordPosition;
+      });
+
+      for (var trailing = previousWord + 1; trailing <= lastWord; trailing++) {
+        filledSegments.push([trailing]);
       }
+
+      state.verseSegment.segments = filledSegments;
       
       setTimeout(() => {
         state.isManualAyahChange = false;

@@ -247,6 +247,7 @@
 <script>
 import { mapState } from 'vuex';
 import {playAyah} from "../helper/audio";
+import {hasTiming} from "../helper/segmentTime";
 
 export default {
   name: 'Verse',
@@ -431,10 +432,6 @@ export default {
     segmentText(segment) {
       return this.wordsText[segment[0] - 1];
     },
-    segmentHasTiming(segment) {
-      return segment[1] !== undefined && segment[1] !== null && segment[1] !== '' &&
-        segment[2] !== undefined && segment[2] !== null && segment[2] !== '';
-    },
     segmentDuration(segment) {
       const start = Number(segment[1]);
       const end = Number(segment[2]);
@@ -445,10 +442,10 @@ export default {
     canSplit(index) {
       const segments = this.verseSegment.segments;
       const segment = segments[index];
-      if (!segment || !this.segmentHasTiming(segment)) return false;
+      if (!segment || !hasTiming(segment)) return false;
 
       const next = segments[index + 1];
-      return !!next && !this.segmentHasTiming(next);
+      return !!next && !hasTiming(next);
     },
     splitSegment(event) {
       const { index } = event.target.parentElement.dataset;

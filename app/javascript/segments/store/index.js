@@ -6,7 +6,7 @@ import {
 import {findSegment, findVerseSegment} from "../helper/findSegment";
 import LocalStore from "../../utils/LocalStore";
 import {playAyah} from "../helper/audio";
-import {divideSegmentTime} from "../helper/segmentTime";
+import {divideSegmentTime, hasTiming} from "../helper/segmentTime";
 
 const debug = process.env.NODE_ENV !== "production";
 
@@ -427,10 +427,6 @@ const store = createStore({
       const startTime = Number(segment[1]);
       const endTime = Number(segment[2]);
       if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime <= startTime) return;
-
-      const hasTiming = (seg) =>
-        seg[1] !== undefined && seg[1] !== null && seg[1] !== '' &&
-        seg[2] !== undefined && seg[2] !== null && seg[2] !== '';
 
       const group = [index];
       for (var i = index + 1; i < segments.length; i++) {

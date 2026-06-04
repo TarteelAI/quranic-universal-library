@@ -11,6 +11,14 @@ const LETTER_SCORES = {
   "ۖ": 2,
 };
 
+// A start/end time is "present" if it is not undefined, null, or an empty
+// string. Note 0 is a valid time, and edited values arrive as strings, so we
+// cannot use !! or a typeof number check here.
+export function hasTiming(segment) {
+  const present = (value) => value != null && value !== '';
+  return present(segment[1]) && present(segment[2]);
+}
+
 export function normalizeText(text) {
   if (text == null) return "";
   return String(text).replace(DIACRITICS_TO_STRIP, "");

@@ -112,7 +112,12 @@
                   </small>
                 </td>
 
-                <td class="px-4  py-2 text-lg qpc-hafs">{{ segmentText(segment) }}</td>
+                <td class="px-4  py-2 text-lg qpc-hafs">
+                  {{ segmentText(segment) }}
+                  <small class="block text-[10px] text-gray-400 mt-0.5" v-if="segmentDuration(segment)">
+                    {{ segmentDuration(segment) }}
+                  </small>
+                </td>
                 <td class="px-4 py-2 w-48">
                   <input
                     type="number"
@@ -215,6 +220,18 @@
                       :class="{ 'hidden': segmentLocked }"
                     >
                       Track
+                    </button>
+
+                    <button
+                      v-if="canSplit(index)"
+                      @click="splitSegment"
+                      class="px-2 py-1 text-[10px] font-medium bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
+                      :disabled="segmentLocked"
+                      :class="{ 'hidden': segmentLocked }"
+                      title="Divide this word's timing with the following words that have no timing"
+                      data-controller="tooltip"
+                    >
+                      Split
                     </button>
                   </div>
                 </td>
@@ -414,6 +431,36 @@ export default {
     segmentText(segment) {
       return this.wordsText[segment[0] - 1];
     },
+    segmentHasTiming(segment) {
+      return segment[1] !== undefined && segment[1] !== null && segment[1] !== '' &&
+        segment[2] !== undefined && segment[2] !== null && segment[2] !== '';
+    },
+    segmentDuration(segment) {
+      const start = Number(segment[1]);
+      const end = Number(segment[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return '';
+
+      return `${((end - start) / 1000).toFixed(2)}s`;
+    },
+    canSplit(index) {
+      const segments = this.verseSegment.segments;
+      const segment = segments[index];
+      if (!segment || !this.segmentHasTiming(segment)) return false;
+
+      const next = segments[index + 1];
+      return !!next && !this.segmentHasTiming(next);
+    },
+    splitSegment(event) {
+      const { index } = event.target.parentElement.dataset;
+
+      this.$store.commit('SPLIT_SEGMENT_TIME', {
+        index: Number(index),
+      });
+
+      // refresh
+      this.$store.state.showSegments = false;
+      this.$store.state.showSegments = true;
+    },
     changeAyah(event) {
       this.$store.commit('CHANGE_AYAH', { to: event.target.value });
     },
@@ -425,7 +472,11 @@ export default {
       if (player.paused) playAyah();
     },
     playWord(event) {
-      player.pause();
+      const { index } = event.target.parentElement.dataset;
+
+      this.$store.commit('PLAY_WORD', {
+        index: Number(index),
+      });
     },
     updateSegmentNumber(event) {
       const target = event.target;

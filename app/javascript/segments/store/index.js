@@ -6,6 +6,7 @@ import {
 import {findSegment, findVerseSegment} from "../helper/findSegment";
 import LocalStore from "../../utils/LocalStore";
 import {playAyah} from "../helper/audio";
+import {divideSegmentTime} from "../helper/segmentTime";
 
 const debug = process.env.NODE_ENV !== "production";
 
@@ -41,6 +42,7 @@ const store = createStore({
       wordLoopTime: -1,
       loopingWord: null,
       playingWord: null,
+      playingWordEnd: null,
 
       // Options
       showSegments: true,
@@ -202,6 +204,29 @@ const store = createStore({
           state.verseSegment.segments[Number(payload.word)][1] / 1000);
       } else {
         state.loopingWord = null;
+      }
+    },
+    PLAY_WORD(state, payload) {
+      const { index } = payload;
+      const segment = state.verseSegment.segments[index];
+      if (!segment) return;
+
+      const start = Number(segment[1]);
+      const end = Number(segment[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "This word has no timing to play yet.";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingWord = Number(index) + 1;
+      state.playingWordEnd = end;
+      state.currentWord = Number(index) + 1;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
       }
     },
     TOGGLE_LOOP_AYAH(state, payload) {
@@ -385,6 +410,45 @@ const store = createStore({
         // segments after index
         ...verseSegment.segments.slice(index),
       ]
+    },
+    SPLIT_SEGMENT_TIME(state, payload) {
+      const {
+        verseSegment,
+        wordsText
+      } = state;
+      const {
+        index
+      } = payload;
+
+      const segments = verseSegment.segments;
+      const segment = segments[index];
+      if (!segment) return;
+
+      const startTime = Number(segment[1]);
+      const endTime = Number(segment[2]);
+      if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime <= startTime) return;
+
+      const hasTiming = (seg) =>
+        seg[1] !== undefined && seg[1] !== null && seg[1] !== '' &&
+        seg[2] !== undefined && seg[2] !== null && seg[2] !== '';
+
+      const group = [index];
+      for (var i = index + 1; i < segments.length; i++) {
+        if (hasTiming(segments[i])) break;
+        group.push(i);
+      }
+
+      if (group.length === 1) return;
+
+      const texts = group.map((segIndex) => wordsText[segments[segIndex][0] - 1] || '');
+      const ranges = divideSegmentTime(startTime, endTime, texts);
+
+      group.forEach((segIndex, position) => {
+        segments[segIndex][1] = ranges[position][0];
+        segments[segIndex][2] = ranges[position][1];
+      });
+
+      verseSegment.segments = [...segments];
     }
   },
   actions: {
@@ -616,6 +680,16 @@ const store = createStore({
         verseSegment,
         audioType
       } = state;
+
+      if (state.playingWord) {
+        if (time >= state.playingWordEnd) {
+          player && player.pause();
+          state.playingWord = null;
+          state.playingWordEnd = null;
+        }
+
+        return;
+      }
 
       if (isLooingWord) {
         const wordTiming = verseSegment.segments[currentWord];

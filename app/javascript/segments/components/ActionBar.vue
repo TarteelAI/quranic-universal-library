@@ -215,7 +215,18 @@
       </div>
     </div>
 
-    <div class="w-full flex flex-wrap items-center gap-6 my-6 p-4 bg-gray-50 rounded-lg">
+    <div class="w-full flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 rounded-lg">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700">Jump to ayah:</span>
+        <select
+            ref="ayahSelect"
+            @change="selectAyah"
+            class="text-sm border border-gray-300 rounded px-2 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option v-for="num in Number(versesCount)" :key="num" :value="num">{{ num }}</option>
+        </select>
+      </div>
+
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium text-gray-700">Speed:</span>
         <select @change="updatePlaybackSpeed" class="text-sm border border-gray-300 rounded px-2 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
@@ -227,24 +238,21 @@
           <option value="2.0">Faster</option>
         </select>
       </div>
-      
-      <div class="flex gap-4 text-sm text-gray-600">
-        <span><strong class="text-gray-900">Duration:</strong> {{ totalDuration() }} ms</span>
-        <span><strong class="text-gray-900">Current:</strong> {{ currentTime() }}</span>
-        <span><strong class="text-gray-900">Elapsed:</strong> {{ elapsedTime() }}</span>
-        <span><strong class="text-gray-900">Remaining:</strong> {{ remainingTime() }}</span>
-      </div>
 
-      <div class="grow min-w-[200px]" v-if="audioType == 'chapter'">
-        <Slider
-            v-model="sliderRange"
-            keyboardSupport="true"
-            keyboardDefaultStep="10"
-            :min="sliderMaxRange[0]"
-            :max="sliderMaxRange[1]"
-            :options="sliderOptions"
-            :disabled="segmentLocked"
-        />
+      <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+        <span>
+          <strong class="text-gray-900">Duration:</strong>
+          <template v-if="durationMs() !== null">{{ durationMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(durationMs()) }})</span></template>
+          <template v-else>—</template>
+        </span>
+        <span>
+          <strong class="text-gray-900">Elapsed:</strong>
+          {{ elapsedMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(elapsedMs()) }})</span>
+        </span>
+        <span>
+          <strong class="text-gray-900">Remaining:</strong>
+          {{ remainingMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(remainingMs()) }})</span>
+        </span>
       </div>
     </div>
   </div>
@@ -252,16 +260,11 @@
 
 <script>
 import {mapState, mapGetters} from "vuex";
-import "@vueform/slider/themes/default.css";
-import Slider from "@vueform/slider";
 import hotkeys from "hotkeys-js";
 import {playAyah} from "../helper/audio";
 
 export default {
   name: "ActionBar",
-  components: {
-    Slider,
-  },
   mounted() {
     hotkeys.filter = function (event) {
       return true;
@@ -312,27 +315,40 @@ export default {
 
       return false;
     });
+
+    hotkeys("ctrl+z, command+z, ctrl+shift+z, command+shift+z, ctrl+y", (event, handler) => {
+      if (this.disableHotkeys) return;
+
+      const el = document.activeElement;
+      const tag = el && el.tagName;
+      // let the browser handle undo while typing in a field
+      if (tag === "INPUT" || tag === "TEXTAREA" || (el && el.isContentEditable)) return;
+
+      event.preventDefault();
+
+      if (handler.key === "ctrl+z" || handler.key === "command+z") {
+        this.$store.commit("UNDO_SEGMENTS");
+      } else {
+        this.$store.commit("REDO_SEGMENTS");
+      }
+
+      return false;
+    });
   },
   data() {
     return {
       stepDuration: 10,
-      sliderRange: [0, 0],
-      sliderOptions: {
-        pips: {
-          mode: "range",
-          density: 5,
-        },
-      },
     };
   },
   watch: {
     stepDuration(value, oldValue) {
       this.$store.commit("SET_STEP_DURATION", {value: value});
     },
-    sliderRange(value, oldValue) {
-      if (this.sliderLoaded) {
-        this.updateCurrentAyahTime(value);
-      }
+    versesCount() {
+      this.$nextTick(() => this.initAyahSelect());
+    },
+    currentVerseNumber() {
+      this.syncAyahSelect();
     },
   },
   computed: {
@@ -364,16 +380,6 @@ export default {
 
       return true;
     },
-    sliderMaxRange() {
-      this.sliderRange = [this.currentAyahTimeFrom, this.currentAyahTimeTo];
-      this.sliderLoaded = true;
-      const offset = (this.currentAyahTimeTo - this.currentAyahTimeFrom) / 4;
-
-      return [
-        this.currentAyahTimeFrom - offset,
-        this.currentAyahTimeTo + offset,
-      ];
-    },
     disablePause() {
       if (!!this.audioSrc) return !this.playing;
 
@@ -396,17 +402,6 @@ export default {
       const value = Number(event.target.value);
       this.$store.commit("SEGMENT_START_CHANGED", {value: value});
     },
-    updateCurrentAyahTime(value) {
-      if (this.$refs.ayahTimeFromInput) {
-        this.$refs.ayahTimeFromInput.value = value[0];
-        this.$store.commit("SEGMENT_START_CHANGED", {value: value[0]});
-      }
-
-      if (this.$refs.ayahTimeToInput) {
-        this.$refs.ayahTimeToInput.value = value[1];
-        this.$store.commit("SEGMENT_END_CHANGED", {value: value[1]});
-      }
-    },
     saveAyahSegment() {
       if (this.segmentLocked) {
         this.$store.commit("SET_ALERT", {text: "Sorry segments are locked for this reciter."});
@@ -415,20 +410,59 @@ export default {
           ayah: this.currentVerseNumber,
         });
     },
-    currentTime() {
-      return this.currentTimestamp.toFixed(2);
+    formatClock(ms) {
+      const total = Math.floor(Math.max(0, ms) / 1000);
+      const minutes = Math.floor(total / 60);
+      const seconds = total % 60;
+
+      return `${minutes}:${String(seconds).padStart(2, '0')}`;
     },
-    remainingTime() {
-      return (this.currentAyahTimeTo - this.currentTimestamp).toFixed(3);
+    durationMs() {
+      if (typeof player === 'undefined' || !player || !isFinite(player.duration) || player.duration <= 0) {
+        return null;
+      }
+
+      return Math.round(player.duration * 1000);
     },
-    elapsedTime() {
-      return (this.currentTimestamp - this.currentAyahTimeFrom).toFixed(3);
+    elapsedMs() {
+      return Math.max(0, Math.round(this.currentTimestamp - this.currentAyahTimeFrom));
     },
-    totalDuration() {
-      return this.currentAyahTimeTo - this.currentAyahTimeFrom;
+    remainingMs() {
+      return Math.max(0, Math.round(this.currentAyahTimeTo - this.currentTimestamp));
     },
     changeAyah(event) {
       this.$store.commit("CHANGE_AYAH", {step: event.target.dataset.step});
+    },
+    selectAyah(event) {
+      if (!event.target.value) return;
+      this.$store.commit("CHANGE_AYAH", {to: event.target.value});
+    },
+    initAyahSelect() {
+      const el = this.$refs.ayahSelect;
+      if (!el || this._ayahSelectReady || !this.versesCount) return;
+      if (!window.$ || !window.$.fn || !window.$.fn.select2) return;
+
+      this._ayahSelectReady = true;
+      $(el).select2({
+        width: '5rem',
+        minimumResultsForSearch: 0,
+        containerCssClass: 'segments-ayah-select',
+        dropdownCssClass: 'segments-ayah-select-dropdown',
+      });
+
+      // select2 fires change via jQuery, which Vue's @change does not receive,
+      // so navigate from its own event instead.
+      $(el).on('select2:select', (event) => {
+        this.$store.commit('CHANGE_AYAH', {to: event.params.data.id});
+      });
+
+      this.syncAyahSelect();
+    },
+    syncAyahSelect() {
+      const el = this.$refs.ayahSelect;
+      if (!el || !this._ayahSelectReady) return;
+
+      $(el).val(String(this.currentVerseNumber)).trigger('change.select2');
     },
     toggleAutoscroll() {
       this.$store.commit("TOGGLE_AUTOSCROLL");
@@ -485,43 +519,29 @@ export default {
 </script>
 
 <style>
-.slider-pips-horizontal {
-  padding: 10px 0;
-  height: 80px;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  position: absolute;
-  color: #999;
+.segments-ayah-select.select2-container .select2-selection--single {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  border-color: #d1d5db;
+  border-radius: 0.375rem;
 }
 
-.slider-pips-horizontal * {
-  box-sizing: border-box;
+.segments-ayah-select.select2-container .select2-selection__rendered {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  color: #374151;
+  padding-left: 0.5rem;
 }
 
-.slider-marker-horizontal {
-  margin-left: -1px;
-  width: 2px;
-  position: absolute;
-  background: #ccc;
+.segments-ayah-select.select2-container .select2-selection__arrow {
+  height: 24px;
 }
 
-.slider-marker-normal {
-  height: 5px;
-}
-
-.slider-marker-large {
-  height: 15px;
-  background: #aaa;
-}
-
-.slider-value {
-  position: absolute;
-  white-space: nowrap;
-  text-align: center;
-  transform: translate(-50%, 50%);
-}
-
-.slider-value-large {
+.segments-ayah-select-dropdown .select2-results__option,
+.segments-ayah-select-dropdown .select2-search__field {
+  font-size: 0.875rem;
+  font-weight: 400;
 }
 </style>

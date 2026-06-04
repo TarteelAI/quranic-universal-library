@@ -1,23 +1,6 @@
 <template>
   <div class="flex flex-wrap">
     <div class="w-full" v-if="segmentsLoaded">
-      <div class="text-xl font-bold mb-4 flex items-center gap-4">
-        <span>Current Ayah {{ currentVerseKey }}</span>
-
-        <select @change="changeAyah" class="text-sm border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
-          <option
-            v-for="(num, index) in Array.from(
-              { length: versesCount },
-              (_, i) => i + 1
-            )"
-            :key="index"
-            :selected="num == currentVerseNumber"
-          >
-            {{ num }}
-          </option>
-        </select>
-      </div>
-
       <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words">
         <span
           :id="index + 1"
@@ -26,10 +9,104 @@
           :key="index"
           title="Repeat word"
           @click="showWordPopover"
-          class="px-2 py-1 border border-dotted border-green-600 rounded cursor-pointer transition-colors"
+          class="px-2 py-1 border border-dotted border-green-600 rounded cursor-pointer transition-colors inline-flex flex-col items-center"
         >
           {{ text }}
+          <span v-if="sourceColorsForWord(index).length" class="flex gap-0.5 mt-0.5 pointer-events-none">
+            <span
+              v-for="(color, i) in sourceColorsForWord(index)"
+              :key="i"
+              class="inline-block w-1.5 h-1.5 rounded-full"
+              :style="{ backgroundColor: color }"
+            ></span>
+          </span>
         </span>
+      </div>
+
+      <div
+          v-if="showIssues"
+          class="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 overflow-y-auto"
+          @click.self="showIssues = false"
+      >
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mt-16">
+          <div class="flex items-center justify-between px-4 py-3 border-b">
+            <h3 class="text-base font-semibold">
+              Segment issues ({{ issues.length }})
+            </h3>
+            <button @click="showIssues = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          </div>
+          <div class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
+            <p v-if="!issues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
+              No issues found 🎉
+            </p>
+            <button
+                v-for="issue in issues"
+                :key="issue.key"
+                @click="goToIssue(issue.verse)"
+                class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
+            >
+              <span class="text-sm text-gray-700">{{ issue.message }}</span>
+              <span class="text-xs font-medium text-blue-600 whitespace-nowrap">Ayah {{ issue.verse }} →</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+          v-if="showCompare"
+          class="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 overflow-y-auto"
+          @click.self="showCompare = false"
+      >
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mt-12">
+          <div class="flex items-center justify-between px-4 py-3 border-b">
+            <h3 class="text-base font-semibold">Compare segment sources</h3>
+            <button @click="showCompare = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          </div>
+
+          <div class="px-4 py-3 max-h-[65vh] overflow-y-auto space-y-4">
+            <p class="text-xs text-gray-500">
+              Paste segment timing from another source. On playback each source highlights the word it
+              thinks is active, in its own color, so you can see whose timing matches best.
+            </p>
+
+            <p v-if="!compareSources.length" class="text-sm text-gray-500 text-center py-4">
+              No sources yet. Add one to start comparing.
+            </p>
+
+            <div v-for="source in compareSources" :key="source.id" class="border border-gray-200 rounded-md p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: source.color }"></span>
+                  {{ source.name }}
+                  <span v-if="source.error" class="text-xs text-red-600 font-normal">invalid JSON</span>
+                </span>
+                <button @click="removeCompareSource(source.id)" class="text-xs font-medium text-red-600 hover:text-red-700">
+                  Remove
+                </button>
+              </div>
+              <textarea
+                  rows="4"
+                  :value="source.text"
+                  @input="updateCompareSource(source.id, $event.target.value)"
+                  placeholder='{ "1": [[1, 0, 500], [2, 500, 900]] }'
+                  class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+              <p class="text-[10px] text-gray-400 mt-1">
+                Format: <code>{ "verse": [[word, start, end], ...] }</code> — times in ms, e.g.
+                <code>{ "1": [[1, 0, 500], [2, 500, 900]] }</code>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between px-4 py-3 border-t">
+            <button @click="addCompareSource" class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700">
+              + Add source
+            </button>
+            <button @click="showCompare = false" class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+              Done
+            </button>
+          </div>
+        </div>
       </div>
 
       <div v-if="shouldShowSegment">
@@ -75,11 +152,41 @@
             </label>
 
             <button
-                @click="showRawSegment"
-                :disabled="segmentLocked"
-                class="px-3 py-1 text-xs font-medium bg-cyan-600 text-white rounded hover:bg-cyan-700 disabled:opacity-50"
+                @click="undo"
+                :disabled="!canUndo || segmentLocked"
+                data-controller="tooltip"
+                title="Undo last change (Ctrl/Cmd+Z)"
+                class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
             >
-              Show raw segments
+              Undo
+            </button>
+
+            <button
+                @click="redo"
+                :disabled="!canRedo || segmentLocked"
+                data-controller="tooltip"
+                title="Redo (Ctrl/Cmd+Shift+Z)"
+                class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+            >
+              Redo
+            </button>
+
+            <button
+                @click="openIssues"
+                data-controller="tooltip"
+                title="Find segment issues across the whole surah"
+                class="px-3 py-1 text-xs font-medium bg-amber-500 text-white rounded hover:bg-amber-600"
+            >
+              Find issues
+            </button>
+
+            <button
+                @click="showCompare = true"
+                data-controller="tooltip"
+                title="Compare timing against pasted sources by color on playback"
+                class="px-3 py-1 text-xs font-medium bg-cyan-600 text-white rounded hover:bg-cyan-700"
+            >
+              Compare<span v-if="compareSources.length"> ({{ compareSources.length }})</span>
             </button>
 
             <button
@@ -117,14 +224,12 @@
           </span>
         </div>
 
-        <div v-if="rawSegmentVisible" class="mt-3">
-          <textarea
-              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              @input="updateRawSegments"
-          ></textarea>
-        </div>
-        <div class="text-xs text-gray-500 mb-2" v-if="rawSegments[currentVerseNumber]">
-          {{ JSON.stringify(rawSegments[currentVerseNumber]) }}
+        <div v-if="compareSources.length" class="flex flex-wrap items-center gap-3 mb-3 text-xs text-gray-500">
+          <span>Compare:</span>
+          <span v-for="source in compareSources" :key="source.id" class="flex items-center gap-1">
+            <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: source.color }"></span>
+            {{ source.name }}
+          </span>
         </div>
 
         <div class="overflow-x-auto border border-gray-200 rounded-lg" id="tableWrapper">
@@ -176,7 +281,8 @@
                       type="button"
                       @click="adjustSegmentTime(index, 1, -timeStep)"
                       :disabled="segmentLocked"
-                      :title="`-${timeStep}ms`"
+                      data-controller="tooltip"
+                      :title="`Decrease start by ${timeStep}ms`"
                       class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
                     >
                       −
@@ -195,20 +301,15 @@
                       type="button"
                       @click="adjustSegmentTime(index, 1, timeStep)"
                       :disabled="segmentLocked"
-                      :title="`+${timeStep}ms`"
+                      data-controller="tooltip"
+                      :title="`Increase start by ${timeStep}ms`"
                       class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
                     >
                       +
                     </button>
                   </div>
-                  <small class="flex justify-between text-[10px] text-gray-400 mt-0.5">
-                    <span>
-                      {{ segmentOriginalStart(index) }}
-                    </span>
-
-                    <span data-controller="tooltip" title="Suggested segment start">
-                      {{ rawSegmentStart(index) }}
-                    </span>
+                  <small class="block text-[10px] text-gray-400 mt-0.5">
+                    {{ segmentOriginalStart(index) }}
                   </small>
                 </td>
 
@@ -218,7 +319,8 @@
                       type="button"
                       @click="adjustSegmentTime(index, 2, -timeStep)"
                       :disabled="segmentLocked"
-                      :title="`-${timeStep}ms`"
+                      data-controller="tooltip"
+                      :title="`Decrease end by ${timeStep}ms`"
                       class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
                     >
                       −
@@ -237,20 +339,15 @@
                       type="button"
                       @click="adjustSegmentTime(index, 2, timeStep)"
                       :disabled="segmentLocked"
-                      :title="`+${timeStep}ms`"
+                      data-controller="tooltip"
+                      :title="`Increase end by ${timeStep}ms`"
                       class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
                     >
                       +
                     </button>
                   </div>
-                  <small class="flex justify-between text-[10px] text-gray-400 mt-0.5">
-                    <span>
-                      {{ segmentOriginalEnd(index) }}
-                    </span>
-
-                    <span data-controller="tooltip" title="Suggested segment end">
-                      {{rawSegmentEnd(index)}}
-                    </span>
+                  <small class="block text-[10px] text-gray-400 mt-0.5">
+                    {{ segmentOriginalEnd(index) }}
                   </small>
                 </td>
 
@@ -325,6 +422,18 @@
                     >
                       Split
                     </button>
+
+                    <button
+                      v-if="canFill(index)"
+                      @click="fillSegment(index)"
+                      class="px-2 py-1 text-[10px] font-medium bg-teal-600 text-white rounded hover:bg-teal-700 disabled:opacity-50"
+                      :disabled="segmentLocked"
+                      :class="{ 'hidden': segmentLocked }"
+                      title="Fill this word's timing from the gap between the previous and next word"
+                      data-controller="tooltip"
+                    >
+                      Fill
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -346,6 +455,9 @@ export default {
   data() {
     return {
       timeStep: 50,
+      showIssues: false,
+      issues: [],
+      showCompare: false,
     };
   },
   created() {
@@ -409,10 +521,6 @@ export default {
         cssClasses += ' active';
       }
 
-      if(index + 1 === this.currentRawSegmentWord){
-        cssClasses += ' text-danger';
-      }
-
       if (this.repeatGroups.includes(index + 1)) {
         cssClasses += ' bg-info';
       }
@@ -463,8 +571,21 @@ export default {
         this.$store.commit('CLEAR_SEGMENTS');
       }
     },
-    showRawSegment(event) {
-      this.$store.commit('SHOW_RAW_SEGMENT');
+    addCompareSource() {
+      this.$store.commit('ADD_COMPARE_SOURCE');
+    },
+    removeCompareSource(id) {
+      this.$store.commit('REMOVE_COMPARE_SOURCE', { id });
+    },
+    updateCompareSource(id, text) {
+      this.$store.commit('UPDATE_COMPARE_SOURCE', { id, text });
+    },
+    sourceColorsForWord(index) {
+      const word = index + 1;
+
+      return this.compareSources
+        .filter((source) => this.compareActiveWords[source.id] === word)
+        .map((source) => source.color);
     },
     showWordPopover(event) {
       const target = event.target;
@@ -517,14 +638,6 @@ export default {
     segmentOriginalEnd(index) {
       const segment = this.verseOriginalSegment.segments[index];
       if (segment) return segment[2];
-    },
-    rawSegmentStart(index) {
-      const segment = this.rawSegments[this.currentVerseNumber];
-      if (segment && segment[index]) return segment[index][1];
-    },
-    rawSegmentEnd(index) {
-      const segment = this.rawSegments[this.currentVerseNumber];
-      if (segment && segment[index]) return segment[index][2];
     },
     segmentText(segment) {
       return this.wordsText[segment[0] - 1];
@@ -580,6 +693,20 @@ export default {
       this.$store.state.showSegments = false;
       this.$store.state.showSegments = true;
     },
+    canFill(index) {
+      const segment = this.verseSegment.segments[index];
+      if (!segment) return false;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      return !present(segment[1]) && !present(segment[2]);
+    },
+    fillSegment(index) {
+      this.$store.commit('FILL_SEGMENT_TIME', { index });
+
+      // refresh
+      this.$store.state.showSegments = false;
+      this.$store.state.showSegments = true;
+    },
     adjustSegmentTime(index, field, delta) {
       this.$store.commit('ADJUST_SEG_TIME', {
         index: index,
@@ -587,8 +714,63 @@ export default {
         delta: delta,
       });
     },
-    changeAyah(event) {
-      this.$store.commit('CHANGE_AYAH', { to: event.target.value });
+    undo() {
+      this.$store.commit('UNDO_SEGMENTS');
+    },
+    redo() {
+      this.$store.commit('REDO_SEGMENTS');
+    },
+    openIssues() {
+      this.issues = this.findSegmentIssues();
+      this.showIssues = true;
+    },
+    goToIssue(verse) {
+      this.$store.commit('CHANGE_AYAH', { to: verse });
+      this.showIssues = false;
+    },
+    findSegmentIssues() {
+      const issues = [];
+      const audioDuration = (typeof player !== 'undefined' && player && isFinite(player.duration) && player.duration > 0)
+        ? player.duration * 1000
+        : null;
+
+      for (let verse = 1; verse <= this.versesCount; verse++) {
+        const key = `${this.chapter}:${verse}`;
+        const data = this.segments[key];
+        if (!data) continue;
+
+        const message = this.detectAyahIssue(data, audioDuration);
+        if (message) issues.push({ verse, key, message });
+      }
+
+      return issues;
+    },
+    detectAyahIssue(data, audioDuration) {
+      const present = (value) => value !== undefined && value !== null && value !== '';
+
+      if (!present(data.timestamp_from) || !present(data.timestamp_to) ||
+          Number(data.timestamp_from) >= Number(data.timestamp_to)) {
+        return 'Ayah start/end time is missing or invalid';
+      }
+
+      const words = data.words || [];
+      const wordCount = Math.max(0, words.length - 1);
+      const segments = data.segments || [];
+      const covered = new Set();
+
+      for (let i = 0; i < segments.length; i++) {
+        const seg = segments[i];
+        if (!present(seg[1]) || !present(seg[2])) return 'Some words have no timing';
+        if (Number(seg[2]) <= Number(seg[1])) return 'A word end time is before or equal to its start';
+        if (audioDuration && Number(seg[2]) > audioDuration) return 'A segment goes past the audio duration';
+        covered.add(Number(seg[0]));
+      }
+
+      for (let word = 1; word <= wordCount; word++) {
+        if (!covered.has(word)) return 'Missing segments for some words';
+      }
+
+      return null;
     },
     changeAutoSaveSegments(event) {
       this.$store.commit('SET_AUTO_SAVE_SEGMENTS', { value: event.target.checked });
@@ -615,19 +797,6 @@ export default {
         word: target.value,
         index: index,
       });
-    },
-    updateRawSegments(event) {
-      try {
-        const data =  event.target.value
-            .replace(/(\d+):/g, '"$1":')
-            .replace(/\s+/g, '');
-        const segs = JSON.parse(data);
-        this.$store.commit('UPDATE_RAW_SEGMENTS', {
-          segments: segs,
-        });
-      } catch (error) {
-        console.error(error)
-      }
     },
     trackTime(event) {
       const target = event.target;
@@ -657,7 +826,6 @@ export default {
       'currentVerseKey',
       'wordsText',
       'currentWord',
-      'currentRawSegmentWord',
       'loopingWord',
       'playingWord',
       'verseSegment',
@@ -669,14 +837,24 @@ export default {
       'repeatGroups',
       'segmentLocked',
       'audioType',
-      'rawSegmentVisible',
-      'rawSegments',
+      'compareSources',
+      'compareActiveWords',
       'segmentsUnsaved',
       'segmentsSaved',
       'saving',
       'autoSaveSegments',
-      'loadedSegments'
+      'loadedSegments',
+      'undoStack',
+      'redoStack',
+      'segments',
+      'chapter'
     ]),
+    canUndo() {
+      return this.undoStack.length > 1;
+    },
+    canRedo() {
+      return this.redoStack.length > 0;
+    },
     segmentsLoaded() {
       return !!this.verseSegment;
     },

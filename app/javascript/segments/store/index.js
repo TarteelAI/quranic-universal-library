@@ -10,7 +10,43 @@ import {divideSegmentTime, hasTiming} from "../helper/segmentTime";
 
 const debug = process.env.NODE_ENV !== "production";
 
+// Distinct colors for compare sources. The default (api/current) segments keep
+// their own green highlight, so green is intentionally not in this palette.
+const COMPARE_COLORS = ["#2563eb", "#dc2626", "#9333ea", "#ea580c", "#0d9488", "#db2777", "#ca8a04", "#4f46e5"];
+
 const localStore = new LocalStore();
+
+// Insert placeholders for missing words in sequence, keeping repeated runs intact.
+function fillMissingWords(rawSegments, lastWord) {
+  const filled = [];
+  let previousWord = 0;
+
+  (rawSegments || []).forEach((segment) => {
+    const wordPosition = segment[0];
+
+    for (var missing = previousWord + 1; missing < wordPosition; missing++) {
+      filled.push([missing]);
+    }
+
+    filled.push(segment);
+    previousWord = wordPosition;
+  });
+
+  for (var trailing = previousWord + 1; trailing <= lastWord; trailing++) {
+    filled.push([trailing]);
+  }
+
+  return filled;
+}
+
+// Stable, type-tolerant projection of segments for comparing two versions
+// (edited values arrive as strings, saved values as numbers).
+function normalizeForCompare(segments) {
+  return JSON.stringify((segments || []).map((segment) => {
+    const num = (value) => (value === undefined || value === null || value === '') ? null : Number(value);
+    return [num(segment[0]), num(segment[1]), num(segment[2]), !!(segment[3] && segment[3].waqaf)];
+  }));
+}
 
 // Mark segments as unsaved whenever a user driven mutation edits them. LOAD_AYAH
 // rebuilds the segments directly (not through these mutations) so navigation
@@ -24,6 +60,7 @@ const SEGMENT_EDIT_MUTATIONS = [
   "REMOVE_SEGMENT",
   "INSERT_SEG_AFTER",
   "SPLIT_SEGMENT_TIME",
+  "FILL_SEGMENT_TIME",
   "ADJUST_SEG_TIME",
   "CLEAR_SEGMENTS",
   "RELOAD_SEGMENTS",
@@ -31,8 +68,14 @@ const SEGMENT_EDIT_MUTATIONS = [
 
 const trackUnsavedSegments = (store) => {
   store.subscribe((mutation, state) => {
-    if (SEGMENT_EDIT_MUTATIONS.includes(mutation.type)) {
-      state.segmentsUnsaved = true;
+    if (!SEGMENT_EDIT_MUTATIONS.includes(mutation.type)) return;
+
+    state.segmentsUnsaved = true;
+
+    if (state.verseSegment) {
+      state.undoStack.push(JSON.parse(JSON.stringify(state.verseSegment.segments)));
+      if (state.undoStack.length > 100) state.undoStack.splice(1, 1);
+      state.redoStack = [];
     }
   });
 };
@@ -45,10 +88,11 @@ const store = createStore({
       currentVerseNumber: 1,
       currentVerseKey: null,
       currentWord: 1,
-      currentRawSegmentWord: null,
       wordsText: [],
       verseSegment: null,
-      rawSegments: {},
+      compareSources: [],
+      compareActiveWords: {},
+      compareSourceSeq: 0,
       verseOriginalSegment: null,
       recitation: null,
       segments: {},
@@ -81,10 +125,11 @@ const store = createStore({
       segmentsSaved: false,
       saving: false,
       loadedSegments: [],
+      undoStack: [],
+      redoStack: [],
       editMode: false,
       lockAyah: false, // stop playing next ayah
       segmentLocked: false,
-      rawSegmentVisible: true, // show raw segments
       audioType: 'chapter', //or ayah
       compareSegment: false,
       segmentsUrl: 'surah_audio_files',
@@ -135,14 +180,38 @@ const store = createStore({
     RELOAD_SEGMENTS(state) {
       state.verseSegment.segments = state.originalSegments[state.currentVerseKey].segments;
     },
-    SHOW_RAW_SEGMENT(state) {
-      state.rawSegmentVisible = !state.rawSegmentVisible;
+    ADD_COMPARE_SOURCE(state) {
+      const color = COMPARE_COLORS[state.compareSources.length % COMPARE_COLORS.length];
+      state.compareSourceSeq += 1;
+
+      state.compareSources.push({
+        id: state.compareSourceSeq,
+        name: `Source ${state.compareSources.length + 1}`,
+        color,
+        text: '',
+        error: false,
+        segments: {},
+      });
     },
-    UPDATE_RAW_SEGMENTS(state, payload) {
-      if (state.audioType == 'ayah') {
-        state.rawSegments[state.currentVerseKey] = payload.segments;
-      } else {
-        state.rawSegments = payload.segments;
+    REMOVE_COMPARE_SOURCE(state, payload) {
+      state.compareSources = state.compareSources.filter((source) => source.id !== payload.id);
+
+      const active = { ...state.compareActiveWords };
+      delete active[payload.id];
+      state.compareActiveWords = active;
+    },
+    UPDATE_COMPARE_SOURCE(state, payload) {
+      const source = state.compareSources.find((item) => item.id === payload.id);
+      if (!source) return;
+
+      source.text = payload.text;
+
+      try {
+        const data = payload.text.replace(/(\d+):/g, '"$1":').replace(/\s+/g, '');
+        source.segments = data ? JSON.parse(data) : {};
+        source.error = false;
+      } catch (error) {
+        source.error = true;
       }
     },
     SET_WORD(state, payload) {
@@ -461,6 +530,46 @@ const store = createStore({
       segment[field] = next;
       state.verseSegment.segments = [...state.verseSegment.segments];
     },
+    UNDO_SEGMENTS(state) {
+      if (state.undoStack.length <= 1) return;
+
+      const current = state.undoStack.pop();
+      state.redoStack.push(current);
+
+      const previous = state.undoStack[state.undoStack.length - 1];
+      state.verseSegment.segments = JSON.parse(JSON.stringify(previous));
+      state.segmentsUnsaved = state.undoStack.length > 1;
+    },
+    REDO_SEGMENTS(state) {
+      if (!state.redoStack.length) return;
+
+      const next = state.redoStack.pop();
+      state.undoStack.push(next);
+      state.verseSegment.segments = JSON.parse(JSON.stringify(next));
+      state.segmentsUnsaved = state.undoStack.length > 1;
+    },
+    FILL_SEGMENT_TIME(state, payload) {
+      const { index } = payload;
+      const segments = state.verseSegment.segments;
+      const segment = segments[index];
+      if (!segment) return;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      if (present(segment[1]) || present(segment[2])) return;
+
+      const prev = segments[index - 1];
+      const next = segments[index + 1];
+
+      let start = (prev && present(prev[2])) ? Number(prev[2]) + 1 : Number(state.verseSegment.timestamp_from);
+      let end = (next && present(next[1])) ? Number(next[1]) - 1 : Number(state.verseSegment.timestamp_to);
+
+      if (!Number.isFinite(start)) start = 0;
+      if (!Number.isFinite(end) || end < start) end = start;
+
+      segment[1] = start;
+      segment[2] = end;
+      state.verseSegment.segments = [...state.verseSegment.segments];
+    },
     SPLIT_SEGMENT_TIME(state, payload) {
       const {
         verseSegment,
@@ -542,6 +651,8 @@ const store = createStore({
         state.segmentsSaved = true;
         state.saving = false;
         state.loadedSegments = JSON.parse(JSON.stringify(state.verseSegment.segments));
+        state.undoStack = [JSON.parse(JSON.stringify(state.verseSegment.segments))];
+        state.redoStack = [];
       }).catch(() => {
         // save in local store
         localStore.set(`${audioType}-${recitation}-${currentVerseKey}`, JSON.stringify(params));
@@ -640,8 +751,9 @@ const store = createStore({
       state.currentVerseKey = verseKey;
       state.fromFile = false;
 
-      // keep the verse query param in sync with the current ayah
-      if (typeof window !== 'undefined' && window.history && window.location.search.includes('verse=')) {
+      // keep the verse query param in sync with the current ayah, adding it
+      // when missing so the url can always be shared for a specific ayah
+      if (typeof window !== 'undefined' && window.history && window.location.pathname.includes('segment_builder')) {
         const url = new URL(window.location.href);
         url.searchParams.set('verse', verse);
         window.history.replaceState(window.history.state, '', url);
@@ -662,29 +774,19 @@ const store = createStore({
         state.verseSegment.segments = JSON.parse(storedSegment).segments;
       }
 
-      // add missing words in sequence, keeping repeated runs intact
       const lastWord = state.wordsText.length - 1;
-      const filledSegments = [];
-      let previousWord = 0;
+      const filledSegments = fillMissingWords(state.verseSegment.segments, lastWord);
 
-      state.verseSegment.segments.forEach((segment) => {
-        const wordPosition = segment[0];
-
-        for (var missing = previousWord + 1; missing < wordPosition; missing++) {
-          filledSegments.push([missing]);
-        }
-
-        filledSegments.push(segment);
-        previousWord = wordPosition;
-      });
-
-      for (var trailing = previousWord + 1; trailing <= lastWord; trailing++) {
-        filledSegments.push([trailing]);
-      }
+      // Baseline against the saved/original segments, not the working copy, so
+      // unsaved edits made before navigating away stay flagged on revisit.
+      const savedSource = (originalSegments[verseKey] && originalSegments[verseKey].segments) || [];
+      const savedBaseline = fillMissingWords(savedSource, lastWord);
 
       state.verseSegment.segments = filledSegments;
-      state.loadedSegments = JSON.parse(JSON.stringify(filledSegments));
-      state.segmentsUnsaved = false;
+      state.loadedSegments = JSON.parse(JSON.stringify(savedBaseline));
+      state.undoStack = [JSON.parse(JSON.stringify(filledSegments))];
+      state.redoStack = [];
+      state.segmentsUnsaved = normalizeForCompare(filledSegments) !== normalizeForCompare(savedBaseline);
       state.segmentsSaved = false;
 
       setTimeout(() => {
@@ -732,7 +834,6 @@ const store = createStore({
         currentVerseKey,
         currentWord,
         segments,
-        rawSegments,
         chapter,
         isLooingAyah,
         isLooingWord,
@@ -740,6 +841,20 @@ const store = createStore({
         verseSegment,
         audioType
       } = state;
+
+      if (state.compareSources.length) {
+        const compareKey = audioType == 'ayah' ? currentVerseKey : currentVerseNumber;
+        const active = {};
+
+        state.compareSources.forEach((source) => {
+          const sourceSegments = source.segments && source.segments[compareKey];
+          if (sourceSegments && sourceSegments.length > 0) {
+            active[source.id] = findVerseSegment(time, {segments: sourceSegments}).word;
+          }
+        });
+
+        state.compareActiveWords = active;
+      }
 
       if (state.playingWord) {
         if (time >= state.playingWordEnd) {
@@ -763,17 +878,6 @@ const store = createStore({
         }
 
         return;
-      }
-
-      const rawSegmentKey = audioType == 'ayah' ? currentVerseKey : currentVerseNumber;
-      const rawAyahSegments = rawSegments[rawSegmentKey];
-      if (rawAyahSegments && rawAyahSegments.length > 0) {
-        const rawSegment = findVerseSegment(
-          time,
-          {segments: rawAyahSegments}
-        );
-
-        state.currentRawSegmentWord = rawSegment.word;
       }
 
       if (audioType == 'ayah') {

@@ -243,6 +243,7 @@ ActiveAdmin.register Recitation do
       end
 
     export_gapless = params[:export_gapless] == '1'
+    manifest_version = params[:manifest_version].presence&.to_i || 1
 
     if format == 'json' && recitations_ids == ['tarteel-reciters'] && current_user.id != 1
       return redirect_back(fallback_location: '/cms', alert: "Sorry, only main admin can export these gapless segments in JSON format.")
@@ -254,7 +255,8 @@ ActiveAdmin.register Recitation do
       user_id: current_user.id,
       recitations_ids: recitations_ids,
       gapless: export_gapless,
-      format: format
+      format: format,
+      manifest_version: manifest_version
     )
 
     # Restart sidekiq if it's not running

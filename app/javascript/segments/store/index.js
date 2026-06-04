@@ -6,10 +6,36 @@ import {
 import {findSegment, findVerseSegment} from "../helper/findSegment";
 import LocalStore from "../../utils/LocalStore";
 import {playAyah} from "../helper/audio";
+import {divideSegmentTime, hasTiming} from "../helper/segmentTime";
 
 const debug = process.env.NODE_ENV !== "production";
 
 const localStore = new LocalStore();
+
+// Mark segments as unsaved whenever a user driven mutation edits them. LOAD_AYAH
+// rebuilds the segments directly (not through these mutations) so navigation
+// does not falsely flag the freshly loaded ayah as dirty.
+const SEGMENT_EDIT_MUTATIONS = [
+  "TRACK_SEG_START",
+  "TRACK_SEG_END",
+  "TRACK_SEG_WAQAF",
+  "SET_SEG_WORD_NUMBER",
+  "INSERT_REPEAT_SEG_AFTER",
+  "REMOVE_SEGMENT",
+  "INSERT_SEG_AFTER",
+  "SPLIT_SEGMENT_TIME",
+  "ADJUST_SEG_TIME",
+  "CLEAR_SEGMENTS",
+  "RELOAD_SEGMENTS",
+];
+
+const trackUnsavedSegments = (store) => {
+  store.subscribe((mutation, state) => {
+    if (SEGMENT_EDIT_MUTATIONS.includes(mutation.type)) {
+      state.segmentsUnsaved = true;
+    }
+  });
+};
 
 const store = createStore({
   state() {
@@ -41,6 +67,7 @@ const store = createStore({
       wordLoopTime: -1,
       loopingWord: null,
       playingWord: null,
+      playingWordEnd: null,
 
       // Options
       showSegments: true,
@@ -49,6 +76,11 @@ const store = createStore({
       playing: false,
       playbackSpeed: 1,
       autoSave: false,
+      autoSaveSegments: false,
+      segmentsUnsaved: false,
+      segmentsSaved: false,
+      saving: false,
+      loadedSegments: [],
       editMode: false,
       lockAyah: false, // stop playing next ayah
       segmentLocked: false,
@@ -204,6 +236,29 @@ const store = createStore({
         state.loopingWord = null;
       }
     },
+    PLAY_WORD(state, payload) {
+      const { index } = payload;
+      const segment = state.verseSegment.segments[index];
+      if (!segment) return;
+
+      const start = Number(segment[1]);
+      const end = Number(segment[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "This word has no timing to play yet.";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingWord = Number(index) + 1;
+      state.playingWordEnd = end;
+      state.currentWord = Number(index) + 1;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
+      }
+    },
     TOGGLE_LOOP_AYAH(state, payload) {
       state.isLooingAyah = !state.isLooingAyah;
 
@@ -256,6 +311,9 @@ const store = createStore({
     },
     SET_AUTO_SAVE(state, payload) {
       state.autoSave = payload.value;
+    },
+    SET_AUTO_SAVE_SEGMENTS(state, payload) {
+      state.autoSaveSegments = payload.value;
     },
     SET_EDIT_MODE(state, payload) {
       state.editMode = payload.value;
@@ -385,6 +443,58 @@ const store = createStore({
         // segments after index
         ...verseSegment.segments.slice(index),
       ]
+    },
+    ADJUST_SEG_TIME(state, payload) {
+      const {
+        index,
+        field,
+        delta
+      } = payload;
+
+      const segment = state.verseSegment.segments[index];
+      if (!segment) return;
+
+      const current = Number(segment[field]);
+      const base = Number.isFinite(current) ? current : 0;
+      const next = Math.max(0, base + delta);
+
+      segment[field] = next;
+      state.verseSegment.segments = [...state.verseSegment.segments];
+    },
+    SPLIT_SEGMENT_TIME(state, payload) {
+      const {
+        verseSegment,
+        wordsText
+      } = state;
+      const {
+        index
+      } = payload;
+
+      const segments = verseSegment.segments;
+      const segment = segments[index];
+      if (!segment) return;
+
+      const startTime = Number(segment[1]);
+      const endTime = Number(segment[2]);
+      if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime <= startTime) return;
+
+      const group = [index];
+      for (var i = index + 1; i < segments.length; i++) {
+        if (hasTiming(segments[i])) break;
+        group.push(i);
+      }
+
+      if (group.length === 1) return;
+
+      const texts = group.map((segIndex) => wordsText[segments[segIndex][0] - 1] || '');
+      const ranges = divideSegmentTime(startTime, endTime, texts);
+
+      group.forEach((segIndex, position) => {
+        segments[segIndex][1] = ranges[position][0];
+        segments[segIndex][2] = ranges[position][1];
+      });
+
+      verseSegment.segments = [...segments];
     }
   },
   actions: {
@@ -393,7 +503,7 @@ const store = createStore({
                        }) {
       const isPlaying = !player?.paused
       if (isPlaying) player?.pause()
-      state.alert = "Saving segments";
+      state.saving = true;
 
       const {
         verseSegment,
@@ -428,10 +538,14 @@ const store = createStore({
         this.commit("UPDATE_SEGMENTS", {
           segments: json.segments
         })
-        state.alert = `Saved`;
+        state.segmentsUnsaved = false;
+        state.segmentsSaved = true;
+        state.saving = false;
+        state.loadedSegments = JSON.parse(JSON.stringify(state.verseSegment.segments));
       }).catch(() => {
         // save in local store
         localStore.set(`${audioType}-${recitation}-${currentVerseKey}`, JSON.stringify(params));
+        state.saving = false;
         state.alert = `Sorry, can't save segments. Please refresh the page and try again.`;
       });
     },
@@ -450,7 +564,7 @@ const store = createStore({
       if (audioType == 'ayah')
         return
 
-      state.alert = `Saving ayah`;
+      state.saving = true;
 
       var csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
       var headers = {},
@@ -487,12 +601,18 @@ const store = createStore({
         this.commit("UPDATE_SEGMENTS", {
           segments: json.segments
         })
-        state.alert = `Saved`;
+        state.saving = false;
+      }).catch(() => {
+        state.saving = false;
       });
     },
     LOAD_AYAH({
                 state
               }, payload) {
+      if (state.autoSaveSegments && state.segmentsUnsaved && state.currentVerseKey) {
+        this.dispatch("SAVE_AYAH_SEGMENTS");
+      }
+
       const {
         chapter,
         segments,
@@ -520,6 +640,13 @@ const store = createStore({
       state.currentVerseKey = verseKey;
       state.fromFile = false;
 
+      // keep the verse query param in sync with the current ayah
+      if (typeof window !== 'undefined' && window.history && window.location.search.includes('verse=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('verse', verse);
+        window.history.replaceState(window.history.state, '', url);
+      }
+
       if (audioType == 'ayah') {
         state.quranicAudioUrl = state.verseSegment.audioUrl;
         state.audioSrc = state.quranicAudioUrl;
@@ -529,26 +656,37 @@ const store = createStore({
         state.currentAyahTimeTo = state.verseSegment.timestamp_to;
       }
 
-      state.alert = `Current ayah is ${verseKey}`;
-
       // load segments data from localstorage
       const storedSegment = localStore.get(`${audioType}-${recitation}-${verseKey}`);
       if (storedSegment && storedSegment.length > 0) {
         state.verseSegment.segments = JSON.parse(storedSegment).segments;
-
-        this.commit("SET_ALERT", {
-          text: "segments data loaded from local storage.",
-        });
       }
 
-      if (state.verseSegment.segments.length < state.wordsText.length - 1) {
-        // add missing segments
-        for (var index = 1; index < state.wordsText.length; index++) {
-          if (!state.verseSegment.segments[index])
-            state.verseSegment.segments.push([index])
+      // add missing words in sequence, keeping repeated runs intact
+      const lastWord = state.wordsText.length - 1;
+      const filledSegments = [];
+      let previousWord = 0;
+
+      state.verseSegment.segments.forEach((segment) => {
+        const wordPosition = segment[0];
+
+        for (var missing = previousWord + 1; missing < wordPosition; missing++) {
+          filledSegments.push([missing]);
         }
+
+        filledSegments.push(segment);
+        previousWord = wordPosition;
+      });
+
+      for (var trailing = previousWord + 1; trailing <= lastWord; trailing++) {
+        filledSegments.push([trailing]);
       }
-      
+
+      state.verseSegment.segments = filledSegments;
+      state.loadedSegments = JSON.parse(JSON.stringify(filledSegments));
+      state.segmentsUnsaved = false;
+      state.segmentsSaved = false;
+
       setTimeout(() => {
         state.isManualAyahChange = false;
       }, 100);
@@ -602,6 +740,16 @@ const store = createStore({
         verseSegment,
         audioType
       } = state;
+
+      if (state.playingWord) {
+        if (time >= state.playingWordEnd) {
+          player && player.pause();
+          state.playingWord = null;
+          state.playingWordEnd = null;
+        }
+
+        return;
+      }
 
       if (isLooingWord) {
         const wordTiming = verseSegment.segments[currentWord];
@@ -680,7 +828,7 @@ const store = createStore({
       }
     }
   },
-  plugins: debug ? [createLogger()] : [],
+  plugins: debug ? [createLogger(), trackUnsavedSegments] : [trackUnsavedSegments],
 });
 
 export default store;

@@ -34,9 +34,46 @@
 
       <div v-if="shouldShowSegment">
         <h4 class="flex justify-between items-center mt-8 mb-4">
-          <div class="text-lg font-semibold">Segments</div>
+          <div class="flex items-center gap-3">
+            <span class="text-lg font-semibold">Segments</span>
 
-          <div class="flex gap-2">
+            <span
+                v-if="saving"
+                class="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-blue-100 text-blue-800 rounded-full"
+            >
+              <span class="inline-block w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+              Saving…
+            </span>
+            <span
+                v-else-if="segmentsUnsaved"
+                class="px-2 py-0.5 text-[11px] font-medium bg-red-100 text-red-600 rounded-full"
+            >
+              Has unsaved changes
+            </span>
+            <span
+                v-else-if="segmentsSaved"
+                class="px-2 py-0.5 text-[11px] font-medium bg-green-100 text-green-800 rounded-full"
+            >
+              All changes saved
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <label
+                class="flex items-center gap-1 text-xs text-gray-700 mr-1"
+                data-controller="tooltip"
+                title="Automatically save the word segments when moving to the next or previous ayah, if there are unsaved changes."
+            >
+              <input
+                  type="checkbox"
+                  :checked="autoSaveSegments"
+                  @change="changeAutoSaveSegments"
+                  :disabled="segmentLocked"
+                  class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              Auto save
+            </label>
+
             <button
                 @click="showRawSegment"
                 :disabled="segmentLocked"
@@ -65,6 +102,21 @@
           </div>
         </h4>
 
+        <div class="flex flex-wrap gap-4 mb-3 text-xs text-gray-500">
+          <span class="flex items-center gap-1">
+            <span class="inline-block w-4 h-4 rounded-sm bg-yellow-100 border border-yellow-300"></span>
+            Segment issue
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="inline-block w-4 h-4 rounded-sm bg-blue-50 border border-blue-200"></span>
+            Unsaved changes
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="inline-block w-4 h-4 rounded-sm bg-green-50 border border-green-200"></span>
+            Current word
+          </span>
+        </div>
+
         <div v-if="rawSegmentVisible" class="mt-3">
           <textarea
               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -90,7 +142,7 @@
             <tbody class="divide-y divide-gray-100">
               <tr
                 :id="[`word-${segment[0]}-${index}`]"
-                :class="[index + 1 == currentWord ? 'bg-green-50' : '']"
+                :class="segmentRowClass(segment, index)"
                 v-for="(segment, index) in verseSegment.segments"
                 :key="index"
                 :data-index="index"
@@ -112,18 +164,43 @@
                   </small>
                 </td>
 
-                <td class="px-4  py-2 text-lg qpc-hafs">{{ segmentText(segment) }}</td>
+                <td class="px-4  py-2 text-lg qpc-hafs">
+                  {{ segmentText(segment) }}
+                  <small class="block text-[10px] text-gray-400 mt-0.5" v-if="segmentDuration(segment)">
+                    {{ segmentDuration(segment) }}
+                  </small>
+                </td>
                 <td class="px-4 py-2 w-48">
-                  <input
-                    type="number"
-                    min="0"
-                    :id="[`start-${segment[0]}-${index}`]"
-                    :value="segment[1]"
-                    :data-index="index"
-                    :disabled="segmentLocked"
-                    @change="updateSegmentStart"
-                    class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+                  <div class="flex items-center gap-1">
+                    <button
+                      type="button"
+                      @click="adjustSegmentTime(index, 1, -timeStep)"
+                      :disabled="segmentLocked"
+                      :title="`-${timeStep}ms`"
+                      class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      :id="[`start-${segment[0]}-${index}`]"
+                      :value="segment[1]"
+                      :data-index="index"
+                      :disabled="segmentLocked"
+                      @change="updateSegmentStart"
+                      class="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      @click="adjustSegmentTime(index, 1, timeStep)"
+                      :disabled="segmentLocked"
+                      :title="`+${timeStep}ms`"
+                      class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                      +
+                    </button>
+                  </div>
                   <small class="flex justify-between text-[10px] text-gray-400 mt-0.5">
                     <span>
                       {{ segmentOriginalStart(index) }}
@@ -136,16 +213,36 @@
                 </td>
 
                 <td class="px-4 py-2 w-48">
-                  <input
-                    type="number"
-                    min="0"
-                    :value="segment[2]"
-                    :id="[`end-${segment[0]}-${index}`]"
-                    :data-index="index"
-                    :disabled="segmentLocked"
-                    @change="updateSegmentEnd"
-                    class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+                  <div class="flex items-center gap-1">
+                    <button
+                      type="button"
+                      @click="adjustSegmentTime(index, 2, -timeStep)"
+                      :disabled="segmentLocked"
+                      :title="`-${timeStep}ms`"
+                      class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      :value="segment[2]"
+                      :id="[`end-${segment[0]}-${index}`]"
+                      :data-index="index"
+                      :disabled="segmentLocked"
+                      @change="updateSegmentEnd"
+                      class="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      @click="adjustSegmentTime(index, 2, timeStep)"
+                      :disabled="segmentLocked"
+                      :title="`+${timeStep}ms`"
+                      class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                      +
+                    </button>
+                  </div>
                   <small class="flex justify-between text-[10px] text-gray-400 mt-0.5">
                     <span>
                       {{ segmentOriginalEnd(index) }}
@@ -216,6 +313,18 @@
                     >
                       Track
                     </button>
+
+                    <button
+                      v-if="canSplit(index)"
+                      @click="splitSegment"
+                      class="px-2 py-1 text-[10px] font-medium bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
+                      :disabled="segmentLocked"
+                      :class="{ 'hidden': segmentLocked }"
+                      title="Divide this word's timing with the following words that have no timing"
+                      data-controller="tooltip"
+                    >
+                      Split
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -230,9 +339,15 @@
 <script>
 import { mapState } from 'vuex';
 import {playAyah} from "../helper/audio";
+import {hasTiming} from "../helper/segmentTime";
 
 export default {
   name: 'Verse',
+  data() {
+    return {
+      timeStep: 50,
+    };
+  },
   created() {
     window.store = this.$store;
 
@@ -414,8 +529,69 @@ export default {
     segmentText(segment) {
       return this.wordsText[segment[0] - 1];
     },
+    segmentDuration(segment) {
+      const start = Number(segment[1]);
+      const end = Number(segment[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return '';
+
+      return `${((end - start) / 1000).toFixed(2)}s`;
+    },
+    segmentChanged(segment, index) {
+      const original = this.loadedSegments[index];
+      if (!original) return false;
+
+      const time = (value) => (value === undefined || value === null || value === '') ? null : Number(value);
+      const waqaf = (s) => !!(s[3] && s[3].waqaf);
+
+      return time(segment[0]) !== time(original[0]) ||
+        time(segment[1]) !== time(original[1]) ||
+        time(segment[2]) !== time(original[2]) ||
+        waqaf(segment) !== waqaf(original);
+    },
+    segmentHasIssue(segment) {
+      if (!hasTiming(segment)) return true;
+      return Number(segment[1]) >= Number(segment[2]);
+    },
+    segmentRowClass(segment, index) {
+      const current = index + 1 == this.currentWord;
+
+      if (this.segmentHasIssue(segment)) return ['bg-yellow-100'];
+      if (this.segmentChanged(segment, index)) return ['bg-blue-50'];
+      if (current) return ['bg-green-50'];
+
+      return [];
+    },
+    canSplit(index) {
+      const segments = this.verseSegment.segments;
+      const segment = segments[index];
+      if (!segment || !hasTiming(segment)) return false;
+
+      const next = segments[index + 1];
+      return !!next && !hasTiming(next);
+    },
+    splitSegment(event) {
+      const { index } = event.target.parentElement.dataset;
+
+      this.$store.commit('SPLIT_SEGMENT_TIME', {
+        index: Number(index),
+      });
+
+      // refresh
+      this.$store.state.showSegments = false;
+      this.$store.state.showSegments = true;
+    },
+    adjustSegmentTime(index, field, delta) {
+      this.$store.commit('ADJUST_SEG_TIME', {
+        index: index,
+        field: field,
+        delta: delta,
+      });
+    },
     changeAyah(event) {
       this.$store.commit('CHANGE_AYAH', { to: event.target.value });
+    },
+    changeAutoSaveSegments(event) {
+      this.$store.commit('SET_AUTO_SAVE_SEGMENTS', { value: event.target.checked });
     },
     loopWord(event) {
       this.$store.commit('TOGGLE_LOOP_WORD', {
@@ -425,7 +601,11 @@ export default {
       if (player.paused) playAyah();
     },
     playWord(event) {
-      player.pause();
+      const { index } = event.target.parentElement.dataset;
+
+      this.$store.commit('PLAY_WORD', {
+        index: Number(index),
+      });
     },
     updateSegmentNumber(event) {
       const target = event.target;
@@ -490,7 +670,12 @@ export default {
       'segmentLocked',
       'audioType',
       'rawSegmentVisible',
-      'rawSegments'
+      'rawSegments',
+      'segmentsUnsaved',
+      'segmentsSaved',
+      'saving',
+      'autoSaveSegments',
+      'loadedSegments'
     ]),
     segmentsLoaded() {
       return !!this.verseSegment;

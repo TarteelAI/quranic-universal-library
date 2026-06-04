@@ -628,7 +628,8 @@ class AudioSegmentParser
     "ٓ" => 6,
     "" => 4,
     "آّ" => 6,
-    "ٰ" => 4
+    "ٰ" => 4,
+    "ۖ" => 2
   }
 
   def calculate_word_text_score(text)

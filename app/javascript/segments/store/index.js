@@ -115,6 +115,7 @@ const store = createStore({
 
       // Options
       showSegments: true,
+      showTimeline: false,
       showWaveform: false,
       autoScroll: true,
       playing: false,
@@ -238,6 +239,9 @@ const store = createStore({
     },
     TOGGLE_SEGMENTS(state) {
       state.showSegments = !state.showSegments;
+    },
+    TOGGLE_TIMELINE(state) {
+      state.showTimeline = !state.showTimeline;
     },
     TOGGLE_AUTOSCROLL(state) {
       state.autoScroll = !state.autoScroll;

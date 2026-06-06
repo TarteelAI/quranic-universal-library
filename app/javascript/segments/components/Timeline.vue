@@ -50,6 +50,15 @@
         </span>
         <span v-else-if="waveformEnabled && waveformState === 'error'" class="text-amber-500">waveform unavailable for this source</span>
 
+        <button
+            v-if="currentAyahGaps.length"
+            @click="closeAllGaps"
+            class="text-amber-600 hover:text-amber-700 font-medium"
+            data-controller="tooltip"
+            title="Close every gap between words in this ayah (snaps to detected speech onset when the waveform is on)"
+        >
+          Close gaps ({{ currentAyahGaps.length }})
+        </button>
         <button @click="scrollToCurrentTime" class="text-blue-600 hover:text-blue-700 font-medium">
           Jump to current time
         </button>
@@ -102,6 +111,17 @@
         >
           <span v-if="block.width > 22" class="px-0.5 truncate">{{ block.label }}</span>
         </div>
+
+        <!-- gaps (current ayah) -->
+        <div
+            v-for="gap in currentAyahGaps"
+            :key="gap.key"
+            class="tl-gap"
+            :style="{ right: gap.left + 'px', width: gap.width + 'px', top: mainTop + 'px', height: mainH + 'px' }"
+            :title="`Gap ${gap.to - gap.from} ms — click to close`"
+            data-controller="tooltip"
+            @click.stop="closeGap(gap)"
+        ></div>
 
         <!-- compare lanes -->
         <template v-for="(source, i) in compareSources">
@@ -166,6 +186,7 @@ export default {
       laneGap: 2,
       wordTip: { show: false, x: 0, y: 0, text: '' },
       tileWidth: 2000,
+      gapMinMs: 1,
       waveformEnabled: false,
       waveformState: 'idle', // idle | loading | ready | error
     };
@@ -224,12 +245,45 @@ export default {
       'chapter',
       'audioSrc',
       'playing',
+      'segmentLocked',
     ]),
     segmentsLoaded() {
       return !!this.verseSegment;
     },
     waveformVisible() {
       return this.waveformEnabled && this.waveformState === 'ready';
+    },
+    currentAyahGaps() {
+      if (this.segmentLocked) return [];
+
+      const data = this.segments[`${this.chapter}:${this.currentVerseNumber}`];
+      if (!data || !data.segments) return [];
+
+      const gaps = [];
+      let prev = null;
+
+      data.segments.forEach((seg, index) => {
+        if (!this.present(seg[1]) || !this.present(seg[2])) return;
+
+        const start = Number(seg[1]);
+        const end = Number(seg[2]);
+
+        if (prev && start - prev.end > this.gapMinMs) {
+          gaps.push({
+            key: `gap-${prev.index}-${index}`,
+            prevIndex: prev.index,
+            index,
+            from: prev.end,
+            to: start,
+            left: prev.end * this.pxPerMs,
+            width: Math.max(2, (start - prev.end) * this.pxPerMs),
+          });
+        }
+
+        prev = { index, end };
+      });
+
+      return gaps;
     },
     waveformTop() {
       return this.mainTop + this.mainH + this.waveGap;
@@ -533,6 +587,68 @@ export default {
 
       player.currentTime = Math.max(0, time / 1000);
     },
+    detectOnset(fromMs, toMs) {
+      if (!this.audioData) return null;
+
+      const { channel, sampleRate } = this.audioData;
+      const win = Math.max(1, Math.floor(sampleRate * 0.01));
+      const startSample = Math.max(0, Math.floor((fromMs / 1000) * sampleRate));
+      const endSample = Math.min(channel.length, Math.floor((toMs / 1000) * sampleRate));
+      if (endSample - startSample < win) return null;
+
+      const rmsAt = (s0) => {
+        let sum = 0;
+        let n = 0;
+        for (let s = s0; s < s0 + win && s < endSample; s++) {
+          sum += channel[s] * channel[s];
+          n++;
+        }
+        return n ? Math.sqrt(sum / n) : 0;
+      };
+
+      let maxRms = 0;
+      for (let s = startSample; s < endSample; s += win) {
+        const r = rmsAt(s);
+        if (r > maxRms) maxRms = r;
+      }
+      if (maxRms < 0.01) return null;
+
+      const threshold = Math.max(0.02, maxRms * 0.2);
+      for (let s = startSample; s < endSample; s += win) {
+        if (rmsAt(s) >= threshold) {
+          const onset = Math.round((s / sampleRate) * 1000);
+          return Math.min(toMs, Math.max(fromMs + 1, onset));
+        }
+      }
+      return null;
+    },
+    boundaryFor(gap) {
+      if (this.waveformVisible) {
+        const onset = this.detectOnset(gap.from, gap.to);
+        if (onset !== null) return onset;
+      }
+      // Geometric fallback: extend the previous word's end up to the next start.
+      return gap.to;
+    },
+    closeGap(gap) {
+      if (this.segmentLocked) return;
+      this.$store.commit('APPLY_GAP_FIX', {
+        prevIndex: gap.prevIndex,
+        index: gap.index,
+        boundary: this.boundaryFor(gap),
+      });
+    },
+    closeAllGaps() {
+      if (this.segmentLocked) return;
+      // Snapshot first: each commit mutates the segments the computed reads from.
+      this.currentAyahGaps.forEach((gap) => {
+        this.$store.commit('APPLY_GAP_FIX', {
+          prevIndex: gap.prevIndex,
+          index: gap.index,
+          boundary: this.boundaryFor(gap),
+        });
+      });
+    },
   },
 };
 </script>
@@ -574,5 +690,23 @@ export default {
   background-color: #fee2e2;
   border-color: #f87171;
   color: #b91c1c;
+}
+
+.tl-gap {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 2px;
+  border: 1px dashed rgba(245, 158, 11, 0.7);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(245, 158, 11, 0.25) 0,
+    rgba(245, 158, 11, 0.25) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.tl-gap:hover {
+  background-color: rgba(245, 158, 11, 0.18);
 }
 </style>

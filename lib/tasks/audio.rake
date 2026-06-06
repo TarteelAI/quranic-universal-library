@@ -252,4 +252,201 @@ namespace :audio do
       File.rename(old_path, new_path)
     end
   end
+
+  task find_suspicious_durations: :environment do
+    require 'csv'
+
+    default_ids = [179, 4, 175, 6, 13, 161, 9, 1, 2, 3, 7, 65, 164, 174]
+    ids_arg = ENV['IDS'].to_s.strip
+    check_ids =
+      if ids_arg.empty?
+        default_ids
+      elsif ids_arg.casecmp('all').zero?
+        Audio::Recitation.order(:id).pluck(:id)
+      else
+        ids_arg.split(',').map { |v| v.strip.to_i }.reject(&:zero?)
+      end
+
+    low = (ENV['LOW'] || 0.7).to_f
+    high = (ENV['HIGH'] || 1.5).to_f
+    min_peers = (ENV['MIN_PEERS'] || 3).to_i
+    min_ayah_ms = (ENV['MIN_AYAH_MS'] || 100).to_i
+    min_truncated = (ENV['MIN_TRUNCATED'] || 2).to_i
+
+    def median_of(values)
+      return nil if values.empty?
+      sorted = values.sort
+      n = sorted.size
+      n.odd? ? sorted[n / 2].to_f : (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
+    end
+
+    def without_one(values, value)
+      index = values.index(value)
+      return values if index.nil?
+      copy = values.dup
+      copy.delete_at(index)
+      copy
+    end
+
+    style_names = RecitationStyle.pluck(:id, :name).to_h
+    style_label = ->(sid) { sid.nil? ? 'none' : (style_names[sid] || sid.to_s) }
+    to_seconds = ->(ms) { ms.nil? ? nil : (ms.to_f / 1000).round(1) }
+
+    raw = Audio::ChapterAudioFile
+            .joins(:audio_recitation)
+            .where.not(duration_ms: [nil, 0])
+            .pluck('audio_recitations.recitation_style_id', :chapter_id, :duration_ms)
+
+    baseline = Hash.new { |hash, key| hash[key] = [] }
+    raw.each do |style_id, chapter_id, duration_ms|
+      baseline[[style_id, chapter_id]] << duration_ms
+    end
+
+    recitations = Audio::Recitation.where(id: check_ids).index_by(&:id)
+    files_by_recitation = Audio::ChapterAudioFile
+                            .where(audio_recitation_id: check_ids)
+                            .group_by(&:audio_recitation_id)
+
+    rows = []
+    checked = 0
+
+    check_ids.each do |rid|
+      recitation = recitations[rid]
+      unless recitation
+        puts "Skipping #{rid}: no Audio::Recitation found"
+        next
+      end
+
+      checked += 1
+      style_id = recitation.recitation_style_id
+      reciter_name = recitation.name
+      existing = (files_by_recitation[rid] || []).index_by(&:chapter_id)
+
+      chapter_data = {}
+      1.upto(114) do |chapter_id|
+        file = existing[chapter_id]
+        own_duration = file&.duration_ms.to_i
+        peers =
+          if own_duration > 0
+            without_one(baseline[[style_id, chapter_id]], own_duration)
+          else
+            baseline[[style_id, chapter_id]]
+          end
+        med = median_of(peers)
+        ratio = (med && own_duration > 0) ? own_duration / med : nil
+        chapter_data[chapter_id] = {
+          file: file, own_duration: own_duration, peer_count: peers.size,
+          median: med, ratio: ratio
+        }
+      end
+
+      reliable = chapter_data.values.select { |d| d[:ratio] && d[:peer_count] >= min_peers }
+      self_ratio = median_of(reliable.map { |d| d[:ratio] })
+
+      segments_by_chapter = Audio::Segment
+                              .where(audio_recitation_id: rid)
+                              .pluck(:chapter_id, :verse_number, :timestamp_from, :timestamp_to)
+                              .group_by(&:first)
+
+      chapter_data.each do |chapter_id, data|
+        rel = (self_ratio && self_ratio > 0 && data[:ratio]) ? (data[:ratio] / self_ratio) : nil
+
+        dur_flag =
+          if data[:file].nil?
+            data[:median].nil? ? nil : 'MISSING_FILE'
+          elsif data[:own_duration] <= 0
+            'MISSING_DURATION'
+          elsif data[:median].nil? || data[:peer_count] < min_peers || rel.nil?
+            'LOW_CONFIDENCE'
+          elsif rel < low
+            'SHORT'
+          elsif rel > high
+            'LONG'
+          end
+
+        segments = (segments_by_chapter[chapter_id] || [])
+                     .sort_by { |row| row[1].to_i }
+        durations = segments.map { |row| [row[1].to_i, row[3].to_i - row[2].to_i] }
+        collapsed = durations.count { |(_verse, dur)| dur <= min_ayah_ms }
+        trailing = 0
+        last_real_verse = nil
+        durations.reverse_each do |(verse, dur)|
+          if dur <= min_ayah_ms
+            trailing += 1
+          else
+            last_real_verse = verse
+            break
+          end
+        end
+        truncated_after = trailing >= min_truncated ? (last_real_verse || 0) : nil
+        seg_flag = truncated_after.nil? ? nil : 'TRUNCATED_SEGMENTS'
+
+        verdict =
+          if seg_flag && dur_flag == 'SHORT'
+            'AUDIO_TRUNCATED'
+          elsif seg_flag
+            'SEGMENTS_INCOMPLETE'
+          else
+            dur_flag
+          end
+
+        next if verdict.nil?
+
+        rows << {
+          recitation_id: rid,
+          reciter_name: reciter_name,
+          style: style_label.call(style_id),
+          chapter: chapter_id,
+          duration_s: to_seconds.call(data[:file]&.duration_ms),
+          peer_median_s: to_seconds.call(data[:median]&.round),
+          ratio: data[:ratio]&.round(3),
+          rel: rel&.round(3),
+          peer_count: data[:peer_count],
+          dur_flag: dur_flag,
+          segment_count: segments.size,
+          collapsed_segments: collapsed,
+          truncated_after_ayah: truncated_after,
+          seg_flag: seg_flag,
+          verdict: verdict
+        }
+      end
+    end
+
+    csv_path = Rails.root.join('tmp', 'suspicious_audio_durations.csv')
+    CSV.open(csv_path, 'w') do |csv|
+      csv << %w[recitation_id reciter_name style chapter duration_s peer_median_s ratio rel peer_count
+                dur_flag segment_count collapsed_segments truncated_after_ayah seg_flag verdict]
+      rows.each do |row|
+        csv << [row[:recitation_id], row[:reciter_name], row[:style], row[:chapter],
+                row[:duration_s], row[:peer_median_s], row[:ratio], row[:rel], row[:peer_count],
+                row[:dur_flag], row[:segment_count], row[:collapsed_segments],
+                row[:truncated_after_ayah], row[:seg_flag], row[:verdict]]
+      end
+    end
+
+    verdict_order = %w[AUDIO_TRUNCATED SEGMENTS_INCOMPLETE SHORT LONG MISSING_DURATION MISSING_FILE]
+    verdict_order.each do |verdict|
+      group = rows.select { |row| row[:verdict] == verdict }
+                  .sort_by { |row| [row[:recitation_id], row[:rel] || Float::INFINITY] }
+      next if group.empty?
+
+      puts "\n## #{verdict} (#{group.size})"
+      group.each do |row|
+        cut = row[:truncated_after_ayah] ? " cut_after_ayah=#{row[:truncated_after_ayah]}" : ''
+        puts format("  %-4d %-30s surah %3d  dur=%-8s median=%-8s rel=%-6s collapsed=%d%s",
+                    row[:recitation_id], row[:reciter_name].to_s[0, 30], row[:chapter],
+                    row[:duration_s].to_s, row[:peer_median_s].to_s, row[:rel].to_s,
+                    row[:collapsed_segments], cut)
+      end
+    end
+
+    summary = Hash.new(0)
+    rows.each { |row| summary[row[:verdict]] += 1 }
+    puts "\n=== Summary ==="
+    puts "Recitations checked: #{checked}"
+    (verdict_order + %w[LOW_CONFIDENCE]).each do |verdict|
+      puts "  #{verdict}: #{summary[verdict]}"
+    end
+    puts "CSV written to #{csv_path}"
+  end
 end

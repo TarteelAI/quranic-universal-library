@@ -22,6 +22,7 @@
         </div>
 
         <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="w-full text-[10px] font-semibold uppercase tracking-wide text-gray-400">View</span>
           <div class="flex items-center">
             <input
                 type="checkbox"
@@ -87,6 +88,8 @@
         </div>
       </div>
 
+      <div class="hidden sm:block w-px self-stretch bg-gray-200"></div>
+
       <div class="flex gap-1">
         <button
             class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700 disabled:opacity-50"
@@ -102,6 +105,8 @@
           {{ isLooingAyah ? "Looping" : "Loop" }}
         </button>
       </div>
+
+      <div class="hidden sm:block w-px self-stretch bg-gray-200"></div>
 
       <div class="flex flex-col gap-1">
         <div class="flex gap-1">
@@ -120,6 +125,7 @@
 
       <div class="flex flex-col gap-2 ml-auto">
         <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="w-full text-[10px] font-semibold uppercase tracking-wide text-gray-400">Editing</span>
           <div class="flex items-center">
             <input
                 type="checkbox"
@@ -174,14 +180,14 @@
         <div class="flex items-center gap-2">
           <div v-if="editMode && audioType == 'chapter'" class="flex gap-1">
             <button
-                class="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded transition-colors hover:bg-red-700 disabled:opacity-50"
+                class="px-3 py-1 text-xs font-medium bg-indigo-600 text-white rounded transition-colors hover:bg-indigo-700 disabled:opacity-50"
                 @click="markAyahStart"
                 :disabled="segmentLocked">
               Start
             </button>
 
             <button
-                class="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded transition-colors hover:bg-red-700 disabled:opacity-50"
+                class="px-3 py-1 text-xs font-medium bg-indigo-600 text-white rounded transition-colors hover:bg-indigo-700 disabled:opacity-50"
                 @click="markAyahEnd"
                 :disabled="segmentLocked">
               End

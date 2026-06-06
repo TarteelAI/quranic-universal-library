@@ -22,7 +22,7 @@ ActiveAdmin.register AudioFile do
 
   action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_', id: 'validate-segments',
-            data: { controller: 'ajax-modal', url: validate_segments_cms_recitation_path(resource.recitation_id, chapter_id: resource.chapter_id) }
+            data: { controller: 'ajax-modal', css_class: 'modal-xl', url: validate_segments_cms_recitation_path(resource.recitation_id, chapter_id: resource.chapter_id) }
   end
 
   action_item :view_segment_tool, only: :show do

@@ -35,7 +35,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
 
   action_item :validate_segments, only: :show, if: -> { can? :manage, resource } do
     link_to 'Validate segments', '#_',
-            data: { controller: 'ajax-modal', url: validate_segments_cms_audio_chapter_audio_file_path(resource) }
+            data: { controller: 'ajax-modal', css_class: 'modal-xl', url: validate_segments_cms_audio_chapter_audio_file_path(resource) }
   end
 
   action_item :refresh_meta, only: :show, if: -> { can? :manage, resource } do

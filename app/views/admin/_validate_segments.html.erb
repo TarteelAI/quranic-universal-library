@@ -4,39 +4,78 @@
 
 <div id="body">
   <div class="p-6">
-    <ol class="list-group list-group-numbered">
-      <% if @issues.size.zero? %>
-        <li class="list-group-item flex">
-          <div class="flex items-start w-full">
-            <div class="ml-2 mr-auto">
-              We're good alhumudAllah, no issue found.
-            </div>
-          </div>
-        </li>
-      <% else %>
-        <% @issues.each do |issue| %>
-          <li class="list-group-item flex mb-2 py-2 border-b border-gray-300">
-            <div class="flex justify-between items-start w-full">
-              <div style="width: 20px; height: 20px" class="<%= issue[:severity] %>">
-              </div>
+    <% if @issues.size.zero? %>
+      <div class="text-green-700 font-medium">We're good alhumdulillah, no issue found.</div>
+    <% else %>
+      <%
+        category_labels = {
+          'missing_segments'   => 'Missing segments',
+          'ayah_timing'        => 'Ayah timing',
+          'ayah_overlap'       => 'Ayah overlap',
+          'missing_words'      => 'Missing words',
+          'word_timing'        => 'Word timing',
+          'word_overlap'       => 'Words overlap',
+          'word_past_duration' => 'Past audio duration',
+          'repeated_words'     => 'Repeated words',
+          'other'              => 'Other'
+        }
+        grouped = @issues.group_by { |issue| issue[:category] || 'other' }
+        ordered = category_labels.keys.select { |key| grouped[key].present? }
+        ordered += (grouped.keys - category_labels.keys)
+        per_tab_limit = 300
+        recitation = resource.is_a?(Audio::ChapterAudioFile) ? resource.audio_recitation : resource
+      %>
 
-              <div class="ml-2 mr-auto">
-                <%= issue[:text] %>
-              </div>
+      <div data-controller="segment-issue-tabs">
+        <div class="flex flex-wrap gap-2 border-b border-gray-300 mb-4">
+          <% ordered.each_with_index do |category, index| %>
+            <button type="button"
+                    data-segment-issue-tabs-target="tab"
+                    data-action="click->segment-issue-tabs#select"
+                    data-category="<%= category %>"
+                    class="px-3 py-1.5 text-sm font-medium rounded-t border border-b-0 <%= index.zero? ? 'bg-white border-gray-300 text-gray-900' : 'bg-gray-50 border-transparent text-gray-500' %>">
+              <%= category_labels[category] || category.humanize %>
+              <span class="ml-1 text-xs text-gray-500">(<%= grouped[category].size %>)</span>
+            </button>
+          <% end %>
+        </div>
 
-              <% if issue[:key] %>
-                <% chapter, verse = issue[:key].split(':') %>
-                <% if resource.one_ayah? %>
-                  <%= link_to 'Debug', segment_builder_ayah_audio_file_path(resource.id, chapter_id: chapter, verse: verse), class: 'btn btn-danger btn-sm', target: '_blank' %>
-                <% else %>
-                  <% recitation = resource.is_a?(Audio::ChapterAudioFile) ? resource.audio_recitation : resource %>
-                  <%= link_to 'Debug', segment_builder_surah_audio_file_path(chapter, recitation_id: recitation.id, verse: verse), class: 'btn btn-danger btn-sm', target: '_blank' %>
-                <% end %>
+        <% ordered.each_with_index do |category, index| %>
+          <% issues = grouped[category] %>
+          <div data-segment-issue-tabs-target="pane"
+               data-category="<%= category %>"
+               class="<%= 'hidden' unless index.zero? %>">
+            <ol class="list-group list-group-numbered">
+              <% issues.first(per_tab_limit).each do |issue| %>
+                <li class="list-group-item flex mb-2 py-2 border-b border-gray-200">
+                  <div class="flex justify-between items-start w-full">
+                    <div style="width: 16px; height: 16px" class="<%= issue[:severity] %> rounded shrink-0"></div>
+
+                    <div class="ml-2 mr-auto">
+                      <%= issue[:text] %>
+                    </div>
+
+                    <% if issue[:key] %>
+                      <% chapter, verse = issue[:key].split(':') %>
+                      <% if resource.one_ayah? %>
+                        <%= link_to 'Debug', segment_builder_ayah_audio_file_path(resource.id, chapter_id: chapter, verse: verse), class: 'btn btn-danger btn-sm', target: '_blank' %>
+                      <% else %>
+                        <%= link_to 'Debug', segment_builder_surah_audio_file_path(chapter, recitation_id: recitation.id, verse: verse), class: 'btn btn-danger btn-sm', target: '_blank' %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </li>
               <% end %>
-            </div>
-          </li>
+            </ol>
+
+            <% if issues.size > per_tab_limit %>
+              <div class="text-sm text-gray-500 mt-2">
+                Showing first <%= per_tab_limit %> of <%= issues.size %> issues in this category.
+              </div>
+            <% end %>
+          </div>
         <% end %>
-      <% end %>
-    </ol>
+      </div>
+    <% end %>
   </div>
 </div>

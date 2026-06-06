@@ -231,6 +231,10 @@
       </div>
     </div>
 
+    <div class="w-full mt-4">
+      <Timeline />
+    </div>
+
     <div class="w-full flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 rounded-lg">
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium text-gray-700">Jump to ayah:</span>
@@ -255,20 +259,33 @@
         </select>
       </div>
 
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
-        <span>
-          <strong class="text-gray-900">Duration:</strong>
-          <template v-if="durationMs() !== null">{{ durationMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(durationMs()) }})</span></template>
-          <template v-else>—</template>
-        </span>
-        <span>
-          <strong class="text-gray-900">Elapsed:</strong>
-          {{ elapsedMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(elapsedMs()) }})</span>
-        </span>
-        <span>
-          <strong class="text-gray-900">Remaining:</strong>
-          {{ remainingMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(remainingMs()) }})</span>
-        </span>
+      <div class="flex flex-col gap-0.5 text-sm text-gray-600 tabular-nums">
+        <span class="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Audio</span>
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="inline-block min-w-[11rem]">
+            <strong class="text-gray-900">Current:</strong>
+            {{ playerTimeMs() }} ms <span class="text-[10px] text-gray-400">({{ (currentTimestamp / 1000).toFixed(2) }} s)</span>
+          </span>
+          <span class="inline-block min-w-[10rem]">
+            <strong class="text-gray-900">Duration:</strong>
+            <template v-if="durationMs() !== null">{{ durationMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(durationMs()) }})</span></template>
+            <template v-else>—</template>
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-0.5 text-sm text-gray-600 tabular-nums">
+        <span class="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Current ayah</span>
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span class="inline-block min-w-[9rem]">
+            <strong class="text-gray-900">Elapsed:</strong>
+            {{ elapsedMs() }} ms <span class="text-[10px] text-gray-400">({{ formatClock(elapsedMs()) }})</span>
+          </span>
+          <span class="inline-block min-w-[8.5rem]">
+            <strong class="text-gray-900">Length:</strong>
+            {{ (ayahDurationMs() / 1000).toFixed(2) }} s <span class="text-[10px] text-gray-400">({{ ayahDurationMs() }} ms)</span>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -278,9 +295,11 @@
 import {mapState, mapGetters} from "vuex";
 import hotkeys from "hotkeys-js";
 import {playAyah} from "../helper/audio";
+import Timeline from "./Timeline.vue";
 
 export default {
   name: "ActionBar",
+  components: { Timeline },
   mounted() {
     hotkeys.filter = function (event) {
       return true;
@@ -444,8 +463,11 @@ export default {
     elapsedMs() {
       return Math.max(0, Math.round(this.currentTimestamp - this.currentAyahTimeFrom));
     },
-    remainingMs() {
-      return Math.max(0, Math.round(this.currentAyahTimeTo - this.currentTimestamp));
+    playerTimeMs() {
+      return Math.max(0, Math.round(this.currentTimestamp));
+    },
+    ayahDurationMs() {
+      return Math.max(0, Math.round(this.currentAyahTimeTo - this.currentAyahTimeFrom));
     },
     changeAyah(event) {
       this.$store.commit("CHANGE_AYAH", {step: event.target.dataset.step});

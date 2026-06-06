@@ -62,6 +62,7 @@ const SEGMENT_EDIT_MUTATIONS = [
   "SPLIT_SEGMENT_TIME",
   "FILL_SEGMENT_TIME",
   "ADJUST_SEG_TIME",
+  "APPLY_GAP_FIX",
   "CLEAR_SEGMENTS",
   "RELOAD_SEGMENTS",
 ];
@@ -608,6 +609,15 @@ const store = createStore({
       segment[1] = start;
       segment[2] = end;
       state.verseSegment.segments = [...state.verseSegment.segments];
+    },
+    APPLY_GAP_FIX(state, payload) {
+      const { prevIndex, index, boundary } = payload;
+      const segments = state.verseSegment.segments;
+      if (!segments[prevIndex] || !segments[index]) return;
+
+      segments[prevIndex][2] = boundary - 1;
+      segments[index][1] = boundary;
+      state.verseSegment.segments = [...segments];
     },
     SPLIT_SEGMENT_TIME(state, payload) {
       const {

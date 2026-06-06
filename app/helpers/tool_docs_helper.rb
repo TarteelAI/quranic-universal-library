@@ -718,7 +718,7 @@ module ToolDocsHelper
       {
         type: "step",
         title: "Step 4: Track and set word timestamps",
-        text: "Click <code>Play</code> to start the audio. When a word is being recited, click its <code>Track</code> button to set the start time. The next time you click <code>Track</code> (for the same or next word), it will set the end time for the current word and automatically set the start time for the next word. Continue this process until all words in the Ayah have timings. You can also drag the time handles in the waveform to fine-tune timings.",
+        text: "Click <code>Play</code> to start the audio. When a word is being recited, click its <code>Track</code> button to set the start time. The next time you click <code>Track</code> (for the same or next word), it will set the end time for the current word and automatically set the start time for the next word. Continue this process until all words in the Ayah have timings. Use the <code>−/+</code> buttons next to a time to nudge it in 50ms steps for fine corrections.",
         screenshot: "surah-segments-track-timing.png"
       },
 
@@ -750,6 +750,85 @@ module ToolDocsHelper
         type: "step",
         title: "Step 7: Repeat for remaining Ayahs",
         text: "Continue tracking and saving word timings for each Ayah until the entire Surah is completed."
+      },
+
+      {
+        type: "heading",
+        text: "Helpful features for reviewing and fixing timings"
+      },
+
+      {
+        type: "step",
+        title: "Split and Fill",
+        sections: [
+          {
+            text: "If you tracked several words together as one block, click <code>Split</code> on the first word to divide its timing across the following words that have no timing yet. The time is split proportionally to each word's length.",
+            screenshot: "surah-segments-split-fill.png"
+          },
+          {
+            text: "If a single word in the middle has no timing, click <code>Fill</code> to give it a timing taken from the gap between its previous and next word."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Timeline",
+        sections: [
+          {
+            text: "Turn on the <code>Timeline</code> checkbox to see every Ayah and word laid out on a time axis below the controls. The playhead follows playback and the view scrolls to keep it in view; use <code>Jump to current time</code> to recenter it, and the <code>+ / −</code> buttons to zoom in and out.",
+            screenshot: "surah-segments-timeline.png"
+          },
+          {
+            text: "Click anywhere on the timeline to seek the audio to that point. Hover over a word to see its location and timing (<code>surah:ayah:word — start–end ms</code>)."
+          },
+          {
+            type: "info",
+            text: "The timeline highlights problems automatically: a red Ayah band overlaps the next Ayah, a red word has invalid timing, and an orange word starts before the previous word ends."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Waveform and closing gaps",
+        sections: [
+          {
+            text: "Enable the <code>Waveform</code> checkbox (available once audio is loaded) to draw the audio's waveform under the words. It decodes the entire audio file, so it can be slow for long Surahs, but it lets you see whether the empty space between two words is real silence or actually contains speech."
+          },
+          {
+            text: "Empty space between words appears as a striped amber gap. Click a gap to close just that one, or click <code>Close gaps</code> to close every gap in the current Ayah. When the waveform is on, the boundary snaps to where speech actually resumes (trimming the leading silence); when it is off, the previous word's end is extended to meet the next word.",
+            screenshot: "surah-segments-waveform-gaps.png"
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Find and understand issues",
+        sections: [
+          {
+            text: "Click <code>Find issues</code> to scan the whole Surah for problems. Issues are listed with the most important first — click any of them to jump straight to that Ayah. The label next to the save status also shows whether the current Ayah has a major or minor issue.",
+            screenshot: "surah-segments-find-issues.png"
+          },
+          {
+            type: "info",
+            text: "Major issues (red) are a missing or invalid Ayah start/end, an Ayah that overlaps the next one, or the first/last word missing or invalid. Minor issues (amber) are a middle word missing timing, or two words overlapping. Row colors in the table: red = major issue, amber = minor issue, blue = unsaved change, green = the word playing now."
+          }
+        ]
+      },
+
+      {
+        type: "step",
+        title: "Tips for faster, more accurate tracking",
+        sections: [
+          {
+            text: "Slow the audio down (press <code>s</code> or use the Speed dropdown) before clicking <code>Track</code>. At a slower speed it is much easier to click exactly on each word boundary. Press <code>n</code> to return to normal speed."
+          },
+          {
+            text: "Turn on <code>Autoscroll</code> to keep the word table scrolled to the word currently playing, and use <code>Undo / Redo</code> (<code>Ctrl/Cmd + Z</code>) to step back and forth through your changes."
+          }
+        ]
       },
 
       {

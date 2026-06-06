@@ -69,6 +69,7 @@ ActiveAdmin.register Audio::Recitation do
     link_to 'Validate segments', '#_', id: 'validate-segments',
             data: {
               controller: 'ajax-modal',
+              css_class: 'modal-xl',
               url: validate_segments_cms_audio_recitation_path(resource)
             }
   end

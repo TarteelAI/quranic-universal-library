@@ -45,7 +45,15 @@
                 @click="goToIssue(issue.verse)"
                 class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
             >
-              <span class="text-sm text-gray-700">{{ issue.message }}</span>
+              <span class="flex items-center gap-2 text-sm text-gray-700">
+                <span
+                    class="px-1.5 py-0.5 text-[10px] font-semibold rounded-full uppercase"
+                    :class="issue.severity === 'major' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800'"
+                >
+                  {{ issue.severity }}
+                </span>
+                {{ issue.message }}
+              </span>
               <span class="text-xs font-medium text-blue-600 whitespace-nowrap">Ayah {{ issue.verse }} →</span>
             </button>
           </div>
@@ -133,13 +141,23 @@
             >
               All changes saved
             </span>
+
+            <span
+                v-if="currentAyahIssue"
+                class="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full"
+                :class="currentAyahIssue.severity === 'major' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800'"
+                data-controller="tooltip"
+                :title="currentAyahIssue.message"
+            >
+              ⚠ {{ currentAyahIssue.severity === 'major' ? 'Has major issue' : 'Has minor issue' }}
+            </span>
           </div>
 
           <div class="flex items-center gap-2">
             <label
                 class="flex items-center gap-1 text-xs text-gray-700 mr-1"
                 data-controller="tooltip"
-                title="Automatically save the word segments when moving to the next or previous ayah, if there are unsaved changes."
+                title="Automatically save the word segments as soon as you make a change, and when moving between ayahs."
             >
               <input
                   type="checkbox"
@@ -211,8 +229,12 @@
 
         <div class="flex flex-wrap gap-4 mb-3 text-xs text-gray-500">
           <span class="flex items-center gap-1">
+            <span class="inline-block w-4 h-4 rounded-sm bg-red-100 border border-red-300"></span>
+            Major issue (first/last word)
+          </span>
+          <span class="flex items-center gap-1">
             <span class="inline-block w-4 h-4 rounded-sm bg-yellow-100 border border-yellow-300"></span>
-            Segment issue
+            Minor issue
           </span>
           <span class="flex items-center gap-1">
             <span class="inline-block w-4 h-4 rounded-sm bg-blue-50 border border-blue-200"></span>
@@ -232,7 +254,7 @@
           </span>
         </div>
 
-        <div class="overflow-x-auto border border-gray-200 rounded-lg" id="tableWrapper">
+        <div class="overflow-x-auto overflow-y-auto max-h-[60vh] border border-gray-200 rounded-lg" id="tableWrapper">
           <table class="w-full text-left border-collapse">
             <thead class="bg-gray-50 sticky top-0 z-10">
               <tr>
@@ -371,12 +393,31 @@
 
               <td class="px-4 py-2" :data-word="segment[0]" :data-index="index">
                 <div
-                    class="flex flex-wrap gap-1"
+                    class="flex flex-wrap items-center gap-1"
                     :data-word="segment[0]" :data-index="index"
                 >
-                  <button
+                    <button
+                      @click="trackTime"
+                      class="px-3 py-1 text-[10px] font-semibold bg-amber-500 text-white rounded ring-1 ring-amber-300 hover:bg-amber-600 disabled:opacity-50"
+                      :disabled="segmentLocked"
+                      :class="{ 'hidden': segmentLocked }"
+                      title="Track the current playback time for this word"
+                      data-controller="tooltip"
+                    >
+                      Track
+                    </button>
+
+                    <span class="self-stretch w-px bg-gray-200 mx-1" :class="{ 'hidden': segmentLocked }"></span>
+
+                    <button @click="playWord" class="px-2 py-1 text-[10px] font-medium bg-slate-600 text-white rounded hover:bg-slate-700">
+                      {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
+                    </button>
+
+                    <span class="self-stretch w-px bg-gray-200 mx-1" :class="{ 'hidden': segmentLocked }"></span>
+
+                    <button
                       @click="insertSegment"
-                      class="px-2 py-1 text-[10px] font-medium bg-cyan-600 text-white rounded hover:bg-cyan-700 disabled:opacity-50"
+                      class="px-2 py-1 text-[10px] font-medium bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50"
                       :disabled="segmentLocked"
                       :class="{ 'hidden': segmentLocked }"
                     >
@@ -391,25 +432,11 @@
                       Remove
                     </button>
 
-                    <button @click="playWord" class="px-2 py-1 text-[10px] font-medium bg-gray-600 text-white rounded hover:bg-gray-700">
-                      {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
-                    </button>
-
-                    <button
-                      @click="loopWord"
-                      class="px-2 py-1 text-[10px] font-medium bg-gray-600 text-white rounded hover:bg-gray-700"
-                    >
-                      {{ loopingWord == index + 1 ? 'Looping' : 'Loop' }}
-                    </button>
-
-                    <button
-                      @click="trackTime"
-                      class="px-2 py-1 text-[10px] font-medium bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:opacity-50"
-                      :disabled="segmentLocked"
+                    <span
+                      v-if="canSplit(index) || canFill(index)"
+                      class="self-stretch w-px bg-gray-200 mx-1"
                       :class="{ 'hidden': segmentLocked }"
-                    >
-                      Track
-                    </button>
+                    ></span>
 
                     <button
                       v-if="canSplit(index)"
@@ -466,8 +493,7 @@ export default {
     this.unwatch = this.$store.watch(
       (state) => state.currentWord,
       (newValue, _) => {
-        //const row = window[`word${newValue}`];
-        //if (row) row.scrollIntoView(false, { behavior: "instant" });
+        this.scrollToCurrentWord(newValue);
       }
     );
 
@@ -661,14 +687,68 @@ export default {
         time(segment[2]) !== time(original[2]) ||
         waqaf(segment) !== waqaf(original);
     },
-    segmentHasIssue(segment) {
-      if (!hasTiming(segment)) return true;
-      return Number(segment[1]) >= Number(segment[2]);
+    playerDurationMs() {
+      return (typeof player !== 'undefined' && player && isFinite(player.duration) && player.duration > 0)
+        ? player.duration * 1000
+        : null;
+    },
+    lastWordNumber() {
+      return Math.max(0, (this.wordsText ? this.wordsText.length : 0) - 1);
+    },
+    classifyWordIssue(segment, wordNumber, lastWordNumber, audioDuration) {
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const hasStart = present(segment[1]);
+      const hasEnd = present(segment[2]);
+
+      let problem;
+      if (!hasStart || !hasEnd) {
+        problem = true;
+      } else if (Number(segment[2]) <= Number(segment[1])) {
+        problem = true;
+      } else if (audioDuration && Number(segment[2]) > audioDuration) {
+        problem = true;
+      }
+
+      if (!problem) return null;
+
+      const isEdge = wordNumber === 1 || wordNumber === lastWordNumber;
+      return isEdge ? 'major' : 'minor';
+    },
+    wordIssueMessage(segment, audioDuration) {
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      if (!present(segment[1]) || !present(segment[2])) return `Word ${segment[0]} has no timing`;
+      if (Number(segment[2]) <= Number(segment[1])) return `Word ${segment[0]} end time is before or equal to its start`;
+      if (audioDuration && Number(segment[2]) > audioDuration) return `Word ${segment[0]} goes past the audio duration`;
+      return `Word ${segment[0]} has a timing issue`;
+    },
+    wordSeverity(segment) {
+      return this.classifyWordIssue(segment, Number(segment[0]), this.lastWordNumber(), this.playerDurationMs());
+    },
+    overlapsPreviousWord(segments, index) {
+      if (!segments || index <= 0) return false;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const current = segments[index];
+      if (!current || !present(current[1])) return false;
+
+      for (let i = index - 1; i >= 0; i--) {
+        if (present(segments[i][2])) {
+          return Number(current[1]) < Number(segments[i][2]);
+        }
+      }
+
+      return false;
     },
     segmentRowClass(segment, index) {
       const current = index + 1 == this.currentWord;
+      let severity = this.wordSeverity(segment);
 
-      if (this.segmentHasIssue(segment)) return ['bg-yellow-100'];
+      if (!severity && this.overlapsPreviousWord(this.verseSegment.segments, index)) {
+        severity = 'minor';
+      }
+
+      if (severity === 'major') return ['bg-red-100'];
+      if (severity === 'minor') return ['bg-yellow-100'];
       if (this.segmentChanged(segment, index)) return ['bg-blue-50'];
       if (current) return ['bg-green-50'];
 
@@ -744,9 +824,12 @@ export default {
         const nextData = this.segments[`${this.chapter}:${verse + 1}`];
         const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
 
-        const message = this.detectAyahIssue(data, audioDuration, nextAyahStart);
-        if (message) issues.push({ verse, key, message });
+        const issue = this.detectAyahIssue(data, audioDuration, nextAyahStart);
+        if (issue) issues.push({ verse, key, severity: issue.severity, message: issue.message });
       }
+
+      // Surface major issues first so reviewers triage the important ayahs.
+      issues.sort((a, b) => (a.severity === 'major' ? 0 : 1) - (b.severity === 'major' ? 0 : 1));
 
       return issues;
     },
@@ -755,39 +838,49 @@ export default {
 
       if (!present(data.timestamp_from) || !present(data.timestamp_to) ||
           Number(data.timestamp_from) >= Number(data.timestamp_to)) {
-        return 'Ayah start/end time is missing or invalid';
+        return { severity: 'major', message: 'Ayah start/end time is missing or invalid' };
       }
 
       if (nextAyahStart !== null && Number(data.timestamp_to) > nextAyahStart) {
-        return 'Overlaps the next ayah';
+        return { severity: 'major', message: 'Overlaps the next ayah' };
       }
 
       const words = data.words || [];
-      const wordCount = Math.max(0, words.length - 1);
+      const lastWordNumber = Math.max(0, words.length - 1);
       const segments = data.segments || [];
       const covered = new Set();
+      let minor = null;
       let previousEnd = null;
 
       for (let i = 0; i < segments.length; i++) {
         const seg = segments[i];
-        if (!present(seg[1]) || !present(seg[2])) return 'Some words have no timing';
+        const wordNumber = Number(seg[0]);
+        covered.add(wordNumber);
 
-        const start = Number(seg[1]);
-        const end = Number(seg[2]);
+        const severity = this.classifyWordIssue(seg, wordNumber, lastWordNumber, audioDuration);
+        if (severity === 'major') {
+          return { severity: 'major', message: this.wordIssueMessage(seg, audioDuration) };
+        }
+        if (severity === 'minor' && !minor) {
+          minor = { severity: 'minor', message: this.wordIssueMessage(seg, audioDuration) };
+        }
 
-        if (end <= start) return 'A word end time is before or equal to its start';
-        if (audioDuration && end > audioDuration) return 'A segment goes past the audio duration';
-        if (previousEnd !== null && start < previousEnd) return 'Word segments overlap';
-
-        previousEnd = end;
-        covered.add(Number(seg[0]));
+        if (!minor && previousEnd !== null && present(seg[1]) && Number(seg[1]) < previousEnd) {
+          minor = { severity: 'minor', message: `Word ${seg[0]} starts before the previous word ends` };
+        }
+        if (present(seg[2])) previousEnd = Number(seg[2]);
       }
 
-      for (let word = 1; word <= wordCount; word++) {
-        if (!covered.has(word)) return 'Missing segments for some words';
+      for (let word = 1; word <= lastWordNumber; word++) {
+        if (covered.has(word)) continue;
+
+        if (word === 1 || word === lastWordNumber) {
+          return { severity: 'major', message: `Missing segment for the ${word === 1 ? 'first' : 'last'} word` };
+        }
+        if (!minor) minor = { severity: 'minor', message: 'Missing segments for some words' };
       }
 
-      return null;
+      return minor;
     },
     changeAutoSaveSegments(event) {
       this.$store.commit('SET_AUTO_SAVE_SEGMENTS', { value: event.target.checked });
@@ -804,6 +897,34 @@ export default {
 
       this.$store.commit('PLAY_WORD', {
         index: Number(index),
+      });
+    },
+    scrollToCurrentWord(word) {
+      if (!this.autoScroll) return;
+
+      this.$nextTick(() => {
+        const wrapper = document.getElementById('tableWrapper');
+        if (!wrapper) return;
+
+        const row = wrapper.querySelector(`tbody tr[data-index="${Number(word) - 1}"]`);
+        if (!row) return;
+
+        // Scroll the table container only — never the page — so the reviewer's
+        // place on the rest of the page is left untouched. Account for the
+        // sticky header so the active row isn't hidden behind it.
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const rowRect = row.getBoundingClientRect();
+        const headerHeight = wrapper.querySelector('thead')?.getBoundingClientRect().height || 0;
+
+        const above = rowRect.top < wrapperRect.top + headerHeight;
+        const below = rowRect.bottom > wrapperRect.bottom;
+        if (!above && !below) return;
+
+        const delta = above
+          ? rowRect.top - wrapperRect.top - headerHeight
+          : rowRect.bottom - wrapperRect.bottom;
+
+        wrapper.scrollBy({ top: delta, behavior: 'smooth' });
       });
     },
     updateSegmentNumber(event) {
@@ -864,7 +985,8 @@ export default {
       'undoStack',
       'redoStack',
       'segments',
-      'chapter'
+      'chapter',
+      'autoScroll'
     ]),
     canUndo() {
       return this.undoStack.length > 1;
@@ -877,6 +999,16 @@ export default {
     },
     shouldShowSegment() {
       return this.showSegments && this.segmentsLoaded;
+    },
+    currentAyahIssue() {
+      const data = this.verseSegment;
+      if (!data || !data.segments) return null;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const nextData = this.segments[`${this.chapter}:${Number(this.currentVerseNumber) + 1}`];
+      const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
+
+      return this.detectAyahIssue(data, this.playerDurationMs(), nextAyahStart);
     },
   },
 };

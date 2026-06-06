@@ -11,7 +11,6 @@
     <Alert />
     <SelectAudioSrc />
     <ActionBar />
-    <Timeline />
     <Verse />
   </div>
 </template>
@@ -22,7 +21,6 @@ import { useStore } from "vuex";
 import SelectAudioSrc from "./components/SelectAudioSrc.vue";
 import Alert from "./components/Alert.vue";
 import ActionBar from "./components/ActionBar.vue";
-import Timeline from "./components/Timeline.vue";
 import Verse from "./components/Verse.vue";
 
 export default {
@@ -65,7 +63,6 @@ export default {
     SelectAudioSrc,
     Alert,
     ActionBar,
-    Timeline,
     Verse,
   }
 };

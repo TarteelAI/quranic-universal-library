@@ -62,20 +62,56 @@ const SEGMENT_EDIT_MUTATIONS = [
   "SPLIT_SEGMENT_TIME",
   "FILL_SEGMENT_TIME",
   "ADJUST_SEG_TIME",
+  "APPLY_GAP_FIX",
   "CLEAR_SEGMENTS",
   "RELOAD_SEGMENTS",
 ];
 
+// Mutations that change the working segments and should re-trigger auto-save,
+// including undo/redo (which themselves mark the ayah unsaved again).
+const AUTO_SAVE_TRIGGER_MUTATIONS = [
+  ...SEGMENT_EDIT_MUTATIONS,
+  "UNDO_SEGMENTS",
+  "REDO_SEGMENTS",
+];
+
+const AUTO_SAVE_DEBOUNCE_MS = 800;
+
 const trackUnsavedSegments = (store) => {
+  let autoSaveTimer = null;
+
+  // When auto-save is on, persist the ayah shortly after the last edit. The
+  // debounce coalesces rapid edits (time tracking, +/- nudges) into one save,
+  // and we wait out any in-flight save before firing again.
+  const scheduleAutoSave = () => {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+      const state = store.state;
+      if (!state.autoSaveSegments || !state.segmentsUnsaved || state.segmentLocked || !state.currentVerseKey) return;
+      if (state.saving) {
+        scheduleAutoSave();
+        return;
+      }
+      store.dispatch("SAVE_AYAH_SEGMENTS", { keepHistory: true });
+    }, AUTO_SAVE_DEBOUNCE_MS);
+  };
+
   store.subscribe((mutation, state) => {
-    if (!SEGMENT_EDIT_MUTATIONS.includes(mutation.type)) return;
+    if (SEGMENT_EDIT_MUTATIONS.includes(mutation.type)) {
+      state.segmentsUnsaved = true;
 
-    state.segmentsUnsaved = true;
+      if (state.verseSegment) {
+        state.undoStack.push(JSON.parse(JSON.stringify(state.verseSegment.segments)));
+        if (state.undoStack.length > 100) state.undoStack.splice(1, 1);
+        state.redoStack = [];
+      }
+    }
 
-    if (state.verseSegment) {
-      state.undoStack.push(JSON.parse(JSON.stringify(state.verseSegment.segments)));
-      if (state.undoStack.length > 100) state.undoStack.splice(1, 1);
-      state.redoStack = [];
+    const editedWhileAutoSaving = state.autoSaveSegments && AUTO_SAVE_TRIGGER_MUTATIONS.includes(mutation.type);
+    const justEnabledWithChanges = mutation.type === "SET_AUTO_SAVE_SEGMENTS" && state.autoSaveSegments && state.segmentsUnsaved;
+
+    if (editedWhileAutoSaving || justEnabledWithChanges) {
+      scheduleAutoSave();
     }
   });
 };
@@ -574,6 +610,15 @@ const store = createStore({
       segment[2] = end;
       state.verseSegment.segments = [...state.verseSegment.segments];
     },
+    APPLY_GAP_FIX(state, payload) {
+      const { prevIndex, index, boundary } = payload;
+      const segments = state.verseSegment.segments;
+      if (!segments[prevIndex] || !segments[index]) return;
+
+      segments[prevIndex][2] = boundary - 1;
+      segments[index][1] = boundary;
+      state.verseSegment.segments = [...segments];
+    },
     SPLIT_SEGMENT_TIME(state, payload) {
       const {
         verseSegment,
@@ -613,7 +658,7 @@ const store = createStore({
   actions: {
     SAVE_AYAH_SEGMENTS({
                          state
-                       }) {
+                       }, payload = {}) {
       const isPlaying = !player?.paused
       if (isPlaying) player?.pause()
       state.saving = true;
@@ -655,8 +700,13 @@ const store = createStore({
         state.segmentsSaved = true;
         state.saving = false;
         state.loadedSegments = JSON.parse(JSON.stringify(state.verseSegment.segments));
-        state.undoStack = [JSON.parse(JSON.stringify(state.verseSegment.segments))];
-        state.redoStack = [];
+
+        // Auto-save fires on every edit, so keep the undo/redo history intact
+        // for it; a manual save establishes a fresh baseline and resets history.
+        if (!payload.keepHistory) {
+          state.undoStack = [JSON.parse(JSON.stringify(state.verseSegment.segments))];
+          state.redoStack = [];
+        }
       }).catch(() => {
         // save in local store
         localStore.set(`${audioType}-${recitation}-${currentVerseKey}`, JSON.stringify(params));

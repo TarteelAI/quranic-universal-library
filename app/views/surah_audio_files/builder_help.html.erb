@@ -1,6 +1,6 @@
 <div id=title>
   <span class="h1 f-bold text-green-600">
-    Help
+    Short keys
   </span>
 </div>
 <%
@@ -29,27 +29,18 @@
           box-shadow: inset 0 -1px 0 #d1d5da;
       }
   </style>
-  <div class="p-6 space-y-4 text-sm">
-    <ul class="list-disc pl-5 space-y-1">
-      <li>Load audio, then set each word's start/end with the keys or the <strong>−/+</strong> buttons (50ms steps).</li>
-      <li><strong>Split</strong> divides a word's time across the following words that have none.</li>
-      <li><strong>Find issues</strong> lists problem ayahs across the surah — click one to jump to it.</li>
-      <li><strong>Auto save</strong> saves automatically when you move to another ayah.</li>
-      <li>Row colors: <span class="text-yellow-700">yellow = issue</span>, <span class="text-blue-700">blue = unsaved change</span>, <span class="text-green-700">green = current word</span>.</li>
-    </ul>
+  <div class="p-6 space-y-3 text-sm">
+    <p class="text-gray-600">Keyboard shortcuts for the segment builder. For a full walkthrough of the tool, open the <strong>Help</strong> button.</p>
 
-    <div>
-      <h3 class="font-semibold mb-1">Shortcuts</h3>
-      <table class="w-full">
-        <tbody>
-        <% short_keys.each do |key, fun| %>
-          <tr>
-            <td class="py-0.5 pr-3 whitespace-nowrap"><kbd><%= key %></kbd></td>
-            <td class="py-0.5"><%= fun %></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
+    <table class="w-full">
+      <tbody>
+      <% short_keys.each do |key, fun| %>
+        <tr>
+          <td class="py-0.5 pr-3 whitespace-nowrap"><kbd><%= key %></kbd></td>
+          <td class="py-0.5"><%= fun %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
   </div>
 </div>

@@ -191,10 +191,8 @@ module AudioSegment
       ).first_or_initialize
 
       data = verse_segment.words.to_s
-      if data.include?('[') # array
-        segments = Oj.load(data).map do |s|
-          s.map(&:to_i)
-        end
+      if data.include?('[') # array form: [[word, start, end, {metadata}], ...]
+        segments = parse_word_segments(data)
       else
         segments = data.split(',').map do |s|
           s.split(':').map(&:to_i)
@@ -226,6 +224,24 @@ module AudioSegment
       segment.set_segments!(segments)
 
       segment
+    end
+
+    # Parse the stored "words" column into [word, start, end, (metadata)] rows.
+    # Tolerates both JSON and legacy Ruby-inspect output (e.g. {"waqaf"=>true})
+    # and preserves any per-word metadata hash so it round-trips on import.
+    def parse_word_segments(data)
+      parsed =
+        begin
+          Oj.load(data)
+        rescue Oj::ParseError
+          Oj.load(data.gsub('=>', ':'))
+        end
+
+      parsed.map do |word|
+        timings = word[0, 3].map(&:to_i)
+        metadata = word[3]
+        metadata.present? ? timings + [metadata] : timings
+      end
     end
 
     def fix_timing_table_columns(db)
@@ -277,7 +293,7 @@ module AudioSegment
           segment.verse_number,
           segment.timestamp_from,
           segment.timestamp_to,
-          segment.segments.to_s
+          Oj.dump(segment.segments)
         ]
 
         insert_statement.execute(data)
@@ -299,7 +315,7 @@ module AudioSegment
             segment.verse_number,
             segment.timestamp_from,
             segment.timestamp_to,
-            segment.segments.to_s
+            Oj.dump(segment.segments)
           ]
 
           csv << data

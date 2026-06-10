@@ -148,6 +148,7 @@ const store = createStore({
       loopingWord: null,
       playingWord: null,
       playingWordEnd: null,
+      playingCompareEnd: null,
 
       // Options
       showSegments: true,
@@ -359,9 +360,71 @@ const store = createStore({
 
       state.isLooingWord = false;
       state.loopingWord = null;
+      state.playingCompareEnd = null;
       state.playingWord = Number(index) + 1;
       state.playingWordEnd = end;
       state.currentWord = Number(index) + 1;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
+      }
+    },
+    PLAY_COMPARE_SOURCE(state, payload) {
+      const source = state.compareSources.find((item) => item.id === payload.id);
+      if (!source) return;
+
+      const compareKey = state.audioType == 'ayah' ? state.currentVerseKey : state.currentVerseNumber;
+      const segments = source.segments && source.segments[compareKey];
+      if (!segments || !segments.length) {
+        state.alert = "This source has no timing for the current ayah.";
+        return;
+      }
+
+      const start = Number(segments[0][1]);
+      const end = Number(segments[segments.length - 1][2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "This source has no valid timing to play.";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingWord = null;
+      state.playingWordEnd = null;
+      state.playingCompareEnd = end;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
+      }
+    },
+    PLAY_COMPARE_WORD(state, payload) {
+      const source = state.compareSources.find((item) => item.id === payload.id);
+      if (!source) return;
+
+      const compareKey = state.audioType == 'ayah' ? state.currentVerseKey : state.currentVerseNumber;
+      const segments = source.segments && source.segments[compareKey];
+      const word = Number(payload.word);
+      const segment = segments && segments.find((seg) => Number(seg[0]) === word);
+      if (!segment) {
+        state.alert = "This source has no timing for this word.";
+        return;
+      }
+
+      const start = Number(segment[1]);
+      const end = Number(segment[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "This source has no valid timing for this word.";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingCompareEnd = null;
+      state.playingWord = word;
+      state.playingWordEnd = end;
+      state.currentWord = word;
 
       if (player) {
         player.currentTime = start / 1000;
@@ -908,6 +971,13 @@ const store = createStore({
         });
 
         state.compareActiveWords = active;
+      }
+
+      if (state.playingCompareEnd) {
+        if (time >= state.playingCompareEnd) {
+          player && player.pause();
+          state.playingCompareEnd = null;
+        }
       }
 
       if (state.playingWord) {

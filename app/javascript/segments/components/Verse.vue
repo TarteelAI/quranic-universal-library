@@ -5,6 +5,7 @@
         <span
           :id="index + 1"
           :class="[this.getWordCssClass(index)]"
+          :style="compareWordColors[index + 1] ? { backgroundColor: compareWordColors[index + 1] } : null"
           v-for="(text, index) in wordsText"
           :key="index"
           title="Repeat word"
@@ -12,11 +13,11 @@
           class="px-2 py-1 border border-dotted border-green-600 rounded cursor-pointer transition-colors inline-flex flex-col items-center"
         >
           {{ text }}
-          <span v-if="sourceColorsForWord(index).length" class="flex gap-0.5 mt-0.5 pointer-events-none">
+          <span v-if="compareWordMarkers[index + 1]" class="flex gap-0.5 mt-0.5 pointer-events-none">
             <span
-              v-for="(color, i) in sourceColorsForWord(index)"
+              v-for="(color, i) in compareWordMarkers[index + 1]"
               :key="i"
-              class="inline-block w-1.5 h-1.5 rounded-full"
+              class="inline-block w-4 h-1.5 rounded-sm"
               :style="{ backgroundColor: color }"
             ></span>
           </span>
@@ -31,16 +32,34 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mt-16">
           <div class="flex items-center justify-between px-4 py-3 border-b">
             <h3 class="text-base font-semibold">
-              Segment issues ({{ issues.length }})
+              Segment issues ({{ activeIssues.length }})
             </h3>
             <button @click="showIssues = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
           </div>
+
+          <div v-if="issueGroups.length > 1" class="flex flex-wrap gap-1 px-4 py-2 border-b bg-gray-50">
+            <button
+                v-for="group in issueGroups"
+                :key="group.id"
+                @click="activeIssueTab = group.id"
+                class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border"
+                :class="activeIssueTab === group.id ? 'bg-white border-gray-400 text-gray-800' : 'bg-transparent border-transparent text-gray-500 hover:text-gray-700'"
+            >
+              <span class="inline-block w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: group.color }"></span>
+              {{ group.name }}
+              <span
+                  class="px-1.5 py-0.5 text-[10px] font-semibold rounded-full"
+                  :class="group.issues.length ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-500'"
+              >{{ group.issues.length }}</span>
+            </button>
+          </div>
+
           <div class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
-            <p v-if="!issues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
+            <p v-if="!activeIssues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
               No issues found 🎉
             </p>
             <button
-                v-for="issue in issues"
+                v-for="issue in activeIssues"
                 :key="issue.key"
                 @click="goToIssue(issue.verse)"
                 class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
@@ -88,9 +107,17 @@
                   {{ source.name }}
                   <span v-if="source.error" class="text-xs text-red-600 font-normal">invalid JSON</span>
                 </span>
-                <button @click="removeCompareSource(source.id)" class="text-xs font-medium text-red-600 hover:text-red-700">
-                  Remove
-                </button>
+                <div class="flex items-center gap-2">
+                  <button
+                      @click="playCompareSource(source.id)"
+                      :style="{ backgroundColor: source.color }"
+                      :title="`Play this ayah using ${source.name} timing`"
+                      class="inline-flex items-center justify-center px-2 py-0.5 rounded text-white text-[10px] font-medium hover:opacity-80"
+                  >▶ Play</button>
+                  <button @click="removeCompareSource(source.id)" class="text-xs font-medium text-red-600 hover:text-red-700">
+                    Remove
+                  </button>
+                </div>
               </div>
               <textarea
                   rows="4"
@@ -413,6 +440,15 @@
                       {{ playingWord == index + 1 ? 'Playing' : 'Play' }}
                     </button>
 
+                    <button
+                      v-for="source in compareSources"
+                      :key="source.id"
+                      @click="playCompareWord(source.id, segment[0])"
+                      :style="{ backgroundColor: source.color }"
+                      :title="`Play word ${segment[0]} using ${source.name} timing`"
+                      class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-[10px] leading-none hover:opacity-80"
+                    >▶</button>
+
                     <span class="self-stretch w-px bg-gray-200 mx-1" :class="{ 'hidden': segmentLocked }"></span>
 
                     <button
@@ -483,7 +519,8 @@ export default {
     return {
       timeStep: 50,
       showIssues: false,
-      issues: [],
+      issueGroups: [],
+      activeIssueTab: 'current',
       showCompare: false,
     };
   },
@@ -606,12 +643,8 @@ export default {
     updateCompareSource(id, text) {
       this.$store.commit('UPDATE_COMPARE_SOURCE', { id, text });
     },
-    sourceColorsForWord(index) {
-      const word = index + 1;
-
-      return this.compareSources
-        .filter((source) => this.compareActiveWords[source.id] === word)
-        .map((source) => source.color);
+    playCompareWord(id, word) {
+      this.$store.commit('PLAY_COMPARE_WORD', { id, word });
     },
     showWordPopover(event) {
       const target = event.target;
@@ -801,15 +834,49 @@ export default {
       this.$store.commit('REDO_SEGMENTS');
     },
     openIssues() {
-      this.issues = this.findSegmentIssues();
+      const groups = [
+        { id: 'current', name: 'Current', color: '#198754', issues: this.findSegmentIssues((verse) => this.mainVerseData(verse)) },
+      ];
+
+      for (const source of this.compareSources) {
+        groups.push({
+          id: source.id,
+          name: source.name,
+          color: source.color,
+          issues: this.findSegmentIssues((verse) => this.sourceVerseData(source, verse)),
+        });
+      }
+
+      this.issueGroups = groups;
+      this.activeIssueTab = 'current';
       this.showIssues = true;
     },
     goToIssue(verse) {
       this.$store.commit('CHANGE_AYAH', { to: verse });
       this.showIssues = false;
     },
-    findSegmentIssues() {
+    mainVerseData(verse) {
+      return this.segments[`${this.chapter}:${verse}`] || null;
+    },
+    sourceVerseData(source, verse) {
+      const compareKey = this.audioType == 'ayah' ? `${this.chapter}:${verse}` : verse;
+      const segments = source.segments && source.segments[compareKey];
+      if (!segments || !segments.length) return null;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const main = this.segments[`${this.chapter}:${verse}`];
+
+      return {
+        timestamp_from: present(segments[0][1]) ? Number(segments[0][1]) : undefined,
+        timestamp_to: present(segments[segments.length - 1][2]) ? Number(segments[segments.length - 1][2]) : undefined,
+        words: (main && main.words) || [],
+        segments,
+      };
+    },
+    findSegmentIssues(verseDataFor) {
       const issues = [];
+      // Flag a file when the audio continues this many ms past the last ayah.
+      const TRAILING_GAP_THRESHOLD_MS = 1000;
       const audioDuration = (typeof player !== 'undefined' && player && isFinite(player.duration) && player.duration > 0)
         ? player.duration * 1000
         : null;
@@ -817,15 +884,27 @@ export default {
       const present = (value) => value !== undefined && value !== null && value !== '';
 
       for (let verse = 1; verse <= this.versesCount; verse++) {
-        const key = `${this.chapter}:${verse}`;
-        const data = this.segments[key];
+        const data = verseDataFor(verse);
         if (!data) continue;
 
-        const nextData = this.segments[`${this.chapter}:${verse + 1}`];
+        const nextData = verseDataFor(verse + 1);
         const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
 
         const issue = this.detectAyahIssue(data, audioDuration, nextAyahStart);
-        if (issue) issues.push({ verse, key, severity: issue.severity, message: issue.message });
+        if (issue) issues.push({ verse, key: `${verse}-${issues.length}`, severity: issue.severity, message: issue.message });
+
+        // Trailing gap: audio runs well past the last ayah's end (unsegmented tail).
+        if (verse === this.versesCount && audioDuration && present(data.timestamp_to)) {
+          const gap = audioDuration - Number(data.timestamp_to);
+          if (gap > TRAILING_GAP_THRESHOLD_MS) {
+            issues.push({
+              verse,
+              key: `${verse}-${issues.length}`,
+              severity: 'major',
+              message: `Audio continues ${Math.round(gap / 1000)}s past the last ayah ends (unsegmented tail)`
+            });
+          }
+        }
       }
 
       // Surface major issues first so reviewers triage the important ayahs.
@@ -898,6 +977,9 @@ export default {
       this.$store.commit('PLAY_WORD', {
         index: Number(index),
       });
+    },
+    playCompareSource(id) {
+      this.$store.commit('PLAY_COMPARE_SOURCE', { id });
     },
     scrollToCurrentWord(word) {
       if (!this.autoScroll) return;
@@ -988,6 +1070,36 @@ export default {
       'chapter',
       'autoScroll'
     ]),
+    activeIssueGroup() {
+      return this.issueGroups.find((group) => group.id === this.activeIssueTab) || this.issueGroups[0] || null;
+    },
+    activeIssues() {
+      return this.activeIssueGroup ? this.activeIssueGroup.issues : [];
+    },
+    compareWordColors() {
+      const colors = {};
+
+      for (const source of this.compareSources) {
+        const word = this.compareActiveWords[source.id];
+        if (word && word !== this.currentWord && colors[word] === undefined) {
+          colors[word] = source.color;
+        }
+      }
+
+      return colors;
+    },
+    compareWordMarkers() {
+      const markers = {};
+
+      for (const source of this.compareSources) {
+        const word = this.compareActiveWords[source.id];
+        if (!word) continue;
+
+        (markers[word] || (markers[word] = [])).push(source.color);
+      }
+
+      return markers;
+    },
     canUndo() {
       return this.undoStack.length > 1;
     },

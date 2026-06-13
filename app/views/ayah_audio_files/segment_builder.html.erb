@@ -31,6 +31,8 @@
          data-verse="<%= params[:verse] %>"
          data-segments-url="ayah_audio_files"
          data-auto-play="false"
+         data-compare="<%= params[:compare] %>"
+         data-recitations-list="<%= @presenter.recitations.reject { |(_name, id)| id == @recitation.id }.map { |(name, id)| { id: id, name: name } }.to_json %>"
          data-audio-type="ayah">
       <p>Loading</p>
     </div>

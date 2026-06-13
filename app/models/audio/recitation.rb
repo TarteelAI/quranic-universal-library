@@ -41,6 +41,10 @@ module Audio
     include NameTranslateable
     include Resourceable
 
+    # Flag a file when the audio continues this many ms past the last segmented
+    # ayah (unsegmented tail). Tunable; small outros/silence stay under it.
+    TRAILING_GAP_THRESHOLD_MS = 1000
+
     has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id, dependent: :delete_all
@@ -248,6 +252,29 @@ module Audio
 
           previous_word_end = to
         end
+      end
+
+      # Trailing-gap check: the audio continues well past the last segmented ayah.
+      segments.group_by(&:audio_file).each do |file, file_segments|
+        next if file.nil?
+
+        duration = file.duration_ms.to_i
+        next unless duration.positive?
+
+        last_segment = file_segments.select { |s| s.timestamp_to.present? }.max_by(&:timestamp_to)
+        next if last_segment.nil?
+
+        gap = duration - last_segment.timestamp_to
+        next if gap <= TRAILING_GAP_THRESHOLD_MS
+
+        issues.push(
+          {
+            key: last_segment.verse_key,
+            text: "Audio file ##{file.id} is #{duration} ms but the last segment (#{last_segment.verse_key}) ends at #{last_segment.timestamp_to} ms — #{gap} ms (#{(gap / 1000.0).round}s) of audio after the last ayah is unsegmented.",
+            severity: 'bg-danger',
+            category: 'trailing_gap'
+          }
+        )
       end
 
       issues

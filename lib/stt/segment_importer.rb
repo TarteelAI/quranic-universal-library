@@ -9,12 +9,12 @@ module Stt
       @aligner = SurahTranscriptAligner.allocate
     end
 
-    def import(surah: nil)
+    def import(surah: nil, export_parsed: false, parsed_dir: nil)
       surah_numbers = surah.present? ? [surah.to_i] : available_surahs
       raise "No timing files found in #{timing_dir}" if surah_numbers.empty?
 
       summaries = surah_numbers.map do |surah_number|
-        import_surah(surah_number)
+        import_surah(surah_number, export_parsed: export_parsed, parsed_dir: parsed_dir)
       end
 
       update_recitation_stats if persist
@@ -23,13 +23,54 @@ module Stt
         surahs: summaries,
         imported_segments: summaries.sum { |summary| summary[:imported_segments] },
         total_verses: summaries.sum { |summary| summary[:total_verses] },
-        issues_count: summaries.sum { |summary| summary[:issues].size }
+        issues_count: summaries.sum { |summary| summary[:issues].size },
+        parsed_paths: summaries.filter_map { |summary| summary[:parsed_path] }
       }
+    end
+
+    # Prepare segments data to compare and preview on segments builder
+    def segment_map(surah:)
+      surah_number = surah.to_i
+      path = timing_file_path(surah_number)
+      raise "Timing file not found: #{path}" unless File.exist?(path)
+
+      timing_words = load_timing_words(path)
+      verses = Verse.where(chapter_id: surah_number).includes(:actual_words).order(:verse_number)
+      stt_tokens_norm = timing_words.map { |entry| entry[:normalized] }
+      cursor = 0
+      verse_payloads = []
+
+      verses.each do |verse|
+        _canonical_raw, canonical_norm, canonical_chars = verse_tokens(verse)
+        span = @aligner.send(
+          :find_best_matching_ayah,
+          stt_tokens_norm,
+          canonical_norm,
+          cursor,
+          SurahTranscriptAligner::DEFAULT_WINDOW_SIZE,
+          canonical_chars
+        )
+        span_words = matched_span_words(timing_words, span)
+        segments = build_segments(align_words(canonical_norm, span_words))
+        verse_payloads << { verse: verse, segments: segments }
+
+        if span[:start].to_i >= 0 && span[:end].to_i >= span[:start].to_i && span[:score].to_f.positive?
+          cursor = [cursor, span[:end].to_i + 1].max
+        end
+      end
+
+      normalize_timing_gaps!(verse_payloads)
+
+      verse_payloads.each_with_object({}) do |payload, map|
+        next if payload[:segments].blank?
+
+        map[payload[:verse].verse_number.to_s] = payload[:segments]
+      end
     end
 
     private
 
-    def import_surah(surah_number)
+    def import_surah(surah_number, export_parsed: false, parsed_dir: nil)
       path = timing_file_path(surah_number)
       raise "Timing file not found: #{path}" unless File.exist?(path)
 
@@ -39,6 +80,7 @@ module Stt
       cursor = 0
       issues = []
       verse_payloads = []
+      location_map = {}
       stt_tokens_norm = timing_words.map { |entry| entry[:normalized] }
 
       verses.each do |verse|
@@ -55,6 +97,16 @@ module Stt
         span_words = matched_span_words(timing_words, span)
         aligned_words = align_words(canonical_norm, span_words)
         segments = build_segments(aligned_words)
+
+        if export_parsed
+          aligned_words.each do |item|
+            entry = item[:entry]
+            position = item[:position]
+            next unless entry && position
+
+            location_map[entry[:index]] = "#{surah_number}:#{verse.verse_number}:#{position}"
+          end
+        end
 
         verse_payloads << {
           verse: verse,
@@ -96,12 +148,33 @@ module Stt
 
       update_audio_file_stats(audio_file) if persist
 
+      parsed_path = export_parsed ? export_parsed_result(surah_number, timing_words, location_map, parsed_dir) : nil
+
       {
         surah: surah_number,
         imported_segments: imported_segments,
         total_verses: verses.size,
-        issues: issues
+        issues: issues,
+        parsed_path: parsed_path
       }
+    end
+
+    def export_parsed_result(surah_number, timing_words, location_map, parsed_dir)
+      dir = Pathname.new(parsed_dir.presence&.to_s || timing_dir.join("..", "meta").cleanpath.to_s)
+      FileUtils.mkdir_p(dir)
+
+      parsed = timing_words.map do |word|
+        {
+          "word" => word[:text],
+          "start" => (word[:start_ms] / 1000.0).round(3),
+          "end" => (word[:end_ms] / 1000.0).round(3),
+          "location" => location_map[word[:index]]
+        }
+      end
+
+      dest = dir.join("#{surah_number}_parsed.json")
+      File.write(dest, JSON.pretty_generate(parsed))
+      dest.to_s
     end
 
     def available_surahs
@@ -115,13 +188,14 @@ module Stt
     end
 
     def load_timing_words(path)
-      JSON.parse(File.read(path)).filter_map do |entry|
+      JSON.parse(File.read(path)).each_with_index.filter_map do |entry, index|
         raw_word = entry["word"].to_s
         normalized = @aligner.send(:normalize_word, raw_word, strip_diacritics: true)
         next if normalized.blank?
         next unless normalized.match?(SurahTranscriptAligner::ARABIC_LETTER_RE)
 
         {
+          index: index,
           text: raw_word,
           normalized: normalized,
           start_ms: seconds_to_ms(entry["start"]),

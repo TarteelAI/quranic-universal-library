@@ -5,7 +5,7 @@ require "nokogiri"
 class DocsPageService
   Page = Struct.new(:slug, :title, :html, keyword_init: true)
 
-  DOCS_DIR = Rails.root.join("docs").freeze
+  DOCS_DIR = Rails.root.join("app/views/docs/markdown").freeze
   SLUG_PATTERN = /\A[a-z0-9][a-z0-9-]*\z/
   ALLOWED_TAGS = %w[
     h1 h2 h3 h4 h5 h6 p br hr ul ol li pre code blockquote strong em a table thead tbody tr th td

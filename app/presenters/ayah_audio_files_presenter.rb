@@ -10,4 +10,10 @@ class AyahAudioFilesPresenter < ApplicationPresenter
   def meta_keywords
     "Ayah audio segments, Quran ayah timestamps, word-level sync, ayah-by-ayah audio editor, timestamp segmentation tool, Quranic audio timing"
   end
+
+  def recitations
+    Recitation.all.map do |a|
+      [a.humanize, a.id]
+    end
+  end
 end

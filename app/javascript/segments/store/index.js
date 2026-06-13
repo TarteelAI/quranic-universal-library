@@ -48,6 +48,22 @@ function normalizeForCompare(segments) {
   }));
 }
 
+function compareSegmentsFromResponse(responseSegments, audioType) {
+  const result = {};
+  if (!responseSegments) return result;
+
+  Object.keys(responseSegments).forEach((verseKey) => {
+    const entry = responseSegments[verseKey];
+    const segments = entry && entry.segments;
+    if (!segments || !segments.length) return;
+
+    const key = audioType === 'ayah' ? verseKey : Number(verseKey.split(':')[1]);
+    result[key] = segments;
+  });
+
+  return result;
+}
+
 // Mark segments as unsaved whenever a user driven mutation edits them. LOAD_AYAH
 // rebuilds the segments directly (not through these mutations) so navigation
 // does not falsely flag the freshly loaded ayah as dirty.
@@ -129,6 +145,9 @@ const store = createStore({
       compareSources: [],
       compareActiveWords: {},
       compareSourceSeq: 0,
+      compareRecitations: [],
+      compareParam: '',
+      compareLoadingRecitations: [],
       verseOriginalSegment: null,
       recitation: null,
       segments: {},
@@ -148,6 +167,7 @@ const store = createStore({
       loopingWord: null,
       playingWord: null,
       playingWordEnd: null,
+      playingCompareEnd: null,
 
       // Options
       showSegments: true,
@@ -190,6 +210,13 @@ const store = createStore({
       state.segmentLocked = payload.segmentLocked == 'true';
       state.segmentsUrl = payload.segmentsUrl || "surah_audio_files";
       state.autoPlay = payload.autoPlay === 'true';
+
+      state.compareParam = payload.compareParam || '';
+      try {
+        state.compareRecitations = payload.recitationsList ? JSON.parse(payload.recitationsList) : [];
+      } catch (error) {
+        state.compareRecitations = [];
+      }
     },
     SET_PLAYBACK_SPEED(state, payload) {
       state.playbackSpeed = payload.value;
@@ -228,6 +255,23 @@ const store = createStore({
         text: '',
         error: false,
         segments: {},
+      });
+    },
+    ADD_COMPARE_SOURCE_FROM_RECITATION(state, payload) {
+      const color = COMPARE_COLORS[state.compareSources.length % COMPARE_COLORS.length];
+      state.compareSourceSeq += 1;
+
+      const match = state.compareRecitations.find((item) => Number(item.id) === Number(payload.recitationId));
+      const name = match ? match.name : `Recitation ${payload.recitationId}`;
+
+      state.compareSources.push({
+        id: state.compareSourceSeq,
+        recitationId: Number(payload.recitationId),
+        name,
+        color,
+        text: '',
+        error: false,
+        segments: payload.segments,
       });
     },
     REMOVE_COMPARE_SOURCE(state, payload) {
@@ -359,9 +403,71 @@ const store = createStore({
 
       state.isLooingWord = false;
       state.loopingWord = null;
+      state.playingCompareEnd = null;
       state.playingWord = Number(index) + 1;
       state.playingWordEnd = end;
       state.currentWord = Number(index) + 1;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
+      }
+    },
+    PLAY_COMPARE_SOURCE(state, payload) {
+      const source = state.compareSources.find((item) => item.id === payload.id);
+      if (!source) return;
+
+      const compareKey = state.audioType == 'ayah' ? state.currentVerseKey : state.currentVerseNumber;
+      const segments = source.segments && source.segments[compareKey];
+      if (!segments || !segments.length) {
+        state.alert = "This source has no timing for the current ayah.";
+        return;
+      }
+
+      const start = Number(segments[0][1]);
+      const end = Number(segments[segments.length - 1][2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "This source has no valid timing to play.";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingWord = null;
+      state.playingWordEnd = null;
+      state.playingCompareEnd = end;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
+      }
+    },
+    PLAY_COMPARE_WORD(state, payload) {
+      const source = state.compareSources.find((item) => item.id === payload.id);
+      if (!source) return;
+
+      const compareKey = state.audioType == 'ayah' ? state.currentVerseKey : state.currentVerseNumber;
+      const segments = source.segments && source.segments[compareKey];
+      const word = Number(payload.word);
+      const segment = segments && segments.find((seg) => Number(seg[0]) === word);
+      if (!segment) {
+        state.alert = "This source has no timing for this word.";
+        return;
+      }
+
+      const start = Number(segment[1]);
+      const end = Number(segment[2]);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "This source has no valid timing for this word.";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingCompareEnd = null;
+      state.playingWord = word;
+      state.playingWordEnd = end;
+      state.currentWord = word;
 
       if (player) {
         player.currentTime = start / 1000;
@@ -875,7 +981,44 @@ const store = createStore({
         this.commit("CHANGE_AYAH", {
           to: currentVerseNumber,
         });
+
+        if (state.compareParam) {
+          const ids = state.compareParam
+            .split(',')
+            .map((id) => Number(id.trim()))
+            .filter((id) => id && id !== Number(state.recitation));
+
+          [...new Set(ids)].forEach((id) => this.dispatch('ADD_COMPARE_RECITATION', { recitationId: id }));
+        }
       });
+    },
+    ADD_COMPARE_RECITATION({ state }, payload) {
+      const recitationId = Number(payload.recitationId);
+      if (!recitationId || recitationId === Number(state.recitation)) return;
+
+      const exists = state.compareSources.some((source) => Number(source.recitationId) === recitationId);
+      if (exists || state.compareLoadingRecitations.includes(recitationId)) return;
+
+      const { segmentsUrl, chapter, audioType } = state;
+      state.compareLoadingRecitations.push(recitationId);
+
+      $.get(`/${segmentsUrl}/${recitationId}/segments.json?chapter_id=${chapter}&a=${Math.random()}`)
+        .then((res) => {
+          const segments = compareSegmentsFromResponse(res.segments, audioType);
+
+          if (!Object.keys(segments).length) {
+            this.commit('SET_ALERT', { text: `No segments found for recitation ${recitationId}` });
+            return;
+          }
+
+          this.commit('ADD_COMPARE_SOURCE_FROM_RECITATION', { recitationId, segments });
+        })
+        .catch(() => {
+          this.commit('SET_ALERT', { text: `Could not load segments for recitation ${recitationId}` });
+        })
+        .always(() => {
+          state.compareLoadingRecitations = state.compareLoadingRecitations.filter((id) => id !== recitationId);
+        });
     },
     SET_TIMESTAMP({
                     state
@@ -908,6 +1051,13 @@ const store = createStore({
         });
 
         state.compareActiveWords = active;
+      }
+
+      if (state.playingCompareEnd) {
+        if (time >= state.playingCompareEnd) {
+          player && player.pause();
+          state.playingCompareEnd = null;
+        }
       }
 
       if (state.playingWord) {

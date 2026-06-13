@@ -120,23 +120,37 @@
                 </div>
               </div>
               <textarea
+                  v-if="!source.recitationId"
                   rows="4"
                   :value="source.text"
                   @input="updateCompareSource(source.id, $event.target.value)"
                   placeholder='{ "1": [[1, 0, 500], [2, 500, 900]] }'
                   class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               ></textarea>
-              <p class="text-[10px] text-gray-400 mt-1">
+              <p v-if="!source.recitationId" class="text-[10px] text-gray-400 mt-1">
                 Format: <code>{ "verse": [[word, start, end], ...] }</code> — times in ms, e.g.
                 <code>{ "1": [[1, 0, 500], [2, 500, 900]] }</code>
+              </p>
+              <p v-else class="text-[10px] text-gray-400 mt-1">
+                Loaded from recitation #{{ source.recitationId }}.
               </p>
             </div>
           </div>
 
           <div class="flex items-center justify-between px-4 py-3 border-t">
-            <button @click="addCompareSource" class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700">
-              + Add source
-            </button>
+            <div class="flex items-center gap-2">
+              <button @click="addCompareSource" class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700">
+                + Add source
+              </button>
+              <select
+                  v-if="compareRecitations.length"
+                  @change="addCompareRecitation"
+                  class="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">+ Add recitation…</option>
+                <option v-for="r in compareRecitations" :key="r.id" :value="r.id">{{ r.name }}</option>
+              </select>
+            </div>
             <button @click="showCompare = false" class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
               Done
             </button>
@@ -643,6 +657,12 @@ export default {
     updateCompareSource(id, text) {
       this.$store.commit('UPDATE_COMPARE_SOURCE', { id, text });
     },
+    addCompareRecitation(event) {
+      const recitationId = event.target.value;
+      if (!recitationId) return;
+      this.$store.dispatch('ADD_COMPARE_RECITATION', { recitationId });
+      event.target.value = '';
+    },
     playCompareWord(id, word) {
       this.$store.commit('PLAY_COMPARE_WORD', { id, word });
     },
@@ -1059,6 +1079,7 @@ export default {
       'audioType',
       'compareSources',
       'compareActiveWords',
+      'compareRecitations',
       'segmentsUnsaved',
       'segmentsSaved',
       'saving',

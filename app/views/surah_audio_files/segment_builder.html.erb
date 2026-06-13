@@ -29,6 +29,8 @@
          data-chapter="<%= @audio_file.chapter_id %>"
          data-verses-count="<%= @audio_file.chapter&.verses_count %>"
          data-verse="<%= params[:verse] %>"
+         data-compare="<%= params[:compare] %>"
+         data-recitations-list="<%= @presenter.recitations.reject { |(_name, id)| id == @recitation.id }.map { |(name, id)| { id: id, name: name } }.to_json %>"
          data-audio-type="chapter">
       <p>Loading</p>
     </div>

@@ -41,6 +41,8 @@ export default {
       segmentLocked,
       segmentsUrl,
       autoPlay,
+      compare,
+      recitationsList,
     } =
       this.$el.parentElement.dataset;
     const store = useStore();
@@ -54,7 +56,9 @@ export default {
       audioType,
       segmentLocked,
       segmentsUrl,
-      autoPlay
+      autoPlay,
+      compareParam: compare,
+      recitationsList,
     });
 
     store.dispatch("LOAD_SEGMENTS", {});

@@ -109,6 +109,43 @@
       <div class="hidden sm:block w-px self-stretch bg-gray-200"></div>
 
       <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Play range (ms)</span>
+        <div class="flex gap-1">
+          <input
+              type="number"
+              placeholder="Start"
+              :value="playRangeStart"
+              @change="playRangeStartChanged"
+              class="w-20 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+              type="number"
+              placeholder="End"
+              :value="playRangeEnd"
+              @change="playRangeEndChanged"
+              class="w-20 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div class="flex gap-1">
+          <button
+              class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700 disabled:opacity-50"
+              @click="playRange"
+              :disabled="!audioSrc"
+          >
+            Play range
+          </button>
+          <button
+              class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded transition-colors hover:bg-gray-300"
+              @click="clearPlayRange"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="hidden sm:block w-px self-stretch bg-gray-200"></div>
+
+      <div class="flex flex-col gap-1">
         <div class="flex gap-1">
           <button class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700" @click="stepUp">Forward</button>
           <button class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded transition-colors hover:bg-blue-700" @click="stepBack">Backward</button>
@@ -396,6 +433,8 @@ export default {
     ...mapState([
       "currentTimestamp",
       "audioSrc",
+      "playRangeStart",
+      "playRangeEnd",
       "playing",
       "isLooingAyah",
       "stepDuration",
@@ -432,6 +471,18 @@ export default {
     },
   },
   methods: {
+    playRangeStartChanged(event) {
+      this.$store.commit("SET_PLAY_RANGE_START", {value: event.target.value});
+    },
+    playRangeEndChanged(event) {
+      this.$store.commit("SET_PLAY_RANGE_END", {value: event.target.value});
+    },
+    playRange() {
+      this.$store.commit("PLAY_RANGE");
+    },
+    clearPlayRange() {
+      this.$store.commit("CLEAR_PLAY_RANGE");
+    },
     currentAyahTimeToChanged(event) {
       const value = Number(event.target.value);
       this.$store.commit("SEGMENT_END_CHANGED", {value: value});

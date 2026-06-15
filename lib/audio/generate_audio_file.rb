@@ -89,10 +89,11 @@ module Audio
 
       if url.blank?
         name = chapter_number.to_s.rjust 3, '0'
-        url = "#{base_url}/#{relative_path}/#{name}.#{recitation.audio_format}"
+        format = recitation.audio_format.to_s.split(',').first
+        url = "#{base_url}/#{relative_path}/#{name}.#{format}"
       end
-      audio.audio_url = url
 
+      audio.audio_url = url
       audio
     end
   end

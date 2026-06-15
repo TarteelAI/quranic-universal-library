@@ -14,11 +14,13 @@
         <input
             type="text"
             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            ref="audioUrl"
+            v-model="audioUrlInput"
             placeholder="Audio url"
-            :value="quranicAudioUrl"
         />
         <div class="text-xs text-gray-500">Enter file URL</div>
+        <div class="text-xs text-gray-500 break-all" v-if="audioSrc && !fromFile">
+          Current: {{ audioSrc }}
+        </div>
       </div>
     </div>
 
@@ -50,7 +52,23 @@ export default {
   data() {
     return {
       audio: null,
+      audioUrlInput: "",
     };
+  },
+  watch: {
+    quranicAudioUrl: {
+      immediate: true,
+      handler(newValue) {
+        if (!newValue) return;
+
+        this.audioUrlInput = newValue;
+
+        // ayah mode already sets audioSrc in LOAD_AYAH; only auto-load for chapter audio
+        if (this.$store.state.audioType !== 'ayah') {
+          this.$store.commit("SET_AUDIO_SOURCE", {url: newValue, fromFile: false});
+        }
+      },
+    },
   },
   created() {
     // https://v3.vuejs.org/api/computed-watch-api.html#watching-a-single-source
@@ -101,12 +119,12 @@ export default {
   methods: {
     loadAudio() {
       const inputFile = this.$refs.audioFile.files[0];
-      const audioUrl = this.$refs.audioUrl.value;
+      const audioUrl = this.audioUrlInput;
 
       if (inputFile) {
         const url = URL.createObjectURL(inputFile);
         this.$store.commit("SET_AUDIO_SOURCE", {url: url, fromFile:  true});
-      } else if (audioUrl.length > 0) {
+      } else if (audioUrl && audioUrl.length > 0) {
         this.$store.commit("SET_AUDIO_SOURCE", {url: audioUrl, fromFile: false});
       } else {
         this.$store.commit("SET_ALERT", {

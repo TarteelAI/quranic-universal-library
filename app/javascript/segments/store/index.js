@@ -7,6 +7,7 @@ import {findSegment, findVerseSegment} from "../helper/findSegment";
 import LocalStore from "../../utils/LocalStore";
 import {playAyah} from "../helper/audio";
 import {divideSegmentTime, hasTiming} from "../helper/segmentTime";
+import {readPlayRange, writePlayRange} from "../helper/playRangeUrl";
 
 const debug = process.env.NODE_ENV !== "production";
 
@@ -168,6 +169,9 @@ const store = createStore({
       playingWord: null,
       playingWordEnd: null,
       playingCompareEnd: null,
+      playRangeStart: null,
+      playRangeEnd: null,
+      playingRangeEnd: null,
 
       // Options
       showSegments: true,
@@ -217,6 +221,10 @@ const store = createStore({
       } catch (error) {
         state.compareRecitations = [];
       }
+
+      const playRange = readPlayRange();
+      state.playRangeStart = playRange.start;
+      state.playRangeEnd = playRange.end;
     },
     SET_PLAYBACK_SPEED(state, payload) {
       state.playbackSpeed = payload.value;
@@ -388,6 +396,47 @@ const store = createStore({
       } else {
         state.loopingWord = null;
       }
+    },
+    SET_PLAY_RANGE_START(state, payload) {
+      const raw = payload.value;
+      state.playRangeStart = (raw === "" || raw === null || raw === undefined) ? null : Number(raw);
+      writePlayRange(state.playRangeStart, state.playRangeEnd);
+    },
+    SET_PLAY_RANGE_END(state, payload) {
+      const raw = payload.value;
+      state.playRangeEnd = (raw === "" || raw === null || raw === undefined) ? null : Number(raw);
+      writePlayRange(state.playRangeStart, state.playRangeEnd);
+    },
+    PLAY_RANGE(state) {
+      if (!state.audioSrc) {
+        state.alert = "Load an audio file before playing a range.";
+        return;
+      }
+
+      const start = Number(state.playRangeStart);
+      const end = Number(state.playRangeEnd);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        state.alert = "Enter a valid start and end time (end must be after start).";
+        return;
+      }
+
+      state.isLooingWord = false;
+      state.loopingWord = null;
+      state.playingWord = null;
+      state.playingWordEnd = null;
+      state.playingCompareEnd = null;
+      state.playingRangeEnd = end;
+
+      if (player) {
+        player.currentTime = start / 1000;
+        playAyah();
+      }
+    },
+    CLEAR_PLAY_RANGE(state) {
+      state.playRangeStart = null;
+      state.playRangeEnd = null;
+      state.playingRangeEnd = null;
+      writePlayRange(null, null);
     },
     PLAY_WORD(state, payload) {
       const { index } = payload;
@@ -1051,6 +1100,14 @@ const store = createStore({
         });
 
         state.compareActiveWords = active;
+      }
+
+      if (state.playingRangeEnd != null) {
+        if (time >= state.playingRangeEnd) {
+          player && player.pause();
+          state.playingRangeEnd = null;
+        }
+        return;
       }
 
       if (state.playingCompareEnd) {

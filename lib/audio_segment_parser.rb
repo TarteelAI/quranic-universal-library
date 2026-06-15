@@ -351,22 +351,35 @@ class AudioSegmentParser
           failure_data: failure_data
         )
       end
-    elsif (detect_word, _score = detect_failure_word(received_text, ayah_number, @last_translated_word_number))
-      uthmani_word = translate_uthmani_word_to_imlaei(
-        surah_number,
-        ayah_number,
-        detect_word
-      )
+    else
+      detect_word, score = detect_failure_word(received_text, ayah_number, @last_translated_word_number)
 
-      track_position(
-        ayah: ayah_number,
-        word_number: uthmani_word.is_a?(Array) ? uthmani_word.first : uthmani_word,
-        start_time: start_time,
-        end_time: end_time,
-        text: expected_text,
-        failure_data: failure_data
-      )
+      if detect_word && acceptable_failure_match?(received_text, score)
+        uthmani_word = translate_uthmani_word_to_imlaei(
+          surah_number,
+          ayah_number,
+          detect_word
+        )
+
+        track_position(
+          ayah: ayah_number,
+          word_number: uthmani_word.is_a?(Array) ? uthmani_word.first : uthmani_word,
+          start_time: start_time,
+          end_time: end_time,
+          text: expected_text,
+          failure_data: failure_data
+        )
+      end
     end
+  end
+
+  FAILURE_MATCH_MIN_DISTANCE = 2
+
+  def acceptable_failure_match?(text, score)
+    return false if score.nil? || score == Float::INFINITY
+
+    threshold = [(normalize_text(text).length / 2.0).ceil, FAILURE_MATCH_MIN_DISTANCE].max
+    score <= threshold
   end
 
   def track_failure(ayah:, start_time:, end_time:, text:, received_text:)

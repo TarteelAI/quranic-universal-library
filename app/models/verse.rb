@@ -65,6 +65,25 @@
 class Verse < QuranApiRecord
   include NavigationSearchable
   include StripWhitespaces
+  include Searchable
+
+  # Searchkick configuration
+  searchkick callbacks: :async, 
+             index_name: -> { "quran_verses_#{Rails.env}" },
+             settings: {
+               analysis: {
+                 analyzer: {
+                   arabic_analyzer: {
+                     tokenizer: 'standard',
+                     filter: ['lowercase', 'arabic_stop', 'arabic_normalization', 'arabic_stemmer']
+                   },
+                   simple_arabic: {
+                     tokenizer: 'standard', 
+                     filter: ['lowercase']
+                   }
+                 }
+               }
+             }
 
   has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
 
@@ -300,5 +319,101 @@ class Verse < QuranApiRecord
     else
       where(verse_key: id).or(where(id: id.to_s)).first
     end
+  end
+
+  # Elasticsearch search data configuration
+  def search_data
+    {
+      id: id,
+      verse_key: verse_key,
+      verse_number: verse_number,
+      chapter_id: chapter_id,
+      text_uthmani: text_uthmani,
+      text_uthmani_simple: text_uthmani_simple,
+      text_qpc_hafs: text_qpc_hafs,
+      text_indopak: text_indopak,
+      text_imlaei: text_imlaei,
+      text_imlaei_simple: text_imlaei_simple,
+      juz_number: juz_number,
+      hizb_number: hizb_number,
+      ruku_number: ruku_number,
+      manzil_number: manzil_number,
+      page_number: page_number,
+      words_count: words_count,
+      translations: translations.includes(:language).map do |translation|
+        {
+          id: translation.id,
+          text: translation.text,
+          language_id: translation.language_id,
+          language_name: translation.language&.name,
+          resource_content_id: translation.resource_content_id
+        }
+      end,
+      words: words.includes(:root, :lemma, :stem).map do |word|
+        {
+          id: word.id,
+          text_uthmani: word.text_uthmani,
+          text_qpc_hafs: word.text_qpc_hafs,
+          position: word.position,
+          root_name: word.root&.value,
+          lemma_name: word.lemma&.text_clean,
+          stem_name: word.stem&.text_clean
+        }
+      end,
+      tafsirs: tafsirs.includes(:language).limit(5).map do |tafsir|
+        {
+          id: tafsir.id,
+          text: tafsir.text&.truncate(500),
+          language_id: tafsir.language_id,
+          language_name: tafsir.language&.name
+        }
+      end
+    }
+  end
+
+  # Search field configuration
+  def self.search_fields
+    [
+      'text_uthmani^10',
+      'text_uthmani_simple^8', 
+      'text_qpc_hafs^10',
+      'text_indopak^8',
+      'text_imlaei^6',
+      'translations.text^5',
+      'tafsirs.text^3',
+      'words.text_uthmani^4'
+    ]
+  end
+
+  def self.highlight_fields
+    {
+      text_uthmani: {},
+      text_qpc_hafs: {},
+      'translations.text' => {},
+      'tafsirs.text' => { fragment_size: 150 }
+    }
+  end
+
+  def self.boost_fields
+    {
+      words_count: :log,
+      page_number: { factor: 0.1 }
+    }
+  end
+
+  def self.semantic_search_fields
+    [
+      'text_uthmani_simple^5',
+      'text_imlaei_simple^4',
+      'translations.text^6',
+      'tafsirs.text^2'
+    ]
+  end
+
+  def self.semantic_boost_fields
+    {
+      juz_number: { factor: 0.05 },
+      hizb_number: { factor: 0.03 }
+    }
   end
 end

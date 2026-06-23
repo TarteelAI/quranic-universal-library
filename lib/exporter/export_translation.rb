@@ -186,7 +186,43 @@ module Exporter
       db_file_path
     end
 
+    def export_sqlite_translations(name: 'translations')
+      db_file_path = "#{@export_file_path}.db"
+
+      statement = create_sqlite_table(db_file_path, name, sqlite_export_columns)
+
+      records.each do |batch|
+        batch.each do |record|
+          text = export_simple_translation(record)
+
+          fields = [
+            record.chapter_id,
+            record.verse_number,
+            record.verse_key,
+            text[:t],
+            JSON.generate(text[:f] || {})
+          ]
+
+          statement.execute(fields)
+        end
+      end
+
+      close_sqlite_table
+
+      db_file_path
+    end
+
     protected
+
+    def sqlite_export_columns
+      {
+        sura: 'INTEGER',
+        ayah: 'INTEGER',
+        ayah_key: 'TEXT',
+        text: 'TEXT',
+        footnotes: "TEXT DEFAULT '{}'"
+      }
+    end
 
     def translation_text_with_footnotes(translation, chunks: false)
       if chunks

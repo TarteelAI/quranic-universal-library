@@ -3,10 +3,12 @@ require "uri"
 require "nokogiri"
 
 class DocsPageService
-  Page = Struct.new(:slug, :title, :html, keyword_init: true)
+  Page = Struct.new(:slug, :title, :description, :html, keyword_init: true)
 
   DOCS_DIR = Rails.root.join("app/views/docs/markdown").freeze
   SLUG_PATTERN = /\A[a-z0-9][a-z0-9-]*\z/
+  CACHE_VERSION = 3
+  MAX_DESCRIPTION_LENGTH = 160
   ALLOWED_TAGS = %w[
     h1 h2 h3 h4 h5 h6 p br hr ul ol li pre code blockquote strong em a table thead tbody tr th td
     div span button textarea iframe
@@ -45,6 +47,13 @@ class DocsPageService
     path = resolve_path(filename)
     return nil unless path&.file?
 
+    cache_key = ["docs_page", CACHE_VERSION, slug, path.mtime.to_i]
+    Rails.cache.fetch(cache_key) { build_page(path, slug) }
+  rescue Errno::ENOENT
+    nil
+  end
+
+  def build_page(path, slug)
     markdown = path.read
     html = @markdown.render(markdown)
     html = rewrite_internal_links(html)
@@ -54,6 +63,7 @@ class DocsPageService
     Page.new(
       slug: slug,
       title: extract_title(markdown, slug),
+      description: extract_description(markdown),
       html: html
     )
   rescue Errno::ENOENT
@@ -81,13 +91,67 @@ class DocsPageService
     slug.to_s.humanize
   end
 
+  def extract_description(markdown)
+    paragraph = markdown
+                  .split(/\n[ \t]*\n/)
+                  .map(&:strip)
+                  .find { |block| block.present? && !block.start_with?("#", ">", "```", "|", "-", "*") }
+    return nil if paragraph.blank?
+
+    text = paragraph
+             .gsub(/\[([^\]]+)\]\([^)]*\)/, '\1')
+             .gsub(/[*_`#>]/, "")
+             .squish
+    text.truncate(MAX_DESCRIPTION_LENGTH, separator: " ")
+  end
+
   def rewrite_internal_links(html)
     fragment = Nokogiri::HTML.fragment(html)
     fragment.css("a[href]").each do |link|
       href = link["href"].to_s.strip
       link["href"] = rewrite_href(href)
+      relabel_filename_link(link, href)
     end
     fragment.to_html
+  end
+
+  def relabel_filename_link(link, href)
+    return unless link.text.strip == href
+
+    slug = internal_slug(href)
+    return if slug.blank?
+
+    link.content = DocsManifest.title_for(slug) || title_from_file(slug) || slug.tr("-", " ").capitalize
+  end
+
+  def internal_slug(href)
+    return nil if href.blank? || href.start_with?("#")
+
+    begin
+      uri = URI.parse(href)
+      return nil if uri.scheme.present? || uri.host.present?
+    rescue URI::InvalidURIError
+      return nil
+    end
+
+    path_part = href.split(/[?#]/, 2).first.to_s
+    normalized = path_part.sub(%r{\A\./}, "").sub(%r{\Adocs/}, "")
+    return nil unless normalized.end_with?(".md")
+
+    slug = normalized.delete_suffix(".md")
+    return nil if slug.blank? || slug.casecmp("README").zero?
+    return nil unless valid_slug?(slug)
+
+    slug
+  end
+
+  def title_from_file(slug)
+    path = resolve_path("#{slug}.md")
+    return nil unless path&.file?
+
+    extract_title(path.read, slug)
+  rescue Errno::ENOENT
+    nil
   end
 
   def decorate_code_blocks(html)

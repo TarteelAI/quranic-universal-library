@@ -1,0 +1,88 @@
+# QUL documentation structure.
+#
+# This file is the single source of truth for the /docs landing cards and the
+# in-page sidebar navigation. Page bodies live in app/views/docs/markdown/<slug>.md.
+#
+# To add a page: create the markdown file, then add a { slug, title } entry to
+# the relevant category below. To add a category: add a new top-level entry with
+# its own landing markdown page (slug.md).
+#
+# `accent` must be one of: blue, violet, emerald, amber (styled in
+# application.tailwind.css). `icon` keys are defined in DocsHelper#docs_icon.
+
+categories:
+  - slug: download-resources
+    title: Download Resources
+    description: Discover, download, and integrate QUL datasets in your own app or research workflow. No setup required.
+    icon: download
+    accent: blue
+    pages:
+      - slug: download-resources
+        title: Overview
+      - slug: getting-started
+        title: Getting Started
+      - slug: downloading-data
+        title: Downloading & Using Data
+      - slug: datasets
+        title: Datasets
+      - slug: data-model
+        title: Data Model
+      - slug: tutorials
+        title: Tutorials
+        children:
+          - { slug: tutorial-recitation-end-to-end, title: Recitation }
+          - { slug: tutorial-mushaf-layout-end-to-end, title: Mushaf Layout }
+          - { slug: tutorial-translation-end-to-end, title: Translation }
+          - { slug: tutorial-tafsir-end-to-end, title: Tafsir }
+          - { slug: tutorial-quran-script-end-to-end, title: Quran Script }
+          - { slug: tutorial-font-end-to-end, title: Font }
+          - { slug: tutorial-quran-metadata-end-to-end, title: Quran Metadata }
+          - { slug: tutorial-transliteration-end-to-end, title: Transliteration }
+          - { slug: tutorial-surah-information-end-to-end, title: Surah Information }
+          - { slug: tutorial-ayah-topics-end-to-end, title: Ayah Topics }
+          - { slug: tutorial-ayah-theme-end-to-end, title: Ayah Theme }
+          - { slug: tutorial-similar-ayah-end-to-end, title: Similar Ayah }
+          - { slug: tutorial-mutashabihat-end-to-end, title: Mutashabihat }
+          - { slug: tutorial-morphology-end-to-end, title: Morphology }
+      - slug: resource-guides-index
+        title: Resource Guides
+      - slug: faq
+        title: FAQ
+
+  - slug: contribute-code
+    title: Contribute Code
+    description: Set up the QUL app locally and open pull requests that improve the platform and its tooling.
+    icon: code
+    accent: violet
+    pages:
+      - slug: contribute-code
+        title: Overview
+      - slug: project-setup
+        title: Project Setup
+      - slug: contributing
+        title: Contribution Workflow
+      - slug: best-practices
+        title: Best Practices
+
+  - slug: contribute-data
+    title: Contribute Data
+    description: Help correct, refine, and expand QUL datasets through the CMS — translations, tafsirs, audio segments, and more.
+    icon: data
+    accent: emerald
+    pages:
+      - slug: contribute-data
+        title: Overview
+      - slug: resource-guide-template
+        title: Resource Guide Template
+      - slug: resource-tutorial-map
+        title: Resource → Tutorial Map
+
+  - slug: api
+    title: API
+    description: A REST API to access every QUL resource. Currently in design — follow along with the specification.
+    icon: api
+    accent: amber
+    badge: Coming soon
+    pages:
+      - slug: api
+        title: Overview

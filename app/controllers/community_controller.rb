@@ -44,12 +44,13 @@ class CommunityController < ApplicationController
       raise ActionController::RoutingError, "Not Found"
     end
 
+    @docs_category = DocsManifest.category_for_page(params[:key])
+
     render layout: false if request.xhr?
   end
 
   def docs_index
-    @docs_page = DocsPageService.new.readme
-    raise ActionController::RoutingError, "Not Found" unless @docs_page.present?
+    @docs_categories = DocsManifest.categories
 
     render layout: false if request.xhr?
   end

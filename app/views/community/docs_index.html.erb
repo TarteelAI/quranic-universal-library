@@ -1,15 +1,49 @@
 <div id="resources">
   <% unless request.xhr? %>
-    <div class="border-b border-gray-200 bg-gray-50 pt-[80px] pb-10">
-      <div class="container max-w-7xl mx-auto px-4">
-        <p class="text-sm font-semibold uppercase tracking-wide text-blue-600">Documentation</p>
-        <h1 class="mt-2 text-3xl font-bold text-gray-900">QUL Documentation</h1>
-        <p class="mt-3 max-w-3xl text-gray-700">
-          Start here to download QUL resources and integrate them in your app. Contributor setup docs are available as a secondary track.
+    <div
+      class="relative overflow-hidden border-b border-gray-200 bg-gradient-to-b from-gray-50 to-white pt-[90px] pb-12"
+      id="docs-heading"
+    >
+      <div id="resource-bg"></div>
+      <div class="container relative max-w-6xl mx-auto px-4">
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">Documentation</p>
+        <h1 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight text-gray-900">QUL Documentation</h1>
+        <p class="mt-4 max-w-2xl text-lg leading-relaxed text-gray-600">
+          Everything you need to download QUL resources, integrate them in your app, and contribute back to the project.
+          Pick a track below to get started.
         </p>
       </div>
     </div>
   <% end %>
 
-  <%= render "community/docs_markdown", docs_page: @docs_page %>
+  <div class="container max-w-6xl mx-auto px-4 py-12">
+    <div class="grid gap-6 md:grid-cols-2">
+      <% @docs_categories.each do |category| %>
+        <a href="<%= docs_path(category.slug) %>"
+           class="group relative flex flex-col rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg <%= docs_accent(category.accent, :card_hover) %>">
+          <div class="flex items-start justify-between">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 <%= docs_accent(category.accent, :icon_bg) %>">
+              <%= docs_icon(category.icon, "w-6 h-6") %>
+            </span>
+            <% if category.badge.present? %>
+              <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700"><%= category.badge %></span>
+            <% end %>
+          </div>
+
+          <h2 class="mt-5 text-xl font-bold text-gray-900"><%= category.title %></h2>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-gray-600"><%= category.description %></p>
+
+          <div class="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-medium uppercase tracking-wide text-gray-400">
+              <%= pluralize(docs_page_count(category), "page") %>
+            </span>
+            <span class="inline-flex items-center gap-1 text-sm font-semibold <%= docs_accent(category.accent, :arrow) %>">
+              Explore
+              <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m0 0l-6-6m6 6l-6 6"/></svg>
+            </span>
+          </div>
+        </a>
+      <% end %>
+    </div>
+  </div>
 </div>

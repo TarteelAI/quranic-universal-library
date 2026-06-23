@@ -1,0 +1,59 @@
+<% current_slug = params[:key].to_s %>
+<nav class="text-sm" aria-label="Documentation">
+  <a href="<%= docs_index_path %>" class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-gray-400 hover:text-gray-600">
+    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    All docs
+  </a>
+
+  <div class="mt-4 space-y-1">
+    <% DocsManifest.categories.each do |cat| %>
+      <% is_current_category = category.present? && cat.slug == category.slug %>
+      <a href="<%= docs_path(cat.slug) %>"
+         class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 font-medium transition-colors <%= is_current_category ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800' %>">
+        <span class="h-1.5 w-1.5 rounded-full <%= is_current_category ? docs_accent(cat.accent, :dot) : 'bg-gray-300' %>"></span>
+        <%= cat.title %>
+        <% if cat.badge.present? %>
+          <span class="ms-auto rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700"><%= cat.badge %></span>
+        <% end %>
+      </a>
+    <% end %>
+  </div>
+
+  <% if category.present? %>
+    <div class="mt-6 border-t border-gray-100 pt-5">
+      <p class="px-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-gray-400"><%= category.title %></p>
+      <ul class="mt-2 space-y-0.5">
+        <% category.pages.each do |page| %>
+          <% active = page.slug == current_slug %>
+          <% branch_active = active || page.children.any? { |c| c.slug == current_slug } %>
+          <li>
+            <% if page.children.any? %>
+              <details <%= "open" if branch_active %> class="group/details">
+                <summary class="flex cursor-pointer list-none items-center justify-between rounded-lg px-2.5 py-1.5 font-medium <%= active ? docs_accent(category.accent, :active) : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
+                  <a href="<%= docs_path(page.slug) %>" class="flex-1"><%= page.title %></a>
+                  <svg class="h-4 w-4 text-gray-400 transition-transform group-open/details:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+                </summary>
+                <ul class="mt-0.5 space-y-0.5 border-s border-gray-100 ps-3">
+                  <% page.children.each do |child| %>
+                    <% child_active = child.slug == current_slug %>
+                    <li>
+                      <a href="<%= docs_path(child.slug) %>"
+                         class="block rounded-lg px-2.5 py-1.5 <%= child_active ? docs_accent(category.accent, :active) : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+                        <%= child.title %>
+                      </a>
+                    </li>
+                  <% end %>
+                </ul>
+              </details>
+            <% else %>
+              <a href="<%= docs_path(page.slug) %>"
+                 class="block rounded-lg px-2.5 py-1.5 font-medium <%= active ? docs_accent(category.accent, :active) : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
+                <%= page.title %>
+              </a>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</nav>

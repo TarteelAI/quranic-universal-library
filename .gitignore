@@ -7,6 +7,7 @@
 tools/segments/data/*
 tools/ayah-boundary-detection/data/*
 .venv
+__pycache_/*
 dumps/*
 .data/*
 # Ignore bundler config.

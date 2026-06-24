@@ -18,7 +18,6 @@ ActiveAdmin.register Audio::Recitation do
                 :recitation_style_id,
                 :qirat_type_id,
                 :reciter_id,
-                :gapped_recitation_id,
                 :segment_locked
 
   scope :all
@@ -333,9 +332,6 @@ ActiveAdmin.register Audio::Recitation do
       f.input :qirat_type_id,
               as: :searchable_select,
               ajax: { resource: QiratType }
-      f.input :gapped_recitation_id,
-              as: :searchable_select,
-              ajax: { resource: Recitation }
     end
 
     f.actions

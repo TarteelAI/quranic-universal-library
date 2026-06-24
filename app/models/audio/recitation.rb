@@ -49,6 +49,7 @@ module Audio
     has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :audio_segments, class_name: 'Audio::Segment', foreign_key: :audio_recitation_id, dependent: :delete_all
+    has_one :gapped_recitation, class_name: 'Recitation', foreign_key: :gapless_recitation_id, dependent: :nullify
 
     belongs_to :section, class_name: 'Audio::Section', optional: true
     belongs_to :recitation_style, optional: true
@@ -292,7 +293,6 @@ module Audio
     end
 
     protected
-
     def update_related_resources
       if get_resource_content.nil?
         resource = build_resource_content

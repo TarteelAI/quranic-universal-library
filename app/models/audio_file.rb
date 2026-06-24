@@ -101,6 +101,14 @@ class AudioFile < QuranApiRecord
     url.split('/').last
   end
 
+  def get_audio_url(source:)
+    cdn = source[:cdn]
+    path = source[:audio_path]
+    name = "#{chapter_id.to_s.rjust(3, '0')}#{verse_number.to_s.rjust(3, '0')}.mp3"
+
+    "#{cdn}/#{path}/#{name}"
+  end
+
   def segment_progress
     if segments_count.to_i.zero?
       0

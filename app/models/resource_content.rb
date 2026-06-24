@@ -196,6 +196,24 @@ class ResourceContent < QuranApiRecord
     RootDetail = 'root-detail'
   end
 
+  def audio_sources
+    meta = fetch_metadata
+    sources = meta&.keys
+                .to_a
+                .select { |key| key.to_s.include?('cdn') }
+
+    source_mapping = {}
+    sources.each do |cdn_key|
+      source = cdn_key.split('-').first
+
+      source_mapping[source] ||= {}
+      source_mapping[source][:cdn] = meta_value(cdn_key)
+      source_mapping[source][:audio_path] = meta_value("#{source}-path")
+    end
+
+    source_mapping
+  end
+
   def get_language_name
     language_name.presence || language&.name
   end

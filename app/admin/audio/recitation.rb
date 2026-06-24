@@ -133,6 +133,7 @@ ActiveAdmin.register Recitation do
       recitation_style_id
       resource_content_id
       qirat_type_id
+      gapless_recitation_id
       style
       segment_locked
       reciter_name
@@ -174,6 +175,12 @@ ActiveAdmin.register Recitation do
         end
       end
 
+      row :gapless_recitation do |r|
+        if r.gapless_recitation
+          link_to r.gapless_recitation.humanize, [:cms, r.gapless_recitation]
+        end
+      end
+
       row :approved do
         resource.approved?
       end
@@ -181,6 +188,23 @@ ActiveAdmin.register Recitation do
       row :created_at
       row :updated_at
     end
+
+    panel "Audio files (#{resource.audio_files.size})" do
+      table_for resource.audio_files.order(:chapter_id, :verse_number) do
+        column :id do |audio_file|
+          link_to audio_file.id, [:cms, audio_file]
+        end
+        column :verse_key do |audio_file|
+          audio_file.verse_key
+        end
+        column :audio_url do |audio_file|
+          if audio_file.audio_url.present?
+            link_to audio_file.audio_url, audio_file.audio_url, target: '_blank', rel: 'noopener'
+          end
+        end
+      end
+    end
+
     active_admin_comments
   end
 
@@ -201,16 +225,13 @@ ActiveAdmin.register Recitation do
       f.input :qirat_type_id,
               as: :searchable_select,
               ajax: { resource: QiratType }
+      f.input :gapless_recitation_id,
+              as: :searchable_select,
+              ajax: { resource: Audio::Recitation }
       f.input :segment_locked
     end
 
     f.actions
-  end
-
-  sidebar 'Audio files', only: :show do
-    div do
-      link_to 'View audio files', "/cms/audio_files?utf8=✓&q%5Brecitation_id_eq%5D=#{resource.id}"
-    end
   end
 
   member_action :download_segments, method: ['get', 'put'] do

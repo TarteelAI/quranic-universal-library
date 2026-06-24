@@ -31,8 +31,10 @@ class Recitation < QuranApiRecord
   belongs_to :recitation_style
   belongs_to :qirat_type, optional: true
   belongs_to :resource_content, optional: true
+  belongs_to :gapless_recitation, class_name: 'Audio::Recitation', optional: true
 
   has_many :audio_files
+
   alias get_resource_content resource_content
 
   scope :approved, -> { where(approved: true) }

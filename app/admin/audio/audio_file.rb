@@ -82,6 +82,40 @@ ActiveAdmin.register AudioFile do
       row :created_at
       row :updated_at
     end
+
+    panel 'Audio URLs by source' do
+      resource_content = resource.recitation&.resource_content
+      sources = resource_content&.audio_sources || []
+
+      table do
+        thead do
+          tr do
+            th 'Source'
+            th 'URL'
+          end
+        end
+
+        tbody do
+          tr do
+            td 'default'
+            td do
+              link_to resource.audio_url, resource.audio_url, target: '_blank', rel: 'noopener' if resource.audio_url.present?
+            end
+          end
+
+          sources.each do |source, mapping|
+            tr do
+              td source
+              td do
+                url = resource.get_audio_url(source: mapping)
+                link_to url, url, target: '_blank', rel: 'noopener' if url.present?
+              end
+            end
+          end
+        end
+      end
+    end
+
     active_admin_comments
   end
 

@@ -4,7 +4,7 @@
   <h1 class="text-2xl font-bold text-gray-900 mb-6">Search the Quran</h1>
 
   <%= form_with url: search_path, method: :get, data: { turbo: false } do %>
-    <%= render 'shared/search_input', name: 'q', value: @query, placeholder: 'Search Quran text…' %>
+    <%= render 'shared/search_input', name: 'q', value: @query, placeholder: 'Search Quran text…', dir: 'auto' %>
 
     <div class="flex items-center gap-6 mt-4 flex-wrap">
       <label class="flex items-center gap-2 text-sm text-gray-700">

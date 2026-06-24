@@ -4,6 +4,7 @@
   input_value = local_assigns.fetch(:value, nil)
   placeholder = local_assigns.fetch(:placeholder, 'Quick Search...')
   input_data = local_assigns.fetch(:data, {})
+  input_dir = local_assigns.fetch(:dir, nil)
 %>
 <div class="relative">
   <%= tag.input(
@@ -14,6 +15,7 @@
         name: input_name,
         value: input_value,
         autocomplete: 'off',
+        dir: input_dir,
         data: input_data
       ) %>
   <div class="absolute <%= variant == 'large' ? 'start-6 top-[1.65rem]' : 'start-5 top-[1.15rem]' %>">

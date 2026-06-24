@@ -1,7 +1,6 @@
 module Search
   class Pattern
     GAP = /(\{[^{}]*\}\*?|\*)/
-
     Token = Struct.new(:kind, :regex, :like, :word_gap)
 
     def initialize(query, exact: false)

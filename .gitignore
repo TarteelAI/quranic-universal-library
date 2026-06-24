@@ -6,12 +6,15 @@
 /docs/
 tools/segments/data/*
 tools/ayah-boundary-detection/data/*
+.venv
+__pycache_/*
 dumps/*
 .data/*
 # Ignore bundler config.
 /.bundle
 /vendor/bundle
 data/*
+data/audio/*/qa/cache/
 .idea/*
 # Ignore all logfiles and tempfiles.
 /log/*

@@ -1,0 +1,23 @@
+<%
+  font_class = get_quran_script_font_family(@script, verse) || 'qpc-hafs'
+  display_text = verse.read_attribute(@script)
+  matched = @search.matched_columns(verse)
+%>
+<div class="bg-white border border-gray-200 rounded-lg p-5">
+  <div class="flex items-center justify-between gap-3 mb-3">
+    <%= link_to verse.verse_key, ayah_path(verse.verse_key), class: 'text-sm font-semibold text-emerald-700 hover:underline' %>
+  </div>
+
+  <div dir="rtl" class="<%= font_class %> text-3xl leading-loose text-right text-gray-900">
+    <%= highlighted_ayah(display_text, @query, exact: @exact, across: @across) %>
+  </div>
+
+  <% if matched.any? %>
+    <div class="flex flex-wrap items-center gap-2 mt-4">
+      <span class="text-xs text-gray-400">Matched in:</span>
+      <% matched.each do |column| %>
+        <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-600 text-xs"><%= search_script_label(column) %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

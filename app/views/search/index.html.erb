@@ -1,0 +1,95 @@
+<% content_for :title, 'Search the Quran' %>
+
+<div class="max-w-4xl mx-auto px-4 py-10">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Search the Quran</h1>
+
+  <%= form_with url: search_path, method: :get, data: { turbo: false } do %>
+    <%= render 'shared/search_input', name: 'q', value: @query, placeholder: 'Search Quran text…' %>
+
+    <div class="flex items-center gap-6 mt-4 flex-wrap">
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= check_box_tag 'exact', '1', @exact %>
+        Exact match (don't ignore diacritics)
+      </label>
+
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= check_box_tag 'across', '1', @across %>
+        Match across ayahs (paste a passage)
+      </label>
+
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <span>Display script</span>
+        <%= select_tag 'script', options_for_select(SearchHelper::DISPLAY_SCRIPTS, @script), class: 'rounded border-gray-300 text-sm' %>
+      </label>
+
+      <%= submit_tag 'Search', class: 'px-5 py-2 bg-gray-900 text-white rounded-full text-sm cursor-pointer' %>
+
+      <button type="button" popovertarget="search-help" class="text-sm font-medium text-emerald-700 hover:underline">How search works</button>
+    </div>
+  <% end %>
+
+  <div id="search-help" popover="auto" class="rounded-xl border border-gray-200 bg-white p-6 max-w-xl w-[90vw] shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base font-semibold text-gray-900">How search works</h2>
+      <button type="button" popovertarget="search-help" popovertargetaction="hide" class="text-gray-400 hover:text-gray-700 text-lg leading-none">&times;</button>
+    </div>
+
+    <div class="text-sm text-gray-600 space-y-3">
+      <p>By default, search ignores tashkeel (diacritics) and minor letter differences, so <span dir="rtl" class="font-medium">الله</span> also finds <span dir="rtl" class="font-medium">ٱللَّه</span>. Tick <em>Exact match</em> to require the exact characters you typed.</p>
+      <p>Tick <em>Match across ayahs</em> and paste a passage spanning more than one ayah — every ayah the passage covers is returned, with the matching part highlighted.</p>
+
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="text-gray-400 text-xs">
+            <th class="py-1 pe-4 font-normal">You type</th>
+            <th class="py-1 font-normal">What it does</th>
+          </tr>
+        </thead>
+        <tbody class="align-top">
+          <tr class="border-t border-gray-200">
+            <td class="py-2 pe-4" dir="rtl"><code>دُونِ ٱللَّهِ</code></td>
+            <td class="py-2">A phrase — finds ayahs containing those words together.</td>
+          </tr>
+          <tr class="border-t border-gray-200">
+            <td class="py-2 pe-4" dir="rtl"><code>مِن * ٱللَّهِ</code></td>
+            <td class="py-2"><code>*</code> matches any text in between — e.g. <span dir="rtl">مِن</span> … <span dir="rtl">ٱللَّهِ</span> with anything between them.</td>
+          </tr>
+          <tr class="border-t border-gray-200">
+            <td class="py-2 pe-4" dir="rtl"><code>مِن {2} ٱللَّهِ</code></td>
+            <td class="py-2"><code>{2}</code> requires exactly 2 words between. Also <code>{&gt;2}</code> (more than), <code>{&lt;2}</code> (fewer than), <code>{2,4}</code> (a range).</td>
+          </tr>
+          <tr class="border-t border-gray-200">
+            <td class="py-2 pe-4" dir="rtl"><code>^قُلۡ</code></td>
+            <td class="py-2"><code>^</code> at the start matches only ayahs that <strong>begin</strong> with the text.</td>
+          </tr>
+          <tr class="border-t border-gray-200">
+            <td class="py-2 pe-4" dir="rtl"><code>صَٰدِقِينَ$</code></td>
+            <td class="py-2"><code>$</code> at the end matches only ayahs that <strong>end</strong> with the text.</td>
+          </tr>
+          <tr class="border-t border-gray-200">
+            <td class="py-2 pe-4"><code>1:2</code> · <code>1 2</code> · <code>1,2</code> · <code>1-2</code></td>
+            <td class="py-2">Jump straight to an ayah by surah and ayah number.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <% if @searched %>
+    <div class="mt-10">
+      <% if @verses.any? %>
+        <div class="space-y-4">
+          <%= render partial: 'result', collection: @verses, as: :verse %>
+        </div>
+
+        <div class="mt-8">
+          <%= render 'shared/pagination', pagy: @pagy %>
+        </div>
+      <% else %>
+        <p class="text-gray-500">No ayahs found for “<%= @query %>”.</p>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-500 mt-8">Enter at least <%= Search::QuranText::MIN_QUERY_LENGTH %> characters to search the Quran text.</p>
+  <% end %>
+</div>

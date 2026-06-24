@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   root to: 'landing#home'
 
+  get '/search', to: 'search#index', as: :search
+
   get '/health', to: 'health#show'
 
   namespace :api, defaults: { format: :json } do

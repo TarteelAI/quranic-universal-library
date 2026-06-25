@@ -20,6 +20,9 @@ module Qul
     # config.eager_load_paths << Rails.root.join("extras")
     config.eager_load_paths << "#{config.root}/lib"
 
+    qul_scripts_lib = "#{config.root}/qul-scripts/lib"
+    config.eager_load_paths << qul_scripts_lib if File.directory?(qul_scripts_lib)
+
     config.assets.css_compressor = :escompress
     config.active_support.to_time_preserves_timezone = :zone
 

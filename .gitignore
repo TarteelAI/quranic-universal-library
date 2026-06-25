@@ -29,6 +29,8 @@ public/downloads/*
 yarn-debug.log*
 .yarn-integrity
 lib/tasks/private_scripts.rake
+
+/qul-scripts/
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
 !/tmp/pids/

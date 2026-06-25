@@ -4,3 +4,6 @@
 require_relative 'config/application'
 
 Rails.application.load_tasks
+
+# Load rake tasks for qul-scripts
+Dir.glob(File.expand_path('qul-scripts/**/*.rake', __dir__)).sort.each { |task| load task }

@@ -44,6 +44,7 @@ module Audio
     # Flag a file when the audio continues this many ms past the last segmented
     # ayah (unsegmented tail). Tunable; small outros/silence stay under it.
     TRAILING_GAP_THRESHOLD_MS = 1000
+    AYAH_GAP_THRESHOLD_MS = 2000
 
     has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
@@ -160,16 +161,40 @@ module Audio
           )
         end
 
-        next_ayah_segment = segment_lookup[[segment.chapter_id, segment.verse_number + 1]]
-        if segment.timestamp_to.present? && next_ayah_segment&.timestamp_from.present? && segment.timestamp_to > next_ayah_segment.timestamp_from
+        first_word_segment = segment.segments.find { |s| s[0].to_i == 1 }
+        if segment.timestamp_from.present? && first_word_segment && first_word_segment[1].present? && segment.timestamp_from > first_word_segment[1]
           issues.push(
             {
               key: segment.verse_key,
-              text: "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah_segment.verse_key} starting at #{next_ayah_segment.timestamp_from}.",
+              text: "#{segment.verse_key} ayah starts at #{segment.timestamp_from} which is after its first word starting at #{first_word_segment[1]}.",
               severity: 'bg-danger',
-              category: 'ayah_overlap'
+              category: 'ayah_timing'
             }
           )
+        end
+
+        next_ayah_segment = segment_lookup[[segment.chapter_id, segment.verse_number + 1]]
+        if segment.timestamp_to.present? && next_ayah_segment&.timestamp_from.present?
+          if segment.timestamp_to > next_ayah_segment.timestamp_from
+            issues.push(
+              {
+                key: segment.verse_key,
+                text: "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah_segment.verse_key} starting at #{next_ayah_segment.timestamp_from}.",
+                severity: 'bg-danger',
+                category: 'ayah_overlap'
+              }
+            )
+          elsif next_ayah_segment.timestamp_from - segment.timestamp_to > AYAH_GAP_THRESHOLD_MS
+            gap = next_ayah_segment.timestamp_from - segment.timestamp_to
+            issues.push(
+              {
+                key: segment.verse_key,
+                text: "#{segment.verse_key} ends at #{segment.timestamp_to} but the next ayah #{next_ayah_segment.verse_key} starts at #{next_ayah_segment.timestamp_from} — #{gap} ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS} ms).",
+                severity: 'bg-warning',
+                category: 'ayah_gap'
+              }
+            )
+          end
         end
 
         words_count = segment.verse.words_count

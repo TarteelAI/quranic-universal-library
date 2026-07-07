@@ -934,6 +934,9 @@ export default {
     },
     detectAyahIssue(data, audioDuration, nextAyahStart) {
       const present = (value) => value !== undefined && value !== null && value !== '';
+      // Reciters pause between ayahs, but a silence longer than this usually
+      // means the ayah boundary timestamps are wrong.
+      const AYAH_GAP_THRESHOLD_MS = 2000;
 
       if (!present(data.timestamp_from) || !present(data.timestamp_to) ||
           Number(data.timestamp_from) >= Number(data.timestamp_to)) {
@@ -944,12 +947,25 @@ export default {
         return { severity: 'major', message: 'Overlaps the next ayah' };
       }
 
+      const segments = data.segments || [];
+      const firstWordSegment = segments.find((seg) => Number(seg[0]) === 1);
+      if (firstWordSegment && present(firstWordSegment[1]) &&
+          Number(data.timestamp_from) > Number(firstWordSegment[1])) {
+        return { severity: 'major', message: 'Ayah starts after its first word starts' };
+      }
+
       const words = data.words || [];
       const lastWordNumber = Math.max(0, words.length - 1);
-      const segments = data.segments || [];
       const covered = new Set();
       let minor = null;
       let previousEnd = null;
+
+      if (nextAyahStart !== null) {
+        const gap = nextAyahStart - Number(data.timestamp_to);
+        if (gap > AYAH_GAP_THRESHOLD_MS) {
+          minor = { severity: 'minor', message: `Gap of ${(gap / 1000).toFixed(1)}s before the next ayah (max allowed is 2s)` };
+        }
+      }
 
       for (let i = 0; i < segments.length; i++) {
         const seg = segments[i];

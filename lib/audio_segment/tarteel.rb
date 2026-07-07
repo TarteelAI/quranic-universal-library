@@ -6,6 +6,7 @@ require 'json'
 module AudioSegment
   class Tarteel
     STORAGE_PATH = "#{Rails.root}/tmp/exported_segments"
+    AYAH_GAP_THRESHOLD_MS = 2000
     DB_COLUMNS = ['reciter', 'surah_number', 'ayah_number', 'timings'].join(',')
     GAPLESS_DB_COLUMNS = ['reciter', 'surah_number', 'ayah_number', 'start_time', 'end_time', 'timings'].join(',')
 
@@ -134,8 +135,9 @@ module AudioSegment
                    )
                    .order('chapter_id ASC, verse_number ASC')
                    .includes(:verse)
+                   .to_a
 
-      segments.map do |segment|
+      segments.each_with_index.map do |segment, index|
         ayah_segments = get_ayah_segments(segment)
         verse = segment.verse
 
@@ -147,6 +149,19 @@ module AudioSegment
 
         if ayah_segments.size < verse.words_count
           @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.words_count} Segments count: #{ayah_segments.size}")
+        end
+
+        first_word_segment = ayah_segments.find { |s| s[0].to_i == 1 }
+        if segment.timestamp_from.present? && first_word_segment && first_word_segment[1].present? && segment.timestamp_from.to_i > first_word_segment[1].to_i
+          @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} ayah starts at #{segment.timestamp_from.to_i} which is after its first word starting at #{first_word_segment[1]}")
+        end
+
+        next_segment = segments[index + 1]
+        if next_segment && next_segment.chapter_id == segment.chapter_id && segment.timestamp_to.present? && next_segment.timestamp_from.present?
+          gap = next_segment.timestamp_from.to_i - segment.timestamp_to.to_i
+          if gap > AYAH_GAP_THRESHOLD_MS
+            @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} ends at #{segment.timestamp_to.to_i} but the next ayah starts at #{next_segment.timestamp_from.to_i} — #{gap}ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS}ms)")
+          end
         end
 
         [
@@ -204,7 +219,19 @@ module AudioSegment
             @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} start and end time is wrong (#{ayah_from} - #{ayah_to})")
           end
 
+          first_word_segment = ayah_segments.find { |s| s[0].to_i == 1 }
+          if first_word_segment && first_word_segment[1].present? && ayah_from > first_word_segment[1].to_i
+            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} ayah starts at #{ayah_from} which is after its first word starting at #{first_word_segment[1]}")
+          end
+
           next_ayah = surah_segments[index+1]
+
+          if next_ayah && next_ayah.timestamp_from.present?
+            gap = next_ayah.timestamp_from.to_i - ayah_to
+            if gap > AYAH_GAP_THRESHOLD_MS
+              @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} ends at #{ayah_to} but the next ayah starts at #{next_ayah.timestamp_from.to_i} — #{gap}ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS}ms)")
+            end
+          end
 
           if allow_gaps_between_ayah
             start_time = seg.timestamp_from.to_i

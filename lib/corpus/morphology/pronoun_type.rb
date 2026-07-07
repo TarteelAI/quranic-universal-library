@@ -1,11 +1,16 @@
 module Corpus
   module Morphology
+    # Role of a pronoun attached to a verb as a suffix.
+    # subj — subject, فاعل — the doer: the تُ in كَتَبْتُ "I wrote".
+    # obj — object, مفعول به — done to: the هُ in خَلَقَهُ "He created him".
+    # obj2 — second object of verbs that take two: the هَا in أَنُلْزِمُكُمُوهَا
+    #   "shall We compel you (كُم, obj) to it (هَا, obj2)?" (11:28).
+
     class PronounType < OpenStruct
       OBJECT       = new(tag: "obj")
       SECOND_OBJECT = new(tag: "obj2")
       SUBJECT      = new(tag: "subj")
 
-      # Map for fast lookup by tag
       TAG_MAP = {
         "obj"  => OBJECT,
         "obj2" => SECOND_OBJECT,
@@ -39,7 +44,6 @@ module Corpus
         self == other
       end
 
-      # Parse the tag to return the corresponding PronounType object
       def self.parse(tag)
         pronoun_type = TAG_MAP[tag]
         if pronoun_type.nil?

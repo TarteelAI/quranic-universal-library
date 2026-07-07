@@ -1,0 +1,70 @@
+<%
+  joining_letters = %w[ب ت ث ج ح خ س ش ص ض ط ظ ع غ ف ق ك ل م ن ه ي]
+  tashkeel_regex = /[ؐ-ًؚ-ٰٟ]/
+
+  get_last_base_letter = ->(text) {
+    letters_only = text.gsub(tashkeel_regex, '')
+    letters_only[-1]
+  }
+
+  needs_zwj = ->(text) {
+    joining_letters.include?(get_last_base_letter.call(text))
+  }
+
+  surface_tokens = tokens.select { |t|
+    type = t.respond_to?(:token_type) ? t.token_type.to_s : t[:token_type].to_s
+    type == 'surface'
+  }
+
+  words = surface_tokens.group_by { |t|
+    t.respond_to?(:word_number) ? t.word_number : t[:word_number]
+  }
+
+  t_attr = ->(obj, key) {
+    obj.respond_to?(key) ? obj.public_send(key) : obj[key]
+  }
+
+  head_map = {}
+  tokens.each do |t|
+    id = t_attr.call(t, :id)
+    head_map[id] = t if id
+  end
+%>
+<table dir="rtl" class="irab-table w-full border-collapse">
+  <tbody>
+    <% words.each do |_word_number, word_tokens| %>
+      <%
+        segments = word_tokens.sort_by { |t| t_attr.call(t, :position_in_word).to_i }
+        last_idx = segments.size - 1
+      %>
+      <tr class="border-b border-gray-200">
+        <td dir="rtl" class="irab-word-cell px-3 py-2 align-top whitespace-nowrap">
+          <% segments.each_with_index do |seg, idx| %>
+            <%
+              seg_text = t_attr.call(seg, :text_qpc_hafs).to_s
+              pos_key = t_attr.call(seg, :pos_key).to_s
+              color = Morphology::Treebank::Colors.pos(pos_key)
+              display_text = (idx < last_idx && needs_zwj.call(seg_text)) ? (seg_text + "‍") : seg_text
+            %>
+            <span class="qpc-hafs quran-text <%= color %>"><%= display_text %></span>
+          <% end %>
+        </td>
+        <td dir="rtl" class="irab-line-cell px-3 py-2 align-top">
+          <% segments.each do |seg| %>
+            <%
+              head_token_id = t_attr.call(seg, :head_token_id)
+              head_tok = head_token_id ? head_map[head_token_id] : nil
+              line = Morphology::Treebank::IrabLine.new(seg, head_token: head_tok, translator: irab_translator)
+              frags = line.fragments
+            %>
+            <span class="irab-segment-line">
+              <% frags.each do |frag| %>
+                <span class="<%= frag[:color_class] %><%= frag[:arabic_font] ? ' qpc-hafs' : '' %>"><%= frag[:text] %></span>
+              <% end %>
+            </span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

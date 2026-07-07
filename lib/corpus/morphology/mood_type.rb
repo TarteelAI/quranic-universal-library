@@ -1,5 +1,10 @@
 module Corpus
   module Morphology
+    # Mood: ending changes on the imperfect ("present") verb caused by
+    # particles before it — the verb counterpart of case on nouns.
+    # IND — indicative, مرفوع — the default: يَعْلَمُ "he knows".
+    # SUBJ — subjunctive, منصوب — after particles like أَن or لَن: لَن يَفْعَلُوا "they will never do".
+    # JUS — jussive, مجزوم — after particles like لَمْ: لَمْ يَلِدْ "He did not beget" (112:3).
     class MoodType < OpenStruct
       INDICATIVE   = new(tag: "IND")
       SUBJUNCTIVE  = new(tag: "SUBJ")

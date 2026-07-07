@@ -32,11 +32,11 @@ class Morphology::Word < QuranApiRecord
   belongs_to :grammar_pattern, class_name: 'Morphology::GrammarPattern', optional: true
   belongs_to :grammar_base_pattern, class_name: 'Morphology::GrammarPattern', optional: true
   belongs_to :resource_content, optional: true
-  belongs_to :grammar_base_pattern, class_name: 'Morphology::GrammarPattern', optional: true
 
   has_many :derived_words, class_name: 'Morphology::DerivedWord'
   has_many :verb_forms, class_name: 'Morphology::WordVerbForm'
   has_many :word_segments, class_name: 'Morphology::WordSegment'
+  has_many :word_tokens, class_name: 'Morphology::WordToken', foreign_key: :morphology_word_id
   has_many :word_grammar_concepts, class_name: 'Morphology::WordGrammarConcept'
   has_many :grammar_concepts, class_name: 'Morphology::GrammarConcept', through: :word_grammar_concepts
 

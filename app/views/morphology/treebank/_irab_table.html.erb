@@ -1,6 +1,6 @@
 <%
   joining_letters = %w[ب ت ث ج ح خ س ش ص ض ط ظ ع غ ف ق ك ل م ن ه ي]
-  tashkeel_regex = /[ؐ-ًؚ-ٰٟ]/
+  tashkeel_regex = /[ؐ-ًؚ-ٰٟ]/
 
   get_last_base_letter = ->(text) {
     letters_only = text.gsub(tashkeel_regex, '')
@@ -11,30 +11,23 @@
     joining_letters.include?(get_last_base_letter.call(text))
   }
 
-  surface_tokens = tokens.select { |t|
-    type = t.respond_to?(:token_type) ? t.token_type.to_s : t[:token_type].to_s
-    type == 'surface'
-  }
-
-  words = surface_tokens.group_by { |t|
-    t.respond_to?(:word_number) ? t.word_number : t[:word_number]
-  }
+  irab_rows_obj = Morphology::Treebank::IrabRows.new(
+    tokens,
+    chapter_number: chapter_number,
+    verse_number:   verse_number
+  )
+  rows    = irab_rows_obj.rows
+  head_map = irab_rows_obj.head_map
 
   t_attr = ->(obj, key) {
     obj.respond_to?(key) ? obj.public_send(key) : obj[key]
   }
-
-  head_map = {}
-  tokens.each do |t|
-    id = t_attr.call(t, :id)
-    head_map[id] = t if id
-  end
 %>
 <table dir="rtl" class="irab-table w-full border-collapse">
   <tbody>
-    <% words.each do |_word_number, word_tokens| %>
+    <% rows.each do |row| %>
       <%
-        segments = word_tokens.sort_by { |t| t_attr.call(t, :position_in_word).to_i }
+        segments = row[:word_tokens]
         last_idx = segments.size - 1
       %>
       <tr class="border-b border-gray-200">

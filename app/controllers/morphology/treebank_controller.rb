@@ -152,6 +152,7 @@ module Morphology
       @next_verse = @verse.next_ayah
 
       @data_url = morphology_treebank_ayah_data_path(@chapter_number, @verse_number, locale: @locale)
+      @expandable = params[:expandable].present?
     end
 
     def data

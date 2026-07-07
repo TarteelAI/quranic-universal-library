@@ -124,22 +124,46 @@ module Morphology
       phrase_nodes.map do |node|
         label_key = node[:label].to_s
         {
-          level:    node[:level],
-          span:     node[:span],
-          centroid: node[:centroid],
-          labelKey: label_key,
-          label:    translate_relation(label_key),
-          text:     node[:text]
+          level:        node[:level],
+          span:         node[:span],
+          centroid:     node[:centroid],
+          headPosition: node[:head_position],
+          labelKey:     label_key,
+          label:        translate_relation(label_key),
+          text:         node[:text]
         }
       end
     end
 
     def banner_payload(sentence)
-      text = "\u{FD3F}#{sentence.respond_to?(:text_qpc_hafs) ? sentence.text_qpc_hafs : sentence[:text_qpc_hafs]}\u{FD3E}"
+      tokens = sentence.respond_to?(:word_tokens) ? sentence.word_tokens.to_a : Array(sentence[:tokens])
+      inner = build_banner_text_from_tokens(tokens)
+      text = "\u{FD3F}#{inner}\u{FD3E}"
       {
         text:      text,
         reference: build_reference(sentence)
       }
+    end
+
+    def build_banner_text_from_tokens(tokens)
+      sorted = tokens.sort_by { |t| t_attr(t, :position_in_sentence).to_i }
+      word_groups = []
+      sorted.each do |t|
+        wn = t_attr(t, :word_number)
+        tok_type = token_type_string(t)
+        arabic = t_attr(t, :text_qpc_hafs) || t_attr(t, :text_uthmani) || ''
+        if wn.nil? || tok_type != 'surface'
+          word_groups << [arabic]
+        else
+          existing = word_groups.find { |g| g.first == "__wn_#{wn}" }
+          if existing
+            existing << arabic
+          else
+            word_groups << ["__wn_#{wn}", arabic]
+          end
+        end
+      end
+      word_groups.map { |g| g.first.start_with?('__wn_') ? g[1..].join('') : g.join('') }.join(' ')
     end
 
     def build_reference(sentence)

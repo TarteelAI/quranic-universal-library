@@ -9,6 +9,88 @@
 
 <div class="page-wrapper container px-4">
   <div class="page-section">
+    <% if @expandable %>
+    <div data-controller="treebank syntax-graph-download"
+         data-treebank-url-value="<%= @data_url %>"
+         data-treebank-expandable-value="true">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-semibold">
+          Ayah <%= @verse.verse_key %>
+        </h1>
+
+        <% if @prev_verse %>
+          <%= link_to morphology_treebank_ayah_path(@prev_verse.chapter_id, @prev_verse.verse_number, locale: @locale, expandable: '1'),
+                      class: 'px-2 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600',
+                      title: 'Previous ayah' do %>
+            <i class="fa fa-chevron-right"></i>
+          <% end %>
+        <% else %>
+          <span class="px-2 py-1 bg-gray-400 text-white rounded text-sm cursor-not-allowed">
+            <i class="fa fa-chevron-right"></i>
+          </span>
+        <% end %>
+
+        <% if @next_verse %>
+          <%= link_to morphology_treebank_ayah_path(@next_verse.chapter_id, @next_verse.verse_number, locale: @locale, expandable: '1'),
+                      class: 'px-2 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600',
+                      title: 'Next ayah' do %>
+            <i class="fa fa-chevron-left"></i>
+          <% end %>
+        <% else %>
+          <span class="px-2 py-1 bg-gray-400 text-white rounded text-sm cursor-not-allowed">
+            <i class="fa fa-chevron-left"></i>
+          </span>
+        <% end %>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <%= link_to 'العربية', morphology_treebank_ayah_path(@chapter_number, @verse_number, locale: 'ar', expandable: '1'),
+                    class: "px-3 py-1.5 rounded text-sm font-medium border #{@locale == 'ar' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" %>
+        <%= link_to 'English', morphology_treebank_ayah_path(@chapter_number, @verse_number, locale: 'en', expandable: '1'),
+                    class: "px-3 py-1.5 rounded text-sm font-medium border #{@locale == 'en' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" %>
+
+        <button type="button"
+                id="treebank-zoom-in"
+                data-treebank-target="zoomIn"
+                data-action="click->treebank#zoomIn"
+                class="px-2 py-1.5 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
+                title="Zoom in">
+          <i class="fa fa-search-plus"></i>
+        </button>
+        <button type="button"
+                id="treebank-zoom-out"
+                data-treebank-target="zoomOut"
+                data-action="click->treebank#zoomOut"
+                class="px-2 py-1.5 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
+                title="Zoom out">
+          <i class="fa fa-search-minus"></i>
+        </button>
+        <button type="button"
+                id="treebank-zoom-reset"
+                data-treebank-target="zoomReset"
+                data-action="click->treebank#zoomReset"
+                class="px-2 py-1.5 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
+                title="Reset zoom">
+          <i class="fa fa-compress"></i>
+        </button>
+        <button type="button"
+                id="treebank-download"
+                data-treebank-target="download"
+                data-action="click->syntax-graph-download#download"
+                class="px-2 py-1.5 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
+                title="Download PNG">
+          <i class="fa fa-download"></i>
+        </button>
+      </div>
+    </div>
+
+      <div data-treebank-target="accordionList" class="tb-accordion-list">
+        <div class="text-gray-500 p-4">Loading treebank...</div>
+      </div>
+      <div data-treebank-target="container" class="hidden"></div>
+    </div>
+    <% else %>
     <div data-controller="treebank syntax-graph-download"
          data-treebank-url-value="<%= @data_url %>">
     <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
@@ -92,12 +174,14 @@
         </div>
       </div>
     </div>
+    <% end %>
 
     <% if @irab_tokens.any? %>
       <div class="mt-8">
         <h2 class="text-lg font-semibold mb-3">I'rab (إعراب)</h2>
         <%= render partial: 'morphology/treebank/irab_table',
-                   locals: { tokens: @irab_tokens, irab_translator: @irab_translator } %>
+                   locals: { tokens: @irab_tokens, irab_translator: @irab_translator,
+                             chapter_number: @chapter_number, verse_number: @verse_number } %>
       </div>
     <% end %>
   </div>

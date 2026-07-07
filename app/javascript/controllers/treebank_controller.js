@@ -59,6 +59,7 @@ export function collapseSentence(sentence, depth) {
           posLabel: unit.label,
           colorClass: "green",
           tokenType: "phrase_unit",
+          labelCategory: "edge_relations",
           wordUrl: null,
         });
         pos++;
@@ -363,24 +364,6 @@ export default class extends Controller {
     return this.accordionListTarget.querySelector(`[data-sentence-idx="${idx}"]`);
   }
 
-  fixSyntheticLabelLinks(svg, transformed) {
-    const syntheticKeys = new Set(
-      (transformed.tokens || [])
-        .filter(t => t.tokenType === "phrase_unit" && t.posKey)
-        .map(t => encodeURIComponent(t.posKey))
-    );
-    if (syntheticKeys.size === 0) return;
-    svg.querySelectorAll("a[data-url]").forEach(link => {
-      const url = link.getAttribute("data-url") || "";
-      const match = url.match(/\/morphology\/grammar\/pos_tags\/([^?]+)/);
-      if (!match || !syntheticKeys.has(match[1])) return;
-      const fixed = url.replace("/morphology/grammar/pos_tags/", "/morphology/grammar/edge_relations/");
-      link.setAttribute("data-url", fixed);
-      link.setAttribute("href", fixed);
-      link.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", fixed);
-    });
-  }
-
   async renderCardSvg(idx) {
     const sentences = (this.payload && this.payload.sentences) || [];
     const sentence = sentences[idx];
@@ -393,7 +376,6 @@ export default class extends Controller {
     const transformed = collapseSentence(sentence, this.sentenceStates[idx].depth);
     const renderer = new TreebankRenderer(transformed);
     const svg = await renderer.render();
-    this.fixSyntheticLabelLinks(svg, transformed);
     svgContainer.innerHTML = "";
     svgContainer.appendChild(svg);
     this.applyZoom();
@@ -479,6 +461,7 @@ export default class extends Controller {
       el.removeAttribute("data-syntax-graph-download-target");
     });
     const firstExpanded = this.sentenceStates.findIndex(s => s.expanded);
+    if (this.hasDownloadTarget) this.downloadTarget.disabled = firstExpanded === -1;
     if (firstExpanded === -1) return;
     const card = this.cardFor(firstExpanded);
     if (!card) return;
@@ -1098,7 +1081,7 @@ class TreebankRenderer {
       svg.appendChild(arabicEl);
 
       if (tok.posLabel && tok.posKey) {
-        const posUrl = this.grammarUrl("pos_tags", tok.posKey);
+        const posUrl = this.grammarUrl(tok.labelCategory || "pos_tags", tok.posKey);
         const linkEl = document.createElementNS(this.SVG_NS, "a");
         linkEl.setAttribute("href", posUrl);
         linkEl.setAttributeNS(this.XLINK_NS, "xlink:href", posUrl);

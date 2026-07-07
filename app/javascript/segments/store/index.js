@@ -80,6 +80,7 @@ const SEGMENT_EDIT_MUTATIONS = [
   "FILL_SEGMENT_TIME",
   "ADJUST_SEG_TIME",
   "APPLY_GAP_FIX",
+  "DRAG_SEG_BOUNDARY",
   "CLEAR_SEGMENTS",
   "RELOAD_SEGMENTS",
 ];
@@ -764,6 +765,19 @@ const store = createStore({
       segment[1] = start;
       segment[2] = end;
       state.verseSegment.segments = [...state.verseSegment.segments];
+    },
+    DRAG_SEG_BOUNDARY(state, payload) {
+      const segments = state.verseSegment.segments;
+
+      payload.changes.forEach(({ index, start, end }) => {
+        const segment = segments[index];
+        if (!segment) return;
+
+        segment[1] = start;
+        segment[2] = end;
+      });
+
+      state.verseSegment.segments = [...segments];
     },
     APPLY_GAP_FIX(state, payload) {
       const { prevIndex, index, boundary } = payload;

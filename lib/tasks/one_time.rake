@@ -768,4 +768,172 @@ namespace :one_time do
 
     puts "\nDone!"
   end
+
+  desc "Backfill NULL segment_type on morphology_word_segments using NoorBayan tokens + pos_tags markers"
+  task backfill_word_segment_types: :environment do
+    conn = ActiveRecord::Base.connection
+
+    total_before = Morphology::WordSegment.where(segment_type: nil).count
+    puts "Starting backfill. NULL segment_type rows: #{total_before}"
+
+    pass1_count = 0
+    pass2_count = 0
+    pass3_count = 0
+
+    puts "\n=== Pass 1: NoorBayan alignment (equal surface-token count per word) ==="
+
+    word_ids_with_nulls = Morphology::WordSegment
+                            .unscoped
+                            .where(segment_type: nil)
+                            .distinct
+                            .pluck(:word_id)
+
+    surface_token_counts = Morphology::WordToken
+                             .surface
+                             .where(morphology_word_id: word_ids_with_nulls)
+                             .group(:morphology_word_id)
+                             .count
+
+    segment_counts = Morphology::WordSegment
+                       .unscoped
+                       .where(word_id: word_ids_with_nulls)
+                       .group(:word_id)
+                       .count
+
+    matching_word_ids = word_ids_with_nulls.select do |wid|
+      seg_count = segment_counts[wid].to_i
+      tok_count = surface_token_counts[wid].to_i
+      seg_count > 0 && tok_count > 0 && seg_count == tok_count
+    end
+
+    puts "Words with matching counts: #{matching_word_ids.size}"
+
+    matching_word_ids.each_slice(500) do |batch_ids|
+      segments_by_word = Morphology::WordSegment
+                           .unscoped
+                           .where(word_id: batch_ids, segment_type: nil)
+                           .order(:word_id, :position)
+                           .pluck(:id, :word_id, :position)
+                           .group_by { |_, wid, _| wid }
+
+      tokens_by_word = Morphology::WordToken
+                         .surface
+                         .where(morphology_word_id: batch_ids)
+                         .order(:morphology_word_id, :position_in_word)
+                         .pluck(:morphology_word_id, :position_in_word, :segment_type)
+                         .group_by { |wid, _, _| wid }
+
+      updates = {}
+
+      batch_ids.each do |wid|
+        segs = segments_by_word[wid]
+        toks = tokens_by_word[wid]
+        next unless segs && toks && segs.size == toks.size
+
+        segs.each_with_index do |(seg_id, _, _), idx|
+          st = toks[idx][2]
+          updates[st] ||= []
+          updates[st] << seg_id
+        end
+      end
+
+      updates.each do |seg_type, ids|
+        n = Morphology::WordSegment.where(id: ids, segment_type: nil).update_all(segment_type: seg_type)
+        pass1_count += n
+      end
+    end
+
+    puts "Pass 1 updated: #{pass1_count}"
+
+    puts "\n=== Pass 2: pos_tags markers (SUFF/PREF) and DET position=1 ==="
+
+    suff_count = Morphology::WordSegment
+                   .where(segment_type: nil)
+                   .where("pos_tags LIKE '%SUFF%'")
+                   .update_all(segment_type: 'Suffix')
+    pass2_count += suff_count
+    puts "  SUFF → Suffix: #{suff_count}"
+
+    pref_count = Morphology::WordSegment
+                   .where(segment_type: nil)
+                   .where("pos_tags LIKE '%PREF%'")
+                   .update_all(segment_type: 'Prefix')
+    pass2_count += pref_count
+    puts "  PREF → Prefix: #{pref_count}"
+
+    det_count = Morphology::WordSegment
+                  .where(segment_type: nil, part_of_speech_key: 'DET', position: 1)
+                  .update_all(segment_type: 'Prefix')
+    pass2_count += det_count
+    puts "  DET pos=1 → Prefix: #{det_count}"
+
+    puts "Pass 2 updated: #{pass2_count}"
+
+    puts "\n=== Pass 3: positional default — sole NULL sibling surrounded by Prefix/Suffix → Stem ==="
+
+    null_word_ids = Morphology::WordSegment
+                      .unscoped
+                      .where(segment_type: nil)
+                      .distinct
+                      .pluck(:word_id)
+
+    puts "Words with remaining NULLs: #{null_word_ids.size}"
+
+    null_word_ids.each_slice(200) do |batch_ids|
+      all_segs = Morphology::WordSegment
+                   .unscoped
+                   .where(word_id: batch_ids)
+                   .order(:word_id, :position)
+                   .pluck(:id, :word_id, :segment_type)
+                   .group_by { |_, wid, _| wid }
+
+      stem_ids = []
+
+      all_segs.each do |wid, segs|
+        null_segs = segs.select { |_, _, st| st.nil? }
+        next unless null_segs.size == 1
+
+        non_null = segs.reject { |_, _, st| st.nil? }
+        next unless non_null.all? { |_, _, st| st == 'Prefix' || st == 'Suffix' }
+
+        stem_ids << null_segs.first[0]
+      end
+
+      if stem_ids.any?
+        n = Morphology::WordSegment.where(id: stem_ids, segment_type: nil).update_all(segment_type: 'Stem')
+        pass3_count += n
+      end
+    end
+
+    puts "Pass 3 updated: #{pass3_count}"
+
+    puts "\n=== Final Report ==="
+    puts "Pass 1 (NoorBayan alignment): #{pass1_count}"
+    puts "Pass 2 (pos_tags markers):    #{pass2_count}"
+    puts "Pass 3 (positional default):  #{pass3_count}"
+    puts "Total filled this run:        #{pass1_count + pass2_count + pass3_count}"
+
+    distribution = Morphology::WordSegment.unscoped.group(:segment_type).count
+    puts "\nSegment type distribution:"
+    distribution.each { |k, v| puts "  #{k.inspect}: #{v}" }
+
+    remaining_null = Morphology::WordSegment.unscoped.where(segment_type: nil).count
+    puts "\nRemaining NULL: #{remaining_null}"
+    puts "Total rows:     #{Morphology::WordSegment.unscoped.count}"
+
+    puts "\n=== Spot Checks ==="
+
+    ["1:1:1", "2:2:1", "1:6:1"].each do |loc|
+      word = Morphology::Word.find_by(location: loc)
+      if word.nil?
+        puts "#{loc}: WORD NOT FOUND"
+        next
+      end
+      segs = Morphology::WordSegment.unscoped.where(word_id: word.id).order(:position)
+      toks = Morphology::WordToken.surface.where(morphology_word_id: word.id).order(:position_in_word)
+      puts "#{loc}:"
+      puts "  QUL segments (#{segs.size}): " + segs.map { |s| "pos#{s.position}=#{s.segment_type}" }.join(', ')
+      puts "  NB surface tokens (#{toks.size}): " + toks.map { |t| "pos#{t.position_in_word}=#{t.segment_type}" }.join(', ')
+    end
+  end
 end

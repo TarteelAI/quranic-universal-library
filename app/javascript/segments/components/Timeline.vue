@@ -25,6 +25,12 @@
               data-controller="tooltip"
           >+</button>
         </div>
+        <button
+            @click="toggleExpanded"
+            class="px-2 h-6 flex items-center justify-center text-[11px] font-medium bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+            :title="expanded ? 'Switch back to the compact timeline' : 'Taller bars and waveform, with draggable word boundaries for the current ayah'"
+            data-controller="tooltip"
+        >{{ expanded ? 'Compact' : 'Expand' }}</button>
       </div>
       <div class="flex items-center gap-3 text-[10px] text-gray-400">
         <template v-if="audioSrc">
@@ -70,7 +76,7 @@
           ref="track"
           class="relative timeline"
           dir="rtl"
-          :style="{ width: trackWidth + 'px', height: trackHeight + 'px' }"
+          :style="{ width: trackWidth + 'px', height: trackHeight + 'px', fontSize: expanded ? '18px' : '15px' }"
           @click="seek"
       >
         <!-- ayah bands -->
@@ -108,8 +114,21 @@
             @mouseenter="showWordTip($event, block)"
             @mousemove="showWordTip($event, block)"
             @mouseleave="hideWordTip"
+            @click.stop="selectWord(block)"
         >
           <span v-if="block.width > 22" class="px-0.5 truncate">{{ block.label }}</span>
+          <span
+              v-if="block.editable"
+              class="tl-handle tl-handle--start"
+              @click.stop
+              @pointerdown.stop.prevent="startEdgeDrag($event, block, 1)"
+          ></span>
+          <span
+              v-if="block.editable"
+              class="tl-handle tl-handle--end"
+              @click.stop
+              @pointerdown.stop.prevent="startEdgeDrag($event, block, 2)"
+          ></span>
         </div>
 
         <!-- gaps (current ayah) -->
@@ -118,9 +137,8 @@
             :key="gap.key"
             class="tl-gap"
             :style="{ right: gap.left + 'px', width: gap.width + 'px', top: mainTop + 'px', height: mainH + 'px' }"
-            :title="`Gap ${gap.to - gap.from} ms — click to close`"
+            :title="`Gap ${gap.to - gap.from} ms`"
             data-controller="tooltip"
-            @click.stop="closeGap(gap)"
         ></div>
 
         <!-- compare lanes -->
@@ -178,10 +196,10 @@ export default {
       pxPerMs: 0.1,
       minPxPerMs: 0.02,
       maxPxPerMs: 0.6,
-      mainTop: 18,
-      mainH: 30,
+      expanded: localStorage.getItem('segmentsTimelineExpanded') === '1',
+      drag: null,
+      minSegMs: 20,
       waveGap: 4,
-      waveH: 36,
       laneH: 14,
       laneGap: 2,
       wordTip: { show: false, x: 0, y: 0, text: '' },
@@ -194,6 +212,10 @@ export default {
   watch: {
     currentVerseNumber() {
       this.$nextTick(() => this.scrollToCurrentAyah());
+    },
+    expanded(value) {
+      localStorage.setItem('segmentsTimelineExpanded', value ? '1' : '0');
+      this.$nextTick(() => { this.scrollToCurrentAyah(); this.drawWaveform(); });
     },
     currentTimestamp() {
       if (this.playing) this.followPlayhead();
@@ -227,6 +249,7 @@ export default {
     this.tileEls = {};
     this.audioData = null; // { channel: Float32Array, sampleRate }
     this.decodedSrc = null;
+    this.scrollAnim = null;
   },
   mounted() {
     this.$nextTick(() => this.scrollToCurrentAyah());
@@ -249,6 +272,15 @@ export default {
     ]),
     segmentsLoaded() {
       return !!this.verseSegment;
+    },
+    mainTop() {
+      return this.expanded ? 22 : 18;
+    },
+    mainH() {
+      return this.expanded ? 64 : 30;
+    },
+    waveH() {
+      return this.expanded ? 80 : 36;
     },
     waveformVisible() {
       return this.waveformEnabled && this.waveformState === 'ready';
@@ -368,16 +400,27 @@ export default {
         (data.segments || []).forEach((segment, index) => {
           if (!this.present(segment[1]) || !this.present(segment[2])) return;
 
-          const start = Number(segment[1]);
-          const end = Number(segment[2]);
+          let start = Number(segment[1]);
+          let end = Number(segment[2]);
+
+          const dragTimes = isCurrent && this.drag && this.drag.times[index];
+          if (dragTimes) {
+            start = dragTimes.start;
+            end = dragTimes.end;
+          }
 
           const block = {
             key: `w-${verse}-${index}`,
+            index,
+            verse,
+            word: segment[0],
+            start,
             left: start * this.pxPerMs,
             width: Math.max(2, (end - start) * this.pxPerMs),
             invalid: end <= start,
             overlap: false,
             isCurrent,
+            editable: isCurrent && this.expanded && !this.segmentLocked,
             label: words[segment[0] - 1] || segment[0],
             location: `${this.chapter}:${verse}:${segment[0]}`,
             title: `${this.chapter}:${verse}:${segment[0]} — ${start}–${end} ms`,
@@ -424,6 +467,118 @@ export default {
     zoomReset() {
       this.pxPerMs = 0.1;
       this.$nextTick(() => { this.scrollToCurrentAyah(); this.drawWaveform(); });
+    },
+    toggleExpanded() {
+      this.expanded = !this.expanded;
+    },
+    selectWord(block) {
+      if (this.drag) return;
+
+      if (typeof player !== 'undefined' && player) {
+        player.currentTime = Math.max(0, block.start / 1000);
+      }
+
+      if (block.verse != this.currentVerseNumber) {
+        this.$store.commit('CHANGE_AYAH', { to: block.verse });
+      }
+      this.$store.commit('SET_WORD', { word: block.word });
+    },
+    timedNeighbor(segments, index, direction) {
+      for (let i = index + direction; i >= 0 && i < segments.length; i += direction) {
+        const segment = segments[i];
+        if (this.present(segment[1]) && this.present(segment[2])) {
+          return { index: i, start: Number(segment[1]), end: Number(segment[2]) };
+        }
+      }
+      return null;
+    },
+    startEdgeDrag(event, block, field) {
+      if (!block.editable || this.drag) return;
+
+      const segments = (this.verseSegment && this.verseSegment.segments) || [];
+      const segment = segments[block.index];
+      if (!segment) return;
+
+      this.drag = {
+        index: block.index,
+        field,
+        origin: { start: Number(segment[1]), end: Number(segment[2]) },
+        neighbor: this.timedNeighbor(segments, block.index, field === 2 ? 1 : -1),
+        times: {},
+        moved: false,
+      };
+
+      event.target.setPointerCapture(event.pointerId);
+      event.target.addEventListener('pointermove', this.onEdgeDrag);
+      event.target.addEventListener('pointerup', this.endEdgeDrag);
+      event.target.addEventListener('pointercancel', this.cancelEdgeDrag);
+    },
+    onEdgeDrag(event) {
+      const drag = this.drag;
+      const track = this.$refs.track;
+      if (!drag || !track) return;
+
+      const rect = track.getBoundingClientRect();
+      const timeMs = Math.round((rect.right - event.clientX) / this.pxPerMs);
+
+      const { index, field, origin, neighbor } = drag;
+      const times = {};
+
+      if (field === 2) {
+        let end = Math.max(origin.start + this.minSegMs, timeMs);
+        if (neighbor) end = Math.min(end, neighbor.end - this.minSegMs);
+        end = Math.max(end, origin.start + 1);
+        times[index] = { start: origin.start, end };
+
+        if (neighbor && end > neighbor.start) {
+          times[neighbor.index] = { start: end, end: neighbor.end };
+        }
+      } else {
+        let start = Math.min(origin.end - this.minSegMs, timeMs);
+        start = Math.max(start, neighbor ? neighbor.start + this.minSegMs : 0);
+        start = Math.min(start, origin.end - 1);
+        times[index] = { start, end: origin.end };
+
+        if (neighbor && start < neighbor.end) {
+          times[neighbor.index] = { start: neighbor.start, end: start };
+        }
+      }
+
+      drag.times = times;
+      drag.moved = true;
+
+      const t = times[index];
+      this.wordTip = { show: true, x: event.clientX, y: event.clientY, text: `${t.start}–${t.end} ms` };
+    },
+    endEdgeDrag(event) {
+      const drag = this.finishEdgeDrag(event);
+      if (!drag || !drag.moved) return;
+
+      const changes = Object.entries(drag.times).map(([index, t]) => ({
+        index: Number(index),
+        start: t.start,
+        end: t.end,
+      }));
+
+      if (changes.length) this.$store.commit('DRAG_SEG_BOUNDARY', { changes });
+    },
+    cancelEdgeDrag(event) {
+      this.finishEdgeDrag(event);
+    },
+    finishEdgeDrag(event) {
+      const drag = this.drag;
+      this.drag = null;
+      this.wordTip.show = false;
+
+      const target = event.target;
+      target.removeEventListener('pointermove', this.onEdgeDrag);
+      target.removeEventListener('pointerup', this.endEdgeDrag);
+      target.removeEventListener('pointercancel', this.cancelEdgeDrag);
+      if (target.hasPointerCapture && target.hasPointerCapture(event.pointerId)) {
+        target.releasePointerCapture(event.pointerId);
+      }
+
+      return drag;
     },
     setTileRef(el, index) {
       if (el) this.tileEls[index] = el;
@@ -537,6 +692,26 @@ export default {
 
       return blocks;
     },
+    smoothScrollTo(scroller, left) {
+      const from = scroller.scrollLeft;
+      const change = left - from;
+      if (Math.abs(change) < 1) return;
+
+      // Native smooth scrolling has a browser-controlled, distance-proportional
+      // duration — jumping across a long surah takes several seconds. Animate
+      // manually instead, capped at 1s.
+      const duration = Math.min(1000, Math.max(150, Math.abs(change) * 0.4));
+      const startedAt = performance.now();
+
+      cancelAnimationFrame(this.scrollAnim);
+      const step = (now) => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        scroller.scrollLeft = from + change * eased;
+        if (progress < 1) this.scrollAnim = requestAnimationFrame(step);
+      };
+      this.scrollAnim = requestAnimationFrame(step);
+    },
     scrollToCurrentAyah() {
       const scroller = this.$refs.scroller;
       const data = this.segments[`${this.chapter}:${this.currentVerseNumber}`];
@@ -547,7 +722,7 @@ export default {
       const centerX = this.trackWidth - ((from + to) / 2) * this.pxPerMs;
       const left = Math.max(0, centerX - scroller.clientWidth / 2);
 
-      scroller.scrollTo({ left, behavior: 'smooth' });
+      this.smoothScrollTo(scroller, left);
     },
     scrollToCurrentTime() {
       const scroller = this.$refs.scroller;
@@ -556,7 +731,7 @@ export default {
       const centerX = this.trackWidth - this.currentTimestamp * this.pxPerMs;
       const left = Math.max(0, centerX - scroller.clientWidth / 2);
 
-      scroller.scrollTo({ left, behavior: 'smooth' });
+      this.smoothScrollTo(scroller, left);
     },
     followPlayhead() {
       const scroller = this.$refs.scroller;
@@ -576,7 +751,7 @@ export default {
 
       const centerX = this.trackWidth - this.currentTimestamp * this.pxPerMs;
       const left = Math.max(0, centerX - scroller.clientWidth / 2);
-      scroller.scrollTo({ left, behavior: 'smooth' });
+      this.smoothScrollTo(scroller, left);
     },
     seek(event) {
       const track = this.$refs.track;
@@ -630,14 +805,6 @@ export default {
       // Geometric fallback: extend the previous word's end up to the next start.
       return gap.to;
     },
-    closeGap(gap) {
-      if (this.segmentLocked) return;
-      this.$store.commit('APPLY_GAP_FIX', {
-        prevIndex: gap.prevIndex,
-        index: gap.index,
-        boundary: this.boundaryFor(gap),
-      });
-    },
     closeAllGaps() {
       if (this.segmentLocked) return;
       // Snapshot first: each commit mutates the segments the computed reads from.
@@ -672,6 +839,28 @@ export default {
   background-color: #dbeafe;
   border-color: #bfdbfe;
   color: #1e40af;
+  cursor: pointer;
+}
+
+.tl-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.tl-handle--start {
+  right: 0;
+}
+
+.tl-handle--end {
+  left: 0;
+}
+
+.tl-handle:hover {
+  background-color: rgba(30, 64, 175, 0.35);
 }
 
 .tl-word--current {
@@ -694,7 +883,6 @@ export default {
 
 .tl-gap {
   position: absolute;
-  cursor: pointer;
   border-radius: 2px;
   border: 1px dashed rgba(245, 158, 11, 0.7);
   background-image: repeating-linear-gradient(
@@ -706,7 +894,4 @@ export default {
   );
 }
 
-.tl-gap:hover {
-  background-color: rgba(245, 158, 11, 0.18);
-}
 </style>

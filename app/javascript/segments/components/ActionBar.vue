@@ -19,6 +19,14 @@
           >
             Next ayah
           </button>
+          <button
+              class="px-3 py-1 text-xs font-medium bg-teal-600 text-white rounded transition-colors hover:bg-teal-700"
+              @click="copyPageUrl"
+              data-controller="tooltip"
+              title="Copy a link to this exact ayah so you can share it with the team."
+          >
+            {{ copiedUrl ? "Copied!" : "Copy link" }}
+          </button>
         </div>
 
         <div class="flex flex-wrap gap-x-4 gap-y-1">
@@ -416,6 +424,7 @@ export default {
   data() {
     return {
       stepDuration: 10,
+      copiedUrl: false,
     };
   },
   watch: {
@@ -528,6 +537,29 @@ export default {
     },
     changeAyah(event) {
       this.$store.commit("CHANGE_AYAH", {step: event.target.dataset.step});
+    },
+    async copyPageUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.set("verse", this.currentVerseNumber);
+      const link = url.toString();
+
+      try {
+        await navigator.clipboard.writeText(link);
+      } catch (error) {
+        const textarea = document.createElement("textarea");
+        textarea.value = link;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+
+      this.copiedUrl = true;
+      this.$store.commit("SET_ALERT", {text: "Link copied! Share it to open this exact ayah."});
+      clearTimeout(this._copiedUrlTimer);
+      this._copiedUrlTimer = setTimeout(() => (this.copiedUrl = false), 2000);
     },
     selectAyah(event) {
       if (!event.target.value) return;

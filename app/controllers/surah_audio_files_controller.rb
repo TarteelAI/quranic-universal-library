@@ -2,6 +2,7 @@ class SurahAudioFilesController < CommunityController
   before_action :authenticate_user!, only: [:save_segments]
   before_action :authorize_access!, only: [:save_segments]
   before_action :init_presenter
+
   def builder_help
     render layout: false
   end

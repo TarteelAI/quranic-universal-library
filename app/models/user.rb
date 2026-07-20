@@ -60,11 +60,12 @@ class User < ApplicationRecord
   after_create :send_welcome_email
 
   enum :role, {
-    normal_user: 0,
+    normal_user: 0, # default
     super_admin: 1,
     admin: 2,
     moderator: 3,
     contributor: 4,
+    audio_annotator: 5,
   }, prefix: 'is'
 
   def super_admin?

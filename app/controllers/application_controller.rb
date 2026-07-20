@@ -55,6 +55,8 @@ class ApplicationController < ActionController::Base
     if resource
       @access = if current_user.is_super_admin?
                   AdminProjectAccess.new
+                elsif current_user.is_audio_annotator? && resource.recitation?
+                  AdminProjectAccess.new
                 else
                   access = current_user.user_projects.find_by(resource_content_id: resource.id)
                   access if access&.approved?

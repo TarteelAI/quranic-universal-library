@@ -149,6 +149,7 @@ Rails.application.routes.draw do
       get :segment_builder
       get :segments
       post :save_segments
+      post :validate_segments
     end
 
     collection do

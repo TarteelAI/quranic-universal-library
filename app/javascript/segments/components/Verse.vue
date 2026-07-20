@@ -55,7 +55,13 @@
           </div>
 
           <div class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
-            <p v-if="!activeIssues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
+            <p v-if="issuesLoading" class="px-4 py-8 text-sm text-gray-500 text-center">
+              Checking segments…
+            </p>
+            <p v-else-if="issuesError" class="px-4 py-8 text-sm text-red-600 text-center">
+              Could not validate segments. Please try again.
+            </p>
+            <p v-else-if="!activeIssues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
               No issues found 🎉
             </p>
             <button
@@ -533,6 +539,8 @@ export default {
     return {
       timeStep: 50,
       showIssues: false,
+      issuesLoading: false,
+      issuesError: false,
       issueGroups: [],
       activeIssueTab: 'current',
       showCompare: false,
@@ -853,23 +861,108 @@ export default {
     redo() {
       this.$store.commit('REDO_SEGMENTS');
     },
-    openIssues() {
-      const groups = [
-        { id: 'current', name: 'Current', color: '#198754', issues: this.findSegmentIssues((verse) => this.mainVerseData(verse)) },
-      ];
-
-      for (const source of this.compareSources) {
-        groups.push({
-          id: source.id,
-          name: source.name,
-          color: source.color,
-          issues: this.findSegmentIssues((verse) => this.sourceVerseData(source, verse)),
-        });
-      }
-
-      this.issueGroups = groups;
+    async openIssues() {
       this.activeIssueTab = 'current';
       this.showIssues = true;
+
+      // The gapped (ayah-by-ayah) tool keeps client-side validation across every
+      // compare source. The gapless (surah) tool is unified: its authoritative
+      // issues come from the server so it runs the exact same rules as the admin
+      // model view and the export job.
+      if (this.audioType === 'ayah') {
+        const groups = [
+          { id: 'current', name: 'Current', color: '#198754', issues: this.findSegmentIssues((verse) => this.mainVerseData(verse)) },
+        ];
+
+        for (const source of this.compareSources) {
+          groups.push({
+            id: source.id,
+            name: source.name,
+            color: source.color,
+            issues: this.findSegmentIssues((verse) => this.sourceVerseData(source, verse)),
+          });
+        }
+
+        this.issueGroups = groups;
+        return;
+      }
+
+      this.issuesError = false;
+      this.issuesLoading = true;
+      this.issueGroups = [{ id: 'current', name: 'Current', color: '#198754', issues: [] }];
+
+      let issues = [];
+      try {
+        // Validate the live in-browser state, so issues the reviewer already
+        // fixed (but has not saved) are not reported. Nothing is persisted.
+        issues = await this.fetchServerIssues();
+      } catch (error) {
+        this.issuesError = true;
+      }
+
+      // The one check the server cannot do: the audio can continue past the last
+      // ayah using the real decoded duration (the server only knows the stored
+      // file.duration_ms).
+      const durationIssue = this.fileDurationIssue();
+      if (durationIssue) issues.push(durationIssue);
+
+      issues.sort((a, b) => (a.severity === 'major' ? 0 : 1) - (b.severity === 'major' ? 0 : 1));
+
+      this.issueGroups = [{ id: 'current', name: 'Current', color: '#198754', issues }];
+      this.issuesLoading = false;
+    },
+    async fetchServerIssues() {
+      const recitation = this.$store.state.recitation;
+      const segmentsUrl = this.$store.state.segmentsUrl;
+
+      const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+      const headers = { 'Content-Type': 'application/json' };
+      if (csrfTokenElement) headers['X-CSRF-Token'] = csrfTokenElement.content;
+
+      const response = await fetch(`/${segmentsUrl}/${recitation}/validate_segments.json`, {
+        method: 'post',
+        headers,
+        body: JSON.stringify({ chapter_id: this.chapter, segments: this.segments }),
+      });
+
+      if (!response.ok) throw new Error(`Validation request failed (${response.status})`);
+
+      const json = await response.json();
+
+      return (json.issues || []).map((issue, index) => ({
+        verse: issue.verse || (issue.key ? Number(String(issue.key).split(':').pop()) : null),
+        key: `server-${index}`,
+        severity: issue.severity === 'bg-danger' ? 'major' : 'minor',
+        message: issue.text,
+      }));
+    },
+    fileDurationIssue() {
+      const TRAILING_GAP_THRESHOLD_MS = 1000;
+      const audioDuration = this.playerDurationMs();
+      if (!audioDuration) return null;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+
+      let lastVerse = null;
+      let lastEnd = null;
+      for (let verse = 1; verse <= this.versesCount; verse++) {
+        const data = this.segments[`${this.chapter}:${verse}`];
+        if (data && present(data.timestamp_to)) {
+          lastVerse = verse;
+          lastEnd = Number(data.timestamp_to);
+        }
+      }
+      if (lastEnd === null) return null;
+
+      const gap = audioDuration - lastEnd;
+      if (gap <= TRAILING_GAP_THRESHOLD_MS) return null;
+
+      return {
+        verse: lastVerse,
+        key: 'client-file-duration',
+        severity: 'major',
+        message: `Audio continues ${Math.round(gap / 1000)}s past the last ayah ends (unsegmented tail)`,
+      };
     },
     goToIssue(verse) {
       this.$store.commit('CHANGE_AYAH', { to: verse });

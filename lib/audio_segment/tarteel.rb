@@ -6,7 +6,6 @@ require 'json'
 module AudioSegment
   class Tarteel
     STORAGE_PATH = "#{Rails.root}/tmp/exported_segments"
-    AYAH_GAP_THRESHOLD_MS = 2000
     DB_COLUMNS = ['reciter', 'surah_number', 'ayah_number', 'timings'].join(',')
     GAPLESS_DB_COLUMNS = ['reciter', 'surah_number', 'ayah_number', 'start_time', 'end_time', 'timings'].join(',')
 
@@ -32,11 +31,11 @@ module AudioSegment
       recitations.each do |recitation|
         if gapless
           export_gapless_recitation(recitation, db)
+          validate_gapless_recitation(recitation)
         else
           export_recitation(recitation, db)
+          validate_segments(recitation, db)
         end
-
-        validate_segments(recitation, db)
       end
 
       db.close
@@ -57,6 +56,7 @@ module AudioSegment
 
         export_gapless_recitation_segments(recitation, reciter_dir, true)
         export_gapless_recitation_audio_files(recitation, reciter_dir)
+        validate_gapless_recitation(recitation)
 
         puts "Exported #{resource_content.id} with version #{version}"
         resource_content.set_meta_value('exported-version', version)
@@ -76,6 +76,24 @@ module AudioSegment
     end
 
     protected
+
+    def validate_gapless_recitation(recitation)
+      segments = Audio::Segment
+                   .where(audio_recitation_id: recitation.id)
+                   .includes(:audio_file, verse: :actual_words)
+
+      Audio::SegmentValidator.new(segments, expected_verses_count: 6236).validate.each do |issue|
+        @issues.push(format_validator_issue(recitation, issue))
+      end
+    end
+
+    def format_validator_issue(recitation, issue)
+      if issue[:key]
+        "Recitation: #{recitation.id} ayah #{issue[:key]} — #{issue[:text]}"
+      else
+        "Recitation: #{recitation.id} — #{issue[:text]}"
+      end
+    end
 
     def validate_segments(recitation, db)
       segments_count = db.get_first_value("SELECT COUNT(*) FROM #{table_name} WHERE reciter = ?", recitation.id)
@@ -137,32 +155,9 @@ module AudioSegment
                    .includes(:verse)
                    .to_a
 
-      segments.each_with_index.map do |segment, index|
+      segments.map do |segment|
         ayah_segments = get_ayah_segments(segment)
         verse = segment.verse
-
-        ayah_segments.each_with_index do |segment, i|
-          if segment.length != 3
-            @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
-          end
-        end
-
-        if ayah_segments.size < verse.words_count
-          @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.words_count} Segments count: #{ayah_segments.size}")
-        end
-
-        first_word_segment = ayah_segments.find { |s| s[0].to_i == 1 }
-        if segment.timestamp_from.present? && first_word_segment && first_word_segment[1].present? && segment.timestamp_from.to_i > first_word_segment[1].to_i
-          @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} ayah starts at #{segment.timestamp_from.to_i} which is after its first word starting at #{first_word_segment[1]}")
-        end
-
-        next_segment = segments[index + 1]
-        if next_segment && next_segment.chapter_id == segment.chapter_id && segment.timestamp_to.present? && next_segment.timestamp_from.present?
-          gap = next_segment.timestamp_from.to_i - segment.timestamp_to.to_i
-          if gap > AYAH_GAP_THRESHOLD_MS
-            @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} ends at #{segment.timestamp_to.to_i} but the next ayah starts at #{next_segment.timestamp_from.to_i} — #{gap}ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS}ms)")
-          end
-        end
 
         [
           recitation.id,
@@ -184,7 +179,6 @@ module AudioSegment
       grouped = segments.group_by(&:chapter_id)
       all_segments = {}
       uploader = UploadToCdn.new
-      chapter_durations = recitation.chapter_audio_files.pluck(:chapter_id, :duration_ms).to_h
 
       grouped.each do |chapter_id, surah_segments|
         json_ayahs = []
@@ -194,44 +188,7 @@ module AudioSegment
           ayah_segments = get_ayah_segments(seg)
           verse = seg.verse
 
-          words_with_segment_issues = []
-
-          ayah_segments.each_with_index do |s, i|
-            if s.length != 3
-              @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
-            end
-
-            words_with_segment_issues << s[0] if s[1].to_i >= s[2].to_i
-          end
-
-          if words_with_segment_issues.any?
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} words with start and end time is wrong: #{words_with_segment_issues.join(', ')}")
-          end
-
-          if ayah_segments.size < verse.words_count
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
-          end
-
-          ayah_from = seg.timestamp_from.to_i
-          ayah_to = seg.timestamp_to.to_i
-
-          if ayah_from >= ayah_to
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} start and end time is wrong (#{ayah_from} - #{ayah_to})")
-          end
-
-          first_word_segment = ayah_segments.find { |s| s[0].to_i == 1 }
-          if first_word_segment && first_word_segment[1].present? && ayah_from > first_word_segment[1].to_i
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} ayah starts at #{ayah_from} which is after its first word starting at #{first_word_segment[1]}")
-          end
-
           next_ayah = surah_segments[index+1]
-
-          if next_ayah && next_ayah.timestamp_from.present?
-            gap = next_ayah.timestamp_from.to_i - ayah_to
-            if gap > AYAH_GAP_THRESHOLD_MS
-              @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} ends at #{ayah_to} but the next ayah starts at #{next_ayah.timestamp_from.to_i} — #{gap}ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS}ms)")
-            end
-          end
 
           if allow_gaps_between_ayah
             start_time = seg.timestamp_from.to_i
@@ -257,13 +214,6 @@ module AudioSegment
             end: end_time,
             words: ayah_segments
           }
-        end
-
-        chapter_duration = chapter_durations[chapter_id].to_i
-        last_end_time = json_ayahs.last && json_ayahs.last[:end].to_i
-
-        if chapter_duration > 0 && last_end_time && last_end_time > chapter_duration
-          @issues.push("Recitation: #{recitation.id} surah #{chapter_id} last segment end time (#{last_end_time}) is greater than audio file duration (#{chapter_duration})")
         end
 
         json_filename = format("%03d.json", chapter_id)

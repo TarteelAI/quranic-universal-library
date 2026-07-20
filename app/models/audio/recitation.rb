@@ -41,11 +41,6 @@ module Audio
     include NameTranslateable
     include Resourceable
 
-    # Flag a file when the audio continues this many ms past the last segmented
-    # ayah (unsegmented tail). Tunable; small outros/silence stay under it.
-    TRAILING_GAP_THRESHOLD_MS = 1000
-    AYAH_GAP_THRESHOLD_MS = 2000
-
     has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :audio_change_logs, class_name: 'Audio::ChangeLog', foreign_key: :audio_recitation_id, dependent: :delete_all
@@ -106,7 +101,6 @@ module Audio
 
     def validate_segments_data(audio_file: nil)
       segments = Audio::Segment.where(audio_recitation_id: id).includes(:audio_file, verse: :actual_words)
-      issues = []
 
       if audio_file
         segments = segments.where(audio_file_id: audio_file.id)
@@ -115,195 +109,7 @@ module Audio
         verses_count = 6236
       end
 
-      # Check if we've segments for all ayahs
-      if verses_count != segments.size
-        missing_ayahs = (1..verses_count).to_a - segments.pluck(:verse_id)
-        issues.push(
-          {
-            text: "#{verses_count - segments.size} ayahs(#{missing_ayahs.join(', ')}) don't have segments data. Total segments: #{segments.size}",
-            severity: 'bg-danger',
-            category: 'missing_segments'
-          }
-        )
-      end
-
-      segment_lookup = segments.index_by { |s| [s.chapter_id, s.verse_number] }
-
-      segments.each do |segment|
-        file_duration_ms = segment.audio_file&.duration_ms
-
-        if segment.timestamp_to.blank? || segment.timestamp_from.blank?
-          issues.push(
-            {
-              key: segment.verse_key,
-              text: "#{segment.verse_key} timestamp from OR to is missing.",
-              severity: 'bg-danger',
-              category: 'ayah_timing'
-            }
-          )
-        elsif segment.timestamp_to < segment.timestamp_from
-          issues.push(
-            {
-              key: segment.verse_key,
-              text: "#{segment.verse_key} timestamp to(#{segment.timestamp_to}) is less than timestamp from(#{segment.timestamp_from})",
-              severity: 'bg-danger',
-              category: 'ayah_timing'
-            }
-          )
-        elsif segment.timestamp_to == segment.timestamp_from
-          issues.push(
-            {
-              key: segment.verse_key,
-              text: "#{segment.verse_key} ayah duration is 0 (timestamp to equals from at #{segment.timestamp_from}).",
-              severity: 'bg-danger',
-              category: 'ayah_timing'
-            }
-          )
-        end
-
-        first_word_segment = segment.segments.find { |s| s[0].to_i == 1 }
-        if segment.timestamp_from.present? && first_word_segment && first_word_segment[1].present? && segment.timestamp_from > first_word_segment[1]
-          issues.push(
-            {
-              key: segment.verse_key,
-              text: "#{segment.verse_key} ayah starts at #{segment.timestamp_from} which is after its first word starting at #{first_word_segment[1]}.",
-              severity: 'bg-danger',
-              category: 'ayah_timing'
-            }
-          )
-        end
-
-        next_ayah_segment = segment_lookup[[segment.chapter_id, segment.verse_number + 1]]
-        if segment.timestamp_to.present? && next_ayah_segment&.timestamp_from.present?
-          if segment.timestamp_to > next_ayah_segment.timestamp_from
-            issues.push(
-              {
-                key: segment.verse_key,
-                text: "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah_segment.verse_key} starting at #{next_ayah_segment.timestamp_from}.",
-                severity: 'bg-danger',
-                category: 'ayah_overlap'
-              }
-            )
-          elsif next_ayah_segment.timestamp_from - segment.timestamp_to > AYAH_GAP_THRESHOLD_MS
-            gap = next_ayah_segment.timestamp_from - segment.timestamp_to
-            issues.push(
-              {
-                key: segment.verse_key,
-                text: "#{segment.verse_key} ends at #{segment.timestamp_to} but the next ayah #{next_ayah_segment.verse_key} starts at #{next_ayah_segment.timestamp_from} — #{gap} ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS} ms).",
-                severity: 'bg-warning',
-                category: 'ayah_gap'
-              }
-            )
-          end
-        end
-
-        words_count = segment.verse.words_count
-        segments_count = segment.segments.size
-        missing_words = words_count - segments_count
-
-        if missing_words > 0
-          issues.push (
-                        {
-                          key: segment.verse_key,
-                          text: "#{segment.verse_key} don't have segments for some words(#{missing_words} #{'word'.pluralize(missing_words) } missing).",
-                          severity: 'bg-warning',
-                          category: 'missing_words'
-                        }
-                      )
-        end
-
-        if segments_count > (words_count + (words_count.to_f * 0.5))
-          issues.push (
-                        {
-                          key: segment.verse_key,
-                          text: "Too many words are repeated, debug the repetition.",
-                          severity: 'bg-info',
-                          category: 'repeated_words'
-                        }
-                      )
-        end
-
-        previous_word_end = nil
-
-        segment.segments.each_with_index do |word_segment, index|
-          from = word_segment[1]
-          to = word_segment[2]
-
-          if to.blank? || from.blank?
-            issues.push({
-                          key: segment.verse_key,
-                          text: "#{segment.verse_key}:#{index + 1} timestamp to(#{to}) or from(#{from}) is missing",
-                          severity: 'bg-warning',
-                          category: 'word_timing'
-                        }
-            )
-            next
-          elsif to < from
-            issues.push({
-                          key: segment.verse_key,
-                          text: "#{segment.verse_key}:#{index + 1} timestamp to(#{to}) is less than timestamp from(#{from})",
-                          severity: 'bg-warning',
-                          category: 'word_timing'
-                        }
-            )
-          elsif to == from
-            issues.push({
-                          key: segment.verse_key,
-                          text: "#{segment.verse_key}:#{index + 1} timestamp to(#{to}) is equal to from (#{from}). Word duration is 0",
-                          severity: 'bg-warning',
-                          category: 'word_timing'
-                        }
-            )
-          end
-
-          if previous_word_end && from < previous_word_end
-            issues.push({
-                          key: segment.verse_key,
-                          text: "#{segment.verse_key}:#{index + 1} starts at #{from} before the previous word ends at #{previous_word_end} (words overlap)",
-                          severity: 'bg-warning',
-                          category: 'word_overlap'
-                        }
-            )
-          end
-
-          if file_duration_ms.present? && to > file_duration_ms
-            issues.push({
-                          key: segment.verse_key,
-                          text: "#{segment.verse_key}:#{index + 1} ends at #{to} which is past the audio duration (#{file_duration_ms} ms)",
-                          severity: 'bg-warning',
-                          category: 'word_past_duration'
-                        }
-            )
-          end
-
-          previous_word_end = to
-        end
-      end
-
-      # Trailing-gap check: the audio continues well past the last segmented ayah.
-      segments.group_by(&:audio_file).each do |file, file_segments|
-        next if file.nil?
-
-        duration = file.duration_ms.to_i
-        next unless duration.positive?
-
-        last_segment = file_segments.select { |s| s.timestamp_to.present? }.max_by(&:timestamp_to)
-        next if last_segment.nil?
-
-        gap = duration - last_segment.timestamp_to
-        next if gap <= TRAILING_GAP_THRESHOLD_MS
-
-        issues.push(
-          {
-            key: last_segment.verse_key,
-            text: "Audio file ##{file.id} is #{duration} ms but the last segment (#{last_segment.verse_key}) ends at #{last_segment.timestamp_to} ms — #{gap} ms (#{(gap / 1000.0).round}s) of audio after the last ayah is unsegmented.",
-            severity: 'bg-danger',
-            category: 'trailing_gap'
-          }
-        )
-      end
-
-      issues
+      Audio::SegmentValidator.new(segments, expected_verses_count: verses_count).validate
     end
 
     def update_audio_stats

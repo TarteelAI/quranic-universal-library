@@ -38,10 +38,6 @@ class ApplicationController < ActionController::Base
     current_user&.to_gid
   end
 
-  def info_for_paper_trail
-    { user_id: current_user&.id }
-  end
-
   def sort_order
     s = (params[:sort_order].presence || 'asc').downcase
 

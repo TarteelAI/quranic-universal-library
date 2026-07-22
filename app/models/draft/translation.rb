@@ -31,6 +31,7 @@
 class Draft::Translation < ApplicationRecord
   REGEXP_FOOTNOTE_ID = /foot_note=(?<id>\d+)/
   include HasMetaData
+  include PaperTrailAttribution
 
   belongs_to :resource_content
   belongs_to :verse
@@ -96,13 +97,15 @@ class Draft::Translation < ApplicationRecord
     translation.manzil_number = verse.manzil_number
     translation.page_number = verse.page_number
 
-    translation.save(validate: false)
+    attribute_versions_to(user) do
+      translation.save(validate: false)
 
-    foot_notes.each do |footnote|
-      translation_footnote = translation.foot_notes.where(id: footnote.foot_note_id).first_or_initialize
-      translation_footnote.text = footnote.draft_text
-      translation_footnote.translation = translation
-      translation_footnote.save(validate: false)
+      foot_notes.each do |footnote|
+        translation_footnote = translation.foot_notes.where(id: footnote.foot_note_id).first_or_initialize
+        translation_footnote.text = footnote.draft_text
+        translation_footnote.translation = translation
+        translation_footnote.save(validate: false)
+      end
     end
 
     translation.get_resource_content.touch

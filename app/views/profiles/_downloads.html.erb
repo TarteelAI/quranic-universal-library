@@ -5,9 +5,12 @@
 <% else %>
   <div class="space-y-2">
     <% downloads.each do |download| %>
-      <% resource = download.downloadable_file&.downloadable_resource %>
+      <% resource = download.downloadable_resource %>
       <div class="flex items-center justify-between border border-gray-100 rounded-lg px-4 py-3">
         <div class="min-w-0">
+          <% if resource %>
+            <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold"><%= @presenter.download_resource_type_label(resource) %></div>
+          <% end %>
           <div class="text-sm text-black truncate">
             <% if resource %>
               <%= link_to resource.name, detail_resources_path(resource.resource_type, resource.id), class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>

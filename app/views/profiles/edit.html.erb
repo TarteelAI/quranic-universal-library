@@ -63,7 +63,7 @@
         <div>
           <%= f.label :password_confirmation, "Confirm new password", class: "block text-sm text-black mb-1" %>
           <div class="relative password">
-            <%= f.password_field :password_confirmation, autocomplete: "new-password", data: { controller: "toggle-password" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", data: { controller: "toggle-password", "account-form-target": "passwordConfirmation", action: "input->account-form#refresh" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
           </div>
         </div>
       </div>

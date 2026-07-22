@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_21_211829) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_22_111218) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -565,7 +565,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_21_211829) do
     t.integer "download_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "downloadable_resource_id"
     t.index ["downloadable_file_id"], name: "index_user_downloads_on_downloadable_file_id"
+    t.index ["downloadable_resource_id"], name: "index_user_downloads_on_downloadable_resource_id"
     t.index ["user_id"], name: "index_user_downloads_on_user_id"
   end
 

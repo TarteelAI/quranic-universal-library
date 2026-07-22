@@ -32,6 +32,7 @@ class DownloadableFile < ApplicationRecord
 
   def track_download(user)
     download = user_downloads.where(user_id: user.id).first_or_initialize
+    download.downloadable_resource_id = downloadable_resource_id
     download.increment_download!
 
     update_columns(download_count: user_downloads.sum(:download_count))

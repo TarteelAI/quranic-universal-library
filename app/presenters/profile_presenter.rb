@@ -33,12 +33,25 @@ class ProfilePresenter < ApplicationPresenter
 
   def downloads
     @downloads ||= user.user_downloads
-                       .includes(downloadable_file: :downloadable_resource)
+                       .includes(:downloadable_resource)
                        .order(Arel.sql("last_download_at DESC NULLS LAST"))
   end
 
   def downloads_count
     @downloads_count ||= user.user_downloads.count
+  end
+
+  def download_updated_since?(user_download)
+    resource = user_download.downloadable_resource
+    return false unless resource && user_download.last_download_at
+
+    resource.updated_at > user_download.last_download_at
+  end
+
+  def download_resource_type_label(resource)
+    return if resource.nil?
+
+    resource.resource_type.to_s.tr("-", " ").humanize
   end
 
   def contributions_scope
@@ -65,19 +78,6 @@ class ProfilePresenter < ApplicationPresenter
     end
   end
 
-  def contributions_pagination
-    contributions
-    pagination
-  end
-
-  def download_updated_since?(user_download)
-    file = user_download.downloadable_file
-    return false unless file && user_download.last_download_at
-
-    timestamps = [file.updated_at, file.downloadable_resource&.updated_at].compact
-    timestamps.any? && timestamps.max > user_download.last_download_at
-  end
-
   def contribution_item(version)
     version.item
   rescue StandardError
@@ -98,21 +98,5 @@ class ProfilePresenter < ApplicationPresenter
     else
       "#{contribution_type_label(version)} ##{version.item_id}"
     end
-  end
-
-  def contribution_cms_url(item)
-    return nil unless item
-
-    context.helpers.polymorphic_path([:cms, item])
-  rescue StandardError
-    nil
-  end
-
-  def contribution_event_class(event)
-    {
-      "create" => "bg-green-100 text-green-800",
-      "update" => "bg-blue-100 text-blue-800",
-      "destroy" => "bg-red-100 text-red-800"
-    }[event] || "bg-gray-100 text-gray-700"
   end
 end

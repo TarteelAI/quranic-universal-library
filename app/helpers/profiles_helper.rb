@@ -14,4 +14,12 @@ module ProfilesHelper
             class: "text-xs px-3 py-1 rounded-full border #{classes}",
             data: { turbo_frame: "profile_panel" }
   end
+
+  def contribution_cms_url(item)
+    return nil unless item
+
+    polymorphic_path([:cms, item])
+  rescue StandardError
+    nil
+  end
 end

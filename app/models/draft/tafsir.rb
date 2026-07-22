@@ -36,6 +36,7 @@
 #
 class Draft::Tafsir < ApplicationRecord
   include HasMetaData
+  include PaperTrailAttribution
   belongs_to :resource_content
   belongs_to :verse
   belongs_to :tafsir, optional: true, class_name: '::Tafsir'
@@ -104,7 +105,9 @@ class Draft::Tafsir < ApplicationRecord
     tafsir.start_verse_id = start_verse_id
     tafsir.end_verse_id = end_verse_id
 
-    tafsir.save(validate: false)
+    attribute_versions_to(user) do
+      tafsir.save(validate: false)
+    end
     update_columns(reviewed: true, imported: true)
 
     if ayah_group_changed?

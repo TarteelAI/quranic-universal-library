@@ -45,7 +45,7 @@ class User < ApplicationRecord
          :rememberable,
          :trackable,
          :validatable,
-         :recoverable
+         :recoverable,
          :confirmable
 
   validates :first_name,
@@ -79,6 +79,12 @@ class User < ApplicationRecord
 
   def humanize_name
     "#{name}(#{email})"
+  end
+
+  def initials
+    parts = [first_name, last_name].map { |part| part.to_s.strip[0] }.compact
+    parts = [email.to_s[0]] if parts.empty?
+    parts.join.upcase
   end
 
   def send_welcome_email

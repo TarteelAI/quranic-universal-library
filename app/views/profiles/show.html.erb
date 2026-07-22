@@ -9,15 +9,15 @@
         <% if current_user.about_me.present? %>
           <p class="text-xs text-gray-600 mt-3"><%= current_user.about_me %></p>
         <% end %>
-        <%= link_to "Edit profile", account_settings_path, class: "mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#46ac7a] hover:underline" %>
+        <%= link_to "Edit profile", edit_profile_path, class: "mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#46ac7a] hover:underline" %>
       </div>
       <div class="mt-6 space-y-3">
         <div class="border border-black/5 rounded-lg p-3 text-center">
-          <div class="text-2xl font-bold text-[#46ac7a]"><%= @downloads_count %></div>
+          <div class="text-2xl font-bold text-[#46ac7a]"><%= @presenter.downloads_count %></div>
           <div class="text-xs text-gray-500">Downloads</div>
         </div>
         <div class="border border-black/5 rounded-lg p-3 text-center">
-          <div class="text-2xl font-bold text-[#46ac7a]"><%= @contributions_count %></div>
+          <div class="text-2xl font-bold text-[#46ac7a]"><%= @presenter.contributions_count %></div>
           <div class="text-xs text-gray-500">Contributions</div>
         </div>
       </div>
@@ -27,8 +27,8 @@
              data-remote-tab-active-class="bg-[#46ac7a] text-white"
              data-remote-tab-inactive-class="text-gray-600 hover:text-black">
       <div class="inline-flex gap-1 border border-black/10 rounded-lg p-1 mb-5">
-        <%= profile_tab_link "Downloads", "downloads", @tab %>
-        <%= profile_tab_link "Contributions", "contributions", @tab %>
+        <%= profile_tab_link "Downloads", "downloads", @presenter.tab %>
+        <%= profile_tab_link "Contributions", "contributions", @presenter.tab %>
       </div>
 
       <div class="relative min-h-[120px]">
@@ -40,7 +40,7 @@
         </div>
 
         <%= turbo_frame_tag "profile_panel", data: { action: "turbo:before-fetch-request->remote-tab#showLoader turbo:frame-load->remote-tab#hideLoader" } do %>
-          <% if @tab == "downloads" %>
+          <% if @presenter.downloads? %>
             <%= render "downloads" %>
           <% else %>
             <%= render "contributions" %>

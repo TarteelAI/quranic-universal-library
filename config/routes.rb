@@ -81,9 +81,7 @@ Rails.application.routes.draw do
     sessions: 'users/sessions'
   }
 
-  get   "/profile",          to: "profiles#show",    as: :profile
-  get   "/account/settings", to: "account#settings", as: :account_settings
-  patch "/account/settings", to: "account#update"
+  resource :profile, only: [:show, :edit, :update]
 
   authenticated :user, ->(user) { user.is_super_admin? || user.is_admin? } do
     require 'sidekiq/web'

@@ -1,36 +1,40 @@
 <div class="flex flex-wrap gap-2 mb-4">
-  <%= contribution_filter_link "All", nil, @item_type %>
-  <% @contribution_types.each do |type| %>
-    <%= contribution_filter_link type.underscore.humanize.pluralize, type, @item_type %>
+  <%= contribution_filter_link "All", nil, @presenter.item_type %>
+  <% @presenter.contribution_types.each do |type| %>
+    <%= contribution_filter_link type.underscore.humanize.pluralize, type, @presenter.item_type %>
   <% end %>
 </div>
 
-<div class="text-xs uppercase tracking-wide text-gray-400 mb-3">Contributions · <%= @contributions_count %> total</div>
+<div class="text-xs uppercase tracking-wide text-gray-400 mb-3">Contributions · <%= @presenter.contributions_count %> total</div>
 
-<% if @contributions.empty? %>
-  <div class="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg p-8 text-center">No contributions to show.</div>
+<% contributions = @presenter.contributions %>
+<% if contributions.empty? %>
+  <div class="border border-dashed border-gray-200 rounded-lg p-8 text-center">
+    <div class="text-sm font-medium text-black mb-1">Your contribution history is empty for now</div>
+    <p class="text-sm text-gray-500 max-w-md mx-auto">Help improve the library by contributing resources, corrections, or reviews, and we'll keep track of everything here.</p>
+  </div>
 <% else %>
   <div class="space-y-2">
-    <% @contributions.each do |version| %>
-      <% item = contribution_item(version) %>
-      <% cms_url = contribution_cms_url(item) %>
+    <% contributions.each do |version| %>
+      <% item = @presenter.contribution_item(version) %>
+      <% cms_url = @presenter.contribution_cms_url(item) %>
       <div class="flex items-center gap-3 border border-gray-100 rounded-lg px-4 py-3">
-        <span class="w-9 h-9 rounded-lg bg-[#f0faf5] text-[#46ac7a] flex items-center justify-center text-xs font-bold shrink-0"><%= contribution_icon(version) %></span>
+        <span class="w-9 h-9 rounded-lg bg-[#f0faf5] text-[#46ac7a] flex items-center justify-center text-xs font-bold shrink-0"><%= @presenter.contribution_icon(version) %></span>
         <div class="grow min-w-0">
-          <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold"><%= contribution_type_label(version) %></div>
+          <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold"><%= @presenter.contribution_type_label(version) %></div>
           <div class="text-sm text-black truncate">
             <% if cms_url %>
-              <%= link_to contribution_label(version, item), cms_url, class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
+              <%= link_to @presenter.contribution_label(version, item), cms_url, class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
             <% else %>
-              <%= contribution_label(version, item) %>
+              <%= @presenter.contribution_label(version, item) %>
             <% end %>
           </div>
         </div>
-        <span class="text-[10px] font-semibold px-2 py-1 rounded-full <%= contribution_event_class(version.event) %>"><%= version.event %></span>
+        <span class="text-[10px] font-semibold px-2 py-1 rounded-full <%= @presenter.contribution_event_class(version.event) %>"><%= version.event %></span>
         <div class="text-xs text-gray-400 whitespace-nowrap"><%= version.created_at.strftime("%b %e, %Y") %></div>
       </div>
     <% end %>
   </div>
 
-  <%= render "shared/pagination", pagy: @pagy %>
+  <%= render "shared/pagination", pagy: @presenter.pagination %>
 <% end %>

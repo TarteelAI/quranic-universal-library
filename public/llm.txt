@@ -1,0 +1,281 @@
+# Quranic Universal Library (QUL) - LLM Content Guide
+
+## Overview
+
+Quranic Universal Library (QUL) is a comprehensive Content Management System for managing Quranic data, translations, tafsirs, audio, Arabic scripts, Mushaf layouts, and morphological information. Built with Ruby on Rails and Active Admin.
+
+**Live Site:** https://qul.tarteel.ai
+**Repository:** https://github.com/TarteelAI/quranic-universal-library
+**Documentation:** https://github.com/TarteelAI/quranic-universal-library/blob/main/README.md
+
+## Core Resources
+
+### Translations
+
+QUL provides comprehensive translation management for the Quran in multiple languages:
+
+- **Available Translations API:** https://qul.tarteel.ai/api/v1/resources/translations
+- **Translation by Ayah:** https://qul.tarteel.ai/api/v1/translations/for_ayah/{ayah_key} (e.g., 1:1)
+- **Translation by Range:** https://qul.tarteel.ai/api/v1/translations/{resource_id}/by_range
+- **Random Translation:** https://qul.tarteel.ai/api/v1/translations/random
+- Features: Multi-language support, footnotes, proofreading workflows, version control
+
+### Tafsirs (Interpretations)
+
+Comprehensive Quranic tafsir (commentary) resources:
+
+- **Available Tafsirs API:** https://qul.tarteel.ai/api/v1/resources/tafsirs
+- **Tafsir by Ayah:** https://qul.tarteel.ai/api/v1/tafsirs/for_ayah/{ayah_key}
+- **Tafsir by Range:** https://qul.tarteel.ai/api/v1/tafsirs/{resource_id}/by_range
+- **Random Tafsir:** https://qul.tarteel.ai/api/v1/tafsirs/random
+- Features: Grouping support (verse ranges), multiple languages, proofreading tools
+
+### Languages
+
+Supported languages for translations and content:
+
+- **Languages API:** https://qul.tarteel.ai/api/v1/resources/languages
+- Includes language codes, names, and translation availability
+
+## Quran Data (Metadata, Surah, Ayah Info)
+
+### Chapters (Surahs)
+
+114 Surahs with comprehensive metadata:
+
+- **All Chapters API:** https://qul.tarteel.ai/api/v1/chapters
+- **Single Chapter API:** https://qul.tarteel.ai/api/v1/chapters/{id}
+- **Chapter Verses API:** https://qul.tarteel.ai/api/v1/chapters/{id}/verses
+- Data includes: Chapter names (Arabic & transliterated), revelation order, revelation place (Meccan/Medinan), verse count, page/juz/hizb/ruku mappings
+
+### Verses (Ayahs)
+
+6,236 Ayahs with multiple script variants:
+
+- **Verses by Chapter:** https://qul.tarteel.ai/api/v1/chapters/{id}/verses
+- **Verse Search:** https://qul.tarteel.ai/api/v1/verses/select2
+- **Ayah Page:** https://qul.tarteel.ai/ayah/{verse_key} (e.g., 1:1)
+- Script variants: Uthmani, Imlaei, Indopak, Digital Khatt, QPC variants, Tajweed-marked texts
+- Additional data: Verse keys (e.g., "1:1"), page/juz/hizb/ruku positions
+
+### Word-Level Data
+
+Detailed word-level information:
+
+- Word translations
+- Arabic transliterations
+- Word positions in verses
+- Morphological analysis (roots, lemmas, stems, grammar terms)
+- Tajweed annotations
+
+### Surah Info
+
+Multi-language Surah metadata:
+
+- Surah names in multiple languages
+- Historical context (revelation order, place)
+- Thematic information
+- Glyph codes for calligraphic display
+
+## Quran Audio
+
+### Recitations
+
+Multiple recitation styles and reciters:
+
+#### Surah Recitations (Gapless)
+- **All Surah Recitations:** https://qul.tarteel.ai/api/v1/audio/surah_recitations
+- **Recitation Detail:** https://qul.tarteel.ai/api/v1/audio/surah_recitations/{id}
+- **WAV Manifest:** https://qul.tarteel.ai/api/v1/audio/surah_recitations/{id}/wav_manifest
+- **Surah Segments:** https://qul.tarteel.ai/api/v1/audio/surah_segments/{recitation_id}
+- Features: Complete Surah audio files with segment boundaries
+
+#### Ayah Recitations (By Verse)
+- **All Ayah Recitations:** https://qul.tarteel.ai/api/v1/audio/ayah_recitations
+- **Recitation Detail:** https://qul.tarteel.ai/api/v1/audio/ayah_recitations/{id}
+- **Ayah Segments:** https://qul.tarteel.ai/api/v1/audio/ayah_segments/{recitation_id}
+- Features: Individual verse audio files with word-level timing
+
+### Audio Features
+
+- Multiple recitation styles (Qirat types)
+- Detailed segment data (ayah and word boundaries)
+- Reciter information and biographies
+- Audio file management and optimization
+- Segment parsing and validation tools
+
+## Quran Layout (Mushaf Layouts)
+
+### Mushaf Formats
+
+Different Quran layout formats for various print styles:
+
+- Multiple font variants (Uthmani, Indopak, KFGQPC, etc.)
+- Different page layouts (604-page Mushaf, 15-line, etc.)
+- Line per page configurations
+- Verse positioning on pages
+
+### Mushaf Data
+
+- **Mushaf Layouts:** Complete layout configurations with page counts and line settings
+- **Mushaf Pages:** Page-by-page mappings with verse boundaries
+- **Mushaf Words:** Precise word positions on each page
+- **Line Alignments:** Text alignment data (center, bismillah, justified)
+- Export tools for complete Mushaf layout data
+
+### Tools
+
+- Mushaf preview and comparison
+- Page mapping editor
+- Line alignment tools
+- Word position management
+
+## API Endpoints
+
+### Base URL
+- **API Base:** https://qul.tarteel.ai/api/v1/
+
+### Core Endpoints
+
+#### Chapters & Verses
+- `GET /api/v1/chapters` - List all chapters
+- `GET /api/v1/chapters/:id` - Chapter details
+- `GET /api/v1/chapters/:id/verses` - Verses by chapter
+
+#### Translations & Tafsirs
+- `GET /api/v1/translations/for_ayah/:ayah_key` - Translations for a verse
+- `GET /api/v1/translations/:resource_id/by_range` - Translation range
+- `GET /api/v1/tafsirs/for_ayah/:ayah_key` - Tafsirs for a verse
+- `GET /api/v1/tafsirs/:resource_id/by_range` - Tafsir range
+
+#### Audio
+- `GET /api/v1/audio/surah_recitations` - All Surah recitations
+- `GET /api/v1/audio/ayah_recitations` - All Ayah recitations
+- `GET /api/v1/audio/surah_segments/:recitation_id` - Surah segments
+- `GET /api/v1/audio/ayah_segments/:recitation_id` - Ayah segments
+
+#### Resources
+- `GET /api/v1/resources/translations` - Available translations
+- `GET /api/v1/resources/tafsirs` - Available tafsirs
+- `GET /api/v1/resources/languages` - Supported languages
+
+#### Morphology
+- `GET /api/morphology/edge_relations` - Morphology edges (API endpoint)
+- `GET /morphology/roots/:id` - Root details (web route)
+- `GET /morphology/lemmas/:id` - Lemma details (web route)
+- `GET /morphology/word` - Word morphology (web route)
+
+### API Features
+- JSON format responses
+- No authentication required for public endpoints
+- Pagination support
+- Token-based access for resource downloads
+
+## Tools
+
+### Community Tools
+
+Interactive tools for Quran study and comparison:
+
+- **Tools Dashboard:** https://qul.tarteel.ai/tools
+- **Quran Scripts Comparison:** https://qul.tarteel.ai/quran-scripts-comparison - Compare different Arabic scripts (Uthmani, Imlaei, Indopak)
+- **Ayah Boundaries:** https://qul.tarteel.ai/ayah-boundaries - Ayah boundary information
+- **Compare Ayah:** https://qul.tarteel.ai/compare-ayah - Compare verses across translations and scripts
+- **SVG Optimizer:** https://qul.tarteel.ai/svg - SVG file optimization tool
+- **Character Info:** https://qul.tarteel.ai/chars-info - Unicode character information
+- **Mistake Heatmap:** https://qul.tarteel.ai/mistake-heatmap - Word error tracking visualization
+
+### Morphology Tools
+
+Advanced tools for Arabic grammar and linguistic analysis:
+
+- **Dependency Graphs:** https://qul.tarteel.ai/morphology/dependency-graphs - Parse tree editor for syntax analysis
+- **Morphology Phrases:** https://qul.tarteel.ai/morphology_phrases - Phrase management and analysis
+- Features: Roots, lemmas, stems, grammar terms, dependency graph visualization
+
+### Admin & CMS
+
+Content management system for data administration:
+
+- **CMS Dashboard:** https://qul.tarteel.ai/cms - ActiveAdmin interface for content management
+- **Sidekiq:** https://qul.tarteel.ai/sidekiq - Background job monitoring
+- Features: User management, content versioning, proofreading workflows, import/export tools
+
+### Development & Integration Tools
+
+Built-in utilities for developers:
+
+- Data export services (Word, Ayah, Mushaf data)
+- Data import from external sources
+- Audio segment builders
+- Translation and Tafsir proofreading interfaces
+- Tajweed annotation tools
+- Word concordance management
+
+## Documentation & Help
+
+### Documentation
+
+- **README:** https://github.com/TarteelAI/quranic-universal-library/blob/main/README.md - Setup guide and features
+- **Security Policy:** https://github.com/TarteelAI/quranic-universal-library/blob/main/SECURITY.md
+- **Docker Setup:** https://github.com/TarteelAI/quranic-universal-library/blob/main/docker/README.md
+- **E2E Tests:** https://github.com/TarteelAI/quranic-universal-library/blob/main/scripts/cypress-e2e/readme.md
+
+### FAQs & Help
+
+- **FAQ Page:** https://qul.tarteel.ai/faq
+- **Credits:** https://qul.tarteel.ai/credits - Project contributors and acknowledgments
+- **Docs Pages:** https://qul.tarteel.ai/docs/{key} - Various documentation pages
+
+### Community & Support
+
+- **Discord:** Join our community on Discord for support and discussions
+- **Twitter/X:** Follow @TarteelAI for updates
+- **GitHub Issues:** https://github.com/TarteelAI/quranic-universal-library/issues
+- **Pull Requests:** Contributions welcome! See README for guidelines
+
+### Key Features Summary
+
+- **Translations Management:** 200+ translations in multiple languages with proofreading
+- **Tafsirs Management:** Comprehensive commentary resources with grouping support
+- **Audio Management:** Both ayah-by-ayah and gapless recitations with segment data
+- **Arabic Scripts:** Multiple script variants (Uthmani, Imlaei, Indopak, etc.)
+- **Mushaf Layouts:** Various page layouts with precise word positioning
+- **Morphology:** Complete Arabic grammar and root word analysis
+- **User Management:** Role-based permissions for contributors
+- **Content Versioning:** Full change tracking with PaperTrail
+- **Export Tools:** Multiple export formats for all data types
+- **Import Tools:** Data import from external Quranic sources
+
+## Technical Details
+
+### Technology Stack
+
+- **Backend:** Ruby on Rails 7.0.3
+- **Admin Interface:** ActiveAdmin
+- **Database:** PostgreSQL (dual database architecture)
+- **Cache/Jobs:** Redis + Sidekiq
+- **Frontend:** Vue.js 3, esbuild, SASS
+- **Server:** Puma
+
+### Database Architecture
+
+Two separate databases:
+1. **quran_dev:** Quranic data (chapters, verses, translations, tafsirs, audio, morphology)
+2. **quran_community_tarteel:** User accounts, permissions, community content, changelogs
+
+### Data Features
+
+- Version control with PaperTrail (tracks all changes)
+- Multi-language support
+- Import/export functionality
+- Resource-based access control
+- Background job processing for heavy operations
+
+## Project by Tarteel
+
+QUL is developed and maintained by Tarteel, a non-profit organization dedicated to helping people engage with the Quran through technology.
+
+**Tarteel Website:** https://tarteel.ai
+**License:** Check repository for license information
+**Contact:** Available through GitHub Issues or Discord community

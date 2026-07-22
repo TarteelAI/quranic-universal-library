@@ -92,7 +92,7 @@ ActiveAdmin.register_page 'Analytics' do
         panel 'Signup trends (12 months vs previous)' do
           series = comparison_series.call(User, :created_at)
           growth_caption.call(series)
-          line_chart series
+          text_node line_chart(series)
         end
       end
 
@@ -100,7 +100,7 @@ ActiveAdmin.register_page 'Analytics' do
         panel 'Download trends (12 months vs previous)' do
           series = comparison_series.call(UserDownload, :created_at)
           growth_caption.call(series)
-          line_chart series
+          text_node line_chart(series)
         end
       end
     end
@@ -116,7 +116,7 @@ ActiveAdmin.register_page 'Analytics' do
                                       .group_by_month('user_downloads.created_at', last: 12)
                                       .count
 
-      column_chart downloads_by_type_over_time, stacked: true, height: '400px'
+      text_node column_chart(downloads_by_type_over_time, stacked: true, height: '400px')
     end
 
     columns do

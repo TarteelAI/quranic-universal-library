@@ -92,11 +92,20 @@ class ProfilePresenter < ApplicationPresenter
     version.item_type.to_s.underscore.humanize
   end
 
+  def contribution_resource_name(item)
+    return if item.nil?
+
+    item.try(:resource_name).presence || item.try(:resource_content)&.name.presence
+  end
+
+  def contribution_reference(item)
+    item&.try(:verse_key)
+  end
+
   def contribution_label(version, item = contribution_item(version))
-    if item
-      item.try(:verse_key) || item.try(:name) || "#{contribution_type_label(version)} ##{version.item_id}"
-    else
+    contribution_resource_name(item).presence ||
+      contribution_reference(item).presence ||
+      item&.try(:name).presence ||
       "#{contribution_type_label(version)} ##{version.item_id}"
-    end
   end
 end

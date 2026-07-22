@@ -18,15 +18,20 @@
     <% contributions.each do |version| %>
       <% item = @presenter.contribution_item(version) %>
       <% cms_url = contribution_cms_url(item) %>
+      <% label = @presenter.contribution_label(version, item) %>
+      <% reference = @presenter.contribution_reference(item) %>
       <div class="flex items-center gap-3 border border-gray-100 rounded-lg px-4 py-3">
         <span class="w-9 h-9 rounded-lg bg-[#f0faf5] text-[#46ac7a] flex items-center justify-center text-xs font-bold shrink-0"><%= @presenter.contribution_icon(version) %></span>
         <div class="grow min-w-0">
           <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold"><%= @presenter.contribution_type_label(version) %></div>
           <div class="text-sm text-black truncate">
             <% if cms_url %>
-              <%= link_to @presenter.contribution_label(version, item), cms_url, class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
+              <%= link_to label, cms_url, class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
             <% else %>
-              <%= @presenter.contribution_label(version, item) %>
+              <%= label %>
+            <% end %>
+            <% if reference.present? && reference != label %>
+              <span class="text-gray-400">· <%= reference %></span>
             <% end %>
           </div>
         </div>

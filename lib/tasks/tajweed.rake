@@ -209,7 +209,6 @@ namespace :tajweed do
           tajweed_word.save(validate: false)
         rescue Exception => e
           puts e.message
-          binding.pry
         end
       end
     end

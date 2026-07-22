@@ -1,5 +1,5 @@
 class TranslationProofreadingsController < CommunityController
-  before_action :find_resource
+  before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]
 
@@ -80,8 +80,7 @@ class TranslationProofreadingsController < CommunityController
   end
 
   def find_resource
-    return @resource if @resource
-
+    return @resource if @resource 
     params[:resource_id] ||= 131
     @resource = ResourceContent.find(params[:resource_id])
     @presenter.set_resource(@resource)

@@ -1,5 +1,5 @@
 class TafsirProofreadingsController < CommunityController
-  before_action :find_resource
+  before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]
 

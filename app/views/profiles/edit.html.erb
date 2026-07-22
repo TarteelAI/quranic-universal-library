@@ -1,0 +1,84 @@
+<div class="max-w-3xl mx-auto px-4 md:px-8 py-8">
+  <h1 class="text-2xl font-bold text-black mb-6">Account Settings</h1>
+
+  <%= form_for current_user, url: profile_path, html: { method: :patch }, data: { controller: "account-form", "account-form-original-email-value": current_user.email } do |f| %>
+    <% if current_user.errors.any? %>
+      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 mb-6 text-sm">
+        <ul class="list-disc ps-5">
+          <% current_user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <section class="bg-white border border-black/10 rounded-xl p-6 mb-6">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">Profile</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <%= f.label :first_name, "First name", class: "block text-sm text-black mb-1" %>
+          <%= f.text_field :first_name, required: true, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+        </div>
+        <div>
+          <%= f.label :last_name, "Last name", class: "block text-sm text-black mb-1" %>
+          <%= f.text_field :last_name, required: true, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+        </div>
+      </div>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t border-black/5 mt-4 pt-4">
+        <div>
+          <dt class="text-gray-500">Member since</dt>
+          <dd class="text-black"><%= current_user.created_at.strftime("%B %-d, %Y") %></dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Email status</dt>
+          <dd class="text-black">
+            <% if current_user.pending_reconfirmation? %>
+              Pending confirmation for <%= current_user.unconfirmed_email %>
+            <% elsif current_user.confirmed? %>
+              Confirmed
+            <% else %>
+              Unconfirmed
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="bg-white border border-black/10 rounded-xl p-6 mb-6">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">Email &amp; password</h2>
+
+      <div class="mb-6">
+        <%= f.label :email, class: "block text-sm text-black mb-1" %>
+        <%= f.email_field :email, required: true, data: { "account-form-target": "email", action: "input->account-form#refresh" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+      </div>
+
+      <div class="border-t border-black/5 pt-5">
+        <p class="text-xs text-gray-500 mb-4">Leave the password fields blank to keep your current password. New passwords must be between 6 and 128 characters.</p>
+        <div class="mb-4">
+          <%= f.label :password, "New password", class: "block text-sm text-black mb-1" %>
+          <div class="relative password">
+            <%= f.password_field :password, autocomplete: "new-password", data: { controller: "toggle-password", "account-form-target": "password", action: "input->account-form#refresh" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+          </div>
+        </div>
+        <div>
+          <%= f.label :password_confirmation, "Confirm new password", class: "block text-sm text-black mb-1" %>
+          <div class="relative password">
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", data: { controller: "toggle-password", "account-form-target": "passwordConfirmation", action: "input->account-form#refresh" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white border border-black/10 rounded-xl p-6 mb-6">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">Confirm changes</h2>
+      <div class="mb-4">
+        <%= f.label :current_password, "Current password", class: "block text-sm text-black mb-1" %>
+        <div class="relative password">
+          <%= f.password_field :current_password, autocomplete: "current-password", data: { controller: "toggle-password", "account-form-target": "currentPassword" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Required only to change your email or password.</p>
+      </div>
+      <%= f.submit "Save changes", class: "btn btn-dark" %>
+    </section>
+  <% end %>
+</div>

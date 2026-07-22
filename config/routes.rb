@@ -81,6 +81,8 @@ Rails.application.routes.draw do
     sessions: 'users/sessions'
   }
 
+  resource :profile, only: [:show, :edit, :update]
+
   authenticated :user, ->(user) { user.is_super_admin? || user.is_admin? } do
     require 'sidekiq/web'
     mount Sidekiq::Web => '/sidekiq'

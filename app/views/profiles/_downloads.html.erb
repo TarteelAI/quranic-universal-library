@@ -1,0 +1,36 @@
+<div class="text-xs uppercase tracking-wide text-gray-400 mb-3">Downloaded resources</div>
+<% downloads = @presenter.downloads %>
+<% if downloads.empty? %>
+  <div class="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg p-8 text-center">You haven't downloaded any resources yet.</div>
+<% else %>
+  <div class="space-y-2">
+    <% downloads.each do |download| %>
+      <% resource = download.downloadable_resource %>
+      <div class="flex items-center justify-between border border-gray-100 rounded-lg px-4 py-3">
+        <div class="min-w-0">
+          <% if resource %>
+            <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold"><%= @presenter.download_resource_type_label(resource) %></div>
+          <% end %>
+          <div class="text-sm text-black truncate">
+            <% if resource %>
+              <%= link_to resource.name, detail_resources_path(resource.resource_type, resource.id), class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
+            <% else %>
+              Resource
+            <% end %>
+          </div>
+          <div class="text-xs text-gray-500">Downloaded <%= download.last_download_at&.strftime("%b %e, %Y") || "—" %></div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <% if @presenter.download_updated_since?(download) %>
+            <span class="text-[10px] font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">Update available</span>
+          <% else %>
+            <span class="text-[10px] font-semibold px-2 py-1 rounded-full bg-green-100 text-green-800">Up to date</span>
+          <% end %>
+          <% if resource %>
+            <%= link_to "View resource", detail_resources_path(resource.resource_type, resource.id), class: "text-xs text-[#46ac7a] hover:underline whitespace-nowrap", data: { turbo_frame: "_top" } %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

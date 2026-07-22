@@ -36,10 +36,26 @@
           </svg>
         <% end %>
 
-        <%= link_to 'Logout', destroy_user_session_path, class: 'text-black hover:text-[#46ac7a] transition-colors hidden md:flex', data: { turbo_method: :delete, turbo_frame: '_top' } if user_signed_in? %>
+        <% if user_signed_in? %>
+          <details class="relative block" data-controller="user-menu">
+            <summary class="list-none cursor-pointer flex items-center" aria-label="Account menu">
+              <span class="w-9 h-9 rounded-full bg-[#46ac7a] text-white flex items-center justify-center text-sm font-bold select-none"><%= current_user.initials %></span>
+            </summary>
+            <div class="absolute right-0 mt-2 w-56 bg-white border border-black/10 rounded-lg shadow-lg py-1 z-[60]">
+              <div class="px-4 py-2 border-b border-black/5">
+                <div class="text-sm font-semibold text-black truncate"><%= current_user.name %></div>
+                <div class="text-xs text-gray-500 truncate"><%= current_user.email %></div>
+              </div>
+              <%= link_to 'Profile', profile_path, class: 'block px-4 py-2 text-sm text-black hover:bg-gray-50', data: { action: 'click->user-menu#close' } %>
+              <%= link_to 'Sign Out', destroy_user_session_path, class: 'block px-4 py-2 text-sm text-black hover:bg-gray-50', data: { turbo_method: :delete, turbo_frame: '_top', action: 'click->user-menu#close' } %>
+            </div>
+          </details>
+        <% else %>
+          <%= link_to 'Login', new_user_session_path, class: 'text-black hover:text-[#46ac7a] transition-colors hidden md:flex' %>
+        <% end %>
         <%= link_to 'CMS', '/cms', class: 'btn-outline-pill nav-link--cms', data: generate_event_data('clicked-admin', 'navigation').merge(turbo_frame: '_top', header_nav_target: 'cms') %>
 
-        <button class="inline-block md:hidden bg-transparent border-none p-0 cursor-pointer" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#offcanvasRight" aria-controls="offcanvasRight">
+        <button class="order-first md:order-none inline-block md:hidden bg-transparent border-none p-0 cursor-pointer" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#offcanvasRight" aria-controls="offcanvasRight">
           <svg class="fill-white" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="1" y="1" width="36" height="36" rx="18" stroke="#404040"/>
             <path d="M9 25.25H28.375V23.0971H9V25.25ZM9 19.8679H28.375V17.7155H9V19.8679ZM9 12.3334V14.4863H28.375V12.3334H9Z" fill="black"/>
@@ -82,6 +98,9 @@
               >
                   <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
                 </svg>
+              <% end %>
+              <% unless user_signed_in? %>
+                <%= link_to 'Login', new_user_session_path, class: 'nav-link--drawer' %>
               <% end %>
             </div>
           </div>

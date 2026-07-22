@@ -23,8 +23,20 @@ class UserProject < ApplicationRecord
 
   validates :reason_for_request, :language_proficiency, :motivation_and_goals, presence: true
   validates :review_process_acknowledgment, presence: {message: 'Please check the review process acknowledge'}
+  validate :unique_request_per_resource
 
   def get_resource_content
     resource_content
+  end
+
+  private
+
+  def unique_request_per_resource
+    return if user_id.blank? || resource_content_id.blank?
+
+    scope = UserProject.where(user_id: user_id, resource_content_id: resource_content_id)
+    scope = scope.where.not(id: id) if persisted?
+
+    errors.add(:base, "You have already requested access to this resource.") if scope.exists?
   end
 end

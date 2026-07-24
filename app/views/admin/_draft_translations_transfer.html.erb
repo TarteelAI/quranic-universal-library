@@ -1,0 +1,19 @@
+<div class="mt-2">
+  <% count = resource.draft_translations.count %>
+
+  <% if count > 0 %>
+    <p class="mb-1"><%= count %> draft translation<%= 's' unless count == 1 %> available.</p>
+    <%= link_to 'Export draft translations', export_draft_translations_cms_resource_content_path(resource), class: 'button' %>
+  <% else %>
+    <p class="mb-1">No draft translations to export.</p>
+  <% end %>
+
+  <hr class="my-3">
+
+  <%= form_with model: resource, url: import_draft_translations_cms_resource_content_path(resource),
+                method: :post, enctype: 'multipart/form-data' do |form| %>
+    <h4>Import draft translations</h4>
+    <%= form.file_field :draft_file, required: true, accept: 'application/json,.json' %>
+    <%= form.submit 'Upload & import', data: { disable_with: 'Importing...', confirm: 'This will create or overwrite draft translations for this resource. Continue?' } %>
+  <% end %>
+</div>

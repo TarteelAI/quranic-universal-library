@@ -648,6 +648,99 @@ class ResourceContent < QuranApiRecord
     resource.run_draft_import_hooks
   end
 
+  def export_draft_translations
+    translations = Draft::Translation
+                     .where(resource_content_id: id)
+                     .includes(:verse, :foot_notes)
+                     .order(:verse_id)
+
+    {
+      resource_content_id: id,
+      name: name,
+      language_name: language_name,
+      records_count: translations.size,
+      translations: translations.map do |translation|
+        {
+          verse_key: translation.verse.verse_key,
+          draft_text: translation.draft_text,
+          current_text: translation.current_text,
+          text_matched: translation.text_matched,
+          need_review: translation.need_review,
+          footnotes_count: translation.footnotes_count,
+          current_footnotes_count: translation.current_footnotes_count,
+          meta_data: translation.meta_data,
+          foot_notes: translation.foot_notes.map do |foot_note|
+            {
+              id: foot_note.id,
+              resource_content_id: foot_note.resource_content_id,
+              draft_text: foot_note.draft_text,
+              current_text: foot_note.current_text,
+              text_matched: foot_note.text_matched
+            }
+          end
+        }
+      end
+    }
+  end
+
+  def import_draft_translations(json)
+    data = json.is_a?(String) ? JSON.parse(json) : json
+    stats = { created: 0, updated: 0, skipped: 0 }
+
+    (data['translations'] || []).each do |row|
+      verse = Verse.find_by(verse_key: row['verse_key'])
+
+      if verse.nil?
+        stats[:skipped] += 1
+        next
+      end
+
+      draft = Draft::Translation
+                .where(resource_content_id: id, verse_id: verse.id)
+                .first_or_initialize
+
+      was_new = draft.new_record?
+
+      draft.draft_text = row['draft_text']
+      draft.current_text = row['current_text']
+      draft.text_matched = row['text_matched']
+      draft.need_review = row['need_review']
+      draft.meta_data = row['meta_data']
+      draft.imported = false
+      draft.save(validate: false)
+
+      draft.foot_notes.destroy_all
+      id_map = {}
+
+      (row['foot_notes'] || []).each do |note|
+        foot_note = draft.foot_notes.create(
+          resource_content_id: note['resource_content_id'],
+          draft_text: note['draft_text'],
+          current_text: note['current_text']
+        )
+        foot_note.update_columns(
+          current_text: note['current_text'],
+          text_matched: note['text_matched']
+        )
+        id_map[note['id'].to_s] = foot_note.id if note['id']
+      end
+
+      if id_map.present?
+        text = draft.draft_text.to_s
+        id_map.each do |old_id, new_id|
+          text = text.sub(/foot_note=(['"]?)#{old_id}\1/, "foot_note=#{new_id}")
+        end
+        draft.update_column(:draft_text, text)
+      end
+
+      was_new ? stats[:created] += 1 : stats[:updated] += 1
+    end
+
+    run_draft_import_hooks
+
+    stats
+  end
+
   def export_file_name
     ExportService.new(self).get_export_file_name
   end

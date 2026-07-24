@@ -217,6 +217,32 @@ ActiveAdmin.register ResourceContent do
     redirect_to [:cms, resource], notice: "#{resource.name} will be exported and sent to you via email. You can also download the export from this page after few minutes."
   end
 
+  member_action :export_draft_translations, method: 'get' do
+    authorize! :export, resource
+
+    data = resource.export_draft_translations
+
+    send_data JSON.generate(data, state: JsonNoEscapeHtmlState.new),
+              filename: "draft-translations-#{resource.id}.json",
+              type: 'application/json'
+  end
+
+  member_action :import_draft_translations, method: 'post' do
+    authorize! :manage, resource
+
+    file = params.dig(:resource_content, :draft_file)
+
+    if file.blank?
+      flash[:error] = 'Please select a draft translations JSON file to import.'
+      return redirect_to [:cms, resource]
+    end
+
+    stats = resource.import_draft_translations(file.read)
+
+    redirect_to [:cms, resource],
+                notice: "Draft translations imported: #{stats[:created]} created, #{stats[:updated]} updated, #{stats[:skipped]} skipped."
+  end
+
   index do
     id_column
 
@@ -487,6 +513,12 @@ ActiveAdmin.register ResourceContent do
   sidebar 'Export data', only: :show, if: -> { can?(:export, resource) && (resource.translation? || resource.tafsir?) } do
     div do
       render 'admin/export_options'
+    end
+  end
+
+  sidebar 'Draft translations', only: :show, if: -> { can?(:manage, resource) && resource.translation? && !resource.one_word? } do
+    div do
+      render 'admin/draft_translations_transfer'
     end
   end
 

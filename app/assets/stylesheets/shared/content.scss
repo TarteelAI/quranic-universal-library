@@ -120,3 +120,29 @@ body {
 .b{
   font-weight: bold;
 }
+
+sup.footnote-marker {
+  cursor: pointer;
+  font-size: 0.7em;
+  padding: 0.1em 0.3em;
+  margin: 0 0.15em;
+  color: #006d98;
+  font-weight: 700;
+  border-radius: 4px;
+  background-color: rgba(0, 109, 152, 0.08);
+  transition: background-color 0.15s ease;
+}
+
+sup.footnote-marker:hover {
+  background-color: rgba(0, 109, 152, 0.2);
+}
+
+sup.footnote-grammar {
+  color: #707070;
+  font-style: italic;
+  background-color: rgba(112, 112, 112, 0.1);
+}
+
+sup.footnote-grammar:hover {
+  background-color: rgba(112, 112, 112, 0.22);
+}

@@ -179,8 +179,7 @@ module Importer
     end
 
     def find_or_create_resource(quran_enc_key)
-      mapping = TRANSLATIONS_MAPPING[quran_enc_key.to_sym]
-      raise "mapping not found for translation #{quran_enc_key}. Please add the mapping and try again" if mapping.nil?
+      mapping = TRANSLATIONS_MAPPING[quran_enc_key.to_sym] || {}
 
       resource = if mapping[:id]
                    ResourceContent.find(mapping[:id])
@@ -189,8 +188,14 @@ module Importer
                  end
 
       if resource.new_record?
-        author_name = mapping[:name]
-        language = resource.language || Language.find(mapping[:language])
+        quranenc_translation = get_translation_for_key(quran_enc_key)
+
+        author_name = mapping[:name] || quranenc_translation&.dig('title') || quran_enc_key
+        language = resource.language ||
+                   (mapping[:language] && Language.find(mapping[:language])) ||
+                   Language.find_by(iso_code: quranenc_translation&.dig('language_iso_code'))
+        raise "language not found for translation #{quran_enc_key}. Please add the language mapping and try again" if language.nil?
+
         author = Author.where(name: author_name).first_or_create
 
         resource.cardinality_type = ResourceContent::CardinalityType::OneVerse
@@ -499,6 +504,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_MAPPING = {
+      oromo_rwwad: {id: 1640},
       uzbek_sadiq_latin: { id: 55 },
       dutch_center: { language: 118, name: 'Dutch Islamic Center', id: 942 },
       pashto_rwwad: { language: 132, name: 'Rowwad Translation Center', id: 943 },

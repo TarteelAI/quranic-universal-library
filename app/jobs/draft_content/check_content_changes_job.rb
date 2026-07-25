@@ -21,11 +21,19 @@ module DraftContent
 
           if last_updated.nil? || last_updated.to_i != version[:last_update].to_i
             report_update_translation(version, resource)
+            auto_import_draft(resource)
           end
         else
-          report_new_translation(version, importer)
+          resource = report_new_translation(version, importer)
+          auto_import_draft(resource)
         end
       end
+    end
+
+    def auto_import_draft(resource)
+      return if resource.blank? || resource.has_draft_translation?
+
+      ImportDraftContentJob.perform_later(resource.id)
     end
 
     def report_update_translation(version, resource)
@@ -105,6 +113,8 @@ module DraftContent
         author_id: 1,
         body: "<a href='https://quranenc.com/en/browse/#{key}/' target='_blank'>View translation on QuranEnc</a>"
       )
+
+      resource
     end
 
     def lookup_resource_content(quranenc_key)

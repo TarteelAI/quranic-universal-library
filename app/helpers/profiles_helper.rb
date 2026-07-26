@@ -22,4 +22,23 @@ module ProfilesHelper
   rescue StandardError
     nil
   end
+
+  def resource_tool_url(resource_content)
+    return nil unless resource_content
+
+    case resource_content.sub_type
+    when ResourceContent::SubType::Translation
+      if resource_content.cardinality_type == ResourceContent::CardinalityType::OneWord
+        word_translations_path(resource_id: resource_content.id)
+      else
+        translation_proofreadings_path(resource_id: resource_content.id)
+      end
+    when ResourceContent::SubType::Tafsir
+      tafsir_proofreadings_path(resource_id: resource_content.id)
+    when ResourceContent::SubType::Transliteration
+      arabic_transliterations_path(resource_id: resource_content.id)
+    end
+  rescue StandardError
+    nil
+  end
 end

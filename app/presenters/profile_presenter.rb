@@ -19,8 +19,10 @@ class ProfilePresenter < ApplicationPresenter
     context.current_user
   end
 
+  TABS = %w[downloads contributions resources].freeze
+
   def tab
-    @tab ||= params[:tab] == "contributions" ? "contributions" : "downloads"
+    @tab ||= TABS.include?(params[:tab]) ? params[:tab] : "downloads"
   end
 
   def downloads?
@@ -29,6 +31,20 @@ class ProfilePresenter < ApplicationPresenter
 
   def contributions?
     tab == "contributions"
+  end
+
+  def resources?
+    tab == "resources"
+  end
+
+  def editable_resources
+    @editable_resources ||= user.user_projects
+                                .includes(:resource_content)
+                                .order(approved: :desc, updated_at: :desc)
+  end
+
+  def editable_resources_count
+    @editable_resources_count ||= user.user_projects.count
   end
 
   def downloads

@@ -20,6 +20,10 @@
           <div class="text-2xl font-bold text-[#46ac7a]"><%= @presenter.contributions_count %></div>
           <div class="text-xs text-gray-500">Contributions</div>
         </div>
+        <div class="border border-black/5 rounded-lg p-3 text-center">
+          <div class="text-2xl font-bold text-[#46ac7a]"><%= @presenter.editable_resources_count %></div>
+          <div class="text-xs text-gray-500">Resources</div>
+        </div>
       </div>
     </aside>
 
@@ -29,6 +33,7 @@
       <div class="inline-flex gap-1 border border-black/10 rounded-lg p-1 mb-5">
         <%= profile_tab_link "Downloads", "downloads", @presenter.tab %>
         <%= profile_tab_link "Contributions", "contributions", @presenter.tab %>
+        <%= profile_tab_link "Resources", "resources", @presenter.tab %>
       </div>
 
       <div class="relative min-h-[120px]">
@@ -42,6 +47,8 @@
         <%= turbo_frame_tag "profile_panel", data: { action: "turbo:before-fetch-request->remote-tab#showLoader turbo:frame-load->remote-tab#hideLoader" } do %>
           <% if @presenter.downloads? %>
             <%= render "downloads" %>
+          <% elsif @presenter.resources? %>
+            <%= render "resources" %>
           <% else %>
             <%= render "contributions" %>
           <% end %>

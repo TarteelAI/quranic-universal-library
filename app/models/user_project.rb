@@ -21,6 +21,8 @@ class UserProject < ApplicationRecord
   belongs_to :resource_content, optional: true
   belongs_to :user, optional: true
 
+  scope :approved, -> { where(approved: true) }
+
   validates :reason_for_request, :language_proficiency, :motivation_and_goals, presence: true
   validates :review_process_acknowledgment, presence: {message: 'Please check the review process acknowledge'}
   validate :unique_request_per_resource

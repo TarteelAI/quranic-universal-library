@@ -462,7 +462,7 @@ module Importer
       georgian_rwwad: [/\*+/, /\*+/],
       french_hameedullah: [/\[\s*\d+\]/, /\[\d+\]/],
       vietnamese_rwwad: [/\(\d+\)/, /\(\d+\)/],
-      uzbek_mansour: [],
+      uzbek_mansour: [/\[\d+\]/, /\[\d+\]/],
       uzbek_sadiq: [],
       yoruba_mikail: [/\[\d+\]/, /\d+.\s+/],
       spanish_garcia: [/\[\d+\]/, /\[\d+\]/],

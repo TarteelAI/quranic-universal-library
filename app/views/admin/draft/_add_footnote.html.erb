@@ -1,0 +1,29 @@
+<% language_name = @draft.resource_content.language_name %>
+
+<div id="title">
+  Add footnote to draft <%= @draft.verse.verse_key %>
+</div>
+
+<div id="body">
+  <div class="p-4 add-footnote-form">
+    <div class="qpc-hafs mb-2"><%= @draft.verse.text_qpc_hafs %></div>
+
+    <div class="mb-4">
+      <label>Current text (for reference)</label>
+      <div class="<%= language_name %>"><%= safe_html @draft.current_text %></div>
+    </div>
+
+    <%= form_tag save_footnote_cms_draft_translation_path(@draft), method: :put, data: { turbo: false } do %>
+      <div class="mb-2">
+        <label for="draft_text">Draft text</label>
+        <%= text_area_tag :draft_text, @draft.draft_text, rows: 6, class: "#{language_name} w-full" %>
+      </div>
+      <p class="text-sm text-gray-500 mb-4">
+        Wrap footnote text in <code>&lt;&lt;</code> and <code>&gt;&gt;</code>.
+        Each marker becomes a footnote and is replaced with a <code>&lt;sup&gt;</code> tag.
+      </p>
+
+      <%= submit_tag 'Save', class: 'btn btn-primary', data: { disable_with: 'Please wait...' } %>
+    <% end %>
+  </div>
+</div>

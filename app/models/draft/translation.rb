@@ -28,8 +28,11 @@
 #  index_draft_translations_on_verse_id             (verse_id)
 #
 
+
 class Draft::Translation < ApplicationRecord
   REGEXP_FOOTNOTE_ID = /foot_note=(?<id>\d+)/
+  INLINE_FOOTNOTE_REGEXP = /<<(?<text>.+?)>>/m
+  FOOTNOTE_SUP_REGEXP = %r{<sup foot_note=["']?(?<id>\d+)["']?>\d+</sup>}
   include HasMetaData
   include PaperTrailAttribution
 
@@ -172,5 +175,36 @@ class Draft::Translation < ApplicationRecord
 
   def update_footnote_count
     update_column :footnotes_count, foot_notes.count
+  end
+
+  def add_inline_footnotes!(raw_text)
+    footnote_resource_id = foot_notes.first&.resource_content_id ||
+                           resource_content.meta_value('related-footnote-resource-id')
+
+    text = raw_text.to_s.gsub(/<<\s*>>/, '').gsub(INLINE_FOOTNOTE_REGEXP) do
+      inner = Regexp.last_match(:text).strip
+      next '' if inner.blank?
+
+      footnote = foot_notes.create!(
+        draft_text: inner,
+        resource_content_id: footnote_resource_id
+      )
+      "<sup foot_note=#{footnote.id}>0</sup>"
+    end
+
+    self.draft_text = renumber_footnote_sups(text)
+    save!
+    update_footnote_count
+    self
+  end
+
+  private
+
+  def renumber_footnote_sups(text)
+    index = 0
+    text.gsub(FOOTNOTE_SUP_REGEXP) do
+      index += 1
+      "<sup foot_note=#{Regexp.last_match(:id)}>#{index}</sup>"
+    end
   end
 end

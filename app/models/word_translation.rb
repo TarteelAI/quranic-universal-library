@@ -48,7 +48,7 @@ class WordTranslation < QuranApiRecord
     primary_word = find_primary_word(group_words, primary_word_position)
 
     new_group_translations = update_group_translations(group_words, primary_word, params[:group_text])
-    remove_outdated_group_translations(language_id, primary_word.id, new_group_translations)
+    remove_outdated_group_translations(resource_content_id, primary_word.id, new_group_translations)
   end
 
   def primary_in_group?
@@ -61,7 +61,7 @@ class WordTranslation < QuranApiRecord
 
   def group_primary_translation
     WordTranslation.where(
-      language_id: language_id,
+      resource_content_id: resource_content_id,
       word_id: group_word_id
     ).first
   end
@@ -71,7 +71,7 @@ class WordTranslation < QuranApiRecord
 
     strong_memoize "word_translaiton_group_range_#{group_word_id || id}" do
       range_words = WordTranslation.where(
-        language_id: language_id,
+        resource_content_id: resource_content_id,
         group_word_id: group_word_id
       ).includes(:word).order('words.position asc')
 
@@ -104,8 +104,8 @@ class WordTranslation < QuranApiRecord
     group_words.find { |w| w.position == group_word_position }
   end
 
-  def remove_outdated_group_translations(language_id, primary_word_id, new_group_translations)
-    WordTranslation.where(language_id: language_id, group_word_id: primary_word_id)
+  def remove_outdated_group_translations(resource_content_id, primary_word_id, new_group_translations)
+    WordTranslation.where(resource_content_id: resource_content_id, group_word_id: primary_word_id)
                    .where.not(id: new_group_translations)
                    .update_all(group_word_id: nil, group_text: '')
   end
@@ -113,9 +113,10 @@ class WordTranslation < QuranApiRecord
   def update_group_translations(group_words, primary_word, group_text)
     group_words.map do |w|
       translation = WordTranslation.where(
-        language_id: language_id,
+        resource_content_id: resource_content_id,
         word_id: w.id
       ).first_or_initialize
+      translation.language_id ||= language_id
 
       translation.group_word_id = primary_word.id
       translation.group_text = w.id == primary_word.id ? group_text : ''

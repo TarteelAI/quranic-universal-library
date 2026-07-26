@@ -3,48 +3,48 @@
   language_class = "#{language.iso_code} #{language.name.downcase}"
   word_translation = form.object
   word = word_translation.word
+  saved_text = word_translation.persisted? ? word_translation.text : nil
 %>
 
 <%= form.hidden_field :word_id %>
 <%= form.hidden_field :language_id, value: language.id %>
+<%= form.hidden_field :resource_content_id, value: @resource.id %>
 
-<div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-5 p-3">
-  <h5 class="text-lg font-semibold mb-3 text-right" dir="rtl">
-    <strong class="ms-2">
+<div class="word-translation bg-white border border-gray-200 rounded-lg shadow-sm mb-3" data-word="<%= word.location %>">
+  <div class="flex items-center justify-between gap-3 px-3 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+    <span class="inline-flex items-center rounded-full bg-gray-200 text-gray-700 text-xs font-medium px-2 py-0.5">
       <%= word.location %>
-    </strong>
-    <strong class="qpc-hafs" dir="rtl">
-      <%= word.text_qpc_hafs %>
-    </strong>
-  </h5>
+    </span>
+    <span class="qpc-hafs text-2xl leading-none" dir="rtl"><%= word.text_qpc_hafs %></span>
+  </div>
 
-  <div
-    class="p-0 word-translation"
-    data-word="<%= word.location %>"
-  >
-    <div class="flex flex-wrap gap-4">
-      <div class="w-full md:w-1/2">
-        <div class="mb-4">
-          <%= form.text_field :text,
-                              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent #{@language.name.downcase}",
-                              placeholder: "Enter #{@language.name} translation of #{word.location}" %>
-          <div class="flex items-center justify-between text-sm text-gray-600 mt-2">
-            <small>Enter word by word translation for <%= word.location %></small>
-            <div class="me-5">
-              <strong>Current translation:</strong> <%= word_translation.text %>
-            </div>
+  <div class="p-3">
+    <div class="flex flex-col lg:flex-row gap-4">
+      <div class="flex-1">
+        <%= form.label :text, "#{language.name} translation", class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_field :text,
+                            class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent #{language.name.downcase}",
+                            placeholder: "Enter #{language.name} translation of #{word.location}" %>
 
-            <% unless is_english %>
-              <div>
-                <strong>English translation:</strong> <%= word.en_translation&.text %>
-              </div>
-            <% end %>
-          </div>
+        <div class="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
+          <% if saved_text.present? %>
+            <span class="flex items-baseline gap-1">
+              <span class="text-gray-400">Current:</span>
+              <span class="<%= language_class %>"><%= saved_text %></span>
+            </span>
+          <% end %>
+
+          <% unless is_english %>
+            <span class="flex items-baseline gap-1">
+              <span class="text-gray-400">English:</span>
+              <span class="text-gray-600"><%= safe_html word.en_translation&.text %></span>
+            </span>
+          <% end %>
         </div>
       </div>
 
       <% if word_translation.persisted? %>
-        <div class="w-full md:w-1/2">
+        <div class="lg:w-1/2 lg:border-s lg:ps-4">
           <%= render 'word_group_info', word_translation: word_translation, language: language, word: word %>
         </div>
       <% end %>

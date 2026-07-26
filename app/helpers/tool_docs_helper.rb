@@ -88,20 +88,26 @@ module ToolDocsHelper
       },
       {
         type: 'step',
-        title: 'Step 1: Find the word translation for a specific language',
-        text: "Use the available filters to find the desired translation. You can filter by <code>Language</code> <code>Surah</code> and <code>Ayah</code> to narrow down the results. Click <code>Show</code> to display the selected Ayah, where a list of words and their corresponding translations will appear.",
+        title: 'Step 1: Select a translation resource',
+        text: "A language can have more than one word-by-word translation, so start by picking the resource you want to work on from the <code>Select resource</code> page. Each resource is maintained separately.",
         screenshot: 'word_translations.png'
       },
       {
         type: 'step',
-        title: 'Step 2: Read the translation',
-        text: "Review the translation of each word carefully. If an update is needed, click the <code>Edit</code> button to fix the translation.",
+        title: 'Step 2: Find an ayah',
+        text: "Once a resource is selected, use the <code>Surah</code> and <code>Ayah</code> filters to narrow down the results. Click <code>Show</code> to display the selected Ayah, where a list of words and their corresponding translations will appear.",
+        screenshot: 'word_translations.png'
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Read the translation',
+        text: "Review the translation of each word carefully. Words without a translation are highlighted so you can spot gaps at a glance. If an update is needed, click the <code>Edit</code> button to fix the translation.",
         screenshot: 'ayah-words-translation.png'
       },
       {
         type: 'step',
-        title: 'Step 3: Update the translation',
-        text: "The page will display the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its translation. Once you're satisfied with the update, click <code>Save translations</code> to save the changes.",
+        title: 'Step 4: Update the translation',
+        text: "The page will display the Ayah along with a list of all its words. Each word is shown as its own card with an input field, its current translation, and the English translation for reference. Once you're satisfied with the update, click <code>Save translations</code> to save the changes.",
         screenshot: 'update-word-translation.png'
       },
       {
@@ -110,10 +116,10 @@ module ToolDocsHelper
       },
       {
         type: 'step',
-        title: 'Step 3.1: Update the group translation',
+        title: 'Step 4.1: Update the group translation',
         sections: [
           {
-            text: "If you find a group of words that should be translated together, you can group them. To do this, click the <code>Create Group translation</code> button(Or <code>Edit Group translation</code> if you need to change an existing group) to open the group translation modal.",
+            text: "If you find a group of words that should be translated together, you can group them. To do this, click the <code>Create group</code> button (or <code>Edit group</code> if you need to change an existing group) to open the group translation modal.",
             screenshot: 'create-group.png'
           },
           {

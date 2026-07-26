@@ -1,0 +1,72 @@
+<%= render 'tools/header',
+           name: "Word translation proofreading",
+           title: "Select word translation",
+           help: false
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section mt-4">
+    <p class="text-gray-600 mb-4">
+      Select a word translation resource to review. Some languages have multiple word translations by different authors,
+      so each resource is reviewed separately.
+    </p>
+
+    <div class="tools-table-overflow">
+      <table class="w-full">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="px-3 py-2 text-left align-middle font-semibold">Resource</th>
+          <th class="px-3 py-2 text-left align-middle font-semibold">Language</th>
+          <th class="px-3 py-2 text-left align-middle font-semibold w-64">Progress</th>
+          <th class="px-3 py-2 text-left align-middle font-semibold">Missing</th>
+          <th class="px-3 py-2 text-left align-middle font-semibold">Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @presenter.resources.each do |resource| %>
+          <%
+            language = resource.language&.name || "Unknown"
+            badge_class = @presenter.language_badge_class(language)
+            stats = @presenter.resource_stats(resource)
+            progress = stats[:progress]
+            missing = stats[:missing]
+          %>
+
+          <tr class="border-b hover:bg-gray-100">
+            <td class="px-3 py-2 align-middle">
+              <%= link_to resource.name, word_translations_path(resource_id: resource.id), class: 'font-medium text-blue-700 hover:underline' %>
+            </td>
+
+            <td class="px-3 py-2 align-middle">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset <%= badge_class %>">
+                <%= language %>
+              </span>
+            </td>
+
+            <td class="px-3 py-2 align-middle">
+              <div class="w-full bg-gray-200 rounded-full h-5">
+                <div class="bg-green-500 h-5 rounded-full text-white text-xs flex items-center justify-center transition-all duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1.5em;width: <%= progress %>%;">
+                  <%= progress %>%
+                </div>
+              </div>
+            </td>
+
+            <td class="px-3 py-2 align-middle">
+              <% if missing > 0 %>
+                <span class="text-amber-700 font-medium"><%= number_with_delimiter missing %></span>
+              <% else %>
+                <span class="text-green-700 font-medium">0</span>
+              <% end %>
+            </td>
+
+            <td class="px-3 py-2 align-middle">
+              <%= link_to 'Open', word_translations_path(resource_id: resource.id), class: 'btn btn-success' %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -10,11 +10,11 @@
   %>
 
   <div id="title">
-    Manage the <%= current_language.name %> word translation group for <%= @word_translation.word.location %>
+    Manage the <%= @resource.name %> word translation group for <%= @word_translation.word.location %>
   </div>
 
   <div id="body">
-    <%= form_for @word_translation, url: group_info_word_translation_path(@word_translation.word_id, word_id: @word_translation.word_id, language: current_language.id), method: :post, data: { controller: 'remote-form', auto_close: true } do |form| %>
+    <%= form_for @word_translation, url: group_info_word_translation_path(@word_translation.word_id, word_id: @word_translation.word_id, resource_id: @resource.id), method: :post, data: { controller: 'remote-form', auto_close: true } do |form| %>
       <div class="p-6">
         <%= render 'shared/form_errors', object: @word_translation %>
 

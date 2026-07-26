@@ -151,8 +151,8 @@ class Verse < QuranApiRecord
     Morphology::PhraseVerse.includes(:phrase).where(verse_id: id)
   end
 
-  def self.verses_with_missing_translations(language_id)
-    query = "left join word_translations on words.id = word_translations.word_id AND word_translations.language_id = #{language_id}"
+  def self.verses_with_missing_translations(resource_content_id)
+    query = "left join word_translations on words.id = word_translations.word_id AND word_translations.resource_content_id = #{resource_content_id}"
     verse_ids = Word.words.select('words.verse_id').joins(query).where("words.id is null OR word_translations.text = '' OR  word_translations.text IS NULL")
 
     where(id: verse_ids)
@@ -267,9 +267,9 @@ class Verse < QuranApiRecord
       .order('word_match_count DESC')
   end
 
-  def word_translation_progress(language_id)
+  def word_translation_progress(resource_content_id)
     total_words = words.words.count
-    words_with_translations = WordTranslation.where(word_id: words.pluck(:id), language_id: language_id).count
+    words_with_translations = WordTranslation.where(word_id: words.pluck(:id), resource_content_id: resource_content_id).where.not(text: [nil, '']).count
     missing_count = [total_words - words_with_translations, 0].max
 
     (100 - (missing_count / total_words.to_f) * 100).to_i.abs
@@ -288,7 +288,8 @@ class Verse < QuranApiRecord
       next unless word_translation['text'].presence
 
       translation = WordTranslation.where(word_id: word_translation[:word_id],
-                                          language_id: word_translation[:language_id]).first_or_initialize
+                                          resource_content_id: word_translation[:resource_content_id]).first_or_initialize
+      translation.language_id = word_translation[:language_id]
       translation.text = word_translation['text'].presence
       translation.save
     end

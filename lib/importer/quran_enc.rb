@@ -86,7 +86,7 @@ module Importer
       end
 
       footnote_resource = nil
-      has_footnotes = TRANSLATIONS_WITH_FOOTNOTES.include?(quran_enc_key)
+      has_footnotes = TRANSLATIONS_WITH_FOOTNOTES.include?(quran_enc_key) || REGEXP_FOOTNOTES.key?(quran_enc_key.to_sym)
       resource = find_or_create_resource(quran_enc_key)
       language = resource.language
 
@@ -437,6 +437,8 @@ module Importer
     }
 
     REGEXP_FOOTNOTES = {
+      amharic_zain: [/\[\d+\]/, /\[\d+\]/],
+      zulu_adel: [/\[\d+\]/, /\[\d+\]/],
       amharic_sadiq: [/\{\d+\}/, /\{\d+\}/],
       oromo_ababor: [/\{\d+\}/, /\{?\d+\}?-?/],
       pashto_rwwad: [/\[\d+\]/, /\[\d+\]/],
@@ -461,7 +463,7 @@ module Importer
       romanian_assoc: [/\(\d+\)/, /\(\d+\)/],
       somali_yacob: [/\d+/, /\d+/],
       macedonian_group: [/\[\d+\]/, /\[\d+\]/],
-      swahili_barawani: [], # No footnotes number
+      swahili_barawani: [/\[\d+\]/, /\[\d+\]/],
       dagbani_ghatubo: [/\[\d+\]/, /\[\d+\]/],
       yaw_silika: [/\[\d+\]/, /\(\d+:\d+\)/],
       georgian_rwwad: [/\*+/, /\*+/],
@@ -504,6 +506,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_MAPPING = {
+      zulu_adel: {id: 1642},
       oromo_rwwad: {id: 1640},
       uzbek_sadiq_latin: { id: 55 },
       dutch_center: { language: 118, name: 'Dutch Islamic Center', id: 942 },
@@ -645,6 +648,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'amharic_zain',
       'swahili_rwwad',
       'romanian_project',
       'russian_aboadel',

@@ -2,20 +2,33 @@
   Resources you've requested access to update.
 </div>
 
-<% resources = @presenter.editable_resources %>
-<% if resources.empty? %>
+<% if @presenter.editable_resources_count.zero? %>
   <div class="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg p-8 text-center">You haven't requested access to any resources yet.</div>
 <% else %>
+  <% if @presenter.resource_types.many? %>
+    <div class="flex flex-wrap gap-2 mb-4">
+      <%= resource_filter_link "All", nil, @presenter.resource_type_filter %>
+      <% @presenter.resource_types.each do |type| %>
+        <%= resource_filter_link type.tr("-", " ").humanize, type, @presenter.resource_type_filter %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% resources = @presenter.editable_resources %>
+  <% if resources.empty? %>
+    <div class="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg p-8 text-center">No resources match this filter.</div>
+  <% else %>
   <div class="space-y-2">
     <% resources.each do |project| %>
       <% resource = project.resource_content %>
-      <% tool_url = project.approved? ? resource_tool_url(resource) : nil %>
+      <% tool = resource_tool(resource) %>
+      <% tool_url = project.approved? ? tool[:url] : nil %>
 
       <div class="flex items-center justify-between border border-gray-100 rounded-lg px-4 py-3">
         <div class="min-w-0">
-          <% if resource %>
+          <% if resource && tool[:label].present? %>
             <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold">
-              <%= @presenter.download_resource_type_label(resource) %>
+              <%= tool[:label] %>
             </div>
           <% end %>
           <div class="text-sm text-black truncate">
@@ -46,4 +59,5 @@
       </div>
     <% end %>
   </div>
+  <% end %>
 <% end %>

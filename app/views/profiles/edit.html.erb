@@ -26,7 +26,7 @@
       </div>
       <div class="mt-4">
         <%= f.label :about_me, "About me", class: "block text-sm text-black mb-1" %>
-        <%= f.text_area :about_me, rows: 4, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+        <%= f.text_area :about_me, rows: 8, data: { controller: "tinymce" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
         <p class="text-xs text-gray-500 mt-1">Only you and administrators can see this.</p>
       </div>
       <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t border-black/5 mt-4 pt-4">

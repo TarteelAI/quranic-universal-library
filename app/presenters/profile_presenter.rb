@@ -38,23 +38,51 @@ class ProfilePresenter < ApplicationPresenter
   end
 
   def editable_resources
-    @editable_resources ||= user.user_projects
-                                .includes(:resource_content)
-                                .order(approved: :desc, updated_at: :desc)
+    @editable_resources ||= begin
+      scope = user.user_projects
+                  .includes(:resource_content)
+                  .order(approved: :desc, updated_at: :desc)
+      scope = scope.where(resource_content_id: filtered_resource_content_ids) if resource_type_filter
+      scope
+    end
   end
 
   def editable_resources_count
     @editable_resources_count ||= user.user_projects.count
   end
 
+  def resource_types
+    @resource_types ||= project_resource_contents.map(&:sub_type).compact.uniq.sort
+  end
+
+  def resource_type_filter
+    @resource_type_filter ||= params[:resource_type].presence
+  end
+
   def downloads
-    @downloads ||= user.user_downloads
-                       .includes(:downloadable_resource)
-                       .order(Arel.sql("last_download_at DESC NULLS LAST"))
+    @downloads ||= begin
+      scope = user.user_downloads
+                  .includes(:downloadable_resource)
+                  .order(Arel.sql("last_download_at DESC NULLS LAST"))
+      scope = scope.joins(:downloadable_resource).where(downloadable_resources: { resource_type: download_type }) if download_type
+      scope
+    end
   end
 
   def downloads_count
     @downloads_count ||= user.user_downloads.count
+  end
+
+  def download_types
+    @download_types ||= user.user_downloads
+                            .joins(:downloadable_resource)
+                            .distinct
+                            .pluck("downloadable_resources.resource_type")
+                            .compact.sort
+  end
+
+  def download_type
+    @download_type ||= params[:download_type].presence
   end
 
   def download_updated_since?(user_download)
@@ -123,5 +151,19 @@ class ProfilePresenter < ApplicationPresenter
       contribution_reference(item).presence ||
       item&.try(:name).presence ||
       "#{contribution_type_label(version)} ##{version.item_id}"
+  end
+
+  private
+
+  def project_resource_content_ids
+    @project_resource_content_ids ||= user.user_projects.distinct.pluck(:resource_content_id).compact
+  end
+
+  def project_resource_contents
+    @project_resource_contents ||= ResourceContent.where(id: project_resource_content_ids)
+  end
+
+  def filtered_resource_content_ids
+    project_resource_contents.select { |rc| rc.sub_type == resource_type_filter }.map(&:id)
   end
 end

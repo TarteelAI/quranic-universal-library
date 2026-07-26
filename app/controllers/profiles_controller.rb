@@ -48,11 +48,11 @@ class ProfilesController < CommunityController
   end
 
   def account_update_params
-    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :current_password)
+    params.require(:user).permit(:first_name, :last_name, :email, :about_me, :password, :password_confirmation, :current_password)
   end
 
   def profile_update_params
-    params.require(:user).permit(:first_name, :last_name, :email)
+    params.require(:user).permit(:first_name, :last_name, :email, :about_me)
   end
 
   def update_notice

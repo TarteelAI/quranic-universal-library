@@ -189,6 +189,9 @@ Rails.application.routes.draw do
   resources :translation_proofreadings, except: :destroy
   resources :tafsir_proofreadings, except: :destroy
   resources :word_translations, except: :destroy do
+    collection do
+      get :select_resource
+    end
     member do
       match :group_info, via: [:get, :post]
     end

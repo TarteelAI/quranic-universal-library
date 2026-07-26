@@ -38,10 +38,32 @@ ActiveAdmin.register Draft::Translation do
     end
   end
 
+  action_item :add_footnote, only: :show do
+    if !resource.imported?
+      link_to 'Add footnote', add_footnote_cms_draft_translation_path(resource),
+              data: { controller: 'ajax-modal', url: add_footnote_cms_draft_translation_path(resource), css_class: 'modal-lg' }
+    end
+  end
+
   member_action :import, method: 'put' do
     translation = resource.import!
 
     redirect_to [:cms, translation], notice: 'Draft translation is approved and imported successfully'
+  end
+
+  member_action :add_footnote, method: 'get' do
+    @draft = resource
+    render partial: 'admin/draft/add_footnote'
+  end
+
+  member_action :save_footnote, method: 'put' do
+    if params[:draft_text].to_s.match?(Draft::Translation::INLINE_FOOTNOTE_REGEXP)
+      resource.add_inline_footnotes!(params[:draft_text])
+      redirect_to [:cms, resource], notice: 'Footnote(s) added to draft translation'
+    else
+      redirect_to add_footnote_cms_draft_translation_path(resource),
+                  alert: 'No footnote markers found. Wrap footnote text in << and >>.'
+    end
   end
 
   index do

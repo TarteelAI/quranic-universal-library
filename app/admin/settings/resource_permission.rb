@@ -13,6 +13,8 @@ ActiveAdmin.register ResourcePermission do
       row :permission_to_host_info
       row :permission_to_share_info
       row :source_info
+      row :copyright_notice
+      row :contact_info
       row :created_at
       row :updated_at
     end
@@ -44,6 +46,7 @@ ActiveAdmin.register ResourcePermission do
       f.input :permission_to_share_info
       f.input :source_info, as: :text
       f.input :copyright_notice, as: :text
+      f.input :contact_info, as: :text
     end
 
     f.actions

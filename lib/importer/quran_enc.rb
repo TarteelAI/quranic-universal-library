@@ -1,5 +1,3 @@
-# i = Importer::QuranEnc.new
-# i.import 'dagbani_ghatubo'
 module Importer
   class QuranEnc < Base
     include Utils::StrongMemoize
@@ -335,11 +333,6 @@ module Importer
       translation
     end
 
-    def swahili_barawani(verse, resource, footnote_resource, quran_enc_key, data)
-      # this translation has footnote, but there is no footnote markers in translation.
-      create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data, report_foonote_issues: false)
-    end
-
     def parse_pashto_zakaria(verse, resource, footnote_resource, quran_enc_key, data)
       data['translation'] = data['translation'].sub(/\d+-\d+/, '')
 
@@ -421,7 +414,6 @@ module Importer
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
       english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
       ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
-      indonesian_affairs: /^\*?\d+\)/,
       bengali_zakaria: /^\[\p{N}+\]/,
       hausa_gummi: /^\*/,
       punjabi_arif: /^[\d\p{M}\s]*/,
@@ -449,7 +441,7 @@ module Importer
       tajik_khawaja: [/\(\d+\)/, /\d+[.]/],
       spanish_montada_eu: [/\[\d+\]/, /\[\d+\]/],
       indonesian_complex: [/\d+/, /\d+[.\s]/],
-      indonesian_affairs: [/\d+\)/, /(?<!\()\*?\b\d+\)/],
+      indonesian_affairs: [/\[\d+\]/, /\[\d+\]/],
       french_montada: [/\[\d+\]/, /\[\d+\]/],
       english_hilali_khan: [/\[\d+\]/, /\[\d+\]/],
       english_saheeh: [/\[\d+\]/, /\[\d+\]-/],
@@ -502,12 +494,13 @@ module Importer
       ukrainian_yakubovych: [/\[[IVXLCDM]+\]/, /\[[IVXLCDM]+\]/],
       russian_aboadel: [/\[\d+\]/, /\[\d+\]/],
       romanian_project: [/\[\d+\]/, /\[\d+\]/],
-      swahili_rwwad: [/\[\d+\]/, /\[\d+\]/]
+      swahili_rwwad: [/\[\d+\]/, /\[\d+\]/],
+      oromo_rwwad: [/\[\d+\]/, /\[\d+\]/]
     }.freeze
 
     TRANSLATIONS_MAPPING = {
-      zulu_adel: {id: 1642},
-      oromo_rwwad: {id: 1640},
+      zulu_adel: { id: 1642 },
+      oromo_rwwad: { id: 1640 },
       uzbek_sadiq_latin: { id: 55 },
       dutch_center: { language: 118, name: 'Dutch Islamic Center', id: 942 },
       pashto_rwwad: { language: 132, name: 'Rowwad Translation Center', id: 943 },
@@ -648,6 +641,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'oromo_rwwad',
       'amharic_zain',
       'swahili_rwwad',
       'romanian_project',

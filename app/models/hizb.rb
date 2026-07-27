@@ -21,6 +21,6 @@ class Hizb < QuranApiRecord
   include NavigationSearchable
   include HasVerseMapping
 
-  has_many :verses, foreign_key: :manzil_number
+  has_many :verses, foreign_key: :hizb_number
   has_many :chapters, through: :verses
 end

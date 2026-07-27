@@ -1,7 +1,13 @@
 <%
   id = (params[:rub].presence || 1).to_i.abs
   rub = RubElHizb.find_by(rub_el_hizb_number: id) || RubElHizb.first
+  cache_key = ["rub", rub.id, params.to_unsafe_h]
 %>
+
+<% cache(cache_key, expires_in: 7.days) do %>
+  <%
+    verses_by_page = rub.verses.includes(:chapter).order('verse_index ASC').group_by(&:page_number)
+  %>
 
 <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
   <div class="flex items-center">
@@ -35,7 +41,8 @@
     <p class="mt-2 text-sm text-gray-600">Total Ayahs:
       <strong>
         <%= rub.verses_count %>
-      </strong></p>
+      </strong>
+      | Pages: <strong><%= verses_by_page.keys.length %></strong></p>
   </div>
 
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
@@ -44,15 +51,21 @@
     <p><strong>To:</strong> <%= rub.last_verse.chapter.name_simple %>, Ayah <%= rub.last_verse.verse_number %></p>
   </div>
 
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-    <h2 class="text-lg font-semibold mb-4">Surahs in this Rub al-Hizb</h2>
-    <ul class="divide-y divide-gray-200">
-      <% rub.verse_mapping.each do |chapter_id, verses_range| %>
-        <% chapter = Chapter.find(chapter_id) %>
-        <li class="py-2">
-          <span class="font-medium">Surah <%= chapter.name_simple %></span>: Ayahs <%= verses_range %>
-        </li>
-      <% end %>
-    </ul>
-  </div>
+  <% if verses_by_page.any? %>
+    <div class="overflow-y-auto border border-gray-200 rounded-lg shadow-sm bg-white" style="max-height: 600px;">
+      <div class="flex flex-col gap-6 p-4">
+        <% verses_by_page.sort.each do |page_num, page_verses| %>
+          <div class="border-b pb-6 last:border-b-0">
+            <div class="text-sm font-semibold text-gray-700 mb-3">Page <%= page_num %></div>
+            <div class="qpc-hafs quran-text text-lg leading-relaxed">
+              <% page_verses.each do |verse| %>
+                <%= verse.text_qpc_hafs %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </div>
+<% end %>

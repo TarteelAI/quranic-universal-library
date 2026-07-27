@@ -4,6 +4,8 @@ module Importer
   class QuranEnc < Base
     include Utils::StrongMemoize
 
+    BATCH_SIZE = 500
+
     REGEXP_REMOVE_FOOTNOTE = %r{<sup foot_note="?\d+"?>\d+</sup>[\d*\[\]]?}
     QURANENC_CHANGE_LOG_API = "https://quranenc.com/api/translations/versions"
     QURANENC_TRANSLATIONS_API = "https://quranenc.com/api/translations/"
@@ -78,6 +80,9 @@ module Importer
 
     def import(translation_key, start_from: 1)
       @issues = []
+      @pending_drafts = []
+      @current_translations = nil
+      @existing_drafts = nil
       quran_enc_key = translation_key.to_s.strip
 
       if quran_enc_key.blank?
@@ -85,9 +90,9 @@ module Importer
         return
       end
 
+      resource = find_or_create_resource(quran_enc_key)
       footnote_resource = nil
       has_footnotes = TRANSLATIONS_WITH_FOOTNOTES.include?(quran_enc_key) || REGEXP_FOOTNOTES.key?(quran_enc_key.to_sym)
-      resource = find_or_create_resource(quran_enc_key)
       language = resource.language
 
       if has_footnotes
@@ -114,7 +119,7 @@ module Importer
         translations = fetch_translations_for_chapter(chapter, quran_enc_key)
 
         translations.each do |data|
-          verse = Verse.find_by(verse_key: "#{data['sura']}:#{data['aya']}")
+          verse = verses_by_key["#{data['sura']}:#{data['aya']}"]
 
           if !has_footnotes && data['footnotes'].present?
             log_issue({
@@ -131,6 +136,8 @@ module Importer
           end
         end
       end
+
+      flush_pending_drafts
 
       resource.set_meta_value('source', 'quranenc')
 
@@ -163,11 +170,50 @@ module Importer
                       create_translation_with_footnote(verse, resource, footnote_resource, quran_enc_key, data)
                     end
 
-      translation.save(validate: false)
+      if data['footnotes'].present?
+        translation.save(validate: false)
+      else
+        @pending_drafts << translation
+        flush_pending_drafts if @pending_drafts.size >= BATCH_SIZE
+      end
+
       translation
     rescue Exception => e
       log_message "===== #{verse.verse_key} ERROR: #{e.message}"
       raise e
+    end
+
+    def verses_by_key
+      @verses_by_key ||= Verse.all.index_by(&:verse_key)
+    end
+
+    def current_translations(resource)
+      @current_translations ||= Translation.where(resource_content_id: resource.id).index_by(&:verse_id)
+    end
+
+    def existing_drafts(resource)
+      @existing_drafts ||= Draft::Translation.where(resource_content_id: resource.id).index_by(&:verse_id)
+    end
+
+    def flush_pending_drafts
+      return if @pending_drafts.blank?
+
+      new_rows = []
+      existing_rows = []
+
+      @pending_drafts.each do |draft|
+        attrs = draft.attributes.except('created_at', 'updated_at')
+        if draft.persisted?
+          existing_rows << attrs
+        else
+          new_rows << attrs.except('id')
+        end
+      end
+
+      Draft::Translation.insert_all(new_rows) if new_rows.any?
+      Draft::Translation.upsert_all(existing_rows, unique_by: :id) if existing_rows.any?
+
+      @pending_drafts = []
     end
 
     def fetch_translations_for_chapter(chapter, key)
@@ -219,15 +265,10 @@ module Importer
       draft_text = clean_up_text(text, resource)
       draft_text = replace_text(draft_text, resource)
 
-      current_translation = Translation.where(
-        verse_id: verse.id,
-        resource_content_id: resource.id
-      ).first
+      current_translation = current_translations(resource)[verse.id]
 
-      translation = Draft::Translation.where(
-        verse: verse,
-        resource_content: resource
-      ).first_or_initialize
+      translation = existing_drafts(resource)[verse.id] ||
+                    Draft::Translation.new(verse: verse, resource_content: resource)
       current_text = current_translation&.text
 
       translation.translation_id = current_translation&.id
@@ -331,7 +372,6 @@ module Importer
       translation.text_matched = remove_footnote_tag(translation.current_text) == remove_footnote_tag(translation.draft_text)
       translation.imported = false
 
-      translation.save
       translation
     end
 

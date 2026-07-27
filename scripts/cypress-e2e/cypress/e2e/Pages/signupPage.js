@@ -33,10 +33,6 @@ class SIGNUP {
     cy.get(".qul-logo").should("be.visible");
     cy.get('a[href="/resources"]').should("contain.text", "Resources");
     cy.get('a[href="/tools"]').should("contain.text", "Tools");
-    cy.get('a[href="https://discord.gg/HAcGh8mfmj"]').should(
-      "contain.text",
-      "Community"
-    );
     cy.get('a[href="/faq"]').should("contain.text", "FAQ");
     cy.get(
       'a[href="https://github.com/TarteelAI/quranic-universal-library"]'

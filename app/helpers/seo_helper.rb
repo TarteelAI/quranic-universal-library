@@ -66,11 +66,7 @@ module SeoHelper
           "@type": "ImageObject",
           url: "#{HOST}/favicon.svg"
         }
-      },
-      sameAs: [
-        "https://github.com/TarteelAI/quranic-universal-library",
-        "https://discord.gg/HAcGh8mfmj"
-      ]
+      }
     }.to_json.html_safe
   end
 end

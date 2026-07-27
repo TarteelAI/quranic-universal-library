@@ -81,7 +81,7 @@ class WordTranslationsController < CommunityController
     case language.id
     when 174 # Urdu
       [54, 97]
-    when 185 # Chinese
+    when 185, 195, 196, 197 # Chinese(Traditional, Zhuyin, Pinyin, Simplified)
       [109, 56]
     when 175 # Uzbek
       [55, 127, 101]

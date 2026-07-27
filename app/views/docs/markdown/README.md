@@ -30,8 +30,8 @@ The pages here are published on the website at `/docs` and mirrored in the repos
 
 ## Primary Links
 
-- Project home: [https://qul.tarteel.ai/](https://qul.tarteel.ai/)
-- Resources directory: [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
-- Source code: [https://github.com/TarteelAI/quranic-universal-library](https://github.com/TarteelAI/quranic-universal-library)
-- Issues: [https://github.com/TarteelAI/quranic-universal-library/issues](https://github.com/TarteelAI/quranic-universal-library/issues)
-- Community Discord: [https://discord.gg/HAcGh8mfmj](https://discord.gg/HAcGh8mfmj)
+- [Project home](https://qul.tarteel.ai/)
+- [Resources directory](https://qul.tarteel.ai/resources)
+- [Source code](https://github.com/TarteelAI/quranic-universal-library)
+- [Issues](https://github.com/TarteelAI/quranic-universal-library/issues)
+- [Community Discord](https://t.zip/discord?utm_source=github&utm_campaign=qul)

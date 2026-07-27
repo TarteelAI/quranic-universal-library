@@ -10,9 +10,9 @@ Help improve the QUL platform itself — the Rails app, tooling, exporters, and 
 
 ## Useful Links
 
-- Source code: [https://github.com/TarteelAI/quranic-universal-library](https://github.com/TarteelAI/quranic-universal-library)
-- Issues: [https://github.com/TarteelAI/quranic-universal-library/issues](https://github.com/TarteelAI/quranic-universal-library/issues)
-- Community Discord: [https://discord.gg/HAcGh8mfmj](https://discord.gg/HAcGh8mfmj)
+- [Source code](https://github.com/TarteelAI/quranic-universal-library)
+- [Issues](https://github.com/TarteelAI/quranic-universal-library/issues)
+- [Community Discord](https://t.zip/discord?utm_source=github&utm_campaign=qul)
 
 ## Looking to Improve Data Instead?
 

@@ -16,6 +16,7 @@ FileUtils.chdir APP_ROOT do
   puts "== Installing dependencies =="
   system! "gem install bundler --conservative"
   system("bundle check") || system!("bundle install")
+  system! "yarn install"
 
   # puts "\n== Copying sample files =="
   # unless File.exist?("config/database.yml")
@@ -23,6 +24,11 @@ FileUtils.chdir APP_ROOT do
   # end
 
   puts "\n== Preparing database =="
+  # QUL connects to two separate Postgres databases (see config/database.yml):
+  # the CMS database (users, drafts, etc.) and the Quran content database
+  # (quran_dev in development). db:prepare only sets up the CMS database, so
+  # db:create:all is needed first to also create the Quran content database.
+  system! "bin/rails db:create:all"
   system! "bin/rails db:prepare"
 
   puts "\n== Removing old logs and tempfiles =="

@@ -79,7 +79,7 @@
   }
 
   .qul-docs a {
-    @apply underline font-bold;
+    @apply underline font-bold text-blue-600 hover:text-blue-800 visited:text-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
   }
 
   .btn {
@@ -104,6 +104,10 @@
 
   .tw-docs p {
     @apply mb-4;
+  }
+
+  .tw-docs a {
+    @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
   }
 
   .tw-docs ul {

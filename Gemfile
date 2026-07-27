@@ -113,7 +113,6 @@ gem 'rest-client'
 gem 'sidekiq', '~> 7.2.4'
 gem 'sidekiq-scheduler', '~> 5.0.3'
 gem 'sidekiq-status'
-gem 'sinatra', require: false
 
 gem 'tzinfo-data'
 

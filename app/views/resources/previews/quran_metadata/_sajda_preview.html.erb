@@ -1,5 +1,5 @@
 <%
-  verses = Verse.unscoped.order('sajdah_number asc').where.not(sajdah_number: nil)
+  verses = Verse.unscoped.order('sajdah_number ASC, verse_index ASC').where.not(sajdah_number: nil)
 %>
 
 <div class="space-y-6 text-gray-800 text-base leading-relaxed">

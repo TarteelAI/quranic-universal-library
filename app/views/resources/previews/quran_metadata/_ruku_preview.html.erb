@@ -1,8 +1,13 @@
 <%
   id = (params[:ruku].presence || 1).to_i.abs
   ruku = Ruku.find_by(ruku_number: id) || Ruku.first
-  verses = ruku.verses
+  cache_key = ["ruku", ruku.id, params.to_unsafe_h]
 %>
+
+<% cache(cache_key, expires_in: 7.days) do %>
+  <%
+    verses_by_page = ruku.verses.includes(:chapter).order('verse_index ASC').group_by(&:page_number)
+  %>
 
 <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
   <div class="flex items-center">
@@ -22,7 +27,7 @@
       <% end %>
     <% end %>
 
-    <% if ruku.ruku_number < 30 %>
+    <% if ruku.ruku_number < 558 %>
       <%= link_to detail_resources_path('quran-metadata', resource.id, ruku: ruku.ruku_number + 1), class: 'btn btn-secondary' do %>
         Next →
       <% end %>
@@ -36,7 +41,8 @@
     <p class="mt-2 text-sm text-gray-600">Total Ayahs:
       <strong>
         <%= ruku.verses_count %>
-      </strong></p>
+      </strong>
+      | Pages: <strong><%= verses_by_page.keys.length %></strong></p>
   </div>
 
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
@@ -45,13 +51,21 @@
     <p><strong>To:</strong> <%= ruku.last_verse.chapter.name_simple %>, Ayah <%= ruku.last_verse.verse_number %></p>
   </div>
 
-  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
-    <div class="p-6">
-      <div class="qpc-hafs quran-text">
-        <% verses.each do |verse| %>
-          <%= verse.text_qpc_hafs %>
+  <% if verses_by_page.any? %>
+    <div class="overflow-y-auto border border-gray-200 rounded-lg shadow-sm bg-white" style="max-height: 600px;">
+      <div class="flex flex-col gap-6 p-4">
+        <% verses_by_page.sort.each do |page_num, page_verses| %>
+          <div class="border-b pb-6 last:border-b-0">
+            <div class="text-sm font-semibold text-gray-700 mb-3">Page <%= page_num %></div>
+            <div class="qpc-hafs quran-text text-lg leading-relaxed">
+              <% page_verses.each do |verse| %>
+                <%= verse.text_qpc_hafs %>
+              <% end %>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
+<% end %>

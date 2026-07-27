@@ -18,5 +18,4 @@ The full specification — including implemented and proposed endpoints — is b
 
 - [https://github.com/TarteelAI/quranic-universal-library](https://github.com/TarteelAI/quranic-universal-library)
 
-Want to influence the API design? Share feedback on Discord:
-[https://discord.gg/HAcGh8mfmj](https://discord.gg/HAcGh8mfmj)
+Want to influence the API design? Share feedback on [Discord](https://t.zip/discord?utm_source=github&utm_campaign=qul)

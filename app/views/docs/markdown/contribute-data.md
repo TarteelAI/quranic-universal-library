@@ -23,5 +23,4 @@ Most data contribution happens through the QUL CMS, where each resource type has
 
 ## Get In Touch
 
-Join the community to coordinate larger data contributions:
-[https://discord.gg/HAcGh8mfmj](https://discord.gg/HAcGh8mfmj)
+Join the community on [Discord](https://t.zip/discord?utm_source=github&utm_campaign=qul) to coordinate larger data contributions.

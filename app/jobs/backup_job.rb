@@ -3,7 +3,6 @@ require 'sidekiq-scheduler'
 
 class BackupJob < ApplicationJob
   queue_as :default
-  include Sidekiq::Status::Worker
 
   def perform(tag=nil)
     if Rails.env.production?

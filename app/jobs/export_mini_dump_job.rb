@@ -19,24 +19,6 @@ class ExportMiniDumpJob < ApplicationJob
     tafsirs = [16, 157]
     info = [58]
 
-    # Keep first 15 ayah of each surah
-=begin
-    Chapter.find_each do |c|
-      verse_to_remove = c.verses.where("verse_number > 15")
-      words = Word.where(verse_id: verse_to_remove)
-      WordTranslation.where(word_id: words).delete_all
-      words.delete_all
-
-      translations = Translation.where(verse_id: verse_to_remove)
-      FootNote.where(translation_id: translations).delete_all
-      translations.delete_all
-
-      verse_to_remove.delete_all
-    end
-=end
-
-
-
     # Remove data we don't want to include in mini dump
     WordTranslation.where.not(resource_content_id: word_translations).delete_all
     Translation.where.not(resource_content_id: translation).delete_all

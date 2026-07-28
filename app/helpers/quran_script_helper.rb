@@ -31,6 +31,8 @@ module QuranScriptHelper
       'qpc-hafs'
     when 'text_indopak'
       'indopak'
+    else
+      script
     end
   end
 

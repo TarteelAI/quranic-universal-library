@@ -1251,14 +1251,29 @@ export default {
       return this.showSegments && this.segmentsLoaded;
     },
     currentAyahIssue() {
-      const data = this.verseSegment;
-      if (!data || !data.segments) return null;
+      // The legacy ayah-by-ayah tool still validates client-side. The surah tool is
+      // unified on the shared backend validator, so its badge reflects the issues from
+      // the last server validation run (Find issues) instead of a separate client check
+      // that could disagree with the modal.
+      if (this.audioType === 'ayah') {
+        const data = this.verseSegment;
+        if (!data || !data.segments) return null;
 
-      const present = (value) => value !== undefined && value !== null && value !== '';
-      const nextData = this.segments[`${this.chapter}:${Number(this.currentVerseNumber) + 1}`];
-      const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
+        const present = (value) => value !== undefined && value !== null && value !== '';
+        const nextData = this.segments[`${this.chapter}:${Number(this.currentVerseNumber) + 1}`];
+        const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
 
-      return this.detectAyahIssue(data, this.playerDurationMs(), nextAyahStart);
+        return this.detectAyahIssue(data, this.playerDurationMs(), nextAyahStart);
+      }
+
+      const group = this.issueGroups.find((issueGroup) => issueGroup.id === 'current');
+      if (!group) return null;
+
+      const verse = Number(this.currentVerseNumber);
+      const forVerse = group.issues.filter((issue) => Number(issue.verse) === verse);
+      if (!forVerse.length) return null;
+
+      return forVerse.find((issue) => issue.severity === 'major') || forVerse[0];
     },
   },
 };

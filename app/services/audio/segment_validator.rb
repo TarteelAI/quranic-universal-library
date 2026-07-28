@@ -51,6 +51,7 @@ module Audio
         issues.concat(ayah_timing_issues(segment))
         issues.concat(ayah_boundary_issues(segment, lookup))
         issues.concat(word_count_issues(segment))
+        issues.concat(word_order_issues(segment))
         issues.concat(word_timing_issues(segment))
       end
 
@@ -84,25 +85,35 @@ module Audio
         return [issue(segment, "#{segment.verse_key} ayah duration is 0 (timestamp to equals from at #{from}).", 'bg-danger', 'ayah_timing')]
       end
 
-      first_word_segment = segment.word_segments.find { |word| word[0].to_i == 1 }
-      if present?(from) && first_word_segment && present?(first_word_segment[1]) && from > first_word_segment[1].to_i
-        return [issue(segment, "#{segment.verse_key} ayah starts at #{from} which is after its first word starting at #{first_word_segment[1]}.", 'bg-danger', 'ayah_timing')]
+      issues = []
+
+      earliest_start = min_word_start(segment)
+      if earliest_start && from > earliest_start
+        issues << issue(segment, "#{segment.verse_key} ayah starts at #{from} which is after its earliest word starting at #{earliest_start}.", 'bg-danger', 'ayah_timing')
       end
 
-      []
+      latest_end = max_word_end(segment)
+      if latest_end && to < latest_end
+        issues << issue(segment, "#{segment.verse_key} ayah ends at #{to} which is before its latest word ending at #{latest_end}.", 'bg-warning', 'ayah_timing')
+      end
+
+      issues
     end
 
     def ayah_boundary_issues(segment, lookup)
       return [] if blank?(segment.timestamp_to)
 
       next_ayah = lookup[[segment.chapter_id, segment.verse_number + 1]]
-      return [] unless next_ayah && present?(next_ayah.timestamp_from)
+      return [] unless next_ayah
 
-      if segment.timestamp_to > next_ayah.timestamp_from
-        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah.verse_key} starting at #{next_ayah.timestamp_from}.", 'bg-danger', 'ayah_overlap')]
-      elsif next_ayah.timestamp_from - segment.timestamp_to > AYAH_GAP_THRESHOLD_MS
-        gap = next_ayah.timestamp_from - segment.timestamp_to
-        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} but the next ayah #{next_ayah.verse_key} starts at #{next_ayah.timestamp_from} — #{gap} ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS} ms).", 'bg-warning', 'ayah_gap')]
+      next_start = [next_ayah.timestamp_from, min_word_start(next_ayah)].compact.map(&:to_i).min
+      return [] if next_start.nil?
+
+      if segment.timestamp_to > next_start
+        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah.verse_key} starting at #{next_start}.", 'bg-danger', 'ayah_overlap')]
+      elsif next_start - segment.timestamp_to > AYAH_GAP_THRESHOLD_MS
+        gap = next_start - segment.timestamp_to
+        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} but the next ayah #{next_ayah.verse_key} starts at #{next_start} — #{gap} ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS} ms).", 'bg-warning', 'ayah_gap')]
       else
         []
       end
@@ -125,14 +136,45 @@ module Audio
       issues
     end
 
+    def word_order_issues(segment)
+      word_numbers = segment.word_segments.map { |word| word[0].to_i }
+      return [] if word_numbers.empty?
+
+      issues = []
+      words_count = segment.words_count.to_i
+
+      if word_numbers.first != 1
+        issues << issue(segment, "#{segment.verse_key} word segments start at word #{word_numbers.first} but should start at word 1.", 'bg-danger', 'word_order')
+      end
+
+      if words_count.positive? && word_numbers.last != words_count
+        issues << issue(segment, "#{segment.verse_key} word segments end at word #{word_numbers.last} but the ayah has #{words_count} words — a repeat is incomplete.", 'bg-danger', 'word_order')
+      end
+
+      if words_count.positive?
+        missing = (1..words_count).to_a - word_numbers.uniq
+        if missing.any?
+          issues << issue(segment, "#{segment.verse_key} has no segment for word(s) #{missing.join(', ')}.", 'bg-danger', 'word_order')
+        end
+      end
+
+      word_numbers.each_cons(2) do |previous_number, current_number|
+        if current_number > previous_number + 1
+          issues << issue(segment, "#{segment.verse_key} word segments jump from word #{previous_number} to word #{current_number} (gap in sequence).", 'bg-danger', 'word_order')
+        end
+      end
+
+      issues
+    end
+
     def word_timing_issues(segment)
       issues = []
       previous_word_end = nil
 
-      segment.word_segments.each_with_index do |word_segment, index|
+      segment.word_segments.each do |word_segment|
         from = word_segment[1]
         to = word_segment[2]
-        position = index + 1
+        position = word_segment[0]
 
         if blank?(to) || blank?(from)
           issues << issue(segment, "#{segment.verse_key}:#{position} timestamp to(#{to}) or from(#{from}) is missing", 'bg-warning', 'word_timing')
@@ -176,6 +218,16 @@ module Audio
       end
 
       issues
+    end
+
+    def min_word_start(segment)
+      starts = segment.word_segments.map { |word| word[1] }.select { |value| present?(value) }.map(&:to_i)
+      starts.min
+    end
+
+    def max_word_end(segment)
+      ends = segment.word_segments.map { |word| word[2] }.select { |value| present?(value) }.map(&:to_i)
+      ends.max
     end
 
     def issue(segment, text, severity, category)

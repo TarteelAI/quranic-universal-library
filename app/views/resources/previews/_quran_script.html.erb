@@ -1,12 +1,27 @@
 <%
   resource_content = resource.resource_content
-  text_type = resource_content.meta_value('text-type') || resource_content.meta_value('script')
+  text_type = resource_content.meta_value('text-type') || resource_content.meta_value('script') || resource_content.meta_value('font-face')
 
   key = params[:ayah] || '73:4'
   ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
-  script_class = get_quran_script_font_family(text_type, ayah) || 'qpc-hafs'
   by_word = resource_content.word?
-  is_image = text_type.include?('image')
+  is_image = text_type.to_s.include?('image')
+  is_qirat = resource_content.meta_value('qirat').present?
+
+  if is_qirat
+    script_class = resource_content.meta_value('font-face') || text_type
+
+    if by_word
+      qirat_words = QuranScript::ByWord
+                      .where(resource_content_id: resource_content.id, chapter_id: ayah.chapter_id, verse_number: ayah.verse_number)
+                      .order(:word_number)
+    else
+      qirat_verse = QuranScript::ByVerse
+                      .find_by(resource_content_id: resource_content.id, chapter_id: ayah.chapter_id, verse_number: ayah.verse_number)
+    end
+  else
+    script_class = get_quran_script_font_family(text_type, ayah) || 'qpc-hafs'
+  end
 %>
 
 <%= render 'shared/page_font', verses: [ayah] %>
@@ -76,7 +91,23 @@
         </div>
 
         <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <% if by_word %>
+          <% if is_qirat %>
+            <% if by_word %>
+              <div class="flex flex-wrap gap-2 quran-text">
+                <% qirat_words.each do |word| %>
+                  <span class="px-4 py-2 border border-gray-300 word">
+                    <div class="<%= script_class %>">
+                      <%= safe_html word.text %>
+                    </div>
+                  </span>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="<%= script_class %>">
+                <%= safe_html qirat_verse&.text %>
+              </div>
+            <% end %>
+          <% elsif by_word %>
             <div class="flex flex-wrap gap-2 quran-text">
               <% ayah.words.each_with_index do |word, index| %>
                 <span class="px-4 py-2 border border-gray-300 word">

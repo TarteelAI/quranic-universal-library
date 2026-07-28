@@ -940,6 +940,144 @@ const store = createStore({
         state.saving = false;
       });
     },
+    // Persist a single ayah's boundary times (and optionally its word segments)
+    // without round-tripping through UPDATE_SEGMENTS. That keeps state.verseSegment
+    // pointing at the same object as state.segments[currentKey], which a merge would
+    // break, and lets us save neighbour ayahs the reconcile logic just adjusted.
+    async PERSIST_AYAH({ state }, payload) {
+      if (state.segmentLocked || state.audioType === 'ayah') return;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const { recitation, chapter, segmentsUrl, segments } = state;
+      const key = `${chapter}:${payload.ayah}`;
+      const data = segments[key];
+      if (!data) return;
+
+      const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+      const headers = { "Content-Type": "application/json" };
+      if (csrfTokenElement) headers["X-CSRF-Token"] = csrfTokenElement.content;
+
+      try {
+        // Word segments and boundary times hit the same audio_segment row via
+        // separate endpoint modes, so save them sequentially to avoid one request
+        // overwriting the other's columns.
+        if (payload.segments) {
+          await fetch(`/${segmentsUrl}/${recitation}/save_segments.json`, {
+            method: 'post',
+            headers,
+            body: JSON.stringify({ chapter_id: chapter, verse_key: key, segments: data.segments }),
+          });
+        }
+
+        if (present(data.timestamp_from) && present(data.timestamp_to)) {
+          const attrs = { recitation_id: recitation, verse_key: key, from: data.timestamp_from, to: data.timestamp_to };
+          await fetch(`/${segmentsUrl}/${recitation}/save_segments.json?${$.param(attrs)}`, { method: 'post', headers });
+        }
+      } catch (error) {
+        // Boundary sync is best-effort; the in-memory edit still stands and the
+        // reviewer can re-save from the table if a write fails.
+      }
+    },
+    // Req: when the first word starts before the ayah's own start time, pull the
+    // ayah start back to (at most 200ms before) the first word. Any remaining gap
+    // to the previous ayah is given to that ayah's end so no silence is orphaned.
+    RECONCILE_AYAH_START({ state }, payload = {}) {
+      if (state.segmentLocked || state.audioType === 'ayah') return;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const { chapter, currentVerseNumber, segments, verseSegment } = state;
+      if (!verseSegment || !present(verseSegment.timestamp_from)) return;
+
+      const segmentsList = verseSegment.segments || [];
+
+      // Only react to edits of the first word (word number 1).
+      if (payload.index != null && Number((segmentsList[payload.index] || [])[0]) !== 1) return;
+
+      const firstSegment = segmentsList.find((segment) => Number(segment[0]) === 1 && present(segment[1]));
+      if (!firstSegment) return;
+
+      const firstStart = Number(firstSegment[1]);
+      const ayahStart = Number(verseSegment.timestamp_from);
+      if (firstStart >= ayahStart) return;
+
+      const prev = currentVerseNumber > 1 ? segments[`${chapter}:${currentVerseNumber - 1}`] : null;
+      const prevEnd = (prev && present(prev.timestamp_to)) ? Number(prev.timestamp_to) : 0;
+
+      const available = Math.max(0, firstStart - prevEnd);
+      const leadIn = Math.min(200, available);
+      const newAyahStart = firstStart - leadIn;
+      const newPrevEnd = prevEnd + Math.max(0, available - 200);
+
+      verseSegment.timestamp_from = newAyahStart;
+      state.currentAyahTimeFrom = newAyahStart;
+      this.dispatch("PERSIST_AYAH", { ayah: currentVerseNumber, segments: true });
+
+      if (prev && newPrevEnd !== prevEnd) {
+        prev.timestamp_to = newPrevEnd;
+        this.dispatch("PERSIST_AYAH", { ayah: currentVerseNumber - 1 });
+      }
+    },
+    // Req: extending the last word's end should also move the next ayah's start
+    // and its first word (keeping that word's duration). The ripple stops there —
+    // it does not cascade through the rest of the surah.
+    RECONCILE_NEXT_AYAH({ state }, payload = {}) {
+      if (state.segmentLocked || state.audioType === 'ayah') return;
+
+      const present = (value) => value !== undefined && value !== null && value !== '';
+      const { chapter, currentVerseNumber, versesCount, segments, verseSegment } = state;
+      if (!verseSegment) return;
+
+      const segmentsList = verseSegment.segments || [];
+      let lastIndex = -1;
+      let lastEnd = null;
+      for (let i = segmentsList.length - 1; i >= 0; i--) {
+        if (present(segmentsList[i][2])) { lastIndex = i; lastEnd = Number(segmentsList[i][2]); break; }
+      }
+      if (lastEnd === null) return;
+
+      // Only ripple when the edit actually moved the last word — directly, or via
+      // a timeline drag that pushed it. Editing an unrelated word must not touch
+      // the next ayah.
+      const changed = payload.indices || (payload.index != null ? [payload.index] : null);
+      if (changed && !changed.includes(lastIndex)) return;
+
+      let currentChanged = false;
+      if (present(verseSegment.timestamp_to) && lastEnd > Number(verseSegment.timestamp_to)) {
+        verseSegment.timestamp_to = lastEnd;
+        state.currentAyahTimeTo = lastEnd;
+        currentChanged = true;
+      }
+
+      if (currentVerseNumber < versesCount) {
+        const next = segments[`${chapter}:${currentVerseNumber + 1}`];
+        if (next) {
+          const nextSegments = next.segments || [];
+          const nextFirst = nextSegments.find((segment) => Number(segment[0]) === 1 && present(segment[1]) && present(segment[2]));
+          const nextFirstStart = nextFirst ? Number(nextFirst[1])
+            : (present(next.timestamp_from) ? Number(next.timestamp_from) : null);
+
+          if (nextFirstStart !== null && lastEnd > nextFirstStart) {
+            if (nextFirst) {
+              const shift = lastEnd - Number(nextFirst[1]);
+              nextFirst[1] = lastEnd;
+              nextFirst[2] = Number(nextFirst[2]) + shift;
+              next.segments = [...nextSegments];
+            }
+            next.timestamp_from = lastEnd;
+
+            if (present(verseSegment.timestamp_to) && Number(verseSegment.timestamp_to) > lastEnd) {
+              verseSegment.timestamp_to = lastEnd;
+              state.currentAyahTimeTo = lastEnd;
+            }
+            currentChanged = true;
+
+            this.dispatch("PERSIST_AYAH", { ayah: currentVerseNumber + 1, segments: !!nextFirst });
+          }
+        }
+      }
+
+      if (currentChanged) this.dispatch("PERSIST_AYAH", { ayah: currentVerseNumber, segments: true });
+    },
     LOAD_AYAH({
                 state
               }, payload) {

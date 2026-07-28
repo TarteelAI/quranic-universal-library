@@ -22,7 +22,7 @@ module DraftContent
         importer.import resource.quran_enc_key
       else
         importer = Importer::QuranEnc.new
-        importer.import resource.quran_enc_key
+        importer.import(resource.quran_enc_key)
       end
     end
 

@@ -2,62 +2,69 @@
 
 module DraftContent
   class ApproveDraftWordTranslationJob < ApproveDraftContentJob
+    BATCH_SIZE = 1000
+
     private
 
     def import_from_legacy_table
-      Draft::WordTranslation
-        .includes(:word)
-        .where(resource_content_id: @resource.id)
-        .find_each do |draft|
-          import_word(draft)
-        end
+      scope = Draft::WordTranslation.where(resource_content_id: @resource.id)
+      import_drafts(scope, Draft::WordTranslation, group: false)
     end
 
     def import_from_draft_content
-      if @draft_id
-        draft = Draft::Content.find(@draft_id)
-        import_word_draft(draft)
-      else
-        Draft::Content.where(resource_content_id: @resource.id, imported: false)
-                      .find_each { |draft| import_word_draft(draft) }
+      scope =
+        if @draft_id
+          Draft::Content.where(id: @draft_id)
+        else
+          Draft::Content.where(resource_content_id: @resource.id, imported: false)
+        end
+
+      import_drafts(scope, Draft::Content, group: true)
+    end
+
+    def import_drafts(scope, draft_class, group:)
+      existing = WordTranslation.where(resource_content_id: @resource.id).pluck(:word_id, :id).to_h
+
+      scope.find_in_batches(batch_size: BATCH_SIZE) do |batch|
+        inserts = []
+        updates = []
+        imported_ids = []
+
+        batch.each do |draft|
+          next if draft.word_id.blank?
+
+          row = translation_row(draft, group: group)
+          imported_ids << draft.id
+
+          if (id = existing[draft.word_id])
+            updates << row.merge(id: id)
+          else
+            inserts << row
+          end
+        end
+
+        WordTranslation.insert_all(inserts) if inserts.any?
+        WordTranslation.upsert_all(updates, unique_by: :id) if updates.any?
+        draft_class.where(id: imported_ids).update_all(imported: true) if imported_ids.any?
       end
     end
 
-    def import_word(draft)
-      word = draft.word
-
-      translation = WordTranslation.where(
-        word_id: word.id,
-        resource_content_id: @resource.id
-      ).first_or_initialize
-
-      translation.assign_attributes(
+    def translation_row(draft, group:)
+      row = {
+        word_id: draft.word_id,
+        resource_content_id: @resource.id,
         text: draft.draft_text.strip,
         language_id: @resource.language_id,
         language_name: @resource.language_name&.downcase || '',
         priority: @resource.priority || 5
-      )
-      translation.save!(validate: false)
-      draft.update_column(:imported, true)
-    end
+      }
 
-    def import_word_draft(draft)
-      word = draft.word
-      translation = WordTranslation.where(
-        word_id: word.id,
-        resource_content_id: @resource.id
-      ).first_or_initialize
+      if group
+        row[:group_word_id] = draft.meta_data&.dig('group_word_id')
+        row[:group_text] = draft.meta_data&.dig('group_text')&.strip
+      end
 
-      translation.assign_attributes(
-        text: draft.draft_text.strip,
-        language_id: @resource.language_id,
-        language_name: @resource.language_name&.downcase || '',
-        priority: @resource.priority || 5,
-        group_word_id: draft.meta_data&.dig('group_word_id'),
-        group_text: draft.meta_data&.dig('group_text')
-      )
-      translation.save!(validate: false)
-      draft.update_column(:imported, true)
+      row
     end
   end
 end

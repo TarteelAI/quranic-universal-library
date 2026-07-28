@@ -520,7 +520,7 @@ class ResourceContent < QuranApiRecord
     save(validate: false)
 
     if translation?
-      language.update_translations_count
+      language&.update_translations_count
       check_for_missing_translation
     elsif tafsir?
       check_for_missing_tafsirs

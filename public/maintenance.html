@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>QUL — Down for maintenance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        @font-face {
+            font-family: "qpc-hafs";
+            src: local('KFGQPCHAFSUthmanicScript-Regula'),
+            url("https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.woff2?v=3.3") format('woff2'),
+            url("https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.ttf?v=3.3") format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Open Sauce Sans";
+            src: local('Open Sauce One'),
+            url("/fonts/OpenSauceOne-Regular.woff2") format('woff2'),
+            url("/fonts/OpenSauceOne-Regular.ttf") format('truetype');
+            font-display: swap;
+        }
+
+        :root {
+            --green: #57d798;
+            --green-2: #2ed477;
+            --green-ink: #1b8f5e;
+            --green-tint: #eafaf2;
+            --green-glow: rgba(87, 215, 152, 0.45);
+            --ink: #303030;
+            --ink-soft: #5e6469;
+            --muted: #97a1a9;
+            --bg: #eef4f1;
+            --panel: #ffffff;
+            --line: #e8edeb;
+            --sans: "Open Sauce Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            --arabic: "qpc-hafs", "Geeza Pro", serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: radial-gradient(1100px 600px at 80% -10%, var(--green-tint), transparent 60%),
+            radial-gradient(900px 500px at 0% 110%, #eaf6ff, transparent 55%),
+            var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 18px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 980px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: 0 30px 70px rgba(48, 70, 60, 0.12);
+            overflow: hidden;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 26px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo {
+            width: 26px;
+            height: 33px;
+            flex: 0 0 auto;
+            color: var(--ink);
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        .brand span {
+            color: var(--green-ink);
+        }
+
+        .tarteel-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+        }
+
+        .tarteel-mark .by {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .tarteel-logo {
+            height: 20px;
+            width: auto;
+        }
+
+        .pill {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: var(--green-tint);
+            color: var(--green-ink);
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .pill .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-2);
+            box-shadow: 0 0 0 0 var(--green-glow);
+            animation: ping 1.8s ease-out infinite;
+        }
+
+        @keyframes ping {
+            0% {
+                box-shadow: 0 0 0 0 var(--green-glow);
+            }
+            70%, 100% {
+                box-shadow: 0 0 0 9px rgba(46, 212, 119, 0);
+            }
+        }
+
+        .intro {
+            padding: 26px 26px 6px;
+        }
+
+        .intro h1 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .intro p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 15px;
+            line-height: 1.55;
+            max-width: 64ch;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.55fr 1fr;
+            gap: 0;
+            padding: 22px 26px 4px;
+        }
+
+        /* ===== reciter / mushaf pane ===== */
+        .reader {
+            padding-right: 26px;
+        }
+
+        .surah-head {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .surah-en {
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .surah-ar {
+            font-family: var(--arabic);
+            font-size: 26px;
+            color: var(--green-ink);
+            margin-left: auto;
+            line-height: 1;
+        }
+
+        .badges {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0 14px;
+        }
+
+        .badge {
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f3f6f5;
+            color: var(--ink-soft);
+        }
+
+        .badge.green {
+            background: var(--green-tint);
+            color: var(--green-ink);
+        }
+
+        .mushaf {
+            font-family: var(--arabic);
+            direction: rtl;
+            text-align: center;
+            font-size: clamp(26px, 3.4vw, 33px);
+            line-height: 2.25;
+            color: var(--ink);
+            max-height: 230px;
+            overflow-y: auto;
+            padding: 6px 4px 8px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--green) transparent;
+        }
+
+        .mushaf::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .mushaf::-webkit-scrollbar-thumb {
+            background: var(--green);
+            border-radius: 6px;
+        }
+
+        .bismillah {
+            display: block;
+            font-size: 0.78em;
+            color: var(--green-ink);
+            margin-bottom: 8px;
+        }
+
+        .ayah {
+            border-radius: 10px;
+            padding: 2px 6px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .ayah.active {
+            background: var(--green-tint);
+            color: var(--green-ink);
+        }
+
+        /* ===== playlist pane ===== */
+        .aside {
+            border-left: 1px solid var(--line);
+            padding-left: 24px;
+        }
+
+        .aside h2 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin: 4px 0 12px;
+            font-weight: 700;
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            max-height: 264px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .row:hover {
+            background: #f5f8f7;
+        }
+
+        .row.active {
+            background: var(--green-tint);
+            border-color: rgba(87, 215, 152, 0.4);
+        }
+
+        .num {
+            flex: 0 0 auto;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            background: #f0f3f2;
+            color: var(--ink-soft);
+        }
+
+        .row.active .num {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .row-main {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .row-en {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .row-sub {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .row-ar {
+            font-family: var(--arabic);
+            font-size: 20px;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .row.active .row-ar {
+            color: var(--green-ink);
+        }
+
+        .eq {
+            display: none;
+            gap: 2px;
+            align-items: flex-end;
+            height: 14px;
+            width: 16px;
+        }
+
+        .row.active.playing .eq {
+            display: inline-flex;
+        }
+
+        .row.active.playing .row-ar {
+            display: none;
+        }
+
+        .eq i {
+            width: 3px;
+            background: var(--green-2);
+            border-radius: 2px;
+            animation: bounce 0.9s ease-in-out infinite;
+        }
+
+        .eq i:nth-child(1) {
+            animation-delay: -0.2s;
+        }
+
+        .eq i:nth-child(2) {
+            animation-delay: -0.5s;
+        }
+
+        .eq i:nth-child(3) {
+            animation-delay: -0.1s;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                height: 4px;
+            }
+            50% {
+                height: 14px;
+            }
+        }
+
+        /* ===== player bar ===== */
+        .player {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 18px 26px 26px;
+            padding: 14px 18px;
+            background: #fbfdfc;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .ctl {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--ink-soft);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+
+        .ctl:hover {
+            background: #eef2f0;
+            color: var(--ink);
+        }
+
+        .ctl svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .play {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green), var(--green-2));
+            color: #fff;
+            box-shadow: 0 8px 18px var(--green-glow);
+        }
+
+        .play:hover {
+            background: linear-gradient(135deg, var(--green), var(--green-2));
+            color: #fff;
+            transform: scale(1.04);
+        }
+
+        .play svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .play .pause-i {
+            display: none;
+        }
+
+        .play.on .play-i {
+            display: none;
+        }
+
+        .play.on .pause-i {
+            display: block;
+        }
+
+        .pmeta {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .pnow {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 7px;
+            gap: 10px;
+        }
+
+        .ptitle {
+            font-size: 13.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ptitle b {
+            color: var(--green-ink);
+        }
+
+        .preciter {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .track {
+            position: relative;
+            height: 5px;
+            border-radius: 5px;
+            background: #e7ece9;
+            cursor: pointer;
+        }
+
+        .fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 0%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--green), var(--green-2));
+        }
+
+        .fill::after {
+            content: "";
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            width: 11px;
+            height: 11px;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid var(--green-2);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+        }
+
+        .time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-top: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 0 26px 22px;
+            color: var(--muted);
+            font-size: 12.5px;
+        }
+
+        .foot p {
+            margin: 0;
+        }
+
+        @media (max-width: 720px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .reader {
+                padding-right: 0;
+            }
+
+            .aside {
+                border-left: 0;
+                border-top: 1px solid var(--line);
+                padding-left: 0;
+                padding-top: 16px;
+            }
+
+            .surah-ar {
+                margin-left: 0;
+            }
+
+            .player {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pill .dot, .eq i {
+                animation: none;
+            }
+        }
+
+        .eta {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: .6rem;
+            flex-wrap: wrap;
+            margin: 8px 26px 0;
+            padding: 10px 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fbfdfc;
+            font-size: 14px
+        }
+
+        .eta .label {
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .eta .countdown {
+            color: var(--green-ink);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums
+        }
+
+        .eta .sep {
+            color: var(--muted)
+        }
+
+    </style>
+</head>
+<body>
+<main class="app">
+    <header class="topbar">
+        <svg class="logo" viewBox="0 0 32 40" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M16.0199 11.1875L14.996 14.7033V14.6987C14.8601 15.1587 14.2077 15.3408 13.8544 15.0175L11.1588 12.5355C11.0863 12.4672 11.0319 12.3852 11.0093 12.2896L9.76344 7.56708C9.52334 6.66538 10.1757 5.69992 11.2222 5.40846L12.382 5.08512C13.4421 4.78911 14.5067 5.29006 14.7514 6.20086L16.0199 10.9097C16.047 11.0008 16.047 11.0965 16.0199 11.1875ZM11.8481 16.2015L10.8197 12.6903C10.7925 12.5993 10.7427 12.5173 10.6747 12.4535L7.0731 9.18373C6.37543 8.55072 5.21113 8.70556 4.48174 9.52984L3.67987 10.4315C2.95501 11.2467 2.92783 12.4125 3.61191 13.041L7.19995 16.3381C7.27244 16.4019 7.35852 16.4474 7.45818 16.4656L11.0598 17.0895C11.531 17.1715 11.9795 16.6615 11.8481 16.2015ZM7.245 16.7799L9.99945 19.1753L10.004 19.1708C10.3619 19.485 10.2577 20.159 9.81824 20.3457L6.45219 21.7757C6.36158 21.8121 6.26191 21.8303 6.16677 21.8121L1.37366 20.9878C0.458526 20.8284 -0.139481 19.8356 0.0281425 18.7563L0.213887 17.5632C0.38604 16.4748 1.27852 15.7097 2.20724 15.8645L6.99583 16.6615C7.08643 16.6751 7.17251 16.7161 7.245 16.7799ZM10.0484 22.6773L6.44228 22.1582C6.34715 22.1445 6.25201 22.1582 6.16593 22.1946L1.70806 24.1301C0.842764 24.5035 0.502988 25.6329 0.946963 26.6439L1.43171 27.7505C1.87116 28.7479 2.90861 29.2625 3.76484 28.8936L8.24083 26.9809C8.33144 26.9445 8.40393 26.8807 8.46282 26.7987L10.5241 23.7657C10.7914 23.3695 10.5241 22.7456 10.0484 22.6773ZM11.9753 25.601L8.66365 27.1221C8.57758 27.1631 8.50509 27.2223 8.45073 27.2997L5.74157 31.3482C5.21605 32.1315 5.53318 33.27 6.45284 33.8803L7.45858 34.5497C8.36465 35.1509 9.51536 35.0188 10.0364 34.2446L12.7727 30.2052C12.827 30.1232 12.8588 30.0321 12.8588 29.9319L12.963 26.2568C12.9765 25.7787 12.4103 25.4007 11.9753 25.601ZM18.4541 15.1541L21.2041 12.7542C21.2766 12.6904 21.3309 12.613 21.3581 12.5219L22.8214 7.87223C23.1068 6.97053 22.4816 5.97319 21.4306 5.6453L20.2799 5.29009C19.2424 4.96675 18.1778 5.42216 17.8924 6.31475L16.3974 10.9644C16.3657 11.0555 16.3657 11.1557 16.3928 11.2513L17.3216 14.8035C17.4439 15.268 18.0917 15.4684 18.4496 15.1541H18.4541ZM24.7236 16.8891L21.1174 17.4129V17.4083C20.6463 17.4766 20.2068 16.9529 20.3563 16.4975L21.4844 13.0045C21.5116 12.9135 21.5705 12.8269 21.643 12.7677L25.4031 9.66643C26.1235 9.07441 27.2651 9.27023 27.9628 10.1036L28.7375 11.0281C29.4442 11.8706 29.4352 13.0501 28.7103 13.6558L24.9773 16.7753C24.9048 16.839 24.8187 16.8755 24.7236 16.8891ZM22.1444 20.7601L25.4561 22.2811C25.5422 22.3221 25.6373 22.3358 25.7279 22.3267L30.5437 21.7346C31.4769 21.6208 32.1202 20.6326 31.9798 19.5396L31.8258 18.3373C31.6853 17.2535 30.8291 16.4702 29.9094 16.5795L25.0801 17.1442C24.9849 17.1533 24.8943 17.1943 24.8173 17.258L21.9904 19.5851C21.6189 19.8903 21.7095 20.5643 22.1444 20.7646V20.7601ZM23.1797 27.2132L21.209 24.1347H21.2136C20.9553 23.7294 21.2453 23.1146 21.721 23.0599L25.3543 22.641C25.4494 22.6273 25.5491 22.6455 25.6352 22.6865L30.0025 24.836C30.836 25.2459 31.135 26.3707 30.6684 27.3589L30.152 28.4519C29.6808 29.4492 28.6071 29.9274 27.7599 29.5175L23.3881 27.3999C23.3021 27.3589 23.2341 27.2952 23.1797 27.2132ZM18.6069 26.4663V30.1278C18.6069 30.2234 18.6341 30.319 18.6839 30.3965L21.2209 34.5543C21.7148 35.3604 22.8745 35.5425 23.8032 34.955L24.8271 34.3129C25.7468 33.7346 26.1047 32.6279 25.6244 31.8264L23.1056 27.6458C23.0557 27.5638 22.9832 27.4955 22.8926 27.4545L19.6127 25.8333C19.1823 25.6238 18.6069 25.9836 18.6069 26.4618V26.4663ZM13.1976 30.0959L15.1638 27.0128H15.1683C15.4266 26.6121 16.1061 26.6212 16.3507 27.031L18.2399 30.1779C18.2943 30.2644 18.3169 30.36 18.3169 30.4557L18.1855 35.3422C18.1584 36.2757 17.2659 37.0135 16.1786 36.9998L14.9735 36.9816C13.8772 36.9634 12.9983 36.1847 13.0164 35.2374L13.1161 30.36C13.1161 30.269 13.1433 30.1779 13.1976 30.0959Z"/>
+        </svg>
+        <div class="brand">Quranic Universal Library</div>
+        <span class="pill"><span class="dot"></span> Under maintenance</span>
+    </header>
+
+    <div class="intro">
+        <h1>We're making QUL better</h1>
+        <p>QUL is temporarily unavailable while we complete scheduled maintenance and upgrade our infrastructure. We
+            expect to restore service soon. While you wait, listen to the Qur’an.</p>
+    </div>
+
+    <div class="eta"><span class="label">We'll be back in</span><span class="countdown" id="countdown">--:--:--</span></div>
+    <div class="grid">
+        <section class="reader">
+            <div class="surah-head">
+                <span class="surah-en" id="surahEn">Al-Fatihah</span>
+                <span class="surah-ar" id="surahAr">الفاتحة</span>
+            </div>
+            <div class="badges">
+                <span class="badge green" id="surahPlace">Meccan</span>
+                <span class="badge" id="surahCount">7 ayahs</span>
+            </div>
+            <div class="mushaf" id="mushaf"></div>
+        </section>
+
+        <aside class="aside">
+            <h2>Quran Radio &middot; Playlist</h2>
+            <div class="list" id="list"></div>
+        </aside>
+    </div>
+
+    <div class="player">
+        <div class="controls">
+            <button class="ctl" id="prev" type="button" aria-label="Previous surah">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 6h2v12H6zM20 6v12l-9-6z"/>
+                </svg>
+            </button>
+            <button class="ctl play" id="play" type="button" aria-label="Play">
+                <svg class="play-i" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <svg class="pause-i" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 5h4v14H6zM14 5h4v14h-4z"/>
+                </svg>
+            </button>
+            <button class="ctl" id="next" type="button" aria-label="Next surah">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 6h2v12h-2zM4 6l9 6-9 6z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="pmeta">
+            <div class="pnow">
+                <span class="ptitle">Now playing &middot; <b id="pTitle">Al-Fatihah</b></span>
+                <span class="preciter">Khalifah Al-Tunaiji</span>
+            </div>
+            <div class="track" id="track">
+                <div class="fill" id="fill"></div>
+            </div>
+            <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+        </div>
+    </div>
+
+    <div class="foot">
+        <p>Thank you for your patience. We'll be back soon, insh`Allah.</p>
+        <a class="tarteel-mark" href="https://www.tarteel.ai" target="_blank" rel="noopener" aria-label="Tarteel">
+           <img src="https://tarteel.ai/logo.svg" alt="Tarteel logo" class="tarteel-logo">
+        </a>
+    </div>
+</main>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+  var BISMILLAH = "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ";
+  var SURAHS = [
+    {
+      id: 1, en: "Al-Fatihah", ar: "الفاتحة", place: "Meccan", count: 7, bismillah: false,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/001.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 5486, text: "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ ١" },
+        { n: 2, from: 5686, to: 11450, text: "ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ ٢" },
+        { n: 3, from: 11451, to: 16080, text: "ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ ٣" },
+        { n: 4, from: 16282, to: 20751, text: "مَٰلِكِ يَوۡمِ ٱلدِّينِ ٤" },
+        { n: 5, from: 20951, to: 26914, text: "إِيَّاكَ نَعۡبُدُ وَإِيَّاكَ نَسۡتَعِينُ ٥" },
+        { n: 6, from: 27114, to: 32188, text: "ٱهۡدِنَا ٱلصِّرَٰطَ ٱلۡمُسۡتَقِيمَ ٦" },
+        { n: 7, from: 32388, to: 46420, text: "صِرَٰطَ ٱلَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ غَيۡرِ ٱلۡمَغۡضُوبِ عَلَيۡهِمۡ وَلَا ٱلضَّآلِّينَ ٧" }
+      ]
+    },
+    {
+      id: 93, en: "Ad-Duhaa", ar: "الضحى", place: "Meccan", count: 11, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/093.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 1760, text: "وَٱلضُّحَىٰ ١" },
+        { n: 2, from: 1960, to: 5032, text: "وَٱلَّيۡلِ إِذَا سَجَىٰ ٢" },
+        { n: 3, from: 5232, to: 9522, text: "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ ٣" },
+        { n: 4, from: 9722, to: 14611, text: "وَلَلۡأٓخِرَةُ خَيۡرٞ لَّكَ مِنَ ٱلۡأُولَىٰ ٤" },
+        { n: 5, from: 14811, to: 19451, text: "وَلَسَوۡفَ يُعۡطِيكَ رَبُّكَ فَتَرۡضَىٰٓ ٥" },
+        { n: 6, from: 19651, to: 24325, text: "أَلَمۡ يَجِدۡكَ يَتِيمٗا فَـَٔاوَىٰ ٦" },
+        { n: 7, from: 24525, to: 31268, text: "وَوَجَدَكَ ضَآلّٗا فَهَدَىٰ ٧" },
+        { n: 8, from: 31468, to: 37482, text: "وَوَجَدَكَ عَآئِلٗا فَأَغۡنَىٰ ٨" },
+        { n: 9, from: 37682, to: 42157, text: "فَأَمَّا ٱلۡيَتِيمَ فَلَا تَقۡهَرۡ ٩" },
+        { n: 10, from: 42357, to: 47876, text: "وَأَمَّا ٱلسَّآئِلَ فَلَا تَنۡهَرۡ ١٠" },
+        { n: 11, from: 48076, to: 53083, text: "وَأَمَّا بِنِعۡمَةِ رَبِّكَ فَحَدِّثۡ ١١" }
+      ]
+    },
+    {
+      id: 94, en: "Ash-Sharh", ar: "الشرح", place: "Meccan", count: 8, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/094.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 3004, text: "أَلَمۡ نَشۡرَحۡ لَكَ صَدۡرَكَ ١" },
+        { n: 2, from: 3204, to: 6956, text: "وَوَضَعۡنَا عَنكَ وِزۡرَكَ ٢" },
+        { n: 3, from: 7156, to: 12650, text: "ٱلَّذِيٓ أَنقَضَ ظَهۡرَكَ ٣" },
+        { n: 4, from: 12850, to: 15953, text: "وَرَفَعۡنَا لَكَ ذِكۡرَكَ ٤" },
+        { n: 5, from: 16153, to: 20336, text: "فَإِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرًا ٥" },
+        { n: 6, from: 20536, to: 24184, text: "إِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرٗا ٦" },
+        { n: 7, from: 24384, to: 28291, text: "فَإِذَا فَرَغۡتَ فَٱنصَبۡ ٧" },
+        { n: 8, from: 28491, to: 31950, text: "وَإِلَىٰ رَبِّكَ فَٱرۡغَب ٨" }
+      ]
+    },
+    {
+      id: 103, en: "Al-'Asr", ar: "العصر", place: "Meccan", count: 3, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/103.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 1297, text: "وَٱلۡعَصۡرِ ١" },
+        { n: 2, from: 1497, to: 6010, text: "إِنَّ ٱلۡإِنسَٰنَ لَفِي خُسۡرٍ ٢" },
+        { n: 3, from: 6210, to: 16000, text: "إِلَّا ٱلَّذِينَ ءَامَنُواْ وَعَمِلُواْ ٱلصَّٰلِحَٰتِ وَتَوَاصَوۡاْ بِٱلۡحَقِّ وَتَوَاصَوۡاْ بِٱلصَّبۡرِ ٣" }
+      ]
+    },
+    {
+      id: 108, en: "Al-Kawthar", ar: "الكوثر", place: "Meccan", count: 3, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/108.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 5460, text: "إِنَّآ أَعۡطَيۡنَٰكَ ٱلۡكَوۡثَرَ ١" },
+        { n: 2, from: 5660, to: 8851, text: "فَصَلِّ لِرَبِّكَ وَٱنۡحَرۡ ٢" },
+        { n: 3, from: 9051, to: 13325, text: "إِنَّ شَانِئَكَ هُوَ ٱلۡأَبۡتَرُ ٣" }
+      ]
+    },
+    {
+      id: 112, en: "Al-Ikhlas", ar: "الإخلاص", place: "Meccan", count: 4, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/112.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 2639, text: "قُلۡ هُوَ ٱللَّهُ أَحَدٌ ١" },
+        { n: 2, from: 2839, to: 5147, text: "ٱللَّهُ ٱلصَّمَدُ ٢" },
+        { n: 3, from: 5347, to: 8358, text: "لَمۡ يَلِدۡ وَلَمۡ يُولَدۡ ٣" },
+        { n: 4, from: 8558, to: 12776, text: "وَلَمۡ يَكُن لَّهُۥ كُفُوًا أَحَدُۢ ٤" }
+      ]
+    },
+    {
+      id: 113, en: "Al-Falaq", ar: "الفلق", place: "Meccan", count: 5, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/113.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 3455, text: "قُلۡ أَعُوذُ بِرَبِّ ٱلۡفَلَقِ ١" },
+        { n: 2, from: 3655, to: 7085, text: "مِن شَرِّ مَا خَلَقَ ٢" },
+        { n: 3, from: 7285, to: 11930, text: "وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ٣" },
+        { n: 4, from: 12130, to: 17461, text: "وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِي ٱلۡعُقَدِ ٤" },
+        { n: 5, from: 17661, to: 22494, text: "وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ٥" }
+      ]
+    },
+    {
+      id: 114, en: "An-Nas", ar: "الناس", place: "Meccan", count: 6, bismillah: true,
+      audio: "https://audio-cdn.tarteel.ai/quran/surah/khalifaAlTunaiji/murattal/mp3/114.mp3",
+      ayahs: [
+        { n: 1, from: 0, to: 5424, text: "قُلۡ أَعُوذُ بِرَبِّ ٱلنَّاسِ ١" },
+        { n: 2, from: 5624, to: 9853, text: "مَلِكِ ٱلنَّاسِ ٢" },
+        { n: 3, from: 10053, to: 14328, text: "إِلَٰهِ ٱلنَّاسِ ٣" },
+        { n: 4, from: 14528, to: 20947, text: "مِن شَرِّ ٱلۡوَسۡوَاسِ ٱلۡخَنَّاسِ ٤" },
+        { n: 5, from: 21147, to: 27719, text: "ٱلَّذِي يُوَسۡوِسُ فِي صُدُورِ ٱلنَّاسِ ٥" },
+        { n: 6, from: 27919, to: 34092, text: "مِنَ ٱلۡجِنَّةِ وَٱلنَّاسِ ٦" }
+      ]
+    }
+  ];
+
+  var audio = document.getElementById("audio");
+  var mushaf = document.getElementById("mushaf");
+  var listEl = document.getElementById("list");
+  var playBtn = document.getElementById("play");
+  var current = 0;
+
+  function fmt(s) {
+    if (!isFinite(s) || s < 0) return "0:00";
+    var m = Math.floor(s / 60), r = Math.floor(s % 60);
+    return m + ":" + (r < 10 ? "0" : "") + r;
+  }
+
+  SURAHS.forEach(function (s, i) {
+    var row = document.createElement("div");
+    row.className = "row";
+    row.setAttribute("role", "button");
+    row.innerHTML =
+      '<span class="num">' + s.id + '</span>' +
+      '<span class="row-main"><span class="row-en">' + s.en + '</span>' +
+      '<span class="row-sub">' + s.place + ' &middot; ' + s.count + ' ayahs</span></span>' +
+      '<span class="row-ar">' + s.ar + '</span>' +
+      '<span class="eq"><i></i><i></i><i></i></span>';
+    row.addEventListener("click", function () {
+      load(i, true);
+    });
+    listEl.appendChild(row);
+  });
+  var rows = listEl.querySelectorAll(".row");
+
+  var ayahEls = [];
+  var activeAyah = -1;
+
+  function load(i, autoplay) {
+    current = i;
+    var s = SURAHS[i];
+    document.getElementById("surahEn").textContent = s.en;
+    document.getElementById("surahAr").textContent = s.ar;
+    document.getElementById("surahPlace").textContent = s.place;
+    document.getElementById("surahCount").textContent = s.count + " ayahs";
+    document.getElementById("pTitle").textContent = s.en;
+
+    mushaf.innerHTML = "";
+    if (s.bismillah) {
+      var b = document.createElement("span");
+      b.className = "bismillah";
+      b.textContent = BISMILLAH;
+      mushaf.appendChild(b);
+    }
+    ayahEls = s.ayahs.map(function (a) {
+      var el = document.createElement("span");
+      el.className = "ayah";
+      el.textContent = a.text + " ";
+      mushaf.appendChild(el);
+      return el;
+    });
+    activeAyah = -1;
+    mushaf.scrollTop = 0;
+
+    audio.src = s.audio;
+    rows.forEach(function (r, j) {
+      r.classList.toggle("active", j === i);
+      r.classList.remove("playing");
+    });
+    document.getElementById("fill").style.width = "0%";
+    document.getElementById("cur").textContent = "0:00";
+    document.getElementById("dur").textContent = "0:00";
+    if (autoplay) audio.play();
+  }
+
+  function highlightAyah() {
+    var s = SURAHS[current];
+    var ms = audio.currentTime * 1000;
+    var idx = -1;
+    for (var j = 0; j < s.ayahs.length; j++) {
+      var a = s.ayahs[j];
+      if (a.from != null && a.to != null && ms >= a.from && ms < a.to) {
+        idx = j;
+        break;
+      }
+    }
+    if (idx === activeAyah) return;
+    if (activeAyah > -1 && ayahEls[activeAyah]) ayahEls[activeAyah].classList.remove("active");
+    activeAyah = idx;
+    if (idx > -1 && ayahEls[idx]) {
+      ayahEls[idx].classList.add("active");
+      ayahEls[idx].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
+
+  playBtn.addEventListener("click", function () {
+    audio.paused ? audio.play() : audio.pause();
+  });
+  document.getElementById("prev").addEventListener("click", function () {
+    load((current - 1 + SURAHS.length) % SURAHS.length, true);
+  });
+  document.getElementById("next").addEventListener("click", function () {
+    load((current + 1) % SURAHS.length, true);
+  });
+
+  audio.addEventListener("play", function () {
+    playBtn.classList.add("on");
+    playBtn.setAttribute("aria-label", "Pause");
+    if (rows[current]) rows[current].classList.add("playing");
+  });
+  audio.addEventListener("pause", function () {
+    playBtn.classList.remove("on");
+    playBtn.setAttribute("aria-label", "Play");
+    if (rows[current]) rows[current].classList.remove("playing");
+  });
+  audio.addEventListener("loadedmetadata", function () {
+    document.getElementById("dur").textContent = fmt(audio.duration);
+  });
+  audio.addEventListener("timeupdate", function () {
+    var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    document.getElementById("fill").style.width = pct + "%";
+    document.getElementById("cur").textContent = fmt(audio.currentTime);
+    highlightAyah();
+  });
+  audio.addEventListener("ended", function () {
+    load((current + 1) % SURAHS.length, true);
+  });
+
+  var track = document.getElementById("track");
+  track.addEventListener("click", function (e) {
+    var rect = track.getBoundingClientRect();
+    if (audio.duration) audio.currentTime = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * audio.duration;
+  });
+
+  load(0, false);
+
+  const MAINTENANCE_END = "2026-07-27T16:30:00Z";
+
+  function u() {
+    const d = new Date(MAINTENANCE_END) - Date.now(), c = document.getElementById('countdown');
+    if (d <= 0) {
+      c.textContent = 'Soon';
+      return;
+    }
+    let h = Math.floor(d / 36e5), m = Math.floor(d % 36e5 / 6e4), s = Math.floor(d % 6e4 / 1e3);
+    c.textContent = [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+  }
+
+  setInterval(u, 1000);
+  u();
+</script>
+</body>
+</html>

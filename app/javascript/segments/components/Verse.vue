@@ -700,6 +700,7 @@ export default {
         time: target.value,
         index: index,
       });
+      this.$store.dispatch('RECONCILE_AYAH_START', { index: Number(index) });
 
       // refresh
       this.$store.state.showSegments = false;
@@ -713,6 +714,7 @@ export default {
         time: target.value,
         index: index,
       });
+      this.$store.dispatch('RECONCILE_NEXT_AYAH', { index: Number(index) });
 
       // refresh
       this.$store.state.showSegments = false;
@@ -854,6 +856,9 @@ export default {
         field: field,
         delta: delta,
       });
+
+      if (field === 1) this.$store.dispatch('RECONCILE_AYAH_START', { index });
+      else this.$store.dispatch('RECONCILE_NEXT_AYAH', { index });
     },
     undo() {
       this.$store.commit('UNDO_SEGMENTS');
@@ -1157,6 +1162,7 @@ export default {
           time: player.currentTime * 1000,
           index: index,
         });
+        this.$store.dispatch('RECONCILE_AYAH_START', { index: Number(index) });
       } else {
         this.$store.commit('TRACK_SEG_END', {
           time: player.currentTime * 1000,
@@ -1167,6 +1173,8 @@ export default {
           time: player.currentTime * 1000,
           index: Number(index) + 1,
         });
+        this.$store.dispatch('RECONCILE_NEXT_AYAH', { index: Number(index) });
+        this.$store.dispatch('RECONCILE_AYAH_START', { index: Number(index) + 1 });
       }
     },
   },

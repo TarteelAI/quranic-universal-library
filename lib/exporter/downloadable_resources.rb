@@ -24,6 +24,8 @@ module Exporter
       export_wbw_recitation
       export_wbw_quran_script
       export_ayah_quran_script
+      export_verse_qirat_script
+      export_wbw_qirat_script
       export_quran_metadata
       export_mushaf_layouts
       export_similar_ayah
@@ -55,6 +57,8 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
+        downloadable_resource.slug ||=  content.slug
+
         tags = [content.meta_value('tags').to_s]
         downloadable_resource = set_tags(downloadable_resource, tags)
 
@@ -529,6 +533,8 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
+        downloadable_resource.slug ||=  content.slug
+
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
@@ -575,6 +581,8 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
+        downloadable_resource.slug ||=  content.slug
+
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
@@ -608,6 +616,8 @@ module Exporter
       ).first_or_initialize
 
       downloadable_resource.name ||= content.name
+      downloadable_resource.slug ||=  content.slug
+
       tags = ['Recitation', 'Waseem Sharif']
       downloadable_resource = set_tags(downloadable_resource, tags)
 
@@ -622,6 +632,7 @@ module Exporter
       FileUtils.mkdir_p(base_path)
 
       list = ResourceContent.quran_script.one_verse.approved
+      list = list.where.not(id: QuranScript::ByVerse.distinct.pluck(:resource_content_id))
 
       if resource_content.present?
         list = list.where(id: resource_content.id)
@@ -642,7 +653,9 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        tags = ['Quran text', 'Hafs']
+        downloadable_resource.slug ||=  content.slug
+
+        tags = ['Quran text']
 
         if content.meta_value('font').present?
           fonts = content.meta_value('font').split('or').map(&:strip)
@@ -663,6 +676,7 @@ module Exporter
       FileUtils.mkdir_p(base_path)
 
       list = ResourceContent.quran_script.one_word.approved
+      list = list.where.not(id: QuranScript::ByWord.distinct.pluck(:resource_content_id))
 
       if resource_content.present?
         list = list.where(id: resource_content.id)
@@ -683,6 +697,7 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
+        downloadable_resource.slug ||=  content.slug
         tags = ['Quran text', 'Hafs']
 
         if content.has_mushaf_layout?
@@ -695,6 +710,80 @@ module Exporter
         end
 
         downloadable_resource = set_tags(downloadable_resource, tags)
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
+    end
+
+    def export_verse_qirat_script(resource_content: nil)
+      base_path = "tmp/export/quran_script_ayah"
+      FileUtils.mkdir_p(base_path)
+
+      list = ResourceContent.quran_script.one_verse.approved.where(
+        id: QuranScript::ByVerse.distinct.pluck(:resource_content_id)
+      )
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        next if !content.allow_publish_sharing?
+
+        exporter = Exporter::ExportQiratScriptByVerse.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'quran-script',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.slug ||=  content.slug
+        downloadable_resource = set_tags(downloadable_resource, quran_script_tags(content))
+
+        json = exporter.export_json
+        sqlite = exporter.export_sqlite
+        create_download_file(downloadable_resource, json, 'json')
+        create_download_file(downloadable_resource, sqlite, 'sqlite')
+      end
+    end
+
+    def export_wbw_qirat_script(resource_content: nil)
+      base_path = "tmp/export/quran_script_wbw"
+      FileUtils.mkdir_p(base_path)
+
+      list = ResourceContent.quran_script.one_word.approved.where(
+        id: QuranScript::ByWord.distinct.pluck(:resource_content_id)
+      )
+
+      if resource_content.present?
+        list = list.where(id: resource_content.id)
+      end
+
+      list.each do |content|
+        next if !content.allow_publish_sharing?
+
+        exporter = Exporter::ExportQiratScriptByWord.new(
+          resource_content: content,
+          base_path: base_path
+        )
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'quran-script',
+          cardinality_type: ResourceContent::CardinalityType::OneWord
+        ).first_or_initialize
+
+        downloadable_resource.name ||= content.name
+        downloadable_resource.slug ||=  content.slug
+        downloadable_resource = set_tags(downloadable_resource, quran_script_tags(content))
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -756,6 +845,18 @@ module Exporter
     end
 
     protected
+
+    def quran_script_tags(content)
+      tags = ['Quran text']
+
+      qirat_name = content.meta_value('qirat')
+      tags << qirat_name if qirat_name.present?
+
+      font = content.meta_value('font') || content.meta_value('font-face')
+      tags += font.split('or').map(&:strip) if font.present?
+
+      tags
+    end
 
     def create_download_file(resource, file_path, file_type, file_name = nil)
       file = DownloadableFile.where(

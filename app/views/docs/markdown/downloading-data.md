@@ -56,10 +56,15 @@ puts data.first
 - For large datasets, prefer SQLite or PostgreSQL over in-memory JSON processing.
 - Cache frequently accessed verses/tafsir payloads.
 - Stream very large JSON files instead of loading full files into memory.
+- For exports that reference CDN-hosted assets (for example recitation `audio_url` files on
+  `audio-cdn.tarteel.ai`), download them once and serve them from your own storage or CDN.
+  Tarteel's CDN is shared infrastructure, not a guaranteed production dependency.
 
 ## Troubleshooting
 
 - Download is slow/fails: retry with a stable connection and verify file size after download.
+- `audio_url` or other CDN URLs fail at runtime: download the asset once and serve it from your
+  own hosting instead of hotlinking Tarteel's CDN.
 - Schema mismatch in your app: inspect fields first and map keys explicitly.
 - Encoding issues: ensure UTF-8 handling in runtime and database.
 - Memory issues on large files: prefer SQLite or stream JSON.

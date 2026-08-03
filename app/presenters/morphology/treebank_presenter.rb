@@ -1,4 +1,19 @@
 module Morphology
+  # Builds the JSON payload that the client-side treebank renderer
+  # (app/javascript/controllers/treebank_controller.js) turns into an SVG
+  # dependency/constituency graph.
+  #
+  # Pipeline: a Sentence (with its ordered word_tokens) comes in; each sentence
+  # becomes one payload with four parts the renderer draws as separate bands:
+  #   - banner:      the reconstructed Arabic text + surah/ayah reference (top strip)
+  #   - tokens:      the surface words drawn in the bottom row (RTL), one per token
+  #   - edges:       dependency arcs between tokens; edges flagged fromIsPhrase/
+  #                  toIsPhrase attach to phrase nodes instead of words
+  #   - phraseNodes: constituency nodes stacked in levels above the word row,
+  #                  computed by Treebank::LevelBuilder from is_constituent spans
+  #
+  # Everything reads from tokens via t_attr so the same code works whether a
+  # token is an ActiveRecord object or a plain Hash (used in tests/fixtures).
   class TreebankPresenter
     def initialize(verse:, sentences:, locale:, translator: nil, chapter: nil)
       @verse = verse
@@ -40,6 +55,9 @@ module Morphology
       }
     end
 
+    # Feeds the flat token list to LevelBuilder, which nests overlapping
+    # is_constituent spans into stacked phrase nodes (level 0 = closest to the
+    # word row). Returns { phrase_nodes: [...] } used to draw the upper bands.
     def build_level_data(tokens)
       token_hashes = tokens.map { |t| token_to_builder_hash(t) }
       Morphology::Treebank::LevelBuilder.new(token_hashes).build
@@ -84,6 +102,11 @@ module Morphology
       }
     end
 
+    # One edge per token that has a head. `from`/`to` are sentence positions
+    # (not DB ids) so the renderer can look them up in its position→x map.
+    # fromIsPhrase/toIsPhrase (derived from the CSV's depend_rel/head_rel) tell
+    # the renderer to anchor that endpoint on a phrase node in the upper band
+    # rather than on a word in the bottom row.
     def edges_payload(tokens)
       head_position_map = build_head_position_map(tokens)
 
@@ -145,6 +168,13 @@ module Morphology
       }
     end
 
+    # Reconstructs the readable Arabic banner from tokens in reading order.
+    # A single word can be split across several morphology tokens (prefix +
+    # stem + suffix), so we regroup those back into one word before joining
+    # with spaces. The grouping key MUST include chapter+verse: word_number
+    # repeats across verses in multi-verse sentences, and keying on word_number
+    # alone merged tokens from different words (the original banner bug).
+    # Non-surface tokens (elided/implicit) stand alone as their own group.
     def build_banner_text_from_tokens(tokens)
       sorted = tokens.sort_by { |t| t_attr(t, :position_in_sentence).to_i }
       word_groups = []
@@ -155,11 +185,12 @@ module Morphology
         if wn.nil? || tok_type != 'surface'
           word_groups << [arabic]
         else
-          existing = word_groups.find { |g| g.first == "__wn_#{wn}" }
+          key = "__wn_#{t_attr(t, :chapter_number)}_#{t_attr(t, :verse_number)}_#{wn}"
+          existing = word_groups.find { |g| g.first == key }
           if existing
             existing << arabic
           else
-            word_groups << ["__wn_#{wn}", arabic]
+            word_groups << [key, arabic]
           end
         end
       end
@@ -243,6 +274,10 @@ module Morphology
       end
     end
 
+    # Normalises the token_type enum (int or string) to a stable string the
+    # renderer branches on: 'surface' words get a bottom-row slot and a word
+    # link; 'elided' (*) / 'implicit_pronoun' tokens render without a word URL
+    # and often float in the phrase band.
     def token_type_string(t)
       val = t_attr(t, :token_type)
       return val.to_s if val.is_a?(String) || val.is_a?(Symbol)
@@ -279,6 +314,8 @@ module Morphology
       @translator.call("morphology.edge_relations.#{rel_label}", locale: @locale, default: rel_label)
     end
 
+    # Polymorphic attribute reader: works for both AR models (method call) and
+    # plain Hashes (key lookup), so presenter logic is agnostic to token source.
     def t_attr(obj, key)
       if obj.respond_to?(key)
         obj.public_send(key)

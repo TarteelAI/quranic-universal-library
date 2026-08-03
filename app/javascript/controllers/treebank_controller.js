@@ -1,5 +1,36 @@
 import { Controller } from "@hotwired/stimulus";
 
+// ============================================================================
+// Treebank rendering
+// ----------------------------------------------------------------------------
+// Renders the JSON payload from Morphology::TreebankPresenter as an SVG
+// dependency/constituency graph, modelled on the Python (displaCy-derived)
+// reference. There are two moving parts:
+//
+//   1. collapseSentence(sentence, depth) — a pure transform that folds the
+//      constituency tree to a given depth. It collapses the deepest phrase
+//      nodes into synthetic "phrase_unit" tokens and remaps every token
+//      position / edge endpoint / phrase span so the renderer can draw the
+//      folded view without knowing anything about collapsing. Depth 0 = fully
+//      expanded (all words shown); higher depth = fewer, larger units.
+//
+//   2. TreebankRenderer — lays the SVG out in horizontal bands, top to bottom:
+//        banner            reconstructed ayah text + reference
+//        phraseTopGap      headroom so phrase-edge arcs clear the banner
+//        phrase levels     constituency nodes, one row per level (dots+labels)
+//        arc band          dependency arcs curving above the words
+//        token row         the surface words (drawn RIGHT-TO-LEFT)
+//      Words sit in the bottom row; dependency edges arc above them; phrase
+//      (constituency) edges and floating elided nodes live in the upper band.
+//
+// The Controller wires zoom, the accordion (one card per sentence), and the
+// per-sentence level +/- controls that call collapseSentence then re-render.
+// ============================================================================
+
+// Fold `sentence`'s constituency tree so the `depth` deepest levels stay open
+// and everything below is merged into single "phrase_unit" tokens. Returns a
+// NEW sentence object (never mutates the input) with rewritten tokens/edges/
+// phraseNodes whose positions are contiguous 0..n again.
 export function collapseSentence(sentence, depth) {
   const phraseNodes = (sentence.phraseNodes || []).map(pn => Object.assign({}, pn, { span: [...pn.span] }));
   const originalTokens = (sentence.tokens || []).map(t => Object.assign({}, t));
@@ -19,13 +50,17 @@ export function collapseSentence(sentence, depth) {
   const isSpanContainedIn = (inner, outer) =>
     outer.span[0] <= inner.span[0] && outer.span[1] >= inner.span[1];
 
+  // Nodes at/below collapseLevel get folded away; nodes above stay open.
   const collapsibleNodes = phraseNodes.filter(pn => pn.level <= collapseLevel);
   const openedNodes = phraseNodes.filter(pn => pn.level > collapseLevel);
 
+  // The outermost collapsible nodes (not contained by another collapsible one)
+  // become the visible units — each renders as one merged phrase_unit token.
   const topCollapsedUnits = collapsibleNodes.filter(pn =>
     !collapsibleNodes.some(other => other !== pn && isSpanContainedIn(pn, other))
   );
 
+  // Drop opened nodes that now live inside a collapsed unit — they've vanished.
   const visibleOpenedNodes = openedNodes.filter(o =>
     !topCollapsedUnits.some(u => isSpanContainedIn(o, u))
   );
@@ -40,6 +75,10 @@ export function collapseSentence(sentence, depth) {
     return owner;
   };
 
+  // Walk the original tokens left→right rebuilding a contiguous position list:
+  // each run of tokens covered by a collapsed unit collapses to ONE synthetic
+  // phrase_unit token (emitted the first time that unit is hit); uncovered
+  // tokens pass through with a fresh sequential position.
   const newTokens = [];
   const unitSyntheticIndex = new Map();
   const usedUnits = new Set();
@@ -70,6 +109,9 @@ export function collapseSentence(sentence, depth) {
     }
   }
 
+  // Build old-position → new-position map so edges and phrase spans can be
+  // remapped onto the rebuilt token list (unit-covered positions all map to
+  // their unit's synthetic index).
   const origPosToNewPos = {};
   const origNonUnitTokens = originalTokens.filter(t => !coveredByUnit(t.position));
   const nonUnitNewTokens = newTokens.filter(t => t.tokenType !== "phrase_unit");
@@ -104,6 +146,10 @@ export function collapseSentence(sentence, depth) {
     headPosition: remapPosition(pn.headPosition),
   }));
 
+  // Resolve one edge endpoint to its new (position, isPhrase) after folding.
+  // A phrase endpoint stays a phrase only if its node is still visibly open;
+  // otherwise (or if it fell inside a collapsed unit) it becomes a word-level
+  // endpoint pointing at the merged unit.
   const resolveEndpoint = (edgePos, isPhrase) => {
     if (isPhrase) {
       const pn = phraseNodes.find(p => p.headPosition === edgePos)
@@ -126,6 +172,9 @@ export function collapseSentence(sentence, depth) {
     return { pos: remapPosition(edgePos), isPhrase: false };
   };
 
+  // Remap every edge; drop edges that now connect a unit to itself (both ends
+  // folded into the same word) and de-dupe edges that collapsed onto the same
+  // from/to/relation triple.
   const newEdges = [];
   const seen = new Set();
   for (const edge of originalEdges) {
@@ -150,6 +199,10 @@ export function collapseSentence(sentence, depth) {
   });
 }
 
+// Stimulus controller: fetches the payload from `url` and renders it either as
+// a flat list of sentences (expandable=false) or as an accordion where each
+// card has its own collapse-depth controls (expandable=true). Zoom scales the
+// rendered SVGs via their stored data-base-width/height.
 export default class extends Controller {
   static targets = ["container", "canvas", "zoomIn", "zoomOut", "zoomReset", "download", "accordionList"];
   static values = {
@@ -364,6 +417,9 @@ export default class extends Controller {
     return this.accordionListTarget.querySelector(`[data-sentence-idx="${idx}"]`);
   }
 
+  // Re-render one card's SVG at its current collapse depth. Always folds from
+  // the pristine payload sentence (never a previously-folded one) so depth
+  // changes are absolute, not cumulative.
   async renderCardSvg(idx) {
     const sentences = (this.payload && this.payload.sentences) || [];
     const sentence = sentences[idx];
@@ -470,6 +526,9 @@ export default class extends Controller {
   }
 }
 
+// Draws one sentence payload into a fresh <svg>. Stateless between calls except
+// for a few layout fields (phraseLevelHeight/phraseTopGap) that render() sets
+// up front from the sentence's phrase structure.
 class TreebankRenderer {
   constructor(sentence) {
     this.sentence = sentence;
@@ -484,12 +543,16 @@ class TreebankRenderer {
     this.bannerRefFontSize = 14;
     this.edgeLabelFontSize = 13;
 
-    this.slotWidth = 90;
-    this.slotGap = 20;
-    this.bannerHeight = 70;
-    this.phraseLevelHeight = 0;
-    this.PHRASE_LEVEL_STEP = 70;
-    this.tokenRowHeight = 90;
+    // Vertical layout model (px). Bands stack top→bottom in render():
+    // banner → phraseTopGap → phrase levels → arc band → token row.
+    this.slotWidth = 90;            // min horizontal width per word slot
+    this.slotGap = 20;              // gap between adjacent word slots
+    this.bannerHeight = 70;         // top strip holding the ayah text + reference
+    this.phraseLevelHeight = 0;     // total height of the phrase-level rows (set in render)
+    this.PHRASE_LEVEL_STEP = 70;    // vertical distance between consecutive phrase levels
+    this.PHRASE_EDGE_ARC_HEIGHT = 50; // how high a phrase (constituency) edge arcs above its band
+    this.phraseTopGap = 0;          // extra headroom so phrase-edge arcs clear the banner (set in render)
+    this.tokenRowHeight = 90;       // bottom row: location + arabic + POS label
     this.arcBandHeight = 0;
     this.padding = 20;
     this.SVG_NS = "http://www.w3.org/2000/svg";
@@ -503,11 +566,17 @@ class TreebankRenderer {
   async render() {
     const tokens = this.sentence.tokens || [];
     const allEdges = this.sentence.edges || [];
+    // Split edges: word↔word dependencies arc in the lower arc band; edges with
+    // a phrase endpoint are drawn in the upper phrase band (drawPhraseEdges).
     const edges = allEdges.filter(e => !e.fromIsPhrase && !e.toIsPhrase);
     const phraseEdges = allEdges.filter(e => e.fromIsPhrase || e.toIsPhrase);
     const phraseNodes = this.sentence.phraseNodes || [];
     const maxLevel = phraseNodes.length > 0 ? Math.max(...phraseNodes.map(pn => pn.level)) : 0;
     this.phraseLevelHeight = maxLevel * this.PHRASE_LEVEL_STEP;
+    // Only reserve top headroom when phrase edges exist — otherwise their arcs
+    // (which rise PHRASE_EDGE_ARC_HEIGHT above the top phrase row) collide with
+    // the banner and overlap the text.
+    this.phraseTopGap = phraseEdges.length > 0 ? (this.PHRASE_EDGE_ARC_HEIGHT + 24) : 0;
 
     const tempSvg = document.createElementNS(this.SVG_NS, "svg");
     tempSvg.style.position = "absolute";
@@ -525,12 +594,15 @@ class TreebankRenderer {
     const totalTokenWidth = slotWidths.reduce((s, w) => s + w, 0) + this.slotGap * Math.max(0, tokens.length - 1);
     const svgW = totalTokenWidth + this.padding * 2;
 
+    // Map each token position to an x-center (RTL), then pre-compute dependency
+    // arc heights so the arc band can be sized to fit the tallest arc.
     const positionToCenter = this.buildPositionToCenter(tokens, slotWidths, svgW);
     const tokenCenters = tokens.map(tok => positionToCenter[tok.position] ?? 0);
     const arcData = this.computeArcsFromMap(tokens, edges, positionToCenter);
     const arcBandHeight = arcData.length > 0 ? (arcData.reduce((m, a) => Math.max(m, a.apexY), 0) + 40) : 0;
 
-    const svgH = this.bannerHeight + this.phraseLevelHeight + arcBandHeight + this.tokenRowHeight + this.padding;
+    // Total canvas height = sum of all stacked bands.
+    const svgH = this.bannerHeight + this.phraseTopGap + this.phraseLevelHeight + arcBandHeight + this.tokenRowHeight + this.padding;
 
     const bannerText = (this.sentence.banner && this.sentence.banner.text) || "";
     const bannerTextW = this.measureText(tempSvg, bannerText, this.arabicFont, this.bannerFontSize);
@@ -549,7 +621,9 @@ class TreebankRenderer {
 
     this.drawBanner(svg, svgW, bannerTextW);
 
-    const tokenRowY = this.bannerHeight + this.phraseLevelHeight + arcBandHeight;
+    // y of the top of the word row — the shared baseline that dependency arcs
+    // curve up from and phrase connectors drop down to.
+    const tokenRowY = this.bannerHeight + this.phraseTopGap + this.phraseLevelHeight + arcBandHeight;
 
     let phraseDotPositions = new Map();
     if (phraseNodes.length > 0) {
@@ -588,6 +662,8 @@ class TreebankRenderer {
     }
   }
 
+  // Position → x-center map. Arabic is RTL: position 0 is the RIGHTMOST slot,
+  // so we lay slots out from the right edge leftward.
   buildPositionToCenter(tokens, slotWidths, svgW) {
     const map = {};
     let x = svgW - this.padding;
@@ -613,10 +689,15 @@ class TreebankRenderer {
     return xFloor + (xCeil - xFloor) * frac;
   }
 
+  // y-center of a phrase node's dot. Higher level = closer to the banner
+  // (top); level 0 sits just above the word row.
   phraseDotY(level, maxLevel) {
-    return this.bannerHeight + (maxLevel - level) * this.PHRASE_LEVEL_STEP + this.PHRASE_LEVEL_STEP / 2;
+    return this.bannerHeight + this.phraseTopGap + (maxLevel - level) * this.PHRASE_LEVEL_STEP + this.PHRASE_LEVEL_STEP / 2;
   }
 
+  // Assign each dependency edge an apex height so arcs don't overlap: shorter
+  // spans arc lower, and any arc that would collide with an already-placed one
+  // covering the same x-range is bumped up by ARC_STEP until it's clear.
   computeArcsFromMap(tokens, edges, positionToCenter) {
     const arcList = edges.map(edge => {
       const fromX = positionToCenter[edge.from];
@@ -711,6 +792,10 @@ class TreebankRenderer {
     svg.appendChild(path);
   }
 
+  // Draw the constituency nodes: place a dot per phrase node at its
+  // (centroid-x, level-y), connect each node to its parent phrase and to the
+  // words it covers, then render the node text + clickable relation label.
+  // Returns node → {x, y} so phrase edges/connectors can anchor to the dots.
   drawPhraseLevel(svg, phraseNodes, positionToCenter, tokenRowY, maxLevel) {
     const phraseDotPositions = new Map();
     const DOT_R = 5;
@@ -792,6 +877,10 @@ class TreebankRenderer {
     return phraseDotPositions;
   }
 
+  // Draw the thin dashed "spine" linking the banner down into the tree: from a
+  // dot under the banner center to each top-level phrase node, and directly to
+  // any word not covered by any phrase (routed through the band so lines stay
+  // vertical rather than crossing diagonally).
   drawBannerConnectors(svg, phraseNodes, phraseDotPositions, tokens, positionToCenter, svgW, tokenRowY) {
     const bannerAnchorX = svgW / 2;
     const bannerAnchorY = this.bannerHeight - 4;
@@ -825,7 +914,7 @@ class TreebankRenderer {
     }
 
     const topTokenY = tokenRowY - 6;
-    const bandAnchorY = this.bannerHeight + this.phraseLevelHeight;
+    const bandAnchorY = this.bannerHeight + this.phraseTopGap + this.phraseLevelHeight;
     for (const tok of tokens) {
       if (coveredPositions.has(tok.position)) continue;
       const tokX = positionToCenter[tok.position];
@@ -839,6 +928,8 @@ class TreebankRenderer {
     }
   }
 
+  // The immediate parent constituent: the smallest higher-level phrase whose
+  // span fully contains this node's span.
   findParentPhrase(pn, phraseNodes) {
     const containing = phraseNodes.filter(other =>
       other !== pn &&
@@ -864,6 +955,9 @@ class TreebankRenderer {
     return covering[0];
   }
 
+  // Render a word as a floating node up in the phrase band (dot + underlined
+  // arabic + POS label), used when a phrase edge attaches to a bare word (e.g.
+  // an elided (*) token) so it appears both in the band and the bottom row.
   drawDuplicateTokenBlock(svg, tok, x, y, colorClass) {
     const DOT_R = 5;
     const UNDERLINE_W = 28;
@@ -912,8 +1006,13 @@ class TreebankRenderer {
     }
   }
 
+  // Draw constituency-level edges (e.g. متعلق/Link relations) in the upper
+  // band. Each endpoint is either a phrase node (anchor on its dot) or a bare
+  // word (drawn as a floating duplicate block and dropped to the word row with
+  // a dashed line). The relation itself is a cubic arc apexing ARC_HEIGHT above
+  // the higher endpoint, with an arrowhead and a clickable label at the apex.
   drawPhraseEdges(svg, phraseEdges, phraseNodes, phraseDotPositions, positionToCenter, tokenRowY, tokens) {
-    const ARC_HEIGHT = 50;
+    const ARC_HEIGHT = this.PHRASE_EDGE_ARC_HEIGHT;
     const DOT_R = 5;
 
     const allBandY = [...phraseDotPositions.values()].map(p => p.y);
@@ -1033,6 +1132,8 @@ class TreebankRenderer {
     }
   }
 
+  // Draw the bottom word row: each slot stacks location key (clickable),
+  // arabic surface form, and POS label (clickable) top to bottom.
   drawTokens(svg, tokens, centers, baseY) {
     const locationY = baseY + 16;
     const arabicY = baseY + 50;
@@ -1104,6 +1205,9 @@ class TreebankRenderer {
     });
   }
 
+  // Draw the word↔word dependency arcs: a cubic curve from one word's top to
+  // another's, rising to the pre-computed apex, with a direction arrowhead and
+  // a clickable relation label near the apex.
   drawArcs(svg, arcData, tokenRowY) {
     for (const arc of arcData) {
       const { edge, fromX, toX, apexY } = arc;

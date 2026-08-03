@@ -47,8 +47,7 @@ export default class extends Controller {
     this.previewDiv.scrollIntoView({ behavior: "smooth" });
 
     try {
-      const indirectEval = eval;
-      indirectEval(this.code);
+      new Function(this.code)();
     } catch (error) {
       console.error("Error executing code:", error);
     }

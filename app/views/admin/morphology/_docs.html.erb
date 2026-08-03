@@ -1,0 +1,2237 @@
+<div class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto py-10">
+    <section class="mb-8">
+      <h1 class="text-4xl font-bold text-slate-900">
+        Quran Linguistics Guide
+      </h1>
+
+      <p class="mt-2 text-lg leading-8 text-slate-600 max-w-4xl">
+        QUL contains several linguistic datasets describing the Quran from
+        different perspectives.
+
+        Some datasets explain how
+        <strong>individual words are built</strong>
+        (Morphology),
+        while others explain
+        <strong>how words relate to each other</strong>
+        inside complete sentences (Grammar / Syntax).
+      </p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-3xl font-bold">
+        Mental Model
+      </h2>
+
+      <p class="mt-3 text-slate-600 max-w-3xl">
+
+        Almost everything in QUL can be understood from this diagram.
+
+        Every Quran word has its own morphological analysis.
+        Those words are then connected together by grammar.
+
+      </p>
+
+      <div class="mt-10 rounded-2xl border bg-white p-10 shadow-sm">
+
+        <!-- Quran Text -->
+
+        <div class="flex justify-center">
+
+          <div class="rounded-xl bg-slate-100 px-10 py-6 text-center">
+
+            <div class="text-xl font-bold">
+              Quran Text
+            </div>
+
+            <div class="mt-2 text-slate-500">
+              114 Surahs → Ayahs → Words
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="flex justify-center py-5 text-4xl text-slate-300">
+          ↓
+        </div>
+
+        <!-- Word -->
+
+        <div class="flex justify-center">
+
+          <div class="rounded-xl border-2 border-blue-300 bg-blue-50 px-12 py-6 text-center">
+
+            <div class="text-2xl font-bold text-blue-900">
+              Quran Word
+            </div>
+
+            <div class="mt-2 text-blue-700">
+              Every written word has its own morphology.
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="flex justify-center py-5 text-4xl text-slate-300">
+          ↓
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+
+          <!-- Morphology -->
+
+          <div class="rounded-xl border border-green-200 bg-green-50 p-8">
+
+            <h3 class="text-2xl font-bold text-green-900">
+              Morphology
+            </h3>
+
+            <p class="mt-2 text-green-700">
+              Describes how one word is constructed.
+            </p>
+
+            <div class="mt-6 space-y-3">
+
+              <div class="rounded-lg border bg-white p-4">
+                Word Segments
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Root
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Lemma
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Part of Speech
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Gender • Number • Person
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Case • Mood • Verb Form
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Grammar -->
+
+          <div class="rounded-xl border border-purple-200 bg-purple-50 p-8">
+
+            <h3 class="text-2xl font-bold text-purple-900">
+              Grammar / Syntax
+            </h3>
+
+            <p class="mt-2 text-purple-700">
+              Describes relationships between words.
+            </p>
+
+            <div class="mt-6 space-y-3">
+
+              <div class="rounded-lg border bg-white p-4">
+                Subject
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Object
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Predicate
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Dependency Relations
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                Dependency Graphs
+              </div>
+
+              <div class="rounded-lg border bg-white p-4">
+                NoorBayan Treebank
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Morphology vs Grammar -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        Morphology vs Grammar
+      </h2>
+
+      <p class="mt-3 text-slate-600">
+        These two concepts are often confused, but they answer completely different questions.
+      </p>
+
+      <div class="mt-8 overflow-hidden rounded-xl border bg-white">
+
+        <table class="min-w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-6 py-4 text-left">
+              Morphology
+            </th>
+
+            <th class="px-6 py-4 text-left">
+              Grammar / Syntax
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+
+            <td class="px-6 py-4">
+              Studies one word.
+            </td>
+
+            <td class="px-6 py-4">
+              Studies relationships between words.
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4">
+              What is the root?
+            </td>
+
+            <td class="px-6 py-4">
+              Who is the subject?
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4">
+              What is the lemma?
+            </td>
+
+            <td class="px-6 py-4">
+              What is the object?
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4">
+              Is it a noun or verb?
+            </td>
+
+            <td class="px-6 py-4">
+              Which words depend on each other?
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4">
+              Prefixes & suffixes
+            </td>
+
+            <td class="px-6 py-4">
+              Sentence structure
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+    <!-- ===================================================== -->
+    <!-- Core Concepts -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        Core Morphology Concepts
+      </h2>
+
+      <p class="mt-3 text-slate-600 max-w-4xl">
+        Every written Quran word is analyzed into smaller linguistic pieces.
+        These concepts are the foundation of almost every morphology dataset in QUL.
+      </p>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Morphology -->
+    <!-- ===================================================== -->
+
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+
+      <div class="flex items-center justify-between">
+
+        <div>
+
+          <h3 class="text-2xl font-bold">
+            1. Morphology (علم الصرف)
+          </h3>
+
+          <p class="mt-2 text-slate-600">
+            The study of how words are built.
+          </p>
+
+        </div>
+
+        <a href="/cms/morphology_words" class="btn btn-sm btn-info text-white">
+          View Dataset
+        </a>
+      </div>
+
+      <div class="mt-8 grid lg:grid-cols-2 gap-8">
+
+        <div>
+
+          <p class="leading-8">
+
+            Morphology examines a single word and asks questions like:
+
+          </p>
+
+          <ul class="mt-5 space-y-3 list-disc ml-6">
+
+            <li>What is its root?</li>
+
+            <li>What is its dictionary form (lemma)?</li>
+
+            <li>Is it a noun, verb or particle?</li>
+
+            <li>Does it contain prefixes or suffixes?</li>
+
+            <li>What are its grammatical features?</li>
+
+          </ul>
+
+        </div>
+
+        <div class="rounded-xl bg-slate-50 p-6">
+
+          <h4 class="font-semibold mb-4">
+            Example
+          </h4>
+
+          <table class="w-full">
+
+            <thead>
+
+            <tr class="border-b">
+
+              <th class="py-2 text-left">
+                Segment
+              </th>
+
+              <th class="py-2 text-left">
+                Meaning
+              </th>
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            <tr class="border-b">
+
+              <td class="py-3 text-xl">
+                وَ
+              </td>
+
+              <td>
+                and
+              </td>
+
+            </tr>
+
+            <tr class="border-b">
+
+              <td class="py-3 text-xl">
+                لِ
+              </td>
+
+              <td>
+                for / to
+              </td>
+
+            </tr>
+
+            <tr>
+
+              <td class="py-3 text-xl">
+                اللَّهِ
+              </td>
+
+              <td>
+                Allah
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Word Segments -->
+    <!-- ===================================================== -->
+
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+
+      <div class="flex items-center justify-between">
+
+        <div>
+
+          <h3 class="text-2xl font-bold">
+            2. Word Segments
+          </h3>
+
+          <p class="mt-2 text-slate-600">
+            The smallest meaningful pieces of a Quran word.
+          </p>
+
+        </div>
+
+        <a href="/cms/morphology_word_segments" class="btn btn-sm btn-info text-white">
+          View Dataset
+        </a>
+
+      </div>
+
+      <p class="mt-8 leading-8">
+
+        Arabic often joins several grammatical elements into one written word.
+
+        Instead of storing only the written word,
+        QUL stores every individual segment.
+
+      </p>
+
+      <div class="mt-8 overflow-hidden rounded-xl border">
+
+        <table class="w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-5 py-3 text-left">
+              Segment
+            </th>
+
+            <th class="px-5 py-3 text-left">
+              Type
+            </th>
+
+            <th class="px-5 py-3 text-left">
+              Meaning
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+
+            <td class="px-5 py-4 text-xl">
+              وَ
+            </td>
+
+            <td class="px-5 py-4">
+              Prefix (Conjunction)
+            </td>
+
+            <td class="px-5 py-4">
+              and
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-5 py-4 text-xl">
+              لِ
+            </td>
+
+            <td class="px-5 py-4">
+              Prefix (Preposition)
+            </td>
+
+            <td class="px-5 py-4">
+              for / to
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-5 py-4 text-xl">
+              اللَّهِ
+            </td>
+
+            <td class="px-5 py-4">
+              Stem
+            </td>
+
+            <td class="px-5 py-4">
+              Allah
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="mt-6 rounded-lg bg-amber-50 border border-amber-200 p-5">
+
+        <strong>Why segments?</strong>
+
+        <p class="mt-2 text-amber-800">
+
+          Each segment has its own part of speech, grammatical features,
+          and linguistic meaning.
+
+          This makes searching and grammar analysis much more accurate.
+
+        </p>
+
+      </div>
+
+    </section>
+
+        <!-- ===================================================== -->
+    <!-- Stem -->
+    <!-- ===================================================== -->
+    
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+    
+      <div class="flex items-center justify-between">
+    
+        <div>
+    
+          <h3 class="text-2xl font-bold">
+            3. Stem
+          </h3>
+    
+          <p class="mt-2 text-slate-600">
+            The core segment of a word.
+          </p>
+    
+        </div>
+    
+        <a href="/cms/morphology_word_segments?q%5Bsegment_type_eq%5D=Stem" class="btn btn-sm btn-info text-white">
+          Browse Stems
+        </a>
+    
+      </div>
+    
+      <p class="mt-6 leading-8">
+        The stem is what remains of a written word once every prefix and suffix
+        is stripped away. Every word has exactly one stem; prefixes and suffixes
+        are optional. The stem is the segment that actually carries the root and
+        pattern, and it is the piece the rest of the analysis (root, lemma,
+        part of speech, case) attaches to.
+      </p>
+    
+      <div class="mt-6 rounded-lg bg-slate-50 p-5">
+    
+        <div class="font-semibold mb-3">Stem vs Root vs Lemma</div>
+    
+        <table class="min-w-full">
+          <tbody class="divide-y">
+            <tr>
+              <td class="px-4 py-3 font-semibold w-32">Stem</td>
+              <td class="px-4 py-3 text-xl">سْمِ</td>
+              <td class="px-4 py-3 text-slate-600">The core segment as written in بِسْمِ, inflected for its position (genitive).</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold">Lemma</td>
+              <td class="px-4 py-3 text-xl">ٱسْم</td>
+              <td class="px-4 py-3 text-slate-600">The dictionary form that stem points back to.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold">Root</td>
+              <td class="px-4 py-3 text-xl">س م و</td>
+              <td class="px-4 py-3 text-slate-600">The abstract consonant skeleton behind the lemma.</td>
+            </tr>
+          </tbody>
+        </table>
+    
+      </div>
+    
+      <p class="mt-6 text-slate-600 leading-8">
+        In both datasets segments are typed as Prefix, Stem or Suffix:
+        <a href="/cms/morphology_word_segments?q%5Bsegment_type_eq%5D=Stem" class="text-blue-600">Word Segment stems →</a>
+        <a href="/cms/morphology_word_tokens?q%5Bsegment_type_eq%5D=Stem" class="text-blue-600 ml-3">NoorBayan token stems →</a>
+      </p>
+    
+    </section>
+    
+
+<!-- ===================================================== -->
+    <!-- Root -->
+    <!-- ===================================================== -->
+
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+
+      <div class="flex items-center justify-between">
+
+        <div>
+
+          <h3 class="text-2xl font-bold">
+            4. Root (الجذر)
+          </h3>
+
+          <p class="mt-2 text-slate-600">
+            The origin of related Arabic words.
+          </p>
+
+        </div>
+
+        <a href="/cms/roots" class="btn btn-sm btn-info text-white">
+          Browse Roots
+        </a>
+      </div>
+
+      <p class="mt-8 leading-8">
+        Most Arabic words come from a root made of
+        three or four consonants.
+
+        Words sharing the same root usually share
+        a common core meaning.
+      </p>
+
+      <div class="mt-8 overflow-hidden rounded-xl border">
+        <table class="w-full">
+          <thead class="bg-slate-100">
+          <tr>
+            <th class="px-5 py-3 text-left">
+              Root
+            </th>
+            <th class="px-5 py-3 text-left">
+              Derived Word
+            </th>
+            <th class="px-5 py-3 text-left">
+              Meaning
+            </th>
+          </tr>
+          </thead>
+          <tbody class="divide-y">
+          <tr>
+            <td class="px-5 py-4 text-xl">
+              كتب
+            </td>
+            <td class="px-5 py-4 text-xl">
+              كَتَبَ
+            </td>
+            <td class="px-5 py-4">
+              He wrote
+            </td>
+          </tr>
+          <tr>
+            <td class="px-5 py-4 text-xl">
+              كتب
+            </td>
+            <td class="px-5 py-4 text-xl">
+              كِتَاب
+            </td>
+            <td class="px-5 py-4">
+              Book
+            </td>
+          </tr>
+          <tr>
+            <td class="px-5 py-4 text-xl">
+              كتب
+            </td>
+
+            <td class="px-5 py-4 text-xl">
+              مَكْتُوب
+            </td>
+
+            <td class="px-5 py-4">
+              Written
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 rounded-lg bg-green-50 border border-green-200 p-5">
+        QUL currently contains approximately
+        <strong>1,642 distinct roots.</strong>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Lemma -->
+    <!-- ===================================================== -->
+
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+
+      <div class="flex items-center justify-between">
+
+        <div>
+
+          <h3 class="text-2xl font-bold">
+            5. Lemma
+          </h3>
+
+          <p class="mt-2 text-slate-600">
+            The dictionary form of a word.
+          </p>
+
+        </div>
+
+        <a href="/cms/lemmas" class="btn btn-sm btn-info text-white">
+          Browse Lemmas
+        </a>
+
+      </div>
+
+      <p class="mt-8 leading-8">
+
+        A lemma is the form you would look up in a dictionary.
+
+        Many different word forms may point to the same lemma.
+
+      </p>
+
+      <div class="mt-8 overflow-hidden rounded-xl border">
+
+        <table class="w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-5 py-3 text-left">
+              Surface Word
+            </th>
+
+            <th class="px-5 py-3 text-left">
+              Lemma
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+
+            <td class="px-5 py-4 text-xl">
+              كُتُب
+            </td>
+
+            <td class="px-5 py-4 text-xl">
+              كِتَاب
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-5 py-4 text-xl">
+              كِتَابَيْنِ
+            </td>
+
+            <td class="px-5 py-4 text-xl">
+              كِتَاب
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-5 py-4 text-xl">
+              الْكِتَابُ
+            </td>
+
+            <td class="px-5 py-4 text-xl">
+              كِتَاب
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="mt-6 rounded-lg bg-slate-100 p-5">
+
+        Think of a lemma as the "canonical" version of a word.
+        Just as English dictionaries list <strong>write</strong> instead of
+        <strong>writes</strong>, <strong>wrote</strong>, or <strong>writing</strong>,
+        Arabic dictionaries list one base form for related words.
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Morphological Features -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        Morphological Features
+      </h2>
+
+      <p class="mt-3 text-slate-600 max-w-4xl">
+        Besides the word itself, QUL stores many grammatical properties that
+        describe how the word behaves. Not every feature applies to every word
+        (for example, verbs have tense and mood, while nouns have case).
+      </p>
+
+      <div class="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Part of Speech</h3>
+          <p class="mt-3 text-slate-600">
+            Identifies whether the segment is a noun, verb, particle,
+            pronoun, adjective, etc.
+          </p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Person</h3>
+          <p class="mt-3 text-slate-600">
+            First, second or third person.
+            (I, You, He/She/They)
+          </p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Gender</h3>
+          <p class="mt-3 text-slate-600">
+            Masculine or feminine.
+          </p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Number</h3>
+          <p class="mt-3 text-slate-600">
+            Singular, dual or plural.
+          </p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Case (إعراب)</h3>
+          <p class="mt-3 text-slate-600">
+            Used mainly for nouns.
+            Examples include nominative, accusative and genitive.
+          </p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Mood</h3>
+          <p class="mt-3 text-slate-600">
+            Used mainly for imperfect verbs.
+            Examples include indicative, subjunctive and jussive.
+          </p>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <h3 class="font-semibold text-lg">Verb Form</h3>
+          <p class="mt-3 text-slate-600">
+            Arabic derived forms such as Form I, II, III... which modify
+            the meaning of a verb.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Dataset Overview -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        QUL Dataset Overview
+      </h2>
+
+      <p class="mt-3 text-slate-600">
+        The following datasets make up QUL's linguistic database.
+      </p>
+
+      <div class="mt-8 overflow-hidden rounded-xl border bg-white">
+
+        <table class="min-w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-6 py-4 text-left">
+              Dataset
+            </th>
+
+            <th class="px-6 py-4 text-left">
+              Stores
+            </th>
+
+            <th class="px-6 py-4 text-left">
+              Editable
+            </th>
+
+            <th class="px-6 py-4 text-left">
+              Link
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              Morphology Words
+            </td>
+
+            <td class="px-6 py-4">
+              One record for every Quran word.
+            </td>
+
+            <td class="px-6 py-4">
+              ✅
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/morphology_words" class="text-blue-600">Open →</a>
+            </td>
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              Word Segments
+            </td>
+
+            <td class="px-6 py-4">
+              Prefixes, stem and suffixes.
+            </td>
+
+            <td class="px-6 py-4">
+              ✅
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/morphology_word_segments" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              Roots
+            </td>
+
+            <td class="px-6 py-4">
+              Root dictionary.
+            </td>
+
+            <td class="px-6 py-4">
+              ✅
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/roots" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              Lemmas
+            </td>
+
+            <td class="px-6 py-4">
+              Dictionary forms.
+            </td>
+
+            <td class="px-6 py-4">
+              ✅
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/lemmas" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              Grammar Terms
+            </td>
+
+            <td class="px-6 py-4">
+              Localized grammar terminology.
+            </td>
+
+            <td class="px-6 py-4">
+              ✅
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/morphology_grammar_terms" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              Dependency Graphs
+            </td>
+
+            <td class="px-6 py-4">
+              Editable syntax graphs.
+            </td>
+
+            <td class="px-6 py-4">
+              ✅
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/graphs" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              NoorBayan Sentences
+            </td>
+
+            <td class="px-6 py-4">
+              Imported sentence treebank.
+            </td>
+
+            <td class="px-6 py-4">
+              ❌
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/morphology_sentences" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          <tr>
+
+            <td class="px-6 py-4 font-semibold">
+              NoorBayan Word Tokens
+            </td>
+
+            <td class="px-6 py-4">
+              Tokens belonging to each sentence.
+            </td>
+
+            <td class="px-6 py-4">
+              ❌
+            </td>
+
+            <td class="px-6 py-4">
+              <a href="/cms/morphology_word_tokens" class="text-blue-600">Open →</a>
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- How Everything Connects -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        How Everything Connects
+      </h2>
+
+      <p class="mt-3 text-slate-600">
+        This is probably the most useful diagram when returning to the project
+        after a few months.
+      </p>
+
+      <div class="mt-8 rounded-2xl border bg-white p-10">
+
+        <div class="flex justify-center">
+
+          <div class="rounded-xl bg-blue-50 border border-blue-300 px-8 py-5">
+
+            <div class="font-bold text-lg">
+              Quran Word
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="flex justify-center py-4 text-3xl text-slate-300">
+          ↓
+        </div>
+
+        <div class="flex justify-center">
+
+          <div class="rounded-xl bg-green-50 border border-green-300 px-8 py-5">
+
+            <div class="font-bold">
+              Morphology Word
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 mt-10">
+
+          <div class="rounded-xl border bg-slate-50 p-6 text-center">
+
+            <div class="font-semibold">
+              Word Segments
+            </div>
+
+            <p class="mt-3 text-sm text-slate-600">
+              Prefixes, stem and suffixes
+            </p>
+
+          </div>
+
+          <div class="rounded-xl border bg-slate-50 p-6 text-center">
+
+            <div class="font-semibold">
+              Root
+            </div>
+
+            <p class="mt-3 text-sm text-slate-600">
+              Shared origin
+            </p>
+
+          </div>
+
+          <div class="rounded-xl border bg-slate-50 p-6 text-center">
+
+            <div class="font-semibold">
+              Lemma
+            </div>
+
+            <p class="mt-3 text-sm text-slate-600">
+              Dictionary form
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="mt-10 rounded-xl border border-purple-200 bg-purple-50 p-6">
+
+          <h3 class="font-semibold text-purple-900">
+            Independent Syntax Datasets
+          </h3>
+
+          <p class="mt-3 text-purple-800">
+
+            The syntax datasets do <strong>not</strong> derive from the
+            morphology tables.
+
+            They reference the same Quran text but store grammatical
+            relationships independently.
+
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-5 mt-6">
+
+            <div class="rounded-lg bg-white border p-5">
+
+              <strong>
+                Dependency Graphs
+              </strong>
+
+              <div class="mt-2 text-slate-600">
+                Per ayah
+              </div>
+
+            </div>
+
+            <div class="rounded-lg bg-white border p-5">
+
+              <strong>
+                NoorBayan Treebank
+              </strong>
+
+              <div class="mt-2 text-slate-600">
+                Per sentence
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+    <!-- ===================================================== -->
+    <!-- Grammar -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        Grammar (Syntax)
+      </h2>
+
+      <p class="mt-3 text-slate-600 max-w-4xl">
+
+        If morphology studies an individual word, grammar studies
+        <strong>how words work together</strong> to form a complete sentence.
+
+      </p>
+
+      <div class="mt-8 grid lg:grid-cols-2 gap-8">
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <h3 class="text-xl font-bold">
+            Morphology asks...
+          </h3>
+
+          <ul class="mt-5 space-y-3 list-disc ml-6">
+
+            <li>What is this word?</li>
+
+            <li>What is its root?</li>
+
+            <li>What is its lemma?</li>
+
+            <li>Is it a noun or a verb?</li>
+
+            <li>What prefixes and suffixes does it contain?</li>
+
+          </ul>
+
+        </div>
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <h3 class="text-xl font-bold">
+            Grammar asks...
+          </h3>
+
+          <ul class="mt-5 space-y-3 list-disc ml-6">
+
+            <li>Who is the subject?</li>
+
+            <li>What is the object?</li>
+
+            <li>Which words modify other words?</li>
+
+            <li>How does this sentence fit together?</li>
+
+          </ul>
+
+        </div>
+
+      </div>
+
+      <div class="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-6">
+
+        <h3 class="font-semibold text-blue-900">
+          Think of it this way
+        </h3>
+
+        <p class="mt-3 text-blue-800 leading-8">
+
+          Morphology is about the
+          <strong>inside of a word.</strong>
+
+          Grammar is about the
+          <strong>relationships between words.</strong>
+
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Syntax Datasets -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        Syntax Datasets in QUL
+      </h2>
+
+      <p class="mt-3 text-slate-600">
+
+        QUL contains two completely independent syntax datasets.
+
+        They complement each other and neither is generated from the other.
+
+      </p>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Dependency Graph -->
+    <!-- ===================================================== -->
+
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+
+      <div class="flex items-center justify-between">
+
+        <div>
+
+          <h3 class="text-2xl font-bold">
+            Dependency Graphs
+          </h3>
+
+          <p class="mt-2 text-slate-600">
+
+            QUL's editable syntax graphs.
+
+          </p>
+
+        </div>
+
+        <a href="/cms/graphs" class="rounded-lg bg-blue-600 text-white px-4 py-2">
+          Browse Graphs
+        </a>
+
+      </div>
+
+      <p class="mt-8 leading-8">
+
+        These graphs follow the dependency style introduced by the
+        Quranic Arabic Corpus.
+
+        Each ayah has its own graph where nodes represent words (or
+        linguistic constructs) and edges describe grammatical
+        relationships between them.
+
+      </p>
+
+      <div class="mt-8 grid md:grid-cols-2 gap-6">
+
+        <div class="rounded-lg bg-green-50 border border-green-200 p-6">
+
+          <h4 class="font-semibold text-green-900">
+            Characteristics
+          </h4>
+
+          <ul class="mt-4 space-y-2 list-disc ml-5">
+
+            <li>One graph per ayah</li>
+
+            <li>Editable inside QUL</li>
+
+            <li>Review workflow</li>
+
+            <li>Can evolve over time</li>
+
+          </ul>
+
+        </div>
+
+        <div class="rounded-lg bg-slate-50 border p-6">
+
+          <h4 class="font-semibold">
+            Graph contains
+          </h4>
+
+          <ul class="mt-4 space-y-2 list-disc ml-5">
+
+            <li>Word nodes</li>
+
+            <li>Phrase nodes</li>
+
+            <li>Reference nodes</li>
+
+            <li>Elided nodes</li>
+
+            <li>Dependency edges</li>
+
+          </ul>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- NoorBayan -->
+    <!-- ===================================================== -->
+
+    <section class="mb-12 rounded-2xl border bg-white p-8">
+
+      <div class="flex items-center justify-between">
+
+        <div>
+
+          <h3 class="text-2xl font-bold">
+            NoorBayan Treebank
+          </h3>
+
+          <p class="mt-2 text-slate-600">
+
+            Imported scholarly sentence treebank.
+
+          </p>
+
+        </div>
+
+        <a href="/cms/morphology_sentences" class="rounded-lg bg-blue-600 text-white px-4 py-2">
+          Browse Sentences
+        </a>
+
+      </div>
+
+      <p class="mt-8 leading-8">
+
+        NoorBayan is an independently developed linguistic corpus.
+
+        Unlike the dependency graphs, it is organized around
+        <strong>sentences</strong> instead of ayahs.
+
+        A sentence may begin in one ayah and continue into the next.
+
+      </p>
+
+      <div class="mt-8 grid md:grid-cols-2 gap-6">
+
+        <div class="rounded-lg bg-purple-50 border border-purple-200 p-6">
+
+          <h4 class="font-semibold text-purple-900">
+
+            Contains
+
+          </h4>
+
+          <ul class="mt-4 space-y-2 list-disc ml-5">
+
+            <li>11,693 linguistic sentences</li>
+
+            <li>Dependency analysis</li>
+
+            <li>Constituency phrases</li>
+
+            <li>Implicit pronouns</li>
+
+            <li>Elided (taqdīr) words</li>
+
+          </ul>
+
+        </div>
+
+        <div class="rounded-lg bg-amber-50 border border-amber-200 p-6">
+
+          <h4 class="font-semibold text-amber-900">
+
+            Important
+
+          </h4>
+
+          <p class="mt-3 text-amber-800">
+
+            This dataset is read-only.
+
+            Any changes should be made in the upstream project and
+            imported into QUL using the import task.
+
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Sources -->
+    <!-- ===================================================== -->
+
+    <section class="mb-8">
+
+      <h2 class="text-3xl font-bold">
+        Data Sources
+      </h2>
+
+      <div class="mt-8 grid lg:grid-cols-2 gap-8">
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <h3 class="text-xl font-bold">
+
+            Quranic Arabic Corpus
+
+          </h3>
+
+          <p class="mt-4 leading-8 text-slate-600">
+
+            QUL's morphology is primarily based on the
+            <strong>Quranic Arabic Corpus</strong>
+            by Dr. Kais Dukes, with additional refinements and
+            corrections made inside QUL.
+
+          </p>
+
+          <div class="mt-6">
+
+            Provides:
+
+            <ul class="mt-3 list-disc ml-6 space-y-2">
+
+              <li>Word segmentation</li>
+
+              <li>Morphology</li>
+
+              <li>Roots</li>
+
+              <li>Lemmas</li>
+
+              <li>Dependency annotations</li>
+
+            </ul>
+
+          </div>
+
+        </div>
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <h3 class="text-xl font-bold">
+
+            NoorBayan Quranic Project
+
+          </h3>
+
+          <p class="mt-4 leading-8 text-slate-600">
+
+            QUL imports the NoorBayan treebank to provide a richer
+            sentence-level grammatical analysis.
+
+          </p>
+
+          <div class="mt-6">
+
+            Provides:
+
+            <ul class="mt-3 list-disc ml-6 space-y-2">
+
+              <li>Sentence boundaries</li>
+
+              <li>Dependency analysis</li>
+
+              <li>Constituency analysis</li>
+
+              <li>Implicit words</li>
+
+              <li>Treebank annotations</li>
+
+            </ul>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Glossary -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-3xl font-bold">
+        Glossary
+      </h2>
+
+      <p class="mt-3 text-slate-600 max-w-4xl">
+
+        A quick reference for the most common linguistic terms you'll encounter
+        while working with QUL. These definitions are intentionally simplified
+        to make navigating the datasets easier—they are not meant to be a
+        complete grammar reference.
+
+      </p>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Morphology -->
+    <!-- ===================================================== -->
+
+    <section class="mt-10">
+
+      <h3 class="text-2xl font-semibold mb-5">
+        Morphology
+      </h3>
+
+      <div class="overflow-hidden rounded-xl border bg-white">
+
+        <table class="min-w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-5 py-3 text-left w-40">
+              Arabic
+            </th>
+
+            <th class="px-5 py-3 text-left w-52">
+              English
+            </th>
+
+            <th class="px-5 py-3 text-left">
+              Meaning
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+            <td class="px-5 py-4 text-xl">صرف</td>
+            <td class="px-5 py-4 font-medium">Morphology</td>
+            <td class="px-5 py-4">
+              The study of how words are formed.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">جذر</td>
+            <td class="px-5 py-4 font-medium">Root</td>
+            <td class="px-5 py-4">
+              The original consonants from which related words are derived.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">لَمَّة</td>
+            <td class="px-5 py-4 font-medium">Lemma</td>
+            <td class="px-5 py-4">
+              The dictionary form of a word.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">ساق</td>
+            <td class="px-5 py-4 font-medium">Stem</td>
+            <td class="px-5 py-4">
+              The main part of a word after removing prefixes and suffixes.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">بادئة</td>
+            <td class="px-5 py-4 font-medium">Prefix</td>
+            <td class="px-5 py-4">
+              A segment attached before the stem.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">لاحقة</td>
+            <td class="px-5 py-4 font-medium">Suffix</td>
+            <td class="px-5 py-4">
+              A segment attached after the stem.
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Grammar -->
+    <!-- ===================================================== -->
+
+    <section class="mt-12">
+
+      <h3 class="text-2xl font-semibold mb-5">
+        Grammar & Syntax
+      </h3>
+
+      <div class="overflow-hidden rounded-xl border bg-white">
+
+        <table class="min-w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-5 py-3 text-left w-40">
+              Arabic
+            </th>
+
+            <th class="px-5 py-3 text-left w-52">
+              English
+            </th>
+
+            <th class="px-5 py-3 text-left">
+              Meaning
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+            <td class="px-5 py-4 text-xl">نحو</td>
+            <td class="px-5 py-4 font-medium">Grammar / Syntax</td>
+            <td class="px-5 py-4">
+              Studies how words relate to each other.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">إعراب</td>
+            <td class="px-5 py-4 font-medium">Iʿrāb</td>
+            <td class="px-5 py-4">
+              The grammatical case or ending of a word.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">فاعل</td>
+            <td class="px-5 py-4 font-medium">Subject</td>
+            <td class="px-5 py-4">
+              The doer of the action.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">مفعول به</td>
+            <td class="px-5 py-4 font-medium">Object</td>
+            <td class="px-5 py-4">
+              Receives the action of the verb.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">خبر</td>
+            <td class="px-5 py-4 font-medium">Predicate</td>
+            <td class="px-5 py-4">
+              Provides information about the subject.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">نعت</td>
+            <td class="px-5 py-4 font-medium">Adjective</td>
+            <td class="px-5 py-4">
+              Describes or modifies a noun.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">بدل</td>
+            <td class="px-5 py-4 font-medium">Apposition</td>
+            <td class="px-5 py-4">
+              A noun that renames or explains another noun.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 text-xl">عطف</td>
+            <td class="px-5 py-4 font-medium">Coordination</td>
+            <td class="px-5 py-4">
+              Joins words or phrases together.
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Treebanks -->
+    <!-- ===================================================== -->
+
+    <section class="mt-12">
+
+      <h3 class="text-2xl font-semibold mb-5">
+        Treebanks & Parsing
+      </h3>
+
+      <div class="overflow-hidden rounded-xl border bg-white">
+
+        <table class="min-w-full">
+
+          <thead class="bg-slate-100">
+
+          <tr>
+
+            <th class="px-5 py-3 text-left w-52">
+              Term
+            </th>
+
+            <th class="px-5 py-3 text-left">
+              Meaning
+            </th>
+
+          </tr>
+
+          </thead>
+
+          <tbody class="divide-y">
+
+          <tr>
+            <td class="px-5 py-4 font-medium">
+              Dependency
+            </td>
+            <td class="px-5 py-4">
+              Connects words by grammatical relationships (subject, object, modifier, etc.).
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 font-medium">
+              Constituency
+            </td>
+            <td class="px-5 py-4">
+              Groups words into phrases such as noun phrases and verbal sentences.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 font-medium">
+              Treebank
+            </td>
+            <td class="px-5 py-4">
+              A linguistically annotated corpus containing grammatical analyses.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 font-medium">
+              Elided Word
+            </td>
+            <td class="px-5 py-4">
+              A word understood from context but omitted in the written text.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 font-medium">
+              Implicit Pronoun
+            </td>
+            <td class="px-5 py-4">
+              A pronoun implied by the verb rather than written explicitly.
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-5 py-4 font-medium">
+              Token
+            </td>
+            <td class="px-5 py-4">
+              A linguistic unit within a parsed sentence.
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Further Reading -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20 mb-20">
+      <h2 class="text-3xl font-bold">
+        Further Reading
+      </h2>
+
+      <p class="mt-3 text-slate-600 max-w-4xl">
+
+        These are the primary resources used while developing and maintaining
+        QUL's linguistic datasets. Whether you're researching Arabic grammar,
+        verifying morphology, or understanding syntax, these references are
+        invaluable.
+
+      </p>
+
+      <div class="mt-10 grid lg:grid-cols-2 gap-8">
+
+        <!-- ===================================================== -->
+        <!-- Quranic Arabic Corpus -->
+        <!-- ===================================================== -->
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <div class="text-3xl mb-3">📖</div>
+
+          <h3 class="text-xl font-bold">
+            Quranic Arabic Corpus
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+
+            The most important reference for QUL. It provides the original
+            morphology, segmentation, dependency treebank, grammar
+            documentation, concordance and search tools.
+
+          </p>
+
+          <ul class="mt-5 list-disc ml-6 space-y-2 text-slate-700">
+
+            <li>Morphology</li>
+            <li>Roots & Lemmas</li>
+            <li>Dependency Treebank</li>
+            <li>Grammar Documentation</li>
+            <li>Morphological Search</li>
+
+          </ul>
+
+          <div class="mt-6 space-y-2">
+
+            <a href="https://corpus.quran.com"
+               target="_blank"
+               class="block text-blue-600 hover:underline">
+              Main Website →
+            </a>
+
+            <a href="https://corpus.quran.com/morphologicalsearch.jsp"
+               target="_blank"
+               class="block text-blue-600 hover:underline">
+              Morphological Search →
+            </a>
+
+            <a href="https://corpus.quran.com/download/"
+               target="_blank"
+               class="block text-blue-600 hover:underline">
+              Data Download →
+            </a>
+
+          </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- GitHub -->
+        <!-- ===================================================== -->
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <div class="text-3xl mb-3">💻</div>
+
+          <h3 class="text-xl font-bold">
+            Quranic Arabic Corpus GitHub
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+
+            The actively maintained GitHub repository for the next
+            generation of the Quranic Arabic Corpus project.
+
+          </p>
+
+          <div class="mt-6">
+
+            <a href="https://github.com/kaisdukes/quranic-corpus"
+               target="_blank"
+               class="text-blue-600 hover:underline">
+
+              GitHub Repository →
+
+            </a>
+
+          </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- NoorBayan -->
+        <!-- ===================================================== -->
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <div class="text-3xl mb-3">🌳</div>
+
+          <h3 class="text-xl font-bold">
+            NoorBayan Quranic Project
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+
+            Source of the sentence-based hybrid treebank imported into QUL.
+            Includes dependency and constituency analysis.
+
+          </p>
+
+          <div class="mt-6">
+
+            <a href="https://github.com/NoorBayan/Quranic"
+               target="_blank"
+               class="text-blue-600 hover:underline">
+
+              GitHub Repository →
+
+            </a>
+
+          </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- Thesis -->
+        <!-- ===================================================== -->
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <div class="text-3xl mb-3">🎓</div>
+
+          <h3 class="text-xl font-bold">
+            Dr. Kais Dukes' PhD Thesis
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+
+            Explains the theory behind the Quranic Arabic Corpus,
+            dependency parsing and hybrid syntactic representation.
+
+          </p>
+
+          <div class="mt-6">
+
+            <a href="https://arxiv.org/abs/1510.07193"
+               target="_blank"
+               class="text-blue-600 hover:underline">
+              Statistical Parsing by Machine Learning from a Classical Arabic Treebank →
+            </a>
+          </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- Lane -->
+        <!-- ===================================================== -->
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <div class="text-3xl mb-3">📚</div>
+
+          <h3 class="text-xl font-bold">
+            Lane's Arabic-English Lexicon
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+
+            The classic reference for understanding Arabic roots and their
+            historical meanings.
+
+          </p>
+
+          <div class="mt-6">
+
+            <a href="https://lexicon.quranic-research.net/"
+               target="_blank"
+               class="text-blue-600 hover:underline">
+              Browse Lexicon →
+            </a>
+          </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- Hans Wehr -->
+        <!-- ===================================================== -->
+
+        <div class="rounded-xl border bg-white p-8">
+
+          <div class="text-3xl mb-3">📗</div>
+
+          <h3 class="text-xl font-bold">
+            Hans Wehr Dictionary
+          </h3>
+
+          <p class="mt-3 text-slate-600 leading-7">
+
+            One of the most widely used dictionaries for Classical and
+            Modern Standard Arabic.
+
+          </p>
+
+          <div class="mt-6 text-slate-500">
+
+            Commercial publication available in print and digital editions.
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================== -->
+      <!-- Tip -->
+      <!-- ===================================================== -->
+
+      <div class="mt-10 rounded-xl border border-blue-200 bg-blue-50 p-6">
+
+        <h3 class="font-semibold text-blue-900">
+          Recommendation
+        </h3>
+
+        <p class="mt-3 text-blue-800 leading-8">
+
+          If you're trying to understand why a word or graph in QUL looks the
+          way it does, start with the
+          <strong>Quranic Arabic Corpus</strong>.
+          It explains nearly every morphological tag, grammatical relation,
+          and dependency annotation used throughout QUL.
+
+        </p>
+
+      </div>
+
+    </section>
+  
+  <!-- ===================================================== -->
+  <!-- Models -->
+  <!-- ===================================================== -->
+  
+  <section class="mb-12">
+    <h2 class="text-2xl font-bold mb-5">Models &amp; Where Each Dataset Lives</h2>
+  
+    <p class="text-slate-600 leading-8 mb-6">
+      The two syntax datasets use separate models and tables, so they never
+      overwrite each other. Shared dictionaries (roots, lemmas) are linked
+      from both.
+    </p>
+  
+    <div class="grid md:grid-cols-2 gap-6">
+  
+      <div class="bg-white rounded-xl border p-8">
+        <h3 class="text-xl font-bold">Quran Corpus (QAC) models</h3>
+        <ul class="mt-5 space-y-3">
+          <li><code>Morphology::Word</code> — <a href="/cms/morphology_words" class="text-blue-600">morphology_words →</a></li>
+          <li><code>Morphology::WordSegment</code> — <a href="/cms/morphology_word_segments" class="text-blue-600">morphology_word_segments →</a></li>
+          <li><code>Morphology::DependencyGraph::Graph</code> — <a href="/cms/graphs" class="text-blue-600">graphs →</a></li>
+          <li><code>Morphology::DependencyGraph::GraphNode</code> — <a href="/cms/morphology_dependency_graph_graph_nodes" class="text-blue-600">graph nodes →</a></li>
+          <li><code>Morphology::DependencyGraph::GraphNodeEdge</code> — <a href="/cms/morphology_dependency_graph_graph_node_edges" class="text-blue-600">graph edges →</a></li>
+          <li><code>Morphology::GrammarTerm</code> — <a href="/cms/morphology_grammar_terms" class="text-blue-600">grammar terms →</a></li>
+        </ul>
+        <p class="mt-5 text-slate-600">
+          Public viewer: <a href="/morphology/dependency-graphs" class="text-blue-600">/morphology/dependency-graphs</a>
+        </p>
+      </div>
+  
+      <div class="bg-white rounded-xl border p-8">
+        <h3 class="text-xl font-bold">NoorBayan Treebank models</h3>
+        <ul class="mt-5 space-y-3">
+          <li><code>Morphology::Sentence</code> — <a href="/cms/morphology_sentences" class="text-blue-600">morphology_sentences →</a></li>
+          <li><code>Morphology::WordToken</code> — <a href="/cms/morphology_word_tokens" class="text-blue-600">morphology_word_tokens →</a></li>
+        </ul>
+        <p class="mt-5 text-slate-600 leading-7">
+          One <code>Sentence</code> per linguistic sentence (may span several
+          ayahs); one <code>WordToken</code> per morphological token, carrying
+          the dependency relation, constituency span and all grammar features.
+          Reloaded by <code>noor_bayan:import</code>; read-only in the CMS.
+        </p>
+        <p class="mt-5 text-slate-600">
+          Public viewer: <a href="/morphology/treebank" class="text-blue-600">/morphology/treebank</a>
+        </p>
+      </div>
+  
+    </div>
+  
+    <div class="mt-6 bg-white rounded-xl border p-8">
+      <h3 class="text-xl font-bold">Shared dictionaries</h3>
+      <ul class="mt-5 space-y-3">
+        <li><code>Root</code> — <a href="/cms/roots" class="text-blue-600">roots →</a></li>
+        <li><code>Lemma</code> — <a href="/cms/lemmas" class="text-blue-600">lemmas →</a></li>
+      </ul>
+    </div>
+  </section>
+
+  </div>
+</div>
+
+

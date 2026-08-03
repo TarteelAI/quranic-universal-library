@@ -1,5 +1,11 @@
 module Corpus
   module Morphology
+    # Segment: one written Quranic word often packs several grammatical units;
+    # segmentation splits it so each unit can be tagged on its own.
+    # Prefix — attached particle before the stem: the بِ in بِسْمِ "in (the) name".
+    # Stem — the core unit carrying the root meaning: the سْمِ in بِسْمِ.
+    # Suffix — attached pronoun/particle after the stem: the هِمْ in عَلَيْهِمْ "upon them".
+
     class SegmentType < OpenStruct
       PREFIX = new(tag: "Prefix")
       STEM   = new(tag: "Stem")
@@ -30,7 +36,6 @@ module Corpus
         self == other
       end
 
-      # Parse the tag to return the corresponding SegmentType object
       def self.parse(tag)
         segment_type = TAG_MAP[tag]
         if segment_type.nil?

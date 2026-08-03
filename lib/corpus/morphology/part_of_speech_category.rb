@@ -1,5 +1,10 @@
 module Corpus
   module Morphology
+    # The classical three-way division of every Arabic word.
+    # Nominal — اسم — nouns and everything noun-like (pronouns, adjectives, demonstratives): كِتَاب، هُوَ.
+    # Verb — فعل — action words: قَالَ "he said".
+    # Particle — حرف — function words that connect or modify: فِي، وَ، هَلْ.
+
     class PartOfSpeechCategory < OpenStruct
       NOMINAL  = new(tag: "Nominal")
       VERB     = new(tag: "Verb")
@@ -30,7 +35,6 @@ module Corpus
         self == other
       end
 
-      # Parse the tag to return the corresponding PartOfSpeechCategory
       def self.parse(tag)
         category = TAG_MAP[tag]
         if category.nil?

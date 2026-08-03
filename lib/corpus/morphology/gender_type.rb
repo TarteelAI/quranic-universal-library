@@ -2,9 +2,19 @@ require 'ostruct'
 
 module Corpus
   module Morphology
+    # Gender: every Arabic noun is either masculine or feminine, and verbs,
+    # adjectives and pronouns referring to it must agree.
+    # M — masculine, مذكر: مُؤْمِن "believing man".
+    # F — feminine, مؤنث — often marked with ة: مُؤْمِنَة "believing woman".
+
     class GenderType < OpenStruct
       MASCULINE = new(tag: "M")
       FEMININE  = new(tag: "F")
+
+      TAG_MAP = {
+        "M" => MASCULINE,
+        "F" => FEMININE
+      }
 
       def to_s
         tag
@@ -29,8 +39,12 @@ module Corpus
         tag.hash
       end
 
+      def self.parse(tag)
+        TAG_MAP[tag] || raise(UnsupportedOperationException, "GenderType tag #{tag} not recognized.")
+      end
+
       def self.all
-        [MASCULINE, FEMININE]
+        TAG_MAP.values
       end
     end
   end

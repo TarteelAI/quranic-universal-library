@@ -120,6 +120,12 @@ Rails.application.routes.draw do
 
       resources :edges, controller: 'dependency_graph_edges', only: [:create, :update, :destroy]
     end
+
+    get 'treebank', to: 'treebank#index', as: :treebank_index
+    get 'treebank/:chapter/:verse', to: 'treebank#show', as: :treebank_ayah,
+        constraints: { chapter: /\d+/, verse: /\d+/ }
+    get 'treebank/:chapter/:verse/data', to: 'treebank#data', as: :treebank_ayah_data,
+        constraints: { chapter: /\d+/, verse: /\d+/ }
   end
 
   resources :user_projects, except: [:index, :destroy]

@@ -23,6 +23,7 @@
 class UserDownload < ApplicationRecord
   belongs_to :user
   belongs_to :downloadable_file
+  belongs_to :downloadable_resource, optional: true
 
   def increment_download!
     self.download_count = download_count.to_i + 1

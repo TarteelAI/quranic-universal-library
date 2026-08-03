@@ -45,7 +45,7 @@ class User < ApplicationRecord
          :rememberable,
          :trackable,
          :validatable,
-         :recoverable
+         :recoverable,
          :confirmable
 
   validates :first_name,
@@ -60,11 +60,12 @@ class User < ApplicationRecord
   after_create :send_welcome_email
 
   enum :role, {
-    normal_user: 0,
+    normal_user: 0, # default
     super_admin: 1,
     admin: 2,
     moderator: 3,
     contributor: 4,
+    audio_annotator: 5,
   }, prefix: 'is'
 
   def super_admin?
@@ -78,6 +79,12 @@ class User < ApplicationRecord
 
   def humanize_name
     "#{name}(#{email})"
+  end
+
+  def initials
+    parts = [first_name, last_name].map { |part| part.to_s.strip[0] }.compact
+    parts = [email.to_s[0]] if parts.empty?
+    parts.join.upcase
   end
 
   def send_welcome_email

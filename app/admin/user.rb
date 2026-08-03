@@ -67,6 +67,7 @@ ActiveAdmin.register User do
       row :first_name
       row :last_name
       row :email
+      row :about_me
       row :created_at
 
       if can?(:moderate, resource)

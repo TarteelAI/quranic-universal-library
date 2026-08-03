@@ -25,6 +25,12 @@
               data-controller="tooltip"
           >+</button>
         </div>
+        <button
+            @click="toggleExpanded"
+            class="px-2 h-6 flex items-center justify-center text-[11px] font-medium bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+            :title="expanded ? 'Switch back to the compact timeline' : 'Taller bars and waveform, with draggable word boundaries for the current ayah'"
+            data-controller="tooltip"
+        >{{ expanded ? 'Compact' : 'Expand' }}</button>
       </div>
       <div class="flex items-center gap-3 text-[10px] text-gray-400">
         <template v-if="audioSrc">
@@ -70,7 +76,7 @@
           ref="track"
           class="relative timeline"
           dir="rtl"
-          :style="{ width: trackWidth + 'px', height: trackHeight + 'px' }"
+          :style="{ width: trackWidth + 'px', height: trackHeight + 'px', fontSize: expanded ? '18px' : '15px' }"
           @click="seek"
       >
         <!-- ayah bands -->
@@ -108,8 +114,21 @@
             @mouseenter="showWordTip($event, block)"
             @mousemove="showWordTip($event, block)"
             @mouseleave="hideWordTip"
+            @click.stop="selectWord(block)"
         >
           <span v-if="block.width > 22" class="px-0.5 truncate">{{ block.label }}</span>
+          <span
+              v-if="block.editable"
+              class="tl-handle tl-handle--start"
+              @click.stop
+              @pointerdown.stop.prevent="startEdgeDrag($event, block, 1)"
+          ></span>
+          <span
+              v-if="block.editable"
+              class="tl-handle tl-handle--end"
+              @click.stop
+              @pointerdown.stop.prevent="startEdgeDrag($event, block, 2)"
+          ></span>
         </div>
 
         <!-- gaps (current ayah) -->
@@ -118,9 +137,8 @@
             :key="gap.key"
             class="tl-gap"
             :style="{ right: gap.left + 'px', width: gap.width + 'px', top: mainTop + 'px', height: mainH + 'px' }"
-            :title="`Gap ${gap.to - gap.from} ms — click to close`"
+            :title="`Gap ${gap.to - gap.from} ms`"
             data-controller="tooltip"
-            @click.stop="closeGap(gap)"
         ></div>
 
         <!-- compare lanes -->
@@ -178,10 +196,10 @@ export default {
       pxPerMs: 0.1,
       minPxPerMs: 0.02,
       maxPxPerMs: 0.6,
-      mainTop: 18,
-      mainH: 30,
+      expanded: localStorage.getItem('segmentsTimelineExpanded') === '1',
+      drag: null,
+      minSegMs: 20,
       waveGap: 4,
-      waveH: 36,
       laneH: 14,
       laneGap: 2,
       wordTip: { show: false, x: 0, y: 0, text: '' },
@@ -189,11 +207,16 @@ export default {
       gapMinMs: 1,
       waveformEnabled: false,
       waveformState: 'idle', // idle | loading | ready | error
+      audioDurationMs: 0,
     };
   },
   watch: {
     currentVerseNumber() {
       this.$nextTick(() => this.scrollToCurrentAyah());
+    },
+    expanded(value) {
+      localStorage.setItem('segmentsTimelineExpanded', value ? '1' : '0');
+      this.$nextTick(() => { this.scrollToCurrentAyah(); this.drawWaveform(); });
     },
     currentTimestamp() {
       if (this.playing) this.followPlayhead();
@@ -218,7 +241,14 @@ export default {
       this.audioData = null;
       this.decodedSrc = null;
       this.waveformState = 'idle';
+      // Ayah navigation swaps the audio file; the old duration no longer applies
+      // until the new file reports its own metadata.
+      this.audioDurationMs = 0;
+      this.attachDurationListener();
       if (this.waveformEnabled && this.showTimeline) this.loadWaveform();
+    },
+    audioDurationMs() {
+      this.$nextTick(() => { this.scrollToCurrentAyah(); this.drawWaveform(); });
     },
   },
   created() {
@@ -227,9 +257,16 @@ export default {
     this.tileEls = {};
     this.audioData = null; // { channel: Float32Array, sampleRate }
     this.decodedSrc = null;
+    this.scrollAnim = null;
+    this.durationEl = null;
+    this.durationHandler = null;
   },
   mounted() {
     this.$nextTick(() => this.scrollToCurrentAyah());
+    this.attachDurationListener();
+  },
+  beforeUnmount() {
+    this.detachDurationListener();
   },
   computed: {
     ...mapState([
@@ -249,6 +286,27 @@ export default {
     ]),
     segmentsLoaded() {
       return !!this.verseSegment;
+    },
+    isAyah() {
+      // Ayah-by-ayah audio: each ayah is its own file with 0-based segment
+      // times and no surah-level timestamps, so the timeline shows one ayah.
+      return this.audioType === 'ayah';
+    },
+    timelineVerses() {
+      if (this.isAyah) return [Number(this.currentVerseNumber)];
+
+      const verses = [];
+      for (let verse = 1; verse <= this.versesCount; verse++) verses.push(verse);
+      return verses;
+    },
+    mainTop() {
+      return this.expanded ? 22 : 18;
+    },
+    mainH() {
+      return this.expanded ? 64 : 30;
+    },
+    waveH() {
+      return this.expanded ? 80 : 36;
     },
     waveformVisible() {
       return this.waveformEnabled && this.waveformState === 'ready';
@@ -312,9 +370,23 @@ export default {
       return this.pxPerMs > this.minPxPerMs;
     },
     rangeEndMs() {
-      let end = (typeof player !== 'undefined' && player && isFinite(player.duration) && player.duration > 0)
-        ? player.duration * 1000
-        : 0;
+      let end = this.audioDurationMs || 0;
+
+      if (this.isAyah) {
+        // Only the current ayah is on the timeline; size the track to its own
+        // audio (0-based) plus any segment/compare end that runs past it.
+        const key = `${this.chapter}:${this.currentVerseNumber}`;
+        const data = this.segments[key];
+        ((data && data.segments) || []).forEach((segment) => {
+          if (this.present(segment[2])) end = Math.max(end, Number(segment[2]));
+        });
+        this.compareSources.forEach((source) => {
+          ((source.segments && source.segments[key]) || []).forEach((segment) => {
+            if (this.present(segment[2])) end = Math.max(end, Number(segment[2]));
+          });
+        });
+        return Math.max(1, end);
+      }
 
       for (let verse = 1; verse <= this.versesCount; verse++) {
         const data = this.segments[`${this.chapter}:${verse}`];
@@ -330,6 +402,10 @@ export default {
       return this.laneTop(this.compareSources.length) + 4;
     },
     ayahBands() {
+      // Ayah-by-ayah audio has no surah-level ayah timestamps and shows a single
+      // ayah, so there are no bands to draw.
+      if (this.isAyah) return [];
+
       const bands = [];
 
       for (let verse = 1; verse <= this.versesCount; verse++) {
@@ -356,7 +432,7 @@ export default {
     wordBlocks() {
       const blocks = [];
 
-      for (let verse = 1; verse <= this.versesCount; verse++) {
+      for (const verse of this.timelineVerses) {
         const data = this.segments[`${this.chapter}:${verse}`];
         if (!data) continue;
 
@@ -368,16 +444,27 @@ export default {
         (data.segments || []).forEach((segment, index) => {
           if (!this.present(segment[1]) || !this.present(segment[2])) return;
 
-          const start = Number(segment[1]);
-          const end = Number(segment[2]);
+          let start = Number(segment[1]);
+          let end = Number(segment[2]);
+
+          const dragTimes = isCurrent && this.drag && this.drag.times[index];
+          if (dragTimes) {
+            start = dragTimes.start;
+            end = dragTimes.end;
+          }
 
           const block = {
             key: `w-${verse}-${index}`,
+            index,
+            verse,
+            word: segment[0],
+            start,
             left: start * this.pxPerMs,
             width: Math.max(2, (end - start) * this.pxPerMs),
             invalid: end <= start,
             overlap: false,
             isCurrent,
+            editable: isCurrent && this.expanded && !this.segmentLocked,
             label: words[segment[0] - 1] || segment[0],
             location: `${this.chapter}:${verse}:${segment[0]}`,
             title: `${this.chapter}:${verse}:${segment[0]} — ${start}–${end} ms`,
@@ -425,8 +512,167 @@ export default {
       this.pxPerMs = 0.1;
       this.$nextTick(() => { this.scrollToCurrentAyah(); this.drawWaveform(); });
     },
+    toggleExpanded() {
+      this.expanded = !this.expanded;
+    },
+    selectWord(block) {
+      if (this.drag) return;
+
+      if (typeof player !== 'undefined' && player) {
+        player.currentTime = Math.max(0, block.start / 1000);
+      }
+
+      if (block.verse != this.currentVerseNumber) {
+        this.$store.commit('CHANGE_AYAH', { to: block.verse });
+      }
+      this.$store.commit('SET_WORD', { word: block.word });
+    },
+    startEdgeDrag(event, block, field) {
+      if (!block.editable || this.drag) return;
+
+      const segments = (this.verseSegment && this.verseSegment.segments) || [];
+      const segment = segments[block.index];
+      if (!segment) return;
+
+      // Snapshot every word's timing so dragging the end boundary can ripple the
+      // words after it while preserving each of their durations.
+      const originals = segments.map((seg) => ({
+        timed: this.present(seg[1]) && this.present(seg[2]),
+        start: Number(seg[1]),
+        end: Number(seg[2]),
+      }));
+
+      this.drag = {
+        index: block.index,
+        field,
+        origin: { start: Number(segment[1]), end: Number(segment[2]) },
+        originals,
+        times: {},
+        moved: false,
+      };
+
+      event.target.setPointerCapture(event.pointerId);
+      event.target.addEventListener('pointermove', this.onEdgeDrag);
+      event.target.addEventListener('pointerup', this.endEdgeDrag);
+      event.target.addEventListener('pointercancel', this.cancelEdgeDrag);
+    },
+    onEdgeDrag(event) {
+      const drag = this.drag;
+      const track = this.$refs.track;
+      if (!drag || !track) return;
+
+      const rect = track.getBoundingClientRect();
+      const timeMs = Math.round((rect.right - event.clientX) / this.pxPerMs);
+
+      const { index, field, origin, originals } = drag;
+      const times = {};
+
+      if (field === 2) {
+        // Drag the end boundary: extend/shrink this word, filling any gap before
+        // it first. A later word only moves once the growing word collides with
+        // it, and then shifts (keeping its duration) so it stays adjacent.
+        const end = Math.max(origin.start + this.minSegMs, timeMs);
+        times[index] = { start: origin.start, end };
+
+        let front = end;
+        for (let i = index + 1; i < originals.length; i++) {
+          if (!originals[i].timed) continue;
+          if (originals[i].start >= front) break; // gap absorbs the growth; stop
+          const shift = front - originals[i].start;
+          times[i] = { start: originals[i].start + shift, end: originals[i].end + shift };
+          front = originals[i].end + shift;
+        }
+      } else {
+        // Drag the start boundary: adjust this word's start against the previous
+        // timed word, shrinking it only where they would overlap.
+        let neighbor = null;
+        for (let i = index - 1; i >= 0; i--) {
+          if (originals[i].timed) { neighbor = { index: i, start: originals[i].start, end: originals[i].end }; break; }
+        }
+
+        let start = Math.min(origin.end - this.minSegMs, timeMs);
+        start = Math.max(start, neighbor ? neighbor.start + this.minSegMs : 0);
+        start = Math.min(start, origin.end - 1);
+        times[index] = { start, end: origin.end };
+
+        if (neighbor && start < neighbor.end) {
+          times[neighbor.index] = { start: neighbor.start, end: start };
+        }
+      }
+
+      drag.times = times;
+      drag.moved = true;
+
+      const t = times[index];
+      this.wordTip = { show: true, x: event.clientX, y: event.clientY, text: `${t.start}–${t.end} ms` };
+    },
+    endEdgeDrag(event) {
+      const drag = this.finishEdgeDrag(event);
+      if (!drag || !drag.moved) return;
+
+      const changes = Object.entries(drag.times).map(([index, t]) => ({
+        index: Number(index),
+        start: t.start,
+        end: t.end,
+      }));
+
+      if (!changes.length) return;
+
+      this.$store.commit('DRAG_SEG_BOUNDARY', { changes });
+
+      // Gapless only: keep ayah boundaries in step with a dragged first/last word.
+      if (!this.isAyah) {
+        if (drag.field === 1) this.$store.dispatch('RECONCILE_AYAH_START', { index: drag.index });
+        else this.$store.dispatch('RECONCILE_NEXT_AYAH', { indices: changes.map((c) => c.index) });
+      }
+    },
+    cancelEdgeDrag(event) {
+      this.finishEdgeDrag(event);
+    },
+    finishEdgeDrag(event) {
+      const drag = this.drag;
+      this.drag = null;
+      this.wordTip.show = false;
+
+      const target = event.target;
+      target.removeEventListener('pointermove', this.onEdgeDrag);
+      target.removeEventListener('pointerup', this.endEdgeDrag);
+      target.removeEventListener('pointercancel', this.cancelEdgeDrag);
+      if (target.hasPointerCapture && target.hasPointerCapture(event.pointerId)) {
+        target.releasePointerCapture(event.pointerId);
+      }
+
+      return drag;
+    },
     setTileRef(el, index) {
       if (el) this.tileEls[index] = el;
+    },
+    attachDurationListener() {
+      const el = typeof player !== 'undefined' && player ? player : document.getElementById('player');
+      if (!el || el === this.durationEl) {
+        if (el) this.readAudioDuration();
+        return;
+      }
+
+      this.detachDurationListener();
+      this.durationEl = el;
+      this.durationHandler = () => this.readAudioDuration();
+      el.addEventListener('loadedmetadata', this.durationHandler);
+      el.addEventListener('durationchange', this.durationHandler);
+      this.readAudioDuration();
+    },
+    detachDurationListener() {
+      if (this.durationEl && this.durationHandler) {
+        this.durationEl.removeEventListener('loadedmetadata', this.durationHandler);
+        this.durationEl.removeEventListener('durationchange', this.durationHandler);
+      }
+      this.durationEl = null;
+      this.durationHandler = null;
+    },
+    readAudioDuration() {
+      const el = this.durationEl;
+      const duration = el ? el.duration : NaN;
+      this.audioDurationMs = (isFinite(duration) && duration > 0) ? duration * 1000 : 0;
     },
     toggleWaveform(event) {
       this.waveformEnabled = event.target.checked;
@@ -516,7 +762,7 @@ export default {
     sourceBlocks(source) {
       const blocks = [];
 
-      for (let verse = 1; verse <= this.versesCount; verse++) {
+      for (const verse of this.timelineVerses) {
         const key = this.audioType == 'ayah' ? `${this.chapter}:${verse}` : verse;
         const segments = (source.segments && source.segments[key]) || [];
 
@@ -537,17 +783,47 @@ export default {
 
       return blocks;
     },
+    smoothScrollTo(scroller, left) {
+      const from = scroller.scrollLeft;
+      const change = left - from;
+      if (Math.abs(change) < 1) return;
+
+      // Native smooth scrolling has a browser-controlled, distance-proportional
+      // duration — jumping across a long surah takes several seconds. Animate
+      // manually instead, capped at 1s.
+      const duration = Math.min(1000, Math.max(150, Math.abs(change) * 0.4));
+      const startedAt = performance.now();
+
+      cancelAnimationFrame(this.scrollAnim);
+      const step = (now) => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        scroller.scrollLeft = from + change * eased;
+        if (progress < 1) this.scrollAnim = requestAnimationFrame(step);
+      };
+      this.scrollAnim = requestAnimationFrame(step);
+    },
     scrollToCurrentAyah() {
       const scroller = this.$refs.scroller;
-      const data = this.segments[`${this.chapter}:${this.currentVerseNumber}`];
-      if (!scroller || !data || !this.present(data.timestamp_from)) return;
+      if (!scroller) return;
 
-      const from = Number(data.timestamp_from);
-      const to = this.present(data.timestamp_to) ? Number(data.timestamp_to) : from;
+      let from;
+      let to;
+      if (this.isAyah) {
+        // Ayah audio is 0-based; center the whole ayah track.
+        from = 0;
+        to = this.rangeEndMs;
+      } else {
+        const data = this.segments[`${this.chapter}:${this.currentVerseNumber}`];
+        if (!data || !this.present(data.timestamp_from)) return;
+        from = Number(data.timestamp_from);
+        to = this.present(data.timestamp_to) ? Number(data.timestamp_to) : from;
+      }
+
       const centerX = this.trackWidth - ((from + to) / 2) * this.pxPerMs;
       const left = Math.max(0, centerX - scroller.clientWidth / 2);
 
-      scroller.scrollTo({ left, behavior: 'smooth' });
+      this.smoothScrollTo(scroller, left);
     },
     scrollToCurrentTime() {
       const scroller = this.$refs.scroller;
@@ -556,7 +832,7 @@ export default {
       const centerX = this.trackWidth - this.currentTimestamp * this.pxPerMs;
       const left = Math.max(0, centerX - scroller.clientWidth / 2);
 
-      scroller.scrollTo({ left, behavior: 'smooth' });
+      this.smoothScrollTo(scroller, left);
     },
     followPlayhead() {
       const scroller = this.$refs.scroller;
@@ -576,7 +852,7 @@ export default {
 
       const centerX = this.trackWidth - this.currentTimestamp * this.pxPerMs;
       const left = Math.max(0, centerX - scroller.clientWidth / 2);
-      scroller.scrollTo({ left, behavior: 'smooth' });
+      this.smoothScrollTo(scroller, left);
     },
     seek(event) {
       const track = this.$refs.track;
@@ -630,14 +906,6 @@ export default {
       // Geometric fallback: extend the previous word's end up to the next start.
       return gap.to;
     },
-    closeGap(gap) {
-      if (this.segmentLocked) return;
-      this.$store.commit('APPLY_GAP_FIX', {
-        prevIndex: gap.prevIndex,
-        index: gap.index,
-        boundary: this.boundaryFor(gap),
-      });
-    },
     closeAllGaps() {
       if (this.segmentLocked) return;
       // Snapshot first: each commit mutates the segments the computed reads from.
@@ -672,6 +940,28 @@ export default {
   background-color: #dbeafe;
   border-color: #bfdbfe;
   color: #1e40af;
+  cursor: pointer;
+}
+
+.tl-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.tl-handle--start {
+  right: 0;
+}
+
+.tl-handle--end {
+  left: 0;
+}
+
+.tl-handle:hover {
+  background-color: rgba(30, 64, 175, 0.35);
 }
 
 .tl-word--current {
@@ -694,7 +984,6 @@ export default {
 
 .tl-gap {
   position: absolute;
-  cursor: pointer;
   border-radius: 2px;
   border: 1px dashed rgba(245, 158, 11, 0.7);
   background-image: repeating-linear-gradient(
@@ -706,7 +995,4 @@ export default {
   );
 }
 
-.tl-gap:hover {
-  background-color: rgba(245, 158, 11, 0.18);
-}
 </style>

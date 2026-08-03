@@ -4,25 +4,27 @@
   previous_ayah = @verse.previous_ayah
 
   if @access
-    actions << link_to('Edit', new_word_translation_path(ayah: @verse.id, language: params[:language]), class: 'btn btn-success')
+    actions << link_to('Edit', new_word_translation_path(ayah: @verse.id, resource_id: @resource.id), class: 'btn btn-success')
   end
 
   if previous_ayah
-    actions << link_to('Previous ayah', word_translation_path(previous_ayah.id, language: params[:language]), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', word_translation_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
   end
 
   if next_ayah
-    actions << link_to('Next ayah', word_translation_path(next_ayah.id, language: params[:language]), class: 'btn btn-dark')
+    actions << link_to('Next ayah', word_translation_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
   end
-
 %>
 
 <%= render 'tools/header',
-           name: "Word translation proofreading",
-           title: "#{@language.name} word-by-word translation for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
+           name: "Ayah #{@verse.verse_key}",
+           title: "#{@resource.name} for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
            key: 'word_translation',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: word_translations_path(language: params[:language]) }]
+           breadcrumb_parents: [
+             { label: 'Select resource', path: select_resource_word_translations_path },
+             { label: @resource.name, path: word_translations_path(resource_id: @resource.id) }
+           ]
 %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
@@ -46,9 +48,8 @@
 
     <div class="text-xl mb-4">
       <%
-        progress = @verse.word_translation_progress(@language.id)
+        progress = @presenter.verse_progress(@verse)
       %>
-
       Translation progress
       <div class="w-full bg-gray-200 rounded-full h-6 mt-2">
         <div class="bg-green-500 h-6 rounded-full text-white text-xs flex items-center justify-center transition-all duration-300" role="progressbar" aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100" style="min-width: 1em;width: <%= progress%>%;">

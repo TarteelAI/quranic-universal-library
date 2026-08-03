@@ -31,11 +31,11 @@ module AudioSegment
       recitations.each do |recitation|
         if gapless
           export_gapless_recitation(recitation, db)
+          validate_gapless_recitation(recitation)
         else
           export_recitation(recitation, db)
+          validate_segments(recitation, db)
         end
-
-        validate_segments(recitation, db)
       end
 
       db.close
@@ -56,6 +56,7 @@ module AudioSegment
 
         export_gapless_recitation_segments(recitation, reciter_dir, true)
         export_gapless_recitation_audio_files(recitation, reciter_dir)
+        validate_gapless_recitation(recitation)
 
         puts "Exported #{resource_content.id} with version #{version}"
         resource_content.set_meta_value('exported-version', version)
@@ -75,6 +76,24 @@ module AudioSegment
     end
 
     protected
+
+    def validate_gapless_recitation(recitation)
+      segments = Audio::Segment
+                   .where(audio_recitation_id: recitation.id)
+                   .includes(:audio_file, verse: :actual_words)
+
+      Audio::SegmentValidator.new(segments, expected_verses_count: 6236).validate.each do |issue|
+        @issues.push(format_validator_issue(recitation, issue))
+      end
+    end
+
+    def format_validator_issue(recitation, issue)
+      if issue[:key]
+        "Recitation: #{recitation.id} ayah #{issue[:key]} — #{issue[:text]}"
+      else
+        "Recitation: #{recitation.id} — #{issue[:text]}"
+      end
+    end
 
     def validate_segments(recitation, db)
       segments_count = db.get_first_value("SELECT COUNT(*) FROM #{table_name} WHERE reciter = ?", recitation.id)
@@ -134,20 +153,11 @@ module AudioSegment
                    )
                    .order('chapter_id ASC, verse_number ASC')
                    .includes(:verse)
+                   .to_a
 
       segments.map do |segment|
         ayah_segments = get_ayah_segments(segment)
         verse = segment.verse
-
-        ayah_segments.each_with_index do |segment, i|
-          if segment.length != 3
-            @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
-          end
-        end
-
-        if ayah_segments.size < verse.words_count
-          @issues.push("Recitation: #{recitation.id} ayah #{verse.chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.words_count} Segments count: #{ayah_segments.size}")
-        end
 
         [
           recitation.id,
@@ -169,7 +179,6 @@ module AudioSegment
       grouped = segments.group_by(&:chapter_id)
       all_segments = {}
       uploader = UploadToCdn.new
-      chapter_durations = recitation.chapter_audio_files.pluck(:chapter_id, :duration_ms).to_h
 
       grouped.each do |chapter_id, surah_segments|
         json_ayahs = []
@@ -178,31 +187,6 @@ module AudioSegment
         surah_segments.each_with_index do |seg, index|
           ayah_segments = get_ayah_segments(seg)
           verse = seg.verse
-
-          words_with_segment_issues = []
-
-          ayah_segments.each_with_index do |s, i|
-            if s.length != 3
-              @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} length of #{i + 1} segment is wrong")
-            end
-
-            words_with_segment_issues << s[0] if s[1].to_i >= s[2].to_i
-          end
-
-          if words_with_segment_issues.any?
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} words with start and end time is wrong: #{words_with_segment_issues.join(', ')}")
-          end
-
-          if ayah_segments.size < verse.words_count
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} don't have segments for all words. Words count: #{verse.respond_to?(:words_count) ? verse.words_count : 'unknown'} Segments count: #{ayah_segments.size}")
-          end
-
-          ayah_from = seg.timestamp_from.to_i
-          ayah_to = seg.timestamp_to.to_i
-
-          if ayah_from >= ayah_to
-            @issues.push("Recitation: #{recitation.id} ayah #{chapter_id}:#{verse.verse_number} start and end time is wrong (#{ayah_from} - #{ayah_to})")
-          end
 
           next_ayah = surah_segments[index+1]
 
@@ -230,13 +214,6 @@ module AudioSegment
             end: end_time,
             words: ayah_segments
           }
-        end
-
-        chapter_duration = chapter_durations[chapter_id].to_i
-        last_end_time = json_ayahs.last && json_ayahs.last[:end].to_i
-
-        if chapter_duration > 0 && last_end_time && last_end_time > chapter_duration
-          @issues.push("Recitation: #{recitation.id} surah #{chapter_id} last segment end time (#{last_end_time}) is greater than audio file duration (#{chapter_duration})")
         end
 
         json_filename = format("%03d.json", chapter_id)

@@ -80,7 +80,9 @@
               <%= safe_html copyright_notice %>
             </div>
           <% else %>
-            <h2 class="text-xl font-semibold text-gray-700">Download Links</h2>
+            <h2 class="text-xl font-semibold text-gray-700">
+              Download Links
+            </h2>
             <div class="mt-3 flex gap-3 flex-wrap">
               <% @resource.downloadable_files.each do |file| %>
                 <% if user_signed_in? %>

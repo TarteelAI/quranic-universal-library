@@ -92,7 +92,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Word by Word translation',
         description: 'Proofread and suggest fixes for word by word translations in multiple languages.',
-        url: word_translations_path,
+        url: select_resource_word_translations_path,
         type: 'corpus',
         tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
         icon: 'translation.svg',

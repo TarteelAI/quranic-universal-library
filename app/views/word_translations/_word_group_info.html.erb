@@ -1,42 +1,38 @@
-<div class="mb-4" id="<%= dom_id word, :group %>">
-  <%= text_field_tag :group_text,
-                      word_translation.get_group_text,
-                     class: "form-control #{language.name.downcase}", disabled: true %>
+<div id="<%= dom_id word, :group %>">
+  <label class="block text-sm font-medium text-gray-700 mb-1">Group translation</label>
 
-  <div class="help-block mt-2">
+  <%= text_field_tag :group_text,
+                     word_translation.get_group_text,
+                     class: "w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 #{language.name.downcase}",
+                     placeholder: 'Not part of a group',
+                     disabled: true %>
+
+  <div class="mt-2 flex items-center justify-between gap-2">
     <% if word_translation.has_grouped_translation? %>
       <% range = word_translation.group_words_range %>
+      <small class="text-gray-600">
+        Grouped <%= range.first.location %> &ndash; <%= range.last.location %>
+      </small>
 
-      <div class="help-block flex items-center justify-between">
-        <small>
-          <%= word.location %> is part of a group
-          translation(<%= range.first.location %> - <%= range.last.location %>)
-        </small>
-
-        <a
-          type="button"
-          class="btn btn-dark"
-          data-controller="ajax-modal"
-          data-url="<%= group_info_word_translation_path(word.id, language: language.id, word_id: word.id) %>"
-        >
-          Edit Group translation
-        </a>
-      </div>
+      <a
+        type="button"
+        class="btn btn-dark"
+        data-controller="ajax-modal"
+        data-url="<%= group_info_word_translation_path(word.id, resource_id: @resource.id, word_id: word.id) %>"
+      >
+        Edit group
+      </a>
     <% else %>
-      <div class="help-block flex items-center justify-between">
-        <small>
-          <%= word.location %> doesn't have group translation
-        </small>
+      <small class="text-gray-500">Not part of a group</small>
 
-        <a
-          type="button"
-          class="btn btn-dark"
-          data-controller="ajax-modal"
-          data-url="<%= group_info_word_translation_path(word.id, language: language.id, word_id: word.id) %>"
-        >
-          Create Group translation
-        </a>
-      </div>
+      <a
+        type="button"
+        class="btn btn-dark"
+        data-controller="ajax-modal"
+        data-url="<%= group_info_word_translation_path(word.id, resource_id: @resource.id, word_id: word.id) %>"
+      >
+        Create group
+      </a>
     <% end %>
   </div>
 </div>

@@ -39,20 +39,20 @@ QUL is implemented using Ruby on Rails, and Active Admin for implementing the ad
 - Quranic grammar and morphology: Manage Quranic grammar and morphology data.
 
 ## Documentation
-Start with the docs index: [docs/README.md](docs/README.md)
-
-Website docs index: [https://qul.tarteel.ai/docs](https://qul.tarteel.ai/docs)
+Start with the docs index: [https://qul.tarteel.ai/docs](https://qul.tarteel.ai/docs)
 
 Primary path for resource users:
 
-- Getting Started: [docs/getting-started.md](docs/getting-started.md)
-- Downloading and Using Data: [docs/downloading-data.md](docs/downloading-data.md)
-- Resource Guides Index: [docs/resource-guides-index.md](docs/resource-guides-index.md)
-- Datasets: [docs/datasets.md](docs/datasets.md)
-- Data Model: [docs/data-model.md](docs/data-model.md)
-- Tutorials: [docs/tutorials.md](docs/tutorials.md)
-- FAQ: [docs/faq.md](docs/faq.md)
+- [Getting Started](https://qul.tarteel.ai/docs/getting-started)
+- [Downloading and Using Data](https://qul.tarteel.ai/docs/downloading-data)
+- [Resource Guides Index](https://qul.tarteel.ai/docs/resource-guides-index)
+- [Datasets](https://qul.tarteel.ai/docs/datasets)
+- [Data Model](https://qul.tarteel.ai/docs/data-model)
+- [Tutorials](https://qul.tarteel.ai/docs/tutorials)
+- [FAQ](https://qul.tarteel.ai/docs/faq)
 
 ## Contributing
+For the complete contribution flow and PR checklist, use:
 
-Use [docs/contributing.md](docs/contributing.md) for the complete contribution flow and PR checklist.
+- [Contribute Code](https://qul.tarteel.ai/docs/contribute-code)
+- [Contribute Data](https://qul.tarteel.ai/docs/contribute-data)

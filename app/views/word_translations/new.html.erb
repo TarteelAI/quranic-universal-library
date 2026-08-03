@@ -1,7 +1,11 @@
 <%= render 'tools/header',
            name: "Word translation proofreading",
-           title: "#{@language.name} word-by-word translation for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
-           key: 'word_translation' %>
+           title: "#{@resource.name} for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
+           key: 'word_translation',
+           breadcrumb_parents: [
+             { label: 'Select resource', path: select_resource_word_translations_path },
+             { label: @resource.name, path: word_translations_path(resource_id: @resource.id) }
+           ] %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
@@ -24,15 +28,15 @@
       </div>
 
       <div class="w-full" data-controller="word-translation">
-        <%= form_for @verse, url: word_translations_path(verse_id: @verse.id, language: @language.id), method: :post, html: { class: 'form', autocomplete: 'off' } do |form| %>
+        <%= form_for @verse, url: word_translations_path(verse_id: @verse.id, resource_id: @resource.id), method: :post, html: { class: 'form', autocomplete: 'off' } do |form| %>
           <div id="words">
-            <%= form.fields_for :word_translations, @wbw_translations do |trans_form| %>
+            <%= form.fields_for :word_translations, @presenter.wbw_translations(@verse) do |trans_form| %>
              <%= render 'word_translation_field', form: trans_form, language: current_language %>
             <% end %>
           </div>
 
           <div class="mb-4 flex justify-end items-center mt-3">
-            <%= link_to 'Cancel', word_translation_path(@verse.id, language: @language.id), class: 'me-3' %>
+            <%= link_to 'Cancel', word_translation_path(@verse.id, resource_id: @resource.id), class: 'me-3' %>
             <%= form.submit 'Save translations',
                             class: 'btn btn-success',
                             data: { disable_with: 'Please wait...' } %>

@@ -17,10 +17,10 @@
         <div class="w-full">
           <%= form.hidden_field :resource_content_id, value: resource.id %>
 
-          <div class="mb-4 mb-3">
-            <%= form.label :reason_for_request, 'Reason for Request', class: 'h5' %>
-            <%= form.text_area :reason_for_request, required: true, cols: nil, rows: nil, class: 'form-control' %>
-            <div class="text-gray-600">
+          <div class="mb-4">
+            <%= form.label :reason_for_request, 'Reason for Request', class: 'block text-base font-semibold text-gray-800 mb-2' %>
+            <%= form.text_area :reason_for_request, required: true, cols: nil, rows: 2, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent' %>
+            <div class="text-sm text-gray-600 mt-1">
               Please provide a brief explanation of why you are requesting access to this resource. Additionally, share
               some details about your background, expertise, and any relevant experience that supports your request.
             </div>
@@ -29,10 +29,10 @@
           <% if resource.recitation? %>
             <%= form.hidden_field :language_proficiency, value: 'N/A' %>
           <% else %>
-            <div class="mb-4 mb-3">
-              <%= form.label :language_proficiency, 'Language Proficiency', class: 'h5' %>
-              <%= form.text_area :language_proficiency, required: true, cols: nil, rows: nil, class: 'form-control' %>
-              <div class="text-gray-600">
+            <div class="mb-4">
+              <%= form.label :language_proficiency, 'Language Proficiency', class: 'block text-base font-semibold text-gray-800 mb-2' %>
+              <%= form.text_area :language_proficiency, required: true, cols: nil, rows: 2, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent' %>
+              <div class="text-sm text-gray-600 mt-1">
                 Please describe your proficiency in language
                 <% if resource.language %>(e.g., <%= resource.language&.name %>)
                 <% end %> of this resource.
@@ -40,22 +40,22 @@
             </div>
           <% end %>
 
-          <div class="mb-4 mb-3">
-            <%= form.label :motivation_and_goals, 'Motivation and Goals', class: 'h5' %>
-            <%= form.text_area :motivation_and_goals, required: true, cols: nil, rows: nil, class: 'form-control' %>
-            <div class="text-gray-600">
+          <div class="mb-4">
+            <%= form.label :motivation_and_goals, 'Motivation and Goals', class: 'block text-base font-semibold text-gray-800 mb-2' %>
+            <%= form.text_area :motivation_and_goals, required: true, cols: nil, rows: 2, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent' %>
+            <div class="text-sm text-gray-600 mt-1">
               What motivates you to contribute to the <%= resource.name %> in QUL? Please explain your reasons and
               contribution goals.
             </div>
           </div>
 
           <% if resource.translation? || resource.tafsir? || resource.chapter_info? %>
-            <div class="mb-4 mb-3">
-              <div class="custom-control custom-checkbox">
-                <%= form.check_box :review_process_acknowledgment, class: 'custom-control-input' %>
-                <%= form.label :review_process_acknowledgment, 'Review Process Acknowledgment', class: 'custom-control-label' %>
-              </div>
-              <div class="text-gray-600">
+            <div class="mb-4">
+              <%= form.label :review_process_acknowledgment, class: 'flex items-center gap-2 cursor-pointer' do %>
+                <%= form.check_box :review_process_acknowledgment, class: 'w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500' %>
+                <span class="text-base font-semibold text-gray-800">Review Process Acknowledgment</span>
+              <% end %>
+              <div class="text-sm text-gray-600 mt-1">
                 I acknowledge that I will only suggest fixes for typos, spelling mistakes, and factual issues. I will
                 not
                 use this permission to suggest changes in wording preferences or subjective opinions.
@@ -83,11 +83,9 @@
     </div>
 
     <div class="flex items-center justify-end p-6 border-t border-gray-200 space-x-2">
-      <button type="button" class="px-4 py-2 rounded font-medium transition-colors bg-gray-200 hover:bg-gray-300 text-gray-800" data-action="click->ajax-modal#hide">Close</button>
+      <button type="button" class="btn btn-secondary btn-sm" data-action="click->ajax-modal#hide">Close</button>
 
-      <div class="mb-4 mt-2" style="text-align: right">
-        <%= form.submit 'Submit', class: 'btn btn-success btn-sm' %>
-      </div>
+      <%= form.submit 'Submit', class: 'btn btn-success btn-sm' %>
     </div>
   <% end %>
 </div>

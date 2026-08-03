@@ -1,0 +1,44 @@
+<% if @presenter.contributions_count.zero? %>
+  <div class="border border-dashed border-gray-200 rounded-lg p-8 text-center">
+    <div class="text-sm font-medium text-black mb-1">Your contribution history is empty for now</div>
+    <p class="text-sm text-gray-500 max-w-md mx-auto">Help improve the library by contributing resources, corrections, or reviews, and we'll keep track of everything here.</p>
+  </div>
+<% else %>
+  <div class="flex flex-wrap gap-2 mb-4">
+    <%= contribution_filter_link "All", nil, @presenter.item_type %>
+    <% @presenter.contribution_types.each do |type| %>
+      <%= contribution_filter_link type.underscore.humanize.pluralize, type, @presenter.item_type %>
+    <% end %>
+  </div>
+
+  <div class="text-xs uppercase tracking-wide text-gray-400 mb-3">Contributions · <%= @presenter.contributions_count %> total</div>
+
+  <% contributions = @presenter.contributions %>
+  <div class="space-y-2">
+    <% contributions.each do |version| %>
+      <% item = @presenter.contribution_item(version) %>
+      <% cms_url = contribution_cms_url(item) %>
+      <% label = @presenter.contribution_label(version, item) %>
+      <% reference = @presenter.contribution_reference(item) %>
+      <div class="flex items-center gap-3 border border-gray-100 rounded-lg px-4 py-3">
+        <span class="w-9 h-9 rounded-lg bg-[#f0faf5] text-[#46ac7a] flex items-center justify-center text-xs font-bold shrink-0"><%= @presenter.contribution_icon(version) %></span>
+        <div class="grow min-w-0">
+          <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold"><%= @presenter.contribution_type_label(version) %></div>
+          <div class="text-sm text-black truncate">
+            <% if cms_url %>
+              <%= link_to label, cms_url, class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
+            <% else %>
+              <%= label %>
+            <% end %>
+            <% if reference.present? && reference != label %>
+              <span class="text-gray-400">· <%= reference %></span>
+            <% end %>
+          </div>
+        </div>
+        <div class="text-xs text-gray-400 whitespace-nowrap"><%= version.created_at.strftime("%b %e, %Y") %></div>
+      </div>
+    <% end %>
+  </div>
+
+  <%= render "shared/pagination", pagy: @presenter.pagination %>
+<% end %>

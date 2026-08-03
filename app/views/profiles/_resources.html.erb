@@ -1,0 +1,63 @@
+<div class="text-xs uppercase tracking-wide text-gray-400 mb-3">
+  Resources you've requested access to update.
+</div>
+
+<% if @presenter.editable_resources_count.zero? %>
+  <div class="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg p-8 text-center">You haven't requested access to any resources yet.</div>
+<% else %>
+  <% if @presenter.resource_types.many? %>
+    <div class="flex flex-wrap gap-2 mb-4">
+      <%= resource_filter_link "All", nil, @presenter.resource_type_filter %>
+      <% @presenter.resource_types.each do |type| %>
+        <%= resource_filter_link type.tr("-", " ").humanize, type, @presenter.resource_type_filter %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% resources = @presenter.editable_resources %>
+  <% if resources.empty? %>
+    <div class="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg p-8 text-center">No resources match this filter.</div>
+  <% else %>
+  <div class="space-y-2">
+    <% resources.each do |project| %>
+      <% resource = project.resource_content %>
+      <% tool = resource_tool(resource) %>
+      <% tool_url = project.approved? ? tool[:url] : nil %>
+
+      <div class="flex items-center justify-between border border-gray-100 rounded-lg px-4 py-3">
+        <div class="min-w-0">
+          <% if resource && tool[:label].present? %>
+            <div class="text-[10px] uppercase tracking-wide text-[#46ac7a] font-semibold">
+              <%= tool[:label] %>
+            </div>
+          <% end %>
+          <div class="text-sm text-black truncate">
+            <% if resource && tool_url %>
+              <%= link_to resource.name, tool_url, class: "hover:text-[#46ac7a] hover:underline", data: { turbo_frame: "_top" } %>
+            <% elsif resource %>
+              <%= resource.name %>
+            <% else %>
+              Resource
+            <% end %>
+          </div>
+          <div class="text-xs text-gray-500">
+            <%= project.approved? ? "Access granted" : "Requested" %>
+            <%= project.updated_at&.strftime("%b %e, %Y") || "—" %>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <% if project.approved? %>
+            <span class="text-[10px] font-semibold px-2 py-1 rounded-full bg-green-100 text-green-800">Approved</span>
+            <% if tool_url %>
+              <%= link_to "Open tool", tool_url, class: "text-xs text-[#46ac7a] hover:underline whitespace-nowrap", data: { turbo_frame: "_top" } %>
+            <% end %>
+          <% else %>
+            <span class="text-[10px] font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Pending review</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <% end %>
+<% end %>

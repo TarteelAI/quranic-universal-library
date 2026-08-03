@@ -81,6 +81,8 @@ Rails.application.routes.draw do
     sessions: 'users/sessions'
   }
 
+  resource :profile, only: [:show, :edit, :update]
+
   authenticated :user, ->(user) { user.is_super_admin? || user.is_admin? } do
     require 'sidekiq/web'
     mount Sidekiq::Web => '/sidekiq'
@@ -155,6 +157,7 @@ Rails.application.routes.draw do
       get :segment_builder
       get :segments
       post :save_segments
+      post :validate_segments
     end
 
     collection do
@@ -192,6 +195,9 @@ Rails.application.routes.draw do
   resources :translation_proofreadings, except: :destroy
   resources :tafsir_proofreadings, except: :destroy
   resources :word_translations, except: :destroy do
+    collection do
+      get :select_resource
+    end
     member do
       match :group_info, via: [:get, :post]
     end

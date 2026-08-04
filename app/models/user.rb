@@ -54,13 +54,13 @@ class User < ApplicationRecord
             length: { maximum: 50 },
             format: { with: /\A[\p{L}\p{M}'\- ]+\z/u, message: 'contains invalid characters' }
 
-  has_many :user_projects
-  has_many :user_downloads
+  has_many :user_projects, dependent: :delete_all
+  has_many :user_downloads, dependent: :delete_all
 
   after_create :send_welcome_email
 
   enum :role, {
-    normal_user: 0, # default
+    normal_user: 0,
     super_admin: 1,
     admin: 2,
     moderator: 3,

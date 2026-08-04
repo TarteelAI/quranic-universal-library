@@ -60,6 +60,19 @@ class SegmentValidatorTest < Minitest::Test
     assert_equal '32:1', overlap[:key]
   end
 
+  def test_overlap_suggestion_reports_the_difference_and_fix
+    segments = [
+      segment(verse: 1, from: 0, to: 5000),
+      segment(verse: 2, from: 4000, to: 8000)
+    ]
+    overlap = validate(segments).find { |issue| issue[:category] == 'ayah_overlap' }
+
+    refute_nil overlap[:suggestion]
+    assert_includes overlap[:suggestion], '1000 ms'
+    assert_includes overlap[:suggestion], 'Reduce 32:1 end'
+    assert_includes overlap[:suggestion], 'push 32:2 start'
+  end
+
   def test_gap_larger_than_threshold_is_warning
     segments = [
       segment(verse: 1, from: 0, to: 5000),

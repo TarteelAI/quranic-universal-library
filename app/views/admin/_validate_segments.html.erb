@@ -54,6 +54,11 @@
 
                     <div class="ml-2 mr-auto">
                       <%= issue[:text] %>
+                      <% if issue[:suggestion].present? %>
+                        <div class="mt-1 text-xs text-gray-600 bg-gray-50 rounded px-2 py-1">
+                          💡 <span class="font-semibold text-gray-700">Suggested fix:</span> <%= issue[:suggestion] %>
+                        </div>
+                      <% end %>
                     </div>
 
                     <% if issue[:key] %>

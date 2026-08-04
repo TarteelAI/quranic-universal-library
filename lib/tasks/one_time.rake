@@ -1,4 +1,139 @@
 namespace :one_time do
+  # lib/tasks/quran/find_similar_ayah_beginnings.rake
+
+  desc "Find consecutive ayahs with similar beginnings"
+  task find_similar_ayah_beginnings: :environment do
+    MIN_WORDS = 5
+
+    verses = Verse
+      .unscoped
+      .includes(:words)
+      .order('verse_index ASC')
+
+    matches = []
+
+    previous = nil
+
+    verses.each do |verse|
+      if previous &&
+         previous.chapter_id == verse.chapter_id &&
+         previous.verse_number + 1 == verse.verse_number
+
+        previous_words = previous.words.sort_by(&:position).map(&:text_imlaei_simple)
+        current_words  = verse.words.sort_by(&:position).map(&:text_imlaei_simple)
+
+        common = []
+
+        previous_words.zip(current_words).each do |a, b|
+          break unless a == b
+          common << a
+        end
+
+        if common.length >= MIN_WORDS
+          matches << {
+            length: common.length,
+            chapter: verse.chapter_id,
+            verse1: previous.verse_number,
+            verse2: verse.verse_number,
+            prefix: common.join(" "),
+            text1: previous.text_qpc_hafs,
+            text2: verse.text_qpc_hafs
+          }
+        end
+      end
+
+      previous = verse
+    end
+
+    matches.sort_by! { |m| -m[:length] }
+
+    html = <<~HTML
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="utf-8">
+        <title>Similar Consecutive Ayah Beginnings</title>
+
+        <style>
+          body {
+            font-family: "Scheherazade New", serif;
+            margin: 40px;
+            background: #fafafa;
+          }
+
+          table {
+            border-collapse: collapse;
+            width: 100%;
+          }
+
+          th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            vertical-align: top;
+          }
+
+          th {
+            background: #eee;
+          }
+
+          .prefix {
+            color: #008000;
+            font-weight: bold;
+            font-size: 22px;
+          }
+
+          .ayah {
+            font-size: 24px;
+            line-height: 2;
+          }
+        </style>
+      </head>
+
+      <body>
+
+      <h1>Consecutive Ayahs With Matching Beginnings</h1>
+
+      <p>Total Matches: #{matches.count}</p>
+
+      <table>
+      <tr>
+        <th>#</th>
+        <th>Reference</th>
+        <th>Matching Words</th>
+        <th>Common Beginning</th>
+        <th>Ayah 1</th>
+        <th>Ayah 2</th>
+      </tr>
+    HTML
+
+    matches.each_with_index do |m, i|
+      html << <<~ROW
+        <tr>
+          <td>#{i + 1}</td>
+          <td>#{m[:chapter]}:#{m[:verse1]} → #{m[:chapter]}:#{m[:verse2]}</td>
+          <td>#{m[:length]}</td>
+          <td class="prefix">#{m[:prefix]}</td>
+          <td class="ayah">#{m[:text1]}</td>
+          <td class="ayah">#{m[:text2]}</td>
+        </tr>
+      ROW
+    end
+
+    html << <<~HTML
+      </table>
+
+      </body>
+      </html>
+    HTML
+
+    output = Rails.root.join("tmp", "similar_ayah_beginnings.html")
+    File.write(output, html)
+
+    puts
+    puts "Found #{matches.count} matches"
+    puts "Exported to #{output}"
+  end
+
   task import_draft_translation: :environment do
     require 'csv'
     resource = ResourceContent.find(50)

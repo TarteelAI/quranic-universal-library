@@ -64,6 +64,14 @@ Practical meaning:
 5. Build a minimal player loop.
 6. Test with at least one full surah.
 
+> **`audio_url` points at Tarteel's CDN.** In published recitation packages the `audio_url`
+> pointer references Tarteel's public CDN, for example
+> `https://audio-cdn.tarteel.ai/quran/surah/abdulBasit/murattal/mp3/001.mp3`.
+> These URLs are provided so the exported files can be located and validated, but the CDN is
+> shared infrastructure that QUL does not guarantee for third-party production traffic.
+> **Download the files and self-host them** (own storage or CDN) before wiring them into a
+> production app; do not hotlink `audio-cdn.tarteel.ai` at runtime.
+
 Starter integration snippet (JavaScript):
 
 ```javascript
@@ -190,6 +198,7 @@ setInterval(() => {
 Open an issue if you find:
 
 - Broken or inaccessible audio file links
+- `audio_url` CDN links used directly in production instead of downloaded and self-hosted
 - Segment/timestamp values that do not match audible recitation
 - Missing ayah mappings in downloaded files
 - Inconsistent reciter or package metadata

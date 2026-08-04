@@ -54,34 +54,43 @@
             </button>
           </div>
 
-          <div class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
-            <p v-if="issuesLoading" class="px-4 py-8 text-sm text-gray-500 text-center">
+          <ul class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
+            <li v-if="issuesLoading" class="px-4 py-8 text-sm text-gray-500 text-center">
               Checking segments…
-            </p>
-            <p v-else-if="issuesError" class="px-4 py-8 text-sm text-red-600 text-center">
+            </li>
+            <li v-else-if="issuesError" class="px-4 py-8 text-sm text-red-600 text-center">
               Could not validate segments. Please try again.
-            </p>
-            <p v-else-if="!activeIssues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
+            </li>
+            <li v-else-if="!activeIssues.length" class="px-4 py-8 text-sm text-gray-500 text-center">
               No issues found 🎉
-            </p>
-            <button
+            </li>
+            <li
                 v-for="issue in activeIssues"
                 :key="issue.key"
-                @click="goToIssue(issue.verse)"
-                class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
+                class="px-4 py-3"
             >
-              <span class="flex items-center gap-2 text-sm text-gray-700">
-                <span
-                    class="px-1.5 py-0.5 text-[10px] font-semibold rounded-full uppercase"
-                    :class="issue.severity === 'major' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800'"
-                >
-                  {{ issue.severity }}
+              <div class="flex items-start justify-between gap-3">
+                <span class="flex items-start gap-2 text-sm text-gray-700">
+                  <span
+                      class="mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-full uppercase"
+                      :class="issue.severity === 'major' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800'"
+                  >
+                    {{ issue.severity }}
+                  </span>
+                  <span>{{ issue.message }}</span>
                 </span>
-                {{ issue.message }}
-              </span>
-              <span class="text-xs font-medium text-blue-600 whitespace-nowrap">Ayah {{ issue.verse }} →</span>
-            </button>
-          </div>
+                <a
+                    href="#"
+                    @click.prevent="goToIssue(issue.verse)"
+                    class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline whitespace-nowrap"
+                >View ayah {{ issue.verse }} →</a>
+              </div>
+              <p v-if="issue.suggestion" class="mt-1.5 ml-1 flex items-start gap-1.5 text-xs text-gray-600 bg-gray-50 rounded px-2 py-1.5">
+                <span class="shrink-0">💡</span>
+                <span><span class="font-semibold text-gray-700">Suggested fix:</span> {{ issue.suggestion }}</span>
+              </p>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -939,6 +948,7 @@ export default {
         key: `server-${index}`,
         severity: issue.severity === 'bg-danger' ? 'major' : 'minor',
         message: issue.text,
+        suggestion: issue.suggestion || null,
       }));
     },
     fileDurationIssue() {
@@ -971,7 +981,6 @@ export default {
     },
     goToIssue(verse) {
       this.$store.commit('CHANGE_AYAH', { to: verse });
-      this.showIssues = false;
     },
     mainVerseData(verse) {
       return this.segments[`${this.chapter}:${verse}`] || null;
@@ -1009,7 +1018,7 @@ export default {
         const nextAyahStart = (nextData && present(nextData.timestamp_from)) ? Number(nextData.timestamp_from) : null;
 
         const issue = this.detectAyahIssue(data, audioDuration, nextAyahStart);
-        if (issue) issues.push({ verse, key: `${verse}-${issues.length}`, severity: issue.severity, message: issue.message });
+        if (issue) issues.push({ verse, key: `${verse}-${issues.length}`, severity: issue.severity, message: issue.message, suggestion: issue.suggestion || null });
 
         // Trailing gap: audio runs well past the last ayah's end (unsegmented tail).
         if (verse === this.versesCount && audioDuration && present(data.timestamp_to)) {
@@ -1042,7 +1051,12 @@ export default {
       }
 
       if (nextAyahStart !== null && Number(data.timestamp_to) > nextAyahStart) {
-        return { severity: 'major', message: 'Overlaps the next ayah' };
+        const overlap = Number(data.timestamp_to) - nextAyahStart;
+        return {
+          severity: 'major',
+          message: `Ends at ${Number(data.timestamp_to)} which overlaps the next ayah starting at ${nextAyahStart}.`,
+          suggestion: `Overlap is ${overlap} ms. Reduce this ayah's end by ${overlap} ms (to ${nextAyahStart} ms), or push the next ayah's start later by ${overlap} ms (to ${Number(data.timestamp_to)} ms).`,
+        };
       }
 
       const segments = data.segments || [];
@@ -1061,7 +1075,12 @@ export default {
       if (nextAyahStart !== null) {
         const gap = nextAyahStart - Number(data.timestamp_to);
         if (gap > AYAH_GAP_THRESHOLD_MS) {
-          minor = { severity: 'minor', message: `Gap of ${(gap / 1000).toFixed(1)}s before the next ayah (max allowed is 2s)` };
+          const excess = gap - AYAH_GAP_THRESHOLD_MS;
+          minor = {
+            severity: 'minor',
+            message: `Gap of ${(gap / 1000).toFixed(1)}s before the next ayah (max allowed is 2s)`,
+            suggestion: `Silent gap is ${gap} ms — ${excess} ms over the 2000 ms limit. Extend this ayah's end later or move the next ayah's start earlier by at least ${excess} ms.`,
+          };
         }
       }
 

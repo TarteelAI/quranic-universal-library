@@ -89,12 +89,16 @@ module Audio
 
       earliest_start = min_word_start(segment)
       if earliest_start && from > earliest_start
-        issues << issue(segment, "#{segment.verse_key} ayah starts at #{from} which is after its earliest word starting at #{earliest_start}.", 'bg-danger', 'ayah_timing')
+        diff = from - earliest_start
+        suggestion = "Move #{segment.verse_key} start earlier by #{diff} ms (from #{from} to #{earliest_start} ms) so the ayah starts on or before its first word."
+        issues << issue(segment, "#{segment.verse_key} ayah starts at #{from} which is after its earliest word starting at #{earliest_start}.", 'bg-danger', 'ayah_timing', suggestion: suggestion)
       end
 
       latest_end = max_word_end(segment)
       if latest_end && to < latest_end
-        issues << issue(segment, "#{segment.verse_key} ayah ends at #{to} which is before its latest word ending at #{latest_end}.", 'bg-warning', 'ayah_timing')
+        diff = latest_end - to
+        suggestion = "Extend #{segment.verse_key} end later by #{diff} ms (from #{to} to #{latest_end} ms) so the ayah covers its last word."
+        issues << issue(segment, "#{segment.verse_key} ayah ends at #{to} which is before its latest word ending at #{latest_end}.", 'bg-warning', 'ayah_timing', suggestion: suggestion)
       end
 
       issues
@@ -110,10 +114,14 @@ module Audio
       return [] if next_start.nil?
 
       if segment.timestamp_to > next_start
-        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah.verse_key} starting at #{next_start}.", 'bg-danger', 'ayah_overlap')]
+        overlap = segment.timestamp_to - next_start
+        suggestion = "Overlap is #{overlap} ms. Reduce #{segment.verse_key} end by #{overlap} ms (from #{segment.timestamp_to} to #{next_start} ms), or push #{next_ayah.verse_key} start later by #{overlap} ms (from #{next_start} to #{segment.timestamp_to} ms)."
+        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} which overlaps the next ayah #{next_ayah.verse_key} starting at #{next_start}.", 'bg-danger', 'ayah_overlap', suggestion: suggestion)]
       elsif next_start - segment.timestamp_to > AYAH_GAP_THRESHOLD_MS
         gap = next_start - segment.timestamp_to
-        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} but the next ayah #{next_ayah.verse_key} starts at #{next_start} — #{gap} ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS} ms).", 'bg-warning', 'ayah_gap')]
+        excess = gap - AYAH_GAP_THRESHOLD_MS
+        suggestion = "Silent gap is #{gap} ms — #{excess} ms over the #{AYAH_GAP_THRESHOLD_MS} ms limit. Extend #{segment.verse_key} end later or move #{next_ayah.verse_key} start earlier by at least #{excess} ms to close the gap."
+        [issue(segment, "#{segment.verse_key} ends at #{segment.timestamp_to} but the next ayah #{next_ayah.verse_key} starts at #{next_start} — #{gap} ms gap (max allowed is #{AYAH_GAP_THRESHOLD_MS} ms).", 'bg-warning', 'ayah_gap', suggestion: suggestion)]
       else
         []
       end
@@ -214,7 +222,8 @@ module Audio
         gap = duration - last_segment.timestamp_to
         next if gap <= TRAILING_GAP_THRESHOLD_MS
 
-        issues << issue(last_segment, "Audio file ##{audio_file_id} is #{duration} ms but the last segment (#{last_segment.verse_key}) ends at #{last_segment.timestamp_to} ms — #{gap} ms (#{(gap / 1000.0).round}s) of audio after the last ayah is unsegmented.", 'bg-danger', 'trailing_gap')
+        suggestion = "Extend #{last_segment.verse_key} end by #{gap} ms (from #{last_segment.timestamp_to} to #{duration} ms) to cover the tail, or trim the extra audio if it is silence."
+        issues << issue(last_segment, "Audio file ##{audio_file_id} is #{duration} ms but the last segment (#{last_segment.verse_key}) ends at #{last_segment.timestamp_to} ms — #{gap} ms (#{(gap / 1000.0).round}s) of audio after the last ayah is unsegmented.", 'bg-danger', 'trailing_gap', suggestion: suggestion)
       end
 
       issues
@@ -230,8 +239,10 @@ module Audio
       ends.max
     end
 
-    def issue(segment, text, severity, category)
-      { key: segment.verse_key, text: text, severity: severity, category: category }
+    def issue(segment, text, severity, category, suggestion: nil)
+      data = { key: segment.verse_key, text: text, severity: severity, category: category }
+      data[:suggestion] = suggestion if suggestion
+      data
     end
 
     def present?(value)

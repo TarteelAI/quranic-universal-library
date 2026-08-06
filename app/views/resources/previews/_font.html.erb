@@ -129,13 +129,11 @@
 
           <li>
             <strong>Define a <code>@font-face</code> Rule in Your CSS</strong>
-            <pre class="bg-gray-100 rounded p-4 overflow-auto text-sm"><code>
-              @font-face {
+            <pre class="bg-gray-100 rounded p-4 overflow-auto text-sm"><code>@font-face {
   font-family: '<%= font_face %>';
   src: url('<%= font_url %>') format('<%= font_format == 'woff2' ? 'woff2' : font_format == 'woff' ? 'woff' : font_format == 'otf' ? 'opentype' : 'truetype' %>');
   font-display: swap;
-}
-            </code></pre>
+}</code></pre>
           </li>
 
           <li>

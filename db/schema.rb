@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_21_194218) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_09_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_21_194218) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "ayah_timestamp_votes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "audio_recitation_id", null: false
+    t.bigint "audio_segment_id", null: false
+    t.string "verse_key", null: false
+    t.integer "chapter_id", null: false
+    t.integer "verse_number", null: false
+    t.string "vote", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audio_recitation_id"], name: "index_ayah_timestamp_votes_on_audio_recitation_id"
+    t.index ["user_id", "audio_segment_id"], name: "index_ayah_timestamp_votes_on_user_and_segment", unique: true
+    t.index ["user_id"], name: "index_ayah_timestamp_votes_on_user_id"
+    t.index ["verse_key"], name: "index_ayah_timestamp_votes_on_verse_key"
+    t.index ["vote"], name: "index_ayah_timestamp_votes_on_vote"
   end
 
   create_table "change_logs", force: :cascade do |t|

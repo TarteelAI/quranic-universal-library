@@ -43,7 +43,16 @@ module V1
       protected
 
       def finder
-        @finder ||= ::V1::SegmentFinder.new
+        @finder ||= ::V1::SegmentFinder.new(
+          current_page: current_page,
+          per_page: per_page
+        )
+      end
+
+      def per_page
+        items = params[:per_page].to_i.abs
+        items = 10 if items.zero?
+        [items, 286].min
       end
 
       def recitation_id

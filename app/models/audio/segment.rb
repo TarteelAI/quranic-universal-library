@@ -49,6 +49,16 @@ module Audio
       Word.order('position ASC').where(verse_id: verse.id).pluck(:text_qpc_hafs)
     end
 
+    def transcript(script: :text_imlaei, as_array: false)
+      return as_array ? [] : '' if verse.blank? || segments.blank?
+
+      words_by_position = verse.words.order(:position).pluck(:position, script).to_h
+
+      words = get_segments.map { |s| words_by_position[s[0].to_i] }.compact_blank
+
+      as_array ? words : words.join(' ')
+    end
+
     def surah_number
       chapter_id
     end

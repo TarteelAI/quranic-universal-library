@@ -1,3 +1,162 @@
+def build_transcript_issues_html(rows)
+  require "json"
+
+  data_json = rows.to_json
+
+  <<~HTML
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Transcript fixes review</title>
+      <style>
+        :root { color-scheme: light dark; --head-h: 150px; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #0f1115; color: #e7e9ee; }
+        #topbar { position: sticky; top: 0; background: #151923; border-bottom: 1px solid #262c3a; z-index: 10; }
+        .topbar-inner { padding: 14px 20px 0; }
+        h1 { font-size: 18px; margin: 0 0 4px; }
+        .summary { color: #9aa3b2; font-size: 13px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .controls input, .controls select { background: #0f1115; color: #e7e9ee; border: 1px solid #333b4d; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+        .controls input { min-width: 240px; flex: 1; }
+        .tabs { display: flex; gap: 6px; overflow-x: auto; padding: 12px 20px 12px; scrollbar-width: thin; }
+        .tab { flex: 0 0 auto; background: #0f1115; color: #c6ccd8; border: 1px solid #2a3242; border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+        .tab:hover { border-color: #3d4a63; }
+        .tab.active { background: #1d59c9; border-color: #1d59c9; color: #fff; }
+        .tab .tcount { font-size: 11px; background: rgba(255,255,255,.15); border-radius: 999px; padding: 1px 7px; }
+        .tab.active .tcount { background: rgba(255,255,255,.25); }
+        main { padding: 8px 20px 60px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #222836; vertical-align: top; }
+        thead th { color: #9aa3b2; font-weight: 600; position: sticky; top: var(--head-h); background: #10141c; z-index: 4; }
+        tr:hover td { background: #161b26; }
+        a.key { color: #7bb0ff; text-decoration: none; font-weight: 600; }
+        a.key:hover { text-decoration: underline; }
+        .pos { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #b6c0d4; font-size: 12px; word-break: break-word; }
+        .added { color: #6fd08c; font-weight: 600; }
+        .removed { color: #f08a8a; font-weight: 600; }
+        .empty { color: #9aa3b2; padding: 40px 0; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <div id="topbar">
+        <div class="topbar-inner">
+          <h1>Transcript fixes review</h1>
+          <div class="summary" id="summary"></div>
+          <div class="controls">
+            <input id="search" type="search" placeholder="Search ayah key (e.g. 33:50) in this reciter…">
+            <select id="sort">
+              <option value="key">Sort: ayah key ↑</option>
+              <option value="added">Sort: most words added ↓</option>
+            </select>
+          </div>
+        </div>
+        <div class="tabs" id="tabs"></div>
+      </div>
+      <main id="content"></main>
+      <script>
+        const DATA = #{data_json};
+
+        const GROUPS = {};
+        DATA.forEach(r => { (GROUPS[r.reciter] = GROUPS[r.reciter] || []).push(r); });
+        const RECITERS = Object.keys(GROUPS).sort((a, b) => a.localeCompare(b));
+        let active = RECITERS[0] || null;
+
+        const searchEl = document.getElementById("search");
+        const sortEl = document.getElementById("sort");
+
+        const keyParts = (k) => (k || "").split(":").map(Number);
+        const cmpKey = (a, b) => {
+          const ap = keyParts(a.verse_key), bp = keyParts(b.verse_key);
+          return (ap[0] - bp[0]) || (ap[1] - bp[1]);
+        };
+
+        function matches(r, q) {
+          if (!q) return true;
+          return String(r.verse_key).toLowerCase().includes(q);
+        }
+
+        function buildTabs(q) {
+          const bar = document.getElementById("tabs");
+          bar.innerHTML = "";
+          RECITERS.forEach(name => {
+            const n = GROUPS[name].filter(r => matches(r, q)).length;
+            if (q && n === 0) return;
+            const b = document.createElement("button");
+            b.className = "tab" + (name === active ? " active" : "");
+            b.innerHTML = escapeHtml(name || "(unnamed)") + '<span class="tcount">' + n + '</span>';
+            b.onclick = () => { active = name; render(); };
+            bar.appendChild(b);
+          });
+        }
+
+        function render() {
+          const q = searchEl.value.trim().toLowerCase();
+
+          const visible = RECITERS.filter(name => !q || GROUPS[name].some(r => matches(r, q)));
+          if (!visible.includes(active)) active = visible[0] || null;
+
+          buildTabs(q);
+
+          const content = document.getElementById("content");
+          content.innerHTML = "";
+
+          document.getElementById("summary").textContent =
+            DATA.length + " fixed ayah(s) across " + RECITERS.length + " reciter(s)";
+
+          if (!active) {
+            content.innerHTML = '<div class="empty">No matching fixed ayahs.</div>';
+            requestAnimationFrame(setStick);
+            return;
+          }
+
+          let list = GROUPS[active].filter(r => matches(r, q));
+          if (sortEl.value === "added") list.sort((a, b) => (b.added - a.added) || cmpKey(a, b));
+          else list.sort(cmpKey);
+
+          const table = document.createElement("table");
+          table.innerHTML =
+            '<thead><tr><th>Ayah</th><th>Words</th><th>Original positions</th><th>Corrected positions</th></tr></thead>';
+          const tbody = document.createElement("tbody");
+
+          list.forEach(r => {
+            const tr = document.createElement("tr");
+            const diff = r.added > 0 ? '<span class="added">+' + r.added + '</span>'
+                       : (r.added < 0 ? '<span class="removed">' + r.added + '</span>' : '');
+            tr.innerHTML =
+              '<td><a class="key" href="' + r.url + '" target="_blank" rel="noopener">' + escapeHtml(r.verse_key) + '</a></td>' +
+              '<td>' + r.original_count + ' → ' + r.corrected_count + ' ' + diff + '</td>' +
+              '<td class="pos">' + r.original.join(", ") + '</td>' +
+              '<td class="pos">' + r.corrected.join(", ") + '</td>';
+            tbody.appendChild(tr);
+          });
+
+          table.appendChild(tbody);
+          content.appendChild(table);
+          requestAnimationFrame(setStick);
+        }
+
+        function setStick() {
+          const h = document.getElementById("topbar").offsetHeight;
+          document.documentElement.style.setProperty("--head-h", h + "px");
+        }
+
+        function escapeHtml(s) {
+          return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        }
+
+        searchEl.addEventListener("input", render);
+        sortEl.addEventListener("change", render);
+        window.addEventListener("resize", setStick);
+        render();
+      </script>
+    </body>
+    </html>
+  HTML
+end
+
 namespace :audio_segments do
   task validate_segment_gaps: :environment do
     tag = Tag.find(4)
@@ -374,6 +533,242 @@ namespace :audio_segments do
     end
 
     puts "✅ Done! Fixed segments written to #{output_path}"
+  end
+
+
+  desc "Export transcripts as a single JSON file for a given recitation and chapter"
+  task :export_transcripts_json, [:recitation_id, :chapter_id, :script] => :environment do |_t, args|
+    require "json"
+
+    recitation_id = args[:recitation_id].to_i
+    chapter_id = args[:chapter_id].to_i
+    script = (args[:script].presence || "text_imlaei").to_sym
+
+    if recitation_id.zero? || chapter_id.zero?
+      puts "Usage: rake audio_segments:export_transcripts_json[RECITATION_ID,CHAPTER_ID,SCRIPT]"
+      exit 1
+    end
+
+    segments = Audio::Segment
+                 .where(audio_recitation_id: recitation_id, chapter_id: chapter_id)
+                 .includes(:verse)
+                 .order("verse_id ASC")
+
+    puts "Exporting transcripts for #{segments.count} Audio::Segment records..."
+
+    data = segments.each_with_object({}) do |segment, hash|
+      hash[segment.verse_key] = {
+        "transcript" => segment.corrected_transcript(script: script, as_array: true),
+      }
+    end
+
+    FileUtils.mkdir_p("tmp/segment_transcripts")
+    output_path = Rails.root.join("tmp", "segment_transcripts", "#{recitation_id}_#{chapter_id}.json")
+    File.write(output_path, JSON.pretty_generate(data))
+
+    puts "✅ Done! Transcripts written to #{output_path}"
+  end
+
+  desc "Bulk export corrected transcripts (transcript/<recitation_id>/<chapter_id>.json) + a review HTML of fixed ayahs"
+  task :export_corrected_transcripts, [:script] => :environment do |_t, args|
+
+    def corrected_word_positions(segment)
+      positions = segment.get_segments.map { |s| s[0] }
+      Audio::SegmentReconstruct.reconstruct_word_positions(positions, segment.verse&.words_count)
+    end
+
+    def corrected_transcript(segment, script: :text_imlaei, as_array: false)
+      return as_array ? [] : '' if segment.get_segments.blank?
+
+      words_by_position = segment.verse.words.order(:position).pluck(:position, script).to_h
+      words = corrected_word_positions(segment).map { |p| words_by_position[p] }.compact_blank
+
+      as_array ? words : words.join(' ')
+    end
+
+    require "json"
+
+    script = (args[:script].presence || "text_imlaei").to_sym
+
+
+    recitation_ids = [1,2,3,4,6,7,9,10,12,13,65,161,164,174,175,179]
+
+    base_url = "http://qul.tarteel.ai"
+    output_root = Rails.root.join("tmp", "segment_transcripts", "transcript")
+    FileUtils.mkdir_p(output_root)
+
+    scope = Audio::Recitation.order(:id)
+    scope = scope.where(id: recitation_ids) if recitation_ids.present?
+
+    fixed_rows = []
+    total_recitations = 0
+    total_chapters = 0
+
+    scope.find_each do |recitation|
+      chapter_ids = Audio::Segment
+                      .where(audio_recitation_id: recitation.id)
+                      .distinct
+                      .pluck(:chapter_id)
+                      .compact
+                      .sort
+
+      next if chapter_ids.empty?
+
+      total_recitations += 1
+      reciter_dir = output_root.join(recitation.id.to_s)
+      FileUtils.mkdir_p(reciter_dir)
+
+      chapter_ids.each do |chapter_id|
+        total_chapters += 1
+
+        segments = Audio::Segment
+                     .where(audio_recitation_id: recitation.id, chapter_id: chapter_id)
+                     .includes(verse: :words)
+                     .order("verse_id ASC")
+
+        data = {}
+
+        segments.each do |segment|
+          next if segment.verse.blank?
+
+          original = segment.get_segments.map { |s| s[0].to_i }.reject(&:zero?)
+          corrected = corrected_word_positions(segment)
+
+          data[segment.verse_key] = {
+            "transcript" => corrected_transcript(segment, script: script, as_array: true)
+          }
+
+          next if corrected == original
+
+          fixed_rows << {
+            "recitation_id" => recitation.id,
+            "reciter" => recitation.name.to_s,
+            "chapter_id" => chapter_id,
+            "verse_number" => segment.verse_number,
+            "verse_key" => segment.verse_key,
+            "original" => original,
+            "corrected" => corrected,
+            "original_count" => original.size,
+            "corrected_count" => corrected.size,
+            "added" => corrected.size - original.size,
+            "url" => "#{base_url}/surah_audio_files/#{chapter_id}/segment_builder?recitation_id=#{recitation.id}&verse=#{segment.verse_number}"
+          }
+        end
+
+        File.write(reciter_dir.join("#{chapter_id}.json"), JSON.pretty_generate(data))
+      end
+
+      puts "  reciter #{recitation.id} (#{recitation.name}) → #{chapter_ids.size} chapters"
+    end
+
+    html_path = output_root.join("index.html")
+    File.write(html_path, build_transcript_issues_html(fixed_rows))
+
+    puts "✅ Done!"
+    puts "   Recitations: #{total_recitations}, chapters: #{total_chapters}, fixed ayahs: #{fixed_rows.size}"
+    puts "   JSON:   #{output_root}/<recitation_id>/<chapter_id>.json"
+    puts "   Review: #{html_path}"
+  end
+
+  desc "Fill missing word segments (first/middle/last) for reciters+chapters present in DATA_DIR, writing to DB + a CSV report"
+  task :fix_missing_word_segments, [:data_dir, :script] => :environment do |_t, args|
+    require "csv"
+
+    data_dir = args[:data_dir].presence || "/Volumes/dev/data/transcript"
+    script = (args[:script].presence || "text_imlaei").to_sym
+
+    unless Dir.exist?(data_dir)
+      puts "Data dir not found: #{data_dir}"
+      exit 1
+    end
+
+    timestamp = Time.now.strftime("%Y%m%d%H%M%S")
+    FileUtils.mkdir_p("tmp/segment_fixes")
+    out_path = Rails.root.join("tmp", "segment_fixes", "fix_missing_words_#{timestamp}.csv")
+
+    fixed_ayahs = 0
+    fixed_words = 0
+    skipped_no_timing = 0
+    scanned = 0
+
+    CSV.open(out_path, "w") do |csv|
+      csv << %w[recitation_id chapter_id verse_key fixed_words types before after]
+
+      Dir.children(data_dir).select { |d| d.to_i.positive? }.sort_by(&:to_i).each do |rid_dir|
+        recitation_id = rid_dir.to_i
+
+        chapter_ids = Dir.children(File.join(data_dir, rid_dir))
+                         .select { |f| f.end_with?(".json") }
+                         .map { |f| File.basename(f, ".json").to_i }
+                         .select(&:positive?)
+                         .sort
+
+        chapter_ids.each do |chapter_id|
+          segments = Audio::Segment
+                       .where(audio_recitation_id: recitation_id, chapter_id: chapter_id)
+                       .includes(verse: :words)
+                       .order("verse_id ASC")
+
+          segments.each do |segment|
+            verse = segment.verse
+            next if verse.blank? || segment.segments.blank?
+
+            scanned += 1
+
+            words_count = verse.words_count.to_i
+            next if words_count.zero?
+
+            present = segment.get_segments.map { |s| s[0].to_i }
+            missing = (1..words_count).to_a - present
+            next if missing.empty?
+
+            if segment.timestamp_from.blank? || segment.timestamp_to.blank?
+              skipped_no_timing += 1
+              next
+            end
+
+            word_texts = verse.words.order(:position).each_with_object({}) do |w, h|
+              h[w.position] = w.send(script).to_s if w.position.between?(1, words_count)
+            end
+
+            before = segment.segments
+
+            result = Audio::SegmentMissingWordFiller.fill(
+              segments: segment.get_segments,
+              word_texts: word_texts,
+              words_count: words_count,
+              ayah_from: segment.timestamp_from,
+              ayah_to: segment.timestamp_to
+            )
+
+            next if result[:fixes].empty?
+
+            segment.set_segments!(result[:segments])
+
+            fixed_ayahs += 1
+            fixed_words += result[:fixes].size
+
+            csv << [
+              recitation_id,
+              chapter_id,
+              segment.verse_key,
+              result[:fixes].map { |f| f[:word] }.join(","),
+              result[:fixes].map { |f| f[:type] }.uniq.join(","),
+              before.to_json,
+              result[:segments].to_json
+            ]
+          end
+        end
+
+        puts "  reciter #{recitation_id}: #{fixed_ayahs} ayahs fixed so far"
+      end
+    end
+
+    puts "✅ Done!"
+    puts "   Scanned ayahs: #{scanned}"
+    puts "   Fixed ayahs: #{fixed_ayahs} (#{fixed_words} words filled)"
+    puts "   Skipped (no ayah timing): #{skipped_no_timing}"
+    puts "   Report: #{out_path}"
   end
 
   # Ignore this

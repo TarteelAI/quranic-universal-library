@@ -551,6 +551,13 @@ module Exporter
         sqlite = exporter.export_sqlite
         create_download_file(downloadable_resource, json, 'json')
         create_download_file(downloadable_resource, sqlite, 'sqlite')
+
+        if exporter.letter_segments?
+          letter_segments_json = exporter.export_letter_segments_json
+          letter_segments_sqlite = exporter.export_letter_segments_sqlite
+          create_download_file(downloadable_resource, letter_segments_json, 'letter-segments-json')
+          create_download_file(downloadable_resource, letter_segments_sqlite, 'letter-segments-sqlite')
+        end
       end
     end
 

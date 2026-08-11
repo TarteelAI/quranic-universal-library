@@ -67,6 +67,53 @@ module Exporter
       db_file_path
     end
 
+    def letter_segments?
+      first_segment&.get_letter_segments.present?
+    end
+
+    def export_letter_segments_json
+      letter_segments_export_path = "#{@export_file_path}-letter-segments"
+      FileUtils.mkdir_p(letter_segments_export_path)
+      letter_segments_json_file_path = "#{letter_segments_export_path}/letter_segments.json"
+
+      letter_segments_data = {}
+      segments.each do |batch|
+        batch.each do |segment|
+          letter_segments_data[segment.verse_key] = {
+            surah_number: segment.surah_number,
+            ayah_number: segment.ayah_number,
+            segments: segment.get_letter_segments
+          }
+        end
+      end
+
+      write_json(letter_segments_json_file_path, letter_segments_data)
+
+      letter_segments_export_path
+    end
+
+    def export_letter_segments_sqlite
+      db_file_path = "#{@export_file_path}-letter-segments.db"
+
+      letter_segments_statement = create_sqlite_table(db_file_path, 'letter_segments', letter_segments_table_columns)
+
+      segments.each do |batch|
+        batch.each do |row|
+          fields = [
+            row.surah_number,
+            row.ayah_number,
+            encode(:segments, row.get_letter_segments)
+          ]
+
+          letter_segments_statement.execute(fields)
+        end
+      end
+
+      close_sqlite_table
+
+      db_file_path
+    end
+
     protected
 
     def audio_files
@@ -78,6 +125,13 @@ module Exporter
         .where(audio_recitation_id: recitation.id)
         .order('verse_id ASC')
         .in_batches(of: 1000)
+    end
+
+    def first_segment
+      Audio::Segment
+        .where(audio_recitation_id: recitation.id)
+        .order('verse_id ASC')
+        .first
     end
 
     def surah_table_column_names
@@ -103,6 +157,14 @@ module Exporter
         duration_sec: 'INTEGER',
         timestamp_from: 'INTEGER',
         timestamp_to: 'INTEGER',
+        segments: 'TEXT'
+      }
+    end
+
+    def letter_segments_table_columns
+      {
+        surah_number: 'INTEGER',
+        ayah_number: 'INTEGER',
         segments: 'TEXT'
       }
     end

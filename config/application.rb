@@ -20,8 +20,23 @@ module Qul
     # config.eager_load_paths << Rails.root.join("extras")
     config.eager_load_paths << "#{config.root}/lib"
 
-    qul_scripts_lib = "#{config.root}/qul-scripts/lib"
-    config.eager_load_paths << qul_scripts_lib if File.directory?(qul_scripts_lib)
+    qul_scripts_lib = File.join(config.root, "qul-scripts")
+
+    eager_load_paths = [
+      File.join(qul_scripts_lib, "lib"),
+      *%w[models controllers jobs].map { |dir| File.join(qul_scripts_lib, "app", dir) }
+    ]
+
+    eager_load_paths.each do |path|
+      config.eager_load_paths << path if File.directory?(path)
+    end
+
+    [
+      [config.paths["app/views"], File.join(qul_scripts_lib, "app/views")],
+      [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")]
+    ].each do |paths, path|
+      paths << path if File.directory?(path)
+    end
 
     config.assets.css_compressor = :escompress
     config.active_support.to_time_preserves_timezone = :zone

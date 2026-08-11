@@ -7,6 +7,8 @@
 #  duration                 :integer
 #  duration_ms              :integer
 #  has_repetition           :boolean          default(FALSE)
+#  letter_segments          :jsonb
+#  letter_segments_count    :integer          default(0)
 #  percentile               :float
 #  relative_segments        :jsonb
 #  relative_silent_duration :integer
@@ -113,6 +115,35 @@ module Audio
       list = list.compact_blank
       self.segments = list
       self.segments_count = list.size
+    end
+
+    def set_letter_segments!(letter_list, user = nil)
+      set_letter_segments(letter_list, user)
+      save(validate: false)
+    end
+
+    def set_letter_segments(letter_list, user = nil)
+      words_count = verse.words_count
+
+      list = (letter_list || []).map do |l|
+        word_number = l[0].to_i
+        next if word_number > words_count
+
+        [word_number, l[1].to_s, l[2].to_i, l[3].to_i]
+      end.compact_blank
+
+      self.letter_segments = list
+      self.letter_segments_count = list.size
+    end
+
+    def get_letter_segments
+      return [] if letter_segments.blank?
+
+      letter_segments.map do |l|
+        next if l.size < 4
+
+        l
+      end.compact_blank
     end
 
     def update_time_and_offset_segments(from, to, key)

@@ -93,6 +93,22 @@
               Autoscroll
             </label>
           </div>
+
+          <div class="flex items-center">
+            <input
+                type="checkbox"
+                :checked="showLetters"
+                @change="toggleLetters"
+                id="toggle-letters"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label for="toggle-letters"
+                   class="ml-2 text-sm text-gray-700"
+                   data-controller="tooltip"
+                   title="Highlight the current letter during playback (when letter timing is available).">
+              Letters
+            </label>
+          </div>
         </div>
       </div>
 
@@ -462,6 +478,7 @@ export default {
       "disableHotkeys",
       "showSegments",
       "showTimeline",
+      "showLetters",
       "autoScroll"
     ]),
 
@@ -594,6 +611,9 @@ export default {
     },
     toggleAutoscroll() {
       this.$store.commit("TOGGLE_AUTOSCROLL");
+    },
+    toggleLetters() {
+      this.$store.commit("TOGGLE_LETTERS");
     },
     toggleHotkeys() {
       this.$store.commit("TOGGLE_HOTKEYS");

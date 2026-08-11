@@ -66,7 +66,6 @@ Rails.application.routes.draw do
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
   get 'community/chars_info', as: :chars_info
-  get 'stt_validation', to: 'community#stt_validation'
 
   get :svg, to: 'community#svg_optimizer'
   get :credits, to: 'community#credits', as: :credits
@@ -227,6 +226,25 @@ Rails.application.routes.draw do
     get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
     post '/reciters/:id/download', to: 'dashboard#download_reciter', as: :download_reciter
     match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
+  end
+
+  namespace :segment_pipeline do
+    get '/', to: 'runs#index', as: :root
+    get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
+    get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
+    get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
+    post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
+    post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
+    scope 'reciters/:recitation_id/chapters/:chapter_id' do
+      post 'generate', to: 'runs#generate', as: :generate
+      post 'rerun', to: 'runs#rerun', as: :rerun
+      post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
+      post 'cancel', to: 'runs#cancel', as: :cancel
+      post 'import', to: 'runs#import_segments', as: :import
+      delete 'intermediates', to: 'runs#destroy_intermediates', as: :intermediates
+      get 'artifact', to: 'runs#artifact', as: :artifact
+      get 'audio', to: 'runs#audio', as: :audio
+    end
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah

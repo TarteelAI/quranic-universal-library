@@ -59,6 +59,18 @@ ActiveAdmin.register Audio::Segment do
       row :has_repetition
       row :repeated_segments
 
+      if resource.letter_segments.present?
+        row :letter_segments do
+          table_for resource.get_letter_segments, class: 'index_table' do
+            column("Word#") { |l| l[0] }
+            column("Letter") { |l| span l[1], class: 'qpc-hafs' }
+            column("From") { |l| l[2] }
+            column("To") { |l| l[3] }
+            column("Duration") { |l| "#{l[3].to_i - l[2].to_i} ms" }
+          end
+        end
+      end
+
       row :segments do
         div do
           resource.get_segments.each do |s|

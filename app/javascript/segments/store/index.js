@@ -178,6 +178,7 @@ const store = createStore({
       showSegments: true,
       showTimeline: false,
       showWaveform: false,
+      showLetters: false,
       autoScroll: true,
       playing: false,
       playbackSpeed: 1,
@@ -337,6 +338,9 @@ const store = createStore({
     },
     TOGGLE_WAVEFORM(state) {
       state.showWaveform = !state.showWaveform;
+    },
+    TOGGLE_LETTERS(state) {
+      state.showLetters = !state.showLetters;
     },
     TOGGLE_HOTKEYS(state) {
       state.disableHotkeys = !state.disableHotkeys;

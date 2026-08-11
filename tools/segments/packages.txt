@@ -1,2 +1,0 @@
-libsndfile1
-ffmpeg

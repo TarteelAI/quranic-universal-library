@@ -25,10 +25,6 @@ class CommunityController < ApplicationController
     render layout: false
   end
 
-  def stt_validation
-    render layout: false
-  end
-
   def docs
     docs_page_service = DocsPageService.new
     @docs_page = docs_page_service.find(params[:key])

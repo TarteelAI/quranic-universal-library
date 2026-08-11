@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-wrap">
     <div class="w-full" v-if="segmentsLoaded">
-      <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words">
+      <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words" :class="{ 'letters-mode': showLetters }">
         <span
           :id="index + 1"
           :class="[this.getWordCssClass(index)]"
@@ -12,7 +12,14 @@
           @click="showWordPopover"
           class="px-2 py-1 border border-dotted border-green-600 rounded cursor-pointer transition-colors inline-flex flex-col items-center"
         >
-          {{ text }}
+          <span v-if="showLetters && letterSlicesByWord[index + 1]">
+            <span
+              v-for="(slice, li) in letterSlicesByWord[index + 1]"
+              :key="li"
+              class="seg-letter"
+            >{{ slice.text }}</span>
+          </span>
+          <template v-else>{{ text }}</template>
           <span v-if="compareWordMarkers[index + 1]" class="flex gap-0.5 mt-0.5 pointer-events-none">
             <span
               v-for="(color, i) in compareWordMarkers[index + 1]"
@@ -557,6 +564,7 @@ export default {
   },
   created() {
     window.store = this.$store;
+    this._letterRaf = null;
 
     this.unwatch = this.$store.watch(
       (state) => state.currentWord,
@@ -564,6 +572,18 @@ export default {
         this.scrollToCurrentWord(newValue);
       }
     );
+
+    // Drive letter highlighting off a rAF loop while the option is on. The loop
+    // reads the live audio clock, so it also updates the active letter after a
+    // seek/scrub without extra wiring.
+    this.unwatchLetters = this.$store.watch(
+      (state) => state.showLetters,
+      (enabled) => {
+        if (enabled) this.startLetterTick();
+        else this.stopLetterTick();
+      }
+    );
+    if (this.$store.state.showLetters) this.startLetterTick();
 
     this.unwatchWord = this.$store.watch(
         (state, getters) => state.wordLoopTime,
@@ -595,6 +615,10 @@ export default {
   beforeDestroy() {
     this.unwatch();
   },
+  beforeUnmount() {
+    this.stopLetterTick();
+    if (this.unwatchLetters) this.unwatchLetters();
+  },
   methods: {
     hasWaqaf(segment) {
       return segment[3] && segment[3].waqaf === true;
@@ -607,6 +631,92 @@ export default {
         waqaf: target.checked,
         index: Number(index),
       });
+    },
+    // Greedy alignment of a letter-segment list onto the displayed word text.
+    // Each letter's `char` is matched to the next occurrence in the word; any
+    // diacritics between matches attach to the preceding letter, and trailing
+    // diacritics attach to the last letter. Returns null (→ plain-text render)
+    // if a letter can't be located, so a mismatch never drops characters.
+    alignLetters(word, letters) {
+      if (!word || !letters || !letters.length) return null;
+
+      const chars = Array.from(word);
+      const slices = letters.map((letter) => ({ text: '', start: letter.start, end: letter.end }));
+      let ci = 0;
+
+      for (let li = 0; li < letters.length; li++) {
+        const target = letters[li].char;
+
+        let j = ci;
+        while (j < chars.length && chars[j] !== target) j++;
+        if (j >= chars.length) return null;
+
+        if (j > ci) {
+          const attachTo = li === 0 ? 0 : li - 1;
+          slices[attachTo].text += chars.slice(ci, j).join('');
+        }
+
+        slices[li].text += target;
+        ci = j + 1;
+      }
+
+      if (ci < chars.length) {
+        slices[slices.length - 1].text += chars.slice(ci).join('');
+      }
+
+      return slices;
+    },
+    startLetterTick() {
+      if (this._letterRaf != null) return;
+      this._letterRaf = requestAnimationFrame(this.letterTick);
+    },
+    stopLetterTick() {
+      if (this._letterRaf != null) {
+        cancelAnimationFrame(this._letterRaf);
+        this._letterRaf = null;
+      }
+      this._letterNodes = null;
+    },
+    letterTick() {
+      // Read the media clock every frame (~16ms) rather than relying on the
+      // 250ms timeupdate event — a letter is often shorter than one timeupdate
+      // window, so timeupdate can't resolve which letter is playing. Each letter
+      // exposes a `--fill` the CSS uses to wipe its colour on (right-to-left), so
+      // the highlight slides through the word instead of snapping letter to letter.
+      if (typeof player !== 'undefined' && player && this.showLetters) {
+        const time = player.currentTime * 1000;
+        const letters = this.flatLetters;
+
+        if (this._letterNodesKey !== this.currentVerseKey ||
+            !this._letterNodes ||
+            this._letterNodes.length !== letters.length) {
+          this._letterNodes = this.$el ? Array.from(this.$el.querySelectorAll('.words .seg-letter')) : [];
+          this._letterNodesKey = this.currentVerseKey;
+          this._letterFills = new Array(this._letterNodes.length).fill(-1);
+        }
+
+        for (let i = 0; i < letters.length; i++) {
+          const { start, end } = letters[i];
+
+          let fill;
+          if (time >= end) fill = 1;
+          else if (time >= start) fill = (time - start) / (end - start);
+          else fill = 0;
+
+          // Quantise so we only touch the DOM when the wipe visibly moves.
+          const quantised = Math.round(fill * 50) / 50;
+          if (quantised !== this._letterFills[i]) {
+            const node = this._letterNodes[i];
+            if (node) {
+              node.style.setProperty('--fill', `${quantised * 100}%`);
+              node.classList.toggle('lit', quantised > 0);
+            }
+            this._letterFills[i] = quantised;
+          }
+        }
+      }
+
+      this._letterRaf = requestAnimationFrame(this.letterTick);
     },
     getWordCssClass(index) {
       let cssClasses = 'word';
@@ -1207,6 +1317,7 @@ export default {
       'verseSegment',
       'verseOriginalSegment',
       'showSegments',
+      'showLetters',
       'versesCount',
       'currentVerseNumber',
       'playing',
@@ -1227,6 +1338,46 @@ export default {
       'chapter',
       'autoScroll'
     ]),
+    lettersByWord() {
+      const map = {};
+      const list = (this.verseSegment && this.verseSegment.letter_segments) || [];
+
+      list.forEach((entry) => {
+        const word = Number(entry[0]);
+        (map[word] || (map[word] = [])).push({
+          char: entry[1],
+          start: Number(entry[2]),
+          end: Number(entry[3]),
+        });
+      });
+
+      return map;
+    },
+    // Split each word's displayed (diacritized) text into one slice per letter
+    // segment, keeping diacritics attached to their base letter. Rendering the
+    // slices as plain inline spans preserves the cursive joining, so the word
+    // still reads as normal Arabic while a single letter can be highlighted.
+    letterSlicesByWord() {
+      const map = {};
+
+      Object.keys(this.lettersByWord).forEach((word) => {
+        const slices = this.alignLetters(this.wordsText[Number(word) - 1], this.lettersByWord[word]);
+        if (slices) map[word] = slices;
+      });
+
+      return map;
+    },
+    flatLetters() {
+      const flat = [];
+
+      Object.keys(this.letterSlicesByWord).forEach((word) => {
+        this.letterSlicesByWord[word].forEach((slice, li) => {
+          flat.push({ key: `${word}-${li}`, start: slice.start, end: slice.end });
+        });
+      });
+
+      return flat;
+    },
     activeIssueGroup() {
       return this.issueGroups.find((group) => group.id === this.activeIssueTab) || this.issueGroups[0] || null;
     },
@@ -1317,6 +1468,37 @@ export default {
   padding: 0 3px;
   margin: 0 2px;
   cursor: pointer;
+}
+
+/* Each letter's colour is painted by a right-to-left gradient clipped to the
+   glyph. `--fill` (driven per frame from the audio clock) is the wipe position,
+   so the colour slides across the letter and flows into the next one. */
+.seg-letter {
+  --lit-color: #d97706;
+  --base-color: #374151;
+  --fill: 0%;
+  background-image: linear-gradient(
+    to left,
+    var(--lit-color) 0%,
+    var(--lit-color) var(--fill),
+    var(--base-color) var(--fill),
+    var(--base-color) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: text-shadow 0.12s linear;
+}
+
+.seg-letter.lit {
+  text-shadow: 0 0 6px rgba(217, 119, 6, 0.4);
+}
+
+/* In letters mode the wipe is the highlight, so drop the word-level green fill
+   that would otherwise sit behind (and wash out) the letters. */
+.words.letters-mode .active {
+  background-color: transparent;
+  color: inherit;
 }
 
 .table-wrapper {

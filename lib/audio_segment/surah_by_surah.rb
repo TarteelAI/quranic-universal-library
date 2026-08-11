@@ -221,6 +221,10 @@ module AudioSegment
       segments[-1][2] = to
 
       segment.set_timing(from, to, verse)
+
+      letters = parse_letter_segments(verse_segment.letter_segments)
+      segment.set_letter_segments(letters) if letters.present?
+
       segment.set_segments!(segments)
 
       segment
@@ -241,6 +245,24 @@ module AudioSegment
         timings = word[0, 3].map(&:to_i)
         metadata = word[3]
         metadata.present? ? timings + [metadata] : timings
+      end
+    end
+
+    def parse_letter_segments(data)
+      return [] if data.blank?
+
+      parsed =
+        begin
+          Oj.load(data.to_s)
+        rescue Oj::ParseError
+          Oj.load(data.to_s.gsub('=>', ':'))
+        end
+
+      return [] unless parsed.is_a?(Array)
+
+      parsed.map do |letter|
+        # Word number, letter, start_time, end_time
+        [letter[0].to_i, letter[1].to_s, letter[2].to_i, letter[3].to_i]
       end
     end
 
@@ -280,7 +302,7 @@ module AudioSegment
       db = SQLite3::Database.new(file_path)
       table_name = 'timings'
 
-      columns = ['sura', 'ayah', 'start_time', 'end_time', 'words']
+      columns = ['sura', 'ayah', 'start_time', 'end_time', 'words', 'letter_segments']
       create_table_sql = "CREATE TABLE IF NOT EXISTS #{table_name} (#{columns.map { |c| "#{c} TEXT" }.join(', ')});"
       db.execute(create_table_sql)
 
@@ -293,7 +315,8 @@ module AudioSegment
           segment.verse_number,
           segment.timestamp_from,
           segment.timestamp_to,
-          Oj.dump(segment.segments)
+          Oj.dump(segment.segments),
+          Oj.dump(segment.letter_segments || [])
         ]
 
         insert_statement.execute(data)
@@ -304,7 +327,7 @@ module AudioSegment
     end
 
     def export_csv(segments, file_path)
-      columns = ['sura', 'ayah', 'start_time', 'end_time', 'words']
+      columns = ['sura', 'ayah', 'start_time', 'end_time', 'words', 'letter_segments']
 
       CSV.open(file_path, "wb") do |csv|
         csv << columns
@@ -315,7 +338,8 @@ module AudioSegment
             segment.verse_number,
             segment.timestamp_from,
             segment.timestamp_to,
-            Oj.dump(segment.segments)
+            Oj.dump(segment.segments),
+            Oj.dump(segment.letter_segments || [])
           ]
 
           csv << data
@@ -329,7 +353,8 @@ module AudioSegment
         data["#{segment.chapter_id}:#{segment.verse_number}"] = {
           from: segment.timestamp_from,
           to: segment.timestamp_to,
-          words: segment.segments
+          words: segment.segments,
+          letter_segments: segment.letter_segments || []
         }
       end
 

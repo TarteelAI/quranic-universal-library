@@ -1,0 +1,130 @@
+<% set_page_title 'Ayah Timestamp Verification' %>
+
+<div class="pt-20 md:pt-32 px-2 md:px-4 pb-24 md:pb-32">
+  <div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Ayah Timestamp Verification</h1>
+      <p class="text-gray-600">
+        Listen to a random ayah clip from gapless surah audio and vote whether the
+        start/end boundary timing sounds accurate.
+      </p>
+    </div>
+
+    <% if flash[:notice].present? %>
+      <div class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-green-800"><%= flash[:notice] %></div>
+    <% end %>
+    <% if flash[:alert].present? %>
+      <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800"><%= flash[:alert] %></div>
+    <% end %>
+
+    <% if @payload.nil? %>
+      <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
+        <p class="font-medium mb-2">No eligible ayah timestamps found</p>
+        <p class="text-sm">
+          Approved gapless recitations with ayah boundary timings are required.
+          Load Quran content data locally, then try again.
+        </p>
+        <div class="mt-4">
+          <%= link_to 'Back to tools', tools_path, class: 'px-4 py-2 rounded font-medium border border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white' %>
+        </div>
+      </div>
+    <% else %>
+      <%
+        segment = @payload.segment
+        verse = @payload.verse
+        recitation = @payload.recitation
+        arabic_text = verse&.text_qpc_hafs.presence || verse&.text_uthmani.presence || segment.verse_key
+      %>
+
+      <div
+        class="rounded-2xl bg-white border border-gray-100 shadow-sm p-6"
+        data-controller="ayah-timestamp-verification"
+        data-ayah-timestamp-verification-audio-url-value="<%= @payload.audio_url %>"
+        data-ayah-timestamp-verification-time-from-value="<%= @payload.time_from %>"
+        data-ayah-timestamp-verification-time-to-value="<%= @payload.time_to %>"
+        data-ayah-timestamp-verification-verse-key-value="<%= segment.verse_key %>"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Verse</div>
+            <div class="text-lg font-semibold text-slate-800" data-ayah-timestamp-verification-target="verseKey"><%= segment.verse_key %></div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Recitation</div>
+            <div class="text-sm font-medium text-slate-700"><%= recitation&.name || "Recitation ##{segment.audio_recitation_id}" %></div>
+          </div>
+        </div>
+
+        <div class="min-h-28 rounded-xl bg-slate-50 p-5 mb-6">
+          <p class="qpc-hafs text-3xl leading-loose text-right" dir="rtl" lang="ar"><%= arabic_text %></p>
+        </div>
+
+        <div class="mb-2 text-xs text-slate-500">
+          Window: <%= @payload.time_from %>ms – <%= @payload.time_to %>ms
+        </div>
+
+        <div
+          data-ayah-timestamp-verification-target="error"
+          class="hidden mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        ></div>
+
+        <div class="flex items-center gap-3 mb-6">
+          <button
+            type="button"
+            data-ayah-timestamp-verification-target="playButton"
+            data-action="ayah-timestamp-verification#togglePlay"
+            class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 hover:bg-primary-200 transition-all"
+            aria-label="Play ayah clip"
+          >
+            <i class="fas fa-play text-gray-700" data-ayah-timestamp-verification-target="playIcon"></i>
+          </button>
+
+          <button
+            type="button"
+            data-ayah-timestamp-verification-target="loopButton"
+            data-action="ayah-timestamp-verification#toggleLoop"
+            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+            aria-pressed="false"
+            title="Loop this ayah window"
+          >
+            <i class="fas fa-refresh"></i>
+          </button>
+
+          <div class="flex min-w-0 flex-1 flex-col gap-2">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs font-semibold tabular-nums text-gray-600" data-ayah-timestamp-verification-target="currentTime">0:00</span>
+              <span class="text-xs font-semibold tabular-nums text-gray-600" data-ayah-timestamp-verification-target="totalTime">0:00</span>
+            </div>
+            <div class="relative h-3 rounded-full bg-gray-200 overflow-hidden">
+              <div class="h-full w-0 rounded-full bg-blue-400" data-ayah-timestamp-verification-target="progress"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 items-center">
+          <% if user_signed_in? %>
+            <%= button_to 'Accurate',
+                          ayah_timestamp_verification_path,
+                          method: :post,
+                          params: { audio_segment_id: segment.id, vote: 'accurate' },
+                          class: 'px-4 py-2 rounded font-medium bg-green-600 hover:bg-green-700 text-white' %>
+            <%= button_to 'Inaccurate',
+                          ayah_timestamp_verification_path,
+                          method: :post,
+                          params: { audio_segment_id: segment.id, vote: 'inaccurate' },
+                          class: 'px-4 py-2 rounded font-medium bg-red-600 hover:bg-red-700 text-white' %>
+          <% else %>
+            <%= link_to 'Sign in to vote',
+                        new_user_session_path(user_return_to: ayah_timestamp_verification_path),
+                        class: 'px-4 py-2 rounded font-medium bg-gray-800 hover:bg-gray-900 text-white' %>
+          <% end %>
+
+          <%= link_to 'Skip / Next',
+                      ayah_timestamp_verification_path,
+                      class: 'px-4 py-2 rounded font-medium border border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white' %>
+          <%= link_to 'All tools', tools_path, class: 'px-4 py-2 rounded font-medium text-gray-600 hover:text-gray-900' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

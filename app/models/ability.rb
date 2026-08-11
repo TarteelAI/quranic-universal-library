@@ -15,6 +15,7 @@ class Ability
     cannot :read, Feedback
     cannot :read, ImportantNote
     cannot :read, AdminTodo
+    cannot :read, AyahTimestampVote
     cannot :notify_users, DownloadableResource
     cannot :read, Contributor
     cannot :read, ActiveAdmin::Page, name: "Analytics"
@@ -33,6 +34,7 @@ class Ability
       can :manage, Draft::Tafsir
       can :manage, Draft::FootNote
       can :manage, Faq
+      can :manage, AyahTimestampVote
 
       can :manage, Reciter
       can :manage, Tafsir

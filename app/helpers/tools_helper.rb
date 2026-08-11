@@ -165,6 +165,15 @@ module ToolsHelper
         type: 'segments',
         icon: 'timeline.svg',
         tags: [['Timestamp', 'timestamp']]
+      ),
+      ToolCard.new(
+        title: 'Ayah Timestamp Verification',
+        description: 'Listen to a random ayah clip and vote whether its audio boundary timing is accurate.',
+        url: '/ayah-timestamp-verification',
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [['Recitation', 'recitation'], ['Timestamp', 'timestamp']],
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
       )
     ]
   end

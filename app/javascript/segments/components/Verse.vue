@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-wrap">
     <div class="w-full" v-if="segmentsLoaded">
-      <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words" :class="{ 'letters-mode': showLetters }">
+      <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words">
         <span
           :id="index + 1"
           :class="[this.getWordCssClass(index)]"
@@ -17,6 +17,7 @@
               v-for="(slice, li) in letterSlicesByWord[index + 1]"
               :key="li"
               class="seg-letter"
+              :class="{ 'letter-active': activeLetterKey === (index + 1) + '-' + li }"
             >{{ slice.text }}</span>
           </span>
           <template v-else>{{ text }}</template>
@@ -560,6 +561,7 @@ export default {
       issueGroups: [],
       activeIssueTab: 'current',
       showCompare: false,
+      activeLetterKey: null,
     };
   },
   created() {
@@ -675,45 +677,27 @@ export default {
         cancelAnimationFrame(this._letterRaf);
         this._letterRaf = null;
       }
-      this._letterNodes = null;
+      this.activeLetterKey = null;
     },
     letterTick() {
       // Read the media clock every frame (~16ms) rather than relying on the
       // 250ms timeupdate event — a letter is often shorter than one timeupdate
-      // window, so timeupdate can't resolve which letter is playing. Each letter
-      // exposes a `--fill` the CSS uses to wipe its colour on (right-to-left), so
-      // the highlight slides through the word instead of snapping letter to letter.
+      // window, so timeupdate can't resolve which letter is playing. Only the
+      // current letter is coloured; the key changes a few times a second, so the
+      // reactive binding is cheap.
       if (typeof player !== 'undefined' && player && this.showLetters) {
         const time = player.currentTime * 1000;
         const letters = this.flatLetters;
 
-        if (this._letterNodesKey !== this.currentVerseKey ||
-            !this._letterNodes ||
-            this._letterNodes.length !== letters.length) {
-          this._letterNodes = this.$el ? Array.from(this.$el.querySelectorAll('.words .seg-letter')) : [];
-          this._letterNodesKey = this.currentVerseKey;
-          this._letterFills = new Array(this._letterNodes.length).fill(-1);
-        }
-
+        let key = null;
         for (let i = 0; i < letters.length; i++) {
-          const { start, end } = letters[i];
-
-          let fill;
-          if (time >= end) fill = 1;
-          else if (time >= start) fill = (time - start) / (end - start);
-          else fill = 0;
-
-          // Quantise so we only touch the DOM when the wipe visibly moves.
-          const quantised = Math.round(fill * 50) / 50;
-          if (quantised !== this._letterFills[i]) {
-            const node = this._letterNodes[i];
-            if (node) {
-              node.style.setProperty('--fill', `${quantised * 100}%`);
-              node.classList.toggle('lit', quantised > 0);
-            }
-            this._letterFills[i] = quantised;
+          if (time >= letters[i].start && time < letters[i].end) {
+            key = letters[i].key;
+            break;
           }
         }
+
+        if (key !== this.activeLetterKey) this.activeLetterKey = key;
       }
 
       this._letterRaf = requestAnimationFrame(this.letterTick);
@@ -1470,35 +1454,15 @@ export default {
   cursor: pointer;
 }
 
-/* Each letter's colour is painted by a right-to-left gradient clipped to the
-   glyph. `--fill` (driven per frame from the audio clock) is the wipe position,
-   so the colour slides across the letter and flows into the next one. */
+/* Only the current letter is coloured; the soft fade makes the colour glide
+   from one letter to the next as the key changes. */
 .seg-letter {
-  --lit-color: #d97706;
-  --base-color: #374151;
-  --fill: 0%;
-  background-image: linear-gradient(
-    to left,
-    var(--lit-color) 0%,
-    var(--lit-color) var(--fill),
-    var(--base-color) var(--fill),
-    var(--base-color) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  transition: text-shadow 0.12s linear;
+  transition: color 0.1s linear, text-shadow 0.1s linear;
 }
 
-.seg-letter.lit {
-  text-shadow: 0 0 6px rgba(217, 119, 6, 0.4);
-}
-
-/* In letters mode the wipe is the highlight, so drop the word-level green fill
-   that would otherwise sit behind (and wash out) the letters. */
-.words.letters-mode .active {
-  background-color: transparent;
-  color: inherit;
+.letter-active {
+  color: #f59e0b;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
 }
 
 .table-wrapper {

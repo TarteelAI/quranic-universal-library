@@ -8,7 +8,6 @@
 #  duration_ms              :integer
 #  has_repetition           :boolean          default(FALSE)
 #  letter_segments          :jsonb
-#  letter_segments_count    :integer          default(0)
 #  percentile               :float
 #  relative_segments        :jsonb
 #  relative_silent_duration :integer
@@ -133,7 +132,6 @@ module Audio
       end.compact_blank
 
       self.letter_segments = list
-      self.letter_segments_count = list.size
     end
 
     def get_letter_segments

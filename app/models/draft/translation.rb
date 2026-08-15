@@ -59,7 +59,7 @@ class Draft::Translation < ApplicationRecord
   end
 
   def next_ayah_translation
-    if verse_id < 6235
+    if verse_id < 6236
       Draft::Translation
         .where(resource_content_id: resource_content_id)
         .where("verse_id > ?", verse_id)

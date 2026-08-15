@@ -91,7 +91,7 @@ class WordMistakesPresenter < ApplicationPresenter
                               .order('word_index ASC')
 
     page = [current_page, 1].max
-    offset = (page - 1) * 100
+    offset = (page - 1) * per_page
 
     similar_words = similar_words_query.offset(offset).limit(per_page)
     similar_mistakes = WordMistake
@@ -102,7 +102,7 @@ class WordMistakesPresenter < ApplicationPresenter
                          )
                          .group_by(&:word_id)
 
-    total_pages = (similar_words_query.count.to_f / 100).ceil
+    total_pages = (similar_words_query.count.to_f / per_page).ceil
 
     {
       count: similar_words_query.count,

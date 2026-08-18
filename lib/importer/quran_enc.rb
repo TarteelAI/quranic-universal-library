@@ -274,6 +274,7 @@ module Importer
       translation.translation_id = current_translation&.id
       translation.draft_text = draft_text.gsub(/\r?\n+r?/, ' ').strip # simple_format(draft_text)
       translation.current_text = current_text
+      translation.current_footnotes_count = current_translation&.footnotes_count || 0
       translation.text_matched = current_text == draft_text
       translation.imported = false
 

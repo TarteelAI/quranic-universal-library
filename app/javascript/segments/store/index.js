@@ -17,6 +17,24 @@ const COMPARE_COLORS = ["#2563eb", "#dc2626", "#9333ea", "#ea580c", "#0d9488", "
 
 const localStore = new LocalStore();
 
+const LETTER_BATCH_SIZE = 10;
+const LETTER_PREFETCH_LOOKAHEAD = 2;
+
+function letterBatchStart(verse) {
+  return Math.floor((verse - 1) / LETTER_BATCH_SIZE) * LETTER_BATCH_SIZE + 1;
+}
+
+// In-flight letter-batch requests; loadingLetters stays on until all resolve so
+// the indicator does not flicker off while a concurrent batch is still loading.
+let pendingLetterRequests = 0;
+
+function clampVerse(verse, versesCount) {
+  const number = Number(verse) || 1;
+  if (number < 1) return 1;
+  if (versesCount && number > versesCount) return versesCount;
+  return number;
+}
+
 // Insert placeholders for missing words in sequence, keeping repeated runs intact.
 function fillMissingWords(rawSegments, lastWord) {
   const filled = [];
@@ -187,6 +205,9 @@ const store = createStore({
       segmentsUnsaved: false,
       segmentsSaved: false,
       saving: false,
+      loadingSegments: false,
+      loadingLetters: false,
+      loadedLetterBatches: [],
       loadedSegments: [],
       undoStack: [],
       redoStack: [],
@@ -207,8 +228,8 @@ const store = createStore({
   mutations: {
     SETUP(state, payload) {
       state.chapter = payload.chapter;
-      state.versesCount = payload.versesCount;
-      state.currentVerseNumber = Number(payload.verse || 1);
+      state.versesCount = Number(payload.versesCount) || 0;
+      state.currentVerseNumber = clampVerse(payload.verse, state.versesCount);
       state.currentVerseKey = `${state.chapter}:${state.currentVerseNumber}`;
       state.recitation = payload.recitation;
       state.compareSegment = !!payload.compareSegment
@@ -236,6 +257,33 @@ const store = createStore({
     },
     SET_ALERT(state, payload) {
       state.alert = payload.text;
+    },
+    // Stop bounded playback (word / compare / range preview) the instant the
+    // media clock passes its end. Driven by Verse's rAF loop so the stop is
+    // frame-accurate (~16ms) instead of waiting on the coarse `timeupdate`
+    // event, which can lag far enough behind — especially while the rAF loop is
+    // running — to let playback overrun the range by seconds.
+    STOP_AT_PLAYBACK_BOUNDARY(state, payload) {
+      if (!player) return;
+      const time = payload.time;
+
+      if (state.playingRangeEnd != null && time >= state.playingRangeEnd) {
+        player.pause();
+        state.playingRangeEnd = null;
+        return;
+      }
+
+      if (state.playingCompareEnd != null && time >= state.playingCompareEnd) {
+        player.pause();
+        state.playingCompareEnd = null;
+        return;
+      }
+
+      if (state.playingWord != null && time >= state.playingWordEnd) {
+        player.pause();
+        state.playingWord = null;
+        state.playingWordEnd = null;
+      }
     },
     SET_SEGMENTS(state, payload) {
       state.segments = payload.segments;
@@ -314,18 +362,18 @@ const store = createStore({
       if (payload.step) verse = state.currentVerseNumber + Number(payload.step);
       else verse = Number(payload.to);
 
-      if (verse >= 1 || verse <= state.versesCount) {
-        state.isManualAyahChange = true;
-        
-        state.currentVerseNumber = verse;
-        state.currentTimestamp = 0;
-        state.currentWord = 1;
+      verse = clampVerse(verse, state.versesCount);
 
-        this.dispatch("LOAD_AYAH", {
-          verse,
-          autoPlay: state.autoPlay
-        });
-      }
+      state.isManualAyahChange = true;
+
+      state.currentVerseNumber = verse;
+      state.currentTimestamp = 0;
+      state.currentWord = 1;
+
+      this.dispatch("LOAD_AYAH", {
+        verse,
+        autoPlay: state.autoPlay
+      });
     },
     TOGGLE_SEGMENTS(state) {
       state.showSegments = !state.showSegments;
@@ -1154,6 +1202,12 @@ const store = createStore({
       state.segmentsUnsaved = normalizeForCompare(filledSegments) !== normalizeForCompare(savedBaseline);
       state.segmentsSaved = false;
 
+      // Pull in letter segments for the batch around this ayah (and prefetch the
+      // next batch near a boundary) only when the letters view is on.
+      if (state.showLetters && audioType != 'ayah') {
+        this.dispatch("ENSURE_LETTER_BATCHES", { verse });
+      }
+
       setTimeout(() => {
         state.isManualAyahChange = false;
       }, 100);
@@ -1168,10 +1222,10 @@ const store = createStore({
         currentVerseKey
       } = state;
 
-      this.commit("SET_ALERT", {
-        text: "Loading Data...",
-      });
+      state.loadingSegments = true;
 
+      // Letter segments are omitted from the bulk load (see #letter_segments in
+      // the controller) and fetched lazily per batch as the reviewer navigates.
       $.get(`/${segmentsUrl}/${recitation}/segments.json?chapter_id=${chapter}&a=${Math.random()}`).then((res) => {
         this.commit("SET_SEGMENTS", {
           segments: res.segments,
@@ -1180,8 +1234,6 @@ const store = createStore({
         if (audioType != 'ayah') {
           state.quranicAudioUrl = res.fileUrl;
         }
-
-        state.alert = null;
 
         this.commit("CHANGE_AYAH", {
           to: currentVerseNumber,
@@ -1195,7 +1247,55 @@ const store = createStore({
 
           [...new Set(ids)].forEach((id) => this.dispatch('ADD_COMPARE_RECITATION', { recitationId: id }));
         }
+      }).always(() => {
+        state.loadingSegments = false;
       });
+    },
+    // Fetch the letter segments for the batch of ayahs containing `verse`, plus
+    // the next batch when the reviewer is near the current batch's end. Letters
+    // are only needed while the "show letters" option is on, so callers guard on
+    // that. Already-loaded batches are skipped so navigation never refetches.
+    ENSURE_LETTER_BATCHES({ state, dispatch }, payload) {
+      const verse = clampVerse(payload.verse, state.versesCount);
+      const start = letterBatchStart(verse);
+      dispatch("LOAD_LETTER_BATCH", { start });
+
+      const end = start + LETTER_BATCH_SIZE - 1;
+      if (verse >= end - LETTER_PREFETCH_LOOKAHEAD && end < state.versesCount) {
+        dispatch("LOAD_LETTER_BATCH", { start: end + 1 });
+      }
+    },
+    LOAD_LETTER_BATCH({ state }, payload) {
+      const { start } = payload;
+      if (start > state.versesCount) return;
+      if (state.loadedLetterBatches.includes(start)) return;
+
+      const { segmentsUrl, recitation, chapter } = state;
+      const to = Math.min(start + LETTER_BATCH_SIZE - 1, state.versesCount);
+
+      // Reserve the batch immediately so overlapping triggers (navigation +
+      // prefetch) don't fire duplicate requests for it.
+      state.loadedLetterBatches.push(start);
+      pendingLetterRequests += 1;
+      state.loadingLetters = true;
+
+      $.get(`/${segmentsUrl}/${recitation}/letter_segments.json?chapter_id=${chapter}&from=${start}&to=${to}&a=${Math.random()}`)
+        .then((res) => {
+          const letters = res.letter_segments || {};
+
+          Object.keys(letters).forEach((key) => {
+            const target = state.segments[key];
+            if (target) target.letter_segments = letters[key];
+          });
+        })
+        .catch(() => {
+          // Let a failed batch be retried on the next navigation into it.
+          state.loadedLetterBatches = state.loadedLetterBatches.filter((batchStart) => batchStart !== start);
+        })
+        .always(() => {
+          pendingLetterRequests = Math.max(0, pendingLetterRequests - 1);
+          if (pendingLetterRequests === 0) state.loadingLetters = false;
+        });
     },
     ADD_COMPARE_RECITATION({ state }, payload) {
       const recitationId = Number(payload.recitationId);

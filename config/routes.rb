@@ -155,6 +155,7 @@ Rails.application.routes.draw do
     member do
       get :segment_builder
       get :segments
+      get :letter_segments
       post :save_segments
       post :validate_segments
     end

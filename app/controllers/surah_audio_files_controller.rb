@@ -42,6 +42,23 @@ class SurahAudioFilesController < CommunityController
                    .order('verses.id ASC')
   end
 
+  def letter_segments
+    @audio_file = load_audio_file
+    return render(json: { letter_segments: {} }) if @audio_file.nil?
+
+    from = params[:from].to_i
+    to = params[:to].to_i
+    keys = (from..to).map { |verse_number| "#{@audio_file.chapter_id}:#{verse_number}" }
+
+    letters = @audio_file.audio_segments
+                         .where(verse_key: keys)
+                         .each_with_object({}) do |segment, mapping|
+      mapping[segment.verse_key] = segment.letter_segments || []
+    end
+
+    render json: { letter_segments: letters }
+  end
+
   def validate_segments
     @audio_file = load_audio_file
     return render(json: { issues: [] }) if @audio_file.nil?

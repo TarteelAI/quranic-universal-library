@@ -12,11 +12,20 @@
     <SelectAudioSrc />
     <ActionBar />
     <Verse />
+
+    <div
+        v-if="isLoading"
+        class="fixed bottom-4 right-4 z-[200] flex items-center gap-2 px-4 py-2 bg-gray-900/90 text-white text-sm rounded-full shadow-lg pointer-events-none"
+    >
+      <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      {{ loadingText }}
+    </div>
   </div>
 </template>
 
 <script>
 // copied from https://github.com/vuejs/vuex/blob/4.0/examples/composition/shopping-cart/components/ProductList.vue
+import { mapState } from "vuex";
 import { useStore } from "vuex";
 import SelectAudioSrc from "./components/SelectAudioSrc.vue";
 import Alert from "./components/Alert.vue";
@@ -29,6 +38,15 @@ export default {
     return {
       showMobileWarning: true,
     };
+  },
+  computed: {
+    ...mapState(["loadingSegments", "loadingLetters"]),
+    isLoading() {
+      return this.loadingSegments || this.loadingLetters;
+    },
+    loadingText() {
+      return this.loadingSegments ? "Loading segments…" : "Loading letters…";
+    },
   },
   mounted() {
     const {

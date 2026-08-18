@@ -581,11 +581,18 @@ export default {
     this.unwatchLetters = this.$store.watch(
       (state) => state.showLetters,
       (enabled) => {
-        if (enabled) this.startLetterTick();
-        else this.stopLetterTick();
+        if (enabled) {
+          this.ensureLetterBatches();
+          this.startLetterTick();
+        } else {
+          this.stopLetterTick();
+        }
       }
     );
-    if (this.$store.state.showLetters) this.startLetterTick();
+    if (this.$store.state.showLetters) {
+      this.ensureLetterBatches();
+      this.startLetterTick();
+    }
 
     this.unwatchWord = this.$store.watch(
         (state, getters) => state.wordLoopTime,
@@ -622,6 +629,10 @@ export default {
     if (this.unwatchLetters) this.unwatchLetters();
   },
   methods: {
+    ensureLetterBatches() {
+      if (this.audioType === 'ayah') return;
+      this.$store.dispatch('ENSURE_LETTER_BATCHES', { verse: Number(this.currentVerseNumber) });
+    },
     hasWaqaf(segment) {
       return segment[3] && segment[3].waqaf === true;
     },
@@ -685,19 +696,27 @@ export default {
       // window, so timeupdate can't resolve which letter is playing. Only the
       // current letter is coloured; the key changes a few times a second, so the
       // reactive binding is cheap.
-      if (typeof player !== 'undefined' && player && this.showLetters) {
+      if (typeof player !== 'undefined' && player) {
         const time = player.currentTime * 1000;
-        const letters = this.flatLetters;
 
-        let key = null;
-        for (let i = 0; i < letters.length; i++) {
-          if (time >= letters[i].start && time < letters[i].end) {
-            key = letters[i].key;
-            break;
+        // Stop word/range playback here, on the frame-accurate clock, rather
+        // than leaving it to the coarse `timeupdate` event — which arrives late
+        // enough while this loop runs to let playback overrun by seconds.
+        this.$store.commit('STOP_AT_PLAYBACK_BOUNDARY', { time });
+
+        if (this.showLetters) {
+          const letters = this.flatLetters;
+
+          let key = null;
+          for (let i = 0; i < letters.length; i++) {
+            if (time >= letters[i].start && time < letters[i].end) {
+              key = letters[i].key;
+              break;
+            }
           }
-        }
 
-        if (key !== this.activeLetterKey) this.activeLetterKey = key;
+          if (key !== this.activeLetterKey) this.activeLetterKey = key;
+        }
       }
 
       this._letterRaf = requestAnimationFrame(this.letterTick);

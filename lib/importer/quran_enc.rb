@@ -486,7 +486,7 @@ module Importer
       indonesian_affairs: [/\[\d+\]/, /\[\d+\]/],
       french_montada: [/\[\d+\]/, /\[\d+\]/],
       english_hilali_khan: [/\[\d+\]/, /\[\d+\]/],
-      english_saheeh: [/\[\d+\]/, /\[\d+\]-/],
+      english_saheeh: [/\[\d+\]/, /\[\d+\]/],
       hausa_gummi: [/\*+/, /\*+/],
       hindi_omari: [/\[\d+\]/, /\d+./],
       urdu_junagarhi: [/\(\d+\)/, /(\n)?\(\d+\)/], # OLD [/\*+/, /\*+/],

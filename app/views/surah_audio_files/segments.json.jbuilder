@@ -12,7 +12,6 @@ json.segments do
       json.timestamp_from segment&.timestamp_from
       json.timestamp_to segment&.timestamp_to
       json.segments segment&.segments || []
-      json.letter_segments segment&.letter_segments || []
       json.set! :words, verse.words.map(&:text_qpc_hafs)
     end
   end

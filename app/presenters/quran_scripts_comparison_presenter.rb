@@ -29,7 +29,9 @@ class QuranScriptsComparisonPresenter < ApplicationPresenter
     'text_uthmani' => 'Uthmani',
     'text_indopak' => 'Indopak',
     'text_indonesian_sign_language' => 'Arabic Sign language',
-    'text_indopak_misbah' => 'Indopak Misbah'
+    'text_indopak_misbah' => 'Indopak Misbah',
+    'text_imlaei' => 'Imlaei',
+    'text_imlaei_simple' => 'Imlaei Simple',
   }.freeze
 
   def script_type_selected?

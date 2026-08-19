@@ -4,10 +4,6 @@
            key: 'compare_ayah',
            actions: [] %>
 
-<%
-  common_words = find_common_verses_words(@verses)
-%>
-
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="px-4 py-3 rounded mb-4 bg-gray-100 border border-gray-400 text-gray-700 flex" role="alert">
     The Compare Ayah tool lets you view and compare multiple Ayahs, with optional translations. This comparison helps in
@@ -41,6 +37,15 @@
               <p class="text-sm text-gray-600 mt-1">Select translation</p>
             </div>
 
+            <div class="mb-4 me-2">
+              <%= f.select :script,
+                           options_for_select(@presenter.available_scripts.map { |column, name| [name, column] }, @presenter.script),
+                           {},
+                           class: 'form-control',
+                           style: 'width: 220px' %>
+              <p class="text-sm text-gray-600 mt-1">Select script</p>
+            </div>
+
             <div class="mb-4">
               <%= f.submit 'Show Ayahs', class: 'btn btn-success btn-sm' %>
             </div>
@@ -50,29 +55,29 @@
     </div>
   </div>
 
-  <% if @verses.present? %>
-    <% @verses.each do |verse| %>
+  <% if @presenter.verses.present? %>
+    <% @presenter.verses.each do |verse| %>
       <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
         <div class="p-6">
-          <div class="display-5 qpc-hafs quran-text leading-normal">
+          <div class="display-5 <%= get_quran_script_font_family(@presenter.script, verse) %> quran-text leading-normal">
             <div>
               <span class="badge badge-default">
                 <%= verse.verse_key %>
               </span>
               <span>
                 <% verse.words.each do |word| %>
-                  <% if common_words.include?(word.text_qpc_hafs.remove_diacritics) %>
-                    <span class="text-green-600"><%= word.text_qpc_hafs %></span>
+                  <% if @presenter.common_words.include?(word.send(@presenter.script).to_s.remove_diacritics) %>
+                    <span class="text-green-600"><%= word.send(@presenter.script) %></span>
                   <% else %>
-                    <%= word.text_qpc_hafs %>
+                    <%= word.send(@presenter.script) %>
                   <% end %>
                 <% end %>
               </span>
             </div>
           </div>
 
-          <% if @show_translation %>
-            <% verse.translations.sort_by { |tr| @translation_ids.index(tr.resource_content_id.to_s) || Float::INFINITY }.each do |tr| %>
+          <% if @presenter.show_translation? %>
+            <% verse.translations.sort_by { |tr| @presenter.translation_ids.index(tr.resource_content_id.to_s) || Float::INFINITY }.each do |tr| %>
               <div class="translation-text mt-3">
                 <h3 class="mb-2 font-semibold">
                   (<%= tr.resource_content_id %>)

@@ -157,14 +157,14 @@ module Morphology
         @translator.call("morphology.edge_relations.#{rel_label}", locale: 'ar', default: rel_label.to_s)
       end
 
-      def frag(text, color_class: 'black', arabic_font: true)
-        { text: text, color_class: color_class, arabic_font: arabic_font }
+      def frag(text, color_class: 'black', quran_font: false, link_type: nil, link_key: nil)
+        { text: text, color_class: color_class, quran_font: quran_font, link_type: link_type, link_key: link_key }
       end
 
-      def guillemet_frags(value, lead_in:, color_class: 'black')
+      def guillemet_frags(value, lead_in:, color_class: 'black', quran_value: false, link_type: nil, link_key: nil)
         [
           frag(lead_in, color_class: 'black'),
-          frag(value, color_class: color_class),
+          frag(value, color_class: color_class, quran_font: quran_value, link_type: link_type, link_key: link_key),
           frag('»', color_class: 'black')
         ]
       end
@@ -246,13 +246,35 @@ module Morphology
       def lemma_fragments
         val = t_attr(:lemma_name)
         return [] if val.to_s.strip.empty?
-        guillemet_frags(val.to_s, lead_in: '، اللما له «')
+        key = lemma_link_key
+        guillemet_frags(val.to_s, lead_in: '، اللما له «', quran_value: true, link_type: (key ? :lemma : nil), link_key: key)
       end
 
       def root_fragments
         val = t_attr(:root_name)
         return [] if val.to_s.strip.empty?
-        guillemet_frags(val.to_s, lead_in: '، الجذر له «')
+        key = root_link_key
+        guillemet_frags(val.to_s, lead_in: '، الجذر له «', quran_value: true, link_type: (key ? :root : nil), link_key: key)
+      end
+
+      def lemma_link_key
+        lemma = assoc_attr(:lemma)
+        return nil unless lemma.respond_to?(:text_clean)
+        lemma.text_clean.presence
+      end
+
+      def root_link_key
+        root = assoc_attr(:root)
+        return nil unless root.respond_to?(:arabic_trilateral)
+        root.arabic_trilateral.presence
+      end
+
+      def assoc_attr(key)
+        if @token.respond_to?(key)
+          @token.public_send(key)
+        elsif @token.is_a?(Hash)
+          @token[key]
+        end
       end
 
       def verb_form_fragments
@@ -288,9 +310,9 @@ module Morphology
           result << frag(hidden, color_class: 'black')
           result << frag('.', color_class: 'black')
         else
-          result << frag(' ﴿', color_class: 'black')
-          result << frag(head_text, color_class: 'green')
-          result << frag('﴾', color_class: 'black')
+          result << frag(' ﴿', color_class: 'black', quran_font: true)
+          result << frag(head_text, color_class: 'green', quran_font: true)
+          result << frag('﴾', color_class: 'black', quran_font: true)
         end
 
         result

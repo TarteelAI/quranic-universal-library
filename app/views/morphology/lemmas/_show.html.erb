@@ -12,13 +12,13 @@
 %>
 
 <div id="title" class="hidden">
-  Stem <%= lemma.text_madani %> detail
+  Lemma <%= lemma.text_madani %> detail
 </div>
 
 <div id="body">
   <div class="p-6 qul-docs">
     <p class="prose max-w-none">
-      Stem <span class="font-bold"><%= lemma.text_madani %></span> has
+      Lemma <span class="font-bold"><%= lemma.text_madani %></span> has
       <span class="font-semibold"><%= lemma.uniq_words_count %></span> unique word forms and appears
       <span class="font-semibold"><%= lemma.words_count %></span> times in the Quran.
     </p>
@@ -34,11 +34,12 @@
         </thead>
         <tbody>
         <% grouped_words.each do |word| %>
+          <% word_translations = word.translations.uniq { |t| strip_tags(t.to_s).downcase.strip } %>
           <tr class="hover:bg-gray-50">
             <td class="px-4 py-2 border-b whitespace-nowrap qpc-hafs quran-text leading-normal">
               <%= word.text_qpc_hafs %>
             </td>
-            <td class="px-4 py-2 border-b"><%= word.translations.uniq.join(', ') %></td>
+            <td class="px-4 py-2 border-b"><%= safe_html word_translations.join(', ') %></td>
             <td class="px-4 py-2 border-b"><%= word.count %></td>
           </tr>
         <% end %>

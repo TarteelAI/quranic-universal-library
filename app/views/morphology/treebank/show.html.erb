@@ -3,7 +3,7 @@
            key: 'noor_bayan_treebank',
            wide_container: true,
            actions: [
-             link_to('All Ayahs', morphology_treebank_index_path, class: 'inline-flex items-center justify-center px-3 py-1.5 rounded text-sm font-medium bg-sky-600 text-white hover:bg-sky-700')
+             link_to('Back', morphology_treebank_index_path, class: 'inline-flex items-center justify-center px-3 py-1.5 rounded text-sm font-medium bg-sky-600 text-white hover:bg-sky-700')
            ]
 %>
 
@@ -15,32 +15,22 @@
          data-treebank-expandable-value="true">
     <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
       <div class="flex items-center gap-3">
-        <h1 class="text-xl font-semibold">
-          Ayah <%= @verse.verse_key %>
-        </h1>
-
         <% if @prev_verse %>
           <%= link_to morphology_treebank_ayah_path(@prev_verse.chapter_id, @prev_verse.verse_number, locale: @locale, expandable: '1'),
                       class: 'px-2 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600',
                       title: 'Previous ayah' do %>
             <i class="fa fa-chevron-right"></i>
           <% end %>
-        <% else %>
-          <span class="px-2 py-1 bg-gray-400 text-white rounded text-sm cursor-not-allowed">
-            <i class="fa fa-chevron-right"></i>
-          </span>
         <% end %>
-
+        <h1 class="text-xl font-semibold">
+          Ayah <%= @verse.verse_key %>
+        </h1>
         <% if @next_verse %>
           <%= link_to morphology_treebank_ayah_path(@next_verse.chapter_id, @next_verse.verse_number, locale: @locale, expandable: '1'),
                       class: 'px-2 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600',
                       title: 'Next ayah' do %>
             <i class="fa fa-chevron-left"></i>
           <% end %>
-        <% else %>
-          <span class="px-2 py-1 bg-gray-400 text-white rounded text-sm cursor-not-allowed">
-            <i class="fa fa-chevron-left"></i>
-          </span>
         <% end %>
       </div>
 

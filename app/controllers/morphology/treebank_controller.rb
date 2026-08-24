@@ -142,7 +142,7 @@ module Morphology
         .where(chapter_id: @chapter_number)
         .where('first_verse_id <= ? AND last_verse_id >= ?', @verse.id, @verse.id)
         .order(:sentence_number)
-        .includes(:word_tokens)
+        .includes(word_tokens: %i[root lemma])
 
       @irab_tokens = @sentences.flat_map(&:word_tokens)
 

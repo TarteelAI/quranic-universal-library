@@ -118,7 +118,7 @@ class IrabLineTest < Minitest::Test
     pos_frag = frags.first
     assert_equal 'اسم', pos_frag[:text]
     assert_equal 'sky', pos_frag[:color_class]
-    assert_equal true, pos_frag[:arabic_font]
+    assert_equal false, pos_frag[:quran_font]
   end
 
   def test_lemma_fragment_present_when_lemma_name_given

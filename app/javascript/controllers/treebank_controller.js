@@ -299,6 +299,17 @@ export default class extends Controller {
     }
 
     this.applyZoom();
+    if (this.hasCanvasTarget) this.centerScroll(this.canvasTarget);
+  }
+
+  // Center the horizontal scroll so a wide treebank opens on its middle rather
+  // than one edge. rAF lets layout settle after the SVG width is applied.
+  centerScroll(scroller) {
+    if (!scroller) return;
+    requestAnimationFrame(() => {
+      const overflow = scroller.scrollWidth - scroller.clientWidth;
+      if (overflow > 0) scroller.scrollLeft = overflow / 2;
+    });
   }
 
   sentenceMaxLevel(sentence) {
@@ -435,6 +446,7 @@ export default class extends Controller {
     svgContainer.innerHTML = "";
     svgContainer.appendChild(svg);
     this.applyZoom();
+    this.centerScroll(svgContainer);
   }
 
   async toggleCard(event) {
@@ -616,7 +628,6 @@ class TreebankRenderer {
     svg.setAttribute("xmlns", this.SVG_NS);
     svg.setAttribute("data-base-width", svgW);
     svg.setAttribute("data-base-height", svgH);
-    svg.style.maxWidth = "100%";
     svg.style.display = "block";
 
     this.drawBanner(svg, svgW, bannerTextW);

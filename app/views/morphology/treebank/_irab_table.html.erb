@@ -1,16 +1,4 @@
 <%
-  joining_letters = %w[ب ت ث ج ح خ س ش ص ض ط ظ ع غ ف ق ك ل م ن ه ي]
-  tashkeel_regex = /[ؐ-ًؚ-ٰٟ]/
-
-  get_last_base_letter = ->(text) {
-    letters_only = text.gsub(tashkeel_regex, '')
-    letters_only[-1]
-  }
-
-  needs_zwj = ->(text) {
-    joining_letters.include?(get_last_base_letter.call(text))
-  }
-
   irab_rows_obj = Morphology::Treebank::IrabRows.new(
     tokens,
     chapter_number: chapter_number,
@@ -26,22 +14,9 @@
 <table dir="rtl" class="irab-table w-full border-collapse">
   <tbody>
     <% rows.each do |row| %>
-      <%
-        segments = row[:word_tokens]
-        last_idx = segments.size - 1
-      %>
+      <% segments = row[:word_tokens] %>
       <tr class="border-b border-gray-200">
-        <td dir="rtl" class="irab-word-cell px-3 py-2 align-top whitespace-nowrap">
-          <% segments.each_with_index do |seg, idx| %>
-            <%
-              seg_text = t_attr.call(seg, :text_qpc_hafs).to_s
-              pos_key = t_attr.call(seg, :pos_key).to_s
-              color = Morphology::Treebank::Colors.pos(pos_key)
-              display_text = (idx < last_idx && needs_zwj.call(seg_text)) ? (seg_text + "‍") : seg_text
-            %>
-            <span class="qpc-hafs quran-text <%= color %>"><%= display_text %></span>
-          <% end %>
-        </td>
+        <td dir="rtl" class="irab-word-cell px-3 py-2 align-top whitespace-nowrap"><% segments.each do |seg| %><% color = Morphology::Treebank::Colors.pos(t_attr.call(seg, :pos_key).to_s) %><span class="qpc-hafs quran-text <%= color %>"><%= t_attr.call(seg, :text_qpc_hafs).to_s %></span><% end %></td>
         <td dir="rtl" class="irab-line-cell px-3 py-2 align-top">
           <% segments.each do |seg| %>
             <%
@@ -50,11 +25,13 @@
               line = Morphology::Treebank::IrabLine.new(seg, head_token: head_tok, translator: irab_translator)
               frags = line.fragments
             %>
-            <span class="irab-segment-line">
-              <% frags.each do |frag| %>
-                <span class="<%= frag[:color_class] %><%= frag[:arabic_font] ? ' qpc-hafs' : '' %>"><%= frag[:text] %></span>
-              <% end %>
-            </span>
+            <span class="irab-segment-line ar"><% frags.each do |frag| %><%
+              classes = []
+              classes << 'qpc-hafs' if frag[:quran_font]
+              classes << frag[:color_class] unless frag[:color_class].to_s == 'black'
+              link = frag[:link_type] && frag[:link_key].present?
+              modal_url = link ? (frag[:link_type] == :root ? morphology_root_path(frag[:link_key]) : morphology_lemma_path(frag[:link_key])) : nil
+            %><% if link %><a class="text-blue-700 underline<%= ' qpc-hafs' if frag[:quran_font] %>" data-controller="ajax-modal" data-css-class="modal-lg" data-url="<%= modal_url %>" href="#_"><%= frag[:text] %></a><% elsif classes.any? %><span class="<%= classes.join(' ') %>"><%= frag[:text] %></span><% else %><%= frag[:text] %><% end %><% end %></span>
           <% end %>
         </td>
       </tr>

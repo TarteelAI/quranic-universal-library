@@ -32,7 +32,6 @@
 
   svg {
     display: inline-block;
-    max-width: 100%;
     background: #fff;
   }
 }
@@ -40,6 +39,8 @@
 .treebank-banner-text {
   fill: #1a5c38;
   font-weight: bold;
+  direction: rtl;
+  unicode-bidi: bidi-override;
 }
 
 .treebank-banner-ref {
@@ -298,7 +299,6 @@
 
   svg {
     display: inline-block;
-    max-width: 100%;
     background: #fff;
   }
 

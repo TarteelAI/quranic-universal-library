@@ -563,6 +563,7 @@ class TreebankRenderer {
     this.phraseLevelHeight = 0;     // total height of the phrase-level rows (set in render)
     this.PHRASE_LEVEL_STEP = 70;    // vertical distance between consecutive phrase levels
     this.PHRASE_EDGE_ARC_HEIGHT = 50; // how high a phrase (constituency) edge arcs above its band
+    this.PHRASE_EDGE_FOOT_LIFT = 28;  // float phrase-edge arcs above the phrase nodes so they clear the phrase surface text drawn above each dot
     this.phraseTopGap = 0;          // extra headroom so phrase-edge arcs clear the banner (set in render)
     this.tokenRowHeight = 90;       // bottom row: location + arabic + POS label
     this.arcBandHeight = 0;
@@ -588,7 +589,7 @@ class TreebankRenderer {
     // Only reserve top headroom when phrase edges exist — otherwise their arcs
     // (which rise PHRASE_EDGE_ARC_HEIGHT above the top phrase row) collide with
     // the banner and overlap the text.
-    this.phraseTopGap = phraseEdges.length > 0 ? (this.PHRASE_EDGE_ARC_HEIGHT + 24) : 0;
+    this.phraseTopGap = phraseEdges.length > 0 ? (this.PHRASE_EDGE_ARC_HEIGHT + this.PHRASE_EDGE_FOOT_LIFT + 24) : 0;
 
     const tempSvg = document.createElementNS(this.SVG_NS, "svg");
     tempSvg.style.position = "absolute";
@@ -1092,11 +1093,16 @@ class TreebankRenderer {
 
       if (fromX === null || toX === null || fromY === null || toY === null) continue;
 
-      const bandY = Math.min(fromY, toY);
+      // Float the drawn arc a fixed amount above the two node feet so it clears
+      // the phrase surface text. The nodes/blocks themselves stay on their band
+      // (kept inline) — only the arc path lifts.
+      const fromFootY = fromY - this.PHRASE_EDGE_FOOT_LIFT;
+      const toFootY = toY - this.PHRASE_EDGE_FOOT_LIFT;
+      const bandY = Math.min(fromFootY, toFootY);
       const apexAbsY = bandY - ARC_HEIGHT;
 
       const path = document.createElementNS(this.SVG_NS, "path");
-      const d = `M ${fromX},${fromY} C ${fromX},${apexAbsY} ${toX},${apexAbsY} ${toX},${toY}`;
+      const d = `M ${fromX},${fromFootY} C ${fromX},${apexAbsY} ${toX},${apexAbsY} ${toX},${toFootY}`;
       path.setAttribute("d", d);
       path.setAttribute("fill", "none");
       path.setAttribute("stroke-width", "1.5");

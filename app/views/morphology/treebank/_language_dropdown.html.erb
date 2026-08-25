@@ -1,0 +1,26 @@
+<%
+  locale_names = { 'en' => 'English', 'ar' => 'العربية', 'ur' => 'اردو' }
+  extra = local_assigns[:expandable] ? { expandable: '1' } : {}
+%>
+<div class="relative" data-controller="dropdown">
+  <button type="button"
+          data-action="click->dropdown#toggle"
+          aria-expanded="false"
+          title="Change language"
+          class="px-3 py-1.5 rounded text-sm font-medium border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 flex items-center gap-2">
+    <i class="fa fa-language"></i>
+    <span><%= locale_names[@locale] %></span>
+    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+    </svg>
+  </button>
+  <ul class="absolute right-0 mt-2 min-w-[8rem] bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden" data-dropdown-target="menu">
+    <% locale_names.each do |code, name| %>
+      <li>
+        <%= link_to name,
+                    morphology_treebank_ayah_path(@chapter_number, @verse_number, { locale: code }.merge(extra)),
+                    class: "block px-3 py-1.5 text-sm hover:bg-gray-100 #{@locale == code ? 'bg-gray-100 font-semibold text-gray-900' : 'text-gray-700'}" %>
+      </li>
+    <% end %>
+  </ul>
+</div>

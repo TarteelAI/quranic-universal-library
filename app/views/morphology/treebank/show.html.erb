@@ -35,10 +35,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <%= link_to 'العربية', morphology_treebank_ayah_path(@chapter_number, @verse_number, locale: 'ar', expandable: '1'),
-                    class: "px-3 py-1.5 rounded text-sm font-medium border #{@locale == 'ar' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" %>
-        <%= link_to 'English', morphology_treebank_ayah_path(@chapter_number, @verse_number, locale: 'en', expandable: '1'),
-                    class: "px-3 py-1.5 rounded text-sm font-medium border #{@locale == 'en' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" %>
+        <%= render 'morphology/treebank/language_dropdown', expandable: true %>
 
         <button type="button"
                 id="treebank-zoom-in"
@@ -115,10 +112,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <%= link_to 'العربية', morphology_treebank_ayah_path(@chapter_number, @verse_number, locale: 'ar'),
-                    class: "px-3 py-1.5 rounded text-sm font-medium border #{@locale == 'ar' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" %>
-        <%= link_to 'English', morphology_treebank_ayah_path(@chapter_number, @verse_number, locale: 'en'),
-                    class: "px-3 py-1.5 rounded text-sm font-medium border #{@locale == 'en' ? 'bg-gray-800 text-white' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}" %>
+        <%= render 'morphology/treebank/language_dropdown' %>
 
         <button type="button"
                 id="treebank-zoom-in"
@@ -170,7 +164,7 @@
       <div class="mt-8">
         <h2 class="text-lg font-semibold mb-3">I'rab (إعراب)</h2>
         <%= render partial: 'morphology/treebank/irab_table',
-                   locals: { tokens: @irab_tokens, irab_translator: @irab_translator,
+                   locals: { tokens: @irab_tokens, irab_translator: @irab_translator, locale: @locale,
                              chapter_number: @chapter_number, verse_number: @verse_number } %>
       </div>
     <% end %>

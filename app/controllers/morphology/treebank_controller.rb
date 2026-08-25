@@ -133,7 +133,7 @@ module Morphology
     def show
       @chapter_number = params[:chapter].to_i
       @verse_number   = params[:verse].to_i
-      @locale = %w[en ar].include?(params[:locale].to_s) ? params[:locale].to_s : 'ar'
+      @locale = %w[en ar ur].include?(params[:locale].to_s) ? params[:locale].to_s : 'en'
 
       @verse = Verse.find_by(chapter_id: @chapter_number, verse_number: @verse_number)
       return head :not_found unless @verse
@@ -158,7 +158,7 @@ module Morphology
     def data
       chapter_number = params[:chapter].to_i
       verse_number   = params[:verse].to_i
-      locale = %w[en ar].include?(params[:locale].to_s) ? params[:locale].to_s : 'ar'
+      locale = %w[en ar ur].include?(params[:locale].to_s) ? params[:locale].to_s : 'en'
 
       verse = Verse.find_by(chapter_id: chapter_number, verse_number: verse_number)
       return head :not_found unless verse

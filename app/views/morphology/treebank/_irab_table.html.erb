@@ -10,6 +10,10 @@
   t_attr = ->(obj, key) {
     obj.respond_to?(key) ? obj.public_send(key) : obj[key]
   }
+
+  line_locale = local_assigns.fetch(:locale, 'ar').to_s
+  line_dir    = line_locale == 'en' ? 'ltr' : 'rtl'
+  line_class  = { 'ar' => 'ar', 'ur' => 'ur' }.fetch(line_locale, '')
 %>
 <table dir="rtl" class="irab-table w-full border-collapse">
   <tbody>
@@ -22,10 +26,10 @@
             <%
               head_token_id = t_attr.call(seg, :head_token_id)
               head_tok = head_token_id ? head_map[head_token_id] : nil
-              line = Morphology::Treebank::IrabLine.new(seg, head_token: head_tok, translator: irab_translator)
+              line = Morphology::Treebank::IrabLine.new(seg, head_token: head_tok, translator: irab_translator, locale: line_locale)
               frags = line.fragments
             %>
-            <span class="irab-segment-line ar"><% frags.each do |frag| %><%
+            <span class="irab-segment-line <%= line_class %>" dir="<%= line_dir %>"><% frags.each do |frag| %><%
               classes = []
               classes << 'qpc-hafs' if frag[:quran_font]
               classes << frag[:color_class] unless frag[:color_class].to_s == 'black'

@@ -1,97 +1,28 @@
 module Morphology
   module Treebank
     class IrabLine
-      PREFIX_LABELS = {
-        'A:EQ+'   => 'همزة تسوية',
-        'A:INTG+' => 'همزة استفهام',
-        'Al+'     => 'ال التعريف',
-        'bi+'     => 'باء الجر',
-        'f:CAUS+' => 'فاء السببية',
-        'f:CONJ+' => 'فاء العطف',
-        'f:REM+'  => 'فاء الإستئناف',
-        'f:RSLT+' => 'فاء الشرط',
-        'f:SUP+'  => 'فاء الزائدة',
-        'ha+'     => 'هاء النداء',
-        'ka+'     => 'كاف الجر',
-        'l:EMPH+' => 'لام التوكيد',
-        'l:IMPV+' => 'لام الأمر',
-        'l:P+'    => 'لام الجر',
-        'l:PRP+'  => 'لام التعليل',
-        'sa+'     => 'سين المستقبل',
-        'ta+'     => 'تاء النداء',
-        'w:CIRC+' => 'واو الظرفية',
-        'w:COM+'  => 'واو المعية',
-        'w:CONJ+' => 'واو العطف',
-        'w:P+'    => 'واو الجر',
-        'w:REM+'  => 'واو الإستئناف',
-        'w:SUP+'  => 'واو الزائدة',
-        'ya+'     => 'ياء النداء'
-      }.freeze
+      PREFIX_KEYS = %w[
+        A:EQ+ A:INTG+ Al+ bi+ f:CAUS+ f:CONJ+ f:REM+ f:RSLT+ f:SUP+ ha+ ka+
+        l:EMPH+ l:IMPV+ l:P+ l:PRP+ sa+ ta+ w:CIRC+ w:COM+ w:CONJ+ w:P+ w:REM+
+        w:SUP+ ya+
+      ].freeze
 
-      SUFFIX_LABELS = {
-        'VOC:m'  => 'ميم النداء',
-        'EMPH:n' => 'نون التوكيد',
-        'PRON'   => 'ضمير متصل',
-        'l:P+'   => 'لام الجر'
-      }.freeze
-
-      VERB_ASPECT_LABELS = {
-        'PERF' => 'فعل ماضي',
-        'IMPF' => 'فعل مضارع',
-        'IMPV' => 'فعل أمر'
-      }.freeze
-
-      NOMINAL_STATE_LABELS = {
-        'DEF'   => 'معرفة',
-        'INDEF' => 'نكرة'
-      }.freeze
-
-      VERB_MOOD_LABELS = {
-        'MOOD:IND'  => 'مرفوع',
-        'MOOD:JUS'  => 'مجزوم',
-        'MOOD:SUBJ' => 'منصوب'
-      }.freeze
-
-      SPECIAL_GROUP_LABELS = {
-        'SP:<in~' => 'من اخوات ان',
-        'SP:kaAd' => 'من اخوات كاد',
-        'SP:kaAn' => 'من اخوات ان'
-      }.freeze
-
-      NOMINAL_CASE_LABELS = {
-        'NOM' => 'مرفوع',
-        'ACC' => 'منصوب',
-        'GEN' => 'مجرور'
-      }.freeze
-
-      DERIVED_NOUN_LABELS = {
-        'ACT_PCPL' => 'اسم فاعل',
-        'PASS_PCPL' => 'اسم مفعول',
-        'VN' => 'مصدر'
-      }.freeze
-
-      VERB_VOICE_LABELS = {
-        'ACT'  => 'مبني للمعلوم',
-        'PASS' => 'مبني للمجهول'
-      }.freeze
-
-      NUMBER_LABELS = {
-        'S' => 'مفرد',
-        'D' => 'مثنى',
-        'P' => 'جمع'
-      }.freeze
-
-      GENDER_LABELS = {
-        'M' => 'مذكر',
-        'F' => 'مؤنث'
-      }.freeze
+      SUFFIX_KEYS = %w[VOC:m EMPH:n PRON l:P+].freeze
+      VERB_ASPECT_KEYS = %w[PERF IMPF IMPV].freeze
+      DERIVED_NOUN_KEYS = %w[ACT_PCPL PASS_PCPL VN].freeze
+      NOMINAL_STATE_KEYS = %w[DEF INDEF].freeze
+      VERB_VOICE_KEYS = %w[ACT PASS].freeze
+      SPECIAL_GROUP_KEYS = ['SP:<in~', 'SP:kaAd', 'SP:kaAn'].freeze
+      NUMBER_KEYS = %w[S D P].freeze
+      GENDER_KEYS = %w[M F].freeze
 
       HIDDEN_TYPES = %w[implicit_pronoun elided].freeze
 
-      def initialize(token, head_token:, translator:)
+      def initialize(token, head_token:, translator:, locale: 'ar')
         @token = token
         @head_token = head_token
         @translator = translator
+        @locale = locale.to_s
       end
 
       def fragments
@@ -106,8 +37,6 @@ module Morphology
         result.concat(special_group_fragments)
         result.concat(number_fragments)
         result.concat(gender_fragments)
-        result.concat(nominal_case_raw_fragments)
-        result.concat(verb_mood_raw_fragments)
         result.concat(lemma_fragments)
         result.concat(root_fragments)
         result.concat(verb_form_fragments)
@@ -117,6 +46,10 @@ module Morphology
       end
 
       private
+
+      def t(key, default: nil)
+        @translator.call("morphology.irab.#{key}", locale: @locale, default: default)
+      end
 
       def t_attr(key)
         if @token.respond_to?(key)
@@ -147,14 +80,14 @@ module Morphology
         Morphology::Treebank::Colors.pos(head_attr(:pos_key).to_s)
       end
 
-      def translate_pos(pos_key)
+      def translate_pos(pos_key, locale: @locale)
         return '' if pos_key.to_s.strip.empty?
-        @translator.call("morphology.pos_tags.#{pos_key.to_s.upcase}", locale: 'ar', default: pos_key.to_s)
+        @translator.call("morphology.pos_tags.#{pos_key.to_s.upcase}", locale: locale, default: pos_key.to_s)
       end
 
       def translate_relation(rel_label)
         return '' if rel_label.to_s.strip.empty?
-        @translator.call("morphology.edge_relations.#{rel_label}", locale: 'ar', default: rel_label.to_s)
+        @translator.call("morphology.edge_relations.#{rel_label}", locale: @locale, default: rel_label.to_s)
       end
 
       def frag(text, color_class: 'black', quran_font: false, link_type: nil, link_key: nil)
@@ -169,10 +102,6 @@ module Morphology
         ]
       end
 
-      def plain_frag(prefix_text, value, color_class: 'black')
-        [frag(prefix_text + value, color_class: color_class)]
-      end
-
       def pos_fragments
         pos_key = t_attr(:pos_key).to_s
         return [] if pos_key.empty?
@@ -182,79 +111,71 @@ module Morphology
       end
 
       def prefix_fragments
-        val = PREFIX_LABELS[t_attr(:prefix_type).to_s]
-        return [] unless val
-        guillemet_frags(val, lead_in: ' «')
+        raw = t_attr(:prefix_type).to_s
+        return [] unless PREFIX_KEYS.include?(raw)
+        guillemet_frags(t("prefix.#{raw}", default: raw), lead_in: ' «')
       end
 
       def suffix_fragments
-        val = SUFFIX_LABELS[t_attr(:suffix_type).to_s]
-        return [] unless val
-        guillemet_frags(val, lead_in: ' «')
+        raw = t_attr(:suffix_type).to_s
+        return [] unless SUFFIX_KEYS.include?(raw)
+        guillemet_frags(t("suffix.#{raw}", default: raw), lead_in: ' «')
       end
 
       def verb_aspect_fragments
-        val = VERB_ASPECT_LABELS[t_attr(:verb_aspect).to_s]
-        return [] unless val
-        guillemet_frags(val, lead_in: ' «')
+        raw = t_attr(:verb_aspect).to_s
+        return [] unless VERB_ASPECT_KEYS.include?(raw)
+        guillemet_frags(t("verb_aspect.#{raw}", default: raw), lead_in: ' «')
       end
 
       def derived_noun_fragments
-        val = DERIVED_NOUN_LABELS[t_attr(:derived_noun_type).to_s]
-        return [] unless val
-        guillemet_frags(val, lead_in: ' «')
+        raw = t_attr(:derived_noun_type).to_s
+        return [] unless DERIVED_NOUN_KEYS.include?(raw)
+        guillemet_frags(t("derived_noun.#{raw}", default: raw), lead_in: ' «')
       end
 
       def nominal_state_fragments
-        val = NOMINAL_STATE_LABELS[t_attr(:nominal_state).to_s]
-        return [] unless val
-        [frag(' ' + val)]
+        raw = t_attr(:nominal_state).to_s
+        return [] unless NOMINAL_STATE_KEYS.include?(raw)
+        [frag(t("nominal_state.#{raw}", default: raw))]
       end
 
       def verb_voice_fragments
-        val = VERB_VOICE_LABELS[t_attr(:verb_voice).to_s]
-        return [] unless val
-        [frag(' ' + val)]
+        raw = t_attr(:verb_voice).to_s
+        return [] unless VERB_VOICE_KEYS.include?(raw)
+        [frag(t("verb_voice.#{raw}", default: raw))]
       end
 
       def special_group_fragments
-        val = SPECIAL_GROUP_LABELS[t_attr(:special_group).to_s]
-        return [] unless val
-        [frag(' ' + val)]
+        raw = t_attr(:special_group).to_s
+        return [] unless SPECIAL_GROUP_KEYS.include?(raw)
+        [frag(t("special_group.#{raw}", default: raw))]
       end
 
       def number_fragments
-        val = NUMBER_LABELS[t_attr(:number).to_s]
-        return [] unless val
-        [frag(' لل‍' + val)]
+        raw = t_attr(:number).to_s
+        return [] unless NUMBER_KEYS.include?(raw)
+        [frag(t("number.#{raw}", default: raw))]
       end
 
       def gender_fragments
-        val = GENDER_LABELS[t_attr(:gender).to_s]
-        return [] unless val
-        [frag(' ال‍' + val)]
-      end
-
-      def nominal_case_raw_fragments
-        []
-      end
-
-      def verb_mood_raw_fragments
-        []
+        raw = t_attr(:gender).to_s
+        return [] unless GENDER_KEYS.include?(raw)
+        [frag(t("gender.#{raw}", default: raw))]
       end
 
       def lemma_fragments
         val = t_attr(:lemma_name)
         return [] if val.to_s.strip.empty?
         key = lemma_link_key
-        guillemet_frags(val.to_s, lead_in: '، اللما له «', quran_value: true, link_type: (key ? :lemma : nil), link_key: key)
+        guillemet_frags(val.to_s, lead_in: t('lemma_intro', default: ''), quran_value: true, link_type: (key ? :lemma : nil), link_key: key)
       end
 
       def root_fragments
         val = t_attr(:root_name)
         return [] if val.to_s.strip.empty?
         key = root_link_key
-        guillemet_frags(val.to_s, lead_in: '، الجذر له «', quran_value: true, link_type: (key ? :root : nil), link_key: key)
+        guillemet_frags(val.to_s, lead_in: t('root_intro', default: ''), quran_value: true, link_type: (key ? :root : nil), link_key: key)
       end
 
       def lemma_link_key
@@ -280,7 +201,7 @@ module Morphology
       def verb_form_fragments
         val = t_attr(:verb_form)
         return [] if val.to_s.strip.empty?
-        guillemet_frags(val.to_s, lead_in: '، النمط له «')
+        guillemet_frags(val.to_s, lead_in: t('verb_form_intro', default: ''))
       end
 
       def dependency_fragments
@@ -289,26 +210,20 @@ module Morphology
         return [] if @head_token.nil?
         return [] if %w[root nonrel].include?(rel)
 
-        rel_label_ar = translate_relation(rel)
         result = []
-        result << frag('. وهو ', color_class: 'black')
-        result << frag(rel_label_ar, color_class: rel_color)
+        result << frag(t('dep_intro', default: ''), color_class: 'black')
+        result << frag(translate_relation(rel), color_class: rel_color)
 
         head_pos_key = head_attr(:pos_key).to_s
-        head_pos_ar = translate_pos(head_pos_key)
+        head_pos = translate_pos(head_pos_key)
         head_tok_type = head_attr(:token_type).to_s
         head_text = head_attr(:text_qpc_hafs).to_s
 
-        rp_parts = head_pos_ar.split(' ')
-        rp_label = rp_parts.length == 2 ? rp_parts[0] + ' ال‍' + rp_parts[1] : rp_parts[0]
-        result << frag(' لل‍', color_class: 'black')
-        result << frag(rp_label, color_class: head_pos_color)
+        result << frag(t('dep_to', default: ''), color_class: 'black')
+        result << frag(head_pos_label(head_pos), color_class: head_pos_color)
 
         if HIDDEN_TYPES.include?(head_tok_type)
-          hidden = head_pos_ar.length >= 1 && head_pos_ar[-1] == 'ة' ? 'المحذوفة' : 'المحذوف'
-          result << frag(' ', color_class: 'black')
-          result << frag(hidden, color_class: 'black')
-          result << frag('.', color_class: 'black')
+          result << frag(elided_word(head_pos_key), color_class: 'black')
         else
           result << frag(' ﴿', color_class: 'black', quran_font: true)
           result << frag(head_text, color_class: 'green', quran_font: true)
@@ -318,33 +233,41 @@ module Morphology
         result
       end
 
+      def head_pos_label(head_pos)
+        return head_pos unless @locale == 'ar'
+        parts = head_pos.split(' ')
+        parts.length == 2 ? parts[0] + t('def_infix', default: '') + parts[1] : parts[0]
+      end
+
+      def elided_word(head_pos_key)
+        feminine = translate_pos(head_pos_key, locale: 'ar').to_s[-1] == 'ة'
+        t(feminine ? 'elided_f' : 'elided_m', default: '')
+      end
+
       def case_explanation_fragments
         nominal_case = t_attr(:nominal_case).to_s
         verb_mood = t_attr(:verb_mood).to_s
         return [] if nominal_case.empty? && verb_mood.empty?
 
-        uthmani = t_attr(:text_uthmani).to_s
-        last_char = uthmani[-1]
+        last_char = t_attr(:text_uthmani).to_s[-1]
 
         p = nil
 
-        if !verb_mood.empty?
-          vm_ar = VERB_MOOD_LABELS[verb_mood]
-          if vm_ar == 'مجزوم' && last_char == 'ْ'
-            p = frag(vm_ar + ' بالسكون لانه معتل الاخر.', color_class: 'purple')
-          elsif vm_ar == 'منصوب' && last_char == 'َ'
-            p = frag(vm_ar + ' وعلامة نصبه الفتحة الظاهرة على اخره.', color_class: 'green')
+        unless verb_mood.empty?
+          if verb_mood == 'MOOD:JUS' && last_char == 'ْ'
+            p = frag(t('case.jussive_sukun', default: ''), color_class: 'purple')
+          elsif verb_mood == 'MOOD:SUBJ' && last_char == 'َ'
+            p = frag(t('case.subjunctive_fatha', default: ''), color_class: 'green')
           end
         end
 
-        if !nominal_case.empty?
-          nc_ar = NOMINAL_CASE_LABELS[nominal_case]
-          if nc_ar == 'مرفوع' && last_char == 'ُ'
-            p = frag('مرفوع وعلامة رفعه الضمة الظاهرة على اخره.', color_class: 'red')
-          elsif nc_ar == 'منصوب' && last_char == 'َ'
-            p = frag('منصوب وعلامة نصبه الفتحة الظاهرة على اخره.', color_class: 'green')
-          elsif nc_ar == 'مجرور' && last_char == 'ِ'
-            p = frag('مجرور وعلامة جره الكسره الظاهرة على اخره.', color_class: 'red')
+        unless nominal_case.empty?
+          if nominal_case == 'NOM' && last_char == 'ُ'
+            p = frag(t('case.nominative_damma', default: ''), color_class: 'red')
+          elsif nominal_case == 'ACC' && last_char == 'َ'
+            p = frag(t('case.accusative_fatha', default: ''), color_class: 'green')
+          elsif nominal_case == 'GEN' && last_char == 'ِ'
+            p = frag(t('case.genitive_kasra', default: ''), color_class: 'red')
           end
         end
 

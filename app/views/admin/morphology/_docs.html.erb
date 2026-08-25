@@ -1458,12 +1458,14 @@
 
       <p class="mt-8 leading-8">
 
-        NoorBayan is an independently developed linguistic corpus.
+        NoorBayan is a separately maintained treebank. It was originally
+        seeded from the <strong>Quranic Arabic Corpus</strong> and then
+        developed further with its own annotation, so its tag set and
+        structure differ slightly from QUL's dependency graphs.
 
         Unlike the dependency graphs, it is organized around
-        <strong>sentences</strong> instead of ayahs.
-
-        A sentence may begin in one ayah and continue into the next.
+        <strong>sentences</strong> instead of ayahs — a sentence may begin
+        in one ayah and continue into the next.
 
       </p>
 
@@ -1539,9 +1541,9 @@
           <p class="mt-4 leading-8 text-slate-600">
 
             QUL's morphology is primarily based on the
-            <strong>Quranic Arabic Corpus</strong>
-            by Dr. Kais Dukes, with additional refinements and
-            corrections made inside QUL.
+            <strong><a href="https://corpus.quran.com" target="_blank" rel="noopener" class="text-blue-600">Quranic Arabic Corpus</a></strong>
+            (corpus.quran.com) by Dr. Kais Dukes, with additional
+            refinements and corrections made inside QUL.
 
           </p>
 
@@ -1578,7 +1580,10 @@
           <p class="mt-4 leading-8 text-slate-600">
 
             QUL imports the NoorBayan treebank to provide a richer
-            sentence-level grammatical analysis.
+            sentence-level grammatical analysis. NoorBayan took its
+            initial data from the Quranic Arabic Corpus and extended it,
+            so the two datasets share a common origin but differ in their
+            tag sets and annotations.
 
           </p>
 
@@ -2193,6 +2198,11 @@
         <ul class="mt-5 space-y-3">
           <li><code>Morphology::Word</code> — <a href="/cms/morphology_words" class="text-blue-600">morphology_words →</a></li>
           <li><code>Morphology::WordSegment</code> — <a href="/cms/morphology_word_segments" class="text-blue-600">morphology_word_segments →</a></li>
+          <li><code>Morphology::WordVerbForm</code> — <a href="/cms/morphology_word_verb_forms" class="text-blue-600">verb forms →</a></li>
+          <li><code>Morphology::DerivedWord</code> — <a href="/cms/morphology_derived_words" class="text-blue-600">derived words →</a></li>
+          <li><code>Morphology::GrammarConcept</code> — <a href="/cms/morphology_grammar_concepts" class="text-blue-600">grammar concepts →</a></li>
+          <li><code>Morphology::WordGrammarConcept</code> — <a href="/cms/morphology_word_grammar_concepts" class="text-blue-600">word ↔ concept links →</a></li>
+          <li><code>Morphology::GrammarPattern</code> — <a href="/cms/morphology_grammar_patterns" class="text-blue-600">grammar patterns →</a></li>
           <li><code>Morphology::DependencyGraph::Graph</code> — <a href="/cms/graphs" class="text-blue-600">graphs →</a></li>
           <li><code>Morphology::DependencyGraph::GraphNode</code> — <a href="/cms/morphology_dependency_graph_graph_nodes" class="text-blue-600">graph nodes →</a></li>
           <li><code>Morphology::DependencyGraph::GraphNodeEdge</code> — <a href="/cms/morphology_dependency_graph_graph_node_edges" class="text-blue-600">graph edges →</a></li>
@@ -2227,6 +2237,7 @@
       <ul class="mt-5 space-y-3">
         <li><code>Root</code> — <a href="/cms/roots" class="text-blue-600">roots →</a></li>
         <li><code>Lemma</code> — <a href="/cms/lemmas" class="text-blue-600">lemmas →</a></li>
+        <li><code>Stem</code> — <a href="/cms/stems" class="text-blue-600">stems →</a></li>
       </ul>
     </div>
   </section>

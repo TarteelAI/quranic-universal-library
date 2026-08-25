@@ -1,0 +1,73 @@
+---
+ar:
+  morphology:
+    irab:
+      prefix:
+        A:EQ+: همزة تسوية
+        A:INTG+: همزة استفهام
+        Al+: ال التعريف
+        bi+: باء الجر
+        f:CAUS+: فاء السببية
+        f:CONJ+: فاء العطف
+        f:REM+: فاء الإستئناف
+        f:RSLT+: فاء الشرط
+        f:SUP+: فاء الزائدة
+        ha+: هاء النداء
+        ka+: كاف الجر
+        l:EMPH+: لام التوكيد
+        l:IMPV+: لام الأمر
+        l:P+: لام الجر
+        l:PRP+: لام التعليل
+        sa+: سين المستقبل
+        ta+: تاء النداء
+        w:CIRC+: واو الظرفية
+        w:COM+: واو المعية
+        w:CONJ+: واو العطف
+        w:P+: واو الجر
+        w:REM+: واو الإستئناف
+        w:SUP+: واو الزائدة
+        ya+: ياء النداء
+      suffix:
+        VOC:m: ميم النداء
+        EMPH:n: نون التوكيد
+        PRON: ضمير متصل
+        l:P+: لام الجر
+      verb_aspect:
+        PERF: فعل ماضي
+        IMPF: فعل مضارع
+        IMPV: فعل أمر
+      derived_noun:
+        ACT_PCPL: اسم فاعل
+        PASS_PCPL: اسم مفعول
+        VN: مصدر
+      nominal_state:
+        DEF: " معرفة"
+        INDEF: " نكرة"
+      verb_voice:
+        ACT: " مبني للمعلوم"
+        PASS: " مبني للمجهول"
+      special_group:
+        SP:<in~: " من اخوات ان"
+        SP:kaAd: " من اخوات كاد"
+        SP:kaAn: " من اخوات ان"
+      number:
+        S: " لل‍مفرد"
+        D: " لل‍مثنى"
+        P: " لل‍جمع"
+      gender:
+        M: " ال‍مذكر"
+        F: " ال‍مؤنث"
+      lemma_intro: "، اللما له «"
+      root_intro: "، الجذر له «"
+      verb_form_intro: "، النمط له «"
+      dep_intro: ". وهو "
+      dep_to: " لل‍"
+      def_infix: " ال‍"
+      elided_m: " المحذوف."
+      elided_f: " المحذوفة."
+      case:
+        jussive_sukun: مجزوم بالسكون لانه معتل الاخر.
+        subjunctive_fatha: منصوب وعلامة نصبه الفتحة الظاهرة على اخره.
+        nominative_damma: مرفوع وعلامة رفعه الضمة الظاهرة على اخره.
+        accusative_fatha: منصوب وعلامة نصبه الفتحة الظاهرة على اخره.
+        genitive_kasra: مجرور وعلامة جره الكسره الظاهرة على اخره.

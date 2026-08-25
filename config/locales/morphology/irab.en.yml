@@ -1,0 +1,72 @@
+en:
+  morphology:
+    irab:
+      prefix:
+        "A:EQ+": "equalizing hamza"
+        "A:INTG+": "interrogative hamza"
+        "Al+": "definite article"
+        "bi+": "preposition (bi)"
+        "f:CAUS+": "causal fa"
+        "f:CONJ+": "conjunctive fa"
+        "f:REM+": "resumptive fa"
+        "f:RSLT+": "resultant fa"
+        "f:SUP+": "supplemental fa"
+        "ha+": "vocative ha"
+        "ka+": "preposition (ka)"
+        "l:EMPH+": "emphatic lam"
+        "l:IMPV+": "imperative lam"
+        "l:P+": "preposition (lam)"
+        "l:PRP+": "purposive lam"
+        "sa+": "future sin"
+        "ta+": "vocative ta"
+        "w:CIRC+": "circumstantial waw"
+        "w:COM+": "comitative waw"
+        "w:CONJ+": "conjunctive waw"
+        "w:P+": "preposition (waw)"
+        "w:REM+": "resumptive waw"
+        "w:SUP+": "supplemental waw"
+        "ya+": "vocative ya"
+      suffix:
+        "VOC:m": "vocative mim"
+        "EMPH:n": "emphatic nun"
+        "PRON": "attached pronoun"
+        "l:P+": "preposition (lam)"
+      verb_aspect:
+        "PERF": "perfect verb"
+        "IMPF": "imperfect verb"
+        "IMPV": "imperative verb"
+      derived_noun:
+        "ACT_PCPL": "active participle"
+        "PASS_PCPL": "passive participle"
+        "VN": "verbal noun"
+      nominal_state:
+        "DEF": " definite"
+        "INDEF": " indefinite"
+      verb_voice:
+        "ACT": " active voice"
+        "PASS": " passive voice"
+      special_group:
+        "SP:<in~": " (from the sisters of inna)"
+        "SP:kaAd": " (from the sisters of kada)"
+        "SP:kaAn": " (from the sisters of inna)"
+      number:
+        "S": " singular"
+        "D": " dual"
+        "P": " plural"
+      gender:
+        "M": " masculine"
+        "F": " feminine"
+      lemma_intro: ", whose lemma is «"
+      root_intro: ", whose root is «"
+      verb_form_intro: ", whose form is «"
+      dep_intro: ". It is the "
+      dep_to: " of the "
+      def_infix: ""
+      elided_m: " (elided)."
+      elided_f: " (elided)."
+      case:
+        jussive_sukun: " — jussive, marked by the sukun as it is defective at the end."
+        subjunctive_fatha: " — subjunctive, marked by the visible fatha at the end."
+        nominative_damma: " — nominative, marked by the visible damma at the end."
+        accusative_fatha: " — accusative, marked by the visible fatha at the end."
+        genitive_kasra: " — genitive, marked by the visible kasra at the end."

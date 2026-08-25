@@ -398,6 +398,10 @@
     &:last-child {
       margin-bottom: 0;
     }
+
+    .qpc-hafs {
+      direction: inherit;
+    }
   }
 
   span {

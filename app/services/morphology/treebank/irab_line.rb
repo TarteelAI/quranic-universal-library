@@ -225,9 +225,7 @@ module Morphology
         if HIDDEN_TYPES.include?(head_tok_type)
           result << frag(elided_word(head_pos_key), color_class: 'black')
         else
-          result << frag(' ﴿', color_class: 'black', quran_font: true)
-          result << frag(head_text, color_class: 'green', quran_font: true)
-          result << frag('﴾', color_class: 'black', quran_font: true)
+          result << head_reference_fragment(head_text)
         end
 
         result
@@ -242,6 +240,17 @@ module Morphology
       def elided_word(head_pos_key)
         feminine = translate_pos(head_pos_key, locale: 'ar').to_s[-1] == 'ة'
         t(feminine ? 'elided_f' : 'elided_m', default: '')
+      end
+
+      def head_reference_fragment(head_text)
+        {
+          wrapper_class: 'qpc-hafs',
+          children: [
+            { text: ' ﴿', color_class: 'black' },
+            { text: head_text, color_class: 'green' },
+            { text: '﴾', color_class: 'black' }
+          ]
+        }
       end
 
       def case_explanation_fragments

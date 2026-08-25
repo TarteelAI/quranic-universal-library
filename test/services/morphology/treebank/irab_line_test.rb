@@ -189,8 +189,10 @@ class IrabLineTest < Minitest::Test
     frags = line.fragments
     dep_lead = frags.find { |f| f[:text] == '. وهو ' }
     assert dep_lead, "expected dependency clause lead '. وهو '"
-    head_ref = frags.find { |f| f[:text] == 'بِ' && f[:color_class] == 'green' }
-    assert head_ref, "expected green head text reference"
+    head_ref = frags.find { |f| f[:wrapper_class] == 'qpc-hafs' }
+    assert head_ref, "expected qpc-hafs head reference group"
+    green_child = head_ref[:children].find { |c| c[:text] == 'بِ' && c[:color_class] == 'green' }
+    assert green_child, "expected green head text child"
   end
 
   def test_dependency_clause_implicit_pronoun_head_masculine

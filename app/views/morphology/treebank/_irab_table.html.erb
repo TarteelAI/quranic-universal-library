@@ -29,13 +29,13 @@
               line = Morphology::Treebank::IrabLine.new(seg, head_token: head_tok, translator: irab_translator, locale: line_locale)
               frags = line.fragments
             %>
-            <span class="irab-segment-line <%= line_class %>" dir="<%= line_dir %>"><% frags.each do |frag| %><%
+            <span class="irab-segment-line <%= line_class %>" dir="<%= line_dir %>"><% frags.each do |frag| %><% if frag[:wrapper_class] %><span class="<%= frag[:wrapper_class] %>"><% frag[:children].each do |child| %><% if child[:color_class].to_s == 'black' %><span><%= child[:text] %></span><% else %><span class="<%= child[:color_class] %>"><%= child[:text] %></span><% end %><% end %></span><% else %><%
               classes = []
               classes << 'qpc-hafs' if frag[:quran_font]
               classes << frag[:color_class] unless frag[:color_class].to_s == 'black'
               link = frag[:link_type] && frag[:link_key].present?
               modal_url = link ? (frag[:link_type] == :root ? morphology_root_path(frag[:link_key]) : morphology_lemma_path(frag[:link_key])) : nil
-            %><% if link %><a class="text-blue-700 underline<%= ' qpc-hafs' if frag[:quran_font] %>" data-controller="ajax-modal" data-css-class="modal-lg" data-url="<%= modal_url %>" href="#_"><%= frag[:text] %></a><% elsif classes.any? %><span class="<%= classes.join(' ') %>"><%= frag[:text] %></span><% else %><%= frag[:text] %><% end %><% end %></span>
+            %><% if link %><a class="text-blue-700 underline<%= ' qpc-hafs' if frag[:quran_font] %>" data-controller="ajax-modal" data-css-class="modal-lg" data-url="<%= modal_url %>" href="#_"><%= frag[:text] %></a><% elsif classes.any? %><span class="<%= classes.join(' ') %>"><%= frag[:text] %></span><% else %><%= frag[:text] %><% end %><% end %><% end %></span>
           <% end %>
         </td>
       </tr>

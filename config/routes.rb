@@ -242,6 +242,7 @@ Rails.application.routes.draw do
       post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
       post 'cancel', to: 'runs#cancel', as: :cancel
       post 'import', to: 'runs#import_segments', as: :import
+      post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
       delete 'intermediates', to: 'runs#destroy_intermediates', as: :intermediates
       get 'artifact', to: 'runs#artifact', as: :artifact
       get 'audio', to: 'runs#audio', as: :audio

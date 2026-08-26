@@ -1098,39 +1098,6 @@ module ToolDocsHelper
     ]
   end
 
-  def ayah_boundaries_help
-    [
-      "Ayah Boundary Visualizer",
-      {
-        text: "This tool visualizes ayah start and end times as timeline bars, helping you debug and refine the ayah boundary data derived from raw segmentation. It overlays the original and corrected timings, silences and gaps so you can spot misaligned ayahs at a glance."
-      },
-      {
-        type: 'step',
-        title: 'Step 1: Load the boundary data',
-        text: "Either drop a JSON file of ayah boundary data, or enter a <code>Reciter ID</code> and pick a Surah to load the data directly. You can optionally provide an audio URL (or use the default) so the timings can be checked against the recitation."
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Load the audio',
-        text: "Drop an audio file (or load it from the URL) to enable playback. Once loaded, a waveform is generated so you can line up boundaries with the actual audio."
-      },
-      {
-        type: 'step',
-        title: 'Step 3: Inspect the timeline',
-        text: "The timeline shows each ayah as a bar: dashed bars are the original timing and solid bars are the corrected timing. Red marks are silences and yellow marks are gaps between ayahs. Use the zoom controls to zoom in for fine adjustments. Click any bar, silence or gap to see its details and play just that segment."
-      },
-      {
-        type: 'step',
-        title: 'Step 4: Review the comparison table',
-        text: "The detailed comparison table lists every ayah with its original and corrected start/end times, the deltas, duration and gap to the next ayah. Use the search box to jump to a specific ayah (e.g. <code>5</code> or <code>5-10</code>) and click the column headers to sort."
-      },
-      {
-        type: 'info',
-        text: "Keyboard shortcuts while audio is loaded: <code>/</code> to search, <code>Space</code> to pause, <code>Esc</code> to close, arrows to skip, and <code>+</code>/<code>-</code> to zoom."
-      }
-    ]
-  end
-
   def compare_audio_help
     [
       "Compare audio tool",

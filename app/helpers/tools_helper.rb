@@ -157,14 +157,6 @@ module ToolsHelper
         type: 'segments',
         icon: 'timestamp.svg',
         tags: [['Timestamp', 'timestamp']]
-      ),
-      ToolCard.new(
-        title: 'Ayah Boundary Visualizer',
-        description: 'This tool visualizes ayah start and end times as timeline bars, helping to debug and refine ayah boundary data derived from raw segmentation.',
-        url: '/ayah-boundaries',
-        type: 'segments',
-        icon: 'timeline.svg',
-        tags: [['Timestamp', 'timestamp']]
       )
     ]
   end

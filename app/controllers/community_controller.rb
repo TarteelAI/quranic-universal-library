@@ -17,10 +17,6 @@ class CommunityController < ApplicationController
     end
   end
 
-  def ayah_boundaries
-    render layout: false
-  end
-
   def compare_audio
     render layout: false
   end

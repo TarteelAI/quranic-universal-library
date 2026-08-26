@@ -43,8 +43,6 @@ ActiveAdmin.register DownloadableResource do
     if request.get?
       render partial: 'admin/confirm_refresh_downloadable_resource'
     else
-      # Restart sidekiq if it's not running
-      Utils::System.start_sidekiq
       notify = params[:notify_users] == '1'
       AsyncResourceActionJob.perform_later(resource, :refresh_export!, send_update_email: notify)
 
@@ -54,8 +52,6 @@ ActiveAdmin.register DownloadableResource do
 
   member_action :notify_users, method: 'put', if: -> { can? :notify_users, resource } do
     authorize! :notify_users, resource
-    # Restart sidekiq if it's not running
-    Utils::System.start_sidekiq
 
     resource.notify_users
     redirect_to [:cms, resource], notice: "System will send email to all users who has downloaded this resource."

@@ -11,7 +11,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "player", "popup", "canvas", "title", "text", "waveLabel", "form",
-    "keyField", "occurrenceField", "startInput", "endInput",
+    "numberField", "startInput", "endInput",
     "playButton", "popupDuration", "prevButton", "nextButton"
   ]
   static values = { audioUrl: String, ayahs: Array }
@@ -163,11 +163,9 @@ export default class extends Controller {
     const ayah = this.ayahsValue[this.activeIndex]
     if (!ayah) return
 
-    const suffix = ayah.occurrence > 0 ? ` (occurrence ${ayah.occurrence + 1})` : ""
-    this.titleTarget.textContent = `Ayah ${ayah.number}${suffix}`
+    this.titleTarget.textContent = `Ayah ${ayah.number}`
     this.textTarget.textContent = ayah.text || ""
-    this.keyFieldTarget.value = ayah.key
-    this.occurrenceFieldTarget.value = ayah.occurrence
+    this.numberFieldTarget.value = ayah.number
     this.startInputTarget.value = ayah.start == null ? "" : Number(ayah.start).toFixed(3)
     this.endInputTarget.value = ayah.end == null ? "" : Number(ayah.end).toFixed(3)
 

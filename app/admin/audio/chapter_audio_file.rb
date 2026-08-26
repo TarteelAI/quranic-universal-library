@@ -135,10 +135,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
   end
 
   member_action :refresh_meta, method: 'put' do
-    Audio::UpdateMetaDataJob.perform_later(resource.audio_recitation, chapter_id: resource.chapter_id)
-
-    # Restart sidekiq if it's not running
-    Utils::System.start_sidekiq
+    Audio::UpdateMetaDataJob.perform_later(resource.audio_recitation, chapter_id: resource.chapter_id, force: true)
 
     redirect_to [:cms, resource], notice: 'Meta data will be refreshed in a few sec.'
   end

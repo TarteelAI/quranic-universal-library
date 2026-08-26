@@ -111,7 +111,6 @@ ActiveAdmin.register ResourceContent do
 
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
-    Utils::System.start_sidekiq
 
     if params[:approved]
       if resource.tafsir?
@@ -157,7 +156,6 @@ ActiveAdmin.register ResourceContent do
 
   member_action :import_draft_content, method: 'put' do
     authorize! :manage, resource
-    Utils::System.start_sidekiq
 
     if params[:approved]
       if resource.tafsir?

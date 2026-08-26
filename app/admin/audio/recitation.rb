@@ -79,12 +79,10 @@ ActiveAdmin.register Recitation do
                Audio::GenerateAudioFilesJob.perform_later(resource)
                'Audio files will be generated in a few sec.'
              else
-               Audio::UpdateMetaDataJob.perform_later(resource)
+               Audio::UpdateMetaDataJob.perform_later(resource, force: true)
                'Meta data will be refreshed in a few sec.'
              end
 
-    # Restart sidekiq if it's not running
-    Utils::System.start_sidekiq
     redirect_to [:cms, resource], notice: notice
   end
 
@@ -279,9 +277,6 @@ ActiveAdmin.register Recitation do
       format: format,
       manifest_version: manifest_version
     )
-
-    # Restart sidekiq if it's not running
-    Utils::System.start_sidekiq
 
     redirect_back(fallback_location: '/cms', notice: "Recitation segments export job enqueued (format: #{format}). You will receive an email when finished.")
   end

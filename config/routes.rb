@@ -245,6 +245,7 @@ Rails.application.routes.draw do
       delete 'intermediates', to: 'runs#destroy_intermediates', as: :intermediates
       get 'artifact', to: 'runs#artifact', as: :artifact
       get 'audio', to: 'runs#audio', as: :audio
+      get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
     end
   end
 

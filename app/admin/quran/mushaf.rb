@@ -136,8 +136,6 @@ ActiveAdmin.register Mushaf do
       user_id: current_user.id,
       mushaf_ids: mushaf_ids
     )
-    # Restart sidekiq if it's not running
-    Utils::System.start_sidekiq
 
     redirect_back(fallback_location: '/cms', notice: 'Mushaf layouts db will be exported and shared with you on your email shortly')
   end

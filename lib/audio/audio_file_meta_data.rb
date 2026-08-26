@@ -49,7 +49,7 @@ module Audio
     end
 
     def update_audio_file_meta_data(audio_file)
-      meta = fetch_audio_file_metadata(audio_file.audio_url)
+      meta = fetch_audio_file_metadata("#{audio_file.audio_url}?#{Time.now.to_i}")
       return unless meta
 
       duration = (meta[:duration_ms].to_f / 1000)

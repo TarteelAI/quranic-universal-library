@@ -113,12 +113,10 @@ ActiveAdmin.register Audio::Recitation do
                Audio::GenerateAudioFilesJob.perform_later(resource)
                'Audio files will be generated in a few sec.'
              else
-               Audio::UpdateMetaDataJob.perform_later(resource)
+               Audio::UpdateMetaDataJob.perform_later(resource, force: true)
                'Meta data will be refreshed in a few sec.'
              end
 
-    # Restart sidekiq if it's not running
-    Utils::System.start_sidekiq
     redirect_to [:cms, resource], notice: notice
   end
 
@@ -152,9 +150,6 @@ ActiveAdmin.register Audio::Recitation do
         ayah_recitation_id: ayah_recitation_id,
         create_ayah_recitation: ayah_recitation_id.blank? && params[:create_ayah_recitation] == '1'
       )
-
-      # Restart sidekiq if it's not running
-      Utils::System.start_sidekiq
 
       return redirect_to [:cms, resource], alert: "Ayah by ayah gapped recitation will be generated shortly."
     end

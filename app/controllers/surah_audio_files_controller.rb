@@ -104,7 +104,7 @@ class SurahAudioFilesController < CommunityController
           timestamp_from: segment.timestamp_from,
           timestamp_to: segment.timestamp_to,
           segments: segment.segments,
-          words: segment.verse.words.map(&:text_qpc_hafs)
+          words: segment.verse.words.map(&:text_digital_khatt)
         }
       }
     }

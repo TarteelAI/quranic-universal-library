@@ -923,7 +923,7 @@ export default {
 
 <style scoped>
 .timeline{
-  font-family: qpc-hafs;
+  font-family: digitalkhatt-v2;
   font-size: 15px;
 }
 .tl-word {

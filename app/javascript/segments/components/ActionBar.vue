@@ -206,6 +206,22 @@
           <div class="flex items-center">
             <input
                 type="checkbox"
+                :checked="isLooingAyah"
+                @change="loopAyah"
+                id="repeat-ayah"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label for="repeat-ayah"
+                   class="ml-2 text-sm text-gray-700"
+                   data-controller="tooltip"
+                   title="If checked, player will keep repeating the current ayah instead of moving to the next one.">
+              Repeat ayah
+            </label>
+          </div>
+
+          <div class="flex items-center">
+            <input
+                type="checkbox"
                 :checked="editMode"
                 @change="changeEditMode"
                 id="edit-mode"

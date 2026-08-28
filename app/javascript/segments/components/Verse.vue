@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-wrap">
     <div class="w-full" v-if="segmentsLoaded">
-      <div class="qpc-hafs flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words">
+      <div class="digitalkhatt-v2 flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg mb-6 sticky top-0 z-50 shadow-sm words">
         <span
           :id="index + 1"
           :class="[this.getWordCssClass(index)]"
@@ -355,7 +355,7 @@
                   </small>
                 </td>
 
-                <td class="px-4  py-2 text-lg qpc-hafs">
+                <td class="px-4  py-2 text-lg digitalkhatt-v2">
                   {{ segmentText(segment) }}
                   <small class="block text-[10px] text-gray-400 mt-0.5" v-if="segmentDuration(segment)">
                     {{ segmentDuration(segment) }}

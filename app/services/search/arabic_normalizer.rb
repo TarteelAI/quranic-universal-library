@@ -21,11 +21,11 @@ module Search
     # same as the Arabic ones used by the mushaf, so a query typed on any of
     # them has to reach the Arabic spelling.
     TRANSLATIONS = {
-      "أ" => "ا", "إ" => "ا", "آ" => "ا", "ٱ" => "ا",
-      "ى" => "ي", "ة" => "ه", "ؤ" => "و", "ئ" => "ي",
-      "ک" => "ك",
-      "ی" => "ي", "ے" => "ي", "ې" => "ي", "ۍ" => "ي",
-      "ہ" => "ه", "ھ" => "ه", "ۃ" => "ه", "ۀ" => "ه", "ۂ" => "ه"
+      'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا',
+      'ى' => 'ي', 'ة' => 'ه', 'ؤ' => 'و', 'ئ' => 'ي',
+      'ک' => 'ك',
+      'ی' => 'ي', 'ے' => 'ي', 'ې' => 'ي', 'ۍ' => 'ي',
+      'ہ' => 'ه', 'ھ' => 'ه', 'ۃ' => 'ه', 'ۀ' => 'ه', 'ۂ' => 'ه'
     }.freeze
 
     # Derived from the map so the two sides cannot drift apart. Postgres

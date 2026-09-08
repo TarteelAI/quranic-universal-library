@@ -16,8 +16,22 @@ module Search
     MARKS_PATTERN = /[#{SQL_MARKS_CLASS}]/.freeze
     SPACE_PATTERN = /[#{SPACE_CLASS}]/.freeze
 
-    TRANSLATE_FROM = "أإآٱىةؤئ".freeze
-    TRANSLATE_TO   = "اااايهوي".freeze
+    # Letters that should be folded together before matching. Urdu, Farsi and
+    # Pashto keyboards produce their own code points for letters that look the
+    # same as the Arabic ones used by the mushaf, so a query typed on any of
+    # them has to reach the Arabic spelling.
+    TRANSLATIONS = {
+      "أ" => "ا", "إ" => "ا", "آ" => "ا", "ٱ" => "ا",
+      "ى" => "ي", "ة" => "ه", "ؤ" => "و", "ئ" => "ي",
+      "ک" => "ك",
+      "ی" => "ي", "ے" => "ي", "ې" => "ي", "ۍ" => "ي",
+      "ہ" => "ه", "ھ" => "ه", "ۃ" => "ه", "ۀ" => "ه", "ۂ" => "ه"
+    }.freeze
+
+    # Derived from the map so the two sides cannot drift apart. Postgres
+    # translate() pairs them by position, and so does translate_char.
+    TRANSLATE_FROM = TRANSLATIONS.keys.join.freeze
+    TRANSLATE_TO   = TRANSLATIONS.values.join.freeze
 
     module_function
 
@@ -63,8 +77,7 @@ module Search
     end
 
     def translate_char(char)
-      index = TRANSLATE_FROM.index(char)
-      index ? TRANSLATE_TO[index] : char
+      TRANSLATIONS.fetch(char, char)
     end
   end
 end

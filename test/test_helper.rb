@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require 'ostruct'
 require 'active_support/inflector'
+require 'active_support/core_ext/object/blank'
 
 module ResourceSearchTestSupport
   FakeChapterRecord = Struct.new(:chapter_number, :name_simple, :name_complex, keyword_init: true)

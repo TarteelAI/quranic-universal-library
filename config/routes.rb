@@ -59,6 +59,10 @@ Rails.application.routes.draw do
   end
 
   get 'tools', to: 'community#tools', as: :tools
+  get 'tools/image_export', to: 'image_exports#show', as: :image_export_tool
+  get 'tools/image_export/download', to: 'image_exports#download', as: :download_image_export
+  get 'tools/image_export/verse_words', to: 'image_exports#verse_words', as: :image_export_verse_words
+  post 'tools/image_export/batch', to: 'image_exports#batch_export', as: :batch_image_export
   get :quran_scripts_comparison, to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
   get 'compare-audio', to: 'community#compare_audio', as: :compare_audio
   get 'docs', to: 'community#docs_index', as: :docs_index

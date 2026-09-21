@@ -38,6 +38,7 @@ ActiveAdmin.register Translation do
     column :verse_id do |resource|
       link_to resource.verse_key, cms_verse_path(resource.verse_id)
     end
+    column :verse_number
     column :text, sortable: :text do |resource|
       resource.text.first(100)
     end
@@ -60,7 +61,10 @@ ActiveAdmin.register Translation do
       row :priority
       row :resource_name
       row :page_number
-      row :rub_el_hizb
+      row :juz_number
+      row :hizb_number
+      row :rub_el_hizb_number
+      row :verse_number
       row :verse do |resource|
         div do
           link_to resource.verse.verse_key, cms_verse_path(resource.verse)

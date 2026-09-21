@@ -1,0 +1,55 @@
+<div id="title">
+  Import draft tafsir from sqlite db
+</div>
+
+<div id="body">
+  <%= form_tag import_sqlite_db_cms_draft_tafsirs_path, multipart: true, method: :post, class: 'p-6' do %>
+    <div class="mb-4">
+      <label class="block font-semibold mb-1" for="resource_content_id">
+        Resource content id
+      </label>
+
+      <%= number_field_tag :resource_content_id, params[:resource_content_id],
+                           required: true,
+                           min: 1,
+                           class: 'w-full border border-gray-300 rounded px-3 py-2',
+                           placeholder: 'e.g 93' %>
+
+      <p class="text-sm text-gray-500 mt-1">
+        Draft tafsirs will be imported for this resource, the id saved in the db file is ignored.
+      </p>
+    </div>
+
+    <div class="mb-4">
+      <label class="block font-semibold mb-1" for="db_file">
+        Sqlite db file
+      </label>
+
+      <%= file_field_tag :db_file,
+                         required: true,
+                         accept: '.db,.sqlite,.sqlite3',
+                         class: 'w-full border border-gray-300 rounded px-3 py-2' %>
+
+      <p class="text-sm text-gray-500 mt-1">
+        Exported with the "Export" button of a draft tafsir in the sidebar.
+      </p>
+    </div>
+
+    <div class="mb-4 flex items-start gap-2">
+      <%= check_box_tag :remove_existing, '1', false, class: 'mt-1' %>
+
+      <label for="remove_existing">
+        Remove existing draft tafsirs of this resource before importing
+
+        <span class="block text-sm text-gray-500">
+          Use this when the ayah grouping changed, otherwise old drafts are updated in place.
+        </span>
+      </label>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <%= submit_tag 'Import', class: 'btn btn-primary', data: { disable_with: 'Importing...' } %>
+    </div>
+  <% end %>
+</div>

@@ -1384,7 +1384,8 @@ const store = createStore({
       }
 
       if (isLooingWord) {
-        const wordTiming = verseSegment.segments[currentWord];
+        const wordTiming = verseSegment?.segments?.[currentWord];
+        if (!wordTiming) return;
 
         if (time > wordTiming[2]) {
           player && (player.currentTime = wordTiming[1] / 1000);

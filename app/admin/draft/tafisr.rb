@@ -43,6 +43,65 @@ ActiveAdmin.register Draft::Tafsir do
     end
   end
 
+  action_item :import_sqlite_db, only: :index do
+    if can?(:manage, :draft_content)
+      link_to 'Import from sqlite db', import_sqlite_db_form_cms_draft_tafsirs_path,
+              class: 'btn btn-primary',
+              data: { controller: 'ajax-modal', url: import_sqlite_db_form_cms_draft_tafsirs_path }
+    end
+  end
+
+  collection_action :import_sqlite_db_form, method: 'get' do
+    authorize! :manage, :draft_content
+
+    render partial: 'admin/import_draft_tafsir'
+  end
+
+  collection_action :import_sqlite_db, method: 'post' do
+    authorize! :manage, :draft_content
+
+    resource_content = ResourceContent.find_by(id: params[:resource_content_id])
+    db_file = params[:db_file]
+
+    if resource_content.blank?
+      return redirect_back(fallback_location: '/cms/draft_tafsirs',
+                           alert: "Resource content #{params[:resource_content_id]} not found.")
+    end
+
+    if db_file.blank?
+      return redirect_back(fallback_location: '/cms/draft_tafsirs',
+                           alert: 'Please select a sqlite db file to import.')
+    end
+
+    db_path = Draft::TafsirSqliteImporter.stage_upload(db_file)
+
+    if !Draft::TafsirSqliteImporter.sqlite_file?(db_path)
+      FileUtils.rm_f(db_path)
+
+      return redirect_back(fallback_location: '/cms/draft_tafsirs',
+                           alert: "#{db_file.original_filename} is not a sqlite db file.")
+    end
+
+    DraftContent::ImportDraftTafsirDbJob.perform_later(
+      resource_content.id,
+      db_path,
+      user_id: current_user.id,
+      remove_existing: params[:remove_existing] == '1'
+    )
+
+    redirect_to "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource_content.id}",
+                notice: "Draft tafsir for #{resource_content.name} is being imported, you'll receive an email when it's done."
+  end
+
+  collection_action :export_sqlite_db, method: 'get' do
+    authorize! :manage, :draft_content
+
+    resource_content = ResourceContent.find(params[:resource_content_id])
+    file_path = Draft::TafsirSqliteExporter.new(resource_content).export
+
+    send_file file_path, filename: File.basename(file_path), type: 'application/x-sqlite3'
+  end
+
   action_item :previous, only: :show do
     if item = resource.previous_ayah_tafsir
       link_to("Previous(#{item.start_verse.verse_key})", "/cms/draft_tafsirs/#{item.id}") if item
@@ -248,6 +307,7 @@ ActiveAdmin.register Draft::Tafsir do
             issue_count = AdminTodo.where(resource_content_id: resource_content.id).count
 
             if can?(:manage, :draft_content)
+              span(link_to 'Export', export_sqlite_db_cms_draft_tafsirs_path(resource_content_id: resource_content.id), class: 'btn btn-secondary btn-sm')
               span(link_to 'Sync', import_draft_cms_resource_content_path(resource_content), method: 'put', class: 'btn btn-success btn-sm', data: { confirm: 'Are you sure to re-sync this tafsir from the source?' })
 
               if issue_count.positive?

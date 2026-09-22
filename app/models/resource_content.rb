@@ -549,22 +549,48 @@ class ResourceContent < QuranApiRecord
   end
 
   def compare_draft_tafsir_ayah_grouping
-    tafsir_groupings = Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
-    draft_tafsir_groupings = Draft::Tafsir.order('verse_id ASC').where(resource_content_id: id).pluck(:verse_key, :group_verse_key_from, :group_verse_key_to, :group_verses_count)
-    all_ayahs = Verse.order('verse_index ASc').pluck(:id, :verse_key)
+    all_ayahs = Verse.order('verse_index ASC').pluck(:id, :verse_key)
+    verse_key_by_id = all_ayahs.to_h
 
     ayah_groupings = {}
-    all_ayahs.each do |ayah|
-      ayah_groupings[ayah[1]] = { id: ayah[0], current: nil, draft: nil }
+    all_ayahs.each do |ayah_id, verse_key|
+      ayah_groupings[verse_key] = { id: ayah_id, current: nil, draft: nil }
     end
 
-    tafsir_groupings.each do |verse_key, group_from, group_to, group_count|
-      ayah_groupings[verse_key][:current] = [group_from, group_to, group_count]
+    # Draft tafsirs keep a single row per group while the tafsir table often has
+    # a row per ayah, so both sides are expanded over their verse range before
+    # they are compared. Longest group at a given start wins, and a later row
+    # never overwrites an ayah an earlier group already claimed.
+    expand_groups = lambda do |records, key|
+      records.each do |start_verse_id, end_verse_id, verse_id, group_from, group_to, group_count|
+        from_id = start_verse_id || verse_id
+        to_id = end_verse_id || verse_id
+        next if from_id.nil? || to_id.nil?
+
+        (from_id..to_id).each do |ayah_id|
+          verse_key = verse_key_by_id[ayah_id]
+          next if verse_key.nil?
+
+          entry = ayah_groupings[verse_key]
+          next if entry[key].present?
+
+          entry[key] = [group_from, group_to, group_count]
+        end
+      end
     end
 
-    draft_tafsir_groupings.each do |verse_key, group_from, group_to, group_count|
-      ayah_groupings[verse_key][:draft] = [group_from, group_to, group_count]
-    end
+    grouping_columns = %i[start_verse_id end_verse_id verse_id group_verse_key_from group_verse_key_to group_verses_count]
+    grouping_order = 'start_verse_id ASC, end_verse_id DESC, verse_id ASC'
+
+    expand_groups.call(
+      Tafsir.where(resource_content_id: id).order(grouping_order).pluck(*grouping_columns),
+      :current
+    )
+
+    expand_groups.call(
+      Draft::Tafsir.where(resource_content_id: id).order(grouping_order).pluck(*grouping_columns),
+      :draft
+    )
 
     ayah_groupings
   end

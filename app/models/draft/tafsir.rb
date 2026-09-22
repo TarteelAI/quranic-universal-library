@@ -53,6 +53,12 @@ class Draft::Tafsir < ApplicationRecord
   scope :verse_key_start, ->(ayah) { where("start_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
   scope :verse_key_end, ->(ayah) { where("end_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
 
+  def group_verses
+    return Verse.where(id: verse_id) if start_verse_id.blank? || end_verse_id.blank?
+
+    Verse.where('id >= ? AND id <= ?', start_verse_id, end_verse_id).order('verse_index ASC')
+  end
+
   def source_link
     if resource_content.sourced_from_tafsir_app?
       "https://tafsir.app/#{resource_content.tafsir_app_key}/#{verse.verse_key.sub(':', '/')}"

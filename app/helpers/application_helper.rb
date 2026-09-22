@@ -63,7 +63,7 @@ module ApplicationHelper
       "data-#{key}=#{value}"
     end.join(' ')
 
-    "<div class='d-none' data-controller='page-title' data-title='#{title}' #{options}></div>".html_safe
+    "<div class='hidden' data-controller='page-title' data-title='#{title}' #{options}></div>".html_safe
   end
 
   def has_filters?(*filters)

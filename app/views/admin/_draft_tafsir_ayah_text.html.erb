@@ -1,0 +1,43 @@
+<%
+  language_name = @resource.language_name
+  current_text = @current_tafsir&.text
+  draft_text = @draft_tafsir&.draft_text
+%>
+
+<div class="grid grid-cols-2 gap-4 p-4">
+  <div>
+    <h3 class="bg-blue-500 text-white px-2 py-1 text-sm m-0">
+      Current
+      <% if @current_tafsir %>
+        (<%= @current_tafsir.group_verse_key_from %> - <%= @current_tafsir.group_verse_key_to %>, <%= @current_tafsir.group_verses_count %> ayah)
+        <%= link_to 'open', "/cms/tafsirs/#{@current_tafsir.id}", target: '_blank', class: 'underline ms-1' %>
+      <% end %>
+    </h3>
+
+    <div class="tafsir p-2 border border-gray-200 <%= language_name %>">
+      <% if current_text.present? %>
+        <%= safe_html current_text %>
+      <% else %>
+        <em class="text-gray-500">No current tafsir for this ayah.</em>
+      <% end %>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="bg-green-500 text-white px-2 py-1 text-sm m-0">
+      Draft
+      <% if @draft_tafsir %>
+        (<%= @draft_tafsir.group_verse_key_from %> - <%= @draft_tafsir.group_verse_key_to %>, <%= @draft_tafsir.group_verses_count %> ayah)
+        <%= link_to 'open', "/cms/draft_tafsirs/#{@draft_tafsir.id}", target: '_blank', class: 'underline ms-1' %>
+      <% end %>
+    </h3>
+
+    <div class="tafsir p-2 border border-gray-200 <%= language_name %>">
+      <% if draft_text.present? %>
+        <%= safe_html draft_text %>
+      <% else %>
+        <em class="text-gray-500">No draft tafsir for this ayah.</em>
+      <% end %>
+    </div>
+  </div>
+</div>

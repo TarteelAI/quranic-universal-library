@@ -46,7 +46,7 @@
           <div data-segment-issue-tabs-target="pane"
                data-category="<%= category %>"
                class="<%= 'hidden' unless index.zero? %>">
-            <ol class="list-group list-group-numbered">
+            <ol class="list-group list-decimal list-inside">
               <% issues.first(per_tab_limit).each do |issue| %>
                 <li class="list-group-item flex mb-2 py-2 border-b border-gray-200">
                   <div class="flex justify-between items-start w-full">

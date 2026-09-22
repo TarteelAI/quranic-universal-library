@@ -223,10 +223,16 @@ ActiveAdmin.register Draft::Tafsir do
 
       row :verse do
         div do
-          link_to(resource.verse.verse_key, [:cms, resource.verse])
+          resource.group_verses.each do |verse|
+            div class: 'mb-2' do
+              div do
+                link_to verse.verse_key, [:cms, verse]
+              end
 
-          div class: 'arabic qpc-hafs' do
-            resource.verse.text_qpc_hafs
+              div class: 'arabic qpc-hafs' do
+                verse.text_qpc_hafs
+              end
+            end
           end
         end
       end

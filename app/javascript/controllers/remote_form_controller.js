@@ -53,7 +53,7 @@ export default class extends Controller {
         $(form)
           .find("#form-error-wrapper div")
           .addClass("p-4 mb-4 bg-red-50 border border-red-200 text-red-800 rounded")
-          .removeClass("d-none");
+          .removeClass("hidden");
       }
 
       return true;
@@ -64,7 +64,7 @@ export default class extends Controller {
         .find("#form-error-wrapper div")
         .html("Sorry, something went wrong. Error: Interval server error.")
         .addClass("alert alert-danger")
-        .removeClass("d-none");
+        .removeClass("hidden");
     });
   }
 

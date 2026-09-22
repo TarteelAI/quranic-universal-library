@@ -109,6 +109,29 @@ ActiveAdmin.register ResourceContent do
     render partial: 'admin/compare_draft_tafsir_ayah_grouping'
   end
 
+  member_action :draft_tafsir_ayah_text, method: 'get' do
+    @resource = resource
+    @verse_key = params[:verse_key]
+    verse = Verse.find_by(verse_key: @verse_key)
+
+    # Look up the row whose group covers this ayah, not just the one keyed to
+    # it, since a grouped tafsir only stores a row for the group's first ayah.
+    covering = lambda do |scope|
+      return nil if verse.nil?
+
+      scope
+        .where(resource_content_id: resource.id)
+        .where('start_verse_id <= :id AND end_verse_id >= :id', id: verse.id)
+        .order('start_verse_id ASC, end_verse_id DESC')
+        .first
+    end
+
+    @current_tafsir = covering.call(Tafsir) || Tafsir.where(resource_content_id: resource.id, verse_key: @verse_key).first
+    @draft_tafsir = covering.call(Draft::Tafsir) || Draft::Tafsir.where(resource_content_id: resource.id, verse_key: @verse_key).first
+
+    render partial: 'admin/draft_tafsir_ayah_text', layout: false
+  end
+
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
 

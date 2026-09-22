@@ -13,7 +13,14 @@
 
   <%  split.with_right do %>
     <h2 class="bg-gray-200 p2 tm-mb-4">
-      Current Text (<%= resource.group_verse_key_from %> - <%= resource.group_verse_key_to %>)
+      <%# The current tafsir carries its own grouping, which is often not the %>
+      <%# draft's - labelling it with the draft's range hid regrouping. %>
+      Current Text
+      <% if tafsir %>
+        (<%= tafsir.group_verse_key_from %> - <%= tafsir.group_verse_key_to %>)
+      <% else %>
+        (not in current)
+      <% end %>
     </h2>
 
     <div class="tafsir p-2 <%= language_name %>">

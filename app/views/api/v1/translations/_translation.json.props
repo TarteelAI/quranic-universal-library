@@ -1,5 +1,23 @@
 translation = local_assigns[:translation]
 resource_content = local_assigns[:resource_content] || translation.get_resource_content
+raw_text = translation.text.to_s
+fragment = Nokogiri::HTML::DocumentFragment.parse(raw_text)
+footnotes = []
+
+fragment.css('a[foot_note], sup[foot_note]').each do |node|
+  footnote_id = node['foot_note'].to_s.strip
+  marker = node.text.to_s.gsub(/\s+/, '')
+  next if footnote_id.blank?
+
+  footnotes << {
+    id: footnote_id.to_i,
+    marker: marker
+  }
+end
+
+fragment.css('a').remove
+fragment.css('sup').remove
+clean_text = fragment.text.to_s.gsub(/\s+/, ' ').strip
 
 json.id translation.id
 json.verse_key translation.verse_key
@@ -16,5 +34,6 @@ json.translated_name do
   json.locale translated_name_obj[:locale]
 end
 
-json.text translation.text.to_s
+json.text clean_text
+json.footnotes footnotes
 

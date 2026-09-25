@@ -1,5 +1,4 @@
 tafsir = local_assigns[:tafsir]
-# Get resource_content from local_assigns, presenter, or tafsir association
 resource_content = local_assigns[:resource_content] || tafsir.get_resource_content
 
 verse_keys = []
@@ -25,4 +24,15 @@ json.translated_name do
   json.locale translated_name_obj[:locale]
 end
 
-json.text tafsir.text.to_s
+full_text = tafsir.text.to_s
+offset = params[:text_offset].to_i
+offset = 0 if offset.negative?
+max_chars = params[:max_chars].to_i
+max_chars = 12000 if max_chars <= 0
+text_chunk = full_text.slice(offset, max_chars).to_s
+
+json.text text_chunk
+json.text_offset offset
+json.text_chunk_size max_chars
+json.text_total_length full_text.length
+json.text_has_more((offset + text_chunk.length) < full_text.length)

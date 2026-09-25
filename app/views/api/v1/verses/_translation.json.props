@@ -1,2 +1,23 @@
- json.extract! translation, :id, :text
- json.name translation.resource_name
+raw_text = translation.text.to_s
+fragment = Nokogiri::HTML::DocumentFragment.parse(raw_text)
+footnotes = []
+
+fragment.css('a[foot_note], sup[foot_note]').each do |node|
+  footnote_id = node['foot_note'].to_s.strip
+  marker = node.text.to_s.gsub(/\s+/, '')
+  next if footnote_id.blank?
+
+  footnotes << {
+    id: footnote_id.to_i,
+    marker: marker
+  }
+end
+
+fragment.css('a').remove
+fragment.css('sup').remove
+clean_text = fragment.text.to_s.gsub(/\s+/, ' ').strip
+
+json.id translation.id
+json.text clean_text
+json.name translation.resource_name
+json.footnotes footnotes

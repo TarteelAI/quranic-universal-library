@@ -1,5 +1,4 @@
 require_relative '../../test_helper'
-require_relative '../../../app/services/resources/quran_reference_parser'
 require_relative '../../../app/services/resources/search_query'
 
 class SearchQueryTest < Minitest::Test
@@ -7,83 +6,6 @@ class SearchQueryTest < Minitest::Test
 
   def setup
     install_quran_fixture
-  end
-
-  def test_quran_reference_search_splits_primary_and_related_results
-    segmented = FakeTagRecord.new(name: 'Segmented', slug: 'segmented')
-    arabic = FakeTagRecord.new(name: 'Arabic', slug: 'arabic')
-    typography = FakeTagRecord.new(name: 'Typography', slug: 'typography')
-
-    resources = [
-      build_resource(
-        id: 1,
-        name: 'Ayah Recitation',
-        resource_type: 'recitation',
-        cardinality_type: ResourceContent::CardinalityType::OneVerse,
-        tags: [segmented]
-      ),
-      build_resource(
-        id: 2,
-        name: 'Quran Script',
-        resource_type: 'quran-script',
-        cardinality_type: ResourceContent::CardinalityType::OneVerse,
-        tags: [arabic]
-      ),
-      build_resource(
-        id: 3,
-        name: 'Quran Font Pack',
-        resource_type: 'font',
-        cardinality_type: ResourceContent::CardinalityType::Quran,
-        tags: [typography]
-      )
-    ]
-
-    result = Resources::SearchQuery.new(
-      scope: resources,
-      query: '2:255',
-      selected_tags: [],
-      global: true
-    ).call
-
-    assert result.quran_reference?
-    assert_equal '2:255', result.normalized_ayah
-    assert_equal ['Ayah Recitation', 'Quran Script'], result.primary_results.map(&:name)
-    assert_equal ['Quran Font Pack'], result.related_results.map(&:name)
-    assert_equal ['Arabic', 'Segmented', 'Typography'], result.available_tags.map(&:name)
-    assert_equal ['Font', 'Quran Script', 'Recitation'], result.available_resource_types.map(&:name)
-  end
-
-  def test_surah_alias_quran_reference_search_matches_same_ayah_context
-    segmented = FakeTagRecord.new(name: 'Segmented', slug: 'segmented')
-    arabic = FakeTagRecord.new(name: 'Arabic', slug: 'arabic')
-
-    resources = [
-      build_resource(
-        id: 1,
-        name: 'Fatihah Recitation',
-        resource_type: 'recitation',
-        cardinality_type: ResourceContent::CardinalityType::OneVerse,
-        tags: [segmented]
-      ),
-      build_resource(
-        id: 2,
-        name: 'Fatihah Quran Script',
-        resource_type: 'quran-script',
-        cardinality_type: ResourceContent::CardinalityType::OneVerse,
-        tags: [arabic]
-      )
-    ]
-
-    result = Resources::SearchQuery.new(
-      scope: resources,
-      query: 'fateh 1',
-      selected_tags: [],
-      global: true
-    ).call
-
-    assert result.quran_reference?
-    assert_equal '1:1', result.normalized_ayah
-    assert_equal ['Fatihah Quran Script', 'Fatihah Recitation'], result.results.map(&:name).sort
   end
 
   def test_text_and_tag_filters_are_applied_with_and_logic

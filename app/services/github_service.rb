@@ -12,7 +12,7 @@ class GithubService
           response = make_request("/repos/#{REPO_OWNER}/#{REPO_NAME}/contributors?per_page=#{limit}")
           
           if response.is_a?(Net::HTTPSuccess)
-            contributors = Oj.load(response.body)
+            contributors = Oj.safe_load(response.body)
             contributors
               .reject { |contributor| contributor['type'] == 'Bot' } # Filter out bot users
               .map do |contributor|

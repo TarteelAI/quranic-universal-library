@@ -6,7 +6,7 @@ Always reference these instructions first and fallback to search or bash command
 
 ### Prerequisites and Environment Setup
 - **CRITICAL**: Ruby version 3.3.3 is required. Ruby 3.2.3 will cause Gemfile compatibility issues.
-- **Node.js**: Version 18+ (pinned by `.node-version`)
+- **Node.js**: Version 24.19.0 (pinned by `.node-version`)
 - **PostgreSQL**: Version 14.3+ required (16.9 tested and working)
 - **Redis**: Version 7.0.0+ required for caching and background jobs
 - **RVM or rbenv**: Required for Ruby version management
@@ -183,7 +183,7 @@ After making changes, ALWAYS test these scenarios:
 
 ### Configuration Files
 - **Ruby version**: `.ruby-version` (3.3.3)
-- **Node version**: `.node-version` (20)
+- **Node version**: `.node-version` (24.19.0)
 - **Database config**: `config/database.yml`
 - **Routes**: `config/routes.rb`
 - **Environment variables**: `.env.sample` (copy to `.env`)

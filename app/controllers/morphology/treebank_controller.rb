@@ -1,5 +1,6 @@
 module Morphology
   class TreebankController < CommunityController
+    before_action :normalize_page_param, only: %i[index]
     def index
       scope = Verse.all
 

@@ -13,11 +13,23 @@ import {
 
 export default class AjaxModalController extends Controller {
   connect() {
-    $(this.element).on("click", e => {
-      if ($(e.target).hasClass("disable-loading")) return;
+    // Bound natively rather than through jQuery: this runs on every page and
+    // `$` isn't guaranteed to be jQuery by the time the controller connects.
+    this.boundClick = this.handleClick.bind(this);
+    this.element.addEventListener("click", this.boundClick);
+  }
 
-      this.loadModal(e);
-    });
+  disconnect() {
+    if (this.boundClick) {
+      this.element.removeEventListener("click", this.boundClick);
+      this.boundClick = null;
+    }
+  }
+
+  handleClick(e) {
+    if (e.target instanceof Element && e.target.classList.contains("disable-loading")) return;
+
+    this.loadModal(e);
   }
 
   loadModal(e) {

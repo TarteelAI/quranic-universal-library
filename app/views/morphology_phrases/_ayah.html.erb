@@ -4,7 +4,7 @@
   matcher = options[:matcher]
   phrase_ayah_id = options[:phrase_ayah_id]
   persisted = phrase_ayah_id
-  skipped_words = options[:skipped_words] || []
+  skipped_words = options[:skipped_words].is_a?(Array) ? options[:skipped_words] : []
 %>
 
 <div

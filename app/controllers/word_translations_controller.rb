@@ -1,4 +1,5 @@
 class WordTranslationsController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :authorize_access!, only: [:new, :edit, :update, :create]
   before_action :require_resource, except: [:select_resource]
 

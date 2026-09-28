@@ -1,4 +1,5 @@
 class Segments::DashboardController < ApplicationController
+  before_action :normalize_page_param, only: %i[failures word_failures review_ayahs]
   before_action :init_presenter
   before_action :authenticate_user!
   before_action :authorize_access!

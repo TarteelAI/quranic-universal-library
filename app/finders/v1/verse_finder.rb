@@ -33,10 +33,7 @@ module V1
     def by_chapter(chapter, ayah_range = nil)
       from, to = Utils::Quran.get_surah_ayah_range(chapter.to_i)
 
-      if ayah_range
-        from = [from, Utils::Quran.get_ayah_id(chapter.to_i, ayah_range[0])].max
-        to = [to, Utils::Quran.get_ayah_id(chapter.to_i, ayah_range[1])].min
-      end
+      from, to = narrow_to_ayah_range(chapter.to_i, from, to, ayah_range)
 
       range_from, range_to = get_ayah_range_to_load(from, to)
 

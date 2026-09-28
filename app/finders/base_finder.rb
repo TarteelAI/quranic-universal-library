@@ -12,6 +12,20 @@ class BaseFinder
     @per_page = per_page
   end
 
+  # Narrows a surah's verse id range down to the requested ayah range. Ayah
+  # numbers that don't exist in the surah are ignored rather than blowing up.
+  def narrow_to_ayah_range(chapter, first_verse_id, last_verse_id, ayah_range)
+    return [first_verse_id, last_verse_id] if ayah_range.blank?
+
+    range_from = Utils::Quran.get_ayah_id(chapter, ayah_range[0])
+    range_to = Utils::Quran.get_ayah_id(chapter, ayah_range[1])
+
+    [
+      range_from ? [first_verse_id, range_from].max : first_verse_id,
+      range_to ? [last_verse_id, range_to].min : last_verse_id
+    ]
+  end
+
   def get_ayah_range_to_load(first_verse_id, last_verse_id)
     total_records = records_count(first_verse_id, last_verse_id)
 
@@ -22,7 +36,7 @@ class BaseFinder
       overflow: :empty_page
     )
 
-    if @pagination.overflow?
+    if total_records.zero? || @pagination.overflow?
       overflow_range
     else
       offset = first_verse_id - 1
@@ -35,6 +49,9 @@ class BaseFinder
   end
 
   def records_count(range_start, range_end)
-    (range_end - range_start) + 1
+    # An unknown surah leaves the range empty, there is nothing to count then.
+    return 0 if range_start.nil? || range_end.nil?
+
+    [(range_end - range_start) + 1, 0].max
   end
 end

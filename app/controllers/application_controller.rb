@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   before_action :init_presenter
 
   include Pagy::Backend
+  include NormalizesPageParam
   helper_method :pagy
   include SeoHelper
 
@@ -9,7 +10,16 @@ class ApplicationController < ActionController::Base
               ActionController::RoutingError,
               ::AbstractController::ActionNotFound,
               ActiveRecord::RecordNotFound,
+              Pagy::VariableError,
               with: ->(exception) { render_error 404, exception }
+
+  # Bots ask for .json/.xml variants of html only pages. A template missing for
+  # a format we never offered is a 404, not a crash.
+  rescue_from ActionView::MissingTemplate do |exception|
+    raise exception if request.format.html?
+
+    render_error 404, exception
+  end
 
   before_action :set_locale
   protect_from_forgery with: :exception
@@ -21,6 +31,7 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
   def set_locale
     @locale = params[:locale] || I18n.locale
   end

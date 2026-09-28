@@ -78,8 +78,15 @@ class ResourcePresenter < ApplicationPresenter
   end
 
   def load_ayah(fallback_key: '1:1')
-    key = params[:ayah] || fallback_key
-    Verse.includes(:chapter).find_by_id_or_key(key)
+    @load_ayah ||= {}
+
+    @load_ayah[fallback_key] ||= begin
+      requested = params[:ayah].presence
+      ayah = requested && Verse.includes(:chapter).find_by_id_or_key(requested)
+      # Fall back to a known ayah when the requested one is missing or invalid,
+      # meta tag generation can't work with a nil verse.
+      ayah || Verse.includes(:chapter).find_by_id_or_key(fallback_key)
+    end
   end
 
   def load_surah

@@ -42,7 +42,26 @@ class Morphology::PhraseVerse < ApplicationRecord
     matching
   end
 
+  # Some legacy rows hold a JSON encoded string (e.g. "[]") in this jsonb
+  # column instead of an array, so callers can't rely on the raw value.
+  def missing_word_positions
+    value = super
+
+    return value if value.is_a?(Array)
+    return [] unless value.is_a?(String)
+
+    parsed = begin
+      JSON.parse(value)
+    rescue JSON::ParserError
+      nil
+    end
+
+    parsed.is_a?(Array) ? parsed : []
+  end
+
   def highlight_word?(word)
+    return false if word_position_from.nil? || word_position_to.nil?
+
     word.position >= word_position_from && word.position <= word_position_to
   end
 

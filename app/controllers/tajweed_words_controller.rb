@@ -1,6 +1,7 @@
 require "unicode/name"
 
 class TajweedWordsController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :find_resource
   before_action :authenticate_user!, only: %i[update]
   before_action :authorize_access!, only: %i[update]

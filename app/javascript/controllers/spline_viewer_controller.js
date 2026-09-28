@@ -87,20 +87,22 @@ export default class extends Controller {
     // the container before the source loads is seamless.
     this.showVideo();
 
-    if ("IntersectionObserver" in window) {
-      this.observer = new IntersectionObserver(
+    if ("IntersectionObserver" in window && this.hasContainerTarget) {
+      // Hold the observer in a local too: the callback can fire more than once,
+      // or after teardown() already cleared this.observer.
+      const observer = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              this.loadVideo();
-              this.observer.disconnect();
-              this.observer = null;
-            }
-          });
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+
+          this.loadVideo();
+          observer.disconnect();
+          if (this.observer === observer) this.observer = null;
         },
         { threshold: 0.1 },
       );
-      this.observer.observe(this.containerTarget);
+
+      this.observer = observer;
+      observer.observe(this.containerTarget);
     } else {
       this.loadVideo();
     }

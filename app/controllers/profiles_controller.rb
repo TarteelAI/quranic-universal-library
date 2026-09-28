@@ -1,4 +1,5 @@
 class ProfilesController < CommunityController
+  before_action :normalize_page_param, only: %i[show]
   before_action :authenticate_user!
 
   def show

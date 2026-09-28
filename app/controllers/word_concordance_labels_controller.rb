@@ -1,4 +1,5 @@
 class WordConcordanceLabelsController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :init_presenter
   def index
     verses = Verse

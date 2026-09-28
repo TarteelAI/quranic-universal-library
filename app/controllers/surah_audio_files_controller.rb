@@ -22,6 +22,10 @@ class SurahAudioFilesController < CommunityController
 
 
     @audio_file = audio_files.order("audio_segments.#{sort_key} #{sort_order}").first
+
+    if @audio_file.nil?
+      redirect_to surah_audio_files_path(recitation_id: @recitation.id), alert: 'Audio file not found'
+    end
   end
 
   def segment_builder
@@ -36,6 +40,7 @@ class SurahAudioFilesController < CommunityController
 
   def segments
     @audio_file = load_audio_file
+    return render(json: { segments: {} }) if @audio_file.nil?
 
     @verses = Verse.includes(:words)
                    .where(chapter_id: @audio_file.chapter_id)
@@ -75,6 +80,8 @@ class SurahAudioFilesController < CommunityController
 
   def save_segments
     audio_file = load_audio_file
+    return render(json: { error: 'Audio file not found' }, status: :not_found) if audio_file.nil?
+
     key = params[:verse_key].to_s.strip
     segment = audio_file.audio_segments.where(
       audio_recitation: @recitation,
@@ -171,7 +178,8 @@ class SurahAudioFilesController < CommunityController
   def load_audio_file
     Audio::ChapterAudioFile
       .includes(:chapter)
-      .where(audio_recitation: @recitation.id, chapter_id: chapter_id)
+      .where({ audio_recitation: @recitation.id, chapter_id: chapter_id }.compact_blank)
+      .order('chapter_id ASC')
       .first
   end
 
@@ -180,7 +188,9 @@ class SurahAudioFilesController < CommunityController
       return params[:verse_key].split(':').first
     end
 
-    params[:chapter_id] || params[:id]
+    # params[:id] is the recitation id on these routes, not a chapter. Leaving
+    # it nil lets the queries fall back to the recitation's first surah.
+    params[:chapter_id].presence
   end
 
   def load_resource_access

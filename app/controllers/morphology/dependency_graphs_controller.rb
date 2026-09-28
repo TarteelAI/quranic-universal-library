@@ -1,5 +1,6 @@
 module Morphology
   class DependencyGraphsController < CommunityController
+    before_action :normalize_page_param, only: %i[index]
     before_action :authorize_access!, only: [:edit, :split]
     def index
       scope = Verse.all

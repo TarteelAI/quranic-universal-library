@@ -2,10 +2,10 @@ module V1
   module Audio
     class SegmentPresenter < ApiPresenter
       def surah_audio
-        ::Audio::ChapterAudioFile.where(
+        @surah_audio ||= ::Audio::ChapterAudioFile.where(
           audio_recitation_id: recitation_id,
-          chapter: chapter_id
-        ).first
+          chapter_id: chapter_id
+        ).first || missing_surah_audio
       end
 
       def ayah_segments
@@ -60,11 +60,19 @@ module V1
       end
 
       def chapter_id
-        params[:chapter] || params[:surah]
+        return @chapter_id if defined?(@chapter_id)
+
+        value = params[:chapter] || params[:surah]
+        number = value.to_i
+        invalid_chapter(value.presence || 'Missing') unless (1..114).cover?(number)
+
+        @chapter_id = number
       end
 
-      def ayah
-
+      def missing_surah_audio
+        raise ::Api::RecordNotFound.new(
+          "No surah audio file found for recitation #{recitation_id} and chapter #{chapter_id}."
+        )
       end
     end
   end

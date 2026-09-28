@@ -1,6 +1,8 @@
 module Api
   module V1
     class ApiController < ActionController::API
+      include NormalizesPageParam
+
       before_action :init_presenter
       before_action :set_cache_headers
 

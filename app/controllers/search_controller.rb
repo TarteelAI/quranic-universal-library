@@ -1,4 +1,5 @@
 class SearchController < ApplicationController
+  before_action :normalize_page_param, only: %i[index]
   DEFAULT_SCRIPT = 'text_qpc_hafs'
 
   def index

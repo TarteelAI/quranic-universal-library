@@ -81,7 +81,10 @@ export default {
             this.$store.state.isManualAyahChange
           );
           
-          if (shouldSeek) {
+          // $refs.audio instead of the global the #player element creates: the
+          // watcher can fire before mount or after the element is gone.
+          const player = this.$refs.audio;
+          if (shouldSeek && player) {
             player.currentTime = newValue / 1000;
           }
         },
@@ -91,7 +94,8 @@ export default {
         (state, getters) => state.playbackSpeed,
 
         (newValue, _) => {
-          if (newValue >= 0) {
+          const player = this.$refs.audio;
+          if (newValue >= 0 && player) {
             player.playbackRate = newValue;
           }
         },

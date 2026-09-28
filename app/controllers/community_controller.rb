@@ -1,4 +1,5 @@
 class CommunityController < ApplicationController
+  before_action :normalize_page_param, only: %i[chars_info]
   before_action :init_presenter
 
   DEFAULT_LANGUAGE = 174

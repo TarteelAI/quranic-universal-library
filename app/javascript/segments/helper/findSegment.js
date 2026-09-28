@@ -75,40 +75,50 @@ const findSurahVerseSegment = (timestamp, verseSegment, verse, currentWord) => {
 
 
 const findVerse = (timestamp, segments, currentVerse, chapter, totalVerse) => {
-  if (currentVerse) {
-    const segment = segments[`${chapter}:${currentVerse}`];
-    if(!segment) 
-      return null; 
+  const total = Number(totalVerse);
+  if (!Number.isFinite(total) || total < 1) {
+    return null;
+  }
+
+  let verse = Number(currentVerse) || 1;
+  if (verse < 1 || verse > total) {
+    return null;
+  }
+
+  // Walk towards the verse whose window contains the timestamp. Iterative and
+  // bounded by the verse count: a missing verse count or an out of range
+  // timestamp used to recurse until the stack blew up.
+  for (let step = 0; step <= total; step++) {
+    const segment = segments[`${chapter}:${verse}`];
+    if (!segment) {
+      return null;
+    }
 
     const {
       timestamp_from,
       timestamp_to,
     } = segment;
 
-    if (timestamp >= timestamp_from && timestamp <= timestamp_to)
-      return currentVerse
+    if (timestamp >= timestamp_from && timestamp <= timestamp_to) {
+      return verse;
+    }
 
     if (timestamp < timestamp_from) {
-      if (currentVerse <= 1) {
+      if (verse <= 1) {
         return null;
       }
-      return findVerse(timestamp, segments, currentVerse - 1, chapter, totalVerse)
-    }
-
-    if (timestamp > timestamp_to) {
-      if (currentVerse >= totalVerse) {
+      verse -= 1;
+    } else if (timestamp > timestamp_to) {
+      if (verse >= total) {
         return null;
       }
-      return findVerse(timestamp, segments, currentVerse + 1, chapter, totalVerse)
-    }
-
-    return null;
-  } else {
-    if (totalVerse < 1) {
+      verse += 1;
+    } else {
       return null;
     }
-    return findVerse(timestamp, segments, 1, chapter, totalVerse)
   }
+
+  return null;
 }
 
 export {

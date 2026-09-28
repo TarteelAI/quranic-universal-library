@@ -1,4 +1,5 @@
 class TranslationProofreadingsController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update]
   before_action :authorize_access!, only: %i[edit update]

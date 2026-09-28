@@ -888,7 +888,7 @@ module Exporter
       zip_path = "#{file_path}.zip"
       File.delete(zip_path) if File.exist?(zip_path)
 
-      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_path, create: true) do |zipfile|
         if File.directory?(file_path)
           Dir[File.join(file_path, '**', '**')].each do |file|
             next if File.directory?(file)

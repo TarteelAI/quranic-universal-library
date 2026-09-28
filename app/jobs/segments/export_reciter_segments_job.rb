@@ -55,7 +55,7 @@ module Segments
       
       zip_path = Rails.root.join('tmp', "reciter_#{reciter.id}_segments_#{Time.current.to_i}.zip")
       
-      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_path, create: true) do |zipfile|
         Dir.glob(temp_dir.join('*')).each do |file_path|
           zipfile.add(File.basename(file_path), file_path)
         end

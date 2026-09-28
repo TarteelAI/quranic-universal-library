@@ -54,7 +54,7 @@ module Export
     def compress
       require 'zip'
 
-      Zip::File.open("#{file_name}.zip", Zip::File::CREATE) do |zipfile|
+      Zip::File.open("#{file_name}.zip", create: true) do |zipfile|
         Dir["#{file_name}/**/*"].each do |file|
           relative_path = file.sub("#{file_name}/", '')
           zipfile.add(relative_path, file)

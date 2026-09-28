@@ -328,7 +328,7 @@ module Importer
 
                             parts
                           else
-                            [footnotes_texts.to_s.strip]
+                            [strip_leading_footnote_marker(footnotes_texts, footnote_text_reg)]
                           end
 
         footnote_ids.each_with_index do |node, i|
@@ -417,6 +417,17 @@ module Importer
       raise "PENDING"
     end
 
+    # Footnote text often starts with the same marker that's used in the
+    # translation text(e.g `(১) ফালাকের অনেক অর্থ রয়েছে`). That marker is
+    # replaced with a <sup> tag in the translation, so strip it from the
+    # footnote text as well.
+    def strip_leading_footnote_marker(text, footnote_text_reg)
+      text = text.to_s.strip
+      return text if footnote_text_reg.blank?
+
+      text.sub(/\A(?:#{footnote_text_reg.source})\s*/, '').strip
+    end
+
     def remove_footnote_tag(text)
       text.to_s.gsub(REGEXP_REMOVE_FOOTNOTE, '').strip
     end
@@ -472,7 +483,7 @@ module Importer
     }
 
     REGEXP_FOOTNOTES = {
-      bengali_rwwad: [/\(([০-৯]+)\)/, /\(([০-৯]+)\)/],
+      bengali_rwwad: [/\([০-৯]+\)/, /\([০-৯]+\)/],
       amharic_zain: [/\[\d+\]/, /\[\d+\]/],
       zulu_adel: [/\[\d+\]/, /\[\d+\]/],
       amharic_sadiq: [/\{\d+\}/, /\{\d+\}/],

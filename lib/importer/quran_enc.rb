@@ -472,6 +472,7 @@ module Importer
     }
 
     REGEXP_FOOTNOTES = {
+      bengali_rwwad: [/\(([০-৯]+)\)/, /\(([০-৯]+)\)/],
       amharic_zain: [/\[\d+\]/, /\[\d+\]/],
       zulu_adel: [/\[\d+\]/, /\[\d+\]/],
       amharic_sadiq: [/\{\d+\}/, /\{\d+\}/],
@@ -542,6 +543,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_MAPPING = {
+      bengali_rwwad: { id: 1670 },
       zulu_adel: { id: 1642 },
       oromo_rwwad: { id: 1640 },
       uzbek_sadiq_latin: { id: 55 },
@@ -684,6 +686,7 @@ module Importer
     }.freeze
 
     TRANSLATIONS_WITH_FOOTNOTES = [
+      'bengali_rwwad',
       'oromo_rwwad',
       'amharic_zain',
       'swahili_rwwad',

@@ -39,7 +39,7 @@ module Segments
       Zip::File.open(zip_temp_path) do |zip_file|
         zip_file.each do |entry|
           if entry.name.ends_with?(".db")
-            entry.extract(db_file_path) { true }
+            entry.extract(db_file_path.basename.to_s, destination_directory: db_dir) { true }
             break
           end
         end

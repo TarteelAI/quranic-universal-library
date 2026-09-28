@@ -3,10 +3,10 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby ">= 3.3.3", "<= 3.3.10"
 
-gem 'concurrent-ruby', '1.3.4'
+gem 'concurrent-ruby', '>= 1.3.7'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem "rails", "~> 8.0.0"
-gem "nokogiri", '~> 1.18.8', require: false
+gem "nokogiri", '~> 1.19.4', require: false
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.3.5"
@@ -54,10 +54,10 @@ gem 'rails-html-sanitizer', '>= 1.4.2'
 gem 'pdf-reader', require:  false
 gem "typhoeus", require:  false
 
-gem "docx", "~> 0.8.0", require: false
+gem "docx", "~> 0.13.0", require: false
 
 # authentication
-gem 'devise', '4.9.4'
+gem 'devise', '>= 5.0.4'
 
 gem 'cancancan'
 gem 'csv', require: false
@@ -149,7 +149,7 @@ gem "ruby-lokalise-api", "~> 4.5.1", require: false
 gem "kredis", "~> 1.3"
 gem "oj", "~> 3.14"
 gem "aws-sdk-s3", "~> 1.130"
-gem "rubyzip", "~> 2.3", require: false
+gem "rubyzip", "~> 3.4", require: false
 gem "cld3", "~> 3.6", require: false
 gem "diff-lcs", "~> 1.5", require: false
 
@@ -158,4 +158,4 @@ gem "tailwindcss-rails", "~> 2.7"
 gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
-gem "view_component", "~> 3.21"
+gem "view_component", "~> 4.9"

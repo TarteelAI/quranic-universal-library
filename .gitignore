@@ -147,6 +147,7 @@ cypress-tests/node_modules
 
 # Ignore package-lock.json in cypress folder
 cypress-tests/package-lock.json
+package-lock.json
 
 # Ignore all logfiles and tempfiles in cypress folder
 cypress-tests/cypress/results

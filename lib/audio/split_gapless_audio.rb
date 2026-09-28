@@ -101,7 +101,7 @@ module Audio
       zip_path = "#{surah_folder}.zip"
       FileUtils.rm_f(zip_path)
 
-      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_path, create: true) do |zipfile|
         Dir.glob("#{surah_folder}/*").each do |file|
           filename = File.basename(file)
           zipfile.add(filename, file)

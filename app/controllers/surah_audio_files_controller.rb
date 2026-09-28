@@ -184,13 +184,20 @@ class SurahAudioFilesController < CommunityController
   end
 
   def chapter_id
-    if params[:verse_key].present?
-      return params[:verse_key].split(':').first
-    end
+    raw_chapter_id =
+      if params[:verse_key].present?
+        params[:verse_key].to_s.split(':').first
+      else
+        # params[:id] is the recitation id on these routes, not a chapter. Leaving
+        # it nil lets the queries fall back to the recitation's first surah.
+        params[:chapter_id].presence
+      end
 
-    # params[:id] is the recitation id on these routes, not a chapter. Leaving
-    # it nil lets the queries fall back to the recitation's first surah.
-    params[:chapter_id].presence
+    return nil if raw_chapter_id.blank?
+
+    Integer(raw_chapter_id.to_s.strip)
+  rescue ArgumentError, TypeError
+    nil
   end
 
   def load_resource_access

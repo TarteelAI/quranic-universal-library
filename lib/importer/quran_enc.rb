@@ -91,8 +91,6 @@ module Importer
       footnote_resource = nil
       has_footnotes = TRANSLATIONS_WITH_FOOTNOTES.include?(quran_enc_key) || REGEXP_FOOTNOTES.key?(quran_enc_key.to_sym)
       resource = find_or_create_resource(quran_enc_key)
-      footnote_resource = nil
-      has_footnotes = TRANSLATIONS_WITH_FOOTNOTES.include?(quran_enc_key) || REGEXP_FOOTNOTES.key?(quran_enc_key.to_sym)
       language = resource.language
 
       if has_footnotes

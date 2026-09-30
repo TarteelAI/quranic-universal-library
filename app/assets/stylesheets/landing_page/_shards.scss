@@ -1,0 +1,19 @@
+.qul-shards {
+  position: relative;
+}
+
+.qul-lockup {
+  position: absolute;
+  left: var(--qul-ring-cx, 50%);
+  top: var(--qul-ring-cy, 50%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  // The ring is still sizing itself on the first frame; fade in once the
+  // renderer has published a centre.
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+.qul-shards[data-qul-ring-ready] .qul-lockup {
+  opacity: 1;
+}

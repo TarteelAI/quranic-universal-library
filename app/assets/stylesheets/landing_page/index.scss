@@ -11,10 +11,12 @@ body {
 @import "buttons";
 @import "tools";
 @import "devise_styles";
+@import "shards";
 @import "tabs";
 @import "tool_cards";
 @import "resource_show";
 
+// Used by the landing footer.
 .qul-tag {
   font-family: Inter;
   font-size: 10px;

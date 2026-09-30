@@ -1,4 +1,4 @@
-<h1 class="text-2xl font-semibold">
+<h1 class="text-2xl font-semibold mt-4">
   Resend confirmation instructions
 </h1>
 <p class="mt-6">
@@ -6,14 +6,14 @@
 </p>
 <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'inputs_container', role: 'form', data: { controller: 'remote-form' } }) do |f| %>
   <%= render 'shared/form_errors', object: resource %>
-  <div class="form-floating mt-3">
-    <%= f.email_field :email, autofocus: true, required: true, class: 'form-control', placeholder: 'Enter your email' %>
-    <%= f.label :email, required: true %>
-    <div class="invalid-feedback">
+  <div class="relative mt-6">
+    <%= f.email_field :email, autofocus: true, required: true, class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ' %>
+    <%= f.label :email, class: 'absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1 pointer-events-none', required: true %>
+    <div class="text-sm text-red-600 mt-1 hidden invalid-feedback">
       Please enter a valid email
     </div>
   </div>
   <div class="text-center mt-8">
-    <%= f.submit 'Resend confirmation instructions', class: 'px-8 py-3 bg-black text-white rounded-full' %>
+    <%= f.submit 'Resend confirmation instructions', class: 'px-8 py-3 rounded font-medium transition-colors bg-gray-800 hover:bg-gray-900 text-white mt-2' %>
   </div>
 <% end %>

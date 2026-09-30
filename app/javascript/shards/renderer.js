@@ -6,16 +6,24 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 import { SHARD_SCENE as DATA } from "./scene_data";
 
-// Radius (world units) the ring occupies; used to frame it in any container
-// aspect ratio. The instance transforms sit on a ~143u ring and each shard
-// reaches ~78u from its own origin.
-const RING_RADIUS = 235;
 const RING_RPM = 4; // clockwise revolutions per minute
 const MAX_TILT = 0.26; // radians of mouse-follow tilt
 
+// Fraction of the container's shorter side the ring spans. Small panels (the
+// devise hero is only 30vh tall on phones) get a tighter crop so the ring still
+// reads at a glance.
+const FILL_LARGE = 0.92;
+const FILL_SMALL = 0.99;
+const SMALL_CANVAS = 380;
+
+// Fallback starting distance for the framing search (the authored camera sits
+// at roughly this distance from the ring).
+const DEFAULT_DISTANCE = 735;
+
 export default class ShardRing {
-  constructor(canvas) {
+  constructor(canvas, container) {
     this.canvas = canvas;
+    this.container = container || canvas.parentElement;
     this.disposed = false;
     this.running = false;
     this.frame = null;
@@ -31,6 +39,7 @@ export default class ShardRing {
 
     this.buildEnvironment();
     this.buildCamera();
+    this.buildSamplePoints();
     this.buildChips();
     this.buildLights();
     this.buildComposer();
@@ -101,6 +110,75 @@ export default class ShardRing {
     this.cameraDirection = this.camera.position.clone().normalize();
   }
 
+  // Every shard vertex in world space. resize() projects these to find the
+  // ring's true on-screen extent — the authored camera aims at the origin, so
+  // the spin (a rotation about the view axis) turns the image about the screen
+  // centre and leaves each vertex's distance from that centre unchanged. That
+  // makes both the outer radius and the hole stable while the ring turns.
+  buildSamplePoints() {
+    const parent = new THREE.Matrix4().fromArray(DATA.parent);
+    const matrix = new THREE.Matrix4();
+    const points = [];
+
+    DATA.mats.forEach((array) => {
+      matrix.fromArray(array).premultiply(parent);
+      for (let i = 0; i < DATA.pos.length; i += 3) {
+        points.push(
+          new THREE.Vector3(DATA.pos[i], DATA.pos[i + 1], DATA.pos[i + 2]).applyMatrix4(matrix),
+        );
+      }
+    });
+
+    this.samplePoints = points;
+  }
+
+  // Distance at which the ring spans `fill` of the shorter side. The projected
+  // radius is very nearly inversely proportional to distance, so a couple of
+  // correction passes converge.
+  fitDistance(fill) {
+    const projected = new THREE.Vector3();
+    // Seed from the authored camera distance; it is already the right order of
+    // magnitude, so a few passes land on the exact fit.
+    let distance = this.camera.position.length();
+    if (!(distance > 1)) distance = DEFAULT_DISTANCE;
+
+    for (let pass = 0; pass < 6; pass += 1) {
+      this.camera.position.copy(this.cameraDirection).multiplyScalar(distance);
+      this.camera.updateMatrixWorld();
+
+      let outer = 0;
+      this.samplePoints.forEach((point) => {
+        projected.copy(point).project(this.camera);
+        // Measure in "half-height" units: NDC is -1..1 on both axes, so scaling
+        // x by the aspect ratio makes a radius here match pixels on screen.
+        const radius = Math.hypot(projected.x * this.camera.aspect, projected.y);
+        if (radius > outer) outer = radius;
+      });
+
+      // In those units the frame reaches 1 vertically but `aspect` horizontally,
+      // so the ring has to clear the smaller of the two or it overflows the
+      // narrow axis as it turns.
+      const limit = fill * Math.min(1, this.camera.aspect);
+      const correction = outer / limit;
+      if (Math.abs(correction - 1) < 0.002) break;
+      distance *= correction;
+    }
+
+    return distance;
+  }
+
+  // Publish the ring's centre so the QUL lockup can sit on it. The authored
+  // camera aims at the origin, so the ring turns about this point on screen.
+  publishRingCentre(width, height) {
+    if (!this.container) return;
+
+    const centre = new THREE.Vector3().project(this.camera);
+    const style = this.container.style;
+    style.setProperty("--qul-ring-cx", `${((centre.x * 0.5 + 0.5) * width).toFixed(1)}px`);
+    style.setProperty("--qul-ring-cy", `${((-centre.y * 0.5 + 0.5) * height).toFixed(1)}px`);
+    this.container.dataset.qulRingReady = "true";
+  }
+
   buildChips() {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(DATA.pos), 3));
@@ -131,6 +209,10 @@ export default class ShardRing {
     const matrix = new THREE.Matrix4();
     DATA.mats.forEach((array, index) => instances.setMatrixAt(index, matrix.fromArray(array)));
     instances.instanceMatrix.needsUpdate = true;
+    // three.js culls an InstancedMesh against the single shard's bounding
+    // sphere, which ignores where the 16 instances actually sit — the ring can
+    // drop out of view entirely. There is only one mesh, so skip culling.
+    instances.frustumCulled = false;
     this.instances = instances;
 
     this.chips = new THREE.Group();
@@ -210,20 +292,19 @@ export default class ShardRing {
     if (this.disposed) return;
 
     const { width, height } = this.size();
-    const aspect = width / height;
 
-    this.camera.aspect = aspect;
-
-    // Frame the ring by the tighter of the vertical/horizontal half-angles so
-    // it never crops in narrow (mobile) containers.
-    const vertical = THREE.MathUtils.degToRad(this.camera.fov) / 2;
-    const horizontal = Math.atan(Math.tan(vertical) * aspect);
-    const distance = RING_RADIUS / Math.sin(Math.min(vertical, horizontal));
-    this.camera.position.copy(this.cameraDirection).multiplyScalar(distance);
+    this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
+
+    const fill = Math.min(width, height) < SMALL_CANVAS ? FILL_SMALL : FILL_LARGE;
+    // Resolve the distance before touching camera.position: fitDistance() reads
+    // the current position as its starting guess.
+    const distance = this.fitDistance(fill);
+    this.camera.position.copy(this.cameraDirection).multiplyScalar(distance);
     this.camera.updateMatrixWorld();
 
     this.cameraLights.forEach((light) => this.camera.getWorldPosition(light.position));
+    this.publishRingCentre(width, height);
 
     this.renderer.setSize(width, height, false);
     this.composer.setSize(width, height);

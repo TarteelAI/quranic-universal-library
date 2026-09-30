@@ -40,7 +40,7 @@ function mount(root) {
 
   let ring;
   try {
-    ring = new ShardRing(canvas);
+    ring = new ShardRing(canvas, root);
   } catch (error) {
     // A lost/blocked WebGL context shouldn't take the page down with it.
     console.error("[shards] failed to initialise", error);

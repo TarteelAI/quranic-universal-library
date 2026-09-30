@@ -1,0 +1,1708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QUL · Font Compare</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#46ac7a;
+    --brand-dark:#3d9a6d;
+    --brand-soft:#57d798;
+    --brand-tint:#46ac7a14;
+    --ink:#111111;
+    --ink-2:#3f4651;
+    --muted:#6b7280;
+    --bg:#f6f7f8;
+    --panel:#ffffff;
+    --line:#e5e7eb;
+    --line-soft:#f0f1f3;
+    --a:#e5484d;
+    --b:#476cff;
+    --warn:#b45309;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:14px/1.5 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--brand); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---------- chrome ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40; background:#fff;
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  header.site .bar{
+    max-width:1440px; margin:auto; padding:10px 24px;
+    display:flex; align-items:center; gap:14px;
+  }
+  header.site svg{display:block;}
+  .brandname{font-weight:700; font-size:15px; letter-spacing:-.01em;}
+  .brandname span{color:var(--muted); font-weight:500;}
+  .spacer{flex:1;}
+  .ghost{
+    border:1px solid var(--line); background:#fff; color:var(--ink-2);
+    border-radius:8px; padding:7px 12px; font:inherit; font-weight:500; cursor:pointer;
+  }
+  .ghost:hover{background:#f9fafb; border-color:#d7dae0;}
+  .ghost:disabled{opacity:.45; cursor:not-allowed;}
+
+  .wrap{max-width:1440px; margin:auto; padding:22px 24px 60px;}
+  h1{margin:0 0 4px; font-size:22px; font-weight:700; letter-spacing:-.02em;}
+  .sub{color:var(--muted); margin:0 0 20px; max-width:760px;}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; margin-bottom:16px;
+  }
+  .panel > h2{
+    margin:0 0 12px; font-size:13px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--muted);
+  }
+  label{display:block; font-weight:600; margin-bottom:6px; font-size:13px;}
+  textarea,input[type=text],input[type=number],select{
+    width:100%; background:#fff; color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:9px 11px; font:inherit; outline:none;
+  }
+  textarea{min-height:92px; resize:vertical;}
+  textarea:focus,input:focus,select:focus{border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-tint);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .row{display:flex; gap:8px; align-items:center;}
+  .row > *{min-width:0;}
+  .btn{
+    border:1px solid var(--brand); background:var(--brand); color:#fff;
+    border-radius:8px; padding:9px 14px; font:inherit; font-weight:600; cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn:hover{background:#3d9a6d; border-color:#3d9a6d;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .btn.sm,.ghost.sm{padding:6px 10px; font-size:13px;}
+
+  /* ---------- font cards ---------- */
+  .fontcard{border:1px solid var(--line); border-radius:var(--radius); padding:14px; background:#fff;}
+  .fontcard.loaded{border-color:#d7e8de; background:#fcfefd;}
+  .sidetag{
+    display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:12px;
+    text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;
+  }
+  .swatch{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  .sw-a{background:var(--a);} .sw-b{background:var(--b);}
+  .drop{
+    padding:16px; text-align:center; border:1.5px dashed #cbd2da; border-radius:10px;
+    color:var(--muted); cursor:pointer; margin-bottom:10px; transition:.12s;
+  }
+  .drop:hover{border-color:var(--brand); color:var(--ink-2);}
+  .drop.drag{border-color:var(--brand); background:var(--brand-tint); color:var(--ink);}
+  .filebtn{
+    border:1px solid var(--line); background:#fff; color:var(--ink-2); border-radius:8px;
+    padding:8px 12px; cursor:pointer; font-weight:500; white-space:nowrap;
+  }
+  .filebtn:hover{background:#f9fafb;}
+  input[type=file]{display:none;}
+  .status{color:var(--muted); font-size:12.5px; margin-top:10px; min-height:18px;}
+  .status.error{color:#b42318;}
+  .fontname{
+    display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:15px;
+    color:var(--ink); background:none; border:0; padding:0; cursor:pointer; text-align:left;
+    border-bottom:1.5px dotted var(--brand); line-height:1.25;
+  }
+  .fontname:hover{color:var(--brand);}
+  .fontname[disabled]{border-bottom:0; cursor:default; color:var(--muted);}
+  .metaline{color:var(--muted); font-size:12.5px; margin-top:5px;}
+  .chip{
+    display:inline-block; padding:2px 8px; border-radius:999px; font-size:11.5px;
+    font-weight:600; border:1px solid var(--line); color:var(--ink-2); background:#f9fafb;
+  }
+  .chip.up{color:#b42318; border-color:#fbd5d1; background:#fef3f2;}
+  .chip.down{color:#067647; border-color:#abefc6; background:#ecfdf3;}
+  .chip.same{color:var(--muted);}
+
+  /* ---------- controls ---------- */
+  .controls{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end;}
+  .control{min-width:110px;}
+  .control.grow{flex:1; min-width:230px;}
+  .seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#fff;}
+  .seg button{
+    border:0; border-right:1px solid var(--line); background:#fff; color:var(--ink-2);
+    padding:9px 14px; font:inherit; font-weight:500; cursor:pointer;
+  }
+  .seg button:last-child{border-right:0;}
+  .seg button:hover{background:#f6f7f8;}
+  .seg button.active{background:var(--brand); color:#fff;}
+  .check{display:flex; align-items:center; gap:7px; font-weight:500; color:var(--ink-2); cursor:pointer; user-select:none;}
+  .check input{width:16px;height:16px;accent-color:var(--brand); margin:0;}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:18px;}
+  .tabs button{
+    border:0; background:none; font:inherit; font-weight:600; color:var(--muted);
+    padding:10px 14px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tabs button:hover{color:var(--ink);}
+  .tabs button.active{color:var(--ink); border-bottom-color:var(--brand);}
+  .tabpane{display:none;}
+  .tabpane.active{display:block;}
+
+  /* ---------- canvas ---------- */
+  .canvaswrap{
+    overflow:auto; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px;
+    background-image:linear-gradient(45deg,#fafbfc 25%,transparent 25%),linear-gradient(-45deg,#fafbfc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#fafbfc 75%),linear-gradient(-45deg,transparent 75%,#fafbfc 75%);
+    background-size:16px 16px; background-position:0 0,0 8px,8px -8px,-8px 0;
+  }
+  canvas{display:block;}
+  #canvas{background:#fff; box-shadow:0 0 0 1px var(--line-soft);}
+  .legend{display:flex; gap:18px; flex-wrap:wrap; margin-top:12px; color:var(--muted); font-size:12.5px;}
+  .dot{width:10px;height:10px;display:inline-block;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+  .d-a{background:var(--a);} .d-b{background:var(--b);} .d-both{background:#2b303a;}
+  .stats{
+    display:flex; gap:8px 22px; flex-wrap:wrap; color:var(--ink-2); font-size:12.5px;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line-soft);
+  }
+  .stats b{font-weight:600; color:var(--ink);}
+
+  /* ---------- tables ---------- */
+  table.kv{width:100%; border-collapse:collapse; font-size:13px;}
+  table.kv th,table.kv td{
+    text-align:left; padding:7px 10px; border-bottom:1px solid var(--line-soft);
+    vertical-align:top; word-break:break-word;
+  }
+  table.kv th{font-weight:600; color:var(--muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;}
+  table.kv td.k{font-weight:600; color:var(--ink-2); width:210px;}
+  table.kv tr.diff{background:#fffbeb;}
+  table.kv tr.diff td.k{color:var(--warn);}
+  table.kv td.num{font-variant-numeric:tabular-nums;}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px;}
+  .scrollbox{max-height:520px; overflow:auto; border:1px solid var(--line); border-radius:10px;}
+  .scrollbox table.kv th{position:sticky; top:0; background:#fff; z-index:1; box-shadow:0 1px 0 var(--line);}
+
+  /* ---------- glyphs ---------- */
+  .glyphtoolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;}
+  .glyphtoolbar .grow{flex:1; min-width:200px;}
+  .glyphgrid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:8px;
+    max-height:600px; overflow:auto; padding:2px;
+  }
+  .cell{
+    border:1px solid var(--line); border-radius:9px; background:#fff; padding:6px 4px 5px;
+    text-align:center; cursor:pointer; transition:.1s;
+  }
+  .cell:hover{border-color:var(--brand); box-shadow:0 1px 4px rgba(0,0,0,.07);}
+  .cell.sel{border-color:var(--brand); box-shadow:0 0 0 2px var(--brand-tint);}
+  .cell canvas{margin:auto; max-width:100%; height:auto;}
+  .cell .cp{font-size:10.5px; color:var(--muted); font-family:ui-monospace,Menlo,monospace; margin-top:3px;}
+  .cell .nm{font-size:10.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cell.only-a{background:#fff6f6;} .cell.only-b{background:#f5f8ff;} .cell.changed{background:#fffbeb;}
+  .badge{
+    position:relative; float:right; margin:-2px 2px 0 0; font-size:9px; font-weight:700;
+    padding:1px 4px; border-radius:4px; line-height:1.4;
+  }
+  .badge.a{background:#fef3f2; color:#b42318;}
+  .badge.b{background:#eff4ff; color:#2d4bcf;}
+  .badge.c{background:#fef7e6; color:var(--warn);}
+  .empty{color:var(--muted); padding:28px; text-align:center;}
+
+  .tabcount{
+    display:none; margin-left:6px; padding:1px 7px; border-radius:999px; font-size:11px;
+    font-weight:700; background:#fee4e2; color:#b42318; vertical-align:1px;
+  }
+  .tabcount.show{display:inline-block;}
+  .tabcount.clean{background:#ecfdf3; color:#067647;}
+  .issue{
+    border:1px solid var(--line); border-left-width:4px; border-radius:10px;
+    padding:13px 15px; margin-bottom:10px; background:#fff;
+  }
+  .issue.error{border-left-color:#d92d20; background:#fffbfa;}
+  .issue.warning{border-left-color:#dc6803; background:#fffcf5;}
+  .issue.info{border-left-color:#5a7cf5; background:#fafbff;}
+  .issue h3{margin:0 0 5px; font-size:14.5px; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .issue p{margin:0 0 7px; color:var(--ink-2);}
+  .issue .fix{
+    margin:0; padding:9px 11px; border-radius:8px; background:#f6f7f8;
+    border:1px solid var(--line-soft); color:var(--ink-2); font-size:13px;
+  }
+  .issue .fix b{color:var(--ink);}
+  .issue code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px;
+    background:#eef0f2; padding:1px 5px; border-radius:4px;
+  }
+  .sev{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:2px 7px; border-radius:5px;
+  }
+  .sev.error{background:#fee4e2; color:#b42318;}
+  .sev.warning{background:#fef0c7; color:#b54708;}
+  .sev.info{background:#e0eaff; color:#3538cd;}
+  .scope{font-size:11px; font-weight:600; color:var(--muted); border:1px solid var(--line); border-radius:5px; padding:1px 6px;}
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(17,17,17,.45); z-index:100;
+    display:none; align-items:flex-start; justify-content:center; padding:36px 20px; overflow:auto;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:#fff; border-radius:14px; width:min(1080px,100%); box-shadow:0 20px 60px rgba(0,0,0,.25);
+    overflow:hidden;
+  }
+  .modal header{
+    display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; background:#fff; z-index:2;
+  }
+  .modal header h3{margin:0; font-size:16px; font-weight:700;}
+  .modal .body{padding:18px; max-height:74vh; overflow:auto;}
+  .x{border:0; background:none; font-size:22px; line-height:1; cursor:pointer; color:var(--muted); padding:2px 6px;}
+  .x:hover{color:var(--ink);}
+  .cmpgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr)); gap:14px; margin-bottom:18px; align-items:start;}
+  .cmpcell{border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center; min-width:0; overflow:hidden;}
+  .cmpcell h4{margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+  .cmpcell canvas{display:block; margin:auto; background:#fff; max-width:100%; height:auto;}
+  .zoomrow{display:flex; align-items:center; gap:10px; margin-bottom:14px; color:var(--muted); font-size:12.5px;}
+  .zoomrow input[type=range]{flex:1; max-width:280px; accent-color:var(--brand);}
+  .modal .body{overflow-x:hidden;}
+  .modal .body table.kv{table-layout:fixed;}
+
+  @media(max-width:900px){
+    .grid2{grid-template-columns:1fr;}
+    .cmpgrid{grid-template-columns:1fr;}
+    .wrap,header.site .bar{padding-left:16px; padding-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <svg width="24" height="30" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M16.0199 11.1875L14.996 14.7033V14.6987C14.8601 15.1587 14.2077 15.3408 13.8544 15.0175L11.1588 12.5355C11.0863 12.4672 11.0319 12.3852 11.0093 12.2896L9.76344 7.56708C9.52334 6.66538 10.1757 5.69992 11.2222 5.40846L12.382 5.08512C13.4421 4.78911 14.5067 5.29006 14.7514 6.20086L16.0199 10.9097C16.047 11.0008 16.047 11.0965 16.0199 11.1875ZM11.8481 16.2015L10.8197 12.6903C10.7925 12.5993 10.7427 12.5173 10.6747 12.4535L7.0731 9.18373C6.37543 8.55072 5.21113 8.70556 4.48174 9.52984L3.67987 10.4315C2.95501 11.2467 2.92783 12.4125 3.61191 13.041L7.19995 16.3381C7.27244 16.4019 7.35852 16.4474 7.45818 16.4656L11.0598 17.0895C11.531 17.1715 11.9795 16.6615 11.8481 16.2015ZM7.245 16.7799L9.99945 19.1753L10.004 19.1708C10.3619 19.485 10.2577 20.159 9.81824 20.3457L6.45219 21.7757C6.36158 21.8121 6.26191 21.8303 6.16677 21.8121L1.37366 20.9878C0.458526 20.8284 -0.139481 19.8356 0.0281425 18.7563L0.213887 17.5632C0.38604 16.4748 1.27852 15.7097 2.20724 15.8645L6.99583 16.6615C7.08643 16.6751 7.17251 16.7161 7.245 16.7799ZM10.0484 22.6773L6.44228 22.1582C6.34715 22.1445 6.25201 22.1582 6.16593 22.1946L1.70806 24.1301C0.842764 24.5035 0.502988 25.6329 0.946963 26.6439L1.43171 27.7505C1.87116 28.7479 2.90861 29.2625 3.76484 28.8936L8.24083 26.9809C8.33144 26.9445 8.40393 26.8807 8.46282 26.7987L10.5241 23.7657C10.7914 23.3695 10.5241 22.7456 10.0484 22.6773ZM11.9753 25.601L8.66365 27.1221C8.57758 27.1631 8.50509 27.2223 8.45073 27.2997L5.74157 31.3482C5.21605 32.1315 5.53318 33.27 6.45284 33.8803L7.45858 34.5497C8.36465 35.1509 9.51536 35.0188 10.0364 34.2446L12.7727 30.2052C12.827 30.1232 12.8588 30.0321 12.8588 29.9319L12.963 26.2568C12.9765 25.7787 12.4103 25.4007 11.9753 25.601ZM18.4541 15.1541L21.2041 12.7542C21.2766 12.6904 21.3309 12.613 21.3581 12.5219L22.8214 7.87223C23.1068 6.97053 22.4816 5.97319 21.4306 5.6453L20.2799 5.29009C19.2424 4.96675 18.1778 5.42216 17.8924 6.31475L16.3974 10.9644C16.3657 11.0555 16.3657 11.1557 16.3928 11.2513L17.3216 14.8035C17.4439 15.268 18.0917 15.4684 18.4496 15.1541H18.4541ZM24.7236 16.8891L21.1174 17.4129V17.4083C20.6463 17.4766 20.2068 16.9529 20.3563 16.4975L21.4844 13.0045C21.5116 12.9135 21.5705 12.8269 21.643 12.7677L25.4031 9.66643C26.1235 9.07441 27.2651 9.27023 27.9628 10.1036L28.7375 11.0281C29.4442 11.8706 29.4352 13.0501 28.7103 13.6558L24.9773 16.7753C24.9048 16.839 24.8187 16.8755 24.7236 16.8891ZM22.1444 20.7601L25.4561 22.2811C25.5422 22.3221 25.6373 22.3358 25.7279 22.3267L30.5437 21.7346C31.4769 21.6208 32.1202 20.6326 31.9798 19.5396L31.8258 18.3373C31.6853 17.2535 30.8291 16.4702 29.9094 16.5795L25.0801 17.1442C24.9849 17.1533 24.8943 17.1943 24.8173 17.258L21.9904 19.5851C21.6189 19.8903 21.7095 20.5643 22.1444 20.7646V20.7601ZM23.1797 27.2132L21.209 24.1347H21.2136C20.9553 23.7294 21.2453 23.1146 21.721 23.0599L25.3543 22.641C25.4494 22.6273 25.5491 22.6455 25.6352 22.6865L30.0025 24.836C30.836 25.2459 31.135 26.3707 30.6684 27.3589L30.152 28.4519C29.6808 29.4492 28.6071 29.9274 27.7599 29.5175L23.3881 27.3999C23.3021 27.3589 23.2341 27.2952 23.1797 27.2132ZM18.6069 26.4663V30.1278C18.6069 30.2234 18.6341 30.319 18.6839 30.3965L21.2209 34.5543C21.7148 35.3604 22.8745 35.5425 23.8032 34.955L24.8271 34.3129C25.7468 33.7346 26.1047 32.6279 25.6244 31.8264L23.1056 27.6458C23.0557 27.5638 22.9832 27.4955 22.8926 27.4545L19.6127 25.8333C19.1823 25.6238 18.6069 25.9836 18.6069 26.4618V26.4663ZM13.1976 30.0959L15.1638 27.0128H15.1683C15.4266 26.6121 16.1061 26.6212 16.3507 27.031L18.2399 30.1779C18.2943 30.2644 18.3169 30.36 18.3169 30.4557L18.1855 35.3422C18.1584 36.2757 17.2659 37.0135 16.1786 36.9998L14.9735 36.9816C13.8772 36.9634 12.9983 36.1847 13.0164 35.2374L13.1161 30.36C13.1161 30.269 13.1433 30.1779 13.1976 30.0959Z" fill="black"/>
+    </svg>
+    <div class="brandname">QUL <span>· Font Compare</span></div>
+    <div class="spacer"></div>
+    <button class="ghost sm" id="swap" title="Swap the two fonts">⇄ Swap old/new</button>
+    <button class="ghost sm" id="reset">Reset</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1>Font Compare</h1>
+  <p class="sub">
+    This tool is used to compare two builds of the same font — usually the old one against a fixed export —
+    so you can see exactly what changed before shipping it. It diffs the rendered text pixel by pixel,
+    compares metadata and table sizes, diffs every glyph outline, and reports regressions such as dropped
+    hinting or characters that are no longer mapped. Supports TTF, OTF, TTC, WOFF and WOFF2.
+  </p>
+
+  <!-- font loaders -->
+  <div class="grid2" style="margin-bottom:16px;">
+    <div class="fontcard" id="cardA">
+      <div class="sidetag"><i class="swatch sw-a"></i> Old</div>
+      <div class="drop" id="dropA">Drop a font file here, or click to browse</div>
+      <input id="fileA" type="file" accept=".ttf,.otf,.ttc,.woff,.woff2,font/*">
+      <div class="row">
+        <label class="filebtn" for="fileA">Choose file</label>
+        <input id="urlA" type="text" placeholder="…or paste a font URL">
+        <button class="ghost" id="loadA">Load</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="fontname" id="nameA" disabled>No font loaded</button>
+        <div class="metaline" id="metaA"></div>
+      </div>
+      <div class="status" id="statusA"></div>
+    </div>
+
+    <div class="fontcard" id="cardB">
+      <div class="sidetag"><i class="swatch sw-b"></i> New</div>
+      <div class="drop" id="dropB">Drop a font file here, or click to browse</div>
+      <input id="fileB" type="file" accept=".ttf,.otf,.ttc,.woff,.woff2,font/*">
+      <div class="row">
+        <label class="filebtn" for="fileB">Choose file</label>
+        <input id="urlB" type="text" placeholder="…or paste a font URL">
+        <button class="ghost" id="loadB">Load</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="fontname" id="nameB" disabled>No font loaded</button>
+        <div class="metaline" id="metaB"></div>
+      </div>
+      <div class="status" id="statusB"></div>
+    </div>
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs" id="tabs">
+    <button data-tab="bitmap" class="active">Bitmap diff</button>
+    <button data-tab="issues">Issues <span class="tabcount" id="issueCount"></span></button>
+    <button data-tab="meta">Metadata &amp; size</button>
+    <button data-tab="glyphs">Glyphs</button>
+  </div>
+
+  <!-- ======== BITMAP ======== -->
+  <div class="tabpane active" data-pane="bitmap">
+    <div class="panel">
+      <label for="text">Sample text</label>
+      <textarea id="text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</textarea>
+      <div class="controls" style="margin-top:14px;">
+        <div class="control">
+          <label for="size">Font size</label>
+          <input id="size" type="number" min="4" max="500" value="72">
+        </div>
+        <div class="control">
+          <label for="dir">Direction</label>
+          <select id="dir">
+            <option value="rtl" selected>RTL</option>
+            <option value="ltr">LTR</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="threshold">Alpha threshold</label>
+          <input id="threshold" type="number" min="0" max="254" value="8">
+        </div>
+        <div class="control grow">
+          <label>View</label>
+          <div class="seg" id="views">
+            <button data-view="diff" class="active">Diff</button>
+            <button data-view="a">Old</button>
+            <button data-view="b">New</button>
+            <button data-view="overlay">Overlay</button>
+            <button data-view="sbs">Side by side</button>
+          </div>
+        </div>
+        <div class="control" style="min-width:auto;">
+          <button class="btn" id="render">Render</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between; margin-bottom:12px;">
+        <h2 style="margin:0;">Bitmap preview</h2>
+        <div class="row">
+          <label class="check"><input type="checkbox" id="whitebg" checked> White background in PNG</label>
+          <button class="ghost sm" id="copyPng">Copy PNG</button>
+          <button class="btn sm" id="downloadPng">Download PNG</button>
+        </div>
+      </div>
+      <div class="canvaswrap"><canvas id="canvas" width="10" height="10"></canvas></div>
+      <div class="legend" id="legend">
+        <span><i class="dot d-a"></i>only in the old font</span>
+        <span><i class="dot d-b"></i>only in the new font</span>
+        <span><i class="dot d-both"></i>shared pixels</span>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </div>
+
+  <!-- ======== ISSUES ======== -->
+  <div class="tabpane" data-pane="issues">
+    <div class="panel">
+      <h2>Font health &amp; regression report</h2>
+      <p class="sub" style="margin:0 0 16px;">
+        Checks each font on its own, then checks what changed between them. Every finding says what
+        it breaks in practice and how to fix it — usually by re-exporting from Glyphs 3 with the right
+        options, occasionally by patching the binary with fontTools.
+      </p>
+      <div id="issueList"></div>
+    </div>
+  </div>
+
+  <!-- ======== METADATA ======== -->
+  <div class="tabpane" data-pane="meta">
+    <div class="panel">
+      <h2>File size</h2>
+      <div class="scrollbox">
+        <table class="kv" id="sizeTable"></table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between; margin-bottom:12px;">
+        <h2 style="margin:0;">Font metadata</h2>
+        <label class="check"><input type="checkbox" id="diffOnly"> Show differing rows only</label>
+      </div>
+      <div class="scrollbox">
+        <table class="kv" id="metaTable"></table>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Table directory (sfnt)</h2>
+      <div class="scrollbox">
+        <table class="kv" id="tableDir"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== GLYPHS ======== -->
+  <div class="tabpane" data-pane="glyphs">
+    <div class="panel">
+      <div class="glyphtoolbar">
+        <div class="grow">
+          <input id="glyphSearch" type="text" placeholder="Filter by character, glyph name, or U+0628 / 0628">
+        </div>
+        <div class="seg" id="glyphFilters">
+          <button data-gf="all" class="active">All</button>
+          <button data-gf="changed">Changed</button>
+          <button data-gf="onlya">Only in old</button>
+          <button data-gf="onlyb">Only in new</button>
+          <button data-gf="same">Identical</button>
+        </div>
+        <select id="glyphSource" style="width:auto;">
+          <option value="both">Render overlay</option>
+          <option value="a">Render old</option>
+          <option value="b">Render new</option>
+        </select>
+        <select id="pairBy" style="width:auto;" title="How glyphs in the old font are matched up with glyphs in the new one">
+          <option value="auto">Match by unicode, then name, then index</option>
+          <option value="index">Match by glyph index only</option>
+        </select>
+      </div>
+      <div class="metaline" id="glyphSummary" style="margin-bottom:10px;"></div>
+      <div class="glyphgrid" id="glyphGrid"></div>
+      <div id="glyphMore" style="margin-top:12px; text-align:center;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- metadata / glyph modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <header>
+      <h3 id="modalTitle">Details</h3>
+      <div class="spacer"></div>
+      <button class="ghost sm" id="modalDownload" style="display:none;">Download PNG</button>
+      <button class="x" id="modalClose" aria-label="Close">×</button>
+    </header>
+    <div class="body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+
+/* ------------------------------------------------------------------ state */
+const S = {
+  A: null, B: null,           // { name, size, format, buffer, sfnt, family, url, font, glyphs, byKey }
+  view: 'diff', tab: 'bitmap',
+  glyphFilter: 'all', glyphSource: 'both', glyphLimit: 300, selectedKey: null, glyphZoom: 260, pairBy: 'auto',
+  pairs: [], seq: 0
+};
+
+/* ------------------------------------------------------------------ utils */
+function fmtBytes(n){
+  if (n == null) return '—';
+  if (n < 1024) return n + ' B';
+  if (n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+  return (n/1048576).toFixed(2) + ' MB';
+}
+function deltaChip(a, b){
+  if (a == null || b == null) return '';
+  const d = b - a;
+  if (d === 0) return '<span class="chip same">no change</span>';
+  const pct = a ? ((d/a)*100).toFixed(1) : '∞';
+  const sign = d > 0 ? '+' : '−';
+  return `<span class="chip ${d>0?'up':'down'}">${sign}${fmtBytes(Math.abs(d))} (${sign}${Math.abs(pct)}%)</span>`;
+}
+function hex(cp){ return 'U+' + cp.toString(16).toUpperCase().padStart(4,'0'); }
+function fnv(str){
+  let h = 0x811c9dc5;
+  for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h>>>0).toString(16);
+}
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function sig(buf){
+  const d = new Uint8Array(buf, 0, 4);
+  return String.fromCharCode(d[0],d[1],d[2],d[3]);
+}
+function detectFormat(buf){
+  const s = sig(buf);
+  if (s === 'wOFF') return 'woff';
+  if (s === 'wOF2') return 'woff2';
+  if (s === 'OTTO') return 'otf';
+  if (s === 'ttcf') return 'ttc';
+  if (s === 'true' || s === 'typ1') return 'ttf';
+  const v = new DataView(buf).getUint32(0);
+  if (v === 0x00010000) return 'ttf';
+  return 'unknown';
+}
+
+/* --------------------------------------------------- woff2 lazy decompress */
+let woff2Ready = null;
+function loadWoff2(){
+  if (woff2Ready) return woff2Ready;
+  woff2Ready = new Promise((resolve, reject) => {
+    window.Module = { onRuntimeInitialized: () => resolve(window.Module) };
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/wawoff2@2.0.1/build/decompress_binding.js';
+    s.onerror = () => reject(new Error('could not load the WOFF2 decompressor'));
+    document.head.appendChild(s);
+  });
+  return woff2Ready;
+}
+
+/* --------------------------------------------------------- table directory */
+function readTableDirectory(buf, format){
+  try {
+    const dv = new DataView(buf);
+    if (format === 'woff'){
+      const numTables = dv.getUint16(12);
+      const out = [];
+      for (let i=0;i<numTables;i++){
+        const p = 44 + i*20;
+        out.push({
+          tag: tag4(dv, p),
+          length: dv.getUint32(p+12),          // origLength
+          compressed: dv.getUint32(p+8),       // compLength
+          checksum: dv.getUint32(p+16)
+        });
+      }
+      return out;
+    }
+    let off = 0;
+    if (format === 'ttc') off = dv.getUint32(12);
+    const numTables = dv.getUint16(off+4);
+    const out = [];
+    for (let i=0;i<numTables;i++){
+      const p = off + 12 + i*16;
+      out.push({ tag: tag4(dv,p), checksum: dv.getUint32(p+4), offset: dv.getUint32(p+8), length: dv.getUint32(p+12) });
+    }
+    return out;
+  } catch(e){ return []; }
+}
+function tag4(dv,p){ return String.fromCharCode(dv.getUint8(p),dv.getUint8(p+1),dv.getUint8(p+2),dv.getUint8(p+3)); }
+
+// Return a copy of an sfnt whose directory no longer lists `tags`. The table bytes stay
+// where they are — only the directory shrinks — which is enough to make a parser skip them.
+function withoutTables(buf, tags){
+  const src = new Uint8Array(buf);
+  const dv = new DataView(buf);
+  const num = dv.getUint16(4);
+  const keep = [];
+  for (let i=0;i<num;i++){
+    const p = 12 + i*16;
+    if (!tags.includes(tag4(dv,p))) keep.push(src.slice(p, p+16));
+  }
+  if (keep.length === num) return null;               // nothing to strip
+  const out = src.slice();
+  const odv = new DataView(out.buffer);
+  odv.setUint16(4, keep.length);
+  const pow = Math.pow(2, Math.floor(Math.log2(keep.length || 1)));
+  odv.setUint16(6, pow * 16);                          // searchRange
+  odv.setUint16(8, Math.log2(pow));                    // entrySelector
+  odv.setUint16(10, keep.length * 16 - pow * 16);      // rangeShift
+  keep.forEach((e, i) => out.set(e, 12 + i*16));
+  return out.buffer;
+}
+
+// opentype.js rejects a few newer/odd layout tables outright (e.g. GDEF v1.2+). None of them
+// are needed to inspect outlines or metadata, so drop them and retry rather than giving up.
+const OPTIONAL_TABLES = [['GDEF'], ['GDEF','GPOS'], ['GDEF','GPOS','GSUB'], ['GDEF','GPOS','GSUB','kern','morx','name','post']];
+function parseFont(sfnt, isSfnt){
+  try {
+    return { font: opentype.parse(sfnt, {lowMemory:true}), skipped: [] };
+  } catch(firstError){
+    if (isSfnt){
+      for (const tags of OPTIONAL_TABLES){
+        const stripped = withoutTables(sfnt, tags);
+        if (!stripped) continue;
+        try {
+          return { font: opentype.parse(stripped, {lowMemory:true}), skipped: tags, firstError };
+        } catch(e){ /* try dropping more */ }
+      }
+    }
+    return { font: null, firstError };
+  }
+}
+
+/* --------------------------------------------------------------- font load */
+function setStatus(side, msg, err){
+  const n = $('status'+side);
+  n.textContent = msg || '';
+  n.className = 'status' + (err ? ' error' : '');
+}
+
+async function loadFont(side, blobOrFile, name){
+  setStatus(side, 'Reading ' + name + '…');
+  try {
+    const buffer = await blobOrFile.arrayBuffer();
+    if (buffer.byteLength < 16) throw new Error('file is too small to be a font');
+    const format = detectFormat(buffer);
+    if (format === 'unknown') throw new Error('unrecognised font signature — expected TTF, OTF, TTC, WOFF or WOFF2');
+
+    // family for canvas rendering — unique per load so the browser never reuses a cached face
+    const family = 'QULFont_' + side + '_' + (++S.seq);
+    if (S[side] && S[side].url) URL.revokeObjectURL(S[side].url);
+    const url = URL.createObjectURL(new Blob([buffer]));
+    const face = new FontFace(family, 'url(' + url + ')');
+    await face.load();
+    document.fonts.add(face);
+
+    // parse: opentype.js understands sfnt + woff; woff2 must be inflated first
+    let sfnt = buffer, parseNote = '';
+    if (format === 'woff2'){
+      setStatus(side, 'Decompressing WOFF2…');
+      const mod = await loadWoff2();
+      const res = mod.decompress(new Uint8Array(buffer));
+      if (!res) throw new Error('WOFF2 decompression failed');
+      sfnt = new Uint8Array(res).slice().buffer;
+    }
+    const parsed = parseFont(sfnt, format !== 'woff');
+    const font = parsed.font;
+    let skipped = parsed.skipped || [];
+    if (!font) parseNote = ' · outlines could not be parsed (' + parsed.firstError.message + ')';
+    else if (skipped.length) parseNote = ' · parsed without ' + skipped.join('/') + ' (' + parsed.firstError.message + ')';
+
+    if (font && font.numGlyphs > 2000) setStatus(side, 'Indexing ' + font.numGlyphs.toLocaleString() + ' glyphs…');
+    S[side] = {
+      name, size: buffer.byteLength, format, buffer, sfnt, family, url, font,
+      tables: readTableDirectory(format === 'woff2' ? sfnt : buffer, format === 'woff2' ? 'ttf' : format),
+      glyphs: font ? indexGlyphs(font) : null,
+      skipped
+    };
+
+    const btn = $('name'+side);
+    btn.textContent = displayName(S[side]);
+    btn.disabled = !font;
+    btn.title = font ? 'Click for full metadata' : 'Metadata unavailable for this file';
+    $('card'+side).classList.add('loaded');
+    $('meta'+side).innerHTML = shortMeta(side);
+    setStatus(side, name + ' loaded' + parseNote, !!parseNote);
+
+    computePairs();
+    renderAll();
+  } catch(e){
+    setStatus(side, 'Could not load font: ' + e.message, true);
+  }
+}
+
+function displayName(f){
+  if (!f.font) return f.name;
+  const n = f.font.names || {};
+  const pick = o => o && (o.en || Object.values(o)[0]);
+  return pick(n.fullName) || pick(n.fontFamily) || pick(n.postScriptName) || f.name;
+}
+
+function shortMeta(side){
+  const f = S[side], other = S[side === 'A' ? 'B' : 'A'];
+  const bits = [
+    esc(f.name),
+    f.format.toUpperCase(),
+    fmtBytes(f.size)
+  ];
+  if (f.font) bits.push(f.font.numGlyphs.toLocaleString() + ' glyphs', f.font.unitsPerEm + ' upem');
+  let html = bits.join(' · ');
+  // only annotate B with the size delta, so the pair reads "A, then B is +x bigger"
+  if (other && side === 'B') html += ' &nbsp;' + deltaChip(other.size, f.size);
+  return html;
+}
+
+/* ---------------------------------------------------------- glyph indexing */
+function indexGlyphs(font){
+  const list = [], byUni = new Map(), byName = new Map();
+  for (let i=0;i<font.numGlyphs;i++){
+    let g;
+    try { g = font.glyphs.get(i); } catch(e){ continue; }
+    if (!g) continue;
+    let d = '';
+    try { d = g.path.toPathData(1); } catch(e){ d = '<unparsed>'; }
+    const entry = {
+      index: i,
+      name: g.name || null,
+      unicode: g.unicode != null ? g.unicode : null,
+      advanceWidth: g.advanceWidth,
+      path: d,
+      hash: fnv(d),
+      glyph: g
+    };
+    list.push(entry);
+    if (entry.unicode != null && !byUni.has(entry.unicode)) byUni.set(entry.unicode, entry);
+    if (entry.name && !byName.has(entry.name)) byName.set(entry.name, entry);
+  }
+  return { list, byUni, byName };
+}
+
+function makePair(ga, gb){
+  let status;
+  if (ga && !gb) status = 'onlya';
+  else if (!ga && gb) status = 'onlyb';
+  else status = (ga.hash === gb.hash && ga.advanceWidth === gb.advanceWidth) ? 'same' : 'changed';
+  return {
+    key: (ga ? 'a' + ga.index : '') + '|' + (gb ? 'b' + gb.index : ''),
+    a: ga, b: gb, status,
+    unicode: ga && ga.unicode != null ? ga.unicode : (gb ? gb.unicode : null),
+    name: (ga && ga.name) || (gb && gb.name) || null,
+    matchedBy: ga && gb ? (ga.unicode != null && ga.unicode === gb.unicode ? 'unicode'
+                        : ga.name && ga.name === gb.name ? 'name' : 'index') : null
+  };
+}
+
+// Match on unicode first, then on glyph name, then fall back to glyph index for whatever is
+// left over — two builds of the same font often rename their unencoded glyphs, and without the
+// index fallback every one of those would show up as "removed in A, added in B".
+function computePairs(){
+  const ia = S.A && S.A.glyphs, ib = S.B && S.B.glyphs;
+  const A = ia ? ia.list : [], B = ib ? ib.list : [];
+  if (!A.length && !B.length){ S.pairs = []; return; }
+  const pairs = [];
+
+  if (S.pairBy === 'index' || !ia || !ib){
+    const byIndexB = new Map(B.map(g => [g.index, g]));
+    for (const ga of A){
+      const gb = byIndexB.get(ga.index);
+      if (gb) byIndexB.delete(ga.index);
+      pairs.push(makePair(ga, gb || null));
+    }
+    for (const gb of byIndexB.values()) pairs.push(makePair(null, gb));
+  } else {
+    const usedB = new Set(), leftA = [];
+    for (const ga of A){
+      let gb = ga.unicode != null ? ib.byUni.get(ga.unicode) : null;
+      if ((!gb || usedB.has(gb.index)) && ga.name) gb = ib.byName.get(ga.name);
+      if (gb && !usedB.has(gb.index)){ usedB.add(gb.index); pairs.push(makePair(ga, gb)); }
+      else leftA.push(ga);
+    }
+    const leftB = new Map(B.filter(g => !usedB.has(g.index)).map(g => [g.index, g]));
+    for (const ga of leftA){
+      const gb = leftB.get(ga.index);
+      if (gb) leftB.delete(ga.index);
+      pairs.push(makePair(ga, gb || null));
+    }
+    for (const gb of leftB.values()) pairs.push(makePair(null, gb));
+  }
+
+  pairs.sort((x,y) => {
+    if (x.unicode == null && y.unicode == null)
+      return (x.a ? x.a.index : x.b.index) - (y.a ? y.a.index : y.b.index);
+    if (x.unicode == null) return 1;
+    if (y.unicode == null) return -1;
+    return x.unicode - y.unicode;
+  });
+  S.pairs = pairs;
+}
+
+/* --------------------------------------------------------- bitmap diffing  */
+function makeBitmap(family, text, size, dir){
+  const lines = text.replace(/\r/g,'').split('\n');
+  const pad = Math.ceil(size * 0.35) + 8;
+  const lineHeight = Math.ceil(size * 1.6);
+  const tmp = document.createElement('canvas').getContext('2d');
+  tmp.font = size + 'px "' + family + '"';
+  const widths = lines.map(x => tmp.measureText(x).width);
+  const w = Math.max(1, Math.ceil(Math.max(...widths, size) + pad*2));
+  const h = Math.max(1, lineHeight * lines.length + pad*2);
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d', {willReadFrequently:true});
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#000';
+  ctx.font = size + 'px "' + family + '"';
+  ctx.textBaseline = 'alphabetic';
+  ctx.direction = dir;
+  ctx.textAlign = dir === 'rtl' ? 'right' : 'left';
+  const x = dir === 'rtl' ? w - pad : pad;
+  let y = pad + size;
+  for (const line of lines){ ctx.fillText(line, x, y); y += lineHeight; }
+  return { c, w, h };
+}
+
+function imgData(canvas, w, h){
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  c.getContext('2d').drawImage(canvas, 0, 0);
+  return c.getContext('2d', {willReadFrequently:true}).getImageData(0,0,w,h).data;
+}
+
+function renderBitmap(){
+  const out = $('canvas');
+  if (!S.A || !S.B){
+    out.width = 10; out.height = 10;
+    out.getContext('2d').clearRect(0,0,10,10);
+    $('stats').textContent = 'Load both an old and an updated font to compare them.';
+    return;
+  }
+  const text = $('text').value;
+  const size = Math.max(4, Number($('size').value) || 72);
+  const dir = $('dir').value;
+  const threshold = Math.min(254, Math.max(0, Number($('threshold').value) || 0));
+  const a = makeBitmap(S.A.family, text, size, dir);
+  const b = makeBitmap(S.B.family, text, size, dir);
+  const w = Math.max(a.w, b.w), h = Math.max(a.h, b.h);
+
+  if (S.view === 'sbs'){
+    out.width = w; out.height = h*2 + 12;
+    const ctx = out.getContext('2d');
+    ctx.clearRect(0,0,out.width,out.height);
+    ctx.drawImage(a.c, 0, 0);
+    ctx.fillStyle = '#e5e7eb'; ctx.fillRect(0, h+5, w, 2);
+    ctx.drawImage(b.c, 0, h+12);
+    $('stats').innerHTML = '<span>Old on top, new below · <b>' + w + ' × ' + h + '</b> px each</span>';
+    return;
+  }
+
+  const da = imgData(a.c, w, h), db = imgData(b.c, w, h);
+  out.width = w; out.height = h;
+  const ctx = out.getContext('2d');
+  const img = ctx.createImageData(w, h);
+  let onlyA = 0, onlyB = 0, both = 0, inkA = 0, inkB = 0;
+
+  for (let i=0;i<da.length;i+=4){
+    const aa = da[i+3], bb = db[i+3];
+    const onA = aa > threshold, onB = bb > threshold;
+    if (onA) inkA++;
+    if (onB) inkB++;
+    let r=0,g=0,bv=0,al=255;
+    if (S.view === 'a'){ al = aa; r=g=bv=17; }
+    else if (S.view === 'b'){ al = bb; r=g=bv=17; }
+    else if (S.view === 'overlay'){
+      if (onA && onB){ r=43; g=48; bv=58; al=255; }
+      else if (onA){ r=229; g=72; bv=77; al=aa; onlyA++; }
+      else if (onB){ r=71; g=108; bv=255; al=bb; onlyB++; }
+      else al = 0;
+      if (onA && onB) both++;
+    } else { // diff
+      if (onA && onB){ r=43; g=48; bv=58; al=40; both++; }
+      else if (onA){ r=229; g=72; bv=77; al=255; onlyA++; }
+      else if (onB){ r=71; g=108; bv=255; al=255; onlyB++; }
+      else al = 0;
+    }
+    img.data[i]=r; img.data[i+1]=g; img.data[i+2]=bv; img.data[i+3]=al;
+  }
+  ctx.putImageData(img, 0, 0);
+
+  const union = onlyA + onlyB + both;
+  const changed = union ? ((onlyA + onlyB) / union * 100) : 0;
+  $('stats').innerHTML =
+    '<span>Bitmap <b>' + w + ' × ' + h + '</b> px</span>' +
+    '<span>size <b>' + size + 'px</b></span>' +
+    '<span>ink old <b>' + inkA.toLocaleString() + '</b></span>' +
+    '<span>ink new <b>' + inkB.toLocaleString() + '</b></span>' +
+    '<span style="color:var(--a)">only old <b>' + onlyA.toLocaleString() + '</b></span>' +
+    '<span style="color:var(--b)">only new <b>' + onlyB.toLocaleString() + '</b></span>' +
+    '<span>shared <b>' + both.toLocaleString() + '</b></span>' +
+    '<span>changed <b>' + changed.toFixed(2) + '%</b></span>';
+}
+
+/* --------------------------------------------------------- PNG export ---- */
+function exportCanvas(src, wantWhite){
+  const c = document.createElement('canvas');
+  c.width = src.width; c.height = src.height;
+  const ctx = c.getContext('2d');
+  if (wantWhite){ ctx.fillStyle = '#fff'; ctx.fillRect(0,0,c.width,c.height); }
+  ctx.drawImage(src, 0, 0);
+  return c;
+}
+function downloadCanvas(src, filename, wantWhite){
+  exportCanvas(src, wantWhite).toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }, 'image/png');
+}
+function baseName(){
+  const a = S.A ? S.A.name.replace(/\.[^.]+$/,'') : 'A';
+  const b = S.B ? S.B.name.replace(/\.[^.]+$/,'') : 'B';
+  return (a + '-vs-' + b).replace(/[^\w.-]+/g,'_').slice(0,120);
+}
+
+/* -------------------------------------------------------- metadata tables  */
+function nameOf(o){ return o ? (o.en || Object.values(o)[0]) : null; }
+
+function metaRows(f){
+  if (!f) return {};
+  const font = f.font;
+  const r = {};
+  r['File name'] = f.name;
+  r['Format'] = f.format.toUpperCase();
+  r['File size'] = fmtBytes(f.size) + ' (' + f.size.toLocaleString() + ' bytes)';
+  if (!font) return r;
+  const n = font.names || {}, head = font.tables.head || {}, os2 = font.tables.os2 || {},
+        hhea = font.tables.hhea || {}, post = font.tables.post || {};
+  const names = ['fontFamily','fontSubfamily','fullName','postScriptName','version','uniqueID',
+                 'preferredFamily','preferredSubfamily','designer','designerURL','manufacturer',
+                 'manufacturerURL','copyright','trademark','license','licenseURL','description','sampleText'];
+  for (const k of names){ const v = nameOf(n[k]); if (v) r[k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase())] = v; }
+  r['Outline type'] = font.outlinesFormat === 'cff' ? 'CFF / PostScript' : 'TrueType (glyf)';
+  r['Units per em'] = head.unitsPerEm || font.unitsPerEm;
+  r['Glyph count'] = font.numGlyphs;
+  r['Ascender'] = font.ascender;
+  r['Descender'] = font.descender;
+  if (hhea.lineGap != null) r['hhea lineGap'] = hhea.lineGap;
+  if (hhea.advanceWidthMax != null) r['Max advance width'] = hhea.advanceWidthMax;
+  if (head.xMin != null) r['head bbox'] = [head.xMin, head.yMin, head.xMax, head.yMax].join(', ');
+  if (head.created) r['Created'] = new Date(head.created*1000).toISOString().slice(0,10);
+  if (head.modified) r['Modified'] = new Date(head.modified*1000).toISOString().slice(0,10);
+  if (head.macStyle != null) r['macStyle'] = head.macStyle;
+  if (head.indexToLocFormat != null) r['indexToLocFormat'] = head.indexToLocFormat;
+  if (os2.usWeightClass != null) r['OS/2 weight class'] = os2.usWeightClass;
+  if (os2.usWidthClass != null) r['OS/2 width class'] = os2.usWidthClass;
+  if (os2.fsType != null) r['OS/2 fsType (embedding)'] = os2.fsType;
+  if (os2.achVendID) r['Vendor ID'] = os2.achVendID;
+  if (os2.sTypoAscender != null) r['Typo ascender / descender / gap'] = [os2.sTypoAscender, os2.sTypoDescender, os2.sTypoLineGap].join(' / ');
+  if (os2.usWinAscent != null) r['Win ascent / descent'] = os2.usWinAscent + ' / ' + os2.usWinDescent;
+  if (os2.sxHeight != null) r['x-height / cap-height'] = os2.sxHeight + ' / ' + os2.sCapHeight;
+  if (post.italicAngle != null) r['Italic angle'] = post.italicAngle;
+  if (post.isFixedPitch != null) r['Fixed pitch'] = post.isFixedPitch ? 'yes' : 'no';
+  if (post.version != null) r['post table version'] = post.version;
+  // cmap coverage
+  try {
+    const cps = Object.keys(font.tables.cmap.glyphIndexMap || {});
+    r['Characters mapped (cmap)'] = cps.length.toLocaleString();
+    if (cps.length){
+      const nums = cps.map(Number);
+      r['Codepoint range'] = hex(Math.min(...nums)) + ' – ' + hex(Math.max(...nums));
+    }
+  } catch(e){}
+  for (const t of ['gsub','gpos']){
+    const tbl = font.tables[t];
+    if (tbl){
+      if (tbl.scripts) r[t.toUpperCase() + ' scripts'] = tbl.scripts.map(s => s.tag).join(', ');
+      if (tbl.features) r[t.toUpperCase() + ' features'] = [...new Set(tbl.features.map(x => x.tag))].sort().join(', ');
+      if (tbl.lookups) r[t.toUpperCase() + ' lookups'] = tbl.lookups.length;
+    }
+  }
+  r['Tables'] = f.tables.map(t => t.tag).join(', ');
+  if (f.skipped && f.skipped.length) r['Tables skipped while parsing'] = f.skipped.join(', ') + ' (unsupported by the parser — outlines and the rest of the metadata are unaffected)';
+  return r;
+}
+
+function renderMetaTable(){
+  const t = $('metaTable');
+  const ra = metaRows(S.A), rb = metaRows(S.B);
+  const keys = [...new Set([...Object.keys(ra), ...Object.keys(rb)])];
+  const only = $('diffOnly').checked;
+  let html = '<thead><tr><th>Property</th><th><span class="swatch sw-a"></span> Old</th><th><span class="swatch sw-b"></span> New</th></tr></thead><tbody>';
+  let shown = 0;
+  for (const k of keys){
+    const va = ra[k], vb = rb[k];
+    const differs = S.A && S.B && String(va) !== String(vb);
+    if (only && !differs) continue;
+    shown++;
+    html += '<tr class="' + (differs ? 'diff' : '') + '"><td class="k">' + esc(k) + '</td>' +
+            '<td>' + esc(va == null ? '—' : va) + '</td>' +
+            '<td>' + esc(vb == null ? '—' : vb) + '</td></tr>';
+  }
+  html += '</tbody>';
+  t.innerHTML = keys.length && shown ? html : '<tbody><tr><td class="empty">' +
+    (keys.length ? 'No differing properties.' : 'Load a font to see its metadata.') + '</td></tr></tbody>';
+}
+
+function renderSizeTable(){
+  const t = $('sizeTable');
+  if (!S.A && !S.B){ t.innerHTML = '<tbody><tr><td class="empty">Load a font to see file sizes.</td></tr></tbody>'; return; }
+  const a = S.A, b = S.B;
+  const rows = [
+    ['File', a ? esc(a.name) : '—', b ? esc(b.name) : '—', ''],
+    ['Format', a ? a.format.toUpperCase() : '—', b ? b.format.toUpperCase() : '—', ''],
+    ['File size', a ? fmtBytes(a.size) : '—', b ? fmtBytes(b.size) : '—', a && b ? deltaChip(a.size, b.size) : ''],
+    ['Bytes', a ? a.size.toLocaleString() : '—', b ? b.size.toLocaleString() : '—',
+      a && b ? (b.size - a.size >= 0 ? '+' : '−') + Math.abs(b.size - a.size).toLocaleString() + ' bytes' : ''],
+    ['Decompressed (sfnt)', a ? fmtBytes(a.sfnt.byteLength) : '—', b ? fmtBytes(b.sfnt.byteLength) : '—',
+      a && b ? deltaChip(a.sfnt.byteLength, b.sfnt.byteLength) : ''],
+    ['Glyph count', a && a.font ? a.font.numGlyphs.toLocaleString() : '—', b && b.font ? b.font.numGlyphs.toLocaleString() : '—',
+      a && a.font && b && b.font ? (b.font.numGlyphs - a.font.numGlyphs >= 0 ? '+' : '−') + Math.abs(b.font.numGlyphs - a.font.numGlyphs) : ''],
+    ['Tables', a ? a.tables.length : '—', b ? b.tables.length : '—', '']
+  ];
+  t.innerHTML = '<thead><tr><th></th><th><span class="swatch sw-a"></span> Old</th><th><span class="swatch sw-b"></span> New</th><th>Difference</th></tr></thead><tbody>' +
+    rows.map(r => '<tr><td class="k">' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td class="num">' + r[3] + '</td></tr>').join('') +
+    '</tbody>';
+}
+
+function renderTableDir(){
+  const t = $('tableDir');
+  if (!S.A && !S.B){ t.innerHTML = '<tbody><tr><td class="empty">Load a font to see its table directory.</td></tr></tbody>'; return; }
+  const ma = new Map((S.A ? S.A.tables : []).map(x => [x.tag, x]));
+  const mb = new Map((S.B ? S.B.tables : []).map(x => [x.tag, x]));
+  const tags = [...new Set([...ma.keys(), ...mb.keys()])].sort();
+  let html = '<thead><tr><th>Table</th><th>Old size</th><th>New size</th><th>Δ</th><th>Checksum old</th><th>Checksum new</th></tr></thead><tbody>';
+  for (const tag of tags){
+    const a = ma.get(tag), b = mb.get(tag);
+    const differs = !a || !b || a.length !== b.length || a.checksum !== b.checksum;
+    const d = a && b ? b.length - a.length : null;
+    html += '<tr class="' + (differs ? 'diff' : '') + '">' +
+      '<td class="k mono">' + tag + '</td>' +
+      '<td class="num">' + (a ? fmtBytes(a.length) : '—') + '</td>' +
+      '<td class="num">' + (b ? fmtBytes(b.length) : '—') + '</td>' +
+      '<td class="num">' + (d == null ? (a ? 'removed' : 'added') : (d === 0 ? '—' : (d > 0 ? '+' : '−') + fmtBytes(Math.abs(d)))) + '</td>' +
+      '<td class="mono">' + (a ? (a.checksum >>> 0).toString(16) : '—') + '</td>' +
+      '<td class="mono">' + (b ? (b.checksum >>> 0).toString(16) : '—') + '</td></tr>';
+  }
+  t.innerHTML = html + '</tbody>';
+}
+
+/* --------------------------------------------------------------- glyph UI  */
+// QCF glyphs are whole words — far wider than they are tall — so scaling by em height alone
+// clips them. Fit the bounding box instead, but never magnify past the em scale or a lone dot
+// would fill the cell.
+function glyphBox(gi, font){
+  if (!gi || !font) return null;
+  const upem = font.unitsPerEm || 1000;
+  let bb = null;
+  try { bb = gi.glyph.getBoundingBox(); } catch(e){}
+  const empty = !bb || !isFinite(bb.x1) || (bb.x1 === 0 && bb.x2 === 0 && bb.y1 === 0 && bb.y2 === 0);
+  if (empty) return {x1:0, y1:0, x2:(gi.advanceWidth || upem)/upem, y2:(font.ascender || upem)/upem};
+  return {x1:bb.x1/upem, y1:bb.y1/upem, x2:bb.x2/upem, y2:bb.y2/upem};
+}
+
+// Union of A's and B's outlines, in em units. Drives both the shared draw transform and
+// how much room a cell should be given — glyphs in these fonts range from a single dot to
+// a whole word, so one fixed box can't serve both.
+function pairBBox(pair){
+  const boxes = [glyphBox(pair.a, S.A && S.A.font), glyphBox(pair.b, S.B && S.B.font)].filter(Boolean);
+  if (!boxes.length) return null;
+  const x1 = Math.min(...boxes.map(b => b.x1)), x2 = Math.max(...boxes.map(b => b.x2));
+  const y1 = Math.min(...boxes.map(b => b.y1)), y2 = Math.max(...boxes.map(b => b.y2));
+  return {x1, y1, x2, y2, bw: Math.max(x2 - x1, 1e-4), bh: Math.max(y2 - y1, 1e-4)};
+}
+
+// One transform for the whole pair: A, B and the overlay must share a scale and origin,
+// otherwise the three panels can't be compared by eye. Units are ems, so fonts with a
+// different unitsPerEm still line up.
+function pairView(pair, w, h){
+  // Breathing room around the glyph. A flat pixel floor is far too tight on a small
+  // thumbnail, where the ink then sits right on the cell border and reads as clipped.
+  const pad = Math.max(6, Math.min(w, h) * 0.12);
+  const availW = Math.max(1, w - pad*2), availH = Math.max(1, h - pad*2);
+  const emScale = availH * 0.72;
+  const bb = pairBBox(pair);
+  if (!bb) return {scale: emScale, cx: 0.5, cy: 0.35, bw: 1, bh: 1};
+  return {
+    scale: Math.min(emScale, availW / bb.bw, availH / bb.bh),
+    cx: (bb.x1 + bb.x2) / 2,
+    cy: (bb.y1 + bb.y2) / 2,
+    bw: bb.bw, bh: bb.bh
+  };
+}
+
+// How many grid columns this glyph deserves, from its aspect ratio.
+const CELL_W = 118, CELL_H = 92, CELL_GAP = 8;
+function cellSpan(pair){
+  const bb = pairBBox(pair);
+  if (!bb) return 1;
+  const ar = bb.bw / bb.bh;
+  return ar > 3.6 ? 3 : ar > 1.9 ? 2 : 1;
+}
+
+function drawGlyphPath(ctx, gi, font, w, h, color, alpha, view){
+  if (!gi || !font) return;
+  let path;
+  // getPath(x, y, size) puts the glyph origin at (x, y); place it so the shared bbox centre
+  // lands in the middle of the canvas.
+  try { path = gi.glyph.getPath(w/2 - view.cx * view.scale, h/2 + view.cy * view.scale, view.scale); }
+  catch(e){ return; }
+  path.fill = color;
+  ctx.save();
+  ctx.globalAlpha = alpha == null ? 1 : alpha;
+  path.draw(ctx);
+  ctx.restore();
+}
+
+// A in red, B in blue, multiplied so the shared area reads as a dark overlap
+// rather than whichever colour happened to be painted last.
+function drawOverlay(ctx, pair, w, h, view){
+  if (pair.a && pair.b && pair.status === 'same'){
+    drawGlyphPath(ctx, pair.a, S.A.font, w, h, '#2b303a', 1, view);
+    return;
+  }
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  if (pair.a) drawGlyphPath(ctx, pair.a, S.A.font, w, h, '#e5484d', 1, view);
+  if (pair.b) drawGlyphPath(ctx, pair.b, S.B.font, w, h, '#476cff', 1, view);
+  ctx.restore();
+}
+
+function paintGlyphCanvas(canvas, pair, mode){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const view = pairView(pair, w, h);
+  if (mode === 'both'){ drawOverlay(ctx, pair, w, h, view); return; }
+  const gi = mode === 'a' ? pair.a : pair.b;
+  const font = mode === 'a' ? (S.A && S.A.font) : (S.B && S.B.font);
+  if (gi && font) drawGlyphPath(ctx, gi, font, w, h, '#2b303a', 1, view);
+}
+
+function matchesSearch(p, q){
+  if (!q) return true;
+  q = q.trim().toLowerCase();
+  if (!q) return true;
+  if (p.name && p.name.toLowerCase().includes(q)) return true;
+  if (p.unicode != null){
+    const h = p.unicode.toString(16).toLowerCase();
+    if (h === q || ('u+'+h) === q || ('u+' + h.padStart(4,'0')) === q || h.padStart(4,'0') === q) return true;
+    if (String.fromCodePoint(p.unicode) === q) return true;
+  }
+  return false;
+}
+
+function renderGlyphs(){
+  const grid = $('glyphGrid'), more = $('glyphMore'), summary = $('glyphSummary');
+  grid.innerHTML = ''; more.innerHTML = '';
+  if (!S.pairs.length){
+    summary.textContent = '';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Load a font with parseable outlines to browse its glyphs.</div>';
+    return;
+  }
+  const counts = { all:S.pairs.length, changed:0, onlya:0, onlyb:0, same:0 };
+  for (const p of S.pairs) counts[p.status]++;
+  summary.innerHTML =
+    '<b>' + counts.all.toLocaleString() + '</b> glyphs · ' +
+    '<span style="color:var(--warn)">' + counts.changed.toLocaleString() + ' changed</span> · ' +
+    '<span style="color:var(--a)">' + counts.onlya.toLocaleString() + ' only in old</span> · ' +
+    '<span style="color:var(--b)">' + counts.onlyb.toLocaleString() + ' only in new</span> · ' +
+    counts.same.toLocaleString() + ' identical';
+
+  const q = $('glyphSearch').value;
+  const list = S.pairs.filter(p => (S.glyphFilter === 'all' || p.status === S.glyphFilter) && matchesSearch(p, q));
+  if (!list.length){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">No glyphs match this filter.</div>';
+    return;
+  }
+  const slice = list.slice(0, S.glyphLimit);
+  const frag = document.createDocumentFragment();
+  for (const p of slice) frag.appendChild(glyphCell(p));
+  grid.appendChild(frag);
+  if (list.length > slice.length){
+    const b = el('button', 'ghost', 'Show ' + Math.min(300, list.length - slice.length) + ' more (' + (list.length - slice.length).toLocaleString() + ' remaining)');
+    b.onclick = () => { S.glyphLimit += 300; renderGlyphs(); };
+    more.appendChild(b);
+  }
+}
+
+function glyphCell(p){
+  const cell = el('div', 'cell' + (p.status !== 'same' ? ' ' + p.status : '') + (S.selectedKey === p.key ? ' sel' : ''));
+  if (p.status !== 'same'){
+    const map = { changed:['c','Δ'], onlya:['a','OLD'], onlyb:['b','NEW'] };
+    const [c, txt] = map[p.status];
+    cell.appendChild(el('i', 'badge ' + c, txt));
+  }
+  const span = cellSpan(p);
+  if (span > 1) cell.style.gridColumn = 'span ' + span;
+  const cv = document.createElement('canvas');
+  cv.width = CELL_W * span + CELL_GAP * (span - 1);
+  cv.height = CELL_H;
+  cell.appendChild(cv);
+  paintGlyphCanvas(cv, p, S.glyphSource);
+  cell.appendChild(el('div', 'cp', p.unicode != null ? hex(p.unicode) : '#' + (p.a ? p.a.index : p.b.index)));
+  cell.appendChild(el('div', 'nm', p.name || '—'));
+  const bb = pairBBox(p);
+  cell.title = (p.name || '') + (p.unicode != null ? ' ' + hex(p.unicode) : '') + ' · ' + p.status +
+    (bb ? ' · ' + bb.bw.toFixed(2) + ' × ' + bb.bh.toFixed(2) + ' em' : '');
+  cell.onclick = () => { S.selectedKey = p.key; openGlyphModal(p); renderGlyphs(); };
+  return cell;
+}
+
+/* ------------------------------------------------------------ issue report */
+const HINTING_TABLES = ['cvt ', 'fpgm', 'prep', 'gasp'];
+const LAYOUT_TABLES  = ['GSUB', 'GPOS', 'GDEF', 'kern'];
+
+function tableMap(f){ return new Map(f.tables.map(t => [t.tag, t])); }
+
+// GDEF/GSUB/GPOS all start with a uint16 major + uint16 minor version.
+function layoutVersion(f, tag){
+  const t = tableMap(f).get(tag);
+  if (!t || t.offset == null || f.format === 'woff') return null;
+  try {
+    const dv = new DataView(f.sfnt);
+    return dv.getUint16(t.offset) + '.' + dv.getUint16(t.offset + 2);
+  } catch(e){ return null; }
+}
+
+function cmapSet(f){
+  try { return new Set(Object.keys(f.font.tables.cmap.glyphIndexMap).map(Number)); }
+  catch(e){ return null; }
+}
+
+function listCps(arr, max){
+  const shown = arr.slice(0, max).map(hex).join(', ');
+  return shown + (arr.length > max ? ' … and ' + (arr.length - max).toLocaleString() + ' more' : '');
+}
+
+function collectIssues(){
+  const out = [];
+  const add = (severity, scope, title, detail, fix) => out.push({severity, scope, title, detail, fix});
+
+  /* ---- per-font checks ---- */
+  for (const side of ['A','B']){
+    const f = S[side];
+    if (!f) continue;
+    const tm = tableMap(f);
+
+    const gdefV = layoutVersion(f, 'GDEF');
+    if (gdefV && !['1.0','1.2','1.3'].includes(gdefV)){
+      add('error', side, 'GDEF table has an invalid version (' + gdefV + ')',
+        'The GDEF header should read 1.0, 1.2 or 1.3. This one reads ' + gdefV + ', so strict parsers reject the ' +
+        'whole table — opentype.js refuses to open the font at all, and some text engines fall back to ' +
+        'unshaped rendering, which shows up as missing mark positioning or wrong ligatures.',
+        'Confirm with <code>ttx -t GDEF ' + esc(f.name) + '</code>. If the font carries no mark-attachment classes or ' +
+        'ligature carets, the simplest fix is to drop the table: <code>pyftsubset in.ttf --output-file=out.ttf ' +
+        '--drop-tables+=GDEF --glyphs=∗ --passthrough-tables</code>. If you do need GDEF, re-export from ' +
+        '<b>Glyphs 3</b> after checking that your mark/mkmk anchors and feature code compile cleanly — a GDEF ' +
+        'written from a failed or empty feature compile is what usually produces a stub header like this.');
+    }
+
+    if (!tm.has('cmap')) add('error', side, 'No cmap table',
+      'The font maps no characters at all, so text will render as .notdef boxes.',
+      'Re-export with at least a Unicode BMP (format 4) cmap subtable.');
+
+    if (f.font && f.font.tables.post && f.font.tables.post.version === 3)
+      add('warning', side, 'post table is version 3 — no glyph names',
+        'Version 3 stores no glyph names, so nothing downstream can refer to a glyph by name, and this tool ' +
+        'has to fall back to matching glyphs by index.',
+        'In <b>Glyphs 3</b>, export with "Keep glyph names" enabled (the <code>Don’t use Production Names</code> / ' +
+        'post format setting) so a version 2 post table is written.');
+
+    const fsType = f.font && f.font.tables.os2 && f.font.tables.os2.fsType;
+    if (fsType) add('info', side, 'Embedding is restricted (fsType ' + fsType + ')',
+      'Some PDF and app pipelines refuse to embed a font whose OS/2 fsType is not 0 (installable).',
+      'Set the <code>fsType</code> custom parameter to 0 in Glyphs 3 if the licence allows free embedding.');
+
+    if (f.font && f.font.outlinesFormat !== 'cff'){
+      const upem = f.font.unitsPerEm;
+      if (upem && (upem & (upem - 1)) !== 0)
+        add('info', side, 'unitsPerEm is ' + upem + ', not a power of two',
+          'TrueType hinting and grid fitting assume a power-of-two em (normally 1024 or 2048); other values ' +
+          'introduce rounding differences between renderers.',
+          'Set the font’s UPM to 2048 in Glyphs 3 (Font Info ▸ Masters ▸ Other ▸ Units per Em) and re-scale.');
+    }
+  }
+
+  /* ---- A vs B checks ---- */
+  const a = S.A, b = S.B;
+  if (a && b){
+    const ta = tableMap(a), tb = tableMap(b);
+    const removed = [...ta.keys()].filter(t => !tb.has(t));
+    const added   = [...tb.keys()].filter(t => !ta.has(t));
+
+    const lostHinting = removed.filter(t => HINTING_TABLES.includes(t));
+    if (lostHinting.length)
+      add('warning', 'B', 'TrueType hinting dropped (' + lostHinting.map(t => t.trim()).join(', ') + ')',
+        'The old font carries these hinting tables and the new one does not. Outlines are unchanged, but at ' +
+        'small sizes the new font will grid-fit differently — stems thin out, baselines shift by a pixel, ' +
+        'and the mushaf lines stop matching the old rendering.',
+        'In <b>Glyphs 3</b>, re-export with <b>Autohint</b> ticked in the export dialog (File ▸ Export ▸ TrueType), ' +
+        'or keep your manual TT hints. <code>gasp</code> comes from the <code>gasp Table</code> custom parameter ' +
+        'in Font Info ▸ Font, so add that back too if you had it.');
+
+    const lostLayout = removed.filter(t => LAYOUT_TABLES.includes(t));
+    if (lostLayout.length)
+      add('error', 'B', 'Layout tables dropped (' + lostLayout.join(', ') + ')',
+        'Shaping data is missing from the new font: without GSUB/GPOS the Arabic ligatures, mark positioning ' +
+        'and kerning that the old font applied simply will not happen.',
+        'This usually means the feature code failed to compile on export. Re-export from <b>Glyphs 3</b> and read ' +
+        'the warnings in Font Info ▸ Features — a single failing feature silently drops the whole table.');
+
+    const otherRemoved = removed.filter(t => !HINTING_TABLES.includes(t) && !LAYOUT_TABLES.includes(t));
+    if (otherRemoved.length)
+      add('info', 'B', 'Tables removed: ' + otherRemoved.join(', '),
+        'Present in the old font, absent in the new one.', 'Check whether anything in your pipeline depends on them.');
+
+    if (added.length)
+      add('info', 'B', 'Tables added: ' + added.join(', '),
+        added.includes('DSIG')
+          ? 'The new font gained a DSIG table. Exporters write an empty stub signature; it is harmless but useless, and it costs a few bytes.'
+          : 'The new font carries tables the old one did not.',
+        added.includes('DSIG')
+          ? 'Safe to ignore, or strip it with <code>pyftsubset --drop-tables+=DSIG</code> if you want byte-identical builds.'
+          : 'Confirm the additions are intentional.');
+
+    for (const tag of [...ta.keys()].filter(t => tb.has(t))){
+      const va = layoutVersion(a, tag), vb = layoutVersion(b, tag);
+      const VALID_LAYOUT_VERSIONS = ['1.0','1.1','1.2','1.3'];
+      // a version that is outright invalid already has its own, more useful finding above
+      if (va && vb && va !== vb && LAYOUT_TABLES.includes(tag) && VALID_LAYOUT_VERSIONS.includes(vb))
+        add('warning', 'B', tag + ' version changed: ' + va + ' → ' + vb,
+          'A newer table version can be rejected by older renderers and parsers.',
+          'Only bump the version if you actually use the newer features it enables.');
+    }
+
+    const ca = cmapSet(a), cb = cmapSet(b);
+    if (ca && cb){
+      const real = c => c !== 0;   // U+0000 maps to .notdef housekeeping, not real coverage
+      const gone = [...ca].filter(c => real(c) && !cb.has(c)).sort((x,y) => x-y);
+      const gain = [...cb].filter(c => real(c) && !ca.has(c)).sort((x,y) => x-y);
+      if (gone.length)
+        add('error', 'B', gone.length.toLocaleString() + ' codepoint' + (gone.length>1?'s':'') + ' no longer mapped',
+          'These characters render in the old font but fall back to .notdef in the new one: ' + listCps(gone, 24) + '.',
+          'Almost always a glyph that lost its unicode value during editing. In <b>Glyphs 3</b> select the glyph ' +
+          'and check Glyph Info ▸ Unicode — a renamed glyph keeps its old name but drops its codepoint unless the ' +
+          'name still follows the <code>uniXXXX</code> convention.');
+      if (gain.length)
+        add('info', 'B', gain.length.toLocaleString() + ' codepoint' + (gain.length>1?'s':'') + ' newly mapped',
+          'New coverage in the updated font: ' + listCps(gain, 24) + '.',
+          'Fine if intentional.');
+    }
+
+    if (a.font && b.font){
+      if (a.font.unitsPerEm !== b.font.unitsPerEm)
+        add('error', 'B', 'unitsPerEm changed: ' + a.font.unitsPerEm + ' → ' + b.font.unitsPerEm,
+          'Every coordinate, advance width and metric in the font is expressed in these units, so any stored ' +
+          'layout data (segment boxes, line widths, PDF positioning) computed against the old font is now off by a factor ' +
+          'of ' + (b.font.unitsPerEm / a.font.unitsPerEm).toFixed(3) + '.',
+          'Keep the UPM identical between builds. In Glyphs 3, changing it under Font Info ▸ Masters ▸ Other ' +
+          'rescales the outlines; undo and re-export rather than shipping a rescaled font.');
+
+      if (a.font.numGlyphs !== b.font.numGlyphs)
+        add('warning', 'B', 'Glyph count changed: ' + a.font.numGlyphs.toLocaleString() + ' → ' + b.font.numGlyphs.toLocaleString(),
+          'Glyph IDs shift when glyphs are added or removed, so anything that addresses this font by glyph ' +
+          'index rather than by character breaks.',
+          'Prefer addressing glyphs by codepoint. If you must keep IDs stable, add the <code>Glyph Order</code> ' +
+          'custom parameter in Glyphs 3 and pin it to the old order.');
+
+      const metrics = [
+        ['Ascender', a.font.ascender, b.font.ascender],
+        ['Descender', a.font.descender, b.font.descender],
+        ['hhea lineGap', a.font.tables.hhea && a.font.tables.hhea.lineGap, b.font.tables.hhea && b.font.tables.hhea.lineGap],
+        ['OS/2 typo ascender', a.font.tables.os2 && a.font.tables.os2.sTypoAscender, b.font.tables.os2 && b.font.tables.os2.sTypoAscender],
+        ['OS/2 typo descender', a.font.tables.os2 && a.font.tables.os2.sTypoDescender, b.font.tables.os2 && b.font.tables.os2.sTypoDescender],
+        ['OS/2 winAscent', a.font.tables.os2 && a.font.tables.os2.usWinAscent, b.font.tables.os2 && b.font.tables.os2.usWinAscent],
+        ['OS/2 winDescent', a.font.tables.os2 && a.font.tables.os2.usWinDescent, b.font.tables.os2 && b.font.tables.os2.usWinDescent]
+      ].filter(m => m[1] != null && m[2] != null && m[1] !== m[2]);
+      if (metrics.length)
+        add('warning', 'B', 'Vertical metrics changed',
+          metrics.map(m => m[0] + ': ' + m[1] + ' → ' + m[2]).join(' · ') + '. Line height and baseline position ' +
+          'shift wherever this font is used, so existing layouts reflow.',
+          'Set the vertical metrics explicitly in Glyphs 3 (Font Info ▸ Masters, plus the <code>typoAscender</code>, ' +
+          '<code>typoDescender</code>, <code>winAscent</code>, <code>winDescent</code> custom parameters) and keep ' +
+          'them identical across builds.');
+
+      const blanked = S.pairs.filter(p => p.a && p.b && p.a.path && p.a.path !== '' && p.b.path === '' && p.a.path !== '');
+      if (blanked.length)
+        add('error', 'B', blanked.length.toLocaleString() + ' glyph' + (blanked.length>1?'s':'') + ' lost their outlines',
+          'These glyphs have contours in the old font but are empty in the new one, so they render as blanks: ' +
+          listCps(blanked.filter(p => p.unicode != null).map(p => p.unicode), 16) +
+          (blanked.some(p => p.unicode == null) ? ' (plus unencoded glyphs)' : '') + '.',
+          'Usually a component whose base glyph was renamed or deleted. In <b>Glyphs 3</b>, run ' +
+          'Edit ▸ Find ▸ Find Glyphs on the affected names and check for orphaned components.');
+
+      const advChanged = S.pairs.filter(p => p.a && p.b && p.a.advanceWidth !== p.b.advanceWidth);
+      if (advChanged.length)
+        add('info', 'B', advChanged.length.toLocaleString() + ' glyph' + (advChanged.length>1?'s':'') + ' changed advance width',
+          'Text set in the new font will occupy a different amount of space, so line breaks and stored line widths move.',
+          'Expected if you reshaped glyphs; otherwise check the sidebearings in Glyphs 3.');
+
+      const RESERVED = ['.notdef', '.null', 'nonmarkingreturn', 'NULL', 'CR'];
+      const renamed = S.pairs.filter(p => p.matchedBy === 'index' && p.a.name && p.b.name && p.a.name !== p.b.name);
+      const example = renamed.find(p => !RESERVED.includes(p.a.name) && !RESERVED.includes(p.b.name)) || renamed[0];
+      if (renamed.length > Math.max(5, S.pairs.length * 0.05))
+        add('warning', 'B', renamed.length.toLocaleString() + ' glyphs were renamed',
+          'Glyph names differ wholesale between the two builds (for example ' +
+          esc(example.a.name) + ' → ' + esc(example.b.name) + '). Anything that references glyphs by name — ' +
+          'feature code, QUL segment data, test fixtures — has to be updated with the font.',
+          'In <b>Glyphs 3</b> this normally comes from the production-names setting flipping between exports. ' +
+          'Pin it with the <code>Don’t use Production Names</code> custom parameter so names stay stable.');
+
+      const va = nameOf((a.font.names || {}).version), vb2 = nameOf((b.font.names || {}).version);
+      const outlinesDiffer = S.pairs.some(p => p.status !== 'same');
+      if (outlinesDiffer && va && vb2 && va === vb2)
+        add('info', 'B', 'Version string was not bumped',
+          'Both files report version "' + esc(va) + '" although their outlines differ, so browsers and CDNs ' +
+          'that key on the version have no way to tell the builds apart.',
+          'Bump Font Info ▸ Font ▸ Version in Glyphs 3 for every release, and cache-bust the asset filename.');
+
+      const ha = a.font.tables.head, hb = b.font.tables.head;
+      if (ha && hb && ha.modified && hb.modified && hb.modified <= ha.modified && outlinesDiffer)
+        add('info', 'B', 'head.modified was not bumped',
+          'The new font was edited but its modification date (' + new Date(hb.modified*1000).toISOString().slice(0,10) +
+          ') is not later than the old one’s (' + new Date(ha.modified*1000).toISOString().slice(0,10) + ').',
+          'Harmless, but it makes build provenance hard to trace. It is set automatically on a normal export.');
+    }
+
+    for (const side of ['A','B']){
+      const f = S[side];
+      if (f && f.skipped && f.skipped.length)
+        add('info', side, 'Parsed with ' + f.skipped.join(', ') + ' skipped',
+          'This tool could only read the font after ignoring those tables, so metadata derived from them is ' +
+          'missing here. It does not affect the bitmap diff.',
+          'Fix the underlying table (see the findings above) and the full metadata will show up.');
+    }
+  }
+
+  const rank = {error:0, warning:1, info:2};
+  out.sort((x,y) => rank[x.severity] - rank[y.severity]);
+  return out;
+}
+
+function renderIssues(){
+  const host = $('issueList'), badge = $('issueCount');
+  if (!S.A && !S.B){
+    host.innerHTML = '<div class="empty">Load a font to run the checks. Load both an old and an updated build to also see what changed between them.</div>';
+    badge.className = 'tabcount';
+    return;
+  }
+  const issues = collectIssues();
+  const errs = issues.filter(i => i.severity === 'error').length;
+  badge.textContent = issues.length ? String(issues.length) : '✓';
+  badge.className = 'tabcount show' + (errs ? '' : ' clean');
+
+  if (!issues.length){
+    host.innerHTML = '<div class="empty">No problems found. Tables, metrics, cmap coverage and glyph names all line up.</div>';
+    return;
+  }
+  host.innerHTML = issues.map(i =>
+    '<div class="issue ' + i.severity + '">' +
+      '<h3><span class="sev ' + i.severity + '">' + i.severity + '</span>' +
+        '<span class="scope">' + (i.scope === 'A' ? 'old' : 'new') + '</span>' + esc(i.title) + '</h3>' +
+      '<p>' + i.detail + '</p>' +
+      '<p class="fix"><b>Fix:</b> ' + i.fix + '</p>' +
+    '</div>').join('');
+}
+
+/* ----------------------------------------------------------------- modals  */
+function openModal(title, bodyHtml, downloadFn){
+  $('modalTitle').textContent = title;
+  $('modalBody').innerHTML = bodyHtml;
+  const dl = $('modalDownload');
+  if (downloadFn){ dl.style.display = ''; dl.onclick = downloadFn; }
+  else dl.style.display = 'none';
+  $('overlay').classList.add('open');
+}
+function closeModal(){ $('overlay').classList.remove('open'); }
+
+function openFontModal(side){
+  const f = S[side];
+  if (!f) return;
+  const rows = metaRows(f);
+  let html = '<table class="kv"><tbody>';
+  for (const [k,v] of Object.entries(rows)) html += '<tr><td class="k">' + esc(k) + '</td><td>' + esc(v) + '</td></tr>';
+  html += '</tbody></table>';
+  html += '<h4 style="margin:22px 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);">Table directory</h4>';
+  html += '<table class="kv"><thead><tr><th>Tag</th><th>Size</th><th>Offset</th><th>Checksum</th></tr></thead><tbody>' +
+    f.tables.map(t => '<tr><td class="k mono">' + t.tag + '</td><td class="num">' + fmtBytes(t.length) +
+      '</td><td class="num mono">' + (t.offset != null ? t.offset : '—') + '</td><td class="mono">' + (t.checksum >>> 0).toString(16) + '</td></tr>').join('') +
+    '</tbody></table>';
+  openModal((side === 'A' ? 'Old · ' : 'New · ') + displayName(f), html);
+}
+
+function openGlyphModal(p){
+  const body = document.createElement('div');
+
+  const zoom = el('div', 'zoomrow');
+  zoom.innerHTML = '<span>Preview size</span>';
+  const slider = document.createElement('input');
+  slider.type = 'range'; slider.min = '80'; slider.max = '900'; slider.step = '20'; slider.value = String(S.glyphZoom);
+  const zlabel = el('span', 'mono', S.glyphZoom + ' px');
+  zoom.appendChild(slider); zoom.appendChild(zlabel);
+  body.appendChild(zoom);
+
+  const grid = el('div', 'cmpgrid');
+  body.appendChild(grid);
+  const canvases = {};
+
+  function paint(){
+    const box = S.glyphZoom;
+    // let the requested size drive the column width, so zooming in really does enlarge the
+    // glyph on screen (falling to two columns, then one) instead of only adding resolution
+    grid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(min(100%,' + box + 'px),1fr))';
+    grid.innerHTML = '';
+    // shape the canvas to the glyph: a whole-word ligature in a square leaves most of it empty
+    const probe = pairView(p, box, box);
+    const ratio = Math.min(1.25, Math.max(0.32, (probe.bh || 1) / (probe.bw || 1)));
+    const cw = box, ch = Math.round(box * ratio);
+    const view = pairView(p, cw, ch);
+    for (const label of ['A','B','Overlay']){
+      const c = el('div', 'cmpcell');
+      c.appendChild(el('h4', null, label === 'Overlay' ? 'Old + new overlay' : label === 'A' ? 'Old' : 'New'));
+      const cv = document.createElement('canvas');
+      cv.width = cw; cv.height = ch;
+      const ctx = cv.getContext('2d');
+      if (label === 'Overlay'){
+        if (!p.a && !p.b) missing(ctx, cw, ch); else drawOverlay(ctx, p, cw, ch, view);
+      } else {
+        const gi = label === 'A' ? p.a : p.b;
+        const font = label === 'A' ? (S.A && S.A.font) : (S.B && S.B.font);
+        if (gi && font) drawGlyphPath(ctx, gi, font, cw, ch, '#2b303a', 1, view);
+        else missing(ctx, cw, ch);
+      }
+      c.appendChild(cv);
+      canvases[label] = cv;
+      grid.appendChild(c);
+    }
+  }
+  function missing(ctx, w, h){
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = Math.max(11, Math.round(Math.min(w,h)*0.08)) + 'px Inter,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('not present', w/2, h/2);
+  }
+  paint();
+  slider.oninput = () => {
+    S.glyphZoom = Number(slider.value);
+    zlabel.textContent = S.glyphZoom + ' px';
+    paint();
+  };
+
+  const rows = [
+    ['Status', p.status === 'same' ? 'identical outlines' : p.status === 'changed' ? 'outline or advance changed' : p.status === 'onlya' ? 'only in the old font' : 'only in the new font'],
+    ['Unicode', p.unicode != null ? hex(p.unicode) + '  (' + String.fromCodePoint(p.unicode) + ')' : '— unencoded'],
+    ['Glyph name', p.name || '—'],
+    ['Glyph index', (p.a ? p.a.index : '—') + ' / ' + (p.b ? p.b.index : '—')],
+    ['Matched by', p.matchedBy || 'unmatched'],
+    ['Advance width', (p.a ? p.a.advanceWidth : '—') + ' / ' + (p.b ? p.b.advanceWidth : '—')],
+    ['Path hash', (p.a ? p.a.hash : '—') + ' / ' + (p.b ? p.b.hash : '—')],
+    ['Path length', (p.a ? p.a.path.length : '—') + ' / ' + (p.b ? p.b.path.length : '—') + ' chars']
+  ];
+  let html = '<table class="kv"><thead><tr><th>Property</th><th>Old / New</th></tr></thead><tbody>' +
+    rows.map(r => '<tr><td class="k">' + r[0] + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</tbody></table>';
+  if (p.a && p.b && p.status === 'changed'){
+    html += '<h4 style="margin:20px 0 6px; font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);">Path data</h4>' +
+      '<div class="grid2">' +
+      '<div><div class="metaline"><span class="swatch sw-a"></span> Old</div><pre class="mono" style="white-space:pre-wrap;word-break:break-all;max-height:180px;overflow:auto;background:#fafbfc;padding:10px;border-radius:8px;border:1px solid var(--line);">' + esc(p.a.path) + '</pre></div>' +
+      '<div><div class="metaline"><span class="swatch sw-b"></span> New</div><pre class="mono" style="white-space:pre-wrap;word-break:break-all;max-height:180px;overflow:auto;background:#fafbfc;padding:10px;border-radius:8px;border:1px solid var(--line);">' + esc(p.b.path) + '</pre></div>' +
+      '</div>';
+  }
+  const extra = el('div');
+  extra.innerHTML = html;
+  body.appendChild(extra);
+
+  const title = 'Glyph ' + (p.unicode != null ? hex(p.unicode) : '#' + (p.a ? p.a.index : p.b.index)) + (p.name ? ' \u00b7 ' + p.name : '');
+  openModal(title, '', null);
+  $('modalBody').appendChild(body);
+  const dl = $('modalDownload');
+  dl.style.display = '';
+  dl.onclick = () => {
+    const first = canvases.A;
+    const cw = first.width, ch = first.height;
+    const strip = document.createElement('canvas');
+    strip.width = cw*3 + 24; strip.height = ch;
+    const ctx = strip.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,strip.width,strip.height);
+    ['A','B','Overlay'].forEach((k,i) => ctx.drawImage(canvases[k], i*(cw+12), 0));
+    downloadCanvas(strip, 'glyph-' + (p.unicode != null ? hex(p.unicode).replace('+','') : 'idx') + '.png', true);
+  };
+}
+
+/* ----------------------------------------------------------------- wiring  */
+function renderAll(){
+  renderBitmap();
+  renderSizeTable();
+  renderMetaTable();
+  renderTableDir();
+  renderGlyphs();
+  renderIssues();
+  $('downloadPng').disabled = !(S.A && S.B);
+  $('copyPng').disabled = !(S.A && S.B);
+  if (S.A) $('metaA').innerHTML = shortMeta('A');
+  if (S.B) $('metaB').innerHTML = shortMeta('B');
+}
+
+function setupSide(side){
+  const drop = $('drop'+side), input = $('file'+side);
+  drop.onclick = () => input.click();
+  input.onchange = () => input.files[0] && loadFont(side, input.files[0], input.files[0].name);
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag'); }));
+  drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) loadFont(side, f, f.name); });
+  $('load'+side).onclick = async () => {
+    const url = $('url'+side).value.trim();
+    if (!url) return;
+    try {
+      setStatus(side, 'Fetching…');
+      const res = await fetch(url, {mode:'cors'});
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+      await loadFont(side, await res.blob(), url.split('/').pop().split('?')[0] || url);
+    } catch(e){
+      setStatus(side, 'URL failed (CORS may block it): ' + e.message, true);
+    }
+  };
+  $('name'+side).onclick = () => openFontModal(side);
+}
+
+setupSide('A'); setupSide('B');
+
+$('render').onclick = renderBitmap;
+['text','size','threshold','dir'].forEach(id => $(id).addEventListener('input', renderBitmap));
+$('dir').addEventListener('change', renderBitmap);
+
+$('views').onclick = e => {
+  const b = e.target.closest('[data-view]'); if (!b) return;
+  $('views').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); S.view = b.dataset.view; renderBitmap();
+};
+
+$('tabs').onclick = e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  $('tabs').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  S.tab = b.dataset.tab;
+  document.querySelectorAll('.tabpane').forEach(p => p.classList.toggle('active', p.dataset.pane === S.tab));
+};
+
+$('glyphFilters').onclick = e => {
+  const b = e.target.closest('[data-gf]'); if (!b) return;
+  $('glyphFilters').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); S.glyphFilter = b.dataset.gf; S.glyphLimit = 300; renderGlyphs();
+};
+$('glyphSearch').addEventListener('input', () => { S.glyphLimit = 300; renderGlyphs(); });
+$('glyphSource').addEventListener('change', () => { S.glyphSource = $('glyphSource').value; renderGlyphs(); });
+$('pairBy').addEventListener('change', () => { S.pairBy = $('pairBy').value; S.glyphLimit = 300; computePairs(); renderGlyphs(); });
+$('diffOnly').addEventListener('change', renderMetaTable);
+
+$('downloadPng').onclick = () => downloadCanvas($('canvas'), baseName() + '-' + S.view + '.png', $('whitebg').checked);
+$('copyPng').onclick = async () => {
+  try {
+    const c = exportCanvas($('canvas'), $('whitebg').checked);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+    $('copyPng').textContent = 'Copied!';
+    setTimeout(() => $('copyPng').textContent = 'Copy PNG', 1600);
+  } catch(e){
+    $('copyPng').textContent = 'Copy failed';
+    setTimeout(() => $('copyPng').textContent = 'Copy PNG', 1600);
+  }
+};
+
+$('swap').onclick = () => {
+  const a = S.A; S.A = S.B; S.B = a;
+  for (const side of ['A','B']){
+    const f = S[side];
+    $('card'+side).classList.toggle('loaded', !!f);
+    $('name'+side).textContent = f ? displayName(f) : 'No font loaded';
+    $('name'+side).disabled = !(f && f.font);
+    $('meta'+side).innerHTML = f ? shortMeta(side) : '';
+    setStatus(side, f ? f.name + ' loaded' : '');
+  }
+  computePairs();
+  renderAll();
+};
+
+$('reset').onclick = () => {
+  for (const side of ['A','B']){
+    if (S[side] && S[side].url) URL.revokeObjectURL(S[side].url);
+    S[side] = null;
+    $('card'+side).classList.remove('loaded');
+    $('name'+side).textContent = 'No font loaded';
+    $('name'+side).disabled = true;
+    $('meta'+side).innerHTML = '';
+    $('url'+side).value = '';
+    setStatus(side, '');
+  }
+  S.pairs = []; S.selectedKey = null;
+  renderAll();
+};
+
+$('modalClose').onclick = closeModal;
+$('overlay').onclick = e => { if (e.target === $('overlay')) closeModal(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// drop a font anywhere: first drop fills A, second fills B
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
+  if (e.target.closest('.drop')) return;
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if (f) loadFont(S.A ? 'B' : 'A', f, f.name);
+});
+
+renderAll();
+})();
+</script>
+</body>
+</html>

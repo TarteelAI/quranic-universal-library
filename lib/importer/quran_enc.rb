@@ -235,11 +235,7 @@ module Importer
         quranenc_translation = get_translation_for_key(quran_enc_key)
 
         author_name = mapping[:name] || quranenc_translation&.dig('title') || quran_enc_key
-        language = resource.language ||
-                   (mapping[:language] && Language.find(mapping[:language])) ||
-                   Language.find_by(iso_code: quranenc_translation&.dig('language_iso_code'))
-        raise "language not found for translation #{quran_enc_key}. Please add the language mapping and try again" if language.nil?
-
+        language = find_language(quran_enc_key, mapping, resource)
         author = Author.where(name: author_name).first_or_create
 
         resource.cardinality_type = ResourceContent::CardinalityType::OneVerse
@@ -254,9 +250,24 @@ module Importer
         resource.name = author_name
         resource.approved = false
         resource.save(validate: false)
+      elsif resource.language.nil?
+        language = find_language(quran_enc_key, mapping, resource)
+
+        resource.language = language
+        resource.language_name = language.name.downcase
+        resource.save(validate: false)
       end
 
       resource
+    end
+
+    def find_language(quran_enc_key, mapping, resource)
+      language = resource.language ||
+                 (mapping[:language] && Language.find(mapping[:language])) ||
+                 Language.find_by(iso_code: get_translation_for_key(quran_enc_key)&.dig('language_iso_code'))
+      raise "language not found for translation #{quran_enc_key}. Please add the language mapping and try again" if language.nil?
+
+      language
     end
 
     def create_translation(verse, text, resource)
@@ -556,111 +567,112 @@ module Importer
       zulu_adel: { id: 1642 },
       oromo_rwwad: { id: 1640 },
       uzbek_sadiq_latin: { id: 55 },
-      dutch_center: { language: 118, name: 'Dutch Islamic Center', id: 942 },
-      pashto_rwwad: { language: 132, name: 'Rowwad Translation Center', id: 943 },
+      dutch_center: { id: 942 },
+      pashto_rwwad: { id: 943 },
       kannada_hamza: { language: 85, name: 'Muhammad Hamza Battur', id: 944 },
-      ikirundi_gehiti: { language: 136, name: 'Ikirundi gehiti', id: 945 },
-      moore_rwwad: { language: 194, name: 'Moore rwwad', id: 1173 },
-      chinese_suliman: { language: 185, name: 'Muhammad Sulaiman', id: 853 },
-      albanian_nahi: { language: 187, name: 'Hasan Efendi Nahi', id: 88 },
-      amharic_sadiq: { language: 6, name: 'Sadiq and Sani', id: 87 },
-      assamese_rafeeq: { language: 10, name: 'Shaykh Rafeequl Islam Habibur-Rahman', id: 120 },
-      bosnian_korkut: { language: 23, name: 'Besim Korkut', id: 126 },
-      bosnian_mihanovich: { language: 23, name: 'Muhamed Mehanović', id: 25 },
-      chinese_makin: { language: 185, name: 'Muhammad Makin', id: 109 },
-      english_saheeh: { language: 38, name: 'Saheeh International', id: 20 },
-      french_montada: { language: 49, name: 'Montada Islamic Foundation', id: 136 },
-      german_bubenheim: { language: 33, name: 'Frank Bubenheim and Nadeem', id: 27 },
-      hausa_gummi: { language: 58, name: 'Abubakar Mahmood Jummi', id: 115 },
-      hindi_omari: { language: 60, name: 'Maulana Azizul Haque al-Umari', id: 122 },
-      indonesian_affairs: { language: 67, name: 'Indonesian Islamic affairs ministry', id: 33 },
-      indonesian_complex: { language: 67, name: 'King Fahad Quran Complex', id: 134 },
-      japanese_meta: { language: 76, name: 'Ryoichi Mita', id: 35 },
-      kazakh_altai_assoc: { language: 82, name: 'Khalifah Altai', id: 113 },
-      khmer_cambodia: { language: 84, name: 'Cambodian Muslim Community Development', id: 128 },
-      oromo_ababor: { language: 126, name: 'Ghali Apapur Apaghuna', id: 111 },
-      pashto_zakaria: { language: 132, name: 'Zakaria Abulsalam', id: 118 },
-      portuguese_nasr: { language: 133, name: 'Helmi Nasr', id: 103 },
-      turkish_shaban: { language: 167, name: 'Shaban Britch', id: 112 },
-      turkish_shahin: { language: 167, name: 'Muslim Shahin', id: 124 },
-      urdu_junagarhi: { language: 174, name: 'Maulana Muhammad Junagarhi', id: 54 },
-      uzbek_mansour: { language: 175, name: 'Alauddin Mansour', id: 101 },
-      uzbek_sadiq: { language: 175, name: 'Muhammad Sodik Muhammad Yusuf', id: 127 },
-      yoruba_mikail: { language: 183, name: 'Shaykh Abu Rahimah Mikael Aykyuni', id: 125 },
-      french_hameedullah: { language: 49, name: 'Muhammad Hamidullah', id: 31 },
-      nepali_central: { language: 116, name: 'Ahl Al-Hadith Central Society of Nepal', id: 108 },
+      ikirundi_gehiti: { id: 945 },
+      moore_rwwad: { id: 1173 },
+      chinese_suliman: { id: 853 },
+      albanian_nahi: { id: 88 },
+      amharic_sadiq: { id: 87 },
+      assamese_rafeeq: { id: 120 },
+      bosnian_korkut: { id: 126 },
+      bosnian_mihanovich: { id: 25 },
+      chinese_makin: { id: 109 },
+      english_saheeh: { id: 20 },
+      french_montada: { id: 136 },
+      german_bubenheim: { id: 27 },
+      hausa_gummi: { id: 115 },
+      hindi_omari: { id: 122 },
+      indonesian_affairs: { id: 33 },
+      indonesian_complex: { id: 134 },
+      japanese_meta: { id: 35 },
+      kazakh_altai_assoc: { id: 113 },
+      khmer_cambodia: { id: 128 },
+      oromo_ababor: { id: 111 },
+      pashto_zakaria: { id: 118 },
+      portuguese_nasr: { id: 103 },
+      turkish_shaban: { id: 112 },
+      turkish_shahin: { id: 124 },
+      urdu_junagarhi: { id: 54 },
+      uzbek_mansour: { id: 101 },
+      uzbek_sadiq: { id: 127 },
+      yoruba_mikail: { id: 125 },
+      french_hameedullah: { id: 31 },
+      nepali_central: { id: 108 },
       persian_ih: { language: 43, name: 'IslamHouse', id: 135 },
       persian_tagi: { language: 43, name: 'Dr. Husein Tagy Klu Dary', id: 29 },
-      spanish_garcia: { language: 40, name: 'Muhammad Isa Garcia', id: 83 },
-      spanish_montada_eu: { language: 40, name: 'Montada Islamic Foundation', id: 140 },
-      spanish_montada_latin: { language: 40, name: 'Noor International Center' },
+      spanish_garcia: { id: 83 },
+      spanish_montada_eu: { id: 140 },
+      spanish_montada_latin: { id: 141 },
       tajik_khawaja: { language: 160, name: 'Khawaja Mirof & Khawaja Mir', id: 139 },
-      tamil_baqavi: { language: 158, name: 'Abdul Hameed Baqavi', id: 133 },
-      uyghur_saleh: { language: 172, name: 'Shaykh Muhammad Saleh', id: 76 },
-      kurdish_bamoki: { language: 89, name: 'Muhammad Saleh Bamoki', id: 143 },
-      azeri_musayev: { language: 13, name: 'Khan Mosaiv', id: 75 },
-      somali_abduh: { language: 150, name: 'Muhammad Ahmad Abdi', id: 46 },
+      tamil_baqavi: { id: 133 },
+      uyghur_saleh: { id: 76 },
+      kurdish_bamoki: { id: 143 },
+      azeri_musayev: { id: 75 },
+      somali_abduh: { id: 46 },
       english_hilali_khan: { language: 38, name: 'Muhammad Taqi-ud-Din al-Hilali & Muhammad Muhsin Khan', id: 203 },
-      indonesian_sabiq: { language: 67, name: 'The Sabiq company', id: 141 },
-      english_rwwad: { language: 38, name: 'Ruwwad Center', id: 206 },
-      english_irving: { language: 38, name: 'Dr. T. B. Irving', id: 207 },
-      german_aburida: { language: 33, name: 'Abu Reda Muhammad ibn Ahmad', id: 208 },
-      italian_rwwad: { language: 74, name: 'Othman al-Sharif', id: 209 },
-      turkish_rwwad: { language: 167, name: 'Dar Al-Salam Center', id: 210 },
-      tagalog_rwwad: { language: 164, name: 'Dar Al-Salam Center', id: 211 },
+      indonesian_sabiq: { id: 141 },
+      english_rwwad: { id: 206 },
+      english_irving: { id: 207 },
+      german_aburida: { id: 208 },
+      italian_rwwad: { id: 209 },
+      turkish_rwwad: { id: 210 },
+      tagalog_rwwad: { id: 211 },
 
       # only first 6 surah are available
-      georgian_rwwad: { language: 78, name: 'Ruwwad Center', id: 212 },
+      georgian_rwwad: { id: 212 },
+
       # disable this, has some missing ayah(3:154)
-      albanian_rwwad: { language: 187, name: 'Ruwwad Center', id: 216 },
+      albanian_rwwad: { id: 216 },
 
-      bengali_zakaria: { language: 20, name: 'Dr. Abu Bakr Muhammad Zakaria', id: 213 },
-      bosnian_rwwad: { language: 23, name: 'Dar Al-Salam Center', id: 214 },
-      serbian_rwwad: { language: 152, name: 'Dar Al-Salam Center', id: 215 },
-      ukrainian_yakubovych: { language: 173, name: 'Dr. Mikhailo Yaqubovic', id: 217 },
-      japanese_saeedsato: { language: 76, name: 'Saeed Sato', id: 218 },
-      korean_hamid: { language: 86, name: 'Hamed Choi', id: 219 },
-      vietnamese_rwwad: { language: 177, name: 'Ruwwad Center', id: 220 },
-      vietnamese_hassan: { language: 177, name: 'Hasan Abdul-Karim', id: 221 },
-      kazakh_altai: { language: 82, name: 'Khalifa Altay', id: 222 },
-      tajik_arifi: { language: 160, name: 'Pioneers of Translation Center', id: 223 },
-      malayalam_kunhi: { language: 106, name: 'Abdul-Hamid Haidar & Kanhi Muhammad', id: 224 },
-      gujarati_omari: { language: 56, name: 'Rabila Al-Umry', id: 225 },
-      marathi_ansari: { language: 108, name: 'Muhammad Shafi’i Ansari', id: 226 },
-      telugu_muhammad: { language: 159, name: 'Maulana Abder-Rahim ibn Muhammad', id: 227 },
-      sinhalese_mahir: { language: 145, name: 'Ruwwad Center', id: 228 },
-      tamil_omar: { language: 158, name: 'Sheikh Omar Sharif bin Abdul Salam', id: 229 },
-      thai_complex: { language: 161, name: 'Society of Institutes and Universities', id: 230 },
-      swahili_abubakr: { language: 157, name: 'Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis', id: 231 },
-      luganda_foundation: { language: 95, name: 'African Development Foundation', id: 232 },
-      hebrew_darussalam: { language: 59, name: 'Dar Al-Salam Center', id: 233 },
-      kinyarwanda_assoc: { language: 139, name: 'The Rwanda Muslims Association team', id: 774 },
-      english_waleed: { language: 38, name: 'Dr. Waleed Bleyhesh Omary', id: 777 },
-      french_rashid: { language: 49, name: 'Rashid Maash', id: 779 },
-      bulgarian_translation: { language: 16, name: 'Bulgarian Translation', id: 781 },
-      romanian_assoc: { language: 137, name: 'Islamic and Cultural League', id: 782 },
-      malay_basumayyah: { language: 110, name: 'Abdullah Basamia', id: 784 },
-      dari_badkhashani: { language: 190, name: 'Mawlawi Muhammad Anwar Badkhashani', id: 785 },
-      somali_yacob: { language: 150, name: 'Abdullah Hassan Yacoub', id: 786 }, # عبدالله حسن يعقوب
-      macedonian_group: { language: 105, name: 'Macedonian scholars', id: 788 },
-      swahili_barawani: { language: 157, name: 'Muhsen Alberwany', id: 49 },
-      ankobambara_foudi: { language: 19, name: 'Suliman Kanti', id: 795 },
-      ankobambara_dayyan: { language: 19, name: 'Baba Mamady Jani', id: 796 },
+      bengali_zakaria: { id: 213 },
+      bosnian_rwwad: { id: 214 },
+      serbian_rwwad: { id: 215 },
+      ukrainian_yakubovych: { id: 217 },
+      japanese_saeedsato: { id: 218 },
+      korean_hamid: { id: 219 },
+      vietnamese_rwwad: { id: 220 },
+      vietnamese_hassan: { id: 221 },
+      kazakh_altai: { id: 222 },
+      tajik_arifi: { id: 223 },
+      malayalam_kunhi: { id: 224 },
+      gujarati_omari: { id: 225 },
+      marathi_ansari: { id: 226 },
+      telugu_muhammad: { id: 227 },
+      sinhalese_mahir: { id: 228 },
+      tamil_omar: { id: 229 },
+      thai_complex: { id: 230 },
+      swahili_abubakr: { id: 231 },
+      luganda_foundation: { id: 232 },
+      hebrew_darussalam: { id: 233 },
+      kinyarwanda_assoc: { id: 774 },
+      english_waleed: { id: 777 },
+      french_rashid: { id: 779 },
+      bulgarian_translation: { id: 781 },
+      romanian_assoc: { id: 782 },
+      malay_basumayyah: { id: 784 },
+      dari_badkhashani: { id: 785 },
+      somali_yacob: { id: 786 }, # عبدالله حسن يعقوب
+      macedonian_group: { id: 788 },
+      swahili_barawani: { id: 49 },
+      ankobambara_foudi: { id: 795 },
+      ankobambara_dayyan: { id: 796 },
 
-      chichewa_betala: { id: 797, language: 123, name: 'Khaled Ibrahim Betala' },
-      dagbani_ghatubo: { id: 1270, language: 191, name: 'Muhammad Baba Gutubu' },
-      yaw_silika: { language: 192, name: 'Abdul Hamid Silika', id: 798 },
-      fulani_rwwad: { id: 800, language: 44, name: 'Rowad Translation Center' },
-      asante_harun: { language: 170, name: 'Rowad Translation Center', id: 801 },
-      kurdish_salahuddin: { id: 1263, language: 89, name: 'Salahuddin Abdulkarim' }, # This one has embeded Arabic
-      uzbek_rwwad: { language: 175, name: 'Rowwad Translation Center', id: 868 },
-      korean_rwwad: { id: 1260, language: 86, name: 'Rowad Translation Center' },
-      kurmanji_ismail: { id: 1264, language: 89, name: 'Dr. Ismail Sigerey' },
-      lithuanian_rwwad: { id: 904, language: 99 },
+      chichewa_betala: { id: 797 },
+      dagbani_ghatubo: { id: 1270 },
+      yaw_silika: { id: 798 },
+      fulani_rwwad: { id: 800 },
+      asante_harun: { id: 801 },
+      kurdish_salahuddin: { id: 1263 }, # This one has embeded Arabic
+      uzbek_rwwad: { id: 868 },
+      korean_rwwad: { id: 1260 },
+      kurmanji_ismail: { id: 1264 },
+      lithuanian_rwwad: { id: 904 },
       kyrgyz_hakimov: { id: 858 },
       punjabi_arif: { id: 857 },
-      lingala_zakaria: { id: 855, name: 'Zakariya Muhammed Balingongo' },
-      afar_hamza: { id: 854, name: 'Shaikh Mahmud Abdulkader Hamza' },
+      lingala_zakaria: { id: 855 },
+      afar_hamza: { id: 854 },
       greek_rwwad: { id: 1252 },
       romanian_project: { id: 1253 },
       amharic_zain: { id: 1269 },
@@ -676,13 +688,7 @@ module Importer
       croatian_rwwad: { id: 1255 },
       swahili_rwwad: { id: 1557 },
       german_rwwad: { id: 1556 },
-      arabic_seraj: {
-        id: 908,
-        language: 9,
-        name: 'Asseraj fi Bayan Gharib AlQuran',
-        author: 'Muhammad Al-Khudairi',
-        native: 'محمد الخضيري'
-      },
+      arabic_seraj: { id: 908 },
       russian_aboadel: { id: 1254 },
       arabic_yaseer: { id: 1625 },
       arabic_nafahat: { id: 1626 },

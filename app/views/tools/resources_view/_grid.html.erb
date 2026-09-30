@@ -7,7 +7,8 @@
     <% @tools.each do |card| %>
       <% search_term = "#{card.title.downcase} #{card.description.to_s.downcase} #{card.tags.join(' ').downcase}"  %>
 
-      <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
+      <% card_data = { turbo_frame: '_top', search: search_term }.merge(card.external ? { turbo: false } : {}) %>
+      <%= render 'card/card-container', card: card, patterns: patterns, data: card_data do %>
         <%= render 'card/card_content',
                    card: card,
                    show_learn_more: true,

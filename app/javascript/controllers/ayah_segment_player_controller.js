@@ -132,7 +132,11 @@ export default class extends SegmentPlayer {
       return
 
     const parts = verseKey.split(":");
-    const url = `/api/v1/audio/ayah_segments/${this.recitation}?surah=${parts[0]}&from=${parts[1]}`;
+    // The endpoint paginates and ignores `from`, so ask for the page that
+    // actually contains this ayah.
+    const perPage = 10;
+    const page = Math.ceil(parseInt(parts[1], 10) / perPage);
+    const url = `/api/v1/audio/ayah_segments/${this.recitation}?surah=${parts[0]}&per_page=${perPage}&page=${page}`;
 
     const response = await fetch(url);
     const data = await response.json();

@@ -1,15 +1,15 @@
-<div class="space-y-6 text-gray-800">
+<div class="qul-docs">
   <div>
-    <h3 class="text-xl font-semibold">Export Formats</h3>
+    <h3>Export formats</h3>
     <p class="mt-2">
       Juz data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
     </p>
   </div>
 
   <div>
-    <h3 class="text-lg font-semibold">JSON Format</h3>
+    <h3>JSON format</h3>
     <p class="mt-2">Here is an example of the JSON structure for the first juz:</p>
-    <pre class="bg-gray-100 p-4 rounded-md text-sm whitespace-pre-wrap">
+    <pre>
 {
   "1": {
     "juz_number": 1,
@@ -25,39 +25,39 @@
     </pre>
 
     <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-sm border border-gray-200 mt-4">
-      <table class="min-w-full text-sm text-left">
-        <thead class="bg-gray-100 uppercase text-xs font-semibold">
+      <table>
+        <thead>
         <tr>
-          <th class="px-4 py-2">Field</th>
-          <th class="px-4 py-2">Type</th>
-          <th class="px-4 py-2">Description</th>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
         </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody>
         <tr>
-          <td class="px-4 py-2"><code>juz_number</code></td>
-          <td class="px-4 py-2">INTEGER</td>
-          <td class="px-4 py-2">The juz number (1 to 30).</td>
+          <td><code>juz_number</code></td>
+          <td>INTEGER</td>
+          <td>The juz number (1 to 30).</td>
         </tr>
         <tr>
-          <td class="px-4 py-2"><code>verses_count</code></td>
-          <td class="px-4 py-2">INTEGER</td>
-          <td class="px-4 py-2">Total number of verses in the juz.</td>
+          <td><code>verses_count</code></td>
+          <td>INTEGER</td>
+          <td>Total number of verses in the juz.</td>
         </tr>
         <tr>
-          <td class="px-4 py-2"><code>first_verse_key</code></td>
-          <td class="px-4 py-2">TEXT</td>
-          <td class="px-4 py-2">The key of the first verse in the juz (e.g. <code>1:1</code>).</td>
+          <td><code>first_verse_key</code></td>
+          <td>TEXT</td>
+          <td>The key of the first verse in the juz (e.g. <code>1:1</code>).</td>
         </tr>
         <tr>
-          <td class="px-4 py-2"><code>last_verse_key</code></td>
-          <td class="px-4 py-2">TEXT</td>
-          <td class="px-4 py-2">The key of the last verse in the juz (e.g. <code>2:141</code>).</td>
+          <td><code>last_verse_key</code></td>
+          <td>TEXT</td>
+          <td>The key of the last verse in the juz (e.g. <code>2:141</code>).</td>
         </tr>
         <tr>
-          <td class="px-4 py-2"><code>verse_mapping</code></td>
-          <td class="px-4 py-2">OBJECT</td>
-          <td class="px-4 py-2">
+          <td><code>verse_mapping</code></td>
+          <td>OBJECT</td>
+          <td>
             A mapping of surah numbers to ayah ranges within this juz.
             For example, <code>"2": "1-141"</code> means Surah 2 contributes ayahs 1 to 141 to this juz.
           </td>

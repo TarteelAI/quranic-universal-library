@@ -27,6 +27,7 @@ export default class extends Controller {
     this.draggingProgress = false
     this.seekOnNextPlay = true
     this.jumpToken = 0
+    this.pendingSeekRatio = null
 
     this.versePaginaiton = {};
     this.segmentPaginaiton = {};
@@ -37,6 +38,7 @@ export default class extends Controller {
 
     this.playButton = this.element.querySelector('#play-button');
     this.progressBar = this.element.querySelector('#progress-bar');
+    this.progressInput = this.element.querySelector('#progress-input');
     this.progress = this.element.querySelector('#progress');
     this.progressHandle = this.element.querySelector('#progress-handle');
     this.currentTime = this.element.querySelector('#current-time');
@@ -53,6 +55,21 @@ export default class extends Controller {
     await this.loadVerses(verseKey).then(() => {
       this.renderAyah(verseKey);
     });
+
+    // Line the player up with the ayah in the URL so the progress bar and
+    // clock match the ayah on screen before anything is played.
+    this.cueCurrentVerse();
+  }
+
+  cueCurrentVerse() {
+    if (!this.player) {
+      this.initializePlayer();
+    }
+    if (!this.player) return;
+
+    this.playAyah(this.currentVerseKey);
+    this.seekOnNextPlay = false;
+    this.refreshProgressFromPlayer();
   }
 
   disconnect() {
@@ -91,7 +108,14 @@ export default class extends Controller {
   bindEvents() {
     this.playButton.addEventListener('click', this.togglePlay.bind(this));
     this.loopButton.addEventListener('click', this.toggleLoop.bind(this));
-    this.progressBar.addEventListener('pointerdown', this.startSeek.bind(this));
+
+    this.progressInput.addEventListener('pointerdown', () => { this.draggingProgress = true; });
+    this.progressInput.addEventListener('pointerup', () => { this.draggingProgress = false; });
+    this.progressInput.addEventListener('keydown', () => { this.draggingProgress = true; });
+    this.progressInput.addEventListener('keyup', () => { this.draggingProgress = false; });
+    this.progressInput.addEventListener('input', (event) => {
+      this.seekToRatio(Number(event.target.value) / Number(event.target.max));
+    });
 
     this.prevAyahButton.addEventListener("click", (e) => {
       e.preventDefault();
@@ -120,46 +144,40 @@ export default class extends Controller {
     });
   }
 
-  startSeek(event) {
+  async seekToRatio(ratio) {
+    const clamped = Math.min(Math.max(ratio, 0), 1);
+
     if (!this.player) {
       this.initializePlayer();
     }
 
-    this.draggingProgress = true;
-    this.seek(event);
-
-    const onMove = (moveEvent) => {
-      if (this.draggingProgress) {
-        this.seek(moveEvent);
-      }
-    };
-
-    const onUp = () => {
-      this.draggingProgress = false;
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-    };
-
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-  }
-
-  async seek(event) {
-    event.preventDefault();
-
-    if (!this.player || !this.player.duration()) {
+    // Seeking before the audio has reported a duration would land at 0, so
+    // remember where the user aimed and apply it once the file is ready.
+    const duration = this.player && this.player.duration();
+    if (!duration) {
+      this.pendingSeekRatio = clamped;
+      this.updateProgressPosition(clamped * 100);
       return;
     }
 
-    const rect = this.progressBar.getBoundingClientRect();
-    const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
-    const time = ratio * this.player.duration();
+    const time = clamped * duration;
 
     this.player.seek(time);
+    this.playWindowEndMs = null;
+    this.seekOnNextPlay = false;
     this.currentTime.textContent = this.formatTime(time);
-    this.updateProgressPosition(ratio * 100);
+    this.updateProgressPosition(clamped * 100);
     await this.updateVerse(time * 1000);
     this.updateHighlighting(time * 1000);
+  }
+
+  refreshProgressFromPlayer() {
+    const duration = this.player && this.player.duration();
+    if (!duration) return;
+
+    const time = this.player.seek() || 0;
+    this.currentTime.textContent = this.formatTime(time);
+    this.updateProgressPosition((time / duration) * 100);
   }
 
   async loadVerses(verseKey) {
@@ -239,6 +257,10 @@ export default class extends Controller {
 
     this.progress.style.width = `${progress}%`;
     this.progressHandle.style.left = `${progress}%`;
+
+    if (this.progressInput && !this.draggingProgress) {
+      this.progressInput.value = Math.round((progress / 100) * Number(this.progressInput.max));
+    }
   }
 
   updateHighlighting(time) {
@@ -289,6 +311,14 @@ export default class extends Controller {
 
   onload() {
     this.updateTotalDuration();
+
+    if (this.pendingSeekRatio !== null) {
+      const ratio = this.pendingSeekRatio;
+      this.pendingSeekRatio = null;
+      this.seekToRatio(ratio);
+    } else if (!this.isPlaying) {
+      this.refreshProgressFromPlayer();
+    }
   }
 
   updateTotalDuration() {
@@ -361,21 +391,20 @@ export default class extends Controller {
     }
   }
 
+  // Picking an ayah from the select or the prev/next buttons is an explicit
+  // request for that ayah: move the audio there and start playing it.
   async jumpToVerseAndResume(verseKey) {
-    const shouldResume = this.isPlaying;
-
-    if (shouldResume && this.player) {
+    if (this.player) {
       this.player.pause();
     }
 
     await this.jumpToVerse(verseKey);
 
-    if (shouldResume) {
-      this.playAyah(verseKey);
-      this.seekOnNextPlay = false;
+    this.playAyah(verseKey);
+    this.seekOnNextPlay = false;
+
+    if (this.player) {
       this.player.play();
-    } else {
-      this.seekOnNextPlay = true;
     }
   }
 
@@ -478,8 +507,13 @@ export default class extends Controller {
   }
 
   formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s < 10 ? "0" + s : s}`;
+    const total = Math.max(0, Math.floor(seconds || 0));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    const pad = (value) => (value < 10 ? `0${value}` : `${value}`);
+
+    // Gapless surah audio runs for hours, so hh:mm:ss is clearer than 136:00.
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
   }
 }

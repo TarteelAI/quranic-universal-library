@@ -52,10 +52,10 @@
           </span>
         </div>
 
-        <div>
+        <div class="relative h-5 flex items-center">
           <div
             id="progress-bar"
-            class="relative h-3 cursor-pointer rounded-full bg-gray-200">
+            class="pointer-events-none absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 rounded-full bg-gray-200">
             <div
               id="progress"
               class="h-full w-0 rounded-full bg-blue-400"></div>
@@ -63,6 +63,16 @@
               id="progress-handle"
               class="absolute left-0 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-blue-500 shadow-md"></div>
           </div>
+
+          <input
+            id="progress-input"
+            type="range"
+            min="0"
+            max="1000"
+            step="1"
+            value="0"
+            aria-label="Seek within the recitation"
+            class="player-seek relative z-10 m-0 h-5 w-full cursor-pointer appearance-none bg-transparent p-0 opacity-0">
         </div>
       </div>
 

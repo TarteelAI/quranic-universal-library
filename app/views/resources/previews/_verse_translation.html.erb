@@ -8,7 +8,7 @@
 %>
 
 <div class="mt-5" data-controller="tabs">
-  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
     <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
@@ -41,7 +41,7 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
       <div class="space-y-6">
-        <h2 class="text-xl font-semibold">
+        <h2 class="resource-pane-title">
           <%= resource.name %> translation for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
         </h2>
 
@@ -112,50 +112,53 @@
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="space-y-6">
-        <div>
-          <p class="mb-2">
-            Translations are available in both <strong>JSON</strong> and <strong>SQLite database</strong> formats.
-            Some translation has footnotes as well, footnotes are embedded in the translation text using
-            <code>sup</code> HTML tag.
-            To support a wide range of applications, including websites, mobile apps, and desktop tools, we provide
-            multiple export formats for translations.
-          </p>
+      <div class="qul-docs">
+        <h2>About translation data</h2>
 
-          <h3 class="text-xl font-semibold mb-2">Available export formats:</h3>
+        <p>
+          Translations are available as <strong>JSON</strong> and <strong>SQLite</strong>. Because different
+          apps need different things — a website can render HTML, a small embedded reader often cannot — each
+          translation is exported in several shapes. Pick the one that matches what your app can display.
+        </p>
 
-          <h4 class="text-lg font-semibold">1. Nested Array Structure</h4>
-          <p>
-            Translations are grouped by Surah.
-            Each Surah is an array containing translations for each Ayah in order.
-            This format export translations as simple text, no formatting, no footnotes.
-          </p>
-          <pre><code class="text-sm">[
-  ["translation of 1:1", "translation of 1:2"], ...
+        <h2>Plain text formats</h2>
+        <p>These two carry the translation only: no formatting and no footnotes.</p>
+
+        <h3>Nested arrays</h3>
+        <p>One array per surah, holding that surah's ayahs in order.</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>[
+  ["translation of 1:1", "translation of 1:2"],
   ["translation of 2:1", "translation of 2:2"]
 ]</code></pre>
+        </div>
 
-          <h4 class="text-lg font-semibold mt-6">2. Key-Value Structure</h4>
-          <p>
-            Each translation is stored with the Ayah reference (e.g. <code>1:1</code>) as the key and the translated
-            text as the value.
-            This format also exports translations as simple text, no formatting, no footnotes etc.
-          </p>
-          <pre><code class="text-sm">{
+        <h3>Key and value</h3>
+        <p>Keyed by ayah reference, which is easier to look up a single ayah in.</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>{
   "1:1": "translation of 1:1",
   "1:2": "translation of 1:2",
-  ...
   "114:6": "translation of 114:6"
 }</code></pre>
+        </div>
 
-          <h3 class="text-xl font-semibold mt-10">Translations with Footnotes</h3>
-          <p>Translations with <strong>footnotes</strong> are available in three more formats:</p>
+        <h2>Formats with footnotes</h2>
+        <p>
+          Some translations carry footnotes. Three more formats keep them, each trading off differently between
+          fidelity and how much your renderer has to understand.
+        </p>
 
-          <h4 class="text-lg font-semibold mt-6">1. Footnotes as Tags Format</h4>
-          <p>Footnotes are embedded using a <code>&lt;sup&gt;</code> tag with a <code>foot_note</code> attribute.
-            Footnote contents are stored separately under <code>f</code> key.
-          </p>
-          <pre><code class="text-sm">{
+        <h3>1. Footnotes as tags</h3>
+        <p>
+          A <code>&lt;sup&gt;</code> tag marks the reference in the text under <code>t</code>, and the footnote
+          bodies live separately under <code>f</code>, keyed by footnote id.
+        </p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>{
   "88:17": {
     "t": "Do the disbelievers not see how rain clouds are formed &lt;sup foot_note=\"77646\"&gt;1&lt;/sup&gt;",
     "f": {
@@ -163,35 +166,43 @@
     }
   }
 }</code></pre>
+        </div>
 
-          <h4 class="text-lg font-semibold mt-6">2. Inline Footnote Format</h4>
-          <p>Footnotes are inserted directly using double square brackets e.g(<code>[[this is footnote]]</code>)</p>
-          <pre><code class="text-sm">{
+        <h3>2. Inline footnotes</h3>
+        <p>The footnote sits in the text itself, wrapped in double square brackets.</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>{
   "88:17": "Do the disbelievers not see how rain clouds are formed [[The word ibl can mean 'camel' as well as 'rain cloud'...]]"
 }</code></pre>
-
-          <h4 class="text-lg font-semibold mt-6">3. Text Chunks Format</h4>
-          <p>
-            In chunks export format, text is divided into chunks. Each chunk could be a simple text or an object. Object
-            can be either
-            footnote or a formatting tag.
-            This format is useful for applications can't directly render the HTML tags.
-            Here is an example of Bridges` translation for Surah An-Nas , Ayah 6:
-          </p>
-
-          <p>
-            Above translation will be exported in chunks as:
-          </p>
-
-          <pre><code>&lt;i class="s"&gt;(from the whisperers)&lt;/i&gt;among the race of unseen beings&lt;sup foot_note="81506"&gt;1&lt;/sup&gt;and mankind.”</code></pre>
-          <pre><code class="text-sm">
-      [
-      {"type":"i","text":"(from the whisperers)"}, // first chunk, should be formatted as italic
-      "among the race of unseen beings", //second chunk in simple text
-      {"type":"f","f":"81506","text":"1"}, // third chunk is a footnote,
-      "and mankind.”"
-      ]</code></pre>
         </div>
+
+        <h3>3. Text chunks</h3>
+        <p>
+          The ayah is split into a list of pieces. A piece is either a plain string or an object describing a
+          footnote or a formatting tag. Use this when your app cannot render HTML at all.
+        </p>
+        <p>This ayah — Bridges' translation of Surah An-Nas, ayah 6 —</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>HTML</span></div>
+          <pre><code>&lt;i class="s"&gt;(from the whisperers)&lt;/i&gt;among the race of unseen beings&lt;sup foot_note="81506"&gt;1&lt;/sup&gt;and mankind.”</code></pre>
+        </div>
+        <p>is exported as:</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>[
+  {"type": "i", "text": "(from the whisperers)"},
+  "among the race of unseen beings",
+  {"type": "f", "f": "81506", "text": "1"},
+  "and mankind.”"
+]</code></pre>
+        </div>
+        <ul>
+          <li>A string is plain text — print it as is.</li>
+          <li><code>"type": "i"</code> (or another tag name) is formatting — render <code>text</code> in that style.</li>
+          <li><code>"type": "f"</code> is a footnote reference — <code>text</code> is the marker to show and
+            <code>f</code> is the footnote id to look up.</li>
+        </ul>
       </div>
     </div>
   </div>

@@ -1,0 +1,53 @@
+<div class="qul-docs">
+  <p>
+    In Arabic, a <strong>root</strong> is the small set of consonants — usually three — that a whole
+      family of related words is built from. Grouping words by root reveals how Quranic vocabulary connects:
+      <span class="qpc-hafs">الرَّحْمَـٰن</span>, <span class="qpc-hafs">الرَّحِيم</span> and
+      <span class="qpc-hafs">رَحْمَة</span> all come from <span class="qpc-hafs">ر ح م</span>.
+  </p>
+
+  <div class="docs-callout docs-callout-info">
+    This resource gives the roots of an <strong>ayah at a time</strong>: for each ayah, the roots of its
+      words in the order the words appear. If you need the root of one specific word instead, use the
+      <a href="/resources/morphology">Word root</a> resource.
+  </div>
+
+  <h2>Example</h2>
+  <p>Ayah <code>73:4</code> has these roots:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>73:4</span></div>
+    <pre><code class="qpc-hafs">زيد رتل قرا رتل</code></pre>
+  </div>
+
+  <h2>Export format</h2>
+  <p>
+    QUL exports this data as a SQLite database with one row per ayah.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Column</th>
+        <th>Type</th>
+        <th>What it holds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ayah_key</code></td>
+        <td>TEXT</td>
+        <td>The ayah, in <code>surah:ayah</code> form — for example <code>73:4</code>.</td>
+      </tr>
+      <tr>
+        <td><code>text</code></td>
+        <td>TEXT</td>
+        <td>The root of each word in the ayah, in word order, separated by spaces.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="docs-callout docs-callout-warning">
+    The roots are listed in word order but are not individually numbered. To line them up with the words
+    of the ayah you also need the word by word Quran script, available on the
+    <a href="/resources/quran-script">Quran Scripts</a> page.
+  </div>
+</div>

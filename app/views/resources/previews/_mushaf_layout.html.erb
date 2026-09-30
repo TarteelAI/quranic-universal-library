@@ -12,7 +12,7 @@
 %>
 
 <div class="mt-5" data-controller="tabs">
-  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
     <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
@@ -45,7 +45,7 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
       <div class="space-y-6">
-        <h2 class="text-xl font-semibold">
+        <h2 class="resource-pane-title">
           <%= resource.name %> Page <%= page %>
         </h2>
 
@@ -95,7 +95,7 @@
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="space-y-6 qul-docs">
+      <div class="qul-docs">
         <%= safe_html tag.description if tag %>
       </div>
     </div>

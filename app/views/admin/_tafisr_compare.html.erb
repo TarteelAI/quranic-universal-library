@@ -13,8 +13,6 @@
 
   <%  split.with_right do %>
     <h2 class="bg-gray-200 p2 tm-mb-4">
-      <%# The current tafsir carries its own grouping, which is often not the %>
-      <%# draft's - labelling it with the draft's range hid regrouping. %>
       Current Text
       <% if tafsir %>
         (<%= tafsir.group_verse_key_from %> - <%= tafsir.group_verse_key_to %>)

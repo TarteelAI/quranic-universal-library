@@ -16,7 +16,7 @@
 %>
 
 <div class="mt-5" data-controller="tabs">
-  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
     <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
@@ -49,7 +49,7 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
       <div class="space-y-6">
-        <h2 class="text-xl font-semibold">
+        <h2 class="resource-pane-title">
           <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
         </h2>
 
@@ -126,49 +126,36 @@
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="space-y-6">
-        <div class="p-6 bg-white rounded-2xl shadow-md space-y-6 text-gray-800">
-          <p>
-            QUL has multiple transliterations of the Quran in various languages. These are available in two formats:
-          </p>
+      <div class="qul-docs">
+        <h2>About transliteration data</h2>
 
-          <div class="space-y-4">
-            <div>
-              <h3 class="text-lg font-semibold">JSON</h3>
-              <ul class="list-disc pl-6 space-y-1">
-                <li>Organized by <code class="bg-gray-100 px-1 rounded">ayah_key</code> in the <code class="bg-gray-100 px-1 rounded">"surah:ayah"</code> format.</li>
-                <li>Example:</li>
-              </ul>
-              <pre class="bg-gray-100 rounded p-4 text-sm overflow-x-auto">
-{
-  "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
-}
-      </pre>
-              <p class="mt-2">
-                The transliteration string may include <strong>HTML tags</strong> (e.g., <code class="bg-gray-100 px-1 rounded">&lt;u&gt;</code>, <code class="bg-gray-100 px-1 rounded">&lt;b&gt;</code>) for styling and emphasis.
-              </p>
-            </div>
+        <p>
+          QUL carries transliterations of the Quran in several languages, some ayah by ayah and some word by
+          word. Every transliteration is available as <strong>JSON</strong> and <strong>SQLite</strong>.
+        </p>
 
-            <div>
-              <h3 class="text-lg font-semibold">SQLite</h3>
-              <p>Provides transliteration in a structured relational format with the following columns:</p>
-              <ul class="list-disc pl-6 space-y-1">
-                <li><code class="bg-gray-100 px-1 rounded">sura</code> (integer)</li>
-                <li><code class="bg-gray-100 px-1 rounded">ayah</code> (integer)</li>
-                <li><code class="bg-gray-100 px-1 rounded">ayah_key</code> (string, e.g., <code>"1:1"</code>)</li>
-                <li><code class="bg-gray-100 px-1 rounded">text</code> (HTML-formatted transliteration)</li>
-              </ul>
-            </div>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold">Notes</h2>
-            <ul class="list-disc pl-6 space-y-1">
-              <li>Transliterations may be <strong>word-by-word</strong> or <strong>ayah-by-ayah</strong>.</li>
-              <li>HTML tags in the text allow flexible rendering (e.g., vowel highlighting or emphasis).</li>
-            </ul>
-          </div>
+        <div class="docs-callout docs-callout-info">
+          The text contains HTML tags such as <code>&lt;u&gt;</code> and <code>&lt;b&gt;</code>. They mark long
+          vowels and emphasised letters, so render the value as HTML — printing it as plain text will show the
+          tags to your users.
         </div>
+
+        <h2>JSON</h2>
+        <p>Keyed by ayah in <code>surah:ayah</code> form.</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>{
+  "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
+}</code></pre>
+        </div>
+
+        <h2>SQLite columns</h2>
+        <ul>
+          <li><code>sura</code> — surah number.</li>
+          <li><code>ayah</code> — ayah number within the surah.</li>
+          <li><code>ayah_key</code> — the two combined, for example <code>1:1</code>.</li>
+          <li><code>text</code> — the transliteration, with the same HTML tags as the JSON export.</li>
+        </ul>
       </div>
     </div>
   </div>

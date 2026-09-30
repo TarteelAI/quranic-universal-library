@@ -1,0 +1,443 @@
+<%= render 'tools/header',
+           name: "Image Export Tool",
+           title: "Export Quran pages, Ayahs, and Words as high-resolution PNG / WEBP images",
+           key: 'image_export'
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4 py-6"
+     data-controller="image-export"
+     data-image-export-download-url-value="<%= download_image_export_path %>"
+     data-image-export-verse-words-url-value="<%= image_export_verse_words_path %>"
+     data-image-export-batch-url-value="<%= batch_image_export_path %>"
+     data-image-export-export-page-url-value="<%= exports_mushaf_page_path %>"
+     data-image-export-export-ayah-url-value="<%= exports_ayah_path %>"
+     data-image-export-export-word-url-value="<%= exports_word_path %>">
+
+  <!-- Top Controls: Mode & Export Type -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-gray-200">
+    <!-- Export Type Tabs -->
+    <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200 shadow-inner">
+      <button type="button"
+              data-image-export-target="tabBtn"
+              data-type="mushaf_page"
+              data-action="click->image-export#switchTab"
+              class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-gray-900 shadow-sm">
+        📖 Mushaf Page
+      </button>
+      <button type="button"
+              data-image-export-target="tabBtn"
+              data-type="ayah"
+              data-action="click->image-export#switchTab"
+              class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-gray-600 hover:text-gray-900">
+        📜 Ayah
+      </button>
+      <button type="button"
+              data-image-export-target="tabBtn"
+              data-type="word"
+              data-action="click->image-export#switchTab"
+              class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-gray-600 hover:text-gray-900">
+        🔤 Word
+      </button>
+    </div>
+
+    <!-- Mode Switch: Single vs Batch -->
+    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-sm">
+      <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mode:</span>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="radio" name="export_mode" value="single" checked data-action="change->image-export#switchMode" class="text-[#46ac7a] focus:ring-[#46ac7a]">
+        <span class="ms-1.5 text-sm font-medium text-gray-800">Single Item</span>
+      </label>
+      <span class="text-gray-300">|</span>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="radio" name="export_mode" value="batch" data-action="change->image-export#switchMode" class="text-[#46ac7a] focus:ring-[#46ac7a]">
+        <span class="ms-1.5 text-sm font-medium text-gray-800">📦 Batch ZIP</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
+    <!-- LEFT PANEL: Dynamic Controls -->
+    <div class="w-full lg:w-[42%] shrink-0 space-y-6">
+      
+      <!-- 1. MUSHAF PAGE CONTROLS -->
+      <div data-image-export-target="pageControls" class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span>📖</span> Mushaf Page Settings
+        </h3>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Select Mushaf Layout</label>
+          <select data-image-export-target="mushafSelect"
+                  data-action="change->image-export#mushafChanged"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
+            <% @mushafs.each do |mushaf| %>
+              <option value="<%= mushaf.id %>" data-pages="<%= mushaf.pages_count %>" <%= 'selected' if mushaf.id == @default_mushaf.id %>>
+                <%= mushaf.humanize %> (<%= mushaf.pages_count %> pages)
+              </option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Single Page Selector -->
+        <div data-image-export-target="singlePageGroup">
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Page Number</label>
+          <select data-image-export-target="pageSelect"
+                  data-action="change->image-export#inputChanged"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
+            <% (1..@default_mushaf.pages_count).each do |p| %>
+              <option value="<%= p %>" <%= 'selected' if p == @default_page %>><%= p %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Batch Page Range Selector -->
+        <div data-image-export-target="batchPageGroup" class="hidden grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">From Page</label>
+            <select data-image-export-target="fromPageSelect"
+                    data-action="change->image-export#fromPageChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a]">
+              <% (1..@default_mushaf.pages_count).each do |p| %>
+                <option value="<%= p %>" <%= 'selected' if p == 1 %>><%= p %></option>
+              <% end %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">To Page</label>
+            <select data-image-export-target="toPageSelect"
+                    data-action="change->image-export#toPageChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a]">
+              <% (1..@default_mushaf.pages_count).each do |p| %>
+                <option value="<%= p %>" <%= 'selected' if p == 5 %>><%= p %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. AYAH CONTROLS -->
+      <div data-image-export-target="ayahControls" class="hidden bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span>📜</span> Ayah Settings
+        </h3>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Select Surah</label>
+          <select data-image-export-target="ayahSurahSelect"
+                  data-action="change->image-export#ayahSurahChanged"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
+            <% @chapters.each do |c| %>
+              <option value="<%= c[1] %>" data-verses="<%= c[2]['data-verses'] %>" <%= 'selected' if c[1] == 1 %>>
+                <%= c[0] %>
+              </option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Single Ayah Selector -->
+        <div data-image-export-target="singleAyahGroup">
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Ayah Number</label>
+          <select data-image-export-target="ayahSelect"
+                  data-action="change->image-export#inputChanged"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
+            <% (1..7).each do |v| %>
+              <option value="<%= v %>" <%= 'selected' if v == 1 %>><%= v %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Batch Ayah Range Selector -->
+        <div data-image-export-target="batchAyahGroup" class="hidden grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">From Ayah</label>
+            <select data-image-export-target="fromAyahSelect"
+                    data-action="change->image-export#fromAyahChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a]">
+              <% (1..7).each do |v| %>
+                <option value="<%= v %>" <%= 'selected' if v == 1 %>><%= v %></option>
+              <% end %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">To Ayah</label>
+            <select data-image-export-target="toAyahSelect"
+                    data-action="change->image-export#toAyahChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a]">
+              <% (1..7).each do |v| %>
+                <option value="<%= v %>" <%= 'selected' if v == 7 %>><%= v %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. WORD CONTROLS -->
+      <div data-image-export-target="wordControls" class="hidden bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span>🔤</span> Word Settings
+        </h3>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Surah</label>
+            <select data-image-export-target="wordSurahSelect"
+                    data-action="change->image-export#wordSurahChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium">
+              <% @chapters.each do |c| %>
+                <option value="<%= c[1] %>" data-verses="<%= c[2]['data-verses'] %>" <%= 'selected' if c[1] == 1 %>>
+                  <%= c[1] %>. <%= c[0].split('.')[1..].join('.').strip.truncate(15) %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Ayah</label>
+            <select data-image-export-target="wordAyahSelect"
+                    data-action="change->image-export#wordAyahChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium">
+              <% (1..7).each do |v| %>
+                <option value="<%= v %>" <%= 'selected' if v == 1 %>><%= v %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Single Word Selector -->
+        <div data-image-export-target="singleWordGroup">
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Word Position</label>
+          <select data-image-export-target="wordPositionSelect"
+                  data-action="change->image-export#inputChanged"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
+            <% (1..4).each do |w| %>
+              <option value="<%= w %>" <%= 'selected' if w == 1 %>>Word <%= w %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Batch Word Range Selector -->
+        <div data-image-export-target="batchWordGroup" class="hidden grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">From Word</label>
+            <select data-image-export-target="fromWordSelect"
+                    data-action="change->image-export#fromWordChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium">
+              <option value="1">1</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">To Word</label>
+            <select data-image-export-target="toWordSelect"
+                    data-action="change->image-export#toWordChanged"
+                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium">
+              <option value="4">4</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. SHARED SCRIPT & TYPOGRAPHY SETTINGS (for Ayah & Word) -->
+      <div data-image-export-target="scriptSettingsGroup" class="hidden bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span>🖋️</span> Script & Typography
+        </h3>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Quran Script Type</label>
+          <select data-image-export-target="scriptSelect"
+                  data-action="change->image-export#inputChanged"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
+            <% @scripts.each do |s| %>
+              <option value="<%= s[:id] %>" <%= 'selected' if s[:id] == @default_script %>>
+                <%= s[:name] %>
+              </option>
+            <% end %>
+          </select>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-xs font-semibold text-gray-700 uppercase">Font Size</label>
+            <span class="text-xs font-bold text-[#46ac7a] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200" data-image-export-target="fontSizeBadge">50px</span>
+          </div>
+          <input type="range"
+                 min="16"
+                 max="120"
+                 value="50"
+                 data-image-export-target="fontSizeSlider"
+                 data-action="input->image-export#fontSizeSliderChanged"
+                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#46ac7a]">
+          <div class="flex justify-between text-[11px] text-gray-400 mt-1">
+            <span>16px</span>
+            <span>50px</span>
+            <span>120px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. EXPORT FORMAT & QUALITY SETTINGS -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span>⚙️</span> Export Output Settings
+        </h3>
+
+        <!-- Format: PNG vs WEBP -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1.5">Image Format</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center p-3 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+              <input type="radio" name="image_format" value="png" checked data-image-export-target="formatRadio" data-action="change->image-export#formatChanged" class="text-[#46ac7a] focus:ring-[#46ac7a]">
+              <div class="ms-2.5">
+                <div class="text-sm font-semibold text-gray-900">PNG</div>
+                <div class="text-xs text-gray-500">Lossless & sharp</div>
+              </div>
+            </label>
+            <label class="flex items-center p-3 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+              <input type="radio" name="image_format" value="webp" data-image-export-target="formatRadio" data-action="change->image-export#formatChanged" class="text-[#46ac7a] focus:ring-[#46ac7a]">
+              <div class="ms-2.5">
+                <div class="text-sm font-semibold text-gray-900">WEBP</div>
+                <div class="text-xs text-gray-500">Compact file size</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Background & Scale -->
+        <div class="space-y-3 pt-2 border-t border-gray-100">
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-sm font-medium text-gray-700">Transparent Background</span>
+            <input type="checkbox" data-image-export-target="transparentCheckbox" data-action="change->image-export#transparentChanged" class="rounded text-[#46ac7a] focus:ring-[#46ac7a] w-4 h-4">
+          </label>
+
+          <label class="flex items-center justify-between cursor-pointer">
+            <div>
+              <span class="text-sm font-medium text-gray-700">2x High-DPI (Retina)</span>
+              <p class="text-xs text-gray-400">Doubles pixel density for print</p>
+            </div>
+            <input type="checkbox" checked data-image-export-target="retinaCheckbox" class="rounded text-[#46ac7a] focus:ring-[#46ac7a] w-4 h-4">
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: Live Preview & Actions -->
+    <div class="w-full lg:flex-1 space-y-4 lg:sticky lg:top-24">
+      <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        
+        <!-- Preview Header Bar -->
+        <div class="bg-slate-50 border-b border-gray-200 px-5 py-3.5 flex justify-between items-center flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-sm font-bold text-slate-800">Live Render Preview</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-lg" data-image-export-target="previewDimensionBadge">
+              Auto Size
+            </span>
+            <button type="button"
+                    data-action="click->image-export#refreshPreview"
+                    title="Reload Preview"
+                    class="p-1.5 text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Body Frame -->
+        <div class="p-4 md:p-6 bg-slate-100 min-h-[420px]" data-image-export-target="previewWrapper">
+          <!-- Single Item Preview -->
+          <div data-image-export-target="singlePreviewContainer" class="w-full flex items-center justify-center">
+            <div id="export-preview-container"
+                 class="bg-white border border-slate-300 rounded-xl shadow-md p-3 md:p-4 transition-all duration-200 w-full flex items-center justify-center overflow-hidden"
+                 data-image-export-target="previewBox">
+              <iframe data-image-export-target="previewFrame"
+                      src="<%= exports_mushaf_page_path(page_number: 1, mushaf_id: 1) %>"
+                      class="border-0 w-full min-h-[420px] bg-transparent"
+                      data-action="load->image-export#frameLoaded"></iframe>
+            </div>
+          </div>
+
+          <!-- Batch Items Preview (Up to 10) -->
+          <div data-image-export-target="batchPreviewContainer" class="hidden w-full space-y-4">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider px-1">
+              <span data-image-export-target="batchPreviewHeader">Batch Range Previews</span>
+              <span class="text-slate-400">Up to 10 previews</span>
+            </div>
+            <div data-image-export-target="batchPreviewList" class="space-y-4 max-h-[620px] overflow-y-auto pr-1"></div>
+            <div data-image-export-target="batchOverflowNotice" class="hidden text-xs text-center text-slate-500 font-medium p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm"></div>
+          </div>
+        </div>
+
+        <!-- Action Footer (Button only) -->
+        <div class="p-5 bg-white border-t border-gray-100 flex justify-end items-center">
+          <!-- Single Download Button -->
+          <div data-image-export-target="singleActionGroup" class="w-full sm:w-auto">
+            <button type="button"
+                    data-image-export-target="downloadBtn"
+                    data-action="click->image-export#downloadSingleImage"
+                    class="w-full sm:w-auto px-6 py-3 bg-[#46ac7a] hover:bg-[#3d966a] disabled:opacity-75 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+              <svg data-image-export-target="downloadIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              <svg data-image-export-target="downloadSpinner" class="hidden animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span data-image-export-target="downloadBtnLabel">Download PNG</span>
+            </button>
+          </div>
+
+          <!-- Batch Download Button -->
+          <div data-image-export-target="batchActionGroup" class="hidden w-full sm:w-auto">
+            <button type="button"
+                    data-action="click->image-export#startBatchExport"
+                    class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+              <span>📦</span>
+              <span>Generate Batch ZIP</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- BATCH PROGRESS MODAL -->
+  <div data-image-export-target="batchModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+          <span>📦</span> Batch Image Generation
+        </h3>
+        <button type="button" data-action="click->image-export#closeBatchModal" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex justify-between text-sm font-semibold text-gray-700">
+          <span data-image-export-target="batchStatusLabel">Preparing items...</span>
+          <span data-image-export-target="batchPercentLabel">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div data-image-export-target="batchProgressBar" class="bg-[#46ac7a] h-3 rounded-full transition-all duration-200" style="width: 0%"></div>
+        </div>
+        <p class="text-xs text-gray-500" data-image-export-target="batchDetailsLabel">Rendering high-resolution images...</p>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-3">
+        <button type="button" data-action="click->image-export#cancelBatch" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+          Cancel
+        </button>
+        <button type="button" data-image-export-target="batchZipDownloadBtn" class="hidden px-5 py-2 text-sm font-bold text-white bg-[#46ac7a] hover:bg-[#3d966a] rounded-xl shadow-md transition-all">
+          Download ZIP
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

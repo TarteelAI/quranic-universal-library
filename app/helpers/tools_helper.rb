@@ -157,7 +157,16 @@ module ToolsHelper
         type: 'segments',
         icon: 'timestamp.svg',
         tags: [['Timestamp', 'timestamp']]
-      )
+      ),
+      ToolCard.new(
+        title: 'Quran Image Export Tool',
+        description: 'Export Mushaf pages, Ayahs, and Words as high-resolution PNG / WEBP images with custom scripts and fonts',
+        url: image_export_tool_path,
+        type: 'image-export',
+        icon: 'layout.svg',
+        tags: [['Image Export', 'image-export'], ['Mushaf Page', 'mushaf-page'], ['Ayah', 'ayah'], ['Word', 'word']],
+        cta_bg: 'rgba(70, 172, 122, 0.9)'
+      ),
     ]
   end
 end

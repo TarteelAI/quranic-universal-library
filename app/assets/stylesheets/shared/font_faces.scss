@@ -270,8 +270,14 @@ $asset-version: "3.3";
   font-size: 30px;
 }
 
-.mushaf-qpc-nastaleeq {
-  font-family: qpc-nastaleeq !important;
+.qpc-nastaleeq, .mushaf-qpc-nastaleeq {
+  font-family: 'qpc-nastaleeq' !important;
+  direction: rtl;
+}
+
+.indopak-nastaleeq, .mushaf-indopak-nastaleeq {
+  font-family: 'indopak-nastaleeq' !important;
+  direction: rtl;
 }
 
 .digitalkhatt {

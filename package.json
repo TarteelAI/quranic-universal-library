@@ -6,7 +6,6 @@
     "@hotwired/turbo-rails": "^8.0.23",
     "@popperjs/core": "^2.11.0",
     "@rails/actiontext": "^8.0.200",
-    "@splinetool/loader": "^1.9.0",
     "@syncfusion/ej2-layouts": "^22.1.37",
     "@vueform/slider": "^2.0.8",
     "buffer": "^6.0.3",

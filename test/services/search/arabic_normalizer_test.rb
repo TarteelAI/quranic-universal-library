@@ -17,6 +17,41 @@ class ArabicNormalizerTest < Minitest::Test
     assert_equal "يهوي", Search::ArabicNormalizer.normalize("ىةؤئ")
   end
 
+  def test_unifies_perso_arabic_kaf
+    assert_equal Search::ArabicNormalizer.normalize("كتاب"), Search::ArabicNormalizer.normalize("کتاب")
+  end
+
+  def test_unifies_perso_arabic_ya_variants
+    arabic = Search::ArabicNormalizer.normalize("الذي")
+
+    ["الذی", "الذے", "الذې", "الذۍ"].each do |typed|
+      assert_equal arabic, Search::ArabicNormalizer.normalize(typed), "#{typed} does not fold to the Arabic spelling"
+    end
+  end
+
+  def test_unifies_perso_arabic_ha_variants
+    arabic = Search::ArabicNormalizer.normalize("الله")
+
+    ["اللہ", "اللھ"].each do |typed|
+      assert_equal arabic, Search::ArabicNormalizer.normalize(typed), "#{typed} does not fold to the Arabic spelling"
+    end
+  end
+
+  def test_unifies_perso_arabic_ta_marbuta_variants
+    arabic = Search::ArabicNormalizer.normalize("رحمة")
+
+    ["رحمۃ", "رحمۀ", "رحمۂ"].each do |typed|
+      assert_equal arabic, Search::ArabicNormalizer.normalize(typed), "#{typed} does not fold to the Arabic spelling"
+    end
+  end
+
+  def test_sql_normalization_folds_the_same_letters
+    sql = Search::ArabicNormalizer.sql_normalize("text")
+
+    assert_includes sql, Search::ArabicNormalizer::TRANSLATE_FROM
+    assert_includes sql, "ک"
+  end
+
   def test_strips_tatweel
     assert_equal "كتاب", Search::ArabicNormalizer.normalize("كـتاب")
   end

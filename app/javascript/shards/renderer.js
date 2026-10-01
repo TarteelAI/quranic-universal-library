@@ -53,8 +53,24 @@ const FIT_PASSES = 6;
 
 // Performance limits.
 const MAX_DEVICE_PIXEL_RATIO = 2;
-const TILT_MAX = 0.3; // Mouse tilt in radians at the canvas edges.
-const TILT_EASE = 0.06; // Share of the remaining tilt applied per 60 Hz frame.
+
+// The camera leans toward the pointer as it moves over the ring. This is a
+// parallax lean of the whole scene, independent of the drag spin below, and the
+// two layer: you can tilt by hovering and turn by grabbing at the same time.
+const TILT_MAX = 0.3; // Radians of lean at the canvas edges.
+const TILT_EASE = 0.06; // Share of the remaining lean applied per 60 Hz frame.
+
+// Grab the ring and swing it around its centre, like turning a wheel. The ring
+// tracks the pointer's angle 1:1 while held; on release it is a spring-damper,
+// so how hard you threw it decides how far it carries before settling back to
+// the authored angle.
+const SPIN_SIGN = 1; // Maps screen-clockwise pointer travel to a clockwise ring, so it follows the hand.
+const SPIN_MAX = 2 * Math.PI; // Clamp, so a long drag cannot wind up forever.
+const SPIN_MAX_VELOCITY = 16; // rad/s ceiling on a flick.
+const SPIN_STIFFNESS = 26; // Spring pulling the ring home, rad/s^2 per rad.
+const SPIN_DAMPING = 7.5; // ~0.73 of critical: settles in under a second, barely overshoots.
+const SPIN_STEP = 1 / 120; // Fixed integration step, so a long frame cannot blow the spring up.
+const GRAB_MIN_RADIUS = 28; // px. Nearer the centre than this, the grab angle is too noisy to use.
 const MAX_PIXELS = 4.2e6; // Upper limit for the drawing buffer size.
 const MIN_FRAME_MS = 12.5; // Limits rendering to about 60 frames per second.
 
@@ -356,14 +372,19 @@ export default class ShardRing {
     this.projection = null;
     this.viewProjection = new Float32Array(16);
     this.cameraPosition = new Float32Array(3);
-    this.tilt = { x: 0, y: 0, targetX: 0, targetY: 0 };
     this.models = new Float32Array(16 * CHIP_COUNT);
     this.normals = new Float32Array(9 * CHIP_COUNT);
     this.spotPositions = new Float32Array([0, 0, 0].concat(SPOT1_POSITION));
     this.spotColors = new Float32Array([0, 0, 0].concat(SPOT1_COLOR));
     this.shadowMatrices = new Float32Array(32);
     this.ring = SCENE.parent;
+    this.ringSpun = SCENE.parent.slice(); // ring's 3x3, re-derived per frame from `spin`.
     this.time = 0;
+    this.tilt = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    this.spin = 0;
+    this.spinVelocity = 0;
+    this.centre = { x: 0, y: 0 };
+    this.drag = { active: false, pointerId: null, angle: 0, time: 0 };
 
     // The authored camera gives the viewing angle; resize() re-derives the
     // distance along it so the ring frames itself in any container shape.
@@ -377,7 +398,10 @@ export default class ShardRing {
 
     this.boundResize = () => this.handleResize();
     this.boundPointerMove = (event) => this.handlePointerMove(event);
+    this.boundPointerDown = (event) => this.handlePointerDown(event);
+    this.boundPointerUp = (event) => this.handlePointerUp(event);
     this.boundMouseOut = (event) => {
+      // Leaving the window entirely, rather than crossing between elements.
       if (!event.relatedTarget) this.tilt.targetX = this.tilt.targetY = 0;
     };
     this.boundContextLost = (event) => {
@@ -394,6 +418,13 @@ export default class ShardRing {
     window.addEventListener("resize", this.boundResize);
     window.addEventListener("pointermove", this.boundPointerMove, { passive: true });
     document.addEventListener("mouseout", this.boundMouseOut);
+    canvas.addEventListener("pointerdown", this.boundPointerDown);
+    canvas.addEventListener("pointerup", this.boundPointerUp);
+    canvas.addEventListener("pointercancel", this.boundPointerUp);
+    canvas.style.cursor = "grab";
+    // Vertical panning still belongs to the page, so on touch only the sideways
+    // part of a swing reaches us and dragging the ring never traps the scroll.
+    canvas.style.touchAction = "pan-y";
     canvas.addEventListener("webglcontextlost", this.boundContextLost);
     canvas.addEventListener("webglcontextrestored", this.boundContextRestored);
 
@@ -626,12 +657,15 @@ export default class ShardRing {
   // Publish the ring's centre so the QUL lockup can sit on it. The authored
   // camera aims at the origin, so the ring turns about this point on screen.
   publishRingCentre() {
-    if (!this.container) return;
     const m = this.viewProjection;
     const w = m[15];
+    // Also kept in CSS pixels: the drag measures its angle around this point.
+    this.centre.x = ((m[12] / w) * 0.5 + 0.5) * this.canvas.clientWidth;
+    this.centre.y = ((-m[13] / w) * 0.5 + 0.5) * this.canvas.clientHeight;
+    if (!this.container) return;
     const style = this.container.style;
-    style.setProperty("--qul-ring-cx", `${(((m[12] / w) * 0.5 + 0.5) * this.canvas.clientWidth).toFixed(1)}px`);
-    style.setProperty("--qul-ring-cy", `${(((-m[13] / w) * 0.5 + 0.5) * this.canvas.clientHeight).toFixed(1)}px`);
+    style.setProperty("--qul-ring-cx", `${this.centre.x.toFixed(1)}px`);
+    style.setProperty("--qul-ring-cy", `${this.centre.y.toFixed(1)}px`);
     this.container.dataset.qulRingReady = "true";
   }
 
@@ -699,8 +733,10 @@ export default class ShardRing {
     this.tiltedView = this.cameraView.slice();
   }
 
-  // Orbits the camera around the ring centre by the current tilt. The ring centre
-  // stays in the same place on screen, so the bloom rectangle stays valid.
+  // Leans the camera around the ring centre by the current tilt. It orbits the
+  // centre rather than panning, so the ring centre stays in the same place on
+  // screen: the bloom rectangle, the lockup position and the grab angle all
+  // stay valid while it leans.
   updateView() {
     const base = this.cameraView;
     const tilted = this.tiltedView;
@@ -730,10 +766,29 @@ export default class ShardRing {
     this.updateShadowMatrix(0, this.spotPositions);
   }
 
+  // The ring's orientation turned by `spin` about its own axis (local Y, the
+  // axis the chips are arranged around). Post-multiplying rather than nudging
+  // each chip's angle keeps the assembly rigid: the chips carry their own tilt
+  // and spacing around with them, so it reads as the whole ring turning.
+  spinRing(spin) {
+    const ring = this.ring;
+    const out = this.ringSpun;
+    if (!spin) return ring;
+    const cs = Math.cos(spin), ss = Math.sin(spin);
+    for (let row = 0; row < 3; row++) {
+      const c0 = ring[row];
+      const c2 = ring[8 + row];
+      out[row] = c0 * cs - c2 * ss;
+      out[4 + row] = ring[4 + row];
+      out[8 + row] = c0 * ss + c2 * cs;
+    }
+    return out;
+  }
+
   // Cloner state at tween progress `w` (0 to 1), with `time` driving the slow
   // noise drift. Pulled out of updateChips so buildFitSamples can reuse it.
   writeChipMatrices(models, normals, w, time) {
-    const ring = this.ring;
+    const ring = this.spinRing(this.spin);
     const radius = 143 + 7 * w;
     // Writes ring * (x, y, z) into out at the given offset.
     const transform = (out, offset, x, y, z) => {
@@ -893,6 +948,12 @@ export default class ShardRing {
     const ease = 1 - Math.pow(1 - TILT_EASE, Math.min(elapsed, 250) / (1000 / 60));
     this.tilt.x += (this.tilt.targetX - this.tilt.x) * ease;
     this.tilt.y += (this.tilt.targetY - this.tilt.y) * ease;
+
+    // Let go and the throw carries, then springs back to the authored angle.
+    if (!this.drag.active && (this.spin || this.spinVelocity)) {
+      this.stepSpin(elapsed / 1000);
+    }
+
     this.draw();
   }
 
@@ -928,16 +989,102 @@ export default class ShardRing {
     if (changed || !this.running) this.draw();
   }
 
-  // The ring turns slightly toward the pointer, and back to centre when it leaves.
-  handlePointerMove(event) {
-    if (event.pointerType === "touch") return;
+  updateTiltTarget(event) {
     const rect = this.canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
-
     const nx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     const ny = ((event.clientY - rect.top) / rect.height) * 2 - 1;
     this.tilt.targetY = Math.max(-1, Math.min(1, nx)) * TILT_MAX;
     this.tilt.targetX = Math.max(-1, Math.min(1, ny)) * TILT_MAX;
+  }
+
+  // Pointer angle around the ring centre, and how far out it is. Returns null
+  // when the pointer sits on the hub, where the angle swings wildly for very
+  // little travel.
+  grabAngle(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
+    const dx = event.clientX - rect.left - this.centre.x;
+    const dy = event.clientY - rect.top - this.centre.y;
+    if (Math.hypot(dx, dy) < GRAB_MIN_RADIUS) return null;
+    return Math.atan2(dy, dx);
+  }
+
+  handlePointerDown(event) {
+    if (event.button !== 0 || this.disposed || this.contextLost) return;
+    const angle = this.grabAngle(event);
+    if (angle === null) return;
+
+    this.drag.active = true;
+    this.drag.pointerId = event.pointerId;
+    this.drag.angle = angle;
+    this.drag.time = event.timeStamp || performance.now();
+    this.spinVelocity = 0; // Grabbing a moving wheel stops it dead.
+    this.canvas.style.cursor = "grabbing";
+    // Capture keeps the drag alive past the canvas edge. It throws if the
+    // pointer is already gone, which is harmless here.
+    try {
+      this.canvas.setPointerCapture(event.pointerId);
+    } catch (error) { /* not capturable */ }
+  }
+
+  handlePointerUp(event) {
+    if (!this.drag.active || event.pointerId !== this.drag.pointerId) return;
+    this.drag.active = false;
+    this.drag.pointerId = null;
+    this.canvas.style.cursor = "grab";
+    // A running loop carries the throw and springs the ring home. With motion
+    // off there is no loop, and starting one would override the reader's
+    // preference, so the ring returns to the authored angle in one step.
+    if (!this.running && !this.disposed && !this.contextLost) {
+      this.spin = 0;
+      this.spinVelocity = 0;
+      this.draw();
+    }
+  }
+
+  // Two separate things: the scene leans toward the pointer as it moves over
+  // the ring, and — only while held — the ring itself follows the pointer's
+  // swing one-to-one in whichever direction it travels.
+  handlePointerMove(event) {
+    if (event.pointerType !== "touch") this.updateTiltTarget(event);
+    if (!this.drag.active || event.pointerId !== this.drag.pointerId) return;
+
+    const angle = this.grabAngle(event);
+    if (angle === null) return;
+
+    // Shortest way round, so crossing the -pi/+pi seam does not snap the ring.
+    const delta = Math.atan2(Math.sin(angle - this.drag.angle), Math.cos(angle - this.drag.angle));
+    const now = event.timeStamp || performance.now();
+    const dt = (now - this.drag.time) / 1000;
+
+    this.spin = Math.max(-SPIN_MAX, Math.min(SPIN_MAX, this.spin + delta * SPIN_SIGN));
+    if (dt > 0.004) {
+      const velocity = (delta * SPIN_SIGN) / dt;
+      this.spinVelocity = Math.max(-SPIN_MAX_VELOCITY, Math.min(SPIN_MAX_VELOCITY, velocity));
+      this.drag.time = now;
+    }
+    this.drag.angle = angle;
+
+    // Reduced motion leaves the loop stopped, so paint the drag directly.
+    if (!this.running) this.draw();
+  }
+
+  // Spring-damper back to the authored angle, carrying whatever velocity the
+  // release left behind. Integrated at a fixed step so a long frame (a tab
+  // coming back to the foreground) cannot make it explode.
+  stepSpin(dt) {
+    let remaining = Math.min(dt, 0.25);
+    while (remaining > 0) {
+      const h = Math.min(SPIN_STEP, remaining);
+      remaining -= h;
+      this.spinVelocity += (-SPIN_STIFFNESS * this.spin - SPIN_DAMPING * this.spinVelocity) * h;
+      this.spin += this.spinVelocity * h;
+    }
+    if (Math.abs(this.spin) < 1e-4 && Math.abs(this.spinVelocity) < 1e-3) {
+      this.spin = 0;
+      this.spinVelocity = 0;
+    }
   }
 
   dispose() {
@@ -948,6 +1095,11 @@ export default class ShardRing {
     window.removeEventListener("resize", this.boundResize);
     window.removeEventListener("pointermove", this.boundPointerMove);
     document.removeEventListener("mouseout", this.boundMouseOut);
+    this.canvas.removeEventListener("pointerdown", this.boundPointerDown);
+    this.canvas.removeEventListener("pointerup", this.boundPointerUp);
+    this.canvas.removeEventListener("pointercancel", this.boundPointerUp);
+    this.canvas.style.cursor = "";
+    this.canvas.style.touchAction = "";
     this.canvas.removeEventListener("webglcontextlost", this.boundContextLost);
     this.canvas.removeEventListener("webglcontextrestored", this.boundContextRestored);
     if (this.resizeObserver) this.resizeObserver.disconnect();

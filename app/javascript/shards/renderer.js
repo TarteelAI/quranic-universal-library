@@ -41,7 +41,11 @@ const BLOOM_OPACITY = 0.7;
 // is kept but the distance is re-derived per container shape. These are the
 // fraction of the container's shorter side the ring should span.
 const FILL_LARGE = 0.92;
-const FILL_SMALL = 0.99; // Small panels get a tighter crop so the ring still reads.
+// Small panels (the devise hero is only 30vh tall on phones) are short and wide,
+// so a ring bounded by the inscribed circle leaves the box looking empty. Going
+// past 1 lets the outermost chips clip the short edge at full fan-out, which
+// fills the panel without the ring losing its silhouette.
+const FILL_SMALL = 1.2;
 const SMALL_CANVAS = 380;
 const FIT_SAMPLES = [0, 0.25, 0.5, 0.75, 1]; // Tween states sampled for the fit.
 const FIT_CANDIDATES = 256; // Outermost sample points kept for the fit passes.

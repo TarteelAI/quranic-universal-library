@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QUL Shards</title>
+<style>html,body{margin:0;height:100%;background:#030304;overflow:hidden}#c{display:block;width:100vw;height:100vh}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+'use strict';
+(function () {
+  // Chip mesh, camera matrix, and ring matrix exported from the Spline scene.
+  const SCENE = {"pos":[50,0,3.5,50,0,3.5,46.482,-0.051,7,46.482,-0.051,0,49.168,7.13,3.5,49.168,7.13,3.5,45.727,6.418,7,45.727,6.418,0,46.909,14.646,3.5,46.909,14.646,3.5,43.613,13.451,7,43.613,13.451,0,43.575,22.445,3.5,43.575,22.445,3.5,40.402,20.963,7,40.402,20.963,0,39.522,30.425,3.5,39.522,30.425,3.5,36.427,28.79,7,36.427,28.79,0,35.104,38.483,3.5,35.104,38.483,3.5,32.037,36.797,7,32.037,36.797,0,30.673,46.518,3.5,30.673,46.518,3.5,27.596,44.85,7,27.596,44.85,0,26.483,54.378,3.5,26.483,54.378,3.5,23.411,52.699,7,23.411,52.699,0,22.377,61.71,3.5,22.377,61.71,3.5,19.39,59.879,7,19.39,59.879,0,18.098,68.112,3.5,18.098,68.112,3.5,15.343,65.935,7,15.343,65.935,0,13.388,73.183,3.5,13.388,73.183,3.5,11.146,70.454,7,11.146,70.454,0,7.99,76.52,3.5,7.99,76.52,3.5,6.701,73.202,7,6.701,73.202,0,1.645,77.722,3.5,1.645,77.722,3.5,1.666,74.156,7,1.666,74.156,0,-5.962,76.19,3.5,-5.962,76.19,3.5,-4.649,72.884,7,-4.649,72.884,0,-12.763,71.95,3.5,-12.763,71.95,3.5,-10.537,69.213,7,-10.537,69.213,0,-18.892,65.536,3.5,-18.892,65.536,3.5,-16.172,63.316,7,-16.172,63.316,0,-24.482,57.482,3.5,-24.482,57.482,3.5,-21.515,55.618,7,-21.515,55.618,0,-29.666,48.32,3.5,-29.666,48.32,3.5,-26.579,46.669,7,-26.579,46.669,0,-34.578,38.584,3.5,-34.578,38.584,3.5,-31.457,37,7,-31.457,37,0,-38.119,31.641,3.5,-38.119,31.641,3.5,-35.01,30.033,7,-35.01,30.033,0,-41.663,24.887,3.5,-41.663,24.887,3.5,-38.546,23.294,7,-38.546,23.294,0,-44.923,18.332,3.5,-44.923,18.332,3.5,-41.741,16.869,7,-41.741,16.869,0,-47.608,11.992,3.5,-47.608,11.992,3.5,-44.31,10.805,7,-44.31,10.805,0,-49.431,5.876,3.5,-49.431,5.876,3.5,-45.989,5.172,7,-45.989,5.172,0,-50.103,0,3.5,-50.103,0,3.5,-46.585,-0.043,7,-46.585,-0.043,0,-49.371,-8.191,3.5,-49.371,-8.191,3.5,-45.909,-7.61,7,-45.909,-7.61,0,-47.293,-16.56,3.5,-47.293,-16.56,3.5,-43.949,-15.503,7,-43.949,-15.503,0,-44.046,-24.959,3.5,-44.046,-24.959,3.5,-40.847,-23.527,7,-40.847,-23.527,0,-39.809,-33.242,3.5,-39.809,-33.242,3.5,-36.764,-31.51,7,-36.764,-31.51,0,-34.759,-41.264,3.5,-34.759,-41.264,3.5,-31.871,-39.282,7,-31.871,-39.282,0,-29.073,-48.879,3.5,-29.073,-48.879,3.5,-26.323,-46.713,7,-26.323,-46.713,0,-24.763,-54.071,3.5,-24.763,-54.071,3.5,-22.125,-51.769,7,-22.125,-51.769,0,-20.292,-58.945,3.5,-20.292,-58.945,3.5,-17.817,-56.466,7,-17.817,-56.466,0,-15.616,-63.222,3.5,-15.616,-63.222,3.5,-13.431,-60.477,7,-13.431,-60.477,0,-10.688,-66.622,3.5,-10.688,-66.622,3.5,-8.987,-63.544,7,-8.987,-63.544,0,-5.464,-68.867,3.5,-5.464,-68.867,3.5,-4.504,-65.469,7,-4.504,-65.469,0,0.103,-69.677,3.5,0.103,-69.677,3.5,0.089,-66.138,7,0.089,-66.138,0,6.728,-68.658,3.5,6.728,-68.658,3.5,5.705,-65.274,7,5.705,-65.274,0,12.837,-65.82,3.5,12.837,-65.82,3.5,11.013,-62.808,7,11.013,-62.808,0,18.487,-61.491,3.5,18.487,-61.491,3.5,16.144,-58.877,7,16.144,-58.877,0,23.738,-55.997,3.5,23.738,-55.997,3.5,21.084,-53.709,7,21.084,-53.709,0,28.65,-49.667,3.5,28.65,-49.667,3.5,25.816,-47.611,7,25.816,-47.611,0,33.282,-42.829,3.5,33.282,-42.829,3.5,30.344,-40.925,7,30.344,-40.925,0,37.653,-35.765,3.5,37.653,-35.765,3.5,34.632,-33.996,7,34.632,-33.996,0,41.626,-28.585,3.5,41.626,-28.585,3.5,38.508,-26.992,7,38.508,-26.992,0,45.024,-21.354,3.5,45.024,-21.354,3.5,41.791,-20.005,7,41.791,-20.005,0,47.671,-14.136,3.5,47.671,-14.136,3.5,44.315,-13.121,7,44.315,-13.121,0,49.388,-6.997,3.5,49.388,-6.997,3.5,45.924,-6.432,7,45.924,-6.432,0,50,0,3.5,50,0,3.5,46.482,-0.051,7,46.482,-0.051,0,45.727,6.418,7,45.727,6.418,0,45.924,-6.432,7,45.924,-6.432,0,46.482,-0.051,7,46.482,-0.051,0,44.315,-13.121,7,44.315,-13.121,0,43.613,13.451,7,43.613,13.451,0,41.791,-20.005,7,41.791,-20.005,0,40.402,20.963,7,40.402,20.963,0,38.508,-26.992,7,38.508,-26.992,0,36.427,28.79,7,36.427,28.79,0,34.632,-33.996,7,34.632,-33.996,0,32.037,36.797,7,32.037,36.797,0,30.344,-40.925,7,30.344,-40.925,0,27.596,44.85,7,27.596,44.85,0,25.816,-47.611,7,25.816,-47.611,0,23.411,52.699,7,23.411,52.699,0,21.084,-53.709,7,21.084,-53.709,0,19.39,59.879,7,19.39,59.879,0,16.144,-58.877,7,16.144,-58.877,0,15.343,65.935,7,15.343,65.935,0,11.146,70.454,7,11.146,70.454,0,11.013,-62.808,7,11.013,-62.808,0,6.701,73.202,7,6.701,73.202,0,5.705,-65.274,7,5.705,-65.274,0,1.666,74.156,7,1.666,74.156,0,0.089,-66.138,7,0.089,-66.138,0,-4.504,-65.469,7,-4.504,-65.469,0,-4.649,72.884,7,-4.649,72.884,0,-8.987,-63.544,7,-8.987,-63.544,0,-10.537,69.213,7,-10.537,69.213,0,-13.431,-60.477,7,-13.431,-60.477,0,-16.172,63.316,7,-16.172,63.316,0,-17.817,-56.466,7,-17.817,-56.466,0,-21.515,55.618,7,-21.515,55.618,0,-22.125,-51.769,7,-22.125,-51.769,0,-26.323,-46.713,7,-26.323,-46.713,0,-26.579,46.669,7,-26.579,46.669,0,-31.457,37,7,-31.457,37,0,-31.871,-39.282,7,-31.871,-39.282,0,-35.01,30.033,7,-35.01,30.033,0,-36.764,-31.51,7,-36.764,-31.51,0,-38.546,23.294,7,-38.546,23.294,0,-40.847,-23.527,7,-40.847,-23.527,0,-41.741,16.869,7,-41.741,16.869,0,-43.949,-15.503,7,-43.949,-15.503,0,-44.31,10.805,7,-44.31,10.805,0,-45.909,-7.61,7,-45.909,-7.61,0,-45.989,5.172,7,-45.989,5.172,0,-46.585,-0.043,7,-46.585,-0.043,0],"nor":[0.9933,0.1159,0,0.9933,0.1159,0,0,0,1,0,0,-1,0.9577,0.2879,0,0.9577,0.2879,0,0,0,1,0,0,-1,0.9195,0.393,0,0.9195,0.393,0,0,0,1,0,0,-1,0.8916,0.4528,0,0.8916,0.4528,0,0,0,1,0,0,-1,0.8768,0.4808,0,0.8768,0.4808,0,0,0,1,0,0,-1,0.8757,0.4829,0,0.8757,0.4829,0,0,0,1,0,0,-1,0.8824,0.4705,0,0.8824,0.4705,0,0,0,1,0,0,-1,0.8725,0.4886,0,0.8725,0.4886,0,0,0,1,0,0,-1,0.8314,0.5557,0,0.8314,0.5557,0,0,0,1,0,0,-1,0.7327,0.6805,0,0.7327,0.6805,0,0,0,1,0,0,-1,0.5258,0.8506,0,0.5258,0.8506,0,0,0,1,0,0,-1,0.1861,0.9825,0,0.1861,0.9825,0,0,0,1,0,0,-1,-0.1974,0.9803,0,-0.1974,0.9803,0,0,0,1,0,0,-1,-0.529,0.8486,0,-0.529,0.8486,0,0,0,1,0,0,-1,-0.723,0.6909,0,-0.723,0.6909,0,0,0,1,0,0,-1,-0.8215,0.5701,0,-0.8215,0.5701,0,0,0,1,0,0,-1,-0.8703,0.4925,0,-0.8703,0.4925,0,0,0,1,0,0,-1,-0.8928,0.4504,0,-0.8928,0.4504,0,0,0,1,0,0,-1,-0.8908,0.4544,0,-0.8908,0.4544,0,0,0,1,0,0,-1,-0.8855,0.4647,0,-0.8855,0.4647,0,0,0,1,0,0,-1,-0.8954,0.4453,0,-0.8954,0.4453,0,0,0,1,0,0,-1,-0.9208,0.39,0,-0.9208,0.39,0,0,0,1,0,0,-1,-0.9583,0.2857,0,-0.9583,0.2857,0,0,0,1,0,0,-1,-0.9935,0.1136,0,-0.9935,0.1136,0,0,0,1,0,0,-1,-0.996,-0.089,0,-0.996,-0.089,0,0,0,1,0,0,-1,-0.9705,-0.241,0,-0.9705,-0.241,0,0,0,1,0,0,-1,-0.9327,-0.3605,0,-0.9327,-0.3605,0,0,0,1,0,0,-1,-0.8903,-0.4554,0,-0.8903,-0.4554,0,0,0,1,0,0,-1,-0.8463,-0.5327,0,-0.8463,-0.5327,0,0,0,1,0,0,-1,-0.8013,-0.5983,0,-0.8013,-0.5983,0,0,0,1,0,0,-1,-0.7694,-0.6387,0,-0.7694,-0.6387,0,0,0,1,0,0,-1,-0.7369,-0.676,0,-0.7369,-0.676,0,0,0,1,0,0,-1,-0.6748,-0.738,0,-0.6748,-0.738,0,0,0,1,0,0,-1,-0.5679,-0.8231,0,-0.5679,-0.8231,0,0,0,1,0,0,-1,-0.3948,-0.9188,0,-0.3948,-0.9188,0,0,0,1,0,0,-1,-0.144,-0.9896,0,-0.144,-0.9896,0,0,0,1,0,0,-1,0.152,-0.9884,0,0.152,-0.9884,0,0,0,1,0,0,-1,0.4214,-0.9069,0,0.4214,-0.9069,0,0,0,1,0,0,-1,0.6082,-0.7938,0,0.6082,-0.7938,0,0,0,1,0,0,-1,0.7229,-0.691,0,0.7229,-0.691,0,0,0,1,0,0,-1,0.79,-0.6131,0,0.79,-0.6131,0,0,0,1,0,0,-1,0.828,-0.5608,0,0.828,-0.5608,0,0,0,1,0,0,-1,0.8503,-0.5262,0,0.8503,-0.5262,0,0,0,1,0,0,-1,0.875,-0.4842,0,0.875,-0.4842,0,0,0,1,0,0,-1,0.905,-0.4253,0,0.905,-0.4253,0,0,0,1,0,0,-1,0.9389,-0.3442,0,0.9389,-0.3442,0,0,0,1,0,0,-1,0.9723,-0.2339,0,0.9723,-0.2339,0,0,0,1,0,0,-1,0.9962,-0.0871,0,0.9962,-0.0871,0,0,0,1,0,0,-1,0.9933,0.1159,0,0.9933,0.1159,0,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1,0,0,1,0,0,-1],"idx":[2,0,4,2,4,6,5,1,3,5,3,7,6,4,8,6,8,10,9,5,7,9,7,11,10,8,12,10,12,14,13,9,11,13,11,15,14,12,16,14,16,18,17,13,15,17,15,19,18,16,20,18,20,22,21,17,19,21,19,23,22,20,24,22,24,26,25,21,23,25,23,27,26,24,28,26,28,30,29,25,27,29,27,31,30,28,32,30,32,34,33,29,31,33,31,35,34,32,36,34,36,38,37,33,35,37,35,39,38,36,40,38,40,42,41,37,39,41,39,43,42,40,44,42,44,46,45,41,43,45,43,47,46,44,48,46,48,50,49,45,47,49,47,51,50,48,52,50,52,54,53,49,51,53,51,55,54,52,56,54,56,58,57,53,55,57,55,59,58,56,60,58,60,62,61,57,59,61,59,63,62,60,64,62,64,66,65,61,63,65,63,67,66,64,68,66,68,70,69,65,67,69,67,71,70,68,72,70,72,74,73,69,71,73,71,75,74,72,76,74,76,78,77,73,75,77,75,79,78,76,80,78,80,82,81,77,79,81,79,83,82,80,84,82,84,86,85,81,83,85,83,87,86,84,88,86,88,90,89,85,87,89,87,91,90,88,92,90,92,94,93,89,91,93,91,95,94,92,96,94,96,98,97,93,95,97,95,99,98,96,100,98,100,102,101,97,99,101,99,103,102,100,104,102,104,106,105,101,103,105,103,107,106,104,108,106,108,110,109,105,107,109,107,111,110,108,112,110,112,114,113,109,111,113,111,115,114,112,116,114,116,118,117,113,115,117,115,119,118,116,120,118,120,122,121,117,119,121,119,123,122,120,124,122,124,126,125,121,123,125,123,127,126,124,128,126,128,130,129,125,127,129,127,131,130,128,132,130,132,134,133,129,131,133,131,135,134,132,136,134,136,138,137,133,135,137,135,139,138,136,140,138,140,142,141,137,139,141,139,143,142,140,144,142,144,146,145,141,143,145,143,147,146,144,148,146,148,150,149,145,147,149,147,151,150,148,152,150,152,154,153,149,151,153,151,155,154,152,156,154,156,158,157,153,155,157,155,159,158,156,160,158,160,162,161,157,159,161,159,163,162,160,164,162,164,166,165,161,163,165,163,167,166,164,168,166,168,170,169,165,167,169,167,171,170,168,172,170,172,174,173,169,171,173,171,175,174,172,176,174,176,178,177,173,175,177,175,179,178,176,180,178,180,182,181,177,179,181,179,183,182,180,184,182,184,186,185,181,183,185,183,187,186,184,188,186,188,190,189,185,187,189,187,191,190,188,192,190,192,194,193,189,191,193,191,195,196,198,200,201,199,197,196,202,198,199,203,197,204,202,196,197,203,205,204,206,202,203,207,205,208,206,204,205,207,209,208,210,206,207,211,209,212,210,208,209,211,213,212,214,210,211,215,213,216,214,212,213,215,217,216,218,214,215,219,217,220,218,216,217,219,221,220,222,218,219,223,221,224,222,220,221,223,225,224,226,222,223,227,225,228,226,224,225,227,229,228,230,226,227,231,229,232,230,228,229,231,233,234,230,232,233,231,235,234,236,230,231,237,235,238,236,234,235,237,239,238,240,236,237,241,239,242,240,238,239,241,243,242,244,240,241,245,243,242,246,244,245,247,243,248,246,242,243,247,249,248,250,246,247,251,249,252,250,248,249,251,253,252,254,250,251,255,253,256,254,252,253,255,257,256,258,254,255,259,257,260,258,256,257,259,261,260,262,258,259,263,261,260,264,262,263,265,261,266,264,260,261,265,267,268,264,266,267,265,269,268,270,264,265,271,269,272,270,268,269,271,273,272,274,270,271,275,273,276,274,272,273,275,277,276,278,274,275,279,277,280,278,276,277,279,281,280,282,278,279,283,281,284,282,280,281,283,285,284,286,282,283,287,285,288,286,284,285,287,289,286,288,290,291,289,287],"cam":[0.31934,0,-0.94764,0,-0.230073,0.97008,-0.077531,0,0.919287,0.242785,0.309785,0,675.760384,178.469589,227.720435,1],"parent":[-0.432849,0.901098,0.025768,0,-0.877597,-0.42775,0.216457,0,0.206071,0.071079,0.975952,0,0,0,0,1]};
+
+  // Scene values below come from the Spline scene (scene.splinecode).
+  const CHIP_COUNT = 16;
+  const CHIP_TWEEN_SECONDS = 50;     // Linear ping-pong between the two cloner states.
+  // One noise value per chip. It drives the spin, tilt, and scale of that chip.
+  const CHIP_NOISE = [0.4239, 0.4784, 0.5042, 0.5926, 0.5997, 0.6124, 0.6174, 0.6647,
+                      0.6308, 0.5483, 0.5030, 0.6069, 0.4789, 0.4357, 0.4091, 0.4264];
+  const NOISE_DRIFT = 0.02;          // Approximates the slow noise movement in Spline.
+  const NOISE_DRIFT_SPEED = 0.075;   // Radians per second.
+
+  // Spot lights. "Spot Light 2" eases between two states, 5 seconds in each direction.
+  const LIGHT_TWEEN_SECONDS = 5;
+  const LIGHT_FROM = { position: [940.784, 70.040, 389.408], color: [0.55286, 0.22562, 0.88805], intensity: 1.877 };
+  const LIGHT_TO = { position: [1390.78, -237.96, 443.41], color: [0.84625, 0.18895, 0.18895], intensity: 2 };
+  const SPOT1_POSITION = [751.69, -220.43, -298.17];
+  const SPOT1_COLOR = [2.68581, 2.38266, 0.24100]; // Color multiplied by intensity.
+  const SPOT_AXES = [[0.99923, 0.00694, 0.03857], [0.97340, -0.04056, -0.22549]];
+  const SPOT_RANGES = [7010, 8628];
+  const SPOT_ANGLE = Math.PI / 6;
+  const SHADOW_NEAR = 100;
+  const SHADOW_MAP_SIZE = 1024;
+
+  const FOV_Y = 45 * Math.PI / 180;
+  const NEAR = 70;
+  const FAR = 3000;
+  const BOUNDING_RADIUS = 300;       // Contains the ring at every animation state.
+  const BACKGROUND = [0.01363, 0.01363, 0.0153];
+  const BLOOM_KERNEL = [0, 1, 2, 2, 3];
+  const BLOOM_BLUR_SCALE = 0.389;
+  const BLOOM_INTENSITY = 1.259;
+  const BLOOM_OPACITY = 0.7;
+
+  // Performance limits.
+  const MAX_DEVICE_PIXEL_RATIO = 2;
+  const TILT_MAX = 0.3;              // Mouse tilt in radians at the window edges.
+  const TILT_EASE = 0.06;            // Share of the remaining tilt applied per 60 Hz frame.
+  const MAX_PIXELS = 4.2e6;          // Upper limit for the drawing buffer size.
+  const MIN_FRAME_MS = 12.5;         // Limits rendering to about 60 frames per second.
+
+  // Colors are Display P3 values, as in Spline. Without a P3 canvas, this converts them to sRGB.
+  const P3_TO_SRGB = `
+    vec3 outputColor(vec3 color) {
+      #ifdef CONVERT_P3
+      // Display P3 and sRGB use the same transfer function.
+      vec3 c = clamp(color, 0.0, 1.0);
+      vec3 linear = mix(pow((c + 0.055) / 1.055, vec3(2.4)), c / 12.92, step(c, vec3(0.04045)));
+      linear = clamp(mat3(1.2249401, -0.0420569, -0.0196376, -0.2249404, 1.0420571, -0.0786361,
+                          0.0, 0.0, 1.0982735) * linear, 0.0, 1.0);
+      return mix(1.055 * pow(linear, vec3(1.0 / 2.4)) - 0.055, linear * 12.92, step(linear, vec3(0.0031308)));
+      #else
+      return color;
+      #endif
+    }`;
+
+  const CHIP_VS = `
+    attribute vec3 aPosition;
+    attribute vec3 aNormal;
+    uniform mat4 uModel;
+    uniform mat4 uViewProjection;
+    uniform mat3 uNormalMatrix;
+    uniform vec3 uSpotPosition[2];
+    uniform vec3 uCameraPosition;
+    uniform mat4 uShadowMatrix[2];
+    varying vec3 vNormal;
+    varying vec3 vToCamera;
+    varying vec3 vToSpot0;
+    varying vec3 vToSpot1;
+    varying vec4 vShadow0;
+    varying vec4 vShadow1;
+    varying float vGradient;
+    const float SHADOW_NORMAL_BIAS = 1.0;
+    void main() {
+      vec4 world = uModel * vec4(aPosition, 1.0);
+      vNormal = uNormalMatrix * aNormal;
+      // Vectors to the camera and the lights are linear in the position,
+      // so interpolation is exact and medium precision is sufficient.
+      vToCamera = uCameraPosition - world.xyz;
+      vToSpot0 = uSpotPosition[0] - world.xyz;
+      vToSpot1 = uSpotPosition[1] - world.xyz;
+      vec4 biased = vec4(world.xyz + normalize(vNormal) * SHADOW_NORMAL_BIAS, 1.0);
+      vShadow0 = uShadowMatrix[0] * biased;
+      vShadow1 = uShadowMatrix[1] * biased;
+      // Linear gradient along the local x axis of the chip.
+      vGradient = (132.0 - aPosition.x) / 190.0;
+      gl_Position = uViewProjection * world;
+    }`;
+
+  const CHIP_FS = `
+    precision mediump float;
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #endif
+    uniform vec3 uSpotColor[2];
+    uniform sampler2D uShadowMap0;
+    uniform sampler2D uShadowMap1;
+    varying vec3 vNormal;
+    varying vec3 vToCamera;
+    varying vec3 vToSpot0;
+    varying vec3 vToSpot1;
+    varying vec4 vShadow0;
+    varying vec4 vShadow1;
+    varying float vGradient;
+    ${P3_TO_SRGB}
+
+    const vec3 COLOR0 = vec3(0.88402, 0.92133, 0.97012);
+    const vec3 COLOR1 = vec3(0.53969, 1.0, 0.47573);
+    const vec3 COLOR2 = vec3(0.33333, 0.84706, 0.60664);
+    const float STOP0 = 0.026684;
+    const float STOP1 = 0.408671;
+    const float STOP2 = 0.976755;
+    const vec3 SKY = vec3(0.62059);      // Hemisphere light, intensity included.
+    const vec3 GROUND = vec3(0.38235);
+    const vec3 SPOT0_AXIS = vec3(${SPOT_AXES[0].join(', ')});
+    const vec3 SPOT1_AXIS = vec3(${SPOT_AXES[1].join(', ')});
+    const float SHADOW_MAP_SIZE = ${SHADOW_MAP_SIZE.toFixed(1)};
+    const float SHADOW_NORMAL_BIAS = 1.0;
+    const float SHADOW_DEPTH_BIAS = 0.5;
+
+    float unpackDepth(vec4 color) {
+      return dot(color, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0));
+    }
+
+    float shadowSample(sampler2D map, vec2 texel, float depth) {
+      return step(depth, unpackDepth(texture2D(map, (texel + 0.5) / SHADOW_MAP_SIZE)));
+    }
+
+    // Percentage-closer filtering with bilinear weights over 4 texels.
+    float shadow(sampler2D map, vec4 coord, vec3 toLight, vec3 n, float range) {
+      vec2 uv = coord.xy / coord.w * 0.5 + 0.5;
+      if (coord.w <= 0.0 || any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0)))) return 1.0;
+      float depth = (length(n * SHADOW_NORMAL_BIAS - toLight) - SHADOW_DEPTH_BIAS) / range;
+      vec2 p = uv * SHADOW_MAP_SIZE - 0.5;
+      vec2 i = floor(p);
+      vec2 f = p - i;
+      float a = shadowSample(map, i, depth);
+      float b = shadowSample(map, i + vec2(1.0, 0.0), depth);
+      float c = shadowSample(map, i + vec2(0.0, 1.0), depth);
+      float d = shadowSample(map, i + vec2(1.0, 1.0), depth);
+      return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+    }
+
+    vec3 spotLight(vec3 toLight, vec3 axis, vec3 color, float coneCos, float penumbraCos,
+                   float range, float visibility, vec3 n, vec3 v, vec3 albedo, inout vec3 specular) {
+      float dist = length(toLight);
+      vec3 l = toLight / dist;
+      float attenuation = smoothstep(coneCos, penumbraCos, dot(l, axis))
+                        * clamp(1.0 - dist / range, 0.0, 1.0) * visibility;
+      vec3 irradiance = color * attenuation * max(dot(n, l), 0.0);
+      // Blinn-Phong with specular color 0.2 and shininess 5 (three.js r149).
+      vec3 h = normalize(l + v);
+      float vh = max(dot(v, h), 0.0);
+      float fresnel = exp2((-5.55473 * vh - 6.98316) * vh);
+      float blinn = 0.875 * pow(max(dot(n, h), 0.0), 5.0);
+      specular += irradiance * (0.2 + 0.8 * fresnel) * blinn;
+      return irradiance * albedo;
+    }
+
+    void main() {
+      vec3 n = normalize(vNormal);
+      vec3 v = normalize(vToCamera);
+
+      // Spline "rainbow" layer: a gray band pattern that depends on the view angle.
+      float phase = -9.0 * dot(v, n);
+      float band = cos(phase);
+      #ifdef HAS_DERIVATIVES
+      // Average the bands over the pixel footprint to prevent shimmer on the rims.
+      float halfWidth = max(0.5 * fwidth(phase), 1e-3);
+      band *= clamp(sin(halfWidth) / halfWidth, 0.0, 1.0);
+      #endif
+      float bandGray = 0.5 + 0.5 * band;
+
+      vec3 gradient = mix(COLOR0, COLOR1, clamp((vGradient - STOP0) / (STOP1 - STOP0), 0.0, 1.0));
+      gradient = mix(gradient, COLOR2, clamp((vGradient - STOP1) / (STOP2 - STOP1), 0.0, 1.0));
+
+      // Overlay blend of the band pattern and the gradient.
+      vec3 albedo = clamp(mix(1.0 - 2.0 * (1.0 - bandGray) * (1.0 - gradient),
+                              2.0 * bandGray * gradient, step(bandGray, 0.5)), 0.0, 1.0);
+
+      float shadow0 = shadow(uShadowMap0, vShadow0, vToSpot0, n, ${SPOT_RANGES[0].toFixed(1)});
+      float shadow1 = shadow(uShadowMap1, vShadow1, vToSpot1, n, ${SPOT_RANGES[1].toFixed(1)});
+
+      vec3 specular = vec3(0.0);
+      vec3 lit = albedo * mix(GROUND, SKY, 0.5 * n.y + 0.5);
+      lit += spotLight(vToSpot0, SPOT0_AXIS, uSpotColor[0], 0.8660, 0.8666, ${SPOT_RANGES[0].toFixed(1)},
+                       shadow0, n, v, albedo, specular);
+      lit += spotLight(vToSpot1, SPOT1_AXIS, uSpotColor[1], 0.8660, 0.9135, ${SPOT_RANGES[1].toFixed(1)},
+                       shadow1, n, v, albedo, specular);
+      lit += specular;
+
+      // The lighting layer has 60% opacity over the unlit color.
+      vec3 color = mix(albedo, lit, 0.6);
+
+      #ifdef BRIGHT
+      float luminance = dot(color, vec3(0.2126, 0.7152, 0.0722));
+      // Stored at half value so that colors above 1 survive the 8-bit target.
+      gl_FragColor = vec4(0.5 * color * smoothstep(0.52, 0.545, luminance), 1.0);
+      #else
+      float noise = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+      gl_FragColor = vec4(outputColor(color) + (noise - 0.5) / 255.0, 1.0);
+      #endif
+    }`;
+
+  // Stores the distance to the light, divided by the light range, in 8-bit channels.
+  const SHADOW_VS = `
+    attribute vec3 aPosition;
+    uniform mat4 uModel;
+    uniform mat4 uViewProjection;
+    uniform vec3 uLightPosition;
+    varying vec3 vFromLight;
+    void main() {
+      vec4 world = uModel * vec4(aPosition, 1.0);
+      vFromLight = world.xyz - uLightPosition;
+      gl_Position = uViewProjection * world;
+    }`;
+
+  const SHADOW_FS = `
+    precision mediump float;
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #endif
+    uniform float uInverseRange;
+    varying vec3 vFromLight;
+    void main() {
+      vec4 encoded = fract(length(vFromLight) * uInverseRange * vec4(1.0, 255.0, 65025.0, 16581375.0));
+      gl_FragColor = encoded - encoded.yzww * vec4(1.0 / 255.0, 1.0 / 255.0, 1.0 / 255.0, 0.0);
+    }`;
+
+  // Kawase blur, matching the bloom effect that Spline uses.
+  const BLUR_VS = `
+    attribute vec2 aPosition;
+    uniform vec2 uOffset;
+    varying vec2 vUv0;
+    varying vec2 vUv1;
+    varying vec2 vUv2;
+    varying vec2 vUv3;
+    void main() {
+      vec2 uv = aPosition * 0.5 + 0.5;
+      vUv0 = uv + vec2(-uOffset.x, uOffset.y);
+      vUv1 = uv + uOffset;
+      vUv2 = uv - uOffset;
+      vUv3 = uv + vec2(uOffset.x, -uOffset.y);
+      gl_Position = vec4(aPosition, 0.0, 1.0);
+    }`;
+
+  const BLUR_FS = `
+    precision mediump float;
+    uniform sampler2D uTexture;
+    varying vec2 vUv0;
+    varying vec2 vUv1;
+    varying vec2 vUv2;
+    varying vec2 vUv3;
+    void main() {
+      gl_FragColor = 0.25 * (texture2D(uTexture, vUv0) + texture2D(uTexture, vUv1)
+                           + texture2D(uTexture, vUv2) + texture2D(uTexture, vUv3));
+    }`;
+
+  const COMPOSITE_VS = `
+    attribute vec2 aPosition;
+    void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }`;
+
+  // Drawn with screen blending: result = bloom + scene * (1 - bloom).
+  const COMPOSITE_FS = `
+    precision mediump float;
+    uniform sampler2D uTexture;
+    uniform vec2 uInverseSize;
+    ${P3_TO_SRGB}
+    void main() {
+      vec3 bloom = min(texture2D(uTexture, gl_FragCoord.xy * uInverseSize).rgb * ${(2 * BLOOM_INTENSITY).toFixed(4)}, 1.0);
+      gl_FragColor = vec4(outputColor(bloom) * ${BLOOM_OPACITY.toFixed(2)}, 1.0);
+    }`;
+
+  const canvas = document.getElementById('c');
+  const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const gl = canvas.getContext('webgl', {
+    alpha: false, antialias: true, depth: true, stencil: false,
+    premultipliedAlpha: false, preserveDrawingBuffer: false,
+  });
+  if (!gl) return; // The CSS background stays visible.
+  const convertP3 = !useDisplayP3();
+
+  let programs, chipBuffers, quadBuffer, bloomTargets, shadowTargets;
+  let width = 0, height = 0, halfWidth = 0, halfHeight = 0;
+  let scissor = [0, 0, 0, 0];
+  const viewProjection = new Float32Array(16);
+  const cameraPosition = new Float32Array(3);
+  const tilt = { x: 0, y: 0, targetX: 0, targetY: 0 };
+  let projection = null;
+  const models = new Float32Array(16 * CHIP_COUNT);
+  const normals = new Float32Array(9 * CHIP_COUNT);
+  const spotPositions = new Float32Array([0, 0, 0].concat(SPOT1_POSITION));
+  const spotColors = new Float32Array([0, 0, 0].concat(SPOT1_COLOR));
+  const shadowMatrices = new Float32Array(32);
+  const ring = SCENE.parent;
+
+  // ---------- Matrix helpers (column-major) ----------
+
+  function multiply(a, b, out, offset) {
+    for (let col = 0; col < 4; col++) {
+      for (let row = 0; row < 4; row++) {
+        let sum = 0;
+        for (let k = 0; k < 4; k++) sum += a[k * 4 + row] * b[col * 4 + k];
+        out[offset + col * 4 + row] = sum;
+      }
+    }
+  }
+
+  function perspective(fovY, aspect, near, far) {
+    const f = 1 / Math.tan(fovY / 2);
+    return [f / aspect, 0, 0, 0, 0, f, 0, 0,
+      0, 0, (far + near) / (near - far), -1, 0, 0, 2 * far * near / (near - far), 0];
+  }
+
+  // View matrix from the camera axes (x, y, z) and position.
+  function view(x, y, z, p) {
+    const dot = (a) => a[0] * p[0] + a[1] * p[1] + a[2] * p[2];
+    return [x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x), -dot(y), -dot(z), 1];
+  }
+
+  // Shadow camera of a spot light: looks along the light axis, with world up.
+  function updateShadowMatrix(index, position) {
+    const z = SPOT_AXES[index];
+    const length = Math.hypot(z[2], z[0]);
+    const x = [z[2] / length, 0, -z[0] / length];
+    const y = [z[1] * x[2], z[2] * x[0] - z[0] * x[2], -z[1] * x[0]];
+    const projection = perspective(2 * SPOT_ANGLE, 1, SHADOW_NEAR, SPOT_RANGES[index]);
+    multiply(projection, view(x, y, z, position), shadowMatrices, index * 16);
+  }
+
+  // ---------- WebGL setup ----------
+
+  // Some browsers accept a Display P3 canvas but still show it as sRGB. This draws a P3 color
+  // and reads it back through an sRGB 2D canvas: with real P3 output, the browser converts it.
+  function useDisplayP3() {
+    if (!('drawingBufferColorSpace' in gl)) return false;
+    gl.drawingBufferColorSpace = 'display-p3';
+    if (gl.drawingBufferColorSpace !== 'display-p3') return false;
+    let red = 0;
+    try {
+      const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+      gl.clearColor(0.3, 0.6, 0.4, 1); // In sRGB about (36, 158, 97). Unconverted, red stays 77.
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      probe.drawImage(canvas, 0, 0, 1, 1);
+      red = probe.getImageData(0, 0, 1, 1).data[0];
+    } catch (error) {
+      return true; // Cannot check. Trust the setting.
+    }
+    if (red < 56) return true;
+    gl.drawingBufferColorSpace = 'srgb';
+    return false;
+  }
+
+  function compile(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
+      throw new Error(gl.getShaderInfoLog(shader));
+    }
+    return shader;
+  }
+
+  function createProgram(vertexSource, fragmentSource, uniformNames) {
+    const program = gl.createProgram();
+    gl.attachShader(program, compile(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragmentSource));
+    gl.bindAttribLocation(program, 0, 'aPosition');
+    gl.bindAttribLocation(program, 1, 'aNormal');
+    gl.linkProgram(program);
+    const uniforms = {};
+    uniformNames.forEach((name) => { uniforms[name] = gl.getUniformLocation(program, name); });
+    return { program, uniforms };
+  }
+
+  function createTarget(withDepth, filter) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const framebuffer = gl.createFramebuffer();
+    const depth = withDepth ? gl.createRenderbuffer() : null;
+    return { texture, framebuffer, depth };
+  }
+
+  function sizeTarget(target, w, h) {
+    gl.bindTexture(gl.TEXTURE_2D, target.texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, target.framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, target.texture, 0);
+    if (target.depth) {
+      gl.bindRenderbuffer(gl.RENDERBUFFER, target.depth);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, target.depth);
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  function initResources() {
+    const colorHeader = convertP3 ? '#define CONVERT_P3\n' : '';
+    const header = colorHeader + (gl.getExtension('OES_standard_derivatives')
+      ? '#extension GL_OES_standard_derivatives : enable\n#define HAS_DERIVATIVES\n' : '');
+    const chipUniforms = ['uModel', 'uViewProjection', 'uNormalMatrix', 'uSpotPosition', 'uSpotColor', 'uCameraPosition',
+      'uShadowMatrix', 'uShadowMap0', 'uShadowMap1'];
+    programs = {
+      chip: createProgram(CHIP_VS, header + CHIP_FS, chipUniforms),
+      bright: createProgram(CHIP_VS, header + '#define BRIGHT\n' + CHIP_FS, chipUniforms),
+      shadow: createProgram(SHADOW_VS, SHADOW_FS, ['uModel', 'uViewProjection', 'uLightPosition', 'uInverseRange']),
+      blur: createProgram(BLUR_VS, BLUR_FS, ['uTexture', 'uOffset']),
+      composite: createProgram(COMPOSITE_VS, colorHeader + COMPOSITE_FS, ['uTexture', 'uInverseSize']),
+    };
+    [programs.chip, programs.bright].forEach((entry) => {
+      gl.useProgram(entry.program);
+      gl.uniform1i(entry.uniforms.uShadowMap0, 1);
+      gl.uniform1i(entry.uniforms.uShadowMap1, 2);
+    });
+
+    const vertices = new Float32Array(SCENE.pos.length * 2);
+    for (let i = 0; i < SCENE.pos.length; i += 3) {
+      vertices.set(SCENE.pos.slice(i, i + 3), i * 2);
+      vertices.set(SCENE.nor.slice(i, i + 3), i * 2 + 3);
+    }
+    chipBuffers = { vertex: gl.createBuffer(), index: gl.createBuffer() };
+    gl.bindBuffer(gl.ARRAY_BUFFER, chipBuffers.vertex);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chipBuffers.index);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(SCENE.idx), gl.STATIC_DRAW);
+
+    quadBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+    bloomTargets = [createTarget(true, gl.LINEAR), createTarget(false, gl.LINEAR)];
+    shadowTargets = [createTarget(true, gl.NEAREST), createTarget(true, gl.NEAREST)];
+    shadowTargets.forEach((target) => sizeTarget(target, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE));
+    updateShadowMatrix(1, SPOT1_POSITION);
+    gl.enable(gl.CULL_FACE);
+    width = 0; // Forces the next resize to size the bloom targets.
+  }
+
+  // ---------- Sizing ----------
+
+  function resize() {
+    const cssWidth = canvas.clientWidth || 1;
+    const cssHeight = canvas.clientHeight || 1;
+    let ratio = Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
+    ratio = Math.min(ratio, Math.sqrt(MAX_PIXELS / (cssWidth * cssHeight)));
+    const w = Math.max(1, Math.round(cssWidth * ratio));
+    const h = Math.max(1, Math.round(cssHeight * ratio));
+    if (w === width && h === height) return false;
+    width = canvas.width = w;
+    height = canvas.height = h;
+    halfWidth = Math.max(1, w >> 1);
+    halfHeight = Math.max(1, h >> 1);
+    bloomTargets.forEach((target) => sizeTarget(target, halfWidth, halfHeight));
+
+    projection = perspective(FOV_Y, width / height, NEAR, FAR);
+    updateView();
+
+    // Screen rectangle that contains the bounding sphere. Bloom work stays inside it.
+    const m = viewProjection;
+    let x0 = 1, y0 = 1, x1 = -1, y1 = -1;
+    for (let i = 0; i < 8; i++) {
+      const x = i & 1 ? BOUNDING_RADIUS : -BOUNDING_RADIUS;
+      const y = i & 2 ? BOUNDING_RADIUS : -BOUNDING_RADIUS;
+      const z = i & 4 ? BOUNDING_RADIUS : -BOUNDING_RADIUS;
+      const clipW = m[3] * x + m[7] * y + m[11] * z + m[15];
+      const sx = (m[0] * x + m[4] * y + m[8] * z + m[12]) / clipW;
+      const sy = (m[1] * x + m[5] * y + m[9] * z + m[13]) / clipW;
+      x0 = Math.min(x0, sx); x1 = Math.max(x1, sx);
+      y0 = Math.min(y0, sy); y1 = Math.max(y1, sy);
+    }
+    const margin = 16;
+    const left = Math.max(0, Math.floor((x0 * 0.5 + 0.5) * width) - margin);
+    const bottom = Math.max(0, Math.floor((y0 * 0.5 + 0.5) * height) - margin);
+    const right = Math.min(width, Math.ceil((x1 * 0.5 + 0.5) * width) + margin);
+    const top = Math.min(height, Math.ceil((y1 * 0.5 + 0.5) * height) + margin);
+    scissor = [left, bottom, Math.max(0, right - left), Math.max(0, top - bottom)];
+  }
+
+  // ---------- Animation ----------
+
+  const c = SCENE.cam;
+  const cameraView = view([c[0], c[1], c[2]], [c[4], c[5], c[6]], [c[8], c[9], c[10]], [c[12], c[13], c[14]]);
+
+  // Orbits the camera around the ring center by the current tilt. The ring center stays in
+  // the same place on screen, so the bloom rectangle stays valid.
+  function updateView() {
+    const ca = Math.cos(tilt.x), sa = Math.sin(tilt.x), cb = Math.cos(tilt.y), sb = Math.sin(tilt.y);
+    const r = [[cb, 0, sb], [sa * sb, ca, -sa * cb], [-ca * sb, sa, ca * cb]]; // rotateX * rotateY
+    const tilted = cameraView.slice();
+    for (let col = 0; col < 3; col++) {
+      for (let row = 0; row < 3; row++) {
+        tilted[col * 4 + row] = r[row][0] * cameraView[col * 4] + r[row][1] * cameraView[col * 4 + 1]
+          + r[row][2] * cameraView[col * 4 + 2];
+      }
+    }
+    multiply(projection, tilted, viewProjection, 0);
+    for (let i = 0; i < 3; i++) {
+      cameraPosition[i] = -(tilted[i * 4] * tilted[12] + tilted[i * 4 + 1] * tilted[13] + tilted[i * 4 + 2] * tilted[14]);
+    }
+  }
+
+  // CSS "ease-in-out", cubic-bezier(0.42, 0, 0.58, 1).
+  function easeInOut(x) {
+    const curve = (t, p1, p2) => 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t;
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const slope = 3 * (1 - t) * (1 - t) * 0.42 + 6 * (1 - t) * t * 0.16 + 3 * t * t * 0.42;
+      t = Math.min(1, Math.max(0, t - (curve(t, 0.42, 0.58) - x) / Math.max(slope, 1e-4)));
+    }
+    return curve(t, 0, 1);
+  }
+
+  function pingPong(time, seconds) {
+    const cycle = (time / seconds) % 2;
+    return cycle < 1 ? cycle : 2 - cycle;
+  }
+
+  function updateLight(time) {
+    const k = easeInOut(pingPong(time, LIGHT_TWEEN_SECONDS));
+    const intensity = LIGHT_FROM.intensity + (LIGHT_TO.intensity - LIGHT_FROM.intensity) * k;
+    for (let i = 0; i < 3; i++) {
+      spotPositions[i] = LIGHT_FROM.position[i] + (LIGHT_TO.position[i] - LIGHT_FROM.position[i]) * k;
+      spotColors[i] = (LIGHT_FROM.color[i] + (LIGHT_TO.color[i] - LIGHT_FROM.color[i]) * k) * intensity;
+    }
+    updateShadowMatrix(0, spotPositions);
+  }
+
+  function updateChips(time) {
+    const w = pingPong(time, CHIP_TWEEN_SECONDS); // Tween progress, 0 to 1 and back.
+    const radius = 143 + 7 * w;
+    // Writes ring * (x, y, z) into out at the given offset.
+    const transform = (out, offset, x, y, z) => {
+      out[offset] = ring[0] * x + ring[4] * y + ring[8] * z;
+      out[offset + 1] = ring[1] * x + ring[5] * y + ring[9] * z;
+      out[offset + 2] = ring[2] * x + ring[6] * y + ring[10] * z;
+    };
+
+    for (let i = 0; i < CHIP_COUNT; i++) {
+      const noise = CHIP_NOISE[i] + NOISE_DRIFT * Math.sin(NOISE_DRIFT_SPEED * time + i * 1.7);
+      const amount = w * noise;
+      // Chip rotation = rotateY(alignment + tilt) * rotateZ(spin).
+      const alpha = (10 - i * 22.5) * Math.PI / 180 + 0.4363 * amount;
+      const beta = 62.832 * amount;
+      const cA = Math.cos(alpha), sA = Math.sin(alpha), cB = Math.cos(beta), sB = Math.sin(beta);
+      const scaleX = 1.1 + 0.96 * amount;
+      const scaleY = 1 + 0.2 * amount;
+      const angle = i * Math.PI / 8;
+      const m = i * 16, n = i * 9;
+      transform(models, m, cA * cB * scaleX, sB * scaleX, -sA * cB * scaleX);
+      transform(models, m + 4, -cA * sB * scaleY, cB * scaleY, sA * sB * scaleY);
+      transform(models, m + 8, sA, 0, cA);
+      transform(models, m + 12, radius * Math.cos(angle), 0, radius * Math.sin(angle));
+      models[m + 3] = models[m + 7] = models[m + 11] = 0;
+      models[m + 15] = 1;
+      transform(normals, n, cA * cB / scaleX, sB / scaleX, -sA * cB / scaleX);
+      transform(normals, n + 3, -cA * sB / scaleY, cB / scaleY, sA * sB / scaleY);
+      transform(normals, n + 6, sA, 0, cA);
+    }
+  }
+
+  // ---------- Rendering ----------
+
+  function drawChips(entry, matrix) {
+    gl.useProgram(entry.program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, chipBuffers.vertex);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chipBuffers.index);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);
+    gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
+    gl.uniformMatrix4fv(entry.uniforms.uViewProjection, false, matrix);
+    gl.enable(gl.DEPTH_TEST);
+    for (let i = 0; i < CHIP_COUNT; i++) {
+      gl.uniformMatrix4fv(entry.uniforms.uModel, false, models.subarray(i * 16, i * 16 + 16));
+      if (entry.uniforms.uNormalMatrix) {
+        gl.uniformMatrix3fv(entry.uniforms.uNormalMatrix, false, normals.subarray(i * 9, i * 9 + 9));
+      }
+      gl.drawElements(gl.TRIANGLES, SCENE.idx.length, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.disable(gl.DEPTH_TEST);
+    gl.disableVertexAttribArray(1);
+  }
+
+  function drawLitChips(entry) {
+    gl.useProgram(entry.program);
+    gl.uniform3fv(entry.uniforms.uSpotPosition, spotPositions);
+    gl.uniform3fv(entry.uniforms.uSpotColor, spotColors);
+    gl.uniform3fv(entry.uniforms.uCameraPosition, cameraPosition);
+    gl.uniformMatrix4fv(entry.uniforms.uShadowMatrix, false, shadowMatrices);
+    drawChips(entry, viewProjection);
+  }
+
+  function useQuad(entry) {
+    gl.useProgram(entry.program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.uniform1i(entry.uniforms.uTexture, 0);
+  }
+
+  function render() {
+    gl.enableVertexAttribArray(0);
+
+    // Shadow maps. Back faces are drawn, as three.js does, to reduce self-shadowing.
+    gl.viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+    gl.clearColor(1, 1, 1, 1);
+    gl.cullFace(gl.FRONT);
+    shadowTargets.forEach((target, index) => {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, target.framebuffer);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(programs.shadow.program);
+      gl.uniform3fv(programs.shadow.uniforms.uLightPosition, spotPositions.subarray(index * 3, index * 3 + 3));
+      gl.uniform1f(programs.shadow.uniforms.uInverseRange, 1 / SPOT_RANGES[index]);
+      drawChips(programs.shadow, shadowMatrices.subarray(index * 16, index * 16 + 16));
+    });
+    gl.cullFace(gl.BACK);
+    shadowTargets.forEach((target, index) => {
+      gl.activeTexture(gl.TEXTURE1 + index);
+      gl.bindTexture(gl.TEXTURE_2D, target.texture);
+    });
+    gl.activeTexture(gl.TEXTURE0);
+
+    gl.viewport(0, 0, halfWidth, halfHeight);
+    gl.enable(gl.SCISSOR_TEST);
+    gl.scissor(scissor[0] >> 1, scissor[1] >> 1, (scissor[2] >> 1) + 2, (scissor[3] >> 1) + 2);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, bloomTargets[0].framebuffer);
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    drawLitChips(programs.bright);
+
+    useQuad(programs.blur);
+    BLOOM_KERNEL.forEach((kernel, pass) => {
+      const offset = (kernel + 0.5) * BLOOM_BLUR_SCALE;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, bloomTargets[(pass + 1) % 2].framebuffer);
+      gl.bindTexture(gl.TEXTURE_2D, bloomTargets[pass % 2].texture);
+      gl.uniform2f(programs.blur.uniforms.uOffset, offset / halfWidth, offset / halfHeight);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    });
+    gl.disable(gl.SCISSOR_TEST);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, width, height);
+    gl.clearColor(BACKGROUND[0], BACKGROUND[1], BACKGROUND[2], 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    drawLitChips(programs.chip);
+
+    useQuad(programs.composite);
+    gl.bindTexture(gl.TEXTURE_2D, bloomTargets[BLOOM_KERNEL.length % 2].texture);
+    gl.uniform2f(programs.composite.uniforms.uInverseSize, 1 / width, 1 / height);
+    gl.enable(gl.SCISSOR_TEST);
+    gl.scissor(scissor[0], scissor[1], scissor[2], scissor[3]);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.SCISSOR_TEST);
+  }
+
+  // ---------- Loop ----------
+
+  let time = reduceMotion ? 0.35 * CHIP_TWEEN_SECONDS : 0;
+  let frameId = 0;
+  let lastFrame = 0;
+  let visible = true;
+  let contextLost = false;
+
+  function draw() {
+    updateView();
+    updateChips(time);
+    updateLight(time);
+    render();
+  }
+
+  function frame(now) {
+    frameId = requestAnimationFrame(frame);
+    const elapsed = now - lastFrame;
+    if (elapsed < MIN_FRAME_MS) return;
+    lastFrame = now;
+    if (elapsed < 250) time += elapsed / 1000; // Longer gaps mean the page was paused.
+    const ease = 1 - Math.pow(1 - TILT_EASE, Math.min(elapsed, 250) / (1000 / 60));
+    tilt.x += (tilt.targetX - tilt.x) * ease;
+    tilt.y += (tilt.targetY - tilt.y) * ease;
+    draw();
+  }
+
+  function updateLoop() {
+    const shouldRun = visible && !document.hidden && !contextLost && !reduceMotion;
+    if (shouldRun && !frameId) {
+      lastFrame = performance.now();
+      frameId = requestAnimationFrame(frame);
+    } else if (!shouldRun && frameId) {
+      cancelAnimationFrame(frameId);
+      frameId = 0;
+    }
+  }
+
+  // Resizing clears the canvas, so draw at once. Otherwise the empty canvas shows until the next frame.
+  function onResize() {
+    if (contextLost) return;
+    if (resize() !== false || !frameId) draw();
+  }
+
+  // The ring turns slightly toward the mouse, and back to center when the mouse leaves.
+  if (!reduceMotion) {
+    window.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
+      tilt.targetX = (event.clientY / innerHeight * 2 - 1) * TILT_MAX;
+      tilt.targetY = (event.clientX / innerWidth * 2 - 1) * TILT_MAX;
+    }, { passive: true });
+    document.addEventListener('mouseout', (event) => {
+      if (!event.relatedTarget) tilt.targetX = tilt.targetY = 0;
+    });
+  }
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(onResize).observe(canvas);
+  } else {
+    window.addEventListener('resize', onResize);
+  }
+
+  if (window.IntersectionObserver) {
+    new IntersectionObserver((entries) => {
+      visible = entries[entries.length - 1].isIntersecting;
+      updateLoop();
+    }).observe(canvas);
+  }
+
+  document.addEventListener('visibilitychange', updateLoop);
+
+  canvas.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    contextLost = true;
+    updateLoop();
+  });
+
+  canvas.addEventListener('webglcontextrestored', () => {
+    contextLost = false;
+    initResources();
+    onResize();
+    updateLoop();
+  });
+
+  initResources();
+  onResize();
+  updateLoop();
+})();
+</script>
+</body>
+</html>

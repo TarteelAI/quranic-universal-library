@@ -20,7 +20,7 @@
     <% rows.each do |row| %>
       <% segments = row[:word_tokens] %>
       <tr class="border-b border-gray-200">
-        <td dir="rtl" class="irab-word-cell px-3 py-2 align-top whitespace-nowrap"><% segments.each do |seg| %><% color = Morphology::Treebank::Colors.pos(t_attr.call(seg, :pos_key).to_s) %><span class="qpc-hafs quran-text <%= color %>"><%= t_attr.call(seg, :text_qpc_hafs).to_s %></span><% end %></td>
+        <td dir="rtl" class="irab-word-cell px-3 py-2 align-top whitespace-nowrap"><% segments.each do |seg| %><% color = Morphology::Treebank::Colors.pos(t_attr.call(seg, :pos_key).to_s) %><span class="treebank-quran-text quran-text <%= color %>"><%= (t_attr.call(seg, :text_digital_khatt) || t_attr.call(seg, :text_qpc_hafs)).to_s %></span><% end %></td>
         <td dir="rtl" class="irab-line-cell px-3 py-2 align-top">
           <% segments.each do |seg| %>
             <%
@@ -31,11 +31,11 @@
             %>
             <span class="irab-segment-line <%= line_class %>" dir="<%= line_dir %>"><% frags.each do |frag| %><% if frag[:wrapper_class] %><span class="<%= frag[:wrapper_class] %>"><% frag[:children].each do |child| %><% if child[:color_class].to_s == 'black' %><span><%= child[:text] %></span><% else %><span class="<%= child[:color_class] %>"><%= child[:text] %></span><% end %><% end %></span><% else %><%
               classes = []
-              classes << 'qpc-hafs' if frag[:quran_font]
+              classes << 'treebank-quran-text' if frag[:quran_font]
               classes << frag[:color_class] unless frag[:color_class].to_s == 'black'
               link = frag[:link_type] && frag[:link_key].present?
               modal_url = link ? (frag[:link_type] == :root ? morphology_root_path(frag[:link_key]) : morphology_lemma_path(frag[:link_key])) : nil
-            %><% if link %><a class="text-blue-700 underline<%= ' qpc-hafs' if frag[:quran_font] %>" data-controller="ajax-modal" data-css-class="modal-lg" data-url="<%= modal_url %>" href="#_"><%= frag[:text] %></a><% elsif classes.any? %><span class="<%= classes.join(' ') %>"><%= frag[:text] %></span><% else %><%= frag[:text] %><% end %><% end %><% end %></span>
+            %><% if link %><a class="text-blue-700 underline<%= ' treebank-quran-text' if frag[:quran_font] %>" data-controller="ajax-modal" data-css-class="modal-lg" data-url="<%= modal_url %>" href="#_"><%= frag[:text] %></a><% elsif classes.any? %><span class="<%= classes.join(' ') %>"><%= frag[:text] %></span><% else %><%= frag[:text] %><% end %><% end %><% end %></span>
           <% end %>
         </td>
       </tr>

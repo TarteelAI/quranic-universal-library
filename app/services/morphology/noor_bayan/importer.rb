@@ -25,6 +25,7 @@ module Morphology
         import_sentences(rows)
         import_tokens(rows)
         resolve_head_tokens
+        refresh_script
         create_resource_content
         verify!
         report
@@ -110,6 +111,13 @@ module Morphology
             lemma_id: lemma_id_for(row.lemma_ar)
           )
         )
+      end
+
+      # NoorBayan ships no tashkeel for chapters 9-58, so the token text it gives
+      # us is unusable for display. Re-slice our own mushaf script onto the
+      # tokens instead; see ScriptAligner.
+      def refresh_script
+        ScriptRefresher.new.refresh!
       end
 
       def resolve_head_tokens

@@ -279,7 +279,7 @@ export default class extends Controller {
     const sentences = payload.sentences || [];
     this.containerTarget.innerHTML = "";
 
-    await document.fonts.load("1em qpc-hafs");
+    await this.loadFonts();
 
     const zoomWrapper = document.createElement("div");
     zoomWrapper.className = "treebank-zoom-wrapper";
@@ -312,6 +312,15 @@ export default class extends Controller {
     });
   }
 
+  // Both faces must be resolved before the first measureText call, or every
+  // slot gets sized against a fallback font and the layout comes out wrong.
+  async loadFonts() {
+    await Promise.all([
+      document.fonts.load("1em digitalkhatt-v2"),
+      document.fonts.load("1em qpc-hafs"),
+    ]).catch(() => {});
+  }
+
   sentenceMaxLevel(sentence) {
     const phraseNodes = sentence.phraseNodes || [];
     return phraseNodes.length > 0 ? Math.max(...phraseNodes.map(pn => pn.level)) : 0;
@@ -319,7 +328,7 @@ export default class extends Controller {
 
   async renderAccordion(payload) {
     const sentences = payload.sentences || [];
-    await document.fonts.load("1em qpc-hafs");
+    await this.loadFonts();
 
     this.sentenceStates = sentences.map((_, i) => ({ expanded: i === 0, depth: 0 }));
 
@@ -418,6 +427,10 @@ export default class extends Controller {
 
     const svgContainer = document.createElement("div");
     svgContainer.className = "tb-card-svg-container";
+    // Drag-to-pan, same as the standalone canvas; the container scrolls in
+    // both directions once the tree outgrows it.
+    svgContainer.setAttribute("data-controller", "draggable-scroll");
+    svgContainer.setAttribute("data-action", "mousedown->draggable-scroll#mouseDownHandler");
     body.appendChild(svgContainer);
     card.appendChild(body);
 
@@ -546,6 +559,17 @@ class TreebankRenderer {
     this.sentence = sentence;
     this.locale = sentence.locale || "ar";
 
+    // The Quranic script renders in Digital Khatt; grammar terms and the
+    // surah reference stay on qpc-hafs, which has better coverage for the
+    // Arabic term vocabulary.
+    // A stack, not a single family: Digital Khatt does not cover every
+    // codepoint that appears in the text (the ornate brackets, for one), and
+    // SVG falls through the list per glyph.
+    this.quranFont = "digitalkhatt-v2, qpc-hafs, serif";
+    // Digital Khatt gives U+0020 a NEGATIVE advance (it expects the renderer to
+    // do its own justification), so multi-word strings - the banner, phrase
+    // surface text, collapsed phrase units - run together without this.
+    this.quranWordSpacing = "0.5em";
     this.arabicFont = "qpc-hafs";
     this.labelFont = "Arial, sans-serif";
     this.tokenFontSize = 32;
@@ -598,7 +622,7 @@ class TreebankRenderer {
     document.body.appendChild(tempSvg);
 
     const slotWidths = tokens.map(tok => {
-      const arabicW = this.measureText(tempSvg, tok.arabic || "", this.arabicFont, this.tokenFontSize);
+      const arabicW = this.measureText(tempSvg, tok.arabic || "", this.quranFont, this.tokenFontSize);
       const posW = this.measureText(tempSvg, tok.posLabel || "", this.arabicFont, this.posLabelFontSize);
       const locW = this.measureText(tempSvg, tok.location || "", this.labelFont, this.locationFontSize);
       return Math.max(arabicW + 24, posW + 16, locW + 16, this.slotWidth);
@@ -618,9 +642,13 @@ class TreebankRenderer {
     const svgH = this.bannerHeight + this.phraseTopGap + this.phraseLevelHeight + arcBandHeight + this.tokenRowHeight + this.padding;
 
     const bannerText = (this.sentence.banner && this.sentence.banner.text) || "";
-    const bannerTextW = this.measureText(tempSvg, bannerText, this.arabicFont, this.bannerFontSize);
+    const bannerTextW = this.measureText(tempSvg, bannerText, this.quranFont, this.bannerFontSize);
 
-    document.body.removeChild(tempSvg);
+    // Kept alive past the slot-sizing pass: placeLabel measures against it
+    // while the tree is being drawn. Removed at the end of render().
+    this.measureSvg = tempSvg;
+    this.labelBoxes = [];
+    this.drawnDuplicateBlocks = new Set();
 
     const svg = document.createElementNS(this.SVG_NS, "svg");
     svg.setAttribute("width", svgW);
@@ -654,7 +682,69 @@ class TreebankRenderer {
 
     this.drawTokens(svg, tokens, tokenCenters, tokenRowY);
 
+    document.body.removeChild(tempSvg);
+    this.measureSvg = null;
+
     return svg;
+  }
+
+  // --- label collision avoidance -------------------------------------------
+  // Phrase nodes draw their surface text and category label on fixed rows, and
+  // relation labels sit just above each arc's apex. Nothing coordinated those,
+  // so a relation label landed on top of a phrase label ("Verbal Sentence" and
+  // friends) whenever an arc apexed near a phrase node. Every label now claims
+  // a rectangle: fixed labels reserve theirs, and relation labels step away
+  // from the arc until they find clear space.
+
+  labelBox(x, y, text, fontFamily, fontSize, anchorMiddle = true) {
+    const w = this.measureText(this.measureSvg, text, fontFamily, fontSize) || text.length * fontSize * 0.6;
+    const h = fontSize * 1.25;
+    return {
+      x1: anchorMiddle ? x - w / 2 : x,
+      x2: anchorMiddle ? x + w / 2 : x + w,
+      y1: y - h,
+      y2: y,
+    };
+  }
+
+  boxesOverlap(a, b) {
+    const PAD = 2;
+    return !(a.x2 + PAD < b.x1 || a.x1 - PAD > b.x2 || a.y2 + PAD < b.y1 || a.y1 - PAD > b.y2);
+  }
+
+  // Reserve space for a label that cannot move.
+  reserveLabel(x, y, text, fontFamily, fontSize) {
+    if (!text) return;
+    this.labelBoxes.push(this.labelBox(x, y, text, fontFamily, fontSize));
+  }
+
+  // Find a free y for a movable label, preferring its natural position and then
+  // stepping away from the arc. Returns the chosen y (the natural one if
+  // nothing is clear, so a label is never dropped).
+  placeLabel(x, y, text, fontFamily, fontSize) {
+    if (!text) return y;
+
+    const step = fontSize + 4;
+    const offsets = [0];
+    for (let k = 1; k <= 7; k++) offsets.push(-step * k);
+    for (let k = 1; k <= 3; k++) offsets.push(step * k);
+
+    for (const dy of offsets) {
+      const box = this.labelBox(x, y + dy, text, fontFamily, fontSize);
+      if (!this.labelBoxes.some(other => this.boxesOverlap(box, other))) {
+        this.labelBoxes.push(box);
+        return y + dy;
+      }
+    }
+
+    this.labelBoxes.push(this.labelBox(x, y, text, fontFamily, fontSize));
+    return y;
+  }
+
+  // Set the Quranic face plus its word spacing on one element.
+  applyQuranFont(el) {
+    el.setAttribute("font-family", this.quranFont);
+    el.setAttribute("word-spacing", this.quranWordSpacing);
   }
 
   measureText(svg, text, fontFamily, fontSize) {
@@ -663,6 +753,7 @@ class TreebankRenderer {
     t.textContent = text;
     t.setAttribute("font-family", fontFamily);
     t.setAttribute("font-size", fontSize);
+    if (fontFamily === this.quranFont) t.setAttribute("word-spacing", this.quranWordSpacing);
     svg.appendChild(t);
     try {
       const bb = t.getBBox();
@@ -763,7 +854,7 @@ class TreebankRenderer {
     bannerTextEl.textContent = bannerText;
     bannerTextEl.setAttribute("x", cx);
     bannerTextEl.setAttribute("y", 32);
-    bannerTextEl.setAttribute("font-family", this.arabicFont);
+    this.applyQuranFont(bannerTextEl);
     bannerTextEl.setAttribute("font-size", this.bannerFontSize);
     bannerTextEl.setAttribute("text-anchor", "middle");
     bannerTextEl.setAttribute("dominant-baseline", "middle");
@@ -857,12 +948,13 @@ class TreebankRenderer {
       textEl.textContent = pn.text || "";
       textEl.setAttribute("x", dotX);
       textEl.setAttribute("y", dotY - DOT_R - 4);
-      textEl.setAttribute("font-family", this.arabicFont);
+      this.applyQuranFont(textEl);
       textEl.setAttribute("font-size", "13");
       textEl.setAttribute("text-anchor", "middle");
       textEl.setAttribute("dominant-baseline", "auto");
       textEl.classList.add("treebank-phrase-text");
       svg.appendChild(textEl);
+      this.reserveLabel(dotX, dotY - DOT_R - 4, pn.text || "", this.quranFont, 13);
 
       if (pn.label && pn.labelKey) {
         const labelUrl = this.grammarUrl("edge_relations", pn.labelKey);
@@ -883,6 +975,8 @@ class TreebankRenderer {
         labelEl.classList.add("treebank-phrase-label", "term-link");
         linkEl.appendChild(labelEl);
         svg.appendChild(linkEl);
+        // dominant-baseline is "hanging" here, so the box hangs below dotY.
+        this.reserveLabel(dotX, dotY + DOT_R + 14 + 12, pn.label, this.arabicFont, 12);
       }
     }
 
@@ -971,6 +1065,13 @@ class TreebankRenderer {
   // arabic + POS label), used when a phrase edge attaches to a bare word (e.g.
   // an elided (*) token) so it appears both in the band and the bottom row.
   drawDuplicateTokenBlock(svg, tok, x, y, colorClass) {
+    // A token can be the endpoint of more than one phrase edge. Without this
+    // guard the same block is drawn once per edge, stacking identical text on
+    // itself and reading as a rendering artefact.
+    const key = `${tok.position}@${Math.round(y)}`;
+    if (this.drawnDuplicateBlocks.has(key)) return;
+    this.drawnDuplicateBlocks.add(key);
+
     const DOT_R = 5;
     const UNDERLINE_W = 28;
     const LABEL_OFFSET = 14;
@@ -986,12 +1087,13 @@ class TreebankRenderer {
     textEl.textContent = tok.arabic || "";
     textEl.setAttribute("x", x);
     textEl.setAttribute("y", y - DOT_R - 4);
-    textEl.setAttribute("font-family", this.arabicFont);
+    this.applyQuranFont(textEl);
     textEl.setAttribute("font-size", "13");
     textEl.setAttribute("text-anchor", "middle");
     textEl.setAttribute("dominant-baseline", "auto");
     if (colorClass) textEl.classList.add(colorClass);
     svg.appendChild(textEl);
+    this.reserveLabel(x, y - DOT_R - 4, tok.arabic || "", this.quranFont, 13);
 
     const ul = document.createElementNS(this.SVG_NS, "line");
     ul.setAttribute("x1", x - UNDERLINE_W / 2);
@@ -1004,10 +1106,13 @@ class TreebankRenderer {
     svg.appendChild(ul);
 
     if (tok.posLabel) {
+      // dominant-baseline is "hanging", so the box hangs below this y.
+      const posY = this.placeLabel(x, y + DOT_R + LABEL_OFFSET + 12, tok.posLabel, this.arabicFont, 12) - 12;
+
       const posEl = document.createElementNS(this.SVG_NS, "text");
       posEl.textContent = tok.posLabel;
       posEl.setAttribute("x", x);
-      posEl.setAttribute("y", y + DOT_R + LABEL_OFFSET);
+      posEl.setAttribute("y", posY);
       posEl.setAttribute("font-family", this.arabicFont);
       posEl.setAttribute("font-size", "12");
       posEl.setAttribute("text-anchor", "middle");
@@ -1133,10 +1238,12 @@ class TreebankRenderer {
         linkEl.setAttribute("data-controller", "ajax-modal");
         linkEl.setAttribute("data-url", labelUrl);
 
+        const labelY = this.placeLabel(midX, curveApexY - 6, edge.label, this.arabicFont, this.edgeLabelFontSize);
+
         const labelEl = document.createElementNS(this.SVG_NS, "text");
         labelEl.textContent = edge.label;
         labelEl.setAttribute("x", midX);
-        labelEl.setAttribute("y", curveApexY - 6);
+        labelEl.setAttribute("y", labelY);
         labelEl.setAttribute("font-family", this.arabicFont);
         labelEl.setAttribute("font-size", this.edgeLabelFontSize);
         labelEl.setAttribute("text-anchor", "middle");
@@ -1191,7 +1298,7 @@ class TreebankRenderer {
       arabicEl.textContent = tok.arabic || "";
       arabicEl.setAttribute("x", cx);
       arabicEl.setAttribute("y", arabicY);
-      arabicEl.setAttribute("font-family", this.arabicFont);
+      this.applyQuranFont(arabicEl);
       arabicEl.setAttribute("font-size", this.tokenFontSize);
       arabicEl.setAttribute("text-anchor", "middle");
       arabicEl.setAttribute("dominant-baseline", "middle");
@@ -1270,10 +1377,12 @@ class TreebankRenderer {
         linkEl.setAttribute("data-controller", "ajax-modal");
         linkEl.setAttribute("data-url", labelUrl);
 
+        const labelY = this.placeLabel(midX, curveApexY - 6, edge.label, this.arabicFont, this.edgeLabelFontSize);
+
         const labelEl = document.createElementNS(this.SVG_NS, "text");
         labelEl.textContent = edge.label;
         labelEl.setAttribute("x", midX);
-        labelEl.setAttribute("y", curveApexY - 6);
+        labelEl.setAttribute("y", labelY);
         labelEl.setAttribute("font-family", this.arabicFont);
         labelEl.setAttribute("font-size", this.edgeLabelFontSize);
         labelEl.setAttribute("text-anchor", "middle");

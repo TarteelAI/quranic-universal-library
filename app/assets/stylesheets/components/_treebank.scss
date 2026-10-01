@@ -1,8 +1,12 @@
 .treebank-canvas {
-  overflow-x: auto;
-  overflow-y: auto;
+  overflow: auto;
+  // A tall tree would otherwise stretch the page instead of scrolling: the
+  // container needs a bounded height for overflow-y to engage at all.
+  max-height: 80vh;
+  overscroll-behavior: contain;
   background: #fff;
   min-height: 200px;
+  resize: vertical;
   cursor: grab;
 
   &:active {
@@ -234,7 +238,9 @@
   font-size: 0.95rem;
   color: #374151;
   direction: rtl;
-  font-family: qpc-hafs, serif;
+  // Same Quranic script as the tree itself.
+  font-family: digitalkhatt-v2, qpc-hafs, serif;
+  word-spacing: 0.5em;
   max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -291,11 +297,18 @@
 }
 
 .tb-card-svg-container {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto;
+  max-height: 75vh;
+  overscroll-behavior: contain;
   background: #fff;
   min-height: 80px;
   text-align: center;
+  resize: vertical;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   svg {
     display: inline-block;
@@ -376,6 +389,12 @@
   .term-link {
     cursor: pointer;
   }
+}
+
+.treebank-quran-text {
+  font-family: digitalkhatt-v2, qpc-hafs, serif;
+  // Digital Khatt's space has a negative advance; see treebank_controller.js.
+  word-spacing: 0.5em;
 }
 
 .irab-table {

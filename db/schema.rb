@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_11_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -547,10 +547,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_11_120000) do
 
   create_table "synonyms", force: :cascade do |t|
     t.string "text"
+    t.text "synonyms"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.jsonb "approved_synonyms", default: []
-    t.jsonb "synonyms", default: []
   end
 
   create_table "uloom_contents", force: :cascade do |t|
@@ -648,6 +648,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_11_120000) do
     t.bigint "user_id"
     t.index ["reviewed"], name: "index_versions_on_reviewed"
     t.index ["user_id"], name: "index_versions_on_user_id"
+  end
+
+  create_table "word_mistakes", force: :cascade do |t|
+    t.integer "word_id", null: false
+    t.integer "mistake_count", default: 0, null: false
+    t.integer "char_start"
+    t.integer "char_end"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["word_id", "char_start", "char_end"], name: "index_word_mistakes_on_word_id_and_char_start_and_char_end"
+    t.index ["word_id"], name: "index_word_mistakes_on_word_id"
   end
 
   create_table "word_synonyms", force: :cascade do |t|

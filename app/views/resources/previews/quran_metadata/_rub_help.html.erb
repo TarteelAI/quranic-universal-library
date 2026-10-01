@@ -1,16 +1,14 @@
 <div class="qul-docs">
-  <div>
-    <h3>Export formats</h3>
-    <p class="mt-2">
-      Rub al-Hizb data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
-    </p>
-  </div>
+  <h2>About rub metadata</h2>
+  <p>
+    Rub al-Hizb data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+  </p>
 
-  <div>
-    <h3>JSON format</h3>
-    <p class="mt-2">Here is an example of the JSON structure for the first Rub al-Hizb:</p>
-    <pre>
-{
+  <h3>Sample JSON</h3>
+  <p>Here is an example of the JSON structure for the first Rub al-Hizb:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
   "1": {
     "rub_number": 1,
     "verses_count": 32,
@@ -21,19 +19,20 @@
       "2": "1-25"
     }
   }
-}
-    </pre>
+}</code></pre>
+  </div>
 
-    <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-sm border border-gray-200 mt-4">
-      <table>
-        <thead>
+  <h3>Field descriptions</h3>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
         <tr>
           <th>Field</th>
           <th>Type</th>
           <th>Description</th>
         </tr>
-        </thead>
-        <tbody>
+      </thead>
+      <tbody>
         <tr>
           <td><code>rub_number</code></td>
           <td>INTEGER</td>
@@ -47,23 +46,19 @@
         <tr>
           <td><code>first_verse_key</code></td>
           <td>TEXT</td>
-          <td>The key of the first verse in the  Rub al-Hizb (e.g. <code>1:1</code>).</td>
+          <td>The key of the first verse in the Rub al-Hizb (e.g. <code>1:1</code>).</td>
         </tr>
         <tr>
           <td><code>last_verse_key</code></td>
           <td>TEXT</td>
-          <td>The key of the last verse in the  Rub al-Hizb (e.g. <code>2:25</code>).</td>
+          <td>The key of the last verse in the Rub al-Hizb (e.g. <code>2:25</code>).</td>
         </tr>
         <tr>
           <td><code>verse_mapping</code></td>
           <td>OBJECT</td>
-          <td>
-            A mapping of surah numbers to ayah ranges within this hizb.
-            For example, <code>"2": "1-25"</code> indicates that Surah 2 (Al-Baqarah) has verses 1 to 25 in this  Rub al-Hizb.
-          </td>
+          <td>A mapping of surah numbers to ayah ranges within this hizb. For example, <code>"2": "1-25"</code> indicates that Surah 2 (Al-Baqarah) has verses 1 to 25 in this Rub al-Hizb.</td>
         </tr>
-        </tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
   </div>
 </div>

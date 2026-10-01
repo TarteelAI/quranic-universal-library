@@ -1,13 +1,15 @@
 <div class="qul-docs">
   <h2>About surah metadata</h2>
-
   <p>
     QUL exports metadata for each Surah of the Quran in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
   </p>
 
-  <pre>
-    {
-    "1": {
+  <h3>Sample JSON</h3>
+  <p>An example of the JSON structure:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1": {
     "id": 1,
     "name": "Al-Fātiĥah",
     "name_simple": "Al-Fatihah",
@@ -16,60 +18,61 @@
     "revelation_place": "makkah",
     "verses_count": 7,
     "bismillah_pre": false
-    }
-    }
-  </pre>
+  }
+}</code></pre>
+  </div>
 
+  <h3>Field descriptions</h3>
   <div class="tools-table-overflow">
     <table>
       <thead>
-      <tr>
-        <th>Field</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>id</td>
-        <td>Integer</td>
-        <td>Surah number (1–114)</td>
-      </tr>
-      <tr>
-        <td>name</td>
-        <td>String</td>
-        <td>Transliterated Surah name with diacritic</td>
-      </tr>
-      <tr>
-        <td>name_simple</td>
-        <td>String</td>
-        <td>Transliterated name of the Surah (e.g., <code>Al-Fatihah</code>)</td>
-      </tr>
-      <tr>
-        <td>name_arabic</td>
-        <td>String</td>
-        <td>Arabic name of the Surah (e.g., <code style="direction: rtl">الفاتحة</code>)</td>
-      </tr>
-      <tr>
-        <td>revelation_order</td>
-        <td>Integer</td>
-        <td>Order in which the Surah was revealed historically</td>
-      </tr>
-      <tr>
-        <td>revelation_place</td>
-        <td>String</td>
-        <td><code>makkah</code> or <code>madinah</code> – based on location of revelation</td>
-      </tr>
-      <tr>
-        <td>verses_count</td>
-        <td>Integer</td>
-        <td>Total number of verses in the Surah</td>
-      </tr>
-      <tr>
-        <td>bismillah_pre</td>
-        <td>Boolean</td>
-        <td><code>true</code> if the Surah starts with <em>Bismillah</em> and it should be recited; <code>false</code> otherwise</td>
-      </tr>
+        <tr>
+          <td>id</td>
+          <td>Integer</td>
+          <td>Surah number (1–114)</td>
+        </tr>
+        <tr>
+          <td>name</td>
+          <td>String</td>
+          <td>Transliterated Surah name with diacritic</td>
+        </tr>
+        <tr>
+          <td>name_simple</td>
+          <td>String</td>
+          <td>Transliterated name of the Surah (e.g., <code>Al-Fatihah</code>)</td>
+        </tr>
+        <tr>
+          <td>name_arabic</td>
+          <td>String</td>
+          <td>Arabic name of the Surah (e.g., <code style="direction: rtl">الفاتحة</code>)</td>
+        </tr>
+        <tr>
+          <td>revelation_order</td>
+          <td>Integer</td>
+          <td>Order in which the Surah was revealed historically</td>
+        </tr>
+        <tr>
+          <td>revelation_place</td>
+          <td>String</td>
+          <td><code>makkah</code> or <code>madinah</code> – based on location of revelation</td>
+        </tr>
+        <tr>
+          <td>verses_count</td>
+          <td>Integer</td>
+          <td>Total number of verses in the Surah</td>
+        </tr>
+        <tr>
+          <td>bismillah_pre</td>
+          <td>Boolean</td>
+          <td><code>true</code> if the Surah starts with <em>Bismillah</em> and it should be recited; <code>false</code> otherwise</td>
+        </tr>
       </tbody>
     </table>
   </div>

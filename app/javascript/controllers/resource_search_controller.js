@@ -1,7 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static values = { mode: { type: String, default: 'filter' } };
+  static targets = ['count', 'empty'];
+
+  static values = {
+    mode: { type: String, default: 'filter' },
+    scope: { type: String, default: '' }
+  };
 
   connect() {
     this.input = this.element.querySelector('#search-input');
@@ -21,7 +26,6 @@ export default class extends Controller {
     if (this.input) {
       this.input.removeEventListener('input', this.boundHandleInput);
     }
-
   }
 
   handleInput(event) {
@@ -31,45 +35,68 @@ export default class extends Controller {
   filterResults(rawQuery) {
     const query = (rawQuery || '').trim().toLowerCase();
 
-    if (query.length <= 1) {
+    if (!query) {
       this.resetSearch();
       return;
     }
 
-    let hasResults = false;
+    let visible = 0;
 
     this.searchItems().forEach((element) => {
-      const searchValue = (element.dataset.search || '').toLowerCase();
+      const matches = (element.dataset.search || '').toLowerCase().includes(query);
 
-      if (searchValue.includes(query)) {
-        element.classList.remove('!hidden');
-        hasResults = true;
-      } else {
-        element.classList.add('!hidden');
-      }
+      element.classList.toggle('!hidden', !matches);
+      if (matches) visible += 1;
     });
 
-    if (hasResults) {
+    this.updateCount(visible);
+
+    if (visible > 0) {
       this.hideEmptyResultsMessage();
     } else {
-      this.showEmptyResultsMessage();
+      this.showEmptyResultsMessage(query);
     }
   }
 
   resetSearch() {
-    this.searchItems().forEach((element) => element.classList.remove('!hidden'));
+    const items = this.searchItems();
+    items.forEach((element) => element.classList.remove('!hidden'));
+    this.updateCount(items.length);
     this.hideEmptyResultsMessage();
   }
 
-  searchItems() {
-    return Array.from(this.element.querySelectorAll('[data-search]'));
+  // The results live outside the toolbar, so walk up to the page's results
+  // wrapper rather than searching only inside this controller's element.
+  resultsRoot() {
+    if (this.scopeValue) return document.querySelector(this.scopeValue) || this.element;
+
+    return this.element.closest('#resources') ||
+           this.element.closest('.resources-lists') ||
+           this.element;
   }
 
-  showEmptyResultsMessage() {
+  searchItems() {
+    return Array.from(this.resultsRoot().querySelectorAll('[data-search]'));
+  }
+
+  updateCount(visible) {
+    if (!this.hasCountTarget) return;
+
+    if (this.totalCount === undefined) this.totalCount = this.countTarget.textContent.trim();
+    this.countTarget.textContent = visible === this.searchItems().length ? this.totalCount : visible;
+  }
+
+  showEmptyResultsMessage(query) {
+    if (this.hasEmptyTarget) {
+      this.emptyTarget.classList.remove('hidden');
+      const term = this.emptyTarget.querySelector('[data-search-term]');
+      if (term) term.textContent = query;
+    }
     this.element.querySelector('#empty-results-message')?.classList.remove('hidden');
   }
 
   hideEmptyResultsMessage() {
+    if (this.hasEmptyTarget) this.emptyTarget.classList.add('hidden');
     this.element.querySelector('#empty-results-message')?.classList.add('hidden');
   }
 

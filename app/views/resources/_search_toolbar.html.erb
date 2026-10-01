@@ -8,7 +8,7 @@
   inactive_view_class = 'flex gap-2 rounded font-bold text-sm px-3 py-2 border hover:text-black items-center'
 %>
 
-<div data-controller="resource-search" data-resource-search-mode-value="submit">
+<div data-controller="resource-search" data-resource-search-mode-value="filter">
   <div class="flex items-start md:items-center gap-4 flex-col lg:flex-row justify-between">
     <div class="flex gap-6 items-center w-full lg:w-auto justify-between">
       <div class="flex gap-4 items-center">
@@ -16,7 +16,8 @@
           <%= title %>
         </h1>
 
-        <div class="rounded-full bg-[#E0FAEC] text-[#099a4d] font-bold px-3.5 py-1 leading-none border-2 border-[#56B599] inline-block min-w-[35px] text-center flex-shrink-0">
+        <div class="rounded-full bg-[#E0FAEC] text-[#099a4d] font-bold px-3.5 py-1 leading-none border-2 border-[#56B599] inline-block min-w-[35px] text-center flex-shrink-0"
+             data-resource-search-target="count">
           <%= count %>
         </div>
       </div>
@@ -36,19 +37,16 @@
           <%= hidden_field_tag 'tags[]', tag_name %>
         <% end %>
 
-        <div class="flex items-center gap-3">
-          <div class="flex-1">
-            <%= render partial: 'shared/search_input',
-                       locals: {
-                         name: :q,
-                         value: search_result&.query,
-                         placeholder: 'Search by name, tag, or Quran ref like 2:255'
-                       } %>
-          </div>
-
-          <%= button_tag 'Search',
-                         type: :submit,
-                         class: 'inline-flex items-center justify-center rounded-full bg-[#476CFF] px-5 py-3 text-sm font-semibold text-white hover:bg-[#3657d8] focus:outline-none focus:ring-2 focus:ring-[#476CFF]/30' %>
+        <div>
+          <%= render partial: 'shared/search_input',
+                     locals: {
+                       name: :q,
+                       value: search_result&.query,
+                       placeholder: 'Search by name, tag, or Quran ref like 2:255'
+                     } %>
+          <p class="text-gray-500 text-xs mt-1 ps-5">
+            Filters the list as you type. Press Enter to search every resource, including Quran references.
+          </p>
         </div>
       <% end %>
     </div>
@@ -65,5 +63,11 @@
         Grid
       <% end %>
     </div>
+  </div>
+
+  <div class="hidden mt-6 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500"
+       data-resource-search-target="empty">
+    Nothing on this page matches “<span data-search-term></span>”.
+    Press Enter to search all resources.
   </div>
 </div>

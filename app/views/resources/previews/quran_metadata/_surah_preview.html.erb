@@ -1,32 +1,32 @@
-<div class="space-y-6 text-gray-800 text-base leading-relaxed">
-  <h1 class="text-2xl font-bold mb-4">Surahs</h1>
+<div class="qul-docs">
+  <h2>Surahs</h2>
 
   <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-    <table class="min-w-full text-sm text-left">
-      <thead class="bg-gray-100 uppercase text-xs font-semibold">
+    <table>
+      <thead>
       <tr>
-        <th class="px-4 py-2">ID</th>
-        <th class="px-4 py-2">Name</th>
-        <th class="px-4 py-2">Simple Name</th>
-        <th class="px-4 py-2">Arabic Name</th>
-        <th class="px-4 py-2">Revelation Order</th>
-        <th class="px-4 py-2">Revelation Place</th>
-        <th class="px-4 py-2">Verse Count</th>
-        <th class="px-4 py-2">Bismillah?</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Simple Name</th>
+        <th>Arabic Name</th>
+        <th>Revelation Order</th>
+        <th>Revelation Place</th>
+        <th>Verse Count</th>
+        <th>Bismillah?</th>
       </tr>
       </thead>
 
-      <tbody class="divide-y divide-gray-200">
+      <tbody>
       <% Chapter.order('id ASC').each do |chapter| %>
         <tr>
-          <td class="px-4 py-2"><%= chapter.id %></td>
-          <td class="px-4 py-2"><%= chapter.name_complex %></td>
-          <td class="px-4 py-2"><%= chapter.name_simple %></td>
-          <td class="px-4 py-2"><%= chapter.name_arabic %></td>
-          <td class="px-4 py-2"><%= chapter.revelation_order %></td>
-          <td class="px-4 py-2"><%= chapter.revelation_place.capitalize %></td>
-          <td class="px-4 py-2"><%= chapter.verses_count %></td>
-          <td class="px-4 py-2">
+          <td><%= chapter.id %></td>
+          <td><%= chapter.name_complex %></td>
+          <td><%= chapter.name_simple %></td>
+          <td><%= chapter.name_arabic %></td>
+          <td><%= chapter.revelation_order %></td>
+          <td><%= chapter.revelation_place.capitalize %></td>
+          <td><%= chapter.verses_count %></td>
+          <td>
             <% if chapter.bismillah_pre? %>
               ✅
             <% else %>

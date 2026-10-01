@@ -11,7 +11,7 @@
 %>
 
 <div class="mt-5" data-controller="tabs">
-  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
+  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
     <li class="m-0 flex-none" role="presentation">
       <button class="btn-tab-active"
               id="tab-docs"
@@ -44,7 +44,7 @@
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="0">
       <div class="space-y-6">
-        <h2 class="text-xl font-semibold">
+        <h2 class="resource-pane-title">
           <%= resource.name %> translation for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
         </h2>
 
@@ -101,8 +101,70 @@
          id="tab-help-pane"
          role="tabpanel"
          aria-labelledby="tab-docs" tabindex="1">
-      <div class="space-y-6">
+      <div class="qul-docs">
+        <h2>About word by word translation</h2>
 
+        <p>
+          A word by word translation gives the meaning of each individual word of the Quran rather than of the
+          ayah as a whole. It is what powers word-level tooltips and learner views. The data is available as
+          <strong>JSON</strong> and <strong>SQLite</strong>.
+        </p>
+
+        <div class="docs-callout docs-callout-info">
+          Words are identified by <strong>location</strong> — <code>surah:ayah:word</code>. So
+          <code>2:3:5</code> is the fifth word of Surah Al-Baqarah, ayah 3. Word numbering starts at 1.
+        </div>
+
+        <h2>JSON</h2>
+        <p>A flat object keyed by word location.</p>
+        <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>{
+  "1:1:1": "In (the) name",
+  "1:1:2": "(of) Allah",
+  "1:1:3": "the Most Gracious",
+  "1:1:4": "the Most Merciful"
+}</code></pre>
+        </div>
+
+        <h2>SQLite columns</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Column</th>
+              <th>Type</th>
+              <th>What it holds</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>surah_number</code></td>
+              <td>INTEGER</td>
+              <td>Surah the word belongs to.</td>
+            </tr>
+            <tr>
+              <td><code>ayah_number</code></td>
+              <td>INTEGER</td>
+              <td>Ayah within that surah.</td>
+            </tr>
+            <tr>
+              <td><code>word_number</code></td>
+              <td>TEXT</td>
+              <td>Position of the word within the ayah, starting at 1.</td>
+            </tr>
+            <tr>
+              <td><code>text</code></td>
+              <td>TEXT</td>
+              <td>The translation of that word.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="docs-callout docs-callout-warning">
+          This resource carries the translations only, not the Arabic. To show the word itself alongside its
+          meaning you also need a word by word Quran script from the
+          <a href="/resources/quran-script">Quran Scripts</a> page — join the two on the word location.
+        </div>
       </div>
     </div>
   </div>

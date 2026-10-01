@@ -1,0 +1,52 @@
+<div class="qul-docs">
+  <p>
+    A <strong>stem</strong> sits between the root and the word as it actually appears. It is the base
+      pattern a word carries before prefixes, suffixes and inflection are applied, which makes it useful for
+      grouping closely related surface forms.
+  </p>
+
+  <div class="docs-callout docs-callout-info">
+    This resource gives the stems of an <strong>ayah at a time</strong>: for each ayah, the stem of each of
+      its words in order. If you need the stem of one specific word instead, use the
+      <a href="/resources/morphology">Word stem</a> resource.
+  </div>
+
+  <h2>Example</h2>
+  <p>Ayah <code>73:4</code> has these stems:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>73:4</span></div>
+    <pre><code class="qpc-hafs">أَوْ زِدْ عَلَيْ رَتِّلِ قُرْءَانَ تَرْتِيلًا</code></pre>
+  </div>
+
+  <h2>Export format</h2>
+  <p>
+    QUL exports this data as a SQLite database with one row per ayah.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Column</th>
+        <th>Type</th>
+        <th>What it holds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ayah_key</code></td>
+        <td>TEXT</td>
+        <td>The ayah, in <code>surah:ayah</code> form — for example <code>73:4</code>.</td>
+      </tr>
+      <tr>
+        <td><code>text</code></td>
+        <td>TEXT</td>
+        <td>The stem of each word in the ayah, in word order, separated by spaces.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="docs-callout docs-callout-warning">
+    The stems are listed in word order but are not individually numbered. To line them up with the words
+    of the ayah you also need the word by word Quran script, available on the
+    <a href="/resources/quran-script">Quran Scripts</a> page.
+  </div>
+</div>

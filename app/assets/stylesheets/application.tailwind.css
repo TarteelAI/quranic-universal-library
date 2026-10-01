@@ -423,3 +423,200 @@
 .contributor-logo:hover .logo {
   transform: scale(1.05);
 }
+
+.resource-tabs {
+  @apply flex flex-nowrap overflow-x-auto list-none m-0 p-0 border-b border-gray-200;
+}
+
+.resource-pane-title {
+  @apply text-xl font-semibold text-gray-800;
+}
+
+.resource-pane-subtitle {
+  @apply text-lg font-semibold text-gray-800;
+}
+
+.docs-callout {
+  @apply rounded-lg border-l-4 px-4 py-3 my-4 text-base;
+}
+
+.docs-callout-info {
+  @apply bg-blue-50 border-blue-400 text-blue-900;
+}
+
+.docs-callout-warning {
+  @apply bg-amber-50 border-amber-400 text-amber-900;
+}
+
+.docs-callout-tip {
+  @apply bg-emerald-50 border-emerald-500 text-emerald-900;
+}
+
+.docs-code {
+  @apply my-4 overflow-hidden rounded-lg border border-gray-200 bg-white;
+}
+
+.docs-code-header {
+  @apply flex items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.docs-copy-btn {
+  @apply rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium normal-case tracking-normal text-gray-700 transition-colors hover:border-[#46ac7a] hover:text-[#46ac7a];
+}
+
+.docs-code pre {
+  @apply m-0 overflow-x-auto rounded-none bg-white p-4 text-sm leading-relaxed;
+  color: #1f2937;
+}
+
+/* .qul-docs gives inline <code> a grey chip; inside a block that looks patchy. */
+.docs-code pre code {
+  @apply bg-transparent p-0;
+  color: inherit;
+}
+
+/* Tables written inline inside a docs pane, without the wrapper class. */
+.qul-docs table {
+  @apply my-4 w-full border-collapse text-left text-sm;
+}
+
+.qul-docs thead {
+  @apply border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.qul-docs th,
+.qul-docs td {
+  @apply border-b border-gray-100 px-4 py-2 align-top;
+}
+
+.docs-table-wrap {
+  @apply my-4 overflow-x-auto rounded-lg border border-gray-200;
+}
+
+.docs-table {
+  @apply w-full text-left text-sm;
+}
+
+.docs-table thead {
+  @apply border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.docs-table th,
+.docs-table td {
+  @apply px-4 py-2 align-top;
+}
+
+.docs-table tbody tr + tr {
+  @apply border-t border-gray-100;
+}
+
+/* Toolbars above the ligature and glyph tables */
+.font-toolbar {
+  @apply flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2;
+}
+
+.font-toolbar-group {
+  @apply flex items-center gap-2 text-sm text-gray-700;
+}
+
+.font-toolbar-group label {
+  @apply m-0 whitespace-nowrap font-medium;
+}
+
+.font-toolbar-group input[type="range"] {
+  @apply h-1.5 w-32 cursor-pointer appearance-none rounded-full bg-gray-300;
+}
+
+.font-toolbar-value {
+  @apply w-14 shrink-0 tabular-nums text-gray-500;
+}
+
+.font-toolbar-select {
+  @apply rounded border-gray-300 py-1 pl-2 pr-8 text-sm;
+}
+
+.font-toolbar-search {
+  @apply min-w-[14rem] flex-1 rounded border-gray-300 px-3 py-1.5 text-sm focus:border-[#46ac7a] focus:ring-[#46ac7a];
+}
+
+.font-toolbar-count {
+  @apply ms-auto whitespace-nowrap text-sm text-gray-500;
+}
+
+/* Glyph browser */
+.glyph-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--glyph-cell, 120px), 1fr));
+  align-items: stretch;
+}
+
+.glyph-card {
+  @apply flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-gray-200 bg-white p-2 transition-colors hover:border-[#46ac7a] hover:bg-emerald-50/40;
+}
+
+.glyph-card canvas {
+  @apply block w-full;
+}
+
+.glyph-card-label {
+  @apply w-full truncate text-center text-[11px] leading-tight text-gray-500;
+}
+
+.glyph-card-name {
+  @apply w-full truncate text-center text-[11px] leading-tight text-gray-400;
+}
+
+.glyph-empty {
+  @apply col-span-full rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500;
+}
+
+/* Glyph detail modal */
+.glyph-modal {
+  @apply fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 p-4;
+}
+
+.glyph-modal-panel {
+  @apply max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white shadow-xl;
+}
+
+.glyph-modal-header {
+  @apply flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-3;
+}
+
+.glyph-meta-row {
+  @apply flex items-center justify-between gap-4 border-b border-gray-100 py-2 text-sm;
+}
+
+.glyph-meta-row dt {
+  @apply font-medium text-gray-600;
+}
+
+.glyph-meta-row dd {
+  @apply m-0 text-right text-gray-800;
+}
+
+/* Invisible range input laid over the recitation progress bar; the thumb still
+   needs a size or there is nothing to grab. */
+.player-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.player-seek::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.player-seek:focus-visible {
+  outline: 2px solid #476cff;
+  outline-offset: 2px;
+  opacity: 1;
+}

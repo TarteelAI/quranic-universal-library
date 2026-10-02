@@ -76,6 +76,14 @@ class DownloadableResource < ApplicationRecord
     end
   end
 
+  def remove_tags(names)
+    return if names.blank?
+
+    tag_ids = DownloadableResourceTag.where('LOWER(name) IN (?)', names.map(&:downcase)).pluck(:id)
+    downloadable_resource_taggings.where(downloadable_resource_tag_id: tag_ids).delete_all
+    downloadable_resource_tags.reset
+  end
+
   def description
     info
   end

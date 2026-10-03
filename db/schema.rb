@@ -103,6 +103,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
   end
 
+  create_table "audio_repair_sessions", force: :cascade do |t|
+    t.integer "audio_recitation_id", null: false
+    t.integer "chapter_id", null: false
+    t.integer "audio_file_id"
+    t.string "status", default: "draft", null: false
+    t.jsonb "operations", default: [], null: false
+    t.jsonb "undone_operations", default: [], null: false
+    t.integer "crossfade_ms", default: 15, null: false
+    t.string "output_path"
+    t.integer "output_duration_ms"
+    t.text "notes"
+    t.text "last_error"
+    t.string "job_id"
+    t.integer "created_by_id"
+    t.datetime "rendered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audio_recitation_id", "chapter_id"], name: "idx_on_audio_recitation_id_chapter_id_96057a0b60"
+    t.index ["audio_recitation_id"], name: "index_audio_repair_sessions_on_audio_recitation_id"
+    t.index ["created_by_id"], name: "index_audio_repair_sessions_on_created_by_id"
+  end
+
   create_table "change_logs", force: :cascade do |t|
     t.integer "resource_content_id", null: false
     t.integer "user_id", null: false

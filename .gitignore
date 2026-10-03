@@ -23,6 +23,7 @@ data/audio/*/qa/cache/
 !/tmp/.keep
 fonts/*
 public/downloads/*
+public/audio_repair/*
 
 # Ignore yarn files
 /yarn-error.log

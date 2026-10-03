@@ -57,6 +57,10 @@ module Audio
 
     after_update :update_related_resources
 
+    def word_segments?
+      audio_segments.where("jsonb_typeof(segments) = 'array' AND segments <> '[]'::jsonb").exists?
+    end
+
     def clone_with_audio_files
       attrs = attributes.except('id', 'created_at', 'updated_at', 'resource_content_id')
       cloned = Audio::Recitation.new(attrs)

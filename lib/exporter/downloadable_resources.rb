@@ -8,6 +8,8 @@ require 'zip'
 
 module Exporter
   class DownloadableResources
+    SEGMENT_TAGS = ['With segments', 'Ayah segments', 'Word segments'].freeze
+
     def export_all
       FileUtils.rmdir("tmp/export")
 
@@ -537,15 +539,13 @@ module Exporter
 
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
-        if content.has_segments?
-          tags << 'With segments'
-        end
+        tags += surah_recitation_segment_tags(content, recitation)
 
         if recitation.chapter_audio_files.size < 114
           tags << 'Partial'
         end
 
-        downloadable_resource = set_tags(downloadable_resource, tags)
+        downloadable_resource = set_tags(downloadable_resource, tags, remove: SEGMENT_TAGS)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -593,14 +593,14 @@ module Exporter
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
-          tags << 'With segments'
+          tags << 'Word segments'
         end
 
         if recitation.audio_files.size < Verse.count
           tags << 'Partial'
         end
 
-        downloadable_resource = set_tags(downloadable_resource, tags)
+        downloadable_resource = set_tags(downloadable_resource, tags, remove: SEGMENT_TAGS)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -903,8 +903,17 @@ module Exporter
       zip_path
     end
 
-    def set_tags(download_resource, tags)
+    def surah_recitation_segment_tags(content, recitation)
+      return [] unless content.has_segments?
+
+      tags = ['Ayah segments']
+      tags << 'Word segments' if recitation.word_segments?
+      tags
+    end
+
+    def set_tags(download_resource, tags, remove: [])
       download_resource.save(validate: false) if download_resource.new_record?
+      download_resource.remove_tags(remove - tags) if remove.present?
 
       if tags.present?
         existing_tags = download_resource.tag_names

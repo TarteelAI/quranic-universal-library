@@ -249,6 +249,28 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :audio_repair do
+    resources :sessions, only: %i[index create edit] do
+      member do
+        get :data
+        get :candidates
+        get :audition
+        get :peaks
+        get :letters
+        get :vowel_donors
+        post :vowel_preview
+        post :match
+        get :status
+        post :preview
+        post :add_operation
+        post :undo
+        post :redo
+        post :export
+      end
+    end
+    root to: 'sessions#index'
+  end
+
   get '/ayah/:key', to: 'ayah#show', as: :ayah
   get '/ayah/:key/text', to: 'ayah#text', as: :ayah_text
   get '/ayah/:key/translations', to: 'ayah#translations', as: :ayah_translations

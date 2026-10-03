@@ -17,7 +17,7 @@
               v-for="(slice, li) in letterSlicesByWord[index + 1]"
               :key="li"
               class="seg-letter"
-              :class="{ 'letter-active': activeLetterKey === (index + 1) + '-' + li }"
+              :class="{ 'letter-active': activeLetterKeys.includes((index + 1) + '-' + li) }"
             >{{ slice.text }}</span>
           </span>
           <template v-else>{{ text }}</template>
@@ -550,6 +550,38 @@ import { mapState } from 'vuex';
 import {playAyah} from "../helper/audio";
 import {hasTiming} from "../helper/segmentTime";
 
+// Hamza-bearing letters, decomposed to carrier + combining hamza. The letter
+// segments store the precomposed character while the DigitalKhatt text renders
+// the decomposed one; expanding both sides makes them comparable.
+const HAMZA_FORMS = {
+  '\u0622': '\u0627\u0653',
+  '\u0623': '\u0627\u0654',
+  '\u0624': '\u0648\u0654',
+  '\u0625': '\u0627\u0655',
+  '\u0626': '\u064A\u0654',
+};
+
+// Characters the letter-segment source and the DigitalKhatt text spell
+// differently but which denote the same sound: alef maksura for a final yeh,
+// the Quranic open tanween forms, the small-high-head sukun, and the alef
+// variants. Folded to one spelling for matching only — the displayed text is
+// always sliced from the original string.
+const CANONICAL_CP = {
+  '\u0649': '\u064A',
+  '\u06CC': '\u064A',
+  '\u0640': '',
+  '\u06E1': '\u0652',
+  '\u08F0': '\u064B',
+  '\u08F1': '\u064C',
+  '\u08F2': '\u064D',
+  '\u0671': '\u0627',
+  '\u0670': '\u0627',
+};
+
+const ARABIC_MARK = /[\u064B-\u065F\u0670\u06D6-\u06ED\u08D3-\u08FF]/;
+
+const canonicalCp = (cp) => (CANONICAL_CP[cp] !== undefined ? CANONICAL_CP[cp] : cp);
+
 export default {
   name: 'Verse',
   data() {
@@ -561,7 +593,7 @@ export default {
       issueGroups: [],
       activeIssueTab: 'current',
       showCompare: false,
-      activeLetterKey: null,
+      activeLetterKeys: [],
     };
   },
   created() {
@@ -645,32 +677,88 @@ export default {
         index: Number(index),
       });
     },
-    // Greedy alignment of a letter-segment list onto the displayed word text.
-    // Each letter's `char` is matched to the next occurrence in the word; any
-    // diacritics between matches attach to the preceding letter, and trailing
-    // diacritics attach to the last letter. Returns null (→ plain-text render)
-    // if a letter can't be located, so a mismatch never drops characters.
+    // Expand each character to the codepoints used for matching: a hamza-bearing
+    // letter becomes carrier + combining hamza, so the precomposed spelling the
+    // letter segments use (\u0623) compares equal to the decomposed one DigitalKhatt
+    // renders (\u0627\u0654). `index` keeps every expanded codepoint pointing back at
+    // the original character, so slicing never splits one.
+    //
+    // NFD would do the expansion but also applies canonical ordering, which
+    // reorders Quranic mark runs such as shadda + fatha — that both breaks the
+    // match and corrupts the rendered text, so the expansion is done by hand.
+    expandChars(chars) {
+      const out = [];
+
+      chars.forEach((char, index) => {
+        const expanded = HAMZA_FORMS[char] || char;
+        for (const cp of expanded) out.push({ cp, index });
+      });
+
+      return out;
+    },
+    // Alignment of a letter-segment list onto the displayed word text.
+    //
+    // A segment's `char` is not always a single character: a consonant carrying
+    // a shadda or sukun is stored as one segment (نّ), so targets are matched as
+    // codepoint sequences. The segment data also comes from a source whose
+    // orthography differs from the DigitalKhatt text in places (alef maksura for
+    // final yeh, plain fatha for an open fathatan, a sukun the mushaf doesn't
+    // write), so matching is done on canonicalised codepoints and falls back to
+    // the bare base letter. A letter that still can't be placed is skipped
+    // rather than failing the whole word — it simply never highlights, while the
+    // rest of the word stays letter-addressable.
+    //
+    // Characters between matches attach to the preceding letter and trailing
+    // ones to the last letter, so the concatenated slices always reproduce the
+    // word exactly — nothing is dropped from the display.
     alignLetters(word, letters) {
       if (!word || !letters || !letters.length) return null;
 
       const chars = Array.from(word);
+      const expanded = this.expandChars(chars);
       const slices = letters.map((letter) => ({ text: '', start: letter.start, end: letter.end }));
+
+      // `ei` walks the expanded codepoints, `ci` the original characters; both
+      // only move forward, which keeps the slices in reading order.
+      let ei = 0;
       let ci = 0;
 
+      const seek = (target, from) => {
+        for (let j = from; j + target.length <= expanded.length; j++) {
+          if (target.every((cp, k) => canonicalCp(expanded[j + k].cp) === canonicalCp(cp))) return j;
+        }
+        return -1;
+      };
+
       for (let li = 0; li < letters.length; li++) {
-        const target = letters[li].char;
+        const target = this.expandChars(Array.from(letters[li].char || '')).map((e) => e.cp);
+        if (!target.length) continue;
 
-        let j = ci;
-        while (j < chars.length && chars[j] !== target) j++;
-        if (j >= chars.length) return null;
+        let j = seek(target, ei);
+        let len = target.length;
 
-        if (j > ci) {
-          const attachTo = li === 0 ? 0 : li - 1;
-          slices[attachTo].text += chars.slice(ci, j).join('');
+        if (j < 0 && target.length > 1) {
+          const base = target.filter((cp) => !ARABIC_MARK.test(cp));
+          if (base.length) {
+            j = seek(base, ei);
+            len = base.length;
+          }
         }
 
-        slices[li].text += target;
-        ci = j + 1;
+        if (j < 0) continue;
+
+        const matchStart = expanded[j].index;
+        if (matchStart > ci) {
+          const attachTo = li === 0 ? 0 : li - 1;
+          slices[attachTo].text += chars.slice(ci, matchStart).join('');
+        }
+
+        const from = Math.max(matchStart, ci);
+        const to = expanded[j + len - 1].index + 1;
+        if (to > from) slices[li].text += chars.slice(from, to).join('');
+
+        ci = Math.max(ci, to);
+        ei = j + len;
       }
 
       if (ci < chars.length) {
@@ -688,7 +776,7 @@ export default {
         cancelAnimationFrame(this._letterRaf);
         this._letterRaf = null;
       }
-      this.activeLetterKey = null;
+      this.activeLetterKeys = [];
     },
     letterTick() {
       // Read the media clock every frame (~16ms) rather than relying on the
@@ -705,17 +793,18 @@ export default {
         this.$store.commit('STOP_AT_PLAYBACK_BOUNDARY', { time });
 
         if (this.showLetters) {
+          // Several letters can share one time range — a fatha and the
+          // superscript alef above it are a single sound and are given
+          // identical timings — so collect every letter covering the clock
+          // rather than stopping at the first.
           const letters = this.flatLetters;
+          const keys = [];
 
-          let key = null;
           for (let i = 0; i < letters.length; i++) {
-            if (time >= letters[i].start && time < letters[i].end) {
-              key = letters[i].key;
-              break;
-            }
+            if (time >= letters[i].start && time < letters[i].end) keys.push(letters[i].key);
           }
 
-          if (key !== this.activeLetterKey) this.activeLetterKey = key;
+          if (keys.join(',') !== this.activeLetterKeys.join(',')) this.activeLetterKeys = keys;
         }
       }
 
@@ -1479,9 +1568,15 @@ export default {
   transition: color 0.1s linear, text-shadow 0.1s linear;
 }
 
+/* The highlighted letter is almost always inside the current word, which is
+   white-on-green, and a diacritic has no advance width so a background chip
+   would be invisible for it. Colour plus a dark halo is what reads — on the
+   green word and on a plain white one. */
 .letter-active {
-  color: #f59e0b;
-  text-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  color: #fde047;
+  text-shadow:
+    0 0 2px rgba(69, 26, 3, 0.95),
+    0 0 9px rgba(253, 224, 71, 0.85);
 }
 
 .table-wrapper {

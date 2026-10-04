@@ -266,6 +266,9 @@ Rails.application.routes.draw do
         post :undo
         post :redo
         post :export
+        post :compare
+        get :comparison
+        get :comparison_zoom
       end
     end
     root to: 'sessions#index'

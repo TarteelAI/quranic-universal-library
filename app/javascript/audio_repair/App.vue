@@ -11,7 +11,8 @@
         <audio ref="player" controls class="h-8"></audio>
       </div>
 
-      <!-- Two kinds of repair: swap whole words, or correct one sound in place. -->
+      <!-- Two kinds of repair — swap whole words, or correct one sound in place —
+           plus the check that the export contains those and nothing else. -->
       <div class="flex items-center gap-1 mb-3 border-b">
         <button
           v-for="t in tabs"
@@ -26,6 +27,12 @@
           <span class="block text-[11px] font-normal text-gray-400">{{ t.hint }}</span>
         </button>
       </div>
+
+      <CompareAudio
+        v-if="tool === 'compare'"
+        :session-id="sessionId"
+        :output-path="outputPath"
+      />
 
       <VowelRepair
         v-if="tool === 'vowel'"
@@ -330,9 +337,10 @@
 <script>
 import Waveform from "./Waveform.vue";
 import VowelRepair from "./VowelRepair.vue";
+import CompareAudio from "./CompareAudio.vue";
 
 export default {
-  components: { Waveform, VowelRepair },
+  components: { Waveform, VowelRepair, CompareAudio },
 
   props: {
     sessionId: { type: String, required: true },
@@ -346,7 +354,8 @@ export default {
       tool: "word",
       tabs: [
         { id: "word", label: "Replace word", hint: "swap a whole word or phrase" },
-        { id: "vowel", label: "Fix pronunciation", hint: "correct one sound in place" }
+        { id: "vowel", label: "Fix pronunciation", hint: "correct one sound in place" },
+        { id: "compare", label: "Compare export", hint: "check nothing else changed" }
       ],
       vowelConfig: {},
       recitation: {},

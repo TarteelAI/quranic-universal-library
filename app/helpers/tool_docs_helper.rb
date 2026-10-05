@@ -21,7 +21,8 @@ module ToolDocsHelper
       'ayah_boundaries',
       'compare_audio',
       'audio_repair_index',
-      'audio_repair_editor'
+      'audio_repair_editor',
+      'audio_repair_polarity'
     ]
   end
 
@@ -1132,6 +1133,39 @@ module ToolDocsHelper
       {
         type: 'info',
         text: "Exporting re-encodes the whole surah and runs in the background. The repaired file is written alongside the original; nothing you do here changes the published audio."
+      }
+    ]
+  end
+
+  def audio_repair_polarity_help
+    [
+      "Polarity check",
+      {
+        text: "Some published surah files have the right channel inverted — every sample is the negative of the left. On headphones this is inaudible. On anything that sums the two channels to mono (a phone earpiece, a mono Bluetooth speaker, an app's mono output) the two cancel and the recitation drops to near silence. This page finds those stretches and validates a corrected file."
+      },
+      {
+        type: 'step',
+        title: 'Pick the original',
+        text: "Drop the mp3 as published, choose it from disk, or paste its URL. Choosing a recitation and surah labels each finding with ayah numbers; with no file given, the published file for that surah is checked."
+      },
+      {
+        type: 'step',
+        title: 'Optionally add the fixed file',
+        text: "If you already corrected the file, add it the same way. It is validated against the original: no inverted audio left, the mono mix as loud as stereo, and duration, sample rate and tags unchanged."
+      },
+      {
+        type: 'step',
+        title: 'Listen',
+        text: "Switch the output to <strong>Mono (L+R)</strong> — that is the same sum a mono device makes — and play a flagged window. The level meter collapses and the recitation disappears. Switch the source to <strong>Fixed</strong> at the same spot to hear the repair. Click a timeline to seek both files together."
+      },
+      {
+        type: 'step',
+        title: 'Generate the fix',
+        text: "<strong>Generate fixed file</strong> flips the right channel inside the flagged windows (the whole file when all of it is inverted), keeps the tags, bitrate and sample rate, then validates the result. Download it from the top right once it passes."
+      },
+      {
+        type: 'info',
+        text: "Phase correlation runs from +1 (identical channels) to -1 (inverted). Windows are reported where it stays below -0.5 for half a second or more of audible audio; fades and room tone are ignored. A clean file reads around +0.6 to +0.9 and loses under 1 dB in mono; an inverted one loses 30 dB or more."
       }
     ]
   end

@@ -271,6 +271,11 @@ Rails.application.routes.draw do
         get :comparison_zoom
       end
     end
+
+    # Stereo polarity check: no session, just an original (and maybe a fixed) file.
+    resources :polarity, only: %i[index create show] do
+      member { post :fix }
+    end
     root to: 'sessions#index'
   end
 

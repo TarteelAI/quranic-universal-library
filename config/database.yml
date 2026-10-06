@@ -1,7 +1,7 @@
 quran_api_db_dev:
   adapter: postgresql
   encoding: unicode
-  database: quran_dev
+  database: quran_dev_qirat
   schema_search_path: quran,"$user",public
   host: <%= ENV['DB_HOST'] %>
   port: <%= ENV.fetch('DB_PORT', '5432') %>

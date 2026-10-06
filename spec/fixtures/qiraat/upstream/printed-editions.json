@@ -1,0 +1,108 @@
+{
+  "_model": "A counting madhhab is attributed to a qāriʾ; a numbering is printed by an edition. They are two different questions, and this file answers only the second. Every entry here is the result of measuring one printed muṣḥaf, never an inference from the qāriʾ. Where a qāriʾ's edition has not been measured, there is no entry — absence means unmeasured, not agreement.",
+  "_worked_example": "Abū ʿAmr al-Baṣrī is attributed the Baṣrī count (qiraat.json: counting_system_associated_with_qari = basri). Both KFGQPC muṣḥafs of his rāwīs measure onto First Madani — Dūrī at distance 0, Sūsī at distance 1, against 97 and 98 from Baṣrī. Neither figure is wrong: the attribution is about the qāriʾ, the measurement is about the printing. A consumer that joins on one field and reads it as the other gets a contradiction, which is exactly what these two fields exist to prevent.",
+  "_fields": {
+    "rawi": "the rāwī slug in qiraat.json whose muṣḥaf this is",
+    "qiraa": "the qiraa slug in qiraat.json",
+    "counting_system_printed": "the counting system this printing's own āyah ends measure onto — the nearest system, not an assumed one",
+    "distance_to_printed_system": "how many āyah ends of this printing the nearest system does not account for; 0 is an exact match",
+    "distance_to_system_associated_with_qari": "the same distance to the system qiraat.json attributes to the qāriʾ",
+    "differs_from_association": "true when the printing does not measure onto the attributed system",
+    "ayah_count": "the number of āyāt this printing carries",
+    "source_package": "the publisher package the measurement was taken from",
+    "release_year": "the year of that package, so a later release is visibly a different measurement"
+  },
+  "_measured_by": {
+    "repository": "https://github.com/quran-ws/quran-text",
+    "commit": "d0987a6006aa9d5ab88095230c10dd03ff6cf661",
+    "method": "Every āyah end of the edition is compared against the boundaries this repository publishes for each of the six systems. The system left with the fewest unaccounted ends is the one the printing measures onto.",
+    "note": "quran-text vendors this repository's boundaries at a pinned commit, so the two sides measure against the same points."
+  },
+  "editions": [
+    {
+      "id": "kfgqpc-hafs-v3.0",
+      "rawi": "hafs",
+      "qiraa": "asim",
+      "counting_system_printed": "kufi",
+      "distance_to_printed_system": 0,
+      "distance_to_system_associated_with_qari": 0,
+      "differs_from_association": false,
+      "ayah_count": 6236,
+      "source_package": "UthmanicHafs-v-3.0.zip",
+      "release_year": 2026
+    },
+    {
+      "id": "kfgqpc-shuba-v3.0",
+      "rawi": "shuba",
+      "qiraa": "asim",
+      "counting_system_printed": "kufi",
+      "distance_to_printed_system": 0,
+      "distance_to_system_associated_with_qari": 0,
+      "differs_from_association": false,
+      "ayah_count": 6236,
+      "source_package": "UthmanicShubah-v-3.0.zip",
+      "release_year": 2026
+    },
+    {
+      "id": "kfgqpc-warsh-v3.0",
+      "rawi": "warsh",
+      "qiraa": "nafi",
+      "counting_system_printed": "madani-last",
+      "distance_to_printed_system": 0,
+      "distance_to_system_associated_with_qari": 0,
+      "differs_from_association": false,
+      "ayah_count": 6214,
+      "source_package": "UthmanicWarsh-v-3.0.zip",
+      "release_year": 2026
+    },
+    {
+      "id": "kfgqpc-qalun-v3.0",
+      "rawi": "qalun",
+      "qiraa": "nafi",
+      "counting_system_printed": "madani-last",
+      "distance_to_printed_system": 0,
+      "distance_to_system_associated_with_qari": 0,
+      "differs_from_association": false,
+      "ayah_count": 6214,
+      "source_package": "UthmanicQaloun-v-3.0.zip",
+      "release_year": 2026
+    },
+    {
+      "id": "kfgqpc-duri-v2.0",
+      "rawi": "duri",
+      "qiraa": "abu-amr",
+      "counting_system_printed": "madani-first",
+      "distance_to_printed_system": 0,
+      "distance_to_system_associated_with_qari": 97,
+      "differs_from_association": true,
+      "ayah_count": 6217,
+      "source_package": "UthmanicDouri_V20.zip",
+      "release_year": 2022,
+      "note": "Measured against the 2022 package. KFGQPC has published a later official release of this muṣḥaf, and this repository's Dūrī entry has not yet been measured against it, so counting_system_printed, distance_to_printed_system and ayah_count here all describe the 2022 printing only. Printings of this muṣḥaf are known to disagree with each other about al-Mulk 67:9, so a later release can legitimately carry a different āyah count."
+    },
+    {
+      "id": "kfgqpc-susi-v3.0",
+      "rawi": "susi",
+      "qiraa": "abu-amr",
+      "counting_system_printed": "madani-first",
+      "distance_to_printed_system": 1,
+      "distance_to_system_associated_with_qari": 98,
+      "differs_from_association": true,
+      "ayah_count": 6218,
+      "source_package": "UthmanicSousi-v-3.0.zip",
+      "release_year": 2026
+    },
+    {
+      "id": "kfgqpc-bazzi-v3.0",
+      "rawi": "bazzi",
+      "qiraa": "ibn-kathir",
+      "counting_system_printed": "makki",
+      "distance_to_printed_system": 1,
+      "distance_to_system_associated_with_qari": 1,
+      "differs_from_association": false,
+      "ayah_count": 6220,
+      "source_package": "UthmanicBazzi-v-3.0.zip",
+      "release_year": 2026
+    }
+  ]
+}

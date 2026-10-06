@@ -1,0 +1,92 @@
+{
+  "nafi": {
+    "name_ar": "نافع",
+    "name_en": "Nafi'",
+    "counting_system_associated_with_qari": "madani-last",
+    "rawis": {
+      "qalun":  { "name_ar": "قالون", "name_en": "Qalun" },
+      "warsh":  { "name_ar": "ورش", "name_en": "Warsh" }
+    }
+  },
+  "ibn-kathir": {
+    "name_ar": "ابن كثير",
+    "name_en": "Ibn Kathir",
+    "counting_system_associated_with_qari": "makki",
+    "rawis": {
+      "bazzi":   { "name_ar": "البزي", "name_en": "Al-Bazzi" },
+      "qunbul":  { "name_ar": "قنبل", "name_en": "Qunbul" }
+    }
+  },
+  "abu-amr": {
+    "name_ar": "أبو عمرو",
+    "name_en": "Abu Amr",
+    "counting_system_associated_with_qari": "basri",
+    "rawis": {
+      "duri":  { "name_ar": "الدوري", "name_en": "Al-Duri" },
+      "susi":  { "name_ar": "السوسي", "name_en": "Al-Susi" }
+    }
+  },
+  "ibn-amir": {
+    "name_ar": "ابن عامر",
+    "name_en": "Ibn Amir",
+    "counting_system_associated_with_qari": "dimashqi",
+    "rawis": {
+      "hisham":      { "name_ar": "هشام", "name_en": "Hisham" },
+      "ibn-dhakwan": { "name_ar": "ابن ذكوان", "name_en": "Ibn Dhakwan" }
+    }
+  },
+  "asim": {
+    "name_ar": "عاصم",
+    "name_en": "Asim",
+    "counting_system_associated_with_qari": "kufi",
+    "rawis": {
+      "shuba": { "name_ar": "شعبة", "name_en": "Shu'ba" },
+      "hafs":  { "name_ar": "حفص", "name_en": "Hafs" }
+    }
+  },
+  "hamza": {
+    "name_ar": "حمزة",
+    "name_en": "Hamza",
+    "counting_system_associated_with_qari": "kufi",
+    "rawis": {
+      "khalaf":  { "name_ar": "خلف", "name_en": "Khalaf" },
+      "khallad": { "name_ar": "خلّاد", "name_en": "Khallad" }
+    }
+  },
+  "kisai": {
+    "name_ar": "الكسائي",
+    "name_en": "Al-Kisai",
+    "counting_system_associated_with_qari": "kufi",
+    "rawis": {
+      "abu-al-harith": { "name_ar": "أبو الحارث", "name_en": "Abu al-Harith" },
+      "duri-kisai":    { "name_ar": "الدوري الكسائي", "name_en": "Al-Duri (Kisai)" }
+    }
+  },
+  "abu-jafar": {
+    "name_ar": "أبو جعفر",
+    "name_en": "Abu Ja'far",
+    "counting_system_associated_with_qari": "madani-first",
+    "rawis": {
+      "ibn-wardan": { "name_ar": "عيسى بن وردان", "name_en": "Isa ibn Wardan" },
+      "ibn-jammaz": { "name_ar": "ابن جمّاز", "name_en": "Ibn Jammaz" }
+    }
+  },
+  "yaqub": {
+    "name_ar": "يعقوب",
+    "name_en": "Ya'qub",
+    "counting_system_associated_with_qari": "basri",
+    "rawis": {
+      "ruways": { "name_ar": "رويس", "name_en": "Ruways" },
+      "rawh":   { "name_ar": "روح", "name_en": "Rawh" }
+    }
+  },
+  "khalaf": {
+    "name_ar": "خلف العاشر",
+    "name_en": "Khalaf al-Ashir",
+    "counting_system_associated_with_qari": "kufi",
+    "rawis": {
+      "ishaq": { "name_ar": "إسحاق", "name_en": "Ishaq" },
+      "idris": { "name_ar": "إدريس", "name_en": "Idris" }
+    }
+  }
+}

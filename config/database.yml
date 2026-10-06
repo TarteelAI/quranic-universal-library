@@ -8,6 +8,19 @@ quran_api_db_dev:
   username: <%= ENV['DB_USERNAME'] %>
   password: <%= ENV['DB_PASSWORD'] %>
 
+# Test copy of the Quran database: created from db/quran_structure.sql by
+# rake qiraat:test_db:prepare and filled with the fixture slice in
+# spec/fixtures/qiraat by the specs themselves.
+quran_api_db_test:
+  adapter: postgresql
+  encoding: unicode
+  database: quran_test
+  schema_search_path: quran,"$user",public
+  host: <%= ENV['DB_HOST'] %>
+  port: <%= ENV.fetch('DB_PORT', '5432') %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+
 quran_api_db:
   adapter: postgresql
   encoding: unicode

@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "bismillah_pre": false,
+    "revelation_order": 5,
+    "revelation_place": "makkah",
+    "name_complex": "Al-Fātiĥah",
+    "name_arabic": "الفاتحة",
+    "name_simple": "Al-Fatihah",
+    "verses_count": 7,
+    "chapter_number": 1,
+    "created_at": "2017-02-20 16:06:37 UTC",
+    "updated_at": "2017-02-20 16:06:37 UTC",
+    "rukus_count": null,
+    "hizbs_count": null,
+    "rub_el_hizbs_count": null,
+    "v1_chapter_glyph_code": "surah001",
+    "v4_chapter_glyph_code": "surah001",
+    "color_header_chapter_glyph_code": "ﱅ ",
+    "v2_chapter_glyph_code": "surah001",
+    "pages": [
+      1,
+      1
+    ]
+  },
+  {
+    "id": 2,
+    "bismillah_pre": true,
+    "revelation_order": 87,
+    "revelation_place": "madinah",
+    "name_complex": "Al-Baqarah",
+    "name_arabic": "البقرة",
+    "name_simple": "Al-Baqarah",
+    "verses_count": 286,
+    "chapter_number": 2,
+    "created_at": "2017-02-20 16:06:38 UTC",
+    "updated_at": "2017-02-20 16:06:38 UTC",
+    "rukus_count": null,
+    "hizbs_count": null,
+    "rub_el_hizbs_count": null,
+    "v1_chapter_glyph_code": "surah002",
+    "v4_chapter_glyph_code": "surah002",
+    "color_header_chapter_glyph_code": "ﱆ ",
+    "v2_chapter_glyph_code": "surah002",
+    "pages": [
+      2,
+      49
+    ]
+  },
+  {
+    "id": 9,
+    "bismillah_pre": false,
+    "revelation_order": 113,
+    "revelation_place": "madinah",
+    "name_complex": "At-Tawbah",
+    "name_arabic": "التوبة",
+    "name_simple": "At-Tawbah",
+    "verses_count": 129,
+    "chapter_number": 9,
+    "created_at": "2017-02-20 16:06:38 UTC",
+    "updated_at": "2017-02-20 16:06:38 UTC",
+    "rukus_count": null,
+    "hizbs_count": null,
+    "rub_el_hizbs_count": null,
+    "v1_chapter_glyph_code": "surah009",
+    "v4_chapter_glyph_code": "surah009",
+    "color_header_chapter_glyph_code": "ﱒ ",
+    "v2_chapter_glyph_code": "surah009",
+    "pages": [
+      187,
+      207
+    ]
+  },
+  {
+    "id": 40,
+    "bismillah_pre": true,
+    "revelation_order": 60,
+    "revelation_place": "makkah",
+    "name_complex": "Ghāfir",
+    "name_arabic": "غافر",
+    "name_simple": "Ghafir",
+    "verses_count": 85,
+    "chapter_number": 40,
+    "created_at": "2017-02-20 16:06:38 UTC",
+    "updated_at": "2017-02-20 16:06:38 UTC",
+    "rukus_count": null,
+    "hizbs_count": null,
+    "rub_el_hizbs_count": null,
+    "v1_chapter_glyph_code": "surah040",
+    "v4_chapter_glyph_code": "surah040",
+    "color_header_chapter_glyph_code": "ﭬ ",
+    "v2_chapter_glyph_code": "surah040",
+    "pages": [
+      467,
+      476
+    ]
+  },
+  {
+    "id": 72,
+    "bismillah_pre": true,
+    "revelation_order": 40,
+    "revelation_place": "makkah",
+    "name_complex": "Al-Jinn",
+    "name_arabic": "الجن",
+    "name_simple": "Al-Jinn",
+    "verses_count": 28,
+    "chapter_number": 72,
+    "created_at": "2017-02-20 16:06:38 UTC",
+    "updated_at": "2017-02-20 16:06:38 UTC",
+    "rukus_count": null,
+    "hizbs_count": null,
+    "rub_el_hizbs_count": null,
+    "v1_chapter_glyph_code": "surah072",
+    "v4_chapter_glyph_code": "surah072",
+    "color_header_chapter_glyph_code": "ﮜ ",
+    "v2_chapter_glyph_code": "surah072",
+    "pages": [
+      572,
+      573
+    ]
+  }
+]

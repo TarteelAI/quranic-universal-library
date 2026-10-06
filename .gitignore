@@ -173,3 +173,6 @@ scripts/exported_data
 
 # Cypress local secrets (testmail.app credentials etc.)
 cypress.env.json
+
+# Schema-only dump of the Quran database, used to build quran_test (rake qiraat:test_db:prepare)
+!/db/quran_structure.sql

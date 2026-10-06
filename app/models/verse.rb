@@ -314,6 +314,8 @@ class Verse < QuranApiRecord
       ids = all_words.where(char_type_name: 'word').pluck(:id) # ordered by position, sub_position
       texts = WordText.where(script_id: script.id, word_id: ids).index_by(&:word_id)
       ids.filter_map { |wid| texts[wid]&.text }.join(' ').presence
+    when 'legacy' # keyed by the riwayah's own ayah key; exact only for Kufi-numbered riwayat until phase 4 maps the rest
+      script.ayah_resource_content_id && QuranScript::ByVerse.find_by(resource_content_id: script.ayah_resource_content_id, key: verse_key)&.text
     end
   end
 

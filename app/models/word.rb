@@ -220,6 +220,8 @@ class Word < QuranApiRecord
     case script.storage
     when 'column' then public_send(script.column_name)
     when 'rows' then WordText.find_by(script_id: script.id, word_id: id)&.text
+    when 'legacy' # keyed by the riwayah's own word key; exact only for Kufi-numbered riwayat until phase 4 maps the rest
+      script.word_resource_content_id && QuranScript::ByWord.find_by(resource_content_id: script.word_resource_content_id, key: location)&.text
     end
   end
 

@@ -31,7 +31,14 @@ namespace :qiraat do
       Script.order(:id).each { |s| puts format('  %-3d %-26s %-8s %-8s %-30s %-24s wbw=%-5s ayah=%s', s.id, s.slug, s.kind, s.storage, s.column_name, s.font_css_class, s.word_resource_content_id, s.ayah_resource_content_id) }
     end
 
+    desc 'Register the text already in quran_script_by_verses/by_words as legacy scripts'
+    task legacy_scripts: :environment do
+      report = Qiraat::Seed::LegacyScripts.new.call
+      puts "legacy scripts: created #{report[:created]}, updated #{report[:updated]}"
+      report[:scripts].each { |slug, ayah_rc, word_rc| puts format('  %-34s ayah rc=%-5s word rc=%s', slug, ayah_rc, word_rc) }
+    end
+
     desc 'Seed every riwayah reference table'
-    task all: %i[reference riwayat scripts]
+    task all: %i[reference riwayat scripts legacy_scripts]
   end
 end

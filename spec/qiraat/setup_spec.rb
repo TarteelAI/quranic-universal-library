@@ -9,8 +9,8 @@ RSpec.describe 'Riwayah test setup' do
   end
 
   it 'loads the fixture slice' do
-    expect(Chapter.count).to eq(5)
-    expect(Verse.count).to eq(14)
+    expect(Chapter.count).to eq(7)
+    expect(Verse.count).to eq(16)
     expect(Verse.find_by(verse_key: '2:255')).to be_present
     expect(Word.unscoped.where(verse_id: Verse.find_by(verse_key: '1:1').id, char_type_name: 'word').count).to eq(4)
     expect(MushafWord.where(mushaf_id: 5).count).to be > 0

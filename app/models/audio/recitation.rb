@@ -49,7 +49,7 @@ module Audio
 
     belongs_to :section, class_name: 'Audio::Section', optional: true
     belongs_to :recitation_style, optional: true
-    belongs_to :qirat_type, class_name: 'Riwayah', optional: true
+    include HasRiwayah
     belongs_to :reciter, optional: true
 
     scope :approved, -> { where(approved: true) }

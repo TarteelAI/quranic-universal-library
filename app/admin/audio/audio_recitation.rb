@@ -3,7 +3,7 @@
 ActiveAdmin.register Audio::Recitation do
   menu parent: 'Audio'
   actions :all, except: :destroy
-  includes :reciter, :qirat_type
+  includes :reciter, :riwayah
 
   permit_params :name,
                 :arabic_name,
@@ -17,6 +17,7 @@ ActiveAdmin.register Audio::Recitation do
                 :priority,
                 :recitation_style_id,
                 :qirat_type_id,
+                :riwayah_id,
                 :reciter_id,
                 :segment_locked
 
@@ -26,7 +27,7 @@ ActiveAdmin.register Audio::Recitation do
 
   filter :name
   filter :home
-  filter :qirat_type
+  filter :riwayah
   filter :relative_path
   filter :recitation_style, as: :searchable_select,
          ajax: { resource: RecitationStyle }
@@ -209,7 +210,7 @@ ActiveAdmin.register Audio::Recitation do
     id_column
     column :name
     column :reciter, sortable: :reciter_id
-    column :qirat_type, sortable: :qirat_type_id
+    column :riwayah, sortable: :riwayah_id
     column :priority
     column :relative_path
     column :approved
@@ -234,7 +235,7 @@ ActiveAdmin.register Audio::Recitation do
         end
       end
       row :recitation_style
-      row :qirat_type
+      row :riwayah
       row :arabic_name
       row :relative_path
       row :format
@@ -246,7 +247,7 @@ ActiveAdmin.register Audio::Recitation do
         resource.approved?
       end
       row :priority
-      row :qirat_type
+      row :riwayah
       row :segments_count
       row :segment_locked
       row :files_count
@@ -324,9 +325,9 @@ ActiveAdmin.register Audio::Recitation do
       f.input :recitation_style_id,
               as: :searchable_select,
               ajax: { resource: RecitationStyle }
-      f.input :qirat_type_id,
+      f.input :riwayah_id,
               as: :searchable_select,
-              ajax: { resource: QiratType }
+              ajax: { resource: Riwayah }
     end
 
     f.actions

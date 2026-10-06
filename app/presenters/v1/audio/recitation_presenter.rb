@@ -4,13 +4,13 @@ module V1
       def ayah_recitations
         ::Recitation
           .approved
-          .includes(:recitation_style, :qirat_type)
+          .includes(:recitation_style, :riwayah)
       end
 
       def surah_recitations
         ::Audio::Recitation
           .approved
-          .includes(:recitation_style, :qirat_type)
+          .includes(:recitation_style, :riwayah)
       end
 
       def surah_recitation

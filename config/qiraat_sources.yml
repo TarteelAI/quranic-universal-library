@@ -1,0 +1,132 @@
+# Upstream data for the multi-riwayah import tasks, pinned to exact versions.
+#
+# rake qiraat:fetch downloads every file into tmp/qiraat/upstream/<source>/<path>
+# and verifies its sha256; rake qiraat:pin rewrites the sha256 and size_bytes
+# fields after a deliberate version bump (it rewrites this file, keep this
+# header in the pin task output). Never edit sha256 by hand.
+#
+# Licences:
+#   quran-text        CC BY 4.0 for the work (attribution waived inside a product);
+#                     the Quranic text and the fonts remain under KFGQPC terms.
+#   qiraat-ayah-map   CC BY 4.0 (data), MIT (tooling).
+#   kfgqpc-resources  Byte-for-byte mirror of King Fahd Complex downloads;
+#                     all rights remain with the Complex. The CSVs are the
+#                     publisher's own data files (page / line per ayah).
+sources:
+  quran-text:
+    repo: https://github.com/quran-ws/quran-text
+    ref: b7c62daa3ac4c9ec37a398b35b8f246cee5bb217
+    ref_date: '2026-10-04'
+    licence: CC-BY-4.0 (work); KFGQPC terms (text, fonts)
+    base_url: https://raw.githubusercontent.com/quran-ws/quran-text/{ref}/
+    files:
+    - path: data/catalog.json
+      sha256: 5a5d0176df73068530ef7d76a0a095cd54b3a563c1adbb27695ecaf9c0ed9164
+      size_bytes: 44985
+    - path: data/manifest.json
+      sha256: 2b98937f666104e76bd3abda25c023929b0f722dde948777dfb640381ada568b
+      size_bytes: 16667
+    - path: data/counting.json
+      sha256: 36a76d8817e70eea76512798d43a576301496578cb6b3a825d4d74cfddecd85a
+      size_bytes: 467593
+    - path: data/differences.json
+      sha256: 73839595547f4ba705a207880a7e2f6864892d8c396b8578a0a6c3d4eae5066c
+      size_bytes: 222540
+    - path: data/ayah-map.json
+      sha256: b4ea59b14c629ae5a95ca7e1cebca71227d25aa4d92ae4698a79db8caf21eea9
+      size_bytes: 2285199
+    - path: data/word-index.csv
+      sha256: c6fbb72d68ca9a82129590f99370bee4823ca3663987ccca29ed1046054707cb
+      size_bytes: 18721500
+    - path: data/mushaf/hafs.json
+      sha256: 9b9eb07ff5cff144bf964400924e593d97115e4b937db3c61783f782a5168075
+      size_bytes: 3120895
+    - path: data/mushaf/shubah.json
+      sha256: de53f0fe131e2bec933b007bec82e39a088f63ffbaf5ff57693050b8355b1599
+      size_bytes: 1995295
+    - path: data/mushaf/warsh.json
+      sha256: 7fc7720c88821284b85b599d60e7837846163704507caab45ebf2378c0dcbfb4
+      size_bytes: 2161120
+    - path: data/mushaf/qalun.json
+      sha256: 686f07a27c8a084af8c5334671b06d4f0c5aed074b1cc2afca28452ff238c51c
+      size_bytes: 2158181
+    - path: data/mushaf/duri.json
+      sha256: 759e0963c83792ff220fcec77947540e9141153f53feeeeaaac9b63109922cf2
+      size_bytes: 2047851
+    - path: data/mushaf/susi.json
+      sha256: 2ba457e7709bb33e36dde1afe96d46b3059878b2c94c2b3b7c5d05f658d0ad22
+      size_bytes: 2034337
+    - path: data/mushaf/bazzi.json
+      sha256: 139c3e8e57506763b620d024f9cc1af85a633b3221302c8214e1367407040972
+      size_bytes: 2004109
+    - path: data/fonts/UthmanicHafs-v-3.0.ttf
+      sha256: 5c47602425fb4190327ab9e1a2e8ed2f53dceaf595d8ccc29ac32b8b209ad398
+      size_bytes: 301396
+    - path: data/fonts/UthmanicShubah-v-3.0.ttf
+      sha256: 634a7252b619b934f2e507480d517b8f339503bbf08dded35315a9c1f2be495d
+      size_bytes: 247280
+    - path: data/fonts/UthmanicWarsh-v-3.0.ttf
+      sha256: b644f1c6665baa95c9c0ab40b01a7f3e89edc42a0f50d3b244318a843bec81a9
+      size_bytes: 251428
+    - path: data/fonts/UthmanicQaloun-v-3.0.ttf
+      sha256: 3bf3432429f3bbde673982af2aab9b7a1a7329e295dce250bd96842c2a368ba9
+      size_bytes: 261520
+    - path: data/fonts/UthmanicDouri-V20.ttf
+      sha256: 3a862f8e4ba9b7fd024e2b74981026eb5a901cb292e2b43766795112a35a6b45
+      size_bytes: 262344
+    - path: data/fonts/UthmanicSousi-v-3.0.ttf
+      sha256: 3b003447bcd36306d76997f07472efef582773f2de6f8615b81c2c46ea4d5d78
+      size_bytes: 265472
+    - path: data/fonts/UthmanicBazzi-v-3.0.ttf
+      sha256: b5fc7fbe012f832be3212b398b523a2e1cb87faacf1e57a65e76522201af8f39
+      size_bytes: 251580
+  qiraat-ayah-map:
+    repo: https://github.com/quran-ws/qiraat-ayah-map
+    ref: a9b4d345f3e1d0e9282711c5e09f24119b17e4e1
+    ref_date: '2026-09-14'
+    licence: CC-BY-4.0 (data); MIT (tooling)
+    base_url: https://raw.githubusercontent.com/quran-ws/qiraat-ayah-map/{ref}/
+    files:
+    - path: data/qiraat.json
+      sha256: 0deb00d5b578bda2539e1b3a72d96e40f6852913fe788f37b28b39ce381b873a
+      size_bytes: 2937
+    - path: data/counting-systems.json
+      sha256: a4dfad8c302f3a7bd2172a07ecbd70045b448815edd955df2f0bedcb972b8117
+      size_bytes: 2878
+    - path: data/printed-editions.json
+      sha256: 6c955db1423aac1f33243a490388c4d6d49a4646a13f51c5f4e8154970270638
+      size_bytes: 5398
+    - path: data/book-boundary-primitives.json
+      sha256: 63f7bed237871b174a342d5a88688302c06929105af8dc3c3810b4e795a7e6f1
+      size_bytes: 51714
+    - path: data/book-boundary-evidence.json
+      sha256: a1a7e09e19f9aebcd4c7f774cabb16f665f642c9efd0b54ebd9ab9785415abf8
+      size_bytes: 180468
+    - path: data/classical-count-attestations.json
+      sha256: 3213fa6ee0e0dcfe9e8cf1982ffb054cda201f9d27859f27f641cf31387090ab
+      size_bytes: 24642
+  kfgqpc-resources:
+    repo: https://github.com/quran-ws/kfgqpc-resources
+    ref: 925b94346c2bd6a82df92a5ba3cfbec0bc63c512
+    ref_date: '2026-09-08'
+    licence: KFGQPC terms (mirror of the Complex's own packages)
+    base_url: https://cdn.quran.ws/KFGQPC/resources/
+    files:
+    - path: quran-dev/uthmanic-hafs/UthmanicHafs_v2-0 data/hafsData_v2-0.csv
+      sha256: 7e259a10b02be2ab905d0a62ffa28f62a605cad2be9428323c09bd5a57181c75
+      size_bytes: 2435043
+    - path: quran-dev/uthmanic-shuba/UthmanicShuba_v2-0 data/shubaData_v2-0.csv
+      sha256: 440341f3ab7609518f6e3ef4213fb2615244e092f87c753d71812ec67c7617da
+      size_bytes: 1702424
+    - path: quran-dev/uthmanic-warsh/UthmanicWarsh_v2-1 data/warshData_v2-1.csv
+      sha256: '090186177635415808b799e1f698ffef4c6bf03c7b367f47b88e6a6e07cd1277'
+      size_bytes: 1751726
+    - path: quran-dev/uthmanic-qaloun/UthmanicQaloun_v2-1 data/QalounData_v2-1.csv
+      sha256: 55af7ef05f262b579465a5b088474a71b2a4f06ad08260f6aa0c8797de52d187
+      size_bytes: 1746843
+    - path: quran-dev/uthmanic-douri/UthmanicDouri_v2-0 data/DouriData_v2-0.csv
+      sha256: c6ba575942570b8285706216beaec6325e97a251827e75a1c53282edc63a4b02
+      size_bytes: 1749664
+    - path: quran-dev/uthmanic-sousi/UthmanicSousi_v2-0 data/SousiData_v2-0.csv
+      sha256: '08a141798ffacce3070a0b99b2eecc56421eea44eb5f053a3c105ca0fcdbb68d'
+      size_bytes: 1740646

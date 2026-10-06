@@ -149,7 +149,8 @@ class Word < QuranApiRecord
   scope :ends_with_eq, lambda { |letters| QuranWordFinder.new(self).find_by_ending_letter(letters) }
   scope :letters_cont, lambda { |letters| QuranWordFinder.new(self).find_by_letters(letters) }
 
-  default_scope { order 'position asc' }
+  # sub_position orders a word another riwayah reads after its Hafs neighbour
+  default_scope { order(position: :asc, sub_position: :asc) }
   alias_attribute :code_v4, :code_v2
 
   def grammar_segmented_text

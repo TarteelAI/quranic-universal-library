@@ -21,11 +21,11 @@ namespace :qiraat do
 
     # Verses in the slice: all of al-Fatihah, the start of al-Baqarah, Ayat
     # al-Kursi (split in three editions), and the three word-level edge cases:
-    # 9:101 (Bazzi-only word 25685), 40:26 (word 60522 missing in five
+    # 9:100 (Bazzi-only word 25685, after تَجۡرِي), 40:26 (word 60522 missing in five
     # editions), 72:16 (one Hafs word covering numbers 73950 and 73951),
     # plus the two ayahs where QUL segments differently from quran-text:
     # 15:7 (QUL splits one word) and 37:130 (QUL joins two).
-    SLICE_VERSE_KEYS = (1..7).map { |a| "1:#{a}" } + %w[2:1 2:2 2:3 2:255 9:101 15:7 37:130 40:26 72:16]
+    SLICE_VERSE_KEYS = (1..7).map { |a| "1:#{a}" } + %w[2:1 2:2 2:3 2:255 9:100 9:101 15:7 37:130 40:26 72:16]
     SLICE_WORD_NUMBERS = [25685, 60522, 69720, 73950, 73951].freeze
     SLICE_MUSHAF_IDS = [5].freeze # KFGQPC Hafs, unicode
 
@@ -78,6 +78,7 @@ namespace :qiraat do
         path.write(JSON.pretty_generate(rows.map(&:attributes)))
         puts "  qul/#{name}.json: #{rows.size} rows"
       end
+      write.call('char_types', CharType.order(:id).to_a)
       write.call('counting_systems', CountingSystem.order(:id).to_a)
       write.call('qiraat', Qiraah.unscoped.order(:id).to_a)
       write.call('riwayat', Riwayah.order(:id).to_a)
@@ -147,7 +148,7 @@ namespace :qiraat do
         pinned upstream files in `config/qiraat_sources.yml`. Do not edit by hand; Quranic
         text here is byte-for-byte from the sources.
 
-        * `qul/` — the reference tables (counting_systems, qiraat, riwayat) in full, plus rows of
+        * `qul/` — the reference tables (char_types, counting_systems, qiraat, riwayat) in full, plus rows of
           chapters, verses, words, mushaf 5 pages and words for the slice
           verses: #{SLICE_VERSE_KEYS.join(', ')}
         * `upstream/` — the matching rows of quran-text `word-index.csv`, `ayah-map.json`,

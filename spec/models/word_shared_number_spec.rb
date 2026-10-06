@@ -21,7 +21,7 @@ RSpec.describe Word, 'shared number columns' do
 
   it 'exposes Word.hafs and leaves the default scope alone' do
     expect(Word.hafs.to_sql).to include('"hafs_reads" = TRUE')
-    expect(Word.unscoped.hafs.count).to eq(Word.unscoped.count)
+    expect(Word.unscoped.hafs.count).to eq(Word.unscoped.count - Word.unscoped.where(hafs_reads: false).count)
     expect(Word.all.to_sql).not_to include('hafs_reads')
   end
 

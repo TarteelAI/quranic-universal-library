@@ -49,7 +49,7 @@ class Mushaf < QuranApiRecord
   end
 
   def percentage_done
-    total = Word.count
+    total = Word.hafs.count
     done = mushaf_words.count
 
     ((done.to_f / total.to_f) * 100.to_f).round 2

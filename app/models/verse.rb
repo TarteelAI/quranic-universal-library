@@ -74,7 +74,10 @@ class Verse < QuranApiRecord
   belongs_to :verse_stem, optional: true
 
   has_many :tafsirs
-  has_many :words
+  # Only words Hafs reads: the shared-word skeleton also holds words other
+  # riwayat read (hafs_reads = false); riwayah layers reach those by number.
+  has_many :words, -> { hafs }
+  has_many :all_words, -> { unscope(where: :hafs_reads) }, class_name: 'Word'
   has_many :mushaf_words
   has_many :morphology_words, class_name: 'Morphology::Word'
   has_many :verse_pages

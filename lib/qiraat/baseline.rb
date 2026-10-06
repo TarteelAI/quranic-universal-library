@@ -38,7 +38,9 @@ module Qiraat
         'generated_at' => Time.now.utc.iso8601,
         'database' => quran.current_database,
         'verses' => digest_columns('verses', 'id', VERSE_TEXT_COLUMNS),
-        'words' => digest_columns('words', 'id', WORD_TEXT_COLUMNS, extra_where: nil),
+        # Hafs rows only: the shared-word skeleton also holds words other riwayat
+        # read (hafs_reads = false, no Hafs text); they are not Hafs data.
+        'words' => digest_columns('words', 'id', WORD_TEXT_COLUMNS, extra_where: (quran.column_exists?('words', 'hafs_reads') ? 'hafs_reads = TRUE' : nil)),
         'mushaf_words' => digest_grouped('mushaf_words', 'mushaf_id',
                                          %w[word_id verse_id page_number line_number position_in_page position_in_line position_in_verse char_type_name text]),
         'mushaf_pages' => digest_grouped('mushaf_pages', 'mushaf_id',

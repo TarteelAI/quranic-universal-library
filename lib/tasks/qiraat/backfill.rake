@@ -25,19 +25,33 @@ namespace :qiraat do
       puts "done in #{(Time.now - t).round(1)}s"
       abort('unaligned ayahs present') if r[:unaligned_ayahs].any?
     end
+
+    desc 'Insert words rows for shared numbers Hafs does not read (P2.3)'
+    task missing_words: :environment do
+      csv = Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'word-index.csv')
+      abort "#{csv} missing; run rake qiraat:fetch" unless csv.exist?
+      dry = ENV['DRY_RUN'].present?
+      puts "backfill missing_words on #{Word.connection.current_database}#{dry ? ' (DRY RUN)' : ''}"
+      r = Qiraat::Backfill::MissingWords.new(csv_path: csv, dry_run: dry).call
+      puts "numbers without Hafs coordinates: #{r[:candidates].inspect}"
+      r[:inserted].each { |i| puts "  #{dry ? 'would insert' : 'inserted'} number #{i.number} at #{i.location} (after #{i.after_location})" }
+      puts "already present: #{r[:already_present].inspect}" if r[:already_present].any?
+      puts "UNPLACEABLE: #{r[:unplaceable].inspect}" if r[:unplaceable].any?
+      abort('unplaceable numbers') if r[:unplaceable].any?
+    end
   end
 
   namespace :verify do
     desc 'Verify words.number against the expected counts (P2.2)'
     task word_numbers: :environment do
-      words = Word.unscoped.where(char_type_name: 'word')
+      words = Word.unscoped.hafs.where(char_type_name: 'word') # rows other riwayat add (P2.3) are checked by verify:missing_words
       checks = {
         'word rows' => [words.count, 77_432],
         'numbered word rows' => [words.where.not(number: nil).count, 77_431],
         'continuation rows (number NULL)' => [words.where(number: nil).pluck(:location), ['15:7:2']],
         'rows with number_last' => [words.where.not(number_last: nil).pluck(:location).sort, ['37:130:3', '72:16:1']],
         'end rows numbered' => [Word.unscoped.where(char_type_name: 'end').where.not(number: nil).count, 0],
-        'distinct numbers covered' => [Word.connection.select_value("SELECT count(*) FROM (SELECT number FROM words WHERE number IS NOT NULL UNION SELECT generate_series(number, number_last) FROM words WHERE number_last IS NOT NULL) n").to_i, 77_433],
+        'distinct numbers covered by Hafs' => [Word.connection.select_value("SELECT count(*) FROM (SELECT number FROM words WHERE number IS NOT NULL AND hafs_reads UNION SELECT generate_series(number, number_last) FROM words WHERE number_last IS NOT NULL AND hafs_reads) n").to_i, 77_433],
         'word 1:4:1' => [Word.unscoped.find_by(location: '1:4:1')&.number, 11],
         'word 40:26:13' => [Word.unscoped.find_by(location: '40:26:13')&.number, 60_522],
         'word 72:16:1' => [Word.unscoped.find_by(location: '72:16:1')&.values_at(:number, :number_last), [73_950, 73_951]]
@@ -46,6 +60,24 @@ namespace :qiraat do
       checks.each { |name, (actual, expected)| puts format('  %-36s %s %s', name, actual == expected ? 'OK ' : 'FAIL', actual == expected ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}") }
       abort("#{failed.size} check(s) failed") if failed.any?
       puts 'word_numbers OK'
+    end
+
+    desc 'Verify the inserted non-Hafs word rows (P2.3)'
+    task missing_words: :environment do
+      row = Word.unscoped.find_by(number: 25_685)
+      checks = {
+        'total word rows (incl. ayah ends)' => [Word.unscoped.count, 83_669],
+        'Hafs word rows' => [Word.unscoped.hafs.where(char_type_name: 'word').count, 77_432],
+        'non-Hafs word rows' => [Word.unscoped.where(hafs_reads: false).pluck(:location), ['9:100:17.1']],
+        '25685 verse / position / sub_position' => [row&.values_at(:verse_key, :position, :sub_position), ['9:100', 17, 1]],
+        '25685 has no Hafs text' => [row&.text_qpc_hafs, nil],
+        'verse.words of 9:100 hides it' => [Verse.find_by!(verse_key: '9:100').words.where(number: 25_685).count, 0],
+        'order places it after 9:100:17' => [Word.where(verse_key: '9:100').pluck(:location).each_cons(2).any? { |a, b| a == '9:100:17' && b == '9:100:17.1' }, true]
+      }
+      failed = checks.reject { |_, (actual, expected)| actual == expected }
+      checks.each { |name, (actual, expected)| puts format('  %-40s %s %s', name, actual == expected ? 'OK ' : 'FAIL', actual == expected ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}") }
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'missing_words OK'
     end
   end
 end

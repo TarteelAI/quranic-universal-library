@@ -170,3 +170,6 @@ scripts/img
 scripts/ttf
 scripts/exported_data
 .qodo
+
+# Cypress local secrets (testmail.app credentials etc.)
+cypress.env.json

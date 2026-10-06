@@ -8,6 +8,28 @@ Before running Cypress tests, ensure you have the following installed:
 - **npm** or **yarn**
 - **Cypress** installed in your project (via `npm install cypress` or `yarn add cypress`)
 
+## Configuration (required)
+
+The signup / forgot-password specs read confirmation emails from a
+[testmail.app](https://testmail.app) inbox. The API key and namespace are
+secrets and are **not** stored in the repository. Provide them one of two ways:
+
+1. Environment variables (recommended for CI):
+   ```bash
+   export TESTMAIL_APIKEY=your-testmail-api-key
+   export TESTMAIL_NAMESPACE=your-testmail-namespace
+   ```
+2. A local `cypress.env.json` next to `cypress.config.js` (gitignored):
+   ```json
+   {
+     "apikey": "your-testmail-api-key",
+     "namespace": "your-testmail-namespace"
+   }
+   ```
+
+Never commit real credentials. If a key is ever committed, rotate it in the
+testmail.app dashboard immediately.
+
 ## Running Tests
 
 ### 1. Via Test Runner

@@ -24,6 +24,7 @@ class Mushaf < QuranApiRecord
   include Resourceable
 
   include HasRiwayah
+  belongs_to :script, optional: true # which script mushaf_words.text is cached from (P3.4)
   validates :riwayah, presence: true # was a required belongs_to :qirat_type
   has_many :mushaf_pages, dependent: :delete_all
   has_many :mushaf_line_alignments, dependent: :delete_all
@@ -37,7 +38,9 @@ class Mushaf < QuranApiRecord
   scope :approved, -> { where(enabled: true) }
 
   def using_glyphs?
-    [1, 2].include?(id)
+    return script.glyph? if script
+
+    [1, 2].include?(id) # legacy, mushafs without a script
   end
 
   def lines_count
@@ -64,6 +67,8 @@ class Mushaf < QuranApiRecord
   end
 
   def use_images?
+    return script.image? if script
+
     default_font_name == 'img'
   end
 
@@ -88,7 +93,15 @@ class Mushaf < QuranApiRecord
     end
   end
 
+  # The words/verses column this mushaf's text is copied from: the script's
+  # column when a script is set, else the legacy name matching.
   def text_type_method
+    return script.column_name if script&.column?
+
+    legacy_text_type_method
+  end
+
+  def legacy_text_type_method
     mushaf_name = name.to_s.downcase
 
     if mushaf_name.include?('indopak')

@@ -30,7 +30,7 @@ class MushafLayoutJob < ApplicationJob
       end
 
       mushaf_word.verse_id = word.verse_id
-      mushaf_word.text = word.send(mushaf.text_type_method) if mushaf_word.text.blank?
+      mushaf_word.text = (mushaf.script ? word.text_for(mushaf.script) : word.send(mushaf.text_type_method)) if mushaf_word.text.blank?
       mushaf_word.char_type_id = word.char_type_id
       mushaf_word.char_type_name = word.char_type_name
       mushaf_word.line_number = line

@@ -2580,7 +2580,8 @@ CREATE TABLE quran.mushafs (
     qirat_type_id integer,
     enabled boolean,
     resource_content_id integer,
-    riwayah_id integer
+    riwayah_id integer,
+    script_id integer
 );
 
 
@@ -7942,6 +7943,13 @@ CREATE INDEX index_mushafs_on_qirat_type_id ON quran.mushafs USING btree (qirat_
 --
 
 CREATE INDEX index_mushafs_on_riwayah_id ON quran.mushafs USING btree (riwayah_id);
+
+
+--
+-- Name: index_mushafs_on_script_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_mushafs_on_script_id ON quran.mushafs USING btree (script_id);
 
 
 --

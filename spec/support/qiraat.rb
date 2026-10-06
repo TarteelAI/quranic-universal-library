@@ -21,6 +21,8 @@ module QiraatFixtures
     ['counting_systems', -> { CountingSystem }],
     ['qiraat', -> { Qiraah }],
     ['riwayat', -> { Riwayah }],
+    ['resource_contents', -> { ResourceContent }],
+    ['scripts', -> { Script }],
     ['chapters', -> { Chapter }],
     ['verses', -> { Verse }],
     ['words', -> { Word }],

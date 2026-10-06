@@ -3482,6 +3482,54 @@ CREATE TABLE quran.schema_migrations (
 
 
 --
+-- Name: scripts; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.scripts (
+    id bigint NOT NULL,
+    slug character varying NOT NULL,
+    name character varying NOT NULL,
+    riwayah_id integer,
+    kind character varying DEFAULT 'unicode'::character varying NOT NULL,
+    storage character varying DEFAULT 'rows'::character varying NOT NULL,
+    column_name character varying,
+    font_family character varying,
+    font_css_class character varying,
+    font_file_url character varying,
+    source_package character varying,
+    source_sha256 character varying,
+    text_sha256 character varying,
+    release_year integer,
+    licence character varying,
+    word_resource_content_id integer,
+    ayah_resource_content_id integer,
+    enabled boolean DEFAULT true NOT NULL,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: scripts_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.scripts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: scripts_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.scripts_id_seq OWNED BY quran.scripts.id;
+
+
+--
 -- Name: slugs; Type: TABLE; Schema: quran; Owner: -
 --
 
@@ -5274,6 +5322,13 @@ ALTER TABLE ONLY quran.rukus ALTER COLUMN id SET DEFAULT nextval('quran.rukus_id
 
 
 --
+-- Name: scripts id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.scripts ALTER COLUMN id SET DEFAULT nextval('quran.scripts_id_seq'::regclass);
+
+
+--
 -- Name: slugs id; Type: DEFAULT; Schema: quran; Owner: -
 --
 
@@ -6333,6 +6388,14 @@ ALTER TABLE ONLY quran.rub_el_hizbs
 
 ALTER TABLE ONLY quran.rukus
     ADD CONSTRAINT rukus_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: scripts scripts_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.scripts
+    ADD CONSTRAINT scripts_pkey PRIMARY KEY (id);
 
 
 --
@@ -8378,6 +8441,27 @@ CREATE INDEX index_rukus_on_first_verse_id_and_last_verse_id ON quran.rukus USIN
 --
 
 CREATE INDEX index_rukus_on_ruku_number ON quran.rukus USING btree (ruku_number);
+
+
+--
+-- Name: index_scripts_on_column_name; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_scripts_on_column_name ON quran.scripts USING btree (column_name);
+
+
+--
+-- Name: index_scripts_on_riwayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_scripts_on_riwayah_id ON quran.scripts USING btree (riwayah_id);
+
+
+--
+-- Name: index_scripts_on_slug; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_scripts_on_slug ON quran.scripts USING btree (slug);
 
 
 --

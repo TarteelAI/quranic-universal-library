@@ -24,7 +24,14 @@ namespace :qiraat do
       Riwayah.order(:id).each { |r| puts format('  %-3d %-14s %-18s %-10s %s%s', r.id, r.slug, r.name_en, r.qiraah&.slug, r.enabled ? 'enabled' : '', r.unverified? ? ' UNVERIFIED' : '') }
     end
 
+    desc 'Register the existing Hafs scripts (text columns, glyph codes, image sets) as scripts rows'
+    task scripts: :environment do
+      report = Qiraat::Seed::Scripts.new.call
+      puts "scripts: created #{report[:created]}, updated #{report[:updated]}, resource links #{report[:linked]} (#{Script.count} total)"
+      Script.order(:id).each { |s| puts format('  %-3d %-26s %-8s %-8s %-30s %-24s wbw=%-5s ayah=%s', s.id, s.slug, s.kind, s.storage, s.column_name, s.font_css_class, s.word_resource_content_id, s.ayah_resource_content_id) }
+    end
+
     desc 'Seed every riwayah reference table'
-    task all: %i[reference riwayat]
+    task all: %i[reference riwayat scripts]
   end
 end

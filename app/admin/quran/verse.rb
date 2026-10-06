@@ -243,11 +243,12 @@ ActiveAdmin.register Verse do
 
     ActiveAdminViewHelpers.diff_panel(self, resource) if params[:version]
 
-    panel "Words (#{verse.words.size})", id: 'verse-words' do
+    panel "Words (#{verse.all_words.size})", id: 'verse-words' do
       table border: 1 do
         thead do
           td 'ID'
           td 'Index'
+          td 'Shared #'
           td 'Position'
           td 'Code v1'
           td 'Code V2'
@@ -269,10 +270,17 @@ ActiveAdmin.register Verse do
         end
 
         tbody class: 'quran-text' do
-          verse.words.order('position ASC').each do |w|
-            tr do
+          verse.all_words.each do |w|
+            tr class: (w.hafs_reads ? nil : 'not-hafs') do
               td link_to(w.id, cms_word_path(w))
               td w.word_index
+              td do
+                if w.number
+                  w.number_last ? "#{w.number}–#{w.number_last}" : w.number.to_s
+                else
+                  '–'
+                end
+              end
               td w.position
 
               td class: "p#{w.page_number}-v1" do

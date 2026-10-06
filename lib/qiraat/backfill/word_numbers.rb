@@ -157,7 +157,8 @@ module Qiraat
 
       def write(assignments)
         conn = Word.connection
-        conn.execute("UPDATE #{Word.quoted_table_name} SET number = NULL, number_last = NULL WHERE number IS NOT NULL OR number_last IS NOT NULL")
+        # Hafs rows only: rows other riwayat add (hafs_reads = false, P2.3) keep their number.
+        conn.execute("UPDATE #{Word.quoted_table_name} SET number = NULL, number_last = NULL WHERE hafs_reads = TRUE AND (number IS NOT NULL OR number_last IS NOT NULL)")
         assignments.select { |a| a[:number] }.each_slice(BATCH) do |slice|
           values = slice.map { |a| "(#{a[:id].to_i}, #{a[:number].to_i}, #{a[:number_last] ? a[:number_last].to_i : 'NULL'}::integer)" }.join(', ')
           conn.execute(<<~SQL)

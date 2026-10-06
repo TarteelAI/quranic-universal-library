@@ -37,6 +37,10 @@
 #  text_uthmani               :string
 #  text_uthmani_simple        :string
 #  text_uthmani_tajweed       :string
+#  hafs_reads                 :boolean          default(TRUE), not null
+#  number                     :integer
+#  number_last                :integer
+#  sub_position               :integer          default(0), not null
 #  v2_page                    :integer
 #  verse_key                  :string
 #  word_index                 :integer
@@ -66,6 +70,7 @@
 #  index_words_on_verse_id         (verse_id)
 #  index_words_on_verse_key        (verse_key)
 #  index_words_on_word_index       (word_index)
+#  index_words_on_number           (number) UNIQUE WHERE number IS NOT NULL
 #
 
 class Word < QuranApiRecord
@@ -129,6 +134,9 @@ class Word < QuranApiRecord
   after_update :update_mushaf_word_text
 
   scope :words, -> { where char_type_id: 1 }
+  # Words Hafs reads. The shared-word skeleton (number) also holds the rare
+  # word another riwayah reads and Hafs does not; Hafs-only paths scope here.
+  scope :hafs, -> { where hafs_reads: true }
   scope :with_sajdah_marker, -> { where "meta_data ? 'sajdah'" }
   scope :with_optional_sajdah, -> { where("meta_data ->> 'sajdah-type' = 'optional'") }
 

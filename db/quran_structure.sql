@@ -960,6 +960,59 @@ CREATE TABLE quran.ayah (
 
 
 --
+-- Name: ayah_mappings; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.ayah_mappings (
+    numbering_id integer NOT NULL,
+    verse_id integer NOT NULL,
+    ayah_id integer NOT NULL,
+    ayah_last_id integer,
+    relation character varying NOT NULL,
+    merges_with_next boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: ayah_numberings; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.ayah_numberings (
+    id bigint NOT NULL,
+    slug character varying NOT NULL,
+    kind character varying NOT NULL,
+    counting_system_id integer,
+    name_en character varying,
+    name_ar character varying,
+    total_ayahs integer,
+    source character varying,
+    basmalah_counted boolean,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ayah_numberings_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.ayah_numberings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ayah_numberings_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.ayah_numberings_id_seq OWNED BY quran.ayah_numberings.id;
+
+
+--
 -- Name: ayah_texts; Type: TABLE; Schema: quran; Owner: -
 --
 
@@ -2673,6 +2726,48 @@ CREATE SEQUENCE quran.navigation_search_records_id_seq
 --
 
 ALTER SEQUENCE quran.navigation_search_records_id_seq OWNED BY quran.navigation_search_records.id;
+
+
+--
+-- Name: numbered_ayahs; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.numbered_ayahs (
+    id bigint NOT NULL,
+    numbering_id integer NOT NULL,
+    chapter_id integer NOT NULL,
+    ayah_number integer NOT NULL,
+    ayah_key character varying NOT NULL,
+    ayah_index integer,
+    counted boolean DEFAULT true NOT NULL,
+    first_number integer,
+    last_number integer,
+    first_word_id integer,
+    last_word_id integer,
+    words_count integer,
+    kufi_first_verse_id integer,
+    kufi_last_verse_id integer,
+    relation character varying
+);
+
+
+--
+-- Name: numbered_ayahs_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.numbered_ayahs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: numbered_ayahs_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.numbered_ayahs_id_seq OWNED BY quran.numbered_ayahs.id;
 
 
 --
@@ -4921,6 +5016,13 @@ ALTER TABLE ONLY quran.authors ALTER COLUMN id SET DEFAULT nextval('quran.author
 
 
 --
+-- Name: ayah_numberings id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.ayah_numberings ALTER COLUMN id SET DEFAULT nextval('quran.ayah_numberings_id_seq'::regclass);
+
+
+--
 -- Name: ayah_themes id; Type: DEFAULT; Schema: quran; Owner: -
 --
 
@@ -5233,6 +5335,13 @@ ALTER TABLE ONLY quran.mushas_pages ALTER COLUMN id SET DEFAULT nextval('quran.m
 --
 
 ALTER TABLE ONLY quran.navigation_search_records ALTER COLUMN id SET DEFAULT nextval('quran.navigation_search_records_id_seq'::regclass);
+
+
+--
+-- Name: numbered_ayahs id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.numbered_ayahs ALTER COLUMN id SET DEFAULT nextval('quran.numbered_ayahs_id_seq'::regclass);
 
 
 --
@@ -5899,6 +6008,22 @@ ALTER TABLE ONLY quran.ayah
 
 
 --
+-- Name: ayah_mappings ayah_mappings_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.ayah_mappings
+    ADD CONSTRAINT ayah_mappings_pkey PRIMARY KEY (numbering_id, verse_id);
+
+
+--
+-- Name: ayah_numberings ayah_numberings_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.ayah_numberings
+    ADD CONSTRAINT ayah_numberings_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: ayah ayah_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
 --
 
@@ -6288,6 +6413,14 @@ ALTER TABLE ONLY quran.mushas_pages
 
 ALTER TABLE ONLY quran.navigation_search_records
     ADD CONSTRAINT navigation_search_records_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: numbered_ayahs numbered_ayahs_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.numbered_ayahs
+    ADD CONSTRAINT numbered_ayahs_pkey PRIMARY KEY (id);
 
 
 --
@@ -7119,6 +7252,27 @@ CREATE INDEX index_audio_segments_on_verse_id ON quran.audio_segments USING btre
 --
 
 CREATE INDEX index_audio_segments_on_verse_number ON quran.audio_segments USING btree (verse_number);
+
+
+--
+-- Name: index_ayah_mappings_on_ayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_ayah_mappings_on_ayah_id ON quran.ayah_mappings USING btree (ayah_id);
+
+
+--
+-- Name: index_ayah_numberings_on_counting_system_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_ayah_numberings_on_counting_system_id ON quran.ayah_numberings USING btree (counting_system_id);
+
+
+--
+-- Name: index_ayah_numberings_on_slug; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_ayah_numberings_on_slug ON quran.ayah_numberings USING btree (slug);
 
 
 --
@@ -8029,6 +8183,34 @@ CREATE INDEX index_navigation_search_records_on_searchable_record ON quran.navig
 --
 
 CREATE INDEX index_navigation_search_records_on_text ON quran.navigation_search_records USING btree (text);
+
+
+--
+-- Name: index_numbered_ayahs_on_first_word_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_numbered_ayahs_on_first_word_id ON quran.numbered_ayahs USING btree (first_word_id);
+
+
+--
+-- Name: index_numbered_ayahs_on_numbering_anchor; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_numbered_ayahs_on_numbering_anchor ON quran.numbered_ayahs USING btree (numbering_id, kufi_first_verse_id);
+
+
+--
+-- Name: index_numbered_ayahs_on_numbering_index; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_numbered_ayahs_on_numbering_index ON quran.numbered_ayahs USING btree (numbering_id, ayah_index);
+
+
+--
+-- Name: index_numbered_ayahs_on_numbering_key; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_numbered_ayahs_on_numbering_key ON quran.numbered_ayahs USING btree (numbering_id, chapter_id, ayah_number);
 
 
 --

@@ -32,6 +32,20 @@ namespace :qiraat do
       NON_HAFS_EDITIONS.each { |k| qiraat_import_edition(k) }
     end
 
+    desc 'Build the six madhhab numberings from quran-text counting.json (P4.2)'
+    task :numberings, [:systems] => :environment do |_t, args|
+      counting = UPSTREAM_TEXT.join('counting.json')
+      catalog = UPSTREAM_TEXT.join('catalog.json')
+      abort "#{counting} missing; run rake qiraat:fetch" unless counting.exist?
+      dry = ENV['DRY_RUN'].present?
+      systems = args[:systems].presence&.split(/[ ,]+/)
+      t = Time.now
+      r = Qiraat::Import::Numberings.new(counting_path: counting, catalog_path: catalog, systems: systems, dry_run: dry,
+                                         source: "quran-text counting.json @#{YAML.safe_load(Rails.root.join('config/qiraat_sources.yml').read)['sources']['quran-text']['ref'][0, 7]}").call
+      puts "numberings#{dry ? ' (DRY RUN)' : ''} in #{(Time.now - t).round(1)}s"
+      r.each { |slug, s| puts format('  %-13s ayahs=%-5d rows=%-5d unanchored=%-3d %s', slug, s[:ayahs], s[:rows], s[:unanchored], s[:relations].sort.map { |k, v| "#{k}=#{v}" }.join(' ')) }
+    end
+
     desc 'Import quran-text differences.json into word_differences'
     task word_differences: :environment do
       path = UPSTREAM_TEXT.join('differences.json')
@@ -45,6 +59,46 @@ namespace :qiraat do
   end
 
   namespace :verify do
+    desc 'Verify the madhhab numberings against counting.json, catalog surah counts and the Kufi verses (P4.2)'
+    task numberings: :environment do
+      counting = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'counting.json').read)
+      catalog = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'catalog.json').read)
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-56s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      counting['systems'].each do |slug, sys|
+        n = AyahNumbering.find_by(slug: slug)
+        next check.call("#{slug} present", false, true) unless n
+
+        check.call("#{slug}: counted ayahs = ayah_ends", n.numbered_ayahs.counted.count, sys['ayah_ends'].size)
+        check.call("#{slug}: total_ayahs = reference_total", n.total_ayahs, sys['reference_total'])
+        check.call("#{slug}: every counted ayah anchored", n.numbered_ayahs.counted.where(kufi_first_verse_id: nil).count, 0)
+        check.call("#{slug}: ayah_index dense", n.numbered_ayahs.counted.maximum(:ayah_index), sys['ayah_ends'].size)
+        edition = catalog['riwayahs'].find { |r| r['counting_system'] == slug && r['ayah_count'] == sys['reference_total'] }
+        if edition
+          per_surah = catalog['surahs'].to_h { |s| [Chapter.find_by(chapter_number: s['number']).id, s['ayah_count'][edition['key']]] }
+          check.call("#{slug}: per-surah counts = catalog (#{edition['key']})", n.surah_counts, per_surah)
+        end
+      end
+      kufi = AyahNumbering.find_by(slug: 'kufi')
+      if kufi
+        check.call('kufi: rows take the verse ids', kufi.numbered_ayahs.where('id <> kufi_first_verse_id').count, 0)
+        check.call('kufi: all same', kufi.numbered_ayahs.where.not(relation: 'same').count, 0)
+        check.call('kufi: 6236 rows', kufi.numbered_ayahs.count, Verse.count)
+      end
+      ml = AyahNumbering.find_by(slug: 'madani-last')
+      if ml
+        check.call('madani-last 1:0 unnumbered basmalah', ml.ayah(1, 0)&.relation, 'unnumbered')
+        check.call('madani-last 2:1 merges Kufi 2:1-2:2', ml.ayah(2, 1)&.kufi_verses&.map(&:verse_key), %w[2:1 2:2])
+        check.call('madani-last 1:6 and 1:7 split Kufi 1:7', [ml.ayah(1, 6)&.relation, ml.ayah(1, 7)&.relation], %w[split split])
+      end
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'numberings OK'
+    end
+
     desc 'Verify word_differences against the quran-text file (P3.5)'
     task word_differences: :environment do
       data = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'differences.json').read)

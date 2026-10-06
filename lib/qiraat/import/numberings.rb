@@ -200,7 +200,8 @@ module Qiraat
           base[:id] = r[:kufi_first_verse_id] if slug == 'kufi' && r[:relation] == 'same' # Kufi rows take the verse ids
           base
         end
-        attrs.each_slice(2000) { |slice| NumberedAyah.insert_all!(slice) }
+        # rows with an explicit id (Kufi, same) and rows without are inserted apart: insert_all needs uniform keys
+        attrs.partition { |a| a.key?(:id) }.each { |group| group.each_slice(2000) { |slice| NumberedAyah.insert_all!(slice) } }
         inserted = numbering.numbered_ayahs.count
         raise "#{slug}: inserted #{inserted} of #{attrs.size} rows" unless inserted == attrs.size
 

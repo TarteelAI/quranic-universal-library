@@ -19,8 +19,11 @@ module.exports = defineConfig({
   experimentalMemoryManagement: true,
   preserveResponse: false,
   env: {
-    apikey: "f8be8b50-a843-4597-89c8-477ededbe1d7",
-    namespace: "dzzqh",
+    // testmail.app credentials are secrets and must NOT be committed.
+    // Provide them via environment variables (TESTMAIL_APIKEY, TESTMAIL_NAMESPACE)
+    // or a local, gitignored cypress.env.json. See readme.md.
+    apikey: process.env.TESTMAIL_APIKEY,
+    namespace: process.env.TESTMAIL_NAMESPACE,
     api_url: "https://api.testmail.app/api/json"
   },
   e2e: {

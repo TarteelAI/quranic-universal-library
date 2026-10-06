@@ -4,6 +4,15 @@ let tag = new Date().getTime();
 let signup;
 
 describe("Signup & Forgot Password Scenarios.", () => {
+  before(() => {
+    if (!Cypress.env("apikey") || !Cypress.env("namespace")) {
+      throw new Error(
+        "Missing testmail.app credentials. Set TESTMAIL_APIKEY and TESTMAIL_NAMESPACE " +
+          "env vars or create scripts/cypress-e2e/cypress.env.json (see readme.md)."
+      );
+    }
+  });
+
   it("Signup process for new user.", () => {
     let signup = new SIGNUP();
     cy.visit("/");

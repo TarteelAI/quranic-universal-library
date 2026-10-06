@@ -32,5 +32,5 @@ class QuranScript::ByWord < QuranApiRecord
   belongs_to :word, optional: true
   belongs_to :verse, optional: true
   belongs_to :chapter
-  belongs_to :qirat, class_name: 'QiratType'
+  belongs_to :qirat, class_name: 'Riwayah'
 end

@@ -10,24 +10,45 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
-ActiveAdmin.register QiratType do
+ActiveAdmin.register Riwayah, as: 'QiratType' do
   menu parent: 'Audio'
   actions :all, except: :destroy
   filter :name
+  filter :slug
+  filter :qiraah, as: :select, collection: -> { Qiraah.all.map { |q| [q.name_en, q.id] } }
+  filter :enabled
 
   permit_params do
-    %i[name description]
+    %i[name description name_ar name_en enabled]
   end
 
   searchable_select_options(
-    scope: QiratType,
+    scope: Riwayah,
     text_attribute: :name
   )
+
+  index do
+    id_column
+    column :slug
+    column :name
+    column :name_ar
+    column(:qiraah) { |r| r.qiraah&.name_en }
+    column :enabled
+    column(:unverified) { |r| r.unverified? }
+    column :recitations_count
+    actions
+  end
 
   show do
     attributes_table do
       row :id
+      row :slug
       row :name
+      row :name_ar
+      row :name_en
+      row(:qiraah) { |r| r.qiraah&.name_en }
+      row :enabled
+      row(:unverified) { |r| r.meta_data['unverified_note'] if r.unverified? }
       row :description
       row :recitations_count
       row :created_at

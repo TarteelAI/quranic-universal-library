@@ -1,0 +1,324 @@
+[
+  {
+    "id": 1,
+    "name": "Hafs",
+    "description": "",
+    "created_at": "2021-07-01 11:02:19 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 82,
+    "slug": "hafs",
+    "qiraah_id": 5,
+    "name_ar": "حفص",
+    "name_en": "Hafs",
+    "enabled": true,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 2,
+    "name": "Warsh",
+    "description": "",
+    "created_at": "2021-07-01 11:02:42 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "warsh",
+    "qiraah_id": 1,
+    "name_ar": "ورش",
+    "name_en": "Warsh",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 3,
+    "name": "Sousi",
+    "description": "",
+    "created_at": "2021-07-01 11:02:55 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 1,
+    "slug": "susi",
+    "qiraah_id": 3,
+    "name_ar": "السوسي",
+    "name_en": "Al-Susi",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 4,
+    "name": "Khalaf",
+    "description": "",
+    "created_at": "2021-07-01 11:03:37 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 1,
+    "slug": "khalaf",
+    "qiraah_id": 6,
+    "name_ar": "خلف",
+    "name_en": "Khalaf",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+      "unverified": true,
+      "unverified_note": "Mapped to Khalaf an Hamza provisionally: the original import did not record which Khalaf. Confirm before enabling."
+    }
+  },
+  {
+    "id": 5,
+    "name": "Qaloun",
+    "description": "",
+    "created_at": "2021-07-01 11:04:08 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "qalun",
+    "qiraah_id": 1,
+    "name_ar": "قالون",
+    "name_en": "Qalun",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 6,
+    "name": "Douri",
+    "description": "",
+    "created_at": "2021-12-26 19:01:34 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "duri",
+    "qiraah_id": 3,
+    "name_ar": "الدوري",
+    "name_en": "Al-Duri",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 8,
+    "name": "Shuba",
+    "description": "",
+    "created_at": "2026-07-28 13:16:41 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "shuba",
+    "qiraah_id": 5,
+    "name_ar": "شعبة",
+    "name_en": "Shu'ba",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 9,
+    "name": "Al-Bazzi",
+    "description": null,
+    "created_at": "2026-10-06 21:01:38 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "bazzi",
+    "qiraah_id": 2,
+    "name_ar": "البزي",
+    "name_en": "Al-Bazzi",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 10,
+    "name": "Qunbul",
+    "description": null,
+    "created_at": "2026-10-06 21:01:38 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "qunbul",
+    "qiraah_id": 2,
+    "name_ar": "قنبل",
+    "name_en": "Qunbul",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 11,
+    "name": "Hisham",
+    "description": null,
+    "created_at": "2026-10-06 21:01:38 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "hisham",
+    "qiraah_id": 4,
+    "name_ar": "هشام",
+    "name_en": "Hisham",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 12,
+    "name": "Ibn Dhakwan",
+    "description": null,
+    "created_at": "2026-10-06 21:01:38 UTC",
+    "updated_at": "2026-10-06 21:01:38 UTC",
+    "recitations_count": 0,
+    "slug": "ibn-dhakwan",
+    "qiraah_id": 4,
+    "name_ar": "ابن ذكوان",
+    "name_en": "Ibn Dhakwan",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 13,
+    "name": "Khallad",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "khallad",
+    "qiraah_id": 6,
+    "name_ar": "خلّاد",
+    "name_en": "Khallad",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 14,
+    "name": "Abu al-Harith",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "abu-al-harith",
+    "qiraah_id": 7,
+    "name_ar": "أبو الحارث",
+    "name_en": "Abu al-Harith",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 15,
+    "name": "Al-Duri (Kisai)",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "duri-kisai",
+    "qiraah_id": 7,
+    "name_ar": "الدوري الكسائي",
+    "name_en": "Al-Duri (Kisai)",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 16,
+    "name": "Isa ibn Wardan",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "ibn-wardan",
+    "qiraah_id": 8,
+    "name_ar": "عيسى بن وردان",
+    "name_en": "Isa ibn Wardan",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 17,
+    "name": "Ibn Jammaz",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "ibn-jammaz",
+    "qiraah_id": 8,
+    "name_ar": "ابن جمّاز",
+    "name_en": "Ibn Jammaz",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 18,
+    "name": "Ruways",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "ruways",
+    "qiraah_id": 9,
+    "name_ar": "رويس",
+    "name_en": "Ruways",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 19,
+    "name": "Rawh",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "rawh",
+    "qiraah_id": 9,
+    "name_ar": "روح",
+    "name_en": "Rawh",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 20,
+    "name": "Ishaq",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "ishaq",
+    "qiraah_id": 10,
+    "name_ar": "إسحاق",
+    "name_en": "Ishaq",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  },
+  {
+    "id": 21,
+    "name": "Idris",
+    "description": null,
+    "created_at": "2026-10-06 21:01:39 UTC",
+    "updated_at": "2026-10-06 21:01:39 UTC",
+    "recitations_count": 0,
+    "slug": "idris",
+    "qiraah_id": 10,
+    "name_ar": "إدريس",
+    "name_en": "Idris",
+    "enabled": false,
+    "default_numbering_id": null,
+    "meta_data": {
+    }
+  }
+]

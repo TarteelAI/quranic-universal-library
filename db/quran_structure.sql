@@ -2698,36 +2698,45 @@ ALTER SEQUENCE quran.qiraat_id_seq OWNED BY quran.qiraat.id;
 
 
 --
--- Name: qirat_types; Type: TABLE; Schema: quran; Owner: -
+-- Name: riwayat; Type: TABLE; Schema: quran; Owner: -
 --
 
-CREATE TABLE quran.qirat_types (
+CREATE TABLE quran.riwayat (
     id bigint NOT NULL,
     name character varying,
     description text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    recitations_count integer DEFAULT 0
+    recitations_count integer DEFAULT 0,
+    slug character varying,
+    qiraah_id integer,
+    name_ar character varying,
+    name_en character varying,
+    enabled boolean DEFAULT false NOT NULL,
+    default_numbering_id integer,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 
 
 --
--- Name: qirat_types_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+-- Name: qirat_types; Type: VIEW; Schema: quran; Owner: -
 --
 
-CREATE SEQUENCE quran.qirat_types_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: qirat_types_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
---
-
-ALTER SEQUENCE quran.qirat_types_id_seq OWNED BY quran.qirat_types.id;
+CREATE VIEW quran.qirat_types AS
+ SELECT riwayat.id,
+    riwayat.name,
+    riwayat.description,
+    riwayat.created_at,
+    riwayat.updated_at,
+    riwayat.recitations_count,
+    riwayat.slug,
+    riwayat.qiraah_id,
+    riwayat.name_ar,
+    riwayat.name_en,
+    riwayat.enabled,
+    riwayat.default_numbering_id,
+    riwayat.meta_data
+   FROM quran.riwayat;
 
 
 --
@@ -3251,6 +3260,25 @@ CREATE SEQUENCE quran.resource_tags_id_seq
 --
 
 ALTER SEQUENCE quran.resource_tags_id_seq OWNED BY quran.resource_tags.id;
+
+
+--
+-- Name: riwayat_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.riwayat_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: riwayat_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.riwayat_id_seq OWNED BY quran.riwayat.id;
 
 
 --
@@ -5099,13 +5127,6 @@ ALTER TABLE ONLY quran.qiraat ALTER COLUMN id SET DEFAULT nextval('quran.qiraat_
 
 
 --
--- Name: qirat_types id; Type: DEFAULT; Schema: quran; Owner: -
---
-
-ALTER TABLE ONLY quran.qirat_types ALTER COLUMN id SET DEFAULT nextval('quran.qirat_types_id_seq'::regclass);
-
-
---
 -- Name: quran_script_by_verses id; Type: DEFAULT; Schema: quran; Owner: -
 --
 
@@ -5201,6 +5222,13 @@ ALTER TABLE ONLY quran.resource_contents ALTER COLUMN id SET DEFAULT nextval('qu
 --
 
 ALTER TABLE ONLY quran.resource_tags ALTER COLUMN id SET DEFAULT nextval('quran.resource_tags_id_seq'::regclass);
+
+
+--
+-- Name: riwayat id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.riwayat ALTER COLUMN id SET DEFAULT nextval('quran.riwayat_id_seq'::regclass);
 
 
 --
@@ -6133,14 +6161,6 @@ ALTER TABLE ONLY quran.qiraat
 
 
 --
--- Name: qirat_types qirat_types_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
---
-
-ALTER TABLE ONLY quran.qirat_types
-    ADD CONSTRAINT qirat_types_pkey PRIMARY KEY (id);
-
-
---
 -- Name: quran_script_by_verses quran_script_by_verses_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
 --
 
@@ -6250,6 +6270,14 @@ ALTER TABLE ONLY quran.resource_contents
 
 ALTER TABLE ONLY quran.resource_tags
     ADD CONSTRAINT resource_tags_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: riwayat riwayat_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.riwayat
+    ADD CONSTRAINT riwayat_pkey PRIMARY KEY (id);
 
 
 --
@@ -8217,6 +8245,27 @@ CREATE INDEX index_resource_contents_on_slug ON quran.resource_contents USING bt
 --
 
 CREATE INDEX index_resource_contents_on_sub_type ON quran.resource_contents USING btree (sub_type);
+
+
+--
+-- Name: index_riwayat_on_enabled; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_riwayat_on_enabled ON quran.riwayat USING btree (enabled);
+
+
+--
+-- Name: index_riwayat_on_qiraah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_riwayat_on_qiraah_id ON quran.riwayat USING btree (qiraah_id);
+
+
+--
+-- Name: index_riwayat_on_slug; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_riwayat_on_slug ON quran.riwayat USING btree (slug);
 
 
 --

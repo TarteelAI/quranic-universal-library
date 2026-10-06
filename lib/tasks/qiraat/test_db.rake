@@ -76,6 +76,9 @@ namespace :qiraat do
         path.write(JSON.pretty_generate(rows.map(&:attributes)))
         puts "  qul/#{name}.json: #{rows.size} rows"
       end
+      write.call('counting_systems', CountingSystem.order(:id).to_a)
+      write.call('qiraat', Qiraah.unscoped.order(:id).to_a)
+      write.call('riwayat', Riwayah.order(:id).to_a)
       write.call('chapters', Chapter.where(id: chapter_ids).order(:id).to_a)
       write.call('verses', verses)
       write.call('words', words)
@@ -142,7 +145,8 @@ namespace :qiraat do
         pinned upstream files in `config/qiraat_sources.yml`. Do not edit by hand; Quranic
         text here is byte-for-byte from the sources.
 
-        * `qul/` — rows of chapters, verses, words, mushaf 5 pages and words for the slice
+        * `qul/` — the reference tables (counting_systems, qiraat, riwayat) in full, plus rows of
+          chapters, verses, words, mushaf 5 pages and words for the slice
           verses: #{SLICE_VERSE_KEYS.join(', ')}
         * `upstream/` — the matching rows of quran-text `word-index.csv`, `ayah-map.json`,
           `differences.json`, `counting.json` (slice surahs), plus `catalog.json` and the

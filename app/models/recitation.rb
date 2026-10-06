@@ -29,7 +29,7 @@
 class Recitation < QuranApiRecord
   belongs_to :reciter
   belongs_to :recitation_style
-  belongs_to :qirat_type, optional: true
+  belongs_to :qirat_type, class_name: 'Riwayah', optional: true
   belongs_to :resource_content, optional: true
   belongs_to :gapless_recitation, class_name: 'Audio::Recitation', optional: true
 

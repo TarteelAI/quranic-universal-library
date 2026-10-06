@@ -646,6 +646,45 @@
       }
     },
     {
+      "surah": 57,
+      "ayah": 24,
+      "hafs": {
+        "surah": 57,
+        "ayah": 24,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 57,
+        "ayah": 24,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 57,
+        "ayah": 23,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 57,
+        "ayah": 23,
+        "relation": "shifted"
+      },
+      "warsh": {
+        "surah": 57,
+        "ayah": 23,
+        "relation": "shifted"
+      },
+      "duri": {
+        "surah": 57,
+        "ayah": 23,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 57,
+        "ayah": 23,
+        "relation": "same"
+      }
+    },
+    {
       "surah": 72,
       "ayah": 16,
       "hafs": {

@@ -31,9 +31,39 @@ namespace :qiraat do
     task scripts: :environment do
       NON_HAFS_EDITIONS.each { |k| qiraat_import_edition(k) }
     end
+
+    desc 'Import quran-text differences.json into word_differences'
+    task word_differences: :environment do
+      path = UPSTREAM_TEXT.join('differences.json')
+      abort "#{path} missing; run rake qiraat:fetch" unless path.exist?
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Import::WordDifferences.new(path: path, dry_run: dry).call
+      puts "word_differences#{dry ? ' (DRY RUN)' : ''}: in file #{r[:in_file]}, rows #{r[:rows]}, merged onto one QUL row #{r[:merged].inspect}, unmapped #{r[:unmapped].inspect}, deleted #{r[:deleted]}"
+      r[:by_status].sort.each { |st, n| puts format('  %-16s %d', st, n) }
+      abort('unmapped numbers') if r[:unmapped].any?
+    end
   end
 
   namespace :verify do
+    desc 'Verify word_differences against the quran-text file (P3.5)'
+    task word_differences: :environment do
+      data = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'differences.json').read)
+      by_status = data['words'].group_by { |w| w['status'] }.transform_values(&:size)
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-44s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      check.call('rows = file entries - merged pair', WordDifference.count, data['count'] - 1)
+      by_status.each { |st, n| check.call("status #{st}", WordDifference.where(status: st).count, st == 'word_boundary' ? n - 1 : n) }
+      check.call('25685 missing in hafs', WordDifference.find_by(word_id: Word.unscoped.find_by(number: 25_685)&.id)&.missing&.include?('hafs'), true)
+      check.call('60522 missing in five', WordDifference.find_by(word_id: Word.unscoped.find_by(location: '40:26:13')&.id)&.missing&.sort, %w[bazzi duri qalun susi warsh])
+      check.call('every row has a known status', WordDifference.where.not(status: WordDifference::STATUSES).count, 0)
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'word_differences OK'
+    end
+
     desc 'Verify the imported row-backed scripts against the quran-text catalog (P3.3)'
     task scripts: :environment do
       catalog = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'catalog.json').read)

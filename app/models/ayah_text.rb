@@ -17,4 +17,8 @@ class AyahText < QuranApiRecord
   validates :text, presence: true
 
   scope :for_script, ->(script) { where(script_id: script) }
+
+  def self.ransackable_associations(_auth_object = nil)
+    %w[script]
+  end
 end

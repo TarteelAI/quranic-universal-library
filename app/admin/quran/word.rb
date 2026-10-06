@@ -160,6 +160,28 @@ ActiveAdmin.register Word do
   end
 
   show do
+    panel 'Forms in other riwayat (word_texts)' do
+      texts = WordText.where(word_id: resource.id).includes(:script).sort_by { |t| t.script.id }
+      diff = WordDifference.find_by(word_id: resource.id)
+      if texts.empty? && diff.nil?
+        span 'No row-backed script has a form for this word yet.'
+      else
+        table_for texts do
+          column('Script') { |t| link_to t.script.slug, cms_script_path(t.script) }
+          column('Riwayah') { |t| t.script.riwayah&.to_s }
+          column('Form') { |t| div(t.text, class: "quran-text #{t.script.font_css_class}", style: 'font-size: 1.8em; direction: rtl') }
+          column('Marks') { |t| t.marks.join(' ') }
+        end
+        if diff
+          div do
+            span "Listed in word differences (#{diff.status}): "
+            a 'open', href: cms_word_difference_path(diff)
+            span " · not read by #{diff.missing.join(', ')}" if diff.missing.any?
+          end
+        end
+      end
+    end
+
     render 'shared/page_font', verses: [resource.verse]
 
     attributes_table do

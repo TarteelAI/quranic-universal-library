@@ -34,6 +34,10 @@ class WordDifference < QuranApiRecord
   scope :missing_in, ->(slug) { where('? = ANY(missing)', slug) }
   scope :needs_review, -> { where("review->>'decision' IS NULL") }
 
+  def self.ransackable_associations(_auth_object = nil)
+    %w[word chapter]
+  end
+
   # Spelling groups as [[text, [riwayah slugs]], ...]
   def spelling_groups
     groups.map { |g| [g['text'], g['riwayahs']] }

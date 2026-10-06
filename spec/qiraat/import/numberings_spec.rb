@@ -41,7 +41,7 @@ RSpec.describe Qiraat::Import::Numberings do
     expect(b.counted).to be(false)
     expect(b.words.map(&:location)).to eq(%w[1:1:1 1:1:2 1:1:3 1:1:4])
     hamd = n.ayah(1, 1)
-    expect(hamd.relation).to eq('shifted') # same words as Kufi 1:2, numbered 1
+    expect(hamd.relation).to eq('same') # same words as Kufi 1:2, numbered 1 (upstream calls this same)
     expect(hamd.kufi_verses.map(&:verse_key)).to eq(['1:2'])
     expect([n.ayah(1, 6).relation, n.ayah(1, 7).relation]).to eq(%w[split split])
     expect(n.ayah(1, 6).kufi_verses.map(&:verse_key)).to eq(['1:7'])

@@ -39,6 +39,7 @@ class Riwayah < QuranApiRecord
   ].freeze
 
   belongs_to :qiraah, optional: true
+  belongs_to :default_numbering, class_name: 'AyahNumbering', optional: true
   has_many :audio_recitations, class_name: 'Audio::Recitation', foreign_key: :riwayah_id
   has_many :verse_recitations, class_name: 'Recitation', foreign_key: :riwayah_id
   has_many :mushafs, foreign_key: :riwayah_id

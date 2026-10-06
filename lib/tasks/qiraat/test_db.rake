@@ -84,7 +84,7 @@ namespace :qiraat do
       write.call('riwayat', Riwayah.order(:id).to_a)
       write.call('scripts', Script.order(:id).to_a)
       write.call('resource_contents', ResourceContent.where(id: Script.pluck(:word_resource_content_id, :ayah_resource_content_id).flatten.compact).order(:id).to_a)
-      write.call('chapters', Chapter.where(id: chapter_ids).order(:id).to_a)
+      write.call('chapters', Chapter.order(:id).to_a) # all 114: numbering tables need every surah
       write.call('verses', verses)
       write.call('words', words)
       write.call('mushafs', mushafs)

@@ -11,6 +11,11 @@ Rails.application.routes.draw do
 
   get '/health', to: 'health#show'
 
+  # ayah tables per numbering for the browser tools (P4.5)
+  namespace :internal, defaults: { format: :json } do
+    get 'numberings/:slug', to: 'numberings#show', as: :numbering, format: false, constraints: { slug: /[a-z0-9\-.]+/ } # slugs carry dots (kfgqpc-susi-v3.0)
+  end
+
   namespace :api, defaults: { format: :json } do
     namespace :morphology do
       resources :edge_relations, only: [:index]

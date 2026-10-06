@@ -2,14 +2,56 @@
 
 module Utils
   class Quran
+    # The ayah tables (first ayah index per surah, ayahs per surah) of the
+    # Kufi numbering, read once from AyahNumbering.kufi (P4.5). Falls back to
+    # the legacy literals when the numbering has not been built.
+    class << self
+      def first_ayah
+        tables[:first_ayah]
+      end
+
+      def surah_ayah
+        tables[:surah_ayah]
+      end
+
+      def total_ayahs
+        tables[:total]
+      end
+
+      # "kufi numbering" or "legacy literals": says which the helpers are using.
+      def source
+        tables[:source]
+      end
+
+      def reset!
+        @tables = nil
+        @abs_ayahs = nil
+      end
+
+      private
+
+      def tables
+        @tables ||= begin
+          kufi = AyahNumbering.find_by(slug: 'kufi') if AyahNumbering.table_exists?
+          if kufi && kufi.tables[:total].positive?
+            kufi.tables.merge(source: 'kufi numbering')
+          else
+            { first_ayah: LEGACY_FIRST_AYAH, surah_ayah: LEGACY_SURAH_AYAH, total: LEGACY_SURAH_AYAH.sum, source: 'legacy literals' }
+          end
+        rescue ActiveRecord::StatementInvalid
+          { first_ayah: LEGACY_FIRST_AYAH, surah_ayah: LEGACY_SURAH_AYAH, total: LEGACY_SURAH_AYAH.sum, source: 'legacy literals' }
+        end
+      end
+    end
+
     def self.get_surah_ayah_range(surah)
       surah = surah.to_i
       return [] if surah > 114 || surah < 1
 
       if 114 == surah
-        [FIRST_AYAH[surah - 1], 6236]
+        [first_ayah[surah - 1], total_ayahs]
       else
-        [FIRST_AYAH[surah - 1], FIRST_AYAH[surah] - 1]
+        [first_ayah[surah - 1], first_ayah[surah] - 1]
       end
     end
 
@@ -22,7 +64,7 @@ module Utils
     end
 
     def self.first_ayah_of_surah?(verse_id)
-      FIRST_AYAH.include?(verse_id)
+      first_ayah.include?(verse_id)
     end
 
     def self.last_ayah_of_surah?(ayah_key_or_id)
@@ -34,13 +76,13 @@ module Utils
 
       surah_number, ayah_number = key.split(':').map(&:to_i)
 
-      SURAH_AYAH[surah_number - 1] == ayah_number
+      surah_ayah[surah_number - 1] == ayah_number
     end
 
     def self.surah_id_from_verse(verse_id)
       surah = nil
 
-      SURAH_AYAH.each_with_index do |surah_ayah, surah_index|
+      surah_ayah.each_with_index do |surah_ayah, surah_index|
         if verse_id <= surah_ayah
           surah = surah_index + 1
           break
@@ -58,7 +100,7 @@ module Utils
       surah = nil
       ayah = nil
 
-      SURAH_AYAH.each_with_index do |surah_ayah, surah_index|
+      surah_ayah.each_with_index do |surah_ayah, surah_index|
         if verse_id <= surah_ayah
           surah = surah_index + 1
           ayah = verse_id
@@ -93,7 +135,7 @@ module Utils
     end
 
     def self.valid_ayah?(surah, ayah)
-      ayah.positive? && SURAH_AYAH[surah - 1] && ayah <= SURAH_AYAH[surah - 1]
+      ayah.positive? && surah_ayah[surah - 1] && ayah <= surah_ayah[surah - 1]
     end
 
     def self.valid_range?(surah, from, to)
@@ -111,15 +153,17 @@ module Utils
 
       count = 0
 
-      @abs_ayahs = SURAH_AYAH.map do |s|
+      @abs_ayahs = surah_ayah.map do |s|
         e = count
         count += s
         e
       end
     end
 
-    # Ids of first ayah for each surah
-    FIRST_AYAH = [
+    # Ids of first ayah for each surah in the Kufi count. Kept only as the
+    # fallback for a database that has no numberings yet (P4.5); the live
+    # tables come from AyahNumbering.kufi.
+    LEGACY_FIRST_AYAH = [
       1, 8, 294, 494, 670, 790, 955, 1161, 1236,
       1365, 1474, 1597, 1708, 1751, 1803, 1902, 2030,
       2141, 2251, 2349, 2484, 2596, 2674, 2792, 2856,
@@ -137,8 +181,8 @@ module Utils
       6231
     ].freeze
 
-    # Count of ayah in each chapter
-    SURAH_AYAH = [
+    # Count of ayah in each chapter in the Kufi count (same caveat).
+    LEGACY_SURAH_AYAH = [
       7, 286, 200, 176, 120, 165, 206,
       75, 129, 109, 123, 111, 43, 52,
       99, 128, 111, 110, 98, 135, 112, 78,

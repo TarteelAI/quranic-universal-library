@@ -77,6 +77,15 @@ ActiveAdmin.register MushafPage do
         end
       end
 
+      # ayah range in the mushaf's own numbering (P5.2); equals the verse range on Kufi mushafs
+      row :first_ayah do |r|
+        "#{r.first_ayah.ayah_key} (#{r.mushaf.numbering&.slug})" if r.first_ayah
+      end
+
+      row :last_ayah do |r|
+        "#{r.last_ayah.ayah_key} (#{r.mushaf.numbering&.slug})" if r.last_ayah
+      end
+
       row :first_word do |r|
         if r.first_word
           link_to "#{r.first_word.location}(#{r.first_word.text_uthmani_simple})", [:cms, r.first_word]

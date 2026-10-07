@@ -68,7 +68,7 @@ ActiveAdmin.register MushafWord do
           else
             div do
               div resource.text.to_s.html_safe, class: "quran-text "
-              div link_to('Chars', "/community/chars_info?text=#{resource.text}&name=#{[resource.mushaf.name, resource.word.location].join('-')}", target: '_blank', class: 'fs-sm')
+              div link_to('Chars', "/community/chars_info?text=#{resource.text}&name=#{[resource.mushaf.name, resource.word&.location].join('-')}", target: '_blank', class: 'fs-sm')
             end
           end
         end

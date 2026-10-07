@@ -42,6 +42,20 @@ class Mushaf < QuranApiRecord
 
   scope :approved, -> { where(enabled: true) }
 
+  # The mushaf the CMS preview opens by default (P5.5): the one flagged
+  # is_default, else the first; the preview used to hard-code id 2.
+  def self.default_id
+    where(is_default: true).order(:id).pick(:id) || order(:id).pick(:id)
+  end
+
+  # The numbered ayah "surah:ayah" names in this mushaf's numbering (nil when
+  # the mushaf has no numbering yet; a Kufi mushaf's ayah ids equal verse ids).
+  def numbered_ayah_for(ayah_key)
+    return nil if numbering_id.nil? || ayah_key.blank?
+
+    NumberedAyah.find_by(numbering_id: numbering_id, ayah_key: ayah_key.to_s.strip)
+  end
+
   def using_glyphs?
     return script.glyph? if script
 

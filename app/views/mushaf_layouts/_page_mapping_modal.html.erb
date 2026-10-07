@@ -11,8 +11,8 @@
 
   <% if page %>
     <%
-      first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
-      last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
+      first_ayah_key = page.first_ayah_key # in the mushaf's numbering (P5.5)
+      last_ayah_key = page.last_ayah_key
     %>
 
     <%= render SplitScreenComponent.new do |component| %>

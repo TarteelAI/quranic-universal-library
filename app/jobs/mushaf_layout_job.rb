@@ -17,11 +17,18 @@ class MushafLayoutJob < ApplicationJob
     words.each do |id, line_number|
       next if line_number.blank? || line_number['line_number'].to_i == 0
 
-      word = Word.find(id.to_i).reload
-      mushaf_word = MushafWord.where(
-        mushaf_id: mushaf.id,
-        word_id: word.id
-      ).first_or_initialize
+      if id.to_s.start_with?('mw')
+        # an ayah-end marker of a non-Kufi numbering has no words row (P5.2): the editor keys it by its own id
+        word = nil
+        mushaf_word = MushafWord.find_by(id: id.to_s.delete_prefix('mw').to_i, mushaf_id: mushaf.id)
+        next if mushaf_word.nil?
+      else
+        word = Word.find(id.to_i).reload
+        mushaf_word = MushafWord.where(
+          mushaf_id: mushaf.id,
+          word_id: word.id
+        ).first_or_initialize
+      end
 
       line = line_number['line_number'].to_i
 
@@ -29,14 +36,16 @@ class MushafLayoutJob < ApplicationJob
         position_in_line = 1
       end
 
-      mushaf_word.verse_id = word.verse_id
-      mushaf_word.ayah_id ||= AyahMapping.find_by(numbering_id: mushaf.numbering_id, verse_id: word.verse_id)&.ayah_id if mushaf.numbering_id
-      mushaf_word.text = (mushaf.script ? word.text_for(mushaf.script) : word.send(mushaf.text_type_method)) if mushaf_word.text.blank?
-      mushaf_word.char_type_id = word.char_type_id
-      mushaf_word.char_type_name = word.char_type_name
+      if word
+        mushaf_word.verse_id = word.verse_id
+        mushaf_word.ayah_id ||= AyahMapping.find_by(numbering_id: mushaf.numbering_id, verse_id: word.verse_id)&.ayah_id if mushaf.numbering_id
+        mushaf_word.text = (mushaf.script ? word.text_for(mushaf.script) : word.send(mushaf.text_type_method)) if mushaf_word.text.blank?
+        mushaf_word.char_type_id = word.char_type_id
+        mushaf_word.char_type_name = word.char_type_name
+        mushaf_word.position_in_verse = word.position
+      end
       mushaf_word.line_number = line
       mushaf_word.page_number = page_number
-      mushaf_word.position_in_verse = word.position
       mushaf_word.position_in_line = position_in_line
       mushaf_word.position_in_page = position_in_page
       mushaf_word.save

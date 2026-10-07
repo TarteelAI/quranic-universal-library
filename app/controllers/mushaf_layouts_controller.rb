@@ -77,13 +77,8 @@ class MushafLayoutsController < CommunityController
   def edit
     @lines_per_page = @resource.resource.lines_per_page
 
-    first_verse = @mushaf_page.first_verse
-    last_verse = @mushaf_page.last_verse
-
-
-    if first_verse && last_verse
-      @verses = Verse.eager_load(:words).order("verses.verse_index asc, words.position asc").where("verse_index >= ? AND verse_index <= ?", first_verse.verse_index, last_verse.verse_index)
-    end
+    # one group per ayah of the mushaf's numbering (Kufi verses for Kufi mushafs), see MushafLayoutEntry (P5.5)
+    @verses = MushafLayoutEntry.for_page(@mushaf, @mushaf_page, @words)
   end
 
   def update
@@ -153,13 +148,22 @@ class MushafLayoutsController < CommunityController
     end
   end
 
+  # The range is typed as "surah:ayah" in the mushaf's own numbering (P5.5):
+  # the numbered ayahs give the Kufi verse range too. Without a numbering the
+  # keys are Kufi, as before.
   def params_for_page_mapping
     mapping = params.require('mushaf_page').permit(:first_verse_id, :last_verse_id)
+    first = @mushaf.numbered_ayah_for(mapping['first_verse_id'])
+    last = @mushaf.numbered_ayah_for(mapping['last_verse_id'])
 
-    mapping['first_verse_id'] = Utils::Quran.get_ayah_id_from_key(mapping['first_verse_id'])
-    mapping['last_verse_id'] = Utils::Quran.get_ayah_id_from_key(mapping['last_verse_id'])
-
-    mapping
+    if first && last
+      { first_verse_id: first.kufi_first_verse_id, last_verse_id: last.kufi_last_verse_id, first_ayah_id: first.id, last_ayah_id: last.id }
+    else
+      first_id = Utils::Quran.get_ayah_id_from_key(mapping['first_verse_id'])
+      last_id = Utils::Quran.get_ayah_id_from_key(mapping['last_verse_id'])
+      kufi = @mushaf.numbering.nil? || @mushaf.numbering.kufi? # a Kufi numbered ayah has its verse's id
+      { first_verse_id: first_id, last_verse_id: last_id, first_ayah_id: kufi ? first_id : nil, last_ayah_id: kufi ? last_id : nil }
+    end
   end
 
   def load_mushaf_page
@@ -192,7 +196,7 @@ class MushafLayoutsController < CommunityController
     sort_key = 'page_number' unless allowed_sort_keys.include?(sort_key)
     sort_order = 'asc' unless ['asc', 'desc'].include?(sort_order)
 
-    @mushaf.mushaf_pages.preload(:first_verse, :last_verse).order("#{sort_key} #{sort_order}")
+    @mushaf.mushaf_pages.preload(:first_verse, :last_verse, :first_ayah, :last_ayah).order("#{sort_key} #{sort_order}")
   end
 
   def apply_search_filter(pages)
@@ -210,6 +214,11 @@ class MushafLayoutsController < CommunityController
         ayah = parts[1].to_i
         
         if surah > 0 && ayah > 0
+          # the key is read in the mushaf's numbering first (P5.5), then as a Kufi key
+          if (numbered = @mushaf.numbered_ayah_for("#{surah}:#{ayah}"))
+            return pages.where("(first_ayah_id <= ? AND last_ayah_id >= ?)", numbered.id, numbered.id)
+          end
+
           verse = Verse.find_by(chapter_id: surah, verse_number: ayah)
           if verse
             return pages.where("(first_verse_id <= ? AND last_verse_id >= ?)", verse.id, verse.id)

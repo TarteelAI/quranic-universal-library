@@ -25,6 +25,8 @@ fonts/*
 public/downloads/*
 # KFGQPC faces copied for development (rake qiraat:fonts:copy); the CDN serves them
 public/fonts/qpc/*
+# printed-edition page images rendered by rake qiraat:pdf:pages (KFGQPC terms)
+public/qiraat/*
 public/audio_repair/*
 
 # Ignore yarn files

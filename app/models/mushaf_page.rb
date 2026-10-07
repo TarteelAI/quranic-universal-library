@@ -81,12 +81,14 @@ class MushafPage < QuranApiRecord
     end
   end
 
+  # The page's ayah range named in the mushaf's own numbering (P5.5); the Kufi
+  # key from the verse id until the numbering columns are filled.
   def first_ayah_key
-    Utils::Quran.get_ayah_key_from_id(first_verse_id)
+    first_ayah&.ayah_key || Utils::Quran.get_ayah_key_from_id(first_verse_id)
   end
 
   def last_ayah_key
-    Utils::Quran.get_ayah_key_from_id(last_verse_id)
+    last_ayah&.ayah_key || Utils::Quran.get_ayah_key_from_id(last_verse_id)
   end
 
   # The one shape of verse_mapping every writer uses since P5.2:

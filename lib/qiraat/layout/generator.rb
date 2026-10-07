@@ -377,6 +377,8 @@ module Qiraat
         rc = ResourceContent.find_or_initialize_by(slug: "qpc-#{key}-15-lines")
         rc.assign_attributes(name: "#{name} layout", sub_type: ResourceContent::SubType::Layout, resource_type: 'Mushaf',
                              cardinality_type: ResourceContent::CardinalityType::OnePage, approved: false)
+        # the editor's proofreading view shows mushaf.pdf_url page N+1 for mushaf page N (pdf.quran.ws has a cover page)
+        rc.meta_data = (rc.meta_data || {}).merge('source-pdf-page-offset' => 1)
         rc.save!
         m = Mushaf.find_or_initialize_by(script_id: @script.id, layout_source: 'generated')
         m.assign_attributes(
@@ -389,6 +391,7 @@ module Qiraat
           resource_content: rc
         )
         m.save!
+        m.update_columns(resource_content_id: rc.id) if m.resource_content_id != rc.id # the column the admin and exports read, next to the polymorphic link
         m
       end
     end

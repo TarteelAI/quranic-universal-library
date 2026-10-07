@@ -31,7 +31,9 @@ namespace :qiraat do
         'mushaf_5_page_604' => '/mushaf_layouts/5?page_number=604',
         'wbw_1_1' => "/word_translations/new?resource_id=#{wbw&.id}&ayah=1:1",
         'cms_verse_1' => '/cms/verses/1',
-        'cms_mushaf_page_preview' => '/cms/mushaf_page_preview?mushaf=5&page=1'
+        'cms_mushaf_page_preview' => '/cms/mushaf_page_preview?mushaf=5&page=1',
+        'mushaf_5_edit_page_1' => '/mushaf_layouts/5/edit?page_number=1',
+        'mushaf_5_page_mapping_modal_1' => '/mushaf_layouts/5?page_number=1&view_type=page_mapping_modal'
       }
     end
 

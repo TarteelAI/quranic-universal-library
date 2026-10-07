@@ -42,6 +42,19 @@ ActiveAdmin.register Script do
 
   searchable_select_options(scope: Script, text_attribute: :slug)
 
+  # One word in every unicode face the app declares, to see at a glance which
+  # font files are missing or stale (P5.4). Word 1:4:1 differs between the
+  # riwayat (مالك / ملك) and 2:4:1 ends in a Warsh/Qaloun alif-wasl form.
+  action_item :font_samples, only: :index do
+    link_to 'Font samples', font_samples_cms_scripts_path
+  end
+
+  collection_action :font_samples, method: :get do
+    @sample_words = %w[1:4:1 2:4:1 1:1:1].filter_map { |loc| Word.unscoped.find_by(location: loc) }
+    @scripts = Script.where(kind: 'unicode').where.not(font_css_class: [nil, '']).order(:id)
+    render 'cms/scripts/font_samples', layout: 'active_admin'
+  end
+
   index do
     id_column
     column :slug

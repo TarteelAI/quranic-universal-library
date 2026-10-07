@@ -23,6 +23,8 @@ data/audio/*/qa/cache/
 !/tmp/.keep
 fonts/*
 public/downloads/*
+# KFGQPC faces copied for development (rake qiraat:fonts:copy); the CDN serves them
+public/fonts/qpc/*
 public/audio_repair/*
 
 # Ignore yarn files

@@ -1,3 +1,11 @@
+// KFGQPC faces (P5.4). Each riwayah family lists the v3.0 release first
+// (the CDN path Naveed uploads to, then the development copy under
+// public/fonts/qpc made by rake qiraat:fonts:copy), then local() and the
+// file the CDN serves today, so a browser takes the newest source that
+// exists; an older face installed on the machine must not win over v3.0.
+// The v3.0 Warsh and Qaloun texts use U+0870/U+0874 (alif-wasl forms) that
+// only the v3.0 faces draw. font-display: block, no fallback stack: Quranic
+// text must not swap to a system font.
 @font-face {
   font-family: "qpc-hafs";
   src: local('KFGQPCHAFSUthmanicScript-Regula'),
@@ -7,37 +15,82 @@
 
 @font-face {
   font-family: "qpc-douri";
-  src: local('KFGQPCDouriUthmanicScript-Regul'),
+  font-display: block;
+  src: url("#{$font-cdn}/quran_fonts/qpc/uthmanic-douri-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-douri-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicDouri-V20.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicDouri-V20.ttf") format('truetype'),
+  local('KFGQPCDouriUthmanicScript-Regul'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-douri-v20.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-douri-v20.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
   font-family: "qpc-qaloun";
-  src: local('KFGQPCQalounUthmanicScript-Regu'),
+  font-display: block;
+  src: url("#{$font-cdn}/quran_fonts/qpc/uthmanic-qaloun-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-qaloun-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicQaloun-v-3.0.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicQaloun-v-3.0.ttf") format('truetype'),
+  local('KFGQPCQalounUthmanicScript-Regu'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-qaloun-v21.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-qaloun-v21.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
   font-family: "qpc-shuba";
-  src: local('KFGQPCShubaUthmanicScript-Regul'),
+  font-display: block;
+  src: url("#{$font-cdn}/quran_fonts/qpc/uthmanic-shuba-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-shuba-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicShubah-v-3.0.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicShubah-v-3.0.ttf") format('truetype'),
+  local('KFGQPCShubaUthmanicScript-Regul'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-shuba-v20.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-shuba-v20.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
   font-family: "qpc-sousi";
-  src: local('KFGQPCSousiUthmanicScript-Regul'),
+  font-display: block;
+  src: url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicSousi-v-3.0.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicSousi-v-3.0.ttf") format('truetype'),
+  local('KFGQPCSousiUthmanicScript-Regul'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v20.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-sousi-v20.ttf?v=#{$asset-version}") format('truetype');
 }
 
 @font-face {
   font-family: "qpc-warsh";
-  src: local('KFGQPCWarshUthmanicScript-Regul'),
+  font-display: block;
+  src: url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicWarsh-v-3.0.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicWarsh-v-3.0.ttf") format('truetype'),
+  local('KFGQPCWarshUthmanicScript-Regul'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v21.woff2?v=#{$asset-version}") format('woff2'),
   url("#{$font-cdn}/quran_fonts/qpc/uthmanic-warsh-v21.ttf?v=#{$asset-version}") format('truetype');
+}
+
+@font-face {
+  font-family: "qpc-bazzi";
+  font-display: block;
+  src: local('KFGQPCBazziUthmanicScript-Regul'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-bazzi-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-bazzi-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicBazzi-v-3.0.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicBazzi-v-3.0.ttf") format('truetype');
+}
+
+// The v3.0 Hafs face as its own family: qpc-hafs stays on the V22 file every Hafs page renders with today.
+@font-face {
+  font-family: "qpc-hafs-v3";
+  font-display: block;
+  src: url("#{$font-cdn}/quran_fonts/qpc/uthmanic-hafs-v30.woff2?v=#{$asset-version}") format('woff2'),
+  url("#{$font-cdn}/quran_fonts/qpc/uthmanic-hafs-v30.ttf?v=#{$asset-version}") format('truetype'),
+  url("/fonts/qpc/UthmanicHafs-v-3.0.woff2") format('woff2'),
+  url("/fonts/qpc/UthmanicHafs-v-3.0.ttf") format('truetype');
 }
 
 .qpc-hafs, .mushaf-kfqc-hafs {
@@ -76,6 +129,18 @@
 
 .qpc-warsh{
   font-family: "qpc-warsh" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-bazzi{
+  font-family: "qpc-bazzi" !important;
+  direction: rtl;
+  font-size: 30px;
+}
+
+.qpc-hafs-v3{
+  font-family: "qpc-hafs-v3" !important;
   direction: rtl;
   font-size: 30px;
 }

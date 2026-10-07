@@ -13,6 +13,7 @@
 #  home                :integer
 #  name                :string
 #  priority            :integer
+#  qua_key             :string
 #  relative_path       :string
 #  segment_locked      :boolean          default(FALSE)
 #  segments_count      :integer
@@ -29,6 +30,7 @@
 #  index_audio_recitations_on_approved             (approved)
 #  index_audio_recitations_on_name                 (name)
 #  index_audio_recitations_on_priority             (priority)
+#  index_audio_recitations_on_qua_key              (qua_key) UNIQUE
 #  index_audio_recitations_on_recitation_style_id  (recitation_style_id)
 #  index_audio_recitations_on_reciter_id           (reciter_id)
 #  index_audio_recitations_on_relative_path        (relative_path)
@@ -51,6 +53,9 @@ module Audio
     belongs_to :recitation_style, optional: true
     belongs_to :qirat_type, optional: true
     belongs_to :reciter, optional: true
+
+
+    validates :qua_key, uniqueness: true, allow_nil: true
 
     scope :approved, -> { where(approved: true) }
     scope :un_approved, -> { where(approved: false) }
@@ -124,6 +129,7 @@ module Audio
     end
 
     protected
+
     def update_related_resources
       if get_resource_content.nil?
         resource = build_resource_content

@@ -18,7 +18,8 @@ ActiveAdmin.register Audio::Recitation do
                 :recitation_style_id,
                 :qirat_type_id,
                 :reciter_id,
-                :segment_locked
+                :segment_locked,
+                :qua_key
 
   scope :all
   scope :approved, group: :enabled
@@ -28,6 +29,7 @@ ActiveAdmin.register Audio::Recitation do
   filter :home
   filter :qirat_type
   filter :relative_path
+  filter :qua_key
   filter :recitation_style, as: :searchable_select,
          ajax: { resource: RecitationStyle }
   filter :section, as: :searchable_select,
@@ -237,6 +239,7 @@ ActiveAdmin.register Audio::Recitation do
       row :qirat_type
       row :arabic_name
       row :relative_path
+      row :qua_key
       row :format
       row :section
       row :home
@@ -306,6 +309,8 @@ ActiveAdmin.register Audio::Recitation do
       f.input :name
       f.input :arabic_name
       f.input :relative_path
+      f.input :qua_key,
+              hint: 'Quranic Universal Audio release slug for this recitation'
       f.input :format
       f.input :home
       f.input :description

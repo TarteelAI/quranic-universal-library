@@ -60,6 +60,37 @@ module Audio
     scope :approved, -> { where(approved: true) }
     scope :un_approved, -> { where(approved: false) }
 
+    scope :has_verse_segments, ->(value) do
+      next all if value.blank?
+
+      segments_present('sample.timestamp_to > sample.timestamp_from', value)
+    end
+
+    scope :has_word_segments, ->(value) do
+      next all if value.blank?
+
+      segments_present('jsonb_array_length(sample.segments) > 0', value)
+    end
+
+    scope :has_letter_segments, ->(value) do
+      next all if value.blank?
+
+      segments_present('jsonb_array_length(sample.letter_segments) > 0', value)
+    end
+
+    def self.segments_present(condition, value)
+      sample = 'SELECT * FROM audio_segments ' \
+               'WHERE audio_segments.audio_recitation_id = audio_recitations.id ' \
+               'LIMIT 2'
+      exists_sql = "EXISTS (SELECT 1 FROM (#{sample}) sample WHERE #{condition})"
+
+      value.to_s == 'yes' ? where(exists_sql) : where("NOT #{exists_sql}")
+    end
+
+    def self.ransackable_scopes(*)
+      %i[has_verse_segments has_word_segments has_letter_segments]
+    end
+
     after_update :update_related_resources
 
     def clone_with_audio_files
@@ -86,6 +117,18 @@ module Audio
 
     def one_ayah?
       false
+    end
+
+    def has_verse_segments?
+      sampled_segments.any? { |segment| segment.timestamp_to.to_i > segment.timestamp_from.to_i }
+    end
+
+    def has_word_segments?
+      sampled_segments.any? { |segment| segment.segments.present? }
+    end
+
+    def has_letter_segments?
+      sampled_segments.any? { |segment| segment.letter_segments.present? }
     end
 
     def audio_format
@@ -129,6 +172,13 @@ module Audio
     end
 
     protected
+
+    def sampled_segments
+      @sampled_segments ||= audio_segments
+                              .limit(2)
+                              .select(:id, :timestamp_from, :timestamp_to, :segments, :letter_segments)
+                              .to_a
+    end
 
     def update_related_resources
       if get_resource_content.nil?

@@ -103,6 +103,54 @@
       </div>
 
       <div
+          v-if="showRepeats"
+          class="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 overflow-y-auto"
+          @click.self="showRepeats = false"
+      >
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mt-16">
+          <div class="flex items-center justify-between px-4 py-3 border-b">
+            <h3 class="text-base font-semibold">
+              Ayahs with repetition ({{ repeatedAyahs.length }})
+            </h3>
+            <button @click="showRepeats = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          </div>
+
+          <p class="px-4 py-2 text-xs text-gray-500 border-b bg-gray-50">
+            Detected from the segment data loaded in the browser, so unsaved edits count too. A repeat is a
+            run of words whose numbering repeats — the whole ayah recited twice, or a few words repeated.
+          </p>
+
+          <ul class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
+            <li v-if="!repeatedAyahs.length" class="px-4 py-8 text-sm text-gray-500 text-center">
+              No repetition found in this surah.
+            </li>
+            <li v-for="entry in repeatedAyahs" :key="entry.verse" class="px-4 py-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="text-sm text-gray-700">
+                  <span class="font-semibold">Ayah {{ entry.verse }}</span>
+                  <ul class="mt-1 space-y-1">
+                    <li v-for="(repeat, i) in entry.repeats" :key="i" class="flex items-center gap-2 text-xs text-gray-600">
+                      <span
+                          class="px-1.5 py-0.5 text-[10px] font-semibold rounded-full uppercase"
+                          :class="repeat.full ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-indigo-100 text-indigo-700'"
+                      >{{ repeat.full ? 'Full ayah' : 'Words' }}</span>
+                      <span>{{ repeat.label }}</span>
+                      <span class="text-gray-400">repeats at {{ formatMs(repeat.startMs) }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <a
+                    href="#"
+                    @click.prevent="goToRepeat(entry.verse)"
+                    class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline whitespace-nowrap"
+                >View ayah {{ entry.verse }} →</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div
           v-if="showCompare"
           class="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 overflow-y-auto"
           @click.self="showCompare = false"
@@ -260,6 +308,15 @@
                 class="px-3 py-1 text-xs font-medium bg-amber-500 text-white rounded hover:bg-amber-600"
             >
               Find issues
+            </button>
+
+            <button
+                @click="showRepeats = true"
+                data-controller="tooltip"
+                title="List ayahs where the reciter repeats the whole ayah or some of its words"
+                class="px-3 py-1 text-xs font-medium bg-fuchsia-600 text-white rounded hover:bg-fuchsia-700"
+            >
+              Repeats<span v-if="repeatedAyahs.length"> ({{ repeatedAyahs.length }})</span>
             </button>
 
             <button
@@ -593,6 +650,7 @@ export default {
       issueGroups: [],
       activeIssueTab: 'current',
       showCompare: false,
+      showRepeats: false,
       activeLetterKeys: [],
     };
   },
@@ -1184,6 +1242,72 @@ export default {
     goToIssue(verse) {
       this.$store.commit('CHANGE_AYAH', { to: verse });
     },
+    goToRepeat(verse) {
+      this.showRepeats = false;
+      this.$store.commit('CHANGE_AYAH', { to: verse });
+    },
+    formatMs(ms) {
+      if (ms === null || ms === undefined) return '—';
+
+      const total = Math.max(0, Math.round(Number(ms) / 1000));
+      const minutes = Math.floor(total / 60);
+      const seconds = total % 60;
+
+      return `${minutes}:${String(seconds).padStart(2, '0')}`;
+    },
+    // Mirror of Audio::Segment#find_repeated_segments: a repeat is a run of word
+    // numbers that appears again, identically, later in the ayah. That catches
+    // both the whole ayah recited twice and a few repeated words, and keeps the
+    // tool agreeing with the `has_repetition` flag the backend stores.
+    findRepeatsInSegments(wordSegments, wordsCount) {
+      const nums = (wordSegments || []).map((segment) => Number(segment[0]));
+      const seen = {};
+      const found = [];
+      const seenRanges = {};
+
+      for (let i = 0; i < nums.length; i++) {
+        const previous = seen[nums[i]];
+
+        if (previous !== undefined) {
+          const length = i - previous;
+
+          if (length > 0 && i + length <= nums.length) {
+            let identical = true;
+            for (let k = 0; k < length; k++) {
+              if (nums[previous + k] !== nums[i + k]) {
+                identical = false;
+                break;
+              }
+            }
+
+            if (identical) {
+              const fromWord = nums[i];
+              const toWord = nums[i + length - 1];
+              const rangeKey = `${fromWord}-${toWord}`;
+
+              if (!seenRanges[rangeKey]) {
+                seenRanges[rangeKey] = true;
+                const full = fromWord === 1 && wordsCount > 0 && toWord >= wordsCount;
+
+                found.push({
+                  fromWord,
+                  toWord,
+                  full,
+                  label: full
+                    ? `whole ayah (${fromWord}–${toWord})`
+                    : (fromWord === toWord ? `word ${fromWord}` : `words ${fromWord}–${toWord}`),
+                  startMs: wordSegments[i] ? Number(wordSegments[i][1]) : null,
+                });
+              }
+            }
+          }
+        }
+
+        seen[nums[i]] = i;
+      }
+
+      return found;
+    },
     mainVerseData(verse) {
       return this.segments[`${this.chapter}:${verse}`] || null;
     },
@@ -1470,6 +1594,20 @@ export default {
 
       return flat;
     },
+    repeatedAyahs() {
+      const entries = [];
+
+      for (let verse = 1; verse <= Number(this.versesCount || 0); verse++) {
+        const data = this.segments[`${this.chapter}:${verse}`];
+        if (!data || !data.segments || !data.segments.length) continue;
+
+        const wordsCount = (data.words && data.words.length) || 0;
+        const repeats = this.findRepeatsInSegments(data.segments, wordsCount);
+        if (repeats.length) entries.push({ verse, repeats });
+      }
+
+      return entries;
+    },
     activeIssueGroup() {
       return this.issueGroups.find((group) => group.id === this.activeIssueTab) || this.issueGroups[0] || null;
     },
@@ -1571,12 +1709,13 @@ export default {
 /* The highlighted letter is almost always inside the current word, which is
    white-on-green, and a diacritic has no advance width so a background chip
    would be invisible for it. Colour plus a dark halo is what reads — on the
-   green word and on a plain white one. */
+   green word and on a plain white one. Magenta is the colour furthest from both
+   the green highlight and the white page, so it stays legible on either. */
 .letter-active {
-  color: #fde047;
+  color: #ff2d78;
   text-shadow:
-    0 0 2px rgba(69, 26, 3, 0.95),
-    0 0 9px rgba(253, 224, 71, 0.85);
+    0 0 2px rgba(26, 3, 16, 0.95),
+    0 0 9px rgba(255, 45, 120, 0.75);
 }
 
 .table-wrapper {

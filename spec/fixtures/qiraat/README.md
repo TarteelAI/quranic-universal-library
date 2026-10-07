@@ -8,7 +8,9 @@ text here is byte-for-byte from the sources.
   chapters, verses, words, mushaf 5 pages and words for the slice
   verses: 1:1, 1:2, 1:3, 1:4, 1:5, 1:6, 1:7, 2:1, 2:2, 2:3, 2:255, 9:100, 9:101, 15:7, 37:130, 40:26, 57:24, 72:16
 * `upstream/` — the matching rows of quran-text `word-index.csv`, `ayah-map.json`,
-  `differences.json`, `counting.json` (slice surahs), plus `catalog.json` and the
-  qiraat-ayah-map reference files copied whole.
+  `differences.json`, `counting.json` (slice surahs), the first two pages of the
+  Hafs and Warsh mushaf files with their Complex CSV rows (`mushaf-<key>.json`,
+  `<key>-data.csv`), plus `catalog.json` and the qiraat-ayah-map reference files
+  copied whole.
 
 Loaded into `quran_test` by `QiraatFixtures.load!` (spec/support/qiraat.rb).

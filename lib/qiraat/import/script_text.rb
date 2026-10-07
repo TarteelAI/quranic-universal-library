@@ -2,6 +2,7 @@
 
 require 'json'
 require 'digest'
+require_relative 'edition_words'
 
 module Qiraat
   module Import
@@ -26,6 +27,8 @@ module Qiraat
     # Idempotent: the script row is matched by slug and every word_texts row
     # is upserted on its key; rows no longer produced are deleted.
     class ScriptText
+      include EditionWords
+
       BATCH = 5000
 
       # quran-text edition key => [QUL script slug, riwayah slug, existing QUL font-face class]
@@ -101,44 +104,6 @@ module Qiraat
           end
         end
         by_word.values
-      end
-
-      # Position => [numbers], per the quran-text numbering block.
-      def positions_to_numbers(data)
-        missing = data['numbering']['missing'].to_set
-        joined = data['numbering']['written_joined'].to_h { |j| [j['position'], j['numbers']] }
-        counter = 1
-        data['words'].each_index.map do |pos|
-          counter += 1 while missing.include?(counter)
-          if (run = joined[pos])
-            counter = run.max + 1
-            run
-          else
-            n = counter
-            counter += 1
-            [n]
-          end
-        end
-      end
-
-      # Position => [[after signs], [before signs]]
-      def marks_by_position(data)
-        types = data['mark_types']
-        out = Hash.new { |h, k| h[k] = [[], []] }
-        data['marks'].each do |pos, type_index|
-          t = types[type_index]
-          out[pos][t['side'] == 'before' ? 1 : 0] << t['sign']
-        end
-        out
-      end
-
-      # Shared number => QUL words.id, including number_last ranges.
-      def words_by_number_map
-        map = {}
-        Word.unscoped.where.not(number: nil).pluck(:id, :number, :number_last).each do |id, n, last|
-          (n..(last || n)).each { |x| map[x] = id }
-        end
-        map
       end
 
       def upsert_script(data, slug, riwayah_slug, css)

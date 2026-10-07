@@ -2634,7 +2634,11 @@ CREATE TABLE quran.mushafs (
     enabled boolean,
     resource_content_id integer,
     riwayah_id integer,
-    script_id integer
+    script_id integer,
+    numbering_id integer,
+    pdf_url character varying,
+    source_package character varying,
+    layout_source character varying DEFAULT 'manual'::character varying NOT NULL
 );
 
 
@@ -8134,6 +8138,13 @@ CREATE INDEX index_mushafs_on_enabled ON quran.mushafs USING btree (enabled);
 --
 
 CREATE INDEX index_mushafs_on_is_default ON quran.mushafs USING btree (is_default);
+
+
+--
+-- Name: index_mushafs_on_numbering_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_mushafs_on_numbering_id ON quran.mushafs USING btree (numbering_id);
 
 
 --

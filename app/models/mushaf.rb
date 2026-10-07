@@ -25,7 +25,12 @@ class Mushaf < QuranApiRecord
 
   include HasRiwayah
   belongs_to :script, optional: true # which script mushaf_words.text is cached from (P3.4)
+  belongs_to :numbering, class_name: 'AyahNumbering', optional: true # which ayah ends the layout prints (P5.1)
   validates :riwayah, presence: true # was a required belongs_to :qirat_type
+  validates :layout_source, inclusion: { in: %w[manual generated svg-verified] }
+  validate :numbering_matches_riwayah
+
+  LAYOUT_SOURCES = %w[manual generated svg-verified].freeze
   has_many :mushaf_pages, dependent: :delete_all
   has_many :mushaf_line_alignments, dependent: :delete_all
   has_many :mushaf_words, dependent: :delete_all
@@ -76,21 +81,29 @@ class Mushaf < QuranApiRecord
     default_font_name == 'svg'
   end
 
+  # The printed edition this layout is compared against. A column since P5.1;
+  # LEGACY_PDF_URLS is what the old case-by-id returned and seeds the column.
+  LEGACY_PDF_URLS = {
+    1 => 'https://tafsir.app/m-madinah/1/1',
+    2 => 'https://tafsir.app/m-madinah-old/1/1',
+    5 => 'https://download.qurancomplex.gov.sa/resources_dev/UthmanicHafs_v18.zip',
+    6 => 'https://archive.org/details/AlQuran15LinesQudratullah/page/n609/mode/2up',
+    7 => 'https://archive.org/details/AlQuranAlKareem16LinesTajCompany/page/n517/mode/2up'
+  }.freeze
+
   def pdf_url
-    case id
-    when 1 # v2
-      "https://tafsir.app/m-madinah/1/1"
-    when 2
-      "https://tafsir.app/m-madinah-old/1/1"
-    when 3 # Indopak
-    when 4 # Uthmani text
-    when 5 # KFQPC Hafs text
-      "https://download.qurancomplex.gov.sa/resources_dev/UthmanicHafs_v18.zip"
-    when 6 # Indopak 15 lines
-      "https://archive.org/details/AlQuran15LinesQudratullah/page/n609/mode/2up"
-    when 7 # Indopak 16 lines
-      "https://archive.org/details/AlQuranAlKareem16LinesTajCompany/page/n517/mode/2up"
-    end
+    self[:pdf_url].presence || LEGACY_PDF_URLS[id]
+  end
+
+  # A mushaf prints the ayah ends of its riwayah's counting system, or of a
+  # printed numbering measured on one of that riwayah's editions.
+  def numbering_matches_riwayah
+    return if numbering.nil? || riwayah.nil?
+
+    attributed = riwayah.qiraah&.counting_system_id
+    ok = numbering.kind == 'printed' ? riwayah.default_numbering_id == numbering.id || numbering.meta_data['edition'].to_s == riwayah.slug :
+                                       numbering.counting_system_id == attributed || riwayah.default_numbering_id == numbering.id
+    errors.add(:numbering, "#{numbering.slug} is not a numbering of #{riwayah.slug}") unless ok
   end
 
   # The words/verses column this mushaf's text is copied from: the script's

@@ -27,9 +27,19 @@ ActiveAdmin.register Audio::Recitation do
 
   filter :name
   filter :home
-  filter :qirat_type
+  filter :qirat_type, as: :searchable_select,
+         ajax: { resource: QiratType }
   filter :relative_path
   filter :qua_key
+  filter :has_verse_segments, as: :select,
+         label: 'Has verse segments',
+         collection: [['Yes', 'yes'], ['No', 'no']]
+  filter :has_word_segments, as: :select,
+         label: 'Has word segments',
+         collection: [['Yes', 'yes'], ['No', 'no']]
+  filter :has_letter_segments, as: :select,
+         label: 'Has letter segments',
+         collection: [['Yes', 'yes'], ['No', 'no']]
   filter :recitation_style, as: :searchable_select,
          ajax: { resource: RecitationStyle }
   filter :section, as: :searchable_select,

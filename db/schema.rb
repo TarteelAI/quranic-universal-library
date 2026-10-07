@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_07_010000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_07_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -560,11 +560,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_010000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["audio_recitation_id", "chapter_id"], name: "index_segment_pipeline_runs_on_reciter_and_chapter", unique: true
-  end
-
-  create_table "segments_databases", force: :cascade do |t|
-    t.string "name"
-    t.boolean "active", default: false
   end
 
   create_table "synonyms", force: :cascade do |t|

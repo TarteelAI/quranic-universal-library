@@ -143,12 +143,12 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Audio Segmentations',
-        description: 'This tool is used to inspect and validate the raw segmentation data of recitations by viewing detailed statistics, testing real-time word highlighting, and identifying missing or misaligned words.',
-        url: segments_dashboard_path,
+        title: 'Segment Pipeline',
+        description: 'Run and monitor the segmentation pipeline for a reciter, review per surah runs, and import the generated word by word timestamps.',
+        url: segment_pipeline_root_path,
         type: 'segments',
         icon: 'timestamp.svg',
-        tags: [['Timestamp', 'timestamp']]
+        tags: [['Recitation', 'recitation'], ['Timestamp', 'timestamp']]
       ),
       ToolCard.new(
         title: 'Compare audio',

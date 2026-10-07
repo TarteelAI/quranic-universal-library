@@ -212,22 +212,6 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
-  namespace :segments do
-    get '/', to: 'dashboard#show', as: :dashboard
-    get '/failures', to: 'dashboard#failures', as: :failures
-    get '/word_failures', to: 'dashboard#word_failures', as: :word_failures
-    get '/word_failure_detail', to: 'dashboard#word_failure_detail', as: :word_failure_detail
-    get '/detections', to: 'dashboard#detections', as: :detections
-    get '/logs', to: 'dashboard#logs', as: :logs
-    get '/reciters', to: 'dashboard#reciters', as: :reciters
-    get '/reciters/:id', to: 'dashboard#reciter', as: :reciter
-    get '/timeline', to: 'dashboard#timeline', as: :timeline
-    get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
-    get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
-    post '/reciters/:id/download', to: 'dashboard#download_reciter', as: :download_reciter
-    match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
-  end
-
   namespace :segment_pipeline do
     get '/', to: 'runs#index', as: :root
     get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
@@ -272,7 +256,6 @@ Rails.application.routes.draw do
       end
     end
 
-    # Stereo polarity check: no session, just an original (and maybe a fixed) file.
     resources :polarity, only: %i[index create show] do
       member { post :fix }
     end

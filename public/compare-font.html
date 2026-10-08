@@ -152,6 +152,42 @@
   .tabpane{display:none;}
   .tabpane.active{display:block;}
 
+  /* ---------- colour bar ---------- */
+  .colorbar{
+    display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center;
+    padding:10px 14px; margin-bottom:14px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  }
+  .colorbar[hidden]{display:none;}
+  .colorbar .metaline{margin-top:0;}
+  .palettepick{display:none; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-2);}
+  .palettepick.on{display:flex;}
+  .palettepick select{width:auto;}
+  .swatches{display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .swatches i{width:13px; height:18px; display:block;}
+
+  /* ---------- code points & ligatures ---------- */
+  .cptable{width:100%; border-collapse:collapse; font-size:13px;}
+  .cptable th{
+    text-align:left; font-weight:600; color:var(--muted); font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.04em;
+    padding:0 10px 7px; border-bottom:1px solid var(--line);
+  }
+  .cptable td{padding:7px 10px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
+  .cptable tr:hover td{background:var(--brand-tint);}
+  .cptable .preview{line-height:1.45; width:206px; max-width:206px; overflow:hidden; white-space:nowrap; color:var(--ink);}
+  .cptable .type{color:var(--muted); font-size:11.5px; white-space:nowrap;}
+  .copyable{
+    display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+    border:1px solid var(--line); background:#fff; border-radius:7px;
+    padding:3px 8px; font:inherit; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12px; color:var(--ink-2);
+  }
+  .copyable:hover{border-color:var(--brand); color:var(--brand-dark);}
+  .copyable.done{border-color:var(--brand); background:var(--brand-tint); color:var(--brand-dark);}
+  .copyable .ic{opacity:.5; font-size:11px;}
+  .copyable.done .ic{opacity:1;}
+
   /* ---------- canvas ---------- */
   .canvaswrap{
     overflow:auto; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px;
@@ -341,6 +377,15 @@
     <button data-tab="issues">Issues <span class="tabcount" id="issueCount"></span></button>
     <button data-tab="meta">Metadata &amp; size</button>
     <button data-tab="glyphs">Glyphs</button>
+    <button data-tab="codepoints">Code points &amp; ligatures</button>
+  </div>
+
+  <!-- shown only when a loaded font carries COLR/CPAL -->
+  <div class="colorbar" id="colorbar" hidden>
+    <label class="check"><input type="checkbox" id="colorOn" checked> Render colour (COLR/CPAL)</label>
+    <div class="palettepick" id="paletteA"></div>
+    <div class="palettepick" id="paletteB"></div>
+    <div class="metaline" id="colorNote"></div>
   </div>
 
   <!-- ======== BITMAP ======== -->
@@ -469,6 +514,29 @@
 </div>
 
 <!-- metadata / glyph modal -->
+<!-- ======== CODE POINTS & LIGATURES ======== -->
+  <div class="tabpane" data-pane="codepoints">
+    <div class="panel">
+      <div class="glyphtoolbar">
+        <div class="control grow">
+          <input id="cpSearch" type="text" placeholder="Filter by character, glyph name, ligature text, or U+E001 / E001">
+        </div>
+        <div class="seg" id="cpKinds">
+          <button data-kind="all" class="active">All</button>
+          <button data-kind="liga">Ligatures</button>
+          <button data-kind="cmap">Code points</button>
+        </div>
+        <select id="cpSide" style="width:auto;">
+          <option value="B">From new font</option>
+          <option value="A">From old font</option>
+        </select>
+        <button class="ghost sm" id="cpCopyAll">Copy all as CSV</button>
+      </div>
+      <div class="metaline" id="cpSummary" style="margin-bottom:10px;"></div>
+      <div id="cpList"></div>
+    </div>
+  </div>
+
 <div class="overlay" id="overlay">
   <div class="modal">
     <header>
@@ -493,7 +561,8 @@ const S = {
   A: null, B: null,           // { name, size, format, buffer, sfnt, family, url, font, glyphs, byKey }
   view: 'diff', tab: 'bitmap',
   glyphFilter: 'all', glyphSource: 'both', glyphLimit: 300, selectedKey: null, glyphZoom: 260, pairBy: 'auto',
-  pairs: [], seq: 0
+  pairs: [], seq: 0,
+  colorOn: true, palette: { A: 0, B: 0 }, cpSearch: '', cpKind: 'all'
 };
 
 /* ------------------------------------------------------------------ utils */
@@ -622,6 +691,91 @@ function parseFont(sfnt, isSfnt){
   }
 }
 
+/* ------------------------------------------------------------ COLR / CPAL */
+// Colour fonts keep their palettes in CPAL and their layer stacks in COLR. opentype.js
+// knows about neither, so both are read straight out of the sfnt here.
+
+function findTable(tables, tag){
+  const t = (tables || []).find(x => x.tag === tag);
+  return t && t.offset != null && t.length ? t : null;
+}
+
+function parseCPAL(buf, tables){
+  const t = findTable(tables, 'CPAL');
+  if (!t) return null;
+  try {
+    const dv = new DataView(buf, t.offset, t.length);
+    const numEntries = dv.getUint16(2);
+    const numPalettes = dv.getUint16(4);
+    const numRecords = dv.getUint16(6);
+    const recordsOffset = dv.getUint32(8);
+    const firstIndex = [];
+    for (let i=0;i<numPalettes;i++) firstIndex.push(dv.getUint16(12 + i*2));
+    const colors = [];
+    for (let i=0;i<numRecords;i++){
+      const p = recordsOffset + i*4;                       // BGRA, one byte each
+      colors.push({ b: dv.getUint8(p), g: dv.getUint8(p+1), r: dv.getUint8(p+2), a: dv.getUint8(p+3) });
+    }
+    const palettes = firstIndex.map(start => {
+      const out = [];
+      for (let i=0;i<numEntries;i++) out.push(colors[start + i] || {r:0,g:0,b:0,a:255});
+      return out;
+    });
+    return { numEntries, numPalettes, palettes };
+  } catch(e){ return null; }
+}
+
+function parseCOLR(buf, tables){
+  const t = findTable(tables, 'COLR');
+  if (!t) return null;
+  try {
+    const dv = new DataView(buf, t.offset, t.length);
+    const version = dv.getUint16(0);
+    const numBase = dv.getUint16(2);
+    const baseOffset = dv.getUint32(4);
+    const layerOffset = dv.getUint32(8);
+    const numLayers = dv.getUint16(12);
+    const layers = [];
+    for (let i=0;i<numLayers;i++){
+      const p = layerOffset + i*4;
+      layers.push({ gid: dv.getUint16(p), palette: dv.getUint16(p+2) });
+    }
+    const byGid = new Map();
+    for (let i=0;i<numBase;i++){
+      const p = baseOffset + i*6;
+      const gid = dv.getUint16(p);
+      const first = dv.getUint16(p+2);
+      const count = dv.getUint16(p+4);
+      byGid.set(gid, layers.slice(first, first + count));
+    }
+    return { version, byGid, numLayers, v1Only: version >= 1 };
+  } catch(e){ return null; }
+}
+
+function cssColor(c){
+  if (!c) return '#2b303a';
+  return c.a >= 255 ? `rgb(${c.r},${c.g},${c.b})` : `rgba(${c.r},${c.g},${c.b},${(c.a/255).toFixed(3)})`;
+}
+
+// Resolve one COLR layer's colour. 0xFFFF means "whatever the text colour is".
+function layerColor(side, layer, fallback){
+  if (layer.palette === 0xFFFF) return fallback;
+  const f = S[side];
+  const pal = f && f.cpal && f.cpal.palettes[paletteFor(side)];
+  return pal ? cssColor(pal[layer.palette]) : fallback;
+}
+
+function paletteFor(side){
+  const f = S[side];
+  if (!f || !f.cpal) return 0;
+  return Math.min(S.palette[side] || 0, f.cpal.numPalettes - 1);
+}
+
+function hasColor(side){
+  const f = S[side];
+  return !!(f && f.colr && f.cpal && S.colorOn);
+}
+
 /* --------------------------------------------------------------- font load */
 function setStatus(side, msg, err){
   const n = $('status'+side);
@@ -661,12 +815,19 @@ async function loadFont(side, blobOrFile, name){
     else if (skipped.length) parseNote = ' · parsed without ' + skipped.join('/') + ' (' + parsed.firstError.message + ')';
 
     if (font && font.numGlyphs > 2000) setStatus(side, 'Indexing ' + font.numGlyphs.toLocaleString() + ' glyphs…');
+    const tables = readTableDirectory(format === 'woff2' ? sfnt : buffer, format === 'woff2' ? 'ttf' : format);
+    // COLR/CPAL are read from the sfnt directly; a plain WOFF is still compressed here,
+    // so its colour tables stay out of reach (the browser still renders it in colour).
+    const colorBuf = format === 'woff' ? null : (format === 'woff2' ? sfnt : buffer);
     S[side] = {
-      name, size: buffer.byteLength, format, buffer, sfnt, family, url, font,
-      tables: readTableDirectory(format === 'woff2' ? sfnt : buffer, format === 'woff2' ? 'ttf' : format),
+      name, size: buffer.byteLength, format, buffer, sfnt, family, url, font, tables,
       glyphs: font ? indexGlyphs(font) : null,
+      cpal: colorBuf ? parseCPAL(colorBuf, tables) : null,
+      colr: colorBuf ? parseCOLR(colorBuf, tables) : null,
+      colorPacked: format === 'woff' && tables.some(t => t.tag === 'COLR'),
       skipped
     };
+    S.palette[side] = 0;
 
     const btn = $('name'+side);
     btn.textContent = displayName(S[side]);
@@ -820,16 +981,40 @@ function imgData(canvas, w, h){
 
 function renderBitmap(){
   const out = $('canvas');
-  if (!S.A || !S.B){
+  if (!S.A && !S.B){
     out.width = 10; out.height = 10;
     out.getContext('2d').clearRect(0,0,10,10);
-    $('stats').textContent = 'Load both an old and an updated font to compare them.';
+    $('stats').textContent = 'Load a font to render it, or two to compare them.';
     return;
   }
   const text = $('text').value;
   const size = Math.max(4, Number($('size').value) || 72);
   const dir = $('dir').value;
   const threshold = Math.min(254, Math.max(0, Number($('threshold').value) || 0));
+
+  // With only one font loaded there is nothing to diff, so just render it
+  // rather than refusing — checking a single font is a reasonable thing to do.
+  if (!S.A || !S.B){
+    const side = S.A ? 'A' : 'B';
+    const one = makeBitmap(S[side].family, text, size, dir);
+    out.width = one.w; out.height = one.h;
+    const ctx = out.getContext('2d');
+    ctx.clearRect(0, 0, one.w, one.h);
+    ctx.drawImage(one.c, 0, 0);
+    const d = imgData(one.c, one.w, one.h);
+    let ink = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i] > threshold) ink++;
+    $('stats').innerHTML =
+      '<span>Showing <b>' + esc(displayName(S[side])) + '</b> on its own — ' +
+      'load a second font to diff them</span>' +
+      '<span>Bitmap <b>' + one.w + ' × ' + one.h + '</b> px</span>' +
+      '<span>size <b>' + size + 'px</b></span>' +
+      '<span>ink <b>' + ink.toLocaleString() + '</b></span>' +
+      (ink === 0 ? '<span style="color:var(--warn)"><b>nothing rendered</b> — ' +
+        'this font has no glyph for that text</span>' : '');
+    return;
+  }
+
   const a = makeBitmap(S.A.family, text, size, dir);
   const b = makeBitmap(S.B.family, text, size, dir);
   const w = Math.max(a.w, b.w), h = Math.max(a.h, b.h);
@@ -850,6 +1035,10 @@ function renderBitmap(){
   const ctx = out.getContext('2d');
   const img = ctx.createImageData(w, h);
   let onlyA = 0, onlyB = 0, both = 0, inkA = 0, inkB = 0;
+  // A colour font is rendered in colour by the browser itself; showing a single
+  // side means handing that straight through rather than rebuilding it from alpha.
+  const passThrough = S.colorOn && (S.view === 'a' || S.view === 'b') &&
+    ((S.view === 'a' ? S.A : S.B).colr || (S.view === 'a' ? S.A : S.B).colorPacked);
 
   for (let i=0;i<da.length;i+=4){
     const aa = da[i+3], bb = db[i+3];
@@ -873,7 +1062,12 @@ function renderBitmap(){
     }
     img.data[i]=r; img.data[i+1]=g; img.data[i+2]=bv; img.data[i+3]=al;
   }
-  ctx.putImageData(img, 0, 0);
+  if (passThrough){
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(S.view === 'a' ? a.c : b.c, 0, 0);
+  } else {
+    ctx.putImageData(img, 0, 0);
+  }
 
   const union = onlyA + onlyB + both;
   const changed = union ? ((onlyA + onlyB) / union * 100) : 0;
@@ -1090,8 +1284,25 @@ function cellSpan(pair){
   return ar > 3.6 ? 3 : ar > 1.9 ? 2 : 1;
 }
 
-function drawGlyphPath(ctx, gi, font, w, h, color, alpha, view){
+function drawGlyphPath(ctx, gi, font, w, h, color, alpha, view, side){
   if (!gi || !font) return;
+  // A COLR glyph is a stack of ordinary glyphs, each painted in a palette colour.
+  const layers = side && hasColor(side) && S[side].colr.byGid.get(gi.index);
+  if (layers && layers.length){
+    ctx.save();
+    ctx.globalAlpha = alpha == null ? 1 : alpha;
+    for (const layer of layers){
+      const g = font.glyphs.get(layer.gid);
+      if (!g) continue;
+      let path;
+      try { path = g.getPath(w/2 - view.cx * view.scale, h/2 + view.cy * view.scale, view.scale); }
+      catch(e){ continue; }
+      path.fill = layerColor(side, layer, color);
+      path.draw(ctx);
+    }
+    ctx.restore();
+    return;
+  }
   let path;
   // getPath(x, y, size) puts the glyph origin at (x, y); place it so the shared bbox centre
   // lands in the middle of the canvas.
@@ -1124,9 +1335,10 @@ function paintGlyphCanvas(canvas, pair, mode){
   ctx.clearRect(0,0,w,h);
   const view = pairView(pair, w, h);
   if (mode === 'both'){ drawOverlay(ctx, pair, w, h, view); return; }
+  const side = mode === 'a' ? 'A' : 'B';
   const gi = mode === 'a' ? pair.a : pair.b;
-  const font = mode === 'a' ? (S.A && S.A.font) : (S.B && S.B.font);
-  if (gi && font) drawGlyphPath(ctx, gi, font, w, h, '#2b303a', 1, view);
+  const font = S[side] && S[side].font;
+  if (gi && font) drawGlyphPath(ctx, gi, font, w, h, '#2b303a', 1, view, side);
 }
 
 function matchesSearch(p, q){
@@ -1430,6 +1642,266 @@ function collectIssues(){
   return out;
 }
 
+/* ----------------------------------------------------- colour bar + palettes */
+function renderColorBar(){
+  const bar = $('colorbar');
+  const sides = ['A','B'].filter(k => S[k] && (S[k].cpal || S[k].colr || S[k].colorPacked));
+  if (!sides.length){ bar.hidden = true; return; }
+  bar.hidden = false;
+  $('colorOn').checked = S.colorOn;
+
+  const notes = [];
+  for (const side of ['A','B']){
+    const box = $('palette'+side);
+    const f = S[side];
+    box.className = 'palettepick';
+    box.innerHTML = '';
+    if (!f) continue;
+    if (f.colorPacked){
+      notes.push(`${side === 'A' ? 'Old' : 'New'} font is WOFF — its colour tables stay compressed, so the glyph grid shows outlines only. Load the TTF or WOFF2 for per-layer colour.`);
+      continue;
+    }
+    if (!f.cpal) continue;
+    box.classList.add('on');
+    box.appendChild(el('span', null, (side === 'A' ? 'Old' : 'New') + ':'));
+    const n = f.cpal.numPalettes;
+    if (n > 1){
+      const sel = el('select');
+      sel.id = 'paletteSel'+side;
+      for (let i=0;i<n;i++) sel.appendChild(new Option('Palette ' + (i+1) + ' of ' + n, i));
+      sel.value = paletteFor(side);
+      sel.addEventListener('change', () => { S.palette[side] = Number(sel.value); renderColorBar(); renderAll(); });
+      box.appendChild(sel);
+    } else {
+      box.appendChild(el('span', null, '1 palette'));
+    }
+    const sw = el('div','swatches');
+    const pal = f.cpal.palettes[paletteFor(side)] || [];
+    pal.slice(0, 16).forEach(c => { const i = el('i'); i.style.background = cssColor(c); sw.appendChild(i); });
+    sw.title = pal.length + ' colour' + (pal.length === 1 ? '' : 's') + ' in this palette';
+    box.appendChild(sw);
+    if (f.colr && f.colr.v1Only)
+      notes.push(`${side === 'A' ? 'Old' : 'New'} font uses COLR v${f.colr.version}; the grid paints its v0 layers, and gradients or transforms will look flat.`);
+  }
+  $('colorNote').textContent = notes.join(' ');
+}
+
+/* ------------------------------------------------- code points & ligatures */
+// Turn a run of glyph ids back into the text someone would actually type.
+function textForGlyphs(side, gids){
+  const f = S[side];
+  if (!f || !f.font) return null;
+  let out = '';
+  for (const gid of gids){
+    const g = f.font.glyphs.get(gid);
+    if (!g || g.unicode == null) return null;
+    out += String.fromCodePoint(g.unicode);
+  }
+  return out;
+}
+
+function coverageGlyphs(cov){
+  if (!cov) return [];
+  if (cov.glyphs) return cov.glyphs.slice();
+  if (cov.ranges){
+    const out = [];
+    for (const r of cov.ranges) for (let g = r.start; g <= r.end; g++) out.push(g);
+    return out;
+  }
+  return [];
+}
+
+function collectLigatures(side){
+  const f = S[side];
+  const gsub = f && f.font && f.font.tables && f.font.tables.gsub;
+  if (!gsub || !gsub.lookups) return [];
+  const out = [];
+  const seen = new Set();
+  gsub.lookups.forEach(lookup => {
+    if (lookup.lookupType !== 4) return;
+    (lookup.subtables || []).forEach(sub => {
+      const first = coverageGlyphs(sub.coverage);
+      (sub.ligatureSets || []).forEach((set, i) => {
+        (set || []).forEach(lig => {
+          const gids = [first[i]].concat(lig.components || []);
+          const g = f.font.glyphs.get(lig.ligGlyph);
+          const text = textForGlyphs(side, gids);
+          const key = (text || '') + '>' + lig.ligGlyph;
+          if (seen.has(key)) return;
+          seen.add(key);
+          out.push({
+            kind: 'liga', text, gid: lig.ligGlyph,
+            name: g ? g.name : null,
+            advance: g ? g.advanceWidth : null,
+            unicode: g && g.unicode != null ? g.unicode : null
+          });
+        });
+      });
+    });
+  });
+  out.sort((a,b) => (a.text || '').localeCompare(b.text || '', undefined, {numeric:true}));
+  return out;
+}
+
+function collectCodepoints(side){
+  const f = S[side];
+  if (!f || !f.glyphs) return [];
+  return f.glyphs.list.filter(g => g.unicode != null).map(g => ({
+    kind: 'cmap', text: String.fromCodePoint(g.unicode), gid: g.index,
+    name: g.name, advance: g.advanceWidth, unicode: g.unicode
+  })).sort((a,b) => a.unicode - b.unicode);
+}
+
+// A font with a version 3 `post` table stores no glyph names at all. Fall back to the
+// uniXXXX form every font tool shows for those, so the column is still useful.
+function glyphLabel(r){
+  if (r.name) return r.name;
+  if (r.unicode != null) return 'uni' + r.unicode.toString(16).toUpperCase().padStart(4,'0') + ' (no post name)';
+  return 'glyph ' + r.gid;
+}
+
+function copyButton(value, label){
+  const b = el('button','copyable');
+  b.type = 'button';
+  b.innerHTML = `<span>${esc(label == null ? value : label)}</span><span class="ic">⧉</span>`;
+  b.title = 'Copy ' + JSON.stringify(value);
+  b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(value); }
+    catch(e){
+      const ta = el('textarea'); ta.value = value; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand('copy'); } finally { ta.remove(); }
+    }
+    b.classList.add('done');
+    const span = b.firstChild;
+    const was = span.textContent;
+    span.textContent = 'copied';
+    setTimeout(() => { b.classList.remove('done'); span.textContent = was; }, 900);
+  });
+  return b;
+}
+
+// Follow whichever slot actually holds a font, so looking at a single font
+// doesn't show an empty table just because it was dropped on the other side.
+function cpActiveSide(){
+  const sel = $('cpSide');
+  const loaded = side => !!(S[side] && S[side].font);
+  const want = sel ? sel.value : 'B';
+  if (loaded(want)) return want;
+  const other = want === 'A' ? 'B' : 'A';
+  if (loaded(other)){
+    if (sel) sel.value = other;
+    return other;
+  }
+  return want;
+}
+
+function cpRows(){
+  const side = cpActiveSide();
+  if (!S[side] || !S[side].font) return { side, rows: [], ligCount: 0, cpCount: 0 };
+  const ligs = collectLigatures(side);
+  const cps = collectCodepoints(side);
+  let rows = S.cpKind === 'liga' ? ligs : S.cpKind === 'cmap' ? cps : ligs.concat(cps);
+  const q = S.cpSearch.trim().toLowerCase();
+  if (q){
+    rows = rows.filter(r =>
+      (r.text && r.text.toLowerCase().includes(q)) ||
+      (r.name && r.name.toLowerCase().includes(q)) ||
+      (r.unicode != null && (
+        r.unicode.toString(16).toLowerCase().padStart(4,'0').includes(q.replace(/^u\+/,''))
+      ))
+    );
+  }
+  return { side, rows, ligCount: ligs.length, cpCount: cps.length };
+}
+
+function renderCodepoints(){
+  const host = $('cpList'), summary = $('cpSummary');
+  if (!host) return;
+  const sel = $('cpSide');
+  if (sel) [...sel.options].forEach(o => {
+    const ok = !!(S[o.value] && S[o.value].font);
+    o.disabled = !ok;
+    o.textContent = (o.value === 'B' ? 'From new font' : 'From old font') + (ok ? '' : ' — not loaded');
+  });
+  host.innerHTML = '';
+  const { side, rows, ligCount, cpCount } = cpRows();
+  const f = S[side];
+  if (!f || !f.font){
+    summary.textContent = '';
+    host.innerHTML = '<div class="empty">Load a font to list what it can render.</div>';
+    return;
+  }
+  summary.innerHTML = `<b>${ligCount.toLocaleString()}</b> ligature${ligCount===1?'':'s'} · ` +
+    `<b>${cpCount.toLocaleString()}</b> mapped code point${cpCount===1?'':'s'} in ${esc(displayName(f))}` +
+    (rows.length !== ligCount + cpCount ? ` · showing <b>${rows.length.toLocaleString()}</b>` : '');
+  if (!rows.length){
+    host.innerHTML = '<div class="empty">Nothing matches that filter.</div>';
+    return;
+  }
+
+  const table = el('table','cptable');
+  const head = el('tr');
+  ['', 'Type', 'Type this', 'Code point', 'Glyph name', ''].forEach(h => {
+    const th = el('th', null, h); head.appendChild(th);
+  });
+  table.appendChild(el('thead')).appendChild(head);
+  const body = el('tbody');
+
+  const LIMIT = 500, PREVIEW_W = 190, PREVIEW_MAX = 34;
+  rows.slice(0, LIMIT).forEach(r => {
+    const tr = el('tr');
+    const prev = el('td','preview');
+    const ems = (r.advance && f.font) ? r.advance / f.font.unitsPerEm : 1;
+    prev.style.fontFamily = '"' + f.family + '", sans-serif';
+    prev.style.direction = 'rtl';
+    prev.style.fontSize = Math.max(10, Math.min(PREVIEW_MAX, Math.floor(PREVIEW_W / Math.max(ems, 0.5)))) + 'px';
+    prev.textContent = r.kind === 'liga' ? (r.text || '') : r.text;
+    tr.appendChild(prev);
+    tr.appendChild(el('td','type', r.kind === 'liga' ? 'ligature' : 'code point'));
+
+    const t1 = el('td');
+    if (r.text) t1.appendChild(copyButton(r.text, r.kind === 'liga' ? r.text : r.text));
+    else t1.appendChild(el('span','type','—'));
+    tr.appendChild(t1);
+
+    const t2 = el('td');
+    if (r.unicode != null) t2.appendChild(copyButton(String.fromCodePoint(r.unicode), hex(r.unicode)));
+    else t2.appendChild(el('span','type','—'));
+    tr.appendChild(t2);
+
+    tr.appendChild(el('td','type', glyphLabel(r)));
+
+    const t3 = el('td');
+    const css = r.unicode != null ? '\\\\' + r.unicode.toString(16).toUpperCase().padStart(4,'0') : null;
+    if (css) t3.appendChild(copyButton(css, 'CSS'));
+    tr.appendChild(t3);
+
+    body.appendChild(tr);
+  });
+  table.appendChild(body);
+  host.appendChild(table);
+  if (rows.length > LIMIT)
+    host.appendChild(el('div','metaline', `Showing the first ${LIMIT.toLocaleString()} of ${rows.length.toLocaleString()} — narrow it with the filter.`));
+}
+
+function copyAllRows(){
+  const { rows } = cpRows();
+  const csv = ['type,text,codepoint,glyph_name']
+    .concat(rows.map(r => [
+      r.kind === 'liga' ? 'ligature' : 'codepoint',
+      JSON.stringify(r.text || ''),
+      r.unicode != null ? hex(r.unicode) : '',
+      JSON.stringify(glyphLabel(r))
+    ].join(',')))
+    .join('\n');
+  navigator.clipboard.writeText(csv).then(() => {
+    const b = $('cpCopyAll');
+    const was = b.textContent;
+    b.textContent = 'Copied ' + rows.length + ' rows';
+    setTimeout(() => { b.textContent = was; }, 1200);
+  });
+}
+
 function renderIssues(){
   const host = $('issueList'), badge = $('issueCount');
   if (!S.A && !S.B){
@@ -1516,9 +1988,10 @@ function openGlyphModal(p){
       if (label === 'Overlay'){
         if (!p.a && !p.b) missing(ctx, cw, ch); else drawOverlay(ctx, p, cw, ch, view);
       } else {
+        const side = label === 'A' ? 'A' : 'B';
         const gi = label === 'A' ? p.a : p.b;
-        const font = label === 'A' ? (S.A && S.A.font) : (S.B && S.B.font);
-        if (gi && font) drawGlyphPath(ctx, gi, font, cw, ch, '#2b303a', 1, view);
+        const font = S[side] && S[side].font;
+        if (gi && font) drawGlyphPath(ctx, gi, font, cw, ch, '#2b303a', 1, view, side);
         else missing(ctx, cw, ch);
       }
       c.appendChild(cv);
@@ -1581,14 +2054,16 @@ function openGlyphModal(p){
 
 /* ----------------------------------------------------------------- wiring  */
 function renderAll(){
+  renderColorBar();
   renderBitmap();
   renderSizeTable();
   renderMetaTable();
   renderTableDir();
   renderGlyphs();
+  renderCodepoints();
   renderIssues();
-  $('downloadPng').disabled = !(S.A && S.B);
-  $('copyPng').disabled = !(S.A && S.B);
+  $('downloadPng').disabled = !(S.A || S.B);
+  $('copyPng').disabled = !(S.A || S.B);
   if (S.A) $('metaA').innerHTML = shortMeta('A');
   if (S.B) $('metaB').innerHTML = shortMeta('B');
 }
@@ -1626,6 +2101,18 @@ $('views').onclick = e => {
   $('views').querySelectorAll('button').forEach(x => x.classList.remove('active'));
   b.classList.add('active'); S.view = b.dataset.view; renderBitmap();
 };
+
+$('colorOn').onchange = e => { S.colorOn = e.target.checked; renderAll(); };
+$('cpSide').onchange = renderCodepoints;
+$('cpSearch').oninput = e => { S.cpSearch = e.target.value; renderCodepoints(); };
+$('cpKinds').onclick = e => {
+  const b = e.target.closest('[data-kind]'); if (!b) return;
+  $('cpKinds').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  S.cpKind = b.dataset.kind;
+  renderCodepoints();
+};
+$('cpCopyAll').onclick = copyAllRows;
 
 $('tabs').onclick = e => {
   const b = e.target.closest('[data-tab]'); if (!b) return;

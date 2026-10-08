@@ -69,6 +69,10 @@ class CommunityController < ApplicationController
   def svg_optimizer
   end
 
+  def qul_scripts_unavailable
+    redirect_to tools_path, alert: "This tool is currently part of QUL’s internal tooling and will be available once it is open sourced."
+  end
+
   protected
 
   def language

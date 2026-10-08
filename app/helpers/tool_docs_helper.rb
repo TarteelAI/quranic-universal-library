@@ -20,9 +20,7 @@ module ToolDocsHelper
       'ayah_dependency_graph',
       'ayah_boundaries',
       'compare_audio',
-      'audio_repair_index',
-      'audio_repair_editor',
-      'audio_repair_polarity'
+      *(%w[audio_repair_index audio_repair_editor audio_repair_polarity] if qul_scripts_available?)
     ]
   end
 

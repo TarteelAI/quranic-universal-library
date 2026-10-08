@@ -21,21 +21,26 @@ module Qul
     config.eager_load_paths << "#{config.root}/lib"
 
     qul_scripts_lib = File.join(config.root, "qul-scripts")
+    qul_scripts_available = File.directory?(qul_scripts_lib)
+    config.x.qul_scripts_path = qul_scripts_lib
+    config.x.qul_scripts_available = qul_scripts_available
 
-    eager_load_paths = [
-      File.join(qul_scripts_lib, "lib"),
-      *%w[models controllers jobs].map { |dir| File.join(qul_scripts_lib, "app", dir) }
-    ]
+    if qul_scripts_available
+      eager_load_paths = [
+        File.join(qul_scripts_lib, "lib"),
+        *%w[models controllers jobs].map { |dir| File.join(qul_scripts_lib, "app", dir) }
+      ]
 
-    eager_load_paths.each do |path|
-      config.eager_load_paths << path if File.directory?(path)
-    end
+      eager_load_paths.each do |path|
+        config.eager_load_paths << path if File.directory?(path)
+      end
 
-    [
-      [config.paths["app/views"], File.join(qul_scripts_lib, "app/views")],
-      [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")]
-    ].each do |paths, path|
-      paths << path if File.directory?(path)
+      [
+        [config.paths["app/views"], File.join(qul_scripts_lib, "app/views")],
+        [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")]
+      ].each do |paths, path|
+        paths << path if File.directory?(path)
+      end
     end
 
     config.assets.css_compressor = :escompress

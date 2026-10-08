@@ -207,68 +207,71 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
-  namespace :segment_pipeline do
-    get '/', to: 'runs#index', as: :root
-    # QUD deliveries imported as drafts that have no QUL recitation yet.
-    resources :deliveries, only: %i[index show] do
-      collection do
-        get :search_recitations
+  if Rails.application.config.x.qul_scripts_available
+    namespace :segment_pipeline do
+      get '/', to: 'runs#index', as: :root
+      # QUD deliveries imported as drafts that have no QUL recitation yet.
+      resources :deliveries, only: %i[index show] do
+        collection do
+          get :search_recitations
+        end
+        member do
+          post :attach
+          post :create_recitation
+          post :dismiss
+          delete :drafts, action: :destroy_drafts
+        end
       end
-      member do
-        post :attach
-        post :create_recitation
-        post :dismiss
-        delete :drafts, action: :destroy_drafts
-      end
-    end
-    get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
-    get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
-    get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
-    post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
-    post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
-    scope 'reciters/:recitation_id/chapters/:chapter_id' do
-      post 'generate', to: 'runs#generate', as: :generate
-      post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
-      post 'cancel', to: 'runs#cancel', as: :cancel
-      post 'build_drafts', to: 'runs#stage_drafts', as: :build_drafts
-      post 'import', to: 'runs#import_drafts', as: :import
-      post 'drafts/review', to: 'runs#review_drafts', as: :review_drafts
-      post 'drafts/:id/review', to: 'runs#review_draft', as: :review_draft
-      post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
-      get 'artifact', to: 'runs#artifact', as: :artifact
-      get 'audio', to: 'runs#audio', as: :audio
-      get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
-      get 'compare_data', to: 'runs#compare_data', as: :compare_data
-    end
-  end
-
-  namespace :audio_repair do
-    resources :sessions, only: %i[index create edit] do
-      member do
-        get :data
-        get :candidates
-        get :audition
-        get :peaks
-        get :letters
-        get :vowel_donors
-        post :vowel_preview
-        post :match
-        get :status
-        post :preview
-        post :add_operation
-        post :undo
-        post :redo
-        post :export
-        post :compare
-        get :comparison
-        get :comparison_zoom
+      get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
+      get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
+      get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
+      post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
+      post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
+      post 'reciters/:recitation_id/review_all_drafts', to: 'runs#review_all_drafts', as: :review_all_drafts
+      scope 'reciters/:recitation_id/chapters/:chapter_id' do
+        post 'generate', to: 'runs#generate', as: :generate
+        post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
+        post 'cancel', to: 'runs#cancel', as: :cancel
+        post 'build_drafts', to: 'runs#stage_drafts', as: :build_drafts
+        post 'import', to: 'runs#import_drafts', as: :import
+        post 'drafts/review', to: 'runs#review_drafts', as: :review_drafts
+        post 'drafts/:id/review', to: 'runs#review_draft', as: :review_draft
+        post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
+        get 'artifact', to: 'runs#artifact', as: :artifact
+        get 'audio', to: 'runs#audio', as: :audio
+        get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
+        get 'compare_data', to: 'runs#compare_data', as: :compare_data
       end
     end
 
-    resources :polarity, only: %i[index create show] do
-      member { post :fix }
+    namespace :audio_repair do
+      resources :sessions, only: %i[index create edit] do
+        member do
+          get :data
+          get :candidates
+          get :audition
+          get :peaks
+          get :letters
+          get :vowel_donors
+          post :vowel_preview
+          post :match
+          get :status
+          post :preview
+          post :add_operation
+          post :undo
+          post :redo
+          post :export
+          post :compare
+          get :comparison
+          get :comparison_zoom
+        end
+      end
+
+      resources :polarity, only: %i[index create show] do
+        member { post :fix }
+      end
+      root to: 'sessions#index'
     end
-    root to: 'sessions#index'
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah

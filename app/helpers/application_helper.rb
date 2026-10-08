@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def qul_scripts_available?
+    Rails.application.config.x.qul_scripts_available
+  end
+
   def pagy_nav_tailwind(pagy, **opts)
     pagy_id  = opts.delete(:pagy_id)
     pagy_url = opts.delete(:pagy_url)

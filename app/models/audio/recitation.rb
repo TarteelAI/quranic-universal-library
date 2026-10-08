@@ -42,6 +42,7 @@ module Audio
   class Recitation < QuranApiRecord
     include NameTranslateable
     include Resourceable
+    include RecitationDestroyable
 
     has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
@@ -109,6 +110,48 @@ module Audio
       cloned.send(:update_related_resources)
 
       cloned
+    end
+
+    # Name the user has to type to confirm destructive actions on this record.
+    def confirmation_name
+      name.to_s.strip.presence || id.to_s
+    end
+
+    # Summary of the rows that `destroy_with_audio_files!` will remove.
+    def deletion_summary
+      {
+        'Chapter audio files' => chapter_audio_files.count,
+        'Segments' => Audio::Segment.where(audio_recitation_id: id).count,
+        'Change logs' => audio_change_logs.count,
+        'Related recitations' => Audio::RelatedRecitation.where(
+          'audio_recitation_id = :id OR related_audio_recitation_id = :id', id: id
+        ).count,
+        'Radio stations (will be unlinked)' => Radio::Station.where(audio_recitation_id: id).count
+      }
+    end
+
+    def destroy_with_audio_files!(delete_resource_content: false)
+      content = get_resource_content
+      reciter_record = reciter
+      qirat = qirat_type
+      style = recitation_style
+
+      transaction do
+        Audio::RelatedRecitation.where(related_audio_recitation_id: id).delete_all
+        Radio::Station.where(audio_recitation_id: id).update_all(audio_recitation_id: nil)
+
+        # chapter audio files, segments, change logs and related recitations are
+        # removed by the `dependent: :delete_all` associations.
+        destroy!
+      end
+
+      kept_reason = delete_resource_content ? destroy_resource_content(content) : nil
+
+      reciter_record&.update_recitation_count
+      qirat&.update_recitation_count
+      style&.update_recitation_count
+
+      kept_reason
     end
 
     def missing_audio_files?

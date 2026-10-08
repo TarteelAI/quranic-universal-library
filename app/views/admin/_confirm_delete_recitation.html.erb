@@ -1,0 +1,63 @@
+<%
+  confirm_name = resource.confirmation_name
+  content = resource.get_resource_content
+  blockers = resource.resource_content_blockers(content)
+%>
+
+<div id=title>
+  Delete <%= confirm_name %>
+</div>
+
+<div id="body">
+  <div class="p-6" id=modal-body>
+    <div class="px-4 py-3 rounded mb-4 bg-red-100 border border-red-400 text-red-700">
+      <strong>This cannot be undone.</strong>
+      Deleting this recitation will permanently remove the recitation and all of
+      its audio files and segments from the database.
+    </div>
+
+    <table class="table table-sm mb-4">
+      <tbody>
+        <tr>
+          <th>Recitation</th>
+          <td><%= resource.id %> - <%= confirm_name %></td>
+        </tr>
+        <% resource.deletion_summary.each do |label, count| %>
+          <tr>
+            <th><%= label %></th>
+            <td><%= count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= form_with url: destroy_recitation_url, method: :delete, local: true, data: { turbo: false } do |form| %>
+      <% if content.present? %>
+        <div class="mb-4">
+          <%= form.check_box :delete_resource_content, checked: blockers.blank? %>
+          <%= form.label :delete_resource_content, "Also delete resource content ##{content.id} - #{content.name}" %>
+          <div class="text-sm text-gray-600 mt-1">
+            <% if blockers.present? %>
+              This resource content is still used by <%= blockers.join(', ') %>,
+              so it will be kept even if you check this box.
+            <% else %>
+              Nothing else is linked to this resource content, so it is safe to remove.
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mb-4">
+        <%= form.label :confirm_name, "Type the recitation name to confirm" %>
+        <div class="text-sm text-gray-600 mb-1">
+          Type <code><%= confirm_name %></code> exactly.
+        </div>
+        <%= form.text_field :confirm_name, class: 'form-control', autocomplete: 'off', required: true %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.submit 'Delete permanently', class: 'btn btn-danger' %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -6,6 +6,8 @@ module.exports = {
     "./app/helpers/**/*.rb",
     "./app/javascript/**/*.{js,vue}",
     "./app/views/**/*.{erb,html}",
+    "./qul-scripts/app/views/**/*.{erb,html}",
+    "./qul-scripts/app/helpers/**/*.rb",
     "./app/components/**/*.{erb,html}",
     "./app/admin/**/*.rb",
   ],

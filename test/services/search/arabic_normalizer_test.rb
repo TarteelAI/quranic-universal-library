@@ -21,6 +21,11 @@ class ArabicNormalizerTest < Minitest::Test
     assert_equal Search::ArabicNormalizer.normalize("كتاب"), Search::ArabicNormalizer.normalize("کتاب")
   end
 
+  def test_unifies_swash_kaf
+    assert_equal "كتاب", Search::ArabicNormalizer.normalize("ڪتاب")
+    assert_equal Search::ArabicNormalizer.normalize("كتاب"), Search::ArabicNormalizer.normalize("ڪتاب")
+  end
+
   def test_unifies_perso_arabic_ya_variants
     arabic = Search::ArabicNormalizer.normalize("الذي")
 
@@ -50,6 +55,7 @@ class ArabicNormalizerTest < Minitest::Test
 
     assert_includes sql, Search::ArabicNormalizer::TRANSLATE_FROM
     assert_includes sql, "ک"
+    assert_includes sql, "ڪ"
   end
 
   def test_strips_tatweel

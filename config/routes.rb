@@ -27,6 +27,7 @@ Rails.application.routes.draw do
         get 'surah_recitations', to: 'recitations#surah_recitations'
         get 'surah_recitations/:id', to: 'recitations#surah_recitation_detail'
         get 'surah_recitations/:id/wav_manifest', to: 'recitations#wav_manifest'
+        get 'surah_recitations/:id/transcript', to: 'transcripts#surah_transcript'
 
         get 'ayah_recitations', to: 'recitations#ayah_recitations'
         get 'ayah_recitations/:id', to: 'recitations#ayah_recitation_detail'
@@ -228,11 +229,13 @@ Rails.application.routes.draw do
       post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
       post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
       post 'reciters/:recitation_id/review_all_drafts', to: 'runs#review_all_drafts', as: :review_all_drafts
+      post 'reciters/:recitation_id/cleanup', to: 'runs#cleanup', as: :reciter_cleanup
       scope 'reciters/:recitation_id/chapters/:chapter_id' do
         post 'generate', to: 'runs#generate', as: :generate
         post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
         post 'cancel', to: 'runs#cancel', as: :cancel
         post 'build_drafts', to: 'runs#stage_drafts', as: :build_drafts
+        post 'cleanup', to: 'runs#cleanup_chapter', as: :cleanup_chapter
         post 'import', to: 'runs#import_drafts', as: :import
         post 'drafts/review', to: 'runs#review_drafts', as: :review_drafts
         post 'drafts/:id/review', to: 'runs#review_draft', as: :review_draft

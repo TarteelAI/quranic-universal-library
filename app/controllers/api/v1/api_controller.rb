@@ -8,6 +8,7 @@ module Api
 
       rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
       rescue_from Api::RecordNotFound, with: :record_not_found
+      rescue_from Api::BadRequest, with: :bad_request
       rescue_from ActionController::ParameterMissing, with: :parameter_missing
 
       protected
@@ -39,6 +40,16 @@ module Api
             message: exception.to_s
           },
           status: :not_found
+        )
+      end
+
+      def bad_request(exception)
+        render_json(
+          {
+            error: "Bad Request",
+            message: exception.to_s
+          },
+          status: :bad_request
         )
       end
 

@@ -53,10 +53,14 @@ module Audio
     def transcript(script: :text_imlaei, as_array: false)
       return as_array ? [] : '' if verse.blank? || segments.blank?
 
-      words_by_position = verse.words.order(:position).pluck(:position, script).to_h
+      # Reuse the words if they're preloaded
+      words_by_position = if verse.words.loaded?
+                            verse.words.map { |word| [word.position, word[script]] }.to_h
+                          else
+                            verse.words.order(:position).pluck(:position, script).to_h
+                          end
 
-      words = get_segments.map { |s| words_by_position[s[0].to_i] }.compact_blank
-
+      words = get_segments.map { |seg| words_by_position[seg[0]] }.compact_blank
       as_array ? words : words.join(' ')
     end
 

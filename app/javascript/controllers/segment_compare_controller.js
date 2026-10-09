@@ -2,6 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 import { alignLetterTakes } from "../lib/letter_slices"
 import { findRepeats, FULL, PARTIAL } from "../lib/segment_repeats"
 
+// Same threshold the server uses for DraftSegment::SUSPICIOUS_DRIFT_MS, so a
+// word the table paints red is a word the "differ" counts also counted.
+const DRIFT_MS = 300
+
 export default class extends Controller {
   static targets = [
     "player", "playButton", "scrubber", "clock", "verses", "status",
@@ -29,6 +33,7 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.closeJson()
     this.playerTarget.pause()
     this.playerTarget.removeEventListener("timeupdate", this.onTime)
     this.playerTarget.removeEventListener("loadedmetadata", this.onMeta)
@@ -195,6 +200,7 @@ export default class extends Controller {
 
     const repeat = this.repeatChip(verse, verseIndex)
     if (repeat) head.appendChild(repeat)
+    head.appendChild(this.jsonButton(verse))
     head.appendChild(this.reviewControls(verse, verseIndex))
     row.appendChild(head)
     this.rowsByVerse.set(verseIndex, row)
@@ -204,6 +210,194 @@ export default class extends Controller {
     row.appendChild(this.wordRow(verse, verseIndex, "live"))
     row.appendChild(this.wordRow(verse, verseIndex, "draft"))
     return row
+  }
+
+  // Highlighting shows you THAT two layers disagree; the numbers show you by how
+  // much and where. A modal rather than an inline panel: the table is wide, and
+  // expanding it in place pushes every later ayah down the page, which costs you
+  // your place in a 286-ayah surah.
+  jsonButton(verse) {
+    const button = document.createElement("button")
+    button.type = "button"
+    button.className = "px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 font-mono"
+    button.textContent = "{ }"
+    button.title = "Show the raw timings for this ayah, current next to draft"
+    button.addEventListener("click", () => this.openJson(verse))
+    return button
+  }
+
+  openJson(verse) {
+    this.closeJson()
+
+    const overlay = document.createElement("div")
+    overlay.dataset.jsonModal = "1"
+    overlay.className = "fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/40 overflow-y-auto"
+    // Only the backdrop closes; a click that started inside the dialog must not.
+    overlay.addEventListener("click", (event) => { if (event.target === overlay) this.closeJson() })
+
+    const dialog = document.createElement("div")
+    dialog.className = "bg-white rounded-lg shadow-xl w-full max-w-4xl my-8"
+    dialog.dataset.jsonDialog = "1"
+
+    const head = document.createElement("div")
+    head.className = "flex items-center justify-between px-4 py-2 border-b border-gray-200"
+    const title = document.createElement("div")
+    title.className = "text-sm font-semibold text-gray-800"
+    title.textContent = `Raw timings — ${verse.key}`
+    head.appendChild(title)
+
+    const close = document.createElement("button")
+    close.type = "button"
+    close.dataset.jsonClose = "1"
+    close.className = "text-gray-400 hover:text-gray-800 text-lg leading-none px-2"
+    close.textContent = "\u00d7"
+    close.title = "Close (Esc)"
+    close.addEventListener("click", () => this.closeJson())
+    head.appendChild(close)
+    dialog.appendChild(head)
+
+    const body = document.createElement("div")
+    body.className = "p-4 space-y-3"
+    body.dir = "ltr"
+    body.appendChild(this.jsonPanel(verse))
+    dialog.appendChild(body)
+
+    overlay.appendChild(dialog)
+    document.body.appendChild(overlay)
+
+    this.jsonModal = overlay
+    this.onJsonKey = (event) => { if (event.key === "Escape") this.closeJson() }
+    document.addEventListener("keydown", this.onJsonKey)
+  }
+
+  closeJson() {
+    if (this.onJsonKey) {
+      document.removeEventListener("keydown", this.onJsonKey)
+      this.onJsonKey = null
+    }
+    if (!this.jsonModal) return
+    this.jsonModal.remove()
+    this.jsonModal = null
+  }
+
+  jsonPanel(verse) {
+    const panel = document.createElement("div")
+    panel.dataset.jsonPanel = "1"
+    panel.className = "space-y-3"
+    panel.dir = "ltr"
+    panel.appendChild(this.deltaTable(verse))
+
+    const columns = document.createElement("div")
+    columns.className = "grid grid-cols-1 md:grid-cols-2 gap-2"
+    columns.appendChild(this.jsonColumn("current (live)", verse.live, "text-indigo-700"))
+    columns.appendChild(this.jsonColumn("draft", verse.draft, "text-amber-700"))
+    panel.appendChild(columns)
+    return panel
+  }
+
+  jsonColumn(title, data, tone) {
+    const box = document.createElement("div")
+    box.className = "border border-gray-200 rounded"
+
+    const head = document.createElement("div")
+    head.className = "flex items-center justify-between px-2 py-1 bg-gray-50 border-b border-gray-200"
+
+    const label = document.createElement("span")
+    label.className = `text-[11px] font-medium ${tone}`
+    label.textContent = title
+    head.appendChild(label)
+
+    const text = data ? JSON.stringify(data, null, 2) : "null"
+    const copy = document.createElement("button")
+    copy.type = "button"
+    copy.className = "text-[11px] text-gray-500 hover:text-gray-800"
+    copy.textContent = "copy"
+    copy.addEventListener("click", () => {
+      // The page may be served over plain http, where clipboard is undefined.
+      const done = () => { copy.textContent = "copied"; setTimeout(() => { copy.textContent = "copy" }, 1200) }
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => { copy.textContent = "failed" })
+      else copy.textContent = "no clipboard"
+    })
+    head.appendChild(copy)
+    box.appendChild(head)
+
+    const pre = document.createElement("pre")
+    pre.className = "text-[11px] leading-snug p-2 overflow-auto max-h-80 text-gray-700 whitespace-pre"
+    pre.textContent = text
+    box.appendChild(pre)
+    return box
+  }
+
+  // Word-by-word, the two layers next to each other with the gap between them.
+  // This is the table that answers "is this a constant offset or a real
+  // disagreement" — a column of near-identical deltas means a shift, which is
+  // fixable, while scattered ones mean the recordings actually differ.
+  //
+  // Built with real nodes rather than an innerHTML string so the word text
+  // never has to be escaped by hand.
+  deltaTable(verse) {
+    const live = new Map(((verse.live || {}).words || []).map((w) => [w[0], w]))
+    const draft = new Map(((verse.draft || {}).words || []).map((w) => [w[0], w]))
+    const texts = new Map((verse.words || []).map((w) => [w.position, w.text]))
+    const positions = [...new Set([...live.keys(), ...draft.keys()])].sort((a, b) => a - b)
+
+    const table = document.createElement("table")
+    table.className = "w-full text-[11px] tabular-nums"
+    table.dataset.deltaTable = "1"
+
+    const head = document.createElement("tr")
+    head.className = "text-gray-400 text-left"
+    const headings = [["#", ""], ["word", ""], ["current", "text-indigo-600"],
+                      ["draft", "text-amber-600"], ["\u0394start", ""], ["\u0394end", ""]]
+    headings.forEach(([text, tone]) => {
+      const th = document.createElement("th")
+      th.className = `py-0.5 pr-2 ${tone}`
+      th.textContent = text
+      head.appendChild(th)
+    })
+    table.appendChild(head)
+
+    const ms = (v) => (v == null ? "\u2014" : (v / 1000).toFixed(2))
+    const cell = (row, text, className) => {
+      const td = document.createElement("td")
+      td.className = `pr-2 ${className || ""}`
+      td.textContent = text
+      row.appendChild(td)
+      return td
+    }
+
+    positions.forEach((position) => {
+      const l = live.get(position)
+      const d = draft.get(position)
+      const ds = l && d ? d[1] - l[1] : null
+      const de = l && d ? d[2] - l[2] : null
+      const off = !l || !d || Math.abs(ds) > DRIFT_MS || Math.abs(de) > DRIFT_MS
+
+      const tr = document.createElement("tr")
+      tr.dataset.position = String(position)
+      // One side missing the word, or the two more than a blink apart.
+      tr.dataset.off = off ? "1" : "0"
+      if (off) tr.className = "bg-red-50"
+
+      cell(tr, String(position), "text-gray-400")
+      const word = cell(tr, texts.get(position) || "", "digitalkhatt-v2")
+      word.dir = "rtl"
+      cell(tr, l ? `${ms(l[1])}\u2013${ms(l[2])}` : "\u2014", "text-indigo-700")
+      cell(tr, d ? `${ms(d[1])}\u2013${ms(d[2])}` : "\u2014", "text-amber-700")
+      cell(tr, this.signed(ds), ds != null && Math.abs(ds) > DRIFT_MS ? "text-red-600 font-medium" : "text-gray-500")
+      cell(tr, this.signed(de), de != null && Math.abs(de) > DRIFT_MS ? "text-red-600 font-medium" : "text-gray-500")
+      table.appendChild(tr)
+    })
+
+    const wrap = document.createElement("div")
+    wrap.className = "overflow-x-auto max-h-80 overflow-y-auto border border-gray-200 rounded p-2"
+    wrap.appendChild(table)
+    return wrap
+  }
+
+  signed(value) {
+    if (value == null) return "\u2014"
+    return value > 0 ? `+${value}` : String(value)
   }
 
   // Where the reciter backed up and said something again. Read off the draft
@@ -428,25 +622,36 @@ export default class extends Controller {
     this.reviewNoteTarget.textContent = `${verse.key}: ${data.status}.`
   }
 
-  approveAll() { this.reviewAll("approve") }
-  rejectAll() { this.reviewAll("reject") }
+  // Approving only touches drafts nobody has judged, so a bulk approve can
+  // never quietly overturn a rejection someone made on purpose.
+  approveAll() { return this.reviewAll("approve", "pending") }
 
-  // Bulk decisions only touch drafts nobody has judged yet (the server defaults
-  // to scope=pending), so this can never quietly overturn an earlier rejection.
-  async reviewAll(decision) {
-    const pending = this.verses.filter((v) => v.draft && v.draft.id && v.draft.status === "pending")
-    if (!pending.length) {
-      this.reviewNoteTarget.textContent = "Nothing left unreviewed."
+  // Rejecting takes the lot, approved included. The workflow this exists for is
+  // "approve everything, then listen and throw back the bad ones" — and after
+  // that first approve-all there IS nothing unreviewed left, so a reject that
+  // skipped approved drafts could only ever do nothing. Rejecting is also the
+  // safe direction: a rejected draft is simply never imported.
+  rejectAll() { return this.reviewAll("reject", "all") }
+
+  async reviewAll(decision, scope) {
+    const staged = this.verses.filter((v) => v.draft && v.draft.id)
+    const targets = scope === "all"
+      ? staged.filter((v) => v.draft.status !== (decision === "approve" ? "approved" : "rejected"))
+      : staged.filter((v) => v.draft.status === "pending")
+
+    if (!targets.length) {
+      this.reviewNoteTarget.textContent = scope === "all"
+        ? "Every ayah is already rejected."
+        : "Nothing left unreviewed."
       return
     }
 
-    const verb = decision === "approve" ? "Approve" : "Reject"
-    if (!window.confirm(`${verb} ${pending.length} unreviewed ayah(s) in this surah?`)) return
+    if (!window.confirm(this.bulkPrompt(decision, scope, targets))) return
 
-    const data = await this.post(this.reviewAllUrlValue, { decision })
+    const data = await this.post(this.reviewAllUrlValue, { decision, scope })
     if (!data) return
 
-    pending.forEach((verse) => {
+    targets.forEach((verse) => {
       verse.draft.status = data.status
       const index = this.verses.indexOf(verse)
       const box = this.versesTarget.querySelector(`[data-review="${index}"]`)
@@ -454,6 +659,18 @@ export default class extends Controller {
     })
     this.applyCounts(data.counts)
     this.reviewNoteTarget.textContent = `${data.changed} ayah(s) marked ${data.status}.`
+  }
+
+  // Say plainly how many settled decisions are about to be overturned — that is
+  // the whole difference between this and the unreviewed-only version.
+  bulkPrompt(decision, scope, targets) {
+    const verb = decision === "approve" ? "Approve" : "Reject"
+    if (scope !== "all") return `${verb} ${targets.length} unreviewed ayah(s) in this surah?`
+
+    const settled = targets.filter((v) => v.draft.status !== "pending").length
+    let text = `${verb} all ${targets.length} ayah(s) in this surah?`
+    if (settled) text += `\n\n${settled} of them have already been reviewed and will be overturned.`
+    return `${text}\n\nNothing live changes either way — only an import does that.`
   }
 
   async post(url, params) {

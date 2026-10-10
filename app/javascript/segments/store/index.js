@@ -401,6 +401,19 @@ const store = createStore({
       state.playing = payload.value;
     },
     SET_SURAH_ENDED(state) {
+      // Loop ayah normally rewinds from SET_TIMESTAMP once the clock passes
+      // timestamp_to. For the last ayah that end sits a few ms before the end of
+      // the file, and `timeupdate` only ticks every ~250 ms, so the clock can
+      // jump from before timestamp_to straight to `ended`. Restart the ayah here
+      // instead of stopping, otherwise the loop silently plays once.
+      const from = Number(state.verseSegment?.timestamp_from);
+      if (state.isLooingAyah && player && Number.isFinite(from)) {
+        player.currentTime = from / 1000;
+        state.currentTimestamp = from;
+        playAyah();
+        return;
+      }
+
       state.playing = false;
     },
     SET_AYAH_ENDED(state) {

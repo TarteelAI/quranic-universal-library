@@ -29,6 +29,7 @@ export default class extends Controller {
     if (!row) return
 
     this.setField(row, "step", run.current_step || "—")
+    this.setField(row, "source", run.source || "")
     this.setField(row, "last_log", run.last_log || "")
 
     const badge = row.querySelector('[data-field="status"]')

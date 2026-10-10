@@ -29,7 +29,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
 
   action_item :debug_segment, only: :show do
     link_to('View in segment tool',
-            segment_builder_surah_audio_file_path(resource.chapter_id, recitation_id: resource.audio_recitation_id),
+            segment_builder_surah_audio_file_path(resource.audio_recitation_id, chapter_id: resource.chapter_id),
             target: '_blank') if resource.chapter_id
   end
 

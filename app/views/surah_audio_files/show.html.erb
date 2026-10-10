@@ -17,7 +17,7 @@
            title: [@recitation.humanize, @audio_file.chapter&.name_simple].compact.join(' - '),
            key: 'surah_recitation_segment_builder',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Recitations', path: surah_audio_files_path(id: @recitation.id) }]
+           breadcrumb_parents: [{ label: 'Recitations', path: surah_audio_files_path(recitation_id: @recitation.id) }]
 %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">

@@ -13,6 +13,7 @@
 #  home                :integer
 #  name                :string
 #  priority            :integer
+#  qua_key             :string
 #  relative_path       :string
 #  segment_locked      :boolean          default(FALSE)
 #  segments_count      :integer
@@ -29,6 +30,7 @@
 #  index_audio_recitations_on_approved             (approved)
 #  index_audio_recitations_on_name                 (name)
 #  index_audio_recitations_on_priority             (priority)
+#  index_audio_recitations_on_qua_key              (qua_key) UNIQUE
 #  index_audio_recitations_on_recitation_style_id  (recitation_style_id)
 #  index_audio_recitations_on_reciter_id           (reciter_id)
 #  index_audio_recitations_on_relative_path        (relative_path)
@@ -40,6 +42,7 @@ module Audio
   class Recitation < QuranApiRecord
     include NameTranslateable
     include Resourceable
+    include RecitationDestroyable
 
     has_many :chapter_audio_files, class_name: 'Audio::ChapterAudioFile', foreign_key: :audio_recitation_id, dependent: :delete_all
     has_many :related_recitations, class_name: 'Audio::RelatedRecitation', foreign_key: :audio_recitation_id, dependent: :delete_all
@@ -52,8 +55,42 @@ module Audio
     belongs_to :qirat_type, optional: true
     belongs_to :reciter, optional: true
 
+
+    validates :qua_key, uniqueness: true, allow_nil: true
+
     scope :approved, -> { where(approved: true) }
     scope :un_approved, -> { where(approved: false) }
+
+    scope :has_verse_segments, ->(value) do
+      next all if value.blank?
+
+      segments_present('sample.timestamp_to > sample.timestamp_from', value)
+    end
+
+    scope :has_word_segments, ->(value) do
+      next all if value.blank?
+
+      segments_present('jsonb_array_length(sample.segments) > 0', value)
+    end
+
+    scope :has_letter_segments, ->(value) do
+      next all if value.blank?
+
+      segments_present('jsonb_array_length(sample.letter_segments) > 0', value)
+    end
+
+    def self.segments_present(condition, value)
+      sample = 'SELECT * FROM audio_segments ' \
+               'WHERE audio_segments.audio_recitation_id = audio_recitations.id ' \
+               'LIMIT 2'
+      exists_sql = "EXISTS (SELECT 1 FROM (#{sample}) sample WHERE #{condition})"
+
+      value.to_s == 'yes' ? where(exists_sql) : where("NOT #{exists_sql}")
+    end
+
+    def self.ransackable_scopes(*)
+      %i[has_verse_segments has_word_segments has_letter_segments]
+    end
 
     after_update :update_related_resources
 
@@ -75,12 +112,66 @@ module Audio
       cloned
     end
 
+    # Name the user has to type to confirm destructive actions on this record.
+    def confirmation_name
+      name.to_s.strip.presence || id.to_s
+    end
+
+    # Summary of the rows that `destroy_with_audio_files!` will remove.
+    def deletion_summary
+      {
+        'Chapter audio files' => chapter_audio_files.count,
+        'Segments' => Audio::Segment.where(audio_recitation_id: id).count,
+        'Change logs' => audio_change_logs.count,
+        'Related recitations' => Audio::RelatedRecitation.where(
+          'audio_recitation_id = :id OR related_audio_recitation_id = :id', id: id
+        ).count,
+        'Radio stations (will be unlinked)' => Radio::Station.where(audio_recitation_id: id).count
+      }
+    end
+
+    def destroy_with_audio_files!(delete_resource_content: false)
+      content = get_resource_content
+      reciter_record = reciter
+      qirat = qirat_type
+      style = recitation_style
+
+      transaction do
+        Audio::RelatedRecitation.where(related_audio_recitation_id: id).delete_all
+        Radio::Station.where(audio_recitation_id: id).update_all(audio_recitation_id: nil)
+
+        # chapter audio files, segments, change logs and related recitations are
+        # removed by the `dependent: :delete_all` associations.
+        destroy!
+      end
+
+      kept_reason = delete_resource_content ? destroy_resource_content(content) : nil
+
+      reciter_record&.update_recitation_count
+      qirat&.update_recitation_count
+      style&.update_recitation_count
+
+      kept_reason
+    end
+
     def missing_audio_files?
       chapter_audio_files.size < 114
     end
 
     def one_ayah?
       false
+    end
+
+    def has_verse_segments?
+      sampled_segments.any? { |segment| segment.timestamp_to.to_i > segment.timestamp_from.to_i }
+    end
+
+    def has_word_segments?
+      sampled_segments.any? { |segment| segment.segments.present? }
+    end
+
+    def has_letter_segments?
+      sampled_segments.any? { |segment| segment.letter_segments.present? }
     end
 
     def audio_format
@@ -124,6 +215,14 @@ module Audio
     end
 
     protected
+
+    def sampled_segments
+      @sampled_segments ||= audio_segments
+                              .limit(2)
+                              .select(:id, :timestamp_from, :timestamp_to, :segments, :letter_segments)
+                              .to_a
+    end
+
     def update_related_resources
       if get_resource_content.nil?
         resource = build_resource_content
@@ -143,7 +242,6 @@ module Audio
       reciter&.update_recitation_count
       qirat_type&.update_recitation_count
       recitation_style&.update_recitation_count
-      chapter_audio_files.each(&:update_segment_percentile)
     end
   end
 end

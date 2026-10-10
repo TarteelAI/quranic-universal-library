@@ -27,6 +27,7 @@ Rails.application.routes.draw do
         get 'surah_recitations', to: 'recitations#surah_recitations'
         get 'surah_recitations/:id', to: 'recitations#surah_recitation_detail'
         get 'surah_recitations/:id/wav_manifest', to: 'recitations#wav_manifest'
+        get 'surah_recitations/:id/transcript', to: 'transcripts#surah_transcript'
 
         get 'ayah_recitations', to: 'recitations#ayah_recitations'
         get 'ayah_recitations/:id', to: 'recitations#ayah_recitation_detail'
@@ -171,11 +172,6 @@ Rails.application.routes.draw do
     end
   end
 
-  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
-  put 'mistake-heatmap', to: 'word_mistakes#update'
-  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
-  get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
-
   resources :word_concordance_labels, only: [:show, :index] do
     member do
       get :word_detail
@@ -212,40 +208,72 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
-  namespace :segments do
-    get '/', to: 'dashboard#show', as: :dashboard
-    get '/failures', to: 'dashboard#failures', as: :failures
-    get '/word_failures', to: 'dashboard#word_failures', as: :word_failures
-    get '/word_failure_detail', to: 'dashboard#word_failure_detail', as: :word_failure_detail
-    get '/detections', to: 'dashboard#detections', as: :detections
-    get '/logs', to: 'dashboard#logs', as: :logs
-    get '/reciters', to: 'dashboard#reciters', as: :reciters
-    get '/reciters/:id', to: 'dashboard#reciter', as: :reciter
-    get '/timeline', to: 'dashboard#timeline', as: :timeline
-    get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
-    get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
-    post '/reciters/:id/download', to: 'dashboard#download_reciter', as: :download_reciter
-    match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
-  end
+  if Rails.application.config.x.qul_scripts_available
+    namespace :segment_pipeline do
+      get '/', to: 'runs#index', as: :root
+      # QUD deliveries imported as drafts that have no QUL recitation yet.
+      resources :deliveries, only: %i[index show] do
+        collection do
+          get :search_recitations
+        end
+        member do
+          post :attach
+          post :create_recitation
+          post :dismiss
+          delete :drafts, action: :destroy_drafts
+        end
+      end
+      get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
+      get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
+      get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
+      post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
+      post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
+      post 'reciters/:recitation_id/review_all_drafts', to: 'runs#review_all_drafts', as: :review_all_drafts
+      post 'reciters/:recitation_id/cleanup', to: 'runs#cleanup', as: :reciter_cleanup
+      scope 'reciters/:recitation_id/chapters/:chapter_id' do
+        post 'generate', to: 'runs#generate', as: :generate
+        post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
+        post 'cancel', to: 'runs#cancel', as: :cancel
+        post 'build_drafts', to: 'runs#stage_drafts', as: :build_drafts
+        post 'cleanup', to: 'runs#cleanup_chapter', as: :cleanup_chapter
+        post 'import', to: 'runs#import_drafts', as: :import
+        post 'drafts/review', to: 'runs#review_drafts', as: :review_drafts
+        post 'drafts/:id/review', to: 'runs#review_draft', as: :review_draft
+        post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
+        get 'artifact', to: 'runs#artifact', as: :artifact
+        get 'audio', to: 'runs#audio', as: :audio
+        get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
+        get 'compare_data', to: 'runs#compare_data', as: :compare_data
+      end
+    end
 
-  namespace :segment_pipeline do
-    get '/', to: 'runs#index', as: :root
-    get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
-    get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
-    get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
-    post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
-    post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
-    scope 'reciters/:recitation_id/chapters/:chapter_id' do
-      post 'generate', to: 'runs#generate', as: :generate
-      post 'rerun', to: 'runs#rerun', as: :rerun
-      post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
-      post 'cancel', to: 'runs#cancel', as: :cancel
-      post 'import', to: 'runs#import_segments', as: :import
-      post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
-      delete 'intermediates', to: 'runs#destroy_intermediates', as: :intermediates
-      get 'artifact', to: 'runs#artifact', as: :artifact
-      get 'audio', to: 'runs#audio', as: :audio
-      get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
+    namespace :audio_repair do
+      resources :sessions, only: %i[index create edit] do
+        member do
+          get :data
+          get :candidates
+          get :audition
+          get :peaks
+          get :letters
+          get :vowel_donors
+          post :vowel_preview
+          post :match
+          get :status
+          post :preview
+          post :add_operation
+          post :undo
+          post :redo
+          post :export
+          post :compare
+          get :comparison
+          get :comparison_zoom
+        end
+      end
+
+      resources :polarity, only: %i[index create show] do
+        member { post :fix }
+      end
+      root to: 'sessions#index'
     end
   end
 
@@ -259,5 +287,11 @@ Rails.application.routes.draw do
   get '/ayah/:key/topics', to: 'ayah#topics', as: :ayah_topics
   get '/ayah/:key/topics/:topic_id', to: 'ayah#topic', as: :ayah_topic
   get '/ayah/:key/recitation', to: 'ayah#recitation', as: :ayah_recitation
+
+  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
+  put 'mistake-heatmap', to: 'word_mistakes#update'
+  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
+  get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
+
   match '/404', to: 'application#not_found', via: :all
 end

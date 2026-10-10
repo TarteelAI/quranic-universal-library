@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_08_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "audio_repair_sessions", force: :cascade do |t|
+    t.integer "audio_recitation_id", null: false
+    t.integer "chapter_id", null: false
+    t.integer "audio_file_id"
+    t.string "status", default: "draft", null: false
+    t.jsonb "operations", default: [], null: false
+    t.jsonb "undone_operations", default: [], null: false
+    t.integer "crossfade_ms", default: 15, null: false
+    t.string "output_path"
+    t.integer "output_duration_ms"
+    t.text "notes"
+    t.text "last_error"
+    t.string "job_id"
+    t.integer "created_by_id"
+    t.datetime "rendered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audio_recitation_id", "chapter_id"], name: "idx_on_audio_recitation_id_chapter_id_96057a0b60"
+    t.index ["audio_recitation_id"], name: "index_audio_repair_sessions_on_audio_recitation_id"
+    t.index ["created_by_id"], name: "index_audio_repair_sessions_on_created_by_id"
   end
 
   create_table "change_logs", force: :cascade do |t|
@@ -523,6 +545,68 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
     t.string "copyright_notice"
   end
 
+  create_table "segment_pipeline_draft_deliveries", force: :cascade do |t|
+    t.string "slug", null: false
+    t.integer "audio_recitation_id"
+    t.string "reciter_name"
+    t.string "reciter_name_ar"
+    t.integer "qud_reciter_id"
+    t.string "country"
+    t.string "riwayah"
+    t.string "style"
+    t.string "recording_context"
+    t.integer "recording_year"
+    t.string "channel"
+    t.string "channel_name"
+    t.string "source"
+    t.string "source_url"
+    t.string "bucket"
+    t.string "coverage_kind"
+    t.string "audio_category"
+    t.integer "chapter_count"
+    t.integer "total_duration_sec"
+    t.integer "bitrate_kbps_nominal"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.integer "surahs_imported", default: 0, null: false
+    t.integer "drafts_count", default: 0, null: false
+    t.datetime "imported_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audio_recitation_id"], name: "index_segment_pipeline_draft_deliveries_on_audio_recitation_id"
+    t.index ["slug"], name: "index_segment_pipeline_draft_deliveries_on_slug", unique: true
+    t.index ["status"], name: "index_segment_pipeline_draft_deliveries_on_status"
+  end
+
+  create_table "segment_pipeline_draft_segments", force: :cascade do |t|
+    t.integer "audio_recitation_id"
+    t.integer "chapter_id", null: false
+    t.integer "verse_number", null: false
+    t.string "verse_key", null: false
+    t.integer "verse_id"
+    t.integer "timestamp_from"
+    t.integer "timestamp_to"
+    t.jsonb "segments", default: [], null: false
+    t.jsonb "letter_segments", default: [], null: false
+    t.string "source", null: false
+    t.string "source_ref"
+    t.string "status", default: "pending", null: false
+    t.integer "reviewed_by_id"
+    t.datetime "reviewed_at"
+    t.datetime "imported_at"
+    t.text "notes"
+    t.jsonb "comparison", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "draft_delivery_id"
+    t.index ["audio_recitation_id", "chapter_id", "status"], name: "index_draft_segments_on_reciter_chapter_status"
+    t.index ["audio_recitation_id", "chapter_id", "verse_number"], name: "index_draft_segments_on_reciter_chapter_verse", unique: true, where: "(audio_recitation_id IS NOT NULL)"
+    t.index ["draft_delivery_id", "chapter_id", "verse_number"], name: "index_draft_segments_on_delivery_chapter_verse", unique: true, where: "(draft_delivery_id IS NOT NULL)"
+    t.index ["draft_delivery_id"], name: "index_draft_segments_on_delivery"
+    t.index ["status", "audio_recitation_id"], name: "index_draft_segments_on_status_and_reciter"
+    t.index ["status", "draft_delivery_id"], name: "index_draft_segments_on_status_and_delivery", where: "(draft_delivery_id IS NOT NULL)"
+  end
+
   create_table "segment_pipeline_runs", force: :cascade do |t|
     t.integer "audio_recitation_id", null: false
     t.integer "chapter_id", null: false
@@ -537,12 +621,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
     t.datetime "finished_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "source", default: "pipeline", null: false
+    t.string "source_ref"
     t.index ["audio_recitation_id", "chapter_id"], name: "index_segment_pipeline_runs_on_reciter_and_chapter", unique: true
-  end
-
-  create_table "segments_databases", force: :cascade do |t|
-    t.string "name"
-    t.boolean "active", default: false
+    t.index ["source"], name: "index_segment_pipeline_runs_on_source"
   end
 
   create_table "synonyms", force: :cascade do |t|

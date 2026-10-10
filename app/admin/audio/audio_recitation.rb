@@ -18,7 +18,8 @@ ActiveAdmin.register Audio::Recitation do
                 :recitation_style_id,
                 :qirat_type_id,
                 :reciter_id,
-                :segment_locked
+                :segment_locked,
+                :qua_key
 
   scope :all
   scope :approved, group: :enabled
@@ -26,8 +27,19 @@ ActiveAdmin.register Audio::Recitation do
 
   filter :name
   filter :home
-  filter :qirat_type
+  filter :qirat_type, as: :searchable_select,
+         ajax: { resource: QiratType }
   filter :relative_path
+  filter :qua_key
+  filter :has_verse_segments, as: :select,
+         label: 'Has verse segments',
+         collection: [['Yes', 'yes'], ['No', 'no']]
+  filter :has_word_segments, as: :select,
+         label: 'Has word segments',
+         collection: [['Yes', 'yes'], ['No', 'no']]
+  filter :has_letter_segments, as: :select,
+         label: 'Has letter segments',
+         collection: [['Yes', 'yes'], ['No', 'no']]
   filter :recitation_style, as: :searchable_select,
          ajax: { resource: RecitationStyle }
   filter :section, as: :searchable_select,
@@ -105,6 +117,48 @@ ActiveAdmin.register Audio::Recitation do
     cloned = resource.clone_with_audio_files
 
     redirect_to [:cms, cloned], notice: "Cloning successfully"
+  end
+
+  action_item :delete_recitation, only: :show, if: -> { current_user&.super_admin? } do
+    link_to 'Delete Recitation', '#_',
+            class: 'text-danger',
+            data: {
+              controller: 'ajax-modal',
+              url: confirm_delete_cms_audio_recitation_path(resource)
+            }
+  end
+
+  member_action :confirm_delete, method: :get do
+    unless current_user&.super_admin?
+      return render plain: 'Only super admins can delete recitations.', status: :forbidden
+    end
+
+    render partial: 'admin/confirm_delete_recitation',
+           locals: {
+             resource: resource,
+             destroy_recitation_url: destroy_recitation_cms_audio_recitation_path(resource)
+           }
+  end
+
+  member_action :destroy_recitation, method: :delete do
+    unless current_user&.super_admin?
+      return redirect_to [:cms, resource], alert: 'Only super admins can delete recitations.'
+    end
+
+    name = resource.confirmation_name
+
+    if params[:confirm_name].to_s.strip != name
+      return redirect_to [:cms, resource], alert: "The name you typed doesn't match, nothing was deleted."
+    end
+
+    kept_reason = resource.destroy_with_audio_files!(
+      delete_resource_content: params[:delete_resource_content] == '1'
+    )
+
+    notice = "#{name} and its chapter audio files have been deleted."
+    notice += " Resource content was kept, it is still used by #{kept_reason}." if kept_reason.present?
+
+    redirect_to cms_audio_recitations_path, notice: notice
   end
 
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
@@ -237,6 +291,7 @@ ActiveAdmin.register Audio::Recitation do
       row :qirat_type
       row :arabic_name
       row :relative_path
+      row :qua_key
       row :format
       row :section
       row :home
@@ -306,6 +361,8 @@ ActiveAdmin.register Audio::Recitation do
       f.input :name
       f.input :arabic_name
       f.input :relative_path
+      f.input :qua_key,
+              hint: 'Quranic Universal Audio release slug for this recitation'
       f.input :format
       f.input :home
       f.input :description

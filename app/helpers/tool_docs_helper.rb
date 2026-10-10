@@ -19,7 +19,8 @@ module ToolDocsHelper
       'compare_ayah',
       'ayah_dependency_graph',
       'ayah_boundaries',
-      'compare_audio'
+      'compare_audio',
+      *(%w[audio_repair_index audio_repair_editor audio_repair_polarity] if qul_scripts_available?)
     ]
   end
 
@@ -1107,6 +1108,166 @@ module ToolDocsHelper
       {
         type: 'info',
         text: "The documentation for this tool is being expanded. Reach out on GitHub if a specific step is unclear."
+      }
+    ]
+  end
+
+  def audio_repair_index_help
+    [
+      "Audio repair",
+      {
+        text: "Audio repair fixes mistakes in a published recitation without re-recording it: a mispronounced word, a wrong vowel, a stumble. Repairs are non-destructive — the original file is never modified, and every change is kept as an undoable operation until you export."
+      },
+      {
+        type: 'step',
+        title: 'Pick a reciter and surah',
+        text: "Search the list for the reciter, then choose the surah that needs work. This opens (or reopens) a repair session for that pairing. A session keeps its list of repairs, so you can come back to it later."
+      },
+      {
+        type: 'step',
+        title: 'What you need before you start',
+        text: "The surah must have word timings for the reciter. To fix a single sound rather than a whole word, it also needs <strong>letter timings</strong> — the editor will tell you if they are missing."
+      },
+      {
+        type: 'info',
+        text: "Exporting re-encodes the whole surah and runs in the background. The repaired file is written alongside the original; nothing you do here changes the published audio."
+      }
+    ]
+  end
+
+  def audio_repair_polarity_help
+    [
+      "Polarity check",
+      {
+        text: "Some published surah files have the right channel inverted — every sample is the negative of the left. On headphones this is inaudible. On anything that sums the two channels to mono (a phone earpiece, a mono Bluetooth speaker, an app's mono output) the two cancel and the recitation drops to near silence. This page finds those stretches and validates a corrected file."
+      },
+      {
+        type: 'step',
+        title: 'Pick the original',
+        text: "Drop the mp3 as published, choose it from disk, or paste its URL. Choosing a recitation and surah labels each finding with ayah numbers; with no file given, the published file for that surah is checked."
+      },
+      {
+        type: 'step',
+        title: 'Optionally add the fixed file',
+        text: "If you already corrected the file, add it the same way. It is validated against the original: no inverted audio left, the mono mix as loud as stereo, and duration, sample rate and tags unchanged."
+      },
+      {
+        type: 'step',
+        title: 'Listen',
+        text: "Switch the output to <strong>Mono (L+R)</strong> — that is the same sum a mono device makes — and play a flagged window. The level meter collapses and the recitation disappears. Switch the source to <strong>Fixed</strong> at the same spot to hear the repair. Click a timeline to seek both files together."
+      },
+      {
+        type: 'step',
+        title: 'Generate the fix',
+        text: "<strong>Generate fixed file</strong> flips the right channel inside the flagged windows (the whole file when all of it is inverted), keeps the tags, bitrate and sample rate, then validates the result. Download it from the top right once it passes."
+      },
+      {
+        type: 'info',
+        text: "Phase correlation runs from +1 (identical channels) to -1 (inverted). Windows are reported where it stays below -0.5 for half a second or more of audible audio; fades and room tone are ignored. A clean file reads around +0.6 to +0.9 and loses under 1 dB in mono; an inverted one loses 30 dB or more."
+      }
+    ]
+  end
+
+  def audio_repair_editor_help
+    [
+      "Audio repair editor",
+      {
+        text: "Two kinds of repair, chosen with the tabs at the top. <strong>Replace word</strong> swaps a whole word or phrase for the same words recited correctly elsewhere. <strong>Fix pronunciation</strong> corrects one sound in place, without replacing any audio."
+      },
+      {
+        type: 'info',
+        text: "Pick the right one: if the reciter said the <em>wrong word</em>, replace the word. If the word is right but a <em>vowel or letter</em> came out wrong, fix the pronunciation — it changes far less of the audio and cannot shift any timings."
+      },
+
+      { type: 'heading', text: 'Replace word' },
+      {
+        type: 'step',
+        title: 'Step 1: Select what to replace',
+        text: "Click a word in the ayah; shift-click a second word to select a run. Greyed-out words have no timing and cannot be selected. The red waveform on the left is the audio you are about to replace, and you can nudge its start and end in milliseconds if the word boundary is slightly off."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Find a replacement',
+        text: "<strong>Find same word</strong> searches every other place this reciter says the same word or phrase. Because the stored text is always the correct text, this finds correctly-recited occurrences even though the audio at your target is wrong. <strong>Manual</strong> looks up a specific reference such as <code>18:31:6</code> or <code>18:31:6-7</code>. Use <em>Play</em> to audition a candidate and <em>wave</em> to see its shape before committing."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Fit it to the original',
+        text: "A clip taken from elsewhere in the surah is usually a little louder or quieter, a little higher or lower in pitch, and a little longer or shorter than the gap it has to fill. All three are audible, so press <strong>Measure</strong> to see the numbers side by side, then <strong>Match all</strong> to write the suggested corrections into the sliders.",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Loudness</strong> is measured in LUFS, which tracks perceived level rather than peak. <strong>Pitch</strong> is the median f0 across the clip. <strong>Length</strong> drives the time-stretch. A dash in the <em>fix</em> column means the difference is too small to be worth correcting — applying a correction there would only add artefacts.<br><br>The corrections land in the sliders rather than being applied invisibly, so you can always see and adjust what is being done. The editor warns if a candidate needs a pitch shift beyond about 2 semitones or a stretch beyond ±25%: at that point choosing a different candidate almost always beats correcting this one."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Preview and apply',
+        text: "<strong>Render preview</strong> builds the splice with a little context either side so you can hear it in place; A/B against the original with the two play buttons. <strong>Apply</strong> adds it to the repair list. Nothing is written to audio until you export, and every repair can be undone."
+      },
+
+      { type: 'heading', text: 'Fix pronunciation' },
+      {
+        type: 'info',
+        text: "This does not splice in anyone else's audio. It takes the <em>shape of the mouth</em> from a correct recitation of the same letter and applies it to the reciter's own voice. The result is still entirely his voice, at his pitch, in his acoustic — only the articulation changes. It is also exactly length-preserving, so no later word or letter timing moves."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Choose the sound',
+        text: "Pick the word, then the exact letter or harakah. Each chip shows how long that sound lasts and is drawn as wide as its duration, so a 60 ms consonant and a 430 ms stressed letter are easy to tell apart. <strong>Shift-click a second chip to select a run of sounds</strong> — useful when a whole syllable is wrong rather than a single vowel.",
+        sections: [
+          {
+            type: 'info',
+            text: "Harakat are shown on a dotted stroke (ـَ ـِ ـُ) because a vowel mark on its own is almost invisible. Selecting several sounds maps the donor letter-by-letter, so each letter lands on its counterpart even when the two recitations hold them for different lengths."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Choose where the correct sound comes from',
+        text: "The list shows the same letter of the same word recited elsewhere by this reciter. <em>same next</em> marks donors where the following sound also matches — those usually give the smoothest result, because the correction has to glide into whatever comes next.",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Measure all</strong> actually runs the repair for every donor and re-sorts the list by the measured outcome. It takes a few seconds per donor and results appear as they finish, so you can stop early. This matters: donors that look equally good on paper can differ a lot in practice, and the ordering before you measure is only a guess."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Listen, check the gauge, apply',
+        text: "The <strong>vowel colour</strong> gauge is the main readout. It plots where the sound sits between a rounded ḍamma-like vowel on the left and a front kasra-like vowel on the right, marking where it was before and where it landed after. A repair that worked moves the dot clearly across the middle band.",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Join smoothness</strong> is the largest jump in the second formant near the edit; lower is smoother, and the figure in brackets is what it was before. A large number means the correction does not blend into the neighbouring sounds — try a donor with the same following sound, or lengthen <em>Glide out</em>.<br><br><strong>Audio changed</strong> shows how much of the recording was touched. It should be a little wider than the sound you selected and nothing more."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Advanced settings',
+        text: "The defaults are tuned and suit most repairs; open this only when a result is not good enough. Each control changes one thing:",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Ramp in</strong> — how long the correction takes to reach full strength before the sound.<br><strong>Glide out</strong> — how far it glides into the following consonant. Raise it if the join sounds abrupt.<br><strong>Strength</strong> — how far toward the donor's articulation to go. Below 1 the sound is only partly corrected; useful when a full correction overshoots.<br><strong>Tilt split</strong> — where the donor's vowel ends and its recording character begins. Raise it and the donor's microphone starts bleeding through; lower it and less of the vowel comes across.<br><strong>Filter order</strong> — resolution of the vocal-tract model. Higher tracks more detail but is less stable; lower it if the editor reports frames it could not model."
+          }
+        ]
+      },
+
+      { type: 'heading', text: 'Finishing up' },
+      {
+        type: 'step',
+        title: 'Repairs, undo and export',
+        text: "Every applied repair is listed at the bottom, tagged <em>word</em> or <em>sound</em>, with the measured before/after for pronunciation fixes. Undo and redo walk the list. <strong>Export MP3</strong> renders the whole surah with every repair applied and gives you a download link.",
+        sections: [
+          {
+            type: 'info',
+            text: "Pronunciation fixes are applied to the surah first and word replacements afterwards, so the two compose cleanly. Because a pronunciation fix never changes length, the word and letter timings you already have stay valid for the exported file."
+          }
+        ]
       }
     ]
   end

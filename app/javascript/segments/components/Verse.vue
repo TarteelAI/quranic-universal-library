@@ -17,7 +17,7 @@
               v-for="(slice, li) in letterSlicesByWord[index + 1]"
               :key="li"
               class="seg-letter"
-              :class="{ 'letter-active': activeLetterKey === (index + 1) + '-' + li }"
+              :class="{ 'letter-active': activeLetterKeys.includes((index + 1) + '-' + li) }"
             >{{ slice.text }}</span>
           </span>
           <template v-else>{{ text }}</template>
@@ -97,6 +97,54 @@
                 <span class="shrink-0">💡</span>
                 <span><span class="font-semibold text-gray-700">Suggested fix:</span> {{ issue.suggestion }}</span>
               </p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div
+          v-if="showRepeats"
+          class="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 overflow-y-auto"
+          @click.self="showRepeats = false"
+      >
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mt-16">
+          <div class="flex items-center justify-between px-4 py-3 border-b">
+            <h3 class="text-base font-semibold">
+              Ayahs with repetition ({{ repeatedAyahs.length }})
+            </h3>
+            <button @click="showRepeats = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          </div>
+
+          <p class="px-4 py-2 text-xs text-gray-500 border-b bg-gray-50">
+            Detected from the segment data loaded in the browser, so unsaved edits count too. A repeat is a
+            run of words whose numbering repeats — the whole ayah recited twice, or a few words repeated.
+          </p>
+
+          <ul class="max-h-[60vh] overflow-y-auto divide-y divide-gray-100">
+            <li v-if="!repeatedAyahs.length" class="px-4 py-8 text-sm text-gray-500 text-center">
+              No repetition found in this surah.
+            </li>
+            <li v-for="entry in repeatedAyahs" :key="entry.verse" class="px-4 py-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="text-sm text-gray-700">
+                  <span class="font-semibold">Ayah {{ entry.verse }}</span>
+                  <ul class="mt-1 space-y-1">
+                    <li v-for="(repeat, i) in entry.repeats" :key="i" class="flex items-center gap-2 text-xs text-gray-600">
+                      <span
+                          class="px-1.5 py-0.5 text-[10px] font-semibold rounded-full uppercase"
+                          :class="repeat.full ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-indigo-100 text-indigo-700'"
+                      >{{ repeat.full ? 'Full ayah' : 'Words' }}</span>
+                      <span>{{ repeat.label }}</span>
+                      <span class="text-gray-400">repeats at {{ formatMs(repeat.startMs) }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <a
+                    href="#"
+                    @click.prevent="goToRepeat(entry.verse)"
+                    class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline whitespace-nowrap"
+                >View ayah {{ entry.verse }} →</a>
+              </div>
             </li>
           </ul>
         </div>
@@ -260,6 +308,15 @@
                 class="px-3 py-1 text-xs font-medium bg-amber-500 text-white rounded hover:bg-amber-600"
             >
               Find issues
+            </button>
+
+            <button
+                @click="showRepeats = true"
+                data-controller="tooltip"
+                title="List ayahs where the reciter repeats the whole ayah or some of its words"
+                class="px-3 py-1 text-xs font-medium bg-fuchsia-600 text-white rounded hover:bg-fuchsia-700"
+            >
+              Repeats<span v-if="repeatedAyahs.length"> ({{ repeatedAyahs.length }})</span>
             </button>
 
             <button
@@ -546,6 +603,8 @@
 </template>
 
 <script>
+import { alignLetterTakes } from '../../lib/letter_slices';
+import { findRepeats } from '../../lib/segment_repeats';
 import { mapState } from 'vuex';
 import {playAyah} from "../helper/audio";
 import {hasTiming} from "../helper/segmentTime";
@@ -561,7 +620,8 @@ export default {
       issueGroups: [],
       activeIssueTab: 'current',
       showCompare: false,
-      activeLetterKey: null,
+      showRepeats: false,
+      activeLetterKeys: [],
     };
   },
   created() {
@@ -645,39 +705,12 @@ export default {
         index: Number(index),
       });
     },
-    // Greedy alignment of a letter-segment list onto the displayed word text.
-    // Each letter's `char` is matched to the next occurrence in the word; any
-    // diacritics between matches attach to the preceding letter, and trailing
-    // diacritics attach to the last letter. Returns null (→ plain-text render)
-    // if a letter can't be located, so a mismatch never drops characters.
-    alignLetters(word, letters) {
-      if (!word || !letters || !letters.length) return null;
-
-      const chars = Array.from(word);
-      const slices = letters.map((letter) => ({ text: '', start: letter.start, end: letter.end }));
-      let ci = 0;
-
-      for (let li = 0; li < letters.length; li++) {
-        const target = letters[li].char;
-
-        let j = ci;
-        while (j < chars.length && chars[j] !== target) j++;
-        if (j >= chars.length) return null;
-
-        if (j > ci) {
-          const attachTo = li === 0 ? 0 : li - 1;
-          slices[attachTo].text += chars.slice(ci, j).join('');
-        }
-
-        slices[li].text += target;
-        ci = j + 1;
-      }
-
-      if (ci < chars.length) {
-        slices[slices.length - 1].text += chars.slice(ci).join('');
-      }
-
-      return slices;
+    // Slice a word's displayed text into one piece per letter segment, with one
+    // timing range per take when the word was recited more than once. Shared
+    // with the segment pipeline's compare view — see
+    // app/javascript/lib/letter_slices.js for how the matching works.
+    alignLetters(word, letters, occurrences) {
+      return alignLetterTakes(word, letters, occurrences);
     },
     startLetterTick() {
       if (this._letterRaf != null) return;
@@ -688,7 +721,7 @@ export default {
         cancelAnimationFrame(this._letterRaf);
         this._letterRaf = null;
       }
-      this.activeLetterKey = null;
+      this.activeLetterKeys = [];
     },
     letterTick() {
       // Read the media clock every frame (~16ms) rather than relying on the
@@ -705,17 +738,18 @@ export default {
         this.$store.commit('STOP_AT_PLAYBACK_BOUNDARY', { time });
 
         if (this.showLetters) {
+          // Several letters can share one time range — a fatha and the
+          // superscript alef above it are a single sound and are given
+          // identical timings — so collect every letter covering the clock
+          // rather than stopping at the first.
           const letters = this.flatLetters;
+          const keys = [];
 
-          let key = null;
           for (let i = 0; i < letters.length; i++) {
-            if (time >= letters[i].start && time < letters[i].end) {
-              key = letters[i].key;
-              break;
-            }
+            if (time >= letters[i].start && time < letters[i].end) keys.push(letters[i].key);
           }
 
-          if (key !== this.activeLetterKey) this.activeLetterKey = key;
+          if (keys.join(',') !== this.activeLetterKeys.join(',')) this.activeLetterKeys = keys;
         }
       }
 
@@ -1095,6 +1129,25 @@ export default {
     goToIssue(verse) {
       this.$store.commit('CHANGE_AYAH', { to: verse });
     },
+    goToRepeat(verse) {
+      this.showRepeats = false;
+      this.$store.commit('CHANGE_AYAH', { to: verse });
+    },
+    formatMs(ms) {
+      if (ms === null || ms === undefined) return '—';
+
+      const total = Math.max(0, Math.round(Number(ms) / 1000));
+      const minutes = Math.floor(total / 60);
+      const seconds = total % 60;
+
+      return `${minutes}:${String(seconds).padStart(2, '0')}`;
+    },
+    // Shared with the segment pipeline's compare view — see
+    // app/javascript/lib/segment_repeats.js. Same algorithm as
+    // Audio::Segment#find_repeated_segments, which sets the has_repetition flag.
+    findRepeatsInSegments(wordSegments, wordsCount) {
+      return findRepeats(wordSegments, wordsCount);
+    },
     mainVerseData(verse) {
       return this.segments[`${this.chapter}:${verse}`] || null;
     },
@@ -1364,22 +1417,60 @@ export default {
       const map = {};
 
       Object.keys(this.lettersByWord).forEach((word) => {
-        const slices = this.alignLetters(this.wordsText[Number(word) - 1], this.lettersByWord[word]);
+        const slices = this.alignLetters(
+          this.wordsText[Number(word) - 1], this.lettersByWord[word], this.wordOccurrences[word]
+        );
         if (slices) map[word] = slices;
       });
 
       return map;
     },
+    // word position => its [start, end] spans, one per take. A word the reciter
+    // backed up and repeated has more than one, and its letters have to be
+    // placed per take or only the first take can ever highlight.
+    wordOccurrences() {
+      const map = {};
+      const list = (this.verseSegment && this.verseSegment.segments) || [];
+
+      list.forEach((segment) => {
+        if (!segment || segment.length < 3) return;
+
+        const word = Number(segment[0]);
+        (map[word] || (map[word] = [])).push([Number(segment[1]), Number(segment[2])]);
+      });
+
+      return map;
+    },
+    // One entry per slice per take, all sharing the slice's key: a repeated
+    // letter is one span on screen that lights up in each take. The key is a
+    // membership test downstream, so repeating it is harmless.
     flatLetters() {
       const flat = [];
 
       Object.keys(this.letterSlicesByWord).forEach((word) => {
         this.letterSlicesByWord[word].forEach((slice, li) => {
-          flat.push({ key: `${word}-${li}`, start: slice.start, end: slice.end });
+          const key = `${word}-${li}`;
+          (slice.ranges || [[slice.start, slice.end]]).forEach(([start, end]) => {
+            flat.push({ key, start, end });
+          });
         });
       });
 
       return flat;
+    },
+    repeatedAyahs() {
+      const entries = [];
+
+      for (let verse = 1; verse <= Number(this.versesCount || 0); verse++) {
+        const data = this.segments[`${this.chapter}:${verse}`];
+        if (!data || !data.segments || !data.segments.length) continue;
+
+        const wordsCount = (data.words && data.words.length) || 0;
+        const repeats = this.findRepeatsInSegments(data.segments, wordsCount);
+        if (repeats.length) entries.push({ verse, repeats });
+      }
+
+      return entries;
     },
     activeIssueGroup() {
       return this.issueGroups.find((group) => group.id === this.activeIssueTab) || this.issueGroups[0] || null;
@@ -1471,23 +1562,6 @@ export default {
   padding: 0 3px;
   margin: 0 2px;
   cursor: pointer;
-}
-
-/* Only the current letter is coloured; the soft fade makes the colour glide
-   from one letter to the next as the key changes. */
-.seg-letter {
-  transition: color 0.1s linear, text-shadow 0.1s linear;
-}
-
-.letter-active {
-  color: #f59e0b;
-  text-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
-}
-
-.table-wrapper {
-  /*height: 100px !important;
-  overflow: scroll;
-  scroll-behavior: smooth;*/
 }
 
 tr {

@@ -8,8 +8,6 @@ require 'zip'
 
 module Exporter
   class DownloadableResources
-    SEGMENT_TAGS = ['With segments', 'Ayah segments', 'Word segments'].freeze
-
     def export_all
       FileUtils.rmdir("tmp/export")
 
@@ -545,7 +543,7 @@ module Exporter
           tags << 'Partial'
         end
 
-        downloadable_resource = set_tags(downloadable_resource, tags, remove: SEGMENT_TAGS)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -600,7 +598,7 @@ module Exporter
           tags << 'Partial'
         end
 
-        downloadable_resource = set_tags(downloadable_resource, tags, remove: SEGMENT_TAGS)
+        downloadable_resource = set_tags(downloadable_resource, tags)
 
         json = exporter.export_json
         sqlite = exporter.export_sqlite
@@ -907,13 +905,12 @@ module Exporter
       return [] unless content.has_segments?
 
       tags = ['Ayah segments']
-      tags << 'Word segments' if recitation.word_segments?
+      tags << 'Word segments' if recitation.has_word_segments?
       tags
     end
 
-    def set_tags(download_resource, tags, remove: [])
+    def set_tags(download_resource, tags)
       download_resource.save(validate: false) if download_resource.new_record?
-      download_resource.remove_tags(remove - tags) if remove.present?
 
       if tags.present?
         existing_tags = download_resource.tag_names

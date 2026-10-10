@@ -23,7 +23,7 @@ jobs:
       # The tests under test/ do not boot Rails and do not touch the database,
       # so they need neither bundler nor a Postgres service.
       - name: Install test dependencies
-        run: gem install minitest activesupport csv --no-document
+        run: gem install minitest activesupport csv rubyzip --no-document
 
       - name: Run tests
         run: ruby -Itest -e 'Dir["test/**/*_test.rb"].sort.each { |f| require File.expand_path(f) }'

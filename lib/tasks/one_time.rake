@@ -1071,4 +1071,25 @@ namespace :one_time do
       puts "  NB surface tokens (#{toks.size}): " + toks.map { |t| "pos#{t.position_in_word}=#{t.segment_type}" }.join(', ')
     end
   end
+
+  desc 'Replace the "With segments" tag on recitation downloads with "Ayah segments" and "Word segments"'
+  task split_recitation_segment_tags: :environment do
+    old_tag = DownloadableResourceTag.where('LOWER(name) = ?', 'with segments').first
+    next if old_tag.nil?
+
+    DownloadableResourceTagging.where(downloadable_resource_tag_id: old_tag.id).includes(:downloadable_resource).find_each do |tagging|
+      resource = tagging.downloadable_resource
+
+      if resource.chapter?
+        recitation = Audio::Recitation.find_by(resource_content_id: resource.resource_content_id)
+        tags = ['Ayah segments']
+        tags << 'Word segments' if recitation&.has_word_segments?
+      else
+        tags = ['Word segments']
+      end
+
+      resource.tags = tags.join(',')
+      tagging.destroy
+    end
+  end
 end

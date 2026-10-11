@@ -3,12 +3,12 @@ module V1
     class TranscriptPresenter < ApiPresenter
       DEFAULT_SCRIPT = 'text_imlaei'.freeze
 
-      ALLOWED_SCRIPTS = {
-        text_qpc_hafs: true,
-        text_imlaei: true,
-        text_imlaei_simple: true,
-        text_digital_khatt: true
-      }.freeze
+      ALLOWED_SCRIPTS = [
+        'text_qpc_hafs',
+        'text_imlaei',
+        'text_imlaei_simple',
+        'text_digital_khatt'
+      ].freeze
 
       def recitation
         @recitation ||= ::Audio::Recitation.approved.find(params[:id])
@@ -20,7 +20,7 @@ module V1
         requested = params[:script].to_s.strip.downcase
         return @script = DEFAULT_SCRIPT if requested.blank?
 
-        invalid_script(requested) unless ALLOWED_SCRIPTS.key?(requested)
+        invalid_script(requested) unless ALLOWED_SCRIPTS.include?(requested)
 
         @script = requested
       end
@@ -81,7 +81,7 @@ module V1
 
       def invalid_script(value)
         raise ::Api::BadRequest.new(
-          "#{value} is not a valid script. Supported scripts are #{ALLOWED_SCRIPTS.keys.join(', ')}."
+          "#{value} is not a valid script. Supported scripts are #{ALLOWED_SCRIPTS.join(', ')}."
         )
       end
     end

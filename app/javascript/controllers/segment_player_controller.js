@@ -23,11 +23,22 @@ export default class extends Controller {
     this.audioData = {}
     this.isPlaying = false
     this.playWindowEndMs = null
-    this.loopEnabled = false
     this.draggingProgress = false
     this.seekOnNextPlay = true
     this.jumpToken = 0
     this.pendingSeekRatio = null
+
+    // Range repeat: play `range.from`..`range.to`, each ayah `ayahRepeat`
+    // times, the whole range `rangeRepeat` times (Infinity to loop forever).
+    this.range = null
+    this.ayahRepeatCounter = 0
+    this.rangeRepeatCounter = 0
+    this.handlingRangeBoundary = false
+    this.rangeFinished = false
+    this.rangeSeek = null
+    this.progressLoopToken = 0
+    this.progressFallbackId = null
+    this.progressStepping = false
 
     this.versePaginaiton = {};
     this.segmentPaginaiton = {};
@@ -43,8 +54,21 @@ export default class extends Controller {
     this.progressHandle = this.element.querySelector('#progress-handle');
     this.currentTime = this.element.querySelector('#current-time');
     this.totalTime = this.element.querySelector('#total-duration');
-    this.loopButton = this.element.querySelector('#loop-button');
     this.currentVerseKeyLabel = this.element.querySelector('#current-verse-key');
+
+    this.rangeButton = this.element.querySelector('#range-repeat-button');
+    this.rangePanel = this.element.querySelector('#range-repeat-panel');
+    this.rangeFromSelect = this.element.querySelector('#range-from');
+    this.rangeToSelect = this.element.querySelector('#range-to');
+    this.rangeAyahRepeatInput = this.element.querySelector('#range-ayah-repeat');
+    this.rangeRepeatInput = this.element.querySelector('#range-repeat-count');
+    this.rangeForeverInput = this.element.querySelector('#range-repeat-forever');
+    this.rangeAyahRepeatLabel = this.element.querySelector('#range-ayah-repeat-label');
+    this.rangeRepeatField = this.element.querySelector('#range-repeat-count-field');
+    this.rangeForeverLabel = this.element.querySelector('#range-forever-label');
+    this.rangeApplyLabel = this.element.querySelector('#range-repeat-apply-label');
+    this.rangeError = this.element.querySelector('#range-repeat-error');
+    this.rangeStatus = this.element.querySelector('#range-repeat-status');
 
     this.loadingIndicator = this.createLoadingIndicator();
     this.ayahContainer = this.element.querySelector("#current-ayah");
@@ -73,8 +97,7 @@ export default class extends Controller {
   }
 
   disconnect() {
-    if (this.playerId)
-      cancelAnimationFrame(this.playerId);
+    this.stopProgressLoop();
 
     if (this.player) {
       this.player.unload();
@@ -107,7 +130,7 @@ export default class extends Controller {
 
   bindEvents() {
     this.playButton.addEventListener('click', this.togglePlay.bind(this));
-    this.loopButton.addEventListener('click', this.toggleLoop.bind(this));
+    this.bindRangeEvents();
 
     this.progressInput.addEventListener('pointerdown', () => { this.draggingProgress = true; });
     this.progressInput.addEventListener('pointerup', () => { this.draggingProgress = false; });
@@ -207,10 +230,79 @@ export default class extends Controller {
     }
   }
 
+  // The progress loop drives the clock, the progress bar and the highlight, so
+  // it must survive Howler's event ordering. Seeking to another ayah pauses and
+  // replays the sound, and the `pause` can be delivered *after* the `play` that
+  // followed it; a loop torn down by that stale event would leave the highlight
+  // stuck on one ayah while the recitation carried on. So the loop owns its own
+  // lifetime: a token invalidates older loops, and it ends only once the player
+  // has genuinely stayed stopped rather than on a single idle frame.
+  startProgressLoop() {
+    const token = ++this.progressLoopToken;
+    let idleFrames = 0;
+    let lastPosition = null;
+    let lastFrameAt = performance.now();
+
+    const tick = async () => {
+      if (token !== this.progressLoopToken) return;
+
+      lastFrameAt = performance.now();
+      await this.step();
+      if (token !== this.progressLoopToken) return;
+
+      // Resuming a streamed surah file after a seek can leave the player
+      // reporting "not playing" for the better part of a second, so idleness
+      // alone must not end the loop — only a player that is both stopped and
+      // not advancing, for long enough that no buffering explains it.
+      const position = this.player ? this.player.seek() : 0;
+      const stalled = this.player && !this.player.playing() && position === lastPosition;
+      lastPosition = position;
+      idleFrames = stalled ? idleFrames + 1 : 0;
+      if (idleFrames > 600) return;
+
+      this.playerId = requestAnimationFrame(tick);
+    };
+
+    cancelAnimationFrame(this.playerId);
+    this.playerId = requestAnimationFrame(tick);
+
+    // A hidden tab stops delivering animation frames, and a repeat with no one
+    // watching the boundaries runs straight past its last ayah. This timer
+    // takes over whenever frames dry up; browsers clamp it to about a second
+    // in the background, which still stops the range close enough to its end.
+    clearInterval(this.progressFallbackId);
+    this.progressFallbackId = setInterval(() => {
+      if (token !== this.progressLoopToken) {
+        clearInterval(this.progressFallbackId);
+        return;
+      }
+      if (performance.now() - lastFrameAt < 400) return;
+      this.step();
+    }, 250);
+  }
+
+  stopProgressLoop() {
+    this.progressLoopToken += 1;
+    cancelAnimationFrame(this.playerId);
+    clearInterval(this.progressFallbackId);
+  }
+
+  // One pass of the progress handling, never two at once: the animation frame
+  // and the fallback timer both drive it.
+  async step() {
+    if (this.progressStepping) return;
+
+    this.progressStepping = true;
+    try {
+      await this.updateProgress();
+    } finally {
+      this.progressStepping = false;
+    }
+  }
+
   onplay() {
     this.isPlaying = true;
-    cancelAnimationFrame(this.playerId);
-    this.playerId = requestAnimationFrame(() => this.updateProgress());
+    this.startProgressLoop();
     const icon = this.playButton.querySelector("i");
     icon.classList.add("fa-pause");
     icon.classList.remove("fa-play");
@@ -224,9 +316,7 @@ export default class extends Controller {
     const time = this.player.seek();
     const timeMs = time * 1000;
 
-    if (this.loopEnabled && this.shouldRestartLoop(timeMs)) {
-      this.restartCurrentVerse();
-      this.playerId = requestAnimationFrame(() => this.updateProgress());
+    if (this.range && this.handleRangeProgress(timeMs)) {
       return;
     }
 
@@ -248,8 +338,6 @@ export default class extends Controller {
     }
 
     this.updateHighlighting(timeMs);
-
-    this.playerId = requestAnimationFrame(() => this.updateProgress());
   }
 
   updateProgressPosition(percent) {
@@ -291,8 +379,15 @@ export default class extends Controller {
   }
 
   onpause() {
+    // Pausing and immediately replaying (every seek to another ayah does that)
+    // can deliver Howler's `pause` *after* the `play` that followed it. Tearing
+    // the progress loop down then would leave the highlight frozen on one ayah
+    // while the recitation carries on, so trust the player's own state.
+    if (this.player && this.player.playing()) {
+      return;
+    }
+
     this.isPlaying = false;
-    cancelAnimationFrame(this.playerId);
 
     const icon = this.playButton.querySelector("i");
     icon.classList.add("fa-play");
@@ -300,13 +395,13 @@ export default class extends Controller {
   }
 
   onend() {
-    cancelAnimationFrame(this.playerId);
+    this.stopProgressLoop();
 
-    if (this.loopEnabled) {
-      this.restartCurrentVerse();
-    } else {
-      this.playNextAyah();
+    if (this.range && this.takeRangeAction()) {
+      return;
     }
+
+    this.playNextAyah();
   }
 
   onload() {
@@ -405,6 +500,7 @@ export default class extends Controller {
 
     if (this.player) {
       this.player.play();
+      this.startProgressLoop();
     }
   }
 
@@ -452,21 +548,293 @@ export default class extends Controller {
     this.playAyah(key);
     this.seekOnNextPlay = false;
     this.player.play();
+    this.startProgressLoop();
   }
 
-  toggleLoop() {
-    this.loopEnabled = !this.loopEnabled;
-    this.loopButton.setAttribute('aria-pressed', this.loopEnabled.toString());
-    this.loopButton.classList.toggle('bg-primary-100', this.loopEnabled);
-    this.loopButton.classList.toggle('text-primary-700', this.loopEnabled);
-    this.loopButton.classList.toggle('bg-slate-100', !this.loopEnabled);
-    this.loopButton.classList.toggle('text-slate-500', !this.loopEnabled);
+  bindRangeEvents() {
+    if (!this.rangeButton) return;
+
+    this.rangeButton.addEventListener('click', () => this.toggleRangePanel());
+    this.element.querySelector('#range-repeat-close')
+      .addEventListener('click', () => this.closeRangePanel());
+    this.element.querySelector('#range-repeat-apply')
+      .addEventListener('click', () => this.applyRange());
+    this.element.querySelector('#range-repeat-clear')
+      .addEventListener('click', () => this.clearRange());
+
+    this.rangeForeverInput.addEventListener('change', () => this.syncRangeFields());
+    this.rangeFromSelect.addEventListener('change', () => this.syncRangeFields());
+    this.rangeToSelect.addEventListener('change', () => this.syncRangeFields());
   }
 
-  shouldRestartLoop(timeMs) {
+  // One control covers both cases: picking the same ayah for both ends is how
+  // the user asks for a plain single-ayah repeat, so the fields that only make
+  // sense for a real range step out of the way.
+  isSingleAyahSelection() {
+    return this.rangeFromSelect.value === this.rangeToSelect.value;
+  }
+
+  syncRangeFields() {
+    const single = this.isSingleAyahSelection();
+
+    this.rangeRepeatField.classList.toggle('hidden', single);
+    this.rangeAyahRepeatLabel.textContent = single ? 'Repeat count' : 'Repeat each ayah';
+    this.rangeForeverLabel.textContent = single ? 'Repeat forever' : 'Loop the range forever';
+    this.rangeApplyLabel.textContent = single ? 'Repeat ayah' : 'Play range';
+
+    this.rangeAyahRepeatInput.disabled = single && this.rangeForeverInput.checked;
+    this.rangeRepeatInput.disabled = this.rangeForeverInput.checked;
+  }
+
+  toggleRangePanel() {
+    if (this.rangePanel.classList.contains('hidden')) {
+      this.populateRangeSelects();
+      this.rangePanel.classList.remove('hidden');
+      this.rangeButton.setAttribute('aria-expanded', 'true');
+    } else {
+      this.closeRangePanel();
+    }
+  }
+
+  closeRangePanel() {
+    this.rangePanel.classList.add('hidden');
+    this.rangeButton.setAttribute('aria-expanded', 'false');
+  }
+
+  // The selects only ever offer ayahs of the surah on screen — the surah file
+  // and the loaded segments both stop at its boundary.
+  populateRangeSelects() {
+    const ayahCount = QuranUtils.getSurahAyahCount(this.currentChapter);
+    const options = Array.from({length: ayahCount}, (_, i) => {
+      const key = `${this.currentChapter}:${i + 1}`;
+      return `<option value="${key}">${key}</option>`;
+    }).join('');
+
+    const from = this.range?.from || this.currentVerseKey;
+    const to = this.range?.to || this.currentVerseKey;
+
+    this.rangeFromSelect.innerHTML = options;
+    this.rangeToSelect.innerHTML = options;
+    this.rangeFromSelect.value = from;
+    this.rangeToSelect.value = to;
+
+    this.rangeAyahRepeatInput.value = this.range?.ayahRepeat || 1;
+    this.rangeForeverInput.checked = this.range?.rangeRepeat === Infinity;
+    if (this.range && this.range.rangeRepeat !== Infinity) {
+      this.rangeRepeatInput.value = this.range.rangeRepeat;
+    }
+    this.syncRangeFields();
+    this.hideRangeError();
+  }
+
+  showRangeError(message) {
+    this.rangeError.textContent = message;
+    this.rangeError.classList.remove('hidden');
+  }
+
+  hideRangeError() {
+    this.rangeError.classList.add('hidden');
+  }
+
+  async applyRange() {
+    const from = this.rangeFromSelect.value;
+    const to = this.rangeToSelect.value;
+
+    if (QuranUtils.getAyahIdFromKey(from) > QuranUtils.getAyahIdFromKey(to)) {
+      this.showRangeError('The first ayah must come before the last ayah.');
+      return;
+    }
+
+    const clamp = (input) => Math.min(Math.max(parseInt(input.value, 10) || 1, 1), 99);
+
+    const forever = this.rangeForeverInput.checked;
+    const single = this.isSingleAyahSelection();
+
+    this.range = {
+      from,
+      to,
+      // A forever single-ayah repeat is just a one-ayah range on an endless
+      // loop, so the same counters drive both cases.
+      ayahRepeat: single && forever ? 1 : clamp(this.rangeAyahRepeatInput),
+      rangeRepeat: forever ? Infinity : (single ? 1 : clamp(this.rangeRepeatInput)),
+    };
+    this.ayahRepeatCounter = 0;
+    this.rangeRepeatCounter = 0;
+    this.rangeFinished = false;
+    // Until the jump below lands, the player is still somewhere else, and
+    // `updateVerse` would drag the range onto whatever ayah that is.
+    this.awaitRangeSeek(this.segmentsData[from]?.time_from || 0);
+
+    this.hideRangeError();
+    this.closeRangePanel();
+    this.renderRangeState();
+
+    await this.jumpToVerseAndResume(from);
+  }
+
+  clearRange() {
+    this.range = null;
+    this.ayahRepeatCounter = 0;
+    this.rangeRepeatCounter = 0;
+    this.rangeFinished = false;
+    this.rangeSeek = null;
+    this.closeRangePanel();
+    this.renderRangeState();
+  }
+
+  renderRangeState() {
+    const active = Boolean(this.range);
+
+    this.rangeButton.setAttribute('aria-pressed', active.toString());
+    this.rangeButton.classList.toggle('bg-emerald-100', active);
+    this.rangeButton.classList.toggle('text-emerald-700', active);
+    this.rangeButton.classList.toggle('bg-slate-100', !active);
+    this.rangeButton.classList.toggle('text-slate-500', !active);
+
+    this.rangeStatus.classList.toggle('hidden', !active);
+    if (!active) return;
+
+    if (this.rangeFinished) {
+      this.rangeStatus.textContent = this.range.from === this.range.to
+        ? `Finished repeating ${this.range.from}`
+        : `Finished repeating ${this.range.from} – ${this.range.to}`;
+      return;
+    }
+
+    const {from, to, ayahRepeat, rangeRepeat} = this.range;
+    const forever = rangeRepeat === Infinity;
+
+    if (from === to) {
+      const count = forever ? '∞' : ayahRepeat;
+      this.rangeStatus.textContent = `Repeating ${from} (play ${this.ayahRepeatCounter + 1} of ${count})`;
+      return;
+    }
+
+    const pass = forever
+      ? `pass ${this.rangeRepeatCounter + 1} of ∞`
+      : `pass ${Math.min(this.rangeRepeatCounter + 1, rangeRepeat)} of ${rangeRepeat}`;
+    const each = ayahRepeat > 1 ? `, each ayah ×${ayahRepeat}` : '';
+
+    this.rangeStatus.textContent = `Repeating ${from} – ${to} (${pass}${each})`;
+  }
+
+  // Decides what to do now that the audio for `currentVerseKey` has finished.
+  nextRangeAction() {
+    const {to, ayahRepeat, rangeRepeat} = this.range;
+
+    if (this.ayahRepeatCounter < ayahRepeat - 1) {
+      this.ayahRepeatCounter += 1;
+      return 'repeat-ayah';
+    }
+
+    this.ayahRepeatCounter = 0;
+
+    if (this.currentVerseKey !== to) {
+      return 'next-ayah';
+    }
+
+    if (rangeRepeat === Infinity || this.rangeRepeatCounter < rangeRepeat - 1) {
+      this.rangeRepeatCounter += 1;
+      return 'repeat-range';
+    }
+
+    return 'stop';
+  }
+
+  // A media element keeps reporting its pre-seek position for a while after a
+  // seek, and over a streamed two-hour surah file that can be several hundred
+  // milliseconds. Treating one of those stale readings as "this ayah ended"
+  // would count another repeat and step the ayah forward while the audio is
+  // still where it was, leaving the highlight one ayah ahead of the recitation
+  // for the rest of the range. So after every range seek we ignore positions
+  // until the player reports one that actually lands in the window we asked
+  // for, with a deadline so a seek that never lands cannot wedge the player.
+  awaitRangeSeek(targetMs) {
+    this.rangeSeek = {targetMs, deadline: performance.now() + 5000};
+  }
+
+  rangeSeekSettled(timeMs) {
+    if (!this.rangeSeek) return true;
+
+    const {targetMs, deadline} = this.rangeSeek;
+    const landed = timeMs >= targetMs - 250 && timeMs <= targetMs + 2000;
+
+    if (landed || performance.now() > deadline) {
+      this.rangeSeek = null;
+      return true;
+    }
+
+    return false;
+  }
+
+  // Returns true when the range took over this frame and the caller should not
+  // run its normal progress handling.
+  handleRangeProgress(timeMs) {
+    if (!this.range || this.handlingRangeBoundary) return false;
+
+    // Suppress everything, highlighting included, until the seek has landed:
+    // the position we are being handed belongs to the previous ayah.
+    if (!this.rangeSeekSettled(timeMs)) return true;
+
+    const startMs = this.currentVerseStartMs();
     const endMs = this.currentVerseEndMs();
 
-    return endMs !== null && timeMs >= endMs;
+    if (timeMs < startMs) return false;
+    if (endMs === null || timeMs < endMs) return false;
+
+    return this.takeRangeAction({advanceWithinFile: true});
+  }
+
+  // Applies the decision for the ayah that just finished. Returns true when it
+  // moved the player itself, false when the caller should carry on as usual.
+  takeRangeAction({advanceWithinFile = false} = {}) {
+    // `updateProgress` and `onend` can both see the same ayah finish; without
+    // this the range would be counted down twice for one play.
+    if (this.rangeSeek) return true;
+
+    const action = this.nextRangeAction();
+
+    if (action === 'next-ayah') {
+      // Nothing to seek: the surah file flows into the next ayah on its own.
+      // The label still has to move here rather than wait for `updateVerse`,
+      // because the silence between two ayahs matches no segment at all — the
+      // key would stay put across that gap and the next frame would read the
+      // boundary a second time and repeat the ayah instead of moving on.
+      if (!advanceWithinFile) return false;
+
+      const nextKey = this.nextVerseKey();
+      if (!nextKey) return false;
+
+      this.jumpToVerse(nextKey);
+      return true;
+    }
+
+    this.handlingRangeBoundary = true;
+
+    if (action === 'repeat-ayah') {
+      this.awaitRangeSeek(this.currentVerseStartMs());
+      this.restartCurrentVerse();
+      this.renderRangeState();
+      this.handlingRangeBoundary = false;
+      return true;
+    }
+
+    if (action === 'repeat-range') {
+      this.awaitRangeSeek(this.segmentsData[this.range.from]?.time_from || 0);
+      this.renderRangeState();
+      this.jumpToVerseAndResume(this.range.from)
+        .finally(() => { this.handlingRangeBoundary = false; });
+      return true;
+    }
+
+    this.rangeRepeatCounter = 0;
+    this.rangeFinished = true;
+    this.rangeSeek = null;
+    this.player.pause();
+    this.stopProgressLoop();
+    this.renderRangeState();
+    this.handlingRangeBoundary = false;
+    return true;
   }
 
   restartCurrentVerse() {
@@ -475,6 +843,8 @@ export default class extends Controller {
     if (!this.player.playing()) {
       this.player.play();
     }
+
+    this.startProgressLoop();
   }
 
   currentVerseStartMs() {
@@ -496,6 +866,14 @@ export default class extends Controller {
 
     if (this.isPlaying) {
       this.player.pause();
+      this.stopProgressLoop();
+    } else if (this.rangeFinished) {
+      this.rangeFinished = false;
+      this.ayahRepeatCounter = 0;
+      this.rangeRepeatCounter = 0;
+      this.awaitRangeSeek(this.segmentsData[this.range.from]?.time_from || 0);
+      this.renderRangeState();
+      this.jumpToVerseAndResume(this.range.from);
     } else {
       if (this.seekOnNextPlay || !this.isPlayerReadyForVerse(this.currentVerseKey)) {
         this.playAyah(this.currentVerseKey);
@@ -503,6 +881,7 @@ export default class extends Controller {
       }
 
       this.player.play();
+      this.startProgressLoop();
     }
   }
 

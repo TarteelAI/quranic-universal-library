@@ -162,20 +162,29 @@ module ToolsHelper
       )
     ]
 
-    tools + private_developer_tools
+    tools + internal_developer_tools
   end
 
-  def private_developer_tools
+  def internal_developer_tools
     return [] unless qul_scripts_available?
 
     [
       ToolCard.new(
         title: 'Segment Pipeline',
-        description: 'Run and monitor the segmentation pipeline for a reciter, review per surah runs, and import the generated word by word timestamps.',
+        description: 'Run and monitor the segmentation pipeline for generating and validating the word by word timestamps for any recitation.',
         url: segment_pipeline_root_path,
         type: 'segments',
         icon: 'timestamp.svg',
         tags: [['Recitation', 'recitation'], ['Timestamp', 'timestamp']]
+      ),
+
+       ToolCard.new(
+        title: 'Add reciter audio',
+        description: 'Tool for preparing and validating audio files for any reciter',
+        url: audio_repair_ingests_path,
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah']]
       )
     ]
   end

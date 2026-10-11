@@ -19,9 +19,21 @@ module ToolDocsHelper
       'compare_ayah',
       'ayah_dependency_graph',
       'ayah_boundaries',
-      'compare_audio',
-      *(%w[audio_repair_index audio_repair_editor audio_repair_polarity] if qul_scripts_available?)
-    ]
+      'compare_audio'
+    ] + internal_tools_keys
+  end
+
+  def internal_tools_keys
+    if qul_scripts_available?
+      [
+        'audio_repair_index',
+        'audio_repair_editor',
+        'audio_repair_polarity',
+        'audio_repair_ingest'
+      ]
+    else
+      []
+    end
   end
 
   def mutashabihat_help
@@ -1134,6 +1146,66 @@ module ToolDocsHelper
       }
     ]
   end
+
+  def audio_repair_ingest_help
+  [
+    "Add audio",
+    {
+      text: "Import a new reciter’s recordings, one surah at a time. Source files may vary in format and bitrate or include extra audio, such as an opening basmala, surah name, or closing dua. This tool standardizes the recordings, with every cut reviewed before import."
+    },
+    {
+      type: 'step',
+      title: '1. Describe the recitation',
+      text: "Select or create the reciter, then choose the recitation style and qira’at. The new recitation remains unapproved until you review it."
+    },
+    {
+      type: 'step',
+      title: '2. Configure the source',
+      text: "Enter a source URL for one surah and select the surah range. The tool previews the first and last URLs before downloading. Use <strong>Edit source</strong> to correct the URL and retry."
+    },
+    {
+      type: 'step',
+      title: '3. Download recordings',
+      text: "Surahs download in parallel batches, with individual progress and retries for failed downloads. Interrupted downloads are never treated as complete."
+    },
+    {
+      type: 'step',
+      title: '4. Review the opening cut',
+      text: "Review the proposed cut that removes the opening basmala where needed. Listen, drag the marker, or adjust it in milliseconds. Al-Fatihah and At-Tawbah are skipped automatically.",
+      sections: [
+        {
+          type: 'info',
+          text: "Automatic cuts are suggestions, not decisions. Confirm every cut by ear, especially when there is no pause between the opening and the first ayah. Ensure the first word remains intact before approving."
+        }
+      ]
+    },
+    {
+      type: 'step',
+      title: '5. Trim closing supplications',
+      text: "Optionally detect and remove a closing dua. Review the proposed cut carefully, as audio after a pause may contain valid closing ayahs."
+    },
+    {
+      type: 'step',
+      title: '6. Encode surahs',
+      text: "Approve the cuts to encode each surah in the library’s supported formats, with consistent tags for surah, reciter, and track number. Choose the bitrate for the full run or individual surahs. Re-encoding always uses the untouched original."
+    },
+    {
+      type: 'step',
+      title: '7. Validate the output',
+      text: "Each file is checked for expected duration and stereo-to-mono phase cancellation. Surah pages show measured duration, size, bitrate, channels, and sample rate. You can also run a full timeline report."
+    },
+    {
+      type: 'info',
+      text: "Originals and encoded files can consume several gigabytes. The run page shows storage usage and lets you delete files you no longer need. Keep originals if you may need to adjust cuts or re-encode at another bitrate; otherwise, you’ll need to download them again."
+    },
+    {
+  type: 'step',
+  title: '8. Complete the import',
+  text: "Once all surahs are encoded and validated, review the results and approve the recitation for publication. Only approved recitations become available in the library."
+}
+  ]
+end
+
 
   def audio_repair_polarity_help
     [

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_08_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_11_060000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,53 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_08_140000) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "audio_repair_ingest_items", force: :cascade do |t|
+    t.integer "ingest_id", null: false
+    t.integer "chapter_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "source_url"
+    t.bigint "bytes_downloaded", default: 0, null: false
+    t.bigint "bytes_total"
+    t.integer "source_duration_ms"
+    t.string "source_bitrate"
+    t.integer "source_channels"
+    t.integer "trim_start_ms"
+    t.integer "trim_end_ms"
+    t.float "trim_confidence"
+    t.jsonb "trim_detail", default: {}, null: false
+    t.datetime "trim_approved_at"
+    t.jsonb "outputs", default: {}, null: false
+    t.jsonb "checks", default: {}, null: false
+    t.text "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "bitrate"
+    t.jsonb "uploads", default: {}, null: false
+    t.datetime "uploaded_at"
+    t.index ["ingest_id", "chapter_id"], name: "index_audio_repair_ingest_items_on_ingest_id_and_chapter_id", unique: true
+    t.index ["ingest_id"], name: "index_audio_repair_ingest_items_on_ingest_id"
+    t.index ["status"], name: "index_audio_repair_ingest_items_on_status"
+  end
+
+  create_table "audio_repair_ingests", force: :cascade do |t|
+    t.integer "audio_recitation_id", null: false
+    t.integer "reciter_id"
+    t.string "source_url", null: false
+    t.string "url_template", null: false
+    t.integer "token_index", default: 0, null: false
+    t.integer "surah_from", default: 1, null: false
+    t.integer "surah_to", default: 114, null: false
+    t.string "status", default: "draft", null: false
+    t.jsonb "settings", default: {}, null: false
+    t.text "last_error"
+    t.integer "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "upload_path"
+    t.index ["audio_recitation_id"], name: "index_audio_repair_ingests_on_audio_recitation_id"
+    t.index ["created_by_id"], name: "index_audio_repair_ingests_on_created_by_id"
   end
 
   create_table "audio_repair_sessions", force: :cascade do |t|

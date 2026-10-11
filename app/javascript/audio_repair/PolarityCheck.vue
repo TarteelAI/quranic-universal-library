@@ -51,10 +51,12 @@
       <div class="flex items-end gap-3 flex-wrap mt-3">
         <label class="text-xs text-gray-600">
           Recitation <span class="text-gray-400">(labels windows with ayah numbers)</span>
-          <select v-model="recitationId" class="form-control form-control-sm w-72 block">
-            <option :value="null">—</option>
-            <option v-for="r in recitations" :key="r.id" :value="r.id">{{ r.id }} · {{ r.name }}</option>
-          </select>
+          <Select2
+            v-model="recitationId"
+            :options="recitationOptions"
+            placeholder="Search recitations…"
+            select-class="form-control form-control-sm w-72 block"
+          />
         </label>
         <label class="text-xs text-gray-600">
           Surah
@@ -263,6 +265,8 @@
 </template>
 
 <script>
+import Select2 from "./Select2.vue";
+
 const LISTEN_PAD_S = 1.5;
 
 // Output matrix per mode: [L→left, L→right, R→left, R→right].
@@ -275,6 +279,8 @@ const MODES = {
 };
 
 export default {
+  components: { Select2 },
+
   props: {
     recitations: { type: Array, default: () => [] },
     recent: { type: Array, default: () => [] },
@@ -285,7 +291,7 @@ export default {
     return {
       files: { original: null, fixed: null },
       urls: { original: "", fixed: "" },
-      recitationId: null,
+      recitationId: "",
       chapterId: null,
       label: "",
       submitting: false,
@@ -314,6 +320,14 @@ export default {
   },
 
   computed: {
+    // select2 returns the DOM value, so option values are strings; the submit
+    // below only appends recitation_id when it is non-empty.
+    recitationOptions() {
+      return [{ value: "", label: "—" }].concat(
+        this.recitations.map((r) => ({ value: String(r.id), label: `${r.id} · ${r.name}` }))
+      );
+    },
+
     base() {
       return "/audio_repair/polarity";
     },

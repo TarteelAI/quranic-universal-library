@@ -273,6 +273,31 @@ Rails.application.routes.draw do
       resources :polarity, only: %i[index create show] do
         member { post :fix }
       end
+
+      resources :ingests, only: %i[index create show destroy] do
+        collection { get :preview }
+        member do
+          get :data
+          post :download
+          post :retry_item
+          post :update_settings
+          post :update_source
+          post :upload
+          post :encode_selected
+          post :cleanup
+          # One surah within the run, addressed by item_id.
+          get :item
+          get :audio
+          get :peaks
+          post :detect
+          post :approve
+          post :encode
+          get :surah
+          get :surah_data
+          post :reencode
+          post :polarity_check
+        end
+      end
       root to: 'sessions#index'
     end
   end

@@ -537,9 +537,7 @@ module Exporter
 
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
-        if content.has_segments?
-          tags << 'With segments'
-        end
+        tags += surah_recitation_segment_tags(content, recitation)
 
         if recitation.chapter_audio_files.size < 114
           tags << 'Partial'
@@ -593,7 +591,7 @@ module Exporter
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
-          tags << 'With segments'
+          tags << 'Word segments'
         end
 
         if recitation.audio_files.size < Verse.count
@@ -901,6 +899,14 @@ module Exporter
       end
 
       zip_path
+    end
+
+    def surah_recitation_segment_tags(content, recitation)
+      return [] unless content.has_segments?
+
+      tags = ['Ayah segments']
+      tags << 'Word segments' if recitation.has_word_segments?
+      tags
     end
 
     def set_tags(download_resource, tags)

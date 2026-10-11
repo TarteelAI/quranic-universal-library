@@ -34,10 +34,20 @@ module Api
       end
 
       def record_not_found(exception)
+        # Our own message is written for API clients and names the resource and
+        # the valid range. ActiveRecord's default instead spells out the table
+        # and columns of the failed lookup, which callers should not be shown.
+        if exception.is_a?(::Api::RecordNotFound)
+          message = exception.to_s
+        else
+          message = "The requested resource was not found."
+          Rails.logger.info("API record not found: #{exception}")
+        end
+
         render_json(
           {
             error: "Not Found",
-            message: exception.to_s
+            message: message
           },
           status: :not_found
         )

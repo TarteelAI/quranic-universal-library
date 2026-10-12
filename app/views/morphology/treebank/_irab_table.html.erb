@@ -12,7 +12,7 @@
   }
 
   line_locale = local_assigns.fetch(:locale, 'ar').to_s
-  line_dir    = line_locale == 'en' ? 'ltr' : 'rtl'
+  line_dir    = %w[en ru].include?(line_locale) ? 'ltr' : 'rtl'
   line_class  = { 'ar' => 'ar', 'ur' => 'ur' }.fetch(line_locale, '')
 %>
 <table dir="rtl" class="irab-table w-full border-collapse">

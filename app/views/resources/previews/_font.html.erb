@@ -33,13 +33,14 @@
   page_based_font = font_face.to_s.match?(/\Ap\d+-v/)
   page_number = nil
   total_pages = 604
+  font_cdn = "#{ENV['CDN_HOST']}/qul/fonts/"
 
   if page_based_font
     page_number = params[:page].to_s.delete('^0-9').to_i
     page_number = 1 unless page_number.between?(1, total_pages)
 
     font_face = font_face.sub(/\Ap\d+/, "p#{page_number}")
-    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}/p#{page_number}#{font_extension}"
+    font_url = "#{font_cdn}#{font_base_path}/p#{page_number}#{font_extension}"
 
     mushaf_version = font_face[/-v(\d+)\z/, 1]
     page_column, line_column, text_column = if mushaf_version == '2'
@@ -58,9 +59,9 @@
   elsif preview_pattern.present?
     page_key = (params[:page].presence || 'p1').to_s
     preview_base = preview_pattern.sub(/p\d+$/, page_key)
-    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{preview_base}#{font_extension}"
+    font_url = "#{font_cdn}#{preview_base}#{font_extension}"
   else
-    font_url = "https://static-cdn.tarteel.ai/qul/fonts/#{font_base_path}#{font_extension}"
+    font_url = "#{font_cdn}#{font_base_path}#{font_extension}"
   end
 
   css_format = { 'woff2' => 'woff2', 'woff' => 'woff', 'otf' => 'opentype' }.fetch(font_format, 'truetype')

@@ -543,6 +543,39 @@
   @apply ms-auto whitespace-nowrap text-sm text-gray-500;
 }
 
+/* SVG artwork browser */
+.svg-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--svg-card-height, 56px) * 2.6), 1fr));
+  align-items: stretch;
+}
+
+.svg-card {
+  @apply flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-gray-200 p-3 transition-colors hover:border-[#46ac7a];
+  background: var(--svg-card-bg, #ffffff);
+}
+
+.svg-card-copied {
+  @apply border-[#46ac7a] bg-emerald-50;
+}
+
+.svg-card-art {
+  @apply flex w-full items-center justify-center overflow-hidden text-gray-400;
+  height: var(--svg-card-height, 56px);
+}
+
+.svg-card-art svg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  fill: var(--svg-card-colour, #111827);
+}
+
+.svg-card-name {
+  @apply text-xs text-gray-500;
+}
+
 /* Glyph browser */
 .glyph-grid {
   display: grid;

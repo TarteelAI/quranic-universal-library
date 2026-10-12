@@ -49,9 +49,9 @@
       [:page_number, :line_number, :code_v1]
     end
 
-    sample_text = Word
+    sample_text = Word.unscoped
                     .where(page_column => page_number)
-                    .reorder(line_column, :word_index)
+                    .order(:word_index)
                     .pluck(line_column, text_column)
                     .group_by(&:first)
                     .map { |_line, words| words.map(&:last).join(' ') }

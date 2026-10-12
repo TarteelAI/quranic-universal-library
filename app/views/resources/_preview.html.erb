@@ -1,6 +1,5 @@
 <section class="mb-4">
-  <% resource_type =  resource.resource_type.gsub('-', '_')%>
-  <%= render "resources/previews/#{resource_type}", resource: resource %>
+  <%= render "resources/previews/#{@presenter.preview_partial(resource)}", resource: resource %>
 </section>
 
 <script>

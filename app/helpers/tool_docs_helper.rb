@@ -65,7 +65,7 @@ module ToolDocsHelper
 
   def doc_image_tag(path)
     # NOTE: update version number when images are updated
-    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}?v=2"
+    url = "#{ENV['CDN_HOST']}/qul/help-screenshots/#{path}?v=2"
     "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
   end
 

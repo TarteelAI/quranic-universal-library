@@ -3,9 +3,10 @@ class QuranApiRecord < ApplicationRecord
   self.abstract_class = true
   self.establish_connection Rails.env.development? ? :quran_api_db_dev : :quran_api_db
 
-  CDN_HOST = 'https://static-cdn.tarteel.ai'
+  CDN_HOST = ENV['CDN_HOST']
   WORDS_CDN = "#{CDN_HOST}/qul/images/w"
   AYAH_CDN = "#{CDN_HOST}/qul/images/ayah"
+  FONTS_CDN = "#{CDN_HOST}/qul/fonts"
 
   def toggle_approve!
     update_attribute :approved, !self.approved?

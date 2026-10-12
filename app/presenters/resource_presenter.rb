@@ -77,6 +77,32 @@ class ResourcePresenter < ApplicationPresenter
     end
   end
 
+  # Determines which preview partial to render for resource.
+  def preview_partial(downloadable = resource)
+    content = downloadable.resource_content
+
+    return 'svg_images' if content.image? && content.meta_value('svg-template').present?
+
+    downloadable.resource_type.to_s.tr('-', '_')
+  end
+
+  def svg_image_urls(downloadable = resource)
+    svg_image_paths(downloadable).map { |path| "#{QuranApiRecord::FONTS_CDN}/#{path}" }
+  end
+
+  def svg_image_paths(downloadable = resource)
+    content = downloadable.resource_content
+    template = content.meta_value('svg-template')
+    return [] if template.blank?
+
+    count = content.meta_value('svg-count').to_i
+    first = (content.meta_value('svg-start').presence || 1).to_i
+
+    (first...(first + count)).map do |number|
+      template.sub(/#+/) { |digits| number.to_s.rjust(digits.length, '0') }
+    end
+  end
+
   def load_ayah(fallback_key: '1:1')
     @load_ayah ||= {}
 

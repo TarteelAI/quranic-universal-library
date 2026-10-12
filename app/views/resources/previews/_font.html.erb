@@ -51,7 +51,7 @@
 
     sample_text = Word
                     .where(page_column => page_number)
-                    .order(:word_index)
+                    .reorder(line_column, :word_index)
                     .pluck(line_column, text_column)
                     .group_by(&:first)
                     .map { |_line, words| words.map(&:last).join(' ') }
@@ -272,7 +272,7 @@
 
         <div id="sample-text"
              dir="rtl"
-             class="p-6 rounded-lg bg-white border border-gray-200 shadow-sm min-h-[8rem] break-words"
+             class="p-6 rounded-lg bg-white border border-gray-200 shadow-sm min-h-[8rem] break-words whitespace-pre-line"
              style="font-size: 40px; line-height: 1.7;"
              data-font-preview-target="sampleText"><%= preview_text %></div>
       </div>

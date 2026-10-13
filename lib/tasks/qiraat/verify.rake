@@ -130,3 +130,29 @@ namespace :qiraat do
     end
   end
 end
+
+namespace :qiraat do
+  namespace :verify do
+    desc 'Verify the riwayah override columns and indexes on translations, tafsirs and word_translations (P6.1)'
+    task override_columns: :environment do
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-62s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      c = Verse.connection
+      { translations: Translation, tafsirs: Tafsir, word_translations: WordTranslation }.each do |table, model|
+        col = c.columns(table).find { |x| x.name == 'riwayah_id' }
+        check.call("#{table}.riwayah_id nullable integer", [col&.type, col&.null], [:integer, true])
+        check.call("#{table} rows with a riwayah_id (none yet)", model.unscoped.where.not(riwayah_id: nil).count, 0)
+        idx = c.indexes(table).find { |i| i.name == "index_#{table}_riwayah_override" }
+        check.call("#{table} override index unique and partial", [idx&.unique, idx&.where.to_s.delete('()').squeeze(' ')], [true, 'riwayah_id IS NOT NULL'])
+      end
+      idx = c.indexes(:translations).find { |i| i.name == 'index_translations_on_resource_content_id_and_verse_id' }
+      check.call('translations (resource_content_id, verse_id) index', idx&.columns, %w[resource_content_id verse_id])
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'override_columns OK'
+    end
+  end
+end

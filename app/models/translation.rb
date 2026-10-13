@@ -22,6 +22,7 @@
 #  chapter_id          :integer
 #  language_id         :integer
 #  resource_content_id :integer
+#  riwayah_id          :integer
 #  verse_id            :integer
 #
 # Indexes
@@ -49,6 +50,7 @@ class Translation < QuranApiRecord
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
 
   belongs_to :verse, optional: true
+  belongs_to :riwayah, optional: true # NULL = the shared row; set = an override for that riwayah (P6.1)
   belongs_to :language
   has_many :foot_notes
   has_many :draft_translations, class_name: 'Draft::Translation'

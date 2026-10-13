@@ -8,6 +8,7 @@
 #  language_name       :string
 #  language_id         :integer
 #  resource_content_id :integer
+#  riwayah_id          :integer
 #  priority            :integer
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -31,6 +32,7 @@ class WordTranslation < QuranApiRecord
   belongs_to :language, optional: true
   belongs_to :group_word, class_name: 'Word', optional: true
   belongs_to :resource_content, optional: true
+  belongs_to :riwayah, optional: true # NULL = the shared row; set = an override for that riwayah (P6.1)
 
   attr_accessor :word_range_from, :word_range_to
 

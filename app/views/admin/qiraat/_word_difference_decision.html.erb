@@ -1,0 +1,8 @@
+<%# P6.3: the reviewer's call for this word %>
+<%= form_tag decide_cms_word_difference_path(resource), method: :put, data: { turbo: false }, style: 'display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap' do %>
+  <label for="decision">Decision</label>
+  <%= select_tag :decision, options_for_select([['needs decision', ''], ['Same meaning (spelling only)', 'same_meaning'], ['Overridden', 'overridden']], resource.decision), id: 'decision' %>
+  <%= text_field_tag :note, resource.review['note'], placeholder: 'note (optional)', style: 'flex: 1; min-width: 16em' %>
+  <%= submit_tag 'Save decision', class: 'btn btn-sm', data: { disable_with: '…' } %>
+<% end %>
+<p class="muted" style="margin-top: 0.5em">"Overridden" is set automatically when an override is written above; choose "Same meaning" when the spellings do not change the gloss.</p>

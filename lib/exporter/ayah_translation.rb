@@ -121,9 +121,14 @@ module Exporter
       footnote = FootNote.where(id: id).first
       return if footnote.blank? || footnote.text.blank?
 
-      # Some footnote has HTML tags, strip those tags
-      text = Nokogiri::HTML::DocumentFragment.parse(footnote.text).text
-      text.tr(" ", ' ')
+      # Some footnote has HTML tags, strip those tags but keep the line
+      # breaks, otherwise paragraphs and list items get joined together
+      # (<p>Kursî</p><p>b) To believe</p> => Kursîb) To believe).
+      text = footnote.text
+                     .gsub(%r{<br\s*/?>}i, "\n")
+                     .gsub(%r{</(?:p|div|li)>}i, "\n")
+      text = Nokogiri::HTML::DocumentFragment.parse(text).text
+      text.tr(" ", ' ').gsub(/[ \t]*\n[ \t]*/, "\n").squeeze("\n").strip
     end
   end
 end

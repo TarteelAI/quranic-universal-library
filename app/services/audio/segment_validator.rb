@@ -5,6 +5,12 @@ module Audio
     TRAILING_GAP_THRESHOLD_MS = 1000
     AYAH_GAP_THRESHOLD_MS = 2000
 
+    # Categories that are expected for many recitations and only add noise to
+    # the export email and CMS modals. Many reciters pause well over 2s between
+    # ayahs, so a long ayah gap is normal, not a defect. The auto-fixer still
+    # asks for them explicitly (ignore: []) because it can close those gaps.
+    NOISY_CATEGORIES = %w[ayah_gap].freeze
+
     SegmentData = Struct.new(
       :verse_key,
       :chapter_id,
@@ -34,9 +40,11 @@ module Audio
 
     # segments: an enumerable of Audio::Segment records or SegmentData structs.
     # expected_verses_count: how many ayahs should be segmented (chapter.verses_count or 6236).
-    def initialize(segments, expected_verses_count:)
+    # ignore: issue categories to drop from the result (see NOISY_CATEGORIES).
+    def initialize(segments, expected_verses_count:, ignore: [])
       @segments = segments.map { |segment| segment.is_a?(SegmentData) ? segment : self.class.from_record(segment) }
       @expected_verses_count = expected_verses_count
+      @ignored_categories = Array(ignore).map(&:to_s)
     end
 
     def validate
@@ -57,7 +65,9 @@ module Audio
 
       issues.concat(trailing_gap_issues)
 
-      issues
+      return issues if @ignored_categories.empty?
+
+      issues.reject { |issue| @ignored_categories.include?(issue[:category].to_s) }
     end
 
     private
@@ -133,12 +143,10 @@ module Audio
       segments_count = segment.word_segments.size
       missing_words = words_count - segments_count
 
+      # Repeats are expected (reciters repeat words and phrases), so a segment
+      # count above the word count is never reported as an issue.
       if missing_words > 0
         issues << issue(segment, "#{segment.verse_key} don't have segments for some words(#{missing_words} #{pluralize_word(missing_words)} missing).", 'bg-warning', 'missing_words')
-      end
-
-      if segments_count > (words_count + (words_count.to_f * 0.5))
-        issues << issue(segment, 'Too many words are repeated, debug the repetition.', 'bg-info', 'repeated_words')
       end
 
       issues

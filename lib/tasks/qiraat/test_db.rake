@@ -159,6 +159,14 @@ namespace :qiraat do
         puts "  upstream/#{key}-data.csv: #{keep.size} rows"
       end
 
+      # quran-svg polygons of the first two Warsh pages (P5.6)
+      svg = upstream.join('quran-svg/mushafs/warsh/kfqc/json')
+      if svg.exist?
+        FileUtils.mkdir_p(FIXTURE_DIR.join('upstream/svg-warsh'))
+        %w[001.json 002.json].each { |f| FileUtils.cp(svg.join(f), FIXTURE_DIR.join('upstream/svg-warsh', f)) }
+        puts '  upstream/svg-warsh: 2 pages'
+      end
+
       # small files copied whole
       %w[catalog.json].each do |f|
         FileUtils.cp(upstream.join('quran-text/data', f), FIXTURE_DIR.join('upstream', f))

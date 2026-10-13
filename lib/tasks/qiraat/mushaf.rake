@@ -57,7 +57,7 @@ namespace :qiraat do
     task :mushaf_layout, [:key] => :environment do |_, args|
       key = args[:key] or abort 'usage: rake qiraat:verify:mushaf_layout[warsh]'
       slug, = Qiraat::Import::ScriptText::EDITIONS.fetch(key)
-      script = Script.find_by!(slug: slug)
+      script = Script.find_by(slug: slug) || (key == 'hafs' ? Script.find_by!(slug: 'qpc-hafs') : abort("script #{slug} missing")) # Hafs text is the qpc-hafs column (see Generator)
       mushaf = Mushaf.find_by!(script_id: script.id, layout_source: 'generated')
       data = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'mushaf', "#{key}.json").read)
       review = Rails.root.join('tmp', 'qiraat', "layout-review-#{key}.json")

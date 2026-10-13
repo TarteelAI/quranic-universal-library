@@ -21,7 +21,7 @@ module Segments
     end
 
     def total_verses
-      6236 # Total verses in the Quran
+      Utils::Quran.total_ayahs # Kufi ayahs, which the segments are keyed by
     end
 
     def overall_progress_percentage

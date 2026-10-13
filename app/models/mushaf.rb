@@ -32,6 +32,10 @@ class Mushaf < QuranApiRecord
 
   LAYOUT_SOURCES = %w[manual generated svg-verified].freeze
   GENERATED_LAYOUT_SOURCES = %w[generated svg-verified].freeze # built by Qiraat::Layout::Generator, before and after the quran-svg check
+  # The page count of the KFGQPC Hafs 15-line print, the only layout most of
+  # QUL's pages knew (P7.1). Used only where no mushaf is in scope; anything
+  # that has a mushaf reads mushaf.pages_count.
+  FALLBACK_PAGES_COUNT = 604
   has_many :mushaf_pages, dependent: :delete_all
   has_many :mushaf_line_alignments, dependent: :delete_all
   has_many :mushaf_words, dependent: :delete_all

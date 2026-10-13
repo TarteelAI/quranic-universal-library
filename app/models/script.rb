@@ -51,6 +51,7 @@ class Script < QuranApiRecord
 
   scope :enabled, -> { where(enabled: true) }
   scope :column_backed, -> { where(storage: 'column') }
+  scope :glyph, -> { where(kind: 'glyph') }
   scope :row_backed, -> { where(storage: 'rows') }
   scope :for_riwayah, ->(riwayah) { where(riwayah_id: riwayah) }
 
@@ -62,6 +63,12 @@ class Script < QuranApiRecord
   def self.for_resource_content(resource_content)
     rc_id = resource_content.respond_to?(:id) ? resource_content.id : resource_content
     where(word_resource_content_id: rc_id).or(where(ayah_resource_content_id: rc_id)).first
+  end
+
+  # How many per-page faces the glyph (QCF v1/v2/v4) fonts ship: the page count
+  # of the mushafs set in them, which are all Hafs prints (P7.1).
+  def self.glyph_pages_count
+    Mushaf.where(script_id: glyph.select(:id)).maximum(:pages_count) || Mushaf::FALLBACK_PAGES_COUNT
   end
 
   def self.find_by_column(column_name)

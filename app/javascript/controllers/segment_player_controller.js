@@ -377,7 +377,7 @@ export default class extends Controller {
       this.prevAyahButton.classList.add("hidden");
     }
 
-    if (nextVerseNumber <= 6236) {
+    if (nextVerseNumber <= QuranUtils.totalAyahs()) {
       this.nextAyahButton.classList.remove("hidden");
       this.nextAyahButton.href = this.buildVerseUrl(nextVerseNumber);
     } else {
@@ -431,7 +431,7 @@ export default class extends Controller {
   nextVerseKey() {
     const verseId = QuranUtils.getAyahIdFromKey(this.currentVerseKey);
 
-    if (!verseId || verseId >= 6236) {
+    if (!verseId || verseId >= QuranUtils.totalAyahs()) {
       return null;
     }
 

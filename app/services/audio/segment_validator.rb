@@ -33,7 +33,7 @@ module Audio
     end
 
     # segments: an enumerable of Audio::Segment records or SegmentData structs.
-    # expected_verses_count: how many ayahs should be segmented (chapter.verses_count or 6236).
+    # expected_verses_count: how many ayahs should be segmented (chapter.verses_count or Utils::Quran.total_ayahs).
     def initialize(segments, expected_verses_count:)
       @segments = segments.map { |segment| segment.is_a?(SegmentData) ? segment : self.class.from_record(segment) }
       @expected_verses_count = expected_verses_count

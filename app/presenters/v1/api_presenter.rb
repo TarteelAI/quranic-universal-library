@@ -141,7 +141,7 @@ module V1
       raise_invalid_id_error(value, "Rub el Hizb", "1-240")
     end
 
-    def invalid_mushaf_page(value, max_page = 604)
+    def invalid_mushaf_page(value, max_page = Mushaf::FALLBACK_PAGES_COUNT)
       raise_invalid_id_error(value, "Mushaf Page", "1-#{max_page}")
     end
 

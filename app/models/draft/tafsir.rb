@@ -298,7 +298,7 @@ class Draft::Tafsir < ApplicationRecord
   end
 
   def next_ayah_tafsir
-    if end_verse_id < 6236
+    if end_verse_id < Utils::Quran.total_ayahs
       Draft::Tafsir
         .where(resource_content_id: resource_content_id)
         .where("start_verse_id > ?", end_verse_id)

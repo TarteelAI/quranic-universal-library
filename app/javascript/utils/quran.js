@@ -35,6 +35,11 @@ export class QuranUtils {
     return CURRENT;
   }
 
+  // Ayahs in the numbering in use (6236 for Kufi): the sentinel minus one.
+  static totalAyahs() {
+    return FIRST_AYAH[FIRST_AYAH.length - 1] - 1;
+  }
+
   static async load(slug) {
     if (slug === 'kufi') { this.useKufi(); return { slug: 'kufi' }; }
     const response = await fetch(`/internal/numberings/${encodeURIComponent(slug)}`, { headers: { Accept: 'application/json' } });

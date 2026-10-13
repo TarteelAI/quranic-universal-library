@@ -3,7 +3,7 @@
   if @verse.id > 1
     actions << link_to('Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark')
   end
-  if @verse.id < 6236
+  if @verse.id < Utils::Quran.total_ayahs
     actions << link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark')
   end
 %>
@@ -321,6 +321,6 @@
 
   <div class="flex justify-end gap-2">
     <%= link_to('Previous ayah', word_text_proofreading_path(@verse.id - 1), class: 'btn btn-dark') if @verse.id > 1 %>
-    <%= link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < 6236 %>
+    <%= link_to('Next ayah', word_text_proofreading_path(@verse.id + 1), class: 'btn btn-dark') if @verse.id < Utils::Quran.total_ayahs %>
   </div>
 </div>

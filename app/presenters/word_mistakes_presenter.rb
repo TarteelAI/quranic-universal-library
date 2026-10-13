@@ -33,6 +33,11 @@ class WordMistakesPresenter < ApplicationPresenter
     (freq * 20).round
   end
 
+  # The heatmap is drawn on the KFGQPC Hafs layout (mushaf 5), see line_mapping.
+  def mushaf
+    @mushaf ||= Mushaf.find(5)
+  end
+
   def page_number
     (params[:page_number].presence || 1).to_i.abs
   end

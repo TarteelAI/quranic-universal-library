@@ -18,7 +18,7 @@ module Exporter
 
       if font_path.present?
         if resource_content.page?
-          1.upto(604) do |page|
+          1.upto(pages_count) do |page|
             download_font("#{font_file_path}/p#{page}.ttf", "#{base_path}/p#{page}.ttf")
           end
 
@@ -40,7 +40,7 @@ module Exporter
 
       if font_path.present?
         if resource_content.page?
-          1.upto(604) do |page|
+          1.upto(pages_count) do |page|
             download_font("#{font_file_path}/p#{page}.woff", "#{base_path}/p#{page}.woff")
           end
 
@@ -62,7 +62,7 @@ module Exporter
 
       if font_path.present?
         if resource_content.page?
-          1.upto(604) do |page|
+          1.upto(pages_count) do |page|
             download_font("#{font_file_path}/p#{page}.woff2", "#{base_path}/p#{page}.woff2")
           end
 
@@ -84,7 +84,7 @@ module Exporter
 
       if font_path.present?
         if resource_content.page?
-          1.upto(604) do |page|
+          1.upto(pages_count) do |page|
             download_font("#{font_file_path}/p#{page}.svg", "#{base_path}/p#{page}.svg")
           end
 
@@ -106,7 +106,7 @@ module Exporter
 
       if font_path.present?
         if resource_content.page?
-          1.upto(604) do |page|
+          1.upto(pages_count) do |page|
             download_font("#{font_file_path}/p#{page}.otf", "#{base_path}/p#{page}.otf")
           end
 
@@ -118,6 +118,11 @@ module Exporter
           export_path
         end
       end
+    end
+
+    # page-based fonts ship one face per page of the Hafs glyph mushafs
+    def pages_count
+      @pages_count ||= Script.glyph_pages_count
     end
 
     def export_ligatures

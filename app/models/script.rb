@@ -52,6 +52,8 @@ class Script < QuranApiRecord
   scope :enabled, -> { where(enabled: true) }
   scope :column_backed, -> { where(storage: 'column') }
   scope :glyph, -> { where(kind: 'glyph') }
+  scope :in_family, ->(family) { where("meta_data->>'family' = ?", family) } # madani | indopak lists of the comparison tool (P7.2)
+  scope :comparable, -> { where(kind: 'unicode', storage: %w[column rows]) } # has text to put side by side
   scope :row_backed, -> { where(storage: 'rows') }
   scope :for_riwayah, ->(riwayah) { where(riwayah_id: riwayah) }
 
@@ -103,6 +105,12 @@ class Script < QuranApiRecord
 
     page = word.public_send(meta_data['page_column'] || 'page_number')
     (meta_data['css_pattern'] || font_css_class).to_s.sub('{page}', page.to_s)
+  end
+
+  # The words/verses column name the old helpers key on; the v4 tajweed alias
+  # answers code_v4 (its own text-type) rather than the shared code_v2 column.
+  def comparison_key
+    meta_data['alias_of'] || column_name || slug
   end
 
   def to_s

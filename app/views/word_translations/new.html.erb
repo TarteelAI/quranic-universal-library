@@ -1,25 +1,32 @@
 <%= render 'tools/header',
            name: "Word translation proofreading",
-           title: "#{@resource.name} for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
+           title: "#{@resource.name} for #{@verse.chapter.name_simple} ayah #{@presenter.ayah_label(@verse)}",
            key: 'word_translation',
            breadcrumb_parents: [
              { label: 'Select resource', path: select_resource_word_translations_path },
-             { label: @resource.name, path: word_translations_path(resource_id: @resource.id) }
+             { label: @resource.name, path: word_translations_path(@presenter.link_params) }
            ] %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
     <div class="flex flex-wrap gap-4" id="editor-wrap">
 
+      <% if @riwayah %>
+        <div class="w-full bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded" role="alert" id="riwayah-notice">
+          Editing the <b><%= @riwayah.name %></b> glosses: a word saved here becomes an override for <%= @riwayah.name %> only;
+          words left empty keep the shared gloss. <%= link_to 'Back to the shared (Hafs) glosses', new_word_translation_path(@presenter.link_params(ayah: @verse.id).except(:riwayah)), class: 'underline' %>
+        </div>
+      <% end %>
+
       <div class="w-full">
-        <b>Text Uthmani</b>
-        <div class="qpc-hafs" id="ayah_text">
-          <%= @verse.text_qpc_hafs %>
+        <b><%= @riwayah ? "Text (#{@riwayah.name})" : 'Text Uthmani' %></b>
+        <div class="<%= @presenter.font_class %>" id="ayah_text">
+          <%= @presenter.verse_text(@verse) %>
         </div>
       </div>
 
       <div class="w-full mb-4">
-        <% @verse.translations.each do |trans| %>
+        <% @presenter.verse_translations(@verse).each do |trans| %>
           <b><%= trans.resource_name %></b>
           <div class="<%= trans.language_name %>" id="ayah_text">
             <%= safe_html trans.text %>
@@ -28,7 +35,7 @@
       </div>
 
       <div class="w-full" data-controller="word-translation">
-        <%= form_for @verse, url: word_translations_path(verse_id: @verse.id, resource_id: @resource.id), method: :post, html: { class: 'form', autocomplete: 'off' } do |form| %>
+        <%= form_for @verse, url: word_translations_path(@presenter.link_params(verse_id: @verse.id)), method: :post, html: { class: 'form', autocomplete: 'off' } do |form| %>
           <div id="words">
             <%= form.fields_for :word_translations, @presenter.wbw_translations(@verse) do |trans_form| %>
              <%= render 'word_translation_field', form: trans_form, language: current_language %>
@@ -36,7 +43,7 @@
           </div>
 
           <div class="mb-4 flex justify-end items-center mt-3">
-            <%= link_to 'Cancel', word_translation_path(@verse.id, resource_id: @resource.id), class: 'me-3' %>
+            <%= link_to 'Cancel', word_translation_path(@verse.id, @presenter.link_params), class: 'me-3' %>
             <%= form.submit 'Save translations',
                             class: 'btn btn-success',
                             data: { disable_with: 'Please wait...' } %>

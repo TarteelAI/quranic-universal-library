@@ -286,12 +286,15 @@ class Verse < QuranApiRecord
     verse_number == 1
   end
 
+  # Saves the editor's glosses: the shared row of each word, or — when the
+  # form carries a riwayah_id — that riwayah's override row (P6.4).
   def update_word_translations(params)
     params[:word_translations_attributes].values.each do |word_translation|
       next unless word_translation['text'].presence
 
       translation = WordTranslation.where(word_id: word_translation[:word_id],
-                                          resource_content_id: word_translation[:resource_content_id]).first_or_initialize
+                                          resource_content_id: word_translation[:resource_content_id],
+                                          riwayah_id: word_translation[:riwayah_id].presence).first_or_initialize
       translation.language_id = word_translation[:language_id]
       translation.text = word_translation['text'].presence
       translation.save

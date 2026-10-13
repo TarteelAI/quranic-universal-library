@@ -66,6 +66,7 @@ class ResourceContent < QuranApiRecord
   scope :allow_image_export, -> { where("meta_data ->> 'export-images' = 'true'") }
   scope :quran_metadata, -> { where sub_type: SubType::MetaData }
   scope :mushaf_layout, -> { where(sub_type: SubType::Layout) }
+  scope :wbw_reference, -> { translations.one_verse.where("meta_data->>'wbw-reference' = 'yes'") } # shown beside the words in the WBW tool (P6.4)
   scope :from_quranenc, -> { where("meta_data ->> 'source' = 'quranenc'").or(where data_source_id: 14) }
   scope :mukhtasar_tafisr, -> { where("meta_data ->> 'mukhtasar' = 'yes'").or(where data_source_id: 14) }
   scope :with_footnotes, -> { where("meta_data ->> 'has-footnote' = 'yes'") }

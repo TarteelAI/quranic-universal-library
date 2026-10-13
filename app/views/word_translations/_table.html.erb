@@ -4,6 +4,8 @@
   words = @presenter.verse_words(@verse)
   translations_by_word = @presenter.translations_by_word(@verse)
   has_group_translation = @presenter.has_group_translation?(@verse)
+  riwayah = @presenter.riwayah
+  differences = @presenter.differences_for(@verse)
 %>
 
 <table class="w-full mt-4 border-collapse">
@@ -40,7 +42,20 @@
       </th>
 
       <td class="px-3 py-2 align-middle">
-        <span class="qpc-hafs text-2xl"><%= word.text_qpc_hafs %></span>
+        <% word_text = @presenter.word_text(word) %>
+        <% if riwayah && word_text.nil? %>
+          <span class="text-sm text-gray-500">— not read by <%= riwayah.name %></span>
+        <% else %>
+          <span class="<%= @presenter.font_class %> text-2xl"><%= word_text %></span>
+        <% end %>
+        <% if riwayah && (difference = differences[word.id]) %>
+          <div class="text-xs text-amber-800 mt-1">
+            <%= link_to difference.status.humanize.downcase, cms_word_difference_path(difference), class: 'underline', target: '_blank' %>:
+            <% difference.spelling_groups.each do |text, slugs| %>
+              <span class="<%= @presenter.font_class %> ms-1" dir="rtl"><%= text %></span> <span class="text-amber-700">(<%= slugs.join(', ') %>)</span>
+            <% end %>
+          </div>
+        <% end %>
       </td>
 
       <% if !is_english %>
@@ -54,6 +69,9 @@
           <span class="text-red-600 text-sm font-medium">Missing translation</span>
         <% else %>
           <span class="<%= language_class %>"><%= translation&.text %></span>
+          <% if riwayah %>
+            <span class="text-xs text-gray-500 ms-1"><%= translation.override? ? "#{riwayah.name} override" : 'shared' %></span>
+          <% end %>
         <% end %>
       </td>
 

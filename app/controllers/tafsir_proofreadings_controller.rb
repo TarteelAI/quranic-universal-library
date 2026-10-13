@@ -1,8 +1,8 @@
 class TafsirProofreadingsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
-  before_action :authenticate_user!, only: %i[edit update]
-  before_action :authorize_access!, only: %i[edit update]
+  before_action :authenticate_user!, only: %i[edit update override remove_override]
+  before_action :authorize_access!, only: %i[edit update override remove_override]
 
   def show
     #TODO: use presenter to load data
@@ -22,6 +22,28 @@ class TafsirProofreadingsController < CommunityController
     else
       render action: :edit, alert: @tafisr.errors.full_messages
     end
+  end
+
+  # P6.5: the riwayah's override of this tafsir (keyed by the tafsir's anchor
+  # verse; the Kufi grouping range is copied, a merged ayah being a range of two).
+  def override
+    riwayah = Riwayah.find_by!(slug: params[:riwayah])
+    @tafisr = find_tafsir(@resource)
+    text = params[:text].to_s.strip
+    return redirect_to(tafsir_proofreading_path(@tafisr.id, @presenter.link_params), alert: 'Override text is empty') if text.blank?
+
+    row = Tafsir.find_or_initialize_by(resource_content_id: @resource.id, verse_id: @tafisr.verse_id, riwayah_id: riwayah.id)
+    row.assign_attributes(@tafisr.attributes.slice(*Tafsir::OVERRIDE_COPIED_COLUMNS))
+    row.text = text
+    row.save!
+    redirect_to tafsir_proofreading_path(@tafisr.id, @presenter.link_params), notice: "#{riwayah.name} override saved for #{@tafisr.ayah_group_info}"
+  end
+
+  def remove_override
+    riwayah = Riwayah.find_by!(slug: params[:riwayah])
+    @tafisr = find_tafsir(@resource)
+    Tafsir.overrides_for(riwayah).where(resource_content_id: @resource.id, verse_id: @tafisr.verse_id).destroy_all
+    redirect_to tafsir_proofreading_path(@tafisr.id, @presenter.link_params), notice: "#{riwayah.name} override removed"
   end
 
   def index
@@ -74,7 +96,7 @@ class TafsirProofreadingsController < CommunityController
   end
 
   def filter_tafsirs(resource)
-    tafsirs = Tafsir.where(resource_content_id: resource.id)
+    tafsirs = Tafsir.shared.where(resource_content_id: resource.id) # overrides (P6.5) are shown on the tafsir's own page
 
     if verse_id
       tafsirs = tafsirs
@@ -95,7 +117,7 @@ class TafsirProofreadingsController < CommunityController
       filter_tafsirs(resource).first ||
         raise(ActiveRecord::RecordNotFound, "No #{resource.name} tafsir found for ayah #{params[:verse_key]}")
     else
-      Tafsir.where(resource_content_id: resource.id).find(params[:id])
+      Tafsir.shared.where(resource_content_id: resource.id).find(params[:id])
     end
   end
 

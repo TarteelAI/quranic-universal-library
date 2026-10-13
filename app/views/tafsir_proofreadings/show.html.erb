@@ -15,12 +15,12 @@
   if !tafisr_view_types.include?(view_type)
     view_type = 'ayah'
   end
-  more_action << link_to('Tafsir view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Tafsir with arabic view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Proofreading view(With pdf)', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Tafsir view', tafsir_proofreading_path(@tafisr.id, @presenter.link_params), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Tafsir with arabic view', tafsir_proofreading_path(@tafisr.id, @presenter.link_params(view_type: 'page_with_arabic')), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Proofreading view(With pdf)', tafsir_proofreading_path(@tafisr.id, @presenter.link_params(view_type: 'page_with_pdf')), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
 
   if @access
-    actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
+    actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, @presenter.link_params), class: 'btn btn-success')
   end
 
   actions << %Q{
@@ -38,21 +38,27 @@
   }
 
   if previous_ayah
-    actions << link_to('Previous ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', tafsir_proofreading_path(@tafisr.id, @presenter.link_params(draft: params[:draft], verse_key: previous_ayah.verse_key)), class: 'btn btn-dark')
   end
 
   if next_ayah
-    actions << link_to('Next ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark')
+    actions << link_to('Next ayah', tafsir_proofreading_path(@tafisr.id, @presenter.link_params(draft: params[:draft], verse_key: next_ayah.verse_key)), class: 'btn btn-dark')
   end
 
+  riwayah_range = if @presenter.riwayah
+                    keys = @presenter.ayah_keys_for(@tafisr.ayahs)
+                    " · #{@presenter.riwayah.name} #{[keys[@tafisr.start_verse_id]&.first, keys[@tafisr.end_verse_id]&.last].compact.uniq.join(' - ')}"
+                  else
+                    ''
+                  end
 %>
 
 <%= render 'tools/header',
            name: "Ayah tafsir",
-           title: "#{@resource.name} <div style='font-size: 0.5em'>#{@tafisr.group_verse_key_from} - #{@tafisr.group_verse_key_to}</div>",
+           title: "#{@resource.name} <div style='font-size: 0.5em'>#{@tafisr.group_verse_key_from} - #{@tafisr.group_verse_key_to}#{riwayah_range}</div>",
            key: 'ayah_tafsir',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]
+           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(@presenter.link_params) }]
 %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">

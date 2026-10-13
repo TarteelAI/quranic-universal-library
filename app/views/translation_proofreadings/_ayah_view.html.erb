@@ -1,3 +1,42 @@
+<% if (riwayah = @presenter.riwayah) %>
+  <%# P6.5: the ayah as the riwayah counts it — every Kufi verse it covers, each with the override the riwayah reads or the shared text %>
+  <% ayahs = @presenter.mapped_ayahs(verse) %>
+  <div class="bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded mb-4" role="alert" id="riwayah-notice">
+    <%= riwayah.name %> reads Kufi <%= verse.verse_key %> as
+    <b><%= ayahs.map(&:ayah_key).join(', ').presence || 'an unmapped ayah' %></b><% if ayahs.any? { |a| @presenter.resolver.to_kufi(a).size > 1 } %>, one ayah covering Kufi <%= ayahs.flat_map { |a| @presenter.resolver.to_kufi(a).map(&:verse_key) }.uniq.join(', ') %>: all its translations are shown under that key<% end %>.
+    An override below replaces the shared text for <%= riwayah.name %> only.
+  </div>
+  <% ayahs.each do |ayah| %>
+    <h2>Translation for <%= riwayah.name %> <%= ayah.ayah_key %></h2>
+    <div class="<%= @presenter.font_class %> my-3" dir="rtl">
+      <%= ayah.text_for(@presenter.riwayah_script) || verse.text_qpc_hafs %>
+    </div>
+    <% @presenter.resolver.to_kufi(ayah).each do |kufi_verse| %>
+      <% row = Translation.for_riwayah(riwayah).find_by(resource_content_id: @resource.id, verse_id: kufi_verse.id) %>
+      <div class="border rounded p-3 mb-3" id="kufi-<%= kufi_verse.verse_key.tr(':', '-') %>">
+        <div class="text-sm text-gray-500 mb-1">Kufi <%= kufi_verse.verse_key %> ·
+          <% if row.nil? %>no translation<% elsif row.override? %><span class="text-amber-700 font-medium"><%= riwayah.name %> override</span><% else %>shared text<% end %></div>
+        <% if row %>
+          <div class="<%= @translation.language_name %>" data-controller="translation-footnote"><%= safe_html row.text %></div>
+        <% end %>
+        <% if @access && (shared = row.nil? || row.override? ? Translation.shared.find_by(resource_content_id: @resource.id, verse_id: kufi_verse.id) : row) %>
+          <% if row&.override? %>
+            <div class="text-xs text-gray-500 mt-2">Shared text: <span class="<%= @translation.language_name %>"><%= safe_html shared.text %></span></div>
+          <% end %>
+          <%= form_tag override_translation_proofreading_path(kufi_verse.id, @presenter.link_params), method: :put, data: { turbo: false }, class: 'mt-2' do %>
+            <%= text_area_tag :text, row&.override? ? row.text : nil, rows: 3, class: "w-full #{@resource.language_name.to_s.downcase}", placeholder: "#{riwayah.name} reading of #{kufi_verse.verse_key} (leave the shared text if the meaning does not change)" %>
+            <div class="flex gap-2 mt-1">
+              <%= submit_tag "Save #{riwayah.name} override", class: 'btn btn-success btn-sm', data: { disable_with: '…' } %>
+              <% if row&.override? %>
+                <%= link_to 'Remove override', remove_override_translation_proofreading_path(kufi_verse.id, @presenter.link_params), data: { turbo_method: :delete, turbo_confirm: 'Remove this override?' }, class: 'btn btn-dark btn-sm' %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% else %>
 <h2>Translation for <%= verse.verse_key %></h2>
 
 <div class="qpc-hafs my-3">
@@ -23,4 +62,5 @@
       </div>
     <% end %>
   </div>
+<% end %>
 <% end %>

@@ -1,12 +1,13 @@
 class TranslationProofreadingsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
-  before_action :authenticate_user!, only: %i[edit update]
-  before_action :authorize_access!, only: %i[edit update]
+  before_action :authenticate_user!, only: %i[edit update override remove_override]
+  before_action :authorize_access!, only: %i[edit update override remove_override]
 
   def show
     #TODO: use presenter to load the translation
     @translation = Translation
+                     .shared # the row every riwayah reads; a riwayah's override is shown beside it (P6.5)
                      .includes(:verse, :foot_notes)
                      .where(resource_content_id: @resource.id)
                      .find_by_verse_id(params[:id])
@@ -18,6 +19,7 @@ class TranslationProofreadingsController < CommunityController
 
   def edit
     @translation = Translation
+                     .shared
                      .includes(:verse, :foot_notes)
                      .where(resource_content_id: @resource.id)
                      .find_by_verse_id(params[:id])
@@ -30,6 +32,7 @@ class TranslationProofreadingsController < CommunityController
 
   def update
     @translation = Translation
+                     .shared
                      .where(resource_content_id: @resource.id)
                      .find_by_verse_id(params[:id])
 
@@ -41,9 +44,31 @@ class TranslationProofreadingsController < CommunityController
     end
   end
 
+  # P6.5: the riwayah's override of this verse's translation. The override
+  # row copies the shared row's language and verse columns and carries the
+  # text as that riwayah reads it; footnotes stay on the shared row.
+  def override
+    riwayah = Riwayah.find_by!(slug: params[:riwayah])
+    shared = Translation.shared.where(resource_content_id: @resource.id).find_by!(verse_id: params[:id])
+    text = params[:text].to_s.strip
+    return redirect_to(translation_proofreading_path(shared.verse_id, @presenter.link_params), alert: 'Override text is empty') if text.blank?
+
+    row = Translation.find_or_initialize_by(resource_content_id: @resource.id, verse_id: shared.verse_id, riwayah_id: riwayah.id)
+    row.assign_attributes(shared.attributes.slice(*Translation::OVERRIDE_COPIED_COLUMNS))
+    row.text = text
+    row.save!
+    redirect_to translation_proofreading_path(shared.verse_id, @presenter.link_params), notice: "#{riwayah.name} override saved for #{shared.verse_key}"
+  end
+
+  def remove_override
+    riwayah = Riwayah.find_by!(slug: params[:riwayah])
+    Translation.overrides_for(riwayah).where(resource_content_id: @resource.id, verse_id: params[:id]).destroy_all
+    redirect_to translation_proofreading_path(params[:id], @presenter.link_params), notice: "#{riwayah.name} override removed"
+  end
+
   def index
     @ayah_translations = ResourceContent.translations.one_verse
-    translations = Translation.includes(:verse, :foot_notes).where(resource_content_id: @resource.id)
+    translations = Translation.for_riwayah(@presenter.riwayah).includes(:verse, :foot_notes).where(resource_content_id: @resource.id)
 
     if params[:filter_chapter].to_i > 0
       translations = translations.where("verses.chapter_id": params[:filter_chapter].to_i)

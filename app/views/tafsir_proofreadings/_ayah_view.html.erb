@@ -1,3 +1,32 @@
+<% if (riwayah = @presenter.riwayah) %>
+  <%# P6.5: the tafsir as the riwayah reads it (its override, or the shared text), grouping stays the Kufi range %>
+  <% row = Tafsir.for_riwayah(riwayah).find_by(resource_content_id: @resource.id, verse_id: @tafisr.verse_id) || @tafisr %>
+  <div class="bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded mb-4" role="alert" id="riwayah-notice">
+    Kufi <%= @tafisr.ayah_group_info %> ·
+    <% if row.override? %><b><%= riwayah.name %> override</b> shown; the shared text is below the editor.<% else %>shared text (no <%= riwayah.name %> override yet).<% end %>
+  </div>
+  <div class="tafsir <%= @tafisr.language_name %>" id="tafsir-text">
+    <%= safe_html row.text %>
+  </div>
+  <% if @access %>
+    <div class="border rounded p-3 mt-4">
+      <%= form_tag override_tafsir_proofreading_path(@tafisr.id, @presenter.link_params), method: :put, data: { turbo: false } do %>
+        <%= text_area_tag :text, row.override? ? row.text : nil, rows: 8, class: "w-full #{@resource.language_name.to_s.downcase}", placeholder: "#{riwayah.name} reading of #{@tafisr.ayah_group_info}" %>
+        <div class="flex gap-2 mt-2">
+          <%= submit_tag "Save #{riwayah.name} override", class: 'btn btn-success btn-sm', data: { disable_with: '…' } %>
+          <% if row.override? %>
+            <%= link_to 'Remove override', remove_override_tafsir_proofreading_path(@tafisr.id, @presenter.link_params), data: { turbo_method: :delete, turbo_confirm: 'Remove this override?' }, class: 'btn btn-dark btn-sm' %>
+          <% end %>
+        </div>
+      <% end %>
+      <% if row.override? %>
+        <div class="text-sm text-gray-500 mt-3">Shared text:</div>
+        <div class="tafsir <%= @tafisr.language_name %> text-sm"><%= safe_html @tafisr.text %></div>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
 <div class="tafsir <%= @tafisr.language_name %>">
   <%= safe_html @tafisr.text %>
 </div>
+<% end %>

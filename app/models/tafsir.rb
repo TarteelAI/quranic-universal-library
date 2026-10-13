@@ -58,6 +58,9 @@ class Tafsir < QuranApiRecord
   belongs_to :chapter
   belongs_to :language
 
+  # the columns an override row (P6.5) copies from the shared row it overrides
+  OVERRIDE_COPIED_COLUMNS = %w[language_id language_name resource_name verse_key chapter_id verse_number juz_number hizb_number rub_el_hizb_number page_number ruku_number surah_ruku_number manzil_number group_verse_key_from group_verse_key_to group_verses_count group_tafsir_id start_verse_id end_verse_id].freeze
+
   def save_suggestions(params, user)
     draft_tafsir = Draft::Tafsir.new(tafsir_id: id)
     grouping_ayah = Verse.where("id >= ? AND id <= ?", params[:start_verse_id], params[:end_verse_id]).order('verse_number asc')

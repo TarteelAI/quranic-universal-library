@@ -9,13 +9,13 @@
   end
 
   if @access
-    actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+    actions << link_to('Edit', edit_translation_proofreading_path(verse.id, @presenter.link_params), class: 'btn btn-success')
   end
 
-  more_action << link_to('Ayah view', translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Page view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Page with arabic view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Proofreading view(With pdf)', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Ayah view', translation_proofreading_path(verse.id, @presenter.link_params), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Page view', translation_proofreading_path(verse.id, @presenter.link_params(view_type: 'page')), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Page with arabic view', translation_proofreading_path(verse.id, @presenter.link_params(view_type: 'page_with_arabic')), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Proofreading view(With pdf)', translation_proofreading_path(verse.id, @presenter.link_params(view_type: 'page_with_pdf')), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
 
   actions << %Q{
     <div class='relative' data-controller='dropdown'>
@@ -35,34 +35,35 @@
     previous_ayah = verse.previous_ayah
     next_ayah = verse.next_ayah
     if previous_ayah
-      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, @presenter.link_params), class: 'btn btn-dark')
     end
     if next_ayah
-      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, @presenter.link_params), class: 'btn btn-dark')
     end
   else
     page = verse.page_number
 
     if page > 1
       previous_ayah = Verse.where(page_number: page - 1).order('verse_index ASC').first
-      actions << link_to('Previous page', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'btn btn-dark')
+      actions << link_to('Previous page', translation_proofreading_path(previous_ayah.id, @presenter.link_params(view_type: params[:view_type])), class: 'btn btn-dark')
     end
 
-    if page < 604
+    if page < @presenter.pages_count # the selected mushaf's page count (P6.5); 604 for Hafs
       next_ayah = Verse.where(page_number: page + 1).order('verse_index ASC').first
 
-      actions << link_to('Next page', translation_proofreading_path(next_ayah.id, resource_id: @resource.id, view_type: params[:view_type]), class: 'btn btn-dark')
+      actions << link_to('Next page', translation_proofreading_path(next_ayah.id, @presenter.link_params(view_type: params[:view_type])), class: 'btn btn-dark')
     end
   end
 
+  riwayah_title = @presenter.riwayah ? " · #{@presenter.riwayah.name} #{@presenter.mapped_ayahs(verse).map(&:ayah_key).join(', ')}" : ''
 %>
 
 <%= render 'tools/header',
            name: "Ayah translation",
-           title: "#{@resource.name} - #{@translation.verse.verse_key}",
+           title: "#{@resource.name} - #{@translation.verse.verse_key}#{riwayah_title}",
            key: 'ayah_translation',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: translation_proofreadings_path(resource_id: @resource.id) }]
+           breadcrumb_parents: [{ label: 'Filter', path: translation_proofreadings_path(@presenter.link_params) }]
 %>
 
 <%= render 'shared/access_message' %>

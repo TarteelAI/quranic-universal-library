@@ -374,7 +374,7 @@ module Importer
           translation_text = "#{translation_text} <sup foot_note=#{footnote.id}>1</sup>"
         end
 
-        translation.draft_text = translation_text.sub(/\d+[.]/, '').strip
+        translation.draft_text = translation_text.sub(/\A\d+[.]\s*/, '').strip
       end
 
       translation.set_meta_value('source_data', data)
@@ -475,13 +475,19 @@ module Importer
       amharic_sadiq: /^\{\d+\}/,
       lingala_zakaria: /^\d+[\.\s]?|\d+$/,
       spanish_mokhtasar: /^(\d*,)?\d+.(\s)?/, # 2:3-4
-      english_hilali_khan: /\([A-Z]\.\d+(?::\d+)?\)/,
+      # Footnotes start with a verse reference, e.g. `(V.2:255). Kursî`,
+      # `(V.2:3): Al-Ghaib`, `(V. 4:40)`, `(V.5: 66)`, `(2:279)` or `(A) (V.2:193)`.
+      # Strip the reference along with the punctuation that follows it.
+      english_hilali_khan: /\A(?:\([A-Z]\)\s*)?\(\s*(?:[A-Z]\.\s*)?\d+(?:\s*:\s*\d+)?\s*\)\s*[:.]?\s*/,
       ukrainian_yakubovych: /^\[[IVXLCDM]+\]/,
       bengali_zakaria: /^\[\p{N}+\]/,
       hausa_gummi: /^\*/,
       punjabi_arif: /^[\d\p{M}\s]*/,
       # general: /^(?:\[\d+(?::\d+)?(?:-\d+)?\]|\(\d+(?::\d+)?(?:-\d+)?\)|\d+(?::\d+)?(?:-\d+)?[\)\]\*.]*)/
-      general: /^(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s-]*)+/
+      # Anchored to the start of the text(\A), not the start of a line(^).
+      # `^` with `sub` removed numbering from list items inside footnotes,
+      # e.g `1. To testify` became `To testify`.
+      general: /\A(?:[\[\(]?\d+(?::\d+)?(?:-\d+)?[\)\]\*.,\s-]*)+/
     }.freeze
 
     TEXT_REPLACEMENT = {

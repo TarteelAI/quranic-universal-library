@@ -70,12 +70,56 @@ ActiveAdmin.register ResourceContent do
     end
   end
 
+  action_item :delete_resource_content, only: :show, if: -> { current_user&.super_admin? && !resource.approved? } do
+    link_to 'Delete Resource Content', '#_',
+            class: 'text-danger',
+            data: {
+              controller: 'ajax-modal',
+              url: confirm_delete_cms_resource_content_path(resource)
+            }
+  end
+
   action_item :import_draft, only: :show, if: -> { can? :manage, Draft::Translation } do
     if resource.syncable?
       type = resource.tafsir? ? 'tafsir' : 'translation'
       link_to "Import Draft #{type}", import_draft_cms_resource_content_path(resource), method: :put,
               data: { confirm: "Are you sure to import #{type} for this resource from QuranEnc?" }
     end
+  end
+
+  member_action :confirm_delete, method: :get do
+    unless current_user&.super_admin?
+      return render plain: 'Only super admins can delete resource contents.', status: :forbidden
+    end
+
+    render partial: 'admin/confirm_delete_resource_content',
+           locals: {
+             resource: resource,
+             destroy_url: destroy_resource_content_cms_resource_content_path(resource)
+           }
+  end
+
+  member_action :destroy_resource_content, method: :delete do
+    unless current_user&.super_admin?
+      return redirect_to [:cms, resource], alert: 'Only super admins can delete resource contents.'
+    end
+
+    name = resource.confirmation_name
+
+    # Case-sensitive, only surrounding whitespace is ignored.
+    if params[:confirm_name].to_s.strip != name
+      return redirect_to [:cms, resource], alert: "The name you typed doesn't match, nothing was deleted."
+    end
+
+    blockers = resource.deletion_blockers
+    if blockers.present?
+      return redirect_to [:cms, resource],
+                         alert: "Resource content #{blockers.to_sentence}, nothing was deleted."
+    end
+
+    resource.destroy_with_data!
+
+    redirect_to cms_resource_contents_path, notice: "#{name} and all of its data have been deleted."
   end
 
   member_action :upload_file, method: 'post' do

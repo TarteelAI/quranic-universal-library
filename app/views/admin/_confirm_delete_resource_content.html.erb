@@ -1,0 +1,66 @@
+<%
+  confirm_name = resource.confirmation_name
+  blockers = resource.deletion_blockers
+  summary = resource.deletion_summary
+%>
+
+<div id=title>
+  Delete <%= confirm_name %>
+</div>
+
+<div id="body">
+  <div class="p-6" id=modal-body>
+    <% if blockers.present? %>
+      <div class="px-4 py-3 rounded mb-4 bg-yellow-100 border border-yellow-400 text-yellow-800">
+        <strong>This resource content can't be deleted yet.</strong>
+        It <%= blockers.to_sentence %>. Sort that out first, then try again.
+      </div>
+    <% else %>
+      <div class="px-4 py-3 rounded mb-4 bg-red-100 border border-red-400 text-red-700">
+        <strong>This cannot be undone.</strong>
+        Deleting this resource content will permanently remove the record, its
+        attached files and all of the data listed below from the database.
+      </div>
+    <% end %>
+
+    <table class="table table-sm mb-4">
+      <tbody>
+        <tr>
+          <th>Resource content</th>
+          <td><%= resource.id %> - <%= confirm_name %></td>
+        </tr>
+        <tr>
+          <th>Type</th>
+          <td><%= [resource.resource_type, resource.sub_type, resource.cardinality_type].compact_blank.join(' / ') %></td>
+        </tr>
+        <% summary.each do |label, count| %>
+          <tr>
+            <th><%= label %></th>
+            <td><%= count %></td>
+          </tr>
+        <% end %>
+        <% if summary.blank? %>
+          <tr>
+            <td colspan="2" class="text-gray-600">No data rows are linked to this resource content.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if blockers.blank? %>
+      <%= form_with url: destroy_url, method: :delete, local: true, data: { turbo: false } do |form| %>
+        <div class="mb-4">
+          <%= form.label :confirm_name, "Type the resource content name to confirm" %>
+          <div class="text-sm text-gray-600 mb-1">
+            Type <code><%= confirm_name %></code> exactly, including the case.
+          </div>
+          <%= form.text_field :confirm_name, class: 'form-control', autocomplete: 'off', required: true %>
+        </div>
+
+        <div class="mb-4">
+          <%= form.submit 'Delete permanently', class: 'btn btn-danger' %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

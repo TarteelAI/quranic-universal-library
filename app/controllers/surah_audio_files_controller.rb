@@ -140,7 +140,11 @@ class SurahAudioFilesController < CommunityController
       )
     end
 
-    Audio::SegmentValidator.new(segments, expected_verses_count: chapter.verses_count).validate
+    Audio::SegmentValidator.new(
+      segments,
+      expected_verses_count: chapter.verses_count,
+      ignore: Audio::SegmentValidator::NOISY_CATEGORIES
+    ).validate
   end
 
   def serialize_issue(issue)

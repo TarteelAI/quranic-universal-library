@@ -200,7 +200,11 @@ module Audio
         verses_count = 6236
       end
 
-      Audio::SegmentValidator.new(segments, expected_verses_count: verses_count).validate
+      Audio::SegmentValidator.new(
+        segments,
+        expected_verses_count: verses_count,
+        ignore: Audio::SegmentValidator::NOISY_CATEGORIES
+      ).validate
     end
 
     def update_audio_stats

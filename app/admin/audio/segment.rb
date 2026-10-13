@@ -7,12 +7,15 @@ ActiveAdmin.register Audio::Segment do
            :verse
 
   permit_params :verse_id,
-                :duration,
-                :end_timestamp,
-                :percentile,
-                :segments,
-                :start_timestamp,
                 :verse_number,
+                :verse_key,
+                :timestamp_from,
+                :timestamp_to,
+                :percentile,
+                :has_repetition,
+                :segments,
+                :letter_segments,
+                :audio_recitation_id,
                 :audio_file_id,
                 :chapter_id
 
@@ -79,5 +82,39 @@ ActiveAdmin.register Audio::Segment do
         end
       end
     end
+  end
+
+  form do |f|
+    f.semantic_errors(*f.object.errors.attribute_names)
+
+    f.inputs 'Segment details' do
+      f.input :audio_recitation_id
+      f.input :audio_file_id
+      f.input :chapter_id
+      f.input :verse_id
+      f.input :verse_number
+      f.input :verse_key
+      f.input :timestamp_from, hint: 'ms'
+      f.input :timestamp_to, hint: 'ms'
+      f.input :percentile
+      f.input :has_repetition
+    end
+
+    f.inputs 'Segments' do
+      # jsonb columns must be submitted as JSON, not Ruby array#to_s. The
+      # json-editor controller keeps the hidden input as valid JSON and the
+      # model's setter parses it; entries with 0/0 timing are dropped on save.
+      f.input :segments,
+              as: :text,
+              hint: 'Array of [word_number, from_ms, to_ms] entries. Placeholder entries with 0 start and 0 end are removed on save.',
+              input_html: { data: { controller: 'json-editor', json: resource.get_segments } }
+
+      f.input :letter_segments,
+              as: :text,
+              hint: 'Array of [word_number, letter, from_ms, to_ms] entries.',
+              input_html: { data: { controller: 'json-editor', json: resource.get_letter_segments } }
+    end
+
+    f.actions
   end
 end

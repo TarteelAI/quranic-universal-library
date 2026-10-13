@@ -164,7 +164,8 @@ class AudioFile < QuranApiRecord
       end
     end
 
-    list = list.compact_blank
+    # Drop builder placeholders (start == end == 0) before saving.
+    list = Audio::SegmentNormalizer.clean(list.compact_blank)
     self.segments = list
     self.segments_count = list.size
   end

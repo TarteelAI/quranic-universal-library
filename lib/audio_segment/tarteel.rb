@@ -82,7 +82,11 @@ module AudioSegment
                    .where(audio_recitation_id: recitation.id)
                    .includes(:audio_file, verse: :actual_words)
 
-      Audio::SegmentValidator.new(segments, expected_verses_count: 6236).validate.each do |issue|
+      Audio::SegmentValidator.new(
+        segments,
+        expected_verses_count: 6236,
+        ignore: Audio::SegmentValidator::NOISY_CATEGORIES
+      ).validate.each do |issue|
         @issues.push(format_validator_issue(recitation, issue))
       end
     end

@@ -11,7 +11,7 @@ json.segments do
       json.verse_id verse.id
       json.timestamp_from segment&.timestamp_from
       json.timestamp_to segment&.timestamp_to
-      json.segments segment&.segments || []
+      json.segments segment&.get_segments || []
       json.set! :words, verse.words.map(&:text_digital_khatt)
     end
   end

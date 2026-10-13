@@ -765,7 +765,6 @@ CREATE TABLE quran.audio_recitations (
     priority integer,
     segments_count integer,
     files_size double precision,
-    qirat_type_id integer,
     segment_locked boolean DEFAULT false,
     riwayah_id integer,
     qua_key character varying,
@@ -2632,7 +2631,6 @@ CREATE TABLE quran.mushafs (
     is_default boolean DEFAULT false,
     default_font_name character varying,
     pages_count integer,
-    qirat_type_id integer,
     enabled boolean,
     resource_content_id integer,
     riwayah_id integer,
@@ -2810,48 +2808,6 @@ CREATE SEQUENCE quran.qiraat_id_seq
 --
 
 ALTER SEQUENCE quran.qiraat_id_seq OWNED BY quran.qiraat.id;
-
-
---
--- Name: riwayat; Type: TABLE; Schema: quran; Owner: -
---
-
-CREATE TABLE quran.riwayat (
-    id bigint NOT NULL,
-    name character varying,
-    description text,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
-    recitations_count integer DEFAULT 0,
-    slug character varying,
-    qiraah_id integer,
-    name_ar character varying,
-    name_en character varying,
-    enabled boolean DEFAULT false NOT NULL,
-    default_numbering_id integer,
-    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
-);
-
-
---
--- Name: qirat_types; Type: VIEW; Schema: quran; Owner: -
---
-
-CREATE VIEW quran.qirat_types AS
- SELECT riwayat.id,
-    riwayat.name,
-    riwayat.description,
-    riwayat.created_at,
-    riwayat.updated_at,
-    riwayat.recitations_count,
-    riwayat.slug,
-    riwayat.qiraah_id,
-    riwayat.name_ar,
-    riwayat.name_en,
-    riwayat.enabled,
-    riwayat.default_numbering_id,
-    riwayat.meta_data
-   FROM quran.riwayat;
 
 
 --
@@ -3162,7 +3118,6 @@ CREATE TABLE quran.recitations (
     style character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    qirat_type_id integer,
     segment_locked boolean DEFAULT true,
     files_count integer,
     segments_count integer DEFAULT 0,
@@ -3377,6 +3332,27 @@ CREATE SEQUENCE quran.resource_tags_id_seq
 --
 
 ALTER SEQUENCE quran.resource_tags_id_seq OWNED BY quran.resource_tags.id;
+
+
+--
+-- Name: riwayat; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.riwayat (
+    id bigint NOT NULL,
+    name character varying,
+    description text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    recitations_count integer DEFAULT 0,
+    slug character varying,
+    qiraah_id integer,
+    name_ar character varying,
+    name_en character varying,
+    enabled boolean DEFAULT false NOT NULL,
+    default_numbering_id integer,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
+);
 
 
 --
@@ -8196,13 +8172,6 @@ CREATE INDEX index_mushafs_on_numbering_id ON quran.mushafs USING btree (numberi
 
 
 --
--- Name: index_mushafs_on_qirat_type_id; Type: INDEX; Schema: quran; Owner: -
---
-
-CREATE INDEX index_mushafs_on_qirat_type_id ON quran.mushafs USING btree (qirat_type_id);
-
-
---
 -- Name: index_mushafs_on_riwayah_id; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -8543,13 +8512,6 @@ CREATE UNIQUE INDEX index_recitations_on_gapless_recitation_id ON quran.recitati
 --
 
 CREATE INDEX index_recitations_on_numbering_id ON quran.recitations USING btree (numbering_id);
-
-
---
--- Name: index_recitations_on_qirat_type_id; Type: INDEX; Schema: quran; Owner: -
---
-
-CREATE INDEX index_recitations_on_qirat_type_id ON quran.recitations USING btree (qirat_type_id);
 
 
 --

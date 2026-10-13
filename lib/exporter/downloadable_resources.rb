@@ -594,7 +594,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.slug ||=  content.slug
 
-        tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
+        tags = ['Recitation', recitation.recitation_style&.name, recitation.riwayah&.name]
 
         if content.has_segments?
           tags << 'With segments'
@@ -649,7 +649,7 @@ module Exporter
         downloadable_resource.name ||= content.name
         downloadable_resource.slug ||=  content.slug
 
-        tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
+        tags = ['Recitation', recitation.recitation_style&.name, recitation.riwayah&.name]
 
         if content.has_segments?
           tags << 'With segments'

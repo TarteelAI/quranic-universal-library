@@ -38,7 +38,7 @@ ActiveAdmin.register RecitationStyle do
             tr do
               td link_to(r.id, [:cms, r])
               td r.name
-              td r.qirat_type&.name
+              td r.riwayah&.name
             end
           end
         end
@@ -57,7 +57,7 @@ ActiveAdmin.register RecitationStyle do
             tr do
               td link_to(r.id, [:cms, r])
               td r.name
-              td r.qirat_type&.name
+              td r.riwayah&.name
             end
           end
         end

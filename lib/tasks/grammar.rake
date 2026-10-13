@@ -4,7 +4,7 @@ namespace :grammar do
     mushaf.lines_per_page = 15
     mushaf.pages_count = 604
     mushaf.default_font_name = 'qpc-hafs'
-    mushaf.qirat_type_id = 1
+    mushaf.riwayah_id = 1
     mushaf.save
 
     qpc_hafs = Mushaf.find(5)

@@ -181,7 +181,7 @@ namespace :one_time do
       name: 'SVG Mushaf'
     ).first_or_initialize
     m.pages_count = 604
-    m.qirat_type_id = 1
+    m.riwayah_id = 1
     m.lines_per_page = 15
     m.default_font_name = 'svg'
     m.save

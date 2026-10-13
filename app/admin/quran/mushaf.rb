@@ -26,7 +26,7 @@ ActiveAdmin.register Mushaf do
          ajax: { resource: Riwayah }
 
   permit_params do
-    %i[name description lines_per_page is_default default_font_name enabled default_font_name riwayah_id qirat_type_id pages_count
+    %i[name description lines_per_page is_default default_font_name enabled default_font_name riwayah_id pages_count
        resource_content_id script_id numbering_id layout_source pdf_url source_package]
   end
 

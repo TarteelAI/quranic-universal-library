@@ -37,6 +37,16 @@ module Qiraat
       #      text_qpc_nastaleeq was wrong and the 26 words are stale edits.
       OVERRIDES = { 23 => 'indopak-nastaleeq' }.freeze
 
+      # The fan-out list Word#update_mushaf_word_text used before P3.4 (dropped
+      # from the model in P7.5): which mushafs each column fed. Kept here only
+      # as a tie-break when a mushaf's cached text matches several columns.
+      LEGACY_COLUMN_MUSHAFS = {
+        'text_qpc_nastaleeq_hafs' => [14, 15], 'text_qpc_nastaleeq' => [23], 'text_indopak_nastaleeq' => [6, 7, 8, 17],
+        'text_qpc_hafs' => [5, 27, 13], 'text_uthmani' => [4], 'text_indopak' => [3], 'code_v1' => [2], 'code_v2' => [1, 19],
+        'text_uthmani_tajweed' => [16], 'text_qpc_hafs_tajweed' => [21], 'text_digital_khatt' => [20], 'text_digital_khatt_v1' => [22],
+        'text_digital_khatt_indopak' => [24], 'text_indonesian_sign_language' => [31], 'text_indopak_misbah' => [32]
+      }.freeze
+
       # Image mushafs cache a relative image path per word ("w/qa-color/2/255/5.png");
       # the path prefix names the image set.
       IMAGE_PREFIXES = { 'w/qa-color/' => 'tajweed-images-new', 'w/rq-color/' => 'tajweed-images-old', 'w/qa-black/' => 'black-images' }.freeze
@@ -131,7 +141,7 @@ module Qiraat
 
         # Columns identical for this mushaf's words: the legacy fan-out list says
         # which column fed it.
-        by_legacy = matches.select { |s| Word::LEGACY_COLUMN_MUSHAFS.fetch(s.column_name, []).include?(mushaf.id) }
+        by_legacy = matches.select { |s| LEGACY_COLUMN_MUSHAFS.fetch(s.column_name, []).include?(mushaf.id) }
         by_legacy.size == 1 ? by_legacy.first : nil
       end
     end

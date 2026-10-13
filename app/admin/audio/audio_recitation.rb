@@ -16,7 +16,6 @@ ActiveAdmin.register Audio::Recitation do
                 :approved,
                 :priority,
                 :recitation_style_id,
-                :qirat_type_id,
                 :riwayah_id,
                 :reciter_id,
                 :segment_locked

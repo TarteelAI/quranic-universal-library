@@ -18,7 +18,6 @@
 #  segments_count      :integer
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
-#  qirat_type_id       :integer
 #  numbering_id        :integer
 #  recitation_style_id :integer
 #  reciter_id          :integer
@@ -143,7 +142,7 @@ module Audio
 
       update_columns(segments_count: audio_segments.count)
       reciter&.update_recitation_count
-      qirat_type&.update_recitation_count
+      riwayah&.update_recitation_count
       recitation_style&.update_recitation_count
       chapter_audio_files.each(&:update_segment_percentile)
     end

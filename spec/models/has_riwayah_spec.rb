@@ -2,34 +2,25 @@
 
 require 'rails_helper'
 
+# P1.3 added riwayah_id beside qirat_type_id; P7.5 dropped the legacy column,
+# the QiratType alias and the qirat_type readers.
 RSpec.describe HasRiwayah do
   let(:hafs) { Riwayah.hafs }
   let(:warsh) { Riwayah.find_by!(slug: 'warsh') }
   let(:mushaf) { Mushaf.find(5) }
 
-  it 'exposes the riwayah under both names' do
+  it 'exposes the riwayah through riwayah_id only' do
     expect(mushaf.riwayah).to eq(hafs)
-    expect(mushaf.qirat_type).to eq(hafs)
-    expect(mushaf.riwayah_id).to eq(mushaf.qirat_type_id)
+    expect(mushaf).not_to respond_to(:qirat_type)
+    expect(Mushaf.column_names).not_to include('qirat_type_id')
+    expect(Recitation.column_names).not_to include('qirat_type_id')
+    expect(Audio::Recitation.column_names).not_to include('qirat_type_id')
+    expect(defined?(QiratType)).to be_nil
   end
 
-  it 'keeps qirat_type_id equal to riwayah_id when riwayah changes' do
+  it 'changes the riwayah' do
     mushaf.update!(riwayah: warsh)
-    expect(mushaf.reload.qirat_type_id).to eq(warsh.id)
-    expect(mushaf.riwayah_id).to eq(warsh.id)
-  end
-
-  it 'keeps riwayah_id equal to qirat_type_id when the legacy column is written' do
-    mushaf.update!(qirat_type_id: warsh.id)
     expect(mushaf.reload.riwayah_id).to eq(warsh.id)
-    expect(mushaf.riwayah).to eq(warsh)
-  end
-
-  it 'assigning through the legacy writer sets both' do
-    mushaf.qirat_type = warsh
-    mushaf.save!
-    expect(mushaf.reload.riwayah_id).to eq(warsh.id)
-    expect(mushaf.qirat_type_id).to eq(warsh.id)
   end
 
   it 'lets a riwayah list its mushafs through riwayah_id' do
@@ -38,13 +29,8 @@ RSpec.describe HasRiwayah do
   end
 
   it 'applies to recitations and audio recitations' do
-    rec = Recitation.new(name: 'spec', reciter_name: 'spec', riwayah: warsh)
-    rec.send(:sync_legacy_qirat_type_id)
-    expect(rec.qirat_type_id).to eq(warsh.id)
-
-    audio = Audio::Recitation.new(name: 'spec', qirat_type_id: hafs.id)
-    audio.send(:sync_legacy_qirat_type_id)
-    expect(audio.riwayah_id).to eq(hafs.id)
-    expect(audio.qirat_type).to eq(hafs)
+    expect(Recitation.new(riwayah: warsh).riwayah).to eq(warsh)
+    expect(Audio::Recitation.new(riwayah_id: hafs.id).riwayah).to eq(hafs)
+    expect(Recitation.riwayah_ransackable_associations).to eq(%w[riwayah])
   end
 end

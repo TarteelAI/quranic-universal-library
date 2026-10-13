@@ -107,7 +107,8 @@ namespace :qiraat do
       known_stale = { 1 => 2, 2 => 1, 3 => 9, 5 => 1, 14 => 175, 16 => 7, 17 => 1, 19 => 2, 22 => 1, 23 => 26, 27 => 1 }
       failed = []
       Mushaf.where.not(script_id: nil).order(:id).includes(:script).each do |m|
-        next if m.script.image?
+        # generated mushafs (P5.3) cache the quran-text edition (checked by qiraat:verify:mushaf_layout), not a words column
+        next if m.script.image? || !m.script.column? || Mushaf::GENERATED_LAYOUT_SOURCES.include?(m.layout_source)
 
         col = Word.connection.quote_column_name(m.script.column_name)
         bad = Word.connection.select_value(<<~SQL).to_i
@@ -121,7 +122,7 @@ namespace :qiraat do
       end
       puts "  without script: #{Mushaf.where(script_id: nil).pluck(:id).inspect} (legacy name matching keeps serving them)"
       puts '--- fan-out per column: legacy list vs derived from scripts (a derived superset means caches that went stale before are refreshed from now on)'
-      Word::LEGACY_COLUMN_MUSHAFS.each do |column, legacy|
+      Qiraat::Backfill::MushafScripts::LEGACY_COLUMN_MUSHAFS.each do |column, legacy|
         derived = Word.mushaf_ids_for_column(column).sort
         legacy_existing = Mushaf.where(id: legacy).pluck(:id).sort
         puts format('  %-32s legacy %-22s derived %-26s %s', column, legacy_existing.inspect, derived.inspect, derived == legacy_existing ? 'same' : 'DIFFERS')
@@ -134,6 +135,15 @@ end
 
 namespace :qiraat do
   namespace :backfill do
+    # what Mushaf#pdf_url returned by id before P5.1 made it a column (the constant left the model in P7.5)
+    LEGACY_PDF_URLS = {
+      1 => 'https://tafsir.app/m-madinah/1/1',
+      2 => 'https://tafsir.app/m-madinah-old/1/1',
+      5 => 'https://download.qurancomplex.gov.sa/resources_dev/UthmanicHafs_v18.zip',
+      6 => 'https://archive.org/details/AlQuran15LinesQudratullah/page/n609/mode/2up',
+      7 => 'https://archive.org/details/AlQuranAlKareem16LinesTajCompany/page/n517/mode/2up'
+    }.freeze
+
     desc 'Set numbering (Kufi), layout_source (manual) and pdf_url on the existing mushafs (P5.1)'
     task mushaf_numbering: :environment do
       dry = ENV['DRY_RUN'].present?
@@ -142,7 +152,7 @@ namespace :qiraat do
         changes = {}
         changes[:numbering_id] = kufi.id if m.numbering_id.nil?
         changes[:layout_source] = 'manual' if m.layout_source.blank?
-        changes[:pdf_url] = Mushaf::LEGACY_PDF_URLS[m.id] if m[:pdf_url].blank? && Mushaf::LEGACY_PDF_URLS[m.id]
+        changes[:pdf_url] = LEGACY_PDF_URLS[m.id] if m[:pdf_url].blank? && LEGACY_PDF_URLS[m.id]
         next if changes.empty?
 
         puts "  #{dry ? 'would set' : 'set'} mushaf #{m.id} #{changes.inspect}"
@@ -161,9 +171,10 @@ namespace :qiraat do
         puts format('  %-50s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
       end
       check.call('mushafs without numbering', Mushaf.where(numbering_id: nil).count, 0)
-      check.call('all existing mushafs on kufi', Mushaf.where(numbering_id: AyahNumbering.kufi.id).count, Mushaf.count)
-      check.call('all layout_source manual', Mushaf.where(layout_source: 'manual').count, Mushaf.count)
-      Mushaf::LEGACY_PDF_URLS.each { |id, url| check.call("pdf_url mushaf #{id}", Mushaf.find_by(id: id)&.pdf_url, url) }
+      manual = Mushaf.where(layout_source: 'manual') # the hand-made (pre-P5.3) layouts; generated ones carry their riwayah's numbering
+      check.call('hand-made mushafs on kufi', manual.where(numbering_id: AyahNumbering.kufi.id).count, manual.count)
+      check.call('every mushaf has a layout_source', Mushaf.where(layout_source: [nil, '']).count, 0)
+      LEGACY_PDF_URLS.each { |id, url| check.call("pdf_url mushaf #{id}", Mushaf.find_by(id: id)&.pdf_url, url) }
       check.call('every mushaf valid', Mushaf.all.reject(&:valid?).map(&:id), [])
       abort("#{failed.size} check(s) failed") if failed.any?
       puts 'mushaf_numbering OK'

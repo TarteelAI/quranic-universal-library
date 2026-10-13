@@ -86,7 +86,7 @@ ActiveAdmin.register Reciter do
               td link_to(r.id, [:cms, r])
               td r.name
               td r.recitation_style&.name
-              td r.qirat_type&.name
+              td r.riwayah&.name
             end
           end
         end
@@ -108,7 +108,7 @@ ActiveAdmin.register Reciter do
               td link_to(r.id, [:cms, r])
               td r.name
               td r.recitation_style&.name
-              td r.qirat_type&.name
+              td r.riwayah&.name
             end
           end
         end

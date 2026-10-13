@@ -76,21 +76,6 @@
 class Word < QuranApiRecord
   include StripWhitespaces
 
-  MUSHAF_TO_TEXT_ATTR_MAPPING = {
-    1 => 'code_v2',
-    2 => 'code_v1',
-    3 => 'text_indopak',
-    4 => 'text_uthmani',
-    5 => 'text_qpc_hafs',
-    6 => 'text_indopak_nastaleeq',
-    7 => 'text_indopak_nastaleeq',
-    8 => 'text_indopak_nastaleeq',
-    13 => 'text_qpc_hafs',
-    14 => 'text_qpc_nastaleeq_hafs',
-    15 => 'text_indopak_nastaleeq',
-    16 => 'text_indopak_nastaleeq',
-    21 => 'text_qpc_hafs_tajweed'
-  }
 
   has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
 
@@ -229,8 +214,6 @@ class Word < QuranApiRecord
     mushaf = Mushaf.find_by(id: mushaf_id)
     if mushaf&.script
       text_for(mushaf.script)
-    elsif (attr = MUSHAF_TO_TEXT_ATTR_MAPPING[mushaf_id.to_i]) # legacy: mushafs without a script
-      send attr
     else
       text = MushafWord.where(word: self, mushaf_id: mushaf_id).first&.text
       text || text_indopak_nastaleeq
@@ -338,28 +321,10 @@ class Word < QuranApiRecord
 
   # A script column changed: refresh the cached text of every mushaf whose
   # script reads that column, and the joined ayah text on the verse. The
-  # mushaf set comes from mushafs.script_id (P3.4); LEGACY_COLUMN_MUSHAFS is
-  # the hard-coded fan-out that ran before, kept for mushafs with no script.
-  LEGACY_COLUMN_MUSHAFS = {
-    'text_qpc_nastaleeq_hafs' => [14, 15],
-    'text_qpc_nastaleeq' => [23],
-    'text_indopak_nastaleeq' => [6, 7, 8, 17],
-    'text_qpc_hafs' => [5, 27, 13],
-    'text_uthmani' => [4],
-    'text_indopak' => [3],
-    'code_v1' => [2],
-    'code_v2' => [1, 19],
-    'text_uthmani_tajweed' => [16],
-    'text_qpc_hafs_tajweed' => [21],
-    'text_digital_khatt' => [20],
-    'text_digital_khatt_v1' => [22],
-    'text_digital_khatt_indopak' => [24],
-    'text_indonesian_sign_language' => [31],
-    'text_indopak_misbah' => [32]
-  }.freeze
-
+  # mushaf set comes from mushafs.script_id (P3.4; the hard-coded id lists
+  # went in P7.5).
   def update_mushaf_word_text
-    changed = LEGACY_COLUMN_MUSHAFS.keys.select { |c| saved_change_to_attribute?(c) }
+    changed = Script.column_backed.distinct.pluck(:column_name).select { |c| has_attribute?(c) && saved_change_to_attribute?(c) }
     changed.each do |column|
       mushaf_ids = self.class.mushaf_ids_for_column(column)
       update_text_for_mushaf(mushaf_ids, public_send(column)) if mushaf_ids.any?
@@ -367,12 +332,9 @@ class Word < QuranApiRecord
     end
   end
 
-  # Mushafs whose cached text is copied from this column: those pointing at a
-  # script on the column, plus the legacy list for mushafs that have no script yet.
+  # Mushafs whose cached text is copied from this column: those pointing at a script on the column.
   def self.mushaf_ids_for_column(column)
-    with_script = Mushaf.where(script_id: Script.column_backed.where(column_name: column).select(:id)).pluck(:id)
-    legacy = Mushaf.where(id: LEGACY_COLUMN_MUSHAFS.fetch(column, []), script_id: nil).pluck(:id)
-    (with_script + legacy).uniq
+    Mushaf.where(script_id: Script.column_backed.where(column_name: column).select(:id)).pluck(:id)
   end
 
   def update_text_for_mushaf(mushaf_id, text)

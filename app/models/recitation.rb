@@ -14,7 +14,6 @@
 #  style               :string
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
-#  qirat_type_id       :integer
 #  numbering_id        :integer
 #  recitation_style_id :integer
 #  reciter_id          :integer
@@ -22,7 +21,6 @@
 #
 # Indexes
 #
-#  index_recitations_on_qirat_type_id        (qirat_type_id)
 #  index_recitations_on_recitation_style_id  (recitation_style_id)
 #  index_recitations_on_reciter_id           (reciter_id)
 #  index_recitations_on_resource_content_id  (resource_content_id)
@@ -159,7 +157,7 @@ class Recitation < QuranApiRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["audio_files", "qirat_type", "riwayah", "recitation_style", "reciter", "resource_content"]
+    ["audio_files", "riwayah", "recitation_style", "reciter", "resource_content"]
   end
 
   def update_audio_stats

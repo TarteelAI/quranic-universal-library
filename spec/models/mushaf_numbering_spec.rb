@@ -30,7 +30,7 @@ RSpec.describe Mushaf, 'numbering and sources (P5.1)' do
   end
 
   it 'reads pdf_url from the column, falling back to the legacy table' do
-    expect(mushaf.pdf_url).to eq(Mushaf::LEGACY_PDF_URLS[5])
+    expect(mushaf.pdf_url).to eq('https://download.qurancomplex.gov.sa/resources_dev/UthmanicHafs_v18.zip') # the column, seeded by the P5.1 backfill (P7.5 dropped the model constant)
     mushaf.update_columns(pdf_url: 'https://example.test/x.pdf')
     expect(mushaf.reload.pdf_url).to eq('https://example.test/x.pdf')
     expect(Mushaf.new(id: 999).pdf_url).to be_nil

@@ -95,3 +95,13 @@ module QiraatFixtures
     @printed_editions ||= JSON.parse(upstream('printed-editions.json').read)
   end
 end
+
+# Process-level caches keyed by slug (AyahNumbering#tables, Utils::Quran)
+# would survive from an example that built a numbering over one slice into
+# an example that builds it over another: clear them before every example.
+RSpec.configure do |config|
+  config.before(:each) do
+    AyahNumbering.reset_tables!
+    Utils::Quran.reset!
+  end
+end

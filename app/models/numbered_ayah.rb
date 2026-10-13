@@ -45,6 +45,11 @@ class NumberedAyah < QuranApiRecord
   scope :in_order, -> { order(:chapter_id, :ayah_number) }
 
   # The Kufi verses this ayah covers (one for same/split, two for merged).
+  # the number of words the ayah has, like Verse#words_count (P7.3 segment validation)
+  def words_count
+    self[:words_count] || words.count
+  end
+
   def kufi_verses
     return Verse.none unless kufi_first_verse_id
 

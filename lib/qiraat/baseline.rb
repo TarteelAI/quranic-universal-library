@@ -48,7 +48,10 @@ module Qiraat
         'translations' => digest_grouped('translations', 'resource_content_id', %w[verse_id text]),
         'tafsirs' => digest_grouped('tafsirs', 'resource_content_id', %w[verse_id start_verse_id end_verse_id group_verse_key_from group_verse_key_to text]),
         'word_translations' => digest_grouped('word_translations', 'resource_content_id', %w[word_id language_id text group_word_id group_text]),
-        'chapters' => digest_columns('chapters', 'id', %w[verses_count bismillah_pre name_simple])
+        'chapters' => digest_columns('chapters', 'id', %w[verses_count bismillah_pre name_simple]),
+        # audio (P7.3): the Kufi keys and timings; ayah_id / number_segments are the new columns and stay out
+        'audio_files' => digest_grouped('audio_files', 'recitation_id', %w[verse_id verse_key verse_number segments segments_count]),
+        'audio_segments' => digest_grouped('audio_segments', 'audio_recitation_id', %w[verse_id verse_key verse_number timestamp_from timestamp_to segments segments_count])
       }
     end
 

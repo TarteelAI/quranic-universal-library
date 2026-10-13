@@ -42,9 +42,12 @@ class SurahAudioFilesController < CommunityController
     @audio_file = load_audio_file
     return render(json: { segments: {} }) if @audio_file.nil?
 
-    @verses = Verse.includes(:words)
-                   .where(chapter_id: @audio_file.chapter_id)
-                   .order('verses.id ASC')
+    # the surah's ayahs in the recitation's numbering (P7.3): Kufi verses as before, numbered ayahs otherwise
+    @verses = if @recitation.kufi_numbering?
+                Verse.includes(:words).where(chapter_id: @audio_file.chapter_id).order('verses.id ASC')
+              else
+                @recitation.numbering_or_default.numbered_ayahs.where(chapter_id: @audio_file.chapter_id, counted: true).in_order
+              end
   end
 
   def letter_segments
@@ -90,7 +93,9 @@ class SurahAudioFilesController < CommunityController
 
     unless @recitation.segment_locked?
       if segment.new_record?
-        segment.verse = Verse.find_by(verse_key: key)
+        # the key is in the recitation's numbering (P7.3); for Kufi this is the verse itself
+        ayah = @recitation.ayah_for_key(key)
+        ayah ? segment.set_ayah(ayah) : segment.verse = Verse.find_by(verse_key: key)
         segment.save
       end
 
@@ -122,10 +127,11 @@ class SurahAudioFilesController < CommunityController
   def validate_posted_segments(audio_file, posted)
     chapter = audio_file.chapter
     verses_by_number = Verse.where(chapter_id: chapter.id).index_by(&:verse_number)
+    kufi = @recitation.kufi_numbering?
 
     segments = posted.to_unsafe_h.map do |verse_key, data|
       verse_number = verse_key.to_s.split(':').last.to_i
-      verse = verses_by_number[verse_number]
+      verse = kufi ? verses_by_number[verse_number] : @recitation.ayah_for_key(verse_key) # words_count below reads either
 
       Audio::SegmentValidator::SegmentData.new(
         verse_key: verse_key.to_s,
@@ -140,7 +146,7 @@ class SurahAudioFilesController < CommunityController
       )
     end
 
-    Audio::SegmentValidator.new(segments, expected_verses_count: chapter.verses_count).validate
+    Audio::SegmentValidator.new(segments, expected_verses_count: @recitation.expected_ayahs_count(chapter)).validate
   end
 
   def serialize_issue(issue)

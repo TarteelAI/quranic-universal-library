@@ -67,7 +67,7 @@ module Audio
     end
 
     def has_missing_segments?
-      chapter && chapter.verses_count != segments_count.to_i
+      chapter && total_verses != segments_count.to_i
     end
 
     def humanize
@@ -134,8 +134,9 @@ module Audio
       [:file_name, :audio_url, :mime_type, :format]
     end
 
+    # ayahs of the surah in the recitation's numbering (P7.3)
     def total_verses
-      chapter.verses_count
+      audio_recitation&.expected_ayahs_count(chapter) || chapter.verses_count
     end
 
     def total_segments

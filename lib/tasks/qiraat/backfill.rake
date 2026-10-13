@@ -229,3 +229,51 @@ namespace :qiraat do
     end
   end
 end
+
+namespace :qiraat do
+  namespace :backfill do
+    desc 'Set audio_segments.ayah_id and audio_files.ayah_id from each recitation numbering (P7.3)'
+    task audio_ayah_ids: :environment do
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Backfill::AudioAyahIds.new(dry_run: dry).call
+      puts "audio_ayah_ids#{dry ? ' (DRY RUN)' : ''}: #{r.inspect}"
+    end
+
+    desc 'Write number_segments (word timings by shared number) for audio_segments and audio_files (P7.3)'
+    task number_segments: :environment do
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Backfill::NumberSegments.new(dry_run: dry, only: ENV['ONLY'].presence).call
+      puts "number_segments#{dry ? ' (DRY RUN)' : ''}: #{r.inspect}"
+    end
+  end
+
+  namespace :verify do
+    desc 'Verify recitation numberings, ayah ids and number_segments (P7.3)'
+    task audio_numbering: :environment do
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-62s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      kufi = AyahNumbering.kufi
+      check.call('recitations without numbering', Recitation.where(numbering_id: nil).count, 0)
+      check.call('audio_recitations without numbering', Audio::Recitation.where(numbering_id: nil).count, 0)
+      check.call('hafs recitations on kufi', Recitation.where(riwayah_id: Riwayah.hafs.id).where.not(numbering_id: kufi.id).count, 0)
+      check.call('audio_segments with a verse but no ayah', Audio::Segment.where.not(verse_id: nil).where(ayah_id: nil).count, 0)
+      check.call('audio_files with a verse but no ayah', AudioFile.where.not(verse_id: nil).where(ayah_id: nil).count, 0)
+      check.call('kufi segments: ayah_id = verse_id', Audio::Segment.joins(:audio_recitation).where(audio_recitations: { numbering_id: kufi.id }).where('audio_segments.ayah_id <> audio_segments.verse_id').count, 0)
+      check.call('segments with timings but no number_segments', Audio::Segment.where.not(segments: nil).where(number_segments: nil).count, 0)
+      check.call('audio_files with timings but no number_segments', AudioFile.where.not(segments: [nil, '', '[]']).where(number_segments: nil).count, 0)
+      sample = Audio::Segment.where.not(number_segments: nil).first
+      if sample
+        numbers = sample.verse.words.where(char_type_name: 'word').pluck(:number)
+        check.call("sample #{sample.verse_key}: number_segments numbers are the verse words' numbers", (sample.number_segments.map(&:first) - numbers), [])
+      end
+      idx = Verse.connection.indexes(:audio_segments).find { |i| i.name == 'index_audio_segments_on_audio_file_id_and_ayah_id' }
+      check.call('partial unique index (audio_file_id, ayah_id)', [idx&.unique, idx&.where.to_s.delete('()').squeeze(' ')], [true, 'ayah_id IS NOT NULL'])
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'audio_numbering OK'
+    end
+  end
+end

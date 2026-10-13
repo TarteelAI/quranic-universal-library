@@ -22,6 +22,7 @@
 #  ruku_number        :integer
 #  segments           :text
 #  segments_count     :integer          default(0)
+#  number_segments    :jsonb
 #  surah_ruku_number  :integer
 #  url                :text
 #  verse_key          :string
@@ -32,6 +33,7 @@
 #  chapter_id         :integer
 #  recitation_id      :integer
 #  verse_id           :integer
+#  ayah_id            :integer
 #
 # Indexes
 #
@@ -52,6 +54,7 @@
 
 class AudioFile < QuranApiRecord
   belongs_to :verse, optional: true
+  belongs_to :ayah, class_name: 'NumberedAyah', optional: true # the ayah in the recitation's numbering (P7.3)
   belongs_to :chapter, optional: true
   belongs_to :recitation, optional: true
 
@@ -167,6 +170,8 @@ class AudioFile < QuranApiRecord
     list = list.compact_blank
     self.segments = list
     self.segments_count = list.size
+    self.number_segments = Audio::Segment.number_segments_for(list, Word.unscoped.where(verse_id: verse_id, char_type_name: 'word').pluck(:position, :number).to_h)
+    self.ayah_id ||= recitation&.resolver&.from_kufi(verse)&.first&.id if verse
   end
 
   def find_repeated_segments

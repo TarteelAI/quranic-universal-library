@@ -37,9 +37,12 @@ class AyahAudioFilesController < CommunityController
   end
 
   def save_segments
-    verse = Verse.find_by(verse_key: params[:verse_key].to_s.strip)
+    key = params[:verse_key].to_s.strip
+    ayah = @recitation.ayah_for_key(key) # the key is in the recitation's numbering (P7.3)
+    verse = ayah&.kufi_verses&.first || Verse.find_by(verse_key: key)
     segments = params[:segments]
     audio = AudioFile.where(verse: verse, recitation_id: params[:id]).first
+    audio.ayah = ayah if ayah && audio.ayah_id.nil?
     audio.set_segments!(segments, current_user)
 
     render 'segments'

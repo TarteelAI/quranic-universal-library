@@ -107,4 +107,30 @@ RSpec.describe Qiraat::Layout::Generator do
       expect(Mushaf.where(layout_source: 'generated')).to be_empty
     end
   end
+
+  describe 'hafs' do
+    # qpc-hafs-15-lines is the slug of mushaf 5's own layout resource (and of another hand-made one: slugs are not unique)
+    let!(:hand_made) do
+      ResourceContent.create!(name: 'KFGQPC HAFS wbw', slug: 'qpc-hafs-15-lines', sub_type: ResourceContent::SubType::Layout, resource_type: 'Mushaf',
+                              resource_id: 5, cardinality_type: ResourceContent::CardinalityType::OnePage, approved: true).tap { |rc| Mushaf.find(5).update_columns(resource_content_id: rc.id) }
+    end
+
+    it 'leaves the hand-made layout resource alone and gives the generated mushaf one of its own' do
+      generate('hafs').call
+      generated = Mushaf.find_by!(script: Script.find_by!(slug: 'qpc-hafs'), layout_source: 'generated')
+      expect(hand_made.reload.attributes.slice('name', 'approved', 'resource_id')).to eq('name' => 'KFGQPC HAFS wbw', 'approved' => true, 'resource_id' => '5') # resource_id is a string column
+      expect(Mushaf.find(5).resource_content_id).to eq(hand_made.id)
+      expect(generated.resource_content.slug).to eq('qpc-hafs-15-lines-generated')
+      expect(generated.resource_content.resource_id.to_i).to eq(generated.id)
+    end
+
+    it 'rebuilds a mushaf already marked svg-verified in place instead of adding a second one' do
+      generate('hafs').call
+      generated = Mushaf.find_by!(script: Script.find_by!(slug: 'qpc-hafs'), layout_source: 'generated')
+      generated.update_columns(layout_source: 'svg-verified')
+      generate('hafs').call
+      expect(Mushaf.where(script: generated.script, layout_source: Mushaf::GENERATED_LAYOUT_SOURCES).pluck(:id)).to eq([generated.id])
+      expect(generated.reload.layout_source).to eq('generated')
+    end
+  end
 end

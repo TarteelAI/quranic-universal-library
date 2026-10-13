@@ -51,7 +51,7 @@ namespace :qiraat do
       abort "#{dir} missing: run rake qiraat:svg:fetch" unless dir.exist?
       slug, = Qiraat::Import::ScriptText::EDITIONS.fetch(key)
       script = Script.find_by(slug: slug) || (key == 'hafs' ? Script.find_by!(slug: 'qpc-hafs') : abort("script #{slug} missing"))
-      mushaf = Mushaf.find_by(script_id: script.id, layout_source: %w[generated svg-verified]) || (key == 'hafs' ? Mushaf.find(5) : abort("no generated mushaf for #{key}"))
+      mushaf = Mushaf.find_by(script_id: script.id, layout_source: Mushaf::GENERATED_LAYOUT_SOURCES) || (key == 'hafs' ? Mushaf.find(5) : abort("no generated mushaf for #{key}"))
       pages = ENV['PAGES'].presence&.split(',')&.map(&:to_i)
       t = Time.now
       r = Qiraat::Layout::SvgDiff.new(key: key, json_dir: dir, mushaf: mushaf, pages: pages).call

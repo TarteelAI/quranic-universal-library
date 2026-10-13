@@ -116,7 +116,7 @@ module Exporter
         ).first_or_initialize
 
         downloadable_resource.name ||= content.name
-        tags = [content.meta_value('tags')]
+        tags = [content.meta_value('tags'), exporter.mushaf&.riwayah&.name].compact # the riwayah from the mushaf row (P5.7)
         downloadable_resource = set_tags(downloadable_resource, tags)
 
         if !content.name.include?('image')

@@ -39,7 +39,7 @@ namespace :qiraat do
       puts "  #{renamed} pages rendered to #{dir} in #{(Time.now - t).round}s"
 
       slug, = Qiraat::Import::ScriptText::EDITIONS.fetch(key)
-      mushaf = Mushaf.find_by(script: Script.find_by(slug: slug), layout_source: 'generated')
+      mushaf = Mushaf.find_by(script: Script.find_by(slug: slug), layout_source: Mushaf::GENERATED_LAYOUT_SOURCES)
       if mushaf&.resource_content
         rc = mushaf.resource_content
         rc.meta_data = (rc.meta_data || {}).merge('image-url' => "/qiraat/pdf/#{key}", 'image-format' => 'jpg', 'source-pdf-page-offset' => 1)

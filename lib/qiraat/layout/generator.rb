@@ -374,13 +374,14 @@ module Qiraat
 
       def upsert_mushaf
         name = "KFGQPC #{@data['mushaf']['name_en']}"
-        rc = ResourceContent.find_or_initialize_by(slug: "qpc-#{key}-15-lines")
+        # a rebuilt layout is 'generated' again until it is re-verified, so a mushaf already svg-verified is rebuilt in place, not duplicated
+        m = Mushaf.find_by(script_id: @script.id, layout_source: Mushaf::GENERATED_LAYOUT_SOURCES) || Mushaf.new(script_id: @script.id)
+        rc = layout_resource_content(m, "qpc-#{key}-15-lines")
         rc.assign_attributes(name: "#{name} layout", sub_type: ResourceContent::SubType::Layout, resource_type: 'Mushaf',
                              cardinality_type: ResourceContent::CardinalityType::OnePage, approved: false)
         # the editor's proofreading view shows mushaf.pdf_url page N+1 for mushaf page N (pdf.quran.ws has a cover page)
         rc.meta_data = (rc.meta_data || {}).merge('source-pdf-page-offset' => 1)
         rc.save!
-        m = Mushaf.find_or_initialize_by(script_id: @script.id, layout_source: 'generated')
         m.assign_attributes(
           name: name,
           description: "#{@data['mushaf']['name_ar']} — 15-line layout generated from quran-text #{key} (#{@data['generated']}) and the Complex's #{@data.dig('provenance', 'layout', 'member') || 'release'}; review before enabling.",
@@ -393,6 +394,19 @@ module Qiraat
         m.save!
         m.update_columns(resource_content_id: rc.id) if m.resource_content_id != rc.id # the column the admin and exports read, next to the polymorphic link
         m
+      end
+
+      # The layout resource of the generated mushaf: its own when it has one,
+      # else the one named by the slug — unless that slug already belongs to a
+      # hand-made layout (qpc-hafs-15-lines is mushaf 5's), in which case the
+      # generated mushaf gets a resource of its own. Slugs are not unique.
+      def layout_resource_content(mushaf, slug)
+        owned_by_another = ->(rc) { Mushaf.where(resource_content_id: rc.id).where.not(id: mushaf.id).exists? }
+        rc = mushaf.resource_content_id && ResourceContent.find_by(id: mushaf.resource_content_id)
+        rc = nil if rc && owned_by_another.call(rc)
+        rc ||= ResourceContent.find_by(slug: slug)
+        rc = nil if rc && owned_by_another.call(rc)
+        rc || ResourceContent.new(slug: ResourceContent.exists?(slug: slug) ? "#{slug}-generated" : slug)
       end
     end
   end

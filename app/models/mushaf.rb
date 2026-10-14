@@ -31,6 +31,7 @@ class Mushaf < QuranApiRecord
   validate :numbering_matches_riwayah
 
   LAYOUT_SOURCES = %w[manual generated svg-verified].freeze
+  GENERATED_LAYOUT_SOURCES = %w[generated svg-verified].freeze # built by Qiraat::Layout::Generator, before and after the quran-svg check
   has_many :mushaf_pages, dependent: :delete_all
   has_many :mushaf_line_alignments, dependent: :delete_all
   has_many :mushaf_words, dependent: :delete_all

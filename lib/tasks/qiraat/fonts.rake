@@ -31,6 +31,20 @@ namespace :qiraat do
       'qpc-bazzi' => ['UthmanicBazzi-v-3.0.ttf', nil, 'quran_fonts/qpc/uthmanic-bazzi-v30.ttf']
     }.freeze
 
+    desc 'Write scripts.font_file_url: the CDN file of each riwayah face (v3.0 upload path; Hafs keeps the face it serves today)'
+    task urls: :environment do
+      Script.where.not(font_family: nil).find_each do |script|
+        pinned, current, upload = FAMILIES[script.font_family]
+        next unless pinned
+
+        # the riwayah families move to v3.0 (P5.4: Naveed uploads them); qpc-hafs stays on the v2.2 face the layouts were made with
+        file = script.font_family == 'qpc-hafs' ? current : upload
+        url = "#{FONT_CDN}/#{file}"
+        script.update_columns(font_file_url: url) if script.font_file_url != url
+        puts format('  %-3d %-14s %s', script.id, script.slug, url)
+      end
+    end
+
     desc 'Copy the pinned KFGQPC v3.0 faces to public/fonts/qpc for development (+ woff2)'
     task copy: :environment do
       abort "#{PINNED_DIR} missing: run rake qiraat:fetch" unless PINNED_DIR.exist?

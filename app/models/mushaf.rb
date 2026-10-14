@@ -10,14 +10,12 @@
 #  lines_per_page      :integer
 #  name                :string           not null
 #  pages_count         :integer
-#  qirat_type_id       :integer
 #  resource_content_id :integer
 #
 # Indexes
 #
 #  index_mushafs_on_enabled        (enabled)
 #  index_mushafs_on_is_default     (is_default)
-#  index_mushafs_on_qirat_type_id  (qirat_type_id)
 #
 
 class Mushaf < QuranApiRecord
@@ -26,7 +24,7 @@ class Mushaf < QuranApiRecord
   include HasRiwayah
   belongs_to :script, optional: true # which script mushaf_words.text is cached from (P3.4)
   belongs_to :numbering, class_name: 'AyahNumbering', optional: true # which ayah ends the layout prints (P5.1)
-  validates :riwayah, presence: true # was a required belongs_to :qirat_type
+  validates :riwayah, presence: true
   validates :layout_source, inclusion: { in: %w[manual generated svg-verified] }
   validate :numbering_matches_riwayah
 
@@ -62,9 +60,7 @@ class Mushaf < QuranApiRecord
   end
 
   def using_glyphs?
-    return script.glyph? if script
-
-    [1, 2].include?(id) # legacy, mushafs without a script
+    script&.glyph? || false
   end
 
   def lines_count
@@ -103,19 +99,8 @@ class Mushaf < QuranApiRecord
     default_font_name == 'svg'
   end
 
-  # The printed edition this layout is compared against. A column since P5.1;
-  # LEGACY_PDF_URLS is what the old case-by-id returned and seeds the column.
-  LEGACY_PDF_URLS = {
-    1 => 'https://tafsir.app/m-madinah/1/1',
-    2 => 'https://tafsir.app/m-madinah-old/1/1',
-    5 => 'https://download.qurancomplex.gov.sa/resources_dev/UthmanicHafs_v18.zip',
-    6 => 'https://archive.org/details/AlQuran15LinesQudratullah/page/n609/mode/2up',
-    7 => 'https://archive.org/details/AlQuranAlKareem16LinesTajCompany/page/n517/mode/2up'
-  }.freeze
-
-  def pdf_url
-    self[:pdf_url].presence || LEGACY_PDF_URLS[id]
-  end
+  # The printed edition this layout is compared against: the pdf_url column
+  # (since P5.1; seeded from the old case-by-id by rake qiraat:backfill:mushaf_numbering).
 
   # A mushaf prints the ayah ends of its riwayah's counting system, or of a
   # printed numbering measured on one of that riwayah's editions.

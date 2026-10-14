@@ -40,7 +40,7 @@ module Audio
         ayah_recitation = Recitation.new(
           reciter_name: audio_recitation.name,
           reciter_id: audio_recitation.reciter_id,
-          qirat_type_id: audio_recitation.qirat_type_id
+          riwayah_id: audio_recitation.riwayah_id
         )
         ayah_recitation.resource_content_id = resource_content.id
         ayah_recitation.save(validate: false)

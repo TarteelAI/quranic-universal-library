@@ -48,10 +48,10 @@ RSpec.describe 'text through scripts (P3.4)' do
       expect(mushaf.reload.use_images?).to be(true)
     end
 
-    it 'falls back to the legacy name matching and id lists without a script' do
+    it 'falls back to the legacy name matching without a script; glyphs only come from a script (P7.5)' do
       mushaf.update_column(:script_id, nil)
       expect(mushaf.reload.text_type_method).to eq('text_qpc_hafs') # name "KFGQPC HAFS"
-      expect(Mushaf.new(id: 1, name: 'x').using_glyphs?).to be(true)
+      expect(Mushaf.new(id: 1, name: 'x').using_glyphs?).to be(false)
       expect(mushaf.using_glyphs?).to be(false)
     end
   end

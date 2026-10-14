@@ -187,7 +187,7 @@ namespace :tajweed do
     tajweed_annotation = TajweedAnnotation::Service.new
     mushaf = Mushaf.where(name: "Tajweed New(Auto annotation)").first_or_create
     mushaf.pages_count = 604
-    mushaf.qirat_type_id = 1
+    mushaf.riwayah_id = 1
     mushaf.lines_per_page = 15
     mushaf.save
 

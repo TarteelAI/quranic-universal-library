@@ -11,7 +11,7 @@ audio_format = local_assigns[:audio_format] || 'mp3'
 
  json.has_segments surah_recitation.segments_count == 6236
  json.style surah_recitation.recitation_style&.name
- json.qirat surah_recitation.qirat_type&.name
+ json.qirat surah_recitation.riwayah&.name
 
  if include_audio_files
   json.audio_files do

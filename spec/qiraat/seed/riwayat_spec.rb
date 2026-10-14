@@ -56,17 +56,16 @@ RSpec.describe Qiraat::Seed::Riwayat do
     expect(Riwayah.enabled).to be_empty
   end
 
-  it 'is idempotent and keeps QiratType as an alias' do
+  it 'is idempotent' do
     described_class.new(dir: dir).call
     ids = Riwayah.order(:id).pluck(:id, :slug)
     described_class.new(dir: dir).call
     expect(Riwayah.order(:id).pluck(:id, :slug)).to eq(ids)
-    expect(QiratType).to equal(Riwayah)
-    expect(QiratType.find(1).name).to eq('Hafs')
+    expect(Riwayah.find(1).name).to eq('Hafs')
   end
 
   it 'does not delete a legacy row that is still referenced' do
-    Mushaf.update_all(riwayah_id: 7, qirat_type_id: 7)
+    Mushaf.update_all(riwayah_id: 7)
     described_class.new(dir: dir).call
     expect(Riwayah.find_by(id: 7)&.name).to eq('Test')
   end

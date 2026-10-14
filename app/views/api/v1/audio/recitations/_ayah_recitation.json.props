@@ -3,7 +3,7 @@ include_audio_files = local_assigns[:include_audio_files] || false
 json.extract! ayah_recitation, :id, :name, :relative_path, :segments_count
 json.has_segments ayah_recitation.segments_count > 0
 json.style ayah_recitation.recitation_style&.name
-json.qirat ayah_recitation.qirat_type&.name
+json.qirat ayah_recitation.riwayah&.name
 
 if include_audio_files
   json.audio_files do

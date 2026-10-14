@@ -61,6 +61,18 @@ class NumberedAyah < QuranApiRecord
         .order(:verse_id, :position, :sub_position)
   end
 
+  # The ayah text in a script: the ayah_texts cache, else the joined forms of
+  # its words in that script (word_texts for row-backed, column otherwise).
+  def text_for(script)
+    return nil if script.nil?
+
+    cached = AyahText.find_by(script_id: script.id, ayah_id: id)&.text
+    return cached if cached
+
+    forms = words.map { |w| w.text_for(script) }.compact
+    forms.join(' ').presence
+  end
+
   def basmalah?
     ayah_number.zero?
   end

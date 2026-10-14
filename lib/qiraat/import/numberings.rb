@@ -13,11 +13,16 @@ module Qiraat
     # to the Kufi verses of its first and last word (QUL words.number) and
     # given a relation to the Kufi count:
     #
-    #   same        the range is exactly one Kufi verse with the same number
-    #   shifted     exactly one Kufi verse, different ayah number
+    #   same        the range is exactly one Kufi verse (its number may differ)
+    #   shifted     exactly one Kufi verse, but the editions of this numbering
+    #               do not read every shared number inside it (40:26 lacks أَوۡ
+    #               outside Hafs, Shubah), so the printed word set differs
     #   merged      the range spans two or more Kufi verses
     #   split       the range is part of one Kufi verse
     #   unnumbered  the Fatihah basmalah printed without a number (ayah 0)
+    #
+    # These are the relations quran-text ayah-map.json uses, so the verify
+    # task can compare counts one to one.
     #
     # The Kufi numbering is built the same way and its rows take the ids of
     # the Kufi verses, so numbered_ayahs.id == verses.id for Kufi; every
@@ -31,12 +36,14 @@ module Qiraat
       # @param catalog_path   quran-text data/catalog.json (surah ranges)
       # @param systems        slugs to build (default: all in the file)
       # @param surahs         restrict to these surah numbers (fixtures)
-      def initialize(counting_path:, catalog_path:, systems: nil, surahs: nil, dry_run: false, source: nil)
+      # @param missing   { system slug => Set of shared numbers its editions do not read }
+      def initialize(counting_path:, catalog_path:, systems: nil, surahs: nil, dry_run: false, source: nil, missing: {})
         @counting = JSON.parse(Pathname(counting_path).read)
         @catalog = JSON.parse(Pathname(catalog_path).read)
         @systems = systems
         @surahs = surahs
         @dry_run = dry_run
+        @missing = missing
         @source = source || "quran-text counting.json (#{@counting['generated']})"
         @report = {}
       end
@@ -61,6 +68,25 @@ module Qiraat
           write(slug, system, rows)
         end
         report
+      end
+
+      # Build one numbering from an explicit list of ayah ends (shared numbers),
+      # used for printed numberings that deviate from their madhhab (P4.3).
+      def build_custom(slug:, ends:, kind:, counting_system_slug:, name_en:, name_ar: nil, source: nil, meta: {}, missing: [])
+        @missing[slug] = missing.to_set
+        word_ids = words_by_number
+        rows = build_rows(slug, { 'ayah_ends' => ends }, word_ids, verse_by_word_id, kufi_ranges_by_verse, Chapter.pluck(:chapter_number, :id).to_h)
+        report[slug] = summarize(rows)
+        return report[slug] if @dry_run
+
+        reserve_kufi_ids
+        numbering = AyahNumbering.find_or_initialize_by(slug: slug)
+        numbering.assign_attributes(kind: kind, counting_system: CountingSystem.find_by(slug: counting_system_slug), name_en: name_en, name_ar: name_ar,
+                                    total_ayahs: rows.count { |r| r[:counted] }, source: source || @source,
+                                    basmalah_counted: rows.none? { |r| r[:ayah_number].zero? }, meta_data: numbering.meta_data.merge(meta))
+        numbering.save!
+        insert_rows(numbering, slug, rows)
+        report[slug]
       end
 
       private
@@ -88,7 +114,16 @@ module Qiraat
             start = e + 1
           end
         end
-        rows.each { |r| r[:relation] ||= relation_for(r, kufi_ranges) }
+        # Only numbers Hafs reads count as missing: a word absent from Hafs too
+        # (25685) does not change the Kufi verse's printed word set. A word
+        # the editions read that Hafs does not (Bazzi's 25685 inside Kufi
+        # 9:100) makes the ayah cover more than the verse: merged, as
+        # ayah-map.json has it. Without edition files nothing is known about
+        # extra words, so none are assumed.
+        editions_known = @missing.key?(slug)
+        missing = @missing.fetch(slug, Set.new) & hafs_numbers
+        extra = editions_known ? all_numbers - hafs_numbers - @missing[slug].to_set : Set.new # read by the editions, not by Hafs
+        rows.each { |r| r[:relation] ||= relation_for(r, kufi_ranges, missing, extra) }
         rows
       end
 
@@ -107,13 +142,16 @@ module Qiraat
         }
       end
 
-      def relation_for(row, kufi_ranges)
+      def relation_for(row, kufi_ranges, missing, extra)
         return nil unless row[:kufi_first_verse_id] && row[:kufi_last_verse_id]
         return 'merged' if row[:kufi_first_verse_id] != row[:kufi_last_verse_id]
 
         kufi = kufi_ranges[row[:kufi_first_verse_id]]
         if kufi[:first] == row[:first_number] && kufi[:last] == row[:last_number]
-          kufi[:ayah_number] == row[:ayah_number] ? 'same' : 'shifted'
+          range = (row[:first_number]..row[:last_number])
+          return 'merged' if range.any? { |n| extra.include?(n) }
+
+          range.any? { |n| missing.include?(n) } ? 'shifted' : 'same'
         else
           'split'
         end
@@ -152,6 +190,10 @@ module Qiraat
           meta_data: numbering.meta_data.merge('reference_total' => system['reference_total'], 'editions' => system['editions'].map { |e| e['mushaf'] })
         )
         numbering.save!
+        insert_rows(numbering, slug, rows)
+      end
+
+      def insert_rows(numbering, slug, rows)
         numbering.numbered_ayahs.delete_all
         attrs = rows.map do |r|
           base = r.except(:slug).merge(numbering_id: numbering.id)
@@ -163,6 +205,14 @@ module Qiraat
         raise "#{slug}: inserted #{inserted} of #{attrs.size} rows" unless inserted == attrs.size
 
         NumberedAyah.connection.execute("SELECT setval(pg_get_serial_sequence('numbered_ayahs', 'id'), GREATEST((SELECT MAX(id) FROM numbered_ayahs), #{Verse.maximum(:id).to_i}))")
+      end
+
+      def all_numbers
+        @all_numbers ||= Word.unscoped.where.not(number: nil).pluck(:number, :number_last).flat_map { |n, l| (n..(l || n)).to_a }.to_set
+      end
+
+      def hafs_numbers
+        @hafs_numbers ||= Word.unscoped.hafs.where.not(number: nil).pluck(:number, :number_last).flat_map { |n, l| (n..(l || n)).to_a }.to_set
       end
 
       # shared number => words.id (number_last ranges included)

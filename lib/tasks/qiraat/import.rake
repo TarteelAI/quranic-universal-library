@@ -40,10 +40,42 @@ namespace :qiraat do
       dry = ENV['DRY_RUN'].present?
       systems = args[:systems].presence&.split(/[ ,]+/)
       t = Time.now
-      r = Qiraat::Import::Numberings.new(counting_path: counting, catalog_path: catalog, systems: systems, dry_run: dry,
+      # shared numbers an edition does not read, per system, from the edition files counting.json lists
+      missing = JSON.parse(counting.read)['systems'].filter_map do |slug, sys|
+        files = sys['editions'].map { |e| UPSTREAM_TEXT.join('mushaf', "#{e['mushaf']}.json") }.select(&:exist?)
+        next if files.empty? # no edition file: nothing known about its words
+
+        [slug, files.flat_map { |f| JSON.parse(f.read)['numbering']['missing'] }.to_set]
+      end.to_h
+      r = Qiraat::Import::Numberings.new(counting_path: counting, catalog_path: catalog, systems: systems, dry_run: dry, missing: missing,
                                          source: "quran-text counting.json @#{YAML.safe_load(Rails.root.join('config/qiraat_sources.yml').read)['sources']['quran-text']['ref'][0, 7]}").call
       puts "numberings#{dry ? ' (DRY RUN)' : ''} in #{(Time.now - t).round(1)}s"
       r.each { |slug, s| puts format('  %-13s ayahs=%-5d rows=%-5d unanchored=%-3d %s', slug, s[:ayahs], s[:rows], s[:unanchored], s[:relations].sort.map { |k, v| "#{k}=#{v}" }.join(' ')) }
+    end
+
+    desc 'Printed numberings for editions that deviate from their madhhab, and default numberings per riwayah (P4.3)'
+    task printed_numberings: :environment do
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Import::PrintedNumberings.new(mushaf_dir: UPSTREAM_TEXT.join('mushaf'), counting_path: UPSTREAM_TEXT.join('counting.json'), catalog_path: UPSTREAM_TEXT.join('catalog.json'), dry_run: dry).call
+      puts "printed numberings#{dry ? ' (DRY RUN)' : ''}"
+      r[:editions].each { |k, e| puts format('  %-7s printed=%-5d madhhab=%-13s %s', k, e[:printed], e[:system], e[:deviates] ? "DEVIATES by #{e[:distance]} -> #{e[:numbering]}" : 'equal') }
+      r[:defaults].each { |slug, n| puts format('  default %-14s -> %s', slug, n) }
+    end
+
+    desc 'Precompute ayah_mappings (Kufi verse -> ayah per numbering) (P4.3)'
+    task ayah_mappings: :environment do
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Import::AyahMappings.new(dry_run: dry).call
+      puts "ayah_mappings#{dry ? ' (DRY RUN)' : ''}"
+      r.each { |slug, s| puts format('  %-18s rows=%-5d splits=%-4d merges_with_next=%-4d %s', slug, s[:rows], s[:splits], s[:merges_with_next], s[:relations].sort.map { |k, v| "#{k}=#{v}" }.join(' ')) }
+    end
+
+    desc 'Fill ayah_texts for row-backed scripts from word_texts (P4.3)'
+    task ayah_texts: :environment do
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Import::AyahTexts.new(dry_run: dry).call
+      puts "ayah_texts#{dry ? ' (DRY RUN)' : ''}"
+      r.each { |slug, s| puts format('  %-16s %s', slug, s[:error] || "numbering=#{s[:numbering]} ayahs=#{s[:ayahs]} empty=#{s[:empty]}") }
     end
 
     desc 'Import quran-text differences.json into word_differences'
@@ -97,6 +129,52 @@ namespace :qiraat do
       end
       abort("#{failed.size} check(s) failed") if failed.any?
       puts 'numberings OK'
+    end
+
+    desc 'Verify printed numberings, ayah_mappings and ayah_texts against quran-text ayah-map.json and the catalog (P4.3)'
+    task ayah_mappings: :environment do
+      ayah_map = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'ayah-map.json').read)
+      catalog = JSON.parse(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'catalog.json').read)
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-60s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      # relation counts per edition from ayah-map.json vs the mapping of the riwayah's default numbering
+      catalog['riwayahs'].each do |r|
+        riwayah = Riwayah.find_by(slug: r['key'] == 'shubah' ? 'shuba' : r['key'])
+        numbering = riwayah&.default_numbering
+        next check.call("#{r['key']}: riwayah has a default numbering", false, true) unless numbering
+
+        check.call("#{r['key']}: default numbering total = catalog ayah_count", numbering.total_ayahs, r['ayah_count'])
+        expected = ayah_map['ayahs'].group_by { |e| e[r['key']]['relation'] }.transform_values(&:size)
+        actual = AyahMapping.where(numbering_id: numbering.id).group(:relation).count
+        check.call("#{r['key']}: relation counts = ayah-map.json (#{numbering.slug})", actual.sort.to_h, expected.sort.to_h)
+        # spot-check every 97th Kufi verse against the map
+        bad = 0
+        ayah_map['ayahs'].each_with_index do |e, i|
+          next unless (i % 97).zero?
+
+          v = Verse.find_by(verse_key: "#{e['surah']}:#{e['ayah']}")
+          m = AyahMapping.find_by(numbering_id: numbering.id, verse_id: v.id)
+          target = e[r['key']]
+          bad += 1 unless m && m.ayah.ayah_number == target['ayah'] && (target['ayah_last'].nil? || m.ayah_last&.ayah_number == target['ayah_last'])
+        end
+        check.call("#{r['key']}: sampled targets equal ayah-map.json", bad, 0)
+      end
+      Script.row_backed.each do |s|
+        n = s.riwayah.default_numbering
+        check.call("ayah_texts #{s.slug}: one row per ayah of #{n.slug}", AyahText.where(script_id: s.id).count, n.numbered_ayahs.count)
+      end
+      warsh = Script.find_by(slug: 'qpc-warsh')
+      if warsh
+        ml = warsh.riwayah.default_numbering
+        check.call('warsh ayah 0 (basmalah) text present', AyahText.find_by(script_id: warsh.id, ayah_id: ml.ayah(1, 0).id)&.text&.split&.size, 4)
+        check.call('warsh 1:1 text starts with al-hamd form', AyahText.find_by(script_id: warsh.id, ayah_id: ml.ayah(1, 1).id)&.text&.split&.first, WordText.find_by(script_id: warsh.id, word_id: Word.unscoped.find_by(location: '1:2:1').id)&.text)
+      end
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'ayah_mappings OK'
     end
 
     desc 'Verify word_differences against the quran-text file (P3.5)'

@@ -27,6 +27,7 @@ class Qiraah < QuranApiRecord
   SLUGS = %w[asim nafi ibn-kathir abu-amr ibn-amir hamza kisai abu-jafar yaqub khalaf].freeze
 
   belongs_to :counting_system, optional: true, inverse_of: :qiraat
+  has_many :riwayat, class_name: 'Riwayah', inverse_of: :qiraah
 
   validates :slug, presence: true, uniqueness: true, inclusion: { in: SLUGS }
   validates :name_ar, :name_en, presence: true

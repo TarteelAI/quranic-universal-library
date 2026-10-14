@@ -1,4 +1,6 @@
 class TafsirPresenter < ResourcePresenter
+  include RiwayahSelection # riwayah context for the proofreading tool (P6.5)
+
   def page_title
     case action_name
     when 'index'

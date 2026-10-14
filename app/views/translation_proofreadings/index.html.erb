@@ -14,6 +14,11 @@
           <p class="text-sm text-gray-600 mt-1">Select the translation</p>
         </div>
 
+        <div class="mb-4 me-2">
+          <%= select_tag :riwayah, options_for_select(@presenter.riwayah_options, @presenter.riwayah&.slug || 'hafs'), include_blank: false, class: 'form-select w-[85vw] sm:w-[200px]' %>
+          <p class="text-sm text-gray-600 mt-1">Riwayah (ayah keys and overrides)</p>
+        </div>
+
         <%= render 'shared/filters' %>
 
         <div class="mb-4 me-2">
@@ -34,7 +39,8 @@
     <table class="w-full hover:bg-gray-50">
       <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
       <tr>
-        <th><%= sort_order_link 'Ayah key', :verse_key, resource_id: @resource.id %></th>
+        <th><%= sort_order_link 'Ayah key', :verse_key, @presenter.link_params %></th>
+        <% if @presenter.riwayah %><th><%= @presenter.riwayah.name %> ayah</th><% end %>
         <th>Footnotes</th>
         <th>Resource</th>
         <th>Text</th>
@@ -42,9 +48,13 @@
       </tr>
       </thead>
       <tbody>
+      <% riwayah_keys = @presenter.ayah_keys_for(@translations.map(&:verse)) %>
       <% @translations.each do |translation| %>
         <tr class="hover:bg-gray-200 border-b">
           <td scope="row" class="py-2 pl-2"><%= translation.verse.verse_key %></td>
+          <% if @presenter.riwayah %>
+            <td class="py-2"><%= (riwayah_keys[translation.verse_id] || []).join(', ') %><% if translation.override? %> <span class="text-xs text-amber-700">override</span><% end %></td>
+          <% end %>
           <td class="py-2">
             <%= translation.foot_notes.size %>
           </td>
@@ -56,8 +66,8 @@
           </td>
           <td class="py-2">
             <div class="flex gap-1">
-              <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info' %>
-              <%= link_to 'Show', translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success' %>
+              <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, @presenter.link_params), class: 'btn btn-info' %>
+              <%= link_to 'Show', translation_proofreading_path(translation.verse_id, @presenter.link_params), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

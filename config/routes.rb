@@ -196,8 +196,18 @@ Rails.application.routes.draw do
       get :compare_words
     end
   end
-  resources :translation_proofreadings, except: :destroy
-  resources :tafsir_proofreadings, except: :destroy
+  resources :translation_proofreadings, except: :destroy do
+    member do
+      put :override # a riwayah's override of the verse translation (P6.5)
+      delete :remove_override
+    end
+  end
+  resources :tafsir_proofreadings, except: :destroy do
+    member do
+      put :override
+      delete :remove_override
+    end
+  end
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource

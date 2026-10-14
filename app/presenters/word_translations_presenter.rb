@@ -1,4 +1,6 @@
 class WordTranslationsPresenter < ApplicationPresenter
+  include RiwayahSelection # riwayah, riwayah_options, resolver, riwayah_script, font_class, link_params, ayah_label (P6.4)
+
   LANGUAGE_BADGE_CLASSES = [
     "bg-red-100 text-red-800 ring-red-200",
     "bg-orange-100 text-orange-800 ring-orange-200",
@@ -47,40 +49,13 @@ class WordTranslationsPresenter < ApplicationPresenter
     resource&.language
   end
 
-  # --- riwayah selector (P6.4) -------------------------------------------
+  # --- riwayah selector (P6.4, RiwayahSelection) ---------------------------
   # Without a riwayah parameter (or with hafs) everything below answers as
   # before, so the Hafs pages render byte-identically. With another riwayah
   # the words show their forms in that script's face, ayah numbers follow its
   # numbering and the gloss field edits the override row (RiwayahOverride).
 
-  def riwayah
-    return @riwayah if defined?(@riwayah)
-
-    slug = params[:riwayah].presence
-    @riwayah = slug && slug != 'hafs' ? Riwayah.find_by(slug: slug) : nil
-  end
-
-  # riwayat a reviewer can pick: those whose text QUL holds as rows (the quran-text scripts)
-  def riwayah_options
-    [['Hafs (default)', 'hafs']] + Script.row_backed.includes(:riwayah).map(&:riwayah).compact.uniq.sort_by(&:id).map { |r| [r.name, r.slug] }
-  end
-
-  def script
-    @script ||= riwayah && Script.row_backed.find_by(riwayah_id: riwayah.id)
-  end
-
-  def resolver
-    @resolver ||= riwayah && Qiraat::Resolver.for(riwayah)
-  end
-
-  def font_class
-    script&.font_css_class || 'qpc-hafs'
-  end
-
-  # url params that keep the selection across the tool's links
-  def link_params(extra = {})
-    { resource_id: resource&.id, riwayah: riwayah&.slug }.compact.merge(extra)
-  end
+  alias script riwayah_script
 
   # the word as the riwayah writes it (nil when it does not read the word); Hafs: the qpc-hafs column
   def word_text(word)
@@ -89,14 +64,6 @@ class WordTranslationsPresenter < ApplicationPresenter
 
   def verse_text(verse)
     riwayah ? verse.text_for(script) : verse.text_qpc_hafs
-  end
-
-  # "3 (Kufi 4)" for Warsh 1:4; "6–7 (Kufi 7)" when the riwayah splits the verse
-  def ayah_label(verse)
-    return verse.verse_number.to_s unless riwayah
-
-    keys = resolver.from_kufi(verse).map { |a| a.ayah_key.split(':').last }
-    keys.any? ? "#{keys.join('–')} (Kufi #{verse.verse_number})" : "(Kufi #{verse.verse_number})"
   end
 
   # the reference translations beside the words, with the riwayah's overrides applied

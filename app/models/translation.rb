@@ -58,6 +58,9 @@ class Translation < QuranApiRecord
 
   after_update :touch_resource_content_timestamp
 
+  # the columns an override row (P6.5) copies from the shared row of the same verse
+  OVERRIDE_COPIED_COLUMNS = %w[language_id language_name resource_name priority verse_key chapter_id verse_number juz_number hizb_number rub_el_hizb_number page_number ruku_number surah_ruku_number manzil_number].freeze
+
   scope :with_footnotes, -> { where "footnotes_count > 0" }
   scope :without_footnotes, -> { where "footnotes_count = 0" }
 

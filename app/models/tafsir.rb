@@ -26,6 +26,7 @@
 #  group_tafsir_id      :integer
 #  language_id          :integer
 #  resource_content_id  :integer
+#  riwayah_id           :integer
 #  start_verse_id       :integer
 #  verse_id             :integer
 #
@@ -52,6 +53,7 @@ class Tafsir < QuranApiRecord
   include Resourceable
 
   belongs_to :verse
+  belongs_to :riwayah, optional: true # NULL = the shared row; set = an override for that riwayah (P6.1)
   belongs_to :chapter
   belongs_to :language
 

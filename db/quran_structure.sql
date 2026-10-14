@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 14.3
--- Dumped by pg_dump version 17.2
+-- Dumped by pg_dump version 14.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -42,13 +42,6 @@ CREATE SCHEMA i18n;
 --
 
 CREATE SCHEMA media;
-
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
 
 
 --
@@ -772,7 +765,8 @@ CREATE TABLE quran.audio_recitations (
     files_size double precision,
     qirat_type_id integer,
     segment_locked boolean DEFAULT false,
-    riwayah_id integer
+    riwayah_id integer,
+    qua_key character varying
 );
 
 
@@ -3804,7 +3798,8 @@ CREATE TABLE quran.tafsirs (
     ruku_number integer,
     surah_ruku_number integer,
     manzil_number integer,
-    archived boolean DEFAULT false
+    archived boolean DEFAULT false,
+    riwayah_id integer
 );
 
 
@@ -4239,7 +4234,8 @@ CREATE TABLE quran.translations (
     ruku_number integer,
     surah_ruku_number integer,
     manzil_number integer,
-    footnotes_count integer DEFAULT 0
+    footnotes_count integer DEFAULT 0,
+    riwayah_id integer
 );
 
 
@@ -4728,7 +4724,8 @@ CREATE TABLE quran.word_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     group_text character varying,
-    group_word_id integer
+    group_word_id integer,
+    riwayah_id integer
 );
 
 
@@ -7164,6 +7161,13 @@ CREATE INDEX index_audio_recitations_on_priority ON quran.audio_recitations USIN
 
 
 --
+-- Name: index_audio_recitations_on_qua_key; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_audio_recitations_on_qua_key ON quran.audio_recitations USING btree (qua_key);
+
+
+--
 -- Name: index_audio_recitations_on_recitation_style_id; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -8900,6 +8904,13 @@ CREATE INDEX index_tafsirs_on_verse_key ON quran.tafsirs USING btree (verse_key)
 
 
 --
+-- Name: index_tafsirs_riwayah_override; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_tafsirs_riwayah_override ON quran.tafsirs USING btree (resource_content_id, verse_id, riwayah_id) WHERE (riwayah_id IS NOT NULL);
+
+
+--
 -- Name: index_tags_on_name; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -9103,6 +9114,13 @@ CREATE INDEX index_translations_on_resource_content_id ON quran.translations USI
 
 
 --
+-- Name: index_translations_on_resource_content_id_and_verse_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_translations_on_resource_content_id_and_verse_id ON quran.translations USING btree (resource_content_id, verse_id);
+
+
+--
 -- Name: index_translations_on_rub_el_hizb_number; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -9128,6 +9146,13 @@ CREATE INDEX index_translations_on_verse_id ON quran.translations USING btree (v
 --
 
 CREATE INDEX index_translations_on_verse_key ON quran.translations USING btree (verse_key);
+
+
+--
+-- Name: index_translations_riwayah_override; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_translations_riwayah_override ON quran.translations USING btree (resource_content_id, verse_id, riwayah_id) WHERE (riwayah_id IS NOT NULL);
 
 
 --
@@ -9331,6 +9356,13 @@ CREATE INDEX index_word_translations_on_priority ON quran.word_translations USIN
 --
 
 CREATE INDEX index_word_translations_on_word_id_and_language_id ON quran.word_translations USING btree (word_id, language_id);
+
+
+--
+-- Name: index_word_translations_riwayah_override; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_word_translations_riwayah_override ON quran.word_translations USING btree (word_id, resource_content_id, riwayah_id) WHERE (riwayah_id IS NOT NULL);
 
 
 --

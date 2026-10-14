@@ -131,3 +131,42 @@ namespace :qiraat do
     end
   end
 end
+
+namespace :qiraat do
+  namespace :backfill do
+    desc 'Set numbering (Kufi), layout_source (manual) and pdf_url on the existing mushafs (P5.1)'
+    task mushaf_numbering: :environment do
+      dry = ENV['DRY_RUN'].present?
+      kufi = AyahNumbering.kufi
+      Mushaf.order(:id).each do |m|
+        changes = {}
+        changes[:numbering_id] = kufi.id if m.numbering_id.nil?
+        changes[:layout_source] = 'manual' if m.layout_source.blank?
+        changes[:pdf_url] = Mushaf::LEGACY_PDF_URLS[m.id] if m[:pdf_url].blank? && Mushaf::LEGACY_PDF_URLS[m.id]
+        next if changes.empty?
+
+        puts "  #{dry ? 'would set' : 'set'} mushaf #{m.id} #{changes.inspect}"
+        m.update_columns(changes) unless dry
+      end
+    end
+  end
+
+  namespace :verify do
+    desc 'Verify every mushaf has a numbering matching its riwayah and the legacy pdf urls survived (P5.1)'
+    task mushaf_numbering: :environment do
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-50s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      check.call('mushafs without numbering', Mushaf.where(numbering_id: nil).count, 0)
+      check.call('all existing mushafs on kufi', Mushaf.where(numbering_id: AyahNumbering.kufi.id).count, Mushaf.count)
+      check.call('all layout_source manual', Mushaf.where(layout_source: 'manual').count, Mushaf.count)
+      Mushaf::LEGACY_PDF_URLS.each { |id, url| check.call("pdf_url mushaf #{id}", Mushaf.find_by(id: id)&.pdf_url, url) }
+      check.call('every mushaf valid', Mushaf.all.reject(&:valid?).map(&:id), [])
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'mushaf_numbering OK'
+    end
+  end
+end

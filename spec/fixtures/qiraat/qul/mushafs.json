@@ -11,6 +11,10 @@
     "enabled": true,
     "resource_content_id": 386,
     "riwayah_id": 1,
-    "script_id": 1
+    "script_id": 1,
+    "numbering_id": 6,
+    "pdf_url": "https://download.qurancomplex.gov.sa/resources_dev/UthmanicHafs_v18.zip",
+    "source_package": null,
+    "layout_source": "manual"
   }
 ]

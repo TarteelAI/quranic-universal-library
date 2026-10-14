@@ -27,7 +27,7 @@ ActiveAdmin.register Mushaf do
 
   permit_params do
     %i[name description lines_per_page is_default default_font_name enabled default_font_name riwayah_id qirat_type_id pages_count
-       resource_content_id]
+       resource_content_id script_id numbering_id layout_source pdf_url source_package]
   end
 
   index do
@@ -38,6 +38,9 @@ ActiveAdmin.register Mushaf do
     column :enabled
     column :default_font_name
     column :riwayah
+    column(:script) { |m| m.script && link_to(m.script.slug, cms_script_path(m.script)) }
+    column(:numbering) { |m| m.numbering&.slug }
+    column :layout_source
   end
 
   show do
@@ -46,6 +49,10 @@ ActiveAdmin.register Mushaf do
       row :name
       row :description
       row :riwayah
+      row(:script) { |m| m.script && link_to(m.script.slug, cms_script_path(m.script)) }
+      row(:numbering) { |m| m.numbering && "#{m.numbering.slug} (#{m.numbering.kind}, #{m.numbering.total_ayahs} ayahs)" }
+      row :layout_source
+      row :source_package
       row :resource_content
       row :default_font_name
       row :enabled
@@ -114,6 +121,11 @@ ActiveAdmin.register Mushaf do
       f.input :lines_per_page
       f.input :pages_count
       f.input :default_font_name
+      f.input :script, as: :select, collection: Script.order(:slug).map { |sc| ["#{sc.slug} (#{sc.storage})", sc.id] }, include_blank: 'none (legacy name matching)'
+      f.input :numbering, as: :select, collection: AyahNumbering.order(:id).map { |n| ["#{n.slug} (#{n.total_ayahs})", n.id] }, include_blank: true
+      f.input :layout_source, as: :select, collection: Mushaf::LAYOUT_SOURCES
+      f.input :pdf_url
+      f.input :source_package
       f.input :riwayah,
               as: :searchable_select,
               ajax: { resource: Riwayah }

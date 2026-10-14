@@ -4644,7 +4644,11 @@ CREATE TABLE quran.words (
     lemma_id integer,
     stem_id integer,
     text_indonesian_sign_language character varying,
-    text_indopak_misbah character varying
+    text_indopak_misbah character varying,
+    number integer,
+    number_last integer,
+    hafs_reads boolean DEFAULT true NOT NULL,
+    sub_position integer DEFAULT 0 NOT NULL
 );
 
 
@@ -8948,6 +8952,13 @@ CREATE INDEX index_words_on_lemma_id ON quran.words USING btree (lemma_id);
 --
 
 CREATE INDEX index_words_on_location ON quran.words USING btree (location);
+
+
+--
+-- Name: index_words_on_number; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_words_on_number ON quran.words USING btree (number) WHERE (number IS NOT NULL);
 
 
 --

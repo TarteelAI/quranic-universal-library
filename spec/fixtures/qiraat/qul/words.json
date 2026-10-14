@@ -50,7 +50,11 @@
     "lemma_id": 1835,
     "stem_id": 8025,
     "text_indonesian_sign_language": "بِسْمِ",
-    "text_indopak_misbah": "بِسْمِ"
+    "text_indopak_misbah": "بِسْمِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2,
@@ -103,7 +107,11 @@
     "lemma_id": 2564,
     "stem_id": 10276,
     "text_indonesian_sign_language": "اللّٰهِ",
-    "text_indopak_misbah": "اللّٰهِ"
+    "text_indopak_misbah": "اللّٰهِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 3,
@@ -156,7 +164,11 @@
     "lemma_id": 1472,
     "stem_id": 6475,
     "text_indonesian_sign_language": "الرَّحْمٰنِ",
-    "text_indopak_misbah": "الرَّحْمٰنِ"
+    "text_indopak_misbah": "الرَّحْمٰنِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 4,
@@ -209,7 +221,11 @@
     "lemma_id": 1951,
     "stem_id": 10329,
     "text_indonesian_sign_language": "الرَّحِيْمِ",
-    "text_indopak_misbah": "الرَّحِيْمِ"
+    "text_indopak_misbah": "الرَّحِيْمِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 5,
@@ -262,7 +278,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "١",
-    "text_indopak_misbah": "١"
+    "text_indopak_misbah": "١",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 11,
@@ -315,7 +335,11 @@
     "lemma_id": null,
     "stem_id": 10401,
     "text_indonesian_sign_language": "الۡمّۡ ۚ",
-    "text_indopak_misbah": "الۤمّۤ ۚ"
+    "text_indopak_misbah": "الۤمّۤ ۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 12,
@@ -368,7 +392,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "١",
-    "text_indopak_misbah": "١"
+    "text_indopak_misbah": "١",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1130,
@@ -421,7 +449,11 @@
     "lemma_id": 3770,
     "stem_id": 368,
     "text_indonesian_sign_language": "اَلْحَمْدُ",
-    "text_indopak_misbah": "اَلْحَمْدُ"
+    "text_indopak_misbah": "اَلْحَمْدُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1131,
@@ -474,7 +506,11 @@
     "lemma_id": 2564,
     "stem_id": 3516,
     "text_indonesian_sign_language": "لِلّٰهِ",
-    "text_indopak_misbah": "لِلّٰهِ"
+    "text_indopak_misbah": "لِلّٰهِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1132,
@@ -527,7 +563,11 @@
     "lemma_id": 3350,
     "stem_id": 5924,
     "text_indonesian_sign_language": "رَبِّ",
-    "text_indopak_misbah": "رَبِّ"
+    "text_indopak_misbah": "رَبِّ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1133,
@@ -580,7 +620,11 @@
     "lemma_id": 1384,
     "stem_id": 6916,
     "text_indonesian_sign_language": "الْعٰلَمِيْنَۙ",
-    "text_indopak_misbah": "الْعٰلَمِيْنَ ۙ"
+    "text_indopak_misbah": "الْعٰلَمِيْنَ ۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1134,
@@ -633,7 +677,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٢",
-    "text_indopak_misbah": "٢"
+    "text_indopak_misbah": "٢",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1195,
@@ -686,7 +734,11 @@
     "lemma_id": 1167,
     "stem_id": 10192,
     "text_indonesian_sign_language": "ذٰلِكَ",
-    "text_indopak_misbah": "ذٰلِكَ"
+    "text_indopak_misbah": "ذٰلِكَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1196,
@@ -739,7 +791,11 @@
     "lemma_id": 4411,
     "stem_id": 6148,
     "text_indonesian_sign_language": "الْكِتٰبُ",
-    "text_indopak_misbah": "الْكِتٰبُ"
+    "text_indopak_misbah": "الْكِتٰبُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1197,
@@ -792,7 +848,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "لَا",
-    "text_indopak_misbah": "لَا"
+    "text_indopak_misbah": "لَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1198,
@@ -845,7 +905,11 @@
     "lemma_id": 1483,
     "stem_id": 8021,
     "text_indonesian_sign_language": "رَيْبَ ۛ",
-    "text_indopak_misbah": "رَيْبَ ۛ"
+    "text_indopak_misbah": "رَيْبَ ۛ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1200,
@@ -898,7 +962,11 @@
     "lemma_id": 3504,
     "stem_id": 7777,
     "text_indonesian_sign_language": "فِيْهِ ۛ",
-    "text_indopak_misbah": "فِيْهِ ۛ"
+    "text_indopak_misbah": "فِيْهِ ۛ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1202,
@@ -951,7 +1019,11 @@
     "lemma_id": 272,
     "stem_id": 319,
     "text_indonesian_sign_language": "هُدًى",
-    "text_indopak_misbah": "هُدًى"
+    "text_indopak_misbah": "هُدًى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1203,
@@ -1004,7 +1076,11 @@
     "lemma_id": 2259,
     "stem_id": 4003,
     "text_indonesian_sign_language": "لِّلْمُتَّقِيْنَۙ",
-    "text_indopak_misbah": "لِّلْمُتَّقِيْنَ ۙ"
+    "text_indopak_misbah": "لِّلْمُتَّقِيْنَ ۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 1204,
@@ -1057,7 +1133,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٢",
-    "text_indopak_misbah": "٢"
+    "text_indopak_misbah": "٢",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2630,
@@ -1110,7 +1190,11 @@
     "lemma_id": 2297,
     "stem_id": 8335,
     "text_indonesian_sign_language": "الَّذِيْنَ",
-    "text_indopak_misbah": "الَّذِيْنَ"
+    "text_indopak_misbah": "الَّذِيْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2631,
@@ -1163,7 +1247,11 @@
     "lemma_id": 37,
     "stem_id": 10111,
     "text_indonesian_sign_language": "يُؤْمِنُوْنَ",
-    "text_indopak_misbah": "يُؤْمِنُوْنَ"
+    "text_indopak_misbah": "يُؤْمِنُوْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2632,
@@ -1216,7 +1304,11 @@
     "lemma_id": 307,
     "stem_id": 11189,
     "text_indonesian_sign_language": "بِالْغَيْبِ",
-    "text_indopak_misbah": "بِالْغَيْبِ"
+    "text_indopak_misbah": "بِالْغَيْبِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2633,
@@ -1269,7 +1361,11 @@
     "lemma_id": 3652,
     "stem_id": 9753,
     "text_indonesian_sign_language": "وَيُقِيْمُوْنَ",
-    "text_indopak_misbah": "وَيُقِيْمُوْنَ"
+    "text_indopak_misbah": "وَيُقِيْمُوْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2634,
@@ -1322,7 +1418,11 @@
     "lemma_id": 3910,
     "stem_id": 6973,
     "text_indonesian_sign_language": "الصَّلٰوةَ",
-    "text_indopak_misbah": "الصَّلٰوةَ"
+    "text_indopak_misbah": "الصَّلٰوةَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2635,
@@ -1375,7 +1475,11 @@
     "lemma_id": 4506,
     "stem_id": 1290,
     "text_indonesian_sign_language": "وَمِمَّا",
-    "text_indopak_misbah": "وَمِمَّا"
+    "text_indopak_misbah": "وَمِمَّا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2636,
@@ -1428,7 +1532,11 @@
     "lemma_id": 3501,
     "stem_id": 364,
     "text_indonesian_sign_language": "رَزَقْنٰهُمْ",
-    "text_indopak_misbah": "رَزَقْنٰهُمْ"
+    "text_indopak_misbah": "رَزَقْنٰهُمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2637,
@@ -1481,7 +1589,11 @@
     "lemma_id": 4419,
     "stem_id": 5732,
     "text_indonesian_sign_language": "يُنْفِقُوْنَ ۙ",
-    "text_indopak_misbah": "يُنْفِقُوْنَ  ۙ"
+    "text_indopak_misbah": "يُنْفِقُوْنَ  ۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2638,
@@ -1534,7 +1646,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٣",
-    "text_indopak_misbah": "٣"
+    "text_indopak_misbah": "٣",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2953,
@@ -1587,7 +1703,11 @@
     "lemma_id": 1472,
     "stem_id": 6475,
     "text_indonesian_sign_language": "الرَّحْمٰنِ",
-    "text_indopak_misbah": "الرَّحْمٰنِ"
+    "text_indopak_misbah": "الرَّحْمٰنِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2954,
@@ -1640,7 +1760,11 @@
     "lemma_id": 1951,
     "stem_id": 10329,
     "text_indonesian_sign_language": "الرَّحِيْمِۙ",
-    "text_indopak_misbah": "الرَّحِيْمِ ۙ"
+    "text_indopak_misbah": "الرَّحِيْمِ ۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 2955,
@@ -1693,7 +1817,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٣",
-    "text_indopak_misbah": "٣"
+    "text_indopak_misbah": "٣",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 3252,
@@ -1746,7 +1874,11 @@
     "lemma_id": 4468,
     "stem_id": 5958,
     "text_indonesian_sign_language": "مٰلِكِ",
-    "text_indopak_misbah": "مٰلِكِ"
+    "text_indopak_misbah": "مٰلِكِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 3253,
@@ -1799,7 +1931,11 @@
     "lemma_id": 4377,
     "stem_id": 7906,
     "text_indonesian_sign_language": "يَوْمِ",
-    "text_indopak_misbah": "يَوْمِ"
+    "text_indopak_misbah": "يَوْمِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 3254,
@@ -1852,7 +1988,11 @@
     "lemma_id": 1602,
     "stem_id": 5248,
     "text_indonesian_sign_language": "الدِّيْنِۗ",
-    "text_indopak_misbah": "الدِّيْنِۗ"
+    "text_indopak_misbah": "الدِّيْنِۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 3255,
@@ -1905,7 +2045,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٤",
-    "text_indopak_misbah": "٤"
+    "text_indopak_misbah": "٤",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 5334,
@@ -1958,7 +2102,11 @@
     "lemma_id": 665,
     "stem_id": 11371,
     "text_indonesian_sign_language": "اِيَّاكَ",
-    "text_indopak_misbah": "اِيَّاكَ"
+    "text_indopak_misbah": "اِيَّاكَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 5335,
@@ -2011,7 +2159,11 @@
     "lemma_id": 841,
     "stem_id": 5268,
     "text_indonesian_sign_language": "نَعْبُدُ",
-    "text_indopak_misbah": "نَعْبُدُ"
+    "text_indopak_misbah": "نَعْبُدُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 5336,
@@ -2064,7 +2216,11 @@
     "lemma_id": 665,
     "stem_id": 11371,
     "text_indonesian_sign_language": "وَاِيَّاكَ",
-    "text_indopak_misbah": "وَاِيَّاكَ"
+    "text_indopak_misbah": "وَاِيَّاكَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 5337,
@@ -2117,7 +2273,11 @@
     "lemma_id": 380,
     "stem_id": 5422,
     "text_indonesian_sign_language": "نَسْتَعِيْنُۗ",
-    "text_indopak_misbah": "نَسْتَعِيْنُۗ"
+    "text_indopak_misbah": "نَسْتَعِيْنُۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 5338,
@@ -2170,7 +2330,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٥",
-    "text_indopak_misbah": "٥"
+    "text_indopak_misbah": "٥",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 6844,
@@ -2223,7 +2387,11 @@
     "lemma_id": 2683,
     "stem_id": 1634,
     "text_indonesian_sign_language": "اِهْدِنَا",
-    "text_indopak_misbah": "اِهْدِنَا"
+    "text_indopak_misbah": "اِهْدِنَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 6845,
@@ -2276,7 +2444,11 @@
     "lemma_id": 1464,
     "stem_id": 8816,
     "text_indonesian_sign_language": "الصِّرَاطَ",
-    "text_indopak_misbah": "الصِّرَاطَ"
+    "text_indopak_misbah": "الصِّرَاطَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 6846,
@@ -2329,7 +2501,11 @@
     "lemma_id": 4088,
     "stem_id": 11451,
     "text_indonesian_sign_language": "الْمُسْتَقِيْمَۙ",
-    "text_indopak_misbah": "الْمُسْتَقِيْمَ ۙ"
+    "text_indopak_misbah": "الْمُسْتَقِيْمَ ۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 6847,
@@ -2382,7 +2558,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٦",
-    "text_indopak_misbah": "٦"
+    "text_indopak_misbah": "٦",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8411,
@@ -2435,7 +2615,11 @@
     "lemma_id": 1464,
     "stem_id": 9330,
     "text_indonesian_sign_language": "صِرَاطَ",
-    "text_indopak_misbah": "صِرَاطَ"
+    "text_indopak_misbah": "صِرَاطَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8412,
@@ -2488,7 +2672,11 @@
     "lemma_id": 2297,
     "stem_id": 8335,
     "text_indonesian_sign_language": "الَّذِيْنَ",
-    "text_indopak_misbah": "الَّذِيْنَ"
+    "text_indopak_misbah": "الَّذِيْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8413,
@@ -2541,7 +2729,11 @@
     "lemma_id": 2086,
     "stem_id": 4216,
     "text_indonesian_sign_language": "اَنْعَمْتَ",
-    "text_indopak_misbah": "اَنْعَمْتَ"
+    "text_indopak_misbah": "اَنْعَمْتَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8414,
@@ -2594,7 +2786,11 @@
     "lemma_id": 1100,
     "stem_id": 7080,
     "text_indonesian_sign_language": "عَلَيْهِمْ ەۙ",
-    "text_indopak_misbah": "عَلَيْهِمْ ەۙ"
+    "text_indopak_misbah": "عَلَيْهِمْ ەۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8415,
@@ -2647,7 +2843,11 @@
     "lemma_id": 2924,
     "stem_id": 2038,
     "text_indonesian_sign_language": "غَيْرِ",
-    "text_indopak_misbah": "غَيْرِ"
+    "text_indopak_misbah": "غَيْرِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8416,
@@ -2700,7 +2900,11 @@
     "lemma_id": 2947,
     "stem_id": 6883,
     "text_indonesian_sign_language": "الْمَغْضُوْبِ",
-    "text_indopak_misbah": "الْمَغْضُوْبِ"
+    "text_indopak_misbah": "الْمَغْضُوْبِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8417,
@@ -2753,7 +2957,11 @@
     "lemma_id": 1100,
     "stem_id": 7080,
     "text_indonesian_sign_language": "عَلَيْهِمْ",
-    "text_indopak_misbah": "عَلَيْهِمْ"
+    "text_indopak_misbah": "عَلَيْهِمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8418,
@@ -2806,7 +3014,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "وَلَا",
-    "text_indopak_misbah": "وَلَا"
+    "text_indopak_misbah": "وَلَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8419,
@@ -2859,7 +3071,11 @@
     "lemma_id": 4018,
     "stem_id": 5815,
     "text_indonesian_sign_language": "الضَّاۤلِّيْنَ ࣖ",
-    "text_indopak_misbah": "الضَّاۤلِّيْنَ ࣖ"
+    "text_indopak_misbah": "الضَّاۤلِّيْنَ ࣖ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 8420,
@@ -2912,7 +3128,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٧",
-    "text_indopak_misbah": "٧"
+    "text_indopak_misbah": "٧",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18533,
@@ -2965,7 +3185,11 @@
     "lemma_id": 4488,
     "stem_id": 398,
     "text_indonesian_sign_language": "وَّاَنْ لَّوِ",
-    "text_indopak_misbah": "وَّاَنْ لَّوِ"
+    "text_indopak_misbah": "وَّاَنْ لَّوِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18534,
@@ -3018,7 +3242,11 @@
     "lemma_id": 1237,
     "stem_id": 1562,
     "text_indonesian_sign_language": "اسْتَقَامُوْا",
-    "text_indopak_misbah": "اسْتَقَامُوْا"
+    "text_indopak_misbah": "اسْتَقَامُوْا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18535,
@@ -3071,7 +3299,11 @@
     "lemma_id": 1100,
     "stem_id": 2157,
     "text_indonesian_sign_language": "عَلَى",
-    "text_indopak_misbah": "عَلَى"
+    "text_indopak_misbah": "عَلَى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18536,
@@ -3124,7 +3356,11 @@
     "lemma_id": 4232,
     "stem_id": 8561,
     "text_indonesian_sign_language": "الطَّرِيْقَةِ",
-    "text_indopak_misbah": "الطَّرِيْقَةِ"
+    "text_indopak_misbah": "الطَّرِيْقَةِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18537,
@@ -3177,7 +3413,11 @@
     "lemma_id": 1571,
     "stem_id": 1966,
     "text_indonesian_sign_language": "لَاَسْقَيْنٰهُمْ",
-    "text_indopak_misbah": "لَاَسْقَيْنٰهُمْ"
+    "text_indopak_misbah": "لَاَسْقَيْنٰهُمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18538,
@@ -3230,7 +3470,11 @@
     "lemma_id": 2061,
     "stem_id": 4652,
     "text_indonesian_sign_language": "مَّاۤءً",
-    "text_indopak_misbah": "مَّاۤءً"
+    "text_indopak_misbah": "مَّاۤءً",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18539,
@@ -3283,7 +3527,11 @@
     "lemma_id": 3896,
     "stem_id": 11682,
     "text_indonesian_sign_language": "غَدَقًاۙ",
-    "text_indopak_misbah": "غَدَقًا ۙ"
+    "text_indopak_misbah": "غَدَقًا ۙ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 18540,
@@ -3336,7 +3584,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "١٦",
-    "text_indopak_misbah": "١٦"
+    "text_indopak_misbah": "١٦",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28538,
@@ -3389,7 +3641,11 @@
     "lemma_id": 1981,
     "stem_id": 2466,
     "text_indonesian_sign_language": "وَقَالَ",
-    "text_indopak_misbah": "وَقَالَ"
+    "text_indopak_misbah": "وَقَالَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28539,
@@ -3442,7 +3698,11 @@
     "lemma_id": 1002,
     "stem_id": 5124,
     "text_indonesian_sign_language": "فِرْعَوْنُ",
-    "text_indopak_misbah": "فِرْعَوْنُ"
+    "text_indopak_misbah": "فِرْعَوْنُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28540,
@@ -3495,7 +3755,11 @@
     "lemma_id": 275,
     "stem_id": 12074,
     "text_indonesian_sign_language": "ذَرُوْنِيْٓ",
-    "text_indopak_misbah": "ذَرُوْنِيْٓ"
+    "text_indopak_misbah": "ذَرُوْنِيْٓ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28541,
@@ -3548,7 +3812,11 @@
     "lemma_id": 4319,
     "stem_id": 6190,
     "text_indonesian_sign_language": "اَقْتُلْ",
-    "text_indopak_misbah": "اَقْتُلْ"
+    "text_indopak_misbah": "اَقْتُلْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28542,
@@ -3601,7 +3869,11 @@
     "lemma_id": 4237,
     "stem_id": 7644,
     "text_indonesian_sign_language": "مُوْسٰى",
-    "text_indopak_misbah": "مُوْسٰى"
+    "text_indopak_misbah": "مُوْسٰى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28543,
@@ -3654,7 +3926,11 @@
     "lemma_id": 306,
     "stem_id": 9039,
     "text_indonesian_sign_language": "وَلْيَدْعُ",
-    "text_indopak_misbah": "وَلْيَدْعُ"
+    "text_indopak_misbah": "وَلْيَدْعُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28544,
@@ -3707,7 +3983,11 @@
     "lemma_id": 3350,
     "stem_id": 4062,
     "text_indonesian_sign_language": "رَبَّهٗ ۚ",
-    "text_indopak_misbah": "رَبَّهٗ ۚ"
+    "text_indopak_misbah": "رَبَّهٗ ۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28546,
@@ -3760,7 +4040,11 @@
     "lemma_id": 4098,
     "stem_id": 6714,
     "text_indonesian_sign_language": "اِنِّٓيْ",
-    "text_indopak_misbah": "اِنِّيْٓ"
+    "text_indopak_misbah": "اِنِّيْٓ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28547,
@@ -3813,7 +4097,11 @@
     "lemma_id": 1988,
     "stem_id": 8263,
     "text_indonesian_sign_language": "اَخَافُ",
-    "text_indopak_misbah": "اَخَافُ"
+    "text_indopak_misbah": "اَخَافُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28548,
@@ -3866,7 +4154,11 @@
     "lemma_id": 1648,
     "stem_id": 11276,
     "text_indonesian_sign_language": "اَنْ",
-    "text_indopak_misbah": "اَنْ"
+    "text_indopak_misbah": "اَنْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28549,
@@ -3919,7 +4211,11 @@
     "lemma_id": 1356,
     "stem_id": 11746,
     "text_indonesian_sign_language": "يُّبَدِّلَ",
-    "text_indopak_misbah": "يُّبَدِّلَ"
+    "text_indopak_misbah": "يُّبَدِّلَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28550,
@@ -3972,7 +4268,11 @@
     "lemma_id": 1602,
     "stem_id": 2772,
     "text_indonesian_sign_language": "دِيْنَكُمْ",
-    "text_indopak_misbah": "دِيْنَكُمْ"
+    "text_indopak_misbah": "دِيْنَكُمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28551,
@@ -4025,7 +4325,11 @@
     "lemma_id": 3499,
     "stem_id": 9197,
     "text_indonesian_sign_language": "اَوْ",
-    "text_indopak_misbah": "اَوْ"
+    "text_indopak_misbah": "اَوْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28552,
@@ -4078,7 +4382,11 @@
     "lemma_id": 1648,
     "stem_id": 11276,
     "text_indonesian_sign_language": "اَنْ",
-    "text_indopak_misbah": "اَنْ"
+    "text_indopak_misbah": "اَنْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28553,
@@ -4131,7 +4439,11 @@
     "lemma_id": 4439,
     "stem_id": 9981,
     "text_indonesian_sign_language": "يُّظْهِرَ",
-    "text_indopak_misbah": "يُّظْهِرَ"
+    "text_indopak_misbah": "يُّظْهِرَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28554,
@@ -4184,7 +4496,11 @@
     "lemma_id": 3504,
     "stem_id": 5763,
     "text_indonesian_sign_language": "فِى",
-    "text_indopak_misbah": "فِى"
+    "text_indopak_misbah": "فِى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28555,
@@ -4237,7 +4553,11 @@
     "lemma_id": 3740,
     "stem_id": 1043,
     "text_indonesian_sign_language": "الْاَرْضِ",
-    "text_indopak_misbah": "الْاَرْضِ"
+    "text_indopak_misbah": "الْاَرْضِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28556,
@@ -4290,7 +4610,11 @@
     "lemma_id": 3047,
     "stem_id": 9020,
     "text_indonesian_sign_language": "الْفَسَادَ",
-    "text_indopak_misbah": "الْفَسَادَ"
+    "text_indopak_misbah": "الْفَسَادَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 28557,
@@ -4343,7 +4667,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٢٦",
-    "text_indopak_misbah": "٢٦"
+    "text_indopak_misbah": "٢٦",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71639,
@@ -4396,7 +4724,11 @@
     "lemma_id": 477,
     "stem_id": 1290,
     "text_indonesian_sign_language": "وَمِمَّنْ",
-    "text_indopak_misbah": "وَمِمَّنْ"
+    "text_indopak_misbah": "وَمِمَّنْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71640,
@@ -4449,7 +4781,11 @@
     "lemma_id": 1323,
     "stem_id": 8858,
     "text_indonesian_sign_language": "حَوْلَكُمْ",
-    "text_indopak_misbah": "حَوْلَكُمْ"
+    "text_indopak_misbah": "حَوْلَكُمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71641,
@@ -4502,7 +4838,11 @@
     "lemma_id": 477,
     "stem_id": 3592,
     "text_indonesian_sign_language": "مِّنَ",
-    "text_indopak_misbah": "مِّنَ"
+    "text_indopak_misbah": "مِّنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71642,
@@ -4555,7 +4895,11 @@
     "lemma_id": 1401,
     "stem_id": 1976,
     "text_indonesian_sign_language": "الْاَعْرَابِ",
-    "text_indopak_misbah": "الْاَعْرَابِ"
+    "text_indopak_misbah": "الْاَعْرَابِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71643,
@@ -4608,7 +4952,11 @@
     "lemma_id": 2036,
     "stem_id": 6518,
     "text_indonesian_sign_language": "مُنٰفِقُوْنَۗ",
-    "text_indopak_misbah": "مُنٰفِقُوْنَۗ"
+    "text_indopak_misbah": "مُنٰفِقُوْنَۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71645,
@@ -4661,7 +5009,11 @@
     "lemma_id": 477,
     "stem_id": 11826,
     "text_indonesian_sign_language": "وَمِنْ",
-    "text_indopak_misbah": "وَمِنْ"
+    "text_indopak_misbah": "وَمِنْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71646,
@@ -4714,7 +5066,11 @@
     "lemma_id": 4719,
     "stem_id": 5413,
     "text_indonesian_sign_language": "اَهْلِ",
-    "text_indopak_misbah": "اَهْلِ"
+    "text_indopak_misbah": "اَهْلِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71647,
@@ -4767,7 +5123,11 @@
     "lemma_id": 1493,
     "stem_id": 7584,
     "text_indonesian_sign_language": "الْمَدِيْنَةِ",
-    "text_indopak_misbah": "الْمَدِيْنَةِ"
+    "text_indopak_misbah": "الْمَدِيْنَةِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71649,
@@ -4820,7 +5180,11 @@
     "lemma_id": 4727,
     "stem_id": 8877,
     "text_indonesian_sign_language": "مَرَدُوْا",
-    "text_indopak_misbah": "مَرَدُوْا"
+    "text_indopak_misbah": "مَرَدُوْا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71650,
@@ -4873,7 +5237,11 @@
     "lemma_id": 1100,
     "stem_id": 2157,
     "text_indonesian_sign_language": "عَلَى",
-    "text_indopak_misbah": "عَلَى"
+    "text_indopak_misbah": "عَلَى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71651,
@@ -4926,7 +5294,11 @@
     "lemma_id": null,
     "stem_id": 4138,
     "text_indonesian_sign_language": "النِّفَاقِۗ",
-    "text_indopak_misbah": "النِّفَاقِۗ"
+    "text_indopak_misbah": "النِّفَاقِۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71652,
@@ -4979,7 +5351,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "لَا",
-    "text_indopak_misbah": "لَا"
+    "text_indopak_misbah": "لَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71653,
@@ -5032,7 +5408,11 @@
     "lemma_id": 4728,
     "stem_id": 6086,
     "text_indonesian_sign_language": "تَعْلَمُهُمْۗ",
-    "text_indopak_misbah": "تَعْلَمُهُمْۗ"
+    "text_indopak_misbah": "تَعْلَمُهُمْۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71655,
@@ -5085,7 +5465,11 @@
     "lemma_id": null,
     "stem_id": 1844,
     "text_indonesian_sign_language": "نَحْنُ",
-    "text_indopak_misbah": "نَحْنُ"
+    "text_indopak_misbah": "نَحْنُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71656,
@@ -5138,7 +5522,11 @@
     "lemma_id": 4728,
     "stem_id": 6044,
     "text_indonesian_sign_language": "نَعْلَمُهُمْۗ",
-    "text_indopak_misbah": "نَعْلَمُهُمْۗ"
+    "text_indopak_misbah": "نَعْلَمُهُمْۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71658,
@@ -5191,7 +5579,11 @@
     "lemma_id": 1164,
     "stem_id": 11178,
     "text_indonesian_sign_language": "سَنُعَذِّبُهُمْ",
-    "text_indopak_misbah": "سَنُعَذِّبُهُمْ"
+    "text_indopak_misbah": "سَنُعَذِّبُهُمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71659,
@@ -5244,7 +5636,11 @@
     "lemma_id": 3347,
     "stem_id": 11155,
     "text_indonesian_sign_language": "مَّرَّتَيْنِ",
-    "text_indopak_misbah": "مَّرَّتَيْنِ"
+    "text_indopak_misbah": "مَّرَّتَيْنِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71660,
@@ -5297,7 +5693,11 @@
     "lemma_id": 2912,
     "stem_id": 248,
     "text_indonesian_sign_language": "ثُمَّ",
-    "text_indopak_misbah": "ثُمَّ"
+    "text_indopak_misbah": "ثُمَّ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71661,
@@ -5350,7 +5750,11 @@
     "lemma_id": 2596,
     "stem_id": 8,
     "text_indonesian_sign_language": "يُرَدُّوْنَ",
-    "text_indopak_misbah": "يُرَدُّوْنَ"
+    "text_indopak_misbah": "يُرَدُّوْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71662,
@@ -5403,7 +5807,11 @@
     "lemma_id": 3611,
     "stem_id": 6043,
     "text_indonesian_sign_language": "اِلٰى",
-    "text_indopak_misbah": "اِلٰى"
+    "text_indopak_misbah": "اِلٰى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71663,
@@ -5456,7 +5864,11 @@
     "lemma_id": 4798,
     "stem_id": 11425,
     "text_indonesian_sign_language": "عَذَابٍ",
-    "text_indopak_misbah": "عَذَابٍ"
+    "text_indopak_misbah": "عَذَابٍ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71664,
@@ -5509,7 +5921,11 @@
     "lemma_id": 1194,
     "stem_id": 5818,
     "text_indonesian_sign_language": "عَظِيْمٍ ۚ",
-    "text_indopak_misbah": "عَظِيْمٍ ۚ"
+    "text_indopak_misbah": "عَظِيْمٍ ۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 71665,
@@ -5562,7 +5978,11 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "١٠١",
-    "text_indopak_misbah": "١٠١"
+    "text_indopak_misbah": "١٠١",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87148,
@@ -5615,7 +6035,11 @@
     "lemma_id": 2564,
     "stem_id": 11511,
     "text_indonesian_sign_language": "اَللّٰهُ",
-    "text_indopak_misbah": "اَللّٰهُ"
+    "text_indopak_misbah": "اَللّٰهُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87149,
@@ -5668,7 +6092,11 @@
     "lemma_id": 3380,
     "stem_id": 11613,
     "text_indonesian_sign_language": "لَآ",
-    "text_indopak_misbah": "لَآ"
+    "text_indopak_misbah": "لَآ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87150,
@@ -5721,7 +6149,11 @@
     "lemma_id": 3666,
     "stem_id": 3936,
     "text_indonesian_sign_language": "اِلٰهَ",
-    "text_indopak_misbah": "اِلٰهَ"
+    "text_indopak_misbah": "اِلٰهَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87151,
@@ -5774,7 +6206,11 @@
     "lemma_id": 4258,
     "stem_id": 7695,
     "text_indonesian_sign_language": "اِلَّا",
-    "text_indopak_misbah": "اِلَّا"
+    "text_indopak_misbah": "اِلَّا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87152,
@@ -5827,7 +6263,11 @@
     "lemma_id": null,
     "stem_id": 2391,
     "text_indonesian_sign_language": "هُوَۚ",
-    "text_indopak_misbah": "هُوَۚ"
+    "text_indopak_misbah": "هُوَۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87153,
@@ -5880,7 +6320,11 @@
     "lemma_id": 2130,
     "stem_id": 4148,
     "text_indonesian_sign_language": "اَلْحَيُّ",
-    "text_indopak_misbah": "اَلْحَيُّ"
+    "text_indopak_misbah": "اَلْحَيُّ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87154,
@@ -5933,7 +6377,11 @@
     "lemma_id": 1408,
     "stem_id": 6168,
     "text_indonesian_sign_language": "الْقَيُّوْمُ ەۚ",
-    "text_indopak_misbah": "الْقَيُّوْمُ ەۚ"
+    "text_indopak_misbah": "الْقَيُّوْمُ ەۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87156,
@@ -5986,7 +6434,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "لَا",
-    "text_indopak_misbah": "لَا"
+    "text_indopak_misbah": "لَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87157,
@@ -6039,7 +6491,11 @@
     "lemma_id": 2403,
     "stem_id": 9337,
     "text_indonesian_sign_language": "تَأْخُذُهٗ",
-    "text_indopak_misbah": "تَأْخُذُهٗ"
+    "text_indopak_misbah": "تَأْخُذُهٗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87158,
@@ -6092,7 +6548,11 @@
     "lemma_id": 1528,
     "stem_id": 8890,
     "text_indonesian_sign_language": "سِنَةٌ",
-    "text_indopak_misbah": "سِنَةٌ"
+    "text_indopak_misbah": "سِنَةٌ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87159,
@@ -6145,7 +6605,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "وَّلَا",
-    "text_indopak_misbah": "وَّلَا"
+    "text_indopak_misbah": "وَّلَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87160,
@@ -6198,7 +6662,11 @@
     "lemma_id": 4517,
     "stem_id": 4457,
     "text_indonesian_sign_language": "نَوْمٌۗ",
-    "text_indopak_misbah": "نَوْمٌۗ"
+    "text_indopak_misbah": "نَوْمٌۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87162,
@@ -6251,7 +6719,11 @@
     "lemma_id": null,
     "stem_id": 5751,
     "text_indonesian_sign_language": "لَهٗ",
-    "text_indopak_misbah": "لَهٗ"
+    "text_indopak_misbah": "لَهٗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87163,
@@ -6304,7 +6776,11 @@
     "lemma_id": 4506,
     "stem_id": 8333,
     "text_indonesian_sign_language": "مَا",
-    "text_indopak_misbah": "مَا"
+    "text_indopak_misbah": "مَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87164,
@@ -6357,7 +6833,11 @@
     "lemma_id": 3504,
     "stem_id": 5763,
     "text_indonesian_sign_language": "فِى",
-    "text_indopak_misbah": "فِى"
+    "text_indopak_misbah": "فِى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87165,
@@ -6410,7 +6890,11 @@
     "lemma_id": 888,
     "stem_id": 1858,
     "text_indonesian_sign_language": "السَّمٰوٰتِ",
-    "text_indopak_misbah": "السَّمٰوٰتِ"
+    "text_indopak_misbah": "السَّمٰوٰتِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87166,
@@ -6463,7 +6947,11 @@
     "lemma_id": 4506,
     "stem_id": 8333,
     "text_indonesian_sign_language": "وَمَا",
-    "text_indopak_misbah": "وَمَا"
+    "text_indopak_misbah": "وَمَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87167,
@@ -6516,7 +7004,11 @@
     "lemma_id": 3504,
     "stem_id": 5763,
     "text_indonesian_sign_language": "فِى",
-    "text_indopak_misbah": "فِى"
+    "text_indopak_misbah": "فِى",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87168,
@@ -6569,7 +7061,11 @@
     "lemma_id": 3740,
     "stem_id": 1043,
     "text_indonesian_sign_language": "الْاَرْضِۗ",
-    "text_indopak_misbah": "الْاَرْضِۗ"
+    "text_indopak_misbah": "الْاَرْضِۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87170,
@@ -6622,7 +7118,11 @@
     "lemma_id": 477,
     "stem_id": 2524,
     "text_indonesian_sign_language": "مَنْ",
-    "text_indopak_misbah": "مَنْ"
+    "text_indopak_misbah": "مَنْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87171,
@@ -6675,7 +7175,11 @@
     "lemma_id": 1553,
     "stem_id": 11157,
     "text_indonesian_sign_language": "ذَا",
-    "text_indopak_misbah": "ذَا"
+    "text_indopak_misbah": "ذَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87172,
@@ -6728,7 +7232,11 @@
     "lemma_id": 2297,
     "stem_id": 12109,
     "text_indonesian_sign_language": "الَّذِيْ",
-    "text_indopak_misbah": "الَّذِيْ"
+    "text_indopak_misbah": "الَّذِيْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87173,
@@ -6781,7 +7289,11 @@
     "lemma_id": 3383,
     "stem_id": 5487,
     "text_indonesian_sign_language": "يَشْفَعُ",
-    "text_indopak_misbah": "يَشْفَعُ"
+    "text_indopak_misbah": "يَشْفَعُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87174,
@@ -6834,7 +7346,11 @@
     "lemma_id": 1898,
     "stem_id": 6490,
     "text_indonesian_sign_language": "عِنْدَهٗٓ",
-    "text_indopak_misbah": "عِنْدَهٗٓ"
+    "text_indopak_misbah": "عِنْدَهٗٓ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87175,
@@ -6887,7 +7403,11 @@
     "lemma_id": 4258,
     "stem_id": 7695,
     "text_indonesian_sign_language": "اِلَّا",
-    "text_indopak_misbah": "اِلَّا"
+    "text_indopak_misbah": "اِلَّا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87176,
@@ -6940,7 +7460,11 @@
     "lemma_id": 4553,
     "stem_id": 8405,
     "text_indonesian_sign_language": "بِاِذْنِهٖۗ",
-    "text_indopak_misbah": "بِاِذْنِهٖۗ"
+    "text_indopak_misbah": "بِاِذْنِهٖۗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87178,
@@ -6993,7 +7517,11 @@
     "lemma_id": 4728,
     "stem_id": 6155,
     "text_indonesian_sign_language": "يَعْلَمُ",
-    "text_indopak_misbah": "يَعْلَمُ"
+    "text_indopak_misbah": "يَعْلَمُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87179,
@@ -7046,7 +7574,11 @@
     "lemma_id": 4506,
     "stem_id": 8333,
     "text_indonesian_sign_language": "مَا",
-    "text_indopak_misbah": "مَا"
+    "text_indopak_misbah": "مَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87180,
@@ -7099,7 +7631,11 @@
     "lemma_id": 2666,
     "stem_id": 10483,
     "text_indonesian_sign_language": "بَيْنَ",
-    "text_indopak_misbah": "بَيْنَ"
+    "text_indopak_misbah": "بَيْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87181,
@@ -7152,7 +7688,11 @@
     "lemma_id": 4264,
     "stem_id": 4871,
     "text_indonesian_sign_language": "اَيْدِيْهِمْ",
-    "text_indopak_misbah": "اَيْدِيْهِمْ"
+    "text_indopak_misbah": "اَيْدِيْهِمْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87182,
@@ -7205,7 +7745,11 @@
     "lemma_id": 4506,
     "stem_id": 8333,
     "text_indonesian_sign_language": "وَمَا",
-    "text_indopak_misbah": "وَمَا"
+    "text_indopak_misbah": "وَمَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87183,
@@ -7258,7 +7802,11 @@
     "lemma_id": 3560,
     "stem_id": 7714,
     "text_indonesian_sign_language": "خَلْفَهُمْۚ",
-    "text_indopak_misbah": "خَلْفَهُمْۚ"
+    "text_indopak_misbah": "خَلْفَهُمْۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87185,
@@ -7311,7 +7859,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "وَلَا",
-    "text_indopak_misbah": "وَلَا"
+    "text_indopak_misbah": "وَلَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87186,
@@ -7364,7 +7916,11 @@
     "lemma_id": 2206,
     "stem_id": 5204,
     "text_indonesian_sign_language": "يُحِيْطُوْنَ",
-    "text_indopak_misbah": "يُحِيْطُوْنَ"
+    "text_indopak_misbah": "يُحِيْطُوْنَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87187,
@@ -7417,7 +7973,11 @@
     "lemma_id": null,
     "stem_id": 6428,
     "text_indonesian_sign_language": "بِشَيْءٍ",
-    "text_indopak_misbah": "بِشَيْءٍ"
+    "text_indopak_misbah": "بِشَيْءٍ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87188,
@@ -7470,7 +8030,11 @@
     "lemma_id": 477,
     "stem_id": 9570,
     "text_indonesian_sign_language": "مِّنْ",
-    "text_indopak_misbah": "مِّنْ"
+    "text_indopak_misbah": "مِّنْ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87189,
@@ -7523,7 +8087,11 @@
     "lemma_id": 4425,
     "stem_id": 3927,
     "text_indonesian_sign_language": "عِلْمِهٖٓ",
-    "text_indopak_misbah": "عِلْمِهٖٓ"
+    "text_indopak_misbah": "عِلْمِهٖٓ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87190,
@@ -7576,7 +8144,11 @@
     "lemma_id": 4258,
     "stem_id": 7695,
     "text_indonesian_sign_language": "اِلَّا",
-    "text_indopak_misbah": "اِلَّا"
+    "text_indopak_misbah": "اِلَّا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87191,
@@ -7629,7 +8201,11 @@
     "lemma_id": 4506,
     "stem_id": 8333,
     "text_indonesian_sign_language": "بِمَا",
-    "text_indopak_misbah": "بِمَا"
+    "text_indopak_misbah": "بِمَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87192,
@@ -7682,7 +8258,11 @@
     "lemma_id": 4316,
     "stem_id": 7854,
     "text_indonesian_sign_language": "شَاۤءَۚ",
-    "text_indopak_misbah": "شَاۤءَۚ"
+    "text_indopak_misbah": "شَاۤءَۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87194,
@@ -7735,7 +8315,11 @@
     "lemma_id": 2586,
     "stem_id": 3535,
     "text_indonesian_sign_language": "وَسِعَ",
-    "text_indopak_misbah": "وَسِعَ"
+    "text_indopak_misbah": "وَسِعَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87195,
@@ -7788,7 +8372,11 @@
     "lemma_id": 1895,
     "stem_id": 11653,
     "text_indonesian_sign_language": "كُرْسِيُّهُ",
-    "text_indopak_misbah": "كُرْسِيُّهُ"
+    "text_indopak_misbah": "كُرْسِيُّهُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87196,
@@ -7841,7 +8429,11 @@
     "lemma_id": 888,
     "stem_id": 1858,
     "text_indonesian_sign_language": "السَّمٰوٰتِ",
-    "text_indopak_misbah": "السَّمٰوٰتِ"
+    "text_indopak_misbah": "السَّمٰوٰتِ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87197,
@@ -7894,7 +8486,11 @@
     "lemma_id": 3740,
     "stem_id": 5846,
     "text_indonesian_sign_language": "وَالْاَرْضَۚ",
-    "text_indopak_misbah": "وَالْاَرْضَۚ"
+    "text_indopak_misbah": "وَالْاَرْضَۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87199,
@@ -7947,7 +8543,11 @@
     "lemma_id": 3380,
     "stem_id": 5482,
     "text_indonesian_sign_language": "وَلَا",
-    "text_indopak_misbah": "وَلَا"
+    "text_indopak_misbah": "وَلَا",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87200,
@@ -8000,7 +8600,11 @@
     "lemma_id": 2390,
     "stem_id": 3089,
     "text_indonesian_sign_language": "يَـُٔوْدُهٗ",
-    "text_indopak_misbah": "يَـُٔوْدُهٗ"
+    "text_indopak_misbah": "يَـُٔوْدُهٗ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87201,
@@ -8053,7 +8657,11 @@
     "lemma_id": 2229,
     "stem_id": 7323,
     "text_indonesian_sign_language": "حِفْظُهُمَاۚ",
-    "text_indopak_misbah": "حِفْظُهُمَاۚ"
+    "text_indopak_misbah": "حِفْظُهُمَاۚ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87203,
@@ -8106,7 +8714,11 @@
     "lemma_id": null,
     "stem_id": 2391,
     "text_indonesian_sign_language": "وَهُوَ",
-    "text_indopak_misbah": "وَهُوَ"
+    "text_indopak_misbah": "وَهُوَ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87204,
@@ -8159,7 +8771,11 @@
     "lemma_id": 3450,
     "stem_id": 379,
     "text_indonesian_sign_language": "الْعَلِيُّ",
-    "text_indopak_misbah": "الْعَلِيُّ"
+    "text_indopak_misbah": "الْعَلِيُّ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87205,
@@ -8212,7 +8828,11 @@
     "lemma_id": 1194,
     "stem_id": 11263,
     "text_indonesian_sign_language": "الْعَظِيْمُ",
-    "text_indopak_misbah": "الْعَظِيْمُ"
+    "text_indopak_misbah": "الْعَظِيْمُ",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   },
   {
     "id": 87206,
@@ -8265,6 +8885,10 @@
     "lemma_id": null,
     "stem_id": null,
     "text_indonesian_sign_language": "٢٥٥",
-    "text_indopak_misbah": "٢٥٥"
+    "text_indopak_misbah": "٢٥٥",
+    "number": null,
+    "number_last": null,
+    "hafs_reads": true,
+    "sub_position": 0
   }
 ]

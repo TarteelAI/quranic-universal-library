@@ -25,7 +25,7 @@ namespace :qiraat do
     # editions), 72:16 (one Hafs word covering numbers 73950 and 73951),
     # plus the two ayahs where QUL segments differently from quran-text:
     # 15:7 (QUL splits one word) and 37:130 (QUL joins two).
-    SLICE_VERSE_KEYS = (1..7).map { |a| "1:#{a}" } + %w[2:1 2:2 2:3 2:255 9:100 9:101 15:7 37:130 40:26 72:16]
+    SLICE_VERSE_KEYS = (1..7).map { |a| "1:#{a}" } + %w[2:1 2:2 2:3 2:255 9:100 9:101 15:7 37:130 40:26 57:24 72:16]
     SLICE_WORD_NUMBERS = [25685, 60522, 69720, 73950, 73951].freeze
     SLICE_MUSHAF_IDS = [5].freeze # KFGQPC Hafs, unicode
 

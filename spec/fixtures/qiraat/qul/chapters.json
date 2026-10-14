@@ -144,6 +144,30 @@
     ]
   },
   {
+    "id": 57,
+    "bismillah_pre": true,
+    "revelation_order": 94,
+    "revelation_place": "madinah",
+    "name_complex": "Al-Ĥadīd",
+    "name_arabic": "الحديد",
+    "name_simple": "Al-Hadid",
+    "verses_count": 29,
+    "chapter_number": 57,
+    "created_at": "2017-02-20 16:06:38 UTC",
+    "updated_at": "2017-02-20 16:06:38 UTC",
+    "rukus_count": null,
+    "hizbs_count": null,
+    "rub_el_hizbs_count": null,
+    "v1_chapter_glyph_code": "surah057",
+    "v4_chapter_glyph_code": "surah057",
+    "color_header_chapter_glyph_code": "ﮅ ",
+    "v2_chapter_glyph_code": "surah057",
+    "pages": [
+      537,
+      541
+    ]
+  },
+  {
     "id": 72,
     "bismillah_pre": true,
     "revelation_order": 40,

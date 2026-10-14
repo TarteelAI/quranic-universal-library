@@ -4494,6 +4494,42 @@ ALTER SEQUENCE quran.word_corpuses_id_seq OWNED BY quran.word_corpuses.id;
 
 
 --
+-- Name: word_differences; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.word_differences (
+    word_id bigint NOT NULL,
+    chapter_id integer NOT NULL,
+    status character varying NOT NULL,
+    groups jsonb DEFAULT '[]'::jsonb NOT NULL,
+    missing character varying[] DEFAULT '{}'::character varying[],
+    written_joined character varying[] DEFAULT '{}'::character varying[],
+    review jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: word_differences_word_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.word_differences_word_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: word_differences_word_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.word_differences_word_id_seq OWNED BY quran.word_differences.word_id;
+
+
+--
 -- Name: word_lemma; Type: TABLE; Schema: quran; Owner: -
 --
 
@@ -5498,6 +5534,13 @@ ALTER TABLE ONLY quran.word ALTER COLUMN word_id SET DEFAULT nextval('quran.word
 --
 
 ALTER TABLE ONLY quran.word_corpuses ALTER COLUMN id SET DEFAULT nextval('quran.word_corpuses_id_seq'::regclass);
+
+
+--
+-- Name: word_differences word_id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.word_differences ALTER COLUMN word_id SET DEFAULT nextval('quran.word_differences_word_id_seq'::regclass);
 
 
 --
@@ -6645,6 +6688,14 @@ ALTER TABLE ONLY quran.word
 
 ALTER TABLE ONLY quran.word_corpuses
     ADD CONSTRAINT word_corpuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: word_differences word_differences_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.word_differences
+    ADD CONSTRAINT word_differences_pkey PRIMARY KEY (word_id);
 
 
 --
@@ -9021,6 +9072,20 @@ CREATE INDEX index_verses_on_words_count ON quran.verses USING btree (words_coun
 --
 
 CREATE INDEX index_word_corpuses_on_word_id ON quran.word_corpuses USING btree (word_id);
+
+
+--
+-- Name: index_word_differences_on_chapter_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_word_differences_on_chapter_id ON quran.word_differences USING btree (chapter_id);
+
+
+--
+-- Name: index_word_differences_on_status; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_word_differences_on_status ON quran.word_differences USING btree (status);
 
 
 --

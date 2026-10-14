@@ -960,6 +960,17 @@ CREATE TABLE quran.ayah (
 
 
 --
+-- Name: ayah_texts; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.ayah_texts (
+    script_id integer NOT NULL,
+    ayah_id integer NOT NULL,
+    text text NOT NULL
+);
+
+
+--
 -- Name: ayah_themes; Type: TABLE; Schema: quran; Owner: -
 --
 
@@ -4551,6 +4562,19 @@ CREATE TABLE quran.word_stem (
 
 
 --
+-- Name: word_texts; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.word_texts (
+    script_id integer NOT NULL,
+    word_id integer NOT NULL,
+    text text NOT NULL,
+    text_simple text,
+    marks jsonb DEFAULT '[]'::jsonb NOT NULL
+);
+
+
+--
 -- Name: word_translations; Type: TABLE; Schema: quran; Owner: -
 --
 
@@ -5839,6 +5863,14 @@ ALTER TABLE ONLY quran.ayah
 
 
 --
+-- Name: ayah_texts ayah_texts_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.ayah_texts
+    ADD CONSTRAINT ayah_texts_pkey PRIMARY KEY (script_id, ayah_id);
+
+
+--
 -- Name: ayah_themes ayah_themes_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
 --
 
@@ -6660,6 +6692,14 @@ ALTER TABLE ONLY quran.word_root
 
 ALTER TABLE ONLY quran.word_stem
     ADD CONSTRAINT word_stem_pkey PRIMARY KEY (word_id, stem_id, "position");
+
+
+--
+-- Name: word_texts word_texts_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.word_texts
+    ADD CONSTRAINT word_texts_pkey PRIMARY KEY (script_id, word_id);
 
 
 --
@@ -8987,6 +9027,13 @@ CREATE INDEX index_word_mistakes_on_word_id ON quran.word_mistakes USING btree (
 --
 
 CREATE INDEX index_word_mistakes_on_word_id_and_char_start_and_char_end ON quran.word_mistakes USING btree (word_id, char_start, char_end);
+
+
+--
+-- Name: index_word_texts_on_word_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_word_texts_on_word_id ON quran.word_texts USING btree (word_id);
 
 
 --

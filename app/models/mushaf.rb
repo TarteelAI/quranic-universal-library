@@ -148,6 +148,7 @@ class Mushaf < QuranApiRecord
 
       first_word = mushaf_words.where(page_number: page.page_number).order("position_in_page ASC").first
       last_word = mushaf_words.where(page_number: page.page_number).order("position_in_page DESC").first
+      next if first_word.nil? # a page with no cached words yet (a generated layout that stops early, mushaf 30)
 
       # mushaf_words carries verse_id itself; word may be nil on a non-Kufi ayah marker (P5.2)
       verses = Verse.order(:verse_index).where(verse_index: first_word.verse_id..last_word.verse_id)

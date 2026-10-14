@@ -15,8 +15,8 @@
     "last_word_id": 8420,
     "lines_count": 8,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 1,
+    "last_ayah_id": 7
   },
   {
     "id": 1814,
@@ -34,8 +34,8 @@
     "last_word_id": 5553,
     "lines_count": 8,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 8,
+    "last_ayah_id": 12
   },
   {
     "id": 1854,
@@ -53,8 +53,8 @@
     "last_word_id": 87234,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 260,
+    "last_ayah_id": 263
   },
   {
     "id": 2015,
@@ -72,8 +72,8 @@
     "last_word_id": 72932,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 1335,
+    "last_ayah_id": 1341
   },
   {
     "id": 2074,
@@ -91,8 +91,8 @@
     "last_word_id": 17893,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 1803,
+    "last_ayah_id": 1817
   },
   {
     "id": 2263,
@@ -110,8 +110,8 @@
     "last_word_id": 80900,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 3915,
+    "last_ayah_id": 3941
   },
   {
     "id": 2282,
@@ -129,8 +129,8 @@
     "last_word_id": 35218,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 4159,
+    "last_ayah_id": 4166
   },
   {
     "id": 2352,
@@ -148,8 +148,8 @@
     "last_word_id": 26554,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 5094,
+    "last_ayah_id": 5099
   },
   {
     "id": 2385,
@@ -167,7 +167,7 @@
     "last_word_id": 31001,
     "lines_count": 15,
     "text": null,
-    "first_ayah_id": null,
-    "last_ayah_id": null
+    "first_ayah_id": 5461,
+    "last_ayah_id": 5475
   }
 ]

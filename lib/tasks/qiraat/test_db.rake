@@ -11,6 +11,7 @@
 #                                     # the pinned upstream files (rake qiraat:fetch first)
 require 'json'
 require 'csv'
+require_relative '../../qiraat/layout/generator'
 require 'fileutils'
 
 namespace :qiraat do
@@ -134,6 +135,30 @@ namespace :qiraat do
       FIXTURE_DIR.join('upstream/counting.json').write(JSON.pretty_generate(ct))
       puts "  upstream/counting.json: #{ct['systems'].size} systems, #{ct['systems']['kufi']['ayah_ends'].size} kufi ends, #{ct['disputed_points'].size} disputed points"
 
+      # mushaf files: the first two pages of the Hafs and Warsh editions, with the matching Complex CSV rows (P5.3)
+      SLICE_MUSHAF_PAGES = 2
+      %w[hafs warsh].each do |key|
+        d = JSON.parse(upstream.join('quran-text/data/mushaf', "#{key}.json").read)
+        limit = d['page_starts'][SLICE_MUSHAF_PAGES]
+        d['words'] = d['words'].first(limit)
+        %w[ayah_starts line_starts surah_starts juz_starts].each { |k| d[k] = d[k].select { |p| p < limit } }
+        d['page_starts'] = d['page_starts'].first(SLICE_MUSHAF_PAGES)
+        d['marks'] = d['marks'].select { |pos, _| pos < limit }
+        d['numbering']['written_joined'] = d['numbering']['written_joined'].select { |j| j['position'] < limit }
+        d['resegmentation'] = []
+        FIXTURE_DIR.join('upstream', "mushaf-#{key}.json").write(JSON.pretty_generate(d))
+        puts "  upstream/mushaf-#{key}.json: #{limit} words, #{d['ayah_starts'].size} ayahs, #{d['line_starts'].size} lines"
+        csv = Qiraat::Layout::Generator::CSV_FILES[key]
+        src = upstream.join('kfgqpc-resources', csv)
+        rows = CSV.read(src, headers: true, encoding: 'bom|utf-8')
+        keep = rows.select { |r| r['page'].split('-').first.to_i <= SLICE_MUSHAF_PAGES }
+        CSV.open(FIXTURE_DIR.join('upstream', "#{key}-data.csv"), 'w') do |out|
+          out << rows.headers
+          keep.each { |r| out << r.fields }
+        end
+        puts "  upstream/#{key}-data.csv: #{keep.size} rows"
+      end
+
       # small files copied whole
       %w[catalog.json].each do |f|
         FileUtils.cp(upstream.join('quran-text/data', f), FIXTURE_DIR.join('upstream', f))
@@ -154,8 +179,10 @@ namespace :qiraat do
           chapters, verses, words, mushaf 5 pages and words for the slice
           verses: #{SLICE_VERSE_KEYS.join(', ')}
         * `upstream/` — the matching rows of quran-text `word-index.csv`, `ayah-map.json`,
-          `differences.json`, `counting.json` (slice surahs), plus `catalog.json` and the
-          qiraat-ayah-map reference files copied whole.
+          `differences.json`, `counting.json` (slice surahs), the first two pages of the
+          Hafs and Warsh mushaf files with their Complex CSV rows (`mushaf-<key>.json`,
+          `<key>-data.csv`), plus `catalog.json` and the qiraat-ayah-map reference files
+          copied whole.
 
         Loaded into `quran_test` by `QiraatFixtures.load!` (spec/support/qiraat.rb).
       MD

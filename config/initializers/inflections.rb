@@ -14,3 +14,9 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym "RESTful"
 # end
+
+# Arabic plurals used as table names in the multi-riwayah schema.
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.irregular 'qiraah', 'qiraat'
+  inflect.irregular 'riwayah', 'riwayat'
+end

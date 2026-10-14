@@ -28,7 +28,7 @@ namespace :qiraat do
     SLICE_MUSHAF_IDS = [5].freeze # KFGQPC Hafs, unicode
 
     def qiraat_dev_db_name
-      ActiveRecord::Base.configurations.configs_for(env_name: 'development', name: 'quran_api_db_dev').database
+      Verse.connection_db_config.database
     end
 
     desc "Create #{TEST_DB} from #{STRUCTURE_PATH.relative_path_from(Rails.root)}"

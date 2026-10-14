@@ -1256,6 +1256,43 @@ ALTER SEQUENCE quran.corpus_word_grammars_id_seq OWNED BY quran.corpus_word_gram
 
 
 --
+-- Name: counting_systems; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.counting_systems (
+    id bigint NOT NULL,
+    slug character varying NOT NULL,
+    name_ar character varying NOT NULL,
+    name_en character varying NOT NULL,
+    total_ayahs integer,
+    is_reference boolean DEFAULT false NOT NULL,
+    description_ar text,
+    description_en text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: counting_systems_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.counting_systems_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: counting_systems_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.counting_systems_id_seq OWNED BY quran.counting_systems.id;
+
+
+--
 -- Name: data_sources; Type: TABLE; Schema: quran; Owner: -
 --
 
@@ -2622,6 +2659,42 @@ CREATE SEQUENCE quran.navigation_search_records_id_seq
 --
 
 ALTER SEQUENCE quran.navigation_search_records_id_seq OWNED BY quran.navigation_search_records.id;
+
+
+--
+-- Name: qiraat; Type: TABLE; Schema: quran; Owner: -
+--
+
+CREATE TABLE quran.qiraat (
+    id bigint NOT NULL,
+    slug character varying NOT NULL,
+    name_ar character varying NOT NULL,
+    name_en character varying NOT NULL,
+    counting_system_id integer,
+    "position" integer,
+    description text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: qiraat_id_seq; Type: SEQUENCE; Schema: quran; Owner: -
+--
+
+CREATE SEQUENCE quran.qiraat_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: qiraat_id_seq; Type: SEQUENCE OWNED BY; Schema: quran; Owner: -
+--
+
+ALTER SEQUENCE quran.qiraat_id_seq OWNED BY quran.qiraat.id;
 
 
 --
@@ -4760,6 +4833,13 @@ ALTER TABLE ONLY quran.corpus_word_grammars ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: counting_systems id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.counting_systems ALTER COLUMN id SET DEFAULT nextval('quran.counting_systems_id_seq'::regclass);
+
+
+--
 -- Name: data_sources id; Type: DEFAULT; Schema: quran; Owner: -
 --
 
@@ -5009,6 +5089,13 @@ ALTER TABLE ONLY quran.mushas_pages ALTER COLUMN id SET DEFAULT nextval('quran.m
 --
 
 ALTER TABLE ONLY quran.navigation_search_records ALTER COLUMN id SET DEFAULT nextval('quran.navigation_search_records_id_seq'::regclass);
+
+
+--
+-- Name: qiraat id; Type: DEFAULT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.qiraat ALTER COLUMN id SET DEFAULT nextval('quran.qiraat_id_seq'::regclass);
 
 
 --
@@ -5734,6 +5821,14 @@ ALTER TABLE ONLY quran.corpus_word_grammars
 
 
 --
+-- Name: counting_systems counting_systems_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.counting_systems
+    ADD CONSTRAINT counting_systems_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: data_sources data_sources_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
 --
 
@@ -6027,6 +6122,14 @@ ALTER TABLE ONLY quran.mushas_pages
 
 ALTER TABLE ONLY quran.navigation_search_records
     ADD CONSTRAINT navigation_search_records_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: qiraat qiraat_pkey; Type: CONSTRAINT; Schema: quran; Owner: -
+--
+
+ALTER TABLE ONLY quran.qiraat
+    ADD CONSTRAINT qiraat_pkey PRIMARY KEY (id);
 
 
 --
@@ -6927,6 +7030,13 @@ CREATE INDEX index_corpus_word_grammars_on_word_id_and_position ON quran.corpus_
 
 
 --
+-- Name: index_counting_systems_on_slug; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_counting_systems_on_slug ON quran.counting_systems USING btree (slug);
+
+
+--
 -- Name: index_dict_word_definition; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -7750,6 +7860,20 @@ CREATE INDEX index_on_radio_audio_files ON quran.radio_station_audio_files USING
 --
 
 CREATE INDEX index_on_resource_tag ON quran.resource_tags USING btree (tag_id, resource_id, resource_type);
+
+
+--
+-- Name: index_qiraat_on_counting_system_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_qiraat_on_counting_system_id ON quran.qiraat USING btree (counting_system_id);
+
+
+--
+-- Name: index_qiraat_on_slug; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_qiraat_on_slug ON quran.qiraat USING btree (slug);
 
 
 --

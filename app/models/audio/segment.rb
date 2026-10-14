@@ -8,6 +8,7 @@
 #  duration_ms              :integer
 #  has_repetition           :boolean          default(FALSE)
 #  letter_segments          :jsonb
+#  number_segments          :jsonb
 #  percentile               :float
 #  relative_segments        :jsonb
 #  relative_silent_duration :integer
@@ -23,6 +24,7 @@
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
 #  audio_file_id            :bigint
+#  ayah_id                  :integer
 #  audio_recitation_id      :bigint
 #  chapter_id               :bigint
 #  verse_id                 :bigint
@@ -42,9 +44,20 @@
 module Audio
   class Segment < QuranApiRecord
     belongs_to :verse, optional: true
+    belongs_to :ayah, class_name: 'NumberedAyah', optional: true # the ayah in the recitation's numbering (P7.3)
     belongs_to :chapter
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :audio_file, class_name: 'Audio::ChapterAudioFile'
+
+    # Word timings keyed by the shared word number instead of the Hafs
+    # position (P7.3): [[number, from, to], ...]; positions without a number
+    # (a continuation row) are dropped. `numbers` maps position => number.
+    def self.number_segments_for(segments, numbers)
+      segments.filter_map do |s|
+        number = numbers[s[0].to_i]
+        [number, s[1], s[2]] if number
+      end
+    end
 
     def word_text
       Word.order('position ASC').where(verse_id: verse.id).pluck(:text_qpc_hafs)
@@ -83,9 +96,29 @@ module Audio
       self.duration_ms = segment_duration
       self.duration = (segment_duration.to_f / 1000).round(2)
       self.timestamp_median = (from + to) / 2
-      self.verse_number = verse.verse_number
-      self.verse_key = verse.verse_key
-      self.chapter_id = verse.chapter_id
+      self.ayah_id ||= audio_recitation&.resolver&.from_kufi(verse)&.first&.id
+      if ayah && !ayah.numbering.kufi?
+        # keyed by the recitation's own numbering (set_ayah); the Kufi verse stays the anchor
+        self.verse_number = ayah.ayah_number
+        self.verse_key = ayah.ayah_key
+        self.chapter_id = ayah.chapter_id
+      else
+        self.verse_number = verse.verse_number
+        self.verse_key = verse.verse_key
+        self.chapter_id = verse.chapter_id
+      end
+    end
+
+    # Key the segment by an ayah of the recitation's numbering (P7.3): the
+    # key and number are the ayah's, the verse is the first Kufi verse it
+    # covers (so the Hafs-keyed readers keep working), ayah_id the ayah.
+    def set_ayah(ayah)
+      self.ayah = ayah
+      self.verse = ayah.kufi_verses.first
+      self.chapter_id = ayah.chapter_id
+      self.verse_key = ayah.ayah_key
+      self.verse_number = ayah.ayah_number
+      self
     end
 
     def set_segments!(segments_list, user = nil)
@@ -114,6 +147,12 @@ module Audio
       list = list.compact_blank
       self.segments = list
       self.segments_count = list.size
+      self.number_segments = self.class.number_segments_for(list, word_numbers_by_position)
+    end
+
+    # position => shared number of the verse's Hafs words
+    def word_numbers_by_position
+      Word.unscoped.where(verse_id: verse_id, char_type_name: 'word').pluck(:position, :number).to_h
     end
 
     def set_letter_segments!(letter_list, user = nil)

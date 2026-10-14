@@ -717,7 +717,9 @@ CREATE TABLE quran.audio_files (
     file_size integer,
     has_repetition boolean DEFAULT false,
     repeated_segments character varying,
-    segments jsonb DEFAULT '[]'::jsonb
+    segments jsonb DEFAULT '[]'::jsonb,
+    ayah_id integer,
+    number_segments jsonb
 );
 
 
@@ -766,7 +768,8 @@ CREATE TABLE quran.audio_recitations (
     qirat_type_id integer,
     segment_locked boolean DEFAULT false,
     riwayah_id integer,
-    qua_key character varying
+    qua_key character varying,
+    numbering_id integer
 );
 
 
@@ -879,7 +882,9 @@ CREATE TABLE quran.audio_segments (
     repeated_segments character varying,
     has_repetition boolean DEFAULT false,
     segments_count integer DEFAULT 0,
-    letter_segments jsonb
+    letter_segments jsonb,
+    ayah_id integer,
+    number_segments jsonb
 );
 
 
@@ -3166,7 +3171,8 @@ CREATE TABLE quran.recitations (
     approved boolean DEFAULT true,
     description text,
     gapless_recitation_id integer,
-    riwayah_id integer
+    riwayah_id integer,
+    numbering_id integer
 );
 
 
@@ -7049,6 +7055,13 @@ CREATE INDEX index_audio_chapter_audio_files_on_resource_content_id ON quran.aud
 
 
 --
+-- Name: index_audio_files_on_ayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_audio_files_on_ayah_id ON quran.audio_files USING btree (ayah_id);
+
+
+--
 -- Name: index_audio_files_on_chapter_id; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -7154,6 +7167,13 @@ CREATE INDEX index_audio_recitations_on_name ON quran.audio_recitations USING bt
 
 
 --
+-- Name: index_audio_recitations_on_numbering_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_audio_recitations_on_numbering_id ON quran.audio_recitations USING btree (numbering_id);
+
+
+--
 -- Name: index_audio_recitations_on_priority; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -7224,6 +7244,13 @@ CREATE INDEX index_audio_segments_on_audio_file_id ON quran.audio_segments USING
 
 
 --
+-- Name: index_audio_segments_on_audio_file_id_and_ayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE UNIQUE INDEX index_audio_segments_on_audio_file_id_and_ayah_id ON quran.audio_segments USING btree (audio_file_id, ayah_id) WHERE (ayah_id IS NOT NULL);
+
+
+--
 -- Name: index_audio_segments_on_audio_file_id_and_verse_number; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -7235,6 +7262,13 @@ CREATE UNIQUE INDEX index_audio_segments_on_audio_file_id_and_verse_number ON qu
 --
 
 CREATE INDEX index_audio_segments_on_audio_recitation_id ON quran.audio_segments USING btree (audio_recitation_id);
+
+
+--
+-- Name: index_audio_segments_on_ayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_audio_segments_on_ayah_id ON quran.audio_segments USING btree (ayah_id);
 
 
 --
@@ -8502,6 +8536,13 @@ CREATE INDEX index_recitation_styles_on_slug ON quran.recitation_styles USING bt
 --
 
 CREATE UNIQUE INDEX index_recitations_on_gapless_recitation_id ON quran.recitations USING btree (gapless_recitation_id);
+
+
+--
+-- Name: index_recitations_on_numbering_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_recitations_on_numbering_id ON quran.recitations USING btree (numbering_id);
 
 
 --

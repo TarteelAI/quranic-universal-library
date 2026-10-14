@@ -19,6 +19,7 @@
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #  qirat_type_id       :integer
+#  numbering_id        :integer
 #  recitation_style_id :integer
 #  reciter_id          :integer
 #  resource_content_id :integer
@@ -50,6 +51,7 @@ module Audio
     belongs_to :section, class_name: 'Audio::Section', optional: true
     belongs_to :recitation_style, optional: true
     include HasRiwayah
+    include RecitationNumbering # numbering, resolver, expected_ayahs_count (P7.3)
     belongs_to :reciter, optional: true
 
     scope :approved, -> { where(approved: true) }
@@ -104,9 +106,9 @@ module Audio
 
       if audio_file
         segments = segments.where(audio_file_id: audio_file.id)
-        verses_count = audio_file.chapter.verses_count
+        verses_count = expected_ayahs_count(audio_file.chapter)
       else
-        verses_count = Utils::Quran.total_ayahs # Kufi, see Recitation#validate_segments_data
+        verses_count = expected_ayahs_count # the recitation's numbering (P7.3)
       end
 
       Audio::SegmentValidator.new(segments, expected_verses_count: verses_count).validate

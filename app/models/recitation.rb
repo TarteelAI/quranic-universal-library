@@ -15,6 +15,7 @@
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #  qirat_type_id       :integer
+#  numbering_id        :integer
 #  recitation_style_id :integer
 #  reciter_id          :integer
 #  resource_content_id :integer
@@ -30,6 +31,7 @@ class Recitation < QuranApiRecord
   belongs_to :reciter
   belongs_to :recitation_style
   include HasRiwayah
+  include RecitationNumbering # numbering, resolver, expected_ayahs_count (P7.3)
   belongs_to :resource_content, optional: true
   belongs_to :gapless_recitation, class_name: 'Audio::Recitation', optional: true
 
@@ -49,7 +51,7 @@ class Recitation < QuranApiRecord
   end
 
   def missing_audio_files?
-    audio_files.size < Utils::Quran.total_ayahs
+    audio_files.size < expected_ayahs_count
   end
 
   def audio_format
@@ -70,10 +72,10 @@ class Recitation < QuranApiRecord
     if chapter_id
       chapter = Chapter.find(chapter_id)
       files = audio_files.where(chapter_id: chapter.id)
-      verses_count = chapter.verses_count
+      verses_count = expected_ayahs_count(chapter)
     else
       files = audio_files
-      verses_count = Utils::Quran.total_ayahs # audio files are keyed by Kufi verse until P7.3 puts recitations on their riwayah's numbering
+      verses_count = expected_ayahs_count # the recitation's numbering (P7.3)
     end
 
     files = files.includes(:verse)

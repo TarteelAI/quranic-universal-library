@@ -33,7 +33,11 @@ namespace :qiraat do
         'cms_verse_1' => '/cms/verses/1',
         'cms_mushaf_page_preview' => '/cms/mushaf_page_preview?mushaf=5&page=1',
         'mushaf_5_edit_page_1' => '/mushaf_layouts/5/edit?page_number=1',
-        'mushaf_5_page_mapping_modal_1' => '/mushaf_layouts/5?page_number=1&view_type=page_mapping_modal'
+        'mushaf_5_page_mapping_modal_1' => '/mushaf_layouts/5?page_number=1&view_type=page_mapping_modal',
+        # a Hafs recitation's segment page and its builder JSON (P7.3): first approved gapless recitation with surah 1 segments, first ayah-by-ayah one
+        'surah_segments_show_1' => '/surah_audio_files/1?chapter_id=1',
+        'surah_segments_json_1' => '/surah_audio_files/1/segments.json?chapter_id=1',
+        'ayah_segments_json_1' => '/ayah_audio_files/1/segments.json?chapter_id=1'
       }
     end
 

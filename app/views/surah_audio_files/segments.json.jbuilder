@@ -5,10 +5,11 @@ end
 
 json.segments do
   @verses.each do |verse|
-    segment = segments[verse.verse_key]
+    key = verse.respond_to?(:ayah_key) ? verse.ayah_key : verse.verse_key # a numbered ayah for a non-Kufi recitation (P7.3)
+    segment = segments[key]
 
-    json.set! verse.verse_key do
-      json.verse_id verse.id
+    json.set! key do
+      json.verse_id verse.respond_to?(:ayah_key) ? verse.kufi_first_verse_id : verse.id
       json.timestamp_from segment&.timestamp_from
       json.timestamp_to segment&.timestamp_to
       json.segments segment&.segments || []

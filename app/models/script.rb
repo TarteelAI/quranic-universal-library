@@ -54,6 +54,10 @@ class Script < QuranApiRecord
   scope :row_backed, -> { where(storage: 'rows') }
   scope :for_riwayah, ->(riwayah) { where(riwayah_id: riwayah) }
 
+  def self.ransackable_associations(_auth_object = nil)
+    %w[riwayah mushafs]
+  end
+
   def self.find_by_column(column_name)
     column_backed.find_by(column_name: column_name.to_s)
   end

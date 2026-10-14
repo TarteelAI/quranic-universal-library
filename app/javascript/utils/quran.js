@@ -1,5 +1,9 @@
-// First ayah id of all surahs
-const FIRST_AYAH = [
+// First ayah id of all surahs in the Kufi (Hafs) numbering, with 6237 as the
+// end sentinel. This is the built-in default; QuranUtils.use()/load() swap in
+// the tables of another numbering from /internal/numberings/<slug>.json
+// (P4.5). The same table in Ruby is Utils::Quran, derived from AyahNumbering.
+// The sentinel was 6236 until P4.5, which made surah 114 five ayahs long.
+const KUFI_FIRST_AYAH = [
   1, 8, 294, 494, 670, 790, 955, 1161, 1236, 1365, 1474, 1597, 1708, 1751, 1803,
   1902, 2030, 2141, 2251, 2349, 2484, 2596, 2674, 2792, 2856, 2933, 3160, 3253,
   3341, 3410, 3470, 3504, 3534, 3607, 3661, 3706, 3789, 3971, 4059, 4134, 4219,
@@ -8,10 +12,38 @@ const FIRST_AYAH = [
   5272, 5324, 5376, 5420, 5448, 5476, 5496, 5552, 5592, 5623, 5673, 5713, 5759,
   5801, 5830, 5849, 5885, 5910, 5932, 5949, 5968, 5994, 6024, 6044, 6059, 6080,
   6091, 6099, 6107, 6126, 6131, 6139, 6147, 6158, 6169, 6177, 6180, 6189, 6194,
-  6198, 6205, 6208, 6214, 6217, 6222, 6226, 6231, 6236
+  6198, 6205, 6208, 6214, 6217, 6222, 6226, 6231, 6237
 ];
 
+let FIRST_AYAH = KUFI_FIRST_AYAH;
+let CURRENT = 'kufi';
+
 export class QuranUtils {
+  // Switch the helpers to a numbering's tables: { slug, first_ayah: [...], total }.
+  static use(tables) {
+    if (!tables || !Array.isArray(tables.first_ayah)) throw new Error('QuranUtils.use: first_ayah table required');
+    FIRST_AYAH = tables.first_ayah.concat([tables.total + 1]);
+    CURRENT = tables.slug || 'custom';
+  }
+
+  static useKufi() {
+    FIRST_AYAH = KUFI_FIRST_AYAH;
+    CURRENT = 'kufi';
+  }
+
+  static current() {
+    return CURRENT;
+  }
+
+  static async load(slug) {
+    if (slug === 'kufi') { this.useKufi(); return { slug: 'kufi' }; }
+    const response = await fetch(`/internal/numberings/${encodeURIComponent(slug)}`, { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`numbering ${slug}: HTTP ${response.status}`);
+    const tables = await response.json();
+    this.use(tables);
+    return tables;
+  }
+
   static getSurahAyahRange(surah) {
     surah = parseInt(surah, 10);
     if (surah < 1 || surah > 114) return [];

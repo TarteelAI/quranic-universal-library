@@ -298,6 +298,25 @@ class Verse < QuranApiRecord
     end
   end
 
+  # The ayah text in a script: the verse column for column-backed scripts, the
+  # ayah_texts cache for row-backed ones (filled in phase 4), else the joined
+  # word_texts of the skeleton words in order.
+  def text_for(script)
+    return nil if script.nil?
+
+    case script.storage
+    when 'column'
+      public_send(script.column_name) if has_attribute?(script.column_name)
+    when 'rows'
+      cached = AyahText.find_by(script_id: script.id, ayah_id: id)&.text
+      return cached if cached
+
+      ids = all_words.where(char_type_name: 'word').pluck(:id) # ordered by position, sub_position
+      texts = WordText.where(script_id: script.id, word_id: ids).index_by(&:word_id)
+      ids.filter_map { |wid| texts[wid]&.text }.join(' ').presence
+    end
+  end
+
   def self.find_by_id_or_key(id)
     if id.to_s.include? ':'
       where(verse_key: id).first

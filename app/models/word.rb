@@ -211,8 +211,23 @@ class Word < QuranApiRecord
     "#{location} - #{text_uthmani}"
   end
 
+  # The form of this word in a script: a column for column-backed scripts
+  # (every Hafs script), a word_texts row for row-backed ones (the riwayah
+  # imports). nil means the riwayah does not read this word.
+  def text_for(script)
+    return nil if script.nil?
+
+    case script.storage
+    when 'column' then public_send(script.column_name)
+    when 'rows' then WordText.find_by(script_id: script.id, word_id: id)&.text
+    end
+  end
+
   def text_for_mushaf(mushaf_id)
-    if (attr = MUSHAF_TO_TEXT_ATTR_MAPPING[mushaf_id.to_i])
+    mushaf = Mushaf.find_by(id: mushaf_id)
+    if mushaf&.script
+      text_for(mushaf.script)
+    elsif (attr = MUSHAF_TO_TEXT_ATTR_MAPPING[mushaf_id.to_i]) # legacy: mushafs without a script
       send attr
     else
       text = MushafWord.where(word: self, mushaf_id: mushaf_id).first&.text
@@ -319,81 +334,43 @@ class Word < QuranApiRecord
 
   protected
 
+  # A script column changed: refresh the cached text of every mushaf whose
+  # script reads that column, and the joined ayah text on the verse. The
+  # mushaf set comes from mushafs.script_id (P3.4); LEGACY_COLUMN_MUSHAFS is
+  # the hard-coded fan-out that ran before, kept for mushafs with no script.
+  LEGACY_COLUMN_MUSHAFS = {
+    'text_qpc_nastaleeq_hafs' => [14, 15],
+    'text_qpc_nastaleeq' => [23],
+    'text_indopak_nastaleeq' => [6, 7, 8, 17],
+    'text_qpc_hafs' => [5, 27, 13],
+    'text_uthmani' => [4],
+    'text_indopak' => [3],
+    'code_v1' => [2],
+    'code_v2' => [1, 19],
+    'text_uthmani_tajweed' => [16],
+    'text_qpc_hafs_tajweed' => [21],
+    'text_digital_khatt' => [20],
+    'text_digital_khatt_v1' => [22],
+    'text_digital_khatt_indopak' => [24],
+    'text_indonesian_sign_language' => [31],
+    'text_indopak_misbah' => [32]
+  }.freeze
+
   def update_mushaf_word_text
-    if saved_change_to_attribute?('text_qpc_nastaleeq_hafs') # QPC text with their nastaleeq font
-      update_text_for_mushaf([14, 15], text_qpc_nastaleeq_hafs)
-      update_ayah_script('text_qpc_nastaleeq_hafs')
+    changed = LEGACY_COLUMN_MUSHAFS.keys.select { |c| saved_change_to_attribute?(c) }
+    changed.each do |column|
+      mushaf_ids = self.class.mushaf_ids_for_column(column)
+      update_text_for_mushaf(mushaf_ids, public_send(column)) if mushaf_ids.any?
+      update_ayah_script(column)
     end
+  end
 
-    if saved_change_to_attribute?('text_qpc_nastaleeq') # QPC text with Quranwbw font
-      update_text_for_mushaf([23], text_qpc_nastaleeq)
-      update_ayah_script('text_qpc_nastaleeq')
-    end
-
-    if saved_change_to_attribute?('text_indopak_nastaleeq')
-      update_text_for_mushaf([6, 7, 8, 17], text_indopak_nastaleeq)
-      update_ayah_script('text_indopak_nastaleeq')
-    end
-
-    if saved_change_to_attribute?('text_qpc_hafs')
-      update_text_for_mushaf([5, 27, 13], text_qpc_hafs)
-      update_ayah_script('text_qpc_hafs')
-    end
-
-    if saved_change_to_attribute?('text_uthmani') # me_quran
-      update_text_for_mushaf(4, text_uthmani)
-      update_ayah_script('text_uthmani')
-    end
-
-    if saved_change_to_attribute?('text_indopak') # pdms font
-      update_text_for_mushaf(3, text_indopak)
-      update_ayah_script('text_indopak')
-    end
-
-    if saved_change_to_attribute?('code_v1')
-      update_text_for_mushaf(2, code_v1)
-      update_ayah_script('code_v1')
-    end
-
-    if saved_change_to_attribute?('code_v2')
-      update_text_for_mushaf([1, 19], code_v2)
-      update_ayah_script('code_v2')
-    end
-
-    if saved_change_to_attribute?('text_uthmani_tajweed')
-      update_text_for_mushaf(16, text_uthmani_tajweed)
-      update_ayah_script('text_uthmani_tajweed')
-    end
-
-    if saved_change_to_attribute?('text_qpc_hafs_tajweed')
-      update_text_for_mushaf(21, text_qpc_hafs_tajweed)
-      update_ayah_script('text_qpc_hafs_tajweed')
-    end
-
-    if saved_change_to_attribute?('text_digital_khatt')
-      update_text_for_mushaf(20, text_digital_khatt)
-      update_ayah_script('text_digital_khatt')
-    end
-
-    if saved_change_to_attribute?('text_digital_khatt_v1')
-      update_text_for_mushaf(22, text_digital_khatt_v1)
-      update_ayah_script('text_digital_khatt_v1')
-    end
-
-    if saved_change_to_attribute?('text_digital_khatt_indopak')
-      update_text_for_mushaf(24, text_digital_khatt_indopak)
-      update_ayah_script('text_digital_khatt_indopak')
-    end
-
-    if saved_change_to_attribute?('text_indonesian_sign_language')
-      update_text_for_mushaf(31, text_indonesian_sign_language)
-      update_ayah_script('text_indonesian_sign_language')
-    end
-
-    if saved_change_to_attribute?('text_indopak_misbah')
-      update_text_for_mushaf(32, text_indopak_misbah)
-      update_ayah_script('text_indopak_misbah')
-    end
+  # Mushafs whose cached text is copied from this column: those pointing at a
+  # script on the column, plus the legacy list for mushafs that have no script yet.
+  def self.mushaf_ids_for_column(column)
+    with_script = Mushaf.where(script_id: Script.column_backed.where(column_name: column).select(:id)).pluck(:id)
+    legacy = Mushaf.where(id: LEGACY_COLUMN_MUSHAFS.fetch(column, []), script_id: nil).pluck(:id)
+    (with_script + legacy).uniq
   end
 
   def update_text_for_mushaf(mushaf_id, text)

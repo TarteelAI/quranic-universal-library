@@ -34,7 +34,13 @@ RSpec.describe Qiraat::Import::ScriptText do
     f.path
   end
 
-  before { Qiraat::Backfill::WordNumbers.new(csv_path: QiraatFixtures.upstream('word-index.csv'), dry_run: false, logger: nil).call }
+  before do
+    # The slice is generated from a dev database where the imports already ran;
+    # start from the pre-import state so the importer is exercised for real.
+    WordText.delete_all
+    Script.where(storage: 'rows').delete_all
+    Qiraat::Backfill::WordNumbers.new(csv_path: QiraatFixtures.upstream('word-index.csv'), dry_run: false, logger: nil).call
+  end
 
   let(:path) { edition_file('warsh') }
 

@@ -81,3 +81,53 @@ namespace :qiraat do
     end
   end
 end
+
+namespace :qiraat do
+  namespace :backfill do
+    desc 'Detect and set mushafs.script_id from each mushaf\'s cached word text (P3.4)'
+    task mushaf_scripts: :environment do
+      dry = ENV['DRY_RUN'].present?
+      r = Qiraat::Backfill::MushafScripts.new(dry_run: dry, force: ENV['FORCE'].present?).call
+      puts "backfill mushaf_scripts on #{Mushaf.connection.current_database}#{dry ? ' (DRY RUN)' : ''}"
+      r[:assigned].each { |id, slug| puts "  #{dry ? 'would set' : 'set'} mushaf #{id} (#{Mushaf.find(id).name.strip}) -> #{slug}#{r[:stale][id] ? " (#{r[:stale][id]} stale words)" : ''}" }
+      r[:kept].each { |id, slug| puts "  kept mushaf #{id} -> #{slug}" }
+      r[:ambiguous].each { |id, slugs| puts "  AMBIGUOUS mushaf #{id}: #{slugs.inspect}" }
+      r[:unmatched].each { |id, slugs| puts "  UNMATCHED mushaf #{id} (#{Mushaf.find(id).name.strip}): #{slugs.inspect}" }
+      puts "  no cached words and no font match: #{r[:no_words].inspect}" if r[:no_words].any?
+    end
+  end
+
+  namespace :verify do
+    desc 'Verify mushafs.script_id: cached text equals the script column over the whole table; show the fan-out change (P3.4)'
+    task mushaf_scripts: :environment do
+      # Words whose cache no longer equals the source column, measured 7 Oct 2026
+      # over the whole table: drift from past edits (175 on mushaf 14, 26 on 23
+      # written by the wrong legacy fan-out, a handful elsewhere). A count above
+      # its allowance means a wrong script or new drift. Refreshed in P3.7.
+      known_stale = { 1 => 2, 2 => 1, 3 => 9, 5 => 1, 14 => 175, 16 => 7, 17 => 1, 19 => 2, 22 => 1, 23 => 26, 27 => 1 }
+      failed = []
+      Mushaf.where.not(script_id: nil).order(:id).includes(:script).each do |m|
+        next if m.script.image?
+
+        col = Word.connection.quote_column_name(m.script.column_name)
+        bad = Word.connection.select_value(<<~SQL).to_i
+          SELECT count(*) FROM mushaf_words mw JOIN words w ON w.id = mw.word_id
+          WHERE mw.mushaf_id = #{m.id} AND mw.char_type_name = 'word' AND mw.text IS DISTINCT FROM w.#{col}
+        SQL
+        allowed = known_stale.fetch(m.id, 0)
+        ok = bad <= allowed
+        failed << m.id unless ok
+        puts format('  mushaf %-3d %-40s %-26s stale %-5d %s', m.id, m.name.strip[0, 40], m.script.slug, bad, ok ? (bad.zero? ? 'OK' : "OK (known, #{allowed})") : 'FAIL')
+      end
+      puts "  without script: #{Mushaf.where(script_id: nil).pluck(:id).inspect} (legacy name matching keeps serving them)"
+      puts '--- fan-out per column: legacy list vs derived from scripts (a derived superset means caches that went stale before are refreshed from now on)'
+      Word::LEGACY_COLUMN_MUSHAFS.each do |column, legacy|
+        derived = Word.mushaf_ids_for_column(column).sort
+        legacy_existing = Mushaf.where(id: legacy).pluck(:id).sort
+        puts format('  %-32s legacy %-22s derived %-26s %s', column, legacy_existing.inspect, derived.inspect, derived == legacy_existing ? 'same' : 'DIFFERS')
+      end
+      abort("#{failed.size} mushaf(s) with unexpected cache mismatches") if failed.any?
+      puts 'mushaf_scripts OK'
+    end
+  end
+end

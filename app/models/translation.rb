@@ -50,7 +50,8 @@ class Translation < QuranApiRecord
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
 
   belongs_to :verse, optional: true
-  belongs_to :riwayah, optional: true # NULL = the shared row; set = an override for that riwayah (P6.1)
+  include RiwayahOverride # riwayah_id NULL = the shared row; set = an override for that riwayah (P6.1/P6.2)
+  override_key :resource_content_id, :verse_id
   belongs_to :language
   has_many :foot_notes
   has_many :draft_translations, class_name: 'Draft::Translation'

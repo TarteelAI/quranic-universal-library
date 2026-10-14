@@ -72,4 +72,39 @@ RSpec.describe Qiraat::Resolver do
     expect(queries.size).to be <= 2, queries.join("\n")
     expect(numbering).to be_present
   end
+
+  describe '#content (P6.2)' do
+    let(:translation_rc) { ResourceContent.create!(name: 'spec translation', sub_type: ResourceContent::SubType::Translation, cardinality_type: ResourceContent::CardinalityType::OneVerse, resource_type: 'Verse') }
+    let(:wbw_rc) { ResourceContent.create!(name: 'spec wbw', sub_type: ResourceContent::SubType::Translation, cardinality_type: ResourceContent::CardinalityType::OneWord, resource_type: 'Word') }
+    let(:warsh_riwayah) { Riwayah.find_by!(slug: 'warsh') }
+
+    def translation(key, riwayah_id, text)
+      Translation.new(resource_content_id: translation_rc.id, verse_id: Verse.find_by!(verse_key: key).id, language_id: 38, text: text, riwayah_id: riwayah_id).tap { |t| t.save!(validate: false) }
+    end
+
+    before do
+      translation('1:4', nil, 'Master of the Day of Judgement')
+      translation('1:4', warsh_riwayah.id, 'King of the Day of Judgement')
+      translation('2:1', nil, 'Alif-Lam-Mim.')
+      translation('2:2', nil, 'This is the Book')
+      WordTranslation.new(resource_content_id: wbw_rc.id, word_id: Word.find_by!(location: '1:4:1').id, language_id: 38, text: 'master').save!(validate: false)
+      WordTranslation.new(resource_content_id: wbw_rc.id, word_id: Word.find_by!(location: '1:4:1').id, language_id: 38, text: 'king', riwayah_id: warsh_riwayah.id).save!(validate: false)
+    end
+
+    it 'carries the riwayah from .for and reads its override for the ayah (Warsh 1:3 = Kufi 1:4)' do
+      expect(warsh.riwayah).to eq(warsh_riwayah)
+      expect(kufi.riwayah).to be_nil
+      expect(warsh.content(warsh.ayah('1:3'), translation_rc).map(&:text)).to eq(['King of the Day of Judgement'])
+      expect(kufi.content(kufi.ayah('1:4'), translation_rc).map(&:text)).to eq(['Master of the Day of Judgement'])
+    end
+
+    it 'returns both Kufi halves of a merged ayah, in order' do
+      expect(warsh.content(warsh.ayah('2:1'), translation_rc).map(&:text)).to eq(['Alif-Lam-Mim.', 'This is the Book'])
+    end
+
+    it 'reads word glosses by the ayah words' do
+      expect(warsh.content(warsh.ayah('1:3'), wbw_rc).map(&:text)).to eq(['king'])
+      expect(kufi.content(kufi.ayah('1:4'), wbw_rc).map(&:text)).to eq(['master'])
+    end
+  end
 end

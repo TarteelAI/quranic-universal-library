@@ -9,24 +9,28 @@ module Qiraat
   #   r.to_kufi(ayah)              # => [Verse 2:1, Verse 2:2]                 (merged: the whole range)
   #   r.word_range(ayah)           # => words of the ayah in order (all riwayat; filter per script)
   #   r.text(script, ayah)         # => the ayah text in that script
+  #   r.content(ayah, resource)    # => translation/tafsir/word-gloss rows of the resource for the ayah,
+  #                                #    with the riwayah's overrides applied (P6.2)
   #
   # Every lookup is one or two indexed reads; results that can be several
   # rows are always arrays, so callers render or join over all of them and
   # never show only the first half of a split or a merge.
   class Resolver
-    attr_reader :numbering
+    attr_reader :numbering, :riwayah
 
     def self.for(riwayah_or_slug)
       riwayah = riwayah_or_slug.is_a?(Riwayah) ? riwayah_or_slug : Riwayah.find_by!(slug: riwayah_or_slug)
-      new(numbering: riwayah.default_numbering || AyahNumbering.kufi)
+      new(numbering: riwayah.default_numbering || AyahNumbering.kufi, riwayah: riwayah)
     end
 
     def self.kufi
       new(numbering: AyahNumbering.kufi)
     end
 
-    def initialize(numbering:)
+    # riwayah: whose overrides content() applies; nil (a bare numbering) reads the shared rows only
+    def initialize(numbering:, riwayah: nil)
       @numbering = numbering
+      @riwayah = riwayah
     end
 
     def kufi?
@@ -74,6 +78,21 @@ module Qiraat
     # The ayah text in a script: the ayah_texts cache or the joined word forms.
     def text(script, ayah)
       ayah.text_for(script)
+    end
+
+    # The rows of a resource for this ayah as the riwayah reads them (P6.2):
+    # the Kufi verses the ayah covers (two for a merge, so both halves come
+    # back) joined to the resource's table through for_riwayah, which puts
+    # the riwayah's override in place of the shared row where one exists.
+    # Verse-level resources (translations, tafsirs) by verse; word-level
+    # ones (word glosses) by the ayah's words, in word order.
+    def content(ayah, resource_content)
+      if resource_content.one_word?
+        WordTranslation.for_riwayah(riwayah).where(resource_content_id: resource_content.id, word_id: word_range(ayah).map(&:id)).order(:word_id)
+      else
+        model = resource_content.sub_type == ResourceContent::SubType::Tafsir ? Tafsir : Translation
+        model.for_riwayah(riwayah).where(resource_content_id: resource_content.id, verse_id: to_kufi(ayah).map(&:id)).order(:verse_id)
+      end
     end
 
     private

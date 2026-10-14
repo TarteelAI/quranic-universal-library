@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "slug": "nafi",
+    "name_ar": "نافع",
+    "name_en": "Nafi'",
+    "counting_system_id": 2,
+    "position": 1,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 2,
+    "slug": "ibn-kathir",
+    "name_ar": "ابن كثير",
+    "name_en": "Ibn Kathir",
+    "counting_system_id": 4,
+    "position": 2,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 3,
+    "slug": "abu-amr",
+    "name_ar": "أبو عمرو",
+    "name_en": "Abu Amr",
+    "counting_system_id": 5,
+    "position": 3,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 4,
+    "slug": "ibn-amir",
+    "name_ar": "ابن عامر",
+    "name_en": "Ibn Amir",
+    "counting_system_id": 6,
+    "position": 4,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 5,
+    "slug": "asim",
+    "name_ar": "عاصم",
+    "name_en": "Asim",
+    "counting_system_id": 1,
+    "position": 5,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 6,
+    "slug": "hamza",
+    "name_ar": "حمزة",
+    "name_en": "Hamza",
+    "counting_system_id": 1,
+    "position": 6,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 7,
+    "slug": "kisai",
+    "name_ar": "الكسائي",
+    "name_en": "Al-Kisai",
+    "counting_system_id": 1,
+    "position": 7,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 8,
+    "slug": "abu-jafar",
+    "name_ar": "أبو جعفر",
+    "name_en": "Abu Ja'far",
+    "counting_system_id": 3,
+    "position": 8,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 9,
+    "slug": "yaqub",
+    "name_ar": "يعقوب",
+    "name_en": "Ya'qub",
+    "counting_system_id": 5,
+    "position": 9,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  },
+  {
+    "id": 10,
+    "slug": "khalaf",
+    "name_ar": "خلف العاشر",
+    "name_en": "Khalaf al-Ashir",
+    "counting_system_id": 1,
+    "position": 10,
+    "description": null,
+    "created_at": "2026-10-06 20:55:56 UTC",
+    "updated_at": "2026-10-06 20:55:56 UTC"
+  }
+]

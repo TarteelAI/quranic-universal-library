@@ -28,6 +28,8 @@ ActiveAdmin.register Word do
   filter :id
   filter :verse_key
   filter :location
+  filter :number, label: 'Shared number (quran-text)'
+  filter :hafs_reads, as: :boolean
   filter :char_type
   filter :page_number
   filter :position
@@ -163,6 +165,17 @@ ActiveAdmin.register Word do
     attributes_table do
       row :id
       row :word_index
+      row 'Shared number (quran-text)' do
+        if resource.number
+          span(resource.number_last ? "#{resource.number} – #{resource.number_last}" : resource.number.to_s, class: 'mono')
+          span(' covers two shared numbers', class: 'muted') if resource.number_last
+        else
+          span('none: continuation of the previous word', class: 'muted')
+        end
+      end
+      row 'Read by Hafs' do
+        resource.hafs_reads ? 'yes' : "no (another riwayah's word; sub_position #{resource.sub_position})"
+      end
       row :verse
       row :verse_key
       row :position

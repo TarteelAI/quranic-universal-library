@@ -8,7 +8,7 @@ module Audio
 
     AYAH_GAP_BUFFER_MS = 400
 
-    def initialize(segments, expected_verses_count: 6236)
+    def initialize(segments, expected_verses_count: Utils::Quran.total_ayahs)
       @segments = segments.to_a
       @expected_verses_count = expected_verses_count
     end

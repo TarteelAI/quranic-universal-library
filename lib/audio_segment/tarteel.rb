@@ -82,7 +82,7 @@ module AudioSegment
                    .where(audio_recitation_id: recitation.id)
                    .includes(:audio_file, verse: :actual_words)
 
-      Audio::SegmentValidator.new(segments, expected_verses_count: 6236).validate.each do |issue|
+      Audio::SegmentValidator.new(segments, expected_verses_count: Utils::Quran.total_ayahs).validate.each do |issue|
         @issues.push(format_validator_issue(recitation, issue))
       end
     end
@@ -98,7 +98,7 @@ module AudioSegment
     def validate_segments(recitation, db)
       segments_count = db.get_first_value("SELECT COUNT(*) FROM #{table_name} WHERE reciter = ?", recitation.id)
 
-      if segments_count != 6236
+      if segments_count != Utils::Quran.total_ayahs
         segments = db.execute("SELECT surah_number, ayah_number FROM #{table_name} WHERE reciter = ?", recitation.id)
         missing_ayahs = Verse.pluck(:verse_key) - segments.map { |row| "#{row[0]}:#{row[1]}" }
 

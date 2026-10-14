@@ -3,10 +3,11 @@
   pages = (local_assigns[:pages] || font_ids(verses)).map(&:to_i)
   font_cdn = "https://static-cdn.tarteel.ai/qul/fonts"
   asset_version = "3.1"
+  glyph_pages = Script.glyph_pages_count # the per-page faces exist for the Hafs glyph mushafs only (P7.1)
   %>
 
   <% pages.each do |i| %>
-  <% if i>=1 && i <= 604 %>
+  <% if i>=1 && i <= glyph_pages %>
   @font-face {
       font-family: 'p<%= i %>-v2';
       src: local(QCF200<%=i%>),

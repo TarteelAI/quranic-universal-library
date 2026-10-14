@@ -48,7 +48,7 @@
       actions << link_to('Previous page', translation_proofreading_path(previous_ayah.id, @presenter.link_params(view_type: params[:view_type])), class: 'btn btn-dark')
     end
 
-    if page < @presenter.pages_count # the selected mushaf's page count (P6.5); 604 for Hafs
+    if page < @presenter.pages_count # the selected mushaf's page count (P6.5); the Hafs fallback otherwise
       next_ayah = Verse.where(page_number: page + 1).order('verse_index ASC').first
 
       actions << link_to('Next page', translation_proofreading_path(next_ayah.id, @presenter.link_params(view_type: params[:view_type])), class: 'btn btn-dark')

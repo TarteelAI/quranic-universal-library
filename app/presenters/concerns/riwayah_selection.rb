@@ -32,7 +32,7 @@ module RiwayahSelection
   end
 
   def pages_count
-    riwayah_mushaf&.pages_count || 604
+    riwayah_mushaf&.pages_count || Mushaf::FALLBACK_PAGES_COUNT
   end
 
   def font_class

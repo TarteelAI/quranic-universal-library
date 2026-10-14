@@ -106,7 +106,7 @@ module Audio
         segments = segments.where(audio_file_id: audio_file.id)
         verses_count = audio_file.chapter.verses_count
       else
-        verses_count = 6236
+        verses_count = Utils::Quran.total_ayahs # Kufi, see Recitation#validate_segments_data
       end
 
       Audio::SegmentValidator.new(segments, expected_verses_count: verses_count).validate

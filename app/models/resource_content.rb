@@ -888,9 +888,9 @@ class ResourceContent < QuranApiRecord
     translations = Translation.where(resource_content_id: id)
     issues = []
 
-    if !(6236 - translations.size).zero?
-      issues.push("#{6236 - translations.size} missing translation record for (#{id} - #{name})")
-    end
+    expected = Utils::Quran.total_ayahs # translations are keyed by Kufi verse; overrides (riwayah_id) are extra rows, not counted
+    missing = expected - translations.shared.size
+    issues.push("#{missing} missing translation record for (#{id} - #{name})") unless missing.zero?
 
     if (missing_text = translations.where(text: [nil, ''])).any?
       issues.push "#{missing_text.size} translation with missing text(#{id} - #{name})"

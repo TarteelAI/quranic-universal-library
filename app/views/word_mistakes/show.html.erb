@@ -11,7 +11,7 @@
       <% if page_number > 1 %>
         <%= link_to "Previous Page", mistake_heatmap_path(page_number: page_number - 1), class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" %>
       <% end %>
-      <% if page_number < 604 %>
+      <% if page_number < @presenter.mushaf.pages_count %>
         <%= link_to "Next Page", mistake_heatmap_path(page_number: page_number + 1), class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" %>
       <% end %>
       <%= link_to "Edit Mistakes", edit_mistake_heatmap_path(page_number: page_number), class: "btn btn-success" %>

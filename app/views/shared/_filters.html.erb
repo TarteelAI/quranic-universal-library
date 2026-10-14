@@ -27,7 +27,7 @@
 
 <% if filter_page %>
   <div class="mb-4 me-2">
-    <%= select_tag :filter_page, options_for_select(1..(local_assigns[:pages_count] || 604), params[:filter_page]), include_blank: true, class: 'w-full sm:w-44 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all', id: 'page-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
+    <%= select_tag :filter_page, options_for_select(1..(local_assigns[:pages_count] || Mushaf::FALLBACK_PAGES_COUNT), params[:filter_page]), include_blank: true, class: 'w-full sm:w-44 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all', id: 'page-select', data: { placeholder: 'Filter by page', controller: 'select2' } %>
     <p class="text-xs text-slate-500 mt-1">Filter by Page</p>
   </div>
 <% end %>

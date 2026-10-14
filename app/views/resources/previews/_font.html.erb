@@ -32,7 +32,8 @@
   # directory recorded in the meta. Their font-face is stored as "p1-v1".
   page_based_font = font_face.to_s.match?(/\Ap\d+-v/)
   page_number = nil
-  total_pages = 604
+  # the glyph script whose faces these are (font_css_class "p{page}-v1"), and the page count of its mushafs
+  total_pages = (page_based_font && Script.glyph.find_by(font_css_class: font_face.to_s.sub(/\Ap\d+/, 'p{page}'))&.mushafs&.maximum(:pages_count)) || Script.glyph_pages_count
 
   if page_based_font
     page_number = params[:page].to_s.delete('^0-9').to_i

@@ -49,7 +49,7 @@ class Recitation < QuranApiRecord
   end
 
   def missing_audio_files?
-    audio_files.size < 6236
+    audio_files.size < Utils::Quran.total_ayahs
   end
 
   def audio_format
@@ -73,7 +73,7 @@ class Recitation < QuranApiRecord
       verses_count = chapter.verses_count
     else
       files = audio_files
-      verses_count = 6236
+      verses_count = Utils::Quran.total_ayahs # audio files are keyed by Kufi verse until P7.3 puts recitations on their riwayah's numbering
     end
 
     files = files.includes(:verse)

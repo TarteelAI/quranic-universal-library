@@ -82,6 +82,8 @@ namespace :qiraat do
       write.call('counting_systems', CountingSystem.order(:id).to_a)
       write.call('qiraat', Qiraah.unscoped.order(:id).to_a)
       write.call('riwayat', Riwayah.order(:id).to_a)
+      write.call('scripts', Script.order(:id).to_a)
+      write.call('resource_contents', ResourceContent.where(id: Script.pluck(:word_resource_content_id, :ayah_resource_content_id).flatten.compact).order(:id).to_a)
       write.call('chapters', Chapter.where(id: chapter_ids).order(:id).to_a)
       write.call('verses', verses)
       write.call('words', words)
@@ -148,7 +150,7 @@ namespace :qiraat do
         pinned upstream files in `config/qiraat_sources.yml`. Do not edit by hand; Quranic
         text here is byte-for-byte from the sources.
 
-        * `qul/` — the reference tables (char_types, counting_systems, qiraat, riwayat) in full, plus rows of
+        * `qul/` — the reference tables (char_types, counting_systems, qiraat, riwayat, scripts and the resource_contents they link) in full, plus rows of
           chapters, verses, words, mushaf 5 pages and words for the slice
           verses: #{SLICE_VERSE_KEYS.join(', ')}
         * `upstream/` — the matching rows of quran-text `word-index.csv`, `ayah-map.json`,

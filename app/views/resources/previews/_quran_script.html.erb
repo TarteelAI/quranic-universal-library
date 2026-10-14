@@ -8,8 +8,10 @@
   is_image = text_type.to_s.include?('image')
   is_qirat = resource_content.meta_value('qirat').present?
 
+  qul_script = Script.for_resource_content(resource_content)
+
   if is_qirat
-    script_class = resource_content.meta_value('font-face') || text_type
+    script_class = qul_script&.font_css_class || resource_content.meta_value('font-face') || text_type
 
     if by_word
       qirat_words = QuranScript::ByWord

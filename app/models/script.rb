@@ -58,6 +58,12 @@ class Script < QuranApiRecord
     %w[riwayah mushafs]
   end
 
+  # The script a published quran-script resource belongs to (either side).
+  def self.for_resource_content(resource_content)
+    rc_id = resource_content.respond_to?(:id) ? resource_content.id : resource_content
+    where(word_resource_content_id: rc_id).or(where(ayah_resource_content_id: rc_id)).first
+  end
+
   def self.find_by_column(column_name)
     column_backed.find_by(column_name: column_name.to_s)
   end

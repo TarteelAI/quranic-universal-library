@@ -51,7 +51,17 @@ module Exporter
 
     protected
 
+    def script
+      @script ||= Script.for_resource_content(@resource_content)
+    end
+
+    # Ayah-level export of a row-backed script needs the riwayah's numbering
+    # (ayah_texts, phase 4); until then only legacy rows export here.
     def verses
+      if script&.rows?
+        raise NotImplementedError, "#{script.slug} is row-backed; ayah-level export needs ayah_texts (phase 4)"
+      end
+
       QuranScript::ByVerse
         .where(resource_content_id: @resource_content.id)
         .order('chapter_id asc, verse_number asc')

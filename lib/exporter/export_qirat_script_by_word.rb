@@ -52,24 +52,38 @@ module Exporter
 
     protected
 
+    # Source selection through scripts (P3.7): a row-backed script exports its
+    # word_texts keyed by the Kufi word location and the shared number; a legacy
+    # script (or a resource with no script row) exports the raw legacy rows.
+    def script
+      @script ||= Script.for_resource_content(@resource_content)
+    end
+
     def words
-      QuranScript::ByWord
-        .where(resource_content_id: @resource_content.id)
-        .order('chapter_id asc, verse_number asc, word_number asc')
-        .in_batches(of: 1000)
+      if script&.rows?
+        WordText.where(script_id: script.id)
+                .joins(:word).merge(Word.unscoped.order(:verse_id, :position, :sub_position))
+                .includes(:word)
+                .in_batches(of: 1000)
+      else
+        QuranScript::ByWord
+          .where(resource_content_id: @resource_content.id)
+          .order('chapter_id asc, verse_number asc, word_number asc')
+          .in_batches(of: 1000)
+      end
     end
 
     def export_word(word, statement)
-      statement.execute(
-        [
-          word.id,
-          word.key,
-          word.chapter_id,
-          word.verse_number,
-          word.word_number,
-          word.text
-        ]
-      )
+      statement.execute(word_row(word))
+    end
+
+    def word_row(word)
+      if word.is_a?(WordText)
+        w = word.word
+        [w.id, w.location, w.chapter_id, w.verse.verse_number, w.position, word.text]
+      else
+        [word.id, word.key, word.chapter_id, word.verse_number, word.word_number, word.text]
+      end
     end
 
     def words_table_columns

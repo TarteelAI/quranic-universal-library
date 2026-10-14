@@ -109,16 +109,10 @@
                 <% @verses.each do |verse| %>
                   <div class="verse" data-verse="<%= verse.id %>">
                     <span class="word-group"> <%= verse.verse_key %></span>
-                    <% verse.words.order('position ASC').each_with_index do |word, i| %>
-                      <%
-                        word_position = @words.detect do |w|
-                          w.word_id == word.id
-                        end
-                      %>
-
-                      <div class="word word-group" data-word="<%= word.id %>">
+                    <% verse.entries.each_with_index do |entry, i| %>
+                      <div class="word word-group" data-word="<%= entry.key %>">
                         <div class="p<%= page_number %>-<%= @mushaf_page.mushaf.default_font_name %> <%= @mushaf_page.mushaf.default_font_name %>">
-                          <%= word.text_for_mushaf(@mushaf_page.mushaf_id) %>
+                          <%= entry.text %>
                         </div>
 
                         <input
@@ -132,13 +126,13 @@
                           data-key="<%= verse.verse_key %>"
                           data-position="<%= word_index += 1 %>"
                           data-word-position="<%= i %>"
-                          value="<%= word_position&.line_number.to_i %>"
+                          value="<%= entry.line_number.to_i %>"
                           style="min-width: 100px; font-size: 20px; font-weight: bold;"
-                          name="layout[words][<%= word.id %>][line_number]"
+                          name="layout[words][<%= entry.key %>][line_number]"
                           required
                           />
                         <div class="fs-xs text-sm text-gray-600 mt-1">
-                          <%= word.location %>
+                          <%= entry.location %>
                         </div>
                       </div>
                     <% end %>

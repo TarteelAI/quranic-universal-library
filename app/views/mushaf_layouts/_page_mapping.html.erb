@@ -47,8 +47,8 @@
         <% sort_order = params[:sort_order] || 'asc' %>
         <% @mushaf.mushaf_pages.order("#{sort_key} #{sort_order}").each do |page| %>
           <%
-            first_ayah_key = Utils::Quran.get_ayah_key_from_id(page.first_verse_id)
-            last_ayah_key = Utils::Quran.get_ayah_key_from_id(page.last_verse_id)
+            first_ayah_key = page.first_ayah_key # in the mushaf's numbering (P5.5)
+            last_ayah_key = page.last_ayah_key
           %>
           <tr class="hover:bg-gray-200 border-b" data-page-search-target="tableRow" data-page-number="<%= page.page_number %>" data-first-ayah="<%= first_ayah_key %>" data-last-ayah="<%= last_ayah_key %>">
             <td scope="row" class="py-2 pl-2"><%= page.page_number %></td>

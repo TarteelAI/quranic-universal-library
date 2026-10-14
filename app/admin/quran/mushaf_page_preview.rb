@@ -3,7 +3,7 @@
 ActiveAdmin.register_page 'Mushaf Page Preview' do
   action_item :previous_page, group: :page do
     page = params[:page].to_i
-    mushaf_id = params[:mushaf] || 2
+    mushaf_id = params[:mushaf].presence || Mushaf.default_id
     page = page > 1 ? page - 1 : 1
 
     link_to 'Previous page', "/cms/mushaf_page_preview?page=#{page}&mushaf=#{mushaf_id}&compare=#{params['compare']}&mushtabiat=#{params[:mushtabiat]}",
@@ -12,7 +12,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
 
   action_item :next_page, group: :page do
     page = params[:page].to_i
-    mushaf_id = params[:mushaf] || 2
+    mushaf_id = params[:mushaf].presence || Mushaf.default_id
     mushaf = Mushaf.find(mushaf_id)
 
     page = page < mushaf.pages_count ? page + 1 : mushaf.pages_count
@@ -23,7 +23,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
 
   action_item :fix_page do
     page = params[:page].to_i
-    mushaf_id = params[:mushaf] || 2
+    mushaf_id = params[:mushaf].presence || Mushaf.default_id
 
 
     link_to 'Fix page', "/mushaf_layouts/#{mushaf_id}?page_number=#{page}",
@@ -38,18 +38,22 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
     table do
       thead do
         th 'Select Mushaf'
+        th 'Riwayah'
+        th 'Numbering'
         th 'Pages'
         th 'Lines Per page'
       end
 
       tbody do
-        Mushaf.find_each do |mushaf|
+        Mushaf.includes(:riwayah, :numbering).find_each do |mushaf|
           tr do
             td do
               link_to mushaf.name, "/cms/mushaf_page_preview?mushaf=#{mushaf.id}&page=#{page}",
                       class: "#{'text-green-500' if mushaf.id == params['mushaf'].to_i}"
             end
 
+            td mushaf.riwayah&.slug
+            td mushaf.numbering&.slug
             td mushaf.pages_count
             td mushaf.lines_per_page
           end
@@ -95,7 +99,7 @@ ActiveAdmin.register_page 'Mushaf Page Preview' do
       div "Please select a Mushaf to from the sidebar to see the page preview"
     else
       page = params[:page].to_i
-      mushaf_id = (params[:mushaf].presence || Mushaf.find_by(name: 'QCF V1').id).to_i
+      mushaf_id = (params[:mushaf].presence || Mushaf.default_id).to_i
       mushaf = Mushaf.find(mushaf_id)
       compare_with = params['compare'].to_i
 

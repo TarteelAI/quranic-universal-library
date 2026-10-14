@@ -4,11 +4,17 @@
   jump_to_page = local_assigns[:jump_to_page] || 1
   page_url = @resource.get_proofrading_image_url
   img_format = @resource.get_proofrading_image_type
+  # the printed edition the layout is compared against (Mushaf#pdf_url, P5.5): embedded by the
+  # browser's own viewer at the page, so a cross-origin file needs no CORS and nothing is fetched here
+  print_pdf_url = local_assigns.fetch(:print_pdf_url) { @mushaf&.pdf_url }
+  print_pdf_url = nil unless print_pdf_url.to_s.match?(/\.pdf\z/i) # legacy mushafs name a zip or a web page there
+  print_pdf_url = nil if print_pdf_url.present? && pdf_url.present? && print_pdf_url == pdf_url
 
   views = []
   views << :image if page_url.present?
   views << :archive if archive_url.present?
   views << :pdf if pdf_url.present?
+  views << :print if print_pdf_url.present?
 
   default_view = views.first
 %>
@@ -38,6 +44,14 @@
                   class="btn btn-outline <%= 'active' if default_view == :pdf %>"
                   data-view="pdf">
             PDF View
+          </button>
+        <% end %>
+
+        <% if print_pdf_url.present? %>
+          <button type="button"
+                  class="btn btn-outline <%= 'active' if default_view == :print %>"
+                  data-view="print">
+            Print PDF
           </button>
         <% end %>
       </div>
@@ -98,6 +112,24 @@
               <canvas id="pdf-canvas"></canvas>
             </div>
           </div>
+        </div>
+      </div>
+    <% end %>
+
+    <% if print_pdf_url.present? %>
+      <div class="proofreading-container overflow-auto h-full flex flex-col <%= 'active' if default_view == :print %>"
+           data-view-type="print">
+        <div class="text-xs text-gray-600 px-2 py-1">
+          Printed edition, PDF page <%= jump_to_page %> &middot; <%= link_to 'open', "#{print_pdf_url}#page=#{jump_to_page}", target: '_blank', rel: 'noopener' %>
+        </div>
+        <div class="iframe-container flex-1">
+          <iframe
+            src="<%= print_pdf_url %>#page=<%= jump_to_page %>&view=FitH"
+            loading="lazy"
+            title="Printed edition page <%= jump_to_page %>"
+            frameborder="0"
+            class="w-full h-full">
+          </iframe>
         </div>
       </div>
     <% end %>

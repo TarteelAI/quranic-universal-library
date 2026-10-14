@@ -130,3 +130,10 @@ sources:
     - path: quran-dev/uthmanic-sousi/UthmanicSousi_v2-0 data/SousiData_v2-0.csv
       sha256: '08a141798ffacce3070a0b99b2eecc56421eea44eb5f053a3c105ca0fcdbb68d'
       size_bytes: 1740646
+  quran-svg:
+    repo: https://github.com/quran-ws/quran-svg
+    ref: b4155f07e4aea087d2c458069acff9f7c7e749f6
+    ref_date: '2026-09-15'
+    licence: CC-BY-4.0 (polygon layer, per-page JSON); page artwork KFGQPC
+    fetch: sparse clone by rake qiraat:svg:fetch (mushafs/<hafs|warsh|qalon|douri|shubah>/kfqc/json), not by rake qiraat:fetch
+    cdn: https://cdn.quran.ws/svg/pages/v1.1.1/<edition>-kfqc/NNN.json (the same files, version folder v1.1.1)

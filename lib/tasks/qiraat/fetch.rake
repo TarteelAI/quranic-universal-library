@@ -40,6 +40,8 @@ namespace :qiraat do
     qiraat_sources['sources'].each do |key, src|
       next if only && key != only
 
+      next unless src['files'] # quran-svg is a sparse clone (rake qiraat:svg:fetch), not a file list
+
       src['files'].each do |file|
         local = UPSTREAM_DIR.join(key, file['path'])
         url = src['base_url'].sub('{ref}', src['ref'].to_s) + file['path'].split('/').map { |s| URI::DEFAULT_PARSER.escape(s) }.join('/')
@@ -80,7 +82,7 @@ namespace :qiraat do
     qiraat_each_file(args[:only]) do |key, _src, file, local, url|
       qiraat_download(url, local) unless File.exist?(local)
       sha = qiraat_sha256(local)
-      entry = data['sources'][key]['files'].find { |f| f['path'] == file['path'] }
+      entry = (data['sources'][key]['files'] || []).find { |f| f['path'] == file['path'] }
       entry['sha256'] = sha
       entry['size_bytes'] = File.size(local)
       puts "#{key}/#{file['path']} #{sha[0, 12]} #{File.size(local)}"

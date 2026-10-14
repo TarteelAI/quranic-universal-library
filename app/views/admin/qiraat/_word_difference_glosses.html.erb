@@ -1,0 +1,52 @@
+<%# P6.3: per WBW resource, the shared gloss of the word and an override per spelling group %>
+<% difference = resource %>
+<% groups = difference.spelling_groups %>
+<% resources = WordTranslation.shared.where(word_id: difference.word_id).includes(:resource_content).map(&:resource_content).compact.sort_by(&:id) %>
+<% if resources.empty? %>
+  <p class="muted">No word-by-word resource has a gloss for this word.</p>
+<% else %>
+  <p class="muted">
+    The shared gloss is what every riwayah reads. An override replaces it for the riwayat of one spelling only;
+    Hafs always reads the shared gloss (edit it on the word's translations).
+  </p>
+  <% resources.each do |rc| %>
+    <% service = Qiraat::GlossOverride.new(difference, rc) %>
+    <% shared = service.shared %>
+    <% overrides = service.overrides %>
+    <div class="gloss-resource" id="gloss-resource-<%= rc.id %>" style="margin: 0 0 1.5em; padding: 0.75em; border: 1px solid #ddd; border-radius: 4px">
+      <h4 style="margin: 0 0 0.5em"><%= link_to rc.name, [:cms, rc] %> <span class="muted">(<%= rc.language_name %>, #<%= rc.id %>)</span></h4>
+      <div style="margin-bottom: 0.5em">Shared gloss: <strong class="<%= rc.language_name %>"><%= shared&.text %></strong>
+        <% if shared %><%= link_to 'edit', [:cms, shared], class: 'muted', style: 'margin-left: 0.5em' %><% end %></div>
+      <table style="width: 100%">
+        <thead><tr><th>Spelling</th><th>Riwayat</th><th>Override</th><th></th></tr></thead>
+        <tbody>
+        <% groups.each_with_index do |(text, slugs), index| %>
+          <% targets = (slugs - ['hafs']).sort %>
+          <% current = targets.map { |s| overrides[s]&.text }.compact.uniq %>
+          <tr id="gloss-group-<%= rc.id %>-<%= index %>">
+            <td><div class="quran-text <%= font_for_riwayah(slugs.first) %>" style="font-size: 1.8em; direction: rtl"><%= text %></div></td>
+            <td>
+              <% slugs.each do |s| %>
+                <div><%= s %><% if s == 'hafs' %> <span class="muted">(shared gloss)</span><% elsif overrides[s] %> <span class="muted">→ <%= overrides[s].text %></span>
+                  <%= link_to 'remove', remove_override_cms_word_difference_path(difference, resource_content_id: rc.id, riwayah_id: overrides[s].riwayah_id), data: { method: :delete, confirm: "Remove the #{s} override?" }, class: 'muted', style: 'margin-left: 0.3em' %><% end %></div>
+              <% end %>
+            </td>
+            <td colspan="2">
+              <% if targets.empty? %>
+                <span class="muted">Hafs reads the shared gloss</span>
+              <% else %>
+                <%= form_tag override_cms_word_difference_path(difference), method: :post, data: { turbo: false }, style: 'display: flex; gap: 0.5em; align-items: center' do %>
+                  <%= hidden_field_tag :resource_content_id, rc.id, id: nil %>
+                  <%= hidden_field_tag :group, index, id: nil %>
+                  <%= text_field_tag :text, current.size == 1 ? current.first : nil, placeholder: 'gloss for this spelling', class: rc.language_name.to_s, style: 'flex: 1', id: nil %>
+                  <%= submit_tag "Apply to #{targets.join(', ')}", class: 'btn btn-sm', data: { disable_with: '…' } %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+<% end %>

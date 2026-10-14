@@ -1,3 +1,4 @@
+require 'csv'
 # Imports from the pinned upstream files (rake qiraat:fetch first).
 #
 #   DRY_RUN=1 rake qiraat:import:script[warsh]   # report only
@@ -78,12 +79,13 @@ namespace :qiraat do
       r.each { |slug, s| puts format('  %-16s %s', slug, s[:error] || "numbering=#{s[:numbering]} ayahs=#{s[:ayahs]} empty=#{s[:empty]}") }
     end
 
-    desc 'Import quran-text differences.json into word_differences'
+    desc 'Import quran-text differences.json (+ the dotting variants of word-index.csv) into word_differences'
     task word_differences: :environment do
       path = UPSTREAM_TEXT.join('differences.json')
-      abort "#{path} missing; run rake qiraat:fetch" unless path.exist?
+      index = UPSTREAM_TEXT.join('word-index.csv')
+      abort "#{path} missing; run rake qiraat:fetch" unless path.exist? && index.exist?
       dry = ENV['DRY_RUN'].present?
-      r = Qiraat::Import::WordDifferences.new(path: path, dry_run: dry).call
+      r = Qiraat::Import::WordDifferences.new(path: path, word_index_path: index, dry_run: dry).call
       puts "word_differences#{dry ? ' (DRY RUN)' : ''}: in file #{r[:in_file]}, rows #{r[:rows]}, merged onto one QUL row #{r[:merged].inspect}, unmapped #{r[:unmapped].inspect}, deleted #{r[:deleted]}"
       r[:by_status].sort.each { |st, n| puts format('  %-16s %d', st, n) }
       abort('unmapped numbers') if r[:unmapped].any?
@@ -187,8 +189,13 @@ namespace :qiraat do
         failed << name unless ok
         puts format('  %-44s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
       end
-      check.call('rows = file entries - merged pair', WordDifference.count, data['count'] - 1)
+      dotting = CSV.foreach(Rails.root.join('tmp', 'qiraat', 'upstream', 'quran-text', 'data', 'word-index.csv'), headers: true).count { |r| r['status'] == 'dotting_variant' }
+      check.call('rows = file entries - merged pair + dotting variants', WordDifference.count, data['count'] - 1 + dotting)
       by_status.each { |st, n| check.call("status #{st}", WordDifference.where(status: st).count, st == 'word_boundary' ? n - 1 : n) }
+      check.call('status dotting_variant (word-index.csv)', WordDifference.where(status: 'dotting_variant').count, dotting)
+      malik = WordDifference.find_by(word_id: Word.unscoped.find_by(location: '1:4:1')&.id)
+      check.call('1:4:1 (malik/maalik) riwayat per spelling', malik&.spelling_groups&.map { |_t, s| s.sort }, [%w[hafs shuba], %w[bazzi duri qalun warsh], ['susi']])
+      check.call('1:4:1 Warsh form is the Warsh word_texts form', malik&.form_for('warsh'), Word.unscoped.find_by(location: '1:4:1')&.text_for(Script.find_by(slug: 'qpc-warsh')))
       check.call('25685 missing in hafs', WordDifference.find_by(word_id: Word.unscoped.find_by(number: 25_685)&.id)&.missing&.include?('hafs'), true)
       check.call('60522 missing in five', WordDifference.find_by(word_id: Word.unscoped.find_by(location: '40:26:13')&.id)&.missing&.sort, %w[bazzi duri qalun susi warsh])
       check.call('every row has a known status', WordDifference.where.not(status: WordDifference::STATUSES).count, 0)

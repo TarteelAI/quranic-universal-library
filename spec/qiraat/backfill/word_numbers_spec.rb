@@ -10,6 +10,7 @@ RSpec.describe Qiraat::Backfill::WordNumbers do
   end
 
   it 'reports without writing on a dry run' do
+    Word.unscoped.update_all(number: nil, number_last: nil) # the slice ships with numbers already set
     report = described_class.new(csv_path: csv, dry_run: true, logger: nil).call
     expect(report[:numbered]).to be > 100
     expect(report[:written]).to eq(0)

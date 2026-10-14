@@ -17,6 +17,7 @@ module QiraatFixtures
   # are not in the slice). Each model is cleared, then inserted with its
   # original ids, and the id sequence is moved past the highest id.
   QUL_TABLES = [
+    ['char_types', -> { CharType }],
     ['counting_systems', -> { CountingSystem }],
     ['qiraat', -> { Qiraah }],
     ['riwayat', -> { Riwayah }],

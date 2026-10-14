@@ -452,6 +452,45 @@
     },
     {
       "surah": 9,
+      "ayah": 100,
+      "hafs": {
+        "surah": 9,
+        "ayah": 100,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 9,
+        "ayah": 100,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "merged"
+      },
+      "qalun": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 9,
       "ayah": 101,
       "hafs": {
         "surah": 9,

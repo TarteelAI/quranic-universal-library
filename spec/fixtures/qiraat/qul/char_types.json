@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "name": "word",
+    "parent_id": 2,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 2,
+    "name": "ayah",
+    "parent_id": null,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 3,
+    "name": "end",
+    "parent_id": 2,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 4,
+    "name": "pause",
+    "parent_id": 2,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 5,
+    "name": "rub-el-hizb",
+    "parent_id": 2,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 6,
+    "name": "sajdah",
+    "parent_id": 2,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 7,
+    "name": "sura",
+    "parent_id": 8,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 8,
+    "name": "label-title",
+    "parent_id": null,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 9,
+    "name": "juz",
+    "parent_id": 8,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 10,
+    "name": "header-box",
+    "parent_id": 11,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 11,
+    "name": "ornament",
+    "parent_id": null,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 12,
+    "name": "side-box-half",
+    "parent_id": 11,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 13,
+    "name": "side-box-full",
+    "parent_id": 11,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 14,
+    "name": "bismillah",
+    "parent_id": null,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 15,
+    "name": "bismillah-simple",
+    "parent_id": 14,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 16,
+    "name": "bismillah-default",
+    "parent_id": 14,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 17,
+    "name": "wajib",
+    "parent_id": 6,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  },
+  {
+    "id": 18,
+    "name": "musta7ib",
+    "parent_id": 6,
+    "description": null,
+    "created_at": "2017-02-20 16:06:39 UTC",
+    "updated_at": "2017-02-20 16:06:39 UTC"
+  }
+]

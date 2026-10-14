@@ -99,6 +99,28 @@ module ResourcesHelper
         stats: "<div><div>Indopak</div><div>Madani</div></div>"
       ),
 
+      riwayah_text: ToolCard.new(
+        title: 'Riwayah text',
+        description: 'Download the Quran text of the other riwayat (Warsh, Qalun, Shuʿbah, Duri, Susi, Bazzi) ayah by ayah in each riwayah\'s own numbering and word by word by shared word number, with the Kufi keys beside them.',
+        url: '/resources/riwayah-text',
+        type: 'riwayah-text',
+        icon: 'bismillah.svg',
+        list_icon: 'font.svg',
+        count: DownloadableResource.riwayah_text.published.count,
+        stats: "<div><div>#{Script.row_backed.count} editions</div><div>JSON and SQLite</div></div>"
+      ),
+
+      ayah_numbering: ToolCard.new(
+        title: 'Ayah numbering map',
+        description: 'Download the map from every Kufi (Hafs) verse to its ayah under the other counting systems and printed editions, with the relation (same, shifted, merged, split, unnumbered).',
+        url: '/resources/ayah-numbering',
+        type: 'ayah-numbering',
+        icon: 'bismillah.svg',
+        list_icon: 'page.svg',
+        count: DownloadableResource.ayah_numbering.published.count,
+        stats: "<div><div>#{AyahNumbering.count} numberings</div><div>JSON and CSV</div></div>"
+      ),
+
       quran_metadata: ToolCard.new(
         title: "Quran metadata",
         description: "Download Quran metadata, surah, ayah, juz, hizb, rub, manzil etc.",

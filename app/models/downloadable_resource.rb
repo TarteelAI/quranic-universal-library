@@ -35,6 +35,8 @@ class DownloadableResource < ApplicationRecord
 
   scope :published, -> { where published: true }
   scope :quran_script, -> { where resource_type: 'quran-script' }
+  scope :riwayah_text, -> { where resource_type: 'riwayah-text' } # a riwayah's quran-text edition, ayah by ayah and word by word (P7.4)
+  scope :ayah_numbering, -> { where resource_type: 'ayah-numbering' } # the ayah numbering map (P7.4)
 
   RESOURCE_TYPES = %w[
     quran-script
@@ -51,6 +53,8 @@ class DownloadableResource < ApplicationRecord
     morphology
     quran-metadata
     font
+    riwayah-text
+    ayah-numbering
   ].freeze
 
   delegate :one_ayah?, :one_word?, :chapter?, to: :resource_content
@@ -165,6 +169,10 @@ class DownloadableResource < ApplicationRecord
       s.export_quran_metadata(resource_content: resource_content)
     when 'font'
       s.export_fonts(resource_content: resource_content)
+    when 'riwayah-text'
+      s.export_riwayah_text(script: Script.find_by(id: resource_content.resource_id))
+    when 'ayah-numbering'
+      s.export_ayah_numbering_map
     end
 
     notify_users if send_update_email

@@ -32,6 +32,65 @@ module Exporter
       export_mutashabihat
       export_quranic_morphology_data
       export_fonts
+      export_riwayah_text
+      export_ayah_numbering_map
+    end
+
+    # The quran-text edition of each row-backed script (P7.4): ayah by ayah
+    # in the riwayah's numbering and word by word by shared number, JSON and
+    # SQLite, each archive with a README (licence from the script row).
+    # Published only when the script is enabled; the resource content is the
+    # script's own quran-script row, created on first export.
+    def export_riwayah_text(script: nil)
+      base_path = 'tmp/export/riwayah_text'
+      FileUtils.mkdir_p(base_path)
+      scripts = script ? [script] : Script.row_backed.includes(:riwayah).order(:id).to_a
+
+      scripts.each do |s|
+        content = riwayah_text_resource_content(s)
+        exporter = Exporter::ExportRiwayahText.new(script: s, base_path: base_path)
+
+        downloadable_resource = DownloadableResource.where(
+          resource_content: content,
+          resource_type: 'riwayah-text',
+          cardinality_type: ResourceContent::CardinalityType::OneVerse
+        ).first_or_initialize
+        downloadable_resource.name ||= "#{s.name} (#{s.riwayah&.name})"
+        downloadable_resource.slug ||= "#{s.slug}-text"
+        downloadable_resource.info ||= "#{s.riwayah&.name} reading, #{s.source_package}. #{s.licence}"
+        downloadable_resource.published = s.enabled
+        downloadable_resource = set_tags(downloadable_resource, ['Quran text', s.riwayah&.name, s.font_family].compact)
+
+        Exporter::ExportRiwayahText::LEVELS.each do |level|
+          Exporter::ExportRiwayahText::FORMATS.each do |format|
+            dir = exporter.export(level, format)
+            create_download_file(downloadable_resource, dir, "#{level}-#{format}", "#{s.slug}-#{level}.#{format}")
+          end
+        end
+        downloadable_resource.update_columns(published: s.enabled)
+      end
+    end
+
+    # The ayah numbering map (P7.4): JSON and CSV, one resource.
+    def export_ayah_numbering_map
+      base_path = 'tmp/export/ayah_numbering'
+      FileUtils.mkdir_p(base_path)
+      content = ResourceContent.find_or_initialize_by(slug: 'ayah-numbering-map')
+      if content.new_record?
+        content.assign_attributes(name: 'Ayah numbering map', sub_type: ResourceContent::SubType::MetaData, cardinality_type: ResourceContent::CardinalityType::OneVerse,
+                                  resource_type: 'AyahNumbering', approved: true, meta_data: { 'source' => 'quran-text ayah-map / ayah_mappings' })
+        content.save!(validate: false)
+      end
+      exporter = Exporter::ExportAyahNumberingMap.new(base_path: base_path)
+      downloadable_resource = DownloadableResource.where(resource_content: content, resource_type: 'ayah-numbering', cardinality_type: ResourceContent::CardinalityType::OneVerse).first_or_initialize
+      downloadable_resource.name ||= 'Ayah numbering map (all riwayat)'
+      downloadable_resource.slug ||= 'ayah-numbering-map'
+      downloadable_resource.info ||= "Every Kufi verse mapped to its ayah in #{exporter.numberings.map(&:slug).join(', ')}. CC BY 4.0 (quran-text, qiraat-ayah-map)."
+      downloadable_resource = set_tags(downloadable_resource, ['Quran metadata', 'Ayah numbering'])
+      %w[json csv].each do |format|
+        dir = exporter.export(format)
+        create_download_file(downloadable_resource, dir, format, "ayah-numbering-map.#{format}")
+      end
     end
 
     def export_fonts(resource_content: nil)
@@ -852,6 +911,18 @@ module Exporter
     end
 
     protected
+
+    # the quran-script resource row of a row-backed script, created on first export (P7.4)
+    def riwayah_text_resource_content(script)
+      rc = ResourceContent.find_or_initialize_by(slug: "#{script.slug}-text")
+      if rc.new_record?
+        rc.assign_attributes(name: "#{script.name} text", sub_type: ResourceContent::SubType::QuranText, cardinality_type: ResourceContent::CardinalityType::OneVerse,
+                             resource_type: 'Script', resource_id: script.id, approved: script.enabled, meta_data: { 'script' => script.slug, 'riwayah' => script.riwayah&.slug })
+        rc.save!(validate: false)
+      end
+      script.update_columns(ayah_resource_content_id: rc.id) if script.ayah_resource_content_id.nil?
+      rc
+    end
 
     def quran_script_tags(content)
       tags = ['Quran text']

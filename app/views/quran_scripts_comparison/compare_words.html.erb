@@ -5,6 +5,8 @@
 
 <% if !@presenter.script_type_selected? %>
   <%= render 'script_selection' %>
+<% elsif @presenter.riwayah_comparison? %>
+  <%= render 'riwayah_comparison' %>
 <% elsif @presenter.char.blank? %>
   <%= render 'charset_selection' %>
 <% else %>

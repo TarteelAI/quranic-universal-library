@@ -1,0 +1,105 @@
+<%# P7.2: two scripts side by side for one surah, with the words whose spelling separates their riwayat %>
+<%
+  a = @presenter.script_a
+  b = @presenter.script_b
+  chapter = @presenter.chapter
+  ayahs = @presenter.ayahs
+  keys_a = @presenter.ayah_keys_for(a, ayahs)
+  keys_b = @presenter.ayah_keys_for(b, ayahs)
+  differing = @presenter.differing_words
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <a href="<%= compare_words_quran_scripts_comparison_path %>" class="text-blue-600 hover:underline mb-4 inline-block">← Back to Script Type Selection</a>
+
+    <%= form_tag compare_words_quran_scripts_comparison_path, method: :get, id: 'riwayah-comparison-form' do %>
+      <%= hidden_field_tag :script_type, 'riwayah' %>
+      <div class="flex flex-wrap gap-3 items-end">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1" for="script_a">Script A</label>
+          <%= select_tag :script_a, options_for_select(@presenter.comparable_scripts.map { |s| ["#{s.name} (#{s.riwayah&.name})#{s.enabled ? '' : ' — unpublished'}", s.slug] }, a&.slug), class: 'form-select w-[85vw] sm:w-[280px]' %>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1" for="script_b">Script B</label>
+          <%= select_tag :script_b, options_for_select(@presenter.comparable_scripts.map { |s| ["#{s.name} (#{s.riwayah&.name})#{s.enabled ? '' : ' — unpublished'}", s.slug] }, b&.slug), class: 'form-select w-[85vw] sm:w-[280px]' %>
+        </div>
+        <div data-controller="chapter-verses-filter" class="flex flex-wrap gap-2">
+          <%= render 'shared/filters' %>
+        </div>
+        <div class="mb-4"><%= submit_tag 'Compare', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %></div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2 class="text-2xl mb-2">Surah <%= chapter.chapter_number %> <%= chapter.name_simple %>: <%= a.name %> vs <%= b.name %></h2>
+    <% if @presenter.same_riwayah? %>
+      <p class="text-gray-600 mb-3">Both scripts carry the <%= a.riwayah&.name %> reading: the differences below are typographic only.</p>
+    <% else %>
+      <p class="text-gray-600 mb-3"><%= a.riwayah&.name %> against <%= b.riwayah&.name %>. Ayahs follow the Kufi (Hafs) division; the key each riwayah prints is shown beside it where it differs.</p>
+    <% end %>
+
+    <div class="tools-table-overflow">
+      <table class="w-full" id="side-by-side">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="px-3 py-2 text-left w-24">Ayah</th>
+          <th class="px-3 py-2 text-right"><%= a.name %></th>
+          <th class="px-3 py-2 text-right"><%= b.name %></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% ayahs.each do |verse| %>
+          <tr class="border-b hover:bg-gray-50 align-top" id="ayah-<%= verse.verse_key.tr(':', '-') %>">
+            <td class="px-3 py-2 text-sm text-gray-600">
+              <%= verse.verse_key %>
+              <% if (ka = keys_a[verse.id]).present? && ka != [verse.verse_key] %><div class="text-xs"><%= a.riwayah&.name %> <%= ka.join(', ') %></div><% end %>
+              <% if (kb = keys_b[verse.id]).present? && kb != [verse.verse_key] %><div class="text-xs"><%= b.riwayah&.name %> <%= kb.join(', ') %></div><% end %>
+            </td>
+            <td class="px-3 py-2 text-2xl <%= a.font_css_class %>" dir="rtl"><%= @presenter.text_for(verse, a) %></td>
+            <td class="px-3 py-2 text-2xl <%= b.font_css_class %>" dir="rtl"><%= @presenter.text_for(verse, b) %></td>
+          </tr>
+        <% end %>
+        <tr><td colspan="3"><%= pagination_section @presenter.pagination %></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="page-section mt-6" id="differing-words">
+    <h2 class="text-2xl mb-2">Words that differ between <%= a.riwayah&.name %> and <%= b.riwayah&.name %> in surah <%= chapter.chapter_number %></h2>
+    <% if @presenter.same_riwayah? %>
+      <p class="text-gray-600">Same riwayah on both sides: nothing to list.</p>
+    <% elsif differing.empty? %>
+      <p class="text-gray-600">No word of this surah is spelled or read differently between the two.</p>
+    <% else %>
+      <p class="text-gray-600 mb-3"><%= differing.size %> word<%= 's' unless differing.size == 1 %>, from the word differences (quran-text). Each links to the review queue.</p>
+      <div class="tools-table-overflow">
+        <table class="w-full">
+          <thead class="border-b-2 border-black"><tr>
+            <th class="px-3 py-2 text-left">Word</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-right"><%= a.riwayah&.name %></th>
+            <th class="px-3 py-2 text-right"><%= b.riwayah&.name %></th>
+            <th class="px-3 py-2 text-left">All spellings</th>
+          </tr></thead>
+          <tbody>
+          <% differing.each do |d| %>
+            <tr class="border-b hover:bg-gray-50" id="diff-<%= d.word_id %>">
+              <td class="px-3 py-2"><%= link_to d.word.location, cms_word_difference_path(d), target: '_blank', class: 'text-blue-700 hover:underline' %></td>
+              <td class="px-3 py-2 text-sm"><%= d.status.humanize.downcase %><% if d.meaning_may_differ? %> <span class="text-amber-700">· meaning may differ</span><% end %></td>
+              <td class="px-3 py-2 text-2xl <%= a.font_css_class %>" dir="rtl"><%= d.form_for(a.riwayah.slug) || '—' %></td>
+              <td class="px-3 py-2 text-2xl <%= b.font_css_class %>" dir="rtl"><%= d.form_for(b.riwayah.slug) || '—' %></td>
+              <td class="px-3 py-2 text-sm text-gray-600">
+                <% d.spelling_groups.each do |text, slugs| %><div><span class="qpc-hafs text-lg" dir="rtl"><%= text %></span> <%= slugs.join(', ') %></div><% end %>
+                <% if d.missing.any? %><div>not read by <%= d.missing.join(', ') %></div><% end %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>

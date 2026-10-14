@@ -27,11 +27,13 @@ class AyahMapping < QuranApiRecord
 
   validates :relation, inclusion: { in: NumberedAyah::RELATIONS }
 
-  # Every numbered ayah the Kufi verse lands on, in order (one, or the split range).
+  # Every numbered ayah the Kufi verse lands on, in order (one, or the split
+  # range). One query: a numbering's rows are inserted in ayah order, so the
+  # ids between ayah_id and ayah_last_id are exactly the split range.
   def ayahs
     return [ayah] unless ayah_last_id
 
-    NumberedAyah.where(numbering_id: numbering_id, chapter_id: ayah.chapter_id, ayah_number: ayah.ayah_number..ayah_last.ayah_number).in_order.to_a
+    NumberedAyah.where(numbering_id: numbering_id, id: ayah_id..ayah_last_id).in_order.to_a
   end
 
   def split?

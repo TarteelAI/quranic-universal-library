@@ -1,0 +1,23 @@
+<%# One word per unicode script in its own font class (P5.4). Text comes from the script's storage, never typed here. %>
+<h2 class="mb-4">Font samples</h2>
+<p class="text-sm text-gray-600 mb-4">Each row renders the same words through <code>Script#font_css_class</code>. A box or a dot in place of a letter means the face the class points at is missing a glyph (the v3.0 Warsh and Qaloun texts need the v3.0 faces).</p>
+<table class="index_table" id="font-samples">
+  <thead>
+    <tr>
+      <th>Script</th>
+      <th>Font class</th>
+      <% @sample_words.each do |w| %><th><%= w.location %></th><% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% @scripts.each do |script| %>
+      <tr id="script-<%= script.slug %>">
+        <td><%= link_to script.slug, cms_script_path(script) %><br><span class="text-xs text-gray-500"><%= script.riwayah&.slug %> · <%= script.storage %></span></td>
+        <td><code><%= script.font_css_class %></code></td>
+        <% @sample_words.each do |w| %>
+          <td class="font-sample" dir="rtl"><span class="<%= script.css_class_for(w) %>" style="font-size: 2.4em; line-height: 2"><%= safe_html(w.text_for(script).presence || '—') %></span></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

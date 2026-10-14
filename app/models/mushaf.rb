@@ -67,8 +67,11 @@ class Mushaf < QuranApiRecord
     mushaf_pages.where.not(first_word_id: nil, last_word_id: nil).count
   end
 
+  # The CSS class of the layout's font. Existing mushafs name it themselves in
+  # default_font_name; a mushaf created on a script without one takes the
+  # script's font class (P5.4).
   def font_code
-    default_font_name
+    default_font_name.presence || script&.font_css_class
   end
 
   def use_images?

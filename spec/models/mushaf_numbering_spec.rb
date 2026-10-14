@@ -36,6 +36,13 @@ RSpec.describe Mushaf, 'numbering and sources (P5.1)' do
     expect(Mushaf.new(id: 999).pdf_url).to be_nil
   end
 
+  it 'takes its font class from default_font_name, else from the script (P5.4)' do
+    expect(mushaf.font_code).to eq('qpc-hafs')
+    mushaf.default_font_name = nil
+    expect(mushaf.font_code).to eq(mushaf.script.font_css_class)
+    expect(Mushaf.new.font_code).to be_nil
+  end
+
   it 'defaults layout_source to manual and validates it' do
     expect(mushaf.layout_source).to eq('manual')
     mushaf.layout_source = 'guessed'

@@ -39,9 +39,9 @@ class Riwayah < QuranApiRecord
   ].freeze
 
   belongs_to :qiraah, optional: true
-  has_many :audio_recitations, class_name: 'Audio::Recitation', foreign_key: :qirat_type_id
-  has_many :verse_recitations, class_name: 'Recitation', foreign_key: :qirat_type_id
-  has_many :mushafs, foreign_key: :qirat_type_id
+  has_many :audio_recitations, class_name: 'Audio::Recitation', foreign_key: :riwayah_id
+  has_many :verse_recitations, class_name: 'Recitation', foreign_key: :riwayah_id
+  has_many :mushafs, foreign_key: :riwayah_id
 
   validates :slug, uniqueness: true, inclusion: { in: SLUGS }, allow_nil: true
   validates :name, presence: true

@@ -21,12 +21,12 @@ ActiveAdmin.register Mushaf do
   filter :enabled
   filter :pages_count
   filter :lines_per_page
-  filter :qirat_type,
+  filter :riwayah,
          as: :searchable_select,
-         ajax: { resource: QiratType }
+         ajax: { resource: Riwayah }
 
   permit_params do
-    %i[name description lines_per_page is_default default_font_name enabled default_font_name qirat_type_id pages_count
+    %i[name description lines_per_page is_default default_font_name enabled default_font_name riwayah_id qirat_type_id pages_count
        resource_content_id]
   end
 
@@ -37,7 +37,7 @@ ActiveAdmin.register Mushaf do
     column :pages_count
     column :enabled
     column :default_font_name
-    column :qirat_type
+    column :riwayah
   end
 
   show do
@@ -45,7 +45,7 @@ ActiveAdmin.register Mushaf do
       row :id
       row :name
       row :description
-      row :qirat_type
+      row :riwayah
       row :resource_content
       row :default_font_name
       row :enabled
@@ -114,9 +114,9 @@ ActiveAdmin.register Mushaf do
       f.input :lines_per_page
       f.input :pages_count
       f.input :default_font_name
-      f.input :qirat_type,
+      f.input :riwayah,
               as: :searchable_select,
-              ajax: { resource: QiratType }
+              ajax: { resource: Riwayah }
 
       f.input :resource_content_id, as: :searchable_select,
               ajax: { resource: ResourceContent }

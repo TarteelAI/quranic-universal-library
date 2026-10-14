@@ -131,6 +131,7 @@ ActiveAdmin.register Recitation do
       recitation_style_id
       resource_content_id
       qirat_type_id
+      riwayah_id
       gapless_recitation_id
       style
       segment_locked
@@ -145,7 +146,7 @@ ActiveAdmin.register Recitation do
     column :approved?, sortable: 'resource_contents.approved'
     column :reciter, sortable: 'reciters.name'
     column :recitation_style
-    column :qirat_type
+    column :riwayah
 
     actions
   end
@@ -156,7 +157,7 @@ ActiveAdmin.register Recitation do
       row :name
       row :relative_path
       row :reciter
-      row :qirat_type
+      row :riwayah
       row :reciter_name
       row :recitation_style do |r|
         link_to r.recitation_style.name, [:cms, r.recitation_style] if r.recitation_style
@@ -220,9 +221,9 @@ ActiveAdmin.register Recitation do
       f.input :recitation_style_id,
               as: :searchable_select,
               ajax: { resource: RecitationStyle }
-      f.input :qirat_type_id,
+      f.input :riwayah_id,
               as: :searchable_select,
-              ajax: { resource: QiratType }
+              ajax: { resource: Riwayah }
       f.input :gapless_recitation_id,
               as: :searchable_select,
               ajax: { resource: Audio::Recitation }

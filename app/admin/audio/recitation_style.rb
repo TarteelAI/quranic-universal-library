@@ -34,7 +34,7 @@ ActiveAdmin.register RecitationStyle do
         end
 
         tbody do
-          resource.verse_recitations.includes(:qirat_type).each do |r|
+          resource.verse_recitations.includes(:riwayah).each do |r|
             tr do
               td link_to(r.id, [:cms, r])
               td r.name
@@ -53,7 +53,7 @@ ActiveAdmin.register RecitationStyle do
         end
 
         tbody do
-          resource.audio_recitations.includes(:qirat_type).each do |r|
+          resource.audio_recitations.includes(:riwayah).each do |r|
             tr do
               td link_to(r.id, [:cms, r])
               td r.name

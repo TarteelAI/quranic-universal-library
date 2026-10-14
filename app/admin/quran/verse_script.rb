@@ -16,7 +16,7 @@ ActiveAdmin.register QuranScript::ByVerse do
          ajax: { resource: Verse }
   filter :qirat_id,
          as: :searchable_select,
-         ajax: { resource: QiratType }
+         ajax: { resource: Riwayah }
   filter :key
   filter :text
 

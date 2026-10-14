@@ -66,7 +66,7 @@ RSpec.describe Qiraat::Seed::Riwayat do
   end
 
   it 'does not delete a legacy row that is still referenced' do
-    Mushaf.update_all(qirat_type_id: 7)
+    Mushaf.update_all(riwayah_id: 7, qirat_type_id: 7)
     described_class.new(dir: dir).call
     expect(Riwayah.find_by(id: 7)&.name).to eq('Test')
   end

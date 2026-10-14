@@ -23,7 +23,8 @@
 class Mushaf < QuranApiRecord
   include Resourceable
 
-  belongs_to :qirat_type, class_name: 'Riwayah'
+  include HasRiwayah
+  validates :riwayah, presence: true # was a required belongs_to :qirat_type
   has_many :mushaf_pages, dependent: :delete_all
   has_many :mushaf_line_alignments, dependent: :delete_all
   has_many :mushaf_words, dependent: :delete_all

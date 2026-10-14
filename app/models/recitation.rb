@@ -29,7 +29,7 @@
 class Recitation < QuranApiRecord
   belongs_to :reciter
   belongs_to :recitation_style
-  belongs_to :qirat_type, class_name: 'Riwayah', optional: true
+  include HasRiwayah
   belongs_to :resource_content, optional: true
   belongs_to :gapless_recitation, class_name: 'Audio::Recitation', optional: true
 
@@ -157,7 +157,7 @@ class Recitation < QuranApiRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["audio_files", "qirat_type", "recitation_style", "reciter", "resource_content"]
+    ["audio_files", "qirat_type", "riwayah", "recitation_style", "reciter", "resource_content"]
   end
 
   def update_audio_stats

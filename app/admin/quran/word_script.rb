@@ -19,7 +19,7 @@ ActiveAdmin.register QuranScript::ByWord do
          ajax: { resource: Word }
   filter :qirat_id,
          as: :searchable_select,
-         ajax: { resource: QiratType }
+         ajax: { resource: Riwayah }
   filter :key
   filter :text
 

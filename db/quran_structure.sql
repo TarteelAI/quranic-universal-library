@@ -771,7 +771,8 @@ CREATE TABLE quran.audio_recitations (
     segments_count integer,
     files_size double precision,
     qirat_type_id integer,
-    segment_locked boolean DEFAULT false
+    segment_locked boolean DEFAULT false,
+    riwayah_id integer
 );
 
 
@@ -2567,7 +2568,8 @@ CREATE TABLE quran.mushafs (
     pages_count integer,
     qirat_type_id integer,
     enabled boolean,
-    resource_content_id integer
+    resource_content_id integer,
+    riwayah_id integer
 );
 
 
@@ -3055,7 +3057,8 @@ CREATE TABLE quran.recitations (
     name character varying,
     approved boolean DEFAULT true,
     description text,
-    gapless_recitation_id integer
+    gapless_recitation_id integer,
+    riwayah_id integer
 );
 
 
@@ -6890,6 +6893,13 @@ CREATE INDEX index_audio_recitations_on_resource_content_id ON quran.audio_recit
 
 
 --
+-- Name: index_audio_recitations_on_riwayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_audio_recitations_on_riwayah_id ON quran.audio_recitations USING btree (riwayah_id);
+
+
+--
 -- Name: index_audio_recitations_on_section_id; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -7821,6 +7831,13 @@ CREATE INDEX index_mushafs_on_qirat_type_id ON quran.mushafs USING btree (qirat_
 
 
 --
+-- Name: index_mushafs_on_riwayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_mushafs_on_riwayah_id ON quran.mushafs USING btree (riwayah_id);
+
+
+--
 -- Name: index_mushas_pages_on_page_number; Type: INDEX; Schema: quran; Owner: -
 --
 
@@ -8140,6 +8157,13 @@ CREATE INDEX index_recitations_on_reciter_id ON quran.recitations USING btree (r
 --
 
 CREATE INDEX index_recitations_on_resource_content_id ON quran.recitations USING btree (resource_content_id);
+
+
+--
+-- Name: index_recitations_on_riwayah_id; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_recitations_on_riwayah_id ON quran.recitations USING btree (riwayah_id);
 
 
 --

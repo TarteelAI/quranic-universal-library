@@ -170,3 +170,62 @@ namespace :qiraat do
     end
   end
 end
+
+namespace :qiraat do
+  namespace :backfill do
+    desc 'Set mushaf_words.ayah_id and mushaf_pages first/last ayah from ayah_mappings (P5.2)'
+    task mushaf_ayah_ids: :environment do
+      dry = ENV['DRY_RUN'].present?
+      conn = MushafWord.connection
+      Mushaf.where.not(numbering_id: nil).order(:id).each do |m|
+        pending = MushafWord.where(mushaf_id: m.id, ayah_id: nil).where.not(verse_id: nil).count
+        pages = MushafPage.where(mushaf_id: m.id).where.not(first_verse_id: nil).where('first_ayah_id IS NULL OR last_ayah_id IS NULL').count
+        puts "  mushaf #{m.id} (#{m.numbering.slug}): #{pending} words, #{pages} pages to set#{dry ? ' (DRY RUN)' : ''}"
+        next if dry || (pending.zero? && pages.zero?)
+
+        t = Time.now
+        # one statement per mushaf: the word's Kufi verse -> the numbering's ayah
+        conn.execute(<<~SQL) if pending.positive?
+          UPDATE mushaf_words mw
+          SET ayah_id = am.ayah_id
+          FROM ayah_mappings am
+          WHERE mw.mushaf_id = #{m.id.to_i} AND mw.ayah_id IS NULL
+            AND am.numbering_id = #{m.numbering_id.to_i} AND am.verse_id = mw.verse_id
+        SQL
+        # pages are filled from their own verse range, so a mushaf with pages but no cached words (30) is covered too
+        conn.execute(<<~SQL) if pages.positive?
+          UPDATE mushaf_pages p
+          SET first_ayah_id = a1.ayah_id, last_ayah_id = a2.ayah_id
+          FROM ayah_mappings a1, ayah_mappings a2
+          WHERE p.mushaf_id = #{m.id.to_i} AND (p.first_ayah_id IS NULL OR p.last_ayah_id IS NULL)
+            AND a1.numbering_id = #{m.numbering_id.to_i} AND a1.verse_id = p.first_verse_id
+            AND a2.numbering_id = #{m.numbering_id.to_i} AND a2.verse_id = p.last_verse_id
+        SQL
+        puts "    done in #{(Time.now - t).round(1)}s"
+      end
+    end
+  end
+
+  namespace :verify do
+    desc 'Verify mushaf_words.ayah_id and the page ayah ranges (P5.2)'
+    task mushaf_ayah_ids: :environment do
+      failed = []
+      check = lambda do |name, actual, expected|
+        ok = actual == expected
+        failed << name unless ok
+        puts format('  %-56s %s %s', name, ok ? 'OK ' : 'FAIL', ok ? actual.inspect : "#{actual.inspect} expected #{expected.inspect}")
+      end
+      check.call('mushaf_words with a verse but no ayah', MushafWord.where(ayah_id: nil).where.not(verse_id: nil).count, 0)
+      check.call('mushaf_words without a word (none yet)', MushafWord.where(word_id: nil).count, 0)
+      # Kufi mushafs: ayah_id equals verse_id (Kufi rows take the verse ids)
+      kufi_ids = Mushaf.where(numbering_id: AyahNumbering.kufi.id).pluck(:id)
+      check.call('kufi mushafs: ayah_id = verse_id everywhere', MushafWord.where(mushaf_id: kufi_ids).where('ayah_id <> verse_id').count, 0)
+      check.call('pages with a verse range but no ayah range', MushafPage.where.not(first_verse_id: nil).where(first_ayah_id: nil).or(MushafPage.where.not(last_verse_id: nil).where(last_ayah_id: nil)).count, 0)
+      page = MushafPage.find_by(mushaf_id: 5, page_number: 3)
+      check.call('mushaf 5 page 3: ayah ids = verse ids of its words', MushafWord.where(mushaf_id: 5, page_number: 3).distinct.pluck(:ayah_id).sort, MushafWord.where(mushaf_id: 5, page_number: 3).distinct.pluck(:verse_id).sort)
+      check.call('mushaf 5 page 3: page range', [page&.first_ayah_id, page&.last_ayah_id], [page&.first_verse_id, page&.last_verse_id])
+      abort("#{failed.size} check(s) failed") if failed.any?
+      puts 'mushaf_ayah_ids OK'
+    end
+  end
+end

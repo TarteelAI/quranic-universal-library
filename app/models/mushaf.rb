@@ -149,27 +149,16 @@ class Mushaf < QuranApiRecord
       first_word = mushaf_words.where(page_number: page.page_number).order("position_in_page ASC").first
       last_word = mushaf_words.where(page_number: page.page_number).order("position_in_page DESC").first
 
-      verses = Verse.order("verse_index ASC").where("verse_index >= #{first_word.word.verse_id} AND verse_index <= #{last_word.word.verse_id}")
-      page.first_verse_id = first_word.word.verse_id
-      page.last_verse_id = last_word.word.verse_id
-      page.verses_count = verses.size
+      # mushaf_words carries verse_id itself; word may be nil on a non-Kufi ayah marker (P5.2)
+      verses = Verse.order(:verse_index).where(verse_index: first_word.verse_id..last_word.verse_id)
+      page.first_verse_id = first_word.verse_id
+      page.last_verse_id = last_word.verse_id
       page.first_word_id = first_word.word_id
       page.last_word_id = last_word.word_id
-
-      map = {}
-
-      verses.each do |verse|
-        if map[verse.chapter_id]
-          next
-        end
-
-        chapter_verses = verses.where(chapter_id: verse.chapter_id)
-        map[verse.chapter_id] = "#{chapter_verses.first.verse_number}-#{chapter_verses.last.verse_number}"
-      end
-
+      page.first_ayah_id = first_word.ayah_id
+      page.last_ayah_id = last_word.ayah_id
       page.verses_count = verses.size
-
-      page.verse_mapping = map
+      page.verse_mapping = MushafPage.build_verse_mapping(first_word.verse_id, last_word.verse_id)
       page.save
     end
   end

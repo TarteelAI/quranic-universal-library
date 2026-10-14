@@ -27,7 +27,8 @@
 class MushafWord < QuranApiRecord
   REGEXP_INDOPAK_WAQF_MARKS = Regexp.new(["ۛ", "ٚ", "ؔ", "ؕ", "ۥ", "ۚ", "۪", "۠", "ۙ", "ؗ", "۫", "ۘ", "ۗ", "۬", "ۙ", "۬", "ۦ"].join('|'))
 
-  belongs_to :word
+  belongs_to :word, optional: true # nil on an ayah-end marker of a non-Kufi numbering (P5.2)
+  belongs_to :ayah, class_name: 'NumberedAyah', optional: true # the numbered ayah this row belongs to (P5.2)
   belongs_to :verse
   belongs_to :mushaf
   belongs_to :char_type

@@ -2554,7 +2554,9 @@ CREATE TABLE quran.mushaf_pages (
     first_word_id integer,
     last_word_id integer,
     lines_count integer,
-    text text
+    text text,
+    first_ayah_id integer,
+    last_ayah_id integer
 );
 
 
@@ -2595,7 +2597,8 @@ CREATE TABLE quran.mushaf_words (
     position_in_line integer,
     position_in_page integer,
     css_style character varying,
-    css_class character varying
+    css_class character varying,
+    ayah_id integer
 );
 
 
@@ -8117,6 +8120,13 @@ CREATE INDEX index_mushaf_pages_on_mushaf_id ON quran.mushaf_pages USING btree (
 --
 
 CREATE INDEX index_mushaf_pages_on_page_number ON quran.mushaf_pages USING btree (page_number);
+
+
+--
+-- Name: index_mushaf_words_on_mushaf_and_ayah; Type: INDEX; Schema: quran; Owner: -
+--
+
+CREATE INDEX index_mushaf_words_on_mushaf_and_ayah ON quran.mushaf_words USING btree (mushaf_id, ayah_id);
 
 
 --

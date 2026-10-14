@@ -14,7 +14,9 @@
     "first_word_id": 1,
     "last_word_id": 8420,
     "lines_count": 8,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 1814,
@@ -31,7 +33,9 @@
     "first_word_id": 11,
     "last_word_id": 5553,
     "lines_count": 8,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 1854,
@@ -48,7 +52,9 @@
     "first_word_id": 87067,
     "last_word_id": 87234,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 2015,
@@ -65,7 +71,9 @@
     "first_word_id": 71221,
     "last_word_id": 72932,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 2074,
@@ -82,7 +90,9 @@
     "first_word_id": 833,
     "last_word_id": 17893,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 2263,
@@ -99,7 +109,9 @@
     "first_word_id": 77515,
     "last_word_id": 80900,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 2282,
@@ -116,7 +128,9 @@
     "first_word_id": 28538,
     "last_word_id": 35218,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 2352,
@@ -133,7 +147,9 @@
     "first_word_id": 21282,
     "last_word_id": 26554,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   },
   {
     "id": 2385,
@@ -150,6 +166,8 @@
     "first_word_id": 16271,
     "last_word_id": 31001,
     "lines_count": 15,
-    "text": null
+    "text": null,
+    "first_ayah_id": null,
+    "last_ayah_id": null
   }
 ]

@@ -28,6 +28,8 @@ class MushafPage < QuranApiRecord
 
   belongs_to :first_verse, class_name: 'Verse', optional: true
   belongs_to :last_verse, class_name: 'Verse', optional: true
+  belongs_to :first_ayah, class_name: 'NumberedAyah', optional: true # the page's ayah range in the mushaf's numbering (P5.2)
+  belongs_to :last_ayah, class_name: 'NumberedAyah', optional: true
 
   belongs_to :first_word, class_name: 'Word', optional: true
   belongs_to :last_word, class_name: 'Word', optional: true
@@ -87,23 +89,19 @@ class MushafPage < QuranApiRecord
     Utils::Quran.get_ayah_key_from_id(last_verse_id)
   end
 
-  def fix_verse_mapping
-    # TODO: add verse_mapping_with_range column
-    page_verses = Verse.order("verse_index ASC").where("verse_index >= #{first_verse_id} AND verse_index <= #{last_verse_id}")
-    map = {}
-
-    page_verses.each do |verse|
-      if map[verse.chapter_id]
-        next
-      end
-
-      chapter_verses = page_verses.where(chapter_id: verse.chapter_id)
-      map[verse.chapter_id] = {
-        range: "#{chapter_verses.first.verse_number}-#{chapter_verses.last.verse_number}",
-        count: chapter_verses.last.verse_number - chapter_verses.first.verse_number + 1
-      }
+  # The one shape of verse_mapping every writer uses since P5.2:
+  #   { chapter_id => { range: "from-to", count: n } }
+  # (older rows may still hold the plain "from-to" string per chapter).
+  def self.build_verse_mapping(first_verse_id, last_verse_id)
+    page_verses = Verse.order(:verse_index).where(verse_index: first_verse_id..last_verse_id)
+    page_verses.group_by(&:chapter_id).to_h do |chapter_id, chapter_verses|
+      [chapter_id, { range: "#{chapter_verses.first.verse_number}-#{chapter_verses.last.verse_number}",
+                     count: chapter_verses.last.verse_number - chapter_verses.first.verse_number + 1 }]
     end
+  end
 
+  def fix_verse_mapping
+    map = self.class.build_verse_mapping(first_verse_id, last_verse_id)
     update_columns(verses_count: verses.size, verse_mapping: map)
   end
 end

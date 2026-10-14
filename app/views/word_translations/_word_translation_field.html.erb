@@ -4,18 +4,37 @@
   word_translation = form.object
   word = word_translation.word
   saved_text = word_translation.persisted? ? word_translation.text : nil
+  riwayah = @presenter.riwayah
+  word_text = @presenter.word_text(word)
+  difference = riwayah && @presenter.differences_for(word.verse)[word.id]
+  shared = riwayah && @presenter.shared_by_word(word.verse)[word.id]
 %>
 
 <%= form.hidden_field :word_id %>
 <%= form.hidden_field :language_id, value: language.id %>
 <%= form.hidden_field :resource_content_id, value: @resource.id %>
+<% if riwayah %>
+  <%= form.hidden_field :riwayah_id, value: riwayah.id %>
+<% end %>
 
 <div class="word-translation bg-white border border-gray-200 rounded-lg shadow-sm mb-3" data-word="<%= word.location %>">
   <div class="flex items-center justify-between gap-3 px-3 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
     <span class="inline-flex items-center rounded-full bg-gray-200 text-gray-700 text-xs font-medium px-2 py-0.5">
       <%= word.location %>
     </span>
-    <span class="qpc-hafs text-2xl leading-none" dir="rtl"><%= word.text_qpc_hafs %></span>
+    <% if riwayah && difference %>
+      <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5" title="Spelled differently across riwayat">
+        <%= link_to difference.status.humanize.downcase, cms_word_difference_path(difference), class: 'underline', target: '_blank' %>:
+        <% difference.spelling_groups.each do |text, slugs| %>
+          <span class="<%= @presenter.font_class %> ms-1" dir="rtl"><%= text %></span><span class="ms-0.5 text-amber-700">(<%= slugs.join(', ') %>)</span>
+        <% end %>
+      </span>
+    <% end %>
+    <% if riwayah && word_text.nil? %>
+      <span class="text-sm text-gray-500" dir="rtl">— not read by <%= riwayah.name %></span>
+    <% else %>
+      <span class="<%= @presenter.font_class %> text-2xl leading-none" dir="rtl"><%= word_text %></span>
+    <% end %>
   </div>
 
   <div class="p-3">
@@ -27,7 +46,18 @@
                             placeholder: "Enter #{language.name} translation of #{word.location}" %>
 
         <div class="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
-          <% if saved_text.present? %>
+          <% if riwayah %>
+            <span class="flex items-baseline gap-1">
+              <span class="text-gray-400">Shared gloss:</span>
+              <span class="<%= language_class %>"><%= shared&.text.presence || '—' %></span>
+            </span>
+            <% if saved_text.present? %>
+              <span class="flex items-baseline gap-1">
+                <span class="text-gray-400"><%= riwayah.name %> override:</span>
+                <span class="<%= language_class %>"><%= saved_text %></span>
+              </span>
+            <% end %>
+          <% elsif saved_text.present? %>
             <span class="flex items-baseline gap-1">
               <span class="text-gray-400">Current:</span>
               <span class="<%= language_class %>"><%= saved_text %></span>
@@ -43,7 +73,7 @@
         </div>
       </div>
 
-      <% if word_translation.persisted? %>
+      <% if word_translation.persisted? && !riwayah %>
         <div class="lg:w-1/2 lg:border-s lg:ps-4">
           <%= render 'word_group_info', word_translation: word_translation, language: language, word: word %>
         </div>

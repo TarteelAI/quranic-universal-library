@@ -14,6 +14,7 @@ class WordTranslationsController < CommunityController
                .includes(:translations, :words)
                .where(translations: { resource_content_id: eager_load_translations })
                .find(params[:id])
+    @riwayah = @presenter.riwayah
   end
 
   def new
@@ -28,15 +29,16 @@ class WordTranslationsController < CommunityController
              end
 
     if @verse.blank?
-      return redirect_back fallback_location: word_translations_path(resource_id: resource.id), alert: 'Verse not found'
+      return redirect_back fallback_location: word_translations_path(@presenter.link_params), alert: 'Verse not found'
     end
+    @riwayah = @presenter.riwayah
   end
 
   def create
     @verse = Verse.find(params[:verse_id])
     @verse.update_word_translations(wbw_translations_params)
 
-    redirect_to word_translation_path(@verse, resource_id: resource.id)
+    redirect_to word_translation_path(@verse, @presenter.link_params)
   end
 
   def group_info
@@ -72,28 +74,22 @@ class WordTranslationsController < CommunityController
       :word_id,
       :language_id,
       :resource_content_id,
+      :riwayah_id,
       :text,
       :group_text,
       :group_word_id
     ]
   end
 
+  # The verse translations shown beside the words: the resources flagged as
+  # word-by-word references for the language (meta_data wbw-reference, seeded
+  # by rake qiraat:seed:wbw_reference_translations from the former per-language
+  # id lists), else the two highest-priority translations of the language.
   def eager_load_translations
-    case language.id
-    when 174 # Urdu
-      [54, 97]
-    when 185, 195, 196, 197 # Chinese(Traditional, Zhuyin, Pinyin, Simplified)
-      [109, 56]
-    when 175 # Uzbek
-      [55, 127, 101]
-    when 38 # English
-      [131, 203]
-    when 20 # Bengali
-      [380, 213]
-    else
-      resources = ResourceContent.translations.one_verse.where(language_id: language.id).order('priority desc').pluck(:id)
-      resources.first(2)
-    end
+    flagged = ResourceContent.wbw_reference.where(language_id: language.id).order(:id).pluck(:id)
+    return flagged if flagged.any?
+
+    ResourceContent.translations.one_verse.where(language_id: language.id).order('priority desc').pluck(:id).first(2)
   end
 
   def resource

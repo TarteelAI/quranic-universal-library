@@ -47,6 +47,74 @@ class WordTranslationsPresenter < ApplicationPresenter
     resource&.language
   end
 
+  # --- riwayah selector (P6.4) -------------------------------------------
+  # Without a riwayah parameter (or with hafs) everything below answers as
+  # before, so the Hafs pages render byte-identically. With another riwayah
+  # the words show their forms in that script's face, ayah numbers follow its
+  # numbering and the gloss field edits the override row (RiwayahOverride).
+
+  def riwayah
+    return @riwayah if defined?(@riwayah)
+
+    slug = params[:riwayah].presence
+    @riwayah = slug && slug != 'hafs' ? Riwayah.find_by(slug: slug) : nil
+  end
+
+  # riwayat a reviewer can pick: those whose text QUL holds as rows (the quran-text scripts)
+  def riwayah_options
+    [['Hafs (default)', 'hafs']] + Script.row_backed.includes(:riwayah).map(&:riwayah).compact.uniq.sort_by(&:id).map { |r| [r.name, r.slug] }
+  end
+
+  def script
+    @script ||= riwayah && Script.row_backed.find_by(riwayah_id: riwayah.id)
+  end
+
+  def resolver
+    @resolver ||= riwayah && Qiraat::Resolver.for(riwayah)
+  end
+
+  def font_class
+    script&.font_css_class || 'qpc-hafs'
+  end
+
+  # url params that keep the selection across the tool's links
+  def link_params(extra = {})
+    { resource_id: resource&.id, riwayah: riwayah&.slug }.compact.merge(extra)
+  end
+
+  # the word as the riwayah writes it (nil when it does not read the word); Hafs: the qpc-hafs column
+  def word_text(word)
+    riwayah ? word.text_for(script) : word.text_qpc_hafs
+  end
+
+  def verse_text(verse)
+    riwayah ? verse.text_for(script) : verse.text_qpc_hafs
+  end
+
+  # "3 (Kufi 4)" for Warsh 1:4; "6–7 (Kufi 7)" when the riwayah splits the verse
+  def ayah_label(verse)
+    return verse.verse_number.to_s unless riwayah
+
+    keys = resolver.from_kufi(verse).map { |a| a.ayah_key.split(':').last }
+    keys.any? ? "#{keys.join('–')} (Kufi #{verse.verse_number})" : "(Kufi #{verse.verse_number})"
+  end
+
+  # the reference translations beside the words, with the riwayah's overrides applied
+  def verse_translations(verse)
+    return verse.translations unless riwayah
+
+    ids = verse.translations.map(&:resource_content_id).uniq
+    Translation.for_riwayah(riwayah).where(verse_id: verse.id, resource_content_id: ids).order(:resource_content_id)
+  end
+
+  # word_id => WordDifference for the words of the verse (badges in the riwayah view)
+  def differences_for(verse)
+    return {} unless riwayah
+
+    @differences ||= {}
+    @differences[verse.id] ||= WordDifference.where(word_id: verse_words(verse).map(&:id)).index_by(&:word_id)
+  end
+
   def language_class
     "#{language&.iso_code} #{language&.name&.downcase}"
   end
@@ -126,26 +194,35 @@ class WordTranslationsPresenter < ApplicationPresenter
 
   def translations_by_word(verse)
     @translations_by_word ||= {}
-    @translations_by_word[verse.id] ||= WordTranslation
-                                          .where(resource_content_id: resource.id, word_id: verse_words(verse).map(&:id))
-                                          .includes(:group_word)
-                                          .order(Arel.sql("(text IS NOT NULL AND text <> '') ASC"))
-                                          .index_by(&:word_id)
+    @translations_by_word[verse.id] ||= begin
+      scope = riwayah ? WordTranslation.for_riwayah(riwayah) : WordTranslation
+      scope.where(resource_content_id: resource.id, word_id: verse_words(verse).map(&:id))
+           .includes(:group_word)
+           .order(Arel.sql("(text IS NOT NULL AND text <> '') ASC"))
+           .index_by(&:word_id)
+    end
+  end
+
+  # the shared gloss of each word, shown for reference while editing an override
+  def shared_by_word(verse)
+    @shared_by_word ||= {}
+    @shared_by_word[verse.id] ||= WordTranslation.shared.where(resource_content_id: resource.id, word_id: verse_words(verse).map(&:id)).index_by(&:word_id)
   end
 
   def has_group_translation?(verse)
     translations_by_word(verse).values.any? { |t| t.group_word_id.present? }
   end
 
+  # The form objects of the editor: the shared rows, or with a riwayah its
+  # override rows (a new one per word where none exists yet).
   def wbw_translations(verse)
     words = verse.words.words.includes(:en_translation).order('position asc')
-    existing = WordTranslation
-                 .where(resource_content_id: resource.id, word_id: words.map(&:id))
-                 .index_by(&:word_id)
+    scope = riwayah ? WordTranslation.overrides_for(riwayah) : WordTranslation.shared
+    existing = scope.where(resource_content_id: resource.id, word_id: words.map(&:id)).index_by(&:word_id)
 
     words.map do |word|
       word_translation = existing[word.id] ||
-                         WordTranslation.new(word_id: word.id, resource_content_id: resource.id, language_id: resource.language_id)
+                         WordTranslation.new(word_id: word.id, resource_content_id: resource.id, language_id: resource.language_id, riwayah_id: riwayah&.id)
       word_translation.word = word
       word_translation
     end

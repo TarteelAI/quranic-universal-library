@@ -35,7 +35,7 @@
             <span class="font-bold text-green-700 ms-1"><%= number_with_delimiter stats[:translated] %></span>
           </div>
 
-          <%= link_to word_translations_path(resource_id: @resource.id, filter_missing: true),
+          <%= link_to word_translations_path(@presenter.link_params(filter_missing: true)),
                       class: 'rounded-md border border-amber-100 bg-amber-50 px-3 py-1.5 hover:border-amber-300 transition flex items-center' do %>
             <span class="text-amber-700">Missing</span>
             <span class="font-bold text-amber-700 ms-1"><%= number_with_delimiter stats[:missing] %></span>
@@ -52,6 +52,11 @@
         <div class="mb-4 me-2">
           <%= select_tag :resource_id, options_from_collection_for_select(@presenter.resources, :id, :name, selected: @resource.id), include_blank: false, class: 'form-select w-[85vw] sm:w-[280px]', data: { placeholder: 'Select resource', controller: 'select2' } %>
           <p class="text-sm text-gray-600 mt-1">Select word-by-word translation resource</p>
+        </div>
+
+        <div class="mb-4 me-2">
+          <%= select_tag :riwayah, options_for_select(@presenter.riwayah_options, @presenter.riwayah&.slug || 'hafs'), include_blank: false, class: 'form-select w-[85vw] sm:w-[200px]' %>
+          <p class="text-sm text-gray-600 mt-1">Riwayah: Hafs edits the shared gloss, another riwayah its overrides</p>
         </div>
 
         <%= render 'shared/filters', juz: true %>
@@ -89,14 +94,14 @@
             </div>
           </td>
 
-          <td class="py-2 qpc-hafs">
-            <%= truncate verse.text_qpc_hafs, length: 100 %>
+          <td class="py-2 <%= @presenter.font_class %>">
+            <%= truncate @presenter.verse_text(verse).to_s, length: 100 %>
           </td>
 
           <td class="py-2">
             <div class="flex gap-1">
-              <%= link_to 'Edit', new_word_translation_path(ayah: verse.id, resource_id: @resource.id), class: 'btn btn-info' %>
-              <%= link_to 'Show', word_translation_path(verse.id, resource_id: @resource.id), class: 'btn btn-success' %>
+              <%= link_to 'Edit', new_word_translation_path(@presenter.link_params(ayah: verse.id)), class: 'btn btn-info' %>
+              <%= link_to 'Show', word_translation_path(verse.id, @presenter.link_params), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

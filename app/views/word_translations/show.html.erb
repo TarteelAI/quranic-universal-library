@@ -4,38 +4,43 @@
   previous_ayah = @verse.previous_ayah
 
   if @access
-    actions << link_to('Edit', new_word_translation_path(ayah: @verse.id, resource_id: @resource.id), class: 'btn btn-success')
+    actions << link_to('Edit', new_word_translation_path(@presenter.link_params(ayah: @verse.id)), class: 'btn btn-success')
   end
 
   if previous_ayah
-    actions << link_to('Previous ayah', word_translation_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', word_translation_path(previous_ayah.id, @presenter.link_params), class: 'btn btn-dark')
   end
 
   if next_ayah
-    actions << link_to('Next ayah', word_translation_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    actions << link_to('Next ayah', word_translation_path(next_ayah.id, @presenter.link_params), class: 'btn btn-dark')
   end
 %>
 
 <%= render 'tools/header',
            name: "Ayah #{@verse.verse_key}",
-           title: "#{@resource.name} for #{@verse.chapter.name_simple} ayah #{@verse.verse_number}",
+           title: "#{@resource.name} for #{@verse.chapter.name_simple} ayah #{@presenter.ayah_label(@verse)}",
            key: 'word_translation',
            actions: actions,
            breadcrumb_parents: [
              { label: 'Select resource', path: select_resource_word_translations_path },
-             { label: @resource.name, path: word_translations_path(resource_id: @resource.id) }
+             { label: @resource.name, path: word_translations_path(@presenter.link_params) }
            ]
 %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section mb-4">
+    <% if @riwayah %>
+      <div class="bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded mb-4" role="alert" id="riwayah-notice">
+        Showing the glosses as <b><%= @riwayah.name %></b> reads them: its overrides where there are any, the shared gloss elsewhere.
+      </div>
+    <% end %>
     <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4" role="alert">
       <div>
-        <b>Text Uthmani:</b>
-        <div class="qpc-hafs"> <%= @verse.text_qpc_hafs %></div>
+        <b><%= @riwayah ? "Text (#{@riwayah.name}):" : 'Text Uthmani:' %></b>
+        <div class="<%= @presenter.font_class %>"> <%= @presenter.verse_text(@verse) %></div>
       </div>
 
-      <% @verse.translations.each do |trans| %>
+      <% @presenter.verse_translations(@verse).each do |trans| %>
         <div>
           <b><%= trans.resource_name %>:</b> <br/>
 

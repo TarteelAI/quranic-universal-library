@@ -1,0 +1,571 @@
+{
+  "format": "quran-ayah-map",
+  "format_version": "1.0",
+  "generated": "2026-09-08",
+  "reference": "hafs",
+  "editions": [
+    "hafs",
+    "shubah",
+    "bazzi",
+    "qalun",
+    "warsh",
+    "duri",
+    "susi"
+  ],
+  "note": "One entry per āyah of the Kūfī count as Ḥafṣ prints it. For each edition: the āyah its words fall in (`ayah_last` when they span more than one) and `relation` — same, merged, split, shifted, or unnumbered for the basmalah of Al-Fātiḥah. An edition is absent from an entry only where it reads none of the āyah's words, which does not occur in the current sources.",
+  "ayahs": [
+    {
+      "surah": 1,
+      "ayah": 1,
+      "hafs": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 0,
+        "relation": "unnumbered"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 0,
+        "relation": "unnumbered"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 0,
+        "relation": "unnumbered"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 0,
+        "relation": "unnumbered"
+      }
+    },
+    {
+      "surah": 1,
+      "ayah": 2,
+      "hafs": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 1,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 1,
+      "ayah": 3,
+      "hafs": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 2,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 1,
+      "ayah": 4,
+      "hafs": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 3,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 1,
+      "ayah": 5,
+      "hafs": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 4,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 1,
+      "ayah": 6,
+      "hafs": {
+        "surah": 1,
+        "ayah": 6,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 6,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 6,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 5,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 1,
+      "ayah": 7,
+      "hafs": {
+        "surah": 1,
+        "ayah": 7,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 1,
+        "ayah": 7,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 1,
+        "ayah": 7,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 1,
+        "ayah": 6,
+        "ayah_last": 7,
+        "relation": "split"
+      },
+      "warsh": {
+        "surah": 1,
+        "ayah": 6,
+        "ayah_last": 7,
+        "relation": "split"
+      },
+      "duri": {
+        "surah": 1,
+        "ayah": 6,
+        "ayah_last": 7,
+        "relation": "split"
+      },
+      "susi": {
+        "surah": 1,
+        "ayah": 6,
+        "ayah_last": 7,
+        "relation": "split"
+      }
+    },
+    {
+      "surah": 2,
+      "ayah": 1,
+      "hafs": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "qalun": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "warsh": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "duri": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "susi": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      }
+    },
+    {
+      "surah": 2,
+      "ayah": 2,
+      "hafs": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "qalun": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "warsh": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "duri": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      },
+      "susi": {
+        "surah": 2,
+        "ayah": 1,
+        "relation": "merged"
+      }
+    },
+    {
+      "surah": 2,
+      "ayah": 3,
+      "hafs": {
+        "surah": 2,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 2,
+        "ayah": 3,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 2,
+        "ayah": 2,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 2,
+      "ayah": 255,
+      "hafs": {
+        "surah": 2,
+        "ayah": 255,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 2,
+        "ayah": 255,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 2,
+        "ayah": 253,
+        "ayah_last": 254,
+        "relation": "split"
+      },
+      "qalun": {
+        "surah": 2,
+        "ayah": 253,
+        "ayah_last": 254,
+        "relation": "split"
+      },
+      "warsh": {
+        "surah": 2,
+        "ayah": 253,
+        "ayah_last": 254,
+        "relation": "split"
+      },
+      "duri": {
+        "surah": 2,
+        "ayah": 253,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 2,
+        "ayah": 253,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 9,
+      "ayah": 101,
+      "hafs": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 9,
+        "ayah": 101,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 9,
+        "ayah": 102,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 9,
+        "ayah": 102,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 9,
+        "ayah": 102,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 9,
+        "ayah": 102,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 9,
+        "ayah": 102,
+        "relation": "same"
+      }
+    },
+    {
+      "surah": 40,
+      "ayah": 26,
+      "hafs": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "shifted"
+      },
+      "qalun": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "shifted"
+      },
+      "warsh": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "shifted"
+      },
+      "duri": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "shifted"
+      },
+      "susi": {
+        "surah": 40,
+        "ayah": 26,
+        "relation": "shifted"
+      }
+    },
+    {
+      "surah": 72,
+      "ayah": 16,
+      "hafs": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      },
+      "shubah": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      },
+      "bazzi": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      },
+      "qalun": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      },
+      "warsh": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      },
+      "duri": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      },
+      "susi": {
+        "surah": 72,
+        "ayah": 16,
+        "relation": "same"
+      }
+    }
+  ]
+}

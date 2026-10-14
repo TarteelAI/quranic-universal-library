@@ -1,0 +1,104 @@
+[
+  {
+    "id": 1813,
+    "page_number": 1,
+    "verse_mapping": {
+      "1": "1-7"
+    },
+    "first_verse_id": 1,
+    "last_verse_id": 7,
+    "verses_count": 7,
+    "created_at": "2021-09-07 11:45:26 UTC",
+    "updated_at": "2021-10-10 10:34:51 UTC",
+    "mushaf_id": 5,
+    "first_word_id": 1,
+    "last_word_id": 8420,
+    "lines_count": 8,
+    "text": null
+  },
+  {
+    "id": 1814,
+    "page_number": 2,
+    "verse_mapping": {
+      "2": "1-5"
+    },
+    "first_verse_id": 8,
+    "last_verse_id": 12,
+    "verses_count": 5,
+    "created_at": "2021-09-07 11:45:26 UTC",
+    "updated_at": "2021-10-10 10:34:51 UTC",
+    "mushaf_id": 5,
+    "first_word_id": 11,
+    "last_word_id": 5553,
+    "lines_count": 8,
+    "text": null
+  },
+  {
+    "id": 1854,
+    "page_number": 42,
+    "verse_mapping": {
+      "2": "253-256"
+    },
+    "first_verse_id": 260,
+    "last_verse_id": 263,
+    "verses_count": 4,
+    "created_at": "2021-09-07 11:45:27 UTC",
+    "updated_at": "2021-10-10 10:34:55 UTC",
+    "mushaf_id": 5,
+    "first_word_id": 87067,
+    "last_word_id": 87234,
+    "lines_count": 15,
+    "text": null
+  },
+  {
+    "id": 2015,
+    "page_number": 203,
+    "verse_mapping": {
+      "9": "100-106"
+    },
+    "first_verse_id": 1335,
+    "last_verse_id": 1341,
+    "verses_count": 7,
+    "created_at": "2021-09-07 11:45:27 UTC",
+    "updated_at": "2021-10-10 10:35:11 UTC",
+    "mushaf_id": 5,
+    "first_word_id": 71221,
+    "last_word_id": 72932,
+    "lines_count": 15,
+    "text": null
+  },
+  {
+    "id": 2282,
+    "page_number": 470,
+    "verse_mapping": {
+      "40": "26-33"
+    },
+    "first_verse_id": 4159,
+    "last_verse_id": 4166,
+    "verses_count": 8,
+    "created_at": "2021-09-07 11:45:29 UTC",
+    "updated_at": "2021-10-10 10:35:37 UTC",
+    "mushaf_id": 5,
+    "first_word_id": 28538,
+    "last_word_id": 35218,
+    "lines_count": 15,
+    "text": null
+  },
+  {
+    "id": 2385,
+    "page_number": 573,
+    "verse_mapping": {
+      "72": "14-28"
+    },
+    "first_verse_id": 5461,
+    "last_verse_id": 5475,
+    "verses_count": 15,
+    "created_at": "2021-09-07 11:45:29 UTC",
+    "updated_at": "2021-10-10 10:35:47 UTC",
+    "mushaf_id": 5,
+    "first_word_id": 16271,
+    "last_word_id": 31001,
+    "lines_count": 15,
+    "text": null
+  }
+]

@@ -360,7 +360,7 @@ export default class extends Controller {
       if (!includeUnmapped && !entry.codePoints.length) return false
       if (!includeEmpty && entry.empty) return false
       if (!query) return true
-      return entry.haystack.includes(query.replace(/^u\+/, "u+"))
+      return entry.haystack.includes(query)
     })
   }
 

@@ -1,0 +1,66 @@
+<%#
+  "How to use this resource" section shared by the range-based metadata pages
+  (juz, hizb, rub, manzil, ruku). Their exports have the same shape:
+  a number, verses_count, first_verse_key, last_verse_key and verse_mapping.
+
+  Locals:
+    unit         - display name, e.g. "juz"
+    number_field - key field in the export, e.g. "juz_number"
+    table        - table name in the SQLite export, e.g. "juz"
+    count        - number of records, e.g. 30
+    file_slug    - download file name without extension, e.g. "quran-metadata-juz"
+    note         - optional extra bullet for fields only this type has (HTML allowed)
+%>
+<% note = local_assigns[:note] %>
+<h3>How to use this resource</h3>
+<p>
+  Download the JSON or SQLite file from the download links on this page. The JSON file is one object:
+  each key is the <code><%= number_field %></code> as a string (<code>"1"</code> to <code>"<%= count %>"</code>).
+  The SQLite file has the same fields in the <code><%= table %></code> table, but <code>verse_mapping</code> is
+  JSON text there. Parse it before you use it.
+</p>
+<ul>
+  <li>
+    <strong>Find the start and end.</strong>
+    <code>first_verse_key</code> and <code>last_verse_key</code> (<code>surah:ayah</code>) are the first and last
+    ayah of each <%= unit %>. Use them as <code>verse_key</code> values in the other QUL resources.
+  </li>
+  <li>
+    <strong>Expand verse_mapping.</strong>
+    <code>verse_mapping</code> lists the ayahs of this <%= unit %> in each surah. Each key is a surah number, and
+    each value is a string like <code>"1-141"</code>, meaning ayahs 1 to 141, both included. Split it on
+    <code>-</code> and convert both numbers to integers.
+  </li>
+  <% if note.present? %>
+    <li><%= note %></li>
+  <% end %>
+</ul>
+
+<div class="docs-code">
+  <div class="docs-code-header"><span>JavaScript</span></div>
+  <pre><code>// Setup: unzip the download and serve <%= file_slug %>.json from your app (here at /data/)
+const items = await fetch('/data/<%= file_slug %>.json').then((res) =&gt; res.json());
+
+// Get the first <%= unit %>
+const first = items['1']; // { <%= number_field %>: 1, first_verse_key: "1:1", verse_mapping: { ... }, ... }
+
+// Expand verse_mapping into a list of verse keys
+const verseKeys = Object.entries(first.verse_mapping).flatMap(([surah, range]) =&gt; {
+  const [from, to] = range.split('-').map(Number);
+  return Array.from({ length: to - from + 1 }, (_, i) =&gt; `${surah}:${from + i}`);
+});
+verseKeys.length === first.verses_count; // true</code></pre>
+</div>
+
+<div class="docs-code">
+  <div class="docs-code-header"><span>SQL</span></div>
+  <pre><code>-- SQLite: verse_mapping is JSON text. Parse it in your app.
+SELECT <%= number_field %>, first_verse_key, last_verse_key, verse_mapping
+FROM <%= table %>
+ORDER BY <%= number_field %>;</code></pre>
+</div>
+
+<p>
+  For a longer walkthrough, see
+  <a href='/docs/tutorial-quran-metadata-end-to-end'>Tutorial 7: Quran Metadata End-to-End</a>.
+</p>

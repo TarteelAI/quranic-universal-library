@@ -55,4 +55,50 @@
     </table>
   </div>
 
+  <h3>How to use this resource</h3>
+  <p>
+    Download the JSON or SQLite file from the download links on this page. The JSON file is one object:
+    each key is the <code>sajdah_number</code> as a string (<code>"1"</code> to <code>"15"</code>).
+    The SQLite file has the same fields in the <code>sajdah</code> table.
+  </p>
+  <ul>
+    <li>
+      <strong>Find the ayah.</strong>
+      Use <code>verse_key</code> (<code>surah:ayah</code>) to find the ayah in the other QUL resources:
+      text, translation or audio.
+    </li>
+    <li>
+      <strong>Filter by type.</strong>
+      <code>sajdah_type</code> is <code>"required"</code> or <code>"optional"</code> (see the field table above).
+      Filter on it to show only the required prostrations.
+    </li>
+  </ul>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JavaScript</span></div>
+    <pre><code>// Setup: unzip the download and serve quran-metadata-sajda.json from your app (here at /data/)
+const sajdahs = await fetch('/data/quran-metadata-sajda.json').then((res) =&gt; res.json());
+
+// Verse keys of the required sajdahs
+const required = Object.values(sajdahs)
+  .filter((sajdah) =&gt; sajdah.sajdah_type === 'required')
+  .map((sajdah) =&gt; sajdah.verse_key);
+
+// Check whether an ayah has a sajdah
+const byVerseKey = new Map(Object.values(sajdahs).map((sajdah) =&gt; [sajdah.verse_key, sajdah]));
+byVerseKey.has('7:206'); // true</code></pre>
+  </div>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>SQL</span></div>
+    <pre><code>-- SQLite: the same fields are in the sajdah table
+SELECT sajdah_number, verse_key, sajdah_type
+FROM sajdah
+ORDER BY sajdah_number;</code></pre>
+  </div>
+
+  <p>
+    To get the text of these ayahs, see the <a href='/resources/quran-script'>Quran Script</a> resources.
+  </p>
+
 </div>

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basmallah audio options for all reciters</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-subtle:#f7f8f8; --bg-card:#ffffff; --bg-inset:#f1f3f2;
+    --fg:#16211c; --fg-muted:#5f6b66; --fg-faint:#8b958f;
+    --line:#e4e8e6; --line-strong:#d2d8d5;
+    --accent:#0E9F6E; --accent-soft:#e6f7ef; --accent-fg:#ffffff; --brand:#57D798;
+    --radius:10px; --radius-sm:6px;
+    --shadow:0 1px 2px rgba(16,30,24,.05),0 6px 18px rgba(16,30,24,.07);
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Roboto,Arial,sans-serif;
+    --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --ar:"QPC Hafs","Amiri","Scheherazade New","Geeza Pro",serif;
+  }
+  @media (prefers-color-scheme:dark){
+    html:not([data-theme="light"]){
+      --bg:#0d1411; --bg-subtle:#121b17; --bg-card:#141f1a; --bg-inset:#1a2620;
+      --fg:#e3ece7; --fg-muted:#93a099; --fg-faint:#6b7a73;
+      --line:#243029; --line-strong:#33423a;
+      --accent:#57D798; --accent-soft:#172e23; --accent-fg:#06130d; --brand:#57D798;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+    }
+  }
+  html[data-theme="dark"]{
+    --bg:#0d1411; --bg-subtle:#121b17; --bg-card:#141f1a; --bg-inset:#1a2620;
+    --fg:#e3ece7; --fg-muted:#93a099; --fg-faint:#6b7a73;
+    --line:#243029; --line-strong:#33423a;
+    --accent:#57D798; --accent-soft:#172e23; --accent-fg:#06130d; --brand:#57D798;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:var(--sans); font-size:14px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  code{font-family:var(--mono)}
+
+  .wrap{max-width:1080px; margin:0 auto; padding-block:36px 72px; padding-left:20px; padding-right:20px}
+
+  header{display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:6px}
+  .title{flex:1 1 320px; min-width:0}
+  h1{margin:0; font-size:23px; line-height:1.25; letter-spacing:-.02em; font-weight:650}
+  .bism{margin:10px 0 0; font-family:var(--ar); direction:rtl; font-size:22px; line-height:1.9; color:var(--accent)}
+  .sub{margin:10px 0 0; color:var(--fg-muted); font-size:13px}
+  .sub code{background:var(--bg-inset); border:1px solid var(--line); border-radius:var(--radius-sm); padding:1px 5px; font-size:11.5px}
+
+  .theme{
+    flex:none; display:inline-flex; align-items:center; gap:7px;
+    border:1px solid var(--line); border-radius:var(--radius); padding:7px 12px;
+    background:var(--bg-card); color:var(--fg-muted); font-size:12.5px;
+  }
+  .theme:hover{border-color:var(--line-strong); color:var(--fg)}
+
+  .tools{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:22px 0 20px}
+  #q{
+    flex:1 1 260px; min-width:0; padding:9px 13px; border-radius:var(--radius);
+    border:1px solid var(--line); background:var(--bg-card); color:inherit; font:inherit;
+  }
+  #q:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent}
+  .count{color:var(--fg-faint); font-size:12.5px; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:12px}
+
+  .card{
+    background:var(--bg-card); border:1px solid var(--line); border-radius:12px;
+    padding:15px 16px 13px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .who{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap}
+  .who h2{margin:0; font-size:14.5px; font-weight:650; letter-spacing:-.01em}
+  .style{
+    padding:2px 8px; border-radius:999px; background:var(--accent-soft); color:var(--accent);
+    font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  }
+  .opts{display:flex; flex-direction:column; gap:7px}
+
+  .opt{
+    position:relative; overflow:hidden;
+    display:flex; align-items:center; gap:10px; width:100%;
+    padding:8px 10px; border-radius:var(--radius);
+    border:1px solid var(--line); background:var(--bg-subtle); text-align:left;
+    transition:border-color .15s, background .15s;
+  }
+  .opt:hover{border-color:var(--accent)}
+  .opt:focus-within{outline:2px solid var(--accent); outline-offset:1px}
+  .opt.playing{border-color:var(--accent); background:var(--accent-soft)}
+
+  .play{flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+    background:var(--bg-card); border:1px solid var(--line-strong); color:var(--accent)}
+  .opt.playing .play{background:var(--accent); border-color:var(--accent); color:var(--accent-fg)}
+  .play svg{width:13px; height:13px; fill:currentColor; display:none}
+  .play .i-play{display:block}
+  .opt.playing .play .i-play{display:none}
+  .opt.playing .play .i-pause{display:block}
+
+  .txt{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; line-height:1.35}
+  .lbl{font-size:13px; font-weight:600}
+  .meta{font-size:11px; color:var(--fg-faint); font-variant-numeric:tabular-nums;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+  .copy{flex:none; width:28px; height:28px; border-radius:var(--radius-sm);
+    display:grid; place-items:center; color:var(--fg-faint); border:1px solid transparent}
+  .copy:hover{color:var(--accent); border-color:var(--line); background:var(--bg-card)}
+  .copy svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.7;
+    stroke-linecap:round; stroke-linejoin:round}
+
+  .bar{position:absolute; left:0; right:0; bottom:0; height:2px; background:transparent}
+  .bar i{display:block; height:100%; width:0; background:var(--accent)}
+
+  .empty{display:none; padding:40px 4px; color:var(--fg-faint); text-align:center}
+  .card.hide{display:none}
+
+  footer{margin-top:28px; padding-top:16px; border-top:1px solid var(--line);
+    color:var(--fg-faint); font-size:12px}
+
+  #toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(12px);
+    background:var(--fg); color:var(--bg); padding:8px 15px; border-radius:999px;
+    font-size:12.5px; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:50;
+  }
+  #toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:520px){
+    .wrap{padding-block:26px 56px}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <h1>Basmallah audio options for all reciters</h1>
+    </div>
+  </header>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="Filter by reciter or style…" autocomplete="off">
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="empty">No reciter matches that filter.</p>
+
+  <footer id="foot">
+    <strong>Help us expand the collection!</strong> Have a Basmallah recitation from a reciter that's missing?   <a
+    href="https://github.com/TarteelAI/quranic-universal-library/issues"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="tw-font-medium style"
+  >GitHub Issues</a>, and we'll review and add it to the collection, in shaa Allah.
+</footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  var CDN = 'https://audio-cdn.tarteel.ai/quran/surah/';
+
+  // reciter: display name, style, CDN folder, and the duration (seconds) of each option
+  var RECITERS = [
+    { name:'Abdul Basit',               style:'Mujawwad', path:'abdulBasit/mujawwad',         durations:[6.3, 9.8, 6.1] },
+    { name:'Abdul Basit',               style:'Murattal', path:'abdulBasit/murattal',         durations:[4.4, 5.0] },
+    { name:'Abdul Rahman Al-Sudais',    style:'Murattal', path:'abdulrahmanAlSudais/murattal',durations:[4.2, 4.7, 3.3] },
+    { name:'Abu Bakr Al-Shatri',        style:'Murattal', path:'abuBakrAlShatri/murattal',    durations:[6.5, 4.3] },
+    { name:'Ahmad Al-Nufais',           style:'Murattal', path:'alnufais/murattal',           durations:[4.9] },
+    { name:'Khalifa Al-Tunaiji',        style:'Murattal', path:'khalifaAlTunaiji/murattal',   durations:[5.8, 5.2] },
+    { name:'Maher Al-Muaiqly',          style:'Murattal', path:'maherAlMuaiqly/murattal',     durations:[3.3, 5.5, 7.7] },
+    { name:'Mahmoud Khalil Al-Husary',  style:'Muallim',  path:'husary/muallim',              durations:[4.4, 5.3] },
+    { name:'Mahmoud Khalil Al-Husary',  style:'Mujawwad', path:'husary/mujawwad',             durations:[5.2, 9.4] },
+    { name:'Mahmoud Khalil Al-Husary',  style:'Murattal', path:'husary/murattal',             durations:[5.1, 8.9, 4.5] },
+    { name:'Mansour Al-Salimi',         style:'Murattal', path:'mansourAlSalimi/murattal',    durations:[5.6, 5.8] },
+    { name:'Mishari Al-Afasy',          style:'Murattal', path:'alafasy/murattal',            durations:[6.1, 6.0] },
+    { name:'Muhammad Siddiq Al-Minshawy', style:'Murattal', path:'minshawy/murattal',         durations:[4.5, 4.2] },
+    { name:'Saad Al-Ghamdi',            style:'Murattal', path:'ghamadi/murattal',            durations:[4.9, 3.9] },
+    { name:'Saud Al-Shuraim',           style:'Murattal', path:'saudAlShuraim/murattal',      durations:[2.8, 3.1] },
+    { name:'Yasser Al-Dosari',          style:'Murattal', path:'yasserAlDosari/murattal',     durations:[3.8] }
+  ];
+
+  var LETTERS = 'ABCDEFGH';
+  var PLAY_ICON = '<svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>' +
+                  '<svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h3.2v14H7zm6.8 0H17v14h-3.2z"/></svg>';
+  var COPY_ICON = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/>' +
+                  '<path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+
+  function url(r, i){ return CDN + r.path + '/basmallah/' + (i + 1) + '.mp3'; }
+
+  var grid = document.getElementById('grid');
+  var total = 0;
+
+  RECITERS.forEach(function(r){
+    var card = document.createElement('article');
+    card.className = 'card';
+    card.dataset.search = (r.name + ' ' + r.style + ' ' + r.path).toLowerCase();
+
+    var head = document.createElement('div');
+    head.className = 'who';
+    head.innerHTML = '<h2></h2><span class="style"></span>';
+    head.querySelector('h2').textContent = r.name;
+    head.querySelector('.style').textContent = r.style;
+    card.appendChild(head);
+
+    var opts = document.createElement('div');
+    opts.className = 'opts';
+
+    r.durations.forEach(function(dur, i){
+      total++;
+      var src = url(r, i);
+      var row = document.createElement('div');
+      row.className = 'opt';
+      row.dataset.src = src;
+
+      row.innerHTML =
+        '<button class="play" type="button" aria-label="Play"></button>' +
+        '<span class="txt"><span class="lbl"></span><span class="meta"></span></span>' +
+        '<button class="copy" type="button" title="Copy audio URL" aria-label="Copy audio URL"></button>' +
+        '<span class="bar"><i></i></span>';
+
+      row.querySelector('.play').innerHTML = PLAY_ICON;
+      row.querySelector('.copy').innerHTML = COPY_ICON;
+      row.querySelector('.lbl').textContent =
+        r.durations.length > 1 ? 'Option ' + LETTERS[i] : 'Only option';
+      row.querySelector('.meta').textContent = dur.toFixed(1) + 's · ' + (i + 1) + '.mp3';
+
+      opts.appendChild(row);
+    });
+
+    card.appendChild(opts);
+    grid.appendChild(card);
+  });
+
+  /* ---------- playback ---------- */
+  var audio = new Audio();
+  audio.preload = 'none';
+  var current = null;
+
+  function stop(){
+    if (current) {
+      current.classList.remove('playing');
+      current.querySelector('.bar i').style.width = '0';
+    }
+    audio.pause();
+    current = null;
+  }
+
+  grid.addEventListener('click', function(e){
+    var copyBtn = e.target.closest('.copy');
+    var row = e.target.closest('.opt');
+    if (!row) return;
+
+    if (copyBtn) {
+      copy(row.dataset.src);
+      return;
+    }
+
+    if (row === current) {
+      if (audio.paused) { audio.play(); row.classList.add('playing'); }
+      else { audio.pause(); row.classList.remove('playing'); }
+      return;
+    }
+
+    stop();
+    current = row;
+    audio.src = row.dataset.src;
+    audio.play().then(function(){
+      row.classList.add('playing');
+    }).catch(function(){
+      row.querySelector('.meta').textContent = 'could not load';
+      stop();
+    });
+  });
+
+  audio.addEventListener('timeupdate', function(){
+    if (!current || !audio.duration) return;
+    current.querySelector('.bar i').style.width =
+      (audio.currentTime / audio.duration * 100) + '%';
+  });
+  audio.addEventListener('ended', stop);
+
+  /* ---------- copy ---------- */
+  var toast = document.getElementById('toast');
+  var toastTimer;
+
+  function flash(msg){
+    toast.textContent = msg;
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 1600);
+  }
+
+  function copy(text){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){
+        flash('URL copied');
+      }, function(){ fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); flash('URL copied'); }
+    catch (err) { flash('Copy failed'); }
+    document.body.removeChild(ta);
+  }
+
+  /* ---------- filter ---------- */
+  var q = document.getElementById('q');
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('.card'));
+  var empty = document.getElementById('empty');
+  var count = document.getElementById('count');
+
+  function apply(){
+    var term = q.value.trim().toLowerCase();
+    var shown = 0;
+
+    cards.forEach(function(card){
+      var hide = term && card.dataset.search.indexOf(term) === -1;
+      card.classList.toggle('hide', !!hide);
+      if (!hide) shown++;
+    });
+
+    empty.style.display = shown ? 'none' : 'block';
+    count.textContent = shown === cards.length
+      ? cards.length + ' reciters · ' + total + ' options'
+      : shown + ' of ' + cards.length + ' reciters';
+  }
+
+  q.addEventListener('input', apply);
+  apply();
+
+  /* ---------- theme ---------- */
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('theme');
+  var themeLabel = document.getElementById('theme-label');
+
+  function prefersDark(){
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
+  }
+
+  function setTheme(mode){
+    root.setAttribute('data-theme', mode);
+    themeLabel.textContent = mode === 'dark' ? 'Light' : 'Dark';
+    try { localStorage.setItem('basmallah-theme', mode); } catch (err) {}
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem('basmallah-theme'); } catch (err) {}
+  setTheme(saved || (prefersDark() ? 'dark' : 'light'));
+
+  themeBtn.addEventListener('click', function(){
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+})();
+</script>
+</body>
+</html>

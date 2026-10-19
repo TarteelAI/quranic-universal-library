@@ -46,6 +46,7 @@
 
 class ResourceContent < QuranApiRecord
   include HasMetaData
+  include ExportedAssetVersioning
   include ResourceContentDestroyable
 
   scope :translations, -> { where sub_type: SubType::Translation }

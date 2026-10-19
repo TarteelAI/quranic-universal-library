@@ -52,14 +52,16 @@ module AudioSegment
         resource_content = recitation.get_resource_content
         reciter_dir = File.join(file_path, resource_content.id.to_s)
         FileUtils.mkdir_p(reciter_dir)
-        version = Time.now.to_i
 
-        export_gapless_recitation_segments(recitation, reciter_dir, true)
-        export_gapless_recitation_audio_files(recitation, reciter_dir)
+        segments_path = export_gapless_recitation_segments(recitation, reciter_dir, true)
+        audio_files_path = export_gapless_recitation_audio_files(recitation, reciter_dir)
         validate_gapless_recitation(recitation)
 
-        puts "Exported #{resource_content.id} with version #{version}"
-        resource_content.set_meta_value('exported-version', version)
+        # Versions come from the bytes we just wrote, so a re-export of
+        # unchanged data doesn't make clients download anything, and a segment
+        # fix doesn't invalidate the audio files.
+        update_exported_asset_version(resource_content, 'segments', segments_path)
+        update_exported_asset_version(resource_content, 'audio', audio_files_path)
         resource_content.save(validate: false)
       end
 
@@ -76,6 +78,13 @@ module AudioSegment
     end
 
     protected
+
+    def update_exported_asset_version(resource_content, asset, path)
+      changed = resource_content.sync_exported_asset_version(asset, File.read(path))
+      version = resource_content.exported_asset_version(asset)
+
+      puts "Exported #{resource_content.id} #{asset} v#{version} (#{changed ? 'changed' : 'unchanged'})"
+    end
 
     def validate_gapless_recitation(recitation)
       segments = Audio::Segment
@@ -243,6 +252,8 @@ module AudioSegment
 
       key = "audio/gapless/#{recitation.get_resource_content.id}/segments.json"
       uploader.upload(full_segments_file_path, key) if Rails.env.production?
+
+      full_segments_file_path
     end
 
     def export_gapless_recitation_audio_files(recitation, target_dir)

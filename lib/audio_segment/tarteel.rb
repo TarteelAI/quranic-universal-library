@@ -251,7 +251,7 @@ module AudioSegment
       json_data = audio_files.map do |audio_file|
         {
           surah: audio_file.chapter_id,
-          version: audio_file.updated_at.to_i,
+          version: audio_file.published_version,
           url: audio_file.audio_url
         }
       end

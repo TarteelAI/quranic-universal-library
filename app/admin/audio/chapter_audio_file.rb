@@ -42,6 +42,13 @@ ActiveAdmin.register Audio::ChapterAudioFile do
     link_to 'Refresh Meta', refresh_meta_cms_audio_chapter_audio_file_path(resource), method: :put
   end
 
+  action_item :bump_content_version, only: :show, if: -> { can? :manage, resource } do
+    link_to 'Bump audio version',
+            bump_content_version_cms_audio_chapter_audio_file_path(resource),
+            method: :put,
+            data: { confirm: 'This tells every client to re-download this audio file. Continue?' }
+  end
+
   member_action :validate_segments, method: 'get' do
     authorize! :manage, resource
     audio_recitation = resource.audio_recitation
@@ -83,6 +90,12 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       row :audio_url
       row :segments_count
       row :timing_percentiles
+      row :content_version do |file|
+        "#{file.published_version} (#{file.content_version_source.presence || 'not set'})"
+      end
+      row :content_hash
+      row :content_etag
+      row :content_updated_at
       row :meta_data do
         if resource.meta_data.present?
           div do
@@ -134,10 +147,35 @@ ActiveAdmin.register Audio::ChapterAudioFile do
     div(link_to 'View', resource.audio_url)
   end
 
+  sidebar 'Audio version', only: :show, if: -> { can? :manage, resource } do
+    div do
+      para "Published as version #{resource.published_version}. It moves on its own when the audio file's fingerprint changes; set it by hand only when the fingerprint can't see the change."
+    end
+
+    render partial: 'admin/audio_content_version', locals: { url: override_content_version_cms_audio_chapter_audio_file_path(resource), version: resource.published_version }
+  end
+
   member_action :refresh_meta, method: 'put' do
     Audio::UpdateMetaDataJob.perform_later(resource.audio_recitation, chapter_id: resource.chapter_id, force: true)
 
     redirect_to [:cms, resource], notice: 'Meta data will be refreshed in a few sec.'
+  end
+
+  member_action :bump_content_version, method: 'put' do
+    authorize! :manage, resource
+    resource.bump_content_version!
+
+    redirect_to [:cms, resource], notice: "Audio version is now #{resource.content_version}."
+  end
+
+  member_action :override_content_version, method: 'put' do
+    authorize! :manage, resource
+
+    if resource.override_content_version!(params[:content_version])
+      redirect_to [:cms, resource], notice: "Audio version is now #{resource.content_version}."
+    else
+      redirect_to [:cms, resource], alert: 'Version must be a positive number.'
+    end
   end
 
   form do |f|

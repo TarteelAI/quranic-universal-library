@@ -25,7 +25,7 @@ require "active_support/security_utils"
 # static assets that page needs. Anyone holding the bypass token keeps full
 # access to the site.
 class MaintenanceMode
-  DEFAULT_FLAG_PATH = "/tmp/maintenance/qul"
+  DEFAULT_FLAG_PATH = "#{Rails.root}/tmp/maintenance/qul"
 
   BYPASS_PARAM  = "qul_access"
   BYPASS_COOKIE = "qul_maintenance_access"
@@ -90,9 +90,10 @@ class MaintenanceMode
 
     # Contents of the flag file, re-read only when the file changes.
     def status
-      return {} unless File.exist?(flag_path)
+      path = flag_path
+      return {} unless File.exist?(path)
 
-      stamp = [flag_path, File.mtime(flag_path).to_i, File.size(flag_path)]
+      stamp = [path, File.mtime(path).to_i, File.size(path)]
       return @status if defined?(@status) && @status_stamp == stamp
 
       @status_stamp = stamp

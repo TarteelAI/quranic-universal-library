@@ -6,6 +6,10 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Loaded eagerly (instead of through Zeitwerk) so the middleware class exists
+# while the middleware stack is being assembled.
+require_relative "../lib/maintenance_mode"
+
 module Qul
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -42,6 +46,9 @@ module Qul
         paths << path if File.directory?(path)
       end
     end
+
+    # Last in the stack, so every request (site, admin, API) is covered.
+    config.middleware.use MaintenanceMode::Middleware
 
     config.assets.css_compressor = :escompress
     config.active_support.to_time_preserves_timezone = :zone

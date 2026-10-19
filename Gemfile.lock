@@ -439,6 +439,23 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     rexml (3.4.4)
+    rspec-core (3.13.6)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.8)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (7.1.1)
+      actionpack (>= 7.0)
+      activesupport (>= 7.0)
+      railties (>= 7.0)
+      rspec-core (~> 3.13)
+      rspec-expectations (~> 3.13)
+      rspec-mocks (~> 3.13)
+      rspec-support (~> 3.13)
+    rspec-support (3.13.7)
     rubocop (1.31.0)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
@@ -633,6 +650,7 @@ DEPENDENCIES
   redcarpet
   redis (~> 4.0)
   rest-client
+  rspec-rails (~> 7.1)
   rubocop
   rubocop-performance
   rubocop-rails

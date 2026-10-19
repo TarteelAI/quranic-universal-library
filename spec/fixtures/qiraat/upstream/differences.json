@@ -1,0 +1,297 @@
+{
+  "format": "quran-differences",
+  "format_version": "1.0",
+  "generated": "2026-09-08",
+  "count": 6,
+  "by_status": {
+    "alif_variant": 198,
+    "rasm_variant": 75,
+    "word_boundary": 16,
+    "partial": 3
+  },
+  "note": "The word-index records whose status is one of rasm_variant, alif_variant, partial, word_boundary. Vowelling and pointing differences are in the word index itself, under `groups`.",
+  "words": [
+    {
+      "number": 25685,
+      "surah": 9,
+      "index": 1903,
+      "key": "9:من#50",
+      "rasm": "مں",
+      "pointed": "من",
+      "rasm_uthmani": "مِن",
+      "plain": "من",
+      "status": "partial",
+      "hafs": null,
+      "ayah": {
+        "bazzi": 101
+      },
+      "forms": {
+        "bazzi": "مِن"
+      },
+      "missing": [
+        "hafs",
+        "shubah",
+        "warsh",
+        "qalun",
+        "duri",
+        "susi"
+      ]
+    },
+    {
+      "number": 60522,
+      "surah": 40,
+      "index": 353,
+      "key": "40:او#1",
+      "rasm": "او",
+      "pointed": "او",
+      "rasm_uthmani": "أَوۡ",
+      "plain": "أو",
+      "status": "partial",
+      "hafs": {
+        "surah": 40,
+        "ayah": 26,
+        "position": 13
+      },
+      "ayah": {
+        "hafs": 26,
+        "shubah": 26
+      },
+      "forms": {
+        "hafs": "أَوۡ",
+        "shubah": "أَوۡ"
+      },
+      "missing": [
+        "warsh",
+        "qalun",
+        "duri",
+        "susi",
+        "bazzi"
+      ]
+    },
+    {
+      "number": 60523,
+      "surah": 40,
+      "index": 354,
+      "key": "40:ان#5",
+      "rasm": "واں",
+      "pointed": "ان",
+      "rasm_uthmani": "أَن",
+      "plain": "أن",
+      "status": "rasm_variant",
+      "hafs": {
+        "surah": 40,
+        "ayah": 26,
+        "position": 14
+      },
+      "ayah": {
+        "hafs": 26,
+        "shubah": 26,
+        "bazzi": 26,
+        "qalun": 26,
+        "warsh": 26,
+        "duri": 26,
+        "susi": 26
+      },
+      "forms": {
+        "hafs": "أَن",
+        "shubah": "أَن",
+        "bazzi": "وَأَن",
+        "qalun": "وَأَنْ",
+        "warsh": "وَأَنْ",
+        "duri": "وَأَن",
+        "susi": "وَأَن"
+      },
+      "groups": [
+        {
+          "text": "أَن",
+          "riwayahs": [
+            "hafs",
+            "shubah"
+          ]
+        },
+        {
+          "text": "وَأَن",
+          "riwayahs": [
+            "bazzi",
+            "duri",
+            "susi"
+          ]
+        },
+        {
+          "text": "وَأَنْ",
+          "riwayahs": [
+            "qalun",
+            "warsh"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 69720,
+      "surah": 57,
+      "index": 448,
+      "key": "57:هو#5",
+      "rasm": "هو",
+      "pointed": "هو",
+      "rasm_uthmani": "هُوَ",
+      "plain": "هو",
+      "status": "partial",
+      "hafs": {
+        "surah": 57,
+        "ayah": 24,
+        "position": 10
+      },
+      "ayah": {
+        "hafs": 24,
+        "shubah": 24,
+        "bazzi": 23,
+        "duri": 23,
+        "susi": 23
+      },
+      "forms": {
+        "hafs": "هُوَ",
+        "shubah": "هُوَ",
+        "bazzi": "هُوَ",
+        "duri": "هُوَ",
+        "susi": "هُّوَ"
+      },
+      "groups": [
+        {
+          "text": "هُوَ",
+          "riwayahs": [
+            "hafs",
+            "shubah",
+            "bazzi",
+            "duri"
+          ]
+        },
+        {
+          "text": "هُّوَ",
+          "riwayahs": [
+            "susi"
+          ]
+        }
+      ],
+      "missing": [
+        "warsh",
+        "qalun"
+      ]
+    },
+    {
+      "number": 73950,
+      "surah": 72,
+      "index": 152,
+      "key": "72:وان#1",
+      "rasm": "واں",
+      "pointed": "وان",
+      "rasm_uthmani": "وَأَن",
+      "plain": "وأن",
+      "status": "word_boundary",
+      "hafs": {
+        "surah": 72,
+        "ayah": 16,
+        "position": 1
+      },
+      "ayah": {
+        "hafs": 16,
+        "shubah": 16,
+        "bazzi": 16,
+        "qalun": 16,
+        "warsh": 16,
+        "duri": 16,
+        "susi": 16
+      },
+      "forms": {
+        "hafs": "وَأَلَّوِ",
+        "shubah": "وَأَلَّوِ",
+        "bazzi": "وَأَلَّوِ",
+        "qalun": "وَأَن",
+        "warsh": "وَأَن",
+        "duri": "وَأَن",
+        "susi": "وَأَن"
+      },
+      "groups": [
+        {
+          "text": "وَأَلَّوِ",
+          "riwayahs": [
+            "hafs",
+            "shubah",
+            "bazzi"
+          ]
+        },
+        {
+          "text": "وَأَن",
+          "riwayahs": [
+            "qalun",
+            "warsh",
+            "duri",
+            "susi"
+          ]
+        }
+      ],
+      "written_joined": [
+        "hafs",
+        "shubah",
+        "bazzi"
+      ]
+    },
+    {
+      "number": 73951,
+      "surah": 72,
+      "index": 153,
+      "key": "72:لو#1",
+      "rasm": "لو",
+      "pointed": "لو",
+      "rasm_uthmani": "لَّوِ",
+      "plain": "لّو",
+      "status": "word_boundary",
+      "hafs": {
+        "surah": 72,
+        "ayah": 16,
+        "position": 1
+      },
+      "ayah": {
+        "hafs": 16,
+        "shubah": 16,
+        "bazzi": 16,
+        "qalun": 16,
+        "warsh": 16,
+        "duri": 16,
+        "susi": 16
+      },
+      "forms": {
+        "hafs": "وَأَلَّوِ",
+        "shubah": "وَأَلَّوِ",
+        "bazzi": "وَأَلَّوِ",
+        "qalun": "لَّوِ",
+        "warsh": "لَّوِ",
+        "duri": "لَّوِ",
+        "susi": "لَّوِ"
+      },
+      "groups": [
+        {
+          "text": "وَأَلَّوِ",
+          "riwayahs": [
+            "hafs",
+            "shubah",
+            "bazzi"
+          ]
+        },
+        {
+          "text": "لَّوِ",
+          "riwayahs": [
+            "qalun",
+            "warsh",
+            "duri",
+            "susi"
+          ]
+        }
+      ],
+      "written_joined": [
+        "hafs",
+        "shubah",
+        "bazzi"
+      ]
+    }
+  ]
+}

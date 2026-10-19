@@ -51,6 +51,8 @@
 #
 
 class AudioFile < QuranApiRecord
+  include AudioContentVersioning
+
   belongs_to :verse, optional: true
   belongs_to :chapter, optional: true
   belongs_to :recitation, optional: true

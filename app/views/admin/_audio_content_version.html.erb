@@ -1,0 +1,6 @@
+<div class="mt-2">
+  <%= form_tag url, method: :put do %>
+    <%= number_field_tag :content_version, version, min: 1, class: 'mb-1' %>
+    <%= submit_tag 'Set version', data: { disable_with: 'Please wait...' } %>
+  <% end %>
+</div>

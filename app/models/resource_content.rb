@@ -50,9 +50,7 @@ class ResourceContent < QuranApiRecord
   include ResourceContentDestroyable
 
   scope :translations, -> { where sub_type: SubType::Translation }
-  scope :transliteration, -> {
-    where(sub_type: SubType::Transliteration).or(where("meta_data ->> 'transliteration' = 'yes'"))
-  }
+  scope :transliteration, -> { where(sub_type: SubType::Transliteration) }
   scope :media, -> { where sub_type: SubType::Video }
   scope :tafsirs, -> { where sub_type: SubType::Tafsir }
   scope :chapter_info, -> { where sub_type: SubType::Info }
@@ -365,13 +363,6 @@ class ResourceContent < QuranApiRecord
     sub_type == SubType::Transliteration
   end
 
-  def is_transliteration?
-    # We don't have tools for updating transliteration yet
-    # Some translations are saved as transliteration to use translations tools etc
-    # This method is used to check if the resource is actually transliteration
-    transliteration? || meta_value('transliteration') == 'yes'
-  end
-
   def translation?
     sub_type == SubType::Translation
   end
@@ -482,7 +473,11 @@ class ResourceContent < QuranApiRecord
             elsif foot_note?
               FootNote.where(resource_content_id: id).size
             elsif transliteration?
-              Transliteration.where(resource_content_id: id).size
+              if one_word?
+                WordTransliteration.where(resource_content_id: id).size
+              else
+                Transliteration.where(resource_content_id: id).size
+              end
             elsif tokens?
               Token.where(resource_content_id: id).size
             elsif video?

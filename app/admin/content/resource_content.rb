@@ -547,7 +547,11 @@ ActiveAdmin.register ResourceContent do
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.transliteration?
-        link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        if resource.one_word?
+          link_to 'WBW Transliterations', "/cms/word_transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        else
+          link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        end
       elsif resource.root_detail?
         link_to 'Root details', "/cms/root_details?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.chapter_info?

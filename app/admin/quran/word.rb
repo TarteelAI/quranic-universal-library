@@ -528,7 +528,7 @@ ActiveAdmin.register Word do
       end
 
       tbody do
-        word.transliterations.each do |trans|
+        word.word_transliterations.each do |trans|
           tr do
             td link_to(trans.id, [:cms, trans])
             td link_to(trans.language_name, cms_language_path(trans.language_id)) if trans.language_id

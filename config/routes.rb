@@ -300,6 +300,12 @@ Rails.application.routes.draw do
       end
       root to: 'sessions#index'
     end
+
+    namespace :manifest_diff do
+      get '/', to: 'comparisons#index', as: :root
+      get ':group/:id', to: 'comparisons#asset', as: :asset
+      get ':group/:id/surahs/:surah', to: 'comparisons#surah', as: :surah
+    end
   end
 
   get '/ayah/:key', to: 'ayah#show', as: :ayah

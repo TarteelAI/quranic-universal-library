@@ -76,4 +76,59 @@
       </tbody>
     </table>
   </div>
+
+  <h3>How to use this resource</h3>
+  <p>
+    Download the JSON or SQLite file from the download links on this page. The JSON file is one object:
+    each key is the surah number as a string (<code>"1"</code> to <code>"114"</code>) and always equals the
+    <code>id</code> field. The SQLite file has the same fields in the <code>chapters</code> table (surahs are called
+    chapters there), with <code>bismillah_pre</code> stored as <code>0</code> or <code>1</code>.
+  </p>
+  <ul>
+    <li>
+      <strong>Build verse keys.</strong>
+      Use <code>id</code> and <code>verses_count</code> to generate every <code>surah:ayah</code> key of a surah.
+      These keys match <code>verse_key</code> in the other QUL resources.
+    </li>
+    <li>
+      <strong>Sort and filter.</strong>
+      Sort by <code>revelation_order</code> (1 to 114) to list surahs in the order of revelation.
+      Filter on <code>revelation_place</code>, which is <code>"makkah"</code> or <code>"madinah"</code>.
+    </li>
+    <li>
+      <strong>Check for Bismillah.</strong>
+      If <code>bismillah_pre</code> is <code>true</code>, show the Bismillah before the first ayah. It is
+      <code>false</code> for two surahs only: Al-Fatihah, where the Bismillah is the first ayah, and At-Tawbah,
+      which has none.
+    </li>
+  </ul>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JavaScript</span></div>
+    <pre><code>// Setup: unzip the download and serve quran-metadata-surah-name.json from your app (here at /data/)
+const surahs = await fetch('/data/quran-metadata-surah-name.json').then((res) =&gt; res.json());
+
+// Get a surah by number
+const alBaqarah = surahs['2']; // { id: 2, name_simple: "Al-Baqarah", verses_count: 286, ... }
+
+// Every verse key of a surah
+const verseKeys = Array.from({ length: alBaqarah.verses_count }, (_, i) =&gt; `${alBaqarah.id}:${i + 1}`);
+
+// Surahs in the order of revelation
+const chronological = Object.values(surahs).sort((a, b) =&gt; a.revelation_order - b.revelation_order);</code></pre>
+  </div>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>SQL</span></div>
+    <pre><code>-- SQLite: surahs are stored in the chapters table
+SELECT id, name_simple, verses_count
+FROM chapters
+WHERE revelation_place = 'madinah'
+ORDER BY revelation_order;</code></pre>
+  </div>
+
+  <p>
+    For a longer walkthrough, see
+    <a href='/docs/tutorial-quran-metadata-end-to-end'>Tutorial 7: Quran Metadata End-to-End</a>.
+  </p>
 </div>

@@ -67,4 +67,63 @@
     </table>
   </div>
 
+  <h3>How to use this resource</h3>
+  <p>
+    Download the JSON or SQLite file from the download links on this page. The JSON file is one object, not an array:
+    each key is the ayah <code>id</code> as a string (<code>"1"</code> to <code>"6236"</code>) and always equals the
+    <code>id</code> field. The SQLite file has the same fields in the <code>verses</code> table.
+  </p>
+  <ul>
+    <li>
+      <strong>Join with other resources.</strong>
+      <code>verse_key</code> (<code>surah:ayah</code>, for example <code>2:255</code>) is the shared reference
+      across QUL.
+      Use it as the lookup key to attach translations, tafsirs, scripts and audio segments to an ayah.
+    </li>
+    <li>
+      <strong>List the ayahs of a surah.</strong>
+      Filter on <code>surah_number</code> and <code>ayah_number</code>. Both are integers, so you can also build ranges.
+    </li>
+    <li>
+      <strong>Clean the text.</strong>
+      <code>text</code> is in the QPC Hafs script. Each ayah ends with its number in Arabic-Indic digits
+      (<code>٠</code> to <code>٩</code>), and some ayahs start with the <code>۞</code> sign (rubʿ al-ḥizb marker).
+      Remove both before you search or compare text; the code below shows how.
+      For other scripts and fonts, see the <a href='/resources/quran-script'>Quran Script</a> resources.
+    </li>
+  </ul>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JavaScript</span></div>
+    <pre><code>// Setup: unzip the download and serve quran-metadata-ayah.json from your app (here at /data/)
+const ayahs = await fetch('/data/quran-metadata-ayah.json').then((res) =&gt; res.json());
+
+// Get an ayah by id
+const first = ayahs['1']; // { id: 1, verse_key: "1:1", words_count: 4, ... }
+
+// Build a lookup by verse_key to join with other QUL resources
+const byVerseKey = new Map(Object.values(ayahs).map((ayah) =&gt; [ayah.verse_key, ayah]));
+byVerseKey.get('1:1').words_count; // 4
+
+// All ayahs of surah 1
+const alFatihah = Object.values(ayahs).filter((ayah) =&gt; ayah.surah_number === 1); // 7 ayahs
+
+// Remove the leading ۞ sign and the trailing ayah number
+const plainText = first.text.replace(/^\u06DE\s*|\s*[\u0660-\u0669]+$/gu, '');</code></pre>
+  </div>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>SQL</span></div>
+    <pre><code>-- SQLite: the same fields are in the verses table
+SELECT verse_key, words_count, text
+FROM verses
+WHERE surah_number = 1
+ORDER BY ayah_number;</code></pre>
+  </div>
+
+  <p>
+    For a longer walkthrough, see
+    <a href='/docs/tutorial-quran-metadata-end-to-end'>Tutorial 7: Quran Metadata End-to-End</a>.
+  </p>
+
 </div>

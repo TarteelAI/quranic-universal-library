@@ -24,9 +24,6 @@ module AudioContentVersioning
     Digest::SHA256.hexdigest(values.map(&:to_s).join('|'))
   end
 
-  # Version published in the asset manifest and in audio_files.json. Falls back
-  # to `updated_at` for files we have never fingerprinted, so the number never
-  # goes backwards for a client that already downloaded them.
   def published_version
     content_version.to_i.positive? ? content_version.to_i : (updated_at || Time.current).to_i
   end
@@ -35,8 +32,6 @@ module AudioContentVersioning
     content_version_source == MANUAL_SOURCE
   end
 
-  # Assigns (does not save) a new version when the audio has actually changed.
-  # Returns true when the published version moved.
   def sync_content_version(meta)
     new_hash = AudioContentVersioning.fingerprint(meta)
     return false if new_hash.blank?
@@ -68,7 +63,6 @@ module AudioContentVersioning
     content_version.to_i != previous_version
   end
 
-  # One click for "I replaced the file, the fingerprint can't tell".
   def bump_content_version!
     override_content_version!(published_version + 1)
   end

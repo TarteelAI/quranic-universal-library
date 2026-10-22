@@ -1,11 +1,12 @@
 <% if params[:proofread] %>
   <%
+    verse = @presenter.verse
     actions = []
-    if previous_ayah = @verse.previous_ayah
+    if previous_ayah = verse.previous_ayah
       actions << link_to('Previous ayah', morphology_phrase_path(previous_ayah.id, proofread: true), class: 'btn btn-dark')
     end
 
-    if next_ayah = @verse.next_ayah
+    if next_ayah = verse.next_ayah
       actions << link_to('Next ayah', morphology_phrase_path(next_ayah.id, proofread: true), class: 'btn btn-dark')
     end
 
@@ -14,19 +15,28 @@
 
   <%= render 'tools/header',
              name: 'Mutashabihat ul Quran',
-             title: "Mutashabihat phrases for ayah #{@verse.verse_key}",
+             title: "Mutashabihat phrases for ayah #{verse.verse_key}",
              key: 'ayah_mutashabihat',
              help: 'mutashabihat',
              actions: actions
   %>
   <div class="page-wrapper container max-w-7xl mx-auto px-4 mt-4 relative z-10">
+    <%= render 'ayah_phrases', overview: @presenter.ayah_overview, duplicate_groups: @presenter.duplicate_groups %>
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-      <%= render 'ayah_preview', mapping: {
-      verse: @verse,
-      phrase_verses: @verse.verse_phrases,
-    } %>
+      <h3 class="text-lg font-semibold text-gray-800 mb-1">Auto-detected shared phrases</h3>
+      <p class="text-sm text-gray-500 mb-4">
+        Phrases of 3 or more words (or the whole ayah when it has only 2) that also appear in other ayahs, word for word or with small differences.
+        These are suggestions, nothing is saved until you review and approve a phrase.
+      </p>
+      <%= turbo_frame_tag 'detected-phrases', src: detect_morphology_phrase_path(verse.id), loading: 'lazy' do %>
+        <div class="flex items-center justify-center py-8 text-gray-500">
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <span class="ml-3">Looking for shared phrases...</span>
+        </div>
+      <% end %>
     </div>
   </div>
 <% else %>
-  <%= render 'suggestions' %>
+  <%= render 'suggestions', review: @presenter.review %>
 <% end %>

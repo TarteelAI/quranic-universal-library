@@ -57,8 +57,21 @@
     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
       <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white">Phrases</span>
     </h3>
-    <div class="space-y-3">
-      <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by { |s| -s.score }, as: :phrase_verse %>
-    </div>
+    <% if ayah_phrases.any? %>
+      <div class="space-y-3">
+        <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by { |s| -s.score }, as: :phrase_verse %>
+      </div>
+    <% else %>
+      <div class="text-center py-10 px-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-500">
+        <i class="fas fa-layer-group text-3xl mb-3 opacity-30"></i>
+        <p class="font-medium text-gray-700">No shared phrases for this ayah</p>
+        <p class="text-sm mt-1">None of the phrases in this ayah have been found in other ayahs yet.</p>
+        <% if @access %>
+          <%= link_to new_morphology_phrase_path(ayah_key: verse.verse_key), class: 'inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-sm font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' do %>
+            <i class="fas fa-search text-xs"></i> Find similar phrases
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>

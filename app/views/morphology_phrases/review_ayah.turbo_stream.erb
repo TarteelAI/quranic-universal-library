@@ -1,0 +1,15 @@
+<% phrase = @presenter.phrase %>
+
+<%= turbo_stream.replace 'flash-messages' do %>
+  <%= render 'shared/flash_notices' %>
+<% end %>
+
+<% if @phrase_verse.review_status == 'remove' %>
+  <%= turbo_stream.remove dom_id(@phrase_verse, :review) %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@phrase_verse, :review) do %>
+    <%= render 'phrase_ayah_row', phrase_verse: @phrase_verse, current_verse_id: params[:current_verse_id].to_i %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update "phrase-#{phrase.id}-ayah-count", pluralize(phrase.phrase_verses.not_removed.distinct.count(:verse_id), 'ayah') %>

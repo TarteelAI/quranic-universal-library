@@ -93,6 +93,13 @@ Rails.application.routes.draw do
   resources :morphology_phrases do
     member do
       get :phrase_verses
+      get :detect
+      get :ayahs
+      patch :review_ayah
+    end
+
+    collection do
+      post :merge
     end
   end
 

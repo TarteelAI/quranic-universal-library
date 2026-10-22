@@ -1,27 +1,32 @@
-<%= render 'tools/header', name: 'Mutashabihat ul Quran', key: 'mutashabihat' %>
+<% unless params[:modal] %>
+  <%= render 'tools/header', name: 'Mutashabihat ul Quran', title: 'New mutashabihat phrase', key: 'mutashabihat' %>
+<% end %>
 
-<div id=title>
+<div id="title">
   New mutashabihat phrase
 </div>
 
 <div id="body">
-  <div class="p-6">
-    <%= form_with url: new_morphology_phrase_path, method: 'get', id: 'form' do |f| %>
+  <div class="<%= params[:modal] ? 'p-6' : 'container max-w-xl mx-auto px-4 py-6' %>">
+    <%= form_with url: new_morphology_phrase_path, method: 'get', id: 'form', data: { turbo: false } do |f| %>
       <div class="mb-4">
-        <%= f.label :text, 'Enter phrase text' %>
-        <%= f.text_field :text, class: 'form-control' %>
+        <%= f.label :ayah_key, 'Ayah', class: 'block text-sm font-bold text-slate-700 mb-1' %>
+        <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key), params[:ayah_key]), { include_blank: true }, class: 'w-full', data: { placeholder: 'Select ayah', controller: 'select2', parent: '#form' } %>
+        <p class="text-xs text-slate-500 mt-1">Opens the builder with the whole ayah. Click its first and last word to pick the phrase.</p>
+      </div>
+
+      <div class="flex items-center gap-3 my-4 text-xs text-slate-400">
+        <span class="flex-1 border-t"></span> or <span class="flex-1 border-t"></span>
       </div>
 
       <div class="mb-4">
-        <%= f.label :ayah_key, 'Or select ayah' %>
-        <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key)), {include_blank: true}, class: 'form-control', data: {placeholder: 'Select ayah', controller: 'select2', parent: '#form'} %>
-        <p class="help-block">
-          Ayah has more priority, if selected it'll ignore the phrase
-        </p>
+        <%= f.label :text, 'Phrase text', class: 'block text-sm font-bold text-slate-700 mb-1' %>
+        <%= f.text_field :text, value: params[:text], dir: 'rtl', class: 'w-full px-3 py-2 border border-slate-300 rounded-lg qpc-hafs text-xl', placeholder: 'رجزا من السماء' %>
+        <p class="text-xs text-slate-500 mt-1">With or without diacritics. The first ayah containing it is used as the source.</p>
       </div>
 
-      <div class="mb-4 my-3 flex justify-end">
-        <%= f.submit 'Suggest', class: 'btn btn-success btn-sm' %>
+      <div class="flex justify-end">
+        <%= f.submit 'Find similar phrases', name: nil, class: 'px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded cursor-pointer' %>
       </div>
     <% end %>
   </div>

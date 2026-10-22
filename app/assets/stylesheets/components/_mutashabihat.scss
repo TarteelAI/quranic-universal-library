@@ -1,26 +1,282 @@
-.mutashabihat{
-  [data-action='add']{
-    cursor: pointer;
-   &.active, &:hover{
-     color: white;
-     background: $success;
-   }
+.mutashabihat {
+  // Stays under the 75px site header while scrolling suggestions.
+  // On phones it scrolls away, there isn't room to pin it.
+  .source-bar {
+    @media (min-width: 768px) {
+      position: sticky;
+      top: 75px;
+    }
 
-    &.active:hover{
-      background: $danger !important;
+    .stuck-only {
+      display: none;
+    }
+
+    // Pinned while scrolling: one line with only the selected words
+    &.is-stuck {
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+
+      .source-controls,
+      .phrase-word:not(.is-selected) {
+        display: none;
+      }
+
+      .source-words {
+        margin-top: 0;
+      }
+
+      .stuck-only {
+        display: inline;
+      }
+
+      .phrase-word small {
+        display: none;
+      }
     }
   }
 
-  [data-action='remove']{
+  .filter-button {
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+
+    &.is-active {
+      background: #1e293b;
+      border-color: #1e293b;
+      color: #fff;
+    }
+  }
+
+  // How a word differs from the source phrase, as an underline
+  .kind-affix { --kind-color: #d97706; }
+  .kind-form { --kind-color: #ea580c; }
+  .kind-root,
+  .kind-similar { --kind-color: #9333ea; }
+  .kind-changed { --kind-color: #dc2626; }
+  .kind-moved { --kind-color: #2563eb; }
+  .kind-added,
+  .kind-omitted { --kind-color: #94a3b8; }
+
+  .phrase-word[class*="kind-"] .qpc-hafs {
+    text-decoration: underline;
+    text-decoration-color: var(--kind-color);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 8px;
+  }
+
+  .kind-legend span {
+    border-bottom: 2px solid var(--kind-color);
+    line-height: 1.2;
+  }
+
+  // Words of an ayah. Selected words sit flush so a range reads as one block.
+  .phrase-words {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .phrase-word {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.125rem 0.4rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #1f2937;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.1s ease;
+
+    .qpc-hafs {
+      font-size: 1.5rem;
+      line-height: 2.4rem;
+    }
+
+    small {
+      font-size: 0.65rem;
+      color: #9ca3af;
+      font-family: ui-monospace, monospace;
+    }
+
+    &:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-radius: 6px;
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+
+    &.is-selected {
+      background: #dcfce7;
+      color: #15803d;
+      border-radius: 0;
+
+      small {
+        color: #16a34a;
+      }
+    }
+
+    // Logical corners so range ends round correctly in RTL
+    &.range-start {
+      border-start-start-radius: 6px;
+      border-end-start-radius: 6px;
+    }
+
+    &.range-end {
+      border-start-end-radius: 6px;
+      border-end-end-radius: 6px;
+    }
+
+    &.is-excluded {
+      background: #fee2e2;
+      color: #dc2626;
+
+      .qpc-hafs {
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+    }
+
+    &.is-anchor {
+      border-color: #2563eb;
+      border-style: dashed;
+      border-radius: 6px;
+      background: #eff6ff;
+    }
+  }
+
+  .source-words .phrase-word .qpc-hafs {
+    font-size: 1.35rem;
+    line-height: 2rem;
+  }
+
+  .range-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 9999px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 0.75rem;
+    font-family: ui-monospace, monospace;
+
+    &.is-pending {
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-family: inherit;
+    }
+  }
+
+  .range-chip-remove {
+    line-height: 1;
+    font-size: 0.9rem;
+    color: #15803d;
     cursor: pointer;
 
-    &.active, &:hover{
-      color: white;
-      background: $danger;
+    &:hover {
+      color: #dc2626;
+    }
+  }
+
+  [data-mutashabihat-ayah-target="saveButton"].is-dirty {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #86efac;
+  }
+
+  [data-mutashabihat-ayah-target="bookmark"].is-active {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+  }
+}
+
+// Ayah proofreading page
+[data-controller~="mutashabihat-proofread"] {
+  // Room between rows for up to 3 lines and the +N count under words
+  .ayah-text {
+    line-height: 3.4;
+  }
+
+  // Pinned under the site header so the words stay in view while
+  // scrolling the phrases. On phones it scrolls away, there's no room.
+  .ayah-sticky {
+    background: #fff;
+    margin: 0.5rem -1.5rem 0;
+    padding: 0.25rem 1.5rem 0.5rem;
+    z-index: 20;
+
+    @media (min-width: 768px) {
+      position: sticky;
+      top: 75px;
     }
 
-    &.active:hover{
-      background: $info !important;
+    &.is-stuck {
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 6px 12px -8px rgba(15, 23, 42, 0.25);
+      max-height: 40vh;
+      overflow-y: auto;
+
+      .ayah-text {
+        font-size: 1.5rem;
+        line-height: 3;
+      }
     }
+  }
+
+  .ayah-word {
+    position: relative;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    transition: opacity 0.15s, background-color 0.15s;
+  }
+
+  &.is-focusing .ayah-word:not(.is-focused) {
+    opacity: 0.3;
+  }
+
+  .ayah-word.is-focused {
+    background-color: #f1f5f9;
+  }
+
+  // Word in more than 3 phrases: only 3 lines are drawn
+  .ayah-word[data-more]::after {
+    content: attr(data-more);
+    position: absolute;
+    left: 50%;
+    bottom: -1.05rem;
+    transform: translateX(-50%);
+    font-family: system-ui, sans-serif;
+    font-size: 10px;
+    line-height: 1;
+    color: #64748b;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .phrase-chip.is-focused,
+  .phrase-chip:hover {
+    border-color: #94a3b8;
+  }
+
+  .phrase-group {
+    transition: box-shadow 0.15s, border-color 0.15s;
+
+    &.is-focused {
+      border-color: #94a3b8;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.12);
+    }
+  }
+
+  .phrase-ayahs[open] > summary .fa-chevron-right {
+    transform: rotate(90deg);
+  }
+
+  .phrase-ayahs > summary::-webkit-details-marker {
+    display: none;
   }
 }

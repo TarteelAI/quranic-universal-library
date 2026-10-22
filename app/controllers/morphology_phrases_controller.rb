@@ -1,29 +1,61 @@
 class MorphologyPhrasesController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :find_resource
-  before_action :authenticate_user!, only: %i[new edit create update destroy]
-  before_action :authorize_access!, only: %i[new edit create update destroy]
+  before_action :authenticate_user!, only: %i[new edit create update destroy review_ayah merge]
+  before_action :authorize_access!, only: %i[new edit create update destroy review_ayah merge]
   before_action :init_presenter
   def show
     if params[:proofread].present?
-      @verse = Verse.find_by_id_or_key(params[:id])
-    else
-      @phrase = Morphology::Phrase.find(params[:id])
-
-      if params[:result_type] == 'preview'
-        return render 'preview', layout: false
-      else
-        @phrase_search = SimilarAyahPhraseSearch.new(@phrase.source_verse, [@phrase.word_position_from, @phrase.word_position_to], @phrase.id)
-
-        @suggestions = @phrase_search.get_suggestions(
-          @phrase.text_qpc_hafs,
-          text_search: params[:use_text_search].to_i == 1 || params[:use_text_search].nil?,
-          root: params[:use_root_search].to_i == 1,
-          lemma: params[:use_root_search].to_i == 1,
-          lcs: params[:use_lcs_search].to_i == 1
-        )
+      if @presenter.verse.blank?
+        redirect_to morphology_phrases_path(proofread: true), alert: 'Sorry ayah not found.'
       end
+    elsif params[:result_type] == 'preview'
+      @phrase = @presenter.phrase
+      render 'preview', layout: false
+    elsif @presenter.review.blank?
+      redirect_to morphology_phrases_path, alert: "Phrase #{params[:id]} has no source ayah to build from."
     end
+  end
+
+  # Auto-detected shared phrases for an ayah, loaded into the ayah page
+  def detect
+    return head(:not_found) if @presenter.verse.blank?
+
+    render layout: false
+  end
+
+  # Ayahs of a phrase, loaded when its ayah count is expanded on the ayah page
+  def ayahs
+    render layout: false
+  end
+
+  # Approve, disapprove or remove one ayah row of a phrase
+  def review_ayah
+    @phrase_verse = @presenter.phrase.phrase_verses.find(params[:phrase_verse_id])
+
+    case params[:status]
+    when 'approve'
+      @phrase_verse.update(approved: true, review_status: 'new')
+    when 'disapprove'
+      @phrase_verse.update(approved: false, review_status: 'new')
+    when 'remove'
+      @phrase_verse.update(approved: false, review_status: 'remove')
+    else
+      return head(:bad_request)
+    end
+
+    @presenter.phrase.update_verses_stats
+    flash.now[:notice] = "#{@phrase_verse.verse.verse_key} #{params[:status] == 'remove' ? 'removed from' : "#{params[:status]}d for"} phrase #{@phrase_verse.phrase_id}"
+  end
+
+  # Merge duplicate phrases into the one to keep, then delete the duplicates
+  def merge
+    keep = Morphology::Phrase.find(params[:keep_id])
+    duplicates = Morphology::Phrase.where(id: Array(params[:phrase_ids])).where.not(id: keep.id).to_a
+    merge = Mutashabihat::PhraseMerge.new(keep, duplicates).run
+
+    redirect_back fallback_location: morphology_phrase_path(keep.id),
+                  notice: "Merged #{duplicates.map { |p| "##{p.id}" }.to_sentence} into ##{keep.id}: #{helpers.pluralize(merge.moved, 'ayah')} moved, #{merge.combined} already there."
   end
 
   def phrase_verses
@@ -34,35 +66,26 @@ class MorphologyPhrasesController < CommunityController
 
   def create
     builder = PhraseBuilderService.new(phrase_params)
-    @phrase_verse = builder.run
+    @verse = Verse.find(phrase_params[:verse_id])
 
-    flash[:notice] = "Saved successfully"
+    if builder.selected_ranges.blank?
+      flash.now[:alert] = 'Select at least one word range before saving.'
+      return render turbo_stream: turbo_stream.replace('flash-messages', partial: 'shared/flash_notices')
+    end
+
+    @phrase_verses = builder.run
+    @phrase = builder.phrase
+
+    flash.now[:notice] = "Saved #{@verse.verse_key} with #{helpers.pluralize(@phrase_verses.size, 'range')}"
   end
 
   def new
     if params[:add_ayah_key].present?
-      render partial: 'morphology_phrases/add_ayah_suggestion'
+      render partial: 'morphology_phrases/add_ayah_suggestion', formats: :turbo_stream
     elsif params[:modal]
       render layout: false
-    else
-      ayah, range = nil
-
-      if params[:ayah_key].present?
-        ayah = Verse.find_by(verse_key: params[:ayah_key])
-        range = [params[:word_from] || 1, params[:word_to] || ayah.words_count].map(&:to_i)
-      end
-
-      @phrase_search = SimilarAyahPhraseSearch.new(ayah, range)
-      @phrase = @phrase_search.get_phrase(params[:text].presence)
-      @existing_verses = @phrase.verses(eager_load: nil)
-
-      @suggestions = @phrase_search.get_suggestions(
-        params[:text].presence,
-        text_search: params[:use_text_search].to_i == 1 || params[:use_text_search].nil?,
-        root: params[:use_root_search].to_i == 1,
-        lemma: params[:use_root_search].to_i == 1,
-        lcs: params[:use_lcs_search].to_i == 1
-      )
+    elsif (params[:ayah_key].present? || params[:text].present?) && @presenter.review.blank?
+      flash.now[:alert] = 'Could not find that ayah or phrase in the Quran.'
     end
   end
 
@@ -80,19 +103,16 @@ class MorphologyPhrasesController < CommunityController
 
   def index
     if params[:proofread].present?
-      list = Verse
+      list = @presenter.proofread_verses
 
-      if params[:filter_chapter].present?
-        list = list.where(chapter_id: params[:filter_chapter])
+      if MorphologyPhrasesPresenter::STATS_SORT_KEYS.include?(params[:sort_key])
+        # Phrase stats aren't columns, so sort ids in memory
+        ids = @presenter.sorted_verse_ids(list, params[:sort_key], sort_order)
+        @pagy, page_ids = pagy_array(ids)
+        @verses = Verse.where(id: page_ids).sort_by { |v| page_ids.index(v.id) }
+      else
+        @pagy, @verses = pagy(list.order("#{sort_key} #{sort_order}"))
       end
-
-      if params[:verse_number].present?
-        list = list.where(verse_number: params[:verse_number])
-      end
-
-      list = list.order("#{sort_key} #{sort_order}")
-
-      @pagy, @verses = pagy(list)
     else
       load_phrases
     end
@@ -100,11 +120,13 @@ class MorphologyPhrasesController < CommunityController
 
   def destroy
     phrase = Morphology::Phrase.find(params[:phrase_id])
-    @phrase_verse = phrase.phrase_verses.find_by(verse_id: params[:verse_id])
+    @verse = Verse.find(params[:verse_id])
+    phrase_verses = phrase.phrase_verses.where(verse_id: @verse.id)
 
-    if @phrase_verse
-      @phrase_verse.update(review_status: 'remove', approved: false)
-      flash[:notice] = 'This Ayah is unapproved for the phrase.'
+    if phrase_verses.exists?
+      phrase_verses.update_all(review_status: 'remove', approved: false)
+      phrase.update_verses_stats
+      flash.now[:notice] = "#{@verse.verse_key} removed from this phrase."
     end
   end
 
@@ -148,6 +170,15 @@ class MorphologyPhrasesController < CommunityController
       list = list.where(source_verse_id: verses.pluck(:id))
     end
 
+    case params[:filter_source]
+    when 'imported'
+      list = list.where(source: Morphology::Phrase::SOURCE_IMPORTED)
+    when 'pending_ayahs'
+      # Ayahs nobody has checked and not approved yet, e.g. the ones an
+      # import added to saved phrases
+      list = list.where(id: Morphology::PhraseVerse.where(review_status: nil, approved: false).select(:phrase_id))
+    end
+
     if params[:text].present?
       list = list.where("text_qpc_hafs like ?", "%#{params[:text].strip}%")
       list = list.or(list.where("text_qpc_hafs_simple like ?", "%#{params[:text].strip}%"))
@@ -168,6 +199,7 @@ class MorphologyPhrasesController < CommunityController
       :phrase_id,
       :selected_words,
       :excluded_words,
+      :ranges,
     )
   end
 

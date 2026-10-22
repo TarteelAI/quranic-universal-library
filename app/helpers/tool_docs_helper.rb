@@ -42,27 +42,220 @@ module ToolDocsHelper
     [
       "Mutashabihat ul Quran Tool",
       {
-        text: "The Mutashabihat tool is designed to identify and explore verses in the Quran that share similarities in wording, structure, or meaning (mutashabihat)."
+        text: "Mutashabihat are phrases of 3 or more words that appear in more than one ayah (or a whole 2-word ayah, like <span class='qpc-hafs'>الرَّحْمَٰنِ الرَّحِيمِ</span>). Sometimes word for word, often with a small difference that is easy to mix up while memorizing. This tool finds them and lets you review and save them."
+      },
+      {
+        type: 'info',
+        text: "The tool suggests phrases, but nothing is saved or exported until a reviewer approves it. Only approved ayahs of reviewed phrases go into the downloadable data."
+      },
+      {
+        type: 'heading',
+        text: 'How phrases and ayahs fit together'
+      },
+      {
+        type: 'info',
+        text: mutashabihat_diagrams
+      },
+      {
+        type: 'heading',
+        text: 'Two ways to work'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Phrase view</strong> (the default list) shows saved phrases, one row per phrase. Use it to find a phrase by text and open it in the builder.</li>
+            <li><strong>Proofreading view</strong> (<code>Proofread view</code> button) shows ayahs, one row per ayah, with how many phrases each has and whether they still need review. Use it to go through the Quran ayah by ayah.</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Create a new phrase'
       },
       {
         type: 'step',
-        title: 'Step 1: Select a Source Phrase',
-        text: "Select a Surah and Ayah to use as your anchor. Use the 'Word from' and 'Word to' dropdowns to pinpoint the exact sequence of words you want to analyze.",
-        screenshot: 'mutashabihat-builder.png'
+        title: 'Step 1: Start from an ayah or from text',
+        text: "Click <code>New Phrase</code>. Pick an ayah, or type a few words of the phrase in Arabic (diacritics are optional), and click <code>Find similar phrases</code>. You can also start from an ayah page in the proofreading view: click <code>Review</code> on an auto-detected phrase."
       },
       {
         type: 'step',
-        title: 'Step 2: Search for Similarities',
-        text: "Apply filters like 'Root', 'Lemma', or 'LCS' (Longest Common Subsequence) to find related verses. Click 'Apply Filter' to see a list of suggested ayahs that match your criteria.",
-        screenshot: 'mutashabihat-filters.png'
+        title: 'Step 2: Pick the source phrase',
+        text: "The builder shows the source ayah at the top. Click the first and then the last word of the phrase, and the tool searches again for ayahs sharing those words. Scrolling down, the source shrinks to a bar with only the selected words."
       },
       {
         type: 'step',
-        title: 'Step 3: Save and Refine',
-        text: "Review the suggested ayahs. You can include or exclude specific words by clicking the '+' or 'X' icons that appear when you hover over them. Click 'Save' to bookmark the phrase for future reference.",
-        screenshot: 'mutashabihat-save.png'
+        title: 'Step 3: Select the words in each ayah',
+        text: "Every ayah sharing the phrase is listed with the matching words already selected, and differing words underlined by kind (see below). Click the first and last word to change a range. If the phrase repeats in one ayah, select another range the same way. Click a word inside a range to leave it out. When the saved words differ from what the tool found, <code>Use suggested</code> switches to the found words."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Approve',
+        text: "Click <code>Approve</code> on each ayah that really shares the phrase. Approving saves the phrase (the first time) and the ayah with the words you selected. Use the filter buttons (<code>All</code>, <code>Saved</code>, <code>Exact</code>, <code>Similar</code>) to focus on the ayahs you haven't handled. To add an ayah that wasn't found, pick it under <i>Add an ayah manually</i>."
+      },
+      {
+        type: 'heading',
+        text: 'Approve, disapprove or remove an ayah'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Approve</strong> (<i class="fas fa-check"></i>): the ayah shares the phrase. It is marked reviewed and goes into exports.</li>
+            <li><strong>Not approved</strong> (<i class="fas fa-times"></i>): keep the ayah on the phrase, but leave it out of exports. Use it when you're unsure, or the match is too loose.</li>
+            <li><strong>Remove</strong> (<i class="fas fa-trash-alt"></i>): the ayah doesn't belong to the phrase. It disappears from the lists and won't be suggested again, also when data is imported again.</li>
+          </ul>
+          <p class="mt-2">In the builder these buttons are on each ayah card. On an ayah page in the proofreading view, click the ayah count of a phrase (<i>"5 ayahs share this phrase"</i>) to list its ayahs with the same buttons.</p>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Proofreading mode'
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find ayahs to review',
+        text: "In the proofreading view, filter by surah, ayah or <code>Phrase status</code> (<i>Needs review</i> is the to-do list). Sort by any column: phrases, linked ayahs (other ayahs sharing a phrase), words covered, or status. Click <code>Show</code> to open an ayah."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the ayah page',
+        text: "The ayah text is coloured by its saved phrases: each phrase has a number and a colour, and a word in more than one phrase gets one underline per phrase (up to 3; <b>+N</b> under a word means it is in N more). The legend under the ayah lists the phrases by number and word range. Hover a phrase card to highlight its words, or a word to highlight its phrases. Each card shows where the phrase is in this ayah, the source ayah it was built from, and its status."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Review the ayahs of each phrase',
+        text: "Click the ayah count on a phrase card to list every ayah sharing it, then approve, disapprove or remove each one. <code>Open in builder</code> opens the phrase to change words or add ayahs."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Check for missing phrases',
+        text: "Below the saved phrases, <i>Auto-detected shared phrases</i> lists what the tool found in the ayah that isn't saved yet. Phrases already saved with all their ayahs are hidden. A saved phrase missing some ayahs is shown with only the missing ones. Click <code>Review</code> to build a new phrase, or <code>Open phrase</code> to add the missing ayahs. Use <code>Previous ayah</code> and <code>Next ayah</code> to move on."
+      },
+      {
+        type: 'heading',
+        text: 'Statuses'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Reviewed</strong>: saved or checked by a reviewer.</li>
+            <li><strong>Auto-detected</strong>: found automatically, or imported, and nobody has checked it yet.</li>
+            <li><strong>Imported</strong>: imported from another Mutashabihat dataset. Review it like any auto-detected phrase.</li>
+            <li><strong>Needs review</strong> (ayah list): the ayah has auto-detected phrases, or ayahs nobody has checked yet.</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Kinds of difference'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Exact</strong>, word for word: <span class="qpc-hafs">رِجْزًا مِّنَ السَّمَاءِ</span> in 2:59 and 29:34.</li>
+            <li><strong>Prefix/suffix</strong>, the same word with و or ف, or a pronoun ending: <span class="qpc-hafs">فَكُلُوا</span> in 2:58, <span class="qpc-hafs">وَكُلُوا</span> in 7:161.</li>
+            <li><strong>Word form</strong>, the same word conjugated differently: <span class="qpc-hafs">عَمَّا تَعْمَلُونَ</span> in 2:74, <span class="qpc-hafs">عَمَّا يَعْمَلُونَ</span> in 2:144.</li>
+            <li><strong>Sounds similar</strong>, words of the same shape: <span class="qpc-hafs">فَأَنزَلْنَا</span> in 2:59, <span class="qpc-hafs">فَأَرْسَلْنَا</span> in 7:162.</li>
+            <li><strong>Word changed</strong>: <span class="qpc-hafs">يُذَبِّحُونَ</span> in 2:49, <span class="qpc-hafs">يُقَتِّلُونَ</span> in 7:141.</li>
+            <li><strong>Order changed</strong>: <span class="qpc-hafs">لَعِبٌ وَلَهْوٌ</span> in 6:32, <span class="qpc-hafs">لَهْوٌ وَلَعِبٌ</span> in 29:64.</li>
+            <li><strong>Word added or missing</strong>: <span class="qpc-hafs">إِنَّا كَذَٰلِكَ نَجْزِي الْمُحْسِنِينَ</span> in 37:80, without <span class="qpc-hafs">إِنَّا</span> in 37:110.</li>
+          </ul>
+        HTML
       }
     ]
+  end
+
+  # Pictures for the Mutashabihat help: how a source ayah, a phrase and the
+  # ayahs sharing it relate, and what the ayah page shows
+  def mutashabihat_diagrams
+    words = lambda do |x, y, count, highlight, color|
+      (0...count).map do |i|
+        fill = highlight.include?(i) ? color : '#e5e7eb'
+        "<rect x='#{x + i * 18}' y='#{y}' width='14' height='8' rx='2' fill='#{fill}'/>"
+      end.join
+    end
+
+    ayah = lambda do |x, y, label, count, highlight, color, note: nil, note_color: '#15803d'|
+      <<~SVG
+        <rect x='#{x}' y='#{y}' width='190' height='44' rx='6' fill='#fff' stroke='#cbd5e1'/>
+        <text x='#{x + 10}' y='#{y + 17}' font-size='12' font-weight='600' fill='#0f172a'>#{label}</text>
+        #{note ? "<text x='#{x + 180}' y='#{y + 17}' font-size='11' text-anchor='end' fill='#{note_color}'>#{note}</text>" : ''}
+        #{words.call(x + 10, y + 26, count, highlight, color)}
+      SVG
+    end
+
+    arrow = ->(x1, y1, x2, y2) { "<line x1='#{x1}' y1='#{y1}' x2='#{x2}' y2='#{y2}' stroke='#64748b' stroke-width='1.5' marker-end='url(#mt-arrow)'/>" }
+    marker = "<defs><marker id='mt-arrow' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#64748b'/></marker></defs>"
+    blue = '#0498CC'
+    orange = '#D47A27'
+
+    one_phrase = <<~SVG
+      <svg viewBox='0 0 660 210' width='100%' role='img' aria-label='A phrase is built from words of a source ayah and found in other ayahs' style='font-family: inherit'>
+        #{marker}
+        #{ayah.call(10, 83, 'Source ayah 2:59', 9, [5, 6, 7], blue)}
+        <text x='105' y='145' font-size='11' text-anchor='middle' fill='#475569'>you pick the words</text>
+        #{arrow.call(202, 105, 252, 105)}
+        <rect x='256' y='78' width='160' height='54' rx='27' fill='#ecfeff' stroke='#{blue}' stroke-width='1.5'/>
+        <text x='336' y='100' font-size='12' font-weight='600' text-anchor='middle' fill='#0f172a'>Phrase #16552</text>
+        <text x='336' y='120' font-size='14' text-anchor='middle' fill='#{blue}'>رِجْزًا مِّنَ السَّمَاءِ</text>
+        #{arrow.call(418, 98, 456, 36)}
+        #{arrow.call(418, 105, 456, 105)}
+        #{arrow.call(418, 112, 456, 174)}
+        #{ayah.call(460, 12, '2:59 (the source)', 9, [5, 6, 7], blue, note: '✓ approved')}
+        #{ayah.call(460, 83, '7:162', 10, [6, 7, 8], blue, note: '✓ approved')}
+        #{ayah.call(460, 154, '29:34', 9, [4, 5, 6], blue, note: 'not approved', note_color: '#b91c1c')}
+        <text x='550' y='206' font-size='11' text-anchor='middle' fill='#475569'>the ayahs of the phrase</text>
+      </svg>
+    SVG
+
+    one_ayah = <<~SVG
+      <svg viewBox='0 0 660 250' width='100%' role='img' aria-label='An ayah can contain several phrases, each with its own ayahs' style='font-family: inherit'>
+        #{marker}
+        <rect x='180' y='8' width='300' height='50' rx='6' fill='#fff' stroke='#0f172a' stroke-width='1.5'/>
+        <text x='192' y='27' font-size='12' font-weight='600' fill='#0f172a'>Ayah page: 6:73</text>
+        <text x='468' y='27' font-size='11' text-anchor='end' fill='#475569'>2 shared phrases</text>
+        #{words.call(192, 38, 15, [0, 1, 2, 3, 4], blue)}
+        #{words.call(192 + 12 * 18, 38, 3, [0, 1, 2], orange)}
+        #{arrow.call(260, 60, 175, 98)}
+        #{arrow.call(420, 60, 495, 98)}
+        <rect x='20' y='100' width='290' height='56' rx='8' fill='#ecfeff' stroke='#{blue}'/>
+        <circle cx='40' cy='120' r='10' fill='#{blue}'/><text x='40' y='124' font-size='11' font-weight='700' text-anchor='middle' fill='#fff'>1</text>
+        <text x='58' y='124' font-size='12' font-weight='600' fill='#0f172a'>Words 1–5, source 11:7</text>
+        <text x='165' y='146' font-size='13' text-anchor='middle' fill='#{blue}'>وَهُوَ الَّذِي خَلَقَ السَّمَاوَاتِ وَالْأَرْضَ</text>
+        <rect x='350' y='100' width='290' height='56' rx='8' fill='#fff7ed' stroke='#{orange}'/>
+        <circle cx='370' cy='120' r='10' fill='#{orange}'/><text x='370' y='124' font-size='11' font-weight='700' text-anchor='middle' fill='#fff'>2</text>
+        <text x='388' y='124' font-size='12' font-weight='600' fill='#0f172a'>Words 19–21, source 13:9</text>
+        <text x='495' y='146' font-size='13' text-anchor='middle' fill='#{orange}'>عَالِمُ الْغَيْبِ وَالشَّهَادَةِ</text>
+        <text x='165' y='178' font-size='11' text-anchor='middle' fill='#475569'>click "3 ayahs" to list them</text>
+        #{%w[6:73 11:7 57:4].each_with_index.map { |k, i| "<rect x='#{60 + i * 72}' y='188' width='62' height='22' rx='11' fill='#fff' stroke='#{blue}'/><text x='#{91 + i * 72}' y='203' font-size='11' text-anchor='middle' fill='#0f172a'>#{k}</text>" }.join}
+        <text x='495' y='178' font-size='11' text-anchor='middle' fill='#475569'>click "10 ayahs" to list them</text>
+        #{%w[6:73 13:9 23:92 +7].each_with_index.map { |k, i| "<rect x='#{366 + i * 66}' y='188' width='58' height='22' rx='11' fill='#fff' stroke='#{orange}'/><text x='#{395 + i * 66}' y='203' font-size='11' text-anchor='middle' fill='#0f172a'>#{k}</text>" }.join}
+        <text x='330' y='240' font-size='11' text-anchor='middle' fill='#475569'>Linked ayahs of 6:73 = every ayah in these lists except 6:73 itself (11 here)</text>
+      </svg>
+    SVG
+
+    <<~HTML
+      <div class="bg-white rounded border border-gray-200 p-3 space-y-4 text-sm">
+        <div>
+          <p class="font-semibold">One phrase</p>
+          <p class="text-gray-600">A phrase is built from words picked in one ayah, its <strong>source ayah</strong>. It is then found in other ayahs, each with its own range of words. The source is one of the phrase's ayahs too. Each ayah is approved on its own.</p>
+          #{one_phrase}
+        </div>
+        <div>
+          <p class="font-semibold">One ayah</p>
+          <p class="text-gray-600">An ayah can contain several phrases, and each phrase has its own source and its own ayahs. The ayah page shows the phrases of one ayah. Click a phrase's ayah count to see its ayahs, and approve or remove them there.</p>
+          #{one_ayah}
+        </div>
+        <ul class="list-disc ps-5 text-gray-700">
+          <li><strong>Source ayah</strong>: where the phrase was built from. Changing the source words changes the phrase.</li>
+          <li><strong>Ayahs of a phrase</strong>: every place the phrase occurs, the source included.</li>
+          <li><strong>Linked ayahs</strong> (ayah list): all other ayahs that share at least one phrase with the ayah.</li>
+        </ul>
+      </div>
+    HTML
   end
 
   def doc_image_tag(path)

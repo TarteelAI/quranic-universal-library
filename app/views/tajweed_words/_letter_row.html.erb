@@ -1,6 +1,6 @@
 <% rule_name = tajweed.name(letter['r']) %>
 
-<tr id="<%= dom_id @tajweed_word, letter['i'] %>">
+<tr id="<%= dom_id @presenter.tajweed_word, letter['i'] %>">
   <th scope="row">
     <%= letter['i'].to_i + 1 %>
   </th>
@@ -24,10 +24,10 @@
 
   <td>
     <% if @access %>
-      <%= form_with model: @tajweed_word, url: tajweed_word_path(@tajweed_word.location), data: { controller: 'tajweed-word-form' } do |f| %>
+      <%= form_with model: @presenter.tajweed_word, url: tajweed_word_path(@presenter.tajweed_word.location), data: { controller: 'tajweed-word-form' } do |f| %>
         <%= f.hidden_field :letter_index, value: letter['i'] %>
         <div class="flex justify-between">
-          <%= f.select :rule, options_for_select(rule_options, selected: letter['r']), { include_blank: 'Select rule' }, id: "l-#{@tajweed_word.id}-#{letter['i']}", data: { controller: 'select2', placeholder: 'Select rule' } %>
+          <%= f.select :rule, options_for_select(rule_options, selected: letter['r']), { include_blank: 'Select rule' }, id: "l-#{@presenter.tajweed_word.id}-#{letter['i']}", data: { controller: 'select2', placeholder: 'Select rule' } %>
 
           <%= f.submit 'Save', class: 'btn btn-success' %>
         </div>

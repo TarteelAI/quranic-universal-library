@@ -37,6 +37,8 @@ class WordTextProofreadingsPresenter < ApplicationPresenter
   end
 
   def current_ayah
-    @current_ayah ||= Verse.find(params[:id])
+    return @current_ayah if defined?(@current_ayah)
+
+    @current_ayah = Verse.find_by_id_or_key(params[:id])
   end
 end

@@ -6,9 +6,9 @@ class TajweedWordsController < CommunityController
   before_action :authenticate_user!, only: %i[update]
   before_action :authorize_access!, only: %i[update]
   before_action :init_presenter
+  before_action :ensure_tajweed_word, only: %i[show update]
+
   def show
-    @word = Word.find_by(location: params[:id])
-    @tajweed_word = TajweedWord.where(word_id: @word.id).first
   end
 
   def index
@@ -22,17 +22,23 @@ class TajweedWordsController < CommunityController
   end
 
   def rule_doc
-
+    if @presenter.tajweed_rule.blank?
+      redirect_to tajweed_words_path, alert: 'Sorry tajweed rule not found.'
+    end
   end
 
   def update
-    @word = Word.find_by(location: params[:id])
-    @tajweed_word = TajweedWord.where(word_id: @word.id).first
     p = rule_params
-    @letter = @tajweed_word.update_letter_rule(p[:letter_index], p[:rule])
+    @letter = @presenter.tajweed_word.update_letter_rule(p[:letter_index], p[:rule])
   end
 
   protected
+
+  def ensure_tajweed_word
+    if @presenter.tajweed_word.blank?
+      redirect_to tajweed_words_path, alert: 'Sorry word not found.'
+    end
+  end
 
   def rule_params
     params.require(:tajweed_word).permit(:letter_index, :rule)

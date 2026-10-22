@@ -6,30 +6,30 @@
   <div>
     <b>Text Uthmani tajweed(ReciteQuran):</b>
     <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
-      <%= safe_html @word.text_uthmani_tajweed %>
+      <%= safe_html @presenter.word.text_uthmani_tajweed %>
     </div>
   </div>
 
   <div>
     <b>Text QPC tajweed(Dar al Maarifah):</b>
     <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
-      <%= safe_html @word.text_qpc_hafs_tajweed %>
+      <%= safe_html @presenter.word.text_qpc_hafs_tajweed %>
     </div>
   </div>
 
   <div>
     <b>Quran academy tajweed:</b>
     <div class="quran-text">
-      <%= image_tag @word.qa_tajweed_image_url %>
+      <%= image_tag @presenter.word.qa_tajweed_image_url %>
     </div>
   </div>
 
   <div>
     <b>V4 tajweed:</b>
-    <div class="p<%= @word.v2_page %>-v4-tajweed quran-text"
+    <div class="p<%= @presenter.word.v2_page %>-v4-tajweed quran-text"
          data-controller="tajweed-font">
       <span style="font-size: 40px">
-        <%= @word.code_v2 %>
+        <%= @presenter.word.code_v2 %>
       </span>
     </div>
   </div>

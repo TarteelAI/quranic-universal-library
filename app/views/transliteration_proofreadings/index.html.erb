@@ -32,13 +32,15 @@
     <% end %>
   </div>
 
-  <div class="page-section mt-4">
+  <%# Sorting and paging reload only this frame, so the page keeps its scroll position %>
+  <% sort_params = { resource_id: @resource.id, filter_chapter: params[:filter_chapter], verse_number: params[:verse_number], filter_missing: params[:filter_missing], query: params[:query] } %>
+  <%= turbo_frame_tag 'transliteration-list', data: { turbo_action: 'advance' }, class: 'block page-section mt-4' do %>
     <h2><%= @resource.name %></h2>
     <div class="tools-table-overflow">
     <table class="w-full hover:bg-gray-50">
       <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
       <tr>
-        <th><%= sort_order_link 'Ayah key', :verse_key, resource_id: @resource.id %></th>
+        <th><%= sort_order_link 'Ayah', :verse_key, sort_params.dup %></th>
         <th>Text</th>
         <th>Actions</th>
       </tr>
@@ -47,7 +49,10 @@
       <% @presenter.verses.each do |verse| %>
         <% missing = verse.transliteration_text.blank? %>
         <tr class="hover:bg-gray-200 border-b <%= 'bg-red-50' if missing %>">
-          <td scope="row" class="py-2 pl-2"><%= verse.verse_key %></td>
+          <td scope="row" class="py-2 pl-2 whitespace-nowrap align-top">
+            <%= verse.verse_key %>
+            <div class="text-xs text-gray-500"><%= verse.chapter.name_simple %></div>
+          </td>
           <td class="py-2 <%= @resource.language_name %>" dir="<%= @resource.language&.direction %>">
             <% if missing %>
               <span class="text-red-600 text-sm font-medium">Missing transliteration</span>
@@ -58,9 +63,9 @@
           <td class="py-2">
             <div class="flex gap-1">
               <% if @access %>
-                <%= link_to(missing ? 'Add' : 'Edit', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-info') %>
+                <%= link_to(missing ? 'Add' : 'Edit', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' }) %>
               <% end %>
-              <%= link_to 'Show', transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success' %>
+              <%= link_to 'Show', transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
             </div>
           </td>
         </tr>
@@ -73,5 +78,5 @@
       </tbody>
     </table>
     </div>
-  </div>
+  <% end %>
 </div>

@@ -45,6 +45,18 @@ class TafsirPresenter < ResourcePresenter
     end
   end
 
+  # The ayah asked for, when it has no tafsir
+  def requested_verse
+    @requested_verse ||= Verse.find_by(verse_key: params[:verse_key].to_s.downcase)
+  end
+
+  # The ayah picked in the index filters
+  def filtered_verse
+    return if params[:filter_chapter].blank? || params[:verse_number].blank?
+
+    @filtered_verse ||= Verse.find_by(verse_key: "#{params[:filter_chapter].to_i}:#{params[:verse_number].to_i}")
+  end
+
   private
 
   def verse_key

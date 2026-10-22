@@ -1,0 +1,20 @@
+<%= render 'tools/header',
+           name: "Ayah tafsir",
+           title: "Add #{@resource.name} <div style='font-size: 0.5em'>For Surah #{@tafisr.verse.chapter.name_simple}, ayah #{@tafisr.verse.verse_number}</div>",
+           key: 'ayah_tafsir',
+           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]
+%>
+
+<%= render 'shared/access_message' %>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <h2><%= @resource.name %> - add tafsir for <%= @tafisr.verse.verse_key %></h2>
+    <p class="text-sm text-gray-500 mb-4">
+      This ayah has no tafsir yet. Write its tafsir, and widen the range if the same text explains the ayahs around it.
+      If the range takes ayahs from another tafsir, that tafsir is shortened once your suggestion is approved.
+    </p>
+
+    <%= render 'form', tafsir: @tafisr %>
+  </div>
+</div>

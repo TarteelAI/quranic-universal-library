@@ -349,26 +349,99 @@ module ToolDocsHelper
     [
       "Ayah Translation",
       {
-        text: "This tool is used to proofread and fix ayah translations. Please follow these steps to suggest fix for any translation:"
+        text: "This tool is used to proofread and fix ayah translations. Find the ayah, click <code>Edit</code>, make your fix, say what you changed in <code>Comment for the reviewer</code> and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
-
+      {
+        type: 'heading',
+        text: 'How translations and ayahs fit together'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Every ayah has its own translation. Most issues are in one ayah, but some cross into the ayah next to it, often from OCR: the translations of two ayahs end up merged in one, or part of a translation sits in the ayah before or after.</p>
+          #{ayah_text_diagram(
+            [['Ayahs', [[24, 'translation of 24', :same], [25, 'translation of 25 and 26', :wrong], [26, 'missing', :missing], [27, 'translation of 27', :same]]]]
+          )}
+          <p class="mt-2">You fix one ayah at a time, so these take a suggestion for each ayah, see <strong>2</strong> and <strong>3</strong> below. Some translators write one passage for several ayahs and repeat it in each of them, that's expected.</p>
+        HTML
+      },
       {
         type: 'step',
-        title: 'Step 1: Find the translation of an ayah',
-        text: "User filters to find the translation you're looking for, use <code>Surah</code> and <code>Ayah</code> dropdown to find translation for specific ayah. Click <code>Show</code> to open translation page.",
+        title: 'Find the translation of an ayah',
+        text: "Pick the translation, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Click <code>Show</code> to read it, then <code>Edit</code> to fix it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time. <code>Change view</code> shows a whole page, handy to compare ayahs next to each other.",
         screenshot: 'select-translation.png'
       },
       {
-        type: 'step',
-        title: 'Step 2: Read translation',
-        text: 'This page will show the ayah translation and footnotes(if any). Read the translation, if you find any issues, click the <code>Edit</code> button to fix the translation.',
-        screenshot: 'ayah-translation-detail.png'
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Step 3: Update the translation',
-        text: 'Update the translation and footnote text(if any). Click on the <code>Purpose changes</code> button to submit your changes for approval. Once approved, your changes will be reflected in the live translation.',
-        screenshot: 'update-ayah-translation.png'
+        title: '1. Fix a typo',
+        text: <<~HTML
+          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>.</p>
+          #{ayah_text_diagram(
+            [['Now', [[1, "All praise is for Allah, Lord of all <del class='text-red-600'>wrlds</del>", :wrong]]],
+             ['After', [[1, "All praise is for Allah, Lord of all <ins class='text-green-700 font-semibold no-underline'>worlds</ins>", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Translations of two ayahs merged in one',
+        text: <<~HTML
+          <p>Ayah 25 has its own translation and the translation of 26. Ayah 26 is empty, or has text of the ayah after it.</p>
+          #{ayah_text_diagram(
+            [['Now', [[25, 'translation of 25 <span class="text-red-600">translation of 26</span>', :wrong], [26, 'missing', :missing]]],
+             ['After', [[25, 'translation of 25', :fixed], [26, 'translation of 26', :fixed]]]]
+          )}
+          <ol class="list-decimal ps-5 mt-2 space-y-1">
+            <li>Edit ayah 25 and cut the translation of 26 from it. In the comment, write that it moved to 26. Click <code>Propose changes</code>.</li>
+            <li>Click <code>Next ayah</code>, edit ayah 26 and paste the translation there. In the comment, write that it came from 25.</li>
+          </ol>
+          <p class="mt-2">If the translations after it moved by one ayah too, continue with ayah 27 the same way. The comments help the reviewer approve them together.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Part of a translation in the ayah before or after',
+        text: <<~HTML
+          <p>The end of the translation of 25 sits at the start of 26.</p>
+          #{ayah_text_diagram(
+            [['Now', [[25, 'first part of 25', :wrong], [26, '<span class="text-red-600">rest of 25</span> translation of 26', :wrong]]],
+             ['After', [[25, 'first part of 25 rest of 25', :fixed], [26, 'translation of 26', :fixed]]]]
+          )}
+          <ol class="list-decimal ps-5 mt-2 space-y-1">
+            <li>Edit ayah 26, cut <em>rest of 25</em> and say so in the comment. Click <code>Propose changes</code>.</li>
+            <li>Click <code>Previous ayah</code>, edit ayah 25 and paste it at the end.</li>
+          </ol>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Fix, add or remove a footnote',
+        text: <<~HTML
+          <p>In the translation, a footnote is written as <code>{{1}}</code>, <code>{{2}}</code>. Each one has a box with its text under <code>Footnotes</code>.</p>
+          #{ayah_text_diagram(
+            [['You type', [[2, "Lord of all worlds, {{1}}<hr class='my-1'/>Footnote {{1}}: All of creation", :same]]],
+             ['Shown', [[2, "Lord of all worlds,<sup>1</sup><hr class='my-1'/><sup>1</sup> All of creation", :same]]]]
+          )}
+          <ul class="list-disc ps-5 mt-2 space-y-1">
+            <li><strong>Fix a footnote:</strong> change the text in its box.</li>
+            <li><strong>Add a footnote:</strong> click in the translation where it belongs, then click <code>Add footnote</code>. It puts the next number there, like <code>{{2}}</code>, and adds a box for its text. You can also type <code>{{2}}</code> yourself, the box appears.</li>
+            <li><strong>Remove a footnote:</strong> click <code>Remove</code> on its box, or delete its <code>{{1}}</code> from the text.</li>
+            <li><strong>Move a footnote:</strong> move its <code>{{1}}</code> in the text.</li>
+          </ul>
+          #{ayah_text_diagram(
+            [['Now', [[2, "Lord of all worlds, {{1}}<hr class='my-1'/>Footnote {{1}}: All of creation", :same]]],
+             ['After', [[2, "Lord <ins class='text-green-700 font-semibold no-underline'>{{2}}</ins> of all worlds, {{1}}<hr class='my-1'/>Footnote {{1}}: All of creation<br/><ins class='text-green-700 font-semibold no-underline'>Footnote {{2}}: Rabb, the one who cares for</ins>", :fixed]]]]
+          )}
+          <p class="mt-2">The number only links the text to its box. Readers see footnotes numbered in order, so a <code>{{2}}</code> before <code>{{1}}</code> shows as 1.</p>
+        HTML
+      },
+      {
+        type: 'info',
+        text: "Your changes are reviewed and, once approved, the translation is updated."
       }
     ]
   end
@@ -377,24 +450,102 @@ module ToolDocsHelper
     [
       "Ayah Transliteration",
       {
-        text: "This tool is used to proofread and fix ayah transliterations. Please follow these steps to suggest a fix for any transliteration:"
+        text: "This tool is used to proofread and fix ayah transliterations. Find the ayah, click <code>Edit</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'heading',
+        text: 'How the text is shown'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Every ayah has its own transliteration. Some transliterations mark reading details, like long vowels, with tags. You see the tags while editing, the page shows the result:</p>
+          #{ayah_text_diagram(
+            [['You type', [[2, '&lt;u&gt;Tha&lt;/u&gt;lika alkit&lt;u&gt;a&lt;/u&gt;bu', :same]]],
+             ['Shown', [[2, '<u>Tha</u>lika alkit<u>a</u>bu', :same]]]]
+          )}
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 1: Find the transliteration of an ayah',
-        text: "Select the transliteration, then use the <code>Surah</code> and <code>Ayah</code> dropdowns to find a specific ayah. Click <code>Show</code> to open the transliteration page."
+        title: 'Find the transliteration of an ayah',
+        text: "Pick the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Tick <code>Only missing ayahs</code> to list ayahs without a transliteration. Click <code>Show</code> to read it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time."
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Step 2: Read the transliteration',
-        text: 'This page shows the ayah and its transliteration. If you find any issues, click the <code>Edit</code> button to fix the transliteration.'
+        title: '1. Fix spelling',
+        text: <<~HTML
+          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>.</p>
+          #{ayah_text_diagram(
+            [['Now', [[2, "…hudan lilmuttaqee<del class='text-red-600'>m</del>", :wrong]]],
+             ['After', [[2, "…hudan lilmuttaqee<ins class='text-green-700 font-semibold no-underline'>n</ins>", :fixed]]]]
+          )}
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 3: Update the transliteration',
-        text: 'Update the transliteration and click <code>Propose changes</code> to submit your changes for approval. Keep the existing formatting tags (for example <code>&lt;u&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>) as they mark tajweed and letter details. Once approved, your changes will be reflected in the live transliteration.'
+        title: '2. Add a missing transliteration',
+        text: <<~HTML
+          <p>Missing ones are marked in red in the list. Open the ayah and click <code>Add transliteration</code>, write it and click <code>Propose changes</code>.</p>
+          #{ayah_text_diagram(
+            [['Now', [[5, 'no transliteration', :missing]]],
+             ['After', [[5, 'Iyyaka naAAbudu wa-iyyaka nastaAAeen', :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Keep the tags',
+        text: <<~HTML
+          <p>Fix only the letters. Don't remove <code>&lt;u&gt;</code>, <code>&lt;b&gt;</code> or <code>&lt;i&gt;</code> tags, they mark tajweed and letter details.</p>
+          <p class="mt-2">Only #{Transliteration::ALLOWED_TAGS.map { |tag| "<code>&lt;#{tag}&gt;</code>" }.join(', ')} are allowed, without attributes. A suggestion with any other tag, like a link, isn't saved.</p>
+          #{ayah_text_diagram(
+            [['Wrong', [[2, "&lt;u&gt;Tha&lt;/u&gt;lika alkit<del class='text-red-600'>&lt;u&gt;</del>a<del class='text-red-600'>&lt;/u&gt;</del>bu", :wrong]]],
+             ['Right', [[2, "&lt;u&gt;Tha&lt;/u&gt;lika alkit&lt;u&gt;a&lt;/u&gt;bu", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'info',
+        text: "Your changes are reviewed and, once approved, the transliteration is updated."
       }
     ]
+  end
+
+  # Ayah cards with their text, for the translation and transliteration help.
+  # rows: [label, [[ayah_number, text_html, kind], ...]]
+  # kind is :same, :wrong (needs a fix), :fixed, :missing or :repeat (one passage in several ayahs)
+  def ayah_text_diagram(rows)
+    styles = {
+      same: 'border-gray-300 bg-white',
+      wrong: 'border-red-400 bg-red-50',
+      fixed: 'border-green-600 bg-green-50',
+      missing: 'border-dashed border-gray-400 bg-white text-gray-400 italic',
+      repeat: 'border-amber-500 bg-amber-50'
+    }
+    legend = { wrong: 'needs a fix', fixed: 'after your fix', missing: 'missing', repeat: 'repeated passage' }
+    columns = rows.map { |row| row[1].size }.max
+
+    body = rows.map do |label, cells|
+      cards = cells.map do |ayah, text, kind|
+        "<div class='rounded border #{styles[kind]} p-2 text-xs leading-snug text-gray-800 min-w-0'>" \
+          "<div class='font-semibold text-gray-500 mb-1'>Ayah #{ayah}</div>#{text}</div>"
+      end.join
+      "<div class='text-xs font-semibold text-gray-900 pt-2'>#{label}</div>#{cards}"
+    end.join
+
+    used = rows.flat_map { |row| row[1].map(&:last) }.uniq & legend.keys
+    keys = used.map do |kind|
+      "<span><span class='inline-block w-2.5 h-2.5 rounded-sm border align-middle #{styles[kind]}'></span> #{legend[kind]}</span>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
+      "<div class='grid gap-1 #{'min-w-[32rem]' if columns > 2}' style='grid-template-columns: 4.5rem repeat(#{columns}, minmax(0, 1fr)); max-width: #{8 + columns * 12}rem'>#{body}</div>" \
+      "#{"<p class='text-xs text-gray-500 mt-2 flex flex-wrap gap-x-3'>#{keys}</p>" if keys.present?}</div>"
   end
 
   def word_transliteration_help
@@ -425,36 +576,142 @@ module ToolDocsHelper
     [
       "Ayah Tafsir tool help",
       {
-        text: "This tool is used to proofread and fix ayah tafsirs. Please follow these steps to suggest fix for any tafsir:"
+        text: "This tool is used to proofread and fix ayah tafsirs. Find the tafsir, click <code>Edit</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
-
+      {
+        type: 'heading',
+        text: 'How tafsir and ayahs fit together'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>A tafsir often explains several ayahs in one text. That text, with the <strong>first and last ayah</strong> it explains, is one tafsir in this tool (shown as <code>From ayah</code> and <code>To ayah</code>).</p>
+          #{tafsir_range_diagram(
+            [['Ayahs', [[22, :edit], [23, :edit], [24, :edit], [25, :other], [26, :third], [27, :third]],
+              [[0, 2, 'one tafsir: 22 - 24', :edit], [3, 3, '25', :other], [4, 5, '26 - 27', :third]]]]
+          )}
+          <ul class="list-disc ps-5 mt-2">
+            <li>Each box is an ayah, each colour one tafsir.</li>
+            <li>An ayah belongs to one tafsir only. Two tafsirs never share an ayah.</li>
+            <li>Some ayahs have no tafsir (a dashed box). Some tafsirs skip ayahs.</li>
+            <li>While you edit, the same picture shows what your change does, in <strong>green</strong>, before you submit it.</li>
+          </ul>
+        HTML
+      },
       {
         type: 'step',
-        title: 'Step 1: Find the tafsir',
-        text: "User filters to find the tafisr you're looking for, use <code>Surah</code> and <code>Ayah</code> dropdown to find tafisr for specific ayah. Click <code>Show</code> to open tafsir page.",
+        title: 'Find the tafsir',
+        text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. Click <code>Show</code> to read it, then <code>Edit</code> to fix it. <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
         screenshot: 'find-tafsir.png'
       },
       {
-        type: 'step',
-        title: 'Step 2: Read the tafsir',
-        text: 'This page will show the ayah tafsir. If you find any issues, click the <code>Edit</code> button to suggest the fix.',
-        screenshot: 'read-tafsir.png'
-      },
-      {
-        type: 'info',
-        text: "Tafsir often applies to a group of Ayahs. This tool allows you to edit Tafsir content and adjust the Ayah range it applies to."
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Step 3: Fix the tafsir and ayah range',
-        text: "Edit Tafsir content and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Tafsir in HTML format. Use the 'Verse From' and 'Verse To' dropdowns to adjust the Ayah range. Click <code>Propose changes</code> to submit your edits.",
-        screenshot: 'update-tafsir.png'
+        title: '1. Fix a typo or formatting',
+        text: <<~HTML
+          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>. Leave <code>First ayah</code> and <code>Last ayah</code> as they are.</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other]], [[0, 2, '“...the gardn of bliss”', :edit]]],
+             ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :other]], [[0, 2, '“...the garden of bliss”', :edit]]]]
+          )}
+          <p class="mt-2">The ayahs stay the same, only the text changes. To fix the HTML (headings, bold, lists), click <code>View</code> and then <code>Source code</code> in the editor.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Change the ayahs a tafsir explains',
+        text: <<~HTML
+          <p>Change <code>First ayah</code> or <code>Last ayah</code>. Below the dropdowns, the picture shows the tafsirs around it now and after approval.</p>
+          <p class="font-semibold mt-3">Widen it</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other], [26, :other], [27, :third]], [[0, 2, '22 - 24', :edit], [3, 4, '25 - 26', :other], [5, 5, '27', :third]]],
+             ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :edit], [26, :other], [27, :third]], [[0, 3, '22 - 25', :edit], [4, 4, '26', :other], [5, 5, '27', :third]]]]
+          )}
+          <p class="mt-2">The tafsir that had 25 is shortened to 26. If a tafsir loses all its ayahs it is archived, so make sure its text is in yours.</p>
+          <p class="font-semibold mt-3">Narrow it</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :edit], [26, :other], [27, :other]], [[0, 3, '22 - 25', :edit], [4, 5, '26 - 27', :other]]],
+             ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :none], [26, :other], [27, :other]], [[0, 2, '22 - 24', :edit], [3, 3, 'no tafsir', :none], [4, 5, '26 - 27', :other]]]]
+          )}
+          <p class="mt-2">Ayah 25 is left with no tafsir. To give it to the next tafsir, see <strong>4. Move an ayah</strong>.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Add tafsir for an ayah that has none',
+        text: <<~HTML
+          <p>Open the ayah (filter by it, or use <code>Next tafsir</code> from the tafsir before it). It says the ayah has no tafsir. Click <code>Add tafsir</code>, write the text and click <code>Propose changes</code>. Widen the range if the same text explains the ayahs after it.</p>
+          #{tafsir_range_diagram(
+            [['Now', [[20, :other], [21, :other], [22, :none], [23, :third], [24, :third]], [[0, 1, '20 - 21', :other], [2, 2, 'none', :none], [3, 4, '23 - 24', :third]]],
+             ['After', [[20, :other], [21, :other], [22, :edit], [23, :third], [24, :third]], [[0, 1, '20 - 21', :other], [2, 2, 'new', :edit], [3, 4, '23 - 24', :third]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Move an ayah from one tafsir to another',
+        text: <<~HTML
+          <p>For example, the tafsir for 22 - 24 already explains ayah 25, but 25 sits in the next tafsir. This takes two suggestions:</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other], [26, :other], [27, :other]], [[0, 2, '22 - 24 (explains 25 too)', :edit], [3, 5, '25 - 27', :other]]],
+             ['Step 1', [[22, :edit], [23, :edit], [24, :edit], [25, :edit], [26, :other], [27, :other]], [[0, 3, 'edit: last ayah 25', :edit], [4, 5, '26 - 27 by itself', :other]]],
+             ['Step 2', [[22, :other], [23, :other], [24, :other], [25, :other], [26, :edit], [27, :edit]], [[0, 3, '22 - 25', :other], [4, 5, 'edit: remove 25 from text', :edit]]]]
+          )}
+          <ol class="list-decimal ps-5 mt-2 space-y-1">
+            <li>Edit the tafsir that should get the ayah. Set <code>Last ayah</code> to 25, and add its text if it isn't there. The other tafsir is shortened to 26 - 27 for you.</li>
+            <li>Edit the other tafsir (the preview links to it) and remove the text about ayah 25, if it has any.</li>
+          </ol>
+          <p class="mt-2">To move an ayah backwards, change <code>First ayah</code> of the tafsir after it instead.</p>
+        HTML
       },
       {
         type: 'info',
-        text: "Your changes will be reviewed and, once approved, the Tafsir will be updated."
+        text: "Your changes are reviewed and, once approved, the tafsir is updated. Ranges never overlap: when an approved range takes ayahs from other tafsirs, those are shortened, or archived if they have no ayahs left."
       }
     ]
+  end
+
+  # Rows of ayah boxes coloured by tafsir, for the tafsir help.
+  # rows: [label, [[ayah_number, kind], ...], [[from_index, to_index, caption, kind], ...]]
+  # kind is :edit (the tafsir being changed), :other, :third or :none (no tafsir)
+  def tafsir_range_diagram(rows)
+    colors = { edit: '#16a34a', other: '#D47A27', third: '#64748b', none: nil }
+    cell = 40
+    gap = 4
+    left = 64
+    row_height = 62
+    width = left + 7 * (cell + gap) + 10
+
+    body = rows.each_with_index.map do |(label, cells, groups), r|
+      y = 6 + r * row_height
+      boxes = cells.each_with_index.map do |(number, kind), i|
+        x = left + i * (cell + gap)
+        if (color = colors[kind])
+          "<rect x='#{x}' y='#{y}' width='#{cell}' height='28' rx='4' fill='#{color}'/>" \
+            "<text x='#{x + cell / 2}' y='#{y + 19}' font-size='12' font-weight='600' text-anchor='middle' fill='#fff'>#{number}</text>"
+        else
+          "<rect x='#{x + 0.5}' y='#{y + 0.5}' width='#{cell - 1}' height='27' rx='4' fill='#fff' stroke='#94a3b8' stroke-dasharray='4 3'/>" \
+            "<text x='#{x + cell / 2}' y='#{y + 19}' font-size='12' text-anchor='middle' fill='#94a3b8'>#{number}</text>"
+        end
+      end.join
+
+      captions = groups.map do |from, to, caption, kind|
+        x1 = left + from * (cell + gap)
+        x2 = left + to * (cell + gap) + cell
+        color = colors[kind] || '#94a3b8'
+        "<line x1='#{x1 + 2}' y1='#{y + 34}' x2='#{x2 - 2}' y2='#{y + 34}' stroke='#{color}' stroke-width='2'/>" \
+          "<text x='#{(x1 + x2) / 2}' y='#{y + 48}' font-size='11' text-anchor='middle' fill='#334155'>#{ERB::Util.html_escape(caption)}</text>"
+      end.join
+
+      "<text x='0' y='#{y + 19}' font-size='12' font-weight='600' fill='#0f172a'>#{label}</text>#{boxes}#{captions}"
+    end.join
+
+    height = rows.size * row_height
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
+      "<svg viewBox='0 0 #{width} #{height}' width='100%' style='max-width: #{width + 120}px; font-family: inherit' role='img' aria-label='Ayahs coloured by the tafsir they belong to'>#{body}</svg></div>"
   end
 
   def mushaf_layout_help

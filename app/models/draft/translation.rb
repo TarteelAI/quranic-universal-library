@@ -102,13 +102,32 @@ class Draft::Translation < ApplicationRecord
 
     attribute_versions_to(user) do
       translation.save(validate: false)
+      existing_ids = translation.foot_notes.pluck(:id)
+      new_ids = {}
 
       foot_notes.each do |footnote|
         translation_footnote = translation.foot_notes.where(id: footnote.foot_note_id).first_or_initialize
         translation_footnote.text = footnote.draft_text
         translation_footnote.translation = translation
+        translation_footnote.resource_content_id ||= footnote.resource_content_id
+        translation_footnote.language_id ||= language.id
+        translation_footnote.language_name ||= language.name
         translation_footnote.save(validate: false)
+        new_ids[footnote.id] = translation_footnote.id if footnote.foot_note_id.blank?
       end
+
+      # The text links a new footnote by its draft id, point it to the saved footnote
+      if new_ids.any?
+        translation.text = translation.text.gsub(FOOTNOTE_SUP_REGEXP) do |sup|
+          id = Regexp.last_match(:id).to_i
+          new_ids.key?(id) && !existing_ids.include?(id) ? sup.sub(REGEXP_FOOTNOTE_ID, "foot_note=#{new_ids[id]}") : sup
+        end
+        translation.save(validate: false)
+      end
+
+      removed_ids = Array(meta_value('removed-foot-note-ids')).map(&:to_i)
+      translation.foot_notes.where(id: removed_ids).destroy_all if removed_ids.any?
+      translation.update_footnote_count
     end
 
     translation.get_resource_content.touch

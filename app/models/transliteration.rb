@@ -45,7 +45,28 @@ class Transliteration < QuranApiRecord
     )
   end
 
+  # Tags that mark tajweed and letter details, nothing else is allowed
+  ALLOWED_TAGS = %w[b strong i em u s small].freeze
+
+  # Messages for tags that aren't allowed, or that have attributes
+  def self.tag_errors(text)
+    tags = text.to_s.scan(%r{<\s*/?\s*([a-zA-Z][\w-]*)([^>]*)>})
+    names = tags.map { |name, _| name.downcase }.uniq - ALLOWED_TAGS
+    errors = names.map { |name| "<#{name}> isn't allowed, only #{ALLOWED_TAGS.map { |t| "<#{t}>" }.join(', ')}" }
+    errors << 'Tags have no attributes, write <b> instead of <b class="...">' if tags.any? { |_, attrs| attrs.strip.delete('/').present? }
+    errors
+  end
+
+  def self.sanitize_tags(text)
+    Rails::HTML5::SafeListSanitizer.new.sanitize(text.to_s, tags: ALLOWED_TAGS, attributes: [])
+  end
+
+  # Returns false and sets errors when the text is blank or has tags that aren't allowed
   def save_suggestions(params, user)
+    errors.add(:base, 'Transliteration text is required') if params[:draft_text].blank?
+    self.class.tag_errors(params[:draft_text]).each { |message| errors.add(:base, message) }
+    return false if errors.any?
+
     draft = Draft::Transliteration.new(params)
     draft.resource_content_id = resource_content_id
     draft.current_text = text

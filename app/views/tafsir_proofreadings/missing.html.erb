@@ -1,0 +1,39 @@
+<%
+  verse = @presenter.requested_verse
+  actions = []
+
+  if @access
+    actions << link_to('Add tafsir', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'btn btn-success')
+  end
+  if (previous_ayah = verse.previous_ayah)
+    actions << link_to('Previous ayah', tafsir_proofreading_path(0, resource_id: @resource.id, verse_key: previous_ayah.verse_key), class: 'btn btn-dark')
+  end
+  if (next_ayah = verse.next_ayah)
+    actions << link_to('Next ayah', tafsir_proofreading_path(0, resource_id: @resource.id, verse_key: next_ayah.verse_key), class: 'btn btn-dark')
+  end
+%>
+
+<%= render 'tools/header',
+           name: "Ayah tafsir",
+           title: "#{@resource.name} <div style='font-size: 0.5em'>Surah #{verse.chapter.name_simple}, ayah #{verse.verse_number}</div>",
+           key: 'ayah_tafsir',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <div class="quran-text qpc-hafs text-2xl text-right leading-loose mb-4" dir="rtl"><%= verse.text_qpc_hafs %></div>
+
+    <div class="text-center py-8 px-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-600">
+      <p class="font-medium text-gray-800"><%= @resource.name %> has no tafsir for <%= verse.verse_key %></p>
+      <p class="text-sm mt-1">
+        Some tafsirs skip ayahs. If this one should have tafsir, add it here,
+        or open the tafsir before or after and widen its range to include <%= verse.verse_key %>.
+      </p>
+      <% if @access %>
+        <%= link_to 'Add tafsir for this ayah', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'inline-flex mt-4 px-3 py-1.5 text-sm font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' %>
+      <% end %>
+    </div>
+  </div>
+</div>

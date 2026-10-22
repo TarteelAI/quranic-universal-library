@@ -1,0 +1,70 @@
+<%
+  actions = []
+  verse = @presenter.verse
+
+  if @access
+    actions << link_to('Edit', edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+  end
+
+  if (previous_ayah = verse.previous_ayah)
+    actions << link_to('Previous ayah', word_transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  end
+
+  if (next_ayah = verse.next_ayah)
+    actions << link_to('Next ayah', word_transliteration_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  end
+
+  pending_suggestions = @presenter.pending_suggestions_count
+%>
+
+<%= render 'tools/header',
+           name: "Word transliteration",
+           title: @presenter.page_title,
+           key: 'word_transliteration',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: word_transliteration_proofreadings_path(resource_id: @resource.id) }]
+%>
+
+<%= render 'shared/access_message' %>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <h2>Word transliteration for <%= verse.verse_key %></h2>
+
+    <div class="qpc-hafs my-3">
+      <%= verse.text_qpc_hafs %>
+    </div>
+
+    <% if pending_suggestions.positive? %>
+      <p class="mt-2 text-sm text-gray-600">
+        <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
+      </p>
+    <% end %>
+
+    <table class="w-full mt-4 border-collapse">
+      <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+      <tr>
+        <th class="px-3 py-2 text-left font-semibold w-16">Word#</th>
+        <th class="px-3 py-2 text-left font-semibold">Text Uthmani</th>
+        <th class="px-3 py-2 text-left font-semibold">Transliteration</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @presenter.words.each do |word| %>
+        <% text = @presenter.transliteration_text(word) %>
+        <tr class="border-b hover:bg-gray-100 <%= 'bg-red-50' if text.blank? %>">
+          <th scope="row" class="px-3 py-2 text-left font-medium text-gray-500"><%= word.position %></th>
+          <td class="px-3 py-2"><span class="qpc-hafs text-2xl"><%= word.text_qpc_hafs %></span></td>
+          <td class="px-3 py-2 <%= @resource.language_name %>" dir="<%= @resource.language&.direction %>">
+            <% if text.blank? %>
+              <span class="text-red-600 text-sm font-medium">Missing transliteration</span>
+            <% else %>
+              <%= text %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

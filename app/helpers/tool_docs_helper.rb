@@ -6,6 +6,7 @@ module ToolDocsHelper
       'ayah_recitation',
       'ayah_tafsir',
       'ayah_translation',
+      'ayah_transliteration',
       'char',
       'corpus',
       'mutashabihat',
@@ -16,6 +17,7 @@ module ToolDocsHelper
       'surah_recitation_segment_builder',
       'tajweed',
       'word_translation',
+      'word_transliteration',
       'compare_ayah',
       'ayah_dependency_graph',
       'ayah_boundaries',
@@ -174,6 +176,54 @@ module ToolDocsHelper
         title: 'Step 3: Update the translation',
         text: 'Update the translation and footnote text(if any). Click on the <code>Purpose changes</code> button to submit your changes for approval. Once approved, your changes will be reflected in the live translation.',
         screenshot: 'update-ayah-translation.png'
+      }
+    ]
+  end
+
+  def ayah_transliteration_help
+    [
+      "Ayah Transliteration",
+      {
+        text: "This tool is used to proofread and fix ayah transliterations. Please follow these steps to suggest a fix for any transliteration:"
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find the transliteration of an ayah',
+        text: "Select the transliteration, then use the <code>Surah</code> and <code>Ayah</code> dropdowns to find a specific ayah. Click <code>Show</code> to open the transliteration page."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the transliteration',
+        text: 'This page shows the ayah and its transliteration. If you find any issues, click the <code>Edit</code> button to fix the transliteration.'
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Update the transliteration',
+        text: 'Update the transliteration and click <code>Propose changes</code> to submit your changes for approval. Keep the existing formatting tags (for example <code>&lt;u&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>) as they mark tajweed and letter details. Once approved, your changes will be reflected in the live transliteration.'
+      }
+    ]
+  end
+
+  def word_transliteration_help
+    [
+      "Word by Word Transliteration",
+      {
+        text: "This tool is used to proofread and fix the transliteration of each word. Please follow these steps to suggest a fix:"
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find an ayah',
+        text: "Select the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Tick <code>Only ayahs with missing words</code> to list ayahs that still have words without transliteration. Click <code>Show</code> to open the ayah."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the transliteration',
+        text: 'This page lists every word of the ayah with its transliteration. Missing ones are highlighted. If you find any issues, click the <code>Edit</code> button.'
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Update the transliteration',
+        text: 'Fix the words that need it and click <code>Propose changes</code>. Only the words you changed are submitted for approval. Once approved, your changes will be reflected in the live transliteration.'
       }
     ]
   end

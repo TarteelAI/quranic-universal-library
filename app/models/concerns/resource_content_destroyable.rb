@@ -88,6 +88,7 @@ module ResourceContentDestroyable
       'Chapter infos' => ChapterInfo.where(resource_content_id: id),
       'Footnotes' => FootNote.where(resource_content_id: id),
       'Transliterations' => Transliteration.where(resource_content_id: id),
+      'Word transliterations' => WordTransliteration.where(resource_content_id: id),
       'Tokens' => Token.where(resource_content_id: id),
       'Media contents' => MediaContent.where(resource_content_id: id),
       'Verse topics' => VerseTopic.where(topic_id: topic_ids),

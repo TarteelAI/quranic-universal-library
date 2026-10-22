@@ -434,6 +434,7 @@ namespace :one_time do
     resource = ResourceContent.one_verse.where(name: 'Turkish Transliteration').first_or_create
     resource.language = turkish
     resource.language_name = turkish.name.downcase
+    resource.sub_type = ResourceContent::SubType::Transliteration
     resource.save
 
     tr_data = Oj.load File.read("data/transliterations/tr2.transliteration.json")
@@ -442,18 +443,12 @@ namespace :one_time do
       verse = Verse.find_by(chapter_id: row['sura'], verse_number: row['aya'])
       text = row['text'].strip
 
-      tr = Translation.where(
+      tr = Transliteration.where(
         verse_id: verse.id,
         resource_content_id: resource.id
       ).first_or_initialize
 
       tr.text = text
-      tr.resource_name = resource.name
-      tr.verse_key = verse.verse_key
-      tr.chapter_id = verse.chapter_id
-      tr.verse_number = verse.verse_number
-      tr.juz_number = verse.juz_number
-      tr.hizb_number = verse.hizb_number
       tr.language_name = 'turkish'
       tr.language = turkish
       tr.save
@@ -465,6 +460,7 @@ namespace :one_time do
     en_resource = ResourceContent.one_verse.where(name: 'English Transliteration(Tajweed)').first_or_create
     en_resource.language = en
     en_resource.language_name = en.name.downcase
+    en_resource.sub_type = ResourceContent::SubType::Transliteration
     en_resource.save
 
     tajweed_data = Oj.load File.read("data/transliterations/tajweed_transliteration2.json")
@@ -473,18 +469,12 @@ namespace :one_time do
       verse = Verse.find_by(chapter_id: row['sura'], verse_number: row['aya'])
       text = row['text'].strip
 
-      tr = Translation.where(
+      tr = Transliteration.where(
         verse_id: verse.id,
         resource_content_id: en_resource.id
       ).first_or_initialize
 
       tr.text = text
-      tr.resource_name = en_resource.name
-      tr.verse_key = verse.verse_key
-      tr.chapter_id = verse.chapter_id
-      tr.verse_number = verse.verse_number
-      tr.juz_number = verse.juz_number
-      tr.hizb_number = verse.hizb_number
       tr.language_name = 'english'
       tr.language = en
       tr.save
@@ -495,6 +485,7 @@ namespace :one_time do
     rtf_resource = ResourceContent.one_verse.where(name: 'English Transliteration(RTF)').first_or_create
     rtf_resource.language = en
     rtf_resource.language_name = en.name.downcase
+    rtf_resource.sub_type = ResourceContent::SubType::Transliteration
     rtf_resource.save
 
     rtf_data = Oj.load File.read("data/transliterations/en.transliteration.json")
@@ -503,18 +494,12 @@ namespace :one_time do
       verse = Verse.find_by(chapter_id: row['sura'], verse_number: row['aya'])
       text = row['text'].strip
 
-      tr = Translation.where(
+      tr = Transliteration.where(
         verse_id: verse.id,
         resource_content_id: rtf_resource.id
       ).first_or_initialize
 
       tr.text = text
-      tr.resource_name = rtf_resource.name
-      tr.verse_key = verse.verse_key
-      tr.chapter_id = verse.chapter_id
-      tr.verse_number = verse.verse_number
-      tr.juz_number = verse.juz_number
-      tr.hizb_number = verse.hizb_number
       tr.language_name = 'english'
       tr.language = en
       tr.save

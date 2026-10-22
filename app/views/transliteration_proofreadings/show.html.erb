@@ -1,0 +1,54 @@
+<%
+  actions = []
+  verse = @presenter.verse
+
+  missing = @presenter.missing_transliteration?
+
+  if @access
+    actions << link_to(missing ? 'Add transliteration' : 'Edit', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+  end
+
+  if (previous_ayah = verse.previous_ayah)
+    actions << link_to('Previous ayah', transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  end
+
+  if (next_ayah = verse.next_ayah)
+    actions << link_to('Next ayah', transliteration_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+  end
+
+  pending_suggestions = @presenter.pending_suggestions_count
+%>
+
+<%= render 'tools/header',
+           name: "Ayah transliteration",
+           title: @presenter.page_title,
+           key: 'ayah_transliteration',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Filter', path: transliteration_proofreadings_path(resource_id: @resource.id) }]
+%>
+
+<%= render 'shared/access_message' %>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <h2>Transliteration for <%= verse.verse_key %></h2>
+
+    <div class="qpc-hafs my-3">
+      <%= verse.text_qpc_hafs %>
+    </div>
+
+    <div id="ayah_text" class="mt-3 <%= @resource.language_name %>" dir="<%= @resource.language&.direction %>">
+      <% if missing %>
+        <span class="text-red-600 font-medium">This ayah has no transliteration yet.</span>
+      <% else %>
+        <%= safe_html @presenter.transliteration.text %>
+      <% end %>
+    </div>
+
+    <% if pending_suggestions.positive? %>
+      <p class="mt-4 text-sm text-gray-600">
+        <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
+      </p>
+    <% end %>
+  </div>
+</div>

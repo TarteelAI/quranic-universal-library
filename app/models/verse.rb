@@ -81,7 +81,7 @@ class Verse < QuranApiRecord
   has_many :actual_words, -> { where char_type_id: 1 }, class_name: 'Word'
   has_many :media_contents, as: :resource
   has_many :translations
-  has_many :transliterations, as: :resource
+  has_many :transliterations
   has_many :audio_files
   has_many :recitations, through: :audio_files
   has_many :roots, through: :words
@@ -96,7 +96,7 @@ class Verse < QuranApiRecord
 
   # For eager loading
   has_one :audio_segment, class_name: 'Audio::Segment'
-  has_one :ur_transliteration, -> { where resource_content_id: 130 }, class_name: 'Translation', as: :resource
+  has_one :ur_transliteration, -> { where resource_content_id: 130 }, class_name: 'Transliteration'
   has_one :translation
 
   accepts_nested_attributes_for :arabic_transliterations

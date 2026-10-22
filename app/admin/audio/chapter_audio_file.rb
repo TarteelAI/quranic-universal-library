@@ -82,7 +82,7 @@ ActiveAdmin.register Audio::ChapterAudioFile do
       row :bit_rate
       row :duration do |r|
         total_sec = r.duration
-        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec} seconds)"
+        "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec} seconds) - #{r.duration_ms} ms"
       end
       row :duration_ms
       row :file_name

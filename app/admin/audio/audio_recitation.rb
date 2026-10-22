@@ -345,7 +345,7 @@ ActiveAdmin.register Audio::Recitation do
               td r.audio_url
               td do
                 total_sec = r.duration
-                "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec} seconds)"
+                "#{ActiveAdminViewHelpers.humanize_duration(total_sec)} (#{total_sec} seconds) -  #{r.duration_ms} ms"
               end
               td r.chapter&.verses_count
               td r.segments_count

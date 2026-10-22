@@ -170,6 +170,11 @@ class Verse < QuranApiRecord
     Verse.where(verse_index: verse_index - 1).first
   end
 
+  # "Surah Al-Waqi'ah, ayah 25"
+  def human_label
+    "Surah #{chapter.name_simple}, ayah #{verse_number}"
+  end
+
   def first_ayah?
     verse_number == 1
   end

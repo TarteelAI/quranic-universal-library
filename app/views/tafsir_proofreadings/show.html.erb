@@ -8,8 +8,9 @@
             Verse.find_by(verse_key: params[:verse_key].downcase)
           end
   verse ||= Verse.find_by(verse_key: "#{surah}:#{group_start_ayah}")
-  next_ayah = verse.next_ayah
-  previous_ayah = verse.previous_ayah
+  # Move by tafsir, not by ayah: the ayah right before or after this tafsir's range
+  previous_ayah = Verse.find_by(id: @tafisr.start_verse_id - 1)
+  next_ayah = Verse.find_by(id: @tafisr.end_verse_id + 1)
 
   view_type = params[:view_type].presence || 'ayah'
   if !tafisr_view_types.include?(view_type)
@@ -38,18 +39,18 @@
   }
 
   if previous_ayah
-    actions << link_to('Previous ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark')
+    actions << link_to('Previous tafsir', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark', title: "Tafsir of ayah #{previous_ayah.verse_key}")
   end
 
   if next_ayah
-    actions << link_to('Next ayah', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark')
+    actions << link_to('Next tafsir', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark', title: "Tafsir of ayah #{next_ayah.verse_key}")
   end
 
 %>
 
 <%= render 'tools/header',
            name: "Ayah tafsir",
-           title: "#{@resource.name} <div style='font-size: 0.5em'>#{@tafisr.group_verse_key_from} - #{@tafisr.group_verse_key_to}</div>",
+           title: "#{@resource.name} <div style='font-size: 0.5em'>Tafsir of #{@tafisr.ayah_range_label}</div>",
            key: 'ayah_tafsir',
            actions: actions,
            breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]

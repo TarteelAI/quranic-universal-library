@@ -9,11 +9,11 @@
   end
 
   if (previous_ayah = verse.previous_ayah)
-    actions << link_to('Previous ayah', transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: previous_ayah.verse_key)
   end
 
   if (next_ayah = verse.next_ayah)
-    actions << link_to('Next ayah', transliteration_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    actions << link_to('Next ayah', transliteration_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: next_ayah.verse_key)
   end
 
   pending_suggestions = @presenter.pending_suggestions_count
@@ -31,7 +31,7 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
-    <h2>Transliteration for <%= verse.verse_key %></h2>
+    <h2>Transliteration of <%= verse.human_label %> <span class="text-gray-500 text-base">(<%= verse.verse_key %>)</span></h2>
 
     <div class="qpc-hafs my-3">
       <%= verse.text_qpc_hafs %>

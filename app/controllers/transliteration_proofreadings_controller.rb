@@ -16,10 +16,14 @@ class TransliterationProofreadingsController < CommunityController
 
   def update
     transliteration = @presenter.transliteration
-    transliteration.save_suggestions(transliteration_params, current_user)
 
-    redirect_to transliteration_proofreading_path(transliteration.verse_id, resource_id: @resource.id),
-                notice: 'Your suggestions are saved successfully'
+    if transliteration.save_suggestions(transliteration_params, current_user)
+      redirect_to transliteration_proofreading_path(transliteration.verse_id, resource_id: @resource.id),
+                  notice: 'Your suggestions are saved successfully'
+    else
+      @presenter.draft.draft_text = transliteration_params[:draft_text]
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   protected

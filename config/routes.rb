@@ -197,7 +197,9 @@ Rails.application.routes.draw do
   resources :translation_proofreadings, except: :destroy
   resources :transliteration_proofreadings, except: :destroy
   resources :word_transliteration_proofreadings, only: %i[index show edit update]
-  resources :tafsir_proofreadings, except: :destroy
+  resources :tafsir_proofreadings, except: :destroy do
+    get :range_preview, on: :collection
+  end
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource

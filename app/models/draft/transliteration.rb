@@ -59,7 +59,7 @@ class Draft::Transliteration < ApplicationRecord
       resource_content_id: resource_content_id
     ).first_or_initialize
 
-    transliteration.text = draft_text.strip
+    transliteration.text = ::Transliteration.sanitize_tags(draft_text).strip
     transliteration.language_id = resource_content.language_id
     transliteration.language_name = resource_content.language_name
 

@@ -48,9 +48,9 @@ class TransliterationPresenter < ResourcePresenter
   def page_title
     case action_name
     when 'show'
-      "#{resource_name} - #{verse_key}"
-    when 'edit'
-      "Edit: #{verse_key} - #{resource_name}"
+      "#{resource_name} - #{ayah_label}"
+    when 'edit', 'update'
+      "Edit: #{ayah_label} - #{resource_name}"
     else
       "Ayah Transliteration Proofreading"
     end
@@ -59,7 +59,7 @@ class TransliterationPresenter < ResourcePresenter
   def meta_title
     case action_name
     when 'show', 'edit'
-      "#{resource_name} - #{verse_key}"
+      "#{resource_name} - #{ayah_label}"
     else
       "Transliteration Proofreading Tool"
     end
@@ -70,9 +70,9 @@ class TransliterationPresenter < ResourcePresenter
     when 'index'
       "Collaborate to improve Quran transliterations. Spot and fix spelling, tajweed markup or syllable issues in ayah transliterations."
     when 'edit'
-      "Edit transliteration for Ayah #{verse_key} in #{resource_name}. Submit suggestions for improvements."
+      "Edit transliteration for #{ayah_label} in #{resource_name}. Submit suggestions for improvements."
     else
-      "Review transliteration for Ayah #{verse_key} in #{resource_name}. Verify accuracy and suggest improvements."
+      "Review transliteration for #{ayah_label} in #{resource_name}. Verify accuracy and suggest improvements."
     end
   end
 
@@ -81,7 +81,7 @@ class TransliterationPresenter < ResourcePresenter
     when 'index'
       'Quran transliteration, proofreading, transliteration improvement, Quran in latin script'
     else
-      "Quran transliteration, #{verse_key}, #{resource_name}, proofreading, transliteration review"
+      "Quran transliteration, #{ayah_label}, #{resource_name}, proofreading, transliteration review"
     end
   end
 
@@ -92,7 +92,7 @@ class TransliterationPresenter < ResourcePresenter
       'LEFT JOIN transliterations ON transliterations.verse_id = verses.id AND transliterations.resource_content_id = ?',
       resource.id
     ])
-    list = Verse.joins(join).select('verses.*, transliterations.text AS transliteration_text')
+    list = Verse.joins(join).includes(:chapter).select('verses.*, transliterations.text AS transliteration_text')
 
     list = list.where(chapter_id: params[:filter_chapter].to_i) if params[:filter_chapter].to_i > 0
     list = list.where(verse_number: params[:verse_number].to_i) if params[:verse_number].to_i > 0
@@ -108,8 +108,8 @@ class TransliterationPresenter < ResourcePresenter
     list.order(verse_index: sort_order)
   end
 
-  def verse_key
-    verse&.verse_key || 'Ayah'
+  def ayah_label
+    verse&.human_label || 'Ayah'
   end
 
   def resource_name

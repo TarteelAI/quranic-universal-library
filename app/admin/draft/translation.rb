@@ -123,6 +123,14 @@ ActiveAdmin.register Draft::Translation do
         safe_html resource.draft_text
       end
 
+      row :comment do
+        resource.meta_value('comment')
+      end
+
+      row :removed_footnotes do
+        Array(resource.meta_value('removed-foot-note-ids')).map { |id| link_to(id, cms_foot_note_path(id)) }.join(', ').html_safe
+      end
+
       row :text_matched
       row :imported
       row :footnotes_count

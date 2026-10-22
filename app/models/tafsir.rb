@@ -55,15 +55,22 @@ class Tafsir < QuranApiRecord
   belongs_to :chapter
   belongs_to :language
 
+  # Works for a new tafsir too, to add tafsir for ayahs that have none.
+  # Returns false and sets errors when the range or text is invalid.
   def save_suggestions(params, user)
+    range_change = range_change_for(params[:start_verse_id], params[:end_verse_id])
+    range_change.errors.each { |message| errors.add(:base, message) }
+    errors.add(:base, 'Tafsir text is required') if params[:text].blank?
+    return false if errors.any?
+
     draft_tafsir = Draft::Tafsir.new(tafsir_id: id)
-    grouping_ayah = Verse.where("id >= ? AND id <= ?", params[:start_verse_id], params[:end_verse_id]).order('verse_number asc')
+    grouping_ayah = Verse.where("id >= ? AND id <= ?", params[:start_verse_id], params[:end_verse_id]).order('verse_index asc')
 
     draft_tafsir.resource_content_id = resource_content_id
     draft_tafsir.current_text = text
     draft_tafsir.draft_text = params[:text]
     draft_tafsir.text_matched = draft_tafsir.draft_text == text
-    draft_tafsir.verse = verse
+    draft_tafsir.verse = verse || grouping_ayah.first
     draft_tafsir.verse_key = grouping_ayah.first.verse_key
 
     draft_tafsir.group_verse_key_from = grouping_ayah.first.verse_key
@@ -71,11 +78,35 @@ class Tafsir < QuranApiRecord
     draft_tafsir.group_verses_count = grouping_ayah.size
     draft_tafsir.start_verse_id = grouping_ayah.first.id
     draft_tafsir.end_verse_id = grouping_ayah.last.id
-    draft_tafsir.group_tafsir_id = id
+    draft_tafsir.group_tafsir_id = grouping_ayah.first.id
     draft_tafsir.need_review = true
     draft_tafsir.user = user
     draft_tafsir.save(validate: false)
     draft_tafsir
+  end
+
+  def range_change_for(start_verse_id, end_verse_id)
+    Draft::TafsirRangeChange.new(
+      resource_content_id: resource_content_id,
+      tafsir: self,
+      start_verse_id: start_verse_id,
+      end_verse_id: end_verse_id
+    )
+  end
+
+  # "Surah Al-Fatihah, ayah 1", "Surah Al-Baqarah, ayahs 1 to 5" or "Surah Al-Isra 110 to Surah Al-Kahf 1"
+  def ayah_range_label
+    from_surah, from_ayah = group_verse_key_from.to_s.split(':').map(&:to_i)
+    to_surah, to_ayah = group_verse_key_to.to_s.split(':').map(&:to_i)
+    names = Chapter.where(chapter_number: [from_surah, to_surah].uniq).pluck(:chapter_number, :name_simple).to_h
+
+    if from_surah != to_surah
+      "Surah #{names[from_surah]} #{from_ayah} to Surah #{names[to_surah]} #{to_ayah}"
+    elsif from_ayah == to_ayah
+      "Surah #{names[from_surah]}, ayah #{from_ayah}"
+    else
+      "Surah #{names[from_surah]}, ayahs #{from_ayah} to #{to_ayah}"
+    end
   end
 
   def ayah_group_info

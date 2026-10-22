@@ -1,7 +1,6 @@
 <%
   sample_words = []
-  tajweed = TajweedRules.new('new')
-  rule = tajweed.documentation[(params[:rule].to_sym)]
+  rule = @presenter.tajweed_rule
 %>
 
 <%= render 'tools/header',

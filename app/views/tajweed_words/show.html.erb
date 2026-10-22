@@ -2,8 +2,8 @@
   #TODO: use presenter, we're initialization lot of variables in the views.
   tajweed = TajweedRules.new('new')
   actions = []
-  next_word = @word.next_word
-  previous_word = @word.previous_word
+  next_word = @presenter.word.next_word
+  previous_word = @presenter.word.previous_word
 
   if previous_word
     actions << link_to('Previous word', tajweed_word_path(previous_word.location), class: 'btn btn-dark')
@@ -18,13 +18,13 @@
 
 <%= render 'tools/header',
            name: "Tajweed tool",
-           title: "Tajweed rules preview for #{@word.location}",
+           title: "Tajweed rules preview for #{@presenter.word.location}",
            key: 'tajweed',
            actions: actions,
            breadcrumb_parents: [{ label: 'Filter', path: tajweed_words_path }]
 %>
 
-<%= render 'shared/page_font', verses: [@word.verse] %>
+<%= render 'shared/page_font', verses: [@presenter.word.verse] %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4" data-controller="tajweed-annotator">
   <div class="page-section">
@@ -46,10 +46,10 @@
            Tajweed page
         </button>
 
-        <div class="preview-<%= @tajweed_word.location.gsub(':', '-') %>">
+        <div class="preview-<%= @presenter.tajweed_word.location.gsub(':', '-') %>">
           <div class="qpc-hafs"
                data-controller="tajweed-highlight">
-            <%= safe_html @tajweed_word.text %>
+            <%= safe_html @presenter.tajweed_word.text %>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@
       </thead>
 
       <tbody>
-      <% @tajweed_word.letters.each do |letter| %>
+      <% @presenter.tajweed_word.letters.each do |letter| %>
         <%= render 'letter_row', letter: letter, rule_options: rule_options, tajweed: tajweed %>
       <% end %>
       </tbody>

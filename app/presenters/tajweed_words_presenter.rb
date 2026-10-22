@@ -1,4 +1,20 @@
 class TajweedWordsPresenter < ApplicationPresenter
+  def word
+    return @word if defined?(@word)
+
+    @word = Word.find_by(location: params[:id])
+  end
+
+  def tajweed_word
+    return @tajweed_word if defined?(@tajweed_word)
+
+    @tajweed_word = word && TajweedWord.find_by(word_id: word.id)
+  end
+
+  def tajweed_rule
+    @tajweed_rule ||= TajweedRules.new('new').documentation[params[:rule].to_s.to_sym]
+  end
+
   def meta_title
     "Tajweed Rules Annotation Tool"
   end

@@ -1,5 +1,6 @@
 class WordTextProofreadingsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
+  before_action :ensure_verse, only: %i[show]
   def index
     verses = Verse
 
@@ -29,7 +30,14 @@ class WordTextProofreadingsController < CommunityController
   end
 
   def show
-    @verse = Verse.find_by_id_or_key(params[:id])
+  end
+
+  protected
+
+  def ensure_verse
+    if @presenter.current_ayah.blank?
+      redirect_to word_text_proofreadings_path, alert: 'Sorry ayah not found.'
+    end
   end
 
   def init_presenter

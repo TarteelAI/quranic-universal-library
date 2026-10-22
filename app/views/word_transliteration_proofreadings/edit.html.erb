@@ -1,0 +1,49 @@
+<%= render 'tools/header',
+           name: "Word transliteration",
+           title: @presenter.page_title,
+           key: 'word_transliteration'
+%>
+
+<%= render 'shared/access_message' %>
+
+<% verse = @presenter.verse %>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <div class="qpc-hafs my-3">
+      <%= verse.text_qpc_hafs %>
+    </div>
+
+    <%= form_with url: word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), method: :put, html: { class: 'form', autocomplete: 'off' } do |form| %>
+      <% @presenter.words.each do |word| %>
+        <% text = @presenter.transliteration_text(word) %>
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-3">
+          <div class="flex items-center justify-between gap-3 px-3 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+            <span class="inline-flex items-center rounded-full bg-gray-200 text-gray-700 text-xs font-medium px-2 py-0.5">
+              <%= word.location %>
+            </span>
+            <span class="qpc-hafs text-2xl leading-none" dir="rtl"><%= word.text_qpc_hafs %></span>
+          </div>
+
+          <div class="p-3">
+            <%= form.text_field "word_transliterations[#{word.id}]",
+                                value: text,
+                                class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 #{@resource.language_name}",
+                                placeholder: "Transliteration of #{word.location}" %>
+            <% if text.present? %>
+              <div class="mt-2 text-xs">
+                <span class="text-gray-400">Current:</span>
+                <span><%= text %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-5">
+        <%= link_to 'Cancel', word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

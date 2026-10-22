@@ -54,6 +54,15 @@ module ToolsHelper
         cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
+        title: 'Ayah transliteration',
+        description: 'Tool for proofreading and suggesting the fixes for ayah transliterations.',
+        url: transliteration_proofreadings_path,
+        type: 'transliteration',
+        tags: [['Transliteration', 'transliteration']],
+        icon: 'translation.svg',
+        cta_bg: 'rgba(90, 77, 65, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Ayah tafsirs in different languages',
         description: 'Tool for proofreading and suggesting the fixes for ayah tafsirs.',
         url: tafsir_proofreadings_path,
@@ -95,6 +104,15 @@ module ToolsHelper
         url: select_resource_word_translations_path,
         type: 'corpus',
         tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
+        icon: 'translation.svg',
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
+        title: 'Word by Word transliteration',
+        description: 'Proofread and suggest fixes for the transliteration of each word of the Quran.',
+        url: word_transliteration_proofreadings_path,
+        type: 'corpus',
+        tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
         icon: 'translation.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),

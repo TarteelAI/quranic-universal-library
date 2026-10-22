@@ -7,6 +7,10 @@ module DraftContent
 
       if resource.tafsir?
         remove_draft_tafsirs(resource)
+      elsif resource.transliteration? && resource.one_ayah?
+        remove_draft_translations(resource)
+      elsif resource.transliteration? && resource.one_word?
+        remove_draft_word_translations(resource)
       elsif resource.translation?
         if resource.one_word?
           remove_draft_word_translations(resource)

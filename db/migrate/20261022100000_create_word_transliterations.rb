@@ -1,7 +1,3 @@
-# Word-by-word transliterations move out of the polymorphic `transliterations`
-# table into their own table, and `transliterations` gets plain verse columns.
-# Data is moved by `rake transliterations:migrate`, the polymorphic columns are
-# dropped by the next migration.
 class CreateWordTransliterations < ActiveRecord::Migration[8.0]
   def up
     c = Transliteration.connection

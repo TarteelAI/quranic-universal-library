@@ -94,7 +94,6 @@ ActiveAdmin.register Word do
       char_type_id
       audio_url
       char_type_name
-      en_transliteration
       text_qpc_hafs
       text_imlaei
       text_imlaei_simple
@@ -138,8 +137,6 @@ ActiveAdmin.register Word do
 
       f.input :code_v1, input_html: { class: 'quran-text' }
       f.input :code_v2, input_html: { class: 'quran-text' }
-
-      f.input :en_transliteration
 
       f.input :verse_key
       f.input :class_name
@@ -333,8 +330,16 @@ ActiveAdmin.register Word do
         end
       end
 
-      row :transliteration do
-        resource.en_transliteration
+      row :transliterations do |w|
+        w.word_transliterations.each do |t|
+          div do
+            link_to t.text, [:cms, t]
+          end
+        end
+
+        div do
+          "#{w.en_transliteration} (en and will will be removed soon)"
+        end
       end
 
       row :morphology_word

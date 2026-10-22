@@ -3,7 +3,7 @@
 ActiveAdmin.register WordTransliteration do
   menu parent: 'Content'
   actions :all, except: :destroy
-  includes :language, :word
+  includes :word
 
   ActiveAdminViewHelpers.versionate(self)
 
@@ -18,7 +18,7 @@ ActiveAdmin.register WordTransliteration do
   index do
     id_column
 
-    column :language, &:language_name
+    column :language_name
     column :word
     column :text
     actions

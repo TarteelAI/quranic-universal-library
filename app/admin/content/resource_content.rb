@@ -182,6 +182,10 @@ ActiveAdmin.register ResourceContent do
     if params[:approved]
       if resource.tafsir?
         DraftContent::ApproveDraftTafsirJob.perform_later(resource.id)
+      elsif resource.transliteration? && resource.one_ayah?
+        DraftContent::ApproveDraftTransliterationJob.perform_later(resource.id)
+      elsif resource.transliteration? && resource.one_word?
+        DraftContent::ApproveDraftWordTransliterationJob.perform_later(resource.id)
       elsif resource.translation?
         if resource.one_word?
           DraftContent::ApproveDraftWordTranslationJob.perform_later(resource.id)
@@ -193,6 +197,10 @@ ActiveAdmin.register ResourceContent do
     elsif params[:remove_draft]
       if resource.tafsir?
         Draft::Tafsir.where(resource_content_id: resource.id).delete_all
+      elsif resource.transliteration? && resource.one_ayah?
+        Draft::Translation.where(resource_content_id: resource.id).delete_all
+      elsif resource.transliteration? && resource.one_word?
+        Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
       elsif resource.translation?
         if resource.one_word?
           Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
@@ -208,6 +216,10 @@ ActiveAdmin.register ResourceContent do
 
     url = if resource.tafsir?
             "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.transliteration? && resource.one_ayah?
+            "/cms/draft_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.transliteration? && resource.one_word?
+            "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
           elsif resource.translation?
             if resource.one_word?
               "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"

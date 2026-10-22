@@ -59,7 +59,16 @@ class Draft::WordTranslation < ApplicationRecord
   end
 
   def original_translation
-    WordTranslation.where(word: word, resource_content_id: resource_content_id).first
+    klass = resource_content.transliteration? ? ::WordTransliteration : ::WordTranslation
+    klass.where(word: word, resource_content_id: resource_content_id).first
+  end
+
+  # Only word transliterations can be imported one draft at a time for now.
+  def import!
+    raise NotImplementedError, 'Only word transliteration drafts can be imported individually' unless resource_content.transliteration?
+
+    DraftContent::ApproveDraftWordTransliterationJob.perform_now(resource_content_id, id)
+    original_translation
   end
 
   def next_word_translation

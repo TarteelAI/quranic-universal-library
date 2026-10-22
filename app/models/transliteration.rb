@@ -33,6 +33,33 @@ class Transliteration < QuranApiRecord
 
   before_save :set_verse_fields, if: :verse_id_changed?
 
+  # Suggestions go through Draft::Translation, same as ayah translations.
+  # Draft::Translation#import! writes them back here for transliteration resources.
+  def draft_translations
+    Draft::Translation.where(resource_content_id: resource_content_id, verse_id: verse_id)
+  end
+
+  def build_draft
+    Draft::Translation.new(
+      current_text: text,
+      draft_text: text.to_s, # blank for a new transliteration, draft_text= can't format nil
+      verse: verse,
+      resource_content_id: resource_content_id
+    )
+  end
+
+  def save_suggestions(params, user)
+    draft = Draft::Translation.new(params)
+    draft.resource_content_id = resource_content_id
+    draft.current_text = text
+    draft.text_matched = draft.draft_text == text
+    draft.verse = verse
+    draft.need_review = true
+    draft.user = user
+    draft.save(validate: false)
+    draft
+  end
+
   protected
 
   def set_verse_fields

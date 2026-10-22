@@ -28,8 +28,6 @@ class WordTransliteration < QuranApiRecord
 
   delegate :location, to: :word
 
-  # Suggestions go through Draft::WordTranslation, same as word translations.
-  # Only words whose text changed are saved. texts is { word_id => text }.
   def self.save_suggestions(verse, resource, texts, user)
     existing = where(resource_content_id: resource.id, word_id: texts.keys).index_by(&:word_id)
     words = verse.words.where(id: texts.keys).index_by(&:id)
@@ -40,12 +38,11 @@ class WordTransliteration < QuranApiRecord
       current_text = existing[word_id.to_i]&.text.to_s
       next if word.blank? || text.blank? || text == current_text
 
-      Draft::WordTranslation.new(
+      Draft::WordTransliteration.new(
         verse_id: verse.id,
         word_id: word.id,
         location: word.location,
         resource_content_id: resource.id,
-        language_id: resource.language_id,
         current_text: current_text,
         draft_text: text,
         text_matched: false,

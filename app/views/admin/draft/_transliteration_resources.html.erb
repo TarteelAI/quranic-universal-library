@@ -1,0 +1,37 @@
+<div>Total resources: <%= stats.size %></div>
+
+<div class="flex w-full flex-col sidebar-item">
+  <% stats.each do |t| %>
+    <% resource_content = t[:resource] %>
+    <% next if resource_content.nil? %>
+
+    <div class="w-full p-2 border-b mb-3 <%= 'selected' if selected == resource_content.id %>">
+      <div class="flex justify-between">
+        <%= link_to resource_content.id, [:cms, resource_content], target: '_blank' %>
+        <% if t[:not_imported_count].zero? %>
+          <span class="status_tag yes ms-2">Imported</span>
+        <% end %>
+      </div>
+
+      <div><%= resource_content.name %> (<%= resource_content.language_name %>)</div>
+
+      <div class="text-sm text-gray-500">
+        Total: <%= t[:total_count] %>,
+        Changed: <%= t[:not_matched_count] %>,
+        Unchanged: <%= t[:matched_count] %>,
+        Not imported: <%= t[:not_imported_count] %>,
+        Need review: <%= t[:need_review_count] %>
+      </div>
+
+      <div class="flex my-2 justify-between gap-2 flex-wrap">
+        <%= link_to 'Filter', "#{filter_path}?q%5Bresource_content_id_eq%5D=#{resource_content.id}", class: 'btn btn-info btn-sm' %>
+        <%= link_to 'Changed only', "#{filter_path}?q%5Bresource_content_id_eq%5D=#{resource_content.id}&q%5Btext_matched_eq%5D=false&q%5Bimported_eq%5D=false", class: 'btn btn-info btn-sm' %>
+
+        <% if can?(:manage, :draft_content) || current_user.super_admin? %>
+          <%= link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: :put, class: 'btn btn-danger btn-sm', data: { confirm: "Import all #{t[:not_imported_count]} drafts of #{resource_content.name}?" } %>
+          <%= link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: :put, class: 'btn btn-danger btn-sm', data: { confirm: 'Are you sure to remove draft transliterations?' } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

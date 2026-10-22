@@ -14,7 +14,7 @@
       <%= @presenter.verse.text_qpc_hafs %>
     </div>
 
-    <%= form_with model: @presenter.draft_translation, url: transliteration_proofreading_path(@presenter.verse.id, resource_id: @resource.id), method: :put, html: { role: 'form', class: 'form', autocomplete: 'off', data: { controller: 'remote-form' } } do |form| %>
+    <%= form_with model: @presenter.draft, url: transliteration_proofreading_path(@presenter.verse.id, resource_id: @resource.id), method: :put, html: { role: 'form', class: 'form', autocomplete: 'off', data: { controller: 'remote-form' } } do |form| %>
       <%= hidden_field_tag :resource_id, @resource.id %>
 
       <div class="form-floating mb-3">

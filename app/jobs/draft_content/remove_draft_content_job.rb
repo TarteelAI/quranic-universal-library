@@ -7,10 +7,8 @@ module DraftContent
 
       if resource.tafsir?
         remove_draft_tafsirs(resource)
-      elsif resource.transliteration? && resource.one_ayah?
-        remove_draft_translations(resource)
-      elsif resource.transliteration? && resource.one_word?
-        remove_draft_word_translations(resource)
+      elsif resource.transliteration?
+        remove_draft_transliterations(resource)
       elsif resource.translation?
         if resource.one_word?
           remove_draft_word_translations(resource)
@@ -51,6 +49,10 @@ module DraftContent
 
     def remove_draft_word_translations(resource)
       Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
+    end
+
+    def remove_draft_transliterations(resource)
+      resource.draft_translations.delete_all
     end
   end
 end

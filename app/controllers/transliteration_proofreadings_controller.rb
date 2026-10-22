@@ -33,7 +33,7 @@ class TransliterationProofreadingsController < CommunityController
   end
 
   def transliteration_params
-    params.require(:draft_translation).permit(:draft_text)
+    params.require(:draft_transliteration).permit(:draft_text)
   end
 
   # @resource is shared with tools/header and the access request partials

@@ -79,8 +79,6 @@ class Draft::Translation < ApplicationRecord
   end
 
   def import!
-    return import_transliteration! if resource_content.transliteration?
-
     language = resource_content.language
     translation = translation || Translation.where(
       verse_id: verse_id,
@@ -146,13 +144,10 @@ class Draft::Translation < ApplicationRecord
   end
 
   def original_translation
-    klass = resource_content.transliteration? ? ::Transliteration : ::Translation
-    klass.where(verse_id: verse_id, resource_content_id: resource_content_id).first
+    Translation.where(verse_id: verse_id, resource_content_id: resource_content_id).first
   end
 
   def original_footnotes
-    return [] if resource_content.transliteration?
-
     original_translation&.foot_notes || []
   end
 
@@ -204,26 +199,6 @@ class Draft::Translation < ApplicationRecord
   end
 
   private
-
-  def import_transliteration!
-    transliteration = ::Transliteration.where(
-      verse_id: verse_id,
-      resource_content_id: resource_content_id
-    ).first_or_initialize
-
-    transliteration.text = draft_text.strip
-    transliteration.language_id = resource_content.language_id
-    transliteration.language_name = resource_content.language_name
-
-    attribute_versions_to(user) do
-      transliteration.save(validate: false)
-    end
-
-    resource_content.touch
-    update_columns(imported: true)
-
-    transliteration
-  end
 
   def renumber_footnote_sups(text)
     index = 0

@@ -54,7 +54,7 @@ class WordTransliterationPresenter < ResourcePresenter
   end
 
   def pending_suggestions_count
-    Draft::WordTranslation
+    Draft::WordTransliteration
       .where(resource_content_id: resource.id, verse_id: verse.id, imported: false, need_review: true)
       .count
   end

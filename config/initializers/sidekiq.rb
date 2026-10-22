@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-ActiveJob::Base.queue_adapter = :sidekiq # default queue adapter
+ActiveJob::Base.queue_adapter = :sidekiq unless Rails.env.test?
 
 Rails.application.configure do
-  config.active_job.queue_adapter = :sidekiq
+  config.active_job.queue_adapter = :sidekiq unless Rails.env.test?
   config.action_mailbox.queues.routing = 'mailers'
   config.active_storage.queues.analysis = 'active_storage_analysis'
   config.active_storage.queues.purge = 'low'

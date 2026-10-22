@@ -44,6 +44,7 @@ class Draft::WordTranslation < ApplicationRecord
   belongs_to :word
   belongs_to :language
   belongs_to :resource_content
+  # Word group translation
   belongs_to :word_translation, optional: true
 
   def self.new_translations
@@ -59,16 +60,7 @@ class Draft::WordTranslation < ApplicationRecord
   end
 
   def original_translation
-    klass = resource_content.transliteration? ? ::WordTransliteration : ::WordTranslation
-    klass.where(word: word, resource_content_id: resource_content_id).first
-  end
-
-  # Only word transliterations can be imported one draft at a time for now.
-  def import!
-    raise NotImplementedError, 'Only word transliteration drafts can be imported individually' unless resource_content.transliteration?
-
-    DraftContent::ApproveDraftWordTransliterationJob.perform_now(resource_content_id, id)
-    original_translation
+    WordTranslation.where(word: word, resource_content_id: resource_content_id).first
   end
 
   def next_word_translation

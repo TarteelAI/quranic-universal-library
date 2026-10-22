@@ -7,7 +7,7 @@ module DraftContent
     private
 
     def import_data
-      scope = Draft::Translation.where(resource_content_id: @resource.id, imported: false)
+      scope = Draft::Transliteration.where(resource_content_id: @resource.id, imported: false)
       scope = scope.where(id: @draft_id) if @draft_id
 
       verse_ids = scope.distinct.pluck(:verse_id).compact
@@ -42,7 +42,7 @@ module DraftContent
       updates.each_slice(BATCH_SIZE) { |slice| Transliteration.upsert_all(slice, unique_by: :id) }
 
       imported_ids.each_slice(BATCH_SIZE) do |ids|
-        Draft::Translation.where(id: ids).update_all(imported: true)
+        Draft::Transliteration.where(id: ids).update_all(imported: true)
       end
     end
 

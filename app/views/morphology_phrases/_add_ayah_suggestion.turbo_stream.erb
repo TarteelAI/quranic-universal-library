@@ -1,6 +1,7 @@
-<%= turbo_stream.prepend 'suggested-ayahs' do %>
-  <%= render 'ayah', options: {
-    ayah: Verse.find_by(verse_key: params[:add_ayah_key]),
-    matcher: 'manual'
-  } %>
+<% added = Verse.find_by(verse_key: params[:add_ayah_key]) %>
+<% if added && @presenter.review %>
+  <%= turbo_stream.remove dom_id(added) %>
+  <%= turbo_stream.prepend 'suggested-ayahs' do %>
+    <%= render 'ayah', card: @presenter.review.card_for(added) %>
+  <% end %>
 <% end %>

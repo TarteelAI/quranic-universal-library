@@ -1,217 +1,102 @@
 import {Controller} from "@hotwired/stimulus"
-import LocalStore from "../utils/LocalStore";
 
+// Source phrase bar of the Mutashabihat builder. Picking a new source ayah,
+// or clicking the first and last word of the source phrase, searches again.
+// Each ayah card is handled by the mutashabihat-ayah controller.
 export default class extends Controller {
+  static targets = ["form", "sourceWord", "wordFrom", "wordTo", "hint", "bar", "sentinel"]
+
   connect() {
-    this.store = new LocalStore();
+    this.anchor = null
     this.el = $(this.element)
-    this.addAyah = this.el.find('#add_ayah_key')
 
-    this.el.on('click', "[data-action=add]", this.addWord.bind(this))
-    this.el.on('click', "[data-action=remove]", this.removeWord.bind(this))
-    this.el.on('click',"[data-action=savePhrase]", this.savePhrase.bind(this))
-    this.el.on('click',"[data-action=resetSelection]", this.resetSelection.bind(this))
-    this.el.on('click', "[data-action=removePhrase]", this.removePhrase.bind(this))
-    this.el.on('click', "[data-action=bookmark]", this.toggleBookmark.bind(this))
-    this.el.on('change', "#add_ayah_key", this.suggestNewAyah.bind(this))
+    // select2 fires jQuery change events, not native ones
+    this.el.on('change.mutashabihat', '#add_ayah_key', this.suggestNewAyah.bind(this))
+    this.el.on('change.mutashabihat', '#source_ayah', this.changeSourceAyah.bind(this))
 
-    this.updateBookmarks()
+    this.watchStuck()
   }
 
-  updateBookmarks() {
-    this.bookmarks = JSON.parse(this.store.get('bookmarks') || "{}")
+  disconnect() {
+    this.el.off('.mutashabihat')
+    if (this.onScroll) window.removeEventListener('scroll', this.onScroll)
+  }
 
-    Object.keys(this.bookmarks).forEach((key) => {
-      const ayahDom = this.el.find(`[ data-ayahkey='${key}']`);
-      if(ayahDom)
-        ayahDom.find('[data-action=bookmark]').addClass('btn-success').removeClass('btn-outline-success')
+  // Once the source bar is pinned while scrolling, shrink it to just the
+  // selected words so it doesn't cover the ayahs.
+  watchStuck() {
+    if (!this.hasSentinelTarget || !this.hasBarTarget) return
+
+    this.onScroll = () => {
+      if (this.scrollFrame) return
+
+      this.scrollFrame = requestAnimationFrame(() => {
+        this.scrollFrame = null
+        const pinned = this.sentinelTarget.getBoundingClientRect().top < 76
+        this.barTarget.classList.toggle('is-stuck', pinned && this.anchor === null)
+      })
+    }
+
+    window.addEventListener('scroll', this.onScroll, {passive: true})
+    this.onScroll()
+  }
+
+  pickSourceWord(event) {
+    const position = parseInt(event.currentTarget.dataset.position)
+
+    if (this.anchor === null) {
+      this.anchor = position
+      this.barTarget?.classList.remove('is-stuck')
+      this.sourceWordTargets.forEach((w) => {
+        w.classList.remove('is-selected', 'range-start', 'range-end')
+        w.classList.toggle('is-anchor', parseInt(w.dataset.position) === position)
+      })
+      if (this.hasHintTarget) this.hintTarget.textContent = 'Now click the last word of the phrase'
+      return
+    }
+
+    this.wordFromTarget.value = Math.min(this.anchor, position)
+    this.wordToTarget.value = Math.max(this.anchor, position)
+    this.search()
+  }
+
+  changeSourceAyah() {
+    // New ayah, let the server pick the full ayah as the phrase
+    this.wordFromTarget.value = ''
+    this.wordToTarget.value = ''
+    this.search()
+  }
+
+  search() {
+    if (this.hasHintTarget) this.hintTarget.textContent = 'Searching...'
+    this.formTarget.requestSubmit()
+  }
+
+  filter(event) {
+    const selected = event.currentTarget.dataset.filter
+
+    this.element.querySelectorAll('[data-filter]').forEach((b) => b.classList.toggle('is-active', b === event.currentTarget))
+    this.element.querySelectorAll('#suggested-ayahs .ayah').forEach((card) => {
+      const categories = (card.dataset.categories || '').split(' ')
+      card.classList.toggle('hidden', selected !== 'all' && !categories.includes(selected))
     })
   }
 
   suggestNewAyah(event) {
-    var csrfToken = $('meta[name="csrf-token"]').attr('content');
-    const options = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken,
-        Accept: "text/vnd.turbo-stream.html"
-      }
-    }
-    const key = $(event.target).val();
-    fetch(`/morphology_phrases/new?add_ayah_key=${key}`, options)
+    const key = $(event.target).val()
+    if (!key) return
+
+    const params = new URLSearchParams({
+      add_ayah_key: key,
+      source_ayah: this.element.querySelector('#source_ayah')?.value || '',
+      word_from: this.wordFromTarget.value,
+      word_to: this.wordToTarget.value
+    })
+
+    fetch(`/morphology_phrases/new?${params}`, {
+      headers: {Accept: "text/vnd.turbo-stream.html"}
+    })
       .then(r => r.text())
-      .then(html => {
-        Turbo.renderStreamMessage(html)
-      })
-  }
-
-  toggleBookmark(event) {
-    const target = $(event.currentTarget)
-    const ayahKey = target.closest('.ayah').data('ayahkey')
-
-    if (this.bookmarks[ayahKey]) {
-      delete this.bookmarks[ayahKey]
-      target.removeClass('btn-success').addClass('btn-outline-success')
-    } else {
-      this.bookmarks[ayahKey] = true
-      target.addClass('btn-success').removeClass('btn-outline-success')
-    }
-
-    this.store.set('bookmarks', JSON.stringify(this.bookmarks))
-  }
-
-  resetSelection(event){
-    const ayah = $(event.target).closest('.ayah');
-    ayah.find('.word').removeClass('selected removed');
-    ayah.find('[data-action=add]').removeClass('active bg-green-500 text-white').addClass('bg-white text-slate-400 border border-slate-200');
-    ayah.find('[data-action=remove]').removeClass('active bg-red-500 text-white').addClass('bg-white text-slate-400 border border-slate-200');
-    ayah.find('.quran-text').removeClass('text-green-600 font-bold text-red-400 line-through');
-  }
-
-  savePhrase(event) {
-    const data = this.preparePhraseData(event);
-    var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken,
-        Accept: "text/vnd.turbo-stream.html"
-      },
-      body: JSON.stringify(data)
-    }
-
-    fetch("/morphology_phrases", options)
-      .then(r => r.text())
-      .then(html => {
-        Turbo.renderStreamMessage(html)
-      })
-  }
-
-  removePhrase(event) {
-    if(confirm('Are you sure you want to delete this phrase?') == false)
-      return;
-    
-    const data = this.preparePhraseData(event);
-    var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-    const options = {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken,
-        Accept: "text/vnd.turbo-stream.html"
-      },
-      body: JSON.stringify(data)
-    }
-
-    fetch("/morphology_phrases/dummy", options)
-      .then(r => r.text())
-      .then(html => {
-        Turbo.renderStreamMessage(html)
-      })
-  }
-
-  addWord(event) {
-    const wordDom = $(event.target).closest('.word')
-    const isShiftClick = event.shiftKey
-    const currentPosition = parseInt(wordDom.data('position'))
-    const ayahId = wordDom.closest('.ayah').data('ayahid')
-
-    this.lastWordAction = this.lastWordAction || {}
-
-    if (isShiftClick && this.lastWordAction.ayahId === ayahId && this.lastWordAction.action === 'add') {
-      const start = Math.min(this.lastWordAction.position, currentPosition)
-      const end = Math.max(this.lastWordAction.position, currentPosition)
-      
-      wordDom.closest('.ayah').find('.word').each((i, el) => {
-        const pos = parseInt($(el).data('position'))
-        if (pos >= start && pos <= end) {
-          this.toggleWordState($(el), 'add', true)
-        }
-      })
-    } else {
-      this.toggleWordState(wordDom, 'add')
-    }
-
-    this.lastWordAction = { ayahId, position: currentPosition, action: 'add' }
-  }
-
-  removeWord(event) {
-    const wordDom = $(event.target).closest('.word')
-    const isShiftClick = event.shiftKey
-    const currentPosition = parseInt(wordDom.data('position'))
-    const ayahId = wordDom.closest('.ayah').data('ayahid')
-
-    this.lastWordAction = this.lastWordAction || {}
-
-    if (isShiftClick && this.lastWordAction.ayahId === ayahId && this.lastWordAction.action === 'remove') {
-      const start = Math.min(this.lastWordAction.position, currentPosition)
-      const end = Math.max(this.lastWordAction.position, currentPosition)
-      
-      wordDom.closest('.ayah').find('.word').each((i, el) => {
-        const pos = parseInt($(el).data('position'))
-        if (pos >= start && pos <= end) {
-          this.toggleWordState($(el), 'remove', true)
-        }
-      })
-    } else {
-      this.toggleWordState(wordDom, 'remove')
-    }
-
-    this.lastWordAction = { ayahId, position: currentPosition, action: 'remove' }
-  }
-
-  toggleWordState(wordDom, actionType, forceEnable = false) {
-    const addIcon = wordDom.find("[data-action=add]")
-    const removeIcon = wordDom.find("[data-action=remove]")
-    const textSpan = wordDom.find(".quran-text")
-
-    if (actionType === 'add') {
-      const selected = wordDom.hasClass('selected')
-      if (selected && !forceEnable) {
-        wordDom.removeClass('selected')
-        addIcon.removeClass('active bg-green-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
-        textSpan.removeClass('text-green-600 font-bold')
-      } else {
-        wordDom.addClass('selected').removeClass('removed')
-        addIcon.addClass('active bg-green-500 text-white').removeClass('bg-white text-slate-400 border border-slate-200')
-        removeIcon.removeClass('active bg-red-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
-        textSpan.addClass('text-green-600 font-bold').removeClass('text-red-400 line-through')
-      }
-    } else if (actionType === 'remove') {
-      const removed = wordDom.hasClass('removed')
-      if (removed && !forceEnable) {
-        wordDom.removeClass('removed')
-        removeIcon.removeClass('active bg-red-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
-        textSpan.removeClass('text-red-400 line-through')
-      } else {
-        wordDom.addClass('removed').removeClass('selected')
-        removeIcon.addClass('active bg-red-500 text-white').removeClass('bg-white text-slate-400 border border-slate-200')
-        addIcon.removeClass('active bg-green-500 text-white').addClass('bg-white text-slate-400 border border-slate-200')
-        textSpan.addClass('text-red-400 line-through').removeClass('text-green-600 font-bold')
-      }
-    }
-  }
-
-  preparePhraseData(event) {
-    const targetAyahDom = $(event.target).closest('.ayah')
-    const wordsDom = targetAyahDom.find('.words')
-    const ayah = targetAyahDom.data('ayahid')
-    const selectedWords = wordsDom.find('[data-action="add"].active').map((i, w) => $(w).closest('.word').data('position')).get();
-    const excludedWords = wordsDom.find('[data-action="remove"].active').map((i, w) => $(w).closest('.word').data('position')).get();
-
-    return {
-      phrase_text: this.el.find('#text').val(),
-      verse_id: ayah,
-      source_ayah_key: this.el.find('#source_ayah').val(),
-      source_ayah_word_from: this.el.find('.word-from').val(),
-      source_ayah_word_to: this.el.find('.word-to').val(),
-      phrase_id: this.el.find('#phrase_id').val(),
-      selected_words: selectedWords.join(','),
-      excluded_words: excludedWords.join(',')
-    }
+      .then(html => Turbo.renderStreamMessage(html))
   }
 }

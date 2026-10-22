@@ -1,0 +1,181 @@
+<%
+  verse = overview.verse
+  groups = overview.groups
+  by_phrase = groups.index_by { |g| g.phrase.id }
+  duplicate_ids = duplicate_groups.flatten.to_set
+%>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6" data-controller="mutashabihat-proofread">
+  <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+    <span><%= verse.chapter.name_simple %></span>
+    <span>·</span>
+    <span><%= pluralize(overview.words.size, 'word') %></span>
+    <span>·</span>
+    <span><%= pluralize(groups.size, 'shared phrase') %></span>
+  </div>
+
+  <% if groups.any? %>
+    <div class="mt-2 text-xs text-gray-600">
+      <div class="flex flex-wrap items-center gap-1.5">
+        <% groups.each do |group| %>
+          <span class="phrase-chip inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-gray-200 cursor-default"
+                data-group="<%= group.index %>"
+                data-action="mouseenter->mutashabihat-proofread#focusGroup mouseleave->mutashabihat-proofread#blur">
+            <span class="inline-block w-4 h-[3px] rounded" style="background: <%= group.color %>"></span>
+            <b style="color: <%= group.color %>"><%= group.index %></b>
+            <span>words <%= group.ranges.map { |f, t| f == t ? f : "#{f}–#{t}" }.join(', ') %></span>
+          </span>
+        <% end %>
+      </div>
+      <details class="mt-1.5">
+        <summary class="cursor-pointer text-blue-700 select-none">What do the lines under the words mean?</summary>
+        <p class="mt-1 text-gray-600">
+          Each line under a word is one phrase the word belongs to, in the phrase's colour.
+          A word with several lines is in several phrases at once, usually a short phrase inside a longer one.
+          Up to 3 lines are drawn; <b>+N</b> means the word is in N more.
+          Hover a phrase, a chip above, or a word, to see which is which.
+          The ayah stays pinned at the top while you scroll through its phrases.
+        </p>
+      </details>
+    </div>
+  <% end %>
+
+  <div data-mutashabihat-proofread-target="sentinel"></div>
+  <div class="ayah-sticky" data-mutashabihat-proofread-target="sticky">
+    <div class="ayah-text quran-text qpc-hafs text-3xl text-right" dir="rtl">
+      <% overview.words.each do |word| %>
+        <% covering = overview.groups_at(word.position) %>
+        <% if covering.any? %>
+          <%
+            bars = covering.first(3).each_with_index.map { |g, i| [g.color, i] }
+            style = "color: #{covering.first.color};"
+            style += "background-image: #{bars.map { |c, _| "linear-gradient(#{c}, #{c})" }.join(', ')};"
+            style += "background-size: #{bars.map { '100% 3px' }.join(', ')};"
+            style += "background-position: #{bars.map { |_, i| "0 calc(100% - #{i * 5}px)" }.join(', ')};"
+            style += "padding-bottom: #{bars.size * 5}px;"
+          %>
+          <span class="ayah-word is-shared" style="<%= style %>"
+                <%= "data-more=\"+#{covering.size - 3}\"".html_safe if covering.size > 3 %>
+                data-groups="<%= covering.map(&:index).join(' ') %>"
+                data-action="mouseenter->mutashabihat-proofread#focusWord mouseleave->mutashabihat-proofread#blur"
+                title="<%= covering.map { |g| "##{g.index} #{g.phrase.text_qpc_hafs}" }.join("\n") %>"><%= word.text_qpc_hafs %></span>
+        <% else %>
+          <span class="ayah-word text-gray-800"><%= word.text_qpc_hafs %></span>
+        <% end %>
+      <% end %>
+      <span class="text-gray-800"><%= overview.ayah_mark&.text_qpc_hafs %></span>
+    </div>
+  </div>
+
+  <div class="border-t border-gray-200 mt-5 pt-4">
+    <% if duplicate_groups.any? %>
+      <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3">
+        <p class="text-sm font-medium text-amber-900">
+          <i class="fas fa-clone text-xs"></i>
+          <%= duplicate_groups.size == 1 ? 'These phrases look like duplicates' : 'Some phrases look like duplicates' %>
+        </p>
+        <p class="text-xs text-amber-800 mt-0.5">Same ayahs and the same words. Merging moves every ayah into the phrase you keep (the stronger review decision wins when both have an ayah) and deletes the others.</p>
+
+        <% duplicate_groups.each do |ids| %>
+          <div class="mt-2 rounded border border-amber-200 bg-white divide-y divide-amber-100">
+            <% ids.each_with_index do |id, i| %>
+              <% group = by_phrase[id] %>
+              <div class="flex flex-wrap items-center gap-2 px-2 py-1.5 text-xs">
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-bold" style="background: <%= group.color %>"><%= group.index %></span>
+                <span class="text-gray-500">#<%= id %></span>
+                <span class="px-1.5 py-0.5 rounded <%= group.phrase.reviewed? ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800' %>"><%= group.phrase.review_status_label %></span>
+                <span class="text-gray-600"><%= pluralize(group.ayahs_count, 'ayah') %></span>
+                <% if i.zero? %><span class="text-green-700" title="Reviewed first, then most ayahs" data-controller="tooltip">suggested to keep</span><% end %>
+                <span class="quran-text qpc-hafs text-base ml-auto" dir="rtl"><%= group.phrase.text_qpc_hafs %></span>
+                <% if @access %>
+                  <%= button_to "Keep ##{id}, merge the rest", merge_morphology_phrases_path,
+                                params: { keep_id: id, phrase_ids: ids },
+                                class: "px-2 py-1 rounded font-medium #{i.zero? ? 'bg-green-600 text-white hover:bg-green-700' : 'border border-slate-300 text-slate-700 hover:bg-slate-50'}",
+                                form: { data: { turbo_confirm: "Merge #{(ids - [id]).map { |x| "##{x}" }.join(', ')} into ##{id} and delete #{ids.size > 2 ? 'them' : 'it'}?" } } %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if groups.any? %>
+      <div class="space-y-2">
+        <% groups.each do |group| %>
+          <% phrase = group.phrase %>
+          <% source = overview.source_label(phrase) %>
+          <div class="phrase-group rounded-lg border border-gray-200 bg-gray-50/60"
+               id="phrase-group-<%= phrase.id %>"
+               data-group="<%= group.index %>"
+               data-action="mouseenter->mutashabihat-proofread#focusGroup mouseleave->mutashabihat-proofread#blur">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-2 p-3">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold flex-shrink-0" style="background: <%= group.color %>"><%= group.index %></span>
+
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-700"
+                      title="Where the phrase is in this ayah" data-controller="tooltip">
+                  Words <%= group.ranges.map { |f, t| f == t ? f : "#{f}–#{t}" }.join(', ') %>
+                </span>
+
+                <% if source %>
+                  <% if phrase.source_verse_id == verse.id %>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-white" title="The phrase was built from this ayah" data-controller="tooltip">Source: this ayah</span>
+                  <% else %>
+                    <%= link_to morphology_phrase_path(phrase.source_verse_id, proofread: true),
+                                class: 'px-2 py-0.5 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 no-underline',
+                                title: 'The ayah this phrase was built from', data: { controller: 'tooltip' } do %>
+                      Source <%= source %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+
+                <span class="px-2 py-0.5 rounded font-medium <%= phrase.reviewed? ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800' %>"><%= phrase.review_status_label %></span>
+                <% unless group.approved? %>
+                  <span class="px-2 py-0.5 rounded bg-red-100 text-red-700" title="The phrase, or this ayah's range of it, isn't approved" data-controller="tooltip">Not approved</span>
+                <% end %>
+                <% if duplicate_ids.include?(phrase.id) %>
+                  <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900">Duplicate</span>
+                <% end %>
+                <% if phrase.source_imported? %>
+                  <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800" title="Imported from another Mutashabihat dataset" data-controller="tooltip">Imported</span>
+                <% end %>
+                <span class="text-gray-400">#<%= phrase.id %></span>
+              </div>
+
+              <div class="flex items-center gap-1.5 ml-auto text-xs">
+                <%= link_to 'Open in builder', morphology_phrase_path(phrase.id), class: 'px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-white no-underline' %>
+                <% if @access %>
+                  <%= link_to 'Admin', "/cms/morphology_phrases/#{phrase.id}", target: '_blank', class: 'px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-white no-underline' %>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="quran-text qpc-hafs text-xl text-right px-3 pb-2 -mt-1" dir="rtl" style="color: <%= group.color %>"><%= phrase.text_qpc_hafs %></div>
+
+            <details class="phrase-ayahs border-t border-gray-200">
+              <summary class="cursor-pointer select-none px-3 py-2 text-xs text-blue-700 hover:bg-white list-none flex items-center gap-1.5">
+                <i class="fas fa-chevron-right text-[10px] transition-transform"></i>
+                <span id="phrase-<%= phrase.id %>-ayah-count"><%= pluralize(group.ayahs_count, 'ayah') %></span>
+                <span class="text-gray-500">share this phrase<%= ', click to review them' if @access %></span>
+              </summary>
+              <%= turbo_frame_tag "phrase-#{phrase.id}-ayahs", src: ayahs_morphology_phrase_path(phrase.id, current_verse_id: verse.id), loading: 'lazy' do %>
+                <div class="px-3 py-3 text-xs text-gray-500">Loading ayahs...</div>
+              <% end %>
+            </details>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-8 px-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-500">
+        <p class="font-medium text-gray-700">No shared phrases saved for this ayah</p>
+        <p class="text-sm mt-1">Check the auto-detected phrases below, or look for similar phrases yourself.</p>
+        <% if @access %>
+          <%= link_to new_morphology_phrase_path(ayah_key: verse.verse_key), class: 'inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-sm font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' do %>
+            <i class="fas fa-search text-xs"></i> Find similar phrases
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

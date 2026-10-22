@@ -47,6 +47,18 @@ class Morphology::Phrase < ApplicationRecord
   has_many :phrase_verses, dependent: :delete_all
   belongs_to :source_verse, class_name: 'Verse', optional: true
 
+  # review_status is set to 'new' whenever a phrase is saved from the
+  # Mutashabihat builder. 'old' phrases came from the original automatic
+  # detection and nobody has checked them yet. Only reviewed phrases are exported.
+  REVIEW_STATUS_LABELS = {
+    'new' => 'Reviewed',
+    'old' => 'Auto-detected'
+  }.freeze
+
+  # source: where the phrase came from. nil for phrases found by the
+  # original automatic detection or built by hand.
+  SOURCE_IMPORTED = 1 # imported from another Mutashabihat dataset
+
   scope :approved, -> {where approved: true}
   after_commit :update_verses_stats, on: [:create, :update]
 
@@ -66,6 +78,18 @@ class Morphology::Phrase < ApplicationRecord
     end
 
     update_columns(attrs)
+  end
+
+  def source_imported?
+    source == SOURCE_IMPORTED
+  end
+
+  def reviewed?
+    'new' == review_status
+  end
+
+  def review_status_label
+    REVIEW_STATUS_LABELS[review_status] || review_status.to_s.humanize.presence || 'Unknown'
   end
 
   def get_color

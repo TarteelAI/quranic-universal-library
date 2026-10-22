@@ -2,16 +2,10 @@
   <%= render 'shared/flash_notices' %>
 <% end %>
 
-<%= turbo_stream.replace dom_id(@phrase_verse.verse) do %>
-  <%= render 'ayah', options: {
-    ayah: @phrase_verse.verse,
-    matcher: 'saved',
-    matches: [[@phrase_verse.word_position_from, @phrase_verse.word_position_to]],
-    phrase_ayah_id: @phrase_verse.id,
-    skipped_words: @phrase_verse.missing_word_positions || []
-  } %>
+<%= turbo_stream.replace dom_id(@verse) do %>
+  <%= render 'ayah', card: Mutashabihat::PhraseReview.saved_card(@verse, @phrase_verses, @phrase) %>
 <% end %>
 
-<%= turbo_stream.replace 'phrase_id' do  %>
-  <input autocomplete="off" type="hidden" name="phrase_id" id="phrase_id" value="<%= @phrase_verse.phrase_id %>">
+<%= turbo_stream.replace 'phrase_id' do %>
+  <input autocomplete="off" type="hidden" name="phrase_id" id="phrase_id" value="<%= @phrase.id %>">
 <% end %>

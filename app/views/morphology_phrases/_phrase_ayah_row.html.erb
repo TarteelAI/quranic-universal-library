@@ -1,0 +1,57 @@
+<%
+  verse = phrase_verse.verse
+  phrase = phrase_verse.phrase
+  current = verse.id == current_verse_id
+  action_url = review_ayah_morphology_phrase_path(phrase.id)
+  button = 'w-7 h-7 inline-flex items-center justify-center rounded text-xs transition-colors'
+%>
+
+<div id="<%= dom_id(phrase_verse, :review) %>" class="flex flex-wrap items-center gap-3 px-3 py-2 <%= 'bg-blue-50/50' if current %>">
+  <div class="flex items-center gap-1.5 text-xs w-40 flex-shrink-0 flex-wrap">
+    <% if current %>
+      <span class="font-mono font-medium"><%= verse.verse_key %></span>
+      <span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">this ayah</span>
+    <% else %>
+      <%= link_to verse.verse_key, morphology_phrase_path(verse.id, proofread: true), target: '_top', class: 'font-mono font-medium text-blue-700' %>
+    <% end %>
+    <% if phrase.source_verse_id == verse.id %>
+      <span class="px-1.5 py-0.5 rounded bg-slate-800 text-white">source</span>
+    <% end %>
+  </div>
+
+  <div class="flex items-center gap-1 text-xs flex-shrink-0">
+    <% if phrase_verse.approved? %>
+      <span class="px-1.5 py-0.5 rounded bg-green-100 text-green-800">Approved</span>
+    <% else %>
+      <span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700">Not approved</span>
+    <% end %>
+    <span class="px-1.5 py-0.5 rounded <%= phrase_verse.review_status.nil? ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600' %>"><%= phrase_verse.review_status_label %></span>
+  </div>
+
+  <div class="quran-text qpc-hafs text-lg text-right flex-1 min-w-[16rem]" dir="rtl">
+    <% verse.words.reject(&:ayah_mark?).sort_by(&:position).each do |word| %>
+      <span class="<%= phrase_verse.highlight_word?(word) ? 'font-medium' : 'text-gray-300' %>" <%= "style=\"color: #{phrase.get_color}\"".html_safe if phrase_verse.highlight_word?(word) %>><%= word.text_qpc_hafs %></span>
+    <% end %>
+  </div>
+
+  <% if @access %>
+    <div class="flex items-center gap-1 flex-shrink-0">
+      <%= button_to action_url, method: :patch, params: { phrase_verse_id: phrase_verse.id, status: 'approve', current_verse_id: current_verse_id },
+                    class: "#{button} #{phrase_verse.approved? ? 'bg-green-600 text-white' : 'border border-green-600 text-green-700 hover:bg-green-50'}",
+                    title: 'Approve this ayah for the phrase', form: { data: { turbo_stream: true } } do %>
+        <i class="fas fa-check"></i>
+      <% end %>
+      <%= button_to action_url, method: :patch, params: { phrase_verse_id: phrase_verse.id, status: 'disapprove', current_verse_id: current_verse_id },
+                    class: "#{button} #{phrase_verse.approved? ? 'border border-red-300 text-red-600 hover:bg-red-50' : 'bg-red-600 text-white'}",
+                    title: 'Not approved: keep it, but leave it out of exports', form: { data: { turbo_stream: true } } do %>
+        <i class="fas fa-times"></i>
+      <% end %>
+      <%= button_to action_url, method: :patch, params: { phrase_verse_id: phrase_verse.id, status: 'remove', current_verse_id: current_verse_id },
+                    class: "#{button} border border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-red-600",
+                    title: 'Remove this ayah from the phrase',
+                    form: { data: { turbo_stream: true, turbo_confirm: "Remove #{verse.verse_key} from this phrase?" } } do %>
+        <i class="fas fa-trash-alt"></i>
+      <% end %>
+    </div>
+  <% end %>
+</div>

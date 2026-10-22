@@ -12,6 +12,19 @@
     <span><%= pluralize(overview.words.size, 'word') %></span>
     <span>·</span>
     <span><%= pluralize(groups.size, 'shared phrase') %></span>
+    <% if groups.any? %>
+      <label class="ml-auto inline-flex items-center gap-1.5 cursor-pointer select-none text-gray-700"
+             title="In the ayahs of each phrase, colour words added, changed or missing compared to the phrase" data-controller="tooltip">
+        <input type="checkbox" class="rounded border-gray-300" data-mutashabihat-proofread-target="diffToggle" data-action="mutashabihat-proofread#toggleDiff">
+        Show differences
+      </label>
+    <% end %>
+  </div>
+  <div class="diff-legend flex-wrap items-center justify-end gap-3 mt-1 text-xs text-gray-600">
+    <span class="diff-added font-medium">added word</span>
+    <span class="diff-changed font-medium">changed word</span>
+    <span class="diff-omitted">missing word</span>
+    <span class="text-gray-400">compared to the phrase, in each phrase's ayahs</span>
   </div>
 
   <% if groups.any? %>

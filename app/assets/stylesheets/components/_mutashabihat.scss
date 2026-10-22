@@ -279,4 +279,32 @@
   .phrase-ayahs > summary::-webkit-details-marker {
     display: none;
   }
+
+  // Differences from the phrase in its ayah rows, off until "Show differences"
+  .diff-omitted,
+  .diff-legend {
+    display: none;
+  }
+
+  &.show-diff {
+    .diff-added {
+      color: #16a34a !important;
+    }
+
+    .diff-changed {
+      color: #d97706 !important;
+    }
+
+    .diff-omitted {
+      display: inline;
+      color: #dc2626;
+      opacity: 0.7;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+    }
+
+    .diff-legend {
+      display: flex;
+    }
+  }
 }

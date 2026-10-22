@@ -125,7 +125,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 3: Review the ayahs of each phrase',
-        text: "Click the ayah count on a phrase card to list every ayah sharing it, then approve, disapprove or remove each one. <code>Open in builder</code> opens the phrase to change words or add ayahs."
+        text: "Click the ayah count on a phrase card to list every ayah sharing it, then approve, disapprove or remove each one. Turn on <code>Show differences</code> to colour how each ayah differs from the phrase: <span style=\"color:#16a34a\">added words</span>, <span style=\"color:#d97706\">changed words</span>, and <span style=\"color:#dc2626;text-decoration:line-through\">missing words</span>. A lot of added or missing words usually means the selected words are off. <code>Open in builder</code> opens the phrase to change words or add ayahs."
       },
       {
         type: 'step',

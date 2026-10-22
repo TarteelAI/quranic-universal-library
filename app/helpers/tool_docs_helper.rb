@@ -301,7 +301,7 @@ module ToolDocsHelper
       {
         type: 'info',
         text: <<~HTML
-          <p>Every Arabic word has its own short translation. Read right to left, they follow the ayah word by word.</p>
+          <p>Every Arabic word has its own short translation.</p>
           #{word_translation_diagram(
             [['Words', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', '(of) the worlds', :same]]]]
           )}

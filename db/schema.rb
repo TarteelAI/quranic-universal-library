@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_22_100100) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_22_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -366,6 +366,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_22_100100) do
     t.index ["verse_id"], name: "index_draft_translations_on_verse_id"
   end
 
+  create_table "draft_transliterations", force: :cascade do |t|
+    t.integer "resource_content_id"
+    t.integer "verse_id"
+    t.integer "user_id"
+    t.text "current_text"
+    t.text "draft_text"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imported"], name: "index_draft_transliterations_on_imported"
+    t.index ["need_review"], name: "index_draft_transliterations_on_need_review"
+    t.index ["resource_content_id"], name: "index_draft_transliterations_on_resource_content_id"
+    t.index ["text_matched"], name: "index_draft_transliterations_on_text_matched"
+    t.index ["verse_id"], name: "index_draft_transliterations_on_verse_id"
+  end
+
   create_table "draft_word_translations", force: :cascade do |t|
     t.string "draft_text"
     t.string "current_text"
@@ -399,6 +418,29 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_22_100100) do
     t.index ["word_group_size"], name: "index_draft_word_translations_on_word_group_size"
     t.index ["word_id"], name: "index_draft_word_translations_on_word_id"
     t.index ["word_translation_id"], name: "index_draft_word_translations_on_word_translation_id"
+  end
+
+  create_table "draft_word_transliterations", force: :cascade do |t|
+    t.integer "resource_content_id"
+    t.integer "verse_id"
+    t.integer "word_id"
+    t.string "location"
+    t.integer "user_id"
+    t.string "current_text"
+    t.string "draft_text"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imported"], name: "index_draft_word_transliterations_on_imported"
+    t.index ["location"], name: "index_draft_word_transliterations_on_location"
+    t.index ["need_review"], name: "index_draft_word_transliterations_on_need_review"
+    t.index ["resource_content_id"], name: "index_draft_word_transliterations_on_resource_content_id"
+    t.index ["text_matched"], name: "index_draft_word_transliterations_on_text_matched"
+    t.index ["verse_id"], name: "index_draft_word_transliterations_on_verse_id"
+    t.index ["word_id"], name: "index_draft_word_transliterations_on_word_id"
   end
 
   create_table "dummy", force: :cascade do |t|

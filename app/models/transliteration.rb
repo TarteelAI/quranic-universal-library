@@ -21,7 +21,6 @@
 #  index_transliterations_on_resource_content_id_and_verse_id  (resource_content_id,verse_id) UNIQUE
 #  index_transliterations_on_verse_id                          (verse_id)
 #
-# Ayah by ayah transliteration. Word by word transliterations are in WordTransliteration.
 class Transliteration < QuranApiRecord
   include StripWhitespaces
   include Resourceable
@@ -33,26 +32,24 @@ class Transliteration < QuranApiRecord
 
   before_save :set_verse_fields, if: :verse_id_changed?
 
-  # Suggestions go through Draft::Translation, same as ayah translations.
-  # Draft::Translation#import! writes them back here for transliteration resources.
-  def draft_translations
-    Draft::Translation.where(resource_content_id: resource_content_id, verse_id: verse_id)
+  def drafts
+    Draft::Transliteration.where(resource_content_id: resource_content_id, verse_id: verse_id)
   end
 
   def build_draft
-    Draft::Translation.new(
+    Draft::Transliteration.new(
       current_text: text,
-      draft_text: text.to_s, # blank for a new transliteration, draft_text= can't format nil
+      draft_text: text,
       verse: verse,
       resource_content_id: resource_content_id
     )
   end
 
   def save_suggestions(params, user)
-    draft = Draft::Translation.new(params)
+    draft = Draft::Transliteration.new(params)
     draft.resource_content_id = resource_content_id
     draft.current_text = text
-    draft.text_matched = draft.draft_text == text
+    draft.text_matched = draft.draft_text.to_s.strip == text.to_s.strip
     draft.verse = verse
     draft.need_review = true
     draft.user = user

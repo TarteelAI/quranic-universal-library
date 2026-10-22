@@ -381,6 +381,8 @@ module Exporter
       list = ResourceContent.transliteration.one_verse.approved
 
       list.each do |content|
+        next if !content.allow_publish_sharing?
+
         exporter = Exporter::ExportTransliteration.new(
           resource_content: content,
           base_path: base_path
@@ -448,6 +450,8 @@ module Exporter
       list = ResourceContent.transliteration.one_word.approved
 
       list.each do |content|
+        next if !content.allow_publish_sharing?
+
         exporter = Exporter::ExportWordTransliteration.new(
           resource_content: content,
           base_path: base_path

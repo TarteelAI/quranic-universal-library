@@ -37,12 +37,12 @@ class TransliterationPresenter < ResourcePresenter
     transliteration.new_record? || transliteration.text.blank?
   end
 
-  def draft_translation
-    @draft_translation ||= transliteration.build_draft
+  def draft
+    @draft ||= transliteration.build_draft
   end
 
   def pending_suggestions_count
-    transliteration.draft_translations.where(imported: false, need_review: true).count
+    transliteration.drafts.where(imported: false, need_review: true).count
   end
 
   def page_title

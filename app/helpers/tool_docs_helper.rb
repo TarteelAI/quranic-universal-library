@@ -292,57 +292,129 @@ module ToolDocsHelper
     [
       "Word by Word Translations",
       {
-        text: "This tool is designed to proofread and correct word-by-word translations. Please follow these steps to make adjustments to any translation"
+        text: "This tool is used to proofread and fix the word by word translation of the Quran: the meaning of each Arabic word, shown under it. Find the ayah, click <code>Edit</code>, fix the words and click <code>Save translations</code>."
       },
       {
-        type: 'step',
-        title: 'Step 1: Select a translation resource',
-        text: "A language can have more than one word-by-word translation, so start by picking the resource you want to work on from the <code>Select resource</code> page. Each resource is maintained separately.",
-        screenshot: 'word_translations.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Find an ayah',
-        text: "Once a resource is selected, use the <code>Surah</code> and <code>Ayah</code> filters to narrow down the results. Click <code>Show</code> to display the selected Ayah, where a list of words and their corresponding translations will appear.",
-        screenshot: 'word_translations.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 3: Read the translation',
-        text: "Review the translation of each word carefully. Words without a translation are highlighted so you can spot gaps at a glance. If an update is needed, click the <code>Edit</code> button to fix the translation.",
-        screenshot: 'ayah-words-translation.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 4: Update the translation',
-        text: "The page will display the Ayah along with a list of all its words. Each word is shown as its own card with an input field, its current translation, and the English translation for reference. Once you're satisfied with the update, click <code>Save translations</code> to save the changes.",
-        screenshot: 'update-word-translation.png'
+        type: 'heading',
+        text: 'How word translations work'
       },
       {
         type: 'info',
-        text: "Some phrases convey better meanings when translated as a whole. <br/>For example, <span class='qpc-hafs'>مِنۢ بَيۡنِ أَيۡدِيهِمۡ</span> means <strong>before them</strong>. A literal, word-by-word translation would be <strong>from</strong>, <strong>between</strong>, <strong>their hands</strong>, which may not convey the intended meaning clearly. In such cases, we can provide group translations for better understanding.",
+        text: <<~HTML
+          <p>Every Arabic word has its own short translation. Read right to left, they follow the ayah word by word.</p>
+          #{word_translation_diagram(
+            [['Words', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', '(of) the worlds', :same]]]]
+          )}
+          <p class="mt-2">Some words only make sense together. Those get a <strong>group translation</strong> on top of their own, see <strong>4</strong> below.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 4.1: Update the group translation',
+        title: 'Find an ayah',
+        text: "Pick the translation on the <code>Select resource</code> page (a language can have more than one). Use the <code>Surah</code> and <code>Ayah</code> filters and click <code>Show</code>. Words without a translation are highlighted. Click <code>Edit</code> to fix the ayah: each word has its own field, with the current translation and the English one for reference.",
+        screenshot: 'update-word-translation.png'
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. Fix a typo',
+        text: <<~HTML
+          <p>Fix the text in the word's field and click <code>Save translations</code>.</p>
+          #{word_translation_diagram(
+            [['Now', [['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', "(of) the <del class='text-red-600'>wrlds</del>", :wrong]]],
+             ['After', [['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', "(of) the <ins class='text-green-700 font-semibold no-underline'>worlds</ins>", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Add a missing translation',
+        text: <<~HTML
+          <p>The word has no translation. Type it in the word's field and save.</p>
+          #{word_translation_diagram(
+            [['Now', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'missing', :missing]]],
+             ['After', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :fixed]]]]
+          )}
+          <p class="mt-2">Leaving a field empty doesn't remove a translation, it's skipped when saving.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Translations of two words merged in one',
+        text: <<~HTML
+          <p>One word has the meaning of the word next to it too, and that word is empty or has the meaning of the word after it.</p>
+          #{word_translation_diagram(
+            [['Now', [['ٱلۡحَمۡدُ', "All praise <span class='text-red-600'>(is) for Allah</span>", :wrong], ['لِلَّهِ', 'missing', :missing], ['رَبِّ', 'Lord', :same]]],
+             ['After', [['ٱلۡحَمۡدُ', 'All praise', :fixed], ['لِلَّهِ', '(is) for Allah', :fixed], ['رَبِّ', 'Lord', :same]]]]
+          )}
+          <p class="mt-2">Give each word only its own meaning. If the meanings after it moved by one word too, fix them all in the same edit. If the words really only make sense together, use a group translation instead.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Translate a group of words together',
         sections: [
           {
-            text: "If you find a group of words that should be translated together, you can group them. To do this, click the <code>Create group</code> button (or <code>Edit group</code> if you need to change an existing group) to open the group translation modal.",
-            screenshot: 'create-group.png'
+            text: <<~HTML
+              <p>Translated one by one, <span class='qpc-hafs'>مِنۢ بَيۡنِ أَيۡدِيهِمۡ</span> is <em>from, between, their hands</em>, but it means <strong>before them</strong>. Each word keeps its own translation, and the group translation is shown for the whole range.</p>
+              #{word_translation_diagram(
+                [['Words', [['مِنۢ', 'from', :same], ['بَيۡنِ', 'between', :same], ['أَيۡدِيهِمۡ', 'their hands', :same]], [0, 2, 'before them']]]
+              )}
+              <p class="mt-2">On the edit page, click <code>Create group</code> on a word (<code>Edit group</code> if it's already in one). A word gets these buttons once its own translation is saved.</p>
+            HTML
           },
           {
-            text: "Select the word range and primary word of the range that'll have the translation. Click on <code>Save group translation</code> to save the changes.",
+            text: "Pick the first and last word of the group, the primary word that holds the group translation, type the group translation and click <code>Save group translation</code>.",
             screenshot: 'save-group-translation.png'
           }
         ]
       },
       {
-        type: 'step',
-        title: 'Review change log and rollback',
-        text: "You can view the change log from the admin panel. To roll back any changes, please contact the admin",
-        screenshot: 'word-translation-change-log.png'
+        type: 'info',
+        text: "Saved changes go live right away. Every change is kept in the change log in the admin panel. To roll back a change or remove a group, contact the admin."
       }
     ]
+  end
+
+  # Word cards in reading order (right to left), like ayah_text_diagram.
+  # rows: [label, [[arabic, translation, kind], ...], optional [from, to, group translation]]
+  def word_translation_diagram(rows)
+    styles = {
+      same: 'border-gray-300 bg-white',
+      wrong: 'border-red-400 bg-red-50',
+      fixed: 'border-green-600 bg-green-50',
+      missing: 'border-dashed border-gray-400 bg-white text-gray-400 italic'
+    }
+    legend = { wrong: 'needs a fix', fixed: 'after your fix', missing: 'missing' }
+    columns = rows.map { |row| row[1].size }.max
+
+    body = rows.map do |label, cells, group|
+      cards = cells.map do |arabic, text, kind|
+        "<div class='rounded border #{styles[kind]} p-2 text-center min-w-0'>" \
+          "<div class='qpc-hafs text-xl leading-loose text-gray-900' dir='rtl'>#{arabic}</div>" \
+          "<div class='text-xs leading-snug text-gray-800' dir='ltr'>#{text}</div></div>"
+      end.join
+      row = "<div class='text-xs font-semibold text-gray-900 pt-2' dir='ltr'>#{label}</div>#{cards}"
+
+      if group
+        from, to, text = group
+        row += "<div></div>" \
+               "<div class='rounded bg-blue-600 text-white text-xs text-center py-1' dir='ltr' style='grid-column: #{from + 2} / #{to + 3}'>group: #{text}</div>"
+      end
+      row
+    end.join
+
+    used = rows.flat_map { |row| row[1].map(&:last) }.uniq & legend.keys
+    keys = used.map do |kind|
+      "<span><span class='inline-block w-2.5 h-2.5 rounded-sm border align-middle #{styles[kind]}'></span> #{legend[kind]}</span>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
+      "<div class='grid gap-1 #{'min-w-[28rem]' if columns > 2}' dir='rtl' style='grid-template-columns: 4.5rem repeat(#{columns}, minmax(0, 1fr)); max-width: #{8 + columns * 9}rem; margin-left: auto'>#{body}</div>" \
+      "#{"<p class='text-xs text-gray-500 mt-2 flex flex-wrap gap-x-3'>#{keys}</p>" if keys.present?}</div>"
   end
 
   def ayah_translation_help

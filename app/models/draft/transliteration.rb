@@ -31,6 +31,8 @@ class Draft::Transliteration < ApplicationRecord
   belongs_to :verse
   belongs_to :user, optional: true
 
+  before_save :refresh_current_text, if: :verse_id_changed?
+
   def original_transliteration
     ::Transliteration.find_by(verse_id: verse_id, resource_content_id: resource_content_id)
   end
@@ -69,5 +71,13 @@ class Draft::Transliteration < ApplicationRecord
     update_columns(imported: true)
 
     transliteration
+  end
+
+  private
+
+  # Moved to another ayah in the CMS, compare against that ayah's transliteration.
+  def refresh_current_text
+    self.current_text = original_transliteration&.text
+    self.text_matched = current_text.to_s.strip == draft_text.to_s.strip
   end
 end

@@ -36,6 +36,8 @@ class Draft::WordTransliteration < ApplicationRecord
   belongs_to :word
   belongs_to :user, optional: true
 
+  before_save :set_word_fields, if: :word_id_changed?
+
   def original_transliteration
     ::WordTransliteration.find_by(word_id: word_id, resource_content_id: resource_content_id)
   end
@@ -74,5 +76,16 @@ class Draft::WordTransliteration < ApplicationRecord
     update_columns(imported: true)
 
     word_transliteration
+  end
+
+  private
+
+  # Moved to another word in the CMS, keep verse and location in sync and
+  # compare against that word's transliteration.
+  def set_word_fields
+    self.verse_id = word.verse_id
+    self.location = word.location
+    self.current_text = original_transliteration&.text
+    self.text_matched = current_text.to_s.strip == draft_text.to_s.strip
   end
 end

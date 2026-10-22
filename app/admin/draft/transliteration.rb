@@ -40,7 +40,6 @@ ActiveAdmin.register Draft::Transliteration do
     end
   end
 
-  # Approved drafts win over newer unapproved ones when the whole resource is imported.
   member_action :review, method: 'put' do
     resource.update_columns(need_review: !resource.need_review?)
 
@@ -114,8 +113,9 @@ ActiveAdmin.register Draft::Transliteration do
 
   form do |f|
     f.inputs 'Transliteration detail' do
+      f.input :verse, as: :searchable_select, ajax: { resource: Verse }
       f.input :draft_text
-      f.input :need_review, hint: 'Untick to approve. Approved drafts win over newer unapproved ones on import.'
+      f.input :need_review, hint: 'Untick to approve.'
     end
 
     f.actions
@@ -132,6 +132,6 @@ ActiveAdmin.register Draft::Transliteration do
   end
 
   permit_params do
-    %i[draft_text need_review]
+    %i[verse_id draft_text need_review]
   end
 end

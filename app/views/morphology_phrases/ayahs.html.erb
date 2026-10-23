@@ -5,7 +5,10 @@
     <div class="px-3 py-3 text-xs text-gray-500">No ayahs left for this phrase.</div>
   <% else %>
     <div class="divide-y divide-gray-200 bg-white rounded-b-lg">
-      <%= render partial: 'phrase_ayah_row', collection: rows, as: :phrase_verse, locals: { current_verse_id: params[:current_verse_id].to_i } %>
+      <%= render partial: 'phrase_ayah_row',
+                 collection: rows,
+                 as: :phrase_verse,
+                 locals: { current_verse_id: params[:current_verse_id].to_i } %>
     </div>
   <% end %>
 <% end %>

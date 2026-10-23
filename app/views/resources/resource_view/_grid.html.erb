@@ -13,7 +13,10 @@
         search_term = "#{card.name.downcase} #{card.info.to_s.downcase} #{card.humanize_cardinality_type.to_s.downcase} #{card.tag_names.join(' ').downcase}"
       %>
 
-      <%= render 'card/card-container', card: card, patterns: patterns, data: { turbo_frame: '_top', search: search_term } do %>
+      <%= render 'card/card-container',
+                 card: card,
+                 patterns: patterns,
+                 data: { turbo_frame: '_top', search: search_term } do %>
         <%= render 'card/card_content',
                    card: card,
                    title: link_to(card.name, resource_search_detail_path(card, search_context), class: 'hover:text-[#46ac7a] transition-colors', data: { turbo_frame: '_top' }),

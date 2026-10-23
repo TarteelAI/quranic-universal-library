@@ -56,12 +56,24 @@
 
         <div class="space-y-3" data-translation-footnotes-target="list">
           <% suggestion.footnotes.each do |note| %>
-            <%= render 'footnote_field', key: note.key, foot_note_id: note.foot_note_id, text: note.text, lang: lang, dir: dir, input_css: input_css %>
+            <%= render 'footnote_field',
+                       key: note.key,
+                       foot_note_id: note.foot_note_id,
+                       text: note.text,
+                       lang: lang,
+                       dir: dir,
+                       input_css: input_css %>
           <% end %>
         </div>
 
         <template data-translation-footnotes-target="template">
-          <%= render 'footnote_field', key: 'KEY', foot_note_id: nil, text: '', lang: lang, dir: dir, input_css: input_css %>
+          <%= render 'footnote_field',
+                     key: 'KEY',
+                     foot_note_id: nil,
+                     text: '',
+                     lang: lang,
+                     dir: dir,
+                     input_css: input_css %>
         </template>
       </div>
 

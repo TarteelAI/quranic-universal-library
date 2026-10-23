@@ -59,7 +59,9 @@
     </h3>
     <% if ayah_phrases.any? %>
       <div class="space-y-3">
-        <%= render partial: 'phrase_verse', collection: ayah_phrases.sort_by { |s| -s.score }, as: :phrase_verse %>
+        <%= render partial: 'phrase_verse',
+                   collection: ayah_phrases.sort_by { |s| -s.score },
+                   as: :phrase_verse %>
       </div>
     <% else %>
       <div class="text-center py-10 px-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-500">

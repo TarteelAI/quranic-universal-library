@@ -40,7 +40,10 @@
         </div>
       <% end %>
 
-      <%= render 'shared/draft_comment_field', form: form, value: params[:comment], wrapper_class: 'mt-5' %>
+      <%= render 'shared/draft_comment_field',
+                 form: form,
+                 value: params[:comment],
+                 wrapper_class: 'mt-5' %>
 
       <div class="text-center mt-5">
         <%= link_to 'Cancel', word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>

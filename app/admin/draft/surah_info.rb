@@ -127,17 +127,8 @@ ActiveAdmin.register Draft::SurahInfo do
       end
     end
 
-    columns do
-      column do
-        panel 'Current text' do
-          div safe_html(resource.current_text), class: 'surah-info-text', dir: dir, lang: language&.iso_code
-        end
-      end
-      column do
-        panel 'Suggested text' do
-          div safe_html(resource.draft_text), class: 'surah-info-text', dir: dir, lang: language&.iso_code
-        end
-      end
+    panel 'Current and suggested text' do
+      render 'admin/surah_info_compare', dir: dir, lang: language&.iso_code
     end
 
     others = Draft::SurahInfo.where(resource_content_id: resource.resource_content_id, chapter_id: resource.chapter_id).where.not(id: resource.id).order(id: :desc)

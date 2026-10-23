@@ -171,10 +171,9 @@ module ToolsHelper
       ToolCard.new(
         title: 'Compare fonts',
         description: 'Compare two builds of a font to see what changed before shipping the update.',
-        url: '/compare-font.html',
+        url: '/compare-font',
         type: 'quranic-text',
         icon: 'compare.svg',
-        external: true,
         tags: [['Fonts', 'fonts'], 'Compare'],
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       )

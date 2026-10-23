@@ -1,14 +1,10 @@
 class SurahInfosPresenter < ApplicationPresenter
-  # A language can have several surah info resources (one per book).
-  # The selected resource wins unless a different language was picked,
-  # then the first resource of that language is shown.
+  # A language can have several surah info resources (one per book)
   def resource_content
     return @resource_content if defined?(@resource_content)
 
-    language_id = params[:language_id].presence&.to_i
     selected = surah_info_resources.find { |r| r.id == params[:resource_id].to_i } if params[:resource_id].present?
-    selected = nil if selected && language_id && selected.language_id != language_id
-    selected ||= surah_info_resources.find { |r| r.language_id == language_id } if language_id
+    selected ||= surah_info_resources.find { |r| r.language_id == params[:language_id].to_i } if params[:language_id].present?
 
     # By default show english surah info
     @resource_content = selected || surah_info_resources.find { |r| r.id == 58 }
@@ -37,10 +33,6 @@ class SurahInfosPresenter < ApplicationPresenter
     end
 
     list
-  end
-
-  def available_languages
-    Language.where(id: ResourceContent.chapter_info.select(:language_id).distinct)
   end
 
   def meta_title

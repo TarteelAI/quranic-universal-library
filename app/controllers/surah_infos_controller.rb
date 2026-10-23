@@ -27,15 +27,6 @@ class SurahInfosController < CommunityController
     @access = can_manage?(@presenter.resource_content)
   end
 
-  def language
-    return @language if @language
-
-    @available_languages = Language.where(id: ResourceContent.chapter_info.select(:language_id))
-    # default will be English
-    params[:language] = (params[:language].presence || params[:language_id].presence || 38).to_i
-    @language = Language.find(params[:language])
-  end
-
   def init_presenter
     @presenter = SurahInfosPresenter.new(self)
   end

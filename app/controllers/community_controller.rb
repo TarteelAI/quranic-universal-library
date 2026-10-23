@@ -22,6 +22,10 @@ class CommunityController < ApplicationController
     render layout: 'tool'
   end
 
+  def compare_font
+    render layout: 'tool'
+  end
+
   def docs
     docs_page_service = DocsPageService.new
     @docs_page = docs_page_service.find(params[:key])

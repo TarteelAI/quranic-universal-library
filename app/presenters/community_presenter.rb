@@ -11,6 +11,8 @@ class CommunityPresenter < ApplicationPresenter
       'Credits'
     when 'compare_audio'
       'QUL · Compare audio'
+    when 'compare_font'
+      'QUL · Compare fonts'
     when 'docs_index'
       'QUL Documentation — Guides, Datasets & API Reference'
     when 'docs'

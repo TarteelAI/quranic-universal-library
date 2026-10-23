@@ -21,7 +21,8 @@ module ToolDocsHelper
       'compare_ayah',
       'ayah_dependency_graph',
       'ayah_boundaries',
-      'compare_audio'
+      'compare_audio',
+      'compare_font'
     ] + internal_tools_keys
   end
 
@@ -1756,6 +1757,42 @@ module ToolDocsHelper
       "<th class='px-3 py-1.5 font-medium'>Tags</th><th class='px-3 py-1.5 font-medium'>Root</th>" \
       "<th class='px-3 py-1.5 font-medium'>Lemma</th></tr></thead>" \
       "<tbody>#{rows}</tbody></table></div>"
+  end
+
+  def compare_font_help
+    [
+      "Compare fonts tool",
+      {
+        text: "This tool compares two builds of the same font, usually the old one against a new export, to see what changed before shipping it. Nothing is uploaded, the fonts stay in your browser."
+      },
+      {
+        type: 'step',
+        title: '1. Load two fonts',
+        text: "Drop the old font on <code>Old</code> and the new one on <code>New</code>, or click <code>Load</code>. TTF, OTF, TTC, WOFF and WOFF2 work. <code>Swap old/new</code> in the header swaps them, <code>Reset</code> clears both."
+      },
+      {
+        type: 'step',
+        title: '2. Compare rendered text',
+        text: "On <code>Bitmap diff</code>, type or paste text and click <code>Render</code>. <code>Diff</code> marks every pixel that differs, <code>Old</code> and <code>New</code> show each font, <code>Overlay</code> draws one over the other and <code>Side by side</code> puts them next to each other. <code>Copy PNG</code> and <code>Download PNG</code> save the result."
+      },
+      {
+        type: 'step',
+        title: '3. Check the reports',
+        text: "<code>Issues</code> lists regressions, like dropped hinting or characters that are no longer mapped. <code>Metadata &amp; size</code> compares names, versions, file size and the font tables. <code>Glyphs</code> diffs every glyph outline, filter by <code>Changed</code>, <code>Only in old</code> or <code>Only in new</code> and click a glyph for details. <code>Code points &amp; ligatures</code> lists what each font maps, <code>Copy all as CSV</code> exports it."
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>What to look for:</p>
+          <ul class="list-disc ps-5 mt-1">
+            <li><strong>Pixels changed where you didn't edit:</strong> an export setting changed, like metrics or hinting.</li>
+            <li><strong>Glyphs only in old:</strong> characters the new build lost.</li>
+            <li><strong>Unmapped code points or missing ligatures:</strong> text that rendered before will fall back to another font.</li>
+            <li><strong>A big jump in file size:</strong> an extra table or unsubset glyphs.</li>
+          </ul>
+        HTML
+      }
+    ]
   end
 
   def compare_audio_help

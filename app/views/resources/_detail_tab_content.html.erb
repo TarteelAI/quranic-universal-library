@@ -1,0 +1,5 @@
+<%= turbo_frame_tag "resource_#{tab.key}", target: '_top' do %>
+  <div data-controller="docs-copy">
+    <%= render tab.partial, resource: resource %>
+  </div>
+<% end %>

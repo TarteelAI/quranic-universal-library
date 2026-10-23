@@ -148,6 +148,7 @@ Rails.application.routes.draw do
     collection do
       get '/:type/:id', action: 'detail', as: :detail
       get '/:type/:id/related_resources', action: 'related_resources', as: :related
+      get '/:type/:id/:tab', action: 'detail', as: :detail_tab, constraints: { tab: /docs|licence|ligatures|glyphs/ }
     end
   end
 

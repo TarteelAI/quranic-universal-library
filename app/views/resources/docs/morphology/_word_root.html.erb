@@ -1,0 +1,272 @@
+<div class="qul-docs">
+  <h2>About root data</h2>
+
+  <p>
+    Most Arabic words are built from a <strong>root</strong>: a few consonants that carry a core meaning.
+    Different patterns of vowels and extra letters around those consonants make different, related words.
+    Most roots have three letters; a few have four.
+  </p>
+
+  <p>
+    This resource gives the root of every word that has one, so you can group words by meaning and find every
+    word in the Quran that comes from the same root.
+  </p>
+
+  <h3>One root, many words</h3>
+  <p>
+    The root <span class="me-quran docs-arabic-inline" dir="rtl">ر ح م</span> (<code>rHm</code>) is about
+    mercy. It appears 339 times in the Quran, in words such as:
+  </p>
+
+  <div class="overflow-x-auto">
+    <table class="[&_td]:align-middle">
+      <thead>
+      <tr>
+        <th>Word</th>
+        <th>Location</th>
+        <th>Meaning</th>
+        <th>Words from this lemma</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">ٱلرَّحِيمِ</span></td>
+        <td><code>1:3:2</code></td>
+        <td>the Especially Merciful</td>
+        <td>116</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">رَحۡمَةٗ</span></td>
+        <td><code>44:6:1</code></td>
+        <td>mercy</td>
+        <td>114</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">ٱلرَّحۡمَٰنِ</span></td>
+        <td><code>1:3:1</code></td>
+        <td>the Most Merciful</td>
+        <td>57</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">رَحِمۡنَٰهُمۡ</span></td>
+        <td><code>23:75:2</code></td>
+        <td>We had mercy on them</td>
+        <td>28</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">أَرۡحَامُكُمۡ</span></td>
+        <td><code>60:3:3</code></td>
+        <td>your relatives (literally "wombs")</td>
+        <td>12</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">بِٱلۡمَرۡحَمَةِ</span></td>
+        <td><code>90:17:9</code></td>
+        <td>to compassion</td>
+        <td>1</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Words without a root</h3>
+  <p>
+    About 50,300 of the Quran's words have a root. Particles such as
+    <span class="me-quran docs-arabic-inline" dir="rtl">مِنَ</span> ("from", <code>2:22:9</code>), pronouns and
+    demonstratives such as <span class="me-quran docs-arabic-inline" dir="rtl">ذَٰلِكَ</span> ("that",
+    <code>2:2:1</code>) are not built from a root, so they have no row in this data.
+  </p>
+
+  <div class="docs-callout docs-callout-tip">
+    In the Preview tab, click a root under any word to see the other words that come from it.
+  </div>
+
+  <h2>SQLite format</h2>
+  <p>
+    The download is a SQLite database with two tables: <code>roots</code> (1,642 rows, one per root) and
+    <code>root_words</code> (one row per word that has a root).
+  </p>
+
+  <h3>Table: <code>roots</code></h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>id</code></td>
+      <td>INTEGER</td>
+      <td>Root id, used by <code>root_words.root_id</code></td>
+    </tr>
+    <tr>
+      <td><code>arabic_trilateral</code></td>
+      <td>TEXT</td>
+      <td>Root letters in Arabic, separated by spaces</td>
+    </tr>
+    <tr>
+      <td><code>english_trilateral</code></td>
+      <td>TEXT</td>
+      <td>The same letters in Latin script, one letter each (see below)</td>
+    </tr>
+    <tr>
+      <td><code>words_count</code></td>
+      <td>INTEGER</td>
+      <td>How many words in the Quran come from this root</td>
+    </tr>
+    <tr>
+      <td><code>uniq_words_count</code></td>
+      <td>INTEGER</td>
+      <td>How many different word forms those words take</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>Sample rows</span></div>
+    <pre><code>id   | arabic_trilateral | english_trilateral | words_count | uniq_words_count
+1356 | ر ح م             | rHm                | 339         | 47
+450  | ح م د             | Hmd                | 68          | 13
+1572 | ع ل م             | Elm                | 854         | 106
+686  | ك و ك ب           | kwkb               | 5           | 3</code></pre>
+  </div>
+
+  <h3>Reading <code>english_trilateral</code></h3>
+  <p>
+    Each Arabic letter is written as exactly one Latin character, using the Buckwalter transliteration.
+    Upper and lower case are different letters: <code>H</code> is <span class="me-quran docs-arabic-inline" dir="rtl">ح</span>
+    and <code>h</code> is <span class="me-quran docs-arabic-inline" dir="rtl">ه</span>.
+  </p>
+
+  <div class="overflow-x-auto">
+    <table class="[&_td]:align-middle [&_td]:text-center [&_th]:text-center">
+      <tbody>
+      <tr>
+        <td><code>A</code> <span class="me-quran docs-arabic-inline" dir="rtl">ا</span></td>
+        <td><code>b</code> <span class="me-quran docs-arabic-inline" dir="rtl">ب</span></td>
+        <td><code>t</code> <span class="me-quran docs-arabic-inline" dir="rtl">ت</span></td>
+        <td><code>v</code> <span class="me-quran docs-arabic-inline" dir="rtl">ث</span></td>
+        <td><code>j</code> <span class="me-quran docs-arabic-inline" dir="rtl">ج</span></td>
+        <td><code>H</code> <span class="me-quran docs-arabic-inline" dir="rtl">ح</span></td>
+        <td><code>x</code> <span class="me-quran docs-arabic-inline" dir="rtl">خ</span></td>
+      </tr>
+      <tr>
+        <td><code>d</code> <span class="me-quran docs-arabic-inline" dir="rtl">د</span></td>
+        <td><code>*</code> <span class="me-quran docs-arabic-inline" dir="rtl">ذ</span></td>
+        <td><code>r</code> <span class="me-quran docs-arabic-inline" dir="rtl">ر</span></td>
+        <td><code>z</code> <span class="me-quran docs-arabic-inline" dir="rtl">ز</span></td>
+        <td><code>s</code> <span class="me-quran docs-arabic-inline" dir="rtl">س</span></td>
+        <td><code>$</code> <span class="me-quran docs-arabic-inline" dir="rtl">ش</span></td>
+        <td><code>S</code> <span class="me-quran docs-arabic-inline" dir="rtl">ص</span></td>
+      </tr>
+      <tr>
+        <td><code>D</code> <span class="me-quran docs-arabic-inline" dir="rtl">ض</span></td>
+        <td><code>T</code> <span class="me-quran docs-arabic-inline" dir="rtl">ط</span></td>
+        <td><code>Z</code> <span class="me-quran docs-arabic-inline" dir="rtl">ظ</span></td>
+        <td><code>E</code> <span class="me-quran docs-arabic-inline" dir="rtl">ع</span></td>
+        <td><code>g</code> <span class="me-quran docs-arabic-inline" dir="rtl">غ</span></td>
+        <td><code>f</code> <span class="me-quran docs-arabic-inline" dir="rtl">ف</span></td>
+        <td><code>q</code> <span class="me-quran docs-arabic-inline" dir="rtl">ق</span></td>
+      </tr>
+      <tr>
+        <td><code>k</code> <span class="me-quran docs-arabic-inline" dir="rtl">ك</span></td>
+        <td><code>l</code> <span class="me-quran docs-arabic-inline" dir="rtl">ل</span></td>
+        <td><code>m</code> <span class="me-quran docs-arabic-inline" dir="rtl">م</span></td>
+        <td><code>n</code> <span class="me-quran docs-arabic-inline" dir="rtl">ن</span></td>
+        <td><code>h</code> <span class="me-quran docs-arabic-inline" dir="rtl">ه</span></td>
+        <td><code>w</code> <span class="me-quran docs-arabic-inline" dir="rtl">و</span></td>
+        <td><code>y</code> <span class="me-quran docs-arabic-inline" dir="rtl">ي</span></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Table: <code>root_words</code></h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>root_id</code></td>
+      <td>INTEGER</td>
+      <td>The word's root, from <code>roots.id</code></td>
+    </tr>
+    <tr>
+      <td><code>word_location</code></td>
+      <td>TEXT</td>
+      <td>Word position as <code>surah:ayah:word</code>, e.g. <code>1:1:3</code> is the third word of the first ayah</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>Sample rows</span></div>
+    <pre><code>root_id | word_location
+1356    | 1:1:3
+450     | 1:2:1
+1572    | 2:31:1</code></pre>
+  </div>
+
+  <div class="docs-callout docs-callout-info">
+    This file has word locations, not word text. To show the words, join on location with a
+    <%= link_to 'word-by-word Quran script', resource_path('quran-script') %>.
+  </div>
+
+  <h2>Example queries</h2>
+
+  <h3>Find the root of a word</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT roots.*
+FROM root_words
+JOIN roots ON roots.id = root_words.root_id
+WHERE root_words.word_location = '1:1:3';
+-- 1356 | ر ح م | rHm | 339 | 47</code></pre>
+  </div>
+
+  <h3>Every word from a root</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT root_words.word_location
+FROM root_words
+JOIN roots ON roots.id = root_words.root_id
+WHERE roots.english_trilateral = 'rHm';  -- 339 locations</code></pre>
+  </div>
+
+  <h3>Most common roots</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT arabic_trilateral, english_trilateral, words_count
+FROM roots
+ORDER BY words_count DESC
+LIMIT 10;</code></pre>
+  </div>
+
+  <h3>Four-letter roots</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT arabic_trilateral, english_trilateral, words_count
+FROM roots
+WHERE length(english_trilateral) = 4;  -- 40 roots</code></pre>
+  </div>
+</div>

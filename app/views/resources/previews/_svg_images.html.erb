@@ -1,200 +1,52 @@
 <%
-  resource_content = resource.resource_content
   image_urls = @presenter.svg_image_urls(resource)
   svg_files = image_urls.map { |url| File.basename(url) }
-
-  sample_url = image_urls.first
-  sample_file = svg_files.first
-  cdn_base = sample_url.present? ? File.dirname(sample_url) : nil
-
-  # "juz-01.svg" -> "juz", "surah-002.svg" -> "surah": what one file stands for.
-  item_label = sample_file.to_s[/\A[a-z]+/] || 'item'
-
-  # The companion font, when the two were released together.
-  font_resource = resource.related_resources.detect { |related| related.resource_content&.font? }
 %>
 
-<div class="mt-5"
-     data-controller="tabs svg-preview"
-     data-svg-preview-urls-value="<%= image_urls.to_json %>">
+<% if image_urls.any? %>
+  <div data-controller="svg-preview"
+       data-svg-preview-urls-value="<%= image_urls.to_json %>">
+    <div class="space-y-4">
+      <p class="text-gray-600">
+        Every image in this download, served from the CDN. Click one to copy its URL.
+      </p>
 
-  <ul class="resource-tabs" id="svg-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-svg-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-svg-docs-pane"
-              type="button" role="tab"
-              aria-controls="tab-svg-docs-pane"
-              aria-selected="true">
-        Documentation
-      </button>
-    </li>
+      <div class="font-toolbar">
+        <input type="search"
+               class="font-toolbar-search"
+               placeholder="Filter by file name, e.g. <%= svg_files.second.to_s.sub(/\.svg\z/, '') %>…"
+               aria-label="Filter images"
+               data-svg-preview-target="search"
+               data-action="input->svg-preview#filter">
 
-    <% if image_urls.any? %>
-      <li class="m-0 flex-none" role="presentation">
-        <button class="btn-tab"
-                id="tab-svg-gallery"
-                data-action="click->tabs#switch click->svg-preview#showGallery"
-                data-tabs-target-value="tab-svg-gallery-pane"
-                type="button" role="tab"
-                aria-controls="tab-svg-gallery-pane"
-                aria-selected="false">
-          Browse images
-        </button>
-      </li>
-    <% end %>
-  </ul>
-
-  <div class="tab-content pt-6" id="svg-docs-tab-content">
-
-    <div class="tab-pane active" id="tab-svg-docs-pane" role="tabpanel" aria-labelledby="tab-svg-docs" tabindex="0">
-      <div class="qul-docs">
-        <h2>Using these images</h2>
-
-        <p>
-          This download is a zip of <strong><%= "#{svg_files.size} " if svg_files.any? %>SVG files</strong>,
-          one per <%= item_label %>. Each file is plain SVG — no fonts,
-          no scripts — so it renders anywhere SVG does: the web, React&nbsp;Native, Android, iOS,
-          print and design tools.
-        </p>
-
-        <% if font_resource.present? %>
-          <div class="docs-callout docs-callout-info">
-            These are the same shapes as the
-            <%= link_to font_resource.name, detail_resources_path(font_resource.resource_type, font_resource.id) %>.
-            Reach for the font when you are rendering text and want the artwork to flow with it;
-            reach for these images when you want a picture you can place, scale and recolour on its own.
-          </div>
-        <% end %>
-
-        <% if svg_files.any? %>
-          <h3>1. File names</h3>
-          <p>
-            Files are named by number, zero padded, so you can build a path from an index without a lookup table:
-          </p>
-          <ul>
-            <% svg_files.first(2).each do |name| %>
-              <li><code><%= name %></code></li>
-            <% end %>
-            <li>…</li>
-            <li><code><%= svg_files.last %></code></li>
-          </ul>
-        <% end %>
-
-        <h3>2. Serve them from the CDN, or ship your own copy</h3>
-        <p>
-          Every file is already on the QUL CDN under <code><%= cdn_base %>/</code>. Use it directly, or
-          download the zip above and serve the files from your own site.
-        </p>
-        <div class="docs-code">
-          <div class="docs-code-header">
-            <span>HTML</span>
-            <button type="button" class="docs-copy-btn" data-action="svg-preview#copyCode">Copy</button>
-          </div>
-          <pre><code>&lt;img src="<%= sample_url %>"
-     alt="<%= resource.name %>"
-     height="48"&gt;</code></pre>
+        <div class="font-toolbar-group">
+          <label for="svg-size-slider">Size</label>
+          <input id="svg-size-slider" type="range" min="24" max="160" value="56"
+                 data-svg-preview-target="sizeSlider"
+                 data-action="input->svg-preview#updateSize">
+          <span class="font-toolbar-value" data-svg-preview-target="sizeValue">56px</span>
         </div>
 
-        <h3>3. Sizing</h3>
-        <p>
-          Each file carries a <code>viewBox</code> along with a <code>width</code> and <code>height</code> in
-          user units, and the artwork is not a fixed aspect ratio — a long name is a wider image. Set one
-          dimension (usually the height, to match a line of text) and let the other follow:
-        </p>
-        <div class="docs-code">
-          <div class="docs-code-header">
-            <span>CSS</span>
-            <button type="button" class="docs-copy-btn" data-action="svg-preview#copyCode">Copy</button>
-          </div>
-          <pre><code>.header-art {
-  height: 48px;
-  width: auto;
-}</code></pre>
+        <div class="font-toolbar-group">
+          <label for="svg-colour">Colour</label>
+          <input id="svg-colour" type="color" value="#111827"
+                 data-svg-preview-target="colour"
+                 data-action="input->svg-preview#updateColour">
         </div>
 
-        <h3>4. Recolouring</h3>
-        <p>
-          The paths carry no <code>fill</code> of their own, so they inherit one. Inline the SVG (or load it
-          with <code>&lt;object&gt;</code>) and set <code>fill</code> on it — including
-          <code>currentColor</code>, which follows the surrounding text colour and makes dark mode free:
-        </p>
-        <div class="docs-code">
-          <div class="docs-code-header">
-            <span>CSS</span>
-            <button type="button" class="docs-copy-btn" data-action="svg-preview#copyCode">Copy</button>
-          </div>
-          <pre><code>.header-art svg {
-  fill: currentColor;
-}</code></pre>
-        </div>
-        <div class="docs-callout docs-callout-warning">
-          An SVG loaded through <code>&lt;img&gt;</code> cannot be recoloured by your CSS — the page cannot
-          reach inside it. Either inline the markup, or use the file as a
-          <code>mask-image</code> and paint with <code>background-color</code>.
+        <div class="font-toolbar-group">
+          <label for="svg-background">On</label>
+          <select id="svg-background" class="font-toolbar-select"
+                  data-action="change->svg-preview#updateBackground">
+            <option value="#ffffff">Light background</option>
+            <option value="#111827">Dark background</option>
+          </select>
         </div>
 
-        <h3>5. Accessibility</h3>
-        <p>
-          Each file has a <code>&lt;title&gt;</code> holding the Arabic name, which screen readers announce
-          when the SVG is inlined. With <code>&lt;img&gt;</code>, write the name into <code>alt</code>
-          yourself — or set <code>alt=""</code> when the name is already in the text beside it.
-        </p>
-
-        <h3>Licence</h3>
-        <p>
-          These images are <strong>CC BY 4.0</strong>. The licence line sits in a comment at the top of
-          every file; keep it there, and credit QUL where you credit your other sources.
-        </p>
+        <span class="font-toolbar-count" data-svg-preview-target="count"></span>
       </div>
+
+      <div class="svg-grid" data-svg-preview-target="grid"></div>
     </div>
-
-    <% if image_urls.any? %>
-      <div class="tab-pane hidden" id="tab-svg-gallery-pane" role="tabpanel" aria-labelledby="tab-svg-gallery" tabindex="0">
-        <div class="space-y-4">
-          <p class="text-gray-600">
-            Every image in this download, served from the CDN. Click one to copy its URL.
-          </p>
-
-          <div class="font-toolbar">
-            <input type="search"
-                   class="font-toolbar-search"
-                   placeholder="Filter by file name, e.g. <%= svg_files.second.to_s.sub(/\.svg\z/, '') %>…"
-                   aria-label="Filter images"
-                   data-svg-preview-target="search"
-                   data-action="input->svg-preview#filter">
-
-            <div class="font-toolbar-group">
-              <label for="svg-size-slider">Size</label>
-              <input id="svg-size-slider" type="range" min="24" max="160" value="56"
-                     data-svg-preview-target="sizeSlider"
-                     data-action="input->svg-preview#updateSize">
-              <span class="font-toolbar-value" data-svg-preview-target="sizeValue">56px</span>
-            </div>
-
-            <div class="font-toolbar-group">
-              <label for="svg-colour">Colour</label>
-              <input id="svg-colour" type="color" value="#111827"
-                     data-svg-preview-target="colour"
-                     data-action="input->svg-preview#updateColour">
-            </div>
-
-            <div class="font-toolbar-group">
-              <label for="svg-background">On</label>
-              <select id="svg-background" class="font-toolbar-select"
-                      data-action="change->svg-preview#updateBackground">
-                <option value="#ffffff">Light background</option>
-                <option value="#111827">Dark background</option>
-              </select>
-            </div>
-
-            <span class="font-toolbar-count" data-svg-preview-target="count"></span>
-          </div>
-
-          <div class="svg-grid" data-svg-preview-target="grid"></div>
-        </div>
-      </div>
-    <% end %>
   </div>
-</div>
+<% end %>

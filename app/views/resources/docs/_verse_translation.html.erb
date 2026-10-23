@@ -1,0 +1,93 @@
+<div class="qul-docs">
+  <h2>About translation data</h2>
+
+  <p>
+    Translations are available as <strong>JSON</strong> and <strong>SQLite</strong>. Because different
+    apps need different things — a website can render HTML, a small embedded reader often cannot — each
+    translation is exported in several shapes. Pick the one that matches what your app can display.
+  </p>
+
+  <h2>Plain text formats</h2>
+  <p>These two carry the translation only: no formatting and no footnotes.</p>
+
+  <h3>Nested arrays</h3>
+  <p>One array per surah, holding that surah's ayahs in order.</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>[
+  ["translation of 1:1", "translation of 1:2"],
+  ["translation of 2:1", "translation of 2:2"]
+]</code></pre>
+  </div>
+
+  <h3>Key and value</h3>
+  <p>Keyed by ayah reference, which is easier to look up a single ayah in.</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1:1": "translation of 1:1",
+  "1:2": "translation of 1:2",
+  "114:6": "translation of 114:6"
+}</code></pre>
+  </div>
+
+  <h2>Formats with footnotes</h2>
+  <p>
+    Some translations carry footnotes. Three more formats keep them, each trading off differently between
+    fidelity and how much your renderer has to understand.
+  </p>
+
+  <h3>1. Footnotes as tags</h3>
+  <p>
+    A <code>&lt;sup&gt;</code> tag marks the reference in the text under <code>t</code>, and the footnote
+    bodies live separately under <code>f</code>, keyed by footnote id.
+  </p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "88:17": {
+    "t": "Do the disbelievers not see how rain clouds are formed &lt;sup foot_note=\"77646\"&gt;1&lt;/sup&gt;",
+    "f": {
+      "77646": "The word ibl can mean 'camel' as well as 'rain cloud'..."
+    }
+  }
+}</code></pre>
+  </div>
+
+  <h3>2. Inline footnotes</h3>
+  <p>The footnote sits in the text itself, wrapped in double square brackets.</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "88:17": "Do the disbelievers not see how rain clouds are formed [[The word ibl can mean 'camel' as well as 'rain cloud'...]]"
+}</code></pre>
+  </div>
+
+  <h3>3. Text chunks</h3>
+  <p>
+    The ayah is split into a list of pieces. A piece is either a plain string or an object describing a
+    footnote or a formatting tag. Use this when your app cannot render HTML at all.
+  </p>
+  <p>This ayah — Bridges' translation of Surah An-Nas, ayah 6 —</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>HTML</span></div>
+    <pre><code>&lt;i class="s"&gt;(from the whisperers)&lt;/i&gt;among the race of unseen beings&lt;sup foot_note="81506"&gt;1&lt;/sup&gt;and mankind.”</code></pre>
+  </div>
+  <p>is exported as:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>[
+  {"type": "i", "text": "(from the whisperers)"},
+  "among the race of unseen beings",
+  {"type": "f", "f": "81506", "text": "1"},
+  "and mankind.”"
+]</code></pre>
+  </div>
+  <ul>
+    <li>A string is plain text — print it as is.</li>
+    <li><code>"type": "i"</code> (or another tag name) is formatting — render <code>text</code> in that style.</li>
+    <li><code>"type": "f"</code> is a footnote reference — <code>text</code> is the marker to show and
+      <code>f</code> is the footnote id to look up.</li>
+  </ul>
+</div>
+    

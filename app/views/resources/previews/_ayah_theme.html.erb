@@ -4,151 +4,78 @@
   theme = AyahTheme.for_verse(ayah)
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Theme Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
+        <%= select_tag :ayah,
+                       [],
+                       onchange: "jumpToAyah(this.value)",
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+      </div>
 
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="resource-pane-title">
-          <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
-        </h2>
-
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
-            <%= select_tag :ayah,
-                           [],
-                           onchange: "jumpToAyah(this.value)",
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
-          </div>
-
-          <div class="flex gap-2">
-            <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <% if theme %>
-          <% verses = theme.ayahs %>
-
-          <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
-            <div class="p-6">
-              <div class="qpc-hafs quran-text">
-                <% verses.each do |verse| %>
-                  <%= verse.text_qpc_hafs %>
-                <% end %>
-              </div>
-            </div>
-          </div>
+      <div class="flex gap-2">
+        <% if ayah.previous_ayah %>
+          <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
+            ← Previous
+          <% end %>
         <% end %>
 
-        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <% if theme %>
-            <% verses = theme.ayahs %>
-
-            <% if verses.size > 1 %>
-              <div class="docs-callout docs-callout-tip mt-0">
-                <p class="leading-normal">
-                  This theme is for group of <%= verses.size %> ayahs from <%= verses.first.verse_key %> to <%= verses.last.verse_key %>.
-                </p>
-              </div>
-            <% end %>
-
-            <div class="tafsir">
-              <%= safe_html theme.theme %>
-            </div>
-
-            <div class="flex gap-2 mt-4">
-              <% theme.keywords.each do |keyword| %>
-                <span class="bg-blue-100 text-blue-600 font-medium px-4 py-1 rounded-full">
-                  <%= keyword %>
-                </span>
-              <% end %>
-            </div>
-          <% else %>
-            <p class="text-gray-500 italic">Tafisr is not available for this ayah.</p>
+        <% if ayah.next_ayah %>
+          <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
+            Next →
           <% end %>
-        </div>
+        <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-        <div class="qul-docs">
-          <h2>Ayah themes</h2>
+    <% if theme %>
+      <% verses = theme.ayahs %>
 
-          <p>
-            The Ayah Theme resource in QUL provides a concise thematic summary for a verse or group of verses in the Qur’an.
-            It helps readers quickly grasp the central message or topic covered in a passage.
-          </p>
-
-          <div class="docs-callout docs-callout-info">
-            <p class="font-semibold mb-2">Example:</p>
-            <h3>For Surah 1:1 to 1:7, the theme is:</h3>
-            <p class="mb-2">Supplication to Allah for guidance taught by Allah Himself</p>
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+        <div class="p-6">
+          <div class="qpc-hafs quran-text">
+            <% verses.each do |verse| %>
+              <%= verse.text_qpc_hafs %>
+            <% end %>
           </div>
-
-
-          <h3>
-            QUL export ayah themes data as a Sqlite database with following columns
-          </h3>
-
-          <ul>
-            <li><code>theme</code>: A short description summarizing the main idea or subject of the ayah group.</li>
-            <li><code>surah_number</code>: The surah number to which the ayahs belong.
-            </li>
-            <li><code>ayah_from</code> / <code>to_ayah</code>: The starting ayah number of the theme group (inclusive).</li>
-            <li><code>ayah_to</code>: The ending ayah number of the theme group (inclusive).</li>
-            <li><code>keywords</code>:
-              Comma-separated keywords or concepts related to the theme.
-            </li>
-            <li><code>total_ayahs</code>:
-              The total number of ayahs covered by this theme
-            </li>
-          </ul>
         </div>
+      </div>
+    <% end %>
+
+    <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <% if theme %>
+        <% verses = theme.ayahs %>
+
+        <% if verses.size > 1 %>
+          <div class="docs-callout docs-callout-tip mt-0">
+            <p class="leading-normal">
+              This theme is for group of <%= verses.size %> ayahs from <%= verses.first.verse_key %> to <%= verses.last.verse_key %>.
+            </p>
+          </div>
+        <% end %>
+
+        <div class="tafsir">
+          <%= safe_html theme.theme %>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+          <% theme.keywords.each do |keyword| %>
+            <span class="bg-blue-100 text-blue-600 font-medium px-4 py-1 rounded-full">
+              <%= keyword %>
+            </span>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 italic">Tafisr is not available for this ayah.</p>
+      <% end %>
     </div>
   </div>
 </div>

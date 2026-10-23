@@ -4,198 +4,90 @@
   similar_ayahs = ayah.get_matching_verses
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Similar Ayah Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
+        <%= select_tag :ayah,
+                       [],
+                       onchange: "jumpToAyah(this.value)",
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+      </div>
 
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="resource-pane-title">
-          <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
-        </h2>
-
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
-            <%= select_tag :ayah,
-                           [],
-                           onchange: "jumpToAyah(this.value)",
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
-          </div>
-
-          <div class="flex gap-2">
-            <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
-          <div class="p-6">
-            <div class="qpc-hafs quran-text">
-              <div class="badge badge-default text-left">
-                <%= ayah.verse_key %>
-              </div>
-              <%= ayah.text_qpc_hafs %>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <% if similar_ayahs.size > 1 %>
-            <div class="docs-callout docs-callout-tip mt-0">
-              <p class="leading-normal">
-                <%= ayah.verse_key %> has <%= pluralize similar_ayahs.size, 'similar ayah' %>
-              </p>
-            </div>
-
-            <% similar_ayahs.includes(matched_verse: :words).each do |similar| %>
-              <%
-                matching_ayah = similar.matched_verse
-                match_words = similar.matched_word_positions
-              %>
-              <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
-                <div class="p-6">
-                  <div class="qpc-hafs quran-text">
-                    <div class="badge badge-default text-left">
-                      <%= matching_ayah.verse_key %>
-                    </div>
-
-                    <% matching_ayah.words.each do |word| %>
-                      <% if match_words.include?(word.position) %>
-                        <span class="text-green-600"><%= word.text_qpc_hafs %></span>
-                      <% else %>
-                        <%= word.text_qpc_hafs %>
-                      <% end %>
-                    <% end %>
-                  </div>
-                  <div class="mt-4">
-                    <small class="text-gray-600 block mb-2">
-                      This ayah matches <%= similar.matched_words_count %> words with <%= similar.coverage %>% coverage and a similarity score of <%= similar.score %>
-                    </small>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          <% else %>
-            <p class="text-gray-500 italic">
-              No similar ayah found for  <%= ayah.verse_key %>
-            </p>
+      <div class="flex gap-2">
+        <% if ayah.previous_ayah %>
+          <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
+            ← Previous
           <% end %>
+        <% end %>
+
+        <% if ayah.next_ayah %>
+          <%= link_to detail_resources_path('ayah-theme', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
+            Next →
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+      <div class="p-6">
+        <div class="qpc-hafs quran-text">
+          <div class="badge badge-default text-left">
+            <%= ayah.verse_key %>
+          </div>
+          <%= ayah.text_qpc_hafs %>
         </div>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="qul-docs">
-        <h2>About similar ayah data</h2>
-
-        <p>
-          This resource links ayahs that share wording. It is useful for exploring recurring phrases and
-          expressions across the Quran, and for building “where else does this appear?” features. The data is
-          exported as <strong>JSON</strong> and <strong>SQLite</strong>.
-        </p>
-
-        <h2>SQLite columns</h2>
-        <div class="docs-table-wrap">
-          <table class="docs-table">
-            <thead>
-              <tr>
-                <th>Column</th>
-                <th>Type</th>
-                <th>What it holds</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>verse_key</code></td>
-                <td>TEXT</td>
-                <td>The source ayah, for example <code>1:1</code>.</td>
-              </tr>
-              <tr>
-                <td><code>matched_ayah_key</code></td>
-                <td>TEXT</td>
-                <td>The ayah that shares wording with it.</td>
-              </tr>
-              <tr>
-                <td><code>matched_words_count</code></td>
-                <td>INTEGER</td>
-                <td>How many words the two ayahs have in common.</td>
-              </tr>
-              <tr>
-                <td><code>coverage</code></td>
-                <td>INTEGER</td>
-                <td>Percentage of the source ayah's words that matched.</td>
-              </tr>
-              <tr>
-                <td><code>score</code></td>
-                <td>INTEGER</td>
-                <td>Similarity score from 0 to 100.</td>
-              </tr>
-              <tr>
-                <td><code>match_words_range</code></td>
-                <td>TEXT</td>
-                <td>Which word positions in the matched ayah line up with the source.</td>
-              </tr>
-            </tbody>
-          </table>
+    <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <% if similar_ayahs.size > 1 %>
+        <div class="docs-callout docs-callout-tip mt-0">
+          <p class="leading-normal">
+            <%= ayah.verse_key %> has <%= pluralize similar_ayahs.size, 'similar ayah' %>
+          </p>
         </div>
 
-        <h2>Reading a row</h2>
-        <p>Say <code>1:1</code> matches <code>27:30</code> with:</p>
-        <div class="docs-code">
-          <div class="docs-code-header"><span>Row</span></div>
-          <pre><code>matched_words_count: 4
-coverage: 100
-score: 100
-match_words_range: [5, 8]</code></pre>
-        </div>
-        <p>
-          That reads as: four words are shared, they account for all of the source ayah, the similarity score is
-          100, and in <code>27:30</code> the match runs from word 5 to word 8.
+        <% similar_ayahs.includes(matched_verse: :words).each do |similar| %>
+          <%
+            matching_ayah = similar.matched_verse
+            match_words = similar.matched_word_positions
+          %>
+          <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+            <div class="p-6">
+              <div class="qpc-hafs quran-text">
+                <div class="badge badge-default text-left">
+                  <%= matching_ayah.verse_key %>
+                </div>
+
+                <% matching_ayah.words.each do |word| %>
+                  <% if match_words.include?(word.position) %>
+                    <span class="text-green-600"><%= word.text_qpc_hafs %></span>
+                  <% else %>
+                    <%= word.text_qpc_hafs %>
+                  <% end %>
+                <% end %>
+              </div>
+              <div class="mt-4">
+                <small class="text-gray-600 block mb-2">
+                  This ayah matches <%= similar.matched_words_count %> words with <%= similar.coverage %>% coverage and a similarity score of <%= similar.score %>
+                </small>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500 italic">
+          No similar ayah found for  <%= ayah.verse_key %>
         </p>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>

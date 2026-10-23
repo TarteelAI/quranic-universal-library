@@ -13,6 +13,7 @@ export default class extends Controller {
     this.rendered = false
     this.searchTimer = null
     this.updateCount()
+    this.showGallery()
   }
 
   disconnect() {
@@ -109,20 +110,6 @@ export default class extends Controller {
   async copyUrl(card) {
     const copied = await this.copyToClipboard(card.dataset.svgUrl)
     if (copied) this.flash(card)
-  }
-
-  async copyCode(event) {
-    const button = event.currentTarget
-    const code = button.closest(".docs-code")?.querySelector("code")
-    if (!code) return
-
-    const copied = await this.copyToClipboard(code.textContent)
-    const original = button.dataset.originalLabel || button.textContent
-    button.dataset.originalLabel = original
-    button.textContent = copied ? "Copied" : "Copy failed"
-
-    clearTimeout(button._svgCopyTimer)
-    button._svgCopyTimer = setTimeout(() => { button.textContent = original }, 1200)
   }
 
   flash(card) {

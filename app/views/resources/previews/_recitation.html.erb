@@ -4,147 +4,38 @@
   chapter = ayah.chapter
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Recitation
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> — Surah <%= chapter.name_simple %>, Ayah <%= ayah.verse_number %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
+        <%= select_tag :ayah,
+                       options_for_select([ayah.verse_key], ayah.verse_key),
+                       id: 'ayah-select',
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: {
+                         controller: 'remote-select2',
+                         url: '/api/v1/verses/select2.json'
+                       }
+        %>
+      </div>
 
-  <div class="tab-content p-2 mt-3" id="docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="resource-pane-title">
-          Recitation and segments preview for <%= resource.name %> recitation.
-        </h2>
+      <div class="flex gap-2">
+        <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.previous_ayah&.verse_key), id: 'previous-ayah', class: 'btn btn-secondary' do %>
+          ← Previous
+        <% end %>
 
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
-            <%= select_tag :ayah,
-                           options_for_select([ayah.verse_key], ayah.verse_key),
-                           id: 'ayah-select',
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: {
-                             controller: 'remote-select2',
-                             url: '/api/v1/verses/select2.json'
-                           }
-            %>
-          </div>
-
-          <div class="flex gap-2">
-            <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.previous_ayah&.verse_key), id: 'previous-ayah', class: 'btn btn-secondary' do %>
-              ← Previous
-            <% end %>
-
-            <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.next_ayah&.verse_key), id: 'next-ayah', class: 'btn btn-secondary' do %>
-              Next →
-            <% end %>
-          </div>
-        </div>
-
-        <%= render 'resources/previews/segment_player', resource: resource, ayah: ayah %>
+        <%= link_to detail_resources_path('recitation', resource.id, ayah: ayah.next_ayah&.verse_key), id: 'next-ayah', class: 'btn btn-secondary' do %>
+          Next →
+        <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="qul-docs">
-        <h2>About recitation data</h2>
-
-        <p>
-          Every recitation on QUL comes as audio files plus <strong>segment data</strong> — the timestamps that
-          say which word is being recited at which moment. Segments are what lets you highlight words as the
-          audio plays.
-        </p>
-
-        <p>Recitations come in one of two shapes:</p>
-
-        <h3>Surah by surah (gapless)</h3>
-        <ul>
-          <li>114 audio files, one per surah.</li>
-          <li>Each file plays the whole surah without pauses between ayahs.</li>
-          <li>Segments tell you where each ayah starts and ends inside that one long file.</li>
-        </ul>
-
-        <h3>Ayah by ayah (gapped)</h3>
-        <ul>
-          <li>6,236 audio files, one per ayah.</li>
-          <li>Each file contains a single ayah, so you can play one ayah without downloading a whole surah.</li>
-          <li>Segments are relative to the start of that ayah's own file.</li>
-        </ul>
-
-        <div class="docs-callout docs-callout-info">
-          A segment is a three-number array: <code>[word position, start in ms, end in ms]</code>.
-          Word positions start at 1 and match the word order of the ayah.
-        </div>
-
-        <h2>Data format</h2>
-
-        <h3>Ayah by ayah</h3>
-        <div class="docs-code">
-          <div class="docs-code-header"><span>JSON</span></div>
-          <pre><code>{
-  "surah": 1,
-  "ayah": 1,
-  "audio_url": "https://.../001001.mp3",
-  "segments": [
-    [1, 361, 1051],
-    [2, 1051, 1622]
-  ]
-}</code></pre>
-        </div>
-
-        <h3>Surah by surah</h3>
-        <p>
-          Keyed by <code>surah:ayah</code>. <code>timestamp_from</code> and <code>timestamp_to</code> locate the
-          ayah inside the surah's audio file; the word timings inside <code>segments</code> use the same clock.
-        </p>
-        <div class="docs-code">
-          <div class="docs-code-header"><span>JSON</span></div>
-          <pre><code>{
-  "1:1": {
-    "segments": [
-      [1, 361, 1051],
-      [2, 1051, 1622],
-      [3, 1662, 2763],
-      [4, 2803, 4385]
-    ],
-    "duration_sec": 4,
-    "duration_ms": 4224,
-    "timestamp_from": 361,
-    "timestamp_to": 4585
-  }
-}</code></pre>
-        </div>
-      </div>
-    </div>
+    <%= render 'resources/previews/segment_player', resource: resource, ayah: ayah %>
   </div>
 </div>

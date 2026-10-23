@@ -1661,12 +1661,11 @@ module ToolDocsHelper
         text: 'Words and segments'
       },
       {
-        type: 'info',
         text: <<~HTML
           <p>A word is split into <strong>segments</strong>: prefixes, the stem, and suffixes. Each segment has its own part of speech (POS), tags, root and lemma.</p>
           #{corpus_segments_diagram('بِسۡمِ', '1:1:1', [['بِ', 'P', 'preposition', 'P, PREF', '', 'ب'], ['سْمِ', 'N', 'noun', 'M, GEN', 'سمو', 'اسْم']])}
           #{corpus_segments_diagram('ٱلۡحَمۡدُ', '1:2:1', [['ٱلْ', 'P', 'determiner', 'DET, PREF', '', 'ال'], ['حَمْدُ', 'N', 'noun', 'M, NOM', 'حمد', 'حَمْد']])}
-          <p class="mt-2">Tags describe the segment: <code>PREF</code> prefix, <code>DET</code> the definite article, <code>M</code> masculine, <code>NOM</code>/<code>GEN</code> case, <code>IMPF</code> imperfect verb, <code>VF:1</code> verb form I. A word with one segment, like <span class="qpc-hafs">نَعۡبُدُ</span> (1:5), has the whole word as its stem.</p>
+          <p class="mt-2">Tags describe the segment: <code>PREF</code> prefix, <code>DET</code> the definite article, <code>M</code> masculine, <code>NOM</code>/<code>GEN</code> case, <code>IMPF</code> imperfect verb, <code>VF:1</code> verb form I. A word with one segment, like <span class="text-qpc-hafs text-lg">نَعۡبُدُ</span> (1:5), has the whole word as its stem.</p>
         HTML
       },
       {
@@ -1703,20 +1702,29 @@ module ToolDocsHelper
     ]
   end
 
-  # A word and its corpus segments.
+  # A word and its corpus segments, in reading order.
   # segments: [[text, pos key, pos name, tags, root, lemma], ...]
   def corpus_segments_diagram(word, location, segments)
-    cells = segments.map do |text, pos, name, tags, root, lemma|
-      "<div class='rounded border border-gray-300 bg-white p-2 text-xs text-gray-700 min-w-[7rem]'>" \
-        "<div class='qpc-hafs text-2xl text-center text-gray-900 leading-loose' dir='rtl'>#{text}</div>" \
-        "<div><b>#{pos}</b> #{name}</div><div class='text-gray-500'>#{tags}</div>" \
-        "#{"<div>root <span class='qpc-hafs !text-base'>#{root}</span></div>" if root.present?}" \
-        "<div>lemma <span class='qpc-hafs !text-base'>#{lemma}</span></div></div>"
+    arabic = 'text-qpc-hafs text-xl text-gray-900 text-left'
+    rows = segments.map do |text, pos, name, tags, root, lemma|
+      "<tr class='border-t border-gray-100'>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{text}</td>" \
+        "<td class='px-3 py-1.5'><span class='font-semibold'>#{pos}</span> <span class='text-gray-500'>#{name}</span></td>" \
+        "<td class='px-3 py-1.5'><code>#{tags}</code></td>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{root.presence || '<span class="text-gray-400 text-sm">—</span>'}</td>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{lemma}</td></tr>"
     end.join
 
-    "<div class='bg-white rounded border border-gray-200 p-2 my-2 flex flex-wrap items-center gap-3'>" \
-      "<div class='text-center px-2'><div class='qpc-hafs text-3xl leading-loose' dir='rtl'>#{word}</div><div class='text-xs text-gray-400'>#{location}</div></div>" \
-      "<div class='text-gray-400'>=</div><div class='flex flex-row-reverse gap-2'>#{cells}</div></div>"
+    "<div class='my-3 overflow-x-auto rounded-lg border border-gray-200 bg-white'>" \
+      "<div class='flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200'>" \
+      "<span class='text-xs text-gray-500'>#{location}</span>" \
+      "<span class='text-qpc-hafs text-2xl text-gray-900' dir='rtl'>#{word}</span></div>" \
+      "<table class='w-full table-fixed text-sm text-gray-700'>" \
+      "<thead><tr class='text-left text-xs uppercase tracking-wide text-gray-400'>" \
+      "<th class='px-3 py-1.5 font-medium'>Segment</th><th class='px-3 py-1.5 font-medium'>POS</th>" \
+      "<th class='px-3 py-1.5 font-medium'>Tags</th><th class='px-3 py-1.5 font-medium'>Root</th>" \
+      "<th class='px-3 py-1.5 font-medium'>Lemma</th></tr></thead>" \
+      "<tbody>#{rows}</tbody></table></div>"
   end
 
   def compare_audio_help

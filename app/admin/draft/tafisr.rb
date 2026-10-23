@@ -155,6 +155,9 @@ ActiveAdmin.register Draft::Tafsir do
       resource.group_verses_count
     end
 
+    column :comment do |draft|
+      draft.comment.to_s.truncate(60)
+    end
     column :created_at
     column :updated_at
   end
@@ -191,6 +194,7 @@ ActiveAdmin.register Draft::Tafsir do
       row :id
       row :resource_content
       row :user
+      row :comment
 
       row :tafsir do
         if tafsir

@@ -1,0 +1,22 @@
+<%# Current and draft text side by side. Locals: current, draft (HTML), text_class, dir, empty_message, height_class %>
+<%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+
+<%= render SplitScreenComponent.new(height_class: local_assigns[:height_class] || 'h-screen md:h-[80vh]') do |split| %>
+  <% split.with_left do %>
+    <h2 class="bg-gray-200 px-3 py-2 font-semibold">Current text</h2>
+    <div class="p-3 <%= local_assigns[:text_class] %>" dir="<%= local_assigns[:dir] || 'auto' %>">
+      <% if current.present? %>
+        <%= safe_html current %>
+      <% else %>
+        <p class="text-gray-500"><%= local_assigns[:empty_message] || 'None yet' %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% split.with_right do %>
+    <h2 class="bg-gray-200 px-3 py-2 font-semibold">Suggested text</h2>
+    <div class="p-3 <%= local_assigns[:text_class] %>" dir="<%= local_assigns[:dir] || 'auto' %>">
+      <%= safe_html draft %>
+    </div>
+  <% end %>
+<% end %>

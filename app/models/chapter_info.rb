@@ -70,6 +70,7 @@ class ChapterInfo < QuranApiRecord
 
     draft = build_draft
     draft.assign_attributes(params)
+    draft.comment = draft.comment.to_s.strip.presence
     draft.text_matched = draft.matches_current?
     draft.need_review = true
     draft.user = user

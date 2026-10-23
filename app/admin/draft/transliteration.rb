@@ -71,6 +71,10 @@ ActiveAdmin.register Draft::Transliteration do
       safe_html draft.draft_text.to_s.truncate(80)
     end
 
+    column :comment do |draft|
+      draft.comment.to_s.truncate(60)
+    end
+
     actions
   end
 
@@ -84,15 +88,10 @@ ActiveAdmin.register Draft::Transliteration do
         div link_to(resource.verse.verse_key, [:cms, resource.verse])
         div resource.verse.text_qpc_hafs, class: 'qpc-hafs'
       end
-      row :current_text, class: language_name do
-        if resource.current_text.present?
-          safe_html resource.current_text
-        else
-          span 'New transliteration, this ayah has none yet', class: 'status_tag no'
-        end
-      end
-      row :draft_text, class: language_name do
-        safe_html resource.draft_text
+      row :text do
+        render 'admin/draft_compare', current: resource.current_text, draft: resource.draft_text,
+               text_class: language_name, height_class: 'max-h-[80vh]',
+               empty_message: 'New transliteration, this ayah has none yet'
       end
       row :diff do
         Diffy::Diff.new(resource.current_text.to_s, resource.draft_text.to_s, include_plus_and_minus_in_html: true).to_s(:html).html_safe
@@ -101,6 +100,7 @@ ActiveAdmin.register Draft::Transliteration do
       row :need_review
       row :imported
       row :user
+      row :comment
       row :meta_data do
         if resource.meta_data.present?
           pre code(JSON.pretty_generate(resource.meta_data))

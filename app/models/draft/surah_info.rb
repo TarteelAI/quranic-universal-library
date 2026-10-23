@@ -50,10 +50,33 @@ class Draft::SurahInfo < ApplicationRecord
     info
   end
 
+  # Plain text, one block (paragraph, heading, list item) per line, for diffs
+  def self.text_lines(html)
+    text = html.to_s.gsub(%r{</(p|h[1-6]|li|div|blockquote|tr)>|<br\s*/?>}i, "\n")
+    Rails::HTML5::FullSanitizer.new.sanitize(text).lines.map(&:squish).compact_blank.join("\n")
+  end
+
+  def short_text_edited?
+    current_short_text.to_s.strip != draft_short_text.to_s.strip
+  end
+
+  def text_edited?
+    squish_tags(current_text) != squish_tags(draft_text)
+  end
+
+  def status
+    if imported?
+      'imported'
+    elsif need_review?
+      'needs review'
+    else
+      'approved'
+    end
+  end
+
   # The editor puts each block on its own line, that alone isn't a change
   def matches_current?
-    squish_tags(current_text) == squish_tags(draft_text) &&
-      current_short_text.to_s.strip == draft_short_text.to_s.strip
+    !short_text_edited? && !text_edited?
   end
 
   private

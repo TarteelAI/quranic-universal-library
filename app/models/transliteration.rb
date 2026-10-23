@@ -73,6 +73,7 @@ class Transliteration < QuranApiRecord
     draft.text_matched = draft.draft_text.to_s.strip == text.to_s.strip
     draft.verse = verse
     draft.need_review = true
+    draft.comment = draft.comment.to_s.strip.presence
     draft.user = user
     draft.save(validate: false)
     draft

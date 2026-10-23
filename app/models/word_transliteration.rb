@@ -28,7 +28,7 @@ class WordTransliteration < QuranApiRecord
 
   delegate :location, to: :word
 
-  def self.save_suggestions(verse, resource, texts, user)
+  def self.save_suggestions(verse, resource, texts, user, comment: nil)
     existing = where(resource_content_id: resource.id, word_id: texts.keys).index_by(&:word_id)
     words = verse.words.where(id: texts.keys).index_by(&:id)
 
@@ -47,7 +47,8 @@ class WordTransliteration < QuranApiRecord
         draft_text: text,
         text_matched: false,
         need_review: true,
-        user_id: user.id
+        user_id: user.id,
+        comment: comment.to_s.strip.presence
       ).save(validate: false)
     end
   end

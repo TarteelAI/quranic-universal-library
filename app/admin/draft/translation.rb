@@ -87,6 +87,10 @@ ActiveAdmin.register Draft::Translation do
       resource.current_text.to_s.first(50)
     end
 
+    column :comment do |draft|
+      draft.comment.to_s.truncate(60)
+    end
+
     actions
   end
 
@@ -123,9 +127,7 @@ ActiveAdmin.register Draft::Translation do
         safe_html resource.draft_text
       end
 
-      row :comment do
-        resource.meta_value('comment')
-      end
+      row :comment
 
       row :removed_footnotes do
         Array(resource.meta_value('removed-foot-note-ids')).map { |id| link_to(id, cms_foot_note_path(id)) }.join(', ').html_safe

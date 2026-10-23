@@ -35,6 +35,8 @@
         </p>
       </div>
 
+      <%= render 'shared/draft_comment_field', form: form, value: @presenter.draft.comment %>
+
       <div class="flex justify-end gap-2 mt-5">
         <%= link_to 'Cancel', transliteration_proofreading_path(@presenter.verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
         <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>

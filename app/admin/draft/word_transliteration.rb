@@ -69,6 +69,10 @@ ActiveAdmin.register Draft::WordTransliteration do
     column :current_text
     column :draft_text
 
+    column :comment do |draft|
+      draft.comment.to_s.truncate(60)
+    end
+
     actions
   end
 
@@ -98,6 +102,7 @@ ActiveAdmin.register Draft::WordTransliteration do
       row :need_review
       row :imported
       row :user
+      row :comment
       row :meta_data do
         if resource.meta_data.present?
           pre code(JSON.pretty_generate(resource.meta_data))

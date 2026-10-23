@@ -21,7 +21,7 @@ class TransliterationProofreadingsController < CommunityController
       redirect_to transliteration_proofreading_path(transliteration.verse_id, resource_id: @resource.id),
                   notice: 'Your suggestions are saved successfully'
     else
-      @presenter.draft.draft_text = transliteration_params[:draft_text]
+      @presenter.draft.assign_attributes(transliteration_params)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -37,7 +37,7 @@ class TransliterationProofreadingsController < CommunityController
   end
 
   def transliteration_params
-    params.require(:draft_transliteration).permit(:draft_text)
+    params.require(:draft_transliteration).permit(:draft_text, :comment)
   end
 
   # @resource is shared with tools/header and the access request partials

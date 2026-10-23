@@ -85,7 +85,7 @@ class TafsirProofreadingsController < CommunityController
   def tafsir_params
     params
       .require(:tafsir)
-      .permit(:text, :start_verse_id, :end_verse_id)
+      .permit(:text, :start_verse_id, :end_verse_id, :comment)
   end
 
   def find_resource

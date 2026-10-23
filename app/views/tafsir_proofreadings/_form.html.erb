@@ -36,6 +36,8 @@
     <%= form.text_area :text, class: 'form-control', id: 'editor', data: { controller: 'tinymce' } %>
   </div>
 
+  <%= render 'shared/draft_comment_field', form: form, value: params.dig(:tafsir, :comment) %>
+
   <div class="mb-4 mt-5 flex justify-end gap-2">
     <%= link_to 'Cancel', cancel_path, class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
     <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>

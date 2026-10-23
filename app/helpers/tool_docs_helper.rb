@@ -1762,11 +1762,33 @@ module ToolDocsHelper
     [
       "Compare audio tool",
       {
-        text: "This tool is used to compare audio recitations side-by-side so you can spot differences in timing, segmentation and audio between reciters or between versions of the same recitation."
+        text: "This tool puts two audio files side by side, to compare a recitation with another one or with a newer version of the same file: length, waveform and where the pauses are. Nothing is saved, the files stay in your browser."
+      },
+      {
+        type: 'step',
+        title: '1. Load two files',
+        text: "Drop a file on <code>Audio File 1</code> and <code>Audio File 2</code>, click to pick one, or paste a URL and press Enter. Each file gets a player and its stats (duration and file details) right away."
+      },
+      {
+        type: 'step',
+        title: '2. Draw the waveforms',
+        text: "Click <code>Generate Waveform</code> under a player. Long files take a moment. Use <code>Zoom</code> to look closer, and <code>Play First</code>, <code>Play Second</code> or <code>Play Both</code> to listen. <code>Jump to (ms)</code> moves a player to an exact time, handy to check a segment's start or end."
+      },
+      {
+        type: 'step',
+        title: '3. Find the pauses',
+        text: "Under each file's stats, set the <code>Threshold</code> (how quiet counts as silence) and <code>Min Duration</code> (how long it must last), then click <code>Detect Silences</code>. Each pause is marked on the waveform. Click a mark and <code>Play Region</code> to hear it, <code>Clear Region</code> clears the selection."
       },
       {
         type: 'info',
-        text: "The documentation for this tool is being expanded. Reach out on GitHub if a specific step is unclear."
+        text: <<~HTML
+          <p>What to look for:</p>
+          <ul class="list-disc ps-5 mt-1">
+            <li><strong>Different length:</strong> extra silence at the start or end, or a missing part.</li>
+            <li><strong>Pauses in different places:</strong> the files are cut or edited differently, so segment timings from one won't fit the other.</li>
+            <li><strong>Waveforms that mirror each other top to bottom:</strong> one file's polarity is inverted.</li>
+          </ul>
+        HTML
       }
     ]
   end

@@ -1,5 +1,130 @@
-<div class="qul-docs">
-  <h2>Licence</h2>
-</div>
+<% permission = @presenter.resource_permission %>
+<% licence = @presenter.licence %>
 
-<%= render 'licence_notice', permission: @presenter.resource_permission %>
+<div class="qul-docs">
+  <% if permission&.licence_details? %>
+    <div class="licence-header">
+      <div class="flex flex-wrap items-center gap-3">
+        <% if licence %>
+          <span class="licence-badge"><%= licence.display_name %></span>
+          <% if licence.short_name.present? %>
+            <span class="text-gray-600"><%= licence.name %></span>
+          <% end %>
+        <% else %>
+          <span class="licence-badge">Custom terms</span>
+        <% end %>
+      </div>
+
+      <% if licence&.summary.present? %>
+        <p class="mt-3 mb-0"><%= licence.summary %></p>
+      <% end %>
+
+      <% if licence&.url.present? %>
+        <p class="mt-2 mb-0">
+          <%= link_to 'Read the full licence', licence.url, target: '_blank', rel: 'noopener' %>
+        </p>
+      <% end %>
+    </div>
+
+    <% if permission.copyright_notice.present? %>
+      <%= render 'licence_notice', permission: permission %>
+    <% end %>
+
+    <% if licence && (licence.allowed_list + licence.allowed_with_permission_list + licence.prohibited_list).any? %>
+      <h2>What you can do</h2>
+
+      <div class="licence-terms">
+        <%= render 'licence_terms', title: 'Allowed', kind: 'allowed', items: licence.allowed_list %>
+        <%= render 'licence_terms', title: 'Ask first', kind: 'ask', items: licence.allowed_with_permission_list %>
+        <%= render 'licence_terms', title: 'Not allowed', kind: 'prohibited', items: licence.prohibited_list %>
+      </div>
+    <% end %>
+
+    <% if licence&.conditions_list.present? %>
+      <div class="docs-callout docs-callout-warning">
+        <strong>Every use must follow these rules:</strong>
+        <ul class="mt-2 mb-0">
+          <% licence.conditions_list.each do |condition| %>
+            <li><%= condition %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if permission.custom_terms.present? %>
+      <h2>Terms for this resource</h2>
+      <div class="licence-rich-text"><%= sanitize permission.custom_terms %></div>
+    <% end %>
+
+    <% if permission.attribution_text.present? %>
+      <h2>Attribution</h2>
+      <p>Show this wherever you use the resource:</p>
+      <div class="docs-code">
+        <div class="docs-code-header">
+          <span>Attribution</span>
+          <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+        </div>
+        <pre class="whitespace-pre-wrap"><code><%= permission.attribution_text.strip %></code></pre>
+      </div>
+    <% end %>
+
+    <% author = @presenter.original_author %>
+    <% source = @presenter.data_source %>
+    <% holders = licence&.copyright_holders_list || [] %>
+    <% if holders.any? || author || source || licence&.contact.present? %>
+      <h2>Ownership</h2>
+      <table>
+        <tbody>
+        <% if holders.any? %>
+          <tr>
+            <th class="w-48">Copyright</th>
+            <td>
+              <% holders.each do |holder| %>
+                <div><%= holder.start_with?('©') ? holder : "© #{holder}" %></div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        <% if author %>
+          <tr>
+            <th class="w-48">Original author</th>
+            <td><%= author %></td>
+          </tr>
+        <% end %>
+        <% if source %>
+          <tr>
+            <th class="w-48">Source</th>
+            <td><%= source.url.present? ? link_to(source.name, source.url, target: '_blank', rel: 'noopener') : source.name %></td>
+          </tr>
+        <% end %>
+        <% if licence&.contact.present? %>
+          <tr>
+            <th class="w-48">Contact</th>
+            <td><%= licence_contact_link(licence.contact) %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <% if licence&.credits.present? %>
+      <h2>Credits</h2>
+      <div class="licence-rich-text"><%= sanitize licence.credits %></div>
+    <% end %>
+
+    <% if licence&.special_thanks.present? %>
+      <h2>Special thanks</h2>
+      <div class="licence-rich-text"><%= sanitize licence.special_thanks %></div>
+    <% end %>
+
+    <% if licence&.terms.present? %>
+      <details class="licence-full-terms">
+        <summary>Full licence terms</summary>
+        <div class="licence-rich-text"><%= sanitize licence.terms %></div>
+      </details>
+    <% end %>
+  <% else %>
+    <h2>Licence</h2>
+    <%= render 'licence_notice', permission: permission %>
+  <% end %>
+</div>

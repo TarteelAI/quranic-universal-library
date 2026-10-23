@@ -1,0 +1,33 @@
+<% count = licence.resource_permissions.size %>
+
+<div id=title>
+  Delete <%= licence.name %>
+</div>
+
+<div id="body">
+  <div class="p-6" id=modal-body>
+    <div class="px-4 py-3 rounded mb-4 bg-red-100 border border-red-400 text-red-700">
+      <strong>This cannot be undone.</strong>
+      <% if count.positive? %>
+        <%= pluralize(count, 'resource') %> will lose this licence, and their Licence tab will no longer
+        show its terms, attribution or credits.
+      <% else %>
+        No resources use this licence.
+      <% end %>
+    </div>
+
+    <%= form_with url: destroy_licence_cms_licence_path(licence), method: :delete, local: true, data: { turbo: false } do |form| %>
+      <div class="mb-4">
+        <%= form.label :confirm_name, 'Type the licence name to confirm' %>
+        <div class="text-sm text-gray-600 mb-1">
+          Type <code><%= licence.name %></code> exactly, including the case.
+        </div>
+        <%= form.text_field :confirm_name, class: 'form-control', autocomplete: 'off', required: true %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.submit 'Delete permanently', class: 'btn btn-danger' %>
+      </div>
+    <% end %>
+  </div>
+</div>

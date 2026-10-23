@@ -1,11 +1,21 @@
+// Load each script once. Forms with several editors call this at the same
+// time, and loading tinymce again replaces the global that earlier editors
+// were registered on.
+const scriptPromises = {};
+
 const loadJavascript = (url) => {
-  return new Promise((resolve, reject) => {
+  scriptPromises[url] ||= new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = url;
     script.onload = resolve;
-    script.onerror = reject;
+    script.onerror = (error) => {
+      delete scriptPromises[url];
+      reject(error);
+    };
     document.head.appendChild(script);
   });
+
+  return scriptPromises[url];
 }
 
 const loadStylesheet = (href) => {

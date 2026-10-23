@@ -62,6 +62,8 @@ export default class extends Controller {
 
 
   createEditor() {
+    if (tinymce.get(this.element.id)) return
+
     const {stylesheet} = this.element.dataset;
     const styles = [document.querySelector('#tinymce_custom_style').href];
 

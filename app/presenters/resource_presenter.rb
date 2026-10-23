@@ -197,6 +197,19 @@ class ResourcePresenter < ApplicationPresenter
     resource.resource_content&.resource_permission
   end
 
+  def licence
+    resource_permission&.licence
+  end
+
+  def original_author
+    content = resource.resource_content
+    content&.author_name.presence || content&.author&.name
+  end
+
+  def data_source
+    resource.resource_content&.data_source
+  end
+
   # Font file, CSS format and sample text for a font resource. Shared by the
   # font preview and its docs tab.
   def font_assets(downloadable = resource)

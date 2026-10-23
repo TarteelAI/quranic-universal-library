@@ -1,0 +1,35 @@
+<%= turbo_frame_tag 'licence-resource-results' do %>
+  <%= form_with url: add_resources_cms_licence_path(licence), method: :post, data: { turbo_frame: '_top' } do |form| %>
+    <% if contents.empty? %>
+      <p class="text-gray-600">No resources found.</p>
+    <% else %>
+      <div class="max-h-96 overflow-y-auto border border-gray-200 rounded">
+        <table class="w-full text-sm">
+          <tbody>
+          <% contents.each do |content| %>
+            <tr class="border-b border-gray-100">
+              <td class="p-2 w-8"><%= check_box_tag 'resource_content_ids[]', content.id, false, id: "licence-resource-#{content.id}" %></td>
+              <td class="p-2">
+                <label for="licence-resource-<%= content.id %>" class="cursor-pointer">
+                  <%= content.id %> · <%= content.name %>
+                  <span class="text-gray-500"><%= content.sub_type %><%= " · #{content.language_name}" if content.language_name.present? %></span>
+                </label>
+                <% if (other = other_licences[content.id]) %>
+                  <div class="text-xs text-amber-700">Currently on <%= other.licence.display_name %>, adding it moves it here</div>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+      <% if contents.size == 50 %>
+        <p class="text-xs text-gray-500 mt-2">Showing the first 50 matches. Search to narrow them down.</p>
+      <% end %>
+    <% end %>
+
+    <div class="mt-4">
+      <%= form.submit 'Add selected', class: 'btn btn-success' %>
+    </div>
+  <% end %>
+<% end %>

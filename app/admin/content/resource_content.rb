@@ -389,6 +389,10 @@ ActiveAdmin.register ResourceContent do
         time&.strftime('%B %d, %Y at %I:%M %P %Z')
       end
 
+      row :licence do
+        permission&.licence
+      end
+
       if can? :read, ResourcePermission
         row :resource_permission do
           if permission

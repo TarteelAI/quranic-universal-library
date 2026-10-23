@@ -182,6 +182,8 @@ ActiveAdmin.register ResourceContent do
     if params[:approved]
       if resource.tafsir?
         DraftContent::ApproveDraftTafsirJob.perform_later(resource.id)
+      elsif resource.chapter_info?
+        DraftContent::ApproveDraftSurahInfoJob.perform_later(resource.id)
       elsif resource.transliteration? && resource.one_ayah?
         DraftContent::ApproveDraftTransliterationJob.perform_later(resource.id)
       elsif resource.transliteration? && resource.one_word?
@@ -197,6 +199,8 @@ ActiveAdmin.register ResourceContent do
     elsif params[:remove_draft]
       if resource.tafsir?
         Draft::Tafsir.where(resource_content_id: resource.id).delete_all
+      elsif resource.chapter_info?
+        Draft::SurahInfo.where(resource_content_id: resource.id).delete_all
       elsif resource.transliteration? && resource.one_ayah?
         Draft::Transliteration.where(resource_content_id: resource.id).delete_all
       elsif resource.transliteration? && resource.one_word?
@@ -216,6 +220,8 @@ ActiveAdmin.register ResourceContent do
 
     url = if resource.tafsir?
             "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.chapter_info?
+            "/cms/draft_surah_infos?q%5Bresource_content_id_eq%5D=#{resource.id}"
           elsif resource.transliteration? && resource.one_ayah?
             "/cms/draft_transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}"
           elsif resource.transliteration? && resource.one_word?
@@ -411,6 +417,8 @@ ActiveAdmin.register ResourceContent do
         if resource.has_draft_translation?
           if resource.tafsir?
             link_to("View draft tafsirs (#{resource.draft_translations.size} records)", "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}")
+          elsif resource.chapter_info?
+            link_to("View draft surah info (#{resource.draft_translations.size} records)", "/cms/draft_surah_infos?q%5Bresource_content_id_eq%5D=#{resource.id}")
           elsif resource.transliteration?
             path = resource.one_word? ? 'draft_word_transliterations' : 'draft_transliterations'
             link_to("View draft transliterations (#{resource.draft_translations.size} records)", "/cms/#{path}?q%5Bresource_content_id_eq%5D=#{resource.id}")

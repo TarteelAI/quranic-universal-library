@@ -29,7 +29,7 @@
 
         <% if can?(:manage, :draft_content) || current_user.super_admin? %>
           <%= link_to 'Approve', import_draft_cms_resource_content_path(resource_content, approved: true), method: :put, class: 'btn btn-danger btn-sm', data: { confirm: "Import all #{t[:not_imported_count]} drafts of #{resource_content.name}?" } %>
-          <%= link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: :put, class: 'btn btn-danger btn-sm', data: { confirm: 'Are you sure to remove draft transliterations?' } %>
+          <%= link_to 'Delete', import_draft_cms_resource_content_path(resource_content, remove_draft: true), method: :put, class: 'btn btn-danger btn-sm', data: { confirm: 'Remove all drafts of #{resource_content.name}?' } %>
         <% end %>
       </div>
     </div>

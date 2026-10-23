@@ -8,19 +8,20 @@ class SurahInfosController < CommunityController
   def edit;end
 
   def update
-    @info = ChapterInfo.find(params[:id])
+    info = @presenter.resource
 
-    if @info.update(info_params)
-      redirect_to surah_info_path(@info.id), notice: "Info updated successfully."
+    if info.save_suggestions(info_params, current_user)
+      redirect_to surah_info_path(info.id), notice: 'Your suggestions are saved, they go live once approved.'
     else
-      render action: :edit
+      @presenter.draft.assign_attributes(info_params)
+      render :edit, status: :unprocessable_entity
     end
   end
 
   protected
 
   def info_params
-    params.require(:chapter_info).permit(:short_text, :text)
+    params.require(:draft_surah_info).permit(:draft_short_text, :draft_text)
   end
 
   def load_resource_access

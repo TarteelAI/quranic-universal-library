@@ -1170,7 +1170,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 3: Fix the Surah information',
-        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save surah info</code> to save your changes, they go live right away.",
+        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save suggestion</code> to save your changes, they go live once an admin approves them.",
         screenshot: 'update-surah-info.png'
       },
       {

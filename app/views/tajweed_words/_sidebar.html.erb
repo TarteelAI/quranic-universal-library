@@ -20,36 +20,41 @@
   </div>
 
   <div class="p-4 overflow-y-auto" style="max-height: calc(100vh - 80px);">
-    <div class="tajweed-palette">
+    <p class="text-sm text-gray-600 mb-3">Each rule with its colour and words from the Quran that have it. Only the letters of that rule are coloured. Click a word to open it.</p>
+    <div class="tajweed-palette tajweed-new divide-y divide-gray-200">
       <% documentation = tajweed.documentation %>
-      <% tajweed.rules.each_with_index do |r, i| %>
-        <%
-          key = r[0]
-          rule = documentation[key.to_sym]
-        %>
-
-        <div class="py-2 border-b border-gray-300">
-          <div class="flex">
-            <span class="me-2">
-              <%= i + 1 %>
-            </span>
-            <span class="tajweed-new tajweed-rule-icon <%= key %>"></span>
-            <span class="ms-2">
-              <%= key %>
-            </span>
-
-            <span class="ms-auto">
-              <%= link_to 'View detail', tajweed_rule_path(key), target: '_blank' %>
-            </span>
+      <% examples = @presenter.palette_examples %>
+      <% tajweed.rules.each_with_index do |(key, _index), i| %>
+        <% rule = documentation[key.to_sym] || {} %>
+        <div class="py-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400 w-5"><%= i + 1 %></span>
+            <span class="<%= key %>"><span class="inline-block w-4 h-4 rounded" style="background: currentColor"></span></span>
+            <span class="font-medium text-gray-900"><%= rule[:name] || key.humanize %></span>
+            <%= link_to 'View detail', tajweed_rule_path(key), target: '_blank', class: 'ms-auto text-sm text-blue-700 hover:underline' %>
+          </div>
+          <div class="ms-7 text-xs text-gray-500">
+            <code><%= key %></code>
+            <% if TajweedWordsPresenter::UNCOLOURED_RULES.include?(key) %><span class="ms-1">· no colour, shown as normal text</span><% end %>
           </div>
 
-          <div class="flex items-center justify-between">
-            <span>
-              Letters
-            </span>
-            <span class="qpc-hafs" style="font-size: 20px">
-               <%= rule[:rule_letters] %>
-            </span>
+          <% if rule[:rule_letters].present? %>
+            <div class="ms-7 mt-1 flex items-center gap-2 text-sm text-gray-600">
+              <span>Letters</span>
+              <span class="qpc-hafs text-lg" dir="rtl"><%= rule[:rule_letters] %></span>
+            </div>
+          <% end %>
+
+          <div class="ms-7 mt-2 flex flex-wrap gap-2" dir="rtl">
+            <% examples[key].to_a.each do |location, html| %>
+              <%= link_to tajweed_word_path(location), class: 'rounded border border-gray-200 px-2 pt-1 text-center no-underline text-gray-900 hover:border-gray-400', style: 'color: inherit' do %>
+                <span class="qpc-hafs block text-2xl leading-loose" data-controller="tajweed-highlight"><%= safe_html html %></span>
+                <span class="block text-[10px] text-gray-400" dir="ltr"><%= location %></span>
+              <% end %>
+            <% end %>
+            <% if examples[key].blank? %>
+              <span class="text-xs text-gray-400" dir="ltr">No words have this rule yet.</span>
+            <% end %>
           </div>
         </div>
       <% end %>

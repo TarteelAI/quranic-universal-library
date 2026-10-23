@@ -43,7 +43,7 @@
 
           <div class="mb-4 ms-auto">
             <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
-            <%= link_to 'Clear', tajweed_words_path, class: 'text-gray-900 hover:text-gray-700 hover:underline' if has_filters?(:filter_page, :filter_chapter, :filter_verse, :filter_text, :filter_tajweed_rule) %>
+            <%= link_to 'Clear', tajweed_words_path, class: 'text-gray-900 hover:text-gray-700 hover:underline' if has_filters?(:filter_page, :filter_chapter, :verse_number, :filter_text, :filter_tajweed_rule_new, :filter_regexp_start, :filter_regexp_end) %>
           </div>
         </div>
       </div>

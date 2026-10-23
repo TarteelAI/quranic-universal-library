@@ -3,10 +3,7 @@
   tajweed_annotation.add_annotation_on_verse(@presenter.word.verse)
   tajweed_text = tajweed_annotation.to_html
 
-  ayah_tajweeed_words = TajweedWord.where(
-    verse_id: @presenter.word.verse_id,
-    mushaf_id: 23
-  ).order('position asc')
+  ayah_tajweeed_words = @presenter.ayah_tajweed_words
 %>
 
 <div class="page-section mt-4" data-controller="mushaf-page">

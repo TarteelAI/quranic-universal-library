@@ -100,7 +100,8 @@ class TajweedWordsController < CommunityController
 
     if params[:filter_tajweed_rule_new].present?
       rule = params[:filter_tajweed_rule_new].downcase.strip
-      words = words.where("text_qpc_hafs_tajweed LIKE ?", "%#{rule}%")
+      # Match the whole class name, ikhafa shouldn't find ikhafa_shafawi
+      words = words.where("text_qpc_hafs_tajweed LIKE ?", "%class=#{Word.sanitize_sql_like(rule)}>%")
     end
 
     words

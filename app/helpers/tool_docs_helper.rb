@@ -1,3 +1,5 @@
+require "unicode/name"
+
 module ToolDocsHelper
   def available_tool_keys
     [
@@ -1120,52 +1122,97 @@ module ToolDocsHelper
     [
       "Tajweed annotations tool",
       {
-        text: "This tool is designed to fix the tajweed annotations for each word in the Ayah."
+        text: "This tool is used to fix the tajweed rules of each word: which letters a rule applies to, and so which letters are coloured. Find the word, set the rule on its letters and click <code>Save</code>. Changes are saved right away."
+      },
+      {
+        type: 'heading',
+        text: 'How tajweed is stored'
       },
       {
         type: 'info',
-        text: "We provide two variations of the Tajweed-annotated script: one based on the Recite Quran project and the other on the Dar Al Maarifah <a href='https://easyquran.com/en/' target='_blank'>Tajweed Mushaf</a>. This tool enables you to switch between the two Tajweed schemes, compare them, and correct any missing or incorrect Tajweed rules."
+        text: <<~HTML
+          <p>Each letter and each mark (harakah, sukun, shaddah) of a word is its own row, and a row can have one tajweed rule. Letters with a rule get the rule's colour. A rule usually covers a letter <strong>and its marks</strong>, so set it on every row it covers.</p>
+          #{tajweed_letters_diagram('۞قَوۡ<r class=idgham_ghunnah>لٌ</r>', [['۞'], ['ق'], ['َ'], ['و'], ['ۡ'], ['ل', 'idgham_ghunnah'], ['ٌ', 'idgham_ghunnah']])}
+          <p class="mt-2">Here the tanween of <span class="qpc-hafs">قَوۡلٌ</span> (2:263) merges into the <span class="qpc-hafs">م</span> of the next word, so <span class="qpc-hafs">ل</span> and its tanween both have <code>idgham_ghunnah</code>.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 1: Find the word and select tajweed script type',
-        text: "Use the filters to find the words, you can filter by <code>Surah</code> and <code>Ayah</code> or use text search to find the words. You can also filter the words that have a specific tajweed rule using <code>Filter by tajweed rule</code> dropdown. Table below will show the words of filtered ayahs with tajweed annotations. Click on <code>Show</code> button to open the word.",
+        title: 'Find words',
+        text: "Filter by <code>Surah</code>, <code>Ayah</code> or page, search by text, or find words that start or end with given letters. <code>Filter by tajweed rule</code> lists the words that have a rule, handy to check one rule across the Quran. Click <code>Show</code> to open a word.",
         screenshot: 'tajweed-filter.png'
       },
       {
         type: 'step',
-        title: 'Step 2: Review and fix the tajweed annotations',
-        sections: [
-          {
-            text: "The first section on Tajweed word page will show the available tajweed script, both text and images. You can use this to compare tajweed scripts while fixing the missing rules",
-            screenshot: "tajweed-word-detail.png"
-          },
-          {
-            text: "The next section show the preview of the word and list of letters with associated tajweed rule. You can change the tajweed rule for each letter using the dropdown. Click <code>Save</code> to save the changes. This will automatically update the word preview.",
-            screenshot: "tajweed-letters.png"
-          },
-          {
-            text: "Click on <code>Tajweed Page</code> button to view the Tajweed mushaf page for the selected word. You can use this to compare the tajweed rules with the actual Mushaf page.",
-            screenshot: 'tajweed-pages.png'
-          },
-          {
-            text: "Click the <code>Tajweed Palette</code> button to open the Tajweed Rule Palette. This will display a list of all Tajweed rules, including the rule name, associated letters, and the assigned color for each rule. Use this if you're unsure about the tajweed rule for a specific letter.",
-            screenshot: "tajweed-palette.png"
-          },
-          {
-            text: "Click the <code>View Detail</code> button to see a detailed explanation of the Tajweed rule. This includes sample words for the selected rule and links to additional resources for further reading.",
-            screenshot: "rule-docs.png"
-          }
-        ],
-        screenshot: 'tajweed-word.png'
+        title: 'Compare with other sources',
+        text: <<~HTML
+          <p>The top of the word page shows the word in other tajweed sources: the ReciteQuran text, the QPC (Dar Al Maarifah) text, Quran Academy and the V4 tajweed font. They don't always agree, compare them before changing a rule.</p>
+          <ul class="list-disc ps-5 mt-2">
+            <li><code>Tajweed page</code> opens the Dar Al Maarifah <a href='https://easyquran.com/en/' target='_blank'>tajweed Mushaf</a> page of the word.</li>
+            <li><code>Tajweed Palette</code> lists every rule with its colour and example words, only the letters of that rule are coloured. <code>View detail</code> explains the rule.</li>
+            <li>The <strong>Ayah preview</strong> at the bottom shows the whole ayah, click a word to move to it. The next word often decides the rule (idgham, ikhfa, iqlab).</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Preview full ayah',
-        text: "The last section on the page will show the full ayah with tajweed colors. You can click on any word to quickly jump between all words of current ayah.",
-        screenshot: 'tajweed-ayah.png'
+        title: '1. Wrong rule',
+        text: <<~HTML
+          <p>Pick the right rule on each letter of it and click <code>Save</code> on every row. A noon sakin before <span class="qpc-hafs">ق</span> is ikhfa, not izhar:</p>
+          #{tajweed_before_after('مِ<r class=izhar>نۡ</r> قَبۡلِ', 'مِ<r class=ikhafa>نۡ</r> قَبۡلِ')}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Missing rule',
+        text: <<~HTML
+          <p>A letter should be coloured but isn't. Pick the rule on the letter and its marks. A <span class="qpc-hafs">نّ</span> or <span class="qpc-hafs">مّ</span> with shaddah always has ghunnah:</p>
+          #{tajweed_before_after('إِنَّ', 'إِ<r class=ghunnah>نَّ</r>')}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Rule on too few or too many letters',
+        text: <<~HTML
+          <p>Only part of the rule is coloured, or it runs onto a letter it doesn't belong to. Set or clear the rule row by row. The madd of <span class="qpc-hafs">ٱلرَّحۡمَٰنِ</span> covers the tatweel and the small alif:</p>
+          #{tajweed_letters_diagram('ٱ<r class=laam_shamsiyah>ل</r>رَّحۡمَ<r class=madda_normal>ـٰ</r>نِ', [['م'], ['َ'], ['ـ', 'madda_normal'], ['ٰ', 'madda_normal'], ['ن'], ['ِ']])}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Remove a rule',
+        text: "Pick the empty <code>Select rule</code> option on the letter and click <code>Save</code>. The letter goes back to normal text."
+      },
+      {
+        type: 'info',
+        text: "Not sure about a rule? Open <code>Tajweed Palette</code> and <code>View detail</code> for its explanation and examples, or check the word on the <code>Tajweed page</code>."
       }
     ]
+  end
+
+  # A tajweed word and some of its letter rows with their rule
+  def tajweed_letters_diagram(word_html, letters)
+    rows = letters.map do |char, rule|
+      "<tr class='border-t border-gray-100'>" \
+        "<td class='px-2 py-1 text-xs text-gray-500'>#{char == 'ۡ' ? 'sukun' : Unicode::Name.of(char).to_s.downcase.sub('arabic ', '')}</td>" \
+        "<td class='px-2 py-1 qpc-hafs text-xl text-center #{rule}'>#{char}</td>" \
+        "<td class='px-2 py-1 text-xs'>#{rule ? "<code>#{rule}</code>" : "<span class='text-gray-400'>no rule</span>"}</td></tr>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 flex flex-wrap items-center gap-4 tajweed-new'>" \
+      "<div class='qpc-hafs text-4xl leading-loose px-3' dir='rtl'>#{word_html}</div>" \
+      "<table class='text-left'><thead><tr class='text-xs text-gray-500'><th class='px-2'>Letter</th><th class='px-2'></th><th class='px-2'>Rule</th></tr></thead><tbody>#{rows}</tbody></table></div>"
+  end
+
+  def tajweed_before_after(before_html, after_html)
+    cell = ->(label, html, css) { "<div class='rounded border #{css} p-2 text-center'><div class='text-xs font-semibold text-gray-500'>#{label}</div><div class='qpc-hafs text-3xl leading-loose' dir='rtl'>#{html}</div></div>" }
+
+    "<div class='grid grid-cols-2 gap-2 my-2 max-w-md tajweed-new'>" \
+      "#{cell.call('Now', before_html, 'border-red-400 bg-red-50')}#{cell.call('After', after_html, 'border-green-600 bg-green-50')}</div>"
   end
 
   def quran_script_help

@@ -9,6 +9,8 @@ class CommunityPresenter < ApplicationPresenter
       'FAQ'
     when 'credits'
       'Credits'
+    when 'compare_audio'
+      'QUL · Compare audio'
     when 'docs_index'
       'QUL Documentation — Guides, Datasets & API Reference'
     when 'docs'

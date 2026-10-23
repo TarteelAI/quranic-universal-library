@@ -1,0 +1,55 @@
+<%#
+  Full-width layout for standalone tools: a slim header with the QUL logo, tool name, help and
+  tool actions, then the tool name, its description and the tool.
+  Views set: content_for :tool_name, :tool_description, :tool_help_key (optional),
+  :tool_actions (optional, buttons on the right of the header) and :head (scripts, styles).
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= render 'shared/meta_tags' %>
+    <%# Tools set up their UI on page load, always load them fresh %>
+    <meta name="turbo-visit-control" content="reload">
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <%= yield :head %>
+  </head>
+
+  <body class="font-inter bg-gray-50 text-gray-900 min-h-screen" data-controller="event-tracker">
+    <div id="turbo-script-container" class="hidden"></div>
+    <%= render 'shared/flash_notices' %>
+
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+      <div class="max-w-screen-2xl mx-auto px-4 md:px-6 py-2.5 flex items-center gap-3">
+        <%= link_to root_path, class: 'flex items-center gap-3 no-underline text-gray-900 hover:no-underline' do %>
+          <%= image_tag 'logo.svg', alt: 'QUL', class: 'h-7 w-auto' %>
+          <span class="font-bold text-[15px] tracking-tight">QUL <span class="text-gray-500 font-medium">· <%= yield :tool_name %></span></span>
+        <% end %>
+
+        <div class="flex-1"></div>
+
+        <div class="flex items-center gap-2">
+          <%= yield :tool_actions %>
+          <% if content_for?(:tool_help_key) %>
+            <%= link_to '#', class: 'inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 no-underline',
+                        data: { controller: 'ajax-modal', url: tools_help_path(content_for(:tool_help_key)), css_class: 'modal-lg tools-help' } do %>
+              <span class="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] leading-none">i</span>
+              Help
+            <% end %>
+          <% end %>
+          <%= link_to 'All tools', tools_path, class: 'hidden sm:inline-flex rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 no-underline' %>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-screen-2xl mx-auto px-4 md:px-6 pt-6 pb-16">
+      <h1 class="text-2xl font-bold tracking-tight mb-1"><%= yield :tool_name %></h1>
+      <% if content_for?(:tool_description) %>
+        <p class="text-gray-500 max-w-3xl mb-6"><%= yield :tool_description %></p>
+      <% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

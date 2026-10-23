@@ -1654,7 +1654,7 @@ module ToolDocsHelper
     [
       "Quran corpus tool",
       {
-        text: "This tool is used to review the Quran corpus: the morphology and grammar of every word. Browse an ayah, open a word and check its segments. To fix something, open the segment in the admin panel (needs access) or report it."
+        text: "This tool is used to review the Quran corpus: the morphology and grammar of every word. Browse an ayah, open a word and check its segments. To fix something, edit the segment on its page (needs access) or report it."
       },
       {
         type: 'heading',
@@ -1681,7 +1681,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Check a segment',
-        text: "Click <code>Show</code> on a segment for its part of speech, tags, verb form and grammar description in Arabic and English."
+        text: "Click a segment to open it. The left side shows its part of speech, tags, verb form, root, lemma and grammar description. With editing access, change them in the form on the right and click <code>Save segment</code>. Changes go live right away and are tracked."
       },
       {
         type: 'heading',
@@ -1696,7 +1696,7 @@ module ToolDocsHelper
             <li><strong>Wrong root or lemma:</strong> a rare root or lemma (the count next to it is small) is worth a second look.</li>
             <li><strong>Wrong tags:</strong> case, gender, number or verb form that doesn't match the word.</li>
           </ul>
-          <p class="mt-2">Click a segment's position number to open it in the admin panel and fix it. Without access, <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose' target='_blank'>open an issue</a> with the word location and what's wrong.</p>
+          <p class="mt-2">Open the segment and fix it in the form. Without access, click <code>Request Access</code> or <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose' target='_blank'>open an issue</a> with the word location and what's wrong.</p>
         HTML
       }
     ]

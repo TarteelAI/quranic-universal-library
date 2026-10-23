@@ -1,6 +1,7 @@
 class WordConcordanceLabelsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :init_presenter
+  before_action :authorize_access!, only: :update_segment
   def index
     verses = Verse
 
@@ -39,6 +40,20 @@ class WordConcordanceLabelsController < CommunityController
   end
 
   def segment_detail
+    load_segment
+  end
+
+  def update_segment
+    return unless load_segment
+
+    if @segment.save_edit(segment_params, current_user)
+      redirect_to segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position), notice: 'Segment saved.'
+    else
+      render :segment_detail, status: :unprocessable_entity
+    end
+  end
+
+  def load_segment
     @verse = Verse.find(params[:id])
     params[:word] ||= "#{@verse.verse_key}:1"
 
@@ -53,11 +68,15 @@ class WordConcordanceLabelsController < CommunityController
 
     if @segment.nil?
       redirect_to word_detail_word_concordance_label_path(@verse.id, word: @word.location), notice: "Can't find the segment"
+      return
     end
+
+    @segment
   end
 
-  def update_segment
-
+  def segment_params
+    params.require(:corpus_segment).permit(:part_of_speech, :verb_form, :root_id, :lemma_name,
+                                    :grammar_term_desc_arabic, :grammar_term_desc_english, pos_tags: [])
   end
 
   def load_resource_access

@@ -468,6 +468,86 @@
   @apply bg-emerald-50 border-emerald-500 text-emerald-900;
 }
 
+/* Licence tab */
+.licence-header {
+  @apply rounded-lg border border-gray-200 bg-gray-50 p-5 mb-6;
+}
+
+.licence-badge {
+  @apply inline-flex items-center rounded-full bg-[#46ac7a]/10 px-3 py-1 text-sm font-semibold text-[#2f7d57];
+}
+
+.licence-terms {
+  @apply grid gap-4 md:grid-flow-col md:auto-cols-fr my-4;
+}
+
+.qul-docs .licence-terms-card {
+  @apply rounded-lg border p-4;
+}
+
+.qul-docs .licence-terms-card h3 {
+  @apply mt-0 mb-3 text-base font-semibold;
+}
+
+.qul-docs .licence-terms-card ul {
+  @apply m-0 p-0 list-none space-y-2;
+}
+
+.qul-docs .licence-terms-card li {
+  @apply relative pl-6 text-[15px] leading-6;
+}
+
+.qul-docs .licence-terms-card li::before {
+  @apply absolute left-0 font-bold;
+}
+
+.licence-terms-allowed {
+  @apply border-emerald-200 bg-emerald-50/50;
+}
+
+.qul-docs .licence-terms-allowed li::before {
+  content: "✓";
+  @apply text-emerald-600;
+}
+
+.licence-terms-ask {
+  @apply border-amber-200 bg-amber-50/50;
+}
+
+.qul-docs .licence-terms-ask li::before {
+  content: "?";
+  @apply text-amber-600;
+}
+
+.licence-terms-prohibited {
+  @apply border-red-200 bg-red-50/50;
+}
+
+.qul-docs .licence-terms-prohibited li::before {
+  content: "✕";
+  @apply text-red-600;
+}
+
+.qul-docs .licence-rich-text :is(h3, h4, h5) {
+  @apply mt-5 mb-2 text-base font-semibold text-gray-800;
+}
+
+.qul-docs .licence-rich-text ul ul {
+  @apply mt-1 list-[circle];
+}
+
+.licence-full-terms {
+  @apply mt-8 rounded-lg border border-gray-200;
+}
+
+.licence-full-terms summary {
+  @apply cursor-pointer px-4 py-3 font-semibold text-gray-800;
+}
+
+.licence-full-terms > .licence-rich-text {
+  @apply border-t border-gray-200 px-4 py-2;
+}
+
 .docs-code {
   @apply my-4 overflow-hidden rounded-lg border border-gray-200 bg-white;
 }

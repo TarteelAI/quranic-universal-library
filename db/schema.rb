@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_23_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_23_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -502,6 +502,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_120000) do
     t.string "title"
   end
 
+  create_table "licences", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "short_name"
+    t.string "url"
+    t.text "summary"
+    t.text "allowed"
+    t.text "allowed_with_permission"
+    t.text "prohibited"
+    t.text "conditions"
+    t.text "terms"
+    t.text "attribution"
+    t.text "copyright_holders"
+    t.string "contact"
+    t.text "credits"
+    t.text "special_thanks"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "morphology_matching_verses", force: :cascade do |t|
     t.integer "chapter_id"
     t.integer "verse_id"
@@ -658,6 +677,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "copyright_notice"
+    t.bigint "licence_id"
+    t.text "attribution"
+    t.text "custom_terms"
+    t.index ["licence_id"], name: "index_resource_permissions_on_licence_id"
   end
 
   create_table "segment_pipeline_draft_deliveries", force: :cascade do |t|

@@ -1154,7 +1154,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 1: Find the Surah information',
-        text: "Use the filters to find the Surah information you're looking for. Click on <code>Show</code> button to open the Surah information page.",
+        text: "Pick a language, then a resource: a language can have Surah information from more than one book. Click on <code>Show</code> button to open the Surah information page.",
         screenshot: 'find-surah-info.png'
       },
       {

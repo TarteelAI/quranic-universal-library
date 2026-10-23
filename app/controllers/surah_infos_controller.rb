@@ -8,10 +8,10 @@ class SurahInfosController < CommunityController
   def edit;end
 
   def update
-    @info = ChapterInfo.where(language: language, chapter_id: params[:id]).first
+    @info = ChapterInfo.find(params[:id])
 
     if @info.update(info_params)
-      redirect_to surah_info_path(@info.chapter_id, resource: @resource.id, language_id: @info.language_id), notice: "Info updated successfully."
+      redirect_to surah_info_path(@info.id), notice: "Info updated successfully."
     else
       render action: :edit
     end

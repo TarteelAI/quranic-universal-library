@@ -11,7 +11,7 @@
 <% end %>
 
 <%= turbo_stream.update_all ".preview-#{@presenter.tajweed_word.location.gsub(':', '-')}" do %>
-  <div class="qpc-hafs tajweed-new"
+  <div class="qpc-hafs tajweed-new" style="font-size: 40px"
        data-controller="tajweed-highlight">
     <%= safe_html @presenter.tajweed_word.text %>
   </div>

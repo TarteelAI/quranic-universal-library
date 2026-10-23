@@ -1,11 +1,11 @@
 <% rule_name = tajweed.name(letter['r']) %>
 
-<tr id="<%= dom_id @presenter.tajweed_word, letter['i'] %>">
-  <th scope="row">
+<tr id="<%= dom_id @presenter.tajweed_word, letter['i'] %>" class="border-b">
+  <th scope="row" class="text-left px-2 py-2">
     <%= letter['i'].to_i + 1 %>
   </th>
 
-  <td>
+  <td class="px-2 py-2">
     <div class="flex items-center justify-between">
       <%= link_to Unicode::Name.of(letter['c']), chars_info_path(char: letter['c'], script: 'text_uthmani'), target: '_blank', class: 'me-2', title: 'View all words with this char', data: {controller: 'tooltip'} %>
 
@@ -18,11 +18,11 @@
     </div>
   </td>
 
-  <td>
+  <td class="px-2 py-2">
     <%= link_to rule_name, tajweed_rule_path(rule_name), target: '_blank' if rule_name %>
   </td>
 
-  <td>
+  <td class="px-2 py-2">
     <% if @access %>
       <%= form_with model: @presenter.tajweed_word, url: tajweed_word_path(@presenter.tajweed_word.location), data: { controller: 'tajweed-word-form' } do |f| %>
         <%= f.hidden_field :letter_index, value: letter['i'] %>

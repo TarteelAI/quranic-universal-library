@@ -1,63 +1,86 @@
 <%
-  sample_words = []
   rule = @presenter.tajweed_rule
+  key = @presenter.rule_key
+  examples = @presenter.rule_examples
+  links = Array(rule[:links]).compact_blank
 %>
 
 <%= render 'tools/header',
            name: "Tajweed rule",
            title: "Tajweed rule: <strong>#{rule[:name]}</strong>",
-           help: false
+           help: false,
+           breadcrumb_parents: [{ label: 'Tajweed tool', path: tajweed_words_path }]
 %>
 
-<div class="page-wrapper container max-w-7xl mx-auto px-4">
-  <div class="page-section page-section-card">
-    <%= safe_html rule[:description] %>
-
-    <h3 class="tajweed-new mt-2 mb-0">
-      Rule Color:
-      <span class="tajweed-rule-icon <%= params[:rule] %>"></span>
-      <span class="qpc-hafs <%= params[:rule] %>">بِسۡمِ ٱللَّهِ</span>
-    </h3>
-    <h3 class="tajweed-new mt-2 mb-0">
-      Rule Letters:
-      <div class="qpc-hafs">
-        <%= safe_html rule[:rule_letters] %>
-      </div>
-    </h3>
-  </div>
-
-  <% if rule[:rule_tip] %>
-    <div class='p-4 mb-4 bg-gray-800 border border-gray-700 text-gray-100 rounded'>
-      <%= safe_html rule[:rule_tip] %>
+<div class="page-wrapper container max-w-7xl mx-auto px-4 tajweed-new">
+  <div class="page-section page-section-card tajweed-rule-doc">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="<%= key %>"><span class="inline-block w-6 h-6 rounded" style="background: currentColor"></span></span>
+      <% if rule[:arabic] %>
+        <span class="qpc-hafs !text-3xl" dir="rtl"><%= rule[:arabic] %></span>
+      <% end %>
+      <code class="text-sm text-gray-500"><%= key %></code>
+      <% if TajweedWordsPresenter::UNCOLOURED_RULES.include?(key) %>
+        <span class="text-sm text-gray-500">No colour, shown as normal text</span>
+      <% end %>
     </div>
-  <% end %>
 
-  <div class="page-section page-section-card mt-4">
-    <h2>Sample words</h2>
+    <div class="mt-3 text-gray-800 leading-relaxed"><%= safe_html rule[:description] %></div>
 
-    <table class="w-full hover:bg-gray-50">
-      <thead class="sticky top-0 z-10 bg-white border-b border-gray-300">
-      <tr>
-        <th>Location</th>
-        <th>Text</th>
-      </tr>
-      </thead>
+    <div class="grid md:grid-cols-2 gap-4 mt-4">
+      <% if rule[:when].present? %>
+        <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <h3 class="text-base font-semibold text-gray-900 mb-2">When it applies</h3>
+          <div class="text-sm text-gray-700 leading-relaxed"><%= safe_html rule[:when] %></div>
+        </div>
+      <% end %>
 
-      <tbody>
-      </tbody>
-    </table>
+      <% if rule[:how].present? %>
+        <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <h3 class="text-base font-semibold text-gray-900 mb-2">How to read it</h3>
+          <div class="text-sm text-gray-700 leading-relaxed"><%= safe_html rule[:how] %></div>
+        </div>
+      <% end %>
+    </div>
 
-    <% if rule[:links].present? %>
-      <p>
-        For more detail about <%= rule[:name] %> please visit:
-        <u>
-          <% rule[:links].each do |link| %>
-            <li>
-              <%= link_to link, link, target: '_blank' %>
-            </li>
-          <% end %>
-        </u>
-      </p>
+    <% if rule[:rule_letters].present? %>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <span class="text-sm font-semibold text-gray-900">Letters</span>
+        <span class="qpc-hafs !text-2xl" dir="rtl"><%= safe_html rule[:rule_letters] %></span>
+      </div>
     <% end %>
   </div>
+
+  <div class="page-section page-section-card mt-4">
+    <h2 class="text-xl font-semibold mb-1">Examples from the Quran</h2>
+    <p class="text-sm text-gray-500 mb-4">Only the letters of this rule are coloured. The word next to it is shown in grey, many rules depend on it. Click a word to open it in the tajweed tool.</p>
+
+    <% if examples.any? %>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" dir="rtl">
+        <% examples.each do |example| %>
+          <%= link_to tajweed_word_path(example[:location]), class: 'rounded-lg border border-gray-200 p-3 text-center no-underline hover:border-gray-400', style: 'color: inherit' do %>
+            <div class="qpc-hafs text-3xl leading-loose text-gray-900" data-controller="tajweed-highlight">
+              <% if example[:before_text] %><span class="text-gray-400"><%= example[:before_text] %></span><% end %>
+              <%= safe_html example[:html] %>
+              <% if example[:after_text] %><span class="text-gray-400"><%= example[:after_text] %></span><% end %>
+            </div>
+            <div class="text-xs text-gray-400 mt-1" dir="ltr"><%= example[:location] %></div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500">No words have this rule yet.</p>
+    <% end %>
+  </div>
+
+  <% if links.any? %>
+    <div class="page-section page-section-card mt-4">
+      <h2 class="text-xl font-semibold mb-2">Learn more</h2>
+      <ul class="list-disc ps-5 space-y-1 text-sm">
+        <% links.each do |link| %>
+          <li><%= link_to URI(link).host.to_s.delete_prefix('www.'), link, target: '_blank', rel: 'noopener', class: 'text-blue-700 hover:underline' %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 </div>

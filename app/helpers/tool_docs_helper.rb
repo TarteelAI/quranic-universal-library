@@ -1139,8 +1139,16 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Find words',
-        text: "Filter by <code>Surah</code>, <code>Ayah</code> or page, search by text, or find words that start or end with given letters. <code>Filter by tajweed rule</code> lists the words that have a rule, handy to check one rule across the Quran. Click <code>Show</code> to open a word.",
-        screenshot: 'tajweed-filter.png'
+        text: <<~HTML
+          <p>Filter by surah, ayah, page or rule, or search the word text. Type the marks too. Click <code>Show</code> to open a word.</p>
+          #{tajweed_filter_examples([
+            [[['Text', 'حۡمَ']], 'ٱلرَّ<m>حۡمَٰ</m>نِ'],
+            [[['Starts with', 'ٱل']], '<m>ٱلۡ</m>حَمۡدُ'],
+            [[['Ends with', 'نۡ']], 'مِ<m>نۡ</m>'],
+            [[['Starts with', 'ٱل'], ['Ends with', 'ينَ'], ['Whole word']], '<m>ٱلۡ</m>عَٰلَمِ<m>ينَ</m>']
+          ])}
+          <p class="mt-2 text-xs text-gray-500">Starts and ends with take patterns too: <code>[نم]</code> noon or meem, <code>.</code> any one mark.</p>
+        HTML
       },
       {
         type: 'step',
@@ -1150,6 +1158,7 @@ module ToolDocsHelper
           <ul class="list-disc ps-5 mt-2">
             <li><code>Tajweed page</code> opens the Dar Al Maarifah <a href='https://easyquran.com/en/' target='_blank'>tajweed Mushaf</a> page of the word.</li>
             <li><code>Tajweed Palette</code> lists every rule with its colour and example words, only the letters of that rule are coloured. <code>View detail</code> explains the rule.</li>
+            <li><strong>Rules preview</strong> shows the word with its current rules and updates as you save.</li>
             <li>The <strong>Ayah preview</strong> at the bottom shows the whole ayah, click a word to move to it. The next word often decides the rule (idgham, ikhfa, iqlab).</li>
           </ul>
         HTML
@@ -1192,6 +1201,25 @@ module ToolDocsHelper
         text: "Not sure about a rule? Open <code>Tajweed Palette</code> and <code>View detail</code> for its explanation and examples, or check the word on the <code>Tajweed page</code>."
       }
     ]
+  end
+
+  # Filter values and a word they find, the matched part highlighted
+  def tajweed_filter_examples(examples)
+    cards = examples.map do |filters, word|
+      chips = filters.map do |label, value|
+        value_html = value ? " <span class='qpc-hafs text-base'>#{value}</span>" : ''
+        "<span class='inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-700'>#{label}#{value_html}</span>"
+      end.join(' ')
+      word_html = word.gsub('<m>', "<span class='text-blue-600'>").gsub('</m>', '</span>')
+
+      "<div class='flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-2'>" \
+        "<div class='flex flex-wrap gap-1'>#{chips}</div>" \
+        "<span class='text-gray-400'>&rarr;</span>" \
+        "<span class='qpc-hafs text-2xl' dir='rtl'>#{word_html}</span>" \
+        "</div>"
+    end
+
+    "<div class='grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2'>#{cards.join}</div>"
   end
 
   # A tajweed word and some of its letter rows with their rule

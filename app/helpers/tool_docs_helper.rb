@@ -1149,18 +1149,18 @@ module ToolDocsHelper
     [
       "Surah info tool",
       {
-        text: "This tool is used to proofread and fix Surah information in different languages. Please follow these steps to suggest a fix:"
+        text: "This tool is used to proofread and fix Surah information in different languages: the introduction to each Surah, its name, when it was revealed and what it's about."
       },
       {
         type: 'step',
         title: 'Step 1: Find the Surah information',
-        text: "Use the filters to find the Surah information you're looking for. Click on <code>Show</code> button to open the Surah information page.",
+        text: "Pick a resource: each book of Surah information is its own resource, and a language can have more than one. Click on <code>Show</code> button to open the Surah information page.",
         screenshot: 'find-surah-info.png'
       },
       {
         type: 'step',
         title: 'Step 2: Read the Surah information',
-        text: "This page will show the Surah information of selected Surah. If you find any issues, click the <code>Edit</code> button to suggest the fix. Use <code>Previous</code> and <code>Next</code> buttons to navigate between Surahs.",
+        text: "This page will show the Surah information of selected Surah. If you find any issues, click <code>Edit</code> to fix it. Use <code>Previous</code> and <code>Next</code> to move between Surahs.",
         screenshot: 'read-surah-info.png'
       },
       {
@@ -1170,8 +1170,39 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 3: Fix the Surah information',
-        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save surah info</code> to submit your changes.",
+        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save surah info</code> to save your changes, they go live right away.",
         screenshot: 'update-surah-info.png'
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. Typos and missing words',
+        text: "Fix them in the editor. Check names and transliterations against the rest of the text, the same surah or person should be spelled the same way everywhere."
+      },
+      {
+        type: 'step',
+        title: '2. Lost formatting',
+        text: <<~HTML
+          <p>Imported text often loses its structure: paragraphs run together, headings look like normal text, or lists became one line.</p>
+          <div class="grid grid-cols-2 gap-2 my-2 max-w-xl text-xs">
+            <div class="rounded border border-red-400 bg-red-50 p-2"><div class="font-semibold text-gray-500 mb-1">Now</div>Name This Surah takes its name from verse 1. Period of Revelation It was revealed in Makkah...</div>
+            <div class="rounded border border-green-600 bg-green-50 p-2"><div class="font-semibold text-gray-500 mb-1">After</div><div class="font-semibold">Name</div><p>This Surah takes its name from verse 1.</p><div class="font-semibold mt-1">Period of Revelation</div><p>It was revealed in Makkah...</p></div>
+          </div>
+          <p>Use the editor's heading, paragraph and list buttons, or <code>Source code</code> to fix the HTML. Don't paste styled text from other sites, it brings fonts and colours with it.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Short info',
+        text: "The short info is one or two plain sentences, shown in surah lists and search results. If it's missing, too long or has HTML, rewrite it from the first lines of the long info."
+      },
+      {
+        type: 'step',
+        title: '4. Text in the wrong language',
+        text: "If part of the info is in another language, or wasn't translated, translate it or open an issue so it can be sourced again."
       }
     ]
   end

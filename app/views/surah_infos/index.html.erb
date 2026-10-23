@@ -2,12 +2,11 @@
   records = @presenter.resources
   resource = @presenter.resource_content
   language = @presenter.language
-  available_languages = @presenter.available_languages
 %>
 
 <%= render 'tools/header',
            name: 'Surah Information',
-           title: "Proofread Surah info for #{language.name} language",
+           title: "Proofread #{resource.name} (#{language.name})",
            key: 'surah_info',
            resource: resource
 %>
@@ -19,12 +18,12 @@
     <%= form_tag surah_infos_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="flex flex-wrap">
         <div class="mb-4 me-2">
-          <%= select_tag :language_id,
-                         options_from_collection_for_select(available_languages, :id, :name, selected: language.id),
-                         include_blank: false, class: 'form-select w-[85vw] sm:w-[200px]',
-                         data: { placeholder: 'Select language', controller: 'select2' }
+          <%= select_tag :resource_id,
+                         options_for_select(@presenter.surah_info_resources.map { |r| ["#{r.name} (#{r.language&.name})", r.id] }, resource.id),
+                         include_blank: false, class: 'form-select w-[85vw] sm:w-[280px]',
+                         data: { placeholder: 'Select resource', controller: 'select2' }
           %>
-          <p class="text-sm text-gray-600 mt-1">Filter by language</p>
+          <p class="text-sm text-gray-600 mt-1">Filter by resource</p>
         </div>
 
         <%= render 'shared/filters', verse: false %>

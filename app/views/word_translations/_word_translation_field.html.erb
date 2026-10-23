@@ -45,7 +45,10 @@
 
       <% if word_translation.persisted? %>
         <div class="lg:w-1/2 lg:border-s lg:ps-4">
-          <%= render 'word_group_info', word_translation: word_translation, language: language, word: word %>
+          <%= render 'word_group_info',
+                     word_translation: word_translation,
+                     language: language,
+                     word: word %>
         </div>
       <% end %>
     </div>

@@ -19,7 +19,7 @@ class CommunityController < ApplicationController
   end
 
   def compare_audio
-    render layout: false
+    render layout: 'tool'
   end
 
   def docs

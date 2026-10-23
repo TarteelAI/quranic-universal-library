@@ -128,7 +128,8 @@ ActiveAdmin.register Draft::SurahInfo do
     end
 
     panel 'Current and suggested text' do
-      render 'admin/surah_info_compare', dir: dir, lang: language&.iso_code
+      render 'admin/draft_compare', current: resource.current_text, draft: resource.draft_text,
+             text_class: 'surah-info-text', dir: dir, empty_message: 'New, this surah has no info yet'
     end
 
     others = Draft::SurahInfo.where(resource_content_id: resource.resource_content_id, chapter_id: resource.chapter_id).where.not(id: resource.id).order(id: :desc)

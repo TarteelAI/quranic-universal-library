@@ -4,162 +4,71 @@
   tafsir = Tafsir.for_verse(ayah, resource.resource_content)
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Tafsir Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> tafsir for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
+        <%= select_tag :ayah,
+                       [],
+                       onchange: "jumpToAyah(this.value)",
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+      </div>
 
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="resource-pane-title">
-          <%= resource.name %> tafsir for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
-        </h2>
-
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
-            <%= select_tag :ayah,
-                           [],
-                           onchange: "jumpToAyah(this.value)",
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
-          </div>
-
-          <div class="flex gap-2">
-            <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <% if tafsir %>
-          <% verses = tafsir.ayahs %>
-
-          <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
-            <div class="p-6">
-              <div class="qpc-hafs quran-text">
-                <% verses.each do |verse| %>
-                  <%= verse.text_qpc_hafs %>
-                <% end %>
-              </div>
-            </div>
-          </div>
+      <div class="flex gap-2">
+        <% if ayah.previous_ayah %>
+          <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
+            ← Previous
+          <% end %>
         <% end %>
 
-        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <% if tafsir %>
-            <% verses = tafsir.ayahs %>
-
-            <% if tafsir.group_verses_count > 1 %>
-              <div class="docs-callout docs-callout-tip mt-0">
-                <p class="leading-normal">
-                  You are reading tafsir of <%= verses.size %> ayahs: <%= verses.first.verse_key %>
-                  to <%= verses.last.verse_key %>.
-                </p>
-              </div>
-            <% end %>
-
-            <div class="tafsir <%= tafsir.language_name.to_s.downcase %>">
-              <%= safe_html tafsir.text %>
-            </div>
-          <% else %>
-            <p class="text-gray-500 italic">Tafisr is not available for this ayah.</p>
+        <% if ayah.next_ayah %>
+          <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
+            Next →
           <% end %>
-        </div>
+        <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="qul-docs">
-        <h2>About tafsir data</h2>
+    <% if tafsir %>
+      <% verses = tafsir.ayahs %>
 
-        <p>
-          Tafsir is available as <strong>JSON</strong> and <strong>SQLite</strong>. The text may contain HTML
-          tags such as <code>&lt;b&gt;</code> and <code>&lt;i&gt;</code>, so render it as HTML rather than as
-          plain text.
-        </p>
-
-        <div class="docs-callout docs-callout-info">
-          One passage of tafsir often covers several ayahs at once. QUL stores the text once and records every
-          ayah it applies to, so you never have to duplicate it.
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+        <div class="p-6">
+          <div class="qpc-hafs quran-text">
+            <% verses.each do |verse| %>
+              <%= verse.text_qpc_hafs %>
+            <% end %>
+          </div>
         </div>
-
-        <h2>JSON format</h2>
-        <div class="docs-code">
-          <div class="docs-code-header"><span>JSON</span></div>
-          <pre><code>{
-  "2:3": {
-    "text": "tafsir text",
-    "ayah_keys": ["2:3", "2:4"]
-  },
-  "2:4": "2:3"
-}</code></pre>
-        </div>
-
-        <p>
-          Every key is an ayah key in <code>surah:ayah</code> form — <code>"2:3"</code> is the third ayah of
-          Surah Al-Baqarah. The value is one of two things:
-        </p>
-
-        <ul>
-          <li>
-            <strong>An object</strong> — the tafsir itself. <code>text</code> holds the content and
-            <code>ayah_keys</code> lists every ayah it covers.
-          </li>
-          <li>
-            <strong>A string</strong> — a pointer. This ayah shares the tafsir stored under the ayah key named by
-            the string. In the example above, <code>"2:4"</code> points at <code>"2:3"</code>.
-          </li>
-        </ul>
-
-        <h2>SQLite columns</h2>
-        <ul>
-          <li><code>ayah_key</code> — the ayah this row is for.</li>
-          <li><code>group_ayah_key</code> — the ayah key holding the shared tafsir text.</li>
-          <li><code>from_ayah</code> / <code>to_ayah</code> — first and last ayah of the passage, for convenience.</li>
-          <li><code>ayah_keys</code> — comma-separated list of every ayah the passage covers.</li>
-          <li><code>text</code> — the tafsir. When it is blank, read the text from <code>group_ayah_key</code> instead.</li>
-        </ul>
       </div>
+    <% end %>
+
+    <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <% if tafsir %>
+        <% verses = tafsir.ayahs %>
+
+        <% if tafsir.group_verses_count > 1 %>
+          <div class="docs-callout docs-callout-tip mt-0">
+            <p class="leading-normal">
+              You are reading tafsir of <%= verses.size %> ayahs: <%= verses.first.verse_key %>
+              to <%= verses.last.verse_key %>.
+            </p>
+          </div>
+        <% end %>
+
+        <div class="tafsir <%= tafsir.language_name.to_s.downcase %>">
+          <%= safe_html tafsir.text %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 italic">Tafisr is not available for this ayah.</p>
+      <% end %>
     </div>
   </div>
 </div>

@@ -1,0 +1,40 @@
+<%
+  active_key = @presenter.detail_tab
+  tab_url = lambda do |key|
+    key == 'preview' ? detail_resources_path(params[:type], params[:id]) : detail_tab_resources_path(params[:type], params[:id], key)
+  end
+%>
+
+<%= tag.section class: 'mb-6', data: @presenter.detail_tabs_data(resource) do %>
+  <nav class="detail-tabs" role="tablist" aria-label="<%= resource.name %>">
+    <% @presenter.detail_tabs(resource).each do |tab| %>
+      <%= link_to tab.label, tab_url.call(tab.key),
+                  id: "resource-tab-#{tab.key}",
+                  class: 'detail-tab',
+                  role: 'tab',
+                  aria: { controls: "resource-pane-#{tab.key}", selected: tab.key == active_key },
+                  data: { tab: tab.key, resource_tabs_target: 'tab', action: 'click->resource-tabs#select mouseenter->resource-tabs#prefetch focus->resource-tabs#prefetch' } %>
+    <% end %>
+  </nav>
+
+  <% @presenter.detail_tabs(resource).each do |tab| %>
+    <div id="resource-pane-<%= tab.key %>"
+         class="detail-tab-pane"
+         role="tabpanel"
+         aria-labelledby="resource-tab-<%= tab.key %>"
+         data-tab="<%= tab.key %>"
+         data-resource-tabs-target="pane"
+         <%= 'hidden' unless tab.key == active_key %>>
+      <% if !tab.lazy %>
+        <%= render tab.partial, resource: resource %>
+      <% elsif tab.key == active_key %>
+        <%= render 'detail_tab_content', tab: tab, resource: resource %>
+      <% else %>
+        <%# Loaded the first time the tab is shown. %>
+        <%= turbo_frame_tag "resource_#{tab.key}", src: tab_url.call(tab.key), loading: :lazy, target: '_top' do %>
+          <p class="text-gray-500">Loading…</p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

@@ -35,6 +35,19 @@ export default class extends Controller {
     this.setGlyphCellSize(this.hasGlyphZoomTarget ? Number(this.glyphZoomTarget.value) : 120)
     this.updateLigatureCount()
     this.loadFont()
+
+    // Opened straight on /ligatures or /glyphs.
+    const openTab = this.element.querySelector('[role="tabpanel"]:not([hidden])')?.dataset.tab
+    if (openTab) this.showTab(openTab)
+  }
+
+  tabShown(event) {
+    this.showTab(event.detail.tab)
+  }
+
+  showTab(tab) {
+    if (tab === "ligatures") this.showLigatures()
+    if (tab === "glyphs") this.showGlyphs()
   }
 
   disconnect() {
@@ -633,12 +646,6 @@ export default class extends Controller {
   copyValue(event) {
     const button = event.currentTarget
     this.copyText(button.dataset.copyValue, button)
-  }
-
-  copyCode(event) {
-    const button = event.currentTarget
-    const code = button.closest(".docs-code")?.querySelector("code")
-    if (code) this.copyText(code.textContent, button)
   }
 
   async copyText(text, button) {

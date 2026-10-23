@@ -8,97 +8,53 @@
 
   words = MushafWord.where(page_number: page, mushaf: mushaf).order('position_in_page ASC')
 
-  tag = DownloadableResourceTag.find_by(slug: 'mushaf-layout')
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Mushaf Page Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> Page <%= page %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <% if mushaf %>
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center mb-6">
+      <div class="flex w-full items-center gap-2 sm:w-auto">
+        <%= label_tag :page, 'Jump to page', class: 'shrink-0 whitespace-nowrap text-sm sm:text-base font-medium' %>
+        <%= select_tag :page,
+                       options_for_select((1..mushaf.pages_count).to_a, page),
+                       onchange: "jumpToPage(this.value)",
+                       class: 'min-w-0 flex-1 px-3 py-2 border rounded bg-white shadow-sm sm:min-w-[200px] sm:flex-none',
+                       data: { controller: 'select2' }
+        %>
+      </div>
 
-  <div class="tab-content px-0 sm:px-2 py-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="resource-pane-title">
-          <%= resource.name %> Page <%= page %>
-        </h2>
+      <div class="flex w-full flex-nowrap justify-center gap-2 sm:w-auto">
+        <% if page > 1 %>
+          <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary whitespace-nowrap text-sm sm:text-base', aria: { label: 'Previous page' } do %>
+            ← Previous
+          <% end %>
+        <% end %>
 
-        <% if mushaf %>
-        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center mb-6">
-          <div class="flex w-full items-center gap-2 sm:w-auto">
-            <%= label_tag :page, 'Jump to page', class: 'shrink-0 whitespace-nowrap text-sm sm:text-base font-medium' %>
-            <%= select_tag :page,
-                           options_for_select((1..mushaf.pages_count).to_a, page),
-                           onchange: "jumpToPage(this.value)",
-                           class: 'min-w-0 flex-1 px-3 py-2 border rounded bg-white shadow-sm sm:min-w-[200px] sm:flex-none',
-                           data: { controller: 'select2' }
-            %>
-          </div>
-
-          <div class="flex w-full flex-nowrap justify-center gap-2 sm:w-auto">
-            <% if page > 1 %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page - 1), class: 'btn btn-secondary whitespace-nowrap text-sm sm:text-base', aria: { label: 'Previous page' } do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if page < mushaf.pages_count %>
-              <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary whitespace-nowrap text-sm sm:text-base', aria: { label: 'Next page' } do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <div class="py-5 px-2 sm:px-6 sm:py-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <div class="flex justify-center flex-col items-center">
-          <%= render 'shared/mushaf_page',
-                     words: words,
-                     page: page,
-                     mushaf: mushaf,
-                     name: resource_content.name,
-                     hide_controls: true
-          %>
-          </div>
-        </div>
+        <% if page < mushaf.pages_count %>
+          <%= link_to detail_resources_path('mushaf-layout', resource.id, page: page + 1), class: 'btn btn-secondary whitespace-nowrap text-sm sm:text-base', aria: { label: 'Next page' } do %>
+            Next →
+          <% end %>
         <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="qul-docs">
-        <%= safe_html tag.description if tag %>
+    <div class="py-5 px-2 sm:px-6 sm:py-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <div class="flex justify-center flex-col items-center">
+      <%= render 'shared/mushaf_page',
+                 words: words,
+                 page: page,
+                 mushaf: mushaf,
+                 name: resource_content.name,
+                 hide_controls: true
+      %>
       </div>
     </div>
+    <% end %>
   </div>
 </div>
 

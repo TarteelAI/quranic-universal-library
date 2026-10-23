@@ -1,0 +1,69 @@
+<div class="qul-docs">
+  <h2>About similar ayah data</h2>
+
+  <p>
+    This resource links ayahs that share wording. It is useful for exploring recurring phrases and
+    expressions across the Quran, and for building “where else does this appear?” features. The data is
+    exported as <strong>JSON</strong> and <strong>SQLite</strong>.
+  </p>
+
+  <h2>SQLite columns</h2>
+  <div class="docs-table-wrap">
+    <table class="docs-table">
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>What it holds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>verse_key</code></td>
+          <td>TEXT</td>
+          <td>The source ayah, for example <code>1:1</code>.</td>
+        </tr>
+        <tr>
+          <td><code>matched_ayah_key</code></td>
+          <td>TEXT</td>
+          <td>The ayah that shares wording with it.</td>
+        </tr>
+        <tr>
+          <td><code>matched_words_count</code></td>
+          <td>INTEGER</td>
+          <td>How many words the two ayahs have in common.</td>
+        </tr>
+        <tr>
+          <td><code>coverage</code></td>
+          <td>INTEGER</td>
+          <td>Percentage of the source ayah's words that matched.</td>
+        </tr>
+        <tr>
+          <td><code>score</code></td>
+          <td>INTEGER</td>
+          <td>Similarity score from 0 to 100.</td>
+        </tr>
+        <tr>
+          <td><code>match_words_range</code></td>
+          <td>TEXT</td>
+          <td>Which word positions in the matched ayah line up with the source.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Reading a row</h2>
+  <p>Say <code>1:1</code> matches <code>27:30</code> with:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>Row</span></div>
+    <pre><code>matched_words_count: 4
+coverage: 100
+score: 100
+match_words_range: [5, 8]</code></pre>
+  </div>
+  <p>
+    That reads as: four words are shared, they account for all of the source ayah, the similarity score is
+    100, and in <code>27:30</code> the match runs from word 5 to word 8.
+  </p>
+</div>
+    

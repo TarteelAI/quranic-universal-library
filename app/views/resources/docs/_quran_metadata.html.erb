@@ -1,0 +1,3 @@
+<% partial_name = resource.resource_content.name.downcase.gsub('name', '').strip %>
+
+<%= render "resources/docs/quran_metadata/#{partial_name}", resource: resource %>

@@ -33,6 +33,10 @@ class ResourcesController < CommunityController
 
     @presenter.set_resource(@resource)
 
+    tab = @presenter.find_detail_tab
+    raise ActiveRecord::RecordNotFound unless tab
+    return render('detail_tab', layout: false, locals: { tab: tab }) if turbo_frame_request? && tab.lazy
+
     if @resource.resource_type.to_s.tr('-', '_') == 'ayah_topics'
       handle_ayah_topics
     end

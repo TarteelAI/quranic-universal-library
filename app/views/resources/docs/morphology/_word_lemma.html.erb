@@ -1,0 +1,259 @@
+<div class="qul-docs">
+  <h2>About lemma data</h2>
+
+  <p>
+    A <strong>lemma</strong> is the dictionary form of a word: the form you would look up in an Arabic
+    dictionary. Every inflected form of a word, whoever does the action and whatever its tense or case,
+    points to the same lemma.
+  </p>
+
+  <ul>
+    <li>Verbs use the past tense, "he" form: <span class="me-quran docs-arabic-inline" dir="rtl">عَبَدَ</span> ("he worshipped").</li>
+    <li>Nouns drop the article and the case ending: <span class="me-quran docs-arabic-inline" dir="rtl">ٱلۡحَمۡدُ</span> → <span class="me-quran docs-arabic-inline" dir="rtl">حَمْد</span>.</li>
+  </ul>
+
+  <h3>One lemma, many forms</h3>
+  <p>
+    The lemma <span class="me-quran docs-arabic-inline" dir="rtl">عَبَدَ</span> ("to worship") covers 122 words
+    in the Quran, in 34 different forms, including:
+  </p>
+
+  <div class="overflow-x-auto">
+    <table class="[&_td]:align-middle">
+      <thead>
+      <tr>
+        <th>Word</th>
+        <th>Location</th>
+        <th>Meaning</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">نَعۡبُدُ</span></td>
+        <td><code>1:5:2</code></td>
+        <td>we worship</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">أَعۡبُدُ</span></td>
+        <td><code>109:2:2</code></td>
+        <td>I worship</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">تَعۡبُدُونَ</span></td>
+        <td><code>12:40:2</code></td>
+        <td>you (all) worship</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">يَعۡبُدُونَ</span></td>
+        <td><code>19:49:4</code></td>
+        <td>they worship</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">ٱعۡبُدُواْ</span></td>
+        <td><code>71:3:2</code></td>
+        <td>worship! (said to many)</td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">فَٱعۡبُدُوهُ</span></td>
+        <td><code>19:36:5</code></td>
+        <td>so worship Him</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Lemma, stem and root</h3>
+  <p>
+    A lemma sits between the other two. Each of the words above has its own <strong>stem</strong>
+    (<span class="me-quran docs-arabic-inline" dir="rtl">نَعْبُدُ</span>, <span class="me-quran docs-arabic-inline" dir="rtl">يَعْبُدُ</span>, …)
+    but they share one lemma. And one <strong>root</strong> holds several lemmas: the root
+    <span class="me-quran docs-arabic-inline" dir="rtl">ع ب د</span> gives
+  </p>
+
+  <div class="overflow-x-auto">
+    <table class="[&_td]:align-middle">
+      <thead>
+      <tr>
+        <th>Lemma</th>
+        <th>Meaning</th>
+        <th>Words</th>
+        <th>Example</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">عَبْد</span></td>
+        <td>servant</td>
+        <td>131</td>
+        <td><span class="me-quran docs-arabic" dir="rtl">عَبۡدًا</span> <code>96:10:1</code></td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">عَبَدَ</span></td>
+        <td>to worship</td>
+        <td>122</td>
+        <td><span class="me-quran docs-arabic" dir="rtl">فَٱعۡبُدُواْ</span> <code>39:15:1</code></td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">عَابِد</span></td>
+        <td>worshipper</td>
+        <td>11</td>
+        <td><span class="me-quran docs-arabic" dir="rtl">ٱلۡعَٰبِدُونَ</span> <code>9:112:2</code></td>
+      </tr>
+      <tr>
+        <td><span class="me-quran docs-arabic" dir="rtl">عِبَادَت</span></td>
+        <td>worship</td>
+        <td>9</td>
+        <td><span class="me-quran docs-arabic" dir="rtl">بِعِبَادَتِهِمۡ</span> <code>19:82:3</code></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Words without a lemma</h3>
+  <p>
+    About 72,500 of the Quran's words have a lemma. The disconnected letters that open some surahs, such as
+    <span class="me-quran docs-arabic-inline" dir="rtl">الٓمٓ</span> (<code>2:1:1</code>), and standalone pronouns
+    such as <span class="me-quran docs-arabic-inline" dir="rtl">هُوَ</span> (<code>10:67:1</code>) have none.
+  </p>
+
+  <h2>SQLite format</h2>
+  <p>
+    The download is a SQLite database with two tables: <code>lemmas</code> (4,817 rows, one per lemma) and
+    <code>lemma_words</code> (one row per word that has a lemma).
+  </p>
+
+  <h3>Table: <code>lemmas</code></h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>id</code></td>
+      <td>INTEGER</td>
+      <td>Lemma id, used by <code>lemma_words.lemma_id</code></td>
+    </tr>
+    <tr>
+      <td><code>text</code></td>
+      <td>TEXT</td>
+      <td>Lemma with full diacritics</td>
+    </tr>
+    <tr>
+      <td><code>text_clean</code></td>
+      <td>TEXT</td>
+      <td>Lemma without diacritics, for search</td>
+    </tr>
+    <tr>
+      <td><code>words_count</code></td>
+      <td>INTEGER</td>
+      <td>How many words in the Quran have this lemma</td>
+    </tr>
+    <tr>
+      <td><code>uniq_words_count</code></td>
+      <td>INTEGER</td>
+      <td>How many different forms those words take</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>Sample rows</span></div>
+    <pre><code>id   | text      | text_clean | words_count | uniq_words_count
+841  | عَبَدَ     | عبد        | 122         | 34
+3770 | حَمْد      | حمد        | 43          | 5
+1472 | رَّحْمَٰن   | رحمان      | 57          | 3
+2683 | هَدَى     | هدى        | 144         | 54</code></pre>
+  </div>
+
+  <h3>Table: <code>lemma_words</code></h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>lemma_id</code></td>
+      <td>INTEGER</td>
+      <td>The word's lemma, from <code>lemmas.id</code></td>
+    </tr>
+    <tr>
+      <td><code>word_location</code></td>
+      <td>TEXT</td>
+      <td>Word position as <code>surah:ayah:word</code>, e.g. <code>1:5:2</code> is the second word of the fifth ayah</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>Sample rows</span></div>
+    <pre><code>lemma_id | word_location
+3770     | 1:2:1
+1472     | 1:1:3
+841      | 1:5:2</code></pre>
+  </div>
+
+  <div class="docs-callout docs-callout-info">
+    This file has word locations, not word text. To show the words, join on location with a
+    <%= link_to 'word-by-word Quran script', resource_path('quran-script') %>.
+  </div>
+
+  <h2>Example queries</h2>
+
+  <h3>Find the lemma of a word</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT lemmas.*
+FROM lemma_words
+JOIN lemmas ON lemmas.id = lemma_words.lemma_id
+WHERE lemma_words.word_location = '1:5:2';
+-- 841 | عَبَدَ | عبد | 122 | 34</code></pre>
+  </div>
+
+  <h3>Every word with a lemma</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT word_location
+FROM lemma_words
+WHERE lemma_id = 841;  -- عَبَدَ: 122 locations</code></pre>
+  </div>
+
+  <h3>Search by lemma without diacritics</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT id, text, words_count
+FROM lemmas
+WHERE text_clean = 'عبد';
+-- 689 | عَبْد  | 131  (servant)
+-- 841 | عَبَدَ | 122  (to worship)
+-- 416 | عَبَّد | 1</code></pre>
+  </div>
+
+  <h3>Most used lemmas</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>SQL</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>SELECT text, words_count, uniq_words_count
+FROM lemmas
+ORDER BY words_count DESC
+LIMIT 10;</code></pre>
+  </div>
+</div>

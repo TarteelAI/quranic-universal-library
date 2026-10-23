@@ -22,100 +22,42 @@
     }
 </style>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Surah Info Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :surah, 'Jump to Surah', class: 'me-2 font-medium' %>
+        <%= select_tag :surah,
+                       options_for_select(chapters, chapter_id),
+                       onchange: "jumpToSurah(this.value)",
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: { controller: 'select2' } %>
+      </div>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+      <div class="flex gap-2">
+        <% if chapter_id > 1 %>
+          <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id - 1), class: 'btn btn-secondary' do %>
+            ← Previous
+          <% end %>
+        <% end %>
 
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :surah, 'Jump to Surah', class: 'me-2 font-medium' %>
-            <%= select_tag :surah,
-                           options_for_select(chapters, chapter_id),
-                           onchange: "jumpToSurah(this.value)",
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: { controller: 'select2' } %>
-          </div>
-
-          <div class="flex gap-2">
-            <% if chapter_id > 1 %>
-              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id - 1), class: 'btn btn-secondary' do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if chapter_id < 114 %>
-              <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id + 1), class: 'btn btn-secondary' do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <div class="info <%= info.language_name.to_s.downcase %>">
-            <p class="strong">
-              <%= safe_html info.short_text %>
-            </p>
-
-            <div>
-              <%= safe_html info.text %>
-            </div>
-          </div>
-        </div>
+        <% if chapter_id < 114 %>
+          <%= link_to detail_resources_path('surah-info', resource.id, surah: chapter_id + 1), class: 'btn btn-secondary' do %>
+            Next →
+          <% end %>
+        <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="qul-docs">
-        <h2>About surah information</h2>
-
-        <p>
-          This resource holds background reading for each surah: its main themes and topics, the circumstances
-          of its revelation, a summary, and other context that helps a reader place the surah.
+    <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <div class="info <%= info.language_name.to_s.downcase %>">
+        <p class="strong">
+          <%= safe_html info.short_text %>
         </p>
 
-        <p>
-          It is available in several languages, as <strong>SQLite</strong>, <strong>CSV</strong> and
-          <strong>JSON</strong>. Some languages ship two versions — a short summary and a longer article.
-        </p>
-
-        <div class="docs-callout docs-callout-info">
-          The long version contains HTML tags for headings, paragraphs and emphasis, so render it as HTML
-          rather than as plain text.
+        <div>
+          <%= safe_html info.text %>
         </div>
       </div>
     </div>

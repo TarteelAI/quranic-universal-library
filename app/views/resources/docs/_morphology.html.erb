@@ -1,0 +1,7 @@
+<%
+  resource_content = resource.resource_content
+  resource_type = resource_content.meta_value('morphology-resource-type')
+  partial_name = "#{resource_content.one_word? ? 'word' : 'ayah'}_#{resource_type}".downcase
+%>
+
+<%= render "resources/docs/morphology/#{partial_name}" %>

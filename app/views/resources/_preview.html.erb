@@ -1,6 +1,4 @@
-<section class="mb-4">
-  <%= render "resources/previews/#{@presenter.preview_partial(resource)}", resource: resource %>
-</section>
+<%= render "resources/previews/#{@presenter.preview_partial(resource)}", resource: resource %>
 
 <script>
   function jumpTo(key, val){

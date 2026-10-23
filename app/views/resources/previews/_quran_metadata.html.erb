@@ -3,51 +3,8 @@
   partial_name = resource_content.name.downcase.gsub('name', '').strip
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="resource-tabs" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        <%= resource.name %> Preview
-      </button>
-    </li>
-
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
-
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <%= render "resources/previews/quran_metadata/#{partial_name}_preview", resource: resource %>
-      </div>
-    </div>
-
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div>
-        <%= render "resources/previews/quran_metadata/#{partial_name}_help", resource: resource %>
-      </div>
-    </div>
+<div>
+  <div class="space-y-6">
+    <%= render "resources/previews/quran_metadata/#{partial_name}_preview", resource: resource %>
   </div>
 </div>

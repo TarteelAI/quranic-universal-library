@@ -7,7 +7,7 @@
         <%= text_field_tag :search, 
             search_query, 
             placeholder: 'Search topics by name, Arabic name, description, or ayah (e.g., 2:255)...', 
-            class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent' %>
+            class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#46ac7a]/40 focus:border-[#46ac7a]' %>
         <% if search_query.present? %>
           <%= link_to detail_resources_path('ayah-topics', resource.id), class: 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600' do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -16,7 +16,7 @@
           <% end %>
         <% end %>
       </div>
-      <%= button_tag type: 'submit', class: 'px-8 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap' do %>
+      <%= button_tag type: 'submit', class: 'btn btn-success px-8' do %>
         Search
       <% end %>
     </div>

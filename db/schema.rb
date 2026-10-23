@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_22_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -311,6 +311,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_22_120000) do
     t.index ["draft_translation_id"], name: "index_draft_foot_notes_on_draft_translation_id"
     t.index ["foot_note_id"], name: "index_draft_foot_notes_on_foot_note_id"
     t.index ["text_matched"], name: "index_draft_foot_notes_on_text_matched"
+  end
+
+  create_table "draft_surah_infos", force: :cascade do |t|
+    t.integer "resource_content_id"
+    t.integer "chapter_id"
+    t.integer "user_id"
+    t.text "current_short_text"
+    t.text "draft_short_text"
+    t.text "current_text"
+    t.text "draft_text"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chapter_id"], name: "index_draft_surah_infos_on_chapter_id"
+    t.index ["imported"], name: "index_draft_surah_infos_on_imported"
+    t.index ["need_review"], name: "index_draft_surah_infos_on_need_review"
+    t.index ["resource_content_id"], name: "index_draft_surah_infos_on_resource_content_id"
+    t.index ["text_matched"], name: "index_draft_surah_infos_on_text_matched"
   end
 
   create_table "draft_tafsirs", force: :cascade do |t|

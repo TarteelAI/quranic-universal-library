@@ -41,5 +41,11 @@
       <%= safe_html resource.text %>
     </div>
   </div>
+
+  <% if (pending_suggestions = @presenter.pending_suggestions_count).positive? %>
+    <p class="mt-4 text-sm text-gray-600">
+      <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
+    </p>
+  <% end %>
 </div>
 

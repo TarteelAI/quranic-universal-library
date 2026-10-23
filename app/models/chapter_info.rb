@@ -47,4 +47,33 @@ class ChapterInfo < QuranApiRecord
       )
       .first
   end
+
+  def drafts
+    Draft::SurahInfo.where(resource_content_id: resource_content_id, chapter_id: chapter_id)
+  end
+
+  def build_draft
+    Draft::SurahInfo.new(
+      current_short_text: short_text,
+      draft_short_text: short_text,
+      current_text: text,
+      draft_text: text,
+      chapter: chapter,
+      resource_content_id: resource_content_id
+    )
+  end
+
+  # Returns false and sets errors when the text is blank
+  def save_suggestions(params, user)
+    errors.add(:base, 'Surah info text is required') if params[:draft_text].blank?
+    return false if errors.any?
+
+    draft = build_draft
+    draft.assign_attributes(params)
+    draft.text_matched = draft.matches_current?
+    draft.need_review = true
+    draft.user = user
+    draft.save(validate: false)
+    draft
+  end
 end

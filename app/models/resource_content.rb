@@ -414,6 +414,8 @@ class ResourceContent < QuranApiRecord
   def draft_translations
     if tafsir?
       Draft::Tafsir.where(resource_content_id: id)
+    elsif chapter_info?
+      Draft::SurahInfo.where(resource_content_id: id)
     elsif transliteration?
       one_word? ? Draft::WordTransliteration.where(resource_content_id: id) : Draft::Transliteration.where(resource_content_id: id)
     else

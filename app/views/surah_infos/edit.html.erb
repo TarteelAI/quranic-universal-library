@@ -12,21 +12,29 @@
 <%= render 'shared/access_message' %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <% if resource.errors.any? %>
+    <div class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-sm text-red-800">
+      <%= resource.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <p class="mb-3 text-sm text-gray-600">Your changes are saved as a suggestion and go live once approved.</p>
+
   <div class="page-section">
-    <%= form_with model: resource, url: surah_info_path(resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
+    <%= form_with model: @presenter.draft, scope: :draft_surah_info, url: surah_info_path(resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
       <div class="mb-4 mb-3">
-        <%= form.label :short_text, class: 'form-label h2' %>
-        <%= form.text_area :short_text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', row: 2 %>
+        <%= form.label :draft_short_text, 'Short text', class: 'form-label h2' %>
+        <%= form.text_area :draft_short_text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', row: 2 %>
       </div>
 
       <div class="mb-4">
-        <%= form.label :text, 'Surah Info text', class: 'form-label h2' %>
-        <%= form.text_area :text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
+        <%= form.label :draft_text, 'Surah Info text', class: 'form-label h2' %>
+        <%= form.text_area :draft_text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
       </div>
 
       <div class="mb-4 flex justify-end mt-3 gap-3">
         <%= link_to 'Cancel', surah_info_path(resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>
-        <%= form.submit "Save Surah Info", class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+        <%= form.submit "Save suggestion", class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>
   </div>

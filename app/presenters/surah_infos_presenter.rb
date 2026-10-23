@@ -19,7 +19,15 @@ class SurahInfosPresenter < ApplicationPresenter
   end
 
   def resource
-    ChapterInfo.find(params[:id])
+    @resource ||= ChapterInfo.find(params[:id])
+  end
+
+  def draft
+    @draft ||= resource.build_draft
+  end
+
+  def pending_suggestions_count
+    resource.drafts.where(imported: false, need_review: true).count
   end
 
   def resources

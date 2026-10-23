@@ -624,22 +624,63 @@ module ToolDocsHelper
     [
       "Word by Word Transliteration",
       {
-        text: "This tool is used to proofread and fix the transliteration of each word. Please follow these steps to suggest a fix:"
+        text: "This tool is used to proofread and fix the transliteration of each word: how the Arabic word sounds, written in Latin letters. Find the ayah, click <code>Edit</code>, fix the words and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Every Arabic word has its own transliteration.</p>
+          #{word_translation_diagram(
+            [['Words', [['ٱلۡحَمۡدُ', 'al-ḥamdu', :same], ['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', 'l-ʿālamīna', :same]]]]
+          )}
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 1: Find an ayah',
-        text: "Select the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Tick <code>Only ayahs with missing words</code> to list ayahs that still have words without transliteration. Click <code>Show</code> to open the ayah."
+        title: 'Find an ayah',
+        text: "Select the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters. Tick <code>Only ayahs with missing words</code> to list ayahs that still have words without a transliteration. Click <code>Show</code> to open the ayah, missing words are highlighted. Click <code>Edit</code> to fix it, each word has its own field."
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Step 2: Read the transliteration',
-        text: 'This page lists every word of the ayah with its transliteration. Missing ones are highlighted. If you find any issues, click the <code>Edit</code> button.'
+        title: '1. Fix a spelling mistake',
+        text: <<~HTML
+          <p>Fix the text in the word's field. Spell it the way the rest of this transliteration spells the same sounds.</p>
+          #{word_translation_diagram(
+            [['Now', [['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', "<del class='text-red-600'>l-ʿalmīna</del>", :wrong]]],
+             ['After', [['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', "<ins class='text-green-700 font-semibold no-underline'>l-ʿālamīna</ins>", :fixed]]]]
+          )}
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 3: Update the transliteration',
-        text: 'Fix the words that need it and click <code>Propose changes</code>. Only the words you changed are submitted for approval. Once approved, your changes will be reflected in the live transliteration.'
+        title: '2. Add a missing transliteration',
+        text: <<~HTML
+          <p>The word has no transliteration. Type it in the word's field.</p>
+          #{word_translation_diagram(
+            [['Now', [['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'missing', :missing]]],
+             ['After', [['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'rabbi', :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Two words in one field',
+        text: <<~HTML
+          <p>One word has the transliteration of the word next to it too, and that word is empty or shifted by one.</p>
+          #{word_translation_diagram(
+            [['Now', [['ٱلۡحَمۡدُ', "al-ḥamdu <span class='text-red-600'>lillahi</span>", :wrong], ['لِلَّهِ', 'missing', :missing]]],
+             ['After', [['ٱلۡحَمۡدُ', 'al-ḥamdu', :fixed], ['لِلَّهِ', 'lillahi', :fixed]]]]
+          )}
+          <p class="mt-2">Give each word only its own sound, and fix the words after it in the same edit if they moved too.</p>
+        HTML
+      },
+      {
+        type: 'info',
+        text: "Only the words you changed are sent for review. Leaving a field empty doesn't remove a transliteration."
       }
     ]
   end

@@ -8,7 +8,9 @@
   <%= turbo_stream.remove dom_id(@phrase_verse, :review) %>
 <% else %>
   <%= turbo_stream.replace dom_id(@phrase_verse, :review) do %>
-    <%= render 'phrase_ayah_row', phrase_verse: @phrase_verse, current_verse_id: params[:current_verse_id].to_i %>
+    <%= render 'phrase_ayah_row',
+               phrase_verse: @phrase_verse,
+               current_verse_id: params[:current_verse_id].to_i %>
   <% end %>
 <% end %>
 

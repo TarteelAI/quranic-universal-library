@@ -1654,33 +1654,69 @@ module ToolDocsHelper
     [
       "Quran corpus tool",
       {
-        text: "This tool is used to proofread and fix the Quran corpus data, the concordance label, part of speech (POS), grammar and morphology tagging for every word of the Quran."
+        text: "This tool is used to review the Quran corpus: the morphology and grammar of every word. Browse an ayah, open a word and check its segments. To fix something, open the segment in the admin panel (needs access) or report it."
       },
       {
-        type: 'step',
-        title: 'Step 1: Find the ayah',
-        text: "Use the filters to narrow down by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> number. The table lists the ayahs; click <code>Show</code> to open an ayah for tagging."
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Review the words of the ayah',
-        text: "The ayah page lists every word with its current corpus data. Use the <code>Previous ayah</code> and <code>Next ayah</code> buttons to move between ayahs. Click a word to open its detail page."
-      },
-      {
-        type: 'step',
-        title: 'Step 3: Fix word level data',
-        text: "On the word detail page you can review and correct the word's morphology and segments. Use <code>Previous Word</code> and <code>Next Word</code> to move between words of the ayah, and open a segment to edit its segment-level data."
-      },
-      {
-        type: 'step',
-        title: 'Step 4: Fix segment level data',
-        text: "Many words split into multiple morphological segments (prefix, stem, suffix). Open a segment to correct its part of speech and grammar tagging, then save your changes."
+        type: 'heading',
+        text: 'Words and segments'
       },
       {
         type: 'info',
-        text: "You need editing access to save corpus changes. If you don't have access, open the tool and click <code>Request Access</code>."
+        text: <<~HTML
+          <p>A word is split into <strong>segments</strong>: prefixes, the stem, and suffixes. Each segment has its own part of speech (POS), tags, root and lemma.</p>
+          #{corpus_segments_diagram('بِسۡمِ', '1:1:1', [['بِ', 'P', 'preposition', 'P, PREF', '', 'ب'], ['سْمِ', 'N', 'noun', 'M, GEN', 'سمو', 'اسْم']])}
+          #{corpus_segments_diagram('ٱلۡحَمۡدُ', '1:2:1', [['ٱلْ', 'P', 'determiner', 'DET, PREF', '', 'ال'], ['حَمْدُ', 'N', 'noun', 'M, NOM', 'حمد', 'حَمْد']])}
+          <p class="mt-2">Tags describe the segment: <code>PREF</code> prefix, <code>DET</code> the definite article, <code>M</code> masculine, <code>NOM</code>/<code>GEN</code> case, <code>IMPF</code> imperfect verb, <code>VF:1</code> verb form I. A word with one segment, like <span class="qpc-hafs">نَعۡبُدُ</span> (1:5), has the whole word as its stem.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: 'Find an ayah',
+        text: "Filter by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> and click <code>Show</code>. The ayah page lists its words. <code>Previous ayah</code> and <code>Next ayah</code> move between ayahs."
+      },
+      {
+        type: 'step',
+        title: 'Check a word',
+        text: "Click a word to open it. The top shows the word's root, lemma and stem, each with how many words share it, then its case, grammar pattern and grammar concepts. Below are its segments and verb forms. <code>Previous Word</code> and <code>Next Word</code> move through the ayah."
+      },
+      {
+        type: 'step',
+        title: 'Check a segment',
+        text: "Click <code>Show</code> on a segment for its part of speech, tags, verb form and grammar description in Arabic and English."
+      },
+      {
+        type: 'heading',
+        text: 'What to look for'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5">
+            <li><strong>Wrong split:</strong> a prefix or suffix not separated, or a stem split in two.</li>
+            <li><strong>Wrong part of speech:</strong> a particle tagged as a noun, a noun as a verb.</li>
+            <li><strong>Wrong root or lemma:</strong> a rare root or lemma (the count next to it is small) is worth a second look.</li>
+            <li><strong>Wrong tags:</strong> case, gender, number or verb form that doesn't match the word.</li>
+          </ul>
+          <p class="mt-2">Click a segment's position number to open it in the admin panel and fix it. Without access, <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose' target='_blank'>open an issue</a> with the word location and what's wrong.</p>
+        HTML
       }
     ]
+  end
+
+  # A word and its corpus segments.
+  # segments: [[text, pos key, pos name, tags, root, lemma], ...]
+  def corpus_segments_diagram(word, location, segments)
+    cells = segments.map do |text, pos, name, tags, root, lemma|
+      "<div class='rounded border border-gray-300 bg-white p-2 text-xs text-gray-700 min-w-[7rem]'>" \
+        "<div class='qpc-hafs text-2xl text-center text-gray-900 leading-loose' dir='rtl'>#{text}</div>" \
+        "<div><b>#{pos}</b> #{name}</div><div class='text-gray-500'>#{tags}</div>" \
+        "#{"<div>root <span class='qpc-hafs !text-base'>#{root}</span></div>" if root.present?}" \
+        "<div>lemma <span class='qpc-hafs !text-base'>#{lemma}</span></div></div>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 flex flex-wrap items-center gap-3'>" \
+      "<div class='text-center px-2'><div class='qpc-hafs text-3xl leading-loose' dir='rtl'>#{word}</div><div class='text-xs text-gray-400'>#{location}</div></div>" \
+      "<div class='text-gray-400'>=</div><div class='flex flex-row-reverse gap-2'>#{cells}</div></div>"
   end
 
   def compare_audio_help

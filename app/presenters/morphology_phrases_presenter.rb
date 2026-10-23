@@ -99,6 +99,16 @@ class MorphologyPhrasesPresenter < ApplicationPresenter
     end
   end
 
+  # How a row's words differ from the phrase, see Mutashabihat::PhraseDiff
+  def ayah_diff(phrase_verse)
+    @phrase_diff ||= Mutashabihat::PhraseDiff.new(
+      Word.where(verse_id: phrase.source_verse_id, position: phrase.word_position_from..phrase.word_position_to).to_a
+    )
+
+    words = phrase_verse.verse.words.select { |w| phrase_verse.highlight_word?(w) }
+    @phrase_diff.compare(words)
+  end
+
   def meta_keywords
     'Mutashabihat ul Quran, similar Quran verses, Quran phrase matching, mutashabihat builder, contribute Quran data, Quran morphology tool, explore repeated Ayah'
   end

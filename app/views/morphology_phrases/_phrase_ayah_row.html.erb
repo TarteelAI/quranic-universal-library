@@ -4,6 +4,7 @@
   current = verse.id == current_verse_id
   action_url = review_ayah_morphology_phrase_path(phrase.id)
   button = 'w-7 h-7 inline-flex items-center justify-center rounded text-xs transition-colors'
+  diff = @presenter.ayah_diff(phrase_verse)
 %>
 
 <div id="<%= dom_id(phrase_verse, :review) %>" class="flex flex-wrap items-center gap-3 px-3 py-2 <%= 'bg-blue-50/50' if current %>">
@@ -29,8 +30,25 @@
   </div>
 
   <div class="quran-text qpc-hafs text-lg text-right flex-1 min-w-[16rem]" dir="rtl">
-    <% verse.words.reject(&:ayah_mark?).sort_by(&:position).each do |word| %>
-      <span class="<%= phrase_verse.highlight_word?(word) ? 'font-medium' : 'text-gray-300' %>" <%= "style=\"color: #{phrase.get_color}\"".html_safe if phrase_verse.highlight_word?(word) %>><%= word.text_qpc_hafs %></span>
+    <% words = verse.words.reject(&:ayah_mark?).sort_by(&:position) %>
+    <% last_in_range = words.select { |w| phrase_verse.highlight_word?(w) }.last %>
+    <% words.each do |word| %>
+      <% if phrase_verse.highlight_word?(word) %>
+        <% diff.omitted_before(word.position).each do |text| %>
+          <span class="diff-omitted" title="Missing here: in the phrase, not in this ayah"><%= text %></span>
+        <% end %>
+        <% kind = diff.kind_at(word.position) %>
+        <span class="font-medium <%= "diff-#{kind}" if kind %>" style="color: <%= phrase.get_color %>"
+              <%= "title=\"Instead of #{diff.changed_from[word.position]}\"".html_safe if kind == :changed %>
+              <%= 'title="Added: in this ayah, not in the phrase"'.html_safe if kind == :added %>><%= word.text_qpc_hafs %></span>
+        <% if word == last_in_range %>
+          <% diff.omitted_before(nil).each do |text| %>
+            <span class="diff-omitted" title="Missing here: in the phrase, not in this ayah"><%= text %></span>
+          <% end %>
+        <% end %>
+      <% else %>
+        <span class="text-gray-300"><%= word.text_qpc_hafs %></span>
+      <% end %>
     <% end %>
   </div>
 

@@ -2,8 +2,10 @@ import {Controller} from "@hotwired/stimulus"
 
 // Ayah proofreading page: hovering a phrase card highlights its words in
 // the ayah, and hovering a word highlights the phrases it belongs to.
+// "Show differences" colours words that differ from the phrase in its
+// ayahs, and is remembered for next time.
 export default class extends Controller {
-  static targets = ["sentinel", "sticky"]
+  static targets = ["sentinel", "sticky", "diffToggle"]
 
   // The ayah text pins below the 75px site header. Once pinned it gets a
   // smaller font and a capped height (see .ayah-sticky.is-stuck).
@@ -11,6 +13,28 @@ export default class extends Controller {
     this.onScroll = this.updateStuck.bind(this)
     window.addEventListener("scroll", this.onScroll, {passive: true})
     this.updateStuck()
+
+    if (this.hasDiffToggleTarget) {
+      this.diffToggleTarget.checked = this.storedDiff()
+      this.toggleDiff()
+    }
+  }
+
+  toggleDiff() {
+    const show = this.diffToggleTarget.checked
+    this.element.classList.toggle("show-diff", show)
+
+    try {
+      localStorage.setItem("mutashabihat-show-diff", show ? "1" : "0")
+    } catch (e) {}
+  }
+
+  storedDiff() {
+    try {
+      return localStorage.getItem("mutashabihat-show-diff") === "1"
+    } catch (e) {
+      return false
+    }
   }
 
   disconnect() {

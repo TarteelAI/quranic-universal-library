@@ -140,7 +140,10 @@
                         html: { autocomplete: 'off', class: 'rounded-lg border border-gray-200 p-4 flex flex-col gap-4' } do |form| %>
             <%= render 'shared/form_errors', object: @word if @word.errors.any? %>
 
-            <%= render 'case_reason_field', form: form, word: @word, label: 'Case reason' %>
+            <%= render 'case_reason_field',
+                       form: form,
+                       word: @word,
+                       label: 'Case reason' %>
 
             <div>
               <%= form.label :description, 'Description', class: label_css %>

@@ -62,7 +62,12 @@
   </div>
 </div>
 
-<%= render 'resources/previews/ayah_topics/search_box', resource: resource, search_query: @search_query, searched_verse: @searched_verse, is_verse_search: @is_verse_search, total_topics: @pagy.count %>
+<%= render 'resources/previews/ayah_topics/search_box',
+           resource: resource,
+           search_query: @search_query,
+           searched_verse: @searched_verse,
+           is_verse_search: @is_verse_search,
+           total_topics: @pagy.count %>
 
 <!-- Topics Table -->
 <div class="overflow-x-auto mb-6">

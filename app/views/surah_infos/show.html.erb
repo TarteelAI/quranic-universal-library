@@ -2,50 +2,75 @@
   actions = []
   resource = @presenter.resource
   resource_content = resource.resource_content
+  language = resource.language
+  dir = language&.direction == 'rtl' ? 'rtl' : 'ltr'
+  previous_info = resource.previous_surah_info if resource.chapter_id > 1
+  next_info = resource.next_surah_info if resource.chapter_id < 114
+  pending_suggestions = @presenter.pending_suggestions_count
 
   if @access
     actions << link_to('Edit', edit_surah_info_path(resource.id), class: 'btn btn-success')
   end
 
-  if resource.chapter_id > 1 && (previous_info = resource.previous_surah_info)
+  if previous_info
     actions << link_to('Previous Surah', surah_info_path(previous_info.id), class: 'btn btn-dark')
   end
 
-  if resource.chapter_id < 114 && (next_info = resource.next_surah_info)
+  if next_info
     actions << link_to('Next Surah', surah_info_path(next_info.id), class: 'btn btn-dark')
   end
-
 %>
 
 <%= render 'tools/header',
            name: 'Surah Information',
-           title: "#{resource_content.name} For Surah #{resource.chapter.name_simple}",
+           title: "#{h resource_content.name}<span class='block mt-2 text-lg md:text-xl text-gray-500'>Surah #{resource.chapter_id} · #{h resource.chapter.name_simple}</span>",
            key: 'surah_info',
            actions: actions,
            resource: resource_content,
            breadcrumb_parents: [{ label: 'Surah information', path: surah_infos_path(resource_id: resource_content.id) }]
 %>
 
-<div class="page-wrapper container max-w-7xl mx-auto px-4">
-  <h2 class="text-2xl">Short text</h2>
-
-  <div class="page-section mb-4">
-    <div lang=<%= resource.language.iso_code %>>
-      <%= resource.short_text.presence || 'N/A' %>
-    </div>
+<div class="page-wrapper container max-w-7xl mx-auto px-4 pb-10">
+  <div class="flex flex-wrap items-center gap-2 mb-6 text-sm">
+    <span class="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"><%= language&.name %></span>
+    <%= link_to 'All surahs', surah_infos_path(resource_id: resource_content.id), class: 'px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 no-underline' %>
+    <% if pending_suggestions.positive? %>
+      <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800"><%= pluralize(pending_suggestions, 'suggestion') %> waiting for review</span>
+    <% end %>
   </div>
 
-  <h2 class="text-2xl">Full Surah info</h2>
-  <div class="page-section">
-    <div lang=<%= resource.language.iso_code %>>
+  <section class="rounded-xl border border-gray-200 bg-white shadow-sm mb-6">
+    <h2 class="px-6 py-3 border-b border-gray-100 text-sm font-semibold uppercase tracking-wide text-gray-500">Short text</h2>
+    <div class="px-6 py-5 surah-info-text" lang="<%= language&.iso_code %>" dir="<%= dir %>">
+      <% if resource.short_text.present? %>
+        <p><%= resource.short_text %></p>
+      <% else %>
+        <p class="text-gray-400 italic">No short text yet</p>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <h2 class="px-6 py-3 border-b border-gray-100 text-sm font-semibold uppercase tracking-wide text-gray-500">Full Surah info</h2>
+    <div class="px-6 py-6 surah-info-text" lang="<%= language&.iso_code %>" dir="<%= dir %>">
       <%= safe_html resource.text %>
     </div>
-  </div>
+  </section>
 
-  <% if (pending_suggestions = @presenter.pending_suggestions_count).positive? %>
-    <p class="mt-4 text-sm text-gray-600">
-      <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
-    </p>
+  <% if previous_info || next_info %>
+    <nav class="flex justify-between gap-3 mt-6 text-sm">
+      <% if previous_info %>
+        <%= link_to surah_info_path(previous_info.id), class: 'px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 no-underline' do %>
+          ← <%= previous_info.chapter_id %>. <%= previous_info.chapter.name_simple %>
+        <% end %>
+      <% else %>
+        <span></span>
+      <% end %>
+      <% if next_info %>
+        <%= link_to surah_info_path(next_info.id), class: 'px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 no-underline' do %>
+          <%= next_info.chapter_id %>. <%= next_info.chapter.name_simple %> →
+        <% end %>
+      <% end %>
+    </nav>
   <% end %>
 </div>
-

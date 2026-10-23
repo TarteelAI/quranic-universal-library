@@ -1,0 +1,77 @@
+// Reading styles for surah info text, it's HTML from the rich text editor
+.surah-info-text {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #1f2937;
+
+  p {
+    margin: 0 0 1em;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    line-height: 1.35;
+    color: #111827;
+    margin: 1.6em 0 0.6em;
+  }
+
+  h1, h2 {
+    font-size: 1.35rem;
+    padding-bottom: 0.35em;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  ul, ol {
+    margin: 0 0 1em;
+    padding-inline-start: 1.5em;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  li {
+    margin-bottom: 0.35em;
+  }
+
+  blockquote {
+    margin: 0 0 1em;
+    padding-inline-start: 1em;
+    border-inline-start: 3px solid #d1d5db;
+    color: #4b5563;
+  }
+
+  a {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+
+  &[dir=rtl] {
+    font-size: 1.25rem;
+    line-height: 2.1;
+
+    h1, h2 {
+      font-size: 1.6rem;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+    }
+  }
+}

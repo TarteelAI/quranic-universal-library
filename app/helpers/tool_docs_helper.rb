@@ -303,7 +303,7 @@ module ToolDocsHelper
         text: <<~HTML
           <p>Every Arabic word has its own short translation.</p>
           #{word_translation_diagram(
-            [['Words', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', '(of) the worlds', :same]]]]
+            [[nil, [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', '(of) the worlds', :same]]]]
           )}
           <p class="mt-2">Some words only make sense together. Those get a <strong>group translation</strong> on top of their own, see <strong>4</strong> below.</p>
         HTML
@@ -397,12 +397,12 @@ module ToolDocsHelper
           "<div class='qpc-hafs text-xl leading-loose text-gray-900' dir='rtl'>#{arabic}</div>" \
           "<div class='text-xs leading-snug text-gray-800' dir='ltr'>#{text}</div></div>"
       end.join
-      row = "<div class='text-xs font-semibold text-gray-900 pt-2' dir='ltr'>#{label}</div>#{cards}"
+      row = label ? "<div class='text-xs font-semibold text-gray-900 mt-1' dir='ltr' style='grid-column: 1 / -1'>#{label}</div>" : ''
+      row += cards
 
       if group
         from, to, text = group
-        row += "<div></div>" \
-               "<div class='rounded bg-blue-600 text-white text-xs text-center py-1' dir='ltr' style='grid-column: #{from + 2} / #{to + 3}'>group: #{text}</div>"
+        row += "<div class='rounded bg-blue-600 text-white text-xs text-center py-1' dir='ltr' style='grid-column: #{from + 1} / #{to + 2}'>group: #{text}</div>"
       end
       row
     end.join
@@ -413,7 +413,7 @@ module ToolDocsHelper
     end.join
 
     "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
-      "<div class='grid gap-1 #{'min-w-[28rem]' if columns > 2}' dir='rtl' style='grid-template-columns: 4.5rem repeat(#{columns}, minmax(0, 1fr)); max-width: #{8 + columns * 9}rem; margin-left: auto'>#{body}</div>" \
+      "<div class='grid gap-1 #{'min-w-[28rem]' if columns > 2}' dir='rtl' style='grid-template-columns: repeat(#{columns}, minmax(0, 1fr)); max-width: #{columns * 9}rem; margin-left: auto'>#{body}</div>" \
       "#{"<p class='text-xs text-gray-500 mt-2 flex flex-wrap gap-x-3'>#{keys}</p>" if keys.present?}</div>"
   end
 
@@ -624,21 +624,28 @@ module ToolDocsHelper
     [
       "Word by Word Transliteration",
       {
-        text: "This tool is used to proofread and fix the transliteration of each word: how the Arabic word sounds, written in Latin letters. Find the ayah, click <code>Edit</code>, fix the words and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+        text: "This tool is used to proofread word transliterations and propose fixes. A reviewer approves each change before it goes live."
       },
       {
         type: 'info',
         text: <<~HTML
           <p>Every Arabic word has its own transliteration.</p>
           #{word_translation_diagram(
-            [['Words', [['ٱلۡحَمۡدُ', 'al-ḥamdu', :same], ['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', 'l-ʿālamīna', :same]]]]
+            [[nil, [['ٱلۡحَمۡدُ', 'al-ḥamdu', :same], ['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', 'l-ʿālamīna', :same]]]]
           )}
         HTML
       },
       {
         type: 'step',
-        title: 'Find an ayah',
-        text: "Select the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters. Tick <code>Only ayahs with missing words</code> to list ayahs that still have words without a transliteration. Click <code>Show</code> to open the ayah, missing words are highlighted. Click <code>Edit</code> to fix it, each word has its own field."
+        title: 'Steps',
+        text: <<~HTML
+          <ol class="list-decimal ps-5 space-y-1">
+            <li>Select the transliteration you want to proofread.</li>
+            <li>Choose a <code>Surah</code> and <code>Ayah</code> and click <code>Filter</code>. Check <code>Only ayahs with missing words</code> to see only ayahs that need work.</li>
+            <li>Click <code>Show</code> to review the ayah, missing words are highlighted.</li>
+            <li>Click <code>Edit</code>, correct the words and click <code>Propose changes</code>.</li>
+          </ol>
+        HTML
       },
       {
         type: 'heading',

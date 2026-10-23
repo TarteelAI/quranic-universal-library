@@ -1,36 +1,36 @@
-<div
-  class="px-4 py-3 rounded mb-4 bg-[#d3d3d4] border text-black"
-  role="alert"
-  id="tajweed-preview"
->
-  <div>
-    <b>Text Uthmani tajweed(ReciteQuran):</b>
-    <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
-      <%= safe_html @presenter.word.text_uthmani_tajweed %>
+<%
+  word = @presenter.word
+  card = 'border border-gray-200 rounded-lg p-3 flex flex-col'
+  label = 'text-xs font-medium text-gray-500 mb-2'
+  body = 'flex-1 flex items-center justify-center min-h-[90px]'
+%>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="tajweed-preview">
+  <div class="<%= card %>">
+    <div class="<%= label %>">Uthmani tajweed (ReciteQuran)</div>
+    <div class="<%= body %> qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
+      <%= safe_html word.text_uthmani_tajweed %>
     </div>
   </div>
 
-  <div>
-    <b>Text QPC tajweed(Dar al Maarifah):</b>
-    <div class="qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
-      <%= safe_html @presenter.word.text_qpc_hafs_tajweed %>
+  <div class="<%= card %>">
+    <div class="<%= label %>">QPC tajweed (Dar al Maarifah)</div>
+    <div class="<%= body %> qpc-hafs" style="font-size: 40px" data-controller="tajweed-highlight">
+      <%= safe_html word.text_qpc_hafs_tajweed %>
     </div>
   </div>
 
-  <div>
-    <b>Quran academy tajweed:</b>
-    <div class="quran-text">
-      <%= image_tag @presenter.word.qa_tajweed_image_url %>
+  <div class="<%= card %>">
+    <div class="<%= label %>">Quran Academy tajweed</div>
+    <div class="<%= body %>">
+      <%= image_tag word.qa_tajweed_image_url, class: 'max-h-[80px]' %>
     </div>
   </div>
 
-  <div>
-    <b>V4 tajweed:</b>
-    <div class="p<%= @presenter.word.v2_page %>-v4-tajweed quran-text"
-         data-controller="tajweed-font">
-      <span style="font-size: 40px">
-        <%= @presenter.word.code_v2 %>
-      </span>
+  <div class="<%= card %> sm:col-span-2 lg:col-span-3">
+    <div class="<%= label %>">V4 tajweed</div>
+    <div class="flex flex-col items-center gap-3 p<%= word.v2_page %>-v4-tajweed quran-text" data-controller="tajweed-font">
+      <span style="font-size: 40px"><%= word.code_v2 %></span>
     </div>
   </div>
 </div>

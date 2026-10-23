@@ -1,7 +1,10 @@
 <%
   #TODO: use presenter, we're initialization lot of variables in the views.
   tajweed = TajweedRules.new('new')
-  actions = []
+  actions = [
+    button_tag('Tajweed palette', type: 'button', class: 'btn btn-outline h-10', data: { controller: 'offcanvas', action: 'click->offcanvas#toggle', offcanvas_target_value: '#tajweed-rules-sidebar' }, aria: { controls: 'tajweed-rules-sidebar' }),
+    button_tag('Tajweed page', type: 'button', class: 'btn btn-outline h-10', data: { controller: 'offcanvas', action: 'click->offcanvas#toggle', offcanvas_target_value: '#tajweed-page-sidebar' }, aria: { controls: 'tajweed-page-sidebar' })
+  ]
   next_word = @presenter.word.next_word
   previous_word = @presenter.word.previous_word
 
@@ -32,36 +35,27 @@
   </div>
 
   <div class="page-section mt-4">
-    <h2 class="sticky bg-white border border-gray-300 px-2 py-3 flex items-center justify-between" style="z-index: 40; top:5px">
-      <span>
-        Letters with tajweed rules
-      </span>
+    <div class="sticky top-[5px] z-40 mb-4 flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
+      <div>
+        <h2 class="text-lg font-semibold">Rules preview</h2>
+        <p class="text-xs text-gray-500">The word with its current rules, updates as you save.</p>
+      </div>
 
-      <div class="flex">
-        <button class="btn btn-primary me-2" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#tajweed-rules-sidebar" aria-controls="tajweed-rules-sidebar">
-          Tajweed Palette
-        </button>
-
-        <button class="btn btn-primary me-2" type="button" data-controller="offcanvas" data-action="click->offcanvas#toggle" data-offcanvas-target-value="#tajweed-page-sidebar" aria-controls="tajweed-page-sidebar">
-           Tajweed page
-        </button>
-
-        <div class="preview-<%= @presenter.tajweed_word.location.gsub(':', '-') %>">
-          <div class="qpc-hafs"
-               data-controller="tajweed-highlight">
-            <%= safe_html @presenter.tajweed_word.text %>
-          </div>
+      <div class="preview-<%= @presenter.tajweed_word.location.gsub(':', '-') %>">
+        <div class="qpc-hafs tajweed-new" style="font-size: 40px"
+             data-controller="tajweed-highlight">
+          <%= safe_html @presenter.tajweed_word.text %>
         </div>
       </div>
-    </h2>
+    </div>
 
     <table class="w-full hover:bg-gray-50">
       <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
       <tr>
-        <th>Index</th>
-        <th>Letter</th>
-        <th>Rule</th>
-        <th>Select rule</th>
+        <th class="text-left px-2">Index</th>
+        <th class="text-left px-2">Letter</th>
+        <th class="text-left px-2">Rule</th>
+        <th class="text-left px-2">Select rule</th>
       </tr>
       </thead>
 

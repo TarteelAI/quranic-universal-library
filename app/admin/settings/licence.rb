@@ -114,6 +114,8 @@ ActiveAdmin.register Licence do
   end
 
   member_action :add_resources, method: %i[get post] do
+    authorize! :update, resource
+
     if request.post?
       ids = Array(params[:resource_content_ids]).reject(&:blank?).map(&:to_i)
       resource.add_resource_contents(ids)
@@ -142,6 +144,7 @@ ActiveAdmin.register Licence do
   end
 
   member_action :remove_resource, method: :delete do
+    authorize! :update, resource
     resource.remove_resource_content(params[:resource_content_id].to_i)
     redirect_to [:cms, resource], notice: 'Resource removed from this licence.'
   end

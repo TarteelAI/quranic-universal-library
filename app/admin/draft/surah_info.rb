@@ -54,15 +54,24 @@ ActiveAdmin.register Draft::SurahInfo do
 
   index do
     id_column
-    column :chapter do |draft|
-      link_to(draft.chapter.name_simple, [:cms, draft.chapter]) if draft.chapter
+    column :chapter, sortable: :chapter_id do |draft|
+      link_to("#{draft.chapter_id}. #{draft.chapter.name_simple}", [:cms, draft.chapter]) if draft.chapter
     end
     column :resource do |draft|
       link_to(draft.resource_content.name, [:cms, draft.resource_content]) if draft.resource_content
     end
-    column :text_matched
-    column :need_review
-    column :imported
+    column :changed do |draft|
+      parts = []
+      parts << 'short text' if draft.short_text_edited?
+      parts << 'text' if draft.text_edited?
+      parts.any? ? parts.join(', ') : span('no change', class: 'status_tag')
+    end
+    column :status do |draft|
+      status_tag draft.status, class: { 'imported' => 'yes', 'approved' => 'yes', 'needs review' => 'no' }[draft.status]
+    end
+    column :comment do |draft|
+      draft.comment.to_s.truncate(80)
+    end
     column :user
     column :created_at
 
@@ -70,39 +79,78 @@ ActiveAdmin.register Draft::SurahInfo do
   end
 
   show do
-    language_name = resource.resource_content&.language_name.to_s.downcase
+    language = resource.resource_content&.language
+    dir = language&.direction == 'rtl' ? 'rtl' : 'ltr'
     diff = lambda do |from, to|
-      Diffy::Diff.new(from.to_s, to.to_s, include_plus_and_minus_in_html: true).to_s(:html).html_safe
+      Diffy::Diff.new("#{from}\n", "#{to}\n", include_plus_and_minus_in_html: true).to_s(:html).html_safe
     end
 
-    attributes_table do
-      row :id
-      row :resource_content
-      row :chapter
-      row :current_short_text, class: language_name
-      row :draft_short_text, class: language_name
-      row 'Short text diff' do
-        diff.call(resource.current_short_text, resource.draft_short_text)
+    attributes_table title: 'Suggestion' do
+      row :chapter do
+        link_to("#{resource.chapter_id}. #{resource.chapter.name_simple}", [:cms, resource.chapter])
       end
-      row :current_text, class: language_name do
-        if resource.current_text.present?
-          safe_html resource.current_text
-        else
-          span 'New surah info, this surah has none yet', class: 'status_tag no'
+      row :resource_content
+      row :user
+      row :comment do
+        resource.comment.presence || span('No comment', class: 'status_tag')
+      end
+      row :status do
+        status_tag resource.status, class: resource.need_review? && !resource.imported? ? 'no' : 'yes'
+      end
+      row :original do
+        info = resource.original_surah_info
+        info ? link_to("Surah info ##{info.id}", [:cms, info]) : span('New, this surah has no info yet', class: 'status_tag no')
+      end
+      row :created_at
+    end
+
+    panel 'Short text' do
+      if resource.short_text_edited?
+        div diff.call(resource.current_short_text, resource.draft_short_text), dir: dir
+      else
+        para { span 'Not changed', class: 'status_tag' }
+        div resource.draft_short_text, class: 'surah-info-text', dir: dir
+      end
+    end
+
+    panel 'Text changes' do
+      current_lines = Draft::SurahInfo.text_lines(resource.current_text)
+      draft_lines = Draft::SurahInfo.text_lines(resource.draft_text)
+
+      if current_lines != draft_lines
+        para 'Changed paragraphs, as plain text. Removed lines are red, added lines green.'
+        div diff.call(current_lines, draft_lines), dir: dir
+      elsif resource.text_edited?
+        para 'Only the formatting changed (tags or styles), the words are the same. Compare the two texts below.'
+      else
+        para { span 'Not changed', class: 'status_tag' }
+      end
+    end
+
+    columns do
+      column do
+        panel 'Current text' do
+          div safe_html(resource.current_text), class: 'surah-info-text', dir: dir, lang: language&.iso_code
         end
       end
-      row :draft_text, class: language_name do
-        safe_html resource.draft_text
+      column do
+        panel 'Suggested text' do
+          div safe_html(resource.draft_text), class: 'surah-info-text', dir: dir, lang: language&.iso_code
+        end
       end
-      row 'Text diff' do
-        diff.call(resource.current_text, resource.draft_text)
+    end
+
+    others = Draft::SurahInfo.where(resource_content_id: resource.resource_content_id, chapter_id: resource.chapter_id).where.not(id: resource.id).order(id: :desc)
+    if others.any?
+      panel 'Other suggestions for this surah' do
+        table_for others do
+          column(:id) { |d| link_to d.id, cms_draft_surah_info_path(d) }
+          column(:status) { |d| d.status }
+          column :user
+          column(:comment) { |d| d.comment.to_s.truncate(80) }
+          column :created_at
+        end
       end
-      row :text_matched
-      row :need_review
-      row :imported
-      row :user
-      row :created_at
-      row :updated_at
     end
   end
 

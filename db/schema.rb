@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -327,6 +327,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
     t.jsonb "meta_data", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "comment"
     t.index ["chapter_id"], name: "index_draft_surah_infos_on_chapter_id"
     t.index ["imported"], name: "index_draft_surah_infos_on_imported"
     t.index ["need_review"], name: "index_draft_surah_infos_on_need_review"
@@ -357,6 +358,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
     t.boolean "reviewed", default: false
     t.integer "user_id"
     t.jsonb "meta_data", default: {}
+    t.text "comment"
     t.index ["need_review"], name: "index_draft_tafsirs_on_need_review"
     t.index ["tafsir_id"], name: "index_draft_tafsirs_on_tafsir_id"
     t.index ["text_matched"], name: "index_draft_tafsirs_on_text_matched"
@@ -379,6 +381,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
     t.integer "footnotes_count", default: 0
     t.jsonb "meta_data", default: {}
     t.integer "current_footnotes_count", default: 0
+    t.text "comment"
     t.index ["footnotes_count"], name: "index_draft_translations_on_footnotes_count"
     t.index ["need_review"], name: "index_draft_translations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_translations_on_resource_content_id"
@@ -399,6 +402,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
     t.jsonb "meta_data", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "comment"
     t.index ["imported"], name: "index_draft_transliterations_on_imported"
     t.index ["need_review"], name: "index_draft_transliterations_on_need_review"
     t.index ["resource_content_id"], name: "index_draft_transliterations_on_resource_content_id"
@@ -455,6 +459,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_23_100000) do
     t.jsonb "meta_data", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "comment"
     t.index ["imported"], name: "index_draft_word_transliterations_on_imported"
     t.index ["location"], name: "index_draft_word_transliterations_on_location"
     t.index ["need_review"], name: "index_draft_word_transliterations_on_need_review"

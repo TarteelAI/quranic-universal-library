@@ -67,7 +67,8 @@ module Draft
           need_review: true,
           user: user
         )
-        draft.meta_data = { 'comment' => comment, 'removed-foot-note-ids' => removed_ids }.compact_blank
+        draft.comment = comment
+        draft.meta_data = { 'removed-foot-note-ids' => removed_ids }.compact_blank
         draft.draft_text = text
         draft.save!(validate: false)
 

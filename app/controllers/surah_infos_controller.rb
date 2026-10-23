@@ -21,7 +21,7 @@ class SurahInfosController < CommunityController
   protected
 
   def info_params
-    params.require(:draft_surah_info).permit(:draft_short_text, :draft_text)
+    params.require(:draft_surah_info).permit(:draft_short_text, :draft_text, :comment)
   end
 
   def load_resource_access

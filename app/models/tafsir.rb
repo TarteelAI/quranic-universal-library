@@ -80,6 +80,7 @@ class Tafsir < QuranApiRecord
     draft_tafsir.end_verse_id = grouping_ayah.last.id
     draft_tafsir.group_tafsir_id = grouping_ayah.first.id
     draft_tafsir.need_review = true
+    draft_tafsir.comment = params[:comment].to_s.strip.presence
     draft_tafsir.user = user
     draft_tafsir.save(validate: false)
     draft_tafsir

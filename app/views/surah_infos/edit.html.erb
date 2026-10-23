@@ -32,6 +32,9 @@
         <%= form.text_area :draft_text, class: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500', id: 'editor', required: true, autofocus: true, data: { controller: 'tinymce' } %>
       </div>
 
+      <%= render 'shared/draft_comment_field', form: form, value: @presenter.draft.comment,
+                 placeholder: 'What was wrong and how you fixed it. For example: fixed typos in the Theme section.' %>
+
       <div class="mb-4 flex justify-end mt-3 gap-3">
         <%= link_to 'Cancel', surah_info_path(resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>
         <%= form.submit "Save suggestion", class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>

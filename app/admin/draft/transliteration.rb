@@ -71,6 +71,10 @@ ActiveAdmin.register Draft::Transliteration do
       safe_html draft.draft_text.to_s.truncate(80)
     end
 
+    column :comment do |draft|
+      draft.comment.to_s.truncate(60)
+    end
+
     actions
   end
 
@@ -101,6 +105,7 @@ ActiveAdmin.register Draft::Transliteration do
       row :need_review
       row :imported
       row :user
+      row :comment
       row :meta_data do
         if resource.meta_data.present?
           pre code(JSON.pretty_generate(resource.meta_data))

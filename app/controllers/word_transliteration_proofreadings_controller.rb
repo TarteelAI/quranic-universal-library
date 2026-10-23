@@ -16,7 +16,7 @@ class WordTransliterationProofreadingsController < CommunityController
 
   def update
     verse = @presenter.verse
-    WordTransliteration.save_suggestions(verse, @resource, word_transliteration_params, current_user)
+    WordTransliteration.save_suggestions(verse, @resource, word_transliteration_params, current_user, comment: params[:comment])
 
     redirect_to word_transliteration_proofreading_path(verse.id, resource_id: @resource.id),
                 notice: 'Your suggestions are saved successfully'

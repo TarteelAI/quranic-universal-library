@@ -1685,33 +1685,77 @@ module ToolDocsHelper
     [
       "Quran corpus tool",
       {
-        text: "This tool is used to proofread and fix the Quran corpus data, the concordance label, part of speech (POS), grammar and morphology tagging for every word of the Quran."
+        text: "This tool is used to review the Quran corpus: the morphology and grammar of every word. Browse an ayah, open a word and check its segments. To fix something, edit the segment on its page (needs access) or report it."
+      },
+      {
+        type: 'heading',
+        text: 'Words and segments'
+      },
+      {
+        text: <<~HTML
+          <p>A word is split into <strong>segments</strong>: prefixes, the stem, and suffixes. Each segment has its own part of speech (POS), tags, root and lemma.</p>
+          #{corpus_segments_diagram('بِسۡمِ', '1:1:1', [['بِ', 'P', 'preposition', 'P, PREF', '', 'ب'], ['سْمِ', 'N', 'noun', 'M, GEN', 'سمو', 'اسْم']])}
+          #{corpus_segments_diagram('ٱلۡحَمۡدُ', '1:2:1', [['ٱلْ', 'P', 'determiner', 'DET, PREF', '', 'ال'], ['حَمْدُ', 'N', 'noun', 'M, NOM', 'حمد', 'حَمْد']])}
+          <p class="mt-2">Tags describe the segment: <code>PREF</code> prefix, <code>DET</code> the definite article, <code>M</code> masculine, <code>NOM</code>/<code>GEN</code> case, <code>IMPF</code> imperfect verb, <code>VF:1</code> verb form I. A word with one segment, like <span class="text-qpc-hafs text-lg">نَعۡبُدُ</span> (1:5), has the whole word as its stem.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 1: Find the ayah',
-        text: "Use the filters to narrow down by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> number. The table lists the ayahs; click <code>Show</code> to open an ayah for tagging."
+        title: 'Find an ayah',
+        text: "Filter by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> and click <code>Show</code>. The ayah page lists its words. <code>Previous ayah</code> and <code>Next ayah</code> move between ayahs."
       },
       {
         type: 'step',
-        title: 'Step 2: Review the words of the ayah',
-        text: "The ayah page lists every word with its current corpus data. Use the <code>Previous ayah</code> and <code>Next ayah</code> buttons to move between ayahs. Click a word to open its detail page."
+        title: 'Check a word',
+        text: "Click a word to open it. The top shows the word's root, lemma and stem, each with how many words share it. Below are its segments with their features, then the word's case, case reason, grammar pattern and description. With editing access, set the case reason and description in <code>Edit word</code>. <code>Previous word</code> and <code>Next word</code> move through the ayah."
       },
       {
         type: 'step',
-        title: 'Step 3: Fix word level data',
-        text: "On the word detail page you can review and correct the word's morphology and segments. Use <code>Previous Word</code> and <code>Next Word</code> to move between words of the ayah, and open a segment to edit its segment-level data."
+        title: 'Check a segment',
+        text: "Click a segment to open it. The left side shows its part of speech, grammar features (person, gender, number, case, aspect, mood and more), verb form, root, lemma and grammar description. With editing access, change them in the form on the right and click <code>Save segment</code>. Features are saved back into the segment's tags. Changes go live right away and are tracked."
       },
       {
-        type: 'step',
-        title: 'Step 4: Fix segment level data',
-        text: "Many words split into multiple morphological segments (prefix, stem, suffix). Open a segment to correct its part of speech and grammar tagging, then save your changes."
+        type: 'heading',
+        text: 'What to look for'
       },
       {
         type: 'info',
-        text: "You need editing access to save corpus changes. If you don't have access, open the tool and click <code>Request Access</code>."
+        text: <<~HTML
+          <ul class="list-disc ps-5">
+            <li><strong>Wrong split:</strong> a prefix or suffix not separated, or a stem split in two.</li>
+            <li><strong>Wrong part of speech:</strong> a particle tagged as a noun, a noun as a verb.</li>
+            <li><strong>Wrong root or lemma:</strong> a rare root or lemma (the count next to it is small) is worth a second look.</li>
+            <li><strong>Wrong tags:</strong> case, gender, number or verb form that doesn't match the word.</li>
+          </ul>
+          <p class="mt-2">Open the segment and fix it in the form. Without access, click <code>Request Access</code> or <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose' target='_blank'>open an issue</a> with the word location and what's wrong.</p>
+        HTML
       }
     ]
+  end
+
+  # A word and its corpus segments, in reading order.
+  # segments: [[text, pos key, pos name, tags, root, lemma], ...]
+  def corpus_segments_diagram(word, location, segments)
+    arabic = 'text-qpc-hafs text-xl text-gray-900 text-left'
+    rows = segments.map do |text, pos, name, tags, root, lemma|
+      "<tr class='border-t border-gray-100'>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{text}</td>" \
+        "<td class='px-3 py-1.5'><span class='font-semibold'>#{pos}</span> <span class='text-gray-500'>#{name}</span></td>" \
+        "<td class='px-3 py-1.5'><code>#{tags}</code></td>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{root.presence || '<span class="text-gray-400 text-sm">—</span>'}</td>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{lemma}</td></tr>"
+    end.join
+
+    "<div class='my-3 overflow-x-auto rounded-lg border border-gray-200 bg-white'>" \
+      "<div class='flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200'>" \
+      "<span class='text-xs text-gray-500'>#{location}</span>" \
+      "<span class='text-qpc-hafs text-2xl text-gray-900' dir='rtl'>#{word}</span></div>" \
+      "<table class='w-full table-fixed text-sm text-gray-700'>" \
+      "<thead><tr class='text-left text-xs uppercase tracking-wide text-gray-400'>" \
+      "<th class='px-3 py-1.5 font-medium'>Segment</th><th class='px-3 py-1.5 font-medium'>POS</th>" \
+      "<th class='px-3 py-1.5 font-medium'>Tags</th><th class='px-3 py-1.5 font-medium'>Root</th>" \
+      "<th class='px-3 py-1.5 font-medium'>Lemma</th></tr></thead>" \
+      "<tbody>#{rows}</tbody></table></div>"
   end
 
   def compare_audio_help

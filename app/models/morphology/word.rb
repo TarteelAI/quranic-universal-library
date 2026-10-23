@@ -27,6 +27,9 @@
 #
 
 class Morphology::Word < QuranApiRecord
+  include PaperTrailAttribution
+  has_paper_trail
+
   belongs_to :word, class_name: '::Word', optional: true
   belongs_to :verse
   belongs_to :grammar_pattern, class_name: 'Morphology::GrammarPattern', optional: true
@@ -50,5 +53,18 @@ class Morphology::Word < QuranApiRecord
 
   def position
     word.position
+  end
+
+  # Saves an edit from the corpus tool
+  def save_edit(params, user)
+    self.case_reason = params[:case_reason].to_s.strip.presence
+    self.description = params[:description].to_s.strip.presence
+
+    attribute_versions_to(user) { save }
+  end
+
+  # The case of the word, from the segment that has one (the stem)
+  def segment_case
+    word_segments.map { |segment| segment.tags.features[:case] }.compact.first
   end
 end

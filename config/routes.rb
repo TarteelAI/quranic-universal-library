@@ -184,6 +184,7 @@ Rails.application.routes.draw do
       get :word_detail
       get :segment_detail
       put :update_segment
+      put :update_word
     end
   end
 

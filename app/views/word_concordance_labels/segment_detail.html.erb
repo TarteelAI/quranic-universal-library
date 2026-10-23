@@ -1,7 +1,32 @@
 <%
+  segments = @word.word_segments
   actions = []
-  actions << link_to('Previous Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position - 1), class: 'btn btn-dark')
-  actions << link_to('Next Segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position + 1), class: 'btn btn-dark')
+  if @segment.position > 1
+    actions << link_to('Previous segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position - 1), class: 'btn btn-dark')
+  end
+  if @segment.position < segments.size
+    actions << link_to('Next segment', segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position + 1), class: 'btn btn-dark')
+  end
+
+  label_css = 'block text-sm font-medium text-gray-700 mb-1'
+  input_css = 'w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+  features = @segment.tags.features
+  feature_details = Morphology::SegmentTags::PGN.merge(Morphology::SegmentTags::FEATURES).filter_map do |name, feature|
+    value = features[name] ? feature[:options][features[name]] : feature[:blank]
+    [feature[:label], value] if value
+  end
+  details = [
+    ['Part of speech', "#{@segment.part_of_speech_key} · #{@segment.part_of_speech_name}"],
+    *feature_details,
+    ['Tags', @segment.pos_tags.to_s.split(',').map { |tag| content_tag(:code, tag) }.join(' ').html_safe.presence],
+    ['Verb form', @segment.verb_form && Morphology::WordSegment::VERB_FORMS[@segment.verb_form.to_i - 1]],
+    ['Root', @segment.root_name && content_tag(:span, @segment.root_name, class: 'text-qpc-hafs text-xl')],
+    ['Lemma', @segment.lemma_name && content_tag(:span, @segment.lemma_name, class: 'text-qpc-hafs text-xl')],
+    ['Topic', @segment.topic&.name],
+    ['Grammar (Arabic)', @segment.grammar_term_desc_arabic && content_tag(:span, @segment.grammar_term_desc_arabic, dir: 'rtl')],
+    ['Grammar (English)', @segment.grammar_term_desc_english && safe_html(@segment.grammar_term_desc_english)],
+    ['Case reason (word)', @word.case_reason && content_tag(:span, @word.case_reason, dir: 'rtl')]
+  ]
 %>
 
 <%= render 'tools/header',
@@ -9,83 +34,126 @@
            title: "Segment #{@word.location}:#{@segment.position}",
            key: 'corpus',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Word', path: word_detail_word_concordance_label_path(@verse.id, word: @word.location) }]
+           breadcrumb_parents: [
+             { label: 'Ayah', path: word_concordance_label_path(@verse.id) },
+             { label: 'Word', path: word_detail_word_concordance_label_path(@verse.id, word: @word.location) }
+           ]
 %>
+
+<%= render 'shared/access_message' %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
-    <div class="flex justify-between">
-      <div>
-        <b style="margin-right: 20px">Text: </b>
-        <span class="qpc-hafs" id="ayah_text"><%= @segment.text_uthmani %> </span>
+    <div class="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4 mb-6">
+      <div class="text-sm text-gray-600">
+        Word <%= link_to @word.location, word_detail_word_concordance_label_path(@verse.id, word: @word.location) %>,
+        segment <%= @segment.position %> of <%= segments.size %>
       </div>
 
-      <div>
-        <b style="margin-right: 20px">Root: </b>
-        <span class="qpc-hafs" id="ayah_text">
-            <%= @segment.root_name %>
-         </span>
-      </div>
-
-      <div>
-        <b style="margin-right: 20px">Lemma: </b>
-        <span class="qpc-hafs" id="ayah_text">
-          <%= @segment.lemma_name %>
-         </span>
-      </div>
-
-      <div>
-        <b style="margin-right: 20px">Stem: </b>
+      <div class="flex flex-wrap gap-2" dir="rtl">
+        <% segments.each do |segment| %>
+          <%= link_to segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: @word.location, segment: segment.position),
+                      class: "text-qpc-hafs text-3xl leading-loose px-3 rounded-md border no-underline #{segment.id == @segment.id ? 'border-blue-500 bg-blue-600 text-white' : 'border-blue-200 bg-white text-blue-800 hover:bg-blue-50'}" %>
+        <% end %>
       </div>
     </div>
 
-    <div>
-      <b style="margin-right: 20px">Part of speech: </b>
-      <span>
-        <%= @segment.part_of_speech_key %>  - <%= @segment.part_of_speech_name %>
-      </span>
-    </div>
+    <div class="grid gap-6 <%= 'lg:grid-cols-2' if @access %>">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-3">Current</h2>
+        <dl class="rounded-lg border border-gray-200 divide-y divide-gray-100 text-sm">
+          <% details.each do |label, value| %>
+            <div class="grid grid-cols-3 gap-4 px-4 py-3">
+              <dt class="text-gray-500"><%= label %></dt>
+              <dd class="col-span-2 text-gray-900"><%= value.presence || content_tag(:span, '—', class: 'text-gray-400') %></dd>
+            </div>
+          <% end %>
+        </dl>
 
-    <div>
-      <b style="margin-right: 20px">POS tags </b>
-      <span><%= @segment.pos_tags %> </span>
-    </div>
+        <% unless @access %>
+          <p class="text-sm text-gray-500 mt-3">
+            Found a mistake? Click <code>Request Access</code> above to edit segments, or
+            <a href="https://github.com/TarteelAI/quranic-universal-library/issues/new/choose" target="_blank">open an issue</a> with the segment location.
+          </p>
+        <% end %>
+      </div>
 
-    <div>
-      <b style="margin-right: 20px">Verb form </b>
-      <span><%= @segment.verb_form %> </span>
-    </div>
+      <% if @access %>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">Edit</h2>
+          <%= form_with scope: :corpus_segment, url: update_segment_word_concordance_label_path(@verse.id, word: @word.location, segment: @segment.position),
+                        method: :put, html: { autocomplete: 'off', class: 'rounded-lg border border-gray-200 p-4 flex flex-col gap-4' } do |form| %>
+            <% if @segment.errors.any? %>
+              <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <% @segment.errors.full_messages.each do |message| %>
+                  <div><i class="fa fa-exclamation-triangle"></i> <%= message %></div>
+                <% end %>
+              </div>
+            <% end %>
 
-    <div>
-      <b style="margin-right: 20px">Topic: </b>
-      <span><%= @segment.topic&.name %> </span>
-    </div>
+            <div>
+              <%= form.label :part_of_speech, 'Part of speech', class: label_css %>
+              <%= form.select :part_of_speech, options_for_select(@presenter.part_of_speech_options(@segment), @presenter.current_part_of_speech(@segment)),
+                              { include_blank: true }, class: input_css, data: { controller: 'select2' } %>
+            </div>
 
-    <div>
-      <b style="margin-right: 20px">Grammar concept: </b>
-      <span><%= %> </span>
-    </div>
+            <div>
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">Grammar features</h3>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <% Morphology::SegmentTags::PGN.merge(Morphology::SegmentTags::FEATURES).each do |name, feature| %>
+                  <div>
+                    <%= label_tag "corpus_segment_features_#{name}", feature[:label], class: label_css %>
+                    <%= select_tag "corpus_segment[features][#{name}]", options_for_select(feature[:options].map { |tag, label| ["#{label} (#{tag})", tag] }, features[name]),
+                                   include_blank: feature[:blank] || '—', class: "#{input_css} text-sm", id: "corpus_segment_features_#{name}" %>
+                  </div>
+                <% end %>
 
-    <div>
-      <b style="margin-right: 20px">Grammar role: </b>
-      <span><%= %> </span>
-    </div>
+                <div>
+                  <%= form.label :verb_form, 'Verb form', class: label_css %>
+                  <%= form.select :verb_form, options_for_select(@presenter.verb_form_options, @segment.verb_form), { include_blank: 'Not a verb' }, class: "#{input_css} text-sm" %>
+                </div>
+              </div>
+            </div>
 
-    <div>
-      <b style="margin-right: 20px">Grammar subrole: </b>
-      <span><%= %> </span>
-    </div>
+            <div>
+              <%= form.label :other_tags, 'Other tags', class: label_css %>
+              <%= form.select :other_tags, options_for_select(@presenter.other_tag_options(@segment), @segment.tags.other_tags),
+                              {}, multiple: true, class: input_css, data: { controller: 'select2', multiple: true, tags: true } %>
+              <p class="text-xs text-gray-500 mt-1">
+                Tags not covered above, like <code>ADJ</code> adjective, <code>PN</code> proper noun, <code>DET</code> definite article, <code>CONJ</code> conjunction. Type to add a new one.
+              </p>
+            </div>
 
-    <div>
-      <b style="margin-right: 20px">Grammar Desc Arabic: </b>
-      <span><%= @segment.grammar_term_desc_arabic %> </span>
-    </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <%= form.label :root_id, 'Root', class: label_css %>
+                <%= form.select :root_id, options_for_select(@presenter.root_options, @segment.root_id), { include_blank: true }, class: input_css, data: { controller: 'select2' } %>
+              </div>
 
-    <div>
-      <b style="margin-right: 20px">Grammar Desc English: </b>
-      <span>
-        <%= safe_html @segment.grammar_term_desc_english.to_s %>
-      </span>
+              <div>
+                <%= form.label :lemma_name, 'Lemma', class: label_css %>
+                <%= form.text_field :lemma_name, value: @segment.lemma_name, dir: 'rtl', class: "#{input_css} text-qpc-hafs text-xl" %>
+              </div>
+            </div>
+
+            <div>
+              <%= form.label :grammar_term_desc_arabic, 'Grammar description (Arabic)', class: label_css %>
+              <%= form.text_area :grammar_term_desc_arabic, value: @segment.grammar_term_desc_arabic, rows: 2, dir: 'rtl', class: input_css %>
+            </div>
+
+            <div>
+              <%= form.label :grammar_term_desc_english, 'Grammar description (English)', class: label_css %>
+              <%= form.text_area :grammar_term_desc_english, value: @segment.grammar_term_desc_english, rows: 3, class: input_css %>
+            </div>
+
+            <%= render 'case_reason_field', form: form, word: @word, label: "Case reason for the word #{@word.location}" %>
+
+            <div class="flex justify-end">
+              <%= form.submit 'Save segment', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

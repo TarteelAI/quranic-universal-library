@@ -136,18 +136,16 @@ class Morphology::WordSegment < QuranApiRecord
   default_scope { order 'position asc' }
 
   # Saves an edit from the corpus tool.
-  # params: part_of_speech ("KEY|name"), pos_tags (array), verb_form, root_id, lemma_name,
-  # grammar_term_desc_arabic, grammar_term_desc_english
+  # params: part_of_speech ("KEY|name"), features (see Morphology::SegmentTags), other_tags, verb_form,
+  # root_id, lemma_name, grammar_term_desc_arabic, grammar_term_desc_english, case_reason (saved on the word)
   def save_edit(params, user)
     pos_key, pos_name = params[:part_of_speech].to_s.split('|', 2)
     self.part_of_speech_key = pos_key.presence
     self.part_of_speech_name = pos_name.presence
 
     self.verb_form = params[:verb_form].presence
-    tags = Array(params[:pos_tags]).map { |tag| tag.to_s.delete_prefix('new:').strip.upcase }
-    tags = tags.compact_blank.reject { |tag| tag.start_with?('VF:') }
-    tags << "VF:#{verb_form}" if verb_form
-    self.pos_tags = tags.uniq.join(',').presence
+    features = (params[:features] || {}).to_h.symbolize_keys
+    self.pos_tags = tags.build(features, Array(params[:other_tags]), verb_form)
 
     # Some segments have a root name without a linked root, keep it unless a root is picked
     had_root = root_id.present?
@@ -166,7 +164,15 @@ class Morphology::WordSegment < QuranApiRecord
       return false
     end
 
-    attribute_versions_to(user) { save }
+    word.case_reason = params[:case_reason].to_s.strip.presence if params.key?(:case_reason)
+
+    attribute_versions_to(user) do
+      transaction { save && word.save }
+    end
+  end
+
+  def tags
+    Morphology::SegmentTags.new(pos_tags, part_of_speech_key)
   end
 
   # Lemmas don't always store diacritics in the canonical order (shadda before fatha), compare normalized

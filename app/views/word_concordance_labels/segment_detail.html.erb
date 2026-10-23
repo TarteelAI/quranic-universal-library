@@ -10,15 +10,22 @@
 
   label_css = 'block text-sm font-medium text-gray-700 mb-1'
   input_css = 'w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+  features = @segment.tags.features
+  feature_details = Morphology::SegmentTags::PGN.merge(Morphology::SegmentTags::FEATURES).filter_map do |name, feature|
+    value = features[name] ? feature[:options][features[name]] : feature[:blank]
+    [feature[:label], value] if value
+  end
   details = [
     ['Part of speech', "#{@segment.part_of_speech_key} · #{@segment.part_of_speech_name}"],
+    *feature_details,
     ['Tags', @segment.pos_tags.to_s.split(',').map { |tag| content_tag(:code, tag) }.join(' ').html_safe.presence],
     ['Verb form', @segment.verb_form && Morphology::WordSegment::VERB_FORMS[@segment.verb_form.to_i - 1]],
     ['Root', @segment.root_name && content_tag(:span, @segment.root_name, class: 'text-qpc-hafs text-xl')],
     ['Lemma', @segment.lemma_name && content_tag(:span, @segment.lemma_name, class: 'text-qpc-hafs text-xl')],
     ['Topic', @segment.topic&.name],
     ['Grammar (Arabic)', @segment.grammar_term_desc_arabic && content_tag(:span, @segment.grammar_term_desc_arabic, dir: 'rtl')],
-    ['Grammar (English)', @segment.grammar_term_desc_english && safe_html(@segment.grammar_term_desc_english)]
+    ['Grammar (English)', @segment.grammar_term_desc_english && safe_html(@segment.grammar_term_desc_english)],
+    ['Case reason (word)', @word.case_reason && content_tag(:span, @word.case_reason, dir: 'rtl')]
   ]
 %>
 
@@ -91,17 +98,30 @@
             </div>
 
             <div>
-              <%= form.label :pos_tags, 'Tags', class: label_css %>
-              <%= form.select :pos_tags, options_for_select(@presenter.pos_tag_options(@segment), @segment.pos_tags.to_s.split(',')),
-                              {}, multiple: true, class: input_css, data: { controller: 'select2', multiple: true, tags: true } %>
-              <p class="text-xs text-gray-500 mt-1">
-                For example <code>PREF</code> prefix, <code>SUFF</code> suffix, <code>DET</code> definite article, <code>M</code>/<code>F</code> gender, <code>NOM</code>/<code>ACC</code>/<code>GEN</code> case, <code>PERF</code>/<code>IMPF</code> verb aspect. The verb form tag is set from the verb form below.
-              </p>
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">Grammar features</h3>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <% Morphology::SegmentTags::PGN.merge(Morphology::SegmentTags::FEATURES).each do |name, feature| %>
+                  <div>
+                    <%= label_tag "corpus_segment_features_#{name}", feature[:label], class: label_css %>
+                    <%= select_tag "corpus_segment[features][#{name}]", options_for_select(feature[:options].map { |tag, label| ["#{label} (#{tag})", tag] }, features[name]),
+                                   include_blank: feature[:blank] || '—', class: "#{input_css} text-sm", id: "corpus_segment_features_#{name}" %>
+                  </div>
+                <% end %>
+
+                <div>
+                  <%= form.label :verb_form, 'Verb form', class: label_css %>
+                  <%= form.select :verb_form, options_for_select(@presenter.verb_form_options, @segment.verb_form), { include_blank: 'Not a verb' }, class: "#{input_css} text-sm" %>
+                </div>
+              </div>
             </div>
 
             <div>
-              <%= form.label :verb_form, 'Verb form', class: label_css %>
-              <%= form.select :verb_form, options_for_select(@presenter.verb_form_options, @segment.verb_form), { include_blank: 'Not a verb' }, class: input_css %>
+              <%= form.label :other_tags, 'Other tags', class: label_css %>
+              <%= form.select :other_tags, options_for_select(@presenter.other_tag_options(@segment), @segment.tags.other_tags),
+                              {}, multiple: true, class: input_css, data: { controller: 'select2', multiple: true, tags: true } %>
+              <p class="text-xs text-gray-500 mt-1">
+                Tags not covered above, like <code>ADJ</code> adjective, <code>PN</code> proper noun, <code>DET</code> definite article, <code>CONJ</code> conjunction. Type to add a new one.
+              </p>
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
@@ -125,6 +145,8 @@
               <%= form.label :grammar_term_desc_english, 'Grammar description (English)', class: label_css %>
               <%= form.text_area :grammar_term_desc_english, value: @segment.grammar_term_desc_english, rows: 3, class: input_css %>
             </div>
+
+            <%= render 'case_reason_field', form: form, word: @word, label: "Case reason for the word #{@word.location}" %>
 
             <div class="flex justify-end">
               <%= form.submit 'Save segment', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>

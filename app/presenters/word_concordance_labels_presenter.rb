@@ -24,16 +24,22 @@ class WordConcordanceLabelsPresenter < ApplicationPresenter
     "#{segment.part_of_speech_key}|#{segment.part_of_speech_name}" if segment.part_of_speech_key
   end
 
-  # All tags used in the corpus, most used first
-  def pos_tag_options(segment)
-    tags = Rails.cache.fetch('corpus/pos-tags', expires_in: 1.day) do
-      Morphology::WordSegment.unscoped.where.not(pos_tags: [nil, ''])
-                             .group(:pos_tags).count
-                             .each_with_object(Hash.new(0)) { |(tags, count), all| tags.split(',').each { |tag| all[tag] += count } }
-                             .sort_by { |_, count| -count }.map(&:first)
+  # Tags that aren't a feature, used in the corpus, most used first. Current tags first, select2 submits them in option order
+  def other_tag_options(segment)
+    tags = Rails.cache.fetch('corpus/other-tags', expires_in: 1.day) do
+      counts = Morphology::WordSegment.unscoped.where.not(pos_tags: [nil, '']).group(:pos_tags, :part_of_speech_key).count
+      counts.each_with_object(Hash.new(0)) do |((tags, pos), count), all|
+        Morphology::SegmentTags.new(tags, pos).other_tags.each { |tag| all[tag] += count }
+      end.sort_by { |_, count| -count }.map(&:first)
     end
-    # Current tags first, select2 submits them in option order
-    (segment.pos_tags.to_s.split(',') | tags).reject { |tag| tag.start_with?('VF:') }
+    segment.tags.other_tags | tags
+  end
+
+  # Common reasons for a word's case (إعراب)
+  def case_reason_options
+    ['فاعل', 'نائب فاعل', 'مبتدأ', 'خبر', 'مفعول به', 'مفعول مطلق', 'مفعول لأجله', 'مفعول فيه', 'مفعول معه',
+     'حال', 'تمييز', 'نعت', 'مضاف إليه', 'اسم مجرور', 'بدل', 'معطوف', 'توكيد', 'منادى',
+     'اسم إن', 'خبر إن', 'اسم كان', 'خبر كان', 'مستثنى']
   end
 
   def verb_form_options

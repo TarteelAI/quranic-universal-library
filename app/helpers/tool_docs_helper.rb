@@ -1676,12 +1676,12 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Check a word',
-        text: "Click a word to open it. The top shows the word's root, lemma and stem, each with how many words share it, then its case, grammar pattern and grammar concepts. Below are its segments and verb forms. <code>Previous Word</code> and <code>Next Word</code> move through the ayah."
+        text: "Click a word to open it. The top shows the word's root, lemma and stem, each with how many words share it. Below are its segments with their features, then the word's case, case reason, grammar pattern and description. With editing access, set the case reason and description in <code>Edit word</code>. <code>Previous word</code> and <code>Next word</code> move through the ayah."
       },
       {
         type: 'step',
         title: 'Check a segment',
-        text: "Click a segment to open it. The left side shows its part of speech, tags, verb form, root, lemma and grammar description. With editing access, change them in the form on the right and click <code>Save segment</code>. Changes go live right away and are tracked."
+        text: "Click a segment to open it. The left side shows its part of speech, grammar features (person, gender, number, case, aspect, mood and more), verb form, root, lemma and grammar description. With editing access, change them in the form on the right and click <code>Save segment</code>. Features are saved back into the segment's tags. Changes go live right away and are tracked."
       },
       {
         type: 'heading',

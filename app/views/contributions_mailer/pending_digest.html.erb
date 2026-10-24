@@ -1,0 +1,16 @@
+<p>As-Salaam-Alaikum <%= @user.name %>,</p>
+
+<p>These suggested fixes are waiting for your review:</p>
+
+<ul>
+  <% if @counts[:translations].positive? %>
+    <li>
+      <%= link_to "Translations: #{@counts[:translations]}", cms_draft_translations_url(scope: 'pending_contributions') %>
+    </li>
+  <% end %>
+  <% if @counts[:tafsirs].positive? %>
+    <li>
+      <%= link_to "Tafsirs: #{@counts[:tafsirs]}", cms_draft_tafsirs_url(scope: 'pending_contributions') %>
+    </li>
+  <% end %>
+</ul>

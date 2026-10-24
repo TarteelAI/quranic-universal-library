@@ -20,9 +20,7 @@
   more_action << link_to('Tafsir with arabic view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
   more_action << link_to('Proofreading view(With pdf)', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
 
-  if @access
-    actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
-  end
+  actions << link_to('Edit', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
 
   actions << %Q{
     <div class='relative' data-controller='dropdown'>

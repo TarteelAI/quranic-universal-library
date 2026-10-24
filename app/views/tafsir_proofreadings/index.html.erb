@@ -72,9 +72,7 @@
         <tr>
           <td colspan="6" class="py-6 text-center text-gray-600">
             <%= @resource.name %> has no tafsir for <%= verse.verse_key %>.
-            <% if @access %>
-              <%= link_to 'Add tafsir for this ayah', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'ms-2 btn btn-success', data: { turbo_frame: '_top' } %>
-            <% end %>
+            <%= link_to 'Add tafsir for this ayah', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'ms-2 btn btn-success', data: { turbo_frame: '_top' } %>
           </td>
         </tr>
       <% end %>

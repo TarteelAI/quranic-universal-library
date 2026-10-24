@@ -25,6 +25,8 @@ ActiveAdmin.register Draft::Tafsir do
 
   includes :resource_content
 
+  scope :pending_contributions
+
   action_item :import, only: :show do
     link_to import_cms_draft_tafsir_path(resource), method: :put, data: { confirm: 'Are you sure?' } do
       'Approve and update'

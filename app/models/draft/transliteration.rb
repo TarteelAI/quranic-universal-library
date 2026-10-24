@@ -28,8 +28,12 @@ class Draft::Transliteration < ApplicationRecord
   include DraftResourceStats
 
   belongs_to :resource_content
+
   belongs_to :verse
   belongs_to :user, optional: true
+
+  # Fixes suggested by users that aren't approved yet
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
 
   before_save :refresh_current_text, if: :verse_id_changed?
 

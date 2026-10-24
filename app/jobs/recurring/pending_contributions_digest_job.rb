@@ -5,13 +5,14 @@ module Recurring
     def perform
       counts = {
         translations: Draft::Translation.pending_contributions.count,
-        tafsirs: Draft::Tafsir.pending_contributions.count
+        tafsirs: Draft::Tafsir.pending_contributions.count,
+        transliterations: Draft::Transliteration.pending_contributions.count,
+        word_translations: Draft::WordTranslation.pending_contributions.count,
+        word_transliterations: Draft::WordTransliteration.pending_contributions.count
       }
       return if counts.values.sum.zero?
 
-      User.where(id: 1).or(User.is_super_admin).find_each do |user|
-        ContributionsMailer.pending_digest(user, counts).deliver_later
-      end
+      ContributionsMailer.pending_digest(User.find(1), counts).deliver_later
     end
   end
 end

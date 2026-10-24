@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <% if word_translation.persisted? %>
+      <% if word_translation.persisted? && @access %>
         <div class="lg:w-1/2 lg:border-s lg:ps-4">
           <%= render 'word_group_info',
                      word_translation: word_translation,

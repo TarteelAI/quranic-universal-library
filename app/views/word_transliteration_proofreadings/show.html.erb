@@ -2,9 +2,7 @@
   actions = []
   verse = @presenter.verse
 
-  if @access
-    actions << link_to('Edit', edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
-  end
+  actions << link_to('Edit', edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   if (previous_ayah = verse.previous_ayah)
     actions << link_to('Previous ayah', word_transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')

@@ -32,9 +32,13 @@ class Draft::WordTransliteration < ApplicationRecord
   include DraftResourceStats
 
   belongs_to :resource_content
+
   belongs_to :verse
   belongs_to :word
   belongs_to :user, optional: true
+
+  # Fixes suggested by users that aren't approved yet
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
 
   before_save :set_word_fields, if: :word_id_changed?
 

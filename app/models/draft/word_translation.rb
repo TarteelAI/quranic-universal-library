@@ -40,12 +40,18 @@
 #  index_draft_word_translations_on_word_translation_id    (word_translation_id)
 #
 class Draft::WordTranslation < ApplicationRecord
+  include PaperTrailAttribution
+
   belongs_to :verse
+  belongs_to :user, optional: true
   belongs_to :word
   belongs_to :language
   belongs_to :resource_content
   # Word group translation
   belongs_to :word_translation, optional: true
+
+  # Fixes suggested by users that aren't approved yet
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
 
   def self.new_translations
     ids = select('DISTINCT resource_content_id, imported')
@@ -57,6 +63,27 @@ class Draft::WordTranslation < ApplicationRecord
     ids = where(imported: true).select('DISTINCT resource_content_id, imported')
 
     ResourceContent.where(id: ids.map(&:resource_content_id))
+  end
+
+  def import!
+    translation = ::WordTranslation.where(
+      word_id: word_id,
+      resource_content_id: resource_content_id
+    ).first_or_initialize
+
+    translation.text = draft_text.strip
+    translation.language_id = resource_content.language_id
+    translation.language_name = resource_content.language_name&.downcase
+    translation.priority ||= resource_content.priority || 5
+
+    attribute_versions_to(user) do
+      translation.save(validate: false)
+    end
+
+    resource_content.touch
+    update_columns(imported: true)
+
+    translation
   end
 
   def original_translation

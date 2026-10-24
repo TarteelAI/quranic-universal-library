@@ -50,6 +50,8 @@ class Draft::Tafsir < ApplicationRecord
     where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: ayah.id)
   }
   scope :verse_key_eq, ->(ayah) { verse_key_cont(ayah) }
+  # Fixes suggested by users that aren't approved yet
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
   scope :verse_key_start, ->(ayah) { where("start_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
   scope :verse_key_end, ->(ayah) { where("end_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
 

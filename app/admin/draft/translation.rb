@@ -19,6 +19,7 @@ ActiveAdmin.register Draft::Translation do
 
   scope :with_footnotes, group: :footnotes
   scope :with_mismatch_footnote, group: :footnotes
+  scope :pending_contributions, group: :review
 
   action_item :previous_page, only: :show do
     if item = resource.previous_ayah_translation

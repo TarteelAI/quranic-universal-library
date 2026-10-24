@@ -48,6 +48,8 @@ class Draft::Translation < ApplicationRecord
   scope :with_footnotes, -> { where "footnotes_count > 0" }
   scope :without_footnotes, -> { where "footnotes_count = 0" }
   scope :with_mismatch_footnote, -> { where "footnotes_count != current_footnotes_count" }
+  # Fixes suggested by users that aren't approved yet
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
 
   def text=(val)
     self.draft_text = val

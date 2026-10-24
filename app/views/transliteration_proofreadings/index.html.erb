@@ -62,9 +62,7 @@
           </td>
           <td class="py-2">
             <div class="flex gap-1">
-              <% if @access %>
-                <%= link_to(missing ? 'Add' : 'Edit', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' }) %>
-              <% end %>
+              <%= link_to(missing ? 'Add' : 'Edit', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' }) %>
               <%= link_to 'Show', transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
             </div>
           </td>

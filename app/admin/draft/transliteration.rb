@@ -15,6 +15,8 @@ ActiveAdmin.register Draft::Transliteration do
 
   includes :verse, :user
 
+  scope :pending_contributions
+
   action_item :previous_page, only: :show do
     if (item = resource.previous_ayah_draft)
       link_to("Previous(#{item.verse.verse_key})", cms_draft_transliteration_path(item))

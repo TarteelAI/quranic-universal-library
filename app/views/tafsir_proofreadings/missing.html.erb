@@ -2,9 +2,7 @@
   verse = @presenter.requested_verse
   actions = []
 
-  if @access
-    actions << link_to('Add tafsir', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'btn btn-success')
-  end
+  actions << link_to('Add tafsir', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'btn btn-success')
   if (previous_ayah = verse.previous_ayah)
     actions << link_to('Previous ayah', tafsir_proofreading_path(0, resource_id: @resource.id, verse_key: previous_ayah.verse_key), class: 'btn btn-dark')
   end
@@ -31,9 +29,7 @@
         Some tafsirs skip ayahs. If this one should have tafsir, add it here,
         or open the tafsir before or after and widen its range to include <%= verse.verse_key %>.
       </p>
-      <% if @access %>
-        <%= link_to 'Add tafsir for this ayah', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'inline-flex mt-4 px-3 py-1.5 text-sm font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' %>
-      <% end %>
+      <%= link_to 'Add tafsir for this ayah', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'inline-flex mt-4 px-3 py-1.5 text-sm font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' %>
     </div>
   </div>
 </div>

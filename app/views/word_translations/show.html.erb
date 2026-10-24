@@ -3,9 +3,7 @@
   next_ayah = @verse.next_ayah
   previous_ayah = @verse.previous_ayah
 
-  if @access
-    actions << link_to('Edit', new_word_translation_path(ayah: @verse.id, resource_id: @resource.id), class: 'btn btn-success')
-  end
+  actions << link_to('Edit', new_word_translation_path(ayah: @verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   if previous_ayah
     actions << link_to('Previous ayah', word_translation_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')

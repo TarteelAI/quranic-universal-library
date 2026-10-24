@@ -34,6 +34,33 @@ class WordTranslation < QuranApiRecord
 
   attr_accessor :word_range_from, :word_range_to
 
+  # Saves a draft for each word whose text changed
+  def self.save_suggestions(verse, resource, params, user)
+    texts = params[:word_translations_attributes].to_h.values.to_h { |attrs| [attrs[:word_id].to_i, attrs[:text].to_s.strip] }
+    existing = where(resource_content_id: resource.id, word_id: texts.keys).index_by(&:word_id)
+    words = verse.words.where(id: texts.keys).index_by(&:id)
+
+    texts.each do |word_id, text|
+      word = words[word_id]
+      current = existing[word_id]
+      next if word.blank? || text.blank? || text == current&.text.to_s
+
+      Draft::WordTranslation.new(
+        verse_id: verse.id,
+        word_id: word.id,
+        location: word.location,
+        resource_content_id: resource.id,
+        language_id: resource.language_id,
+        word_translation_id: current&.id,
+        current_text: current&.text,
+        draft_text: text,
+        text_matched: false,
+        need_review: true,
+        user_id: user.id
+      ).save(validate: false)
+    end
+  end
+
   def create_or_update_group_translation(params)
     range_from = params[:word_range_from].to_i
     range_to = params[:word_range_to].to_i

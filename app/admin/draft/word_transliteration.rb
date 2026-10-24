@@ -16,6 +16,8 @@ ActiveAdmin.register Draft::WordTransliteration do
 
   includes :word
 
+  scope :pending_contributions
+
   action_item :previous_word, only: :show do
     if (item = resource.previous_word_draft)
       link_to("Previous(#{item.location})", cms_draft_word_transliteration_path(item))

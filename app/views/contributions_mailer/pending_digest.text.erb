@@ -1,0 +1,9 @@
+As-Salaam-Alaikum <%= @user.name %>,
+
+These suggested fixes are waiting for your review:
+
+<% @counts.each do |type, count| -%>
+<%= pluralize(count, 'contribution') %> for <%= type.to_s.humanize(capitalize: false) %>
+<%= review_url(type) %>
+
+<% end -%>

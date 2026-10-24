@@ -58,9 +58,7 @@
           </td>
           <td class="py-2 align-top">
             <div class="flex gap-1">
-              <% if @access %>
-                <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
-              <% end %>
+              <%= link_to 'Edit', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
               <%= link_to 'Show', translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
             </div>
           </td>

@@ -8,9 +8,7 @@
     view_type = 'ayah'
   end
 
-  if @access
-    actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
-  end
+  actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   more_action << link_to('Ayah view', translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
   more_action << link_to('Page view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')

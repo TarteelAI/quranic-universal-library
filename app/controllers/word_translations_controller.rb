@@ -1,6 +1,8 @@
 class WordTranslationsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
-  before_action :authorize_access!, only: [:new, :edit, :update, :create]
+  before_action :authenticate_user!, only: [:new, :create]
+  # Groups are saved straight to the live translation, not as a draft
+  before_action :authorize_access!, only: [:group_info]
   before_action :require_resource, except: [:select_resource]
 
   def select_resource
@@ -34,9 +36,10 @@ class WordTranslationsController < CommunityController
 
   def create
     @verse = Verse.find(params[:verse_id])
-    @verse.update_word_translations(wbw_translations_params)
+    WordTranslation.save_suggestions(@verse, resource, wbw_translations_params, current_user)
 
-    redirect_to word_translation_path(@verse, resource_id: resource.id)
+    redirect_to word_translation_path(@verse, resource_id: resource.id),
+                notice: "Your suggestion is saved. The word translations are updated once it's approved."
   end
 
   def group_info

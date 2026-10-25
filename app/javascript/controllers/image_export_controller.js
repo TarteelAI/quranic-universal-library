@@ -11,7 +11,7 @@ export default class extends Controller {
     "formatRadio", "transparentCheckbox", "retinaCheckbox",
     "previewFrame", "previewBox", "previewWrapper", "previewDimensionBadge",
     "singlePreviewContainer", "batchPreviewContainer", "batchPreviewList", "batchPreviewHeader", "batchOverflowNotice",
-    "singleActionGroup", "batchActionGroup", "downloadBtn", "downloadBtnLabel", "downloadIcon", "downloadSpinner",
+    "singleActionGroup", "batchActionGroup", "downloadBtn", "downloadBtnLabel", "batchBtnLabel", "downloadIcon", "downloadSpinner",
     "batchModal", "batchStatusLabel", "batchPercentLabel", "batchProgressBar", "batchDetailsLabel", "batchZipDownloadBtn"
   ];
 
@@ -21,7 +21,9 @@ export default class extends Controller {
     batchUrl: String,
     exportPageUrl: String,
     exportAyahUrl: String,
-    exportWordUrl: String
+    exportWordUrl: String,
+    signedIn: Boolean,
+    signInUrl: String
   };
 
   connect() {
@@ -34,6 +36,7 @@ export default class extends Controller {
 
     this.debounceTimer = null;
     this.updateVisibleControls();
+    this.updateDownloadBtnLabel();
     this.refreshPreview();
   }
 
@@ -222,8 +225,21 @@ export default class extends Controller {
 
   formatChanged(event) {
     this.activeFormat = event.target.value;
+    this.updateDownloadBtnLabel();
+  }
+
+  updateDownloadBtnLabel() {
     if (this.hasDownloadBtnLabelTarget) {
-      this.downloadBtnLabelTarget.textContent = `Download ${this.activeFormat.toUpperCase()}`;
+      const fmt = this.activeFormat.toUpperCase();
+      if (!this.signedInValue) {
+        this.downloadBtnLabelTarget.textContent = `Login to Download ${fmt}`;
+      } else {
+        this.downloadBtnLabelTarget.textContent = `Download ${fmt}`;
+      }
+    }
+
+    if (this.hasBatchBtnLabelTarget) {
+      this.batchBtnLabelTarget.textContent = this.signedInValue ? "Generate Batch ZIP" : "Login to Export ZIP";
     }
   }
 
@@ -414,7 +430,14 @@ export default class extends Controller {
     }
   }
 
+  // Browsing and previewing is public; downloading requires an account.
+  redirectToSignIn() {
+    window.location.href = this.signInUrlValue;
+  }
+
   async downloadSingleImage() {
+    if (!this.signedInValue) return this.redirectToSignIn();
+
     const btn = this.downloadBtnTarget;
     const originalLabel = this.downloadBtnLabelTarget.textContent;
 
@@ -458,6 +481,7 @@ export default class extends Controller {
 
       // Fetch rendered image
       const response = await fetch(downloadEndpoint);
+      if (response.status === 401) return this.redirectToSignIn();
       if (!response.ok) {
         throw new Error(`Server returned status ${response.status}`);
       }
@@ -479,7 +503,7 @@ export default class extends Controller {
     } finally {
       if (this.hasDownloadIconTarget) this.downloadIconTarget.classList.remove("hidden");
       if (this.hasDownloadSpinnerTarget) this.downloadSpinnerTarget.classList.add("hidden");
-      this.downloadBtnLabelTarget.textContent = originalLabel;
+      this.updateDownloadBtnLabel();
       btn.disabled = false;
     }
   }
@@ -508,6 +532,8 @@ export default class extends Controller {
   }
 
   async startBatchExport() {
+    if (!this.signedInValue) return this.redirectToSignIn();
+
     this.batchModalTarget.classList.remove("hidden");
     if (this.hasBatchZipDownloadBtnTarget) {
       this.batchZipDownloadBtnTarget.classList.add("hidden");
@@ -595,6 +621,7 @@ export default class extends Controller {
 
       clearInterval(progressInterval);
 
+      if (response.status === 401) return this.redirectToSignIn();
       if (!response.ok) {
         let errText = "Failed to generate batch archive";
         try {

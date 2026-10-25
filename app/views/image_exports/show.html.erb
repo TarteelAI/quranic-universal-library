@@ -11,7 +11,9 @@
      data-image-export-batch-url-value="<%= batch_image_export_path %>"
      data-image-export-export-page-url-value="<%= exports_mushaf_page_path %>"
      data-image-export-export-ayah-url-value="<%= exports_ayah_path %>"
-     data-image-export-export-word-url-value="<%= exports_word_path %>">
+     data-image-export-export-word-url-value="<%= exports_word_path %>"
+     data-image-export-signed-in-value="<%= user_signed_in? %>"
+     data-image-export-sign-in-url-value="<%= new_user_session_path %>">
 
   <!-- Top Controls: Mode & Export Type -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-gray-200">
@@ -70,8 +72,8 @@
           <select data-image-export-target="mushafSelect"
                   data-action="change->image-export#mushafChanged"
                   class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
-            <% @mushafs.each do |mushaf| %>
-              <option value="<%= mushaf.id %>" data-pages="<%= mushaf.pages_count %>" <%= 'selected' if mushaf.id == @default_mushaf.id %>>
+            <% @presenter.mushafs.each do |mushaf| %>
+              <option value="<%= mushaf.id %>" data-pages="<%= mushaf.pages_count %>" <%= 'selected' if mushaf.id == @presenter.default_mushaf.id %>>
                 <%= mushaf.humanize %> (<%= mushaf.pages_count %> pages)
               </option>
             <% end %>
@@ -84,8 +86,8 @@
           <select data-image-export-target="pageSelect"
                   data-action="change->image-export#inputChanged"
                   class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
-            <% (1..@default_mushaf.pages_count).each do |p| %>
-              <option value="<%= p %>" <%= 'selected' if p == @default_page %>><%= p %></option>
+            <% @presenter.pages_range.each do |p| %>
+              <option value="<%= p %>" <%= 'selected' if p == @presenter.default_page %>><%= p %></option>
             <% end %>
           </select>
         </div>
@@ -97,7 +99,7 @@
             <select data-image-export-target="fromPageSelect"
                     data-action="change->image-export#fromPageChanged"
                     class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a]">
-              <% (1..@default_mushaf.pages_count).each do |p| %>
+              <% @presenter.pages_range.each do |p| %>
                 <option value="<%= p %>" <%= 'selected' if p == 1 %>><%= p %></option>
               <% end %>
             </select>
@@ -107,7 +109,7 @@
             <select data-image-export-target="toPageSelect"
                     data-action="change->image-export#toPageChanged"
                     class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a]">
-              <% (1..@default_mushaf.pages_count).each do |p| %>
+              <% @presenter.pages_range.each do |p| %>
                 <option value="<%= p %>" <%= 'selected' if p == 5 %>><%= p %></option>
               <% end %>
             </select>
@@ -126,7 +128,7 @@
           <select data-image-export-target="ayahSurahSelect"
                   data-action="change->image-export#ayahSurahChanged"
                   class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
-            <% @chapters.each do |c| %>
+            <% @presenter.chapters.each do |c| %>
               <option value="<%= c[1] %>" data-verses="<%= c[2]['data-verses'] %>" <%= 'selected' if c[1] == 1 %>>
                 <%= c[0] %>
               </option>
@@ -183,7 +185,7 @@
             <select data-image-export-target="wordSurahSelect"
                     data-action="change->image-export#wordSurahChanged"
                     class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium">
-              <% @chapters.each do |c| %>
+              <% @presenter.chapters.each do |c| %>
                 <option value="<%= c[1] %>" data-verses="<%= c[2]['data-verses'] %>" <%= 'selected' if c[1] == 1 %>>
                   <%= c[1] %>. <%= c[0].split('.')[1..].join('.').strip.truncate(15) %>
                 </option>
@@ -247,8 +249,8 @@
           <select data-image-export-target="scriptSelect"
                   data-action="change->image-export#inputChanged"
                   class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-[#46ac7a] focus:border-[#46ac7a] transition-all">
-            <% @scripts.each do |s| %>
-              <option value="<%= s[:id] %>" <%= 'selected' if s[:id] == @default_script %>>
+            <% @presenter.scripts.each do |s| %>
+              <option value="<%= s[:id] %>" <%= 'selected' if s[:id] == @presenter.default_script %>>
                 <%= s[:name] %>
               </option>
             <% end %>
@@ -372,33 +374,54 @@
           </div>
         </div>
 
-        <!-- Action Footer (Button only) -->
-        <div class="p-5 bg-white border-t border-gray-100 flex justify-end items-center">
-          <!-- Single Download Button -->
-          <div data-image-export-target="singleActionGroup" class="w-full sm:w-auto">
-            <button type="button"
-                    data-image-export-target="downloadBtn"
-                    data-action="click->image-export#downloadSingleImage"
-                    class="w-full sm:w-auto px-6 py-3 bg-[#46ac7a] hover:bg-[#3d966a] disabled:opacity-75 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
-              <svg data-image-export-target="downloadIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-              </svg>
-              <svg data-image-export-target="downloadSpinner" class="hidden animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span data-image-export-target="downloadBtnLabel">Download PNG</span>
-            </button>
+        <!-- Action Footer -->
+        <div class="p-5 bg-white border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div>
+            <% unless user_signed_in? %>
+              <span class="text-xs text-gray-500 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v3H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" clip-rule="evenodd"/>
+                </svg>
+                <span>Free account required to download exports</span>
+              </span>
+            <% end %>
           </div>
 
-          <!-- Batch Download Button -->
-          <div data-image-export-target="batchActionGroup" class="hidden w-full sm:w-auto">
-            <button type="button"
-                    data-action="click->image-export#startBatchExport"
-                    class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
-              <span>📦</span>
-              <span>Generate Batch ZIP</span>
-            </button>
+          <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <!-- Single Download Button -->
+            <div data-image-export-target="singleActionGroup" class="w-full sm:w-auto">
+              <button type="button"
+                      data-image-export-target="downloadBtn"
+                      data-action="click->image-export#downloadSingleImage"
+                      class="w-full sm:w-auto px-6 py-3 bg-[#46ac7a] hover:bg-[#3d966a] disabled:opacity-75 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <svg data-image-export-target="downloadIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <% if user_signed_in? %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  <% else %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  <% end %>
+                </svg>
+                <svg data-image-export-target="downloadSpinner" class="hidden animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span data-image-export-target="downloadBtnLabel">
+                  <%= user_signed_in? ? "Download PNG" : "Login to Download PNG" %>
+                </span>
+              </button>
+            </div>
+
+            <!-- Batch Download Button -->
+            <div data-image-export-target="batchActionGroup" class="hidden w-full sm:w-auto">
+              <button type="button"
+                      data-action="click->image-export#startBatchExport"
+                      class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <span><%= user_signed_in? ? "📦" : "🔒" %></span>
+                <span data-image-export-target="batchBtnLabel">
+                  <%= user_signed_in? ? "Generate Batch ZIP" : "Login to Export ZIP" %>
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 

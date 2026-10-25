@@ -176,6 +176,15 @@ module ToolsHelper
         icon: 'compare.svg',
         tags: [['Fonts', 'fonts'], 'Compare'],
         cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
+        title: 'Quran Image Export Tool',
+        description: 'Export Mushaf pages, Ayahs, and Words as high-resolution PNG / WEBP images with custom scripts and fonts',
+        url: image_export_tool_path,
+        type: 'image-export',
+        icon: 'layout.svg',
+        tags: [['Image Export', 'image-export'], ['Mushaf Page', 'mushaf-page'], ['Ayah', 'ayah'], ['Word', 'word']],
+        cta_bg: 'rgba(70, 172, 122, 0.9)'
       )
     ]
 
@@ -202,15 +211,6 @@ module ToolsHelper
         type: 'segments',
         icon: 'timestamp.svg',
         tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah']]
-      ),
-      ToolCard.new(
-        title: 'Quran Image Export Tool',
-        description: 'Export Mushaf pages, Ayahs, and Words as high-resolution PNG / WEBP images with custom scripts and fonts',
-        url: image_export_tool_path,
-        type: 'image-export',
-        icon: 'layout.svg',
-        tags: [['Image Export', 'image-export'], ['Mushaf Page', 'mushaf-page'], ['Ayah', 'ayah'], ['Word', 'word']],
-        cta_bg: 'rgba(70, 172, 122, 0.9)'
       ),
     ]
   end

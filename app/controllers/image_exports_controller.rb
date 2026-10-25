@@ -1,38 +1,12 @@
 # frozen_string_literal: true
 
 class ImageExportsController < ApplicationController
-  protect_from_forgery except: [:batch_export, :verse_words]
+  before_action :require_login_for_export, only: %i[download batch_export]
+  before_action :remember_return_location, only: :show
 
-  SCRIPT_TYPES = [
-    { id: 'code_v1', name: 'QPC Hafs V1 (code_v1)' },
-    { id: 'code_v2', name: 'QPC Hafs V2 (code_v2)' },
-    { id: 'code_v4', name: 'QPC Hafs V4 (code_v4)' },
-    { id: 'text_qpc_hafs', name: 'QPC Hafs Unicode (text_qpc_hafs)' },
-    { id: 'text_uthmani_tajweed', name: 'Uthmani Tajweed (text_uthmani_tajweed)' },
-    { id: 'text_qpc_nastaleeq_hafs', name: 'QPC Nastaleeq (text_qpc_nastaleeq_hafs)' },
-    { id: 'text_indopak_nastaleeq', name: 'Indopak Nastaleeq (text_indopak_nastaleeq)' },
-    { id: 'text_digital_khatt', name: 'Digital Khatt (text_digital_khatt)' }
-  ].freeze
+  before_action :init_presenter, only: :show
 
   def show
-    @mushafs = Mushaf.approved.order(:id)
-    @chapters = Chapter.order(:chapter_number).map do |c|
-      [
-        "#{c.chapter_number}. #{c.name_simple} (#{c.name_arabic})",
-        c.chapter_number,
-        { 'data-verses' => c.verses_count }
-      ]
-    end
-    @scripts = SCRIPT_TYPES
-
-    # Initial defaults
-    @default_mushaf = @mushafs.first || Mushaf.find_by(id: 1)
-    @default_chapter = 1
-    @default_verse = 1
-    @default_word = 1
-    @default_script = 'code_v1'
-    @default_font_size = 50
-    @default_page = 1
   end
 
   def download
@@ -42,49 +16,7 @@ class ImageExportsController < ApplicationController
     transparent = params[:transparent] == 'true' ? 'true' : 'false'
     filename = params[:filename].presence || "quran_export_#{Time.current.to_i}"
 
-    # Render target export view directly to HTML string
-    html_content = case export_type
-                   when 'mushaf_page'
-                     page_num = (params[:page_number] || 1).to_i
-                     @mushaf = Mushaf.find_by(id: params[:mushaf_id]) || Mushaf.first
-                     @words = MushafWord.where(mushaf_id: @mushaf.id, page_number: page_num).order('position_in_page ASC')
-                     render_to_string(
-                       template: 'exports/mushaf_page',
-                       layout: 'export',
-                       formats: [:html],
-                       assigns: { mushaf: @mushaf, words: @words, page_number: page_num, resource: @mushaf&.resource_content }
-                     )
-                   when 'ayah'
-                     verse_param = params[:ayah].to_s.presence || '1:1'
-                     @verse = if verse_param.include?(':')
-                                Verse.find_by(verse_key: verse_param)
-                              else
-                                Verse.find_by(verse_index: verse_param)
-                              end
-                     render_to_string(
-                       template: 'exports/ayah',
-                       layout: 'export',
-                       formats: [:html],
-                       assigns: { verse: @verse }
-                     )
-                   when 'word'
-                     word_param = params[:word].to_s.presence || '1:1:1'
-                     @word = if word_param.include?(':')
-                               Word.find_by(location: word_param)
-                             else
-                               Word.find_by(word_index: word_param)
-                             end
-                     render_to_string(
-                       template: 'exports/word',
-                       layout: 'export',
-                       formats: [:html],
-                       assigns: { word: @word }
-                     )
-                   end
-
-    # Inline compiled export.css into the HTML so Puppeteer does not need HTTP roundtrips
-    compiled_css = compile_export_css
-    html_content = html_content.gsub(/<link[^>]*href="[^"]*export[^"]*"[^>]*>/, "<style>#{compiled_css}</style>")
+    html_content = render_export_html(export_type)
 
     temp_html = Rails.root.join('tmp', 'exports', "#{filename}_#{SecureRandom.hex(4)}.html")
     temp_img = Rails.root.join('tmp', 'exports', "#{filename}_#{SecureRandom.hex(4)}.#{format}")
@@ -133,7 +65,6 @@ class ImageExportsController < ApplicationController
     batch_token = "batch_#{Time.current.to_i}_#{SecureRandom.hex(3)}"
     batch_dir = Rails.root.join('tmp', 'exports', batch_token)
     zip_file = Rails.root.join('tmp', 'exports', "#{batch_token}.zip")
-    compiled_css = compile_export_css
 
     FileUtils.mkdir_p(batch_dir)
 
@@ -152,16 +83,9 @@ class ImageExportsController < ApplicationController
       FileUtils.mkdir_p(pages_dir)
 
       (from_page..to_page).each do |page_num|
-        words = MushafWord.where(mushaf_id: mushaf.id, page_number: page_num).order('position_in_page ASC')
         params[:page_number] = page_num
-        html = render_to_string(
-          template: 'exports/mushaf_page',
-          layout: 'export',
-          formats: [:html],
-          assigns: { mushaf: mushaf, words: words, page_number: page_num, resource: mushaf&.resource_content }
-        )
-        html = html.gsub(/<link[^>]*href="[^"]*export[^"]*"[^>]*>/, "<style>#{compiled_css}</style>")
-        
+        html = render_export_html('mushaf_page', mushaf_id: mushaf.id, page_number: page_num)
+
         temp_html = batch_dir.join("temp_#{page_num}.html")
         out_img = pages_dir.join("page_#{page_num.to_s.rjust(3, '0')}.#{format}")
         File.write(temp_html, html)
@@ -181,20 +105,14 @@ class ImageExportsController < ApplicationController
       FileUtils.mkdir_p(surah_dir)
 
       (from_ayah..to_ayah).each do |ayah_num|
-        verse = Verse.find_by(verse_key: "#{chapter_id}:#{ayah_num}")
-        next unless verse
-
+        verse_key = "#{chapter_id}:#{ayah_num}"
+        params[:ayah] = verse_key
         params[:script] = script
         params[:font_size] = font_size
         params[:transparent] = transparent
 
-        html = render_to_string(
-          template: 'exports/ayah',
-          layout: 'export',
-          formats: [:html],
-          assigns: { verse: verse }
-        )
-        html = html.gsub(/<link[^>]*href="[^"]*export[^"]*"[^>]*>/, "<style>#{compiled_css}</style>")
+        html = render_export_html('ayah', ayah: verse_key)
+        next unless html
 
         temp_html = batch_dir.join("temp_ayah_#{ayah_num}.html")
         out_img = surah_dir.join("ayah_#{ayah_num.to_s.rjust(3, '0')}.#{format}")
@@ -215,20 +133,14 @@ class ImageExportsController < ApplicationController
       FileUtils.mkdir_p(words_dir)
 
       (from_word..to_word).each do |word_num|
-        word = Word.find_by(location: "#{chapter_id}:#{verse_num}:#{word_num}")
-        next unless word
-
+        word_loc = "#{chapter_id}:#{verse_num}:#{word_num}"
+        params[:word] = word_loc
         params[:script] = script
         params[:font_size] = font_size
         params[:transparent] = transparent
 
-        html = render_to_string(
-          template: 'exports/word',
-          layout: 'export',
-          formats: [:html],
-          assigns: { word: word }
-        )
-        html = html.gsub(/<link[^>]*href="[^"]*export[^"]*"[^>]*>/, "<style>#{compiled_css}</style>")
+        html = render_export_html('word', word: word_loc)
+        next unless html
 
         temp_html = batch_dir.join("temp_word_#{word_num}.html")
         out_img = words_dir.join("word_#{word_num.to_s.rjust(3, '0')}.#{format}")
@@ -254,8 +166,64 @@ class ImageExportsController < ApplicationController
 
   private
 
-  def compile_export_css
-    env = Rails.application.assets || Sprockets::Railtie.build_environment(Rails.application)
-    env['export.css']&.to_s || ''
+  def render_export_html(export_type, overrides = {})
+    case export_type
+    when 'mushaf_page'
+      page_num = (overrides[:page_number] || params[:page_number] || 1).to_i
+      mushaf_id = overrides[:mushaf_id] || params[:mushaf_id]
+      mushaf = Mushaf.find_by(id: mushaf_id) || Mushaf.first
+      words = MushafWord.where(mushaf_id: mushaf.id, page_number: page_num).order('position_in_page ASC')
+      render_to_string(
+        template: 'exports/mushaf_page',
+        layout: 'image_export',
+        formats: [:html],
+        assigns: { mushaf: mushaf, words: words, page_number: page_num, resource: mushaf&.resource_content }
+      )
+    when 'ayah'
+      verse_param = (overrides[:ayah] || params[:ayah] || '1:1').to_s
+      verse = verse_param.include?(':') ? Verse.find_by(verse_key: verse_param) : Verse.find_by(verse_index: verse_param)
+      return nil unless verse
+
+      render_to_string(
+        template: 'exports/ayah',
+        layout: 'image_export',
+        formats: [:html],
+        assigns: { verse: verse }
+      )
+    when 'word'
+      word_param = (overrides[:word] || params[:word] || '1:1:1').to_s
+      word = word_param.include?(':') ? Word.find_by(location: word_param) : Word.find_by(word_index: word_param)
+      return nil unless word
+
+      render_to_string(
+        template: 'exports/word',
+        layout: 'image_export',
+        formats: [:html],
+        assigns: { word: word }
+      )
+    end
+  end
+
+  # Anyone can browse and preview; rendering/downloading needs an account.
+  # These endpoints are called with fetch(), so answer 401 JSON rather than a
+  # redirect and let the JS send the user to the sign-in page.
+  def require_login_for_export
+    return if user_signed_in?
+
+    render json: {
+      success: false,
+      error: 'Please sign in to export images.',
+      sign_in_url: new_user_session_path
+    }, status: :unauthorized
+  end
+
+  # After signing in, bring the user back to the export tool.
+  def remember_return_location
+    store_location_for(:user, request.fullpath) unless user_signed_in?
+  end
+
+  def init_presenter
+    @presenter = ImageExportPresenter.new(self)
   end
 end
+

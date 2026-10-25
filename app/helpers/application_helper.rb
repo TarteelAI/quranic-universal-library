@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def qul_scripts_available?
+    Rails.application.config.x.qul_scripts_available
+  end
+
   def pagy_nav_tailwind(pagy, **opts)
     pagy_id  = opts.delete(:pagy_id)
     pagy_url = opts.delete(:pagy_url)
@@ -63,7 +67,7 @@ module ApplicationHelper
       "data-#{key}=#{value}"
     end.join(' ')
 
-    "<div class='d-none' data-controller='page-title' data-title='#{title}' #{options}></div>".html_safe
+    "<div class='hidden' data-controller='page-title' data-title='#{title}' #{options}></div>".html_safe
   end
 
   def has_filters?(*filters)

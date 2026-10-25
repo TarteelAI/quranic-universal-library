@@ -52,19 +52,25 @@ module Morphology
       end
 
       def t_attr(key)
-        if @token.respond_to?(key)
-          @token.public_send(key)
-        elsif @token.respond_to?(:[])
-          @token[key]
-        end
+        self.class.read_attr(@token, key)
       end
 
       def head_attr(key)
-        return nil unless @head_token
-        if @head_token.respond_to?(key)
-          @head_token.public_send(key)
-        elsif @head_token.respond_to?(:[])
-          @head_token[key]
+        self.class.read_attr(@head_token, key)
+      end
+
+      # Tokens arrive either as AR records or as plain Hashes/Structs in tests.
+      # A Struct raises NameError for a member it does not have, so an attribute
+      # a given source simply does not carry reads as nil rather than blowing up.
+      def self.read_attr(obj, key)
+        return nil if obj.nil?
+        return obj.public_send(key) if obj.respond_to?(key)
+        return nil unless obj.respond_to?(:[])
+
+        begin
+          obj[key]
+        rescue NameError, IndexError, TypeError
+          nil
         end
       end
 
@@ -217,7 +223,7 @@ module Morphology
         head_pos_key = head_attr(:pos_key).to_s
         head_pos = translate_pos(head_pos_key)
         head_tok_type = head_attr(:token_type).to_s
-        head_text = head_attr(:text_qpc_hafs).to_s
+        head_text = (head_attr(:text_digital_khatt) || head_attr(:text_qpc_hafs)).to_s
 
         result << frag(t('dep_to', default: ''), color_class: 'black')
         result << frag(head_pos_label(head_pos), color_class: head_pos_color)
@@ -244,7 +250,7 @@ module Morphology
 
       def head_reference_fragment(head_text)
         {
-          wrapper_class: 'qpc-hafs',
+          wrapper_class: 'treebank-quran-text',
           children: [
             { text: ' ﴿', color_class: 'black' },
             { text: head_text, color_class: 'green' },
@@ -258,29 +264,43 @@ module Morphology
         verb_mood = t_attr(:verb_mood).to_s
         return [] if nominal_case.empty? && verb_mood.empty?
 
-        last_char = t_attr(:text_uthmani).to_s[-1]
+        ending = final_harakah
 
         p = nil
 
         unless verb_mood.empty?
-          if verb_mood == 'MOOD:JUS' && last_char == 'ْ'
+          if verb_mood == 'MOOD:JUS' && ending == 'ْ'
             p = frag(t('case.jussive_sukun', default: ''), color_class: 'purple')
-          elsif verb_mood == 'MOOD:SUBJ' && last_char == 'َ'
+          elsif verb_mood == 'MOOD:SUBJ' && ending == 'َ'
             p = frag(t('case.subjunctive_fatha', default: ''), color_class: 'green')
           end
         end
 
         unless nominal_case.empty?
-          if nominal_case == 'NOM' && last_char == 'ُ'
+          if nominal_case == 'NOM' && ending == 'ُ'
             p = frag(t('case.nominative_damma', default: ''), color_class: 'red')
-          elsif nominal_case == 'ACC' && last_char == 'َ'
+          elsif nominal_case == 'ACC' && ending == 'َ'
             p = frag(t('case.accusative_fatha', default: ''), color_class: 'green')
-          elsif nominal_case == 'GEN' && last_char == 'ِ'
+          elsif nominal_case == 'GEN' && ending == 'ِ'
             p = frag(t('case.genitive_kasra', default: ''), color_class: 'red')
           end
         end
 
         p ? [p] : []
+      end
+
+      # Short vowels that can carry a case ending, plus the mushaf's sukun
+      # (U+06E1) folded onto the plain one.
+      CASE_MARKS = /[َُِْۡ]/
+
+      # The i'rab only names a case ending when the script actually shows it.
+      # Read it off the vocalised text rather than NoorBayan's `text_uthmani`,
+      # which carries no tashkeel at all for chapters 9-58, and scan backwards
+      # for the last vowel so a trailing waqf sign does not hide it.
+      def final_harakah
+        text = (t_attr(:text_qpc_hafs) || t_attr(:text_uthmani)).to_s
+        mark = text.reverse.chars.find { |c| c =~ CASE_MARKS }
+        mark == "ۡ" ? "ْ" : mark
       end
     end
   end

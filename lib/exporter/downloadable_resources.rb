@@ -326,7 +326,6 @@ module Exporter
 
       list.each do |content|
         next if !content.allow_publish_sharing?
-        next if content.is_transliteration?
 
         exporter = Exporter::ExportTranslation.new(
           resource_content: content,
@@ -382,6 +381,8 @@ module Exporter
       list = ResourceContent.transliteration.one_verse.approved
 
       list.each do |content|
+        next if !content.allow_publish_sharing?
+
         exporter = Exporter::ExportTransliteration.new(
           resource_content: content,
           base_path: base_path
@@ -449,6 +450,8 @@ module Exporter
       list = ResourceContent.transliteration.one_word.approved
 
       list.each do |content|
+        next if !content.allow_publish_sharing?
+
         exporter = Exporter::ExportWordTransliteration.new(
           resource_content: content,
           base_path: base_path
@@ -537,9 +540,7 @@ module Exporter
 
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
-        if content.has_segments?
-          tags << 'With segments'
-        end
+        tags += surah_recitation_segment_tags(content, recitation)
 
         if recitation.chapter_audio_files.size < 114
           tags << 'Partial'
@@ -593,7 +594,7 @@ module Exporter
         tags = ['Recitation', recitation.recitation_style&.name, recitation.qirat_type&.name]
 
         if content.has_segments?
-          tags << 'With segments'
+          tags << 'Word segments'
         end
 
         if recitation.audio_files.size < Verse.count
@@ -888,7 +889,7 @@ module Exporter
       zip_path = "#{file_path}.zip"
       File.delete(zip_path) if File.exist?(zip_path)
 
-      Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_path, create: true) do |zipfile|
         if File.directory?(file_path)
           Dir[File.join(file_path, '**', '**')].each do |file|
             next if File.directory?(file)
@@ -901,6 +902,14 @@ module Exporter
       end
 
       zip_path
+    end
+
+    def surah_recitation_segment_tags(content, recitation)
+      return [] unless content.has_segments?
+
+      tags = ['Ayah segments']
+      tags << 'Word segments' if recitation.has_word_segments?
+      tags
     end
 
     def set_tags(download_resource, tags)

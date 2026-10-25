@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
   connect() {
-    this.pos = { left: 0, x: 0 };
+    this.pos = { left: 0, top: 0, x: 0, y: 0 };
     this.element.style.cursor = 'grab';
     this.isDragging = false;
 
@@ -20,9 +20,12 @@ export default class extends Controller {
 
     this.pos = {
       left: this.element.scrollLeft,
+      top: this.element.scrollTop,
       x: event.clientX,
+      y: event.clientY,
     };
     this.startX = event.clientX;
+    this.startY = event.clientY;
 
     document.addEventListener('mousemove', this.mouseMoveHandler);
     document.addEventListener('mouseup', this.mouseUpHandler);
@@ -33,9 +36,14 @@ export default class extends Controller {
 
   mouseMoveHandler(event) {
     const dx = event.clientX - this.pos.x;
-    this.element.scrollLeft = this.pos.left - dx;
+    const dy = event.clientY - this.pos.y;
 
-    if (Math.abs(event.clientX - this.startX) > 5) {
+    this.element.scrollLeft = this.pos.left - dx;
+    // Pan vertically too when the element actually scrolls that way; for a
+    // purely side-scrolling container this assignment is a no-op.
+    this.element.scrollTop = this.pos.top - dy;
+
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
       this.isDragging = true;
     }
   }

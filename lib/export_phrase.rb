@@ -24,7 +24,7 @@ class ExportPhrase
     export_phrase_verses
     require 'zip'
 
-    Zip::File.open(zip_folder_path, Zip::File::CREATE) do |zipfile|
+    Zip::File.open(zip_folder_path, create: true) do |zipfile|
       Dir[File.join(folder_path, '**', '**')].each do |file|
         relative_path = file.sub(folder_path, '')
 

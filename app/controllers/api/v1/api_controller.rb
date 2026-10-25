@@ -1,11 +1,14 @@
 module Api
   module V1
     class ApiController < ActionController::API
+      include NormalizesPageParam
+
       before_action :init_presenter
       before_action :set_cache_headers
 
       rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
       rescue_from Api::RecordNotFound, with: :record_not_found
+      rescue_from Api::BadRequest, with: :bad_request
       rescue_from ActionController::ParameterMissing, with: :parameter_missing
 
       protected
@@ -31,12 +34,32 @@ module Api
       end
 
       def record_not_found(exception)
+        # Our own message is written for API clients and names the resource and
+        # the valid range. ActiveRecord's default instead spells out the table
+        # and columns of the failed lookup, which callers should not be shown.
+        if exception.is_a?(::Api::RecordNotFound)
+          message = exception.to_s
+        else
+          message = "The requested resource was not found."
+          Rails.logger.info("API record not found: #{exception}")
+        end
+
         render_json(
           {
             error: "Not Found",
-            message: exception.to_s
+            message: message
           },
           status: :not_found
+        )
+      end
+
+      def bad_request(exception)
+        render_json(
+          {
+            error: "Bad Request",
+            message: exception.to_s
+          },
+          status: :bad_request
         )
       end
 

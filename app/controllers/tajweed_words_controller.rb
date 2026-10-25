@@ -1,13 +1,14 @@
 require "unicode/name"
 
 class TajweedWordsController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :find_resource
   before_action :authenticate_user!, only: %i[update]
   before_action :authorize_access!, only: %i[update]
   before_action :init_presenter
+  before_action :ensure_tajweed_word, only: %i[show update]
+
   def show
-    @word = Word.find_by(location: params[:id])
-    @tajweed_word = TajweedWord.where(word_id: @word.id).first
   end
 
   def index
@@ -21,17 +22,23 @@ class TajweedWordsController < CommunityController
   end
 
   def rule_doc
-
+    if @presenter.tajweed_rule.blank?
+      redirect_to tajweed_words_path, alert: 'Sorry tajweed rule not found.'
+    end
   end
 
   def update
-    @word = Word.find_by(location: params[:id])
-    @tajweed_word = TajweedWord.where(word_id: @word.id).first
     p = rule_params
-    @letter = @tajweed_word.update_letter_rule(p[:letter_index], p[:rule])
+    @letter = @presenter.tajweed_word.update_letter_rule(p[:letter_index], p[:rule])
   end
 
   protected
+
+  def ensure_tajweed_word
+    if @presenter.tajweed_word.blank?
+      redirect_to tajweed_words_path, alert: 'Sorry word not found.'
+    end
+  end
 
   def rule_params
     params.require(:tajweed_word).permit(:letter_index, :rule)
@@ -93,7 +100,8 @@ class TajweedWordsController < CommunityController
 
     if params[:filter_tajweed_rule_new].present?
       rule = params[:filter_tajweed_rule_new].downcase.strip
-      words = words.where("text_qpc_hafs_tajweed LIKE ?", "%#{rule}%")
+      # Match the whole class name, ikhafa shouldn't find ikhafa_shafawi
+      words = words.where("text_qpc_hafs_tajweed LIKE ?", "%class=#{Word.sanitize_sql_like(rule)}>%")
     end
 
     words

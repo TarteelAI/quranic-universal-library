@@ -3,20 +3,27 @@
 ActiveAdmin.register Transliteration do
   menu parent: 'Content'
   actions :all, except: :destroy
+  includes :language, :verse
+
   ActiveAdminViewHelpers.versionate(self)
 
   filter :language,
          as: :searchable_select,
          ajax: { resource: Language }
-  filter :resource_type, as: :select, collection: %w[Verse Word]
-  filter :resource_id
+  filter :resource_content_id
+  filter :verse_key
+  filter :chapter_id
 
   show do
     attributes_table do
       row :id
-      row :text
+      row :verse
+      row :text do |resource|
+        div class: resource.language_name.to_s.downcase do
+          safe_html resource.text
+        end
+      end
       row :language
-      row :resource
       row :resource_content
       row :created_at
       row :updated_at
@@ -26,7 +33,7 @@ ActiveAdmin.register Transliteration do
   end
 
   permit_params do
-    %i[language_id resource_type resource_id text language_name resource_content_id]
+    %i[language_id verse_id text language_name resource_content_id]
   end
 
   index do
@@ -36,9 +43,11 @@ ActiveAdmin.register Transliteration do
       link_to resource.language_name, cms_language_path(resource.language_id)
     end
 
-    column :resource_type
+    column :verse_key
 
-    column :text
+    column :text do |resource|
+      safe_html resource.text
+    end
 
     actions
   end
@@ -52,8 +61,7 @@ ActiveAdmin.register Transliteration do
               ajax: { resource: Language }
       f.input :resource_content
       f.input :language_name
-      f.input :resource_id
-      f.input :resource_type, as: :select, collection: %w[Verse Word]
+      f.input :verse_id
     end
     f.actions
   end

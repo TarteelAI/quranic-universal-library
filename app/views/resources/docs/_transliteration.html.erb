@@ -1,0 +1,32 @@
+<div class="qul-docs">
+  <h2>About transliteration data</h2>
+
+  <p>
+    QUL carries transliterations of the Quran in several languages, some ayah by ayah and some word by
+    word. Every transliteration is available as <strong>JSON</strong> and <strong>SQLite</strong>.
+  </p>
+
+  <div class="docs-callout docs-callout-info">
+    The text contains HTML tags such as <code>&lt;u&gt;</code> and <code>&lt;b&gt;</code>. They mark long
+    vowels and emphasised letters, so render the value as HTML — printing it as plain text will show the
+    tags to your users.
+  </div>
+
+  <h2>JSON</h2>
+  <p>Keyed by ayah in <code>surah:ayah</code> form.</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
+}</code></pre>
+  </div>
+
+  <h2>SQLite columns</h2>
+  <ul>
+    <li><code>sura</code> — surah number.</li>
+    <li><code>ayah</code> — ayah number within the surah.</li>
+    <li><code>ayah_key</code> — the two combined, for example <code>1:1</code>.</li>
+    <li><code>text</code> — the transliteration, with the same HTML tags as the JSON export.</li>
+  </ul>
+</div>
+    

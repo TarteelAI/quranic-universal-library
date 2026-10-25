@@ -8,21 +8,21 @@
   <div class="flex items-center gap-3 flex-wrap">
     <%= link_to "/cms/morphology_phrases/#{phrase.id}", target: :_blank, class: 'flex items-center gap-2 no-underline hover:opacity-80' do %>
       <span class="inline-block w-4 h-4 rounded-sm flex-shrink-0" style="background: <%= phrase.get_color %>"></span>
-      <span class="text-sm font-medium <%= 'text-red-600' if !phrase.approved? %>"><%= phrase.verses_count %> (<%= phrase.review_status %>)</span>
+      <span class="text-sm font-medium <%= 'text-red-600' if !phrase.approved? %>"
+            title="Found in <%= pluralize(phrase.verses_count.to_i, 'ayah') %><%= ' (phrase not approved)' unless phrase.approved? %>"
+            data-controller="tooltip"><%= pluralize(phrase.verses_count.to_i, 'ayah') %></span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= phrase.reviewed? ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800' %>"><%= phrase.review_status_label %></span>
     <% end %>
 
     <% if @access %>
       <%= form_with model: phrase_verse, url: "/morphology_phrases/#{phrase_verse.id}", method: :put do |form| %>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-xs text-gray-500">p: <%= phrase.id %> s: <%= phrase_verse.score %></span>
+          <span class="text-xs text-gray-500" title="Phrase id and sort score" data-controller="tooltip">#<%= phrase.id %> · score <%= phrase_verse.score %></span>
           <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
-                type="button"
-                data-controller="collapse"
-                data-action="click->collapse#toggle"
-                data-bs-target="#phrase-<%= phrase.id %>-related"
-                aria-expanded="false"
-                aria-controls="phrase-<%= phrase.id %>-related"><%= approved_count %></span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"><%= not_approved_count %></span>
+                title="Approved ayahs for this phrase" data-controller="tooltip"><%= approved_count %></span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"
+                title="Ayahs not approved for this phrase" data-controller="tooltip"><%= not_approved_count %></span>
+          <%= link_to 'Edit', morphology_phrase_path(phrase.id), class: 'px-2 py-0.5 text-xs font-medium rounded border border-slate-300 text-slate-700 hover:bg-white no-underline' %>
           <%= form.button("<i class='fas fa-times'></i>".html_safe, name: 'disabled', type: :submit, title: 'Disable', class: "px-2.5 py-1 text-xs font-medium rounded transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'bg-transparent text-red-600 border border-red-300 hover:bg-red-50' : 'bg-red-600 hover:bg-red-700 text-white'}", data: { controller: 'tooltip', tooltip_placement_value: 'top' }) %>
           <%= form.button("<i class='fas fa-check'></i>".html_safe, name: 'approved', type: :submit, title: 'Approve', class: "px-2.5 py-1 text-xs font-medium rounded transition-colors #{phrase_verse.phrase.approved? && phrase_verse.approved? ? 'bg-green-600 hover:bg-green-700 text-white' : 'border border-green-600 text-green-600 hover:bg-green-50'}", data: { controller: 'tooltip', tooltip_placement_value: 'top' }) %>
         </div>

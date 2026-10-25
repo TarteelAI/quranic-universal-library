@@ -1,6 +1,6 @@
 <%= render 'tools/header',
            name: "Quran corpus tool",
-           title: "Quran Word By Word Data Concordance Labeling, POS and grammar tagging",
+           title: "Quran corpus: word morphology and grammar",
            key: 'corpus'
 %>
 
@@ -19,42 +19,37 @@
   </div>
 
   <div class="page-section mt-4">
-    <h2 class="text-2xl mb-4">Ayah list</h2>
-    <div class="tools-table-overflow">
-    <table class="w-full hover:bg-gray-50">
-      <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
-      <tr>
-        <th><%= sort_order_link 'Ayah#', :id %></th>
-        <th>Key</th>
-        <th>Text</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-
-      <tbody>
-      <% @verses.each do |verse| %>
-        <tr class="hover:bg-gray-200 border-b">
-          <th scope="row" class="py-2 pl-2"><%= verse.id %></th>
-          <td class="py-2"><%= verse.verse_key %></td>
-          <td class="py-2 me_quran">
-            <%= verse.text_uthmani %>
-          </td>
-
-          <td class="py-2">
-            <div class="d-grid">
-              <%= link_to 'Show', word_concordance_label_path(verse.id), class: 'btn btn-success' %>
-            </div>
-          </td>
+    <h2 class="text-lg font-semibold text-gray-900 mb-3">Ayahs</h2>
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500">
+        <tr>
+          <th class="px-4 py-3 font-medium"><%= sort_order_link 'Ayah #', :id %></th>
+          <th class="px-4 py-3 font-medium">Key</th>
+          <th class="px-4 py-3 font-medium text-right">Text</th>
+          <th class="px-4 py-3 font-medium text-right">Actions</th>
         </tr>
-      <% end %>
+        </thead>
 
-      <tr>
-        <td colspan="4">
-          <%= pagination_section @pagy %>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+        <tbody class="divide-y divide-gray-100">
+        <% @verses.each do |verse| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-gray-500"><%= verse.id %></td>
+            <td class="px-4 py-3"><%= link_to verse.verse_key, word_concordance_label_path(verse.id) %></td>
+            <td class="px-4 py-3 text-right">
+              <span class="text-qpc-hafs text-2xl leading-loose" dir="rtl"><%= verse.text_qpc_hafs %></span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <%= link_to 'Show', word_concordance_label_path(verse.id), class: 'btn btn-success btn-sm' %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4">
+      <%= pagination_section @pagy %>
     </div>
   </div>
 </div>

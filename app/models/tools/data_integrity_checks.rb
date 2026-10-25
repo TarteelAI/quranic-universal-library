@@ -20,6 +20,10 @@ module Tools
         :mushaf_words_with_incorrect_char_type,
         :chapter_with_missing_translated_names,
         :ayah_with_missing_tafsirs,
+        :transliterations_without_verse,
+        :ayah_with_missing_transliterations,
+        :word_transliterations_without_word,
+        :words_with_missing_transliterations,
         :words_without_root,
         :words_without_lemma,
         :words_without_stem,
@@ -1208,6 +1212,157 @@ module Tools
     end
 
     protected
+
+    def self.transliterations_without_verse
+      {
+        name: "Transliterations without ayah",
+        description: "Ayah transliterations whose verse_id is empty or points to an ayah that doesn't exist",
+        instructions: [
+          "Optionally select a transliteration resource to narrow the results",
+          "Click on the id to open the transliteration and fix its ayah"
+        ],
+        table_attrs: ['id', 'resource_content_id', 'verse_id', 'language_name', 'text'],
+        fields: [
+          {
+            type: :select,
+            collection: ResourceContent.transliteration.pluck(:name, :id),
+            name: :resource_content_id
+          }
+        ],
+        links_proc: {
+          id: -> (record, _) do
+            [record.id, "/cms/transliterations/#{record.id}"]
+          end,
+          text: -> (record, _) do
+            [record.text.to_s.truncate(150), nil]
+          end
+        },
+        check: ->(params) do
+          results = Transliteration
+                      .joins('LEFT JOIN verses ON verses.id = transliterations.verse_id')
+                      .where('verses.id IS NULL')
+                      .order('transliterations.id')
+
+          results = results.where(resource_content_id: params[:resource_content_id].to_i) if params[:resource_content_id].present?
+
+          paginate(results, params)
+        end
+      }
+    end
+
+    def self.ayah_with_missing_transliterations
+      {
+        name: "Ayah with missing transliteration",
+        description: "List of ayahs with missing transliteration for the selected ayah transliteration resource",
+        instructions: [
+          "Select an ayah transliteration resource from the dropdown",
+          "Review ayahs that don't have a transliteration in the selected resource"
+        ],
+        table_attrs: ['id', 'verse_key'],
+        fields: [
+          {
+            type: :select,
+            collection: ResourceContent.transliteration.one_verse.pluck(:name, :id),
+            name: :resource_content_id
+          }
+        ],
+        links_proc: {
+          verse_key: -> (record, params) do
+            [record.verse_key, "/transliteration_proofreadings/#{record.id}?resource_id=#{params[:resource_content_id]}"]
+          end
+        },
+        check: ->(params) do
+          resource_content_id = params[:resource_content_id]
+
+          if resource_content_id.blank?
+            next { collection: paginate(Verse.none, params), error: 'Select a transliteration resource' }
+          end
+
+          join_query = "LEFT JOIN transliterations ON verses.id = transliterations.verse_id AND transliterations.resource_content_id = #{resource_content_id.to_i}"
+          results = Verse
+                      .joins(join_query)
+                      .where("transliterations.id IS NULL OR transliterations.text = '' OR transliterations.text IS NULL")
+                      .order('verses.verse_index')
+
+          paginate(results, params)
+        end
+      }
+    end
+
+    def self.word_transliterations_without_word
+      {
+        name: "Word transliterations without word",
+        description: "Word transliterations whose word_id points to a word that doesn't exist",
+        instructions: [
+          "Optionally select a word transliteration resource to narrow the results",
+          "Click on the id to open the word transliteration and fix its word"
+        ],
+        table_attrs: ['id', 'resource_content_id', 'word_id', 'language_name', 'text'],
+        fields: [
+          {
+            type: :select,
+            collection: ResourceContent.transliteration.one_word.pluck(:name, :id),
+            name: :resource_content_id
+          }
+        ],
+        links_proc: {
+          id: -> (record, _) do
+            [record.id, "/cms/word_transliterations/#{record.id}"]
+          end
+        },
+        check: ->(params) do
+          results = WordTransliteration
+                      .joins('LEFT JOIN words ON words.id = word_transliterations.word_id')
+                      .where('words.id IS NULL')
+                      .order('word_transliterations.id')
+
+          results = results.where(resource_content_id: params[:resource_content_id].to_i) if params[:resource_content_id].present?
+
+          paginate(results, params)
+        end
+      }
+    end
+
+    def self.words_with_missing_transliterations
+      {
+        name: "Words with missing transliteration",
+        description: "List of words with missing transliteration for the selected word transliteration resource",
+        instructions: [
+          "Select a word transliteration resource from the dropdown",
+          "Review words that don't have a transliteration in the selected resource",
+          "Click on the location to fix the transliteration of that ayah"
+        ],
+        table_attrs: ['id', 'location', 'text_qpc_hafs'],
+        fields: [
+          {
+            type: :select,
+            collection: ResourceContent.transliteration.one_word.pluck(:name, :id),
+            name: :resource_content_id
+          }
+        ],
+        links_proc: {
+          location: -> (record, params) do
+            [record.location, "/word_transliteration_proofreadings/#{record.verse_id}?resource_id=#{params[:resource_content_id]}"]
+          end
+        },
+        check: ->(params) do
+          resource_content_id = params[:resource_content_id]
+
+          if resource_content_id.blank?
+            next { collection: paginate(Word.none, params), error: 'Select a word transliteration resource' }
+          end
+
+          join_query = "LEFT JOIN word_transliterations ON words.id = word_transliterations.word_id AND word_transliterations.resource_content_id = #{resource_content_id.to_i}"
+          results = Word
+                      .words
+                      .joins(join_query)
+                      .where("word_transliterations.id IS NULL OR word_transliterations.text = '' OR word_transliterations.text IS NULL")
+                      .reorder('words.word_index')
+
+          paginate(results, params)
+        end
+      }
+    end
 
     def self.paginate(results, params)
       page = (params[:page] || 0).to_i

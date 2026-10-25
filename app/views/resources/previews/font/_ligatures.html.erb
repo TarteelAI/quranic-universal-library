@@ -1,0 +1,70 @@
+<% ligatures = @presenter.font_assets(resource)[:ligatures] %>
+
+<div class="space-y-4">
+  <p class="text-gray-600">
+    This font draws each of the names below as a single glyph. Copy the ligature text into your
+    markup and render it with this font — copying the name itself will not work.
+  </p>
+
+  <div class="font-toolbar">
+    <input type="search"
+           class="font-toolbar-search"
+           placeholder="Filter by name…"
+           aria-label="Filter ligatures"
+           data-font-preview-target="ligatureSearch"
+           data-action="input->font-preview#filterLigatures">
+
+    <div class="font-toolbar-group">
+      <label for="ligature-size-slider">Size</label>
+      <input id="ligature-size-slider" type="range" min="16" max="120" value="40"
+             data-font-preview-target="ligatureSizeSlider"
+             data-action="input->font-preview#updateLigatureSize">
+      <span class="font-toolbar-value" data-font-preview-target="ligatureSizeValue">40px</span>
+    </div>
+
+    <span class="font-toolbar-count" data-font-preview-target="ligatureCount"></span>
+  </div>
+
+  <div class="tools-table-overflow border border-gray-200 rounded-lg">
+    <table class="w-full text-sm">
+      <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 text-left">
+        <tr>
+          <th class="py-2 px-3 font-medium w-12">#</th>
+          <th class="py-2 px-3 font-medium">Name</th>
+          <th class="py-2 px-3 font-medium">Preview</th>
+          <th class="py-2 px-3 font-medium w-40">Copy</th>
+        </tr>
+      </thead>
+      <tbody data-font-preview-target="ligaturesTable">
+        <% ligatures.each_with_index do |(name, glyph_text), index| %>
+          <tr class="border-b border-gray-100 hover:bg-gray-50"
+              data-ligature-row
+              data-ligature-name="<%= name.to_s.downcase %>">
+            <td class="py-2 px-3 text-gray-500"><%= index + 1 %></td>
+            <td class="py-2 px-3"><%= name %></td>
+            <td class="py-2 px-3">
+              <span class="ligature-preview" style="font-size: 40px;"
+    data-font-preview-target="ligaturePreview"
+    data-ligature-text="<%= glyph_text %>"><%= glyph_text %></span>
+            </td>
+            <td class="py-2 px-3">
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-outline btn-sm"
+                        data-action="font-preview#copyValue"
+                        data-copy-value="<%= glyph_text %>">
+                  Ligature
+                </button>
+                <button type="button" class="btn btn-outline btn-sm"
+                        data-action="font-preview#copyValue"
+                        data-copy-value="<%= name %>">
+                  Name
+                </button>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+      

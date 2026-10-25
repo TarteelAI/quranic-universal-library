@@ -1,0 +1,71 @@
+<div class="qul-docs">
+  <h2>About juz metadata</h2>
+  <p>
+    Juz data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+  </p>
+
+  <h3>Sample JSON</h3>
+  <p>Here is an example of the JSON structure for the first juz:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1": {
+    "juz_number": 1,
+    "verses_count": 148,
+    "first_verse_key": "1:1",
+    "last_verse_key": "2:141",
+    "verse_mapping": {
+      "1": "1-7",
+      "2": "1-141"
+    }
+  }
+}</code></pre>
+  </div>
+
+  <h3>Field descriptions</h3>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>juz_number</code></td>
+          <td>INTEGER</td>
+          <td>The juz number (1 to 30).</td>
+        </tr>
+        <tr>
+          <td><code>verses_count</code></td>
+          <td>INTEGER</td>
+          <td>Total number of verses in the juz.</td>
+        </tr>
+        <tr>
+          <td><code>first_verse_key</code></td>
+          <td>TEXT</td>
+          <td>The key of the first verse in the juz (e.g. <code>1:1</code>).</td>
+        </tr>
+        <tr>
+          <td><code>last_verse_key</code></td>
+          <td>TEXT</td>
+          <td>The key of the last verse in the juz (e.g. <code>2:141</code>).</td>
+        </tr>
+        <tr>
+          <td><code>verse_mapping</code></td>
+          <td>OBJECT</td>
+          <td>A mapping of surah numbers to ayah ranges within this juz. For example, <code>"2": "1-141"</code> means Surah 2 contributes ayahs 1 to 141 to this juz.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <%= render "resources/previews/quran_metadata/range_usage",
+             unit: "juz",
+             number_field: "juz_number",
+             table: "juz",
+             count: 30,
+             file_slug: "quran-metadata-juz" %>
+</div>

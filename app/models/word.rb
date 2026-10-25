@@ -98,7 +98,7 @@ class Word < QuranApiRecord
   belongs_to :stem, optional: true
 
   has_many :word_translations
-  has_many :transliterations, as: :resource
+  has_many :word_transliterations
   has_many :word_synonyms
   has_many :synonyms, through: :word_synonyms
   has_many :mushaf_words
@@ -123,7 +123,7 @@ class Word < QuranApiRecord
   has_one :fr_translation, -> { where language_id: 49 }, class_name: 'WordTranslation' # French
   has_one :tr_translation, -> { where language_id: 167 }, class_name: 'WordTranslation' # Turkish
 
-  has_one :ur_transliteration, -> { where language_name: 'urdu' }, class_name: 'Transliteration', as: :resource
+  has_one :ur_transliteration, -> { where language_name: 'urdu' }, class_name: 'WordTransliteration'
 
   has_one :arabic_transliteration
   after_update :update_mushaf_word_text

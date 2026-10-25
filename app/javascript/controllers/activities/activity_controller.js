@@ -7,19 +7,19 @@ export default class extends Controller {
     this.el = $(this.element)
     this.resultBox = $('#quiz-result')
     this.moreActivities = $('.more-activities')
-    this.moreActivities.addClass('d-none');
+    this.moreActivities.addClass('hidden');
   }
 
   onSuccess() {
     this.showConfetti();
-    this.resultBox.find('#correct-message').removeClass('d-none');
-    this.resultBox.find('#incorrect-message').addClass('d-none');
+    this.resultBox.find('#correct-message').removeClass('hidden');
+    this.resultBox.find('#incorrect-message').addClass('hidden');
     this.nextAction()
   }
 
   wrongAnswer() {
-    this.resultBox.find('#correct-message').addClass('d-none');
-    this.resultBox.find('#incorrect-message').removeClass('d-none').addClass('shake');
+    this.resultBox.find('#correct-message').addClass('hidden');
+    this.resultBox.find('#incorrect-message').removeClass('hidden').addClass('shake');
 
     setTimeout(() => {
       this.resultBox.find('#incorrect-message').removeClass('shake');
@@ -37,7 +37,7 @@ export default class extends Controller {
     ayah.data("url", `/ayah/${ayahKey}`);
 
     setTimeout(() => {
-      this.moreActivities.removeClass('d-none');
+      this.moreActivities.removeClass('hidden');
       this.moreActivities.addClass('shake');
     }, 4500)
   }

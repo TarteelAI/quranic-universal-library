@@ -1,4 +1,5 @@
 class CommunityController < ApplicationController
+  before_action :normalize_page_param, only: %i[chars_info]
   before_action :init_presenter
 
   DEFAULT_LANGUAGE = 174
@@ -18,7 +19,11 @@ class CommunityController < ApplicationController
   end
 
   def compare_audio
-    render layout: false
+    render layout: 'tool'
+  end
+
+  def compare_font
+    render layout: 'tool'
   end
 
   def docs

@@ -1,29 +1,47 @@
-<%= bootstrap_devise_error_messages! %>
-<div class="panel panel-default devise-bs">
-  <div class="panel-heading">
-    <h4><%= t('.title', resource: resource_class.model_name.human , default: "Edit #{resource_name.to_s.humanize}") %></h4>
+<%= render 'layouts/grid' do %>
+  <div class="mx-auto px-4 pb-10 max-w-2xl">
+    <div class="py-3 md:px-4">
+      <h1 class="text-2xl font-semibold mt-4">
+        <%= t('.title', resource: resource_class.model_name.human, default: "Edit #{resource_name.to_s.humanize}") %>
+      </h1>
+      <%= bootstrap_devise_error_messages! %>
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: 'inputs_container', role: 'form' }) do |f| %>
+        <div class="relative mt-6">
+          <%= f.email_field :email, autofocus: true, class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ' %>
+          <%= f.label :email, class: 'absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1 pointer-events-none' %>
+        </div>
+        <div class="relative mt-6">
+          <%= f.password_field :password, autocomplete: 'off', class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ' %>
+          <%= f.label :password, class: 'absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1 pointer-events-none' %>
+          <p class="text-sm text-gray-500 mt-1">
+            <%= t('.leave_blank_if_you_don_t_want_to_change_it', default: "Leave blank if you don't want to change it") %>
+          </p>
+        </div>
+        <div class="relative mt-6">
+          <%= f.password_field :password_confirmation, class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ' %>
+          <%= f.label :password_confirmation, class: 'absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1 pointer-events-none' %>
+        </div>
+        <div class="relative mt-6">
+          <%= f.password_field :current_password, class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ' %>
+          <%= f.label :current_password, class: 'absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1 pointer-events-none' %>
+          <p class="text-sm text-gray-500 mt-1">
+            <%= t('.we_need_your_current_password_to_confirm_your_changes', default: 'We need your current password to confirm your changes') %>
+          </p>
+        </div>
+        <div class="text-center mt-8">
+          <%= f.submit t('.update', default: 'Update'), class: 'px-8 py-3 rounded font-medium transition-colors bg-gray-800 hover:bg-gray-900 text-white mt-2' %>
+        </div>
+      <% end %>
+
+      <div class="mt-10 pt-6 border-t border-gray-200 text-center">
+        <p class="text-gray-600">
+          <%= t('.unhappy', default: 'Unhappy') %>?
+          <%= link_to t('.cancel_my_account', default: 'Cancel my account'), registration_path(resource_name), data: { confirm: t('.are_you_sure', default: 'Are you sure?') }, method: :delete, class: 'text-red-600 hover:text-red-700 hover:underline' %>.
+        </p>
+        <p class="mt-3">
+          <%= link_to t('.back', default: 'Back'), :back, class: 'hover:text-black hover:underline' %>
+        </p>
+      </div>
+    </div>
   </div>
-  <div class="panel-body">
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-      <div class="mb-4">
-        <%= f.label :email %>
-        <%= f.email_field :email, autofocus: true, class: 'form-control' %>
-      </div>
-      <div class="mb-4">
-        <%= f.label :password %> <i>(<%= t('.leave_blank_if_you_don_t_want_to_change_it', default: "leave blank if you don't want to change it") %>)</i>
-        <%= f.password_field :password, autocomplete: "off", class: 'form-control' %>
-      </div>
-      <div class="mb-4">
-        <%= f.label :password_confirmation %>
-        <%= f.password_field :password_confirmation, class: 'form-control'  %>
-      </div>
-      <div class="mb-4">
-        <%= f.label :current_password %> <i>(<%= t('.we_need_your_current_password_to_confirm_your_changes', default: 'we need your current password to confirm your changes') %>)</i>
-        <%= f.password_field :current_password, class: 'form-control' %>
-      </div>
-      <%= f.submit t('.update', default: 'Update'), class: 'btn btn-success btn-sm' %>
-    <% end %>
-  </div>
-</div>
-<p><%= t('.unhappy', default: 'Unhappy') %>? <%= link_to t('.cancel_my_account', default: 'Cancel my account'), registration_path(resource_name), data: { confirm: t('.are_you_sure', default: "Are you sure?") }, method: :delete %>.</p>
-<%= link_to t('.back', default: 'Back'), :back %>
+<% end %>

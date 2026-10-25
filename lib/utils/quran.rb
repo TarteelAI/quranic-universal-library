@@ -81,6 +81,10 @@ module Utils
     end
 
     def self.get_ayah_id(surah, ayah)
+      surah = surah.to_i
+      ayah = ayah.to_i
+      return nil unless (1..114).cover?(surah) && valid_ayah?(surah, ayah)
+
       abs_ayahs[surah - 1] + ayah
     end
 

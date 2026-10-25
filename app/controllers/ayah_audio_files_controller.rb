@@ -1,4 +1,5 @@
 class AyahAudioFilesController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
   before_action :load_audio_files, only: [:show, :segments, :save_segments]
   before_action :authorize_access!, only: %i[save_segments]

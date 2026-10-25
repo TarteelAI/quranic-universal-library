@@ -23,6 +23,7 @@ data/audio/*/qa/cache/
 !/tmp/.keep
 fonts/*
 public/downloads/*
+public/audio_repair/*
 
 # Ignore yarn files
 /yarn-error.log
@@ -147,6 +148,7 @@ cypress-tests/node_modules
 
 # Ignore package-lock.json in cypress folder
 cypress-tests/package-lock.json
+package-lock.json
 
 # Ignore all logfiles and tempfiles in cypress folder
 cypress-tests/cypress/results
@@ -168,3 +170,6 @@ scripts/img
 scripts/ttf
 scripts/exported_data
 .qodo
+
+# Cypress local secrets (testmail.app credentials etc.)
+cypress.env.json

@@ -17,9 +17,9 @@ module DraftContent
 
       versions.each do |version|
         if (resource = lookup_resource_content(version[:key]))
-          last_updated = resource.meta_value('quranenc_last_updated')
+          last_updated = last_updated_on_quranenc(resource)
 
-          if last_updated.nil? || last_updated.to_i != version[:last_update].to_i
+          if last_updated.nil? || last_updated != version[:last_update].to_i
             report_update_translation(version, resource)
             auto_import_draft(resource)
           end
@@ -38,9 +38,7 @@ module DraftContent
 
     def report_update_translation(version, resource)
       resource.set_meta_value("source", 'quranenc')
-      resource.set_meta_value("version_on_quran_enc", version[:version])
-      resource.set_meta_value("updated_timestamp_on_quran_enc", version[:last_update].to_i)
-      resource.set_meta_value("updated_date_on_quran_enc", version[:last_update].strftime('%B %d, %Y at %I:%M %P %Z'))
+      set_quranenc_version_meta(resource, version)
       resource.save
 
       todo = AdminTodo.where(
@@ -68,27 +66,40 @@ module DraftContent
 
     def report_new_translation(version, importer)
       key = version[:key]
-      resource = ResourceContent.where("meta_data ->> 'quranenc-key' = '#{key}'").first_or_initialize
+      resource = lookup_resource_content(key) || ResourceContent.new
+      translation = importer.get_translation_for_key(key)
+      tafsir = tafsir_key?(key)
 
-      if translation = importer.get_translation_for_key(key)
-        language = Language.find_by(iso_code: translation['language_iso_code'])
+      language = resource.language || Language.find_by(iso_code: translation&.dig('language_iso_code'))
 
-        title = resource.name.presence || translation['title'] || key.humanize
+      resource.name = resource.name.presence ||
+                      translation&.dig('title').presence ||
+                      version[:name].presence ||
+                      key.humanize
 
-        resource.name = title
-        resource.language ||= language
-        resource.cardinality_type = ResourceContent::CardinalityType::OneVerse
-        resource.sub_type = ResourceContent::SubType::Translation
-      else
-        resource.name = version[:name]
+      if language
+        resource.language = language
+        resource.language_name = language.name.downcase
       end
 
+      resource.resource_info = resource.resource_info.presence || translation&.dig('description').presence
+      resource.data_source ||= quranenc_data_source
+      resource.resource_type = ResourceContent::ResourceType::Content
       resource.resource_type_name = ResourceContent::ResourceType::Content
+
+      if tafsir
+        resource.sub_type = ResourceContent::SubType::Tafsir
+        resource.cardinality_type = ResourceContent::CardinalityType::NVerse
+      else
+        resource.sub_type = ResourceContent::SubType::Translation
+        resource.cardinality_type = ResourceContent::CardinalityType::OneVerse
+      end
+
+      resource.approved = false if resource.new_record?
+
       resource.set_meta_value("source", 'quranenc')
       resource.set_meta_value("quranenc-key", key)
-      resource.set_meta_value("version-on-quran-enc", version[:version])
-      resource.set_meta_value("updated-timestamp-on-quran_enc", version[:last_update])
-      resource.set_meta_value("updated-date-on-quran-enc", version[:last_update].strftime('%B %d, %Y at %I:%M %P %Z'))
+      set_quranenc_version_meta(resource, version)
       resource.save(validate: false)
 
       todo = AdminTodo.where(
@@ -97,9 +108,11 @@ module DraftContent
         tags: 'new-resource'
       ).first_or_initialize
 
+      missing_language_warning = language ? '' : "\n <strong>Language could not be detected#{" for iso code #{translation['language_iso_code']}" if translation&.dig('language_iso_code')}. Set it manually, draft import is skipped until then.</strong>"
+
       todo.description = "New translation/tafsir is available on QuranEcn.
                    \n Name: <strong>#{resource.name}</strong>(##{resource.id}).
-                   \n Key: #{version[:key]}
+                   \n Key: #{version[:key]}#{missing_language_warning}
                    \n <a href='https://qul.tarteel.ai/cms/resource_contents/#{resource.id}' target='_blank'>View resource in QUL</a>
                    \n <a href='https://qul.tarteel.ai/cms/translations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc/' target='_blank'>View resource translations in QUL</a>
                    \n <a href='https://quranenc.com/en/browse/#{version[:key]}/' target='_blank'>View translation on QuranEnc</a>"
@@ -118,7 +131,31 @@ module DraftContent
     end
 
     def lookup_resource_content(quranenc_key)
-      ResourceContent.where("meta_data ->> 'quranenc-key' = '#{quranenc_key}'").first
+      ResourceContent.where("meta_data ->> 'quranenc-key' = ?", quranenc_key).first
+    end
+
+    QURANENC_VERSION_KEY = 'quranenc-version'
+    QURANENC_LAST_UPDATED_KEY = 'quranenc-last-updated'
+    QURANENC_LAST_UPDATED_DATE_KEY = 'quranenc-last-updated-date'
+
+    def set_quranenc_version_meta(resource, version)
+      resource.set_meta_value(QURANENC_VERSION_KEY, version[:version])
+      resource.set_meta_value(QURANENC_LAST_UPDATED_KEY, version[:last_update].to_i)
+      resource.set_meta_value(QURANENC_LAST_UPDATED_DATE_KEY, version[:last_update].strftime('%B %d, %Y at %I:%M %P %Z'))
+    end
+
+    def last_updated_on_quranenc(resource)
+      value = resource.meta_value(QURANENC_LAST_UPDATED_KEY)
+
+      value && value.to_i
+    end
+
+    def tafsir_key?(quranenc_key)
+      Importer::QuranEncTafsir::TAFSIR_MAPPING.key?(quranenc_key.to_sym)
+    end
+
+    def quranenc_data_source
+      @quranenc_data_source ||= DataSource.find(14)
     end
   end
 end

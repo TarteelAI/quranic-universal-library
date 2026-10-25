@@ -6,20 +6,28 @@ module Morphology
       super(context)
       @locale = params[:locale].presence || 'ar'
       @location = normalize_location(params[:location])
+
       chapter_number, verse_number, word_position = parse_location(@location)
 
       @verse = Verse.find_by(chapter_id: chapter_number, verse_number: verse_number)
-      @word = @verse&.words&.includes(:en_translation, :lemma, :root, :stem, :morphology_word)&.find_by(position: word_position)
-      @prev_word = @word&.previous_word
-      @next_word = @word&.next_word
+      @verse ||= Verse.find_by_verse_key('1:1')
 
-      @morphology_word = @word&.morphology_word
+      @word = @verse.words.find_by(position: word_position)
+      @word ||= Word.find_by_location('1:1:1')
+
+      @prev_word = @word.previous_word
+      @next_word = @word.next_word
+
+      @morphology_word = @word.morphology_word
       @segments = @morphology_word ? @morphology_word.word_segments.includes(:grammar_term, :grammar_concept, :grammar_role, :grammar_sub_role, :lemma, :root, :topic).to_a : []
     end
 
     def ayah_graph
-      graphs = Morphology::DependencyGraph::Graph.for_verse(@verse.chapter_id, @verse.verse_number)
-      graphs.first
+      return nil if @verse.blank?
+
+      @ayah_graph ||= Morphology::DependencyGraph::Graph
+                        .for_verse(@verse.chapter_id, @verse.verse_number)
+                        .first
     end
 
     def found?
@@ -27,20 +35,18 @@ module Morphology
     end
 
     def title
-      return '' unless word
       "Grammar of #{word.position.ordinalize} word of ayah #{verse.verse_key}"
     end
 
     def word_location
-      word&.location.to_s
+      word.location.to_s
     end
 
     def ayah_key
-      verse&.verse_key.to_s
+      verse.verse_key.to_s
     end
 
     def read_ayah_path
-      return '' unless verse
       context.ayah_path(key: verse.verse_key)
     end
 
@@ -66,11 +72,11 @@ module Morphology
     end
 
     def meaning
-      word&.en_translation&.text.presence || '-'
+      word.en_translation&.text.presence || '-'
     end
 
     def transliteration
-      word&.en_transliteration.presence || '-'
+      word.en_transliteration.presence || '-'
     end
 
     def description_html
@@ -78,33 +84,33 @@ module Morphology
     end
 
     def corpus_image_url
-      word&.corpus_image_url.to_s
+      word.corpus_image_url.to_s
     end
 
     def lemma_text
-      word&.lemma&.text_madani.presence || '-'
+      word.lemma&.text_madani.presence || '-'
     end
 
     def stem_text
-      word&.stem&.text_madani.presence || '-'
+      word.stem&.text_madani.presence || '-'
     end
 
     def root_text
-      word&.root&.value.presence || '-'
+      word.root&.value.presence || '-'
     end
 
     def lemma_modal_url
-      return nil unless word&.lemma
+      return nil unless word.lemma
       context.morphology_lemma_path(word.lemma.text_clean)
     end
 
     def stem_modal_url
-      return nil unless word&.stem
+      return nil unless word.stem
       context.morphology_stem_path(word.stem.text_clean)
     end
 
     def root_modal_url
-      return nil unless word&.root
+      return nil unless word.root
       context.morphology_root_path(word.root.arabic_trilateral)
     end
 
@@ -152,12 +158,16 @@ module Morphology
     private
 
     def normalize_location(location)
-      location.to_s.strip.delete_prefix('(').delete_suffix(')')
+      location = location.to_s.strip
+      location = '1:1:1' if location.blank?
+
+      location.delete_prefix('(').delete_suffix(')')
     end
 
     def parse_location(location)
       parts = location.split(':').map(&:to_i)
-      return [0, 0, 0] unless parts.length >= 3
+      return [1, 1, 1] unless parts.length >= 3
+
       parts.first(3)
     end
   end

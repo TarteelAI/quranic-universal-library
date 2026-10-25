@@ -1,0 +1,5 @@
+<% tag = DownloadableResourceTag.find_by(slug: 'mushaf-layout') %>
+
+<div class="qul-docs">
+  <%= safe_html tag.description if tag %>
+</div>

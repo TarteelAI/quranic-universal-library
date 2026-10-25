@@ -51,6 +51,8 @@
 #
 
 class AudioFile < QuranApiRecord
+  include AudioContentVersioning
+
   belongs_to :verse, optional: true
   belongs_to :chapter, optional: true
   belongs_to :recitation, optional: true
@@ -164,7 +166,8 @@ class AudioFile < QuranApiRecord
       end
     end
 
-    list = list.compact_blank
+    # Drop builder placeholders (start == end == 0) before saving.
+    list = Audio::SegmentNormalizer.clean(list.compact_blank)
     self.segments = list
     self.segments_count = list.size
   end

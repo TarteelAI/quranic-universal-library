@@ -423,3 +423,340 @@
 .contributor-logo:hover .logo {
   transform: scale(1.05);
 }
+
+.resource-tabs {
+  @apply flex flex-nowrap overflow-x-auto list-none m-0 p-0 border-b border-gray-200;
+}
+
+/* Preview / Docs / Licence tabs on a resource page */
+.detail-tabs {
+  @apply flex gap-2 overflow-x-auto border-b border-gray-200 mb-6;
+  scrollbar-width: none;
+}
+
+.detail-tab {
+  @apply shrink-0 -mb-px border-b-2 border-transparent px-4 py-3 text-[15px] font-medium text-gray-500 no-underline whitespace-nowrap transition-colors;
+  @apply hover:text-gray-900 hover:border-gray-300;
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-[#46ac7a]/40 focus-visible:rounded-t;
+}
+
+.detail-tab[aria-selected="true"] {
+  @apply text-gray-900 border-[#46ac7a];
+}
+
+.resource-pane-title {
+  @apply text-xl font-semibold text-gray-800;
+}
+
+.resource-pane-subtitle {
+  @apply text-lg font-semibold text-gray-800;
+}
+
+.docs-callout {
+  @apply rounded-lg border-l-4 px-4 py-3 my-4 text-base;
+}
+
+.docs-callout-info {
+  @apply bg-blue-50 border-blue-400 text-blue-900;
+}
+
+.docs-callout-warning {
+  @apply bg-amber-50 border-amber-400 text-amber-900;
+}
+
+.docs-callout-tip {
+  @apply bg-emerald-50 border-emerald-500 text-emerald-900;
+}
+
+/* Licence tab */
+.licence-header {
+  @apply rounded-lg border border-gray-200 bg-gray-50 p-5 mb-6;
+}
+
+.licence-badge {
+  @apply inline-flex items-center rounded-full bg-[#46ac7a]/10 px-3 py-1 text-sm font-semibold text-[#2f7d57];
+}
+
+.licence-terms {
+  @apply grid gap-4 md:grid-flow-col md:auto-cols-fr my-4;
+}
+
+.qul-docs .licence-terms-card {
+  @apply rounded-lg border p-4;
+}
+
+.qul-docs .licence-terms-card h3 {
+  @apply mt-0 mb-3 text-base font-semibold;
+}
+
+.qul-docs .licence-terms-card ul {
+  @apply m-0 p-0 list-none space-y-2;
+}
+
+.qul-docs .licence-terms-card li {
+  @apply relative pl-6 text-[15px] leading-6;
+}
+
+.qul-docs .licence-terms-card li::before {
+  @apply absolute left-0 font-bold;
+}
+
+.licence-terms-allowed {
+  @apply border-emerald-200 bg-emerald-50/50;
+}
+
+.qul-docs .licence-terms-allowed li::before {
+  content: "✓";
+  @apply text-emerald-600;
+}
+
+.licence-terms-ask {
+  @apply border-amber-200 bg-amber-50/50;
+}
+
+.qul-docs .licence-terms-ask li::before {
+  content: "?";
+  @apply text-amber-600;
+}
+
+.licence-terms-prohibited {
+  @apply border-red-200 bg-red-50/50;
+}
+
+.qul-docs .licence-terms-prohibited li::before {
+  content: "✕";
+  @apply text-red-600;
+}
+
+.qul-docs .licence-rich-text :is(h3, h4, h5) {
+  @apply mt-5 mb-2 text-base font-semibold text-gray-800;
+}
+
+.qul-docs .licence-rich-text ul ul {
+  @apply mt-1 list-[circle];
+}
+
+.licence-full-terms {
+  @apply mt-8 rounded-lg border border-gray-200;
+}
+
+.licence-full-terms summary {
+  @apply cursor-pointer px-4 py-3 font-semibold text-gray-800;
+}
+
+.licence-full-terms > .licence-rich-text {
+  @apply border-t border-gray-200 px-4 py-2;
+}
+
+.docs-code {
+  @apply my-4 overflow-hidden rounded-lg border border-gray-200 bg-white;
+}
+
+/* Arabic words quoted in docs: a general Uthmani font, sized to sit in tables and prose */
+.qul-docs .docs-arabic {
+  font-size: 1.5rem;
+  line-height: 2.25rem;
+}
+
+.qul-docs .docs-arabic-inline {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.docs-code-header {
+  @apply flex items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.docs-copy-btn {
+  @apply rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium normal-case tracking-normal text-gray-700 transition-colors hover:border-[#46ac7a] hover:text-[#46ac7a];
+}
+
+.docs-code pre {
+  @apply m-0 overflow-x-auto rounded-none bg-white p-4 text-sm leading-relaxed;
+  color: #1f2937;
+}
+
+/* .qul-docs gives inline <code> a grey chip; inside a block that looks patchy. */
+.docs-code pre code {
+  @apply bg-transparent p-0;
+  color: inherit;
+}
+
+/* Tables written inline inside a docs pane, without the wrapper class. */
+.qul-docs table {
+  @apply my-4 w-full border-collapse text-left text-sm;
+}
+
+.qul-docs thead {
+  @apply border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.qul-docs th,
+.qul-docs td {
+  @apply border-b border-gray-100 px-4 py-2 align-top;
+}
+
+.docs-table-wrap {
+  @apply my-4 overflow-x-auto rounded-lg border border-gray-200;
+}
+
+.docs-table {
+  @apply w-full text-left text-sm;
+}
+
+.docs-table thead {
+  @apply border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.docs-table th,
+.docs-table td {
+  @apply px-4 py-2 align-top;
+}
+
+.docs-table tbody tr + tr {
+  @apply border-t border-gray-100;
+}
+
+/* Toolbars above the ligature and glyph tables */
+.font-toolbar {
+  @apply flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2;
+}
+
+.font-toolbar-group {
+  @apply flex items-center gap-2 text-sm text-gray-700;
+}
+
+.font-toolbar-group label {
+  @apply m-0 whitespace-nowrap font-medium;
+}
+
+.font-toolbar-group input[type="range"] {
+  @apply h-1.5 w-32 cursor-pointer appearance-none rounded-full bg-gray-300;
+}
+
+.font-toolbar-value {
+  @apply w-14 shrink-0 tabular-nums text-gray-500;
+}
+
+.font-toolbar-select {
+  @apply rounded border-gray-300 py-1 pl-2 pr-8 text-sm;
+}
+
+.font-toolbar-search {
+  @apply min-w-[14rem] flex-1 rounded border-gray-300 px-3 py-1.5 text-sm focus:border-[#46ac7a] focus:ring-[#46ac7a];
+}
+
+.font-toolbar-count {
+  @apply ms-auto whitespace-nowrap text-sm text-gray-500;
+}
+
+/* SVG artwork browser */
+.svg-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--svg-card-height, 56px) * 2.6), 1fr));
+  align-items: stretch;
+}
+
+.svg-card {
+  @apply flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-gray-200 p-3 transition-colors hover:border-[#46ac7a];
+  background: var(--svg-card-bg, #ffffff);
+}
+
+.svg-card-copied {
+  @apply border-[#46ac7a] bg-emerald-50;
+}
+
+.svg-card-art {
+  @apply flex w-full items-center justify-center overflow-hidden text-gray-400;
+  height: var(--svg-card-height, 56px);
+}
+
+.svg-card-art svg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  fill: var(--svg-card-colour, #111827);
+}
+
+.svg-card-name {
+  @apply text-xs text-gray-500;
+}
+
+/* Glyph browser */
+.glyph-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--glyph-cell, 120px), 1fr));
+  align-items: stretch;
+}
+
+.glyph-card {
+  @apply flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-gray-200 bg-white p-2 transition-colors hover:border-[#46ac7a] hover:bg-emerald-50/40;
+}
+
+.glyph-card canvas {
+  @apply block w-full;
+}
+
+.glyph-card-label {
+  @apply w-full truncate text-center text-[11px] leading-tight text-gray-500;
+}
+
+.glyph-card-name {
+  @apply w-full truncate text-center text-[11px] leading-tight text-gray-400;
+}
+
+.glyph-empty {
+  @apply col-span-full rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500;
+}
+
+/* Glyph detail modal */
+.glyph-modal {
+  @apply fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 p-4;
+}
+
+.glyph-modal-panel {
+  @apply max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white shadow-xl;
+}
+
+.glyph-modal-header {
+  @apply flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-3;
+}
+
+.glyph-meta-row {
+  @apply flex items-center justify-between gap-4 border-b border-gray-100 py-2 text-sm;
+}
+
+.glyph-meta-row dt {
+  @apply font-medium text-gray-600;
+}
+
+.glyph-meta-row dd {
+  @apply m-0 text-right text-gray-800;
+}
+
+/* Invisible range input laid over the recitation progress bar; the thumb still
+   needs a size or there is nothing to grab. */
+.player-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.player-seek::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.player-seek:focus-visible {
+  outline: 2px solid #476cff;
+  outline-offset: 2px;
+  opacity: 1;
+}

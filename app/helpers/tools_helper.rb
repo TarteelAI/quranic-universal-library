@@ -1,6 +1,6 @@
 module ToolsHelper
   def developer_tools
-    [
+    tools = [
       ToolCard.new(
         title: 'Mushaf layouts',
         description: 'Proofread and fix different layouts of Mushaf (15 lines, 16 lines, v2, v1 etc)',
@@ -54,6 +54,15 @@ module ToolsHelper
         cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
+        title: 'Ayah transliteration',
+        description: 'Tool for proofreading and suggesting the fixes for ayah transliterations.',
+        url: transliteration_proofreadings_path,
+        type: 'transliteration',
+        tags: [['Transliteration', 'transliteration']],
+        icon: 'translation.svg',
+        cta_bg: 'rgba(90, 77, 65, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Ayah tafsirs in different languages',
         description: 'Tool for proofreading and suggesting the fixes for ayah tafsirs.',
         url: tafsir_proofreadings_path,
@@ -95,6 +104,15 @@ module ToolsHelper
         url: select_resource_word_translations_path,
         type: 'corpus',
         tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
+        icon: 'translation.svg',
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
+        title: 'Word by Word transliteration',
+        description: 'Proofread and suggest fixes for the transliteration of each word of the Quran.',
+        url: word_transliteration_proofreadings_path,
+        type: 'corpus',
+        tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
         icon: 'translation.svg',
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
@@ -143,20 +161,47 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Audio Segmentations',
-        description: 'This tool is used to inspect and validate the raw segmentation data of recitations by viewing detailed statistics, testing real-time word highlighting, and identifying missing or misaligned words.',
-        url: segments_dashboard_path,
-        type: 'segments',
-        icon: 'timestamp.svg',
-        tags: [['Timestamp', 'timestamp']]
-      ),
-      ToolCard.new(
         title: 'Compare audio',
         description: 'Compare audio recitations',
         url: '/compare-audio',
         type: 'segments',
         icon: 'timestamp.svg',
         tags: [['Timestamp', 'timestamp']]
+      ),
+      ToolCard.new(
+        title: 'Compare fonts',
+        description: 'Compare two builds of a font to see what changed before shipping the update.',
+        url: '/compare-font',
+        type: 'quranic-text',
+        icon: 'compare.svg',
+        tags: [['Fonts', 'fonts'], 'Compare'],
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      )
+    ]
+
+    tools + internal_developer_tools
+  end
+
+  def internal_developer_tools
+    return [] unless qul_scripts_available?
+
+    [
+      ToolCard.new(
+        title: 'Segment Pipeline',
+        description: 'Run and monitor the segmentation pipeline for generating and validating the word by word timestamps for any recitation.',
+        url: segment_pipeline_root_path,
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [['Recitation', 'recitation'], ['Timestamp', 'timestamp']]
+      ),
+
+       ToolCard.new(
+        title: 'Add reciter audio',
+        description: 'Tool for preparing and validating audio files for any reciter',
+        url: audio_repair_ingests_path,
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah']]
       ),
       ToolCard.new(
         title: 'Quran Image Export Tool',

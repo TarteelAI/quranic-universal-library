@@ -108,7 +108,7 @@ class ExportQuranFts
 
   def insert_ayahs(db)
     Verse.includes(:verse_root, :verse_stem, :verse_lemma).find_each do |verse|
-      transliterations = Translation.where(
+      transliterations = Transliteration.where(
         resource_content_id: [1561, 1562],
         verse_id: verse.id
       )

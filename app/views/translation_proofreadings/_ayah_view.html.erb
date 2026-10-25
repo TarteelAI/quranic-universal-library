@@ -1,23 +1,23 @@
-<h2>Translation for <%= verse.verse_key %></h2>
+<h2>Translation of <%= verse.human_label %> <span class="text-gray-500 text-base">(<%= verse.verse_key %>)</span></h2>
 
 <div class="qpc-hafs my-3">
   <%= verse.text_qpc_hafs %>
 </div>
 
 <div id="ayah_text" style="margin-top: 10px"
-     class="<%= @translation.language_name %>"
+     class="<%= @presenter.translation.language_name %>"
      data-controller="translation-footnote"
 >
-  <%= safe_html @translation.text %>
+  <%= safe_html @presenter.translation.text %>
 </div>
 
-<% if @translation.foot_notes.present? %>
+<% if @presenter.translation.foot_notes.present? %>
   <div class="mt-3 mt-md-5">
     <h2 class="font-bold">Foot notes</h2>
-    <% @translation.foot_notes.each do |foot_note| %>
+    <% @presenter.translation.foot_notes.each do |foot_note| %>
       <div>
         <p><%= foot_note.id %></p>
-        <div class="<%= @translation.language_name %>">
+        <div class="<%= @presenter.translation.language_name %>">
           <%= safe_html foot_note.text %>
         </div>
       </div>

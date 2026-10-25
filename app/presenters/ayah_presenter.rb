@@ -218,7 +218,7 @@ class AyahPresenter < ApplicationPresenter
 
   def transliteration
     return nil unless found?
-    @transliteration ||= Transliteration.where(resource_type: 'Verse', resource_id: ayah.id, resource_content_id: transliteration_id).first
+    @transliteration ||= Transliteration.find_by(verse_id: ayah.id, resource_content_id: transliteration_id)
   end
 
   def topics

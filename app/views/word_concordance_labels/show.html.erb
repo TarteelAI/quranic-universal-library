@@ -22,58 +22,59 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
-    <div class="px-4 py-3 rounded mb-4 bg-[#d3d3d4] border text-black" role="alert">
-      <div class="qpc-hafs" id="ayah_text" style="font-size: 30px; margin-top: 10px"><%= @verse.text_qpc_hafs %> </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-5 py-4 mb-6">
+      <div class="qpc-hafs leading-loose text-right" id="ayah_text"><%= @verse.text_qpc_hafs %></div>
     </div>
 
-    <h2>Words list</h2>
-    <table class="w-full hover:bg-gray-50">
-      <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
-      <tr>
-        <td>ID</td>
-        <td style="direction: rtl">Text</td>
-        <td style="direction: rtl">Location</td>
-        <td style="direction: rtl">Segments</td>
-        <td>Actions</td>
-      </tr>
-      </thead>
-
-      <tbody>
-      <% @verse.morphology_words.includes(:word_segments, :word).order('words.position, morphology_word_segments.position').each do |word| %>
-        <tr class="hover:bg-gray-200 border-b">
-          <td class="py-2 pl-2">
-            <%= link_to(word.id, [:cms, word], target: '_blank') %>
-          </td>
-
-          <td class="py-2 qpc-hafs">
-            <%= word.text %>
-          </td>
-
-          <td class="py-2">
-            <%= word.location %>
-          </td>
-
-          <td class="py-2" style="direction: rtl;">
-            <% word.word_segments.each do |segment| %>
-             <span>
-              <%= link_to(segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: word.location, segment: segment.position), class: "me_quran me_quran badge badge-info") %>
-             </span>
-            <% end %>
-          </td>
-
-          <td class="py-2">
-            <%= link_to('Show', word_detail_word_concordance_label_path(@verse.id, word: word.location), class: 'btn btn-success') %>
-          </td>
+    <h2 class="text-lg font-semibold text-gray-900 mb-3">Words</h2>
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500">
+        <tr>
+          <th class="px-4 py-3 font-medium">ID</th>
+          <th class="px-4 py-3 font-medium">Location</th>
+          <th class="px-4 py-3 font-medium text-right">Word</th>
+          <th class="px-4 py-3 font-medium text-right">Segments</th>
+          <th class="px-4 py-3 font-medium text-right">Actions</th>
         </tr>
-      <% end %>
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+        <% @verse.morphology_words.includes(:word_segments, :word).order('words.position, morphology_word_segments.position').each do |word| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3">
+              <%= link_to(word.id, [:cms, word], target: '_blank') %>
+            </td>
+
+            <td class="px-4 py-3 text-gray-600">
+              <%= word.location %>
+            </td>
+
+            <td class="px-4 py-3 text-right">
+              <span class="text-qpc-hafs text-3xl leading-loose"><%= word.text %></span>
+            </td>
+
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap justify-start gap-2" dir="rtl">
+                <% word.word_segments.each do |segment| %>
+                  <%= link_to segment.text_uthmani, segment_detail_word_concordance_label_path(@verse.id, word: word.location, segment: segment.position),
+                              class: 'text-qpc-hafs text-2xl leading-loose px-3 rounded-md border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100 no-underline' %>
+                <% end %>
+              </div>
+            </td>
+
+            <td class="px-4 py-3 text-right">
+              <%= link_to('Show', word_detail_word_concordance_label_path(@verse.id, word: word.location), class: 'btn btn-success btn-sm') %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <div class="flex justify-end gap-2 mt-3">
+  <div class="flex justify-end gap-2 mt-4 mb-8">
     <%= link_to('Previous ayah', word_concordance_label_path(@verse.id - 1), class: 'btn btn-dark') if previous_ayah %>
     <%= link_to('Next ayah', word_concordance_label_path(@verse.id + 1), class: 'btn btn-dark') if next_ayah %>
   </div>
 </div>
-
-

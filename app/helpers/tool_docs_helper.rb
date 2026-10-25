@@ -1,3 +1,5 @@
+require "unicode/name"
+
 module ToolDocsHelper
   def available_tool_keys
     [
@@ -6,6 +8,7 @@ module ToolDocsHelper
       'ayah_recitation',
       'ayah_tafsir',
       'ayah_translation',
+      'ayah_transliteration',
       'char',
       'corpus',
       'mutashabihat',
@@ -16,67 +19,275 @@ module ToolDocsHelper
       'surah_recitation_segment_builder',
       'tajweed',
       'word_translation',
+      'word_transliteration',
       'compare_ayah',
       'ayah_dependency_graph',
       'ayah_boundaries',
-      'compare_audio'
-    ]
+      'compare_audio',
+      'compare_font'
+    ] + internal_tools_keys
+  end
+
+  def internal_tools_keys
+    if qul_scripts_available?
+      [
+        'audio_repair_index',
+        'audio_repair_editor',
+        'audio_repair_polarity',
+        'audio_repair_ingest'
+      ]
+    else
+      []
+    end
   end
 
   def mutashabihat_help
     [
       "Mutashabihat ul Quran Tool",
       {
-        text: "The Mutashabihat tool is designed to identify and explore verses in the Quran that share similarities in wording, structure, or meaning (mutashabihat)."
+        text: "Mutashabihat are phrases of 3 or more words that appear in more than one ayah (or a whole 2-word ayah, like <span class='qpc-hafs'>الرَّحْمَٰنِ الرَّحِيمِ</span>). Sometimes word for word, often with a small difference that is easy to mix up while memorizing. This tool finds them and lets you review and save them."
+      },
+      {
+        type: 'info',
+        text: "The tool suggests phrases, but nothing is saved or exported until a reviewer approves it. Only approved ayahs of reviewed phrases go into the downloadable data."
+      },
+      {
+        type: 'heading',
+        text: 'How phrases and ayahs fit together'
+      },
+      {
+        type: 'info',
+        text: mutashabihat_diagrams
+      },
+      {
+        type: 'heading',
+        text: 'Two ways to work'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Phrase view</strong> (the default list) shows saved phrases, one row per phrase. Use it to find a phrase by text and open it in the builder.</li>
+            <li><strong>Proofreading view</strong> (<code>Proofread view</code> button) shows ayahs, one row per ayah, with how many phrases each has and whether they still need review. Use it to go through the Quran ayah by ayah.</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Create a new phrase'
       },
       {
         type: 'step',
-        title: 'Step 1: Select a Source Phrase',
-        text: "Select a Surah and Ayah to use as your anchor. Use the 'Word from' and 'Word to' dropdowns to pinpoint the exact sequence of words you want to analyze.",
-        screenshot: 'mutashabihat-builder.png'
+        title: 'Step 1: Start from an ayah or from text',
+        text: "Click <code>New Phrase</code>. Pick an ayah, or type a few words of the phrase in Arabic (diacritics are optional), and click <code>Find similar phrases</code>. You can also start from an ayah page in the proofreading view: click <code>Review</code> on an auto-detected phrase."
       },
       {
         type: 'step',
-        title: 'Step 2: Search for Similarities',
-        text: "Apply filters like 'Root', 'Lemma', or 'LCS' (Longest Common Subsequence) to find related verses. Click 'Apply Filter' to see a list of suggested ayahs that match your criteria.",
-        screenshot: 'mutashabihat-filters.png'
+        title: 'Step 2: Pick the source phrase',
+        text: "The builder shows the source ayah at the top. Click the first and then the last word of the phrase, and the tool searches again for ayahs sharing those words. Scrolling down, the source shrinks to a bar with only the selected words."
       },
       {
         type: 'step',
-        title: 'Step 3: Save and Refine',
-        text: "Review the suggested ayahs. You can include or exclude specific words by clicking the '+' or 'X' icons that appear when you hover over them. Click 'Save' to bookmark the phrase for future reference.",
-        screenshot: 'mutashabihat-save.png'
+        title: 'Step 3: Select the words in each ayah',
+        text: "Every ayah sharing the phrase is listed with the matching words already selected, and differing words underlined by kind (see below). Click the first and last word to change a range. If the phrase repeats in one ayah, select another range the same way. Click a word inside a range to leave it out. When the saved words differ from what the tool found, <code>Use suggested</code> switches to the found words."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Approve',
+        text: "Click <code>Approve</code> on each ayah that really shares the phrase. Approving saves the phrase (the first time) and the ayah with the words you selected. Use the filter buttons (<code>All</code>, <code>Saved</code>, <code>Exact</code>, <code>Similar</code>) to focus on the ayahs you haven't handled. To add an ayah that wasn't found, pick it under <i>Add an ayah manually</i>."
+      },
+      {
+        type: 'heading',
+        text: 'Approve, disapprove or remove an ayah'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Approve</strong> (<i class="fas fa-check"></i>): the ayah shares the phrase. It is marked reviewed and goes into exports.</li>
+            <li><strong>Not approved</strong> (<i class="fas fa-times"></i>): keep the ayah on the phrase, but leave it out of exports. Use it when you're unsure, or the match is too loose.</li>
+            <li><strong>Remove</strong> (<i class="fas fa-trash-alt"></i>): the ayah doesn't belong to the phrase. It disappears from the lists and won't be suggested again, also when data is imported again.</li>
+          </ul>
+          <p class="mt-2">In the builder these buttons are on each ayah card. On an ayah page in the proofreading view, click the ayah count of a phrase (<i>"5 ayahs share this phrase"</i>) to list its ayahs with the same buttons.</p>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Proofreading mode'
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Find ayahs to review',
+        text: "In the proofreading view, filter by surah, ayah or <code>Phrase status</code> (<i>Needs review</i> is the to-do list). Sort by any column: phrases, linked ayahs (other ayahs sharing a phrase), words covered, or status. Click <code>Show</code> to open an ayah."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Read the ayah page',
+        text: "The ayah text is coloured by its saved phrases: each phrase has a number and a colour, and a word in more than one phrase gets one underline per phrase (up to 3; <b>+N</b> under a word means it is in N more). The legend under the ayah lists the phrases by number and word range. Hover a phrase card to highlight its words, or a word to highlight its phrases. Each card shows where the phrase is in this ayah, the source ayah it was built from, and its status."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Review the ayahs of each phrase',
+        text: "Click the ayah count on a phrase card to list every ayah sharing it, then approve, disapprove or remove each one. Turn on <code>Show differences</code> to colour how each ayah differs from the phrase: <span style=\"color:#16a34a\">added words</span>, <span style=\"color:#d97706\">changed words</span>, and <span style=\"color:#dc2626;text-decoration:line-through\">missing words</span>. A lot of added or missing words usually means the selected words are off. <code>Open in builder</code> opens the phrase to change words or add ayahs."
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Check for missing phrases',
+        text: "Below the saved phrases, <i>Auto-detected shared phrases</i> lists what the tool found in the ayah that isn't saved yet. Phrases already saved with all their ayahs are hidden. A saved phrase missing some ayahs is shown with only the missing ones. Click <code>Review</code> to build a new phrase, or <code>Open phrase</code> to add the missing ayahs. Use <code>Previous ayah</code> and <code>Next ayah</code> to move on."
+      },
+      {
+        type: 'heading',
+        text: 'Statuses'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Reviewed</strong>: saved or checked by a reviewer.</li>
+            <li><strong>Auto-detected</strong>: found automatically, or imported, and nobody has checked it yet.</li>
+            <li><strong>Imported</strong>: imported from another Mutashabihat dataset. Review it like any auto-detected phrase.</li>
+            <li><strong>Needs review</strong> (ayah list): the ayah has auto-detected phrases, or ayahs nobody has checked yet.</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Kinds of difference'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <ul class="list-disc ps-5 space-y-1">
+            <li><strong>Exact</strong>, word for word: <span class="qpc-hafs">رِجْزًا مِّنَ السَّمَاءِ</span> in 2:59 and 29:34.</li>
+            <li><strong>Prefix/suffix</strong>, the same word with و or ف, or a pronoun ending: <span class="qpc-hafs">فَكُلُوا</span> in 2:58, <span class="qpc-hafs">وَكُلُوا</span> in 7:161.</li>
+            <li><strong>Word form</strong>, the same word conjugated differently: <span class="qpc-hafs">عَمَّا تَعْمَلُونَ</span> in 2:74, <span class="qpc-hafs">عَمَّا يَعْمَلُونَ</span> in 2:144.</li>
+            <li><strong>Sounds similar</strong>, words of the same shape: <span class="qpc-hafs">فَأَنزَلْنَا</span> in 2:59, <span class="qpc-hafs">فَأَرْسَلْنَا</span> in 7:162.</li>
+            <li><strong>Word changed</strong>: <span class="qpc-hafs">يُذَبِّحُونَ</span> in 2:49, <span class="qpc-hafs">يُقَتِّلُونَ</span> in 7:141.</li>
+            <li><strong>Order changed</strong>: <span class="qpc-hafs">لَعِبٌ وَلَهْوٌ</span> in 6:32, <span class="qpc-hafs">لَهْوٌ وَلَعِبٌ</span> in 29:64.</li>
+            <li><strong>Word added or missing</strong>: <span class="qpc-hafs">إِنَّا كَذَٰلِكَ نَجْزِي الْمُحْسِنِينَ</span> in 37:80, without <span class="qpc-hafs">إِنَّا</span> in 37:110.</li>
+          </ul>
+        HTML
       }
     ]
   end
 
+  # Pictures for the Mutashabihat help: how a source ayah, a phrase and the
+  # ayahs sharing it relate, and what the ayah page shows
+  def mutashabihat_diagrams
+    words = lambda do |x, y, count, highlight, color|
+      (0...count).map do |i|
+        fill = highlight.include?(i) ? color : '#e5e7eb'
+        "<rect x='#{x + i * 18}' y='#{y}' width='14' height='8' rx='2' fill='#{fill}'/>"
+      end.join
+    end
+
+    ayah = lambda do |x, y, label, count, highlight, color, note: nil, note_color: '#15803d'|
+      <<~SVG
+        <rect x='#{x}' y='#{y}' width='190' height='44' rx='6' fill='#fff' stroke='#cbd5e1'/>
+        <text x='#{x + 10}' y='#{y + 17}' font-size='12' font-weight='600' fill='#0f172a'>#{label}</text>
+        #{note ? "<text x='#{x + 180}' y='#{y + 17}' font-size='11' text-anchor='end' fill='#{note_color}'>#{note}</text>" : ''}
+        #{words.call(x + 10, y + 26, count, highlight, color)}
+      SVG
+    end
+
+    arrow = ->(x1, y1, x2, y2) { "<line x1='#{x1}' y1='#{y1}' x2='#{x2}' y2='#{y2}' stroke='#64748b' stroke-width='1.5' marker-end='url(#mt-arrow)'/>" }
+    marker = "<defs><marker id='mt-arrow' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#64748b'/></marker></defs>"
+    blue = '#0498CC'
+    orange = '#D47A27'
+
+    one_phrase = <<~SVG
+      <svg viewBox='0 0 660 210' width='100%' role='img' aria-label='A phrase is built from words of a source ayah and found in other ayahs' style='font-family: inherit'>
+        #{marker}
+        #{ayah.call(10, 83, 'Source ayah 2:59', 9, [5, 6, 7], blue)}
+        <text x='105' y='145' font-size='11' text-anchor='middle' fill='#475569'>you pick the words</text>
+        #{arrow.call(202, 105, 252, 105)}
+        <rect x='256' y='78' width='160' height='54' rx='27' fill='#ecfeff' stroke='#{blue}' stroke-width='1.5'/>
+        <text x='336' y='100' font-size='12' font-weight='600' text-anchor='middle' fill='#0f172a'>Phrase #16552</text>
+        <text x='336' y='120' font-size='14' text-anchor='middle' fill='#{blue}'>رِجْزًا مِّنَ السَّمَاءِ</text>
+        #{arrow.call(418, 98, 456, 36)}
+        #{arrow.call(418, 105, 456, 105)}
+        #{arrow.call(418, 112, 456, 174)}
+        #{ayah.call(460, 12, '2:59 (the source)', 9, [5, 6, 7], blue, note: '✓ approved')}
+        #{ayah.call(460, 83, '7:162', 10, [6, 7, 8], blue, note: '✓ approved')}
+        #{ayah.call(460, 154, '29:34', 9, [4, 5, 6], blue, note: 'not approved', note_color: '#b91c1c')}
+        <text x='550' y='206' font-size='11' text-anchor='middle' fill='#475569'>the ayahs of the phrase</text>
+      </svg>
+    SVG
+
+    one_ayah = <<~SVG
+      <svg viewBox='0 0 660 250' width='100%' role='img' aria-label='An ayah can contain several phrases, each with its own ayahs' style='font-family: inherit'>
+        #{marker}
+        <rect x='180' y='8' width='300' height='50' rx='6' fill='#fff' stroke='#0f172a' stroke-width='1.5'/>
+        <text x='192' y='27' font-size='12' font-weight='600' fill='#0f172a'>Ayah page: 6:73</text>
+        <text x='468' y='27' font-size='11' text-anchor='end' fill='#475569'>2 shared phrases</text>
+        #{words.call(192, 38, 15, [0, 1, 2, 3, 4], blue)}
+        #{words.call(192 + 12 * 18, 38, 3, [0, 1, 2], orange)}
+        #{arrow.call(260, 60, 175, 98)}
+        #{arrow.call(420, 60, 495, 98)}
+        <rect x='20' y='100' width='290' height='56' rx='8' fill='#ecfeff' stroke='#{blue}'/>
+        <circle cx='40' cy='120' r='10' fill='#{blue}'/><text x='40' y='124' font-size='11' font-weight='700' text-anchor='middle' fill='#fff'>1</text>
+        <text x='58' y='124' font-size='12' font-weight='600' fill='#0f172a'>Words 1–5, source 11:7</text>
+        <text x='165' y='146' font-size='13' text-anchor='middle' fill='#{blue}'>وَهُوَ الَّذِي خَلَقَ السَّمَاوَاتِ وَالْأَرْضَ</text>
+        <rect x='350' y='100' width='290' height='56' rx='8' fill='#fff7ed' stroke='#{orange}'/>
+        <circle cx='370' cy='120' r='10' fill='#{orange}'/><text x='370' y='124' font-size='11' font-weight='700' text-anchor='middle' fill='#fff'>2</text>
+        <text x='388' y='124' font-size='12' font-weight='600' fill='#0f172a'>Words 19–21, source 13:9</text>
+        <text x='495' y='146' font-size='13' text-anchor='middle' fill='#{orange}'>عَالِمُ الْغَيْبِ وَالشَّهَادَةِ</text>
+        <text x='165' y='178' font-size='11' text-anchor='middle' fill='#475569'>click "3 ayahs" to list them</text>
+        #{%w[6:73 11:7 57:4].each_with_index.map { |k, i| "<rect x='#{60 + i * 72}' y='188' width='62' height='22' rx='11' fill='#fff' stroke='#{blue}'/><text x='#{91 + i * 72}' y='203' font-size='11' text-anchor='middle' fill='#0f172a'>#{k}</text>" }.join}
+        <text x='495' y='178' font-size='11' text-anchor='middle' fill='#475569'>click "10 ayahs" to list them</text>
+        #{%w[6:73 13:9 23:92 +7].each_with_index.map { |k, i| "<rect x='#{366 + i * 66}' y='188' width='58' height='22' rx='11' fill='#fff' stroke='#{orange}'/><text x='#{395 + i * 66}' y='203' font-size='11' text-anchor='middle' fill='#0f172a'>#{k}</text>" }.join}
+        <text x='330' y='240' font-size='11' text-anchor='middle' fill='#475569'>Linked ayahs of 6:73 = every ayah in these lists except 6:73 itself (11 here)</text>
+      </svg>
+    SVG
+
+    <<~HTML
+      <div class="bg-white rounded border border-gray-200 p-3 space-y-4 text-sm">
+        <div>
+          <p class="font-semibold">One phrase</p>
+          <p class="text-gray-600">A phrase is built from words picked in one ayah, its <strong>source ayah</strong>. It is then found in other ayahs, each with its own range of words. The source is one of the phrase's ayahs too. Each ayah is approved on its own.</p>
+          #{one_phrase}
+        </div>
+        <div>
+          <p class="font-semibold">One ayah</p>
+          <p class="text-gray-600">An ayah can contain several phrases, and each phrase has its own source and its own ayahs. The ayah page shows the phrases of one ayah. Click a phrase's ayah count to see its ayahs, and approve or remove them there.</p>
+          #{one_ayah}
+        </div>
+        <ul class="list-disc ps-5 text-gray-700">
+          <li><strong>Source ayah</strong>: where the phrase was built from. Changing the source words changes the phrase.</li>
+          <li><strong>Ayahs of a phrase</strong>: every place the phrase occurs, the source included.</li>
+          <li><strong>Linked ayahs</strong> (ayah list): all other ayahs that share at least one phrase with the ayah.</li>
+        </ul>
+      </div>
+    HTML
+  end
+
   def doc_image_tag(path)
     # NOTE: update version number when images are updated
-    url = "https://static-cdn.tarteel.ai/qul/help-screenshots/#{path}?v=2"
+    url = "#{ENV['CDN_HOST']}/qul/help-screenshots/#{path}?v=2"
     "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
   end
 
   def compare_ayah_help
     [
-        "Compare Ayah tool",
-        {
-          text: "This tool is designed to view and compare multiple Ayahs. Follow these steps to use the tool effectively:"
-        },
-        {
-          type: 'step',
-          title: 'Step 1: Select ayahs to compare',
-          text: 'Enter comma-separated Ayah keys (e.g., <code>1:1, 27:30</code> will show the 1st Ayah of Surah Al-Fatiha and the 30th Ayah of Surah An-Naml) in the "Select Ayah" field.',
-        },
-        {
-          type: 'step',
-          title: 'Step 2: Select translation(optional)',
-          text: "If you want to compare translations too, select the desired translation from the dropdown.",
-        },
-        {
-          type: 'step',
-          title: 'Step 3: View the Ayahs',
-          text: "Click the <code>Show Ayahs</code> button to view the selected Ayahs. The tool will display the Ayahs in the same order that you've selected. Tool will also highight the common words between the Ayahs.",
-        }
+      "Compare Ayah tool",
+      {
+        text: "This tool is designed to view and compare multiple Ayahs. Follow these steps to use the tool effectively:"
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Select ayahs to compare',
+        text: 'Enter comma-separated Ayah keys (e.g., <code>1:1, 27:30</code> will show the 1st Ayah of Surah Al-Fatiha and the 30th Ayah of Surah An-Naml) in the "Select Ayah" field.',
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Select translation(optional)',
+        text: "If you want to compare translations too, select the desired translation from the dropdown.",
+      },
+      {
+        type: 'step',
+        title: 'Step 3: View the Ayahs',
+        text: "Click the <code>Show Ayahs</code> button to view the selected Ayahs. The tool will display the Ayahs in the same order that you've selected. Tool will also highight the common words between the Ayahs.",
+      }
     ]
   end
 
@@ -84,83 +295,402 @@ module ToolDocsHelper
     [
       "Word by Word Translations",
       {
-        text: "This tool is designed to proofread and correct word-by-word translations. Please follow these steps to make adjustments to any translation"
+        text: "This tool is used to proofread and fix the word by word translation of the Quran: the meaning of each Arabic word, shown under it. Find the ayah, click <code>Edit</code>, fix the words and click <code>Save translations</code>."
       },
       {
-        type: 'step',
-        title: 'Step 1: Select a translation resource',
-        text: "A language can have more than one word-by-word translation, so start by picking the resource you want to work on from the <code>Select resource</code> page. Each resource is maintained separately.",
-        screenshot: 'word_translations.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Find an ayah',
-        text: "Once a resource is selected, use the <code>Surah</code> and <code>Ayah</code> filters to narrow down the results. Click <code>Show</code> to display the selected Ayah, where a list of words and their corresponding translations will appear.",
-        screenshot: 'word_translations.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 3: Read the translation',
-        text: "Review the translation of each word carefully. Words without a translation are highlighted so you can spot gaps at a glance. If an update is needed, click the <code>Edit</code> button to fix the translation.",
-        screenshot: 'ayah-words-translation.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 4: Update the translation',
-        text: "The page will display the Ayah along with a list of all its words. Each word is shown as its own card with an input field, its current translation, and the English translation for reference. Once you're satisfied with the update, click <code>Save translations</code> to save the changes.",
-        screenshot: 'update-word-translation.png'
+        type: 'heading',
+        text: 'How word translations work'
       },
       {
         type: 'info',
-        text: "Some phrases convey better meanings when translated as a whole. <br/>For example, <span class='qpc-hafs'>مِنۢ بَيۡنِ أَيۡدِيهِمۡ</span> means <strong>before them</strong>. A literal, word-by-word translation would be <strong>from</strong>, <strong>between</strong>, <strong>their hands</strong>, which may not convey the intended meaning clearly. In such cases, we can provide group translations for better understanding.",
+        text: <<~HTML
+          <p>Every Arabic word has its own short translation.</p>
+          #{word_translation_diagram(
+            [[nil, [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', '(of) the worlds', :same]]]]
+          )}
+          <p class="mt-2">Some words only make sense together. Those get a <strong>group translation</strong> on top of their own, see <strong>4</strong> below.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 4.1: Update the group translation',
+        title: 'Find an ayah',
+        text: "Pick the translation on the <code>Select resource</code> page (a language can have more than one). Use the <code>Surah</code> and <code>Ayah</code> filters and click <code>Show</code>. Words without a translation are highlighted. Click <code>Edit</code> to fix the ayah: each word has its own field, with the current translation and the English one for reference.",
+        screenshot: 'update-word-translation.png'
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. Fix a typo',
+        text: <<~HTML
+          <p>Fix the text in the word's field and click <code>Save translations</code>.</p>
+          #{word_translation_diagram(
+            [['Now', [['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', "(of) the <del class='text-red-600'>wrlds</del>", :wrong]]],
+             ['After', [['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', "(of) the <ins class='text-green-700 font-semibold no-underline'>worlds</ins>", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Add a missing translation',
+        text: <<~HTML
+          <p>The word has no translation. Type it in the word's field and save.</p>
+          #{word_translation_diagram(
+            [['Now', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'missing', :missing]]],
+             ['After', [['ٱلۡحَمۡدُ', 'All praise', :same], ['لِلَّهِ', '(is) for Allah', :same], ['رَبِّ', 'Lord', :fixed]]]]
+          )}
+          <p class="mt-2">Leaving a field empty doesn't remove a translation, it's skipped when saving.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Translations of two words merged in one',
+        text: <<~HTML
+          <p>One word has the meaning of the word next to it too, and that word is empty or has the meaning of the word after it.</p>
+          #{word_translation_diagram(
+            [['Now', [['ٱلۡحَمۡدُ', "All praise <span class='text-red-600'>(is) for Allah</span>", :wrong], ['لِلَّهِ', 'missing', :missing], ['رَبِّ', 'Lord', :same]]],
+             ['After', [['ٱلۡحَمۡدُ', 'All praise', :fixed], ['لِلَّهِ', '(is) for Allah', :fixed], ['رَبِّ', 'Lord', :same]]]]
+          )}
+          <p class="mt-2">Give each word only its own meaning. If the meanings after it moved by one word too, fix them all in the same edit. If the words really only make sense together, use a group translation instead.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Translate a group of words together',
         sections: [
           {
-            text: "If you find a group of words that should be translated together, you can group them. To do this, click the <code>Create group</code> button (or <code>Edit group</code> if you need to change an existing group) to open the group translation modal.",
-            screenshot: 'create-group.png'
+            text: <<~HTML
+              <p>Translated one by one, <span class='qpc-hafs'>مِنۢ بَيۡنِ أَيۡدِيهِمۡ</span> is <em>from, between, their hands</em>, but it means <strong>before them</strong>. Each word keeps its own translation, and the group translation is shown for the whole range.</p>
+              #{word_translation_diagram(
+                [['Words', [['مِنۢ', 'from', :same], ['بَيۡنِ', 'between', :same], ['أَيۡدِيهِمۡ', 'their hands', :same]], [0, 2, 'before them']]]
+              )}
+              <p class="mt-2">On the edit page, click <code>Create group</code> on a word (<code>Edit group</code> if it's already in one). A word gets these buttons once its own translation is saved.</p>
+            HTML
           },
           {
-            text: "Select the word range and primary word of the range that'll have the translation. Click on <code>Save group translation</code> to save the changes.",
+            text: "Pick the first and last word of the group, the primary word that holds the group translation, type the group translation and click <code>Save group translation</code>.",
             screenshot: 'save-group-translation.png'
           }
         ]
       },
       {
-        type: 'step',
-        title: 'Review change log and rollback',
-        text: "You can view the change log from the admin panel. To roll back any changes, please contact the admin",
-        screenshot: 'word-translation-change-log.png'
+        type: 'info',
+        text: "Saved changes go live right away. Every change is kept in the change log in the admin panel. To roll back a change or remove a group, contact the admin."
       }
     ]
+  end
+
+  # Word cards in reading order (right to left), like ayah_text_diagram.
+  # rows: [label, [[arabic, translation, kind], ...], optional [from, to, group translation]]
+  def word_translation_diagram(rows)
+    styles = {
+      same: 'border-gray-300 bg-white',
+      wrong: 'border-red-400 bg-red-50',
+      fixed: 'border-green-600 bg-green-50',
+      missing: 'border-dashed border-gray-400 bg-white text-gray-400 italic'
+    }
+    legend = { wrong: 'needs a fix', fixed: 'after your fix', missing: 'missing' }
+    columns = rows.map { |row| row[1].size }.max
+
+    body = rows.map do |label, cells, group|
+      cards = cells.map do |arabic, text, kind|
+        "<div class='rounded border #{styles[kind]} p-2 text-center min-w-0'>" \
+          "<div class='qpc-hafs text-xl leading-loose text-gray-900' dir='rtl'>#{arabic}</div>" \
+          "<div class='text-xs leading-snug text-gray-800' dir='ltr'>#{text}</div></div>"
+      end.join
+      row = label ? "<div class='text-xs font-semibold text-gray-900 mt-1' dir='ltr' style='grid-column: 1 / -1'>#{label}</div>" : ''
+      row += cards
+
+      if group
+        from, to, text = group
+        row += "<div class='rounded bg-blue-600 text-white text-xs text-center py-1' dir='ltr' style='grid-column: #{from + 1} / #{to + 2}'>group: #{text}</div>"
+      end
+      row
+    end.join
+
+    used = rows.flat_map { |row| row[1].map(&:last) }.uniq & legend.keys
+    keys = used.map do |kind|
+      "<span><span class='inline-block w-2.5 h-2.5 rounded-sm border align-middle #{styles[kind]}'></span> #{legend[kind]}</span>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
+      "<div class='grid gap-1 #{'min-w-[28rem]' if columns > 2}' dir='rtl' style='grid-template-columns: repeat(#{columns}, minmax(0, 1fr)); max-width: #{columns * 9}rem; margin-left: auto'>#{body}</div>" \
+      "#{"<p class='text-xs text-gray-500 mt-2 flex flex-wrap gap-x-3'>#{keys}</p>" if keys.present?}</div>"
   end
 
   def ayah_translation_help
     [
       "Ayah Translation",
       {
-        text: "This tool is used to proofread and fix ayah translations. Please follow these steps to suggest fix for any translation:"
+        text: "This tool is used to proofread and fix ayah translations. Find the ayah, click <code>Edit</code>, make your fix, say what you changed in <code>Comment for the reviewer</code> and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
-
+      {
+        type: 'heading',
+        text: 'How translations and ayahs fit together'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Every ayah has its own translation. Most issues are in one ayah, but some cross into the ayah next to it, often from OCR: the translations of two ayahs end up merged in one, or part of a translation sits in the ayah before or after.</p>
+          #{ayah_text_diagram(
+            [['Ayahs', [[24, 'translation of 24', :same], [25, 'translation of 25 and 26', :wrong], [26, 'missing', :missing], [27, 'translation of 27', :same]]]]
+          )}
+          <p class="mt-2">You fix one ayah at a time, so these take a suggestion for each ayah, see <strong>2</strong> and <strong>3</strong> below. Some translators write one passage for several ayahs and repeat it in each of them, that's expected.</p>
+        HTML
+      },
       {
         type: 'step',
-        title: 'Step 1: Find the translation of an ayah',
-        text: "User filters to find the translation you're looking for, use <code>Surah</code> and <code>Ayah</code> dropdown to find translation for specific ayah. Click <code>Show</code> to open translation page.",
+        title: 'Find the translation of an ayah',
+        text: "Pick the translation, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Click <code>Show</code> to read it, then <code>Edit</code> to fix it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time. <code>Change view</code> shows a whole page, handy to compare ayahs next to each other.",
         screenshot: 'select-translation.png'
       },
       {
-        type: 'step',
-        title: 'Step 2: Read translation',
-        text: 'This page will show the ayah translation and footnotes(if any). Read the translation, if you find any issues, click the <code>Edit</code> button to fix the translation.',
-        screenshot: 'ayah-translation-detail.png'
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Step 3: Update the translation',
-        text: 'Update the translation and footnote text(if any). Click on the <code>Purpose changes</code> button to submit your changes for approval. Once approved, your changes will be reflected in the live translation.',
-        screenshot: 'update-ayah-translation.png'
+        title: '1. Fix a typo',
+        text: <<~HTML
+          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>.</p>
+          #{ayah_text_diagram(
+            [['Now', [[1, "All praise is for Allah, Lord of all <del class='text-red-600'>wrlds</del>", :wrong]]],
+             ['After', [[1, "All praise is for Allah, Lord of all <ins class='text-green-700 font-semibold no-underline'>worlds</ins>", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Translations of two ayahs merged in one',
+        text: <<~HTML
+          <p>Ayah 25 has its own translation and the translation of 26. Ayah 26 is empty, or has text of the ayah after it.</p>
+          #{ayah_text_diagram(
+            [['Now', [[25, 'translation of 25 <span class="text-red-600">translation of 26</span>', :wrong], [26, 'missing', :missing]]],
+             ['After', [[25, 'translation of 25', :fixed], [26, 'translation of 26', :fixed]]]]
+          )}
+          <ol class="list-decimal ps-5 mt-2 space-y-1">
+            <li>Edit ayah 25 and cut the translation of 26 from it. In the comment, write that it moved to 26. Click <code>Propose changes</code>.</li>
+            <li>Click <code>Next ayah</code>, edit ayah 26 and paste the translation there. In the comment, write that it came from 25.</li>
+          </ol>
+          <p class="mt-2">If the translations after it moved by one ayah too, continue with ayah 27 the same way. The comments help the reviewer approve them together.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Part of a translation in the ayah before or after',
+        text: <<~HTML
+          <p>The end of the translation of 25 sits at the start of 26.</p>
+          #{ayah_text_diagram(
+            [['Now', [[25, 'first part of 25', :wrong], [26, '<span class="text-red-600">rest of 25</span> translation of 26', :wrong]]],
+             ['After', [[25, 'first part of 25 rest of 25', :fixed], [26, 'translation of 26', :fixed]]]]
+          )}
+          <ol class="list-decimal ps-5 mt-2 space-y-1">
+            <li>Edit ayah 26, cut <em>rest of 25</em> and say so in the comment. Click <code>Propose changes</code>.</li>
+            <li>Click <code>Previous ayah</code>, edit ayah 25 and paste it at the end.</li>
+          </ol>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Fix, add or remove a footnote',
+        text: <<~HTML
+          <p>In the translation, a footnote is written as <code>{{1}}</code>, <code>{{2}}</code>. Each one has a box with its text under <code>Footnotes</code>.</p>
+          #{ayah_text_diagram(
+            [['You type', [[2, "Lord of all worlds, {{1}}<hr class='my-1'/>Footnote {{1}}: All of creation", :same]]],
+             ['Shown', [[2, "Lord of all worlds,<sup>1</sup><hr class='my-1'/><sup>1</sup> All of creation", :same]]]]
+          )}
+          <ul class="list-disc ps-5 mt-2 space-y-1">
+            <li><strong>Fix a footnote:</strong> change the text in its box.</li>
+            <li><strong>Add a footnote:</strong> click in the translation where it belongs, then click <code>Add footnote</code>. It puts the next number there, like <code>{{2}}</code>, and adds a box for its text. You can also type <code>{{2}}</code> yourself, the box appears.</li>
+            <li><strong>Remove a footnote:</strong> click <code>Remove</code> on its box, or delete its <code>{{1}}</code> from the text.</li>
+            <li><strong>Move a footnote:</strong> move its <code>{{1}}</code> in the text.</li>
+          </ul>
+          #{ayah_text_diagram(
+            [['Now', [[2, "Lord of all worlds, {{1}}<hr class='my-1'/>Footnote {{1}}: All of creation", :same]]],
+             ['After', [[2, "Lord <ins class='text-green-700 font-semibold no-underline'>{{2}}</ins> of all worlds, {{1}}<hr class='my-1'/>Footnote {{1}}: All of creation<br/><ins class='text-green-700 font-semibold no-underline'>Footnote {{2}}: Rabb, the one who cares for</ins>", :fixed]]]]
+          )}
+          <p class="mt-2">The number only links the text to its box. Readers see footnotes numbered in order, so a <code>{{2}}</code> before <code>{{1}}</code> shows as 1.</p>
+        HTML
+      },
+      {
+        type: 'info',
+        text: "Your changes are reviewed and, once approved, the translation is updated."
+      }
+    ]
+  end
+
+  def ayah_transliteration_help
+    [
+      "Ayah Transliteration",
+      {
+        text: "This tool is used to proofread and fix ayah transliterations. Find the ayah, click <code>Edit</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'heading',
+        text: 'How the text is shown'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Every ayah has its own transliteration. Some transliterations mark reading details, like long vowels, with tags. You see the tags while editing, the page shows the result:</p>
+          #{ayah_text_diagram(
+            [['You type', [[2, '&lt;u&gt;Tha&lt;/u&gt;lika alkit&lt;u&gt;a&lt;/u&gt;bu', :same]]],
+             ['Shown', [[2, '<u>Tha</u>lika alkit<u>a</u>bu', :same]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: 'Find the transliteration of an ayah',
+        text: "Pick the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Tick <code>Only missing ayahs</code> to list ayahs without a transliteration. Click <code>Show</code> to read it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time."
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. Fix spelling',
+        text: <<~HTML
+          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>.</p>
+          #{ayah_text_diagram(
+            [['Now', [[2, "…hudan lilmuttaqee<del class='text-red-600'>m</del>", :wrong]]],
+             ['After', [[2, "…hudan lilmuttaqee<ins class='text-green-700 font-semibold no-underline'>n</ins>", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Add a missing transliteration',
+        text: <<~HTML
+          <p>Missing ones are marked in red in the list. Open the ayah and click <code>Add transliteration</code>, write it and click <code>Propose changes</code>.</p>
+          #{ayah_text_diagram(
+            [['Now', [[5, 'no transliteration', :missing]]],
+             ['After', [[5, 'Iyyaka naAAbudu wa-iyyaka nastaAAeen', :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Keep the tags',
+        text: <<~HTML
+          <p>Fix only the letters. Don't remove <code>&lt;u&gt;</code>, <code>&lt;b&gt;</code> or <code>&lt;i&gt;</code> tags, they mark tajweed and letter details.</p>
+          <p class="mt-2">Only #{Transliteration::ALLOWED_TAGS.map { |tag| "<code>&lt;#{tag}&gt;</code>" }.join(', ')} are allowed, without attributes. A suggestion with any other tag, like a link, isn't saved.</p>
+          #{ayah_text_diagram(
+            [['Wrong', [[2, "&lt;u&gt;Tha&lt;/u&gt;lika alkit<del class='text-red-600'>&lt;u&gt;</del>a<del class='text-red-600'>&lt;/u&gt;</del>bu", :wrong]]],
+             ['Right', [[2, "&lt;u&gt;Tha&lt;/u&gt;lika alkit&lt;u&gt;a&lt;/u&gt;bu", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'info',
+        text: "Your changes are reviewed and, once approved, the transliteration is updated."
+      }
+    ]
+  end
+
+  # Ayah cards with their text, for the translation and transliteration help.
+  # rows: [label, [[ayah_number, text_html, kind], ...]]
+  # kind is :same, :wrong (needs a fix), :fixed, :missing or :repeat (one passage in several ayahs)
+  def ayah_text_diagram(rows)
+    styles = {
+      same: 'border-gray-300 bg-white',
+      wrong: 'border-red-400 bg-red-50',
+      fixed: 'border-green-600 bg-green-50',
+      missing: 'border-dashed border-gray-400 bg-white text-gray-400 italic',
+      repeat: 'border-amber-500 bg-amber-50'
+    }
+    legend = { wrong: 'needs a fix', fixed: 'after your fix', missing: 'missing', repeat: 'repeated passage' }
+    columns = rows.map { |row| row[1].size }.max
+
+    body = rows.map do |label, cells|
+      cards = cells.map do |ayah, text, kind|
+        "<div class='rounded border #{styles[kind]} p-2 text-xs leading-snug text-gray-800 min-w-0'>" \
+          "<div class='font-semibold text-gray-500 mb-1'>Ayah #{ayah}</div>#{text}</div>"
+      end.join
+      "<div class='text-xs font-semibold text-gray-900 pt-2'>#{label}</div>#{cards}"
+    end.join
+
+    used = rows.flat_map { |row| row[1].map(&:last) }.uniq & legend.keys
+    keys = used.map do |kind|
+      "<span><span class='inline-block w-2.5 h-2.5 rounded-sm border align-middle #{styles[kind]}'></span> #{legend[kind]}</span>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
+      "<div class='grid gap-1 #{'min-w-[32rem]' if columns > 2}' style='grid-template-columns: 4.5rem repeat(#{columns}, minmax(0, 1fr)); max-width: #{8 + columns * 12}rem'>#{body}</div>" \
+      "#{"<p class='text-xs text-gray-500 mt-2 flex flex-wrap gap-x-3'>#{keys}</p>" if keys.present?}</div>"
+  end
+
+  def word_transliteration_help
+    [
+      "Word by Word Transliteration",
+      {
+        text: "This tool is used to proofread word transliterations and propose fixes. A reviewer approves each change before it goes live."
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Every Arabic word has its own transliteration.</p>
+          #{word_translation_diagram(
+            [[nil, [['ٱلۡحَمۡدُ', 'al-ḥamdu', :same], ['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', 'l-ʿālamīna', :same]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: 'Steps',
+        text: <<~HTML
+          <ol class="list-decimal ps-5 space-y-1">
+            <li>Select the transliteration you want to proofread.</li>
+            <li>Choose a <code>Surah</code> and <code>Ayah</code> and click <code>Filter</code>. Check <code>Only ayahs with missing words</code> to see only ayahs that need work.</li>
+            <li>Click <code>Show</code> to review the ayah, missing words are highlighted.</li>
+            <li>Click <code>Edit</code>, correct the words and click <code>Propose changes</code>.</li>
+          </ol>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. Fix a spelling mistake',
+        text: <<~HTML
+          <p>Fix the text in the word's field. Spell it the way the rest of this transliteration spells the same sounds.</p>
+          #{word_translation_diagram(
+            [['Now', [['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', "<del class='text-red-600'>l-ʿalmīna</del>", :wrong]]],
+             ['After', [['رَبِّ', 'rabbi', :same], ['ٱلۡعَٰلَمِينَ', "<ins class='text-green-700 font-semibold no-underline'>l-ʿālamīna</ins>", :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Add a missing transliteration',
+        text: <<~HTML
+          <p>The word has no transliteration. Type it in the word's field.</p>
+          #{word_translation_diagram(
+            [['Now', [['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'missing', :missing]]],
+             ['After', [['لِلَّهِ', 'lillahi', :same], ['رَبِّ', 'rabbi', :fixed]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Two words in one field',
+        text: <<~HTML
+          <p>One word has the transliteration of the word next to it too, and that word is empty or shifted by one.</p>
+          #{word_translation_diagram(
+            [['Now', [['ٱلۡحَمۡدُ', "al-ḥamdu <span class='text-red-600'>lillahi</span>", :wrong], ['لِلَّهِ', 'missing', :missing]]],
+             ['After', [['ٱلۡحَمۡدُ', 'al-ḥamdu', :fixed], ['لِلَّهِ', 'lillahi', :fixed]]]]
+          )}
+          <p class="mt-2">Give each word only its own sound, and fix the words after it in the same edit if they moved too.</p>
+        HTML
+      },
+      {
+        type: 'info',
+        text: "Only the words you changed are sent for review. Leaving a field empty doesn't remove a transliteration."
       }
     ]
   end
@@ -169,36 +699,142 @@ module ToolDocsHelper
     [
       "Ayah Tafsir tool help",
       {
-        text: "This tool is used to proofread and fix ayah tafsirs. Please follow these steps to suggest fix for any tafsir:"
+        text: "This tool is used to proofread and fix ayah tafsirs. Find the tafsir, click <code>Edit</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
-
+      {
+        type: 'heading',
+        text: 'How tafsir and ayahs fit together'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>A tafsir often explains several ayahs in one text. That text, with the <strong>first and last ayah</strong> it explains, is one tafsir in this tool (shown as <code>From ayah</code> and <code>To ayah</code>).</p>
+          #{tafsir_range_diagram(
+            [['Ayahs', [[22, :edit], [23, :edit], [24, :edit], [25, :other], [26, :third], [27, :third]],
+              [[0, 2, 'one tafsir: 22 - 24', :edit], [3, 3, '25', :other], [4, 5, '26 - 27', :third]]]]
+          )}
+          <ul class="list-disc ps-5 mt-2">
+            <li>Each box is an ayah, each colour one tafsir.</li>
+            <li>An ayah belongs to one tafsir only. Two tafsirs never share an ayah.</li>
+            <li>Some ayahs have no tafsir (a dashed box). Some tafsirs skip ayahs.</li>
+            <li>While you edit, the same picture shows what your change does, in <strong>green</strong>, before you submit it.</li>
+          </ul>
+        HTML
+      },
       {
         type: 'step',
-        title: 'Step 1: Find the tafsir',
-        text: "User filters to find the tafisr you're looking for, use <code>Surah</code> and <code>Ayah</code> dropdown to find tafisr for specific ayah. Click <code>Show</code> to open tafsir page.",
+        title: 'Find the tafsir',
+        text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. Click <code>Show</code> to read it, then <code>Edit</code> to fix it. <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
         screenshot: 'find-tafsir.png'
       },
       {
-        type: 'step',
-        title: 'Step 2: Read the tafsir',
-        text: 'This page will show the ayah tafsir. If you find any issues, click the <code>Edit</code> button to suggest the fix.',
-        screenshot: 'read-tafsir.png'
-      },
-      {
-        type: 'info',
-        text: "Tafsir often applies to a group of Ayahs. This tool allows you to edit Tafsir content and adjust the Ayah range it applies to."
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Step 3: Fix the tafsir and ayah range',
-        text: "Edit Tafsir content and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Tafsir in HTML format. Use the 'Verse From' and 'Verse To' dropdowns to adjust the Ayah range. Click <code>Propose changes</code> to submit your edits.",
-        screenshot: 'update-tafsir.png'
+        title: '1. Fix a typo or formatting',
+        text: <<~HTML
+          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>. Leave <code>First ayah</code> and <code>Last ayah</code> as they are.</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other]], [[0, 2, '“...the gardn of bliss”', :edit]]],
+             ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :other]], [[0, 2, '“...the garden of bliss”', :edit]]]]
+          )}
+          <p class="mt-2">The ayahs stay the same, only the text changes. To fix the HTML (headings, bold, lists), click <code>View</code> and then <code>Source code</code> in the editor.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Change the ayahs a tafsir explains',
+        text: <<~HTML
+          <p>Change <code>First ayah</code> or <code>Last ayah</code>. Below the dropdowns, the picture shows the tafsirs around it now and after approval.</p>
+          <p class="font-semibold mt-3">Widen it</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other], [26, :other], [27, :third]], [[0, 2, '22 - 24', :edit], [3, 4, '25 - 26', :other], [5, 5, '27', :third]]],
+             ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :edit], [26, :other], [27, :third]], [[0, 3, '22 - 25', :edit], [4, 4, '26', :other], [5, 5, '27', :third]]]]
+          )}
+          <p class="mt-2">The tafsir that had 25 is shortened to 26. If a tafsir loses all its ayahs it is archived, so make sure its text is in yours.</p>
+          <p class="font-semibold mt-3">Narrow it</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :edit], [26, :other], [27, :other]], [[0, 3, '22 - 25', :edit], [4, 5, '26 - 27', :other]]],
+             ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :none], [26, :other], [27, :other]], [[0, 2, '22 - 24', :edit], [3, 3, 'no tafsir', :none], [4, 5, '26 - 27', :other]]]]
+          )}
+          <p class="mt-2">Ayah 25 is left with no tafsir. To give it to the next tafsir, see <strong>4. Move an ayah</strong>.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Add tafsir for an ayah that has none',
+        text: <<~HTML
+          <p>Open the ayah (filter by it, or use <code>Next tafsir</code> from the tafsir before it). It says the ayah has no tafsir. Click <code>Add tafsir</code>, write the text and click <code>Propose changes</code>. Widen the range if the same text explains the ayahs after it.</p>
+          #{tafsir_range_diagram(
+            [['Now', [[20, :other], [21, :other], [22, :none], [23, :third], [24, :third]], [[0, 1, '20 - 21', :other], [2, 2, 'none', :none], [3, 4, '23 - 24', :third]]],
+             ['After', [[20, :other], [21, :other], [22, :edit], [23, :third], [24, :third]], [[0, 1, '20 - 21', :other], [2, 2, 'new', :edit], [3, 4, '23 - 24', :third]]]]
+          )}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Move an ayah from one tafsir to another',
+        text: <<~HTML
+          <p>For example, the tafsir for 22 - 24 already explains ayah 25, but 25 sits in the next tafsir. This takes two suggestions:</p>
+          #{tafsir_range_diagram(
+            [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other], [26, :other], [27, :other]], [[0, 2, '22 - 24 (explains 25 too)', :edit], [3, 5, '25 - 27', :other]]],
+             ['Step 1', [[22, :edit], [23, :edit], [24, :edit], [25, :edit], [26, :other], [27, :other]], [[0, 3, 'edit: last ayah 25', :edit], [4, 5, '26 - 27 by itself', :other]]],
+             ['Step 2', [[22, :other], [23, :other], [24, :other], [25, :other], [26, :edit], [27, :edit]], [[0, 3, '22 - 25', :other], [4, 5, 'edit: remove 25 from text', :edit]]]]
+          )}
+          <ol class="list-decimal ps-5 mt-2 space-y-1">
+            <li>Edit the tafsir that should get the ayah. Set <code>Last ayah</code> to 25, and add its text if it isn't there. The other tafsir is shortened to 26 - 27 for you.</li>
+            <li>Edit the other tafsir (the preview links to it) and remove the text about ayah 25, if it has any.</li>
+          </ol>
+          <p class="mt-2">To move an ayah backwards, change <code>First ayah</code> of the tafsir after it instead.</p>
+        HTML
       },
       {
         type: 'info',
-        text: "Your changes will be reviewed and, once approved, the Tafsir will be updated."
+        text: "Your changes are reviewed and, once approved, the tafsir is updated. Ranges never overlap: when an approved range takes ayahs from other tafsirs, those are shortened, or archived if they have no ayahs left."
       }
     ]
+  end
+
+  # Rows of ayah boxes coloured by tafsir, for the tafsir help.
+  # rows: [label, [[ayah_number, kind], ...], [[from_index, to_index, caption, kind], ...]]
+  # kind is :edit (the tafsir being changed), :other, :third or :none (no tafsir)
+  def tafsir_range_diagram(rows)
+    colors = { edit: '#16a34a', other: '#D47A27', third: '#64748b', none: nil }
+    cell = 40
+    gap = 4
+    left = 64
+    row_height = 62
+    width = left + 7 * (cell + gap) + 10
+
+    body = rows.each_with_index.map do |(label, cells, groups), r|
+      y = 6 + r * row_height
+      boxes = cells.each_with_index.map do |(number, kind), i|
+        x = left + i * (cell + gap)
+        if (color = colors[kind])
+          "<rect x='#{x}' y='#{y}' width='#{cell}' height='28' rx='4' fill='#{color}'/>" \
+            "<text x='#{x + cell / 2}' y='#{y + 19}' font-size='12' font-weight='600' text-anchor='middle' fill='#fff'>#{number}</text>"
+        else
+          "<rect x='#{x + 0.5}' y='#{y + 0.5}' width='#{cell - 1}' height='27' rx='4' fill='#fff' stroke='#94a3b8' stroke-dasharray='4 3'/>" \
+            "<text x='#{x + cell / 2}' y='#{y + 19}' font-size='12' text-anchor='middle' fill='#94a3b8'>#{number}</text>"
+        end
+      end.join
+
+      captions = groups.map do |from, to, caption, kind|
+        x1 = left + from * (cell + gap)
+        x2 = left + to * (cell + gap) + cell
+        color = colors[kind] || '#94a3b8'
+        "<line x1='#{x1 + 2}' y1='#{y + 34}' x2='#{x2 - 2}' y2='#{y + 34}' stroke='#{color}' stroke-width='2'/>" \
+          "<text x='#{(x1 + x2) / 2}' y='#{y + 48}' font-size='11' text-anchor='middle' fill='#334155'>#{ERB::Util.html_escape(caption)}</text>"
+      end.join
+
+      "<text x='0' y='#{y + 19}' font-size='12' font-weight='600' fill='#0f172a'>#{label}</text>#{boxes}#{captions}"
+    end.join
+
+    height = rows.size * row_height
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 overflow-x-auto'>" \
+      "<svg viewBox='0 0 #{width} #{height}' width='100%' style='max-width: #{width + 120}px; font-family: inherit' role='img' aria-label='Ayahs coloured by the tafsir they belong to'>#{body}</svg></div>"
   end
 
   def mushaf_layout_help
@@ -486,52 +1122,125 @@ module ToolDocsHelper
     [
       "Tajweed annotations tool",
       {
-        text: "This tool is designed to fix the tajweed annotations for each word in the Ayah."
+        text: "This tool is used to fix the tajweed rules of each word: which letters a rule applies to, and so which letters are coloured. Find the word, set the rule on its letters and click <code>Save</code>. Changes are saved right away."
+      },
+      {
+        type: 'heading',
+        text: 'How tajweed is stored'
       },
       {
         type: 'info',
-        text: "We provide two variations of the Tajweed-annotated script: one based on the Recite Quran project and the other on the Dar Al Maarifah <a href='https://easyquran.com/en/' target='_blank'>Tajweed Mushaf</a>. This tool enables you to switch between the two Tajweed schemes, compare them, and correct any missing or incorrect Tajweed rules."
+        text: <<~HTML
+          <p>Each letter and each mark (harakah, sukun, shaddah) of a word is its own row, and a row can have one tajweed rule. Letters with a rule get the rule's colour. A rule usually covers a letter <strong>and its marks</strong>, so set it on every row it covers.</p>
+          #{tajweed_letters_diagram('۞قَوۡ<r class=idgham_ghunnah>لٌ</r>', [['۞'], ['ق'], ['َ'], ['و'], ['ۡ'], ['ل', 'idgham_ghunnah'], ['ٌ', 'idgham_ghunnah']])}
+          <p class="mt-2">Here the tanween of <span class="qpc-hafs">قَوۡلٌ</span> (2:263) merges into the <span class="qpc-hafs">م</span> of the next word, so <span class="qpc-hafs">ل</span> and its tanween both have <code>idgham_ghunnah</code>.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 1: Find the word and select tajweed script type',
-        text: "Use the filters to find the words, you can filter by <code>Surah</code> and <code>Ayah</code> or use text search to find the words. You can also filter the words that have a specific tajweed rule using <code>Filter by tajweed rule</code> dropdown. Table below will show the words of filtered ayahs with tajweed annotations. Click on <code>Show</code> button to open the word.",
-        screenshot: 'tajweed-filter.png'
+        title: 'Find words',
+        text: <<~HTML
+          <p>Filter by surah, ayah, page or rule, or search the word text. Type the marks too. Click <code>Show</code> to open a word.</p>
+          #{tajweed_filter_examples([
+            [[['Text', 'حۡمَ']], 'ٱلرَّ<m>حۡمَٰ</m>نِ'],
+            [[['Starts with', 'ٱل']], '<m>ٱلۡ</m>حَمۡدُ'],
+            [[['Ends with', 'نۡ']], 'مِ<m>نۡ</m>'],
+            [[['Starts with', 'ٱل'], ['Ends with', 'ينَ'], ['Whole word']], '<m>ٱلۡ</m>عَٰلَمِ<m>ينَ</m>']
+          ])}
+          <p class="mt-2 text-xs text-gray-500">Starts and ends with take patterns too: <code>[نم]</code> noon or meem, <code>.</code> any one mark.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 2: Review and fix the tajweed annotations',
-        sections: [
-          {
-            text: "The first section on Tajweed word page will show the available tajweed script, both text and images. You can use this to compare tajweed scripts while fixing the missing rules",
-            screenshot: "tajweed-word-detail.png"
-          },
-          {
-            text: "The next section show the preview of the word and list of letters with associated tajweed rule. You can change the tajweed rule for each letter using the dropdown. Click <code>Save</code> to save the changes. This will automatically update the word preview.",
-            screenshot: "tajweed-letters.png"
-          },
-          {
-            text: "Click on <code>Tajweed Page</code> button to view the Tajweed mushaf page for the selected word. You can use this to compare the tajweed rules with the actual Mushaf page.",
-            screenshot: 'tajweed-pages.png'
-          },
-          {
-            text: "Click the <code>Tajweed Palette</code> button to open the Tajweed Rule Palette. This will display a list of all Tajweed rules, including the rule name, associated letters, and the assigned color for each rule. Use this if you're unsure about the tajweed rule for a specific letter.",
-            screenshot: "tajweed-palette.png"
-          },
-          {
-            text: "Click the <code>View Detail</code> button to see a detailed explanation of the Tajweed rule. This includes sample words for the selected rule and links to additional resources for further reading.",
-            screenshot: "rule-docs.png"
-          }
-        ],
-        screenshot: 'tajweed-word.png'
+        title: 'Compare with other sources',
+        text: <<~HTML
+          <p>The top of the word page shows the word in other tajweed sources: the ReciteQuran text, the QPC (Dar Al Maarifah) text, Quran Academy and the V4 tajweed font. They don't always agree, compare them before changing a rule.</p>
+          <ul class="list-disc ps-5 mt-2">
+            <li><code>Tajweed page</code> opens the Dar Al Maarifah <a href='https://easyquran.com/en/' target='_blank'>tajweed Mushaf</a> page of the word.</li>
+            <li><code>Tajweed Palette</code> lists every rule with its colour and example words, only the letters of that rule are coloured. <code>View detail</code> explains the rule.</li>
+            <li><strong>Rules preview</strong> shows the word with its current rules and updates as you save.</li>
+            <li>The <strong>Ayah preview</strong> at the bottom shows the whole ayah, click a word to move to it. The next word often decides the rule (idgham, ikhfa, iqlab).</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
       },
       {
         type: 'step',
-        title: 'Preview full ayah',
-        text: "The last section on the page will show the full ayah with tajweed colors. You can click on any word to quickly jump between all words of current ayah.",
-        screenshot: 'tajweed-ayah.png'
+        title: '1. Wrong rule',
+        text: <<~HTML
+          <p>Pick the right rule on each letter of it and click <code>Save</code> on every row. A noon sakin before <span class="qpc-hafs">ق</span> is ikhfa, not izhar:</p>
+          #{tajweed_before_after('مِ<r class=izhar>نۡ</r> قَبۡلِ', 'مِ<r class=ikhafa>نۡ</r> قَبۡلِ')}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '2. Missing rule',
+        text: <<~HTML
+          <p>A letter should be coloured but isn't. Pick the rule on the letter and its marks. A <span class="qpc-hafs">نّ</span> or <span class="qpc-hafs">مّ</span> with shaddah always has ghunnah:</p>
+          #{tajweed_before_after('إِنَّ', 'إِ<r class=ghunnah>نَّ</r>')}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Rule on too few or too many letters',
+        text: <<~HTML
+          <p>Only part of the rule is coloured, or it runs onto a letter it doesn't belong to. Set or clear the rule row by row. The madd of <span class="qpc-hafs">ٱلرَّحۡمَٰنِ</span> covers the tatweel and the small alif:</p>
+          #{tajweed_letters_diagram('ٱ<r class=laam_shamsiyah>ل</r>رَّحۡمَ<r class=madda_normal>ـٰ</r>نِ', [['م'], ['َ'], ['ـ', 'madda_normal'], ['ٰ', 'madda_normal'], ['ن'], ['ِ']])}
+        HTML
+      },
+      {
+        type: 'step',
+        title: '4. Remove a rule',
+        text: "Pick the empty <code>Select rule</code> option on the letter and click <code>Save</code>. The letter goes back to normal text."
+      },
+      {
+        type: 'info',
+        text: "Not sure about a rule? Open <code>Tajweed Palette</code> and <code>View detail</code> for its explanation and examples, or check the word on the <code>Tajweed page</code>."
       }
     ]
+  end
+
+  # Filter values and a word they find, the matched part highlighted
+  def tajweed_filter_examples(examples)
+    cards = examples.map do |filters, word|
+      chips = filters.map do |label, value|
+        value_html = value ? " <span class='qpc-hafs text-base'>#{value}</span>" : ''
+        "<span class='inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-700'>#{label}#{value_html}</span>"
+      end.join(' ')
+      word_html = word.gsub('<m>', "<span class='text-blue-600'>").gsub('</m>', '</span>')
+
+      "<div class='flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-2'>" \
+        "<div class='flex flex-wrap gap-1'>#{chips}</div>" \
+        "<span class='text-gray-400'>&rarr;</span>" \
+        "<span class='qpc-hafs text-2xl' dir='rtl'>#{word_html}</span>" \
+        "</div>"
+    end
+
+    "<div class='grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2'>#{cards.join}</div>"
+  end
+
+  # A tajweed word and some of its letter rows with their rule
+  def tajweed_letters_diagram(word_html, letters)
+    rows = letters.map do |char, rule|
+      "<tr class='border-t border-gray-100'>" \
+        "<td class='px-2 py-1 text-xs text-gray-500'>#{char == 'ۡ' ? 'sukun' : Unicode::Name.of(char).to_s.downcase.sub('arabic ', '')}</td>" \
+        "<td class='px-2 py-1 qpc-hafs text-xl text-center #{rule}'>#{char}</td>" \
+        "<td class='px-2 py-1 text-xs'>#{rule ? "<code>#{rule}</code>" : "<span class='text-gray-400'>no rule</span>"}</td></tr>"
+    end.join
+
+    "<div class='bg-white rounded border border-gray-200 p-2 my-2 flex flex-wrap items-center gap-4 tajweed-new'>" \
+      "<div class='qpc-hafs text-4xl leading-loose px-3' dir='rtl'>#{word_html}</div>" \
+      "<table class='text-left'><thead><tr class='text-xs text-gray-500'><th class='px-2'>Letter</th><th class='px-2'></th><th class='px-2'>Rule</th></tr></thead><tbody>#{rows}</tbody></table></div>"
+  end
+
+  def tajweed_before_after(before_html, after_html)
+    cell = ->(label, html, css) { "<div class='rounded border #{css} p-2 text-center'><div class='text-xs font-semibold text-gray-500'>#{label}</div><div class='qpc-hafs text-3xl leading-loose' dir='rtl'>#{html}</div></div>" }
+
+    "<div class='grid grid-cols-2 gap-2 my-2 max-w-md tajweed-new'>" \
+      "#{cell.call('Now', before_html, 'border-red-400 bg-red-50')}#{cell.call('After', after_html, 'border-green-600 bg-green-50')}</div>"
   end
 
   def quran_script_help
@@ -564,18 +1273,18 @@ module ToolDocsHelper
     [
       "Surah info tool",
       {
-        text: "This tool is used to proofread and fix Surah information in different languages. Please follow these steps to suggest a fix:"
+        text: "This tool is used to proofread and fix Surah information in different languages: the introduction to each Surah, its name, when it was revealed and what it's about."
       },
       {
         type: 'step',
         title: 'Step 1: Find the Surah information',
-        text: "Use the filters to find the Surah information you're looking for. Click on <code>Show</code> button to open the Surah information page.",
+        text: "Pick a resource: each book of Surah information is its own resource, and a language can have more than one. Click on <code>Show</code> button to open the Surah information page.",
         screenshot: 'find-surah-info.png'
       },
       {
         type: 'step',
         title: 'Step 2: Read the Surah information',
-        text: "This page will show the Surah information of selected Surah. If you find any issues, click the <code>Edit</code> button to suggest the fix. Use <code>Previous</code> and <code>Next</code> buttons to navigate between Surahs.",
+        text: "This page will show the Surah information of selected Surah. If you find any issues, click <code>Edit</code> to fix it. Use <code>Previous</code> and <code>Next</code> to move between Surahs.",
         screenshot: 'read-surah-info.png'
       },
       {
@@ -585,8 +1294,39 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 3: Fix the Surah information',
-        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save surah info</code> to submit your changes.",
+        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save suggestion</code> to save your changes, they go live once an admin approves them.",
         screenshot: 'update-surah-info.png'
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. Typos and missing words',
+        text: "Fix them in the editor. Check names and transliterations against the rest of the text, the same surah or person should be spelled the same way everywhere."
+      },
+      {
+        type: 'step',
+        title: '2. Lost formatting',
+        text: <<~HTML
+          <p>Imported text often loses its structure: paragraphs run together, headings look like normal text, or lists became one line.</p>
+          <div class="grid grid-cols-2 gap-2 my-2 max-w-xl text-xs">
+            <div class="rounded border border-red-400 bg-red-50 p-2"><div class="font-semibold text-gray-500 mb-1">Now</div>Name This Surah takes its name from verse 1. Period of Revelation It was revealed in Makkah...</div>
+            <div class="rounded border border-green-600 bg-green-50 p-2"><div class="font-semibold text-gray-500 mb-1">After</div><div class="font-semibold">Name</div><p>This Surah takes its name from verse 1.</p><div class="font-semibold mt-1">Period of Revelation</div><p>It was revealed in Makkah...</p></div>
+          </div>
+          <p>Use the editor's heading, paragraph and list buttons, or <code>Source code</code> to fix the HTML. Don't paste styled text from other sites, it brings fonts and colours with it.</p>
+        HTML
+      },
+      {
+        type: 'step',
+        title: '3. Short info',
+        text: "The short info is one or two plain sentences, shown in surah lists and search results. If it's missing, too long or has HTML, rewrite it from the first lines of the long info."
+      },
+      {
+        type: 'step',
+        title: '4. Text in the wrong language',
+        text: "If part of the info is in another language, or wasn't translated, translate it or open an issue so it can be sourced again."
       }
     ]
   end
@@ -1069,31 +1809,111 @@ module ToolDocsHelper
     [
       "Quran corpus tool",
       {
-        text: "This tool is used to proofread and fix the Quran corpus data, the concordance label, part of speech (POS), grammar and morphology tagging for every word of the Quran."
+        text: "This tool is used to review the Quran corpus: the morphology and grammar of every word. Browse an ayah, open a word and check its segments. To fix something, edit the segment on its page (needs access) or report it."
+      },
+      {
+        type: 'heading',
+        text: 'Words and segments'
+      },
+      {
+        text: <<~HTML
+          <p>A word is split into <strong>segments</strong>: prefixes, the stem, and suffixes. Each segment has its own part of speech (POS), tags, root and lemma.</p>
+          #{corpus_segments_diagram('بِسۡمِ', '1:1:1', [['بِ', 'P', 'preposition', 'P, PREF', '', 'ب'], ['سْمِ', 'N', 'noun', 'M, GEN', 'سمو', 'اسْم']])}
+          #{corpus_segments_diagram('ٱلۡحَمۡدُ', '1:2:1', [['ٱلْ', 'P', 'determiner', 'DET, PREF', '', 'ال'], ['حَمْدُ', 'N', 'noun', 'M, NOM', 'حمد', 'حَمْد']])}
+          <p class="mt-2">Tags describe the segment: <code>PREF</code> prefix, <code>DET</code> the definite article, <code>M</code> masculine, <code>NOM</code>/<code>GEN</code> case, <code>IMPF</code> imperfect verb, <code>VF:1</code> verb form I. A word with one segment, like <span class="text-qpc-hafs text-lg">نَعۡبُدُ</span> (1:5), has the whole word as its stem.</p>
+        HTML
       },
       {
         type: 'step',
-        title: 'Step 1: Find the ayah',
-        text: "Use the filters to narrow down by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> number. The table lists the ayahs; click <code>Show</code> to open an ayah for tagging."
+        title: 'Find an ayah',
+        text: "Filter by <code>Juz</code>, <code>Surah</code> or <code>Ayah</code> and click <code>Show</code>. The ayah page lists its words. <code>Previous ayah</code> and <code>Next ayah</code> move between ayahs."
       },
       {
         type: 'step',
-        title: 'Step 2: Review the words of the ayah',
-        text: "The ayah page lists every word with its current corpus data. Use the <code>Previous ayah</code> and <code>Next ayah</code> buttons to move between ayahs. Click a word to open its detail page."
+        title: 'Check a word',
+        text: "Click a word to open it. The top shows the word's root, lemma and stem, each with how many words share it. Below are its segments with their features, then the word's case, case reason, grammar pattern and description. With editing access, set the case reason and description in <code>Edit word</code>. <code>Previous word</code> and <code>Next word</code> move through the ayah."
       },
       {
         type: 'step',
-        title: 'Step 3: Fix word level data',
-        text: "On the word detail page you can review and correct the word's morphology and segments. Use <code>Previous Word</code> and <code>Next Word</code> to move between words of the ayah, and open a segment to edit its segment-level data."
+        title: 'Check a segment',
+        text: "Click a segment to open it. The left side shows its part of speech, grammar features (person, gender, number, case, aspect, mood and more), verb form, root, lemma and grammar description. With editing access, change them in the form on the right and click <code>Save segment</code>. Features are saved back into the segment's tags. Changes go live right away and are tracked."
       },
       {
-        type: 'step',
-        title: 'Step 4: Fix segment level data',
-        text: "Many words split into multiple morphological segments (prefix, stem, suffix). Open a segment to correct its part of speech and grammar tagging, then save your changes."
+        type: 'heading',
+        text: 'What to look for'
       },
       {
         type: 'info',
-        text: "You need editing access to save corpus changes. If you don't have access, open the tool and click <code>Request Access</code>."
+        text: <<~HTML
+          <ul class="list-disc ps-5">
+            <li><strong>Wrong split:</strong> a prefix or suffix not separated, or a stem split in two.</li>
+            <li><strong>Wrong part of speech:</strong> a particle tagged as a noun, a noun as a verb.</li>
+            <li><strong>Wrong root or lemma:</strong> a rare root or lemma (the count next to it is small) is worth a second look.</li>
+            <li><strong>Wrong tags:</strong> case, gender, number or verb form that doesn't match the word.</li>
+          </ul>
+          <p class="mt-2">Open the segment and fix it in the form. Without access, click <code>Request Access</code> or <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose' target='_blank'>open an issue</a> with the word location and what's wrong.</p>
+        HTML
+      }
+    ]
+  end
+
+  # A word and its corpus segments, in reading order.
+  # segments: [[text, pos key, pos name, tags, root, lemma], ...]
+  def corpus_segments_diagram(word, location, segments)
+    arabic = 'text-qpc-hafs text-xl text-gray-900 text-left'
+    rows = segments.map do |text, pos, name, tags, root, lemma|
+      "<tr class='border-t border-gray-100'>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{text}</td>" \
+        "<td class='px-3 py-1.5'><span class='font-semibold'>#{pos}</span> <span class='text-gray-500'>#{name}</span></td>" \
+        "<td class='px-3 py-1.5'><code>#{tags}</code></td>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{root.presence || '<span class="text-gray-400 text-sm">—</span>'}</td>" \
+        "<td class='px-3 py-1.5 #{arabic}' dir='rtl'>#{lemma}</td></tr>"
+    end.join
+
+    "<div class='my-3 overflow-x-auto rounded-lg border border-gray-200 bg-white'>" \
+      "<div class='flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200'>" \
+      "<span class='text-xs text-gray-500'>#{location}</span>" \
+      "<span class='text-qpc-hafs text-2xl text-gray-900' dir='rtl'>#{word}</span></div>" \
+      "<table class='w-full table-fixed text-sm text-gray-700'>" \
+      "<thead><tr class='text-left text-xs uppercase tracking-wide text-gray-400'>" \
+      "<th class='px-3 py-1.5 font-medium'>Segment</th><th class='px-3 py-1.5 font-medium'>POS</th>" \
+      "<th class='px-3 py-1.5 font-medium'>Tags</th><th class='px-3 py-1.5 font-medium'>Root</th>" \
+      "<th class='px-3 py-1.5 font-medium'>Lemma</th></tr></thead>" \
+      "<tbody>#{rows}</tbody></table></div>"
+  end
+
+  def compare_font_help
+    [
+      "Compare fonts tool",
+      {
+        text: "This tool compares two builds of the same font, usually the old one against a new export, to see what changed before shipping it. Nothing is uploaded, the fonts stay in your browser."
+      },
+      {
+        type: 'step',
+        title: '1. Load two fonts',
+        text: "Drop the old font on <code>Old</code> and the new one on <code>New</code>, or click <code>Load</code>. TTF, OTF, TTC, WOFF and WOFF2 work. <code>Swap old/new</code> in the header swaps them, <code>Reset</code> clears both."
+      },
+      {
+        type: 'step',
+        title: '2. Compare rendered text',
+        text: "On <code>Bitmap diff</code>, type or paste text and click <code>Render</code>. <code>Diff</code> marks every pixel that differs, <code>Old</code> and <code>New</code> show each font, <code>Overlay</code> draws one over the other and <code>Side by side</code> puts them next to each other. <code>Copy PNG</code> and <code>Download PNG</code> save the result."
+      },
+      {
+        type: 'step',
+        title: '3. Check the reports',
+        text: "<code>Issues</code> lists regressions, like dropped hinting or characters that are no longer mapped. <code>Metadata &amp; size</code> compares names, versions, file size and the font tables. <code>Glyphs</code> diffs every glyph outline, filter by <code>Changed</code>, <code>Only in old</code> or <code>Only in new</code> and click a glyph for details. <code>Code points &amp; ligatures</code> lists what each font maps, <code>Copy all as CSV</code> exports it."
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>What to look for:</p>
+          <ul class="list-disc ps-5 mt-1">
+            <li><strong>Pixels changed where you didn't edit:</strong> an export setting changed, like metrics or hinting.</li>
+            <li><strong>Glyphs only in old:</strong> characters the new build lost.</li>
+            <li><strong>Unmapped code points or missing ligatures:</strong> text that rendered before will fall back to another font.</li>
+            <li><strong>A big jump in file size:</strong> an extra table or unsubset glyphs.</li>
+          </ul>
+        HTML
       }
     ]
   end
@@ -1102,11 +1922,252 @@ module ToolDocsHelper
     [
       "Compare audio tool",
       {
-        text: "This tool is used to compare audio recitations side-by-side so you can spot differences in timing, segmentation and audio between reciters or between versions of the same recitation."
+        text: "This tool puts two audio files side by side, to compare a recitation with another one or with a newer version of the same file: length, waveform and where the pauses are. Nothing is saved, the files stay in your browser."
+      },
+      {
+        type: 'step',
+        title: '1. Load two files',
+        text: "Drop a file on <code>Audio File 1</code> and <code>Audio File 2</code>, click to pick one, or paste a URL and press Enter. Each file gets a player and its stats (duration and file details) right away."
+      },
+      {
+        type: 'step',
+        title: '2. Draw the waveforms',
+        text: "Click <code>Generate Waveform</code> under a player. Long files take a moment. Use <code>Zoom</code> to look closer, and <code>Play First</code>, <code>Play Second</code> or <code>Play Both</code> to listen. <code>Jump to (ms)</code> moves a player to an exact time, handy to check a segment's start or end."
+      },
+      {
+        type: 'step',
+        title: '3. Find the pauses',
+        text: "Under each file's stats, set the <code>Threshold</code> (how quiet counts as silence) and <code>Min Duration</code> (how long it must last), then click <code>Detect Silences</code>. Each pause is marked on the waveform. Click a mark and <code>Play Region</code> to hear it, <code>Clear Region</code> clears the selection."
       },
       {
         type: 'info',
-        text: "The documentation for this tool is being expanded. Reach out on GitHub if a specific step is unclear."
+        text: <<~HTML
+          <p>What to look for:</p>
+          <ul class="list-disc ps-5 mt-1">
+            <li><strong>Different length:</strong> extra silence at the start or end, or a missing part.</li>
+            <li><strong>Pauses in different places:</strong> the files are cut or edited differently, so segment timings from one won't fit the other.</li>
+            <li><strong>Waveforms that mirror each other top to bottom:</strong> one file's polarity is inverted.</li>
+          </ul>
+        HTML
+      }
+    ]
+  end
+
+  def audio_repair_index_help
+    [
+      "Audio repair",
+      {
+        text: "Audio repair fixes mistakes in a published recitation without re-recording it: a mispronounced word, a wrong vowel, a stumble. Repairs are non-destructive — the original file is never modified, and every change is kept as an undoable operation until you export."
+      },
+      {
+        type: 'step',
+        title: 'Pick a reciter and surah',
+        text: "Search the list for the reciter, then choose the surah that needs work. This opens (or reopens) a repair session for that pairing. A session keeps its list of repairs, so you can come back to it later."
+      },
+      {
+        type: 'step',
+        title: 'What you need before you start',
+        text: "The surah must have word timings for the reciter. To fix a single sound rather than a whole word, it also needs <strong>letter timings</strong> — the editor will tell you if they are missing."
+      },
+      {
+        type: 'info',
+        text: "Exporting re-encodes the whole surah and runs in the background. The repaired file is written alongside the original; nothing you do here changes the published audio."
+      }
+    ]
+  end
+
+  def audio_repair_ingest_help
+    [
+      "Add audio",
+      {
+        text: "Import a new reciter’s recordings, one surah at a time. Source files may vary in format and bitrate or include extra audio, such as an opening basmala, surah name, or closing dua. This tool standardizes the recordings, with every cut reviewed before import."
+      },
+      {
+        type: 'step',
+        title: '1. Describe the recitation',
+        text: "Select or create the reciter, then choose the recitation style and qira’at. The new recitation remains unapproved until you review it."
+      },
+      {
+        type: 'step',
+        title: '2. Configure the source',
+        text: "Enter a source URL for one surah and select the surah range. The tool previews the first and last URLs before downloading. Use <strong>Edit source</strong> to correct the URL and retry."
+      },
+      {
+        type: 'step',
+        title: '3. Download recordings',
+        text: "Surahs download in parallel batches, with individual progress and retries for failed downloads. Interrupted downloads are never treated as complete."
+      },
+      {
+        type: 'step',
+        title: '4. Review the opening cut',
+        text: "Review the proposed cut that removes the opening basmala where needed. Listen, drag the marker, or adjust it in milliseconds. Al-Fatihah and At-Tawbah are skipped automatically.",
+        sections: [
+          {
+            type: 'info',
+            text: "Automatic cuts are suggestions, not decisions. Confirm every cut by ear, especially when there is no pause between the opening and the first ayah. Ensure the first word remains intact before approving."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: '5. Trim closing supplications',
+        text: "Optionally detect and remove a closing dua. Review the proposed cut carefully, as audio after a pause may contain valid closing ayahs."
+      },
+      {
+        type: 'step',
+        title: '6. Encode surahs',
+        text: "Approve the cuts to encode each surah in the library’s supported formats, with consistent tags for surah, reciter, and track number. Choose the bitrate for the full run or individual surahs. Re-encoding always uses the untouched original."
+      },
+      {
+        type: 'step',
+        title: '7. Validate the output',
+        text: "Each file is checked for expected duration and stereo-to-mono phase cancellation. Surah pages show measured duration, size, bitrate, channels, and sample rate. You can also run a full timeline report."
+      },
+      {
+        type: 'info',
+        text: "Originals and encoded files can consume several gigabytes. The run page shows storage usage and lets you delete files you no longer need. Keep originals if you may need to adjust cuts or re-encode at another bitrate; otherwise, you’ll need to download them again."
+      },
+      {
+        type: 'step',
+        title: '8. Complete the import',
+        text: "Once all surahs are encoded and validated, review the results and approve the recitation for publication. Only approved recitations become available in the library."
+      }
+    ]
+  end
+
+  def audio_repair_polarity_help
+    [
+      "Polarity check",
+      {
+        text: "Some published surah files have the right channel inverted — every sample is the negative of the left. On headphones this is inaudible. On anything that sums the two channels to mono (a phone earpiece, a mono Bluetooth speaker, an app's mono output) the two cancel and the recitation drops to near silence. This page finds those stretches and validates a corrected file."
+      },
+      {
+        type: 'step',
+        title: 'Pick the original',
+        text: "Drop the mp3 as published, choose it from disk, or paste its URL. Choosing a recitation and surah labels each finding with ayah numbers; with no file given, the published file for that surah is checked."
+      },
+      {
+        type: 'step',
+        title: 'Optionally add the fixed file',
+        text: "If you already corrected the file, add it the same way. It is validated against the original: no inverted audio left, the mono mix as loud as stereo, and duration, sample rate and tags unchanged."
+      },
+      {
+        type: 'step',
+        title: 'Listen',
+        text: "Switch the output to <strong>Mono (L+R)</strong> — that is the same sum a mono device makes — and play a flagged window. The level meter collapses and the recitation disappears. Switch the source to <strong>Fixed</strong> at the same spot to hear the repair. Click a timeline to seek both files together."
+      },
+      {
+        type: 'step',
+        title: 'Generate the fix',
+        text: "<strong>Generate fixed file</strong> flips the right channel inside the flagged windows (the whole file when all of it is inverted), keeps the tags, bitrate and sample rate, then validates the result. Download it from the top right once it passes."
+      },
+      {
+        type: 'info',
+        text: "Phase correlation runs from +1 (identical channels) to -1 (inverted). Windows are reported where it stays below -0.5 for half a second or more of audible audio; fades and room tone are ignored. A clean file reads around +0.6 to +0.9 and loses under 1 dB in mono; an inverted one loses 30 dB or more."
+      }
+    ]
+  end
+
+  def audio_repair_editor_help
+    [
+      "Audio repair editor",
+      {
+        text: "Two kinds of repair, chosen with the tabs at the top. <strong>Replace word</strong> swaps a whole word or phrase for the same words recited correctly elsewhere. <strong>Fix pronunciation</strong> corrects one sound in place, without replacing any audio."
+      },
+      {
+        type: 'info',
+        text: "Pick the right one: if the reciter said the <em>wrong word</em>, replace the word. If the word is right but a <em>vowel or letter</em> came out wrong, fix the pronunciation — it changes far less of the audio and cannot shift any timings."
+      },
+
+      { type: 'heading', text: 'Replace word' },
+      {
+        type: 'step',
+        title: 'Step 1: Select what to replace',
+        text: "Click a word in the ayah; shift-click a second word to select a run. Greyed-out words have no timing and cannot be selected. The red waveform on the left is the audio you are about to replace, and you can nudge its start and end in milliseconds if the word boundary is slightly off."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Find a replacement',
+        text: "<strong>Find same word</strong> searches every other place this reciter says the same word or phrase. Because the stored text is always the correct text, this finds correctly-recited occurrences even though the audio at your target is wrong. <strong>Manual</strong> looks up a specific reference such as <code>18:31:6</code> or <code>18:31:6-7</code>. Use <em>Play</em> to audition a candidate and <em>wave</em> to see its shape before committing."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Fit it to the original',
+        text: "A clip taken from elsewhere in the surah is usually a little louder or quieter, a little higher or lower in pitch, and a little longer or shorter than the gap it has to fill. All three are audible, so press <strong>Measure</strong> to see the numbers side by side, then <strong>Match all</strong> to write the suggested corrections into the sliders.",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Loudness</strong> is measured in LUFS, which tracks perceived level rather than peak. <strong>Pitch</strong> is the median f0 across the clip. <strong>Length</strong> drives the time-stretch. A dash in the <em>fix</em> column means the difference is too small to be worth correcting — applying a correction there would only add artefacts.<br><br>The corrections land in the sliders rather than being applied invisibly, so you can always see and adjust what is being done. The editor warns if a candidate needs a pitch shift beyond about 2 semitones or a stretch beyond ±25%: at that point choosing a different candidate almost always beats correcting this one."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 4: Preview and apply',
+        text: "<strong>Render preview</strong> builds the splice with a little context either side so you can hear it in place; A/B against the original with the two play buttons. <strong>Apply</strong> adds it to the repair list. Nothing is written to audio until you export, and every repair can be undone."
+      },
+
+      { type: 'heading', text: 'Fix pronunciation' },
+      {
+        type: 'info',
+        text: "This does not splice in anyone else's audio. It takes the <em>shape of the mouth</em> from a correct recitation of the same letter and applies it to the reciter's own voice. The result is still entirely his voice, at his pitch, in his acoustic — only the articulation changes. It is also exactly length-preserving, so no later word or letter timing moves."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Choose the sound',
+        text: "Pick the word, then the exact letter or harakah. Each chip shows how long that sound lasts and is drawn as wide as its duration, so a 60 ms consonant and a 430 ms stressed letter are easy to tell apart. <strong>Shift-click a second chip to select a run of sounds</strong> — useful when a whole syllable is wrong rather than a single vowel.",
+        sections: [
+          {
+            type: 'info',
+            text: "Harakat are shown on a dotted stroke (ـَ ـِ ـُ) because a vowel mark on its own is almost invisible. Selecting several sounds maps the donor letter-by-letter, so each letter lands on its counterpart even when the two recitations hold them for different lengths."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Choose where the correct sound comes from',
+        text: "The list shows the same letter of the same word recited elsewhere by this reciter. <em>same next</em> marks donors where the following sound also matches — those usually give the smoothest result, because the correction has to glide into whatever comes next.",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Measure all</strong> actually runs the repair for every donor and re-sorts the list by the measured outcome. It takes a few seconds per donor and results appear as they finish, so you can stop early. This matters: donors that look equally good on paper can differ a lot in practice, and the ordering before you measure is only a guess."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Listen, check the gauge, apply',
+        text: "The <strong>vowel colour</strong> gauge is the main readout. It plots where the sound sits between a rounded ḍamma-like vowel on the left and a front kasra-like vowel on the right, marking where it was before and where it landed after. A repair that worked moves the dot clearly across the middle band.",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Join smoothness</strong> is the largest jump in the second formant near the edit; lower is smoother, and the figure in brackets is what it was before. A large number means the correction does not blend into the neighbouring sounds — try a donor with the same following sound, or lengthen <em>Glide out</em>.<br><br><strong>Audio changed</strong> shows how much of the recording was touched. It should be a little wider than the sound you selected and nothing more."
+          }
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Advanced settings',
+        text: "The defaults are tuned and suit most repairs; open this only when a result is not good enough. Each control changes one thing:",
+        sections: [
+          {
+            type: 'info',
+            text: "<strong>Ramp in</strong> — how long the correction takes to reach full strength before the sound.<br><strong>Glide out</strong> — how far it glides into the following consonant. Raise it if the join sounds abrupt.<br><strong>Strength</strong> — how far toward the donor's articulation to go. Below 1 the sound is only partly corrected; useful when a full correction overshoots.<br><strong>Tilt split</strong> — where the donor's vowel ends and its recording character begins. Raise it and the donor's microphone starts bleeding through; lower it and less of the vowel comes across.<br><strong>Filter order</strong> — resolution of the vocal-tract model. Higher tracks more detail but is less stable; lower it if the editor reports frames it could not model."
+          }
+        ]
+      },
+
+      { type: 'heading', text: 'Finishing up' },
+      {
+        type: 'step',
+        title: 'Repairs, undo and export',
+        text: "Every applied repair is listed at the bottom, tagged <em>word</em> or <em>sound</em>, with the measured before/after for pronunciation fixes. Undo and redo walk the list. <strong>Export MP3</strong> renders the whole surah with every repair applied and gives you a download link.",
+        sections: [
+          {
+            type: 'info',
+            text: "Pronunciation fixes are applied to the surah first and word replacements afterwards, so the two compose cleanly. Because a pronunciation fix never changes length, the word and letter timings you already have stay valid for the exported file."
+          }
+        ]
       }
     ]
   end

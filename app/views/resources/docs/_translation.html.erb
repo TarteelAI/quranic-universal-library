@@ -1,0 +1,5 @@
+<% if resource.one_word? %>
+  <%= render 'resources/docs/word_translation', resource: resource %>
+<% else %>
+  <%= render 'resources/docs/verse_translation', resource: resource %>
+<% end %>

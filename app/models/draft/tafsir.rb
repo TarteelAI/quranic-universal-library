@@ -50,8 +50,16 @@ class Draft::Tafsir < ApplicationRecord
     where(":ayah >= start_verse_id AND :ayah <= end_verse_id ", ayah: ayah.id)
   }
   scope :verse_key_eq, ->(ayah) { verse_key_cont(ayah) }
+  # Fixes suggested by users that aren't approved yet
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
   scope :verse_key_start, ->(ayah) { where("start_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
   scope :verse_key_end, ->(ayah) { where("end_verse_id = ?", Verse.find_by(verse_key: ayah)&.id) }
+
+  def group_verses
+    return Verse.where(id: verse_id) if start_verse_id.blank? || end_verse_id.blank?
+
+    Verse.where('id >= ? AND id <= ?', start_verse_id, end_verse_id).order('verse_index ASC')
+  end
 
   def source_link
     if resource_content.sourced_from_tafsir_app?
@@ -74,10 +82,19 @@ class Draft::Tafsir < ApplicationRecord
       primary_verse = group_verses.first
     end
 
-    tafsir = Tafsir.where(
+    # Suggestions from the proofreading tool know their tafsir, its primary
+    # ayah can be out of the new range when the range moved
+    tafsir = self.tafsir || Tafsir.where(
       verse_id: primary_verse.id,
       resource_content_id: resource_content.id
     ).first_or_initialize
+
+    range_change = Draft::TafsirRangeChange.new(
+      resource_content_id: resource_content.id,
+      tafsir: tafsir,
+      start_verse_id: start_verse_id,
+      end_verse_id: end_verse_id
+    )
 
     tafsir.verse = primary_verse
     tafsir.group_tafsir_id = primary_verse.id
@@ -104,9 +121,14 @@ class Draft::Tafsir < ApplicationRecord
     tafsir.group_verses_count = group_verses.count
     tafsir.start_verse_id = start_verse_id
     tafsir.end_verse_id = end_verse_id
+    tafsir.archived = false
 
     attribute_versions_to(user) do
-      tafsir.save(validate: false)
+      Tafsir.transaction do
+        # Take this range's ayahs out of the other groups, they can't overlap
+        range_change.apply! if range_change.valid?
+        tafsir.save(validate: false)
+      end
     end
     update_columns(reviewed: true, imported: true)
 

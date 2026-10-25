@@ -1,0 +1,24 @@
+<div class="px-4 py-3 rounded mb-4 bg-gray-100 border border-gray-400 text-gray-700 flex relative" role="alert" data-controller="alert">
+  <i class="fa fa-info-circle me-2 fa-2x"></i>
+  <div>
+    <p>
+      <strong>
+        Welcome to the Ayah Transliteration Tool!
+      </strong>
+    </p>
+
+    <p>
+      The Ayah Transliteration Tool allows users to review and suggest improvements to the existing transliterations.
+    </p>
+
+    <p>
+      Found a mistake in the <%= @resource.name %>? Click Edit on any ayah to suggest a fix. Your suggestion is saved as a draft, and the transliteration is updated once a reviewer approves it.
+    </p>
+
+    <% unless user_signed_in? %>
+      <p>
+        <%= link_to 'Sign in to suggest a fix', new_user_session_path, class: 'btn btn-dark' %>
+      </p>
+    <% end %>
+  </div>
+</div>

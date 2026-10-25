@@ -13,9 +13,7 @@ module Exporter
 
       records.each do |batch|
         batch.each do |record|
-          if record.resource
-            json_data[record.resource.location] = record.text
-          end
+          json_data[record.location] = record.text
         end
       end
       write_json(json_file_path, json_data)
@@ -29,11 +27,8 @@ module Exporter
 
       records.each do |batch|
         batch.each do |record|
-          if record.resource
-            surah, ayah, word = record.resource.location.split(':')
-            fields = [surah, ayah, word, record.text]
-            statement.execute(fields)
-          end
+          surah, ayah, word = record.location.split(':')
+          statement.execute([surah, ayah, word, record.text])
         end
       end
       close_sqlite_table
@@ -53,8 +48,9 @@ module Exporter
     end
 
     def records
-      Transliteration
-        .where(resource_type: 'Word', resource_content_id: resource_content.id)
+      WordTransliteration
+        .includes(:word)
+        .where(resource_content_id: resource_content.id)
         .in_batches(of: 1000)
     end
   end

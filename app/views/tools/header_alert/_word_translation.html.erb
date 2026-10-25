@@ -12,11 +12,13 @@
     </p>
 
     <p>
-      If you'd like to contribute to improving <%= @resource.language&.name %> word translation, simply click the Request Access button below to send a request to the admin.
+      Found a mistake in the <%= @resource.language&.name %> word translation? Click Edit on any ayah to suggest a fix. Your suggestion is saved as a draft, and the word translations are updated once a reviewer approves it.
     </p>
 
-    <p id="btn-request-permission">
-      <%= link_to 'Request Access', '_', class: 'btn btn-dark',  data: { controller: 'ajax-modal', url: new_user_project_path(resource_id: @resource.id, modal: true), css_class: 'modal-lg'} %>
-    </p>
+    <% unless user_signed_in? %>
+      <p>
+        <%= link_to 'Sign in to suggest a fix', new_user_session_path, class: 'btn btn-dark' %>
+      </p>
+    <% end %>
   </div>
 </div>

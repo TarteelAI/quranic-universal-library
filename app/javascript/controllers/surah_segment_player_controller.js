@@ -15,6 +15,8 @@ export default class extends SegmentPlayer {
     this.player = new Howl({
       src: [this.getAudioUrl()],
       html5: true,
+      // A gapless surah can be a two-hour file; only pull metadata up front.
+      preload: 'metadata',
       onplay: this.onplay.bind(this),
       onpause: this.onpause.bind(this),
       onend: this.onend.bind(this),
@@ -120,7 +122,9 @@ export default class extends SegmentPlayer {
 
     const parts = verseKey.split(":");
     const ayahCount = QuranUtils.getSurahAyahCount(parts[0]);
-    const url = `/api/v1/audio/surah_segments/${this.recitation}?surah=${parts[0]}&from=1&to=${ayahCount}`;
+    // The endpoint paginates (10 per page by default) and ignores from/to, so
+    // ask for the whole surah in one page — seeking needs every segment.
+    const url = `/api/v1/audio/surah_segments/${this.recitation}?surah=${parts[0]}&per_page=${ayahCount}`;
 
     const response = await fetch(url);
     const data = await response.json();

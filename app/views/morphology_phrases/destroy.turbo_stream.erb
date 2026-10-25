@@ -2,4 +2,4 @@
   <%= render 'shared/flash_notices' %>
 <% end %>
 
-<%= turbo_stream.remove dom_id(@phrase_verse.verse) if @phrase_verse%>
+<%= turbo_stream.remove dom_id(@verse) %>

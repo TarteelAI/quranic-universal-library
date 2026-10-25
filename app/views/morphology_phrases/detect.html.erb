@@ -1,0 +1,85 @@
+<%
+  verse = @presenter.verse
+  saved_suggestions, suggestions = @presenter.detected_phrases.partition(&:already_saved?)
+%>
+
+<%= turbo_frame_tag 'detected-phrases' do %>
+  <% if suggestions.empty? %>
+    <div class="text-center py-8 px-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-500">
+      <% if saved_suggestions.any? %>
+        <p class="font-medium text-gray-700">Nothing new to add</p>
+        <p class="text-sm mt-1">Every shared phrase found in this ayah is already saved, with all the ayahs it was found in.</p>
+      <% else %>
+        <p class="font-medium text-gray-700">No shared phrases detected</p>
+        <p class="text-sm mt-1">No run of 3 or more words in this ayah was found in another ayah.</p>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="space-y-3">
+      <% suggestions.each do |suggestion| %>
+        <% saved = suggestion.saved_phrase_verse %>
+        <% matches = suggestion.new_matches %>
+        <div class="rounded-lg border <%= saved ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200' %> p-4">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-1.5 text-xs">
+              <span class="px-2 py-0.5 rounded bg-gray-800 text-white font-medium">Words <%= suggestion.from %>–<%= suggestion.to %></span>
+              <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
+                <%= pluralize(matches.map(&:verse_id).uniq.size, saved ? 'new ayah' : 'other ayah') %>
+              </span>
+              <% exact = matches.count(&:exact?) %>
+              <% if exact.positive? %>
+                <span class="px-2 py-0.5 rounded bg-green-100 text-green-800"><%= exact %> exact</span>
+              <% end %>
+              <% if matches.size > exact %>
+                <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800"><%= matches.size - exact %> similar</span>
+              <% end %>
+              <% if suggestion.common? %>
+                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600" title="Appears in many ayahs. Usually a formula rather than a mutashabih." data-controller="tooltip">Common formula</span>
+              <% end %>
+              <% if saved %>
+                <span class="px-2 py-0.5 rounded bg-blue-600 text-white" title="Saved already, these ayahs are missing from it" data-controller="tooltip">Phrase #<%= saved.phrase_id %> is missing these ayahs</span>
+              <% end %>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <% if saved %>
+                <%= link_to 'Open phrase', morphology_phrase_path(saved.phrase_id), target: '_top', class: 'px-2.5 py-1 text-xs font-medium rounded border border-slate-300 text-slate-700 hover:bg-slate-50 no-underline' %>
+              <% end %>
+              <% if @access && !saved %>
+                <%= link_to new_morphology_phrase_path(ayah_key: verse.verse_key, word_from: suggestion.from, word_to: suggestion.to), target: '_top', class: 'px-2.5 py-1 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline inline-flex items-center gap-1' do %>
+                  <i class="fas fa-search text-[10px]"></i> Review
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="quran-text qpc-hafs text-2xl leading-loose text-right mt-2" dir="rtl">
+            <% suggestion.verse.words.reject(&:ayah_mark?).sort_by(&:position).each do |w| %>
+              <span class="<%= w.position.between?(suggestion.from, suggestion.to) ? 'text-green-700' : 'text-gray-300' %>"><%= w.text_qpc_hafs %></span>
+            <% end %>
+          </div>
+
+          <div class="flex flex-wrap gap-1 mt-2">
+            <% matches.first(12).each do |match| %>
+              <span class="px-1.5 py-0.5 rounded text-xs font-mono <%= match.exact? ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800' %>"
+                    title="<%= match.kind_labels.join(', ') %>"
+                    data-controller="tooltip"><%= match.verse_key %></span>
+            <% end %>
+            <% if matches.size > 12 %>
+              <span class="px-1.5 py-0.5 text-xs text-gray-500">+<%= matches.size - 12 %> more</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if saved_suggestions.any? %>
+    <p class="text-xs text-gray-500 mt-3">
+      <%= pluralize(saved_suggestions.size, 'more phrase') %> found here <%= saved_suggestions.size == 1 ? 'is' : 'are' %> already saved with all <%= saved_suggestions.size == 1 ? 'its' : 'their' %> ayahs, so <%= saved_suggestions.size == 1 ? 'it is' : 'they are' %> hidden:
+      <% saved_suggestions.each do |s| %>
+        <%= link_to "words #{s.from}–#{s.to}", morphology_phrase_path(s.saved_phrase_verse&.phrase_id || s.saved_phrase_verses.first.phrase_id), target: '_top', class: 'text-blue-700' %><%= ',' unless s == saved_suggestions.last %>
+      <% end %>
+    </p>
+  <% end %>
+<% end %>

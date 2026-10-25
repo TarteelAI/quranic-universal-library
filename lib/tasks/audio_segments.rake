@@ -651,7 +651,7 @@ namespace :audio_segments do
             "original_count" => original.size,
             "corrected_count" => corrected.size,
             "added" => corrected.size - original.size,
-            "url" => "#{base_url}/surah_audio_files/#{chapter_id}/segment_builder?recitation_id=#{recitation.id}&verse=#{segment.verse_number}"
+            "url" => "#{base_url}/surah_audio_files/#{recitation.id}/segment_builder?chapter_id=#{chapter_id}&verse=#{segment.verse_number}"
           }
         end
 

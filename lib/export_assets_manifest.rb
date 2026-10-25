@@ -108,12 +108,32 @@ class ExportAssetsManifest
   def build_asset_entry(resource, resource_type:)
     {
       id: resource.id,
-      version: resource.meta_value('exported-version').to_i,
+      version: asset_version(resource, resource_type),
       key: resource.meta_value('exported-tag'),
-      size_bytes: resource.meta_value('exported-file-size-bytes'),
+      size_bytes: asset_size(resource, resource_type),
       url: build_cdn_url(resource, resource_type: resource_type),
       update_policy: 'auto',
     }
+  end
+
+  # Audio and segments are two separate files on the CDN, so they carry two
+  # separate versions - a segment fix must not invalidate the mp3s.
+  def asset_version(resource, resource_type)
+    case resource_type
+    when 'audio', 'segments'
+      resource.exported_asset_version(resource_type)
+    else
+      resource.meta_value('exported-version').to_i
+    end
+  end
+
+  def asset_size(resource, resource_type)
+    case resource_type
+    when 'audio', 'segments'
+      resource.exported_asset_size(resource_type)
+    else
+      resource.meta_value('exported-file-size-bytes')
+    end
   end
 
   def build_cdn_url(resource, resource_type:)

@@ -3,173 +3,90 @@
   ayah = Verse.find_by(verse_key: key) || Verse.find_by(verse_key: '73:4')
 
   if resource.one_word?
-    transliterations = Transliteration
-      .joins("INNER JOIN words ON words.id = transliterations.resource_id AND transliterations.resource_type = 'Word'")
-      .where(resource: ayah.words, resource_content_id: resource.resource_content_id)
+    transliterations = WordTransliteration
+      .joins(:word)
+      .includes(:word)
+      .where(words: { verse_id: ayah.id }, resource_content_id: resource.resource_content_id)
       .order('words.position ASC')
   else
-    transliteration = Translation.find_by(
+    transliteration = Transliteration.find_by(
       resource_content_id: resource.resource_content_id,
       verse_id: ayah.id
     )
   end
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Transliteration Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
+        <%= select_tag :ayah,
+                       [ayah.verse_key],
+                       onchange: "jumpToAyah(this.value)",
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+      </div>
 
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="text-xl font-semibold">
-          <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
-        </h2>
-
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
-            <%= select_tag :ayah,
-                           [ayah.verse_key],
-                           onchange: "jumpToAyah(this.value)",
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
-          </div>
-
-          <div class="flex gap-2">
-            <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <% if !resource.one_word? %>
-          <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
-            <div class="p-6">
-              <div class="qpc-hafs quran-text">
-                <div class="badge badge-default text-left">
-                  <%= ayah.verse_key %>
-                </div>
-                <%= ayah.text_qpc_hafs %>
-              </div>
-            </div>
-          </div>
+      <div class="flex gap-2">
+        <% if ayah.previous_ayah %>
+          <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
+            ← Previous
+          <% end %>
         <% end %>
 
-        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <% if resource.one_word? %>
-            <div class="flex flex-wrap gap-3 justify-start quran-text">
-              <% transliterations.each do |wt| %>
-                <div
-                  id="<%= dom_id wt %>"
-                  class="bg-gray-50 p-2 rounded-lg border border-gray-200 text-center min-w-[5rem]">
-                  <div class="text-lg text-gray-800 qpc-hafs mb-2 p-2">
-                    <%= wt.resource.text_qpc_hafs %>
-                  </div>
-
-                  <div class="text-sm text-gray-600">
-                    <%= wt.text %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% else %>
-            <% if transliteration&.text.present? %>
-              <div class="<%= transliteration.language_name.to_s.downcase %> text-base leading-relaxed space-y-4">
-                <%= safe_html transliteration.text %>
-              </div>
-            <% else %>
-              <p class="text-gray-500 italic">Transliteration is not available for this ayah.</p>
-            <% end %>
+        <% if ayah.next_ayah %>
+          <%= link_to detail_resources_path('transliteration', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
+            Next →
           <% end %>
-        </div>
+        <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="space-y-6">
-        <div class="p-6 bg-white rounded-2xl shadow-md space-y-6 text-gray-800">
-          <p>
-            QUL has multiple transliterations of the Quran in various languages. These are available in two formats:
-          </p>
-
-          <div class="space-y-4">
-            <div>
-              <h3 class="text-lg font-semibold">JSON</h3>
-              <ul class="list-disc pl-6 space-y-1">
-                <li>Organized by <code class="bg-gray-100 px-1 rounded">ayah_key</code> in the <code class="bg-gray-100 px-1 rounded">"surah:ayah"</code> format.</li>
-                <li>Example:</li>
-              </ul>
-              <pre class="bg-gray-100 rounded p-4 text-sm overflow-x-auto">
-{
-  "1:1": "Bismi All&lt;u&gt;a&lt;/u&gt;hi a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;m&lt;u&gt;a&lt;/u&gt;ni a&lt;b&gt;l&lt;/b&gt;rra&lt;u&gt;h&lt;/u&gt;eem&lt;b&gt;i&lt;/b&gt;"
-}
-      </pre>
-              <p class="mt-2">
-                The transliteration string may include <strong>HTML tags</strong> (e.g., <code class="bg-gray-100 px-1 rounded">&lt;u&gt;</code>, <code class="bg-gray-100 px-1 rounded">&lt;b&gt;</code>) for styling and emphasis.
-              </p>
+    <% if !resource.one_word? %>
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
+        <div class="p-6">
+          <div class="qpc-hafs quran-text">
+            <div class="badge badge-default text-left">
+              <%= ayah.verse_key %>
             </div>
-
-            <div>
-              <h3 class="text-lg font-semibold">SQLite</h3>
-              <p>Provides transliteration in a structured relational format with the following columns:</p>
-              <ul class="list-disc pl-6 space-y-1">
-                <li><code class="bg-gray-100 px-1 rounded">sura</code> (integer)</li>
-                <li><code class="bg-gray-100 px-1 rounded">ayah</code> (integer)</li>
-                <li><code class="bg-gray-100 px-1 rounded">ayah_key</code> (string, e.g., <code>"1:1"</code>)</li>
-                <li><code class="bg-gray-100 px-1 rounded">text</code> (HTML-formatted transliteration)</li>
-              </ul>
-            </div>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold">Notes</h2>
-            <ul class="list-disc pl-6 space-y-1">
-              <li>Transliterations may be <strong>word-by-word</strong> or <strong>ayah-by-ayah</strong>.</li>
-              <li>HTML tags in the text allow flexible rendering (e.g., vowel highlighting or emphasis).</li>
-            </ul>
+            <%= ayah.text_qpc_hafs %>
           </div>
         </div>
       </div>
+    <% end %>
+
+    <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <% if resource.one_word? %>
+        <div class="flex flex-wrap gap-3 justify-start quran-text">
+          <% transliterations.each do |wt| %>
+            <div
+              id="<%= dom_id wt %>"
+              class="bg-gray-50 p-2 rounded-lg border border-gray-200 text-center min-w-[5rem]">
+              <div class="text-lg text-gray-800 qpc-hafs mb-2 p-2">
+                <%= wt.word.text_qpc_hafs %>
+              </div>
+
+              <div class="text-sm text-gray-600">
+                <%= wt.text %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <% if transliteration&.text.present? %>
+          <div class="<%= transliteration.language_name.to_s.downcase %> text-base leading-relaxed space-y-4">
+            <%= safe_html transliteration.text %>
+          </div>
+        <% else %>
+          <p class="text-gray-500 italic">Transliteration is not available for this ayah.</p>
+        <% end %>
+      <% end %>
     </div>
   </div>
 </div>

@@ -24,7 +24,9 @@ const entryPoints = [
   "application.js",
   "active_admin.js",
   "segments/index.js",
-  "svg/index.js"
+  "audio_repair/index.js",
+  "svg/index.js",
+  "shards/index.js"
 ]
 
 const watchDirectories = [

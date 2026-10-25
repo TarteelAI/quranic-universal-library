@@ -73,6 +73,48 @@ ActiveAdmin.register Recitation do
             }
   end
 
+  action_item :delete_recitation, only: :show, if: -> { current_user&.super_admin? } do
+    link_to 'Delete Recitation', '#_',
+            class: 'text-danger',
+            data: {
+              controller: 'ajax-modal',
+              url: confirm_delete_cms_recitation_path(resource)
+            }
+  end
+
+  member_action :confirm_delete, method: :get do
+    unless current_user&.super_admin?
+      return render plain: 'Only super admins can delete recitations.', status: :forbidden
+    end
+
+    render partial: 'admin/confirm_delete_recitation',
+           locals: {
+             resource: resource,
+             destroy_recitation_url: destroy_recitation_cms_recitation_path(resource)
+           }
+  end
+
+  member_action :destroy_recitation, method: :delete do
+    unless current_user&.super_admin?
+      return redirect_to [:cms, resource], alert: 'Only super admins can delete recitations.'
+    end
+
+    name = resource.confirmation_name
+
+    if params[:confirm_name].to_s.strip != name
+      return redirect_to [:cms, resource], alert: "The name you typed doesn't match, nothing was deleted."
+    end
+
+    kept_reason = resource.destroy_with_audio_files!(
+      delete_resource_content: params[:delete_resource_content] == '1'
+    )
+
+    notice = "#{name} and its ayah audio files have been deleted."
+    notice += " Resource content was kept, it is still used by #{kept_reason}." if kept_reason.present?
+
+    redirect_to cms_recitations_path, notice: notice
+  end
+
   member_action :refresh_meta, method: 'put', if: -> { can? :manage, resource } do
     authorize! :manage, resource
     notice = if params[:audio]

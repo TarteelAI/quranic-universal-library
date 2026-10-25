@@ -55,9 +55,9 @@ export default class extends Controller {
     this.el.find("#page").text(pageNumber);
 
     if(pageNumber <= 1){
-      this.btnPrevious.addClass('d-none')
+      this.btnPrevious.addClass('hidden')
     } else {
-      this.btnPrevious.removeClass('d-none')
+      this.btnPrevious.removeClass('hidden')
     }
 
     img.src = this.buildUrl(pageNumber)

@@ -19,6 +19,8 @@ ActiveAdmin.register Draft::WordTranslation do
            :language,
            :resource_content
 
+  scope :pending_contributions
+
   action_item :previous_word, only: :show do
     if item = resource.previous_word_translation
       link_to("Previous(#{item.location})", "/cms/draft_word_translations/#{item.id}", class: 'btn btn-info')

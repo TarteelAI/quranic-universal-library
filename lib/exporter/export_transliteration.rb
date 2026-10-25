@@ -70,7 +70,7 @@ module Exporter
     end
 
     def records
-      Translation
+      Transliteration
         .where(resource_content_id: resource_content.id)
         .order('verse_id ASC')
         .in_batches(of: 1000)

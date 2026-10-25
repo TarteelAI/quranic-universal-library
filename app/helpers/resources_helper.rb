@@ -1,4 +1,16 @@
 module ResourcesHelper
+  # Contact for licence permission requests: an email address or a link.
+  def licence_contact_link(contact)
+    contact = contact.strip
+    if contact.match?(URI::MailTo::EMAIL_REGEXP)
+      mail_to contact
+    elsif contact.match?(%r{\Ahttps?://})
+      link_to contact, contact, target: '_blank', rel: 'noopener'
+    else
+      contact
+    end
+  end
+
   RESOURCE_TYPE_LABELS = {
     'ayah-theme' => 'Ayah Theme',
     'ayah-topics' => 'Ayah Topics',

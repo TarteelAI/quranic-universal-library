@@ -2,10 +2,10 @@
   verses = Verse.unscoped.order('sajdah_number ASC, verse_index ASC').where.not(sajdah_number: nil)
 %>
 
-<div class="space-y-6 text-gray-800 text-base leading-relaxed">
-  <h1 class="text-2xl font-bold mb-4">
+<div class="qul-docs">
+  <h2>
     Ayahs with Sajdah in Quran
-  </h1>
+  </h2>
 
   <div class="space-y-4 mt-6">
     <% verses.each do |verse| %>

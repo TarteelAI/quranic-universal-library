@@ -2,6 +2,7 @@ class ResourcesController < CommunityController
   include ActiveStorage::SetCurrent
   before_action :authenticate_user!, only: [:download]
   before_action :init_presenter
+  before_action :normalize_page_param, only: %i[detail]
 
   def index
     @resource_cards = view_context.downloadable_resource_cards.values
@@ -32,7 +33,11 @@ class ResourcesController < CommunityController
 
     @presenter.set_resource(@resource)
 
-    if params[:type] == 'ayah-topics'
+    tab = @presenter.find_detail_tab
+    raise ActiveRecord::RecordNotFound unless tab
+    return render('detail_tab', layout: false, locals: { tab: tab }) if turbo_frame_request? && tab.lazy
+
+    if @resource.resource_type.to_s.tr('-', '_') == 'ayah_topics'
       handle_ayah_topics
     end
   end

@@ -1,9 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Audio Comparison Tool</title>
+<% content_for :tool_name, 'Compare audio' %>
+<% content_for :tool_help_key, 'compare_audio' %>
+<% content_for :tool_description do %>
+  Compare two recitations side by side. Load each one from a file or a URL to play them, check their duration and stats, and generate waveforms to spot differences in timing, silences and audio quality.
+<% end %>
+
+<% content_for :head do %>
     <script type="module">
       import WaveSurfer from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/wavesurfer.esm.min.js';
       import Timeline from 'https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/7.8.14/plugins/timeline.esm.min.js';
@@ -1154,12 +1155,8 @@
             border: none;
         }
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 font-sans min-h-screen">
-<div class="container mx-auto py-10">
-    <h1 class="text-3xl font-bold text-center mb-8">Audio Comparison Tool</h1>
-    <p class="text-center mb-8 text-gray-700">Upload or link two audio files to compare their waveforms and stats. Audio players load instantly - generate waveforms on demand for analysis.</p>
+<% end %>
+
 
     <!-- Two Column Design -->
     <div class="grid grid-cols-2 gap-8">
@@ -1439,6 +1436,3 @@
             </div>
         </div>
     </div>
-</div>
-</body>
-</html>

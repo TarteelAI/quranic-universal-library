@@ -46,6 +46,21 @@ module Audio
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :audio_file, class_name: 'Audio::ChapterAudioFile'
 
+    validate :segments_must_be_arrays
+    before_save :normalize_segments
+    before_save :sync_timing
+
+    # The CMS form (and any other HTML form) submits jsonb columns as strings.
+    # Parse them here so a String never gets persisted inside the jsonb column,
+    # which breaks every reader that calls `segments.map`.
+    def segments=(value)
+      super(Audio::SegmentNormalizer.parse(value) || value)
+    end
+
+    def letter_segments=(value)
+      super(Audio::SegmentNormalizer.parse(value) || value)
+    end
+
     def word_text
       Word.order('position ASC').where(verse_id: verse.id).pluck(:text_qpc_hafs)
     end
@@ -53,10 +68,14 @@ module Audio
     def transcript(script: :text_imlaei, as_array: false)
       return as_array ? [] : '' if verse.blank? || segments.blank?
 
-      words_by_position = verse.words.order(:position).pluck(:position, script).to_h
+      # Reuse the words if they're preloaded
+      words_by_position = if verse.words.loaded?
+                            verse.words.map { |word| [word.position, word[script]] }.to_h
+                          else
+                            verse.words.order(:position).pluck(:position, script).to_h
+                          end
 
-      words = get_segments.map { |s| words_by_position[s[0].to_i] }.compact_blank
-
+      words = get_segments.map { |seg| words_by_position[seg[0]] }.compact_blank
       as_array ? words : words.join(' ')
     end
 
@@ -111,7 +130,9 @@ module Audio
         end
       end
 
-      list = list.compact_blank
+      # The builder pads incomplete repeats with placeholder words that have
+      # no timing (start == end == 0). Those are UI-only; never persist them.
+      list = Audio::SegmentNormalizer.clean(list.compact_blank)
       self.segments = list
       self.segments_count = list.size
     end
@@ -155,8 +176,11 @@ module Audio
     def get_segments(drop_metadata: false)
       return [] if segments.blank?
 
-      segments.map do |s|
-        next if s.size < 2
+      # Tolerate rows that were corrupted with a JSON string instead of an array
+      list = Audio::SegmentNormalizer.parse(segments) || []
+
+      list.map do |s|
+        next if !s.is_a?(Array) || s.size < 2
 
         if drop_metadata
           [s[0], s[1], s[2]]
@@ -188,6 +212,33 @@ module Audio
       end
 
       ranges.uniq
+    end
+
+    private
+
+    def segments_must_be_arrays
+      errors.add(:segments, 'must be a JSON array of [word, from, to] entries') unless segments.nil? || segments.is_a?(Array)
+      errors.add(:letter_segments, 'must be a JSON array') unless letter_segments.nil? || letter_segments.is_a?(Array)
+    end
+
+    # Keep the derived duration columns in step when from/to are edited directly
+    # (e.g. in the CMS) instead of through set_timing.
+    def sync_timing
+      return unless will_save_change_to_timestamp_from? || will_save_change_to_timestamp_to?
+      return if timestamp_from.nil? || timestamp_to.nil?
+
+      self.duration_ms = timestamp_to - timestamp_from
+      self.duration = (duration_ms.to_f / 1000).round(2)
+      self.timestamp_median = (timestamp_from + timestamp_to) / 2
+    end
+
+    # Runs for every save path (builder, CMS, importers, save(validate: false)).
+    def normalize_segments
+      return unless segments.is_a?(Array)
+
+      cleaned = Audio::SegmentNormalizer.clean(segments)
+      self.segments = cleaned if cleaned != segments
+      self.segments_count = cleaned.size
     end
   end
 end

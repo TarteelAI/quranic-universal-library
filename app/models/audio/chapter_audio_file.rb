@@ -37,6 +37,7 @@ module Audio
     include StripWhitespaces
     include Resourceable
     include HasMetaData
+    include AudioContentVersioning
 
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :chapter, optional: true

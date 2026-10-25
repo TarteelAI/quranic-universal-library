@@ -1,0 +1,11 @@
+<p>As-Salaam-Alaikum <%= @user.name %>,</p>
+
+<p>These suggested fixes are waiting for your review:</p>
+
+<ul>
+  <% @counts.each do |type, count| %>
+    <li>
+      <%= link_to "#{pluralize(count, 'contribution')} for #{type.to_s.humanize(capitalize: false)}", review_url(type) %>
+    </li>
+  <% end %>
+</ul>

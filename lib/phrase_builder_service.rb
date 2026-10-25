@@ -1,4 +1,6 @@
 class PhraseBuilderService
+  attr_reader :phrase
+
   def initialize(params)
     @params = params
   end
@@ -14,26 +16,79 @@ class PhraseBuilderService
 
   def run
     find_or_create_phrase
-    create_phrase_verse
+    save_phrase_verses
+  end
+
+  # Word ranges picked for the ayah, sorted, with overlapping ranges merged.
+  # e.g. "[[5,8],[1,3],[3,4]]" => [[1, 4], [5, 8]]
+  def selected_ranges
+    @selected_ranges ||= begin
+      ranges = parse_ranges
+
+      ranges.sort.each_with_object([]) do |(from, to), merged|
+        if merged.any? && from <= merged.last[1]
+          merged.last[1] = [merged.last[1], to].max
+        else
+          merged << [from, to]
+        end
+      end
+    end
   end
 
   protected
 
-  def create_phrase_verse
-    return if @params[:verse_id].blank?
+  # Each range is stored as its own phrase verse row, so a phrase can be
+  # matched more than once in the same ayah. Rows for ranges that are no
+  # longer selected are marked as removed, not deleted.
+  def save_phrase_verses
+    return [] if @params[:verse_id].blank?
 
-    phrase_verse = @phrase.phrase_verses.where(verse_id: @params[:verse_id]).first_or_initialize
-    selected_words = @params[:selected_words].to_s.split(',').map(&:to_i)
-    missing_words = @params[:excluded_words].to_s.split(',').map(&:to_i)
+    excluded_words = @params[:excluded_words].to_s.split(',').map(&:to_i)
+    existing = @phrase.phrase_verses.where(verse_id: @params[:verse_id]).order(:id).to_a
 
-    phrase_verse.word_position_from = selected_words.min
-    phrase_verse.word_position_to = selected_words.max
-    phrase_verse.matched_words_count = selected_words.size
-    phrase_verse.missing_word_positions = missing_words
-    phrase_verse.review_status = 'new'
-    phrase_verse.save(validate: false)
+    # Keep rows whose range didn't change, reuse the rest for the new ranges.
+    unchanged = selected_ranges.map do |from, to|
+      existing.detect { |row| row.word_position_from == from && row.word_position_to == to }
+    end
+    reusable = existing - unchanged.compact
 
-    phrase_verse
+    saved = selected_ranges.each_with_index.map do |(from, to), index|
+      phrase_verse = unchanged[index] || reusable.shift || @phrase.phrase_verses.new(verse_id: @params[:verse_id])
+      missing_words = excluded_words.select { |position| position.between?(from, to) }
+
+      phrase_verse.word_position_from = from
+      phrase_verse.word_position_to = to
+      phrase_verse.matched_words_count = (to - from + 1) - missing_words.size
+      phrase_verse.missing_word_positions = missing_words
+      phrase_verse.review_status = 'new'
+      # Saving from the builder is the reviewer approving this ayah
+      phrase_verse.approved = true
+      phrase_verse.save(validate: false)
+
+      phrase_verse
+    end
+
+    reusable.each do |phrase_verse|
+      phrase_verse.update_columns(review_status: 'remove', approved: false)
+    end
+
+    @phrase.update_verses_stats
+    saved
+  end
+
+  def parse_ranges
+    if @params[:ranges].present?
+      ranges = JSON.parse(@params[:ranges].to_s) rescue []
+
+      Array(ranges).filter_map do |range|
+        from, to = Array(range).first(2).map(&:to_i)
+        [from, to].minmax if from.positive? && to.positive?
+      end
+    else
+      # Older clients send a flat list of selected word positions
+      selected_words = @params[:selected_words].to_s.split(',').map(&:to_i).select(&:positive?)
+      selected_words.any? ? [selected_words.minmax] : []
+    end
   end
 
   def find_or_create_phrase
@@ -49,6 +104,7 @@ class PhraseBuilderService
     end
 
     @phrase.review_status = 'new'
+    @phrase.approved = true
     @phrase.word_position_from = @params[:source_ayah_word_from] || @phrase.word_position_from
     @phrase.word_position_to = @params[:source_ayah_word_to] || @phrase.word_position_to
 

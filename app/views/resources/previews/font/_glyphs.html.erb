@@ -1,0 +1,34 @@
+<div class="space-y-4">
+  <div class="font-toolbar">
+    <input type="search"
+           class="font-toolbar-search"
+           placeholder="Search by character, name or Unicode (e.g. 0627, U+FB57, alif)…"
+           aria-label="Search glyphs"
+           data-font-preview-target="glyphSearch"
+           data-action="input->font-preview#filterGlyphs">
+
+    <div class="font-toolbar-group">
+      <label for="glyph-zoom">Size</label>
+      <input id="glyph-zoom" type="range" min="70" max="260" value="120"
+             data-font-preview-target="glyphZoom"
+             data-action="input->font-preview#updateGlyphZoom">
+    </div>
+
+    <label class="font-toolbar-group cursor-pointer hidden">
+      <input type="checkbox" data-font-preview-target="unmappedToggle"
+             data-action="change->font-preview#filterGlyphs">
+      Unmapped
+    </label>
+
+    <label class="font-toolbar-group cursor-pointer hidden">
+      <input type="checkbox" data-font-preview-target="emptyToggle"
+             data-action="change->font-preview#filterGlyphs">
+      Empty
+    </label>
+
+    <span class="font-toolbar-count" data-font-preview-target="glyphCount"></span>
+  </div>
+
+  <div class="glyph-grid" data-font-preview-target="glyphsContainer"></div>
+</div>
+    

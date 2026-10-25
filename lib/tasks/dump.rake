@@ -15,8 +15,8 @@ namespace :dump do
     Translation.where(verse_number: 21..).delete_all
     Tafsir.where(verse_number: 21..).delete_all
     FootNote.left_outer_joins(:translation).where(translation: { id: nil }).delete_all
-    Transliteration.where(resource_type: 'Verse', resource_id: verse_ids).delete_all
-    Transliteration.where(resource_type: 'Word', resource_id: word_ids).delete_all
+    Transliteration.where(verse_id: verse_ids).delete_all
+    WordTransliteration.where(word_id: word_ids).delete_all
 
     puts "Pruning Deleting morphology data"
     Morphology::WordSegment.update_all(topic_id: nil, root_id: nil)

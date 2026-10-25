@@ -1,0 +1,52 @@
+<%
+  image_urls = @presenter.svg_image_urls(resource)
+  svg_files = image_urls.map { |url| File.basename(url) }
+%>
+
+<% if image_urls.any? %>
+  <div data-controller="svg-preview"
+       data-svg-preview-urls-value="<%= image_urls.to_json %>">
+    <div class="space-y-4">
+      <p class="text-gray-600">
+        Every image in this download, served from the CDN. Click one to copy its URL.
+      </p>
+
+      <div class="font-toolbar">
+        <input type="search"
+               class="font-toolbar-search"
+               placeholder="Filter by file name, e.g. <%= svg_files.second.to_s.sub(/\.svg\z/, '') %>…"
+               aria-label="Filter images"
+               data-svg-preview-target="search"
+               data-action="input->svg-preview#filter">
+
+        <div class="font-toolbar-group">
+          <label for="svg-size-slider">Size</label>
+          <input id="svg-size-slider" type="range" min="24" max="160" value="56"
+                 data-svg-preview-target="sizeSlider"
+                 data-action="input->svg-preview#updateSize">
+          <span class="font-toolbar-value" data-svg-preview-target="sizeValue">56px</span>
+        </div>
+
+        <div class="font-toolbar-group">
+          <label for="svg-colour">Colour</label>
+          <input id="svg-colour" type="color" value="#111827"
+                 data-svg-preview-target="colour"
+                 data-action="input->svg-preview#updateColour">
+        </div>
+
+        <div class="font-toolbar-group">
+          <label for="svg-background">On</label>
+          <select id="svg-background" class="font-toolbar-select"
+                  data-action="change->svg-preview#updateBackground">
+            <option value="#ffffff">Light background</option>
+            <option value="#111827">Dark background</option>
+          </select>
+        </div>
+
+        <span class="font-toolbar-count" data-svg-preview-target="count"></span>
+      </div>
+
+      <div class="svg-grid" data-svg-preview-target="grid"></div>
+    </div>
+  </div>
+<% end %>

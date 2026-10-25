@@ -31,7 +31,6 @@ class TajweedWord < QuranApiRecord
   belongs_to :mushaf, optional: true
   belongs_to :word, optional: true
   belongs_to :verse, optional: true
-  belongs_to :resource_content
 
   scope :rule_eq, lambda { |rule|
     where("EXISTS (SELECT 1 FROM jsonb_array_elements(letters) AS elem WHERE elem->>'r' = '#{rule}')")
@@ -53,7 +52,12 @@ class TajweedWord < QuranApiRecord
 
   def update_letter_rule(letter_index, rule_id)
     letter = letters[letter_index.to_i]
-    letter['r'] = rule_id
+    # Blank removes the rule. Rules are stored as numbers, like the imported data.
+    if rule_id.present?
+      letter['r'] = rule_id.to_i
+    else
+      letter.delete('r')
+    end
     save
 
     letter

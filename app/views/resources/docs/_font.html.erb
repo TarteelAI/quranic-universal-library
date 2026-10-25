@@ -1,0 +1,65 @@
+<%
+  font = @presenter.font_assets(resource)
+  font_face, font_url, css_format, sample_text = font.values_at(:font_face, :font_url, :css_format, :sample_text)
+%>
+
+<div class="qul-docs">
+  <h2>Using this font</h2>
+
+  <div class="docs-callout docs-callout-warning">
+    <strong>These steps cover the web only.</strong>
+    On React&nbsp;Native, Android and iOS you bundle the font with the app instead, using each
+    platform's own font registration.
+  </div>
+
+  <p>
+    Download the font in whichever format suits your platform — <strong>TTF</strong>,
+    <strong>WOFF</strong> or <strong>WOFF2</strong> — or ship several of them so older browsers
+    have a fallback. Then declare it with <code>@font-face</code> and apply it to your elements.
+  </p>
+
+  <p>
+    A font on its own is not enough to render the Quran. Most Quran fonts need a matching
+    <strong>Quran script</strong>, because the text has to use exactly the characters the font was
+    built for. Download the matching script from the
+    <%= link_to 'Quran Scripts', resource_path('quran-script') %> page. Fonts for Surah names, Juz
+    titles and similar decorative text instead rely on <strong>ligatures</strong> — a lookup table
+    that maps a name to the character that draws it. When this font has one, you will find it in the
+    Ligatures tab.
+  </p>
+
+  <h3>1. Download the font</h3>
+  <p>Use the download buttons at the top of this page, then serve the file from your own site or CDN.</p>
+
+  <h3>2. Declare it in your CSS</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>CSS</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>@font-face {
+  font-family: '<%= font_face %>';
+  src: url('<%= font_url %>') format('<%= css_format %>');
+  font-display: swap;
+}
+
+.quran-text {
+  font-family: '<%= font_face %>';
+}</code></pre>
+  </div>
+
+  <h3>3. Use it in your markup</h3>
+  <div class="docs-code">
+    <div class="docs-code-header">
+      <span>HTML</span>
+      <button type="button" class="docs-copy-btn" data-action="docs-copy#copy">Copy</button>
+    </div>
+    <pre><code>&lt;p class="quran-text" dir="rtl"&gt;<%= sample_text %>&lt;/p&gt;</code></pre>
+  </div>
+
+  <div class="docs-callout docs-callout-info">
+    Want to see how your own text renders before you wire any of this up? Try the live preview on the
+    <strong>Preview</strong> tab.
+  </div>
+</div>
+    

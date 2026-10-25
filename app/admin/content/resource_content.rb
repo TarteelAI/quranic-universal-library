@@ -70,12 +70,56 @@ ActiveAdmin.register ResourceContent do
     end
   end
 
+  action_item :delete_resource_content, only: :show, if: -> { current_user&.super_admin? && !resource.approved? } do
+    link_to 'Delete Resource Content', '#_',
+            class: 'text-danger',
+            data: {
+              controller: 'ajax-modal',
+              url: confirm_delete_cms_resource_content_path(resource)
+            }
+  end
+
   action_item :import_draft, only: :show, if: -> { can? :manage, Draft::Translation } do
     if resource.syncable?
       type = resource.tafsir? ? 'tafsir' : 'translation'
       link_to "Import Draft #{type}", import_draft_cms_resource_content_path(resource), method: :put,
               data: { confirm: "Are you sure to import #{type} for this resource from QuranEnc?" }
     end
+  end
+
+  member_action :confirm_delete, method: :get do
+    unless current_user&.super_admin?
+      return render plain: 'Only super admins can delete resource contents.', status: :forbidden
+    end
+
+    render partial: 'admin/confirm_delete_resource_content',
+           locals: {
+             resource: resource,
+             destroy_url: destroy_resource_content_cms_resource_content_path(resource)
+           }
+  end
+
+  member_action :destroy_resource_content, method: :delete do
+    unless current_user&.super_admin?
+      return redirect_to [:cms, resource], alert: 'Only super admins can delete resource contents.'
+    end
+
+    name = resource.confirmation_name
+
+    # Case-sensitive, only surrounding whitespace is ignored.
+    if params[:confirm_name].to_s.strip != name
+      return redirect_to [:cms, resource], alert: "The name you typed doesn't match, nothing was deleted."
+    end
+
+    blockers = resource.deletion_blockers
+    if blockers.present?
+      return redirect_to [:cms, resource],
+                         alert: "Resource content #{blockers.to_sentence}, nothing was deleted."
+    end
+
+    resource.destroy_with_data!
+
+    redirect_to cms_resource_contents_path, notice: "#{name} and all of its data have been deleted."
   end
 
   member_action :upload_file, method: 'post' do
@@ -109,12 +153,41 @@ ActiveAdmin.register ResourceContent do
     render partial: 'admin/compare_draft_tafsir_ayah_grouping'
   end
 
+  member_action :draft_tafsir_ayah_text, method: 'get' do
+    @resource = resource
+    @verse_key = params[:verse_key]
+    verse = Verse.find_by(verse_key: @verse_key)
+
+    # Look up the row whose group covers this ayah, not just the one keyed to
+    # it, since a grouped tafsir only stores a row for the group's first ayah.
+    covering = lambda do |scope|
+      return nil if verse.nil?
+
+      scope
+        .where(resource_content_id: resource.id)
+        .where('start_verse_id <= :id AND end_verse_id >= :id', id: verse.id)
+        .order('start_verse_id ASC, end_verse_id DESC')
+        .first
+    end
+
+    @current_tafsir = covering.call(Tafsir) || Tafsir.where(resource_content_id: resource.id, verse_key: @verse_key).first
+    @draft_tafsir = covering.call(Draft::Tafsir) || Draft::Tafsir.where(resource_content_id: resource.id, verse_key: @verse_key).first
+
+    render partial: 'admin/draft_tafsir_ayah_text', layout: false
+  end
+
   member_action :import_draft, method: 'put' do
     authorize! :manage, resource
 
     if params[:approved]
       if resource.tafsir?
         DraftContent::ApproveDraftTafsirJob.perform_later(resource.id)
+      elsif resource.chapter_info?
+        DraftContent::ApproveDraftSurahInfoJob.perform_later(resource.id)
+      elsif resource.transliteration? && resource.one_ayah?
+        DraftContent::ApproveDraftTransliterationJob.perform_later(resource.id)
+      elsif resource.transliteration? && resource.one_word?
+        DraftContent::ApproveDraftWordTransliterationJob.perform_later(resource.id)
       elsif resource.translation?
         if resource.one_word?
           DraftContent::ApproveDraftWordTranslationJob.perform_later(resource.id)
@@ -126,6 +199,12 @@ ActiveAdmin.register ResourceContent do
     elsif params[:remove_draft]
       if resource.tafsir?
         Draft::Tafsir.where(resource_content_id: resource.id).delete_all
+      elsif resource.chapter_info?
+        Draft::SurahInfo.where(resource_content_id: resource.id).delete_all
+      elsif resource.transliteration? && resource.one_ayah?
+        Draft::Transliteration.where(resource_content_id: resource.id).delete_all
+      elsif resource.transliteration? && resource.one_word?
+        Draft::WordTransliteration.where(resource_content_id: resource.id).delete_all
       elsif resource.translation?
         if resource.one_word?
           Draft::WordTranslation.where(resource_content_id: resource.id).delete_all
@@ -141,6 +220,12 @@ ActiveAdmin.register ResourceContent do
 
     url = if resource.tafsir?
             "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.chapter_info?
+            "/cms/draft_surah_infos?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.transliteration? && resource.one_ayah?
+            "/cms/draft_transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}"
+          elsif resource.transliteration? && resource.one_word?
+            "/cms/draft_word_transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}"
           elsif resource.translation?
             if resource.one_word?
               "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}"
@@ -304,6 +389,12 @@ ActiveAdmin.register ResourceContent do
         time&.strftime('%B %d, %Y at %I:%M %P %Z')
       end
 
+      if can? :read, Licence
+        row :licence do
+          permission&.licence
+        end
+      end
+
       if can? :read, ResourcePermission
         row :resource_permission do
           if permission
@@ -332,6 +423,11 @@ ActiveAdmin.register ResourceContent do
         if resource.has_draft_translation?
           if resource.tafsir?
             link_to("View draft tafsirs (#{resource.draft_translations.size} records)", "/cms/draft_tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}")
+          elsif resource.chapter_info?
+            link_to("View draft surah info (#{resource.draft_translations.size} records)", "/cms/draft_surah_infos?q%5Bresource_content_id_eq%5D=#{resource.id}")
+          elsif resource.transliteration?
+            path = resource.one_word? ? 'draft_word_transliterations' : 'draft_transliterations'
+            link_to("View draft transliterations (#{resource.draft_translations.size} records)", "/cms/#{path}?q%5Bresource_content_id_eq%5D=#{resource.id}")
           else
             if resource.one_word?
               link_to("View draft translations (#{resource.draft_translations.size} records)", "/cms/draft_word_translations?q%5Bresource_content_id_eq%5D=#{resource.id}")
@@ -480,7 +576,11 @@ ActiveAdmin.register ResourceContent do
       elsif resource.tafsir?
         link_to 'Tafsir', "/cms/tafsirs?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.transliteration?
-        link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        if resource.one_word?
+          link_to 'WBW Transliterations', "/cms/word_transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        else
+          link_to 'Transliteration', "/cms/transliterations?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
+        end
       elsif resource.root_detail?
         link_to 'Root details', "/cms/root_details?q%5Bresource_content_id_eq%5D=#{resource.id}&order=id_desc&commit=Filter"
       elsif resource.chapter_info?

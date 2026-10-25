@@ -50,7 +50,7 @@ module Morphology
         banner: banner_payload(sentence),
         tokens: tokens_payload(tokens),
         edges: edges_payload(tokens),
-        phraseNodes: phrase_nodes_payload(level_data[:phrase_nodes]),
+        phraseNodes: phrase_nodes_payload(level_data[:phrase_nodes], tokens),
         locale: @locale
       }
     end
@@ -85,7 +85,7 @@ module Morphology
     def token_payload(t)
       pos_key     = t_attr(t, :pos_key).to_s
       tok_type    = token_type_string(t)
-      arabic      = t_attr(t, :text_qpc_hafs) || t_attr(t, :text_uthmani)
+      arabic      = display_text(t)
       ch          = t_attr(t, :chapter_number)
       v           = t_attr(t, :verse_number)
       w           = t_attr(t, :word_number)
@@ -143,7 +143,7 @@ module Morphology
       end
     end
 
-    def phrase_nodes_payload(phrase_nodes)
+    def phrase_nodes_payload(phrase_nodes, tokens)
       phrase_nodes.map do |node|
         label_key = node[:label].to_s
         {
@@ -153,9 +153,25 @@ module Morphology
           headPosition: node[:head_position],
           labelKey:     label_key,
           label:        translate_relation(label_key),
-          text:         node[:text]
+          text:         phrase_text(node, tokens)
         }
       end
+    end
+
+    # The stored `constituent_text` is NoorBayan's own surface string, which is
+    # unvocalised for chapters 9-58 and is never in Digital Khatt. Rebuild the
+    # phrase from the tokens it spans so it matches the word row below it.
+    def phrase_text(node, tokens)
+      span_start, span_end = node[:span]
+      return node[:text] if span_start.nil? || span_end.nil?
+
+      spanned = tokens.select do |t|
+        pos = t_attr(t, :position_in_sentence)
+        !pos.nil? && pos >= span_start && pos <= span_end
+      end
+      return node[:text] if spanned.empty?
+
+      join_token_text(spanned)
     end
 
     def banner_payload(sentence)
@@ -176,12 +192,16 @@ module Morphology
     # alone merged tokens from different words (the original banner bug).
     # Non-surface tokens (elided/implicit) stand alone as their own group.
     def build_banner_text_from_tokens(tokens)
+      join_token_text(tokens)
+    end
+
+    def join_token_text(tokens)
       sorted = tokens.sort_by { |t| t_attr(t, :position_in_sentence).to_i }
       word_groups = []
       sorted.each do |t|
         wn = t_attr(t, :word_number)
         tok_type = token_type_string(t)
-        arabic = t_attr(t, :text_qpc_hafs) || t_attr(t, :text_uthmani) || ''
+        arabic = display_text(t) || ''
         if wn.nil? || tok_type != 'surface'
           word_groups << [arabic]
         else
@@ -314,13 +334,26 @@ module Morphology
       @translator.call("morphology.edge_relations.#{rel_label}", locale: @locale, default: rel_label)
     end
 
+    # The treebank renders in Digital Khatt. Elided and implicit tokens have no
+    # mushaf text to borrow, so they fall back to what NoorBayan supplied.
+    def display_text(t)
+      t_attr(t, :text_digital_khatt) || t_attr(t, :text_qpc_hafs) || t_attr(t, :text_uthmani)
+    end
+
     # Polymorphic attribute reader: works for both AR models (method call) and
     # plain Hashes (key lookup), so presenter logic is agnostic to token source.
+    # Tokens arrive either as AR records or as plain Hashes/Structs (tests and
+    # fixtures). A Struct raises NameError for a member it does not have, so an
+    # attribute a given source simply does not carry reads as nil.
     def t_attr(obj, key)
-      if obj.respond_to?(key)
-        obj.public_send(key)
-      elsif obj.respond_to?(:[])
+      return nil if obj.nil?
+      return obj.public_send(key) if obj.respond_to?(key)
+      return nil unless obj.respond_to?(:[])
+
+      begin
         obj[key]
+      rescue NameError, IndexError, TypeError
+        nil
       end
     end
 

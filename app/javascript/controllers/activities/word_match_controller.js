@@ -182,7 +182,7 @@ export default class extends ActivityController {
       msg.className = 'mt-3 text-success fw-bold';
       msg.textContent = `All pairs matched! Great job!`;
       result.appendChild(msg);
-      result.classList.remove('d-none');
+      result.classList.remove('hidden');
       // Wait a frame so layout settles, then refresh positions
       requestAnimationFrame(() => this.refreshConnections());
     }

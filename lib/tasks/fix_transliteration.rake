@@ -80,7 +80,7 @@ namespace :fix_transliteration do
     def create_transliteration(surah_num, ayah_num, text, resource)
       verse = Verse.where(verse_key: "#{surah_num}:#{ayah_num}").first
 
-      tr = Draft::Translation.where(
+      tr = Draft::Transliteration.where(
         verse_id: verse.id,
         resource_content_id: resource.id
       ).first_or_initialize

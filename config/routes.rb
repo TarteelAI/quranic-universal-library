@@ -27,6 +27,7 @@ Rails.application.routes.draw do
         get 'surah_recitations', to: 'recitations#surah_recitations'
         get 'surah_recitations/:id', to: 'recitations#surah_recitation_detail'
         get 'surah_recitations/:id/wav_manifest', to: 'recitations#wav_manifest'
+        get 'surah_recitations/:id/transcript', to: 'transcripts#surah_transcript'
 
         get 'ayah_recitations', to: 'recitations#ayah_recitations'
         get 'ayah_recitations/:id', to: 'recitations#ayah_recitation_detail'
@@ -65,6 +66,7 @@ Rails.application.routes.draw do
   post 'tools/image_export/batch', to: 'image_exports#batch_export', as: :batch_image_export
   get :quran_scripts_comparison, to: 'quran_scripts_comparison#compare_words', as: :compare_words_quran_scripts_comparison
   get 'compare-audio', to: 'community#compare_audio', as: :compare_audio
+  get 'compare-font', to: 'community#compare_font', as: :compare_font
   get 'docs', to: 'community#docs_index', as: :docs_index
   get 'docs/:key', to: 'community#docs', as: :docs
   get 'tools/help/:key', to: 'community#tool_help', as: :tools_help
@@ -74,7 +76,7 @@ Rails.application.routes.draw do
   get :credits, to: 'community#credits', as: :credits
   get :faq, to: 'community#faq', as: :faq
   get :compare_ayah, to: 'verses#compare', as: :compare_ayah
-  
+
   get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
   get 'foot_notes/:id', to: "foot_notes#show"
 
@@ -96,6 +98,13 @@ Rails.application.routes.draw do
   resources :morphology_phrases do
     member do
       get :phrase_verses
+      get :detect
+      get :ayahs
+      patch :review_ayah
+    end
+
+    collection do
+      post :merge
     end
   end
 
@@ -143,6 +152,7 @@ Rails.application.routes.draw do
     collection do
       get '/:type/:id', action: 'detail', as: :detail
       get '/:type/:id/related_resources', action: 'related_resources', as: :related
+      get '/:type/:id/:tab', action: 'detail', as: :detail_tab, constraints: { tab: /docs|licence|ligatures|glyphs/ }
     end
   end
 
@@ -175,16 +185,12 @@ Rails.application.routes.draw do
     end
   end
 
-  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
-  put 'mistake-heatmap', to: 'word_mistakes#update'
-  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
-  get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
-
   resources :word_concordance_labels, only: [:show, :index] do
     member do
       get :word_detail
       get :segment_detail
       put :update_segment
+      put :update_word
     end
   end
 
@@ -196,7 +202,11 @@ Rails.application.routes.draw do
     end
   end
   resources :translation_proofreadings, except: :destroy
-  resources :tafsir_proofreadings, except: :destroy
+  resources :transliteration_proofreadings, except: :destroy
+  resources :word_transliteration_proofreadings, only: %i[index show edit update]
+  resources :tafsir_proofreadings, except: :destroy do
+    get :range_preview, on: :collection
+  end
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource
@@ -216,40 +226,103 @@ Rails.application.routes.draw do
     get :mushaf
   end
 
-  namespace :segments do
-    get '/', to: 'dashboard#show', as: :dashboard
-    get '/failures', to: 'dashboard#failures', as: :failures
-    get '/word_failures', to: 'dashboard#word_failures', as: :word_failures
-    get '/word_failure_detail', to: 'dashboard#word_failure_detail', as: :word_failure_detail
-    get '/detections', to: 'dashboard#detections', as: :detections
-    get '/logs', to: 'dashboard#logs', as: :logs
-    get '/reciters', to: 'dashboard#reciters', as: :reciters
-    get '/reciters/:id', to: 'dashboard#reciter', as: :reciter
-    get '/timeline', to: 'dashboard#timeline', as: :timeline
-    get '/ayah_report', to: 'dashboard#ayah_report', as: :ayah_report
-    get '/review_ayahs', to: 'dashboard#review_ayahs', as: :review_ayahs
-    post '/reciters/:id/download', to: 'dashboard#download_reciter', as: :download_reciter
-    match '/setup_db', to: 'dashboard#setup_db', via: [:get, :post], as: :setup_db
-  end
+  if Rails.application.config.x.qul_scripts_available
+    namespace :segment_pipeline do
+      get '/', to: 'runs#index', as: :root
+      # QUD deliveries imported as drafts that have no QUL recitation yet.
+      resources :deliveries, only: %i[index show] do
+        collection do
+          get :search_recitations
+        end
+        member do
+          post :attach
+          post :create_recitation
+          post :dismiss
+          delete :drafts, action: :destroy_drafts
+        end
+      end
+      get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
+      get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
+      get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
+      post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
+      post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
+      post 'reciters/:recitation_id/review_all_drafts', to: 'runs#review_all_drafts', as: :review_all_drafts
+      post 'reciters/:recitation_id/cleanup', to: 'runs#cleanup', as: :reciter_cleanup
+      scope 'reciters/:recitation_id/chapters/:chapter_id' do
+        post 'generate', to: 'runs#generate', as: :generate
+        post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
+        post 'cancel', to: 'runs#cancel', as: :cancel
+        post 'build_drafts', to: 'runs#stage_drafts', as: :build_drafts
+        post 'cleanup', to: 'runs#cleanup_chapter', as: :cleanup_chapter
+        post 'import', to: 'runs#import_drafts', as: :import
+        post 'drafts/review', to: 'runs#review_drafts', as: :review_drafts
+        post 'drafts/:id/review', to: 'runs#review_draft', as: :review_draft
+        post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
+        get 'artifact', to: 'runs#artifact', as: :artifact
+        get 'audio', to: 'runs#audio', as: :audio
+        get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
+        get 'compare_data', to: 'runs#compare_data', as: :compare_data
+      end
+    end
 
-  namespace :segment_pipeline do
-    get '/', to: 'runs#index', as: :root
-    get 'reciters/:recitation_id', to: 'runs#show', as: :reciter
-    get 'reciters/:recitation_id/status', to: 'runs#status', as: :reciter_status
-    get 'reciters/:recitation_id/runs/:chapter_id', to: 'runs#run', as: :run
-    post 'reciters/:recitation_id/generate_all', to: 'runs#generate_all', as: :generate_all
-    post 'reciters/:recitation_id/import_all', to: 'runs#import_all', as: :import_all
-    scope 'reciters/:recitation_id/chapters/:chapter_id' do
-      post 'generate', to: 'runs#generate', as: :generate
-      post 'rerun', to: 'runs#rerun', as: :rerun
-      post 'rerun_step', to: 'runs#rerun_step', as: :rerun_step
-      post 'cancel', to: 'runs#cancel', as: :cancel
-      post 'import', to: 'runs#import_segments', as: :import
-      post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
-      delete 'intermediates', to: 'runs#destroy_intermediates', as: :intermediates
-      get 'artifact', to: 'runs#artifact', as: :artifact
-      get 'audio', to: 'runs#audio', as: :audio
-      get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
+    namespace :audio_repair do
+      resources :sessions, only: %i[index create edit] do
+        member do
+          get :data
+          get :candidates
+          get :audition
+          get :peaks
+          get :letters
+          get :vowel_donors
+          post :vowel_preview
+          post :match
+          get :status
+          post :preview
+          post :add_operation
+          post :undo
+          post :redo
+          post :export
+          post :compare
+          get :comparison
+          get :comparison_zoom
+        end
+      end
+
+      resources :polarity, only: %i[index create show] do
+        member { post :fix }
+      end
+
+      resources :ingests, only: %i[index create show destroy] do
+        collection { get :preview }
+        member do
+          get :data
+          post :download
+          post :retry_item
+          post :update_settings
+          post :update_source
+          post :upload
+          post :encode_selected
+          post :cleanup
+          # One surah within the run, addressed by item_id.
+          get :item
+          get :audio
+          get :peaks
+          post :detect
+          post :approve
+          post :encode
+          get :surah
+          get :surah_data
+          post :reencode
+          post :polarity_check
+        end
+      end
+      root to: 'sessions#index'
+    end
+
+    namespace :manifest_diff do
+      get '/', to: 'comparisons#index', as: :root
+      get ':group/:id', to: 'comparisons#asset', as: :asset
+      get ':group/:id/surahs/:surah', to: 'comparisons#surah', as: :surah
     end
   end
 
@@ -263,5 +336,11 @@ Rails.application.routes.draw do
   get '/ayah/:key/topics', to: 'ayah#topics', as: :ayah_topics
   get '/ayah/:key/topics/:topic_id', to: 'ayah#topic', as: :ayah_topic
   get '/ayah/:key/recitation', to: 'ayah#recitation', as: :ayah_recitation
+
+  get 'mistake-heatmap', to: 'word_mistakes#show', as: 'mistake_heatmap'
+  put 'mistake-heatmap', to: 'word_mistakes#update'
+  get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
+  get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
+
   match '/404', to: 'application#not_found', via: :all
 end

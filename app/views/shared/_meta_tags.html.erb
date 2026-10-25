@@ -30,6 +30,9 @@
     Sentry.onLoad(function() {
       Sentry.init({
         sampleRate: 0.5,
+        tracesSampleRate: 0.01,
+        replaysSessionSampleRate: 0,
+        replaysOnErrorSampleRate: 0,
         environment: "<%= Rails.env %>"
       });
     });

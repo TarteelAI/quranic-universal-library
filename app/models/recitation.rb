@@ -27,6 +27,8 @@
 #  index_recitations_on_resource_content_id  (resource_content_id)
 #
 class Recitation < QuranApiRecord
+  include RecitationDestroyable
+
   belongs_to :reciter
   belongs_to :recitation_style
   belongs_to :qirat_type, optional: true
@@ -46,6 +48,38 @@ class Recitation < QuranApiRecord
 
   def one_ayah?
     true
+  end
+
+  # Name the user has to type to confirm destructive actions on this record.
+  def confirmation_name
+    name.to_s.strip.presence || id.to_s
+  end
+
+  # Summary of the rows that `destroy_with_audio_files!` will remove.
+  def deletion_summary
+    {
+      'Ayah audio files' => AudioFile.where(recitation_id: id).count
+    }
+  end
+
+  def destroy_with_audio_files!(delete_resource_content: false)
+    content = get_resource_content
+    reciter_record = reciter
+    qirat = qirat_type
+    style = recitation_style
+
+    transaction do
+      AudioFile.where(recitation_id: id).delete_all
+      destroy!
+    end
+
+    kept_reason = delete_resource_content ? destroy_resource_content(content) : nil
+
+    reciter_record&.update_recitation_count
+    qirat&.update_recitation_count
+    style&.update_recitation_count
+
+    kept_reason
   end
 
   def missing_audio_files?

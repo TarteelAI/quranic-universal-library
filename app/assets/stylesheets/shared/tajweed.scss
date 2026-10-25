@@ -105,3 +105,11 @@ tajweed, rule, r {
     color: black;
   }
 }
+
+// Rule pages: Arabic inside English sentences. Isolated so a list of
+// examples keeps its order, and sized to sit on the line.
+.tajweed-rule-doc .qpc-hafs {
+  unicode-bidi: isolate;
+  font-size: 1.35em;
+  line-height: 1.6;
+}

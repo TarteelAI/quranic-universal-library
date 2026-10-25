@@ -1,16 +1,14 @@
 <%
   actions = []
   more_action = []
-  verse = @translation.verse
+  verse = @presenter.translation.verse
   view_type = params[:view_type].presence || 'ayah'
 
   if !translation_view_types.include?(view_type)
     view_type = 'ayah'
   end
 
-  if @access
-    actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
-  end
+  actions << link_to('Edit', edit_translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   more_action << link_to('Ayah view', translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
   more_action << link_to('Page view', translation_proofreading_path(verse.id, resource_id: @resource.id, view_type: 'page'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
@@ -35,10 +33,10 @@
     previous_ayah = verse.previous_ayah
     next_ayah = verse.next_ayah
     if previous_ayah
-      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+      actions << link_to('Previous ayah', translation_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: previous_ayah.verse_key)
     end
     if next_ayah
-      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+      actions << link_to('Next ayah', translation_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: next_ayah.verse_key)
     end
   else
     page = verse.page_number
@@ -59,7 +57,7 @@
 
 <%= render 'tools/header',
            name: "Ayah translation",
-           title: "#{@resource.name} - #{@translation.verse.verse_key}",
+           title: "#{@resource.name} - #{verse.human_label}",
            key: 'ayah_translation',
            actions: actions,
            breadcrumb_parents: [{ label: 'Filter', path: translation_proofreadings_path(resource_id: @resource.id) }]

@@ -25,8 +25,18 @@
 class Morphology::PhraseVerse < ApplicationRecord
   belongs_to :phrase, class_name: 'Morphology::Phrase', optional: true
   belongs_to :verse
+  # nil: found by the original automatic detection
+  # 'new': saved from the Mutashabihat builder
+  # 'remove': a reviewer removed this ayah from the phrase
+  REVIEW_STATUS_LABELS = {
+    nil => 'Auto-detected',
+    'new' => 'Reviewed',
+    'remove' => 'Removed'
+  }.freeze
+
   scope :approved, -> {where approved: true}
   scope :not_approved, -> {where approved: [false, nil]}
+  scope :not_removed, -> { where.not(review_status: 'remove').or(where(review_status: nil)) }
 
   after_destroy :update_phrase_stats
   after_create :update_phrase_stats
@@ -42,7 +52,30 @@ class Morphology::PhraseVerse < ApplicationRecord
     matching
   end
 
+  # Some legacy rows hold a JSON encoded string (e.g. "[]") in this jsonb
+  # column instead of an array, so callers can't rely on the raw value.
+  def missing_word_positions
+    value = super
+
+    return value if value.is_a?(Array)
+    return [] unless value.is_a?(String)
+
+    parsed = begin
+      JSON.parse(value)
+    rescue JSON::ParserError
+      nil
+    end
+
+    parsed.is_a?(Array) ? parsed : []
+  end
+
+  def review_status_label
+    REVIEW_STATUS_LABELS.fetch(review_status.presence) { review_status.to_s.humanize }
+  end
+
   def highlight_word?(word)
+    return false if word_position_from.nil? || word_position_to.nil?
+
     word.position >= word_position_from && word.position <= word_position_to
   end
 
@@ -59,7 +92,7 @@ class Morphology::PhraseVerse < ApplicationRecord
     s = 0
     if approved?
       s += 1
-      s += (word_position_to - word_position_from) if 'new' == review_status
+      s += (word_position_to - word_position_from) if 'new' == review_status && word_position_from && word_position_to
       s += (phrase&.approved? ? 7 : 0)
     end
 

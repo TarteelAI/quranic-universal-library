@@ -6,6 +6,10 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Loaded eagerly (instead of through Zeitwerk) so the middleware class exists
+# while the middleware stack is being assembled.
+require_relative "../lib/maintenance_mode"
+
 module Qul
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -21,22 +25,30 @@ module Qul
     config.eager_load_paths << "#{config.root}/lib"
 
     qul_scripts_lib = File.join(config.root, "qul-scripts")
+    qul_scripts_available = File.directory?(qul_scripts_lib)
+    config.x.qul_scripts_path = qul_scripts_lib
+    config.x.qul_scripts_available = qul_scripts_available
 
-    eager_load_paths = [
-      File.join(qul_scripts_lib, "lib"),
-      *%w[models controllers jobs].map { |dir| File.join(qul_scripts_lib, "app", dir) }
-    ]
+    if qul_scripts_available
+      eager_load_paths = [
+        File.join(qul_scripts_lib, "lib"),
+        *%w[models controllers jobs].map { |dir| File.join(qul_scripts_lib, "app", dir) }
+      ]
 
-    eager_load_paths.each do |path|
-      config.eager_load_paths << path if File.directory?(path)
+      eager_load_paths.each do |path|
+        config.eager_load_paths << path if File.directory?(path)
+      end
+
+      [
+        [config.paths["app/views"], File.join(qul_scripts_lib, "app/views")],
+        [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")]
+      ].each do |paths, path|
+        paths << path if File.directory?(path)
+      end
     end
 
-    [
-      [config.paths["app/views"], File.join(qul_scripts_lib, "app/views")],
-      [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")]
-    ].each do |paths, path|
-      paths << path if File.directory?(path)
-    end
+    # Last in the stack, so every request (site, admin, API) is covered.
+    config.middleware.use MaintenanceMode::Middleware
 
     config.assets.css_compressor = :escompress
     config.active_support.to_time_preserves_timezone = :zone

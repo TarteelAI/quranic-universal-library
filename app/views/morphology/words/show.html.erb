@@ -11,8 +11,10 @@
         Read ayah
       <% end %>
 
-      <%= link_to morphology_dependency_graph_path(@presenter.ayah_graph), class: "px-3 py-1.5 bg-white text-gray-900 rounded text-sm border border-gray-200 hover:bg-gray-50" do %>
-        Dependency graph
+      <% if @presenter.ayah_graph %>
+        <%= link_to morphology_dependency_graph_path(@presenter.ayah_graph), class: "px-3 py-1.5 bg-white text-gray-900 rounded text-sm border border-gray-200 hover:bg-gray-50" do %>
+          Dependency graph
+        <% end %>
       <% end %>
     </div>
   </div>

@@ -1,0 +1,34 @@
+  <div class="qul-docs">
+    <h2>Ayah themes</h2>
+
+    <p>
+      The Ayah Theme resource in QUL provides a concise thematic summary for a verse or group of verses in the Qur’an.
+      It helps readers quickly grasp the central message or topic covered in a passage.
+    </p>
+
+    <div class="docs-callout docs-callout-info">
+      <p class="font-semibold mb-2">Example:</p>
+      <h3>For Surah 1:1 to 1:7, the theme is:</h3>
+      <p class="mb-2">Supplication to Allah for guidance taught by Allah Himself</p>
+    </div>
+
+
+    <h3>
+      QUL export ayah themes data as a Sqlite database with following columns
+    </h3>
+
+    <ul>
+      <li><code>theme</code>: A short description summarizing the main idea or subject of the ayah group.</li>
+      <li><code>surah_number</code>: The surah number to which the ayahs belong.
+      </li>
+      <li><code>ayah_from</code> / <code>to_ayah</code>: The starting ayah number of the theme group (inclusive).</li>
+      <li><code>ayah_to</code>: The ending ayah number of the theme group (inclusive).</li>
+      <li><code>keywords</code>:
+        Comma-separated keywords or concepts related to the theme.
+      </li>
+      <li><code>total_ayahs</code>:
+        The total number of ayahs covered by this theme
+      </li>
+    </ul>
+  </div>
+    

@@ -7,3 +7,8 @@ quran_enc_update_checker:
   class: DraftContent::CheckContentChangesJob
   cron: "0 6 * * 0"
   description: "Weekly job to check for translation and tafsir changes from sources"
+
+pending_contributions_digest:
+  class: Recurring::PendingContributionsDigestJob
+  cron: "0 7 * * *"
+  description: "Daily email to super admins with the count of suggested fixes waiting for review"

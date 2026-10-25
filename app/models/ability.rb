@@ -17,6 +17,7 @@ class Ability
     cannot :read, AdminTodo
     cannot :notify_users, DownloadableResource
     cannot :read, Contributor
+    cannot :read, Licence
     cannot :read, ActiveAdmin::Page, name: "Analytics"
 
     can :read, User, id: user.id

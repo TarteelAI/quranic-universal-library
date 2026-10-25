@@ -1,4 +1,5 @@
 class ArabicTransliterationsController < CommunityController
+  before_action :normalize_page_param, only: %i[index]
   before_action :authenticate_user!, only: [:new, :create]
   before_action :authorize_access!, only: [:new, :create]
   before_action :init_presenter

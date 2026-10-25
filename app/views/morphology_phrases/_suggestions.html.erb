@@ -2,180 +2,152 @@
            name: 'Mutashabihat ul Quran',
            title: 'Mutashabihat Phrase Builder',
            key: 'mutashabihat',
-           actions: [link_to('Back', morphology_phrases_path, class: 'h-10 px-4 py-2 text-sm font-medium bg-slate-700 hover:bg-slate-800 text-white rounded transition-colors inline-flex items-center')]
+           actions: [
+             link_to('Auto-detect in ayah', morphology_phrase_path(review.verse.id, proofread: true), class: 'h-10 px-4 py-2 text-sm font-medium bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded transition-colors inline-flex items-center'),
+             link_to('Back', morphology_phrases_path, class: 'h-10 px-4 py-2 text-sm font-medium bg-slate-700 hover:bg-slate-800 text-white rounded transition-colors inline-flex items-center')
+           ]
+%>
+
+<%
+  verse = review.verse
+  cards = review.cards
+  counts = review.counts
+  filters = [['all', 'All'], ['saved', 'Saved'], ['exact', 'Exact'], ['similar', 'Similar']]
 %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4 pb-12" style="position: relative">
   <div data-controller="mutashabihat-builder" class="mutashabihat">
-    <%= form_with url: new_morphology_phrase_path, method: :get do |f| %>
-      <%= f.hidden_field :phrase_id, value: @phrase&.id %>
+    <%= form_with url: new_morphology_phrase_path, method: :get, data: { mutashabihat_builder_target: 'form' } do |f| %>
+      <%= f.hidden_field :phrase_id, value: review.phrase&.id %>
+      <%= f.hidden_field :text, value: review.phrase_text, id: 'text', name: nil %>
+      <%= f.hidden_field :word_from, value: review.from, id: 'word_from', data: { mutashabihat_builder_target: 'wordFrom' } %>
+      <%= f.hidden_field :word_to, value: review.to, id: 'word_to', data: { mutashabihat_builder_target: 'wordTo' } %>
 
-      <div class="page-section mt-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 sticky top-4 z-30">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-book-open mr-2 text-blue-500"></i> Source ayah/phrase
-          </h3>
-
-          <%
-            ayah, range = @phrase_search.source_verse_and_range
-            range ||= [-1, -1]
-          %>
-
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
-            <div class="lg:col-span-6">
-              <%= f.label :ayah_key, 'Selected ayah', class: 'block text-sm font-bold text-slate-700 mb-1' %>
-              <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key), selected: ayah&.verse_key), { include_blank: true }, class: 'w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all', id: 'source_ayah', data: { placeholder: 'Select ayah', controller: 'select2' } %>
-            </div>
-
-            <div class="lg:col-span-3">
-              <%= f.label :word_from, 'Word from', class: 'block text-sm font-bold text-slate-700 mb-1' %>
-              <%= f.select :word_from, options_for_select(ayah.words.map do |w|
-                ["#{w.position} - #{w.text_qpc_hafs} ", w.position]
-              end, selected: range[0]), { include_blank: true }, class: 'w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all word-from', data: { placeholder: 'Start', controller: 'select2' } %>
-            </div>
-
-            <div class="lg:col-span-3">
-              <%= f.label :word_to, 'Word to', class: 'block text-sm font-bold text-slate-700 mb-1' %>
-              <%= f.select :word_to, options_for_select(ayah.words.map do |w|
-                ["#{w.position} - #{w.text_qpc_hafs} ", w.position]
-              end, selected: range[1]), { include_blank: true }, class: 'w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all word-to', data: { placeholder: 'End', controller: 'select2' } %>
+      <div data-mutashabihat-builder-target="sentinel"></div>
+      <div class="source-bar z-30 bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mt-4 mb-4" data-mutashabihat-builder-target="bar">
+        <div class="source-controls flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Source</span>
+            <div class="w-28">
+              <%= f.select :ayah_key, options_for_select(Verse.order('id asc').pluck(:verse_key, :verse_key), selected: verse.verse_key), { include_blank: true }, class: 'w-full', id: 'source_ayah', data: { placeholder: 'Ayah', controller: 'select2' } %>
             </div>
           </div>
 
-          <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-            <div class="mb-4">
-              <%= f.hidden_field :text, value: @phrase_search.phrase_text, id: 'text' %>
-              <div class="text-right dir-rtl quran-text qpc-hafs text-2xl leading-loose">
-                <span class="text-sm text-gray-400 ml-2 font-sans align-middle"><%= ayah.verse_key %></span>
-                <% ayah.words.each do |w| %>
-                  <% if !w.ayah_mark? %>
-                    <% highlight = w.position >= range[0].to_f && w.position <= range[1].to_f %>
-                    <span class="inline-block px-1 <%= highlight ? 'text-green-600 font-bold' : 'text-gray-700' %>">
-                      <%= w.text_qpc_hafs %>
-                    </span>
-                  <% end %>
-                <% end %>
-              </div>
-            </div>
+          <span class="text-xs text-slate-500">
+            <%= pluralize(review.to - review.from + 1, 'word') %>
+            <% if review.phrase&.persisted? %>
+              · phrase #<%= review.phrase.id %>
+              <span class="ml-1 px-1.5 py-0.5 rounded <%= review.phrase.reviewed? ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800' %>"><%= review.phrase.review_status_label %></span>
+            <% end %>
+          </span>
 
-            <div class="flex justify-between items-center">
-              <div class="flex flex-wrap gap-4">
-                <div class="flex items-center">
-                  <%= check_box_tag :use_text_search, 1, params[:use_text_search].blank? || params[:use_text_search].to_i == 1, id: 'use_text_search', class: 'w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500' %>
-                  <%= label_tag :use_text_search, 'Text', class: 'ml-2 text-xs font-medium text-gray-600 cursor-pointer' %>
-                </div>
+          <span class="ms-auto text-xs text-slate-400 hidden md:inline" data-mutashabihat-builder-target="hint">Click the first and last word to change the phrase</span>
+        </div>
 
-                <div class="flex items-center">
-                  <%= check_box_tag :use_root_search, 1, params[:use_root_search].to_i == 1, id: 'use_root_search', class: 'w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500' %>
-                  <%= label_tag :use_root_search, 'Root', class: 'ml-2 text-xs font-medium text-gray-600 cursor-pointer' %>
-                </div>
+        <div class="phrase-words source-words mt-2" dir="rtl">
+          <span class="stuck-only text-xs font-bold text-slate-500 self-center ms-2" dir="ltr"><%= verse.verse_key %></span>
+          <% review.words.each do |w| %>
+            <% highlight = w.position.between?(review.from, review.to) %>
+            <button type="button"
+                    class="phrase-word <%= 'is-selected' if highlight %> <%= 'range-start' if w.position == review.from %> <%= 'range-end' if w.position == review.to %>"
+                    data-position="<%= w.position %>"
+                    data-mutashabihat-builder-target="sourceWord"
+                    data-action="mutashabihat-builder#pickSourceWord">
+              <span class="qpc-hafs"><%= w.text_qpc_hafs %></span>
+              <small><%= w.position %></small>
+            </button>
+          <% end %>
+        </div>
+      </div>
 
-                <div class="flex items-center">
-                  <%= check_box_tag :use_lemma_search, 1, params[:use_lemma_search].to_i == 1, id: 'use_lemma_search', class: 'w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500' %>
-                  <%= label_tag :use_lemma_search, 'Lemma', class: 'ml-2 text-xs font-medium text-gray-600 cursor-pointer' %>
-                </div>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200" data-controller="tabs">
+        <div class="border-b border-gray-100 bg-gray-50/50 px-4 flex flex-wrap items-center justify-between gap-2">
+          <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+            <li class="mr-2" role="presentation">
+              <button type="button"
+                      class="inline-block px-4 py-3 border-b-2 rounded-t-lg border-blue-600 text-blue-600 active"
+                      data-action="click->tabs#switch"
+                      data-tabs-target-value="tab-suggestions"
+                      role="tab" aria-selected="true">
+                Ayahs
+                <span class="ml-1 px-2 py-0.5 text-xs font-bold bg-green-100 text-green-700 rounded-full"><%= cards.size %></span>
+              </button>
+            </li>
+            <li class="mr-2" role="presentation">
+              <button type="button"
+                      class="inline-block px-4 py-3 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300"
+                      data-action="click->tabs#switch"
+                      data-tabs-target-value="tab-ayahs"
+                      role="tab" aria-selected="false">
+                Saved preview
+              </button>
+            </li>
+          </ul>
 
-                <div class="flex items-center">
-                  <%= check_box_tag :use_lcs_search, 1, params[:use_lcs_search].to_i == 1, id: 'use_lcs_search', class: 'w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500' %>
-                  <%= label_tag :use_lcs_search, 'LCS', class: 'ml-2 text-xs font-medium text-gray-600 cursor-pointer' %>
-                </div>
-              </div>
-
-              <%= submit_tag 'Apply Filter', class: 'btn btn-info shadow-sm hover:shadow-md', data: { disable_with: 'Searching...' } %>
-            </div>
+          <div class="flex items-center gap-1 py-2" role="group" aria-label="Filter ayahs">
+            <% filters.each do |key, label| %>
+              <button type="button"
+                      class="filter-button <%= 'is-active' if key == 'all' %>"
+                      data-filter="<%= key %>"
+                      data-action="mutashabihat-builder#filter">
+                <%= label %> <span class="opacity-60"><%= counts[key].to_i %></span>
+              </button>
+            <% end %>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" data-controller="tabs">
-          <div class="border-b border-gray-100 bg-gray-50/50 px-4">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
-              <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg border-blue-600 text-blue-600 aria-selected:border-blue-600 aria-selected:text-blue-600 active"
-                        data-action="click->tabs#switch"
-                        data-tabs-target-value="tab-suggestions"
-                        role="tab" aria-selected="true">
-                  Suggestions
-                  <span class="ml-2 px-2 py-0.5 text-xs font-bold bg-green-100 text-green-700 rounded-full">
-                    <%= @suggestions.keys.size %>
-                  </span>
-                </button>
-              </li>
+        <div class="tab-content p-4">
+          <div class="tab-pane active" id="tab-suggestions" role="tabpanel">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs text-slate-500">
+              <% if @access %>
+                <p>
+                  Click the first and last word of a range, more ranges the same way. Click a selected word to exclude it.
+                  <strong class="text-slate-700">Approve</strong> saves the ayah to the phrase.
+                </p>
+              <% end %>
+              <div class="kind-legend flex flex-wrap items-center gap-2">
+                <span class="kind-affix">prefix/suffix</span>
+                <span class="kind-form">word form</span>
+                <span class="kind-similar">sounds similar</span>
+                <span class="kind-changed">changed</span>
+                <span class="kind-moved">moved</span>
+                <span class="kind-added">added</span>
+              </div>
+            </div>
 
-              <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300"
-                        data-action="click->tabs#switch"
-                        data-tabs-target-value="tab-ayahs"
-                        role="tab" aria-selected="false">
-                  Saved Ayahs
-                </button>
-              </li>
-            </ul>
+            <% if @access %>
+              <div class="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-100">
+                <%= render 'add_ayah' %>
+              </div>
+            <% end %>
+
+            <div id="suggested-ayahs">
+              <% cards.each do |card| %>
+                <%= render 'ayah', card: card %>
+              <% end %>
+              <% if cards.size <= 1 %>
+                <div class="text-center py-12 text-gray-500" id="no-suggestions">
+                  <i class="fas fa-search text-4xl mb-4 opacity-20"></i>
+                  <p>No other ayah shares this phrase.</p>
+                  <p class="text-sm mt-1">Try a different range of words, or add an ayah by hand.</p>
+                </div>
+              <% end %>
+            </div>
           </div>
 
-          <div class="tab-content p-6">
-            <div class="highlight mt-4 border border-gray-300 my-2 p-2" data-controller="tabs">
-              <ul class="nav nav-tabs nav-tabs-clean" role="tablist">
-                <li class="m-0">
-                  <a class="text-gray-700 font-medium no-underline px-3 py-2 rounded hover:bg-gray-200 active"
-                     data-action="click->tabs#switch"
-                     data-tabs-target-value="tab-suggestions"
-                     role="tab" aria-selected="true">
-                    Suggestions
-                    <span class="badge badge-success ms-1">
-                  <%= @suggestions.keys.size %>
-                </span>
-                  </a>
-                </li>
-
-                <li class="m-0">
-                  <a class="text-gray-700 font-medium no-underline px-3 py-2 rounded hover:bg-gray-200"
-                     data-action="click->tabs#switch"
-                     data-tabs-target-value="tab-ayahs"
-                     role="tab" aria-selected="false">
-                    Ayahs
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div class="tab-content p-3">
-              <div class="tab-pane fade active show" id="tab-suggestions" role="tabpanel" aria-labelledby="tab-suggestions">
-                <div id="suggestions">
-                  <div class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-100">
-                    <h4 class="text-sm font-bold text-blue-800 mb-2">Manual Addition</h4>
-                    <%= render 'add_ayah' %>
-                  </div>
-
-                  <div id="suggested-ayahs" class="space-y-4">
-                    <% if @suggestions.any? %>
-                      <% @suggestions.each do |key, suggestion| %>
-                        <%= render 'ayah', options: suggestion %>
-                      <% end %>
-                    <% else %>
-                      <div class="text-center py-12 text-gray-500">
-                        <i class="fas fa-search text-4xl mb-4 opacity-20"></i>
-                        <p>No suggestions found for current selection.</p>
-                      </div>
-                    <% end %>
-                  </div>
+          <div class="tab-pane hidden" id="tab-ayahs" role="tabpanel">
+            <% if review.phrase&.persisted? %>
+              <%= turbo_frame_tag 'phrase-verses', src: morphology_phrase_path(review.phrase.id, result_type: 'preview'), loading: "lazy", target: 'self' do %>
+                <div class="flex items-center justify-center py-12">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span class="ml-3 text-gray-500">Loading saved ayahs...</span>
                 </div>
+              <% end %>
+            <% else %>
+              <div class="text-center py-12 text-gray-500">
+                <p>Approve at least one ayah to see the saved phrase here.</p>
               </div>
-
-              <div class="tab-pane fade hidden" id="tab-ayahs" role="tabpanel" aria-labelledby="tab-ayahs">
-                <% if @phrase&.persisted? %>
-                  <%= turbo_frame_tag 'phrase-verses', src: morphology_phrase_path(@phrase.id, result_type: 'preview'), loading: "lazy", target: 'self' do %>
-                    <div class="flex items-center justify-center py-12">
-                      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      <span class="ml-3 text-gray-500">Loading saved phrases...</span>
-                    </div>
-                  <% end %>
-                <% else %>
-                  <div class="text-center py-12 text-gray-500">
-                    <p>Save this phrase to see it in the Ayahs tab.</p>
-                  </div>
-                <% end %>
-              </div>
-            </div>
+            <% end %>
           </div>
         </div>
       </div>

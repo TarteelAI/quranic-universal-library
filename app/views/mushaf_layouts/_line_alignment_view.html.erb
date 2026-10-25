@@ -24,7 +24,11 @@
               <%= render 'line_alignment' %>
 
               <div class="page-section p-3">
-                <%= render 'shared/mushaf_page', words: @words, page: page_number, mushaf: @mushaf, name: @resource.name %>
+                <%= render 'shared/mushaf_page',
+                           words: @words,
+                           page: page_number,
+                           mushaf: @mushaf,
+                           name: @resource.name %>
               </div>
             </div>
           <% end %>

@@ -8,32 +8,24 @@ class SurahInfosController < CommunityController
   def edit;end
 
   def update
-    @info = ChapterInfo.where(language: language, chapter_id: params[:id]).first
+    info = @presenter.resource
 
-    if @info.update(info_params)
-      redirect_to surah_info_path(@info.chapter_id, resource: @resource.id, language_id: @info.language_id), notice: "Info updated successfully."
+    if info.save_suggestions(info_params, current_user)
+      redirect_to surah_info_path(info.id), notice: 'Your suggestions are saved, they go live once approved.'
     else
-      render action: :edit
+      @presenter.draft.assign_attributes(info_params)
+      render :edit, status: :unprocessable_entity
     end
   end
 
   protected
 
   def info_params
-    params.require(:chapter_info).permit(:short_text, :text)
+    params.require(:draft_surah_info).permit(:draft_short_text, :draft_text, :comment)
   end
 
   def load_resource_access
     @access = can_manage?(@presenter.resource_content)
-  end
-
-  def language
-    return @language if @language
-
-    @available_languages = Language.where(id: ResourceContent.chapter_info.select(:language_id))
-    # default will be English
-    params[:language] = (params[:language].presence || params[:language_id].presence || 38).to_i
-    @language = Language.find(params[:language])
   end
 
   def init_presenter

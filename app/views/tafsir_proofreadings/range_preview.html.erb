@@ -1,0 +1,97 @@
+<%
+  change = @range_change
+  ayah_number = ->(id) { change.verse_key(id).to_s.split(':').last }
+  old_ids = change.old_range_ids.to_set
+  new_ids = change.range_ids.to_set
+  kept = 'bg-green-600 text-white'
+  added = 'bg-blue-600 text-white'
+  removed = 'bg-white text-red-600 border border-dashed border-red-400 line-through'
+  outside = 'bg-white text-gray-300 border border-gray-200'
+%>
+
+<%= turbo_frame_tag 'tafsir-range-preview' do %>
+  <% if change.changed? || !change.valid? %>
+  <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm">
+    <% if change.valid? %>
+      <div class="overflow-x-auto">
+        <table class="text-xs">
+          <% if change.tafsir %>
+            <tr>
+              <td class="pr-3 py-1 text-gray-500 whitespace-nowrap">Current</td>
+              <td class="py-1">
+                <div class="flex flex-wrap gap-0.5">
+                  <% change.window_ids.each do |id| %>
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded font-medium <%= old_ids.include?(id) ? kept : outside %>" title="<%= change.verse_key(id) %>"><%= ayah_number.call(id) %></span>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <tr>
+            <td class="pr-3 py-1 text-gray-500 whitespace-nowrap">After approval</td>
+            <td class="py-1">
+              <div class="flex flex-wrap gap-0.5">
+                <% change.window_ids.each do |id| %>
+                  <%
+                    css = if new_ids.include?(id)
+                            old_ids.include?(id) ? kept : added
+                          else
+                            old_ids.include?(id) ? removed : outside
+                          end
+                  %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded font-medium <%= css %>" title="<%= change.verse_key(id) %>"><%= ayah_number.call(id) %></span>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p class="text-xs text-gray-500 mt-1 flex flex-wrap gap-x-3 gap-y-1">
+        <% if change.tafsir %><span><span class="inline-block w-2.5 h-2.5 rounded-sm bg-green-600 align-middle"></span> stays</span><% end %>
+        <span><span class="inline-block w-2.5 h-2.5 rounded-sm bg-blue-600 align-middle"></span> added</span>
+        <% if change.released_ids.any? %><span><span class="inline-block w-2.5 h-2.5 rounded-sm border border-dashed border-red-400 align-middle"></span> removed</span><% end %>
+      </p>
+
+      <ul class="mt-2 space-y-1 text-gray-700">
+        <% if change.tafsir.nil? %>
+          <li>New tafsir for <b><%= change.range_label(change.range_ids) %></b>.</li>
+        <% else %>
+          <li>The range changes from <b><%= change.range_label(change.old_range_ids) %></b> to <b><%= change.range_label(change.range_ids) %></b>.</li>
+        <% end %>
+
+        <% change.effects.each do |effect| %>
+          <% other = effect.tafsir %>
+          <li>
+            Takes <b><%= change.range_label(effect.taken_ids) %></b> from the tafsir of <%= other.ayah_range_label %>.
+            <% if effect.result == :archived %>
+              That tafsir has no ayahs left, so it is <b>archived</b>. Make sure its text is in yours.
+            <% else %>
+              It becomes <b><%= change.range_label((effect.new_start_id..effect.new_end_id).to_a) %></b>.
+              If its text explains <%= change.range_label(effect.taken_ids) %>, edit it too:
+              <%= link_to 'edit that tafsir', edit_tafsir_proofreading_path(other.id, resource_id: other.resource_content_id), target: '_blank', class: 'text-blue-700' %>.
+            <% end %>
+          </li>
+        <% end %>
+
+        <% if change.uncovered_added_ids.any? && change.tafsir %>
+          <li>Adds <b><%= change.range_label(change.uncovered_added_ids) %></b>, which had no tafsir.</li>
+        <% end %>
+
+        <% if change.released_ids.any? %>
+          <li class="text-amber-800">
+            <b><%= change.range_label(change.released_ids) %></b> will have no tafsir.
+            To move <%= change.released_ids.size == 1 ? 'it' : 'them' %> to the tafsir next to it, edit that tafsir and widen its range.
+          </li>
+        <% end %>
+      </ul>
+      <p class="text-xs text-gray-500 mt-2">Nothing changes until a reviewer approves your suggestion.</p>
+    <% else %>
+      <ul class="text-red-700 space-y-1">
+        <% change.errors.each do |message| %>
+          <li><i class="fa fa-exclamation-triangle"></i> <%= message %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+  <% end %>
+<% end %>

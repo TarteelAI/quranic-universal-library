@@ -3,7 +3,7 @@
   prev_ayah = @verse.previous_ayah
   next_ayah = @verse.next_ayah
 
-  img_host = "https://static-cdn.tarteel.ai/qul/images/page/transliteration"
+  img_host = "#{ENV['CDN_HOST']}/qul/images/page/transliteration"
   page_number = @predicted_page
 
   if @access

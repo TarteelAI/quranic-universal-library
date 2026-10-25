@@ -1,0 +1,18 @@
+<div id="title">Add resources to <%= licence.display_name %></div>
+
+<div id="body">
+  <div class="p-4">
+    <%= form_with url: add_resources_cms_licence_path(licence), method: :get,
+                  data: { turbo_frame: 'licence-resource-results' }, class: 'flex gap-2 mb-4' do |form| %>
+      <%= form.search_field :q, value: query, placeholder: 'Name, language or id', autofocus: true,
+                            class: 'flex-1 border border-gray-300 rounded px-3 py-2' %>
+      <%= form.select :type, ResourceContent.where.not(sub_type: [nil, '']).distinct.order(:sub_type).pluck(:sub_type),
+                      { include_blank: 'All types', selected: type },
+                      class: 'border border-gray-300 rounded px-3 py-2' %>
+      <%= form.submit 'Search', class: 'btn btn-primary' %>
+    <% end %>
+
+    <%= render 'admin/licence_resource_results', licence: licence, contents: contents,
+               other_licences: other_licences, query: query, type: type %>
+  </div>
+</div>

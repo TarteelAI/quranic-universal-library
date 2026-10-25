@@ -1,46 +1,95 @@
+<%
+  stats = @presenter.ayah_stats(@verses)
+  sort_params = { proofread: true, status: params[:status], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] }
+  status_badges = {
+    none: ['No phrases', 'bg-gray-100 text-gray-500'],
+    needs_review: ['Needs review', 'bg-amber-100 text-amber-800'],
+    reviewed: ['Reviewed', 'bg-green-100 text-green-800']
+  }
+%>
+
 <div class="page-section mt-4 filters">
   <%= form_tag morphology_phrases_path, method: :get do %>
     <%= hidden_field_tag :proofread, true %>
     <div data-controller="chapter-verses-filter" class="flex items-start flex-wrap">
       <%= render 'shared/filters' %>
 
+      <div class="mb-4 me-2">
+        <%= select_tag :status, options_for_select(Mutashabihat::AyahOverview::STATUS_FILTERS.invert, params[:status]), include_blank: 'Any status', class: 'w-full sm:w-44 px-3 py-2 border border-slate-300 rounded-lg h-[38px]' %>
+        <p class="text-xs text-slate-500 mt-1">Phrase status</p>
+      </div>
+
       <div class="mb-4 flex items-center">
         <%= submit_tag 'Filter', class: 'btn btn-success mr-3 h-[38px]', data: { disable_with: 'Please wait..' } %>
-        <%= link_to 'Clear', morphology_phrases_path(proofread: true) if has_filters?(:filter_chapter, :filter_verse) %>
+        <%= link_to 'Clear', morphology_phrases_path(proofread: true) if has_filters?(:filter_chapter, :verse_number, :status) %>
       </div>
     </div>
   <% end %>
 </div>
 
 <div class="page-section mt-4">
-  <h2>Ayah phrases list</h2>
-  <table class="w-full hover:bg-gray-50 mt-4">
+  <h2>Ayahs and their shared phrases</h2>
+  <p class="text-sm text-gray-500 mt-1">
+    <b>Needs review</b>: the ayah has auto-detected phrases or ayah ranges nobody has checked yet.
+    <b>Linked ayahs</b>: other ayahs sharing at least one of its phrases.
+  </p>
+  <table class="w-full mt-4 text-sm">
     <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
-    <tr>
-      <th><%= sort_order_link 'Ayah Key', :verse_index, proofread: true %></th>
-      <th>Phrases</th>
-      <th>Actions</th>
+    <tr class="text-left">
+      <th class="py-2 pl-2"><%= sort_order_link 'Ayah', :id, sort_params.dup %></th>
+      <th class="py-2">Text</th>
+      <th class="py-2"><%= sort_order_link 'Phrases', :phrases, sort_params.dup %></th>
+      <th class="py-2"><%= sort_order_link 'Linked ayahs', :linked_ayahs, sort_params.dup %></th>
+      <th class="py-2"><%= sort_order_link 'Words covered', :words_covered, sort_params.dup %></th>
+      <th class="py-2"><%= sort_order_link 'Status', :status, sort_params.dup %></th>
+      <th class="py-2"></th>
     </tr>
-
     </thead>
     <tbody>
     <% @verses.each do |verse| %>
-      <tr class="hover:bg-gray-200 border-b">
-        <td scope="row" class="py-2 pl-2"><%= verse.verse_key %></td>
-
-        <td class="py-2">
-          <%= verse.verse_phrases.size %>
+      <% s = stats[verse.id] %>
+      <% label, badge_class = status_badges[s.status] %>
+      <tr class="hover:bg-gray-50 border-b align-middle">
+        <td class="py-2 pl-2 whitespace-nowrap">
+          <span class="font-mono font-medium"><%= verse.verse_key %></span>
         </td>
 
-        <td class="py-2">
-          <div class="d-grid gap-1">
-            <%= link_to 'Preview', morphology_phrase_path(verse.id, proofread: true, verse_id: verse.id), class: 'btn btn-success' %>
-          </div>
+        <td class="py-2 pr-4 max-w-[28rem]">
+          <div class="quran-text qpc-hafs text-lg truncate text-right" dir="rtl" title="<%= verse.text_qpc_hafs %>"><%= verse.text_qpc_hafs %></div>
+        </td>
+
+        <td class="py-2 whitespace-nowrap">
+          <% if s.phrases_count.zero? %>
+            <span class="text-gray-400">0</span>
+          <% else %>
+            <span class="font-medium"><%= s.phrases_count %></span>
+            <span class="text-xs text-gray-500">
+              (<span class="text-green-700" title="Reviewed phrases" data-controller="tooltip"><%= s.reviewed_count %> reviewed</span><% if s.pending_count.positive? %>, <span class="text-amber-700" title="Auto-detected or unchecked" data-controller="tooltip"><%= s.pending_count %> to review</span><% end %><% if s.not_approved_count.positive? %>, <span class="text-red-600" title="This ayah isn't approved for these phrases" data-controller="tooltip"><%= s.not_approved_count %> not approved</span><% end %>)
+            </span>
+          <% end %>
+        </td>
+
+        <td class="py-2 <%= 'text-gray-400' if s.linked_ayahs_count.zero? %>"><%= s.linked_ayahs_count %></td>
+
+        <td class="py-2 whitespace-nowrap">
+          <% if s.words_count.positive? %>
+            <% percent = (100.0 * s.covered_words / s.words_count).round %>
+            <div class="flex items-center gap-2">
+              <div class="w-16 h-1.5 bg-gray-200 rounded overflow-hidden"><div class="h-full bg-green-600" style="width: <%= percent %>%"></div></div>
+              <span class="text-xs text-gray-600"><%= s.covered_words %>/<%= s.words_count %></span>
+            </div>
+          <% end %>
+        </td>
+
+        <td class="py-2"><span class="px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap <%= badge_class %>"><%= label %></span></td>
+
+        <td class="py-2 pr-2 text-right">
+          <%= link_to 'Show', morphology_phrase_path(verse.id, proofread: true), class: 'px-2 py-1 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' %>
         </td>
       </tr>
     <% end %>
     <tr>
-      <td colspan="3">
+      <td colspan="7">
         <%= pagination_section @pagy %>
       </td>
     </tr>

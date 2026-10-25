@@ -1,0 +1,48 @@
+<div class="qul-docs">
+  <h2>About ayah topics</h2>
+  <p>
+    Each verse can be associated with multiple topics across all three categories: ontological, thematic, and general. 
+    The topics are organized hierarchically, meaning each topic may have parent topics and child
+    topics.
+  </p>
+
+  <h3>Database structure</h3>
+
+  <p>The QUL exports ayah topics data as a SQLite database with the following structure:</p>
+
+  <ul>
+    <li>
+      <code>topic_id</code>: 
+      Unique identifier for the topic
+    </li>
+    <li>
+      <code>topic_name</code>: 
+      The English name of the topic
+    </li>
+    <li>
+      <code>arabic_name</code>: 
+      The Arabic name or transliteration of the topic (if available)
+    </li>
+    <li>
+      <code>verse_key</code>: 
+      The verse identifier in format "chapter:verse" (e.g., "2:255")
+    </li>
+    <li>
+      <code>is_ontology</code>: 
+      Boolean indicating if this is an ontology topic
+    </li>
+    <li>
+      <code>is_thematic</code>: 
+      Boolean indicating if this is a thematic topic
+    </li>
+    <li>
+      <code>parent_topic_id</code>: 
+      ID of the parent topic (for hierarchical organization)
+    </li>
+    <li>
+      <code>description</code>: 
+      Detailed description of what the topic encompasses
+    </li>
+  </ul>
+</div>
+

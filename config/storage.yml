@@ -54,17 +54,6 @@ amazon_s3:
   upload:
     cache_control: "public, max-age=<%= 1.year.to_i %>"
 
-qul_segments:
-  service: S3
-  access_key_id: "<%= ENV['QUL_STORAGE_ACCESS_KEY'].presence || 'missing' %>"
-  secret_access_key: "<%= ENV['QUL_STORAGE_ACCESS_KEY_SECRET'].presence || 'missing' %>"
-  region: "<%= ENV['QUL_STORAGE_REGION'].presence || 'us-east-1' %>"
-  bucket: "<%= ENV['QUL_STORAGE_BUCKET'].presence || 'missing' %>"
-  public: false
-  endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
-  upload:
-    cache_control: "private, max-age=0"
-
 # Database backups storage (S3-compatible)
 database_backups:
   service: S3

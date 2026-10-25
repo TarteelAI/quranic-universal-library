@@ -1,0 +1,71 @@
+<div class="qul-docs">
+  <h2>About rub metadata</h2>
+  <p>
+    Rub al-Hizb data is exported in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+  </p>
+
+  <h3>Sample JSON</h3>
+  <p>Here is an example of the JSON structure for the first Rub al-Hizb:</p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1": {
+    "rub_number": 1,
+    "verses_count": 32,
+    "first_verse_key": "1:1",
+    "last_verse_key": "2:25",
+    "verse_mapping": {
+      "1": "1-7",
+      "2": "1-25"
+    }
+  }
+}</code></pre>
+  </div>
+
+  <h3>Field descriptions</h3>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>rub_number</code></td>
+          <td>INTEGER</td>
+          <td>The Rub al-Hizb number (1 to 240).</td>
+        </tr>
+        <tr>
+          <td><code>verses_count</code></td>
+          <td>INTEGER</td>
+          <td>Total number of verses in the Rub al-Hizb.</td>
+        </tr>
+        <tr>
+          <td><code>first_verse_key</code></td>
+          <td>TEXT</td>
+          <td>The key of the first verse in the Rub al-Hizb (e.g. <code>1:1</code>).</td>
+        </tr>
+        <tr>
+          <td><code>last_verse_key</code></td>
+          <td>TEXT</td>
+          <td>The key of the last verse in the Rub al-Hizb (e.g. <code>2:25</code>).</td>
+        </tr>
+        <tr>
+          <td><code>verse_mapping</code></td>
+          <td>OBJECT</td>
+          <td>A mapping of surah numbers to ayah ranges within this hizb. For example, <code>"2": "1-25"</code> indicates that Surah 2 (Al-Baqarah) has verses 1 to 25 in this Rub al-Hizb.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <%= render "resources/previews/quran_metadata/range_usage",
+             unit: "rub",
+             number_field: "rub_number",
+             table: "rub",
+             count: 240,
+             file_slug: "quran-metadata-rub" %>
+</div>

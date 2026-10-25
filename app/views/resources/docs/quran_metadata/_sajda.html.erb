@@ -1,0 +1,104 @@
+<div class="qul-docs">
+
+  <h2>About sajdah data</h2>
+
+  <p>
+    QUL exports Sajdah data(list of ayah where Sajdah is prescribed) in both <strong>JSON</strong> and <strong>SQLite</strong> formats.
+    Each record includes the ayah key, sajdah number, and whether the sajdah is <em>optional</em> or <em>required</em>.
+  </p>
+
+  <h3>Sample JSON</h3>
+  <div class="docs-code">
+          <div class="docs-code-header"><span>JSON</span></div>
+          <pre><code>{
+  "1": {
+    "sajdah_number": 1,
+    "verse_key": "7:206",
+    "sajdah_type": "optional"
+  }
+}</code></pre>
+        </div>
+
+  <h3>Field descriptions</h3>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>sajdah_number</td>
+        <td>Integer</td>
+        <td>Sequential number of the sajdah verse</td>
+      </tr>
+      <tr>
+        <td>verse_key</td>
+        <td>String</td>
+        <td>Reference to the verse in the format <code>surah:ayah</code> (e.g., <code>7:206</code>)</td>
+      </tr>
+      <tr>
+        <td>sajdah_type</td>
+        <td>String</td>
+        <td>
+          Type of sajdah:
+          <ul class="list-disc ml-5">
+            <li><code>required</code> – Sujood is obligatory upon recitation or hearing</li>
+            <li><code>optional</code> – Sujood is recommended</li>
+          </ul>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>How to use this resource</h3>
+  <p>
+    Download the JSON or SQLite file from the download links on this page. The JSON file is one object:
+    each key is the <code>sajdah_number</code> as a string (<code>"1"</code> to <code>"15"</code>).
+    The SQLite file has the same fields in the <code>sajdah</code> table.
+  </p>
+  <ul>
+    <li>
+      <strong>Find the ayah.</strong>
+      Use <code>verse_key</code> (<code>surah:ayah</code>) to find the ayah in the other QUL resources:
+      text, translation or audio.
+    </li>
+    <li>
+      <strong>Filter by type.</strong>
+      <code>sajdah_type</code> is <code>"required"</code> or <code>"optional"</code> (see the field table above).
+      Filter on it to show only the required prostrations.
+    </li>
+  </ul>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JavaScript</span></div>
+    <pre><code>// Setup: unzip the download and serve quran-metadata-sajda.json from your app (here at /data/)
+const sajdahs = await fetch('/data/quran-metadata-sajda.json').then((res) =&gt; res.json());
+
+// Verse keys of the required sajdahs
+const required = Object.values(sajdahs)
+  .filter((sajdah) =&gt; sajdah.sajdah_type === 'required')
+  .map((sajdah) =&gt; sajdah.verse_key);
+
+// Check whether an ayah has a sajdah
+const byVerseKey = new Map(Object.values(sajdahs).map((sajdah) =&gt; [sajdah.verse_key, sajdah]));
+byVerseKey.has('7:206'); // true</code></pre>
+  </div>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>SQL</span></div>
+    <pre><code>-- SQLite: the same fields are in the sajdah table
+SELECT sajdah_number, verse_key, sajdah_type
+FROM sajdah
+ORDER BY sajdah_number;</code></pre>
+  </div>
+
+  <p>
+    To get the text of these ayahs, see the <a href='/resources/quran-script'>Quran Script</a> resources.
+  </p>
+
+</div>

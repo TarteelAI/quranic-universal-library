@@ -1,0 +1,70 @@
+<div class="qul-docs">
+  <h2>About recitation data</h2>
+
+  <p>
+    Every recitation on QUL comes as audio files plus <strong>segment data</strong> — the timestamps that
+    say which word is being recited at which moment. Segments are what lets you highlight words as the
+    audio plays.
+  </p>
+
+  <p>Recitations come in one of two shapes:</p>
+
+  <h3>Surah by surah (gapless)</h3>
+  <ul>
+    <li>114 audio files, one per surah.</li>
+    <li>Each file plays the whole surah without pauses between ayahs.</li>
+    <li>Segments tell you where each ayah starts and ends inside that one long file.</li>
+  </ul>
+
+  <h3>Ayah by ayah (gapped)</h3>
+  <ul>
+    <li>6,236 audio files, one per ayah.</li>
+    <li>Each file contains a single ayah, so you can play one ayah without downloading a whole surah.</li>
+    <li>Segments are relative to the start of that ayah's own file.</li>
+  </ul>
+
+  <div class="docs-callout docs-callout-info">
+    A segment is a three-number array: <code>[word position, start in ms, end in ms]</code>.
+    Word positions start at 1 and match the word order of the ayah.
+  </div>
+
+  <h2>Data format</h2>
+
+  <h3>Ayah by ayah</h3>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "surah": 1,
+  "ayah": 1,
+  "audio_url": "https://.../001001.mp3",
+  "segments": [
+    [1, 361, 1051],
+    [2, 1051, 1622]
+  ]
+}</code></pre>
+  </div>
+
+  <h3>Surah by surah</h3>
+  <p>
+    Keyed by <code>surah:ayah</code>. <code>timestamp_from</code> and <code>timestamp_to</code> locate the
+    ayah inside the surah's audio file; the word timings inside <code>segments</code> use the same clock.
+  </p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1:1": {
+    "segments": [
+      [1, 361, 1051],
+      [2, 1051, 1622],
+      [3, 1662, 2763],
+      [4, 2803, 4385]
+    ],
+    "duration_sec": 4,
+    "duration_ms": 4224,
+    "timestamp_from": 361,
+    "timestamp_to": 4585
+  }
+}</code></pre>
+  </div>
+</div>
+    

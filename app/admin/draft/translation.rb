@@ -19,6 +19,7 @@ ActiveAdmin.register Draft::Translation do
 
   scope :with_footnotes, group: :footnotes
   scope :with_mismatch_footnote, group: :footnotes
+  scope :pending_contributions, group: :review
 
   action_item :previous_page, only: :show do
     if item = resource.previous_ayah_translation
@@ -87,6 +88,10 @@ ActiveAdmin.register Draft::Translation do
       resource.current_text.to_s.first(50)
     end
 
+    column :comment do |draft|
+      draft.comment.to_s.truncate(60)
+    end
+
     actions
   end
 
@@ -121,6 +126,12 @@ ActiveAdmin.register Draft::Translation do
 
       row :draft_text, class: language_name, 'data-controller': 'translation', draft: true do
         safe_html resource.draft_text
+      end
+
+      row :comment
+
+      row :removed_footnotes do
+        Array(resource.meta_value('removed-foot-note-ids')).map { |id| link_to(id, cms_foot_note_path(id)) }.join(', ').html_safe
       end
 
       row :text_matched

@@ -1,5 +1,6 @@
 require 'open3'
 require 'json'
+require 'net/http'
 
 module Audio
   class AudioFileMetaData
@@ -49,9 +50,11 @@ module Audio
     end
 
     def update_audio_file_meta_data(audio_file)
-      meta = fetch_audio_file_metadata("#{audio_file.audio_url}?#{Time.now.to_i}")
+      url = "#{audio_file.audio_url}?#{Time.now.to_i}"
+      meta = fetch_audio_file_metadata(url)
       return unless meta
 
+      meta[:etag] = fetch_remote_etag(url)
       duration = (meta[:duration_ms].to_f / 1000)
 
       audio_file.attributes = {
@@ -63,7 +66,35 @@ module Audio
         meta_data: prepare_meta_data(audio_file: audio_file, meta: meta)
       }
 
+      # Only moves when the audio itself changed, so saving this record for any
+      # other reason doesn't invalidate the file for every client.
+      audio_file.sync_content_version(meta)
       audio_file.save(validate: false)
+    end
+
+    # The CDN's own content hash, when it gives us one. Cheaper and more exact
+    # than anything we can derive from the probed values.
+    def fetch_remote_etag(url, redirects_left = 2)
+      uri = URI.parse(url)
+      return nil unless uri.is_a?(URI::HTTP)
+
+      response = Net::HTTP.start(
+        uri.host,
+        uri.port,
+        use_ssl: uri.scheme == 'https',
+        open_timeout: 5,
+        read_timeout: 5
+      ) do |http|
+        http.request(Net::HTTP::Head.new(uri))
+      end
+
+      if response.is_a?(Net::HTTPRedirection) && response['location'].present? && redirects_left > 0
+        return fetch_remote_etag(URI.join(url, response['location']).to_s, redirects_left - 1)
+      end
+
+      response['etag'].presence&.delete('"')
+    rescue StandardError
+      nil
     end
 
     def prepare_meta_data(audio_file:, meta:)

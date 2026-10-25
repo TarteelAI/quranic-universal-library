@@ -165,7 +165,7 @@ class IrabLineTest < Minitest::Test
   end
 
   def test_case_explanation_for_nominative_with_damma
-    token = make_token(pos_key: 'N', nominal_case: 'NOM', text_uthmani: 'كِتَابُ')
+    token = make_token(pos_key: 'N', nominal_case: 'NOM', text_uthmani: 'كِتَابُ', text_qpc_hafs: 'كِتَابُ')
     line = build_line(token, make_head_token)
     frags = line.fragments
     case_frag = frags.find { |f| f[:text].include?('مرفوع') }
@@ -174,7 +174,7 @@ class IrabLineTest < Minitest::Test
   end
 
   def test_case_explanation_for_accusative_with_fatha
-    token = make_token(pos_key: 'N', nominal_case: 'ACC', text_uthmani: 'كِتَابَ')
+    token = make_token(pos_key: 'N', nominal_case: 'ACC', text_uthmani: 'كِتَابَ', text_qpc_hafs: 'كِتَابَ')
     line = build_line(token, make_head_token)
     frags = line.fragments
     case_frag = frags.find { |f| f[:text].include?('منصوب') }
@@ -189,8 +189,8 @@ class IrabLineTest < Minitest::Test
     frags = line.fragments
     dep_lead = frags.find { |f| f[:text] == '. وهو ' }
     assert dep_lead, "expected dependency clause lead '. وهو '"
-    head_ref = frags.find { |f| f[:wrapper_class] == 'qpc-hafs' }
-    assert head_ref, "expected qpc-hafs head reference group"
+    head_ref = frags.find { |f| f[:wrapper_class] == 'treebank-quran-text' }
+    assert head_ref, "expected Quranic-script head reference group"
     green_child = head_ref[:children].find { |c| c[:text] == 'بِ' && c[:color_class] == 'green' }
     assert green_child, "expected green head text child"
   end

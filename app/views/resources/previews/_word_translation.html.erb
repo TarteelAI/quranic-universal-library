@@ -10,100 +10,57 @@
   is_colored = resource.name.include?('color')
 %>
 
-<div class="mt-5" data-controller="tabs">
-  <ul class="flex flex-nowrap list-none m-0 p-0 border-b border-gray-200" id="translation-docs-tab" role="tablist">
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab-active"
-              id="tab-docs"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-preview-pane"
-              type="button"
-              role="tab"
-              aria-controls="tab-preview-pane"
-              aria-selected="true">
-        Translation Preview
-      </button>
-    </li>
+<div>
+  <div class="space-y-6">
+    <h2 class="resource-pane-title">
+      <%= resource.name %> for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
+    </h2>
 
-    <li class="m-0 flex-none" role="presentation">
-      <button class="btn-tab"
-              id="tab-help"
-              data-action="click->tabs#switch"
-              data-tabs-target-value="tab-help-pane"
-              type="button" role="tab"
-              aria-controls="tab-help-pane"
-              aria-selected="false">
-        Help
-      </button>
-    </li>
-  </ul>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <div class="flex items-center">
+        <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
+        <%= select_tag :ayah,
+                       [],
+                       onchange: "jumpToAyah(this.value)",
+                       class: "px-3 py-2 border rounded bg-white shadow-sm",
+                       style: 'min-width: 220px',
+                       data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
+      </div>
 
-  <div class="tab-content p-2 mt-3" id="translation-docs-tab-content">
-    <div class="tab-pane show active"
-         id="tab-preview-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="0">
-      <div class="space-y-6">
-        <h2 class="text-xl font-semibold">
-          <%= resource.name %> translation for Surah <%= ayah.chapter.name_simple %> — Ayah <%= ayah.verse_number %>
-        </h2>
-
-        <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-          <div class="flex items-center">
-            <%= label_tag :ayah, 'Jump to Ayah', class: 'me-2 font-medium' %>
-            <%= select_tag :ayah,
-                           [],
-                           onchange: "jumpToAyah(this.value)",
-                           class: "px-3 py-2 border rounded bg-white shadow-sm",
-                           style: 'min-width: 220px',
-                           data: { controller: 'remote-select2', url: '/api/v1/verses/select2.json' } %>
-          </div>
-
-          <div class="flex gap-2">
-            <% if ayah.previous_ayah %>
-              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
-                ← Previous
-              <% end %>
-            <% end %>
-
-            <% if ayah.next_ayah %>
-              <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
-                Next →
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-        <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
-          <% if word_translations.any? %>
-            <div class="flex flex-wrap gap-3 justify-start quran-text">
-              <% word_translations.each do |wt| %>
-                <div class="bg-gray-50 p-2 rounded-lg border border-gray-200 text-center min-w-[5rem]">
-                  <div class="text-lg text-gray-800 qpc-hafs mb-2 p-2">
-                    <% if is_colored %>
-                      <%= safe_html wt.word.text_qpc_hafs %>
-                    <% else %>
-                      <%= safe_html wt.word.grammar_segmented_text %>
-                    <% end %>
-                  </div>
-                  <div class="text-sm text-gray-600 <%= language_name %>">
-                    <%= safe_html wt.text %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
+      <div class="flex gap-2">
+        <% if ayah.previous_ayah %>
+          <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.previous_ayah.verse_key), class: 'btn btn-secondary' do %>
+            ← Previous
           <% end %>
-        </div>
+        <% end %>
+
+        <% if ayah.next_ayah %>
+          <%= link_to detail_resources_path('translation', resource.id, ayah: ayah.next_ayah.verse_key), class: 'btn btn-secondary' do %>
+            Next →
+          <% end %>
+        <% end %>
       </div>
     </div>
 
-    <div class="tab-pane hidden"
-         id="tab-help-pane"
-         role="tabpanel"
-         aria-labelledby="tab-docs" tabindex="1">
-      <div class="space-y-6">
-
-      </div>
+    <div class="p-6 rounded-xl bg-white shadow max-w-2xl mx-auto">
+      <% if word_translations.any? %>
+        <div class="flex flex-wrap gap-3 justify-start quran-text">
+          <% word_translations.each do |wt| %>
+            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200 text-center min-w-[5rem]">
+              <div class="text-lg text-gray-800 qpc-hafs mb-2 p-2">
+                <% if is_colored %>
+                  <%= safe_html wt.word.text_qpc_hafs %>
+                <% else %>
+                  <%= safe_html wt.word.grammar_segmented_text %>
+                <% end %>
+              </div>
+              <div class="text-sm text-gray-600 <%= language_name %>">
+                <%= safe_html wt.text %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

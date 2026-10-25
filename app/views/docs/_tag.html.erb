@@ -8,7 +8,7 @@
       <%= safe_html tag.description %>
 
       <% if tag.glossary_term.present? %>
-        <div class="d-block">
+        <div class="block">
           <%= link_to "Click here", "https://www.tarteel.ai/glossary/#{tag.glossary_term}", class: 'underline hover:no-underline' %>
           to read more
           about <%= tag.name %>

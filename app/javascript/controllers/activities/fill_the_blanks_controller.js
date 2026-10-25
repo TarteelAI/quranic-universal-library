@@ -62,7 +62,7 @@ export default class extends ActivityController {
       const draggableWord = this.options.querySelector(`[data-word-id='${wordId}']`);
 
       if (draggableWord) {
-        draggableWord.classList.remove('d-none')
+        draggableWord.classList.remove('hidden')
       }
 
       blank.innerHTML = '';
@@ -86,7 +86,7 @@ export default class extends ActivityController {
       const currentFilledWord = this.options.querySelector(`[data-word-id='${currentFilledWordId}']`);
 
       if (currentFilledWord) {
-        currentFilledWord.classList.remove('d-none');
+        currentFilledWord.classList.remove('hidden');
       }
     }
 
@@ -94,7 +94,7 @@ export default class extends ActivityController {
     blankBox.classList.add('filled');
     blankBox.dataset.filledId = draggableWord.dataset.wordId;
 
-    draggableWord.classList.add('d-none')
+    draggableWord.classList.add('hidden')
     this.options.appendChild(draggableWord);
 
     this.checkCompletion();
@@ -103,7 +103,7 @@ export default class extends ActivityController {
   checkCompletion() {
     let isCorrect = true;
 
-    if (this.element.querySelectorAll('#options .draggable-word:not(.d-none)').length === 0) {
+    if (this.element.querySelectorAll('#options .draggable-word:not(.hidden)').length === 0) {
       this.blankBoxes.forEach((word) => {
         const { wordId, filledId } = word.dataset;
         if (wordId != filledId) {
@@ -127,7 +127,7 @@ export default class extends ActivityController {
         });
 
         this.remainingWords.forEach((word) => {
-            word.classList.remove('d-none');
+            word.classList.remove('hidden');
             this.options.appendChild(word);
         });
     }

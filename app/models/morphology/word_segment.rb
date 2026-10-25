@@ -69,6 +69,10 @@
 #
 
 class Morphology::WordSegment < QuranApiRecord
+  include PaperTrailAttribution
+  has_paper_trail
+
+  VERB_FORMS = %w[I II III IV V VI VII VIII IX X XI].freeze
   POS_TAG_COLORS = {
     n: 'sky', # Noun
     pn: 'blue', # Proper Noun
@@ -130,6 +134,55 @@ class Morphology::WordSegment < QuranApiRecord
   has_one :graph_node, class_name: 'Morphology::DependencyGraph::GraphNode', foreign_key: :segment_id
 
   default_scope { order 'position asc' }
+
+  # Saves an edit from the corpus tool.
+  # params: part_of_speech ("KEY|name"), features (see Morphology::SegmentTags), other_tags, verb_form,
+  # root_id, lemma_name, grammar_term_desc_arabic, grammar_term_desc_english, case_reason (saved on the word)
+  def save_edit(params, user)
+    pos_key, pos_name = params[:part_of_speech].to_s.split('|', 2)
+    self.part_of_speech_key = pos_key.presence
+    self.part_of_speech_name = pos_name.presence
+
+    self.verb_form = params[:verb_form].presence
+    features = (params[:features] || {}).to_h.symbolize_keys
+    self.pos_tags = tags.build(features, Array(params[:other_tags]), verb_form)
+
+    # Some segments have a root name without a linked root, keep it unless a root is picked
+    had_root = root_id.present?
+    self.root = Root.find_by(id: params[:root_id])
+    self.root_name = root.value.delete(' ') if root
+    self.root_name = nil if root.nil? && had_root
+
+    self.lemma_name = params[:lemma_name].to_s.strip.presence
+    self.lemma = find_lemma(lemma_name)
+
+    self.grammar_term_desc_arabic = params[:grammar_term_desc_arabic].to_s.strip.presence
+    self.grammar_term_desc_english = params[:grammar_term_desc_english].to_s.strip.presence
+
+    if part_of_speech_key.blank?
+      errors.add(:part_of_speech_key, "can't be blank")
+      return false
+    end
+
+    word.case_reason = params[:case_reason].to_s.strip.presence if params.key?(:case_reason)
+
+    attribute_versions_to(user) do
+      transaction { save && word.save }
+    end
+  end
+
+  def tags
+    Morphology::SegmentTags.new(pos_tags, part_of_speech_key)
+  end
+
+  # Lemmas don't always store diacritics in the canonical order (shadda before fatha), compare normalized
+  def find_lemma(name)
+    return if name.blank?
+
+    normalized = name.unicode_normalize(:nfc)
+    clean = name.remove(/[\u064B-\u065F\u0670\u06D6-\u06ED]/)
+    Lemma.where(text_madani: name).or(Lemma.where(text_clean: clean)).find { |lemma| lemma.text_madani.to_s.unicode_normalize(:nfc) == normalized }
+  end
 
   def pronoun_type
     tag = self[:pronoun_type]

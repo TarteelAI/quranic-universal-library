@@ -27,8 +27,15 @@ export default class extends SegmentPlayer {
       return this.ayahPlayerData[key]
     }
 
+    // Segments for this ayah may never have loaded (empty or failed API
+    // response), there is no audio to build a player from then.
+    const audioUrl = this.getAudioUrl(key);
+    if (!audioUrl) {
+      return null;
+    }
+
     this.ayahPlayerData[key] = new Howl({
-      src: [this.getAudioUrl(key)],
+      src: [audioUrl],
       html5: true,
       onplay: this.onplay.bind(this),
       onpause: this.onpause.bind(this),
@@ -46,6 +53,10 @@ export default class extends SegmentPlayer {
     }
 
     this.player = this.initializeAyahPlayer(key);
+    if (!this.player) {
+      return;
+    }
+
     this.player.seek(0);
     this.playWindowEndMs = null;
 
@@ -112,7 +123,7 @@ export default class extends SegmentPlayer {
 
 
   getAudioUrl(key) {
-    return this.segmentsData[key].audio_url
+    return this.segmentsData?.[key]?.audio_url || null
   }
 
   async loadSegments(verseKey) {
@@ -121,7 +132,11 @@ export default class extends SegmentPlayer {
       return
 
     const parts = verseKey.split(":");
-    const url = `/api/v1/audio/ayah_segments/${this.recitation}?surah=${parts[0]}&from=${parts[1]}`;
+    // The endpoint paginates and ignores `from`, so ask for the page that
+    // actually contains this ayah.
+    const perPage = 10;
+    const page = Math.ceil(parseInt(parts[1], 10) / perPage);
+    const url = `/api/v1/audio/ayah_segments/${this.recitation}?surah=${parts[0]}&per_page=${perPage}&page=${page}`;
 
     const response = await fetch(url);
     const data = await response.json();

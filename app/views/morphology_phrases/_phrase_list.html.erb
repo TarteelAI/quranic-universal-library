@@ -13,9 +13,14 @@
         <p class="text-xs text-slate-500 mt-1">Keyword search</p>
       </div>
 
+      <div>
+        <%= select_tag :filter_source, options_for_select([['Imported phrases', 'imported'], ['Ayahs waiting for approval', 'pending_ayahs']], params[:filter_source]), include_blank: 'Any phrase', class: 'w-full sm:w-52 h-10 px-3 border border-slate-300 rounded-lg' %>
+        <p class="text-xs text-slate-500 mt-1">Source / review</p>
+      </div>
+
       <div class="flex items-start pt-1">
         <%= submit_tag 'Apply Filters', class: 'h-10 px-6 text-sm font-bold bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md', data: { disable_with: 'Loading...' } %>
-        <%= link_to 'Clear', morphology_phrases_path, class: 'h-10 px-4 flex items-center text-sm font-medium text-slate-500 hover:text-slate-700 hover:underline transition-colors' if has_filters?(:filter_chapter, :filter_verse, :text) %>
+        <%= link_to 'Clear', morphology_phrases_path, class: 'h-10 px-4 flex items-center text-sm font-medium text-slate-500 hover:text-slate-700 hover:underline transition-colors' if has_filters?(:filter_chapter, :verse_number, :text, :filter_source) %>
       </div>
     </div>
   <% end %>
@@ -27,13 +32,18 @@
   <table class="w-full hover:bg-gray-50 mt-4">
     <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
     <tr>
-      <th><%= sort_order_link 'Id', :id %></th>
-      <th><%= sort_order_link 'Ayah', :source_verse_id %></th>
-      <th><%= sort_order_link 'Occurrence', :occurrence %></th>
-      <th><%= sort_order_link 'Verse count', :verses_count %></th>
-      <th><%= sort_order_link 'Words count', :words_count %></th>
-      <th><%= sort_order_link 'Approved', :approved %></th>
-      <th><%= sort_order_link 'Review', :review_status %></th>
+      <th><%= sort_order_link 'Id', :id, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %></th>
+      <th><%= sort_order_link 'Ayah', :source_verse_id, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %></th>
+      <th><%= sort_order_link 'Occurrence', :occurrence, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %></th>
+      <th><%= sort_order_link 'Verse count', :verses_count, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %></th>
+      <th><%= sort_order_link 'Words count', :words_count, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %></th>
+      <th><%= sort_order_link 'Approved', :approved, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %></th>
+      <th>
+        <span class="inline-flex items-center gap-1 whitespace-nowrap" title="Reviewed: saved from the phrase builder, included in exports.<br/>Auto-detected: found automatically, not checked yet." data-controller="tooltip">
+          <%= sort_order_link 'Review status', :review_status, filter_source: params[:filter_source], text: params[:text], filter_chapter: params[:filter_chapter], verse_number: params[:verse_number] %>
+          <i class="fas fa-info-circle text-slate-400 text-xs"></i>
+        </span>
+      </th>
       <th class="text-end">Text</th>
       <th>Actions</th>
     </tr>
@@ -52,20 +62,26 @@
         <td class="py-2"><%= phrase.verses_count %></td>
         <td class="py-2"><%= phrase.words_count %></td>
         <td class="py-2">
-          <%= phrase.approved? %>
+          <% if phrase.approved? %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-check text-[10px]"></i> Yes</span>
+          <% else %>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600">No</span>
+          <% end %>
         </td>
         <td class="py-2">
-          <%= phrase.review_status %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= phrase.reviewed? ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800' %>">
+            <%= phrase.review_status_label %>
+          </span>
         </td>
 
-        <td class="py-2 qpc-hafs">
+        <td class="py-2 pr-4 qpc-hafs text-end">
           <%= phrase.text_qpc_hafs %>
         </td>
 
         <td class="py-2">
-          <div class="flex flex-col gap-2">
-            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'btn btn-success' %>
-            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'btn btn-dark' if user_signed_in? %>
+          <div class="flex items-center gap-1">
+            <%= link_to 'Show', morphology_phrase_path(phrase.id), class: 'px-2 py-1 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white no-underline' %>
+            <%= link_to 'Admin', [:cms, phrase], target: :_blank, class: 'px-2 py-1 text-xs font-medium rounded bg-slate-700 hover:bg-slate-800 text-white no-underline' if user_signed_in? %>
           </div>
         </td>
       </tr>

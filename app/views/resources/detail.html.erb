@@ -99,7 +99,7 @@
           <% end %>
         </section>
 
-        <%= render 'preview', resource: @resource %>
+        <%= render 'detail_tabs', resource: @resource %>
 
         <% if resource_content.change_logs.any? %>
           <section class="mt-4 space-y-4">
@@ -115,22 +115,6 @@
       as: :change_log,
       locals: { show_resource_link: false } %>
             </div>
-          </section>
-        <% end %>
-
-        <% if @resource.related_resources.present? %>
-          <section class="mt-4">
-            <h2 class="text-xl font-semibold text-gray-700">
-              Related Resources
-            </h2>
-
-            <ul class="list-disc ml-6 space-y-2 mt-3">
-              <% @resource.related_resources.each do |related| %>
-                <li>
-                  <%= link_to related.name, detail_resources_path(related.resource_type, related.id), class: "text-blue-600 hover:text-blue-800 underline" %>
-                </li>
-              <% end %>
-            </ul>
           </section>
         <% end %>
       </div>

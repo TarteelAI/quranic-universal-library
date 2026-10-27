@@ -48,13 +48,16 @@ module Exporter
     protected
 
     def records
-      Word.unscoped.order('word_index asc').in_batches(of: 1000)
+      Word.unscoped
+          .select("words.*, split_part(words.verse_key, ':', 2)::integer AS ayah_number")
+          .order('word_index asc')
+          .in_batches(of: 1000)
     end
 
     def table_column_names
       {
         chapter_id: 'surah_number',
-        verse_id: 'ayah_number',
+        ayah_number: 'ayah_number',
         position: 'word_number',
         audio_url: 'audio_url',
       }

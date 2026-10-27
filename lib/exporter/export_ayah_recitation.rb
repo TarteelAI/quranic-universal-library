@@ -65,7 +65,7 @@ module Exporter
     def table_column_names
       {
         chapter_id: 'surah_number',
-        verse_id: 'ayah_number',
+        verse_number: 'ayah_number',
         audio_url: 'audio_url',
         duration: 'duration',
         segments: 'segments'

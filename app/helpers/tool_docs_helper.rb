@@ -24,7 +24,8 @@ module ToolDocsHelper
       'ayah_dependency_graph',
       'ayah_boundaries',
       'compare_audio',
-      'compare_font'
+      'compare_font',
+      'gapless_ayah_extractor'
     ] + internal_tools_keys
   end
 
@@ -1952,6 +1953,35 @@ module ToolDocsHelper
       }
     ]
   end
+
+  def gapless_ayah_extractor_help
+  [
+    "Gapless Ayah Extractor",
+    {
+      text: "Extract an ayah from full-surah recordings for multiple reciters at once. Fine-tune the start and end points by listening to each recording, then copy the FFmpeg commands to cut the audio files. Everything runs in your browser; no changes are saved."
+    },
+    {
+      type: 'step',
+      title: '1. Choose reciters',
+      text: "Select a surah, then choose the reciters you want to process. Use the filter and <code>Default</code>, <code>All</code> or <code>None</code> to manage your selection."
+    },
+    {
+      type: 'step',
+      title: '2. Load the ayah',
+      text: "Choose an <code>Ayah</code> and set the <code>Padding</code> to control how much audio appears before and after it. Click <code>Load waveforms</code> to view the selected segment for each reciter. Red dashed lines mark the original boundaries; blue lines mark your cut."
+    },
+    {
+      type: 'step',
+      title: '3. Fine-tune the cut',
+      text: "Drag the selection edges to adjust the start and end, drag inside the selection to move it, or enter exact times. Use the playback controls to check the boundaries, or click <code>Reset to segment</code> to restore the original segment."
+    },
+    {
+      type: 'step',
+      title: '4. Copy and run commands',
+      text: "Copy the commands from <code>All commands</code> and run them in a terminal with FFmpeg installed. The commands extract each reciter's ayah into a separate MP3 file, re-encoded at the source bitrate."
+    }
+  ]
+end
 
   def audio_repair_index_help
     [

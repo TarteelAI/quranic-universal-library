@@ -14,6 +14,10 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
     <%= yield :head %>
+    <%# Keep the header sticky through the whole page. application.scss sets body { height: 100% },
+        which ends the sticky range after one screen, and the landing page styles set
+        overflow-x: hidden, which makes body a scroll container. clip hides overflow the same way. %>
+    <style>body { height: auto; overflow-x: clip; }</style>
   </head>
 
   <body class="font-inter bg-gray-50 text-gray-900 min-h-screen" data-controller="event-tracker">

@@ -176,6 +176,14 @@ module ToolsHelper
         icon: 'compare.svg',
         tags: [['Fonts', 'fonts'], 'Compare'],
         cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
+        title: 'Ayah audio cutter',
+        description: "Extract ayah audio from full surah audio file for selected reciters.",
+        url: '/gapless-ayah-extractor',
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah']]
       )
     ]
 

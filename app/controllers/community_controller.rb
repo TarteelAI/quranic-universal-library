@@ -26,6 +26,19 @@ class CommunityController < ApplicationController
     render layout: 'tool'
   end
 
+  def gapless_ayah_extractor
+    respond_to do |format|
+      format.html do
+        @chapters = Chapter.order(:chapter_number).select(:id, :chapter_number, :name_simple, :verses_count)
+        render layout: 'tool'
+      end
+      format.json do
+        chapter = Chapter.find_by!(chapter_number: params[:surah].to_i)
+        render json: Audio::GaplessAyahExtractor.new(chapter)
+      end
+    end
+  end
+
   def docs
     docs_page_service = DocsPageService.new
     @docs_page = docs_page_service.find(params[:key])

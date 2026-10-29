@@ -5,6 +5,8 @@ Select reciters and the ayah to view its highlighted segment on the surah wavefo
  <% end %>
 
 <% content_for :head do %>
+<%# Quran font faces, the tool layout doesn't load them %>
+<%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload" %>
 <style>
   /* Scoped to the tool so it doesn't restyle the page header or the help modal */
   .gae { --brand: #46ac7a; --brand-dark: #3d9a6d; --line: #e5e7eb; --muted: #6b7280; --ink: #111827; font-size: 14px; color: var(--ink); }
@@ -20,7 +22,7 @@ Select reciters and the ayah to view its highlighted segment on the surah wavefo
   .gae .muted { color: var(--muted); }
   .gae .error { color: #b91c1c; }
   .gae .field { display: inline-flex; align-items: center; gap: 6px; }
-  .gae .field > span { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .gae .field > .lbl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
   .gae .group { display: inline-flex; }
   .gae .group > * { border-radius: 0; margin-left: -1px; }
   .gae .group > :first-child { border-radius: 8px 0 0 8px; margin-left: 0; }
@@ -48,6 +50,10 @@ Select reciters and the ayah to view its highlighted segment on the surah wavefo
   .gae-list .meta { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
   .gae .badge { font-size: 12px; font-weight: 600; background: #f3f4f6; color: #374151; padding: 1px 8px; border-radius: 999px; }
 
+  /* Second row of the toolbar, so the ayah stays in view while checking the cuts */
+  .gae-ayah:not([hidden]) { flex-basis: 100%; display: flex; align-items: flex-start; gap: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .gae-ayah .badge { margin-top: 10px; flex-shrink: 0; }
+  .gae-ayah #ayahText { flex: 1; font-size: 28px; line-height: 1.9; text-align: right; max-height: 25vh; overflow-y: auto; }
   .gae-empty { margin-top: 14px; padding: 40px; text-align: center; border: 1px dashed #d1d5db; border-radius: 12px; color: var(--muted); }
   .gae-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-top: 14px; }
   .gae-card.focused { border-color: var(--brand); box-shadow: 0 0 0 3px #46ac7a22; }
@@ -227,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DATA = data;
     cards = [];
     renderCards();
+    showAyah();
     $('ayah').max = DATA.verses;
     $('verses').textContent = `of ${DATA.verses}`;
     if (+$('ayah').value > DATA.verses) $('ayah').value = 1;
@@ -434,13 +441,13 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="wave"><canvas></canvas><div class="status">Loading…</div></div>
       <div class="foot">
-        <label class="field"><span>Start</span>
+        <label class="field"><span class="lbl">Start</span>
           <span class="group"><button data-n="s-" class="icon" title="−50 ms">−</button><input type="number" step="0.01" class="s"><button data-n="s+" class="icon" title="+50 ms">+</button></span>
         </label>
-        <label class="field"><span>End</span>
+        <label class="field"><span class="lbl">End</span>
           <span class="group"><button data-n="e-" class="icon" title="−50 ms">−</button><input type="number" step="0.01" class="e"><button data-n="e+" class="icon" title="+50 ms">+</button></span>
         </label>
-        <span class="field"><span>Length</span><span class="info"></span></span>
+        <span class="field"><span class="lbl">Length</span><span class="info"></span></span>
         <span class="legend"><span><i style="border-color:#2f7d57"></i>cut</span><span><i style="border-color:#dc2626;border-top-style:dashed"></i>segment</span></span>
         <span class="spacer"></span>
         <button data-a="reset">Reset to segment</button>
@@ -473,6 +480,15 @@ document.addEventListener('DOMContentLoaded', () => {
     cards.forEach(c => $('cards').appendChild(c.el));
   }
 
+  // The loaded ayah's text, to check the cut against while listening.
+  function showAyah() {
+    const text = DATA && cards.length ? DATA.texts[currentAyah] : null;
+    $('ayahPanel').hidden = !text;
+    if (!text) return;
+    $('ayahKey').textContent = `${DATA.surah}:${currentAyah}`;
+    $('ayahText').textContent = text;
+  }
+
   function loadWaveforms() {
     if (!DATA) return;
     stop(); ctx.resume();
@@ -482,6 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cards = boxes().filter(c => c.checked).map(c => buildCard(DATA.reciters[c.value]));
     focused = null;
     renderCards();
+    showAyah();
 
     let done = 0;
     const progress = () => setStatus(done < cards.length ? `loading ${done}/${cards.length}…` : `ayah ${currentAyah} · ${cards.length} reciters`);
@@ -511,7 +528,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('nextAyah').onclick = () => { $('ayah').value = Math.min(DATA?.verses || 1, +$('ayah').value + 1); loadWaveforms(); };
   addEventListener('resize', () => cards.filter(c => c.buffer).forEach(draw));
 
-  window.__gaeTest = { cards: () => cards, loadFull, probe, frameAt, syncAt, getRange, ctx };
   renderCards();
   loadSurah();
 });
@@ -522,14 +538,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <div class="gae">
   <div class="gae-bar">
-    <label class="field"><span>Surah</span>
+    <label class="field"><span class="lbl">Surah</span>
       <select id="surah" style="width: 260px" data-controller="select2" data-placeholder="Pick a surah">
         <% @chapters.each do |chapter| %>
           <option value="<%= chapter.chapter_number %>" <%= 'selected' if chapter.chapter_number == selected_surah %>><%= chapter.chapter_number %>. <%= chapter.name_simple %></option>
         <% end %>
       </select>
     </label>
-    <span class="field"><span>Ayah</span>
+    <span class="field"><span class="lbl">Ayah</span>
       <span class="group">
         <button id="prevAyah" class="icon" title="Previous ayah">◀</button>
         <input id="ayah" type="number" min="1" value="1">
@@ -537,13 +553,17 @@ document.addEventListener('DOMContentLoaded', () => {
       </span>
       <span id="verses" class="muted"></span>
     </span>
-    <label class="field" title="Seconds of audio shown either side of the segment"><span>Padding</span>
-      <input id="pad" type="number" min="0" step="0.5" value="3" style="width:64px"> <span class="muted" style="font-size:13px;font-weight:400;text-transform:none">s</span>
+    <label class="field" title="Seconds of audio shown either side of the segment"><span class="lbl">Padding</span>
+      <input id="pad" type="number" min="0" step="0.5" value="3" style="width:64px"> <span class="muted">s</span>
     </label>
     <button id="load" class="primary" disabled>Load waveforms</button>
     <span id="status" class="muted"></span>
     <span class="spacer"></span>
     <button id="copyAllTop" disabled>Copy all commands</button>
+    <div id="ayahPanel" class="gae-ayah" hidden>
+      <span id="ayahKey" class="badge"></span>
+      <div id="ayahText" class="digitalkhatt-v2" dir="rtl"></div>
+    </div>
   </div>
 
   <details class="gae-panel" open>

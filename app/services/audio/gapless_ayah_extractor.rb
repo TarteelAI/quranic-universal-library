@@ -18,6 +18,7 @@ module Audio
       {
         surah: @chapter.chapter_number,
         verses: @chapter.verses_count,
+        texts: Verse.where(chapter_id: @chapter.id).pluck(:verse_number, :text_digital_khatt).to_h,
         reciters: reciters
       }
     end

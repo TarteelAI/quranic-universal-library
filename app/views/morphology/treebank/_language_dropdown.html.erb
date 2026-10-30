@@ -1,5 +1,5 @@
 <%
-  locale_names = { 'en' => 'English', 'ar' => 'العربية', 'ur' => 'اردو', 'ru' => 'Русский' }
+  locale_names = Morphology::TreebankLocalePresenter.labels
   extra = local_assigns[:expandable] ? { expandable: '1' } : {}
 %>
 

@@ -1,0 +1,72 @@
+{
+  "kufi": {
+    "name_ar": "الكوفي",
+    "name_en": "Kufan",
+    "total_ayahs": 6236,
+    "is_reference": true,
+    "used_by_qiraat": [
+      "asim",
+      "hamza",
+      "kisai",
+      "khalaf"
+    ],
+    "description_ar": "العدد الكوفي، وهو العدد الذي يتبعه الإمام عاصم وحمزة والكسائي وخلف في قراءاتهم، وهو المشهور في مصحف المدينة النبوية (مصحف حفص)",
+    "description_en": "The Kufan counting tradition, followed by Asim, Hamza, Al-Kisai, and Khalaf. The most widely used counting madhhab, found in the Madinah Mushaf (Hafs edition)."
+  },
+  "madani-last": {
+    "name_ar": "المدني الأخير",
+    "name_en": "Last Madinan",
+    "total_ayahs": 6214,
+    "is_reference": false,
+    "used_by_qiraat": [
+      "nafi"
+    ],
+    "description_ar": "العدد المدني الأخير، وهو العدد الذي يتبعه الإمام نافع المدني في قراءته",
+    "description_en": "The Last Madinan counting tradition, followed by Imam Nafi' of Madinah."
+  },
+  "madani-first": {
+    "name_ar": "المدني الأول",
+    "name_en": "First Madinan",
+    "total_ayahs": 6214,
+    "is_reference": false,
+    "used_by_qiraat": [
+      "abu-jafar"
+    ],
+    "description_ar": "العدد المدني الأول، وهو أحد مذاهب العد الستة المعتمدة في عدّ آي القرآن الكريم",
+    "description_en": "The First Madinan counting tradition, one of the six counting madhhabs."
+  },
+  "makki": {
+    "name_ar": "المكي",
+    "name_en": "Makkan",
+    "total_ayahs": 6219,
+    "is_reference": false,
+    "used_by_qiraat": [
+      "ibn-kathir"
+    ],
+    "description_ar": "العدد المكي، وهو العدد الذي يتبعه الإمام ابن كثير المكي في قراءته",
+    "description_en": "The Makkan counting tradition, followed by Imam Ibn Kathir of Makkah."
+  },
+  "basri": {
+    "name_ar": "البصري",
+    "name_en": "Basran",
+    "total_ayahs": 6204,
+    "is_reference": false,
+    "used_by_qiraat": [
+      "abu-amr",
+      "yaqub"
+    ],
+    "description_ar": "العدد البصري، وهو العدد الذي يتبعه الإمام أبو عمرو البصري ويعقوب في قراءتهما",
+    "description_en": "The Basran counting tradition, followed by Abu Amr al-Basri and Ya'qub."
+  },
+  "dimashqi": {
+    "name_ar": "الدمشقي",
+    "name_en": "Damascene",
+    "total_ayahs": 6226,
+    "is_reference": false,
+    "used_by_qiraat": [
+      "ibn-amir"
+    ],
+    "description_ar": "العدد الدمشقي (الشامي)، وهو العدد الذي يتبعه الإمام ابن عامر الدمشقي في قراءته",
+    "description_en": "The Damascene (Shami) counting tradition, followed by Ibn Amir of Damascus."
+  }
+}

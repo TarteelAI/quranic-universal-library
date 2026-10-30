@@ -1,0 +1,14 @@
+[
+  {
+    "id": 5,
+    "name": "KFGQPC HAFS",
+    "description": "",
+    "lines_per_page": 15,
+    "is_default": true,
+    "default_font_name": "qpc-hafs",
+    "pages_count": 604,
+    "qirat_type_id": 1,
+    "enabled": true,
+    "resource_content_id": 386
+  }
+]

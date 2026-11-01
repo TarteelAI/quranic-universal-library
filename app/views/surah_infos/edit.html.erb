@@ -21,6 +21,8 @@
   <p class="mb-3 text-sm text-gray-600">Your changes are saved as a suggestion and go live once approved.</p>
 
   <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, dir: resource.language&.direction %>
+
     <%= form_with model: @presenter.draft, scope: :draft_surah_info, url: surah_info_path(resource.id), method: :put, html: { class: 'form formtastic', autocomplete: 'off', id: 'info-form' } do |form| %>
       <div class="mb-4 mb-3">
         <%= form.label :draft_short_text, 'Short text', class: 'form-label h2' %>

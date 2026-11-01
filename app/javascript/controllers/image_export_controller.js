@@ -1,4 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
+import { buildExportUrl, buildBatchItems, generateFilename } from "../utils/image_export/items";
+import { renderUrlToBlob } from "../utils/image_export/render";
+import JSZip from "jszip";
 
 export default class extends Controller {
   static targets = [
@@ -12,7 +15,7 @@ export default class extends Controller {
     "previewFrame", "previewBox", "previewWrapper", "previewDimensionBadge",
     "singlePreviewContainer", "batchPreviewContainer", "batchPreviewList", "batchPreviewHeader", "batchOverflowNotice",
     "singleActionGroup", "batchActionGroup", "downloadBtn", "downloadBtnLabel", "batchBtnLabel", "downloadIcon", "downloadSpinner",
-    "batchModal", "batchStatusLabel", "batchPercentLabel", "batchProgressBar", "batchDetailsLabel", "batchZipDownloadBtn"
+    "batchModal", "batchStatusLabel", "batchPercentLabel", "batchProgressBar", "batchDetailsLabel", "batchCancelBtn", "batchCloseBtn"
   ];
 
   static values = {
@@ -268,35 +271,35 @@ export default class extends Controller {
     }
   }
 
+  // Snapshot of the form values consumed by the URL helpers in utils/image_export/items.js
+  exportState() {
+    const val = (name) => (this[`has${name}Target`] ? this[`${name[0].toLowerCase()}${name.slice(1)}Target`].value : undefined);
+    const int = (name, fallback = 1) => parseInt(val(name) || fallback, 10);
+
+    return {
+      type: this.activeType,
+      urls: { page: this.exportPageUrlValue, ayah: this.exportAyahUrlValue, word: this.exportWordUrlValue },
+      transparent: this.isTransparent,
+      fontSize: this.fontSize,
+      script: val("ScriptSelect") || "code_v1",
+      mushafId: val("MushafSelect"),
+      page: val("PageSelect"),
+      fromPage: int("FromPageSelect"),
+      toPage: int("ToPageSelect"),
+      ayahSurah: val("AyahSurahSelect"),
+      ayah: val("AyahSelect"),
+      fromAyah: int("FromAyahSelect"),
+      toAyah: int("ToAyahSelect"),
+      wordSurah: val("WordSurahSelect"),
+      wordAyah: val("WordAyahSelect"),
+      word: val("WordPositionSelect"),
+      fromWord: int("FromWordSelect"),
+      toWord: int("ToWordSelect")
+    };
+  }
+
   buildExportUrl() {
-    const transparentParam = this.isTransparent ? "&transparent=true" : "";
-    let url = "";
-
-    switch (this.activeType) {
-      case "mushaf_page": {
-        const mushafId = this.mushafSelectTarget.value;
-        const pageNum = this.pageSelectTarget.value;
-        url = `${this.exportPageUrlValue}?page_number=${pageNum}&mushaf_id=${mushafId}${transparentParam}`;
-        break;
-      }
-      case "ayah": {
-        const surah = this.ayahSurahSelectTarget.value;
-        const ayah = this.ayahSelectTarget.value;
-        const script = this.scriptSelectTarget.value;
-        url = `${this.exportAyahUrlValue}?ayah=${surah}:${ayah}&script=${script}&font_size=${this.fontSize}${transparentParam}`;
-        break;
-      }
-      case "word": {
-        const surah = this.wordSurahSelectTarget.value;
-        const ayah = this.wordAyahSelectTarget.value;
-        const word = this.wordPositionSelectTarget.value;
-        const script = this.scriptSelectTarget.value;
-        url = `${this.exportWordUrlValue}?word=${surah}:${ayah}:${word}&script=${script}&font_size=${this.fontSize}${transparentParam}`;
-        break;
-      }
-    }
-
-    return url;
+    return buildExportUrl(this.exportState());
   }
 
   refreshPreview() {
@@ -309,51 +312,8 @@ export default class extends Controller {
   refreshBatchPreviews() {
     if (!this.hasBatchPreviewListTarget) return;
 
-    const transparentParam = this.isTransparent ? "&transparent=true" : "";
-    const script = this.hasScriptSelectTarget ? this.scriptSelectTarget.value : "code_v1";
-    let items = [];
+    const items = buildBatchItems(this.exportState());
 
-    if (this.activeType === "mushaf_page") {
-      const mushafId = this.mushafSelectTarget.value;
-      const fromPage = parseInt(this.fromPageSelectTarget.value || 1, 10);
-      const toPage = parseInt(this.toPageSelectTarget.value || 1, 10);
-      const start = Math.min(fromPage, toPage);
-      const end = Math.max(fromPage, toPage);
-
-      for (let i = start; i <= end; i++) {
-        items.push({
-          label: `Page ${i}`,
-          url: `${this.exportPageUrlValue}?page_number=${i}&mushaf_id=${mushafId}${transparentParam}`
-        });
-      }
-    } else if (this.activeType === "ayah") {
-      const surah = this.ayahSurahSelectTarget.value;
-      const fromAyah = parseInt(this.fromAyahSelectTarget.value || 1, 10);
-      const toAyah = parseInt(this.toAyahSelectTarget.value || 1, 10);
-      const start = Math.min(fromAyah, toAyah);
-      const end = Math.max(fromAyah, toAyah);
-
-      for (let i = start; i <= end; i++) {
-        items.push({
-          label: `Ayah ${surah}:${i}`,
-          url: `${this.exportAyahUrlValue}?ayah=${surah}:${i}&script=${script}&font_size=${this.fontSize}${transparentParam}`
-        });
-      }
-    } else if (this.activeType === "word") {
-      const surah = this.wordSurahSelectTarget.value;
-      const ayah = this.wordAyahSelectTarget.value;
-      const fromWord = parseInt(this.fromWordSelectTarget.value || 1, 10);
-      const toWord = parseInt(this.toWordSelectTarget.value || 1, 10);
-      const start = Math.min(fromWord, toWord);
-      const end = Math.max(fromWord, toWord);
-
-      for (let i = start; i <= end; i++) {
-        items.push({
-          label: `Word ${surah}:${ayah}:${i}`,
-          url: `${this.exportWordUrlValue}?word=${surah}:${ayah}:${i}&script=${script}&font_size=${this.fontSize}${transparentParam}`
-        });
-      }
-    }
 
     const total = items.length;
     const previewSubset = items.slice(0, 10);
@@ -375,7 +335,7 @@ export default class extends Controller {
       
       const header = document.createElement("div");
       header.className = "flex justify-between items-center text-xs font-bold text-slate-700 pb-1 border-b border-slate-100";
-      header.innerHTML = `<span>#${index + 1} — ${item.label}</span><span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 font-mono text-[10px]">Preview</span>`;
+      header.innerHTML = `<span>#${index + 1} — ${item.shortLabel}</span><span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 font-mono text-[10px]">Preview</span>`;
       
       const iframe = document.createElement("iframe");
       iframe.src = item.url;
@@ -439,56 +399,25 @@ export default class extends Controller {
     if (!this.signedInValue) return this.redirectToSignIn();
 
     const btn = this.downloadBtnTarget;
-    const originalLabel = this.downloadBtnLabelTarget.textContent;
 
     try {
       if (this.hasDownloadIconTarget) this.downloadIconTarget.classList.add("hidden");
       if (this.hasDownloadSpinnerTarget) this.downloadSpinnerTarget.classList.remove("hidden");
-      this.downloadBtnLabelTarget.textContent = "Downloading...";
+      this.downloadBtnLabelTarget.textContent = "Rendering...";
       btn.disabled = true;
 
       const filename = this.generateFilename();
       const isRetina = this.hasRetinaCheckboxTarget ? this.retinaCheckboxTarget.checked : true;
       const scale = isRetina ? 2 : 1;
+      const exportUrl = this.buildExportUrl();
 
-      const params = new URLSearchParams({
-        export_type: this.activeType,
+      const blob = await renderUrlToBlob(exportUrl, {
         format: this.activeFormat,
         scale: scale,
-        transparent: this.isTransparent,
-        filename: filename
+        transparent: this.isTransparent
       });
 
-      if (this.activeType === "mushaf_page") {
-        params.append("mushaf_id", this.mushafSelectTarget.value);
-        params.append("page_number", this.pageSelectTarget.value);
-      } else if (this.activeType === "ayah") {
-        const surah = this.ayahSurahSelectTarget.value;
-        const ayah = this.ayahSelectTarget.value;
-        params.append("ayah", `${surah}:${ayah}`);
-        params.append("script", this.scriptSelectTarget.value);
-        params.append("font_size", this.fontSize);
-      } else if (this.activeType === "word") {
-        const surah = this.wordSurahSelectTarget.value;
-        const ayah = this.wordAyahSelectTarget.value;
-        const word = this.wordPositionSelectTarget.value;
-        params.append("word", `${surah}:${ayah}:${word}`);
-        params.append("script", this.scriptSelectTarget.value);
-        params.append("font_size", this.fontSize);
-      }
-
-      const downloadEndpoint = `${this.downloadUrlValue}?${params.toString()}`;
-
-      // Fetch rendered image
-      const response = await fetch(downloadEndpoint);
-      if (response.status === 401) return this.redirectToSignIn();
-      if (!response.ok) {
-        throw new Error(`Server returned status ${response.status}`);
-      }
-
-      const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = `${filename}.${this.activeFormat}`;
@@ -509,172 +438,164 @@ export default class extends Controller {
   }
 
   generateFilename() {
-    switch (this.activeType) {
-      case "mushaf_page": {
-        const mushafId = this.mushafSelectTarget.value;
-        const pageNum = this.pageSelectTarget.value.toString().padStart(3, "0");
-        return `mushaf_${mushafId}_page_${pageNum}`;
-      }
-      case "ayah": {
-        const surah = this.ayahSurahSelectTarget.value.toString().padStart(3, "0");
-        const ayah = this.ayahSelectTarget.value.toString().padStart(3, "0");
-        const script = this.scriptSelectTarget.value;
-        return `ayah_${surah}_${ayah}_${script}`;
-      }
-      case "word": {
-        const surah = this.wordSurahSelectTarget.value.toString().padStart(3, "0");
-        const ayah = this.wordAyahSelectTarget.value.toString().padStart(3, "0");
-        const word = this.wordPositionSelectTarget.value.toString().padStart(3, "0");
-        const script = this.scriptSelectTarget.value;
-        return `word_${surah}_${ayah}_${word}_${script}`;
-      }
-    }
+    return generateFilename(this.exportState());
+  }
+
+  getBatchItems() {
+    return buildBatchItems(this.exportState());
   }
 
   async startBatchExport() {
     if (!this.signedInValue) return this.redirectToSignIn();
 
+    // Abort any existing batch run
+    if (this.batchAbortController) {
+      this.batchAbortController.abort();
+    }
+    this.batchAbortController = new AbortController();
+    this.isBatchCancelled = false;
+
     this.batchModalTarget.classList.remove("hidden");
-    if (this.hasBatchZipDownloadBtnTarget) {
-      this.batchZipDownloadBtnTarget.classList.add("hidden");
+    if (this.hasBatchCancelBtnTarget) {
+      this.batchCancelBtnTarget.classList.remove("hidden");
+    }
+    if (this.hasBatchCloseBtnTarget) {
+      this.batchCloseBtnTarget.classList.add("hidden");
     }
 
     const isRetina = this.hasRetinaCheckboxTarget ? this.retinaCheckboxTarget.checked : true;
     const scale = isRetina ? 2 : 1;
 
-    let params = new URLSearchParams({
-      export_type: this.activeType,
-      format: this.activeFormat,
-      scale: scale,
-      transparent: this.isTransparent,
-      script: this.hasScriptSelectTarget ? this.scriptSelectTarget.value : "code_v1",
-      font_size: this.fontSize
-    });
+    const items = this.getBatchItems();
+    const total = items.length;
+
+    if (total === 0) {
+      alert("No items selected to export.");
+      this.closeBatchModal();
+      return;
+    }
 
     let defaultZipName = `quran_export_${this.activeType}_batch.zip`;
-    let itemCount = 1;
-
     if (this.activeType === "mushaf_page") {
       const fromP = parseInt(this.fromPageSelectTarget.value || 1, 10);
       const toP = parseInt(this.toPageSelectTarget.value || 1, 10);
-      itemCount = Math.abs(toP - fromP) + 1;
-      params.append("mushaf_id", this.mushafSelectTarget.value);
-      params.append("from_page", fromP);
-      params.append("to_page", toP);
-      defaultZipName = `mushaf_${this.mushafSelectTarget.value}_pages_${fromP}_to_${toP}.zip`;
+      defaultZipName = `mushaf_${this.mushafSelectTarget.value}_pages_${Math.min(fromP, toP)}_to_${Math.max(fromP, toP)}.zip`;
     } else if (this.activeType === "ayah") {
       const fromA = parseInt(this.fromAyahSelectTarget.value || 1, 10);
       const toA = parseInt(this.toAyahSelectTarget.value || 1, 10);
-      itemCount = Math.abs(toA - fromA) + 1;
-      params.append("chapter_id", this.ayahSurahSelectTarget.value);
-      params.append("from_ayah", fromA);
-      params.append("to_ayah", toA);
-      defaultZipName = `surah_${this.ayahSurahSelectTarget.value}_ayahs_${fromA}_to_${toA}.zip`;
+      defaultZipName = `surah_${this.ayahSurahSelectTarget.value}_ayahs_${Math.min(fromA, toA)}_to_${Math.max(fromA, toA)}.zip`;
     } else if (this.activeType === "word") {
-      const fromW = parseInt(this.fromWordSelectTarget.value || 1, 10);
-      const toW = parseInt(this.toWordSelectTarget.value || 1, 10);
-      itemCount = Math.abs(toW - fromW) + 1;
-      params.append("chapter_id", this.wordSurahSelectTarget.value);
-      params.append("verse_num", this.wordAyahSelectTarget.value);
-      params.append("from_word", fromW);
-      params.append("to_word", toW);
       defaultZipName = `surah_${this.wordSurahSelectTarget.value}_ayah_${this.wordAyahSelectTarget.value}_words.zip`;
     }
 
-    // Dynamic progress bar calculation
-    let currentPercent = 10;
-    this.batchProgressBarTarget.style.width = "10%";
-    this.batchPercentLabelTarget.textContent = "10%";
-    this.batchStatusLabelTarget.textContent = `Starting batch export (${itemCount} items)...`;
-    this.batchDetailsLabelTarget.textContent = `Preparing high-resolution ${this.activeFormat.toUpperCase()} images...`;
+    this.batchProgressBarTarget.style.width = "0%";
+    this.batchPercentLabelTarget.textContent = "0%";
+    this.batchProgressBarTarget.style.backgroundColor = "";
+    this.batchStatusLabelTarget.textContent = `Starting batch export (${total} items)...`;
+    this.batchDetailsLabelTarget.textContent = `Rendering high-resolution ${this.activeFormat.toUpperCase()} images in your browser...`;
 
-    const startTime = Date.now();
-    const estimatedTotalMs = Math.max(itemCount * 450, 1200);
-
-    const progressInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const calculatedPercent = Math.min(Math.floor((elapsed / estimatedTotalMs) * 85) + 10, 95);
-      const currentItemNum = Math.min(Math.floor((calculatedPercent / 90) * itemCount) + 1, itemCount);
-
-      currentPercent = calculatedPercent;
-      this.batchProgressBarTarget.style.width = `${currentPercent}%`;
-      this.batchPercentLabelTarget.textContent = `${currentPercent}%`;
-
-      if (currentPercent < 90) {
-        this.batchStatusLabelTarget.textContent = `Rendering image ${currentItemNum} of ${itemCount}...`;
-        this.batchDetailsLabelTarget.textContent = `Processing glyph ligatures and vector frames (${currentPercent}%)...`;
-      } else {
-        this.batchStatusLabelTarget.textContent = `Packaging into ZIP archive...`;
-        this.batchDetailsLabelTarget.textContent = `Compressing ${itemCount} images into ${defaultZipName}...`;
-      }
-    }, 150);
+    const zip = new JSZip();
 
     try {
-      const response = await fetch(this.batchUrlValue, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: params.toString()
+      for (let i = 0; i < total; i++) {
+        if (this.isBatchCancelled || this.batchAbortController.signal.aborted) {
+          return;
+        }
+
+        const item = items[i];
+        const currentItemNum = i + 1;
+        const percent = Math.floor((i / total) * 90);
+
+        this.batchProgressBarTarget.style.width = `${percent}%`;
+        this.batchPercentLabelTarget.textContent = `${percent}%`;
+        this.batchStatusLabelTarget.textContent = `Rendering image ${currentItemNum} of ${total}...`;
+        this.batchDetailsLabelTarget.textContent = `${item.label} (${percent}%)...`;
+
+        const blob = await renderUrlToBlob(item.url, {
+          format: this.activeFormat,
+          scale: scale,
+          transparent: this.isTransparent,
+          signal: this.batchAbortController.signal
+        });
+
+        if (this.isBatchCancelled || this.batchAbortController.signal.aborted) {
+          return;
+        }
+
+        zip.file(`${item.filename}.${this.activeFormat}`, blob);
+      }
+
+      if (this.isBatchCancelled || this.batchAbortController.signal.aborted) return;
+
+      this.batchStatusLabelTarget.textContent = `Packaging ${total} images into ZIP archive...`;
+      this.batchDetailsLabelTarget.textContent = `Generating ${defaultZipName}...`;
+      this.batchProgressBarTarget.style.width = "92%";
+      this.batchPercentLabelTarget.textContent = "92%";
+
+      const zipBlob = await zip.generateAsync({ type: "blob" }, (metadata) => {
+        if (this.isBatchCancelled || this.batchAbortController.signal.aborted) return;
+        const compPercent = Math.min(90 + Math.floor(metadata.percent / 10), 99);
+        this.batchProgressBarTarget.style.width = `${compPercent}%`;
+        this.batchPercentLabelTarget.textContent = `${compPercent}%`;
       });
 
-      clearInterval(progressInterval);
-
-      if (response.status === 401) return this.redirectToSignIn();
-      if (!response.ok) {
-        let errText = "Failed to generate batch archive";
-        try {
-          const errJson = await response.json();
-          errText = errJson.error || errText;
-        } catch (_) {
-          errText = await response.text();
-        }
-        throw new Error(errText);
-      }
+      if (this.isBatchCancelled || this.batchAbortController.signal.aborted) return;
 
       this.batchProgressBarTarget.style.width = "100%";
       this.batchPercentLabelTarget.textContent = "100%";
-      this.batchStatusLabelTarget.textContent = `✓ Batch Export Complete (${itemCount} items)!`;
-      this.batchDetailsLabelTarget.textContent = `Your ZIP archive has downloaded.`;
+      this.batchStatusLabelTarget.textContent = `✓ Batch Export Complete (${total} items)!`;
+      this.batchDetailsLabelTarget.textContent = `Your ZIP archive has been generated and downloaded.`;
 
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-
+      const blobUrl = window.URL.createObjectURL(zipBlob);
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = defaultZipName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
 
-      if (this.hasBatchZipDownloadBtnTarget) {
-        this.batchZipDownloadBtnTarget.classList.remove("hidden");
-        this.batchZipDownloadBtnTarget.textContent = "Download ZIP Again";
-        this.batchZipDownloadBtnTarget.onclick = () => {
-          const reLink = document.createElement("a");
-          reLink.href = blobUrl;
-          reLink.download = defaultZipName;
-          document.body.appendChild(reLink);
-          reLink.click();
-          document.body.removeChild(reLink);
-        };
+      if (this.hasBatchCancelBtnTarget) {
+        this.batchCancelBtnTarget.classList.add("hidden");
+      }
+      if (this.hasBatchCloseBtnTarget) {
+        this.batchCloseBtnTarget.classList.remove("hidden");
       }
 
     } catch (e) {
-      clearInterval(progressInterval);
+      if (this.isBatchCancelled || e.name === "AbortError" || this.batchAbortController?.signal?.aborted) {
+        return;
+      }
+      console.error("Batch export error:", e);
       this.batchStatusLabelTarget.textContent = `Batch Export Failed`;
       this.batchDetailsLabelTarget.textContent = e.message || "An unexpected error occurred.";
       this.batchProgressBarTarget.style.backgroundColor = "#ef4444";
+      if (this.hasBatchCancelBtnTarget) {
+        this.batchCancelBtnTarget.classList.add("hidden");
+      }
+      if (this.hasBatchCloseBtnTarget) {
+        this.batchCloseBtnTarget.classList.remove("hidden");
+      }
     }
   }
 
   closeBatchModal() {
-    this.batchModalTarget.classList.add("hidden");
+    this.cancelBatch();
   }
 
   cancelBatch() {
-    this.closeBatchModal();
+    this.isBatchCancelled = true;
+    if (this.batchAbortController) {
+      this.batchAbortController.abort();
+    }
+    // Remove any lingering rendering iframes immediately
+    document.querySelectorAll("iframe[data-export-render]").forEach((el) => {
+      try {
+        el.src = "about:blank";
+        el.remove();
+      } catch (_) {}
+    });
+    this.batchModalTarget.classList.add("hidden");
   }
 
   populateSelectOptions(selectElem, from, to, selectedValue = null, labelFn = (i) => i) {

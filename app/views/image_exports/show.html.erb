@@ -453,11 +453,17 @@
       </div>
 
       <div class="flex justify-end gap-3 pt-3">
-        <button type="button" data-action="click->image-export#cancelBatch" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+        <button type="button"
+                data-image-export-target="batchCancelBtn"
+                data-action="click->image-export#cancelBatch"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
           Cancel
         </button>
-        <button type="button" data-image-export-target="batchZipDownloadBtn" class="hidden px-5 py-2 text-sm font-bold text-white bg-[#46ac7a] hover:bg-[#3d966a] rounded-xl shadow-md transition-all">
-          Download ZIP
+        <button type="button"
+                data-image-export-target="batchCloseBtn"
+                data-action="click->image-export#closeBatchModal"
+                class="hidden px-5 py-2 text-sm font-bold text-white bg-[#46ac7a] hover:bg-[#3d966a] rounded-xl shadow-md transition-all">
+          Close
         </button>
       </div>
     </div>

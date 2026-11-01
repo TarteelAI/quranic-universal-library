@@ -2,10 +2,7 @@
   <div class="quran-icon surah-header relative">header
     <% if chapter %>
       <div class="surah-icon absolute">
-         <span class="surah-name-v4-icon me-2">
-           surah<%= chapter.chapter_number.to_s.rjust(3, '0') %>
-         </span>
-        <span class="surah-name-v4-icon">surah-icon</span>
+         <span class="surah-name-v4-icon"><%= "surah#{chapter.chapter_number.to_s.rjust(3, '0')} surah-icon" %></span>
       </div>
     <% end %>
   </div>

@@ -14,6 +14,8 @@
            breadcrumb_parents: [{ label: 'Ayahs', path: word_roots_path(filter_chapter: verse.chapter_id) }]
 %>
 
+<%= render 'word_roots/tabs', active: :ayahs %>
+
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
     <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, words: true %>

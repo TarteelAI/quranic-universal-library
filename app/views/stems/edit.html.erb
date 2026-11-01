@@ -7,9 +7,11 @@
 <%= render 'tools/header',
            name: 'Word stem',
            title: @presenter.page_title,
-           key: 'stem',
+           key: 'word_root',
            breadcrumb_parents: [{ label: 'Stems', path: stems_path }, { label: stem.text_clean, path: stem_path(stem.id) }]
 %>
+
+<%= render 'word_roots/tabs', active: :stems %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
@@ -33,7 +35,7 @@
         </div>
       </div>
 
-      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong stem? Fix it on its ayah in <%= link_to 'Word roots, stems and lemmas', word_roots_path %>.</p>
+      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong stem? Fix it on its ayah, in <%= link_to 'Ayahs', word_roots_path %>.</p>
 
       <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
 

@@ -7,10 +7,12 @@
 <%= render 'tools/header',
            name: 'Word stem',
            title: @presenter.page_title,
-           key: 'stem',
+           key: 'word_root',
            actions: actions,
            breadcrumb_parents: [{ label: 'Stems', path: stems_path }]
 %>
+
+<%= render 'word_roots/tabs', active: :stems %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">

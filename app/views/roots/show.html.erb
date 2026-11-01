@@ -8,10 +8,12 @@
 <%= render 'tools/header',
            name: 'Word root',
            title: @presenter.page_title,
-           key: 'root',
+           key: 'word_root',
            actions: actions,
            breadcrumb_parents: [{ label: 'Roots', path: arabic_roots_path }]
 %>
+
+<%= render 'word_roots/tabs', active: :roots %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">

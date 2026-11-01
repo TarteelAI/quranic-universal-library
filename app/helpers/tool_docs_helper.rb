@@ -28,9 +28,6 @@ module ToolDocsHelper
       'gapless_ayah_extractor',
       'topic',
       'ayah_theme',
-      'root',
-      'stem',
-      'lemma',
       'word_root'
     ] + internal_tools_keys
   end
@@ -1557,148 +1554,29 @@ module ToolDocsHelper
     ]
   end
 
-  def root_help
-    [
-      "Word roots",
-      {
-        text: "This tool is used to proofread the roots of Quran words: the root letters, the root written as a word, and its meaning. Find the root, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
-      },
-      {
-        type: 'info',
-        text: "Most roots have three letters, a few have four. The root page lists every word from the root, so you can check the meaning against them."
-      },
-      {
-        type: 'heading',
-        text: 'How to suggest a fix'
-      },
-      {
-        type: 'flow',
-        steps: suggest_fix_steps(
-          find_text: "Search by root letters like <code>ر ح م</code>, English letters like <code>rHm</code>, or a meaning. <code>Show roots with</code> lists roots that have no root word or no meaning yet.",
-          filters: [ui_input('Search', 'ر ح م'), ui_select('Show roots with', 'No root word')],
-          fix_text: "Fix the root letters, add the root word with its harakat, or fix the meanings.",
-          fix: ui_screen(ui_input('Root letters', 'ر ح م'), ui_input('English letters', 'rHm'), ui_input('Root word', 'رَحِمَ'),
-                         ui_input('English meaning', 'Mercy, Womb'), title: 'Suggest a fix')
-        )
-      },
-      {
-        type: 'heading',
-        text: 'Common fixes'
-      },
-      {
-        type: 'step',
-        title: '1. A missing root word',
-        text: "Many roots have no root word yet. Write the root as a past tense verb with harakat, like <code>رَحِمَ</code>, or as the noun the dictionaries use when the root has no verb."
-      },
-      {
-        type: 'step',
-        title: '2. A wrong or missing meaning',
-        text: "Meanings are separated by commas. Keep them short, one or two words each, and cover the meanings of the words listed on the root page."
-      },
-      {
-        type: 'step',
-        title: '3. Wrong root letters',
-        text: "Separate the letters with spaces, like <code>ر ح م</code>, and fix the English letters to match. The English letters use Buckwalter, e.g. <code>E</code> for ع and <code>H</code> for ح."
-      },
-      {
-        type: 'step',
-        title: '4. A word linked to the wrong root, or a missing word',
-        text: "Open the ayah in the <code>Word roots, stems and lemmas</code> tool. Each word there has a box for its root: clear it to remove a wrong root, or fill it in to add a missing one."
-      }
-    ]
-  end
-
-  def stem_help
-    [
-      "Word stems",
-      {
-        text: "This tool is used to proofread the stems of Quran words. A stem is the core of a word, without the letters joined to its start or end, like <code>وَ</code> or <code>هُم</code>. Find the stem, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
-      },
-      {
-        type: 'heading',
-        text: 'How to suggest a fix'
-      },
-      {
-        type: 'flow',
-        steps: suggest_fix_steps(
-          find_text: "Search for the stem without harakat, like <code>كتاب</code>. The stem page lists every word that has it.",
-          filters: [ui_input('Search', 'كتاب')],
-          fix_text: "Fix the stem with its harakat, and the same letters without harakat.",
-          fix: ui_screen(ui_input('Stem', 'كِتَٰبِ'), ui_input('Without harakat', 'كتاب'), title: 'Suggest a fix')
-        )
-      },
-      {
-        type: 'heading',
-        text: 'Common fixes'
-      },
-      {
-        type: 'step',
-        title: '1. A wrong letter or harakah',
-        text: "Compare the stem with the words listed on its page. The stem should match the part of those words that doesn't change."
-      },
-      {
-        type: 'step',
-        title: "2. The text without harakat doesn't match",
-        text: "<code>Without harakat</code> is used for search. Keep the same letters as the stem, without harakat or other marks."
-      },
-      {
-        type: 'step',
-        title: '3. A word linked to the wrong stem, or a missing word',
-        text: "Open the ayah in the <code>Word roots, stems and lemmas</code> tool. Each word there has a box for its stem: clear it to remove a wrong stem, or fill it in to add a missing one."
-      }
-    ]
-  end
-
-  def lemma_help
-    [
-      "Word lemmas",
-      {
-        text: "This tool is used to proofread the lemmas of Quran words and their meanings. A lemma is the dictionary form of a word: <code>كُتُب</code> and <code>ٱلْكِتَٰبِ</code> both have the lemma <code>كِتَٰب</code>. Find the lemma, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
-      },
-      {
-        type: 'heading',
-        text: 'How to suggest a fix'
-      },
-      {
-        type: 'flow',
-        steps: suggest_fix_steps(
-          find_text: "Search for the lemma without harakat, like <code>كتاب</code>, or for a meaning. <code>Show lemmas with</code> lists lemmas that have no English meaning yet.",
-          filters: [ui_input('Search', 'كتاب'), ui_select('Show lemmas with', 'No English meaning')],
-          fix_text: "Fix the lemma with its harakat, the same letters without harakat, or the English meaning.",
-          fix: ui_screen(ui_input('Lemma', 'كِتَٰب'), ui_input('Without harakat', 'كتاب'), ui_input('English meaning', 'book, writing'), title: 'Suggest a fix')
-        )
-      },
-      {
-        type: 'heading',
-        text: 'Common fixes'
-      },
-      {
-        type: 'step',
-        title: '1. A missing or wrong meaning',
-        text: "Many lemmas have no meaning yet, and some have a meaning that belongs to another word. Meanings are separated by commas, keep each one short. Check it against the words listed on the lemma page."
-      },
-      {
-        type: 'step',
-        title: '2. A wrong letter or harakah',
-        text: "Fix the lemma, and keep <code>Without harakat</code> the same letters without harakat or other marks. It's used for search."
-      },
-      {
-        type: 'step',
-        title: '3. A word linked to the wrong lemma, or a missing word',
-        text: "Open the ayah in the <code>Word roots, stems and lemmas</code> tool. Each word there has a box for its lemma: clear it to remove a wrong lemma, or fill it in to add a missing one."
-      }
-    ]
-  end
-
   def word_root_help
     [
       "Word roots, stems and lemmas",
       {
-        text: "This tool is used to proofread the root, stem and lemma each Quran word is linked to. Find the ayah, click <code>Suggest a fix</code>, fix the links of its words and click <code>Propose changes</code>. A reviewer checks every word, nothing changes until it's approved."
+        text: "This tool is used to proofread the root, stem and lemma of every Quran word. Find what's wrong, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
       {
         type: 'info',
-        text: "The root is the letters the word comes from, like <code>ر ح م</code>. The lemma is its dictionary form, like <code>رَحْمَة</code>, and the stem is the word without the letters joined to it. Particles like <code>مِن</code> have no root."
+        text: "The <b>root</b> is the letters a word comes from, like <code>ر ح م</code>. The <b>lemma</b> is its dictionary form, like <code>رَحْمَة</code>. The <b>stem</b> is the word without the letters joined to it, like <code>وَ</code> or <code>هُم</code>. Particles like <code>مِن</code> have no root."
+      },
+      {
+        type: 'heading',
+        text: 'Where to fix what'
+      },
+      {
+        type: 'step',
+        title: 'Ayahs: which root, stem or lemma a word has',
+        text: "Pick the surah and ayah. Each word has a box for its root, stem and lemma: change it when it's wrong, fill it in when it's missing, or clear it when the word shouldn't have one."
+      },
+      {
+        type: 'step',
+        title: 'Roots, Stems and Lemmas: the root, stem or lemma itself',
+        text: "Search for it, or click it on an ayah. Fix its spelling or harakat, add a missing root word, or fix its meaning. The change applies to every word linked to it."
       },
       {
         type: 'heading',
@@ -1707,9 +1585,9 @@ module ToolDocsHelper
       {
         type: 'flow',
         steps: suggest_fix_steps(
-          find_text: "Pick a <code>Surah</code> and an <code>Ayah</code>. The ayah page lists each word with its root, stem and lemma, click one to see every word linked to it.",
+          find_text: "In <code>Ayahs</code>, pick a <code>Surah</code> and an <code>Ayah</code>. The ayah page lists each word with its root, stem and lemma, click one to open it.",
           filters: [ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '3')],
-          fix_text: "Each word has a box for its root, stem and lemma. Clear a box to remove a wrong link, or fill it in to add a missing one.",
+          fix_text: "Change, fill in or clear the root, stem and lemma of each word.",
           fix: ui_screen(ui_input('Root', 'ر ح م'), ui_input('Stem', 'رَّحِيمِ'), ui_input('Lemma', 'رَّحِيم'), title: 'Suggest a fix')
         )
       },
@@ -1719,22 +1597,36 @@ module ToolDocsHelper
       },
       {
         type: 'step',
-        title: '1. A wrong root, stem or lemma',
-        text: "Type the right one. Roots are letters with or without spaces, like <code>رحم</code>. Stems and lemmas are written with their harakat, copy them from the stem or lemma page."
+        title: '1. A word linked to the wrong root, stem or lemma',
+        text: "Open its ayah in <code>Ayahs</code> and type the right one. Roots are letters, with or without spaces, like <code>رحم</code>. Stems and lemmas are written with their harakat, copy them from their page."
       },
       {
         type: 'step',
-        title: '2. A missing link',
-        text: "Fill in the empty box. If you get <code>no lemma</code>, the lemma isn't in the list yet, say which one in your comment."
+        title: '2. A word with a missing root, stem or lemma',
+        text: "Fill in the empty box on its ayah. If you get <code>no lemma</code>, it isn't in the list yet, say which one in your comment."
       },
       {
         type: 'step',
-        title: '3. A link that should not be there',
-        text: "Clear the box. Particles and some names have no root."
+        title: "3. A word that shouldn't have a root",
+        text: "Clear the box on its ayah. Particles and some names have no root."
+      },
+      {
+        type: 'step',
+        title: '4. A missing or wrong meaning',
+        text: "Open the root or lemma, click <code>Suggest a fix</code> and fix <code>English meaning</code>. Meanings are separated by commas, keep each one short and check it against the words listed on the page. <code>Show roots with</code> and <code>Show lemmas with</code> list the ones with no meaning yet."
+      },
+      {
+        type: 'step',
+        title: '5. A missing root word',
+        text: "Many roots have no root word yet. Open the root and write it as a past tense verb with harakat, like <code>رَحِمَ</code>, or as the noun dictionaries use when the root has no verb."
+      },
+      {
+        type: 'step',
+        title: '6. A spelling mistake in a root, stem or lemma',
+        text: "Open it and fix the letters or harakat. Root letters are separated by spaces, like <code>ر ح م</code>, with English letters in Buckwalter, e.g. <code>rHm</code>. <code>Without harakat</code> keeps the same letters without marks, it's used for search."
       }
     ]
   end
-
   def char_help
     [
       "Unicode and font checker",

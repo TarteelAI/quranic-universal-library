@@ -873,6 +873,18 @@ module ToolDocsHelper
         HTML
       },
       {
+        type: 'step',
+        title: '5. Quran text in the wrong font',
+        text: <<~HTML
+          <p>Quran text in a tafsir must show in the QPC Hafs font. Its tag needs the class <code>qpc-hafs</code> and Arabic as its language. Another language, like <code>ur</code>, switches it to that language's font.</p>
+          <div class="grid grid-cols-2 gap-2 my-2 max-w-xl text-xs">
+            <div class="rounded border border-red-400 bg-red-50 p-2"><div class="font-semibold text-gray-500 mb-1">Now</div><div class="ur text-2xl leading-loose" dir="rtl">عُمْيٌ</div><code class="block mt-1 whitespace-normal">&lt;p class="ur qpc-hafs" lang="ur"&gt;</code></div>
+            <div class="rounded border border-green-600 bg-green-50 p-2"><div class="font-semibold text-gray-500 mb-1">After</div><div class="qpc-hafs text-2xl leading-loose" dir="rtl">عُمۡيٞ</div><code class="block mt-1 whitespace-normal">&lt;p class="ar qpc-hafs" lang="ar"&gt;</code></div>
+          </div>
+          <p>Fix the tag in <code>Source code</code>. The text must suit the font too: copy the ayah or word from QUL rather than typing it, other sources use different marks that the font doesn't draw well.</p>
+        HTML
+      },
+      {
         type: 'info',
         text: "Your changes are reviewed and, once approved, the tafsir is updated. Ranges never overlap: when an approved range takes ayahs from other tafsirs, those are shortened, or archived if they have no ayahs left."
       }

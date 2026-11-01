@@ -1,0 +1,34 @@
+name: "Request a feature"
+description: "Suggest a new feature or an improvement to QUL. To ask for a new resource, use \"Request a resource\" instead."
+labels: ["feature-request"]
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: "Category"
+      options:
+        - "Website"
+        - "Resource tooling"
+        - "API"
+        - "Developer experience"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem or use case"
+      description: "What are you trying to do, and what gets in the way?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed solution"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional context"

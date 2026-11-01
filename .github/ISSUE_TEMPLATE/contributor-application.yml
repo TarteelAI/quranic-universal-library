@@ -1,6 +1,5 @@
 name: 🙋 New Contributor Application
 description: If you'd like to contribute to QUL, please fill out this form.
-labels: [contributor-request]
 body:
   - type: input
     id: name

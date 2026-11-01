@@ -1,0 +1,48 @@
+name: "Report a bug"
+description: "Something on the QUL website, API or tools isn't working. For mistakes in a resource, use \"Report a content issue\" instead."
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "What happened?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce"
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "What did you expect to happen?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Area"
+      options:
+        - "Website / resource pages"
+        - "Downloads"
+        - "API"
+        - "Tools (editors, proofreading, audio tools)"
+        - "Other"
+
+  - type: input
+    id: page_url
+    attributes:
+      label: "Page URL"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Screenshots or logs"

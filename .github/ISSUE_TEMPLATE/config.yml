@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Documentation"
+    url: https://qul.tarteel.ai/docs
+    about: "Guides for every resource type, file formats and tutorials."

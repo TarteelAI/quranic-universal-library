@@ -1,0 +1,77 @@
+name: "Request a resource"
+description: "Ask us to add a new translation, tafsir, recitation, mushaf layout or other resource to QUL."
+labels: ["resource-request"]
+body:
+  - type: dropdown
+    id: resource_type
+    attributes:
+      label: "Resource type"
+      options:
+        - "Quran script"
+        - "Font"
+        - "Mushaf layout"
+        - "Translation"
+        - "Tafsir"
+        - "Transliteration"
+        - "Word-by-word"
+        - "Recitation / segments"
+        - "Morphology / grammar"
+        - "Surah info"
+        - "Ayah topics"
+        - "Ayah themes"
+        - "Similar ayah"
+        - "Mutashabihat"
+        - "Qiraat"
+        - "Quran metadata"
+        - "Other"
+    validations:
+      required: true
+
+  - type: input
+    id: resource_name
+    attributes:
+      label: "Resource name"
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: "Language"
+
+  - type: input
+    id: author
+    attributes:
+      label: "Author or publisher"
+
+  - type: input
+    id: source_link
+    attributes:
+      label: "Source link"
+      description: "Where the resource can be found, e.g. a website or PDF."
+
+  - type: dropdown
+    id: licence
+    attributes:
+      label: "Licence or permission"
+      description: "We can only publish resources we have the right to share."
+      options:
+        - "Public domain"
+        - "Open licence"
+        - "The publisher has given permission"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: "Why should we add it?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: "Extra details"
+      description: "For a mushaf layout, please include the PDF link, number of pages and lines per page."

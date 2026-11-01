@@ -1,0 +1,101 @@
+name: "Report a content issue"
+description: "Report a mistake in an existing resource, such as a typo in a translation or a wrong word in the Quran script."
+labels: ["content-issue"]
+assignees:
+  - naveed-ahmad
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Jazak Allah Khairan for helping us improve QUL.
+
+        **Found a mistake in a translation, tafsir, transliteration or word-by-word translation?** You can suggest the fix yourself. Sign in to [QUL](https://qul.tarteel.ai) and use the [proofreading tools](https://qul.tarteel.ai/tools). A maintainer reviews every suggestion.
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: "Acknowledgment"
+      description: "This form is for typos, spelling mistakes and factual errors only. Please don't use it for wording preferences or subjective opinions."
+      options:
+        - label: "I understand"
+          required: true
+
+  - type: dropdown
+    id: resource_type
+    attributes:
+      label: "Resource type"
+      options:
+        - "Quran script"
+        - "Font"
+        - "Mushaf layout"
+        - "Translation"
+        - "Tafsir"
+        - "Transliteration"
+        - "Word-by-word"
+        - "Recitation / segments"
+        - "Morphology / grammar"
+        - "Surah info"
+        - "Ayah topics"
+        - "Ayah themes"
+        - "Similar ayah"
+        - "Mutashabihat"
+        - "Qiraat"
+        - "Quran metadata"
+        - "Other"
+    validations:
+      required: true
+
+  - type: input
+    id: resource_name
+    attributes:
+      label: "Resource name"
+      placeholder: "e.g. Sahih International, QPC Hafs, Mishary Alafasy"
+    validations:
+      required: true
+
+  - type: input
+    id: resource_link
+    attributes:
+      label: "Resource link or ID"
+      placeholder: "https://qul.tarteel.ai/resources/..."
+
+  - type: input
+    id: location
+    attributes:
+      label: "Location"
+      description: "Surah and ayah, page, or word."
+      placeholder: "e.g. 2:255, page 42, or word 3 of 1:1"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "What's wrong?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_fix
+    attributes:
+      label: "Suggested fix"
+      description: "What should it be instead?"
+
+  - type: dropdown
+    id: seen_in
+    attributes:
+      label: "Where did you see it?"
+      options:
+        - "QUL website"
+        - "A QUL download"
+        - "An app that uses QUL data"
+
+  - type: input
+    id: app_url
+    attributes:
+      label: "App URL"
+      description: "If you saw it in another app, a link to it."
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "Screenshots or evidence"
+      description: "Screenshots, a scan of the printed source, or anything else that helps us verify the fix."

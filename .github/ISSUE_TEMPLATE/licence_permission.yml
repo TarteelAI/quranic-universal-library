@@ -1,0 +1,52 @@
+name: "Licence or permission"
+description: "Grant permission for a resource, report a wrong licence or attribution, or ask about using a resource."
+labels: ["licence"]
+assignees:
+  - naveed-ahmad
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are public. Please don't post private contact details here.
+
+        **For copyright concerns or removal requests**, please email [naveed.ahmad@tarteel.ai](mailto:naveed.ahmad@tarteel.ai) instead of opening an issue.
+
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: "Request type"
+      options:
+        - "Grant permission for a resource"
+        - "Wrong licence or attribution"
+        - "Question about using a resource"
+    validations:
+      required: true
+
+  - type: input
+    id: resource_name
+    attributes:
+      label: "Resource name"
+    validations:
+      required: true
+
+  - type: input
+    id: resource_link
+    attributes:
+      label: "Resource link"
+
+  - type: dropdown
+    id: relation
+    attributes:
+      label: "Your relation to the resource"
+      options:
+        - "Author"
+        - "Publisher"
+        - "Representing the rights holder"
+        - "User"
+
+  - type: textarea
+    id: details
+    attributes:
+      label: "Details"
+    validations:
+      required: true

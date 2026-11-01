@@ -1,0 +1,21 @@
+name: "Ask a question"
+description: "Questions about QUL, its resources or how to use them."
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The [documentation](https://qul.tarteel.ai/docs) may already have the answer.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: "Your question"
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: "Related link"
+      description: "A resource, page or file your question is about."

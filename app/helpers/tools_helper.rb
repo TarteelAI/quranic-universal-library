@@ -144,6 +144,15 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
+        title: 'Word stems',
+        description: 'Proofread and suggest fixes for the stems of Quran words.',
+        url: stems_path,
+        type: 'corpus',
+        tags: [['Morphology', 'quranic-morphology']],
+        icon: 'qaf.svg',
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Word grammar and morphology',
         description: 'Review the grammar, part of speech and morphology of each Quran word, and report what is wrong.',
         url: word_concordance_labels_path,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_02_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -363,6 +363,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_120000) do
     t.index ["need_review"], name: "index_draft_roots_on_need_review"
     t.index ["root_id"], name: "index_draft_roots_on_root_id"
     t.index ["text_matched"], name: "index_draft_roots_on_text_matched"
+  end
+
+  create_table "draft_stems", force: :cascade do |t|
+    t.integer "stem_id"
+    t.integer "user_id"
+    t.string "current_text_madani"
+    t.string "draft_text_madani"
+    t.string "current_text_clean"
+    t.string "draft_text_clean"
+    t.text "comment"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imported"], name: "index_draft_stems_on_imported"
+    t.index ["need_review"], name: "index_draft_stems_on_need_review"
+    t.index ["stem_id"], name: "index_draft_stems_on_stem_id"
+    t.index ["text_matched"], name: "index_draft_stems_on_text_matched"
   end
 
   create_table "draft_surah_infos", force: :cascade do |t|

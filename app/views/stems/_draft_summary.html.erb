@@ -1,0 +1,11 @@
+<%# What a stem suggestion changes, for the pending suggestions list %>
+<% labels = { 'text_madani' => 'Stem', 'text_clean' => 'Without harakat' } %>
+<ul class="space-y-1">
+  <% draft.changed_fields.each do |field| %>
+    <li>
+      <span class="text-gray-500"><%= labels[field] %>:</span>
+      <del class="text-red-700 text-xl"><%= draft["current_#{field}"].presence || 'none' %></del> &rarr;
+      <ins class="text-green-700 text-xl no-underline"><%= draft["draft_#{field}"].presence || 'none' %></ins>
+    </li>
+  <% end %>
+</ul>

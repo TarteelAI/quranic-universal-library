@@ -1,0 +1,58 @@
+<%
+  stem = @presenter.stem
+  forms = @presenter.word_forms.to_a
+  actions = [link_to('Suggest a fix', edit_stem_path(stem.id), class: 'btn btn-success')]
+%>
+
+<%= render 'tools/header',
+           name: 'Word stem',
+           title: @presenter.page_title,
+           key: 'stem',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Stems', path: stems_path }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('stems/draft_summary', draft: draft) } %>
+
+    <dl class="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-x-4 gap-y-2 text-sm">
+      <dt class="font-semibold text-gray-600">Stem</dt>
+      <dd><span class="qpc-hafs text-2xl" dir="rtl"><%= stem.text_madani %></span></dd>
+      <dt class="font-semibold text-gray-600">Without harakat</dt>
+      <dd><span class="text-xl" dir="rtl"><%= stem.text_clean %></span></dd>
+      <dt class="font-semibold text-gray-600">In the Quran</dt>
+      <dd><%= pluralize(stem.words_count.to_i, 'time') %>, in <%= pluralize(forms.size, 'form') %></dd>
+    </dl>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2>Words with this stem</h2>
+
+    <div class="tools-table-overflow">
+      <table class="w-full">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="text-left">Word</th>
+          <th class="text-left">Translation</th>
+          <th class="text-left">Times</th>
+          <th class="text-left">Where</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% forms.each do |form| %>
+          <tr class="border-b">
+            <td class="py-2 pl-2 pe-6 whitespace-nowrap"><span class="qpc-hafs text-2xl" dir="rtl"><%= form.text_qpc_hafs %></span></td>
+            <td class="py-2"><%= safe_html form.translations.compact.uniq { |t| strip_tags(t).downcase.strip }.join(', ') %></td>
+            <td class="py-2"><%= form.count %></td>
+            <td class="py-2 text-sm text-gray-600">
+              <%= form.locations.uniq.first(5).join(', ') %><%= ', ...' if form.locations.uniq.size > 5 %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -44,7 +44,7 @@ module ToolDocsHelper
 
   def mutashabihat_help
     [
-      "Mutashabihat ul Quran Tool",
+      "Mutashabihat",
       {
         text: "Mutashabihat are phrases of 3 or more words that appear in more than one ayah (or a whole 2-word ayah, like <span class='qpc-hafs'>الرَّحْمَٰنِ الرَّحِيمِ</span>). Sometimes word for word, often with a small difference that is easy to mix up while memorizing. This tool finds them and lets you review and save them."
       },
@@ -264,7 +264,7 @@ module ToolDocsHelper
 
   def compare_ayah_help
     [
-      "Compare Ayah tool",
+      "Compare ayahs",
       {
         text: "This tool is designed to view and compare multiple Ayahs. Follow these steps to use the tool effectively:"
       },
@@ -288,7 +288,7 @@ module ToolDocsHelper
 
   def word_translation_help
     [
-      "Word by Word Translations",
+      "Word by word translations",
       {
         text: "This tool is used to proofread and fix the word by word translation of the Quran: the meaning of each Arabic word, shown under it. Find the ayah, click <code>Suggest a fix</code>, fix the words and click <code>Propose changes</code>."
       },
@@ -461,7 +461,7 @@ module ToolDocsHelper
 
   def ayah_translation_help
     [
-      "Ayah Translation",
+      "Ayah translations",
       {
         text: "This tool is used to proofread and fix ayah translations. Find the ayah, click <code>Suggest a fix</code>, make your fix, say what you changed in <code>Comment for the reviewer</code> and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
@@ -569,7 +569,7 @@ module ToolDocsHelper
 
   def ayah_transliteration_help
     [
-      "Ayah Transliteration",
+      "Ayah transliterations",
       {
         text: "This tool is used to proofread and fix ayah transliterations. Find the ayah, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
@@ -679,7 +679,7 @@ module ToolDocsHelper
 
   def word_transliteration_help
     [
-      "Word by Word Transliteration",
+      "Word by word transliterations",
       {
         text: "This tool is used to proofread word transliterations and propose fixes. A reviewer approves each change before it goes live."
       },
@@ -752,7 +752,7 @@ module ToolDocsHelper
 
   def ayah_tafsir_help
     [
-      "Ayah Tafsir tool help",
+      "Tafsirs",
       {
         text: "This tool is used to proofread and fix ayah tafsirs. Find the tafsir, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
@@ -901,7 +901,7 @@ module ToolDocsHelper
 
   def mushaf_layout_help
     [
-      "Mushaf Layout Tool",
+      "Mushaf layouts",
 
       {
         text: 'The Mushaf Layout tool is used to create digital layouts of physical Mushaf pages. This tool allows you to accurately configure page structure, word placement, and line alignment to precisely represent any printed Mushaf.',
@@ -1205,7 +1205,7 @@ module ToolDocsHelper
 
   def tajweed_help
     [
-      "Tajweed annotations tool",
+      "Tajweed rules",
       {
         text: "This tool is used to fix the tajweed rules of each word: which letters a rule applies to, and so which letters are coloured. Find the word, set the rule on its letters and click <code>Save</code>. Changes are saved right away."
       },
@@ -1330,7 +1330,7 @@ module ToolDocsHelper
 
   def quran_script_help
     [
-      'Quran script and fonts tool',
+      "Quran scripts and fonts",
       {
         text: "This tool allows you to check the compatibility of different Quranic scripts (e.g., Madani, IndoPak, etc.) with various fonts. Here's how to use the tool effectively:"
       },
@@ -1364,7 +1364,7 @@ module ToolDocsHelper
 
   def surah_info_help
     [
-      "Surah info tool",
+      "Surah info",
       {
         text: "This tool is used to proofread and fix Surah information in different languages: the introduction to each Surah, its name, when it was revealed and what it's about."
       },
@@ -1433,7 +1433,7 @@ module ToolDocsHelper
 
   def char_help
     [
-      "Text and Font Compatibility Checker",
+      "Unicode and font checker",
       {
         text: "This tool helps you analyze Unicode values of Quranic text characters and preview how the text renders across all available fonts to ensure compatibility and identify rendering issues."
       },
@@ -1469,7 +1469,7 @@ module ToolDocsHelper
 
   def arabic_transliteration_help
     [
-      "Quran word syllable tool",
+      "Word syllables in Arabic and Urdu",
       {
         text: "This tool is used to proofread and correct word-by-word Arabic transliterations. Please follow these steps to make adjustments to any transliteration:"
       },
@@ -1498,7 +1498,7 @@ module ToolDocsHelper
 
   def surah_recitation_segment_builder_help
     [
-      "Surah Recitation Segments",
+      "Surah audio segments",
 
       {
         text: "The Surah Recitation Segments tool is used to create or edit timestamp data for each word in a Surah's audio file. This data allows us to highlight the currently playing word during audio playback, enabling accurate follow-along experiences."
@@ -1713,7 +1713,7 @@ module ToolDocsHelper
 
   def quran_scripts_comparison_help
     [
-      "Quran Scripts Comparison Tool",
+      "Compare Quran scripts",
       {
         text: "This tool is designed to compare different Quranic scripts and identify inconsistencies. It helps you find words where characters appear in some scripts but are missing in others"
       },
@@ -1783,7 +1783,7 @@ module ToolDocsHelper
 
   def ayah_dependency_graph_help
     [
-      "Ayah Dependency Graphs",
+      "Ayah dependency graphs",
       {
         text: "This tool visualizes the dependency structure of an ayah as a graph and allows you to edit nodes and edges."
       },
@@ -1901,7 +1901,7 @@ module ToolDocsHelper
 
   def ayah_recitation_help
     [
-      "Ayah recitations tool",
+      "Ayah audio segments",
       {
         text: "This tool is used to build and proofread word-by-word timestamp (segment) data for ayah-by-ayah recitations. Each segment maps a word in the ayah to its start and end time in the audio file so the word can be highlighted while the recitation plays."
       },
@@ -1933,7 +1933,7 @@ module ToolDocsHelper
 
   def corpus_help
     [
-      "Quran corpus tool",
+      "Word grammar and morphology",
       {
         text: "This tool is used to review the Quran corpus: the morphology and grammar of every word. Browse an ayah, open a word and check its segments. To fix something, edit the segment on its page (needs access) or report it."
       },
@@ -2010,7 +2010,7 @@ module ToolDocsHelper
 
   def compare_font_help
     [
-      "Compare fonts tool",
+      "Compare fonts",
       {
         text: "This tool compares two builds of the same font, usually the old one against a new export, to see what changed before shipping it. Nothing is uploaded, the fonts stay in your browser."
       },
@@ -2046,7 +2046,7 @@ module ToolDocsHelper
 
   def compare_audio_help
     [
-      "Compare audio tool",
+      "Compare audio",
       {
         text: "This tool puts two audio files side by side, to compare a recitation with another one or with a newer version of the same file: length, waveform and where the pauses are. Nothing is saved, the files stay in your browser."
       },
@@ -2081,7 +2081,7 @@ module ToolDocsHelper
 
   def gapless_ayah_extractor_help
   [
-    "Gapless Ayah Extractor",
+    "Ayah audio cutter",
     {
       text: "Extract an ayah from full-surah recordings for multiple reciters at once. Fine-tune the start and end points by listening to each recording, then copy the FFmpeg commands to cut the audio files. Everything runs in your browser; no changes are saved."
     },
@@ -2133,7 +2133,7 @@ end
 
   def audio_repair_ingest_help
     [
-      "Add audio",
+      "Add reciter audio",
       {
         text: "Import a new reciter’s recordings, one surah at a time. Source files may vary in format and bitrate or include extra audio, such as an opening basmala, surah name, or closing dua. This tool standardizes the recordings, with every cut reviewed before import."
       },

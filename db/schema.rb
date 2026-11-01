@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_02_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -530,6 +530,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_140000) do
     t.index ["resource_content_id"], name: "index_draft_transliterations_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_transliterations_on_text_matched"
     t.index ["verse_id"], name: "index_draft_transliterations_on_verse_id"
+  end
+
+  create_table "draft_word_roots", force: :cascade do |t|
+    t.integer "word_id"
+    t.integer "verse_id"
+    t.integer "user_id"
+    t.string "location"
+    t.integer "current_root_id"
+    t.integer "draft_root_id"
+    t.integer "current_stem_id"
+    t.integer "draft_stem_id"
+    t.integer "current_lemma_id"
+    t.integer "draft_lemma_id"
+    t.text "comment"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imported"], name: "index_draft_word_roots_on_imported"
+    t.index ["need_review"], name: "index_draft_word_roots_on_need_review"
+    t.index ["text_matched"], name: "index_draft_word_roots_on_text_matched"
+    t.index ["verse_id"], name: "index_draft_word_roots_on_verse_id"
+    t.index ["word_id"], name: "index_draft_word_roots_on_word_id"
   end
 
   create_table "draft_word_translations", force: :cascade do |t|

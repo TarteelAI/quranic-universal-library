@@ -17,6 +17,11 @@ class Stem < QulQuranRecord
   has_many :words
   has_many :verses, through: :words
 
+  # Harakat aren't always stored in the same order (shadda before fatha), compare normalized
+  def self.find_by_text(text)
+    where('normalize(text_madani, NFC) = ?', text.to_s.strip.unicode_normalize(:nfc)).first
+  end
+
   def to_s
     text_madani
   end

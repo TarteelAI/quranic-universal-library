@@ -15,6 +15,7 @@
   <div class="page-section">
     <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
                summary: ->(draft) { render('stems/draft_summary', draft: draft) } %>
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_word_links, words: true %>
 
     <%= form_with scope: :stem, url: stem_path(stem.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
       <%= render 'shared/form_errors', object: stem %>
@@ -31,6 +32,8 @@
           <p class="text-xs text-gray-500 mt-1">The same letters, used for search.</p>
         </div>
       </div>
+
+      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong stem? Fix it on its ayah in <%= link_to 'Word roots, stems and lemmas', word_roots_path %>.</p>
 
       <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
 

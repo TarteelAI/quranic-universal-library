@@ -35,6 +35,11 @@ class LemmasPresenter < ApplicationPresenter
     Draft::Lemma.pending_contributions.where(lemma_id: lemma.id).includes(:user).order(:created_at)
   end
 
+  # Suggested fixes to which words are linked to it
+  def pending_word_links
+    Draft::WordRoot.pending_contributions.where('current_lemma_id = :id OR draft_lemma_id = :id', id: lemma.id).order(:created_at)
+  end
+
   def page_title
     case action_name
     when 'show'

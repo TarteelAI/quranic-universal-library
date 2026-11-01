@@ -15,6 +15,7 @@
   <div class="page-section">
     <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
                summary: ->(draft) { render('roots/draft_summary', draft: draft) } %>
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_word_links, words: true %>
 
     <%= form_with scope: :root, url: arabic_root_path(root.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
       <%= render 'shared/form_errors', object: root %>
@@ -49,6 +50,8 @@
           <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
         </div>
       </div>
+
+      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong root? Fix it on its ayah in <%= link_to 'Word roots, stems and lemmas', word_roots_path %>.</p>
 
       <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
 

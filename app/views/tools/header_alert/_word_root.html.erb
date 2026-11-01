@@ -1,0 +1,20 @@
+<div class="px-4 py-3 rounded mb-4 bg-gray-100 border border-gray-400 text-gray-700 flex relative" role="alert" data-controller="alert">
+  <i class="fa fa-info-circle me-2 fa-2x"></i>
+  <div>
+    <p>
+      <strong>
+        Welcome to the Word Roots, Stems and Lemmas Tool!
+      </strong>
+    </p>
+
+    <p>
+      Found a word linked to the wrong root, stem or lemma, or a link that is missing? Click Suggest a fix on the ayah. Your suggestion is saved as a draft, and the words are updated once a reviewer approves it.
+    </p>
+
+    <% unless user_signed_in? %>
+      <p>
+        <%= link_to 'Sign in to suggest a fix', new_user_session_path, class: 'btn btn-dark' %>
+      </p>
+    <% end %>
+  </div>
+</div>

@@ -55,6 +55,11 @@ class RootsPresenter < ApplicationPresenter
     Draft::Root.pending_contributions.where(root_id: root.id).includes(:user).order(:created_at)
   end
 
+  # Suggested fixes to which words are linked to it
+  def pending_word_links
+    Draft::WordRoot.pending_contributions.where('current_root_id = :id OR draft_root_id = :id', id: root.id).order(:created_at)
+  end
+
   def page_title
     case action_name
     when 'show'

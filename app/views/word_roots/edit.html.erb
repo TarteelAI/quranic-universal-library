@@ -1,0 +1,67 @@
+<%
+  verse = @presenter.verse
+  submitted = params[:words] || {}
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Word roots, stems and lemmas',
+           title: @presenter.page_title,
+           key: 'word_root',
+           breadcrumb_parents: [{ label: 'Ayahs', path: word_roots_path(filter_chapter: verse.chapter_id) }, { label: verse.verse_key, path: word_root_path(verse.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, words: true %>
+
+    <% if @errors.present? %>
+      <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <% @errors.each do |error| %>
+          <p><%= error %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="qpc-hafs text-2xl leading-loose my-3" dir="rtl"><%= verse.text_qpc_hafs %></div>
+    <p class="text-sm text-gray-500 mb-3">Clear a box to remove a wrong link, or fill it in to add a missing one. Particles like <span class="qpc-hafs">مِن</span> have no root.</p>
+
+    <%= form_with url: word_root_path(verse.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <% @presenter.words.each do |word| %>
+        <% values = submitted[word.id.to_s] || {} %>
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-3">
+          <div class="flex items-center justify-between gap-3 px-3 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+            <span class="inline-flex items-center rounded-full bg-gray-200 text-gray-700 text-xs font-medium px-2 py-0.5"><%= word.location %></span>
+            <span class="text-sm text-gray-600"><%= safe_html @presenter.translations[word.id] %></span>
+            <span class="qpc-hafs text-2xl leading-none" dir="rtl"><%= word.text_qpc_hafs %></span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3">
+            <div>
+              <%= label_tag "words_#{word.id}_root", 'Root', class: 'block text-xs font-medium text-gray-600 mb-1' %>
+              <%= text_field_tag "words[#{word.id}][root]", values['root'] || word.root&.arabic_trilateral, id: "words_#{word.id}_root", class: "#{input_css} h-12 text-lg", dir: 'rtl', placeholder: 'ر ح م' %>
+            </div>
+            <div>
+              <%= label_tag "words_#{word.id}_stem", 'Stem', class: 'block text-xs font-medium text-gray-600 mb-1' %>
+              <%= text_field_tag "words[#{word.id}][stem]", values['stem'] || word.stem&.text_madani, id: "words_#{word.id}_stem", class: "#{input_css} h-12 qpc-hafs text-lg", dir: 'rtl' %>
+            </div>
+            <div>
+              <%= label_tag "words_#{word.id}_lemma", 'Lemma', class: 'block text-xs font-medium text-gray-600 mb-1' %>
+              <%= text_field_tag "words[#{word.id}][lemma]", values['lemma'] || word.lemma&.text_madani, id: "words_#{word.id}_lemma", class: "#{input_css} h-12 qpc-hafs text-lg", dir: 'rtl' %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= render 'shared/draft_comment_field', form: form, value: params[:comment], wrapper_class: 'mt-5' %>
+
+      <%= render 'shared/suggestion_acknowledgement', wrapper_class: 'mt-5',
+                 hint: "A word linked to a root, stem or lemma it doesn't come from, or a link that's missing. Not a mistake: a link that scholars differ on, keep the one that's there." %>
+
+      <div class="flex justify-end gap-2 mt-5">
+        <%= link_to 'Cancel', word_root_path(verse.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -15,6 +15,7 @@
   <div class="page-section">
     <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
                summary: ->(draft) { render('lemmas/draft_summary', draft: draft) } %>
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_word_links, words: true %>
 
     <%= form_with scope: :lemma, url: lemma_path(lemma.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
       <%= render 'shared/form_errors', object: lemma %>
@@ -37,6 +38,8 @@
         <%= form.text_field :en_meanings, value: submitted[:en_meanings] || Array(lemma.en_translations).join(', '), class: input_css %>
         <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
       </div>
+
+      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong lemma? Fix it on its ayah in <%= link_to 'Word roots, stems and lemmas', word_roots_path %>.</p>
 
       <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
 

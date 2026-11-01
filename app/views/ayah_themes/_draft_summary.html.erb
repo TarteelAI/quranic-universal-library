@@ -1,0 +1,24 @@
+<%# What a theme suggestion changes, for the pending suggestions list %>
+<ul class="space-y-1">
+  <% if draft.theme_changed? %>
+    <li>
+      <span class="text-gray-500">Theme:</span>
+      <del class="text-red-700"><%= draft.current_theme %></del> &rarr;
+      <ins class="text-green-700 no-underline"><%= draft.draft_theme %></ins>
+    </li>
+  <% end %>
+  <% if draft.keywords_changed? %>
+    <li>
+      <span class="text-gray-500">Keywords:</span>
+      <del class="text-red-700"><%= Array(draft.current_keywords).join(', ').presence || 'none' %></del> &rarr;
+      <ins class="text-green-700 no-underline"><%= Array(draft.draft_keywords).join(', ').presence || 'none' %></ins>
+    </li>
+  <% end %>
+  <% if draft.range_changed? %>
+    <li>
+      <span class="text-gray-500">Ayahs:</span>
+      <del class="text-red-700"><%= draft.current_range_label %></del> &rarr;
+      <ins class="text-green-700 no-underline"><%= draft.draft_range_label %></ins>
+    </li>
+  <% end %>
+</ul>

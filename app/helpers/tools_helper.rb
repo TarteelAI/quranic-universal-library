@@ -90,6 +90,15 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
+        title: 'Ayah themes',
+        description: 'Proofread and suggest fixes for the theme and keywords of each group of ayahs.',
+        url: themes_path,
+        type: 'theme',
+        icon: 'list.svg',
+        tags: [['Themes', 'ayah-theme']],
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Surah info',
         description: 'Proofread and suggest fixes for Surah introductions in many languages.',
         url: surah_infos_path,

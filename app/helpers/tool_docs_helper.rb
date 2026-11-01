@@ -26,7 +26,8 @@ module ToolDocsHelper
       'compare_audio',
       'compare_font',
       'gapless_ayah_extractor',
-      'topic'
+      'topic',
+      'ayah_theme'
     ] + internal_tools_keys
   end
 
@@ -1502,6 +1503,52 @@ module ToolDocsHelper
         type: 'step',
         title: '3. A typo in the name or description',
         text: "Fix it in its field. The description can contain HTML tags, like links to other topics, keep them as they are."
+      }
+    ]
+  end
+
+  def ayah_theme_help
+    [
+      "Ayah themes",
+      {
+        text: "This tool is used to proofread the theme of each group of ayahs: a short sentence about what the ayahs are about, with keywords. Find the theme, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'info',
+        text: "Each theme covers a range of ayahs in one surah, and two themes never share an ayah. Some ayahs have no theme."
+      },
+      {
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick a <code>Surah</code>, and an <code>Ayah</code> to find the theme it belongs to, or search the themes and keywords. On the theme page, <code>Previous theme</code> and <code>Next theme</code> move along the Quran.",
+          filters: [ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '5'), ui_input('Search', 'guidance')],
+          fix_text: "Fix the theme or the keywords, or change the first or last ayah when the theme covers the wrong ayahs.",
+          fix: ui_screen(ui_input('Theme', 'Supplication to Allah for guidance'), ui_input('Keywords', 'Supplication, Allah'),
+                         ui_select('First ayah', '1'), ui_select('Last ayah', '7'), title: 'Suggest a fix')
+        )
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. A theme that starts or ends on the wrong ayah',
+        text: "Change <code>First ayah</code> or <code>Last ayah</code>. If the new range takes ayahs from the theme before or after it, that theme is shortened when your fix is approved, or removed if no ayahs are left. A range can't sit inside another theme, that would split it in two."
+      },
+      {
+        type: 'step',
+        title: "2. A theme that doesn't match its ayahs",
+        text: "Rewrite it as one short sentence about what the ayahs say. Keep it close to the ayahs, without adding your own explanation."
+      },
+      {
+        type: 'step',
+        title: '3. Wrong or missing keywords',
+        text: "Keywords are separated by commas. Use words that appear in the theme or the ayahs, so the theme can be found by searching."
       }
     ]
   end

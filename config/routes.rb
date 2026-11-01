@@ -205,6 +205,8 @@ Rails.application.routes.draw do
     get :range_preview, on: :collection
   end
   resources :topics, only: %i[index show edit update]
+  # ayah_theme is taken by /ayah/:key/theme
+  resources :themes, path: 'ayah_themes', controller: 'ayah_themes', only: %i[index show edit update]
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource

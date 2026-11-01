@@ -1,0 +1,15 @@
+<div class="px-4 py-3 rounded mb-4 bg-gray-100 border border-gray-400 text-gray-700 flex relative" role="alert" data-controller="alert">
+  <i class="fa fa-info-circle me-2 fa-2x"></i>
+  <div>
+    <p class="<%= 'mb-0' if user_signed_in? %>">
+      The Quran Image Export tool allows you to render and download high-resolution PNG and WEBP images for any Mushaf page, Ayah, or Word.
+      We can adjust Quran scripts, font size, line height, background color, and transparency to accurately represent and export Quranic text.
+    </p>
+
+    <% unless user_signed_in? %>
+      <p class="mb-0">
+        If you'd like to download or batch-export images, simply login or create an account. Once logged in, you'll be able to download high-resolution PNG and WEBP images.
+      </p>
+    <% end %>
+  </div>
+</div>

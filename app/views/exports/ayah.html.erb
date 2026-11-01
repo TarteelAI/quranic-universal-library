@@ -8,15 +8,21 @@
 %>
 
 <div id="content"
-     data-file-name="ayah/<%= params[:script] %>/<%=@verse.chapter_id %>/<%=@verse.verse_number %>"
-     class="<%=font_family %> <%= params[:css_class]"
-     style="font-size: <%=font_size %>px;line-height: normal!important;">
+     data-file-name="ayah/<%= params[:script] %>/<%= @verse.chapter_id %>/<%= @verse.verse_number %>"
+     class="<%= font_family %> <%= params[:css_class] %> tajweed-new"
+     style="font-size: <%= font_size %>px; line-height: 2 !important; padding: 24px; text-align: center; width: 100%; <%= 'background: transparent;' if params[:transparent] == 'true' %>">
   <%= safe_html @verse.read_attribute(params[:script]) %>
 </div>
 
 <style>
-    #content{
+    #content {
         direction: rtl;
-        text-align: right;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    rule {
+        display: inline;
     }
 </style>

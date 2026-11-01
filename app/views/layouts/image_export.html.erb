@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <style>
+    <%= inline_stylesheet_source('export').html_safe %>
+  </style>
+
+  <%= content_for :heading %>
+</head>
+
+<body class="<%= params[:font] %>">
+  <%= yield %>
+</body>
+</html>

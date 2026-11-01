@@ -25,6 +25,7 @@ module ToolDocsHelper
       'ayah_boundaries',
       'compare_audio',
       'compare_font',
+      'image_export',
       'gapless_ayah_extractor'
     ] + internal_tools_keys
   end
@@ -1802,6 +1803,38 @@ module ToolDocsHelper
       {
         type: 'info',
         text: "You need editing access to save segments. If you don't have access, open the tool and click <code>Request Access</code>."
+      }
+    ]
+  end
+
+  def image_export_help
+    [
+      "Quran image export tool",
+      {
+        text: "This tool is used to render and export high-resolution PNG and WEBP images for any Mushaf page, Ayah, or Word. It renders accurate Quranic scripts with customizable font sizes, line heights, retina scaling, and transparent or solid backgrounds."
+      },
+      {
+        type: 'info',
+        text: "High-resolution rendering preserves crisp typography and diacritics at any scale. Accurate font shaping and transparency make images ideal for apps, websites, publications, and graphic designs."
+      },
+      {
+        type: 'step',
+        title: 'Step 1: Choose what to export and the mode',
+        text: "Select whether you want to export a full <code>Mushaf Page</code>, an individual <code>Ayah</code>, or a specific <code>Word</code> using the top tabs. Switch between <code>Single Item</code> for instant preview and download, or <code>Batch ZIP</code> to export a sequence of pages, surahs, or ayahs."
+      },
+      {
+        type: 'step',
+        title: 'Step 2: Customize script, layout, and style',
+        text: "Choose the Quran script or font (such as <code>Madinah V2</code>, <code>IndoPak 15-line</code>, or <code>Uthmani Hafs</code>). Adjust the <code>Font Size</code> slider, padding, text color, and background. Toggle <code>Transparent Background</code> or <code>Retina (2x)</code> for ultra-sharp high-DPI graphics."
+      },
+      {
+        type: 'step',
+        title: 'Step 3: Preview and download',
+        text: "The live preview on the right updates instantly as you tweak settings. In <code>Single Item</code> mode, click <code>Download PNG</code> or <code>Download WEBP</code>. In <code>Batch ZIP</code> mode, specify your range and click <code>Generate Batch ZIP</code> to download an archive containing all rendered images."
+      },
+      {
+        type: 'info',
+        text: "You need to be logged in to download or batch-export images. If you don't have an account, click <code>Login</code> or <code>Create Account</code>."
       }
     ]
   end

@@ -5,83 +5,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
-  <%= stylesheet_link_tag "export" %>
-
   <style>
-      body, html {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          background: transparent;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-family: 'Arial', sans-serif;
-      }
-
-      #content {
-          background-color: transparent;
-          box-sizing: border-box;
-          width: auto;
-          height: auto;
-          max-width: 800px;
-          line-height: normal;
-
-   }
-
-      #content h1, #content h2, #content h3 {
-          margin: 10px 0;
-      }
-
-      #content p {
-          margin: 10px 0;
-          line-height: 1.6;
-      }
-
-      #content * {
-          background: none;
-          background-color: transparent;
-      }
-
-      @media print {
-          body, html {
-              background: transparent;
-          }
-
-          #content {
-              margin: 0;
-              padding: 0;
-              background: transparent;
-          }
-      }
-
-      .mushaf_page.tracing-mushaf {
-          border: 1px solid #e5e7eb;
-      }
-
-      .tracing-mushaf{
-          color: #90878F !important;
-
-          * {
-              color: #90878F !important;
-          }
-
-          .line:not(.line--surah-name):not(.line--bismillah) {
-              border-bottom: 1px solid #e5e7eb;
-          }
-          .line-container:last-child{
-              .line{
-                  border-bottom: none;
-              }
-          }
-      }
-
-      .qpc-dotted *{
-          font-family: qpc-dotted !important;
-      }
-      .qpc-outline *{
-          font-family: qpc-outline !important;
-      }
+    <%= inline_stylesheet_source('export').html_safe %>
   </style>
 
   <%= content_for :heading %>

@@ -1,6 +1,62 @@
 @import "shared/font_faces";
+@import "shared/qpc_fonts";
+@import "shared/indopak_font_faces";
 @import "shared/mushaf_page";
 @import "shared/tajweed_color_new";
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+}
+
+#content {
+  background-color: transparent;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  line-height: normal;
+  text-align: center;
+
+  rule {
+    display: inline;
+  }
+
+  h1, h2, h3 {
+    margin: 10px 0;
+  }
+
+  p {
+    margin: 10px 0;
+    line-height: 1.6;
+  }
+
+  * {
+    background: none;
+    background-color: transparent;
+  }
+}
+
+rule {
+  display: inline;
+}
+
+@media print {
+  body, html {
+    background: transparent;
+  }
+
+  #content {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+}
 
 .mushaf{
   a{
@@ -10,4 +66,34 @@
 }
 .position-absolute{
     position: absolute;
+}
+
+.mushaf_page.tracing-mushaf {
+  border: 1px solid #e5e7eb;
+}
+
+.tracing-mushaf {
+  color: #90878F !important;
+
+  * {
+    color: #90878F !important;
+  }
+
+  .line:not(.line--surah-name):not(.line--bismillah) {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .line-container:last-child {
+    .line {
+      border-bottom: none;
+    }
+  }
+}
+
+.qpc-dotted * {
+  font-family: qpc-dotted !important;
+}
+
+.qpc-outline * {
+  font-family: qpc-outline !important;
 }

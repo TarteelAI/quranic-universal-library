@@ -44,7 +44,6 @@ class RootsPresenter < ApplicationPresenter
         .select(
           'words.text_qpc_hafs',
           'ARRAY_AGG(DISTINCT word_translations.text) AS translations',
-          'ARRAY_AGG(words.location ORDER BY words.word_index) AS locations',
           'COUNT(DISTINCT words.id) AS count'
         )
         .group('words.text_qpc_hafs')

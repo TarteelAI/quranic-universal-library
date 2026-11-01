@@ -64,7 +64,7 @@ class WordTransliterationPresenter < ResourcePresenter
     when 'show'
       "#{resource_name} - #{verse_key}"
     when 'edit'
-      "Edit: #{verse_key} - #{resource_name}"
+      "Suggest a fix: #{verse_key} - #{resource_name}"
     else
       "Word Transliteration Proofreading"
     end

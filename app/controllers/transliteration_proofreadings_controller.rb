@@ -15,8 +15,10 @@ class TransliterationProofreadingsController < CommunityController
 
   def update
     transliteration = @presenter.transliteration
+    # Adding a missing transliteration isn't a fix, the form has no checkbox then
+    acknowledged = @presenter.missing_transliteration? || suggestion_acknowledged?
 
-    if transliteration.save_suggestions(transliteration_params, current_user)
+    if acknowledged && transliteration.save_suggestions(transliteration_params, current_user)
       redirect_to transliteration_proofreading_path(transliteration.verse_id, resource_id: @resource.id),
                   notice: 'Your suggestions are saved successfully'
     else

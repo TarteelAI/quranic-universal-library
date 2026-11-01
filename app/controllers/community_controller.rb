@@ -3,6 +3,7 @@ class CommunityController < ApplicationController
   before_action :init_presenter
 
   DEFAULT_LANGUAGE = 174
+  ACKNOWLEDGEMENT_MISSING = 'Please confirm your fix is for a typo, spelling mistake or factual error.'
   helper_method :current_language
   before_action :load_resource_access
 
@@ -119,6 +120,11 @@ class CommunityController < ApplicationController
 
   def init_presenter
     @presenter = CommunityPresenter.new(self)
+  end
+
+  # The suggest-a-fix forms ask the user to confirm the fix is a typo or factual error
+  def suggestion_acknowledged?
+    params[:acknowledgement] == '1'
   end
 
   def docs_partial_exists?(key)

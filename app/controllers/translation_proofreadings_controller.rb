@@ -11,7 +11,9 @@ class TranslationProofreadingsController < CommunityController
   end
 
   def update
-    if @presenter.suggestion.assign(suggestion_params).save(current_user)
+    suggestion = @presenter.suggestion.assign(suggestion_params)
+
+    if suggestion_acknowledged? && suggestion.save(current_user)
       redirect_to translation_proofreading_path(@presenter.translation.verse_id, resource_id: @resource.id),
                   notice: "Your suggestion is saved. The translation is updated once it's approved."
     else

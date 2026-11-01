@@ -36,6 +36,11 @@ class WordTranslationsController < CommunityController
 
   def create
     @verse = Verse.find(params[:verse_id])
+
+    unless suggestion_acknowledged?
+      return redirect_to new_word_translation_path(ayah: @verse.id, resource_id: resource.id), alert: ACKNOWLEDGEMENT_MISSING
+    end
+
     WordTranslation.save_suggestions(@verse, resource, wbw_translations_params, current_user)
 
     redirect_to word_translation_path(@verse, resource_id: resource.id),

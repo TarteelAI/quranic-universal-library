@@ -9,7 +9,7 @@
 
 <%= render 'tools/header',
            name: "Ayah translation",
-           title: "Update #{@resource.name} translation of #{verse.human_label}",
+           title: "Suggest a fix: #{@resource.name} translation of #{verse.human_label}",
            key: 'ayah_translation'
 %>
 
@@ -82,6 +82,8 @@
         <%= form.text_area :comment, value: suggestion.comment, rows: 3, class: input_css,
                            placeholder: 'What was wrong and how you fixed it. For example: the second sentence belongs to 56:26, moved it there.' %>
       </div>
+
+      <%= render 'shared/suggestion_acknowledgement' %>
 
       <div class="flex justify-end gap-2">
         <%= link_to 'Cancel', translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>

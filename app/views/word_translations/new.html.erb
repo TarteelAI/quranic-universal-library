@@ -35,9 +35,11 @@
             <% end %>
           </div>
 
+          <%= render 'shared/suggestion_acknowledgement', wrapper_class: 'mt-3' %>
+
           <div class="mb-4 flex justify-end items-center mt-3">
             <%= link_to 'Cancel', word_translation_path(@verse.id, resource_id: @resource.id), class: 'me-3' %>
-            <%= form.submit 'Save translations',
+            <%= form.submit 'Propose changes',
                             class: 'btn btn-success',
                             data: { disable_with: 'Please wait...' } %>
           </div>

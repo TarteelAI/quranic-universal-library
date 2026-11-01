@@ -4,17 +4,16 @@
 
   missing = @presenter.missing_transliteration?
 
-  actions << link_to(missing ? 'Add transliteration' : 'Suggest a fix', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+  actions << link_to(missing ? 'Add transliteration' : 'Suggest a fix', edit_transliteration_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   if (previous_ayah = verse.previous_ayah)
-    actions << link_to('Previous ayah', transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: previous_ayah.verse_key)
+    actions << link_to('Previous ayah', transliteration_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: previous_ayah.verse_key)
   end
 
   if (next_ayah = verse.next_ayah)
-    actions << link_to('Next ayah', transliteration_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: next_ayah.verse_key)
+    actions << link_to('Next ayah', transliteration_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: next_ayah.verse_key)
   end
 
-  pending_suggestions = @presenter.pending_suggestions_count
 %>
 
 <%= render 'tools/header',
@@ -22,7 +21,7 @@
            title: @presenter.page_title,
            key: 'ayah_transliteration',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: transliteration_proofreadings_path(resource_id: @resource.id) }]
+           breadcrumb_parents: [{ label: 'Filter', path: transliterations_path(resource_id: @resource.id) }]
 %>
 
 <%= render 'shared/access_message' %>
@@ -30,6 +29,8 @@
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
     <h2>Transliteration of <%= verse.human_label %> <span class="text-gray-500 text-base">(<%= verse.verse_key %>)</span></h2>
+
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, dir: @resource.language&.direction %>
 
     <div class="qpc-hafs my-3">
       <%= verse.text_qpc_hafs %>
@@ -42,11 +43,5 @@
         <%= safe_html @presenter.transliteration.text %>
       <% end %>
     </div>
-
-    <% if pending_suggestions.positive? %>
-      <p class="mt-4 text-sm text-gray-600">
-        <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
-      </p>
-    <% end %>
   </div>
 </div>

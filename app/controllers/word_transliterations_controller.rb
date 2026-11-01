@@ -1,4 +1,4 @@
-class WordTransliterationProofreadingsController < CommunityController
+class WordTransliterationsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update]
@@ -17,13 +17,13 @@ class WordTransliterationProofreadingsController < CommunityController
     verse = @presenter.verse
 
     unless suggestion_acknowledged?
-      return redirect_to edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id),
+      return redirect_to edit_word_transliteration_path(verse.id, resource_id: @resource.id),
                          alert: ACKNOWLEDGEMENT_MISSING
     end
 
     WordTransliteration.save_suggestions(verse, @resource, word_transliteration_params, current_user, comment: params[:comment])
 
-    redirect_to word_transliteration_proofreading_path(verse.id, resource_id: @resource.id),
+    redirect_to word_transliteration_path(verse.id, resource_id: @resource.id),
                 notice: 'Your suggestions are saved successfully'
   end
 
@@ -31,7 +31,7 @@ class WordTransliterationProofreadingsController < CommunityController
 
   def ensure_verse
     if @presenter.verse.blank?
-      redirect_to word_transliteration_proofreadings_path(resource_id: @resource.id),
+      redirect_to word_transliterations_path(resource_id: @resource.id),
                   alert: 'Sorry ayah not found.'
     end
   end

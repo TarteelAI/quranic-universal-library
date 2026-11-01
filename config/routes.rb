@@ -193,15 +193,15 @@ Rails.application.routes.draw do
 
   resources :learning_activities, only: [:show, :index]
   resources :arabic_transliterations, except: :destroy
-  resources :word_text_proofreadings, only: [:index, :show] do
+  resources :word_texts, only: [:index, :show] do
     collection do
       get :compare_words
     end
   end
-  resources :translation_proofreadings, except: :destroy
-  resources :transliteration_proofreadings, except: :destroy
-  resources :word_transliteration_proofreadings, only: %i[index show edit update]
-  resources :tafsir_proofreadings, except: :destroy do
+  resources :translations, except: :destroy
+  resources :transliterations, except: :destroy
+  resources :word_transliterations, only: %i[index show edit update]
+  resources :tafsirs, except: :destroy do
     get :range_preview, on: :collection
   end
   resources :word_translations, except: :destroy do

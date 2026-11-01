@@ -1,4 +1,4 @@
-class TransliterationProofreadingsController < CommunityController
+class TransliterationsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update]
@@ -19,7 +19,7 @@ class TransliterationProofreadingsController < CommunityController
     acknowledged = @presenter.missing_transliteration? || suggestion_acknowledged?
 
     if acknowledged && transliteration.save_suggestions(transliteration_params, current_user)
-      redirect_to transliteration_proofreading_path(transliteration.verse_id, resource_id: @resource.id),
+      redirect_to transliteration_path(transliteration.verse_id, resource_id: @resource.id),
                   notice: 'Your suggestions are saved successfully'
     else
       @presenter.draft.assign_attributes(transliteration_params)
@@ -32,7 +32,7 @@ class TransliterationProofreadingsController < CommunityController
   # A missing transliteration is fine, the suggestion creates it once approved.
   def ensure_verse
     if @presenter.verse.blank?
-      redirect_to transliteration_proofreadings_path(resource_id: @resource.id),
+      redirect_to transliterations_path(resource_id: @resource.id),
                   alert: 'Sorry ayah not found.'
     end
   end

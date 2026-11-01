@@ -1,12 +1,12 @@
 <%
   lang = @resource.language_name.to_s.downcase
-  url = tafsir.persisted? ? tafsir_proofreading_path(tafsir.id, resource_id: @resource.id) : tafsir_proofreadings_path(resource_id: @resource.id)
-  cancel_path = tafsir.persisted? ? tafsir_proofreading_path(tafsir.id, resource_id: @resource.id) : tafsir_proofreading_path(0, resource_id: @resource.id, verse_key: tafsir.verse.verse_key)
+  url = tafsir.persisted? ? tafsir_path(tafsir.id, resource_id: @resource.id) : tafsirs_path(resource_id: @resource.id)
+  cancel_path = tafsir.persisted? ? tafsir_path(tafsir.id, resource_id: @resource.id) : tafsir_path(0, resource_id: @resource.id, verse_key: tafsir.verse.verse_key)
 
   # Ayahs of the surahs the tafsir is in, a range can't jump far
   first_chapter, last_chapter = Verse.where(id: [tafsir.start_verse_id, tafsir.end_verse_id]).pluck(:chapter_id).minmax
   ayahs = Verse.where(chapter_id: first_chapter..last_chapter).order(:verse_index).pluck(:verse_key, :id)
-  preview_url = range_preview_tafsir_proofreadings_path(resource_id: @resource.id, tafsir_id: tafsir.id)
+  preview_url = range_preview_tafsirs_path(resource_id: @resource.id, tafsir_id: tafsir.id)
 %>
 
 <%= form_with model: tafsir, scope: :tafsir, url: url, method: tafsir.persisted? ? :patch : :post,

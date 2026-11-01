@@ -16,11 +16,11 @@
   if !tafisr_view_types.include?(view_type)
     view_type = 'ayah'
   end
-  more_action << link_to('Tafsir view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Tafsir with arabic view', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
-  more_action << link_to('Proofreading view(With pdf)', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Tafsir view', tafsir_path(@tafisr.id, resource_id: @resource.id), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Tafsir with arabic view', tafsir_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_arabic'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
+  more_action << link_to('Proofreading view(With pdf)', tafsir_path(@tafisr.id, resource_id: @resource.id, view_type: 'page_with_pdf'), class: 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100')
 
-  actions << link_to('Suggest a fix', edit_tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
+  actions << link_to('Suggest a fix', edit_tafsir_path(@tafisr.id, resource_id: @resource.id), class: 'btn btn-success')
 
   actions << %Q{
     <div class='relative' data-controller='dropdown'>
@@ -37,11 +37,11 @@
   }
 
   if previous_ayah
-    actions << link_to('Previous tafsir', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark', title: "Tafsir of ayah #{previous_ayah.verse_key}")
+    actions << link_to('Previous tafsir', tafsir_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: previous_ayah.verse_key), class: 'btn btn-dark', title: "Tafsir of ayah #{previous_ayah.verse_key}")
   end
 
   if next_ayah
-    actions << link_to('Next tafsir', tafsir_proofreading_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark', title: "Tafsir of ayah #{next_ayah.verse_key}")
+    actions << link_to('Next tafsir', tafsir_path(@tafisr.id, resource_id: @resource.id, draft: params[:draft], verse_key: next_ayah.verse_key), class: 'btn btn-dark', title: "Tafsir of ayah #{next_ayah.verse_key}")
   end
 
 %>
@@ -51,11 +51,12 @@
            title: "#{@resource.name} <div style='font-size: 0.5em'>Tafsir of #{@tafisr.ayah_range_label}</div>",
            key: 'ayah_tafsir',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]
+           breadcrumb_parents: [{ label: 'Filter', path: tafsirs_path(resource_id: @resource.id) }]
 %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions(@tafisr), dir: @resource.language&.direction %>
     <%= render "#{view_type}_view", verse: verse %>
   </div>
 </div>

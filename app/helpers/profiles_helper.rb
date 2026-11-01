@@ -42,10 +42,10 @@ module ProfilesHelper
       if resource_content.cardinality_type == ResourceContent::CardinalityType::OneWord
         { label: "Word translation", url: word_translations_path(resource_id: resource_content.id) }
       else
-        { label: "Ayah translation", url: translation_proofreadings_path(resource_id: resource_content.id) }
+        { label: "Ayah translation", url: translations_path(resource_id: resource_content.id) }
       end
     when ResourceContent::SubType::Tafsir
-      { label: "Tafsir", url: tafsir_proofreadings_path(resource_id: resource_content.id) }
+      { label: "Tafsir", url: tafsirs_path(resource_id: resource_content.id) }
     when ResourceContent::SubType::Transliteration
       { label: "Transliteration", url: arabic_transliterations_path(resource_id: resource_content.id) }
     when ResourceContent::SubType::Audio

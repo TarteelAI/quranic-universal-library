@@ -1,4 +1,4 @@
-class WordTextProofreadingsController < CommunityController
+class WordTextsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :ensure_verse, only: %i[show]
   def index
@@ -36,11 +36,11 @@ class WordTextProofreadingsController < CommunityController
 
   def ensure_verse
     if @presenter.current_ayah.blank?
-      redirect_to word_text_proofreadings_path, alert: 'Sorry ayah not found.'
+      redirect_to word_texts_path, alert: 'Sorry ayah not found.'
     end
   end
 
   def init_presenter
-    @presenter = WordTextProofreadingsPresenter.new(self)
+    @presenter = WordTextsPresenter.new(self)
   end
 end

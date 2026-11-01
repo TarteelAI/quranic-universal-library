@@ -68,7 +68,7 @@
             <% else %>
               It becomes <b><%= change.range_label((effect.new_start_id..effect.new_end_id).to_a) %></b>.
               If its text explains <%= change.range_label(effect.taken_ids) %>, edit it too:
-              <%= link_to 'edit that tafsir', edit_tafsir_proofreading_path(other.id, resource_id: other.resource_content_id), target: '_blank', class: 'text-blue-700' %>.
+              <%= link_to 'edit that tafsir', edit_tafsir_path(other.id, resource_id: other.resource_content_id), target: '_blank', class: 'text-blue-700' %>.
             <% end %>
           </li>
         <% end %>

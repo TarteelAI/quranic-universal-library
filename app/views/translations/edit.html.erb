@@ -17,7 +17,9 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
-    <%= form_with scope: :suggestion, url: translation_proofreading_path(verse.id, resource_id: @resource.id), method: :patch,
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, dir: @resource.language&.direction %>
+
+    <%= form_with scope: :suggestion, url: translation_path(verse.id, resource_id: @resource.id), method: :patch,
                   html: { autocomplete: 'off', data: { controller: 'translation-footnotes' } } do |form| %>
       <%= hidden_field_tag :resource_id, @resource.id %>
 
@@ -86,7 +88,7 @@
       <%= render 'shared/suggestion_acknowledgement' %>
 
       <div class="flex justify-end gap-2">
-        <%= link_to 'Cancel', translation_proofreading_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= link_to 'Cancel', translation_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
         <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>

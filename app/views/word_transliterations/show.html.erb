@@ -2,17 +2,16 @@
   actions = []
   verse = @presenter.verse
 
-  actions << link_to('Suggest a fix', edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+  actions << link_to('Suggest a fix', edit_word_transliteration_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   if (previous_ayah = verse.previous_ayah)
-    actions << link_to('Previous ayah', word_transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', word_transliteration_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
   end
 
   if (next_ayah = verse.next_ayah)
-    actions << link_to('Next ayah', word_transliteration_proofreading_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
+    actions << link_to('Next ayah', word_transliteration_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
   end
 
-  pending_suggestions = @presenter.pending_suggestions_count
 %>
 
 <%= render 'tools/header',
@@ -20,7 +19,7 @@
            title: @presenter.page_title,
            key: 'word_transliteration',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: word_transliteration_proofreadings_path(resource_id: @resource.id) }]
+           breadcrumb_parents: [{ label: 'Filter', path: word_transliterations_path(resource_id: @resource.id) }]
 %>
 
 <%= render 'shared/access_message' %>
@@ -33,11 +32,7 @@
       <%= verse.text_qpc_hafs %>
     </div>
 
-    <% if pending_suggestions.positive? %>
-      <p class="mt-2 text-sm text-gray-600">
-        <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
-      </p>
-    <% end %>
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, words: true %>
 
     <table class="w-full mt-4 border-collapse">
       <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">

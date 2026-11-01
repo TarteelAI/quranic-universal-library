@@ -1,4 +1,4 @@
-class WordTextProofreadingsPresenter < ApplicationPresenter
+class WordTextsPresenter < ApplicationPresenter
   def words_with_tashkeel_differences
     col_a = params[:col_a].to_s.strip
     col_b = params[:col_b].to_s.strip

@@ -1,0 +1,13 @@
+<%# What a root suggestion changes, for the pending suggestions list %>
+<% labels = { 'arabic_trilateral' => 'Root letters', 'english_trilateral' => 'English letters', 'text_uthmani' => 'Root word', 'en_meanings' => 'English meaning', 'ur_meanings' => 'Urdu meaning' } %>
+<ul class="space-y-1">
+  <% draft.changed_fields.each do |field| %>
+    <% from, to = draft["current_#{field}"], draft["draft_#{field}"] %>
+    <% from, to = Array(from).join(', '), Array(to).join(', ') if field.end_with?('meanings') %>
+    <li>
+      <span class="text-gray-500"><%= labels[field] %>:</span>
+      <del class="text-red-700"><%= from.presence || 'none' %></del> &rarr;
+      <ins class="text-green-700 no-underline"><%= to.presence || 'none' %></ins>
+    </li>
+  <% end %>
+</ul>

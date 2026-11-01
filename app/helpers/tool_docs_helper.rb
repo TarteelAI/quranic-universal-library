@@ -27,7 +27,8 @@ module ToolDocsHelper
       'compare_font',
       'gapless_ayah_extractor',
       'topic',
-      'ayah_theme'
+      'ayah_theme',
+      'root'
     ] + internal_tools_keys
   end
 
@@ -1549,6 +1550,52 @@ module ToolDocsHelper
         type: 'step',
         title: '3. Wrong or missing keywords',
         text: "Keywords are separated by commas. Use words that appear in the theme or the ayahs, so the theme can be found by searching."
+      }
+    ]
+  end
+
+  def root_help
+    [
+      "Word roots",
+      {
+        text: "This tool is used to proofread the roots of Quran words: the root letters, the root written as a word, and its meaning. Find the root, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'info',
+        text: "Most roots have three letters, a few have four. The root page lists every word from the root, so you can check the meaning against them."
+      },
+      {
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Search by root letters like <code>ر ح م</code>, English letters like <code>rHm</code>, or a meaning. <code>Show roots with</code> lists roots that have no root word or no meaning yet.",
+          filters: [ui_input('Search', 'ر ح م'), ui_select('Show roots with', 'No root word')],
+          fix_text: "Fix the root letters, add the root word with its harakat, or fix the meanings.",
+          fix: ui_screen(ui_input('Root letters', 'ر ح م'), ui_input('English letters', 'rHm'), ui_input('Root word', 'رَحِمَ'),
+                         ui_input('English meaning', 'Mercy, Womb'), title: 'Suggest a fix')
+        )
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. A missing root word',
+        text: "Many roots have no root word yet. Write the root as a past tense verb with harakat, like <code>رَحِمَ</code>, or as the noun the dictionaries use when the root has no verb."
+      },
+      {
+        type: 'step',
+        title: '2. A wrong or missing meaning',
+        text: "Meanings are separated by commas. Keep them short, one or two words each, and cover the meanings of the words listed on the root page."
+      },
+      {
+        type: 'step',
+        title: '3. Wrong root letters',
+        text: "Separate the letters with spaces, like <code>ر ح م</code>, and fix the English letters to match. The English letters use Buckwalter, e.g. <code>E</code> for ع and <code>H</code> for ح."
       }
     ]
   end

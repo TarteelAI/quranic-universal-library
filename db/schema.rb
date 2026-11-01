@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_110000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_02_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -337,6 +337,32 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_110000) do
     t.index ["draft_translation_id"], name: "index_draft_foot_notes_on_draft_translation_id"
     t.index ["foot_note_id"], name: "index_draft_foot_notes_on_foot_note_id"
     t.index ["text_matched"], name: "index_draft_foot_notes_on_text_matched"
+  end
+
+  create_table "draft_roots", force: :cascade do |t|
+    t.integer "root_id"
+    t.integer "user_id"
+    t.string "current_arabic_trilateral"
+    t.string "draft_arabic_trilateral"
+    t.string "current_english_trilateral"
+    t.string "draft_english_trilateral"
+    t.string "current_text_uthmani"
+    t.string "draft_text_uthmani"
+    t.jsonb "current_en_meanings", default: []
+    t.jsonb "draft_en_meanings", default: []
+    t.jsonb "current_ur_meanings", default: []
+    t.jsonb "draft_ur_meanings", default: []
+    t.text "comment"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imported"], name: "index_draft_roots_on_imported"
+    t.index ["need_review"], name: "index_draft_roots_on_need_review"
+    t.index ["root_id"], name: "index_draft_roots_on_root_id"
+    t.index ["text_matched"], name: "index_draft_roots_on_text_matched"
   end
 
   create_table "draft_surah_infos", force: :cascade do |t|

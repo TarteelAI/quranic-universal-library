@@ -1,0 +1,64 @@
+<%
+  root = @presenter.root
+  submitted = params[:root] || {}
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Word root',
+           title: @presenter.page_title,
+           key: 'root',
+           breadcrumb_parents: [{ label: 'Roots', path: arabic_roots_path }, { label: root.arabic_trilateral, path: arabic_root_path(root.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('roots/draft_summary', draft: draft) } %>
+
+    <%= form_with scope: :root, url: arabic_root_path(root.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <%= render 'shared/form_errors', object: root %>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <%= form.label :arabic_trilateral, 'Root letters', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :arabic_trilateral, value: submitted[:arabic_trilateral] || root.arabic_trilateral, class: "#{input_css} text-xl", dir: 'rtl', required: true %>
+          <p class="text-xs text-gray-500 mt-1">Separated by spaces, e.g. ر ح م</p>
+        </div>
+        <div>
+          <%= form.label :english_trilateral, 'English letters', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :english_trilateral, value: submitted[:english_trilateral] || root.english_trilateral, class: input_css, required: true %>
+          <p class="text-xs text-gray-500 mt-1">Buckwalter letters, e.g. rHm</p>
+        </div>
+        <div>
+          <%= form.label :text_uthmani, 'Root word', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :text_uthmani, value: submitted[:text_uthmani] || root.text_uthmani, class: "#{input_css} qpc-hafs text-xl", dir: 'rtl' %>
+          <p class="text-xs text-gray-500 mt-1">The root as a word, with harakat, e.g. رَحِمَ</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <%= form.label :en_meanings, 'English meaning', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :en_meanings, value: submitted[:en_meanings] || root.english_translations.join(', '), class: input_css %>
+          <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
+        </div>
+        <div>
+          <%= form.label :ur_meanings, 'Urdu meaning', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :ur_meanings, value: submitted[:ur_meanings] || root.urdu_translations.join('، '), class: input_css, dir: 'rtl' %>
+          <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
+        </div>
+      </div>
+
+      <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
+
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "Wrong root letters, a missing or misspelled root word, or a meaning that's wrong or missing. Not a mistake: a meaning you'd word differently." %>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to 'Cancel', arabic_root_path(root.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

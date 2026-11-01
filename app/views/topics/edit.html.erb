@@ -1,0 +1,71 @@
+<%
+  topic = @presenter.topic
+  submitted = params[:topic] || {}
+  kept = submitted.key?(:keep_verse_ids) ? Array(submitted[:keep_verse_ids]).map(&:to_i) : nil
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Ayah topic',
+           title: @presenter.page_title,
+           key: 'topic',
+           breadcrumb_parents: [{ label: 'Topics', path: topics_path(resource_id: topic.resource_content_id) }, { label: topic.name, path: topic_path(topic.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('topics/draft_summary', draft: draft) } %>
+
+    <%= form_with scope: :topic, url: topic_path(topic.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <%= render 'shared/form_errors', object: topic %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <%= form.label :name, 'Name', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :name, value: submitted[:name] || topic.name, class: input_css, required: true %>
+        </div>
+        <div>
+          <%= form.label :arabic_name, 'Arabic name', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :arabic_name, value: submitted[:arabic_name] || topic.arabic_name, class: input_css, dir: 'rtl' %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :description, 'Description', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_area :description, value: submitted[:description] || topic.description, rows: 4, class: input_css %>
+        <p class="text-xs text-gray-500 mt-1">Can contain HTML tags, keep the ones that are there.</p>
+      </div>
+
+      <div class="mb-4">
+        <h3 class="text-base font-semibold text-gray-800 mb-1">Ayahs</h3>
+        <p class="text-sm text-gray-500 mb-2">Untick an ayah that isn't about this topic.</p>
+        <%# Unticked ayahs are removed, the empty value keeps the list when every box is unticked %>
+        <%= hidden_field_tag 'topic[keep_verse_ids][]', '', id: nil %>
+        <div class="flex flex-wrap gap-1 max-h-64 overflow-y-auto p-1">
+          <% @presenter.all_ayahs.each do |verse| %>
+            <label class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-gray-300 text-sm has-[:not(:checked)]:border-red-400 has-[:not(:checked)]:bg-red-50 has-[:not(:checked)]:line-through">
+              <%= check_box_tag 'topic[keep_verse_ids][]', verse.id, kept.nil? || kept.include?(verse.id), id: nil %>
+              <%= verse.verse_key %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :add_verse_keys, 'Add ayahs', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_field :add_verse_keys, value: submitted[:add_verse_keys], class: input_css, placeholder: '2:255, 3:18-20' %>
+        <p class="text-xs text-gray-500 mt-1">Ayah keys, separated by commas. Use a dash for a range of ayahs.</p>
+      </div>
+
+      <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
+
+      <%= render 'shared/suggestion_acknowledgement' %>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to 'Cancel', topic_path(topic.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

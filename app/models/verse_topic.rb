@@ -17,6 +17,8 @@
 #  index_verse_topics_on_verse_id  (verse_id)
 #
 class VerseTopic < QuranApiRecord
+  has_paper_trail on: %i[create destroy]
+
   belongs_to :verse
   belongs_to :topic
 end

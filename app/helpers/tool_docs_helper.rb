@@ -409,9 +409,9 @@ module ToolDocsHelper
       },
       {
         title: 'Propose changes',
-        text: "Say what was wrong in <code>Comment for the reviewer</code> (optional). Tick the box to confirm it's a typo, spelling mistake or factual error, not a wording you'd prefer, and click <code>Propose changes</code>.",
+        text: "Say what was wrong in <code>Comment for the reviewer</code> (optional). Tick the box to confirm you're fixing a mistake, not changing something to suit your preference, and click <code>Propose changes</code>. <code>What counts as a mistake?</code> under it gives examples.",
         ui: ui_screen(ui_input('Comment for the reviewer', 'Typo in the second word'),
-                      ui_checkbox("I'm fixing a typo, spelling mistake or factual error"),
+                      ui_checkbox("I'm fixing a mistake, not changing something to suit my own preference"),
                       ui_button('Propose changes'))
       },
       {

@@ -3,7 +3,7 @@ class CommunityController < ApplicationController
   before_action :init_presenter
 
   DEFAULT_LANGUAGE = 174
-  ACKNOWLEDGEMENT_MISSING = 'Please confirm your fix is for a typo, spelling mistake or factual error.'
+  ACKNOWLEDGEMENT_MISSING = 'Please confirm you are fixing a mistake, not a preference.'
   helper_method :current_language
   before_action :load_resource_access
 

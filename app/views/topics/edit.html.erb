@@ -60,7 +60,8 @@
 
       <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
 
-      <%= render 'shared/suggestion_acknowledgement' %>
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "An ayah linked to a topic it isn't about, an ayah missing from the topic, or a typo in the name or description. Not a mistake: grouping ayahs the way you'd prefer." %>
 
       <div class="flex justify-end gap-2">
         <%= link_to 'Cancel', topic_path(topic.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>

@@ -7,10 +7,12 @@
 <%= render 'tools/header',
            name: 'Word lemma',
            title: @presenter.page_title,
-           key: 'lemma',
+           key: 'word_root',
            actions: actions,
            breadcrumb_parents: [{ label: 'Lemmas', path: lemmas_path }]
 %>
+
+<%= render 'word_roots/tabs', active: :lemmas %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">

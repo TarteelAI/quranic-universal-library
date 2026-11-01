@@ -4,6 +4,8 @@
            key: 'word_root'
 %>
 
+<%= render 'word_roots/tabs', active: :ayahs %>
+
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section filters">
     <%= form_tag word_roots_path, method: :get do %>

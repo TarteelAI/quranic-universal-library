@@ -7,9 +7,11 @@
 <%= render 'tools/header',
            name: 'Word lemma',
            title: @presenter.page_title,
-           key: 'lemma',
+           key: 'word_root',
            breadcrumb_parents: [{ label: 'Lemmas', path: lemmas_path }, { label: lemma.text_clean, path: lemma_path(lemma.id) }]
 %>
+
+<%= render 'word_roots/tabs', active: :lemmas %>
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
@@ -39,7 +41,7 @@
         <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
       </div>
 
-      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong lemma? Fix it on its ayah in <%= link_to 'Word roots, stems and lemmas', word_roots_path %>.</p>
+      <p class="mb-4 text-sm text-gray-500">A word linked to the wrong lemma? Fix it on its ayah, in <%= link_to 'Ayahs', word_roots_path %>.</p>
 
       <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
 

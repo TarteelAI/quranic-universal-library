@@ -262,12 +262,6 @@ module ToolDocsHelper
     HTML
   end
 
-  def doc_image_tag(path)
-    # NOTE: update version number when images are updated
-    url = "#{ENV['CDN_HOST']}/qul/help-screenshots/#{path}?v=2"
-    "<img data-src='#{url}' class='img-fluid' data-controller='lazy-load' />".html_safe
-  end
-
   def compare_ayah_help
     [
       "Compare Ayah tool",
@@ -313,10 +307,17 @@ module ToolDocsHelper
         HTML
       },
       {
-        type: 'step',
-        title: 'Find an ayah',
-        text: "Pick the translation on the <code>Select resource</code> page (a language can have more than one). Use the <code>Surah</code> and <code>Ayah</code> filters and click <code>Show</code>. Words without a translation are highlighted. Click <code>Suggest a fix</code> to fix the ayah: each word has its own field, with the current translation and the English one for reference.",
-        screenshot: 'update-word-translation.png'
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick the translation on the <code>Select resource</code> page (a language can have more than one). Use the <code>Surah</code> and <code>Ayah</code> filters to find the ayah. Words without a translation are highlighted.",
+          filters: [ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '2')],
+          fix_text: "Each word has its own field, with the current translation and the English one for reference. Fix the words that are wrong, leave the others as they are.",
+          fix: ui_screen(ui_input('ٱلۡحَمۡدُ', 'All praise'), ui_input('لِلَّهِ', '(is) for Allah'), ui_input('رَبِّ', 'Lord'), title: 'Suggest a fix')
+        )
       },
       {
         type: 'heading',
@@ -371,14 +372,51 @@ module ToolDocsHelper
             HTML
           },
           {
-            text: "Pick the first and last word of the group, the primary word that holds the group translation, type the group translation and click <code>Save group translation</code>.",
-            screenshot: 'save-group-translation.png'
+            text: <<~HTML
+              <p>Pick the first and last word of the group, the primary word that holds the group translation, type the group translation and click <code>Save group translation</code>.</p>
+              #{ui_screen(ui_select('Word range from', 'مِنۢ'), ui_select('Word range to', 'أَيۡدِيهِمۡ'), ui_select('Group word', 'مِنۢ'),
+                          ui_input('Group text', 'before them'), ui_button('Save group translation'), title: 'Create group')}
+            HTML
           }
         ]
       },
       {
         type: 'info',
-        text: "Saved changes go live right away. Every change is kept in the change log in the admin panel. To roll back a change or remove a group, contact the admin."
+        text: "Word translations go live once a reviewer approves them. Group translations need edit access and go live right away. Every change is kept in the change log in the admin panel. To roll back a change or remove a group, contact the admin."
+      }
+    ]
+  end
+
+  # The steps every proofreading tool shares: find it, suggest a fix, send it, review.
+  # filters: the controls on the list page, fix: drawing of the edit page
+  def suggest_fix_steps(find_text:, filters:, fix_text:, fix:)
+    [
+      {
+        title: 'Find it',
+        text: find_text,
+        ui: ui_screen(*filters, ui_button('Filter', :dark), title: 'List')
+      },
+      {
+        title: 'Suggest a fix',
+        text: "Click <code>Suggest a fix</code> in the list, or on the page after <code>Show</code>. You need to be signed in. If a fix is already waiting for review, the page shows it: check it first, so the same fix isn't sent twice.",
+        ui: ui_screen(ui_note('1:2'), ui_button('Suggest a fix', :blue), ui_button('Show'), title: 'List')
+      },
+      {
+        title: 'Make your fix',
+        text: fix_text,
+        ui: fix
+      },
+      {
+        title: 'Propose changes',
+        text: "Say what was wrong in <code>Comment for the reviewer</code> (optional). Tick the box to confirm it's a typo, spelling mistake or factual error, not a wording you'd prefer, and click <code>Propose changes</code>.",
+        ui: ui_screen(ui_input('Comment for the reviewer', 'Typo in the second word'),
+                      ui_checkbox("I'm fixing a typo, spelling mistake or factual error"),
+                      ui_button('Propose changes'))
+      },
+      {
+        title: 'Review',
+        text: "Your fix is saved as a suggestion. A reviewer checks it, and the text changes once it's approved. Until then it shows as waiting for review on the page.",
+        ui: "<div class='rounded border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900'><strong>A fix has already been suggested here and is waiting for review.</strong></div>"
       }
     ]
   end
@@ -442,10 +480,17 @@ module ToolDocsHelper
         HTML
       },
       {
-        type: 'step',
-        title: 'Find the translation of an ayah',
-        text: "Pick the translation, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Click <code>Show</code> to read it, then <code>Suggest a fix</code> to fix it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time. <code>Change view</code> shows a whole page, handy to compare ayahs next to each other.",
-        screenshot: 'select-translation.png'
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick the translation, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. On the ayah page, <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time, and <code>Change view</code> shows a whole page, handy to compare ayahs next to each other.",
+          filters: [ui_select('Translation', 'The Clear Quran'), ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '2')],
+          fix_text: "Fix the text of this ayah, and its footnotes if needed. See the common fixes below.",
+          fix: ui_screen(ui_input('Translation of 1:2', 'All praise is for Allah—Lord of all worlds.'), ui_button('+ Add footnote', :light), title: 'Suggest a fix')
+        )
       },
       {
         type: 'heading',
@@ -543,9 +588,17 @@ module ToolDocsHelper
         HTML
       },
       {
-        type: 'step',
-        title: 'Find the transliteration of an ayah',
-        text: "Pick the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Tick <code>Only missing ayahs</code> to list ayahs without a transliteration. Click <code>Show</code> to read it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time."
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick the transliteration, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Tick <code>Only missing ayahs</code> to list ayahs without a transliteration. On the ayah page, <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time.",
+          filters: [ui_select('Transliteration', 'English'), ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '2'), ui_checkbox('Only missing ayahs', checked: false)],
+          fix_text: "Fix the text, and keep the tags that are already there. For an ayah without a transliteration the button is <code>Add transliteration</code>.",
+          fix: ui_screen(ui_input('Transliteration', 'Al&lt;u&gt;h&lt;/u&gt;amdu lillahi rabbi al&lt;u&gt;a&lt;/u&gt;lameena'), title: 'Suggest a fix')
+        )
       },
       {
         type: 'heading',
@@ -640,16 +693,17 @@ module ToolDocsHelper
         HTML
       },
       {
-        type: 'step',
-        title: 'Steps',
-        text: <<~HTML
-          <ol class="list-decimal ps-5 space-y-1">
-            <li>Select the transliteration you want to proofread.</li>
-            <li>Choose a <code>Surah</code> and <code>Ayah</code> and click <code>Filter</code>. Check <code>Only ayahs with missing words</code> to see only ayahs that need work.</li>
-            <li>Click <code>Show</code> to review the ayah, missing words are highlighted.</li>
-            <li>Click <code>Suggest a fix</code>, correct the words and click <code>Propose changes</code>.</li>
-          </ol>
-        HTML
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick the transliteration, then choose a <code>Surah</code> and <code>Ayah</code>. Tick <code>Only ayahs with missing words</code> to see only ayahs that need work. On the ayah page, missing words are highlighted.",
+          filters: [ui_select('Transliteration', 'English'), ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '2'), ui_checkbox('Only ayahs with missing words', checked: false)],
+          fix_text: "Each word has its own field. Correct the words that are wrong, leave the others as they are.",
+          fix: ui_screen(ui_input('ٱلۡحَمۡدُ', 'al-ḥamdu'), ui_input('لِلَّهِ', 'lillahi'), ui_input('رَبِّ', 'rabbi'), title: 'Suggest a fix')
+        )
       },
       {
         type: 'heading',
@@ -723,10 +777,17 @@ module ToolDocsHelper
         HTML
       },
       {
-        type: 'step',
-        title: 'Find the tafsir',
-        text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. Click <code>Show</code> to read it, then <code>Suggest a fix</code> to fix it. <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
-        screenshot: 'find-tafsir.png'
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. On the tafsir page, <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
+          filters: [ui_select('Tafsir', 'Ibn Kathir'), ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '2')],
+          fix_text: "Fix the text in the editor. Change <code>First ayah</code> or <code>Last ayah</code> only when the tafsir covers the wrong ayahs, see the common fixes below.",
+          fix: ui_screen(ui_select('First ayah', '1:2'), ui_select('Last ayah', '1:2'), ui_input('Tafsir text', 'The Meaning of Al-Hamd...'), title: 'Suggest a fix')
+        )
       },
       {
         type: 'heading',
@@ -857,14 +918,49 @@ module ToolDocsHelper
       },
 
       {
-        text: "Each page in the Mushaf goes through a 4-step workflow: <strong>Step 1: Set Ayah Range</strong> → <strong>Step 2: Assign Line Numbers</strong> → <strong>Step 3: Fix Line Alignment</strong> → <strong>Step 4: Preview</strong>. All steps must be completed before the page can be properly displayed.",
-        screenshot: 'mushaf-workflow-overview.png'
+        text: "Each page goes through four steps: set the ayah range, assign line numbers, fix line alignment and preview. All of them must be done before the page shows properly. Click a step to see what it looks like, the sections below explain each one in detail."
+      },
+      {
+        type: 'flow',
+        steps: [
+          {
+            title: 'Pick a layout',
+            text: "On the Mushaf layouts page, click <code>Show</code> on the layout you want to work on.",
+            ui: ui_screen(ui_note('16 lines, Indopak'), ui_button('Show'), title: 'Mushaf layouts')
+          },
+          {
+            title: 'Find the page',
+            text: "The pages overview lists every page with its ayah range and status. Search by page number or ayah, e.g. <code>20</code> or <code>2:5</code>.",
+            ui: ui_screen(ui_input('Search', '2:5'), ui_note('Page 2 &middot; 2:1 - 2:5 &middot; done'), ui_note('Page 3 &middot; 2:6 - 2:16 &middot; missing line alignment'), title: 'Pages')
+          },
+          {
+            title: 'Set ayah range',
+            text: "Click <code>Set Ayah Range</code>. Next to the PDF page, enter the first and last ayah on the page as <code>Surah:Ayah</code> and click <code>Save</code>.",
+            ui: ui_screen(ui_split(ui_pdf, ui_input('First ayah', '2:255') + ui_input('Last ayah', '2:257') + ui_button('Save')), title: 'Set Ayah Range')
+          },
+          {
+            title: 'Assign line numbers',
+            text: "Click <code>Update Word lines</code>. Give the first word of each line its line number, the words after it follow. <code>0</code> means the word is on the next page.",
+            ui: ui_screen(ui_split(ui_pdf, ui_input('ٱللَّهُ', '1') + ui_input('لَآ', '1') + ui_input('إِلَٰهَ', '2') + ui_checkbox('Propagate changes') +
+                                            ui_button('+1', :light) + ui_button('-1', :light) + ui_button('Undo', :light) + ui_button('Save')), title: 'Update Word lines')
+          },
+          {
+            title: 'Fix line alignment',
+            text: "Click <code>Fix line alignment</code>. Lines are justified (<code>J</code>) by default, mark centered lines <code>C</code>, Bismillah <code>B</code> and surah names <code>N</code>. Changes save right away.",
+            ui: ui_screen(ui_split(ui_pdf, ui_note('Line 1') + ui_button('C', :light) + ui_button('J', :blue) + ui_button('B', :light) + ui_button('N', :light) +
+                                            ui_note('Line 2') + ui_button('C', :light) + ui_button('J', :light) + ui_button('B', :blue) + ui_button('N', :light)), title: 'Fix line alignment')
+          },
+          {
+            title: 'Preview',
+            text: "Click <code>Preview Page</code> and compare it with the PDF: line breaks, alignment, and no missing or extra words. <code>Proofreading view(With pdf)</code> shows both side by side.",
+            ui: ui_screen(ui_split(ui_pdf, ui_pdf), title: 'Preview Page')
+          }
+        ]
       },
 
       {
         type: 'info',
-        text: "<strong>Tip:</strong> Most of the actions mentioned in the following steps are also available in the <code>Actions</code> dropdown menu on the page. You can use either the direct buttons or the dropdown menu to access these features.",
-        screenshot: 'mushaf-actions-dropdown.png'
+        text: "<strong>Tip:</strong> Most of the actions mentioned in the following steps are also available in the <code>Actions</code> dropdown menu on the page. You can use either the direct buttons or the dropdown menu to access these features."
       },
 
       {
@@ -877,12 +973,10 @@ module ToolDocsHelper
         title: 'Select a Mushaf Layout',
         sections: [
           {
-            text: 'From the Mushaf layout index page, browse available Mushaf layouts and click the <code>Show</code> button on the one you want to work on.',
-            screenshot: 'mushaf-layout-list.png'
+            text: 'From the Mushaf layout index page, browse available Mushaf layouts and click the <code>Show</code> button on the one you want to work on.'
           },
           {
-            text: 'This opens the pages overview showing all pages with their current status. Each page shows its number, ayah range, and completion status. Use the search bar to find specific pages by page number or ayah reference (e.g., "20" or "2:5").',
-            screenshot: 'mushaf-pages-overview.png'
+            text: 'This opens the pages overview showing all pages with their current status. Each page shows its number, ayah range, and completion status. Use the search bar to find specific pages by page number or ayah reference (e.g., "20" or "2:5").'
           }
         ]
       },
@@ -899,8 +993,7 @@ module ToolDocsHelper
             text: 'This is the first required step for each page. Click the <code>Set Ayah Range</code> button or select <code>Set Ayah Range</code> from the Actions dropdown.',
           },
           {
-            text: 'A modal will open showing the PDF of the Mushaf page on the left side. Enter the ayah key for the first ayah and last ayah on this page using the format <code>Surah:Ayah</code> (e.g., <code>2:255</code> for Ayat al-Kursi).',
-            screenshot: 'mushaf-ayah-range-modal.png'
+            text: 'A modal will open showing the PDF of the Mushaf page on the left side. Enter the ayah key for the first ayah and last ayah on this page using the format <code>Surah:Ayah</code> (e.g., <code>2:255</code> for Ayat al-Kursi).'
           },
           {
             text: 'Click <code>Save</code> to save the ayah range.',
@@ -916,8 +1009,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Opening the Word Mapping Interface',
-        text: 'Once Step 1 is complete, click <code>Update Word lines</code> or select <code>Update Word lines</code> from the Actions dropdown to open the word mapping interface. The PDF of the Mushaf page will be displayed on the left, and all words from the ayah range will be listed on the right.',
-        screenshot: 'mushaf-word-mapping-interface.png'
+        text: 'Once Step 1 is complete, click <code>Update Word lines</code> or select <code>Update Word lines</code> from the Actions dropdown to open the word mapping interface. The PDF of the Mushaf page will be displayed on the left, and all words from the ayah range will be listed on the right.'
       },
 
       {
@@ -1012,8 +1104,7 @@ module ToolDocsHelper
         title: 'Setting Alignment for Each Line',
         sections: [
           {
-            text: 'After completing word mapping, click <code>Fix line alignment</code> from the Actions dropdown. This opens the line alignment interface with the PDF on the left and alignment controls on the right.',
-            screenshot: 'mushaf-line-alignment-interface.png'
+            text: 'After completing word mapping, click <code>Fix line alignment</code> from the Actions dropdown. This opens the line alignment interface with the PDF on the left and alignment controls on the right.'
           },
           {
             text: 'Each line has four alignment options:<ul><li><code>C</code> - Center aligned</li><li><code>J</code> - Justified (default for all lines)</li><li><code>B</code> - Bismillah (Check this if line has Bismillah)</li><li><code>N</code> - Surah Name (check this if line has surah name)</li></ul>',
@@ -1108,13 +1199,6 @@ module ToolDocsHelper
         type: 'step',
         title: 'Page Not Showing Preview',
         text: 'Make sure all three steps are completed. The preview requires: (1) Ayah range set, (2) All words mapped to line numbers, (3) Line alignments configured. The missing data screen will show which steps are incomplete.',
-      },
-
-      {
-        type: 'demo',
-        title: "Video Tutorial",
-        text: "Watch a complete walkthrough of the Mushaf Layout workflow from start to finish.",
-        screenshot: 'mushaf-layout-video-tutorial.png'
       }
     ]
   end
@@ -1251,21 +1335,29 @@ module ToolDocsHelper
         text: "This tool allows you to check the compatibility of different Quranic scripts (e.g., Madani, IndoPak, etc.) with various fonts. Here's how to use the tool effectively:"
       },
       {
-        type: 'step',
-        title: 'Step 1: Find the ayah you want to check',
-        text: "Use the filters to find the ayah you're looking for. Click on <code>Show</code> button to open the ayah.",
-        screenshot: 'quran-script-filters.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Proofread and compare all scripts',
-        text: "The ayah page will show all available script of selected ayah, scroll down to see word by word script. <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose'>Open an issue</a> on GitHub if you find any issues with the script or font.",
-        screenshot: 'ayah-scripts.png'
-      },
-      {
-        type: 'step',
-        title: "Navigate to other ayahs",
-        text: "Use <code>Next</code> or <code>Previous</code> button to navigate to other ayahs.",
+        type: 'flow',
+        steps: [
+          {
+            title: 'Find the ayah',
+            text: "Use the filters to find the ayah and click <code>Show</code>.",
+            ui: ui_screen(ui_select('Surah', 'Al-Baqarah'), ui_select('Ayah', '255'), ui_button('Filter', :dark), ui_button('Show'), title: 'Quran scripts')
+          },
+          {
+            title: 'Compare the scripts',
+            text: "The ayah page shows the ayah in every script, each in its own font. Scroll down for the word by word script. Look for missing marks, wrong letters, or boxes where the font can't draw a character.",
+            ui: ui_screen(ui_note('QPC Hafs'), ui_note("<span dir='rtl' class='block text-right qpc-hafs text-lg text-gray-800'>ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ</span>"), ui_note('Indopak Nastaleeq'), ui_note("<span dir='rtl' class='block text-right indopak-nastaleeq text-lg text-gray-800'>اَللّٰهُ لَاۤ اِلٰهَ اِلَّا هُوَ</span>"), title: '2:255')
+          },
+          {
+            title: 'Report an issue',
+            text: "Found a problem with a script or font? <a href='https://github.com/TarteelAI/quranic-universal-library/issues/new/choose'>Open an issue</a> on GitHub with the ayah and the script.",
+            ui: ui_screen(ui_button('Report a content issue', :dark), title: 'GitHub')
+          },
+          {
+            title: 'Next ayah',
+            text: "Use <code>Next ayah</code> and <code>Previous ayah</code> to move to other ayahs.",
+            ui: ui_screen(ui_button('Previous ayah', :dark), ui_button('Next ayah', :dark), title: '2:255')
+          }
+        ]
       }
     ]
   end
@@ -1277,16 +1369,24 @@ module ToolDocsHelper
         text: "This tool is used to proofread and fix Surah information in different languages: the introduction to each Surah, its name, when it was revealed and what it's about."
       },
       {
-        type: 'step',
-        title: 'Step 1: Find the Surah information',
-        text: "Pick a resource: each book of Surah information is its own resource, and a language can have more than one. Click on <code>Show</code> button to open the Surah information page.",
-        screenshot: 'find-surah-info.png'
-      },
-      {
-        type: 'step',
-        title: 'Step 2: Read the Surah information',
-        text: "This page will show the Surah information of selected Surah. If you find any issues, click <code>Edit</code> to fix it. Use <code>Previous</code> and <code>Next</code> to move between Surahs.",
-        screenshot: 'read-surah-info.png'
+        type: 'flow',
+        steps: [
+          {
+            title: 'Find the Surah',
+            text: "Pick a resource: each book of Surah information is its own resource, and a language can have more than one. Click <code>Show</code> on the Surah.",
+            ui: ui_screen(ui_select('Resource', 'English, Sayyid Abul Ala Maududi'), ui_button('Filter', :dark), ui_note('Al-Fatihah'), ui_button('Show'), title: 'Surah info')
+          },
+          {
+            title: 'Read it',
+            text: "The page shows the Surah information. Use <code>Previous Surah</code> and <code>Next Surah</code> to move between Surahs.",
+            ui: ui_screen(ui_button('Edit'), ui_button('Previous Surah', :dark), ui_button('Next Surah', :dark), ui_note('Name: This Surah takes its name from...'), title: 'Al-Fatihah')
+          },
+          {
+            title: 'Fix it',
+            text: "Click <code>Edit</code>, fix the text in the editor (<code>View</code> then <code>Source code</code> for the HTML) and click <code>Save suggestion</code>. It goes live once an admin approves it.",
+            ui: ui_screen(ui_input('Short info', 'This Surah is named after...'), ui_input('Long info', 'Name: ...'), ui_button('Save suggestion'), title: 'Edit')
+          }
+        ]
       },
       {
         type: 'info',
@@ -1295,8 +1395,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Step 3: Fix the Surah information',
-        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save suggestion</code> to save your changes, they go live once an admin approves them.",
-        screenshot: 'update-surah-info.png'
+        text: "Edit the Surah information and formatting using a rich text editor. Click <code>View</code> and then <code>Source code</code> to edit the Surah information in HTML format. Click <code>Save suggestion</code> to save your changes, they go live once an admin approves them."
       },
       {
         type: 'heading',
@@ -1346,8 +1445,9 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Analyze Unicode (Character Analysis)',
-        text: 'To analyze the Unicode values, optionally select a script from the dropdown (e.g., QPC Hafs, Uthmani, Indopak) and click the <code>Analyze Unicode</code> button. The tool will display a detailed table showing:<ul><li>Unicode name for each character</li><li>The character itself (clickable to copy)</li><li>Occurrence count in the text</li><li>Decimal Unicode value</li><li>HTML entity representation</li><li>Decomposition information (if applicable)</li><li>Hexadecimal Unicode value with link to detailed Unicode info</li></ul>',
-        screenshot: 'char-info.png'
+        text: 'To analyze the Unicode values, optionally select a script from the dropdown (e.g., QPC Hafs, Uthmani, Indopak) and click the <code>Analyze Unicode</code> button. The tool will display a detailed table showing:<ul><li>Unicode name for each character</li><li>The character itself (clickable to copy)</li><li>Occurrence count in the text</li><li>Decimal Unicode value</li><li>HTML entity representation</li><li>Decomposition information (if applicable)</li><li>Hexadecimal Unicode value with link to detailed Unicode info</li></ul>' +
+          ui_screen(ui_input('Text', 'بِسْمِ'), ui_select('Script', 'QPC Hafs'), ui_button('Analyze Unicode', :blue),
+                    ui_note('<b>Name</b> ARABIC LETTER BEH &middot; <b>Char</b> ب &middot; <b>Count</b> 1 &middot; <b>Decimal</b> 1576 &middot; <b>HTML entity</b> &amp;#1576;'), title: 'Result')
       },
       {
         type: 'step',
@@ -1374,22 +1474,24 @@ module ToolDocsHelper
         text: "This tool is used to proofread and correct word-by-word Arabic transliterations. Please follow these steps to make adjustments to any transliteration:"
       },
       {
-        type: 'step',
-        title: 'Ayah by ayah',
-        text: "Use the filters to find the ayah you're looks for. Click on <code>Show</code> button to open the ayah.",
-        screenshot: 'arabic-transliteration.png'
-      },
-      {
-        type: 'step',
-        title: 'Review ayah words and transliteration of each word',
-        text: "The ayah page will show all words of selected ayah along with their transliteration. Scroll down to see the source image that we're using as reference to digitize the transliteration. You can zoom, or scroll the the page to view the ayah within the image. If you find any issues, click the <code>Contribute</code> button to fix the transliteration.",
-        screenshot: 'arabic-transliteration-show.png'
-      },
-      {
-        type: 'step',
-        title: "Fix the transliteration",
-        text: "This page will show the Ayah along with a list of all its words. To help focus, only one word will be shown at a time. Each word comes with an input field where you can correct its transliteration. Once you're satisfied with the update, click <code>Save transliteration</code> to save the changes.",
-        screenshot: "fix-arabic-transliteration.png"
+        type: 'flow',
+        steps: [
+          {
+            title: 'Find the ayah',
+            text: "Use the filters to find the ayah you're looking for and click <code>Show</code>.",
+            ui: ui_screen(ui_select('Surah', 'Al-Fatihah'), ui_select('Filter by progress', 'Missing'), ui_button('Filter', :dark), ui_button('Show'), title: 'Quran word syllables')
+          },
+          {
+            title: 'Review the words',
+            text: "The ayah page shows every word with its transliteration. Scroll down to the source image the transliteration was typed from: zoom or scroll it to find the ayah. If something is wrong, click <code>Contribute</code>.",
+            ui: ui_screen(ui_note("<span class='qpc-hafs text-lg text-gray-800'>بِسۡمِ</span> &rarr; <span class='qpc-hafs text-lg text-gray-800'>بِسْ مِ</span>"), ui_button('Contribute'), title: '1:1')
+          },
+          {
+            title: 'Fix the transliteration',
+            text: "One word is shown at a time, with a field for its transliteration. Correct it and click <code>Save transliteration</code>.",
+            ui: ui_screen(ui_input('بِسۡمِ', 'بِسْ مِ'), ui_button('Save transliteration'), title: 'Contribute')
+          }
+        ]
       }
     ]
   end
@@ -1413,12 +1515,42 @@ module ToolDocsHelper
       },
 
       {
+        type: "flow",
+        steps: [
+          {
+            title: "Pick the Surah",
+            text: "Select the reciter and the Surah, click <code>Filter</code>, then <code>Fix Segments</code> to open the editor.",
+            ui: ui_screen(ui_select("Reciter", "Mishari Rashid al-Afasy"), ui_select("Surah", "Al-Fatihah"), ui_button("Filter", :dark), ui_button("Fix Segments"), title: "Surah recitation segments")
+          },
+          {
+            title: "Load the audio",
+            text: "The audio URL is filled in already. Change it, or pick a local file if you have a fixed version that isn't on the CDN yet. Click <code>Load Audio Data</code>.",
+            ui: ui_screen(ui_input("Enter file URL", "https://download.quranicaudio.com/.../001.mp3"), ui_button("Load Audio Data", :blue), title: "Segment editor")
+          },
+          {
+            title: "Ayah timing",
+            text: "Only if ayah timing is missing: tick <code>Update Ayah timing</code>, click <code>Start</code> when the ayah begins and <code>End</code> when it ends. End also starts the next ayah.",
+            ui: ui_screen(ui_checkbox("Update Ayah timing"), ui_checkbox("Auto Save"), ui_button("Start", :light), ui_button("End", :light), title: "Segment editor")
+          },
+          {
+            title: "Track words",
+            text: "Click <code>Play</code>, and click <code>Track</code> as each word starts. Each click ends the word before. Use <code>&minus;/+</code> to nudge a time by 50ms.",
+            ui: ui_screen(ui_button("Play", :dark), ui_note("1:1:1 <span class='qpc-hafs text-base text-gray-800'>بِسۡمِ</span> &middot; 0 - 480 ms"), ui_button("Track", :blue), ui_note("1:1:2 <span class='qpc-hafs text-base text-gray-800'>ٱللَّهِ</span> &middot; 480 - ..."), ui_button("Track", :blue), title: "Words")
+          },
+          {
+            title: "Check and save",
+            text: "Play the ayah back and check the highlighted word follows the audio. Fix any time, then click <code>Save Segments</code>. Save each ayah before moving to the next one.",
+            ui: ui_screen(ui_button("Play", :dark), ui_button("Find issues", :light), ui_button("Save Segments"), title: "Segment editor")
+          }
+        ]
+      },
+
+      {
         type: "step",
         title: "Step 1: Select the Surah and reciter",
         sections: [
           {
-            text: "From the Surah Recitation Segments index page, select the reciter you want to work on, then choose the Surah. Click the <code>Filter</code> button to see list of Surahs for the selected reciter. Click the <code>Fix segment</code> button to open the segment editor.",
-            screenshot: "surah-segments-select-surah.png"
+            text: "From the Surah Recitation Segments index page, select the reciter you want to work on, then choose the Surah. Click the <code>Filter</code> button to see list of Surahs for the selected reciter. Click the <code>Fix Segments</code> button to open the segment editor."
           }
         ]
       },
@@ -1428,8 +1560,7 @@ module ToolDocsHelper
         title: "Step 2: Choose the audio source",
         sections: [
           {
-            text: "Once the segment editor is open, select the audio source. You can either enter an audio file URL or choose a local audio file from your computer. The URL field will be pre-filled with the existing audio file, but you can change it if needed.",
-            screenshot: "surah-segment-builder.png"
+            text: "Once the segment editor is open, select the audio source. You can either enter an audio file URL or choose a local audio file from your computer. The URL field will be pre-filled with the existing audio file, but you can change it if needed."
           },
           {
             type: "info",
@@ -1446,8 +1577,7 @@ module ToolDocsHelper
         title: "Step 3: Add Ayah timing (if missing)",
         sections: [
           {
-            text: "If Ayah timing is missing, check the <code>Update Ayah timing</code> checkbox in the editor. This will allow you to set start and end times for each Ayah.",
-            screenshot: "surah-segment-builder-ayah-timing.png"
+            text: "If Ayah timing is missing, check the <code>Update Ayah timing</code> checkbox in the editor. This will allow you to set start and end times for each Ayah."
           },
           {
             text: "Click the <code>Start</code> button when the Ayah begins to set its start time. Click the <code>End</code> button when the Ayah ends — this will set the current Ayah's end time and the start time for the next Ayah automatically."
@@ -1465,8 +1595,7 @@ module ToolDocsHelper
       {
         type: "step",
         title: "Step 4: Track and set word timestamps",
-        text: "Click <code>Play</code> to start the audio. When a word is being recited, click its <code>Track</code> button to set the start time. The next time you click <code>Track</code> (for the same or next word), it will set the end time for the current word and automatically set the start time for the next word. Continue this process until all words in the Ayah have timings. Use the <code>−/+</code> buttons next to a time to nudge it in 50ms steps for fine corrections.",
-        screenshot: "surah-segments-track-timing.png"
+        text: "Click <code>Play</code> to start the audio. When a word is being recited, click its <code>Track</code> button to set the start time. The next time you click <code>Track</code> (for the same or next word), it will set the end time for the current word and automatically set the start time for the next word. Continue this process until all words in the Ayah have timings. Use the <code>−/+</code> buttons next to a time to nudge it in 50ms steps for fine corrections."
       },
 
       {
@@ -1509,8 +1638,7 @@ module ToolDocsHelper
         title: "Split and Fill",
         sections: [
           {
-            text: "If you tracked several words together as one block, click <code>Split</code> on the first word to divide its timing across the following words that have no timing yet. The time is split proportionally to each word's length.",
-            screenshot: "surah-segments-split-fill.png"
+            text: "If you tracked several words together as one block, click <code>Split</code> on the first word to divide its timing across the following words that have no timing yet. The time is split proportionally to each word's length."
           },
           {
             text: "If a single word in the middle has no timing, click <code>Fill</code> to give it a timing taken from the gap between its previous and next word."
@@ -1523,8 +1651,7 @@ module ToolDocsHelper
         title: "Timeline",
         sections: [
           {
-            text: "Turn on the <code>Timeline</code> checkbox to see every Ayah and word laid out on a time axis below the controls. The playhead follows playback and the view scrolls to keep it in view; use <code>Jump to current time</code> to recenter it, and the <code>+ / −</code> buttons to zoom in and out.",
-            screenshot: "surah-segments-timeline.png"
+            text: "Turn on the <code>Timeline</code> checkbox to see every Ayah and word laid out on a time axis below the controls. The playhead follows playback and the view scrolls to keep it in view; use <code>Jump to current time</code> to recenter it, and the <code>+ / −</code> buttons to zoom in and out."
           },
           {
             text: "Click anywhere on the timeline to seek the audio to that point. Hover over a word to see its location and timing (<code>surah:ayah:word — start–end ms</code>)."
@@ -1544,8 +1671,7 @@ module ToolDocsHelper
             text: "Enable the <code>Waveform</code> checkbox (available once audio is loaded) to draw the audio's waveform under the words. It decodes the entire audio file, so it can be slow for long Surahs, but it lets you see whether the empty space between two words is real silence or actually contains speech."
           },
           {
-            text: "Empty space between words appears as a striped amber gap. Click a gap to close just that one, or click <code>Close gaps</code> to close every gap in the current Ayah. When the waveform is on, the boundary snaps to where speech actually resumes (trimming the leading silence); when it is off, the previous word's end is extended to meet the next word.",
-            screenshot: "surah-segments-waveform-gaps.png"
+            text: "Empty space between words appears as a striped amber gap. Click a gap to close just that one, or click <code>Close gaps</code> to close every gap in the current Ayah. When the waveform is on, the boundary snaps to where speech actually resumes (trimming the leading silence); when it is off, the previous word's end is extended to meet the next word."
           }
         ]
       },
@@ -1555,8 +1681,7 @@ module ToolDocsHelper
         title: "Find and understand issues",
         sections: [
           {
-            text: "Click <code>Find issues</code> to scan the whole Surah for problems. Issues are listed with the most important first — click any of them to jump straight to that Ayah. The label next to the save status also shows whether the current Ayah has a major or minor issue.",
-            screenshot: "surah-segments-find-issues.png"
+            text: "Click <code>Find issues</code> to scan the whole Surah for problems. Issues are listed with the most important first — click any of them to jump straight to that Ayah. The label next to the save status also shows whether the current Ayah has a major or minor issue."
           },
           {
             type: "info",

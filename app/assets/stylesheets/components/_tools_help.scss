@@ -69,3 +69,13 @@
     display: none;
   }
 }
+// Button and field names in the tool help, e.g. <code>Propose changes</code>
+.tool-help-body code {
+  font-size: 0.875em;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  white-space: nowrap;
+}

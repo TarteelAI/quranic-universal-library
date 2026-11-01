@@ -296,7 +296,7 @@ module ToolDocsHelper
     [
       "Word by Word Translations",
       {
-        text: "This tool is used to proofread and fix the word by word translation of the Quran: the meaning of each Arabic word, shown under it. Find the ayah, click <code>Edit</code>, fix the words and click <code>Save translations</code>."
+        text: "This tool is used to proofread and fix the word by word translation of the Quran: the meaning of each Arabic word, shown under it. Find the ayah, click <code>Suggest a fix</code>, fix the words and click <code>Propose changes</code>."
       },
       {
         type: 'heading',
@@ -315,7 +315,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Find an ayah',
-        text: "Pick the translation on the <code>Select resource</code> page (a language can have more than one). Use the <code>Surah</code> and <code>Ayah</code> filters and click <code>Show</code>. Words without a translation are highlighted. Click <code>Edit</code> to fix the ayah: each word has its own field, with the current translation and the English one for reference.",
+        text: "Pick the translation on the <code>Select resource</code> page (a language can have more than one). Use the <code>Surah</code> and <code>Ayah</code> filters and click <code>Show</code>. Words without a translation are highlighted. Click <code>Suggest a fix</code> to fix the ayah: each word has its own field, with the current translation and the English one for reference.",
         screenshot: 'update-word-translation.png'
       },
       {
@@ -326,7 +326,7 @@ module ToolDocsHelper
         type: 'step',
         title: '1. Fix a typo',
         text: <<~HTML
-          <p>Fix the text in the word's field and click <code>Save translations</code>.</p>
+          <p>Fix the text in the word's field and click <code>Propose changes</code>.</p>
           #{word_translation_diagram(
             [['Now', [['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', "(of) the <del class='text-red-600'>wrlds</del>", :wrong]]],
              ['After', [['رَبِّ', 'Lord', :same], ['ٱلۡعَٰلَمِينَ', "(of) the <ins class='text-green-700 font-semibold no-underline'>worlds</ins>", :fixed]]]]
@@ -425,7 +425,7 @@ module ToolDocsHelper
     [
       "Ayah Translation",
       {
-        text: "This tool is used to proofread and fix ayah translations. Find the ayah, click <code>Edit</code>, make your fix, say what you changed in <code>Comment for the reviewer</code> and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+        text: "This tool is used to proofread and fix ayah translations. Find the ayah, click <code>Suggest a fix</code>, make your fix, say what you changed in <code>Comment for the reviewer</code> and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
       {
         type: 'heading',
@@ -444,7 +444,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Find the translation of an ayah',
-        text: "Pick the translation, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Click <code>Show</code> to read it, then <code>Edit</code> to fix it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time. <code>Change view</code> shows a whole page, handy to compare ayahs next to each other.",
+        text: "Pick the translation, then use the <code>Surah</code> and <code>Ayah</code> filters to find an ayah. Click <code>Show</code> to read it, then <code>Suggest a fix</code> to fix it. <code>Previous ayah</code> and <code>Next ayah</code> move one ayah at a time. <code>Change view</code> shows a whole page, handy to compare ayahs next to each other.",
         screenshot: 'select-translation.png'
       },
       {
@@ -455,7 +455,7 @@ module ToolDocsHelper
         type: 'step',
         title: '1. Fix a typo',
         text: <<~HTML
-          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>.</p>
+          <p>Click <code>Suggest a fix</code>, fix the text and click <code>Propose changes</code>.</p>
           #{ayah_text_diagram(
             [['Now', [[1, "All praise is for Allah, Lord of all <del class='text-red-600'>wrlds</del>", :wrong]]],
              ['After', [[1, "All praise is for Allah, Lord of all <ins class='text-green-700 font-semibold no-underline'>worlds</ins>", :fixed]]]]
@@ -526,7 +526,7 @@ module ToolDocsHelper
     [
       "Ayah Transliteration",
       {
-        text: "This tool is used to proofread and fix ayah transliterations. Find the ayah, click <code>Edit</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+        text: "This tool is used to proofread and fix ayah transliterations. Find the ayah, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
       {
         type: 'heading',
@@ -555,7 +555,7 @@ module ToolDocsHelper
         type: 'step',
         title: '1. Fix spelling',
         text: <<~HTML
-          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>.</p>
+          <p>Click <code>Suggest a fix</code>, fix the text and click <code>Propose changes</code>.</p>
           #{ayah_text_diagram(
             [['Now', [[2, "…hudan lilmuttaqee<del class='text-red-600'>m</del>", :wrong]]],
              ['After', [[2, "…hudan lilmuttaqee<ins class='text-green-700 font-semibold no-underline'>n</ins>", :fixed]]]]
@@ -647,7 +647,7 @@ module ToolDocsHelper
             <li>Select the transliteration you want to proofread.</li>
             <li>Choose a <code>Surah</code> and <code>Ayah</code> and click <code>Filter</code>. Check <code>Only ayahs with missing words</code> to see only ayahs that need work.</li>
             <li>Click <code>Show</code> to review the ayah, missing words are highlighted.</li>
-            <li>Click <code>Edit</code>, correct the words and click <code>Propose changes</code>.</li>
+            <li>Click <code>Suggest a fix</code>, correct the words and click <code>Propose changes</code>.</li>
           </ol>
         HTML
       },
@@ -700,7 +700,7 @@ module ToolDocsHelper
     [
       "Ayah Tafsir tool help",
       {
-        text: "This tool is used to proofread and fix ayah tafsirs. Find the tafsir, click <code>Edit</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+        text: "This tool is used to proofread and fix ayah tafsirs. Find the tafsir, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
       },
       {
         type: 'heading',
@@ -725,7 +725,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Find the tafsir',
-        text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. Click <code>Show</code> to read it, then <code>Edit</code> to fix it. <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
+        text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. Click <code>Show</code> to read it, then <code>Suggest a fix</code> to fix it. <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
         screenshot: 'find-tafsir.png'
       },
       {
@@ -736,7 +736,7 @@ module ToolDocsHelper
         type: 'step',
         title: '1. Fix a typo or formatting',
         text: <<~HTML
-          <p>Click <code>Edit</code>, fix the text and click <code>Propose changes</code>. Leave <code>First ayah</code> and <code>Last ayah</code> as they are.</p>
+          <p>Click <code>Suggest a fix</code>, fix the text and click <code>Propose changes</code>. Leave <code>First ayah</code> and <code>Last ayah</code> as they are.</p>
           #{tafsir_range_diagram(
             [['Now', [[22, :edit], [23, :edit], [24, :edit], [25, :other]], [[0, 2, '“...the gardn of bliss”', :edit]]],
              ['After', [[22, :edit], [23, :edit], [24, :edit], [25, :other]], [[0, 2, '“...the garden of bliss”', :edit]]]]

@@ -1,0 +1,16 @@
+<%# What a lemma suggestion changes, for the pending suggestions list %>
+<% labels = { 'text_madani' => 'Lemma', 'text_clean' => 'Without harakat', 'en_meanings' => 'English meaning' } %>
+<ul class="space-y-1">
+  <% draft.changed_fields.each do |field| %>
+    <li>
+      <span class="text-gray-500"><%= labels[field] %>:</span>
+      <% if field == 'en_meanings' %>
+        <del class="text-red-700"><%= Array(draft.current_en_meanings).join(', ').presence || 'none' %></del> &rarr;
+        <ins class="text-green-700 no-underline"><%= Array(draft.draft_en_meanings).join(', ').presence || 'none' %></ins>
+      <% else %>
+        <del class="text-red-700 text-xl"><%= draft["current_#{field}"].presence || 'none' %></del> &rarr;
+        <ins class="text-green-700 text-xl no-underline"><%= draft["draft_#{field}"].presence || 'none' %></ins>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

@@ -29,7 +29,8 @@ module ToolDocsHelper
       'topic',
       'ayah_theme',
       'root',
-      'stem'
+      'stem',
+      'lemma'
     ] + internal_tools_keys
   end
 
@@ -1633,6 +1634,42 @@ module ToolDocsHelper
         type: 'step',
         title: "2. The text without harakat doesn't match",
         text: "<code>Without harakat</code> is used for search. Keep the same letters as the stem, without harakat or other marks."
+      }
+    ]
+  end
+
+  def lemma_help
+    [
+      "Word lemmas",
+      {
+        text: "This tool is used to proofread the lemmas of Quran words and their meanings. A lemma is the dictionary form of a word: <code>كُتُب</code> and <code>ٱلْكِتَٰبِ</code> both have the lemma <code>كِتَٰب</code>. Find the lemma, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Search for the lemma without harakat, like <code>كتاب</code>, or for a meaning. <code>Show lemmas with</code> lists lemmas that have no English meaning yet.",
+          filters: [ui_input('Search', 'كتاب'), ui_select('Show lemmas with', 'No English meaning')],
+          fix_text: "Fix the lemma with its harakat, the same letters without harakat, or the English meaning.",
+          fix: ui_screen(ui_input('Lemma', 'كِتَٰب'), ui_input('Without harakat', 'كتاب'), ui_input('English meaning', 'book, writing'), title: 'Suggest a fix')
+        )
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. A missing or wrong meaning',
+        text: "Many lemmas have no meaning yet, and some have a meaning that belongs to another word. Meanings are separated by commas, keep each one short. Check it against the words listed on the lemma page."
+      },
+      {
+        type: 'step',
+        title: '2. A wrong letter or harakah',
+        text: "Fix the lemma, and keep <code>Without harakat</code> the same letters without harakat or other marks. It's used for search."
       }
     ]
   end

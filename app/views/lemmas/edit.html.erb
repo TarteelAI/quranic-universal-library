@@ -1,0 +1,52 @@
+<%
+  lemma = @presenter.lemma
+  submitted = params[:lemma] || {}
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Word lemma',
+           title: @presenter.page_title,
+           key: 'lemma',
+           breadcrumb_parents: [{ label: 'Lemmas', path: lemmas_path }, { label: lemma.text_clean, path: lemma_path(lemma.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('lemmas/draft_summary', draft: draft) } %>
+
+    <%= form_with scope: :lemma, url: lemma_path(lemma.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <%= render 'shared/form_errors', object: lemma %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <%= form.label :text_madani, 'Lemma', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :text_madani, value: submitted[:text_madani] || lemma.text_madani, class: "#{input_css} qpc-hafs text-xl", dir: 'rtl', required: true %>
+          <p class="text-xs text-gray-500 mt-1">With harakat.</p>
+        </div>
+        <div>
+          <%= form.label :text_clean, 'Without harakat', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :text_clean, value: submitted[:text_clean] || lemma.text_clean, class: "#{input_css} text-xl", dir: 'rtl', required: true %>
+          <p class="text-xs text-gray-500 mt-1">The same letters, used for search.</p>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :en_meanings, 'English meaning', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_field :en_meanings, value: submitted[:en_meanings] || Array(lemma.en_translations).join(', '), class: input_css %>
+        <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
+      </div>
+
+      <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
+
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "A wrong or missing letter, wrong harakat, or a meaning that's wrong or missing. Not a mistake: a spelling from another script or mushaf, or a meaning you'd word differently." %>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to 'Cancel', lemma_path(lemma.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

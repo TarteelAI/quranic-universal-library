@@ -27,7 +27,7 @@ class TranslationPresenter < ResourcePresenter
     when 'show'
       "#{resource_name} - #{ayah_label}"
     when 'edit', 'update'
-      "Edit: #{ayah_label} - #{resource_name}"
+      "Suggest a fix: #{ayah_label} - #{resource_name}"
     else
       "Ayah Translation Proofreading"
     end

@@ -4,7 +4,7 @@
 
   missing = @presenter.missing_transliteration?
 
-  actions << link_to(missing ? 'Add transliteration' : 'Edit', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
+  actions << link_to(missing ? 'Add transliteration' : 'Suggest a fix', edit_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success')
 
   if (previous_ayah = verse.previous_ayah)
     actions << link_to('Previous ayah', transliteration_proofreading_path(previous_ayah.id, resource_id: @resource.id), class: 'btn btn-dark', title: previous_ayah.verse_key)

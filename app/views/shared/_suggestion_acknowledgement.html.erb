@@ -1,0 +1,9 @@
+<%# Required checkbox before a suggested fix is submitted, same rule as the content issue form %>
+<div class="<%= local_assigns[:wrapper_class] || 'mb-4' %>">
+  <label class="flex items-start gap-2 text-sm text-gray-700">
+    <%= check_box_tag :acknowledgement, '1', false, required: true, class: 'mt-1' %>
+    <span>
+      I'm fixing a typo, spelling mistake or factual error. I'm not changing the wording to suit my own preference or opinion.
+    </span>
+  </label>
+</div>

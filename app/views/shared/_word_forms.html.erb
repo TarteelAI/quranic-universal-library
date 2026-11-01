@@ -1,5 +1,5 @@
 <%# Each form of a word with its translations and where it is, for the root, stem and lemma tools.
-    Pass forms: rows with text_qpc_hafs, translations and count %>
+    Pass forms: rows with text_qpc_hafs, translation and count %>
 <div class="tools-table-overflow">
   <table class="w-full">
     <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
@@ -13,7 +13,7 @@
     <% forms.each do |form| %>
       <tr class="border-b">
         <td class="py-2 pl-2 pe-6 whitespace-nowrap"><span class="qpc-hafs text-2xl" dir="rtl"><%= form.text_qpc_hafs %></span></td>
-        <td class="py-2 pe-6"><%= safe_html form.translations.compact.uniq { |t| strip_tags(t).downcase.strip }.join(', ') %></td>
+        <td class="py-2 pe-6"><%= safe_html form.translation %></td>
         <td class="py-2"><%= form.count %></td>
       </tr>
     <% end %>

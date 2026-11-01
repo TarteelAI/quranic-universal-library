@@ -43,7 +43,8 @@ class RootsPresenter < ApplicationPresenter
         .where('word_translations.language_id = 38 OR word_translations.id IS NULL')
         .select(
           'words.text_qpc_hafs',
-          'ARRAY_AGG(DISTINCT word_translations.text) AS translations',
+          # The most common English translation of the form
+          'MODE() WITHIN GROUP (ORDER BY word_translations.text) AS translation',
           'COUNT(DISTINCT words.id) AS count'
         )
         .group('words.text_qpc_hafs')

@@ -5,7 +5,7 @@
     <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
     <tr>
       <th class="text-left pe-6">Word</th>
-      <th class="text-left pe-4">Translation</th>
+      <th class="text-left pe-6">Translation</th>
       <th class="text-left">Times</th>
     </tr>
     </thead>
@@ -13,7 +13,7 @@
     <% forms.each do |form| %>
       <tr class="border-b">
         <td class="py-2 pl-2 pe-6 whitespace-nowrap"><span class="qpc-hafs text-2xl" dir="rtl"><%= form.text_qpc_hafs %></span></td>
-        <td class="py-2 pe-4"><%= safe_html form.translations.compact.uniq { |t| strip_tags(t).downcase.strip }.join(', ') %></td>
+        <td class="py-2 pe-6"><%= safe_html form.translations.compact.uniq { |t| strip_tags(t).downcase.strip }.join(', ') %></td>
         <td class="py-2"><%= form.count %></td>
       </tr>
     <% end %>

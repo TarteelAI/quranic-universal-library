@@ -12,7 +12,6 @@
     actions << link_to('Next ayah', word_transliteration_path(next_ayah.id, resource_id: @resource.id), class: 'btn btn-dark')
   end
 
-  pending_suggestions = @presenter.pending_suggestions_count
 %>
 
 <%= render 'tools/header',
@@ -33,11 +32,7 @@
       <%= verse.text_qpc_hafs %>
     </div>
 
-    <% if pending_suggestions.positive? %>
-      <p class="mt-2 text-sm text-gray-600">
-        <%= pluralize(pending_suggestions, 'suggestion') %> waiting for review.
-      </p>
-    <% end %>
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, words: true %>
 
     <table class="w-full mt-4 border-collapse">
       <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">

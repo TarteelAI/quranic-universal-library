@@ -23,6 +23,8 @@
   <div class="page-section">
     <div class="quran-text qpc-hafs text-2xl text-right leading-loose mb-4" dir="rtl"><%= verse.text_qpc_hafs %></div>
 
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions(nil), dir: @resource.language&.direction %>
+
     <div class="text-center py-8 px-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-600">
       <p class="font-medium text-gray-800"><%= @resource.name %> has no tafsir for <%= verse.verse_key %></p>
       <p class="text-sm mt-1">

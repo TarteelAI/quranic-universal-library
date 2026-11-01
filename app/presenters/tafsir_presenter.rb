@@ -46,6 +46,18 @@ class TafsirPresenter < ResourcePresenter
   end
 
   # The ayah asked for, when it has no tafsir
+  # Pass nil for an ayah without tafsir, then it's suggestions to add one
+  def pending_suggestions(tafsir)
+    drafts = Draft::Tafsir.pending_contributions.where(resource_content_id: resource.id).includes(:user).order(:created_at)
+
+    if tafsir
+      drafts.where(tafsir_id: tafsir.id)
+    else
+      verse_id = requested_verse.id
+      drafts.where(tafsir_id: nil).where('start_verse_id <= :id AND end_verse_id >= :id', id: verse_id)
+    end
+  end
+
   def requested_verse
     @requested_verse ||= Verse.find_by(verse_key: params[:verse_key].to_s.downcase)
   end

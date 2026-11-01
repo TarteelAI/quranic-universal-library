@@ -778,6 +778,26 @@ module ToolDocsHelper
       },
       {
         type: 'heading',
+        text: 'Tafsir text is HTML'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>A tafsir is formatted with HTML tags: paragraphs, headings, bold, and Arabic quotes from the Quran or hadith. The editor shows the formatted text, so you can fix most typos right there.</p>
+          <p class="mt-2">To see or fix the tags, click <code>View</code> and then <code>Source code</code> in the editor. Change the HTML and click <code>Save</code> to go back to the editor, then <code>Propose changes</code> as usual.</p>
+          #{ui_screen(
+            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>&lt;h2&gt;The Meaning of Al-Fatihah&lt;/h2&gt;\n&lt;p class=\"en\"&gt;This Surah is called Al-Fatihah...&lt;/p&gt;\n&lt;p class=\"ar qpc-hafs\"&gt;ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ&lt;/p&gt;</pre>",
+            ui_button('Cancel', :light), ui_button('Save', :blue),
+            title: 'Source code'
+          )}
+          <ul class="list-disc ps-5 mt-2">
+            <li>Keep the <code>class</code> on each tag. <code>ar qpc-hafs</code> shows Arabic in the Quran font, <code>en</code> marks the translation language.</li>
+            <li>Use <code>&lt;h2&gt;</code> for headings and <code>&lt;p&gt;</code> for paragraphs. Don't paste styled text from other sites, it brings fonts and colours with it.</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
         text: 'How to suggest a fix'
       },
       {
@@ -785,7 +805,7 @@ module ToolDocsHelper
         steps: suggest_fix_steps(
           find_text: "Pick the tafsir, then use the <code>Surah</code> and <code>Ayah</code> filters to find the tafsir for an ayah. On the tafsir page, <code>Previous tafsir</code> and <code>Next tafsir</code> jump to the tafsir before or after it.",
           filters: [ui_select('Tafsir', 'Ibn Kathir'), ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '2')],
-          fix_text: "Fix the text in the editor. Change <code>First ayah</code> or <code>Last ayah</code> only when the tafsir covers the wrong ayahs, see the common fixes below.",
+          fix_text: "Fix the text in the editor. The text is HTML: to fix headings, paragraphs or Arabic quotes, open the HTML with <code>View</code> and then <code>Source code</code>, see <strong>Tafsir text is HTML</strong> below. Change <code>First ayah</code> or <code>Last ayah</code> only when the tafsir covers the wrong ayahs.",
           fix: ui_screen(ui_select('First ayah', '1:2'), ui_select('Last ayah', '1:2'), ui_input('Tafsir text', 'The Meaning of Al-Hamd...'), title: 'Suggest a fix')
         )
       },

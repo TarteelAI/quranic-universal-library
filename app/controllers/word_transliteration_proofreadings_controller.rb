@@ -15,6 +15,12 @@ class WordTransliterationProofreadingsController < CommunityController
 
   def update
     verse = @presenter.verse
+
+    unless suggestion_acknowledged?
+      return redirect_to edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id),
+                         alert: ACKNOWLEDGEMENT_MISSING
+    end
+
     WordTransliteration.save_suggestions(verse, @resource, word_transliteration_params, current_user, comment: params[:comment])
 
     redirect_to word_transliteration_proofreading_path(verse.id, resource_id: @resource.id),

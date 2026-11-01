@@ -1,9 +1,15 @@
-<%# Required checkbox before a suggested fix is submitted, same rule as the content issue form %>
+<%# Required checkbox before a suggested fix is submitted, same rule as the content issue form.
+    The controllers check it too, see CommunityController#suggestion_acknowledged? %>
+<% submitted = !request.get? %>
+<% ticked = params[:acknowledgement] == '1' %>
 <div class="<%= local_assigns[:wrapper_class] || 'mb-4' %>">
   <label class="flex items-start gap-2 text-sm text-gray-700">
-    <%= check_box_tag :acknowledgement, '1', false, required: true, class: 'mt-1' %>
+    <%= check_box_tag :acknowledgement, '1', ticked, required: true, class: 'mt-1' %>
     <span>
       I'm fixing a typo, spelling mistake or factual error. I'm not changing the wording to suit my own preference or opinion.
     </span>
   </label>
+  <% if submitted && !ticked %>
+    <p class="mt-1 text-sm text-red-600">Please tick this box to send your fix.</p>
+  <% end %>
 </div>

@@ -46,7 +46,7 @@ class TafsirProofreadingsController < CommunityController
   def update
     @tafisr = find_tafsir(@resource)
 
-    if @tafisr.save_suggestions(tafsir_params, current_user)
+    if suggestion_acknowledged? && @tafisr.save_suggestions(tafsir_params, current_user)
       redirect_to tafsir_proofreading_path(@tafisr.id, verse_id: @tafisr.group_tafsir_id, resource_id: @resource.id),
                   notice: "Your suggestions are saved successfully"
     else

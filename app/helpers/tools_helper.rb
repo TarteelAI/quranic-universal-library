@@ -81,6 +81,15 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
+        title: 'Ayah topics',
+        description: 'Proofread and suggest fixes for topics and the ayahs linked to each topic.',
+        url: topics_path,
+        type: 'topic',
+        icon: 'tags.svg',
+        tags: [['Topics', 'ayah-topics']],
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Surah info',
         description: 'Proofread and suggest fixes for Surah introductions in many languages.',
         url: surah_infos_path,

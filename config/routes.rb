@@ -204,6 +204,7 @@ Rails.application.routes.draw do
   resources :tafsirs, except: :destroy do
     get :range_preview, on: :collection
   end
+  resources :topics, only: %i[index show edit update]
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource

@@ -6,7 +6,6 @@
   dir = language&.direction == 'rtl' ? 'rtl' : 'ltr'
   previous_info = resource.previous_surah_info if resource.chapter_id > 1
   next_info = resource.next_surah_info if resource.chapter_id < 114
-  pending_suggestions = @presenter.pending_suggestions_count
 
   if @access
     actions << link_to('Edit', edit_surah_info_path(resource.id), class: 'btn btn-success')
@@ -34,10 +33,9 @@
   <div class="flex flex-wrap items-center gap-2 mb-6 text-sm">
     <span class="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"><%= language&.name %></span>
     <%= link_to 'All surahs', surah_infos_path(resource_id: resource_content.id), class: 'px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 no-underline' %>
-    <% if pending_suggestions.positive? %>
-      <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800"><%= pluralize(pending_suggestions, 'suggestion') %> waiting for review</span>
-    <% end %>
   </div>
+
+  <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, dir: dir %>
 
   <section class="rounded-xl border border-gray-200 bg-white shadow-sm mb-6">
     <h2 class="px-6 py-3 border-b border-gray-100 text-sm font-semibold uppercase tracking-wide text-gray-500">Short text</h2>

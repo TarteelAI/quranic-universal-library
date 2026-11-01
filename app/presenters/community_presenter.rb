@@ -13,6 +13,8 @@ class CommunityPresenter < ApplicationPresenter
       'QUL · Compare audio'
     when 'compare_font'
       'QUL · Compare fonts'
+    when 'gapless_ayah_extractor'
+      'QUL · Gapless ayah extractor'
     when 'docs_index'
       'QUL Documentation — Guides, Datasets & API Reference'
     when 'docs'

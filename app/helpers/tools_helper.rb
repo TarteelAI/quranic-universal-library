@@ -178,6 +178,14 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
+        title: 'Ayah audio cutter',
+        description: "Extract ayah audio from full surah audio file for selected reciters.",
+        url: '/gapless-ayah-extractor',
+        type: 'segments',
+        icon: 'timestamp.svg',
+        tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah']]
+      ),
+      ToolCard.new(
         title: 'Quran Image Export Tool',
         description: 'Export Mushaf pages, Ayahs, and Words as high-resolution PNG / WEBP images with custom scripts and fonts',
         url: image_export_tool_path,
@@ -185,7 +193,7 @@ module ToolsHelper
         icon: 'layout.svg',
         tags: [['Image Export', 'image-export'], ['Mushaf Page', 'mushaf-page'], ['Ayah', 'ayah'], ['Word', 'word']],
         cta_bg: 'rgba(70, 172, 122, 0.9)'
-      )
+      ),
     ]
 
     tools + internal_developer_tools

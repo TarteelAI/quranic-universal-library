@@ -1,0 +1,595 @@
+<% content_for :tool_name, 'Ayah audio cutter from surah aduio file' %>
+<% content_for :tool_help_key, 'gapless_ayah_extractor' %>
+<% content_for :tool_description do %>
+Select reciters and the ayah to view its highlighted segment on the surah waveform. Adjust the start and end boundaries as needed, then copy the generated FFmpeg commands to extract the ayah audio.
+ <% end %>
+
+<% content_for :head do %>
+<%# Quran font faces, the tool layout doesn't load them %>
+<%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload" %>
+<style>
+  /* Scoped to the tool so it doesn't restyle the page header or the help modal */
+  .gae { --brand: #46ac7a; --brand-dark: #3d9a6d; --line: #e5e7eb; --muted: #6b7280; --ink: #111827; font-size: 14px; color: var(--ink); }
+  .gae button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 5px 10px; font-weight: 500; color: #374151; line-height: 1.2; white-space: nowrap; }
+  .gae button:hover:not(:disabled) { background: #f9fafb; }
+  .gae button:disabled { opacity: .45; cursor: default; }
+  .gae button.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .gae button.primary:hover:not(:disabled) { background: var(--brand-dark); }
+  .gae button.icon { padding: 5px 8px; }
+  .gae input, .gae select { border: 1px solid #d1d5db; border-radius: 8px; padding: 5px 8px; background: #fff; }
+  .gae input[type=number] { width: 72px; }
+  .gae input:focus, .gae select:focus { outline: 2px solid #46ac7a55; border-color: var(--brand); }
+  .gae .muted { color: var(--muted); }
+  .gae .error { color: #b91c1c; }
+  .gae .field { display: inline-flex; align-items: center; gap: 6px; }
+  .gae .field > .lbl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .gae .group { display: inline-flex; }
+  .gae .group > * { border-radius: 0; margin-left: -1px; }
+  .gae .group > :first-child { border-radius: 8px 0 0 8px; margin-left: 0; }
+  .gae .group > :last-child { border-radius: 0 8px 8px 0; }
+
+  .gae-bar { position: sticky; top: var(--gae-top, 53px); z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+             background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 2px #0000000d; }
+  .gae-bar .spacer { flex: 1; }
+  .gae-bar .select2-container .select2-selection--single { border-color: #d1d5db; border-radius: 8px; }
+
+  .gae-panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; margin-top: 14px; }
+  .gae-panel > summary { list-style: none; cursor: pointer; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .gae-panel > summary::-webkit-details-marker { display: none; }
+  .gae-panel > summary::before { content: '▸'; color: var(--muted); transition: transform .15s; }
+  .gae-panel[open] > summary::before { transform: rotate(90deg); }
+  .gae-panel .body { padding: 0 14px 14px; }
+  .gae-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .gae-tools #filter { width: 260px; }
+  .gae-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 6px; max-height: 300px; overflow: auto; }
+  .gae-list label { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+  .gae-list label:hover { background: #f9fafb; }
+  .gae-list label:has(input:checked) { border-color: var(--brand); background: #46ac7a0d; }
+  .gae-list input { margin-top: 3px; accent-color: var(--brand); }
+  .gae-list .name { font-weight: 500; }
+  .gae-list .meta { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+  .gae .badge { font-size: 12px; font-weight: 600; background: #f3f4f6; color: #374151; padding: 1px 8px; border-radius: 999px; }
+
+  /* Second row of the toolbar, so the ayah stays in view while checking the cuts */
+  .gae-ayah:not([hidden]) { flex-basis: 100%; display: flex; align-items: flex-start; gap: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .gae-ayah .badge { margin-top: 10px; flex-shrink: 0; }
+  .gae-ayah #ayahText { flex: 1; font-size: 28px; line-height: 1.9; text-align: right; max-height: 25vh; overflow-y: auto; }
+  .gae-empty { margin-top: 14px; padding: 40px; text-align: center; border: 1px dashed #d1d5db; border-radius: 12px; color: var(--muted); }
+  .gae-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-top: 14px; }
+  .gae-card.focused { border-color: var(--brand); box-shadow: 0 0 0 3px #46ac7a22; }
+  .gae-card .head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .gae-card .name { font-weight: 600; font-size: 15px; }
+  .gae-card .meta { font-size: 12px; color: var(--muted); }
+  .gae-card .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .gae-card .wave { position: relative; }
+  .gae-card canvas { width: 100%; height: 130px; display: block; cursor: crosshair; background: #f6f7f8; border-radius: 8px; }
+  .gae-card .status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .gae-card .foot { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-top: 10px; }
+  .gae-card .foot input[type=number] { width: 92px; text-align: center; border-radius: 0; }
+  .gae-card .foot .spacer { flex: 1; }
+  .gae-card .legend { font-size: 12px; color: var(--muted); display: inline-flex; gap: 10px; align-items: center; }
+  .gae-card .legend i { display: inline-block; width: 14px; border-top: 2px solid; vertical-align: middle; margin-right: 4px; }
+
+  .gae-commands { margin-top: 14px; }
+  .gae-commands textarea { width: 100%; height: 180px; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px; font: 12px ui-monospace, Menlo, monospace; background: #111827; color: #e5e7eb; }
+  .gae code { font: 12px ui-monospace, Menlo, monospace; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const DATA_URL = <%= raw gapless_ayah_extractor_path(format: :json).to_json %>;
+  // Audio loaded either side of the padding, so a boundary can be dragged a little past the view.
+  const MARGIN = 2;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const fmt = s => s.toFixed(3);
+  const kb = n => n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`;
+  const q = s => `'${s.replace(/'/g, `'\\''`)}'`;
+
+  // Keep the toolbar right under the sticky layout header.
+  const header = document.querySelector('header');
+  if (header) document.querySelector('.gae').style.setProperty('--gae-top', `${header.offsetHeight}px`);
+
+  let DATA = null, cards = [], focused = null, currentAyah = 1;
+  const ctx = new AudioContext();
+  const list = $('list');
+
+  // ---------------------------------------------------------------------------
+  // Loading only the part of the mp3 we need.
+  //
+  // Most files are constant bit rate, so a time maps straight to a byte offset:
+  // frame n starts at audioStart + n * frameBytes. We read the first frame to get
+  // the bit rate, fetch just the frames around the ayah with a Range request, and
+  // decode those. Variable bit rate files (Xing/VBRI header, or frames with
+  // different bit rates) and anything we can't parse fall back to the whole file.
+  // ---------------------------------------------------------------------------
+  const BITRATES = { 1: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320], 2: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160] };
+  const RATES = { 3: [44100, 48000, 32000], 2: [22050, 24000, 16000], 0: [11025, 12000, 8000] };
+  const ascii = (b, i, n) => String.fromCharCode(...b.subarray(i, i + n));
+
+  // Layer III frame header at b[i], or null.
+  function frameAt(b, i) {
+    if (i + 4 > b.length || b[i] !== 0xff || (b[i + 1] & 0xe0) !== 0xe0) return null;
+    const ver = (b[i + 1] >> 3) & 3, layer = (b[i + 1] >> 1) & 3;
+    if (ver === 1 || layer !== 1) return null;
+    const br = BITRATES[ver === 3 ? 1 : 2][b[i + 2] >> 4], sr = (RATES[ver] || [])[(b[i + 2] >> 2) & 3];
+    if (!br || !sr) return null;
+    const samples = ver === 3 ? 1152 : 576;
+    return { br, sr, samples, len: Math.floor(samples / 8 * br * 1000 / sr) + ((b[i + 2] >> 1) & 1) };
+  }
+
+  // First offset where three frames follow each other, so a stray 0xff in the audio data isn't taken for a header.
+  function syncAt(b) {
+    for (let i = 0; i + 4 <= b.length; i++) {
+      const f = frameAt(b, i);
+      if (!f) continue;
+      const g = frameAt(b, i + f.len), h = g && frameAt(b, i + f.len + g.len);
+      if (h && g.sr === f.sr && h.sr === f.sr) return i;
+    }
+    return -1;
+  }
+
+  async function getRange(url, from, to) {
+    const r = await fetch(url, { headers: { Range: `bytes=${from}-${to}` } });
+    if (r.status !== 206) throw new Error('no range support');
+    return new Uint8Array(await r.arrayBuffer());
+  }
+
+  async function probe(url) {
+    const h = await getRange(url, 0, 9);
+    let start = 0;
+    if (ascii(h, 0, 3) === 'ID3') {
+      start = 10 + ((h[6] & 0x7f) << 21 | (h[7] & 0x7f) << 14 | (h[8] & 0x7f) << 7 | (h[9] & 0x7f)) + (h[5] & 0x10 ? 10 : 0);
+    }
+    const b = await getRange(url, start, start + 32767);
+    const i = syncAt(b);
+    if (i < 0) return null;
+    const f = frameAt(b, i), first = ascii(b, i, Math.min(f.len, b.length - i));
+    if (/Xing|VBRI/.test(first)) return null;
+    // Encoders normally set the padding bit on some frames so the bytes add up to the exact bit
+    // rate (417 or 418 bytes at 128k/44.1kHz). Some never pad, and every frame is 417 bytes;
+    // assuming 417.96 there drifts about a frame every 17 seconds.
+    let padded = false, len = 0;
+    for (let j = i, n = 0; n < 60; n++) {
+      const g = frameAt(b, j);
+      if (!g) break;
+      if (g.br !== f.br) return null;
+      if (n > 0) { padded ||= ((b[j + 2] >> 1) & 1) === 1; len = g.len; }
+      j += g.len;
+    }
+
+    // A LAME/ffmpeg "Info" frame carries no audio, and its encoder delay is trimmed by ffmpeg,
+    // so the times in the cut commands are shifted by it.
+    let audioStart = start + i, delay = 0;
+    const info = first.indexOf('Info');
+    if (info >= 0) {
+      audioStart += f.len;
+      const lame = first.slice(info).search(/LAME|Lavc|Lavf/);
+      if (lame >= 0) {
+        const at = i + info + lame;
+        delay = ((b[at + 21] << 4) | (b[at + 22] >> 4)) + 529;
+      }
+    }
+    const frameBytes = padded || !len ? f.samples / 8 * f.br * 1000 / f.sr : len;
+    return { audioStart, frameDur: f.samples / f.sr, frameBytes, delay: delay / f.sr };
+  }
+
+  const probes = {}, fullFiles = {};
+
+  async function loadFull(url) {
+    fullFiles[url] ||= fetch(url).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.arrayBuffer();
+    }).then(b => ({ size: b.byteLength, buffer: ctx.decodeAudioData(b) }))
+      .then(async o => ({ size: o.size, buffer: await o.buffer, base: 0, partial: false }));
+    return fullFiles[url];
+  }
+
+  async function loadAudio(url, t0, t1) {
+    const p = await (probes[url] ||= probe(url).catch(() => null));
+    if (!p) return loadFull(url);
+    try {
+      return await loadPart(url, p, t0, t1);
+    } catch {
+      return loadFull(url);
+    }
+  }
+
+  async function loadPart(url, p, t0, t1) {
+    // Two extra frames up front: the first frames decode badly without the bit reservoir.
+    // A range past the end of the file is fine, the server just returns what's there.
+    const firstFrame = Math.max(0, Math.floor((t0 + p.delay) / p.frameDur) - 2);
+    const lastFrame = Math.ceil((t1 + p.delay) / p.frameDur) + 1;
+    const from = Math.max(p.audioStart, Math.floor(p.audioStart + firstFrame * p.frameBytes) - 4);
+    const to = Math.ceil(p.audioStart + lastFrame * p.frameBytes) + 4;
+    const bytes = await getRange(url, from, to);
+
+    const i = syncAt(bytes);
+    if (i < 0) throw new Error('no frame found');
+    let j = i, frames = 0;
+    for (let f; (f = frameAt(bytes, j)) && j + f.len <= bytes.length; frames++) j += f.len;
+    // The frame we found must sit on the frame grid, or the file isn't the clean constant bit
+    // rate stream we assumed (junk between frames, a stray tag) and the times would be off.
+    const exact = (from + i - p.audioStart) / p.frameBytes, n = Math.round(exact);
+    if (Math.abs(exact - n) * p.frameBytes > 2) throw new Error('frame off the grid');
+    const buffer = await ctx.decodeAudioData(bytes.slice(i, j).buffer);
+    // Chrome sometimes drops the first frame when it needs bits from the frame before it,
+    // which would shift everything 26ms early. Missing frames are at the start.
+    const dropped = Math.max(0, Math.round((frames * p.frameDur - buffer.duration) / p.frameDur));
+    return { buffer, base: (n + dropped) * p.frameDur - p.delay, size: bytes.length, partial: true };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Surah and reciter picking
+  // ---------------------------------------------------------------------------
+  function updatePicked() {
+    const n = boxes().filter(c => c.checked).length;
+    $('picked').textContent = DATA ? `${n} of ${DATA.reciters.length} selected` : '';
+    $('load').disabled = !DATA || !n;
+  }
+
+  function setData(data) {
+    stop();
+    DATA = data;
+    cards = [];
+    renderCards();
+    showAyah();
+    $('ayah').max = DATA.verses;
+    $('verses').textContent = `of ${DATA.verses}`;
+    if (+$('ayah').value > DATA.verses) $('ayah').value = 1;
+    setStatus(`${DATA.reciters.length} recitations`);
+
+    list.innerHTML = DATA.reciters.length ? '' : '<span class="muted">No recitation has audio and segments for this surah.</span>';
+    DATA.reciters.forEach((r, i) => {
+      const label = document.createElement('label');
+      label.innerHTML = `<input type="checkbox" value="${i}" ${r.default ? 'checked' : ''}>
+        <span><span class="name">${esc(r.name)}</span>
+        <div class="meta">#${r.id}${r.style ? ` · ${esc(r.style)}` : ''}${r.kbps ? ` · ${r.kbps} kbps` : ''} · ${esc(r.out)}.mp3</div></span>`;
+      label.dataset.search = `${r.id} ${r.name} ${r.style || ''} ${r.out}`.toLowerCase();
+      list.appendChild(label);
+    });
+    $('filter').dispatchEvent(new Event('input'));
+    updatePicked();
+    refreshAll();
+  }
+
+  function setStatus(text, error) {
+    $('status').className = error ? 'error' : 'muted';
+    $('status').textContent = text;
+  }
+
+  function loadSurah() {
+    const surah = +$('surah').value;
+    if (!surah) return;
+    const url = new URL(location.href);
+    url.searchParams.set('surah', surah);
+    history.replaceState(null, '', url);
+    setStatus('loading…');
+    fetch(`${DATA_URL}?surah=${surah}`)
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(setData)
+      .catch(err => setStatus(`could not load surah ${surah}: ${err.message}`, true));
+  }
+  $('surah').onchange = loadSurah;
+
+  const boxes = () => [...list.querySelectorAll('input')];
+  list.onchange = updatePicked;
+  $('filter').oninput = e => {
+    const term = e.target.value.toLowerCase();
+    list.querySelectorAll('label').forEach(l => l.style.display = l.dataset.search.includes(term) ? '' : 'none');
+  };
+  document.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => {
+    if (!DATA) return;
+    boxes().forEach(c => c.checked = b.dataset.pick === 'all' || (b.dataset.pick === 'default' && DATA.reciters[c.value].default));
+    updatePicked();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Commands
+  // ---------------------------------------------------------------------------
+  const dirName = () => `${String(DATA.surah).padStart(3, '0')}_${String(currentAyah).padStart(3, '0')}`;
+
+  function command(card) {
+    const r = card.r, kbps = r.kbps ? Math.min(r.kbps, 320) : 128;
+    return `ffmpeg -hide_banner -loglevel error -y -ss ${fmt(card.start)} -t ${fmt(card.end - card.start)} -i ${q(r.url)} ` +
+      `-map_metadata -1 -c:a libmp3lame -b:a ${kbps}k ${q(`${dirName()}/${r.out}.mp3`)}`;
+  }
+
+  function refreshAll() {
+    const ready = cards.filter(c => c.buffer);
+    $('all').value = ready.length ? [`mkdir -p ${dirName()}`, ...ready.map(command)].join('\n') : '';
+    $('commandsCount').textContent = ready.length;
+    $('copyAll').disabled = $('copyAllTop').disabled = !ready.length;
+  }
+
+  function copy(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+      const label = button.textContent;
+      button.textContent = 'Copied ✓';
+      setTimeout(() => button.textContent = label, 1200);
+    });
+  }
+  $('copyAll').onclick = e => copy($('all').value, e.target);
+  $('copyAllTop').onclick = e => copy($('all').value, e.target);
+
+  // ---------------------------------------------------------------------------
+  // Waveforms
+  // ---------------------------------------------------------------------------
+  function draw(card) {
+    const cv = card.canvas, dpr = devicePixelRatio, w = cv.width = cv.clientWidth * dpr, h = cv.height = cv.clientHeight * dpr;
+    const g = cv.getContext('2d'), data = card.buffer.getChannelData(0), sr = card.buffer.sampleRate;
+    const { v0, v1 } = card, x = t => (t - v0) / (v1 - v0) * w, axis = 16 * dpr, mid = (h - axis) / 2;
+    g.clearRect(0, 0, w, h);
+
+    g.fillStyle = 'rgba(70,172,122,.16)';
+    g.fillRect(x(card.start), 0, x(card.end) - x(card.start), h - axis);
+
+    const per = (v1 - v0) * sr / w;
+    for (let px = 0; px < w; px++) {
+      const t = v0 + px / w * (v1 - v0);
+      const a = Math.floor((t - card.base) * sr), b = Math.min(data.length, Math.floor(a + per));
+      let mn = 0, mx = 0;
+      for (let i = Math.max(0, a); i < b; i++) { const s = data[i]; if (s < mn) mn = s; if (s > mx) mx = s; }
+      g.fillStyle = t >= card.start && t <= card.end ? '#2f7d57' : '#9ca3af';
+      g.fillRect(px, mid - mx * mid, 1, Math.max(1, (mx - mn) * mid));
+    }
+
+    // Time axis, a tick every second.
+    g.fillStyle = '#6b7280'; g.font = `${10 * dpr}px ui-sans-serif, system-ui`; g.textAlign = 'center';
+    for (let s = Math.ceil(v0); s <= v1; s++) {
+      g.fillRect(x(s), h - axis, 1, 4 * dpr);
+      if ((v1 - v0) < 40 || s % 5 === 0) g.fillText(`${s}s`, x(s), h - 3 * dpr);
+    }
+
+    // Original segment boundaries, for reference.
+    g.strokeStyle = 'rgba(220,38,38,.7)'; g.lineWidth = dpr; g.setLineDash([4 * dpr, 4 * dpr]);
+    [card.segStart, card.segEnd].forEach(t => { g.beginPath(); g.moveTo(x(t), 0); g.lineTo(x(t), h - axis); g.stroke(); });
+    g.setLineDash([]); g.strokeStyle = '#2f7d57'; g.lineWidth = 2 * dpr;
+    [card.start, card.end].forEach(t => {
+      g.beginPath(); g.moveTo(x(t), 0); g.lineTo(x(t), h - axis); g.stroke();
+      g.fillStyle = '#2f7d57'; g.fillRect(x(t) - 4 * dpr, 0, 8 * dpr, 8 * dpr);
+    });
+    if (card.playhead != null) { g.strokeStyle = '#2563eb'; g.beginPath(); g.moveTo(x(card.playhead), 0); g.lineTo(x(card.playhead), h - axis); g.stroke(); }
+
+    if (document.activeElement !== card.startIn) card.startIn.value = fmt(card.start);
+    if (document.activeElement !== card.endIn) card.endIn.value = fmt(card.end);
+    card.info.textContent = `${fmt(card.end - card.start)}s`;
+  }
+
+  function setRange(card, start, end) {
+    const lo = card.base, hi = card.base + card.buffer.duration;
+    card.start = Math.max(lo, Math.min(start, hi - 0.01));
+    card.end = Math.min(hi, Math.max(end, card.start + 0.01));
+    draw(card); refreshAll();
+  }
+
+  function focus(card) {
+    if (focused) focused.el.classList.remove('focused');
+    focused = card;
+    card.el.classList.add('focused');
+  }
+
+  function attachDrag(card) {
+    const cv = card.canvas;
+    const timeAt = e => { const r = cv.getBoundingClientRect(); return card.v0 + (e.clientX - r.left) / r.width * (card.v1 - card.v0); };
+    const tol = () => (card.v1 - card.v0) * 8 / cv.clientWidth;
+    cv.onmousemove = e => {
+      if (card.drag) return;
+      const t = timeAt(e);
+      cv.style.cursor = Math.abs(t - card.start) < tol() || Math.abs(t - card.end) < tol() ? 'ew-resize' : (t > card.start && t < card.end ? 'grab' : 'crosshair');
+    };
+    cv.onmousedown = e => {
+      focus(card);
+      const t = timeAt(e);
+      if (Math.abs(t - card.start) < tol()) card.drag = { mode: 'start' };
+      else if (Math.abs(t - card.end) < tol()) card.drag = { mode: 'end' };
+      else if (t > card.start && t < card.end) card.drag = { mode: 'move', t0: t, s0: card.start, e0: card.end };
+      else card.drag = { mode: 'new', t0: t };
+      const move = ev => {
+        const lo = card.base, hi = card.base + card.buffer.duration;
+        const t = Math.max(lo, Math.min(hi, timeAt(ev))), d = card.drag;
+        if (d.mode === 'start') card.start = Math.min(t, card.end - 0.01);
+        if (d.mode === 'end') card.end = Math.max(t, card.start + 0.01);
+        if (d.mode === 'move') { const dt = Math.max(lo - d.s0, Math.min(hi - d.e0, t - d.t0)); card.start = d.s0 + dt; card.end = d.e0 + dt; }
+        if (d.mode === 'new') { card.start = Math.min(d.t0, t); card.end = Math.max(d.t0, t) + 0.001; }
+        draw(card);
+      };
+      const up = () => { card.drag = null; removeEventListener('mousemove', move); removeEventListener('mouseup', up); refreshAll(); };
+      addEventListener('mousemove', move); addEventListener('mouseup', up);
+    };
+  }
+
+  let playing = null;
+  function stop() {
+    if (!playing) return;
+    playing.src.onended = null;
+    try { playing.src.stop(); } catch {}
+    cancelAnimationFrame(playing.raf);
+    playing.card.playhead = null;
+    draw(playing.card);
+    playing = null;
+  }
+  function play(card, from, to) {
+    if (!card.buffer) return;
+    stop(); ctx.resume(); focus(card);
+    const src = ctx.createBufferSource(); src.buffer = card.buffer; src.connect(ctx.destination);
+    const t0 = ctx.currentTime; src.start(0, from - card.base, to - from);
+    playing = { src, card };
+    const tick = () => { card.playhead = from + ctx.currentTime - t0; draw(card); playing.raf = requestAnimationFrame(tick); };
+    tick(); src.onended = stop;
+  }
+  addEventListener('keydown', e => {
+    if (e.code === 'Space' && focused && !['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(e.target.tagName)) {
+      e.preventDefault(); playing ? stop() : play(focused, focused.start, focused.end);
+    }
+  });
+
+  function buildCard(r) {
+    const el = document.createElement('div'); el.className = 'gae-card';
+    el.innerHTML = `
+      <div class="head">
+        <div>
+          <div class="name">${esc(r.name)}</div>
+          <div class="meta">#${r.id}${r.style ? ` · ${esc(r.style)}` : ''}${r.kbps ? ` · ${r.kbps} kbps` : ''} · ${esc(r.out)}.mp3 · <span class="loaded"></span></div>
+        </div>
+        <div class="btns">
+          <button data-a="play" class="primary">▶ Play</button>
+          <button data-a="head" title="Play the first 1.5 seconds">▶ First 1.5s</button>
+          <button data-a="tail" title="Play the last 1.5 seconds">▶ Last 1.5s</button>
+          <button data-a="stop" class="icon" title="Stop">■</button>
+        </div>
+      </div>
+      <div class="wave"><canvas></canvas><div class="status">Loading…</div></div>
+      <div class="foot">
+        <label class="field"><span class="lbl">Start</span>
+          <span class="group"><button data-n="s-" class="icon" title="−50 ms">−</button><input type="number" step="0.01" class="s"><button data-n="s+" class="icon" title="+50 ms">+</button></span>
+        </label>
+        <label class="field"><span class="lbl">End</span>
+          <span class="group"><button data-n="e-" class="icon" title="−50 ms">−</button><input type="number" step="0.01" class="e"><button data-n="e+" class="icon" title="+50 ms">+</button></span>
+        </label>
+        <span class="field"><span class="lbl">Length</span><span class="info"></span></span>
+        <span class="legend"><span><i style="border-color:#2f7d57"></i>cut</span><span><i style="border-color:#dc2626;border-top-style:dashed"></i>segment</span></span>
+        <span class="spacer"></span>
+        <button data-a="reset">Reset to segment</button>
+        <button data-a="copy">Copy command</button>
+      </div>`;
+    const card = { r, el, canvas: el.querySelector('canvas'), startIn: el.querySelector('.s'), endIn: el.querySelector('.e'),
+      info: el.querySelector('.info'), status: el.querySelector('.status'), loaded: el.querySelector('.loaded') };
+    const act = (a, fn) => el.querySelector(`[data-a=${a}]`).onclick = fn;
+    act('play', () => play(card, card.start, card.end));
+    act('head', () => play(card, card.start, Math.min(card.end, card.start + 1.5)));
+    act('tail', () => play(card, Math.max(card.start, card.end - 1.5), card.end));
+    act('stop', stop);
+    act('reset', () => card.buffer && setRange(card, card.segStart, card.segEnd));
+    act('copy', e => card.buffer && copy(command(card), e.target));
+    el.querySelectorAll('[data-n]').forEach(b => b.onclick = e => {
+      e.preventDefault();
+      if (!card.buffer) return;
+      const d = b.dataset.n[1] === '+' ? 0.05 : -0.05;
+      b.dataset.n[0] === 's' ? setRange(card, card.start + d, card.end) : setRange(card, card.start, card.end + d);
+    });
+    card.startIn.onchange = () => card.buffer && setRange(card, +card.startIn.value, card.end);
+    card.endIn.onchange = () => card.buffer && setRange(card, card.start, +card.endIn.value);
+    el.addEventListener('mousedown', () => focus(card));
+    return card;
+  }
+
+  function renderCards() {
+    $('cards').innerHTML = cards.length ? '' :
+      `<div class="gae-empty">${DATA ? 'Pick the reciters and an ayah, then <b>Load waveforms</b>.' : 'Loading surah…'}</div>`;
+    cards.forEach(c => $('cards').appendChild(c.el));
+  }
+
+  // The loaded ayah's text, to check the cut against while listening.
+  function showAyah() {
+    const text = DATA && cards.length ? DATA.texts[currentAyah] : null;
+    $('ayahPanel').hidden = !text;
+    if (!text) return;
+    $('ayahKey').textContent = `${DATA.surah}:${currentAyah}`;
+    $('ayahText').textContent = text;
+  }
+
+  function loadWaveforms() {
+    if (!DATA) return;
+    stop(); ctx.resume();
+    currentAyah = Math.max(1, Math.min(DATA.verses, +$('ayah').value || 1));
+    $('ayah').value = currentAyah;
+    const pad = Math.max(0, +$('pad').value);
+    cards = boxes().filter(c => c.checked).map(c => buildCard(DATA.reciters[c.value]));
+    focused = null;
+    renderCards();
+    showAyah();
+
+    let done = 0;
+    const progress = () => setStatus(done < cards.length ? `loading ${done}/${cards.length}…` : `ayah ${currentAyah} · ${cards.length} reciters`);
+    progress();
+    cards.forEach(card => {
+      const seg = card.r.ayahs[currentAyah];
+      if (!seg) { card.status.textContent = `No segment for ayah ${currentAyah}`; done++; progress(); return; }
+      card.segStart = card.start = seg[0] / 1000; card.segEnd = card.end = seg[1] / 1000;
+      const t0 = Math.max(0, card.segStart - pad - MARGIN), t1 = card.segEnd + pad + MARGIN;
+      loadAudio(card.r.url, t0, t1).then(({ buffer, base, size, partial }) => {
+        if (!cards.includes(card)) return;
+        card.buffer = buffer; card.base = base;
+        card.status.remove();
+        card.loaded.textContent = partial ? `loaded ${kb(size)}` : `whole file, ${kb(size)}`;
+        card.loaded.title = partial ? 'Only the frames around the ayah were downloaded' : 'Variable bit rate, so the whole file was downloaded';
+        card.v0 = Math.max(base, card.segStart - pad); card.v1 = Math.min(base + buffer.duration, card.segEnd + pad);
+        attachDrag(card); draw(card); refreshAll();
+      }).catch(err => { card.status.textContent = `Failed: ${err.message}`; card.status.classList.add('error'); })
+        .finally(() => { done++; progress(); });
+    });
+    refreshAll();
+  }
+
+  $('load').onclick = loadWaveforms;
+  $('ayah').onkeydown = e => { if (e.key === 'Enter') loadWaveforms(); };
+  $('prevAyah').onclick = () => { $('ayah').value = Math.max(1, +$('ayah').value - 1); loadWaveforms(); };
+  $('nextAyah').onclick = () => { $('ayah').value = Math.min(DATA?.verses || 1, +$('ayah').value + 1); loadWaveforms(); };
+  addEventListener('resize', () => cards.filter(c => c.buffer).forEach(draw));
+
+  renderCards();
+  loadSurah();
+});
+</script>
+<% end %>
+
+<% selected_surah = params[:surah].to_i.clamp(1, 114) %>
+
+<div class="gae">
+  <div class="gae-bar">
+    <label class="field"><span class="lbl">Surah</span>
+      <select id="surah" style="width: 260px" data-controller="select2" data-placeholder="Pick a surah">
+        <% @chapters.each do |chapter| %>
+          <option value="<%= chapter.chapter_number %>" <%= 'selected' if chapter.chapter_number == selected_surah %>><%= chapter.chapter_number %>. <%= chapter.name_simple %></option>
+        <% end %>
+      </select>
+    </label>
+    <span class="field"><span class="lbl">Ayah</span>
+      <span class="group">
+        <button id="prevAyah" class="icon" title="Previous ayah">◀</button>
+        <input id="ayah" type="number" min="1" value="1">
+        <button id="nextAyah" class="icon" title="Next ayah">▶</button>
+      </span>
+      <span id="verses" class="muted"></span>
+    </span>
+    <label class="field" title="Seconds of audio shown either side of the segment"><span class="lbl">Padding</span>
+      <input id="pad" type="number" min="0" step="0.5" value="3" style="width:64px"> <span class="muted">s</span>
+    </label>
+    <button id="load" class="primary" disabled>Load waveforms</button>
+    <span id="status" class="muted"></span>
+    <span class="spacer"></span>
+    <button id="copyAllTop" disabled>Copy all commands</button>
+    <div id="ayahPanel" class="gae-ayah" hidden>
+      <span id="ayahKey" class="badge"></span>
+      <div id="ayahText" class="digitalkhatt-v2" dir="rtl"></div>
+    </div>
+  </div>
+
+  <details class="gae-panel" open>
+    <summary>Select recitations <span id="picked" class="badge"></span></summary>
+    <div class="body">
+      <div class="gae-tools">
+        <input id="filter" placeholder="Filter by name, style or file">
+        <span class="group">
+          <button data-pick="default" title="The usual set of recitations">Default</button>
+          <button data-pick="all">All</button>
+          <button data-pick="none">None</button>
+        </span>
+      </div>
+      <div id="list" class="gae-list"></div>
+    </div>
+  </details>
+
+  <div id="cards"></div>
+
+  <details class="gae-panel gae-commands" open>
+    <summary>Commands <span id="commandsCount" class="badge">0</span>
+      <span class="muted" style="font-weight:400">run in a terminal with ffmpeg installed; drag, play or click a waveform, Space plays the last one you touched</span>
+    </summary>
+    <div class="body">
+      <textarea id="all" readonly></textarea>
+      <button id="copyAll" disabled>Copy all</button>
+    </div>
+  </details>
+</div>

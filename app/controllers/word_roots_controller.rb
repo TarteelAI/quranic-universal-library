@@ -10,6 +10,11 @@ class WordRootsController < CommunityController
   def edit
   end
 
+  # Search for the root, stem and lemma selects
+  def options
+    render json: { results: @presenter.link_options(params[:type], params[:query]), pagination: { more: false } }
+  end
+
   def update
     verse = @presenter.verse
     @errors = suggestion_acknowledged? ? Word.save_root_suggestions(verse, word_params, current_user, comment: params[:comment]) : []

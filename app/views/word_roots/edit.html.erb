@@ -1,7 +1,6 @@
 <%
   verse = @presenter.verse
   submitted = params[:words] || {}
-  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
 %>
 
 <%= render 'tools/header',
@@ -26,7 +25,7 @@
     <% end %>
 
     <div class="qpc-hafs text-2xl leading-loose my-3" dir="rtl"><%= verse.text_qpc_hafs %></div>
-    <p class="text-sm text-gray-500 mb-3">Clear a box to remove a wrong link, or fill it in to add a missing one. Particles like <span class="qpc-hafs">مِن</span> have no root.</p>
+    <p class="text-sm text-gray-500 mb-3">Pick the right root, stem or lemma, or clear it when the word shouldn't have one. Particles like <span class="qpc-hafs">مِن</span> have no root. Can't find it in the list? Type it and pick <strong>Add missing</strong>, it's added once your fix is approved.</p>
 
     <%= form_with url: word_root_path(verse.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
       <% @presenter.words.each do |word| %>
@@ -39,18 +38,19 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3">
-            <div>
-              <%= label_tag "words_#{word.id}_root", 'Root', class: 'block text-xs font-medium text-gray-600 mb-1' %>
-              <%= text_field_tag "words[#{word.id}][root]", values['root'] || word.root&.arabic_trilateral, id: "words_#{word.id}_root", class: "#{input_css} h-12 text-lg", dir: 'rtl', placeholder: 'ر ح م' %>
-            </div>
-            <div>
-              <%= label_tag "words_#{word.id}_stem", 'Stem', class: 'block text-xs font-medium text-gray-600 mb-1' %>
-              <%= text_field_tag "words[#{word.id}][stem]", values['stem'] || word.stem&.text_madani, id: "words_#{word.id}_stem", class: "#{input_css} h-12 qpc-hafs text-lg", dir: 'rtl' %>
-            </div>
-            <div>
-              <%= label_tag "words_#{word.id}_lemma", 'Lemma', class: 'block text-xs font-medium text-gray-600 mb-1' %>
-              <%= text_field_tag "words[#{word.id}][lemma]", values['lemma'] || word.lemma&.text_madani, id: "words_#{word.id}_lemma", class: "#{input_css} h-12 qpc-hafs text-lg", dir: 'rtl' %>
-            </div>
+            <% { 'root' => word.root&.arabic_trilateral, 'stem' => word.stem&.text_madani, 'lemma' => word.lemma&.text_madani }.each do |link, current| %>
+              <% value = values.key?(link) ? values[link] : current %>
+              <div>
+                <%= label_tag "words_#{word.id}_#{link}", link.capitalize, class: 'block text-xs font-medium text-gray-600 mb-1' %>
+                <%= select_tag "words[#{word.id}][#{link}]",
+                               options_for_select(value.present? ? [[value, value]] : [], value),
+                               include_blank: true,
+                               id: "words_#{word.id}_#{link}",
+                               class: 'w-full',
+                               data: { controller: 'remote-select2', url: options_word_roots_path(type: link), tags: true, create_label: 'Add missing', placeholder: "No #{link}",
+                                       text_class: link == 'root' ? 'text-lg' : 'qpc-hafs text-xl' } %>
+              </div>
+            <% end %>
           </div>
         </div>
       <% end %>

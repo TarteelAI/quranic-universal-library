@@ -27,3 +27,17 @@ jobs:
 
       - name: Run tests
         run: ruby -Itest -e 'Dir["test/**/*_test.rb"].sort.each { |f| require File.expand_path(f) }'
+
+  issue-triage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run issue triage tests
+        run: node --test .github/scripts/issue-triage.test.js

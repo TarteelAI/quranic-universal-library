@@ -1,0 +1,31 @@
+name: Issue triage
+
+# Labels new issues from their form answers and posts a helpful comment.
+# The rules live in .github/scripts/issue-triage.js.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: issue-triage-${{ github.event.issue.number }}
+
+jobs:
+  triage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github
+
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const triage = require('./.github/scripts/issue-triage.js');
+            await triage.run({ github, context, core });

@@ -1,0 +1,24 @@
+name: "Documentation"
+description: "Report missing, unclear or wrong documentation."
+body:
+  - type: dropdown
+    id: docs_type
+    attributes:
+      label: "Documentation type"
+      options:
+        - "Resource docs (formats, licensing, usage)"
+        - "Developer docs (code, API, architecture)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "What's missing or wrong?"
+    validations:
+      required: true
+
+  - type: input
+    id: page_link
+    attributes:
+      label: "Page link"

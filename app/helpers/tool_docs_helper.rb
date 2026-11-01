@@ -1571,7 +1571,7 @@ module ToolDocsHelper
       {
         type: 'step',
         title: 'Ayahs: which root, stem or lemma a word has',
-        text: "Pick the surah and ayah. Each word has a box for its root, stem and lemma: change it when it's wrong, fill it in when it's missing, or clear it when the word shouldn't have one."
+        text: "Pick the surah and ayah. Each word has a box for its root, stem and lemma: pick the right one when it's wrong or missing, or clear it when the word shouldn't have one."
       },
       {
         type: 'step',
@@ -1587,7 +1587,7 @@ module ToolDocsHelper
         steps: suggest_fix_steps(
           find_text: "In <code>Ayahs</code>, pick a <code>Surah</code> and an <code>Ayah</code>. The ayah page lists each word with its root, stem and lemma, click one to open it.",
           filters: [ui_select('Surah', 'Al-Fatihah'), ui_select('Ayah', '3')],
-          fix_text: "Change, fill in or clear the root, stem and lemma of each word.",
+          fix_text: "Pick the right root, stem and lemma for each word, or clear one the word shouldn't have. Can't find it? Type it and pick <code>Add missing</code>.",
           fix: ui_screen(ui_input('Root', 'ر ح م'), ui_input('Stem', 'رَّحِيمِ'), ui_input('Lemma', 'رَّحِيم'), title: 'Suggest a fix')
         )
       },
@@ -1598,12 +1598,12 @@ module ToolDocsHelper
       {
         type: 'step',
         title: '1. A word linked to the wrong root, stem or lemma',
-        text: "Open its ayah in <code>Ayahs</code> and type the right one. Roots are letters, with or without spaces, like <code>رحم</code>. Stems and lemmas are written with their harakat, copy them from their page."
+        text: "Open its ayah in <code>Ayahs</code>, click the box and search for the right one. Search roots by their letters, like <code>رحم</code>, or by meaning. Search stems and lemmas without harakat."
       },
       {
         type: 'step',
         title: '2. A word with a missing root, stem or lemma',
-        text: "Fill in the empty box on its ayah. If you get <code>no lemma</code>, it isn't in the list yet, say which one in your comment."
+        text: "Pick one in the empty box on its ayah. Can't find it in the list? Type it, with harakat for a stem or lemma, and pick <code>Add missing</code>. It's added once your fix is approved."
       },
       {
         type: 'step',

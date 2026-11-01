@@ -22,6 +22,16 @@ export default class extends Controller {
       options["dropdownParent"] = $(el.data("parent"));
     }
 
+    // Label for typed text that isn't in the list, e.g. data-create-label="Add missing"
+    if (options.tags && el.data("create-label")) {
+      const label = el.data("create-label");
+      options["createTag"] = params => {
+        const term = $.trim(params.term);
+        return term ? { id: term, text: `${label}: ${term}`, newTag: true } : null;
+      };
+      options["insertTag"] = (data, tag) => data.push(tag);
+    }
+
     const url = el.data("url");
     const that = this;
 
@@ -49,6 +59,23 @@ export default class extends Controller {
     options["templateResult"] = item => {
       return this.dropdownItemTemplate(item);
     };
+
+    // Arabic options, e.g. data-text-class="qpc-hafs text-xl". The value is the Arabic text,
+    // results can have a meaning shown next to it.
+    const textClass = el.data("text-class");
+    if (textClass) {
+      const arabic = item => {
+        if (item.loading || !item.id) return item.text;
+
+        const option = $("<span class='inline-flex items-baseline gap-2'>");
+        if (item.newTag) option.append($("<span class='text-sm text-green-700'>").text(el.data("create-label")));
+        option.append($("<span dir='rtl'>").addClass(textClass).text(item.id));
+        if (item.meaning) option.append($("<span class='text-sm text-gray-500'>").text(item.meaning));
+        return option;
+      };
+      options["templateResult"] = arabic;
+      options["templateSelection"] = arabic;
+    }
     /*
         options["templateSelection"] = item => {
             return this.resultTemplate(item);

@@ -3,6 +3,7 @@ class Draft::WordRoot < ApplicationRecord
   include PaperTrailAttribution
 
   LINKS = { 'root' => ::Root, 'stem' => ::Stem, 'lemma' => ::Lemma }.freeze
+  HARAKAT = /[\u064B-\u065F\u0670\u06D6-\u06ED]/
 
   belongs_to :word, class_name: '::Word'
   belongs_to :verse
@@ -24,7 +25,19 @@ class Draft::WordRoot < ApplicationRecord
   end
 
   def changed_links
-    LINKS.keys.reject { |link| self["current_#{link}_id"] == self["draft_#{link}_id"] }
+    LINKS.keys.select { |link| new_text(link) || self["current_#{link}_id"] != self["draft_#{link}_id"] }
+  end
+
+  # A root, stem or lemma the user couldn't find, it's added when the draft is approved
+  def new_text(link)
+    meta_data.to_h["new_#{link}"].presence
+  end
+
+  def self.valid_new_text?(link, text)
+    letters = text.remove(/\s/)
+    return false if letters.match?(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/)
+
+    link == 'root' ? (2..5).cover?(letters.remove(HARAKAT).size) && letters == letters.remove(HARAKAT) : letters.present?
   end
 
   def matches_current?
@@ -64,15 +77,17 @@ class Draft::WordRoot < ApplicationRecord
 
   def import!
     changes = changed_links
-    affected = changes.flat_map { |link| [linked(link, 'current'), linked(link, 'draft')] }.compact
-    changes.each { |link| word["#{link}_id"] = self["draft_#{link}_id"] }
 
     attribute_versions_to(user) do
+      changes.each do |link|
+        self["draft_#{link}_id"] = (LINKS[link].find_by_text(new_text(link)) || add_missing(link)).id if new_text(link)
+      end
+      changes.each { |link| word["#{link}_id"] = self["draft_#{link}_id"] }
       word.save(validate: false)
     end
-    affected.each(&:update_stats)
+    changes.flat_map { |link| [linked(link, 'current'), linked(link, 'draft')] }.compact.uniq.each(&:update_stats)
 
-    update_columns(imported: true)
+    update_columns(imported: true, draft_root_id: draft_root_id, draft_stem_id: draft_stem_id, draft_lemma_id: draft_lemma_id)
 
     word
   end
@@ -80,6 +95,24 @@ class Draft::WordRoot < ApplicationRecord
   private
 
   def links_text(side)
-    changed_links.map { |link| "#{link} #{self.class.label(linked(link, side)) || 'none'}" }.join(', ')
+    changed_links.map do |link|
+      text = side == 'draft' && new_text(link) ? "#{new_text(link)} (missing, will be added)" : self.class.label(linked(link, side))
+      "#{link} #{text || 'none'}"
+    end.join(', ')
+  end
+
+  def add_missing(link)
+    text = new_text(link)
+    clean = text.remove(HARAKAT).remove(/\s/)
+
+    case link
+    when 'root'
+      letters = clean.chars.join(' ')
+      ::Root.create!(arabic_trilateral: letters, value: letters, text_clean: letters, english_trilateral: '')
+    when 'stem'
+      ::Stem.create!(text_madani: text, text_clean: clean)
+    when 'lemma'
+      ::Lemma.create!(text_madani: text, text_clean: clean, en_translations: [])
+    end
   end
 end

@@ -27,6 +27,8 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section mb-4">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions(@verse), words: true %>
+
     <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4" role="alert">
       <div>
         <b>Text Uthmani:</b>

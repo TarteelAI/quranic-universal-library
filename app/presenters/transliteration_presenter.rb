@@ -41,8 +41,11 @@ class TransliterationPresenter < ResourcePresenter
     @draft ||= transliteration.build_draft
   end
 
-  def pending_suggestions_count
-    transliteration.drafts.where(imported: false, need_review: true).count
+  def pending_suggestions
+    Draft::Transliteration.pending_contributions
+                          .where(resource_content_id: resource.id, verse_id: verse.id)
+                          .includes(:user)
+                          .order(:created_at)
   end
 
   def page_title

@@ -9,6 +9,8 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions(@verse), words: true %>
+
     <div class="flex flex-wrap gap-4" id="editor-wrap">
 
       <div class="w-full">

@@ -14,7 +14,7 @@
       <%= verse.text_qpc_hafs %>
     </div>
 
-    <%= form_with url: word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), method: :put, html: { class: 'form', autocomplete: 'off' } do |form| %>
+    <%= form_with url: word_transliteration_path(verse.id, resource_id: @resource.id), method: :put, html: { class: 'form', autocomplete: 'off' } do |form| %>
       <% @presenter.words.each do |word| %>
         <% text = @presenter.transliteration_text(word) %>
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-3">
@@ -48,7 +48,7 @@
       <%= render 'shared/suggestion_acknowledgement', wrapper_class: 'mt-5' %>
 
       <div class="text-center mt-5">
-        <%= link_to 'Cancel', word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>
+        <%= link_to 'Cancel', word_transliteration_path(verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>
         <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>

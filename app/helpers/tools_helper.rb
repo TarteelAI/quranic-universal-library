@@ -47,7 +47,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Ayah translation in different languages',
         description: 'Tool for proofreading and suggesting the fixes for ayah translations.',
-        url: translation_proofreadings_path,
+        url: translations_path,
         type: 'translation',
         tags: [['Translation', 'translation']],
         icon: 'translation.svg',
@@ -56,7 +56,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Ayah transliteration',
         description: 'Tool for proofreading and suggesting the fixes for ayah transliterations.',
-        url: transliteration_proofreadings_path,
+        url: transliterations_path,
         type: 'transliteration',
         tags: [['Transliteration', 'transliteration']],
         icon: 'translation.svg',
@@ -65,7 +65,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Ayah tafsirs in different languages',
         description: 'Tool for proofreading and suggesting the fixes for ayah tafsirs.',
-        url: tafsir_proofreadings_path,
+        url: tafsirs_path,
         type: 'tafsir',
         tags: [['Tafsir', 'tafsir']],
         icon: 'translation.svg',
@@ -74,7 +74,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Quranic script and fonts',
         description: 'Proofread tashkeel issues in Quran script for different fonts.',
-        url: '/word_text_proofreadings',
+        url: '/word_texts',
         type: 'quranic-text',
         icon: 'qaf.svg',
         tags: [['Quran Script', 'quran-script'], ['Fonts', 'fonts']],
@@ -110,7 +110,7 @@ module ToolsHelper
       ToolCard.new(
         title: 'Word by Word transliteration',
         description: 'Proofread and suggest fixes for the transliteration of each word of the Quran.',
-        url: word_transliteration_proofreadings_path,
+        url: word_transliterations_path,
         type: 'corpus',
         tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
         icon: 'translation.svg',

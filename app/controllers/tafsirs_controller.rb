@@ -1,4 +1,4 @@
-class TafsirProofreadingsController < CommunityController
+class TafsirsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update new create]
@@ -19,7 +19,7 @@ class TafsirProofreadingsController < CommunityController
     @tafisr = build_tafsir
 
     if @tafisr.save_suggestions(tafsir_params, current_user)
-      redirect_to tafsir_proofreading_path(0, resource_id: @resource.id, verse_key: @tafisr.verse.verse_key),
+      redirect_to tafsir_path(0, resource_id: @resource.id, verse_key: @tafisr.verse.verse_key),
                   notice: "Your tafsir is saved and will show here once it's approved"
     else
       keep_submitted_values(@tafisr)
@@ -47,7 +47,7 @@ class TafsirProofreadingsController < CommunityController
     @tafisr = find_tafsir(@resource)
 
     if suggestion_acknowledged? && @tafisr.save_suggestions(tafsir_params, current_user)
-      redirect_to tafsir_proofreading_path(@tafisr.id, verse_id: @tafisr.group_tafsir_id, resource_id: @resource.id),
+      redirect_to tafsir_path(@tafisr.id, verse_id: @tafisr.group_tafsir_id, resource_id: @resource.id),
                   notice: "Your suggestions are saved successfully"
     else
       keep_submitted_values(@tafisr)

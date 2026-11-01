@@ -3,23 +3,23 @@ module ToolsHelper
     tools = [
       ToolCard.new(
         title: 'Mushaf layouts',
-        description: 'Proofread and fix different layouts of Mushaf (15 lines, 16 lines, v2, v1 etc)',
+        description: 'Build and proofread Mushaf page layouts: the words on each line and how each line is aligned (15 lines, 16 lines, v1, v2 etc).',
         url: '/mushaf_layouts',
         type: 'mushaf-layout',
         icon: 'layout.svg',
         tags: [['Mushaf Layout', 'mushaf-layout']]
       ),
       ToolCard.new(
-        title: 'Tajweed Rules Annotation Tool',
-        description: 'Review and correct the Tajweed rules embedded in Quranic text',
+        title: 'Tajweed rules',
+        description: 'Proofread and fix the tajweed rules marked on the letters of the Quran text.',
         url: tajweed_words_path,
         type: 'tajweed-tool',
         icon: 'tajweed.svg',
         tags: [['Tajweed', 'tajweed']]
       ),
       ToolCard.new(
-        title: 'Mutashabihat ul Quran',
-        description: 'Contribute preparing matching ayah and phrases data in Quran.',
+        title: 'Mutashabihat',
+        description: 'Find and review phrases that repeat across ayahs, often with a small difference that is easy to mix up while memorizing.',
         url: '/morphology_phrases',
         type: 'mutashabihat',
         icon: 'mutashabihat.svg',
@@ -28,7 +28,7 @@ module ToolsHelper
       ),
       ToolCard.new(
         title: 'Surah audio segments',
-        description: 'Tool for creating word by word timestamp data of surah audio files.',
+        description: 'Create and fix the timestamp of each word in surah by surah recitations.',
         url: '/surah_audio_files',
         type: 'segments',
         tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah'], ['Timestamp', 'timestamp']],
@@ -37,7 +37,7 @@ module ToolsHelper
       ),
       ToolCard.new(
         title: 'Ayah audio segments',
-        description: 'Tool for creating word by word segments of ayah by ayah audio files.',
+        description: 'Create and fix the timestamp of each word in ayah by ayah recitations.',
         url: '/ayah_audio_files',
         type: 'segments',
         tags: [['Recitation', 'recitation'], ['Ayah by Ayah', 'ayah-by-ayah'], ['Timestamp', 'timestamp']],
@@ -45,8 +45,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Ayah translation in different languages',
-        description: 'Tool for proofreading and suggesting the fixes for ayah translations.',
+        title: 'Ayah translations',
+        description: 'Proofread and suggest fixes for ayah translations in many languages.',
         url: translations_path,
         type: 'translation',
         tags: [['Translation', 'translation']],
@@ -54,8 +54,8 @@ module ToolsHelper
         cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
-        title: 'Ayah transliteration',
-        description: 'Tool for proofreading and suggesting the fixes for ayah transliterations.',
+        title: 'Ayah transliterations',
+        description: 'Proofread and suggest fixes for ayah transliterations.',
         url: transliterations_path,
         type: 'transliteration',
         tags: [['Transliteration', 'transliteration']],
@@ -63,8 +63,8 @@ module ToolsHelper
         cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
-        title: 'Ayah tafsirs in different languages',
-        description: 'Tool for proofreading and suggesting the fixes for ayah tafsirs.',
+        title: 'Tafsirs',
+        description: 'Proofread and suggest fixes for tafsirs in many languages, and for the ayahs each tafsir covers.',
         url: tafsirs_path,
         type: 'tafsir',
         tags: [['Tafsir', 'tafsir']],
@@ -72,8 +72,8 @@ module ToolsHelper
         cta_bg: 'rgba(90, 77, 65, 0.9)'
       ),
       ToolCard.new(
-        title: 'Quranic script and fonts',
-        description: 'Proofread tashkeel issues in Quran script for different fonts.',
+        title: 'Quran scripts and fonts',
+        description: 'Proofread each Quran script in its fonts and find missing or wrong tashkeel.',
         url: '/word_texts',
         type: 'quranic-text',
         icon: 'qaf.svg',
@@ -81,8 +81,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Surah Info in different languages',
-        description: 'Proofread and suggest fixes for Surah information in different languages.',
+        title: 'Surah info',
+        description: 'Proofread and suggest fixes for Surah introductions in many languages.',
         url: surah_infos_path,
         type: 'segments',
         icon: 'translation.svg',
@@ -90,8 +90,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Arabic/Urdu syllable of Quran words',
-        description: 'Transliteration of each word of Quran in Arabic and Urdu.',
+        title: 'Word syllables in Arabic and Urdu',
+        description: 'Proofread and fix how each Quran word is split into syllables, written in Arabic and Urdu script.',
         url: arabic_transliterations_path,
         type: 'corpus',
         tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
@@ -99,8 +99,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Word by Word translation',
-        description: 'Proofread and suggest fixes for word by word translations in multiple languages.',
+        title: 'Word by word translations',
+        description: 'Proofread and suggest fixes for the meaning of each Quran word, in many languages.',
         url: select_resource_word_translations_path,
         type: 'corpus',
         tags: [['Translation', 'translation'], ['Word by Word', 'word-by-word']],
@@ -108,8 +108,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Word by Word transliteration',
-        description: 'Proofread and suggest fixes for the transliteration of each word of the Quran.',
+        title: 'Word by word transliterations',
+        description: 'Proofread and suggest fixes for the transliteration of each Quran word.',
         url: word_transliterations_path,
         type: 'corpus',
         tags: [['Transliteration', 'transliteration'], ['Word by Word', 'word-by-word']],
@@ -117,8 +117,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Concordance labeling of each word',
-        description: 'Help us fix grammar, part of speech, and morphology data for each word of Quran.',
+        title: 'Word grammar and morphology',
+        description: 'Review the grammar, part of speech and morphology of each Quran word, and report what is wrong.',
         url: word_concordance_labels_path,
         type: 'corpus',
         tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['POS', 'part-of-speech'], ['Morphology', 'quranic-morphology']],
@@ -126,8 +126,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Ayah Dependency Graphs',
-        description: 'Help us preparing data for missing ayahs. Ayah Dependency Graph Tool visualizes the internal dependency structure of an ayah by presenting it as a structured graph.',
+        title: 'Ayah dependency graphs',
+        description: 'View and edit the grammatical structure of each ayah as a graph, and build graphs for ayahs that have none yet.',
         url: morphology_dependency_graphs_path,
         type: 'corpus',
         tags: [['Corpus', 'corpus'], ['Grammar', 'quranic-grammar'], ['Morphology', 'quranic-morphology']],
@@ -135,8 +135,8 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Text and Font Compatibility Checker',
-        description: 'Analyze Unicode values and preview Quranic text across all available fonts.',
+        title: 'Unicode and font checker',
+        description: 'See the Unicode of each character in a text, and preview the text in every Quran font.',
         url: chars_info_path,
         type: 'corpus',
         tags: ['Letter Info', 'Font Preview'],
@@ -144,16 +144,16 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Compare ayah',
-        description: 'Compare ayahs',
+        title: 'Compare ayahs',
+        description: 'Open several ayahs side by side to compare their text, translations and more.',
         url: compare_ayah_path,
         type: 'ayah-reader',
         icon: 'compare.svg',
         tags: []
       ),
       ToolCard.new(
-        title: 'Quran Scripts Comparison',
-        description: 'Compare different Quranic script variants (Madani and Indopak) to identify inconsistencies and missing characters.',
+        title: 'Compare Quran scripts',
+        description: 'Compare the Madani and Indopak scripts word by word to find missing or different characters.',
         url: compare_words_quran_scripts_comparison_path,
         type: 'quranic-text',
         icon: 'compare.svg',
@@ -162,7 +162,7 @@ module ToolsHelper
       ),
       ToolCard.new(
         title: 'Compare audio',
-        description: 'Compare audio recitations',
+        description: 'Play two audio files side by side and compare their length, waveform and pauses.',
         url: '/compare-audio',
         type: 'segments',
         icon: 'timestamp.svg',
@@ -179,7 +179,7 @@ module ToolsHelper
       ),
       ToolCard.new(
         title: 'Ayah audio cutter',
-        description: "Extract ayah audio from full surah audio file for selected reciters.",
+        description: 'Cut ayah by ayah audio out of a full surah recitation.',
         url: '/gapless-ayah-extractor',
         type: 'segments',
         icon: 'timestamp.svg',
@@ -195,8 +195,8 @@ module ToolsHelper
 
     [
       ToolCard.new(
-        title: 'Segment Pipeline',
-        description: 'Run and monitor the segmentation pipeline for generating and validating the word by word timestamps for any recitation.',
+        title: 'Segment pipeline',
+        description: 'Generate and check the word timestamps of any recitation, and follow each run.',
         url: segment_pipeline_root_path,
         type: 'segments',
         icon: 'timestamp.svg',
@@ -205,7 +205,7 @@ module ToolsHelper
 
        ToolCard.new(
         title: 'Add reciter audio',
-        description: 'Tool for preparing and validating audio files for any reciter',
+        description: 'Import and check the recordings of a new reciter, one surah at a time.',
         url: audio_repair_ingests_path,
         type: 'segments',
         icon: 'timestamp.svg',

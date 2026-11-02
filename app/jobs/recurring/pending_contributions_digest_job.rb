@@ -10,7 +10,8 @@ module Recurring
         word_translations: Draft::WordTranslation.pending_contributions.count,
         word_transliterations: Draft::WordTransliteration.pending_contributions.count,
         topics: Draft::Topic.pending_contributions.count,
-        ayah_themes: Draft::AyahTheme.pending_contributions.count
+        ayah_themes: Draft::AyahTheme.pending_contributions.count,
+        roots: Draft::Root.pending_contributions.count
       }
       return if counts.values.sum.zero?
 

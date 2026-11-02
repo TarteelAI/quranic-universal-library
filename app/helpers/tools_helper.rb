@@ -135,6 +135,15 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
+        title: 'Word roots',
+        description: 'Proofread and suggest fixes for the roots of Quran words and their meanings.',
+        url: arabic_roots_path,
+        type: 'corpus',
+        tags: [['Morphology', 'quranic-morphology']],
+        icon: 'qaf.svg',
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Word grammar and morphology',
         description: 'Review the grammar, part of speech and morphology of each Quran word, and report what is wrong.',
         url: word_concordance_labels_path,

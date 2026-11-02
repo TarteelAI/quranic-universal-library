@@ -1,0 +1,42 @@
+<%
+  root = @presenter.root
+  forms = @presenter.word_forms.to_a
+  none = content_tag(:span, 'None', class: 'text-gray-400')
+  actions = [link_to('Suggest a fix', edit_arabic_root_path(root.id), class: 'btn btn-success')]
+%>
+
+<%= render 'tools/header',
+           name: 'Word root',
+           title: @presenter.page_title,
+           key: 'root',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Roots', path: arabic_roots_path }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('roots/draft_summary', draft: draft) } %>
+
+    <dl class="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-x-4 gap-y-2 text-sm">
+      <dt class="font-semibold text-gray-600">Root letters</dt>
+      <dd class="text-xl"><%= root.arabic_trilateral %></dd>
+      <dt class="font-semibold text-gray-600">English letters</dt>
+      <dd><%= root.english_trilateral %></dd>
+      <dt class="font-semibold text-gray-600">Root word</dt>
+      <dd><%= root.text_uthmani.present? ? content_tag(:span, root.text_uthmani, class: 'qpc-hafs text-2xl', dir: 'rtl') : none %></dd>
+      <dt class="font-semibold text-gray-600">English meaning</dt>
+      <dd><%= root.english_translations.join(', ').presence || none %></dd>
+      <dt class="font-semibold text-gray-600">Urdu meaning</dt>
+      <dd dir="rtl" class="text-right sm:text-left"><%= root.urdu_translations.join('، ').presence || none %></dd>
+      <dt class="font-semibold text-gray-600">In the Quran</dt>
+      <dd><%= pluralize(root.words_count.to_i, 'time') %>, in <%= pluralize(forms.size, 'form') %></dd>
+    </dl>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2>Words from this root</h2>
+
+    <%= render 'shared/word_forms', forms: forms %>
+  </div>
+</div>

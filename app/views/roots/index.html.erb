@@ -1,0 +1,80 @@
+<%= render 'tools/header',
+           name: 'Word roots',
+           title: @presenter.page_title,
+           key: 'root'
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section filters">
+    <%= form_tag arabic_roots_path, method: :get do %>
+      <div class="flex flex-wrap">
+        <div class="mb-4 me-2">
+          <%= text_field_tag :query, params[:query], class: 'form-control w-[85vw] sm:w-[220px] border-gray-400 rounded-[5px] h-[38px]', placeholder: 'ر ح م' %>
+          <p class="text-sm text-gray-600 mt-1">Root letters, English letters or meaning</p>
+        </div>
+
+        <div class="mb-4 me-2">
+          <%= select_tag :missing, options_for_select(RootsPresenter::MISSING.invert, params[:missing]), include_blank: 'All roots', class: 'form-select w-[85vw] sm:w-[200px] h-[38px]' %>
+          <p class="text-sm text-gray-600 mt-1">Show roots with</p>
+        </div>
+
+        <div class="mb-4">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% roots = @presenter.roots %>
+  <%= turbo_frame_tag 'root-list', data: { turbo_action: 'advance' }, class: 'block page-section mt-4' do %>
+    <h2><%= pluralize(@presenter.pagination.count, 'root') %></h2>
+    <div class="tools-table-overflow">
+      <table class="w-full hover:bg-gray-50">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="text-left pe-4">Root</th>
+          <th class="text-left whitespace-nowrap pe-4">Root word</th>
+          <th class="text-left">English meaning</th>
+          <th class="text-left">Words</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% roots.each do |root| %>
+          <tr class="hover:bg-gray-200 border-b">
+            <td class="py-2 pl-2 pe-4 whitespace-nowrap">
+              <span class="text-xl" dir="rtl"><%= root.arabic_trilateral %></span>
+              <span class="ms-2 text-gray-500"><%= root.english_trilateral %></span>
+            </td>
+            <td class="py-2 pe-4 whitespace-nowrap">
+              <% if root.text_uthmani.present? %>
+                <span class="qpc-hafs text-2xl" dir="rtl"><%= root.text_uthmani %></span>
+              <% else %>
+                <span class="text-gray-400">None</span>
+              <% end %>
+            </td>
+            <td class="py-2"><%= root.english_translations.join(', ').presence || content_tag(:span, 'None', class: 'text-gray-400') %></td>
+            <td class="py-2"><%= root.words_count %></td>
+            <td class="py-2">
+              <div class="flex gap-1 justify-center">
+                <%= link_to 'Suggest a fix', edit_arabic_root_path(root.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
+                <%= link_to 'Show', arabic_root_path(root.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <% if roots.empty? %>
+          <tr>
+            <td colspan="5" class="py-6 text-center text-gray-600">No roots found.</td>
+          </tr>
+        <% end %>
+        <tr>
+          <td colspan="5">
+            <%= pagination_section @presenter.pagination %>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

@@ -22,7 +22,7 @@
 #  index_media_contents_on_resource_content_id            (resource_content_id)
 #  index_media_contents_on_resource_type_and_resource_id  (resource_type,resource_id)
 #
-class MediaContent < QuranApiRecord
+class MediaContent < QulQuranRecord
   include Resourceable
 
   belongs_to :resource, polymorphic: true

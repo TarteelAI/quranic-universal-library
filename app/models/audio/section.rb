@@ -10,7 +10,7 @@
 #
 
 module Audio
-  class Section < QuranApiRecord
+  class Section < QulQuranRecord
     include NameTranslateable
   end
 end

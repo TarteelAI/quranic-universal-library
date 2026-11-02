@@ -22,7 +22,7 @@
 #  index_slugs_on_language_priority    (language_priority)
 #
 
-class Slug < QuranApiRecord
+class Slug < QulQuranRecord
   include StripWhitespaces
 
   belongs_to :chapter

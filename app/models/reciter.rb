@@ -12,7 +12,7 @@
 #  updated_at        :datetime         not null
 #
 
-class Reciter < QuranApiRecord
+class Reciter < QulQuranRecord
   has_many :translated_names, as: :resource
 
   has_many :audio_recitations, class_name: 'Audio::Recitation'

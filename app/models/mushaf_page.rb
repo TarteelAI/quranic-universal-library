@@ -22,7 +22,7 @@
 #  index_mushaf_pages_on_page_number  (page_number)
 #
 
-class MushafPage < QuranApiRecord
+class MushafPage < QulQuranRecord
   include NavigationSearchable
   belongs_to :mushaf, optional: true
 

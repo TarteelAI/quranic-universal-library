@@ -1,4 +1,4 @@
-class Morphology::WordToken < QuranApiRecord
+class Morphology::WordToken < QulQuranRecord
   belongs_to :sentence, class_name: 'Morphology::Sentence', optional: true
   belongs_to :word, optional: true
   belongs_to :morphology_word, class_name: 'Morphology::Word', optional: true

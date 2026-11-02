@@ -12,7 +12,7 @@
 #  updated_at    :datetime         not null
 #  word_id       :integer          not null
 #
-class WordMistake < QuranApiRecord
+class WordMistake < QulQuranRecord
   belongs_to :word
   before_save :normalize_char_range
 

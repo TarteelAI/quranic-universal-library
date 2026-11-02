@@ -24,7 +24,7 @@
 #  index_roots_on_text_uthmani        (text_uthmani)
 #
 
-class Root < QuranApiRecord
+class Root < QulQuranRecord
   has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
 
   has_many :words

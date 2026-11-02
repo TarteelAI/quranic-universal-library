@@ -32,7 +32,7 @@
 #
 
 
-class Topic < QuranApiRecord
+class Topic < QulQuranRecord
   include NameTranslateable
   include NavigationSearchable
   include Resourceable

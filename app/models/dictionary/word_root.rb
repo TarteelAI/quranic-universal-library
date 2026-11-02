@@ -23,7 +23,7 @@
 #
 
 module Dictionary
-  class WordRoot < QuranApiRecord
+  class WordRoot < QulQuranRecord
     belongs_to :root, optional: true
 
     has_many :root_examples, class_name: 'Dictionary::RootExample'

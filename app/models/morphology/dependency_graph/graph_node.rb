@@ -26,7 +26,7 @@
 #
 module Morphology
   module DependencyGraph
-    class GraphNode < QuranApiRecord
+    class GraphNode < QulQuranRecord
       self.table_name = 'morphology_dependency_graph_nodes'
 
       self.inheritance_column = :_type

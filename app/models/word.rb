@@ -68,7 +68,7 @@
 #  index_words_on_word_index       (word_index)
 #
 
-class Word < QuranApiRecord
+class Word < QulQuranRecord
   include StripWhitespaces
 
   MUSHAF_TO_TEXT_ATTR_MAPPING = {

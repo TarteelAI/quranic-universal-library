@@ -13,7 +13,7 @@
 #  index_related_topics_on_topic_id  (topic_id)
 #
 
-class RelatedTopic < QuranApiRecord
+class RelatedTopic < QulQuranRecord
   belongs_to :topic, optional: true
   belongs_to :related_topic, class_name: 'Topic'
 end

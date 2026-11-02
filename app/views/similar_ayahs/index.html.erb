@@ -1,0 +1,63 @@
+<%= render 'tools/header',
+           name: 'Similar ayahs',
+           title: @presenter.page_title,
+           key: 'similar_ayah'
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section filters">
+    <%= form_tag similar_ayahs_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="flex flex-wrap">
+        <%= render 'shared/filters' %>
+
+        <div class="mb-4 me-2">
+          <%= select_tag :similar, options_for_select(SimilarAyahsPresenter::FILTERS.invert, params[:similar]), include_blank: 'All ayahs', class: 'w-full sm:w-64 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all' %>
+          <p class="text-xs text-slate-500 mt-1">Show</p>
+        </div>
+
+        <div class="mb-4">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%
+    verses = @presenter.verses
+    counts = @presenter.similar_counts(verses)
+  %>
+  <%= turbo_frame_tag 'similar-ayah-list', data: { turbo_action: 'advance' }, class: 'block page-section mt-4' do %>
+    <div class="tools-table-overflow">
+      <table class="w-full hover:bg-gray-50">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="text-left"><%= sort_order_link 'Ayah key', :verse_key %></th>
+          <th class="text-left">Text</th>
+          <th class="text-left pe-4">Similar ayahs</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% verses.each do |verse| %>
+          <tr class="hover:bg-gray-200 border-b">
+            <td class="py-2 pl-2 whitespace-nowrap"><%= verse.verse_key %></td>
+            <td class="py-2 qpc-hafs text-xl" dir="rtl"><%= truncate verse.text_qpc_hafs, length: 100 %></td>
+            <td class="py-2 pe-4"><%= counts[verse.id] || 0 %></td>
+            <td class="py-2">
+              <div class="flex gap-1 justify-center">
+                <%= link_to 'Suggest a fix', edit_similar_ayah_path(verse.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
+                <%= link_to 'Show', similar_ayah_path(verse.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <tr>
+          <td colspan="4">
+            <%= pagination_section @presenter.pagination %>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

@@ -214,6 +214,7 @@ Rails.application.routes.draw do
   resources :word_roots, only: %i[index show edit update] do
     get :options, on: :collection
   end
+  resources :similar_ayahs, only: %i[index show edit update]
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource

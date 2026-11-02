@@ -1,0 +1,7 @@
+<%# Lets a user also list this ayah as similar to a match that scores high enough %>
+<% if @presenter.can_list_both_ways?(match) %>
+  <label class="flex items-center gap-2 ml-7 pb-2 text-sm text-gray-600 cursor-pointer">
+    <%= check_box_tag 'similar_ayah[both_ways_verse_ids][]', match.matched_verse_id, checked, id: nil %>
+    Also list <%= @presenter.verse.verse_key %> as similar to <%= match.matched_verse.verse_key %>
+  </label>
+<% end %>

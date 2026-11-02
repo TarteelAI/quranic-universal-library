@@ -162,6 +162,43 @@ class Verse < QulQuranRecord
     Morphology::MatchingVerse.where(verse_id: id).order('score desc')
   end
 
+  # Saves a draft that approves (add_verse_ids, add_verse_keys) or removes
+  # (approved ones missing from keep_verse_ids) similar ayahs of this ayah.
+  # Ayahs in both_ways_verse_ids, or the typed ones with both_ways_for_keys,
+  # also get this ayah as similar.
+  def save_similar_ayah_suggestions(params, user)
+    approved_ids = Morphology::MatchingVerse.approved.where(verse_id: id).pluck(:matched_verse_id)
+    removed = params.key?(:keep_verse_ids) ? approved_ids - Array(params[:keep_verse_ids]).map(&:to_i) : []
+    added = Array(params[:add_verse_ids]).compact_blank.map(&:to_i)
+
+    keys = params[:add_verse_keys].to_s.split(/[\s,]+/).compact_blank
+    verses = Verse.where(verse_key: keys).to_a
+    unknown = keys - verses.map(&:verse_key)
+    errors.add(:base, "Not an ayah: #{unknown.first(5).join(', ')}") if unknown.any?
+    added = (added + verses.map(&:id)).uniq
+    errors.add(:base, "#{verse_key} can't be similar to itself") if added.delete(id)
+
+    # Only the ayahs that stay or become similar, and don't list this one yet
+    both_ways = Array(params[:both_ways_verse_ids]).compact_blank.map(&:to_i)
+    both_ways += verses.map(&:id) if params[:both_ways_for_keys] == '1'
+    listed_back = Morphology::MatchingVerse.approved.where(matched_verse_id: id).pluck(:verse_id)
+    both_ways = (both_ways.uniq & ((approved_ids - removed) | added)) - listed_back
+
+    draft = Draft::SimilarAyah.new(
+      verse_id: id,
+      chapter_id: chapter_id,
+      user: user,
+      comment: params[:comment].to_s.strip.presence,
+      added_verse_ids: added - approved_ids,
+      removed_verse_ids: removed,
+      both_ways_verse_ids: both_ways
+    )
+    errors.add(:base, 'Nothing was changed') if errors.empty? && draft.matches_current?
+    return false if errors.any?
+
+    draft.save(validate: false)
+  end
+
   def next_ayah
     Verse.where(verse_index: verse_index + 1).first
   end

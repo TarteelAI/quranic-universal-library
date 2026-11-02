@@ -1,0 +1,39 @@
+<%
+  verse = @presenter.verse
+  matches = @presenter.matches
+  actions = [link_to('Suggest a fix', edit_similar_ayah_path(verse.id), class: 'btn btn-success')]
+  actions << link_to('Previous ayah', similar_ayah_path(verse.id - 1), class: 'btn btn-dark') if verse.verse_index > 1
+  actions << link_to('Next ayah', similar_ayah_path(verse.id + 1), class: 'btn btn-dark') if verse.verse_index < 6236
+%>
+
+<%= render 'tools/header',
+           name: 'Similar ayahs',
+           title: @presenter.page_title,
+           key: 'similar_ayah',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Similar ayahs', path: similar_ayahs_path(filter_chapter: verse.chapter_id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('similar_ayahs/draft_summary', draft: draft) } %>
+
+    <div class="text-sm text-gray-600"><%= verse.verse_key %> · <%= verse.chapter.name_simple %></div>
+    <div class="qpc-hafs text-2xl leading-loose" dir="rtl"><%= verse.text_qpc_hafs %></div>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2><%= pluralize(matches.size, 'similar ayah') %></h2>
+
+    <% if matches.empty? %>
+      <p class="text-gray-500">No similar ayahs yet. Know one? Click Suggest a fix to add it.</p>
+    <% end %>
+
+    <div class="divide-y divide-gray-200">
+      <% matches.each do |match| %>
+        <div class="py-3"><%= render 'similar_ayahs/match', match: match %></div>
+      <% end %>
+    </div>
+  </div>
+</div>

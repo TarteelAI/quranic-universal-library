@@ -33,6 +33,8 @@ class Morphology::MatchingVerse < ApplicationRecord
   belongs_to :matched_chapter, class_name: 'Chapter', optional: true
   belongs_to :matched_verse, class_name: 'Verse'
 
+  has_paper_trail on: %i[create update destroy], ignore: %i[created_at updated_at]
+
   validates :verse_id, presence: true, uniqueness: { scope: :matched_verse_id }
   validate :no_self_matching
 
@@ -49,6 +51,11 @@ class Morphology::MatchingVerse < ApplicationRecord
   def matched_verse_id=(val)
     self.matched_chapter_id = Verse.find(val).chapter_id
     super val
+  end
+
+  # "2:5 → 31:5", the profile lists contributions by it
+  def verse_key
+    "#{verse.verse_key} → #{matched_verse.verse_key}"
   end
 
   def is_source_verse?(verse)

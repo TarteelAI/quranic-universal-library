@@ -1,0 +1,18 @@
+<%# A similar ayah with the words it shares in green. Pass match: a Morphology::MatchingVerse with its matched_verse loaded %>
+<%
+  shared = Array(match.matched_word_positions)
+  matched_verse = match.matched_verse
+%>
+<div>
+  <div class="text-sm text-gray-600">
+    <%= link_to matched_verse.verse_key, similar_ayah_path(matched_verse.id), data: { turbo_frame: '_top' } %>
+    <% if match.score %>
+      <span class="text-xs text-gray-500 ms-2"><%= match.matched_words_count.to_i %> words shared, <%= match.coverage.to_i %>% of the ayah, score <%= match.score %></span>
+    <% end %>
+  </div>
+  <div class="qpc-hafs text-2xl leading-loose" dir="rtl">
+    <% matched_verse.words.sort_by(&:position).each do |word| %>
+      <span class="<%= 'text-green-600' if shared.include?(word.position) %>"><%= word.text_qpc_hafs %></span>
+    <% end %>
+  </div>
+</div>

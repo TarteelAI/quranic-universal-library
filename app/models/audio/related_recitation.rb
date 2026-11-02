@@ -15,7 +15,7 @@
 #
 
 module Audio
-  class RelatedRecitation < QuranApiRecord
+  class RelatedRecitation < QulQuranRecord
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'
     belongs_to :related_audio_recitation, class_name: 'Audio::Recitation'
   end

@@ -19,7 +19,7 @@
 #  index_navigation_search_records_on_text               (text)
 #
 
-class NavigationSearchRecord < QuranApiRecord
+class NavigationSearchRecord < QulQuranRecord
   belongs_to :searchable_record, polymorphic: true, optional: true
   before_create :set_name_and_key
 

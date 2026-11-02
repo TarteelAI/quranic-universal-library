@@ -9,7 +9,7 @@ ActiveAdmin.register Draft::AyahTheme do
   filter :imported
   filter :draft_theme
 
-  includes :user, :chapter
+  includes :user, :chapter, :resource_content
 
   scope :all, default: true
   scope :pending_contributions
@@ -77,6 +77,7 @@ ActiveAdmin.register Draft::AyahTheme do
         link_to("Theme ##{resource.ayah_theme_id}", [:cms, resource.ayah_theme]) if resource.ayah_theme
       end
       row :chapter
+      row :resource_content
       row :user
       row :comment do
         resource.comment.presence || span('No comment', class: 'status_tag')

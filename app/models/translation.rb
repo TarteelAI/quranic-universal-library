@@ -42,7 +42,7 @@
 #  index_translations_on_verse_key                    (verse_key)
 #
 
-class Translation < QuranApiRecord
+class Translation < QulQuranRecord
   include StripWhitespaces
   include Resourceable
 

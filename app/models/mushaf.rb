@@ -20,7 +20,7 @@
 #  index_mushafs_on_qirat_type_id  (qirat_type_id)
 #
 
-class Mushaf < QuranApiRecord
+class Mushaf < QulQuranRecord
   include Resourceable
 
   belongs_to :qirat_type

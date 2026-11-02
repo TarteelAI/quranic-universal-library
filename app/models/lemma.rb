@@ -12,7 +12,7 @@
 #  updated_at       :datetime         not null
 #
 
-class Lemma < QuranApiRecord
+class Lemma < QulQuranRecord
   has_many :words
   has_many :verses, through: :words
 

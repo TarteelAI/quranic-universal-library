@@ -276,6 +276,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_120000) do
   create_table "draft_ayah_themes", force: :cascade do |t|
     t.integer "ayah_theme_id"
     t.integer "chapter_id"
+    t.integer "resource_content_id"
     t.integer "user_id"
     t.string "current_theme"
     t.string "draft_theme"
@@ -296,6 +297,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_120000) do
     t.index ["chapter_id"], name: "index_draft_ayah_themes_on_chapter_id"
     t.index ["imported"], name: "index_draft_ayah_themes_on_imported"
     t.index ["need_review"], name: "index_draft_ayah_themes_on_need_review"
+    t.index ["resource_content_id"], name: "index_draft_ayah_themes_on_resource_content_id"
     t.index ["text_matched"], name: "index_draft_ayah_themes_on_text_matched"
   end
 

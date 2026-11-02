@@ -20,7 +20,7 @@
 #  index_api_clients_on_active   (active)
 #  index_api_clients_on_api_key  (api_key)
 #
-class ApiClient < QuranApiRecord
+class ApiClient < QulQuranRecord
   validates :name, presence: true, uniqueness: true
   has_secure_token :api_key
   after_create :register_api

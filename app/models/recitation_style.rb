@@ -16,7 +16,7 @@
 #  index_recitation_styles_on_slug  (slug)
 #
 
-class RecitationStyle < QuranApiRecord
+class RecitationStyle < QulQuranRecord
   include NameTranslateable
 
   has_many :audio_recitations, class_name: 'Audio::Recitation'

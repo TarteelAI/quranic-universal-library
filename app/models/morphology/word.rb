@@ -26,7 +26,7 @@
 #  index_morphology_words_on_word_id                  (word_id)
 #
 
-class Morphology::Word < QuranApiRecord
+class Morphology::Word < QulQuranRecord
   include PaperTrailAttribution
   has_paper_trail
 

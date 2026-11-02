@@ -20,7 +20,7 @@
 #  index_radio_stations_on_priority             (priority)
 #
 
-class Radio::Station < QuranApiRecord
+class Radio::Station < QulQuranRecord
   include NameTranslateable
 
   belongs_to :parent, class_name: 'Radio::Station',  optional: true

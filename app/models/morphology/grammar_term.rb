@@ -20,7 +20,7 @@
 #  index_morphology_grammar_terms_on_term      (term)
 #
 
-class Morphology::GrammarTerm < QuranApiRecord
+class Morphology::GrammarTerm < QulQuranRecord
   has_many :word_segments, class_name: 'Morphology::WordSegment'
   has_many :words, through: :word_segments, class_name: 'Morphology::Word'
   has_many :translations, class_name: 'Morphology::GrammarTermTranslation', foreign_key: :grammar_term_id, dependent: :destroy

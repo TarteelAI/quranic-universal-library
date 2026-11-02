@@ -17,7 +17,7 @@
 #  index_foot_notes_on_resource_content_id  (resource_content_id)
 #  index_foot_notes_on_translation_id       (translation_id)
 #
-class FootNote < QuranApiRecord
+class FootNote < QulQuranRecord
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
   include Resourceable
 

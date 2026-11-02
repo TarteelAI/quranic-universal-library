@@ -8,7 +8,7 @@
 #  updated_at :datetime         not null
 #
 
-class VerseRoot < QuranApiRecord
+class VerseRoot < QulQuranRecord
   has_many :verses
   has_many :words, through: :verses
 end

@@ -17,7 +17,7 @@
 #  index_hizbs_on_hizb_number                       (hizb_number)
 #
 
-class Hizb < QuranApiRecord
+class Hizb < QulQuranRecord
   include NavigationSearchable
   include HasVerseMapping
 

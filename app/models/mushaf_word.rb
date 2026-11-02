@@ -24,7 +24,7 @@
 #  index_on_mushaf_word_position                (mushaf_id,verse_id,position_in_page)
 #
 
-class MushafWord < QuranApiRecord
+class MushafWord < QulQuranRecord
   REGEXP_INDOPAK_WAQF_MARKS = Regexp.new(["ۛ", "ٚ", "ؔ", "ؕ", "ۥ", "ۚ", "۪", "۠", "ۙ", "ؗ", "۫", "ۘ", "ۗ", "۬", "ۙ", "۬", "ۦ"].join('|'))
 
   belongs_to :word

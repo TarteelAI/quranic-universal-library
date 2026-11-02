@@ -4,7 +4,7 @@ services:
     command: >
       postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=off
     environment:
-      POSTGRES_DB: quran_community_tarteel
+      POSTGRES_DB: qul_cms_content_dev
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:

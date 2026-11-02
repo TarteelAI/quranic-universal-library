@@ -1,8 +1,10 @@
 class Draft::AyahTheme < ApplicationRecord
   include PaperTrailAttribution
+  include DraftResourceStats
 
   belongs_to :ayah_theme, class_name: '::AyahTheme'
   belongs_to :chapter
+  belongs_to :resource_content, optional: true
   belongs_to :user, optional: true
 
   # Fixes suggested by users that aren't approved yet
@@ -69,6 +71,7 @@ class Draft::AyahTheme < ApplicationRecord
       end
     end
 
+    resource_content&.touch
     update_columns(imported: true)
 
     theme

@@ -13,7 +13,7 @@
 #
 #  index_on_resource_tag  (tag_id,resource_id,resource_type)
 #
-class ResourceTag < QuranApiRecord
+class ResourceTag < QulQuranRecord
   belongs_to :tag
   belongs_to :resource, polymorphic: true
 

@@ -19,7 +19,7 @@
 #  index_root_details_on_root_id              (root_id)
 #  index_root_details_on_token_id             (token_id)
 #
-class RootDetail < QuranApiRecord
+class RootDetail < QulQuranRecord
   has_paper_trail
 
   belongs_to :resource_content, optional: true

@@ -21,7 +21,7 @@
 #  index_transliterations_on_resource_content_id_and_verse_id  (resource_content_id,verse_id) UNIQUE
 #  index_transliterations_on_verse_id                          (verse_id)
 #
-class Transliteration < QuranApiRecord
+class Transliteration < QulQuranRecord
   include StripWhitespaces
   include Resourceable
 

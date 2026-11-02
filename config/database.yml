@@ -1,44 +1,76 @@
-quran_api_db_dev:
-  adapter: postgresql
-  encoding: unicode
-  database: quran_dev
-  schema_search_path: quran,"$user",public
-  host: <%= ENV['DB_HOST'] %>
-  port: <%= ENV.fetch('DB_PORT', '5432') %>
-  username: <%= ENV['DB_USERNAME'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
+# QUL connects to two Postgres databases:
+#   - Quran content (verses, words, translations, ...): the qul_quran_content_db_* entries,
+#     used by QulQuranRecord.
+#   - CMS content (users, permissions, drafts, versions): the development/test/production
+#     entries, used by ApplicationRecord.
+#
 
-quran_api_db:
+# ---- Quran content database ----
+
+qul_quran_content_db_dev:
   adapter: postgresql
   encoding: unicode
-  schema_search_path: quran,"$user",public
-  database: <%= ENV['QURAN_API_DB_NAME'] %>
-  host: <%= ENV['QURAN_API_DB_HOST'] %>
-  port: <%= ENV['QURAN_API_DB_PORT'] %>
-  username: <%= ENV['QURAN_API_DB_USERNAME'] %>
-  password: <%= ENV['QURAN_API_DB_PASSWORD'] %>
+  schema_search_path: quran,public
+  database: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_NAME', 'qul_quran_content_dev') %>
+  host: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_PORT', '5432') %>
+  username: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_USERNAME', 'postgres') %>
+  password: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_PASSWORD', 'password') %>
+  sslmode: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_SSLMODE', 'prefer') %>
+
+qul_quran_content_db_test:
+  adapter: postgresql
+  encoding: unicode
+  schema_search_path: quran,public
+  database: <%= ENV.fetch('QUL_QURAN_CONTENT_TEST_DB_NAME', 'qul_quran_content_test') %>
+  host: <%= ENV.fetch('QUL_QURAN_CONTENT_TEST_DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('QUL_QURAN_CONTENT_TEST_DB_PORT', '5432') %>
+  username: <%= ENV.fetch('QUL_QURAN_CONTENT_TEST_DB_USERNAME', 'postgres') %>
+  password: <%= ENV.fetch('QUL_QURAN_CONTENT_TEST_DB_PASSWORD', 'password') %>
+  sslmode: <%= ENV.fetch('QUL_QURAN_CONTENT_TEST_DB_SSLMODE', 'prefer') %>
+
+qul_quran_content_db:
+  adapter: postgresql
+  encoding: unicode
+  schema_search_path: quran,public
+  database: <%= ENV['QUL_QURAN_CONTENT_DB_NAME'] %>
+  host: <%= ENV['QUL_QURAN_CONTENT_DB_HOST'] %>
+  port: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_PORT', '5432') %>
+  username: <%= ENV['QUL_QURAN_CONTENT_DB_USERNAME'] %>
+  password: <%= ENV['QUL_QURAN_CONTENT_DB_PASSWORD'] %>
+  sslmode: <%= ENV.fetch('QUL_QURAN_CONTENT_DB_SSLMODE', 'require') %>
+
+# ---- QUL CMS content database ----
 
 development:
   adapter: postgresql
-  database: quran_community_tarteel
-  host: <%= ENV['DB_HOST'] %>
-  port: <%= ENV.fetch('DB_PORT', '5432') %>
-  username: <%= ENV['DB_USERNAME'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
+  encoding: unicode
+  schema_search_path: public
+  database: <%= ENV.fetch('QUL_CMS_CONTENT_DB_NAME', 'qul_cms_content_dev') %>
+  host: <%= ENV.fetch('QUL_CMS_CONTENT_DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('QUL_CMS_CONTENT_DB_PORT', '5432') %>
+  username: <%= ENV.fetch('QUL_CMS_CONTENT_DB_USERNAME', 'postgres') %>
+  password: <%= ENV.fetch('QUL_CMS_CONTENT_DB_PASSWORD', 'password') %>
+  sslmode: <%= ENV.fetch('QUL_CMS_CONTENT_DB_SSLMODE', 'prefer') %>
 
 test:
   adapter: postgresql
-  database: quran_community_cms_test
-  host: <%= ENV['DB_HOST'] %>
-  port: <%= ENV.fetch('DB_PORT', '5432') %>
-  username: <%= ENV['DB_USERNAME'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
+  encoding: unicode
+  schema_search_path: public
+  database: <%= ENV.fetch('QUL_CMS_CONTENT_TEST_DB_NAME', 'qul_cms_content_test') %>
+  host: <%= ENV.fetch('QUL_CMS_CONTENT_TEST_DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('QUL_CMS_CONTENT_TEST_DB_PORT', '5432') %>
+  username: <%= ENV.fetch('QUL_CMS_CONTENT_TEST_DB_USERNAME', 'postgres') %>
+  password: <%= ENV.fetch('QUL_CMS_CONTENT_TEST_DB_PASSWORD', 'password') %>
+  sslmode: <%= ENV.fetch('QUL_CMS_CONTENT_TEST_DB_SSLMODE', 'prefer') %>
 
 production:
   adapter: postgresql
   encoding: unicode
-  database: <%= ENV['CMS_DB_NAME'] %>
-  host: <%= ENV['CMS_DB_HOST'] %>
-  port: <%= ENV['CMS_DB_PORT'] %>
-  username: <%= ENV['CMS_DB_USERNAME'] %>
-  password: <%= ENV['CMS_DB_PASSWORD'] %>
+  schema_search_path: public
+  database: <%= ENV['QUL_CMS_CONTENT_DB_NAME'] %>
+  host: <%= ENV['QUL_CMS_CONTENT_DB_HOST'] %>
+  port: <%= ENV.fetch('QUL_CMS_CONTENT_DB_PORT', '5432') %>
+  username: <%= ENV['QUL_CMS_CONTENT_DB_USERNAME'] %>
+  password: <%= ENV['QUL_CMS_CONTENT_DB_PASSWORD'] %>
+  sslmode: <%= ENV.fetch('QUL_CMS_CONTENT_DB_SSLMODE', 'require') %>

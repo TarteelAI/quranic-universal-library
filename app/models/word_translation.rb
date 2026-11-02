@@ -21,7 +21,7 @@
 #  index_word_translations_on_word_id_and_language_id  (word_id,language_id)
 #
 
-class WordTranslation < QuranApiRecord
+class WordTranslation < QulQuranRecord
   include StripWhitespaces
   include Resourceable
 

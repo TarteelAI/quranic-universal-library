@@ -23,7 +23,7 @@
 #  index_quran_script_by_verses_on_verse_id             (verse_id)
 #  index_quran_script_by_verses_on_verse_number         (verse_number)
 #
-class QuranScript::ByVerse < QuranApiRecord
+class QuranScript::ByVerse < QulQuranRecord
   belongs_to :resource_content
   belongs_to :chapter
   belongs_to :verse, optional: true

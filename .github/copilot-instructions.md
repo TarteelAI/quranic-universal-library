@@ -68,8 +68,8 @@ Execute these for frontend asset compilation:
 ### Database Setup
 **CRITICAL**: QUL requires TWO separate PostgreSQL databases:
 
-1. **`quran_community_tarteel`**: User accounts, permissions, community content
-2. **`quran_dev`**: Quranic data (translations, tafsirs, audio, etc.)
+1. **`qul_cms_content_dev`**: User accounts, permissions, community content
+2. **`qul_quran_content_dev`**: Quranic data (translations, tafsirs, audio, etc.)
 
 **Setup commands:**
 ```bash
@@ -91,10 +91,10 @@ rails db:migrate
 **Restore database:**
 ```bash
 # Option 1: SQL dump
-psql quran_dev < path/to/mini_quran_dev.sql
+psql qul_quran_content_dev < path/to/mini_quran_dev.sql
 
 # Option 2: Binary dump
-pg_restore --host localhost --port 5432 --no-owner --no-privileges --no-tablespaces --no-acl --dbname quran_dev -v path/to/mini_quran_dev.dump
+pg_restore --host localhost --port 5432 --no-owner --no-privileges --no-tablespaces --no-acl --dbname qul_quran_content_dev -v path/to/mini_quran_dev.dump
 ```
 
 ### Development Server
@@ -226,14 +226,14 @@ If CSS/JS builds fail:
 - Rebuild: `npm run build && npm run build:css`
 
 ### Migration Failures
-Migrations may fail without the `quran_dev` database properly set up:
+Migrations may fail without the `qul_quran_content_dev` database properly set up:
 - Ensure both databases exist
 - Load the development database dump before running migrations
 
 ## Development Workflow
 1. **Pull latest changes**: `git pull`
 2. **Update dependencies**: `bundle install && npm install`
-3. **Run migrations**: `rails db:migrate` (may fail without `quran_dev` database dump)
+3. **Run migrations**: `rails db:migrate` (may fail without `qul_quran_content_dev` database dump)
 4. **Build assets**: `npm run build && npm run build:css`
 5. **Start development server**: `bin/dev`
 6. **Make changes and test**
@@ -256,7 +256,7 @@ Based on actual testing, these commands work as expected:
 - ESLint configuration is missing - `npm run lint` will fail
 - RuboCop requires exact Ruby 3.3.3 version  
 - Cypress/Puppeteer binary downloads fail in restricted networks
-- Database migrations fail without the `quran_dev` database dump loaded
+- Database migrations fail without the `qul_quran_content_dev` database dump loaded
 - Some features require both databases to be properly configured
 
 **TIMING EXPECTATIONS**:

@@ -23,7 +23,7 @@
 #  index_mushaf_juzs_on_mushaf_id       (mushaf_id)
 #  index_mushaf_juzs_on_mushaf_type     (mushaf_type)
 #
-class MushafJuz < QuranApiRecord
+class MushafJuz < QulQuranRecord
   belongs_to :mushaf
   belongs_to :juz
   belongs_to :first_verse, class_name: 'Verse'

@@ -24,6 +24,6 @@ module Resourceable
   end
 
   def resource_name
-    self['resource_name'] || get_resource_content.name
+    self['resource_name'] || get_resource_content&.name
   end
 end

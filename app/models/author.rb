@@ -10,7 +10,7 @@
 #  updated_at              :datetime         not null
 #
 
-class Author < QuranApiRecord
+class Author < QulQuranRecord
   has_many :translated_names, as: :resource
   has_many :resource_contents
 end

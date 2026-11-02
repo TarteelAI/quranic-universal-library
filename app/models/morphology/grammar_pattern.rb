@@ -14,5 +14,5 @@
 #  index_morphology_grammar_patterns_on_english  (english)
 #
 
-class Morphology::GrammarPattern < QuranApiRecord
+class Morphology::GrammarPattern < QulQuranRecord
 end

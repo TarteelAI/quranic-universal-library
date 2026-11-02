@@ -75,7 +75,7 @@ class ExportMiniDumpJob < ApplicationJob
   end
 
   def prepare_dump
-    `pg_dump --file='mini_dump.sql' --no-owner --no-privileges quran_dev`
-    `pg_dump -b -E UTF-8 -f mini_dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean quran_dev`
+    `pg_dump --file='mini_dump.sql' --no-owner --no-privileges qul_quran_content_dev`
+    `pg_dump -b -E UTF-8 -f mini_dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean qul_quran_content_dev`
   end
 end

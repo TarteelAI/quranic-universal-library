@@ -26,8 +26,9 @@ FileUtils.chdir APP_ROOT do
   puts "\n== Preparing database =="
   # QUL connects to two separate Postgres databases (see config/database.yml):
   # the CMS database (users, drafts, etc.) and the Quran content database
-  # (quran_dev in development). db:prepare only sets up the CMS database, so
-  # db:create:all is needed first to also create the Quran content database.
+  # (qul_quran_content_dev in development). db:prepare only sets up the CMS
+  # database, so db:create:all is needed first to also create the Quran content
+  # database.
   system! "bin/rails db:create:all"
   system! "bin/rails db:prepare"
 

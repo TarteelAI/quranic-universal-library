@@ -15,6 +15,6 @@
 #  index_morphology_word_verb_forms_on_word_id  (word_id)
 #
 
-class Morphology::WordVerbForm < QuranApiRecord
+class Morphology::WordVerbForm < QulQuranRecord
   belongs_to :word, class_name: 'Morphology::Word', optional: true
 end

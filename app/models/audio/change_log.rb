@@ -13,7 +13,7 @@
 #
 
 module Audio
-  class ChangeLog < QuranApiRecord
+  class ChangeLog < QulQuranRecord
     belongs_to :audio_recitation, class_name: 'Audio::Recitation', optional: true
   end
 end

@@ -10,7 +10,7 @@
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #
-class DataSource < QuranApiRecord
+class DataSource < QulQuranRecord
   has_many :resource_contents
 
   def update_resource_count

@@ -26,7 +26,7 @@
 #
 
 module Dictionary
-  class RootExample < QuranApiRecord
+  class RootExample < QulQuranRecord
     belongs_to :word_root, class_name: 'Dictionary::WordRoot'
     belongs_to :word, optional: true
     belongs_to :verse, optional: true

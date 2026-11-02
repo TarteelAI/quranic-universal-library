@@ -25,7 +25,7 @@
 #  index_ayah_themes_on_verse_number_from  (verse_number_from)
 #  index_ayah_themes_on_verse_number_to    (verse_number_to)
 #
-class AyahTheme < QuranApiRecord
+class AyahTheme < QulQuranRecord
   belongs_to :chapter
   belongs_to :verse_from, class_name: 'Verse', foreign_key: 'verse_id_from'
   belongs_to :verse_to, class_name: 'Verse', foreign_key: 'verse_id_from'

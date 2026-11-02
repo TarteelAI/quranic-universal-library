@@ -26,7 +26,7 @@
 #  index_recitations_on_reciter_id           (reciter_id)
 #  index_recitations_on_resource_content_id  (resource_content_id)
 #
-class Recitation < QuranApiRecord
+class Recitation < QulQuranRecord
   include RecitationDestroyable
 
   belongs_to :reciter

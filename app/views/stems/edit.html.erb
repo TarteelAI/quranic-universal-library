@@ -1,0 +1,46 @@
+<%
+  stem = @presenter.stem
+  submitted = params[:stem] || {}
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Word stem',
+           title: @presenter.page_title,
+           key: 'stem',
+           breadcrumb_parents: [{ label: 'Stems', path: stems_path }, { label: stem.text_clean, path: stem_path(stem.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('stems/draft_summary', draft: draft) } %>
+
+    <%= form_with scope: :stem, url: stem_path(stem.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <%= render 'shared/form_errors', object: stem %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <%= form.label :text_madani, 'Stem', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :text_madani, value: submitted[:text_madani] || stem.text_madani, class: "#{input_css} qpc-hafs text-xl", dir: 'rtl', required: true %>
+          <p class="text-xs text-gray-500 mt-1">With harakat.</p>
+        </div>
+        <div>
+          <%= form.label :text_clean, 'Without harakat', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.text_field :text_clean, value: submitted[:text_clean] || stem.text_clean, class: "#{input_css} text-xl", dir: 'rtl', required: true %>
+          <p class="text-xs text-gray-500 mt-1">The same letters, used for search.</p>
+        </div>
+      </div>
+
+      <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
+
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "A wrong or missing letter, wrong harakat, or a stem that doesn't match the words listed for it. Not a mistake: a spelling from another script or mushaf." %>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to 'Cancel', stem_path(stem.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

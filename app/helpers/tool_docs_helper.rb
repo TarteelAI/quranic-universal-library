@@ -28,7 +28,8 @@ module ToolDocsHelper
       'gapless_ayah_extractor',
       'topic',
       'ayah_theme',
-      'root'
+      'root',
+      'stem'
     ] + internal_tools_keys
   end
 
@@ -1596,6 +1597,42 @@ module ToolDocsHelper
         type: 'step',
         title: '3. Wrong root letters',
         text: "Separate the letters with spaces, like <code>ر ح م</code>, and fix the English letters to match. The English letters use Buckwalter, e.g. <code>E</code> for ع and <code>H</code> for ح."
+      }
+    ]
+  end
+
+  def stem_help
+    [
+      "Word stems",
+      {
+        text: "This tool is used to proofread the stems of Quran words. A stem is the core of a word, without the letters joined to its start or end, like <code>وَ</code> or <code>هُم</code>. Find the stem, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Search for the stem without harakat, like <code>كتاب</code>. The stem page lists every word that has it.",
+          filters: [ui_input('Search', 'كتاب')],
+          fix_text: "Fix the stem with its harakat, and the same letters without harakat.",
+          fix: ui_screen(ui_input('Stem', 'كِتَٰبِ'), ui_input('Without harakat', 'كتاب'), title: 'Suggest a fix')
+        )
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. A wrong letter or harakah',
+        text: "Compare the stem with the words listed on its page. The stem should match the part of those words that doesn't change."
+      },
+      {
+        type: 'step',
+        title: "2. The text without harakat doesn't match",
+        text: "<code>Without harakat</code> is used for search. Keep the same letters as the stem, without harakat or other marks."
       }
     ]
   end

@@ -3,9 +3,9 @@
   <% draft.changed_fields.each do |field| %>
     <li>
       <span class="text-gray-500"><%= field.humanize %>:</span>
-      <del class="text-red-700"><%= strip_tags(draft["current_#{field}"]).truncate(120) %></del>
+      <del class="text-red-700"><%= strip_tags(draft["current_#{field}"].to_s).truncate(120).presence || 'empty' %></del>
       &rarr;
-      <ins class="text-green-700 no-underline"><%= strip_tags(draft["draft_#{field}"]).truncate(120).presence || 'empty' %></ins>
+      <ins class="text-green-700 no-underline"><%= strip_tags(draft["draft_#{field}"].to_s).truncate(120).presence || 'empty' %></ins>
     </li>
   <% end %>
   <% if draft.added_verse_ids.any? %>

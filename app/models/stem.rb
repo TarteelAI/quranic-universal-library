@@ -11,7 +11,7 @@
 #  updated_at       :datetime         not null
 #
 
-class Stem < QuranApiRecord
+class Stem < QulQuranRecord
   has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
 
   has_many :words

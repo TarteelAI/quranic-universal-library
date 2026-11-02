@@ -21,7 +21,7 @@
 #  index_arabic_transliterations_on_verse_id  (verse_id)
 #  index_arabic_transliterations_on_word_id   (word_id)
 #
-class ArabicTransliteration < QuranApiRecord
+class ArabicTransliteration < QulQuranRecord
   belongs_to :word, optional: true
   belongs_to :verse
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]

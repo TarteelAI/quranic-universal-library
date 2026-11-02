@@ -1,4 +1,4 @@
-class Morphology::Sentence < QuranApiRecord
+class Morphology::Sentence < QulQuranRecord
   has_many :word_tokens,
            -> { order(:position_in_sentence) },
            class_name: 'Morphology::WordToken',

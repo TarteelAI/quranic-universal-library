@@ -50,7 +50,7 @@
 #  index_audio_files_on_verse_key                    (verse_key)
 #
 
-class AudioFile < QuranApiRecord
+class AudioFile < QulQuranRecord
   include AudioContentVersioning
 
   belongs_to :verse, optional: true

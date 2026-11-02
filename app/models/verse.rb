@@ -62,7 +62,7 @@
 #  index_verses_on_words_count         (words_count)
 #
 
-class Verse < QuranApiRecord
+class Verse < QulQuranRecord
   include NavigationSearchable
   include StripWhitespaces
 

@@ -1,2 +1,2 @@
-class QuranTable < QuranApiRecord
+class QuranTable < QulQuranRecord
 end

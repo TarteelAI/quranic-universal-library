@@ -17,7 +17,7 @@
 #  index_rub_el_hizbs_on_rub_el_hizb_number                (rub_el_hizb_number)
 #
 
-class RubElHizb < QuranApiRecord
+class RubElHizb < QulQuranRecord
   include NavigationSearchable
   include HasVerseMapping
 

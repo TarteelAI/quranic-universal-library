@@ -15,6 +15,6 @@
 #  index_api_client_request_stats_on_api_client_id  (api_client_id)
 #  index_api_client_request_stats_on_date           (date)
 #
-class ApiClientRequestStat < QuranApiRecord
+class ApiClientRequestStat < QulQuranRecord
   belongs_to :api_client
 end

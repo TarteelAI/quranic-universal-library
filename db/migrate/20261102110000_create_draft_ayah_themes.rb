@@ -4,6 +4,7 @@ class CreateDraftAyahThemes < ActiveRecord::Migration[8.0]
     create_table :draft_ayah_themes do |t|
       t.integer :ayah_theme_id, index: true
       t.integer :chapter_id, index: true
+      t.integer :resource_content_id, index: true
       t.integer :user_id
       t.string :current_theme
       t.string :draft_theme

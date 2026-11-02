@@ -10,7 +10,7 @@
 #  updated_at        :datetime         not null
 #
 
-class QiratType < QuranApiRecord
+class QiratType < QulQuranRecord
   has_many :audio_recitations, class_name: 'Audio::Recitation'
   has_many :verse_recitations, class_name: 'Recitation'
   has_many :mushafs

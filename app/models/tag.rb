@@ -12,7 +12,7 @@
 #
 #  index_tags_on_name  (name)
 #
-class Tag < QuranApiRecord
+class Tag < QulQuranRecord
   has_many :resource_tags
 
   has_many :resources, through: :resource_tags, source: :resource,

@@ -18,7 +18,7 @@
 #  index_translated_names_on_language_priority              (language_priority)
 #  index_translated_names_on_resource_type_and_resource_id  (resource_type,resource_id)
 #
-class TranslatedName < QuranApiRecord
+class TranslatedName < QulQuranRecord
   include StripWhitespaces
   belongs_to :language, optional: true
   belongs_to :resource, polymorphic: true

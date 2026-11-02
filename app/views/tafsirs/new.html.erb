@@ -2,7 +2,7 @@
            name: "Ayah tafsir",
            title: "Add #{@resource.name} <div style='font-size: 0.5em'>For Surah #{@tafisr.verse.chapter.name_simple}, ayah #{@tafisr.verse.verse_number}</div>",
            key: 'ayah_tafsir',
-           breadcrumb_parents: [{ label: 'Filter', path: tafsir_proofreadings_path(resource_id: @resource.id) }]
+           breadcrumb_parents: [{ label: 'Filter', path: tafsirs_path(resource_id: @resource.id) }]
 %>
 
 <%= render 'shared/access_message' %>

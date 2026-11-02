@@ -1,4 +1,4 @@
-class TranslationProofreadingsController < CommunityController
+class TranslationsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
   before_action :authenticate_user!, only: %i[edit update]
@@ -14,7 +14,7 @@ class TranslationProofreadingsController < CommunityController
     suggestion = @presenter.suggestion.assign(suggestion_params)
 
     if suggestion_acknowledged? && suggestion.save(current_user)
-      redirect_to translation_proofreading_path(@presenter.translation.verse_id, resource_id: @resource.id),
+      redirect_to translation_path(@presenter.translation.verse_id, resource_id: @resource.id),
                   notice: "Your suggestion is saved. The translation is updated once it's approved."
     else
       render :edit, status: :unprocessable_entity
@@ -28,7 +28,7 @@ class TranslationProofreadingsController < CommunityController
 
   def ensure_translation
     if @presenter.translation.blank?
-      redirect_to translation_proofreadings_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
+      redirect_to translations_path(resource_id: @resource.id), alert: "Sorry translation not found for this ayah."
     end
   end
 

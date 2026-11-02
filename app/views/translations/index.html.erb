@@ -7,7 +7,7 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section filters">
-    <%= form_tag translation_proofreadings_path, method: :get do %>
+    <%= form_tag translations_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="flex flex-wrap">
         <div class="mb-4 me-2">
           <%= select_tag :resource_id, options_from_collection_for_select(@presenter.ayah_translations, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select w-[85vw] sm:w-[200px]', data: { placeholder: 'Select translation', controller: 'select2' } %>
@@ -58,8 +58,8 @@
           </td>
           <td class="py-2 align-top">
             <div class="flex gap-1">
-              <%= link_to 'Suggest a fix', edit_translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
-              <%= link_to 'Show', translation_proofreading_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
+              <%= link_to 'Suggest a fix', edit_translation_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
+              <%= link_to 'Show', translation_path(translation.verse_id, resource_id: @resource.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
             </div>
           </td>
         </tr>

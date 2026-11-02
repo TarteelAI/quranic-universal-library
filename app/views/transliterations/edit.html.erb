@@ -14,7 +14,7 @@
       <%= @presenter.verse.text_qpc_hafs %>
     </div>
 
-    <%= form_with model: @presenter.draft, url: transliteration_proofreading_path(@presenter.verse.id, resource_id: @resource.id), method: :put, html: { autocomplete: 'off' } do |form| %>
+    <%= form_with model: @presenter.draft, url: transliteration_path(@presenter.verse.id, resource_id: @resource.id), method: :put, html: { autocomplete: 'off' } do |form| %>
       <%= hidden_field_tag :resource_id, @resource.id %>
 
       <% if @presenter.transliteration.errors.any? %>
@@ -40,7 +40,7 @@
       <%= render 'shared/suggestion_acknowledgement' unless @presenter.missing_transliteration? %>
 
       <div class="flex justify-end gap-2 mt-5">
-        <%= link_to 'Cancel', transliteration_proofreading_path(@presenter.verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= link_to 'Cancel', transliteration_path(@presenter.verse.id, resource_id: @resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
         <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
       </div>
     <% end %>

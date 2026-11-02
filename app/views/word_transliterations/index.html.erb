@@ -11,7 +11,7 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section filters">
-    <%= form_tag word_transliteration_proofreadings_path, method: :get do %>
+    <%= form_tag word_transliterations_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="flex flex-wrap">
         <div class="mb-4 me-2">
           <%= select_tag :resource_id, options_from_collection_for_select(@presenter.word_transliteration_resources, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select w-[85vw] sm:w-[200px]', data: { placeholder: 'Select transliteration', controller: 'select2' } %>
@@ -61,8 +61,8 @@
           </td>
           <td class="py-2">
             <div class="flex gap-1">
-              <%= link_to 'Suggest a fix', edit_word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-info' %>
-              <%= link_to 'Show', word_transliteration_proofreading_path(verse.id, resource_id: @resource.id), class: 'btn btn-success' %>
+              <%= link_to 'Suggest a fix', edit_word_transliteration_path(verse.id, resource_id: @resource.id), class: 'btn btn-info' %>
+              <%= link_to 'Show', word_transliteration_path(verse.id, resource_id: @resource.id), class: 'btn btn-success' %>
             </div>
           </td>
         </tr>

@@ -2,10 +2,10 @@
   verse = @presenter.current_ayah
   actions = []
   if verse.id > 1
-    actions << link_to('Previous ayah', word_text_proofreading_path(verse.id - 1), class: 'btn btn-dark')
+    actions << link_to('Previous ayah', word_text_path(verse.id - 1), class: 'btn btn-dark')
   end
   if verse.id < 6236
-    actions << link_to('Next ayah', word_text_proofreading_path(verse.id + 1), class: 'btn btn-dark')
+    actions << link_to('Next ayah', word_text_path(verse.id + 1), class: 'btn btn-dark')
   end
 %>
 
@@ -14,7 +14,7 @@
            title: "#{verse.chapter.name_simple} - #{verse.verse_number}",
            key: 'quran_script',
            actions: actions,
-           breadcrumb_parents: [{ label: 'Filter', path: word_text_proofreadings_path }]
+           breadcrumb_parents: [{ label: 'Filter', path: word_texts_path }]
 %>
 
 <%= render 'shared/page_font', verses: [verse] %>
@@ -321,7 +321,7 @@
   </div>
 
   <div class="flex justify-end gap-2">
-    <%= link_to('Previous ayah', word_text_proofreading_path(verse.id - 1), class: 'btn btn-dark') if verse.id > 1 %>
-    <%= link_to('Next ayah', word_text_proofreading_path(verse.id + 1), class: 'btn btn-dark') if verse.id < 6236 %>
+    <%= link_to('Previous ayah', word_text_path(verse.id - 1), class: 'btn btn-dark') if verse.id > 1 %>
+    <%= link_to('Next ayah', word_text_path(verse.id + 1), class: 'btn btn-dark') if verse.id < 6236 %>
   </div>
 </div>

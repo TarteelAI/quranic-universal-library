@@ -7,7 +7,7 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4 transliteration">
   <div class="page-section filters">
-    <%= form_tag tafsir_proofreadings_path, method: :get do %>
+    <%= form_tag tafsirs_path, method: :get do %>
       <div data-controller="chapter-verses-filter" class="flex flex-wrap">
         <div class="mb-4 me-2">
           <%= select_tag :resource_id, options_from_collection_for_select(@tafsir_list, :id, :humanize, selected: @resource.id), include_blank: false, class: 'form-select w-[85vw] sm:w-[200px]', data: { placeholder: 'Select tafisr', controller: 'select2' } %>
@@ -62,8 +62,8 @@
           </td>
           <td class="py-2">
             <div class="flex gap-1">
-              <%= link_to 'Suggest a fix', edit_tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
-              <%= link_to 'Show', tafsir_proofreading_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
+              <%= link_to 'Suggest a fix', edit_tafsir_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
+              <%= link_to 'Show', tafsir_path(tafisr.id, resource_id: @resource.id, verse_id: tafisr.group_tafsir_id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
             </div>
           </td>
         </tr>
@@ -72,7 +72,7 @@
         <tr>
           <td colspan="6" class="py-6 text-center text-gray-600">
             <%= @resource.name %> has no tafsir for <%= verse.verse_key %>.
-            <%= link_to 'Add tafsir for this ayah', new_tafsir_proofreading_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'ms-2 btn btn-success', data: { turbo_frame: '_top' } %>
+            <%= link_to 'Add tafsir for this ayah', new_tafsir_path(resource_id: @resource.id, verse_key: verse.verse_key), class: 'ms-2 btn btn-success', data: { turbo_frame: '_top' } %>
           </td>
         </tr>
       <% end %>

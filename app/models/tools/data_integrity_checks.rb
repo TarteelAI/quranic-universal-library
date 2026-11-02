@@ -1268,7 +1268,7 @@ module Tools
         ],
         links_proc: {
           verse_key: -> (record, params) do
-            [record.verse_key, "/transliteration_proofreadings/#{record.id}?resource_id=#{params[:resource_content_id]}"]
+            [record.verse_key, "/transliterations/#{record.id}?resource_id=#{params[:resource_content_id]}"]
           end
         },
         check: ->(params) do
@@ -1342,7 +1342,7 @@ module Tools
         ],
         links_proc: {
           location: -> (record, params) do
-            [record.location, "/word_transliteration_proofreadings/#{record.verse_id}?resource_id=#{params[:resource_content_id]}"]
+            [record.location, "/word_transliterations/#{record.verse_id}?resource_id=#{params[:resource_content_id]}"]
           end
         },
         check: ->(params) do

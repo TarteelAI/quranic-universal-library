@@ -1,0 +1,68 @@
+<%
+  topic = @presenter.topic
+  parent = topic.get_parent
+  children = topic.all_children.order(:name).to_a
+  ayahs = @presenter.ayahs
+
+  actions = [link_to('Suggest a fix', edit_topic_path(topic.id), class: 'btn btn-success')]
+%>
+
+<%= render 'tools/header',
+           name: 'Ayah topic',
+           title: @presenter.page_title,
+           key: 'topic',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Topics', path: topics_path(resource_id: topic.resource_content_id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('topics/draft_summary', draft: draft) } %>
+
+    <dl class="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-x-4 gap-y-2 text-sm">
+      <dt class="font-semibold text-gray-600">Name</dt>
+      <dd><%= topic.name %></dd>
+      <dt class="font-semibold text-gray-600">Arabic name</dt>
+      <dd dir="rtl" class="text-right sm:text-left"><%= topic.arabic_name.presence || content_tag(:span, 'None', class: 'text-gray-400') %></dd>
+      <dt class="font-semibold text-gray-600">Topics</dt>
+      <dd><%= topic.get_resource_content&.name || 'Topics' %></dd>
+      <% if parent %>
+        <dt class="font-semibold text-gray-600">Part of</dt>
+        <dd><%= link_to parent.name, topic_path(parent.id) %></dd>
+      <% end %>
+      <% if children.any? %>
+        <dt class="font-semibold text-gray-600">Sub topics</dt>
+        <dd class="flex flex-wrap gap-1">
+          <% children.each do |child| %>
+            <%= link_to child.name, topic_path(child.id), class: 'px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 no-underline' %>
+          <% end %>
+        </dd>
+      <% end %>
+    </dl>
+
+    <% if topic.description.present? %>
+      <div class="mt-4 text-gray-800"><%= safe_html topic.description %></div>
+    <% end %>
+  </div>
+
+  <div class="page-section mt-4">
+    <h2><%= pluralize(@presenter.pagination.count, 'ayah') %></h2>
+
+    <table class="w-full">
+      <tbody>
+      <% ayahs.each do |verse| %>
+        <tr class="border-b">
+          <td class="py-2 pl-2 whitespace-nowrap align-top">
+            <%= verse.verse_key %>
+            <div class="text-xs text-gray-500"><%= verse.chapter.name_simple %></div>
+          </td>
+          <td class="py-2 qpc-hafs text-2xl leading-loose text-right" dir="rtl"><%= verse.text_qpc_hafs %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+
+    <%= pagination_section @presenter.pagination %>
+  </div>
+</div>

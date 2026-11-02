@@ -25,7 +25,8 @@ module ToolDocsHelper
       'ayah_boundaries',
       'compare_audio',
       'compare_font',
-      'gapless_ayah_extractor'
+      'gapless_ayah_extractor',
+      'topic'
     ] + internal_tools_keys
   end
 
@@ -408,9 +409,9 @@ module ToolDocsHelper
       },
       {
         title: 'Propose changes',
-        text: "Say what was wrong in <code>Comment for the reviewer</code> (optional). Tick the box to confirm it's a typo, spelling mistake or factual error, not a wording you'd prefer, and click <code>Propose changes</code>.",
+        text: "Say what was wrong in <code>Comment for the reviewer</code> (optional). Tick the box to confirm you're fixing a mistake, not changing something to suit your preference, and click <code>Propose changes</code>. <code>What counts as a mistake?</code> under it gives examples.",
         ui: ui_screen(ui_input('Comment for the reviewer', 'Typo in the second word'),
-                      ui_checkbox("I'm fixing a typo, spelling mistake or factual error"),
+                      ui_checkbox("I'm fixing a mistake, not changing something to suit my own preference"),
                       ui_button('Propose changes'))
       },
       {
@@ -1459,6 +1460,48 @@ module ToolDocsHelper
         type: 'step',
         title: '4. Text in the wrong language',
         text: "If part of the info is in another language, or wasn't translated, translate it or open an issue so it can be sourced again."
+      }
+    ]
+  end
+
+  def topic_help
+    [
+      "Ayah topics",
+      {
+        text: "This tool is used to proofread topics and the ayahs linked to each one. Find the topic, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick the topics, then search by name, or enter an ayah like <code>2:255</code> to list its topics. The topic page shows its name, description, sub topics and every ayah linked to it.",
+          filters: [ui_select('Topics', 'All topics'), ui_input('Topics of an ayah', '2:255'), ui_input('Search', 'Patience')],
+          fix_text: "Fix the name, Arabic name or description. Untick ayahs that aren't about the topic, and add missing ones in <code>Add ayahs</code>, e.g. <code>2:153, 3:200</code> or a range like <code>3:18-20</code>.",
+          fix: ui_screen(ui_input('Name', 'Patience'), ui_input('Arabic name', 'الصبر'), ui_checkbox('2:153'), ui_checkbox('2:155'), ui_checkbox('2:250', checked: false),
+                         ui_input('Add ayahs', '3:200'), title: 'Suggest a fix')
+        )
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. An ayah that is not about the topic',
+        text: "Untick it in the list of ayahs. Removing an ayah only removes the link to this topic, the ayah keeps its other topics."
+      },
+      {
+        type: 'step',
+        title: '2. A missing ayah',
+        text: "Add its key in <code>Add ayahs</code>. Only add ayahs that are clearly about the topic, a passing mention isn't enough."
+      },
+      {
+        type: 'step',
+        title: '3. A typo in the name or description',
+        text: "Fix it in its field. The description can contain HTML tags, like links to other topics, keep them as they are."
       }
     ]
   end

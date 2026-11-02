@@ -1,5 +1,6 @@
 <%# Fixes users suggested that aren't approved yet, so nobody suggests the same fix again.
-    Pass suggestions: (drafts with draft_text), and words: true for drafts with one row per word %>
+    Pass suggestions: (drafts with draft_text), and words: true for drafts with one row per word,
+    or summary: a lambda that renders one draft %>
 <% suggestions = suggestions.to_a %>
 <% if suggestions.any? %>
   <% words = local_assigns[:words] %>
@@ -41,6 +42,8 @@
                   <% end %>
                 </tbody>
               </table>
+            <% elsif local_assigns[:summary] %>
+              <%= summary.call(first) %>
             <% else %>
               <div dir="<%= local_assigns[:dir] %>"><%= safe_html first.draft_text %></div>
             <% end %>

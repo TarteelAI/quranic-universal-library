@@ -37,6 +37,8 @@ class Topic < QuranApiRecord
   include NavigationSearchable
   include Resourceable
 
+  has_paper_trail on: %i[update destroy], ignore: %i[created_at updated_at]
+
   # TODO: add ancestry https://github.com/stefankroes/ancestry
   # or https://github.com/mdub/arboreal
   belongs_to :parent, class_name: 'Topic', optional: true
@@ -72,6 +74,35 @@ class Topic < QuranApiRecord
     verses.pluck(:verse_key)
   end
 
+  # Saves a user's fix as a draft, it goes live once approved, see Draft::Topic.
+  # params: name, arabic_name, description, add_verse_keys ("2:255, 3:18-20"), keep_verse_ids (unticked ayahs are removed), comment
+  def save_suggestions(params, user)
+    current_ids = verse_topics.pluck(:verse_id)
+    added = parse_verse_keys(params[:add_verse_keys])
+    removed = params.key?(:keep_verse_ids) ? current_ids - Array(params[:keep_verse_ids]).map(&:to_i) : []
+    errors.add(:base, 'Topic name is required') if params[:name].blank?
+
+    draft = Draft::Topic.new(
+      topic_id: id,
+      resource_content_id: resource_content_id,
+      user: user,
+      comment: params[:comment].to_s.strip.presence,
+      current_name: name,
+      draft_name: params[:name].to_s.strip,
+      current_arabic_name: arabic_name,
+      draft_arabic_name: params[:arabic_name].to_s.strip,
+      current_description: description,
+      draft_description: params[:description].to_s.strip,
+      added_verse_ids: added.map(&:id) - current_ids,
+      removed_verse_ids: removed
+    )
+    errors.add(:base, 'Nothing was changed') if errors.empty? && draft.matches_current?
+    return false if errors.any?
+
+    draft.save(validate: false)
+  end
+
+
   def all_children
     Topic.where("parent_id = :id OR thematic_parent_id = :id OR ontology_parent_id = :id", id: id)
   end
@@ -97,5 +128,24 @@ class Topic < QuranApiRecord
     nodes.each do |child|
       tree_view(label_method, child, level+1)
     end
+  end
+
+  private
+
+  # "2:255, 3:18-20" => the ayahs, adds an error for keys that aren't ayahs
+  def parse_verse_keys(text)
+    keys = text.to_s.split(/[\s,]+/).compact_blank.flat_map do |key|
+      if (match = key.match(/\A(\d+):(\d+)-(\d+)\z/))
+        (match[2].to_i..match[3].to_i).map { |number| "#{match[1]}:#{number}" }
+      else
+        key
+      end
+    end
+
+    verses = Verse.where(verse_key: keys).to_a
+    unknown = keys - verses.map(&:verse_key)
+    errors.add(:base, "Not an ayah: #{unknown.first(5).join(', ')}") if unknown.any?
+
+    verses
   end
 end

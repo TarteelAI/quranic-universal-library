@@ -32,6 +32,11 @@ class AyahTheme < QulQuranRecord
   belongs_to :verse_from, class_name: 'Verse', foreign_key: 'verse_id_from'
   belongs_to :verse_to, class_name: 'Verse', foreign_key: 'verse_id_to'
 
+  # Every ayah theme belongs to the one "Ayah theme" resource
+  def self.resource_content
+    ResourceContent.ayah_theme.find_by(cardinality_type: ResourceContent::CardinalityType::OneVerse)
+  end
+
   def self.for_verse(verse)
     AyahTheme
       .where(":ayah >= verse_id_from AND :ayah <= verse_id_to ", ayah: verse.id)
@@ -85,6 +90,7 @@ class AyahTheme < QulQuranRecord
     draft = Draft::AyahTheme.new(
       ayah_theme_id: id,
       chapter_id: chapter_id,
+      resource_content: AyahTheme.resource_content,
       user: user,
       comment: params[:comment].to_s.strip.presence,
       current_theme: theme,

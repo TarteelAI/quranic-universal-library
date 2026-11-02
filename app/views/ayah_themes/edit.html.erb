@@ -1,0 +1,70 @@
+<%
+  theme = @presenter.theme
+  submitted = params[:ayah_theme] || {}
+  numbers = (1..theme.chapter.verses_count).to_a
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Ayah theme',
+           title: @presenter.page_title,
+           key: 'ayah_theme',
+           breadcrumb_parents: [{ label: 'Themes', path: themes_path(filter_chapter: theme.chapter_id) }, { label: theme.range_label, path: theme_path(theme.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('ayah_themes/draft_summary', draft: draft) } %>
+
+    <%= form_with scope: :ayah_theme, url: theme_path(theme.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <%= render 'shared/form_errors', object: theme %>
+
+      <div class="mb-4">
+        <%= form.label :theme, 'Theme', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_field :theme, value: submitted[:theme] || theme.theme, class: input_css, required: true %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :keywords, 'Keywords', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_field :keywords, value: submitted[:keywords] || Array(theme.keywords).join(', '), class: input_css %>
+        <p class="text-xs text-gray-500 mt-1">Separated by commas.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-2 max-w-md">
+        <div>
+          <%= form.label :verse_number_from, "First ayah of #{theme.chapter.name_simple}", class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.select :verse_number_from, numbers, { selected: (submitted[:verse_number_from] || theme.verse_number_from).to_i }, class: input_css %>
+        </div>
+        <div>
+          <%= form.label :verse_number_to, 'Last ayah', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+          <%= form.select :verse_number_to, numbers, { selected: (submitted[:verse_number_to] || theme.verse_number_to).to_i }, class: input_css %>
+        </div>
+      </div>
+
+      <% before, after = @presenter.neighbour_themes %>
+      <div class="mb-4 text-sm text-gray-600">
+        <p>The themes around it. If your range takes ayahs from one of them, it's shortened once your fix is approved.</p>
+        <ul class="mt-2 rounded border border-gray-200 divide-y divide-gray-100">
+          <% before.each do |other| %>
+            <li class="px-2 py-1"><span class="inline-block w-24 text-gray-500"><%= other.range_label %></span> <%= other.theme %></li>
+          <% end %>
+          <li class="px-2 py-1 bg-blue-50 font-medium text-gray-800"><span class="inline-block w-24"><%= theme.range_label %></span> This theme</li>
+          <% after.each do |other| %>
+            <li class="px-2 py-1"><span class="inline-block w-24 text-gray-500"><%= other.range_label %></span> <%= other.theme %></li>
+          <% end %>
+        </ul>
+      </div>
+
+      <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
+
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "A theme that doesn't match its ayahs, a range that starts or ends on the wrong ayah, a wrong keyword, or a typo. Not a mistake: a theme you'd word differently." %>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to 'Cancel', theme_path(theme.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

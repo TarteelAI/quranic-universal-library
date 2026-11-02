@@ -1,0 +1,57 @@
+<%
+  theme = @presenter.theme
+  actions = [link_to('Suggest a fix', edit_theme_path(theme.id), class: 'btn btn-success')]
+
+  if (previous_theme = @presenter.previous_theme)
+    actions << link_to('Previous theme', theme_path(previous_theme.id), class: 'btn btn-dark', title: previous_theme.range_label)
+  end
+
+  if (next_theme = @presenter.next_theme)
+    actions << link_to('Next theme', theme_path(next_theme.id), class: 'btn btn-dark', title: next_theme.range_label)
+  end
+%>
+
+<%= render 'tools/header',
+           name: 'Ayah theme',
+           title: @presenter.page_title,
+           key: 'ayah_theme',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Themes', path: themes_path(filter_chapter: theme.chapter_id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('ayah_themes/draft_summary', draft: draft) } %>
+
+    <dl class="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-x-4 gap-y-2 text-sm">
+      <dt class="font-semibold text-gray-600">Theme</dt>
+      <dd><%= theme.theme %></dd>
+      <dt class="font-semibold text-gray-600">Keywords</dt>
+      <dd class="flex flex-wrap gap-1">
+        <% if theme.keywords.present? %>
+          <% Array(theme.keywords).each do |keyword| %>
+            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700"><%= keyword %></span>
+          <% end %>
+        <% else %>
+          <span class="text-gray-400">None</span>
+        <% end %>
+      </dd>
+      <dt class="font-semibold text-gray-600">Ayahs</dt>
+      <dd><%= theme.range_label %> (<%= pluralize(theme.verses_count, 'ayah') %>)</dd>
+    </dl>
+  </div>
+
+  <div class="page-section mt-4">
+    <table class="w-full">
+      <tbody>
+      <% theme.ayahs.each do |verse| %>
+        <tr class="border-b">
+          <td class="py-2 pl-2 whitespace-nowrap align-top"><%= verse.verse_key %></td>
+          <td class="py-2 qpc-hafs text-2xl leading-loose text-right" dir="rtl"><%= verse.text_qpc_hafs %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

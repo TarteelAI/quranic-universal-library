@@ -9,7 +9,7 @@
 #  updated_at  :datetime         not null
 #
 
-class VerseLemma < QuranApiRecord
+class VerseLemma < QulQuranRecord
   include StripWhitespaces
 
   has_many :verses

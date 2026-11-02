@@ -27,7 +27,7 @@
 #  index_chapters_on_chapter_number  (chapter_number)
 #
 
-class Chapter < QuranApiRecord
+class Chapter < QulQuranRecord
   include NavigationSearchable
   include Slugable
 

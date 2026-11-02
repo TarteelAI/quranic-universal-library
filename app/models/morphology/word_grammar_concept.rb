@@ -14,7 +14,7 @@
 #  index_morphology_word_grammar_concepts_on_word_id             (word_id)
 #
 
-class Morphology::WordGrammarConcept < QuranApiRecord
+class Morphology::WordGrammarConcept < QulQuranRecord
   belongs_to :word, class_name: 'Morphology::Word', optional: true
   belongs_to :grammar_concept, class_name: 'Morphology::GrammarConcept', optional: true
 end

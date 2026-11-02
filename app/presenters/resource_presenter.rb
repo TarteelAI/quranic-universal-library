@@ -324,7 +324,7 @@ class ResourcePresenter < ApplicationPresenter
   end
 
   def svg_image_urls(downloadable = resource)
-    svg_image_paths(downloadable).map { |path| "#{QuranApiRecord::FONTS_CDN}/#{path}" }
+    svg_image_paths(downloadable).map { |path| "#{QulQuranRecord::FONTS_CDN}/#{path}" }
   end
 
   def svg_image_paths(downloadable = resource)

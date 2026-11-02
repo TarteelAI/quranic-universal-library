@@ -24,7 +24,7 @@
 #
 #  index_books_on_resource_content_id  (resource_content_id) UNIQUE
 #
-class Book < QuranApiRecord
+class Book < QulQuranRecord
   include HasMetaData
 
   belongs_to :resource_content, optional: true

@@ -40,7 +40,7 @@
 #
 
 module Audio
-  class Segment < QuranApiRecord
+  class Segment < QulQuranRecord
     belongs_to :verse, optional: true
     belongs_to :chapter
     belongs_to :audio_recitation, class_name: 'Audio::Recitation'

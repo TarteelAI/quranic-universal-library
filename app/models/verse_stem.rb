@@ -9,7 +9,7 @@
 #  updated_at  :datetime         not null
 #
 
-class VerseStem < QuranApiRecord
+class VerseStem < QulQuranRecord
   has_one :verse
   has_many :words, through: :verses
 end

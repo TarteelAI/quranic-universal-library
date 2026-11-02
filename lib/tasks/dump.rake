@@ -84,10 +84,10 @@ namespace :dump do
     verses.delete_all
 
     puts "Creating SQL dump"
-    system("pg_dump quran_dev > dumps/mini_quran_dev.sql")
+    system("pg_dump qul_quran_content_dev > dumps/mini_quran_dev.sql")
 
     puts "Creating binary dump"
-    system("pg_dump -b -E UTF-8 -f dumps/mini_quran_dev.dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean quran_dev")
+    system("pg_dump -b -E UTF-8 -f dumps/mini_quran_dev.dump --no-owner --no-privileges --no-tablespaces -F c -Z 9 --clean qul_quran_content_dev")
 
     puts "Mini dump created successfully."
   end

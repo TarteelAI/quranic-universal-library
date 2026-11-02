@@ -150,18 +150,18 @@ module Utils
     def self.databases
       {
         api_staging: {
-          host: ENV['QURAN_API_DB_HOST'],
-          port: ENV['QURAN_API_DB_PORT'],
-          database: ENV['QURAN_API_DB_NAME'] || 'quran_dev',
-          username: ENV['QURAN_API_DB_USERNAME'],
-          password: ENV['QURAN_API_DB_PASSWORD']
+          host: ENV['QUL_QURAN_CONTENT_DB_HOST'],
+          port: ENV['QUL_QURAN_CONTENT_DB_PORT'],
+          database: ENV['QUL_QURAN_CONTENT_DB_NAME'] || 'qul_quran_content_dev',
+          username: ENV['QUL_QURAN_CONTENT_DB_USERNAME'],
+          password: ENV['QUL_QURAN_CONTENT_DB_PASSWORD']
         }.compact_blank,
         cms: {
-          host: ENV['CMS_DB_HOST'],
-          port: ENV['CMS_DB_PORT'],
-          database: ENV['CMS_DB_NAME'] || 'quran_community_tarteel',
-          password: ENV['CMS_DB_PASSWORD'],
-          username: ENV['CMS_DB_USERNAME']
+          host: ENV['QUL_CMS_CONTENT_DB_HOST'],
+          port: ENV['QUL_CMS_CONTENT_DB_PORT'],
+          database: ENV['QUL_CMS_CONTENT_DB_NAME'] || 'qul_cms_content_dev',
+          password: ENV['QUL_CMS_CONTENT_DB_PASSWORD'],
+          username: ENV['QUL_CMS_CONTENT_DB_USERNAME']
         }.compact_blank
       }
     end

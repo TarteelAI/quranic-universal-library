@@ -17,7 +17,7 @@
 #  index_juzs_on_juz_number      (juz_number)
 #  index_juzs_on_last_verse_id   (last_verse_id)
 #
-class Juz < QuranApiRecord
+class Juz < QulQuranRecord
   include NavigationSearchable
   include HasVerseMapping
   has_many :verses, foreign_key: :juz_number

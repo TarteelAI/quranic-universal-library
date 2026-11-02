@@ -44,7 +44,7 @@
 #  index_resource_contents_on_sub_type               (sub_type)
 #
 
-class ResourceContent < QuranApiRecord
+class ResourceContent < QulQuranRecord
   include HasMetaData
   include ExportedAssetVersioning
   include ResourceContentDestroyable

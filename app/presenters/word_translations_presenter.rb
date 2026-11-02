@@ -137,6 +137,12 @@ class WordTranslationsPresenter < ApplicationPresenter
     translations_by_word(verse).values.any? { |t| t.group_word_id.present? }
   end
 
+  def pending_suggestions(verse)
+    Draft::WordTranslation.pending_contributions
+                          .where(resource_content_id: resource.id, verse_id: verse.id)
+                          .order(:created_at)
+  end
+
   def wbw_translations(verse)
     words = verse.words.words.includes(:en_translation).order('position asc')
     existing = WordTranslation

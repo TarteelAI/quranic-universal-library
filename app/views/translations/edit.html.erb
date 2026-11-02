@@ -17,6 +17,8 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, dir: @resource.language&.direction %>
+
     <%= form_with scope: :suggestion, url: translation_path(verse.id, resource_id: @resource.id), method: :patch,
                   html: { autocomplete: 'off', data: { controller: 'translation-footnotes' } } do |form| %>
       <%= hidden_field_tag :resource_id, @resource.id %>

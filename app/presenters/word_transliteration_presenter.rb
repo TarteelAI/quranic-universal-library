@@ -53,10 +53,10 @@ class WordTransliterationPresenter < ResourcePresenter
     end
   end
 
-  def pending_suggestions_count
-    Draft::WordTransliteration
-      .where(resource_content_id: resource.id, verse_id: verse.id, imported: false, need_review: true)
-      .count
+  def pending_suggestions
+    Draft::WordTransliteration.pending_contributions
+                              .where(resource_content_id: resource.id, verse_id: verse.id)
+                              .order(:created_at)
   end
 
   def page_title

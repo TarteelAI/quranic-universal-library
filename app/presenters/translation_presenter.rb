@@ -16,6 +16,13 @@ class TranslationPresenter < ResourcePresenter
                      .find_by(verse_id: params[:id])
   end
 
+  def pending_suggestions
+    Draft::Translation.pending_contributions
+                      .where(resource_content_id: resource.id, verse_id: translation.verse_id)
+                      .includes(:user)
+                      .order(:created_at)
+  end
+
   def suggestion
     @suggestion ||= Draft::TranslationSuggestion.new(translation)
   end

@@ -10,6 +10,8 @@
 
 <div class="page-wrapper container max-w-7xl mx-auto px-4">
   <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, words: true %>
+
     <div class="qpc-hafs my-3">
       <%= verse.text_qpc_hafs %>
     </div>

@@ -26,8 +26,10 @@ class SurahInfosPresenter < ApplicationPresenter
     @draft ||= resource.build_draft
   end
 
-  def pending_suggestions_count
-    resource.drafts.where(imported: false, need_review: true).count
+  def pending_suggestions
+    Draft::SurahInfo.where(resource_content_id: resource.resource_content_id, chapter_id: resource.chapter_id, imported: false)
+                    .where.not(user_id: nil)
+                    .order(:created_at)
   end
 
   def resources

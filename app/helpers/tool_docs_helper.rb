@@ -28,7 +28,8 @@ module ToolDocsHelper
       'gapless_ayah_extractor',
       'topic',
       'ayah_theme',
-      'word_root'
+      'word_root',
+      'similar_ayah'
     ] + internal_tools_keys
   end
 
@@ -1627,6 +1628,52 @@ module ToolDocsHelper
       }
     ]
   end
+
+  def similar_ayah_help
+    [
+      "Similar ayahs",
+      {
+        text: "This tool is used to proofread the similar ayahs of each ayah: ayahs that share a phrase or most of their words with it. Find the ayah, click <code>Suggest a fix</code>, make your fix and click <code>Propose changes</code>. A reviewer checks every suggestion, nothing changes until it's approved."
+      },
+      {
+        type: 'info',
+        text: "Each ayah has its own list. Adding 31:5 to 2:5 doesn't add 2:5 to 31:5, unless you tick <code>Also list 2:5 as similar to 31:5</code>. That box shows when the two ayahs score 50 or more and 31:5 doesn't list 2:5 yet."
+      },
+      {
+        type: 'heading',
+        text: 'How to suggest a fix'
+      },
+      {
+        type: 'flow',
+        steps: suggest_fix_steps(
+          find_text: "Pick a <code>Surah</code> and an <code>Ayah</code>, or show only ayahs with or without similar ayahs. The ayah page lists its similar ayahs, with the words they share in green.",
+          filters: [ui_select('Surah', 'Al-Baqarah'), ui_select('Ayah', '5'), ui_select('Show', 'All ayahs')],
+          fix_text: "Untick an ayah that isn't similar. Under <code>Possible similar ayahs</code>, tick the ones found by comparing words that really are similar. Add any other in <code>Add ayahs</code>, e.g. <code>31:5</code>.",
+          fix: ui_screen(ui_checkbox('31:5'), ui_checkbox('2:157', checked: false), ui_checkbox('Possible: 3:15', checked: false), ui_input('Add ayahs', '31:5'), title: 'Suggest a fix')
+        )
+      },
+      {
+        type: 'heading',
+        text: 'Common fixes'
+      },
+      {
+        type: 'step',
+        title: '1. An ayah that is not similar',
+        text: "Untick it. Ayahs that share only a word or two, or are only about the same subject, aren't similar."
+      },
+      {
+        type: 'step',
+        title: '2. A missing similar ayah',
+        text: "Look under <code>Possible similar ayahs</code> first and tick it there. If it isn't listed, add its key in <code>Add ayahs</code>."
+      },
+      {
+        type: 'step',
+        title: '3. An ayah missing from the other way',
+        text: "If 2:5 lists 31:5 but 31:5 doesn't list 2:5, tick <code>Also list 2:5 as similar to 31:5</code> under it. Only tick it when 2:5 is just as similar the other way: a short ayah can be all of a long one's phrase without the long one being similar to it."
+      }
+    ]
+  end
+
   def char_help
     [
       "Unicode and font checker",

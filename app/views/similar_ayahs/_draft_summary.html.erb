@@ -1,0 +1,21 @@
+<%# What a similar ayah suggestion changes, for the pending suggestions list %>
+<ul class="space-y-1">
+  <% if draft.added_verse_ids.any? %>
+    <li>
+      <span class="text-gray-500">Add:</span>
+      <ins class="text-green-700 no-underline"><%= draft.added_verses.map(&:verse_key).join(', ') %></ins>
+    </li>
+  <% end %>
+  <% if draft.removed_verse_ids.any? %>
+    <li>
+      <span class="text-gray-500">Remove:</span>
+      <del class="text-red-700"><%= draft.removed_verses.map(&:verse_key).join(', ') %></del>
+    </li>
+  <% end %>
+  <% if draft.both_ways_verse_ids.any? %>
+    <li>
+      <span class="text-gray-500">Both ways:</span>
+      <%= draft.both_ways_verses.map(&:verse_key).join(', ') %>
+    </li>
+  <% end %>
+</ul>

@@ -99,6 +99,15 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
+        title: 'Similar ayahs',
+        description: 'Proofread and suggest fixes for the ayahs that share a phrase or most of their words with each ayah.',
+        url: similar_ayahs_path,
+        type: 'mutashabihat',
+        icon: 'mutashabihat.svg',
+        tags: [['Similar Ayah', 'similar-ayah']],
+        cta_bg: 'rgba(56, 165, 126, 0.9)'
+      ),
+      ToolCard.new(
         title: 'Surah info',
         description: 'Proofread and suggest fixes for Surah introductions in many languages.',
         url: surah_infos_path,

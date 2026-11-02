@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_150000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -385,6 +385,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_150000) do
     t.index ["need_review"], name: "index_draft_roots_on_need_review"
     t.index ["root_id"], name: "index_draft_roots_on_root_id"
     t.index ["text_matched"], name: "index_draft_roots_on_text_matched"
+  end
+
+  create_table "draft_similar_ayahs", force: :cascade do |t|
+    t.integer "verse_id"
+    t.integer "chapter_id"
+    t.integer "user_id"
+    t.integer "added_verse_ids", default: [], array: true
+    t.integer "removed_verse_ids", default: [], array: true
+    t.integer "both_ways_verse_ids", default: [], array: true
+    t.text "comment"
+    t.boolean "text_matched", default: false
+    t.boolean "need_review", default: true
+    t.boolean "imported", default: false
+    t.jsonb "meta_data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chapter_id"], name: "index_draft_similar_ayahs_on_chapter_id"
+    t.index ["imported"], name: "index_draft_similar_ayahs_on_imported"
+    t.index ["need_review"], name: "index_draft_similar_ayahs_on_need_review"
+    t.index ["text_matched"], name: "index_draft_similar_ayahs_on_text_matched"
+    t.index ["verse_id"], name: "index_draft_similar_ayahs_on_verse_id"
   end
 
   create_table "draft_stems", force: :cascade do |t|

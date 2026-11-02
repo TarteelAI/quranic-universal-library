@@ -1,0 +1,91 @@
+<%
+  verse = @presenter.verse
+  submitted = params[:similar_ayah] || {}
+  kept = submitted.key?(:keep_verse_ids) ? Array(submitted[:keep_verse_ids]).map(&:to_i) : nil
+  ticked = Array(submitted[:add_verse_ids]).map(&:to_i)
+  both_ways = Array(submitted[:both_ways_verse_ids]).map(&:to_i)
+  matches = @presenter.matches
+  possible = @presenter.possible_matches
+  input_css = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+%>
+
+<%= render 'tools/header',
+           name: 'Similar ayahs',
+           title: @presenter.page_title,
+           key: 'similar_ayah',
+           breadcrumb_parents: [{ label: 'Similar ayahs', path: similar_ayahs_path(filter_chapter: verse.chapter_id) }, { label: verse.verse_key, path: similar_ayah_path(verse.id) }]
+%>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions,
+               summary: ->(draft) { render('similar_ayahs/draft_summary', draft: draft) } %>
+
+    <div class="text-sm text-gray-600"><%= verse.verse_key %> · <%= verse.chapter.name_simple %></div>
+    <div class="qpc-hafs text-2xl leading-loose mb-4" dir="rtl"><%= verse.text_qpc_hafs %></div>
+
+    <%= form_with scope: :similar_ayah, url: similar_ayah_path(verse.id), method: :patch, html: { autocomplete: 'off' } do |form| %>
+      <%= render 'shared/form_errors', object: verse %>
+
+      <div class="mb-4">
+        <h3 class="text-base font-semibold text-gray-800 mb-1">Similar ayahs</h3>
+        <% if matches.any? %>
+          <p class="text-sm text-gray-500 mb-2">Untick an ayah that isn't similar to <%= verse.verse_key %>.</p>
+        <% else %>
+          <p class="text-sm text-gray-500 mb-2">None yet.</p>
+        <% end %>
+        <%# Unticked ayahs are removed, the empty value keeps the list when every box is unticked %>
+        <%= hidden_field_tag 'similar_ayah[keep_verse_ids][]', '', id: nil %>
+        <div class="divide-y divide-gray-200">
+          <% matches.each do |match| %>
+            <div>
+              <label class="flex items-start gap-3 py-2 cursor-pointer has-[:not(:checked)]:bg-red-50 has-[:not(:checked)]:line-through">
+                <%= check_box_tag 'similar_ayah[keep_verse_ids][]', match.matched_verse_id, kept.nil? || kept.include?(match.matched_verse_id), id: nil, class: 'mt-1' %>
+                <div class="flex-1"><%= render 'similar_ayahs/match', match: match %></div>
+              </label>
+              <%= render 'similar_ayahs/both_ways_field', match: match, checked: both_ways.include?(match.matched_verse_id) %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if possible.any? %>
+        <div class="mb-4">
+          <h3 class="text-base font-semibold text-gray-800 mb-1">Possible similar ayahs</h3>
+          <p class="text-sm text-gray-500 mb-2">Found by comparing words, but not approved. Tick the ones that are really similar.</p>
+          <div class="divide-y divide-gray-200">
+            <% possible.each do |match| %>
+              <div>
+                <label class="flex items-start gap-3 py-2 cursor-pointer has-[:checked]:bg-green-50">
+                  <%= check_box_tag 'similar_ayah[add_verse_ids][]', match.matched_verse_id, ticked.include?(match.matched_verse_id), id: nil, class: 'mt-1' %>
+                  <div class="flex-1"><%= render 'similar_ayahs/match', match: match %></div>
+                </label>
+                <%= render 'similar_ayahs/both_ways_field', match: match, checked: both_ways.include?(match.matched_verse_id) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mb-4">
+        <%= form.label :add_verse_keys, 'Add ayahs', class: 'block text-sm font-medium text-gray-700 mb-1' %>
+        <%= form.text_field :add_verse_keys, value: submitted[:add_verse_keys], class: input_css, placeholder: '2:255, 3:2' %>
+        <p class="text-xs text-gray-500 mt-1">Ayah keys of similar ayahs that aren't listed, separated by commas.</p>
+        <label class="flex items-center gap-2 mt-2 text-sm text-gray-700 cursor-pointer">
+          <%= check_box_tag 'similar_ayah[both_ways_for_keys]', '1', submitted[:both_ways_for_keys] == '1', id: nil %>
+          Also list <%= verse.verse_key %> as similar to these ayahs, if they score <%= Draft::SimilarAyah::BOTH_WAYS_MIN_SCORE %> or more
+        </label>
+      </div>
+
+      <%= render 'shared/draft_comment_field', form: form, value: submitted[:comment] %>
+
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "An ayah listed as similar that doesn't share a phrase with this one, or a similar ayah that's missing. Not a mistake: ayahs that are only about the same subject." %>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to 'Cancel', similar_ayah_path(verse.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors no-underline' %>
+        <%= form.submit 'Propose changes', class: 'btn btn-success btn-sm', data: { disable_with: 'Please wait...' } %>
+      </div>
+    <% end %>
+  </div>
+</div>

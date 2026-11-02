@@ -15,7 +15,7 @@
 #  index_quran.word_corpus_on_word_id  (word_id)
 #
 
-class WordCorpus < QuranApiRecord
+class WordCorpus < QulQuranRecord
   self.table_name = 'word_corpuses'
   belongs_to :word
 end

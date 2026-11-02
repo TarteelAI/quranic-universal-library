@@ -21,7 +21,7 @@
 #  index_morphology_derived_words_on_word_verb_from_id  (word_verb_from_id)
 #
 
-class Morphology::DerivedWord < QuranApiRecord
+class Morphology::DerivedWord < QulQuranRecord
   belongs_to :verse
   belongs_to :word, optional: true
   belongs_to :morphology_word, class_name: 'Morphology::Word', foreign_key: :word_id, optional: true

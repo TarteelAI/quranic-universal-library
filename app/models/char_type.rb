@@ -13,7 +13,7 @@
 #
 #  index_char_types_on_parent_id  (parent_id)
 #
-class CharType < QuranApiRecord
+class CharType < QulQuranRecord
   belongs_to :parent, class_name: 'CharType'
   has_many :children, class_name: 'CharType', foreign_key: 'parent_id'
 

@@ -23,7 +23,7 @@
 #  index_tokens_on_text                       (text)
 #
 
-class Token < QuranApiRecord
+class Token < QulQuranRecord
   include Resourceable
 
   def verse?

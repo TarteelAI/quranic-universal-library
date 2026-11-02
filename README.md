@@ -51,6 +51,16 @@ Primary path for resource users:
 - [Tutorials](https://qul.tarteel.ai/docs/tutorials)
 - [FAQ](https://qul.tarteel.ai/docs/faq)
 
+## Databases
+QUL connects to two Postgres databases (see `config/database.yml`):
+
+| Database | Holds | Development default | Test default |
+|---|---|---|---|
+| Quran content | verses, words, translations, tafsirs, audio, etc. | `qul_quran_content_dev` | `qul_quran_content_test` |
+| CMS content | users, permissions, drafts, versions | `qul_cms_content_dev` | `qul_cms_content_test` |
+
+See [Project Setup](app/views/docs/markdown/project-setup.md) for loading the Quran content data dump.
+
 ## Contributing
 For the complete contribution flow and PR checklist, use:
 

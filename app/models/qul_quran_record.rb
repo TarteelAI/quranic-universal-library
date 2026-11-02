@@ -1,7 +1,13 @@
-class QuranApiRecord < ApplicationRecord
+class QulQuranRecord < ApplicationRecord
   include Utils::StrongMemoize
   self.abstract_class = true
-  self.establish_connection Rails.env.development? ? :quran_api_db_dev : :quran_api_db
+ 
+  self.establish_connection(
+    if Rails.env.development? then :qul_quran_content_db_dev
+    elsif Rails.env.test? then :qul_quran_content_db_test
+    else :qul_quran_content_db
+    end
+  )
 
   CDN_HOST = ENV['CDN_HOST']
   WORDS_CDN = "#{CDN_HOST}/qul/images/w"

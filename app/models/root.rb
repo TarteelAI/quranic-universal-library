@@ -24,7 +24,7 @@
 #  index_roots_on_text_uthmani        (text_uthmani)
 #
 
-class Root < QuranApiRecord
+class Root < QulQuranRecord
   has_many :words
   has_many :verses, through: :words
 

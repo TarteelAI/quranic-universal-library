@@ -19,7 +19,7 @@
 #  index_chapter_infos_on_language_id          (language_id)
 #  index_chapter_infos_on_resource_content_id  (resource_content_id)
 #
-class ChapterInfo < QuranApiRecord
+class ChapterInfo < QulQuranRecord
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
 
   belongs_to :resource_content, optional: true

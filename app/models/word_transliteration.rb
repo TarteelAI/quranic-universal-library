@@ -17,7 +17,7 @@
 #  index_word_transliterations_on_resource_content_id_and_word_id  (resource_content_id,word_id) UNIQUE
 #  index_word_transliterations_on_word_id                          (word_id)
 #
-class WordTransliteration < QuranApiRecord
+class WordTransliteration < QulQuranRecord
   include StripWhitespaces
   
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]

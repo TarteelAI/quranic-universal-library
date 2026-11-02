@@ -68,7 +68,7 @@
 #  index_morphology_word_segments_on_word_id              (word_id)
 #
 
-class Morphology::WordSegment < QuranApiRecord
+class Morphology::WordSegment < QulQuranRecord
   include PaperTrailAttribution
   has_paper_trail
 

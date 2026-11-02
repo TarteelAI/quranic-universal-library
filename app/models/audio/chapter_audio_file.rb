@@ -33,7 +33,7 @@
 #
 
 module Audio
-  class ChapterAudioFile < QuranApiRecord
+  class ChapterAudioFile < QulQuranRecord
     include StripWhitespaces
     include Resourceable
     include HasMetaData

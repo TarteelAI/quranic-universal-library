@@ -135,27 +135,9 @@ module ToolsHelper
         cta_bg: 'rgba(56, 165, 126, 0.9)'
       ),
       ToolCard.new(
-        title: 'Word roots',
-        description: 'Proofread and suggest fixes for the roots of Quran words and their meanings.',
-        url: arabic_roots_path,
-        type: 'corpus',
-        tags: [['Morphology', 'quranic-morphology']],
-        icon: 'qaf.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)'
-      ),
-      ToolCard.new(
-        title: 'Word stems',
-        description: 'Proofread and suggest fixes for the stems of Quran words.',
-        url: stems_path,
-        type: 'corpus',
-        tags: [['Morphology', 'quranic-morphology']],
-        icon: 'qaf.svg',
-        cta_bg: 'rgba(56, 165, 126, 0.9)'
-      ),
-      ToolCard.new(
-        title: 'Word lemmas',
-        description: 'Proofread and suggest fixes for the lemmas of Quran words and their meanings.',
-        url: lemmas_path,
+        title: 'Word roots, stems and lemmas',
+        description: 'Proofread and suggest fixes for the root, stem and lemma of each Quran word, and their meanings.',
+        url: word_roots_path,
         type: 'corpus',
         tags: [['Morphology', 'quranic-morphology']],
         icon: 'qaf.svg',

@@ -211,6 +211,9 @@ Rails.application.routes.draw do
   resources :arabic_roots, path: 'roots', controller: 'roots', only: %i[index show edit update]
   resources :stems, only: %i[index show edit update]
   resources :lemmas, only: %i[index show edit update]
+  resources :word_roots, only: %i[index show edit update] do
+    get :options, on: :collection
+  end
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource

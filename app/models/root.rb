@@ -34,6 +34,11 @@ class Root < QulQuranRecord
     text_uthmani
   end
 
+  # "رحم" or "ر ح م"
+  def self.find_by_text(text)
+    find_by(arabic_trilateral: text.to_s.gsub(/\s+/, '').chars.join(' '))
+  end
+
   def english_translations
     Oj.load(en_translations.to_s) || []
   rescue Exception => e

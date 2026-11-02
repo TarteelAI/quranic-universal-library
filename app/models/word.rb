@@ -154,6 +154,45 @@ class Word < QulQuranRecord
     %i[letters_cont starts_with_eq ends_with_eq]
   end
 
+  # Suggested fixes to the root, stem and lemma of the words of an ayah.
+  # params: { word_id => { root: 'ر ح م', stem: 'رَّحْمَٰنِ', lemma: 'رَحْمَٰن' } }, blank removes the link.
+  # Text that isn't a root, stem or lemma yet is a missing one, it's added when the draft is approved.
+  # Returns the errors, one draft is saved for each word that changed.
+  def self.save_root_suggestions(verse, params, user, comment: nil)
+    words = verse.words.words.index_by { |word| word.id.to_s }
+    errors = []
+    drafts = []
+
+    params.each do |word_id, links|
+      word = words[word_id.to_s]
+      next unless word
+
+      changes = {}
+      missing = {}
+      { 'root' => Root, 'stem' => Stem, 'lemma' => Lemma }.each do |link, model|
+        text = links[link].to_s.strip
+        record = model.find_by_text(text) if text.present?
+        changes[link] = record&.id
+        next unless text.present? && record.nil?
+
+        if Draft::WordRoot.valid_new_text?(link, text)
+          missing["new_#{link}"] = text
+        else
+          errors << "#{word.location}: #{text} isn't a valid #{link}"
+        end
+      end
+      draft = Draft::WordRoot.for_word(word, user, comment, changes)
+      draft.meta_data = missing
+
+      drafts << draft unless draft.matches_current?
+    end
+
+    errors << 'Nothing was changed' if errors.empty? && drafts.empty?
+    drafts.each { |draft| draft.save(validate: false) } if errors.empty?
+
+    errors
+  end
+
   def self.without_root
     Word.words.joins("LEFT JOIN roots ON words.root_id = roots.id")
         .where("words.root_id IS NULL OR roots.id IS NULL")

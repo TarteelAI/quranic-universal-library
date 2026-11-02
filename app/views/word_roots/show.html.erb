@@ -1,0 +1,53 @@
+<%
+  verse = @presenter.verse
+  none = content_tag(:span, 'None', class: 'text-gray-400')
+  actions = [link_to('Suggest a fix', edit_word_root_path(verse.id), class: 'btn btn-success')]
+  actions << link_to('Previous ayah', word_root_path(verse.id - 1), class: 'btn btn-dark') if verse.verse_index > 1
+  actions << link_to('Next ayah', word_root_path(verse.id + 1), class: 'btn btn-dark') if verse.verse_index < 6236
+%>
+
+<%= render 'tools/header',
+           name: 'Word roots, stems and lemmas',
+           title: @presenter.page_title,
+           key: 'word_root',
+           actions: actions,
+           breadcrumb_parents: [{ label: 'Ayahs', path: word_roots_path(filter_chapter: verse.chapter_id) }]
+%>
+
+<%= render 'word_roots/tabs', active: :ayahs %>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section">
+    <%= render 'shared/pending_suggestions', suggestions: @presenter.pending_suggestions, words: true %>
+
+    <div class="qpc-hafs text-2xl leading-loose my-3" dir="rtl"><%= verse.text_qpc_hafs %></div>
+
+    <div class="tools-table-overflow">
+      <table class="w-full">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="text-left">Word</th>
+          <th class="text-left pe-4">Translation</th>
+          <th class="text-left pe-4">Root</th>
+          <th class="text-left pe-4">Stem</th>
+          <th class="text-left">Lemma</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @presenter.words.each do |word| %>
+          <tr class="border-b">
+            <td class="py-2 pl-2 pe-6 whitespace-nowrap">
+              <div class="text-xs text-gray-500"><%= word.location %></div>
+              <span class="qpc-hafs text-2xl" dir="rtl"><%= word.text_qpc_hafs %></span>
+            </td>
+            <td class="py-2 pe-4"><%= safe_html @presenter.translations[word.id] %></td>
+            <td class="py-2 pe-4 whitespace-nowrap"><%= word.root ? link_to(word.root.arabic_trilateral, arabic_root_path(word.root_id), class: 'text-xl no-underline') : none %></td>
+            <td class="py-2 pe-4 whitespace-nowrap"><%= word.stem ? link_to(word.stem.text_madani, stem_path(word.stem_id), class: 'qpc-hafs text-2xl no-underline', dir: 'rtl') : none %></td>
+            <td class="py-2 whitespace-nowrap"><%= word.lemma ? link_to(word.lemma.text_madani, lemma_path(word.lemma_id), class: 'qpc-hafs text-2xl no-underline', dir: 'rtl') : none %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

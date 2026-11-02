@@ -13,7 +13,8 @@ module Recurring
         ayah_themes: Draft::AyahTheme.pending_contributions.count,
         roots: Draft::Root.pending_contributions.count,
         stems: Draft::Stem.pending_contributions.count,
-        lemmas: Draft::Lemma.pending_contributions.count
+        lemmas: Draft::Lemma.pending_contributions.count,
+        word_roots: Draft::WordRoot.pending_contributions.count
       }
       return if counts.values.sum.zero?
 

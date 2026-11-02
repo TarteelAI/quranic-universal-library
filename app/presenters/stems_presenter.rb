@@ -34,6 +34,11 @@ class StemsPresenter < ApplicationPresenter
     Draft::Stem.pending_contributions.where(stem_id: stem.id).includes(:user).order(:created_at)
   end
 
+  # Suggested fixes to which words are linked to it
+  def pending_word_links
+    Draft::WordRoot.pending_contributions.where('current_stem_id = :id OR draft_stem_id = :id', id: stem.id).order(:created_at)
+  end
+
   def page_title
     case action_name
     when 'show'

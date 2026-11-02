@@ -1,0 +1,55 @@
+<%= render 'tools/header',
+           name: 'Word roots, stems and lemmas',
+           title: @presenter.page_title,
+           key: 'word_root'
+%>
+
+<%= render 'word_roots/tabs', active: :ayahs %>
+
+<div class="page-wrapper container max-w-7xl mx-auto px-4">
+  <div class="page-section filters">
+    <%= form_tag word_roots_path, method: :get do %>
+      <div data-controller="chapter-verses-filter" class="flex flex-wrap">
+        <%= render 'shared/filters' %>
+
+        <div class="mb-4">
+          <%= submit_tag 'Filter', class: 'btn btn-success', data: { disable_with: 'Please wait..' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% verses = @presenter.verses %>
+  <%= turbo_frame_tag 'word-root-list', data: { turbo_action: 'advance' }, class: 'block page-section mt-4' do %>
+    <div class="tools-table-overflow">
+      <table class="w-full hover:bg-gray-50">
+        <thead class="sticky top-0 z-10 bg-white border-b-2 border-black">
+        <tr>
+          <th class="text-left"><%= sort_order_link 'Ayah key', :verse_key %></th>
+          <th class="text-left">Text</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% verses.each do |verse| %>
+          <tr class="hover:bg-gray-200 border-b">
+            <td class="py-2 pl-2 whitespace-nowrap"><%= verse.verse_key %></td>
+            <td class="py-2 qpc-hafs text-xl" dir="rtl"><%= truncate verse.text_qpc_hafs, length: 100 %></td>
+            <td class="py-2">
+              <div class="flex gap-1 justify-center">
+                <%= link_to 'Suggest a fix', edit_word_root_path(verse.id), class: 'btn btn-info', data: { turbo_frame: '_top' } %>
+                <%= link_to 'Show', word_root_path(verse.id), class: 'btn btn-success', data: { turbo_frame: '_top' } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <tr>
+          <td colspan="3">
+            <%= pagination_section @presenter.pagination %>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

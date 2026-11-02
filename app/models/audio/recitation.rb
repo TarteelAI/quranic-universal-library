@@ -39,7 +39,7 @@
 #
 
 module Audio
-  class Recitation < QuranApiRecord
+  class Recitation < QulQuranRecord
     include NameTranslateable
     include Resourceable
     include RecitationDestroyable

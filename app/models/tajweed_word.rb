@@ -27,7 +27,7 @@
 #  fk_rails_...  (verse_id => verses.id)
 #  fk_rails_...  (word_id => words.id)
 #
-class TajweedWord < QuranApiRecord
+class TajweedWord < QulQuranRecord
   belongs_to :mushaf, optional: true
   belongs_to :word, optional: true
   belongs_to :verse, optional: true

@@ -14,7 +14,7 @@
 #  index_on_radio_audio_files  (radio_station_id,chapter_audio_file_id,chapter_id)
 #
 
-class Radio::StationAudioFile < QuranApiRecord
+class Radio::StationAudioFile < QulQuranRecord
   belongs_to :radio_station, class_name: 'Radio::Station'
   belongs_to :chapter, optional: true
 end

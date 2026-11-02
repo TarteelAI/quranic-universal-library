@@ -47,7 +47,7 @@
 #  index_tafsirs_on_verse_key                    (verse_key)
 #
 
-class Tafsir < QuranApiRecord
+class Tafsir < QulQuranRecord
   has_paper_trail on: :update, ignore: [:created_at, :updated_at]
   include Resourceable
 

@@ -18,7 +18,7 @@
 #  index_rukus_on_ruku_number                       (ruku_number)
 #
 
-class Ruku < QuranApiRecord
+class Ruku < QulQuranRecord
   include NavigationSearchable
   include HasVerseMapping
 

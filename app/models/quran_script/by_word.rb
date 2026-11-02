@@ -27,7 +27,7 @@
 #  index_quran_script_by_words_on_word_id              (word_id)
 #  index_quran_script_by_words_on_word_number          (word_number)
 #
-class QuranScript::ByWord < QuranApiRecord
+class QuranScript::ByWord < QulQuranRecord
   belongs_to :resource_content
   belongs_to :word, optional: true
   belongs_to :verse, optional: true

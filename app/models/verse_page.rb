@@ -14,7 +14,7 @@
 #  index_verse_pages_on_verse_id                   (verse_id)
 #
 
-class VersePage < QuranApiRecord
+class VersePage < QulQuranRecord
   belongs_to :verse
   belongs_to :mushaf
   belongs_to :page, class_name: 'MushafPage'

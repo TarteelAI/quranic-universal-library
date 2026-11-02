@@ -21,7 +21,7 @@
 #
 module Morphology
   module DependencyGraph
-    class Graph < QuranApiRecord
+    class Graph < QulQuranRecord
       self.table_name = 'morphology_dependency_graphs'
 
       has_many :nodes, class_name: 'Morphology::DependencyGraph::GraphNode', foreign_key: :graph_id, dependent: :destroy

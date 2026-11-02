@@ -14,7 +14,7 @@
 #  index_morphology_grammar_concepts_on_english  (english)
 #
 
-class Morphology::GrammarConcept < QuranApiRecord
+class Morphology::GrammarConcept < QulQuranRecord
   has_many :word_segments, class_name: 'Morphology::WordSegment'
   has_many :words, through: :word_segments, class_name: 'Morphology::Word'
 end

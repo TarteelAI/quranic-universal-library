@@ -19,7 +19,7 @@
 #
 module Morphology
   module DependencyGraph
-    class GraphNodeEdge < QuranApiRecord
+    class GraphNodeEdge < QulQuranRecord
       self.table_name = 'morphology_dependency_graph_node_edges'
 
       self.inheritance_column = :_type

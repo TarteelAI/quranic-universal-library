@@ -11,5 +11,5 @@
 #  updated_at :datetime         not null
 #
 
-class Feedback < QuranApiRecord
+class Feedback < QulQuranRecord
 end

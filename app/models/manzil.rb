@@ -17,7 +17,7 @@
 #  index_manzils_on_manzil_number                     (manzil_number)
 #
 
-class Manzil < QuranApiRecord
+class Manzil < QulQuranRecord
   include NavigationSearchable
   include HasVerseMapping
 

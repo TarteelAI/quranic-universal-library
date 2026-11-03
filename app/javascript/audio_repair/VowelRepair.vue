@@ -87,18 +87,22 @@
           </p>
 
           <p v-if="!donors.length" class="text-xs text-gray-400 mt-2">
-            No other occurrence of this word has letter timings.
+            No other occurrence of this word has letter timings. Add one by hand below.
           </p>
 
           <ul v-else :class="ui.donorList">
             <li
               v-for="d in sortedDonors"
-              :key="d.verse_key + ':' + d.word_position"
+              :key="d.verse_key + ':' + d.word_position + ':' + d.letter_from + '-' + d.letter_to"
               :class="isChosen(d) ? ui.donorOn : ui.donor"
             >
-              <div class="min-w-0 w-40 shrink-0">
-                <div class="font-medium text-sm">
-                  {{ d.verse_key }} <span class="text-gray-400">w{{ d.word_position }}</span>
+              <div class="min-w-0 w-44 shrink-0">
+                <div class="font-medium text-sm flex items-center gap-1 flex-wrap">
+                  <span>{{ d.verse_key }} <span class="text-gray-400">w{{ d.word_position }}</span></span>
+                  <span v-if="d.chars" class="digitalkhatt-v2 font-normal" style="font-size:15px;line-height:1">{{ display(d.chars) }}</span>
+                  <span v-if="d.manual" :class="ui.tagInfo">added</span>
+                  <span v-if="d.letter_source === 'draft'" :class="ui.tagWarn"
+                        title="Letter timings from a segment-pipeline draft that is not imported yet">draft timings</span>
                 </div>
                 <div class="text-[11px] text-gray-500 flex items-center gap-1 flex-wrap">
                   <span>{{ d.duration_ms }} ms</span>
@@ -128,9 +132,89 @@
                 <button class="btn btn-xs btn-outline-secondary" @click="measureOne(d)"
                         :disabled="d._measuring" title="Measure this donor">↻</button>
                 <button class="btn btn-xs btn-primary" @click="choose(d)">Use</button>
+                <button v-if="d.manual" class="btn btn-xs btn-outline-secondary" @click="removeDonor(d)"
+                        title="Remove this donor">✕</button>
               </div>
             </li>
           </ul>
+
+          <!-- Add a donor by hand: any ayah, any word, any letters with the same count -->
+          <div class="mt-3 rounded border border-dashed border-gray-300">
+            <button class="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-600"
+                    @click="custom.open = !custom.open">
+              <span>{{ custom.open ? '▾' : '▸' }}</span>
+              Add a donor from another ayah or word
+              <span class="ml-auto text-[11px] font-normal text-gray-400">
+                pick {{ target.letters.length }} sounded letter{{ target.letters.length === 1 ? '' : 's' }}
+              </span>
+            </button>
+
+            <div v-if="custom.open" class="px-3 pb-3 pt-2 border-t space-y-3">
+              <form class="flex items-center gap-2" @submit.prevent="loadCustomAyah">
+                <input v-model.trim="custom.verseKey" placeholder="Ayah, e.g. 4:173"
+                       class="form-control form-control-sm w-36" />
+                <button type="submit" class="btn btn-xs btn-outline-secondary"
+                        :disabled="!custom.verseKey || custom.loading">
+                  {{ custom.loading ? 'Loading…' : 'Load ayah' }}
+                </button>
+                <span v-if="custom.ayah && custom.ayah.letter_source === 'draft'" :class="ui.tagWarn">
+                  draft timings
+                </span>
+              </form>
+
+              <p v-if="custom.error" class="text-[11px] text-red-600 leading-snug">{{ custom.error }}</p>
+
+              <template v-if="custom.ayah">
+                <div>
+                  <p :class="ui.hint" class="mb-1">Word in {{ custom.ayah.verse_key }}:</p>
+                  <div class="flex flex-wrap gap-1 justify-end" dir="rtl">
+                    <button
+                      v-for="w in custom.ayah.words"
+                      :key="w.position"
+                      class="digitalkhatt-v2 px-2 py-1 rounded border text-xl leading-none transition"
+                      :class="w.position === custom.wordPosition
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'border-gray-200 hover:bg-indigo-50'"
+                      :title="`word ${w.position}`"
+                      @click="selectCustomWord(w)"
+                    >{{ w.text }}</button>
+                  </div>
+                </div>
+
+                <div v-if="customWordLetters.length">
+                  <p :class="ui.hint" class="mb-1">Letters (shift-click for a run):</p>
+                  <div class="flex flex-wrap gap-1 justify-end" dir="rtl">
+                    <button
+                      v-for="lt in customWordLetters"
+                      :key="lt.index"
+                      class="digitalkhatt-v2"
+                      :class="isCustomLetterSelected(lt) ? ui.chipOn : ui.chip"
+                      :style="{ minWidth: chipWidth(lt) }"
+                      :title="`${lt.start_ms}–${lt.end_ms} ms (${lt.end_ms - lt.start_ms} ms)`"
+                      @click="selectCustomLetter(lt, $event)"
+                    >
+                      <span class="text-xl leading-none">{{ display(lt.char) }}</span>
+                      <span :class="ui.chipMs">{{ lt.end_ms - lt.start_ms }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button class="btn btn-xs btn-primary" @click="addCustomDonor"
+                          :disabled="!customCountMatches || custom.adding">
+                    {{ custom.adding ? 'Adding…' : 'Add donor' }}
+                  </button>
+                  <span class="text-[11px]"
+                        :class="custom.letterFrom == null ? 'text-gray-400' : (customCountMatches ? 'text-emerald-600' : 'text-amber-600')">
+                    <template v-if="custom.letterFrom == null">Pick the letters to borrow.</template>
+                    <template v-else>
+                      {{ customSoundedCount }} of {{ target.letters.length }} sounded letter{{ target.letters.length === 1 ? '' : 's' }} picked
+                    </template>
+                  </span>
+                </div>
+              </template>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -245,8 +329,14 @@ const UI = {
   donor: "flex items-center gap-2 px-2 py-2 bg-white",
   donorOn: "flex items-center gap-2 px-2 py-2 bg-indigo-50",
   tagGood: "inline-block px-1 rounded text-[10px] align-middle bg-emerald-100 text-emerald-700",
-  tagWarn: "inline-block px-1 rounded text-[10px] align-middle bg-amber-100 text-amber-700"
+  tagWarn: "inline-block px-1 rounded text-[10px] align-middle bg-amber-100 text-amber-700",
+  tagInfo: "inline-block px-1 rounded text-[10px] align-middle bg-indigo-100 text-indigo-700"
 };
+
+const emptyCustom = () => ({
+  open: false, verseKey: "", ayah: null, loading: false, adding: false, error: null,
+  wordPosition: null, letterFrom: null, letterTo: null, letterAnchor: null
+});
 
 export default {
   name: "VowelRepair",
@@ -280,6 +370,7 @@ export default {
       applying: false,
       measuring: false,
       cancelled: false,
+      custom: emptyCustom(),
       error: null
     };
   },
@@ -305,6 +396,21 @@ export default {
       return [...scored, ...rest];
     },
     measuredCount() { return this.donors.filter((d) => d.after || d._error).length; },
+    customWordLetters() {
+      const words = (this.custom.ayah && this.custom.ayah.words) || [];
+      const w = words.find((x) => x.position === this.custom.wordPosition);
+      return (w && w.letters) || [];
+    },
+    // The repair pairs letters one to one, and letters that own no sound
+    // (hamzat wasl, a sun letter's lam) are not counted on either side.
+    customSoundedCount() {
+      return this.customWordLetters.filter((lt) =>
+        this.isCustomLetterSelected(lt) && lt.end_ms > lt.start_ms).length;
+    },
+    customCountMatches() {
+      return !!this.target && this.custom.letterFrom != null &&
+             this.customSoundedCount === this.target.letters.length;
+    },
     busy() { return this.previewing || this.applying || this.measuring; },
     dirtyParams() { return this.controls.some((c) => this.params[c.key] !== c.default); },
     changedSpan() {
@@ -381,6 +487,7 @@ export default {
       this.target = null;
       this.donors = [];
       this.chosen = null;
+      this.custom = { ...emptyCustom(), open: this.custom.open, verseKey: this.custom.verseKey };
       this.invalidate();
     },
 
@@ -411,7 +518,13 @@ export default {
         });
         const d = await this.api(`${this.base}/vowel_donors?${q}`);
         this.target = d.target;
+        // Donors added by hand stay across a letter change only if they still
+        // match the new selection; re-adding is cheap, a wrong pairing is not.
         this.donors = (d.donors || []).map((x) => ({ ...x, before: null, after: null }));
+        this.custom.letterFrom = null;
+        this.custom.letterTo = null;
+        this.custom.letterAnchor = null;
+        this.custom.error = null;
       } catch (e) {
         this.error = e.message;
       }
@@ -488,9 +601,95 @@ export default {
 
     cancelMeasure() { this.cancelled = true; },
 
+    async loadCustomAyah() {
+      const key = this.custom.verseKey.replace(/\s+/g, "");
+      if (!/^\d{1,3}:\d{1,3}$/.test(key)) {
+        this.custom.error = "Enter an ayah as surah:ayah, e.g. 4:173.";
+        return;
+      }
+      this.custom.loading = true;
+      this.custom.error = null;
+      this.custom.ayah = null;
+      this.custom.wordPosition = null;
+      this.custom.letterFrom = this.custom.letterTo = this.custom.letterAnchor = null;
+      try {
+        const q = new URLSearchParams({ mode: "ayah", donor_verse_key: key });
+        this.custom.ayah = await this.api(`${this.base}/vowel_donors?${q}`);
+        // Same word as the target, if it is in this ayah: the likely pick.
+        const same = this.custom.ayah.words.find((w) => this.target && w.text === this.target.text);
+        if (same) this.selectCustomWord(same);
+      } catch (e) {
+        this.custom.error = e.message;
+      } finally {
+        this.custom.loading = false;
+      }
+    },
+
+    selectCustomWord(w) {
+      this.custom.wordPosition = w.position;
+      this.custom.letterFrom = this.custom.letterTo = this.custom.letterAnchor = null;
+      this.custom.error = null;
+    },
+
+    isCustomLetterSelected(lt) {
+      return this.custom.letterFrom != null &&
+             lt.index >= this.custom.letterFrom && lt.index <= this.custom.letterTo;
+    },
+
+    selectCustomLetter(lt, event) {
+      const c = this.custom;
+      if (event && event.shiftKey && c.letterAnchor != null) {
+        c.letterFrom = Math.min(c.letterAnchor, lt.index);
+        c.letterTo = Math.max(c.letterAnchor, lt.index);
+      } else {
+        c.letterAnchor = c.letterFrom = c.letterTo = lt.index;
+      }
+      c.error = null;
+    },
+
+    async addCustomDonor() {
+      const c = this.custom;
+      c.adding = true;
+      c.error = null;
+      try {
+        const q = new URLSearchParams({
+          mode: "manual",
+          verse_key: this.verseKey,
+          word_position: this.wordPosition,
+          letter_from: this.target.letter_from,
+          letter_to: this.target.letter_to,
+          donor_verse_key: c.ayah.verse_key,
+          donor_word_position: c.wordPosition,
+          donor_letter_from: c.letterFrom,
+          donor_letter_to: c.letterTo
+        });
+        const d = await this.api(`${this.base}/vowel_donors?${q}`);
+        if (this.donors.some((x) => this.sameDonor(x, d))) {
+          c.error = "That donor is already in the list.";
+          return;
+        }
+        const donor = { ...d, before: null, after: null };
+        this.donors.unshift(donor);
+        this.measureOne(this.donors[0]);
+      } catch (e) {
+        c.error = e.message;
+      } finally {
+        c.adding = false;
+      }
+    },
+
+    removeDonor(d) {
+      if (this.isChosen(d)) this.chosen = null;
+      this.donors = this.donors.filter((x) => x !== d);
+    },
+
+    sameDonor(a, b) {
+      return a.verse_key === b.verse_key && a.word_position === b.word_position &&
+             a.letter_from === b.letter_from && a.letter_to === b.letter_to;
+    },
+
     isChosen(d) {
-      return this.chosen && this.chosen.verse_key === d.verse_key &&
-             this.chosen.word_position === d.word_position;
+      return !!this.chosen && this.sameDonor(this.chosen, d);
     },
 
     choose(d) {

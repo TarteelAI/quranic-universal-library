@@ -257,13 +257,17 @@ module AudioSegment
     end
 
     def export_gapless_recitation_audio_files(recitation, target_dir)
-      audio_files = recitation.chapter_audio_files.order('chapter_id ASC')
+      # Some reciters have a surah 0 file (000.mp3, saved without a chapter).
+      # The app only plays surahs 1 to 114, so it is left out.
+      audio_files = recitation.chapter_audio_files.where(chapter_id: 1..114).order('chapter_id ASC')
 
       json_data = audio_files.map do |audio_file|
         {
           surah: audio_file.chapter_id,
           version: audio_file.published_version,
-          url: audio_file.audio_url
+          url: audio_file.audio_url,
+          size_bytes: audio_file.file_size&.to_i,
+          duration_ms: audio_file.duration_ms
         }
       end
 

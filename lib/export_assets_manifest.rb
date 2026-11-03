@@ -106,7 +106,7 @@ class ExportAssetsManifest
   end
 
   def build_asset_entry(resource, resource_type:)
-    {
+    entry = {
       id: resource.id,
       version: asset_version(resource, resource_type),
       key: resource.meta_value('exported-tag'),
@@ -114,6 +114,30 @@ class ExportAssetsManifest
       url: build_cdn_url(resource, resource_type: resource_type),
       update_policy: 'auto',
     }
+
+    entry[:duration_ms] = audio_totals(resource)[:duration_ms].to_i if resource_type == 'audio'
+    entry
+  end
+
+  # Totals of a reciter's surah mp3s, from the probed metadata on each file, so
+  # re-exporting the manifest picks up any audio change.
+  def audio_totals(resource)
+    audio_totals_by_resource[resource.id] || {}
+  end
+
+  def audio_totals_by_resource
+    @audio_totals_by_resource ||= Audio::ChapterAudioFile
+                                    .joins(:audio_recitation)
+                                    .where(chapter_id: 1..114)
+                                    .group('audio_recitations.resource_content_id')
+                                    .pluck(
+                                      'audio_recitations.resource_content_id',
+                                      Arel.sql('SUM(audio_chapter_audio_files.file_size)'),
+                                      Arel.sql('SUM(audio_chapter_audio_files.duration_ms)')
+                                    )
+                                    .to_h do |resource_id, size, duration|
+                                      [resource_id, { size_bytes: size, duration_ms: duration }]
+                                    end
   end
 
   # Audio and segments are two separate files on the CDN, so they carry two
@@ -127,9 +151,13 @@ class ExportAssetsManifest
     end
   end
 
+  # The size of the content the client downloads: every mp3 for audio, not the
+  # audio_files.json that lists them.
   def asset_size(resource, resource_type)
     case resource_type
-    when 'audio', 'segments'
+    when 'audio'
+      audio_totals(resource)[:size_bytes].to_i
+    when 'segments'
       resource.exported_asset_size(resource_type)
     else
       resource.meta_value('exported-file-size-bytes')

@@ -6,6 +6,8 @@ class Draft::SurahInfo < ApplicationRecord
   belongs_to :chapter
   belongs_to :user, optional: true
 
+  scope :pending_contributions, -> { where.not(user_id: nil).where(imported: false) }
+
   before_save :refresh_current_text, if: :chapter_id_changed?
   before_save { self.text_matched = matches_current? }
 

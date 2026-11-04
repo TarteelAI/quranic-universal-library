@@ -14,6 +14,9 @@ ActiveAdmin.register Draft::SurahInfo do
 
   includes :chapter, :user, :resource_content
 
+  scope :all, default: true
+  scope :pending_contributions
+
   action_item :previous_page, only: :show do
     if (item = resource.previous_surah_draft)
       link_to("Previous(#{item.chapter_id})", cms_draft_surah_info_path(item))

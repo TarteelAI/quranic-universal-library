@@ -1415,12 +1415,12 @@ module ToolDocsHelper
           {
             title: 'Read it',
             text: "The page shows the Surah information. Use <code>Previous Surah</code> and <code>Next Surah</code> to move between Surahs.",
-            ui: ui_screen(ui_button('Edit'), ui_button('Previous Surah', :dark), ui_button('Next Surah', :dark), ui_note('Name: This Surah takes its name from...'), title: 'Al-Fatihah')
+            ui: ui_screen(ui_button('Suggest a fix'), ui_button('Previous Surah', :dark), ui_button('Next Surah', :dark), ui_note('Name: This Surah takes its name from...'), title: 'Al-Fatihah')
           },
           {
             title: 'Fix it',
-            text: "Click <code>Edit</code>, fix the text in the editor (<code>View</code> then <code>Source code</code> for the HTML) and click <code>Save suggestion</code>. It goes live once an admin approves it.",
-            ui: ui_screen(ui_input('Short info', 'This Surah is named after...'), ui_input('Long info', 'Name: ...'), ui_button('Save suggestion'), title: 'Edit')
+            text: "Sign in and click <code>Suggest a fix</code>, fix the text in the editor (<code>View</code> then <code>Source code</code> for the HTML), tick the checkbox and click <code>Save suggestion</code>. It goes live once an admin approves it.",
+            ui: ui_screen(ui_input('Short info', 'This Surah is named after...'), ui_input('Long info', 'Name: ...'), ui_button('Save suggestion'), title: 'Suggest a fix')
           }
         ]
       },

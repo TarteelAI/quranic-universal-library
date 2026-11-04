@@ -15,7 +15,8 @@ module Recurring
         stems: Draft::Stem.pending_contributions.count,
         lemmas: Draft::Lemma.pending_contributions.count,
         word_roots: Draft::WordRoot.pending_contributions.count,
-        similar_ayahs: Draft::SimilarAyah.pending_contributions.count
+        similar_ayahs: Draft::SimilarAyah.pending_contributions.count,
+        surah_infos: Draft::SurahInfo.pending_contributions.count
       }
       return if counts.values.sum.zero?
 

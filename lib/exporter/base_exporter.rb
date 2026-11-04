@@ -24,9 +24,7 @@ module Exporter
       create_table_sql = "CREATE TABLE #{table_name} (#{columns.map { |name, type| "#{name} #{type}" }.join(', ')});"
       insert_sql = "INSERT INTO #{table_name} (#{column_names.join(', ')}) VALUES (#{column_names.map { '?' }.join(', ')});"
 
-      # The .db file outlives each export in tmp/export, so drop the previous
-      # export's table rather than appending to it. Dropping per table (not
-      # deleting the file) keeps exporters that write several tables to one file.
+      # The .db survives between exports; drop the table (not the file, which may hold others).
       db.execute("DROP TABLE IF EXISTS #{table_name};")
       db.execute(create_table_sql)
       prepare_statement = db.prepare(insert_sql)

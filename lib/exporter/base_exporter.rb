@@ -21,9 +21,13 @@ module Exporter
     def create_sqlite_table(db_file_path, table_name, columns)
       db = SQLite3::Database.new(db_file_path)
       column_names = columns.keys
-      create_table_sql = "CREATE TABLE IF NOT EXISTS #{table_name} (#{columns.map { |name, type| "#{name} #{type}" }.join(', ')});"
+      create_table_sql = "CREATE TABLE #{table_name} (#{columns.map { |name, type| "#{name} #{type}" }.join(', ')});"
       insert_sql = "INSERT INTO #{table_name} (#{column_names.join(', ')}) VALUES (#{column_names.map { '?' }.join(', ')});"
 
+      # The .db file outlives each export in tmp/export, so drop the previous
+      # export's table rather than appending to it. Dropping per table (not
+      # deleting the file) keeps exporters that write several tables to one file.
+      db.execute("DROP TABLE IF EXISTS #{table_name};")
       db.execute(create_table_sql)
       prepare_statement = db.prepare(insert_sql)
       @db_statements << prepare_statement

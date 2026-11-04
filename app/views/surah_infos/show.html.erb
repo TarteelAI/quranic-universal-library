@@ -7,9 +7,7 @@
   previous_info = resource.previous_surah_info if resource.chapter_id > 1
   next_info = resource.next_surah_info if resource.chapter_id < 114
 
-  if @access
-    actions << link_to('Edit', edit_surah_info_path(resource.id), class: 'btn btn-success')
-  end
+  actions << link_to('Suggest a fix', edit_surah_info_path(resource.id), class: 'btn btn-success')
 
   if previous_info
     actions << link_to('Previous Surah', surah_info_path(previous_info.id), class: 'btn btn-dark')

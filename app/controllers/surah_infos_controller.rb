@@ -1,6 +1,5 @@
 class SurahInfosController < CommunityController
-  before_action :authenticate_user!, only: [:new, :edit, :update, :create]
-  before_action :authorize_access!, only: [:new, :edit, :update, :create]
+  before_action :authenticate_user!, only: %i[edit update]
   def index;end
 
   def show;end
@@ -10,7 +9,7 @@ class SurahInfosController < CommunityController
   def update
     info = @presenter.resource
 
-    if info.save_suggestions(info_params, current_user)
+    if suggestion_acknowledged? && info.save_suggestions(info_params, current_user)
       redirect_to surah_info_path(info.id), notice: 'Your suggestions are saved, they go live once approved.'
     else
       @presenter.draft.assign_attributes(info_params)

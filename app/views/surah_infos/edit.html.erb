@@ -5,7 +5,7 @@
 
 <%= render 'tools/header',
            name: 'Surah Information',
-           title: "#{h resource_content.name}<span class='block mt-2 text-lg md:text-xl text-gray-500'>Edit Surah #{resource.chapter_id} · #{h resource.chapter.name_simple}</span>",
+           title: "#{h resource_content.name}<span class='block mt-2 text-lg md:text-xl text-gray-500'>Suggest a fix: Surah #{resource.chapter_id} · #{h resource.chapter.name_simple}</span>",
            key: 'surah_info'
 %>
 
@@ -36,6 +36,9 @@
 
       <%= render 'shared/draft_comment_field', form: form, value: @presenter.draft.comment,
                  placeholder: 'What was wrong and how you fixed it. For example: fixed typos in the Theme section.' %>
+
+      <%= render 'shared/suggestion_acknowledgement',
+                 hint: "Typos, spelling mistakes, wrong names, dates or facts, missing or broken formatting, or text that belongs to another Surah. Not a mistake: rewording text that's already correct, or phrasing you'd prefer." %>
 
       <div class="mb-4 flex justify-end mt-3 gap-3">
         <%= link_to 'Cancel', surah_info_path(resource.id), class: 'px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition-colors' %>

@@ -20,6 +20,8 @@ module Exporter
 
     def create_sqlite_table(db_file_path, table_name, columns)
       db = SQLite3::Database.new(db_file_path)
+      db.execute('PRAGMA synchronous = OFF;')
+      db.execute('PRAGMA journal_mode = MEMORY;')
       column_names = columns.keys
       create_table_sql = "CREATE TABLE #{table_name} (#{columns.map { |name, type| "#{name} #{type}" }.join(', ')});"
       insert_sql = "INSERT INTO #{table_name} (#{column_names.join(', ')}) VALUES (#{column_names.map { '?' }.join(', ')});"
@@ -34,11 +36,14 @@ module Exporter
     end
 
     def close_sqlite_table
-      sleep(5) # Let pg persist the data
-      @dbs.each(&:close) if @dbs.present?
-      @db_statement.each(&:close) if @db_statement.present?
-    rescue SQLite3::Exception => e
-      puts "Exception occurred #{e.message}"
+      (@db_statements + @dbs).each do |resource|
+        resource.close
+      rescue SQLite3::Exception => e
+        puts "Exception occurred #{e.message}"
+      end
+
+      @db_statements.clear
+      @dbs.clear
     end
 
     def fix_file_name(name)

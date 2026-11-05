@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require 'tmpdir'
 require 'active_support/core_ext/object/blank'
 require_relative '../../../lib/exporter/downloadable_resources'
 
@@ -37,5 +38,39 @@ class DownloadableResourcesTest < Minitest::Test
 
   def test_surah_recitation_without_segments_gets_no_segment_tags
     assert_equal [], segment_tags(has_segments: false, word_segments: true)
+  end
+
+  def test_export_all_starts_when_export_directory_is_missing
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        export_started = false
+        @exporter.define_singleton_method(:export_surah_info) do
+          export_started = true
+          throw :export_started
+        end
+
+        catch(:export_started) { @exporter.export_all }
+
+        assert export_started
+      end
+    end
+  end
+
+  def test_export_all_removes_stale_export_directory
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        FileUtils.mkdir_p('tmp/export')
+        File.write('tmp/export/stale.db', 'stale')
+        export_directory_removed = false
+        @exporter.define_singleton_method(:export_surah_info) do
+          export_directory_removed = !File.exist?('tmp/export')
+          throw :export_started
+        end
+
+        catch(:export_started) { @exporter.export_all }
+
+        assert export_directory_removed
+      end
+    end
   end
 end

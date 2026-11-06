@@ -237,6 +237,8 @@ Rails.application.routes.draw do
   if Rails.application.config.x.qul_scripts_available
     namespace :segment_pipeline do
       get '/', to: 'runs#index', as: :root
+      # Validate segments of any reciters/surahs: live, drafts, sources, runs.
+      get 'validation', to: 'validations#show', as: :validation
       # QUD deliveries imported as drafts that have no QUL recitation yet.
       resources :deliveries, only: %i[index show] do
         collection do

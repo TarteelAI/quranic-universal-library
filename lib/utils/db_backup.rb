@@ -98,10 +98,10 @@ module Utils
       # pg_restore --host localhost --port 5432 --username <USERNAME> --dbname <DATABASENAME> --no-owner --no-privileges --no-tablespaces --no-acl -v "<BACKUPFILENAME>"
       # pg_restore -U your_username -h your_host -p your_port -d your_database_name -v output_file.dump
 
-      password_argument = "PGPASSWORD='#{config['password']}'" if config['password'].present?
-      host_argument = "--host=#{config['host']}" if config['host'].present?
-      port_argument = "--port=#{config['port']}" if config['port'].present?
-      username_argument = "--username=#{config['username']}" if config['username'].present?
+      password_argument = "PGPASSWORD='#{config[:password]}'" if config[:password].present?
+      host_argument = "--host=#{config[:host]}" if config[:host].present?
+      port_argument = "--port=#{config[:port]}" if config[:port].present?
+      username_argument = "--username=#{config[:username]}" if config[:username].present?
 
       [password_argument, # pass the password to pg_dump (if any)
        'pg_dump', # the pg_dump command
@@ -147,23 +147,19 @@ module Utils
       @binary_dump_filename ||= "#{STORAGE_PATH}/#{backup_name}-binary-#{Time.now.strftime('%b-%d-%Y-%I-%M-%P')}"
     end
 
+    # Read connection settings from database.yml (via the models' connections)
+    # so the backup always targets the same databases as the app.
     def self.databases
       {
-        api_staging: {
-          host: ENV['QUL_QURAN_CONTENT_DB_HOST'],
-          port: ENV['QUL_QURAN_CONTENT_DB_PORT'],
-          database: ENV['QUL_QURAN_CONTENT_DB_NAME'] || 'qul_quran_content_dev',
-          username: ENV['QUL_QURAN_CONTENT_DB_USERNAME'],
-          password: ENV['QUL_QURAN_CONTENT_DB_PASSWORD']
-        }.compact_blank,
-        cms: {
-          host: ENV['QUL_CMS_CONTENT_DB_HOST'],
-          port: ENV['QUL_CMS_CONTENT_DB_PORT'],
-          database: ENV['QUL_CMS_CONTENT_DB_NAME'] || 'qul_cms_content_dev',
-          password: ENV['QUL_CMS_CONTENT_DB_PASSWORD'],
-          username: ENV['QUL_CMS_CONTENT_DB_USERNAME']
-        }.compact_blank
+        quran_content: connection_config(QulQuranRecord),
+        cms: connection_config(ApplicationRecord)
       }
+    end
+
+    def self.connection_config(model)
+      model.connection_db_config.configuration_hash
+           .slice(:host, :port, :database, :username, :password)
+           .compact_blank
     end
   end
 end

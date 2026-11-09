@@ -1,0 +1,513 @@
+{
+  "sprint": "001-inertia-foundation-and-catalog",
+  "branch": "sprint/001-inertia-foundation-and-catalog",
+  "generatedAt": "2026-11-09T18:00:00Z",
+  "mode": "normal",
+  "stories": [
+    {
+      "id": "001-01",
+      "title": "Spike: Rails on the snapshot, and a request-spec harness on a clone",
+      "description": "Prove that this app boots and serves its current pages against the local snapshot, and leave behind the test harness every later story uses. Delivers: the local run recipe; `config/database.yml` reading both development database names from the environment with the current names as defaults; a script that makes test clones of the snapshot databases (`CREATE DATABASE … TEMPLATE`) and remakes them on demand; RSpec with a helper of our own that never touches the schema; a guarded development task that creates clearly fake test accounts in a clone; one request spec against an existing page. Records the gate command in `AGENTS.md` and `.agents/config.yaml`. Out of scope: Vite, Inertia, any new page, any migration.",
+      "deps": [],
+      "acceptanceCriteria": [
+        "With the app running against the snapshot, GET `/`, `/resources`, one `/resources/{type}` and one `/resources/{type}/{id}` return 200. Evidence: the curl status lines in the handoff.",
+        "`bundle exec rspec` runs a request spec for the old `/resources` page against a clone and passes. Evidence: the rspec output in the handoff.",
+        "After the spec run, `ar_internal_metadata.environment` on the snapshot database is unchanged and `git diff db/schema.rb` is empty. Evidence: the query result and the diff output.",
+        "The clone script, run twice, ends with fresh clones and exit code 0, and refuses to run when its target name equals a snapshot database name. Evidence: both runs' output.",
+        "The fake-accounts task creates one normal user and one admin whose emails end in `@example.test`, and exits non-zero in production or when the connected database is not a clone. Evidence: a spec for the guard and the task output.",
+        "The Gemfile test group is byte-identical to the one on `origin/qiraat/p0-3-rspec-setup`, and `.rspec` matches that branch. Evidence: `git diff origin/qiraat/p0-3-rspec-setup -- .rspec` is empty and the Gemfile hunk is quoted.",
+        "The spike answers are recorded in the handoff: Ruby and Node versions used, required environment variables, what does and does not work without Redis, and the gate command, which is also written to `AGENTS.md` and `.agents/config.yaml`.",
+        "The planning facts that the 24 later commits on main could have changed are re-checked, and each one that is now wrong is corrected in `lessons.md`. Evidence: the list of facts checked and the entries added."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Read lessons.md Planning Context and the private sprint notes (team drop) first: they hold the snapshot connection details and the data-safety rules. If `qul-next` or the sprint branch does not exist locally, create `qul-next` from main and the sprint branch from `qul-next`; never push either. Do not name the helper `spec/rails_helper.rb`: the qiraat branch adds that file and it calls `maintain_test_schema!`. In test, `QuranApiRecord` connects to `quran_api_db` (not the dev entry) and dotenv does not load, so the helper or a wrapper script must supply the connection variables. `tests.yml` CI loads every `test/**/*_test.rb` without bundler: put nothing that boots Rails under `test/`. The `database.yml` lines are also edited by qiraat: keep the diff to the two database-name lines. `/docs/` is gitignored at the repo root. Main moved 24 commits after planning (see lessons.md, top): before anything else, re-check the planning facts about `config/database.yml`, `config/routes.rb`, `db/schema.rb`, `bin/setup` and the issue templates against the current tree, record what changed in lessons.md, and adapt this story's `database.yml` change to the file as it is now (it may already read names from the environment)."
+    },
+    {
+      "id": "001-02",
+      "title": "Spike: Inertia, Vite, React and SSR beside the existing pipeline, with generated types",
+      "description": "Install the new front-end stack so it coexists with Sprockets, esbuild, the Tailwind 3 gem and Turbo, and settle every open integration question before pages are built. The result stays: `vite_rails`, `inertia_rails` (Inertia v3 client, React 19, TypeScript), Tailwind 4 through the Vite plugin, a source tree in `app/frontend`, an Inertia-only layout and base controller, SSR in development, Alba plus Typelizer for prop types and typed route helpers with a drift check, Vitest, ESLint and Prettier for the new tree, and one sample page behind a development-only route. Extends the gate command with typecheck, lint, component tests and the drift check. Out of scope: the production image (001-03), real pages, the UI kit.",
+      "deps": [
+        "001-01"
+      ],
+      "acceptanceCriteria": [
+        "The sample Inertia page returns HTML that contains its server-rendered text in development, and hydrates without a console error. Evidence: a request spec with `render_component` and `have_props`, and a `browser-verify` check of the console.",
+        "Every existing layout still loads its assets: `/`, `/resources`, `/tools`, `/users/sign_in` and one `tool` layout page render with no missing-asset request. Evidence: `browser-verify` network check on each, and `git diff main -- app/views/layouts/application.html.erb app/javascript esbuild.config.js config/tailwind.config.js` is empty.",
+        "`yarn build` and `yarn build:css` produce the same file list in `app/assets/builds` as on main. Evidence: the two listings.",
+        "Changing a serializer attribute without regenerating makes the drift check exit non-zero; regenerating makes it pass. Evidence: both outputs.",
+        "A typed route helper generated from `config/routes.rb` is used by the sample page's link. Evidence: the generated file path and `tsc` output.",
+        "Recorded answers, each with the evidence that settled it: (a) Tailwind 3 gem and Tailwind 4 npm do not affect each other's output; (b) a Turbo Drive link from an old page to the Inertia page, and a plain link back, both load correctly; (c) Devise sign-in from the Inertia page returns to it, and sign-out from it works when the target is an old page; (d) CSRF works with `protect_from_forgery with: :exception` and `xsrf_cookie_refresh: :lazy`; (e) server-managed meta tags can carry title, canonical, Open Graph and a JSON-LD script, with and without SSR; (f) redirects to this host are not turned into external redirects behind the proxy headers nginx sets; (g) Typelizer can or cannot generate without a database connection, which decides whether generated files are committed; (h) `alba-inertia` works or does not with the installed versions for typed page props including deferred props; (i) Inertia's client has a built-in helper for a plain same-origin JSON request, or `fetch` is used.",
+        "A component test runs under Vitest and a deliberate SSR hazard (reading `window` during render) is caught by a lint rule or an SSR render test. Evidence: the failing and passing outputs."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": false,
+      "passes": false,
+      "notes": "Set `sourceCodeDir` to `app/frontend` in `config/vite.json` BEFORE running any installer: `vite install` picks `app/javascript` when it exists, which is esbuild's tree. Both the Inertia generator and `vite install` inject tags into `application.html.erb` and may replace `bin/dev` and `Procfile.dev`; revert those and put the tags in the Inertia layout. Keep the package.json `build` script for esbuild (jsbundling runs it); use `ssrBuildEnabled` for the SSR build, not a changed `build` script. Inertia v3 needs the `use_script_element_for_initial_page`, `use_data_inertia_head_attribute` and `always_include_errors_hash` options and `config.version = ViteRuby.digest`. Vite and its plugins go in `dependencies`, test and lint tools in `devDependencies` (see 001-03 for why). Keep yarn classic and `yarn.lock`; do not touch `bun.lock`. The Inertia layout must not load Turbo; consider `turbo-visit-control: reload` in it. Under foreman the js process gets its own PORT; add the Vite dev server to `Procfile.dev` without changing the existing lines. Only `notice` and `alert` flash keys reach the client by default. Check version-sensitive facts against the installed packages or current docs, not memory. RuboCop's config requires a plugin that is not in the Gemfile: do not make RuboCop part of the gate unless it runs clean on new files with a scoped config. If (h) fails, the fallback is hand-written page prop types plus `have_exact_props` request specs."
+    },
+    {
+      "id": "001-03",
+      "title": "Spike: production image build and SSR service under Passenger",
+      "description": "Prove the production Docker image builds with the Vite client and SSR bundles and serves server-rendered pages, with Node running as one more runit service beside Passenger, and that pages fall back to client rendering when that service is down. Delivers the Dockerfile, service and nginx changes, the SSR settings (URL, a short timeout, error reporting), and a local recipe to build and run the image safely. If SSR under Passenger cannot be made reliable, deliver the fallback from PRD spike S3 and record why.",
+      "deps": [
+        "001-02"
+      ],
+      "acceptanceCriteria": [
+        "`docker build` of the sprint branch succeeds with no build argument beyond what the Dockerfile on main needs. Evidence: the tail of the build log.",
+        "In the running container the sample page's HTML contains server-rendered text, and its hashed Vite assets are served with a one-year expiry and compression. Evidence: `curl -i` output for the page and one asset.",
+        "With the SSR service stopped, the same URL returns 200 within 3 seconds, the browser renders the page, and the error reaches the Rails log through the SSR error hook. With it restarted, SSR output returns without restarting Passenger. Evidence: curl timings, a `browser-verify` check and the log line.",
+        "The container ran with the Sidekiq service disabled and no SMTP variable set. Evidence: the `docker run` command and the process list from inside the container.",
+        "Old pages in the same container load their Sprockets assets. Evidence: `curl -I` of `/` and one `/assets/` file.",
+        "Recorded answers: whether the image boots without the master key and what it needs instead; whether the double `assets:precompile` is still needed; whether JavaScript dependencies install once or twice during the build; the Node version the SSR service runs; how the SSR service is restarted and logged."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "The Dockerfile sets `NODE_ENV=production` before `yarn install`, so devDependencies are skipped: anything the build needs must be a regular dependency. `assets:precompile` already chains jsbundling, cssbundling and Tailwind and runs twice; vite_ruby adds `vite:build_all` and its own dependency install (`VITE_RUBY_SKIP_ASSETS_PRECOMPILE_INSTALL` exists). nginx gives expiry and `gzip_static` only to `/assets/`; Vite writes to `public/vite`. Model the SSR service on `docker/sidekiq.run` (runs as the `app` user, logs to a file). The default `ssr_timeout` is 10 s, which would hold a Passenger worker: set it low. The image must run against clones, never the snapshot, with `RAILS_ENV=production`; the image's default services include Sidekiq, so disable it before start (for example mount an empty `down` file into its service directory). Use `localhost`, never `127.0.0.1`. Do not pull or use any published production image. If boot needs a real credential, stop and name the key as a human step. Add `sprints/`, `.agents/` and `AGENTS.md` to `.dockerignore` so plan files do not ship in the image, and show in the handoff that the built image does not contain them."
+    },
+    {
+      "id": "001-04",
+      "title": "Spike: glyph-per-page mushaf rendering and one font URL rule",
+      "description": "Answer whether a mushaf page of the three glyph-per-page layouts (QPC V1, V2, V4 Tajweed) can be rendered in React from the page's word rows with one font per page from the CDN, server-rendered and SSR-safe, and fast enough with the indexes the content database has today. Also settle the single rule that maps a font, script or layout resource to its font files, replacing the two existing builders that disagree. Delivers a throwaway-quality page on the development-only route, the query, the font URL resolver with tests, timing numbers, and a recommendation that 001-15 builds on. Unicode layouts are checked for one Madani and one IndoPak layout so the line model covers both.",
+      "deps": [
+        "001-02"
+      ],
+      "acceptanceCriteria": [
+        "Pages 1, 2, 300 and 604 of QPC V1, V2 and V4 Tajweed render with the same line breaks and glyphs as the old preview. Evidence: side-by-side screenshots of the old and the spike page for each, saved outside the repo and described in the handoff.",
+        "The page query time (cold and warm) for one glyph layout and for the 1890-page 9-line layout is recorded, with the query plan. Evidence: the numbers and `EXPLAIN` summary in the handoff.",
+        "The font URL resolver returns a URL that answers 200 for every published font resource and for the per-page fonts of the three glyph layouts, or lists the resources for which no working URL exists. Evidence: a named test for the rule and a one-off sweep output.",
+        "Centered lines, surah-name lines and bismillah lines are placed from the line-alignment rows for one Madani and one IndoPak unicode layout. Evidence: screenshots of a surah-opening page for each.",
+        "The handoff states pass or fail against PRD spike S4 and, on failure, which fallback 001-15 must use for which layout."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": false,
+      "passes": false,
+      "notes": "Facts are in lessons.md (layout and font sections). Known traps: one content row can map to two mushafs and the existing lookup has no order; one mushaf has more page rows than its page count (clamp); one published layout has no word rows; one layout has almost no bismillah alignment rows; the V4 Tajweed font has no font-face entry so the old builder makes a broken URL; one font's value has a typo. The two databases are separate: no SQL join between line alignments (CMS) and words (content). The content database is never changed, so no new index. `CDN_HOST` must be set locally. Load only the font for the page shown; never preload 604 fonts."
+    },
+    {
+      "id": "001-05",
+      "title": "Vertical slice: type pages on real data behind the page group setting",
+      "description": "Build one real page end to end so every layer and its conventions exist before breadth: `/resources/{type}` for all 14 types, in a first form (type description and a card per published resource, from fields that exist on main). The slice establishes and documents by example: the page group setting and how a group takes over an existing URL and falls back to the old view; the Inertia base controller (layout, shared props, error rendering); a catalog query object and Alba serializers with no dependency on controllers or the session; generated types used by the page; server-managed title, description, Open Graph, Twitter, canonical and JSON-LD; GA4 page views on first load and on every Inertia visit; browser error reporting; a 404 Inertia page with the right status; the catalog taxonomy (type labels, descriptions, categories) kept in one server-side file and sent as props; and the Playwright harness running against real Rails on a clone. Only the components this page needs are ported from the prototype; 001-11 ports the rest. Out of scope: status, which-to-pick and comparison tables (001-13), the shell beyond a minimal frame (001-11).",
+      "deps": [
+        "001-02"
+      ],
+      "acceptanceCriteria": [
+        "With `catalog` in the page group setting, GET `/resources/{type}` renders the Inertia component for each of the 14 types with one card per published resource of that type. Evidence: a request spec that compares card counts to a direct count per type.",
+        "With `catalog` not in the setting, the same URLs render the old ERB view. Evidence: a request spec for both states.",
+        "An unknown type returns status 404 with the Inertia error page in the new layout. Evidence: a request spec and a Playwright check.",
+        "The first response's HTML contains the type name and at least one resource name (SSR), plus title, meta description, canonical link on the production host, Open Graph and Twitter tags and a JSON-LD script that parses. Evidence: a request spec on the raw HTML.",
+        "A GA4 page view is sent on first load and again after an Inertia visit between two type pages, once each. Evidence: a Playwright test that intercepts the analytics request.",
+        "Playwright runs with one command against Rails on a clone and covers: a type page at phone and desktop width, a link from an old page into the new page, and a link back out. Evidence: the Playwright report summary in the handoff.",
+        "The query object and serializers load in a plain Ruby test without a controller or request. Evidence: a named unit spec.",
+        "The page group setting, the base controller conventions and the test commands are written into `AGENTS.md`. Evidence: the section added."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "The old route `resources#show` takes the type as `:id`; the new route must win only when the group is on (a routing constraint keeps the old route table untouched below it). Put new routes in one block to keep the `config/routes.rb` diff small; qiraat edits that file. New code goes in new files and namespaces; do not edit `ResourcesController`, `ResourcePresenter` or the preview partials. The canonical host is hardcoded in `SeoHelper`; keep the same host. The old pages fire page views on `turbo:load`, which never fires on Inertia pages. Resource cards link to detail URLs with `to_param` (slug or id) until 001-07 fills slugs. Language names come from the content database: preload in two steps, there are no cross-database joins. Recitation rows with a blank content name must not render an empty card (001-07 adds display names; use the editor's name here). Playwright and its browsers are devDependencies. Copy rules: PRD Ralph Notes."
+    },
+    {
+      "id": "001-06",
+      "title": "CI for qul-next and sprint branches",
+      "description": "Give the integration branch its own CI, so every push and pull request to `qul-next` and to sprint branches is checked without the snapshot. A new GitHub Actions workflow runs the part of the gate that needs no database: install, TypeScript check, ESLint and Prettier on `app/frontend`, Vitest including the SSR render tests, the generated-types drift check (if 001-02 found it runs without a database; otherwise a check that the committed generated files compile and are referenced), and the Vite client and SSR builds. Request specs and browser tests stay local this sprint because they need the snapshot. The existing workflows are not changed. Out of scope: a fixture database for CI, running RSpec or Playwright in CI, any deploy step.",
+      "deps": [
+        "001-02"
+      ],
+      "acceptanceCriteria": [
+        "A new workflow file under `.github/workflows/` triggers on push and pull request for `qul-next` and `sprint/**` only, never for `main`. Evidence: the trigger block quoted in the handoff, and `git diff main -- .github/workflows/tests.yml .github/workflows/deploy.yml .github/workflows/codeql.yml` is empty.",
+        "Every command the workflow runs passes in a fresh clone of the sprint branch with no database, no `.env` and no credentials, using the Node and Ruby versions the workflow pins. Evidence: the output of each command, run in a scratch directory.",
+        "A deliberate type error and a deliberate failing component test each make the matching command exit non-zero. Evidence: both outputs, with the changes reverted.",
+        "The workflow file passes a syntax check (`actionlint` if available, otherwise a YAML parse plus a review against the Actions docs). Evidence: the tool output.",
+        "The workflow uses no secret, has read-only permissions, and pins its actions to versions. Evidence: the `permissions` block and the `uses` lines quoted.",
+        "`AGENTS.md` says which checks run in CI and which run only locally. Evidence: the section added."
+      ],
+      "testFirst": false,
+      "difficulty": "low",
+      "review": false,
+      "passes": false,
+      "notes": "Prescriptive: (1) One new file, for example `.github/workflows/qul-next.yml`; do not edit the three existing workflows. `deploy.yml` deploys on every push to `main`, which is why the new workflow must never target `main`. (2) Triggers: `push` and `pull_request` with `branches: [qul-next, 'sprint/**']`. (3) Set `permissions: contents: read`. (4) Use `.node-version` for Node and yarn classic with `--frozen-lockfile`; install devDependencies (do not set `NODE_ENV=production` for the install step). (5) If a step needs Ruby (the drift check or the Vite Ruby build), use the Gemfile's Ruby range and bundler cache, and make sure the step does not connect to a database; if it must, leave that step out and say so. (6) The first real run happens only after a human pushes the branch; 001-20 lists confirming it as a human step. Do not push to test it. (7) The repo is public: workflow logs are public too, so no step may print environment values."
+    },
+    {
+      "id": "001-07",
+      "title": "Catalog schema and mechanical backfills",
+      "description": "Add the catalog fields and clean the link data, each as a CMS-database migration plus an idempotent backfill that replays on a newer copy of the data. Fields: lifecycle status (recommended, stable, beta, legacy, superseded; default stable) with a superseded-by pointer; `script_family` (madani, indopak, other) and rendering method (unicode text plus font, glyph per page, image, svg), both empty by default; a relation type on related-resource links (requires, pairs with, alternative, supersedes) with every existing link set to pairs with; a display name; the review column (empty). Backfills in this story are the deterministic ones: a unique slug for every resource, display names for names that repeat inside a type, removal of the duplicate link, the orphaned link and the orphaned taggings. New resources get a slug when they are created. One task runs every backfill in order. Out of scope: inferred values (001-08), download counters (001-10).",
+      "deps": [
+        "001-01"
+      ],
+      "acceptanceCriteria": [
+        "After migrate plus backfill on a clone, every resource has a non-empty slug, slugs are unique, none is all digits, and the slugs that existed before are unchanged. Evidence: a named spec with the four aggregate queries.",
+        "Inside each type, no two published resources share a display name, and `name` is unchanged on every row. Evidence: a spec that groups by type and display name, and a checksum of `name` before and after.",
+        "Related links: no duplicate pair and no link with a missing end remain; every remaining link has relation type pairs with. Taggings: none points at a missing resource. Evidence: aggregate queries in a spec.",
+        "Running the backfill task a second time changes 0 rows. Evidence: the task's own changed-row report for both runs.",
+        "A resource created through the model without a slug gets one; a resource whose name would give an all-digit or taken slug gets a distinct valid one. Evidence: named model specs.",
+        "`find_by_slug_or_id!` still resolves an old numeric id. Evidence: a request spec on an old id URL.",
+        "No migration adds a constraint that a current production row could violate before the backfill has run. Evidence: migrate succeeds on a fresh clone before any backfill, shown in the handoff.",
+        "`git diff db/schema.rb` contains only this story's tables and columns. Evidence: the diff stat."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Read `../qul-data/audit-2026-11-02.md` sections 1, 2, 5 and 8 first. Key the backfills on stable fields (existing slug, resource content id), never on row position, and never write a field a person has set. One slug is an empty string: normalize it to NULL first. Display-name sources: recitations take the style and the surah/ayah kind from the content database (two recitation rows there carry the proper name when the content row's name is blank); scripts take the granularity; translations and tafsirs take the language. Two resources share one content row. Migrations use the CMS connection only. Keep the edit to `app/models/downloadable_resource.rb` to a single `include` line and put the behaviour in a concern: qiraat changes that model. After `db:migrate`, commit only your own `db/schema.rb` lines. Remake the test clones after migrating. Slugs become public URLs and next sprint's API ids: prefer readable, stable forms."
+    },
+    {
+      "id": "001-08",
+      "title": "Drafted values, review column and review report",
+      "description": "Infer the values that no field holds today and record them as drafted values. Backfills infer: status (including superseded and its pointer where the data shows a newer version), script family and rendering for script, font and layout resources, requires-links from a layout to its font and from a glyph script to its font, and a one-line summary where none exists. Every inferred field and link is recorded in the review column on the source resource with the backfill name and time. Changing a drafted field outside a backfill clears its entry (a model rule, so it holds for any later editing screen), and a task marks a resource's drafted values, or one field, as reviewed. CMS form changes are deferred by user decision: this sprint the data team works from the review report and a developer applies corrections with the task. A backfill never overwrites a value that is not currently drafted by itself. A task generates the review report: every drafted value, plus the known data errors from the audit that visitors could see. Serializers expose, per field, whether the value is reviewed. Out of scope: how pages show it (001-13, 001-14).",
+      "deps": [
+        "001-07"
+      ],
+      "acceptanceCriteria": [
+        "Each inference rule has table-driven specs written first: given the fields of a resource, it returns the value or no value. Evidence: the named spec file and its example count.",
+        "No resource is drafted as `recommended` unless the rule's stated evidence holds for it, and at most one layout and one font per script family is drafted as recommended. Evidence: a spec over the clone and the rule text in the handoff.",
+        "After the backfill, every value it wrote has an entry in the review column, and every entry in the review column matches a value it wrote. Evidence: a consistency spec over the clone.",
+        "Changing a drafted field through the model outside a backfill clears that field's entry, the mark-reviewed task clears entries without changing values, and the next backfill run leaves both in place. Evidence: model and task specs for the three steps.",
+        "A second backfill run changes 0 rows. Evidence: the changed-row report.",
+        "The review report task writes a file under `tmp/` whose drafted-value row count equals the number of review-column entries, and which has a section for each known data error class. Evidence: the two counts in the handoff. The file itself is not committed and not pasted.",
+        "The resource serializer carries the status, script family, rendering, summary and typed relations with a reviewed flag for each drafted field, and the generated TypeScript types include them. Evidence: a serializer spec and the drift check."
+      ],
+      "testFirst": true,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "Read the audit sections 4, 5, 7 and 12 and the gap table in `../qul-redesign/research/data-requirements.html`. Draft conservatively: which layout or font is the default per script family is a scholarly and product call the data cannot answer, and popularity is not authority. Sources: layout facts and font names come from the content database (`mushafs`, resource-content meta keys such as `text-type`, `font`, `mushaf`); no field links a layout to its font, the link is implied by font names. The glyph layouts use per-page font sets. Summaries are templated from type, language, granularity and format facts; never claim anything the fields do not show, and say nothing about recitation style or qira'at that the content rows do not state. The report must not include data source names or any user-related field (see the private sprint notes). The data-model change is recorded in the decision log by 001-19; flag here anything the maintainers must agree to. Do not change the ActiveAdmin forms in this sprint (user decision); the existing CMS form must keep saving a resource without touching the new fields. The correction path is the mark-reviewed task and model writes; document both in the review report's header."
+    },
+    {
+      "id": "001-09",
+      "title": "Catalog search query, facets and spotlight endpoint",
+      "description": "Build the query object behind `/resources` and the spotlight, and the `/resources` controller action that serves it as Inertia props. One input shape (text, type, language, several script families, format, granularity, status, sort, page) gives results, a total and facet counts. Text search is Unicode-aware and matches Arabic. Sort is popular (signed-in plus anonymous downloads), name or updated. Each facet's counts reflect the other active filters. File type strings map to a small format vocabulary in the server-side taxonomy. The spotlight gets a small same-origin JSON endpoint that uses the same query object and a slim serializer; it is internal, unversioned and not a public API. Vocabularies that do not change per request are sent so the client fetches them once. Out of scope: the React page (001-12).",
+      "deps": [
+        "001-05",
+        "001-07"
+      ],
+      "acceptanceCriteria": [
+        "Specs written first cover: an Arabic query matches a resource through its name, its tags or its language's native name, with and without diacritics (where the clone has no such row, the spec creates one inside its transaction); a Latin query is case- and accent-insensitive; a language name finds its translations; an empty query returns everything published.",
+        "Each filter alone and two script families together return exactly the rows a direct query returns on the clone. Evidence: named specs per filter.",
+        "For each facet, the count shown for a value equals the result total after selecting that value. Evidence: a property-style spec that samples values on the clone.",
+        "Popular order equals the order of the combined download totals from a direct aggregate query; unpublished resources and files never appear or count. Evidence: named specs.",
+        "GET `/resources?…` with the `catalog` group on returns the Inertia component with results, facets and the echoed filters; an invalid filter value is ignored, not a 500. Evidence: request specs with `have_props`.",
+        "The spotlight endpoint returns at most a fixed small number of results as JSON for a query and sets `X-Robots-Tag: noindex`. Evidence: a request spec.",
+        "The whole catalog request runs a bounded number of queries regardless of result count. Evidence: a query-count assertion in a spec."
+      ],
+      "testFirst": true,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Do not reuse or extend `Resources::SearchQuery`. All filter fields are on CMS rows; language and reciter names live in the content database, so resolve names to ids in a first step instead of joining. Do not require a Postgres extension without checking it can be enabled with the privileges a normal migration has; the catalog has a few hundred rows, so a plain query is fine. The anonymous counter arrives in 001-10: read the combined total through one method that 001-10 completes. Some translations have no language on the CMS row but have one on the content row. Granularity is `cardinality_type`, set on every row. `/search` already exists and is Quran text search: do not take that path. Keep the endpoint out of `/api`. This query object is what the public API will call next sprint: no `params`, no `current_user`, no Inertia types inside it."
+    },
+    {
+      "id": "001-10",
+      "title": "Downloads: one route, two modes, counted",
+      "description": "Give file downloads one route with server-side rules, a download mode setting, and counting that covers every download. Rules in both modes: 404 for an unpublished file or a file of an unpublished resource; a restricted resource is blocked for everyone except admins. Sign-in mode: an anonymous request is sent to sign-in and returns to the resource page, where the download starts. Public mode: the file is sent without an account. The new URL is built from the resource slug and the file, with no file token; the existing token URL keeps working and follows the same rules. Counting: a signed-in download writes the per-user row as today; an anonymous download counts once per visitor per file per day, where the visitor is a random first-party cookie and the request's address is not used at all; increments are atomic; existing totals are kept; one method returns the combined total that popular sorting reads. Out of scope: the files panel UI (001-14), storage changes.",
+      "deps": [
+        "001-07"
+      ],
+      "acceptanceCriteria": [
+        "Request specs written first, for both routes and both modes: unpublished file gives 404; file of an unpublished resource gives 404; restricted resource gives a blocked response for an anonymous user and a normal user, and a redirect to the file for an admin; unknown file gives 404.",
+        "Sign-in mode: an anonymous request redirects to sign-in, and after sign-in the user lands on the resource page with the download started. Evidence: a request spec for the redirect chain and a Playwright test added once 001-14 exists (note it in the handoff if deferred).",
+        "Public mode: an anonymous request redirects to the file and adds 1 to the file's anonymous count; a second request the same day with the same visitor cookie adds 0; a request with a different cookie adds 1; the same cookie the next day adds 1; a request that sends no cookie adds 1 each time. Evidence: named specs with time travel.",
+        "The counter does not read the request's address or user agent, and what it stores holds only a random visitor id, the file and the day. The cookie holds nothing but that random id, and is set only when a download happens, never on page views. Evidence: a spec that inspects the stored row and the Set-Cookie header, and a spec that a catalog page response sets no visitor cookie.",
+        "A signed-in download creates or increments the per-user row and does not reduce or reset the anonymous count; two concurrent signed-in downloads both count. Evidence: named specs, one with threads.",
+        "The combined total for every file after the migration equals the total before it. Evidence: aggregate comparison on a clone, as a single equality in the handoff.",
+        "The setting defaults to `sign_in` and an unknown value fails at boot. Evidence: a spec."
+      ],
+      "testFirst": true,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "Read the private sprint notes (team drop) before starting: they describe today's behaviour and what must change. The redirect target is the file's storage URL; without the storage variables the URL host is wrong locally, so specs assert the redirect, not the fetch. Update emails and the profile download list read the per-user rows: keep writing them. Deduplicate in the database, not in the cache (the test and development cache stores do not keep data). The visitor is a random first-party cookie (user decision: the request's address is never used, not even hashed); rows are deleted after the day ends. Known cost, accepted: a script or agent that sends no cookie counts on every request, so anonymous totals run high; say so where the totals are documented. Why no token in the new URL: access is decided by the server rules and not by the URL, the public API will hand out these links next sprint, and a slug-plus-file URL is readable and stable; check how exports replace file rows before choosing what identifies a file in the URL. Admin means the existing role check; do not add a new permission model. The download link is a plain link, not an Inertia visit, because it ends in a redirect to another host."
+    },
+    {
+      "id": "001-11",
+      "title": "UI kit and site shell",
+      "description": "Port the prototype v7 UI kit into the front-end tree and build the shell every new page uses. Kit: design tokens, light and dark themes, the UI and QUL components the in-scope pages need, self-hosted interface fonts, all SSR-safe, with hash routing and `window.location` writes replaced by Inertia links and visits. Shell: header and footer from v7 with the design comments applied: the search field becomes an icon that opens the spotlight (#21; the spotlight itself is 001-12), the theme toggle moves to the footer (#22), the logo is the icon only (#24), and the contributor tools list is back in the header menu (#25). Header links to pages not rebuilt (docs, tools, developers) are plain links to the current pages. Signed-in state shows in the header from a shared prop, with sign-out. Flash messages show. The theme follows the system setting, remembers a choice and does not flash on load. The slice page from 001-05 moves into this shell. Out of scope: wizard, kits and bundle-tray components; a language selector.",
+      "deps": [
+        "001-05"
+      ],
+      "acceptanceCriteria": [
+        "Every ported component renders on the server and in the browser with no hydration warning. Evidence: a Vitest SSR-render test that covers each exported component, and a Playwright console check on the type page.",
+        "Header at desktop width shows the icon-only logo, the menus with the contributor tools list, a search icon and the account control; it has no theme toggle and no text search field. The footer has the theme toggle. Evidence: Playwright assertions and screenshots described in the handoff.",
+        "At phone width the mobile navigation opens, lists the same destinations and closes after a visit. Evidence: a Playwright test at 390 px.",
+        "Each header and footer link to an old page loads that page (status 200) by a full page load; each link to a new page is an Inertia visit. Evidence: a Playwright test over the link list.",
+        "Signed in as the fake user, the header shows the user's initials and name and a working sign-out; signed out, it shows a sign-in link that returns to the current page after sign-in. Evidence: Playwright tests. The shared auth prop holds no field beyond what the header shows. Evidence: a request spec with `have_exact_props` on that key.",
+        "With the system in dark mode and no stored choice, the first paint is dark; a stored choice wins on reload. Evidence: Playwright with emulated colour scheme, checking the class before hydration.",
+        "A Rails `notice` set before a redirect to a new page appears once. Evidence: a request spec with `have_flash` and a Playwright check.",
+        "Interface fonts are served from this app, not a third-party host. Evidence: the network log of one page."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Inventory and SSR hazards per file are in lessons.md (prototype section): `chrome.tsx`, `nav.tsx`, `theme.tsx` and `github.tsx` use browser APIs in effects or handlers; none at module scope except one guarded `navigator` read. The prototype's `SiteHeader` contains the search form and the theme button that #21 and #22 remove. The kit lives inside `app/frontend`, not a separate package; keep `ui` and `qul` component groups. The prototype uses the unified `radix-ui` package, `vaul`, `lucide-react`, `class-variance-authority`, `tailwind-merge` and `tw-animate-css`. Sign-out goes to Devise with DELETE and may land on an old page: use the approach 001-02 recorded. Sign-in links pass a local path only. Do not send the user's email or role to the client unless the header shows it. The old header is `landing/_header.html.erb`; do not edit it. The existing site loads Google Fonts and Font Awesome from third-party hosts; the new layout does not."
+    },
+    {
+      "id": "001-12",
+      "title": "Catalog page and spotlight",
+      "description": "Build `/resources` from v7 on the props from 001-09, and the ⌘K spotlight. Catalog: search field, filter groups with counts for type, language, script family (several selectable at once, design comment #20), format, granularity and status, active-filter chips, three sorts, paging, an empty state, and a request-a-resource card that links to the GitHub issue form. Every filter, the query, the sort and the page live in the query string, so each view has a shareable URL and Back works. Filter changes are Inertia visits that keep scroll and local state and reload only what changed. On phones the filters open in a bottom drawer. Spotlight: opens from the header icon and from ⌘K or Ctrl K on any new page, searches resources through the JSON endpoint as the user types, is keyboard-navigable, and goes to the chosen resource or to the full catalog results.",
+      "deps": [
+        "001-09",
+        "001-11"
+      ],
+      "acceptanceCriteria": [
+        "Loading a URL with a query, two script families, a format and a sort renders exactly that view on the server, with the controls showing those values. Evidence: a request spec on the SSR HTML and a Playwright test.",
+        "Changing a filter updates the URL and the results without a full page load, and the request asks only for the props that change. Evidence: a Playwright test that inspects the Inertia partial-reload headers.",
+        "Back and Forward restore the earlier filter state. Evidence: a Playwright test.",
+        "Typing a language's native name in Arabic script returns that language's resources in the page. Evidence: a Playwright test on the clone.",
+        "At 390 px the filters are in a bottom drawer that opens, applies and closes; the page has no horizontal scroll. Evidence: a Playwright test.",
+        "A filter combination with no results shows the empty state and the request card, whose link opens the issue form URL. Evidence: a Playwright test.",
+        "The spotlight opens with the keyboard shortcut and the icon on a type page and on the catalog, shows results for a typed query, moves with arrow keys, opens a result with Enter and closes with Escape, restoring focus. Typing fast sends no more than one request per pause and never shows results for an older query. Evidence: Playwright tests, one with request counting.",
+        "The catalog page has title, description and canonical tags; filtered views have a canonical that points to the unfiltered page or are marked noindex. Evidence: a request spec."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "The prototype catalog (`ds/src/app/pages/catalog.tsx`) filters mock data in the browser and parses the hash; keep its layout, replace its data flow. Its filter model includes `needs` from the wizard, which is out of scope. The docs do not spell out the search recipe: same-URL visits replace history by default, so decide deliberately which changes push a history entry (filter toggles) and which replace (typing). The key hint shows ⌘K or Ctrl K by platform; render a neutral label on the server and set it after mount to avoid a hydration mismatch. No `cmdk` dependency exists in the prototype; a Radix dialog with a listbox is enough. There is no resource-request issue template yet in `.github/ISSUE_TEMPLATE`; add one or link to the chooser, and say which in the handoff. Download counts are used for order only and are not shown."
+    },
+    {
+      "id": "001-13",
+      "title": "Type pages: which one to pick, and comparison tables",
+      "description": "Complete the 14 type pages from the slice. Add status badges and script family to cards; a \"Which one should I pick?\" block on types where status data exists, with recommended resources first and legacy and superseded ones collapsed with a pointer to their replacement; and a comparison table for layouts (pages, lines per page, script family, rendering, font), fonts and scripts. A drafted `recommended` is shown as a suggestion marked \"not yet reviewed\", never as an authority; a reviewed one is shown plainly. The mushaf-layout page follows the prototype; the other 13 follow the same pattern with the fields their type has.",
+      "deps": [
+        "001-08",
+        "001-11"
+      ],
+      "acceptanceCriteria": [
+        "On each of the 14 type pages, the card count equals the published count for the type and no card has an empty title. Evidence: a Playwright sweep and the request spec from 001-05, updated.",
+        "A resource with a drafted `recommended` status shows the \"not yet reviewed\" marker; after marking it reviewed in the clone the marker is gone. Evidence: a request spec on props for both states and a Vitest test of the badge.",
+        "A superseded resource is inside the collapsed group and links to its replacement. Evidence: a Playwright test on a type that has one after the backfill, or a Vitest test with a fixture if the clone has none (say which).",
+        "A type with no status data beyond the default shows no \"Which one should I pick?\" block. Evidence: a request spec on props and a Playwright check on one such type.",
+        "The layout comparison table shows, for every published layout, the page count and lines per page that the content database holds, with the page count clamped for the layout whose page rows exceed it. Evidence: a spec that compares the props to a direct query.",
+        "The comparison table is readable at 390 px (scrolls inside its own container or reflows). Evidence: a Playwright test.",
+        "Each type page has its own title, description and JSON-LD. Evidence: a request spec over the 14 types."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Prototype source: `ds/src/app/pages` (`MushafLayouts`). The prototype parses lines and pages out of display strings; use typed props. Layout facts come from the content database through the resource content id; the lookup needs an explicit order because one content row can map to two mushafs. Type descriptions and the which-to-pick copy live in the server-side taxonomy from 001-05, written in the copy style from the PRD. When the qiraat stack merges, two more resource types will appear: the page must render a type it has no special copy for."
+    },
+    {
+      "id": "001-14",
+      "title": "Resource detail page",
+      "description": "Build `/resources/{type}/{slug}` for every type. Header: type, display name, status (with the \"not yet reviewed\" marker for drafted values), script family, language and licence status. Files panel: a format picker, download size, checksum and a Download control that follows the download mode (in sign-in mode an anonymous visitor is sent to sign-in and returns to the download; in public mode the file downloads and the panel offers sign-in to get update emails); a restricted resource shows why it cannot be downloaded; a resource with no files says so. \"Works with\" lists typed relations grouped by relation type. Tabs: Preview (a frame and a \"no preview\" state here; the previews are 001-15 and 001-16), Data (granularity, formats, counts and field facts the row holds), Licence (\"Licence not yet confirmed\" when no licence exists) and Changelog (hidden when empty). A report-an-issue link opens the matching GitHub issue form with the resource named. An id URL and a wrong-type URL redirect permanently to the canonical slug URL; old tab URLs redirect to the page. The prototype's detail page covers layouts only: the other 13 types use the same frame.",
+      "deps": [
+        "001-08",
+        "001-10",
+        "001-11"
+      ],
+      "acceptanceCriteria": [
+        "A sweep spec requests the detail page of every published resource on the clone with SSR errors raised: all return 200, including the resources with no files, on unapproved content rows, with no word rows and with blank content names. Evidence: the spec output with the count.",
+        "An id URL and a URL with the wrong type return 301 to the slug URL; an unknown slug and an unpublished resource return 404 with the error page. Evidence: request specs.",
+        "The files panel shows, per file, a format label, a human-readable download size and the checksum; sizes equal the stored byte sizes. Evidence: a request spec on props and a Vitest test of the formatting.",
+        "Sign-in mode: an anonymous visitor who clicks Download signs in as the fake user and ends on the same resource page with the download started and one per-user row written. Public mode: the click downloads without sign-in and the sign-in offer is visible. Evidence: Playwright tests for both modes.",
+        "A restricted resource shows no working download control to a normal user and the reason text; an admin sees the control. Evidence: request specs on props for the three roles and a Playwright check.",
+        "The Changelog tab is absent for a resource with no changelog rows and present with entries for one that has them. The Licence tab says \"Licence not yet confirmed\". Evidence: request specs on props and a Playwright check.",
+        "The active tab is in the URL and loads directly. Evidence: a Playwright test.",
+        "The page has title, description, canonical, Open Graph and JSON-LD for the resource; no prop contains a data source name, a changelog author or any user field. Evidence: a request spec with an explicit key allow-list.",
+        "\"Works with\" shows requires-links before pairs-with links and marks drafted links as not yet reviewed. Evidence: a Vitest test and a request spec on props."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": true,
+      "passes": false,
+      "notes": "File facts come from ActiveStorage blobs: every file is an archive, so the size is the download size; the checksum is base64 MD5, show it labelled as MD5 (hex) and do not call it SHA; `content_type` is unreliable, use the file type string mapped by the taxonomy. \"Updated\" comes from the content row's export version where present (a unix time), else the newest blob date. Changelog rows belong to resource contents; never serialize their user. Resource `info` is editor HTML, some with stray attributes: sanitize on the server before it becomes a prop. Existing issue templates in `.github/ISSUE_TEMPLATE` cover layouts, scripts, tafsirs and translations; other types link to the chooser. The Preview tab's data is a deferred prop so the page's first response does not wait for it; 001-15 and 001-16 fill it. When the `catalog` group is on, the old detail page is unreachable, so nothing it offers may be lost without a decision: the old page has a Docs tab per type (`resources/docs/<type>`), so the Data tab links to the current `/docs/{key}` page for the type where one exists (docs pages are ported next sprint); the old `copyright` and `related_resources` member routes are covered by the restricted reason and \"Works with\"; the font-only Ligatures and Glyphs tabs are owned by 001-15. List in the handoff anything else the old page shows that the new one does not. The private sprint notes list the fields that must never be public."
+    },
+    {
+      "id": "001-15",
+      "title": "Mushaf page, font and script previews",
+      "description": "Fill the Preview tab for layouts, fonts and scripts, using what 001-04 proved. Layouts: one rendered mushaf page with page navigation (previous, next, jump to page, jump to surah), for unicode layouts and for the glyph-per-page layouts, with lines placed as in the print. Fonts: a sample in the font itself, plus the glyph and ligature views the old font page offers in its Ligatures and Glyphs tabs, for the fonts that have them. Scripts: a sample of a chosen ayah range in the script's own font. Data arrives as a deferred prop keyed by the page or surah in the query string, and navigation reloads only that prop, so a page view is shareable and nothing loads the whole resource. One preview interface on the server, with one provider per kind, that the public API can reuse. Layouts or fonts that cannot be rendered show an explicit state, never an error.",
+      "deps": [
+        "001-04",
+        "001-14"
+      ],
+      "acceptanceCriteria": [
+        "For every published layout, page 1, a middle page and the last page render, or the layout shows the explicit \"no preview\" state. Evidence: a Playwright sweep with the per-layout result table in the handoff.",
+        "Page navigation changes the query string, requests only the preview prop, and loads only the fonts of the page shown. Evidence: a Playwright test that inspects request headers and font requests.",
+        "A direct load of a URL with a page number renders that page; a page number beyond the page count is clamped or gives the page's own not-found state, not a 500. Evidence: request specs.",
+        "The glyph-per-page layouts match the old preview on the four pages from 001-04. Evidence: screenshots compared in the handoff.",
+        "Every published font shows a sample rendered in that font once the font has loaded, or the explicit state with the reason. Evidence: a Playwright sweep using `document.fonts.check`.",
+        "Every published script shows its sample for a chosen surah in the right font, for both word-level and ayah-level scripts. Evidence: a Playwright sweep and request specs on the props.",
+        "Each font whose old page has a Ligatures or Glyphs tab shows the same glyph and ligature sets in the new preview, and the old tab URLs redirect to that view. Evidence: a request spec on the props compared with what the old tab renders for one font of each kind, and a Playwright check.",
+        "The preview provider for layouts loads in a plain Ruby spec without a controller, and the page query count is bounded. Evidence: named specs."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": false,
+      "passes": false,
+      "notes": "Use the font URL resolver from 001-04; do not call `ResourcePresenter#build_font_assets` or `shared/_resource_font_face`. The old previews (`app/views/resources/previews/`) query inside ERB and several show global data instead of the resource's own: use them as a behaviour reference only, and do not edit them (qiraat changes two of them). Font and script resources have no per-resource sample rows; samples are Quran text in the right encoding from the content database. Inject per-page `@font-face` rules in a way that works under SSR and does not accumulate rules as the user pages. Respect the fallbacks the spike recorded."
+    },
+    {
+      "id": "001-16",
+      "title": "Audio, text and record-sample previews",
+      "description": "Fill the Preview tab for the remaining types through the same preview interface as 001-15. Recitations: an audio player for a chosen surah (or ayah, for ayah-by-ayah recitations) that highlights the ayah being recited from segment data where the recitation has segments, and plays without highlighting where it has none. Translations, tafsirs and transliterations: the text of a chosen surah, with footnotes where present and correct direction and language attributes. Every other type (surah info, ayah themes, ayah topics, similar ayahs, mutashabihat, morphology, Quran metadata): a small, bounded sample of the resource's own records, or the explicit \"no preview\" state where the resource has no per-resource sample data. The chosen surah is in the query string and only the preview prop reloads.",
+      "deps": [
+        "001-14"
+      ],
+      "acceptanceCriteria": [
+        "For a recitation with segments, during playback the highlighted ayah changes at the segment boundary times. Evidence: a Vitest test of the highlight logic against recorded segment data with a fake clock, and a Playwright test that seeks and checks the highlight.",
+        "A recitation without segments plays and shows no highlight and no error. Evidence: a Playwright test.",
+        "A sweep over every published recitation, translation, tafsir and transliteration returns preview props for surah 1 and surah 114 without error. Evidence: a spec with counts.",
+        "A right-to-left translation renders with `dir=\"rtl\"` and its language code; a left-to-right one with `ltr`. Evidence: a request spec on SSR HTML for one of each.",
+        "For each of the remaining types, the preview shows at most a fixed number of records taken from that resource, or the \"no preview\" state. Evidence: request specs per type on the props, with the bound asserted.",
+        "Changing the surah updates the query string and requests only the preview prop. Evidence: a Playwright test.",
+        "Tafsir and translation text that contains markup is sanitized on the server. Evidence: a spec with a script tag in the input."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Reuse the finders behind `/api/v1` (`app/finders/v1`) where they fit, called in process, not over HTTP. The v1 segment endpoints are keyed by recitation id, not resource content id; surah recitations and ayah recitations are different tables. `per_page` in v1 is unreliable for small sizes. Several types have no per-resource sample data and their old previews show global data or fail on nil: that is the case for the explicit state. Audio files are on the CDN; the player must not start loading audio until the user asks. Tafsirs can be very long: bound the text per request (a surah may need paging by ayah range). Some languages have no native name or direction; default sensibly."
+    },
+    {
+      "id": "001-17",
+      "title": "Home page and apps directory",
+      "description": "Build the home page and the apps directory from v7 on real data. Home: the hero with the shard graphic, the catalog entry points by category, real counts (resources, languages, reciters) and an apps showcase. On phones the hero text overlays the graphic so the hero stays short, as the current site does (design comment #23). Links to the wizard and other pages outside this sprint are left out or point to the catalog. Apps (`/apps`, page group `apps`): the directory with platform and resource-type filters, featured apps first, and a way to submit an app (design comment #11). App entries are data in this repo (one file plus icons) behind a serializer, so they can move to a table later without changing the page. Featured flags stay as placeholders until the maintainers supply the list.",
+      "deps": [
+        "001-11"
+      ],
+      "acceptanceCriteria": [
+        "With `home` on, `/` renders the Inertia home page with SSR; with it off, the old landing page. The same for `apps` and `/apps` (off gives 404, as on main). Evidence: request specs for the four states.",
+        "The three counts on the home page equal direct aggregate queries on the clone. Evidence: a spec.",
+        "At 390 px the hero's height is at most the viewport height and the heading overlaps the graphic's box. Evidence: a Playwright test with bounding boxes.",
+        "With WebGL disabled the hero shows the fallback image; with reduced motion it does not animate. Evidence: Playwright tests with the launch flag and the emulated preference.",
+        "The apps directory lists every entry in the data file; platform and resource-type filters narrow the list and are reflected in the URL; each resource-type chip links to that type page. Evidence: a Playwright test and a spec that loads and validates the data file (unique ids, known platforms and types, icon file exists).",
+        "The submit control opens the app-submission issue form. Evidence: a Playwright check of the URL and the template file in `.github/ISSUE_TEMPLATE`.",
+        "Both pages have title, description, canonical, Open Graph and JSON-LD; home keeps the organisation and site data the old landing page emits. Evidence: request specs comparing the JSON-LD types to the old page's.",
+        "The home page's client JavaScript does not load the shard renderer before the hero is visible, and the page hydrates without warnings. Evidence: the Playwright network log and console check."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": true,
+      "passes": false,
+      "notes": "Prototype sources: `ds/src/app/pages/home.tsx`, `apps` page, `ds/src/app/apps-data.ts` (24 entries, icons in `ds/public/apps`), `ds/src/components/qul/shards/`. The prototype has uncommitted edits in `apps`, `home`, `chrome` and `nav`: port the working tree, it is the reviewed state. Before copying an app entry, check its `evidence` field against `../qul-redesign/research/apps-using-qul.md`; list only apps whose use of QUL is public. The old landing page uses the `devise` layout and its own shards bundle; leave both. The GitHub star count is fetched in the browser with a fallback number in the prototype; keep it out of the server render path. `LandingController` is the old controller for `/`."
+    },
+    {
+      "id": "001-18",
+      "title": "Runtime validation on the production image and the local stack",
+      "description": "Prove the sprint on real runtimes and write `sprints/001-inertia-foundation-and-catalog/VALIDATION.md`. Runs every item of the PRD's Runtime Validation Plan: the production image built from the sprint branch and run against clones with SSR on; the SSR failure and recovery check; the full Playwright suite with all page groups on, at phone and desktop widths, anonymous and signed in, in both download modes; the backfill replay on a fresh restore; the switch back to old pages per group; and the truth checks of counts, facets and popular order against direct queries. Also merges current `origin/main` into a scratch branch to list the conflicts the cutover will meet. Fixes found here are made here if small; larger ones are recorded as failures with an owner.",
+      "deps": [
+        "001-03",
+        "001-12",
+        "001-13",
+        "001-15",
+        "001-16",
+        "001-17"
+      ],
+      "acceptanceCriteria": [
+        "The image builds and, in the running container, `/`, `/resources`, one type page, one detail page of each of three types and `/apps` return server-rendered HTML. Evidence: the build log tail and a table of URL, status and an SSR marker in VALIDATION.md.",
+        "With the SSR service stopped all those URLs return 200 and render in the browser; after restart SSR output is back. Evidence: the before, during and after table.",
+        "The full Playwright suite passes against the container or the local production-mode stack, in both download modes. Evidence: the report summary with counts per project.",
+        "On freshly restored databases: migrate, backfill, backfill again. The second run reports 0 changed rows, and a hand-edited value survives. Evidence: the three outputs.",
+        "With each page group removed from the setting, its URLs serve the old page; with all removed, the old-page request specs from 001-01 pass. Evidence: the outputs.",
+        "Home counts, five sampled facet counts and the top ten of the popular sort match direct queries. Evidence: a pass or fail table, with no download number written down.",
+        "The detail sweep from 001-14 passes inside the production-mode stack. Evidence: the count.",
+        "`git log main..origin/main` and a trial merge are recorded with the conflicting files; `git diff main --stat -- app/views/layouts/application.html.erb app/javascript` is empty; no file under `tmp/`, no report and no dump is tracked. Evidence: the command outputs.",
+        "VALIDATION.md states, per PRD exit criterion, pass or fail with its evidence."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Same safety rules as 001-03: clones only, Sidekiq service disabled before start, no SMTP variables, `localhost`. A fresh restore goes into new database names, not over the working snapshot; the restore steps are in the private sprint notes. VALIDATION.md is public: counts of catalog rows are fine, nothing from user or download tables, no connection strings. `git fetch` is allowed; pushing is not. If the image cannot boot for want of a real credential, record what was proven without it and list the credential as a human step for 001-20."
+    },
+    {
+      "id": "001-19",
+      "title": "Docs write-back",
+      "description": "Bring the repo's rule doc, config and decision log to shipped reality, and graduate the cross-sprint lessons. Updates `AGENTS.md` (how the Inertia app is laid out, the page group setting, the download mode setting, how to add a page, the gates, the data-safety rules, the copy rule), `.agents/config.yaml` (gate and checkpoint commands, sprint root, decision log path), the decision log (the decisions this sprint made that are hard to reverse), a glossary with the PRD's terms, `.env.sample` (the new settings and `CDN_HOST`) and the README's development section for the Vite process. Creates any of these that do not exist yet.",
+      "deps": [
+        "001-18"
+      ],
+      "acceptanceCriteria": [
+        "A new contributor can start the app with the new front end by following the README and `AGENTS.md` alone. Evidence: the commands are run from a clean clone of the branch in a scratch directory and their output is in the handoff.",
+        "The decision log has one entry per decision listed in this spec's `interviewSummary.decisions` that the user ratified, in the form Decision, Why, Cost. Evidence: the entry titles in the handoff.",
+        "Every term in the PRD's Terms section is in the glossary with the same meaning. Evidence: the file diff.",
+        "Every `lessons.md` entry that applies beyond this sprint is in `AGENTS.md` or a doc it points to. Evidence: a list mapping entry to destination.",
+        "None of the written docs contains anything from the private sprint notes. Evidence: a check against the list in those notes, stated as done."
+      ],
+      "testFirst": false,
+      "difficulty": "low",
+      "review": false,
+      "passes": false,
+      "notes": "Prescriptive: (1) `/docs/` is gitignored in this repo, so the decision log and glossary cannot live there; use the paths `.agents/config.yaml` names, or create `DECISIONS.md` and `GLOSSARY.md` at the repo root if it names none. (2) Read the existing `AGENTS.md` and `.agents/config.yaml` first; extend, do not rewrite. (3) Decision entries come from `interviewSummary.decisions` and from story handoffs' `decisions`; skip any the user rejected. (4) `.env.sample` today lists only storage keys; add `CDN_HOST`, the page group setting, the download mode setting and the SSR URL, with safe example values and no real hostnames beyond the public CDN. (5) Do not describe weaknesses of the current site; describe the rules the new code follows. (6) Keep the README change to the development section."
+    },
+    {
+      "id": "001-20",
+      "title": "Handoff: merge to qul-next and prepare the human steps",
+      "description": "Close the sprint locally and prepare everything a person must do, so it can be done in one sitting. Merges the sprint branch into `qul-next` locally. Writes a PR description draft for the cutover PR into the sprint folder: what changed, how to run it, the settings, the migrations and the backfill order, the files shared with the qiraat stack and how each conflict resolves, and the data-model decisions that need the maintainers' agreement. Drafts a reply to each of the seven design comments (#11, #20, #21, #22, #23, #24, #25) saying what shipped and where to see it. Generates the review report for the data team. Lists the human steps.",
+      "deps": [
+        "001-19"
+      ],
+      "acceptanceCriteria": [
+        "`qul-next` contains the sprint branch and the gate passes on it. Evidence: `git log --oneline -1 qul-next` and the gate output.",
+        "Nothing was pushed and `main` is unchanged. Evidence: `git status -sb` for both branches and `git rev-parse main` equal to its value at sprint start.",
+        "The PR description draft exists in the sprint folder and names every file this sprint changed that the qiraat stack also changes. Evidence: the list compared with `git diff --name-only main...qul-next` intersected with `git diff --name-only main...origin/qiraat/p7-5-drop-legacy`.",
+        "Seven comment replies are drafted, one per comment number, each naming the URL that shows the change. Evidence: the draft file path. None is posted.",
+        "The review report is generated under `tmp/` and its path and row counts are in the handoff. Evidence: the counts.",
+        "The handoff lists the human steps in order, each with the exact command or place."
+      ],
+      "testFirst": false,
+      "difficulty": "low",
+      "review": false,
+      "passes": false,
+      "notes": "Prescriptive: (1) `git checkout qul-next && git merge --no-ff sprint/001-inertia-foundation-and-catalog`; do not rebase, do not push. (2) Human steps to list: push `qul-next`; open the PR with the draft description; read and approve the seven comment replies before they are posted (posting is the human's or is done only after explicit approval); share the review report with the data team through a private channel; choose the production download mode; after the push, confirm the first run of the new CI workflow is green; supply the featured-apps list; with the storage variables set locally, download one real file through each mode and check its size and MD5 against the files panel (the loop only asserts the redirect); supply production runtime settings (the page group setting, download mode, `CDN_HOST`, SSR service); and every item the private sprint notes mark for handoff. (3) The PR draft and comment replies are public files: describe behaviour, not weaknesses. (4) The review report is not committed. (5) If a human step was already done during the sprint, say so instead of listing it."
+    }
+  ],
+  "interviewSummary": {
+    "scopeChanges": "Planned in one pass from a ratified brief, with no live interview. The plan was first placed in a private sibling repo and then moved into this repo by user decision: one repo, one loop, all sprint files public, sensitive context in the private sprint notes (team drop). Scope as ratified: foundation, UI kit, site shell, catalog, 14 type pages, resource detail with previews and downloads, home page, apps directory. Deferred by name: docs pages, developers page, public API, MCP server, wizard, kits, bundle tray, requests, changelog page, account pages, licence assignment, i18n, the 9 missing format docs. Added by the planner: an app-submission issue template (001-17) and a trial merge of main during validation (001-18). Proposed by the planner and deferred by the user: CMS form changes for the new fields (corrections go through a task this sprint). Added in review: the old font page's Ligatures and Glyphs views (001-15), a link from the Data tab to the current docs page for the type (001-14), and plan files kept out of the image (001-03). Added by the user after review: a CI story for `qul-next` and sprint branches (001-06).",
+    "risks": [
+      "No Ralph constitution exists in this repo yet (`ralph-init` has not run). Proof, testFirst, difficulty and review cadence follow the skill defaults. Protected surfaces are assumed to be: migrations and backfills, the download route, auth and session handling, the Dockerfile and service files.",
+      "`AGENTS.md`, `.agents/config.yaml` and the decision log are added to `qul-next` outside this spec. 001-01 and 001-05 write to them and 001-19 completes them; if they are missing, those stories create them.",
+      "SSR under Passenger is undocumented upstream. 001-03 proves it or falls back to client rendering in production.",
+      "Coexistence of Sprockets, jsbundling, the Tailwind 3 gem and Vite is undocumented upstream. 001-02 proves it.",
+      "The production image may not boot locally without the master key. 001-03 answers; the fallback is a human step.",
+      "Typelizer is pre-1.0 and alba-inertia is young. 001-02 decides on alba-inertia; hand-written page prop types are the fallback.",
+      "Drafted values can be wrong. They are marked unreviewed in the data and on the page until the data team reviews them.",
+      "The qiraat stack will change `downloadable_resource.rb`, `routes.rb`, `Gemfile`, `database.yml`, two preview partials and the resource type list. Edits to those files are kept to single lines or one block; 001-18 does a trial merge.",
+      "New columns and a new table change a data model the maintainers own, and `script_family` sits near qiraat's `scripts` table. Needs agreement before cutover.",
+      "Anonymous downloads are deduplicated by a first-party cookie only (user decision). Clients that send no cookie count on every request, so anonymous totals and the popular order can be inflated by scripts.",
+      "Request and browser tests need the snapshot, which cannot be committed, so they run only locally. CI (001-06) covers the checks that need no database; a public fixture database for CI is a follow-up.",
+      "The glyph-per-page preview depends on a content-database query with no fitting index. 001-04 measures it.",
+      "Licences have no rows. Every Licence tab says not yet confirmed.",
+      "Production runtime settings are not in this repo. Cutover needs them.",
+      "More risks are in the private sprint notes.",
+      "Editors cannot change or review the new catalog fields in the CMS this sprint (user decision). Drafted values stay unreviewed until a developer applies the data team's corrections with the task; a CMS screen is a follow-up."
+    ],
+    "decisions": [
+      "RATIFIED: The new site is Inertia + React 19 + TypeScript + Vite inside this Rails app, beside the existing pages. No separate front-end app.",
+      "RATIFIED: Work lands on `qul-next`; sprint branch off it; nothing pushed until a human says go; never commit on main.",
+      "RATIFIED: Sprint files, rule doc and code live in this repo; sensitive context lives in the private sprint notes.",
+      "RATIFIED: SSR is on, proven by a spike, with client rendering as the fallback.",
+      "RATIFIED: Alba serializers define shapes once; Typelizer generates types and routes; a check fails on stale output; query objects and serializers are reusable by the public API.",
+      "RATIFIED: Fewer, deeper stories.",
+      "DEFAULT KEPT: vite_rails; `app/frontend`; own layout; Tailwind 4 for the new tree only; kit inside the front-end tree; page group setting with old views kept; RSpec request specs, Vitest, Playwright; plain links between old and new pages; no edge caching goal.",
+      "RATIFIED: The page group setting is a deploy-time environment variable read by routing constraints, not a database flag or a per-user preview switch. Why: no new dependency, no request-time lookup, switch-back is a config change. Cost: a switch needs a restart, and there is no staff-only preview in production.",
+      "PLANNER DEFAULT (shown to the user at plan time): The SSR process runs as a runit service in the same image, on localhost, with a short timeout. Why: matches how the image already runs Sidekiq; one deployable. Cost: Node shares the container's memory and CPU with Passenger.",
+      "PLANNER DEFAULT (shown to the user at plan time): Generated TypeScript types and route helpers are committed, and the drift check regenerates and diffs. Why: the image build has no database. Cost: generated files appear in diffs.",
+      "PLANNER DEFAULT (shown to the user at plan time): Page data uses Inertia props only (deferred props and partial reloads for previews and filters). The spotlight is the single JSON endpoint, internal and unversioned. Why: one data path, no client cache layer. Cost: next sprint's API serves the same data through separate controllers.",
+      "PLANNER DEFAULT (shown to the user at plan time): alba-inertia is adopted only if 001-02 proves it; otherwise page prop types are written by hand from generated serializer types and guarded by `have_exact_props` specs.",
+      "PLANNER DEFAULT (shown to the user at plan time): The catalog taxonomy (type labels and descriptions, categories, format mapping, script families, status labels) lives in one server-side file and reaches the client as props, not as a TypeScript constant. Why: the API and the pages share it. Cost: copy edits are Ruby-side.",
+      "PLANNER DEFAULT (shown to the user at plan time): Catalog search is a SQL query object on the CMS database with Unicode-aware matching and no required Postgres extension, not an in-memory index and not a search service.",
+      "PLANNER DEFAULT (shown to the user at plan time): New catalog fields are plain columns on `downloadable_resources` (status, superseded-by, script_family, rendering, display_name, review column as JSON) and a relation type column on the link table; drafted links are recorded in the source resource's review column. Display names are stored, not computed per request.",
+      "PLANNER DEFAULT (shown to the user at plan time): Migrations in this sprint add no constraint a production row could violate before backfill; tightening constraints is a cutover step.",
+      "RATIFIED: No CMS form changes this sprint. Corrections and review marks go through a task; changing a drafted field outside a backfill counts as reviewing it. Why: keeps the CMS untouched for now. Cost: only a developer can apply corrections.",
+      "PLANNER DEFAULT (shown to the user at plan time): The new download URL has no file token and is built from the resource slug and the file; the old token URL keeps working under the same rules.",
+      "RATIFIED: Anonymous downloads are deduplicated by a random first-party cookie per file per day; the request's address is never used. Counts are kept in a separate anonymous counter so the signed-in recount cannot erase them. Why: the simplest privacy position. Cost: clients without cookies count on every request.",
+      "PLANNER DEFAULT (shown to the user at plan time): After sign-in for a download, the user returns to the resource page and the download starts there, instead of returning straight to the file URL.",
+      "PLANNER DEFAULT (shown to the user at plan time): Preview data is one deferred `preview` prop per detail page, keyed by page or surah in the query string, behind one server-side preview interface with a provider per kind.",
+      "PLANNER DEFAULT (shown to the user at plan time): Detail tabs are client-side with the tab in the query string; only the preview is deferred.",
+      "RATIFIED: Apps directory data is a file in this repo with icons, behind a serializer; submissions come through a GitHub issue form. Why: a small, slow-changing list with a public review trail and no schema. Cost: featuring an app needs a commit and a deploy.",
+      "PLANNER DEFAULT (shown to the user at plan time): The fake test-account script is a guarded development task in this repo that only runs against a clone and only creates `@example.test` accounts.",
+      "PLANNER DEFAULT (shown to the user at plan time): Browser tests live in this repo and run against Rails on a clone; they are not run in CI this sprint.",
+      "PLANNER DEFAULT (shown to the user at plan time): The new layout self-hosts interface fonts and loads no third-party font or icon host; Quran fonts still come from the public CDN.",
+      "PLANNER DEFAULT (shown to the user at plan time): Old id URLs and wrong-type URLs redirect permanently to the slug URL when the catalog group is on.",
+      "PLANNER DEFAULT (shown to the user at plan time): RuboCop is not part of the gate this sprint because its config does not load on main; ESLint, Prettier, tsc, RSpec, Vitest and the drift check are.",
+      "RATIFIED: The branch gets its own CI workflow for the database-free checks (001-06). Request specs and browser tests stay local this sprint."
+    ]
+  }
+}

@@ -61,9 +61,10 @@ Practical meaning:
 
 1. Download your selected translation package.
 2. Inspect what format you received:
-   - Plain string by ayah key
-   - Object with translation text + footnotes (`t`, `f`)
-   - Chunk array with mixed text/objects
+   - Simple / inline-footnote JSON: `{ "t": "text" }` by ayah key
+   - Footnote-tag JSON: `{ "t": "text with <sup foot_note=\"id\">1</sup>", "f": { "id": "note" } }`
+   - Chunks JSON: `{ "t": [ "text", { "type": "i", "text": "..." }, { "type": "f", "text": "1" } ], "f": { "1": "note" } }`
+   - SQLite: rows with `sura`, `ayah`, `ayah_key`, `text` (and `footnotes` for footnote formats)
 3. Normalize to one stable key format in app code (recommended: `surah:ayah`).
 4. Load Quran Script data for Arabic text.
 5. Join Arabic + translation rows by the same ayah key.
@@ -73,23 +74,39 @@ Practical meaning:
 Starter integration snippet (JavaScript):
 
 ```javascript
-// Convert source rows to one stable key like "73:4".
-const ayahKeyFromRow = (row) => row.ayah_key || `${row.surah}:${row.ayah}`;
+// JSON exports are already keyed by ayah key ("73:4") and can be used as the index.
+// SQLite rows (sura, ayah, ayah_key, text) need one stable key like "73:4".
+const ayahKeyFromRow = (row) => row.ayah_key || `${row.sura}:${row.ayah}`;
 
 // Build lookup map for fast joins with Arabic script rows.
 const buildTranslationIndex = (rows) =>
   rows.reduce((index, row) => {
-    index[ayahKeyFromRow(row)] = row.translation;
+    index[ayahKeyFromRow(row)] = row.text;
     return index;
   }, {});
 
 // Normalize the different translation payload shapes into one renderable object.
 const normalizeTranslationPayload = (payload) => {
-  // Simple plain-text translation.
+  // SQLite `text` column (simple format).
   if (typeof payload === "string") return { text: payload, notes: [] };
 
+  // Chunks format: { t: ["plain", {type: "i", text: "italic"}, {type: "f", text: "1"}], f: { "1": "note" } }
+  if (Array.isArray(payload?.t)) {
+    const textParts = [];
+    const notes = [];
+    payload.t.forEach((chunk) => {
+      if (typeof chunk === "string") textParts.push(chunk);
+      else if (chunk?.type === "f") {
+        textParts.push(`[${chunk.text}]`);
+        notes.push({ id: chunk.text, text: payload.f?.[chunk.text] || "" });
+      } else if (chunk?.text) textParts.push(chunk.text); // i, b, small
+    });
+    return { text: textParts.join(""), notes };
+  }
+
+  // Simple/inline-footnote format: { t: "..." }
   // Footnote-tag format: { t: "...<sup foot_note='x'>1</sup>...", f: { x: "note" } }
-  if (payload && typeof payload === "object" && payload.t) {
+  if (typeof payload?.t === "string") {
     const noteIds = [];
     const text = payload.t.replace(/<sup foot_note="([^"]+)">([^<]+)<\/sup>/g, (_, id, label) => {
       noteIds.push(id);
@@ -97,21 +114,6 @@ const normalizeTranslationPayload = (payload) => {
     });
     const notes = noteIds.map((id) => ({ id, text: payload.f?.[id] || "" }));
     return { text, notes };
-  }
-
-  // Text chunk format: ["plain", {type: "i", text: "italic"}, {type: "f", f: "12", text: "1"}]
-  if (Array.isArray(payload)) {
-    const textParts = [];
-    const notes = [];
-    payload.forEach((chunk) => {
-      if (typeof chunk === "string") textParts.push(chunk);
-      else if (chunk?.type === "i") textParts.push(chunk.text);
-      else if (chunk?.type === "f") {
-        textParts.push(`[${chunk.text}]`);
-        notes.push({ id: chunk.f, text: `Footnote ${chunk.f}` });
-      }
-    });
-    return { text: textParts.join(""), notes };
   }
 
   return { text: "", notes: [] };
@@ -157,15 +159,18 @@ const arabicByAyah = {
   "73:4": "أَوۡ زِدۡ عَلَيۡهِ وَرَتِّلِ ٱلۡقُرۡءَانَ تَرۡتِيلًا"
 };
 
+// Each value has the same shape as an entry in the matching JSON export.
 const translationByAyah = {
-  // 1) Simple text format.
-  "1:1": "In the name of Allah, the Most Compassionate, the Most Merciful.",
+  // 1) Simple format: { t }.
+  "1:1": { t: "In the name of Allah, the Most Compassionate, the Most Merciful." },
 
-  // 2) Text chunks format.
-  "1:2": [
-    { type: "i", text: "All praise" },
-    " is for Allah, Lord of all worlds."
-  ],
+  // 2) Chunks format: { t: [...chunks], f } (f is omitted when there are no footnotes).
+  "1:2": {
+    t: [
+      { type: "i", text: "All praise" },
+      " is for Allah, Lord of all worlds."
+    ]
+  },
 
   // 3) Footnote-tags format from Help concepts: { t, f }.
   "73:4": {
@@ -193,23 +198,23 @@ const parseTaggedTranslation = (payload) => {
 };
 
 // Convert chunks format into display text + footnotes.
-const parseChunksTranslation = (chunks) => {
+// Footnote chunks look like { type: "f", text: "1" }; the note text is in payload.f["1"].
+const parseChunksTranslation = (payload) => {
   const parts = [];
   const notes = [];
 
-  chunks.forEach((chunk) => {
+  payload.t.forEach((chunk) => {
     if (typeof chunk === "string") {
       parts.push(chunk);
       return;
     }
-    if (chunk?.type === "i") {
-      parts.push(chunk.text);
-      return;
-    }
     if (chunk?.type === "f") {
       parts.push(`[${chunk.text}]`);
-      notes.push({ id: chunk.f, text: `Footnote ${chunk.f}` });
+      notes.push({ id: chunk.text, text: payload.f?.[chunk.text] || "(missing footnote text)" });
+      return;
     }
+    // i, b and small chunks carry plain text.
+    if (chunk?.text) parts.push(chunk.text);
   });
 
   return { text: parts.join(""), notes };
@@ -217,9 +222,8 @@ const parseChunksTranslation = (chunks) => {
 
 // Normalize all format types to a single output shape for rendering.
 const normalizeTranslation = (payload) => {
-  if (typeof payload === "string") return { text: payload, notes: [] };
-  if (Array.isArray(payload)) return parseChunksTranslation(payload);
-  if (payload?.t && payload?.f) return parseTaggedTranslation(payload);
+  if (Array.isArray(payload?.t)) return parseChunksTranslation(payload);
+  if (typeof payload?.t === "string") return parseTaggedTranslation(payload);
   return { text: "", notes: [] };
 };
 

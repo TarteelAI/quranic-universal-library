@@ -24,6 +24,18 @@ bin/vite build --ssr                         # SSR bundle that request specs usi
 yarn test:browser                            # Playwright against real Rails (see Browser tests)
 ```
 
+What CI runs and what stays local:
+
+- `.github/workflows/qul-next.yml` runs on pushes to, and pull requests based on, `qul-next`,
+  `sprint/**` and `stack/**` (never `main`). It needs no database, `.env` or secret: install
+  (`--frozen-lockfile --ignore-scripts`), `yarn typecheck` (which also compiles the committed
+  generated types and routes), `yarn lint:frontend`, `yarn format:frontend`,
+  `yarn test:frontend`, `vite build` and `vite build --ssr`.
+- `.github/workflows/tests.yml` runs the standalone `test/` suite on every pull request.
+- Local only, because they need the snapshot: `bin/rails typelizer:check` (some serializers
+  read column types from the database), RSpec and `yarn test:browser`. Run `bin/gate` before
+  pushing.
+
 - `test/` is loaded without bundler or a database by CI (`.github/workflows/tests.yml`).
   Nothing that boots Rails goes under `test/`.
 - `spec/` boots Rails through `spec/clone_helper.rb` (`require 'clone_helper'`). It never loads,

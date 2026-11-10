@@ -309,8 +309,32 @@
       "testFirst": false,
       "difficulty": "low",
       "review": false,
-      "passes": false,
-      "notes": "Prescriptive: (1) One new file, for example `.github/workflows/qul-next.yml`; do not edit the four existing workflows (`tests.yml`, `deploy.yml`, `codeql.yml`, `issue-triage.yml`). `tests.yml` already runs on every pull request, so PRs to `qul-next` get the standalone tests from it; do not repeat them here. `deploy.yml` deploys on every push to `main`, which is why the new workflow must never target `main`. (2) Triggers: `push` and `pull_request` with `branches: [qul-next, 'sprint/**']`. (3) Set `permissions: contents: read`. (4) Use `.node-version` for Node and yarn classic with `--frozen-lockfile`; install devDependencies (do not set `NODE_ENV=production` for the install step). (5) If a step needs Ruby (the drift check or the Vite Ruby build), use `.ruby-version` (as `tests.yml` does) and bundler cache, and make sure the step does not connect to a database; if it must, leave that step out and say so. (6) The first real run happens when the branch is pushed; 001-20 confirms it is green. Pushing the sprint branch to see a run is allowed. (7) The repo is public: workflow logs are public too, so no step may print environment values."
+      "passes": true,
+      "notes": "Prescriptive: (1) One new file, for example `.github/workflows/qul-next.yml`; do not edit the four existing workflows (`tests.yml`, `deploy.yml`, `codeql.yml`, `issue-triage.yml`). `tests.yml` already runs on every pull request, so PRs to `qul-next` get the standalone tests from it; do not repeat them here. `deploy.yml` deploys on every push to `main`, which is why the new workflow must never target `main`. (2) Triggers: `push` and `pull_request` with `branches: [qul-next, 'sprint/**']`. (3) Set `permissions: contents: read`. (4) Use `.node-version` for Node and yarn classic with `--frozen-lockfile`; install devDependencies (do not set `NODE_ENV=production` for the install step). (5) If a step needs Ruby (the drift check or the Vite Ruby build), use `.ruby-version` (as `tests.yml` does) and bundler cache, and make sure the step does not connect to a database; if it must, leave that step out and say so. (6) The first real run happens when the branch is pushed; 001-20 confirms it is green. Pushing the sprint branch to see a run is allowed. (7) The repo is public: workflow logs are public too, so no step may print environment values.",
+      "completedAt": "2026-11-10T04:16:25Z",
+      "filesChanged": [
+        ".github/workflows/qul-next.yml",
+        "AGENTS.md"
+      ],
+      "handoff": {
+        "done": [
+          "New .github/workflows/qul-next.yml. Trigger block: on: push: branches: [qul-next, 'sprint/**', 'stack/**'] / pull_request: branches: [qul-next, 'sprint/**', 'stack/**'] (pull_request branches = PR base). Never main.",
+          "permissions: contents: read. uses: actions/checkout@v6, actions/setup-node@v7 (node-version-file .node-version, cache yarn), same major-tag pinning as tests.yml. No secrets, no env printed.",
+          "Steps: yarn install --frozen-lockfile --ignore-scripts; yarn -s typecheck; yarn -s lint:frontend; yarn -s format:frontend; yarn -s test:frontend; yarn -s vite build; yarn -s vite build --ssr. In a fresh git clone of the sprint branch (scratchpad, no .env, no DB) with Node 24.19.0 / yarn 1.22.17: all exit 0 (Vitest 11 passed; client and SSR builds emitted public/vite and public/vite-ssr).",
+          "Negative checks in that clone: a file with `export const x: number = \"s\"` → tsc TS2322, exit 2; TypePage.test.tsx toHaveLength(2→3) → 1 failed | 10 passed, exit 1. Both reverted, green again.",
+          "actionlint .github/workflows/qul-next.yml → exit 0, no output. git diff merge-base origin/main -- tests.yml deploy.yml codeql.yml issue-triage.yml → 0 lines.",
+          "AGENTS.md Quality gate: new \"What CI runs and what stays local\" list."
+        ],
+        "decisions": [
+          "Added stack/** to both triggers per driver addendum (stack layer PRs are based on stack/* branches); AC text names only qul-next and sprint/**.",
+          "No Ruby in the workflow: vite-plugin-ruby reads config/vite.json in Node, so both Vite builds run without bundler. The Typelizer drift check is left out because typelize_from serializers need a DB (001-02 spike g); instead tsc compiles the committed generated files.",
+          "--ignore-scripts: install scripts only fetch Cypress/Puppeteer binaries; every command passed without them."
+        ],
+        "concerns": [
+          "No real CI run yet. To produce one the driver must push a stack/001-NN branch (push trigger) or open/update a PR based on qul-next or a stack/** branch; 001-20 confirms green. The existing PR #1025 (base qul-next) gets checks once a commit containing this workflow is pushed to its head.",
+          "Actions pinned to major tags, not SHAs, matching tests.yml."
+        ]
+      }
     },
     {
       "id": "001-07",

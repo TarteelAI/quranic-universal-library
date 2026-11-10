@@ -72,7 +72,7 @@ const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
 const { RecommendedBadge, StatusBadge } = statusBadge
-const { ThemeToggle } = theme
+const { ThemeSwitch } = theme
 const { Badge } = badge
 const { Button } = button
 const { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } = card
@@ -235,7 +235,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'Syllables Transliteration',
   },
   RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
-  ThemeToggle: { element: <ThemeToggle />, text: 'theme' },
+  ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
   Spotlight: { element: <Spotlight />, text: 'Search resources' },
   FacetGroup: {
     element: (

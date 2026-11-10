@@ -55,8 +55,8 @@ test.describe('site header and footer', () => {
     await expect(header(page).getByRole('button', { name: 'Search resources' })).toBeVisible()
     await expect(header(page).getByRole('link', { name: 'Sign in' })).toBeVisible()
     await expect(header(page).getByRole('searchbox')).toHaveCount(0)
-    await expect(header(page).getByRole('button', { name: /theme/ })).toHaveCount(0)
-    await expect(page.getByRole('contentinfo').getByRole('button', { name: /theme/ })).toBeVisible()
+    await expect(header(page).getByRole('radiogroup', { name: 'Theme' })).toHaveCount(0)
+    await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toBeVisible()
 
     await main.getByRole('button', { name: 'Contribute' }).focus()
     await page.keyboard.press('Enter')
@@ -242,17 +242,43 @@ test.describe('theme', () => {
       true,
     )
 
-    await page.getByRole('contentinfo').getByRole('button', { name: 'Use the light theme' }).click()
+    await hydrated(page)
+    const theme = page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })
+    await theme.getByRole('radio', { name: 'Light theme' }).click()
     await expect(page.locator('html')).not.toHaveClass(/dark/)
     await page.reload()
     expect(await page.evaluate(() => (window as unknown as { darkBeforeHydration: boolean }).darkBeforeHydration)).toBe(
       false,
     )
     await expect(page.locator('html')).not.toHaveClass(/dark/)
+    await expect(theme.getByRole('radio', { name: 'Light theme' })).toHaveAttribute('aria-checked', 'true')
 
     await page.emulateMedia({ colorScheme: 'light' })
     await page.evaluate(() => localStorage.removeItem('qul-theme'))
     await page.reload()
+    await expect(page.locator('html')).not.toHaveClass(/dark/)
+  })
+
+  test('system follows the operating-system setting live and on reload, with no flash', async ({ page }) => {
+    await classBeforeHydration(page)
+    await page.emulateMedia({ colorScheme: 'light' })
+    await page.goto(PAGE)
+    await hydrated(page)
+    const theme = page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })
+    await theme.getByRole('radio', { name: 'Dark theme' }).click()
+    await expect(page.locator('html')).toHaveClass(/dark/)
+
+    await theme.getByRole('radio', { name: 'System theme' }).click()
+    await expect(page.locator('html')).not.toHaveClass(/dark/)
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await expect(page.locator('html')).toHaveClass(/dark/)
+
+    await page.reload()
+    expect(await page.evaluate(() => (window as unknown as { darkBeforeHydration: boolean }).darkBeforeHydration)).toBe(
+      true,
+    )
+    await expect(theme.getByRole('radio', { name: 'System theme' })).toHaveAttribute('aria-checked', 'true')
+    await page.emulateMedia({ colorScheme: 'light' })
     await expect(page.locator('html')).not.toHaveClass(/dark/)
   })
 })

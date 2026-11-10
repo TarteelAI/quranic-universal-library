@@ -16,7 +16,7 @@ import { GitHubMark } from './icons'
 import { MARK_SVG, WORDMARK_SVG } from './logo-paths'
 import { MegaMenu, MobileNav, NavAnchor } from './nav'
 import { Spotlight } from './spotlight'
-import { ThemeToggle } from './theme'
+import { ThemeSwitch } from './theme'
 
 /* ---------------- Logo ---------------- */
 
@@ -167,7 +167,7 @@ export interface SiteHeaderProps {
 /**
  * Global header of the new pages. Sticky, translucent over content. From lg up: the mega menu.
  * Below lg: a Menu button opens a sheet with the same sections and the account control. The
- * search button (and ⌘K / Ctrl K) opens the spotlight; the theme toggle is in the footer.
+ * search button (and ⌘K / Ctrl K) opens the spotlight; the theme switch is in the footer.
  */
 function SiteHeader({ className }: SiteHeaderProps) {
   const { url, props } = usePage()
@@ -260,16 +260,16 @@ function FooterColumn({ group }: { group: SiteNavGroup }) {
   )
 }
 
-/** Global footer: the mark, link columns and a bottom bar with the theme toggle. */
+/** Global footer: the logo lockup and tagline, link columns and a bottom bar with the theme switch. */
 function SiteFooter({ className }: { className?: string }) {
   const { nav } = usePage().props
   return (
     <footer className={cn('mt-16 border-t bg-surface', className)}>
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-10 px-4 py-12 sm:px-6 md:grid-cols-4 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
         <div className="col-span-2 flex flex-col gap-4 md:col-span-4 lg:col-span-1">
-          <Logo variant="mark" />
+          <Logo />
           <p className="max-w-xs text-sm text-muted-foreground">
-            Quranic Universal Library. Open, checked Quran data and tools, free for anyone who builds for the Quran.
+            Open, verified Quran data and tools. Free for anyone building for the Quran.
           </p>
         </div>
         {nav.footer.map((group) => (
@@ -277,9 +277,9 @@ function SiteFooter({ className }: { className?: string }) {
         ))}
       </div>
       <div className="border-t">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 text-xs text-muted-foreground sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
           <span>Quranic Universal Library, by Tarteel and contributors.</span>
-          <ThemeToggle />
+          <ThemeSwitch />
         </div>
       </div>
     </footer>

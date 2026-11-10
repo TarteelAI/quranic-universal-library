@@ -104,7 +104,7 @@ function HeroStar() {
       href={REPO_URL}
       target="_blank"
       rel="noreferrer"
-      className="hidden h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-white/80 transition-colors outline-none hover:bg-white/5 hover:text-white focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:inline-flex"
+      className="inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-white/80 transition-colors outline-none hover:bg-white/5 hover:text-white focus-visible:ring-[3px] focus-visible:ring-ring/50"
     >
       <GitHubMark />
       Star on GitHub

@@ -72,6 +72,10 @@ test.describe('type pages', () => {
 
   test('a card opens its detail page with an in-app visit, not a full page load', async ({ page }) => {
     await page.goto('/resources/mushaf-layout')
+    // React must have taken over the server-rendered page, or the click is a plain link.
+    await page.waitForFunction(() =>
+      Object.keys(document.getElementById('app') ?? {}).some((key) => key.startsWith('__reactContainer')),
+    )
     // A full page load would reset this marker; an Inertia visit keeps the same document.
     await page.evaluate(() => Object.assign(window, { sameDocument: true }))
 

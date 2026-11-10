@@ -2,5 +2,6 @@ docs_root: app/views/docs/markdown              # public product docs served at 
 rule_docs:
   - AGENTS.md                                   # local run on the snapshot, test harness, gate
   - .github/copilot-instructions.md
-checkpoint_cmd: "bin/gate"                      # standalone tests + RSpec on fresh test clones
-package_test_cmd: "bundle exec rspec {files}"   # spec/ files; test/ files run with: ruby -Itest {files}
+checkpoint_cmd: "bin/gate"                      # standalone tests, drift check, tsc, lint, RSpec, Vitest
+package_test_cmd: "bundle exec rspec {files}"   # spec/ files; test/: ruby -Itest {files}; app/frontend: yarn vitest run {files}
+package_typecheck_cmd: "yarn -s typecheck"      # tsc on app/frontend

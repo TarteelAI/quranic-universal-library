@@ -145,3 +145,9 @@ Checked with `git diff 30bec50e 3d805f64` and against the snapshot.
 - Rails needs a JavaScript runtime (ExecJS) to boot, even for rake tasks.
 - `escompress` shells out to `node_modules/esbuild` while rendering inline scripts; when esbuild cannot run (host `node_modules` inside a Linux container) it logs an error and the page still renders.
 - `Gemfile.lock` lists no Linux platform. In a Linux container, install platform gems such as `tailwindcss-rails` there only; never add a platform to the lockfile (it would break parity with the qiraat stack).
+
+### Yarn resolutions and new npm packages — 001-02
+
+- The `resolutions` in `package.json` apply to every copy of a package, so new packages get the pinned major (Vite and Vitest run on picomatch 2, typescript-eslint on minimatch 3). Path-scoped resolutions (`**/vite/picomatch`) crash yarn 1.22 with "should have a resolved reference" when two of them name the same package. Check `yarn.lock` after `yarn add`, and test the new tool instead of assuming its declared range.
+- Adding packages can move a shared dependency's hoisting (tslib moved under `@swc/helpers`). esbuild then writes a different path comment into `application.js`, so its checksum changes while the code does not. Compare old bundles by content without path comments, not by checksum.
+- `eslint-plugin-ssr-friendly` 1.3 fails on ESLint 9 (`context.getScope is not a function`). SSR safety is checked by the `*.ssr.test.tsx` render tests instead.

@@ -1,0 +1,8 @@
+{
+  "overrides": [
+    {
+      "files": ["app/frontend/**/*", "*.mts", "eslint.config.mjs"],
+      "options": { "semi": false, "singleQuote": true, "printWidth": 120, "trailingComma": "all" }
+    }
+  ]
+}

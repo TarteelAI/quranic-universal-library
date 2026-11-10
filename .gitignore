@@ -174,3 +174,9 @@ scripts/exported_data
 
 # Cypress local secrets (testmail.app credentials etc.)
 cypress.env.json
+
+# Vite (app/frontend) build output
+/public/vite
+/public/vite-dev
+/public/vite-test
+/public/vite-ssr

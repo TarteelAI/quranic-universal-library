@@ -8,6 +8,7 @@ require 'dotenv'
 Dotenv.load(File.expand_path('../.env.test.local', __dir__))
 require_relative '../config/environment'
 require 'rspec/rails'
+require 'inertia_rails/rspec'
 
 RSpec.configure do |config|
   config.before(:suite) do

@@ -7,7 +7,8 @@ the app on a local copy of the production snapshot, the test harness, and the qu
 ## Quality gate
 
 ```bash
-bin/gate                 # standalone tests (test/) + RSpec (spec/); needs fresh test clones
+bin/gate                 # standalone tests, generated-types drift check, tsc, ESLint + Prettier,
+                         # RSpec and Vitest; needs fresh test clones and the development clones
 ```
 
 Narrow checks while working:
@@ -15,6 +16,10 @@ Narrow checks while working:
 ```bash
 ruby -Itest test/path/to/file_test.rb        # standalone tests: no bundler, no database
 bundle exec rspec spec/path/to/file_spec.rb  # specs: Rails on the test clones
+bin/rails typelizer:check                    # generated TypeScript is current (development env)
+yarn typecheck                               # tsc on app/frontend
+yarn lint:frontend && yarn format:frontend   # ESLint and Prettier on app/frontend
+yarn test:frontend                           # Vitest (component and SSR render tests)
 ```
 
 - `test/` is loaded without bundler or a database by CI (`.github/workflows/tests.yml`).
@@ -92,6 +97,69 @@ Install the platform gem inside the container only
 run its `exe/aarch64-linux/tailwindcss -i app/assets/stylesheets/application.tailwind.css
 -o app/assets/builds/tailwind.css -c config/tailwind.config.js --minify`. Do not add platforms
 to the lockfile.
+
+## Inertia pages (app/frontend)
+
+New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `config/vite.json`,
+`vite.config.mts`) beside the old Sprockets, esbuild and Tailwind 3 pipeline, which is unchanged.
+
+- Controllers inherit `InertiaController` (layout `inertia`, no Turbo). Pages live in
+  `app/frontend/pages/<name>.tsx` and are rendered with `render_inertia '<name>'` (alba-inertia)
+  or `render inertia:`. Props come from Alba serializers in `app/serializers`
+  (`ApplicationResource`, camelCase keys); declare each attribute's type with `typelize` so the
+  generated type is not `unknown`. Shared props come from `SharedPropsResource`.
+- Generated files are committed: prop types in `app/frontend/types/serializers` and typed route
+  helpers in `app/frontend/routes` (only the routes `config/initializers/typelizer.rb`
+  includes). Regenerate with `bin/rails typelizer:generate` in development;
+  `bin/rails typelizer:check` fails when they are stale. A serializer that uses
+  `typelize_from <Model>` needs the database to generate; explicit `typelize` types and route
+  helpers do not.
+- Tailwind 4 classes are detected in `app/frontend` only. Do not put Tailwind classes in
+  `app/views/layouts/inertia.html.erb`: Tailwind 3 scans `app/views`.
+- The Vite configs are `.mts` because `package.json` is CommonJS (`esbuild.config.js`).
+- `bin/dev` runs `bin/vite dev` beside the old processes. In development, SSR is rendered by the
+  Vite dev server (`@inertiajs/vite`, endpoint `/__inertia_ssr`); without it the page renders in
+  the browser. The development-only sample page is `/__dev/inertia_sample`.
+- Every new page gets an SSR render test (`*.ssr.test.tsx`, node environment, helper
+  `renderPageOnServer` in `app/frontend/test/inertia.tsx`): it fails when the page reads
+  `window`, `document` or other browser globals during render.
+
+Integration answers (sprint 001, story 001-02):
+
+- Links between old and new pages are plain `<a>` links. The Inertia layout sets
+  `turbo-visit-control: reload`, so a Turbo Drive visit from an old page loads the new page in
+  full.
+- Sign-in from a new page: link to `/users/sign_in?user_return_to=<path>`; Devise returns there.
+  Sign-out: a plain form post (`_method=delete` plus the `csrf-token` meta value), not an
+  Inertia visit, because Devise redirects to an old page.
+- CSRF: Inertia requests send the `XSRF-TOKEN` cookie back as `X-XSRF-TOKEN`; with
+  `xsrf_cookie_refresh: :lazy` the cookie is only rewritten when missing or invalid. inertia_rails
+  sets that cookie on old HTML pages too.
+- Meta tags: pass `meta:` to the render (title, description, canonical, Open Graph, JSON-LD
+  script). They are in the HTML with and without SSR.
+- Redirects: redirect with `*_path`. A path redirect stays on the request's own origin. A
+  `*_url` helper uses `default_url_options` (`https`, `config/initializers/hosts.rb`), so an
+  Inertia request that reached Rails as `http` gets a 409 full-page visit instead.
+- JSON requests that are not page visits (the spotlight): `useHttp` from `@inertiajs/react`. It
+  sends the XSRF header and does not change the URL.
+- `yarn.lock` resolutions in `package.json` pin all copies of `picomatch` (2.x), `minimatch`
+  (3.x) and `postcss`, including the copies Vite, Vitest and typescript-eslint ask for.
+  Path-scoped resolutions crash yarn 1.22, so they are not used. The new tools work with those
+  versions; typed linting with `allowDefaultProject` would not (it needs minimatch 10).
+
+### Vite when Rails runs in Docker
+
+`node_modules` holds macOS binaries, so Vite runs on the host and Rails in the container:
+
+```bash
+RAILS_ENV=development node_modules/.bin/vite          # host: dev server on localhost:3036
+docker exec -d qul-dev socat TCP-LISTEN:3036,fork,reuseaddr,bind=127.0.0.1 TCP:host.docker.internal:3036
+RAILS_ENV=test node_modules/.bin/vite build           # host: public/vite-test for request specs
+docker exec -e VITE_RUBY_AUTO_BUILD=false qul-dev bundle exec rspec
+```
+
+Install `socat` in the container (`apt-get install -y socat`). The forward lets Rails reach the
+dev server as `localhost:3036`, which Vite's host check accepts.
 
 ## Data safety
 

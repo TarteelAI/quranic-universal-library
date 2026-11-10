@@ -352,5 +352,13 @@ Rails.application.routes.draw do
   get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
   get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
 
+  if Rails.env.local?
+    namespace :dev, path: '__dev' do
+      resource :inertia_sample, only: [:show, :create] do
+        get :ping
+      end
+    end
+  end
+
   match '/404', to: 'application#not_found', via: :all
 end

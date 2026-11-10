@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%# Turbo Drive from an old page must not swap this page in: it loads with a full page visit. %>
+    <meta name="turbo-visit-control" content="reload">
+    <%= csrf_meta_tags %>
+    <%= inertia_meta_tags default_title: 'Quranic Universal Library' %>
+    <%= inertia_ssr_head %>
+    <%= vite_react_refresh_tag %>
+    <%= vite_client_tag %>
+    <%= vite_typescript_tag 'inertia.tsx' %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

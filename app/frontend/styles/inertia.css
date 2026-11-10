@@ -1,0 +1,3 @@
+/* Tailwind 4 for the Inertia pages. Class detection is limited to app/frontend, so the old
+   pages' Tailwind 3 build (config/tailwind.config.js) and this one never see each other. */
+@import 'tailwindcss' source('../');

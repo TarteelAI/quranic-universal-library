@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_10_100100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,6 +232,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.integer "related_resource_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "relation_type", default: "pairs_with", null: false
+    t.check_constraint "relation_type::text = ANY (ARRAY['requires'::character varying, 'pairs_with'::character varying, 'alternative'::character varying, 'supersedes'::character varying]::text[])", name: "downloadable_related_resources_relation_type"
   end
 
   create_table "downloadable_resource_taggings", force: :cascade do |t|
@@ -270,7 +272,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.jsonb "meta_data", default: {}
     t.string "slug"
     t.string "short_summary"
+    t.string "status", default: "stable", null: false
+    t.bigint "superseded_by_id"
+    t.boolean "recommended", default: false, null: false
+    t.string "script_family"
+    t.string "rendering"
+    t.string "display_name"
+    t.jsonb "review", default: {}, null: false
     t.index ["slug"], name: "index_downloadable_resources_on_slug", unique: true
+    t.index ["superseded_by_id"], name: "index_downloadable_resources_on_superseded_by_id"
+    t.check_constraint "rendering::text = ANY (ARRAY['unicode_font'::character varying, 'glyph_page'::character varying, 'image'::character varying, 'svg'::character varying]::text[])", name: "downloadable_resources_rendering"
+    t.check_constraint "script_family::text = ANY (ARRAY['madani'::character varying, 'indopak'::character varying, 'other'::character varying]::text[])", name: "downloadable_resources_script_family"
+    t.check_constraint "status::text = ANY (ARRAY['stable'::character varying, 'beta'::character varying, 'legacy'::character varying, 'superseded'::character varying]::text[])", name: "downloadable_resources_status"
   end
 
   create_table "draft_ayah_themes", force: :cascade do |t|
@@ -1049,6 +1062,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "downloadable_files", "downloadable_resources"
+  add_foreign_key "downloadable_resources", "downloadable_resources", column: "superseded_by_id", on_delete: :nullify
   add_foreign_key "user_downloads", "downloadable_files"
   add_foreign_key "user_downloads", "users"
 end

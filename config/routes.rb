@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
+  # The new home page while the `home` page group is on (PageGroups); the old landing page otherwise.
+  constraints(PageGroups.constraint(:home)) do
+    root to: 'site/home#show', as: :home_page
+  end
   root to: 'landing#home'
 
   get '/search', to: 'search#index', as: :search
@@ -150,6 +154,9 @@ Rails.application.routes.draw do
     get '/resources/:type/:slug', to: 'catalog/resources#show', as: :catalog_resource, format: false
     get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
                                        constraints: { tab: /docs|licence|ligatures|glyphs/ }
+  end
+  constraints(PageGroups.constraint(:apps)) do
+    get '/apps', to: 'site/apps#index', as: :apps_directory, format: false
   end
   # The spotlight's search results (JSON), for every new page whatever the groups.
   get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false

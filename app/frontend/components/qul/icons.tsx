@@ -248,4 +248,9 @@ function GitHubMark({ className }: { className?: string }) {
   )
 }
 
-export { QulIcon, ResourceIcon, GitHubMark }
+/** The pale category square of a tile, for other tiles in the category colour. */
+function categoryTile(category: Category) {
+  return CAT_TILE[category]
+}
+
+export { QulIcon, ResourceIcon, GitHubMark, categoryTile }

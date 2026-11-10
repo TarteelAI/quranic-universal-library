@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 
 import * as layout from '@/components/layout'
+import * as appIcon from '@/components/qul/app-icon'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
 import * as downloadPanel from '@/components/qul/download-panel'
@@ -9,6 +10,7 @@ import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
 import * as pageHeader from '@/components/qul/page-header'
 import * as resourceCard from '@/components/qul/resource-card'
+import * as shardRing from '@/components/qul/shard-ring'
 import * as spotlight from '@/components/qul/spotlight'
 import * as statusBadge from '@/components/qul/status-badge'
 import * as theme from '@/components/qul/theme'
@@ -22,10 +24,12 @@ import * as overlays from '@/components/ui/overlays'
 import * as tabs from '@/components/ui/tabs'
 
 import { resourcePageProps } from './catalog'
+import { homePageProps } from './site'
 import { nav as navProps } from './shell'
 
 const modules = {
   layout,
+  appIcon,
   catalog,
   chrome,
   downloadPanel,
@@ -34,6 +38,7 @@ const modules = {
   nav,
   pageHeader,
   resourceCard,
+  shardRing,
   spotlight,
   statusBadge,
   theme,
@@ -55,6 +60,8 @@ export const componentNames = Object.values(modules)
   .sort()
 
 const { Container, SiteShell } = layout
+const { AppIcon } = appIcon
+const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
 const { DownloadPanel, WorksWith } = downloadPanel
@@ -201,6 +208,8 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: '5.1 MB',
   },
   WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
+  AppIcon: { element: <AppIcon app={homePageProps.showcase[3]} />, text: 'QV' },
+  ShardRing: { element: <ShardRing className="h-64" />, text: 'data-motion' },
   GitHubMark: { element: <GitHubMark />, text: '<svg' },
   QulIcon: { element: <QulIcon name="bundle" />, text: '<svg' },
   ResourceIcon: { element: <ResourceIcon category="audio" />, text: 'text-cat-audio' },

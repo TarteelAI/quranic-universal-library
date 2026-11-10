@@ -6,6 +6,7 @@ function link(label: string, href: string, options: Partial<SiteNavLink> = {}): 
 
 // The site navigation, shaped like SiteNavResource: one new-page menu and one old-page menu.
 export const nav: SiteNav = {
+  home: link('Home', '/'),
   menus: [
     {
       label: 'Resources',

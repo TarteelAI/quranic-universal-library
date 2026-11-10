@@ -20,11 +20,13 @@ class SiteNav
   REQUEST_URL = "#{REPO_URL}/issues/new?template=resource_request.yml".freeze
   DISCORD_URL = 'https://t.zip/discord?utm_source=qul%20header&utm_campaign=qul'
 
-  attr_reader :menus, :footer, :search, :request
+  attr_reader :home, :menus, :footer, :search, :request
 
   # `tools` are the contributor tools (ToolsHelper#developer_tools): anything with a title and a url.
   def initialize(tools:)
     @catalog = PageGroups.enabled?(:catalog)
+    @apps = PageGroups.enabled?(:apps)
+    @home = Link.new(label: 'Home', href: '/', inertia: PageGroups.enabled?(:home))
     @tools = tools
     @request = Link.new(label: 'Request a resource', href: REQUEST_URL, external: true,
                         description: 'Ask for a translation, tafsir or recitation that is missing.')
@@ -53,6 +55,11 @@ class SiteNav
 
   def github_link
     Link.new(label: 'GitHub', href: REPO_URL, external: true)
+  end
+
+  # The apps directory has no old page, so there is no link to it while its group is off.
+  def apps_links
+    @apps ? [Link.new(label: 'Apps built with QUL', href: '/apps', inertia: true)] : []
   end
 
   def resources_menu
@@ -107,7 +114,8 @@ class SiteNav
       Link.new(label: 'FAQ', href: routes.faq_path),
       Link.new(label: 'Credits', href: routes.credits_path),
       Link.new(label: 'Discord', href: DISCORD_URL, external: true),
-      github_link
+      github_link,
+      *apps_links
     ]
 
     Menu.new(
@@ -134,6 +142,7 @@ class SiteNav
       Link.new(label: 'Credits', href: routes.credits_path)
     ]
     community = [
+      *apps_links,
       github_link,
       Link.new(label: 'Discord', href: DISCORD_URL, external: true),
       Link.new(label: 'Tarteel', href: 'https://tarteel.ai', external: true)

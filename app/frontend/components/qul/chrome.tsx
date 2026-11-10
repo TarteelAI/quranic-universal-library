@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/misc'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/overlays'
 import { fillAuthenticityToken } from '@/lib/csrf'
+import { REPO_URL } from '@/lib/github'
 import { cn } from '@/lib/utils'
-import { destroyUserSession, newUserSession, root } from '@/routes'
+import { destroyUserSession, newUserSession } from '@/routes'
 import type { AuthUser, SiteNavGroup } from '@/types/serializers'
 
 import { GitHubMark } from './icons'
@@ -16,8 +17,6 @@ import { MARK_SVG, WORDMARK_SVG } from './logo-paths'
 import { MegaMenu, MobileNav, NavAnchor } from './nav'
 import { Spotlight } from './spotlight'
 import { ThemeToggle } from './theme'
-
-const REPO_URL = 'https://github.com/TarteelAI/quranic-universal-library'
 
 /* ---------------- Logo ---------------- */
 
@@ -180,9 +179,9 @@ function SiteHeader({ className }: SiteHeaderProps) {
   return (
     <header className={cn('sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md', className)}>
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 2xl:gap-6">
-        <a href={root().url} className="shrink-0 rounded-md text-foreground" aria-label="QUL home">
+        <NavAnchor link={nav.home} className="shrink-0 rounded-md text-foreground" aria-label="QUL home">
           <Logo variant="mark" />
-        </a>
+        </NavAnchor>
         <MegaMenu menus={nav.menus} url={url} className="hidden lg:flex" />
         <div className="ms-auto flex items-center gap-1.5">
           <Spotlight />
@@ -209,9 +208,9 @@ function SiteHeader({ className }: SiteHeaderProps) {
             <DialogContent side="right" aria-describedby={undefined} className="max-w-none gap-0 p-0 sm:max-w-sm">
               <DialogTitle className="sr-only">Menu</DialogTitle>
               <div className="flex h-16 shrink-0 items-center px-5">
-                <a href={root().url} className="text-foreground" aria-label="QUL home">
+                <NavAnchor link={nav.home} className="text-foreground" aria-label="QUL home">
                   <Logo variant="mark" />
-                </a>
+                </NavAnchor>
               </div>
               <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 pb-6">
                 <MobileNav menus={nav.menus} url={url} onNavigate={closeMenu} />

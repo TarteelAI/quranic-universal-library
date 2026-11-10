@@ -145,7 +145,11 @@ comma-separated list of the groups the new pages serve: `home`, `catalog` (`/res
 below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means every URL is
 served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
-rest of the group stays on the old views.
+rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
+landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
+page: off, it is a 404 and no new page links to it. Its entries are `config/apps.yml` (read through
+`AppDirectory`, icons in `public/app-icons`); the "Submit your app" links open the
+`app_submission.yml` issue form.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

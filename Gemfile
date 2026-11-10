@@ -159,3 +159,7 @@ gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
 gem "view_component", "~> 4.9"
+
+group :test do
+  gem 'rspec-rails', '~> 7.1'
+end

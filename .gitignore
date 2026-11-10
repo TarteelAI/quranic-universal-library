@@ -82,6 +82,7 @@ test/fixtures
 # Ignore environment variables
 /.env
 /.env.development.local
+/.env.test.local
 
 #---------------------------------------#
 # IDEs & Editors Ignores                #

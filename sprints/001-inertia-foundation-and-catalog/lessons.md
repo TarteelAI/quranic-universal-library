@@ -128,3 +128,20 @@ _Append new entries at the END. Heading: `### <short topic> — <STORY_ID>`. Nev
 ### Pushing and PRs are allowed — ralph-init
 
 The repo's Ralph constitution (`.agents/ralph/constitution.md`) now exists and replaces the interim protected-surface list above. Builders may push `qul-next` and sprint branches and open draft PRs. Never push or commit to `main`. Merging to `main`, the production database, and production config and credentials stay human-only. The "Never push, open a PR or run `gh` write commands" line in the planning notes above no longer applies.
+
+### Planning facts re-checked at 3d805f64 — 001-01
+
+Checked with `git diff 30bec50e 3d805f64` and against the snapshot.
+
+- `config/routes.rb`: the old resource route table is unchanged (`/resources/:id` is the type page, `/resources/:type/:id` the detail page, the four-tab route, `/search` is Quran text search). New since planning: the proofreading routes were renamed and joined by contributor routes, so the helpers `translations_path`, `tafsirs_path`, `transliterations_path`, `topics_path`, `themes_path` (`/ayah_themes`), `arabic_roots_path` (`/roots`), `stems_path`, `lemmas_path`, `word_roots_path`, `similar_ayahs_path` and `word_texts_path` are taken. Name new catalog routes so they do not collide. The qiraat stack's proofreading-route edits no longer match main.
+- `db/schema.rb`: version `2026_11_02_160000`, with seven new `draft_*` tables. The snapshot stops at `2026_10_23_140000`, so it lacks those seven migrations. Development raises `PendingMigrationError` on every page (`migration_error = :page_load`) unless the database has them; `bin/snapshot-clones` applies them to the clones without touching the snapshot or dumping the schema. Extensions are still only `plpgsql`.
+- `bin/setup`: only a comment changed. It still runs `db:create:all` and `db:prepare`; never run it against the snapshot.
+- SQLite exports: each export now drops and recreates its table inside the `.db` file instead of `CREATE TABLE IF NOT EXISTS`. No planning fact depended on this.
+
+### Test-env and boot traps — 001-01
+
+- `config/initializers/hosts.rb` adds hosts in every environment, so test is no longer allow-all: request specs need `host! 'localhost'` (`spec/clone_helper.rb` does it for `type: :request`).
+- `require 'dotenv'` before Rails is loaded skips dotenv's railtie, so `.env` is not loaded in development either. Scripts that require it early call `Dotenv.load` themselves.
+- Rails needs a JavaScript runtime (ExecJS) to boot, even for rake tasks.
+- `escompress` shells out to `node_modules/esbuild` while rendering inline scripts; when esbuild cannot run (host `node_modules` inside a Linux container) it logs an error and the page still renders.
+- `Gemfile.lock` lists no Linux platform. In a Linux container, install platform gems such as `tailwindcss-rails` there only; never add a platform to the lockfile (it would break parity with the qiraat stack).

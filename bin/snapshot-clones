@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+# Remakes the two databases of one Rails environment as fresh copies of the local
+# production snapshot, marks them as clones, and applies the CMS migrations the snapshot
+# does not have yet. The snapshot itself is only ever read, as a template.
+#
+#   bin/snapshot-clones              # test databases (connection from .env.test.local)
+#   bin/snapshot-clones development  # development databases (connection from .env)
+#
+# Snapshot names: QUL_SNAPSHOT_CMS_DB_NAME (default qul_cms) and
+# QUL_SNAPSHOT_QURAN_DB_NAME (default qul_quran), on the same server as the targets.
+# A copy fails while any other session is connected to the snapshot.
+
+target_env = ARGV.fetch(0, 'test')
+abort 'usage: bin/snapshot-clones [test|development]' unless %w[test development].include?(target_env)
+
+ENV['RAILS_ENV'] = target_env
+require_relative '../config/boot'
+require 'dotenv'
+# Loaded here because requiring dotenv before Rails skips its railtie, which loads .env in development.
+Dotenv.load(File.expand_path(target_env == 'test' ? '../.env.test.local' : '../.env', __dir__))
+require_relative '../config/environment'
+
+snapshots = {
+  ApplicationRecord => ENV.fetch('QUL_SNAPSHOT_CMS_DB_NAME', 'qul_cms'),
+  QulQuranRecord => ENV.fetch('QUL_SNAPSHOT_QURAN_DB_NAME', 'qul_quran')
+}
+
+clones = snapshots.map do |model, source|
+  config = model.connection_db_config.configuration_hash
+  target = config.fetch(:database)
+  abort "Refusing: #{target} is a snapshot database name." if snapshots.value?(target)
+
+  [config, source, target]
+end
+
+ActiveRecord::Base.connection_handler.clear_all_connections!(:all)
+
+clones.each do |config, source, target|
+  server = PG.connect(
+    host: config[:host], port: config[:port], user: config[:username],
+    password: config[:password], dbname: 'postgres', options: '-c client_min_messages=warning'
+  )
+  quoted_target = server.quote_ident(target)
+  server.exec("DROP DATABASE IF EXISTS #{quoted_target} WITH (FORCE)")
+  server.exec("CREATE DATABASE #{quoted_target} TEMPLATE #{server.quote_ident(source)}")
+  server.exec("COMMENT ON DATABASE #{quoted_target} IS #{server.escape_literal(SnapshotClone.comment_for(source))}")
+  server.close
+  puts "#{target}: fresh copy of #{source}"
+end
+
+# Runs the migrations without the schema dump that db:migrate does, so db/schema.rb stays as committed.
+context = ApplicationRecord.connection_pool.migration_context
+pending = context.migrations.map(&:version) - context.get_all_versions
+context.migrate
+puts "#{ApplicationRecord.connection.current_database}: applied #{pending.size} pending CMS migrations"

@@ -19,15 +19,16 @@ tags keep working until a sprint scopes their replacement.
 PR CI is the full gate. Locally, builders stay narrow:
 
 ```bash
-ruby -Itest {files}         # standalone tests the story touches (no bundler, no database)
+ruby -Itest {files}               # standalone tests the story touches (no bundler, no database)
+bundle exec rspec {files}         # specs the story touches, on the test clones
 ```
 
 - CI (`.github/workflows/tests.yml`) loads every `test/**/*_test.rb` without bundler or a
   database. Nothing that boots Rails or touches a database may go under `test/`.
-- `checkpoint_cmd` is the CI command for now. Sprint 001 (story 001-01) defines the full gate
-  (generated-types drift check, `tsc`, ESLint and Prettier, RSpec, Vitest, with Playwright as a
-  separate command) and records it in `AGENTS.md` and `.agents/config.yaml`. When it lands,
-  update the commands here and in the config.
+- `checkpoint_cmd` is `bin/gate`: the standalone tests, then RSpec on fresh test clones
+  (`bin/snapshot-clones`). Specs `require 'clone_helper'`. Stories 001-02 and 001-05 extend
+  `bin/gate` (generated-types drift check, `tsc`, ESLint and Prettier, Vitest; Playwright stays
+  a separate command). `AGENTS.md` holds the local run recipe.
 - Lint and format: `lint-staged` is configured in `package.json` (Prettier, ESLint, RuboCop,
   erblint), but no pre-commit hook is installed. Run the matching linter on the files you change.
 - Long repo-wide runs can be offloaded with `rt run`. Don't run two repo-wide runs at once.

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# The local quality gate. Needs fresh test clones (bin/snapshot-clones).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+echo "== Standalone tests (test/, no bundler, no database)"
+ruby -Itest -e 'Dir["test/**/*_test.rb"].sort.each { |f| require File.expand_path(f) }'
+
+echo "== RSpec (spec/, on the test clones)"
+bundle exec rspec

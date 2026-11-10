@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react'
 
-import { Container, SiteFrame } from '@/components/layout'
+import { Container, SiteShell } from '@/components/layout'
 import { PageHeader } from '@/components/qul/page-header'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { catalogType, detailResources } from '@/routes'
@@ -21,7 +21,7 @@ export default function CatalogPage({ results, total, vocabularies }: CatalogRes
     ].filter((fact): fact is string => Boolean(fact))
 
   return (
-    <SiteFrame>
+    <SiteShell>
       <Container className="pt-10 pb-2 sm:pt-12">
         <PageHeader title="Resources" count={total} />
       </Container>
@@ -64,6 +64,6 @@ export default function CatalogPage({ results, total, vocabularies }: CatalogRes
           </ul>
         </nav>
       </Container>
-    </SiteFrame>
+    </SiteShell>
   )
 }

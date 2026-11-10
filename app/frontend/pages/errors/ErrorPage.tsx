@@ -1,11 +1,11 @@
-import { Container, SiteFrame } from '@/components/layout'
+import { Container, SiteShell } from '@/components/layout'
 import { resources, root } from '@/routes'
 import type { ErrorPage as ErrorPageProps } from '@/types/serializers'
 
 // Rendered by InertiaController for a page that does not exist (status 404).
 export default function ErrorPage({ status }: ErrorPageProps) {
   return (
-    <SiteFrame>
+    <SiteShell>
       <Container className="flex flex-col gap-4 py-20">
         <p className="font-mono text-sm text-muted-foreground">{`Error ${status}`}</p>
         <h1 className="headline text-3xl sm:text-4xl">Page not found</h1>
@@ -21,6 +21,6 @@ export default function ErrorPage({ status }: ErrorPageProps) {
           </a>
         </p>
       </Container>
-    </SiteFrame>
+    </SiteShell>
   )
 }

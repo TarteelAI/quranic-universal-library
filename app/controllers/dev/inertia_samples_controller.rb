@@ -15,7 +15,7 @@ module Dev
     end
 
     def ping
-      render json: SharedPropsResource.new({ signed_in: user_signed_in? }).serializable_hash
+      render json: { signedIn: user_signed_in? }
     end
 
     private

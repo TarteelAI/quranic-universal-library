@@ -7,11 +7,15 @@ class InertiaController < ApplicationController
 
   layout 'inertia'
 
-  inertia_share { SharedPropsResource.new({ signed_in: user_signed_in? }).serializable_hash }
+  inertia_share { SharedPropsResource.new(shared_props).to_inertia }
 
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
 
   private
+
+  def shared_props
+    { auth: { user: current_user }, nav: SiteNav.new(tools: helpers.developer_tools) }
+  end
 
   def page_meta(**options)
     PageMeta.new(path: request.path, **options).tags

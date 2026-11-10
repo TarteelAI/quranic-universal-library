@@ -24,7 +24,7 @@ RSpec.describe 'Inertia sample page (development only)', type: :request do
     it 'renders the component with its props and shared props' do
       expect(response).to have_http_status(:ok)
       expect(inertia).to render_component('dev/InertiaSample')
-      expect(inertia).to have_props(heading: 'Inertia sample page', signedIn: false)
+      expect(inertia).to have_props(heading: 'Inertia sample page', auth: { user: nil })
       expect(inertia).to have_deferred_props(:publishedResourceCount)
     end
 
@@ -98,7 +98,7 @@ RSpec.describe 'Inertia sample page (development only)', type: :request do
 
       expect(response).to redirect_to(sample_path)
       follow_redirect!
-      expect(inertia).to have_props(signedIn: true)
+      expect(inertia).to have_props(auth: { user: { initials: 'SR', name: 'Spec' } })
     end
 
     it 'signs out with the plain form post the page renders, and lands on the old home page' do
@@ -111,7 +111,7 @@ RSpec.describe 'Inertia sample page (development only)', type: :request do
       follow_redirect!
       expect(response).to have_http_status(:ok)
       get sample_path
-      expect(inertia).to have_props(signedIn: false)
+      expect(inertia).to have_props(auth: { user: nil })
     end
   end
 

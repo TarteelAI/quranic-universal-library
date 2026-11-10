@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react'
 
-import { Container, SiteFrame } from '@/components/layout'
+import { Container, SiteShell } from '@/components/layout'
 import { PageHeader } from '@/components/qul/page-header'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { cn } from '@/lib/utils'
@@ -18,7 +18,7 @@ function cardFacts(type: CatalogType, resource: CatalogResourceCard) {
 // /resources/:type: the type's description and a card for each published resource of the type.
 export default function TypePage({ type, types, resources }: CatalogTypesShow) {
   return (
-    <SiteFrame>
+    <SiteShell>
       <Container className="pt-10 pb-2 sm:pt-12">
         <PageHeader
           breadcrumb={[{ label: 'Resources', href: catalog.index().url }, { label: type.title }]}
@@ -72,6 +72,6 @@ export default function TypePage({ type, types, resources }: CatalogTypesShow) {
           </ul>
         </nav>
       </Container>
-    </SiteFrame>
+    </SiteShell>
   )
 }

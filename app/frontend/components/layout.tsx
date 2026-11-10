@@ -1,35 +1,17 @@
 import type { ReactNode } from 'react'
 
+import { SiteFooter, SiteHeader } from '@/components/qul/chrome'
+import { FlashMessages } from '@/components/qul/flash'
 import { cn } from '@/lib/utils'
-import { resources, root } from '@/routes'
 
-// The minimal frame of the new pages: a home link and a link to the catalog. The v7 header
-// and footer replace it in story 001-11. Both links go to old pages, so they are plain links.
-export function SiteFrame({ children }: { children: ReactNode }) {
+// The frame of every new page: the v7 header, the flash messages, the page and the footer.
+export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b bg-card">
-        <Container className="flex h-14 items-center justify-between gap-4">
-          <a href={root().url} className="font-medium tracking-tight">
-            Quranic Universal Library
-          </a>
-          <nav aria-label="Main">
-            <a href={resources.index().url} className="text-sm text-muted-foreground hover:text-foreground">
-              Resources
-            </a>
-          </nav>
-        </Container>
-      </header>
+      <SiteHeader />
+      <FlashMessages />
       <main className="flex-1">{children}</main>
-      <footer className="border-t">
-        <Container className="py-6 text-sm text-muted-foreground">
-          QUL is a project of{' '}
-          <a href="https://tarteel.ai" className="underline hover:text-foreground">
-            Tarteel AI
-          </a>
-          .
-        </Container>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

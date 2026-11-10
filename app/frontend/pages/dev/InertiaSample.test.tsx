@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { renderPage } from '@/test/inertia'
+import { signedInAuth } from '@/test/shell'
 
 import InertiaSample from './InertiaSample'
 
@@ -22,7 +23,7 @@ describe('dev/InertiaSample', () => {
   })
 
   it('offers a sign-out form post when signed in', () => {
-    renderPage(InertiaSample, { props: { heading: 'Sample heading' }, shared: { signedIn: true } })
+    renderPage(InertiaSample, { props: { heading: 'Sample heading' }, shared: { auth: signedInAuth } })
 
     const form = screen.getByRole('button', { name: 'Sign out' }).closest('form')
     expect(form?.getAttribute('action')).toBe('/users/sign_out')

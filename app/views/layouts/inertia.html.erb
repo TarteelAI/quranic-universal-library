@@ -6,6 +6,15 @@
     <%# Turbo Drive from an old page must not swap this page in: it loads with a full page visit. %>
     <meta name="turbo-visit-control" content="reload">
     <%= csrf_meta_tags %>
+    <%# The theme before the first paint: a stored choice, else the system setting. lib/theme.ts in app/frontend uses the same key. %>
+    <script>
+      (function () {
+        var stored = null;
+        try { stored = localStorage.getItem('qul-theme'); } catch (e) {}
+        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.classList.add('dark');
+      })();
+    </script>
     <%= inertia_meta_tags default_title: 'Quranic Universal Library' %>
     <%= inertia_ssr_head %>
     <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48">

@@ -1,6 +1,4 @@
 import { Deferred, router, useHttp, usePage } from '@inertiajs/react'
-import type { FormEvent } from 'react'
-
 import {
   destroyUserSession,
   devInertiaSample,
@@ -9,17 +7,12 @@ import {
   pingDevInertiaSample,
   root,
 } from '@/routes'
-import type { DevInertiaSamplesShow, SharedProps } from '@/types/serializers'
-
-function fillAuthenticityToken(event: FormEvent<HTMLFormElement>): void {
-  const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? ''
-  const input = event.currentTarget.elements.namedItem('authenticity_token')
-  if (input instanceof HTMLInputElement) input.value = token
-}
+import { fillAuthenticityToken } from '@/lib/csrf'
+import type { DevInertiaSamplesShow } from '@/types/serializers'
 
 export default function InertiaSample({ heading, publishedResourceCount }: DevInertiaSamplesShow) {
   const { props, flash } = usePage()
-  const ping = useHttp<Record<string, never>, SharedProps>('get', pingDevInertiaSample().url, {})
+  const ping = useHttp<Record<string, never>, { signedIn: boolean }>('get', pingDevInertiaSample().url, {})
   const signOut = destroyUserSession()
 
   return (
@@ -66,7 +59,7 @@ export default function InertiaSample({ heading, publishedResourceCount }: DevIn
             Go to the home page
           </a>
         </p>
-        {props.signedIn ? (
+        {props.auth.user ? (
           <form method="post" action={signOut.url} onSubmit={fillAuthenticityToken}>
             <input type="hidden" name="_method" value={signOut.method} />
             <input type="hidden" name="authenticity_token" />

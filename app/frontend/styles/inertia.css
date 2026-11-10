@@ -3,10 +3,14 @@
 
    Tokens are from the approved v7 design (qul-redesign ds/src/styles/qul.css): a light grey
    canvas, borderless white cards, near-black ink, and QUL green as an accent only. Category
-   tokens (--cat-*) are for small icons and type labels, never for surfaces. The dark theme and
-   the web fonts come with the UI kit (story 001-11); until then the sans stack falls back to
-   the system font. */
+   tokens (--cat-*) are for small icons and type labels, never for surfaces. Light is the
+   default; the `dark` class on <html> switches theme (lib/theme.ts and the inline script in
+   the inertia layout). The interface fonts are self-hosted from the @fontsource-variable
+   packages (entrypoints/inertia.tsx). */
 @import 'tailwindcss' source('../');
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --radius: 0.75rem;
@@ -69,6 +73,65 @@
   --cat-metadata-subtle: oklch(0.96 0.004 240);
 
   --shadow-color: 160 10% 15%;
+  color-scheme: light;
+}
+
+.dark {
+  --background: oklch(0.165 0.006 160);
+  --foreground: oklch(0.95 0.004 150);
+  --card: oklch(0.2 0.007 160);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.225 0.008 160);
+  --popover-foreground: var(--foreground);
+  --surface: oklch(0.185 0.006 160);
+
+  --primary: oklch(0.95 0.004 150);
+  --primary-foreground: oklch(0.18 0.008 160);
+  --brand: oklch(0.74 0.16 150);
+  --brand-subtle: oklch(0.27 0.045 155);
+  --brand-foreground: oklch(0.82 0.13 152);
+
+  --secondary: oklch(0.25 0.007 160);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.25 0.007 160);
+  --muted-foreground: oklch(0.7 0.008 155);
+  --accent: oklch(0.25 0.007 160);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.66 0.19 25);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.29 0.007 160);
+  --input: oklch(0.34 0.008 160);
+  --ring: oklch(0.72 0.14 151);
+
+  --success: oklch(0.78 0.15 151);
+  --success-subtle: oklch(0.3 0.06 155);
+  --warning: oklch(0.82 0.13 80);
+  --warning-subtle: oklch(0.31 0.05 75);
+  --info: oklch(0.76 0.12 245);
+  --info-subtle: oklch(0.29 0.05 250);
+  --error: oklch(0.72 0.17 25);
+  --error-subtle: oklch(0.3 0.06 25);
+
+  --cat-audio: oklch(0.78 0.13 300);
+  --cat-audio-subtle: oklch(0.27 0.04 300);
+  --cat-layout: oklch(0.84 0.13 112);
+  --cat-layout-subtle: oklch(0.27 0.035 115);
+  --cat-script: oklch(0.78 0.15 350);
+  --cat-script-subtle: oklch(0.27 0.04 350);
+  --cat-translation: oklch(0.78 0.11 245);
+  --cat-translation-subtle: oklch(0.27 0.035 245);
+  --cat-tafsir: oklch(0.8 0.09 190);
+  --cat-tafsir-subtle: oklch(0.27 0.03 190);
+  --cat-linguistics: oklch(0.83 0.12 75);
+  --cat-linguistics-subtle: oklch(0.28 0.035 70);
+  --cat-topics: oklch(0.78 0.13 30);
+  --cat-topics-subtle: oklch(0.28 0.04 30);
+  --cat-metadata: oklch(0.78 0.02 240);
+  --cat-metadata-subtle: oklch(0.27 0.01 240);
+
+  --shadow-color: 160 20% 2%;
+  color-scheme: dark;
 }
 
 @theme inline {

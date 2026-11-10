@@ -1,4 +1,4 @@
-import type { CatalogResourcesIndex, CatalogTypesShow } from '@/types/serializers'
+import type { CatalogResourcesIndex, CatalogType, CatalogTypesShow } from '@/types/serializers'
 
 const translation = {
   key: 'translation',
@@ -7,7 +7,7 @@ const translation = {
   summary: 'Ayah by ayah and word by word translations in many languages.',
   description: 'Translations of the Quran in many languages.',
   category: { key: 'translation', label: 'Translation' },
-}
+} satisfies CatalogType
 
 const tafsir = {
   key: 'tafsir',
@@ -16,7 +16,7 @@ const tafsir = {
   summary: 'Short and detailed commentaries.',
   description: 'Commentaries on the Quran in many languages.',
   category: { key: 'tafsir', label: 'Tafsir and commentary' },
-}
+} satisfies CatalogType
 
 // Props of catalog/TypePage, shaped like Catalog::TypesShowResource.
 export const typePageProps: CatalogTypesShow = {

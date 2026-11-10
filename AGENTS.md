@@ -193,14 +193,30 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   production host (`SeoHelper::HOST`) and the JSON-LD script.
 - Errors: `ActiveRecord::RecordNotFound` in an Inertia controller renders `errors/ErrorPage` with
   status 404 in the new layout (in development too).
-- Layout (`inertia.html.erb`): the Sentry loader (not in development) and GA4 with
-  `send_page_view: false`. `app/frontend/lib/analytics.ts` sends one page view on the first load
+- Layout (`inertia.html.erb`): the theme script, the Sentry loader (not in development) and GA4
+  with `send_page_view: false`. `app/frontend/lib/analytics.ts` sends one page view on the first load
   and one after every Inertia visit. The GA4 tag also forwards each event to a second
   measurement id, so each page view leaves the browser twice.
-- Links to old pages (detail pages, `/resources`, `/`) are plain `<a>` with the typed route
-  helpers; links between new pages are Inertia `<Link>`.
-- Components from the v7 design are ported into `app/frontend/components` only when a page needs
-  them. Tokens are in `app/frontend/styles/inertia.css`.
+- Links to old pages (detail pages, `/`) are plain `<a>` with the typed route helpers; links
+  between new pages are Inertia `<Link>`.
+- Shell: every page renders inside `SiteShell` (`components/layout.tsx`): the v7 header, the
+  flash messages (`notice` and `alert`), the page and the footer. The header and footer links
+  come from the server (`SiteNav`, shared prop `nav`, a once prop), and each link says whether a
+  new page serves it (`inertia`), which depends on the page groups; `NavAnchor` renders an
+  Inertia `<Link>` or a plain `<a>` from that. The contributor tools in the Contribute menu are
+  `ToolsHelper#developer_tools`. The shared prop `auth` holds only `{ user: { initials, name } }`
+  or `{ user: null }`; sign-in links pass the current path as `user_return_to`.
+- Theme: light and dark tokens in `app/frontend/styles/inertia.css`, switched by the `dark`
+  class on `<html>`. An inline script in the layout sets it before the first paint from the
+  stored choice (`localStorage` key `qul-theme`) or the system setting; `lib/theme.ts` keeps it
+  in step after that. Components read the theme with `useTheme`, which is null on the server.
+- Interface fonts are the `@fontsource-variable` packages, bundled by Vite and served by this app.
+  The new layout loads no font or icon CSS from another host.
+- The UI kit is `app/frontend/components/ui` (generic primitives on Radix, vaul and
+  class-variance-authority) and `components/qul` (QUL pieces). More v7 components are ported
+  when a page needs them. Each exported component needs an entry in `app/frontend/test/kit.tsx`:
+  `components/kit.ssr.test.tsx` renders it on the server and `components/kit.test.tsx` hydrates
+  that HTML and fails on a hydration mismatch.
 - Tests per page: a request spec (props, both page group states, head), a Vitest component test
   and an SSR render test, and a Playwright spec for behaviour across pages. A request spec that
   must see server-rendered HTML wraps the request in `SsrServer.with_ssr { … }`

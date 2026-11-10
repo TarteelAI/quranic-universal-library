@@ -8,6 +8,7 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 | --- | --- | --- | --- | --- | --- |
 | 1 | `stack/001-01-foundation-spikes` | #1025 | `qul-next` | 001-03 | 64 |
 | 2 | `stack/001-02-type-pages-slice` | #1026 | layer 1 | 001-06 | 78 |
+| 3 | `stack/001-03-catalog-data-and-downloads` | #1027 | layer 2 | 001-10 | 96 |
 
 ## Notes
 

@@ -1,6 +1,7 @@
 {
   "all": {
     "sourceCodeDir": "app/frontend",
+    "packageManager": "yarn",
     "ssrEntrypoint": "~/entrypoints/inertia.tsx",
     "watchAdditionalPaths": []
   },

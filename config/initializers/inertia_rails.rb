@@ -10,7 +10,12 @@ InertiaRails.configure do |config|
   config.server_head = true
   config.xsrf_cookie_refresh = :lazy
 
-  # In development the Vite dev server renders SSR (@inertiajs/vite). Production SSR is
-  # a separate Node service (story 001-03).
-  config.ssr_enabled = Rails.env.development?
+  # SSR: in development the Vite dev server renders it (@inertiajs/vite). In production the
+  # SSR bundle (public/vite-ssr) runs as the `inertia-ssr` runit service on localhost:13714
+  # (docker/inertia-ssr.run). When the service is down or slow, the page renders in the
+  # browser, and the error goes to the Rails log and to Rails.error.
+  config.ssr_enabled = !Rails.env.test?
+
+  # A Passenger worker waits for the SSR answer, so give up quickly.
+  config.ssr_timeout = 2 if Rails.env.production?
 end

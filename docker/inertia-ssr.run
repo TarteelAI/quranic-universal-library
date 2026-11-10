@@ -1,0 +1,4 @@
+#!/bin/bash
+# Inertia SSR server: renders the new pages for Passenger (InertiaRails ssr_url, port 13714).
+cd /home/app/qul
+exec /sbin/setuser app node public/vite-ssr/ssr.mjs >> /home/app/qul/log/inertia-ssr.log 2>&1

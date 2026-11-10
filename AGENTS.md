@@ -161,6 +161,14 @@ docker exec -e VITE_RUBY_AUTO_BUILD=false qul-dev bundle exec rspec
 Install `socat` in the container (`apt-get install -y socat`). The forward lets Rails reach the
 dev server as `localhost:3036`, which Vite's host check accepts.
 
+## Production image
+
+`docker/README.md` has the recipe for building the production image and running it locally on
+the development clones, with Sidekiq disabled and no SMTP variables, and how the Inertia SSR
+service is run, logged and restarted. The image boots without the master key
+(`SECRET_KEY_BASE` is enough). `.dockerignore` keeps `.env` files, `sprints/`, `.agents/`,
+this file and local Vite builds out of the image.
+
 ## Data safety
 
 - Never run `db:test:prepare`, `db:schema:load`, `db:reset`, `db:drop`, `db:prepare`,

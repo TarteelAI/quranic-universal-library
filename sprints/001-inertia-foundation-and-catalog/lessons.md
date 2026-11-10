@@ -151,3 +151,9 @@ Checked with `git diff 30bec50e 3d805f64` and against the snapshot.
 - The `resolutions` in `package.json` apply to every copy of a package, so new packages get the pinned major (Vite and Vitest run on picomatch 2, typescript-eslint on minimatch 3). Path-scoped resolutions (`**/vite/picomatch`) crash yarn 1.22 with "should have a resolved reference" when two of them name the same package. Check `yarn.lock` after `yarn add`, and test the new tool instead of assuming its declared range.
 - Adding packages can move a shared dependency's hoisting (tslib moved under `@swc/helpers`). esbuild then writes a different path comment into `application.js`, so its checksum changes while the code does not. Compare old bundles by content without path comments, not by checksum.
 - `eslint-plugin-ssr-friendly` 1.3 fails on ESLint 9 (`context.getScope is not a function`). SSR safety is checked by the `*.ssr.test.tsx` render tests instead.
+
+### Production image build traps — 001-03
+
+- Build the image with `--platform linux/amd64`. `Gemfile.lock` lists `x86_64-linux` but not `aarch64-linux`, so a native arm64 build installs `tailwindcss-rails` without its binary and `assets:precompile` fails at `tailwindcss:build`. OrbStack runs the amd64 build through Rosetta at usable speed.
+- Vite bundles every file the page glob matches. The entrypoint globs `../pages/**/*.tsx` minus `*.test.tsx`; a test file inside the glob pulls Vitest and Testing Library into the client bundle, and the image installs no devDependencies, so it cannot resolve them. Host builds pass because devDependencies are installed there, so check the manifest for test chunks, not only the exit code.
+- vite_ruby picks its package manager from lockfiles and checks `bun.lock` before `yarn.lock`, so the stray `bun.lock` made `vite:build_all` call `bun` (absent in the image). `config/vite.json` pins `"packageManager": "yarn"`.

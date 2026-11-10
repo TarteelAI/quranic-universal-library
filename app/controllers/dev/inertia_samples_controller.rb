@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Dev
-  # The development-only sample page that proves the Inertia stack (routes in config/routes.rb
-  # exist in development and test only).
+  # The sample page that proves the Inertia stack. Its routes (config/routes.rb) exist in
+  # development and test, and in production only with QUL_INERTIA_SAMPLE_PAGE=true.
   class InertiaSamplesController < InertiaController
     def show
       @heading = 'Inertia sample page'

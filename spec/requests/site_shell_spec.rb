@@ -79,11 +79,12 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       expect(inertia).to have_no_flash(:notice)
     end
 
-    it 'sets the theme before the first paint: a stored choice, else the system setting' do
+    it 'sets the theme before the first paint: a stored light or dark, else (none or system) the system setting' do
       get page_path
       script = Nokogiri::HTML(response.body).css('head script:not([src])').map(&:text).find { |s| s.include?('qul-theme') }
 
-      expect(script).to include("localStorage.getItem('qul-theme')", 'prefers-color-scheme: dark')
+      expect(script).to include("localStorage.getItem('qul-theme')", 'prefers-color-scheme: dark',
+                                "stored === 'light' || stored === 'dark'")
     end
   end
 

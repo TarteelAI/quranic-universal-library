@@ -14,9 +14,21 @@ module MushafLayouts
     # The mushaf behind a layout resource. The `mushaf` meta key wins; otherwise the content row
     # can map to more than one mushaf, so the enabled one with the lowest id is taken.
     def self.mushaf_for(resource)
-      content = resource.resource_content
-      Mushaf.find_by(id: content.meta_value('mushaf')) ||
-        Mushaf.where(resource_content_id: content.id).order(enabled: :desc, id: :asc).first
+      mushafs_for([resource])[resource.id]
+    end
+
+    # The same lookup for many layouts in two queries: resource id => mushaf (or nil).
+    def self.mushafs_for(resources)
+      contents = resources.filter_map(&:resource_content)
+      by_id = Mushaf.where(id: contents.filter_map { |content| content.meta_value('mushaf').presence })
+                    .index_by { |mushaf| mushaf.id.to_s }
+      by_content = Mushaf.where(resource_content_id: contents.map(&:id)).order(enabled: :desc, id: :asc)
+                         .group_by(&:resource_content_id)
+
+      resources.to_h do |resource|
+        content = resource.resource_content
+        [resource.id, content && (by_id[content.meta_value('mushaf').to_s] || by_content[content.id]&.first)]
+      end
     end
 
     # Pages outside 1..pages_count are clamped: one mushaf has more page rows than pages.

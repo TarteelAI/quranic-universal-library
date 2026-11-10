@@ -9,6 +9,7 @@ import * as nav from '@/components/qul/nav'
 import * as pageHeader from '@/components/qul/page-header'
 import * as resourceCard from '@/components/qul/resource-card'
 import * as spotlight from '@/components/qul/spotlight'
+import * as statusBadge from '@/components/qul/status-badge'
 import * as theme from '@/components/qul/theme'
 import * as badge from '@/components/ui/badge'
 import * as button from '@/components/ui/button'
@@ -31,6 +32,7 @@ const modules = {
   pageHeader,
   resourceCard,
   spotlight,
+  statusBadge,
   theme,
   badge,
   button,
@@ -58,6 +60,7 @@ const { MegaMenu, MobileNav, NavAnchor } = nav
 const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
+const { RecommendedBadge, StatusBadge } = statusBadge
 const { ThemeToggle } = theme
 const { Badge } = badge
 const { Button } = button
@@ -193,6 +196,17 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     element: <ResourceCard title="Sahih International" href="/resources/translation/1" facts={['Translation']} />,
     text: 'Sahih International',
   },
+  StatusBadge: {
+    element: (
+      <StatusBadge
+        status="superseded"
+        label="Superseded"
+        supersededBy={{ name: 'Syllables Transliteration', href: '/resources/transliteration/syllables' }}
+      />
+    ),
+    text: 'Syllables Transliteration',
+  },
+  RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
   ThemeToggle: { element: <ThemeToggle />, text: 'theme' },
   Spotlight: { element: <Spotlight />, text: 'Search resources' },
   FacetGroup: {

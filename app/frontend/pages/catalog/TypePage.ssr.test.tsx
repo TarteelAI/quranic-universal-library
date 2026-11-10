@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { typePageProps } from '@/test/catalog'
+import { layoutPageProps, typePageProps } from '@/test/catalog'
 import { renderPageOnServer } from '@/test/inertia'
 
 import TypePage from './TypePage'
@@ -12,5 +12,14 @@ describe('catalog/TypePage on the server', () => {
 
     expect(body).toContain('Translations')
     expect(body).toContain('Sahih International')
+  })
+
+  it('renders the pick block, the comparison table and the collapsed older versions', async () => {
+    const { body } = await renderPageOnServer(TypePage, { props: layoutPageProps })
+
+    expect(body).toContain('Which one should I pick?')
+    expect(body).toContain('Suggested, not yet reviewed')
+    expect(body).toContain('<table')
+    expect(body).toContain('KFGQPC V2 layout (Old)')
   })
 })

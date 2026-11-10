@@ -7,6 +7,7 @@ module Catalog
       @type = Taxonomy.type(params[:type]) or raise ActiveRecord::RecordNotFound, "Unknown type #{params[:type]}"
       @types = Taxonomy.types
       @resources = ResourcesQuery.new(type: @type.key).call
+      @comparison = Comparison.new(@type, @resources).call
 
       render_inertia 'catalog/TypePage', meta: page_meta(
         title: "#{@type.title} - QUL",

@@ -17,15 +17,18 @@ RSpec.describe Catalog::ResourcesQuery do
 
   it 'serializes a type page without a controller or request' do
     type = Catalog::Taxonomy.type('surah-info')
+    resources = described_class.new(type: type.key).call
     props = Catalog::TypesShowResource.new(
-      { type: type, types: Catalog::Taxonomy.types, resources: described_class.new(type: type.key).call }
+      { type: type, types: Catalog::Taxonomy.types, resources: resources,
+        comparison: Catalog::Comparison.new(type, resources).call }
     ).serializable_hash
 
     expect(props['type']).to include('key' => 'surah-info', 'title' => 'Surah info',
                                      'category' => { 'key' => 'tafsir', 'label' => 'Tafsir and commentary' })
     expect(props['types'].size).to eq(14)
     expect(props['resources'].first.keys).to contain_exactly(
-      'id', 'name', 'type', 'toParam', 'filesCount', 'language', 'granularity'
+      'id', 'name', 'type', 'toParam', 'filesCount', 'language', 'granularity', 'status', 'scriptFamily',
+      'recommendation', 'supersededBy'
     )
     expect(props['resources']).to all(include('language' => be_present))
   end
@@ -39,7 +42,13 @@ RSpec.describe Catalog::Taxonomy do
   it 'has the statuses and script families of the model, and every granularity of the catalog' do
     expect(described_class.statuses.map(&:key)).to eq(DownloadableResource.statuses.keys)
     expect(described_class.script_families.map(&:key)).to eq(DownloadableResource.script_families.keys)
+    expect(described_class.renderings.map(&:key)).to eq(DownloadableResource.renderings.keys)
     expect(described_class.granularities.map(&:key)).to include(*DownloadableResource.distinct.pluck(:cardinality_type))
+  end
+
+  it 'names a comparison column only from the column vocabulary' do
+    expect(described_class::COMPARISONS.values.flatten).to all(be_in(described_class::COMPARISON_COLUMNS.keys))
+    expect(described_class::COMPARISONS.keys + described_class::PICKS.keys).to all(be_in(described_class::TYPES.keys))
   end
 
   it 'maps file type strings onto the format vocabulary' do

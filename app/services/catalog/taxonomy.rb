@@ -138,6 +138,42 @@ module Catalog
       Option.new(key: 'superseded', label: 'Superseded')
     ].freeze
 
+    RENDERINGS = [
+      Option.new(key: 'unicode_font', label: 'Unicode text and font'),
+      Option.new(key: 'glyph_page', label: 'Glyph font for each page'),
+      Option.new(key: 'image', label: 'Images'),
+      Option.new(key: 'svg', label: 'SVG')
+    ].freeze
+
+    # How to choose among the resources of a type, for the "Which one should I pick?" block of a
+    # type page. A type without its own text gets PICK_DEFAULT.
+    PICKS = {
+      'mushaf-layout' => 'Use the layout of the printed mushaf that your readers know. The Font column of the ' \
+                         'table names the font that a layout needs. A glyph layout uses one font file for each ' \
+                         'page and looks the same as the print.',
+      'quran-script' => 'Use a script in the same script family as your font. Madani scripts are for most ' \
+                        'readers. IndoPak scripts are for readers in South Asia. A glyph script needs its own ' \
+                        'font, which the table names.',
+      'font' => 'Use the font that your layout or script needs. The tables on the layout and script pages ' \
+                'name the font for each one.'
+    }.freeze
+    PICK_DEFAULT = 'Use a current resource. Older versions stay available for apps that already use them.'
+
+    # The columns of the comparison table on a type page, and the types that have one.
+    COMPARISON_COLUMNS = [
+      Option.new(key: 'script_family', label: 'Script family'),
+      Option.new(key: 'pages', label: 'Pages'),
+      Option.new(key: 'lines_per_page', label: 'Lines per page'),
+      Option.new(key: 'rendering', label: 'Rendering'),
+      Option.new(key: 'font', label: 'Font'),
+      Option.new(key: 'status', label: 'Status')
+    ].index_by(&:key).freeze
+    COMPARISONS = {
+      'mushaf-layout' => %w[script_family pages lines_per_page rendering font status],
+      'quran-script' => %w[script_family rendering font status],
+      'font' => %w[script_family rendering status]
+    }.freeze
+
     # Granularity is the resource's cardinality type.
     GRANULARITIES = [
       Option.new(key: '1_word', label: 'Word by word'),
@@ -174,6 +210,19 @@ module Catalog
     def self.statuses = STATUSES
     def self.granularities = GRANULARITIES
     def self.sorts = SORTS
+    def self.renderings = RENDERINGS
+
+    def self.pick(type)
+      PICKS.fetch(type.key, PICK_DEFAULT)
+    end
+
+    def self.comparison_columns(type)
+      COMPARISONS.fetch(type.key, []).map { |key| COMPARISON_COLUMNS.fetch(key) }
+    end
+
+    def self.label(options, key)
+      options.find { |option| option.key == key }&.label
+    end
 
     def self.format_for(file_type)
       type = file_type.to_s.strip.downcase

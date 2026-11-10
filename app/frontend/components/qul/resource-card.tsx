@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 import { cn } from '@/lib/utils'
 
 export interface ResourceCardProps {
@@ -5,15 +7,17 @@ export interface ResourceCardProps {
   href: string
   /** Short facts, e.g. ["Translation", "Urdu", "Ayah by Ayah"] */
   facts?: string[]
+  /** Status and recommendation badges, shown above the title */
+  badges?: ReactNode
   /** Shown at the bottom of the card, e.g. "3 files" */
   footnote?: string
   className?: string
 }
 
 // The browse unit for a downloadable resource, from the v7 design (ds/src/components/qul/cards.tsx).
-// Status, formats, previews and the bundle toggle come with the stories that add their data.
+// Formats, previews and the bundle toggle come with the stories that add their data.
 // The whole card is the link (the title link stretches over it).
-export function ResourceCard({ title, href, facts = [], footnote, className }: ResourceCardProps) {
+export function ResourceCard({ title, href, facts = [], badges, footnote, className }: ResourceCardProps) {
   return (
     <article
       className={cn(
@@ -22,6 +26,7 @@ export function ResourceCard({ title, href, facts = [], footnote, className }: R
       )}
     >
       <div className="flex flex-1 flex-col gap-3 p-5">
+        {badges && <div className="flex flex-wrap items-center gap-x-3 gap-y-1">{badges}</div>}
         <div className="min-w-0">
           <h3 className="text-base leading-snug font-medium tracking-tight">
             <a

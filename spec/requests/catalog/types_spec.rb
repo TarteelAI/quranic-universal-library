@@ -20,6 +20,129 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       end
     end
 
+    it 'gives each of the 14 types its own title, description and JSON-LD' do
+      heads = types.map do |type|
+        get "/resources/#{type}"
+
+        html = Nokogiri::HTML(response.body)
+        taxonomy = Catalog::Taxonomy.type(type)
+        title = html.at('title').text
+        description = html.at('meta[name="description"]')['content']
+        json_ld = JSON.parse(html.at('script[type="application/ld+json"]').text)
+        expect(title).to eq("#{taxonomy.title} - QUL")
+        expect(description).to eq(taxonomy.description)
+        expect(json_ld).to include('@type' => 'CollectionPage', 'name' => title,
+                                   'url' => "https://qul.tarteel.ai/resources/#{type}")
+        [title, description, json_ld]
+      end
+
+      expect(heads.map(&:first).uniq.size).to eq(14)
+      expect(heads.map(&:second).uniq.size).to eq(14)
+      expect(heads.map(&:third).uniq.size).to eq(14)
+    end
+
+    it 'shows no "Which one should I pick?" block for a type with no status data beyond the default' do
+      resources = DownloadableResource.published.where(resource_type: 'translation')
+      expect(resources.where.not(status: 'stable').or(resources.where(recommended: true))).to be_empty
+
+      get '/resources/translation'
+
+      expect(inertia.props[:pick]).to be_nil
+      expect(inertia.props[:comparison]).to be_nil
+    end
+
+    it 'shows the block on a type where one resource is legacy, and a superseded card links to its replacement' do
+      old, replacement = DownloadableResource.published.where(resource_type: 'transliteration').order(:id).first(2)
+      old.update_columns(status: 'superseded', superseded_by_id: replacement.id)
+
+      get '/resources/transliteration'
+
+      expect(inertia.props[:pick]).to eq(Catalog::Taxonomy::PICK_DEFAULT)
+      card = inertia.props[:resources].find { |c| c[:id] == old.id }
+      expect(card).to include(status: 'superseded', supersededBy: include(id: replacement.id,
+                                                                         toParam: replacement.to_param))
+      expect(inertia.props[:statuses].pluck(:key)).to eq(%w[stable beta legacy superseded])
+    end
+
+    it 'marks a drafted recommendation as not yet reviewed, and not once a person has reviewed it' do
+      layout = DownloadableResource.published.where(resource_type: 'mushaf-layout').order(:id).first
+      drafted = { 'recommended' => { 'value' => true, 'by' => 'recommended', 'at' => Time.current.utc.iso8601 } }
+      layout.update_columns(recommended: true, review: Catalog::Review.with_drafted(layout.review, drafted))
+
+      get '/resources/mushaf-layout'
+
+      expect(inertia.props[:resources].find { |c| c[:id] == layout.id }).to include(recommendation: 'drafted')
+      expect(inertia.props[:pick]).to eq(Catalog::Taxonomy::PICKS.fetch('mushaf-layout'))
+
+      layout.reload.mark_reviewed!('recommended')
+      get '/resources/mushaf-layout'
+
+      expect(inertia.props[:resources].find { |c| c[:id] == layout.id }).to include(recommendation: 'reviewed')
+      expect(inertia.props[:resources].pluck(:recommendation).compact).to eq(['reviewed'])
+    end
+
+    it "compares every published layout with its mushaf's page count and lines per page" do
+      get '/resources/mushaf-layout'
+
+      comparison = inertia.props[:comparison]
+      expect(comparison[:columns].pluck(:key)).to eq(%w[script_family pages lines_per_page rendering font status])
+      layouts = DownloadableResource.published.where(resource_type: 'mushaf-layout')
+      expect(comparison[:rows].pluck(:id)).to match_array(layouts.ids)
+
+      # The mushaf of each layout, straight from the content database: the `mushaf` meta key, else
+      # the enabled mushaf with the lowest id on the layout's content row.
+      expected = layouts.to_h do |layout|
+        mushaf_id = QulQuranRecord.connection.select_value(<<~SQL.squish)
+          SELECT m.id FROM resource_contents rc
+          JOIN mushafs m ON m.id::text = NULLIF(rc.meta_data->>'mushaf', '')
+             OR (NULLIF(rc.meta_data->>'mushaf', '') IS NULL AND m.resource_content_id = rc.id)
+          WHERE rc.id = #{layout.resource_content_id.to_i}
+          ORDER BY m.enabled DESC, m.id ASC LIMIT 1
+        SQL
+        mushaf = QulQuranRecord.connection.select_one(
+          "SELECT pages_count, lines_per_page FROM mushafs WHERE id = #{mushaf_id.to_i}"
+        )
+        [layout.id, { 'pages' => mushaf&.fetch('pages_count'), 'linesPerPage' => mushaf&.fetch('lines_per_page') }]
+      end
+      expect(comparison[:rows].to_h { |row| [row[:id], row.slice(:pages, :linesPerPage)] }).to eq(expected)
+      expect(expected.values.pluck('pages')).to all(be_positive)
+
+      # One layout's mushaf has more page rows than pages; the table shows the page count.
+      page_rows = MushafPage.group(:mushaf_id).count
+      over = layouts.select do |layout|
+        mushaf = MushafLayouts::Page.mushaf_for(layout)
+        mushaf && page_rows.fetch(mushaf.id, 0) > mushaf.pages_count
+      end
+      expect(over).not_to be_empty
+      over.each do |layout|
+        row = comparison[:rows].find { |r| r[:id] == layout.id }
+        expect(row[:pages]).to eq(MushafLayouts::Page.mushaf_for(layout).pages_count)
+      end
+    end
+
+    it 'names the font a layout requires, when that font is published' do
+      layout = DownloadableResource.published.where(resource_type: 'mushaf-layout').order(:id).first
+      font = DownloadableResource.published.where(resource_type: 'font').order(:id).first
+      DownloadableRelatedResource.where(downloadable_resource: layout).delete_all
+      link = DownloadableRelatedResource.create!(downloadable_resource: layout, related_resource: font,
+                                                 relation_type: 'requires')
+
+      get '/resources/mushaf-layout'
+
+      row = inertia.props[:comparison][:rows].find { |r| r[:id] == link.downloadable_resource_id }
+      expect(row[:font]).to include(id: link.related_resource_id)
+    end
+
+    it 'has a comparison table for scripts and fonts too, without layout facts' do
+      %w[quran-script font].each do |type|
+        get "/resources/#{type}"
+
+        rows = inertia.props[:comparison][:rows]
+        expect(rows.pluck(:id)).to match_array(DownloadableResource.published.where(resource_type: type).ids)
+        expect(rows.pluck(:pages, :linesPerPage).flatten).to all(be_nil)
+      end
+    end
+
     it 'sends the taxonomy as props: every type, with its category' do
       get '/resources/translation'
 
@@ -36,7 +159,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       resource = DownloadableResource.published.where(resource_type: 'translation').where.not(language_id: nil).first
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card).to include(
-        name: resource.name,
+        name: resource.display_name,
         type: 'translation',
         toParam: resource.to_param,
         language: resource.language.name,
@@ -114,7 +237,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(app).to be_present
       expect(app.at('h1').text).to start_with('Tafsirs')
       card_names = app.css('article h3').map(&:text)
-      expect(card_names).to match_array(DownloadableResource.published.where(resource_type: 'tafsir').pluck(:name))
+      tafsirs = DownloadableResource.published.where(resource_type: 'tafsir')
+      expect(card_names).to match_array(tafsirs.map(&:display_name))
 
       head = Nokogiri::HTML(response.body).at('head')
       expect(head.at('title').text).to eq('Tafsirs - QUL')

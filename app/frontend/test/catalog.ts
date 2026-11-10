@@ -1,4 +1,4 @@
-import type { CatalogResourcesIndex, CatalogType, CatalogTypesShow } from '@/types/serializers'
+import type { CatalogResourceCard, CatalogResourcesIndex, CatalogType, CatalogTypesShow } from '@/types/serializers'
 
 const translation = {
   key: 'translation',
@@ -31,6 +31,10 @@ export const typePageProps: CatalogTypesShow = {
       filesCount: 3,
       language: 'English',
       granularity: 'Ayah by Ayah',
+      status: 'stable',
+      scriptFamily: null,
+      recommendation: null,
+      supersededBy: null,
     },
     {
       id: 2,
@@ -40,8 +44,103 @@ export const typePageProps: CatalogTypesShow = {
       filesCount: 1,
       language: null,
       granularity: 'Word by word',
+      status: 'stable',
+      scriptFamily: null,
+      recommendation: null,
+      supersededBy: null,
     },
   ],
+  statuses: [
+    { key: 'stable', label: 'Stable' },
+    { key: 'beta', label: 'Beta' },
+    { key: 'legacy', label: 'Legacy' },
+    { key: 'superseded', label: 'Superseded' },
+  ],
+  pick: null,
+  comparison: null,
+}
+
+const layoutType = {
+  key: 'mushaf-layout',
+  label: 'Mushaf layout',
+  title: 'Mushaf layouts',
+  summary: 'Page, line and word positions of printed mushaf editions.',
+  description: 'Page, line and word positions of printed mushaf editions.',
+  category: { key: 'layout', label: 'Mushaf layouts' },
+} satisfies CatalogType
+
+function layout(id: number, name: string, fields: Partial<CatalogResourceCard> = {}): CatalogResourceCard {
+  return {
+    id,
+    name,
+    type: 'mushaf-layout',
+    toParam: name.toLowerCase().replaceAll(' ', '-'),
+    filesCount: 2,
+    language: null,
+    granularity: null,
+    status: 'stable',
+    scriptFamily: 'Madani',
+    recommendation: null,
+    supersededBy: null,
+    ...fields,
+  }
+}
+
+const qpcV2 = { id: 3, name: 'QPC V2 Font', type: 'font', toParam: 'qpc-v2-font' }
+
+// Props of a type page with status data: a reviewed and a drafted recommendation, a current
+// layout, a legacy one and a superseded one, and the comparison table.
+export const layoutPageProps: CatalogTypesShow = {
+  ...typePageProps,
+  type: layoutType,
+  types: [layoutType, translation],
+  resources: [
+    layout(10, 'KFGQPC V2 layout', { recommendation: 'reviewed' }),
+    layout(11, 'Indopak 15 lines', { recommendation: 'drafted', scriptFamily: 'IndoPak' }),
+    layout(12, 'Mushaf Qatar'),
+    layout(13, 'Old Indopak layout', { status: 'legacy', scriptFamily: 'IndoPak' }),
+    layout(14, 'KFGQPC V2 layout (Old)', {
+      status: 'superseded',
+      supersededBy: { id: 10, name: 'KFGQPC V2 layout', type: 'mushaf-layout', toParam: 'kfgqpc-v2-layout' },
+    }),
+  ],
+  pick: 'Use the layout of the printed mushaf that your readers know.',
+  comparison: {
+    columns: [
+      { key: 'script_family', label: 'Script family' },
+      { key: 'pages', label: 'Pages' },
+      { key: 'lines_per_page', label: 'Lines per page' },
+      { key: 'rendering', label: 'Rendering' },
+      { key: 'font', label: 'Font' },
+      { key: 'status', label: 'Status' },
+    ],
+    rows: [
+      {
+        id: 10,
+        name: 'KFGQPC V2 layout',
+        type: 'mushaf-layout',
+        toParam: 'kfgqpc-v2-layout',
+        status: 'stable',
+        scriptFamily: 'Madani',
+        rendering: 'Glyph font for each page',
+        pages: 604,
+        linesPerPage: 15,
+        font: qpcV2,
+      },
+      {
+        id: 13,
+        name: 'Old Indopak layout',
+        type: 'mushaf-layout',
+        toParam: 'old-indopak-layout',
+        status: 'legacy',
+        scriptFamily: null,
+        rendering: null,
+        pages: null,
+        linesPerPage: null,
+        font: null,
+      },
+    ],
+  },
 }
 
 // Props of catalog/CatalogPage, shaped like Catalog::ResourcesIndexResource.

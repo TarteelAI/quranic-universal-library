@@ -714,8 +714,43 @@
       "testFirst": false,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "Prototype source: `ds/src/app/pages` (`MushafLayouts`). The prototype parses lines and pages out of display strings; use typed props. Layout facts come from the content database through the resource content id; the lookup needs an explicit order because one content row can map to two mushafs. Type descriptions and the which-to-pick copy live in the server-side taxonomy from 001-05, written in the copy style from the PRD. When the qiraat stack merges, two more resource types will appear: the page must render a type it has no special copy for."
+      "passes": true,
+      "notes": "Prototype source: `ds/src/app/pages` (`MushafLayouts`). The prototype parses lines and pages out of display strings; use typed props. Layout facts come from the content database through the resource content id; the lookup needs an explicit order because one content row can map to two mushafs. Type descriptions and the which-to-pick copy live in the server-side taxonomy from 001-05, written in the copy style from the PRD. When the qiraat stack merges, two more resource types will appear: the page must render a type it has no special copy for.",
+      "completedAt": "2026-11-10T17:43:58Z",
+      "handoff": {
+        "done": [
+          "Server: Catalog::Comparison (app/services/catalog/comparison.rb) builds the comparison table for mushaf-layout (script family, pages, lines per page, rendering, font, status), quran-script (script family, rendering, font, status) and font (script family, rendering, status); nil for the other 11 types. Columns and labels live in Catalog::Taxonomy (COMPARISON_COLUMNS, COMPARISONS), with RENDERINGS labels and the which-to-pick copy (PICKS for mushaf-layout, quran-script and font; PICK_DEFAULT for any other type, so a new qiraat type renders with the default).",
+          "Layout facts: MushafLayouts::Page.mushafs_for(resources) does the mushaf lookup for many layouts in two content-database queries (the `mushaf` meta key, else the content row's mushafs ordered enabled desc, id asc); mushaf_for now delegates to it. Pages = mushaf.pages_count (never the page-row count), lines = lines_per_page. Font = the published font the resource requires (requires-link).",
+          "Props: TypesShowResource adds statuses (Option list), pick (copy string or null: only when a resource of the type is recommended or not stable) and comparison (CatalogComparison or null). ResourceCardResource now sends display_name as name, status, scriptFamily (label), recommendation ('reviewed' | 'drafted' | null, from reviewed?('recommended')) and supersededBy (published ref). ResourcesQuery preloads superseded_by and downloadable_related_resources: :related_resource. Generated types regenerated; `bin/rails typelizer:check` up to date.",
+          "Frontend: components/qul/status-badge.tsx (StatusBadge: dot + server label, superseded links to its replacement with aria-label 'Replaced by <name>'; RecommendedBadge: 'Recommended' when reviewed, 'Suggested, not yet reviewed' when drafted), both in test/kit.tsx. ResourceCard gains a badges slot. TypePage: 'Which one should I pick?' (copy + recommended cards first, list 'Recommended'), 'Comparison' table (kit Table, scrolls in its own container, name column wraps), 'Current versions' cards (list named after the type title), and older (legacy/superseded) cards in a closed <details> 'Older versions (n), kept for apps that already use them'. Each resource appears once across the groups. Without pick data the page is one card grid as before.",
+          "AC1: request spec (14 types: card ids == published ids, names present) and Playwright 'every type page has one card per published resource' (desktop, dev clone): for each of the 14 types the published count from the catalog search (/resources?type=X, a separate query) == heading count == `main article` count, and no empty h3. Passed.",
+          "AC2: request spec 'marks a drafted recommendation as not yet reviewed…': a layout given recommended=true with a drafted review entry → card recommendation 'drafted' and pick present; after mark_reviewed!('recommended') → 'reviewed'. Vitest: TypePage test checks 'Suggested, not yet reviewed' on the drafted card and plain 'Recommended' (no marker) on the reviewed one; kit fixture RecommendedBadge.",
+          "AC3: Playwright on the dev clone (both widths): /resources/transliteration has the pick block, the details is closed and the superseded card (Syllables Transliteration(Old)) hidden; clicking the summary shows it, its 'Replaced by …' link goes to /resources/transliteration/<slug> and the click lands there. Request spec also checks supersededBy in props (status set in the test transaction, since the test clone has no backfill). Vitest covers it with a fixture too.",
+          "AC4: request spec: translation (no non-stable or recommended rows on the test clone, asserted) → pick nil, comparison nil. Playwright on translation (both widths): pick prop null, no 'Which one should I pick?' heading, no details.",
+          "AC5: request spec compares every published layout's pages/linesPerPage in props to a direct SQL query on the content database (meta key mushaf, else content row ordered enabled desc, id asc), asserts all pages positive, and that the layout(s) whose MushafPage rows exceed pages_count (non-empty on the clone) show pages_count. Another spec checks the required font in the row; another that script and font tables have no layout facts.",
+          "AC6: Playwright phone (Pixel 7, 390 wide): the Comparison table shows one row per comparison row; documentElement.scrollWidth - innerWidth <= 0; the table container has overflow-x auto, is <= 390 px wide, and scrolls when wider. Screenshot reviewed by eye (look.spec on /resources/mushaf-layout and /resources/transliteration).",
+          "AC7: request spec over the 14 types: title '<Type title> - QUL', the taxonomy description and CollectionPage JSON-LD with the type URL; all 14 distinct.",
+          "Gates: full RSpec in qul-dev 194 examples, 0 failures (bundles rebuilt on the host first); yarn typecheck, lint:frontend, format:frontend clean; yarn vitest run app/frontend 163 passed; yarn test:browser type-pages.spec.ts catalog.spec.ts 14 passed, 2 skipped (width-only tests), GA4 test passed this time."
+        ],
+        "decisions": [
+          "Recommended cards appear only in the pick block, current ones under 'Current versions' and legacy/superseded ones in the collapsed group, so each card shows once and `main article` count equals the published count. A recommended resource that is also legacy stays with the recommended ones.",
+          "The collapsed group is a native <details>: it works before hydration and in the SSR HTML, and its cards stay in the DOM.",
+          "The pick block shows only where status data exists (any recommended or non-stable resource), per AC4. On the real data that is quran-script (one legacy) and transliteration (one superseded); the layout and font pages show only the comparison table until statuses or recommendations exist.",
+          "Stable is not badged on cards (it is the default and would be on every card); the comparison table shows every status, stable included.",
+          "Status labels come from the server (statuses prop, Taxonomy.statuses); the badge holds only the recommended wording. Script family and rendering go as labels; status as the enum key for the dot colour.",
+          "Card name is now display_name (unique in a type) instead of name, matching ResourceResource; specs updated.",
+          "Page count is the mushaf's pages_count, which is the clamp the story asks for: the one mushaf with extra page rows shows its page count.",
+          "jsdom does not toggle <details> on a summary click, so the Vitest test opens it directly; the browser test covers the click."
+        ],
+        "concerns": [
+          "The which-to-pick copy (Taxonomy::PICKS, PICK_DEFAULT) has not had a humanizer pass by a person; the IndoPak/Madani reader sentence on quran-script follows the prototype.",
+          "Nothing is recommended on the real data, so the recommended block was proven by request spec and Vitest only, not on a live page.",
+          "The font comparison has no 'used by' column (which layouts or scripts require the font); add one if the design wants it.",
+          "Dark mode was not checked by eye for the badges and table.",
+          "RuboCop cannot run here; Ruby files were syntax-checked in qul-dev and kept under 120 columns."
+        ]
+      },
+      "filesChanged": 26
     },
     {
       "id": "001-14",

@@ -1128,8 +1128,45 @@
       "testFirst": false,
       "difficulty": "low",
       "review": false,
-      "passes": false,
-      "notes": "Prescriptive: (1) `git checkout qul-next && git merge --no-ff sprint/001-inertia-foundation-and-catalog`; do not rebase. Then `git push -u origin qul-next` and open a draft PR against `main` with the description draft (`gh pr create --draft`). (2) Human steps to list: mark the PR ready and merge it; read and approve the seven comment replies before they are posted (posting is the human's or is done only after explicit approval); share the review report with the data team through a private channel; choose the production download mode; supply the featured-apps list; with the storage variables set locally, download one real file through each mode and check its size and MD5 against the files panel (the loop only asserts the redirect); supply production runtime settings (the page group setting, download mode, `CDN_HOST`, SSR service); and every item the private sprint notes mark for handoff. (3) The PR draft and comment replies are public files: describe behaviour, not weaknesses. (4) The review report is not committed. (5) If a human step was already done during the sprint, say so instead of listing it."
+      "passes": true,
+      "notes": "Prescriptive: (1) `git checkout qul-next && git merge --no-ff sprint/001-inertia-foundation-and-catalog`; do not rebase. Then `git push -u origin qul-next` and open a draft PR against `main` with the description draft (`gh pr create --draft`). (2) Human steps to list: mark the PR ready and merge it; read and approve the seven comment replies before they are posted (posting is the human's or is done only after explicit approval); share the review report with the data team through a private channel; choose the production download mode; supply the featured-apps list; with the storage variables set locally, download one real file through each mode and check its size and MD5 against the files panel (the loop only asserts the redirect); supply production runtime settings (the page group setting, download mode, `CDN_HOST`, SSR service); and every item the private sprint notes mark for handoff. (3) The PR draft and comment replies are public files: describe behaviour, not weaknesses. (4) The review report is not committed. (5) If a human step was already done during the sprint, say so instead of listing it.",
+      "completedAt": "2026-11-10T21:30:00Z",
+      "filesChanged": [
+        "sprints/001-inertia-foundation-and-catalog/PR.md",
+        "sprints/001-inertia-foundation-and-catalog/comment-replies.md",
+        "sprints/001-inertia-foundation-and-catalog/spec.json",
+        ".agents/ralph/state.json"
+      ],
+      "handoff": {
+        "done": [
+          "Gate: the driver ran every bin/gate step at 7dc68275 (001-19) and all passed: standalone 245 runs / 719 assertions / 0 failures; typelizer:check current; yarn typecheck, lint:frontend, format:frontend clean; vite build --ssr and test build; bin/snapshot-clones (test) exit 0; RSpec 269 examples / 0 failures; Vitest 21 files / 239 tests. It ran on the tree identical to the pre-merge sprint head, not on the merge commit itself; qul-next was still the sprint's base, so the --no-ff merge tree equals the sprint head tree (git diff --stat between them empty after the merge).",
+          "PR description draft: sprints/001-inertia-foundation-and-catalog/PR.md (what changed, how to run, settings, the three migrations and the backfill order, files shared with qiraat and how each resolves, data-model decisions). Shared files = git diff --name-only origin/main...qul-next ∩ origin/main...origin/qiraat/p7-5-drop-legacy: .gitignore, .rspec, app/models/downloadable_resource.rb, config/routes.rb, db/schema.rb, Gemfile, Gemfile.lock, spec/spec_helper.rb (8, all named). A trial merge of qiraat/p7-5 into the sprint head conflicts in 29 files; 28 of them also conflict when merging it into origin/main, so only .gitignore is new from this sprint.",
+          "Comment reply drafts: sprints/001-inertia-foundation-and-catalog/comment-replies.md, one section each for #11, #20, #21, #22, #23, #24, #25 with the qul.tarteel.ai URL that shows it. None posted.",
+          "Review report: bin/rails catalog:review_report in qul-dev on the development clone wrote /app/tmp/catalog-review-report.md (host: tmp/catalog-review-report.md, not committed): 698 drafted values on 563 resources; direct SQL count of review->'drafted' keys on the same database = 698. Known-data-error sections (rows): no files 2; content rows not approved 4; content row with no name 30; content rows behind more than one resource 1; layouts whose mushaf is disabled or empty 1; layouts with more page rows than pages 1; too few bismillah lines 1; default mushafs with no published layout 2; tag spellings of the same name 2. (VALIDATION.md's 695 was on the fresh restore after three hand edits; the dev clone has 698.)"
+        ],
+        "decisions": [
+          "PR description and replies are separate files in the sprint folder (PR.md, comment-replies.md) so they reach main with the merge and can be edited before posting.",
+          "Reply URLs point at production paths (qul.tarteel.ai); they show the new pages only after deploy with QUL_PAGE_GROUPS=home,catalog,apps, which the replies say."
+        ],
+        "concerns": [
+          "Items the private sprint notes mark for handoff could not be listed: this builder does not have those notes. A person must add them (human step 14).",
+          "Human step 1: read PR.md and the cutover PR on GitHub; mark it ready (gh pr ready <number>) and merge it into main after the steps below that must precede deploy (2, 4, 5, 6).",
+          "Human step 2: maintainers agree to the data-model decisions (PR.md 'Data-model decisions', DECISIONS.md Sprint 001), and sign off the review column format, the requires-links and the templated summaries (001-08).",
+          "Human step 3: create the GitHub label used by the app submission form: gh label create app-submission --repo TarteelAI/quranic-universal-library (not present as of this story).",
+          "Human step 4: supply the featured-apps list; edit config/apps.yml (the four featured entries are placeholders).",
+          "Human step 5: choose the production download mode: QUL_DOWNLOAD_MODE=sign_in (default) or public.",
+          "Human step 6: set production runtime settings: QUL_PAGE_GROUPS (e.g. home,catalog,apps, or a subset), QUL_DOWNLOAD_MODE, CDN_HOST=https://static-cdn.tarteel.ai; confirm the inertia-ssr runit service runs (sv status inertia-ssr, docker/README.md).",
+          "Human step 7: on production after merge: bin/rails db:migrate, then bin/rails catalog:backfill (PR.md 'Migrations and backfill order').",
+          "Human step 8: generate the review report (bin/rails catalog:review_report, writes tmp/catalog-review-report.md) and share it with the data team through a private channel; never commit it.",
+          "Human step 9: with the storage variables set locally, download one real file through each mode (QUL_DOWNLOAD_MODE=sign_in and public) from /resources/:type/:slug/download/:file_id and the old token URL, and check its size and MD5 against the files panel; the loop only asserted the redirect.",
+          "Human step 10: confirm the which-to-pick copy (001-13) and the Imlaei script preview font (001-15); verify the Glyphs view's font fetch from the production origin (001-15); look at dark mode by eye on /, /resources, a type page, a resource page and /apps (not reviewed in any story).",
+          "Human step 11: read and approve sprints/001-inertia-foundation-and-catalog/comment-replies.md, then post each reply on its comment (#11, #20-#25) in the v7 team drop, after deploy so the URLs work.",
+          "Human step 12: confirm the docs against the private sprint notes' list (001-19 could not).",
+          "Human step 13: when the qiraat stack merges, resolve the shared files as PR.md's table says and add Catalog::Taxonomy entries for riwayah-text and ayah-numbering (001-14); agree on one spec helper (qiraat's rails_helper calls maintain_test_schema!).",
+          "Human step 14: every item the private sprint notes mark for handoff (not visible to this builder).",
+          "Human step 15 (local cleanup, optional): docker image rm qul-sprint001:validation."
+        ]
+      }
     }
   ],
   "interviewSummary": {

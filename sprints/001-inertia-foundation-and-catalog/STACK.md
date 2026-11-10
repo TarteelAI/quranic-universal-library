@@ -10,6 +10,7 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 | 2 | `stack/001-02-type-pages-slice` | #1026 | layer 1 | 001-06 | 78 |
 | 3 | `stack/001-03-catalog-data-and-downloads` | #1027 | layer 2 | 001-10 | 96 |
 | 4 | `stack/001-04-catalog-pages` | #1030 | layer 3 | 001-13 | 90 |
+| 5 | `stack/001-05-detail-page-and-previews` | #1031 | layer 4 | 001-16 | 121 |
 
 ## Notes
 

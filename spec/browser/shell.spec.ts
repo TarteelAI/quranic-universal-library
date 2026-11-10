@@ -89,8 +89,8 @@ test.describe('site header and footer', () => {
     await expect(sheet).toBeVisible()
     const listed: string[] = []
     for (const menu of nav.menus) {
-      await sheet.getByRole('button', { name: menu.label }).click()
-      const section = sheet.getByRole('region', { name: menu.label })
+      await sheet.getByRole('button', { name: menu.label, exact: true }).click()
+      const section = sheet.getByRole('region', { name: menu.label, exact: true })
       await expect(section).toBeVisible()
       listed.push(
         ...(await section.getByRole('link').evaluateAll((links) => links.map((a) => a.getAttribute('href')!))),
@@ -110,8 +110,8 @@ test.describe('site header and footer', () => {
     await page.keyboard.press('Escape')
     await header(page).getByRole('button', { name: 'Menu' }).click()
 
-    await sheet.getByRole('button', { name: 'Resources' }).click()
-    await sheet.getByRole('region', { name: 'Resources' }).getByRole('link', { name: 'Tafsirs' }).click()
+    await sheet.getByRole('button', { name: 'Resources', exact: true }).click()
+    await sheet.getByRole('region', { name: 'Resources', exact: true }).getByRole('link', { name: 'Tafsirs' }).click()
     await expect(page).toHaveURL(/\/resources\/tafsir$/)
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Tafsirs')
     await expect(sheet).toBeHidden()

@@ -35,7 +35,8 @@ const DEBOUNCE_MS = 250
 // At most this many pages and this many tools are shown for a query.
 const NAV_LIMIT = 4
 
-type Answer = { q: string; results: CatalogSpotlightResult[]; total: number }
+type Found = { results: CatalogSpotlightResult[]; total: number }
+type Answer = Found & { q: string; failed: boolean }
 type Item = {
   id: string
   label: string
@@ -60,29 +61,60 @@ function useShortcutLabel() {
   )
 }
 
+// One request to /spotlight. Null when it fails for any reason (a non-OK answer, the network, an
+// abort): the spotlight then says so and keeps pages, tools and the catalog search working.
+async function fetchSpotlight(query: string, signal?: AbortSignal): Promise<Found | null> {
+  try {
+    const response = await fetch(catalogSpotlight.index(query ? { query: { q: query } } : undefined).url, {
+      headers: { Accept: 'application/json' },
+      signal,
+    })
+    return response.ok ? ((await response.json()) as Found) : null
+  } catch {
+    return null
+  }
+}
+
+// The popular resources are asked for once per page load, on the first open, and kept for every
+// later open. A failed request is not kept, so the next open asks again.
+let popularRequest: Promise<CatalogSpotlightResult[] | null> | null = null
+let popularResults: CatalogSpotlightResult[] | null = null
+
+function usePopularResources() {
+  const [results, setResults] = React.useState<CatalogSpotlightResult[]>(popularResults ?? [])
+
+  React.useEffect(() => {
+    if (popularResults) return
+    let mounted = true
+    popularRequest ??= fetchSpotlight('').then((found) => {
+      popularResults = found?.results ?? null
+      if (!found) popularRequest = null
+      return popularResults
+    })
+    void popularRequest.then((found) => {
+      if (mounted && found) setResults(found)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  return results
+}
+
 // The answer for the latest query only: each new query aborts the request before it, and an
-// answer is kept with the query it is for, so an older query's results are never shown. A null
-// query asks nothing; the empty query asks at once for the most popular resources.
-function useSpotlightSearch(query: string | null) {
+// answer is kept with the query it is for, so an older query's results are never shown.
+function useSpotlightSearch(query: string) {
   const [answer, setAnswer] = React.useState<Answer | null>(null)
 
   React.useEffect(() => {
-    if (query === null) return
+    if (!query) return
     const controller = new AbortController()
-    const timer = window.setTimeout(
-      async () => {
-        try {
-          const response = await fetch(catalogSpotlight.index(query ? { query: { q: query } } : undefined).url, {
-            headers: { Accept: 'application/json' },
-            signal: controller.signal,
-          })
-          if (response.ok) setAnswer({ q: query, ...((await response.json()) as Omit<Answer, 'q'>) })
-        } catch (error) {
-          if (!controller.signal.aborted) throw error
-        }
-      },
-      query ? DEBOUNCE_MS : 0,
-    )
+    const timer = window.setTimeout(async () => {
+      const found = await fetchSpotlight(query, controller.signal)
+      if (controller.signal.aborted) return
+      setAnswer(found ? { q: query, ...found, failed: false } : { q: query, results: [], total: 0, failed: true })
+    }, DEBOUNCE_MS)
     return () => {
       window.clearTimeout(timer)
       controller.abort()
@@ -209,15 +241,16 @@ interface SpotlightPanelProps {
 function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
   const { nav } = usePage().props
   const [input, setInput] = React.useState('')
-  const [active, setActive] = React.useState(0)
+  const [activeId, setActiveId] = React.useState<string | null>(null)
   const query = input.trim()
-  const popular = useSpotlightSearch('')
-  const answer = useSpotlightSearch(query || null)
+  const popular = usePopularResources()
+  const answer = useSpotlightSearch(query)
   const navItems = React.useMemo(() => navSearchItems(nav), [nav])
   const listId = React.useId()
   const listRef = React.useRef<HTMLUListElement>(null)
 
   const toItem = (result: CatalogSpotlightResult) => resourceItem(result, nav.search.inertia)
+  const quick = quickLinks(nav)
   const sections: Section[] = query
     ? [
         { heading: 'Resources', items: (answer?.results ?? []).map(toItem) },
@@ -225,21 +258,28 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
         { heading: 'Tools', items: matchNav(navItems, query, 'Tools') },
       ]
     : [
-        { heading: 'Popular resources', items: (popular?.results ?? []).map(toItem) },
-        { heading: 'Quick links', items: quickLinks(nav) },
+        { heading: 'Popular resources', items: popular.map(toItem) },
+        { heading: 'Quick links', items: quick },
       ]
   const visible = sections.filter((section) => section.items.length > 0)
   const all: Item | null = query
     ? {
         id: 'all',
-        label: answer ? `All ${answer.total} results for “${query}”` : `All results for “${query}”`,
+        label: answer && !answer.failed ? `All ${answer.total} results for “${query}”` : `All results for “${query}”`,
         href: catalogResources.index({ query: { q: query } }).url,
         inertia: nav.search.inertia,
         icon: <SearchIcon className="size-4 shrink-0" />,
       }
     : null
   const items = [...visible.flatMap((section) => section.items), ...(all ? [all] : [])]
-  const current = Math.min(active, items.length - 1)
+  // The highlight is kept on an item, not a position, so results that arrive later never move it
+  // and Enter opens what the user sees highlighted. It starts on the first quick link when
+  // nothing is typed (Enter on open goes to the catalog), else on the first item shown.
+  const kept = items.findIndex((item) => item.id === activeId)
+  const start = query ? 0 : Math.max(items.indexOf(quick[0]), 0)
+  const current = kept >= 0 ? kept : start
+  const currentId = items[current]?.id
+  if (currentId && currentId !== activeId) setActiveId(currentId)
   const optionId = (index: number) => `${listId}-${index}`
 
   React.useEffect(() => {
@@ -248,6 +288,7 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
 
   let status: string | null = null
   if (query && !answer) status = 'Searching…'
+  else if (answer?.failed) status = 'Resources could not be loaded. Pages, tools and the full search still work.'
   else if (query && items.length === 1) status = `No resources, pages or tools match “${query}”.`
 
   const choose = (item: Item) => {
@@ -260,7 +301,7 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
       const step = event.key === 'ArrowDown' ? 1 : -1
-      setActive((current + step + items.length) % items.length)
+      setActiveId(items[(current + step + items.length) % items.length].id)
     } else if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
       event.preventDefault()
       choose(items[current])
@@ -277,7 +318,7 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
         data-index={i}
         role="option"
         aria-selected={on}
-        onMouseMove={() => active !== i && setActive(i)}
+        onMouseMove={() => activeId !== item.id && setActiveId(item.id)}
         onClick={() => choose(item)}
         className={cn(
           'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm',
@@ -317,7 +358,7 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
           value={input}
           onChange={(event) => {
             setInput(event.target.value)
-            setActive(0)
+            setActiveId(null)
           }}
           onKeyDown={onKeyDown}
         />

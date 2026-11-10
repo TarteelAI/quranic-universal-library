@@ -207,8 +207,9 @@ test.describe('spotlight', () => {
 
     await page.keyboard.press('ControlOrMeta+k')
     await spotlightField(page).fill('ibn kathir')
-    await expect(options(page).first()).toContainText(/kathir/i)
-    await page.keyboard.press('Enter')
+    const result = spotlight(page).getByRole('group', { name: 'Resources' }).getByRole('option').first()
+    await expect(result).toContainText(/kathir/i)
+    await result.click()
 
     await expect(page).toHaveURL(/\/resources\/tafsir\/[^/?]+$/)
     expect(await sameDocument(page)).toBe(true)
@@ -239,16 +240,18 @@ test.describe('spotlight', () => {
       await spotlightField(page).fill('ibn kathir')
       await expect(options(page).last()).toHaveText(/^All \d+ results for “ibn kathir”$/)
       await expect(options(page).first()).toContainText(/kathir/i)
-      await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
+      // No page or tool matches, so the highlight sat on the last row before the results came,
+      // and the results did not move it.
+      await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
 
+      await page.keyboard.press('ArrowDown')
+      await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
       await page.keyboard.press('ArrowDown')
       await expect(options(page).nth(1)).toHaveAttribute('aria-selected', 'true')
       await expect(options(page).first()).toHaveAttribute('aria-selected', 'false')
       await page.keyboard.press('ArrowUp')
       await page.keyboard.press('ArrowUp')
       await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
-      await page.keyboard.press('ArrowDown')
-      await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
 
       await page.keyboard.press('Escape')
       await expect(spotlight(page)).toBeHidden()
@@ -257,6 +260,8 @@ test.describe('spotlight', () => {
       await trigger.click()
       await spotlightField(page).fill('ibn kathir')
       await expect(options(page).last()).toHaveText(/^All \d+ results for “ibn kathir”$/)
+      await page.keyboard.press('ArrowDown')
+      await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
       await page.keyboard.press('Enter')
       await expect(page).toHaveURL(/\/resources\/tafsir\/[^/?]+$/)
     })
@@ -270,7 +275,7 @@ test.describe('spotlight', () => {
     await page.keyboard.press('ControlOrMeta+k')
     await spotlightField(page).fill('urdu')
     await expect(options(page).last()).toHaveText(/^All \d+ results for “urdu”$/)
-    await page.keyboard.press('ArrowUp')
+    await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
     await page.keyboard.press('Enter')
 
     await expect(page).toHaveURL(/\/resources\?q=urdu$/)

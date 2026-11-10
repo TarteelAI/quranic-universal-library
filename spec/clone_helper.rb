@@ -36,4 +36,13 @@ RSpec.configure do |config|
   ensure
     ENV['QUL_PAGE_GROUPS'] = original
   end
+
+  # The download mode setting (DownloadMode) for one example group: `download_mode: 'public'`.
+  config.around(:example, :download_mode) do |example|
+    original = ENV.fetch('QUL_DOWNLOAD_MODE', nil)
+    ENV['QUL_DOWNLOAD_MODE'] = example.metadata[:download_mode]
+    example.run
+  ensure
+    ENV['QUL_DOWNLOAD_MODE'] = original
+  end
 end

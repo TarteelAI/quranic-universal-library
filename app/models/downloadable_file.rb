@@ -3,6 +3,7 @@
 # Table name: downloadable_files
 #
 #  id                       :bigint           not null, primary key
+#  anonymous_download_count :integer          default(0), not null
 #  download_count           :integer          default(0)
 #  file_type                :string
 #  info                     :text
@@ -30,17 +31,33 @@ class DownloadableFile < ApplicationRecord
 
   after_create :generate_token
 
-  def track_download(user)
-    download = user_downloads.where(user_id: user.id).first_or_initialize
-    download.downloadable_resource_id = downloadable_resource_id
-    download.increment_download!
-
-    update_columns(download_count: user_downloads.sum(:download_count))
+  # Counts one download request (Catalog::DownloadsController). A signed-in download goes to the
+  # user's row; an anonymous one adds 1 to anonymous_download_count in one UPDATE and stores
+  # nothing about the visitor. Repeated requests count every time.
+  def count_download(user)
+    if user
+      track_download(user)
+    else
+      self.class.update_counters(id, anonymous_download_count: 1)
+    end
   end
 
-  # Every counted download request of this file. Catalog sorting reads only this method.
+  # The file row's lock makes concurrent downloads of this file wait for each other, so none is
+  # lost and a user keeps one row per file.
+  def track_download(user)
+    with_lock do
+      download = user_downloads.where(user_id: user.id).first_or_initialize
+      download.downloadable_resource_id = downloadable_resource_id
+      download.increment_download!
+
+      update_columns(download_count: user_downloads.sum(:download_count))
+    end
+  end
+
+  # Every counted download request of this file, signed in or anonymous. Catalog sorting reads
+  # only this method.
   def total_download_count
-    download_count.to_i
+    download_count.to_i + anonymous_download_count
   end
 
   protected

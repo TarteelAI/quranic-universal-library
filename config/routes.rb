@@ -148,6 +148,11 @@ Rails.application.routes.draw do
   end
   # The spotlight's search results (JSON), for every new page whatever the groups.
   get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false
+  # File downloads, whatever the groups. The token path is the old download URL, declared again
+  # here so it reaches the same download rules before the old route below.
+  get '/resources/:type/:slug/download/:file_id', to: 'catalog/downloads#show', as: :catalog_download,
+                                                  constraints: { file_id: /\d+/ }, format: false
+  get '/resources/:type/:token/download', to: 'catalog/downloads#token', as: :catalog_token_download
 
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file

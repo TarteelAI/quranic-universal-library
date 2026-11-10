@@ -155,6 +155,27 @@ groups, for every new page.
 - Request specs set the groups per example group: `page_groups: %w[catalog]` or
   `page_groups: []` (`spec/clone_helper.rb`). Write a spec for both states.
 
+### Downloads
+
+Files download from `/resources/:type/:slug/download/:file_id` and from the old token URL
+`/resources/:type/:token/download`, which the routes send to the same controller
+(`Catalog::DownloadsController`) whatever the page groups. Both end in a redirect to the file's
+storage URL, so a download link is a plain `<a>`, never an Inertia visit.
+
+- `QUL_DOWNLOAD_MODE` (`DownloadMode`): `sign_in` (the default) sends an anonymous visitor to
+  sign-in, which returns to `/resources/:type/:slug?download=<file id>` (with the `catalog` group
+  off, to the download URL itself, because the old page ignores the parameter); `public` sends
+  the file without an account. An unknown value stops the boot. Request specs set it with
+  `download_mode: 'public'`.
+- In both modes an unpublished file or resource is a 404, and a restricted resource is blocked
+  for everyone but admins.
+- Counting: a signed-in download increments the user's row (`user_downloads`) and
+  `download_count`; an anonymous one adds 1 to `anonymous_download_count`. Nothing about an
+  anonymous visitor is read or stored, and its response sets no cookie, so the counts are counts
+  of requests: a repeated request or a script counts every time. HEAD requests count nothing, and
+  `robots.txt` and `X-Robots-Tag: noindex` keep well-behaved crawlers out.
+  `DownloadableFile#total_download_count` is the combined total popular sorting reads.
+
 ### Conventions for a new page (example: `/resources/:type`)
 
 - Controller: inherit `InertiaController`, in its own namespace (`Catalog::TypesController`).

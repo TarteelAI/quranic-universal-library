@@ -203,7 +203,8 @@ RSpec.describe Catalog::SearchQuery do
     let(:direct_totals) do
       published.joins('LEFT JOIN downloadable_files f ON f.downloadable_resource_id = downloadable_resources.id ' \
                       'AND f.published')
-               .group('downloadable_resources.id').sum('COALESCE(f.download_count, 0)')
+               .group('downloadable_resources.id')
+               .sum('COALESCE(f.download_count, 0) + COALESCE(f.anonymous_download_count, 0)')
     end
 
     it 'orders by the combined download totals by default (popular)' do
@@ -213,6 +214,13 @@ RSpec.describe Catalog::SearchQuery do
       totals = ids(result).map { |id| direct_totals.fetch(id) }
       expect(totals).to eq(direct_totals.values.sort.reverse)
       expect(totals.first).to be > 0
+    end
+
+    it 'counts anonymous downloads in the popular order' do
+      least = ids(search).last
+      DownloadableFile.create!(downloadable_resource_id: least, file_type: 'csv', anonymous_download_count: 10**9)
+
+      expect(ids(search).first).to eq(least)
     end
 
     it 'never counts unpublished files, and never shows unpublished resources' do

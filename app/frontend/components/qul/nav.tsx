@@ -387,7 +387,7 @@ function MegaMenu({ menus, url, className }: MegaMenuProps) {
         )}
         style={{ transform: `translateX(${offset.x}px)` }}
       >
-        <NavPrimitive.Viewport className="relative h-(--radix-navigation-menu-viewport-height) w-(--radix-navigation-menu-viewport-width) origin-top-left overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-[0_12px_40px_-12px_oklch(0.2_0.03_152/0.25)] transition-[width,height] duration-250 ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-[0.98] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.98] motion-reduce:transition-none" />
+        <NavPrimitive.Viewport className="relative box-content h-(--radix-navigation-menu-viewport-height) w-(--radix-navigation-menu-viewport-width) origin-top-left overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-[0_12px_40px_-12px_oklch(0.2_0.03_152/0.25)] transition-[width,height] duration-250 ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-[0.98] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.98] motion-reduce:transition-none" />
       </div>
     </NavPrimitive.Root>
   )

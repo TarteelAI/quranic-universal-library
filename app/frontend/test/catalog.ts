@@ -63,6 +63,7 @@ export const typePageProps: CatalogTypesShow = {
     { key: 'superseded', label: 'Superseded' },
   ],
   pick: null,
+  guidePath: '/docs/resource-translations',
   comparison: null,
 }
 

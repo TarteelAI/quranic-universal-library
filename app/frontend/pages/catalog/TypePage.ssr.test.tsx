@@ -12,6 +12,7 @@ describe('catalog/TypePage on the server', () => {
 
     expect(body).toContain('Translations')
     expect(body).toContain('Sahih International')
+    expect(body).toContain('href="/docs/resource-translations"')
   })
 
   it('renders the pick block, the comparison table and the collapsed older versions', async () => {

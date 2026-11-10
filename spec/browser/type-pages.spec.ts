@@ -70,6 +70,32 @@ test.describe('type pages', () => {
     expect(name).toBeTruthy()
   })
 
+  test('a card opens its detail page with an in-app visit, not a full page load', async ({ page }) => {
+    await page.goto('/resources/mushaf-layout')
+    // A full page load would reset this marker; an Inertia visit keeps the same document.
+    await page.evaluate(() => Object.assign(window, { sameDocument: true }))
+
+    const card = page.getByRole('list', { name: 'Mushaf layouts' }).getByRole('article').first()
+    const link = card.getByRole('heading').getByRole('link')
+    const href = await link.getAttribute('href')
+    const name = (await link.textContent())?.trim() ?? ''
+    expect(href).toMatch(/^\/resources\/mushaf-layout\/[^/]+$/)
+    await link.click()
+
+    await expect(page).toHaveURL(new RegExp(`${href}$`))
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(name)
+    expect(await page.evaluate(() => 'sameDocument' in window)).toBe(true)
+  })
+
+  test("the header links to the type's format docs", async ({ page }) => {
+    await page.goto('/resources/mushaf-layout')
+
+    const docs = page.getByRole('link', { name: 'Mushaf layout format docs' })
+    await expect(docs).toHaveAttribute('href', '/docs/resource-mushaf-layouts')
+    await docs.click()
+    await expect(page).toHaveURL(/\/docs\/resource-mushaf-layouts$/)
+  })
+
   test('a type without status data shows no "Which one should I pick?" block', async ({ page }) => {
     await page.goto('/resources/translation')
 
@@ -96,16 +122,28 @@ test.describe('type pages', () => {
       const container = element.parentElement as HTMLElement
       const before = container.scrollLeft
       container.scrollLeft = container.scrollWidth
+      const bounds = container.getBoundingClientRect()
+      const name = element.querySelector('tbody tr td') as HTMLElement
+      const last = element.querySelector('tbody tr td:last-child') as HTMLElement
       return {
         overflowX: getComputedStyle(container).overflowX,
         scrollable: container.scrollWidth > container.clientWidth,
         moved: container.scrollLeft > before,
-        width: container.getBoundingClientRect().width,
+        width: bounds.width,
+        // Scrolled to the end: the name column is still at the left edge, the last column is in view.
+        nameLeft: name.getBoundingClientRect().left - bounds.left,
+        lastRight: last.getBoundingClientRect().right - bounds.right,
       }
     })
     expect(box.overflowX).toBe('auto')
     expect(box.width).toBeLessThanOrEqual(390)
     expect(box.moved).toBe(box.scrollable)
+    expect(Math.abs(box.nameLeft)).toBeLessThanOrEqual(1)
+    expect(box.lastRight).toBeLessThanOrEqual(1)
+    // The name cell covers the cells that scroll under it.
+    const name = table.locator('tbody tr').first().locator('td').first()
+    await expect(name).toHaveCSS('position', 'sticky')
+    await name.getByRole('link').click({ trial: true })
 
     await testInfo.attach('layout-comparison-phone', {
       body: await page.getByRole('region', { name: 'Comparison' }).screenshot(),

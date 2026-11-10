@@ -233,6 +233,12 @@ module Catalog
     def self.sorts = SORTS
     def self.renderings = RENDERINGS
 
+    # The path of the type's resource guide, or nil for a type without one.
+    def self.guide_path(type_key)
+      key = GUIDES[type_key.to_s]
+      Rails.application.routes.url_helpers.docs_path(key) if key
+    end
+
     def self.pick(type)
       PICKS.fetch(type.key, PICK_DEFAULT)
     end

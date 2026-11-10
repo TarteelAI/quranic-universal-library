@@ -1,5 +1,6 @@
-import { screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { router } from '@inertiajs/react'
+import { fireEvent, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { layoutPageProps, typePageProps } from '@/test/catalog'
 import { renderPage } from '@/test/inertia'
@@ -7,6 +8,10 @@ import { renderPage } from '@/test/inertia'
 import TypePage from './TypePage'
 
 describe('catalog/TypePage', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('shows the type title, its description and the resource count', () => {
     renderPage(TypePage, { props: typePageProps })
 
@@ -14,7 +19,7 @@ describe('catalog/TypePage', () => {
     expect(screen.getByText('Translations of the Quran in many languages.')).toBeDefined()
   })
 
-  it('shows one card per resource, linking to its detail page with plain links', () => {
+  it('shows one card per resource, linking to its detail page', () => {
     renderPage(TypePage, { props: typePageProps })
 
     const cards = within(screen.getByRole('list', { name: 'Translations' })).getAllByRole('article')
@@ -25,6 +30,30 @@ describe('catalog/TypePage', () => {
     expect(screen.getByText('Translation · English · Ayah by Ayah')).toBeDefined()
     expect(screen.getByText('Translation · Word by word')).toBeDefined()
     expect(screen.getByText('1 file')).toBeDefined()
+  })
+
+  it('opens a detail page from a card with an in-app visit', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    renderPage(TypePage, { props: typePageProps })
+
+    fireEvent.click(screen.getByRole('link', { name: 'Sahih International' }))
+    expect(visit).toHaveBeenCalledWith('/resources/translation/sahih-international', expect.anything())
+  })
+
+  it("links to the type's format docs, a page outside the new pages, with a plain link", () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    renderPage(TypePage, { props: typePageProps })
+
+    const docs = screen.getByRole('link', { name: 'Translation format docs' })
+    expect(docs.getAttribute('href')).toBe('/docs/resource-translations')
+    fireEvent.click(docs)
+    expect(visit).not.toHaveBeenCalled()
+  })
+
+  it('shows no format docs link for a type without a guide', () => {
+    renderPage(TypePage, { props: { ...typePageProps, guidePath: null } })
+
+    expect(screen.queryByRole('link', { name: /format docs/ })).toBeNull()
   })
 
   it('links to every type page and marks the current one', () => {
@@ -113,6 +142,11 @@ describe('catalog/TypePage', () => {
     expect(within(first).getByRole('link', { name: 'QPC V2 Font' }).getAttribute('href')).toBe(
       '/resources/font/qpc-v2-font',
     )
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    fireEvent.click(within(first).getByRole('link', { name: 'KFGQPC V2 layout' }))
+    expect(visit).toHaveBeenCalledWith('/resources/mushaf-layout/kfgqpc-v2-layout', expect.anything())
+    fireEvent.click(within(first).getByRole('link', { name: 'QPC V2 Font' }))
+    expect(visit).toHaveBeenLastCalledWith('/resources/font/qpc-v2-font', expect.anything())
     expect(
       within(second)
         .getAllByRole('cell')

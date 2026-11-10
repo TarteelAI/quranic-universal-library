@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatBytes } from './format'
+import { formatBytes, plainText } from './format'
 
 describe('formatBytes', () => {
   it.each([
@@ -15,5 +15,22 @@ describe('formatBytes', () => {
     [3_221_225_472, '3 GB'],
   ])('%i bytes reads as %s', (bytes, label) => {
     expect(formatBytes(bytes)).toBe(label)
+  })
+})
+
+describe('plainText', () => {
+  it('keeps the text of tajweed markup and drops its tags', () => {
+    expect(plainText('<rule class="ham_wasl">ٱ</rule>للَّهِ <rule class="madda_normal">مَا</rule>')).toBe('ٱللَّهِ مَا')
+  })
+
+  it('leaves text without markup as it is', () => {
+    expect(plainText('بِسْمِ ٱللَّهِ')).toBe('بِسْمِ ٱللَّهِ')
+  })
+
+  it('never leaves an angle bracket behind, from nested, broken or unclosed tags', () => {
+    expect(plainText('a<<b>>c')).toBe('ac')
+    expect(plainText('a<scr<b>ipt>c')).toBe('aiptc')
+    expect(plainText('a<b')).toBe('a')
+    expect(plainText('a>b')).toBe('ab')
   })
 })

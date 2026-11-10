@@ -1,0 +1,5 @@
+docs_root: app/views/docs/markdown              # public product docs served at /docs
+rule_docs:
+  - .github/copilot-instructions.md             # AGENTS.md joins this list in story 001-01
+checkpoint_cmd: "ruby -Itest -e 'Dir[\"test/**/*_test.rb\"].sort.each { |f| require File.expand_path(f) }'"
+package_test_cmd: "ruby -Itest {files}"         # standalone tests; 001-01 replaces with the full gate

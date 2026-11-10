@@ -7,24 +7,29 @@
 
 Paths that start with `../` are sibling folders on the team's machines. They are local to the team and are never committed. Facts below were checked on 2026-11-09 against main `30bec50e` and a local snapshot dated 2026-11-02.
 
-**Main moved after these facts were checked.** `qul-next` is cut from main `3d805f64`, which is 24 commits past `30bec50e`. Those commits rewrote `config/database.yml` (and added `config/database.yml.example`), changed `config/routes.rb`, `db/schema.rb`, `bin/setup` and the Docker dev database script, added contributor tools with new draft tables and migrations, replaced the GitHub issue templates with issue forms, and changed how SQLite exports replace rows. Treat any fact below about those files as unverified until 001-01 has re-checked it (`git diff 30bec50e 3d805f64 -- <path>`), and correct this file in the Gotchas section when one is wrong.
+**Main moved after these facts were checked.** `qul-next` is cut from main `3d805f64`, which is 24 commits past `30bec50e`. Those commits rewrote `config/database.yml` (and added `config/database.yml.example`), changed `config/routes.rb`, `db/schema.rb`, `bin/setup` and the Docker dev database script, added contributor tools with new draft tables and migrations, replaced the GitHub issue templates with issue forms, and changed how SQLite exports replace rows. The facts below about `config/database.yml`, the content-record class, the issue forms and the workflows were re-checked at `3d805f64` and corrected in place. Treat any fact about `config/routes.rb`, `db/schema.rb`, `bin/setup` and the SQLite exports as unverified until 001-01 has re-checked it (`git diff 30bec50e 3d805f64 -- <path>`), and correct this file in the Gotchas section when one is wrong.
+
+**Local `main` can be behind `origin/main`.** Compare against `origin/main` or `git merge-base origin/main HEAD`, never the local `main` branch.
 
 ### Working rules
 
 - **This repo is public.** Everything committed here is public: code, `spec.json` handoffs, entries in this file, `VALIDATION.md`. Do not write down anything from user, download, draft or admin tables, any credential or connection string, or any description of a weakness in the running site. Describe the behaviour the new code has. Sensitive context is in the private sprint notes (team drop); refer to them, do not quote them.
 - **Branches.** Sprint work is on `sprint/001-inertia-foundation-and-catalog`, cut from `qul-next`, which is cut from `main`. Never commit on `main`. Never push, open a PR or run `gh` write commands until a human says go. `git fetch` is fine.
 - **Commits.** One commit per story, with the story id in the subject (`[001-08] …`), holding the code, `spec.json` and any regenerated types together.
+- **Issue forms and workflows.** `.github/ISSUE_TEMPLATE` holds YAML issue forms: one `content_issue.yml` for every resource type (it has a `resource_type` dropdown) and a `resource_request.yml`; there is no app-submission form yet. `.github/workflows` has four files (`tests.yml`, `deploy.yml`, `codeql.yml`, `issue-triage.yml`); `tests.yml` runs on every pull request.
 - **Gate.** One command, defined by 001-01 and extended by 001-02 and 001-05, recorded in `AGENTS.md` and `.agents/config.yaml`. It runs: the generated-types drift check, `tsc`, ESLint and Prettier on `app/frontend`, RSpec, Vitest. Playwright is a separate command that stories with browser criteria run. 001-06 adds a CI workflow for the checks that need no database; RSpec and Playwright run only locally. The existing `tests.yml` loads every `test/**/*_test.rb` without bundler or a database, so nothing that boots Rails may go under `test/`.
 - **Small diffs in shared files.** The unmerged `origin/qiraat/*` stack edits `app/models/downloadable_resource.rb` (adds two resource types and scopes), `config/routes.rb` (a new `internal` namespace near the top and the proofreading routes), `Gemfile` (the rspec test group), `config/database.yml` (the development database name and a test entry), `app/views/resources/previews/_font.html.erb` and `_quran_script.html.erb`, `app/views/shared/_mushaf_page` and `_page_font`, and `db/schema.rb` (version line). In those files: one `include` line, one routes block, the exact same Gemfile lines. Do not edit the preview partials at all.
-- **Old code stays.** Do not edit or delete the old views, `ResourcesController`, `ResourcePresenter`, `application.html.erb`, `app/javascript`, `esbuild.config.js` or `config/tailwind.config.js`. New pages are new files behind the page group setting.
+- **Old code stays.** Do not edit or delete the old views, `ResourcesController`, `ResourcePresenter`, `application.html.erb`, `app/javascript`, `esbuild.config.js` or `config/tailwind.config.js`. New pages are new files behind the page group setting. The one exception is the old download URL: 001-10 sends it to the new download controller from the sprint's routes block, without editing `ResourcesController`.
 - **No constitution yet.** Until `ralph-init` runs, treat these as protected surfaces (never `low`, always reviewed): migrations and backfills, the download route, auth and session handling, the Dockerfile and `docker/` service files.
 
 ### Running Rails locally
 
 - The connection details for the snapshot, the restore steps and the data-safety background are in the private sprint notes.
-- Ruby must be inside the Gemfile range (3.3.3 to 3.3.10); Docker uses 3.3.10. `.node-version` is 24.19.0. The package manager is yarn classic (`yarn.lock`); a stray `bun.lock` exists, leave it alone. `pg`, `sassc`, `cld3` and `ffi-hunspell` compile native code on `bundle install`.
-- The CMS database and the Quran content database are two separate Postgres databases, not two schemas. SQL cannot join across them. Preload in two steps. `ApplicationRecord` is the CMS side; `QuranApiRecord` is the content side and picks its connection by environment (`quran_api_db_dev` in development, `quran_api_db` otherwise, including test).
-- `config/database.yml` hard-codes both development database names. 001-01 changes them to `ENV.fetch` with the current names as defaults.
+- Ruby must be inside the Gemfile range (3.3.3 to 3.3.10); Docker uses 3.3.10 and `.ruby-version` is 3.3.5. `.node-version` is 24.19.0. The package manager is yarn classic (`yarn.lock`); a stray `bun.lock` exists, leave it alone. `pg`, `sassc`, `cld3` and `ffi-hunspell` compile native code on `bundle install`.
+- The CMS database and the Quran content database are two separate Postgres databases, not two schemas. SQL cannot join across them. Preload in two steps. `ApplicationRecord` is the CMS side; `QulQuranRecord` is the content side and picks its connection by environment (`qul_quran_content_db_dev` in development, `qul_quran_content_db_test` in test, `qul_quran_content_db` otherwise).
+- `config/database.yml` reads every database name, host and credential from `QUL_QURAN_CONTENT_*` and `QUL_CMS_CONTENT_*` variables, with local defaults in development and test (`qul_quran_content_dev`, `qul_cms_content_dev`, `qul_quran_content_test`, `qul_cms_content_test`). The sprint does not need to edit it.
+- The CMS schema enables no Postgres extension beyond `plpgsql`: no `unaccent`, no `pg_trgm`.
+- A public mini dump of the content database exists (see `app/views/docs/markdown/project-setup.md`). It is smaller than the snapshot.
 - Set `CDN_HOST=https://static-cdn.tarteel.ai` or font URLs come out relative. It is not in `.env.sample`.
 - Use `localhost`, never `127.0.0.1` (`config/initializers/hosts.rb`).
 - `dotenv` loads `.env` in development only, not in test.
@@ -119,3 +124,7 @@ Read `../qul-data/audit-2026-11-02.md` before writing a backfill. The points bel
 ## Gotchas & Patterns
 
 _Append new entries at the END. Heading: `### <short topic> — <STORY_ID>`. Never edit or reorder existing entries._
+
+### Pushing and PRs are allowed — ralph-init
+
+The repo's Ralph constitution (`.agents/ralph/constitution.md`) now exists and replaces the interim protected-surface list above. Builders may push `qul-next` and sprint branches and open draft PRs. Never push or commit to `main`. Merging to `main`, the production database, and production config and credentials stay human-only. The "Never push, open a PR or run `gh` write commands" line in the planning notes above no longer applies.

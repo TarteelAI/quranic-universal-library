@@ -15,7 +15,7 @@ Paths that start with `../` are sibling folders on the team's machines. They are
 - `../qul-redesign/research/api-spec.html`: next sprint's API proposal. Read it only to keep this sprint's query objects and serializers reusable. It sends interactive widgets to an API; this sprint uses Inertia props for them (see Ralph Notes).
 - `../qul-data/audit-2026-11-02.md`: aggregate facts about the catalog data. Required reading before any backfill.
 - The design review comments #11, #20, #21, #22, #23, #24 and #25 on prototype v7 (team drop). All seven are owned here; each is restated in the story that owns it.
-- This repo: no Vite, React, Inertia, Alba or `spec/` exists. Planning facts were checked at main `30bec50e`; `qul-next` is cut from main `3d805f64`, 24 commits later (see `lessons.md`).
+- This repo: no Vite, React, Inertia, Alba or `spec/` exists. Planning facts were checked at main `30bec50e`; `qul-next` is cut from main `3d805f64`, 24 commits later, and the facts those commits changed were partly re-checked (see `lessons.md`).
 - `lessons.md` in this folder: local setup rules, build traps and catalog data facts.
 - The private sprint notes (team drop): facts that do not belong in a public repo. Stories that need them say so.
 
@@ -43,16 +43,16 @@ Foundation
 - New pages keep what the old pages provide: title, description, Open Graph and Twitter tags, canonical URL, JSON-LD, GA4 page views on every visit, browser and server error reporting, correct 404 status, and the return to the same page after sign-in.
 
 Catalog data (CMS database only)
-- Each resource has a lifecycle status with a superseded-by pointer, a unique slug and a display name. Script, font and layout resources have a script family and a rendering method. Related-resource links have a relation type.
+- Each resource has a lifecycle status (stable, beta, legacy, superseded) with a superseded-by pointer, a separate recommended flag, a unique slug and a display name. Script, font and layout resources have a script family and a rendering method. Related-resource links have a relation type.
 - The duplicate link, the orphaned link and the orphaned taggings are removed.
-- Backfills infer status, script family, rendering, requires-links and one-line summaries as drafted values, recorded in the review column. A task marks drafted values as reviewed; CMS form changes are deferred.
+- Backfills infer status, the recommended flag, script family, rendering, requires-links and one-line summaries as drafted values, recorded in the review column. A task marks drafted values as reviewed; CMS form changes are deferred.
 - Every data change is a migration plus an idempotent backfill that replays on a newer copy of the data.
 - The review report is generated on demand.
 
 Downloads
 - One download route with these rules: 404 for an unpublished file or resource; a restricted resource is blocked for everyone except admins. The existing download URL follows the same rules.
 - Both download modes work. The default in this sprint is `sign_in`.
-- Every download is counted. An anonymous download counts once per visitor per file per day, where the visitor is a random first-party cookie and the request's address is not used. A signed-in download still writes the per-user row. Existing totals are kept. Popular sorting reads the combined total.
+- Every download is counted. An anonymous download adds 1 to a counter on the file each time; no cookie is set and nothing about the visitor is read or stored. Download paths are closed to crawlers. A signed-in download still writes the per-user row. Existing totals are kept. Popular sorting reads the combined total.
 
 Pages (all server-rendered, on real data)
 - Site shell: v7 header and footer with comments #21, #22, #24 and #25 applied, signed-in state, flash messages, and plain links to the pages not rebuilt yet.
@@ -73,7 +73,7 @@ Pages (all server-rendered, on real data)
 - Any change to the Quran content database.
 - Changes to file storage, CMS permissions or old pages beyond the download route.
 - Edge caching of anonymous HTML.
-- Pushing a branch, opening a PR, deploying, or choosing the production download mode. These are human steps.
+- Merging to `main`, deploying, changing the production database or production config, or choosing the production download mode. These are human steps.
 - Removing old views, Tailwind 3, Sprockets or esbuild.
 
 ## Dependencies on Earlier Sprints
@@ -112,13 +112,13 @@ Pages (all server-rendered, on real data)
 - The download rules hold in both modes on both routes. Evidence: named request specs for unpublished, restricted, anonymous, signed-in and admin cases.
 - The generated-types check, request specs, component tests and browser tests pass from one gate command. Evidence: gate output in the final handoff.
 - The review report is generated and lists every drafted value. Evidence: its row counts against a direct query, recorded in `VALIDATION.md` as counts only.
-- The sprint branch is merged into `qul-next` locally, nothing is pushed, and the handoff lists the human steps. Evidence: `git log` and the handoff note.
+- The sprint branch is merged into `qul-next`, `qul-next` is pushed with a draft PR open against `main`, and the handoff lists the human steps. Evidence: `git log`, the PR link and the handoff note.
 - `main` is unchanged, and no production data, generated report or private note is committed. Evidence: a check in the validation story.
 
 ## Risks / Assumptions To Validate
 
 - **Long-lived branch.** The work lands on `qul-next`, which will drift from main. The qiraat stack will probably merge to main during or soon after the sprint and touches `downloadable_resource.rb`, `routes.rb`, `Gemfile`, `database.yml` and preview partials.
-- **Data model change.** New columns on `downloadable_resources` and `downloadable_related_resources`, a new counter table, and a vocabulary (`script_family`) that sits near qiraat's `scripts` table. This needs the maintainers' agreement before cutover and is recorded in the decision log.
+- **Data model change.** New columns on `downloadable_resources`, `downloadable_related_resources` and `downloadable_files` (the anonymous download counter), and a vocabulary (`script_family`) that sits near qiraat's `scripts` table. This needs the maintainers' agreement before cutover and is recorded in the decision log.
 - **Drafted values can be wrong**, most of all "recommended" and which layout or font is the default per script family. They are drafted conservatively and shown as "not yet reviewed".
 - **Licences: no rows exist.** Every Licence tab says "Licence not yet confirmed".
 - **Download mode is a product decision.** Both modes are built; the production default is chosen at cutover.
@@ -126,19 +126,19 @@ Pages (all server-rendered, on real data)
 - **Pre-1.0 dependency** (Typelizer) and a fast-moving one (Inertia v3). Versions are pinned.
 - **Snapshot drift.** Editors change production while development runs on a snapshot from 2026-11-02.
 - **The production runtime configuration is not in this repo.** Cutover needs it; this sprint lists what the new pages need.
-- **No Ralph constitution yet.** The skill defaults for proof, testFirst and review cadence are used.
+- **Ralph constitution.** Added after planning (`.agents/ralph/constitution.md`). Its proof, testFirst and review defaults apply where this PRD is silent.
 - More risks are in the private sprint notes.
 
 ## Ralph Notes
 
-- Work on `sprint/001-inertia-foundation-and-catalog`, cut from `qul-next`. Never commit on or push to `main`. Never push or open a PR until a human says go.
+- Work on `sprint/001-inertia-foundation-and-catalog`, cut from `qul-next`. Never commit on or push to `main`. Builders may push `qul-next` and sprint branches and open draft PRs; merging to `main` is a human step.
 - This repo is public. Never commit production data, generated reports, credentials or the private sprint notes. Handoffs, `lessons.md` entries and `VALIDATION.md` are public too: write them accordingly.
 - Never run `db:test:prepare`, `db:schema:load`, `db:reset`, `db:drop` or `maintain_test_schema!` against the snapshot. Never start Sidekiq. Never set SMTP variables. The production image starts Sidekiq as a service by default: disable that service before the container starts.
 - Fixtures come from public catalog and content rows only. Test accounts are fake and are made by a guarded development script.
-- Do not reuse `Resources::SearchQuery` (in-memory, strips non-Latin characters) or either existing font URL builder.
+- Do not reuse `Resources::SearchQuery` (it strips non-Latin characters and is tied to the old views) or either existing font URL builder. The new catalog query filters and counts facets in Ruby over the loaded catalog; no Postgres extension is enabled.
 - Do not touch `application.html.erb`, `app/javascript`, the esbuild config or the Tailwind 3 config. The Inertia installer and `vite install` both try to; revert what they inject.
 - Use Inertia for page data: shared props, deferred and optional props, partial reloads and query-string visits. Do not build an API-and-client layer inside the app. The one exception is the spotlight, which needs its own JSON request because it runs on any page without changing that page's URL.
 - Query objects and serializers must not depend on controllers, Inertia or the session, so the public API can reuse them next sprint.
 - Links between new and old pages are plain full-page links in both directions.
-- Human-only steps are planned on the last story: pushing `qul-next`, opening the PR, approving replies to the seven design comments, choosing the production download mode, and the items in the private sprint notes.
+- Human-only steps are planned on the last story: marking the PR ready and merging it, approving replies to the seven design comments, choosing the production download mode, and the items in the private sprint notes.
 - Copy on every page: plain, short sentences (ASD-STE100 style), plain-label headings, then a `humanizer` pass. No slogans.

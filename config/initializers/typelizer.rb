@@ -5,6 +5,7 @@
 # when they are stale.
 Typelizer.configure do |config|
   config.output_dir = Rails.root.join('app/frontend/types/serializers')
+  config.types_import_path = '@/types/serializers'
 
   config.routes.enabled = true
   config.routes.output_dir = Rails.root.join('app/frontend/routes')

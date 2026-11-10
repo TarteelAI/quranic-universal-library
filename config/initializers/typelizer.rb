@@ -12,6 +12,8 @@ Typelizer.configure do |config|
   config.routes.include = [
     %r{\A/__dev/},
     %r{\A/users/sign_(in|out)\z},
-    %r{\A/\z}
+    %r{\A/\z},
+    # The catalog, its type pages and the resource detail pages.
+    ->(route) { route[:verb] == 'get' && route[:path].match?(%r{\A/resources(/:type(/:id)?)?\z}) }
   ]
 end

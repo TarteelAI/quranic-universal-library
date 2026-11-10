@@ -9,6 +9,7 @@ Dotenv.load(File.expand_path('../.env.test.local', __dir__))
 require_relative '../config/environment'
 require 'rspec/rails'
 require 'inertia_rails/rspec'
+require_relative 'support/ssr_server'
 
 RSpec.configure do |config|
   config.before(:suite) do
@@ -25,4 +26,14 @@ RSpec.configure do |config|
 
   # config/initializers/hosts.rb limits the allowed hosts in every environment.
   config.before(type: :request) { host! 'localhost' }
+
+  # The page group setting (PageGroups) for one example group: `page_groups: %w[catalog]` serves
+  # the catalog with the new pages, `page_groups: []` serves every group with the old views.
+  config.around(:example, :page_groups) do |example|
+    original = ENV.fetch('QUL_PAGE_GROUPS', nil)
+    ENV['QUL_PAGE_GROUPS'] = Array(example.metadata[:page_groups]).join(',')
+    example.run
+  ensure
+    ENV['QUL_PAGE_GROUPS'] = original
+  end
 end

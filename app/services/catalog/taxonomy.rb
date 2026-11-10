@@ -1,0 +1,118 @@
+# frozen_string_literal: true
+
+module Catalog
+  # The catalog vocabulary: the 14 resource types, their labels and descriptions, and the
+  # category each belongs to. This file is the one source for that copy. Pages receive it as
+  # props; the React side holds no copy of it.
+  module Taxonomy
+    Category = Data.define(:key, :label)
+    Type = Data.define(:key, :label, :title, :summary, :description, :category)
+
+    CATEGORIES = [
+      Category.new(key: 'audio', label: 'Audio'),
+      Category.new(key: 'layout', label: 'Mushaf layouts'),
+      Category.new(key: 'script', label: 'Script and fonts'),
+      Category.new(key: 'translation', label: 'Translation'),
+      Category.new(key: 'tafsir', label: 'Tafsir and commentary'),
+      Category.new(key: 'linguistics', label: 'Linguistics'),
+      Category.new(key: 'topics', label: 'Topics and themes'),
+      Category.new(key: 'metadata', label: 'Metadata')
+    ].index_by(&:key).freeze
+
+    TYPES = [
+      Type.new(
+        key: 'recitation', label: 'Recitation', title: 'Recitations', category: CATEGORIES.fetch('audio'),
+        summary: 'Surah and ayah audio, with timestamps for each ayah and word.',
+        description: 'Audio files of full Quran recitations, surah by surah or ayah by ayah. Many recitations ' \
+                     'have segment data: the start and end time of each ayah and each word. Use the segments ' \
+                     'to highlight the text while the audio plays.'
+      ),
+      Type.new(
+        key: 'mushaf-layout', label: 'Mushaf layout', title: 'Mushaf layouts', category: CATEGORIES.fetch('layout'),
+        summary: 'Page, line and word positions of printed mushaf editions.',
+        description: 'Page, line and word positions of printed mushaf editions. Use a layout to show Quran ' \
+                     'pages as they look in print. Use it with the matching font and script.'
+      ),
+      Type.new(
+        key: 'quran-script', label: 'Quran script', title: 'Quran scripts', category: CATEGORIES.fetch('script'),
+        summary: 'The Quran text in Unicode, ayah by ayah and word by word.',
+        description: 'The Quran text in Unicode, ayah by ayah and word by word. Scripts include Madani ' \
+                     '(Uthmani), IndoPak and simple text. Some scripts have tajweed marks.'
+      ),
+      Type.new(
+        key: 'font', label: 'Font', title: 'Fonts', category: CATEGORIES.fetch('script'),
+        summary: 'Quran fonts, glyph fonts for each mushaf page, and surah name fonts.',
+        description: 'Fonts for Quran text. There are Unicode fonts, glyph fonts with one file for each ' \
+                     'mushaf page, and fonts for surah names and surah headers.'
+      ),
+      Type.new(
+        key: 'translation', label: 'Translation', title: 'Translations', category: CATEGORIES.fetch('translation'),
+        summary: 'Ayah by ayah and word by word translations in many languages.',
+        description: 'Translations of the Quran in many languages. Each translation is ayah by ayah or ' \
+                     'word by word.'
+      ),
+      Type.new(
+        key: 'transliteration', label: 'Transliteration', title: 'Transliterations',
+        category: CATEGORIES.fetch('translation'),
+        summary: 'The Arabic text in Latin letters, to help people read it aloud.',
+        description: 'The Arabic text written in Latin letters, to help people read it aloud. ' \
+                     'Transliterations are ayah by ayah or word by word.'
+      ),
+      Type.new(
+        key: 'tafsir', label: 'Tafsir', title: 'Tafsirs', category: CATEGORIES.fetch('tafsir'),
+        summary: 'Short and detailed commentaries, for one ayah or a group of ayahs.',
+        description: 'Commentaries on the Quran in many languages. Some are short and some are detailed. ' \
+                     'Each tafsir entry is for one ayah or for a group of ayahs.'
+      ),
+      Type.new(
+        key: 'surah-info', label: 'Surah info', title: 'Surah info', category: CATEGORIES.fetch('tafsir'),
+        summary: 'An introduction to each surah.',
+        description: 'An introduction to each surah: when it was revealed, its main themes and its context.'
+      ),
+      Type.new(
+        key: 'morphology', label: 'Morphology', title: 'Morphology and grammar',
+        category: CATEGORIES.fetch('linguistics'),
+        summary: 'Roots, lemmas, stems, grammar and dependency graphs.',
+        description: 'Language data for each word of the Quran: roots, lemmas, stems, grammar terms and ' \
+                     'dependency graphs.'
+      ),
+      Type.new(
+        key: 'mutashabihat', label: 'Mutashabihat', title: 'Mutashabihat', category: CATEGORIES.fetch('topics'),
+        summary: 'Similar phrases that are easy to confuse when you memorise.',
+        description: 'Phrases that occur in more than one place in the Quran and are easy to confuse. ' \
+                     'Use this data to help people memorise.'
+      ),
+      Type.new(
+        key: 'similar-ayah', label: 'Similar ayah', title: 'Similar ayahs', category: CATEGORIES.fetch('topics'),
+        summary: 'Ayahs with similar wording, with a match score.',
+        description: 'Pairs of ayahs with similar wording. Each pair has a score that shows how closely ' \
+                     'the ayahs match.'
+      ),
+      Type.new(
+        key: 'ayah-topics', label: 'Ayah topics', title: 'Ayah topics', category: CATEGORIES.fetch('topics'),
+        summary: 'Topics and concepts, with the ayahs that mention them.',
+        description: 'Topics and concepts, with the ayahs that mention each one.'
+      ),
+      Type.new(
+        key: 'ayah-theme', label: 'Ayah theme', title: 'Ayah themes', category: CATEGORIES.fetch('topics'),
+        summary: 'Themes for groups of consecutive ayahs.',
+        description: 'Themes for groups of consecutive ayahs. Each theme covers a range of ayahs.'
+      ),
+      Type.new(
+        key: 'quran-metadata', label: 'Quran metadata', title: 'Quran metadata',
+        category: CATEGORIES.fetch('metadata'),
+        summary: 'Surah, ayah and word data, and juz, hizb, rub, manzil, ruku and sajda boundaries.',
+        description: 'The structure of the Quran: surahs, ayahs and words, and where each juz, hizb, rub, ' \
+                     'manzil, ruku and sajda starts and ends.'
+      )
+    ].index_by(&:key).freeze
+
+    def self.types
+      TYPES.values
+    end
+
+    def self.type(key)
+      TYPES[key.to_s]
+    end
+  end
+end

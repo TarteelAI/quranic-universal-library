@@ -139,6 +139,13 @@ Rails.application.routes.draw do
   resources :user_projects, except: [:index, :destroy]
   resources :change_logs, only: [:index, :show]
 
+  # New pages (app/frontend) for the page groups listed in QUL_PAGE_GROUPS (PageGroups). These
+  # routes must stay above the old ones for the same paths: when a group is off, its constraint
+  # fails and the old route below answers.
+  constraints(PageGroups.constraint(:catalog)) do
+    get '/resources/:type', to: 'catalog/types#show', as: :catalog_type, format: false
+  end
+
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
 

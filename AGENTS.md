@@ -20,6 +20,8 @@ bin/rails typelizer:check                    # generated TypeScript is current (
 yarn typecheck                               # tsc on app/frontend
 yarn lint:frontend && yarn format:frontend   # ESLint and Prettier on app/frontend
 yarn test:frontend                           # Vitest (component and SSR render tests)
+bin/vite build --ssr                         # SSR bundle that request specs using SsrServer need
+yarn test:browser                            # Playwright against real Rails (see Browser tests)
 ```
 
 - `test/` is loaded without bundler or a database by CI (`.github/workflows/tests.yml`).
@@ -124,7 +126,53 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
   `renderPageOnServer` in `app/frontend/test/inertia.tsx`): it fails when the page reads
   `window`, `document` or other browser globals during render.
 
-Integration answers (sprint 001, story 001-02):
+### Page groups
+
+New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
+comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
+below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means every URL is
+served by the old ERB views. A group takes over only the URLs that have a new page so far (for
+`catalog`: `/resources/:type`); the rest of the group stays on the old views.
+
+- New routes go in the one block in `config/routes.rb` that wraps them in
+  `constraints(PageGroups.constraint(:catalog))`. The block sits above the old routes for the same
+  paths: when the group is off the constraint fails and the old route answers, so turning a group
+  off restores the old page with no code change. The setting is read per request.
+- Request specs set the groups per example group: `page_groups: %w[catalog]` or
+  `page_groups: []` (`spec/clone_helper.rb`). Write a spec for both states.
+
+### Conventions for a new page (example: `/resources/:type`)
+
+- Controller: inherit `InertiaController`, in its own namespace (`Catalog::TypesController`).
+  Old controllers, presenters and views stay untouched.
+- Page props: an Alba serializer named after the action (`Catalog::TypesShowResource` for
+  `Catalog::TypesController#show`), built by `render_inertia` from the action's instance
+  variables. Data comes from query objects and serializers that do not know about controllers,
+  Inertia or the session (`Catalog::ResourcesQuery`, `Catalog::ResourceCardResource`), so the
+  public API can reuse them. CMS and content rows are preloaded in separate queries (`preload`),
+  never joined.
+- Copy that is shared by several pages lives in one server-side file and goes to the page as
+  props: the catalog taxonomy (type labels, descriptions, categories) is `Catalog::Taxonomy`.
+- Head: `render_inertia '<page>', meta: page_meta(title:, description:, json_ld:)`. `PageMeta`
+  writes the title, description, robots, Open Graph, Twitter, the canonical link on the
+  production host (`SeoHelper::HOST`) and the JSON-LD script.
+- Errors: `ActiveRecord::RecordNotFound` in an Inertia controller renders `errors/ErrorPage` with
+  status 404 in the new layout (in development too).
+- Layout (`inertia.html.erb`): the Sentry loader (not in development) and GA4 with
+  `send_page_view: false`. `app/frontend/lib/analytics.ts` sends one page view on the first load
+  and one after every Inertia visit. The GA4 tag also forwards each event to a second
+  measurement id, so each page view leaves the browser twice.
+- Links to old pages (detail pages, `/resources`, `/`) are plain `<a>` with the typed route
+  helpers; links between new pages are Inertia `<Link>`.
+- Components from the v7 design are ported into `app/frontend/components` only when a page needs
+  them. Tokens are in `app/frontend/styles/inertia.css`.
+- Tests per page: a request spec (props, both page group states, head), a Vitest component test
+  and an SSR render test, and a Playwright spec for behaviour across pages. A request spec that
+  must see server-rendered HTML wraps the request in `SsrServer.with_ssr { … }`
+  (`spec/support/ssr_server.rb`), which starts `public/vite-ssr/ssr.mjs` with Node and fails when
+  the bundle is missing or older than `app/frontend`.
+
+### Integration answers (sprint 001, story 001-02)
 
 - Links between old and new pages are plain `<a>` links. The Inertia layout sets
   `turbo-visit-control: reload`, so a Turbo Drive visit from an old page loads the new page in
@@ -160,6 +208,32 @@ docker exec -e VITE_RUBY_AUTO_BUILD=false qul-dev bundle exec rspec
 
 Install `socat` in the container (`apt-get install -y socat`). The forward lets Rails reach the
 dev server as `localhost:3036`, which Vite's host check accepts.
+
+## Browser tests
+
+Playwright (`playwright.config.ts`, specs in `spec/browser`) runs against real Rails in
+development on the development clones, with Vite and SSR, at desktop (1280 px) and phone
+(Pixel 7) width:
+
+```bash
+yarn playwright install chromium            # once
+yarn test:browser                           # every spec, both widths
+yarn test:browser catalog.spec.ts           # one file
+LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one path, both widths
+```
+
+- The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
+  `QUL_PAGE_GROUPS=home,catalog,apps`, or reuses servers already on those ports. When Rails runs
+  in Docker, start it there first with the page groups set, plus the `socat` forward (below):
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  The global setup stops the run when the reused server does not serve the catalog group.
+- Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
+  (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).
+  Every test answers GA4's collect requests itself, so no browser test sends page views to Google;
+  the `analytics` fixture lists the page views a test sent. The real gtag.js still loads, so the
+  GA4 spec needs network access.
+- Output (traces, screenshots, the HTML report) goes to `tmp/playwright/`.
+- `QUL_BROWSER_BASE_URL` points the run at another server.
 
 ## Production image
 

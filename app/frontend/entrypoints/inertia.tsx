@@ -1,11 +1,15 @@
 import { createInertiaApp } from '@inertiajs/react'
 import type { ComponentType } from 'react'
 
+import { trackPageViews } from '../lib/analytics'
 import '../styles/inertia.css'
 
 // Page components without the tests next to them. The production image installs no
 // devDependencies, so the build cannot resolve what a test file imports (Vitest, Testing Library).
 const pages = import.meta.glob<{ default: ComponentType }>(['../pages/**/*.tsx', '!../pages/**/*.test.tsx'])
+
+// The SSR bundle runs this file too; analytics belong to the browser only.
+if (typeof window !== 'undefined') trackPageViews()
 
 void createInertiaApp({
   resolve: async (name) => {

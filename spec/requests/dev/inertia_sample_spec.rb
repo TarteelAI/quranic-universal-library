@@ -44,7 +44,8 @@ RSpec.describe 'Inertia sample page (development only)', type: :request do
 
       expect(html.at('meta[name="turbo-visit-control"]')['content']).to eq('reload')
       expect(html.at('script[data-page="app"][type="application/json"]')).to be_present
-      expect(html.css('script[src]').map { |s| s['src'] }).to all(include('/vite-test/'))
+      own_scripts = html.css('script[src]').map { |s| s['src'] }.reject { |src| src.start_with?('https://') }
+      expect(own_scripts).to be_present.and all(include('/vite-test/'))
     end
   end
 

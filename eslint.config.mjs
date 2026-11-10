@@ -12,4 +12,9 @@ export default tseslint.config(
     extends: [js.configs.recommended, ...tseslint.configs.recommended, reactHooks.configs.flat.recommended],
     languageOptions: { globals: globals.browser },
   },
+  {
+    files: ['spec/browser/**/*.ts', 'playwright.config.ts'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    languageOptions: { globals: globals.node },
+  },
 )

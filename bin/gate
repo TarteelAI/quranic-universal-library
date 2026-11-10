@@ -17,8 +17,13 @@ echo "== ESLint and Prettier (app/frontend)"
 yarn -s lint:frontend
 yarn -s format:frontend
 
+echo "== SSR bundle (public/vite-ssr) for the request specs that read server-rendered HTML"
+bin/vite build --ssr
+
 echo "== RSpec (spec/, on the test clones)"
 bundle exec rspec
 
 echo "== Vitest (app/frontend)"
 yarn -s test:frontend
+
+# Browser tests (Playwright) are a separate command: yarn test:browser (AGENTS.md).

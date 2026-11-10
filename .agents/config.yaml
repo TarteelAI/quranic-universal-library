@@ -5,3 +5,8 @@ rule_docs:
 checkpoint_cmd: "bin/gate"                      # standalone tests, drift check, tsc, lint, RSpec, Vitest
 package_test_cmd: "bundle exec rspec {files}"   # spec/ files; test/: ruby -Itest {files}; app/frontend: yarn vitest run {files}
 package_typecheck_cmd: "yarn -s typecheck"      # tsc on app/frontend
+browser_verify:                                 # Playwright against real Rails on the development clones
+  doc: AGENTS.md                                # section "Browser tests"
+  affected_cmd: "yarn -s playwright test --list"
+  spec_cmd: "yarn test:browser {files}"
+  look_cmd: "LOOK_PATH={path} yarn test:browser look.spec.ts"

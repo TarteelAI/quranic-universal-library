@@ -8,6 +8,27 @@
     <%= csrf_meta_tags %>
     <%= inertia_meta_tags default_title: 'Quranic Universal Library' %>
     <%= inertia_ssr_head %>
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <% unless Rails.env.development? %>
+      <%# Browser error reporting, as on the old pages (shared/_meta_tags.html.erb). %>
+      <script src="https://js.sentry-cdn.com/9c9baca096bbb40bba9c1e944694d76c.min.js" crossorigin="anonymous"></script>
+      <script>
+        Sentry.onLoad(function () {
+          Sentry.init({ sampleRate: 0.5, tracesSampleRate: 0.01, replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0, environment: "<%= Rails.env %>" });
+        });
+      </script>
+    <% end %>
+    <%# GA4. Page views are sent by the app (app/frontend/lib/analytics.ts) on the first load and on every Inertia visit. %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57749XV2P9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-57749XV2P9', { send_page_view: false });
+    </script>
     <%= vite_react_refresh_tag %>
     <%= vite_client_tag %>
     <%= vite_typescript_tag 'inertia.tsx' %>

@@ -16,6 +16,7 @@
     "chart.js": "^4.4.9",
     "chartkick": "^5.0.1",
     "chokidar": "^3.6.0",
+    "clsx": "2.1.1",
     "copy-to-clipboard": "^3.3.3",
     "dom-to-image-more": "^3.7.2",
     "esbuild": "^0.25.12",
@@ -38,6 +39,7 @@
     "snapsvg": "^0.5.1",
     "sortablejs": "^1.15.2",
     "svg-points": "^6.0.1",
+    "tailwind-merge": "3.7.0",
     "tailwindcss": "4.3.3",
     "toastr": "^2.1.4",
     "trix": "^2.1.19",
@@ -50,6 +52,7 @@
   "devDependencies": {
     "@eslint/js": "9.39.5",
     "@linthtml/linthtml": "^0.9.5",
+    "@playwright/test": "1.64.1",
     "@rushstack/eslint-patch": "^1.10.3",
     "@size-limit/esbuild": "^11.0.0",
     "@size-limit/esbuild-why": "^11.0.0",
@@ -111,10 +114,11 @@
     "build:css:tinymce_custom": "sass ./app/assets/stylesheets/tinymce_custom.scss ./app/assets/builds/tinymce_custom.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:landing": "sass ./app/assets/stylesheets/landing.scss ./app/assets/builds/landing.css --no-source-map --load-path=node_modules --style=compressed",
     "build:css:export": "sass ./app/assets/stylesheets/export.scss ./app/assets/builds/export.css --no-source-map --load-path=node_modules --style=compressed",
-    "typecheck": "tsc -p app/frontend/tsconfig.json",
-    "lint:frontend": "eslint app/frontend vite.config.mts vitest.config.mts",
-    "format:frontend": "prettier --check app/frontend vite.config.mts vitest.config.mts eslint.config.mjs",
-    "test:frontend": "vitest run"
+    "typecheck": "tsc -p app/frontend/tsconfig.json && tsc -p spec/browser/tsconfig.json",
+    "lint:frontend": "eslint app/frontend spec/browser vite.config.mts vitest.config.mts playwright.config.ts",
+    "format:frontend": "prettier --check app/frontend spec/browser vite.config.mts vitest.config.mts playwright.config.ts eslint.config.mjs",
+    "test:frontend": "vitest run",
+    "test:browser": "playwright test"
   },
   "lint-staged": {
     "app/**/*.{js,jsx,json}": [

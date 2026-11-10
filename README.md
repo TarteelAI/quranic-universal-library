@@ -61,6 +61,22 @@ QUL connects to two Postgres databases (see `config/database.yml`):
 
 See [Project Setup](app/views/docs/markdown/project-setup.md) for loading the Quran content data dump.
 
+## Development
+Setup, the snapshot clones and the quality gate are in [`AGENTS.md`](AGENTS.md). The new pages
+(`app/frontend`, Inertia + React) are built by Vite, which runs beside Rails and the old asset
+watchers:
+
+```bash
+bundle install && yarn install
+yarn build && yarn build:css   # assets for the old pages
+cp .env.sample .env            # then fill in the database variables
+bin/dev                        # Rails on :3000, esbuild, Tailwind and the Vite dev server on :3036
+```
+
+Open `http://localhost:3000` (not `127.0.0.1`). `QUL_PAGE_GROUPS=home,catalog,apps` in `.env`
+serves the new pages; unset, every URL uses the old views. Without the Vite dev server the new
+pages render in the browser only.
+
 ## Contributing
 For the complete contribution flow and PR checklist, use:
 

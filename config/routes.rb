@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
+  # The new home page while the `home` page group is on (PageGroups); the old landing page otherwise.
+  constraints(PageGroups.constraint(:home)) do
+    root to: 'site/home#show', as: :home_page
+  end
   root to: 'landing#home'
 
   get '/search', to: 'search#index', as: :search
@@ -138,6 +142,29 @@ Rails.application.routes.draw do
 
   resources :user_projects, except: [:index, :destroy]
   resources :change_logs, only: [:index, :show]
+
+  # New pages (app/frontend) for the page groups listed in QUL_PAGE_GROUPS (PageGroups). These
+  # routes must stay above the old ones for the same paths: when a group is off, its constraint
+  # fails and the old route below answers.
+  constraints(PageGroups.constraint(:catalog)) do
+    get '/resources', to: 'catalog/resources#index', as: :catalog_resources, format: false
+    get '/resources/:type', to: 'catalog/types#show', as: :catalog_type, format: false
+    # The old copyright and tab URLs answer with the resource page.
+    get '/resources/:slug/copyright', to: 'catalog/resources#copyright', format: false
+    get '/resources/:type/:slug', to: 'catalog/resources#show', as: :catalog_resource, format: false
+    get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
+                                       constraints: { tab: /docs|licence|ligatures|glyphs/ }
+  end
+  constraints(PageGroups.constraint(:apps)) do
+    get '/apps', to: 'site/apps#index', as: :apps_directory, format: false
+  end
+  # The spotlight's search results (JSON), for every new page whatever the groups.
+  get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false
+  # File downloads, whatever the groups. The token path is the old download URL, declared again
+  # here so it reaches the same download rules before the old route below.
+  get '/resources/:type/:slug/download/:file_id', to: 'catalog/downloads#show', as: :catalog_download,
+                                                  constraints: { file_id: /\d+/ }, format: false
+  get '/resources/:type/:token/download', to: 'catalog/downloads#token', as: :catalog_token_download
 
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file
@@ -351,6 +378,16 @@ Rails.application.routes.draw do
   put 'mistake-heatmap', to: 'word_mistakes#update'
   get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
   get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
+
+  # QUL_INERTIA_SAMPLE_PAGE=true also adds the development-only Inertia sample page to a locally
+  # run production image.
+  if Rails.env.local? || ENV['QUL_INERTIA_SAMPLE_PAGE'] == 'true'
+    namespace :dev, path: '__dev' do
+      resource :inertia_sample, only: [:show, :create] do
+        get :ping
+      end
+    end
+  end
 
   match '/404', to: 'application#not_found', via: :all
 end

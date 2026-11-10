@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# The local quality gate. Needs fresh test clones (bin/snapshot-clones) and the development
+# database (the drift check boots Rails in development).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+echo "== Standalone tests (test/, no bundler, no database)"
+ruby -Itest -e 'Dir["test/**/*_test.rb"].sort.each { |f| require File.expand_path(f) }'
+
+echo "== Generated TypeScript (app/frontend/types/serializers, app/frontend/routes) is current"
+bin/rails typelizer:check
+
+echo "== TypeScript"
+yarn -s typecheck
+
+echo "== ESLint and Prettier (app/frontend)"
+yarn -s lint:frontend
+yarn -s format:frontend
+
+echo "== SSR bundle (public/vite-ssr) for the request specs that read server-rendered HTML"
+bin/vite build --ssr
+
+echo "== RSpec (spec/, on the test clones)"
+bundle exec rspec
+
+echo "== Vitest (app/frontend)"
+yarn -s test:frontend
+
+# Browser tests (Playwright) are a separate command: yarn test:browser (AGENTS.md).

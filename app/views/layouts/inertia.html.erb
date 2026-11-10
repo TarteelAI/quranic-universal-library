@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%# Turbo Drive from an old page must not swap this page in: it loads with a full page visit. %>
+    <meta name="turbo-visit-control" content="reload">
+    <%= csrf_meta_tags %>
+    <%# The theme before the first paint: a stored choice, else the system setting. lib/theme.ts in app/frontend uses the same key. %>
+    <script>
+      (function () {
+        var stored = null;
+        try { stored = localStorage.getItem('qul-theme'); } catch (e) {}
+        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.classList.add('dark');
+      })();
+    </script>
+    <%= inertia_meta_tags default_title: 'Quranic Universal Library' %>
+    <%= inertia_ssr_head %>
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <% unless Rails.env.development? %>
+      <%# Browser error reporting, as on the old pages (shared/_meta_tags.html.erb). %>
+      <script src="https://js.sentry-cdn.com/9c9baca096bbb40bba9c1e944694d76c.min.js" crossorigin="anonymous"></script>
+      <script>
+        Sentry.onLoad(function () {
+          Sentry.init({ sampleRate: 0.5, tracesSampleRate: 0.01, replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0, environment: "<%= Rails.env %>" });
+        });
+      </script>
+    <% end %>
+    <%# GA4. Page views are sent by the app (app/frontend/lib/analytics.ts) on the first load and on every Inertia visit. %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57749XV2P9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-57749XV2P9', { send_page_view: false });
+    </script>
+    <%= vite_react_refresh_tag %>
+    <%= vite_client_tag %>
+    <%= vite_typescript_tag 'inertia.tsx' %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

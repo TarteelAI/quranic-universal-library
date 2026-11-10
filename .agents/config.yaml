@@ -1,5 +1,15 @@
+sprint_root: sprints                             # one folder per sprint (PRD.md, spec.json, lessons.md)
+decision_log: DECISIONS.md                      # hard-to-reverse decisions: Decision, Why, Cost
+glossary: GLOSSARY.md                           # terms used by the specs and AGENTS.md
 docs_root: app/views/docs/markdown              # public product docs served at /docs
 rule_docs:
-  - .github/copilot-instructions.md             # AGENTS.md joins this list in story 001-01
-checkpoint_cmd: "ruby -Itest -e 'Dir[\"test/**/*_test.rb\"].sort.each { |f| require File.expand_path(f) }'"
-package_test_cmd: "ruby -Itest {files}"         # standalone tests; 001-01 replaces with the full gate
+  - AGENTS.md                                   # local run on the snapshot, test harness, gate
+  - .github/copilot-instructions.md
+checkpoint_cmd: "bin/gate"                      # standalone tests, drift check, tsc, lint, RSpec, Vitest
+package_test_cmd: "bundle exec rspec {files}"   # spec/ files; test/: ruby -Itest {files}; app/frontend: yarn vitest run {files}
+package_typecheck_cmd: "yarn -s typecheck"      # tsc on app/frontend
+browser_verify:                                 # Playwright against real Rails on the development clones
+  doc: AGENTS.md                                # section "Browser tests"
+  affected_cmd: "yarn -s playwright test --list"
+  spec_cmd: "yarn test:browser {files}"
+  look_cmd: "LOOK_PATH={path} yarn test:browser look.spec.ts"

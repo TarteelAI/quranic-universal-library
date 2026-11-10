@@ -1,0 +1,21 @@
+{
+  "all": {
+    "sourceCodeDir": "app/frontend",
+    "packageManager": "yarn",
+    "ssrEntrypoint": "~/entrypoints/inertia.tsx",
+    "watchAdditionalPaths": []
+  },
+  "development": {
+    "autoBuild": true,
+    "publicOutputDir": "vite-dev",
+    "port": 3036
+  },
+  "test": {
+    "autoBuild": true,
+    "publicOutputDir": "vite-test",
+    "port": 3037
+  },
+  "production": {
+    "ssrBuildEnabled": true
+  }
+}

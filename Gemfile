@@ -138,6 +138,13 @@ gem "cssbundling-rails", ">= 0.2.7"
 # Bundle and transpile JavaScript [https://github.com/rails/jsbundling-rails]
 gem "jsbundling-rails", ">= 0.2.2"
 
+# New pages: Inertia + React through Vite (app/frontend), props from Alba serializers
+gem 'vite_rails', '~> 3.11.1'
+gem 'inertia_rails', '~> 3.23.0'
+gem 'alba', '~> 4.0'
+gem 'alba-inertia', '~> 0.1.4'
+gem 'typelizer', '~> 0.14.0'
+
 gem 'sassc-rails', '2.1.2'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
@@ -159,3 +166,7 @@ gem "escompress", "~> 1.0"
 
 gem "inline_svg", "~> 1.10"
 gem "view_component", "~> 4.9"
+
+group :test do
+  gem 'rspec-rails', '~> 7.1'
+end

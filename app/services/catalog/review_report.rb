@@ -192,7 +192,7 @@ module Catalog
 
     def table(columns, rows)
       lines = [columns, columns.map { '---' }, *rows].map do |cells|
-        "| #{cells.map { |cell| cell.to_s.gsub('|', '\|').squish }.join(' | ')} |"
+        "| #{cells.map { |cell| cell.to_s.gsub(/[\\|]/) { "\\#{_1}" }.squish }.join(' | ')} |"
       end
       "#{lines.join("\n")}\n"
     end

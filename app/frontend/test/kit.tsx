@@ -217,8 +217,18 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   MobileNav: { element: <MobileNav menus={navProps.menus} url="/resources" />, text: 'Contribute' },
   NavAnchor: { element: <NavAnchor link={navProps.search}>Search</NavAnchor>, text: 'href="/resources"' },
   PageHeader: {
-    element: <PageHeader breadcrumb={[{ label: 'Resources', href: '/resources' }, { label: 'Fonts' }]} title="Fonts" />,
-    text: 'Fonts',
+    element: (
+      <PageHeader
+        breadcrumb={[{ label: 'Resources', href: '/resources' }, { label: 'Fonts' }]}
+        title="Fonts"
+        actions={
+          <Button variant="outline" asChild>
+            <a href="/docs/resource-fonts">Font format docs</a>
+          </Button>
+        }
+      />
+    ),
+    text: 'Font format docs',
   },
   ResourceCard: {
     element: <ResourceCard title="Sahih International" href="/resources/translation/1" facts={['Translation']} />,

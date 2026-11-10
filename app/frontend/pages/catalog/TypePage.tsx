@@ -5,6 +5,7 @@ import { Container, SiteShell } from '@/components/layout'
 import { PageHeader } from '@/components/qul/page-header'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { RecommendedBadge, StatusBadge } from '@/components/qul/status-badge'
+import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
 import { catalogType, detailResources, resources as catalog } from '@/routes'
@@ -110,9 +111,9 @@ function ComparisonCell({
       return (
         <TableCell>
           {row.font ? (
-            <a href={detailHref(row.font)} className="hover:underline">
+            <Link href={detailHref(row.font)} className="hover:underline">
               {row.font.name}
-            </a>
+            </Link>
           ) : (
             '–'
           )}
@@ -126,6 +127,10 @@ function ComparisonCell({
       )
   }
 }
+
+// The name column stays in view while the rest of the table scrolls under it; the inset shadow
+// is its edge (a border on a sticky cell scrolls away with border-collapse).
+const FIRST_COLUMN = 'sticky left-0 z-10 bg-card shadow-[inset_-1px_0_0_var(--color-border)]'
 
 function ComparisonTable({
   type,
@@ -141,11 +146,12 @@ function ComparisonTable({
       <h2 id="comparison" className="text-lg font-medium tracking-tight">
         Comparison
       </h2>
-      <div className="rounded-xl bg-card shadow-xs">
+      {/* On a phone the table scrolls sideways inside its container, with the names kept in view. */}
+      <div className="overflow-hidden rounded-xl bg-card shadow-xs">
         <Table aria-labelledby="comparison">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="px-5">{type.label}</TableHead>
+              <TableHead className={cn(FIRST_COLUMN, 'px-5')}>{type.label}</TableHead>
               {comparison.columns.map((column) => (
                 <TableHead
                   key={column.key}
@@ -159,10 +165,15 @@ function ComparisonTable({
           <TableBody>
             {comparison.rows.map((row) => (
               <TableRow key={row.id}>
-                <TableCell className="min-w-40 px-5 font-medium whitespace-normal">
-                  <a href={detailHref(row)} className="hover:underline">
+                <TableCell
+                  className={cn(
+                    FIRST_COLUMN,
+                    'min-w-36 px-5 font-medium [tr:hover>&]:bg-accent whitespace-normal sm:min-w-40',
+                  )}
+                >
+                  <Link href={detailHref(row)} className="hover:underline">
                     {row.name}
-                  </a>
+                  </Link>
                 </TableCell>
                 {comparison.columns.map((column) => (
                   <ComparisonCell key={column.key} column={column} row={row} statuses={statuses} />
@@ -176,10 +187,10 @@ function ComparisonTable({
   )
 }
 
-// /resources/:type: the type's description; where the type has status data, which one to pick,
-// with recommended resources first and older versions collapsed; the comparison table for
-// layouts, scripts and fonts; and a card for each published resource of the type.
-export default function TypePage({ type, types, resources, statuses, pick, comparison }: CatalogTypesShow) {
+// /resources/:type: the type's description and a link to its format docs; where the type has
+// status data, which one to pick, with recommended resources first and older versions collapsed;
+// the comparison table for layouts, scripts and fonts; and a card for each published resource.
+export default function TypePage({ type, types, resources, statuses, pick, guidePath, comparison }: CatalogTypesShow) {
   const recommended = pick ? resources.filter((resource) => resource.recommendation) : []
   const older = pick ? resources.filter((resource) => !resource.recommendation && isOlder(resource)) : []
   const current = resources.filter((resource) => !recommended.includes(resource) && !older.includes(resource))
@@ -193,6 +204,14 @@ export default function TypePage({ type, types, resources, statuses, pick, compa
           title={type.title}
           count={resources.length}
           description={type.description}
+          actions={
+            guidePath && (
+              // The guide is an old docs page, so a plain link.
+              <Button variant="outline" asChild>
+                <a href={guidePath}>{type.label} format docs</a>
+              </Button>
+            )
+          }
         />
       </Container>
 

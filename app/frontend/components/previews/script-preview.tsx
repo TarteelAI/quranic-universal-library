@@ -1,3 +1,4 @@
+import { plainText } from '@/lib/format'
 import type { PreviewsScript, PreviewsScriptAyah, PreviewsScriptToken } from '@/types/serializers'
 
 import { FontFaces, FontFailed, useFontStatus, V4_PALETTE } from './fonts'
@@ -58,7 +59,7 @@ export function ScriptPreview({ preview, navigation }: { preview: PreviewsScript
   const { surah, from, to, fonts, ayahs } = preview
   const { loading } = navigation
   const firstText = ayahs[0]?.text ?? ayahs[0]?.words[0]?.text ?? ''
-  const status = useFontStatus(fonts[0]?.family ?? null, firstText.replace(/<[^>]*>/g, ''))
+  const status = useFontStatus(fonts[0]?.family ?? null, plainText(firstText))
   const v4 = preview.fontCode === 'v4-tajweed'
 
   return (
